@@ -111,7 +111,7 @@ nav {
 }
 
 .logo-img {
-    height: 42px;
+    height: 35px;
     width: auto;
     display: block;
     object-fit: contain;
@@ -2053,9 +2053,17 @@ footer {
 
 .footer-logo {
     background-color: var(--white);
-    padding: 10px 20px;
-    border-radius: 10px;
+    padding: 6px 14px;
+    border-radius: 8px;
     display: inline-block;
+}
+
+.footer-logo-img {
+    height: 35px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+    transition: transform 0.3s ease;
 }
 
 .footer-logo h2 {
@@ -2091,56 +2099,53 @@ footer {
 }
 
 .social-icons a {
-    width: 42px;
-    height: 42px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: 700;
-    font-size: 13px;
-    color: var(--white);
+    color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     backdrop-filter: blur(4px);
 }
 
+.social-icons a svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 .social-icons a:hover {
-    background: var(--primary-pink);
-    border-color: var(--primary-pink);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(241,0,117,0.4);
+    color: var(--white);
+    transform: translateY(-4px) scale(1.08);
+}
+
+.social-icons a:hover svg {
+    transform: scale(1.15) rotate(8deg);
 }
 
 .social-icons a.fb:hover {
     background: #1877f2;
     border-color: #1877f2;
-    box-shadow: 0 6px 20px rgba(24,119,242,0.4);
+    box-shadow: 0 8px 24px rgba(24, 119, 242, 0.45);
 }
 
 .social-icons a.ig:hover {
-    background: #E1306C;
-    border-color: #E1306C;
-    box-shadow: 0 6px 20px rgba(225,48,108,0.4);
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    border-color: transparent;
+    box-shadow: 0 8px 24px rgba(225, 48, 108, 0.45);
 }
 
 .social-icons a.tt:hover {
     background: #000000;
-    border-color: #000000;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-}
-
-.social-icons a svg {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
-    transition: transform 0.3s;
-}
-
-.social-icons a:hover svg {
-    transform: scale(1.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    filter: drop-shadow(1px 1px 0px #25F4EE) drop-shadow(-1px -1px 0px #FE0979);
 }
 
 .footer-bottom {
@@ -2558,53 +2563,61 @@ footer {
 }
 
 .libro-reclamaciones-link {
-    background-color: transparent;
-    color: rgba(255, 255, 255, 0.75);
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.8);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 6px;
+    gap: 12px;
     text-decoration: none;
-    text-align: center;
-    transition: all 0.3s ease;
-    padding: 0;
+    padding: 10px 16px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     box-shadow: none;
-}
-
-.libro-reclamaciones-link .libro-text-top {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    opacity: 0.85;
-}
-
-.libro-reclamaciones-link .libro-text-bottom {
-    font-size: 15px;
-    font-weight: 900;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.libro-reclamaciones-link svg {
-    width: 44px;
-    height: 44px;
-    margin-top: 4px;
-    stroke: currentColor;
-    fill: none;
-    transition: transform 0.3s ease;
 }
 
 .libro-reclamaciones-link:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
     color: #ffffff;
-    transform: translateY(-3px);
-    background-color: transparent;
-    box-shadow: none;
-    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.libro-reclamaciones-link svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    fill: none;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
 }
 
 .libro-reclamaciones-link:hover svg {
     transform: scale(1.1);
+}
+
+.libro-text-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.libro-reclamaciones-link .libro-text-top {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    line-height: 1.2;
+}
+
+.libro-reclamaciones-link .libro-text-bottom {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.2;
 }
 
 @media (max-width: 768px) {
@@ -2613,14 +2626,7 @@ footer {
         width: 100%;
         margin-top: 10px;
     }
-    .libro-reclamaciones-link .libro-text-top {
-        font-size: 9px;
-    }
-    .libro-reclamaciones-link .libro-text-bottom {
-        font-size: 13px;
-    }
-    .libro-reclamaciones-link svg {
-        width: 38px;
-        height: 38px;
+    .libro-reclamaciones-link {
+        padding: 8px 14px;
     }
 }

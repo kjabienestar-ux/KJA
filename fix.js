@@ -15,7 +15,7 @@ const html = `<!DOCTYPE html>
         <nav>
             <div class="logo-container">
                 <a href="index.html">
-                    <img src="kja.webp" alt="KJA Logo" class="logo-img">
+                    <img src="kja.png" alt="KJA Logo" class="logo-img">
                 </a>
             </div>
             <ul class="nav-links" id="nav-menu">
