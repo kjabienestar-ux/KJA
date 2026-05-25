@@ -99,9 +99,8 @@ nav {
 }
 
 .logo-container {
-    background-color: var(--white);
-    padding: 5px 15px;
-    border-radius: 8px;
+    background-color: transparent;
+    padding: 0;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1920,3 +1919,58 @@ footer {
     .ubicanos-map-modern { height: 280px; }
     .ubicanos-info-card h2 { font-size: 28px; }
 }
+
+/* ===== LIBRO DE RECLAMACIONES FLOAT ===== */
+.libro-reclamaciones-float {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background-color: var(--white);
+    color: var(--primary-blue);
+    padding: 12px 20px;
+    border-radius: 30px;
+    box-shadow: 0 8px 30px rgba(0, 79, 176, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    z-index: 999;
+    border: 1px solid rgba(0, 79, 176, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.libro-reclamaciones-float:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(241, 0, 115, 0.25);
+    background-color: var(--primary-pink);
+    color: var(--white);
+    border-color: var(--primary-pink);
+}
+
+.libro-reclamaciones-float svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.libro-reclamaciones-float:hover svg {
+    transform: rotate(-10deg);
+}
+
+@media (max-width: 768px) {
+    .libro-reclamaciones-float {
+        bottom: 20px;
+        left: 20px;
+        padding: 10px 14px;
+        font-size: 11px;
+    }
+    .libro-reclamaciones-float svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
