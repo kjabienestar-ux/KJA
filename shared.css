@@ -1677,16 +1677,32 @@ footer {
     transform: scale(1.15);
 }
 
-.copyright {
-    text-align: center;
-    padding-top: 30px;
-    margin-top: 30px;
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-top: 1px solid rgba(255,255,255,0.08);
-    font-size: 13px;
-    opacity: 0.5;
+    padding-top: 20px;
+    margin-top: 30px;
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.copyright {
+    font-size: 13px;
+    opacity: 0.7;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .footer-bottom {
+        flex-direction: column-reverse;
+        text-align: center;
+        gap: 15px;
+    }
 }
 
 /* ===== WHATSAPP FLOAT ===== */
@@ -1920,57 +1936,77 @@ footer {
     .ubicanos-info-card h2 { font-size: 28px; }
 }
 
-/* ===== LIBRO DE RECLAMACIONES FLOAT ===== */
-.libro-reclamaciones-float {
-    position: fixed;
-    bottom: 30px;
-    left: 30px;
-    background-color: var(--white);
-    color: var(--primary-blue);
-    padding: 12px 20px;
-    border-radius: 30px;
-    box-shadow: 0 8px 30px rgba(0, 79, 176, 0.15);
+/* ===== LIBRO DE RECLAMACIONES (dentro del footer) ===== */
+.footer-libro-reclamaciones {
     display: flex;
     align-items: center;
-    gap: 10px;
+}
+
+.libro-reclamaciones-link {
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.75);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
     text-decoration: none;
-    font-weight: 700;
-    font-size: 13px;
-    z-index: 999;
-    border: 1px solid rgba(0, 79, 176, 0.1);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    text-align: center;
+    transition: all 0.3s ease;
+    padding: 0;
+    box-shadow: none;
+}
+
+.libro-reclamaciones-link .libro-text-top {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    opacity: 0.85;
 }
 
-.libro-reclamaciones-float:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 35px rgba(241, 0, 115, 0.25);
-    background-color: var(--primary-pink);
-    color: var(--white);
-    border-color: var(--primary-pink);
+.libro-reclamaciones-link .libro-text-bottom {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-.libro-reclamaciones-float svg {
-    width: 20px;
-    height: 20px;
+.libro-reclamaciones-link svg {
+    width: 44px;
+    height: 44px;
+    margin-top: 4px;
+    stroke: currentColor;
+    fill: none;
     transition: transform 0.3s ease;
 }
 
-.libro-reclamaciones-float:hover svg {
-    transform: rotate(-10deg);
+.libro-reclamaciones-link:hover {
+    color: #ffffff;
+    transform: translateY(-3px);
+    background-color: transparent;
+    box-shadow: none;
+    text-decoration: none;
+}
+
+.libro-reclamaciones-link:hover svg {
+    transform: scale(1.1);
 }
 
 @media (max-width: 768px) {
-    .libro-reclamaciones-float {
-        bottom: 20px;
-        left: 20px;
-        padding: 10px 14px;
-        font-size: 11px;
+    .footer-libro-reclamaciones {
+        justify-content: center;
+        width: 100%;
+        margin-top: 10px;
     }
-    .libro-reclamaciones-float svg {
-        width: 16px;
-        height: 16px;
+    .libro-reclamaciones-link .libro-text-top {
+        font-size: 9px;
+    }
+    .libro-reclamaciones-link .libro-text-bottom {
+        font-size: 13px;
+    }
+    .libro-reclamaciones-link svg {
+        width: 38px;
+        height: 38px;
     }
 }
 
