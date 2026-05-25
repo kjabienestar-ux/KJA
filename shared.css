@@ -99,11 +99,27 @@ nav {
 }
 
 .logo-container {
-    background-color: var(--white);
-    padding: 6px 16px;
-    border-radius: 8px;
+    background-color: transparent;
+    padding: 0;
     display: flex;
     align-items: center;
+}
+
+.logo-container a {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 42px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+    transform: scale(1.05);
 }
 
 .logo-container h1 {
@@ -2127,16 +2143,32 @@ footer {
     transform: scale(1.15);
 }
 
-.copyright {
-    text-align: center;
-    padding-top: 30px;
-    margin-top: 30px;
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-top: 1px solid rgba(255,255,255,0.08);
-    font-size: 13px;
-    opacity: 0.5;
+    padding-top: 20px;
+    margin-top: 30px;
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.copyright {
+    font-size: 13px;
+    opacity: 0.7;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .footer-bottom {
+        flex-direction: column-reverse;
+        text-align: center;
+        gap: 15px;
+    }
 }
 
 /* ===== WHATSAPP FLOAT ===== */
@@ -2516,5 +2548,79 @@ footer {
         padding: 8px 20px;
         font-size: 13px;
         bottom: 16px;
+    }
+}
+
+/* ===== LIBRO DE RECLAMACIONES (dentro del footer) ===== */
+.footer-libro-reclamaciones {
+    display: flex;
+    align-items: center;
+}
+
+.libro-reclamaciones-link {
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.75);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    padding: 0;
+    box-shadow: none;
+}
+
+.libro-reclamaciones-link .libro-text-top {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.libro-reclamaciones-link .libro-text-bottom {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.libro-reclamaciones-link svg {
+    width: 44px;
+    height: 44px;
+    margin-top: 4px;
+    stroke: currentColor;
+    fill: none;
+    transition: transform 0.3s ease;
+}
+
+.libro-reclamaciones-link:hover {
+    color: #ffffff;
+    transform: translateY(-3px);
+    background-color: transparent;
+    box-shadow: none;
+    text-decoration: none;
+}
+
+.libro-reclamaciones-link:hover svg {
+    transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .footer-libro-reclamaciones {
+        justify-content: center;
+        width: 100%;
+        margin-top: 10px;
+    }
+    .libro-reclamaciones-link .libro-text-top {
+        font-size: 9px;
+    }
+    .libro-reclamaciones-link .libro-text-bottom {
+        font-size: 13px;
+    }
+    .libro-reclamaciones-link svg {
+        width: 38px;
+        height: 38px;
     }
 }
