@@ -6,14 +6,26 @@
     <title>KJA - Centro de Atención Psicológica Integral</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared.css">
+    <!-- Tailwind CSS v4 Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <style>
+        /* Desactivar transiciones CSS para que GSAP las controle de forma limpia */
+        .carousel-eyebrow, .carousel-title, .carousel-desc, .carousel-actions {
+            transition: none !important;
+            transform: none !important;
+            opacity: 1 !important;
+        }
+    </style>
 </head>
-<body>
+<body> 
 
     <header>
         <nav>
             <div class="logo-container">
                 <h1>KJA</h1>
-                <span>CENTRO DE<br>ATENCIÓN<br>PSICOLÓGICA<br>INTEGRAL</span>
             </div>
             <ul class="nav-links" id="nav-menu">
                 <li><a href="index.html" class="active">Inicio</a></li>
@@ -36,7 +48,7 @@
             <div class="carousel-bg active" style="background-image: url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1400&q=80')"></div>
             <div class="carousel-bg" style="background-image: url('https://images.unsplash.com/photo-1609220136736-443140cffec6?w=1400&q=80')"></div>
             <div class="carousel-bg" style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1400&q=80')"></div>
-            <div class="carousel-bg" style="background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1400&q=80')"></div>
+            <div class="carousel-bg" style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1400&q=80')"></div>
         </div>
 
         <!-- OVERLAY CINEMATOGRÁFICO -->
@@ -47,10 +59,10 @@
 
             <div class="carousel-slide active" data-index="0">
                 <div class="carousel-content">
-                    <span class="carousel-eyebrow">Centro Psicológico KJA</span>
-                    <h2 class="carousel-title">Descúbrete<br><em>y crece sin</em><br>límites.</h2>
-                    <p class="carousel-desc">Tu bienestar emocional es nuestra prioridad. Terapias personalizadas para toda la familia.</p>
-                    <div class="carousel-actions">
+                    <span class="carousel-eyebrow animate-hero opacity-0">Centro Psicológico KJA</span>
+                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Descúbrete<br><span class="text-[#f10075] italic font-light">y crece sin</span><br>límites.</h2>
+                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Tu bienestar emocional es nuestra prioridad. Terapias personalizadas para toda la familia.</p>
+                    <div class="carousel-actions animate-hero opacity-0">
                         <a href="terapia.html" class="hero-cta">Agenda tu cita</a>
                         <a href="#terapia" class="carousel-link">Nuestros servicios →</a>
                     </div>
@@ -59,10 +71,10 @@
 
             <div class="carousel-slide" data-index="1">
                 <div class="carousel-content">
-                    <span class="carousel-eyebrow">Terapia Familiar</span>
-                    <h2 class="carousel-title">Juntos somos<br><em>más</em><br>fuertes.</h2>
-                    <p class="carousel-desc">Fortalecemos los vínculos familiares y abrimos canales de comunicación saludables para todos.</p>
-                    <div class="carousel-actions">
+                    <span class="carousel-eyebrow animate-hero opacity-0">Terapia Familiar</span>
+                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Juntos somos<br><span class="text-[#f10075] italic font-light">más</span><br>fuertes.</h2>
+                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Fortalecemos los vínculos familiares y abrimos canales de comunicación saludables para todos.</p>
+                    <div class="carousel-actions animate-hero opacity-0">
                         <a href="terapia.html" class="hero-cta">Ver terapias</a>
                         <a href="nosotros.html" class="carousel-link">Sobre KJA →</a>
                     </div>
@@ -71,10 +83,10 @@
 
             <div class="carousel-slide" data-index="2">
                 <div class="carousel-content">
-                    <span class="carousel-eyebrow">Jóvenes y Adolescentes</span>
-                    <h2 class="carousel-title">Cada etapa<br><em>merece</em><br>apoyo.</h2>
-                    <p class="carousel-desc">Acompañamos a los adolescentes en su búsqueda de identidad y bienestar emocional.</p>
-                    <div class="carousel-actions">
+                    <span class="carousel-eyebrow animate-hero opacity-0">Jóvenes y Adolescentes</span>
+                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Cada etapa<br><span class="text-[#f10075] italic font-light">merece</span><br>apoyo.</h2>
+                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Acompañamos a los adolescentes en su búsqueda de identidad y bienestar emocional.</p>
+                    <div class="carousel-actions animate-hero opacity-0">
                         <a href="terapia.html" class="hero-cta">Conoce más</a>
                         <a href="terapia.html" class="carousel-link">Ver todas las terapias →</a>
                     </div>
@@ -83,10 +95,10 @@
 
             <div class="carousel-slide" data-index="3">
                 <div class="carousel-content">
-                    <span class="carousel-eyebrow">Capacitación y Talleres</span>
-                    <h2 class="carousel-title">Aprende, crece<br><em>y</em><br>transforma.</h2>
-                    <p class="carousel-desc">Cursos y talleres especializados en salud mental y desarrollo humano para profesionales.</p>
-                    <div class="carousel-actions">
+                    <span class="carousel-eyebrow animate-hero opacity-0">Capacitación y Talleres</span>
+                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Aprende, crece<br><span class="text-[#f10075] italic font-light">y</span><br>transforma.</h2>
+                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Cursos y talleres especializados en salud mental y desarrollo humano para profesionales.</p>
+                    <div class="carousel-actions animate-hero opacity-0">
                         <a href="cursos.html" class="hero-cta">Ver cursos</a>
                         <a href="nosotros.html" class="carousel-link">Sobre nosotros →</a>
                     </div>
@@ -141,136 +153,277 @@
 
     </section><!-- /hero-carousel -->
 
-    <!-- ===== PROMO BANNER ===== -->
-    <div class="promo-banner">
-        20% DE DESCUENTO
-        <span>EN TU PRIMERA SESIÓN</span>
+    <!-- ===== PROMO STRIP ===== -->
+    <div class="promo-strip">
+        <div class="promo-strip-inner">
+            <span class="promo-strip-text"><strong>20% de descuento</strong> en tu primera sesión</span>
+            <a href="https://wa.me/51988918238" class="promo-strip-cta">¡Agendar ahora!</a>
+            <div class="promo-countdown">
+                <div class="countdown-unit">
+                    <span class="countdown-num" id="cdHoras">00</span>
+                    <span class="countdown-label">Horas</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-unit">
+                    <span class="countdown-num" id="cdMin">00</span>
+                    <span class="countdown-label">Min</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-unit">
+                    <span class="countdown-num" id="cdSeg">00</span>
+                    <span class="countdown-label">Seg</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- ===== ¿POR QUÉ ELEGIR KJA? — MARKETING STRIP ===== -->
-    <section class="why-kja-strip" id="por-que-kja">
-        <div class="container">
-            <div class="why-strip-header">
-                <p class="why-strip-eyebrow">¿Por qué elegirnos?</p>
-                <h2 class="why-strip-title">La diferencia <em>KJA</em></h2>
-                <p class="why-strip-sub">Más de 5 años acompañando familias, niños, jóvenes y adultos hacia su bienestar emocional.</p>
+    <!-- ===== ¿POR QUÉ ELEGIR KJA? — BENTO GRID ===== -->
+    <section class="py-20 bg-gray-50/50" id="por-que-kja">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="mb-12 text-center">
+                <p class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-features-header opacity-0">¿Por qué elegirnos?</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-3 animate-features-header opacity-0">La diferencia <span class="text-[#f10075] italic font-light">KJA</span></h2>
+                <p class="text-sm text-gray-500 max-w-2xl mx-auto animate-features-header opacity-0">Más de 5 años acompañando familias, niños, jóvenes y adultos hacia su bienestar emocional.</p>
             </div>
-            <div class="why-strip-grid">
-                <div class="why-card">
-                    <div class="why-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Card 1 — Featured (2 cols) -->
+                <div class="md:col-span-2 bg-gradient-to-br from-[#004fb0] to-[#002f6c] text-white p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group flex flex-col justify-between animate-features-card opacity-0 min-h-[320px]">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-105 transition-transform duration-500 w-80 h-80">
+                        <!-- Aura de fondo simulada en CSS -->
                     </div>
-                    <h3>Terapeutas Certificados</h3>
-                    <p>Equipo de psicólogos colegiados con especialización en diversas corrientes terapéuticas validadas.</p>
-                </div>
-                <div class="why-card">
-                    <div class="why-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    <div class="max-w-md z-10 relative flex flex-col h-full justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold tracking-widest uppercase bg-white/10 text-[#f10075] px-3 py-1 rounded-full border border-white/15">Equipo Colegiado</span>
+                            <h3 class="text-2xl font-bold mt-4 mb-3">Terapeutas Certificados</h3>
+                            <p class="text-sm text-blue-100/90 mb-6 leading-relaxed">Psicólogos colegiados con especialización en diversas corrientes terapéuticas validadas, acompañando familias hacia su bienestar desde 2020.</p>
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Terapia Cognitivo-Conductual</span>
+                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Terapia Sistémica</span>
+                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Terapia Infantil</span>
+                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Psicología Clínica</span>
+                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Colegiados CPA</span>
+                            </div>
+                        </div>
+                        <a href="nosotros.html" class="inline-flex items-center text-sm font-semibold text-white hover:text-[#f10075] transition duration-200 mt-auto">Conoce al equipo <span class="ml-1 transition-transform group-hover:translate-x-1">→</span></a>
                     </div>
-                    <h3>Enfoque Personalizado</h3>
-                    <p>Cada plan terapéutico es único. Diseñado exclusivamente para ti, tus necesidades y tus metas.</p>
+
+                    <!-- Ilustración decorativa: tarjeta de credencial -->
+                    <svg class="absolute right-6 bottom-6 w-36 h-48 opacity-20 md:opacity-40 pointer-events-none transition-transform duration-500 group-hover:scale-105" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="140" cy="200" r="130" fill="rgba(255,255,255,0.025)"/>
+                        <circle cx="140" cy="200" r="85"  fill="rgba(255,255,255,0.03)"/>
+                        <rect x="16" y="36" width="152" height="200" rx="18" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"/>
+                        <path d="M16 36 H168 V56 Q168 54 92 54 Q16 54 16 56 Z" fill="rgba(241,0,117,0.18)" clip-path="inset(0 0 0 0 round 18px)"/>
+                        <rect x="16" y="36" width="152" height="20" rx="18" fill="rgba(241,0,117,0.18)"/>
+                        <rect x="16" y="48" width="152" height="8" fill="rgba(241,0,117,0.18)"/>
+                        <circle cx="92" cy="100" r="36" fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+                        <circle cx="92" cy="89" r="18" fill="rgba(255,255,255,0.2)"/>
+                        <path d="M63 136 C63 120 76 113 92 113 C108 113 121 120 121 136 C110 130 74 130 63 136 Z" fill="rgba(255,255,255,0.14)"/>
+                        <rect x="52" y="148" width="80" height="5" rx="2.5" fill="rgba(255,255,255,0.4)"/>
+                        <rect x="63" y="158" width="58" height="4" rx="2"   fill="rgba(255,255,255,0.22)"/>
+                        <rect x="46" y="172" width="92" height="22" rx="11" fill="rgba(241,0,117,0.28)" stroke="rgba(241,0,117,0.5)" stroke-width="1"/>
+                        <path d="M62 183 L63.3 187 L67.5 187 L64.3 189.3 L65.5 193.5 L62 191 L58.5 193.5 L59.7 189.3 L56.5 187 L60.7 187 Z" fill="rgba(255,255,255,0.75)"/>
+                        <rect x="72" y="179.5" width="40" height="3" rx="1.5" fill="rgba(255,255,255,0.5)"/>
+                        <rect x="72" y="186"   width="28" height="3" rx="1.5" fill="rgba(255,255,255,0.3)"/>
+                        <rect x="34" y="206" width="116" height="3" rx="1.5" fill="rgba(255,255,255,0.13)"/>
+                        <rect x="40" y="213" width="104" height="3" rx="1.5" fill="rgba(255,255,255,0.09)"/>
+                        <rect x="46" y="220" width="92"  height="3" rx="1.5" fill="rgba(255,255,255,0.07)"/>
+                        <circle cx="158" cy="52" r="22" fill="rgba(3,20,80,0.9)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+                        <circle cx="158" cy="52" r="16" fill="rgba(241,0,117,0.6)"/>
+                        <path d="M150 52 L156 58 L167 44" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <circle cx="22"  cy="248" r="5" fill="rgba(255,255,255,0.06)"/>
+                        <circle cx="178" cy="244" r="8" fill="rgba(255,255,255,0.05)"/>
+                        <circle cx="10"  cy="18"  r="6" fill="rgba(241,0,117,0.1)"/>
+                        <circle cx="188" cy="14"  r="4" fill="rgba(255,255,255,0.07)"/>
+                    </svg>
                 </div>
-                <div class="why-card">
-                    <div class="why-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+
+                <!-- Card 2 -->
+                <div class="bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                    <div class="flex flex-col h-full justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
+                                <svg class="w-6 h-6 text-[#f10075]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="28" cy="28" r="22" fill="#ffe0ef"/>
+                                    <circle cx="28" cy="28" r="15" fill="#ffb3d4"/>
+                                    <circle cx="28" cy="28" r="8"  fill="#f10075"/>
+                                    <circle cx="28" cy="28" r="3.5" fill="white"/>
+                                    <line x1="28" y1="4" x2="28" y2="10" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
+                                    <line x1="28" y1="46" x2="28" y2="52" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
+                                    <line x1="4"  y1="28" x2="10" y2="28" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
+                                    <line x1="46" y1="28" x2="52" y2="28" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Enfoque Personalizado</h3>
+                            <p class="text-sm text-gray-500 leading-relaxed">Cada plan terapéutico es único, diseñado exclusivamente para ti y tus metas.</p>
+                        </div>
                     </div>
-                    <h3>Espacio 100% Confidencial</h3>
-                    <p>Privacidad y ética profesional garantizadas en cada sesión, presencial o en línea.</p>
                 </div>
-                <div class="why-card">
-                    <div class="why-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+
+                <!-- Card 3 — Accent (rosa) -->
+                <div class="bg-gradient-to-br from-pink-50/50 to-white border border-pink-100/60 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                    <div class="flex flex-col h-full justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-pink-100 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
+                                <svg class="w-6 h-6 text-[#f10075]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M28 5 L47 13 L47 30 C47 41 38.5 50 28 54 C17.5 50 9 41 9 30 L9 13 Z" fill="#ffe0ef"/>
+                                    <path d="M28 10 L43 17 L43 30 C43 39 36.5 46.5 28 50 C19.5 46.5 13 39 13 30 L13 17 Z" fill="#ffb3d4"/>
+                                    <rect x="21" y="28" width="14" height="11" rx="3" fill="#f10075"/>
+                                    <path d="M23 28 L23 24 C23 20.7 25.7 18 29 18 L29 18 C32.3 18 35 20.7 35 24 L35 28" stroke="#f10075" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                                    <circle cx="28" cy="33" r="2" fill="white"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-[#f10075] mb-2">100% Confidencial</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">Privacidad y ética profesional garantizadas en cada sesión, presencial o en línea.</p>
+                        </div>
                     </div>
-                    <h3>Atención Presencial y Online</h3>
-                    <p>Agenda desde la comodidad de tu hogar o visítanos en San Luis, Lima. Tú eliges.</p>
                 </div>
-                <div class="why-card">
-                    <div class="why-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+
+                <!-- Card 4 -->
+                <div class="bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                    <div class="flex flex-col h-full justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
+                                <svg class="w-6 h-6 text-[#004fb0]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="4" y="8" width="48" height="32" rx="5" fill="#c7d8ff"/>
+                                    <rect x="8" y="12" width="40" height="24" rx="3" fill="#004fb0"/>
+                                    <circle cx="28" cy="21" r="5" fill="#f10075"/>
+                                    <path d="M18 36 C18 30 22 27.5 28 27.5 C34 27.5 38 30 38 36" fill="#f10075" opacity="0.7"/>
+                                    <rect x="24" y="40" width="8" height="5" rx="2" fill="#c7d8ff"/>
+                                    <rect x="18" y="45" width="20" height="3" rx="1.5" fill="#c7d8ff" opacity="0.7"/>
+                                    <path d="M42 14 Q44 12 46 14" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+                                    <path d="M40 12 Q44 8.5 48 12"  stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/>
+                                    <circle cx="44" cy="15.5" r="1.2" fill="white" opacity="0.9"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Presencial y Online</h3>
+                            <p class="text-sm text-gray-500 leading-relaxed">Agenda desde casa o visítanos en San Luis, Lima. Tú eliges la modalidad.</p>
+                        </div>
                     </div>
-                    <h3>Para Toda la Familia</h3>
-                    <p>Niños, adolescentes, adultos y parejas. Atendemos a todos los miembros del hogar.</p>
                 </div>
-                <div class="why-card">
-                    <div class="why-card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+
+                <!-- Card 5 -->
+                <div class="bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                    <div class="flex flex-col h-full justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
+                                <svg class="w-6 h-6" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="16" cy="16" r="7" fill="#004fb0"/>
+                                    <path d="M5 44 C5 35 9.5 31 16 31 C22.5 31 27 35 27 44" fill="#004fb0" opacity="0.75"/>
+                                    <circle cx="40" cy="16" r="7" fill="#f10075"/>
+                                    <path d="M29 44 C29 35 33.5 31 40 31 C46.5 31 51 35 51 44" fill="#f10075" opacity="0.75"/>
+                                    <circle cx="28" cy="34" r="5" fill="#ffb3d4"/>
+                                    <path d="M21 50 C21 45 24 43 28 43 C32 43 35 45 35 50" fill="#ffb3d4" opacity="0.85"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Para Toda la Familia</h3>
+                            <p class="text-sm text-gray-500 leading-relaxed">Niños, adolescentes, adultos y parejas. Atendemos a todos los miembros del hogar.</p>
+                        </div>
                     </div>
-                    <h3>Resultados Comprobados</h3>
-                    <p>Cientos de pacientes han transformado su bienestar emocional con nuestra metodología.</p>
                 </div>
+
+                <!-- Card 6 — Stat -->
+                <div class="bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                    <div class="flex flex-col h-full justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
+                                <svg class="w-6 h-6 text-[#004fb0]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="4" y="4" width="48" height="48" rx="10" fill="#eef2ff"/>
+                                    <rect x="11" y="34" width="9" height="14" rx="2.5" fill="#c7d8ff"/>
+                                    <rect x="24" y="26" width="9" height="22" rx="2.5" fill="#004fb0" opacity="0.7"/>
+                                    <rect x="37" y="16" width="9" height="32" rx="2.5" fill="#f10075"/>
+                                    <polyline points="11,30 24,22 37,12" stroke="#f10075" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                    <circle cx="37" cy="12" r="3.5" fill="#f10075"/>
+                                </svg>
+                            </div>
+                            <div class="text-4xl font-extrabold text-[#004fb0] mb-1">500<span class="text-[#f10075]">+</span></div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Resultados Comprobados</h3>
+                            <p class="text-sm text-gray-500 leading-relaxed">Pacientes que han transformado su bienestar emocional con nuestra metodología.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <div class="why-strip-cta">
-                <a href="terapia.html" class="hero-cta">Empieza hoy tu proceso</a>
+            <div class="mt-12 text-center animate-features-card opacity-0">
+                <a href="terapia.html" class="inline-block bg-[#f10075] hover:bg-[#d10065] text-white font-bold py-4 px-8 rounded-full shadow-lg shadow-pink-500/20 transition-all duration-300 hover:-translate-y-1">Empieza hoy tu proceso</a>
             </div>
         </div>
     </section>
 
     <!-- ===== SERVICIOS ===== -->
     <section id="terapia" class="container section-padding">
-
-        <div class="service-row">
-            <div class="service-text">
-                <h3>TERAPIAS PSICOLÓGICAS</h3>
-                <p>Es un proceso personal y especializado donde el consultante, junto con el terapeuta especializado, forma una mirada distinta de su malestar emocional mediante estrategias de intervención diseñadas para mejorar su calidad de vida.</p>
-            </div>
-            <div class="service-image">
-                <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80" alt="Terapia Psicológica" />
-            </div>
+        <div class="services-header text-center">
+            <p class="services-eyebrow">¿Cómo podemos ayudarte?</p>
+            <h2 class="services-title">Nuestros <em>Servicios</em></h2>
         </div>
+        <div class="services-grid">
 
-        <div class="service-row">
-            <div class="service-text">
-                <h3>TERAPIAS PARA NIÑOS</h3>
-                <p>La terapia infantil es un espacio seguro donde los niños aprenden a identificar y gestionar sus emociones a través del juego. Trabajamos junto a la familia para resolver dificultades de conducta, miedos o ansiedad, brindándoles herramientas para crecer felices y seguros.</p>
-                <a href="terapia.html#ninos" class="btn btn-outline-pink">Ver mas...</a>
+            <div class="service-card">
+                <div class="service-card-img">
+                    <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80" alt="Terapia Psicológica" loading="lazy" />
+                </div>
+                <div class="service-card-body">
+                    <h3 class="service-card-title">Terapias Psicológicas</h3>
+                    <p>Un proceso personalizado para transformar tu bienestar emocional con estrategias validadas y enfoque humano.</p>
+                </div>
             </div>
-            <div class="service-image">
-                <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=80" alt="Terapia para Niños" />
-            </div>
-        </div>
 
-        <div class="service-row">
-            <div class="service-text">
-                <h3>TERAPIAS PARA ADOLESCENTES</h3>
-                <p>La adolescencia es una etapa de transición, búsqueda de identidad y emociones intensas. Ofrecemos un espacio confidencial y libre de juicios donde el adolescente puede expresarse abiertamente.</p>
-                <a href="terapia.html#adolescentes" class="btn btn-outline-pink">Ver mas...</a>
+            <div class="service-card">
+                <div class="service-card-img">
+                    <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=80" alt="Terapia para Niños" loading="lazy" />
+                </div>
+                <div class="service-card-body">
+                    <h3 class="service-card-title">Para Niños</h3>
+                    <p>Un espacio seguro donde los niños gestionan sus emociones a través del juego y el acompañamiento familiar.</p>
+                    <a href="terapia.html#ninos" class="service-card-link">Ver más →</a>
+                </div>
             </div>
-            <div class="service-image">
-                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80" alt="Terapia para Adolescentes" />
-            </div>
-        </div>
 
-        <div class="service-row">
-            <div class="service-text">
-                <h3>TERAPIAS PARA ADULTOS</h3>
-                <p>La vida adulta conlleva múltiples responsabilidades que a veces pueden desbordarnos. Ofrecemos un espacio de pausa y reflexión para trabajar sobre el estrés, la ansiedad y el agotamiento.</p>
-                <a href="terapia.html#adultos" class="btn btn-outline-pink">Ver mas...</a>
+            <div class="service-card">
+                <div class="service-card-img">
+                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80" alt="Terapia para Adolescentes" loading="lazy" />
+                </div>
+                <div class="service-card-body">
+                    <h3 class="service-card-title">Para Adolescentes</h3>
+                    <p>Un espacio confidencial para expresarse, construir identidad y gestionar las emociones de esta etapa.</p>
+                    <a href="terapia.html#adolescentes" class="service-card-link">Ver más →</a>
+                </div>
             </div>
-            <div class="service-image">
-                <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80" alt="Terapia para Adultos" />
-            </div>
-        </div>
 
-        <div class="service-row">
-            <div class="service-text">
-                <h3>TERAPIAS DE PAREJA</h3>
-                <p>Las relaciones pasan por etapas difíciles donde la comunicación parece romperse. La terapia de pareja ofrece un espacio neutral y seguro para que ambos puedan expresarse y reconstruir vínculos.</p>
-                <a href="terapia.html#adultos" class="btn btn-outline-pink">Ver mas...</a>
+            <div class="service-card">
+                <div class="service-card-img">
+                    <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80" alt="Terapia para Adultos" loading="lazy" />
+                </div>
+                <div class="service-card-body">
+                    <h3 class="service-card-title">Para Adultos</h3>
+                    <p>Un espacio de pausa para trabajar el estrés, la ansiedad y el agotamiento del día a día.</p>
+                    <a href="terapia.html#adultos" class="service-card-link">Ver más →</a>
+                </div>
             </div>
-            <div class="service-image">
-                <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&q=80" alt="Terapia de Pareja" />
-            </div>
-        </div>
 
-        <div class="service-row">
-            <div class="service-text">
-                <h3>TERAPIAS DE FAMILIA</h3>
-                <p>La familia es nuestro primer equipo, pero a veces la convivencia se vuelve difícil. Creamos un espacio seguro para que todos los miembros puedan escucharse y entenderse mejor.</p>
-                <a href="terapia.html#familia" class="btn btn-outline-pink">Ver mas...</a>
+            <div class="service-card">
+                <div class="service-card-img">
+                    <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&q=80" alt="Terapia de Pareja" loading="lazy" />
+                </div>
+                <div class="service-card-body">
+                    <h3 class="service-card-title">Terapia de Pareja</h3>
+                    <p>Un espacio neutral para reconstruir la comunicación y los vínculos cuando la relación lo necesita.</p>
+                    <a href="terapia.html#adultos" class="service-card-link">Ver más →</a>
+                </div>
             </div>
-            <div class="service-image">
-                <img src="https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&q=80" alt="Terapia de Familia" />
+
+            <div class="service-card">
+                <div class="service-card-img">
+                    <img src="https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&q=80" alt="Terapia de Familia" loading="lazy" />
+                </div>
+                <div class="service-card-body">
+                    <h3 class="service-card-title">Terapia de Familia</h3>
+                    <p>Un espacio donde todos los miembros del hogar pueden escucharse y fortalecer sus vínculos.</p>
+                    <a href="terapia.html#familia" class="service-card-link">Ver más →</a>
+                </div>
             </div>
+
         </div>
     </section>
 
@@ -286,6 +439,110 @@
                 <div class="cap-tag">ESPECIALIZACIONES</div>
                 <div class="cap-tag">CHARLAS</div>
                 <div class="cap-tag">CONFERENCIAS</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PLANES DE ACOMPAÑAMIENTO (PRICING) ===== -->
+    <section class="py-20 bg-white" id="planes">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <p class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-pricing-header opacity-0">Tarifas Transparentes</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-3 animate-pricing-header opacity-0">Planes de <span class="text-[#f10075] italic font-light">Acompañamiento</span></h2>
+                <p class="text-sm text-gray-500 max-w-xl mx-auto animate-pricing-header opacity-0">Elige la modalidad que mejor se adapte a tus necesidades de bienestar emocional.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Plan 1 -->
+                <div class="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-bold text-[#004fb0] tracking-wider uppercase bg-blue-50 px-3 py-1 rounded-full">Individual</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Terapia Individual</h3>
+                        <p class="text-xs text-gray-500 mb-6">Para procesos de crecimiento personal, ansiedad y manejo del estrés.</p>
+                        <div class="mb-6">
+                            <span class="text-4xl font-extrabold text-gray-900">S/ 120</span>
+                            <span class="text-sm text-gray-500">/ sesión</span>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Sesiones de 45-50 minutos
+                            </li>
+                            <li class="flex items-center text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Modalidad Presencial u Online
+                            </li>
+                            <li class="flex items-center text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Terapeutas colegiados y especializados
+                            </li>
+                        </ul>
+                    </div>
+                    <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20Individual" target="_blank" class="w-full text-center py-3 rounded-xl border border-[#004fb0] text-[#004fb0] hover:bg-[#004fb0] hover:text-white font-semibold text-sm transition-colors duration-200">Agendar Cita</a>
+                </div>
+                
+                <!-- Plan 2 (Destacado) -->
+                <div class="bg-white border-2 border-[#f10075] rounded-3xl p-8 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col justify-between relative scale-105 z-10 animate-pricing-card opacity-0 group">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#f10075] text-white text-[10px] font-bold tracking-widest uppercase px-4 py-1 rounded-full shadow-sm">RECOMENDADO</div>
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-bold text-[#f10075] tracking-wider uppercase bg-pink-50 px-3 py-1 rounded-full">Parejas & Familia</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Terapia de Pareja</h3>
+                        <p class="text-xs text-gray-500 mb-6">Fortalece los vínculos familiares, comunicación y resolución de conflictos.</p>
+                        <div class="mb-6">
+                            <span class="text-4xl font-extrabold text-gray-900">S/ 150</span>
+                            <span class="text-sm text-gray-500">/ sesión</span>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Sesiones de 50-60 minutos
+                            </li>
+                            <li class="flex items-center text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Mediación profesional y neutral
+                            </li>
+                            <li class="flex items-center text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Ejercicios prácticos de comunicación
+                            </li>
+                        </ul>
+                    </div>
+                    <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20de%20Pareja" target="_blank" class="w-full text-center py-3 rounded-xl bg-[#f10075] hover:bg-[#d10065] text-white font-semibold text-sm shadow-md shadow-pink-500/10 transition-colors duration-200">Agendar Cita</a>
+                </div>
+                
+                <!-- Plan 3 -->
+                <div class="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-bold text-gray-600 tracking-wider uppercase bg-gray-100 px-3 py-1 rounded-full">Paquetes</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Paquete Bienestar</h3>
+                        <p class="text-xs text-gray-500 mb-6">Ahorra en tu proceso completo con un paquete de 4 sesiones prepagadas.</p>
+                        <div class="mb-6">
+                            <span class="text-4xl font-extrabold text-gray-900">S/ 450</span>
+                            <span class="text-sm text-gray-500">/ 4 sesiones</span>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Equivalente a S/ 112.50 por sesión
+                            </li>
+                            <li class="flex items-center text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Seguimiento personalizado vía chat
+                            </li>
+                            <li class="flex items-center text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                Validez de 2 meses para agendar
+                            </li>
+                        </ul>
+                    </div>
+                    <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20adquirir%2520el%2520Paquete%2520Bienestar" target="_blank" class="w-full text-center py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold text-sm transition-colors duration-200">Adquirir Plan</a>
+                </div>
             </div>
         </div>
     </section>
@@ -374,14 +631,6 @@
         </div>
     </section>
 
-    <!-- NOSOTROS -->
-    <section id="nosotros" class="container about-section text-center">
-        <h2 class="about-main-title">SOBRE KJA</h2>
-        <div class="about-grid" style="display: block; max-width: 800px; margin: 0 auto;">
-            <p style="font-size: 1.1rem; color: #555; margin-bottom: 30px;">KJA Desarrollando mi Bienestar S.A.C. es un centro psicológico en San Luis, Lima, Perú, fundado el 13 de octubre de 2020. Se especializa en el bienestar mental de niños, adolescentes y adultos, ofreciendo terapias presenciales y en línea, además de talleres de desarrollo humano y capacitación empresarial.</p>
-            <a href="nosotros.html" class="btn btn-pink">Conoce más sobre nosotros</a>
-        </div>
-    </section>
 
     <!-- ===== UBÍCANOS PREMIUM ===== -->
     <section id="ubicanos" class="ubicanos-section">
@@ -451,7 +700,6 @@
         <div class="footer-content">
             <div class="footer-logo">
                 <h2>KJA</h2>
-                <span>CENTRO DE ATENCIÓN PSICOLÓGICA INTEGRAL</span>
             </div>
             <div class="footer-info">
                 <p><strong>SÍGUENOS EN NUESTRAS REDES SOCIALES</strong></p>

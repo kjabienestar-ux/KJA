@@ -1,4 +1,44 @@
 // ============================================================
+//  PROMO COUNTDOWN — siempre < 5h, bucle infinito
+// ============================================================
+(function initCountdown() {
+    const elH = document.getElementById('cdHoras');
+    if (!elH) return;
+
+    const KEY = 'kja_promo_expiry';
+    const pad = n => String(n).padStart(2, '0');
+
+    // Al resetear: entre 4h 10m y 4h 55m (siempre parece que "casi acaba")
+    function newExpiry() {
+        const base = 4 * 3600000 + 10 * 60000;
+        const jitter = Math.random() * 45 * 60000;
+        return Date.now() + base + jitter;
+    }
+
+    let expiry = parseInt(localStorage.getItem(KEY), 10);
+    // Resetear si: no existe, ya expiró, o supera 5h (manipulación)
+    if (!expiry || Date.now() > expiry || (expiry - Date.now()) > 5 * 3600000) {
+        expiry = newExpiry();
+        localStorage.setItem(KEY, expiry);
+    }
+
+    function tick() {
+        let diff = expiry - Date.now();
+        if (diff <= 0) {
+            expiry = newExpiry();
+            localStorage.setItem(KEY, expiry);
+            diff = expiry - Date.now();
+        }
+        elH.textContent = pad(Math.floor(diff / 3600000));
+        document.getElementById('cdMin').textContent = pad(Math.floor((diff % 3600000) / 60000));
+        document.getElementById('cdSeg').textContent = pad(Math.floor((diff % 60000) / 1000));
+    }
+
+    tick();
+    setInterval(tick, 1000);
+})();
+
+// ============================================================
 //  MOBILE MENU
 // ============================================================
 function toggleMenu() {
@@ -59,22 +99,44 @@ function toggleFaq(btn) {
         bars[prev].classList.remove('active');
         bars[prev].setAttribute('aria-selected', 'false');
 
-        // Reiniciar barra de progreso: clonar para resetear animación CSS
+        // Clonar fill del bar saliente para resetear su animación CSS
         const oldFill = bars[prev].querySelector('.bar-fill');
-        const newFill = oldFill.cloneNode(true);
-        bars[prev].replaceChild(newFill, oldFill);
+        bars[prev].replaceChild(oldFill.cloneNode(true), oldFill);
 
         // Nuevo índice con wrap-around
         current = (index + TOTAL) % TOTAL;
 
+        // Forzar reflow en el bg entrante para que kenBurns reinicie siempre
+        void bgs[current].offsetWidth;
+
         // Activar slide y fondo
         slides[current].classList.add('active');
         bgs[current].classList.add('active');
+
+        // Clonar fill del bar entrante para que su animación también reinicie
+        const inFill = bars[current].querySelector('.bar-fill');
+        bars[current].replaceChild(inFill.cloneNode(true), inFill);
+
         bars[current].classList.add('active');
         bars[current].setAttribute('aria-selected', 'true');
 
         // Actualizar contador
         if (counter) counter.textContent = pad(current);
+
+        // Animación GSAP de entrada para el contenido del slide
+        const animElements = slides[current].querySelectorAll('.animate-hero');
+        if (animElements.length) {
+            gsap.killTweensOf(animElements);
+            gsap.set(animElements, { opacity: 0, y: 30 });
+            gsap.to(animElements, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: 'power3.out',
+                delay: 0.1
+            });
+        }
     }
 
     /* ─ reiniciar temporizador ─ */
@@ -131,4 +193,83 @@ function toggleFaq(btn) {
     goTo(0);
     resetTimer();
 })();
+
+// ============================================================
+//  GSAP SCROLLTRIGGER ANIMATIONS (Features & Pricing)
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof gsap === 'undefined') return;
+    // Registrar ScrollTrigger
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Animación para Features (Bento Grid)
+    if (document.querySelector('#por-que-kja')) {
+        gsap.fromTo('.animate-features-header', 
+            { opacity: 0, y: 40 },
+            {
+                scrollTrigger: {
+                    trigger: '#por-que-kja',
+                    start: 'top 80%',
+                    toggleActions: 'play none none none'
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: 'power3.out'
+            }
+        );
+
+        gsap.fromTo('.animate-features-card', 
+            { opacity: 0, y: 40 },
+            {
+                scrollTrigger: {
+                    trigger: '#por-que-kja',
+                    start: 'top 65%',
+                    toggleActions: 'play none none none'
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: 'power3.out'
+            }
+        );
+    }
+
+    // Animación para Pricing (Planes)
+    if (document.querySelector('#planes')) {
+        gsap.fromTo('.animate-pricing-header', 
+            { opacity: 0, y: 40 },
+            {
+                scrollTrigger: {
+                    trigger: '#planes',
+                    start: 'top 80%',
+                    toggleActions: 'play none none none'
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: 'power3.out'
+            }
+        );
+
+        gsap.fromTo('.animate-pricing-card', 
+            { opacity: 0, y: 40 },
+            {
+                scrollTrigger: {
+                    trigger: '#planes',
+                    start: 'top 65%',
+                    toggleActions: 'play none none none'
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: 'power3.out'
+            }
+        );
+    }
+});
 
