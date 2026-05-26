@@ -18,6 +18,207 @@
             transform: none !important;
             opacity: 1 !important;
         }
+
+        /* ===== FEATURES MINI-CARDS — HORIZONTAL SCROLL MOBILE ===== */
+        @media (max-width: 767px) {
+
+            .features-scroll-wrapper {
+                position: relative;
+                margin: 0 -1rem;
+                overflow: hidden;  /* oculta las cards vecinas */
+                padding-bottom: 4px;
+            }
+
+            .features-scroll-wrapper::before {
+                content: 'Desliza para ver más →';
+                display: block;
+                text-align: center;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.04em;
+                color: #f10075;
+                opacity: 0.75;
+                margin-bottom: 10px;
+                font-family: inherit;
+            }
+
+            .features-scroll-track {
+                display: flex;
+                flex-direction: row;
+                gap: 1.5rem;                /* espacio en blanco que separa las cards */
+                overflow-x: auto;
+                overflow-y: visible;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding: 8px 1rem 20px 1rem; /* márgenes laterales para respiro visual */
+            }
+            .features-scroll-track::-webkit-scrollbar { display: none; }
+
+            /* Cada card ocupa el ancho visible menos los márgenes laterales */
+            .features-scroll-track > div {
+                flex: 0 0 calc(100% - 2rem);
+                min-height: 200px;
+                scroll-snap-align: center;
+                width: calc(100% - 2rem) !important;
+                max-width: none !important;
+                min-width: 0 !important;
+                /* Espaciado interno propio */
+                border-radius: 20px !important;
+                margin: 0 !important;        /* gap y padding se encargan del espaciado */
+                padding: 24px 22px !important;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+                border: 1px solid rgba(0,0,0,0.06) !important;
+                box-sizing: border-box;
+                /* Sin scale */
+                transform: none !important;
+            }
+
+            /* Icono */
+            .features-scroll-track > div .w-12 {
+                width: 52px !important;
+                height: 52px !important;
+                border-radius: 16px !important;
+                margin-bottom: 16px !important;
+            }
+
+            /* Texto */
+            .features-scroll-track > div h3 {
+                font-size: 1.05rem !important;
+                font-weight: 800 !important;
+                margin-bottom: 8px !important;
+            }
+            .features-scroll-track > div p {
+                font-size: 0.82rem !important;
+                line-height: 1.55 !important;
+                color: #6b7280 !important;
+            }
+
+            /* Número stat */
+            .features-scroll-track > div .text-3xl,
+            .features-scroll-track > div .text-4xl {
+                font-size: 2.4rem !important;
+                margin-bottom: 4px !important;
+            }
+
+            /* Dots */
+            .features-scroll-dots {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 7px;
+                margin-top: 6px;
+                padding-bottom: 4px;
+            }
+            .features-scroll-dots span {
+                display: inline-block;
+                width: 7px; height: 7px;
+                border-radius: 50%;
+                background: #d1d5db;
+                transition: background 0.3s, width 0.3s, border-radius 0.3s;
+                cursor: pointer; flex-shrink: 0;
+            }
+            .features-scroll-dots span.active {
+                background: #f10075;
+                width: 22px;
+                border-radius: 4px;
+            }
+        }
+
+        /* En desktop: el wrapper no altera nada */
+        @media (min-width: 768px) {
+            .features-scroll-wrapper { display: contents; }
+            .features-scroll-track  { display: contents; }
+            .features-scroll-dots   { display: none; }
+            .features-scroll-wrapper::before { display: none; }
+        }
+
+        /* ===== PLANES DE ACOMPAÑAMIENTO — HORIZONTAL SCROLL MOBILE ===== */
+        @media (max-width: 767px) {
+
+            .plans-scroll-wrapper {
+                position: relative;
+                margin: 0 -1rem;
+                overflow: hidden;  /* oculta el plan vecino */
+            }
+
+            .plans-scroll-wrapper::before {
+                content: 'Desliza para ver más →';
+                display: block;
+                text-align: center;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.04em;
+                color: #f10075;
+                opacity: 0.75;
+                margin-bottom: 10px;
+                font-family: inherit;
+            }
+
+            #plansScrollTrack {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 1.5rem !important;      /* espacio en blanco entre planes */
+                overflow-x: auto;
+                overflow-y: visible;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding: 16px 1rem 20px 1rem !important; /* márgenes laterales para respiro visual */
+                grid-template-columns: none !important;
+            }
+            #plansScrollTrack::-webkit-scrollbar { display: none; }
+
+            /* Cada plan: ancho visible menos márgenes laterales */
+            .plans-card {
+                flex: 0 0 calc(100% - 2rem) !important;
+                width: calc(100% - 2rem) !important;
+                max-width: none !important;
+                min-width: 0 !important;
+                min-height: 360px;
+                scroll-snap-align: center;
+                border-radius: 24px !important;
+                margin: 0 !important;        /* gap y padding se encargan del espaciado */
+                padding: 28px 24px !important;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+                box-sizing: border-box;
+                transform: none !important;
+                scale: unset !important;
+            }
+
+            .plans-card--featured {
+                border-width: 2px !important;
+                box-shadow: 0 6px 28px rgba(241,0,117,0.18) !important;
+            }
+
+            /* Dots */
+            .plans-scroll-dots {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 7px;
+                margin-top: 6px;
+                padding-bottom: 4px;
+            }
+            .plans-scroll-dots span {
+                display: inline-block;
+                width: 7px; height: 7px;
+                border-radius: 50%;
+                background: #d1d5db;
+                transition: background 0.3s, width 0.3s, border-radius 0.3s;
+                cursor: pointer; flex-shrink: 0;
+            }
+            .plans-scroll-dots span.active {
+                background: #f10075;
+                width: 22px;
+                border-radius: 4px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .plans-scroll-wrapper::before { display: none; }
+            .plans-scroll-dots { display: none; }
+        }
     </style>
 </head>
 <body> 
@@ -180,7 +381,7 @@
     </div>
 
     <!-- ===== ¿POR QUÉ ELEGIR KJA? — BENTO GRID ===== -->
-    <section class="py-20 bg-gray-50/50" id="por-que-kja">
+    <section class="py-12 md:py-16 bg-gray-50/50" id="por-que-kja">
         <div class="max-w-6xl mx-auto px-4">
             <div class="mb-12 text-center">
                 <p class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-features-header opacity-0">¿Por qué elegirnos?</p>
@@ -240,110 +441,126 @@
                     </svg>
                 </div>
 
-                <!-- Card 2 -->
-                <div class="bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                    <div class="flex flex-col h-full justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
-                                <svg class="w-6 h-6 text-[#f10075]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="28" cy="28" r="22" fill="#ffe0ef"/>
-                                    <circle cx="28" cy="28" r="15" fill="#ffb3d4"/>
-                                    <circle cx="28" cy="28" r="8"  fill="#f10075"/>
-                                    <circle cx="28" cy="28" r="3.5" fill="white"/>
-                                    <line x1="28" y1="4" x2="28" y2="10" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
-                                    <line x1="28" y1="46" x2="28" y2="52" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
-                                    <line x1="4"  y1="28" x2="10" y2="28" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
-                                    <line x1="46" y1="28" x2="52" y2="28" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">Enfoque Personalizado</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Cada plan terapéutico es único, diseñado exclusivamente para ti y tus metas.</p>
-                        </div>
-                    </div>
-                </div>
+                <!-- ===== MINI-CARDS 2-6: Scroll horizontal en mobile ===== -->
+                <div class="features-scroll-wrapper md:contents">
+                    <div class="features-scroll-track" id="featuresScrollTrack">
 
-                <!-- Card 3 — Accent (rosa) -->
-                <div class="bg-gradient-to-br from-pink-50/50 to-white border border-pink-100/60 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                    <div class="flex flex-col h-full justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-2xl bg-pink-100 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
-                                <svg class="w-6 h-6 text-[#f10075]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M28 5 L47 13 L47 30 C47 41 38.5 50 28 54 C17.5 50 9 41 9 30 L9 13 Z" fill="#ffe0ef"/>
-                                    <path d="M28 10 L43 17 L43 30 C43 39 36.5 46.5 28 50 C19.5 46.5 13 39 13 30 L13 17 Z" fill="#ffb3d4"/>
-                                    <rect x="21" y="28" width="14" height="11" rx="3" fill="#f10075"/>
-                                    <path d="M23 28 L23 24 C23 20.7 25.7 18 29 18 L29 18 C32.3 18 35 20.7 35 24 L35 28" stroke="#f10075" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                                    <circle cx="28" cy="33" r="2" fill="white"/>
-                                </svg>
+                        <!-- Card 2 -->
+                        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                            <div class="flex flex-col h-full justify-between">
+                                <div>
+                                    <div class="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
+                                        <svg class="w-6 h-6 text-[#f10075]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="28" cy="28" r="22" fill="#ffe0ef"/>
+                                            <circle cx="28" cy="28" r="15" fill="#ffb3d4"/>
+                                            <circle cx="28" cy="28" r="8"  fill="#f10075"/>
+                                            <circle cx="28" cy="28" r="3.5" fill="white"/>
+                                            <line x1="28" y1="4" x2="28" y2="10" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
+                                            <line x1="28" y1="46" x2="28" y2="52" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
+                                            <line x1="4"  y1="28" x2="10" y2="28" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
+                                            <line x1="46" y1="28" x2="52" y2="28" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-base font-bold text-gray-900 mb-1">Enfoque Personalizado</h3>
+                                    <p class="text-xs text-gray-500 leading-relaxed">Cada plan terapéutico es único, diseñado exclusivamente para ti y tus metas.</p>
+                                </div>
                             </div>
-                            <h3 class="text-lg font-bold text-[#f10075] mb-2">100% Confidencial</h3>
-                            <p class="text-sm text-gray-600 leading-relaxed">Privacidad y ética profesional garantizadas en cada sesión, presencial o en línea.</p>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Card 4 -->
-                <div class="bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                    <div class="flex flex-col h-full justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
-                                <svg class="w-6 h-6 text-[#004fb0]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="4" y="8" width="48" height="32" rx="5" fill="#c7d8ff"/>
-                                    <rect x="8" y="12" width="40" height="24" rx="3" fill="#004fb0"/>
-                                    <circle cx="28" cy="21" r="5" fill="#f10075"/>
-                                    <path d="M18 36 C18 30 22 27.5 28 27.5 C34 27.5 38 30 38 36" fill="#f10075" opacity="0.7"/>
-                                    <rect x="24" y="40" width="8" height="5" rx="2" fill="#c7d8ff"/>
-                                    <rect x="18" y="45" width="20" height="3" rx="1.5" fill="#c7d8ff" opacity="0.7"/>
-                                    <path d="M42 14 Q44 12 46 14" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
-                                    <path d="M40 12 Q44 8.5 48 12"  stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/>
-                                    <circle cx="44" cy="15.5" r="1.2" fill="white" opacity="0.9"/>
-                                </svg>
+                        <!-- Card 3 — Accent (rosa) -->
+                        <div class="bg-gradient-to-br from-pink-50/50 to-white border border-pink-100/60 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                            <div class="flex flex-col h-full justify-between">
+                                <div>
+                                    <div class="w-12 h-12 rounded-2xl bg-pink-100 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
+                                        <svg class="w-6 h-6 text-[#f10075]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M28 5 L47 13 L47 30 C47 41 38.5 50 28 54 C17.5 50 9 41 9 30 L9 13 Z" fill="#ffe0ef"/>
+                                            <path d="M28 10 L43 17 L43 30 C43 39 36.5 46.5 28 50 C19.5 46.5 13 39 13 30 L13 17 Z" fill="#ffb3d4"/>
+                                            <rect x="21" y="28" width="14" height="11" rx="3" fill="#f10075"/>
+                                            <path d="M23 28 L23 24 C23 20.7 25.7 18 29 18 L29 18 C32.3 18 35 20.7 35 24 L35 28" stroke="#f10075" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                                            <circle cx="28" cy="33" r="2" fill="white"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-base font-bold text-[#f10075] mb-1">100% Confidencial</h3>
+                                    <p class="text-xs text-gray-600 leading-relaxed">Privacidad y ética profesional garantizadas en cada sesión, presencial o en línea.</p>
+                                </div>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">Presencial y Online</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Agenda desde casa o visítanos en San Luis, Lima. Tú eliges la modalidad.</p>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Card 5 -->
-                <div class="bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                    <div class="flex flex-col h-full justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
-                                <svg class="w-6 h-6" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="16" cy="16" r="7" fill="#004fb0"/>
-                                    <path d="M5 44 C5 35 9.5 31 16 31 C22.5 31 27 35 27 44" fill="#004fb0" opacity="0.75"/>
-                                    <circle cx="40" cy="16" r="7" fill="#f10075"/>
-                                    <path d="M29 44 C29 35 33.5 31 40 31 C46.5 31 51 35 51 44" fill="#f10075" opacity="0.75"/>
-                                    <circle cx="28" cy="34" r="5" fill="#ffb3d4"/>
-                                    <path d="M21 50 C21 45 24 43 28 43 C32 43 35 45 35 50" fill="#ffb3d4" opacity="0.85"/>
-                                </svg>
+                        <!-- Card 4 -->
+                        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                            <div class="flex flex-col h-full justify-between">
+                                <div>
+                                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
+                                        <svg class="w-6 h-6 text-[#004fb0]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="4" y="8" width="48" height="32" rx="5" fill="#c7d8ff"/>
+                                            <rect x="8" y="12" width="40" height="24" rx="3" fill="#004fb0"/>
+                                            <circle cx="28" cy="21" r="5" fill="#f10075"/>
+                                            <path d="M18 36 C18 30 22 27.5 28 27.5 C34 27.5 38 30 38 36" fill="#f10075" opacity="0.7"/>
+                                            <rect x="24" y="40" width="8" height="5" rx="2" fill="#c7d8ff"/>
+                                            <rect x="18" y="45" width="20" height="3" rx="1.5" fill="#c7d8ff" opacity="0.7"/>
+                                            <path d="M42 14 Q44 12 46 14" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+                                            <path d="M40 12 Q44 8.5 48 12"  stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/>
+                                            <circle cx="44" cy="15.5" r="1.2" fill="white" opacity="0.9"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-base font-bold text-gray-900 mb-1">Presencial y Online</h3>
+                                    <p class="text-xs text-gray-500 leading-relaxed">Agenda desde casa o visítanos en San Luis, Lima. Tú eliges la modalidad.</p>
+                                </div>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">Para Toda la Familia</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Niños, adolescentes, adultos y parejas. Atendemos a todos los miembros del hogar.</p>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Card 6 — Stat -->
-                <div class="bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                    <div class="flex flex-col h-full justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
-                                <svg class="w-6 h-6 text-[#004fb0]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="4" y="4" width="48" height="48" rx="10" fill="#eef2ff"/>
-                                    <rect x="11" y="34" width="9" height="14" rx="2.5" fill="#c7d8ff"/>
-                                    <rect x="24" y="26" width="9" height="22" rx="2.5" fill="#004fb0" opacity="0.7"/>
-                                    <rect x="37" y="16" width="9" height="32" rx="2.5" fill="#f10075"/>
-                                    <polyline points="11,30 24,22 37,12" stroke="#f10075" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                                    <circle cx="37" cy="12" r="3.5" fill="#f10075"/>
-                                </svg>
+                        <!-- Card 5 -->
+                        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                            <div class="flex flex-col h-full justify-between">
+                                <div>
+                                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
+                                        <svg class="w-6 h-6" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="16" cy="16" r="7" fill="#004fb0"/>
+                                            <path d="M5 44 C5 35 9.5 31 16 31 C22.5 31 27 35 27 44" fill="#004fb0" opacity="0.75"/>
+                                            <circle cx="40" cy="16" r="7" fill="#f10075"/>
+                                            <path d="M29 44 C29 35 33.5 31 40 31 C46.5 31 51 35 51 44" fill="#f10075" opacity="0.75"/>
+                                            <circle cx="28" cy="34" r="5" fill="#ffb3d4"/>
+                                            <path d="M21 50 C21 45 24 43 28 43 C32 43 35 45 35 50" fill="#ffb3d4" opacity="0.85"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-base font-bold text-gray-900 mb-1">Para Toda la Familia</h3>
+                                    <p class="text-xs text-gray-500 leading-relaxed">Niños, adolescentes, adultos y parejas. Atendemos a todos los miembros del hogar.</p>
+                                </div>
                             </div>
-                            <div class="text-4xl font-extrabold text-[#004fb0] mb-1">500<span class="text-[#f10075]">+</span></div>
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">Resultados Comprobados</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Pacientes que han transformado su bienestar emocional con nuestra metodología.</p>
                         </div>
+
+                        <!-- Card 6 — Stat -->
+                        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
+                            <div class="flex flex-col h-full justify-between">
+                                <div>
+                                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mb-3 transition-transform group-hover:scale-110 duration-300">
+                                        <svg class="w-6 h-6 text-[#004fb0]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="4" y="4" width="48" height="48" rx="10" fill="#eef2ff"/>
+                                            <rect x="11" y="34" width="9" height="14" rx="2.5" fill="#c7d8ff"/>
+                                            <rect x="24" y="26" width="9" height="22" rx="2.5" fill="#004fb0" opacity="0.7"/>
+                                            <rect x="37" y="16" width="9" height="32" rx="2.5" fill="#f10075"/>
+                                            <polyline points="11,30 24,22 37,12" stroke="#f10075" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                            <circle cx="37" cy="12" r="3.5" fill="#f10075"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-3xl font-extrabold text-[#004fb0] mb-1">500<span class="text-[#f10075]">+</span></div>
+                                    <h3 class="text-base font-bold text-gray-900 mb-1">Resultados Comprobados</h3>
+                                    <p class="text-xs text-gray-500 leading-relaxed">Pacientes que han transformado su bienestar emocional con nuestra metodología.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /features-scroll-track -->
+
+                    <!-- Dots de scroll (solo mobile) -->
+                    <div class="features-scroll-dots" id="featuresScrollDots" aria-hidden="true">
+                        <span class="active" data-index="0"></span>
+                        <span data-index="1"></span>
+                        <span data-index="2"></span>
+                        <span data-index="3"></span>
+                        <span data-index="4"></span>
                     </div>
-                </div>
+                </div><!-- /features-scroll-wrapper -->
 
             </div>
             <div class="mt-12 text-center animate-features-card opacity-0">
@@ -358,74 +575,89 @@
             <p class="services-eyebrow">¿Cómo podemos ayudarte?</p>
             <h2 class="services-title">Nuestros <em>Servicios</em></h2>
         </div>
-        <div class="services-grid">
 
-            <div class="service-card">
-                <div class="service-card-img">
-                    <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80" alt="Terapia Psicológica" loading="lazy" />
+        <!-- Wrapper: scroll horizontal en mobile, grid normal en desktop -->
+        <div class="services-scroll-wrapper">
+            <div class="services-grid" id="servicesScrollTrack">
+
+                <div class="service-card">
+                    <div class="service-card-img">
+                        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80" alt="Terapia Psicológica" loading="lazy" />
+                    </div>
+                    <div class="service-card-body">
+                        <h3 class="service-card-title">Terapias Psicológicas</h3>
+                        <p>Un proceso personalizado para transformar tu bienestar emocional con estrategias validadas y enfoque humano.</p>
+                    </div>
                 </div>
-                <div class="service-card-body">
-                    <h3 class="service-card-title">Terapias Psicológicas</h3>
-                    <p>Un proceso personalizado para transformar tu bienestar emocional con estrategias validadas y enfoque humano.</p>
+
+                <div class="service-card">
+                    <div class="service-card-img">
+                        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=80" alt="Terapia para Niños" loading="lazy" />
+                    </div>
+                    <div class="service-card-body">
+                        <h3 class="service-card-title">Para Niños</h3>
+                        <p>Un espacio seguro donde los niños gestionan sus emociones a través del juego y el acompañamiento familiar.</p>
+                        <a href="terapia.html#ninos" class="service-card-link">Ver más →</a>
+                    </div>
                 </div>
+
+                <div class="service-card">
+                    <div class="service-card-img">
+                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80" alt="Terapia para Adolescentes" loading="lazy" />
+                    </div>
+                    <div class="service-card-body">
+                        <h3 class="service-card-title">Para Adolescentes</h3>
+                        <p>Un espacio confidencial para expresarse, construir identidad y gestionar las emociones de esta etapa.</p>
+                        <a href="terapia.html#adolescentes" class="service-card-link">Ver más →</a>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-card-img">
+                        <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80" alt="Terapia para Adultos" loading="lazy" />
+                    </div>
+                    <div class="service-card-body">
+                        <h3 class="service-card-title">Para Adultos</h3>
+                        <p>Un espacio de pausa para trabajar el estrés, la ansiedad y el agotamiento del día a día.</p>
+                        <a href="terapia.html#adultos" class="service-card-link">Ver más →</a>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-card-img">
+                        <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&q=80" alt="Terapia de Pareja" loading="lazy" />
+                    </div>
+                    <div class="service-card-body">
+                        <h3 class="service-card-title">Terapia de Pareja</h3>
+                        <p>Un espacio neutral para reconstruir la comunicación y los vínculos cuando la relación lo necesita.</p>
+                        <a href="terapia.html#adultos" class="service-card-link">Ver más →</a>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-card-img">
+                        <img src="https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&q=80" alt="Terapia de Familia" loading="lazy" />
+                    </div>
+                    <div class="service-card-body">
+                        <h3 class="service-card-title">Terapia de Familia</h3>
+                        <p>Un espacio donde todos los miembros del hogar pueden escucharse y fortalecer sus vínculos.</p>
+                        <a href="terapia.html#familia" class="service-card-link">Ver más →</a>
+                    </div>
+                </div>
+
+            </div><!-- /services-grid -->
+
+            <!-- Dots de scroll (solo mobile) -->
+            <div class="services-scroll-dots" id="servicesScrollDots" aria-hidden="true">
+                <span class="active" data-index="0"></span>
+                <span data-index="1"></span>
+                <span data-index="2"></span>
+                <span data-index="3"></span>
+                <span data-index="4"></span>
+                <span data-index="5"></span>
             </div>
+        </div><!-- /services-scroll-wrapper -->
 
-            <div class="service-card">
-                <div class="service-card-img">
-                    <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=80" alt="Terapia para Niños" loading="lazy" />
-                </div>
-                <div class="service-card-body">
-                    <h3 class="service-card-title">Para Niños</h3>
-                    <p>Un espacio seguro donde los niños gestionan sus emociones a través del juego y el acompañamiento familiar.</p>
-                    <a href="terapia.html#ninos" class="service-card-link">Ver más →</a>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <div class="service-card-img">
-                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80" alt="Terapia para Adolescentes" loading="lazy" />
-                </div>
-                <div class="service-card-body">
-                    <h3 class="service-card-title">Para Adolescentes</h3>
-                    <p>Un espacio confidencial para expresarse, construir identidad y gestionar las emociones de esta etapa.</p>
-                    <a href="terapia.html#adolescentes" class="service-card-link">Ver más →</a>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <div class="service-card-img">
-                    <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80" alt="Terapia para Adultos" loading="lazy" />
-                </div>
-                <div class="service-card-body">
-                    <h3 class="service-card-title">Para Adultos</h3>
-                    <p>Un espacio de pausa para trabajar el estrés, la ansiedad y el agotamiento del día a día.</p>
-                    <a href="terapia.html#adultos" class="service-card-link">Ver más →</a>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <div class="service-card-img">
-                    <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&q=80" alt="Terapia de Pareja" loading="lazy" />
-                </div>
-                <div class="service-card-body">
-                    <h3 class="service-card-title">Terapia de Pareja</h3>
-                    <p>Un espacio neutral para reconstruir la comunicación y los vínculos cuando la relación lo necesita.</p>
-                    <a href="terapia.html#adultos" class="service-card-link">Ver más →</a>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <div class="service-card-img">
-                    <img src="https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&q=80" alt="Terapia de Familia" loading="lazy" />
-                </div>
-                <div class="service-card-body">
-                    <h3 class="service-card-title">Terapia de Familia</h3>
-                    <p>Un espacio donde todos los miembros del hogar pueden escucharse y fortalecer sus vínculos.</p>
-                    <a href="terapia.html#familia" class="service-card-link">Ver más →</a>
-                </div>
-            </div>
-
-        </div>
     </section>
 
     <!-- CURSOS -->
@@ -445,110 +677,125 @@
     </section>
 
     <!-- ===== PLANES DE ACOMPAÑAMIENTO (PRICING) ===== -->
-    <section class="py-20 bg-white" id="planes">
+    <section class="py-12 md:py-16 bg-white" id="planes">
         <div class="max-w-6xl mx-auto px-4">
             <div class="text-center mb-12">
                 <p class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-pricing-header opacity-0">Tarifas Transparentes</p>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-3 animate-pricing-header opacity-0">Planes de <span class="text-[#f10075] italic font-light">Acompañamiento</span></h2>
                 <p class="text-sm text-gray-500 max-w-xl mx-auto animate-pricing-header opacity-0">Elige la modalidad que mejor se adapte a tus necesidades de bienestar emocional.</p>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Plan 1 -->
-                <div class="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
-                    <div>
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-xs font-bold text-[#004fb0] tracking-wider uppercase bg-blue-50 px-3 py-1 rounded-full">Individual</span>
+
+            <!-- Wrapper: scroll horizontal en mobile, grid normal en desktop -->
+            <div class="plans-scroll-wrapper">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="plansScrollTrack">
+
+                    <!-- Plan 1 -->
+                    <div class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs font-bold text-[#004fb0] tracking-wider uppercase bg-blue-50 px-3 py-1 rounded-full">Individual</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Terapia Individual</h3>
+                            <p class="text-xs text-gray-500 mb-6">Para procesos de crecimiento personal, ansiedad y manejo del estrés.</p>
+                            <div class="mb-6">
+                                <span class="text-4xl font-extrabold text-gray-900">S/ 120</span>
+                                <span class="text-sm text-gray-500">/ sesión</span>
+                            </div>
+                            <ul class="space-y-3 mb-8">
+                                <li class="flex items-center text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    Sesiones de 45-50 minutos
+                                </li>
+                                <li class="flex items-center text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    Modalidad Presencial u Online
+                                </li>
+                                <li class="flex items-center text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    Terapeutas colegiados y especializados
+                                </li>
+                            </ul>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Terapia Individual</h3>
-                        <p class="text-xs text-gray-500 mb-6">Para procesos de crecimiento personal, ansiedad y manejo del estrés.</p>
-                        <div class="mb-6">
-                            <span class="text-4xl font-extrabold text-gray-900">S/ 120</span>
-                            <span class="text-sm text-gray-500">/ sesión</span>
-                        </div>
-                        <ul class="space-y-3 mb-8">
-                            <li class="flex items-center text-xs text-gray-600">
-                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                Sesiones de 45-50 minutos
-                            </li>
-                            <li class="flex items-center text-xs text-gray-600">
-                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                Modalidad Presencial u Online
-                            </li>
-                            <li class="flex items-center text-xs text-gray-600">
-                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                Terapeutas colegiados y especializados
-                            </li>
-                        </ul>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20Individual" target="_blank" class="w-full text-center py-3 rounded-xl border border-[#004fb0] text-[#004fb0] hover:bg-[#004fb0] hover:text-white font-semibold text-sm transition-colors duration-200">Agendar Cita</a>
                     </div>
-                    <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20Individual" target="_blank" class="w-full text-center py-3 rounded-xl border border-[#004fb0] text-[#004fb0] hover:bg-[#004fb0] hover:text-white font-semibold text-sm transition-colors duration-200">Agendar Cita</a>
-                </div>
-                
-                <!-- Plan 2 (Destacado) -->
-                <div class="bg-white border-2 border-[#f10075] rounded-3xl p-8 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col justify-between relative scale-105 z-10 animate-pricing-card opacity-0 group">
-                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#f10075] text-white text-[10px] font-bold tracking-widest uppercase px-4 py-1 rounded-full shadow-sm">RECOMENDADO</div>
-                    <div>
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-xs font-bold text-[#f10075] tracking-wider uppercase bg-pink-50 px-3 py-1 rounded-full">Parejas & Familia</span>
+
+                    <!-- Plan 2 (Destacado) -->
+                    <div class="plans-card plans-card--featured bg-white border-2 border-[#f10075] rounded-3xl p-8 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col justify-between relative animate-pricing-card opacity-0 group">
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#f10075] text-white text-[10px] font-bold tracking-widest uppercase px-4 py-1 rounded-full shadow-sm">RECOMENDADO</div>
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs font-bold text-[#f10075] tracking-wider uppercase bg-pink-50 px-3 py-1 rounded-full">Parejas &amp; Familia</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Terapia de Pareja</h3>
+                            <p class="text-xs text-gray-500 mb-6">Fortalece los vínculos familiares, comunicación y resolución de conflictos.</p>
+                            <div class="mb-6">
+                                <span class="text-4xl font-extrabold text-gray-900">S/ 150</span>
+                                <span class="text-sm text-gray-500">/ sesión</span>
+                            </div>
+                            <ul class="space-y-3 mb-8">
+                                <li class="flex items-center text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    Sesiones de 50-60 minutos
+                                </li>
+                                <li class="flex items-center text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    Mediación profesional y neutral
+                                </li>
+                                <li class="flex items-center text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    Ejercicios prácticos de comunicación
+                                </li>
+                            </ul>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Terapia de Pareja</h3>
-                        <p class="text-xs text-gray-500 mb-6">Fortalece los vínculos familiares, comunicación y resolución de conflictos.</p>
-                        <div class="mb-6">
-                            <span class="text-4xl font-extrabold text-gray-900">S/ 150</span>
-                            <span class="text-sm text-gray-500">/ sesión</span>
-                        </div>
-                        <ul class="space-y-3 mb-8">
-                            <li class="flex items-center text-xs text-gray-600">
-                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                Sesiones de 50-60 minutos
-                            </li>
-                            <li class="flex items-center text-xs text-gray-600">
-                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                Mediación profesional y neutral
-                            </li>
-                            <li class="flex items-center text-xs text-gray-600">
-                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                Ejercicios prácticos de comunicación
-                            </li>
-                        </ul>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20de%20Pareja" target="_blank" class="w-full text-center py-3 rounded-xl bg-[#f10075] hover:bg-[#d10065] text-white font-semibold text-sm shadow-md shadow-pink-500/10 transition-colors duration-200">Agendar Cita</a>
                     </div>
-                    <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20de%20Pareja" target="_blank" class="w-full text-center py-3 rounded-xl bg-[#f10075] hover:bg-[#d10065] text-white font-semibold text-sm shadow-md shadow-pink-500/10 transition-colors duration-200">Agendar Cita</a>
-                </div>
-                
-                <!-- Plan 3 -->
-                <div class="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
-                    <div>
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-xs font-bold text-gray-600 tracking-wider uppercase bg-gray-100 px-3 py-1 rounded-full">Paquetes</span>
+
+                    <!-- Plan 3 -->
+                    <div class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs font-bold text-gray-600 tracking-wider uppercase bg-gray-100 px-3 py-1 rounded-full">Paquetes</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Paquete Bienestar</h3>
+                            <p class="text-xs text-gray-500 mb-6">Ahorra en tu proceso completo con un paquete de 4 sesiones prepagadas.</p>
+                            <div class="mb-6">
+                                <span class="text-4xl font-extrabold text-gray-900">S/ 450</span>
+                                <span class="text-sm text-gray-500">/ 4 sesiones</span>
+                            </div>
+                            <ul class="space-y-3 mb-8">
+                                <li class="flex items-center text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    Equivalente a S/ 112.50 por sesión
+                                </li>
+                                <li class="flex items-center text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    Seguimiento personalizado vía chat
+                                </li>
+                                <li class="flex items-center text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    Validez de 2 meses para agendar
+                                </li>
+                            </ul>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Paquete Bienestar</h3>
-                        <p class="text-xs text-gray-500 mb-6">Ahorra en tu proceso completo con un paquete de 4 sesiones prepagadas.</p>
-                        <div class="mb-6">
-                            <span class="text-4xl font-extrabold text-gray-900">S/ 450</span>
-                            <span class="text-sm text-gray-500">/ 4 sesiones</span>
-                        </div>
-                        <ul class="space-y-3 mb-8">
-                            <li class="flex items-center text-xs text-gray-600">
-                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                Equivalente a S/ 112.50 por sesión
-                            </li>
-                            <li class="flex items-center text-xs text-gray-600">
-                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                Seguimiento personalizado vía chat
-                            </li>
-                            <li class="flex items-center text-xs text-gray-600">
-                                <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                Validez de 2 meses para agendar
-                            </li>
-                        </ul>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20adquirir%2520el%2520Paquete%2520Bienestar" target="_blank" class="w-full text-center py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold text-sm transition-colors duration-200">Adquirir Plan</a>
                     </div>
-                    <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20adquirir%2520el%2520Paquete%2520Bienestar" target="_blank" class="w-full text-center py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold text-sm transition-colors duration-200">Adquirir Plan</a>
+
+                </div><!-- /grid -->
+
+                <!-- Dots de scroll (solo mobile) -->
+                <div class="plans-scroll-dots" id="plansScrollDots" aria-hidden="true">
+                    <span class="active" data-index="0"></span>
+                    <span data-index="1"></span>
+                    <span data-index="2"></span>
                 </div>
-            </div>
+            </div><!-- /plans-scroll-wrapper -->
+
         </div>
     </section>
 
+
     <!-- ===== FAQ PREMIUM ===== -->
+
     <section class="faq-premium-section" id="faq">
         <div class="container">
             <div class="faq-premium-header">
@@ -767,5 +1014,100 @@
             }
         }
     </script>
+
+    <script>
+        /* ===== Features scroll dots sync ===== */
+        (function () {
+            const track = document.getElementById('featuresScrollTrack');
+            const dots  = document.querySelectorAll('#featuresScrollDots span');
+            if (!track || !dots.length) return;
+
+            function updateDots() {
+                const cards = track.querySelectorAll(':scope > div');
+                if (!cards.length) return;
+                const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
+                const cardWidth = cards[0].offsetWidth + gap;
+                const idx = Math.round(track.scrollLeft / cardWidth);
+                dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+            }
+
+            track.addEventListener('scroll', updateDots, { passive: true });
+
+            // Click en dot → scroll a esa card
+            dots.forEach((dot, i) => {
+                dot.addEventListener('click', () => {
+                    const cards = track.querySelectorAll(':scope > div');
+                    if (cards[i]) {
+                        const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
+                        const cardWidth = cards[0].offsetWidth + gap;
+                        track.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
+                    }
+                });
+            });
+        })();
+    </script>
+
+    <script>
+        /* ===== Services scroll dots sync ===== */
+        (function () {
+            const track = document.getElementById('servicesScrollTrack');
+            const dots  = document.querySelectorAll('#servicesScrollDots span');
+            if (!track || !dots.length) return;
+
+            function updateDots() {
+                const cards = track.querySelectorAll(':scope > .service-card');
+                if (!cards.length) return;
+                const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
+                const cardWidth = cards[0].offsetWidth + gap;
+                const idx = Math.round(track.scrollLeft / cardWidth);
+                dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+            }
+
+            track.addEventListener('scroll', updateDots, { passive: true });
+
+            dots.forEach((dot, i) => {
+                dot.addEventListener('click', () => {
+                    const cards = track.querySelectorAll(':scope > .service-card');
+                    if (cards[i]) {
+                        const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
+                        const cardWidth = cards[0].offsetWidth + gap;
+                        track.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
+                    }
+                });
+            });
+        })();
+    </script>
+
+    <script>
+        /* ===== Plans scroll dots sync ===== */
+        (function () {
+            const track = document.getElementById('plansScrollTrack');
+            const dots  = document.querySelectorAll('#plansScrollDots span');
+            if (!track || !dots.length) return;
+
+            function updateDots() {
+                const cards = track.querySelectorAll(':scope > .plans-card');
+                if (!cards.length) return;
+                const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
+                const cardWidth = cards[0].offsetWidth + gap;
+                const idx = Math.round(track.scrollLeft / cardWidth);
+                dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+            }
+
+            track.addEventListener('scroll', updateDots, { passive: true });
+
+            dots.forEach((dot, i) => {
+                dot.addEventListener('click', () => {
+                    const cards = track.querySelectorAll(':scope > .plans-card');
+                    if (cards[i]) {
+                        const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
+                        const cardWidth = cards[0].offsetWidth + gap;
+                        track.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
+                    }
+                });
+            });
+        })();
+    </script>
+
 </body>
 </html>

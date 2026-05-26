@@ -14,6 +14,11 @@
     font-family: 'Poppins', sans-serif;
 }
 
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     color: var(--text-dark);
     line-height: 1.6;
@@ -28,7 +33,12 @@ body {
 }
 
 .section-padding {
-    padding: 80px 0;
+    padding: 55px 0;
+}
+@media (max-width: 767px) {
+    .section-padding {
+        padding: 35px 0;
+    }
 }
 
 .bg-light {
@@ -799,7 +809,91 @@ nav {
     border-color: #c4176f;
 }
 
-/* ===== SERVICES (rows — otras páginas) ===== */
+/* ===== SERVICES GRID — HORIZONTAL SCROLL MOBILE ===== */
+@media (max-width: 767px) {
+
+    .services-scroll-wrapper {
+        position: relative;
+        margin: 0 -20px;
+        overflow: hidden;  /* oculta las cards vecinas */
+    }
+
+    .services-scroll-wrapper::before {
+        content: 'Desliza para ver más →';
+        display: block;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--primary-pink);
+        opacity: 0.75;
+        margin-bottom: 10px;
+    }
+
+    /* Track: espacio en blanco entre servicios y márgenes laterales */
+    .services-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 1.5rem !important;      /* espacio en blanco entre servicios */
+        overflow-x: auto;
+        overflow-y: visible;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 8px 20px 20px 20px !important; /* márgenes laterales para respiro visual */
+        grid-template-columns: none !important;
+    }
+    .services-grid::-webkit-scrollbar { display: none; }
+
+    /* Cada card: ancho visible menos márgenes laterales */
+    .service-card {
+        flex: 0 0 calc(100% - 40px) !important;
+        width: calc(100% - 40px) !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        scroll-snap-align: center;
+        border-radius: 18px !important;
+        margin: 0 !important;        /* gap y padding se encargan del espaciado */
+        box-sizing: border-box;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.09) !important;
+        transform: none !important;
+    }
+
+    .service-card-img {
+        height: 160px !important;
+    }
+
+    /* Dots */
+    .services-scroll-dots {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        margin-top: 8px;
+        padding-bottom: 4px;
+    }
+    .services-scroll-dots span {
+        display: inline-block;
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: #d1d5db;
+        transition: background 0.3s, width 0.3s, border-radius 0.3s;
+        cursor: pointer; flex-shrink: 0;
+    }
+    .services-scroll-dots span.active {
+        background: var(--primary-pink);
+        width: 22px;
+        border-radius: 4px;
+    }
+}
+
+/* En desktop: el wrapper no altera nada */
+@media (min-width: 768px) {
+    .services-scroll-wrapper::before { display: none; }
+    .services-scroll-dots { display: none; }
+}
+
+
 .service-row {
     display: flex;
     align-items: center;
@@ -1056,13 +1150,23 @@ nav {
     background: #F4F7FF;
     color: var(--text-dark);
     border-radius: 0;
-    padding: 80px 20px;
+    padding: 55px 20px;
     margin-bottom: 60px;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     width: 100vw;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
+}
+@media (max-width: 767px) {
+    .capacitacion-banner {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 16px;
+        padding: 40px 16px;
+        margin-bottom: 30px;
+    }
 }
 
 .capacitacion-banner--with-bg {
@@ -1231,7 +1335,12 @@ nav {
 
 /* ===== ABOUT / NOSOTROS ===== */
 .about-section {
-    padding: 80px 0;
+    padding: 55px 0;
+}
+@media (max-width: 767px) {
+    .about-section {
+        padding: 35px 0;
+    }
 }
 
 .about-main-title {
@@ -1383,9 +1492,14 @@ nav {
 .ubicanos-section {
     position: relative;
     color: var(--white);
-    padding: 60px 0;
+    padding: 45px 0;
     overflow: hidden;
     z-index: 1;
+}
+@media (max-width: 767px) {
+    .ubicanos-section {
+        padding: 30px 0;
+    }
 }
 
 .ubicanos-section::before {
@@ -1451,8 +1565,13 @@ nav {
 /* ===== WHY-KJA STRIP ===== */
 .why-kja-strip {
     background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%);
-    padding: 80px 0;
+    padding: 55px 0;
     border-top: 4px solid var(--primary-pink);
+}
+@media (max-width: 767px) {
+    .why-kja-strip {
+        padding: 35px 0;
+    }
 }
 
 .why-strip-header {
@@ -1759,8 +1878,13 @@ nav {
 
 /* ===== FAQ PREMIUM ===== */
 .faq-premium-section {
-    padding: 90px 0;
+    padding: 60px 0;
     background: #fff;
+}
+@media (max-width: 767px) {
+    .faq-premium-section {
+        padding: 40px 0;
+    }
 }
 
 .faq-premium-header {
@@ -2222,9 +2346,14 @@ footer {
     position: relative;
     color: var(--white);
     text-align: center;
-    padding: 90px 20px;
+    padding: 65px 20px;
     z-index: 1;
     overflow: hidden;
+}
+@media (max-width: 767px) {
+    .page-hero {
+        padding: 45px 20px;
+    }
 }
 
 .page-hero::before {
