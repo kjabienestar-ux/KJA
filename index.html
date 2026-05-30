@@ -219,6 +219,480 @@
             .plans-scroll-wrapper::before { display: none; }
             .plans-scroll-dots { display: none; }
         }
+
+        /* ===== LA DIFERENCIA KJA — V3 REFERENCE ===== */
+        .glass-bubbles {
+            position: relative;
+            background: linear-gradient(135deg, #004fb0 0%, #002f6c 50%, #001a3d 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            overflow: hidden;
+        }
+        .glass-bubbles::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1;
+            pointer-events: none;
+        }
+        .glass-bubble {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(1px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .glass-bubble--1 { width: 140px; height: 140px; background: rgba(241,0,117,0.12); top: 10%; left: 5%; animation: bubbleFloat1 7s ease-in-out infinite; }
+        .glass-bubble--2 { width: 90px; height: 90px; background: rgba(0,79,176,0.15); top: 60%; left: 15%; animation: bubbleFloat2 5s ease-in-out infinite; }
+        .glass-bubble--3 { width: 180px; height: 180px; background: rgba(255,255,255,0.04); top: 30%; right: 10%; animation: bubbleFloat3 9s ease-in-out infinite; }
+        .glass-bubble--4 { width: 70px; height: 70px; background: rgba(241,0,117,0.08); bottom: 15%; right: 25%; animation: bubbleFloat1 6s ease-in-out infinite 1s; }
+        .glass-bubble--5 { width: 110px; height: 110px; background: rgba(0,79,176,0.1); bottom: 30%; left: 40%; animation: bubbleFloat2 8s ease-in-out infinite 0.5s; }
+        .glass-bubble--6 { width: 60px; height: 60px; background: rgba(255,255,255,0.06); top: 5%; right: 40%; animation: bubbleFloat3 4s ease-in-out infinite 1.5s; }
+        @keyframes bubbleFloat1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(15px, -20px) scale(1.05); }
+            66% { transform: translate(-10px, 10px) scale(0.97); }
+        }
+        @keyframes bubbleFloat2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-20px, -15px) scale(1.08); }
+        }
+        @keyframes bubbleFloat3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(10px, 15px) scale(1.03); }
+            75% { transform: translate(-15px, -10px) scale(0.96); }
+        }
+        .glass-avatar-profile {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            z-index: 20;
+        }
+        @media (min-width: 768px) {
+            .glass-avatar-profile { top: 2rem; right: 2rem; width: 64px; height: 64px; }
+        }
+        @media (min-width: 1024px) {
+            .glass-avatar-profile { top: 2.5rem; right: 2.5rem; width: 72px; height: 72px; }
+        }
+
+        .therapy-pill-v3 {
+            font-size: 12px;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-family: inherit;
+            font-weight: 600;
+            line-height: 1.3;
+            letter-spacing: 0.01em;
+        }
+        .therapy-pill-v3:hover {
+            background: rgba(255,255,255,0.18);
+            border-color: rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05);
+        }
+        .therapy-pill-v3.active {
+            background: rgba(241,0,117,0.5);
+            border-color: rgba(241,0,117,0.8);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(241,0,117,0.35), 0 0 0 1px rgba(241,0,117,0.5);
+        }
+
+        /* ===== COMMITMENT CARDS ===== */
+        .commitment-card {
+            background: #fff;
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .commitment-card:hover {
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            transform: translateY(-3px);
+        }
+        .commitment-card--dark {
+            background: linear-gradient(135deg, #004fb0 0%, #002f6c 100%);
+            color: #fff;
+            border: none;
+            box-shadow: 0 12px 30px rgba(0,79,176,0.2);
+        }
+        .commitment-card--dark .commitment-eyebrow { color: #f10075; }
+        .commitment-card--dark .commitment-title { color: #fff; }
+        .commitment-card--dark .google-review-bubble {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.15);
+        }
+        .commitment-card--dark .google-review-bubble::before {
+            background: rgba(255,255,255,0.12);
+            border-bottom-color: rgba(255,255,255,0.15);
+            border-right-color: rgba(255,255,255,0.15);
+        }
+        .commitment-card--dark .google-review-text { color: rgba(255,255,255,0.9); }
+        .commitment-card--dark .google-review-author { color: #fff; }
+        .commitment-card--dark .profile-icon {
+            border-color: rgba(255,255,255,0.25);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .commitment-eyebrow {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #f10075;
+            margin-bottom: 1.25rem;
+        }
+        .commitment-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1.3;
+            margin-bottom: 0.5rem;
+        }
+        .commitment-subtitle {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 1rem;
+        }
+        .profile-icon {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: #dbe4ff;
+        }
+        .profile-icon svg { width: 100%; height: 100%; }
+
+        .google-review-bubble {
+            background: #f8f9ff;
+            border: 1px solid rgba(0,79,176,0.08);
+            border-radius: 1.25rem;
+            padding: 1rem 1.25rem;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .google-review-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 28px;
+            width: 16px; height: 16px;
+            background: #f8f9ff;
+            border-bottom: 1px solid rgba(0,79,176,0.08);
+            border-right: 1px solid rgba(0,79,176,0.08);
+            transform: rotate(45deg);
+        }
+        .google-review-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+        }
+        .google-review-logo {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #4285F4;
+            display: flex; align-items: center; gap: 2px;
+        }
+        .google-review-stars { display: flex; gap: 2px; }
+        .google-review-stars svg { width: 12px; height: 12px; fill: #f59e0b; }
+        .google-review-text {
+            font-size: 0.8rem;
+            color: #4b5563;
+            line-height: 1.55;
+            font-style: italic;
+        }
+        .google-review-author {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #111827;
+            margin-top: 0.75rem;
+            padding-left: 0.5rem;
+        }
+
+        .flex-icons-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.25rem 0;
+            flex-wrap: wrap;
+        }
+        .flex-icon-box-xl {
+            width: 64px; height: 64px;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+            border: 1px solid rgba(0,79,176,0.1);
+            color: #004fb0;
+            box-shadow: 0 4px 14px rgba(0,79,176,0.08);
+        }
+        .flex-icon-box-xl svg { width: 28px; height: 28px; }
+        .flex-arrow {
+            color: #cbd5e1;
+            font-size: 1.2rem;
+        }
+
+        .stat-big {
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, #004fb0, #f10075);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.25rem;
+        }
+        .stat-curve-area {
+            width: 100%;
+            height: 70px;
+            margin: 0.5rem 0 0.75rem;
+        }
+        .mini-testi {
+            background: #f8f9ff;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.78rem;
+            color: #4b5563;
+            line-height: 1.5;
+            margin-top: auto;
+        }
+        .mini-testi strong { color: #111827; font-weight: 700; }
+
+        .connect-line {
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, #004fb0, #f10075);
+            border-radius: 1px;
+            min-width: 20px;
+            max-width: 40px;
+        }
+
+        /* ===== TERAPIA INFANTIL CARD ===== */
+        .ti-icons-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 0;
+        }
+        .ti-col-side {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            gap: 14px;
+            flex: 1;
+        }
+        .ti-col-center {
+            flex: 1.4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ti-icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .ti-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #f0f4ff;
+            border: 1px solid rgba(0,79,176,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ti-icon-label {
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: #374151;
+            text-align: center;
+        }
+
+        /* ===== CARD BORDERED ===== */
+        .commitment-card--bordered {
+            border: 2px solid #f10075;
+        }
+
+        /* ===== CAROUSEL DOTS ===== */
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-top: 1rem;
+        }
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: #d1d5db;
+            transition: all 0.35s cubic-bezier(0.25,0.8,0.25,1);
+            cursor: pointer;
+        }
+        .carousel-dot.active {
+            background: #004fb0;
+            width: 22px;
+        }
+
+        /* ===== DYNAMIC THERAPY CARD ===== */
+        .therapy-card-dynamic {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            border-radius: 1.25rem;
+        }
+        .therapy-card-dynamic > img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.4s ease, transform 0.6s ease;
+        }
+        .therapy-card-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 1.25rem;
+            background: linear-gradient(to top, rgba(0,15,50,0.88) 0%, rgba(0,15,50,0.45) 55%, transparent 100%);
+            transition: opacity 0.4s ease;
+        }
+        .therapy-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.04em;
+        }
+        .therapy-card-dynamic.fading > img { opacity: 0; transform: scale(1.03); }
+        .therapy-card-dynamic.fading .therapy-card-overlay { opacity: 0; }
+
+        /* ===== COMMITMENT TRACK (carousel) ===== */
+        .commitment-track {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        @media (max-width: 767px) {
+            .commitment-track {
+                display: flex;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                gap: 0.75rem;
+                padding-bottom: 0.5rem;
+            }
+            .commitment-track::-webkit-scrollbar { display: none; }
+            .commitment-track > article {
+                min-width: calc(88vw);
+                max-width: calc(88vw);
+                scroll-snap-align: center;
+                flex-shrink: 0;
+            }
+        }
+
+        /* ===== STAT PULSE ===== */
+        @keyframes statPulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.05); filter: brightness(1.08); }
+        }
+        .stat-pulse-anim { animation: statPulse 3.5s ease-in-out infinite; }
+
+        /* ===== FLEXIBILIDAD BLOCKS ===== */
+        .flex-mode-block {
+            flex: 1;
+            border-radius: 14px;
+            padding: 0.85rem 0.4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            min-height: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        .flex-mode-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.25);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .flex-mode-label {
+            font-size: 0.55rem;
+            font-weight: 800;
+            color: rgba(255,255,255,0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-align: center;
+        }
+
+        /* ===== ONLINE/PRESENCIAL PANEL ===== */
+        .mode-panel {
+            flex: 1;
+            border-radius: 12px;
+            padding: 0.7rem 0.55rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow: hidden;
+        }
+        .mode-panel-label {
+            font-size: 0.52rem;
+            font-weight: 800;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 4px;
+        }
+        .mode-panel-sub {
+            font-size: 0.42rem;
+            color: rgba(255,255,255,0.45);
+            text-align: center;
+            margin-top: 1px;
+        }
+        @keyframes liveBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.25; }
+        }
+        @keyframes mapPulse {
+            0% { r: 6; opacity: 0.7; }
+            100% { r: 14; opacity: 0; }
+        }
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%,-50%) scale(1); }
+            50% { opacity: 0.9; transform: translate(-50%,-50%) scale(1.25); }
+        }
     </style>
 </head>
 <body> 
@@ -380,192 +854,301 @@
         </div>
     </div>
 
-    <!-- ===== ¿POR QUÉ ELEGIR KJA? — BENTO GRID ===== -->
-    <section class="py-12 md:py-16 bg-gray-50/50" id="por-que-kja">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="mb-12 text-center">
-                <p class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-features-header opacity-0">¿Por qué elegirnos?</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-3 animate-features-header opacity-0">La diferencia <span class="text-[#f10075] italic font-light">KJA</span></h2>
-                <p class="text-sm text-gray-500 max-w-2xl mx-auto animate-features-header opacity-0">Más de 5 años acompañando familias, niños, jóvenes y adultos hacia su bienestar emocional.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- ===== LA DIFERENCIA KJA — COMPACT ===== -->
+    <section class="py-10 md:py-14 bg-white" id="por-que-kja">
+        <div class="max-w-6xl mx-auto px-4 md:px-6">
 
-                <!-- Card 1 — Featured (2 cols) -->
-                <div class="md:col-span-2 bg-gradient-to-br from-[#004fb0] to-[#002f6c] text-white p-8 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group flex flex-col justify-between animate-features-card opacity-0 min-h-[320px]">
-                    <div class="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-105 transition-transform duration-500 w-80 h-80">
-                        <!-- Aura de fondo simulada en CSS -->
-                    </div>
-                    <div class="max-w-md z-10 relative flex flex-col h-full justify-between">
-                        <div>
-                            <span class="text-[10px] font-bold tracking-widest uppercase bg-white/10 text-[#f10075] px-3 py-1 rounded-full border border-white/15">Equipo Colegiado</span>
-                            <h3 class="text-2xl font-bold mt-4 mb-3">Terapeutas Certificados</h3>
-                            <p class="text-sm text-blue-100/90 mb-6 leading-relaxed">Psicólogos colegiados con especialización en diversas corrientes terapéuticas validadas, acompañando familias hacia su bienestar desde 2020.</p>
-                            <div class="flex flex-wrap gap-2 mb-6">
-                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Terapia Cognitivo-Conductual</span>
-                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Terapia Sistémica</span>
-                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Terapia Infantil</span>
-                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Psicología Clínica</span>
-                                <span class="text-[10px] px-2.5 py-1 bg-white/10 rounded-full border border-white/10">Colegiados CPA</span>
+            <!-- Header compacto -->
+            <div class="mb-8 md:mb-12 text-center">
+                <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#f10075] mb-2 animate-features-header opacity-0">¿Por que elegirnos?</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-2 animate-features-header opacity-0">La diferencia <span class="text-[#f10075] italic font-light">KJA</span></h2>
+            </div>
+
+            <!-- Fila Superior: Glass + Terapia Infantil -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 mb-6">
+
+                <!-- Izquierda: Card Azul Glass (7 cols) -->
+                <div class="lg:col-span-7 glass-bubbles text-white rounded-[2rem] shadow-xl relative overflow-hidden animate-features-card opacity-0">
+                    <div class="glass-bubble glass-bubble--1"></div>
+                    <div class="glass-bubble glass-bubble--2"></div>
+                    <div class="glass-bubble glass-bubble--3"></div>
+                    <div class="glass-bubble glass-bubble--4"></div>
+                    <div class="glass-bubble glass-bubble--5"></div>
+                    <div class="glass-bubble glass-bubble--6"></div>
+
+                    <div class="relative z-10 p-5 md:p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="text-[10px] font-bold tracking-widest uppercase text-blue-200/70">
+                                EXPLORA NUESTRAS ESPECIALIDADES:
+                            </span>
+                            <div class="glass-avatar-profile" style="position:static;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;" aria-hidden="true">
+                                <svg viewBox="0 0 48 48" fill="none" style="width:24px;height:24px;">
+                                    <circle cx="24" cy="18" r="10" fill="white" opacity="0.4"/>
+                                    <path d="M12 44 C12 34 18 28 24 28 C30 28 36 34 36 44" fill="white" opacity="0.6"/>
+                                </svg>
                             </div>
                         </div>
-                        <a href="nosotros.html" class="inline-flex items-center text-sm font-semibold text-white hover:text-[#f10075] transition duration-200 mt-auto">Conoce al equipo <span class="ml-1 transition-transform group-hover:translate-x-1">→</span></a>
-                    </div>
 
-                    <!-- Ilustración decorativa: tarjeta de credencial -->
-                    <svg class="absolute right-6 bottom-6 w-36 h-48 opacity-20 md:opacity-40 pointer-events-none transition-transform duration-500 group-hover:scale-105" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <circle cx="140" cy="200" r="130" fill="rgba(255,255,255,0.025)"/>
-                        <circle cx="140" cy="200" r="85"  fill="rgba(255,255,255,0.03)"/>
-                        <rect x="16" y="36" width="152" height="200" rx="18" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"/>
-                        <path d="M16 36 H168 V56 Q168 54 92 54 Q16 54 16 56 Z" fill="rgba(241,0,117,0.18)" clip-path="inset(0 0 0 0 round 18px)"/>
-                        <rect x="16" y="36" width="152" height="20" rx="18" fill="rgba(241,0,117,0.18)"/>
-                        <rect x="16" y="48" width="152" height="8" fill="rgba(241,0,117,0.18)"/>
-                        <circle cx="92" cy="100" r="36" fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-                        <circle cx="92" cy="89" r="18" fill="rgba(255,255,255,0.2)"/>
-                        <path d="M63 136 C63 120 76 113 92 113 C108 113 121 120 121 136 C110 130 74 130 63 136 Z" fill="rgba(255,255,255,0.14)"/>
-                        <rect x="52" y="148" width="80" height="5" rx="2.5" fill="rgba(255,255,255,0.4)"/>
-                        <rect x="63" y="158" width="58" height="4" rx="2"   fill="rgba(255,255,255,0.22)"/>
-                        <rect x="46" y="172" width="92" height="22" rx="11" fill="rgba(241,0,117,0.28)" stroke="rgba(241,0,117,0.5)" stroke-width="1"/>
-                        <path d="M62 183 L63.3 187 L67.5 187 L64.3 189.3 L65.5 193.5 L62 191 L58.5 193.5 L59.7 189.3 L56.5 187 L60.7 187 Z" fill="rgba(255,255,255,0.75)"/>
-                        <rect x="72" y="179.5" width="40" height="3" rx="1.5" fill="rgba(255,255,255,0.5)"/>
-                        <rect x="72" y="186"   width="28" height="3" rx="1.5" fill="rgba(255,255,255,0.3)"/>
-                        <rect x="34" y="206" width="116" height="3" rx="1.5" fill="rgba(255,255,255,0.13)"/>
-                        <rect x="40" y="213" width="104" height="3" rx="1.5" fill="rgba(255,255,255,0.09)"/>
-                        <rect x="46" y="220" width="92"  height="3" rx="1.5" fill="rgba(255,255,255,0.07)"/>
-                        <circle cx="158" cy="52" r="22" fill="rgba(3,20,80,0.9)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
-                        <circle cx="158" cy="52" r="16" fill="rgba(241,0,117,0.6)"/>
-                        <path d="M150 52 L156 58 L167 44" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                        <circle cx="22"  cy="248" r="5" fill="rgba(255,255,255,0.06)"/>
-                        <circle cx="178" cy="244" r="8" fill="rgba(255,255,255,0.05)"/>
-                        <circle cx="10"  cy="18"  r="6" fill="rgba(241,0,117,0.1)"/>
-                        <circle cx="188" cy="14"  r="4" fill="rgba(255,255,255,0.07)"/>
-                    </svg>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Terapeutas Certificados</h3>
+
+                        <div class="flex flex-wrap gap-2 mb-5" id="therapyPills" role="tablist">
+                            <button type="button" class="therapy-pill-v3 active" role="tab" aria-selected="true" data-therapy="tcc">TERAPIA COGNITIVO-CONDUCTUAL</button>
+                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false" data-therapy="sistemica">Terapia Sistémica</button>
+                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false" data-therapy="infantil">Terapia Infantil</button>
+                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false" data-therapy="clinica">Psicología Clínica</button>
+                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false" data-therapy="cpa">Colegiados CPA</button>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-3">
+                            <a href="nosotros.html" class="inline-flex items-center justify-center gap-1.5 bg-white text-[#004fb0] hover:text-[#f10075] font-bold py-2 px-4 rounded-full text-sm shadow transition-all hover:-translate-y-0.5">
+                                Explora nuestras especialidades
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                            </a>
+                            <a href="terapia.html" class="inline-flex items-center text-xs font-semibold text-white/60 hover:text-white transition-colors">
+                                Conoce al equipo <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- ===== MINI-CARDS 2-6: Scroll horizontal en mobile ===== -->
-                <div class="features-scroll-wrapper md:contents">
-                    <div class="features-scroll-track" id="featuresScrollTrack">
-
-                        <!-- Card 2 -->
-                        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                            <div class="flex flex-col h-full justify-between">
-                                <div>
-                                    <div class="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
-                                        <svg class="w-6 h-6 text-[#f10075]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="28" cy="28" r="22" fill="#ffe0ef"/>
-                                            <circle cx="28" cy="28" r="15" fill="#ffb3d4"/>
-                                            <circle cx="28" cy="28" r="8"  fill="#f10075"/>
-                                            <circle cx="28" cy="28" r="3.5" fill="white"/>
-                                            <line x1="28" y1="4" x2="28" y2="10" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
-                                            <line x1="28" y1="46" x2="28" y2="52" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
-                                            <line x1="4"  y1="28" x2="10" y2="28" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
-                                            <line x1="46" y1="28" x2="52" y2="28" stroke="#004fb0" stroke-width="2.5" stroke-linecap="round"/>
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-base font-bold text-gray-900 mb-1">Enfoque Personalizado</h3>
-                                    <p class="text-xs text-gray-500 leading-relaxed">Cada plan terapéutico es único, diseñado exclusivamente para ti y tus metas.</p>
-                                </div>
+                <!-- Derecha: Card dinámica por terapia (5 cols) -->
+                <div class="lg:col-span-5 animate-features-card opacity-0" id="therapyRightCard" style="display:flex;flex-direction:column;">
+                    <div class="therapy-card-dynamic" id="therapyCardInner" style="flex:1;transition:opacity 0.4s ease,transform 0.4s ease;">
+                        <img id="therapyCardImg"
+                            src="https://images.unsplash.com/photo-1512438248247-f0f2a5a8b7f0?w=600&h=375&fit=crop&crop=faces,top&q=85"
+                            alt="Terapia Cognitivo-Conductual"
+                            style="object-position:center 25%;"
+                            loading="eager"
+                        />
+                        <div class="therapy-card-overlay">
+                            <div id="therapyCardTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">
+                                <span class="therapy-tag" style="background:#004fb0;">Pensamientos</span>
+                                <span class="therapy-tag" style="background:#f10075;">Emociones</span>
+                                <span class="therapy-tag" style="background:#059669;">Conducta</span>
                             </div>
+                            <h3 id="therapyCardTitle" style="font-size:1.05rem;font-weight:800;color:white;margin:0 0 5px;line-height:1.25;">Terapia Cognitivo-Conductual</h3>
+                            <p id="therapyCardDesc" style="font-size:0.72rem;color:rgba(255,255,255,0.85);line-height:1.45;margin:0;">Reestructura tus patrones de pensamiento para mejorar tu bienestar emocional de manera científica.</p>
                         </div>
-
-                        <!-- Card 3 — Accent (rosa) -->
-                        <div class="bg-gradient-to-br from-pink-50/50 to-white border border-pink-100/60 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                            <div class="flex flex-col h-full justify-between">
-                                <div>
-                                    <div class="w-12 h-12 rounded-2xl bg-pink-100 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
-                                        <svg class="w-6 h-6 text-[#f10075]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M28 5 L47 13 L47 30 C47 41 38.5 50 28 54 C17.5 50 9 41 9 30 L9 13 Z" fill="#ffe0ef"/>
-                                            <path d="M28 10 L43 17 L43 30 C43 39 36.5 46.5 28 50 C19.5 46.5 13 39 13 30 L13 17 Z" fill="#ffb3d4"/>
-                                            <rect x="21" y="28" width="14" height="11" rx="3" fill="#f10075"/>
-                                            <path d="M23 28 L23 24 C23 20.7 25.7 18 29 18 L29 18 C32.3 18 35 20.7 35 24 L35 28" stroke="#f10075" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                                            <circle cx="28" cy="33" r="2" fill="white"/>
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-base font-bold text-[#f10075] mb-1">100% Confidencial</h3>
-                                    <p class="text-xs text-gray-600 leading-relaxed">Privacidad y ética profesional garantizadas en cada sesión, presencial o en línea.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 4 -->
-                        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                            <div class="flex flex-col h-full justify-between">
-                                <div>
-                                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
-                                        <svg class="w-6 h-6 text-[#004fb0]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <rect x="4" y="8" width="48" height="32" rx="5" fill="#c7d8ff"/>
-                                            <rect x="8" y="12" width="40" height="24" rx="3" fill="#004fb0"/>
-                                            <circle cx="28" cy="21" r="5" fill="#f10075"/>
-                                            <path d="M18 36 C18 30 22 27.5 28 27.5 C34 27.5 38 30 38 36" fill="#f10075" opacity="0.7"/>
-                                            <rect x="24" y="40" width="8" height="5" rx="2" fill="#c7d8ff"/>
-                                            <rect x="18" y="45" width="20" height="3" rx="1.5" fill="#c7d8ff" opacity="0.7"/>
-                                            <path d="M42 14 Q44 12 46 14" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
-                                            <path d="M40 12 Q44 8.5 48 12"  stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/>
-                                            <circle cx="44" cy="15.5" r="1.2" fill="white" opacity="0.9"/>
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-base font-bold text-gray-900 mb-1">Presencial y Online</h3>
-                                    <p class="text-xs text-gray-500 leading-relaxed">Agenda desde casa o visítanos en San Luis, Lima. Tú eliges la modalidad.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 5 -->
-                        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                            <div class="flex flex-col h-full justify-between">
-                                <div>
-                                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
-                                        <svg class="w-6 h-6" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="16" cy="16" r="7" fill="#004fb0"/>
-                                            <path d="M5 44 C5 35 9.5 31 16 31 C22.5 31 27 35 27 44" fill="#004fb0" opacity="0.75"/>
-                                            <circle cx="40" cy="16" r="7" fill="#f10075"/>
-                                            <path d="M29 44 C29 35 33.5 31 40 31 C46.5 31 51 35 51 44" fill="#f10075" opacity="0.75"/>
-                                            <circle cx="28" cy="34" r="5" fill="#ffb3d4"/>
-                                            <path d="M21 50 C21 45 24 43 28 43 C32 43 35 45 35 50" fill="#ffb3d4" opacity="0.85"/>
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-base font-bold text-gray-900 mb-1">Para Toda la Familia</h3>
-                                    <p class="text-xs text-gray-500 leading-relaxed">Niños, adolescentes, adultos y parejas. Atendemos a todos los miembros del hogar.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 6 — Stat -->
-                        <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-features-card opacity-0 group">
-                            <div class="flex flex-col h-full justify-between">
-                                <div>
-                                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mb-3 transition-transform group-hover:scale-110 duration-300">
-                                        <svg class="w-6 h-6 text-[#004fb0]" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <rect x="4" y="4" width="48" height="48" rx="10" fill="#eef2ff"/>
-                                            <rect x="11" y="34" width="9" height="14" rx="2.5" fill="#c7d8ff"/>
-                                            <rect x="24" y="26" width="9" height="22" rx="2.5" fill="#004fb0" opacity="0.7"/>
-                                            <rect x="37" y="16" width="9" height="32" rx="2.5" fill="#f10075"/>
-                                            <polyline points="11,30 24,22 37,12" stroke="#f10075" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                                            <circle cx="37" cy="12" r="3.5" fill="#f10075"/>
-                                        </svg>
-                                    </div>
-                                    <div class="text-3xl font-extrabold text-[#004fb0] mb-1">500<span class="text-[#f10075]">+</span></div>
-                                    <h3 class="text-base font-bold text-gray-900 mb-1">Resultados Comprobados</h3>
-                                    <p class="text-xs text-gray-500 leading-relaxed">Pacientes que han transformado su bienestar emocional con nuestra metodología.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div><!-- /features-scroll-track -->
-
-                    <!-- Dots de scroll (solo mobile) -->
-                    <div class="features-scroll-dots" id="featuresScrollDots" aria-hidden="true">
-                        <span class="active" data-index="0"></span>
-                        <span data-index="1"></span>
-                        <span data-index="2"></span>
-                        <span data-index="3"></span>
-                        <span data-index="4"></span>
                     </div>
-                </div><!-- /features-scroll-wrapper -->
+                </div>
+            </div>
+
+            <!-- Header fila inferior -->
+            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 mb-4">NUESTRO IMPACTO Y COMPROMISO</p>
+
+            <!-- Fila Inferior: 3 Tarjetas — carrusel en mobile -->
+            <div class="commitment-track animate-features-card opacity-0" id="commitmentTrack">
+
+                <!-- Tarjeta 1: Historias Reales -->
+                <article class="commitment-card commitment-card--dark" style="padding:1.25rem;">
+                    <div class="commitment-eyebrow" style="margin-bottom:0.6rem;">HISTORIAS REALES</div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
+                        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0;opacity:0.75;"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        <h4 class="commitment-title" style="font-size:0.9rem;margin-bottom:0;">Testimonios que hablan</h4>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:9px;margin-bottom:0.75rem;">
+                        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&q=80"
+                            alt="María Pérez"
+                            style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(241,0,117,0.5);"
+                            loading="lazy"
+                        />
+                        <span style="font-size:0.75rem;color:rgba(255,255,255,0.9);font-weight:600;">María Pérez <span style="font-weight:400;opacity:0.65;">- Madre de familia</span></span>
+                    </div>
+                    <div class="google-review-bubble" style="padding:0.75rem 1rem;margin-bottom:0.75rem;">
+                        <div class="google-review-header" style="margin-bottom:0.3rem;">
+                            <div class="google-review-logo">
+                                <svg viewBox="0 0 24 24" width="12" height="12"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                                Google
+                            </div>
+                            <div class="google-review-stars">
+                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            </div>
+                        </div>
+                        <p class="google-review-text" style="font-size:0.74rem;">¡Gracias a KJA, nuestra familia está más unida y feliz que nunca! Totalmente recomendado. — <strong>María Pérez</strong></p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,0.1);padding-top:0.5rem;margin-top:auto;">
+                        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80"
+                            alt="Carla M."
+                            style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid rgba(241,0,117,0.4);"
+                            loading="lazy"
+                        />
+                        <span style="font-size:0.68rem;color:rgba(255,255,255,0.55);">Carla M. - Paciente adolescente</span>
+                    </div>
+                </article>
+
+                <!-- Tarjeta 2: Online o Presencial — split UI -->
+                <article class="commitment-card commitment-card--bordered" style="padding:1.1rem;display:flex;flex-direction:column;">
+                    <div class="commitment-eyebrow" style="margin-bottom:0.45rem;">ONLINE O PRESENCIAL</div>
+                    <div style="display:flex;align-items:center;gap:7px;margin-bottom:0.7rem;">
+                        <svg fill="none" stroke="#f10075" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <h4 class="commitment-title" style="font-size:0.85rem;margin-bottom:0;">Flexibilidad a tu alcance</h4>
+                    </div>
+
+                    <!-- Split: Online | O | Presencial -->
+                    <div style="display:flex;gap:6px;flex:1;min-height:120px;margin-bottom:0.7rem;">
+
+                        <!-- Panel Online -->
+                        <div class="mode-panel" style="background:linear-gradient(155deg,#0f1a2e,#1a2d50);">
+                            <!-- Badge EN LÍNEA -->
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:liveBlink 1.3s ease-in-out infinite;"></span>
+                                <span style="font-size:0.45rem;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:0.08em;">En línea</span>
+                            </div>
+                            <!-- Video call mockup -->
+                            <div style="flex:1;background:rgba(0,0,0,0.35);border-radius:8px;padding:5px;display:flex;flex-direction:column;gap:3px;">
+                                <div style="display:flex;gap:3px;flex:1;">
+                                    <!-- Terapeuta -->
+                                    <div style="flex:1;background:linear-gradient(135deg,#1e3a6e,#2d4f8a);border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;">
+                                        <div style="width:18px;height:18px;border-radius:50%;background:#4db6f5;display:flex;align-items:center;justify-content:center;">
+                                            <svg viewBox="0 0 12 12" fill="white" style="width:9px;height:9px;"><circle cx="6" cy="4" r="2.5"/><path d="M1 11C1 8.5 3.2 7 6 7C8.8 7 11 8.5 11 11" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>
+                                        </div>
+                                        <span style="font-size:0.36rem;color:rgba(255,255,255,0.65);font-weight:600;">Terapeuta</span>
+                                    </div>
+                                    <!-- Paciente -->
+                                    <div style="flex:1;background:linear-gradient(135deg,#3d1a52,#5b2d7a);border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;">
+                                        <div style="width:18px;height:18px;border-radius:50%;background:#f10075;display:flex;align-items:center;justify-content:center;">
+                                            <svg viewBox="0 0 12 12" fill="white" style="width:9px;height:9px;"><circle cx="6" cy="4" r="2.5"/><path d="M1 11C1 8.5 3.2 7 6 7C8.8 7 11 8.5 11 11" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>
+                                        </div>
+                                        <span style="font-size:0.36rem;color:rgba(255,255,255,0.65);font-weight:600;">Tú</span>
+                                    </div>
+                                </div>
+                                <!-- Barra de controles -->
+                                <div style="background:rgba(255,255,255,0.07);border-radius:4px;padding:3px 5px;display:flex;align-items:center;justify-content:center;gap:6px;">
+                                    <div style="width:11px;height:11px;border-radius:50%;background:#ef4444;"></div>
+                                    <div style="width:11px;height:11px;border-radius:50%;background:#374151;display:flex;align-items:center;justify-content:center;">
+                                        <svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="1.2" style="width:6px;height:6px;"><path d="M3 2h4v6H3z"/><path d="M1 4v2M9 4v2"/></svg>
+                                    </div>
+                                    <div style="width:11px;height:11px;border-radius:50%;background:#374151;display:flex;align-items:center;justify-content:center;">
+                                        <svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="1.2" style="width:6px;height:6px;"><rect x="1" y="2.5" width="5" height="4" rx="1"/><path d="M6 4.5l3-2v4l-3-2z"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:4px;">
+                                <div class="mode-panel-label">Online</div>
+                                <div class="mode-panel-sub">Desde cualquier lugar</div>
+                            </div>
+                        </div>
+
+                        <!-- Divisor "O" -->
+                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:17px;flex-shrink:0;">
+                            <div style="flex:1;width:1px;background:linear-gradient(to bottom,transparent,rgba(241,0,117,0.35));"></div>
+                            <div style="width:17px;height:17px;border-radius:50%;background:white;border:1.5px solid #f10075;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <span style="font-size:0.48rem;font-weight:900;color:#f10075;">O</span>
+                            </div>
+                            <div style="flex:1;width:1px;background:linear-gradient(to bottom,rgba(241,0,117,0.35),transparent);"></div>
+                        </div>
+
+                        <!-- Panel Presencial -->
+                        <div class="mode-panel" style="background:linear-gradient(155deg,#0a2118,#0f3025);">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <span style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>
+                                <span style="font-size:0.45rem;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:0.08em;">Presencial</span>
+                            </div>
+                            <!-- Mini mapa SVG -->
+                            <div style="flex:1;border-radius:8px;overflow:hidden;position:relative;">
+                                <svg width="100%" height="100%" viewBox="0 0 80 65" preserveAspectRatio="xMidYMid slice">
+                                    <rect width="80" height="65" fill="#0d2b1c"/>
+                                    <!-- Calles -->
+                                    <rect x="0" y="16" width="80" height="2.5" fill="rgba(255,255,255,0.07)"/>
+                                    <rect x="0" y="34" width="80" height="2.5" fill="rgba(255,255,255,0.07)"/>
+                                    <rect x="0" y="52" width="80" height="2.5" fill="rgba(255,255,255,0.07)"/>
+                                    <rect x="18" y="0" width="2.5" height="65" fill="rgba(255,255,255,0.07)"/>
+                                    <rect x="40" y="0" width="2.5" height="65" fill="rgba(255,255,255,0.07)"/>
+                                    <rect x="62" y="0" width="2.5" height="65" fill="rgba(255,255,255,0.07)"/>
+                                    <!-- Bloques de edificios -->
+                                    <rect x="2" y="2" width="13" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
+                                    <rect x="22" y="2" width="15" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
+                                    <rect x="44" y="2" width="15" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
+                                    <rect x="2" y="20" width="13" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
+                                    <rect x="65" y="20" width="13" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
+                                    <rect x="44" y="20" width="15" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
+                                    <!-- Pulso animado -->
+                                    <circle cx="41" cy="32" r="8" fill="rgba(34,197,94,0.12)"><animate attributeName="r" values="6;14;6" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0;0.7" dur="2.2s" repeatCount="indefinite"/></circle>
+                                    <circle cx="41" cy="32" r="5" fill="rgba(34,197,94,0.2)"><animate attributeName="r" values="4;9;4" dur="2.2s" begin="0.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0;0.8" dur="2.2s" begin="0.4s" repeatCount="indefinite"/></circle>
+                                    <!-- Pin -->
+                                    <path d="M41 20C37.7 20 35 22.7 35 26C35 30.8 41 39 41 39C41 39 47 30.8 47 26C47 22.7 44.3 20 41 20Z" fill="#22c55e"/>
+                                    <circle cx="41" cy="26" r="3" fill="white"/>
+                                    <!-- Label KJA -->
+                                    <rect x="25" y="42" width="32" height="9" rx="2" fill="rgba(34,197,94,0.25)"/>
+                                    <text x="41" y="48.5" fill="white" font-size="5" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">KJA Centro</text>
+                                </svg>
+                            </div>
+                            <div style="text-align:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:4px;">
+                                <div class="mode-panel-label">Presencial</div>
+                                <div class="mode-panel-sub">Lima, Perú</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p style="font-size:0.75rem;color:#374151;line-height:1.45;margin-bottom:0.3rem;"><strong>Familia Pérez</strong> — Desde su hogar en Perú lograron sus metas familiares.</p>
+                    <p style="font-size:0.68rem;color:#9ca3af;font-style:italic;">La flexibilidad nos salvó — <strong style="color:#6b7280;">Familia Pérez</strong></p>
+                </article>
+
+                <!-- Tarjeta 3: Impacto Real — counter animado -->
+                <article class="commitment-card" style="padding:1.1rem;display:flex;flex-direction:column;overflow:hidden;">
+                    <div class="commitment-eyebrow" style="margin-bottom:0.45rem;">IMPACTO REAL</div>
+                    <div style="display:flex;align-items:center;gap:7px;margin-bottom:0.4rem;">
+                        <svg fill="none" stroke="#f10075" stroke-width="2.2" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        <h4 class="commitment-title" style="font-size:0.85rem;margin-bottom:0;">Progreso comprobado</h4>
+                    </div>
+
+                    <!-- Stat principal con glow -->
+                    <div style="position:relative;text-align:center;margin:0.2rem 0 0.35rem;">
+                        <div style="position:absolute;top:50%;left:50%;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);transform:translate(-50%,-50%);animation:glowPulse 2.8s ease-in-out infinite;pointer-events:none;"></div>
+                        <div id="impactoCount" style="font-size:3rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#004fb0,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;">500+</div>
+                        <div style="font-size:0.58rem;color:#6b7280;font-weight:600;margin-top:1px;letter-spacing:0.04em;">VIDAS TRANSFORMADAS</div>
+                    </div>
+
+                    <!-- Barra de progreso animada -->
+                    <div style="margin-bottom:0.55rem;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                            <span style="font-size:0.58rem;color:#374151;font-weight:600;">Satisfacción de pacientes</span>
+                            <span style="font-size:0.58rem;color:#004fb0;font-weight:800;">98%</span>
+                        </div>
+                        <div style="height:5px;background:#e0e7ff;border-radius:3px;overflow:hidden;">
+                            <div class="kja-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#004fb0,#7c3aed);border-radius:3px;transition:width 1.8s cubic-bezier(0.22,1,0.36,1);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Mini badges -->
+                    <div style="display:flex;gap:5px;margin-bottom:0.55rem;">
+                        <div style="flex:1;background:#f0f9ff;border-radius:10px;padding:0.4rem 0.3rem;text-align:center;border:1px solid rgba(0,79,176,0.08);">
+                            <div style="font-size:0.72rem;font-weight:900;color:#f59e0b;letter-spacing:1px;line-height:1;">★★★★★</div>
+                            <div style="font-size:0.48rem;color:#6b7280;font-weight:600;margin-top:2px;">Google</div>
+                        </div>
+                        <div style="flex:1;background:#fdf4ff;border-radius:10px;padding:0.4rem 0.3rem;text-align:center;border:1px solid rgba(124,58,237,0.08);">
+                            <div style="font-size:0.95rem;font-weight:900;color:#7c3aed;line-height:1;">8+</div>
+                            <div style="font-size:0.48rem;color:#6b7280;font-weight:600;margin-top:2px;">Años</div>
+                        </div>
+                        <div style="flex:1;background:#f0fff4;border-radius:10px;padding:0.4rem 0.3rem;text-align:center;border:1px solid rgba(5,150,105,0.08);">
+                            <div style="font-size:0.72rem;font-weight:900;color:#059669;line-height:1;">CPA</div>
+                            <div style="font-size:0.48rem;color:#6b7280;font-weight:600;margin-top:2px;">Colegiados</div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonio con foto -->
+                    <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border-radius:10px;padding:0.5rem 0.65rem;margin-top:auto;border:1px solid rgba(0,79,176,0.07);">
+                        <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=80&q=80" alt="Sofía Pérez"
+                            style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #7c3aed;"
+                            loading="lazy"
+                        />
+                        <span style="font-size:0.68rem;color:#4b5563;line-height:1.4;">Mi hijo superó sus miedos — <strong style="color:#374151;">Sofía Pérez</strong></span>
+                    </div>
+                </article>
 
             </div>
-            <div class="mt-12 text-center animate-features-card opacity-0">
-                <a href="terapia.html" class="inline-block bg-[#f10075] hover:bg-[#d10065] text-white font-bold py-4 px-8 rounded-full shadow-lg shadow-pink-500/20 transition-all duration-300 hover:-translate-y-1">Empieza hoy tu proceso</a>
+
+            <!-- Dots funcionales (3 = una por tarjeta) -->
+            <div class="carousel-dots mt-4" id="commitmentDots">
+                <div class="carousel-dot active"></div>
+                <div class="carousel-dot"></div>
+                <div class="carousel-dot"></div>
             </div>
+
         </div>
     </section>
 
@@ -1075,6 +1658,184 @@
                     }
                 });
             });
+        })();
+    </script>
+
+    <script>
+        /* ===== THERAPY PILLS — Dynamic right card ===== */
+        (function () {
+            const therapyData = {
+                tcc: {
+                    img: 'https://images.unsplash.com/photo-1512438248247-f0f2a5a8b7f0?w=600&h=375&fit=crop&crop=faces,top&q=85',
+                    pos: 'center 25%',
+                    title: 'Terapia Cognitivo-Conductual',
+                    desc: 'Reestructura tus patrones de pensamiento para mejorar tu bienestar emocional de manera científica.',
+                    tags: [{ text: 'Pensamientos', color: '#004fb0' }, { text: 'Emociones', color: '#f10075' }, { text: 'Conducta', color: '#059669' }]
+                },
+                sistemica: {
+                    img: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=375&fit=crop&crop=faces,top&q=85',
+                    pos: 'center 30%',
+                    title: 'Terapia Sistémica',
+                    desc: 'Fortalece los vínculos familiares y abre canales de comunicación saludables para toda la familia.',
+                    tags: [{ text: 'Familia', color: '#f59e0b' }, { text: 'Vínculos', color: '#004fb0' }, { text: 'Comunicación', color: '#6bcb77' }]
+                },
+                infantil: {
+                    img: 'https://images.unsplash.com/photo-1551966775-a4ddc8df052b?w=600&h=375&fit=crop&crop=faces,top&q=85',
+                    pos: 'center 25%',
+                    title: 'Terapia Infantil',
+                    desc: 'Un espacio seguro donde los niños expresan y procesan sus emociones a través del juego.',
+                    tags: [{ text: 'Emociones', color: '#f10075' }, { text: 'Juego', color: '#f59e0b' }, { text: 'Aprendizaje', color: '#6bcb77' }]
+                },
+                clinica: {
+                    img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=375&fit=crop&crop=faces,top&q=85',
+                    pos: 'center 30%',
+                    title: 'Psicología Clínica',
+                    desc: 'Evaluación y tratamiento de condiciones psicológicas con enfoque científico y personalizado.',
+                    tags: [{ text: 'Diagnóstico', color: '#7c3aed' }, { text: 'Evaluación', color: '#004fb0' }, { text: 'Tratamiento', color: '#f10075' }]
+                },
+                cpa: {
+                    img: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&h=375&fit=crop&crop=faces,top&q=85',
+                    pos: 'center 30%',
+                    title: 'Colegiados CPA',
+                    desc: 'Profesionales certificados con las más altas credenciales del Colegio de Psicólogos del Perú.',
+                    tags: [{ text: 'Certificados', color: '#004fb0' }, { text: 'Éticos', color: '#f59e0b' }, { text: 'Especializados', color: '#059669' }]
+                }
+            };
+
+            const pills    = document.querySelectorAll('#therapyPills .therapy-pill-v3');
+            const cardWrap = document.getElementById('therapyCardInner');
+            const cardImg  = document.getElementById('therapyCardImg');
+            const cardTags = document.getElementById('therapyCardTags');
+            const cardTitle= document.getElementById('therapyCardTitle');
+            const cardDesc = document.getElementById('therapyCardDesc');
+            if (!cardWrap) return;
+
+            function updateCard(key) {
+                const d = therapyData[key];
+                if (!d) return;
+                cardWrap.classList.add('fading');
+                setTimeout(function () {
+                    cardImg.src = d.img;
+                    cardImg.alt = d.title;
+                    cardImg.style.objectPosition = d.pos || 'center center';
+                    cardTitle.textContent = d.title;
+                    cardDesc.textContent  = d.desc;
+                    cardTags.innerHTML = d.tags.map(function (t) {
+                        return '<span class="therapy-tag" style="background:' + t.color + ';">' + t.text + '</span>';
+                    }).join('');
+                    cardWrap.classList.remove('fading');
+                }, 380);
+            }
+
+            pills.forEach(function (pill) {
+                pill.addEventListener('click', function () {
+                    pills.forEach(function (p) {
+                        p.classList.remove('active');
+                        p.setAttribute('aria-selected', 'false');
+                    });
+                    pill.classList.add('active');
+                    pill.setAttribute('aria-selected', 'true');
+                    updateCard(pill.dataset.therapy);
+                });
+            });
+        })();
+    </script>
+
+    <script>
+        /* ===== IMPACTO REAL — counter + barra animada ===== */
+        (function () {
+            var countEl = document.getElementById('impactoCount');
+            var barEl   = document.querySelector('.kja-progress-bar');
+            if (!countEl) return;
+            var fired = false;
+
+            function countUp(el, target, ms) {
+                var t0 = performance.now();
+                (function step(now) {
+                    var p = Math.min((now - t0) / ms, 1);
+                    var e = 1 - Math.pow(1 - p, 3);
+                    el.textContent = Math.floor(e * target) + (p >= 1 ? '+' : '');
+                    if (p < 1) requestAnimationFrame(step);
+                })(t0);
+            }
+
+            var obs = new IntersectionObserver(function (entries) {
+                if (entries[0].isIntersecting && !fired) {
+                    fired = true;
+                    countUp(countEl, 500, 2400);
+                    if (barEl) setTimeout(function () { barEl.style.width = '98%'; }, 200);
+                    obs.disconnect();
+                }
+            }, { threshold: 0.55 });
+            obs.observe(countEl);
+        })();
+
+        /* ===== COMMITMENT CAROUSEL — auto-avance + dots ===== */
+        (function () {
+            const track = document.getElementById('commitmentTrack');
+            const dots  = document.querySelectorAll('#commitmentDots .carousel-dot');
+            if (!track || !dots.length) return;
+
+            let current = 0;
+            let timer;
+
+            function getCards() { return track.querySelectorAll(':scope > article'); }
+
+            function goTo(idx) {
+                const cards = getCards();
+                if (!cards[idx]) return;
+                if (window.innerWidth < 768) {
+                    const gap  = 12;
+                    const w    = cards[0].offsetWidth + gap;
+                    track.scrollTo({ left: w * idx, behavior: 'smooth' });
+                }
+                dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
+                /* sutil highlight en desktop */
+                cards.forEach(function (c, i) {
+                    c.style.transition = 'box-shadow 0.4s,transform 0.4s';
+                    if (i === idx && window.innerWidth >= 768) {
+                        c.style.boxShadow = '0 16px 40px rgba(0,79,176,0.15)';
+                        c.style.transform = 'translateY(-4px)';
+                    } else {
+                        c.style.boxShadow = '';
+                        c.style.transform = '';
+                    }
+                });
+                current = idx;
+            }
+
+            function next() {
+                const n = (current + 1) % getCards().length;
+                goTo(n);
+            }
+
+            function startTimer() {
+                clearInterval(timer);
+                timer = setInterval(next, 3800);
+            }
+
+            /* Sync scroll → dots (mobile) */
+            track.addEventListener('scroll', function () {
+                const cards = getCards();
+                if (!cards.length) return;
+                const gap = 12;
+                const w   = cards[0].offsetWidth + gap;
+                const idx = Math.round(track.scrollLeft / w);
+                if (idx !== current) { current = idx; dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); }); }
+            }, { passive: true });
+
+            /* Dot clicks */
+            dots.forEach(function (dot, i) {
+                dot.addEventListener('click', function () { goTo(i); startTimer(); });
+            });
+
+            /* Pausar en hover/touch */
+            track.addEventListener('mouseenter', function () { clearInterval(timer); });
+            track.addEventListener('mouseleave', startTimer);
+            track.addEventListener('touchstart', function () { clearInterval(timer); }, { passive: true });
+            track.addEventListener('touchend',   function () { setTimeout(startTimer, 2200); }, { passive: true });
+
+            startTimer();
         })();
     </script>
 
