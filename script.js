@@ -43,7 +43,9 @@
 // ============================================================
 function toggleMenu() {
     const menu = document.getElementById('nav-menu');
+    const hamburger = document.getElementById('hamburger');
     if (menu) menu.classList.toggle('open');
+    if (hamburger) hamburger.classList.toggle('open');
 }
 
 document.addEventListener('click', function(e) {
@@ -51,6 +53,7 @@ document.addEventListener('click', function(e) {
     const hamburger = document.getElementById('hamburger');
     if (menu && hamburger && !menu.contains(e.target) && !hamburger.contains(e.target)) {
         menu.classList.remove('open');
+        hamburger.classList.remove('open');
     }
 });
 
@@ -266,6 +269,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 opacity: 1,
                 y: 0,
                 duration: 0.8,
+                stagger: 0.1,
+                ease: 'power3.out'
+            }
+        );
+    }
+
+    // Animación para FAQ Premium Rediseñado
+    if (document.querySelector('#faq')) {
+        gsap.fromTo('.animate-faq-header', 
+            { opacity: 0, x: -50 },
+            {
+                scrollTrigger: {
+                    trigger: '#faq',
+                    start: 'top 80%',
+                    toggleActions: 'play none none none'
+                },
+                opacity: 1,
+                x: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            }
+        );
+
+        gsap.fromTo('.animate-faq-item', 
+            { opacity: 0, y: 30 },
+            {
+                scrollTrigger: {
+                    trigger: '#faq',
+                    start: 'top 70%',
+                    toggleActions: 'play none none none'
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.7,
                 stagger: 0.1,
                 ease: 'power3.out'
             }
