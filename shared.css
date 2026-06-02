@@ -3640,7 +3640,7 @@ footer {
     flex-direction: column;
     align-items: center;
     position: relative;
-    overflow-y: auto;
+    overflow: hidden;
     max-height: 75vh;
 }
 
