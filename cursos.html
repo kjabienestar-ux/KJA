@@ -815,14 +815,14 @@
             }
         };
 
-        function openCourseModal(courseId) {
+        function openCourseModal(courseId, customImage) {
             const data = COURSE_DATA[courseId];
             if (!data) return;
 
             // Llenar datos en el modal
             document.getElementById('course-modal-title').textContent = data.title;
             document.getElementById('course-modal-duration-modality').textContent = data.meta;
-            document.getElementById('course-modal-image').src = data.image;
+            document.getElementById('course-modal-image').src = customImage || data.image;
             document.getElementById('course-modal-image').alt = data.title;
             document.getElementById('course-modal-desc').textContent = data.description;
             document.getElementById('course-modal-related').textContent = data.related;
@@ -1125,7 +1125,7 @@
                 (function() {
                     var courseId = getCourseIdByTitle(item.titulo);
                     if (courseId) {
-                        return '<a href="javascript:void(0)" onclick="openCourseModal(\'' + courseId + '\')" class="curso-cta curso-cta--primary">Más información</a>';
+                        return '<a href="javascript:void(0)" onclick="openCourseModal(\'' + courseId + '\', \'' + imgSrc + '\')" class="curso-cta curso-cta--primary">Más información</a>';
                     } else {
                         return '<a href="' + waUrl + '" target="_blank" class="curso-cta curso-cta--primary">Más información</a>';
                     }
