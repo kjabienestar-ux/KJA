@@ -747,8 +747,31 @@ nav {
 }
 
 .service-card-img {
+    position: relative;
     height: 190px;
     overflow: hidden;
+}
+
+/* KJA Minimalist Watermark */
+.service-card-img::before {
+    content: 'KJA';
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    padding: 4px 8px;
+    border-radius: 4px;
+    z-index: 2;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    pointer-events: none;
+    line-height: 1;
 }
 
 .service-card-img img {
@@ -1100,7 +1123,7 @@ nav {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background-color: rgba(241, 0, 117, 0.05); /* Soft pink background */
+    background-color: transparent;
     color: var(--primary-pink);
     font-weight: 700;
     text-decoration: none;
@@ -1110,11 +1133,11 @@ nav {
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     padding: 10px 22px;
     border-radius: 30px;
-    border: 1px solid rgba(241, 0, 117, 0.12);
+    border: 2px solid var(--primary-pink);
     margin-top: auto;
     align-self: flex-start;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(241, 0, 117, 0.02);
+    box-shadow: 0 4px 10px rgba(241, 0, 117, 0.08);
 }
 
 .catalog-card .btn-details .arrow-icon {
@@ -3442,4 +3465,63 @@ footer {
     }
 }
 
+/* ===== CTR OPTIMIZATION UTILITIES ===== */
 
+/* Micro-animación de atención para CTAs principales */
+.cta-pulse {
+    animation: ctaPulseGlow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    position: relative;
+}
+.cta-pulse::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    background: inherit;
+    opacity: 0;
+    z-index: -1;
+    animation: ctaPulseRing 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes ctaPulseGlow {
+    0%, 100% { box-shadow: 0 4px 14px rgba(241, 0, 117, 0.25); }
+    50% { box-shadow: 0 6px 24px rgba(241, 0, 117, 0.45), 0 0 0 2px rgba(241, 0, 117, 0.08); }
+}
+@keyframes ctaPulseRing {
+    0% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.06); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+/* Card expresiva — hover con mayor contraste y elevación para captar leads */
+.card-expresivo {
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.card-expresivo:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0, 79, 176, 0.18), 0 0 0 1px rgba(0, 79, 176, 0.06);
+}
+.card-expresivo:hover img {
+    transform: scale(1.08);
+    filter: brightness(1.05);
+}
+.card-expresivo img {
+    transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+/* Overlay gradiente base — para que Diseño aplique gradientes custom sobre imágenes */
+.overlay-gradiente-custom {
+    position: relative;
+    overflow: hidden;
+}
+.overlay-gradiente-custom::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 15, 50, 0.65) 0%, rgba(0, 15, 50, 0.2) 40%, transparent 70%);
+    z-index: 1;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+.overlay-gradiente-custom:hover::after {
+    opacity: 0.75;
+}

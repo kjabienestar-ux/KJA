@@ -4,10 +4,407 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cursos – KJA Centro Psicológico</title>
+    <title>Cursos y Capacitación – KJA Centro Psicológico</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="shared.css">
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <style>
+        /* ===== CURSOS TAB SYSTEM ===== */
+        .cursos-tabs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+        }
+        .cursos-tab {
+            padding: 10px 22px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            background: #fff;
+            color: #6b7280;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-family: inherit;
+        }
+        .cursos-tab:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 79, 176, 0.12);
+        }
+        .cursos-tab.active {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(0, 79, 176, 0.25);
+        }
+
+        /* ===== COURSE CARDS ENHANCED ===== */
+        .cursos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            padding: 0 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .cursos-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .curso-card-enhanced {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .curso-card-enhanced:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0, 79, 176, 0.12);
+        }
+
+        .curso-card-img {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            background-color: #f3f4f6;
+        }
+        
+        /* KJA Minimalist Watermark */
+        .curso-card-img::before {
+            content: 'KJA';
+            position: absolute;
+            bottom: 10px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 2;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            pointer-events: none;
+            line-height: 1;
+        }
+        .curso-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .curso-card-enhanced:hover .curso-card-img img {
+            transform: scale(1.05);
+        }
+
+        /* Course Cover Overlay (Platzi/Udemy Style) */
+        .curso-cover-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 25, 60, 0.7) 0%, rgba(0, 25, 60, 0.1) 60%, rgba(0, 0, 0, 0) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            transition: all 0.4s ease;
+        }
+        .curso-cover-overlay svg {
+            width: 54px;
+            height: 54px;
+            color: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 50%;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transform: scale(0.85);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .curso-cover-overlay svg.icon-play {
+            padding-left: 18px; /* visually center play triangle */
+        }
+        .curso-card-enhanced:hover .curso-cover-overlay svg {
+            transform: scale(1);
+            opacity: 1;
+            background: var(--primary-pink);
+            border-color: var(--primary-pink);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(241, 0, 117, 0.4);
+        }
+
+        /* Badge stack */
+        .curso-badge-tipo {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-blue);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            z-index: 2;
+        }
+
+        /* Modality badges */
+        .curso-badges-inline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .curso-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #fff;
+            z-index: 1;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+        .curso-badge svg {
+            width: 14px;
+            height: 14px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .curso-badge--vivo {
+            background: #fef2f2;
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .curso-badge--vivo::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: liveBlink 1.5s ease-in-out infinite;
+        }
+        .curso-badge--grabado {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+        .curso-badge--zoom {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+        .curso-badge--presencial {
+            background: #f0fdf4;
+            color: #059669;
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
+
+        /* ─── HYPERFRAMES SKILL PATTERNS (Marker Highlighting) ─── */
+        .mh-highlight-wrap { position: relative; display: inline-flex; align-items: center; }
+        .mh-highlight-text { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 4px; }
+        .mh-highlight-bar {
+            position: absolute; top: 0; left: -4px; right: -4px; bottom: 0;
+            background: currentColor; opacity: 0.15; transform: scaleX(0); 
+            transform-origin: left center; border-radius: 4px; z-index: 0;
+        }
+        
+        .mh-circle-wrap { position: relative; display: inline-flex; align-items: center; }
+        .mh-circle-text { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 4px; }
+        .mh-circle-ring {
+            position: absolute; top: 50%; left: 50%; width: 130%; height: 160%;
+            transform: translate(-50%, -50%) rotate(-3deg) scale(0);
+            border: 2px solid currentColor; border-radius: 50%;
+            pointer-events: none; z-index: 0; opacity: 0.5;
+        }
+
+        @keyframes liveBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .curso-card-body {
+            padding: 1.25rem 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .curso-card-body h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        .curso-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .curso-meta-item {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .curso-card-body p {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            flex: 1;
+        }
+
+        /* Zoom/QR slots */
+        .curso-extras {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .curso-extra-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+        .curso-extra-link--zoom {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid rgba(37, 99, 235, 0.15);
+        }
+        .curso-extra-link--zoom:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+        .curso-extra-link--qr {
+            background: #f0fdf4;
+            color: #059669;
+            border: 1px solid rgba(5, 150, 105, 0.15);
+        }
+
+        .curso-qr-img {
+            width: 100%;
+            max-width: 160px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            margin-bottom: 0.75rem;
+        }
+
+        .curso-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: auto;
+        }
+        .curso-cta--primary {
+            background: var(--primary-pink);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(241, 0, 117, 0.2);
+        }
+        .curso-cta--primary:hover {
+            background: #d10065;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(241, 0, 117, 0.3);
+        }
+
+        /* Empty state */
+        .cursos-empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #9ca3af;
+        }
+        .cursos-empty svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+        .cursos-empty h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+        .cursos-empty p {
+            font-size: 13px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Flyer overlay */
+        .curso-flyer-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,15,50,0.7) 0%, transparent 60%);
+            z-index: 1;
+        }
+
+        /* Schedule pills */
+        .curso-schedule {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .curso-day {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 700;
+            background: #f3f4f6;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .curso-day--active {
+            background: var(--primary-blue);
+            color: #fff;
+        }
+    </style>
 </head>
 
 <body>
@@ -16,7 +413,7 @@
         <nav>
             <div class="logo-container">
                 <a href="index.html">
-                    <img src="kja.png" alt="KJA Logo" class="logo-img">
+                    <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
                 </a>
             </div>
             <ul class="nav-links" id="nav-menu">
@@ -33,96 +430,33 @@
     </header>
 
     <div class="page-hero">
-        <h1>NUESTROS <span>CURSOS</span></h1>
-        <p>Talleres vivenciales y cursos especializados para tu desarrollo personal y profesional.</p>
+        <h1>CAPACITACIÓN Y <span>FORMACIÓN</span></h1>
+        <p>Cursos, especializaciones, talleres y charlas especializadas para tu desarrollo profesional y personal.</p>
     </div>
 
-    <section class="container section-padding" style="padding-top: 0;">
-        <div class="capacitacion-banner" style="margin-top: 0;">
-            <h2>BRINDAMOS:</h2>
-            <p>KJA - Centro de Capacitación y Formación Psicológica</p>
-            <div class="capacitacion-grid">
-                <div class="cap-tag">CURSOS</div>
-                <div class="cap-tag">ASESORÍAS</div>
-                <div class="cap-tag">TALLERES</div>
-                <div class="cap-tag">ESPECIALIZACIONES</div>
-                <div class="cap-tag">CHARLAS</div>
-                <div class="cap-tag">CONFERENCIAS</div>
-            </div>
+    <section class="container section-padding" style="padding-top: 60px;">
+
+        <!-- Tab System -->
+        <div class="cursos-tabs" id="cursos-tabs">
+            <button class="cursos-tab active" onclick="switchCursoTab(this, 'todos')">Todos</button>
+            <button class="cursos-tab" onclick="switchCursoTab(this, 'curso')">Cursos</button>
+            <button class="cursos-tab" onclick="switchCursoTab(this, 'especializacion')">Especializaciones</button>
+            <button class="cursos-tab" onclick="switchCursoTab(this, 'taller')">Talleres</button>
+            <button class="cursos-tab" onclick="switchCursoTab(this, 'charla')">Charlas y Conferencias</button>
         </div>
 
-        <div class="courses-grid" style="padding-top: 20px;">
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=80"
-                    alt="Habilidades Blandas" />
-                <div class="course-card-body">
-                    <span class="course-badge">Presencial y Virtual</span>
-                    <h3>Taller de Habilidades Blandas</h3>
-                    <div class="course-meta">⏱ 8 horas &nbsp;·&nbsp; 👥 Grupos</div>
-                    <p>Desarrolla tus competencias interpersonales: comunicación efectiva, trabajo en equipo, liderazgo
-                        y resolución de conflictos.</p>
-                    <a href="nosotros.html#ubicanos" class="btn btn-pink">Más información</a>
-                </div>
-            </div>
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1536164832230-6c99e52e06c2?w=500&q=80" alt="Estrés" />
-                <div class="course-card-body">
-                    <span class="course-badge blue">Virtual</span>
-                    <h3>Taller de Manejo del Estrés</h3>
-                    <div class="course-meta">⏱ 6 horas &nbsp;·&nbsp; 👥 Individual / Grupos</div>
-                    <p>Aprende técnicas de relajación, mindfulness y estrategias de afrontamiento para reducir el estrés
-                        en tu vida diaria y laboral.</p>
-                    <a href="nosotros.html#ubicanos" class="btn btn-pink">Más información</a>
-                </div>
-            </div>
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1607453998774-d533f65dac99?w=500&q=80"
-                    alt="Psicología Educativa" />
-                <div class="course-card-body">
-                    <span class="course-badge">Presencial</span>
-                    <h3>Psicología Educativa para Docentes</h3>
-                    <div class="course-meta">⏱ 12 horas &nbsp;·&nbsp; 👥 Grupos</div>
-                    <p>Herramientas psicológicas para docentes: manejo de conductas en aula, identificación de
-                        dificultades de aprendizaje y apoyo emocional al estudiante.</p>
-                    <a href="nosotros.html#ubicanos" class="btn btn-pink">Más información</a>
-                </div>
-            </div>
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=500&q=80"
-                    alt="Inteligencia Emocional" />
-                <div class="course-card-body">
-                    <span class="course-badge blue">Virtual</span>
-                    <h3>Inteligencia Emocional</h3>
-                    <div class="course-meta">⏱ 10 horas &nbsp;·&nbsp; 👥 Individual / Grupos</div>
-                    <p>Aprende a identificar, comprender y gestionar tus propias emociones y las de los demás para
-                        mejorar tus relaciones y tu bienestar.</p>
-                    <a href="nosotros.html#ubicanos" class="btn btn-pink">Más información</a>
-                </div>
-            </div>
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&q=80"
-                    alt="Escuela para Padres" />
-                <div class="course-card-body">
-                    <span class="course-badge">Presencial y Virtual</span>
-                    <h3>Escuela para Padres</h3>
-                    <div class="course-meta">⏱ 8 horas &nbsp;·&nbsp; 👥 Grupos</div>
-                    <p>Herramientas prácticas para criar con amor y límites: comunicación con hijos, manejo de conductas
-                        difíciles y fortalecimiento del vínculo familiar.</p>
-                    <a href="nosotros.html#ubicanos" class="btn btn-pink">Más información</a>
-                </div>
-            </div>
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=500&q=80"
-                    alt="Desarrollo Humano" />
-                <div class="course-card-body">
-                    <span class="course-badge blue">Virtual</span>
-                    <h3>Desarrollo Humano y Bienestar</h3>
-                    <div class="course-meta">⏱ 6 horas &nbsp;·&nbsp; 👥 Individual / Grupos</div>
-                    <p>Un viaje hacia el autoconocimiento, el propósito de vida y el crecimiento personal para vivir de
-                        manera más plena y consciente.</p>
-                    <a href="nosotros.html#ubicanos" class="btn btn-pink">Más información</a>
-                </div>
-            </div>
+        <!-- Dynamic Grid -->
+        <div class="cursos-grid" id="cursos-grid">
+            <!-- Rendered by JS -->
+        </div>
+
+        <!-- Empty state (hidden by default) -->
+        <div class="cursos-empty" id="cursos-empty" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+            </svg>
+            <h4>Próximamente</h4>
+            <p>Estamos preparando nuevos contenidos en esta categoría. ¡Mantente atento a nuestras redes!</p>
         </div>
     </section>
 
@@ -137,7 +471,7 @@
         <div class="footer-content">
             <div class="footer-logo">
                 <a href="index.html">
-                    <img src="kja.png" alt="KJA Logo" class="footer-logo-img">
+                    <img src="images/logo/kja.webp" alt="KJA Logo" class="footer-logo-img">
                 </a>
             </div>
             <div class="footer-info">
@@ -205,6 +539,279 @@
     </a>
 
     <script src="script.js"></script>
+
+    <script>
+    /**
+     * ============================================================
+     * CATÁLOGO DE SERVICIOS EDUCATIVOS KJA — DATA-DRIVEN
+     * ============================================================
+     * Para agregar un nuevo curso/taller/charla:
+     * 1. Agregue un nuevo objeto al array `cursosData` abajo.
+     * 2. Los campos opcionales (zoomUrl, qrSrc, flyerSrc, dias) se 
+     *    muestran condicionalmente solo si tienen valor.
+     * 3. Refresque la página. No requiere cambios HTML.
+     * 
+     * Ver GUIA-CONTENIDO.md para instrucciones detalladas.
+     * ============================================================
+     */
+    var cursosData = [
+        // ─── CURSOS ───
+        {
+            tipo: 'curso',
+            modalidad: 'presencial-virtual',      // 'vivo' | 'grabado' | 'zoom' | 'presencial' | 'presencial-virtual'
+            titulo: 'Taller de Habilidades Blandas',
+            descripcion: 'Desarrolla tus competencias interpersonales: comunicación efectiva, trabajo en equipo, liderazgo y resolución de conflictos.',
+            duracion: '8 horas',
+            audiencia: 'Grupos',
+            imagen: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=500&q=80',
+            dias: ['lun', 'mié', 'sáb'],
+            zoomUrl: '',                           // Dejar vacío si no aplica
+            qrSrc: '',                             // Ruta a imagen QR o vacío
+            flyerSrc: '',                          // Ruta al flyer o vacío
+            waText: 'Hola KJA, quisiera más información sobre el Taller de Habilidades Blandas'
+        },
+        {
+            tipo: 'curso',
+            modalidad: 'zoom',
+            titulo: 'Manejo del Estrés',
+            descripcion: 'Aprende técnicas de relajación, mindfulness y estrategias de afrontamiento para reducir el estrés en tu vida diaria y laboral.',
+            duracion: '6 horas',
+            audiencia: 'Individual / Grupos',
+            imagen: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80',
+            dias: ['mar', 'jue'],
+            zoomUrl: '',
+            qrSrc: '',
+            flyerSrc: '',
+            waText: 'Hola KJA, quisiera más información sobre el curso de Manejo del Estrés'
+        },
+        {
+            tipo: 'curso',
+            modalidad: 'grabado',
+            titulo: 'Inteligencia Emocional',
+            descripcion: 'Aprende a identificar, comprender y gestionar tus propias emociones y las de los demás para mejorar tus relaciones y tu bienestar.',
+            duracion: '10 horas',
+            audiencia: 'Individual / Grupos',
+            imagen: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&q=80',
+            dias: [],
+            zoomUrl: '',
+            qrSrc: '',
+            flyerSrc: '',
+            waText: 'Hola KJA, quisiera más información sobre el curso de Inteligencia Emocional'
+        },
+
+        // ─── ESPECIALIZACIONES ───
+        {
+            tipo: 'especializacion',
+            modalidad: 'presencial',
+            titulo: 'Psicología Educativa para Docentes',
+            descripcion: 'Herramientas psicológicas para docentes: manejo de conductas en aula, identificación de dificultades de aprendizaje y apoyo emocional al estudiante.',
+            duracion: '12 horas',
+            audiencia: 'Grupos',
+            imagen: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=500&q=80',
+            dias: ['lun', 'mié', 'vie'],
+            zoomUrl: '',
+            qrSrc: '',
+            flyerSrc: '',
+            waText: 'Hola KJA, quisiera más información sobre la Especialización en Psicología Educativa'
+        },
+        {
+            tipo: 'especializacion',
+            modalidad: 'presencial-virtual',
+            titulo: 'Escuela para Padres',
+            descripcion: 'Herramientas prácticas para criar con amor y límites: comunicación con hijos, manejo de conductas difíciles y fortalecimiento del vínculo familiar.',
+            duracion: '8 horas',
+            audiencia: 'Grupos',
+            imagen: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=500&q=80',
+            dias: ['sáb', 'dom'],
+            zoomUrl: '',
+            qrSrc: '',
+            flyerSrc: '',
+            waText: 'Hola KJA, quisiera más información sobre la Escuela para Padres'
+        },
+
+        // ─── TALLERES ───
+        {
+            tipo: 'taller',
+            modalidad: 'vivo',
+            titulo: 'Desarrollo Humano y Bienestar',
+            descripcion: 'Un viaje hacia el autoconocimiento, el propósito de vida y el crecimiento personal para vivir de manera más plena y consciente.',
+            duracion: '6 horas',
+            audiencia: 'Individual / Grupos',
+            imagen: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=500&q=80',
+            dias: ['sáb'],
+            zoomUrl: '',
+            qrSrc: '',
+            flyerSrc: '',
+            waText: 'Hola KJA, quisiera más información sobre el Taller de Desarrollo Humano'
+        },
+        {
+            tipo: 'taller',
+            modalidad: 'zoom',
+            titulo: 'Regulación Emocional para Adolescentes',
+            descripcion: 'Taller 100% en vivo vía Zoom donde los adolescentes aprenden técnicas prácticas para gestionar sus emociones en el día a día.',
+            duracion: '4 horas',
+            audiencia: 'Grupos (5-10 personas)',
+            imagen: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&q=80',
+            dias: ['sáb'],
+            zoomUrl: '',
+            qrSrc: '',
+            flyerSrc: '',
+            waText: 'Hola KJA, quisiera más información sobre el Taller de Regulación Emocional'
+        },
+
+        // ─── CHARLAS Y CONFERENCIAS ───
+        {
+            tipo: 'charla',
+            modalidad: 'presencial-virtual',
+            titulo: 'Salud Mental y Prevención del Burnout',
+            descripcion: 'Capacitación corporativa para líderes y equipos. Aprende a identificar el síndrome de burnout, gestionar el estrés y construir un clima organizacional seguro que potencie el bienestar y la productividad.',
+            duracion: '2 horas',
+            audiencia: 'Empresas y Organizaciones',
+            imagen: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80',
+            dias: [],
+            zoomUrl: '',
+            qrSrc: '',
+            flyerSrc: '',
+            waText: 'Hola KJA, quisiera más información sobre el programa corporativo de Salud Mental y Burnout'
+        }
+    ];
+
+    /* ─── Render engine ─── */
+    var gridEl = document.getElementById('cursos-grid');
+    var emptyEl = document.getElementById('cursos-empty');
+
+    function getModalidadBadges(modalidad) {
+        var svgGrabado = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>';
+        var svgZoom = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>';
+        var svgPresencial = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+
+        var badges = {
+            'vivo':              '<span class="curso-badge curso-badge--vivo"><span class="mh-highlight-wrap"><span class="mh-highlight-bar"></span><span class="mh-highlight-text">En Vivo</span></span></span>',
+            'grabado':           '<span class="curso-badge curso-badge--grabado"><span class="mh-highlight-wrap"><span class="mh-highlight-bar"></span><span class="mh-highlight-text">' + svgGrabado + ' Grabado</span></span></span>',
+            'zoom':              '<span class="curso-badge curso-badge--zoom"><span class="mh-highlight-wrap"><span class="mh-highlight-bar"></span><span class="mh-highlight-text">' + svgZoom + ' Virtual</span></span></span>',
+            'presencial':        '<span class="curso-badge curso-badge--presencial"><span class="mh-highlight-wrap"><span class="mh-highlight-bar"></span><span class="mh-highlight-text">' + svgPresencial + ' Presencial</span></span></span>',
+            'presencial-virtual':'<span class="curso-badge curso-badge--presencial"><span class="mh-highlight-wrap"><span class="mh-highlight-bar"></span><span class="mh-highlight-text">' + svgPresencial + ' Presencial</span></span></span><span class="curso-badge curso-badge--zoom"><span class="mh-highlight-wrap"><span class="mh-highlight-bar"></span><span class="mh-highlight-text">' + svgZoom + ' Virtual</span></span></span>'
+        };
+        return badges[modalidad] || '';
+    }
+
+    function getTipoLabel(tipo) {
+        var labels = {
+            'curso': 'Curso',
+            'especializacion': 'Especialización',
+            'taller': 'Taller',
+            'charla': 'Charla / Conferencia'
+        };
+        return labels[tipo] || tipo;
+    }
+
+    function renderCard(item) {
+        var diasHtml = '';
+        if (item.dias && item.dias.length) {
+            var allDays = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+            diasHtml = '<div class="curso-schedule">';
+            allDays.forEach(function(d) {
+                var isActive = item.dias.indexOf(d) !== -1;
+                diasHtml += '<span class="curso-day' + (isActive ? ' curso-day--active' : '') + '">' + d + '</span>';
+            });
+            diasHtml += '</div>';
+        }
+
+        var extrasHtml = '';
+        if (item.zoomUrl || item.qrSrc) {
+            extrasHtml = '<div class="curso-extras">';
+            if (item.zoomUrl) {
+                extrasHtml += '<a href="' + item.zoomUrl + '" target="_blank" class="curso-extra-link curso-extra-link--zoom">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4.5C4 3.12 5.12 2 6.5 2h11C18.88 2 20 3.12 20 4.5v9c0 1.38-1.12 2.5-2.5 2.5h-11C5.12 16 4 14.88 4 13.5v-9zM6.5 18h11c.28 0 .5.22.5.5v1c0 .28-.22.5-.5.5h-11c-.28 0-.5-.22-.5-.5v-1c0-.28.22-.5.5-.5z"/></svg>' +
+                    'Unirse a Zoom</a>';
+            }
+            if (item.qrSrc) {
+                extrasHtml += '<span class="curso-extra-link curso-extra-link--qr">📱 Ver QR</span>';
+            }
+            extrasHtml += '</div>';
+        }
+
+        var qrImgHtml = item.qrSrc ? '<img src="' + item.qrSrc + '" alt="Código QR" class="curso-qr-img" loading="lazy" />' : '';
+
+        var imgSrc = item.flyerSrc || item.imagen;
+
+        var waUrl = 'https://wa.me/51988918238?text=' + encodeURIComponent(item.waText);
+
+        var coverIcon = '';
+        if (item.modalidad === 'presencial') {
+            coverIcon = '<svg class="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
+        } else {
+            coverIcon = '<svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+        }
+
+        return '<div class="curso-card-enhanced" data-tipo="' + item.tipo + '">' +
+            '<div class="curso-card-img">' +
+                '<div class="curso-cover-overlay">' + coverIcon + '</div>' +
+                (item.flyerSrc ? '<div class="curso-flyer-overlay"></div>' : '') +
+                '<img src="' + imgSrc + '" alt="' + item.titulo + '" loading="lazy" />' +
+                '<span class="curso-badge-tipo">' + getTipoLabel(item.tipo) + '</span>' +
+            '</div>' +
+            '<div class="curso-card-body">' +
+                '<div class="curso-badges-inline">' +
+                    getModalidadBadges(item.modalidad) +
+                '</div>' +
+                '<h3>' + item.titulo + '</h3>' +
+                '<div class="curso-meta-row">' +
+                    '<span class="curso-meta-item">⏱ ' + item.duracion + '</span>' +
+                    '<span class="curso-meta-item">👥 ' + item.audiencia + '</span>' +
+                '</div>' +
+                diasHtml +
+                '<p>' + item.descripcion + '</p>' +
+                extrasHtml +
+                qrImgHtml +
+                '<a href="' + waUrl + '" target="_blank" class="curso-cta curso-cta--primary">Más información</a>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function renderGrid(filter) {
+        var filtered = filter === 'todos' ? cursosData : cursosData.filter(function(c) { return c.tipo === filter; });
+
+        if (!filtered.length) {
+            gridEl.innerHTML = '';
+            emptyEl.style.display = 'block';
+            return;
+        }
+
+        emptyEl.style.display = 'none';
+        gridEl.innerHTML = filtered.map(renderCard).join('');
+
+        // GSAP stagger animation
+        if (typeof gsap !== 'undefined') {
+            var cards = gridEl.querySelectorAll('.curso-card-enhanced');
+            gsap.fromTo(cards, 
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out', clearProps: 'all' }
+            );
+            
+            // Hyperframes Skill: Highlight Mode sweep
+            gsap.fromTo('.mh-highlight-bar', 
+                { scaleX: 0 }, 
+                { scaleX: 1, duration: 0.5, ease: 'power2.out', stagger: 0.05, delay: 0.3 }
+            );
+            // Hyperframes Skill: Circle Mode draw
+            gsap.fromTo('.mh-circle-ring', 
+                { scale: 0, rotation: 0 }, 
+                { scale: 1, rotation: -3, duration: 0.6, ease: 'back.out(1.7)', stagger: 0.05, delay: 0.4 }
+            );
+        }
+    }
+
+    function switchCursoTab(btn, filter) {
+        document.querySelectorAll('#cursos-tabs .cursos-tab').forEach(function(t) { t.classList.remove('active'); });
+        btn.classList.add('active');
+        renderGrid(filter);
+    }
+
+    // Initial render
+    renderGrid('todos');
+    </script>
+
 </body>
 
 </html>
