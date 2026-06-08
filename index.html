@@ -6,7 +6,7 @@
     <title>KJA - Centro de Atención Psicológica Integral</title>
     <link rel="icon" type="image/png" href="images/logo/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="shared.css?v=6">
     <!-- Tailwind CSS v4 Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- GSAP & ScrollTrigger -->
@@ -694,6 +694,52 @@
             0%, 100% { opacity: 0.5; transform: translate(-50%,-50%) scale(1); }
             50% { opacity: 0.9; transform: translate(-50%,-50%) scale(1.25); }
         }
+        /* ===== PREMIUM CARD ENHANCEMENTS ===== */
+        .commitment-card { 
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .commitment-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.06), 0 0 0 1px rgba(241,0,117,0.1);
+        }
+        .mode-panel {
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+            position: relative;
+        }
+        .mode-panel::before {
+            content: ''; position: absolute; inset: 0;
+            border-radius: inherit;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.15);
+            pointer-events: none;
+        }
+        .mode-panel:hover {
+            transform: scale(1.02) translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        @keyframes shineSweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        .premium-shine {
+            position: relative; overflow: hidden;
+        }
+        .premium-shine::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-20deg) translateX(-150%);
+            animation: shineSweep 3s infinite cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+        }
+        .animated-gradient-text {
+            background-size: 200% 200%;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
     </style>
 </head>
 <body> 
@@ -919,209 +965,128 @@
             </div>
 
             <!-- Header fila inferior -->
-            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 mb-4">NUESTRO IMPACTO Y COMPROMISO</p>
+            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 mb-4">TESTIMONIOS REALES DE NUESTROS PACIENTES</p>
 
-            <!-- Fila Inferior: 3 Tarjetas — carrusel en mobile -->
+            <!-- Fila Inferior: 3 posts Facebook simulados -->
             <div class="commitment-track animate-features-card opacity-0" id="commitmentTrack">
 
-                <!-- Tarjeta 1: Historias Reales -->
-                <article class="commitment-card commitment-card--dark" style="padding:1.25rem;">
-                    <div class="commitment-eyebrow" style="margin-bottom:0.6rem;">HISTORIAS REALES</div>
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
-                        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0;opacity:0.75;"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                        <h4 class="commitment-title" style="font-size:0.9rem;margin-bottom:0;">Testimonios que hablan</h4>
+                <!-- ── Facebook post 1 ── -->
+                <article class="commitment-card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z"/></svg>
+                        <span style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
                     </div>
-                    <div style="display:flex;align-items:center;gap:9px;margin-bottom:0.75rem;">
-                        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&q=80"
-                            alt="María Pérez"
-                            style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(241,0,117,0.5);"
-                            loading="lazy"
-                        />
-                        <span style="font-size:0.75rem;color:rgba(255,255,255,0.9);font-weight:600;">María Pérez <span style="font-weight:400;opacity:0.65;">- Madre de familia</span></span>
-                    </div>
-                    <div class="google-review-bubble" style="padding:0.75rem 1rem;margin-bottom:0.75rem;">
-                        <div class="google-review-header" style="margin-bottom:0.3rem;">
-                            <div class="google-review-logo">
-                                <svg viewBox="0 0 24 24" width="12" height="12"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                                Google
-                            </div>
-                            <div class="google-review-stars">
-                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                <svg viewBox="0 0 20 20" fill="#f59e0b" width="11" height="11"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&q=80" alt="María Pérez"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;" loading="lazy"/>
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">María Pérez</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong style="color:#1877f2;">KJA Centro de Capacitación y Formación Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 3 semanas</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z"/></svg>
+                                </div>
                             </div>
                         </div>
-                        <p class="google-review-text" style="font-size:0.74rem;">¡Gracias a KJA, nuestra familia está más unida y feliz que nunca! Totalmente recomendado. — <strong>María Pérez</strong></p>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,0.1);padding-top:0.5rem;margin-top:auto;">
-                        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80"
-                            alt="Carla M."
-                            style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid rgba(241,0,117,0.4);"
-                            loading="lazy"
-                        />
-                        <span style="font-size:0.68rem;color:rgba(255,255,255,0.55);">Carla M. - Paciente adolescente</span>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★</div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Me ayudaron mucho con mi hijo, notamos cambios desde las primeras sesiones. Muy agradecida con todo el equipo 🙏</p>
+                        <!-- Reacciones -->
+                        <div style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div style="display:flex;">
+                                    <span style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">👍</span>
+                                    <span style="width:16px;height:16px;border-radius:50%;background:#f02849;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">❤️</span>
+                                </div>
+                                <span style="font-size:0.65rem;color:#65676b;">48</span>
+                            </div>
+                            <div style="display:flex;gap:10px;">
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me gusta</span>
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬 Comentar</span>
+                            </div>
+                        </div>
                     </div>
                 </article>
 
-                <!-- Tarjeta 2: Online o Presencial — split UI -->
-                <article class="commitment-card commitment-card--bordered" style="padding:1.1rem;display:flex;flex-direction:column;">
-                    <div class="commitment-eyebrow" style="margin-bottom:0.45rem;">ONLINE O PRESENCIAL</div>
-                    <div style="display:flex;align-items:center;gap:7px;margin-bottom:0.7rem;">
-                        <svg fill="none" stroke="#f10075" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        <h4 class="commitment-title" style="font-size:0.85rem;margin-bottom:0;">Flexibilidad a tu alcance</h4>
+                <!-- ── Facebook post 2 ── -->
+                <article class="commitment-card commitment-card--bordered" style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z"/></svg>
+                        <span style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
                     </div>
-
-                    <!-- Split: Online | O | Presencial -->
-                    <div style="display:flex;gap:6px;flex:1;min-height:120px;margin-bottom:0.7rem;">
-
-                        <!-- Panel Online -->
-                        <div class="mode-panel" style="background:linear-gradient(155deg,#0f1a2e,#1a2d50);">
-                            <!-- Badge EN LÍNEA -->
-                            <div style="display:flex;align-items:center;gap:4px;">
-                                <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:liveBlink 1.3s ease-in-out infinite;"></span>
-                                <span style="font-size:0.45rem;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:0.08em;">En línea</span>
-                            </div>
-                            <!-- Video call mockup -->
-                            <div style="flex:1;background:rgba(0,0,0,0.35);border-radius:8px;padding:5px;display:flex;flex-direction:column;gap:3px;">
-                                <div style="display:flex;gap:3px;flex:1;">
-                                    <!-- Terapeuta -->
-                                    <div style="flex:1;background:linear-gradient(135deg,#1e3a6e,#2d4f8a);border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;">
-                                        <div style="width:18px;height:18px;border-radius:50%;background:#4db6f5;display:flex;align-items:center;justify-content:center;">
-                                            <svg viewBox="0 0 12 12" fill="white" style="width:9px;height:9px;"><circle cx="6" cy="4" r="2.5"/><path d="M1 11C1 8.5 3.2 7 6 7C8.8 7 11 8.5 11 11" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>
-                                        </div>
-                                        <span style="font-size:0.36rem;color:rgba(255,255,255,0.65);font-weight:600;">Terapeuta</span>
-                                    </div>
-                                    <!-- Paciente -->
-                                    <div style="flex:1;background:linear-gradient(135deg,#3d1a52,#5b2d7a);border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;">
-                                        <div style="width:18px;height:18px;border-radius:50%;background:#f10075;display:flex;align-items:center;justify-content:center;">
-                                            <svg viewBox="0 0 12 12" fill="white" style="width:9px;height:9px;"><circle cx="6" cy="4" r="2.5"/><path d="M1 11C1 8.5 3.2 7 6 7C8.8 7 11 8.5 11 11" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>
-                                        </div>
-                                        <span style="font-size:0.36rem;color:rgba(255,255,255,0.65);font-weight:600;">Tú</span>
-                                    </div>
-                                </div>
-                                <!-- Barra de controles -->
-                                <div style="background:rgba(255,255,255,0.07);border-radius:4px;padding:3px 5px;display:flex;align-items:center;justify-content:center;gap:6px;">
-                                    <div style="width:11px;height:11px;border-radius:50%;background:#ef4444;"></div>
-                                    <div style="width:11px;height:11px;border-radius:50%;background:#374151;display:flex;align-items:center;justify-content:center;">
-                                        <svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="1.2" style="width:6px;height:6px;"><path d="M3 2h4v6H3z"/><path d="M1 4v2M9 4v2"/></svg>
-                                    </div>
-                                    <div style="width:11px;height:11px;border-radius:50%;background:#374151;display:flex;align-items:center;justify-content:center;">
-                                        <svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="1.2" style="width:6px;height:6px;"><rect x="1" y="2.5" width="5" height="4" rx="1"/><path d="M6 4.5l3-2v4l-3-2z"/></svg>
-                                    </div>
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80" alt="Carlos R."
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;" loading="lazy"/>
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Carlos R.</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong style="color:#1877f2;">KJA Centro de Capacitación y Formación Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 1 mes</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z"/></svg>
                                 </div>
                             </div>
-                            <div style="text-align:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:4px;">
-                                <div class="mode-panel-label">Online</div>
-                                <div class="mode-panel-sub">Desde cualquier lugar</div>
-                            </div>
                         </div>
-
-                        <!-- Divisor "O" -->
-                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:17px;flex-shrink:0;">
-                            <div style="flex:1;width:1px;background:linear-gradient(to bottom,transparent,rgba(241,0,117,0.35));"></div>
-                            <div style="width:17px;height:17px;border-radius:50%;background:white;border:1.5px solid #f10075;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <span style="font-size:0.48rem;font-weight:900;color:#f10075;">O</span>
-                            </div>
-                            <div style="flex:1;width:1px;background:linear-gradient(to bottom,rgba(241,0,117,0.35),transparent);"></div>
-                        </div>
-
-                        <!-- Panel Presencial -->
-                        <div class="mode-panel" style="background:linear-gradient(155deg,#0a2118,#0f3025);">
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★</div>
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Excelente atención desde el primer día. Los profesionales son muy empáticos y saben cómo ayudarte. Lo recomiendo al 100% 💪</p>
+                        <div style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
                             <div style="display:flex;align-items:center;gap:4px;">
-                                <span style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>
-                                <span style="font-size:0.45rem;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:0.08em;">Presencial</span>
+                                <div style="display:flex;">
+                                    <span style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">👍</span>
+                                    <span style="width:16px;height:16px;border-radius:50%;background:#f7b928;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">😮</span>
+                                </div>
+                                <span style="font-size:0.65rem;color:#65676b;">73</span>
                             </div>
-                            <!-- Mini mapa SVG -->
-                            <div style="flex:1;border-radius:8px;overflow:hidden;position:relative;">
-                                <svg width="100%" height="100%" viewBox="0 0 80 65" preserveAspectRatio="xMidYMid slice">
-                                    <rect width="80" height="65" fill="#0d2b1c"/>
-                                    <!-- Calles -->
-                                    <rect x="0" y="16" width="80" height="2.5" fill="rgba(255,255,255,0.07)"/>
-                                    <rect x="0" y="34" width="80" height="2.5" fill="rgba(255,255,255,0.07)"/>
-                                    <rect x="0" y="52" width="80" height="2.5" fill="rgba(255,255,255,0.07)"/>
-                                    <rect x="18" y="0" width="2.5" height="65" fill="rgba(255,255,255,0.07)"/>
-                                    <rect x="40" y="0" width="2.5" height="65" fill="rgba(255,255,255,0.07)"/>
-                                    <rect x="62" y="0" width="2.5" height="65" fill="rgba(255,255,255,0.07)"/>
-                                    <!-- Bloques de edificios -->
-                                    <rect x="2" y="2" width="13" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
-                                    <rect x="22" y="2" width="15" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
-                                    <rect x="44" y="2" width="15" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
-                                    <rect x="2" y="20" width="13" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
-                                    <rect x="65" y="20" width="13" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
-                                    <rect x="44" y="20" width="15" height="12" rx="1.5" fill="rgba(255,255,255,0.04)"/>
-                                    <!-- Pulso animado -->
-                                    <circle cx="41" cy="32" r="8" fill="rgba(34,197,94,0.12)"><animate attributeName="r" values="6;14;6" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0;0.7" dur="2.2s" repeatCount="indefinite"/></circle>
-                                    <circle cx="41" cy="32" r="5" fill="rgba(34,197,94,0.2)"><animate attributeName="r" values="4;9;4" dur="2.2s" begin="0.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0;0.8" dur="2.2s" begin="0.4s" repeatCount="indefinite"/></circle>
-                                    <!-- Pin -->
-                                    <path d="M41 20C37.7 20 35 22.7 35 26C35 30.8 41 39 41 39C41 39 47 30.8 47 26C47 22.7 44.3 20 41 20Z" fill="#22c55e"/>
-                                    <circle cx="41" cy="26" r="3" fill="white"/>
-                                    <!-- Label KJA -->
-                                    <rect x="25" y="42" width="32" height="9" rx="2" fill="rgba(34,197,94,0.25)"/>
-                                    <text x="41" y="48.5" fill="white" font-size="5" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">KJA Centro</text>
-                                </svg>
-                            </div>
-                            <div style="text-align:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:4px;">
-                                <div class="mode-panel-label">Presencial</div>
-                                <div class="mode-panel-sub">Lima, Perú</div>
+                            <div style="display:flex;gap:10px;">
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me gusta</span>
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬 Comentar</span>
                             </div>
                         </div>
                     </div>
-
-                    <p style="font-size:0.75rem;color:#374151;line-height:1.45;margin-bottom:0.3rem;"><strong>Familia Pérez</strong> — Desde su hogar en Perú lograron sus metas familiares.</p>
-                    <p style="font-size:0.68rem;color:#9ca3af;font-style:italic;">La flexibilidad nos salvó — <strong style="color:#6b7280;">Familia Pérez</strong></p>
                 </article>
 
-                <!-- Tarjeta 3: Impacto Real — counter animado -->
-                <article class="commitment-card" style="padding:1.1rem;display:flex;flex-direction:column;overflow:hidden;">
-                    <div class="commitment-eyebrow" style="margin-bottom:0.45rem;">IMPACTO REAL</div>
-                    <div style="display:flex;align-items:center;gap:7px;margin-bottom:0.4rem;">
-                        <svg fill="none" stroke="#f10075" stroke-width="2.2" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                        <h4 class="commitment-title" style="font-size:0.85rem;margin-bottom:0;">Progreso comprobado</h4>
+                <!-- ── Facebook post 3 ── -->
+                <article class="commitment-card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z"/></svg>
+                        <span style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
                     </div>
-
-                    <!-- Stat principal con glow -->
-                    <div style="position:relative;text-align:center;margin:0.2rem 0 0.35rem;">
-                        <div style="position:absolute;top:50%;left:50%;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);transform:translate(-50%,-50%);animation:glowPulse 2.8s ease-in-out infinite;pointer-events:none;"></div>
-                        <div id="impactoCount" style="font-size:3rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#004fb0,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;">500+</div>
-                        <div style="font-size:0.58rem;color:#6b7280;font-weight:600;margin-top:1px;letter-spacing:0.04em;">VIDAS TRANSFORMADAS</div>
-                    </div>
-
-                    <!-- Barra de progreso animada -->
-                    <div style="margin-bottom:0.55rem;">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
-                            <span style="font-size:0.58rem;color:#374151;font-weight:600;">Satisfacción de pacientes</span>
-                            <span style="font-size:0.58rem;color:#004fb0;font-weight:800;">98%</span>
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80" alt="Andrea L."
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;" loading="lazy"/>
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Andrea L.</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong style="color:#1877f2;">KJA Centro de Capacitación y Formación Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 2 semanas</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                        <div style="height:5px;background:#e0e7ff;border-radius:3px;overflow:hidden;">
-                            <div class="kja-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#004fb0,#7c3aed);border-radius:3px;transition:width 1.8s cubic-bezier(0.22,1,0.36,1);"></div>
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★</div>
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Muy profesionales y comprometidos. Mi hija mejoró muchísimo gracias a la terapia infantil. Volveríamos sin dudarlo 🌟</p>
+                        <div style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div style="display:flex;">
+                                    <span style="width:16px;height:16px;border-radius:50%;background:#f02849;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">❤️</span>
+                                    <span style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">👍</span>
+                                </div>
+                                <span style="font-size:0.65rem;color:#65676b;">91</span>
+                            </div>
+                            <div style="display:flex;gap:10px;">
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me gusta</span>
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬 Comentar</span>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Mini badges -->
-                    <div style="display:flex;gap:5px;margin-bottom:0.55rem;">
-                        <div style="flex:1;background:#f0f9ff;border-radius:10px;padding:0.4rem 0.3rem;text-align:center;border:1px solid rgba(0,79,176,0.08);">
-                            <div style="font-size:0.72rem;font-weight:900;color:#f59e0b;letter-spacing:1px;line-height:1;">★★★★★</div>
-                            <div style="font-size:0.48rem;color:#6b7280;font-weight:600;margin-top:2px;">Google</div>
-                        </div>
-                        <div style="flex:1;background:#fdf4ff;border-radius:10px;padding:0.4rem 0.3rem;text-align:center;border:1px solid rgba(124,58,237,0.08);">
-                            <div style="font-size:0.95rem;font-weight:900;color:#7c3aed;line-height:1;">8+</div>
-                            <div style="font-size:0.48rem;color:#6b7280;font-weight:600;margin-top:2px;">Años</div>
-                        </div>
-                        <div style="flex:1;background:#f0fff4;border-radius:10px;padding:0.4rem 0.3rem;text-align:center;border:1px solid rgba(5,150,105,0.08);">
-                            <div style="font-size:0.72rem;font-weight:900;color:#059669;line-height:1;">CPA</div>
-                            <div style="font-size:0.48rem;color:#6b7280;font-weight:600;margin-top:2px;">Colegiados</div>
-                        </div>
-                    </div>
-
-                    <!-- Testimonio con foto -->
-                    <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border-radius:10px;padding:0.5rem 0.65rem;margin-top:auto;border:1px solid rgba(0,79,176,0.07);">
-                        <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=80&q=80" alt="Sofía Pérez"
-                            style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #7c3aed;"
-                            loading="lazy"
-                        />
-                        <span style="font-size:0.68rem;color:#4b5563;line-height:1.4;">Mi hijo superó sus miedos — <strong style="color:#374151;">Sofía Pérez</strong></span>
                     </div>
                 </article>
 
@@ -1228,21 +1193,68 @@
 
     </section>
 
-    <!-- CURSOS -->
-    <section class="container section-padding" id="cursos">
-        <div class="capacitacion-banner">
-            <h2>BRINDAMOS:</h2>
-            <p>KJA - Centro de Capacitación y Formación Psicológica</p>
-            <div class="capacitacion-grid">
-                <div class="cap-tag">CURSOS EN VIVO</div>
-                <div class="cap-tag">CURSOS GRABADOS</div>
-                <div class="cap-tag">ESPECIALIZACIONES</div>
-                <div class="cap-tag">TALLERES</div>
-                <div class="cap-tag">CHARLAS</div>
-                <div class="cap-tag">CONFERENCIAS</div>
+    <!-- ===== STATS + BRINDAMOS (combinado) ===== -->
+    <div class="sb-section-wrap">
+    <section class="sb-section" id="cursos">
+
+        <!-- Columna izquierda: BRINDAMOS -->
+        <div class="sb-brindamos-col">
+            <div class="sb-brindamos-left">
+                <span class="sb-eyebrow">Capacitación y formación</span>
+                <h2 class="sb-brindamos-heading">BRINDA<span>MOS:</span></h2>
+                <p class="sb-brindamos-sub">KJA Centro de Capacitación y Formación Psicológica — formación especializada en salud mental y bienestar.</p>
+                <a href="cursos.html" class="sb-cta-btn">Ver todos los cursos →</a>
+            </div>
+            <div class="sb-arc-stage" id="sbArcStage">
+                <div class="sb-arc-card">Cursos en vivo</div>
+                <div class="sb-arc-card">Cursos grabados</div>
+                <div class="sb-arc-card">Especializaciones</div>
+                <div class="sb-arc-card">Talleres</div>
+                <div class="sb-arc-card">Charlas</div>
+                <div class="sb-arc-card">Conferencias</div>
             </div>
         </div>
+
+        <!-- Separador degradado vertical -->
+        <div class="sb-divider"></div>
+
+        <!-- Columna derecha: Stats -->
+        <div class="sb-stats-col">
+            <div class="sb-stats-header">
+                <span class="sb-eyebrow">Nuestro impacto</span>
+                <p class="sb-heading">Números que nos <strong>respaldan</strong></p>
+            </div>
+            <div class="sb-stats-grid">
+
+                <div class="sb-stat-item" data-bg="500">
+                    <div class="sb-stat-number" data-target="500" data-suffix="+">500+</div>
+                    <div class="sb-stat-label">Pacientes atendidos</div>
+                    <div class="sb-stat-desc">Familias que confiaron en KJA</div>
+                </div>
+
+                <div class="sb-stat-item" data-bg="5+">
+                    <div class="sb-stat-number" data-target="5" data-suffix="+">5+</div>
+                    <div class="sb-stat-label">Años de experiencia</div>
+                    <div class="sb-stat-desc">Acompañando el bienestar desde 2020</div>
+                </div>
+
+                <div class="sb-stat-item" data-bg="98%">
+                    <div class="sb-stat-number" data-target="98" data-suffix="%">98%</div>
+                    <div class="sb-stat-label">Pacientes satisfechos</div>
+                    <div class="sb-stat-desc">Evaluado en seguimiento post-sesión</div>
+                </div>
+
+                <div class="sb-stat-item" data-bg="4">
+                    <div class="sb-stat-number" data-target="4" data-suffix="">4</div>
+                    <div class="sb-stat-label">Especialidades</div>
+                    <div class="sb-stat-desc">Niños · Adolescentes · Adultos · Familia</div>
+                </div>
+
+            </div>
+        </div>
+
     </section>
+    </div><!-- /sb-section-wrap -->
 
     <!-- ===== PLANES DE ACOMPAÑAMIENTO (PRICING) ===== -->
     <section class="py-12 md:py-16 bg-white" id="planes">
@@ -1541,7 +1553,7 @@
             <!-- Mapa -->
             <div class="ubicanos-map-modern">
                 <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.589773826282!2d-76.9942!3d-12.0632!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c7b7f6d76fed%3A0x4b3a6a0d6a0d6a0d!2sSan%20Luis%2C%20Lima!5e0!3m2!1ses!2spe!4v1700000000000"
+                    src="https://maps.google.com/maps?q=Jr.+R%C3%ADo+Amazonas+214,+San+Luis,+Lima,+Per%C3%BA&z=17&output=embed"
                     allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
                 </iframe>
             </div>
@@ -1604,7 +1616,7 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
     </a>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=6"></script>
     <script>
         function toggleFaqPremium(index) {
             const items = document.querySelectorAll('.faq-premium-item');

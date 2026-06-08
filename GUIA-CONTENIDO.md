@@ -67,9 +67,9 @@ Ahí verás una lista de objetos. Para agregar uno nuevo, **copia y pega** este 
 
 ### Valores de `modalidad`:
 - `'vivo'` → Badge rojo con punto parpadeante "En Vivo"
-- `'grabado'` → Badge morado "📹 Grabado"
-- `'zoom'` → Badge azul "💻 Zoom"
-- `'presencial'` → Badge verde "📍 Presencial"
+- `'grabado'` → Badge morado " Grabado"
+- `'zoom'` → Badge azul " Zoom"
+- `'presencial'` → Badge verde " Presencial"
 - `'presencial-virtual'` → Ambos badges (verde + azul)
 
 ---

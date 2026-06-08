@@ -310,3 +310,93 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// STATS COUNTER ANIMATION
+(function () {
+    var counters = document.querySelectorAll('.stat-number[data-target], .sb-stat-number[data-target]');
+    if (!counters.length) return;
+
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            var el = entry.target;
+            var target = parseInt(el.dataset.target, 10);
+            var suffix = el.dataset.suffix || '';
+            var duration = 1600;
+            var start = null;
+
+            function step(timestamp) {
+                if (!start) start = timestamp;
+                var progress = Math.min((timestamp - start) / duration, 1);
+                var ease = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.floor(ease * target) + suffix;
+                if (progress < 1) requestAnimationFrame(step);
+                else el.textContent = target + suffix;
+            }
+            requestAnimationFrame(step);
+            observer.unobserve(el);
+        });
+    }, { threshold: 0.5 });
+
+    counters.forEach(function (el) { observer.observe(el); });
+})();
+
+// ============================================================
+//  ARC CAROUSEL — BRINDAMOS semicircle (clockwise, all 6 visible)
+// ============================================================
+(function () {
+    var stage = document.getElementById('sbArcStage');
+    if (!stage) return;
+
+    var cards   = stage.querySelectorAll('.sb-arc-card');
+    var N       = cards.length;   // 6
+    var R       = 95;             // radius px
+    var CX      = 18;             // arc center offset from stage left (px)
+    var SPD     = 0.005;          // rad/frame ≈ 10s per loop
+    var angle   = 0;
+    var active  = false;
+    var PI      = Math.PI;
+    var HALF_PI = PI / 2;
+    var spacing = PI / N;         // 30° between items
+
+    // Fade zone at ±90° edges — wider = smoother appearance (28° ≈ 0.49 rad)
+    var FADE_EDGE = 0.49;
+
+    var io = new IntersectionObserver(function (entries) {
+        active = entries[0].isIntersecting;
+        if (active) requestAnimationFrame(tick);
+    }, { threshold: 0.1 });
+    io.observe(stage);
+
+    function tick() {
+        if (!active) return;
+        angle += SPD;
+
+        var stageH = stage.offsetHeight || 260;
+
+        for (var i = 0; i < N; i++) {
+            // Wrap each item onto right semicircle [-PI/2, +PI/2]
+            var raw = angle + spacing * i;
+            var a   = ((raw % PI) + PI) % PI - HALF_PI;
+
+            var x = R * Math.cos(a);
+            var y = R * Math.sin(a);
+
+            // Tight taper: 0.78 at 12/6-o'clock, 1.0 at 3-o'clock
+            var scale = 0.78 + 0.22 * Math.cos(a);
+
+            // Fade only in the last 8.5° near each edge (hides the wrap jump)
+            var distFromEdge = HALF_PI - Math.abs(a);
+            var opacity = Math.max(0, Math.min(1, distFromEdge / FADE_EDGE));
+
+            var c = cards[i];
+            c.style.left      = (CX + x) + 'px';
+            c.style.top       = (stageH / 2 + y) + 'px';
+            c.style.transform = 'translate(-50%,-50%) scale(' + scale.toFixed(3) + ')';
+            c.style.opacity   = opacity.toFixed(3);
+            c.style.zIndex    = Math.round(scale * 10);
+        }
+
+        requestAnimationFrame(tick);
+    }
+})();
+
