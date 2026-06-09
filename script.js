@@ -407,14 +407,14 @@ const topicsData = {
     "ansiedad": {
         title: "Tratamiento de Ansiedad",
         desc: "La ansiedad constante puede paralizarte y afectar tu día a día. Nuestro equipo te ayuda con herramientas basadas en evidencia para recuperar la calma y tu bienestar.",
-        price: "S/ 60.00",
+        price: "S/ 59.90",
         image: "images/inicio-terapias/terapia_conductual.webp",
         courses: [{name: "Taller: Manejo de ansiedad", url: "cursos.html"}]
     },
     "depresion": {
         title: "Tratamiento de Depresión",
         desc: "La depresión es una condición que afecta tu energía, motivación y estado de ánimo. Te acompañamos a recuperar tu bienestar paso a paso, a tu propio ritmo.",
-        price: "S/ 60.00",
+        price: "S/ 59.90",
         image: "images/inicio-terapias/psicologia_clinica.avif",
         courses: [{name: "Charla: Sanando desde adentro", url: "cursos.html"}]
     },
@@ -428,7 +428,7 @@ const topicsData = {
     "fobias": {
         title: "Superando Fobias",
         desc: "Los miedos irracionales limitan tus experiencias. Utilizamos técnicas de exposición gradual y terapia cognitivo-conductual para ayudarte a vivir sin ataduras.",
-        price: "S/ 60.00",
+        price: "S/ 59.90",
         image: "images/inicio-terapias/terapia_conductual.webp",
         courses: [{name: "Charla: Entendiendo el miedo", url: "cursos.html"}]
     },
@@ -442,21 +442,21 @@ const topicsData = {
     "dependencia emocional": {
         title: "Independencia Emocional",
         desc: "Rompe patrones de relaciones tóxicas y aprende a construir vínculos desde la libertad y el amor propio. Te acompañamos en tu proceso de autovaloración.",
-        price: "S/ 60.00",
+        price: "S/ 59.90",
         image: "images/inicio-terapias/psicologia_clinica.avif",
         courses: [{name: "Curso: Amor Propio y Relaciones Sanas", url: "cursos.html"}]
     },
     "autoestima": {
         title: "Fortalecimiento de Autoestima",
         desc: "Descubre tu verdadero valor y aprende a tratarte con autocompasión. Te brindamos herramientas para silenciar al crítico interno y potenciar tu seguridad.",
-        price: "S/ 60.00",
+        price: "S/ 59.90",
         image: "images/inicio-terapias/terapia_conductual.webp",
         courses: [{name: "Taller: Autocompasión y Crecimiento", url: "cursos.html"}]
     },
     "burnout": {
         title: "Recuperación del Burnout",
         desc: "El agotamiento extremo (Burnout) afecta tu salud física y mental. Diseñamos un plan para que recuperes tu energía, establezcas límites y encuentres equilibrio.",
-        price: "S/ 60.00",
+        price: "S/ 59.90",
         image: "images/inicio-terapias/colegiados_cpa.jpg",
         courses: [{name: "Charla: Equilibrio Vida y Trabajo", url: "cursos.html"}]
     },
@@ -471,7 +471,7 @@ const topicsData = {
     "default": {
         title: "Atención Psicológica Especializada",
         desc: "Abordamos este motivo de consulta con terapias basadas en evidencia, en un ambiente confidencial y libre de juicios. Nuestro equipo te guía hacia tu bienestar.",
-        price: "S/ 60.00",
+        price: "S/ 59.90",
         image: "images/inicio-terapias/psicologia_clinica.avif",
         courses: [{name: "Charla Introductoria sobre Salud Mental", url: "cursos.html"}]
     }
@@ -492,8 +492,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Generar etiquetas
     areasList.forEach(area => {
         const btn = document.createElement('button');
-        btn.className = "px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 text-gray-600 rounded-full text-sm font-medium hover:border-[#f10075] hover:text-[#f10075] hover:shadow-md transition-all duration-300 transform hover:-translate-y-1";
-        btn.textContent = area;
+        // Diseño limpio y moderno con la flecha fucsia
+        btn.className = "group relative flex items-center justify-between gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium text-[13px] md:text-sm rounded-full shadow-sm hover:border-[#f10075]/40 hover:text-[#f10075] hover:shadow-md transition-all duration-300 transform hover:-translate-y-1";
+        
+        btn.innerHTML = `
+            <span class="relative z-10">${area}</span>
+            <!-- Flecha ondeada delgada fucsia -->
+            <svg class="w-5 h-5 text-[#f10075] opacity-60 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Cuerpo de la flecha (onda) -->
+                <path d="M4 12c4-5 8 5 12 0" />
+                <!-- Punta de la flecha -->
+                <path d="M13 9 L16 12 L13 15" />
+            </svg>
+        `;
+        
         btn.onclick = () => openTopicModal(area);
         cloud.appendChild(btn);
     });
@@ -541,35 +553,37 @@ function openTopicModal(topicName) {
 
     // Cursos sugeridos — cards estilo recomendación
     const coursesList = document.getElementById('modalCoursesList');
-    coursesList.innerHTML = '';
-    data.courses.forEach((c, index) => {
-        const card = document.createElement('a');
-        card.href = c.url;
-        card.className = "course-card-anim block bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 group";
-        card.style.animationDelay = `${index * 0.2}s`;
-        
-        // Usar la imagen del tratamiento como referencia visual de la card
-        const cardImg = c.image || data.image || 'images/inicio-terapias/terapia_conductual.webp';
-        const cardDesc = c.desc || 'Programa especializado diseñado para fortalecer tu bienestar emocional con herramientas prácticas.';
-        
-        card.innerHTML = `
-            <div class="relative h-40 overflow-hidden">
-                <img src="${cardImg}" alt="${c.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                <div class="absolute bottom-3 left-4 right-4">
-                    <span class="text-white font-bold text-sm drop-shadow-lg">${c.name}</span>
+    if (coursesList) {
+        coursesList.innerHTML = '';
+        data.courses.forEach((c, index) => {
+            const card = document.createElement('a');
+            card.href = c.url;
+            card.className = "course-card-anim block bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 group";
+            card.style.animationDelay = `${index * 0.2}s`;
+            
+            // Usar la imagen del tratamiento como referencia visual de la card
+            const cardImg = c.image || data.image || 'images/inicio-terapias/terapia_conductual.webp';
+            const cardDesc = c.desc || 'Programa especializado diseñado para fortalecer tu bienestar emocional con herramientas prácticas.';
+            
+            card.innerHTML = `
+                <div class="relative h-40 overflow-hidden">
+                    <img src="${cardImg}" alt="${c.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                    <div class="absolute bottom-3 left-4 right-4">
+                        <span class="text-white font-bold text-sm drop-shadow-lg">${c.name}</span>
+                    </div>
                 </div>
-            </div>
-            <div class="p-4">
-                <p class="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-2">${cardDesc}</p>
-                <span class="inline-flex items-center gap-1.5 text-[#004fb0] text-xs font-bold group-hover:text-[#f10075] transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-                    VER DETALLES
-                </span>
-            </div>
-        `;
-        coursesList.appendChild(card);
-    });
+                <div class="p-4">
+                    <p class="text-gray-600 text-xs leading-relaxed mb-3 line-clamp-2">${cardDesc}</p>
+                    <span class="inline-flex items-center gap-1.5 text-[#004fb0] text-xs font-bold group-hover:text-[#f10075] transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                        VER DETALLES
+                    </span>
+                </div>
+            `;
+            coursesList.appendChild(card);
+        });
+    }
 
     // Actualizar caption de imagen
     const captionEl = document.getElementById('modalImageCaption');

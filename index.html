@@ -1196,29 +1196,76 @@
     </section>
 
     <!-- ===== ÁREAS DE ATENCIÓN ===== -->
-    <section class="relative overflow-hidden" id="areas-atencion" style="padding:0;">
-        <!-- Fondo degradé elegante -->
-        <div style="
-            background: linear-gradient(180deg,
-                #ffffff 0%,
-                #fafafa 12%,
-                #f5f5f5 28%,
-                #f0f0f0 42%,
-                #f5f5f5 58%,
-                #fafafa 78%,
-                #ffffff 100%
-            );
-            padding: 5rem 0;
-        ">
-            <div class="max-w-5xl mx-auto px-4 md:px-6 text-center">
-                <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#f10075] mb-2 opacity-0 areas-anim">Áreas de atención</p>
-                <h2 class="text-3xl md:text-5xl font-extrabold text-[#1f2937] mb-3 opacity-0 areas-anim">Podemos ayudarte con</h2>
-                <p class="text-gray-500 mb-10 md:mb-14 text-sm md:text-base opacity-0 areas-anim">Haz clic sobre cada tema para saber más</p>
-                
-                <!-- Nube de etiquetas -->
-                <div class="flex flex-wrap justify-center gap-3 md:gap-4 areas-cloud opacity-0 areas-anim" id="areasCloud">
-                    <!-- Se inyectarán por JS -->
+    <section class="relative overflow-hidden py-24" id="areas-atencion">
+        <!-- Fondo difuminado muy suave: Blanco -> Plomo clarito -> Blanco -->
+        <div class="absolute inset-0 bg-gradient-to-b from-white via-slate-50 to-white pointer-events-none"></div>
+        
+        <!-- Resplandores (blurs) decorativos sutiles -->
+        <div class="absolute top-1/2 left-0 w-[500px] h-[500px] bg-[#004fb0] rounded-full filter blur-[120px] opacity-[0.03] -translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+        <div class="absolute top-1/2 right-0 w-[500px] h-[500px] bg-[#f10075] rounded-full filter blur-[120px] opacity-[0.02] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 text-center">
+            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#004fb0] mb-3 opacity-0 areas-anim">Áreas de atención</p>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-[#1f2937] mb-8 opacity-0 areas-anim tracking-tight">Podemos ayudarte con</h2>
+
+            <style>
+                /* Vuelo suave y local para el búho en el lateral */
+                @keyframes hoverFluid {
+                    0% { transform: translate(0px, 0px) rotate(-3deg); }
+                    33% { transform: translate(15px, -15px) rotate(2deg); }
+                    66% { transform: translate(-10px, 15px) rotate(-1deg); }
+                    100% { transform: translate(0px, 0px) rotate(-3deg); }
+                }
+            </style>
+
+            <!-- Búho Volador a la extrema izquierda apuntando a la derecha (Pointer-events-none) -->
+            <div class="absolute -left-4 md:-left-12 lg:-left-20 top-[55%] transform -translate-y-1/2 z-20 pointer-events-none flex justify-center opacity-0 areas-anim" style="animation-delay: 300ms;">
+                <div class="flex flex-col items-center gap-1 animate-[hoverFluid_10s_ease-in-out_infinite]">
+                    
+                    <!-- Burbuja de diálogo (Arriba del búho para ocupar menos espacio horizontal) -->
+                    <div class="relative bg-white/90 backdrop-blur-sm border border-gray-100 shadow-[0_4px_10px_rgba(0,0,0,0.05)] rounded-xl px-3 py-1.5 mb-2">
+                        <p class="text-[9px] md:text-[10px] font-black text-[#f10075] uppercase tracking-widest m-0 leading-none">¡Clic aquí!</p>
+                        <!-- Punta de la burbuja hacia abajo -->
+                        <div class="absolute -bottom-[5px] left-1/2 transform -translate-x-1/2 w-2.5 h-2.5 bg-white/90 border-b border-r border-gray-100 rotate-45"></div>
+                    </div>
+
+                    <!-- El Búho Más Pequeño -->
+                    <div class="relative w-10 h-10 md:w-12 md:h-12 drop-shadow-[0_10px_15px_rgba(0,79,176,0.15)]">
+                        <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                          <!-- Orejas -->
+                          <path d="M 25 25 L 15 5 L 40 20 Z" fill="#004fb0" />
+                          <path d="M 75 25 L 85 5 L 60 20 Z" fill="#004fb0" />
+                          <!-- Cuerpo -->
+                          <path d="M50 15 C 20 15, 15 40, 15 65 C 15 85, 25 90, 50 90 C 75 90, 85 85, 85 65 C 85 40, 80 15, 50 15 Z" fill="#004fb0" />
+                          <!-- Pecho -->
+                          <path d="M 50 35 C 30 35, 25 55, 25 75 C 25 85, 35 90, 50 90 C 65 90, 75 85, 75 75 C 75 55, 70 35, 50 35 Z" fill="#e2e8f0" />
+                          <!-- Ojos Grandes -->
+                          <circle cx="35" cy="40" r="12" fill="#ffffff" />
+                          <circle cx="65" cy="40" r="12" fill="#ffffff" />
+                          <!-- Pupilas (mirando hacia la derecha) -->
+                          <circle cx="39" cy="42" r="5" fill="#1f2937" />
+                          <circle cx="69" cy="42" r="5" fill="#1f2937" />
+                          <!-- Brillos -->
+                          <circle cx="37" cy="40" r="2" fill="#ffffff" />
+                          <circle cx="67" cy="40" r="2" fill="#ffffff" />
+                          <!-- Pico -->
+                          <polygon points="45,49 55,49 50,57" fill="#F5A623" />
+                          <!-- Ala izquierda animada volando -->
+                          <path d="M 20 50 C 5 50, 0 70, 20 65 Z" fill="#003b82" class="animate-[pulse_0.5s_infinite]" />
+                          <!-- Ala derecha animada volando -->
+                          <path d="M 80 50 C 95 50, 100 70, 80 65 Z" fill="#003b82" class="animate-[pulse_0.5s_infinite]" />
+                        </svg>
+                        <!-- Manito apuntando hacia la derecha (hacia las burbujas) -->
+                        <div class="absolute -right-6 top-1/2 -translate-y-1/2 animate-pulse">
+                            <span class="text-2xl drop-shadow-md">👉</span>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            
+            <!-- Nube de etiquetas -->
+            <div class="flex flex-wrap justify-center gap-3 md:gap-4 areas-cloud opacity-0 areas-anim relative" id="areasCloud">
+                <!-- Se inyectarán por JS -->
             </div>
         </div>
     </section>
@@ -1226,76 +1273,178 @@
     <!-- Modal de Especialidades (Full Redesign) -->
     <div id="topicModal" class="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeTopicModal()"></div>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeTopicModal()"></div>
         
-        <!-- Contenido Modal — más grande -->
-        <div class="bg-white rounded-[2rem] max-w-5xl w-[96%] max-h-[92vh] overflow-y-auto relative z-10 transform scale-95 opacity-0 transition-all duration-300 shadow-2xl" id="topicModalContent">
+        <!-- Contenido Modal -->
+        <div class="bg-white rounded-[2rem] max-w-5xl w-[96%] max-h-[92vh] overflow-y-auto relative z-10 transform scale-95 opacity-0 transition-all duration-300 shadow-2xl flex flex-col" id="topicModalContent">
             
             <!-- Botón Cerrar -->
-            <button onclick="closeTopicModal()" class="absolute top-4 right-4 z-20 w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-gray-100 rounded-full text-gray-500 hover:text-gray-800 transition-colors shadow-md">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            <button onclick="closeTopicModal()" class="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-gray-100 rounded-full text-gray-500 hover:text-gray-800 transition-colors shadow-md border border-gray-200">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
 
-            <div class="flex flex-col md:flex-row">
-                <!-- Columna Izquierda (Info + Pricing + CTA) -->
-                <div class="p-7 md:p-10 md:w-1/2 flex flex-col">
-                    <div class="flex-1">
-                        <div class="mb-5">
-                            <span class="inline-block px-3 py-1 bg-[#004fb0]/10 text-[#004fb0] text-[10px] font-bold rounded-full tracking-widest uppercase mb-3">Especialidad</span>
-                            <h3 class="text-2xl md:text-[2rem] font-extrabold text-gray-900 leading-tight" id="modalTitle">Tratamiento</h3>
-                        </div>
-                        <p class="text-gray-600 text-sm md:text-[15px] mb-8 leading-relaxed" id="modalDesc">
-                            Descripción.
-                        </p>
-                    </div>
-
-                    <!-- Precio + CTA -->
-                    <div class="mt-auto">
-                        <div class="bg-gradient-to-r from-[#004fb0]/5 to-[#f10075]/5 rounded-2xl p-5 mb-5 flex justify-between items-center border border-gray-100">
-                            <div>
-                                <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-0.5">Inversión recomendada</p>
-                                <p class="text-sm font-bold text-gray-900">Primera sesión</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-2xl font-extrabold text-[#f10075]" id="modalPrice">S/ 60.00</p>
-                            </div>
-                        </div>
-
-                        <a href="#" id="modalWaBtn" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold py-4 px-6 rounded-full transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#25D366]/30 text-base">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                            Agendar cita
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Columna Derecha (Recomendaciones estilo card) -->
-                <div class="md:w-1/2 bg-[#f0f6fd] p-7 md:p-10 flex flex-col border-t md:border-t-0 md:border-l border-gray-200/50 md:rounded-r-[2rem]">
-                    <p class="text-[11px] font-bold text-[#004fb0] uppercase tracking-widest mb-5">Terapia recomendada</p>
-                    
+            <div class="flex flex-col-reverse md:flex-row flex-1">
+                <!-- Columna Izquierda (Ventas / Info) -->
+                <div class="p-6 md:p-10 md:w-[55%] flex flex-col relative bg-[#fafcff] justify-between overflow-hidden rounded-b-[2rem] md:rounded-b-none md:rounded-l-[2rem]">
+                    <!-- Animated background blobs -->
                     <style>
-                        .perspective-1000 { perspective: 1000px; }
-                        @keyframes flipIn {
-                            0% { transform: rotateY(-90deg) scale(0.9); opacity: 0; }
-                            60% { transform: rotateY(8deg) scale(1.02); opacity: 1; }
-                            100% { transform: rotateY(0) scale(1); opacity: 1; }
+                        @keyframes blob {
+                            0% { transform: translate(0px, 0px) scale(1); }
+                            33% { transform: translate(30px, -50px) scale(1.1); }
+                            66% { transform: translate(-20px, 20px) scale(0.9); }
+                            100% { transform: translate(0px, 0px) scale(1); }
                         }
-                        .course-card-anim { 
-                            animation: flipIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; 
-                            opacity: 0; 
-                            transform-origin: left center; 
+                        .animate-blob { animation: blob 7s infinite; }
+                        .animation-delay-2000 { animation-delay: 2s; }
+                        .animation-delay-4000 { animation-delay: 4s; }
+                        
+                        @keyframes slideInUpCustom {
+                            from { opacity: 0; transform: translateY(20px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        .stagger-1 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.1s; opacity: 0; }
+                        .stagger-2 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.2s; opacity: 0; }
+                        .stagger-3 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.3s; opacity: 0; }
+                        .stagger-4 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.4s; opacity: 0; }
+                        .stagger-5 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.5s; opacity: 0; }
+
+                        @keyframes shimmer {
+                            100% { transform: translateX(100%); }
                         }
                     </style>
 
-                    <div id="modalCoursesList" class="flex flex-col gap-5 perspective-1000">
-                        <!-- Se inyectan cards de recomendación aquí -->
+                    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                        <!-- Suave resplandor superior izquierdo -->
+                        <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-[#004fb0] rounded-full filter blur-[120px] opacity-[0.08]"></div>
+                        <!-- Suave resplandor inferior derecho -->
+                        <div class="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-[#f10075] rounded-full filter blur-[120px] opacity-[0.08]"></div>
+                        
+                        <!-- Patrón de puntos muy elegante y minimalista -->
+                        <div class="absolute inset-0" style="background-image: radial-gradient(#004fb0 1.5px, transparent 1.5px); background-size: 32px 32px; opacity: 0.04;"></div>
                     </div>
 
-                    <!-- Imagen referencial grande -->
-                    <div class="mt-6 rounded-2xl overflow-hidden shadow-lg border border-white/60 relative group" style="min-height:180px;">
-                        <img id="modalImage" src="" alt="Imagen Referencial" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" style="min-height:180px;" loading="lazy" />
-                        <div class="absolute inset-0 bg-gradient-to-t from-[#004fb0]/50 to-transparent"></div>
-                        <div class="absolute bottom-3 left-4 right-4">
-                            <p class="text-white text-xs font-semibold drop-shadow-md" id="modalImageCaption">KJA — Especialistas en tu bienestar</p>
+                    <!-- Contenido superior -->
+                    <div class="relative z-10 flex-1 flex flex-col">
+                        <div class="stagger-1 mb-4">
+                            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 border border-blue-100 rounded-full">
+                                <span class="relative flex h-2.5 w-2.5">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#004fb0]"></span>
+                                </span>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-[#004fb0]">
+                                    Atención Especializada
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stagger-2 mb-3 md:mb-4">
+                            <h3 class="text-2xl md:text-[2.3rem] font-black text-gray-900 leading-[1.05] tracking-tight" id="modalTitle">Tratamiento</h3>
+                        </div>
+                        
+                        <p class="stagger-3 text-gray-600 text-sm md:text-[15px] leading-relaxed font-medium mb-6 md:mb-7" id="modalDesc">
+                            Descripción.
+                        </p>
+
+                        <!-- Enfoque KJA (Timeline Custom Component) -->
+                        <div class="stagger-4 flex-1">
+                            <h4 class="text-[12px] md:text-[13px] font-bold text-[#004fb0] mb-4 md:mb-5 flex items-center gap-2">
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                El compromiso KJA contigo
+                            </h4>
+
+                            <div class="space-y-4 md:space-y-5 relative before:absolute before:inset-y-0 before:left-[11px] before:w-[2px] before:bg-gradient-to-b before:from-[#004fb0] before:via-[#004fb0]/50 before:to-transparent pl-10">
+                                <div class="relative">
+                                    <div class="absolute -left-[41px] top-0.5 w-6 h-6 bg-[#fafcff] border-[3px] border-[#004fb0] rounded-full flex items-center justify-center shadow-sm">
+                                        <div class="w-1.5 h-1.5 bg-[#004fb0] rounded-full"></div>
+                                    </div>
+                                    <h5 class="text-[13px] md:text-[14px] font-extrabold text-gray-900 leading-none mb-1 md:mb-1.5">Evaluación sin etiquetas</h5>
+                                    <p class="text-[11px] md:text-[12px] text-gray-500 leading-relaxed">Nos enfocamos en comprender las verdaderas necesidades del paciente, yendo más allá de un simple diagnóstico.</p>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute -left-[41px] top-0.5 w-6 h-6 bg-[#fafcff] border-[3px] border-[#004fb0] rounded-full flex items-center justify-center shadow-sm">
+                                        <div class="w-1.5 h-1.5 bg-[#004fb0] rounded-full"></div>
+                                    </div>
+                                    <h5 class="text-[13px] md:text-[14px] font-extrabold text-gray-900 leading-none mb-1 md:mb-1.5">Espacio seguro y empático</h5>
+                                    <p class="text-[11px] md:text-[12px] text-gray-500 leading-relaxed">Creamos un ambiente de absoluta confianza donde el paciente se siente escuchado y validado en todo momento.</p>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute -left-[41px] top-0.5 w-6 h-6 bg-[#fafcff] border-[3px] border-[#004fb0] rounded-full flex items-center justify-center shadow-sm">
+                                        <div class="w-1.5 h-1.5 bg-[#004fb0] rounded-full"></div>
+                                    </div>
+                                    <h5 class="text-[13px] md:text-[14px] font-extrabold text-gray-900 leading-none mb-1 md:mb-1.5">Acompañamiento constante</h5>
+                                    <p class="text-[11px] md:text-[12px] text-gray-500 leading-relaxed">Brindamos pautas claras y apoyo continuo para asegurar que los avances se mantengan en el día a día.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Barra de compra inferior (Módulo de Reserva) -->
+                    <div class="stagger-5 relative z-10 mt-5 md:mt-6">
+                        <div class="bg-[#f8fafc] rounded-xl md:rounded-2xl p-4 md:p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+                            <!-- Decoración sutil de fondo en el módulo -->
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-[#004fb0]/5 rounded-full filter blur-[20px] translate-x-10 -translate-y-10"></div>
+                            
+                            <div class="flex items-center justify-between gap-2 mb-4 relative z-10">
+                                <div>
+                                    <p class="text-[10px] md:text-[11px] uppercase font-bold text-gray-500 tracking-wider mb-0.5 md:mb-1">Inversión por Sesión</p>
+                                    <div class="flex items-baseline gap-1.5">
+                                        <span class="text-2xl md:text-[2.2rem] font-black text-[#004fb0] leading-none tracking-tight" id="modalPrice">S/ 59.90</span>
+                                    </div>
+                                </div>
+                                <div class="text-right flex flex-col items-end">
+                                    <div class="inline-flex items-center gap-1 bg-red-50 border border-red-100 px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg shadow-sm">
+                                        <span class="relative flex h-2 w-2 mr-0.5">
+                                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                        </span>
+                                        <span class="text-[10px] md:text-[11px] font-black uppercase tracking-wide text-red-600">¡Aprovecha Ya!</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="#" id="modalWaBtn" target="_blank" class="group relative w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 md:py-4 px-4 md:px-6 rounded-xl transition-all duration-300 shadow-[0_4px_14px_rgba(37,211,102,0.39)] hover:shadow-[0_6px_20px_rgba(37,211,102,0.23)] hover:-translate-y-0.5 z-10 overflow-hidden">
+                                <!-- Efecto de brillo suave y difuminado -->
+                                <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+                                
+                                <svg class="w-5 h-5 md:w-6 md:h-6 relative z-10 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                                <span class="relative z-10 text-[14px] md:text-[16px] font-black tracking-wide drop-shadow-sm">AGENDAR VÍA WHATSAPP</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha (Flyer Destacado GIGANTE) -->
+                <div class="md:w-1/2 bg-[#000a1f] p-6 md:p-8 flex flex-col relative overflow-hidden rounded-t-[2rem] md:rounded-t-none md:rounded-r-[2rem] justify-center items-center">                    <!-- Elementos decorativos oscuros -->
+                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+                    <div class="absolute top-[-20%] right-[-10%] w-[120%] h-[120%] bg-gradient-to-bl from-[#004fb0]/50 via-[#f10075]/30 to-transparent blur-[80px] pointer-events-none"></div>
+                    
+                    <div class="relative z-10 w-full max-w-[420px] mx-auto text-center flex flex-col h-full justify-center">
+                        <div class="mb-4">
+                            <span class="inline-block bg-[#f10075] text-white text-xs font-black px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(241,0,117,0.6)] uppercase tracking-widest mb-2 animate-bounce">
+                                EVENTO PRINCIPAL
+                            </span>
+                        </div>
+
+                        <!-- Imagen del Flyer GIGANTE con efecto 3D -->
+                        <div class="flex items-center justify-center relative group py-2 w-full">
+                            <div class="relative w-full transition-transform duration-500 transform group-hover:scale-105 group-hover:rotate-1" style="perspective: 1200px;">
+                                <!-- Glow effect extremo detrás del flyer -->
+                                <div class="absolute inset-0 bg-gradient-to-r from-[#004fb0] to-[#f10075] blur-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl animate-pulse"></div>
+                                
+                                <img src="images/inicio-terapias/Flyer-lenguaje-ninos.jpg" alt="Flyer Lenguaje Niños" class="relative w-full h-auto rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/20 z-10 transition-transform duration-500 hover:-translate-y-3" loading="eager" />
+                                
+                                <!-- Sticker promocional flotante -->
+                                <div class="absolute -bottom-5 -left-5 bg-yellow-400 text-[#000a1f] w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-2xl z-20 transform -rotate-12 group-hover:rotate-0 transition-transform duration-300 border-4 border-[#000a1f]">
+                                    <span class="text-[10px] font-black leading-none uppercase">Últimos</span>
+                                    <span class="text-3xl font-black leading-none my-1">5</span>
+                                    <span class="text-[10px] font-black leading-none uppercase">Cupos</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-white mt-8">
+                            <h4 class="text-2xl md:text-3xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 leading-tight">Terapia de Lenguaje</h4>
+                            <p class="text-sm md:text-base text-gray-300 font-medium px-4">¡No dejes pasar esta oportunidad de potenciar las habilidades de tu hijo hoy mismo!</p>
                         </div>
                     </div>
                 </div>
