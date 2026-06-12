@@ -5,13 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cursos y Capacitación – KJA Centro Psicológico</title>
+    <meta name="description" content="Cursos, talleres y charlas de salud mental y desarrollo humano dictados por psicólogos colegiados de KJA. Modalidad presencial y virtual.">
+    <meta name="theme-color" content="#004fb0">
     <link rel="icon" type="image/png" href="images/logo/favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="shared.css?v=7">
     <!-- GSAP & ScrollTrigger -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <style>
         /* ===== CURSOS TAB SYSTEM ===== */
         .cursos-tabs {
@@ -424,13 +428,14 @@
                 <li><a href="nosotros.html">Nosotros</a></li>
                 <li><a href="index.html#ubicanos">Ubícanos</a></li>
             </ul>
+
             <div class="hamburger" id="hamburger" onclick="toggleMenu()">
                 <span></span><span></span><span></span>
             </div>
         </nav>
     </header>
 
-    <div class="page-hero">
+    <div class="page-hero hero-cursos">
         <h1>CAPACITACIÓN Y <span>FORMACIÓN</span></h1>
         <p>Cursos, especializaciones, talleres y charlas especializadas para tu desarrollo profesional y personal.</p>
     </div>
@@ -617,7 +622,7 @@
             'habilidades-blandas': {
                 title: 'Taller de Habilidades Blandas',
                 meta: 'Presencial y Virtual · 8 horas',
-                image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=80&auto=format',
                 description: 'Desarrolla tus competencias interpersonales y mejora la comunicación asertiva, el trabajo en equipo, el liderazgo y la resolución de conflictos para potenciar tu éxito personal y profesional.',
                 learn: [
                     'Comunicación asertiva y técnicas de escucha activa.',
@@ -642,7 +647,7 @@
             'manejo-estres': {
                 title: 'Taller de Manejo del Estrés',
                 meta: 'Virtual · 6 horas',
-                image: 'https://images.unsplash.com/photo-1536164832230-6c99e52e06c2?w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1536164832230-6c99e52e06c2?w=500&q=80&auto=format',
                 description: 'Aprende a reconocer las causas del estrés diario y laboral, y domina técnicas prácticas de relajación, respiración y mindfulness para recuperar el equilibrio y proteger tu salud emocional.',
                 learn: [
                     'Reconocer los síntomas y desencadenantes físicos y emocionales del estrés.',
@@ -667,7 +672,7 @@
             'psicologia-docentes': {
                 title: 'Psicología Educativa para Docentes',
                 meta: 'Presencial · 12 horas',
-                image: 'https://images.unsplash.com/photo-1607453998774-d533f65dac99?w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1607453998774-d533f65dac99?w=500&q=80&auto=format',
                 description: 'Brinda a los educadores herramientas psicológicas esenciales para entender el desarrollo del aprendizaje, guiar conductas complejas dentro del aula y dar apoyo de contención socioemocional.',
                 learn: [
                     'Identificación oportuna de dificultades comunes de aprendizaje y del neurodesarrollo.',
@@ -692,7 +697,7 @@
             'inteligencia-emocional': {
                 title: 'Inteligencia Emocional',
                 meta: 'Virtual · 10 horas',
-                image: 'https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=500&q=80&auto=format',
                 description: 'Un recorrido de autodescubrimiento para identificar, comprender y canalizar adecuadamente tus emociones, fortaleciendo la empatía y construyendo relaciones sanas en todas las esferas de tu vida.',
                 learn: [
                     'Técnicas avanzadas de autoconocimiento y mapeo de estados emocionales.',
@@ -717,7 +722,7 @@
             'escuela-padres': {
                 title: 'Escuela para Padres',
                 meta: 'Presencial y Virtual · 8 horas',
-                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&q=80&auto=format',
                 description: 'Acompañamos a madres, padres y cuidadores en la hermosa tarea de criar con amor, respeto y firmeza. Obtén herramientas efectivas para guiar la conducta sin violencia y sanar los vínculos familiares.',
                 learn: [
                     'Comprender la diferencia entre los estilos de crianza y su impacto futuro.',
@@ -742,7 +747,7 @@
             'desarrollo-humano': {
                 title: 'Desarrollo Humano y Bienestar',
                 meta: 'Virtual · 6 horas',
-                image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=500&q=80&auto=format',
                 description: 'Un espacio de reflexión guiada para estructurar tu propósito vital, potenciar tu resiliencia ante los desafíos y adoptar hábitos que incrementen tu bienestar y satisfacción personal.',
                 learn: [
                     'Fundamentos clave de la psicología positiva y el bienestar subjetivo.',
@@ -767,7 +772,7 @@
             'regulacion-adolescentes': {
                 title: 'Regulación Emocional para Adolescentes',
                 meta: 'Virtual · 4 horas',
-                image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&q=80&auto=format',
                 description: 'Un taller 100% interactivo diseñado para adolescentes, enfocado en brindar herramientas prácticas de autocontrol, identificación emocional y manejo de la frustración.',
                 learn: [
                     'Identificar emociones complejas (enojo, ansiedad, tristeza).',
@@ -792,7 +797,7 @@
             'burnout-prevent': {
                 title: 'Salud Mental y Prevención del Burnout',
                 meta: 'Presencial y Virtual · 2 horas',
-                image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80&auto=format',
                 description: 'Capacitación corporativa de alto impacto para líderes y equipos de trabajo. Aprende a construir ambientes laborales saludables y prevenir el agotamiento mental.',
                 learn: [
                     'Identificar los síntomas iniciales y avanzados del burnout.',
@@ -897,7 +902,7 @@
         });
     </script>
 
-    <script src="script.js"></script>
+    <script defer src="script.js?v=7"></script>
 
     <script>
     /**
@@ -922,7 +927,7 @@
             descripcion: 'Desarrolla tus competencias interpersonales: comunicación efectiva, trabajo en equipo, liderazgo y resolución de conflictos.',
             duracion: '8 horas',
             audiencia: 'Grupos',
-            imagen: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=500&q=80',
+            imagen: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=500&q=80&auto=format',
             dias: ['lun', 'mié', 'sáb'],
             zoomUrl: '',                           // Dejar vacío si no aplica
             qrSrc: '',                             // Ruta a imagen QR o vacío
@@ -936,7 +941,7 @@
             descripcion: 'Aprende técnicas de relajación, mindfulness y estrategias de afrontamiento para reducir el estrés en tu vida diaria y laboral.',
             duracion: '6 horas',
             audiencia: 'Individual / Grupos',
-            imagen: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80',
+            imagen: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80&auto=format',
             dias: ['mar', 'jue'],
             zoomUrl: '',
             qrSrc: '',
@@ -950,7 +955,7 @@
             descripcion: 'Aprende a identificar, comprender y gestionar tus propias emociones y las de los demás para mejorar tus relaciones y tu bienestar.',
             duracion: '10 horas',
             audiencia: 'Individual / Grupos',
-            imagen: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&q=80',
+            imagen: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&q=80&auto=format',
             dias: [],
             zoomUrl: '',
             qrSrc: '',
@@ -966,7 +971,7 @@
             descripcion: 'Herramientas psicológicas para docentes: manejo de conductas en aula, identificación de dificultades de aprendizaje y apoyo emocional al estudiante.',
             duracion: '12 horas',
             audiencia: 'Grupos',
-            imagen: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=500&q=80',
+            imagen: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=500&q=80&auto=format',
             dias: ['lun', 'mié', 'vie'],
             zoomUrl: '',
             qrSrc: '',
@@ -980,7 +985,7 @@
             descripcion: 'Herramientas prácticas para criar con amor y límites: comunicación con hijos, manejo de conductas difíciles y fortalecimiento del vínculo familiar.',
             duracion: '8 horas',
             audiencia: 'Grupos',
-            imagen: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=500&q=80',
+            imagen: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=500&q=80&auto=format',
             dias: ['sáb', 'dom'],
             zoomUrl: '',
             qrSrc: '',
@@ -996,7 +1001,7 @@
             descripcion: 'Un viaje hacia el autoconocimiento, el propósito de vida y el crecimiento personal para vivir de manera más plena y consciente.',
             duracion: '6 horas',
             audiencia: 'Individual / Grupos',
-            imagen: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=500&q=80',
+            imagen: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=500&q=80&auto=format',
             dias: ['sáb'],
             zoomUrl: '',
             qrSrc: '',
@@ -1010,7 +1015,7 @@
             descripcion: 'Taller 100% en vivo vía Zoom donde los adolescentes aprenden técnicas prácticas para gestionar sus emociones en el día a día.',
             duracion: '4 horas',
             audiencia: 'Grupos (5-10 personas)',
-            imagen: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&q=80',
+            imagen: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&q=80&auto=format',
             dias: ['sáb'],
             zoomUrl: '',
             qrSrc: '',
@@ -1026,7 +1031,7 @@
             descripcion: 'Capacitación corporativa para líderes y equipos. Aprende a identificar el síndrome de burnout, gestionar el estrés y construir un clima organizacional seguro que potencie el bienestar y la productividad.',
             duracion: '2 horas',
             audiencia: 'Empresas y Organizaciones',
-            imagen: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80',
+            imagen: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80&auto=format',
             dias: [],
             zoomUrl: '',
             qrSrc: '',

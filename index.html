@@ -1,20 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KJA - Centro de Atención Psicológica Integral</title>
+    <meta name="description"
+        content="Centro Psicológico KJA: terapia individual, de pareja, familiar e infantil con psicólogos colegiados. Sesiones presenciales y virtuales. Agenda tu primera cita con 20% de descuento.">
+    <meta name="theme-color" content="#004fb0">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KJA Centro Psicológico">
+    <meta property="og:title" content="KJA - Centro de Atención Psicológica Integral">
+    <meta property="og:description"
+        content="Terapia individual, de pareja, familiar e infantil con psicólogos colegiados. Sesiones presenciales y virtuales.">
+    <meta property="og:locale" content="es_PE">
     <link rel="icon" type="image/png" href="images/logo/favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="shared.css?v=6">
-    <!-- Tailwind CSS v4 Play CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preload" as="image"
+        href="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1400&q=80&auto=format"
+        fetchpriority="high">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="shared.css?v=7">
+    <!-- Tailwind compilado estático (solo clases usadas) -->
+    <link rel="stylesheet" href="tailwind.css?v=1">
     <!-- GSAP & ScrollTrigger -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <!-- Sin JS, el contenido animado debe verse igual -->
+    <noscript>
+        <style>
+            .opacity-0 {
+                opacity: 1 !important;
+            }
+        </style>
+    </noscript>
     <style>
         /* Desactivar transiciones CSS para que GSAP las controle de forma limpia */
-        .carousel-eyebrow, .carousel-title, .carousel-desc, .carousel-actions {
+        .carousel-eyebrow,
+        .carousel-title,
+        .carousel-desc,
+        .carousel-actions {
             transition: none !important;
             transform: none !important;
             opacity: 1 !important;
@@ -26,7 +55,8 @@
             .features-scroll-wrapper {
                 position: relative;
                 margin: 0 -1rem;
-                overflow: hidden;  /* oculta las cards vecinas */
+                overflow: hidden;
+                /* oculta las cards vecinas */
                 padding-bottom: 4px;
             }
 
@@ -46,18 +76,23 @@
             .features-scroll-track {
                 display: flex;
                 flex-direction: row;
-                gap: 1.5rem;                /* espacio en blanco que separa las cards */
+                gap: 1.5rem;
+                /* espacio en blanco que separa las cards */
                 overflow-x: auto;
                 overflow-y: visible;
                 scroll-snap-type: x mandatory;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
-                padding: 8px 1rem 20px 1rem; /* márgenes laterales para respiro visual */
+                padding: 8px 1rem 20px 1rem;
+                /* márgenes laterales para respiro visual */
             }
-            .features-scroll-track::-webkit-scrollbar { display: none; }
+
+            .features-scroll-track::-webkit-scrollbar {
+                display: none;
+            }
 
             /* Cada card ocupa el ancho visible menos los márgenes laterales */
-            .features-scroll-track > div {
+            .features-scroll-track>div {
                 flex: 0 0 calc(100% - 2rem);
                 min-height: 200px;
                 scroll-snap-align: center;
@@ -66,17 +101,18 @@
                 min-width: 0 !important;
                 /* Espaciado interno propio */
                 border-radius: 20px !important;
-                margin: 0 !important;        /* gap y padding se encargan del espaciado */
+                margin: 0 !important;
+                /* gap y padding se encargan del espaciado */
                 padding: 24px 22px !important;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-                border: 1px solid rgba(0,0,0,0.06) !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+                border: 1px solid rgba(0, 0, 0, 0.06) !important;
                 box-sizing: border-box;
                 /* Sin scale */
                 transform: none !important;
             }
 
             /* Icono */
-            .features-scroll-track > div .w-12 {
+            .features-scroll-track>div .w-12 {
                 width: 52px !important;
                 height: 52px !important;
                 border-radius: 16px !important;
@@ -84,20 +120,21 @@
             }
 
             /* Texto */
-            .features-scroll-track > div h3 {
+            .features-scroll-track>div h3 {
                 font-size: 1.05rem !important;
                 font-weight: 800 !important;
                 margin-bottom: 8px !important;
             }
-            .features-scroll-track > div p {
+
+            .features-scroll-track>div p {
                 font-size: 0.82rem !important;
                 line-height: 1.55 !important;
                 color: #6b7280 !important;
             }
 
             /* Número stat */
-            .features-scroll-track > div .text-3xl,
-            .features-scroll-track > div .text-4xl {
+            .features-scroll-track>div .text-3xl,
+            .features-scroll-track>div .text-4xl {
                 font-size: 2.4rem !important;
                 margin-bottom: 4px !important;
             }
@@ -111,14 +148,18 @@
                 margin-top: 6px;
                 padding-bottom: 4px;
             }
+
             .features-scroll-dots span {
                 display: inline-block;
-                width: 7px; height: 7px;
+                width: 7px;
+                height: 7px;
                 border-radius: 50%;
                 background: #d1d5db;
                 transition: background 0.3s, width 0.3s, border-radius 0.3s;
-                cursor: pointer; flex-shrink: 0;
+                cursor: pointer;
+                flex-shrink: 0;
             }
+
             .features-scroll-dots span.active {
                 background: #f10075;
                 width: 22px;
@@ -128,10 +169,21 @@
 
         /* En desktop: el wrapper no altera nada */
         @media (min-width: 768px) {
-            .features-scroll-wrapper { display: contents; }
-            .features-scroll-track  { display: contents; }
-            .features-scroll-dots   { display: none; }
-            .features-scroll-wrapper::before { display: none; }
+            .features-scroll-wrapper {
+                display: contents;
+            }
+
+            .features-scroll-track {
+                display: contents;
+            }
+
+            .features-scroll-dots {
+                display: none;
+            }
+
+            .features-scroll-wrapper::before {
+                display: none;
+            }
         }
 
         /* ===== PLANES DE ACOMPAÑAMIENTO — HORIZONTAL SCROLL MOBILE ===== */
@@ -140,7 +192,8 @@
             .plans-scroll-wrapper {
                 position: relative;
                 margin: 0 -1rem;
-                overflow: hidden;  /* oculta el plan vecino */
+                overflow: hidden;
+                /* oculta el plan vecino */
             }
 
             .plans-scroll-wrapper::before {
@@ -159,16 +212,21 @@
             #plansScrollTrack {
                 display: flex !important;
                 flex-direction: row !important;
-                gap: 1.5rem !important;      /* espacio en blanco entre planes */
+                gap: 1.5rem !important;
+                /* espacio en blanco entre planes */
                 overflow-x: auto;
                 overflow-y: visible;
                 scroll-snap-type: x mandatory;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
-                padding: 16px 1rem 20px 1rem !important; /* márgenes laterales para respiro visual */
+                padding: 16px 1rem 20px 1rem !important;
+                /* márgenes laterales para respiro visual */
                 grid-template-columns: none !important;
             }
-            #plansScrollTrack::-webkit-scrollbar { display: none; }
+
+            #plansScrollTrack::-webkit-scrollbar {
+                display: none;
+            }
 
             /* Cada plan: ancho visible menos márgenes laterales */
             .plans-card {
@@ -179,9 +237,10 @@
                 min-height: 360px;
                 scroll-snap-align: center;
                 border-radius: 24px !important;
-                margin: 0 !important;        /* gap y padding se encargan del espaciado */
+                margin: 0 !important;
+                /* gap y padding se encargan del espaciado */
                 padding: 28px 24px !important;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
                 box-sizing: border-box;
                 transform: none !important;
                 scale: unset !important;
@@ -189,7 +248,7 @@
 
             .plans-card--featured {
                 border-width: 2px !important;
-                box-shadow: 0 6px 28px rgba(241,0,117,0.18) !important;
+                box-shadow: 0 6px 28px rgba(241, 0, 117, 0.18) !important;
             }
 
             /* Dots */
@@ -201,14 +260,18 @@
                 margin-top: 6px;
                 padding-bottom: 4px;
             }
+
             .plans-scroll-dots span {
                 display: inline-block;
-                width: 7px; height: 7px;
+                width: 7px;
+                height: 7px;
                 border-radius: 50%;
                 background: #d1d5db;
                 transition: background 0.3s, width 0.3s, border-radius 0.3s;
-                cursor: pointer; flex-shrink: 0;
+                cursor: pointer;
+                flex-shrink: 0;
             }
+
             .plans-scroll-dots span.active {
                 background: #f10075;
                 width: 22px;
@@ -217,27 +280,34 @@
         }
 
         @media (min-width: 768px) {
-            .plans-scroll-wrapper::before { display: none; }
-            .plans-scroll-dots { display: none; }
+            .plans-scroll-wrapper::before {
+                display: none;
+            }
+
+            .plans-scroll-dots {
+                display: none;
+            }
         }
 
         /* ===== LA DIFERENCIA KJA — V3 REFERENCE ===== */
         .glass-bubbles {
             position: relative;
-            background: linear-gradient(135deg, #004fb0 0%, #002f6c 50%, #001a3d 100%);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: radial-gradient(120% 120% at 0% 0%, #1a73e8 0%, #004fb0 40%, #03142e 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
+
         .glass-bubbles::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             z-index: 1;
             pointer-events: none;
         }
+
         .glass-bubble {
             position: absolute;
             border-radius: 50%;
@@ -245,26 +315,105 @@
             pointer-events: none;
             z-index: 0;
         }
-        .glass-bubble--1 { width: 140px; height: 140px; background: rgba(241,0,117,0.12); top: 10%; left: 5%; animation: bubbleFloat1 7s ease-in-out infinite; }
-        .glass-bubble--2 { width: 90px; height: 90px; background: rgba(0,79,176,0.15); top: 60%; left: 15%; animation: bubbleFloat2 5s ease-in-out infinite; }
-        .glass-bubble--3 { width: 180px; height: 180px; background: rgba(255,255,255,0.04); top: 30%; right: 10%; animation: bubbleFloat3 9s ease-in-out infinite; }
-        .glass-bubble--4 { width: 70px; height: 70px; background: rgba(241,0,117,0.08); bottom: 15%; right: 25%; animation: bubbleFloat1 6s ease-in-out infinite 1s; }
-        .glass-bubble--5 { width: 110px; height: 110px; background: rgba(0,79,176,0.1); bottom: 30%; left: 40%; animation: bubbleFloat2 8s ease-in-out infinite 0.5s; }
-        .glass-bubble--6 { width: 60px; height: 60px; background: rgba(255,255,255,0.06); top: 5%; right: 40%; animation: bubbleFloat3 4s ease-in-out infinite 1.5s; }
+
+        .glass-bubble--1 {
+            width: 140px;
+            height: 140px;
+            background: rgba(241, 0, 117, 0.12);
+            top: 10%;
+            left: 5%;
+            animation: bubbleFloat1 7s ease-in-out infinite;
+        }
+
+        .glass-bubble--2 {
+            width: 90px;
+            height: 90px;
+            background: rgba(0, 79, 176, 0.15);
+            top: 60%;
+            left: 15%;
+            animation: bubbleFloat2 5s ease-in-out infinite;
+        }
+
+        .glass-bubble--3 {
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.04);
+            top: 30%;
+            right: 10%;
+            animation: bubbleFloat3 9s ease-in-out infinite;
+        }
+
+        .glass-bubble--4 {
+            width: 70px;
+            height: 70px;
+            background: rgba(241, 0, 117, 0.08);
+            bottom: 15%;
+            right: 25%;
+            animation: bubbleFloat1 6s ease-in-out infinite 1s;
+        }
+
+        .glass-bubble--5 {
+            width: 110px;
+            height: 110px;
+            background: rgba(0, 79, 176, 0.1);
+            bottom: 30%;
+            left: 40%;
+            animation: bubbleFloat2 8s ease-in-out infinite 0.5s;
+        }
+
+        .glass-bubble--6 {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.06);
+            top: 5%;
+            right: 40%;
+            animation: bubbleFloat3 4s ease-in-out infinite 1.5s;
+        }
+
         @keyframes bubbleFloat1 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(15px, -20px) scale(1.05); }
-            66% { transform: translate(-10px, 10px) scale(0.97); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(15px, -20px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-10px, 10px) scale(0.97);
+            }
         }
+
         @keyframes bubbleFloat2 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-20px, -15px) scale(1.08); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(-20px, -15px) scale(1.08);
+            }
         }
+
         @keyframes bubbleFloat3 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(10px, 15px) scale(1.03); }
-            75% { transform: translate(-15px, -10px) scale(0.96); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(10px, 15px) scale(1.03);
+            }
+
+            75% {
+                transform: translate(-15px, -10px) scale(0.96);
+            }
         }
+
         .glass-avatar-profile {
             position: absolute;
             top: 1.5rem;
@@ -272,28 +421,40 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(8px);
             z-index: 20;
         }
+
         @media (min-width: 768px) {
-            .glass-avatar-profile { top: 2rem; right: 2rem; width: 64px; height: 64px; }
+            .glass-avatar-profile {
+                top: 2rem;
+                right: 2rem;
+                width: 64px;
+                height: 64px;
+            }
         }
+
         @media (min-width: 1024px) {
-            .glass-avatar-profile { top: 2.5rem; right: 2.5rem; width: 72px; height: 72px; }
+            .glass-avatar-profile {
+                top: 2.5rem;
+                right: 2.5rem;
+                width: 72px;
+                height: 72px;
+            }
         }
 
         .therapy-pill-v3 {
             font-size: 12px;
             padding: 0.5rem 1rem;
             border-radius: 9999px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             font-family: inherit;
@@ -301,17 +462,19 @@
             line-height: 1.3;
             letter-spacing: 0.01em;
         }
+
         .therapy-pill-v3:hover {
-            background: rgba(255,255,255,0.18);
-            border-color: rgba(255,255,255,0.4);
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.4);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
         }
+
         .therapy-pill-v3.active {
-            background: rgba(241,0,117,0.5);
-            border-color: rgba(241,0,117,0.8);
+            background: rgba(241, 0, 117, 0.5);
+            border-color: rgba(241, 0, 117, 0.8);
             color: #fff;
-            box-shadow: 0 4px 20px rgba(241,0,117,0.35), 0 0 0 1px rgba(241,0,117,0.5);
+            box-shadow: 0 4px 20px rgba(241, 0, 117, 0.35), 0 0 0 1px rgba(241, 0, 117, 0.5);
         }
 
         /* ===== COMMITMENT CARDS ===== */
@@ -319,39 +482,57 @@
             background: #fff;
             border-radius: 1.25rem;
             padding: 1.25rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
             transition: box-shadow 0.3s ease, transform 0.3s ease;
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(0,0,0,0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
         }
+
         .commitment-card:hover {
-            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
             transform: translateY(-3px);
         }
+
         .commitment-card--dark {
             background: linear-gradient(135deg, #004fb0 0%, #002f6c 100%);
             color: #fff;
             border: none;
-            box-shadow: 0 12px 30px rgba(0,79,176,0.2);
+            box-shadow: 0 12px 30px rgba(0, 79, 176, 0.2);
         }
-        .commitment-card--dark .commitment-eyebrow { color: #f10075; }
-        .commitment-card--dark .commitment-title { color: #fff; }
+
+        .commitment-card--dark .commitment-eyebrow {
+            color: #f10075;
+        }
+
+        .commitment-card--dark .commitment-title {
+            color: #fff;
+        }
+
         .commitment-card--dark .google-review-bubble {
-            background: rgba(255,255,255,0.12);
-            border-color: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.15);
         }
+
         .commitment-card--dark .google-review-bubble::before {
-            background: rgba(255,255,255,0.12);
-            border-bottom-color: rgba(255,255,255,0.15);
-            border-right-color: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.12);
+            border-bottom-color: rgba(255, 255, 255, 0.15);
+            border-right-color: rgba(255, 255, 255, 0.15);
         }
-        .commitment-card--dark .google-review-text { color: rgba(255,255,255,0.9); }
-        .commitment-card--dark .google-review-author { color: #fff; }
+
+        .commitment-card--dark .google-review-text {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .commitment-card--dark .google-review-author {
+            color: #fff;
+        }
+
         .commitment-card--dark .profile-icon {
-            border-color: rgba(255,255,255,0.25);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
+
         .commitment-eyebrow {
             font-size: 0.7rem;
             font-weight: 700;
@@ -360,6 +541,7 @@
             color: #f10075;
             margin-bottom: 1.25rem;
         }
+
         .commitment-title {
             font-size: 0.95rem;
             font-weight: 800;
@@ -367,62 +549,88 @@
             line-height: 1.3;
             margin-bottom: 0.5rem;
         }
+
         .commitment-subtitle {
             font-size: 0.8rem;
-            color: rgba(255,255,255,0.85);
+            color: rgba(255, 255, 255, 0.85);
             margin-bottom: 1rem;
         }
+
         .profile-icon {
-            width: 48px; height: 48px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-shrink: 0;
             overflow: hidden;
             border: 2px solid #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             background: #dbe4ff;
         }
-        .profile-icon svg { width: 100%; height: 100%; }
+
+        .profile-icon svg {
+            width: 100%;
+            height: 100%;
+        }
 
         .google-review-bubble {
             background: #f8f9ff;
-            border: 1px solid rgba(0,79,176,0.08);
+            border: 1px solid rgba(0, 79, 176, 0.08);
             border-radius: 1.25rem;
             padding: 1rem 1.25rem;
             position: relative;
             margin-bottom: 1rem;
         }
+
         .google-review-bubble::before {
             content: '';
             position: absolute;
             bottom: -8px;
             left: 28px;
-            width: 16px; height: 16px;
+            width: 16px;
+            height: 16px;
             background: #f8f9ff;
-            border-bottom: 1px solid rgba(0,79,176,0.08);
-            border-right: 1px solid rgba(0,79,176,0.08);
+            border-bottom: 1px solid rgba(0, 79, 176, 0.08);
+            border-right: 1px solid rgba(0, 79, 176, 0.08);
             transform: rotate(45deg);
         }
+
         .google-review-header {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             margin-bottom: 0.4rem;
         }
+
         .google-review-logo {
             font-size: 0.75rem;
             font-weight: 700;
             color: #4285F4;
-            display: flex; align-items: center; gap: 2px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
         }
-        .google-review-stars { display: flex; gap: 2px; }
-        .google-review-stars svg { width: 12px; height: 12px; fill: #f59e0b; }
+
+        .google-review-stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .google-review-stars svg {
+            width: 12px;
+            height: 12px;
+            fill: #f59e0b;
+        }
+
         .google-review-text {
             font-size: 0.8rem;
             color: #4b5563;
             line-height: 1.55;
             font-style: italic;
         }
+
         .google-review-author {
             font-size: 0.75rem;
             font-weight: 700;
@@ -439,16 +647,25 @@
             margin: 1.25rem 0;
             flex-wrap: wrap;
         }
+
         .flex-icon-box-xl {
-            width: 64px; height: 64px;
+            width: 64px;
+            height: 64px;
             border-radius: 18px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: linear-gradient(135deg, #eef2ff, #f8fafc);
-            border: 1px solid rgba(0,79,176,0.1);
+            border: 1px solid rgba(0, 79, 176, 0.1);
             color: #004fb0;
-            box-shadow: 0 4px 14px rgba(0,79,176,0.08);
+            box-shadow: 0 4px 14px rgba(0, 79, 176, 0.08);
         }
-        .flex-icon-box-xl svg { width: 28px; height: 28px; }
+
+        .flex-icon-box-xl svg {
+            width: 28px;
+            height: 28px;
+        }
+
         .flex-arrow {
             color: #cbd5e1;
             font-size: 1.2rem;
@@ -464,11 +681,13 @@
             background-clip: text;
             margin-bottom: 0.25rem;
         }
+
         .stat-curve-area {
             width: 100%;
             height: 70px;
             margin: 0.5rem 0 0.75rem;
         }
+
         .mini-testi {
             background: #f8f9ff;
             border-radius: 1rem;
@@ -478,7 +697,11 @@
             line-height: 1.5;
             margin-top: auto;
         }
-        .mini-testi strong { color: #111827; font-weight: 700; }
+
+        .mini-testi strong {
+            color: #111827;
+            font-weight: 700;
+        }
 
         .connect-line {
             flex: 1;
@@ -496,6 +719,7 @@
             gap: 10px;
             padding: 0.5rem 0;
         }
+
         .ti-col-side {
             display: flex;
             flex-direction: column;
@@ -503,28 +727,32 @@
             gap: 14px;
             flex: 1;
         }
+
         .ti-col-center {
             flex: 1.4;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .ti-icon-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
         }
+
         .ti-icon-box {
             width: 44px;
             height: 44px;
             border-radius: 12px;
             background: #f0f4ff;
-            border: 1px solid rgba(0,79,176,0.08);
+            border: 1px solid rgba(0, 79, 176, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .ti-icon-label {
             font-size: 0.62rem;
             font-weight: 700;
@@ -545,14 +773,16 @@
             gap: 6px;
             margin-top: 1rem;
         }
+
         .carousel-dot {
             width: 8px;
             height: 8px;
             border-radius: 4px;
             background: #d1d5db;
-            transition: all 0.35s cubic-bezier(0.25,0.8,0.25,1);
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
             cursor: pointer;
         }
+
         .carousel-dot.active {
             background: #004fb0;
             width: 22px;
@@ -566,20 +796,25 @@
             overflow: hidden;
             border-radius: 1.25rem;
         }
-        .therapy-card-dynamic > img {
+
+        .therapy-card-dynamic>img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
             transition: opacity 0.4s ease, transform 0.6s ease;
         }
+
         .therapy-card-overlay {
             position: absolute;
-            bottom: 0; left: 0; right: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             padding: 1.25rem;
-            background: linear-gradient(to top, rgba(0,15,50,0.88) 0%, rgba(0,15,50,0.45) 55%, transparent 100%);
+            background: linear-gradient(to top, rgba(0, 15, 50, 0.88) 0%, rgba(0, 15, 50, 0.45) 55%, transparent 100%);
             transition: opacity 0.4s ease;
         }
+
         .therapy-tag {
             display: inline-flex;
             align-items: center;
@@ -590,8 +825,15 @@
             color: white;
             letter-spacing: 0.04em;
         }
-        .therapy-card-dynamic.fading > img { opacity: 0; transform: scale(1.03); }
-        .therapy-card-dynamic.fading .therapy-card-overlay { opacity: 0; }
+
+        .therapy-card-dynamic.fading>img {
+            opacity: 0;
+            transform: scale(1.03);
+        }
+
+        .therapy-card-dynamic.fading .therapy-card-overlay {
+            opacity: 0;
+        }
 
         /* ===== COMMITMENT TRACK (carousel) ===== */
         .commitment-track {
@@ -599,6 +841,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
         }
+
         @media (max-width: 767px) {
             .commitment-track {
                 display: flex;
@@ -609,8 +852,12 @@
                 gap: 0.75rem;
                 padding-bottom: 0.5rem;
             }
-            .commitment-track::-webkit-scrollbar { display: none; }
-            .commitment-track > article {
+
+            .commitment-track::-webkit-scrollbar {
+                display: none;
+            }
+
+            .commitment-track>article {
                 min-width: calc(88vw);
                 max-width: calc(88vw);
                 scroll-snap-align: center;
@@ -620,10 +867,22 @@
 
         /* ===== STAT PULSE ===== */
         @keyframes statPulse {
-            0%, 100% { transform: scale(1); filter: brightness(1); }
-            50% { transform: scale(1.05); filter: brightness(1.08); }
+
+            0%,
+            100% {
+                transform: scale(1);
+                filter: brightness(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+                filter: brightness(1.08);
+            }
         }
-        .stat-pulse-anim { animation: statPulse 3.5s ease-in-out infinite; }
+
+        .stat-pulse-anim {
+            animation: statPulse 3.5s ease-in-out infinite;
+        }
 
         /* ===== FLEXIBILIDAD BLOCKS ===== */
         .flex-mode-block {
@@ -639,18 +898,23 @@
             position: relative;
             overflow: hidden;
         }
+
         .flex-mode-icon {
-            width: 48px; height: 48px;
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
-            background: rgba(255,255,255,0.18);
-            border: 1px solid rgba(255,255,255,0.25);
-            display: flex; align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-shrink: 0;
         }
+
         .flex-mode-label {
             font-size: 0.55rem;
             font-weight: 800;
-            color: rgba(255,255,255,0.9);
+            color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
             letter-spacing: 0.06em;
             text-align: center;
@@ -666,6 +930,7 @@
             gap: 5px;
             overflow: hidden;
         }
+
         .mode-panel-label {
             font-size: 0.52rem;
             font-weight: 800;
@@ -673,76 +938,134 @@
             text-transform: uppercase;
             letter-spacing: 0.06em;
             text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             padding-top: 4px;
         }
+
         .mode-panel-sub {
             font-size: 0.42rem;
-            color: rgba(255,255,255,0.45);
+            color: rgba(255, 255, 255, 0.45);
             text-align: center;
             margin-top: 1px;
         }
+
         @keyframes liveBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.25; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.25;
+            }
         }
+
         @keyframes mapPulse {
-            0% { r: 6; opacity: 0.7; }
-            100% { r: 14; opacity: 0; }
+            0% {
+                r: 6;
+                opacity: 0.7;
+            }
+
+            100% {
+                r: 14;
+                opacity: 0;
+            }
         }
+
         @keyframes glowPulse {
-            0%, 100% { opacity: 0.5; transform: translate(-50%,-50%) scale(1); }
-            50% { opacity: 0.9; transform: translate(-50%,-50%) scale(1.25); }
+
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(1.25);
+            }
         }
+
         /* ===== PREMIUM CARD ENHANCEMENTS ===== */
-        .commitment-card { 
+        .commitment-card {
             transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
+
         .commitment-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 16px 32px rgba(0,0,0,0.06), 0 0 0 1px rgba(241,0,117,0.1);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(241, 0, 117, 0.1);
         }
+
         .mode-panel {
             transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
             position: relative;
         }
+
         .mode-panel::before {
-            content: ''; position: absolute; inset: 0;
+            content: '';
+            position: absolute;
+            inset: 0;
             border-radius: inherit;
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.15);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
             pointer-events: none;
         }
+
         .mode-panel:hover {
             transform: scale(1.02) translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
         }
-        
+
         @keyframes shineSweep {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(200%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(200%);
+            }
         }
+
         .premium-shine {
-            position: relative; overflow: hidden;
+            position: relative;
+            overflow: hidden;
         }
+
         .premium-shine::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
             transform: skewX(-20deg) translateX(-150%);
             animation: shineSweep 3s infinite cubic-bezier(0.22, 1, 0.36, 1);
             pointer-events: none;
         }
+
         .animated-gradient-text {
             background-size: 200% 200%;
             animation: gradientShift 4s ease infinite;
         }
+
         @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
     </style>
 </head>
-<body> 
+
+<body>
 
     <header>
         <nav>
@@ -769,10 +1092,18 @@
 
         <!-- SLIDE BACKGROUNDS (separados para Ken Burns) -->
         <div class="carousel-bg-track" id="carouselBgTrack">
-            <div class="carousel-bg active" style="background-image: url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1400&q=80')"></div>
-            <div class="carousel-bg" style="background-image: url('https://images.unsplash.com/photo-1609220136736-443140cffec6?w=1400&q=80')"></div>
-            <div class="carousel-bg" style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1400&q=80')"></div>
-            <div class="carousel-bg" style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1400&q=80')"></div>
+            <div class="carousel-bg active"
+                style="background-image: url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1400&q=80&auto=format')">
+            </div>
+            <div class="carousel-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1609220136736-443140cffec6?w=1400&q=80&auto=format')">
+            </div>
+            <div class="carousel-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1400&q=80&auto=format')">
+            </div>
+            <div class="carousel-bg"
+                style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1400&q=80&auto=format')">
+            </div>
         </div>
 
         <!-- OVERLAY CINEMATOGRÁFICO -->
@@ -784,8 +1115,10 @@
             <div class="carousel-slide active" data-index="0">
                 <div class="carousel-content">
                     <span class="carousel-eyebrow animate-hero opacity-0">Centro Psicológico KJA</span>
-                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Descúbrete<br><span class="text-[#f10075] italic font-light">y crece sin</span><br>límites.</h2>
-                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Tu bienestar emocional es nuestra prioridad. Terapias personalizadas para toda la familia.</p>
+                    <h1 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">
+                        Descúbrete<br><span class="text-[#f10075] italic font-light">y crece sin</span><br>límites.</h1>
+                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Tu bienestar emocional es nuestra
+                        prioridad. Terapias personalizadas para toda la familia.</p>
                     <div class="carousel-actions animate-hero opacity-0">
                         <a href="terapia.html" class="hero-cta">Agenda tu cita</a>
                         <a href="#terapia" class="carousel-link">Nuestros servicios →</a>
@@ -796,8 +1129,10 @@
             <div class="carousel-slide" data-index="1">
                 <div class="carousel-content">
                     <span class="carousel-eyebrow animate-hero opacity-0">Terapia Familiar</span>
-                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Juntos somos<br><span class="text-[#f10075] italic font-light">más</span><br>fuertes.</h2>
-                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Fortalecemos los vínculos familiares y abrimos canales de comunicación saludables para todos.</p>
+                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Juntos
+                        somos<br><span class="text-[#f10075] italic font-light">más</span><br>fuertes.</h2>
+                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Fortalecemos los vínculos familiares y
+                        abrimos canales de comunicación saludables para todos.</p>
                     <div class="carousel-actions animate-hero opacity-0">
                         <a href="terapia.html" class="hero-cta">Ver terapias</a>
                         <a href="nosotros.html" class="carousel-link">Sobre KJA →</a>
@@ -808,8 +1143,10 @@
             <div class="carousel-slide" data-index="2">
                 <div class="carousel-content">
                     <span class="carousel-eyebrow animate-hero opacity-0">Jóvenes y Adolescentes</span>
-                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Cada etapa<br><span class="text-[#f10075] italic font-light">merece</span><br>apoyo.</h2>
-                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Acompañamos a los adolescentes en su búsqueda de identidad y bienestar emocional.</p>
+                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Cada
+                        etapa<br><span class="text-[#f10075] italic font-light">merece</span><br>apoyo.</h2>
+                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Acompañamos a los adolescentes en su
+                        búsqueda de identidad y bienestar emocional.</p>
                     <div class="carousel-actions animate-hero opacity-0">
                         <a href="terapia.html" class="hero-cta">Conoce más</a>
                         <a href="terapia.html" class="carousel-link">Ver todas las terapias →</a>
@@ -820,8 +1157,10 @@
             <div class="carousel-slide" data-index="3">
                 <div class="carousel-content">
                     <span class="carousel-eyebrow animate-hero opacity-0">Capacitación y Talleres</span>
-                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Aprende, crece<br><span class="text-[#f10075] italic font-light">y</span><br>transforma.</h2>
-                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Cursos y talleres especializados en salud mental y desarrollo humano para profesionales.</p>
+                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Aprende,
+                        crece<br><span class="text-[#f10075] italic font-light">y</span><br>transforma.</h2>
+                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Cursos y talleres especializados en
+                        salud mental y desarrollo humano para profesionales.</p>
                     <div class="carousel-actions animate-hero opacity-0">
                         <a href="cursos.html" class="hero-cta">Ver cursos</a>
                         <a href="nosotros.html" class="carousel-link">Sobre nosotros →</a>
@@ -860,10 +1199,16 @@
             <!-- Flechas dentro del HUD -->
             <div class="carousel-hud-arrows">
                 <button class="carousel-arrow carousel-arrow--prev" id="prevBtn" aria-label="Slide anterior">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
                 </button>
                 <button class="carousel-arrow carousel-arrow--next" id="nextBtn" aria-label="Slide siguiente">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
                 </button>
             </div>
 
@@ -885,23 +1230,89 @@
         </div>
     </div>
 
+    <!-- ===== LOGOS INSTITUCIONES (TICKER ANIMADO) ===== -->
+    <section class="institutions-ticker py-10 bg-gray-50 overflow-hidden">
+        
+        <!-- Subtítulo aclaratorio animado -->
+        <style>
+            @keyframes elegant-pulse {
+                0%, 100% { opacity: 0.8; transform: translateY(0) scale(1); }
+                50% { opacity: 1; transform: translateY(-2px) scale(1.02); }
+            }
+            .animate-elegant {
+                animation: elegant-pulse 3s infinite ease-in-out;
+            }
+            .custom-text-gradient {
+                background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                color: transparent;
+            }
+            .custom-line-right {
+                background: linear-gradient(to right, transparent, #60a5fa, #1d4ed8);
+            }
+            .custom-line-left {
+                background: linear-gradient(to left, transparent, #60a5fa, #1d4ed8);
+            }
+        </style>
+        <div class="flex items-center justify-center gap-3 md:gap-6 mb-10 px-4">
+            <div class="h-[2px] custom-line-right w-12 md:w-32 rounded-full opacity-60"></div>
+            <div class="animate-elegant">
+                <p class="text-xs md:text-sm font-bold tracking-[0.15em] uppercase custom-text-gradient" style="font-family: 'Poppins', sans-serif;">
+                    Convenio con internos de estas instituciones
+                </p>
+            </div>
+            <div class="h-[2px] custom-line-left w-12 md:w-32 rounded-full opacity-60"></div>
+        </div>
 
+        <div class="ticker-container">
+            <div class="ticker-track">
+                <!-- Set 1 -->
+                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo" style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
+                <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
+                <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
+                <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
 
+                <!-- Set 2 -->
+                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo" style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
+                <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
+                <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
+                <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
+
+                <!-- Set 3 -->
+                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo" style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
+                <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
+                <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
+                <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
+
+                <!-- Set 4 -->
+                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo" style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
+                <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
+                <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
+                <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
+            </div>
+        </div>
+    </section>
     <!-- ===== LA DIFERENCIA KJA — COMPACT ===== -->
     <section class="py-10 md:py-14 bg-white" id="por-que-kja">
         <div class="max-w-6xl mx-auto px-4 md:px-6">
 
             <!-- Header compacto -->
             <div class="mb-8 md:mb-12 text-center">
-                <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#f10075] mb-2 animate-features-header opacity-0">¿Por que elegirnos?</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-2 animate-features-header opacity-0">La diferencia <span class="text-[#f10075] italic font-light">KJA</span></h2>
+                <p
+                    class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#f10075] mb-2 animate-features-header opacity-0">
+                    ¿Por que elegirnos?</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-2 animate-features-header opacity-0">La
+                    diferencia <span class="text-[#f10075] italic font-light">KJA</span></h2>
             </div>
 
             <!-- Fila Superior: Glass + Terapia Infantil -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 mb-6">
 
                 <!-- Izquierda: Card Azul Glass (7 cols) -->
-                <div class="lg:col-span-7 glass-bubbles text-white rounded-[2rem] shadow-xl relative overflow-hidden animate-features-card opacity-0">
+                <div
+                    class="lg:col-span-7 glass-bubbles text-white rounded-[2rem] shadow-xl relative overflow-hidden animate-features-card opacity-0">
                     <div class="glass-bubble glass-bubble--1"></div>
                     <div class="glass-bubble glass-bubble--2"></div>
                     <div class="glass-bubble glass-bubble--3"></div>
@@ -914,10 +1325,12 @@
                             <span class="text-[10px] font-bold tracking-widest uppercase text-blue-200/70">
                                 EXPLORA NUESTRAS ESPECIALIDADES:
                             </span>
-                            <div class="glass-avatar-profile" style="position:static;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;" aria-hidden="true">
+                            <div class="glass-avatar-profile"
+                                style="position:static;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;"
+                                aria-hidden="true">
                                 <svg viewBox="0 0 48 48" fill="none" style="width:24px;height:24px;">
-                                    <circle cx="24" cy="18" r="10" fill="white" opacity="0.4"/>
-                                    <path d="M12 44 C12 34 18 28 24 28 C30 28 36 34 36 44" fill="white" opacity="0.6"/>
+                                    <circle cx="24" cy="18" r="10" fill="white" opacity="0.4" />
+                                    <path d="M12 44 C12 34 18 28 24 28 C30 28 36 34 36 44" fill="white" opacity="0.6" />
                                 </svg>
                             </div>
                         </div>
@@ -925,168 +1338,252 @@
                         <h3 class="text-xl md:text-2xl font-bold mb-4">Terapeutas Certificados</h3>
 
                         <div class="flex flex-wrap gap-2 mb-5" id="therapyPills" role="tablist">
-                            <button type="button" class="therapy-pill-v3 active" role="tab" aria-selected="true" data-therapy="tcc">TERAPIA COGNITIVO-CONDUCTUAL</button>
-                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false" data-therapy="sistemica">Terapia Sistémica</button>
-                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false" data-therapy="infantil">Terapia Infantil</button>
-                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false" data-therapy="clinica">Psicología Clínica</button>
-                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false" data-therapy="cpa">Colegiados CPA</button>
+                            <button type="button" class="therapy-pill-v3 active" role="tab" aria-selected="true"
+                                data-therapy="tcc">TERAPIA COGNITIVO-CONDUCTUAL</button>
+                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false"
+                                data-therapy="sistemica">Terapia Sistémica</button>
+                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false"
+                                data-therapy="infantil">Terapia Infantil</button>
+                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false"
+                                data-therapy="clinica">Psicología Clínica</button>
+                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false"
+                                data-therapy="cpa">Colegiados CPA</button>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-3">
-                            <a href="nosotros.html" class="inline-flex items-center justify-center gap-1.5 bg-white text-[#004fb0] hover:text-[#f10075] font-bold py-2 px-4 rounded-full text-sm shadow transition-all hover:-translate-y-0.5">
+                            <a href="nosotros.html"
+                                class="inline-flex items-center justify-center gap-1.5 bg-white text-[#004fb0] hover:text-[#f10075] font-bold py-2 px-4 rounded-full text-sm shadow transition-all hover:-translate-y-0.5">
                                 Explora nuestras especialidades
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
                             </a>
-                            <a href="nosotros.html" class="inline-flex items-center text-xs font-semibold text-white/60 hover:text-white transition-colors">
-                                Conoce al equipo <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            <a href="nosotros.html"
+                                class="inline-flex items-center text-xs font-semibold text-white/60 hover:text-white transition-colors">
+                                Conoce al equipo <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor"
+                                    stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
                             </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Derecha: Card dinámica por terapia (5 cols) -->
-                <div class="lg:col-span-5 animate-features-card opacity-0" id="therapyRightCard" style="display:flex;flex-direction:column;">
-                    <div class="therapy-card-dynamic" id="therapyCardInner" style="flex:1;transition:opacity 0.4s ease,transform 0.4s ease;">
-                        <img id="therapyCardImg"
-                            src="images/inicio-terapias/terapia_conductual.webp"
-                            alt="Terapia Cognitivo-Conductual"
-                            style="object-position:center 25%;"
-                            loading="eager"
-                        />
+                <div class="lg:col-span-5 animate-features-card opacity-0" id="therapyRightCard"
+                    style="display:flex;flex-direction:column;">
+                    <div class="therapy-card-dynamic" id="therapyCardInner"
+                        style="flex:1;transition:opacity 0.4s ease,transform 0.4s ease;">
+                        <img id="therapyCardImg" src="images/inicio-terapias/terapia_conductual.webp"
+                            alt="Terapia Cognitivo-Conductual" style="object-position:center 25%;" loading="lazy"
+                            decoding="async" />
                         <div class="therapy-card-overlay">
                             <div id="therapyCardTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">
                                 <span class="therapy-tag" style="background:#004fb0;">Pensamientos</span>
                                 <span class="therapy-tag" style="background:#f10075;">Emociones</span>
                                 <span class="therapy-tag" style="background:#059669;">Conducta</span>
                             </div>
-                            <h3 id="therapyCardTitle" style="font-size:1.05rem;font-weight:800;color:white;margin:0 0 5px;line-height:1.25;">Terapia Cognitivo-Conductual</h3>
-                            <p id="therapyCardDesc" style="font-size:0.72rem;color:rgba(255,255,255,0.85);line-height:1.45;margin:0;">Reestructura tus patrones de pensamiento para mejorar tu bienestar emocional de manera científica.</p>
+                            <h3 id="therapyCardTitle"
+                                style="font-size:1.05rem;font-weight:800;color:white;margin:0 0 5px;line-height:1.25;">
+                                Terapia Cognitivo-Conductual</h3>
+                            <p id="therapyCardDesc"
+                                style="font-size:0.72rem;color:rgba(255,255,255,0.85);line-height:1.45;margin:0;">
+                                Reestructura tus patrones de pensamiento para mejorar tu bienestar emocional de manera
+                                científica.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Header fila inferior -->
-            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 mb-4">TESTIMONIOS REALES DE NUESTROS PACIENTES</p>
+            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 mb-4">TESTIMONIOS REALES DE
+                NUESTROS PACIENTES</p>
 
             <!-- Fila Inferior: 3 posts Facebook simulados -->
             <div class="commitment-track animate-features-card opacity-0" id="commitmentTrack">
 
                 <!-- ── Facebook post 1 ── -->
-                <article class="commitment-card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
                     <!-- Header barra Facebook -->
                     <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
-                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z"/></svg>
-                        <span style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
-                        <span style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
                     </div>
                     <!-- Cuerpo del post -->
                     <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
                         <!-- Usuario -->
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
-                            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&q=80" alt="María Pérez"
-                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;" loading="lazy"/>
+                            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&q=80&auto=format"
+                                alt="María Pérez"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
                             <div>
-                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">María Pérez</div>
-                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong style="color:#1877f2;">KJA Centro de Capacitación y Formación Psicológica</strong></div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">María
+                                    Pérez</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
                                 <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
                                     <span>hace 3 semanas</span>
-                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z"/></svg>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
                                 </div>
                             </div>
                         </div>
                         <!-- Estrellas -->
-                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★</div>
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
                         <!-- Texto -->
-                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Me ayudaron mucho con mi hijo, notamos cambios desde las primeras sesiones. Muy agradecida con todo el equipo 🙏</p>
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Me
+                            ayudaron mucho con mi hijo, notamos cambios desde las primeras sesiones. Muy agradecida con
+                            todo el equipo 🙏</p>
                         <!-- Reacciones -->
-                        <div style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
+                        <div
+                            style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
                             <div style="display:flex;align-items:center;gap:4px;">
                                 <div style="display:flex;">
-                                    <span style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">👍</span>
-                                    <span style="width:16px;height:16px;border-radius:50%;background:#f02849;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">❤️</span>
+                                    <span
+                                        style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">👍</span>
+                                    <span
+                                        style="width:16px;height:16px;border-radius:50%;background:#f02849;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">❤️</span>
                                 </div>
                                 <span style="font-size:0.65rem;color:#65676b;">48</span>
                             </div>
                             <div style="display:flex;gap:10px;">
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me gusta</span>
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬 Comentar</span>
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me
+                                    gusta</span>
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬
+                                    Comentar</span>
                             </div>
                         </div>
                     </div>
                 </article>
 
                 <!-- ── Facebook post 2 ── -->
-                <article class="commitment-card commitment-card--bordered" style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
+                <article class="commitment-card commitment-card--bordered"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
                     <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
-                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z"/></svg>
-                        <span style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
-                        <span style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
                     </div>
                     <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
-                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80" alt="Carlos R."
-                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;" loading="lazy"/>
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80&auto=format"
+                                alt="Carlos R."
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
                             <div>
-                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Carlos R.</div>
-                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong style="color:#1877f2;">KJA Centro de Capacitación y Formación Psicológica</strong></div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Carlos R.
+                                </div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
                                 <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
                                     <span>hace 1 mes</span>
-                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z"/></svg>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
                                 </div>
                             </div>
                         </div>
-                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★</div>
-                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Excelente atención desde el primer día. Los profesionales son muy empáticos y saben cómo ayudarte. Lo recomiendo al 100% 💪</p>
-                        <div style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">
+                            Excelente atención desde el primer día. Los profesionales son muy empáticos y saben cómo
+                            ayudarte. Lo recomiendo al 100% 💪</p>
+                        <div
+                            style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
                             <div style="display:flex;align-items:center;gap:4px;">
                                 <div style="display:flex;">
-                                    <span style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">👍</span>
-                                    <span style="width:16px;height:16px;border-radius:50%;background:#f7b928;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">😮</span>
+                                    <span
+                                        style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">👍</span>
+                                    <span
+                                        style="width:16px;height:16px;border-radius:50%;background:#f7b928;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">😮</span>
                                 </div>
                                 <span style="font-size:0.65rem;color:#65676b;">73</span>
                             </div>
                             <div style="display:flex;gap:10px;">
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me gusta</span>
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬 Comentar</span>
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me
+                                    gusta</span>
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬
+                                    Comentar</span>
                             </div>
                         </div>
                     </div>
                 </article>
 
                 <!-- ── Facebook post 3 ── -->
-                <article class="commitment-card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
                     <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
-                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z"/></svg>
-                        <span style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
-                        <span style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
                     </div>
                     <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
-                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80" alt="Andrea L."
-                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;" loading="lazy"/>
+                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80&auto=format"
+                                alt="Andrea L."
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
                             <div>
-                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Andrea L.</div>
-                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong style="color:#1877f2;">KJA Centro de Capacitación y Formación Psicológica</strong></div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Andrea L.
+                                </div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
                                 <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
                                     <span>hace 2 semanas</span>
-                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z"/></svg>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
                                 </div>
                             </div>
                         </div>
-                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★</div>
-                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Muy profesionales y comprometidos. Mi hija mejoró muchísimo gracias a la terapia infantil. Volveríamos sin dudarlo 🌟</p>
-                        <div style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Muy
+                            profesionales y comprometidos. Mi hija mejoró muchísimo gracias a la terapia infantil.
+                            Volveríamos sin dudarlo 🌟</p>
+                        <div
+                            style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
                             <div style="display:flex;align-items:center;gap:4px;">
                                 <div style="display:flex;">
-                                    <span style="width:16px;height:16px;border-radius:50%;background:#f02849;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">❤️</span>
-                                    <span style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">👍</span>
+                                    <span
+                                        style="width:16px;height:16px;border-radius:50%;background:#f02849;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">❤️</span>
+                                    <span
+                                        style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">👍</span>
                                 </div>
                                 <span style="font-size:0.65rem;color:#65676b;">91</span>
                             </div>
                             <div style="display:flex;gap:10px;">
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me gusta</span>
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬 Comentar</span>
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me
+                                    gusta</span>
+                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬
+                                    Comentar</span>
                             </div>
                         </div>
                     </div>
@@ -1111,76 +1608,113 @@
             <h2 class="services-title">Nuestros <em>Servicios</em></h2>
         </div>
 
-        <!-- Wrapper: scroll horizontal en mobile, grid normal en desktop -->
-        <div class="services-scroll-wrapper">
-            <div class="services-grid" id="servicesScrollTrack">
+        <!-- Wrapper para el Acordeón Horizontal -->
+        <div class="services-accordion-wrapper">
+            <div class="services-accordion" id="servicesScrollTrack">
 
-                <div class="service-card">
-                    <div class="service-card-img">
-                        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80" alt="Terapia Psicológica" loading="lazy" />
+                <!-- 1. Terapias Psicológicas -->
+                <div class="accordion-card">
+                    <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80&auto=format" alt="Terapia Psicológica" loading="lazy" class="accordion-bg" />
+                    <div class="accordion-overlay"></div>
+                    
+                    <div class="accordion-collapsed">
+                        <h3>Terapias Psicológicas</h3>
                     </div>
-                    <div class="service-card-body">
-                        <h3 class="service-card-title">Terapias Psicológicas</h3>
+                    
+                    <div class="accordion-expanded">
+                        <span class="service-badge">KJA Integral</span>
+                        <h3 class="service-title">Terapias Psicológicas</h3>
                         <p>Un proceso personalizado para transformar tu bienestar emocional con estrategias validadas y enfoque humano.</p>
+                        <a href="terapia.html" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-img">
-                        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=80" alt="Terapia para Niños" loading="lazy" />
+                <!-- 2. Para Niños -->
+                <div class="accordion-card">
+                    <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&q=80&auto=format" alt="Terapia para Niños" loading="lazy" class="accordion-bg" />
+                    <div class="accordion-overlay"></div>
+                    
+                    <div class="accordion-collapsed">
+                        <h3>Para Niños</h3>
                     </div>
-                    <div class="service-card-body">
-                        <h3 class="service-card-title">Para Niños</h3>
+                    
+                    <div class="accordion-expanded">
+                        <span class="service-badge">Infantil</span>
+                        <h3 class="service-title">Para Niños</h3>
                         <p>Un espacio seguro donde los niños gestionan sus emociones a través del juego y el acompañamiento familiar.</p>
-                        <a href="terapia.html#ninos" class="service-card-link">Ver más →</a>
+                        <a href="terapia.html#ninos" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-img">
-                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80" alt="Terapia para Adolescentes" loading="lazy" />
+                <!-- 3. Para Adolescentes -->
+                <div class="accordion-card">
+                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80&auto=format" alt="Terapia para Adolescentes" loading="lazy" class="accordion-bg" />
+                    <div class="accordion-overlay"></div>
+                    
+                    <div class="accordion-collapsed">
+                        <h3>Para Adolescentes</h3>
                     </div>
-                    <div class="service-card-body">
-                        <h3 class="service-card-title">Para Adolescentes</h3>
+                    
+                    <div class="accordion-expanded">
+                        <span class="service-badge">Adolescentes</span>
+                        <h3 class="service-title">Para Adolescentes</h3>
                         <p>Un espacio confidencial para expresarse, construir identidad y gestionar las emociones de esta etapa.</p>
-                        <a href="terapia.html#adolescentes" class="service-card-link">Ver más →</a>
+                        <a href="terapia.html#adolescentes" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-img">
-                        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80" alt="Terapia para Adultos" loading="lazy" />
+                <!-- 4. Para Adultos -->
+                <div class="accordion-card">
+                    <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80&auto=format" alt="Terapia para Adultos" loading="lazy" class="accordion-bg" />
+                    <div class="accordion-overlay"></div>
+                    
+                    <div class="accordion-collapsed">
+                        <h3>Para Adultos</h3>
                     </div>
-                    <div class="service-card-body">
-                        <h3 class="service-card-title">Para Adultos</h3>
+                    
+                    <div class="accordion-expanded">
+                        <span class="service-badge">Adultos</span>
+                        <h3 class="service-title">Para Adultos</h3>
                         <p>Un espacio de pausa donde soltar el peso del día a día y encontrar juntos herramientas para recuperar tu calma y bienestar.</p>
-                        <a href="terapia.html#adultos" class="service-card-link">Ver más →</a>
+                        <a href="terapia.html#adultos" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-img">
-                        <img src="https://images.unsplash.com/photo-1522098543979-ffc7f79a56c4?w=600&q=80" alt="Terapia de Pareja" loading="lazy" />
+                <!-- 5. Terapia de Pareja -->
+                <div class="accordion-card">
+                    <img src="https://images.unsplash.com/photo-1522098543979-ffc7f79a56c4?w=800&q=80&auto=format" alt="Terapia de Pareja" loading="lazy" class="accordion-bg" />
+                    <div class="accordion-overlay"></div>
+                    
+                    <div class="accordion-collapsed">
+                        <h3>Terapia de Pareja</h3>
                     </div>
-                    <div class="service-card-body">
-                        <h3 class="service-card-title">Terapia de Pareja</h3>
+                    
+                    <div class="accordion-expanded">
+                        <span class="service-badge">Parejas</span>
+                        <h3 class="service-title">Terapia de Pareja</h3>
                         <p>Un espacio donde ambos se escuchan, reconstruyen la confianza y encuentran acuerdos que nutran la relación.</p>
-                        <a href="terapia.html#adultos" class="service-card-link">Ver más →</a>
+                        <a href="terapia.html#adultos" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
-                <div class="service-card">
-                    <div class="service-card-img">
-                        <img src="https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&q=80" alt="Terapia de Familia" loading="lazy" />
+                <!-- 6. Terapia de Familia -->
+                <div class="accordion-card">
+                    <img src="https://images.unsplash.com/photo-1609220136736-443140cffec6?w=800&q=80&auto=format" alt="Terapia de Familia" loading="lazy" class="accordion-bg" />
+                    <div class="accordion-overlay"></div>
+                    
+                    <div class="accordion-collapsed">
+                        <h3>Terapia de Familia</h3>
                     </div>
-                    <div class="service-card-body">
-                        <h3 class="service-card-title">Terapia de Familia</h3>
+                    
+                    <div class="accordion-expanded">
+                        <span class="service-badge">Familiar</span>
+                        <h3 class="service-title">Terapia de Familia</h3>
                         <p>Un espacio donde todos los miembros del hogar pueden escucharse y fortalecer sus vínculos.</p>
-                        <a href="terapia.html#familia" class="service-card-link">Ver más →</a>
+                        <a href="terapia.html#familia" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
-            </div><!-- /services-grid -->
+            </div><!-- /services-accordion -->
 
             <!-- Dots de scroll (solo mobile) -->
             <div class="services-scroll-dots" id="servicesScrollDots" aria-hidden="true">
@@ -1191,7 +1725,17 @@
                 <span data-index="4"></span>
                 <span data-index="5"></span>
             </div>
-        </div><!-- /services-scroll-wrapper -->
+        </div><!-- /services-accordion-wrapper -->
+
+        <!-- Botón Ver Más Terapias -->
+        <div style="margin-top: 50px; margin-bottom: 20px; text-align: center;">
+            <a href="terapia.html" class="hero-cta" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px;">
+                Ver todas las terapias
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            </a>
+        </div>
 
     </section>
 
@@ -1199,61 +1743,90 @@
     <section class="relative overflow-hidden py-24" id="areas-atencion">
         <!-- Fondo difuminado muy suave: Blanco -> Plomo clarito -> Blanco -->
         <div class="absolute inset-0 bg-gradient-to-b from-white via-slate-50 to-white pointer-events-none"></div>
-        
+
         <!-- Resplandores (blurs) decorativos sutiles -->
-        <div class="absolute top-1/2 left-0 w-[500px] h-[500px] bg-[#004fb0] rounded-full filter blur-[120px] opacity-[0.03] -translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-        <div class="absolute top-1/2 right-0 w-[500px] h-[500px] bg-[#f10075] rounded-full filter blur-[120px] opacity-[0.02] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+        <div
+            class="absolute top-1/2 left-0 w-[500px] h-[500px] bg-[#004fb0] rounded-full filter blur-[120px] opacity-[0.03] -translate-y-1/2 -translate-x-1/2 pointer-events-none">
+        </div>
+        <div
+            class="absolute top-1/2 right-0 w-[500px] h-[500px] bg-[#f10075] rounded-full filter blur-[120px] opacity-[0.02] -translate-y-1/2 translate-x-1/2 pointer-events-none">
+        </div>
 
         <div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 text-center">
-            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#004fb0] mb-3 opacity-0 areas-anim">Áreas de atención</p>
-            <h2 class="text-3xl md:text-5xl font-extrabold text-[#1f2937] mb-8 opacity-0 areas-anim tracking-tight">Podemos ayudarte con</h2>
+            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#004fb0] mb-3 opacity-0 areas-anim">Áreas
+                de atención</p>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-[#1f2937] mb-8 opacity-0 areas-anim tracking-tight">
+                Podemos ayudarte con</h2>
 
             <style>
                 /* Vuelo suave y local para el búho en el lateral */
                 @keyframes hoverFluid {
-                    0% { transform: translate(0px, 0px) rotate(-3deg); }
-                    33% { transform: translate(15px, -15px) rotate(2deg); }
-                    66% { transform: translate(-10px, 15px) rotate(-1deg); }
-                    100% { transform: translate(0px, 0px) rotate(-3deg); }
+                    0% {
+                        transform: translate(0px, 0px) rotate(-3deg);
+                    }
+
+                    33% {
+                        transform: translate(15px, -15px) rotate(2deg);
+                    }
+
+                    66% {
+                        transform: translate(-10px, 15px) rotate(-1deg);
+                    }
+
+                    100% {
+                        transform: translate(0px, 0px) rotate(-3deg);
+                    }
                 }
             </style>
 
             <!-- Búho Volador a la extrema izquierda apuntando a la derecha (Pointer-events-none) -->
-            <div class="absolute -left-4 md:-left-12 lg:-left-20 top-[55%] transform -translate-y-1/2 z-20 pointer-events-none flex justify-center opacity-0 areas-anim" style="animation-delay: 300ms;">
+            <div class="absolute -left-4 md:-left-12 lg:-left-20 top-[55%] transform -translate-y-1/2 z-20 pointer-events-none flex justify-center opacity-0 areas-anim"
+                style="animation-delay: 300ms;">
                 <div class="flex flex-col items-center gap-1 animate-[hoverFluid_10s_ease-in-out_infinite]">
-                    
+
                     <!-- Burbuja de diálogo (Arriba del búho para ocupar menos espacio horizontal) -->
-                    <div class="relative bg-white/90 backdrop-blur-sm border border-gray-100 shadow-[0_4px_10px_rgba(0,0,0,0.05)] rounded-xl px-3 py-1.5 mb-2">
-                        <p class="text-[9px] md:text-[10px] font-black text-[#f10075] uppercase tracking-widest m-0 leading-none">¡Clic aquí!</p>
+                    <div
+                        class="relative bg-white/90 backdrop-blur-sm border border-gray-100 shadow-[0_4px_10px_rgba(0,0,0,0.05)] rounded-xl px-3 py-1.5 mb-2">
+                        <p
+                            class="text-[9px] md:text-[10px] font-black text-[#f10075] uppercase tracking-widest m-0 leading-none">
+                            ¡Clic aquí!</p>
                         <!-- Punta de la burbuja hacia abajo -->
-                        <div class="absolute -bottom-[5px] left-1/2 transform -translate-x-1/2 w-2.5 h-2.5 bg-white/90 border-b border-r border-gray-100 rotate-45"></div>
+                        <div
+                            class="absolute -bottom-[5px] left-1/2 transform -translate-x-1/2 w-2.5 h-2.5 bg-white/90 border-b border-r border-gray-100 rotate-45">
+                        </div>
                     </div>
 
                     <!-- El Búho Más Pequeño -->
                     <div class="relative w-10 h-10 md:w-12 md:h-12 drop-shadow-[0_10px_15px_rgba(0,79,176,0.15)]">
                         <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                          <!-- Orejas -->
-                          <path d="M 25 25 L 15 5 L 40 20 Z" fill="#004fb0" />
-                          <path d="M 75 25 L 85 5 L 60 20 Z" fill="#004fb0" />
-                          <!-- Cuerpo -->
-                          <path d="M50 15 C 20 15, 15 40, 15 65 C 15 85, 25 90, 50 90 C 75 90, 85 85, 85 65 C 85 40, 80 15, 50 15 Z" fill="#004fb0" />
-                          <!-- Pecho -->
-                          <path d="M 50 35 C 30 35, 25 55, 25 75 C 25 85, 35 90, 50 90 C 65 90, 75 85, 75 75 C 75 55, 70 35, 50 35 Z" fill="#e2e8f0" />
-                          <!-- Ojos Grandes -->
-                          <circle cx="35" cy="40" r="12" fill="#ffffff" />
-                          <circle cx="65" cy="40" r="12" fill="#ffffff" />
-                          <!-- Pupilas (mirando hacia la derecha) -->
-                          <circle cx="39" cy="42" r="5" fill="#1f2937" />
-                          <circle cx="69" cy="42" r="5" fill="#1f2937" />
-                          <!-- Brillos -->
-                          <circle cx="37" cy="40" r="2" fill="#ffffff" />
-                          <circle cx="67" cy="40" r="2" fill="#ffffff" />
-                          <!-- Pico -->
-                          <polygon points="45,49 55,49 50,57" fill="#F5A623" />
-                          <!-- Ala izquierda animada volando -->
-                          <path d="M 20 50 C 5 50, 0 70, 20 65 Z" fill="#003b82" class="animate-[pulse_0.5s_infinite]" />
-                          <!-- Ala derecha animada volando -->
-                          <path d="M 80 50 C 95 50, 100 70, 80 65 Z" fill="#003b82" class="animate-[pulse_0.5s_infinite]" />
+                            <!-- Orejas -->
+                            <path d="M 25 25 L 15 5 L 40 20 Z" fill="#004fb0" />
+                            <path d="M 75 25 L 85 5 L 60 20 Z" fill="#004fb0" />
+                            <!-- Cuerpo -->
+                            <path
+                                d="M50 15 C 20 15, 15 40, 15 65 C 15 85, 25 90, 50 90 C 75 90, 85 85, 85 65 C 85 40, 80 15, 50 15 Z"
+                                fill="#004fb0" />
+                            <!-- Pecho -->
+                            <path
+                                d="M 50 35 C 30 35, 25 55, 25 75 C 25 85, 35 90, 50 90 C 65 90, 75 85, 75 75 C 75 55, 70 35, 50 35 Z"
+                                fill="#e2e8f0" />
+                            <!-- Ojos Grandes -->
+                            <circle cx="35" cy="40" r="12" fill="#ffffff" />
+                            <circle cx="65" cy="40" r="12" fill="#ffffff" />
+                            <!-- Pupilas (mirando hacia la derecha) -->
+                            <circle cx="39" cy="42" r="5" fill="#1f2937" />
+                            <circle cx="69" cy="42" r="5" fill="#1f2937" />
+                            <!-- Brillos -->
+                            <circle cx="37" cy="40" r="2" fill="#ffffff" />
+                            <circle cx="67" cy="40" r="2" fill="#ffffff" />
+                            <!-- Pico -->
+                            <polygon points="45,49 55,49 50,57" fill="#F5A623" />
+                            <!-- Ala izquierda animada volando -->
+                            <path d="M 20 50 C 5 50, 0 70, 20 65 Z" fill="#003b82"
+                                class="animate-[pulse_0.5s_infinite]" />
+                            <!-- Ala derecha animada volando -->
+                            <path d="M 80 50 C 95 50, 100 70, 80 65 Z" fill="#003b82"
+                                class="animate-[pulse_0.5s_infinite]" />
                         </svg>
                         <!-- Manito apuntando hacia la derecha (hacia las burbujas) -->
                         <div class="absolute -right-6 top-1/2 -translate-y-1/2 animate-pulse">
@@ -1262,74 +1835,140 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Nube de etiquetas -->
-            <div class="flex flex-wrap justify-center gap-3 md:gap-4 areas-cloud opacity-0 areas-anim relative" id="areasCloud">
+            <div class="flex flex-wrap justify-center gap-3 md:gap-4 areas-cloud opacity-0 areas-anim relative"
+                id="areasCloud">
                 <!-- Se inyectarán por JS -->
             </div>
         </div>
     </section>
 
     <!-- Modal de Especialidades (Full Redesign) -->
-    <div id="topicModal" class="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+    <div id="topicModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeTopicModal()"></div>
-        
+
         <!-- Contenido Modal -->
-        <div class="bg-white rounded-[2rem] max-w-5xl w-[96%] max-h-[92vh] overflow-y-auto relative z-10 transform scale-95 opacity-0 transition-all duration-300 shadow-2xl flex flex-col" id="topicModalContent">
-            
+        <div class="bg-white rounded-[2rem] max-w-5xl w-[96%] max-h-[92vh] overflow-y-auto relative z-10 transform scale-95 opacity-0 transition-all duration-300 shadow-2xl flex flex-col"
+            id="topicModalContent">
+
             <!-- Botón Cerrar -->
-            <button onclick="closeTopicModal()" class="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-gray-100 rounded-full text-gray-500 hover:text-gray-800 transition-colors shadow-md border border-gray-200">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            <button onclick="closeTopicModal()"
+                class="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-white/90 backdrop-blur-md hover:bg-gray-100 rounded-full text-gray-500 hover:text-gray-800 transition-colors shadow-md border border-gray-200">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                </svg>
             </button>
 
             <div class="flex flex-col-reverse md:flex-row flex-1">
                 <!-- Columna Izquierda (Ventas / Info) -->
-                <div class="p-6 md:p-10 md:w-[55%] flex flex-col relative bg-[#fafcff] justify-between overflow-hidden rounded-b-[2rem] md:rounded-b-none md:rounded-l-[2rem]">
+                <div
+                    class="p-6 md:p-10 md:w-[55%] flex flex-col relative bg-[#fafcff] justify-between overflow-hidden rounded-b-[2rem] md:rounded-b-none md:rounded-l-[2rem]">
                     <!-- Animated background blobs -->
                     <style>
                         @keyframes blob {
-                            0% { transform: translate(0px, 0px) scale(1); }
-                            33% { transform: translate(30px, -50px) scale(1.1); }
-                            66% { transform: translate(-20px, 20px) scale(0.9); }
-                            100% { transform: translate(0px, 0px) scale(1); }
+                            0% {
+                                transform: translate(0px, 0px) scale(1);
+                            }
+
+                            33% {
+                                transform: translate(30px, -50px) scale(1.1);
+                            }
+
+                            66% {
+                                transform: translate(-20px, 20px) scale(0.9);
+                            }
+
+                            100% {
+                                transform: translate(0px, 0px) scale(1);
+                            }
                         }
-                        .animate-blob { animation: blob 7s infinite; }
-                        .animation-delay-2000 { animation-delay: 2s; }
-                        .animation-delay-4000 { animation-delay: 4s; }
-                        
+
+                        .animate-blob {
+                            animation: blob 7s infinite;
+                        }
+
+                        .animation-delay-2000 {
+                            animation-delay: 2s;
+                        }
+
+                        .animation-delay-4000 {
+                            animation-delay: 4s;
+                        }
+
                         @keyframes slideInUpCustom {
-                            from { opacity: 0; transform: translateY(20px); }
-                            to { opacity: 1; transform: translateY(0); }
+                            from {
+                                opacity: 0;
+                                transform: translateY(20px);
+                            }
+
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
                         }
-                        .stagger-1 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.1s; opacity: 0; }
-                        .stagger-2 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.2s; opacity: 0; }
-                        .stagger-3 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.3s; opacity: 0; }
-                        .stagger-4 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.4s; opacity: 0; }
-                        .stagger-5 { animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.5s; opacity: 0; }
+
+                        .stagger-1 {
+                            animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.1s;
+                            opacity: 0;
+                        }
+
+                        .stagger-2 {
+                            animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.2s;
+                            opacity: 0;
+                        }
+
+                        .stagger-3 {
+                            animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.3s;
+                            opacity: 0;
+                        }
+
+                        .stagger-4 {
+                            animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.4s;
+                            opacity: 0;
+                        }
+
+                        .stagger-5 {
+                            animation: slideInUpCustom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.5s;
+                            opacity: 0;
+                        }
 
                         @keyframes shimmer {
-                            100% { transform: translateX(100%); }
+                            100% {
+                                transform: translateX(100%);
+                            }
                         }
                     </style>
 
                     <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
                         <!-- Suave resplandor superior izquierdo -->
-                        <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-[#004fb0] rounded-full filter blur-[120px] opacity-[0.08]"></div>
+                        <div
+                            class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-[#004fb0] rounded-full filter blur-[120px] opacity-[0.08]">
+                        </div>
                         <!-- Suave resplandor inferior derecho -->
-                        <div class="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-[#f10075] rounded-full filter blur-[120px] opacity-[0.08]"></div>
-                        
+                        <div
+                            class="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-[#f10075] rounded-full filter blur-[120px] opacity-[0.08]">
+                        </div>
+
                         <!-- Patrón de puntos muy elegante y minimalista -->
-                        <div class="absolute inset-0" style="background-image: radial-gradient(#004fb0 1.5px, transparent 1.5px); background-size: 32px 32px; opacity: 0.04;"></div>
+                        <div class="absolute inset-0"
+                            style="background-image: radial-gradient(#004fb0 1.5px, transparent 1.5px); background-size: 32px 32px; opacity: 0.04;">
+                        </div>
                     </div>
 
                     <!-- Contenido superior -->
                     <div class="relative z-10 flex-1 flex flex-col">
                         <div class="stagger-1 mb-4">
-                            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 border border-blue-100 rounded-full">
+                            <div
+                                class="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 border border-blue-100 rounded-full">
                                 <span class="relative flex h-2.5 w-2.5">
-                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#004fb0]"></span>
+                                    <span
+                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#004fb0]"></span>
                                 </span>
                                 <span class="text-[10px] font-black uppercase tracking-widest text-[#004fb0]">
                                     Atención Especializada
@@ -1338,41 +1977,65 @@
                         </div>
 
                         <div class="stagger-2 mb-3 md:mb-4">
-                            <h3 class="text-2xl md:text-[2.3rem] font-black text-gray-900 leading-[1.05] tracking-tight" id="modalTitle">Tratamiento</h3>
+                            <h3 class="text-2xl md:text-[2.3rem] font-black text-gray-900 leading-[1.05] tracking-tight"
+                                id="modalTitle">Tratamiento</h3>
                         </div>
-                        
-                        <p class="stagger-3 text-gray-600 text-sm md:text-[15px] leading-relaxed font-medium mb-6 md:mb-7" id="modalDesc">
+
+                        <p class="stagger-3 text-gray-600 text-sm md:text-[15px] leading-relaxed font-medium mb-6 md:mb-7"
+                            id="modalDesc">
                             Descripción.
                         </p>
 
                         <!-- Enfoque KJA (Timeline Custom Component) -->
                         <div class="stagger-4 flex-1">
-                            <h4 class="text-[12px] md:text-[13px] font-bold text-[#004fb0] mb-4 md:mb-5 flex items-center gap-2">
-                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            <h4
+                                class="text-[12px] md:text-[13px] font-bold text-[#004fb0] mb-4 md:mb-5 flex items-center gap-2">
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                    </path>
+                                </svg>
                                 El compromiso KJA contigo
                             </h4>
 
-                            <div class="space-y-4 md:space-y-5 relative before:absolute before:inset-y-0 before:left-[11px] before:w-[2px] before:bg-gradient-to-b before:from-[#004fb0] before:via-[#004fb0]/50 before:to-transparent pl-10">
+                            <div
+                                class="space-y-4 md:space-y-5 relative before:absolute before:inset-y-0 before:left-[11px] before:w-[2px] before:bg-gradient-to-b before:from-[#004fb0] before:via-[#004fb0]/50 before:to-transparent pl-10">
                                 <div class="relative">
-                                    <div class="absolute -left-[41px] top-0.5 w-6 h-6 bg-[#fafcff] border-[3px] border-[#004fb0] rounded-full flex items-center justify-center shadow-sm">
+                                    <div
+                                        class="absolute -left-[41px] top-0.5 w-6 h-6 bg-[#fafcff] border-[3px] border-[#004fb0] rounded-full flex items-center justify-center shadow-sm">
                                         <div class="w-1.5 h-1.5 bg-[#004fb0] rounded-full"></div>
                                     </div>
-                                    <h5 class="text-[13px] md:text-[14px] font-extrabold text-gray-900 leading-none mb-1 md:mb-1.5">Evaluación sin etiquetas</h5>
-                                    <p class="text-[11px] md:text-[12px] text-gray-500 leading-relaxed">Nos enfocamos en comprender las verdaderas necesidades del paciente, yendo más allá de un simple diagnóstico.</p>
+                                    <h5
+                                        class="text-[13px] md:text-[14px] font-extrabold text-gray-900 leading-none mb-1 md:mb-1.5">
+                                        Evaluación sin etiquetas</h5>
+                                    <p class="text-[11px] md:text-[12px] text-gray-500 leading-relaxed">Nos enfocamos en
+                                        comprender las verdaderas necesidades del paciente, yendo más allá de un simple
+                                        diagnóstico.</p>
                                 </div>
                                 <div class="relative">
-                                    <div class="absolute -left-[41px] top-0.5 w-6 h-6 bg-[#fafcff] border-[3px] border-[#004fb0] rounded-full flex items-center justify-center shadow-sm">
+                                    <div
+                                        class="absolute -left-[41px] top-0.5 w-6 h-6 bg-[#fafcff] border-[3px] border-[#004fb0] rounded-full flex items-center justify-center shadow-sm">
                                         <div class="w-1.5 h-1.5 bg-[#004fb0] rounded-full"></div>
                                     </div>
-                                    <h5 class="text-[13px] md:text-[14px] font-extrabold text-gray-900 leading-none mb-1 md:mb-1.5">Espacio seguro y empático</h5>
-                                    <p class="text-[11px] md:text-[12px] text-gray-500 leading-relaxed">Creamos un ambiente de absoluta confianza donde el paciente se siente escuchado y validado en todo momento.</p>
+                                    <h5
+                                        class="text-[13px] md:text-[14px] font-extrabold text-gray-900 leading-none mb-1 md:mb-1.5">
+                                        Espacio seguro y empático</h5>
+                                    <p class="text-[11px] md:text-[12px] text-gray-500 leading-relaxed">Creamos un
+                                        ambiente de absoluta confianza donde el paciente se siente escuchado y validado
+                                        en todo momento.</p>
                                 </div>
                                 <div class="relative">
-                                    <div class="absolute -left-[41px] top-0.5 w-6 h-6 bg-[#fafcff] border-[3px] border-[#004fb0] rounded-full flex items-center justify-center shadow-sm">
+                                    <div
+                                        class="absolute -left-[41px] top-0.5 w-6 h-6 bg-[#fafcff] border-[3px] border-[#004fb0] rounded-full flex items-center justify-center shadow-sm">
                                         <div class="w-1.5 h-1.5 bg-[#004fb0] rounded-full"></div>
                                     </div>
-                                    <h5 class="text-[13px] md:text-[14px] font-extrabold text-gray-900 leading-none mb-1 md:mb-1.5">Acompañamiento constante</h5>
-                                    <p class="text-[11px] md:text-[12px] text-gray-500 leading-relaxed">Brindamos pautas claras y apoyo continuo para asegurar que los avances se mantengan en el día a día.</p>
+                                    <h5
+                                        class="text-[13px] md:text-[14px] font-extrabold text-gray-900 leading-none mb-1 md:mb-1.5">
+                                        Acompañamiento constante</h5>
+                                    <p class="text-[11px] md:text-[12px] text-gray-500 leading-relaxed">Brindamos pautas
+                                        claras y apoyo continuo para asegurar que los avances se mantengan en el día a
+                                        día.</p>
                                 </div>
                             </div>
                         </div>
@@ -1380,61 +2043,95 @@
 
                     <!-- Barra de compra inferior (Módulo de Reserva) -->
                     <div class="stagger-5 relative z-10 mt-5 md:mt-6">
-                        <div class="bg-[#f8fafc] rounded-xl md:rounded-2xl p-4 md:p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+                        <div
+                            class="bg-[#f8fafc] rounded-xl md:rounded-2xl p-4 md:p-5 border border-gray-100 shadow-sm relative overflow-hidden">
                             <!-- Decoración sutil de fondo en el módulo -->
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-[#004fb0]/5 rounded-full filter blur-[20px] translate-x-10 -translate-y-10"></div>
-                            
+                            <div
+                                class="absolute top-0 right-0 w-32 h-32 bg-[#004fb0]/5 rounded-full filter blur-[20px] translate-x-10 -translate-y-10">
+                            </div>
+
                             <div class="flex items-center justify-between gap-2 mb-4 relative z-10">
                                 <div>
-                                    <p class="text-[10px] md:text-[11px] uppercase font-bold text-gray-500 tracking-wider mb-0.5 md:mb-1">Inversión por Sesión</p>
+                                    <p
+                                        class="text-[10px] md:text-[11px] uppercase font-bold text-gray-500 tracking-wider mb-0.5 md:mb-1">
+                                        Inversión por Sesión</p>
                                     <div class="flex items-baseline gap-1.5">
-                                        <span class="text-2xl md:text-[2.2rem] font-black text-[#004fb0] leading-none tracking-tight" id="modalPrice">S/ 59.90</span>
+                                        <span
+                                            class="text-2xl md:text-[2.2rem] font-black text-[#004fb0] leading-none tracking-tight"
+                                            id="modalPrice">S/ 59.90</span>
                                     </div>
                                 </div>
                                 <div class="text-right flex flex-col items-end">
-                                    <div class="inline-flex items-center gap-1 bg-red-50 border border-red-100 px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg shadow-sm">
+                                    <div
+                                        class="inline-flex items-center gap-1 bg-red-50 border border-red-100 px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg shadow-sm">
                                         <span class="relative flex h-2 w-2 mr-0.5">
-                                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            <span
+                                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                                         </span>
-                                        <span class="text-[10px] md:text-[11px] font-black uppercase tracking-wide text-red-600">¡Aprovecha Ya!</span>
+                                        <span
+                                            class="text-[10px] md:text-[11px] font-black uppercase tracking-wide text-red-600">¡Aprovecha
+                                            Ya!</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <a href="#" id="modalWaBtn" target="_blank" class="group relative w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 md:py-4 px-4 md:px-6 rounded-xl transition-all duration-300 shadow-[0_4px_14px_rgba(37,211,102,0.39)] hover:shadow-[0_6px_20px_rgba(37,211,102,0.23)] hover:-translate-y-0.5 z-10 overflow-hidden">
+                            <a href="#" id="modalWaBtn" target="_blank"
+                                class="group relative w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 md:py-4 px-4 md:px-6 rounded-xl transition-all duration-300 shadow-[0_4px_14px_rgba(37,211,102,0.39)] hover:shadow-[0_6px_20px_rgba(37,211,102,0.23)] hover:-translate-y-0.5 z-10 overflow-hidden">
                                 <!-- Efecto de brillo suave y difuminado -->
-                                <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
-                                
-                                <svg class="w-5 h-5 md:w-6 md:h-6 relative z-10 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                                <span class="relative z-10 text-[14px] md:text-[16px] font-black tracking-wide drop-shadow-sm">AGENDAR VÍA WHATSAPP</span>
+                                <div
+                                    class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]">
+                                </div>
+
+                                <svg class="w-5 h-5 md:w-6 md:h-6 relative z-10 drop-shadow-sm" fill="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                                </svg>
+                                <span
+                                    class="relative z-10 text-[14px] md:text-[16px] font-black tracking-wide drop-shadow-sm">AGENDAR
+                                    VÍA WHATSAPP</span>
                             </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Columna Derecha (Flyer Destacado GIGANTE) -->
-                <div class="md:w-1/2 bg-[#000a1f] p-6 md:p-8 flex flex-col relative overflow-hidden rounded-t-[2rem] md:rounded-t-none md:rounded-r-[2rem] justify-center items-center">                    <!-- Elementos decorativos oscuros -->
-                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
-                    <div class="absolute top-[-20%] right-[-10%] w-[120%] h-[120%] bg-gradient-to-bl from-[#004fb0]/50 via-[#f10075]/30 to-transparent blur-[80px] pointer-events-none"></div>
-                    
-                    <div class="relative z-10 w-full max-w-[420px] mx-auto text-center flex flex-col h-full justify-center">
+                <div
+                    class="md:w-1/2 bg-[#000a1f] p-6 md:p-8 flex flex-col relative overflow-hidden rounded-t-[2rem] md:rounded-t-none md:rounded-r-[2rem] justify-center items-center">
+                    <!-- Elementos decorativos oscuros -->
+                    <div class="absolute inset-0 opacity-10"
+                        style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;">
+                    </div>
+                    <div
+                        class="absolute top-[-20%] right-[-10%] w-[120%] h-[120%] bg-gradient-to-bl from-[#004fb0]/50 via-[#f10075]/30 to-transparent blur-[80px] pointer-events-none">
+                    </div>
+
+                    <div
+                        class="relative z-10 w-full max-w-[420px] mx-auto text-center flex flex-col h-full justify-center">
                         <div class="mb-4">
-                            <span class="inline-block bg-[#f10075] text-white text-xs font-black px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(241,0,117,0.6)] uppercase tracking-widest mb-2 animate-bounce">
+                            <span
+                                class="inline-block bg-[#f10075] text-white text-xs font-black px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(241,0,117,0.6)] uppercase tracking-widest mb-2 animate-bounce">
                                 EVENTO PRINCIPAL
                             </span>
                         </div>
 
                         <!-- Imagen del Flyer GIGANTE con efecto 3D -->
                         <div class="flex items-center justify-center relative group py-2 w-full">
-                            <div class="relative w-full transition-transform duration-500 transform group-hover:scale-105 group-hover:rotate-1" style="perspective: 1200px;">
+                            <div class="relative w-full transition-transform duration-500 transform group-hover:scale-105 group-hover:rotate-1"
+                                style="perspective: 1200px;">
                                 <!-- Glow effect extremo detrás del flyer -->
-                                <div class="absolute inset-0 bg-gradient-to-r from-[#004fb0] to-[#f10075] blur-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl animate-pulse"></div>
-                                
-                                <img src="images/inicio-terapias/Flyer-lenguaje-ninos.jpg" alt="Flyer Lenguaje Niños" class="relative w-full h-auto rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/20 z-10 transition-transform duration-500 hover:-translate-y-3" loading="eager" />
-                                
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-r from-[#004fb0] to-[#f10075] blur-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl animate-pulse">
+                                </div>
+
+                                <img src="images/inicio-terapias/flyer-lenguaje-ninos.webp" alt="Flyer Lenguaje Niños"
+                                    class="relative w-full h-auto rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/20 z-10 transition-transform duration-500 hover:-translate-y-3"
+                                    loading="lazy" decoding="async" />
+
                                 <!-- Sticker promocional flotante -->
-                                <div class="absolute -bottom-5 -left-5 bg-yellow-400 text-[#000a1f] w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-2xl z-20 transform -rotate-12 group-hover:rotate-0 transition-transform duration-300 border-4 border-[#000a1f]">
+                                <div
+                                    class="absolute -bottom-5 -left-5 bg-yellow-400 text-[#000a1f] w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-2xl z-20 transform -rotate-12 group-hover:rotate-0 transition-transform duration-300 border-4 border-[#000a1f]">
                                     <span class="text-[10px] font-black leading-none uppercase">Últimos</span>
                                     <span class="text-3xl font-black leading-none my-1">5</span>
                                     <span class="text-[10px] font-black leading-none uppercase">Cupos</span>
@@ -1443,8 +2140,11 @@
                         </div>
 
                         <div class="text-white mt-8">
-                            <h4 class="text-2xl md:text-3xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 leading-tight">Terapia de Lenguaje</h4>
-                            <p class="text-sm md:text-base text-gray-300 font-medium px-4">¡No dejes pasar esta oportunidad de potenciar las habilidades de tu hijo hoy mismo!</p>
+                            <h4
+                                class="text-2xl md:text-3xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 leading-tight">
+                                Terapia de Lenguaje</h4>
+                            <p class="text-sm md:text-base text-gray-300 font-medium px-4">¡No dejes pasar esta
+                                oportunidad de potenciar las habilidades de tu hijo hoy mismo!</p>
                         </div>
                     </div>
                 </div>
@@ -1517,9 +2217,13 @@
     <section class="py-12 md:py-16 bg-white" id="planes">
         <div class="max-w-6xl mx-auto px-4">
             <div class="text-center mb-12">
-                <p class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-pricing-header opacity-0">Tarifas Transparentes</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-3 animate-pricing-header opacity-0">Planes de <span class="text-[#f10075] italic font-light">Acompañamiento</span></h2>
-                <p class="text-sm text-gray-500 max-w-xl mx-auto animate-pricing-header opacity-0">Elige la modalidad que mejor se adapte a tus necesidades de bienestar emocional.</p>
+                <p
+                    class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-pricing-header opacity-0">
+                    Tarifas Transparentes</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-3 animate-pricing-header opacity-0">
+                    Planes de <span class="text-[#f10075] italic font-light">Acompañamiento</span></h2>
+                <p class="text-sm text-gray-500 max-w-xl mx-auto animate-pricing-header opacity-0">Elige la modalidad
+                    que mejor se adapte a tus necesidades de bienestar emocional.</p>
             </div>
 
             <!-- Wrapper: scroll horizontal en mobile, grid normal en desktop -->
@@ -1527,94 +2231,142 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="plansScrollTrack">
 
                     <!-- Plan 1 -->
-                    <div class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
+                    <div
+                        class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
                         <div>
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-xs font-bold text-[#004fb0] tracking-wider uppercase bg-blue-50 px-3 py-1 rounded-full">Individual</span>
+                                <span
+                                    class="text-xs font-bold text-[#004fb0] tracking-wider uppercase bg-blue-50 px-3 py-1 rounded-full">Individual</span>
                             </div>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Terapia Individual</h3>
-                            <p class="text-xs text-gray-500 mb-6">Para procesos de crecimiento personal, ansiedad y manejo del estrés.</p>
+                            <p class="text-xs text-gray-500 mb-6">Para procesos de crecimiento personal, ansiedad y
+                                manejo del estrés.</p>
                             <div class="mb-6">
                                 <span class="text-4xl font-extrabold text-gray-900">S/ 120</span>
                                 <span class="text-sm text-gray-500">/ sesión</span>
                             </div>
                             <ul class="space-y-3 mb-8">
                                 <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Sesiones de 45-50 minutos
                                 </li>
                                 <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Modalidad Presencial u Online
                                 </li>
                                 <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Terapeutas colegiados y especializados
                                 </li>
                             </ul>
                         </div>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20Individual" target="_blank" class="w-full text-center py-3 rounded-xl border border-[#004fb0] text-[#004fb0] hover:bg-[#004fb0] hover:text-white font-semibold text-sm transition-colors duration-200">Agendar Cita</a>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20Individual"
+                            target="_blank"
+                            class="w-full text-center py-3 rounded-xl border border-[#004fb0] text-[#004fb0] hover:bg-[#004fb0] hover:text-white font-semibold text-sm transition-colors duration-200">Agendar
+                            Cita</a>
                     </div>
 
                     <!-- Plan 2 (Destacado) -->
-                    <div class="plans-card plans-card--featured bg-white border-2 border-[#f10075] rounded-3xl p-8 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col justify-between relative animate-pricing-card opacity-0 group">
-                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#f10075] text-white text-[10px] font-bold tracking-widest uppercase px-4 py-1 rounded-full shadow-sm">RECOMENDADO</div>
+                    <div
+                        class="plans-card plans-card--featured bg-white border-2 border-[#f10075] rounded-3xl p-8 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col justify-between relative animate-pricing-card opacity-0 group">
+                        <div
+                            class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#f10075] text-white text-[10px] font-bold tracking-widest uppercase px-4 py-1 rounded-full shadow-sm">
+                            RECOMENDADO</div>
                         <div>
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-xs font-bold text-[#f10075] tracking-wider uppercase bg-pink-50 px-3 py-1 rounded-full">Parejas &amp; Familia</span>
+                                <span
+                                    class="text-xs font-bold text-[#f10075] tracking-wider uppercase bg-pink-50 px-3 py-1 rounded-full">Parejas
+                                    &amp; Familia</span>
                             </div>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Terapia de Pareja</h3>
-                            <p class="text-xs text-gray-500 mb-6">Fortalece los vínculos familiares, comunicación y resolución de conflictos.</p>
+                            <p class="text-xs text-gray-500 mb-6">Fortalece los vínculos familiares, comunicación y
+                                resolución de conflictos.</p>
                             <div class="mb-6">
                                 <span class="text-4xl font-extrabold text-gray-900">S/ 150</span>
                                 <span class="text-sm text-gray-500">/ sesión</span>
                             </div>
                             <ul class="space-y-3 mb-8">
                                 <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Sesiones de 50-60 minutos
                                 </li>
                                 <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Mediación profesional y neutral
                                 </li>
                                 <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Ejercicios prácticos de comunicación
                                 </li>
                             </ul>
                         </div>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20de%20Pareja" target="_blank" class="w-full text-center py-3 rounded-xl bg-[#f10075] hover:bg-[#d10065] text-white font-semibold text-sm shadow-md shadow-pink-500/10 transition-colors duration-200">Agendar Cita</a>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20de%20Pareja"
+                            target="_blank"
+                            class="w-full text-center py-3 rounded-xl bg-[#f10075] hover:bg-[#d10065] text-white font-semibold text-sm shadow-md shadow-pink-500/10 transition-colors duration-200">Agendar
+                            Cita</a>
                     </div>
 
                     <!-- Plan 3 -->
-                    <div class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
+                    <div
+                        class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
                         <div>
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-xs font-bold text-gray-600 tracking-wider uppercase bg-gray-100 px-3 py-1 rounded-full">Paquetes</span>
+                                <span
+                                    class="text-xs font-bold text-gray-600 tracking-wider uppercase bg-gray-100 px-3 py-1 rounded-full">Paquetes</span>
                             </div>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Paquete Bienestar</h3>
-                            <p class="text-xs text-gray-500 mb-6">Ahorra en tu proceso completo con un paquete de 4 sesiones prepagadas.</p>
+                            <p class="text-xs text-gray-500 mb-6">Ahorra en tu proceso completo con un paquete de 4
+                                sesiones prepagadas.</p>
                             <div class="mb-6">
                                 <span class="text-4xl font-extrabold text-gray-900">S/ 450</span>
                                 <span class="text-sm text-gray-500">/ 4 sesiones</span>
                             </div>
                             <ul class="space-y-3 mb-8">
                                 <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Equivalente a S/ 112.50 por sesión
                                 </li>
                                 <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Seguimiento personalizado vía chat
                                 </li>
                                 <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
+                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Validez de 2 meses para agendar
                                 </li>
                             </ul>
                         </div>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20adquirir%2520el%2520Paquete%2520Bienestar" target="_blank" class="w-full text-center py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold text-sm transition-colors duration-200">Adquirir Plan</a>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20adquirir%2520el%2520Paquete%2520Bienestar"
+                            target="_blank"
+                            class="w-full text-center py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold text-sm transition-colors duration-200">Adquirir
+                            Plan</a>
                     </div>
 
                 </div><!-- /grid -->
@@ -1635,51 +2387,64 @@
     <section class="faq-premium-section" id="faq">
         <div class="faq-premium-container">
             <div class="faq-premium-layout">
-                
+
                 <!-- Left Sidebar: Section Info & Support Widget -->
                 <div class="faq-premium-sidebar animate-faq-header opacity-0">
                     <div>
                         <p class="faq-eyebrow">¿Tienes dudas?</p>
                         <h2>Preguntas <br><em>Frecuentes</em></h2>
                     </div>
-                    <p class="faq-sub">Resolvemos las dudas más comunes sobre nuestro proceso. Si no encuentras lo que buscas, nuestro equipo está listo para ayudarte de inmediato.</p>
-                    
+                    <p class="faq-sub">Resolvemos las dudas más comunes sobre nuestro proceso. Si no encuentras lo que
+                        buscas, nuestro equipo está listo para ayudarte de inmediato.</p>
+
                     <!-- Interactive Glassmorphic Widget -->
                     <div class="support-agent-widget">
                         <div class="agent-avatar-container">
-                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80" alt="Asesora de Bienestar KJA" class="agent-avatar-img" />
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80&auto=format"
+                                alt="Asesora de Bienestar KJA" class="agent-avatar-img" />
                             <span class="agent-status-badge"></span>
                         </div>
                         <div class="agent-info">
                             <h4>Asesoría al instante</h4>
                             <p>
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="#22c55e" style="display:inline; margin-right:4px;"><circle cx="12" cy="12" r="10"/></svg>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="#22c55e"
+                                    style="display:inline; margin-right:4px;">
+                                    <circle cx="12" cy="12" r="10" />
+                                </svg>
                                 En línea para ayudarte
                             </p>
                         </div>
                     </div>
-                    
+
                     <a href="https://wa.me/51988918238" target="_blank" class="faq-sidebar-cta">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                        </svg>
                         Conversa con nosotros
                     </a>
                 </div>
 
                 <!-- Right Accordion List -->
                 <div class="faq-premium-accordion">
-                    
+
                     <!-- Item 1 -->
                     <div class="faq-premium-item animate-faq-item opacity-0" id="faqItem0">
                         <button class="faq-premium-btn" onclick="toggleFaqPremium(0)" aria-expanded="false">
                             <span class="faq-premium-num">01</span>
                             <span class="faq-premium-q">¿Cómo es la primera sesión?</span>
                             <span class="faq-premium-arrow">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
                             </span>
                         </button>
                         <div class="faq-premium-answer">
                             <div class="faq-premium-answer-inner">
-                                <p>La primera sesión, también llamada sesión de consulta psicológica, tiene una duración de 45 minutos y está enfocada en conocerte, entender tu situación actual y definir los objetivos del proceso terapéutico.</p>
+                                <p>La primera sesión, también llamada sesión de consulta psicológica, tiene una duración
+                                    de 45 minutos y está enfocada en conocerte, entender tu situación actual y definir
+                                    los objetivos del proceso terapéutico.</p>
                             </div>
                         </div>
                     </div>
@@ -1690,12 +2455,17 @@
                             <span class="faq-premium-num">02</span>
                             <span class="faq-premium-q">¿Cómo agendo mi cita?</span>
                             <span class="faq-premium-arrow">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
                             </span>
                         </button>
                         <div class="faq-premium-answer">
                             <div class="faq-premium-answer-inner">
-                                <p>Agendar tu sesión es muy sencillo. Puedes contactarnos directamente por WhatsApp al <strong>+51 988 918 238</strong> o escribirnos a nuestro correo y te asignaremos un horario disponible.</p>
+                                <p>Agendar tu sesión es muy sencillo. Puedes contactarnos directamente por WhatsApp al
+                                    <strong>+51 988 918 238</strong> o escribirnos a nuestro correo y te asignaremos un
+                                    horario disponible.</p>
                             </div>
                         </div>
                     </div>
@@ -1706,12 +2476,17 @@
                             <span class="faq-premium-num">03</span>
                             <span class="faq-premium-q">¿Tengo que entrar yo o solo mi hijo?</span>
                             <span class="faq-premium-arrow">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
                             </span>
                         </button>
                         <div class="faq-premium-answer">
                             <div class="faq-premium-answer-inner">
-                                <p>Depende del tipo de terapia. Para terapia infantil, generalmente los padres participan en las primeras sesiones y en sesiones de seguimiento. Para terapia individual, el consultante asiste solo. Te orientaremos según tu caso.</p>
+                                <p>Depende del tipo de terapia. Para terapia infantil, generalmente los padres
+                                    participan en las primeras sesiones y en sesiones de seguimiento. Para terapia
+                                    individual, el consultante asiste solo. Te orientaremos según tu caso.</p>
                             </div>
                         </div>
                     </div>
@@ -1722,12 +2497,17 @@
                             <span class="faq-premium-num">04</span>
                             <span class="faq-premium-q">¿Qué precios manejan?</span>
                             <span class="faq-premium-arrow">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
                             </span>
                         </button>
                         <div class="faq-premium-answer">
                             <div class="faq-premium-answer-inner">
-                                <p>Manejamos diferentes precios según modalidad y tipo de terapia. Contáctanos para recibir información personalizada sobre nuestras tarifas y <strong>promociones vigentes</strong>.</p>
+                                <p>Manejamos diferentes precios según modalidad y tipo de terapia. Contáctanos para
+                                    recibir información personalizada sobre nuestras tarifas y <strong>promociones
+                                        vigentes</strong>.</p>
                             </div>
                         </div>
                     </div>
@@ -1738,12 +2518,17 @@
                             <span class="faq-premium-num">05</span>
                             <span class="faq-premium-q">¿Ofrecen sesiones en línea?</span>
                             <span class="faq-premium-arrow">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
                             </span>
                         </button>
                         <div class="faq-premium-answer">
                             <div class="faq-premium-answer-inner">
-                                <p>Sí. Ofrecemos sesiones 100% online a través de videollamada para que puedas acceder a tu terapia desde cualquier lugar del mundo, con la misma calidad y privacidad que las sesiones presenciales.</p>
+                                <p>Sí. Ofrecemos sesiones 100% online a través de videollamada para que puedas acceder a
+                                    tu terapia desde cualquier lugar del mundo, con la misma calidad y privacidad que
+                                    las sesiones presenciales.</p>
                             </div>
                         </div>
                     </div>
@@ -1764,9 +2549,14 @@
                 <h2>Estamos<br><em>cerca de ti</em></h2>
 
                 <div class="ubicanos-contact-list">
-                    <a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank" class="ubicanos-contact-item">
+                    <a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank"
+                        class="ubicanos-contact-item">
                         <div class="ubicanos-icon-wrap">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
                         </div>
                         <div>
                             <span class="ubicanos-label">Dirección</span>
@@ -1775,7 +2565,11 @@
                     </a>
                     <a href="tel:+51988918238" class="ubicanos-contact-item">
                         <div class="ubicanos-icon-wrap">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg>
                         </div>
                         <div>
                             <span class="ubicanos-label">Teléfono / WhatsApp</span>
@@ -1784,7 +2578,11 @@
                     </a>
                     <a href="mailto:kjabienestar@escuelakja.net" class="ubicanos-contact-item">
                         <div class="ubicanos-icon-wrap">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
                         </div>
                         <div>
                             <span class="ubicanos-label">Correo</span>
@@ -1829,13 +2627,22 @@
                 <p><strong>SÍGUENOS EN NUESTRAS REDES SOCIALES</strong></p>
                 <div class="social-icons">
                     <a href="#" title="TikTok" class="tt">
-                        <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.86-.74-3.94-1.74-.22-.2-.43-.43-.62-.67-.02 3.22-.01 6.44-.02 9.66-.08 2.43-1.09 4.88-3.1 6.28-2.61 1.8-6.22 1.68-8.7-0.31-2.48-1.92-3.41-5.32-2.18-8.28 1.11-2.73 4.12-4.52 7.07-4.14v4.11c-1.39-.24-2.85.35-3.55 1.58-.72 1.21-.5 2.87.5 3.84.99.99 2.66 1.07 3.73.18.72-.56.96-1.52.95-2.42V0.02z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.86-.74-3.94-1.74-.22-.2-.43-.43-.62-.67-.02 3.22-.01 6.44-.02 9.66-.08 2.43-1.09 4.88-3.1 6.28-2.61 1.8-6.22 1.68-8.7-0.31-2.48-1.92-3.41-5.32-2.18-8.28 1.11-2.73 4.12-4.52 7.07-4.14v4.11c-1.39-.24-2.85.35-3.55 1.58-.72 1.21-.5 2.87.5 3.84.99.99 2.66 1.07 3.73.18.72-.56.96-1.52.95-2.42V0.02z" />
+                        </svg>
                     </a>
                     <a href="#" title="Facebook" class="fb">
-                        <svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
                     </a>
                     <a href="#" title="Instagram" class="ig">
-                        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
+                        </svg>
                     </a>
                 </div>
             </div>
@@ -1854,9 +2661,12 @@
                 <p><strong>RECLAMACIONES</strong></p>
                 <a href="libro-reclamaciones.html" class="footer-libro-link" aria-label="Libro de Reclamaciones">
                     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 52V12a4 4 0 0 1 4-4h40v40H12a4 4 0 0 0-4 4z" stroke="currentColor" stroke-width="2.5" fill="none"/>
-                        <path d="M8 52a4 4 0 0 0 4 4h40V48H12a4 4 0 0 0-4 4z" stroke="currentColor" stroke-width="2.5" fill="none"/>
-                        <path d="M20 16h24M20 24h24M20 32h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M8 52V12a4 4 0 0 1 4-4h40v40H12a4 4 0 0 0-4 4z" stroke="currentColor"
+                            stroke-width="2.5" fill="none" />
+                        <path d="M8 52a4 4 0 0 0 4 4h40V48H12a4 4 0 0 0-4 4z" stroke="currentColor" stroke-width="2.5"
+                            fill="none" />
+                        <path d="M20 16h24M20 24h24M20 32h16" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
                     </svg>
                     <span>Libro de Reclamaciones</span>
                 </a>
@@ -1869,15 +2679,19 @@
         </div>
     </footer>
 
-    <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20o%20recibir%20m%C3%A1s%20informaci%C3%B3n" class="whatsapp-float" target="_blank" aria-label="Escríbenos por WhatsApp">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+    <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20o%20recibir%20m%C3%A1s%20informaci%C3%B3n"
+        class="whatsapp-float" target="_blank" aria-label="Escríbenos por WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+        </svg>
     </a>
 
-    <script src="script.js?v=6"></script>
+    <script defer src="script.js?v=7"></script>
     <script>
         function toggleFaqPremium(index) {
             const items = document.querySelectorAll('.faq-premium-item');
-            const btn   = items[index].querySelector('.faq-premium-btn');
+            const btn = items[index].querySelector('.faq-premium-btn');
             const isOpen = items[index].classList.contains('open');
 
             // Cerrar todos
@@ -1898,7 +2712,7 @@
         /* ===== Features scroll dots sync ===== */
         (function () {
             const track = document.getElementById('featuresScrollTrack');
-            const dots  = document.querySelectorAll('#featuresScrollDots span');
+            const dots = document.querySelectorAll('#featuresScrollDots span');
             if (!track || !dots.length) return;
 
             function updateDots() {
@@ -1930,7 +2744,7 @@
         /* ===== Services scroll dots sync ===== */
         (function () {
             const track = document.getElementById('servicesScrollTrack');
-            const dots  = document.querySelectorAll('#servicesScrollDots span');
+            const dots = document.querySelectorAll('#servicesScrollDots span');
             if (!track || !dots.length) return;
 
             function updateDots() {
@@ -1990,7 +2804,7 @@
                     tags: [{ text: 'Diagnóstico', color: '#7c3aed' }, { text: 'Evaluación', color: '#004fb0' }, { text: 'Tratamiento', color: '#f10075' }]
                 },
                 cpa: {
-                    img: 'images/inicio-terapias/colegiados_cpa.jpg',
+                    img: 'images/inicio-terapias/colegiados_cpa.webp',
                     pos: 'center 30%',
                     title: 'Colegiados CPA',
                     desc: 'Profesionales certificados con las más altas credenciales del Colegio de Psicólogos del Perú.',
@@ -1998,11 +2812,11 @@
                 }
             };
 
-            const pills    = document.querySelectorAll('#therapyPills .therapy-pill-v3');
+            const pills = document.querySelectorAll('#therapyPills .therapy-pill-v3');
             const cardWrap = document.getElementById('therapyCardInner');
-            const cardImg  = document.getElementById('therapyCardImg');
+            const cardImg = document.getElementById('therapyCardImg');
             const cardTags = document.getElementById('therapyCardTags');
-            const cardTitle= document.getElementById('therapyCardTitle');
+            const cardTitle = document.getElementById('therapyCardTitle');
             const cardDesc = document.getElementById('therapyCardDesc');
             if (!cardWrap) return;
 
@@ -2015,7 +2829,7 @@
                     cardImg.alt = d.title;
                     cardImg.style.objectPosition = d.pos || 'center center';
                     cardTitle.textContent = d.title;
-                    cardDesc.textContent  = d.desc;
+                    cardDesc.textContent = d.desc;
                     cardTags.innerHTML = d.tags.map(function (t) {
                         return '<span class="therapy-tag" style="background:' + t.color + ';">' + t.text + '</span>';
                     }).join('');
@@ -2041,7 +2855,7 @@
         /* ===== IMPACTO REAL — counter + barra animada ===== */
         (function () {
             var countEl = document.getElementById('impactoCount');
-            var barEl   = document.querySelector('.kja-progress-bar');
+            var barEl = document.querySelector('.kja-progress-bar');
             if (!countEl) return;
             var fired = false;
 
@@ -2069,7 +2883,7 @@
         /* ===== COMMITMENT CAROUSEL — auto-avance + dots ===== */
         (function () {
             const track = document.getElementById('commitmentTrack');
-            const dots  = document.querySelectorAll('#commitmentDots .carousel-dot');
+            const dots = document.querySelectorAll('#commitmentDots .carousel-dot');
             if (!track || !dots.length) return;
 
             let current = 0;
@@ -2081,8 +2895,8 @@
                 const cards = getCards();
                 if (!cards[idx]) return;
                 if (window.innerWidth < 768) {
-                    const gap  = 12;
-                    const w    = cards[0].offsetWidth + gap;
+                    const gap = 12;
+                    const w = cards[0].offsetWidth + gap;
                     track.scrollTo({ left: w * idx, behavior: 'smooth' });
                 }
                 dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
@@ -2115,7 +2929,7 @@
                 const cards = getCards();
                 if (!cards.length) return;
                 const gap = 12;
-                const w   = cards[0].offsetWidth + gap;
+                const w = cards[0].offsetWidth + gap;
                 const idx = Math.round(track.scrollLeft / w);
                 if (idx !== current) { current = idx; dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); }); }
             }, { passive: true });
@@ -2129,7 +2943,7 @@
             track.addEventListener('mouseenter', function () { clearInterval(timer); });
             track.addEventListener('mouseleave', startTimer);
             track.addEventListener('touchstart', function () { clearInterval(timer); }, { passive: true });
-            track.addEventListener('touchend',   function () { setTimeout(startTimer, 2200); }, { passive: true });
+            track.addEventListener('touchend', function () { setTimeout(startTimer, 2200); }, { passive: true });
 
             startTimer();
         })();
@@ -2139,7 +2953,7 @@
         /* ===== Plans scroll dots sync ===== */
         (function () {
             const track = document.getElementById('plansScrollTrack');
-            const dots  = document.querySelectorAll('#plansScrollDots span');
+            const dots = document.querySelectorAll('#plansScrollDots span');
             if (!track || !dots.length) return;
 
             function updateDots() {
@@ -2167,4 +2981,5 @@
     </script>
 
 </body>
+
 </html>

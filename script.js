@@ -1,4 +1,24 @@
 // ============================================================
+//  FALLBACK DE ANIMACIONES
+//  Si GSAP no carga (CDN caído, bloqueadores) o el usuario
+//  prefiere movimiento reducido, el contenido debe verse igual.
+// ============================================================
+const KJA_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const KJA_ANIM_SELECTORS = '.animate-hero, .animate-features-header, .animate-features-card, .animate-pricing-header, .animate-pricing-card, .animate-faq-header, .animate-faq-item, .areas-anim';
+
+function kjaRevealAll(scope) {
+    (scope || document).querySelectorAll(KJA_ANIM_SELECTORS).forEach(function (el) {
+        el.classList.remove('opacity-0');
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+    });
+}
+
+function kjaCanAnimate() {
+    return typeof gsap !== 'undefined' && !KJA_REDUCED_MOTION;
+}
+
+// ============================================================
 //  PROMO COUNTDOWN — siempre < 5h, bucle infinito
 // ============================================================
 (function initCountdown() {
@@ -128,6 +148,10 @@ function toggleFaq(btn) {
 
         // Animación GSAP de entrada para el contenido del slide
         const animElements = slides[current].querySelectorAll('.animate-hero');
+        if (!kjaCanAnimate()) {
+            kjaRevealAll(slides[current]);
+            return;
+        }
         if (animElements.length) {
             gsap.killTweensOf(animElements);
             gsap.set(animElements, { opacity: 0, y: 30 });
@@ -201,7 +225,10 @@ function toggleFaq(btn) {
 //  GSAP SCROLLTRIGGER ANIMATIONS (Features & Pricing)
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof gsap === 'undefined') return;
+    if (!kjaCanAnimate() || typeof ScrollTrigger === 'undefined') {
+        kjaRevealAll();
+        return;
+    }
     // Registrar ScrollTrigger
     gsap.registerPlugin(ScrollTrigger);
 
@@ -457,7 +484,7 @@ const topicsData = {
         title: "Recuperación del Burnout",
         desc: "El agotamiento extremo (Burnout) afecta tu salud física y mental. Diseñamos un plan para que recuperes tu energía, establezcas límites y encuentres equilibrio.",
         price: "S/ 59.90",
-        image: "images/inicio-terapias/colegiados_cpa.jpg",
+        image: "images/inicio-terapias/colegiados_cpa.webp",
         courses: [{name: "Charla: Equilibrio Vida y Trabajo", url: "cursos.html"}]
     },
     "traumas": {
@@ -511,8 +538,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Animación GSAP de la sección al hacer scroll
-    if (typeof gsap !== 'undefined') {
-        gsap.fromTo('.areas-anim', 
+    if (!kjaCanAnimate()) {
+        kjaRevealAll();
+    } else {
+        gsap.fromTo('.areas-anim',
             { opacity: 0, y: 30 },
             {
                 scrollTrigger: {
@@ -621,3 +650,22 @@ function closeTopicModal() {
     }, 300);
 }
 
+// ============================================================
+//  SCROLL HEADER LOGIC
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('header');
+    if (!header) return;
+
+    function handleScroll() {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    }
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Check initial position on load
+    handleScroll();
+});
