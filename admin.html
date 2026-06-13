@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KJA · Panel de Administración</title>
+<link rel="icon" href="images/logo/favicon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Cliente Supabase (login + base de datos) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root{ --kja-azul:#1a4b8c; --kja-azul-osc:#15315f; --kja-rosa:#e8638c; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Poppins',system-ui,sans-serif;background:#eef1f6;color:#1f2937;}
+
+  /* ─────────────  LOGIN  ───────────── */
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:linear-gradient(135deg,#1a4b8c 0%,#15315f 100%);}
+  .login-card{background:#fff;width:100%;max-width:400px;border-radius:18px;padding:38px 34px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);}
+  .login-card img{height:54px;display:block;margin:0 auto 6px;}
+  .login-card h1{font-size:19px;text-align:center;color:var(--kja-azul-osc);}
+  .login-card .sub{font-size:13px;color:#64748b;text-align:center;margin:4px 0 24px;}
+  .login-card label{display:block;font-size:12px;font-weight:600;color:#334155;margin-bottom:6px;}
+  .login-card input{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;
+    font-size:15px;font-family:inherit;margin-bottom:16px;}
+  .login-card input:focus{outline:none;border-color:var(--kja-azul);box-shadow:0 0 0 3px rgba(26,75,140,.12);}
+  .login-card button{width:100%;padding:13px;border:none;border-radius:10px;background:var(--kja-azul);
+    color:#fff;font-weight:700;font-size:15px;cursor:pointer;transition:.15s;font-family:inherit;}
+  .login-card button:hover{background:var(--kja-azul-osc);}
+  .login-card button:disabled{opacity:.6;cursor:default;}
+  .msg{font-size:13px;border-radius:8px;padding:10px 12px;margin-bottom:16px;display:none;}
+  .msg.error{background:#fee2e2;color:#b91c1c;display:block;}
+  .msg.info{background:#fef9c3;color:#854d0e;display:block;}
+  .preview-link{text-align:center;margin-top:18px;font-size:12px;}
+  .preview-link a{color:#94a3b8;cursor:pointer;text-decoration:underline;}
+
+  /* ─────────────  DASHBOARD  ───────────── */
+  #dashboard{display:none;height:100vh;flex-direction:column;}
+  .topbar{display:flex;align-items:center;gap:14px;background:var(--kja-azul-osc);color:#fff;
+    padding:10px 20px;flex-shrink:0;}
+  .topbar img{height:30px;}
+  .topbar .ttl{font-weight:600;font-size:15px;}
+  .topbar .spacer{flex:1;}
+  .topbar .who{font-size:13px;opacity:.85;}
+  .topbar .badge-demo{background:var(--kja-rosa);color:#fff;font-size:11px;font-weight:700;
+    padding:3px 9px;border-radius:20px;}
+  .topbar button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;
+    padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;}
+  .topbar button:hover{background:rgba(255,255,255,.28);}
+  #gen-frame{flex:1;width:100%;border:none;}
+</style>
+</head>
+<body>
+
+<!-- ════════════ LOGIN ════════════ -->
+<div class="login-wrap" id="login-wrap">
+  <form class="login-card" id="login-form">
+    <img src="images/logo/logo.png" alt="KJA" onerror="this.style.display='none'">
+    <h1>Panel de Administración</h1>
+    <div class="sub">Acceso exclusivo para el equipo KJA</div>
+
+    <div class="msg" id="login-msg"></div>
+
+    <label for="email">Correo</label>
+    <input id="email" type="email" autocomplete="username" placeholder="admin@escuelakja.net" required>
+
+    <label for="password">Contraseña</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
+
+    <button type="submit" id="btn-login">Ingresar</button>
+
+    <div class="preview-link">
+      <a id="preview-btn">Ver el panel en modo vista previa (sin login)</a>
+    </div>
+  </form>
+</div>
+
+<!-- ════════════ DASHBOARD ════════════ -->
+<div id="dashboard">
+  <div class="topbar">
+    <img src="images/logo/logo.png" alt="KJA" onerror="this.style.display='none'">
+    <span class="ttl">Generador de Certificados</span>
+    <span class="badge-demo" id="demo-badge" style="display:none;">VISTA PREVIA</span>
+    <div class="spacer"></div>
+    <span class="who" id="who"></span>
+    <button id="btn-logout">Cerrar sesión</button>
+  </div>
+  <iframe id="gen-frame" title="Generador"></iframe>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   CONFIGURACIÓN DE SUPABASE
+   Pega aquí los datos de tu proyecto (Supabase → Settings → API).
+   Mientras estén vacíos, el login real está desactivado y solo
+   funciona el botón "modo vista previa".
+   ══════════════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = "https://xadxmfgdxwplmhijagix.supabase.co";
+const SUPABASE_ANON  = "sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub";
+
+const RUTA_GENERADOR = "certificados/generador-demo.html";
+
+const $ = id => document.getElementById(id);
+let db = null;
+const supabaseListo = SUPABASE_URL && SUPABASE_ANON;
+if (supabaseListo) db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+function mostrarDashboard(quien, demo){
+  $('login-wrap').style.display='none';
+  $('dashboard').style.display='flex';
+  $('who').textContent = quien || '';
+  $('demo-badge').style.display = demo ? 'inline-block' : 'none';
+  if(!$('gen-frame').src) $('gen-frame').src = RUTA_GENERADOR;
+}
+function mostrarLogin(){
+  $('dashboard').style.display='none';
+  $('login-wrap').style.display='flex';
+}
+function msg(texto, tipo){
+  const el=$('login-msg'); el.textContent=texto; el.className='msg '+(tipo||'error');
+  if(!texto) el.style.display='none';
+}
+
+/* Login real con Supabase */
+$('login-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  msg('');
+  if(!supabaseListo){
+    msg('El login aún no está activo: falta configurar Supabase. Usa "modo vista previa" por ahora.', 'info');
+    return;
+  }
+  const btn=$('btn-login'); btn.disabled=true; btn.textContent='Ingresando…';
+  const {data, error} = await db.auth.signInWithPassword({
+    email: $('email').value.trim(), password: $('password').value
+  });
+  btn.disabled=false; btn.textContent='Ingresar';
+  if(error){ msg('Correo o contraseña incorrectos.'); return; }
+  mostrarDashboard(data.user.email, false);
+});
+
+/* Modo vista previa (temporal, solo para desarrollo) */
+$('preview-btn').addEventListener('click', ()=> mostrarDashboard('modo vista previa', true));
+
+/* Cerrar sesión */
+$('btn-logout').addEventListener('click', async ()=>{
+  if(db) await db.auth.signOut();
+  mostrarLogin();
+});
+
+/* Mantener sesión iniciada al recargar */
+(async ()=>{
+  if(supabaseListo){
+    const {data} = await db.auth.getSession();
+    if(data.session) mostrarDashboard(data.session.user.email, false);
+  }
+})();
+</script>
+</body>
+</html>
