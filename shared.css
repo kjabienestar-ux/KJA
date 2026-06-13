@@ -2007,7 +2007,7 @@ header.scrolled .hamburger span {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(241, 0, 117, 0.60);
+    background: linear-gradient(135deg, rgba(0, 79, 176, 0.85) 0%, rgba(0, 30, 80, 0.95) 100%);
     z-index: -1;
 }
 
@@ -2839,7 +2839,6 @@ footer {
     background: #004FB0;
     color: var(--white);
     padding: 60px 20px 20px;
-    border-top: 3px solid var(--primary-pink);
 }
 
 .footer-content {
