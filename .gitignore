@@ -1,0 +1,7 @@
+# Tooling local (no va al repo)
+.claude/
+node_modules/
+
+# Temporales del sistema
+Thumbs.db
+.DS_Store

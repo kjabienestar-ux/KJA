@@ -4,122 +4,155 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KJA · Verificación de Certificados</title>
-<link rel="icon" href="images/logo/favicon.png">
-
+<meta name="description" content="Verifica y consulta los certificados oficiales emitidos por KJA Centro de Capacitación y Formación Psicológica.">
+<meta name="theme-color" content="#004fb0">
+<link rel="icon" type="image/png" href="images/logo/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Damion&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=Cinzel:wght@400;500;700&family=Damion&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css?v=7">
+<link rel="stylesheet" href="tailwind.css?v=1">
 
 <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="certificados/cert-render.js"></script>
 
-<style>
-  :root{ --kja-azul:#1a4b8c; --kja-azul-osc:#15315f; --kja-rosa:#e8638c; }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Poppins',system-ui,sans-serif;background:#eef1f6;color:#1f2937;}
-  header{background:linear-gradient(135deg,#1a4b8c,#15315f);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:14px;}
-  header img{height:36px;}
-  header .ttl{font-weight:600;font-size:17px;}
-  header a.home{margin-left:auto;color:#fff;font-size:13px;opacity:.85;text-decoration:none;}
-  .wrap{max-width:1000px;margin:0 auto;padding:26px 18px 60px;}
-
-  .search-card{background:#fff;border-radius:16px;padding:26px;box-shadow:0 8px 30px rgba(0,0,0,.08);margin-bottom:24px;}
-  .search-card h2{font-size:18px;color:var(--kja-azul-osc);margin-bottom:6px;}
-  .search-card p{font-size:13px;color:#64748b;margin-bottom:16px;}
-  .search-row{display:flex;gap:10px;}
-  .search-row input{flex:1;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;font-family:inherit;}
-  .search-row input:focus{outline:none;border-color:var(--kja-azul);}
-  .search-row button{padding:12px 22px;border:none;border-radius:10px;background:var(--kja-azul);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;}
-  .search-row button:hover{background:var(--kja-azul-osc);}
-
-  .banner{display:none;align-items:center;gap:12px;background:#dcfce7;color:#166534;border-radius:12px;padding:14px 18px;margin-bottom:20px;font-weight:600;}
-  .banner.show{display:flex;}
-  .banner.err{background:#fee2e2;color:#b91c1c;}
-  .banner .ico{font-size:22px;}
-
-  .cliente-nombre{font-size:22px;font-weight:700;color:var(--kja-azul-osc);margin:6px 0 4px;}
-  .cliente-sub{font-size:13px;color:#64748b;margin-bottom:18px;}
-
-  #viewer{display:none;margin-bottom:26px;}
-  #viewer canvas{width:100%;height:auto;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.18);background:#fff;}
-  .viewer-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
-  .viewer-actions button{padding:10px 18px;border:none;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
-  .b-pdf{background:var(--kja-azul);color:#fff;} .b-png{background:#e2e8f0;color:#334155;}
-
-  .lista-ttl{font-size:14px;font-weight:700;color:#334155;margin:8px 0 12px;text-transform:uppercase;letter-spacing:.5px;}
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
-  .card{background:#fff;border-radius:13px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.06);border:2px solid transparent;cursor:pointer;transition:.15s;}
-  .card:hover{border-color:var(--kja-azul);transform:translateY(-2px);}
-  .card.activo{border-color:var(--kja-azul);}
-  .card .tipo{font-size:11px;font-weight:700;color:var(--kja-azul);text-transform:uppercase;letter-spacing:.4px;}
-  .card .tit{font-size:15px;font-weight:600;margin:5px 0;}
-  .card .meta{font-size:12px;color:#64748b;}
-  .card .cod{font-size:11px;color:#94a3b8;margin-top:8px;font-family:monospace;}
-  .empty{text-align:center;color:#94a3b8;font-size:14px;padding:30px;}
-  .picker{margin-top:14px;}
-  .picker .opt{padding:11px 14px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:14px;}
-  .picker .opt:hover{background:#f1f5f9;border-color:var(--kja-azul);}
-</style>
+<link rel="stylesheet" href="certificado.css">
 </head>
 <body>
+
 <header>
-  <img src="images/logo/logo.png" alt="KJA" onerror="this.style.display='none'">
-  <span class="ttl">Verificación de Certificados</span>
-  <a class="home" href="index.html">← Volver al inicio</a>
+  <nav>
+    <div class="logo-container">
+      <a href="index.html"><img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img"></a>
+    </div>
+    <ul class="nav-links" id="nav-menu">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="terapia.html">Terapia</a></li>
+      <li><a href="cursos.html">Cursos</a></li>
+      <li><a href="certificado.html" class="active">Certificados</a></li>
+      <li><a href="nosotros.html">Nosotros</a></li>
+      <li><a href="index.html#ubicanos">Ubícanos</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </nav>
 </header>
 
-<div class="wrap">
+<section class="cert-hero">
+  <div class="pill">🔒 Verificación oficial KJA</div>
+  <h1>Certificados verificados</h1>
+  <p>Consulta y descarga los certificados oficiales emitidos por KJA. Cada certificado incluye un código QR único que confirma su autenticidad.</p>
+</section>
+
+<div class="cert-main">
   <div class="banner" id="banner"><span class="ico"></span><span id="banner-txt"></span></div>
 
   <div class="search-card" id="search-card">
     <h2>Consulta tus certificados</h2>
-    <p>Escribe tu nombre completo tal como te inscribiste para ver tus certificados emitidos por KJA.</p>
+    <p class="lead">Escribe tu <b>nombre completo</b> (o tu <b>DNI</b>), tal como te inscribiste, para ver tus certificados.</p>
     <div class="search-row">
-      <input id="q" type="text" placeholder="Ej: Juan Pérez García" autocomplete="off">
+      <div class="input-wrapper">
+        <input id="q" type="text" placeholder="Ej: Juan Carlos Pérez García  ·  o tu DNI" autocomplete="off">
+        <div id="autocomplete-list" class="autocomplete-dropdown"></div>
+      </div>
       <button id="btn-buscar">Buscar</button>
     </div>
+    <div class="privacy-note">🔒 Por tu privacidad, los resultados se ocultan automáticamente tras un minuto.</div>
     <div class="picker" id="picker"></div>
   </div>
 
-  <div id="cliente-info"></div>
-
-  <div id="viewer">
-    <canvas id="viewer-canvas" width="2000" height="1414"></canvas>
-    <div class="viewer-actions">
-      <button class="b-pdf" id="dl-pdf">Descargar PDF</button>
-      <button class="b-png" id="dl-png">Descargar PNG</button>
+  <div id="resultados">
+    <div class="auto-aviso" id="auto-aviso"></div>
+    <div id="cliente-info"></div>
+    <div id="viewer">
+      <canvas id="viewer-canvas" width="2000" height="1414"></canvas>
+      <div class="viewer-actions">
+        <button class="b-pdf" id="dl-pdf">Descargar PDF</button>
+        <button class="b-png" id="dl-png">Descargar PNG</button>
+      </div>
     </div>
+    <div id="lista"></div>
   </div>
 
-  <div id="lista"></div>
+  <div class="admin-access">
+    ¿Eres del equipo KJA? <a href="admin.html">Acceso administrador →</a>
+  </div>
 </div>
 
+<footer>
+  <div class="footer-content">
+    <div class="footer-logo"><a href="index.html"><img src="images/logo/kja.webp" alt="KJA Logo" class="footer-logo-img"></a></div>
+    <div class="footer-info">
+      <p>📍 Jr. Río Amazonas 214, San Luis,<br>Lima, Perú</p>
+      <p>📞 +51 988 918 238</p>
+    </div>
+    <div class="footer-info">
+      <p><strong>ENLACES DE AYUDA</strong></p>
+      <ul class="footer-help-links">
+        <li><a href="politica-privacidad.html">Política y Privacidad</a></li>
+        <li><a href="terminos-condiciones.html">Términos y Condiciones</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
 <script>
+function toggleMenu(){ 
+  document.getElementById('nav-menu').classList.toggle('open');
+  document.getElementById('hamburger').classList.toggle('open');
+}
+
 const SUPABASE_URL  = "https://xadxmfgdxwplmhijagix.supabase.co";
 const SUPABASE_ANON = "sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub";
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-KJACert.basePath = 'certificados/';   // las plantillas están en /certificados desde esta página
+KJACert.basePath = 'certificados/';
 
 const $=id=>document.getElementById(id);
 const TIPO_LBL={taller:'Certificado de Taller',curso:'Certificado de Curso',
   especializacion:'Curso de Especialización',constancia:'Constancia de Taller'};
 
-function banner(txt,err){ const b=$('banner'); b.className='banner show'+(err?' err':''); b.querySelector('.ico').textContent=err?'✕':'✓'; $('banner-txt').textContent=txt; }
+function banner(txt,err){ const b=$('banner'); b.className='banner show '+(err?'err':'ok'); b.querySelector('.ico').textContent=err?'✕':'✓'; $('banner-txt').textContent=txt; }
+function limpiarBanner(){ $('banner').className='banner'; }
 function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,titulo:r.titulo,duracion:r.duracion,
   fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo}; }
 
-let certs=[];
+function setLoading(isLoading) {
+  const btn = $('btn-buscar');
+  if (!btn) return;
+  if (isLoading) {
+    btn.disabled = true;
+    btn.innerHTML = `<svg class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg> Buscando...`;
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = 'Buscar';
+  }
+}
 
+/* ── Auto-ocultar por privacidad ── */
+let countdown=null;
+function iniciarAutoOcultar(seg){
+  detenerAutoOcultar(); let left=seg;
+  const pintar=()=>{ const m=Math.floor(left/60), s=String(left%60).padStart(2,'0');
+    $('auto-aviso').innerHTML=`🔒 Por privacidad, estos resultados se ocultarán en <b>${m}:${s}</b>`; };
+  pintar();
+  countdown=setInterval(()=>{ left--; if(left<=0){ ocultarResultados(true); } else pintar(); },1000);
+}
+function detenerAutoOcultar(){ if(countdown){ clearInterval(countdown); countdown=null; } }
+function ocultarResultados(porPrivacidad){
+  detenerAutoOcultar();
+  $('resultados').style.display='none';
+  $('cliente-info').innerHTML=''; $('lista').innerHTML=''; $('viewer').style.display='none'; $('auto-aviso').innerHTML='';
+  if(porPrivacidad){ $('q').value=''; banner('Por tu privacidad, los resultados se ocultaron. Vuelve a buscar si lo necesitas.',false); }
+}
+
+let certs=[];
 async function verCert(row){
   document.querySelectorAll('.card').forEach(c=>c.classList.toggle('activo', c.dataset.cod===row.codigo));
   $('viewer').style.display='block';
   await KJACert.render($('viewer-canvas'), rowToDatos(row));
-  $('dl-pdf').onclick=()=>descargar(row,'pdf');
-  $('dl-png').onclick=()=>descargar(row,'png');
-  $('viewer').scrollIntoView({behavior:'smooth',block:'start'});
+  $('dl-pdf').onclick=()=>descargar(row,'pdf'); $('dl-png').onclick=()=>descargar(row,'png');
+  $('viewer').scrollIntoView({behavior:'smooth',block:'center'});
 }
 async function descargar(row,fmt){
   const off=document.createElement('canvas'); off.width=KJACert.W; off.height=KJACert.H;
@@ -127,60 +160,158 @@ async function descargar(row,fmt){
   KJACert.exportar(off, row.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+row.nombre.replace(/\s+/g,'_'), fmt);
 }
 
-function pintarLista(nombre, list, codActivo){
-  certs=list;
-  $('cliente-info').innerHTML = `<div class="cliente-nombre">${nombre}</div>
+async function pintarLista(nombre, list, codActivo, autoOcultar){
+  certs=list; $('resultados').style.display='block';
+  $('cliente-info').innerHTML=`<div class="cliente-nombre">${nombre}</div>
     <div class="cliente-sub">${list.length} certificado(s) emitido(s) por KJA</div>`;
-  if(!list.length){ $('lista').innerHTML='<div class="empty">Aún no hay certificados registrados.</div>'; return; }
-  $('lista').innerHTML = `<div class="lista-ttl">Certificados</div><div class="cards" id="cards"></div>`;
-  const cont=$('cards');
-  list.forEach(r=>{
-    const div=document.createElement('div');
-    div.className='card'; div.dataset.cod=r.codigo;
-    div.innerHTML=`<div class="tipo">${TIPO_LBL[r.tipo]||r.tipo}</div>
-      <div class="tit">${r.titulo}</div>
-      <div class="meta">${r.duracion||''} horas · ${KJACert.fechaLarga(r.fecha_emision)}</div>
-      <div class="cod">${r.codigo}</div>`;
-    div.onclick=()=>verCert(r);
-    cont.appendChild(div);
-  });
-  const activo=list.find(r=>r.codigo===codActivo);
-  if(activo) verCert(activo);
+  if(!list.length){ $('lista').innerHTML='<div class="picker">Aún no hay certificados registrados.</div>'; }
+  else{
+    $('lista').innerHTML=`<div class="lista-ttl">Sus certificados</div><div class="cards" id="cards"></div>`;
+    list.forEach(r=>{ const div=document.createElement('div'); div.className='card'; div.dataset.cod=r.codigo;
+      div.innerHTML=`<div class="tipo">${TIPO_LBL[r.tipo]||r.tipo}</div><div class="tit">${r.titulo}</div>
+        <div class="meta">${r.duracion||''} horas · ${KJACert.fechaLarga(r.fecha_emision)}</div>`;
+      div.onclick=()=>verCert(r); $('cards').appendChild(div); });
+    let act=list.find(r=>r.codigo===codActivo); 
+    if(!act && list.length > 0) act = list[0]; // Auto-selecciona el primero si no hay uno activo
+    if(act) await verCert(act);
+  }
+  if(autoOcultar) iniciarAutoOcultar(60); else $('auto-aviso').innerHTML='';
 }
 
-async function cargarPorCliente(clienteId, nombre, codActivo){
-  const {data}=await db.from('certificados').select('*').eq('cliente_id',clienteId).order('fecha_emision',{ascending:false});
-  pintarLista(nombre, data||[], codActivo);
+async function cargarPorCliente(clienteId, nombre, codActivo, autoOcultar){
+  setLoading(true);
+  try {
+    const {data}=await db.from('certificados').select('*').eq('cliente_id',clienteId).order('fecha_emision',{ascending:false});
+    await pintarLista(nombre, data||[], codActivo, autoOcultar);
+  } finally {
+    setLoading(false);
+  }
 }
 
-/* Verificación directa vía QR: ?id=CODIGO */
+/* QR directo: ?id=CODIGO (no se auto-oculta: es el dueño escaneando) */
 async function verificarPorCodigo(codigo){
   const {data,error}=await db.from('certificados').select('*').eq('codigo',codigo).limit(1);
   if(error || !data || !data.length){ banner('No encontramos ningún certificado con ese código.',true); return; }
-  const cert=data[0];
-  banner('Certificado verificado · emitido oficialmente por KJA');
+  const cert=data[0]; banner('Certificado verificado · emitido oficialmente por KJA');
   $('search-card').style.display='none';
-  if(cert.cliente_id) await cargarPorCliente(cert.cliente_id, cert.nombre, cert.codigo);
-  else pintarLista(cert.nombre,[cert],cert.codigo);
+  if(cert.cliente_id) await cargarPorCliente(cert.cliente_id, cert.nombre, cert.codigo, false);
+  else pintarLista(cert.nombre,[cert],cert.codigo,false);
 }
 
-/* Búsqueda pública por nombre */
+/* Búsqueda por nombre (por palabras) o por DNI (solo números), con privacidad.
+   - DNI: si el texto es solo dígitos, busca por DNI exacto.
+   - Nombre: divide en palabras y exige que TODAS estén en el nombre
+     (sin importar el orden ni los nombres del medio). Funciona con un solo
+     nombre, con nombre+apellido, o con 2-3 nombres y 2 apellidos. */
 async function buscar(){
-  const term=$('q').value.trim(); if(term.length<3){ banner('Escribe al menos 3 letras de tu nombre.',true); return; }
-  $('picker').innerHTML=''; $('cliente-info').innerHTML=''; $('lista').innerHTML=''; $('viewer').style.display='none';
-  const {data:cls}=await db.from('clientes').select('id,nombre,dni').ilike('nombre',`%${term}%`).limit(10);
-  if(!cls || !cls.length){ banner('No encontramos certificados con ese nombre.',true); return; }
-  $('banner').className='banner';
-  if(cls.length===1){ cargarPorCliente(cls[0].id, cls[0].nombre); return; }
-  // varios coincidentes → que elija
-  $('picker').innerHTML='<div style="font-size:13px;color:#64748b;margin-bottom:8px;">Encontramos varias coincidencias, elige:</div>';
-  cls.forEach(c=>{ const o=document.createElement('div'); o.className='opt';
-    o.textContent=c.nombre+(c.dni?` · DNI ${c.dni}`:''); o.onclick=()=>{ $('picker').innerHTML=''; cargarPorCliente(c.id,c.nombre); };
-    $('picker').appendChild(o); });
-}
+  const raw=$('q').value.trim();
+  if(raw.length<3){ banner('Escribe tu nombre completo o tu DNI.',true); return; }
+  limpiarBanner(); $('picker').innerHTML=''; ocultarResultados(false);
 
+  setLoading(true);
+  try {
+    let cls;
+    if(/^\d{6,}$/.test(raw)){
+      const {data}=await db.from('clientes').select('id,nombre').eq('dni',raw).limit(10);
+      cls=data;
+    }else{
+      const palabras=raw.split(/\s+/).filter(Boolean);
+      let q=db.from('clientes').select('id,nombre');
+      palabras.forEach(w=>{ q=q.ilike('nombre',`%${w}%`); });   // AND: todas las palabras
+      const {data}=await q.limit(10);
+      cls=data;
+    }
+
+    if(!cls || !cls.length){ banner('No encontramos certificados con esos datos. Revisa que esté completo.',true); return; }
+    if(cls.length===1){ 
+      setLoading(false);
+      await cargarPorCliente(cls[0].id, cls[0].nombre, null, true); 
+      return; 
+    }
+    
+    $('resultados').style.display='block'; $('auto-aviso').innerHTML='';
+    $('picker').innerHTML='<div style="font-size:13px;color:#666;margin-bottom:8px;">Encontramos varias coincidencias, elige la tuya:</div>';
+    cls.forEach(c=>{ const o=document.createElement('div'); o.className='opt'; o.textContent=c.nombre;
+      o.onclick=()=>{ $('picker').innerHTML=''; cargarPorCliente(c.id,c.nombre,null,true); }; $('picker').appendChild(o); });
+  } finally {
+    setLoading(false);
+  }
+}
 $('btn-buscar').addEventListener('click',buscar);
 $('q').addEventListener('keydown',e=>{ if(e.key==='Enter') buscar(); });
+
+let autocompleteTimeout;
+const searchCache = {}; // Caché local para respuestas instantáneas
+
+$('q').addEventListener('input', async (e) => {
+  const raw = e.target.value.trim();
+  const rawLower = raw.toLowerCase();
+  const dropdown = $('autocomplete-list');
+  
+  if (raw.length < 3) {
+    dropdown.classList.remove('show');
+    return;
+  }
+
+  // 1. Revisar si ya lo buscamos antes (respuesta instantánea)
+  if (searchCache[rawLower]) {
+    renderAutocomplete(searchCache[rawLower], dropdown);
+    return;
+  }
+
+  clearTimeout(autocompleteTimeout);
+  // 2. Reducimos el tiempo de espera (debounce) a 150ms para que se sienta más rápido
+  autocompleteTimeout = setTimeout(async () => {
+    let cls;
+    if(/^\d+$/.test(raw)){
+      const {data} = await db.from('clientes').select('id,nombre').like('dni', `${raw}%`).limit(5);
+      cls = data;
+    } else {
+      const palabras = raw.split(/\s+/).filter(Boolean);
+      let q = db.from('clientes').select('id,nombre');
+      palabras.forEach(w => { q = q.ilike('nombre', `%${w}%`); });
+      const {data} = await q.limit(5);
+      cls = data;
+    }
+
+    // 3. Guardar el resultado en caché
+    searchCache[rawLower] = cls;
+    renderAutocomplete(cls, dropdown);
+  }, 150); 
+});
+
+function renderAutocomplete(cls, dropdown) {
+  if (cls && cls.length > 0) {
+    dropdown.innerHTML = '';
+    cls.forEach((c, index) => {
+      const item = document.createElement('div');
+      item.className = 'autocomplete-item';
+      item.style.animationDelay = `${index * 0.04}s`;
+      item.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ac-icon">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span class="ac-text">${c.nombre}</span>
+      `;
+      item.onclick = () => {
+        $('q').value = c.nombre;
+        dropdown.classList.remove('show');
+        cargarPorCliente(c.id, c.nombre, null, true);
+      };
+      dropdown.appendChild(item);
+    });
+    dropdown.classList.add('show');
+  } else {
+    dropdown.classList.remove('show');
+  }
+}
+
+document.addEventListener('click', (e) => {
+  if (!$('q').contains(e.target) && !$('autocomplete-list').contains(e.target)) {
+    $('autocomplete-list').classList.remove('show');
+  }
+});
 
 (async ()=>{
   await KJACert.preloadFonts();

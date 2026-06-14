@@ -7,156 +7,705 @@
 <link rel="icon" href="images/logo/favicon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- Cliente Supabase (login + base de datos) -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Damion&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="certificados/cert-render.js"></script>
 
-<style>
-  :root{ --kja-azul:#1a4b8c; --kja-azul-osc:#15315f; --kja-rosa:#e8638c; }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Poppins',system-ui,sans-serif;background:#eef1f6;color:#1f2937;}
-
-  /* ─────────────  LOGIN  ───────────── */
-  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
-    background:linear-gradient(135deg,#1a4b8c 0%,#15315f 100%);}
-  .login-card{background:#fff;width:100%;max-width:400px;border-radius:18px;padding:38px 34px;
-    box-shadow:0 20px 60px rgba(0,0,0,.25);}
-  .login-card img{height:54px;display:block;margin:0 auto 6px;}
-  .login-card h1{font-size:19px;text-align:center;color:var(--kja-azul-osc);}
-  .login-card .sub{font-size:13px;color:#64748b;text-align:center;margin:4px 0 24px;}
-  .login-card label{display:block;font-size:12px;font-weight:600;color:#334155;margin-bottom:6px;}
-  .login-card input{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;
-    font-size:15px;font-family:inherit;margin-bottom:16px;}
-  .login-card input:focus{outline:none;border-color:var(--kja-azul);box-shadow:0 0 0 3px rgba(26,75,140,.12);}
-  .login-card button{width:100%;padding:13px;border:none;border-radius:10px;background:var(--kja-azul);
-    color:#fff;font-weight:700;font-size:15px;cursor:pointer;transition:.15s;font-family:inherit;}
-  .login-card button:hover{background:var(--kja-azul-osc);}
-  .login-card button:disabled{opacity:.6;cursor:default;}
-  .msg{font-size:13px;border-radius:8px;padding:10px 12px;margin-bottom:16px;display:none;}
-  .msg.error{background:#fee2e2;color:#b91c1c;display:block;}
-  .msg.info{background:#fef9c3;color:#854d0e;display:block;}
-  .preview-link{text-align:center;margin-top:18px;font-size:12px;}
-  .preview-link a{color:#94a3b8;cursor:pointer;text-decoration:underline;}
-
-  /* ─────────────  DASHBOARD  ───────────── */
-  #dashboard{display:none;height:100vh;flex-direction:column;}
-  .topbar{display:flex;align-items:center;gap:14px;background:var(--kja-azul-osc);color:#fff;
-    padding:10px 20px;flex-shrink:0;}
-  .topbar img{height:30px;}
-  .topbar .ttl{font-weight:600;font-size:15px;}
-  .topbar .spacer{flex:1;}
-  .topbar .who{font-size:13px;opacity:.85;}
-  .topbar .badge-demo{background:var(--kja-rosa);color:#fff;font-size:11px;font-weight:700;
-    padding:3px 9px;border-radius:20px;}
-  .topbar button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;
-    padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;}
-  .topbar button:hover{background:rgba(255,255,255,.28);}
-  #gen-frame{flex:1;width:100%;border:none;}
-</style>
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<!-- ════════════ LOGIN ════════════ -->
+<!-- LOGIN -->
 <div class="login-wrap" id="login-wrap">
+  <div class="bg"></div>
+  
+  <div class="lg-bubble lg-bubble-1"></div>
+  <div class="lg-bubble lg-bubble-2"></div>
+  <div class="lg-bubble lg-bubble-3"></div>
+
+  <a href="index.html" class="btn-volver">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Volver al Inicio
+  </a>
+
   <form class="login-card" id="login-form">
-    <img src="images/logo/logo.png" alt="KJA" onerror="this.style.display='none'">
-    <h1>Panel de Administración</h1>
-    <div class="sub">Acceso exclusivo para el equipo KJA</div>
-
-    <div class="msg" id="login-msg"></div>
-
-    <label for="email">Correo</label>
-    <input id="email" type="email" autocomplete="username" placeholder="admin@escuelakja.net" required>
-
-    <label for="password">Contraseña</label>
-    <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
-
-    <button type="submit" id="btn-login">Ingresar</button>
-
-    <div class="preview-link">
-      <a id="preview-btn">Ver el panel en modo vista previa (sin login)</a>
+    <div class="login-left">
+      <div class="ll-content">
+        <div class="ll-logo"><img src="images/logo/logo.png" alt="KJA" onerror="this.parentElement.style.display='none'"></div>
+        <div class="ll-kicker">BIENVENIDO A</div>
+        <h2>KJA Bienestar</h2>
+        <div class="ll-tag">Centro de Capacitación y Formación Psicológica</div>
+      </div>
+    </div>
+    <div class="login-right">
+      <h1>Iniciar sesión</h1>
+      <div class="sub">Panel de administración · equipo KJA</div>
+      <div class="msg" id="login-msg"></div>
+      <div class="in-group">
+        <svg class="in-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+        <input id="email" type="email" autocomplete="username" placeholder="Correo" required>
+      </div>
+      <div class="in-group pw-wrap">
+        <svg class="in-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input id="password" type="password" autocomplete="current-password" placeholder="Contraseña" required>
+        <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Mostrar u ocultar contraseña">
+          <svg id="pw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
     </div>
   </form>
 </div>
 
-<!-- ════════════ DASHBOARD ════════════ -->
-<div id="dashboard">
+<!-- DASHBOARD -->
+<div id="dash">
   <div class="topbar">
     <img src="images/logo/logo.png" alt="KJA" onerror="this.style.display='none'">
-    <span class="ttl">Generador de Certificados</span>
-    <span class="badge-demo" id="demo-badge" style="display:none;">VISTA PREVIA</span>
+    <span class="ttl">Panel KJA · Certificados</span>
     <div class="spacer"></div>
     <span class="who" id="who"></span>
     <button id="btn-logout">Cerrar sesión</button>
   </div>
-  <iframe id="gen-frame" title="Generador"></iframe>
+  <div class="body">
+    <nav class="side">
+      <button data-view="gen" class="active">Generar certificado</button>
+      <button data-view="emit">Certificados emitidos</button>
+    </nav>
+    <div class="content">
+
+      <!-- VIEW: GENERAR -->
+      <div class="view gen active" id="view-gen">
+        <div class="panel">
+          <div class="panel-head">
+            <h2 id="gen-title">Generar Certificado</h2>
+            <button type="button" class="btn-nuevo" id="btn-nuevo">+ Nuevo</button>
+          </div>
+          <div class="editing" id="editing-flag">✎ Editando un certificado existente</div>
+
+          <div class="f-group">
+            <div class="f-group-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Configuración</div>
+            <div class="field"><label>Tipo de certificado</label>
+              <input type="hidden" id="f-tipo" value="taller">
+              <div class="cselect" id="tipo-cselect">
+                <button type="button" class="cselect-btn" id="tipo-btn">
+                  <span id="tipo-label">Certificado de Taller</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="cselect-list">
+                  <div data-val="taller" class="sel">Certificado de Taller</div>
+                  <div data-val="curso">Certificado de Curso</div>
+                  <div data-val="especializacion">Certificado de Curso de Especialización</div>
+                  <div data-val="constancia">Constancia de Taller Presencial</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="f-group">
+            <div class="f-group-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Datos del Participante</div>
+            <div class="field"><label>Cliente / Alumno (escribe nuevo o elige existente)</label>
+              <input id="f-nombre" type="text" list="clientes-list" placeholder="Nombre completo del cliente" autocomplete="off">
+              <datalist id="clientes-list"></datalist></div>
+            <div class="row2">
+              <div class="field"><label>DNI (opcional)</label>
+                <input id="f-dni" type="text" placeholder="Opcional"></div>
+              <div class="field"><label>Tamaño Letra</label>
+                <div class="size-wrap" id="size-wrap">
+                  <input id="f-size" type="number" placeholder="Automático">
+                  <button type="button" class="sz-btn" id="size-toggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div class="cselect-list">
+                    <div data-val="64">64</div>
+                    <div data-val="72">72</div>
+                    <div data-val="80">80</div>
+                    <div data-val="90">90</div>
+                    <div data-val="96">96</div>
+                    <div data-val="104">104</div>
+                    <div data-val="108">108</div>
+                    <div data-val="112">112</div>
+                    <div data-val="120">120</div>
+                    <div data-val="132">132</div>
+                    <div data-val="144">144</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="f-group">
+            <div class="f-group-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Detalles del Evento</div>
+            <div class="field"><label id="lbl-titulo">Nombre del taller</label>
+              <input id="f-titulo" type="text" placeholder="Nombre del curso / taller"></div>
+            <div class="field"><label>Duración (horas académicas)</label>
+              <input id="f-duracion" type="number" placeholder="Ej: 20" min="1"></div>
+            <div class="row2">
+              <div class="field" id="wrap-inicio"><label id="lbl-inicio">Fecha del periodo</label>
+                <div class="datewrap"><input id="f-inicio" type="text" placeholder="Seleccionar">
+                  <svg class="cal-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div></div>
+              <div class="field" id="wrap-fin" style="display:none;"><label>Hasta</label>
+                <div class="datewrap"><input id="f-fin" type="text" placeholder="Seleccionar">
+                  <svg class="cal-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div></div>
+            </div>
+            <div class="field"><label>Fecha de emisión</label>
+              <div class="datewrap"><input id="f-emision" type="text" placeholder="Seleccionar">
+                <svg class="cal-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div></div>
+            <div class="field" style="margin-bottom:0;"><label>Número de certificado</label>
+              <input id="f-numero" type="text" placeholder="Ej: 8148">
+              <div class="codigo-preview" id="codigo-preview">—</div>
+              <div class="hint">El mes y el año salen de la fecha de emisión.</div></div>
+          </div>
+
+          <button class="btn-primary" id="btn-guardar">Guardar y generar (PDF)</button>
+          <div class="btns">
+            <button class="btn" id="btn-png">Descargar PNG</button>
+            <button class="btn" id="btn-pdf">Solo PDF</button>
+          </div>
+          <button class="btn-cancel" id="btn-cancel">Cancelar edición / nuevo certificado</button>
+          <div class="status" id="status"></div>
+        </div>
+        <div class="stage"><canvas id="cert" width="2000" height="1414"></canvas></div>
+      </div>
+
+      <!-- VIEW: EMITIDOS -->
+      <div class="view emit" id="view-emit">
+        <div class="emit-main">
+          <div class="emit-head">
+            <h2>Certificados emitidos</h2>
+            <div class="sub">Gestiona y administra todos los certificados generados.</div>
+          </div>
+          <div class="toolbar">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="filtro" type="text" placeholder="Buscar por nombre, DNI, título o código…">
+            </div>
+            <span class="count" id="count"></span>
+          </div>
+          <div id="tabla-wrap"></div>
+        </div>
+        <aside class="emit-sidebar">
+          <div class="dash-card">
+            <h3><span>Emisiones por Mes</span></h3>
+            <div style="height:170px;"><canvas id="chartMeses"></canvas></div>
+          </div>
+          <div class="dash-card card-cal">
+            <h3>
+              <span>Filtrar por Fecha</span>
+              <button id="btn-clear-date" class="clear-btn">Limpiar</button>
+            </h3>
+            <div id="dash-cal"></div>
+          </div>
+          <div class="dash-card full-w">
+            <h3 style="flex-shrink:0; width:160px; margin-bottom:0;"><span>Estadística por Tipo</span></h3>
+            <div class="chart-container" style="height:160px;"><canvas id="chartTipos"></canvas></div>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Drawer: certificados de un cliente -->
+<div class="drawer-ov" id="drawer-ov"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="dh-profile">
+      <div class="dh-avatar">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+      <div class="dh-info">
+        <div class="drawer-name" id="drawer-name"></div>
+        <div class="drawer-sub" id="drawer-sub"></div>
+      </div>
+    </div>
+    <button class="drawer-close" id="drawer-close" aria-label="Cerrar">✕</button>
+  </div>
+  <button class="drawer-add" id="drawer-add">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    Emitir Nuevo Certificado
+  </button>
+  <div class="drawer-list" id="drawer-list"></div>
+</aside>
+
+<!-- Overlay de cierre de sesión -->
+<div class="logout-overlay" id="logout-overlay">
+  <div class="lo-box"><div class="lo-spin"></div><div>Cerrando sesión…</div></div>
+</div>
+
+<!-- Modal de previsualización del certificado -->
+<div class="modal-overlay" id="ver-modal">
+  <div class="modal-box">
+    <button class="modal-close" id="ver-close" aria-label="Cerrar">✕</button>
+    <canvas id="ver-canvas" width="2000" height="1414"></canvas>
+    <div class="modal-actions">
+      <button class="m-pdf" id="ver-pdf">Descargar PDF</button>
+      <button class="m-png" id="ver-png">Descargar PNG</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-box" style="max-width:380px; text-align:center; padding:32px 24px;">
+    <div style="width:64px;height:64px;border-radius:50%;background:#fee2e2;color:#ef4444;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h3 style="font-size:20px;color:#0f172a;margin-bottom:12px;font-weight:800;">¿Eliminar Certificado?</h3>
+    <p id="confirm-msg" style="font-size:14.5px;color:#64748b;margin-bottom:30px;line-height:1.5;"></p>
+    <div class="modal-actions" style="display:flex;gap:12px;">
+      <button id="btn-confirm-cancel" style="flex:1;background:#f1f5f9;color:#475569;box-shadow:none;">Cancelar</button>
+      <button id="btn-confirm-ok" style="flex:1;background:#ef4444;color:#fff;box-shadow:0 4px 12px rgba(239,68,68,.3);">Sí, eliminar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ══════════════════════════════════════════════════════════════════
-   CONFIGURACIÓN DE SUPABASE
-   Pega aquí los datos de tu proyecto (Supabase → Settings → API).
-   Mientras estén vacíos, el login real está desactivado y solo
-   funciona el botón "modo vista previa".
-   ══════════════════════════════════════════════════════════════════ */
 const SUPABASE_URL  = "https://xadxmfgdxwplmhijagix.supabase.co";
-const SUPABASE_ANON  = "sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub";
+const SUPABASE_ANON = "sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+KJACert.basePath = 'certificados/';   // las plantillas están en /certificados (admin.html está en la raíz)
+const $=id=>document.getElementById(id);
+const TIPO_LBL={taller:'Taller',curso:'Curso',especializacion:'Especialización',constancia:'Constancia'};
 
-const RUTA_GENERADOR = "certificados/generador-demo.html";
+/* ───── LOGIN ───── */
+function mostrarDash(email){ $('login-wrap').style.display='none'; $('dash').style.display='block'; $('who').textContent=email; cargarClientes(); dibujar(); }
+function mostrarLogin(){ $('dash').style.display='none'; $('login-wrap').style.display='flex'; }
+function loginMsg(t,tipo){ const e=$('login-msg'); e.textContent=t; e.className='msg '+(tipo||'error'); if(!t)e.style.display='none'; }
 
-const $ = id => document.getElementById(id);
-let db = null;
-const supabaseListo = SUPABASE_URL && SUPABASE_ANON;
-if (supabaseListo) db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-function mostrarDashboard(quien, demo){
-  $('login-wrap').style.display='none';
-  $('dashboard').style.display='flex';
-  $('who').textContent = quien || '';
-  $('demo-badge').style.display = demo ? 'inline-block' : 'none';
-  if(!$('gen-frame').src) $('gen-frame').src = RUTA_GENERADOR;
-}
-function mostrarLogin(){
-  $('dashboard').style.display='none';
-  $('login-wrap').style.display='flex';
-}
-function msg(texto, tipo){
-  const el=$('login-msg'); el.textContent=texto; el.className='msg '+(tipo||'error');
-  if(!texto) el.style.display='none';
-}
-
-/* Login real con Supabase */
-$('login-form').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  msg('');
-  if(!supabaseListo){
-    msg('El login aún no está activo: falta configurar Supabase. Usa "modo vista previa" por ahora.', 'info');
+$('login-form').addEventListener('submit', async e=>{
+  e.preventDefault(); loginMsg('');
+  const b=$('btn-login'); b.disabled=true; b.textContent='Ingresando…';
+  const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+  b.disabled=false; b.textContent='Ingresar';
+  if(error){
+    loginMsg('Correo o contraseña incorrectos.');
+    const card=document.querySelector('.login-card');
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     return;
   }
-  const btn=$('btn-login'); btn.disabled=true; btn.textContent='Ingresando…';
-  const {data, error} = await db.auth.signInWithPassword({
-    email: $('email').value.trim(), password: $('password').value
-  });
-  btn.disabled=false; btn.textContent='Ingresar';
-  if(error){ msg('Correo o contraseña incorrectos.'); return; }
-  mostrarDashboard(data.user.email, false);
+  mostrarDash(data.user.email);
 });
-
-/* Modo vista previa (temporal, solo para desarrollo) */
-$('preview-btn').addEventListener('click', ()=> mostrarDashboard('modo vista previa', true));
-
-/* Cerrar sesión */
 $('btn-logout').addEventListener('click', async ()=>{
-  if(db) await db.auth.signOut();
-  mostrarLogin();
+  $('logout-overlay').classList.add('show');     // animación visible
+  try{ await db.auth.signOut({scope:'local'}); }catch(e){}
+  Object.keys(localStorage).forEach(k=>{ if(k.startsWith('sb-')) localStorage.removeItem(k); }); // asegura que la sesión quede borrada
+  setTimeout(()=>{ window.location.href='index.html'; }, 750);
 });
 
-/* Mantener sesión iniciada al recargar */
-(async ()=>{
-  if(supabaseListo){
-    const {data} = await db.auth.getSession();
-    if(data.session) mostrarDashboard(data.session.user.email, false);
+/* Ojito mostrar/ocultar contraseña */
+$('pw-toggle').addEventListener('click', ()=>{
+  const inp=$('password'), ic=$('pw-icon');
+  if(inp.type==='password'){ inp.type='text';
+    ic.innerHTML='<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'; }
+  else{ inp.type='password';
+    ic.innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'; }
+});
+
+/* Selector de tipo personalizado */
+const tipoCsel=$('tipo-cselect');
+function setTipo(val){
+  $('f-tipo').value=val; let lbl='';
+  tipoCsel.querySelectorAll('.cselect-list div').forEach(d=>{ const on=d.dataset.val===val; d.classList.toggle('sel',on); if(on) lbl=d.textContent; });
+  $('tipo-label').textContent=lbl;
+  if(KJACert.TIPOS[val]) $('f-size').value = KJACert.TIPOS[val].nombre.size;
+}
+$('tipo-btn').addEventListener('click', e=>{ e.stopPropagation(); tipoCsel.classList.toggle('open'); });
+tipoCsel.querySelectorAll('.cselect-list div').forEach(opt=>{
+  opt.addEventListener('click', ()=>{ setTipo(opt.dataset.val); tipoCsel.classList.remove('open'); dibujar(); });
+});
+document.addEventListener('click', ()=>tipoCsel.classList.remove('open'));
+
+const sizeWrap = $('size-wrap');
+$('size-toggle').addEventListener('click', e => { e.stopPropagation(); sizeWrap.classList.toggle('open'); });
+sizeWrap.querySelectorAll('.cselect-list div').forEach(opt => {
+  opt.addEventListener('click', () => { $('f-size').value = opt.dataset.val; sizeWrap.classList.remove('open'); dibujar(); });
+});
+document.addEventListener('click', () => sizeWrap.classList.remove('open'));
+
+/* ───── NAVEGACIÓN ───── */
+document.querySelectorAll('.side button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.side button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const v=b.dataset.view;
+    $('view-gen').classList.toggle('active', v==='gen');
+    $('view-emit').classList.toggle('active', v==='emit');
+    if(v==='emit') cargarEmitidos();
+  });
+});
+function irA(v){ document.querySelector(`.side button[data-view="${v}"]`).click(); }
+
+/* ───── GENERADOR ───── */
+let editingId=null;
+function leerDatos(){
+  const tipo=$('f-tipo').value, cfg=KJACert.TIPOS[tipo];
+  const codigo=KJACert.codigoDe($('f-numero').value, $('f-emision').value);
+  return {tipo,cfg,nombre:$('f-nombre').value.trim(),dni:$('f-dni').value.trim(),titulo:$('f-titulo').value.trim(),
+    duracion:$('f-duracion').value,fechaInicio:$('f-inicio').value,
+    fechaFin:cfg.fechas==='rango'?$('f-fin').value:null,fechaEmision:$('f-emision').value,codigo,
+    fontSizeNombre:$('f-size').value ? parseInt($('f-size').value, 10) : null};
+}
+function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
+  $('lbl-titulo').textContent=cfg.etiquetaTitulo;
+  $('wrap-fin').style.display=cfg.fechas==='rango'?'block':'none';
+  $('lbl-inicio').textContent=cfg.fechas==='rango'?'Periodo: desde':'Fecha del periodo';
+  $('codigo-preview').textContent=d.codigo; }
+function dibujar(){ actualizarUI(); KJACert.render($('cert'), leerDatos()); }
+function nombreArchivo(d){ return `${d.codigo.replace(/[^a-z0-9]/gi,'_')}_${d.nombre.replace(/\s+/g,'_')}`; }
+function status(t,tipo){ const e=$('status'); e.textContent=t; e.className='status '+(tipo||'info'); if(!t)e.style.display='none'; }
+
+async function cargarClientes(){
+  const {data}=await db.from('clientes').select('nombre').order('nombre');
+  const dl=$('clientes-list'); dl.innerHTML='';
+  (data||[]).forEach(c=>{ const o=document.createElement('option'); o.value=c.nombre; dl.appendChild(o); });
+}
+
+/* Calendario con diseño propio (flatpickr) y fecha por defecto = hoy */
+let fpInicio, fpFin, fpEmision;
+function todayISO(){ return new Date().toLocaleDateString('en-CA'); }   // 'YYYY-MM-DD' local
+function initFlatpickr(){
+  const opts={locale:'es', dateFormat:'Y-m-d', altInput:true, altFormat:'d \\d\\e F \\d\\e\\l Y',
+              defaultDate:'today', disableMobile:true, onChange:dibujar};
+  fpInicio=flatpickr('#f-inicio',opts);
+  fpFin=flatpickr('#f-fin',opts);
+  fpEmision=flatpickr('#f-emision',opts);
+}
+function resetForm(){
+  $('f-nombre').value=''; $('f-dni').value=''; $('f-titulo').value='';
+  $('f-duracion').value=''; $('f-numero').value='';
+  setTipo($('f-tipo').value || 'taller'); // Ensures f-size starts with the right default number
+  if(fpInicio){ fpInicio.setDate('today'); fpFin.setDate('today'); fpEmision.setDate('today'); }
+  dibujar();
+}
+function modoNuevo(){
+  editingId=null; $('editing-flag').style.display='none'; $('btn-cancel').style.display='none';
+  $('btn-guardar').textContent='Guardar y generar (PDF)'; $('gen-title').textContent='Generar Certificado'; status('');
+  resetForm();
+}
+$('btn-cancel').addEventListener('click', modoNuevo);
+$('btn-nuevo').addEventListener('click', modoNuevo);
+
+async function guardarYGenerar(){
+  const d=leerDatos();
+  if(!d.nombre || !d.titulo){ status('Completa el cliente y el título.','error'); return; }
+  const btn=$('btn-guardar'); btn.disabled=true; status('Guardando…','info');
+  try{
+    // resolver cliente
+    let clienteId=null;
+    let q=db.from('clientes').select('id').limit(1);
+    q = d.dni ? q.eq('dni',d.dni) : q.ilike('nombre',d.nombre);
+    const {data:cli,error:e1}=await q; if(e1) throw e1;
+    if(cli&&cli.length) clienteId=cli[0].id;
+    else{ const {data:nuevo,error:e2}=await db.from('clientes').insert({nombre:d.nombre,dni:d.dni||null}).select('id').single();
+      if(e2) throw e2; clienteId=nuevo.id; }
+    const payload={codigo:d.codigo,tipo:d.tipo,nombre:d.nombre,dni:d.dni||null,titulo:d.titulo,
+      duracion:d.duracion,fecha_inicio:d.fechaInicio||null,fecha_fin:d.fechaFin||null,
+      fecha_emision:d.fechaEmision||null,cliente_id:clienteId};
+    let error;
+    if(editingId){ ({error}=await db.from('certificados').update(payload).eq('id',editingId)); }
+    else{ ({error}=await db.from('certificados').insert(payload)); }
+    if(error){
+      if(error.code==='23505') status('Ese código ya existe. Cambia el número.','error');
+      else status('Error al guardar: '+error.message,'error');
+      btn.disabled=false; return;
+    }
+    status(editingId?'✓ Actualizado. Descargando PDF…':'✓ Guardado. Descargando PDF…','ok');
+    KJACert.exportar($('cert'), nombreArchivo(d), 'pdf');
+    cargarClientes(); modoNuevo();
+  }catch(err){ status('Error: '+(err.message||err),'error'); }
+  finally{ btn.disabled=false; }
+}
+
+['f-tipo','f-nombre','f-dni','f-size','f-titulo','f-duracion','f-inicio','f-fin','f-emision','f-numero']
+  .forEach(id=>$(id).addEventListener('input',dibujar));
+$('btn-guardar').addEventListener('click',guardarYGenerar);
+$('btn-png').addEventListener('click',()=>KJACert.exportar($('cert'),nombreArchivo(leerDatos()),'png'));
+$('btn-pdf').addEventListener('click',()=>KJACert.exportar($('cert'),nombreArchivo(leerDatos()),'pdf'));
+
+/* ───── EMITIDOS (listar / editar / eliminar) ───── */
+let emitidos=[], grupos=[];
+let dashChartsInit = false;
+let dayIntensityMap = {};
+
+async function cargarEmitidos(){
+  $('tabla-wrap').innerHTML='<div class="empty">Cargando…</div>';
+  const {data,error}=await db.from('certificados').select('*').order('created_at',{ascending:false});
+  if(error){ $('tabla-wrap').innerHTML='<div class="empty">Error: '+error.message+'</div>'; return; }
+  emitidos=data||[];
+  
+  dayIntensityMap = {};
+  emitidos.forEach(c => {
+    const dStr = c.fecha_emision || (c.created_at ? c.created_at.split('T')[0] : null);
+    if(dStr) dayIntensityMap[dStr] = (dayIntensityMap[dStr] || 0) + 1;
+  });
+  
+  if(!dashChartsInit){
+    inicializarDashCharts();
+    dashChartsInit=true;
+  } else {
+    if(dashCal) dashCal.redraw();
   }
+  aplicarFiltros();
+}
+
+let chartInstTipos = null;
+let chartInstMeses = null;
+let dashCal = null;
+let currentFilterText = '';
+let currentFilterDate = null;
+
+function inicializarDashCharts() {
+  const ctxT = $('chartTipos').getContext('2d');
+  const ctxM = $('chartMeses').getContext('2d');
+  
+  chartInstTipos = new Chart(ctxT, {
+    type: 'doughnut',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: ['#004fb0', '#0ea5e9', '#f10075', '#10b981'], borderWidth:0 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: {family: 'Poppins', size: 11} } } }, cutout: '70%' }
+  });
+  
+  chartInstMeses = new Chart(ctxM, {
+    type: 'bar',
+    data: { labels: [], datasets: [{ label: 'Certificados', data: [], backgroundColor: '#e8f0fb', hoverBackgroundColor: '#004fb0', borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: {titleFont: {family:'Poppins'}, bodyFont: {family:'Poppins'}} }, scales: { y: { beginAtZero: true, ticks: { precision: 0, font:{family:'Poppins', size:10} }, grid: { color: '#f1f5f9' }, border:{display:false} }, x: { grid: { display: false }, ticks: { font:{family:'Poppins', size:10} }, border:{display:false} } } }
+  });
+
+  dashCal = flatpickr('#dash-cal', {
+    inline: true,
+    locale: 'es',
+    onDayCreate: function(dObj, dStr, fp, dayElem) {
+      const y = dayElem.dateObj.getFullYear();
+      const m = String(dayElem.dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dayElem.dateObj.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${d}`;
+      const count = dayIntensityMap[dateStr] || 0;
+      
+      if (count > 0) {
+        dayElem.classList.add('has-certs');
+        if (count >= 5) dayElem.classList.add('cert-high');
+        else if (count >= 2) dayElem.classList.add('cert-med');
+        else dayElem.classList.add('cert-low');
+      }
+    },
+    onChange: function(selectedDates, dateStr) {
+      if(selectedDates.length > 0) {
+        currentFilterDate = dateStr;
+        $('btn-clear-date').style.display = 'block';
+        aplicarFiltros();
+      }
+    }
+  });
+
+  $('btn-clear-date').addEventListener('click', () => {
+    dashCal.clear();
+    currentFilterDate = null;
+    $('btn-clear-date').style.display = 'none';
+    aplicarFiltros();
+  });
+  
+  $('filtro').addEventListener('input', e => {
+    currentFilterText = e.target.value.toLowerCase().trim();
+    aplicarFiltros();
+  });
+}
+
+function aplicarFiltros() {
+  let filtrados = emitidos;
+  
+  if (currentFilterDate) {
+    filtrados = filtrados.filter(c => c.fecha_emision === currentFilterDate || c.created_at.startsWith(currentFilterDate));
+  }
+  if (currentFilterText) {
+    filtrados = filtrados.filter(c => 
+      (c.nombre && c.nombre.toLowerCase().includes(currentFilterText)) ||
+      (c.dni && c.dni.includes(currentFilterText)) ||
+      (c.codigo && c.codigo.toLowerCase().includes(currentFilterText)) ||
+      (c.titulo && c.titulo.toLowerCase().includes(currentFilterText))
+    );
+  }
+  
+  const map={};
+  filtrados.forEach(c=>{
+    const k=c.cliente_id||('n:'+(c.nombre||'').toLowerCase());
+    if(!map[k]) map[k]={key:k, clienteId:c.cliente_id, nombre:c.nombre, dni:c.dni||'', certs:[]};
+    map[k].certs.push(c);
+    if(c.dni && !map[k].dni) map[k].dni=c.dni;
+  });
+  grupos = Object.values(map);
+  
+  pintarClientes(grupos, filtrados.length);
+  actualizarCharts(filtrados);
+}
+
+function actualizarCharts(listaCerts) {
+  const tiposCount = {};
+  listaCerts.forEach(c => {
+    const t = TIPO_LBL[c.tipo] || c.tipo || 'Otro';
+    tiposCount[t] = (tiposCount[t] || 0) + 1;
+  });
+  chartInstTipos.data.labels = Object.keys(tiposCount);
+  chartInstTipos.data.datasets[0].data = Object.values(tiposCount);
+  chartInstTipos.update();
+  
+  const mesesCount = {};
+  const mesNombres = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const sortMap = {};
+  listaCerts.forEach(c => {
+    const d = new Date(c.fecha_emision || c.created_at);
+    if(!isNaN(d)) {
+      const k = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}`;
+      const label = `${mesNombres[d.getMonth()]} ${d.getFullYear().toString().substr(2,2)}`;
+      if(!sortMap[k]) sortMap[k] = { label, count: 0, key: k };
+      sortMap[k].count++;
+    }
+  });
+  const sortedArr = Object.values(sortMap).sort((a,b) => a.key.localeCompare(b.key));
+  const last6 = sortedArr.slice(-6);
+  
+  chartInstMeses.data.labels = last6.map(x => x.label);
+  chartInstMeses.data.datasets[0].data = last6.map(x => x.count);
+  chartInstMeses.update();
+}
+
+const PICO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+function pintarClientes(list, totalCerts){
+  $('count').textContent=`${list.length} cliente(s) · ${totalCerts} certificado(s)`;
+  if(!list.length){ 
+    $('tabla-wrap').innerHTML=`<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="12" cy="14" r="3"/></svg>
+      <div class="e-tit">No hay resultados</div>
+      <div class="e-sub">No se encontraron certificados para los filtros actuales.</div>
+    </div>`; 
+    return; 
+  }
+  let html='<table><thead><tr><th>Cliente</th><th>DNI</th><th>Certificados</th><th></th></tr></thead><tbody>';
+  list.forEach((g,i)=>{
+    const dly = (i * 0.05).toFixed(2);
+    html+=`<tr class="cli-row" data-i="${i}" style="animation-delay:${dly}s">
+      <td><span class="person"><span class="pico">${PICO}</span>${g.nombre}</span></td>
+      <td>${g.dni? g.dni : '<span style="color:#cbd5e1;">—</span>'}</td>
+      <td><span class="badge-num">${g.certs.length}</span></td>
+      <td style="text-align:right;"><span class="chev">Ver ›</span></td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  $('tabla-wrap').innerHTML=html;
+  $('tabla-wrap').querySelectorAll('.cli-row').forEach(r=>r.onclick=()=>abrirDrawer(list[+r.dataset.i]));
+}
+
+/* Drawer con los certificados del cliente */
+let grupoActual=null;
+function abrirDrawer(g){
+  grupoActual=g;
+  $('drawer-name').textContent=g.nombre;
+  $('drawer-sub').textContent=(g.dni?`DNI ${g.dni} · `:'')+`${g.certs.length} certificado(s)`;
+  const cont=$('drawer-list'); cont.innerHTML='';
+  g.certs.forEach((r, i)=>{
+    const d=document.createElement('div'); d.className='dcert';
+    d.style.animationDelay = (i * 0.05) + 's';
+    d.innerHTML=`
+      <div class="dc-head">
+        <div class="dc-tipo">${TIPO_LBL[r.tipo]||r.tipo}</div>
+        <div class="dc-cod">${r.codigo}</div>
+      </div>
+      <div class="dc-tit">${r.titulo}</div>
+      <div class="dc-meta">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 
+        ${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)}
+      </div>
+      <div class="dc-acc">
+        <button class="ver"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Ver</button>
+        <button class="edit"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
+        <button class="del"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar</button>
+      </div>`;
+    d.querySelector('.ver').onclick=()=>verModal(r.id);
+    d.querySelector('.edit').onclick=()=>{ cerrarDrawer(); editarFila(r.id); };
+    d.querySelector('.del').onclick=()=>eliminarFila(r.id);
+    cont.appendChild(d);
+  });
+  $('drawer').classList.add('open'); $('drawer-ov').classList.add('open');
+}
+function cerrarDrawer(){ $('drawer').classList.remove('open'); $('drawer-ov').classList.remove('open'); }
+$('drawer-close').addEventListener('click', cerrarDrawer);
+$('drawer-ov').addEventListener('click', cerrarDrawer);
+$('drawer-add').addEventListener('click', ()=>{ if(grupoActual) nuevoCertCliente(grupoActual.nombre, grupoActual.dni); });
+function nuevoCertCliente(nombre, dni){
+  cerrarDrawer(); modoNuevo(); $('f-nombre').value=nombre; $('f-dni').value=dni||''; irA('gen'); dibujar();
+  status(`Nuevo certificado para ${nombre}. Completa los datos y guarda.`,'info');
+}
+function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,titulo:r.titulo,duracion:r.duracion,
+  fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo}; }
+async function descargarFila(id, fmt){
+  const r=emitidos.find(x=>x.id===id); if(!r) return;
+  const off=document.createElement('canvas'); off.width=KJACert.W; off.height=KJACert.H;
+  await KJACert.render(off, rowToDatos(r));
+  KJACert.exportar(off, r.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+r.nombre.replace(/\s+/g,'_'), fmt||'pdf');
+}
+
+/* 👁 Ver: ventana emergente con el certificado renderizado */
+async function verModal(id){
+  const r=emitidos.find(x=>x.id===id); if(!r) return;
+  await KJACert.render($('ver-canvas'), rowToDatos(r));
+  $('ver-pdf').onclick=()=>descargarFila(id,'pdf');
+  $('ver-png').onclick=()=>descargarFila(id,'png');
+  $('ver-modal').classList.add('open');
+}
+$('ver-close').addEventListener('click', ()=>$('ver-modal').classList.remove('open'));
+$('ver-modal').addEventListener('click', e=>{ if(e.target===$('ver-modal')) $('ver-modal').classList.remove('open'); });
+
+function editarFila(id){
+  const r=emitidos.find(x=>x.id===id); if(!r) return;
+  setTipo(r.tipo); $('f-nombre').value=r.nombre; $('f-dni').value=r.dni||'';
+  $('f-titulo').value=r.titulo; $('f-duracion').value=r.duracion||'';
+  fpInicio.setDate(r.fecha_inicio||'today'); fpFin.setDate(r.fecha_fin||'today'); fpEmision.setDate(r.fecha_emision||'today');
+  $('f-numero').value=(r.codigo.split('-')[1]||'').trim();
+  editingId=id; $('editing-flag').style.display='block'; $('btn-cancel').style.display='block';
+  $('btn-guardar').textContent='Actualizar y generar (PDF)'; $('gen-title').textContent='Editar Certificado';
+  irA('gen'); dibujar();
+}
+
+let confirmActionCallback = null;
+function abrirConfirm(htmlMsg, onConfirm) {
+  $('confirm-msg').innerHTML = htmlMsg;
+  confirmActionCallback = onConfirm;
+  $('confirm-modal').classList.add('open');
+}
+$('btn-confirm-cancel').addEventListener('click', () => $('confirm-modal').classList.remove('open'));
+$('btn-confirm-ok').addEventListener('click', () => { 
+  $('confirm-modal').classList.remove('open'); 
+  if(confirmActionCallback) confirmActionCallback(); 
+});
+$('confirm-modal').addEventListener('click', e=>{ if(e.target===$('confirm-modal')) $('confirm-modal').classList.remove('open'); });
+
+function eliminarFila(id){
+  const r=emitidos.find(x=>x.id===id); if(!r) return;
+  abrirConfirm(`Estás a punto de eliminar el certificado de <br><b style="color:#0f172a;">${r.nombre}</b> (${r.codigo}).<br><br>Esta acción no se puede deshacer.`, async () => {
+    const {error}=await db.from('certificados').delete().eq('id',id);
+    if(error){ alert('Error al eliminar: '+error.message); return; }
+    await cargarEmitidos();
+    if(grupoActual){ const g=grupos.find(x=>x.key===grupoActual.key); if(g) abrirDrawer(g); else cerrarDrawer(); }
+  });
+}
+$('filtro').addEventListener('input',e=>{
+  const t=e.target.value.toLowerCase();
+  pintarClientes(grupos.filter(g=>(g.nombre+' '+(g.dni||'')).toLowerCase().includes(t)));
+});
+
+/* ───── INICIO ───── */
+(async ()=>{
+  await KJACert.preloadFonts();
+  initFlatpickr();
+  resetForm();   // formulario en blanco, fechas en hoy
+  // Siempre se muestra el login al entrar al panel (no salta directo al dashboard)
 })();
 </script>
 </body>
