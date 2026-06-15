@@ -4573,3 +4573,235 @@ footer {
         width: 100px;
     }
 }
+
+/* ===== YOUTUBE SHORTS SECTION ===== */
+.shorts-section {
+    padding: 80px 0;
+    background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.shorts-section::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(0, 79, 176, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.shorts-section::after {
+    content: '';
+    position: absolute;
+    bottom: -10%;
+    right: -10%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(241, 0, 117, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.shorts-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+}
+
+.shorts-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.shorts-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #f10075;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.shorts-title {
+    font-size: 36px;
+    font-weight: 900;
+    color: #004fb0;
+    line-height: 1.2;
+    margin: 0 0 12px 0;
+}
+
+.shorts-title em {
+    color: #f10075;
+    font-style: italic;
+    font-weight: 300;
+}
+
+.shorts-sub {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Scroll track for mobile */
+.shorts-scroll-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.shorts-scroll-track {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+}
+
+/* Smartphone Mockup */
+.phone-mockup-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.phone-mockup {
+    position: relative;
+    width: 280px;
+    height: 497px; /* 9:16 aspect ratio: 280w * 16/9 = 497.7h */
+    background: #000a1f;
+    border-radius: 40px;
+    padding: 10px;
+    box-shadow: 0 20px 45px rgba(0, 79, 176, 0.12), 0 0 0 2px rgba(0, 79, 176, 0.08);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Camera Island Notch */
+.phone-mockup::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 14px;
+    background: #000a1f;
+    border-radius: 999px;
+    z-index: 10;
+}
+
+.phone-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 30px;
+    overflow: hidden;
+    background: #000;
+}
+
+.phone-screen iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Video Info and badge */
+.video-info-card {
+    margin-top: 20px;
+    text-align: center;
+    width: 280px;
+}
+
+.video-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    background: rgba(241, 0, 117, 0.08);
+    color: #f10075;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+}
+
+.video-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 6px 0;
+    line-height: 1.3;
+}
+
+.video-card-desc {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Hover effects */
+.phone-mockup-card:hover .phone-mockup {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(241, 0, 117, 0.2), 0 0 15px rgba(241, 0, 117, 0.1), 0 0 0 2px rgba(241, 0, 117, 0.2);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 991px) {
+    .shorts-scroll-track {
+        gap: 20px;
+    }
+}
+
+@media (max-width: 767px) {
+    .shorts-section {
+        padding: 55px 0;
+    }
+    
+    .shorts-scroll-wrapper {
+        margin: 0 -24px;
+        width: auto;
+        overflow: hidden;
+        padding-bottom: 10px;
+    }
+
+    .shorts-scroll-wrapper::before {
+        content: 'Desliza para ver más →';
+        display: block;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: #f10075;
+        opacity: 0.75;
+        margin-bottom: 15px;
+    }
+
+    .shorts-scroll-track {
+        display: flex;
+        flex-direction: row;
+        gap: 1.25rem;
+        overflow-x: auto;
+        overflow-y: visible;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 8px 1.5rem 20px 1.5rem;
+    }
+
+    .shorts-scroll-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    .shorts-scroll-track .phone-mockup-card {
+        flex: 0 0 auto;
+        scroll-snap-align: center;
+        width: 280px;
+    }
+}
