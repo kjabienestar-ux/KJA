@@ -178,64 +178,45 @@ async function pintarLista(nombre, list, codActivo, autoOcultar){
   if(autoOcultar) iniciarAutoOcultar(60); else $('auto-aviso').innerHTML='';
 }
 
-async function cargarPorCliente(clienteId, nombre, codActivo, autoOcultar){
-  setLoading(true);
-  try {
-    const {data}=await db.from('certificados').select('*').eq('cliente_id',clienteId).order('fecha_emision',{ascending:false});
-    await pintarLista(nombre, data||[], codActivo, autoOcultar);
-  } finally {
-    setLoading(false);
-  }
+/* Agrupa filas de certificados por cliente → [{id, nombre, certs}] */
+function agruparPorCliente(rows){
+  const map={};
+  (rows||[]).forEach(r=>{ const k=r.cliente_id||('n:'+(r.nombre||'').toLowerCase());
+    if(!map[k]) map[k]={id:r.cliente_id, nombre:r.nombre, certs:[]};
+    map[k].certs.push(r); });
+  return Object.values(map);
 }
 
-/* QR directo: ?id=CODIGO (no se auto-oculta: es el dueño escaneando) */
+/* QR directo: ?id=CODIGO — vía función segura (no expone la tabla ni los DNIs) */
 async function verificarPorCodigo(codigo){
-  const {data,error}=await db.from('certificados').select('*').eq('codigo',codigo).limit(1);
-  if(error || !data || !data.length){ banner('No encontramos ningún certificado con ese código.',true); return; }
-  const cert=data[0]; banner('Certificado verificado · emitido oficialmente por KJA');
-  $('search-card').style.display='none';
-  if(cert.cliente_id) await cargarPorCliente(cert.cliente_id, cert.nombre, cert.codigo, false);
-  else pintarLista(cert.nombre,[cert],cert.codigo,false);
+  setLoading(true);
+  try{
+    const { data, error } = await db.rpc('verificar_codigo', { p_codigo: codigo });
+    if(error || !data || !data.length){ banner('No encontramos ningún certificado con ese código.',true); return; }
+    const cert = data.find(r=>r.codigo===codigo) || data[0];
+    banner('Certificado verificado · emitido oficialmente por KJA');
+    $('search-card').style.display='none';
+    await pintarLista(cert.nombre, data, codigo, false);
+  } finally { setLoading(false); }
 }
 
-/* Búsqueda por nombre (por palabras) o por DNI (solo números), con privacidad.
-   - DNI: si el texto es solo dígitos, busca por DNI exacto.
-   - Nombre: divide en palabras y exige que TODAS estén en el nombre
-     (sin importar el orden ni los nombres del medio). Funciona con un solo
-     nombre, con nombre+apellido, o con 2-3 nombres y 2 apellidos. */
+/* Búsqueda por nombre o DNI — vía función segura. No se exponen DNIs ni se puede
+   descargar toda la tabla; la función solo devuelve coincidencias puntuales. */
 async function buscar(){
   const raw=$('q').value.trim();
   if(raw.length<3){ banner('Escribe tu nombre completo o tu DNI.',true); return; }
   limpiarBanner(); $('picker').innerHTML=''; ocultarResultados(false);
-
   setLoading(true);
-  try {
-    let cls;
-    if(/^\d{6,}$/.test(raw)){
-      const {data}=await db.from('clientes').select('id,nombre').eq('dni',raw).limit(10);
-      cls=data;
-    }else{
-      const palabras=raw.split(/\s+/).filter(Boolean);
-      let q=db.from('clientes').select('id,nombre');
-      palabras.forEach(w=>{ q=q.ilike('nombre',`%${w}%`); });   // AND: todas las palabras
-      const {data}=await q.limit(10);
-      cls=data;
-    }
-
-    if(!cls || !cls.length){ banner('No encontramos certificados con esos datos. Revisa que esté completo.',true); return; }
-    if(cls.length===1){ 
-      setLoading(false);
-      await cargarPorCliente(cls[0].id, cls[0].nombre, null, true); 
-      return; 
-    }
-    
+  try{
+    const { data } = await db.rpc('buscar_certificados', { p_query: raw });
+    const grupos = agruparPorCliente(data);
+    if(!grupos.length){ banner('No encontramos certificados con esos datos. Revisa que esté completo.',true); return; }
+    if(grupos.length===1){ setLoading(false); await pintarLista(grupos[0].nombre, grupos[0].certs, null, true); return; }
     $('resultados').style.display='block'; $('auto-aviso').innerHTML='';
     $('picker').innerHTML='<div style="font-size:13px;color:#666;margin-bottom:8px;">Encontramos varias coincidencias, elige la tuya:</div>';
-    cls.forEach(c=>{ const o=document.createElement('div'); o.className='opt'; o.textContent=c.nombre;
-      o.onclick=()=>{ $('picker').innerHTML=''; cargarPorCliente(c.id,c.nombre,null,true); }; $('picker').appendChild(o); });
-  } finally {
-    setLoading(false);
-  }
+    grupos.forEach(g=>{ const o=document.createElement('div'); o.className='opt'; o.textContent=g.nombre;
+      o.onclick=()=>{ $('picker').innerHTML=''; pintarLista(g.nombre, g.certs, null, true); }; $('picker').appendChild(o); });
+  } finally { setLoading(false); }
 }
 $('btn-buscar').addEventListener('click',buscar);
 $('q').addEventListener('keydown',e=>{ if(e.key==='Enter') buscar(); });
@@ -262,17 +243,8 @@ $('q').addEventListener('input', async (e) => {
   clearTimeout(autocompleteTimeout);
   // 2. Reducimos el tiempo de espera (debounce) a 150ms para que se sienta más rápido
   autocompleteTimeout = setTimeout(async () => {
-    let cls;
-    if(/^\d+$/.test(raw)){
-      const {data} = await db.from('clientes').select('id,nombre').like('dni', `${raw}%`).limit(5);
-      cls = data;
-    } else {
-      const palabras = raw.split(/\s+/).filter(Boolean);
-      let q = db.from('clientes').select('id,nombre');
-      palabras.forEach(w => { q = q.ilike('nombre', `%${w}%`); });
-      const {data} = await q.limit(5);
-      cls = data;
-    }
+    const { data } = await db.rpc('buscar_certificados', { p_query: raw });
+    const cls = agruparPorCliente(data).slice(0,6).map(g=>({id:g.id, nombre:g.nombre}));
 
     // 3. Guardar el resultado en caché
     searchCache[rawLower] = cls;
@@ -297,7 +269,7 @@ function renderAutocomplete(cls, dropdown) {
       item.onclick = () => {
         $('q').value = c.nombre;
         dropdown.classList.remove('show');
-        cargarPorCliente(c.id, c.nombre, null, true);
+        buscar();
       };
       dropdown.appendChild(item);
     });

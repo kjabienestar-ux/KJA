@@ -111,12 +111,39 @@
 
           <div class="f-group">
             <div class="f-group-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Datos del Participante</div>
-            <div class="field"><label>Cliente / Alumno (escribe nuevo o elige existente)</label>
-              <input id="f-nombre" type="text" list="clientes-list" placeholder="Nombre completo del cliente" autocomplete="off">
-              <datalist id="clientes-list"></datalist></div>
+            <!-- 1) Buscar por DNI (RENIEC) — primero y destacado -->
+            <div class="dni-block">
+              <div class="dni-head">
+                <span class="dni-label">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                  Buscar por DNI <span class="opt">(opcional)</span>
+                </span>
+                <label class="chk-extranjero"><input type="checkbox" id="f-extranjero"> Extranjero</label>
+              </div>
+              <div class="dni-row">
+                <input id="f-dni" type="text" inputmode="numeric" placeholder="8 dígitos" maxlength="8">
+                <button type="button" class="btn-dni" id="btn-dni">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                  <span class="btn-dni-txt">Buscar</span>
+                </button>
+              </div>
+              <div class="hint" id="dni-hint">Escribe el DNI y autocompletamos el nombre desde RENIEC.</div>
+            </div>
+
+            <!-- 2) Nombre del cliente (se autocompleta) -->
+            <div class="field">
+              <label>Cliente / Alumno <span class="opt">(o escríbelo manualmente)</span></label>
+              <div class="name-wrap">
+                <input id="f-nombre" type="text" list="clientes-list" placeholder="Nombre completo del cliente" autocomplete="off">
+                <datalist id="clientes-list"></datalist>
+                <div class="dni-loading" id="dni-loading">
+                  <span class="logo-spin"><img src="images/logo/logo.png" alt="" onerror="this.style.display='none'"></span>
+                  <span class="dni-loading-txt">Consultando RENIEC…</span>
+                </div>
+              </div>
+            </div>
+
             <div class="row2">
-              <div class="field"><label>DNI (opcional)</label>
-                <input id="f-dni" type="text" placeholder="Opcional"></div>
               <div class="field"><label>Tamaño Letra</label>
                 <div class="size-wrap" id="size-wrap">
                   <input id="f-size" type="number" placeholder="Automático">
@@ -234,6 +261,7 @@
     Emitir Nuevo Certificado
   </button>
   <div class="drawer-list" id="drawer-list"></div>
+  <button class="drawer-del" id="drawer-del">🗑 Eliminar cliente y todos sus certificados</button>
 </aside>
 
 <!-- Overlay de cierre de sesión -->
@@ -382,6 +410,7 @@ function initFlatpickr(){
 function resetForm(){
   $('f-nombre').value=''; $('f-dni').value=''; $('f-titulo').value='';
   $('f-duracion').value=''; $('f-numero').value='';
+  $('f-extranjero').checked=false; actualizarDniUI();
   setTipo($('f-tipo').value || 'taller'); // Ensures f-size starts with the right default number
   if(fpInicio){ fpInicio.setDate('today'); fpFin.setDate('today'); fpEmision.setDate('today'); }
   dibujar();
@@ -397,6 +426,8 @@ $('btn-nuevo').addEventListener('click', modoNuevo);
 async function guardarYGenerar(){
   const d=leerDatos();
   if(!d.nombre || !d.titulo){ status('Completa el cliente y el título.','error'); return; }
+  if(!dniValido()){ actualizarDniUI();
+    status($('f-extranjero').checked ? 'DNI de extranjero inválido: debe tener entre 8 y 15 dígitos.' : 'El DNI debe tener exactamente 8 dígitos (o marca "Extranjero").','error'); return; }
   const btn=$('btn-guardar'); btn.disabled=true; status('Guardando…','info');
   try{
     // resolver cliente
@@ -404,8 +435,10 @@ async function guardarYGenerar(){
     let q=db.from('clientes').select('id').limit(1);
     q = d.dni ? q.eq('dni',d.dni) : q.ilike('nombre',d.nombre);
     const {data:cli,error:e1}=await q; if(e1) throw e1;
-    if(cli&&cli.length) clienteId=cli[0].id;
-    else{ const {data:nuevo,error:e2}=await db.from('clientes').insert({nombre:d.nombre,dni:d.dni||null}).select('id').single();
+    if(cli&&cli.length){ clienteId=cli[0].id;
+      const upd={nombre:d.nombre}; if(d.dni) upd.dni=d.dni;   // sincroniza el cliente con el último certificado
+      await db.from('clientes').update(upd).eq('id',clienteId);
+    } else{ const {data:nuevo,error:e2}=await db.from('clientes').insert({nombre:d.nombre,dni:d.dni||null}).select('id').single();
       if(e2) throw e2; clienteId=nuevo.id; }
     const payload={codigo:d.codigo,tipo:d.tipo,nombre:d.nombre,dni:d.dni||null,titulo:d.titulo,
       duracion:d.duracion,fecha_inicio:d.fechaInicio||null,fecha_fin:d.fechaFin||null,
@@ -427,6 +460,65 @@ async function guardarYGenerar(){
 
 ['f-tipo','f-nombre','f-dni','f-size','f-titulo','f-duracion','f-inicio','f-fin','f-emision','f-numero']
   .forEach(id=>$(id).addEventListener('input',dibujar));
+
+/* ───── Validación de DNI (8 dígitos; extranjero: 8–15) ───── */
+function dniMax(){ return $('f-extranjero').checked ? 15 : 8; }
+function dniValido(){
+  const v=$('f-dni').value.trim();
+  if(!v) return true;                          // el DNI es opcional
+  return $('f-extranjero').checked ? /^\d{8,15}$/.test(v) : /^\d{8}$/.test(v);
+}
+function actualizarDniUI(){
+  const ext=$('f-extranjero').checked;
+  $('f-dni').maxLength = dniMax();
+  $('f-dni').placeholder = ext ? '8 a 15 dígitos' : '8 dígitos';
+  $('dni-hint').textContent = ext ? 'Extranjero: 8 a 15 dígitos (sin autocompletar).' : 'DNI de 8 dígitos · autocompleta el nombre desde RENIEC.';
+  const v=$('f-dni').value.trim();
+  $('f-dni').classList.toggle('invalid', v.length>0 && !dniValido());
+}
+let ultimoDniConsultado='';
+$('f-dni').addEventListener('input', ()=>{
+  $('f-dni').value = $('f-dni').value.replace(/\D/g,'').slice(0, dniMax());  // solo dígitos
+  actualizarDniUI();
+  const dni=$('f-dni').value;
+  // Autocompletar nombre con RENIEC cuando es un DNI peruano de 8 dígitos
+  if(!$('f-extranjero').checked && /^\d{8}$/.test(dni) && dni!==ultimoDniConsultado){
+    ultimoDniConsultado=dni; consultarDni(dni);
+  }
+});
+
+async function consultarDni(dni){
+  $('dni-loading').classList.add('show');                       // overlay con logo girando
+  $('btn-dni').disabled=true; $('btn-dni').querySelector('.btn-dni-txt').textContent='Buscando…';
+  $('dni-hint').textContent='Consultando RENIEC…';
+  try{
+    const { data, error } = await db.functions.invoke('consulta-dni', { body: { dni } });
+    if(error || !data || !data.nombre){ $('dni-hint').textContent='No se encontró ese DNI en RENIEC.'; return; }
+    const nom=$('f-nombre');
+    nom.value = data.nombre;                                    // autocompleta el nombre
+    nom.classList.remove('autofilled'); void nom.offsetWidth; nom.classList.add('autofilled');  // resaltado amarillo
+    $('dni-hint').textContent = '✓ Datos obtenidos de RENIEC';
+    dibujar();
+  }catch(e){ $('dni-hint').textContent='No se pudo consultar (revisa tu conexión).'; }
+  finally{
+    $('dni-loading').classList.remove('show');
+    $('btn-dni').disabled=false; $('btn-dni').querySelector('.btn-dni-txt').textContent='Buscar';
+  }
+}
+/* Botón Buscar (RENIEC) */
+$('btn-dni').addEventListener('click', ()=>{
+  const dni=$('f-dni').value.trim();
+  if(!dni){ $('dni-hint').textContent='Escribe un DNI primero.'; $('f-dni').focus(); return; }
+  if(!$('f-extranjero').checked && !/^\d{8}$/.test(dni)){ $('f-dni').classList.add('invalid'); $('dni-hint').textContent='El DNI peruano debe tener 8 dígitos.'; return; }
+  ultimoDniConsultado=dni; consultarDni(dni);
+});
+/* Al escribir el nombre a mano, quita el resaltado amarillo */
+$('f-nombre').addEventListener('input', ()=>$('f-nombre').classList.remove('autofilled'));
+$('f-extranjero').addEventListener('change', ()=>{
+  $('f-dni').value = $('f-dni').value.slice(0, dniMax());
+  actualizarDniUI(); dibujar();
+});
+
 $('btn-guardar').addEventListener('click',guardarYGenerar);
 $('btn-png').addEventListener('click',()=>KJACert.exportar($('cert'),nombreArchivo(leerDatos()),'png'));
 $('btn-pdf').addEventListener('click',()=>KJACert.exportar($('cert'),nombreArchivo(leerDatos()),'pdf'));
@@ -638,8 +730,26 @@ function cerrarDrawer(){ $('drawer').classList.remove('open'); $('drawer-ov').cl
 $('drawer-close').addEventListener('click', cerrarDrawer);
 $('drawer-ov').addEventListener('click', cerrarDrawer);
 $('drawer-add').addEventListener('click', ()=>{ if(grupoActual) nuevoCertCliente(grupoActual.nombre, grupoActual.dni); });
+$('drawer-del').addEventListener('click', eliminarCliente);
+async function eliminarCliente(){
+  const g=grupoActual; if(!g) return;
+  if(!confirm(`¿Eliminar a "${g.nombre}" y sus ${g.certs.length} certificado(s)? Esta acción no se puede deshacer.`)) return;
+  // Se borran primero los certificados (evita el error de foreign key) y luego el cliente
+  if(g.clienteId){
+    let r1=await db.from('certificados').delete().eq('cliente_id',g.clienteId);
+    if(r1.error){ alert('Error al borrar certificados: '+r1.error.message); return; }
+    let r2=await db.from('clientes').delete().eq('id',g.clienteId);
+    if(r2.error){ alert('Error al borrar el cliente: '+r2.error.message); return; }
+  } else {
+    let r=await db.from('certificados').delete().eq('nombre',g.nombre);
+    if(r.error){ alert('Error: '+r.error.message); return; }
+  }
+  cerrarDrawer(); cargarEmitidos();
+}
 function nuevoCertCliente(nombre, dni){
-  cerrarDrawer(); modoNuevo(); $('f-nombre').value=nombre; $('f-dni').value=dni||''; irA('gen'); dibujar();
+  cerrarDrawer(); modoNuevo(); $('f-nombre').value=nombre; $('f-dni').value=dni||'';
+  $('f-extranjero').checked = !!(dni && dni.length>8); actualizarDniUI();
+  irA('gen'); dibujar();
   status(`Nuevo certificado para ${nombre}. Completa los datos y guarda.`,'info');
 }
 function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,titulo:r.titulo,duracion:r.duracion,
@@ -665,6 +775,7 @@ $('ver-modal').addEventListener('click', e=>{ if(e.target===$('ver-modal')) $('v
 function editarFila(id){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
   setTipo(r.tipo); $('f-nombre').value=r.nombre; $('f-dni').value=r.dni||'';
+  $('f-extranjero').checked = !!(r.dni && r.dni.length>8); actualizarDniUI();
   $('f-titulo').value=r.titulo; $('f-duracion').value=r.duracion||'';
   fpInicio.setDate(r.fecha_inicio||'today'); fpFin.setDate(r.fecha_fin||'today'); fpEmision.setDate(r.fecha_emision||'today');
   $('f-numero').value=(r.codigo.split('-')[1]||'').trim();
