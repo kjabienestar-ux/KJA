@@ -1105,7 +1105,10 @@ header.scrolled .hamburger span {
 
 /* ===== CATALOG ===== */
 .catalog-section {
-    background-color: var(--light-bg);
+    background-color: #f4f8fc;
+    background-image: radial-gradient(#d4e3f3 1.8px, transparent 1.8px), radial-gradient(#d4e3f3 1.8px, #f4f8fc 1.8px);
+    background-size: 24px 24px;
+    background-position: 0 0, 12px 12px;
 }
 
 .catalog-header {
@@ -3352,6 +3355,11 @@ footer {
 }
 
 /* ===== THERAPY MODAL ===== */
+html.modal-open,
+body.modal-open {
+    overflow: hidden !important;
+}
+
 .therapy-modal {
     position: fixed;
     inset: 0;
@@ -3373,42 +3381,42 @@ footer {
 .modal-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(0, 8, 28, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
-.modal-content-wrapper {
+.therapy-modal-wrapper {
     position: relative;
-    background: var(--white);
+    background-color: #ffffff;
     border-radius: 28px;
-    width: max-content;
-    max-width: min(90vw, 500px);
-    max-height: 90vh;
-    box-shadow: 0 30px 70px rgba(0, 10, 50, 0.3);
+    width: auto;
+    max-width: 90%;
+    max-height: 85vh;
+    box-shadow: 0 30px 70px rgba(0, 10, 50, 0.25);
     z-index: 3002;
-    overflow: hidden;
+    overflow: visible; /* Allows green WhatsApp button to overflow at the bottom */
     display: flex;
     flex-direction: column;
     transform: scale(0.9) translateY(20px);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
-.therapy-modal.open .modal-content-wrapper {
+.therapy-modal.open .therapy-modal-wrapper {
     transform: scale(1) translateY(0);
 }
 
-.modal-close {
+.therapy-modal-close {
     position: absolute;
     top: 15px;
     right: 15px;
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(255, 255, 255, 0.2);
     color: var(--white);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     font-size: 26px;
     font-weight: 300;
     line-height: 1;
@@ -3419,73 +3427,348 @@ footer {
     z-index: 3010;
     transition: all 0.3s ease;
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
-.modal-close:hover {
+.therapy-modal-close:hover {
     background: var(--primary-pink);
+    border-color: var(--primary-pink);
+    color: #fff;
     transform: scale(1.1) rotate(90deg);
 }
 
-.modal-body {
+.therapy-modal-body {
     position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
+    border-radius: 26px;
 }
 
-.modal-body img {
+/* Columna Izquierda: Flyer Image */
+.therapy-modal-left {
+    flex: 0 0 auto;
+    background: transparent;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.therapy-modal-left img {
     display: block;
     width: auto;
-    height: auto;
-    max-width: 100%;
-    max-height: 72vh;
-    background: transparent;
+    height: 70vh;
+    max-height: 600px;
+    object-fit: contain;
+    border-radius: 26px 0 0 26px;
 }
 
-.modal-btn-wa {
+/* Columna Derecha: Detalles */
+.therapy-modal-right {
+    flex: 0 0 360px;
+    width: 360px;
+    background: var(--primary-blue);
+    padding: 35px 30px 45px 35px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow-y: auto;
+    height: 70vh;
+    max-height: 600px;
+    border-radius: 0 26px 26px 0;
+}
+
+.therapy-modal-circle-img-container {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 5px solid var(--primary-blue);
+    outline: 2px solid white;
+    overflow: hidden;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    background: white;
+    flex-shrink: 0;
+}
+
+.therapy-modal-circle-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.therapy-modal-right-text {
+    width: 100%;
+    text-align: left;
+}
+
+.therapy-modal-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    line-height: 1.25;
+    font-style: italic;
+    font-family: 'Poppins', sans-serif;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+    padding-bottom: 8px;
+}
+
+.therapy-desc-box,
+.therapy-related-box {
+    margin-bottom: 18px;
+}
+
+.therapy-desc-box .meta-label,
+.therapy-related-box .meta-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255, 255, 255, 0.7);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.therapy-modal-meta-box {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.modal-meta-badge {
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.modal-meta-badge::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.modal-meta-badge--individual {
+    background: rgba(147, 197, 253, 0.15);
+    color: #93c5fd;
+    border: 1px solid rgba(147, 197, 253, 0.3);
+}
+
+.modal-meta-badge--grupal {
+    background: rgba(192, 132, 252, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(192, 132, 252, 0.3);
+}
+
+.modal-meta-badge--familiar {
+    background: rgba(110, 231, 183, 0.15);
+    color: #6ee7b7;
+    border: 1px solid rgba(110, 231, 183, 0.3);
+}
+
+.modal-meta-sessions {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.therapy-desc-box .desc-val {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+}
+
+.therapy-related-box .related-val {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    font-style: italic;
+}
+
+/* Floating WhatsApp button at the very bottom center of the modal */
+.therapy-modal-footer {
     position: absolute;
-    bottom: 24px;
+    bottom: -22px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 3005;
+}
+
+.modal-btn-wa-therapy {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background-color: #25d366;
+    background-color: #1cc85a;
     color: var(--white);
-    padding: 10px 24px;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 14px;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 15px;
     text-decoration: none;
-    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
-    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+    box-shadow: 0 8px 24px rgba(28, 200, 90, 0.4);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     white-space: nowrap;
 }
 
-.modal-btn-wa svg {
-    width: 18px;
-    height: 18px;
+.modal-btn-wa-therapy svg {
+    width: 20px;
+    height: 20px;
 }
 
-.modal-btn-wa:hover {
-    background-color: #20ba5a;
-    transform: translateX(-50%) translateY(-2px);
-    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+.modal-btn-wa-therapy:hover {
+    background-color: #15ad4c;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(28, 200, 90, 0.55);
 }
 
-@media (max-width: 640px) {
-    .modal-content-wrapper {
-        border-radius: 20px;
+/* Responsive modal behavior */
+@media (max-width: 768px) {
+    .therapy-modal-wrapper {
+        width: 100%;
         max-width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
     }
-    .modal-btn-wa {
-        padding: 8px 20px;
-        font-size: 13px;
-        bottom: 16px;
+    
+    .therapy-modal-body {
+        flex-direction: column-reverse; /* Shows right panel (content) on top, left panel (flyer) at bottom */
+        overflow-y: visible;
     }
+    
+    .therapy-modal-left {
+        flex: none;
+        padding: 0;
+        max-height: none;
+        overflow-y: visible;
+        border-right: none;
+        background: transparent;
+        display: block;
+        width: 100%;
+    }
+    
+    .therapy-modal-left img {
+        width: 100%;
+        height: auto;
+        max-height: none;
+        border-radius: 0 0 26px 26px;
+        display: block;
+    }
+    
+    .therapy-modal-right {
+        flex: none;
+        padding: 25px 20px 12px 20px;
+        height: auto;
+        max-height: none;
+        overflow-y: visible;
+        border-radius: 26px 26px 0 0;
+        width: 100%;
+    }
+    
+    .therapy-related-box {
+        margin-bottom: 0;
+    }
+    
+    .therapy-modal-circle-img-container {
+        width: 110px;
+        height: 110px;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+    
+    .therapy-modal-close {
+        background: rgba(0, 0, 0, 0.5); /* Higher visibility close button on mobile top-right */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        top: 10px;
+        right: 10px;
+    }
+    
+    .therapy-modal-footer {
+        bottom: -20px;
+    }
+}
+
+/* ===== THERAPY BADGES & METADATA ===== */
+.therapy-badges-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.therapy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+}
+
+.therapy-badge--individual {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.therapy-badge--grupal {
+    background: #f5f3ff;
+    color: #7c3aed;
+    border: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+.therapy-badge--familiar {
+    background: #f0fdf4;
+    color: #059669;
+    border: 1px solid rgba(5, 150, 105, 0.15);
+}
+
+.therapy-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(0, 79, 176, 0.06);
+    padding-bottom: 10px;
+}
+
+.therapy-meta-item {
+    font-size: 11.5px;
+    color: #6b7280;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 /* ===== LIBRO DE RECLAMACIONES (dentro del footer) ===== */
