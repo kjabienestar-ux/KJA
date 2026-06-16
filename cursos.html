@@ -48,29 +48,31 @@
         <p>Cursos, especializaciones, talleres y charlas especializadas para tu desarrollo profesional y personal.</p>
     </div>
 
-    <section class="container section-padding" style="padding-top: 60px;">
+    <section class="catalog-section section-padding" style="padding-top: 60px;">
+        <div class="container">
 
-        <!-- Tab System -->
-        <div class="cursos-tabs" id="cursos-tabs">
-            <button class="cursos-tab active" onclick="switchCursoTab(this, 'todos')">Todos</button>
-            <button class="cursos-tab" onclick="switchCursoTab(this, 'curso')">Cursos</button>
-            <button class="cursos-tab" onclick="switchCursoTab(this, 'especializacion')">Especializaciones</button>
-            <button class="cursos-tab" onclick="switchCursoTab(this, 'taller')">Talleres</button>
-            <button class="cursos-tab" onclick="switchCursoTab(this, 'charla')">Charlas y Conferencias</button>
-        </div>
+            <!-- Tab System -->
+            <div class="cursos-tabs" id="cursos-tabs">
+                <button class="cursos-tab active" onclick="switchCursoTab(this, 'todos')">Todos</button>
+                <button class="cursos-tab" onclick="switchCursoTab(this, 'curso')">Cursos</button>
+                <button class="cursos-tab" onclick="switchCursoTab(this, 'especializacion')">Especializaciones</button>
+                <button class="cursos-tab" onclick="switchCursoTab(this, 'taller')">Talleres</button>
+                <button class="cursos-tab" onclick="switchCursoTab(this, 'charla')">Charlas y Conferencias</button>
+            </div>
 
-        <!-- Dynamic Grid -->
-        <div class="cursos-grid" id="cursos-grid">
-            <!-- Rendered by JS -->
-        </div>
+            <!-- Dynamic Grid -->
+            <div class="cursos-grid" id="cursos-grid">
+                <!-- Rendered by JS -->
+            </div>
 
-        <!-- Empty state (hidden by default) -->
-        <div class="cursos-empty" id="cursos-empty" style="display: none;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
-            </svg>
-            <h4>Próximamente</h4>
-            <p>Estamos preparando nuevos contenidos en esta categoría. ¡Mantente atento a nuestras redes!</p>
+            <!-- Empty state (hidden by default) -->
+            <div class="cursos-empty" id="cursos-empty" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                </svg>
+                <h4>Próximamente</h4>
+                <p>Estamos preparando nuevos contenidos en esta categoría. ¡Mantente atento a nuestras redes!</p>
+            </div>
         </div>
     </section>
 
@@ -450,6 +452,11 @@
 
             // Mostrar modal
             const modal = document.getElementById('course-modal');
+            
+            // Bloquear scroll de la página de fondo
+            document.documentElement.classList.add('modal-open');
+            document.body.classList.add('modal-open');
+
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
 
@@ -480,6 +487,10 @@
         function closeCourseModal() {
             const modal = document.getElementById('course-modal');
             if (!modal.classList.contains('open')) return;
+
+            // Desbloquear scroll de la página de fondo
+            document.documentElement.classList.remove('modal-open');
+            document.body.classList.remove('modal-open');
 
             // Animación GSAP (Salida)
             if (typeof gsap !== 'undefined') {
