@@ -109,60 +109,81 @@
 
             <!-- Tab 3: Misión y Visión -->
             <div class="about-panel" id="about-mision">
-                <div class="mision-vision-grid">
-                    <!-- Mision Card -->
-                    <div class="mv-card">
-                        <div class="mv-icon-box">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                <div class="mv-stacked-rows">
+                    <!-- Fila 1: Misión (Texto Izquierda, Imagen Derecha) -->
+                    <div class="mv-row-block">
+                        <div class="mv-row-text">
+                            <div class="mv-icon-box">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                            </div>
+                            <h3>Nuestra Misión</h3>
+                            <p>Brindar atención psicológica integral de calidad excepcional, promoviendo la salud mental y el desarrollo emocional saludable en cada etapa de la vida. Acompañamos a nuestros pacientes a través de terapias, talleres y capacitaciones especializadas guiadas por la ciencia y la empatía.</p>
                         </div>
-                        <h3>Nuestra Misión</h3>
-                        <p>Brindar atención psicológica integral de calidad excepcional, promoviendo la salud mental y el desarrollo emocional saludable en cada etapa de la vida. Acompañamos a nuestros pacientes a través de terapias, talleres y capacitaciones especializadas guiadas por la ciencia y la empatía.</p>
+                        <div class="mv-row-image">
+                            <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80&auto=format" alt="Nuestra Misión - Acompañamiento Psicológico KJA" />
+                        </div>
                     </div>
-                    <!-- Vision Card -->
-                    <div class="mv-card">
-                        <div class="mv-icon-box mv-icon-box--pink">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <!-- Fila 2: Visión (Imagen Izquierda, Texto Derecha en Desktop) -->
+                    <div class="mv-row-block mv-row-block--reverse">
+                        <div class="mv-row-text">
+                            <div class="mv-icon-box mv-icon-box--pink">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </div>
+                            <h3>Nuestra Visión</h3>
+                            <p>Posicionarnos como el centro psicológico y de formación líder del Perú, reconocidos a nivel nacional por nuestra calidez humana, metodologías innovadoras basadas en evidencia y un compromiso inquebrantable con el bienestar integral de las familias y organizaciones.</p>
                         </div>
-                        <h3>Nuestra Visión</h3>
-                        <p>Posicionarnos como el centro psicológico y de formación líder del Perú, reconocidos a nivel nacional por nuestra calidez humana, metodologías innovadoras basadas en evidencia y un compromiso inquebrantable con el bienestar integral de las familias y organizaciones.</p>
+                        <div class="mv-row-image">
+                            <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&q=80&auto=format" alt="Nuestra Visión - Bienestar y Futuro Familiar KJA" />
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Tab 4: Valores -->
             <div class="about-panel" id="about-valores">
-                <div class="valores-grid-modern">
-                    <!-- Valor 1: Empatía -->
-                    <div class="valor-card">
-                        <div class="valor-icon-wrap" style="background:rgba(0,79,176,0.1); color:#004fb0;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                <div class="valores-split-container">
+                    <!-- Columna Izquierda: Imagen Lateral Destacada con Frase -->
+                    <div class="valores-split-image">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80&auto=format" alt="Nuestros Valores - Calidad y Calidez Humana KJA" />
+                        <div class="valores-split-overlay">
+                            <span>Nuestros Valores</span>
+                            <p>La base de nuestro compromiso contigo y tu bienestar.</p>
                         </div>
-                        <h4>Empatía</h4>
-                        <p>Comprendemos y validamos profundamente las emociones y realidades de nuestros pacientes, brindándoles un refugio libre de juicios.</p>
                     </div>
-                    <!-- Valor 2: Ética -->
-                    <div class="valor-card">
-                        <div class="valor-icon-wrap" style="background:rgba(241,0,117,0.1); color:#f10075;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <!-- Columna Derecha: Grid 2x2 de Valores -->
+                    <div class="valores-grid-modern">
+                        <!-- Valor 1: Empatía -->
+                        <div class="valor-card">
+                            <div class="valor-icon-wrap" style="background:rgba(0,79,176,0.1); color:#004fb0;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                            </div>
+                            <h4>Empatía</h4>
+                            <p>Comprendemos y validamos profundamente las emociones and realidades de nuestros pacientes, brindándoles un refugio libre de juicios.</p>
                         </div>
-                        <h4>Ética y Rigor</h4>
-                        <p>Actuamos bajo los más estrictos principios de confidencialidad, honestidad y con base científica en todo tratamiento.</p>
-                    </div>
-                    <!-- Valor 3: Compromiso -->
-                    <div class="valor-card">
-                        <div class="valor-icon-wrap" style="background:rgba(16,185,129,0.1); color:#10b981;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <!-- Valor 2: Ética -->
+                        <div class="valor-card">
+                            <div class="valor-icon-wrap" style="background:rgba(241,0,117,0.1); color:#f10075;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                            <h4>Ética y Rigor</h4>
+                            <p>Actuamos bajo los más estrictos principios de confidencialidad, honestidad y con base científica en todo tratamiento.</p>
                         </div>
-                        <h4>Compromiso Real</h4>
-                        <p>Nos dedicamos con devoción y profesionalismo al progreso constante y duradero de cada una de las personas a nuestro cuidado.</p>
-                    </div>
-                    <!-- Valor 4: Innovación -->
-                    <div class="valor-card">
-                        <div class="valor-icon-wrap" style="background:rgba(124,58,237,0.1); color:#7c3aed;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 113.536 0V21h2v-2.757z"/></svg>
+                        <!-- Valor 3: Compromiso -->
+                        <div class="valor-card">
+                            <div class="valor-icon-wrap" style="background:rgba(16,185,129,0.1); color:#10b981;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </div>
+                            <h4>Compromiso Real</h4>
+                            <p>Nos dedicamos con devoción y profesionalismo al progreso constante y duradero de cada una de las personas a nuestro cuidado.</p>
                         </div>
-                        <h4>Innovación Científica</h4>
-                        <p>Actualizamos permanentemente nuestras técnicas y programas de bienestar integrando metodologías terapéuticas modernas.</p>
+                        <!-- Valor 4: Innovación -->
+                        <div class="valor-card">
+                            <div class="valor-icon-wrap" style="background:rgba(124,58,237,0.1); color:#7c3aed;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 113.536 0V21h2v-2.757z"/></svg>
+                            </div>
+                            <h4>Innovación Científica</h4>
+                            <p>Actualizamos permanentemente nuestras técnicas y programas de bienestar integrando metodologías terapéuticas modernas.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,7 +192,7 @@
             <div class="about-panel" id="about-servicios">
                 <div class="about-grid-modern">
                     <div class="about-image-modern">
-                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80&auto=format" alt="Servicios Educativos KJA" />
+                        <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80&auto=format" alt="Capacitación y Comunidad KJA" />
                     </div>
                     <div class="about-text-modern">
                         <span class="about-panel-badge">Acompañamiento Social</span>
