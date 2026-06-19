@@ -176,8 +176,90 @@
     }
   }
 
+  /* ════════════ TEMARIO (segunda página, para Curso/Especialización) ════════════
+     datos.temario = { modulos:[{titulo, fechaInicio, fechaFin, horas}], nota } */
+  const TEMARIO = {
+    plantilla:'Certificado_cursos/PLANTILLA_TEMARIO_CURSOS.webp',
+    cols:{ ini:1320, fin:1591, hrs:1858 },               // centros X de las columnas (bajo los íconos)
+    bar:{ left:175, right:1260, areaTop:495, areaBottom:875, maxGap:125 },
+    ordinalX:325, tituloX:975, tituloW:560,
+    total:{ cx:1088, cy:986 },
+    nota:{ labelX:735, valueX:1290, cy:1150 }
+  };
+  const ORD=['1er','2do','3er','4to','5to','6to','7mo','8vo','9no','10mo'];
+  const ordModulo = n => (ORD[n-1]||(n+'°'))+' Módulo';
+  const fechaCorta = iso => { if(!iso) return ''; const [a,m,d]=iso.split('-'); return `${d}/${m}/${a}`; };
+  const horasTotal = mods => mods.reduce((s,m)=>s+(parseInt(m.horas,10)||0),0);
+
+  function roundRect(ctx,x,y,w,h,r){
+    if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); return; }
+    ctx.beginPath(); ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  function pill(ctx, cx, cy, text, o){
+    const w=o.w, h=o.h||50, r=h/2;
+    roundRect(ctx, cx-w/2, cy-h/2, w, h, r);
+    ctx.fillStyle='#ffffff'; ctx.fill();
+    ctx.strokeStyle='#1d4ed8'; ctx.lineWidth=3; ctx.stroke();
+    ctx.fillStyle='#1d4ed8'; ctx.font=`600 ${o.size||25}px ${SANS}`;
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(text, cx, cy+1);
+  }
+  function wrapTem(ctx, text, cx, cy, maxW, font, lh, color){
+    ctx.font=font; ctx.fillStyle=color; ctx.textAlign='center'; ctx.textBaseline='middle';
+    const words=(text||'').split(/\s+/).filter(Boolean); const lines=[]; let ln='';
+    for(const w of words){ const t=ln?ln+' '+w:w; if(ctx.measureText(t).width>maxW && ln){lines.push(ln);ln=w;} else ln=t; }
+    if(ln) lines.push(ln);
+    const top=cy-(lines.length-1)*lh/2;
+    lines.forEach((l,i)=>ctx.fillText(l,cx,top+i*lh));
+  }
+
+  async function renderTemario(canvas, datos){
+    const t=TEMARIO, ctx=canvas.getContext('2d');
+    const mods=(datos.modulos||[]).slice(0,8);
+    ctx.clearRect(0,0,W,H);
+    const bg=await cargarImg(KJACert.basePath+t.plantilla);
+    ctx.drawImage(bg,0,0,W,H);
+
+    const n=Math.max(mods.length,1);
+    const areaH=t.bar.areaBottom-t.bar.areaTop;
+    const gap=Math.min(t.bar.maxGap, areaH/n);
+    const startY=(t.bar.areaTop+t.bar.areaBottom)/2 - gap*n/2 + gap/2;
+    const barH=Math.min(96, gap-14), barW=t.bar.right-t.bar.left;
+
+    mods.forEach((m,i)=>{
+      const cy=startY+i*gap;
+      roundRect(ctx, t.bar.left, cy-barH/2, barW, barH, 16);
+      const g=ctx.createLinearGradient(t.bar.left,0,t.bar.right,0);
+      g.addColorStop(0,'#d7ddec'); g.addColorStop(1,'#fbfcff');
+      ctx.fillStyle=g; ctx.fill();
+      ctx.fillStyle='#15317e'; ctx.font=`400 ${Math.min(48,barH*0.5)}px ${SCRIPT}`;
+      ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(ordModulo(i+1), t.ordinalX, cy);
+      wrapTem(ctx, m.titulo, t.tituloX, cy, t.tituloW, `600 24px ${SANS}`, 30, '#3a5588');
+      pill(ctx, t.cols.ini, cy, fechaCorta(m.fechaInicio), {w:180});
+      pill(ctx, t.cols.fin, cy, fechaCorta(m.fechaFin),    {w:180});
+      pill(ctx, t.cols.hrs, cy, (m.horas||'')+' hrs',      {w:130});
+    });
+
+    ctx.fillStyle='#15317e'; ctx.font=`700 30px ${SANS}`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(`Total de horas académicas = ${horasTotal(mods)} hrs`, t.total.cx, t.total.cy);
+
+    ctx.fillStyle='#15317e'; ctx.font=`400 60px ${SCRIPT}`;
+    ctx.fillText('Nota Final', t.nota.labelX, t.nota.cy);
+    ctx.font=`700 74px ${SANS}`; ctx.fillText(String(datos.nota||''), t.nota.valueX, t.nota.cy);
+  }
+
+  /* PDF de varias páginas (ej. certificado + temario) */
+  function exportarMulti(canvases, nombreArchivo){
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'landscape',unit:'px',format:[W,H],compress:false});
+    canvases.forEach((c,i)=>{ if(i) pdf.addPage([W,H],'landscape');
+      pdf.addImage(c.toDataURL('image/png'),'PNG',0,0,W,H,undefined,'NONE'); });
+    pdf.save(nombreArchivo+'.pdf');
+  }
+
   function preloadFonts(){
-    const fuentes=["400 108px 'Cinzel'","700 108px 'Cinzel'","400 31px 'Poppins'",
+    const fuentes=["400 108px 'Cinzel'","700 108px 'Cinzel'","400 31px 'Poppins'","600 24px 'Poppins'",
                    "700 31px 'Poppins'","500 30px 'Poppins'","400 96px 'Damion'"];
     return Promise.all(fuentes.map(f=>document.fonts.load(f).catch(()=>{}))).then(()=>document.fonts.ready);
   }
@@ -185,6 +267,6 @@
   window.KJACert = {
     W, H, TIPOS, MESES,
     basePath:'', verifyBase:'https://yeiserdev.github.io/KJA/certificado.html',
-    fechaLarga, codigoDe, render, exportar, preloadFonts
+    fechaLarga, codigoDe, fechaCorta, horasTotal, render, renderTemario, exportar, exportarMulti, preloadFonts
   };
 })();

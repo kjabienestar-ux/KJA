@@ -459,3 +459,19 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .logo-spin::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:radial-gradient(circle,rgba(0,79,176,.28),transparent 70%);animation:glowPulse 1.4s ease-in-out infinite;}
 @keyframes logoSpin{to{transform:rotate(360deg);}}
 @keyframes glowPulse{0%,100%{opacity:.4;transform:scale(.85);}50%{opacity:1;transform:scale(1.15);}}
+
+/* Temario (constructor de módulos) */
+.chk-temario{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--azul);cursor:pointer;}
+.chk-temario input{width:auto;accent-color:var(--azul);cursor:pointer;}
+#temario-builder{margin-top:14px;}
+.modulo-row{background:#f8fafc;border:1px solid #e2e8f0;border-radius:11px;padding:12px;margin-bottom:10px;}
+.modulo-head{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;}
+.del-modulo{border:none;background:#fee2e2;color:#b91c1c;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:12px;line-height:1;}
+.del-modulo:hover{background:#fecaca;}
+.modulo-row input{width:100%;padding:9px 11px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:8px;}
+.modulo-row input:focus{outline:none;border-color:var(--azul);}
+.modulo-row .row2{margin-bottom:0;}
+.modulo-row .row2 input{margin-bottom:0;}
+.btn-add-modulo{width:100%;padding:10px;border:1.5px dashed #94a3b8;background:#fff;color:var(--azul);border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;}
+.btn-add-modulo:hover{border-color:var(--azul);background:#f1f5f9;}
+#f-total-horas{background:#f1f5f9;font-weight:600;color:var(--azul-osc);}
