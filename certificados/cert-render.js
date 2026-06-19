@@ -217,15 +217,37 @@
   async function renderTemario(canvas, datos){
     const t=TEMARIO, ctx=canvas.getContext('2d');
     const mods=(datos.modulos||[]).slice(0,8);
+    const solo=!!datos.soloTitulos;   // temario de solo títulos (sin fechas/horas/total)
     ctx.clearRect(0,0,W,H);
     const bg=await cargarImg(KJACert.basePath+t.plantilla);
     ctx.drawImage(bg,0,0,W,H);
 
+    if(solo){
+      // tapar (con blanco, el fondo ahí es blanco puro) los íconos de columnas y la caja de total
+      ctx.fillStyle='#ffffff';
+      ctx.fillRect(1228, 278, 752, 218);   // íconos fecha/fecha/hora
+      ctx.fillRect(688, 932, 800, 110);     // caja "Total de horas"
+    }
+
     const n=Math.max(mods.length,1);
-    const areaH=t.bar.areaBottom-t.bar.areaTop;
-    const gap=Math.min(t.bar.maxGap, areaH/n);
-    const startY=(t.bar.areaTop+t.bar.areaBottom)/2 - gap*n/2 + gap/2;
-    const barH=Math.min(96, gap-14), barW=t.bar.right-t.bar.left;
+    // En "solo títulos" usamos el espacio del total (oculto): barras y texto crecen
+    // automáticamente cuando hay pocos módulos, para llenar el espacio disponible.
+    const areaTop=t.bar.areaTop, areaBottom = solo ? 960 : t.bar.areaBottom;
+    const span=areaBottom-areaTop;
+    const gap=Math.min(solo?200:t.bar.maxGap, span/n);
+    const startY=(areaTop+areaBottom)/2 - gap*n/2 + gap/2;
+    const barH=solo ? Math.min(150, gap*0.82, gap-14) : Math.min(96, gap-14);
+    const barW=t.bar.right-t.bar.left;
+    // En "solo títulos" se achica la columna del ordinal (para que no choque con el título)
+    // y se ensancha/recorre el título hacia la derecha, para que use más espacio y no se vea apretado.
+    const ordinalX = solo ? 310 : t.ordinalX;
+    const tituloX = solo ? 865 : t.tituloX;
+    const tituloW = solo ? 780 : t.tituloW;
+    const ordSize = solo ? Math.min(50, Math.max(32, barH*0.42)) : Math.min(48, barH*0.52);
+    // tituloSize: tamaño manual elegido en el admin (campo "Tamaño Letra"); si no se elige, se autoajusta.
+    const titSize = datos.tituloSize || (solo ? Math.min(42, Math.max(24, barH*0.34)) : 24);
+    const titLh = Math.round(titSize*1.22);
+    const titColor = solo ? '#2c326c' : '#3a5588';
 
     mods.forEach((m,i)=>{
       const cy=startY+i*gap;
@@ -233,18 +255,22 @@
       const g=ctx.createLinearGradient(t.bar.left,0,t.bar.right,0);
       g.addColorStop(0,'#d7ddec'); g.addColorStop(1,'#fbfcff');
       ctx.fillStyle=g; ctx.fill();
-      ctx.fillStyle='#15317e'; ctx.font=`400 ${Math.min(48,barH*0.5)}px ${SCRIPT}`;
-      ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(ordModulo(i+1), t.ordinalX, cy);
-      wrapTem(ctx, m.titulo, t.tituloX, cy, t.tituloW, `600 24px ${SANS}`, 30, '#3a5588');
-      pill(ctx, t.cols.ini, cy, fechaCorta(m.fechaInicio), {w:180});
-      pill(ctx, t.cols.fin, cy, fechaCorta(m.fechaFin),    {w:180});
-      pill(ctx, t.cols.hrs, cy, (m.horas||'')+' hrs',      {w:130});
+      ctx.fillStyle='#15317e'; ctx.font=`400 ${ordSize}px ${SCRIPT}`;
+      ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(ordModulo(i+1), ordinalX, cy);
+      wrapTem(ctx, m.titulo, tituloX, cy, tituloW, `600 ${titSize}px ${SANS}`, titLh, titColor);
+      if(!solo){
+        pill(ctx, t.cols.ini, cy, fechaCorta(m.fechaInicio), {w:180});
+        pill(ctx, t.cols.fin, cy, fechaCorta(m.fechaFin),    {w:180});
+        pill(ctx, t.cols.hrs, cy, (m.horas||'')+' hrs',      {w:130});
+      }
     });
 
-    ctx.fillStyle='#15317e'; ctx.font=`700 30px ${SANS}`; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(`Total de horas académicas = ${horasTotal(mods)} hrs`, t.total.cx, t.total.cy);
+    if(!solo){
+      ctx.fillStyle='#15317e'; ctx.font=`700 30px ${SANS}`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(`Total de horas académicas = ${horasTotal(mods)} hrs`, t.total.cx, t.total.cy);
+    }
 
-    ctx.fillStyle='#15317e'; ctx.font=`400 60px ${SCRIPT}`;
+    ctx.fillStyle='#15317e'; ctx.font=`400 60px ${SCRIPT}`; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('Nota Final', t.nota.labelX, t.nota.cy);
     ctx.font=`700 74px ${SANS}`; ctx.fillText(String(datos.nota||''), t.nota.valueX, t.nota.cy);
   }

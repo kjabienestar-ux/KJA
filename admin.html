@@ -194,10 +194,31 @@
           <div class="f-group" id="temario-group" style="display:none;">
             <label class="chk-temario"><input type="checkbox" id="f-temario-on"> Agregar temario</label>
             <div id="temario-builder" style="display:none;">
+              <label class="chk-solo"><input type="checkbox" id="f-solo-titulos"> Solo títulos (sin fechas ni horas)</label>
+              <div class="field"><label>Tamaño Letra</label>
+                <div class="size-wrap" id="size-wrap-tem">
+                  <input id="f-tem-size" type="number" placeholder="Automático">
+                  <button type="button" class="sz-btn" id="size-toggle-tem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div class="cselect-list">
+                    <div data-val="22">22</div>
+                    <div data-val="26">26</div>
+                    <div data-val="30">30</div>
+                    <div data-val="34">34</div>
+                    <div data-val="38">38</div>
+                    <div data-val="42">42</div>
+                    <div data-val="46">46</div>
+                    <div data-val="52">52</div>
+                    <div data-val="58">58</div>
+                    <div data-val="64">64</div>
+                  </div>
+                </div>
+              </div>
               <div id="modulos-list"></div>
               <button type="button" class="btn-add-modulo" id="btn-add-modulo">+ Agregar módulo</button>
               <div class="row2" style="margin-top:12px;">
-                <div class="field"><label>Total de horas</label><input id="f-total-horas" type="text" readonly placeholder="0 hrs"></div>
+                <div class="field" id="wrap-total"><label>Total de horas</label><input id="f-total-horas" type="text" readonly placeholder="0 hrs"></div>
                 <div class="field"><label>Nota final</label><input id="f-nota" type="text" placeholder="Ej: 18"></div>
               </div>
               <button type="button" class="btn" id="btn-ver-temario" style="width:100%;margin-top:6px;">Ver temario ↔ certificado</button>
@@ -371,7 +392,13 @@ $('size-toggle').addEventListener('click', e => { e.stopPropagation(); sizeWrap.
 sizeWrap.querySelectorAll('.cselect-list div').forEach(opt => {
   opt.addEventListener('click', () => { $('f-size').value = opt.dataset.val; sizeWrap.classList.remove('open'); dibujar(); });
 });
-document.addEventListener('click', () => sizeWrap.classList.remove('open'));
+const sizeWrapTem = $('size-wrap-tem');
+$('size-toggle-tem').addEventListener('click', e => { e.stopPropagation(); sizeWrapTem.classList.toggle('open'); });
+sizeWrapTem.querySelectorAll('.cselect-list div').forEach(opt => {
+  opt.addEventListener('click', () => { $('f-tem-size').value = opt.dataset.val; sizeWrapTem.classList.remove('open'); dibujar(); });
+});
+$('f-tem-size').addEventListener('input', dibujar);
+document.addEventListener('click', () => { sizeWrap.classList.remove('open'); sizeWrapTem.classList.remove('open'); });
 
 /* ───── NAVEGACIÓN ───── */
 document.querySelectorAll('.side button').forEach(b=>{
@@ -551,42 +578,50 @@ let modulos=[], fpModulos=[], vistaTemario=false;
 const ORD_MOD=['1er','2do','3er','4to','5to','6to','7mo','8vo','9no','10mo'];
 function temarioAplica(){ return ['curso','especializacion'].includes($('f-tipo').value); }
 function temarioActivo(){ return temarioAplica() && $('f-temario-on').checked; }
+function soloTitulos(){ return $('f-solo-titulos').checked; }
 function leerTemario(){
   if(!temarioActivo()) return null;
-  return { modulos: modulos.filter(m=>m.titulo||m.fechaInicio||m.horas), nota: $('f-nota').value.trim() };
+  return { modulos: modulos.filter(m=>m.titulo||m.fechaInicio||m.horas),
+           nota: $('f-nota').value.trim(), soloTitulos: soloTitulos(),
+           tituloSize: $('f-tem-size').value ? parseInt($('f-tem-size').value,10) : null };
 }
 function recomputeTotal(){ const t=modulos.reduce((s,m)=>s+(parseInt(m.horas,10)||0),0); $('f-total-horas').value = t? t+' hrs':''; }
 function renderModulos(){
   fpModulos.forEach(fp=>{ try{fp.destroy();}catch(e){} }); fpModulos=[];
-  const cont=$('modulos-list'); cont.innerHTML='';
+  const cont=$('modulos-list'); cont.innerHTML=''; const solo=soloTitulos();
   modulos.forEach((m,i)=>{
     const row=document.createElement('div'); row.className='modulo-row';
     row.innerHTML=`<div class="modulo-head"><span>${ORD_MOD[i]||(i+1)+'°'} Módulo</span><button type="button" class="del-modulo" title="Quitar">✕</button></div>
-      <input class="m-titulo" type="text" placeholder="Título del módulo">
-      <div class="row2"><input class="m-inicio" type="text" placeholder="Inicio"><input class="m-fin" type="text" placeholder="Fin"></div>
-      <input class="m-horas" type="number" min="0" placeholder="Horas">`;
+      <input class="m-titulo" type="text" placeholder="Título del módulo">`
+      + (solo ? '' : `<div class="row2"><input class="m-inicio" type="text" placeholder="Inicio"><input class="m-fin" type="text" placeholder="Fin"></div><input class="m-horas" type="number" min="0" placeholder="Horas">`);
     cont.appendChild(row);
-    const tIn=row.querySelector('.m-titulo'), hIn=row.querySelector('.m-horas');
-    tIn.value=m.titulo||''; hIn.value=m.horas||'';
+    const tIn=row.querySelector('.m-titulo'); tIn.value=m.titulo||'';
     tIn.addEventListener('input',()=>{ modulos[i].titulo=tIn.value; dibujar(); });
-    hIn.addEventListener('input',()=>{ modulos[i].horas=hIn.value; recomputeTotal(); dibujar(); });
     row.querySelector('.del-modulo').addEventListener('click',()=>{ modulos.splice(i,1); renderModulos(); dibujar(); });
-    const base={locale:'es',dateFormat:'Y-m-d',altInput:true,altFormat:'d/m/Y',disableMobile:true};
-    fpModulos.push(
-      flatpickr(row.querySelector('.m-inicio'), {...base, defaultDate:m.fechaInicio||null, onChange:(_,s)=>{ modulos[i].fechaInicio=s; dibujar(); }}),
-      flatpickr(row.querySelector('.m-fin'),    {...base, defaultDate:m.fechaFin||null,    onChange:(_,s)=>{ modulos[i].fechaFin=s; dibujar(); }})
-    );
+    if(!solo){
+      const hIn=row.querySelector('.m-horas'); hIn.value=m.horas||'';
+      hIn.addEventListener('input',()=>{ modulos[i].horas=hIn.value; recomputeTotal(); dibujar(); });
+      const base={locale:'es',dateFormat:'Y-m-d',altInput:true,altFormat:'d/m/Y',disableMobile:true};
+      fpModulos.push(
+        flatpickr(row.querySelector('.m-inicio'), {...base, defaultDate:m.fechaInicio||null, onChange:(_,s)=>{ modulos[i].fechaInicio=s; dibujar(); }}),
+        flatpickr(row.querySelector('.m-fin'),    {...base, defaultDate:m.fechaFin||null,    onChange:(_,s)=>{ modulos[i].fechaFin=s; dibujar(); }})
+      );
+    }
   });
   recomputeTotal();
 }
 function addModulo(){ modulos.push({titulo:'',fechaInicio:'',fechaFin:'',horas:''}); renderModulos(); dibujar(); }
-function resetTemario(){ modulos=[]; vistaTemario=false; $('f-temario-on').checked=false; $('f-nota').value=''; $('temario-builder').style.display='none'; renderModulos(); }
+function resetTemario(){ modulos=[]; vistaTemario=false; $('f-temario-on').checked=false; $('f-solo-titulos').checked=false; $('f-nota').value=''; $('f-tem-size').value=''; $('wrap-total').style.display='block'; $('temario-builder').style.display='none'; renderModulos(); }
 $('f-temario-on').addEventListener('change',()=>{
   const on=$('f-temario-on').checked;
   $('temario-builder').style.display = on?'block':'none';
   if(on && modulos.length===0) addModulo();
   if(!on) vistaTemario=false;
   dibujar();
+});
+$('f-solo-titulos').addEventListener('change',()=>{
+  $('wrap-total').style.display = soloTitulos() ? 'none' : 'block';
+  renderModulos(); dibujar();
 });
 $('btn-add-modulo').addEventListener('click', addModulo);
 $('btn-ver-temario').addEventListener('click',()=>{ vistaTemario=!vistaTemario; dibujar(); });
@@ -871,6 +906,9 @@ function editarFila(id){
   $('f-temario-on').checked = !!(tem && tem.modulos && tem.modulos.length);
   modulos = (tem && tem.modulos) ? tem.modulos.map(m=>({titulo:m.titulo||'',fechaInicio:m.fechaInicio||'',fechaFin:m.fechaFin||'',horas:m.horas||''})) : [];
   $('f-nota').value = (tem && tem.nota) || '';
+  $('f-solo-titulos').checked = !!(tem && tem.soloTitulos);
+  $('f-tem-size').value = (tem && tem.tituloSize) || '';
+  $('wrap-total').style.display = (tem && tem.soloTitulos) ? 'none' : 'block';
   $('temario-builder').style.display = $('f-temario-on').checked ? 'block' : 'none';
   vistaTemario=false; renderModulos();
   if(r.font_size_nombre) $('f-size').value=r.font_size_nombre;   // conserva el tamaño elegido

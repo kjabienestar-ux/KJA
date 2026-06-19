@@ -475,3 +475,7 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .btn-add-modulo{width:100%;padding:10px;border:1.5px dashed #94a3b8;background:#fff;color:var(--azul);border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;}
 .btn-add-modulo:hover{border-color:var(--azul);background:#f1f5f9;}
 #f-total-horas{background:#f1f5f9;font-weight:600;color:var(--azul-osc);}
+
+/* Interruptor "Solo títulos" del temario */
+.chk-solo{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#475569;cursor:pointer;margin-bottom:12px;}
+.chk-solo input{width:auto;accent-color:var(--azul);cursor:pointer;}
