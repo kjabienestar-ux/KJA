@@ -4805,3 +4805,55 @@ footer {
         width: 280px;
     }
 }
+
+/* ===== LOGO CENTRADO EN NAVBAR (DESKTOP) ===== */
+.nav-desktop-only {
+    display: none;
+}
+
+@media (min-width: 969px) {
+    .nav-desktop-only {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 50px !important;
+    }
+    
+    .nav-mobile-only {
+        display: none !important;
+    }
+    
+    .nav-links-left,
+    .nav-links-right {
+        list-style: none;
+        display: flex;
+        gap: 25px;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .nav-links-left li a,
+    .nav-links-right li a {
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 14px;
+        transition: color 0.3s ease, transform 0.2s ease;
+        display: inline-block;
+    }
+    
+    header.scrolled .nav-links-left li a,
+    header.scrolled .nav-links-right li a {
+        color: var(--primary-blue);
+    }
+    
+    .nav-links-left li a:hover,
+    .nav-links-left li a.active,
+    .nav-links-right li a:hover,
+    .nav-links-right li a.active {
+        color: var(--primary-pink);
+        transform: translateY(-2px);
+    }
+}

@@ -11,12 +11,31 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared.css?v=7">
+    <link rel="stylesheet" href="accessibility.css">
     <link rel="stylesheet" href="politica-privacidad.css">
 </head>
 <body>
 
     <header>
-        <nav>
+        <nav class="nav-desktop-only">
+            <ul class="nav-links-left">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="terapia.html">Terapia</a></li>
+                <li><a href="cursos.html">Cursos</a></li>
+            </ul>
+            <div class="logo-container">
+                <a href="index.html">
+                    <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
+                </a>
+            </div>
+            <ul class="nav-links-right">
+                <li><a href="certificado.html">Certificados</a></li>
+                <li><a href="nosotros.html">Nosotros</a></li>
+                <li><a href="index.html#ubicanos">Ubícanos</a></li>
+            </ul>
+        </nav>
+        
+        <nav class="nav-mobile-only">
             <div class="logo-container">
                 <a href="index.html">
                     <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
@@ -26,10 +45,10 @@
                 <li><a href="index.html">Inicio</a></li>
                 <li><a href="terapia.html">Terapia</a></li>
                 <li><a href="cursos.html">Cursos</a></li>
+                <li><a href="certificado.html">Certificados</a></li>
                 <li><a href="nosotros.html">Nosotros</a></li>
                 <li><a href="index.html#ubicanos">Ubícanos</a></li>
             </ul>
-
             <div class="hamburger" id="hamburger" onclick="toggleMenu()">
                 <span></span><span></span><span></span>
             </div>
@@ -134,6 +153,7 @@
     </footer>
 
     <script defer src="script.js?v=7"></script>
+    <script defer src="accessibility.js"></script>
 </body>
 </html>
 

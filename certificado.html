@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=Cinzel:wght@400;500;700&family=Damion&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css?v=7">
 <link rel="stylesheet" href="tailwind.css?v=1">
+<link rel="stylesheet" href="accessibility.css">
 
 <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -23,9 +24,29 @@
 <body>
 
 <header>
-  <nav>
+  <nav class="nav-desktop-only">
+    <ul class="nav-links-left">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="terapia.html">Terapia</a></li>
+      <li><a href="cursos.html">Cursos</a></li>
+    </ul>
     <div class="logo-container">
-      <a href="index.html"><img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img"></a>
+      <a href="index.html">
+        <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
+      </a>
+    </div>
+    <ul class="nav-links-right">
+      <li><a href="certificado.html" class="active">Certificados</a></li>
+      <li><a href="nosotros.html">Nosotros</a></li>
+      <li><a href="index.html#ubicanos">Ubícanos</a></li>
+    </ul>
+  </nav>
+  
+  <nav class="nav-mobile-only">
+    <div class="logo-container">
+      <a href="index.html">
+        <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
+      </a>
     </div>
     <ul class="nav-links" id="nav-menu">
       <li><a href="index.html">Inicio</a></li>
@@ -291,5 +312,6 @@ document.addEventListener('click', (e) => {
   if(id) verificarPorCodigo(id);
 })();
 </script>
+<script defer src="accessibility.js"></script>
 </body>
 </html>
