@@ -192,6 +192,40 @@
               <div class="hint">El mes y el año salen de la fecha de emisión.</div></div>
           </div>
 
+          <div class="f-group" id="temario-group" style="display:none;">
+            <label class="chk-temario"><input type="checkbox" id="f-temario-on"> Agregar temario</label>
+            <div id="temario-builder" style="display:none;">
+              <label class="chk-solo"><input type="checkbox" id="f-solo-titulos"> Solo títulos (sin fechas ni horas)</label>
+              <div class="field"><label>Tamaño Letra</label>
+                <div class="size-wrap" id="size-wrap-tem">
+                  <input id="f-tem-size" type="number" placeholder="Automático">
+                  <button type="button" class="sz-btn" id="size-toggle-tem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div class="cselect-list">
+                    <div data-val="22">22</div>
+                    <div data-val="26">26</div>
+                    <div data-val="30">30</div>
+                    <div data-val="34">34</div>
+                    <div data-val="38">38</div>
+                    <div data-val="42">42</div>
+                    <div data-val="46">46</div>
+                    <div data-val="52">52</div>
+                    <div data-val="58">58</div>
+                    <div data-val="64">64</div>
+                  </div>
+                </div>
+              </div>
+              <div id="modulos-list"></div>
+              <button type="button" class="btn-add-modulo" id="btn-add-modulo">+ Agregar módulo</button>
+              <div class="row2" style="margin-top:12px;">
+                <div class="field" id="wrap-total"><label>Total de horas</label><input id="f-total-horas" type="text" readonly placeholder="0 hrs"></div>
+                <div class="field"><label>Nota final</label><input id="f-nota" type="text" placeholder="Ej: 18"></div>
+              </div>
+              <button type="button" class="btn" id="btn-ver-temario" style="width:100%;margin-top:6px;">Ver temario ↔ certificado</button>
+            </div>
+          </div>
+
           <button class="btn-primary" id="btn-guardar">Guardar y generar (PDF)</button>
           <div class="btns">
             <button class="btn" id="btn-png">Descargar PNG</button>
@@ -275,6 +309,7 @@
   <div class="modal-box">
     <button class="modal-close" id="ver-close" aria-label="Cerrar">✕</button>
     <canvas id="ver-canvas" width="2000" height="1414"></canvas>
+    <canvas id="ver-canvas-tem" width="2000" height="1414" style="display:none;margin-top:12px;"></canvas>
     <div class="modal-actions">
       <button class="m-pdf" id="ver-pdf">Descargar PDF</button>
       <button class="m-png" id="ver-png">Descargar PNG</button>
@@ -358,7 +393,13 @@ $('size-toggle').addEventListener('click', e => { e.stopPropagation(); sizeWrap.
 sizeWrap.querySelectorAll('.cselect-list div').forEach(opt => {
   opt.addEventListener('click', () => { $('f-size').value = opt.dataset.val; sizeWrap.classList.remove('open'); dibujar(); });
 });
-document.addEventListener('click', () => sizeWrap.classList.remove('open'));
+const sizeWrapTem = $('size-wrap-tem');
+$('size-toggle-tem').addEventListener('click', e => { e.stopPropagation(); sizeWrapTem.classList.toggle('open'); });
+sizeWrapTem.querySelectorAll('.cselect-list div').forEach(opt => {
+  opt.addEventListener('click', () => { $('f-tem-size').value = opt.dataset.val; sizeWrapTem.classList.remove('open'); dibujar(); });
+});
+$('f-tem-size').addEventListener('input', dibujar);
+document.addEventListener('click', () => { sizeWrap.classList.remove('open'); sizeWrapTem.classList.remove('open'); });
 
 /* ───── NAVEGACIÓN ───── */
 document.querySelectorAll('.side button').forEach(b=>{
@@ -387,8 +428,15 @@ function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
   $('lbl-titulo').textContent=cfg.etiquetaTitulo;
   $('wrap-fin').style.display=cfg.fechas==='rango'?'block':'none';
   $('lbl-inicio').textContent=cfg.fechas==='rango'?'Periodo: desde':'Fecha del periodo';
-  $('codigo-preview').textContent=d.codigo; }
-function dibujar(){ actualizarUI(); KJACert.render($('cert'), leerDatos()); }
+  $('codigo-preview').textContent=d.codigo;
+  const aplica=temarioAplica();                 // el temario solo aplica a Curso / Especialización
+  $('temario-group').style.display = aplica ? 'block' : 'none';
+  if(!aplica){ $('f-temario-on').checked=false; $('temario-builder').style.display='none'; vistaTemario=false; }
+}
+function dibujar(){ actualizarUI();
+  if(vistaTemario && temarioActivo()) KJACert.renderTemario($('cert'), leerTemario());
+  else KJACert.render($('cert'), leerDatos());
+}
 function nombreArchivo(d){ return `${d.codigo.replace(/[^a-z0-9]/gi,'_')}_${d.nombre.replace(/\s+/g,'_')}`; }
 function status(t,tipo){ const e=$('status'); e.textContent=t; e.className='status '+(tipo||'info'); if(!t)e.style.display='none'; }
 
@@ -412,6 +460,7 @@ function resetForm(){
   $('f-nombre').value=''; $('f-dni').value=''; $('f-titulo').value='';
   $('f-duracion').value=''; $('f-numero').value='';
   $('f-extranjero').checked=false; actualizarDniUI();
+  resetTemario();
   setTipo($('f-tipo').value || 'taller'); // Ensures f-size starts with the right default number
   if(fpInicio){ fpInicio.setDate('today'); fpFin.setDate('today'); fpEmision.setDate('today'); }
   dibujar();
@@ -441,9 +490,10 @@ async function guardarYGenerar(){
       await db.from('clientes').update(upd).eq('id',clienteId);
     } else{ const {data:nuevo,error:e2}=await db.from('clientes').insert({nombre:d.nombre,dni:d.dni||null}).select('id').single();
       if(e2) throw e2; clienteId=nuevo.id; }
+    const tem=leerTemario();
     const payload={codigo:d.codigo,tipo:d.tipo,nombre:d.nombre,dni:d.dni||null,titulo:d.titulo,
       duracion:d.duracion,fecha_inicio:d.fechaInicio||null,fecha_fin:d.fechaFin||null,
-      fecha_emision:d.fechaEmision||null,cliente_id:clienteId};
+      fecha_emision:d.fechaEmision||null,cliente_id:clienteId,temario:tem,font_size_nombre:d.fontSizeNombre||null};
     let error;
     if(editingId){ ({error}=await db.from('certificados').update(payload).eq('id',editingId)); }
     else{ ({error}=await db.from('certificados').insert(payload)); }
@@ -453,7 +503,7 @@ async function guardarYGenerar(){
       btn.disabled=false; return;
     }
     status(editingId?'✓ Actualizado. Descargando PDF…':'✓ Guardado. Descargando PDF…','ok');
-    KJACert.exportar($('cert'), nombreArchivo(d), 'pdf');
+    await descargarPDF(d, tem);
     cargarClientes(); modoNuevo();
   }catch(err){ status('Error: '+(err.message||err),'error'); }
   finally{ btn.disabled=false; }
@@ -522,7 +572,69 @@ $('f-extranjero').addEventListener('change', ()=>{
 
 $('btn-guardar').addEventListener('click',guardarYGenerar);
 $('btn-png').addEventListener('click',()=>KJACert.exportar($('cert'),nombreArchivo(leerDatos()),'png'));
-$('btn-pdf').addEventListener('click',()=>KJACert.exportar($('cert'),nombreArchivo(leerDatos()),'pdf'));
+$('btn-pdf').addEventListener('click',()=>descargarPDF(leerDatos(), leerTemario()));
+
+/* ───── TEMARIO (Curso / Especialización) ───── */
+let modulos=[], fpModulos=[], vistaTemario=false;
+const ORD_MOD=['1er','2do','3er','4to','5to','6to','7mo','8vo','9no','10mo'];
+function temarioAplica(){ return ['curso','especializacion'].includes($('f-tipo').value); }
+function temarioActivo(){ return temarioAplica() && $('f-temario-on').checked; }
+function soloTitulos(){ return $('f-solo-titulos').checked; }
+function leerTemario(){
+  if(!temarioActivo()) return null;
+  return { modulos: modulos.filter(m=>m.titulo||m.fechaInicio||m.horas),
+           nota: $('f-nota').value.trim(), soloTitulos: soloTitulos(),
+           tituloSize: $('f-tem-size').value ? parseInt($('f-tem-size').value,10) : null };
+}
+function recomputeTotal(){ const t=modulos.reduce((s,m)=>s+(parseInt(m.horas,10)||0),0); $('f-total-horas').value = t? t+' hrs':''; }
+function renderModulos(){
+  fpModulos.forEach(fp=>{ try{fp.destroy();}catch(e){} }); fpModulos=[];
+  const cont=$('modulos-list'); cont.innerHTML=''; const solo=soloTitulos();
+  modulos.forEach((m,i)=>{
+    const row=document.createElement('div'); row.className='modulo-row';
+    row.innerHTML=`<div class="modulo-head"><span>${ORD_MOD[i]||(i+1)+'°'} Módulo</span><button type="button" class="del-modulo" title="Quitar">✕</button></div>
+      <input class="m-titulo" type="text" placeholder="Título del módulo">`
+      + (solo ? '' : `<div class="row2"><input class="m-inicio" type="text" placeholder="Inicio"><input class="m-fin" type="text" placeholder="Fin"></div><input class="m-horas" type="number" min="0" placeholder="Horas">`);
+    cont.appendChild(row);
+    const tIn=row.querySelector('.m-titulo'); tIn.value=m.titulo||'';
+    tIn.addEventListener('input',()=>{ modulos[i].titulo=tIn.value; dibujar(); });
+    row.querySelector('.del-modulo').addEventListener('click',()=>{ modulos.splice(i,1); renderModulos(); dibujar(); });
+    if(!solo){
+      const hIn=row.querySelector('.m-horas'); hIn.value=m.horas||'';
+      hIn.addEventListener('input',()=>{ modulos[i].horas=hIn.value; recomputeTotal(); dibujar(); });
+      const base={locale:'es',dateFormat:'Y-m-d',altInput:true,altFormat:'d/m/Y',disableMobile:true};
+      fpModulos.push(
+        flatpickr(row.querySelector('.m-inicio'), {...base, defaultDate:m.fechaInicio||null, onChange:(_,s)=>{ modulos[i].fechaInicio=s; dibujar(); }}),
+        flatpickr(row.querySelector('.m-fin'),    {...base, defaultDate:m.fechaFin||null,    onChange:(_,s)=>{ modulos[i].fechaFin=s; dibujar(); }})
+      );
+    }
+  });
+  recomputeTotal();
+}
+function addModulo(){ modulos.push({titulo:'',fechaInicio:'',fechaFin:'',horas:''}); renderModulos(); dibujar(); }
+function resetTemario(){ modulos=[]; vistaTemario=false; $('f-temario-on').checked=false; $('f-solo-titulos').checked=false; $('f-nota').value=''; $('f-tem-size').value=''; $('wrap-total').style.display='block'; $('temario-builder').style.display='none'; renderModulos(); }
+$('f-temario-on').addEventListener('change',()=>{
+  const on=$('f-temario-on').checked;
+  $('temario-builder').style.display = on?'block':'none';
+  if(on && modulos.length===0) addModulo();
+  if(!on) vistaTemario=false;
+  dibujar();
+});
+$('f-solo-titulos').addEventListener('change',()=>{
+  $('wrap-total').style.display = soloTitulos() ? 'none' : 'block';
+  renderModulos(); dibujar();
+});
+$('btn-add-modulo').addEventListener('click', addModulo);
+$('btn-ver-temario').addEventListener('click',()=>{ vistaTemario=!vistaTemario; dibujar(); });
+
+async function descargarPDF(d, tem){
+  const fn=nombreArchivo(d);
+  if(tem && tem.modulos && tem.modulos.length){
+    const c1=document.createElement('canvas'); c1.width=KJACert.W; c1.height=KJACert.H; await KJACert.render(c1, d);
+    const c2=document.createElement('canvas'); c2.width=KJACert.W; c2.height=KJACert.H; await KJACert.renderTemario(c2, tem);
+    KJACert.exportarMulti([c1,c2], fn);
+  } else { KJACert.exportar($('cert'), fn, 'pdf'); }
+}
 
 /* ───── EMITIDOS (listar / editar / eliminar) ───── */
 let emitidos=[], grupos=[];
@@ -754,18 +866,28 @@ function nuevoCertCliente(nombre, dni){
   status(`Nuevo certificado para ${nombre}. Completa los datos y guarda.`,'info');
 }
 function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,titulo:r.titulo,duracion:r.duracion,
-  fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo}; }
+  fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo,
+  fontSizeNombre:r.font_size_nombre}; }
 async function descargarFila(id, fmt){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
-  const off=document.createElement('canvas'); off.width=KJACert.W; off.height=KJACert.H;
-  await KJACert.render(off, rowToDatos(r));
-  KJACert.exportar(off, r.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+r.nombre.replace(/\s+/g,'_'), fmt||'pdf');
+  const fn=r.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+r.nombre.replace(/\s+/g,'_');
+  const c1=document.createElement('canvas'); c1.width=KJACert.W; c1.height=KJACert.H;
+  await KJACert.render(c1, rowToDatos(r));
+  const tem=r.temario;
+  if((fmt||'pdf')==='pdf' && tem && tem.modulos && tem.modulos.length){
+    const c2=document.createElement('canvas'); c2.width=KJACert.W; c2.height=KJACert.H;
+    await KJACert.renderTemario(c2, tem);
+    KJACert.exportarMulti([c1,c2], fn);
+  } else { KJACert.exportar(c1, fn, fmt||'pdf'); }
 }
 
-/* 👁 Ver: ventana emergente con el certificado renderizado */
+/* 👁 Ver: ventana emergente con el certificado (y temario si lo tiene) */
 async function verModal(id){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
   await KJACert.render($('ver-canvas'), rowToDatos(r));
+  const tem=r.temario, tc=$('ver-canvas-tem');
+  if(tem && tem.modulos && tem.modulos.length){ tc.style.display='block'; await KJACert.renderTemario(tc, tem); }
+  else tc.style.display='none';
   $('ver-pdf').onclick=()=>descargarFila(id,'pdf');
   $('ver-png').onclick=()=>descargarFila(id,'png');
   $('ver-modal').classList.add('open');
@@ -780,6 +902,17 @@ function editarFila(id){
   $('f-titulo').value=r.titulo; $('f-duracion').value=r.duracion||'';
   fpInicio.setDate(r.fecha_inicio||'today'); fpFin.setDate(r.fecha_fin||'today'); fpEmision.setDate(r.fecha_emision||'today');
   $('f-numero').value=(r.codigo.split('-')[1]||'').trim();
+  // temario (si el certificado lo tiene)
+  const tem=r.temario;
+  $('f-temario-on').checked = !!(tem && tem.modulos && tem.modulos.length);
+  modulos = (tem && tem.modulos) ? tem.modulos.map(m=>({titulo:m.titulo||'',fechaInicio:m.fechaInicio||'',fechaFin:m.fechaFin||'',horas:m.horas||''})) : [];
+  $('f-nota').value = (tem && tem.nota) || '';
+  $('f-solo-titulos').checked = !!(tem && tem.soloTitulos);
+  $('f-tem-size').value = (tem && tem.tituloSize) || '';
+  $('wrap-total').style.display = (tem && tem.soloTitulos) ? 'none' : 'block';
+  $('temario-builder').style.display = $('f-temario-on').checked ? 'block' : 'none';
+  vistaTemario=false; renderModulos();
+  if(r.font_size_nombre) $('f-size').value=r.font_size_nombre;   // conserva el tamaño elegido
   editingId=id; $('editing-flag').style.display='block'; $('btn-cancel').style.display='block';
   $('btn-guardar').textContent='Actualizar y generar (PDF)'; $('gen-title').textContent='Editar Certificado';
   irA('gen'); dibujar();

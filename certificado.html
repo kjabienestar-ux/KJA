@@ -88,6 +88,7 @@
     <div id="cliente-info"></div>
     <div id="viewer">
       <canvas id="viewer-canvas" width="2000" height="1414"></canvas>
+      <canvas id="viewer-canvas-tem" width="2000" height="1414" style="display:none;margin-top:16px;"></canvas>
       <div class="viewer-actions">
         <button class="b-pdf" id="dl-pdf">Descargar PDF</button>
         <button class="b-png" id="dl-png">Descargar PNG</button>
@@ -136,7 +137,8 @@ const TIPO_LBL={taller:'Certificado de Taller',curso:'Certificado de Curso',
 function banner(txt,err){ const b=$('banner'); b.className='banner show '+(err?'err':'ok'); b.querySelector('.ico').textContent=err?'✕':'✓'; $('banner-txt').textContent=txt; }
 function limpiarBanner(){ $('banner').className='banner'; }
 function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,titulo:r.titulo,duracion:r.duracion,
-  fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo}; }
+  fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo,
+  fontSizeNombre:r.font_size_nombre}; }
 
 function setLoading(isLoading) {
   const btn = $('btn-buscar');
@@ -172,13 +174,22 @@ async function verCert(row){
   document.querySelectorAll('.card').forEach(c=>c.classList.toggle('activo', c.dataset.cod===row.codigo));
   $('viewer').style.display='block';
   await KJACert.render($('viewer-canvas'), rowToDatos(row));
+  const tem=row.temario, tc=$('viewer-canvas-tem');
+  if(tem && tem.modulos && tem.modulos.length){ tc.style.display='block'; await KJACert.renderTemario(tc, tem); }
+  else tc.style.display='none';
   $('dl-pdf').onclick=()=>descargar(row,'pdf'); $('dl-png').onclick=()=>descargar(row,'png');
   $('viewer').scrollIntoView({behavior:'smooth',block:'center'});
 }
 async function descargar(row,fmt){
-  const off=document.createElement('canvas'); off.width=KJACert.W; off.height=KJACert.H;
-  await KJACert.render(off, rowToDatos(row));
-  KJACert.exportar(off, row.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+row.nombre.replace(/\s+/g,'_'), fmt);
+  const fn=row.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+row.nombre.replace(/\s+/g,'_');
+  const c1=document.createElement('canvas'); c1.width=KJACert.W; c1.height=KJACert.H;
+  await KJACert.render(c1, rowToDatos(row));
+  const tem=row.temario;
+  if(fmt==='pdf' && tem && tem.modulos && tem.modulos.length){
+    const c2=document.createElement('canvas'); c2.width=KJACert.W; c2.height=KJACert.H;
+    await KJACert.renderTemario(c2, tem);
+    KJACert.exportarMulti([c1,c2], fn);
+  } else { KJACert.exportar(c1, fn, fmt); }
 }
 
 async function pintarLista(nombre, list, codActivo, autoOcultar){
