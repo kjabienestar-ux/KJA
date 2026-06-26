@@ -404,7 +404,14 @@
             }
         }
 
-        // 5. Fuente disléxica
+        // 5. Fuente disléxica (la hoja de OpenDyslexic se carga solo la primera vez que se activa)
+        if (accessibilityState.dyslexia === 1 && !document.getElementById('acc-dyslexic-font')) {
+            const link = document.createElement('link');
+            link.id = 'acc-dyslexic-font';
+            link.rel = 'stylesheet';
+            link.href = 'https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css';
+            document.head.appendChild(link);
+        }
         htmlEl.classList.toggle('acc-dyslexia', accessibilityState.dyslexia === 1);
 
         // 6. Interlineado

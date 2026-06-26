@@ -329,9 +329,10 @@ header.scrolled .hamburger span {
     position: absolute;
     inset: 0;
     z-index: 1;
+    /* Oscurece solo la franja izquierda (donde va el texto); el resto de la foto se ve nítido */
     background:
-        linear-gradient(to right, rgba(0, 10, 50, 0.85) 0%, rgba(0, 10, 50, 0.45) 55%, transparent 100%),
-        linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, transparent 50%);
+        linear-gradient(to right, rgba(0, 10, 50, 0.6) 0%, rgba(0, 10, 50, 0.28) 38%, transparent 68%),
+        linear-gradient(to top, rgba(0, 0, 0, 0.32) 0%, transparent 38%);
 }
 
 /* ── Slide content track ── */
@@ -372,8 +373,9 @@ header.scrolled .hamburger span {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 3px;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.9);
     margin-bottom: 18px;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
     opacity: 0;
     transform: translateX(-20px);
     transition: opacity 0.7s 0.2s ease, transform 0.7s 0.2s ease;
@@ -399,7 +401,7 @@ header.scrolled .hamburger span {
     font-weight: 900;
     line-height: 1.0;
     margin-bottom: 22px;
-    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.75), 0 1px 4px rgba(0, 0, 0, 0.6);
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.7s 0.35s ease, transform 0.7s 0.35s ease;
@@ -416,13 +418,15 @@ header.scrolled .hamburger span {
     transform: translateY(0);
 }
 
-/* Descripción */
+/* Descripción (oculta para un hero más limpio) */
 .carousel-desc {
+    display: none;
     font-size: 1rem;
     line-height: 1.7;
     max-width: 440px;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.92);
     margin-bottom: 34px;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.7s 0.5s ease, transform 0.7s 0.5s ease;
@@ -450,6 +454,7 @@ header.scrolled .hamburger span {
 }
 
 .carousel-link {
+    display: none;
     color: rgba(255, 255, 255, 0.8);
     font-size: 0.9rem;
     font-weight: 600;
