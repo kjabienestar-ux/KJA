@@ -23,7 +23,12 @@ body {
 html {
     scroll-behavior: smooth;
     scroll-padding-top: 90px;
-    /* compensa el header fijo al navegar por anclas */
+    background: #0a1628;
+}
+
+/* Extiende el header fijo al safe area de iOS */
+header {
+    padding-top: max(15px, env(safe-area-inset-top, 15px));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -167,6 +172,7 @@ header.scrolled {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     padding: 12px 0;
+    padding-top: max(12px, env(safe-area-inset-top, 12px));
 }
 
 header.scrolled::before {

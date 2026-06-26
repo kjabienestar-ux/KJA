@@ -459,7 +459,7 @@ footer { margin-top: auto; }
   padding: 14px 16px 14px 44px;
   border: 2px solid #e3e8f0;
   border-radius: 14px;
-  font-size: 15px;
+  font-size: 16px;
   font-family: inherit;
   box-sizing: border-box;
   transition: border-color .2s, box-shadow .2s;
@@ -850,7 +850,7 @@ footer { margin-top: auto; }
   .search-card__icon { width: 50px; height: 50px; border-radius: 14px; }
 
   .search-row { flex-direction: column; gap: 10px; }
-  .search-row input { font-size: 14px; }
+  .search-row input { font-size: 16px; }
   #btn-buscar { width: 100%; justify-content: center; padding: 13px 20px; }
 
   .viewer-actions { flex-direction: column; }
