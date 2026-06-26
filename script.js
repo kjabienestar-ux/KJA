@@ -657,15 +657,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
     if (!header) return;
 
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    const themeColorDark = themeMeta ? themeMeta.content : '#004fb0';
+
     function handleScroll() {
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
+        const isScrolled = window.scrollY > 50;
+        header.classList.toggle('scrolled', isScrolled);
+        if (themeMeta) {
+            themeMeta.content = isScrolled ? '#ffffff' : themeColorDark;
         }
+        document.documentElement.style.background = isScrolled ? '#ffffff' : '#0a1628';
     }
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    // Check initial position on load
     handleScroll();
 });
