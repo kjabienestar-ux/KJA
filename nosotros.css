@@ -1,0 +1,712 @@
+/* ════════════════════════════════════════════════════════════
+   NOSOTROS · Rediseño 2025 — "Editorial Wellness"
+   Cargado DESPUÉS de shared.css; solo afecta a nosotros.html.
+
+   ÍNDICE
+     1. Variables (:root)
+     2. Hero (degradado + glow + curvas topográficas + tabs)
+     3. Sección/Paneles (animación de entrada)
+     4. Quiénes somos / Servicios (imagen + tarjeta navy)
+     5. Directores
+     6. Misión y Visión
+     7. Valores
+     8. Responsive
+     9. Movimiento reducido (accesibilidad)
+
+   NOTAS DE RENDIMIENTO
+     · Solo se animan 'opacity' y 'transform' (corren en el compositor,
+       sin repintar). Se evita animar 'filter' y 'backdrop-filter'.
+     · Los efectos glass usan fondos translúcidos sólidos en lugar de
+       backdrop-filter para no re-muestrear el fondo en cada frame.
+     · Las imágenes de los paneles ocultos cargan con loading="lazy".
+   ════════════════════════════════════════════════════════════ */
+
+:root {
+  --nos-blue: #004fb0;
+  --nos-pink: #f10075;
+  --nos-purple: #7c3aed;
+  --nos-navy: #06224d;
+  --nos-ink: #1e293b;
+  --nos-muted: #5b6b86;
+  --nos-surface: #ffffff;
+  --nos-radius: 28px;
+  --nos-ease: cubic-bezier(.22, .61, .36, 1);
+}
+
+/* ══════════════ HERO ══════════════ */
+.nos-hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 100px 24px 100px;
+  background:
+    radial-gradient(ellipse 55% 48% at 8% 4%, rgba(241, 0, 117, .45) 0%, rgba(160, 30, 130, .25) 35%, transparent 62%),
+    radial-gradient(ellipse 50% 45% at 100% 100%, rgba(0, 70, 170, .45) 0%, transparent 60%),
+    linear-gradient(150deg, #06224d 0%, #004fb0 48%, #031430 100%);
+  isolation: isolate;
+}
+
+.nos-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* Glow magenta con movimiento lento (arriba-izquierda).
+   PERF: blur reducido a 60px (antes 80) y solo se anima 'transform',
+   que el navegador resuelve en el compositor sin repintar. */
+.nos-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  will-change: transform;
+}
+.nos-orb--1 {
+  width: 560px; height: 560px;
+  top: -200px; left: -160px;
+  background: radial-gradient(circle, rgba(241, 0, 117, .5), transparent 70%);
+  opacity: .7;
+  animation: nosFloat1 18s ease-in-out infinite alternate;
+}
+@keyframes nosFloat1 {
+  to { transform: translate(60px, 50px) scale(1.12); }
+}
+
+/* Líneas topográficas (curvas de nivel) dibujadas como SVG inline en
+   un data-URI: pesa pocos bytes y no genera una petición extra.
+   La máscara las desvanece arriba y abajo para integrarlas con el degradado. */
+.nos-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Cpath fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='1.5' d='M-100,-100 C 100,50 300,-50 400,100 C 500,250 300,350 450,500 C 600,650 800,550 900,700 M-50,-150 C 150,0 350,-100 450,50 C 550,200 350,300 500,450 C 650,600 850,500 950,650 M-150,-50 C 50,100 250,0 350,150 C 450,300 250,400 400,550 C 550,700 750,600 850,750 M0,-200 C 200,-50 400,-150 500,0 C 600,150 400,250 550,400 C 700,550 900,450 1000,600 M-200,0 C 0,150 200,50 300,200 C 400,350 200,450 350,600 C 500,750 700,650 800,800 M50,-250 C 250,-100 450,-200 550,-50 C 650,100 450,200 600,350 C 750,500 950,400 1050,550 M-250,50 C -50,200 150,100 250,250 C 350,400 150,500 300,650 C 450,800 650,700 750,850 M100,-300 C 300,-150 500,-250 600,-100 C 700,50 500,150 650,300 C 800,450 1000,350 1100,500 M-300,100 C -100,250 100,150 200,300 C 300,450 100,550 250,700 C 400,850 600,750 700,900'/%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: center;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%);
+}
+/* Puntos brillantes (nodos) sobre las curvas.
+   PERF: el drop-shadow es ESTÁTICO; solo se anima 'opacity' (titileo),
+   que es la única propiedad barata de animar a pantalla completa.
+   Antes se animaba 'filter', lo que forzaba un repintado en cada frame. */
+.nos-grid-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.8) 2px, transparent 4px),
+                    radial-gradient(circle at 80% 40%, rgba(255,255,255,0.8) 2px, transparent 4px),
+                    radial-gradient(circle at 40% 70%, rgba(241,0,117,0.8) 3px, transparent 6px),
+                    radial-gradient(circle at 70% 80%, rgba(0,79,176,0.8) 3px, transparent 6px),
+                    radial-gradient(circle at 10% 60%, rgba(255,255,255,0.5) 1.5px, transparent 3px),
+                    radial-gradient(circle at 90% 20%, rgba(255,255,255,0.5) 1.5px, transparent 3px);
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.7)) drop-shadow(0 0 18px rgba(241,0,117,0.5));
+  animation: nosPulse 4s infinite alternate;
+}
+@keyframes nosPulse {
+  0% { opacity: 0.55; }
+  100% { opacity: 1; }
+}
+
+.nos-hero__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.nos-eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #fff;
+  /* PERF: fondo translúcido sólido en vez de backdrop-filter (que re-muestrea
+     el fondo animado del hero en cada frame). */
+  background: rgba(255, 255, 255, .14);
+  border: 1px solid rgba(255, 255, 255, .25);
+  padding: 7px 18px;
+  border-radius: 999px;
+  margin-bottom: 26px;
+  animation: nosUp .7s var(--nos-ease) both .05s;
+}
+
+.nos-hero__title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  line-height: 1.02;
+  letter-spacing: -1.5px;
+  color: #fff;
+  margin: 0 0 18px;
+  animation: nosUp .7s var(--nos-ease) both .15s;
+}
+.nos-hero__title em {
+  font-style: italic;
+  font-weight: 500;
+  background: linear-gradient(100deg, #ff5fa8, #ff8cb9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px rgba(255, 95, 168, 0.4));
+}
+
+.nos-hero__sub {
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, .82);
+  max-width: 640px;
+  margin: 0 auto 40px;
+  animation: nosUp .7s var(--nos-ease) both .25s;
+}
+
+@keyframes nosUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Ola inferior de transición */
+.nos-hero__wave {
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  line-height: 0;
+  z-index: 1;
+}
+.nos-hero__wave svg {
+  width: 100%;
+  height: 90px;
+  display: block;
+}
+
+/* ══════════════ TABS (glass refinadas) ══════════════ */
+.nos-hero .hero-tabs {
+  gap: 10px;
+  animation: nosUp .7s var(--nos-ease) both .35s;
+}
+
+/* PERF: los tabs ya no usan backdrop-filter. Eran 5 capas de desenfoque
+   sobre un fondo animado = mucho costo. Fondo translúcido sólido en su lugar. */
+.nos-hero .hero-tab {
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .15);
+  color: rgba(255, 255, 255, .9);
+  padding: 12px 26px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  transition: transform .3s var(--nos-ease), background .3s, box-shadow .3s, border-color .3s;
+}
+.nos-hero .hero-tab:hover {
+  background: rgba(255, 255, 255, .15);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .22);
+}
+.nos-hero .hero-tab.active {
+  background: linear-gradient(120deg, var(--nos-pink), #ff2a7a);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 0 25px rgba(241, 0, 117, .8);
+  transform: translateY(-2px);
+}
+
+/* ══════════════ SECCIÓN / PANELES ══════════════ */
+.about-section {
+  background: var(--nos-surface);
+  padding: 60px 0 80px;
+}
+
+.about-section .container {
+  position: relative;
+  z-index: 10;
+  margin-top: 0;
+}
+
+/* Entrada del panel al cambiar de pestaña.
+   PERF: solo opacity + transform (compositor). Antes incluía blur(), que
+   obliga a repintar durante la transición. */
+.about-panel.active {
+  animation: nosPanelIn .5s var(--nos-ease) both;
+}
+@keyframes nosPanelIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Eyebrows / títulos compartidos */
+.about-panel-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--nos-pink);
+  background: rgba(241, 0, 117, .12);
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+}
+
+/* ══════════════ QUIÉNES SOMOS / SERVICIOS ══════════════ */
+.about-grid-modern {
+  gap: 44px;
+  align-items: stretch;
+}
+@media (min-width: 1024px) {
+  .about-grid-modern { grid-template-columns: 1fr 1fr; gap: 56px; }
+}
+
+.about-image-modern {
+  position: relative;
+  border-radius: var(--nos-radius);
+  min-height: 460px;
+  border: none;
+  box-shadow: 0 30px 60px rgba(6, 34, 77, .16);
+}
+.about-image-modern::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25);
+  background: linear-gradient(180deg, transparent 55%, rgba(6, 34, 77, .25));
+  pointer-events: none;
+}
+
+/* Tarjeta flotante sobre la imagen */
+.about-float-card {
+  position: absolute;
+  left: -18px;
+  bottom: 28px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 22px;
+  border-radius: 18px;
+  /* PERF: blanco casi opaco en vez de backdrop-filter; la tarjeta se mueve
+     (levitate), y desenfocar el fondo mientras se anima es muy costoso. */
+  background: rgba(255, 255, 255, .95);
+  border: 1px solid rgba(255, 255, 255, .6);
+  box-shadow: 0 18px 40px rgba(6, 34, 77, .22);
+  animation: nosLevitate 4s ease-in-out infinite alternate;
+}
+.about-float-card__num {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--nos-pink);
+  line-height: 1;
+}
+.about-float-card__lbl {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  color: var(--nos-navy);
+}
+@keyframes nosLevitate {
+  to { transform: translateY(-10px); }
+}
+
+/* Tarjeta de texto: navy refinada con glow */
+.about-text-modern {
+  background: #06193b;
+  border: 1px solid rgba(255, 255, 255, .08);
+  padding: 48px 44px;
+  border-radius: var(--nos-radius);
+  font-size: 15.5px;
+  line-height: 1.85;
+  box-shadow: 0 30px 60px rgba(6, 34, 77, .12);
+  color: rgba(255, 255, 255, 0.75);
+}
+.about-panel-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 34px;
+  line-height: 1.12;
+  letter-spacing: -.5px;
+  color: #ffffff;
+  margin: 0 0 18px;
+}
+
+/* Cita con comilla decorativa */
+.about-quote-box {
+  margin-top: 28px;
+  padding: 22px 24px 22px 56px;
+  border-left: none;
+  position: relative;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 18px;
+}
+.about-quote-box::before {
+  content: '\201C';
+  position: absolute;
+  left: 16px;
+  top: 2px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 64px;
+  line-height: 1;
+  color: var(--nos-pink);
+  opacity: .85;
+}
+.quote-text {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, .92);
+  margin: 0;
+}
+
+/* Lista de servicios */
+.about-features-list { gap: 18px; margin-top: 24px; }
+.about-features-list li {
+  padding: 16px 16px 16px 52px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, .9);
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 14px;
+}
+.about-features-list li strong { color: #fff; }
+.about-features-list li::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--nos-pink), #ff5fa8);
+  box-shadow: 0 0 0 4px rgba(241, 0, 117, .15);
+}
+.about-features-list li::after {
+  content: '\2713';
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* ══════════════ DIRECTORES (GLASSMORPHISM) ══════════════ */
+#about-directores {
+  position: relative;
+  z-index: 1;
+}
+#about-directores::before,
+#about-directores::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: -1;
+  pointer-events: none;
+}
+#about-directores::before {
+  top: -20px;
+  left: -20px;
+  width: 350px;
+  height: 350px;
+  background: rgba(241, 0, 117, 0.2);
+}
+#about-directores::after {
+  bottom: -20px;
+  right: -20px;
+  width: 450px;
+  height: 450px;
+  background: rgba(0, 70, 170, 0.2);
+}
+
+.directors-layout { gap: 40px; }
+.director-card {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 15px 45px rgba(6, 34, 77, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  transition: transform .4s var(--nos-ease), box-shadow .4s var(--nos-ease), background .4s var(--nos-ease);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.director-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 60px rgba(6, 34, 77, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.65);
+}
+.director-img-wrap {
+  height: 280px;
+  position: relative;
+  overflow: hidden;
+}
+.director-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .6s var(--nos-ease);
+}
+.director-card:hover .director-img-wrap img {
+  transform: scale(1.05);
+}
+.director-img-wrap::after {
+  display: none;
+}
+.director-info { padding: 36px 36px 40px; flex: 1; display: flex; flex-direction: column; }
+.director-role {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--nos-pink);
+  background: rgba(241, 0, 117, .08);
+  padding: 6px 16px;
+  border-radius: 99px;
+  margin-bottom: 24px;
+}
+.director-info h3 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 700;
+  font-size: 26px;
+  color: #06193b;
+  margin-bottom: 16px;
+  letter-spacing: -0.2px;
+}
+.director-bio { 
+  font-size: 14.5px; 
+  color: #5b6b86; 
+  line-height: 1.8; 
+  margin-bottom: 32px;
+  flex: 1;
+}
+.director-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.director-specialties span {
+  display: inline-block;
+  font-size: 11.5px;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--nos-blue);
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all .3s;
+}
+.director-card:hover .director-specialties span {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--nos-navy);
+  border-color: rgba(0, 79, 176, 0.1);
+}
+
+/* ══════════════ MISIÓN Y VISIÓN ══════════════ */
+.mv-stacked-rows { gap: 56px; }
+.mv-row-text {
+  border-radius: var(--nos-radius);
+  padding: 48px 44px;
+  border: 1px solid rgba(6, 34, 77, .05);
+  box-shadow: 0 20px 45px rgba(6, 34, 77, .06);
+  overflow: visible;
+}
+.mv-row-text::before { height: 5px; border-radius: var(--nos-radius) var(--nos-radius) 0 0; }
+
+/* Número gigante de fondo */
+.mv-row-num {
+  position: absolute;
+  top: 18px;
+  right: 30px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 700;
+  font-size: 90px;
+  line-height: 1;
+  color: rgba(0, 79, 176, .07);
+  pointer-events: none;
+  user-select: none;
+}
+.mv-row-num--pink { color: rgba(241, 0, 117, .08); }
+
+.mv-icon-box {
+  border-radius: 20px;
+  background: linear-gradient(140deg, rgba(0, 79, 176, .12), rgba(0, 79, 176, .04));
+}
+.mv-icon-box--pink {
+  background: linear-gradient(140deg, rgba(241, 0, 117, .12), rgba(241, 0, 117, .04));
+}
+.mv-row-text h3 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 30px;
+  letter-spacing: -.5px;
+  color: var(--nos-navy);
+}
+.mv-row-text p { font-size: 15.5px; color: var(--nos-muted); }
+.mv-row-image {
+  border-radius: var(--nos-radius);
+  height: 360px;
+  border: none;
+  box-shadow: 0 26px 55px rgba(6, 34, 77, .14);
+}
+
+/* ══════════════ VALORES ══════════════ */
+.valores-split-container { gap: 44px; }
+.valores-split-image {
+  border-radius: var(--nos-radius);
+  box-shadow: 0 26px 55px rgba(6, 34, 77, .14);
+  border: none;
+  min-height: 340px;
+}
+.valores-split-overlay {
+  background: linear-gradient(to top, rgba(6, 34, 77, .92) 0%, rgba(6, 34, 77, .35) 55%, transparent 100%);
+  padding: 34px;
+}
+.valores-split-overlay span {
+  font-family: inherit;
+}
+.valores-split-overlay p {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 18px;
+}
+
+.valores-grid-modern { gap: 22px; }
+.valor-card {
+  border-radius: 22px;
+  padding: 32px 28px;
+  border: 1px solid rgba(6, 34, 77, .05);
+  box-shadow: 0 14px 34px rgba(6, 34, 77, .05);
+}
+.valor-card h4 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 21px;
+  color: var(--nos-navy);
+}
+.valor-card p { font-size: 14px; color: var(--nos-muted); line-height: 1.65; }
+.valor-icon-wrap {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+}
+
+/* ══════════════ RESPONSIVE ══════════════ */
+
+/* ── Tablet (≤980px) ── */
+@media (max-width: 980px) {
+  .nos-hero { padding: 110px 22px 90px; }
+  .about-text-modern { padding: 40px 36px; }
+  .mv-row-image { height: 300px; }
+  .valores-split-image { min-height: 300px; }
+}
+
+/* ── Móvil (≤767px) ── */
+@media (max-width: 767px) {
+  /* Hero: tipografías fluidas y más compacto */
+  .nos-hero { padding: 96px 18px 64px; }
+  .nos-eyebrow { font-size: 11px; letter-spacing: 1.6px; padding: 6px 14px; margin-bottom: 18px; }
+  .nos-hero__title { font-size: clamp(2.4rem, 11vw, 3.2rem); letter-spacing: -1px; margin-bottom: 14px; }
+  .nos-hero__sub { font-size: 1rem; margin-bottom: 26px; }
+  .nos-hero__wave svg { height: 46px; }
+
+  /* Tabs: rejilla de 2 columnas con anchos iguales (se ven los 5,
+     ordenados y con aire). El último ocupa toda la fila. */
+  .nos-hero .hero-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    max-width: 380px;
+    margin: 6px auto 0;
+    width: 100%;
+  }
+  .nos-hero .hero-tab {
+    padding: 13px 12px;
+    font-size: 13px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .nos-hero .hero-tab:last-child {
+    grid-column: 1 / -1;
+  }
+  /* En móvil el hover no aplica: evita que quede "levantado" tras tocar */
+  .nos-hero .hero-tab:hover { transform: none; box-shadow: none; }
+  .nos-hero .hero-tab.active { transform: none; }
+
+  /* Sección y separación entre bloques */
+  .about-section { padding: 36px 0 48px; }
+  .about-section .container { margin-top: 0; }
+  .about-grid-modern,
+  .directors-layout { gap: 26px; }
+  .mv-stacked-rows { gap: 30px; }
+  .valores-split-container { gap: 26px; }
+
+  /* Quiénes somos / Servicios */
+  .about-image-modern { min-height: 230px; }
+  .about-text-modern { padding: 30px 22px; font-size: 15px; line-height: 1.75; }
+  .about-panel-title { font-size: 25px; }
+  .about-panel-badge { font-size: 10px; margin-bottom: 14px; }
+  .about-float-card { left: 12px; bottom: 12px; padding: 11px 16px; }
+  .about-float-card__num { font-size: 20px; }
+  .about-features-list { gap: 12px; }
+  .about-features-list li { padding: 14px 14px 14px 46px; font-size: 13.5px; }
+
+  /* Misión y Visión */
+  .mv-row-text { padding: 30px 22px; }
+  .mv-row-num { font-size: 52px; top: 12px; right: 18px; }
+  .mv-row-text h3 { font-size: 23px; }
+  .mv-row-text p { font-size: 15px; }
+  .mv-row-image { height: 230px; }
+
+  /* Valores */
+  .valores-split-image { min-height: 230px; }
+  .valores-split-overlay { padding: 24px; }
+  .valores-split-overlay p { font-size: 16px; }
+  .valor-card { padding: 26px 22px; }
+  .valor-card h4 { font-size: 19px; }
+
+  /* Directores */
+  .director-img-wrap { height: 260px; }
+  .director-info { padding: 24px 22px 26px; }
+  .director-info h3 { font-size: 23px; }
+}
+
+/* ── Móvil pequeño (≤420px) ── */
+@media (max-width: 420px) {
+  .nos-hero__title { font-size: 2.15rem; }
+  .nos-hero__sub { font-size: .95rem; }
+  .about-text-modern { padding: 26px 18px; }
+  .about-panel-title { font-size: 22px; }
+  .mv-row-text { padding: 26px 18px; }
+  .mv-row-num { font-size: 46px; }
+  .valor-card { padding: 22px 18px; }
+}
+
+/* ══════════════ MOVIMIENTO REDUCIDO ══════════════
+   Respeta a quienes activan "reducir movimiento" en su sistema:
+   se detienen todas las animaciones continuas y de entrada. */
+@media (prefers-reduced-motion: reduce) {
+  .nos-orb,
+  .about-float-card,
+  .nos-grid-overlay::after {
+    animation: none !important;
+  }
+  .nos-eyebrow,
+  .nos-hero__title,
+  .nos-hero__sub,
+  .nos-hero .hero-tabs,
+  .about-panel.active {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}

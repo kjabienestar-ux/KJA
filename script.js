@@ -660,8 +660,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeMeta = document.querySelector('meta[name="theme-color"]');
     const themeColorDark = themeMeta ? themeMeta.content : '#004fb0';
 
+    // PERF: recordamos el último estado para escribir en el DOM SOLO cuando
+    // cambia (de arriba<->scrolleado), no en cada evento de scroll. Así
+    // evitamos recalcular estilos en cada frame mientras el usuario baja.
+    let lastScrolled = null;
     function handleScroll() {
         const isScrolled = window.scrollY > 50;
+        if (isScrolled === lastScrolled) return;
+        lastScrolled = isScrolled;
+
         header.classList.toggle('scrolled', isScrolled);
         if (themeMeta) {
             themeMeta.content = isScrolled ? '#ffffff' : themeColorDark;
