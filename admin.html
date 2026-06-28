@@ -351,7 +351,12 @@ $('login-form').addEventListener('submit', async e=>{
   const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
   b.disabled=false; b.textContent='Ingresar';
   if(error){
-    loginMsg('Correo o contraseña incorrectos.');
+    console.error('[KJA login] Supabase auth error:', error);   // diagnóstico: ver causa real en consola (F12)
+    const map={
+      'Invalid login credentials':'Correo o contraseña incorrectos.',
+      'Email not confirmed':'Tu correo aún no está confirmado. Revisa tu bandeja o confírmalo en Supabase.'
+    };
+    loginMsg(map[error.message] || ('No se pudo iniciar sesión: '+error.message));
     const card=document.querySelector('.login-card');
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     return;
