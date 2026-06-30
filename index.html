@@ -1084,7 +1084,7 @@
                 <li><a href="index.html#ubicanos">Ubícanos</a></li>
             </ul>
         </nav>
-        
+
         <nav class="nav-mobile-only">
             <div class="logo-container">
                 <a href="index.html">
@@ -1110,17 +1110,13 @@
 
         <!-- SLIDE BACKGROUNDS (separados para Ken Burns) -->
         <div class="carousel-bg-track" id="carouselBgTrack">
-            <div class="carousel-bg active"
-                style="background-image: url('images/dashboard/slide1.webp')">
+            <div class="carousel-bg active" style="background-image: url('images/dashboard/slide1.webp')">
             </div>
-            <div class="carousel-bg"
-                style="background-image: url('images/dashboard/slide2.webp')">
+            <div class="carousel-bg" style="background-image: url('images/dashboard/slide2.webp')">
             </div>
-            <div class="carousel-bg"
-                style="background-image: url('images/dashboard/slide3.webp')">
+            <div class="carousel-bg" style="background-image: url('images/dashboard/slide3.webp')">
             </div>
-            <div class="carousel-bg"
-                style="background-image: url('images/dashboard/slide4.webp')">
+            <div class="carousel-bg" style="background-image: url('images/dashboard/slide4.webp')">
             </div>
         </div>
 
@@ -1250,16 +1246,27 @@
 
     <!-- ===== LOGOS INSTITUCIONES (TICKER ANIMADO) ===== -->
     <section class="institutions-ticker py-10 bg-gray-50 overflow-hidden">
-        
+
         <!-- Subtítulo aclaratorio animado -->
         <style>
             @keyframes elegant-pulse {
-                0%, 100% { opacity: 0.8; transform: translateY(0) scale(1); }
-                50% { opacity: 1; transform: translateY(-2px) scale(1.02); }
+
+                0%,
+                100% {
+                    opacity: 0.8;
+                    transform: translateY(0) scale(1);
+                }
+
+                50% {
+                    opacity: 1;
+                    transform: translateY(-2px) scale(1.02);
+                }
             }
+
             .animate-elegant {
                 animation: elegant-pulse 3s infinite ease-in-out;
             }
+
             .custom-text-gradient {
                 background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
                 -webkit-background-clip: text;
@@ -1267,9 +1274,11 @@
                 background-clip: text;
                 color: transparent;
             }
+
             .custom-line-right {
                 background: linear-gradient(to right, transparent, #60a5fa, #1d4ed8);
             }
+
             .custom-line-left {
                 background: linear-gradient(to left, transparent, #60a5fa, #1d4ed8);
             }
@@ -1277,7 +1286,8 @@
         <div class="flex items-center justify-center gap-3 md:gap-6 mb-10 px-4">
             <div class="h-[2px] custom-line-right w-12 md:w-32 rounded-full opacity-60"></div>
             <div class="animate-elegant">
-                <p class="text-xs md:text-sm font-bold tracking-[0.15em] uppercase custom-text-gradient" style="font-family: 'Poppins', sans-serif;">
+                <p class="text-xs md:text-sm font-bold tracking-[0.15em] uppercase custom-text-gradient"
+                    style="font-family: 'Poppins', sans-serif;">
                     Convenio con internos de estas instituciones
                 </p>
             </div>
@@ -1287,25 +1297,29 @@
         <div class="ticker-container">
             <div class="ticker-track">
                 <!-- Set 1 -->
-                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo" style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
+                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
+                    style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
                 <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
                 <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
                 <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
 
                 <!-- Set 2 -->
-                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo" style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
+                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
+                    style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
                 <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
                 <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
                 <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
 
                 <!-- Set 3 -->
-                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo" style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
+                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
+                    style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
                 <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
                 <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
                 <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
 
                 <!-- Set 4 -->
-                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo" style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
+                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
+                    style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
                 <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
                 <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
                 <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
@@ -1632,103 +1646,121 @@
 
                 <!-- 1. Terapias Psicológicas -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_psicologicas.webp" alt="Terapia Psicológica" loading="lazy" class="accordion-bg" />
+                    <img src="./images/Terapia/t_psicologicas.webp" alt="Terapia Psicológica" loading="lazy"
+                        class="accordion-bg" />
                     <div class="accordion-overlay"></div>
-                    
+
                     <div class="accordion-collapsed">
                         <h3>Terapias Psicológicas</h3>
                     </div>
-                    
+
                     <div class="accordion-expanded">
                         <span class="service-badge">KJA Integral</span>
                         <h3 class="service-title">Terapias Psicológicas</h3>
-                        <p>Un proceso personalizado para transformar tu bienestar emocional con estrategias validadas y enfoque humano.</p>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20para%20Terapias%20Psicol%C3%B3gicas" target="_blank" class="service-btn">Agendar Cita</a>
+                        <p>Un proceso personalizado para transformar tu bienestar emocional con estrategias validadas y
+                            enfoque humano.</p>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20para%20Terapias%20Psicol%C3%B3gicas"
+                            target="_blank" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
                 <!-- 2. Para Niños -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_para_ninos.jpg" alt="Terapia para Niños" loading="lazy" class="accordion-bg" />
+                    <img src="./images/Terapia/t_para_ninos.jpg" alt="Terapia para Niños" loading="lazy"
+                        class="accordion-bg" />
                     <div class="accordion-overlay"></div>
-                    
+
                     <div class="accordion-collapsed">
                         <h3>Para Niños</h3>
                     </div>
-                    
+
                     <div class="accordion-expanded">
                         <span class="service-badge">Infantil</span>
                         <h3 class="service-title">Para Niños</h3>
-                        <p>Un espacio seguro donde los niños gestionan sus emociones a través del juego y el acompañamiento familiar.</p>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20para%20Ni%C3%B1os" target="_blank" class="service-btn">Agendar Cita</a>
+                        <p>Un espacio seguro donde los niños gestionan sus emociones a través del juego y el
+                            acompañamiento familiar.</p>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20para%20Ni%C3%B1os"
+                            target="_blank" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
                 <!-- 3. Para Adolescentes -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_adolescentes.avif" alt="Terapia para Adolescentes" loading="lazy" class="accordion-bg" />
+                    <img src="./images/Terapia/t_adolescentes.avif" alt="Terapia para Adolescentes" loading="lazy"
+                        class="accordion-bg" />
                     <div class="accordion-overlay"></div>
-                    
+
                     <div class="accordion-collapsed">
                         <h3>Para Adolescentes</h3>
                     </div>
-                    
+
                     <div class="accordion-expanded">
                         <span class="service-badge">Adolescentes</span>
                         <h3 class="service-title">Para Adolescentes</h3>
-                        <p>Un espacio confidencial para expresarse, construir identidad y gestionar las emociones de esta etapa.</p>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20para%20Adolescentes" target="_blank" class="service-btn">Agendar Cita</a>
+                        <p>Un espacio confidencial para expresarse, construir identidad y gestionar las emociones de
+                            esta etapa.</p>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20para%20Adolescentes"
+                            target="_blank" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
                 <!-- 4. Para Adultos -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_para_adultos.jpeg" alt="Terapia para Adultos" loading="lazy" class="accordion-bg" />
+                    <img src="./images/Terapia/t_para_adultos.jpeg" alt="Terapia para Adultos" loading="lazy"
+                        class="accordion-bg" />
                     <div class="accordion-overlay"></div>
-                    
+
                     <div class="accordion-collapsed">
                         <h3>Para Adultos</h3>
                     </div>
-                    
+
                     <div class="accordion-expanded">
                         <span class="service-badge">Adultos</span>
                         <h3 class="service-title">Para Adultos</h3>
-                        <p>Un espacio de pausa donde soltar el peso del día a día y encontrar juntos herramientas para recuperar tu calma y bienestar.</p>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20para%20Adultos" target="_blank" class="service-btn">Agendar Cita</a>
+                        <p>Un espacio de pausa donde soltar el peso del día a día y encontrar juntos herramientas para
+                            recuperar tu calma y bienestar.</p>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20para%20Adultos"
+                            target="_blank" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
                 <!-- 5. Terapia de Pareja -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_pareja.jpg" alt="Terapia de Pareja" loading="lazy" class="accordion-bg" />
+                    <img src="./images/Terapia/t_pareja.jpg" alt="Terapia de Pareja" loading="lazy"
+                        class="accordion-bg" />
                     <div class="accordion-overlay"></div>
-                    
+
                     <div class="accordion-collapsed">
                         <h3>Terapia de Pareja</h3>
                     </div>
-                    
+
                     <div class="accordion-expanded">
                         <span class="service-badge">Parejas</span>
                         <h3 class="service-title">Terapia de Pareja</h3>
-                        <p>Un espacio donde ambos se escuchan, reconstruyen la confianza y encuentran acuerdos que nutran la relación.</p>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20de%20Pareja" target="_blank" class="service-btn">Agendar Cita</a>
+                        <p>Un espacio donde ambos se escuchan, reconstruyen la confianza y encuentran acuerdos que
+                            nutran la relación.</p>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20de%20Pareja"
+                            target="_blank" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
                 <!-- 6. Terapia de Familia -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_familiar.webp" alt="Terapia de Familia" loading="lazy" class="accordion-bg" />
+                    <img src="./images/Terapia/t_familiar.webp" alt="Terapia de Familia" loading="lazy"
+                        class="accordion-bg" />
                     <div class="accordion-overlay"></div>
-                    
+
                     <div class="accordion-collapsed">
                         <h3>Terapia de Familia</h3>
                     </div>
-                    
+
                     <div class="accordion-expanded">
                         <span class="service-badge">Familiar</span>
                         <h3 class="service-title">Terapia de Familia</h3>
-                        <p>Un espacio donde todos los miembros del hogar pueden escucharse y fortalecer sus vínculos.</p>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20de%20Familia" target="_blank" class="service-btn">Agendar Cita</a>
+                        <p>Un espacio donde todos los miembros del hogar pueden escucharse y fortalecer sus vínculos.
+                        </p>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20cita%20de%20Familia"
+                            target="_blank" class="service-btn">Agendar Cita</a>
                     </div>
                 </div>
 
@@ -1767,14 +1799,19 @@
                     z-index: 10;
                     text-decoration: none;
                 }
+
                 .btn-pink-glow:hover {
                     transform: translateY(-2px);
                     box-shadow: 0 12px 30px rgba(241, 0, 117, 0.45);
                     color: white;
                 }
+
                 .btn-ripple {
                     position: absolute;
-                    top: 0; left: 0; right: 0; bottom: 0;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
                     border-radius: 50px;
                     border: 2px solid #f10075;
                     opacity: 0;
@@ -1782,12 +1819,13 @@
                     z-index: -1;
                 }
             </style>
-            
+
             <div style="display: inline-block; position: relative;">
                 <a href="terapia.html" class="btn-pink-glow" id="btn-ver-terapias">
                     VER TODAS LAS TERAPIAS
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 12h14M12 5l7 7-7 7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                     <!-- Elemento para la animación ligera -->
                     <span class="btn-ripple" id="ripple-1"></span>
@@ -1795,18 +1833,18 @@
             </div>
 
             <script>
-                document.getElementById('btn-ver-terapias').addEventListener('click', function(e) {
+                document.getElementById('btn-ver-terapias').addEventListener('click', function (e) {
                     e.preventDefault();
                     const href = this.getAttribute('href');
-                    
+
                     const tl = gsap.timeline({
                         onComplete: () => { window.location.href = href; }
                     });
-                    
+
                     // 1. Efecto de presión muy suave y ligero
                     tl.to(this, { scale: 0.96, duration: 0.15, ease: "power2.out" });
                     tl.to(this, { scale: 1, duration: 0.35, ease: "power2.out" });
-                    
+
                     // 2. Ondulación (ripple) suave que se expande y desvanece
                     tl.fromTo(
                         "#ripple-1",
@@ -2127,42 +2165,57 @@
                         <div
                             class="bg-gradient-to-br from-white to-[#f8fafc] rounded-xl md:rounded-2xl p-5 md:p-6 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden">
                             <!-- Decoración sutil de fondo en el módulo -->
-                                   <div class="flex flex-row items-center justify-between gap-3 mb-6 mt-2 relative z-10 w-full">
+                            <div
+                                class="flex flex-row items-center justify-between gap-3 mb-6 mt-2 relative z-10 w-full">
                                 <!-- Lado izquierdo: Título y descripción -->
                                 <div class="flex-1 text-left flex flex-col justify-center pr-2">
                                     <div class="inline-flex items-center justify-start gap-1.5 mb-1.5">
                                         <span class="relative flex h-2 w-2">
-                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f10075] opacity-75"></span>
+                                            <span
+                                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f10075] opacity-75"></span>
                                             <span class="relative inline-flex rounded-full h-2 w-2 bg-[#f10075]"></span>
                                         </span>
-                                        <p class="text-[9px] sm:text-[10px] uppercase font-black text-[#f10075] tracking-widest" style="line-height: 1.2;">
+                                        <p class="text-[9px] sm:text-[10px] uppercase font-black text-[#f10075] tracking-widest"
+                                            style="line-height: 1.2;">
                                             Tarifa Promocional</p>
                                     </div>
-                                    <h4 class="text-[15px] sm:text-[18px] font-black text-gray-900 leading-tight mb-1">Inversión por Sesión</h4>
-                                    <p class="text-[10px] sm:text-[12px] text-gray-500 leading-snug hidden sm:block">Empieza a cuidar tu salud mental hoy mismo aprovechando este descuento especial.</p>
+                                    <h4 class="text-[15px] sm:text-[18px] font-black text-gray-900 leading-tight mb-1">
+                                        Inversión por Sesión</h4>
+                                    <p class="text-[10px] sm:text-[12px] text-gray-500 leading-snug hidden sm:block">
+                                        Empieza a cuidar tu salud mental hoy mismo aprovechando este descuento especial.
+                                    </p>
                                 </div>
 
                                 <!-- Lado derecho: Diseño de oferta -->
                                 <div class="relative flex flex-col items-center flex-shrink-0" style="margin-top: 8px;">
-                                    
+
                                     <!-- Burbuja de Precio Nuevo -->
-                                    <div class="text-white shadow-md relative z-10 flex items-center justify-center" style="background-color: #f10075; border-radius: 12px; padding: 6px 16px; display: inline-flex;">
-                                        
+                                    <div class="text-white shadow-md relative z-10 flex items-center justify-center"
+                                        style="background-color: #f10075; border-radius: 12px; padding: 6px 16px; display: inline-flex;">
+
                                         <!-- Precio Anterior Tachado (Superpuesto arriba a la derecha) -->
-                                        <div class="absolute z-20" style="top: -18px; right: -5px; transform: rotate(3deg); color: #111827; font-weight: 900; font-size: 0.95rem;">
+                                        <div class="absolute z-20"
+                                            style="top: -18px; right: -5px; transform: rotate(3deg); color: #111827; font-weight: 900; font-size: 0.95rem;">
                                             <span style="font-size: 0.75rem;">S/</span> 80.00
                                             <!-- Línea de tachado azul KJA -->
-                                            <div class="absolute" style="top: 50%; left: -10%; width: 120%; height: 2px; background-color: #004fb0; transform: rotate(-15deg);"></div>
+                                            <div class="absolute"
+                                                style="top: 50%; left: -10%; width: 120%; height: 2px; background-color: #004fb0; transform: rotate(-15deg);">
+                                            </div>
                                         </div>
 
                                         <!-- Punta de la burbuja -->
-                                        <div class="absolute z-[-1]" style="top: -5px; right: 20px; width: 14px; height: 14px; background-color: #f10075; transform: rotate(45deg); border-radius: 2px;"></div>
-                                        
-                                        <span class="font-black tracking-tighter" id="modalPrice" style="font-size: 2.2rem; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">S/ 59.90</span>
+                                        <div class="absolute z-[-1]"
+                                            style="top: -5px; right: 20px; width: 14px; height: 14px; background-color: #f10075; transform: rotate(45deg); border-radius: 2px;">
+                                        </div>
+
+                                        <span class="font-black tracking-tighter" id="modalPrice"
+                                            style="font-size: 2.2rem; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">S/
+                                            59.90</span>
                                     </div>
 
                                     <!-- Etiqueta amarilla -->
-                                    <div class="text-black font-black uppercase tracking-widest shadow-sm relative z-20 text-center" style="background-color: #facc15; font-size: 0.7rem; padding: 3px 12px; margin-top: -6px; transform: rotate(-2deg); border-bottom: 2px solid #eab308; border-right: 2px solid #eab308; border-radius: 4px;">
+                                    <div class="text-black font-black uppercase tracking-widest shadow-sm relative z-20 text-center"
+                                        style="background-color: #facc15; font-size: 0.7rem; padding: 3px 12px; margin-top: -6px; transform: rotate(-2deg); border-bottom: 2px solid #eab308; border-right: 2px solid #eab308; border-radius: 4px;">
                                         ¡Descuento Activo!
                                     </div>
                                 </div>
@@ -2181,7 +2234,8 @@
                                         d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
                                 </svg>
                                 <span
-                                    class="relative z-10 text-[15px] md:text-[17px] font-black tracking-wide drop-shadow-sm">AGENDAR CITA AHORA</span>
+                                    class="relative z-10 text-[15px] md:text-[17px] font-black tracking-wide drop-shadow-sm">AGENDAR
+                                    CITA AHORA</span>
                             </a>
                         </div>
                     </div>
@@ -2217,12 +2271,13 @@
                                 </div>
 
                                 <img src="images/inicio-terapias/flyer-lenguaje-ninos.webp" alt="Flyer Lenguaje Niños"
+                                    id="modalImage"
                                     class="relative w-full h-auto rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/20 z-10 transition-transform duration-500 hover:-translate-y-3"
                                     loading="lazy" decoding="async" />
 
                                 <!-- Sticker promocional flotante -->
-                                <div
-                                    class="absolute -bottom-5 -left-5 bg-yellow-400 text-[#000a1f] w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-2xl z-20 transform -rotate-12 group-hover:rotate-0 transition-transform duration-300 border-4 border-[#000a1f]">
+                                <div class="absolute bg-yellow-400 text-[#000a1f] w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-2xl z-20 transform -rotate-12 group-hover:rotate-0 transition-transform duration-300 border-4 border-[#000a1f]"
+                                    style="bottom: 12%; left: -20px;">
                                     <span class="text-[10px] font-black leading-none uppercase">Últimos</span>
                                     <span class="text-3xl font-black leading-none my-1">5</span>
                                     <span class="text-[10px] font-black leading-none uppercase">Cupos</span>
@@ -2231,11 +2286,9 @@
                         </div>
 
                         <div class="text-white mt-8">
-                            <h4
+                            <h4 id="modalRightTitle"
                                 class="text-2xl md:text-3xl font-black mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 leading-tight">
                                 Terapia de Lenguaje</h4>
-                            <p class="text-sm md:text-base text-gray-300 font-medium px-4">¡No dejes pasar esta
-                                oportunidad de potenciar las habilidades de tu hijo hoy mismo!</p>
                         </div>
                     </div>
                 </div>
@@ -2556,7 +2609,8 @@
                             <div class="faq-premium-answer-inner">
                                 <p>Agendar tu sesión es muy sencillo. Puedes contactarnos directamente por WhatsApp al
                                     <strong>+51 988 918 238</strong> o escribirnos a nuestro correo y te asignaremos un
-                                    horario disponible.</p>
+                                    horario disponible.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -2632,36 +2686,37 @@
     <!-- ===== APARTADO DE VIDEOS CORTOS (YOUTUBE SHORTS) ===== -->
     <section class="shorts-section" id="consejos-videos">
         <div class="shorts-container">
-            
+
             <!-- Cabecera de la Sección -->
             <div class="shorts-header">
                 <span class="shorts-eyebrow">🎥 Recursos visuales</span>
                 <h2 class="shorts-title">Consejos en <em>1 Minuto</em></h2>
-                <p class="shorts-sub">Pautas prácticas y sencillas compartidas por nuestros terapeutas para potenciar el bienestar de tu familia.</p>
+                <p class="shorts-sub">Pautas prácticas y sencillas compartidas por nuestros terapeutas para potenciar el
+                    bienestar de tu familia.</p>
             </div>
 
             <!-- Carrusel deslizable en móviles / Grid en desktop -->
             <div class="shorts-scroll-wrapper">
                 <div class="shorts-scroll-track">
-                    
+
                     <!-- Tarjeta de Video 1 (Terapia de Lenguaje) -->
                     <!-- Para cambiar este video, reemplaza 'dQw4w9WgXcQ' en la URL por el ID de tu Short de YouTube -->
                     <div class="phone-mockup-card">
                         <div class="phone-mockup">
                             <div class="phone-screen">
-                                <iframe 
-                                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?modestbranding=1&rel=0&iv_load_policy=3" 
-                                    title="Consejo de Terapia de Lenguaje - KJA" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                    allowfullscreen
-                                    loading="lazy">
+                                <iframe
+                                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?modestbranding=1&rel=0&iv_load_policy=3"
+                                    title="Consejo de Terapia de Lenguaje - KJA"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen loading="lazy">
                                 </iframe>
                             </div>
                         </div>
                         <div class="video-info-card">
                             <span class="video-badge">Crianza & Habla</span>
                             <h3 class="video-card-title">Estimulación del Lenguaje</h3>
-                            <p class="video-card-desc">Estrategias y juegos sencillos para motivar el habla y vocabulario de los más pequeños.</p>
+                            <p class="video-card-desc">Estrategias y juegos sencillos para motivar el habla y
+                                vocabulario de los más pequeños.</p>
                         </div>
                     </div>
 
@@ -2670,19 +2725,19 @@
                     <div class="phone-mockup-card">
                         <div class="phone-mockup">
                             <div class="phone-screen">
-                                <iframe 
-                                    src="https://www.youtube.com/embed/tgbNymZ7vqY?modestbranding=1&rel=0&iv_load_policy=3" 
-                                    title="Consejo de Psicología Infantil - KJA" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                    allowfullscreen
-                                    loading="lazy">
+                                <iframe
+                                    src="https://www.youtube.com/embed/tgbNymZ7vqY?modestbranding=1&rel=0&iv_load_policy=3"
+                                    title="Consejo de Psicología Infantil - KJA"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen loading="lazy">
                                 </iframe>
                             </div>
                         </div>
                         <div class="video-info-card">
                             <span class="video-badge">Psicología Infantil</span>
                             <h3 class="video-card-title">Manejo de Berrinches</h3>
-                            <p class="video-card-desc">Cómo acompañar las crisis emocionales en la infancia con empatía y límites respetuosos.</p>
+                            <p class="video-card-desc">Cómo acompañar las crisis emocionales en la infancia con empatía
+                                y límites respetuosos.</p>
                         </div>
                     </div>
 
@@ -2691,19 +2746,19 @@
                     <div class="phone-mockup-card">
                         <div class="phone-mockup">
                             <div class="phone-screen">
-                                <iframe 
-                                    src="https://www.youtube.com/embed/jNQXAC9IVRw?modestbranding=1&rel=0&iv_load_policy=3" 
-                                    title="Consejo de Pareja - KJA" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                    allowfullscreen
-                                    loading="lazy">
+                                <iframe
+                                    src="https://www.youtube.com/embed/jNQXAC9IVRw?modestbranding=1&rel=0&iv_load_policy=3"
+                                    title="Consejo de Pareja - KJA"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen loading="lazy">
                                 </iframe>
                             </div>
                         </div>
                         <div class="video-info-card">
                             <span class="video-badge">Pareja & Familia</span>
                             <h3 class="video-card-title">Comunicación Efectiva</h3>
-                            <p class="video-card-desc">Un ejercicio rápido para evitar discusiones y fortalecer la conexión emocional.</p>
+                            <p class="video-card-desc">Un ejercicio rápido para evitar discusiones y fortalecer la
+                                conexión emocional.</p>
                         </div>
                     </div>
 

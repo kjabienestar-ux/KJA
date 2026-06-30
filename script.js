@@ -431,85 +431,152 @@ document.addEventListener('DOMContentLoaded', () => {
 //  ÁREAS DE ATENCIÓN — ETIQUETAS Y MODAL
 // ============================================================
 const topicsData = {
+    "dependencia emocional": {
+        title: "Tratamiento de Dependencia Emocional",
+        desc: "Romper con patrones de relaciones insanas o dependientes puede ser sumamente difícil. Nuestro equipo te acompaña en el proceso de fortalecer tu amor propio y construir vínculos desde la libertad.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/01_terapia_dependencia_emocional.webp",
+        courses: []
+    },
+    "lenguaje": {
+        title: "Tratamiento de Lenguaje",
+        desc: "Las dificultades en la comunicación pueden generar frustración y aislamiento en niños y adolescentes. Nuestros especialistas les brindan herramientas didácticas para potenciar su habla, comprensión y confianza.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/02_terapia_lenguaje.webp",
+        courses: []
+    },
+    "modificación de conducta": {
+        title: "Tratamiento de Modificación de Conducta",
+        desc: "Orientar conductas complejas en casa a veces se vuelve un desafío abrumador para los padres. Nuestro equipo te enseña pautas prácticas para establecer límites afectivos y mejorar la convivencia familiar.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/03_terapia_modificacion_de_conducta.webp",
+        courses: []
+    },
+    "cognitivo conductual": {
+        title: "Tratamiento Cognitivo Conductual",
+        desc: "Identificar y transformar pensamientos negativos es clave para cambiar cómo te sientes y actúas. En KJA te ayudamos a desarrollar estrategias eficaces basadas en evidencia para regular tu día a día.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/04_terapia_cognitivo_conductual.webp",
+        courses: []
+    },
+    "aprendizaje": {
+        title: "Tratamiento de Aprendizaje",
+        desc: "Las dificultades escolares suelen afectar la motivación y la autoestima de los estudiantes. Nuestro equipo evalúa e interviene de manera personalizada para potenciar el rendimiento académico y el gusto por aprender.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/05_terapia_aprendizaje.webp",
+        courses: []
+    },
+    "atención y concentración": {
+        title: "Tratamiento de Atención y Concentración",
+        desc: "Mantener el enfoque y organizarse ante las distracciones constantes puede ser un reto diario. Nuestros especialistas te ayudan a entrenar la atención, el autocontrol y la planificación para tus metas.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/06_terapia_atencion_y_concentracion.webp",
+        courses: []
+    },
     "ansiedad": {
         title: "Tratamiento de Ansiedad",
         desc: "La ansiedad constante puede paralizarte y afectar tu día a día. Nuestro equipo te ayuda con herramientas basadas en evidencia para recuperar la calma y tu bienestar.",
         price: "S/ 59.90",
-        image: "images/inicio-terapias/terapia_conductual.webp",
-        courses: [{name: "Taller: Manejo de ansiedad", url: "cursos.html"}]
+        image: "images/flyer-terapias/07_terapia_ansiedad.webp",
+        courses: []
     },
-    "depresion": {
+    "depresión": {
         title: "Tratamiento de Depresión",
-        desc: "La depresión es una condición que afecta tu energía, motivación y estado de ánimo. Te acompañamos a recuperar tu bienestar paso a paso, a tu propio ritmo.",
+        desc: "La falta de energía, motivación y el desánimo constante pueden hacerte sentir atrapado. Nuestro equipo te brinda un acompañamiento cálido y profesional para recuperar el sentido de propósito a tu propio ritmo.",
         price: "S/ 59.90",
-        image: "images/inicio-terapias/psicologia_clinica.avif",
-        courses: [{name: "Charla: Sanando desde adentro", url: "cursos.html"}]
+        image: "images/flyer-terapias/08_terapia_depresion.webp",
+        courses: []
     },
-    "tdah": {
-        title: "Evaluación y Tratamiento TDAH",
-        desc: "El TDAH no tratado puede causar frustración en el trabajo o estudios. Te ayudamos a entender tu mente y desarrollar estrategias de enfoque y organización.",
-        price: "S/ 80.00",
-        image: "images/Terapia/tdh1.webp",
-        courses: [{name: "Curso: Estrategias para adultos con TDAH", url: "cursos.html"}]
-    },
-    "fobias": {
-        title: "Superando Fobias",
-        desc: "Los miedos irracionales limitan tus experiencias. Utilizamos técnicas de exposición gradual y terapia cognitivo-conductual para ayudarte a vivir sin ataduras.",
+    "orientación vocacional": {
+        title: "Tratamiento de Orientación Vocacional",
+        desc: "Elegir un futuro profesional sin claridad puede generar mucha incertidumbre y presión. Nuestros especialistas te guían a descubrir tus aptitudes e intereses para que tomes una decisión segura y convencida.",
         price: "S/ 59.90",
-        image: "images/inicio-terapias/terapia_conductual.webp",
-        courses: [{name: "Charla: Entendiendo el miedo", url: "cursos.html"}]
+        image: "images/flyer-terapias/09_terapia_orientacion_vocacional.webp",
+        courses: []
     },
-    "conflictos de pareja": {
-        title: "Terapia de Pareja",
-        desc: "Mejoren la comunicación, reconstruyan la confianza y resuelvan conflictos desde la empatía. Espacio seguro para reconectar y fortalecer su vínculo afectivo.",
-        price: "S/ 100.00",
-        image: "images/inicio-terapias/terapia_sistemica.png",
-        courses: [{name: "Taller: Comunicación Asertiva en Pareja", url: "cursos.html"}]
-    },
-    "dependencia emocional": {
-        title: "Independencia Emocional",
-        desc: "Rompe patrones de relaciones tóxicas y aprende a construir vínculos desde la libertad y el amor propio. Te acompañamos en tu proceso de autovaloración.",
+    "evaluación pedagógica": {
+        title: "Tratamiento de Evaluación Pedagógica",
+        desc: "Comprender las verdaderas necesidades de aprendizaje de tu hijo requiere un análisis detallado. Nuestro equipo realiza una evaluación completa para diseñar pautas de apoyo escolar personalizadas.",
         price: "S/ 59.90",
-        image: "images/inicio-terapias/psicologia_clinica.avif",
-        courses: [{name: "Curso: Amor Propio y Relaciones Sanas", url: "cursos.html"}]
+        image: "images/flyer-terapias/10_terapia_evaluacion_pedagogica.webp",
+        courses: []
     },
-    "autoestima": {
-        title: "Fortalecimiento de Autoestima",
-        desc: "Descubre tu verdadero valor y aprende a tratarte con autocompasión. Te brindamos herramientas para silenciar al crítico interno y potenciar tu seguridad.",
+    "evaluaciones integrales": {
+        title: "Tratamiento de Evaluaciones Integrales",
+        desc: "Obtener un diagnóstico claro es el primer paso indispensable para una intervención efectiva. Nuestro equipo realiza estudios psicológicos y emocionales profundos para guiar tu proceso de bienestar.",
         price: "S/ 59.90",
-        image: "images/inicio-terapias/terapia_conductual.webp",
-        courses: [{name: "Taller: Autocompasión y Crecimiento", url: "cursos.html"}]
+        image: "images/flyer-terapias/11_terapia_evaluaciones_integrales.webp",
+        courses: []
     },
-    "burnout": {
-        title: "Recuperación del Burnout",
-        desc: "El agotamiento extremo (Burnout) afecta tu salud física y mental. Diseñamos un plan para que recuperes tu energía, establezcas límites y encuentres equilibrio.",
+    "familiar": {
+        title: "Tratamiento de Terapia Familiar",
+        desc: "Los conflictos o la falta de comunicación en el hogar pueden desgastar la armonía familiar. Nuestro equipo crea un espacio seguro para resolver crisis, sanar la convivencia y fortalecer la unión afectiva.",
         price: "S/ 59.90",
-        image: "images/inicio-terapias/colegiados_cpa.webp",
-        courses: [{name: "Charla: Equilibrio Vida y Trabajo", url: "cursos.html"}]
+        image: "images/flyer-terapias/12_terapia_familiar.webp",
+        courses: []
     },
-    "traumas": {
-        title: "Sanación de Traumas",
-        desc: "Las heridas del pasado no tienen que definir tu futuro. Ofrecemos terapias especializadas y un entorno seguro para procesar eventos dolorosos.",
-        price: "S/ 80.00",
-        image: "images/inicio-terapias/terapia_conductual.webp",
-        courses: [{name: "Curso: Introducción al trauma y resiliencia", url: "cursos.html"}]
+    "pareja": {
+        title: "Tratamiento de Terapia de Pareja",
+        desc: "Las crisis de comunicación, celos o distanciamiento pueden desgastar la relación afectiva. Nuestros terapeutas te acompañan a reconstruir la confianza, resolver conflictos y reconectar con empatía.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/13_terapia_pareja.webp",
+        courses: []
     },
-    // Default fallback
+    "consejería familiar": {
+        title: "Tratamiento de Consejería Familiar",
+        desc: "Guiar a los hijos y superar las transiciones del ciclo vital familiar no siempre es una tarea sencilla. Nuestro equipo te asesora con orientación y pautas específicas de crianza y apoyo mutuo.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/14_terapia_consejeria_familiar.webp",
+        courses: []
+    },
+    "mindfulness": {
+        title: "Tratamiento de Mindfulness",
+        desc: "El ritmo acelerado de la vida diaria suele generar sobrecarga mental y estrés crónico. Nuestro equipo te enseña técnicas de atención plena para calmar la mente, regular emociones y vivir con presencia.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/15_terapia_mindfulness.webp",
+        courses: []
+    },
+    "conducta": {
+        title: "Tratamiento de Conducta",
+        desc: "Las conductas impulsivas o desadaptativas limitan el desarrollo y la integración social. Nuestros terapeutas te ayudan a comprender el origen de estos comportamientos y promover hábitos saludables de autorregulación.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/16_terapia_conducta.webp",
+        courses: []
+    },
+    "integración sensorial": {
+        title: "Tratamiento de Integración Sensorial",
+        desc: "Procesar los estímulos sensoriales del entorno de manera adecuada es fundamental para interactuar con el mundo. Nuestro equipo te acompaña en terapias especializadas para mejorar el confort, desarrollo y juego diario.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/17_terapia_integracion_sensorial.webp",
+        courses: []
+    },
     "default": {
         title: "Atención Psicológica Especializada",
         desc: "Abordamos este motivo de consulta con terapias basadas en evidencia, en un ambiente confidencial y libre de juicios. Nuestro equipo te guía hacia tu bienestar.",
         price: "S/ 59.90",
-        image: "images/inicio-terapias/psicologia_clinica.avif",
-        courses: [{name: "Charla Introductoria sobre Salud Mental", url: "cursos.html"}]
+        image: "images/flyer-terapias/07_terapia_ansiedad.webp",
+        courses: []
     }
 };
 
 const areasList = [
-    "Ansiedad", "Depresión", "Estrés", "Autoestima", "Burnout", "Traumas", 
-    "TEPT", "Abuso", "TOC", "Fobias", "Conflictos de pareja", "Duelo", 
-    "Conducta infantil", "Dependencia emocional", "Manejo de emociones", 
-    "TDAH", "Trastornos alimenticios", "Violencia doméstica", 
-    "Orientación vocacional", "Dificultades laborales", "Transiciones de vida"
+    "Dependencia emocional",
+    "Lenguaje",
+    "Modificación de conducta",
+    "Cognitivo conductual",
+    "Aprendizaje",
+    "Atención y concentración",
+    "Ansiedad",
+    "Depresión",
+    "Orientación vocacional",
+    "Evaluación pedagógica",
+    "Evaluaciones integrales",
+    "Familiar",
+    "Pareja",
+    "Consejería familiar",
+    "Mindfulness",
+    "Conducta",
+    "Integración sensorial"
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -574,6 +641,12 @@ function openTopicModal(topicName) {
         imgEl.src = data.image;
         imgEl.alt = data.title;
     }
+
+    // Inyectar texto dinámico debajo de la imagen
+    const rightTitleEl = document.getElementById('modalRightTitle');
+    if (rightTitleEl) {
+        rightTitleEl.textContent = "Terapia de " + topicName;
+    }
     
     // Botón de WhatsApp pre-llenado
     const phone = "51988918238"; // Número configurado
@@ -633,6 +706,7 @@ function openTopicModal(topicName) {
     }, 10);
     
     document.body.style.overflow = 'hidden'; // Evitar scroll de fondo
+    document.documentElement.style.overflow = 'hidden';
 }
 
 function closeTopicModal() {
@@ -647,6 +721,7 @@ function closeTopicModal() {
     
     setTimeout(() => {
         document.body.style.overflow = ''; 
+        document.documentElement.style.overflow = '';
     }, 300);
 }
 
