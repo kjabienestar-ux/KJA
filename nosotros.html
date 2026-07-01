@@ -69,43 +69,33 @@
          · .nos-hero__wave→ ola SVG que conecta con la sección blanca de abajo
          ════════════════════════════════════════════════════════════ -->
     <section class="nos-hero">
-        <div class="nos-hero__bg" aria-hidden="true">
-            <span class="nos-orb nos-orb--1"></span>
-            <span class="nos-grid-overlay"></span>
-        </div>
+
         <div class="nos-hero__inner">
             <span class="nos-eyebrow">Centro de atención psicológica integral</span>
             <h1 class="nos-hero__title">Conoce <em>KJA</em></h1>
             <p class="nos-hero__sub">Desarrollando tu bienestar mental y emocional con un enfoque humano,
                 científico y comprometido.</p>
-            <div class="hero-tabs" id="about-tabs">
-                <button class="hero-tab active" onclick="switchAboutTab(this,'quienes')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div class="accent" aria-hidden="true"></div>
+
+            <div class="tabs" aria-label="Secciones de nosotros" id="about-tabs">
+                <button class="tab active" type="button" onclick="switchAboutTab(this, 'quienes')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/><path d="M8 3.13a4 4 0 0 0 0 7.75"/></svg>
                     ¿Quiénes somos?
                 </button>
-                <button class="hero-tab" onclick="switchAboutTab(this,'directores')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <button class="tab" type="button" onclick="switchAboutTab(this, 'directores')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 20v-2a4 4 0 0 1 8 0v2"/><circle cx="11" cy="8" r="4"/><path d="M17 11h4"/><path d="M19 9v4"/><path d="M4 11H2"/><path d="M3 9v4"/></svg>
                     Directores
                 </button>
-                <button class="hero-tab" onclick="switchAboutTab(this,'mision')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                <button class="tab" type="button" onclick="switchAboutTab(this, 'mision')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m15.5 8.5 3-3"/><path d="M18.5 5.5H22"/><path d="M18.5 5.5V2"/><path d="M12 12l4-4"/></svg>
                     Misión y Visión
                 </button>
-                <button class="hero-tab" onclick="switchAboutTab(this,'valores')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/></svg>
-                    Valores
-                </button>
-                <button class="hero-tab" onclick="switchAboutTab(this,'servicios')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+
+                <button class="tab" type="button" onclick="switchAboutTab(this, 'servicios')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/><path d="M8 3.13a4 4 0 0 0 0 7.75"/></svg>
                     Servicios y Comunidad
                 </button>
             </div>
-        </div>
-
-        <div class="nos-hero__wave" aria-hidden="true">
-            <svg viewBox="0 0 1440 90" preserveAspectRatio="none">
-                <path d="M0,50 C360,95 1080,5 1440,50 L1440,90 L0,90 Z" fill="#ffffff" />
-            </svg>
         </div>
     </section>
 
@@ -122,83 +112,52 @@
             <!-- Imagen local en WebP con prioridad alta: es el LCP de la página.
                  width/height declarados para reservar espacio y evitar CLS. -->
             <div class="about-panel active" id="about-quienes">
-                <div class="quienes-card">
-                    <div class="quienes-grid">
-                        <!-- Columna izquierda: Texto -->
-                        <div class="quienes-text">
-                            <!-- Badge de fecha -->
-                            <div class="quienes-date-badge">
-                                <span class="quienes-date-badge__icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                    </svg>
-                                </span>
-                                <div>
-                                    <span class="quienes-date-badge__day">13 de octubre de 2020</span>
-                                    <span class="quienes-date-badge__year">Nuestro inicio</span>
-                                </div>
-                            </div>
-                            
-                            <span class="quienes-eyebrow">Fundado en 2020</span>
-                            <h3 class="quienes-title">Desarrollando tu<br><em>Bienestar</em></h3>
-                            <p>KJA Desarrollando mi Bienestar S.A.C. es un centro psicológico integral ubicado en
-                                San Luis, Lima, Perú. Nacimos el 13 de octubre de 2020 con la misión de brindar
-                                acompañamiento psicológico de calidad, basado en la ciencia, la empatía y el
-                                compromiso con cada persona.</p>
-                            <a href="#nosotros" class="quienes-cta">
-                                Conoce más sobre nosotros
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                            </a>
+                <article class="about-card">
+                    <div class="copy-panel">
+                        <div class="date-pill">
+                            <span class="date-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>
+                                    <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
+                                    <path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>
+                                </svg>
+                            </span>
+                            <span>
+                                <strong>13 de octubre de 2020</strong>
+                                <span>Nuestro inicio</span>
+                            </span>
                         </div>
 
-                        <!-- Columna derecha: Imagen -->
-                        <div class="quienes-img-wrap">
-                            <img src="images/nosotros/nosotros.webp"
-                                alt="Equipo de KJA Centro Psicológico" width="1448" height="1086"
-                                decoding="async" fetchpriority="high" />
-                        </div>
+                        <div class="eyebrow">Fundado en 2020</div>
+                        <h2>Desarrollando tu<br /><em>Bienestar</em></h2>
+                        <p>KJA Desarrollando mi Bienestar S.A.C. es un centro psicologico integral ubicado en San Luis, Lima, Peru. Nacimos el 13 de octubre de 2020 con la mision de brindar acompanamiento psicologico de calidad, basado en la ciencia, la empatia y el compromiso con cada persona.</p>
+                        <a href="#nosotros" class="cta">Conoce más sobre nosotros ➔</a>
                     </div>
 
-                    <!-- Barra de métricas inferior -->
-                    <div class="quienes-stats-bar">
-                        <div class="quienes-stat">
-                            <span class="quienes-stat__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            </span>
-                            <div class="quienes-stat__text">
-                                <span class="quienes-stat__num">+500</span>
-                                <span class="quienes-stat__lbl">Personas atendidas</span>
-                            </div>
+                    <div class="image-panel">
+                        <img src="images/nosotros/nosotros.webp" alt="Equipo de KJA" />
+                    </div>
+
+                    <div class="metrics" aria-label="Indicadores">
+                        <div class="metric">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/><path d="M8 3.13a4 4 0 0 0 0 7.75"/></svg>
+                            <span><strong>+500</strong><span>Personas atendidas</span></span>
                         </div>
-                        <div class="quienes-stat">
-                            <span class="quienes-stat__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            </span>
-                            <div class="quienes-stat__text">
-                                <span class="quienes-stat__num">+15</span>
-                                <span class="quienes-stat__lbl">Profesionales</span>
-                            </div>
+                        <div class="metric">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+                            <span><strong>+15</strong><span>Profesionales</span></span>
                         </div>
-                        <div class="quienes-stat">
-                            <span class="quienes-stat__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                            </span>
-                            <div class="quienes-stat__text">
-                                <span class="quienes-stat__num">4+</span>
-                                <span class="quienes-stat__lbl">Años de experiencia</span>
-                            </div>
+                        <div class="metric">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                            <span><strong>4+</strong><span>Años de experiencia</span></span>
                         </div>
-                        <div class="quienes-stat">
-                            <span class="quienes-stat__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-                            </span>
-                            <div class="quienes-stat__text">
-                                <span class="quienes-stat__num">Compromiso</span>
-                                <span class="quienes-stat__lbl">Ético y profesional</span>
-                            </div>
+                        <div class="metric">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                            <span><strong>Compromiso</strong><span>Ético y profesional</span></span>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
 
             <!-- ════ TAB 2 · DIRECTORES ════ -->
@@ -211,18 +170,31 @@
                         <div class="director-img-wrap">
                             <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&q=80&auto=format"
                                 alt="Mg. Yeiser - Director de KJA" loading="lazy" decoding="async" width="400" height="320" />
+                            <div class="director-role">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <span>Director General<br/>KJA</span>
+                            </div>
                         </div>
                         <div class="director-info">
-                            <span class="director-role">Director General KJA</span>
                             <h3>Mg. Yeiser</h3>
+                            <div class="director-divider"></div>
                             <p class="director-bio">Psicoterapeuta clínico y especialista familiar con amplia
                                 trayectoria dedicada al bienestar emocional de niños, jóvenes y el fortalecimiento de la
                                 comunicación en el hogar.</p>
-                            <div class="director-specialties">
-                                <span>Terapia Familiar</span>
-                                <span>Psicología Clínica</span>
-                                <span>Talleres</span>
-                            </div>
+                            <ul class="director-specialties-list">
+                                <li>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                                    <span>Terapia Familiar</span>
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                                    <span>Psicología Clínica</span>
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/><path d="M8 3.13a4 4 0 0 0 0 7.75"/></svg>
+                                    <span>Talleres</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <!-- Director 2 -->
@@ -230,149 +202,170 @@
                         <div class="director-img-wrap">
                             <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80&auto=format"
                                 alt="Dra. K. Jara - Directora de Aprendizaje" loading="lazy" decoding="async" width="400" height="320" />
+                            <div class="director-role">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <span>Directora de<br/>Psicopedagogía</span>
+                            </div>
                         </div>
                         <div class="director-info">
-                            <span class="director-role">Directora de Psicopedagogía</span>
                             <h3>Dra. K. Jara</h3>
+                            <div class="director-divider"></div>
                             <p class="director-bio">Especialista en psicología infantil y psicopedagogía clínica,
                                 apasionada por la educación emocional y el desarrollo de habilidades cognitivas en niños
                                 de etapa escolar.</p>
-                            <div class="director-specialties">
-                                <span>Terapia Infantil</span>
-                                <span>Problemas de Aprendizaje</span>
-                                <span>Habilidades Blandas</span>
-                            </div>
+                            <ul class="director-specialties-list">
+                                <li>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                                    <span>Terapia Infantil</span>
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                    <span>Problemas de Aprendizaje</span>
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    <span>Habilidades Blandas</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- ════ TAB 3 · MISIÓN Y VISIÓN ════ -->
-            <!-- Dos filas alternadas (texto/imagen). Imágenes lazy por estar ocultas. -->
-            <div class="about-panel" id="about-mision">
-                <div class="mv-stacked-rows">
-                    <!-- Fila 1: Misión (Texto Izquierda, Imagen Derecha) -->
-                    <div class="mv-row-block">
-                        <div class="mv-row-text">
-                            <span class="mv-row-num">01</span>
-                            <div class="mv-icon-box">
-                                <img src="images/iconos/mision_icon.webp" alt="Ícono 3D de Misión KJA"
-                                    class="mv-icon-img" width="60" height="60" loading="lazy">
+                     <div class="about-panel" id="about-mision">
+                <div class="mv-light-wrapper">
+                    <div class="mv-deco-ring"></div>
+
+                    <div class="mv-layout">
+                        <!-- Columna Izquierda: Imagen + Flotante -->
+                        <div class="mv-image-col">
+                            <img src="images/mision_vision/image_mision_vision.jpg" 
+                                 alt="Terapia Psicológica KJA" loading="lazy" width="600" height="750">
+                            <div class="mv-image-badge-light">
+                                <div class="mv-badge-icon-box">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mv-badge-icon">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <p>Enfoque humano, ciencia<br>y compromiso en cada<br>proceso.</p>
                             </div>
-                            <h3>Nuestra Misión</h3>
-                            <p>Brindar atención psicológica integral de calidad excepcional, promoviendo la salud mental
-                                y el desarrollo emocional saludable en cada etapa de la vida. Acompañamos a nuestros
-                                pacientes a través de terapias, talleres y capacitaciones especializadas guiadas por la
-                                ciencia y la empatía.</p>
                         </div>
-                        <div class="mv-row-image">
-                            <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80&auto=format"
-                                alt="Nuestra Misión - Acompañamiento Psicológico KJA" loading="lazy" decoding="async" width="800" height="360" />
-                        </div>
-                    </div>
-                    <!-- Fila 2: Visión (Imagen Izquierda, Texto Derecha en Desktop) -->
-                    <div class="mv-row-block mv-row-block--reverse">
-                        <div class="mv-row-text">
-                            <span class="mv-row-num mv-row-num--pink">02</span>
-                            <div class="mv-icon-box mv-icon-box--pink">
-                                <img src="images/iconos/vision_icon.webp" alt="Ícono 3D de Visión KJA"
-                                    class="mv-icon-img" width="60" height="60" loading="lazy">
+
+                        <!-- Columna Derecha: Contenido y Tarjetas -->
+                        <div class="mv-content-col">
+                            <div class="mv-badge-wrap">
+                                <span class="about-panel-badge-light">
+                                    <span class="badge-dot"></span> NUESTRA ESENCIA
+                                </span>
                             </div>
-                            <h3>Nuestra Visión</h3>
-                            <p>Posicionarnos como el centro psicológico y de formación líder del Perú, reconocidos a
-                                nivel nacional por nuestra calidez humana, metodologías innovadoras basadas en evidencia
-                                y un compromiso inquebrantable con el bienestar integral de las familias y
-                                organizaciones.</p>
-                        </div>
-                        <div class="mv-row-image">
-                            <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&q=80&auto=format"
-                                alt="Nuestra Visión - Bienestar y Futuro Familiar KJA" loading="lazy" decoding="async" width="800" height="360" />
+                            <h2 class="mv-new-title-light">Propósito</h2>
+                            <div class="mv-title-underline"></div>
+                            
+                            <p class="mv-intro-text-light">Trabajamos cada día para brindar bienestar emocional<br>y desarrollar el potencial de las personas en todas las<br>etapas de su vida.</p>
+                            
+                            <div class="mv-cards-grid">
+                                <!-- Card Misión (Oscura) -->
+                                <div class="mv-card mv-card--dark">
+                                    <div class="mv-card-header">
+                                        <div class="mv-card-icon-box">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle><line x1="22" y1="2" x2="16.5" y2="7.5"></line></svg>
+                                        </div>
+                                        <h3>Nuestra Misión</h3>
+                                    </div>
+                                    <div class="mv-card-divider"></div>
+                                    <p>Brindar atención psicológica integral de calidad excepcional, promoviendo la salud mental y el desarrollo emocional saludable en cada etapa de la vida.</p>
+                                    <ul class="mv-list">
+                                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l3 3 5-6"></path></svg> Atención integral y personalizada</li>
+                                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l3 3 5-6"></path></svg> Basada en evidencia científica</li>
+                                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l3 3 5-6"></path></svg> Empatía y calidez humana</li>
+                                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l3 3 5-6"></path></svg> Desarrollo emocional continuo</li>
+                                    </ul>
+                                </div>
+                                <!-- Card Visión (Clara) -->
+                                <div class="mv-card mv-card--light">
+                                    <div class="mv-card-header">
+                                        <div class="mv-card-icon-box mv-icon-light">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </div>
+                                        <h3>Nuestra Visión</h3>
+                                    </div>
+                                    <div class="mv-card-divider"></div>
+                                    <p>Ser referentes en salud mental por nuestra excelencia profesional, innovación constante y compromiso con el bienestar de nuestra comunidad.</p>
+                                    <ul class="mv-list">
+                                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l3 3 5-6"></path></svg> Excelencia profesional</li>
+                                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l3 3 5-6"></path></svg> Innovación y actualización</li>
+                                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l3 3 5-6"></path></svg> Impacto positivo en la comunidad</li>
+                                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l3 3 5-6"></path></svg> Crecimiento y mejora continua</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- ════ TAB 4 · VALORES ════ -->
-            <!-- Imagen destacada + grid 2x2 de valores. Imagen lazy por estar oculta. -->
-            <div class="about-panel" id="about-valores">
-                <div class="valores-split-container">
-                    <!-- Columna Izquierda: Imagen Lateral Destacada con Frase -->
-                    <div class="valores-split-image">
-                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80&auto=format"
-                            alt="Nuestros Valores - Calidad y Calidez Humana KJA" loading="lazy" decoding="async" width="800" height="600" />
-                        <div class="valores-split-overlay">
-                            <span>Nuestros Valores</span>
-                            <p>La base de nuestro compromiso contigo y tu bienestar.</p>
-                        </div>
-                    </div>
-                    <!-- Columna Derecha: Grid 2x2 de Valores -->
-                    <div class="valores-grid-modern">
-                        <!-- Valor 1: Empatía -->
-                        <div class="valor-card">
-                            <div class="valor-icon-wrap" style="background:rgba(0,79,176,0.1); color:#004fb0;">
-                                <img src="images/iconos/empatia_icon.webp" alt="Empatía KJA" class="valor-icon-img" width="38" height="38" loading="lazy">
-                            </div>
-                            <h4>Empatía</h4>
-                            <p>Comprendemos y validamos profundamente las emociones and realidades de nuestros
-                                pacientes, brindándoles un refugio libre de juicios.</p>
-                        </div>
-                        <!-- Valor 2: Ética -->
-                        <div class="valor-card">
-                            <div class="valor-icon-wrap" style="background:rgba(241,0,117,0.1); color:#f10075;">
-                                <img src="images/iconos/etica_icon.webp" alt="Ética KJA" class="valor-icon-img" width="38" height="38" loading="lazy">
-                            </div>
-                            <h4>Ética y Rigor</h4>
-                            <p>Actuamos bajo los más estrictos principios de confidencialidad, honestidad y con base
-                                científica en todo tratamiento.</p>
-                        </div>
-                        <!-- Valor 3: Compromiso -->
-                        <div class="valor-card">
-                            <div class="valor-icon-wrap" style="background:rgba(16,185,129,0.1); color:#10b981;">
-                                <img src="images/iconos/compromiso_icon.webp" alt="Compromiso KJA" class="valor-icon-img" width="38" height="38" loading="lazy">
-                            </div>
-                            <h4>Compromiso Real</h4>
-                            <p>Nos dedicamos con devoción y profesionalismo al progreso constante y duradero de cada una
-                                de las personas a nuestro cuidado.</p>
-                        </div>
-                        <!-- Valor 4: Innovación -->
-                        <div class="valor-card">
-                            <div class="valor-icon-wrap" style="background:rgba(124,58,237,0.1); color:#7c3aed;">
-                                <img src="images/iconos/innovacion_icon.webp" alt="Innovación KJA" class="valor-icon-img" width="38" height="38" loading="lazy">
-                            </div>
-                            <h4>Innovación Científica</h4>
-                            <p>Actualizamos permanentemente nuestras técnicas y programas de bienestar integrando
-                                metodologías terapéuticas modernas.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- ════ TAB 5 · SERVICIOS Y COMUNIDAD ════ -->
-            <!-- Imagen + tarjeta con lista de servicios. Imagen lazy por estar oculta. -->
+            <!-- ════ TAB 4 · SERVICIOS Y COMUNIDAD (BENTO BOX) ════ -->
             <div class="about-panel" id="about-servicios">
-                <div class="about-grid-modern">
-                    <div class="about-image-modern">
-                        <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80&auto=format"
-                            alt="Capacitación y Comunidad KJA" loading="lazy" decoding="async" width="800" height="600" />
+                <div class="bento-header">
+                    <div class="mv-badge-wrap" style="text-align: center; margin-bottom: 24px;">
+                        <span class="about-panel-badge-light" style="background: rgba(241, 0, 117, 0.05); border: none;">
+                            <span class="badge-dot"></span> NUESTRO IMPACTO
+                        </span>
                     </div>
-                    <div class="about-text-modern">
-                        <span class="about-panel-badge">Acompañamiento Social</span>
-                        <h3 class="about-panel-title">Capacitación y Comunidad</h3>
-                        <p>Además de la psicoterapia presencial y virtual, en KJA extendemos nuestro impacto a través de
-                            programas de desarrollo y aprendizaje cooperativo:</p>
+                    <h2 class="bento-title">Construimos bienestar más allá de la consulta</h2>
+                    <p class="bento-subtitle">En KJA, extendemos nuestro compromiso con la salud mental a colegios, empresas y comunidades a través de programas vivenciales.</p>
+                </div>
+                
+                <div class="bento-grid">
+                    <!-- Tarjeta Principal: Terapia (Large) -->
+                    <div class="bento-card bento-card--large">
+                        <img src="images/nosotros/fondo_nosotros.jpg" alt="Terapia Integral" class="bento-bg" loading="lazy">
+                        <div class="bento-overlay"></div>
+                        <div class="bento-content bento-content--light">
+                            <div class="bento-icon-box bento-icon-box--pink">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                            <h3>Terapia Psicológica Integral</h3>
+                            <p>Abordamos las necesidades de niños, adolescentes y adultos con un enfoque clínico riguroso y muy humano. Modalidades presencial y virtual adaptadas a ti.</p>
+                        </div>
+                    </div>
 
-                        <ul class="about-features-list">
-                            <li>
-                                <strong>Formación y Cursos:</strong> Ofrecemos talleres vivenciales y cursos
-                                especializados en salud mental, liderazgo educativo, desarrollo de habilidades blandas y
-                                crianza respetuosa dirigidos a padres, colegios y empresas.
-                            </li>
-                            <li>
-                                <strong>Impacto Comunitario:</strong> Realizamos actividades vivenciales de integración
-                                y bienestar emocional en el exterior de centros educativos escolares locales, fomentando
-                                la sana convivencia a través de dinámicas, juegos y talleres vivenciales al aire libre.
-                            </li>
-                        </ul>
+                    <!-- Tarjeta Secundaria: Cursos (Medium) -->
+                    <div class="bento-card bento-card--white">
+                        <div class="bento-content">
+                            <div class="bento-icon-box bento-icon-box--blue">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                            </div>
+                            <h3>Formación y Talleres</h3>
+                            <p>Cursos especializados para padres y educadores. Desarrollamos liderazgo, crianza respetuosa y habilidades blandas.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Terciaria: Impacto Social (Medium) -->
+                    <div class="bento-card bento-card--pink">
+                        <div class="bento-content bento-content--light">
+                            <div class="bento-icon-box bento-icon-box--white">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                            </div>
+                            <h3>Impacto Comunitario</h3>
+                            <p>Dinámicas, juegos y talleres vivenciales al aire libre en centros educativos para fomentar la sana convivencia y empatía.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Inferior: Acompañamiento Corporativo (Wide) -->
+                    <div class="bento-card bento-card--wide bento-card--dark">
+                        <div class="bento-content bento-content--light bento-content--row">
+                            <div class="bento-text-part">
+                                <h3>Acompañamiento Empresarial</h3>
+                                <p>Programas de salud mental ocupacional. Evaluaciones, capacitaciones y soporte psicológico continuo para equipos de alto rendimiento.</p>
+                            </div>
+                            <div class="bento-icon-part">
+                                <div class="bento-icon-box bento-icon-box--glass">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -486,7 +479,7 @@
         // 1) quita .active de todas las pestañas y paneles
         // 2) marca como activa la pestaña pulsada y su panel correspondiente
         function switchAboutTab(btn, panel) {
-            document.querySelectorAll('#about-tabs .hero-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#about-tabs .hero-tab, #about-tabs .tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.about-panel').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('about-' + panel).classList.add('active');
