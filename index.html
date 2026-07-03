@@ -834,35 +834,42 @@
             opacity: 0;
         }
 
-        /* ===== COMMITMENT TRACK (carousel) ===== */
+        /* ===== COMMITMENT TRACK (marquee) ===== */
+        .commitment-marquee-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            /* Fades on the edges for smoother entry/exit */
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
         .commitment-track {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+            display: flex;
+            width: max-content;
+            animation: marquee-scroll 45s linear infinite;
         }
 
-        @media (max-width: 767px) {
-            .commitment-track {
-                display: flex;
-                overflow-x: auto;
-                scroll-snap-type: x mandatory;
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-                gap: 0.75rem;
-                padding-bottom: 0.5rem;
-            }
+        .commitment-track:hover {
+            animation-play-state: paused;
+        }
 
-            .commitment-track::-webkit-scrollbar {
-                display: none;
-            }
+        .commitment-track > article {
+            width: 320px; /* Fija un ancho estándar para las tarjetas */
+            flex-shrink: 0;
+            margin-right: 1.5rem;
+            white-space: normal;
+        }
 
-            .commitment-track>article {
-                min-width: calc(88vw);
-                max-width: calc(88vw);
-                scroll-snap-align: center;
-                flex-shrink: 0;
+        @keyframes marquee-scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%); /* Moves exactly half the width (which is one full set of duplicated items) */
             }
         }
+
 
         /* ===== STAT PULSE ===== */
         @keyframes statPulse {
@@ -1355,117 +1362,31 @@
         </div>
     </section>
     <!-- ===== LA DIFERENCIA KJA — COMPACT ===== -->
-    <section class="py-10 md:py-14 bg-white" id="por-que-kja">
-        <div class="max-w-6xl mx-auto px-4 md:px-6">
+    <section class="py-10 md:py-14 bg-[#fafafa] relative overflow-hidden" id="por-que-kja">
+        <!-- Patrón de puntos decorativo top-right -->
+        <div class="absolute top-0 right-0 -mr-16 -mt-8 opacity-40 pointer-events-none hidden md:block">
+            <svg width="250" height="250" fill="none" viewBox="0 0 100 100">
+                <pattern id="dotsPattern" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <circle fill="#f10075" cx="2" cy="2" r="1.5"></circle>
+                </pattern>
+                <rect x="0" y="0" width="100" height="100" fill="url(#dotsPattern)"></rect>
+            </svg>
+        </div>
 
-            <!-- Header compacto -->
-            <div class="mb-8 md:mb-12 text-center">
-                <p
-                    class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#f10075] mb-2 animate-features-header opacity-0">
-                    ¿Por que elegirnos?</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-2 animate-features-header opacity-0">La
-                    diferencia <span class="text-[#f10075] italic font-light">KJA</span></h2>
-            </div>
+        <div class="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
 
-            <!-- Fila Superior: Glass + Terapia Infantil -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 mb-6">
 
-                <!-- Izquierda: Card Azul Glass (7 cols) -->
-                <div
-                    class="lg:col-span-7 glass-bubbles text-white rounded-[2rem] shadow-xl relative overflow-hidden animate-features-card opacity-0">
-                    <div class="glass-bubble glass-bubble--1"></div>
-                    <div class="glass-bubble glass-bubble--2"></div>
-                    <div class="glass-bubble glass-bubble--3"></div>
-                    <div class="glass-bubble glass-bubble--4"></div>
-                    <div class="glass-bubble glass-bubble--5"></div>
-                    <div class="glass-bubble glass-bubble--6"></div>
-
-                    <div class="relative z-10 p-5 md:p-6">
-                        <div class="flex items-start justify-between mb-4">
-                            <span class="text-[10px] font-bold tracking-widest uppercase text-blue-200/70">
-                                EXPLORA NUESTRAS ESPECIALIDADES:
-                            </span>
-                            <div class="glass-avatar-profile"
-                                style="position:static;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;"
-                                aria-hidden="true">
-                                <svg viewBox="0 0 48 48" fill="none" style="width:24px;height:24px;">
-                                    <circle cx="24" cy="18" r="10" fill="white" opacity="0.4" />
-                                    <path d="M12 44 C12 34 18 28 24 28 C30 28 36 34 36 44" fill="white" opacity="0.6" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        <h3 class="text-xl md:text-2xl font-bold mb-4">Terapeutas Certificados</h3>
-
-                        <div class="flex flex-wrap gap-2 mb-5" id="therapyPills" role="tablist">
-                            <button type="button" class="therapy-pill-v3 active" role="tab" aria-selected="true"
-                                data-therapy="tcc">TERAPIA COGNITIVO-CONDUCTUAL</button>
-                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false"
-                                data-therapy="sistemica">Terapia Sistémica</button>
-                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false"
-                                data-therapy="infantil">Terapia Infantil</button>
-                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false"
-                                data-therapy="clinica">Psicología Clínica</button>
-                            <button type="button" class="therapy-pill-v3" role="tab" aria-selected="false"
-                                data-therapy="cpa">Colegiados CPA</button>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-3">
-                            <a href="nosotros.html"
-                                class="inline-flex items-center justify-center gap-1.5 bg-white text-[#004fb0] hover:text-[#f10075] font-bold py-2 px-4 rounded-full text-sm shadow transition-all hover:-translate-y-0.5">
-                                Explora nuestras especialidades
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
-                            </a>
-                            <a href="nosotros.html"
-                                class="inline-flex items-center text-xs font-semibold text-white/60 hover:text-white transition-colors">
-                                Conoce al equipo <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor"
-                                    stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Derecha: Card dinámica por terapia (5 cols) -->
-                <div class="lg:col-span-5 animate-features-card opacity-0" id="therapyRightCard"
-                    style="display:flex;flex-direction:column;">
-                    <div class="therapy-card-dynamic" id="therapyCardInner"
-                        style="flex:1;transition:opacity 0.4s ease,transform 0.4s ease;">
-                        <img id="therapyCardImg" src="images/inicio-terapias/terapia_conductual.webp"
-                            alt="Terapia Cognitivo-Conductual" style="object-position:center 25%;" loading="lazy"
-                            decoding="async" />
-                        <div class="therapy-card-overlay">
-                            <div id="therapyCardTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">
-                                <span class="therapy-tag" style="background:#004fb0;">Pensamientos</span>
-                                <span class="therapy-tag" style="background:#f10075;">Emociones</span>
-                                <span class="therapy-tag" style="background:#059669;">Conducta</span>
-                            </div>
-                            <h3 id="therapyCardTitle"
-                                style="font-size:1.05rem;font-weight:800;color:white;margin:0 0 5px;line-height:1.25;">
-                                Terapia Cognitivo-Conductual</h3>
-                            <p id="therapyCardDesc"
-                                style="font-size:0.72rem;color:rgba(255,255,255,0.85);line-height:1.45;margin:0;">
-                                Reestructura tus patrones de pensamiento para mejorar tu bienestar emocional de manera
-                                científica.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Header fila inferior -->
-            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 mb-4">TESTIMONIOS REALES DE
-                NUESTROS PACIENTES</p>
-
-            <!-- Fila Inferior: 3 posts Facebook simulados -->
-            <div class="commitment-track animate-features-card opacity-0" id="commitmentTrack">
-
-                <!-- ── Facebook post 1 ── -->
+            <!-- Header fila inferior (Testimonios) -->
+            <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 mb-4 mt-12 text-center md:text-left">
+                TESTIMONIOS REALES DE NUESTROS PACIENTES
+            </p>
+            <!-- Fila Inferior: Testimonios en Marquee -->
+            <div class="commitment-marquee-container w-[90%] mx-auto pb-6">
+                <div class="commitment-track animate-features-card opacity-0" id="commitmentTrack">
+                    
+                <!-- ── Facebook post ── -->
                 <article class="commitment-card"
-                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
                     <!-- Header barra Facebook -->
                     <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
                         <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
@@ -1486,8 +1407,7 @@
                                 style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
                                 loading="lazy" />
                             <div>
-                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">María
-                                    Pérez</div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">María Pérez</div>
                                 <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
                                         style="color:#1877f2;">KJA Centro de Capacitación y Formación
                                         Psicológica</strong></div>
@@ -1504,34 +1424,36 @@
                         <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
                         </div>
                         <!-- Texto -->
-                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Me
-                            ayudaron mucho con mi hijo, notamos cambios desde las primeras sesiones. Muy agradecida con
-                            todo el equipo 🙏</p>
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Me ayudaron mucho con mi hijo, notamos cambios desde las primeras sesiones. Muy agradecida con todo el equipo 🙏</p>
                         <!-- Reacciones -->
                         <div
-                            style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
                             <div style="display:flex;align-items:center;gap:4px;">
-                                <div style="display:flex;">
-                                    <span
-                                        style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">👍</span>
-                                    <span
-                                        style="width:16px;height:16px;border-radius:50%;background:#f02849;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">❤️</span>
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
                                 </div>
-                                <span style="font-size:0.65rem;color:#65676b;">48</span>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">42</span>
                             </div>
-                            <div style="display:flex;gap:10px;">
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me
-                                    gusta</span>
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬
-                                    Comentar</span>
-                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">3 comentarios</span>
                         </div>
                     </div>
                 </article>
 
-                <!-- ── Facebook post 2 ── -->
-                <article class="commitment-card commitment-card--bordered"
-                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
                     <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
                         <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
                             <path
@@ -1542,15 +1464,16 @@
                         <span
                             style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
                     </div>
+                    <!-- Cuerpo del post -->
                     <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
-                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80&auto=format"
-                                alt="Carlos R."
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80&auto=format"
+                                alt="Carlos Mendoza"
                                 style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
                                 loading="lazy" />
                             <div>
-                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Carlos R.
-                                </div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Carlos Mendoza</div>
                                 <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
                                         style="color:#1877f2;">KJA Centro de Capacitación y Formación
                                         Psicológica</strong></div>
@@ -1563,35 +1486,40 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Estrellas -->
                         <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
                         </div>
-                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">
-                            Excelente atención desde el primer día. Los profesionales son muy empáticos y saben cómo
-                            ayudarte. Lo recomiendo al 100% 💪</p>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Los cursos de especialización son excelentes. Los profesores dominan el tema y la metodología es súper práctica. 100% recomendado.</p>
+                        <!-- Reacciones -->
                         <div
-                            style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
                             <div style="display:flex;align-items:center;gap:4px;">
-                                <div style="display:flex;">
-                                    <span
-                                        style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">👍</span>
-                                    <span
-                                        style="width:16px;height:16px;border-radius:50%;background:#f7b928;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">😮</span>
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
                                 </div>
-                                <span style="font-size:0.65rem;color:#65676b;">73</span>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">89</span>
                             </div>
-                            <div style="display:flex;gap:10px;">
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me
-                                    gusta</span>
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬
-                                    Comentar</span>
-                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">12 comentarios</span>
                         </div>
                     </div>
                 </article>
 
-                <!-- ── Facebook post 3 ── -->
+                <!-- ── Facebook post ── -->
                 <article class="commitment-card"
-                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;">
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
                     <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
                         <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
                             <path
@@ -1602,15 +1530,82 @@
                         <span
                             style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
                     </div>
+                    <!-- Cuerpo del post -->
                     <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
-                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80&auto=format"
-                                alt="Andrea L."
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=80&auto=format"
+                                alt="Ana Suárez"
                                 style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
                                 loading="lazy" />
                             <div>
-                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Andrea L.
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Ana Suárez</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 2 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
                                 </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Llevo 3 meses de terapia de pareja y nuestra comunicación ha mejorado muchísimo. La psicóloga es muy empática y profesional.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">156</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">24 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80&auto=format"
+                                alt="Jorge Luis"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Jorge Luis</div>
                                 <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
                                         style="color:#1877f2;">KJA Centro de Capacitación y Formación
                                         Psicológica</strong></div>
@@ -1623,45 +1618,1359 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Estrellas -->
                         <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
                         </div>
-                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Muy
-                            profesionales y comprometidos. Mi hija mejoró muchísimo gracias a la terapia infantil.
-                            Volveríamos sin dudarlo 🌟</p>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Llegué con mucha ansiedad y me dieron herramientas desde la primera sesión. Siento un gran alivio y avance.</p>
+                        <!-- Reacciones -->
                         <div
-                            style="border-top:1px solid #e4e6ea;padding-top:0.5rem;display:flex;align-items:center;justify-content:space-between;">
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
                             <div style="display:flex;align-items:center;gap:4px;">
-                                <div style="display:flex;">
-                                    <span
-                                        style="width:16px;height:16px;border-radius:50%;background:#f02849;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;">❤️</span>
-                                    <span
-                                        style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:inline-flex;align-items:center;justify-content:center;font-size:9px;border:1.5px solid #fff;margin-left:-4px;">👍</span>
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
                                 </div>
-                                <span style="font-size:0.65rem;color:#65676b;">91</span>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">67</span>
                             </div>
-                            <div style="display:flex;gap:10px;">
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">👍 Me
-                                    gusta</span>
-                                <span style="font-size:0.65rem;color:#65676b;font-weight:600;cursor:default;">💬
-                                    Comentar</span>
-                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">5 comentarios</span>
                         </div>
                     </div>
                 </article>
 
-            </div>
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80&auto=format"
+                                alt="Valeria Gómez"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Valeria Gómez</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 1 semana</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">El trato infantil es inmejorable. Mi pequeña va feliz a sus citas y hemos visto grandes mejoras en el colegio.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">112</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">15 comentarios</span>
+                        </div>
+                    </div>
+                </article>
 
-            <!-- Dots funcionales (3 = una por tarjeta) -->
-            <div class="carousel-dots mt-4" id="commitmentDots">
-                <div class="carousel-dot active"></div>
-                <div class="carousel-dot"></div>
-                <div class="carousel-dot"></div>
-            </div>
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80&auto=format"
+                                alt="Roberto Dávila"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Roberto Dávila</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 4 días</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Participé en su programa de formación en psicoterapia. Contenido muy actualizado y enfocado en la práctica real.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">204</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">31 comentarios</span>
+                        </div>
+                    </div>
+                </article>
 
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1554151228-14d9def656e4?w=80&q=80&auto=format"
+                                alt="Carmen Torres"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Carmen Torres</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 3 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Llevaba años buscando un buen enfoque de Terapia Cognitivo-Conductual y por fin encontré a verdaderos profesionales aquí.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">88</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">9 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=80&q=80&auto=format"
+                                alt="Luis Fernando"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Luis Fernando</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 2 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Las sesiones virtuales funcionan de maravilla. Me ahorro el tráfico y la calidad de la terapia no disminuye para nada.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">53</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">4 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&q=80&auto=format"
+                                alt="Marta Ríos"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Marta Ríos</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 5 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Excelente ética profesional y un ambiente sumamente seguro para poder hablar de cosas muy personales.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">134</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">19 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&q=80&auto=format"
+                                alt="Diego Castro"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Diego Castro</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 1 mes</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Tomé el diplomado de psicología clínica y superó mis expectativas. Material muy completo y asesoría constante.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">215</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">42 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80&auto=format"
+                                alt="Sandra Vargas"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Sandra Vargas</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 2 semanas</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">El mejor centro de capacitación. Destaco mucho la paciencia de los docentes para absolver todas nuestras dudas.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">94</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">11 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80&auto=format"
+                                alt="Javier Huamán"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Javier Huamán</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 6 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Su terapia sistémica nos salvó como familia. Gracias a la Dra. por guiarnos en el proceso de reconstruir nuestros vínculos.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">187</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">28 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+                    
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&q=80&auto=format"
+                                alt="María Pérez"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">María Pérez</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 3 semanas</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Me ayudaron mucho con mi hijo, notamos cambios desde las primeras sesiones. Muy agradecida con todo el equipo 🙏</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">42</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">3 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80&auto=format"
+                                alt="Carlos Mendoza"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Carlos Mendoza</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 1 mes</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Los cursos de especialización son excelentes. Los profesores dominan el tema y la metodología es súper práctica. 100% recomendado.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">89</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">12 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=80&auto=format"
+                                alt="Ana Suárez"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Ana Suárez</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 2 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Llevo 3 meses de terapia de pareja y nuestra comunicación ha mejorado muchísimo. La psicóloga es muy empática y profesional.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">156</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">24 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80&auto=format"
+                                alt="Jorge Luis"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Jorge Luis</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 2 semanas</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Llegué con mucha ansiedad y me dieron herramientas desde la primera sesión. Siento un gran alivio y avance.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">67</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">5 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80&auto=format"
+                                alt="Valeria Gómez"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Valeria Gómez</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 1 semana</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">El trato infantil es inmejorable. Mi pequeña va feliz a sus citas y hemos visto grandes mejoras en el colegio.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">112</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">15 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80&auto=format"
+                                alt="Roberto Dávila"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Roberto Dávila</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 4 días</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Participé en su programa de formación en psicoterapia. Contenido muy actualizado y enfocado en la práctica real.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">204</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">31 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1554151228-14d9def656e4?w=80&q=80&auto=format"
+                                alt="Carmen Torres"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Carmen Torres</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 3 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Llevaba años buscando un buen enfoque de Terapia Cognitivo-Conductual y por fin encontré a verdaderos profesionales aquí.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">88</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">9 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=80&q=80&auto=format"
+                                alt="Luis Fernando"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Luis Fernando</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 2 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Las sesiones virtuales funcionan de maravilla. Me ahorro el tráfico y la calidad de la terapia no disminuye para nada.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">53</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">4 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&q=80&auto=format"
+                                alt="Marta Ríos"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Marta Ríos</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 5 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Excelente ética profesional y un ambiente sumamente seguro para poder hablar de cosas muy personales.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">134</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">19 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&q=80&auto=format"
+                                alt="Diego Castro"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Diego Castro</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 1 mes</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Tomé el diplomado de psicología clínica y superó mis expectativas. Material muy completo y asesoría constante.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">215</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">42 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80&auto=format"
+                                alt="Sandra Vargas"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Sandra Vargas</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 2 semanas</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">El mejor centro de capacitación. Destaco mucho la paciencia de los docentes para absolver todas nuestras dudas.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">94</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">11 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ── Facebook post ── -->
+                <article class="commitment-card"
+                    style="padding:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e6ea;border-radius:12px;">
+                    <!-- Header barra Facebook -->
+                    <div style="background:#1877f2;padding:0.45rem 0.75rem;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;">
+                            <path
+                                d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
+                        </svg>
+                        <span
+                            style="font-size:0.6rem;font-weight:700;color:white;letter-spacing:0.04em;">Facebook</span>
+                        <span
+                            style="font-size:0.55rem;color:rgba(255,255,255,0.7);margin-left:auto;">Recomendación</span>
+                    </div>
+                    <!-- Cuerpo del post -->
+                    <div style="padding:0.9rem 1rem;flex:1;display:flex;flex-direction:column;">
+                        <!-- Usuario -->
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80&auto=format"
+                                alt="Javier Huamán"
+                                style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #1877f2;"
+                                loading="lazy" />
+                            <div>
+                                <div style="font-size:0.78rem;font-weight:700;color:#050505;line-height:1.2;">Javier Huamán</div>
+                                <div style="font-size:0.62rem;color:#65676b;line-height:1.4;">recomienda a <strong
+                                        style="color:#1877f2;">KJA Centro de Capacitación y Formación
+                                        Psicológica</strong></div>
+                                <div style="font-size:0.62rem;color:#65676b;display:flex;align-items:center;gap:3px;">
+                                    <span>hace 6 meses</span>
+                                    <svg viewBox="0 0 16 16" fill="#65676b" style="width:10px;height:10px;">
+                                        <path
+                                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Estrellas -->
+                        <div style="font-size:0.85rem;color:#f59e0b;margin-bottom:0.5rem;letter-spacing:1px;">★★★★★
+                        </div>
+                        <!-- Texto -->
+                        <p style="font-size:0.76rem;color:#1c1e21;line-height:1.55;margin-bottom:0.75rem;flex:1;">Su terapia sistémica nos salvó como familia. Gracias a la Dra. por guiarnos en el proceso de reconstruir nuestros vínculos.</p>
+                        <!-- Reacciones -->
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e4e6ea;padding-top:0.6rem;margin-top:auto;">
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <div
+                                    style="width:16px;height:16px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z" />
+                                    </svg>
+                                </div>
+                                <div
+                                    style="width:16px;height:16px;background:#f33e58;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:-6px;border:1px solid #fff;">
+                                    <svg viewBox="0 0 16 16" fill="white" style="width:9px;height:9px;">
+                                        <path
+                                            d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z" />
+                                    </svg>
+                                </div>
+                                <span style="font-size:0.6rem;color:#65676b;margin-left:2px;">187</span>
+                            </div>
+                            <span style="font-size:0.6rem;color:#65676b;">28 comentarios</span>
+                        </div>
+                    </div>
+                </article>
+                </div>
+            </div>
         </div>
-    </section>
-
-    <!-- ===== SERVICIOS ===== -->
+    </section>    <!-- ===== SERVICIOS ===== -->
     <section id="terapia" class="container section-padding">
         <div class="services-header text-center">
             <p class="services-eyebrow">¿Cómo podemos ayudarte?</p>
@@ -3131,73 +4440,7 @@
             obs.observe(countEl);
         })();
 
-        /* ===== COMMITMENT CAROUSEL — auto-avance + dots ===== */
-        (function () {
-            const track = document.getElementById('commitmentTrack');
-            const dots = document.querySelectorAll('#commitmentDots .carousel-dot');
-            if (!track || !dots.length) return;
 
-            let current = 0;
-            let timer;
-
-            function getCards() { return track.querySelectorAll(':scope > article'); }
-
-            function goTo(idx) {
-                const cards = getCards();
-                if (!cards[idx]) return;
-                if (window.innerWidth < 768) {
-                    const gap = 12;
-                    const w = cards[0].offsetWidth + gap;
-                    track.scrollTo({ left: w * idx, behavior: 'smooth' });
-                }
-                dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
-                /* sutil highlight en desktop */
-                cards.forEach(function (c, i) {
-                    c.style.transition = 'box-shadow 0.4s,transform 0.4s';
-                    if (i === idx && window.innerWidth >= 768) {
-                        c.style.boxShadow = '0 16px 40px rgba(0,79,176,0.15)';
-                        c.style.transform = 'translateY(-4px)';
-                    } else {
-                        c.style.boxShadow = '';
-                        c.style.transform = '';
-                    }
-                });
-                current = idx;
-            }
-
-            function next() {
-                const n = (current + 1) % getCards().length;
-                goTo(n);
-            }
-
-            function startTimer() {
-                clearInterval(timer);
-                timer = setInterval(next, 3800);
-            }
-
-            /* Sync scroll → dots (mobile) */
-            track.addEventListener('scroll', function () {
-                const cards = getCards();
-                if (!cards.length) return;
-                const gap = 12;
-                const w = cards[0].offsetWidth + gap;
-                const idx = Math.round(track.scrollLeft / w);
-                if (idx !== current) { current = idx; dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); }); }
-            }, { passive: true });
-
-            /* Dot clicks */
-            dots.forEach(function (dot, i) {
-                dot.addEventListener('click', function () { goTo(i); startTimer(); });
-            });
-
-            /* Pausar en hover/touch */
-            track.addEventListener('mouseenter', function () { clearInterval(timer); });
-            track.addEventListener('mouseleave', startTimer);
-            track.addEventListener('touchstart', function () { clearInterval(timer); }, { passive: true });
-            track.addEventListener('touchend', function () { setTimeout(startTimer, 2200); }, { passive: true });
-
-            startTimer();
-        })();
     </script>
 
     <script>
