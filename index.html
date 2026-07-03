@@ -1232,21 +1232,7 @@
                 <span class="counter-total">04</span>
             </div>
 
-            <!-- Barras de progreso (reemplazan los dots) -->
-            <div class="carousel-progress-bars" id="carouselDots" role="tablist">
-                <button class="carousel-bar active" data-index="0" aria-label="Slide 1" role="tab" aria-selected="true">
-                    <span class="bar-fill" id="barFill0"></span>
-                </button>
-                <button class="carousel-bar" data-index="1" aria-label="Slide 2" role="tab" aria-selected="false">
-                    <span class="bar-fill" id="barFill1"></span>
-                </button>
-                <button class="carousel-bar" data-index="2" aria-label="Slide 3" role="tab" aria-selected="false">
-                    <span class="bar-fill" id="barFill2"></span>
-                </button>
-                <button class="carousel-bar" data-index="3" aria-label="Slide 4" role="tab" aria-selected="false">
-                    <span class="bar-fill" id="barFill3"></span>
-                </button>
-            </div>
+
 
             <!-- Flechas dentro del HUD -->
             <div class="carousel-hud-arrows">
@@ -1272,18 +1258,22 @@
             <div class="scroll-hint-line"></div>
         </div>
 
+        <div class="custom-shape-divider-bottom">
+            <!-- Línea fina decorativa (onda superior) -->
+            <svg class="decorative-thin-wave" viewBox="0 0 1440 320" preserveAspectRatio="none" style="position: absolute; bottom: 30%; left: 0; width: 100%; height: 250px; z-index: 10; pointer-events: none; overflow: visible;">
+                <path fill="none" stroke="#C28B71" stroke-width="2" d="M0,50 C400,50 600,300 1000,280 C1200,270 1350,100 1440,-50"></path>
+            </svg>
+
+            <!-- Onda gruesa principal asimétrica -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none" style="position: relative; z-index: 11;">
+                <path fill="#ffffff" d="M0,160 C300,160 600,280 950,280 C1200,280 1350,150 1440,0 L1440,320 L0,320 Z"></path>
+            </svg>
+        </div>
+
     </section><!-- /hero-carousel -->
 
-    <!-- ===== PROMO STRIP ===== -->
-    <div class="promo-strip">
-        <div class="promo-strip-inner">
-            <span class="promo-strip-text"><strong>20% de descuento</strong> en tu primera sesión</span>
-            <a href="https://wa.me/51988918238" class="promo-strip-cta">¡Agendar ahora!</a>
-        </div>
-    </div>
-
     <!-- ===== LOGOS INSTITUCIONES (TICKER ANIMADO) ===== -->
-    <section class="institutions-ticker py-10 bg-gray-50 overflow-hidden">
+    <section class="institutions-ticker pt-2 pb-10 bg-white overflow-hidden relative z-20 -mt-1">
 
         <!-- Subtítulo aclaratorio animado -->
         <style>

@@ -119,12 +119,14 @@ function toggleFaq(btn) {
         // Limpiar estado anterior
         slides[prev].classList.remove('active');
         bgs[prev].classList.remove('active');
-        bars[prev].classList.remove('active');
-        bars[prev].setAttribute('aria-selected', 'false');
-
-        // Clonar fill del bar saliente para resetear su animación CSS
-        const oldFill = bars[prev].querySelector('.bar-fill');
-        bars[prev].replaceChild(oldFill.cloneNode(true), oldFill);
+        
+        if (bars.length > 0) {
+            bars[prev].classList.remove('active');
+            bars[prev].setAttribute('aria-selected', 'false');
+            // Clonar fill del bar saliente para resetear su animación CSS
+            const oldFill = bars[prev].querySelector('.bar-fill');
+            bars[prev].replaceChild(oldFill.cloneNode(true), oldFill);
+        }
 
         // Nuevo índice con wrap-around
         current = (index + TOTAL) % TOTAL;
@@ -136,12 +138,13 @@ function toggleFaq(btn) {
         slides[current].classList.add('active');
         bgs[current].classList.add('active');
 
-        // Clonar fill del bar entrante para que su animación también reinicie
-        const inFill = bars[current].querySelector('.bar-fill');
-        bars[current].replaceChild(inFill.cloneNode(true), inFill);
-
-        bars[current].classList.add('active');
-        bars[current].setAttribute('aria-selected', 'true');
+        if (bars.length > 0) {
+            // Clonar fill del bar entrante para que su animación también reinicie
+            const inFill = bars[current].querySelector('.bar-fill');
+            bars[current].replaceChild(inFill.cloneNode(true), inFill);
+            bars[current].classList.add('active');
+            bars[current].setAttribute('aria-selected', 'true');
+        }
 
         // Actualizar contador
         if (counter) counter.textContent = pad(current);
