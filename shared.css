@@ -6292,3 +6292,46 @@ header.scrolled .nav-links-center li a.active {
     align-items: center;
     justify-content: center;
 }
+/* ===== ÁREAS DE ATENCIÓN (NUEVO LAYOUT FIX) ===== */
+.areas-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+@media (min-width: 1024px) {
+    .areas-wrapper {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+}
+.areas-owl {
+    width: 8rem;
+    height: 8rem;
+}
+@media (min-width: 768px) {
+    .areas-owl {
+        width: 10rem;
+        height: 10rem;
+    }
+}
+@media (min-width: 1024px) {
+    .areas-owl {
+        margin-top: 5rem;
+    }
+}
+.areas-grid-container {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+@media (min-width: 640px) {
+    .areas-grid-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (min-width: 768px) {
+    .areas-grid-container {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}

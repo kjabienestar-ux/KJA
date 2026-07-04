@@ -586,26 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cloud = document.getElementById('areasCloud');
     if (!cloud) return;
 
-    // Generar etiquetas
-    areasList.forEach(area => {
-        const btn = document.createElement('button');
-        // Diseño limpio y moderno con la flecha fucsia
-        btn.className = "group relative flex items-center justify-between gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium text-[13px] md:text-sm rounded-full shadow-sm hover:border-[#f10075]/40 hover:text-[#f10075] hover:shadow-md transition-all duration-300 transform hover:-translate-y-1";
-        
-        btn.innerHTML = `
-            <span class="relative z-10">${area}</span>
-            <!-- Flecha ondeada delgada fucsia -->
-            <svg class="w-5 h-5 text-[#f10075] opacity-60 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <!-- Cuerpo de la flecha (onda) -->
-                <path d="M4 12c4-5 8 5 12 0" />
-                <!-- Punta de la flecha -->
-                <path d="M13 9 L16 12 L13 15" />
-            </svg>
-        `;
-        
-        btn.onclick = () => openTopicModal(area);
-        cloud.appendChild(btn);
-    });
+    // Los botones de áreas ahora son estáticos en el HTML.
 
     // Animación GSAP de la sección al hacer scroll
     if (!kjaCanAnimate()) {
