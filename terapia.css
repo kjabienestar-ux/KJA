@@ -9,7 +9,7 @@
     z-index: 10;
 }
 .section-title-v2 {
-    font-size: clamp(2rem, 3.5vw, 2.5rem);
+    font-size: clamp(1.5rem, 2.5vw, 1.8rem);
     font-weight: 800;
     color: #1a202c;
     margin-bottom: 0.8rem;
@@ -19,7 +19,7 @@
     color: #f10075;
 }
 .section-subtitle-v2 {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     color: #4a5568;
     max-width: 600px;
     margin: 0 auto;
@@ -43,12 +43,20 @@
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
 }
 
-/* IMAGE WRAP */
 .card-image-wrap-v2 {
     position: relative;
     height: 220px;
     border-radius: 20px 20px 0 0;
+}
+.img-clipper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px 20px 0 0;
     overflow: hidden;
+    z-index: 1;
 }
 .card-image-wrap-v2 img {
     width: 100%;
@@ -196,10 +204,12 @@
 
 /* FOOTER */
 .card-footer-v2 {
-    padding: 12px 24px;
+    margin: 0 20px 24px 20px;
+    padding: 8px 8px 8px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-radius: 99px;
     background: #fff0f5; /* Default fallback */
 }
 .footer-ninos { background: #fff0f5; }
@@ -223,8 +233,8 @@
 .text-familia { color: #10b981; }
 
 .btn-circle-action {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     border: none;
     color: #fff;
@@ -233,14 +243,15 @@
     justify-content: center;
     cursor: pointer;
     transition: transform 0.2s, opacity 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 .btn-circle-action:hover {
     transform: translateX(3px);
     opacity: 0.9;
 }
 .btn-circle-action svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
 }
 .btn-ninos { background: #f10075; }
 .btn-adolescentes { background: #0056b3; }
