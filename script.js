@@ -99,8 +99,8 @@ function toggleFaq(btn) {
     const bgs       = document.querySelectorAll('.carousel-bg');
     const bars      = document.querySelectorAll('.carousel-bar');
     const counter   = document.getElementById('counterCurrent');
-    const prevBtn   = document.getElementById('prevBtn');
-    const nextBtn   = document.getElementById('nextBtn');
+    const prevBtns = document.querySelectorAll('.carousel-arrow--prev');
+    const nextBtns = document.querySelectorAll('.carousel-arrow--next');
 
     if (!slides.length) return;   // no hay carrusel en esta página
 
@@ -179,8 +179,8 @@ function toggleFaq(btn) {
     function prev() { goTo(current - 1); resetTimer(); }
 
     /* ─ Flechas ─ */
-    if (prevBtn) prevBtn.addEventListener('click', prev);
-    if (nextBtn) nextBtn.addEventListener('click', next);
+    prevBtns.forEach(btn => btn.addEventListener('click', prev));
+    nextBtns.forEach(btn => btn.addEventListener('click', next));
 
     /* ─ Barras (clic directo) ─ */
     bars.forEach(bar => {

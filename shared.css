@@ -305,13 +305,13 @@ header.scrolled .hamburger span {
 
 .carousel-bg {
     position: absolute;
-    inset: -5%;
+    inset: -2%;
     /* extra para que el zoom no muestre bordes */
     background-size: cover;
     background-position: center;
     opacity: 0;
     transition: opacity 1s ease;
-    transform: scale(1.08);
+    transform: scale(1.03);
     animation: none;
 }
 
@@ -322,7 +322,7 @@ header.scrolled .hamburger span {
 
 @keyframes kenBurns {
     from {
-        transform: scale(1.08);
+        transform: scale(1.03);
     }
 
     to {
@@ -570,37 +570,35 @@ header.scrolled .hamburger span {
     }
 }
 
-/* Flechas dentro del HUD */
-.carousel-hud-arrows {
-    display: flex;
-    gap: 8px;
-}
-
+/* Flechas Minimalistas */
+.carousel-hud-arrows { display: flex; gap: 12px; z-index: 20; position: relative; }
 .carousel-arrow {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.10);
-    border: 1px solid rgba(255, 255, 255, 0.20);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    backdrop-filter: blur(6px);
 }
-
 .carousel-arrow svg {
     width: 18px;
     height: 18px;
+    transition: transform 0.3s ease;
 }
-
 .carousel-arrow:hover {
-    background: var(--primary-pink);
-    border-color: var(--primary-pink);
-    transform: scale(1.1);
-    box-shadow: 0 4px 18px rgba(241, 0, 117, 0.45);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #fff;
+}
+.carousel-arrow--prev:hover svg {
+    transform: translateX(-3px);
+}
+.carousel-arrow--next:hover svg {
+    transform: translateX(3px);
 }
 
 /* ── Scroll hint ── */
