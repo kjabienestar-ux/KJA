@@ -2955,6 +2955,33 @@ header.scrolled .hamburger span {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    overflow: hidden;
+}
+
+/* Decorative dot-grid, top-right corner of the sidebar card */
+.faq-decor-dots {
+    position: absolute;
+    top: 36px;
+    right: 32px;
+    width: 72px;
+    height: 60px;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.35) 1.5px, transparent 1.5px);
+    background-size: 14px 14px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Decorative bleeding ring, bottom-right of the sidebar card */
+.faq-decor-ring {
+    position: absolute;
+    bottom: -90px;
+    right: -90px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    border: 26px solid rgba(255, 255, 255, 0.06);
+    z-index: -1;
+    pointer-events: none;
 }
 
 .faq-premium-sidebar .faq-eyebrow {
@@ -3048,17 +3075,17 @@ header.scrolled .hamburger span {
     background-color: #fff;
     color: #004fb0 !important;
     text-align: center;
-    padding: 16px 28px;
+    padding: 16px 24px;
     border-radius: 9999px;
     font-weight: 700;
     font-size: 14px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     text-decoration: none;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .faq-sidebar-cta:hover {
@@ -3068,10 +3095,57 @@ header.scrolled .hamburger span {
     box-shadow: 0 12px 24px rgba(241, 0, 117, 0.25);
 }
 
+.faq-cta-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .faq-sidebar-cta svg {
     width: 18px;
     height: 18px;
     fill: currentColor;
+    flex-shrink: 0;
+}
+
+.faq-cta-arrow {
+    fill: none !important;
+    stroke: currentColor;
+    transition: transform 0.3s ease;
+}
+
+.faq-sidebar-cta:hover .faq-cta-arrow {
+    transform: translateX(3px);
+}
+
+/* Feature highlights row */
+.faq-features-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.faq-feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex: 1;
+}
+
+.faq-feature-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.faq-feature-item span {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.92);
 }
 
 /* Accordion Section */
@@ -3126,7 +3200,8 @@ header.scrolled .hamburger span {
     font-size: 13px;
     font-weight: 800;
     color: #004fb0;
-    background: rgba(0, 79, 176, 0.05);
+    background: #fff;
+    border: 1.5px solid rgba(0, 79, 176, 0.35);
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -3139,6 +3214,7 @@ header.scrolled .hamburger span {
 
 .faq-premium-item.open .faq-premium-num {
     background: #f10075;
+    border-color: #f10075;
     color: #fff;
     transform: scale(1.08);
 }
@@ -6108,5 +6184,158 @@ header.scrolled .nav-links-center li a.active {
 @media (min-width: 768px) {
     .areas-grid-container {
         grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* ============================================================
+   SPLASH / PANTALLA DE CARGA (transición entre páginas)
+   ============================================================ */
+.kja-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Cristal esmerilado translúcido: suave para la vista, no un blanco sólido */
+    background: rgba(255, 255, 255, 0.5);
+    -webkit-backdrop-filter: blur(26px) saturate(135%);
+    backdrop-filter: blur(26px) saturate(135%);
+    opacity: 1;
+    transition: opacity 0.55s ease, visibility 0.55s ease;
+    animation: kjaSplashIn 0.4s ease;
+}
+
+/* Fallback: si el navegador no soporta desenfoque, un velo claro translúcido */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .kja-splash {
+        background: rgba(244, 247, 252, 0.92);
+    }
+}
+
+@keyframes kjaSplashIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.kja-splash--hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Bloquea el scroll mientras el splash está visible */
+html:has(.kja-splash:not(.kja-splash--hidden)) {
+    overflow: hidden;
+}
+
+.kja-splash-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.kja-splash-badge {
+    position: relative;
+    width: 128px;
+    height: 128px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Anillo giratorio con los colores de marca */
+.kja-splash-badge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 4px solid rgba(0, 79, 176, 0.12);
+    border-top-color: #f10075;
+    border-right-color: #004fb0;
+    animation: kjaSplashSpin 1s linear infinite;
+}
+
+.kja-splash-logo {
+    width: 76px;
+    height: auto;
+    animation: kjaSplashBeat 1.4s ease-in-out infinite;
+    filter: drop-shadow(0 8px 16px rgba(241, 0, 117, 0.28));
+}
+
+.kja-splash-text {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #004fb0;
+}
+
+.kja-splash-dots i {
+    font-style: normal;
+    opacity: 0;
+    animation: kjaSplashDots 1.4s infinite;
+}
+
+.kja-splash-dots i:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.kja-splash-dots i:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes kjaSplashSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Latido, acorde al ícono en forma de corazón */
+@keyframes kjaSplashBeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    15% {
+        transform: scale(1.13);
+    }
+    30% {
+        transform: scale(1);
+    }
+    45% {
+        transform: scale(1.08);
+    }
+    60% {
+        transform: scale(1);
+    }
+}
+
+@keyframes kjaSplashDots {
+    0%, 20% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kja-splash-badge::before,
+    .kja-splash-logo,
+    .kja-splash-dots i {
+        animation: none;
+    }
+    .kja-splash-dots i {
+        opacity: 1;
     }
 }

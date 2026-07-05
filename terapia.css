@@ -431,8 +431,8 @@
 
         .hero-v2 {
             background-color: #F8F9F5;
-            background-image: url('images/terapia-dash/dashboard.jpg');
-            background-size: contain;
+            background-image: url('images/terapia-dash/dashboard2.png');
+            background-size: cover;
             background-position: right center;
             background-repeat: no-repeat;
             position: relative;
@@ -440,6 +440,21 @@
             padding: 10rem 2rem 1rem; /* Reducido al mínimo */
             color: var(--text-dark, #333333);
             font-family: 'Poppins', sans-serif;
+        }
+
+        /* Velo translúcido a la izquierda para dar legibilidad al texto,
+           se desvanece hacia la derecha para no tapar la imagen */
+        .hero-v2::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            background: linear-gradient(100deg,
+                rgba(248, 249, 245, 0.96) 0%,
+                rgba(248, 249, 245, 0.88) 26%,
+                rgba(248, 249, 245, 0.55) 46%,
+                rgba(248, 249, 245, 0) 64%);
         }
         
         /* Decorative Background Elements */
@@ -511,7 +526,7 @@
         .hero-v2-desc {
             font-size: 1.15rem;
             line-height: 1.6;
-            color: var(--text-light, #666666);
+            color: #4a4a4a;
             max-width: 480px;
             margin-bottom: 2.5rem;
         }
@@ -585,6 +600,11 @@
             .hero-v2 {
                 padding: 8rem 1.5rem 6rem;
                 text-align: center;
+                background-size: contain;
+                background-position: center bottom;
+            }
+            .hero-v2::before {
+                background: none;
             }
             .hero-v2-bg-circle {
                 left: 50%;

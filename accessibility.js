@@ -654,3 +654,45 @@
         initAll();
     }
 })();
+
+/* ============================================================
+   KJA SPLASH / PANTALLA DE CARGA
+   Se muestra al entrar a cualquier página y se oculta cuando
+   la web terminó de cargar (con un mínimo de tiempo visible
+   para que no "parpadee" y un tope de seguridad).
+   ============================================================ */
+(function () {
+    const splash = document.getElementById('kjaSplash');
+    if (!splash) return;
+
+    const MIN_VISIBLE = 550;   // ms mínimos en pantalla
+    const MAX_VISIBLE = 4500;  // ms tope de seguridad
+    const start = (window.performance && performance.now) ? performance.now() : Date.now();
+    let hidden = false;
+
+    function hideSplash() {
+        if (hidden) return;
+        hidden = true;
+
+        const now = (window.performance && performance.now) ? performance.now() : Date.now();
+        const wait = Math.max(0, MIN_VISIBLE - (now - start));
+
+        setTimeout(function () {
+            splash.classList.add('kja-splash--hidden');
+            // Quitar del DOM al terminar la transición
+            splash.addEventListener('transitionend', function handler(e) {
+                if (e.target === splash && splash.parentNode) {
+                    splash.parentNode.removeChild(splash);
+                }
+            });
+        }, wait);
+    }
+
+    if (document.readyState === 'complete') {
+        hideSplash();
+    } else {
+        window.addEventListener('load', hideSplash);
+    }
+    // Nunca dejar la pantalla bloqueada aunque algún recurso falle
+    setTimeout(hideSplash, MAX_VISIBLE);
+})();
