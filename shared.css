@@ -663,6 +663,11 @@ header.scrolled .hamburger span {
         align-items: flex-end;
     }
 
+    /* Eyebrow oculto en móvil: el titular respira solo */
+    .carousel-eyebrow {
+        display: none;
+    }
+
     .carousel-title {
         font-size: 38px;
     }
@@ -6443,7 +6448,7 @@ html:has(.kja-splash:not(.kja-splash--hidden)) {
         width: auto;
         padding: 8px 0;
         border-radius: 20px;
-        background: rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.52);
         /* Sin backdrop-filter aquí: iría al ::before. Si estuviera en el
            header, el menú desplegable (hijo) no podría difuminar la página */
         -webkit-backdrop-filter: none;
@@ -6460,8 +6465,10 @@ html:has(.kja-splash:not(.kja-splash--hidden)) {
             inset -3px -4px 10px -6px rgba(0, 47, 112, 0.25);
     }
 
-    /* Destello diagonal + blur del vidrio (el blur vive aquí y no en el
-       header para que el menú desplegable pueda difuminar por su cuenta) */
+    /* Destello diagonal + vidrio líquido (el blur vive aquí y no en el
+       header para que el menú desplegable pueda difuminar por su cuenta).
+       El filter url() refracta el fondo en tiempo real (Chromium);
+       en Safari/Firefox cae con gracia al blur de siempre */
     header::before {
         content: '';
         position: absolute;
@@ -6478,8 +6485,12 @@ html:has(.kja-splash:not(.kja-splash--hidden)) {
             rgba(255, 255, 255, 0.28) 100%);
         mask-image: none;
         -webkit-mask-image: none;
-        -webkit-backdrop-filter: blur(24px) saturate(190%);
-        backdrop-filter: blur(24px) saturate(190%);
+        -webkit-backdrop-filter: blur(9px) saturate(190%);
+        backdrop-filter: blur(9px) saturate(190%);
+        filter: url(#kjaGlassDistortion);
+        /* Recorta el sangrado del filtro fuera de la cápsula
+           (evita el halo claro alrededor de la píldora) */
+        clip-path: inset(0 round 20px);
         pointer-events: none;
     }
 

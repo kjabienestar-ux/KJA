@@ -696,3 +696,33 @@
     // Nunca dejar la pantalla bloqueada aunque algún recurso falle
     setTimeout(hideSplash, MAX_VISIBLE);
 })();
+
+/* ============================================================
+   KJA LIQUID GLASS — filtro SVG de refracción para la píldora
+   del navbar. Se inyecta una vez por página; el CSS lo aplica
+   con filter: url(#kjaGlassDistortion). En navegadores sin
+   soporte (Safari/Firefox) el vidrio cae al blur normal.
+   ============================================================ */
+(function () {
+    function injectGlassFilter() {
+        if (document.getElementById('kjaGlassDistortion')) return;
+        const holder = document.createElement('div');
+        holder.setAttribute('aria-hidden', 'true');
+        holder.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';
+        holder.innerHTML =
+            '<svg width="0" height="0">' +
+              '<filter id="kjaGlassDistortion" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">' +
+                '<feTurbulence type="fractalNoise" baseFrequency="0.006 0.014" numOctaves="2" seed="92" result="noise"/>' +
+                '<feGaussianBlur in="noise" stdDeviation="2.2" result="soft"/>' +
+                '<feDisplacementMap in="SourceGraphic" in2="soft" scale="72" xChannelSelector="R" yChannelSelector="G"/>' +
+              '</filter>' +
+            '</svg>';
+        document.body.appendChild(holder);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectGlassFilter);
+    } else {
+        injectGlassFilter();
+    }
+})();
