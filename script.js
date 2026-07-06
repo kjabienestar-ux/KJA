@@ -208,8 +208,10 @@ function toggleFaq(btn) {
         carouselEl.addEventListener('mouseleave', resetTimer);
     }
 
-    /* ─ Teclado (← →) ─ */
+    /* ─ Teclado (← →), salvo cuando se escribe en un campo ─ */
     document.addEventListener('keydown', e => {
+        const tag = e.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
         if (e.key === 'ArrowLeft')  { prev(); }
         if (e.key === 'ArrowRight') { next(); }
     });
@@ -656,7 +658,7 @@ function openTopicModal(topicName) {
             card.style.animationDelay = `${index * 0.2}s`;
             
             // Usar la imagen del tratamiento como referencia visual de la card
-            const cardImg = c.image || data.image || 'images/inicio-terapias/terapia_conductual.webp';
+            const cardImg = c.image || data.image || 'images/flyer-terapias/07_terapia_ansiedad.webp';
             const cardDesc = c.desc || 'Programa especializado diseñado para fortalecer tu bienestar emocional con herramientas prácticas.';
             
             card.innerHTML = `

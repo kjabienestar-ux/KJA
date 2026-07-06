@@ -1,5 +1,8 @@
 # Tooling local (no va al repo)
 .claude/
+.agent/
+.agents/
+skills-lock.json
 node_modules/
 
 # Temporales del sistema
