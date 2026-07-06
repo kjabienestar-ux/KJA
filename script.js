@@ -553,6 +553,13 @@ const topicsData = {
         image: "images/flyer-terapias/17_terapia_integracion_sensorial.webp",
         courses: []
     },
+    "terapia emocional": {
+        title: "Tratamiento de Terapia Emocional",
+        desc: "Aprende a gestionar tus emociones y mejorar tu bienestar emocional. Nuestro equipo te acompaña en el proceso de autodescubrimiento, fortaleciendo tu amor propio y sanación integral.",
+        price: "S/ 59.90",
+        image: "images/flyer-terapias/01_terapia_dependencia_emocional.webp",
+        courses: []
+    },
     "default": {
         title: "Atención Psicológica Especializada",
         desc: "Abordamos este motivo de consulta con terapias basadas en evidencia, en un ambiente confidencial y libre de juicios. Nuestro equipo te guía hacia tu bienestar.",
@@ -579,7 +586,8 @@ const areasList = [
     "Consejería familiar",
     "Mindfulness",
     "Conducta",
-    "Integración sensorial"
+    "Integración sensorial",
+    "Terapia emocional"
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
