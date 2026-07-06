@@ -40,7 +40,7 @@
   text-align: center;
   padding: 100px 24px 110px;
   background-color: #04122d;
-  background-image: url('images/nosotros/image_background.webp');
+  background-image: url('images/nosotros/ooour-background.png');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
@@ -48,6 +48,20 @@
 }
 
 
+
+/* Velo de legibilidad: difumina y oscurece suavemente la foto de fondo
+   detrás del título para que el texto blanco siempre se lea */
+.nos-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(760px 460px at 50% 32%, rgba(4, 18, 45, 0.55) 0%, rgba(4, 18, 45, 0.3) 55%, transparent 100%),
+    linear-gradient(180deg, rgba(4, 18, 45, 0.4) 0%, rgba(4, 18, 45, 0.16) 45%, rgba(4, 18, 45, 0.45) 100%);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
 
 .nos-hero__inner {
   position: relative;
@@ -796,26 +810,24 @@
   /* Tabs: TODAS visibles en una rejilla limpia (sin scroll).
      2 columnas iguales; "Servicios y Comunidad" ocupa la fila completa.
      Contenido centrado en cada píldora → se ve ordenado y profesional. */
-  .nos-hero .hero-tabs {
+  .nos-hero .tabs {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     width: 100%;
-    max-width: 340px;
-    margin: 8px auto 0;
+    max-width: 360px;
+    margin: 0 auto;
   }
-  .nos-hero .hero-tab {
+  .nos-hero .tab {
+    height: 44px;
     justify-content: center;
     gap: 7px;
-    padding: 12px 8px;
+    padding: 0 10px;
     font-size: 12.5px;
     white-space: nowrap;
   }
-  .nos-hero .hero-tab svg { width: 17px; height: 17px; }
-  .nos-hero .hero-tab:last-child { grid-column: 1 / -1; }
-  /* En móvil el hover no aplica: evita que quede "levantado" tras tocar */
-  .nos-hero .hero-tab:hover { transform: none; box-shadow: none; }
-  .nos-hero .hero-tab.active { transform: none; }
+  .nos-hero .tab svg { width: 16px; height: 16px; }
+  .nos-hero .tab:last-child { grid-column: 1 / -1; }
 
   /* Sección y separación entre bloques.
      margin-top reducido (antes heredaba -120px del desktop y la tarjeta
@@ -883,6 +895,7 @@
   .director-img-wrap { height: 260px; }
   .director-info { padding: 24px 22px 26px; }
   .director-info h3 { font-size: 23px; }
+
 }
 
 /* ── Móvil pequeño (≤420px) ── */
@@ -1160,6 +1173,7 @@
   .metrics {
     position: relative;
     left: auto;
+    right: auto;
     bottom: auto;
     transform: none;
     width: 100%;
@@ -1172,9 +1186,15 @@
 @media (max-width: 560px) {
   .date-pill, .cta { width: 100%; }
   .copy-panel { padding: 28px 22px; }
-  .metrics { grid-template-columns: 1fr; }
-  .metric, .metric:nth-child(2) { border-right: 0; border-bottom: 1px solid #e6ebf6; }
-  .metric:last-child { border-bottom: 0; }
+  /* Métricas en cuadrícula 2×2 compacta (antes: 4 filas apiladas) */
+  .metrics { grid-template-columns: 1fr 1fr; }
+  .metric, .metric:nth-child(2) { border-right: 0; border-bottom: 0; }
+  .metric { justify-content: flex-start; gap: 9px; padding: 13px 10px 13px 14px; }
+  .metric:nth-child(odd) { border-right: 1px solid #e6ebf6; }
+  .metric:nth-child(-n + 2) { border-bottom: 1px solid #e6ebf6; }
+  .metric svg { width: 25px; height: 25px; }
+  .metric strong { font-size: 14.5px; }
+  .metric span { font-size: 10.5px; }
 }
 
 /* ══════════════ NUEVA MISIÓN Y VISIÓN (LIGHT THEME) ══════════════ */
@@ -1487,7 +1507,6 @@
 .bento-text-part { flex: 1; padding-right: 32px; }
 .bento-icon-part { flex-shrink: 0; }
 
-.bento-content--light h3, .bento-content--light p { color: #ffffff; }
 .bento-content h3 {
   font-family: 'Fraunces', Georgia, serif;
   font-size: 24px;
@@ -1499,6 +1518,8 @@
   line-height: 1.6;
   color: var(--nos-muted);
 }
+/* Después de las reglas generales para ganar en cascada (misma especificidad) */
+.bento-content--light h3, .bento-content--light p { color: #ffffff; }
 
 .bento-icon-box {
   width: 54px;
@@ -1544,4 +1565,57 @@
   .bento-content--row { flex-direction: column; align-items: flex-start; }
   .bento-icon-part { display: none; }
   .bento-title { font-size: 32px; }
+}
+
+/* ══════════════ AJUSTES MÓVILES (al final del archivo para ganar
+   en cascada a las reglas base de misión/visión y bento) ══════════════ */
+@media (max-width: 767px) {
+  /* Misión y Visión: imagen contenida y badge compacto de borde a borde */
+  .mv-layout { gap: 56px; }
+  .mv-image-col { height: auto; }
+  .mv-image-col img { height: 280px; }
+  .mv-image-badge-light {
+    bottom: -26px;
+    left: 14px;
+    right: 14px;
+    width: auto;
+    max-width: none;
+    padding: 13px 16px;
+    gap: 12px;
+  }
+  .mv-image-badge-light p { font-size: 13px; }
+  .mv-badge-icon-box { width: 40px; height: 40px; }
+  .mv-badge-icon { width: 20px; height: 20px; }
+  .mv-new-title-light { font-size: 32px; }
+  .mv-intro-text-light { margin-bottom: 28px; }
+  .mv-card { padding: 26px 20px; }
+
+  /* Bento: tarjeta grande más baja y overlay reforzado para que el
+     texto blanco sea legible sobre la foto */
+  .bento-card--large { min-height: 400px; }
+  .bento-overlay {
+    background: linear-gradient(to top,
+      rgba(0, 60, 145, 0.97) 0%,
+      rgba(0, 60, 145, 0.72) 55%,
+      rgba(0, 40, 100, 0.25) 100%);
+  }
+  .bento-content { padding: 24px 20px; }
+}
+
+/* Métricas móviles: fichas 2×2 uniformes con contenido centrado
+   (icono arriba, cifra y etiqueta debajo) */
+@media (max-width: 560px) {
+  .metric,
+  .metric:nth-child(2) {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 7px;
+    padding: 16px 10px 14px;
+    min-height: 104px;
+  }
+  .metric svg { width: 24px; height: 24px; }
+  .metric strong { font-size: 15px; margin-bottom: 2px; }
+  .metric span { font-size: 10.5px; line-height: 1.25; }
 }

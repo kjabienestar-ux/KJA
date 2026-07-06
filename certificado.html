@@ -80,11 +80,10 @@
 </header>
 
 <!-- ===== HERO ===== -->
-<section class="cert-hero">
+<section class="cert-hero cert-hero--light">
   <!-- Formas de fondo decorativas -->
   <div class="hero-shape hero-shape--1"></div>
   <div class="hero-shape hero-shape--2"></div>
-  <div class="hero-shape hero-shape--3"></div>
 
   <div class="hero-inner">
     <!-- Columna izquierda: texto -->
@@ -93,173 +92,128 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         Verificación oficial KJA
       </div>
-      <h1>Consulta tus<br><span class="hero-accent">certificados</span></h1>
-      <p>Descarga los certificados oficiales que emitió KJA a tu nombre. Cada uno lleva un <strong>código QR único</strong> que garantiza su autenticidad.</p>
+      <h1>Consulta y valida tus <span class="hero-accent">certificados</span> oficiales.</h1>
+      <p>Descarga los certificados que KJA emitió a tu nombre. Cada uno lleva un <strong>código QR único</strong> que garantiza su autenticidad.</p>
 
-      <!-- Badges de confianza -->
-      <div class="hero-badges">
-        <div class="hero-badge">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          100% oficial
-        </div>
-        <div class="hero-badge">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Verificación instantánea
-        </div>
-        <div class="hero-badge">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Descarga PDF / PNG
-        </div>
+      <div class="hero-actions">
+        <a href="#search-card" class="hero-btn-solid">Buscar mi certificado</a>
+        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20tengo%20una%20consulta%20sobre%20mi%20certificado"
+          target="_blank" class="hero-btn-outline">Escríbenos</a>
       </div>
     </div>
 
-    <!-- Columna derecha: certificado decorativo -->
+    <!-- Columna derecha: egresado con certificado + tarjetas flotantes -->
     <div class="hero-visual" aria-hidden="true">
-      <div class="cert-mockup">
-        <div class="cert-mockup__header">
-          <div class="cert-mockup__logo">KJA</div>
-          <div class="cert-mockup__seal">
-            <svg viewBox="0 0 60 60" fill="none">
-              <circle cx="30" cy="30" r="28" stroke="rgba(241,0,117,0.6)" stroke-width="2" stroke-dasharray="4 3"/>
-              <circle cx="30" cy="30" r="20" fill="rgba(241,0,117,0.12)"/>
-              <path d="M30 18l2.5 7.7H40l-6.5 4.7 2.5 7.7L30 33.4l-6 4.7 2.5-7.7L21 25.7h7.5z" fill="rgba(241,0,117,0.7)"/>
-            </svg>
-          </div>
-        </div>
-        <div class="cert-mockup__footer">
-          <div class="cert-mockup__qr">
-            <div class="qr-grid">
-              <div></div><div class="qr-on"></div><div></div><div class="qr-on"></div><div class="qr-on"></div>
-              <div class="qr-on"></div><div></div><div class="qr-on"></div><div></div><div class="qr-on"></div>
-              <div></div><div class="qr-on"></div><div class="qr-on"></div><div></div><div class="qr-on"></div>
-              <div class="qr-on"></div><div></div><div></div><div class="qr-on"></div><div></div>
-              <div class="qr-on"></div><div class="qr-on"></div><div></div><div class="qr-on"></div><div></div>
-            </div>
-          </div>
-          <div class="cert-mockup__footer-info">
-            <div class="cert-mockup__label">Certificado de Participación</div>
-            <div class="cert-mockup__sign-line"></div>
-            <div class="cert-mockup__sign-txt">Directora KJA</div>
-          </div>
-        </div>
-        <!-- Badges flotantes -->
-        <div class="cert-float cert-float--verified">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-          Verificado
-        </div>
-        <div class="cert-float cert-float--qr">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg>
-          QR único
+      <img class="hero-person" src="images/certificados/user_certificado.webp"
+        alt="Egresado mostrando su certificado KJA" width="1397" height="1126">
+
+
+      <!-- Insignia de icono flotante -->
+      <div class="hero-icon-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+      </div>
+
+      <!-- Tarjeta de estadística -->
+      <div class="hero-stat-card">
+        <span class="hs-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="m9 15 2 2 4-4"/></svg>
+        </span>
+        <div>
+          <strong>1,200+</strong>
+          <span>Certificados emitidos</span>
         </div>
       </div>
+
+      <!-- Tarjeta de egresados -->
+      <div class="hero-experts-card">
+        <span class="hx-label">Egresados</span>
+        <div class="hx-avatars">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=70&auto=format" alt="">
+          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&q=70&auto=format" alt="">
+          <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&q=70&auto=format" alt="">
+          <span class="hx-more">500+</span>
+        </div>
+      </div>
+
+      <!-- Puntos decorativos -->
+      <span class="hero-mini-dot hero-mini-dot--a"></span>
+      <span class="hero-mini-dot hero-mini-dot--b"></span>
+      <span class="hero-mini-dot hero-mini-dot--c"></span>
     </div>
   </div>
 
   <!-- Ola de transición -->
   <div class="hero-wave">
-    <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#f4f6fb"/></svg>
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,40 C360,80 1080,0 1440,40 L1440,120 L0,120 Z" fill="#f4f6fb"/></svg>
   </div>
 </section>
 
-<!-- ===== BÚSQUEDA + TUTORIAL LATERAL ===== -->
+<!-- ===== BÚSQUEDA: COLLAGE DE CERTIFICADOS + BUSCADOR ===== -->
 <div class="cert-main">
-  <div class="cert-layout">
+  <div class="banner" id="banner"><span class="ico"></span><span id="banner-txt"></span></div>
 
-    <!-- Columna principal: buscador y resultados -->
-    <div class="cert-content">
-      <div class="banner" id="banner"><span class="ico"></span><span id="banner-txt"></span></div>
+  <div class="cert-showcase">
 
-      <div class="search-card" id="search-card">
-        <div class="search-card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        </div>
-        <h2>Busca tu certificado</h2>
-        <p class="lead">Escribe tu <b>nombre completo</b> o tu <b>DNI</b>, tal como te inscribiste.</p>
-        <div class="search-row">
-          <div class="input-wrapper">
-            <span class="input-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </span>
-            <input id="q" type="text" placeholder="Ej: Juan Carlos Pérez García  ·  o tu DNI" autocomplete="off">
-            <div id="autocomplete-list" class="autocomplete-dropdown"></div>
-          </div>
-          <button id="btn-buscar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            Buscar
-          </button>
-        </div>
-        <div class="privacy-note">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Por tu privacidad, los resultados se ocultan automáticamente tras un minuto.
-        </div>
-        <div class="picker" id="picker"></div>
+    <!-- Columna izquierda: collage de certificados reales -->
+    <div class="cs-collage" aria-hidden="true">
+      <div class="cs-img cs-img--1">
+        <img src="images/certificados/certificado-1.webp" alt="" loading="lazy">
       </div>
-
-      <div id="resultados" style="display:none"></div>
-
-      <div class="admin-access">
-        ¿Eres del equipo KJA? <a href="admin.html">Acceso administrador →</a>
+      <div class="cs-img cs-img--2">
+        <img src="images/certificados/certificado-2.webp" alt="" loading="lazy">
+      </div>
+      <div class="cs-img cs-img--3">
+        <img src="images/certificados/certificado-3.webp" alt="" loading="lazy">
       </div>
     </div>
 
-    <!-- Columna lateral: globos flotantes tutorial -->
-    <aside class="cert-guide" aria-label="Guía de uso">
-      <div class="guide-label">¿Primera vez aquí?</div>
+    <!-- Columna derecha: buscador + pasos -->
+    <div class="cs-right" id="search-card">
+      <span class="cs-eyebrow">Certificados oficiales</span>
+      <h2>Busca tu certificado y <span class="cs-accent">descárgalo</span> en segundos</h2>
+      <p class="lead">Escribe tu <b>nombre completo</b> o tu <b>DNI</b>, tal como te inscribiste.</p>
 
-      <!-- Línea vertical conectora -->
-      <div class="guide-line" aria-hidden="true"></div>
-
-      <div class="guide-bubbles-row">
-
-        <!-- Paso 1 -->
-        <div class="guide-bubble guide-bubble--1">
-          <div class="guide-orb">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-              <circle cx="11" cy="11" r="7.5"/>
-              <path d="m20 20-3.5-3.5"/>
-            </svg>
-            <span class="guide-num">1</span>
-          </div>
-          <div class="guide-text">
-            <strong>Ingresa tu nombre o DNI</strong>
-            <span>Tal como te inscribiste en el curso.</span>
-          </div>
+      <div class="search-row">
+        <div class="input-wrapper">
+          <span class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <input id="q" type="text" placeholder="Ej: Juan Carlos Pérez García  ·  o tu DNI" autocomplete="off">
+          <div id="autocomplete-list" class="autocomplete-dropdown"></div>
         </div>
-
-        <!-- Paso 2 -->
-        <div class="guide-bubble guide-bubble--2">
-          <div class="guide-orb">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-              <rect x="4" y="3" width="16" height="18" rx="2"/>
-              <path d="M8 8h8M8 12h8M8 16h5"/>
-            </svg>
-            <span class="guide-num">2</span>
-          </div>
-          <div class="guide-text">
-            <strong>Elige tu certificado</strong>
-            <span>Selecciónalo y verás una vista previa.</span>
-          </div>
-        </div>
-
-        <!-- Paso 3 -->
-        <div class="guide-bubble guide-bubble--3">
-          <div class="guide-orb">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-              <path d="M12 3v12"/>
-              <path d="m8 11 4 4 4-4"/>
-              <path d="M5 20h14"/>
-            </svg>
-            <span class="guide-num">3</span>
-          </div>
-          <div class="guide-text">
-            <strong>Descárgalo</strong>
-            <span>PDF o PNG con código QR incluido.</span>
-          </div>
-        </div>
-
+        <button id="btn-buscar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Buscar
+        </button>
       </div>
-    </aside>
+      <div class="privacy-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Por tu privacidad, los resultados se ocultan automáticamente tras un minuto.
+      </div>
+      <div class="picker" id="picker"></div>
 
+      <!-- Pasos como mini-tarjetas -->
+      <div class="cs-steps">
+        <div class="cs-step">
+          <strong><em>1</em> Busca</strong>
+          <span>Con tu nombre o DNI</span>
+        </div>
+        <div class="cs-step">
+          <strong><em>2</em> Elige</strong>
+          <span>Vista previa al instante</span>
+        </div>
+        <div class="cs-step">
+          <strong><em>3</em> Descarga</strong>
+          <span>PDF o PNG con QR</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultados" style="display:none"></div>
+
+  <div class="admin-access">
+    ¿Eres del equipo KJA? <a href="admin.html">Acceso administrador →</a>
   </div>
 </div>
 
@@ -284,38 +238,52 @@
 <div id="cert-modal" role="dialog" aria-modal="true" aria-label="Tus certificados">
   <div class="modal-box">
 
-    <div class="modal-header">
-      <div id="cliente-info"></div>
-      <button class="modal-close" id="modal-close" aria-label="Cerrar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
-          <path d="M18 6 6 18M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
+    <button class="modal-close" id="modal-close" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+        <path d="M18 6 6 18M6 6l12 12"/>
+      </svg>
+    </button>
 
     <div class="auto-aviso" id="auto-aviso"></div>
 
     <div class="modal-body">
-      <!-- Columna izquierda: certificado grande -->
-      <div class="modal-viewer-col" id="viewer">
-        <canvas id="viewer-canvas" width="2000" height="1414"></canvas>
-        <canvas id="viewer-canvas-tem" width="2000" height="1414" style="display:none;margin-top:16px;"></canvas>
-        <div class="viewer-actions">
-          <button class="b-pdf" id="dl-pdf">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Descargar PDF
-          </button>
-          <button class="b-png" id="dl-png">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            Descargar PNG
-          </button>
+      <!-- Panel izquierdo: perfil del egresado + lista de certificados -->
+      <aside class="modal-profile">
+        <div class="mp-avatar-wrap">
+          <div class="mp-avatar" id="mp-avatar"></div>
+          <span class="mp-avatar-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
         </div>
-      </div>
-
-      <!-- Columna derecha: lista de todos los certificados -->
-      <div class="modal-sidebar">
+        <div id="cliente-info"></div>
+        <div class="mp-divider"></div>
+        <div class="mp-list-label">Mis certificados</div>
         <div id="lista"></div>
-      </div>
+      </aside>
+
+      <!-- Panel derecho: bienvenida + visor del certificado -->
+      <section class="modal-content-panel">
+        <div class="mc-welcome">
+          <h3>Te damos la bienvenida, <span id="mc-nombre"></span> <span class="mc-wave" aria-hidden="true">👋</span></h3>
+          <p id="mc-sub">Aquí te mostramos tus certificados oficiales. Selecciona uno de la lista para verlo y descargarlo.</p>
+        </div>
+        <div class="modal-viewer-col" id="viewer">
+          <div class="viewer-scroll">
+            <canvas id="viewer-canvas" width="2000" height="1414"></canvas>
+            <canvas id="viewer-canvas-tem" width="2000" height="1414" style="display:none;margin-top:16px;"></canvas>
+          </div>
+          <div class="viewer-actions">
+            <button class="b-png" id="dl-png">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Descargar PNG
+            </button>
+            <button class="b-pdf" id="dl-pdf">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Descargar PDF
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
 
   </div>
@@ -377,6 +345,7 @@ function ocultarResultados(porPrivacidad){
   detenerAutoOcultar();
   cerrarModal();
   $('cliente-info').innerHTML=''; $('lista').innerHTML=''; $('viewer').style.display='none'; $('auto-aviso').innerHTML='';
+  $('mp-avatar').textContent=''; $('mc-nombre').textContent='';
   $('q').value=''; limpiarBanner(); $('picker').innerHTML='';
   if(porPrivacidad){ banner('Por tu privacidad, los resultados se ocultaron. Vuelve a buscar si lo necesitas.',false); }
 }
@@ -405,10 +374,19 @@ async function descargar(row,fmt){
   } else { KJACert.exportar(c1, fn, fmt); }
 }
 
+function tituloCaso(s){ return (s||'').toLowerCase().replace(/(^|\s)\S/g, c=>c.toUpperCase()); }
+function primerNombre(n){ return tituloCaso((n||'').trim().split(/\s+/)[0]||''); }
+function iniciales(n){ return (n||'').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase(); }
+
 async function pintarLista(nombre, list, codActivo, autoOcultar){
   certs=list;
-  $('cliente-info').innerHTML=`<div class="cliente-nombre">${nombre}</div>
-    <div class="cliente-sub">${list.length} certificado(s) emitido(s) por KJA</div>`;
+  $('mp-avatar').textContent=iniciales(nombre);
+  $('cliente-info').innerHTML=`<div class="cliente-nombre">${tituloCaso(nombre)}</div>
+    <div class="cliente-sub">Egresado &middot; Centro Psicológico KJA</div>`;
+  $('mc-nombre').textContent=primerNombre(nombre);
+  $('mc-sub').textContent=list.length
+    ? `Aquí te mostramos ${list.length===1?'tu certificado oficial':'tus '+list.length+' certificados oficiales'}. Selecciona uno de la lista para verlo y descargarlo.`
+    : 'Aún no hay certificados registrados a tu nombre.';
   if(!list.length){ $('lista').innerHTML='<div class="picker">Aún no hay certificados registrados.</div>'; }
   else{
     // Tipos presentes en esta búsqueda

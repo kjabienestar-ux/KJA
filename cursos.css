@@ -413,7 +413,7 @@
        para mantener ambas secciones como un solo lienzo */
     background:
         linear-gradient(180deg, rgba(241, 245, 252, 0) 78%, #f1f5fc 100%),
-        url('images/cursos/fondoo-cursos.webp') center / cover no-repeat;
+        url('images/cursos/fondo-cursos.png') center / cover no-repeat;
     font-family: 'Poppins', sans-serif;
 }
 

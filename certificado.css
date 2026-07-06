@@ -882,13 +882,14 @@ footer { margin-top: auto; }
 #cert-modal.open { display: flex; }
 
 .modal-box {
-  background: #eef2f9;
-  border-radius: 20px;
-  width: min(1160px, 100%);
+  background: #e9edf4;
+  border-radius: 24px;
+  width: min(1180px, 100%);
   max-height: 92vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
   box-shadow: 0 50px 120px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
   animation: modalIn .3s cubic-bezier(.22,.61,.36,1) both;
 }
@@ -897,65 +898,167 @@ footer { margin-top: auto; }
   to   { opacity: 1; transform: none; }
 }
 
-/* Header del modal */
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 24px;
-  background: linear-gradient(135deg, #003d8a 0%, #004fb0 60%, #0a2a5e 100%);
-  flex-shrink: 0;
-}
-.modal-header .cliente-nombre {
-  margin-bottom: 2px;
-  font-size: 18px;
-  color: #fff;
-  font-style: normal;
-}
-.modal-header .cliente-sub { margin-bottom: 0; color: rgba(255,255,255,.65); font-size: 12px; }
-
+/* Botón cerrar flotante */
 .modal-close {
-  flex-shrink: 0;
+  position: absolute;
+  top: 26px;
+  right: 26px;
+  z-index: 5;
   width: 36px;
   height: 36px;
   border-radius: 50%;
   border: none;
-  background: rgba(255,255,255,.15);
-  color: #fff;
+  background: #fff;
+  color: #667085;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background .18s;
+  box-shadow: 0 4px 14px rgba(13, 38, 76, 0.12);
+  transition: background .18s, color .18s;
 }
-.modal-close:hover { background: rgba(241,0,117,.7); }
+.modal-close:hover { background: #f10075; color: #fff; }
 
 /* Aviso auto-ocultar dentro del modal */
 #cert-modal .auto-aviso {
+  margin: 14px 14px 0;
   background: #fffbeb;
-  border-bottom: 1px solid #fde68a;
-  padding: 8px 24px;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 8px 16px;
   font-size: 12.5px;
   color: #92400e;
   flex-shrink: 0;
+  text-align: left;
+  margin-bottom: 0;
 }
-#cert-modal .auto-aviso:empty { display: none; }
+#cert-modal .auto-aviso:empty { display: none; margin: 0; }
 
-/* Cuerpo: viewer izquierda + sidebar derecha */
+/* Cuerpo: perfil izquierda + contenido derecha (estilo dashboard) */
 .modal-body {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 300px 1fr;
+  gap: 14px;
+  padding: 14px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
-/* Columna izquierda: el certificado */
-.modal-viewer-col {
+/* ── Panel izquierdo: perfil del egresado ── */
+.modal-profile {
+  background: #fff;
+  border-radius: 18px;
+  padding: 30px 16px 20px;
   overflow-y: auto;
-  padding: 28px 24px 24px;
-  background: #f0f4fb;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.mp-avatar-wrap {
+  position: relative;
+  width: 86px;
+  margin: 0 auto 14px;
+}
+.mp-avatar {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #004fb0 0%, #7c3aed 55%, #f10075 100%);
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 26px rgba(0, 79, 176, 0.28);
+}
+.mp-avatar-badge {
+  position: absolute;
+  right: -2px;
+  bottom: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #f10075;
+  color: #fff;
+  border: 3px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mp-avatar-badge svg { width: 12px; height: 12px; }
+
+.modal-profile #cliente-info { text-align: center; }
+.modal-profile .cliente-nombre {
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-size: 16.5px;
+  font-weight: 800;
+  color: #101828;
+  line-height: 1.3;
+  margin-bottom: 3px;
+}
+.modal-profile .cliente-sub {
+  font-size: 12px;
+  color: #7a8494;
+  margin-bottom: 0;
+}
+
+.mp-divider { height: 1px; background: #eef1f6; margin: 18px 0 14px; }
+.mp-list-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: #98a2b3;
+  margin-bottom: 10px;
+}
+
+.modal-profile .card {
+  padding: 12px 13px 12px 16px;
+  border-radius: 12px;
+  animation: cardIn .2s cubic-bezier(.22,.61,.36,1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.modal-profile .card .tit { font-size: 13px; margin-bottom: 8px; }
+
+/* ── Panel derecho: bienvenida + visor ── */
+.modal-content-panel {
+  background: #fff;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.mc-welcome {
+  padding: 24px 64px 0 30px;
+  flex-shrink: 0;
+}
+.mc-welcome h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 21px;
+  font-weight: 800;
+  color: #101828;
+}
+#mc-nombre { color: #f10075; }
+.mc-wave { display: inline-block; }
+.mc-welcome p {
+  font-size: 13.5px;
+  color: #7a8494;
+  margin-top: 4px;
+}
+
+.modal-viewer-col {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 30px 26px;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
@@ -964,40 +1067,36 @@ footer { margin-top: auto; }
   height: auto;
   display: block;
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0,40,100,.18);
+  box-shadow: 0 10px 40px rgba(0, 40, 100, 0.16);
   background: #fff;
+  border: 1px solid #eef1f6;
 }
 .modal-viewer-col .viewer-actions {
-  margin-top: 16px;
-  justify-content: flex-start;
+  margin-top: 18px;
+  justify-content: flex-end;
 }
 
-/* Columna derecha: lista de certificados */
-.modal-sidebar {
-  border-left: 1px solid #e2e8f0;
+/* Botones de descarga estilo píldora */
+#cert-modal .viewer-actions button { border-radius: 999px; padding: 12px 26px; }
+#cert-modal .b-png {
   background: #fff;
-  overflow-y: auto;
-  padding: 20px 16px 24px;
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  border: 1.5px solid #f10075;
+  color: #f10075;
 }
-.modal-sidebar::-webkit-scrollbar,
-.modal-viewer-col::-webkit-scrollbar { width: 5px; }
-.modal-sidebar::-webkit-scrollbar-track,
-.modal-viewer-col::-webkit-scrollbar-track { background: transparent; }
-.modal-sidebar::-webkit-scrollbar-thumb,
-.modal-viewer-col::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+#cert-modal .b-png:hover { background: #fff0f7; transform: translateY(-2px); }
+#cert-modal .b-pdf {
+  background: linear-gradient(135deg, #f10075, #c3005f);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(241, 0, 117, 0.35);
+}
+#cert-modal .b-pdf:hover { box-shadow: 0 10px 26px rgba(241, 0, 117, 0.45); }
 
-.modal-sidebar .lista-ttl { font-size: 11px; margin-bottom: 10px; }
-.modal-sidebar .card {
-  padding: 13px 14px;
-  border-radius: 12px;
-  animation: cardIn .2s cubic-bezier(.22,.61,.36,1) both;
-}
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
-}
+.modal-profile::-webkit-scrollbar,
+.modal-viewer-col::-webkit-scrollbar { width: 5px; }
+.modal-profile::-webkit-scrollbar-track,
+.modal-viewer-col::-webkit-scrollbar-track { background: transparent; }
+.modal-profile::-webkit-scrollbar-thumb,
+.modal-viewer-col::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
 /* Barra de filtros */
 .filter-bar {
@@ -1043,8 +1142,6 @@ footer { margin-top: auto; }
   background: #f1f5f9;
   color: #94a3b8;
 }
-.modal-sidebar .card .tit { font-size: 13.5px; }
-
 /* ══════════════════════════════════════════
    RESPONSIVE MODAL — MOBILE
 ══════════════════════════════════════════ */
@@ -1073,22 +1170,23 @@ footer { margin-top: auto; }
     display: block;
     width: 36px;
     height: 4px;
-    background: rgba(255,255,255,.4);
+    background: rgba(13, 38, 76, 0.18);
     border-radius: 2px;
     margin: 10px auto 0;
     flex-shrink: 0;
   }
 
-  /* Header compacto */
-  .modal-header { padding: 12px 16px; }
-  .modal-header .cliente-nombre { font-size: 15px; }
-  .modal-header .cliente-sub { font-size: 11px; }
-  .modal-close { width: 32px; height: 32px; }
+  .modal-close { top: 20px; right: 12px; width: 32px; height: 32px; }
+
+  /* El aviso no debe quedar debajo del botón cerrar */
+  #cert-modal .auto-aviso { padding-right: 52px; }
 
   /* Cuerpo: UNA sola columna con scroll único */
   .modal-body {
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    padding: 10px;
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
@@ -1097,13 +1195,60 @@ footer { margin-top: auto; }
   }
   .modal-body::-webkit-scrollbar { display: none; }
 
-  /* Viewer: sin scroll propio, fluye en el scroll del cuerpo */
-  .modal-viewer-col {
-    padding: 16px 14px 12px;
+  /* Paneles: sin scroll propio, fluyen en el scroll del cuerpo.
+     El contenido (bienvenida + certificado) va PRIMERO; el perfil con
+     la lista queda debajo */
+  .modal-content-panel {
+    order: -1;
     overflow: visible;
-    background: #f0f4fb;
     flex-shrink: 0;
   }
+  .mc-welcome { padding: 20px 16px 0; }
+  .mc-welcome h3 { font-size: 18px; }
+  .mc-welcome p { font-size: 12.5px; }
+
+  /* Perfil compacto: avatar + nombre en fila, lista debajo */
+  .modal-profile {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 14px;
+    padding: 16px 14px;
+    overflow: visible;
+    flex-shrink: 0;
+  }
+  .mp-avatar-wrap { width: 54px; margin: 0; }
+  .mp-avatar { width: 54px; height: 54px; font-size: 18px; }
+  .mp-avatar-badge { width: 21px; height: 21px; border-width: 2px; }
+  .mp-avatar-badge svg { width: 9px; height: 9px; }
+  .modal-profile #cliente-info { flex: 1; min-width: 0; text-align: left; }
+  .modal-profile .cliente-nombre { font-size: 15px; }
+  .mp-divider { flex-basis: 100%; margin: 12px 0 10px; }
+  .mp-list-label { flex-basis: 100%; }
+  .modal-profile #lista { flex-basis: 100%; min-width: 0; }
+
+  .modal-viewer-col {
+    padding: 14px 14px 18px;
+    overflow: visible;
+  }
+
+  /* Certificado legible: se amplía y se desliza horizontalmente */
+  .modal-viewer-col::before {
+    content: 'Desliza sobre el certificado para verlo completo ↔';
+    display: block;
+    font-size: 11.5px;
+    color: #98a2b3;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .viewer-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-radius: 12px;
+  }
+  .viewer-scroll::-webkit-scrollbar { display: none; }
+  .modal-viewer-col .viewer-scroll canvas { width: 620px; max-width: none; }
 
   /* Botones de descarga: fila */
   .modal-viewer-col .viewer-actions {
@@ -1114,18 +1259,8 @@ footer { margin-top: auto; }
   .modal-viewer-col .viewer-actions button {
     flex: 1;
     justify-content: center;
-    padding: 10px 8px;
+    padding: 11px 8px;
     font-size: 12px;
-  }
-
-  /* Sidebar: sin scroll propio, fluye naturalmente */
-  .modal-sidebar {
-    border-left: none;
-    border-top: 2px solid #edf1f7;
-    background: #fff;
-    padding: 16px 14px 32px;
-    overflow: visible;
-    flex-shrink: 0;
   }
 
   /* Filtros: scroll horizontal sin barra */
@@ -1136,4 +1271,626 @@ footer { margin-top: auto; }
     margin-bottom: 12px;
   }
   .filter-bar::-webkit-scrollbar { display: none; }
+}
+
+/* ============================================================
+   HERO CLARO REDISEÑADO — círculo con foto + tarjetas flotantes
+   ============================================================ */
+
+/* El hero pasa de azul oscuro a lienzo claro rosado que termina en
+   un tono lavanda suave: la ola blanca dibuja la transición encima */
+.cert-hero--light {
+  background:
+    radial-gradient(900px 460px at 85% 18%, rgba(241, 0, 117, 0.07) 0%, transparent 60%),
+    radial-gradient(700px 420px at 0% 45%, rgba(0, 79, 176, 0.05) 0%, transparent 60%),
+    linear-gradient(180deg, #fdf5f8 0%, #f8f7fc 55%, #eef2fa 100%);
+  color: #101828;
+  padding-top: 120px;
+  padding-bottom: 0;
+}
+
+/* Divisor con forma: ola blanca difuminada sobre el tono lavanda del
+   hero — el blur funde ambas secciones; la escala compensa los bordes
+   del filtro (el overflow:hidden del hero recorta el exceso) */
+.cert-hero--light .hero-wave {
+  position: relative;
+  z-index: 1;
+  margin: 8px 0 -2px;
+  line-height: 0;
+}
+
+/* Franja blanca sólida DETRÁS del borde inferior de la ola: el blur
+   vuelve semitransparente esa zona del svg y sin esto se asoma el
+   lavanda del hero como una línea horizontal */
+.cert-hero--light .hero-wave::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 45%);
+  z-index: -1;
+}
+
+/* La franja blanca sólida bajo la curva (40 unidades del viewBox) evita
+   que el blur tiña el límite inferior de la sección y marque una línea */
+.cert-hero--light .hero-wave > svg {
+  display: block;
+  width: 100%;
+  height: 104px;
+  filter: blur(14px);
+  transform: scale(1.15);
+}
+
+.cert-hero--light .hero-wave > svg path {
+  fill: #ffffff;
+}
+
+/* Navbar sobre hero claro: enlaces en azul */
+.nav-desktop-only .nav-links-center li a {
+  color: var(--primary-blue, #004fb0);
+}
+
+.nav-desktop-only .nav-links-center li a:hover,
+.nav-desktop-only .nav-links-center li a.active {
+  color: var(--primary-pink, #f10075);
+}
+
+/* Formas de fondo adaptadas al lienzo claro */
+.cert-hero--light .hero-shape {
+  background: var(--rosa, #f10075);
+  opacity: 0.05;
+}
+
+.cert-hero--light .hero-shape--2 {
+  background: var(--primary-blue, #004fb0);
+  opacity: 0.05;
+}
+
+.cert-hero--light .pill {
+  background: rgba(241, 0, 117, 0.08);
+  border: 1px solid rgba(241, 0, 117, 0.2);
+  color: #f10075;
+}
+
+.cert-hero--light h1 {
+  color: #101828;
+  font-size: clamp(32px, 4.6vw, 50px);
+}
+
+.cert-hero--light .hero-accent {
+  color: #f10075;
+}
+
+.cert-hero--light p {
+  color: #5b6472;
+  opacity: 1;
+}
+
+.cert-hero--light p strong {
+  color: #101828;
+}
+
+/* Botones de acción */
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  animation: fadeUp .7s cubic-bezier(.22,.61,.36,1) both .35s;
+}
+
+.hero-btn-solid {
+  display: inline-flex;
+  align-items: center;
+  background: #f10075;
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 14px 28px;
+  border-radius: 9999px;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(241, 0, 117, 0.28);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.hero-btn-solid:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(241, 0, 117, 0.38);
+}
+
+.hero-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  padding: 13px 26px;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(241, 0, 117, 0.45);
+  color: #f10075 !important;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+.hero-btn-outline:hover {
+  background: #f10075;
+  border-color: #f10075;
+  color: #fff !important;
+}
+
+/* ── Egresado con certificado (la imagen trae su círculo azul) ── */
+/* Sin animación ni z-index en el contenedor: crearían un stacking
+   context y el mix-blend-mode de la foto no podría fundirse con el
+   fondo del hero */
+.cert-hero--light .hero-visual {
+  animation: none;
+  z-index: auto;
+}
+
+.hero-person {
+  width: min(470px, 90vw);
+  height: auto;
+  display: block;
+  /* Funde el fondo blanco de la foto con el lienzo claro del hero.
+     Nota: no añadir filter aquí — rompería el blending en Chromium */
+  mix-blend-mode: multiply;
+  /* El torso se desvanece en vez de cortarse en seco */
+  -webkit-mask-image: linear-gradient(to bottom, #000 76%, transparent 98%);
+  mask-image: linear-gradient(to bottom, #000 76%, transparent 98%);
+}
+
+/* Insignia de icono flotante (arriba-izquierda del círculo) */
+.hero-icon-badge {
+  position: absolute;
+  top: 4%;
+  left: 6%;
+  width: 62px;
+  height: 62px;
+  border-radius: 20px;
+  background: linear-gradient(140deg, #ff5fa8, #f10075);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-8deg);
+  box-shadow: 0 14px 28px rgba(241, 0, 117, 0.35);
+  animation: certFloat 8s ease-in-out infinite;
+}
+
+.hero-icon-badge svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* Tarjeta de estadística (derecha) */
+.hero-stat-card {
+  position: absolute;
+  top: 18%;
+  right: -2%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 12px 18px;
+  box-shadow: 0 16px 34px rgba(13, 38, 76, 0.14);
+  animation: certFloat 9s ease-in-out infinite reverse;
+}
+
+.hs-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fdf2f8;
+  color: #f10075;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hs-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.hero-stat-card strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #101828;
+  line-height: 1.15;
+}
+
+.hero-stat-card div > span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #7a8494;
+}
+
+/* Tarjeta de egresados (izquierda-abajo) */
+.hero-experts-card {
+  position: absolute;
+  bottom: 16%;
+  left: -4%;
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 16px 34px rgba(13, 38, 76, 0.14);
+  animation: certFloat 10s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+.hx-label {
+  display: inline-block;
+  background: rgba(241, 0, 117, 0.09);
+  color: #f10075;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  margin-bottom: 9px;
+}
+
+.hx-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.hx-avatars img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  margin-right: -9px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.hx-more {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f10075;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 3px 8px rgba(241, 0, 117, 0.3);
+}
+
+/* Puntos decorativos */
+.hero-mini-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: #f10075;
+  pointer-events: none;
+}
+
+.hero-mini-dot--a { width: 14px; height: 14px; top: 12%; right: 16%; opacity: 0.5; }
+.hero-mini-dot--b { width: 9px; height: 9px; bottom: 8%; right: 8%; opacity: 0.35; }
+.hero-mini-dot--c { width: 11px; height: 11px; top: 40%; left: 0; opacity: 0.3; background: var(--primary-blue, #004fb0); }
+
+@keyframes certFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.hero-icon-badge {
+  animation-name: certFloatBadge;
+}
+
+@keyframes certFloatBadge {
+  0%, 100% { transform: rotate(-8deg) translateY(0); }
+  50% { transform: rotate(-8deg) translateY(-12px); }
+}
+
+/* Responsive del hero claro */
+@media (max-width: 880px) {
+  .cert-hero--light {
+    padding-top: 96px;
+  }
+
+  /* Despeja el dashboard: sin píldora, el título sube */
+  .cert-hero--light .pill {
+    display: none;
+  }
+
+  /* La regla antigua ocultaba el visual (mockup); el círculo sí se muestra.
+     Las tarjetas dejan de flotar sobre la foto: pasan a una fila debajo */
+  .cert-hero--light .hero-visual {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin: 0 auto;
+  }
+
+  .cert-hero--light .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    text-align: center;
+  }
+
+  .cert-hero--light .hero-text p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .hero-person {
+    width: min(330px, 84vw);
+  }
+
+  /* Tarjetas en fila debajo de la foto: ni el rostro ni el
+     certificado quedan tapados */
+  .hero-stat-card {
+    position: static;
+    padding: 8px 12px;
+    gap: 8px;
+    animation: none;
+  }
+
+  .hero-stat-card strong {
+    font-size: 0.88rem;
+  }
+
+  .hero-stat-card div > span {
+    font-size: 0.64rem;
+  }
+
+  .hs-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .hs-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .hero-experts-card {
+    position: static;
+    padding: 8px 11px;
+    animation: none;
+  }
+
+  .hero-icon-badge {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+    top: 0;
+    left: 10%;
+  }
+
+  .hero-icon-badge svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .cert-hero--light .hero-wave {
+    margin-top: 6px;
+  }
+
+  .cert-hero--light .hero-wave > svg {
+    height: 64px;
+  }
+}
+
+/* ============================================================
+   SHOWCASE — COLLAGE DE CERTIFICADOS + BUSCADOR REDISEÑADO
+   ============================================================ */
+
+.cert-main {
+  max-width: 1160px;
+  padding-top: 0;
+}
+
+.cert-showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+/* ── Collage escalonado de certificados ── */
+.cs-collage {
+  position: relative;
+  height: 480px;
+}
+
+.cs-img {
+  position: absolute;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 24px 48px rgba(13, 38, 76, 0.16), 0 4px 12px rgba(13, 38, 76, 0.08);
+  border: 5px solid #fff;
+}
+
+.cs-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cs-img--1 {
+  width: 62%;
+  aspect-ratio: 1.414;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.cs-img--2 {
+  width: 48%;
+  aspect-ratio: 1.414;
+  top: 14%;
+  right: 0;
+  z-index: 2;
+  animation: certFloat 10s ease-in-out infinite;
+}
+
+.cs-img--3 {
+  width: 58%;
+  aspect-ratio: 1.414;
+  bottom: 0;
+  left: 16%;
+  z-index: 3;
+  animation: certFloat 12s ease-in-out infinite reverse;
+}
+
+/* ── Columna derecha: buscador ── */
+.cs-eyebrow {
+  display: inline-block;
+  color: #f10075;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  margin-bottom: 12px;
+}
+
+.cs-right h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #101828;
+  margin-bottom: 12px;
+}
+
+.cs-accent {
+  color: #004fb0;
+}
+
+.cs-right .lead {
+  font-size: 15px;
+  color: #5b6472;
+  margin-bottom: 22px;
+}
+
+/* ── Pasos como mini-tarjetas (estilo stats de referencia) ── */
+.cs-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.cs-step {
+  background: #fff;
+  border: 1px solid rgba(13, 38, 76, 0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  transition: all 0.3s ease;
+}
+
+.cs-step:hover {
+  border-color: rgba(241, 0, 117, 0.25);
+  box-shadow: 0 10px 24px rgba(13, 38, 76, 0.08);
+  transform: translateY(-2px);
+}
+
+.cs-step strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #101828;
+  margin-bottom: 4px;
+}
+
+.cs-step strong em {
+  font-style: normal;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(241, 0, 117, 0.1);
+  color: #f10075;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-step span {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #7a8494;
+  line-height: 1.35;
+}
+
+/* Responsive del showcase */
+@media (max-width: 940px) {
+  .cert-showcase {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .cs-collage {
+    height: min(72vw, 420px);
+    max-width: 560px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .cs-right {
+    text-align: center;
+  }
+
+  .cs-right .search-row {
+    text-align: left;
+  }
+
+  .cs-steps {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .cs-steps {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .cs-step {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 11px 14px;
+  }
+
+  .cs-step strong {
+    margin-bottom: 0;
+  }
+
+  .cs-img {
+    border-radius: 14px;
+    border-width: 3px;
+  }
 }
