@@ -1,5 +1,6 @@
 # Tooling local (no va al repo)
 .claude/
+CLAUDE.local.md
 .agent/
 .agents/
 skills-lock.json
