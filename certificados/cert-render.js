@@ -21,6 +21,19 @@
   const SANS="'Poppins',sans-serif";      // párrafo / código / emisión
   const ROMANA="'Cinzel',serif";          // nombre del Taller
 
+  /* Fuentes elegibles para el nombre (datos.fontNombre guarda solo el nombre de la familia) */
+  const FUENTES_NOMBRE={
+    'Damion':"'Damion',cursive",
+    'Great Vibes':"'Great Vibes',cursive",
+    'Alex Brush':"'Alex Brush',cursive",
+    'Allura':"'Allura',cursive",
+    'Pinyon Script':"'Pinyon Script',cursive",
+    'Sacramento':"'Sacramento',cursive",
+    'Playfair Display':"'Playfair Display',serif",
+    'Cormorant Garamond':"'Cormorant Garamond',serif",
+    'Cinzel':"'Cinzel',serif"
+  };
+
   const TIPOS = {
     taller:{
       plantilla:'Certificado_taller/PLANTILLA_CERTIFICADO_TALLER.webp',
@@ -146,7 +159,12 @@
     if (d.fontSizeNombre) {
       cfgNombre = { ...cfg.nombre, size: d.fontSizeNombre, lh: d.fontSizeNombre };
     }
-    
+    if (d.fontNombre && FUENTES_NOMBRE[d.fontNombre]) {
+      cfgNombre = { ...cfgNombre, font: FUENTES_NOMBRE[d.fontNombre] };
+      // asegura que la fuente elegida esté cargada antes de dibujar en el canvas
+      try { await document.fonts.load(`${cfgNombre.weight||400} ${cfgNombre.size}px '${d.fontNombre}'`); } catch(e) {}
+    }
+
     dibujarSimple(ctx, d.nombre, cfgNombre);
     dibujarParrafo(ctx, cfg.runs(d), cfg.cuerpo);
     dibujarSimple(ctx, `Lima, ${d.fEmision}`, cfg.emision);

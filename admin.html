@@ -8,7 +8,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Damion&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Damion&family=Great+Vibes&family=Alex+Brush&family=Allura&family=Pinyon+Script&family=Sacramento&family=Playfair+Display:wght@500&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
@@ -28,40 +28,50 @@
 <div class="login-wrap" id="login-wrap">
   <div class="bg"></div>
   
-  <div class="lg-bubble lg-bubble-1"></div>
-  <div class="lg-bubble lg-bubble-2"></div>
-  <div class="lg-bubble lg-bubble-3"></div>
-
   <a href="index.html" class="btn-volver">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
     Volver al Inicio
   </a>
 
   <form class="login-card" id="login-form">
-    <div class="login-left">
-      <div class="ll-content">
-        <div class="ll-logo"><img src="images/logo/logo.webp" alt="KJA" onerror="this.parentElement.style.display='none'"></div>
-        <div class="ll-kicker">BIENVENIDO A</div>
-        <h2>KJA Bienestar</h2>
-        <div class="ll-tag">Centro de Capacitación y Formación Psicológica</div>
-      </div>
-    </div>
-    <div class="login-right">
-      <h1>Iniciar sesión</h1>
-      <div class="sub">Panel de administración · equipo KJA</div>
+    <!-- Columna izquierda: formulario -->
+    <div class="login-form-col">
+      <img class="lf-logo" src="images/logo/kja.webp" alt="KJA" onerror="this.style.display='none'">
+      <h1>Bienvenido al<br>panel KJA</h1>
+      <p class="lf-sub">Gestión de certificados · acceso del equipo</p>
       <div class="msg" id="login-msg"></div>
       <div class="in-group">
-        <svg class="in-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
-        <input id="email" type="email" autocomplete="username" placeholder="Correo" required>
+        <input id="email" type="email" autocomplete="username" placeholder="Correo electrónico" required>
       </div>
       <div class="in-group pw-wrap">
-        <svg class="in-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         <input id="password" type="password" autocomplete="current-password" placeholder="Contraseña" required>
         <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Mostrar u ocultar contraseña">
           <svg id="pw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
       </div>
       <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
+      <p class="lf-foot">¿Buscas tu certificado? <a href="certificado.html">Consúltalo aquí</a></p>
+    </div>
+
+    <!-- Columna derecha: foto con callouts flotantes -->
+    <div class="login-photo" aria-hidden="true">
+      <div class="ph-tag ph-tag--1">
+        <span class="ph-line ph-line--up"></span>
+        <span class="ph-orb">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <span class="ph-txt"><small>Panel seguro</small><b>Acceso restringido</b></span>
+      </div>
+
+      <div class="ph-tag ph-tag--2">
+        <span class="ph-line ph-line--up"></span>
+        <span class="ph-txt"><b>1,200+</b><small>certificados<br>emitidos</small></span>
+      </div>
+
+      <div class="ph-tag ph-tag--3">
+        <span class="ph-line ph-line--down"></span>
+        Verificación con QR
+      </div>
     </div>
   </form>
 </div>
@@ -140,6 +150,28 @@
                 <div class="dni-loading" id="dni-loading">
                   <span class="logo-spin"><img src="images/logo/logo.webp" alt="" onerror="this.style.display='none'"></span>
                   <span class="dni-loading-txt">Consultando RENIEC…</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="field"><label>Fuente del nombre</label>
+              <input type="hidden" id="f-font" value="">
+              <div class="cselect" id="font-cselect">
+                <button type="button" class="cselect-btn" id="font-btn">
+                  <span id="font-label">Predeterminada</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="cselect-list fontselect-list">
+                  <div data-val="" class="sel">Predeterminada <span class="font-tag">según plantilla</span></div>
+                  <div data-val="Great Vibes" style="font-family:'Great Vibes',cursive">Great Vibes</div>
+                  <div data-val="Alex Brush" style="font-family:'Alex Brush',cursive">Alex Brush</div>
+                  <div data-val="Allura" style="font-family:'Allura',cursive">Allura</div>
+                  <div data-val="Pinyon Script" style="font-family:'Pinyon Script',cursive">Pinyon Script</div>
+                  <div data-val="Sacramento" style="font-family:'Sacramento',cursive">Sacramento</div>
+                  <div data-val="Damion" style="font-family:'Damion',cursive">Damion</div>
+                  <div data-val="Playfair Display" style="font-family:'Playfair Display',serif">Playfair Display</div>
+                  <div data-val="Cormorant Garamond" style="font-family:'Cormorant Garamond',serif">Cormorant Garamond</div>
+                  <div data-val="Cinzel" style="font-family:'Cinzel',serif">Cinzel</div>
                 </div>
               </div>
             </div>
@@ -393,6 +425,23 @@ tipoCsel.querySelectorAll('.cselect-list div').forEach(opt=>{
 });
 document.addEventListener('click', ()=>tipoCsel.classList.remove('open'));
 
+/* Selector de fuente del nombre (estilo Canva: cada opción se ve en su propia fuente) */
+const fontCsel=$('font-cselect');
+function setFont(val){
+  $('f-font').value=val; let lbl='Predeterminada', fam='';
+  fontCsel.querySelectorAll('.cselect-list div').forEach(d=>{
+    const on=d.dataset.val===val; d.classList.toggle('sel',on);
+    if(on){ lbl=d.dataset.val||'Predeterminada'; fam=d.style.fontFamily||''; }
+  });
+  $('font-label').textContent=lbl;
+  $('font-label').style.fontFamily=fam;
+}
+$('font-btn').addEventListener('click', e=>{ e.stopPropagation(); fontCsel.classList.toggle('open'); });
+fontCsel.querySelectorAll('.cselect-list div').forEach(opt=>{
+  opt.addEventListener('click', ()=>{ setFont(opt.dataset.val); fontCsel.classList.remove('open'); dibujar(); });
+});
+document.addEventListener('click', ()=>fontCsel.classList.remove('open'));
+
 const sizeWrap = $('size-wrap');
 $('size-toggle').addEventListener('click', e => { e.stopPropagation(); sizeWrap.classList.toggle('open'); });
 sizeWrap.querySelectorAll('.cselect-list div').forEach(opt => {
@@ -427,7 +476,8 @@ function leerDatos(){
   return {tipo,cfg,nombre:$('f-nombre').value.trim(),dni:$('f-dni').value.trim(),titulo:$('f-titulo').value.trim(),
     duracion:$('f-duracion').value,fechaInicio:$('f-inicio').value,
     fechaFin:cfg.fechas==='rango'?$('f-fin').value:null,fechaEmision:$('f-emision').value,codigo,
-    fontSizeNombre:$('f-size').value ? parseInt($('f-size').value, 10) : null};
+    fontSizeNombre:$('f-size').value ? parseInt($('f-size').value, 10) : null,
+    fontNombre:$('f-font').value || null};
 }
 function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
   $('lbl-titulo').textContent=cfg.etiquetaTitulo;
@@ -467,6 +517,7 @@ function resetForm(){
   $('f-extranjero').checked=false; actualizarDniUI();
   resetTemario();
   setTipo($('f-tipo').value || 'taller'); // Ensures f-size starts with the right default number
+  setFont('');
   if(fpInicio){ fpInicio.setDate('today'); fpFin.setDate('today'); fpEmision.setDate('today'); }
   dibujar();
 }
@@ -498,7 +549,7 @@ async function guardarYGenerar(){
     const tem=leerTemario();
     const payload={codigo:d.codigo,tipo:d.tipo,nombre:d.nombre,dni:d.dni||null,titulo:d.titulo,
       duracion:d.duracion,fecha_inicio:d.fechaInicio||null,fecha_fin:d.fechaFin||null,
-      fecha_emision:d.fechaEmision||null,cliente_id:clienteId,temario:tem,font_size_nombre:d.fontSizeNombre||null};
+      fecha_emision:d.fechaEmision||null,cliente_id:clienteId,temario:tem,font_size_nombre:d.fontSizeNombre||null,font_nombre:d.fontNombre||null};
     let error;
     if(editingId){ ({error}=await db.from('certificados').update(payload).eq('id',editingId)); }
     else{ ({error}=await db.from('certificados').insert(payload)); }
@@ -543,6 +594,17 @@ $('f-dni').addEventListener('input', ()=>{
   }
 });
 
+/* RENIEC devuelve el nombre en MAYÚSCULAS; lo pasamos a formato título
+   (primera letra de cada palabra en mayúscula) respetando partículas
+   como "de", "del", "la" y nombres compuestos con guion o apóstrofe. */
+function nombreTitulo(s){
+  const particulas = new Set(['de','del','la','las','los','y','e','da','di','van','von']);
+  return (s||'').trim().toLowerCase().split(/\s+/).map((palabra, i)=>{
+    if(i>0 && particulas.has(palabra)) return palabra;
+    return palabra.replace(/(^|[-'])(\p{L})/gu, (m, sep, letra)=>sep+letra.toUpperCase());
+  }).join(' ');
+}
+
 async function consultarDni(dni){
   $('dni-loading').classList.add('show');                       // overlay con logo girando
   $('btn-dni').disabled=true; $('btn-dni').querySelector('.btn-dni-txt').textContent='Buscando…';
@@ -551,7 +613,7 @@ async function consultarDni(dni){
     const { data, error } = await db.functions.invoke('consulta-dni', { body: { dni } });
     if(error || !data || !data.nombre){ $('dni-hint').textContent='No se encontró ese DNI en RENIEC.'; return; }
     const nom=$('f-nombre');
-    nom.value = data.nombre;                                    // autocompleta el nombre
+    nom.value = nombreTitulo(data.nombre);                      // autocompleta el nombre en formato título
     nom.classList.remove('autofilled'); void nom.offsetWidth; nom.classList.add('autofilled');  // resaltado amarillo
     $('dni-hint').textContent = '✓ Datos obtenidos de RENIEC';
     dibujar();
@@ -872,7 +934,7 @@ function nuevoCertCliente(nombre, dni){
 }
 function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,titulo:r.titulo,duracion:r.duracion,
   fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo,
-  fontSizeNombre:r.font_size_nombre}; }
+  fontSizeNombre:r.font_size_nombre,fontNombre:r.font_nombre||null}; }
 async function descargarFila(id, fmt){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
   const fn=r.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+r.nombre.replace(/\s+/g,'_');
@@ -918,6 +980,7 @@ function editarFila(id){
   $('temario-builder').style.display = $('f-temario-on').checked ? 'block' : 'none';
   vistaTemario=false; renderModulos();
   if(r.font_size_nombre) $('f-size').value=r.font_size_nombre;   // conserva el tamaño elegido
+  setFont(r.font_nombre||'');                                    // conserva la fuente elegida
   editingId=id; $('editing-flag').style.display='block'; $('btn-cancel').style.display='block';
   $('btn-guardar').textContent='Actualizar y generar (PDF)'; $('gen-title').textContent='Editar Certificado';
   irA('gen'); dibujar();

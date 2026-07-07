@@ -901,8 +901,8 @@ footer { margin-top: auto; }
 /* Botón cerrar flotante */
 .modal-close {
   position: absolute;
-  top: 26px;
-  right: 26px;
+  top: 11px;
+  right: 16px;
   z-index: 5;
   width: 36px;
   height: 36px;
@@ -919,20 +919,114 @@ footer { margin-top: auto; }
 }
 .modal-close:hover { background: #f10075; color: #fff; }
 
+/* si la barra de sesión no está visible, el botón baja a su posición clásica */
+.modal-box:has(.auto-aviso:empty) .modal-close { top: 22px; right: 22px; }
+
+/* sello de autenticidad junto a los botones de descarga */
+.viewer-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: #059669;
+}
+.viewer-verified svg { flex-shrink: 0; }
+
+/* scrollbar horizontal del visor, discreto */
+.viewer-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
+.viewer-scroll::-webkit-scrollbar-track { background: transparent; }
+.viewer-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
+
 /* Aviso auto-ocultar dentro del modal */
 #cert-modal .auto-aviso {
-  margin: 14px 14px 0;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 12px;
-  padding: 8px 16px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 11px 72px 11px 18px;
+  background:
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 7px),
+    linear-gradient(135deg, #0b2a5c 0%, #08386f 45%, #004fb0 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0;
   font-size: 12.5px;
-  color: #92400e;
   flex-shrink: 0;
   text-align: left;
-  margin-bottom: 0;
+  overflow: hidden;
 }
+
+/* filo inferior de acento institucional */
+#cert-modal .auto-aviso::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #f10075 0%, #ff4da6 40%, #0a63d4 100%);
+}
+
 #cert-modal .auto-aviso:empty { display: none; margin: 0; }
+
+.aa-ico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.aa-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.aa-text strong {
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+}
+.aa-text em {
+  font-style: normal;
+  font-size: 11px;
+  color: #b9cbe8;
+}
+
+.aa-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* últimos segundos: el contador se enciende en rosa */
+.aa-timer--fin {
+  background: rgba(241, 0, 117, 0.35);
+  border-color: rgba(255, 120, 180, 0.55);
+  animation: aaFin 1s ease-in-out infinite;
+}
+@keyframes aaFin {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
 
 /* Cuerpo: perfil izquierda + contenido derecha (estilo dashboard) */
 .modal-body {
@@ -1179,7 +1273,9 @@ footer { margin-top: auto; }
   .modal-close { top: 20px; right: 12px; width: 32px; height: 32px; }
 
   /* El aviso no debe quedar debajo del botón cerrar */
-  #cert-modal .auto-aviso { padding-right: 52px; }
+  #cert-modal .auto-aviso { padding-right: 60px; }
+  .aa-text em { display: none; }
+  .viewer-verified { width: 100%; justify-content: center; margin: 0 0 4px; }
 
   /* Cuerpo: UNA sola columna con scroll único */
   .modal-body {
@@ -1893,4 +1989,262 @@ footer { margin-top: auto; }
     border-radius: 14px;
     border-width: 3px;
   }
+}
+
+/* ══════════════════════════════════════════
+   CONSOLA DE VERIFICACIÓN OFICIAL
+══════════════════════════════════════════ */
+.verify-console {
+  background: #fff;
+  border: 1px solid rgba(13, 38, 76, 0.1);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 18px 44px rgba(13, 38, 76, 0.1), 0 2px 8px rgba(13, 38, 76, 0.05);
+  animation: vcEnter .6s cubic-bezier(.22,.61,.36,1) both .15s;
+}
+
+@keyframes vcEnter {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Cabecera institucional (azul profundo, textura de papel de seguridad) ── */
+.vc-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  color: #fff;
+  background:
+    radial-gradient(120% 190% at 100% 0%, rgba(10, 99, 212, 0.5), transparent 55%),
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 7px),
+    linear-gradient(135deg, #0b2a5c 0%, #08386f 45%, #004fb0 100%);
+  overflow: hidden;
+}
+
+/* filo superior institucional */
+.vc-head::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #f10075 0%, #ff4da6 40%, #0a63d4 100%);
+}
+
+/* escaneo suave que recorre la cabecera */
+.vc-head::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -35%;
+  width: 35%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: vcScan 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes vcScan {
+  0%       { left: -35%; }
+  55%, 100% { left: 110%; }
+}
+
+/* marca de agua de escudo, como sello impreso del documento */
+.vc-watermark {
+  position: absolute;
+  right: -14px;
+  bottom: -26px;
+  width: 112px;
+  height: 112px;
+  color: #fff;
+  opacity: 0.07;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+/* sello circular tipo insignia, en relieve sobre el azul */
+.vc-seal {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  outline: 1px solid rgba(255, 255, 255, 0.22);
+  outline-offset: 3px;
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.25), 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+.vc-seal svg { width: 20px; height: 20px; }
+
+.vc-headtext {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vc-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: #fff;
+}
+
+.vc-sub {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: #b9cbe8;
+}
+
+.vc-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 4px 11px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+.vc-live i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, .7);
+  animation: vcPulse 1.8s ease-out infinite;
+}
+
+@keyframes vcPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74, 222, 128, .65); }
+  70%  { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+.vc-body {
+  padding: 18px 18px 16px;
+}
+
+/* ── Pestañas Nombre / DNI ── */
+.vc-tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: #eef2f8;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 14px;
+}
+
+.vc-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  background: transparent;
+  padding: 8px 15px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5b6472;
+  cursor: pointer;
+  transition: all .25s ease;
+}
+
+.vc-tab:hover { color: #004fb0; }
+
+.vc-tab.active {
+  background: #fff;
+  color: #004fb0;
+  box-shadow: 0 2px 8px rgba(13, 38, 76, 0.12);
+}
+
+/* ── Sellos de confianza ── */
+.vc-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(13, 38, 76, 0.12);
+}
+
+.vc-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.vc-trust svg { color: #059669; flex-shrink: 0; }
+
+/* dentro de la consola el buscador ya no necesita su propio margen */
+.verify-console .search-row input {
+  border-color: #dbe3ee;
+  background: #fbfcfe;
+}
+.verify-console .search-row input:focus {
+  background: #fff;
+  animation: vcFocusRing .45s ease-out;
+}
+
+@keyframes vcFocusRing {
+  0%   { box-shadow: 0 0 0 0 rgba(0,79,176,.28); }
+  100% { box-shadow: 0 0 0 4px rgba(0,79,176,.1); }
+}
+
+/* brillo que barre el botón Verificar */
+#btn-buscar {
+  position: relative;
+  overflow: hidden;
+}
+#btn-buscar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,.28), transparent);
+  animation: vcScan 3.2s ease-in-out infinite 1.2s;
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .vc-title { font-size: 11px; letter-spacing: 0.6px; }
+  .vc-sub { font-size: 9.5px; }
+  .vc-seal { width: 32px; height: 32px; }
+  .vc-seal svg { width: 16px; height: 16px; }
+  .vc-live { font-size: 10px; padding: 3px 9px; }
+  .vc-body { padding: 14px 12px 13px; }
+  .vc-tabs { width: 100%; }
+  .vc-tab { flex: 1; justify-content: center; padding: 8px 8px; font-size: 12px; }
+  .vc-trust { gap: 6px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .verify-console,
+  .vc-head::after,
+  .vc-live i,
+  #btn-buscar::after { animation: none; }
 }

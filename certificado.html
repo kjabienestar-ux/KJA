@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" href="images/logo/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=Cinzel:wght@400;500;700&family=Damion&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=Cinzel:wght@400;500;700&family=Damion&family=Great+Vibes&family=Alex+Brush&family=Allura&family=Pinyon+Script&family=Sacramento&family=Playfair+Display:wght@500&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css?v=10">
 <link rel="stylesheet" href="tailwind.css?v=1">
 <link rel="stylesheet" href="accessibility.css">
@@ -19,7 +19,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="certificados/cert-render.js"></script>
 
-<link rel="stylesheet" href="certificado.css">
+<link rel="stylesheet" href="certificado.css?v=2">
 </head>
 <body>
 
@@ -171,21 +171,64 @@
     <div class="cs-right" id="search-card">
       <span class="cs-eyebrow">Certificados oficiales</span>
       <h2>Busca tu certificado y <span class="cs-accent">descárgalo</span> en segundos</h2>
-      <p class="lead">Escribe tu <b>nombre completo</b> o tu <b>DNI</b>, tal como te inscribiste.</p>
+      <p class="lead">Verifica y descarga tu certificado desde nuestro <b>registro oficial</b> en línea.</p>
 
-      <div class="search-row">
-        <div class="input-wrapper">
-          <span class="input-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <div class="verify-console">
+        <div class="vc-head">
+          <svg class="vc-watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span class="vc-seal" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
           </span>
-          <input id="q" type="text" placeholder="Ej: Juan Carlos Pérez García  ·  o tu DNI" autocomplete="off">
-          <div id="autocomplete-list" class="autocomplete-dropdown"></div>
+          <span class="vc-headtext">
+            <span class="vc-title">Verificación de Certificados</span>
+            <span class="vc-sub">Registro digital oficial · KJA</span>
+          </span>
+          <span class="vc-live"><i aria-hidden="true"></i>En línea</span>
         </div>
-        <button id="btn-buscar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          Buscar
-        </button>
+
+        <div class="vc-body">
+          <div class="vc-tabs" role="tablist" aria-label="Tipo de búsqueda">
+            <button type="button" class="vc-tab active" data-mode="nombre" role="tab" aria-selected="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Nombre completo
+            </button>
+            <button type="button" class="vc-tab" data-mode="dni" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="11" r="2.5"/><path d="M14 9h5M14 13h5M5.5 17.5c.8-1.5 2.2-2 3-2s2.2.5 3 2"/></svg>
+              N.° de DNI
+            </button>
+          </div>
+
+          <div class="search-row">
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input id="q" type="text" placeholder="Ej: Juan Carlos Pérez García" autocomplete="off">
+              <div id="autocomplete-list" class="autocomplete-dropdown"></div>
+            </div>
+            <button id="btn-buscar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              Verificar
+            </button>
+          </div>
+
+          <div class="vc-trust">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Conexión segura
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1M14 20h1M18 18h3v3h-3z"/></svg>
+              Verificable con QR
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Datos protegidos
+            </span>
+          </div>
+        </div>
       </div>
+
       <div class="privacy-note">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         Por tu privacidad, los resultados se ocultan automáticamente tras un minuto.
@@ -273,6 +316,10 @@
             <canvas id="viewer-canvas-tem" width="2000" height="1414" style="display:none;margin-top:16px;"></canvas>
           </div>
           <div class="viewer-actions">
+            <span class="viewer-verified" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              Documento auténtico · verificable con QR
+            </span>
             <button class="b-png" id="dl-png">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               Descargar PNG
@@ -309,17 +356,17 @@ function banner(txt,err){ const b=$('banner'); b.className='banner show '+(err?'
 function limpiarBanner(){ $('banner').className='banner'; }
 function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,titulo:r.titulo,duracion:r.duracion,
   fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo,
-  fontSizeNombre:r.font_size_nombre}; }
+  fontSizeNombre:r.font_size_nombre,fontNombre:r.font_nombre||null}; }
 
 function setLoading(isLoading) {
   const btn = $('btn-buscar');
   if (!btn) return;
   if (isLoading) {
     btn.disabled = true;
-    btn.innerHTML = `<svg class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg> Buscando...`;
+    btn.innerHTML = `<svg class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg> Verificando…`;
   } else {
     btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Buscar`;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg> Verificar`;
   }
 }
 
@@ -328,7 +375,10 @@ let countdown=null;
 function iniciarAutoOcultar(seg){
   detenerAutoOcultar(); let left=seg;
   const pintar=()=>{ const m=Math.floor(left/60), s=String(left%60).padStart(2,'0');
-    $('auto-aviso').innerHTML=`🔒 Por privacidad, estos resultados se ocultarán en <b>${m}:${s}</b>`; };
+    $('auto-aviso').innerHTML=`
+      <span class="aa-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+      <span class="aa-text"><strong>Sesión de consulta privada</strong><em>Por tu seguridad, los resultados se ocultan automáticamente</em></span>
+      <span class="aa-timer${left<=10?' aa-timer--fin':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${m}:${s}</span>`; };
   pintar();
   countdown=setInterval(()=>{ left--; if(left<=0){ ocultarResultados(true); } else pintar(); },1000);
 }
@@ -469,6 +519,33 @@ async function buscar(){
 }
 $('btn-buscar').addEventListener('click',buscar);
 $('q').addEventListener('keydown',e=>{ if(e.key==='Enter') buscar(); });
+
+/* ── Pestañas Nombre / DNI: cambian placeholder, teclado e icono (la búsqueda es la misma) ── */
+const VC_MODES = {
+  nombre: {
+    placeholder: 'Ej: Juan Carlos Pérez García',
+    inputmode: 'text',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+  },
+  dni: {
+    placeholder: 'Ingresa tu DNI (8 dígitos)',
+    inputmode: 'numeric',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="11" r="2.5"/><path d="M14 9h5M14 13h5M5.5 17.5c.8-1.5 2.2-2 3-2s2.2.5 3 2"/></svg>'
+  }
+};
+document.querySelectorAll('.vc-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.vc-tab').forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected','true');
+    const mode = VC_MODES[tab.dataset.mode] || VC_MODES.nombre;
+    const q = $('q');
+    q.placeholder = mode.placeholder;
+    q.inputMode = mode.inputmode;
+    document.querySelector('.input-icon').innerHTML = mode.icon;
+    q.focus();
+  });
+});
 
 let autocompleteTimeout;
 const searchCache = {};
