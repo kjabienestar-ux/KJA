@@ -17,7 +17,7 @@
     <!-- GSAP & ScrollTrigger -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <link rel="stylesheet" href="cursos.css?v=2">
+    <link rel="stylesheet" href="cursos.css?v=3">
 </head>
 
 <body>
@@ -112,24 +112,24 @@
             <!-- Columna derecha: collage flotante -->
             <div class="ch-collage" aria-hidden="true">
                 <div class="ch-card ch-card--1">
-                    <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&q=80&auto=format" alt="">
+                    <img src="images/cursos/wisc-v.webp" alt="">
                     <div class="ch-card-info">
-                        <strong>Habilidades Blandas</strong>
-                        <span>Taller · 8 horas</span>
+                        <strong>WISC-V</strong>
+                        <span>Curso online</span>
                     </div>
                 </div>
                 <div class="ch-card ch-card--2">
-                    <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=80&auto=format" alt="">
+                    <img src="images/cursos/terapia-cognitivo-conductual.webp" alt="">
                     <div class="ch-card-info">
-                        <strong>Manejo del Estrés</strong>
-                        <span>Curso · Virtual</span>
+                        <strong>TCC y TREC</strong>
+                        <span>Online · 300 horas</span>
                     </div>
                 </div>
                 <div class="ch-card ch-card--3">
-                    <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?w=400&q=80&auto=format" alt="">
+                    <img src="images/cursos/neuropsicologia-infantil.webp" alt="">
                     <div class="ch-card-info">
-                        <strong>Psicología Educativa</strong>
-                        <span>Especialización</span>
+                        <strong>Neuropsicología Infantil</strong>
+                        <span>En vivo vía Zoom</span>
                     </div>
                 </div>
                 <div class="ch-chip ch-chip--cert">
@@ -207,24 +207,24 @@
 
                 <div class="cursos-head-featured programs-collage" aria-hidden="true">
                     <div class="ch-card ch-card--1">
-                        <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&q=80&auto=format" alt="">
+                        <img src="images/cursos/wisc-v.webp" alt="">
                         <div class="ch-card-info">
-                            <strong>Habilidades Blandas</strong>
-                            <span>Taller · 8 horas</span>
+                            <strong>WISC-V</strong>
+                            <span>Curso online</span>
                         </div>
                     </div>
                     <div class="ch-card ch-card--2">
-                        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=80&auto=format" alt="">
+                        <img src="images/cursos/ados2-adir.webp" alt="">
                         <div class="ch-card-info">
-                            <strong>Manejo del Estrés</strong>
-                            <span>Curso · Virtual</span>
+                            <strong>ADOS-2 y ADI-R</strong>
+                            <span>Curso en vivo</span>
                         </div>
                     </div>
                     <div class="ch-card ch-card--3">
-                        <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400&q=80&auto=format" alt="">
+                        <img src="images/cursos/terapia-integracion-sensorial.webp" alt="">
                         <div class="ch-card-info">
-                            <strong>Escuela para Padres</strong>
-                            <span>Especialización · 8 horas</span>
+                            <strong>Terapia e Integración Sensorial</strong>
+                            <span>Asincrónico · 300 horas</span>
                         </div>
                     </div>
                 </div>
@@ -417,205 +417,230 @@
     <!-- JAVASCRIPT DEL MODAL DE CURSOS -->
     <script>
         const COURSE_DATA = {
-            'habilidades-blandas': {
-                title: 'Taller de Habilidades Blandas',
-                meta: 'Presencial y Virtual · 8 horas',
-                image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=80&auto=format',
-                description: 'Desarrolla tus competencias interpersonales y mejora la comunicación asertiva, el trabajo en equipo, el liderazgo y la resolución de conflictos para potenciar tu éxito personal y profesional.',
+            'wisc-v': {
+                title: 'WISC-V: Aplicaciones Clínicas y Neuropsicológicas',
+                meta: 'Curso online',
+                image: 'images/cursos/wisc-v.webp',
+                description: 'Curso online sobre la Escala de Inteligencia de Wechsler para Niños - Quinta Edición: aprende a administrar, calificar e interpretar el instrumento con enfoque clínico y neuropsicológico.',
                 learn: [
-                    'Comunicación asertiva y técnicas de escucha activa.',
-                    'Estrategias efectivas para la resolución de conflictos.',
-                    'Liderazgo participativo, empático y motivación de equipos.',
-                    'Técnicas de gestión del tiempo y mejora de la productividad.'
+                    'Fundamentos teóricos y estructura factorial del WISC-V.',
+                    'Administración y calificación correcta de las subpruebas.',
+                    'Interpretación de los índices primarios y secundarios.',
+                    'Aplicaciones clínicas y neuropsicológicas e integración de resultados en el informe.'
                 ],
                 requirements: [
-                    'No se requieren conocimientos previos. Abierto a todo público que desee crecer a nivel profesional e interpersonal.'
+                    'Dirigido a psicólogos, bachilleres y estudiantes de psicología de últimos ciclos con nociones básicas de psicometría.'
                 ],
                 certification: [
-                    'Certificado digital de participación emitido por KJA - Centro de Capacitación y Formación Psicológica.'
+                    'Incluye certificado con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
+                    'Material académico incluido.',
+                    'Curso válido solo en Perú.'
                 ],
                 syllabus: [
-                    'Módulo 1: Fundamentos de la comunicación asertiva y la empatía.',
-                    'Módulo 2: Sinergia y dinámicas para el trabajo en equipo eficiente.',
-                    'Módulo 3: Liderazgo situacional, toma de decisiones y negociación.'
+                    'Módulo 1: Bases teóricas de la inteligencia y estructura del WISC-V.',
+                    'Módulo 2: Administración y calificación de las subpruebas.',
+                    'Módulo 3: Interpretación clínica de índices y análisis de fortalezas y debilidades.',
+                    'Módulo 4: Aplicaciones neuropsicológicas y elaboración del informe de resultados.'
                 ],
-                related: 'Inteligencia Emocional, Desarrollo Humano y Bienestar',
-                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20Taller%20de%20Habilidades%20Blandas'
+                related: 'Evaluaciones Psicológicas en Niños y Adolescentes, Neuropsicología Infantil',
+                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20WISC-V%20Aplicaciones%20Cl%C3%ADnicas%20y%20Neuropsicol%C3%B3gicas'
             },
-            'manejo-estres': {
-                title: 'Taller de Manejo del Estrés',
-                meta: 'Virtual · 6 horas',
-                image: 'https://images.unsplash.com/photo-1536164832230-6c99e52e06c2?w=500&q=80&auto=format',
-                description: 'Aprende a reconocer las causas del estrés diario y laboral, y domina técnicas prácticas de relajación, respiración y mindfulness para recuperar el equilibrio y proteger tu salud emocional.',
+            'evaluaciones-ninos': {
+                title: 'Evaluaciones Psicológicas en Niños y Adolescentes',
+                meta: 'Curso online',
+                image: 'images/cursos/evaluaciones-psicologicas-ninos.webp',
+                description: 'Curso online para planificar y ejecutar procesos completos de evaluación psicológica en niños y adolescentes: selección de pruebas psicométricas y proyectivas, aplicación, interpretación y redacción de informes de calidad profesional.',
                 learn: [
-                    'Reconocer los síntomas y desencadenantes físicos y emocionales del estrés.',
-                    'Técnicas de respiración diafragmática y relajación muscular progresiva.',
-                    'Introducción práctica al mindfulness para gestionar la ansiedad cotidiana.',
-                    'Estrategias de organización del tiempo para prevenir el agotamiento (burnout).'
+                    'Diseño del proceso de evaluación según el motivo de consulta.',
+                    'Aplicación de las principales pruebas psicométricas y proyectivas en niños y adolescentes.',
+                    'Interpretación integrada de resultados cuantitativos y cualitativos.',
+                    'Redacción de informes psicológicos claros y con valor clínico.'
                 ],
                 requirements: [
-                    'Dirigido a estudiantes, profesionales y cualquier persona interesada en mejorar su calidad de vida y reducir su nivel de estrés.'
+                    'Dirigido a psicólogos, bachilleres y estudiantes de psicología interesados en el área clínica y educativa infantil y adolescente.'
                 ],
                 certification: [
-                    'Certificado digital de participación y aprobación avalado por KJA.'
+                    'Incluye certificado con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
+                    'Material académico incluido.',
+                    'Curso válido solo en Perú.'
                 ],
                 syllabus: [
-                    'Módulo 1: Fisiología del estrés y reconocimiento de estresores.',
-                    'Módulo 2: Técnicas cognitivo-conductuales de afrontamiento rápido.',
-                    'Módulo 3: Prácticas de relajación profunda y mindfulness para el día a día.'
+                    'Módulo 1: El proceso de evaluación psicológica infantil y adolescente y la entrevista inicial.',
+                    'Módulo 2: Pruebas psicométricas de inteligencia, atención y aprendizaje.',
+                    'Módulo 3: Pruebas proyectivas y evaluación socioemocional.',
+                    'Módulo 4: Integración de resultados y elaboración del informe.'
                 ],
-                related: 'Inteligencia Emocional, Desarrollo Humano y Bienestar',
-                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20Taller%20de%20Manejo%20del%20Estr%C3%A9s'
+                related: 'WISC-V: Aplicaciones Clínicas y Neuropsicológicas, Neuropsicología Infantil',
+                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Evaluaciones%20Psicol%C3%B3gicas%20en%20Ni%C3%B1os%20y%20Adolescentes'
             },
-            'psicologia-docentes': {
-                title: 'Psicología Educativa para Docentes',
-                meta: 'Presencial · 12 horas',
-                image: 'https://images.unsplash.com/photo-1607453998774-d533f65dac99?w=500&q=80&auto=format',
-                description: 'Brinda a los educadores herramientas psicológicas esenciales para entender el desarrollo del aprendizaje, guiar conductas complejas dentro del aula y dar apoyo de contención socioemocional.',
+            'reclutamiento-seleccion': {
+                title: 'Reclutamiento, Selección y Pruebas Psicológicas',
+                meta: 'Curso online',
+                image: 'images/cursos/reclutamiento-seleccion.webp',
+                description: 'Fórmate en el proceso completo de selección de personal: desde la elaboración del perfil del puesto hasta la aplicación de pruebas de inteligencia, personalidad y habilidades.',
                 learn: [
-                    'Identificación oportuna de dificultades comunes de aprendizaje y del neurodesarrollo.',
-                    'Estrategias prácticas de modificación conductual y refuerzo positivo en aula.',
-                    'Técnicas básicas de contención socioemocional y primeros auxilios psicológicos.',
-                    'Fomento de un clima escolar inclusivo, seguro y dinámico.'
+                    'Elaboración del perfil del puesto.',
+                    'Análisis y descripción de pruebas.',
+                    'Reclutamiento y selección.',
+                    'Pruebas de inteligencia, personalidad y habilidades.'
                 ],
                 requirements: [
-                    'Recomendable contar con nociones de docencia, pedagogía o laborar en centros de educación inicial, primaria o secundaria.'
+                    'Dirigido a psicólogos, estudiantes de psicología y profesionales de recursos humanos.'
                 ],
                 certification: [
-                    'Certificado de especialización pedagógica con valor curricular, emitido por KJA Centro de Formación.'
+                    'Certificado digital emitido por KJA - Centro de Capacitación y Formación Psicológica, verificable con código QR.'
                 ],
                 syllabus: [
-                    'Módulo 1: Psicología del aprendizaje y dificultades pedagógicas frecuentes.',
-                    'Módulo 2: Manejo de dinámicas grupales y control de conducta disruptiva.',
-                    'Módulo 3: Salud mental docente y estrategias de apoyo emocional estudiantil.'
+                    'Elaboración del perfil del puesto.',
+                    'Análisis y descripción de pruebas.',
+                    'Reclutamiento y selección.',
+                    'Pruebas de inteligencia.',
+                    'Pruebas de personalidad.',
+                    'Pruebas de habilidades.'
                 ],
-                related: 'Escuela para Padres, Taller de Habilidades Blandas',
-                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Psicolog%C3%ADa%20Educativa%20para%20Docentes'
+                related: 'Evaluaciones Psicológicas en Niños y Adolescentes, Terapia Cognitivo Conductual',
+                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Reclutamiento%2C%20Selecci%C3%B3n%20y%20Pruebas%20Psicol%C3%B3gicas'
             },
-            'inteligencia-emocional': {
-                title: 'Inteligencia Emocional',
-                meta: 'Virtual · 10 horas',
-                image: 'https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=500&q=80&auto=format',
-                description: 'Un recorrido de autodescubrimiento para identificar, comprender y canalizar adecuadamente tus emociones, fortaleciendo la empatía y construyendo relaciones sanas en todas las esferas de tu vida.',
+            'ados2-adir': {
+                title: 'ADOS-2 y ADI-R: Evaluación y Diagnóstico de Autismo',
+                meta: 'Curso online · Modalidad en vivo',
+                image: 'images/cursos/ados2-adir.webp',
+                description: 'Curso online 100% en vivo sobre los dos instrumentos de referencia internacional para la evaluación y el diagnóstico del autismo: la observación clínica estructurada ADOS-2 y la entrevista diagnóstica para padres ADI-R.',
                 learn: [
-                    'Técnicas avanzadas de autoconocimiento y mapeo de estados emocionales.',
-                    'Estrategias de autorregulación emocional en situaciones de crisis o conflicto.',
-                    'Desarrollo de la empatía profunda y asertividad en las relaciones cotidianas.',
-                    'Habilidades socioemocionales aplicadas al éxito laboral y familiar.'
+                    'Criterios diagnósticos actuales del TEA y proceso de evaluación integral.',
+                    'Administración de los módulos del ADOS-2 según edad y nivel de lenguaje.',
+                    'Aplicación de la entrevista ADI-R y codificación de algoritmos.',
+                    'Integración de resultados para la formulación diagnóstica.'
                 ],
                 requirements: [
-                    'Abierto a todo público con deseos de trabajar en su desarrollo personal y autocontrol emocional.'
+                    'Dirigido a psicólogos, médicos, terapeutas y profesionales de la salud con experiencia o interés en trastornos del neurodesarrollo.'
                 ],
                 certification: [
-                    'Certificado digital de participación emitido por KJA Centro Psicológico.'
+                    'Certificado académico emitido por KJA - Centro de Capacitación y Formación Psicológica.',
+                    'Material académico incluido.',
+                    '¡Curso válido solo para Perú!'
                 ],
                 syllabus: [
-                    'Módulo 1: Bases biológicas de la emoción y el secuestro de la amígdala.',
-                    'Módulo 2: Pilares de la Inteligencia Emocional (Autocontrol y Motivación).',
-                    'Módulo 3: Empatía y comunicación asertiva aplicadas.'
+                    'Módulo 1: Actualización en TEA y proceso diagnóstico integral.',
+                    'Módulo 2: ADOS-2 — estructura, módulos y administración.',
+                    'Módulo 3: ADI-R — entrevista, codificación y algoritmos.',
+                    'Módulo 4: Integración de resultados y casos clínicos.'
                 ],
-                related: 'Taller de Manejo del Estrés, Desarrollo Humano y Bienestar',
-                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Inteligencia%20Emocional'
+                related: 'Neuropsicología Infantil, Terapia e Integración Sensorial en Niños con TEA y TDAH',
+                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20ADOS-2%20y%20ADI-R%20Evaluaci%C3%B3n%20y%20Diagn%C3%B3stico%20de%20Autismo'
             },
-            'escuela-padres': {
-                title: 'Escuela para Padres',
-                meta: 'Presencial y Virtual · 8 horas',
-                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&q=80&auto=format',
-                description: 'Acompañamos a madres, padres y cuidadores en la hermosa tarea de criar con amor, respeto y firmeza. Obtén herramientas efectivas para guiar la conducta sin violencia y sanar los vínculos familiares.',
+            'terapia-cognitivo-conductual': {
+                title: 'Terapia Cognitivo Conductual y Terapia Racional Emotiva Conductual',
+                meta: 'Curso online · 300 horas académicas',
+                image: 'images/cursos/terapia-cognitivo-conductual.webp',
+                description: 'Domina los dos grandes modelos de intervención con mayor evidencia científica: la TCC y la TREC. ¡Ahora con 50% de descuento e incluye GRATIS 1 curso grabado (6 h.a.)! Solo válido en Perú.',
                 learn: [
-                    'Comprender la diferencia entre los estilos de crianza y su impacto futuro.',
-                    'Estrategias de disciplina positiva y establecimiento de límites saludables.',
-                    'Herramientas para manejar berrinches, desobediencia y rabia de forma empática.',
-                    'Fomento del apego seguro, la autoconfianza y la autoestima de los niños.'
+                    'Conceptualización cognitiva de casos y planificación del tratamiento.',
+                    'Técnicas de reestructuración cognitiva y trabajo con creencias.',
+                    'Modelo ABC de la Terapia Racional Emotiva Conductual y debate de creencias irracionales.',
+                    'Estrategias conductuales y aplicación clínica en ansiedad, depresión y otros cuadros.'
                 ],
                 requirements: [
-                    'Ideal para padres, madres de familia, cuidadores principales, educadores y tutores.'
+                    'Dirigido a psicólogos, bachilleres y estudiantes de psicología de últimos ciclos con interés en el área clínica.'
                 ],
                 certification: [
-                    'Diploma digital de participación emitido por la Escuela de Familias de KJA Centro Psicológico.'
+                    'Certificado académico con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
+                    'Material académico incluido.',
+                    'Bono: ¡GRATIS! 1 curso grabado (6 h.a.).',
+                    '50% de descuento — solo válido en Perú.'
                 ],
                 syllabus: [
-                    'Módulo 1: Desarrollo evolutivo infantil y bases de la crianza respetuosa.',
-                    'Módulo 2: Establecimiento de límites claros con amor y firmeza.',
-                    'Módulo 3: Gestión emocional en el hogar y prevención del burnout parental.'
+                    'Módulo 1: Fundamentos del modelo cognitivo conductual.',
+                    'Módulo 2: Evaluación y conceptualización de casos.',
+                    'Módulo 3: Terapia Racional Emotiva Conductual — modelo ABC y debate de creencias.',
+                    'Módulo 4: Técnicas cognitivas y conductuales de intervención.',
+                    'Módulo 5: Aplicación clínica por trastornos y prevención de recaídas.'
                 ],
-                related: 'Psicología Educativa para Docentes, Inteligencia Emocional',
-                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20la%20Escuela%20para%20Padres'
+                related: 'Neuropsicología Infantil, Evaluaciones Psicológicas en Niños y Adolescentes',
+                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Terapia%20Cognitivo%20Conductual%20y%20Terapia%20Racional%20Emotiva%20Conductual'
             },
-            'desarrollo-humano': {
-                title: 'Desarrollo Humano y Bienestar',
-                meta: 'Virtual · 6 horas',
-                image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=500&q=80&auto=format',
-                description: 'Un espacio de reflexión guiada para estructurar tu propósito vital, potenciar tu resiliencia ante los desafíos y adoptar hábitos que incrementen tu bienestar y satisfacción personal.',
+            'neuropsicologia-infantil': {
+                title: 'Neuropsicología Infantil: Psicología Clínica y Educativa',
+                meta: 'Clases en vivo vía Zoom · 300 horas académicas',
+                image: 'images/cursos/neuropsicologia-infantil.webp',
+                description: 'Curso online con clases en vivo vía Zoom: evaluación de las funciones cognitivas del niño, diagnóstico de los trastornos del neurodesarrollo e intervención clínica y educativa. ¡50% de descuento + 1 curso GRATIS! Vacantes limitadas.',
                 learn: [
-                    'Fundamentos clave de la psicología positiva y el bienestar subjetivo.',
-                    'Establecimiento de metas personales basadas en tus valores y propósito de vida.',
-                    'Desarrollo de resiliencia y mentalidad de crecimiento ante la adversidad.',
-                    'Prácticas diarias para fomentar la gratitud, la autoaceptación y el optimismo.'
+                    'Bases del neurodesarrollo y maduración de las funciones cognitivas.',
+                    'Evaluación neuropsicológica de atención, memoria, lenguaje y funciones ejecutivas.',
+                    'Perfiles neuropsicológicos del TDAH, TEA y trastornos del aprendizaje.',
+                    'Intervención neuropsicológica en el ámbito clínico y educativo.'
                 ],
                 requirements: [
-                    'Ningún conocimiento técnico previo. Ideal para toda persona en búsqueda de autodescubrimiento y crecimiento integral.'
+                    'Dirigido a psicólogos, terapeutas y profesionales de la salud y educación con interés en el neurodesarrollo infantil.'
                 ],
                 certification: [
-                    'Certificado digital de participación emitido por KJA Centro Psicológico.'
+                    'Certificado académico emitido por KJA - Centro de Capacitación y Formación Psicológica.',
+                    'Material académico incluido.',
+                    'Bono: 1 curso gratis.',
+                    '50% de descuento — vacantes limitadas, solo válido en Perú.'
                 ],
                 syllabus: [
-                    'Módulo 1: Psicología del potencial humano y resiliencia básica.',
-                    'Módulo 2: Valores personales y diseño de tu proyecto de vida.',
-                    'Módulo 3: Prácticas y hábitos diarios para cultivar el bienestar subjetivo.'
+                    'Módulo 1: Neurodesarrollo y organización cerebral de las funciones cognitivas.',
+                    'Módulo 2: Instrumentos de evaluación neuropsicológica infantil.',
+                    'Módulo 3: Perfiles clínicos de los trastornos del neurodesarrollo.',
+                    'Módulo 4: Intervención y rehabilitación neuropsicológica clínica y educativa.'
                 ],
-                related: 'Inteligencia Emocional, Taller de Manejo del Estrés',
-                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Desarrollo%20Humano%20y%20Bienestar'
+                related: 'ADOS-2 y ADI-R, WISC-V: Aplicaciones Clínicas y Neuropsicológicas',
+                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Neuropsicolog%C3%ADa%20Infantil%20-%20Psicolog%C3%ADa%20Cl%C3%ADnica%20y%20Educativa'
             },
-            'regulacion-adolescentes': {
-                title: 'Regulación Emocional para Adolescentes',
-                meta: 'Virtual · 4 horas',
-                image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&q=80&auto=format',
-                description: 'Un taller 100% interactivo diseñado para adolescentes, enfocado en brindar herramientas prácticas de autocontrol, identificación emocional y manejo de la frustración.',
+            'integracion-sensorial': {
+                title: 'Terapia e Integración Sensorial en Niños con TEA y TDAH',
+                meta: 'Curso asincrónico · 300 horas académicas',
+                image: 'images/cursos/terapia-integracion-sensorial.webp',
+                description: 'Curso asincrónico sobre el enfoque de integración sensorial: comprende cómo el procesamiento sensorial impacta en la conducta y el aprendizaje, y aprende estrategias de intervención en niños con TEA y TDAH. ¡50% de descuento!',
                 learn: [
-                    'Identificar emociones complejas (enojo, ansiedad, tristeza).',
-                    'Técnicas de respiración y relajación rápida para momentos de tensión.',
-                    'Habilidades de asertividad para comunicar lo que sienten.',
-                    'Mecanismos saludables de resolución de conflictos escolares y familiares.'
+                    'Fundamentos de la teoría de integración sensorial de Ayres.',
+                    'Detección de señales de disfunción del procesamiento sensorial.',
+                    'Elaboración del perfil sensorial del niño.',
+                    'Estrategias y actividades de intervención en niños con TEA y TDAH.'
                 ],
                 requirements: [
-                    'Dirigido a adolescentes de 12 a 17 años con interés en su crecimiento emocional.'
+                    'Dirigido a terapeutas ocupacionales, psicólogos, terapeutas de lenguaje, educadores y padres de familia.'
                 ],
                 certification: [
-                    'Certificado digital de participación emitido por KJA Centro Psicológico.'
+                    'Incluye certificado con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
+                    'Material académico incluido.',
+                    'Válido para concursos públicos y privados.',
+                    '50% de descuento — solo válido en Perú.'
                 ],
                 syllabus: [
-                    'Módulo 1: El cerebro adolescente y la respuesta ante las emociones.',
-                    'Módulo 2: Herramientas de regulación y mindfulness juvenil.',
-                    'Módulo 3: Comunicación empática con padres y pares.'
+                    'Módulo 1: Sistemas sensoriales y teoría de la integración sensorial.',
+                    'Módulo 2: Evaluación y perfil sensorial del niño.',
+                    'Módulo 3: Estrategias de intervención y dieta sensorial en TEA y TDAH.'
                 ],
-                related: 'Inteligencia Emocional, Desarrollo Humano y Bienestar',
-                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20Taller%20de%20Regulaci%C3%B3n%20Emocional%20para%20Adolescentes'
+                related: 'Terapia del Habla y del Lenguaje, ADOS-2 y ADI-R',
+                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Terapia%20e%20Integraci%C3%B3n%20Sensorial%20en%20Ni%C3%B1os%20con%20TEA%20y%20TDAH'
             },
-            'burnout-prevent': {
-                title: 'Salud Mental y Prevención del Burnout',
-                meta: 'Presencial y Virtual · 2 horas',
-                image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80&auto=format',
-                description: 'Capacitación corporativa de alto impacto para líderes y equipos de trabajo. Aprende a construir ambientes laborales saludables y prevenir el agotamiento mental.',
+            'habla-lenguaje': {
+                title: 'Terapia del Habla y del Lenguaje',
+                meta: 'Curso online · 80 horas académicas',
+                image: 'images/cursos/terapia-habla-lenguaje.webp',
+                description: 'Curso online sobre estimulación y rehabilitación del habla y del lenguaje infantil: identifica retrasos y trastornos frecuentes, y aplica estrategias de intervención efectivas desde la consulta, el hogar y el aula.',
                 learn: [
-                    'Identificar los síntomas iniciales y avanzados del burnout.',
-                    'Estrategias de contención del estrés individual y organizacional.',
-                    'Diseño de rutinas de pausas activas y desconexión digital.',
-                    'Liderazgo empático para promover la salud mental en los equipos.'
+                    'Hitos del desarrollo del lenguaje y señales de alerta por edad.',
+                    'Diferenciación entre retraso del lenguaje y trastornos fonológicos.',
+                    'Técnicas de estimulación del lenguaje comprensivo y expresivo.',
+                    'Estrategias de apoyo para padres y docentes en casa y aula.'
                 ],
                 requirements: [
-                    'Dirigido a líderes de equipos, profesionales de recursos humanos y colaboradores en general.'
+                    'Dirigido a terapeutas de lenguaje, psicólogos, educadores y padres de familia interesados en el desarrollo comunicativo infantil.'
                 ],
                 certification: [
-                    'Certificado institucional corporativo emitido por KJA para los participantes.'
+                    'Incluye certificado con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
+                    'Material académico incluido.'
                 ],
                 syllabus: [
-                    'Módulo 1: Qué es el Burnout y cómo detectarlo a tiempo.',
-                    'Módulo 2: Factores de riesgo psicosocial en el entorno de trabajo.',
-                    'Módulo 3: Plan de acción para el bienestar laboral y autocuidado.'
+                    'Módulo 1: Desarrollo típico del habla y del lenguaje.',
+                    'Módulo 2: Detección de retrasos y trastornos del habla y lenguaje.',
+                    'Módulo 3: Estrategias prácticas de estimulación e intervención.'
                 ],
-                related: 'Taller de Manejo del Estrés, Taller de Habilidades Blandas',
-                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Salud%20Mental%20y%20Burnout'
+                related: 'Terapia e Integración Sensorial en Niños con TEA y TDAH, Neuropsicología Infantil',
+                waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20taller%20de%20Terapia%20del%20Habla%20y%20del%20Lenguaje'
             }
         };
 
@@ -730,121 +755,119 @@
         // ─── CURSOS ───
         {
             tipo: 'curso',
-            modalidad: 'presencial-virtual',      // 'vivo' | 'grabado' | 'zoom' | 'presencial' | 'presencial-virtual'
-            titulo: 'Taller de Habilidades Blandas',
-            descripcion: 'Desarrolla tus competencias interpersonales: comunicación efectiva, trabajo en equipo, liderazgo y resolución de conflictos.',
-            duracion: '8 horas',
-            audiencia: 'Grupos',
-            imagen: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=500&q=80&auto=format',
-            dias: ['lun', 'mié', 'sáb'],
+            modalidad: 'zoom',                    // 'vivo' | 'grabado' | 'zoom' | 'presencial' | 'presencial-virtual'
+            titulo: 'WISC-V: Aplicaciones Clínicas y Neuropsicológicas',
+            descripcion: 'Curso online: domina la administración, calificación e interpretación clínica y neuropsicológica de la Escala de Inteligencia de Wechsler para Niños (WISC-V). Incluye material académico y certificado con QR.',
+            duracion: 'Online',
+            audiencia: 'Psicólogos y estudiantes',
+            imagen: 'images/cursos/wisc-v.webp',
+            dias: [],
             zoomUrl: '',                           // Dejar vacío si no aplica
             qrSrc: '',                             // Ruta a imagen QR o vacío
-            flyerSrc: '',                          // Ruta al flyer o vacío
-            waText: 'Hola KJA, quisiera más información sobre el Taller de Habilidades Blandas'
+            flyerSrc: 'images/cursos/wisc-v.webp', // Ruta al flyer o vacío
+            waText: 'Hola KJA, quisiera más información sobre el curso de WISC-V: Aplicaciones Clínicas y Neuropsicológicas'
         },
         {
             tipo: 'curso',
             modalidad: 'zoom',
-            titulo: 'Manejo del Estrés',
-            descripcion: 'Aprende técnicas de relajación, mindfulness y estrategias de afrontamiento para reducir el estrés en tu vida diaria y laboral.',
-            duracion: '6 horas',
-            audiencia: 'Individual / Grupos',
-            imagen: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80&auto=format',
-            dias: ['mar', 'jue'],
-            zoomUrl: '',
-            qrSrc: '',
-            flyerSrc: '',
-            waText: 'Hola KJA, quisiera más información sobre el curso de Manejo del Estrés'
-        },
-        {
-            tipo: 'curso',
-            modalidad: 'grabado',
-            titulo: 'Inteligencia Emocional',
-            descripcion: 'Aprende a identificar, comprender y gestionar tus propias emociones y las de los demás para mejorar tus relaciones y tu bienestar.',
-            duracion: '10 horas',
-            audiencia: 'Individual / Grupos',
-            imagen: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&q=80&auto=format',
+            titulo: 'Evaluaciones Psicológicas en Niños y Adolescentes',
+            descripcion: 'Curso online: aprende a seleccionar, aplicar e interpretar las principales pruebas psicométricas y proyectivas en niños y adolescentes. Incluye material académico y certificado con QR.',
+            duracion: 'Online',
+            audiencia: 'Psicólogos y estudiantes',
+            imagen: 'images/cursos/evaluaciones-psicologicas-ninos.webp',
             dias: [],
             zoomUrl: '',
             qrSrc: '',
-            flyerSrc: '',
-            waText: 'Hola KJA, quisiera más información sobre el curso de Inteligencia Emocional'
+            flyerSrc: 'images/cursos/evaluaciones-psicologicas-ninos.webp',
+            waText: 'Hola KJA, quisiera más información sobre el curso de Evaluaciones Psicológicas en Niños y Adolescentes'
+        },
+        {
+            tipo: 'curso',
+            modalidad: 'zoom',
+            titulo: 'Reclutamiento, Selección y Pruebas Psicológicas',
+            descripcion: 'Fórmate en el proceso completo de selección de personal: elaboración del perfil del puesto, reclutamiento y aplicación de pruebas de inteligencia, personalidad y habilidades.',
+            duracion: 'Online',
+            audiencia: 'Psicólogos y RR.HH.',
+            imagen: 'images/cursos/reclutamiento-seleccion.webp',
+            dias: [],
+            zoomUrl: '',
+            qrSrc: '',
+            flyerSrc: 'images/cursos/reclutamiento-seleccion.webp',
+            waText: 'Hola KJA, quisiera más información sobre el curso de Reclutamiento, Selección y Pruebas Psicológicas'
         },
 
         // ─── ESPECIALIZACIONES ───
         {
             tipo: 'especializacion',
-            modalidad: 'presencial',
-            titulo: 'Psicología Educativa para Docentes',
-            descripcion: 'Herramientas psicológicas para docentes: manejo de conductas en aula, identificación de dificultades de aprendizaje y apoyo emocional al estudiante.',
-            duracion: '12 horas',
-            audiencia: 'Grupos',
-            imagen: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=500&q=80&auto=format',
-            dias: ['lun', 'mié', 'vie'],
+            modalidad: 'vivo',
+            titulo: 'ADOS-2 y ADI-R: Evaluación y Diagnóstico de Autismo',
+            descripcion: 'Curso 100% en vivo sobre los instrumentos de referencia internacional para la evaluación y el diagnóstico del autismo: ADOS-2 y ADI-R. Incluye certificado y material académico. ¡Válido solo para Perú!',
+            duracion: 'En vivo',
+            audiencia: 'Profesionales de la salud',
+            imagen: 'images/cursos/ados2-adir.webp',
+            dias: [],
             zoomUrl: '',
             qrSrc: '',
-            flyerSrc: '',
-            waText: 'Hola KJA, quisiera más información sobre la Especialización en Psicología Educativa'
+            flyerSrc: 'images/cursos/ados2-adir.webp',
+            waText: 'Hola KJA, quisiera más información sobre el curso de ADOS-2 y ADI-R: Evaluación y Diagnóstico de Autismo'
         },
         {
             tipo: 'especializacion',
-            modalidad: 'presencial-virtual',
-            titulo: 'Escuela para Padres',
-            descripcion: 'Herramientas prácticas para criar con amor y límites: comunicación con hijos, manejo de conductas difíciles y fortalecimiento del vínculo familiar.',
-            duracion: '8 horas',
-            audiencia: 'Grupos',
-            imagen: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=500&q=80&auto=format',
-            dias: ['sáb', 'dom'],
+            modalidad: 'zoom',
+            titulo: 'Terapia Cognitivo Conductual y Terapia Racional Emotiva Conductual',
+            descripcion: 'Curso online de TCC y TREC: conceptualización de casos, reestructuración cognitiva y técnicas conductuales aplicadas. ¡50% de descuento + 1 curso grabado GRATIS (6 h.a.)! Solo válido en Perú.',
+            duracion: '300 horas',
+            audiencia: 'Psicólogos y estudiantes',
+            imagen: 'images/cursos/terapia-cognitivo-conductual.webp',
+            dias: [],
             zoomUrl: '',
             qrSrc: '',
-            flyerSrc: '',
-            waText: 'Hola KJA, quisiera más información sobre la Escuela para Padres'
+            flyerSrc: 'images/cursos/terapia-cognitivo-conductual.webp',
+            waText: 'Hola KJA, quisiera más información sobre el curso de Terapia Cognitivo Conductual y Terapia Racional Emotiva Conductual'
+        },
+        {
+            tipo: 'especializacion',
+            modalidad: 'vivo',
+            titulo: 'Neuropsicología Infantil: Psicología Clínica y Educativa',
+            descripcion: 'Clases en vivo vía Zoom: evaluación de funciones cognitivas, trastornos del neurodesarrollo e intervención clínica y educativa. ¡50% de descuento + 1 curso GRATIS! Vacantes limitadas, solo válido en Perú.',
+            duracion: '300 horas',
+            audiencia: 'Profesionales de la salud',
+            imagen: 'images/cursos/neuropsicologia-infantil.webp',
+            dias: [],
+            zoomUrl: '',
+            qrSrc: '',
+            flyerSrc: 'images/cursos/neuropsicologia-infantil.webp',
+            waText: 'Hola KJA, quisiera más información sobre el curso de Neuropsicología Infantil'
         },
 
         // ─── TALLERES ───
         {
             tipo: 'taller',
-            modalidad: 'vivo',
-            titulo: 'Desarrollo Humano y Bienestar',
-            descripcion: 'Un viaje hacia el autoconocimiento, el propósito de vida y el crecimiento personal para vivir de manera más plena y consciente.',
-            duracion: '6 horas',
-            audiencia: 'Individual / Grupos',
-            imagen: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=500&q=80&auto=format',
-            dias: ['sáb'],
+            modalidad: 'grabado',
+            titulo: 'Terapia e Integración Sensorial en Niños con TEA y TDAH',
+            descripcion: 'Curso asincrónico sobre el enfoque de integración sensorial: perfil sensorial y estrategias de intervención en niños con TEA y TDAH. ¡50% de descuento! Válido para concursos públicos y privados.',
+            duracion: '300 horas',
+            audiencia: 'Terapeutas y educadores',
+            imagen: 'images/cursos/terapia-integracion-sensorial.webp',
+            dias: [],
             zoomUrl: '',
             qrSrc: '',
-            flyerSrc: '',
-            waText: 'Hola KJA, quisiera más información sobre el Taller de Desarrollo Humano'
+            flyerSrc: 'images/cursos/terapia-integracion-sensorial.webp',
+            waText: 'Hola KJA, quisiera más información sobre el curso de Terapia e Integración Sensorial en Niños con TEA y TDAH'
         },
         {
             tipo: 'taller',
             modalidad: 'zoom',
-            titulo: 'Regulación Emocional para Adolescentes',
-            descripcion: 'Taller 100% en vivo vía Zoom donde los adolescentes aprenden técnicas prácticas para gestionar sus emociones en el día a día.',
-            duracion: '4 horas',
-            audiencia: 'Grupos (5-10 personas)',
-            imagen: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&q=80&auto=format',
-            dias: ['sáb'],
-            zoomUrl: '',
-            qrSrc: '',
-            flyerSrc: '',
-            waText: 'Hola KJA, quisiera más información sobre el Taller de Regulación Emocional'
-        },
-
-        // ─── CHARLAS Y CONFERENCIAS ───
-        {
-            tipo: 'charla',
-            modalidad: 'presencial-virtual',
-            titulo: 'Salud Mental y Prevención del Burnout',
-            descripcion: 'Capacitación corporativa para líderes y equipos. Aprende a identificar el síndrome de burnout, gestionar el estrés y construir un clima organizacional seguro que potencie el bienestar y la productividad.',
-            duracion: '2 horas',
-            audiencia: 'Empresas y Organizaciones',
-            imagen: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80&auto=format',
+            titulo: 'Terapia del Habla y del Lenguaje',
+            descripcion: 'Curso online: estrategias prácticas de estimulación y rehabilitación del habla y del lenguaje infantil, con apoyo desde casa y el aula. Incluye material académico y certificado con QR.',
+            duracion: '80 horas',
+            audiencia: 'Terapeutas y educadores',
+            imagen: 'images/cursos/terapia-habla-lenguaje.webp',
             dias: [],
             zoomUrl: '',
             qrSrc: '',
-            flyerSrc: '',
-            waText: 'Hola KJA, quisiera más información sobre el programa corporativo de Salud Mental y Burnout'
+            flyerSrc: 'images/cursos/terapia-habla-lenguaje.webp',
+            waText: 'Hola KJA, quisiera más información sobre el curso de Terapia del Habla y del Lenguaje'
         }
     ];
 
@@ -865,16 +888,6 @@
             'presencial-virtual':'<span class="curso-badge curso-badge--presencial"><span class="mh-highlight-wrap"><span class="mh-highlight-bar"></span><span class="mh-highlight-text">' + svgPresencial + ' Presencial</span></span></span><span class="curso-badge curso-badge--zoom"><span class="mh-highlight-wrap"><span class="mh-highlight-bar"></span><span class="mh-highlight-text">' + svgZoom + ' Virtual</span></span></span>'
         };
         return badges[modalidad] || '';
-    }
-
-    function getTipoLabel(tipo) {
-        var labels = {
-            'curso': 'Curso',
-            'especializacion': 'Especialización',
-            'taller': 'Taller',
-            'charla': 'Charla / Conferencia'
-        };
-        return labels[tipo] || tipo;
     }
 
     /* Chips de modalidad que flotan sobre la imagen (estilo "featured ads") */
@@ -915,7 +928,6 @@
         return '<div class="curso-card-v3" data-tipo="' + item.tipo + '">' +
             '<div class="ccv3-media">' +
                 '<img src="' + imgSrc + '" alt="' + item.titulo + '" loading="lazy" />' +
-                '<span class="ccv3-chip ccv3-chip--tipo">' + getTipoLabel(item.tipo) + '</span>' +
                 '<span class="ccv3-mods">' + getModChips(item.modalidad) + '</span>' +
             '</div>' +
             '<div class="ccv3-body">' +
@@ -938,14 +950,14 @@
 
     function getCourseIdByTitle(title) {
         var mapping = {
-            'Taller de Habilidades Blandas': 'habilidades-blandas',
-            'Manejo del Estrés': 'manejo-estres',
-            'Inteligencia Emocional': 'inteligencia-emocional',
-            'Psicología Educativa para Docentes': 'psicologia-docentes',
-            'Escuela para Padres': 'escuela-padres',
-            'Desarrollo Humano y Bienestar': 'desarrollo-humano',
-            'Regulación Emocional para Adolescentes': 'regulacion-adolescentes',
-            'Salud Mental y Prevención del Burnout': 'burnout-prevent'
+            'WISC-V: Aplicaciones Clínicas y Neuropsicológicas': 'wisc-v',
+            'Evaluaciones Psicológicas en Niños y Adolescentes': 'evaluaciones-ninos',
+            'Reclutamiento, Selección y Pruebas Psicológicas': 'reclutamiento-seleccion',
+            'ADOS-2 y ADI-R: Evaluación y Diagnóstico de Autismo': 'ados2-adir',
+            'Terapia Cognitivo Conductual y Terapia Racional Emotiva Conductual': 'terapia-cognitivo-conductual',
+            'Neuropsicología Infantil: Psicología Clínica y Educativa': 'neuropsicologia-infantil',
+            'Terapia e Integración Sensorial en Niños con TEA y TDAH': 'integracion-sensorial',
+            'Terapia del Habla y del Lenguaje': 'habla-lenguaje'
         };
         return mapping[title] || '';
     }

@@ -808,8 +808,9 @@
   .nos-hero__wave svg { height: 46px; }
 
   /* Tabs: TODAS visibles en una rejilla limpia (sin scroll).
-     2 columnas iguales; "Servicios y Comunidad" ocupa la fila completa.
-     Contenido centrado en cada píldora → se ve ordenado y profesional. */
+     Patrón simétrico con 4 pestañas: la primera y la última (textos
+     largos) ocupan la fila completa; las dos cortas comparten la fila
+     del medio → ninguna celda queda vacía ni descuadrada. */
   .nos-hero .tabs {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -827,6 +828,7 @@
     white-space: nowrap;
   }
   .nos-hero .tab svg { width: 16px; height: 16px; }
+  .nos-hero .tab:first-child,
   .nos-hero .tab:last-child { grid-column: 1 / -1; }
 
   /* Sección y separación entre bloques.
@@ -1600,6 +1602,32 @@
       rgba(0, 40, 100, 0.25) 100%);
   }
   .bento-content { padding: 24px 20px; }
+
+  /* Directores y equipo: tarjetas compactas, foto más baja y
+     especialidades como chips en fila (menos scroll, más pulido) */
+  .bento-header { margin-bottom: 32px; padding: 0 8px; }
+  .bento-subtitle { font-size: 14.5px; }
+  .director-card { border-radius: 20px; }
+  .director-img-wrap { height: 232px; }
+  .director-info { padding: 22px 20px 24px; }
+  .director-info h3 { font-size: 21px; }
+  .director-divider { margin-top: 12px; margin-bottom: 16px; }
+  .director-bio { font-size: 13.5px; margin-bottom: 18px; }
+  .director-specialties-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .director-specialties-list li {
+    border: 1px solid rgba(241, 0, 117, 0.18);
+    background: rgba(241, 0, 117, 0.04);
+    border-radius: 9999px;
+    padding: 7px 13px;
+    font-size: 12px;
+    gap: 7px;
+  }
+  .director-specialties-list li svg { width: 14px; height: 14px; }
+  .director-role { bottom: 14px; left: 14px; }
 }
 
 /* Métricas móviles: fichas 2×2 uniformes con contenido centrado

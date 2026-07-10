@@ -344,6 +344,40 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .modal-actions button{padding:10px 22px;border:none;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
 .modal-actions .m-pdf{background:var(--azul);color:#fff;} .modal-actions .m-png{background:#e8edf5;color:#0a2a5e;}
 
+/* Modal: enviar certificado por correo */
+.email-box{max-width:520px;padding:0;overflow:hidden;}
+.email-box .modal-close{background:rgba(255,255,255,.14);color:#fff;}
+.email-box .modal-close:hover{background:rgba(255,255,255,.26);}
+.em-head{display:flex;align-items:center;gap:16px;padding:24px 28px;color:#fff;position:relative;
+  background:linear-gradient(135deg,#0b2a5c,#08386f 45%,#004fb0);}
+.em-head::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 2px, transparent 2px 7px);}
+.em-head::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,#f10075,#ff4da6 40%,#0a63d4);}
+.em-seal{flex-shrink:0;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(255,255,255,.55);outline:1px solid rgba(255,255,255,.3);outline-offset:4px;color:#fff;background:rgba(255,255,255,.08);}
+.em-head-txt{position:relative;}
+.em-kicker{font-size:10.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#9db8dd;}
+.em-head-txt h3{font-size:19px;font-weight:800;margin:4px 0 3px;}
+.em-head-txt p{font-size:12.5px;color:#c3d3ea;line-height:1.45;}
+.em-body{padding:22px 28px 26px;}
+.em-cert{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:18px;}
+.em-cert-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.em-cert .dc-tipo{display:inline-block;font-size:11px;font-weight:800;color:var(--azul);background:#e8f0fb;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+.em-cert .dc-cod{font-family:monospace;font-size:12px;color:#94a3b8;background:#eef2f7;padding:4px 8px;border-radius:6px;font-weight:600;}
+.em-tit{font-size:15px;font-weight:700;color:#0f172a;line-height:1.35;}
+.em-cli{font-size:13px;color:#64748b;margin-top:6px;} .em-cli b{color:#1e293b;}
+.em-field label{display:block;font-size:12.5px;font-weight:600;color:#475569;margin-bottom:6px;}
+.em-field input{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;background:#f8fafc;transition:.2s;}
+.em-field input:focus{outline:none;background:#fff;border-color:var(--azul);box-shadow:0 0 0 4px rgba(0,79,176,.1);}
+.em-chk{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#64748b;margin-top:10px;cursor:pointer;}
+.em-chk input{accent-color:var(--azul);width:15px;height:15px;}
+.em-send{display:flex;align-items:center;justify-content:center;gap:8px;}
+/* Botón Enviar y aviso de enviado en la tarjeta del drawer */
+.dc-acc .mail{background:#dcfce7;color:#15803d;}
+.dc-sent{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:12px;font-weight:600;color:#15803d;
+  background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:4px 12px;}
+
 /* Overlay al cerrar sesión */
 .logout-overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;color:#fff;
   background:linear-gradient(135deg,rgba(8,32,75,.97),rgba(0,79,176,.97));opacity:0;visibility:hidden;transition:.3s;}

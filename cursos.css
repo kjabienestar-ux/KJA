@@ -988,7 +988,7 @@
 /* Imagen enmarcada con chips flotantes */
 .ccv3-media {
     position: relative;
-    height: 185px;
+    aspect-ratio: 2 / 1; /* misma proporción que los flyers 800×400: se ven completos sin recorte a cualquier ancho */
     border-radius: 15px;
     overflow: hidden;
 }
@@ -1077,6 +1077,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap; /* si la píldora es larga, el pie salta de línea en vez de desbordar la tarjeta */
     gap: 10px;
     border-top: 1px solid rgba(13, 38, 76, 0.08);
     padding-top: 12px;

@@ -349,6 +349,40 @@
   </div>
 </div>
 
+<!-- Modal: enviar certificado por correo -->
+<div class="modal-overlay" id="email-modal">
+  <div class="modal-box email-box">
+    <button class="modal-close" id="em-close" aria-label="Cerrar">✕</button>
+    <div class="em-head">
+      <div class="em-seal">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      </div>
+      <div class="em-head-txt">
+        <div class="em-kicker">KJA · Registro oficial</div>
+        <h3>Enviar certificado por correo</h3>
+        <p>Se enviará con el PDF adjunto y su enlace de verificación en línea.</p>
+      </div>
+    </div>
+    <div class="em-body">
+      <div class="em-cert">
+        <div class="em-cert-top"><span class="dc-tipo" id="em-tipo"></span><span class="dc-cod" id="em-cod"></span></div>
+        <div class="em-tit" id="em-tit"></div>
+        <div class="em-cli">Cliente: <b id="em-nombre"></b></div>
+      </div>
+      <div class="em-field">
+        <label for="em-email">Correo del cliente</label>
+        <input id="em-email" type="email" placeholder="cliente@correo.com" autocomplete="off">
+      </div>
+      <label class="em-chk"><input type="checkbox" id="em-guardar" checked> Recordar este correo para futuros envíos al cliente</label>
+      <div class="status" id="em-status"></div>
+      <button class="btn-primary em-send" id="em-enviar">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+        Enviar certificado
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal de Confirmación de Eliminación -->
 <div class="modal-overlay" id="confirm-modal">
   <div class="modal-box" style="max-width:380px; text-align:center; padding:32px 24px;">
@@ -894,13 +928,16 @@ function abrirDrawer(g){
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 
         ${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)}
       </div>
+      ${r.correo_enviado_at ? `<div class="dc-sent"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Enviado por correo el ${KJACert.fechaLarga(r.correo_enviado_at.split('T')[0])}</div>` : ''}
       <div class="dc-acc">
         <button class="ver"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Ver</button>
         <button class="edit"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
+        <button class="mail"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Enviar</button>
         <button class="del"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar</button>
       </div>`;
     d.querySelector('.ver').onclick=()=>verModal(r.id);
     d.querySelector('.edit').onclick=()=>{ cerrarDrawer(); editarFila(r.id); };
+    d.querySelector('.mail').onclick=()=>abrirEmailModal(r.id);
     d.querySelector('.del').onclick=()=>eliminarFila(r.id);
     cont.appendChild(d);
   });
@@ -961,6 +998,91 @@ async function verModal(id){
 }
 $('ver-close').addEventListener('click', ()=>$('ver-modal').classList.remove('open'));
 $('ver-modal').addEventListener('click', e=>{ if(e.target===$('ver-modal')) $('ver-modal').classList.remove('open'); });
+
+/* ───── ✉ ENVIAR CERTIFICADO POR CORREO ─────
+   Genera el PDF en el navegador (mismo render del certificado), lo pasa a base64
+   y lo manda a la edge function `enviar-certificado`, que lo envía por SMTP
+   desde la cuenta de Google de KJA. La clave vive como secreto del servidor. */
+let emailCertId=null;
+function emailValido(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+function emStatus(t,tipo){ const e=$('em-status'); e.textContent=t; e.className='status '+(tipo||'info'); e.style.display = t ? 'block' : 'none'; }
+
+async function abrirEmailModal(id){
+  const r=emitidos.find(x=>x.id===id); if(!r) return;
+  emailCertId=id;
+  $('em-tipo').textContent=TIPO_LBL[r.tipo]||r.tipo;
+  $('em-cod').textContent=r.codigo;
+  $('em-tit').textContent=r.titulo;
+  $('em-nombre').textContent=r.nombre;
+  $('em-email').value=''; $('em-guardar').checked=true; emStatus('');
+  $('email-modal').classList.add('open');
+  $('em-email').focus();
+  // Precarga el correo guardado del cliente (si la columna email ya existe y hay dato)
+  if(r.cliente_id){
+    try{
+      const {data}=await db.from('clientes').select('email').eq('id',r.cliente_id).single();
+      if(data && data.email && !$('em-email').value){ $('em-email').value=data.email; }
+    }catch(e){}
+  }
+}
+$('em-close').addEventListener('click', ()=>$('email-modal').classList.remove('open'));
+$('email-modal').addEventListener('click', e=>{ if(e.target===$('email-modal')) $('email-modal').classList.remove('open'); });
+$('em-email').addEventListener('keydown', e=>{ if(e.key==='Enter') $('em-enviar').click(); });
+
+/* PDF en base64 para adjuntar (JPEG q0.85: visualmente igual y mucho más liviano que PNG) */
+async function pdfBase64De(r){
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF({orientation:'landscape',unit:'px',format:[KJACert.W,KJACert.H],compress:true});
+  const c1=document.createElement('canvas'); c1.width=KJACert.W; c1.height=KJACert.H;
+  await KJACert.render(c1, rowToDatos(r));
+  pdf.addImage(c1.toDataURL('image/jpeg',0.85),'JPEG',0,0,KJACert.W,KJACert.H);
+  const tem=r.temario;
+  if(tem && tem.modulos && tem.modulos.length){
+    const c2=document.createElement('canvas'); c2.width=KJACert.W; c2.height=KJACert.H;
+    await KJACert.renderTemario(c2, tem);
+    pdf.addPage([KJACert.W,KJACert.H],'landscape');
+    pdf.addImage(c2.toDataURL('image/jpeg',0.85),'JPEG',0,0,KJACert.W,KJACert.H);
+  }
+  return pdf.output('datauristring').split(',')[1];
+}
+
+$('em-enviar').addEventListener('click', async ()=>{
+  const r=emitidos.find(x=>x.id===emailCertId); if(!r) return;
+  const para=$('em-email').value.trim();
+  if(!emailValido(para)){ emStatus('Escribe un correo válido.','error'); $('em-email').focus(); return; }
+  const btn=$('em-enviar'); btn.disabled=true;
+  try{
+    emStatus('Generando el PDF del certificado…','info');
+    const pdfBase64=await pdfBase64De(r);
+    emStatus('Enviando correo a '+para+'…','info');
+    const {data,error}=await db.functions.invoke('enviar-certificado',{body:{
+      para, nombre:r.nombre, titulo:r.titulo, codigo:r.codigo,
+      tipo:(TIPO_LBL[r.tipo]||r.tipo), pdfBase64,
+      archivo:r.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+r.nombre.replace(/\s+/g,'_')+'.pdf'
+    }});
+    if(error){
+      let msg=error.message||'No se pudo enviar';
+      try{ const j=await error.context.json(); if(j && j.error) msg=j.error; }catch(e){}
+      throw new Error(msg);
+    }
+    if(data && data.error) throw new Error(data.error);
+    // Guardar el correo del cliente y la fecha de envío (si falla, el envío igual fue exitoso)
+    try{
+      if($('em-guardar').checked && r.cliente_id) await db.from('clientes').update({email:para}).eq('id',r.cliente_id);
+      const ahora=new Date().toISOString();
+      await db.from('certificados').update({correo_enviado_at:ahora}).eq('id',r.id);
+      r.correo_enviado_at=ahora;
+    }catch(e){}
+    emStatus('✓ Correo enviado a '+para,'ok');
+    if(grupoActual){ const g=grupos.find(x=>x.key===grupoActual.key); if(g) abrirDrawer(g); }
+    setTimeout(()=>$('email-modal').classList.remove('open'), 1800);
+  }catch(err){
+    const m=String(err.message||err);
+    emStatus(/failed to send a request|not found|404/i.test(m)
+      ? 'El servicio de correo aún no está activo: falta desplegar la función y configurar la clave de Google.'
+      : 'Error al enviar: '+m, 'error');
+  }finally{ btn.disabled=false; }
+});
 
 function editarFila(id){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
