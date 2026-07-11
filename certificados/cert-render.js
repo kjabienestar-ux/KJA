@@ -310,7 +310,7 @@
 
   window.KJACert = {
     W, H, TIPOS, MESES,
-    basePath:'', verifyBase:'https://yeiserdev.github.io/KJA/certificado.html',
+    basePath:'', verifyBase:'https://www.kjadmb.com/certificado.html',
     fechaLarga, codigoDe, fechaCorta, horasTotal, render, renderTemario, exportar, exportarMulti, preloadFonts
   };
 })();

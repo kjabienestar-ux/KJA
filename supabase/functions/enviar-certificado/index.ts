@@ -11,7 +11,7 @@
 
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
-const VERIFY_BASE = "https://yeiserdev.github.io/KJA/certificado.html";
+const VERIFY_BASE = "https://www.kjadmb.com/certificado.html";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -120,15 +120,27 @@ Deno.serve(async (req) => {
       },
     });
 
+    // ⚠️ Las CABECERAS (asunto, nombre del remitente) deben ser ASCII puro:
+    // denomailer codifica mal los caracteres con tilde en cabeceras y Gmail
+    // muestra el correo entero como texto crudo (corrupto). El cuerpo HTML
+    // y el PDF adjunto sí soportan tildes sin problema.
+    const ascii = (s: string) =>
+      String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x20-\x7E]/g, "");
+
+    const asunto = ascii(`Tu ${tipo || "Certificado"} - ${titulo} | KJA`).slice(0, 120);
+
     try {
       await client.send({
-        from: `KJA Centro de Capacitación <${user}>`,
+        from: `KJA Desarrollando Mi Bienestar <${user}>`,
         to: String(para),
-        subject: `${tipo || "Certificado"} · ${titulo} — KJA`,
-        content: "auto",
+        subject: asunto,
+        content: ascii(
+          `Hola ${nombre}, adjuntamos tu ${tipo || "certificado"} "${titulo}" en PDF. ` +
+          `Codigo de verificacion: ${codigo}. Verificalo en linea: ${VERIFY_BASE}?id=${encodeURIComponent(codigo)}`
+        ),
         html: htmlCorreo({ nombre: String(nombre), titulo: String(titulo), codigo: String(codigo), tipo: String(tipo || "Certificado") }),
         attachments: [{
-          filename: String(archivo || `${codigo}.pdf`).replace(/[^\w.\-]/g, "_"),
+          filename: ascii(String(archivo || `${codigo}.pdf`)).replace(/[^\w.\-]/g, "_"),
           content: String(pdfBase64),
           encoding: "base64",
           contentType: "application/pdf",
