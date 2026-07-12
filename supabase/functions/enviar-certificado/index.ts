@@ -73,7 +73,7 @@ function htmlCorreo(d: { nombre: string; titulo: string; codigo: string; tipo: s
   const urlVerificar = `${VERIFY_BASE}?id=${encodeURIComponent(d.codigo)}`;
   const t = textosPorTipo(d.tipo);
   return `<!DOCTYPE html>
-<html lang="es"><body style="margin:0;padding:0;background:#eef1f6;font-family:Georgia,'Times New Roman',serif;">
+<html lang="es"><head><style>@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');</style></head><body style="margin:0;padding:0;background:#eef1f6;font-family:'Poppins',Arial,Helvetica,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f6;padding:32px 12px;">
 <tr><td align="center">
 <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:4px;overflow:hidden;box-shadow:0 12px 34px rgba(0,20,60,.14);border:1px solid #dfe5ee;">
@@ -82,13 +82,13 @@ function htmlCorreo(d: { nombre: string; titulo: string; codigo: string; tipo: s
   <tr><td bgcolor="#0b2a5c" style="background:linear-gradient(135deg,#0b2a5c,#08386f 45%,#004fb0);padding:34px 40px 30px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
       <td>
-        <div style="color:#9db8dd;font-size:11px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;font-family:Arial,Helvetica,sans-serif;">KJA &middot; Registro Oficial de Certificados</div>
-        <div style="color:#ffffff;font-size:26px;font-weight:bold;margin-top:8px;font-family:Georgia,serif;">${t.titular}</div>
-        <div style="color:#c3d3ea;font-size:13px;margin-top:6px;font-family:Arial,Helvetica,sans-serif;">Documento oficial con verificaci&oacute;n en l&iacute;nea</div>
+        <div style="color:#9db8dd;font-size:11px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;font-family:'Poppins',Arial,Helvetica,sans-serif;">KJA &middot; Registro Oficial de Certificados</div>
+        <div style="color:#ffffff;font-size:26px;font-weight:bold;margin-top:8px;font-family:'Poppins',Arial,Helvetica,sans-serif;">${t.titular}</div>
+        <div style="color:#c3d3ea;font-size:13px;margin-top:6px;font-family:'Poppins',Arial,Helvetica,sans-serif;">Documento oficial con verificaci&oacute;n en l&iacute;nea</div>
       </td>
       <td width="76" align="right" valign="top">
         <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-          <td align="center" width="64" height="64" style="width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,255,255,.65);box-shadow:0 0 0 4px rgba(255,255,255,.15);color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:17px;letter-spacing:1px;">KJA</td>
+          <td align="center" width="64" height="64" bgcolor="#ffffff" style="width:64px;height:64px;border-radius:50%;background:#ffffff;border:2px solid rgba(255,255,255,.65);box-shadow:0 0 0 4px rgba(255,255,255,.15);"><img src="https://www.kjadmb.com/images/logo/logo-email.png" width="40" height="38" alt="KJA" style="display:inline-block;vertical-align:middle;" /></td>
         </tr></table>
       </td>
     </tr></table>
@@ -117,12 +117,12 @@ function htmlCorreo(d: { nombre: string; titulo: string; codigo: string; tipo: s
     <!-- Documento emitido -->
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dbe3ef;border-left:4px solid #004fb0;border-radius:6px;background:#f8fafc;">
       <tr><td style="padding:20px 24px;">
-        <div style="color:#94a3b8;font-size:10.5px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;font-family:Arial,Helvetica,sans-serif;">Documento emitido</div>
-        <div style="color:#0f172a;font-size:17px;font-weight:bold;margin-top:8px;font-family:Georgia,serif;">${d.titulo}</div>
+        <div style="color:#94a3b8;font-size:10.5px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;font-family:'Poppins',Arial,Helvetica,sans-serif;">Documento emitido</div>
+        <div style="color:#0f172a;font-size:17px;font-weight:bold;margin-top:8px;font-family:'Poppins',Arial,Helvetica,sans-serif;">${d.titulo}</div>
         <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:12px;"><tr>
-          <td style="background:#e8f0fb;color:#004fb0;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:20px;font-family:Arial,Helvetica,sans-serif;">${d.tipo}</td>
+          <td style="background:#e8f0fb;color:#004fb0;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:20px;font-family:'Poppins',Arial,Helvetica,sans-serif;">${d.tipo}</td>
           <td width="10"></td>
-          <td style="color:#64748b;font-size:12.5px;font-family:Arial,Helvetica,sans-serif;">C&oacute;digo de verificaci&oacute;n:
+          <td style="color:#64748b;font-size:12.5px;font-family:'Poppins',Arial,Helvetica,sans-serif;">C&oacute;digo de verificaci&oacute;n:
             <span style="font-family:Courier,monospace;background:#eef2f7;border:1px solid #dbe3ef;padding:2px 9px;border-radius:4px;color:#0b2a5c;font-weight:bold;">${d.codigo}</span>
           </td>
         </tr></table>
@@ -132,10 +132,10 @@ function htmlCorreo(d: { nombre: string; titulo: string; codigo: string; tipo: s
     <!-- Botón de verificación -->
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:26px auto 6px;"><tr>
       <td bgcolor="#004fb0" style="border-radius:6px;">
-        <a href="${urlVerificar}" style="display:inline-block;padding:13px 34px;color:#ffffff;font-size:13.5px;font-weight:bold;text-decoration:none;font-family:Arial,Helvetica,sans-serif;letter-spacing:.4px;">VERIFICAR AUTENTICIDAD EN L&Iacute;NEA</a>
+        <a href="${urlVerificar}" style="display:inline-block;padding:13px 34px;color:#ffffff;font-size:13.5px;font-weight:bold;text-decoration:none;font-family:'Poppins',Arial,Helvetica,sans-serif;letter-spacing:.4px;">VERIFICAR AUTENTICIDAD EN L&Iacute;NEA</a>
       </td>
     </tr></table>
-    <p style="margin:6px 0 26px;color:#94a3b8;font-size:12px;text-align:center;line-height:1.6;font-family:Arial,Helvetica,sans-serif;">
+    <p style="margin:6px 0 26px;color:#94a3b8;font-size:12px;text-align:center;line-height:1.6;font-family:'Poppins',Arial,Helvetica,sans-serif;">
       Este documento cuenta con c&oacute;digo QR y registro oficial KJA.<br>Cualquier persona puede validar su autenticidad desde el enlace de arriba.
     </p>
 
@@ -147,14 +147,14 @@ function htmlCorreo(d: { nombre: string; titulo: string; codigo: string; tipo: s
 
     <p style="margin:0 0 2px;color:#0f172a;font-size:14.5px;">Atentamente,</p>
     <p style="margin:0;color:#0b2a5c;font-size:15px;font-weight:bold;">Equipo de KJA Desarrollando Mi Bienestar</p>
-    <p style="margin:2px 0 34px;color:#64748b;font-size:12.5px;font-family:Arial,Helvetica,sans-serif;">Centro de Capacitaci&oacute;n y Formaci&oacute;n Psicol&oacute;gica</p>
+    <p style="margin:2px 0 34px;color:#64748b;font-size:12.5px;font-family:'Poppins',Arial,Helvetica,sans-serif;">Centro de Capacitaci&oacute;n y Formaci&oacute;n Psicol&oacute;gica</p>
   </td></tr>
 
   <!-- Pie -->
   <tr><td height="3" style="height:3px;line-height:3px;font-size:0;background:linear-gradient(90deg,#f10075,#ff4da6 40%,#0a63d4);" bgcolor="#0a63d4">&nbsp;</td></tr>
   <tr><td bgcolor="#0b2a5c" style="padding:20px 40px;">
-    <div style="color:#ffffff;font-size:13px;font-weight:bold;font-family:Arial,Helvetica,sans-serif;">KJA &middot; Desarrollando Mi Bienestar</div>
-    <div style="color:#9db8dd;font-size:12px;margin-top:4px;font-family:Arial,Helvetica,sans-serif;">Jr. R&iacute;o Amazonas 214, San Luis, Lima &middot; WhatsApp 988 918 238 &middot; kjabienestar@escuelakja.net</div>
+    <div style="color:#ffffff;font-size:13px;font-weight:bold;font-family:'Poppins',Arial,Helvetica,sans-serif;">KJA &middot; Desarrollando Mi Bienestar</div>
+    <div style="color:#9db8dd;font-size:12px;margin-top:4px;font-family:'Poppins',Arial,Helvetica,sans-serif;">Jr. R&iacute;o Amazonas 214, San Luis, Lima &middot; WhatsApp 988 918 238 &middot; kjabienestar@escuelakja.net</div>
   </td></tr>
 </table>
 </td></tr>

@@ -376,9 +376,16 @@
       <label class="em-chk"><input type="checkbox" id="em-guardar" checked> Recordar este correo para futuros envíos al cliente</label>
       <div class="status" id="em-status"></div>
       <button class="btn-primary em-send" id="em-enviar">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
-        Enviar certificado
+        <span class="em-spin" aria-hidden="true"></span>
+        <svg class="em-send-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+        <span id="em-send-txt">Enviar certificado</span>
       </button>
+    </div>
+    <!-- Éxito: check animado a pantalla completa del modal -->
+    <div class="em-exito" id="em-exito" aria-live="polite">
+      <svg viewBox="0 0 52 52" aria-hidden="true"><circle class="ex-circ" cx="26" cy="26" r="24"/><path class="ex-check" d="M14 27l8 8 16-17"/></svg>
+      <div class="ex-tit">¡Correo enviado!</div>
+      <div class="ex-sub" id="em-exito-sub"></div>
     </div>
   </div>
 </div>
@@ -1015,6 +1022,7 @@ async function abrirEmailModal(id){
   $('em-tit').textContent=r.titulo;
   $('em-nombre').textContent=r.nombre;
   $('em-email').value=''; $('em-guardar').checked=true; emStatus('');
+  $('em-exito').classList.remove('show');
   $('email-modal').classList.add('open');
   $('em-email').focus();
   // Precarga el correo guardado del cliente (si la columna email ya existe y hay dato)
@@ -1050,11 +1058,11 @@ $('em-enviar').addEventListener('click', async ()=>{
   const r=emitidos.find(x=>x.id===emailCertId); if(!r) return;
   const para=$('em-email').value.trim();
   if(!emailValido(para)){ emStatus('Escribe un correo válido.','error'); $('em-email').focus(); return; }
-  const btn=$('em-enviar'); btn.disabled=true;
+  const btn=$('em-enviar'); btn.disabled=true; btn.classList.add('sending'); emStatus('');
   try{
-    emStatus('Generando el PDF del certificado…','info');
+    $('em-send-txt').textContent='Generando el PDF…';
     const pdfBase64=await pdfBase64De(r);
-    emStatus('Enviando correo a '+para+'…','info');
+    $('em-send-txt').textContent='Enviando correo…';
     const {data,error}=await db.functions.invoke('enviar-certificado',{body:{
       para, nombre:r.nombre, titulo:r.titulo, codigo:r.codigo,
       tipo:(TIPO_LBL[r.tipo]||r.tipo), pdfBase64,
@@ -1073,15 +1081,20 @@ $('em-enviar').addEventListener('click', async ()=>{
       await db.from('certificados').update({correo_enviado_at:ahora}).eq('id',r.id);
       r.correo_enviado_at=ahora;
     }catch(e){}
-    emStatus('✓ Correo enviado a '+para,'ok');
+    // Éxito: check animado y cierre suave
+    $('em-exito-sub').textContent='El certificado llegó a '+para;
+    $('em-exito').classList.add('show');
     if(grupoActual){ const g=grupos.find(x=>x.key===grupoActual.key); if(g) abrirDrawer(g); }
-    setTimeout(()=>$('email-modal').classList.remove('open'), 1800);
+    setTimeout(()=>{
+      $('email-modal').classList.remove('open');
+      setTimeout(()=>$('em-exito').classList.remove('show'), 300);
+    }, 2400);
   }catch(err){
     const m=String(err.message||err);
     emStatus(/failed to send a request|not found|404/i.test(m)
       ? 'El servicio de correo aún no está activo: falta desplegar la función y configurar la clave de Google.'
       : 'Error al enviar: '+m, 'error');
-  }finally{ btn.disabled=false; }
+  }finally{ btn.disabled=false; btn.classList.remove('sending'); $('em-send-txt').textContent='Enviar certificado'; }
 });
 
 function editarFila(id){
