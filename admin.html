@@ -89,6 +89,7 @@
     <nav class="side">
       <button data-view="gen" class="active">Generar certificado</button>
       <button data-view="emit">Certificados emitidos</button>
+      <button data-view="com">Comentarios <span class="com-pend" id="com-pend" style="display:none;">0</span></button>
     </nav>
     <div class="content">
 
@@ -304,6 +305,20 @@
         </aside>
       </div>
 
+      <!-- VIEW: COMENTARIOS -->
+      <div class="view com" id="view-com">
+        <div class="emit-main" style="max-width:860px;margin:0 auto;">
+          <div class="emit-head">
+            <h2>Comentarios de la web</h2>
+            <div class="sub">Los comentarios solo se publican en la página cuando los apruebas aquí.</div>
+          </div>
+          <h3 class="com-sec">Pendientes de revisión</h3>
+          <div id="com-pendientes"><div class="empty">Cargando…</div></div>
+          <h3 class="com-sec">Publicados</h3>
+          <div id="com-publicados"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -414,7 +429,7 @@ const $=id=>document.getElementById(id);
 const TIPO_LBL={taller:'Taller',curso:'Curso',especializacion:'Especialización',constancia:'Constancia'};
 
 /* ───── LOGIN ───── */
-function mostrarDash(email){ $('login-wrap').style.display='none'; $('dash').style.display='block'; $('who').textContent=email; cargarClientes(); dibujar(); }
+function mostrarDash(email){ $('login-wrap').style.display='none'; $('dash').style.display='block'; $('who').textContent=email; cargarClientes(); cargarComentarios(); dibujar(); }
 function mostrarLogin(){ $('dash').style.display='none'; $('login-wrap').style.display='flex'; }
 function loginMsg(t,tipo){ const e=$('login-msg'); e.textContent=t; e.className='msg '+(tipo||'error'); if(!t)e.style.display='none'; }
 
@@ -504,7 +519,9 @@ document.querySelectorAll('.side button').forEach(b=>{
     const v=b.dataset.view;
     $('view-gen').classList.toggle('active', v==='gen');
     $('view-emit').classList.toggle('active', v==='emit');
+    $('view-com').classList.toggle('active', v==='com');
     if(v==='emit') cargarEmitidos();
+    if(v==='com') cargarComentarios();
   });
 });
 function irA(v){ document.querySelector(`.side button[data-view="${v}"]`).click(); }
@@ -1147,6 +1164,48 @@ $('filtro').addEventListener('input',e=>{
   const t=e.target.value.toLowerCase();
   pintarClientes(grupos.filter(g=>(g.nombre+' '+(g.dni||'')).toLowerCase().includes(t)));
 });
+
+/* ───── 💬 COMENTARIOS DE LA WEB (moderación) ─────
+   Los visitantes escriben desde index.html (entran con aprobado=false);
+   aquí se aprueban para que aparezcan en la sección de testimonios. */
+function comFecha(iso){ const d=new Date(iso); return d.toLocaleDateString('es-PE',{day:'numeric',month:'long',year:'numeric'}); }
+function comCard(c, pendiente){
+  const est='★'.repeat(c.estrellas)+'☆'.repeat(5-c.estrellas);
+  return `<div class="com-card" data-id="${c.id}">
+    <div class="com-top">
+      <span class="com-nombre">${c.nombre.replace(/</g,'&lt;')}</span>
+      <span class="com-est">${est}</span>
+    </div>
+    <p class="com-msg">${c.mensaje.replace(/</g,'&lt;')}</p>
+    <div class="com-foot">
+      <span class="com-fecha">${comFecha(c.created_at)}</span>
+      <div class="com-btns">
+        ${pendiente
+          ? `<button class="com-ok">✓ Aprobar</button><button class="com-del">Descartar</button>`
+          : `<button class="com-hide">Ocultar</button><button class="com-del">Eliminar</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+async function cargarComentarios(){
+  const {data,error}=await db.from('comentarios').select('*').order('created_at',{ascending:false});
+  if(error){ $('com-pendientes').innerHTML='<div class="empty">Error: '+error.message+'</div>'; return; }
+  const pend=(data||[]).filter(c=>!c.aprobado), pub=(data||[]).filter(c=>c.aprobado);
+  const badge=$('com-pend');
+  badge.textContent=pend.length; badge.style.display=pend.length?'inline-flex':'none';
+  $('com-pendientes').innerHTML = pend.length ? pend.map(c=>comCard(c,true)).join('') : '<div class="empty">No hay comentarios pendientes.</div>';
+  $('com-publicados').innerHTML = pub.length ? pub.map(c=>comCard(c,false)).join('') : '<div class="empty">Aún no hay comentarios publicados.</div>';
+  document.querySelectorAll('#view-com .com-card').forEach(card=>{
+    const id=card.dataset.id;
+    const ok=card.querySelector('.com-ok');
+    const hide=card.querySelector('.com-hide');
+    const del=card.querySelector('.com-del');
+    if(ok) ok.onclick=async()=>{ await db.from('comentarios').update({aprobado:true}).eq('id',id); cargarComentarios(); };
+    if(hide) hide.onclick=async()=>{ await db.from('comentarios').update({aprobado:false}).eq('id',id); cargarComentarios(); };
+    if(del) del.onclick=async()=>{ if(!confirm('¿Eliminar este comentario definitivamente?')) return;
+      await db.from('comentarios').delete().eq('id',id); cargarComentarios(); };
+  });
+}
 
 /* ───── INICIO ───── */
 (async ()=>{

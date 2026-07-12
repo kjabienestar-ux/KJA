@@ -634,8 +634,159 @@
 
                     // El marquee anima translateX(-50%), por eso el set se duplica una vez (los clones van ocultos para lectores de pantalla).
                     const track = document.getElementById('commitmentTrack');
-                    track.innerHTML = TESTIMONIOS.map(function (t) { return cardHTML(t, false); }).join('') +
-                        TESTIMONIOS.map(function (t) { return cardHTML(t, true); }).join('');
+                    function pintarMarquee(extraHTML) {
+                        const set = (extraHTML || '') + TESTIMONIOS.map(function (t) { return cardHTML(t, false); }).join('');
+                        const clones = set.replace(/<article /g, '<article aria-hidden="true" ');
+                        track.innerHTML = set + clones;
+                    }
+                    pintarMarquee('');
+                    // Los comentarios aprobados de la web se suman al carrusel (ver script de comentarios).
+                    window.__kjaMarquee = { pintar: pintarMarquee };
+                })();
+            </script>
+
+            <!-- ── Deja tu comentario (entra a moderación antes de publicarse) ── -->
+            <style>
+                .kja-com-box{max-width:620px;margin:34px auto 6px;background:#fff;border:1px solid #e6ebf6;border-radius:20px;
+                    box-shadow:0 14px 40px rgba(0,30,80,.08);padding:28px 28px 24px;position:relative;overflow:hidden;}
+                .kja-com-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+                    background:linear-gradient(90deg,#f10075,#ff4da6 40%,#0a63d4);}
+                .kja-com-box h3{font-size:20px;font-weight:800;color:#0d264c;margin-bottom:4px;text-align:center;}
+                .kja-com-box .sub{font-size:13px;color:#64748b;text-align:center;margin-bottom:18px;}
+                .kja-com-box label{display:block;font-size:12.5px;font-weight:600;color:#475569;margin:12px 0 6px;}
+                .kja-com-box input[type=text],.kja-com-box textarea{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;
+                    border-radius:11px;font-size:14px;font-family:inherit;background:#f8fafc;transition:.2s;}
+                .kja-com-box input:focus,.kja-com-box textarea:focus{outline:none;background:#fff;border-color:#004fb0;
+                    box-shadow:0 0 0 4px rgba(0,79,176,.1);}
+                .kja-com-box textarea{min-height:96px;resize:vertical;}
+                .kja-est{display:flex;gap:6px;}
+                .kja-est button{background:none;border:none;font-size:26px;line-height:1;cursor:pointer;color:#cbd5e1;transition:.15s;padding:0 2px;}
+                .kja-est button.on{color:#f59e0b;}
+                .kja-est button:hover{transform:scale(1.15);}
+                .kja-com-send{width:100%;margin-top:16px;padding:13px;border:none;border-radius:11px;background:#f10075;color:#fff;
+                    font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;}
+                .kja-com-send:hover{background:#d10065;transform:translateY(-2px);box-shadow:0 6px 18px rgba(241,0,117,.3);}
+                .kja-com-send:disabled{opacity:.6;transform:none;box-shadow:none;cursor:default;}
+                .kja-com-msg{display:none;margin-top:12px;padding:10px 13px;border-radius:9px;font-size:13px;}
+                .kja-com-msg.ok{display:block;background:#dcfce7;color:#166534;}
+                .kja-com-msg.error{display:block;background:#fee2e2;color:#b91c1c;}
+                .kja-com-nota{font-size:11.5px;color:#94a3b8;text-align:center;margin-top:10px;}
+                .kja-hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;}
+            </style>
+            <form class="kja-com-box" id="kja-com-form" autocomplete="off">
+                <h3>Déjanos tu comentario</h3>
+                <p class="sub">Cuéntanos cómo fue tu experiencia con KJA.</p>
+                <label for="kja-com-nombre">Tu nombre</label>
+                <input type="text" id="kja-com-nombre" maxlength="60" placeholder="Nombre y apellido" required>
+                <label>Tu calificación</label>
+                <div class="kja-est" id="kja-est" role="radiogroup" aria-label="Calificación de 1 a 5 estrellas">
+                    <button type="button" data-v="1" aria-label="1 estrella">★</button>
+                    <button type="button" data-v="2" aria-label="2 estrellas">★</button>
+                    <button type="button" data-v="3" aria-label="3 estrellas">★</button>
+                    <button type="button" data-v="4" aria-label="4 estrellas">★</button>
+                    <button type="button" data-v="5" aria-label="5 estrellas">★</button>
+                </div>
+                <label for="kja-com-texto">Tu comentario</label>
+                <textarea id="kja-com-texto" maxlength="500" placeholder="Escribe tu experiencia (mínimo 10 caracteres)…" required></textarea>
+                <!-- honeypot anti-spam: los humanos no lo ven; si un bot lo llena, se ignora el envío -->
+                <input type="text" class="kja-hp" id="kja-com-web" tabindex="-1" aria-hidden="true">
+                <div class="kja-com-msg" id="kja-com-msg"></div>
+                <button type="submit" class="kja-com-send" id="kja-com-send">Enviar comentario</button>
+                <p class="kja-com-nota">Tu comentario se publicará después de ser revisado por nuestro equipo.</p>
+            </form>
+
+            <script>
+                // Comentarios de la web: guardar (con moderación) y mostrar los aprobados en el carrusel.
+                (function () {
+                    const SB_URL = 'https://xadxmfgdxwplmhijagix.supabase.co';
+                    const SB_KEY = 'sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub';
+                    const HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+
+                    /* ── estrellas ── */
+                    let estrellas = 5;
+                    const botones = Array.from(document.querySelectorAll('#kja-est button'));
+                    function pintarEstrellas() { botones.forEach(function (b) { b.classList.toggle('on', +b.dataset.v <= estrellas); }); }
+                    botones.forEach(function (b) { b.addEventListener('click', function () { estrellas = +b.dataset.v; pintarEstrellas(); }); });
+                    pintarEstrellas();
+
+                    /* ── avatar con inicial (SVG inline, sin depender de fotos) ── */
+                    function avatarDe(nombre) {
+                        const ini = (nombre.trim()[0] || 'K').toUpperCase();
+                        const colores = ['#004fb0', '#f10075', '#0a63d4', '#b1005c'];
+                        const c = colores[nombre.length % colores.length];
+                        return 'data:image/svg+xml;utf8,' + encodeURIComponent(
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" rx="40" fill="' + c + '"/>' +
+                            '<text x="40" y="52" font-family="Arial" font-size="34" font-weight="bold" fill="#fff" text-anchor="middle">' + ini + '</text></svg>');
+                    }
+                    function tiempoDe(iso) {
+                        const dias = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
+                        if (dias < 1) return 'hoy';
+                        if (dias < 7) return 'hace ' + dias + (dias === 1 ? ' día' : ' días');
+                        if (dias < 30) { const s = Math.floor(dias / 7); return 'hace ' + s + (s === 1 ? ' semana' : ' semanas'); }
+                        const m = Math.floor(dias / 30); return 'hace ' + m + (m === 1 ? ' mes' : ' meses');
+                    }
+                    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+                    function cardWeb(c) {
+                        return '<article class="commitment-card fb-post">' +
+                            '<div class="fb-post__bar" style="background:linear-gradient(90deg,#0b2a5c,#004fb0);">' +
+                                '<img src="images/logo/logo-email.png" alt="" style="width:18px;height:17px;">' +
+                                '<span class="fb-post__bar-name">KJA · Web</span>' +
+                                '<span class="fb-post__bar-tag">Comentario verificado</span>' +
+                            '</div>' +
+                            '<div class="fb-post__body">' +
+                                '<div class="fb-post__user">' +
+                                    '<img class="fb-post__avatar" src="' + avatarDe(c.nombre) + '" alt="' + esc(c.nombre) + '" loading="lazy">' +
+                                    '<div>' +
+                                        '<div class="fb-post__name">' + esc(c.nombre) + '</div>' +
+                                        '<div class="fb-post__meta">comentó en <strong>kjadmb.com</strong></div>' +
+                                        '<div class="fb-post__time"><span>' + tiempoDe(c.created_at) + '</span></div>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="fb-post__stars">' + '★'.repeat(c.estrellas) + '☆'.repeat(5 - c.estrellas) + '</div>' +
+                                '<p class="fb-post__text">' + esc(c.mensaje) + '</p>' +
+                            '</div>' +
+                        '</article>';
+                    }
+
+                    /* ── cargar aprobados y sumarlos al carrusel ── */
+                    fetch(SB_URL + '/rest/v1/rpc/comentarios_aprobados', { method: 'POST', headers: HDR, body: '{}' })
+                        .then(function (r) { return r.ok ? r.json() : []; })
+                        .then(function (lista) {
+                            if (Array.isArray(lista) && lista.length && window.__kjaMarquee) {
+                                window.__kjaMarquee.pintar(lista.map(cardWeb).join(''));
+                            }
+                        }).catch(function () { /* sin conexión: el carrusel queda con los testimonios base */ });
+
+                    /* ── envío del formulario ── */
+                    const form = document.getElementById('kja-com-form');
+                    const msg = document.getElementById('kja-com-msg');
+                    const btn = document.getElementById('kja-com-send');
+                    function aviso(t, tipo) { msg.textContent = t; msg.className = 'kja-com-msg ' + tipo; }
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        const nombre = document.getElementById('kja-com-nombre').value.trim();
+                        const mensaje = document.getElementById('kja-com-texto').value.trim();
+                        if (document.getElementById('kja-com-web').value) { aviso('¡Gracias por tu comentario!', 'ok'); form.reset(); return; } // honeypot
+                        if (nombre.length < 2) { aviso('Escribe tu nombre.', 'error'); return; }
+                        if (mensaje.length < 10) { aviso('Tu comentario debe tener al menos 10 caracteres.', 'error'); return; }
+                        if (localStorage.getItem('kjaComEnviado') === new Date().toDateString()) {
+                            aviso('Ya nos dejaste un comentario hoy. ¡Gracias!', 'ok'); return;
+                        }
+                        btn.disabled = true; btn.textContent = 'Enviando…';
+                        fetch(SB_URL + '/rest/v1/comentarios', {
+                            method: 'POST', headers: Object.assign({ 'Prefer': 'return=minimal' }, HDR),
+                            body: JSON.stringify({ nombre: nombre, mensaje: mensaje, estrellas: estrellas })
+                        }).then(function (r) {
+                            if (!r.ok) throw new Error('No se pudo enviar');
+                            localStorage.setItem('kjaComEnviado', new Date().toDateString());
+                            aviso('¡Gracias! Tu comentario fue recibido y se publicará después de ser revisado por nuestro equipo.', 'ok');
+                            form.reset(); estrellas = 5; pintarEstrellas();
+                        }).catch(function () {
+                            aviso('No se pudo enviar el comentario. Inténtalo de nuevo en unos minutos.', 'error');
+                        }).finally(function () {
+                            btn.disabled = false; btn.textContent = 'Enviar comentario';
+                        });
+                    });
                 })();
             </script>
         </div>
