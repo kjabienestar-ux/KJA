@@ -797,39 +797,32 @@
         }
 
         /* ===== COMMITMENT TRACK (marquee) ===== */
+        /* Carrusel: avanza solo, pero se puede agarrar y arrastrar con el mouse (JS) */
         .commitment-marquee-container {
             width: 100%;
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
             position: relative;
+            cursor: grab;
             /* Fades on the edges for smoother entry/exit */
-            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+            scrollbar-width: none;              /* Firefox */
+            -ms-overflow-style: none;
         }
+        .commitment-marquee-container::-webkit-scrollbar { display: none; }
+        .commitment-marquee-container.dragging { cursor: grabbing; }
 
         .commitment-track {
             display: flex;
             width: max-content;
-            animation: marquee-scroll 45s linear infinite;
-        }
-
-        .commitment-track:hover {
-            animation-play-state: paused;
         }
 
         .commitment-track > article {
-            width: 320px; /* Fija un ancho estándar para las tarjetas */
+            width: 360px; /* Fija un ancho estándar para las tarjetas */
             flex-shrink: 0;
             margin-right: 1.5rem;
             white-space: normal;
-        }
-
-        @keyframes marquee-scroll {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%); /* Moves exactly half the width (which is one full set of duplicated items) */
-            }
         }
 
         /* ===== FACEBOOK TESTIMONIAL CARDS (renderizadas por JS en #commitmentTrack) ===== */
@@ -838,38 +831,42 @@
             overflow: hidden;
             background: #fff;
             border: 1px solid #e4e6ea;
-            border-radius: 12px;
+            border-radius: 16px;
         }
 
         .fb-post__bar {
-            background: #1877f2;
-            padding: 0.45rem 0.75rem;
+            background: #fff;
+            padding: 1.25rem 1.25rem 0.5rem 1.25rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .fb-post__bar svg {
-            width: 14px;
-            height: 14px;
+            width: 22px;
+            height: 22px;
             flex-shrink: 0;
         }
 
         .fb-post__bar-name {
-            font-size: 0.6rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            color: #fff;
-            letter-spacing: 0.04em;
+            color: #1877f2;
+            letter-spacing: 0;
         }
 
         .fb-post__bar-tag {
-            font-size: 0.55rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1877f2;
+            background: #eef2fa;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
             margin-left: auto;
         }
 
         .fb-post__body {
-            padding: 0.9rem 1rem;
+            padding: 0.5rem 1.25rem 1.25rem 1.25rem;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -878,28 +875,29 @@
         .fb-post__user {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 0.6rem;
+            gap: 12px;
+            margin-bottom: 0.8rem;
         }
 
         .fb-post__avatar {
-            width: 36px;
-            height: 36px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             object-fit: cover;
             flex-shrink: 0;
-            border: 2px solid #1877f2;
+            border: 3px solid #1877f2;
         }
 
         .fb-post__name {
-            font-size: 0.78rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: #050505;
             line-height: 1.2;
+            margin-bottom: 2px;
         }
 
         .fb-post__meta {
-            font-size: 0.62rem;
+            font-size: 0.75rem;
             color: #65676b;
             line-height: 1.4;
         }
@@ -909,30 +907,31 @@
         }
 
         .fb-post__time {
-            font-size: 0.62rem;
+            font-size: 0.75rem;
             color: #65676b;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
+            margin-top: 2px;
         }
 
         .fb-post__time svg {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
         }
 
         .fb-post__stars {
-            font-size: 0.85rem;
+            font-size: 1.1rem;
             color: #f59e0b;
-            margin-bottom: 0.5rem;
-            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+            letter-spacing: 2px;
         }
 
         .fb-post__text {
-            font-size: 0.76rem;
+            font-size: 0.95rem;
             color: #1c1e21;
-            line-height: 1.55;
-            margin-bottom: 0.75rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
             flex: 1;
         }
 
@@ -941,7 +940,7 @@
             align-items: center;
             justify-content: space-between;
             border-top: 1px solid #e4e6ea;
-            padding-top: 0.6rem;
+            padding-top: 0.8rem;
             margin-top: auto;
         }
 
@@ -952,8 +951,8 @@
         }
 
         .fb-post__badge {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -971,20 +970,52 @@
         }
 
         .fb-post__badge svg {
-            width: 9px;
-            height: 9px;
+            width: 10px;
+            height: 10px;
         }
 
         .fb-post__count {
-            font-size: 0.6rem;
+            font-size: 0.75rem;
             color: #65676b;
-            margin-left: 2px;
+            margin-left: 4px;
         }
 
         .fb-post__comments {
-            font-size: 0.6rem;
+            font-size: 0.75rem;
             color: #65676b;
         }
+
+        /* Reacciones interactivas de los comentarios web (Me gusta / Me encanta / Me divierte) */
+        .wr-bar {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+        .wr-btn {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: 1px solid #e4e6ea;
+            background: #f7f8fa;
+            border-radius: 20px;
+            padding: 7px 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            color: #65676b;
+            transition: background .15s, border-color .15s, color .15s, transform .15s;
+        }
+        .wr-btn:hover { background: #eef0f3; transform: translateY(-1px); }
+        .wr-btn .wr-emo { font-size: 1rem; line-height: 1; }
+        .wr-btn .wr-n { font-weight: 700; color: #1c1e21; }
+        .wr-btn.reacted .wr-n,
+        .wr-btn.reacted { font-weight: 700; }
+        .wr-btn.reacted.wr-like { background: #e7f0ff; border-color: #1877f2; color: #1877f2; }
+        .wr-btn.reacted.wr-love { background: #ffeaf0; border-color: #f33e58; color: #f33e58; }
+        .wr-btn.reacted.wr-haha { background: #fff6e0; border-color: #f5a623; color: #b8860b; }
+        .wr-btn.reacted .wr-n { color: inherit; }
 
 
         /* ===== STAT PULSE ===== */

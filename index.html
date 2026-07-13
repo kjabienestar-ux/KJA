@@ -72,7 +72,7 @@
     <!-- Tailwind compilado estático (solo clases usadas) -->
     <link rel="stylesheet" href="tailwind.css?v=1">
     <link rel="stylesheet" href="accessibility.css">
-    <link rel="stylesheet" href="index.css?v=2">
+    <link rel="stylesheet" href="index.css?v=3">
     <!-- GSAP & ScrollTrigger -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -589,16 +589,10 @@
                         { name: 'Ana Suárez', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=80&auto=format', time: 'hace 2 meses', likes: 156, comments: 24, text: 'Llevo 3 meses de terapia de pareja y nuestra comunicación ha mejorado muchísimo. La psicóloga es muy empática y profesional.' },
                         { name: 'Jorge Luis', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80&auto=format', time: 'hace 2 semanas', likes: 67, comments: 5, text: 'Llegué con mucha ansiedad y me dieron herramientas desde la primera sesión. Siento un gran alivio y avance.' },
                         { name: 'Valeria Gómez', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80&auto=format', time: 'hace 1 semana', likes: 112, comments: 15, text: 'El trato infantil es inmejorable. Mi pequeña va feliz a sus citas y hemos visto grandes mejoras en el colegio.' },
-                        { name: 'Roberto Dávila', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80&auto=format', time: 'hace 4 días', likes: 204, comments: 31, text: 'Participé en su programa de formación en psicoterapia. Contenido muy actualizado y enfocado en la práctica real.' },
-                        { name: 'Carmen Torres', avatar: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=80&q=80&auto=format', time: 'hace 3 meses', likes: 88, comments: 9, text: 'Llevaba años buscando un buen enfoque de Terapia Cognitivo-Conductual y por fin encontré a verdaderos profesionales aquí.' },
-                        { name: 'Luis Fernando', avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=80&q=80&auto=format', time: 'hace 2 meses', likes: 53, comments: 4, text: 'Las sesiones virtuales funcionan de maravilla. Me ahorro el tráfico y la calidad de la terapia no disminuye para nada.' },
-                        { name: 'Marta Ríos', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&q=80&auto=format', time: 'hace 5 meses', likes: 134, comments: 19, text: 'Excelente ética profesional y un ambiente sumamente seguro para poder hablar de cosas muy personales.' },
-                        { name: 'Diego Castro', avatar: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&q=80&auto=format', time: 'hace 1 mes', likes: 215, comments: 42, text: 'Tomé el diplomado de psicología clínica y superó mis expectativas. Material muy completo y asesoría constante.' },
-                        { name: 'Sandra Vargas', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80&auto=format', time: 'hace 2 semanas', likes: 94, comments: 11, text: 'El mejor centro de capacitación. Destaco mucho la paciencia de los docentes para absolver todas nuestras dudas.' },
-                        { name: 'Javier Huamán', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&q=80&auto=format', time: 'hace 6 meses', likes: 187, comments: 28, text: 'Su terapia sistémica nos salvó como familia. Gracias a la Dra. por guiarnos en el proceso de reconstruir nuestros vínculos.' }
+                        { name: 'Roberto Dávila', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80&auto=format', time: 'hace 4 días', likes: 204, comments: 31, text: 'Participé en su programa de formación en psicoterapia. Contenido muy actualizado y enfocado en la práctica real.' }
                     ];
 
-                    const ICON_FB = '<svg viewBox="0 0 24 24" fill="white"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z"/></svg>';
+                    const ICON_FB = '<svg viewBox="0 0 24 24" fill="#1877f2"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z"/></svg>';
                     const ICON_CLOCK = '<svg viewBox="0 0 16 16" fill="#65676b"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zm.75-8.25H7.25v4.5l3.5 2.1.75-1.23-3-1.77V5.25z"/></svg>';
                     const ICON_LIKE = '<svg viewBox="0 0 16 16" fill="white"><path d="M14.6 6.3c-.2-.3-.5-.4-.8-.4h-3.4l.5-2.4c0-.1 0-.2-.1-.4-.1-.2-.2-.4-.4-.5-.2-.1-.5-.2-.8-.2-.3 0-.6.1-.8.3L5.4 6H2C1.4 6 1 6.4 1 7v7c0 .6.4 1 1 1h3.3c.3.5.7.8 1.2.9 1 .2 2 .2 3 .2h1.5c.8 0 1.5-.5 1.7-1.2l1.2-5.7c.1-.4 0-.8-.2-1.1-.1-.3-.4-.6-.8-.8zM5 14H3V8h2v6zm8.8-7l-1.2 5.7c-.1.3-.3.5-.6.5H7V7.5L10.3 4c.1-.1.2-.2.3-.2.1 0 .2.1.2.2l-.5 2.5c-.1.4.1.8.4 1 .2.2.6.2.9.2h3.4c.2 0 .3.1.4.2s.1.2.1.4v.1L13.8 7z"/></svg>';
                     const ICON_LOVE = '<svg viewBox="0 0 16 16" fill="white"><path d="M8 14.5l-1.2-1C3.1 10.1 1 8.2 1 5.5 1 3.5 2.5 2 4.5 2c1.1 0 2.2.5 2.9 1.4L8 4.6l.6-1.2C9.3 2.5 10.4 2 11.5 2 13.5 2 15 3.5 15 5.5c0 2.7-2.1 4.6-5.8 8L8 14.5z"/></svg>';
@@ -632,8 +626,9 @@
                         '</article>';
                     }
 
-                    // El marquee anima translateX(-50%), por eso el set se duplica una vez (los clones van ocultos para lectores de pantalla).
+                    // El contenido se duplica una vez para que el bucle sea continuo (los clones van ocultos para lectores de pantalla).
                     const track = document.getElementById('commitmentTrack');
+                    const viewport = track.parentElement;   // .commitment-marquee-container
                     function pintarMarquee(extraHTML) {
                         const set = (extraHTML || '') + TESTIMONIOS.map(function (t) { return cardHTML(t, false); }).join('');
                         const clones = set.replace(/<article /g, '<article aria-hidden="true" ');
@@ -642,152 +637,457 @@
                     pintarMarquee('');
                     // Los comentarios aprobados de la web se suman al carrusel (ver script de comentarios).
                     window.__kjaMarquee = { pintar: pintarMarquee };
-                })();
-            </script>
 
-            <!-- ── Deja tu comentario (entra a moderación antes de publicarse) ── -->
+                    /* ── Auto-scroll continuo + control manual (arrastrar con el mouse) ── */
+                    const VEL = 0.55;                 // px por frame (velocidad del avance automático)
+                    let pausa = false, arrastrando = false, xIni = 0, xUlt = 0, movido = false;
+
+                    // Mantiene el scroll siempre dentro de [0, mitad) para que el bucle sea infinito en ambos sentidos.
+                    function envolver() {
+                        const mitad = track.scrollWidth / 2;   // una vuelta = la mitad (contenido duplicado)
+                        if (mitad <= 0) return;
+                        if (viewport.scrollLeft >= mitad) viewport.scrollLeft -= mitad;
+                        else if (viewport.scrollLeft < 0) viewport.scrollLeft += mitad;
+                    }
+                    function bucle() {
+                        if (!pausa && !arrastrando) { viewport.scrollLeft += VEL; envolver(); }
+                        requestAnimationFrame(bucle);
+                    }
+                    requestAnimationFrame(bucle);
+
+                    // Pausa al pasar el mouse por encima (para leer un comentario)
+                    viewport.addEventListener('mouseenter', function () { pausa = true; });
+                    viewport.addEventListener('mouseleave', function () { pausa = false; });
+
+                    // Agarrar y arrastrar de izquierda a derecha (o viceversa), con bucle infinito
+                    viewport.addEventListener('pointerdown', function (e) {
+                        if (e.pointerType === 'mouse' && e.button !== 0) return;
+                        arrastrando = true; movido = false;
+                        xIni = xUlt = e.clientX;
+                        viewport.classList.add('dragging');
+                    });
+                    window.addEventListener('pointermove', function (e) {
+                        if (!arrastrando) return;
+                        const dx = e.clientX - xUlt;          // desplazamiento desde el último punto
+                        xUlt = e.clientX;
+                        if (Math.abs(e.clientX - xIni) > 4) movido = true;
+                        const mitad = track.scrollWidth / 2;
+                        let ns = viewport.scrollLeft - dx;    // arrastrar a la derecha → retrocede
+                        if (mitad > 0) { if (ns < 0) ns += mitad; else if (ns >= mitad) ns -= mitad; }
+                        viewport.scrollLeft = ns;
+                    });
+                    window.addEventListener('pointerup', function () {
+                        if (!arrastrando) return;
+                        arrastrando = false; viewport.classList.remove('dragging');
+                        setTimeout(function () { movido = false; }, 20);
+                    });
+                    // Un arrastre no debe disparar clics dentro de las tarjetas (p. ej. las reacciones)
+                    viewport.addEventListener('click', function (e) {
+                        if (movido) { e.preventDefault(); e.stopPropagation(); }
+                    }, true);
+                })();
+             </script>
+
+            <!-- ── Deja tu comentario: CTA + modal (entra a moderación antes de publicarse) ── -->
             <style>
-                .kja-com-box{max-width:620px;margin:34px auto 6px;background:#fff;border:1px solid #e6ebf6;border-radius:20px;
-                    box-shadow:0 14px 40px rgba(0,30,80,.08);padding:28px 28px 24px;position:relative;overflow:hidden;}
-                .kja-com-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
-                    background:linear-gradient(90deg,#f10075,#ff4da6 40%,#0a63d4);}
-                .kja-com-box h3{font-size:20px;font-weight:800;color:#0d264c;margin-bottom:4px;text-align:center;}
-                .kja-com-box .sub{font-size:13px;color:#64748b;text-align:center;margin-bottom:18px;}
-                .kja-com-box label{display:block;font-size:12.5px;font-weight:600;color:#475569;margin:12px 0 6px;}
-                .kja-com-box input[type=text],.kja-com-box textarea{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;
-                    border-radius:11px;font-size:14px;font-family:inherit;background:#f8fafc;transition:.2s;}
-                .kja-com-box input:focus,.kja-com-box textarea:focus{outline:none;background:#fff;border-color:#004fb0;
-                    box-shadow:0 0 0 4px rgba(0,79,176,.1);}
-                .kja-com-box textarea{min-height:96px;resize:vertical;}
-                .kja-est{display:flex;gap:6px;}
-                .kja-est button{background:none;border:none;font-size:26px;line-height:1;cursor:pointer;color:#cbd5e1;transition:.15s;padding:0 2px;}
-                .kja-est button.on{color:#f59e0b;}
-                .kja-est button:hover{transform:scale(1.15);}
-                .kja-com-send{width:100%;margin-top:16px;padding:13px;border:none;border-radius:11px;background:#f10075;color:#fff;
-                    font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;}
-                .kja-com-send:hover{background:#d10065;transform:translateY(-2px);box-shadow:0 6px 18px rgba(241,0,117,.3);}
-                .kja-com-send:disabled{opacity:.6;transform:none;box-shadow:none;cursor:default;}
-                .kja-com-msg{display:none;margin-top:12px;padding:10px 13px;border-radius:9px;font-size:13px;}
-                .kja-com-msg.ok{display:block;background:#dcfce7;color:#166534;}
-                .kja-com-msg.error{display:block;background:#fee2e2;color:#b91c1c;}
-                .kja-com-nota{font-size:11.5px;color:#94a3b8;text-align:center;margin-top:10px;}
-                .kja-hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;}
+                /* Nuevo CTA Moderno e Interactivo */
+                .kja-new-cta-container {
+                    max-width: 900px;
+                    margin: 40px auto 10px;
+                    background: #ffffff;
+                    border-radius: 24px;
+                    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+                    display: flex;
+                    flex-direction: column;
+                    border: 1px solid #f1f5f9;
+                }
+
+                @media(min-width: 768px) {
+                    .kja-new-cta-container {
+                        flex-direction: row;
+                    }
+                }
+
+                .kja-new-cta-left {
+                    flex: 1.2;
+                    padding: 32px 40px;
+                    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    border-radius: 24px 24px 0 0;
+                }
+
+                .kja-new-cta-icon-wrapper {
+                    position: absolute;
+                    top: -20px;
+                    left: 40px;
+                    width: 60px;
+                    height: 60px;
+                    background: #fff;
+                    border-radius: 50%;
+                    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 2px solid #eff6ff;
+                }
+
+                .kja-new-cta-icon-wrapper svg {
+                    width: 28px;
+                    height: 28px;
+                    fill: #3b82f6;
+                }
+
+                .kja-new-cta-icon-sparkle {
+                    position: absolute;
+                    top: -5px;
+                    right: -5px;
+                    width: 16px !important;
+                    height: 16px !important;
+                    fill: none !important;
+                    animation: sparkle 2s ease-in-out infinite;
+                }
+
+                @keyframes sparkle {
+
+                    0%,
+                    100% {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+
+                    50% {
+                        transform: scale(1.2);
+                        opacity: 0.7;
+                    }
+                }
+
+                .kja-new-cta-content {
+                    margin-top: 24px;
+                }
+
+                .kja-new-cta-title {
+                    font-size: 1.5rem;
+                    font-weight: 800;
+                    color: #0f172a;
+                    margin-bottom: 8px;
+                    letter-spacing: -0.02em;
+                }
+
+                .kja-new-cta-desc {
+                    color: #64748b;
+                    font-size: 0.95rem;
+                    line-height: 1.5;
+                    margin-bottom: 24px;
+                }
+
+                .kja-new-cta-features {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                .kja-new-cta-feature {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .kja-new-cta-feature-icon {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 10px;
+                    background: #eff6ff;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .kja-new-cta-feature-icon.red {
+                    background: #fff1f2;
+                }
+
+                .kja-new-cta-feature-icon.red svg {
+                    stroke: #f43f5e;
+                }
+
+                .kja-new-cta-feature-icon svg {
+                    width: 16px;
+                    height: 16px;
+                    stroke: #3b82f6;
+                    stroke-width: 2.5;
+                }
+
+                .kja-new-cta-feature-text {
+                    font-size: 0.85rem;
+                    color: #475569;
+                    font-weight: 600;
+                    line-height: 1.3;
+                }
+
+                .kja-new-cta-right {
+                    flex: 1;
+                    padding: 32px 40px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    border-top: 1px dashed #e2e8f0;
+                    position: relative;
+                    border-radius: 0 0 24px 24px;
+                }
+
+                .kja-new-cta-right::before {
+                    content: '';
+                    position: absolute;
+                    top: -4px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 7px;
+                    height: 7px;
+                    background-color: #f10075;
+                    border-radius: 50%;
+                }
+
+                @media(min-width: 768px) {
+                    .kja-new-cta-left {
+                        border-radius: 24px 0 0 24px;
+                    }
+                    .kja-new-cta-right {
+                        border-top: none;
+                        border-left: 1px dashed #e2e8f0;
+                        border-radius: 0 24px 24px 0;
+                    }
+                    .kja-new-cta-right::before {
+                        top: 50%;
+                        left: -4px;
+                        transform: translateY(-50%);
+                    }
+                }
+
+                .kja-new-cta-action-title {
+                    font-size: 1rem;
+                    font-weight: 700;
+                    color: #1e3a8a;
+                    margin-bottom: 12px;
+                }
+
+                .kja-new-cta-stars {
+                    display: flex;
+                    gap: 8px;
+                    margin-bottom: 16px;
+                }
+
+                .kja-new-cta-stars svg {
+                    width: 22px;
+                    height: 22px;
+                    fill: none;
+                    stroke: #3b82f6;
+                    stroke-width: 1.5;
+                    transition: all 0.2s;
+                    cursor: pointer;
+                }
+
+                .kja-new-cta-stars svg.hover-active {
+                    fill: #fbbf24;
+                    stroke: #f59e0b;
+                    transform: scale(1.1);
+                }
+
+                .kja-new-cta-btn {
+                    width: 100%;
+                    background: #f10075;
+                    color: #fff;
+                    border: none;
+                    border-radius: 12px;
+                    padding: 14px 24px;
+                    font-size: 0.95rem;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 8px 20px rgba(241, 0, 117, 0.28);
+                    font-family: inherit;
+                }
+
+                .kja-new-cta-btn:hover {
+                    background: #d10064;
+                    transform: translateY(-2px);
+                    box-shadow: 0 12px 24px rgba(241, 0, 117, 0.38);
+                }
+
+                .kja-new-cta-btn svg {
+                    width: 18px;
+                    height: 18px;
+                }
+
+                .kja-new-cta-footer {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    margin-top: 12px;
+                    color: #64748b;
+                    font-size: 0.7rem;
+                }
+
+                .kja-new-cta-footer svg {
+                    width: 10px;
+                    height: 10px;
+                }
+
+                /* CSS del Modal de Comentarios */
+                .kja-com-overlay { position: fixed; inset: 0; z-index: 3000; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; overscroll-behavior: contain; }
+                .kja-com-overlay.open { opacity: 1; visibility: visible; }
+                .kja-com-modal { background: #ffffff; border-radius: 24px; width: 100%; max-width: 520px; padding: 32px; position: relative; transform: scale(0.95) translateY(10px); opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #f1f5f9; }
+                .kja-com-overlay.open .kja-com-modal { transform: scale(1) translateY(0); opacity: 1; }
+                .kja-com-x { position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; border-radius: 50%; border: none; background: #f8fafc; color: #64748b; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+                .kja-com-x:hover { background: #fee2e2; color: #ef4444; transform: rotate(90deg); }
+                .kja-modal-modern-user { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+                .kja-modal-modern-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); display: flex; align-items: center; justify-content: center; color: #3b82f6; flex-shrink: 0; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); border: 2px solid #fff; }
+                .kja-modal-modern-avatar svg { width: 26px; height: 26px; }
+                .kja-modal-modern-name-wrap { flex: 1; }
+                .kja-modal-modern-name-label { display: block; font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+                .kja-modal-modern-name { width: 100%; border: 1.5px solid #e2e8f0; background: #f8fafc; border-radius: 12px; padding: 11px 14px; font-size: 0.98rem; font-weight: 600; color: #0f172a; outline: none; font-family: inherit; transition: all 0.2s; box-sizing: border-box; }
+                .kja-modal-modern-name:focus { border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+                .kja-modal-modern-name::placeholder { color: #94a3b8; font-weight: 500; }
+                .kja-modal-modern-subtitle { display: none; }
+                .kja-modal-modern-textarea { width: 100%; height: 120px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 16px; font-size: 0.95rem; color: #334155; resize: none; outline: none; transition: all 0.2s; background: #f8fafc; font-family: inherit; margin-bottom: 24px; }
+                .kja-modal-modern-textarea:focus { border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+                .kja-modal-modern-footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+                .kja-modal-modern-stars-wrap { display: flex; flex-direction: column; gap: 4px; }
+                .kja-est-new { display: flex; gap: 6px; }
+                .kja-est-new button { background: none; border: none; padding: 0; cursor: pointer; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+                .kja-est-new button svg { width: 100%; height: 100%; fill: #e2e8f0; stroke: #cbd5e1; stroke-width: 1; transition: all 0.2s; }
+                .kja-est-new button:hover { transform: scale(1.15); }
+                .kja-est-new button.on svg, .kja-est-new button.hover-on svg { fill: #fbbf24; stroke: #f59e0b; }
+                .kja-com-rating-txt { font-size: 0.85rem; font-weight: 600; color: #f59e0b; height: 18px; }
+                .kja-modal-modern-publish { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: none; padding: 12px 32px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 16px rgba(15, 23, 42, 0.2); font-family: inherit; }
+                .kja-modal-modern-publish:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(15, 23, 42, 0.3); }
+                .kja-modal-modern-publish:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
+                .kp-spin { display: none; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: ksp 0.8s linear infinite; }
+                @keyframes ksp { to { transform: rotate(360deg); } }
+                .kja-modal-modern-publish.sending .kp-spin { display: block; }
+                .kja-hp { position: absolute; left: -9999px; }
+                .kja-com-msg { font-size: 0.9rem; font-weight: 600; padding: 12px; border-radius: 8px; margin-top: 16px; text-align: center; display: none; }
+                .kja-com-msg.error { display: block; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+                .kja-com-msg.ok { display: block; background: #dcfce3; color: #16a34a; border: 1px solid #bbf7d0; }
+                .kja-com-exito { display: none; text-align: center; padding: 30px 10px 16px; }
+                .kja-com-exito.show { display: block; }
+                .kex-badge { position: relative; width: 92px; height: 92px; margin: 0 auto 22px; }
+                /* onda que se expande detrás del check */
+                .kex-badge::before, .kex-badge::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgba(16, 185, 129, .18); }
+                .kja-com-exito.show .kex-badge::before { animation: kexRing .9s ease-out .15s both; }
+                .kja-com-exito.show .kex-badge::after { animation: kexRing 1.1s ease-out .35s both; }
+                @keyframes kexRing { 0% { transform: scale(.5); opacity: .7; } 100% { transform: scale(1.6); opacity: 0; } }
+                .kja-com-exito svg { position: relative; width: 92px; height: 92px; display: block; }
+                .kja-com-exito.show svg { animation: kexPop .55s cubic-bezier(.17, .89, .32, 1.28) both; }
+                @keyframes kexPop { 0% { transform: scale(0); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+                .kja-com-exito .kex-circ { fill: #10b981; }
+                .kja-com-exito .kex-check { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; }
+                .kja-com-exito.show .kex-check { animation: kexD .4s .4s forwards; }
+                @keyframes kexD { to { stroke-dashoffset: 0; } }
+                .kja-com-exito h4 { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+                .kja-com-exito p { color: #64748b; line-height: 1.5; max-width: 320px; margin: 0 auto; }
+                .kja-com-exito.show h4 { animation: kexUp .5s .3s both; }
+                .kja-com-exito.show p { animation: kexUp .5s .42s both; }
+                @keyframes kexUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
             </style>
-            <form class="kja-com-box" id="kja-com-form" autocomplete="off">
-                <h3>Déjanos tu comentario</h3>
-                <p class="sub">Cuéntanos cómo fue tu experiencia con KJA.</p>
-                <label for="kja-com-nombre">Tu nombre</label>
-                <input type="text" id="kja-com-nombre" maxlength="60" placeholder="Nombre y apellido" required>
-                <label>Tu calificación</label>
-                <div class="kja-est" id="kja-est" role="radiogroup" aria-label="Calificación de 1 a 5 estrellas">
-                    <button type="button" data-v="1" aria-label="1 estrella">★</button>
-                    <button type="button" data-v="2" aria-label="2 estrellas">★</button>
-                    <button type="button" data-v="3" aria-label="3 estrellas">★</button>
-                    <button type="button" data-v="4" aria-label="4 estrellas">★</button>
-                    <button type="button" data-v="5" aria-label="5 estrellas">★</button>
+
+            <div class="kja-new-cta-container">
+                <div class="kja-new-cta-left">
+                    <div class="kja-new-cta-icon-wrapper">
+                        <!-- Chat Bubble Icon -->
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM18 14H6V12H18V14ZM18 11H6V9H18V11ZM18 8H6V6H18V8Z" />
+                        </svg>
+                        <!-- Sparkles -->
+                        <svg class="kja-new-cta-icon-sparkle" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" />
+                        </svg>
+                    </div>
+                    <div class="kja-new-cta-content">
+                        <h3 class="kja-new-cta-title">¿Ya viviste la experiencia KJA?</h3>
+                        <p class="kja-new-cta-desc">Tu opinión puede ayudar a otras familias que están buscando apoyo profesional.</p>
+                        
+                        <div class="kja-new-cta-features">
+                            <div class="kja-new-cta-feature">
+                                <div class="kja-new-cta-feature-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                                </div>
+                                <span class="kja-new-cta-feature-text">Tu comentario es<br>verificado</span>
+                            </div>
+                            <div class="kja-new-cta-feature">
+                                <div class="kja-new-cta-feature-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                </div>
+                                <span class="kja-new-cta-feature-text">Ayuda a otras<br>familias</span>
+                            </div>
+                            <div class="kja-new-cta-feature">
+                                <div class="kja-new-cta-feature-icon red">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                </div>
+                                <span class="kja-new-cta-feature-text">Construimos una<br>comunidad segura</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <label for="kja-com-texto">Tu comentario</label>
-                <textarea id="kja-com-texto" maxlength="500" placeholder="Escribe tu experiencia (mínimo 10 caracteres)…" required></textarea>
-                <!-- honeypot anti-spam: los humanos no lo ven; si un bot lo llena, se ignora el envío -->
-                <input type="text" class="kja-hp" id="kja-com-web" tabindex="-1" aria-hidden="true">
-                <div class="kja-com-msg" id="kja-com-msg"></div>
-                <button type="submit" class="kja-com-send" id="kja-com-send">Enviar comentario</button>
-                <p class="kja-com-nota">Tu comentario se publicará después de ser revisado por nuestro equipo.</p>
-            </form>
+                
+                <div class="kja-new-cta-right">
+                    <h4 class="kja-new-cta-action-title">Comparte tu experiencia</h4>
+                    <div class="kja-new-cta-stars" id="kja-com-abrir-stars">
+                        <!-- 5 Outlined Stars -->
+                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <button type="button" class="kja-new-cta-btn" id="kja-com-abrir">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Escribir un comentario
+                    </button>
+                    <div class="kja-new-cta-footer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span>Tu comentario será público y verificado</span>
+                    </div>
+                </div>
+            </div>
 
             <script>
-                // Comentarios de la web: guardar (con moderación) y mostrar los aprobados en el carrusel.
-                (function () {
-                    const SB_URL = 'https://xadxmfgdxwplmhijagix.supabase.co';
-                    const SB_KEY = 'sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub';
-                    const HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
-
-                    /* ── estrellas ── */
-                    let estrellas = 5;
-                    const botones = Array.from(document.querySelectorAll('#kja-est button'));
-                    function pintarEstrellas() { botones.forEach(function (b) { b.classList.toggle('on', +b.dataset.v <= estrellas); }); }
-                    botones.forEach(function (b) { b.addEventListener('click', function () { estrellas = +b.dataset.v; pintarEstrellas(); }); });
-                    pintarEstrellas();
-
-                    /* ── avatar con inicial (SVG inline, sin depender de fotos) ── */
-                    function avatarDe(nombre) {
-                        const ini = (nombre.trim()[0] || 'K').toUpperCase();
-                        const colores = ['#004fb0', '#f10075', '#0a63d4', '#b1005c'];
-                        const c = colores[nombre.length % colores.length];
-                        return 'data:image/svg+xml;utf8,' + encodeURIComponent(
-                            '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" rx="40" fill="' + c + '"/>' +
-                            '<text x="40" y="52" font-family="Arial" font-size="34" font-weight="bold" fill="#fff" text-anchor="middle">' + ini + '</text></svg>');
-                    }
-                    function tiempoDe(iso) {
-                        const dias = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
-                        if (dias < 1) return 'hoy';
-                        if (dias < 7) return 'hace ' + dias + (dias === 1 ? ' día' : ' días');
-                        if (dias < 30) { const s = Math.floor(dias / 7); return 'hace ' + s + (s === 1 ? ' semana' : ' semanas'); }
-                        const m = Math.floor(dias / 30); return 'hace ' + m + (m === 1 ? ' mes' : ' meses');
-                    }
-                    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-                    function cardWeb(c) {
-                        return '<article class="commitment-card fb-post">' +
-                            '<div class="fb-post__bar" style="background:linear-gradient(90deg,#0b2a5c,#004fb0);">' +
-                                '<img src="images/logo/logo-email.png" alt="" style="width:18px;height:17px;">' +
-                                '<span class="fb-post__bar-name">KJA · Web</span>' +
-                                '<span class="fb-post__bar-tag">Comentario verificado</span>' +
-                            '</div>' +
-                            '<div class="fb-post__body">' +
-                                '<div class="fb-post__user">' +
-                                    '<img class="fb-post__avatar" src="' + avatarDe(c.nombre) + '" alt="' + esc(c.nombre) + '" loading="lazy">' +
-                                    '<div>' +
-                                        '<div class="fb-post__name">' + esc(c.nombre) + '</div>' +
-                                        '<div class="fb-post__meta">comentó en <strong>kjadmb.com</strong></div>' +
-                                        '<div class="fb-post__time"><span>' + tiempoDe(c.created_at) + '</span></div>' +
-                                    '</div>' +
-                                '</div>' +
-                                '<div class="fb-post__stars">' + '★'.repeat(c.estrellas) + '☆'.repeat(5 - c.estrellas) + '</div>' +
-                                '<p class="fb-post__text">' + esc(c.mensaje) + '</p>' +
-                            '</div>' +
-                        '</article>';
-                    }
-
-                    /* ── cargar aprobados y sumarlos al carrusel ── */
-                    fetch(SB_URL + '/rest/v1/rpc/comentarios_aprobados', { method: 'POST', headers: HDR, body: '{}' })
-                        .then(function (r) { return r.ok ? r.json() : []; })
-                        .then(function (lista) {
-                            if (Array.isArray(lista) && lista.length && window.__kjaMarquee) {
-                                window.__kjaMarquee.pintar(lista.map(cardWeb).join(''));
-                            }
-                        }).catch(function () { /* sin conexión: el carrusel queda con los testimonios base */ });
-
-                    /* ── envío del formulario ── */
-                    const form = document.getElementById('kja-com-form');
-                    const msg = document.getElementById('kja-com-msg');
-                    const btn = document.getElementById('kja-com-send');
-                    function aviso(t, tipo) { msg.textContent = t; msg.className = 'kja-com-msg ' + tipo; }
-                    form.addEventListener('submit', function (e) {
-                        e.preventDefault();
-                        const nombre = document.getElementById('kja-com-nombre').value.trim();
-                        const mensaje = document.getElementById('kja-com-texto').value.trim();
-                        if (document.getElementById('kja-com-web').value) { aviso('¡Gracias por tu comentario!', 'ok'); form.reset(); return; } // honeypot
-                        if (nombre.length < 2) { aviso('Escribe tu nombre.', 'error'); return; }
-                        if (mensaje.length < 10) { aviso('Tu comentario debe tener al menos 10 caracteres.', 'error'); return; }
-                        if (localStorage.getItem('kjaComEnviado') === new Date().toDateString()) {
-                            aviso('Ya nos dejaste un comentario hoy. ¡Gracias!', 'ok'); return;
-                        }
-                        btn.disabled = true; btn.textContent = 'Enviando…';
-                        fetch(SB_URL + '/rest/v1/comentarios', {
-                            method: 'POST', headers: Object.assign({ 'Prefer': 'return=minimal' }, HDR),
-                            body: JSON.stringify({ nombre: nombre, mensaje: mensaje, estrellas: estrellas })
-                        }).then(function (r) {
-                            if (!r.ok) throw new Error('No se pudo enviar');
-                            localStorage.setItem('kjaComEnviado', new Date().toDateString());
-                            aviso('¡Gracias! Tu comentario fue recibido y se publicará después de ser revisado por nuestro equipo.', 'ok');
-                            form.reset(); estrellas = 5; pintarEstrellas();
-                        }).catch(function () {
-                            aviso('No se pudo enviar el comentario. Inténtalo de nuevo en unos minutos.', 'error');
-                        }).finally(function () {
-                            btn.disabled = false; btn.textContent = 'Enviar comentario';
+                // Lógica de estrellas interactivas en el CTA
+                const ctaStarsContainer = document.getElementById('kja-com-abrir-stars');
+                if (ctaStarsContainer) {
+                    const ctaStars = ctaStarsContainer.querySelectorAll('svg');
+                    
+                    ctaStars.forEach((star, index) => {
+                        // Hover in: activar todas las estrellas hasta la seleccionada
+                        star.addEventListener('mouseenter', () => {
+                            ctaStars.forEach((s, i) => {
+                                if (i <= index) {
+                                    s.classList.add('hover-active');
+                                } else {
+                                    s.classList.remove('hover-active');
+                                }
+                            });
+                        });
+                        
+                        // Clic: fijar la calificación elegida y abrir el modal de comentarios
+                        star.addEventListener('click', () => {
+                            if (window.__kjaSetRating) window.__kjaSetRating(index + 1);
+                            const btn = document.getElementById('kja-com-abrir');
+                            if (btn) btn.click();
                         });
                     });
-                })();
+                    
+                    // Hover out del contenedor completo: limpiar todas
+                    ctaStarsContainer.addEventListener('mouseleave', () => {
+                        ctaStars.forEach(s => s.classList.remove('hover-active'));
+                    });
+                }
             </script>
         </div>
     </section>
@@ -2089,7 +2389,248 @@
             initScrollDots('plansScrollTrack', 'plansScrollDots', '.plans-card');
         })();
     </script>
+    <!-- Modal de comentarios: vive al final de <body> a proposito, fuera de cualquier contenedor con z-index propio (evita que otras secciones lo tapen o generen conflictos con pointer-events/overflow-hidden). -->
+    <div class="kja-com-overlay" id="kja-com-overlay">
+        <div class="kja-com-modal">
+            <button type="button" class="kja-com-x" id="kja-com-cerrar" aria-label="Cerrar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
 
+            <div id="kja-com-form-wrap">
+                <form id="kja-com-form" autocomplete="off">
+                    <div class="kja-modal-modern-user">
+                        <div class="kja-modal-modern-avatar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+                        </div>
+                        <div class="kja-modal-modern-name-wrap">
+                            <label class="kja-modal-modern-name-label" for="kja-com-nombre">Tu nombre</label>
+                            <input type="text" id="kja-com-nombre" class="kja-modal-modern-name" maxlength="60" placeholder="Escribe tu nombre completo" required>
+                        </div>
+                    </div>
+
+                    <textarea id="kja-com-texto" class="kja-modal-modern-textarea" maxlength="500" placeholder="Cuéntanos tu experiencia con KJA…" required></textarea>
+
+                    <div class="kja-modal-modern-footer">
+                        <div class="kja-modal-modern-stars-wrap">
+                            <div class="kja-est-new" id="kja-est" role="radiogroup" aria-label="Calificación">
+                                <button type="button" data-v="1" aria-label="1 estrella"><svg viewBox="0 0 24 24"><path d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z"/></svg></button>
+                                <button type="button" data-v="2" aria-label="2 estrellas"><svg viewBox="0 0 24 24"><path d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z"/></svg></button>
+                                <button type="button" data-v="3" aria-label="3 estrellas"><svg viewBox="0 0 24 24"><path d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z"/></svg></button>
+                                <button type="button" data-v="4" aria-label="4 estrellas"><svg viewBox="0 0 24 24"><path d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z"/></svg></button>
+                                <button type="button" data-v="5" aria-label="5 estrellas"><svg viewBox="0 0 24 24"><path d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z"/></svg></button>
+                            </div>
+                            <div class="kja-com-rating-txt" id="kja-com-rating-txt">Excelente</div>
+                        </div>
+
+                        <button type="submit" class="kja-modal-modern-publish" id="kja-com-send">
+                            <span class="kp-spin"></span>
+                            <span id="kja-com-send-txt">Publicar</span>
+                        </button>
+                    </div>
+
+                    <input type="text" class="kja-hp" id="kja-com-web" tabindex="-1" aria-hidden="true">
+                    <div class="kja-com-msg" id="kja-com-msg"></div>
+                </form>
+            </div>
+
+            <!-- Éxito -->
+            <div class="kja-com-exito" id="kja-com-exito">
+                <div class="kex-badge">
+                    <svg viewBox="0 0 52 52" aria-hidden="true"><circle class="kex-circ" cx="26" cy="26" r="24"/><path class="kex-check" d="M14 27l8 8 16-17"/></svg>
+                </div>
+                <h4>¡Comentario enviado!</h4>
+                <p>Nuestro equipo técnico revisará tu comentario. Una vez aprobado se mostrará publicado en la web; por favor espera unos momentos. ¡Gracias por compartir tu experiencia!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Comentarios de la web: guardar (con moderación) y mostrar los aprobados en el carrusel.
+        (function () {
+            const SB_URL = 'https://xadxmfgdxwplmhijagix.supabase.co';
+            const SB_KEY = 'sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub';
+            const HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+
+            // Lógica de CTA y Modal interactivo
+            const overlay = document.getElementById('kja-com-overlay');
+            const btnAbrir = document.getElementById('kja-com-abrir');
+            const btnCerrar = document.getElementById('kja-com-cerrar');
+
+            // Bloquea el scroll del fondo mientras el modal está abierto (html + body, para que el fondo no se mueva)
+            function abrirModal() {
+                overlay.classList.add('open');
+                document.documentElement.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+            }
+            function cerrarModal() {
+                overlay.classList.remove('open');
+                document.documentElement.style.overflow = '';
+                document.body.style.overflow = '';
+            }
+            
+            if (btnAbrir) btnAbrir.addEventListener('click', abrirModal);
+            if (btnCerrar) btnCerrar.addEventListener('click', cerrarModal);
+            if (overlay) overlay.addEventListener('click', function(e) { if(e.target === overlay) cerrarModal(); });
+
+            // Lógica de estrellas del Modal (1 a 5)
+            let estrellas = 5;
+            const botones = Array.from(document.querySelectorAll('#kja-est button'));
+            const txtEst = document.getElementById('kja-com-rating-txt');
+            const textMap = {1:'Malo', 2:'Regular', 3:'Bueno', 4:'Muy bueno', 5:'Excelente'};
+            
+            function pintarEstrellas(val, hover = false) { 
+                botones.forEach(function (b) {
+                    const v = parseInt(b.dataset.v);
+                    if (hover) {
+                        b.classList.toggle('hover-on', v <= val);
+                    } else {
+                        b.classList.toggle('on', v <= val);
+                        b.classList.remove('hover-on');
+                    }
+                }); 
+                if(!hover) txtEst.textContent = textMap[val] || '';
+            }
+            
+            botones.forEach(function (b) {
+                b.addEventListener('mouseenter', function() { pintarEstrellas(+b.dataset.v, true); });
+                b.addEventListener('mouseleave', function() { pintarEstrellas(estrellas, false); });
+                b.addEventListener('click', function () { estrellas = +b.dataset.v; pintarEstrellas(estrellas); });
+            });
+            pintarEstrellas(estrellas);
+
+            // Permite que las estrellas del CTA fijen la calificación del modal al abrirlo
+            window.__kjaSetRating = function (n) {
+                n = Math.min(5, Math.max(1, parseInt(n, 10) || 5));
+                estrellas = n;
+                pintarEstrellas(estrellas);
+            };
+
+            function avatarDe(nombre) {
+                const ini = (nombre.trim()[0] || 'K').toUpperCase();
+                const colores = ['#004fb0', '#f10075', '#0a63d4', '#b1005c'];
+                const c = colores[nombre.length % colores.length];
+                return 'data:image/svg+xml;utf8,' + encodeURIComponent(
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" rx="40" fill="' + c + '"/>' +
+                    '<text x="40" y="52" font-family="Arial" font-size="34" font-weight="bold" fill="#fff" text-anchor="middle">' + ini + '</text></svg>');
+            }
+            function tiempoDe(iso) {
+                const dias = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
+                if (dias < 1) return 'hoy';
+                if (dias < 7) return 'hace ' + dias + (dias === 1 ? ' día' : ' días');
+                if (dias < 30) { const s = Math.floor(dias / 7); return 'hace ' + s + (s === 1 ? ' semana' : ' semanas'); }
+                const m = Math.floor(dias / 30); return 'hace ' + m + (m === 1 ? ' mes' : ' meses');
+            }
+            function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+            // Barra de reacciones estilo Facebook (Me gusta / Me encanta / Me divierte).
+            // Los contadores se guardan en Supabase; una reacción por navegador por comentario.
+            function reaccionBar(c) {
+                const id = c.id || '';
+                const yaReacciono = id ? localStorage.getItem('kjaReac_' + id) : null;
+                function btn(tipo, emo, label) {
+                    const on = yaReacciono === tipo ? ' reacted' : '';
+                    const n = (c['r_' + tipo] != null ? c['r_' + tipo] : 0);
+                    return '<button type="button" class="wr-btn wr-' + tipo + on + '" data-tipo="' + tipo + '" aria-label="' + label + '">' +
+                        '<span class="wr-emo">' + emo + '</span><b class="wr-n" data-n="' + tipo + '">' + n + '</b></button>';
+                }
+                return '<div class="fb-post__footer">' +
+                    '<div class="wr-bar" data-cid="' + esc(id) + '">' +
+                        btn('like', '👍', 'Me gusta') +
+                        btn('love', '❤️', 'Me encanta') +
+                        btn('haha', '😆', 'Me divierte') +
+                    '</div>' +
+                '</div>';
+            }
+            function cardWeb(c) {
+                return '<article class="commitment-card fb-post">' +
+                    '<div class="fb-post__bar" style="background:linear-gradient(90deg,#0b2a5c,#004fb0);">' +
+                        '<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>' +
+                        '<span class="fb-post__bar-name" style="color:#fff;">KJA · Web</span>' +
+                        '<span class="fb-post__bar-tag">Comentario verificado</span>' +
+                    '</div>' +
+                    '<div class="fb-post__body">' +
+                        '<div class="fb-post__user">' +
+                            '<img class="fb-post__avatar" src="' + avatarDe(c.nombre) + '" alt="' + esc(c.nombre) + '" loading="lazy">' +
+                            '<div>' +
+                                '<div class="fb-post__name">' + esc(c.nombre) + '</div>' +
+                                '<div class="fb-post__meta">comentó en <strong>kjadmb.com</strong></div>' +
+                                '<div class="fb-post__time"><span>' + tiempoDe(c.created_at) + '</span></div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="fb-post__stars">' + '★'.repeat(c.estrellas) + '☆'.repeat(5 - c.estrellas) + '</div>' +
+                        '<p class="fb-post__text">' + esc(c.mensaje) + '</p>' +
+                        reaccionBar(c) +
+                    '</div>' +
+                '</article>';
+            }
+
+            fetch(SB_URL + '/rest/v1/rpc/comentarios_aprobados', { method: 'POST', headers: HDR, body: '{}' })
+                .then(function (r) { return r.ok ? r.json() : []; })
+                .then(function (lista) {
+                    if (Array.isArray(lista) && lista.length && window.__kjaMarquee) {
+                        window.__kjaMarquee.pintar(lista.map(cardWeb).join(''));
+                    }
+                }).catch(function () { });
+
+            // Reacciones de los comentarios web (delegación en el carrusel; el marquee duplica
+            // las tarjetas, por eso se actualizan TODAS las copias con el mismo data-cid).
+            const trackReac = document.getElementById('commitmentTrack');
+            if (trackReac) {
+                trackReac.addEventListener('click', function (e) {
+                    const b = e.target.closest('.wr-btn');
+                    if (!b) return;
+                    const bar = b.closest('.wr-bar');
+                    const cid = bar && bar.getAttribute('data-cid');
+                    if (!cid) return;
+                    const tipo = b.getAttribute('data-tipo');
+                    const key = 'kjaReac_' + cid;
+                    if (localStorage.getItem(key)) return;   // una reacción por navegador
+                    localStorage.setItem(key, tipo);
+                    document.querySelectorAll('.wr-bar[data-cid="' + cid + '"] .wr-n[data-n="' + tipo + '"]').forEach(function (el) {
+                        el.textContent = (parseInt(el.textContent, 10) || 0) + 1;
+                    });
+                    document.querySelectorAll('.wr-bar[data-cid="' + cid + '"] .wr-btn[data-tipo="' + tipo + '"]').forEach(function (el) {
+                        el.classList.add('reacted');
+                    });
+                    fetch(SB_URL + '/rest/v1/rpc/reaccionar_comentario', {
+                        method: 'POST', headers: HDR, body: JSON.stringify({ p_id: cid, p_tipo: tipo })
+                    }).catch(function () { });
+                });
+            }
+
+            const form = document.getElementById('kja-com-form');
+            const msg = document.getElementById('kja-com-msg');
+            const btn = document.getElementById('kja-com-send');
+            const wrapForm = document.getElementById('kja-com-form-wrap');
+            const exito = document.getElementById('kja-com-exito');
+
+            function aviso(t, tipo) { msg.textContent = t; msg.className = 'kja-com-msg ' + tipo; }
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const nombre = document.getElementById('kja-com-nombre').value.trim();
+                const mensaje = document.getElementById('kja-com-texto').value.trim();
+                if (document.getElementById('kja-com-web').value) { wrapForm.style.display='none'; exito.classList.add('show'); return; } // honeypot
+                if (nombre.length < 2) { aviso('Escribe tu nombre.', 'error'); return; }
+                if (mensaje.length < 10) { aviso('Tu comentario debe tener al menos 10 caracteres.', 'error'); return; }
+                if (localStorage.getItem('kjaComEnviado') === new Date().toDateString()) {
+                    aviso('Ya nos dejaste un comentario hoy. ¡Gracias!', 'ok'); return;
+                }
+                btn.disabled = true; btn.classList.add('sending'); document.getElementById('kja-com-send-txt').textContent = 'Publicando...';
+                fetch(SB_URL + '/rest/v1/comentarios', {
+                    method: 'POST', headers: Object.assign({ 'Prefer': 'return=minimal' }, HDR),
+                    body: JSON.stringify({ nombre: nombre, mensaje: mensaje, estrellas: estrellas })
+                }).then(function (r) {
+                    if (!r.ok) throw new Error('No se pudo enviar');
+                    localStorage.setItem('kjaComEnviado', new Date().toDateString());
+                    wrapForm.style.display='none'; exito.classList.add('show');
+                    form.reset(); estrellas = 5; pintarEstrellas(estrellas);
+                }).catch(function () {
+                    aviso('No se pudo publicar. Inténtalo de nuevo.', 'error');
+                }).finally(function () {
+                    btn.disabled = false; btn.classList.remove('sending'); document.getElementById('kja-com-send-txt').textContent = 'Publicar';
+                });
+            });
+        })();
+    </script>
 </body>
 
 </html>
