@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="admin.css?v=2">
 </head>
 <body>
 
@@ -89,7 +89,9 @@
     <nav class="side">
       <button data-view="gen" class="active">Generar certificado</button>
       <button data-view="emit">Certificados emitidos</button>
-      <button data-view="com">Comentarios <span class="com-pend" id="com-pend" style="display:none;">0</span></button>
+      <button data-view="com" class="solo-admin" style="display:none;">Comentarios <span class="com-pend" id="com-pend" style="display:none;">0</span></button>
+      <button data-view="papelera" class="solo-admin" style="display:none;">Papelera <span class="pap-num" id="pap-num" style="display:none;">0</span></button>
+      <button data-view="bitacora" class="solo-admin" style="display:none;">Bitácora</button>
     </nav>
     <div class="content">
 
@@ -319,6 +321,34 @@
         </div>
       </div>
 
+      <!-- VIEW: PAPELERA (solo admin) — certificados ocultos, restaurables -->
+      <div class="view papelera" id="view-papelera">
+        <div class="emit-main" style="max-width:900px;margin:0 auto;">
+          <div class="emit-head">
+            <h2>Papelera</h2>
+            <div class="sub">Certificados ocultos por el equipo. Nada se borra de verdad: puedes restaurarlos aquí.</div>
+          </div>
+          <div id="papelera-wrap"><div class="empty">Cargando…</div></div>
+        </div>
+      </div>
+
+      <!-- VIEW: BITÁCORA (solo admin) — quién hizo qué -->
+      <div class="view bitacora" id="view-bitacora">
+        <div class="emit-main" style="max-width:900px;margin:0 auto;">
+          <div class="emit-head">
+            <h2>Bitácora de actividad</h2>
+            <div class="sub">Registro de todo lo que hace el equipo: quién creó, editó, ocultó o restauró cada certificado.</div>
+          </div>
+          <div class="toolbar">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="bit-filtro" type="text" placeholder="Buscar por persona, código o acción…">
+            </div>
+          </div>
+          <div id="bitacora-wrap"><div class="empty">Cargando…</div></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -343,7 +373,7 @@
     Emitir Nuevo Certificado
   </button>
   <div class="drawer-list" id="drawer-list"></div>
-  <button class="drawer-del" id="drawer-del">🗑 Eliminar cliente y todos sus certificados</button>
+  <button class="drawer-del" id="drawer-del">Ocultar todos los certificados de este cliente</button>
 </aside>
 
 <!-- Overlay de cierre de sesión -->
@@ -428,8 +458,36 @@ KJACert.basePath = 'certificados/';   // las plantillas están en /certificados 
 const $=id=>document.getElementById(id);
 const TIPO_LBL={taller:'Taller',curso:'Curso',especializacion:'Especialización',constancia:'Constancia'};
 
+/* ───── PERFIL / ROLES ─────
+   Cada usuario tiene un rol (admin/colaborador) y una serie de mil (1000, 2000…).
+   El admin ve Comentarios, Papelera y Bitácora; el colaborador solo Generar y Emitidos. */
+let PERFIL = { id:null, rol:'colaborador', serie:null, nombre:'' };
+let PERFILES_MAP = {};   // id -> nombre, para mostrar la autoría
+function esAdmin(){ return PERFIL.rol === 'admin'; }
+function nombreDe(uid){ return uid && PERFILES_MAP[uid] ? PERFILES_MAP[uid] : '—'; }
+
+async function cargarPerfil(){
+  try{
+    const { data:{ user } } = await db.auth.getUser();
+    if(!user) return;
+    PERFIL.id = user.id;
+    const { data } = await db.from('perfiles').select('nombre,rol,serie').eq('id', user.id).single();
+    if(data){ PERFIL.rol=data.rol||'colaborador'; PERFIL.serie=data.serie; PERFIL.nombre=data.nombre||''; }
+    const { data:todos } = await db.from('perfiles').select('id,nombre');
+    PERFILES_MAP={}; (todos||[]).forEach(p=>PERFILES_MAP[p.id]=p.nombre);
+  }catch(e){ console.warn('[KJA] perfil no cargado:', e); }
+  aplicarRolUI();
+}
+function aplicarRolUI(){
+  document.querySelectorAll('.solo-admin').forEach(el=>{ el.style.display = esAdmin() ? '' : 'none'; });
+  // muestra el nombre y la serie del usuario en la barra superior
+  const etq = PERFIL.nombre ? (PERFIL.nombre + (PERFIL.serie ? ' · serie '+PERFIL.serie : '') + (esAdmin()?' · Admin':'')) : '';
+  if(etq) $('who').textContent = etq;
+}
+
 /* ───── LOGIN ───── */
-function mostrarDash(email){ $('login-wrap').style.display='none'; $('dash').style.display='block'; $('who').textContent=email; cargarClientes(); cargarComentarios(); dibujar(); }
+function mostrarDash(email){ $('login-wrap').style.display='none'; $('dash').style.display='block'; $('who').textContent=email;
+  cargarPerfil().then(()=>{ prefillNumero(); if(esAdmin()){ cargarComentarios(); contarPapelera(); } }); cargarClientes(); dibujar(); }
 function mostrarLogin(){ $('dash').style.display='none'; $('login-wrap').style.display='flex'; }
 function loginMsg(t,tipo){ const e=$('login-msg'); e.textContent=t; e.className='msg '+(tipo||'error'); if(!t)e.style.display='none'; }
 
@@ -520,8 +578,12 @@ document.querySelectorAll('.side button').forEach(b=>{
     $('view-gen').classList.toggle('active', v==='gen');
     $('view-emit').classList.toggle('active', v==='emit');
     $('view-com').classList.toggle('active', v==='com');
+    $('view-papelera').classList.toggle('active', v==='papelera');
+    $('view-bitacora').classList.toggle('active', v==='bitacora');
     if(v==='emit') cargarEmitidos();
     if(v==='com') cargarComentarios();
+    if(v==='papelera') cargarPapelera();
+    if(v==='bitacora') cargarBitacora();
   });
 });
 function irA(v){ document.querySelector(`.side button[data-view="${v}"]`).click(); }
@@ -583,6 +645,15 @@ function modoNuevo(){
   editingId=null; $('editing-flag').style.display='none'; $('btn-cancel').style.display='none';
   $('btn-guardar').textContent='Guardar y generar (PDF)'; $('gen-title').textContent='Generar Certificado'; status('');
   resetForm();
+  prefillNumero();   // pone el siguiente número disponible de la serie del usuario
+}
+/* Auto-número: rellena el campo con el siguiente número libre del rango de la persona logueada */
+async function prefillNumero(){
+  if(editingId || !PERFIL.serie) return;
+  try{
+    const { data, error } = await db.rpc('siguiente_numero', { p_serie: PERFIL.serie });
+    if(!error && data!=null){ $('f-numero').value = data; dibujar(); }
+  }catch(e){}
 }
 $('btn-cancel').addEventListener('click', modoNuevo);
 $('btn-nuevo').addEventListener('click', modoNuevo);
@@ -768,7 +839,7 @@ let dayIntensityMap = {};
 
 async function cargarEmitidos(){
   $('tabla-wrap').innerHTML='<div class="empty">Cargando…</div>';
-  const {data,error}=await db.from('certificados').select('*').order('created_at',{ascending:false});
+  const {data,error}=await db.from('certificados').select('*').eq('oculto',false).order('created_at',{ascending:false});
   if(error){ $('tabla-wrap').innerHTML='<div class="empty">Error: '+error.message+'</div>'; return; }
   emitidos=data||[];
   
@@ -949,15 +1020,16 @@ function abrirDrawer(g){
       </div>
       <div class="dc-tit">${r.titulo}</div>
       <div class="dc-meta">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         ${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)}
       </div>
+      <div class="dc-autor"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Creado por <b>${nombreDe(r.creado_por)}</b></div>
       ${r.correo_enviado_at ? `<div class="dc-sent"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Enviado por correo el ${KJACert.fechaLarga(r.correo_enviado_at.split('T')[0])}</div>` : ''}
       <div class="dc-acc">
         <button class="ver"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Ver</button>
         <button class="edit"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
         <button class="mail"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Enviar</button>
-        <button class="del"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar</button>
+        <button class="del"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/></svg> Ocultar</button>
       </div>`;
     d.querySelector('.ver').onclick=()=>verModal(r.id);
     d.querySelector('.edit').onclick=()=>{ cerrarDrawer(); editarFila(r.id); };
@@ -974,18 +1046,13 @@ $('drawer-add').addEventListener('click', ()=>{ if(grupoActual) nuevoCertCliente
 $('drawer-del').addEventListener('click', eliminarCliente);
 async function eliminarCliente(){
   const g=grupoActual; if(!g) return;
-  if(!confirm(`¿Eliminar a "${g.nombre}" y sus ${g.certs.length} certificado(s)? Esta acción no se puede deshacer.`)) return;
-  // Se borran primero los certificados (evita el error de foreign key) y luego el cliente
-  if(g.clienteId){
-    let r1=await db.from('certificados').delete().eq('cliente_id',g.clienteId);
-    if(r1.error){ alert('Error al borrar certificados: '+r1.error.message); return; }
-    let r2=await db.from('clientes').delete().eq('id',g.clienteId);
-    if(r2.error){ alert('Error al borrar el cliente: '+r2.error.message); return; }
-  } else {
-    let r=await db.from('certificados').delete().eq('nombre',g.nombre);
-    if(r.error){ alert('Error: '+r.error.message); return; }
-  }
-  cerrarDrawer(); cargarEmitidos();
+  if(!confirm(`¿Ocultar los ${g.certs.length} certificado(s) de "${g.nombre}"? No se borran de verdad; el administrador puede restaurarlos desde la Papelera.`)) return;
+  // Borrado suave: se ocultan los certificados (el cliente se conserva)
+  let r = g.clienteId
+    ? await db.from('certificados').update({oculto:true}).eq('cliente_id',g.clienteId)
+    : await db.from('certificados').update({oculto:true}).eq('nombre',g.nombre);
+  if(r.error){ alert('Error al ocultar: '+r.error.message); return; }
+  cerrarDrawer(); cargarEmitidos(); if(esAdmin()) contarPapelera();
 }
 function nuevoCertCliente(nombre, dni){
   cerrarDrawer(); modoNuevo(); $('f-nombre').value=nombre; $('f-dni').value=dni||'';
@@ -1153,10 +1220,11 @@ $('confirm-modal').addEventListener('click', e=>{ if(e.target===$('confirm-modal
 
 function eliminarFila(id){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
-  abrirConfirm(`Estás a punto de eliminar el certificado de <br><b style="color:#0f172a;">${r.nombre}</b> (${r.codigo}).<br><br>Esta acción no se puede deshacer.`, async () => {
-    const {error}=await db.from('certificados').delete().eq('id',id);
-    if(error){ alert('Error al eliminar: '+error.message); return; }
+  abrirConfirm(`Vas a <b>ocultar</b> el certificado de <br><b style="color:#0f172a;">${r.nombre}</b> (${r.codigo}).<br><br>No se borra de verdad: el administrador puede restaurarlo desde la Papelera.`, async () => {
+    const {error}=await db.from('certificados').update({oculto:true}).eq('id',id);
+    if(error){ alert('Error al ocultar: '+error.message); return; }
     await cargarEmitidos();
+    if(esAdmin()) contarPapelera();
     if(grupoActual){ const g=grupos.find(x=>x.key===grupoActual.key); if(g) abrirDrawer(g); else cerrarDrawer(); }
   });
 }
@@ -1206,6 +1274,61 @@ async function cargarComentarios(){
       await db.from('comentarios').delete().eq('id',id); cargarComentarios(); };
   });
 }
+
+/* ───── 🗑 PAPELERA (solo admin): certificados ocultos, restaurables ───── */
+async function contarPapelera(){
+  const { count } = await db.from('certificados').select('*',{count:'exact',head:true}).eq('oculto',true);
+  const b=$('pap-num'); if(!b) return;
+  b.textContent=count||0; b.style.display=(count>0)?'inline-flex':'none';
+}
+async function cargarPapelera(){
+  $('papelera-wrap').innerHTML='<div class="empty">Cargando…</div>';
+  const { data, error } = await db.from('certificados').select('*').eq('oculto',true).order('oculto_at',{ascending:false,nullsFirst:false});
+  if(error){ $('papelera-wrap').innerHTML='<div class="empty">Error: '+error.message+'</div>'; return; }
+  const lista=data||[];
+  if(!lista.length){ $('papelera-wrap').innerHTML='<div class="empty"><div class="e-tit">Papelera vacía</div><div class="e-sub">No hay certificados ocultos.</div></div>'; return; }
+  $('papelera-wrap').innerHTML = lista.map(r=>`
+    <div class="pap-card">
+      <div class="pap-info">
+        <div class="pap-top"><span class="dc-tipo">${TIPO_LBL[r.tipo]||r.tipo}</span><span class="dc-cod">${r.codigo}</span></div>
+        <div class="pap-nombre">${r.nombre}</div>
+        <div class="pap-meta">${r.titulo||''}</div>
+        <div class="pap-quien">Ocultado por <b>${nombreDe(r.oculto_por)}</b>${r.oculto_at?' · '+KJACert.fechaLarga(r.oculto_at.split('T')[0]):''} · creado por ${nombreDe(r.creado_por)}</div>
+      </div>
+      <button class="pap-restore" data-id="${r.id}">↩ Restaurar</button>
+    </div>`).join('');
+  $('papelera-wrap').querySelectorAll('.pap-restore').forEach(btn=>{
+    btn.onclick=async()=>{
+      const {error}=await db.from('certificados').update({oculto:false}).eq('id',btn.dataset.id);
+      if(error){ alert('Error al restaurar: '+error.message); return; }
+      cargarPapelera(); contarPapelera();
+    };
+  });
+}
+
+/* ───── 📋 BITÁCORA (solo admin): quién hizo qué ───── */
+let bitacoraData=[];
+const ACC_LBL={crear:'creó',editar:'editó',ocultar:'ocultó',restaurar:'restauró',eliminar:'eliminó'};
+async function cargarBitacora(){
+  $('bitacora-wrap').innerHTML='<div class="empty">Cargando…</div>';
+  const { data, error } = await db.from('bitacora').select('*').order('created_at',{ascending:false}).limit(300);
+  if(error){ $('bitacora-wrap').innerHTML='<div class="empty">Error: '+error.message+'</div>'; return; }
+  bitacoraData=data||[];
+  pintarBitacora();
+}
+function pintarBitacora(){
+  const f=($('bit-filtro').value||'').toLowerCase().trim();
+  let lista=bitacoraData;
+  if(f) lista=lista.filter(x=>((x.usuario_nombre||'')+' '+(x.codigo||'')+' '+(x.accion||'')+' '+(x.nombre_cert||'')).toLowerCase().includes(f));
+  if(!lista.length){ $('bitacora-wrap').innerHTML='<div class="empty">Sin registros.</div>'; return; }
+  $('bitacora-wrap').innerHTML = lista.map(x=>`
+    <div class="bit-row">
+      <span class="bit-acc bit-${x.accion||''}">${ACC_LBL[x.accion]||x.accion}</span>
+      <span class="bit-txt"><b>${x.usuario_nombre||'—'}</b> ${ACC_LBL[x.accion]||x.accion} <b>${x.codigo||''}</b>${x.nombre_cert?' · '+x.nombre_cert:''}</span>
+      <span class="bit-fecha">${new Date(x.created_at).toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
+    </div>`).join('');
+}
+$('bit-filtro').addEventListener('input', pintarBitacora);
 
 /* ───── INICIO ───── */
 (async ()=>{
