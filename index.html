@@ -72,7 +72,7 @@
     <!-- Tailwind compilado estático (solo clases usadas) -->
     <link rel="stylesheet" href="tailwind.css?v=1">
     <link rel="stylesheet" href="accessibility.css">
-    <link rel="stylesheet" href="index.css?v=3">
+    <link rel="stylesheet" href="index.css?v=4">
     <!-- GSAP & ScrollTrigger -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -638,19 +638,20 @@
                     // Los comentarios aprobados de la web se suman al carrusel (ver script de comentarios).
                     window.__kjaMarquee = { pintar: pintarMarquee };
 
-                    /* ── Auto-scroll continuo + control manual (arrastrar con el mouse) ── */
-                    const VEL = 0.55;                 // px por frame (velocidad del avance automático)
-                    let pausa = false, arrastrando = false, xIni = 0, xUlt = 0, movido = false;
+                    /* ── Avance automático (transform) + control manual por arrastre ── */
+                    const VEL = 1.1;                  // px por frame — visible y fluido
+                    let pos = 0, pausa = false, arrastrando = false, xIni = 0, xUlt = 0, movido = false;
 
-                    // Mantiene el scroll siempre dentro de [0, mitad) para que el bucle sea infinito en ambos sentidos.
+                    function aplicar() { track.style.transform = 'translateX(' + (-pos) + 'px)'; }
+                    // Mantiene pos dentro de [0, mitad) para un bucle infinito en ambos sentidos.
                     function envolver() {
                         const mitad = track.scrollWidth / 2;   // una vuelta = la mitad (contenido duplicado)
                         if (mitad <= 0) return;
-                        if (viewport.scrollLeft >= mitad) viewport.scrollLeft -= mitad;
-                        else if (viewport.scrollLeft < 0) viewport.scrollLeft += mitad;
+                        if (pos >= mitad) pos -= mitad;
+                        else if (pos < 0) pos += mitad;
                     }
                     function bucle() {
-                        if (!pausa && !arrastrando) { viewport.scrollLeft += VEL; envolver(); }
+                        if (!pausa && !arrastrando) { pos += VEL; envolver(); aplicar(); }
                         requestAnimationFrame(bucle);
                     }
                     requestAnimationFrame(bucle);
@@ -659,7 +660,7 @@
                     viewport.addEventListener('mouseenter', function () { pausa = true; });
                     viewport.addEventListener('mouseleave', function () { pausa = false; });
 
-                    // Agarrar y arrastrar de izquierda a derecha (o viceversa), con bucle infinito
+                    // Agarrar y arrastrar (mouse o táctil), con bucle infinito
                     viewport.addEventListener('pointerdown', function (e) {
                         if (e.pointerType === 'mouse' && e.button !== 0) return;
                         arrastrando = true; movido = false;
@@ -671,10 +672,8 @@
                         const dx = e.clientX - xUlt;          // desplazamiento desde el último punto
                         xUlt = e.clientX;
                         if (Math.abs(e.clientX - xIni) > 4) movido = true;
-                        const mitad = track.scrollWidth / 2;
-                        let ns = viewport.scrollLeft - dx;    // arrastrar a la derecha → retrocede
-                        if (mitad > 0) { if (ns < 0) ns += mitad; else if (ns >= mitad) ns -= mitad; }
-                        viewport.scrollLeft = ns;
+                        pos -= dx;                            // arrastrar a la derecha → retrocede
+                        envolver(); aplicar();
                     });
                     window.addEventListener('pointerup', function () {
                         if (!arrastrando) return;

@@ -797,32 +797,32 @@
         }
 
         /* ===== COMMITMENT TRACK (marquee) ===== */
-        /* Carrusel: avanza solo, pero se puede agarrar y arrastrar con el mouse (JS) */
+        /* Carrusel: avanza solo (transform por JS) y se puede agarrar y arrastrar */
         .commitment-marquee-container {
             width: 100%;
-            overflow-x: auto;
-            overflow-y: hidden;
+            overflow: hidden;
             position: relative;
             cursor: grab;
-            /* Fades on the edges for smoother entry/exit */
-            mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
-            scrollbar-width: none;              /* Firefox */
-            -ms-overflow-style: none;
+            touch-action: pan-y;   /* el scroll vertical de la página funciona; el horizontal lo maneja el JS */
+            mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
         }
-        .commitment-marquee-container::-webkit-scrollbar { display: none; }
         .commitment-marquee-container.dragging { cursor: grabbing; }
 
         .commitment-track {
             display: flex;
             width: max-content;
+            will-change: transform;
         }
 
         .commitment-track > article {
-            width: 360px; /* Fija un ancho estándar para las tarjetas */
+            width: min(360px, 84vw);   /* responsive: en móvil ~84% del ancho con peek de la siguiente */
             flex-shrink: 0;
             margin-right: 1.5rem;
             white-space: normal;
+        }
+        @media (max-width: 640px) {
+            .commitment-track > article { margin-right: 1rem; }
         }
 
         /* ===== FACEBOOK TESTIMONIAL CARDS (renderizadas por JS en #commitmentTrack) ===== */
