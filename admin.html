@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=2">
+<link rel="stylesheet" href="admin.css?v=3">
 </head>
 <body>
 
@@ -102,7 +102,10 @@
             <h2 id="gen-title">Generar Certificado</h2>
             <button type="button" class="btn-nuevo" id="btn-nuevo">+ Nuevo</button>
           </div>
-          <div class="editing" id="editing-flag">✎ Editando un certificado existente</div>
+          <div class="editing" id="editing-flag">
+            <span>✎ Editando un certificado existente</span>
+            <button type="button" id="btn-cancel-top">✕ Cancelar</button>
+          </div>
 
           <div class="f-group">
             <div class="f-group-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Configuración</div>
@@ -224,7 +227,7 @@
             <div class="field" style="margin-bottom:0;"><label>Número de certificado</label>
               <input id="f-numero" type="text" placeholder="Ej: 8148">
               <div class="codigo-preview" id="codigo-preview">—</div>
-              <div class="hint">El mes y el año salen de la fecha de emisión.</div></div>
+              <div class="hint" id="hint-numero">El mes y el año salen de la fecha de emisión.</div></div>
           </div>
 
           <div class="f-group" id="temario-group" style="display:none;">
@@ -266,7 +269,7 @@
             <button class="btn" id="btn-png">Descargar PNG</button>
             <button class="btn" id="btn-pdf">Solo PDF</button>
           </div>
-          <button class="btn-cancel" id="btn-cancel">Cancelar edición / nuevo certificado</button>
+          <button class="btn-cancel" id="btn-cancel">✕ Cancelar edición y volver</button>
           <div class="status" id="status"></div>
         </div>
         <div class="stage"><canvas id="cert" width="2000" height="1414"></canvas></div>
@@ -419,6 +422,10 @@
         <input id="em-email" type="email" placeholder="cliente@correo.com" autocomplete="off">
       </div>
       <label class="em-chk"><input type="checkbox" id="em-guardar" checked> Recordar este correo para futuros envíos al cliente</label>
+      <div class="em-revisar">
+        <div class="em-revisar-txt">⚠ Antes de enviar, <b>revisa el certificado</b>: fechas, horas académicas, nombre y título deben ser correctos. El cliente recibirá el PDF tal como está.</div>
+        <label class="em-chk em-chk-revisar"><input type="checkbox" id="em-revisado"> Confirmo que revisé las fechas, horas y datos del certificado</label>
+      </div>
       <div class="status" id="em-status"></div>
       <button class="btn-primary em-send" id="em-enviar">
         <span class="em-spin" aria-hidden="true"></span>
@@ -441,11 +448,11 @@
     <div style="width:64px;height:64px;border-radius:50%;background:#fee2e2;color:#ef4444;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
       <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     </div>
-    <h3 style="font-size:20px;color:#0f172a;margin-bottom:12px;font-weight:800;">¿Eliminar Certificado?</h3>
+    <h3 id="confirm-titulo" style="font-size:20px;color:#0f172a;margin-bottom:12px;font-weight:800;">¿Estás seguro?</h3>
     <p id="confirm-msg" style="font-size:14.5px;color:#64748b;margin-bottom:30px;line-height:1.5;"></p>
     <div class="modal-actions" style="display:flex;gap:12px;">
       <button id="btn-confirm-cancel" style="flex:1;background:#f1f5f9;color:#475569;box-shadow:none;">Cancelar</button>
-      <button id="btn-confirm-ok" style="flex:1;background:#ef4444;color:#fff;box-shadow:0 4px 12px rgba(239,68,68,.3);">Sí, eliminar</button>
+      <button id="btn-confirm-ok" style="flex:1;background:#ef4444;color:#fff;box-shadow:0 4px 12px rgba(239,68,68,.3);">Sí, continuar</button>
     </div>
   </div>
 </div>
@@ -483,6 +490,7 @@ function aplicarRolUI(){
   // muestra el nombre y la serie del usuario en la barra superior
   const etq = PERFIL.nombre ? (PERFIL.nombre + (PERFIL.serie ? ' · serie '+PERFIL.serie : '') + (esAdmin()?' · Admin':'')) : '';
   if(etq) $('who').textContent = etq;
+  if(PERFIL.serie) $('hint-numero').textContent = 'Tu serie: '+PERFIL.serie+'–'+(PERFIL.serie+999)+' · el mes y el año salen de la fecha de emisión.';
 }
 
 /* ───── LOGIN ───── */
@@ -643,6 +651,7 @@ function resetForm(){
 }
 function modoNuevo(){
   editingId=null; $('editing-flag').style.display='none'; $('btn-cancel').style.display='none';
+  $('f-numero').readOnly=false;
   $('btn-guardar').textContent='Guardar y generar (PDF)'; $('gen-title').textContent='Generar Certificado'; status('');
   resetForm();
   prefillNumero();   // pone el siguiente número disponible de la serie del usuario
@@ -655,14 +664,125 @@ async function prefillNumero(){
     if(!error && data!=null){ $('f-numero').value = data; dibujar(); }
   }catch(e){}
 }
+/* ¿El NÚMERO ya está usado en algún certificado (de cualquier mes/año)? Devuelve el código existente o null */
+async function numeroUsado(num){
+  num = String(num||'').trim();
+  if(!num || !/^\d+$/.test(num)) return null;
+  let q = db.from('certificados').select('codigo').like('codigo','%-'+num+'-%').limit(1);
+  if(editingId) q = q.neq('id', editingId);   // al editar, no chocar consigo mismo
+  const { data } = await q;
+  return (data && data.length) ? data[0].codigo : null;
+}
+/* Chequeo en vivo: al salir del campo, si el número ya tiene uso, alerta inmediata */
+$('f-numero').addEventListener('change', async ()=>{
+  const v=$('f-numero').value.trim();
+  if(!v) return;
+  const usado = await numeroUsado(v);
+  if(usado){
+    abrirAlerta('El número <b>' + v + '</b> ya tiene uso: pertenece al certificado <b>' + usado + '</b>.<br><br>Te asignamos el siguiente número libre de tu serie.', 'Número ya usado');
+    prefillNumero();
+  }
+});
 $('btn-cancel').addEventListener('click', modoNuevo);
+$('btn-cancel-top').addEventListener('click', modoNuevo);
 $('btn-nuevo').addEventListener('click', modoNuevo);
+
+/* ───── Validaciones antes de generar ─────
+   Todos los campos obligatorios, número dentro de la serie del usuario,
+   y coherencia entre las fechas y la duración (horas académicas). */
+function validarCertificado(d){
+  if(!d.nombre) return 'Completa el nombre del cliente.';
+  if(!d.titulo) return 'Completa el título del ' + (TIPO_LBL[d.tipo]||'certificado').toLowerCase() + '.';
+  const horas = parseInt(d.duracion, 10);
+  if(!d.duracion || isNaN(horas) || horas <= 0) return 'Ingresa la duración (horas académicas).';
+  if(horas > 1000) return 'La duración (' + horas + ' horas académicas) parece un error de tipeo. Revísala.';
+  if(!$('f-numero').value.trim()) return 'Ingresa el número del certificado.';
+  if(!d.fechaInicio) return 'Selecciona la fecha del periodo.';
+  if(d.cfg.fechas === 'rango' && !d.fechaFin) return 'Selecciona la fecha final del periodo.';
+  if(!d.fechaEmision) return 'Selecciona la fecha de emisión.';
+
+  // Serie protegida: al CREAR, el número debe estar dentro del rango asignado al usuario
+  const num = parseInt($('f-numero').value, 10);
+  if(isNaN(num)) return 'El número del certificado debe ser numérico.';
+  if(!editingId && PERFIL.serie && (num < PERFIL.serie || num > PERFIL.serie + 999)){
+    return 'Tu serie asignada es la ' + PERFIL.serie + ': el número debe estar entre ' + PERFIL.serie + ' y ' + (PERFIL.serie + 999) + '. No cambies el primer dígito.';
+  }
+
+  // Coherencia de fechas
+  const ini = new Date(d.fechaInicio);
+  const fin = new Date(d.cfg.fechas === 'rango' ? d.fechaFin : d.fechaInicio);
+  if(fin < ini) return 'La fecha final es anterior a la fecha de inicio. Revisa las fechas.';
+  if(d.cfg.fechas === 'rango'){
+    const dias = Math.floor((fin - ini) / 864e5) + 1;
+    // imposible: más de 12 horas académicas por día en promedio
+    if(horas > dias * 12) return 'No es viable: ' + horas + ' horas en ' + dias + ' día(s) (más de 12 h por día). Revisa las fechas o la duración.';
+  }
+  return null; // todo OK
+}
+// Advertencia (no bloquea, pide confirmación): rango de fechas muy largo para las horas
+function advertenciaFechas(d){
+  if(d.cfg.fechas !== 'rango' || !d.fechaFin) return null;
+  const horas = parseInt(d.duracion, 10);
+  const dias = Math.floor((new Date(d.fechaFin) - new Date(d.fechaInicio)) / 864e5) + 1;
+  // sospechoso: periodo largo con menos de 1 hora académica por día en promedio
+  if(dias > 45 && horas / dias < 1){
+    return 'El certificado dice <b>' + horas + ' horas</b> pero el periodo abarca <b>' + dias + ' días</b> (' +
+      (horas/dias).toFixed(1) + ' h por día en promedio). ¿Seguro que las fechas son correctas?';
+  }
+  return null;
+}
+
+/* Avisos no bloqueantes: se muestran todos juntos en un modal de confirmación */
+function advertenciasDe(d){
+  const out = [];
+  const w = advertenciaFechas(d); if(w) out.push(w);
+  if(d.cfg.fechas === 'rango' && d.fechaFin && d.fechaEmision && new Date(d.fechaEmision) < new Date(d.fechaFin)){
+    out.push('La <b>fecha de emisión</b> (' + d.fechaEmision + ') es anterior al fin del curso (' + d.fechaFin + '). Normalmente se emite al terminar.');
+  }
+  if(d.nombre && !d.nombre.trim().includes(' ')){
+    out.push('El nombre del cliente tiene una sola palabra (<b>' + d.nombre + '</b>). ¿Falta el apellido?');
+  }
+  return out;
+}
 
 async function guardarYGenerar(){
   const d=leerDatos();
-  if(!d.nombre || !d.titulo){ status('Completa el cliente y el título.','error'); return; }
+  const err = validarCertificado(d);
+  if(err){ status(err,'error'); abrirAlerta(err, 'No se puede generar'); return; }
   if(!dniValido()){ actualizarDniUI();
-    status($('f-extranjero').checked ? 'DNI de extranjero inválido: debe tener entre 8 y 15 dígitos.' : 'El DNI debe tener exactamente 8 dígitos (o marca "Extranjero").','error'); return; }
+    const m = $('f-extranjero').checked ? 'DNI de extranjero inválido: debe tener entre 8 y 15 dígitos.' : 'El DNI debe tener exactamente 8 dígitos (o marca "Extranjero").';
+    status(m,'error'); abrirAlerta(m, 'DNI inválido'); return; }
+
+  const btn=$('btn-guardar'); btn.disabled=true; status('Validando…','info');
+  const avisos = advertenciasDe(d);
+  try{
+    // número ya usado (busca el NÚMERO en cualquier mes/año, no solo el código exacto)
+    const usado = await numeroUsado($('f-numero').value.trim());
+    if(usado){
+      btn.disabled=false; status('Ese número ya tiene uso. Usa otro.','error');
+      abrirAlerta('El número <b>' + $('f-numero').value.trim() + '</b> ya tiene uso: pertenece al certificado <b>' + usado + '</b>.<br><br>Usa el siguiente número disponible de tu serie.', 'Número ya usado');
+      prefillNumero(); return;
+    }
+    // posible duplicado: mismo cliente + mismo título
+    let q=db.from('certificados').select('codigo').ilike('nombre',d.nombre).ilike('titulo',d.titulo).eq('oculto',false).limit(1);
+    if(editingId) q=q.neq('id',editingId);
+    const {data:mismo}=await q;
+    if(mismo && mismo.length){
+      avisos.push('Ya existe un certificado de "<b>' + d.titulo + '</b>" para <b>' + d.nombre + '</b> (' + mismo[0].codigo + '). Podrías estar emitiendo un duplicado.');
+    }
+  }catch(e){ /* si la validación remota falla, el guardado igual valida en la base */ }
+  btn.disabled=false; status('');
+
+  if(avisos.length){
+    abrirConfirm(
+      '<ul style="text-align:left;margin:0 0 6px;padding-left:20px;">' + avisos.map(a=>'<li style="margin-bottom:9px;">'+a+'</li>').join('') + '</ul>' +
+      'Si todo está correcto, continúa; si no, cancela y corrige.',
+      ()=>ejecutarGuardado(d), '⚠ Revisa antes de continuar');
+    return;
+  }
+  ejecutarGuardado(d);
+}
+async function ejecutarGuardado(d){
   const btn=$('btn-guardar'); btn.disabled=true; status('Guardando…','info');
   try{
     // resolver cliente
@@ -1030,11 +1150,13 @@ function abrirDrawer(g){
         <button class="edit"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
         <button class="mail"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Enviar</button>
         <button class="del"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/></svg> Ocultar</button>
+        ${esAdmin() ? `<button class="delreal"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar</button>` : ''}
       </div>`;
     d.querySelector('.ver').onclick=()=>verModal(r.id);
     d.querySelector('.edit').onclick=()=>{ cerrarDrawer(); editarFila(r.id); };
     d.querySelector('.mail').onclick=()=>abrirEmailModal(r.id);
     d.querySelector('.del').onclick=()=>eliminarFila(r.id);
+    const delreal=d.querySelector('.delreal'); if(delreal) delreal.onclick=()=>eliminarDefinitivo(r.id, r.nombre, r.codigo, 'drawer');
     cont.appendChild(d);
   });
   $('drawer').classList.add('open'); $('drawer-ov').classList.add('open');
@@ -1105,7 +1227,7 @@ async function abrirEmailModal(id){
   $('em-cod').textContent=r.codigo;
   $('em-tit').textContent=r.titulo;
   $('em-nombre').textContent=r.nombre;
-  $('em-email').value=''; $('em-guardar').checked=true; emStatus('');
+  $('em-email').value=''; $('em-guardar').checked=true; $('em-revisado').checked=false; emStatus('');
   $('em-exito').classList.remove('show');
   $('email-modal').classList.add('open');
   $('em-email').focus();
@@ -1142,6 +1264,11 @@ $('em-enviar').addEventListener('click', async ()=>{
   const r=emitidos.find(x=>x.id===emailCertId); if(!r) return;
   const para=$('em-email').value.trim();
   if(!emailValido(para)){ emStatus('Escribe un correo válido.','error'); $('em-email').focus(); return; }
+  if(!$('em-revisado').checked){
+    emStatus('Antes de enviar, marca la casilla confirmando que revisaste las fechas, horas y datos del certificado.','error');
+    abrirAlerta('Antes de enviar el correo debes <b>revisar el certificado</b> (fechas, horas académicas, nombre y título) y marcar la casilla de confirmación. El cliente recibirá el PDF tal como está.', 'Falta confirmar la revisión');
+    return;
+  }
   const btn=$('em-enviar'); btn.disabled=true; btn.classList.add('sending'); emStatus('');
   try{
     $('em-send-txt').textContent='Generando el PDF…';
@@ -1201,15 +1328,28 @@ function editarFila(id){
   if(r.font_size_nombre) $('f-size').value=r.font_size_nombre;   // conserva el tamaño elegido
   setFont(r.font_nombre||'');                                    // conserva la fuente elegida
   editingId=id; $('editing-flag').style.display='block'; $('btn-cancel').style.display='block';
+  $('f-numero').readOnly = !esAdmin();   // el número de un certificado emitido solo lo cambia el admin
+  if(r.creado_por && PERFIL.id && r.creado_por !== PERFIL.id){
+    abrirAlerta('Este certificado fue creado por <b>' + nombreDe(r.creado_por) + '</b>. Cualquier cambio que hagas quedará registrado en la bitácora con tu nombre.', 'Certificado de otro usuario');
+  }
   $('btn-guardar').textContent='Actualizar y generar (PDF)'; $('gen-title').textContent='Editar Certificado';
   irA('gen'); dibujar();
 }
 
 let confirmActionCallback = null;
-function abrirConfirm(htmlMsg, onConfirm) {
+function abrirConfirm(htmlMsg, onConfirm, titulo) {
+  $('confirm-titulo').textContent = titulo || '¿Estás seguro?';
   $('confirm-msg').innerHTML = htmlMsg;
   confirmActionCallback = onConfirm;
+  $('btn-confirm-cancel').style.display = '';           // restablece el modo confirmación
+  $('btn-confirm-ok').textContent = 'Sí, continuar';
   $('confirm-modal').classList.add('open');
+}
+/* Alerta: mismo modal pero con un solo botón (interrumpe, no se puede ignorar) */
+function abrirAlerta(htmlMsg, titulo) {
+  abrirConfirm(htmlMsg, null, titulo || '⚠ Atención');
+  $('btn-confirm-cancel').style.display = 'none';
+  $('btn-confirm-ok').textContent = 'Entendido';
 }
 $('btn-confirm-cancel').addEventListener('click', () => $('confirm-modal').classList.remove('open'));
 $('btn-confirm-ok').addEventListener('click', () => { 
@@ -1226,7 +1366,7 @@ function eliminarFila(id){
     await cargarEmitidos();
     if(esAdmin()) contarPapelera();
     if(grupoActual){ const g=grupos.find(x=>x.key===grupoActual.key); if(g) abrirDrawer(g); else cerrarDrawer(); }
-  });
+  }, '¿Ocultar certificado?');
 }
 $('filtro').addEventListener('input',e=>{
   const t=e.target.value.toLowerCase();
@@ -1275,6 +1415,22 @@ async function cargarComentarios(){
   });
 }
 
+/* Borrado DEFINITIVO (solo admin): elimina de verdad, sin papelera de por medio */
+function eliminarDefinitivo(id, nombre, codigo, origen){
+  abrirConfirm(
+    'Vas a eliminar <b>DEFINITIVAMENTE</b> el certificado de <br><b style="color:#0f172a;">'+nombre+'</b> ('+codigo+').<br><br>' +
+    'Esta acción <b>no se puede deshacer</b> y no pasa por la Papelera. Quedará registrada en la bitácora.',
+    async () => {
+      const {error}=await db.from('certificados').delete().eq('id',id);
+      if(error){ abrirAlerta('Error al eliminar: '+error.message, 'No se pudo eliminar'); return; }
+      if(origen==='papelera'){ cargarPapelera(); contarPapelera(); }
+      else{
+        await cargarEmitidos();
+        if(grupoActual){ const g=grupos.find(x=>x.key===grupoActual.key); if(g) abrirDrawer(g); else cerrarDrawer(); }
+      }
+    }, '🗑 ¿Eliminar definitivamente?');
+}
+
 /* ───── 🗑 PAPELERA (solo admin): certificados ocultos, restaurables ───── */
 async function contarPapelera(){
   const { count } = await db.from('certificados').select('*',{count:'exact',head:true}).eq('oculto',true);
@@ -1295,14 +1451,20 @@ async function cargarPapelera(){
         <div class="pap-meta">${r.titulo||''}</div>
         <div class="pap-quien">Ocultado por <b>${nombreDe(r.oculto_por)}</b>${r.oculto_at?' · '+KJACert.fechaLarga(r.oculto_at.split('T')[0]):''} · creado por ${nombreDe(r.creado_por)}</div>
       </div>
-      <button class="pap-restore" data-id="${r.id}">↩ Restaurar</button>
+      <div class="pap-btns">
+        <button class="pap-restore" data-id="${r.id}">↩ Restaurar</button>
+        <button class="pap-delete" data-id="${r.id}" data-nombre="${r.nombre}" data-codigo="${r.codigo}">🗑 Eliminar definitivamente</button>
+      </div>
     </div>`).join('');
   $('papelera-wrap').querySelectorAll('.pap-restore').forEach(btn=>{
     btn.onclick=async()=>{
       const {error}=await db.from('certificados').update({oculto:false}).eq('id',btn.dataset.id);
-      if(error){ alert('Error al restaurar: '+error.message); return; }
+      if(error){ abrirAlerta('Error al restaurar: '+error.message, 'No se pudo restaurar'); return; }
       cargarPapelera(); contarPapelera();
     };
+  });
+  $('papelera-wrap').querySelectorAll('.pap-delete').forEach(btn=>{
+    btn.onclick=()=>eliminarDefinitivo(btn.dataset.id, btn.dataset.nombre, btn.dataset.codigo, 'papelera');
   });
 }
 
