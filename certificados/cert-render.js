@@ -255,12 +255,14 @@
     const gap=Math.min(solo?200:t.bar.maxGap, span/n);
     const startY=(areaTop+areaBottom)/2 - gap*n/2 + gap/2;
     const barH=solo ? Math.min(150, gap*0.82, gap-14) : Math.min(96, gap-14);
-    const barW=t.bar.right-t.bar.left;
-    // En "solo títulos" se achica la columna del ordinal (para que no choque con el título)
-    // y se ensancha/recorre el título hacia la derecha, para que use más espacio y no se vea apretado.
-    const ordinalX = solo ? 310 : t.ordinalX;
-    const tituloX = solo ? 865 : t.tituloX;
-    const tituloW = solo ? 780 : t.tituloW;
+    // En "solo títulos" no existen las columnas de fechas/horas: la barra se extiende
+    // hasta el borde derecho útil (antes quedaba un vacío feo de 1260 a ~1830).
+    const barRight = solo ? 1830 : t.bar.right;
+    const barW=barRight-t.bar.left;
+    // Ordinal a la izquierda y título centrado en la barra extendida (sin chocar con el ordinal).
+    const ordinalX = solo ? 330 : t.ordinalX;
+    const tituloX = solo ? 1075 : t.tituloX;
+    const tituloW = solo ? 1050 : t.tituloW;
     const ordSize = solo ? Math.min(50, Math.max(32, barH*0.42)) : Math.min(48, barH*0.52);
     // tituloSize: tamaño manual elegido en el admin (campo "Tamaño Letra"); si no se elige, se autoajusta.
     const titSize = datos.tituloSize || (solo ? Math.min(42, Math.max(24, barH*0.34)) : 24);
@@ -270,7 +272,7 @@
     mods.forEach((m,i)=>{
       const cy=startY+i*gap;
       roundRect(ctx, t.bar.left, cy-barH/2, barW, barH, 16);
-      const g=ctx.createLinearGradient(t.bar.left,0,t.bar.right,0);
+      const g=ctx.createLinearGradient(t.bar.left,0,barRight,0);
       g.addColorStop(0,'#d7ddec'); g.addColorStop(1,'#fbfcff');
       ctx.fillStyle=g; ctx.fill();
       ctx.fillStyle='#15317e'; ctx.font=`400 ${ordSize}px ${SCRIPT}`;
