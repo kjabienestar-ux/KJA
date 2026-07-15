@@ -65,7 +65,7 @@
                 <li><a href="cursos.html">Cursos</a></li>
                 <li><a href="certificado.html">Certificados</a></li>
                 <li><a href="nosotros.html" class="active">Nosotros</a></li>
-                <li><a href="index.html#ubicanos">Ubícanos</a></li>
+                <li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank" rel="noopener noreferrer">Ubícanos</a></li>
             </ul>
             
             <!-- Right: Button -->
@@ -89,7 +89,7 @@
                 <li><a href="cursos.html">Cursos</a></li>
                 <li><a href="certificado.html">Certificados</a></li>
                 <li><a href="nosotros.html" class="active">Nosotros</a></li>
-                <li><a href="index.html#ubicanos">Ubícanos</a></li>
+                <li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank" rel="noopener noreferrer">Ubícanos</a></li>
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMenu()">
                 <span></span><span></span><span></span>
@@ -103,33 +103,61 @@
          · .hero-tabs     → botones que muestran/ocultan cada panel (switchAboutTab)
          · .nos-hero__wave→ ola SVG que conecta con la sección blanca de abajo
          ════════════════════════════════════════════════════════════ -->
+    <!-- ===== HERO NOSOTROS REDISEÑADO ===== -->
     <section class="nos-hero">
+        <!-- Esferas decorativas 3D (para emular y superar a cursos/terapias) -->
+        <div class="nos-orb nos-orb--pink" aria-hidden="true"></div>
+        <div class="nos-orb nos-orb--blue" aria-hidden="true"></div>
+        <div class="nos-orb nos-orb--glass" aria-hidden="true"></div>
+        <div class="nos-shape" aria-hidden="true"></div>
 
-        <div class="nos-hero__inner">
-            <span class="nos-eyebrow">Centro de atención psicológica integral</span>
-            <h1 class="nos-hero__title">Conoce <em>KJA</em></h1>
-            <p class="nos-hero__sub">Desarrollando tu bienestar mental y emocional con un enfoque humano,
-                científico y comprometido.</p>
-            <div class="accent" aria-hidden="true"></div>
+        <div class="nos-hero-inner">
+            <!-- Columna izquierda: contenido de texto -->
+            <div class="nos-hero-content">
+                <span class="nos-eyebrow">Centro de atención psicológica integral</span>
+                <h1 class="nos-hero-title">Conoce <em>KJA</em></h1>
+                <p class="nos-hero-desc">Desarrollando tu bienestar mental y emocional con un enfoque humano, científico y comprometido.</p>
+                <div class="nos-hero-actions">
+                    <a href="#nosotros" class="nos-btn-primary">
+                        Conoce nuestro propósito
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                    </a>
+                    <a href="https://wa.me/51988918238" target="_blank" class="nos-btn-outline">
+                        Contáctanos
+                    </a>
+                </div>
+            </div>
 
-            <div class="tabs" aria-label="Secciones de nosotros" id="about-tabs">
-                <button class="tab active" type="button" onclick="switchAboutTab(this, 'quienes')">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/><path d="M8 3.13a4 4 0 0 0 0 7.75"/></svg>
-                    ¿Quiénes somos?
-                </button>
-                <button class="tab" type="button" onclick="switchAboutTab(this, 'directores')">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 20v-2a4 4 0 0 1 8 0v2"/><circle cx="11" cy="8" r="4"/><path d="M17 11h4"/><path d="M19 9v4"/><path d="M4 11H2"/><path d="M3 9v4"/></svg>
-                    Directores
-                </button>
-                <button class="tab" type="button" onclick="switchAboutTab(this, 'mision')">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m15.5 8.5 3-3"/><path d="M18.5 5.5H22"/><path d="M18.5 5.5V2"/><path d="M12 12l4-4"/></svg>
-                    Misión y Visión
-                </button>
-
-                <button class="tab" type="button" onclick="switchAboutTab(this, 'servicios')">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/><path d="M8 3.13a4 4 0 0 0 0 7.75"/></svg>
-                    Servicios y Comunidad
-                </button>
+            <!-- Columna derecha: collage / imagen de equipo flotante -->
+            <div class="nos-hero-visual" aria-hidden="true">
+                <div class="nos-collage-container">
+                    <div class="nos-collage-main">
+                        <img src="images/nosotros/nosotros.webp" alt="Equipo de KJA" fetchpriority="high">
+                    </div>
+                    <!-- Tarjeta flotante 1: Personas atendidas -->
+                    <div class="nos-floating-card nos-floating-card--professionals">
+                        <div class="nos-floating-icon" style="color: #3b82f6; background: #eff6ff;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/><path d="M8 3.13a4 4 0 0 0 0 7.75"/></svg>
+                        </div>
+                        <div class="nos-floating-info">
+                            <strong>+500</strong>
+                            <span>Personas atendidas</span>
+                        </div>
+                    </div>
+                    <!-- Tarjeta flotante 2: Años -->
+                    <div class="nos-floating-card nos-floating-card--experience">
+                        <div class="nos-floating-icon" style="color: #f10075; background: #fff0f5;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                        </div>
+                        <div class="nos-floating-info">
+                            <strong>4+ Años</strong>
+                            <span>De Experiencia</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -142,6 +170,36 @@
          ════════════════════════════════════════════════════════════ -->
     <section id="nosotros" class="catalog-section about-section">
         <div class="container">
+
+            <!-- Pestañas de navegación rediseñadas en fondo claro -->
+            <div class="nosotros-tabs-wrapper">
+                <div class="nosotros-tabs" aria-label="Secciones de nosotros" id="about-tabs">
+                    <button class="nosotros-tab active" type="button" onclick="switchAboutTab(this, 'quienes')">
+                        <div class="nosotros-tab-icon" style="color: #f10075; background: #fff0f5;">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/><path d="M8 3.13a4 4 0 0 0 0 7.75"/></svg>
+                        </div>
+                        ¿Quiénes somos?
+                    </button>
+                    <button class="nosotros-tab" type="button" onclick="switchAboutTab(this, 'directores')">
+                        <div class="nosotros-tab-icon" style="color: #3b82f6; background: #eff6ff;">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 20v-2a4 4 0 0 1 8 0v2"/><circle cx="11" cy="8" r="4"/><path d="M17 11h4"/><path d="M19 9v4"/><path d="M4 11H2"/><path d="M3 9v4"/></svg>
+                        </div>
+                        Directores
+                    </button>
+                    <button class="nosotros-tab" type="button" onclick="switchAboutTab(this, 'mision')">
+                        <div class="nosotros-tab-icon" style="color: #8b5cf6; background: #f5f3ff;">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m15.5 8.5 3-3"/><path d="M18.5 5.5H22"/><path d="M18.5 5.5V2"/><path d="M12 12l4-4"/></svg>
+                        </div>
+                        Misión y Visión
+                    </button>
+                    <button class="nosotros-tab" type="button" onclick="switchAboutTab(this, 'servicios')">
+                        <div class="nosotros-tab-icon" style="color: #10b981; background: #ecfdf5;">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M2 21v-2a4 4 0 0 1 3-3.87"/><path d="M8 3.13a4 4 0 0 0 0 7.75"/></svg>
+                        </div>
+                        Servicios y Comunidad
+                    </button>
+                </div>
+            </div>
 
             <!-- ════ TAB 1 · ¿QUIÉNES SOMOS? (panel visible por defecto) ════ -->
             <!-- Imagen local en WebP con prioridad alta: es el LCP de la página.
@@ -511,7 +569,7 @@
         // 1) quita .active de todas las pestañas y paneles
         // 2) marca como activa la pestaña pulsada y su panel correspondiente
         function switchAboutTab(btn, panel) {
-            document.querySelectorAll('#about-tabs .hero-tab, #about-tabs .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#about-tabs .nosotros-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.about-panel').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('about-' + panel).classList.add('active');
