@@ -442,13 +442,25 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .dc-acc .delreal{background:#b91c1c;color:#fff;}
 
 /* Bitácora */
-.bit-row{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #eef1f7;border-radius:11px;padding:11px 15px;margin-bottom:8px;}
-.bit-acc{flex-shrink:0;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:4px 10px;border-radius:20px;min-width:74px;text-align:center;}
+/* Bitácora — línea de tiempo agrupada por día */
+.bit-dia{margin-bottom:24px;}
+.bit-dia-head{display:flex;align-items:center;gap:10px;margin:0 0 12px;}
+.bit-dia-label{font-size:13px;font-weight:800;color:#0d264c;background:#eef3fb;border:1px solid #dfe8f6;padding:6px 15px;border-radius:22px;}
+.bit-dia-count{font-size:11px;font-weight:700;color:#7c8aa5;}
+.bit-dia-head:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#e6ebf4,transparent);}
+.bit-dia-body{position:relative;}
+.bit-item{display:flex;align-items:flex-start;gap:13px;background:#fff;border:1px solid #eef1f7;border-radius:13px;padding:12px 16px;margin-bottom:8px;transition:.15s;}
+.bit-item:hover{border-color:#d7e2f4;box-shadow:0 4px 14px rgba(13,38,76,.07);transform:translateX(2px);}
+.bit-dot{flex-shrink:0;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;}
+.bit-dot svg{width:17px;height:17px;}
 .bit-crear{background:#dcfce7;color:#15803d;} .bit-editar{background:#e0e7ff;color:#4338ca;}
 .bit-ocultar{background:#fef3c7;color:#b45309;} .bit-restaurar{background:#e8f0fb;color:#004fb0;} .bit-eliminar{background:#fee2e2;color:#b91c1c;}
-.bit-txt{flex:1;min-width:0;font-size:13.5px;color:#475569;}
-.bit-txt b{color:#0f172a;font-weight:700;}
-.bit-fecha{flex-shrink:0;font-size:12px;color:#94a3b8;white-space:nowrap;}
+.bit-cont{flex:1;min-width:0;}
+.bit-linea{font-size:13.5px;color:#475569;line-height:1.55;}
+.bit-linea b{color:#0f172a;font-weight:700;}
+.bit-cod{font-weight:700;color:#0d264c;background:#f1f5fb;padding:1px 8px;border-radius:6px;font-size:12.5px;letter-spacing:.3px;}
+.bit-sub{font-size:12px;color:#94a3b8;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bit-hora{flex-shrink:0;font-size:12px;font-weight:600;color:#94a3b8;white-space:nowrap;padding-top:9px;}
 
 /* Envío: spinner en el botón y check animado de éxito */
 .em-send .em-spin{display:none;width:16px;height:16px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}

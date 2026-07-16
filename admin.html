@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=4">
+<link rel="stylesheet" href="admin.css?v=5">
 </head>
 <body>
 
@@ -1480,6 +1480,13 @@ async function cargarPapelera(){
 /* ───── 📋 BITÁCORA (solo admin): quién hizo qué ───── */
 let bitacoraData=[];
 const ACC_LBL={crear:'creó',editar:'editó',ocultar:'ocultó',restaurar:'restauró',eliminar:'eliminó'};
+const ACC_ICON={
+  crear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  editar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  ocultar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>',
+  restaurar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>',
+  eliminar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+};
 async function cargarBitacora(){
   $('bitacora-wrap').innerHTML='<div class="empty">Cargando…</div>';
   const { data, error } = await db.from('bitacora').select('*').order('created_at',{ascending:false}).limit(300);
@@ -1487,17 +1494,52 @@ async function cargarBitacora(){
   bitacoraData=data||[];
   pintarBitacora();
 }
+// Etiqueta legible del día: "Hoy", "Ayer" o "miércoles, 16 de julio"
+function etiquetaDia(d){
+  const hoy=new Date(), ayer=new Date(); ayer.setDate(hoy.getDate()-1);
+  const igual=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+  if(igual(d,hoy)) return 'Hoy';
+  if(igual(d,ayer)) return 'Ayer';
+  const s=d.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});
+  return s.charAt(0).toUpperCase()+s.slice(1);   // "Lunes, 13 de julio"
+}
 function pintarBitacora(){
   const f=($('bit-filtro').value||'').toLowerCase().trim();
   let lista=bitacoraData;
   if(f) lista=lista.filter(x=>((x.usuario_nombre||'')+' '+(x.codigo||'')+' '+(x.accion||'')+' '+(x.nombre_cert||'')).toLowerCase().includes(f));
   if(!lista.length){ $('bitacora-wrap').innerHTML='<div class="empty">Sin registros.</div>'; return; }
-  $('bitacora-wrap').innerHTML = lista.map(x=>`
-    <div class="bit-row">
-      <span class="bit-acc bit-${x.accion||''}">${ACC_LBL[x.accion]||x.accion}</span>
-      <span class="bit-txt"><b>${x.usuario_nombre||'—'}</b> ${ACC_LBL[x.accion]||x.accion} <b>${x.codigo||''}</b>${x.nombre_cert?' · '+x.nombre_cert:''}</span>
-      <span class="bit-fecha">${new Date(x.created_at).toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
-    </div>`).join('');
+  // Agrupar por día (la lista ya viene de más reciente a más antigua)
+  const grupos={}, orden=[];
+  lista.forEach(x=>{
+    const d=new Date(x.created_at);
+    const clave=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+    if(!grupos[clave]){ grupos[clave]=[]; orden.push({clave,fecha:d}); }
+    grupos[clave].push(x);
+  });
+  $('bitacora-wrap').innerHTML = orden.map(g=>{
+    const items=grupos[g.clave].map(x=>{
+      const verbo=ACC_LBL[x.accion]||x.accion;
+      const hora=new Date(x.created_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+      return `
+      <div class="bit-item">
+        <span class="bit-dot bit-${x.accion||''}">${ACC_ICON[x.accion]||''}</span>
+        <div class="bit-cont">
+          <div class="bit-linea"><b>${x.usuario_nombre||'—'}</b> ${verbo} <span class="bit-cod">${x.codigo||'—'}</span></div>
+          ${x.nombre_cert?`<div class="bit-sub">${x.nombre_cert}</div>`:''}
+        </div>
+        <span class="bit-hora">${hora}</span>
+      </div>`;
+    }).join('');
+    const cont=grupos[g.clave].length;
+    return `
+      <section class="bit-dia">
+        <div class="bit-dia-head">
+          <span class="bit-dia-label">${etiquetaDia(g.fecha)}</span>
+          <span class="bit-dia-count">${cont} ${cont===1?'movimiento':'movimientos'}</span>
+        </div>
+        <div class="bit-dia-body">${items}</div>
+      </section>`;
+  }).join('');
 }
 $('bit-filtro').addEventListener('input', pintarBitacora);
 
