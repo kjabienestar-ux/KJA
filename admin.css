@@ -442,6 +442,22 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .dc-acc .delreal{background:#b91c1c;color:#fff;}
 
 /* Bitácora */
+/* Ranking del equipo (sidebar de emitidos) */
+.rank-hint{font-size:11px;font-weight:600;color:#94a3b8;}
+.rank-list{display:flex;flex-direction:column;gap:12px;width:100%;}
+.rank-row{display:flex;align-items:center;gap:11px;}
+.rank-pos{flex-shrink:0;width:25px;height:25px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:#eef3fb;color:#8494ac;}
+.rank-row:nth-child(1) .rank-pos{background:#fef3c7;color:#b45309;}
+.rank-row:nth-child(2) .rank-pos{background:#eceff3;color:#64748b;}
+.rank-row:nth-child(3) .rank-pos{background:#fbe6d4;color:#c2632a;}
+.rank-mid{flex:1;min-width:0;}
+.rank-name{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13px;font-weight:600;color:#0f172a;margin-bottom:5px;}
+.rank-name b{color:#004fb0;font-weight:800;font-size:13.5px;}
+.rank-bar{height:7px;border-radius:6px;background:#eef2f7;overflow:hidden;}
+.rank-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#004fb0,#0ea5e9);transition:width .5s cubic-bezier(.22,.61,.36,1);}
+.rank-row:nth-child(1) .rank-fill{background:linear-gradient(90deg,#f10075,#ff4da6);}
+.rank-empty{font-size:12px;color:#94a3b8;text-align:center;padding:10px;}
+
 /* Bitácora — línea de tiempo agrupada por día */
 .bit-dia{margin-bottom:24px;}
 .bit-dia-head{display:flex;align-items:center;gap:10px;margin:0 0 12px;}

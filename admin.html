@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=5">
+<link rel="stylesheet" href="admin.css?v=6">
 </head>
 <body>
 
@@ -306,6 +306,10 @@
           <div class="dash-card full-w">
             <h3 style="flex-shrink:0; width:160px; margin-bottom:0;"><span>Estadística por Tipo</span></h3>
             <div class="chart-container" style="height:160px;"><canvas id="chartTipos"></canvas></div>
+          </div>
+          <div class="dash-card solo-admin" style="display:none;">
+            <h3><span>Ranking del equipo</span><span class="rank-hint" id="rank-hint"></span></h3>
+            <div id="rank-equipo" class="rank-list"><div class="rank-empty">Sin datos aún.</div></div>
           </div>
         </aside>
       </div>
@@ -1095,6 +1099,32 @@ function actualizarCharts(listaCerts) {
   chartInstMeses.data.labels = last6.map(x => x.label);
   chartInstMeses.data.datasets[0].data = last6.map(x => x.count);
   chartInstMeses.update();
+
+  renderRankingEquipo(listaCerts);
+}
+
+/* Ranking del equipo (solo admin): cuántos certificados creó cada colaborador.
+   Respeta los filtros activos (fecha/búsqueda), igual que los otros gráficos. */
+function renderRankingEquipo(listaCerts){
+  const cont=$('rank-equipo'); if(!cont) return;
+  const conteo={};
+  listaCerts.forEach(c=>{ const uid=c.creado_por||'__sin__'; conteo[uid]=(conteo[uid]||0)+1; });
+  const filas=Object.entries(conteo)
+    .map(([uid,n])=>({ n, nombre: uid==='__sin__' ? 'Sin registro' : (PERFILES_MAP[uid]||'—') }))
+    .sort((a,b)=>b.n-a.n);
+  const hint=$('rank-hint');
+  if(!filas.length){ cont.innerHTML='<div class="rank-empty">Sin datos aún.</div>'; if(hint) hint.textContent=''; return; }
+  const total=filas.reduce((s,f)=>s+f.n,0);
+  const max=filas[0].n||1;
+  if(hint) hint.textContent=total+' en total';
+  cont.innerHTML=filas.map((f,i)=>`
+    <div class="rank-row">
+      <span class="rank-pos">${i+1}</span>
+      <div class="rank-mid">
+        <div class="rank-name"><span>${f.nombre}</span><b>${f.n}</b></div>
+        <div class="rank-bar"><div class="rank-fill" style="width:${Math.round(f.n/max*100)}%"></div></div>
+      </div>
+    </div>`).join('');
 }
 
 const PICO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
