@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=9">
+<link rel="stylesheet" href="admin.css?v=10">
 </head>
 <body>
 
@@ -31,10 +31,11 @@
     <p class="ent-text">Verificando acceso<span class="ent-dots"><i>.</i><i>.</i><i>.</i></span></p>
   </div>
   <div class="ent-welcome">
-    <div class="ent-check">
-      <svg viewBox="0 0 52 52"><circle class="ent-check-c" cx="26" cy="26" r="24"/><path class="ent-check-p" d="M15 27l7 7 15-15"/></svg>
+    <div class="ent-avatar" id="ent-avatar">
+      <span class="ent-initials" id="ent-initials">--</span>
+      <span class="ent-av-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
     </div>
-    <h2 class="ent-hi">¡Bienvenido de nuevo!</h2>
+    <p class="ent-greet" id="ent-greet">Bienvenido de nuevo,</p>
     <p class="ent-name" id="ent-name">—</p>
     <p class="ent-sub" id="ent-sub"></p>
   </div>
@@ -323,7 +324,7 @@
             <h3 style="flex-shrink:0; width:160px; margin-bottom:0;"><span>Estadística por Tipo</span></h3>
             <div class="chart-container" style="height:160px;"><canvas id="chartTipos"></canvas></div>
           </div>
-          <div class="dash-card full-w rank-card solo-admin" style="display:none;">
+          <div class="dash-card full-w rank-card">
             <h3>
               <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Ranking del equipo</span>
               <span class="rank-hint" id="rank-hint"></span>
@@ -493,6 +494,7 @@ const TIPO_LBL={taller:'Taller',curso:'Curso',especializacion:'Especialización'
    El admin ve Comentarios, Papelera y Bitácora; el colaborador solo Generar y Emitidos. */
 let PERFIL = { id:null, rol:'colaborador', serie:null, nombre:'' };
 let PERFILES_MAP = {};   // id -> nombre, para mostrar la autoría
+let ADMIN_UID = null;    // id del admin (los certificados sin autor son suyos)
 function esAdmin(){ return PERFIL.rol === 'admin'; }
 function nombreDe(uid){ return uid && PERFILES_MAP[uid] ? PERFILES_MAP[uid] : '—'; }
 
@@ -503,8 +505,9 @@ async function cargarPerfil(){
     PERFIL.id = user.id;
     const { data } = await db.from('perfiles').select('nombre,rol,serie').eq('id', user.id).single();
     if(data){ PERFIL.rol=data.rol||'colaborador'; PERFIL.serie=data.serie; PERFIL.nombre=data.nombre||''; }
-    const { data:todos } = await db.from('perfiles').select('id,nombre');
-    PERFILES_MAP={}; (todos||[]).forEach(p=>PERFILES_MAP[p.id]=p.nombre);
+    const { data:todos } = await db.from('perfiles').select('id,nombre,rol');
+    PERFILES_MAP={}; ADMIN_UID=null;
+    (todos||[]).forEach(p=>{ PERFILES_MAP[p.id]=p.nombre; if(p.rol==='admin' && !ADMIN_UID) ADMIN_UID=p.id; });
   }catch(e){ console.warn('[KJA] perfil no cargado:', e); }
   aplicarRolUI();
 }
@@ -540,8 +543,14 @@ async function entrarConBienvenida(email){
   if(esAdmin()){ cargarComentarios(); contarPapelera(); }
   cargarClientes(); dibujar();
 
-  // Fase 2: bienvenida con su nombre y rol
-  $('ent-name').textContent = PERFIL.nombre || email.split('@')[0];
+  // Fase 2: bienvenida personalizada (avatar con iniciales, saludo por hora y rol)
+  const nombre = PERFIL.nombre || email.split('@')[0];
+  const h=new Date().getHours();
+  $('ent-greet').textContent = (h<12?'Buenos días':(h<19?'Buenas tardes':'Buenas noches'))+',';
+  $('ent-name').textContent = nombre;
+  $('ent-initials').textContent = inicialesDe(nombre);
+  const av=$('ent-avatar');
+  av.style.background = 'radial-gradient(circle at 30% 25%, rgba(255,255,255,.38), transparent 55%), '+colorDe(nombre);
   $('ent-sub').textContent = esAdmin() ? 'Administrador del sistema'
     : (PERFIL.serie ? 'Colaborador · serie '+PERFIL.serie : 'Colaborador');
   ov.classList.add('phase-welcome');
@@ -1161,11 +1170,10 @@ function colorDe(nombre){ let h=0; for(let i=0;i<nombre.length;i++) h=(h+nombre.
 function inicialesDe(nombre){ const p=nombre.trim().split(/\s+/); return (((p[0]||'')[0]||'')+((p[1]?p[1][0]:(p[0]||'').slice(1,2))||'')).toUpperCase(); }
 function renderRankingEquipo(listaCerts){
   const cont=$('rank-equipo'); if(!cont) return;
-  // Los certificados sin autor son los que hice yo (admin) antes de que existiera
-  // la función de compañeros → se suman a mi nombre.
-  const yo=(typeof PERFIL!=='undefined' && PERFIL) ? PERFIL.id : null;
+  // Los certificados sin autor son los que hizo el admin (Yeiser) antes de que
+  // existiera la función de compañeros → se suman a su nombre, lo mire quien lo mire.
   const conteo={};
-  listaCerts.forEach(c=>{ const uid=c.creado_por||yo||'__sin__'; conteo[uid]=(conteo[uid]||0)+1; });
+  listaCerts.forEach(c=>{ const uid=c.creado_por||ADMIN_UID||'__sin__'; conteo[uid]=(conteo[uid]||0)+1; });
   const filas=Object.entries(conteo)
     .map(([uid,n])=>({ n, nombre: uid==='__sin__' ? 'Sin registro' : (PERFILES_MAP[uid]||'—') }))
     .sort((a,b)=>b.n-a.n);
