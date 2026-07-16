@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=6">
+<link rel="stylesheet" href="admin.css?v=7">
 </head>
 <body>
 
@@ -307,8 +307,11 @@
             <h3 style="flex-shrink:0; width:160px; margin-bottom:0;"><span>Estadística por Tipo</span></h3>
             <div class="chart-container" style="height:160px;"><canvas id="chartTipos"></canvas></div>
           </div>
-          <div class="dash-card solo-admin" style="display:none;">
-            <h3><span>Ranking del equipo</span><span class="rank-hint" id="rank-hint"></span></h3>
+          <div class="dash-card full-w rank-card solo-admin" style="display:none;">
+            <h3>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Ranking del equipo</span>
+              <span class="rank-hint" id="rank-hint"></span>
+            </h3>
             <div id="rank-equipo" class="rank-list"><div class="rank-empty">Sin datos aún.</div></div>
           </div>
         </aside>
@@ -1105,10 +1108,16 @@ function actualizarCharts(listaCerts) {
 
 /* Ranking del equipo (solo admin): cuántos certificados creó cada colaborador.
    Respeta los filtros activos (fecha/búsqueda), igual que los otros gráficos. */
+const RANK_COLORS=['#004fb0','#f10075','#0ea5e9','#7c3aed','#059669','#d97706','#db2777','#0891b2','#4f46e5'];
+function colorDe(nombre){ let h=0; for(let i=0;i<nombre.length;i++) h=(h+nombre.charCodeAt(i))%RANK_COLORS.length; return RANK_COLORS[h]; }
+function inicialesDe(nombre){ const p=nombre.trim().split(/\s+/); return (((p[0]||'')[0]||'')+((p[1]?p[1][0]:(p[0]||'').slice(1,2))||'')).toUpperCase(); }
 function renderRankingEquipo(listaCerts){
   const cont=$('rank-equipo'); if(!cont) return;
+  // Los certificados sin autor son los que hice yo (admin) antes de que existiera
+  // la función de compañeros → se suman a mi nombre.
+  const yo=(typeof PERFIL!=='undefined' && PERFIL) ? PERFIL.id : null;
   const conteo={};
-  listaCerts.forEach(c=>{ const uid=c.creado_por||'__sin__'; conteo[uid]=(conteo[uid]||0)+1; });
+  listaCerts.forEach(c=>{ const uid=c.creado_por||yo||'__sin__'; conteo[uid]=(conteo[uid]||0)+1; });
   const filas=Object.entries(conteo)
     .map(([uid,n])=>({ n, nombre: uid==='__sin__' ? 'Sin registro' : (PERFILES_MAP[uid]||'—') }))
     .sort((a,b)=>b.n-a.n);
@@ -1117,14 +1126,22 @@ function renderRankingEquipo(listaCerts){
   const total=filas.reduce((s,f)=>s+f.n,0);
   const max=filas[0].n||1;
   if(hint) hint.textContent=total+' en total';
-  cont.innerHTML=filas.map((f,i)=>`
-    <div class="rank-row">
-      <span class="rank-pos">${i+1}</span>
+  const medalla=['oro','plata','bronce'];
+  cont.innerHTML=filas.map((f,i)=>{
+    const pct=Math.round(f.n/total*100);
+    return `
+    <div class="rank-row${i===0?' rank-lider':''}">
+      <span class="rank-pos ${medalla[i]||''}">${i+1}</span>
+      <span class="rank-ava" style="background:${colorDe(f.nombre)}">${inicialesDe(f.nombre)}</span>
       <div class="rank-mid">
-        <div class="rank-name"><span>${f.nombre}</span><b>${f.n}</b></div>
+        <div class="rank-name">
+          <span>${f.nombre}${i===0?' <em class="rank-tag">Líder</em>':''}</span>
+          <span class="rank-nums"><b>${f.n}</b><i>${pct}%</i></span>
+        </div>
         <div class="rank-bar"><div class="rank-fill" style="width:${Math.round(f.n/max*100)}%"></div></div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 const PICO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';

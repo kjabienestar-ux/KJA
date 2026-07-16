@@ -442,20 +442,28 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .dc-acc .delreal{background:#b91c1c;color:#fff;}
 
 /* Bitácora */
-/* Ranking del equipo (sidebar de emitidos) */
+/* Ranking del equipo (sidebar de emitidos) — ancho completo */
+.dash-card.full-w.rank-card{flex-direction:column;align-items:stretch;}
+.rank-card h3 svg{width:18px;height:18px;color:#f59e0b;vertical-align:-4px;margin-right:5px;}
 .rank-hint{font-size:11px;font-weight:600;color:#94a3b8;}
-.rank-list{display:flex;flex-direction:column;gap:12px;width:100%;}
-.rank-row{display:flex;align-items:center;gap:11px;}
-.rank-pos{flex-shrink:0;width:25px;height:25px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:#eef3fb;color:#8494ac;}
-.rank-row:nth-child(1) .rank-pos{background:#fef3c7;color:#b45309;}
-.rank-row:nth-child(2) .rank-pos{background:#eceff3;color:#64748b;}
-.rank-row:nth-child(3) .rank-pos{background:#fbe6d4;color:#c2632a;}
+.rank-list{display:flex;flex-direction:column;gap:6px;width:100%;}
+.rank-row{display:flex;align-items:center;gap:13px;padding:9px 11px;border-radius:14px;transition:.18s;}
+.rank-row:hover{background:#f8fafd;}
+.rank-lider{background:linear-gradient(90deg,#fff6fb,#f4f9ff);}
+.rank-pos{flex-shrink:0;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:#eef3fb;color:#8494ac;}
+.rank-pos.oro{background:#fde68a;color:#a16207;box-shadow:0 2px 9px rgba(202,138,4,.32);}
+.rank-pos.plata{background:#e2e8f0;color:#64748b;}
+.rank-pos.bronce{background:#f6cfa8;color:#b45309;}
+.rank-ava{flex-shrink:0;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;letter-spacing:.5px;box-shadow:0 3px 9px rgba(0,20,60,.16);}
 .rank-mid{flex:1;min-width:0;}
-.rank-name{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13px;font-weight:600;color:#0f172a;margin-bottom:5px;}
-.rank-name b{color:#004fb0;font-weight:800;font-size:13.5px;}
-.rank-bar{height:7px;border-radius:6px;background:#eef2f7;overflow:hidden;}
-.rank-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#004fb0,#0ea5e9);transition:width .5s cubic-bezier(.22,.61,.36,1);}
-.rank-row:nth-child(1) .rank-fill{background:linear-gradient(90deg,#f10075,#ff4da6);}
+.rank-name{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:13.5px;font-weight:600;color:#0f172a;margin-bottom:6px;}
+.rank-tag{font-style:normal;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#f10075;background:#ffe4f1;padding:2px 8px;border-radius:10px;margin-left:7px;}
+.rank-nums{display:flex;align-items:baseline;gap:7px;flex-shrink:0;}
+.rank-nums b{color:#0d264c;font-weight:800;font-size:15px;}
+.rank-nums i{font-style:normal;font-size:11px;font-weight:600;color:#94a3b8;}
+.rank-bar{height:9px;border-radius:6px;background:#eef2f7;overflow:hidden;}
+.rank-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#004fb0,#0ea5e9);transition:width .6s cubic-bezier(.22,.61,.36,1);}
+.rank-lider .rank-fill{background:linear-gradient(90deg,#f10075,#ff6bb3);}
 .rank-empty{font-size:12px;color:#94a3b8;text-align:center;padding:10px;}
 
 /* Bitácora — línea de tiempo agrupada por día */
