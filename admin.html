@@ -20,9 +20,25 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=7">
+<link rel="stylesheet" href="admin.css?v=9">
 </head>
 <body>
+
+<!-- SPLASH DE INGRESO + BIENVENIDA (se activa al iniciar sesión) -->
+<div class="ent-splash" id="ent-splash" role="status" aria-live="polite">
+  <div class="ent-load">
+    <div class="ent-badge"><img src="images/logo/logo.webp" alt="KJA" class="ent-logo" width="80" height="80"></div>
+    <p class="ent-text">Verificando acceso<span class="ent-dots"><i>.</i><i>.</i><i>.</i></span></p>
+  </div>
+  <div class="ent-welcome">
+    <div class="ent-check">
+      <svg viewBox="0 0 52 52"><circle class="ent-check-c" cx="26" cy="26" r="24"/><path class="ent-check-p" d="M15 27l7 7 15-15"/></svg>
+    </div>
+    <h2 class="ent-hi">¡Bienvenido de nuevo!</h2>
+    <p class="ent-name" id="ent-name">—</p>
+    <p class="ent-sub" id="ent-sub"></p>
+  </div>
+</div>
 
 <!-- LOGIN -->
 <div class="login-wrap" id="login-wrap">
@@ -504,6 +520,38 @@ function aplicarRolUI(){
 function mostrarDash(email){ $('login-wrap').style.display='none'; $('dash').style.display='block'; $('who').textContent=email;
   cargarPerfil().then(()=>{ prefillNumero(); if(esAdmin()){ cargarComentarios(); contarPapelera(); } }); cargarClientes(); dibujar(); }
 function mostrarLogin(){ $('dash').style.display='none'; $('login-wrap').style.display='flex'; }
+
+/* Ingreso con splash de carga + bienvenida animada (mismo lenguaje visual de la web).
+   La fase de carga dura lo que tarda de verdad el perfil (con un mínimo para que no parpadee). */
+async function entrarConBienvenida(email){
+  const ov=$('ent-splash');
+  ov.classList.remove('phase-welcome');
+  ov.classList.add('show');
+  $('login-wrap').style.display='none';
+
+  // Fase 1: cargar el perfil real (para saber el nombre) con mínimo de tiempo visible
+  const t0=performance.now();
+  await cargarPerfil();
+  await new Promise(r=>setTimeout(r, Math.max(0, 750-(performance.now()-t0))));
+
+  // Preparar el panel por detrás SIN mostrarlo (para que la bienvenida quede sobre fondo limpio)
+  $('who').textContent=email;
+  prefillNumero();
+  if(esAdmin()){ cargarComentarios(); contarPapelera(); }
+  cargarClientes(); dibujar();
+
+  // Fase 2: bienvenida con su nombre y rol
+  $('ent-name').textContent = PERFIL.nombre || email.split('@')[0];
+  $('ent-sub').textContent = esAdmin() ? 'Administrador del sistema'
+    : (PERFIL.serie ? 'Colaborador · serie '+PERFIL.serie : 'Colaborador');
+  ov.classList.add('phase-welcome');
+
+  // Mantener la bienvenida y revelar el panel justo al desvanecer el overlay
+  await new Promise(r=>setTimeout(r, 2000));
+  $('dash').style.display='block';
+  ov.classList.remove('show');
+  setTimeout(()=>ov.classList.remove('phase-welcome'), 600);
+}
 function loginMsg(t,tipo){ const e=$('login-msg'); e.textContent=t; e.className='msg '+(tipo||'error'); if(!t)e.style.display='none'; }
 
 $('login-form').addEventListener('submit', async e=>{
@@ -522,7 +570,7 @@ $('login-form').addEventListener('submit', async e=>{
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     return;
   }
-  mostrarDash(data.user.email);
+  entrarConBienvenida(data.user.email);
 });
 $('btn-logout').addEventListener('click', async ()=>{
   $('logout-overlay').classList.add('show');     // animación visible
