@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=13">
+<link rel="stylesheet" href="admin.css?v=14">
 </head>
 <body>
 
@@ -31,13 +31,12 @@
     <p class="ent-text">Verificando acceso<span class="ent-dots"><i>.</i><i>.</i><i>.</i></span></p>
   </div>
   <div class="ent-welcome">
-    <div class="ent-avatar" id="ent-avatar">
-      <span class="ent-initials" id="ent-initials">--</span>
-      <span class="ent-av-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
-    </div>
-    <p class="ent-greet" id="ent-greet">Bienvenido de nuevo,</p>
-    <p class="ent-name" id="ent-name">—</p>
-    <p class="ent-sub" id="ent-sub"></p>
+    <div class="ent-glows"><span></span><span></span><span></span></div>
+    <div class="ent-orb"><span class="ent-hand">👋</span></div>
+    <p class="ent-greet" id="ent-greet">¡Buenos días,</p>
+    <h2 class="ent-name" id="ent-name">—</h2>
+    <p class="ent-sub" id="ent-sub">Que tengas un excelente día ☀️</p>
+    <div class="ent-bar"><span></span></div>
   </div>
 </div>
 
@@ -586,16 +585,15 @@ async function entrarConBienvenida(email){
   if(esAdmin()){ cargarComentarios(); contarPapelera(); }
   cargarClientes(); dibujar();
 
-  // Fase 2: bienvenida personalizada (avatar con iniciales, saludo por hora y rol)
+  // Fase 2: bienvenida con orbe/mano, saludo por hora y nombre grande
   const nombre = PERFIL.nombre || email.split('@')[0];
   const h=new Date().getHours();
-  $('ent-greet').textContent = (h<12?'Buenos días':(h<19?'Buenas tardes':'Buenas noches'))+',';
-  $('ent-name').textContent = nombre;
-  $('ent-initials').textContent = inicialesDe(nombre);
-  const av=$('ent-avatar');
-  av.style.background = 'radial-gradient(circle at 30% 25%, rgba(255,255,255,.38), transparent 55%), '+colorDe(nombre);
-  $('ent-sub').textContent = esAdmin() ? 'Administrador del sistema'
-    : (PERFIL.serie ? 'Colaborador · serie '+PERFIL.serie : 'Colaborador');
+  const franja = h<12 ? {saludo:'¡Buenos días,', desea:'Que tengas un excelente día ☀️'}
+             : h<19 ? {saludo:'¡Buenas tardes,', desea:'Que tengas una excelente tarde 🌤️'}
+                    : {saludo:'¡Buenas noches,', desea:'Que tengas una linda noche 🌙'};
+  $('ent-greet').textContent = franja.saludo;
+  $('ent-name').textContent = nombre + '!';
+  $('ent-sub').textContent = franja.desea;
   ov.classList.add('phase-welcome');
 
   // Mantener la bienvenida y revelar el panel justo al desvanecer el overlay
@@ -1742,6 +1740,15 @@ $('bit-filtro').addEventListener('input', pintarBitacora);
   resetForm();   // formulario en blanco, fechas en hoy
   // Siempre se muestra el login al entrar al panel (no salta directo al dashboard)
 })();
+</script>
+<script>
+  // En el panel, el botón de WhatsApp es soporte directo con Yeiser (administrador).
+  window.KJA_WHATSAPP_OVERRIDE = {
+    number: '51922996170',
+    message: 'Hola Yeiser, soy del equipo KJA y tengo una duda con el panel de certificados.',
+    toastText: '¿Alguna duda con el panel? Escríbeme, soy Yeiser (administrador) y estoy disponible.',
+    labelText: 'Escríbele a Yeiser (Admin)'
+  };
 </script>
 <script defer src="accessibility.js"></script>
 </body>
