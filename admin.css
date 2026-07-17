@@ -38,25 +38,14 @@ body{font-family:'Poppins',system-ui,sans-serif;background:#eef1f6;color:#1f2937
   opacity:0;visibility:hidden;pointer-events:none;transition:opacity .55s ease,visibility .55s ease;}
 .ent-splash.show{opacity:1;visibility:visible;pointer-events:auto;}
 html:has(.ent-splash.show){overflow:hidden;}
-.ent-load,.ent-welcome{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-.ent-load{gap:22px;transition:opacity .4s ease,transform .4s ease;}
-.ent-splash.phase-welcome .ent-load{opacity:0;transform:scale(.9);}
-
-/* Fase carga (sobre fondo oscuro) */
-.ent-badge{position:relative;width:128px;height:128px;display:flex;align-items:center;justify-content:center;}
-.ent-badge::before{content:'';position:absolute;inset:0;border-radius:50%;border:4px solid rgba(255,255,255,.12);border-top-color:#f10075;border-right-color:#3d8bfd;animation:entSpin 1s linear infinite;}
-.ent-logo{width:76px;height:auto;animation:entBeat 1.4s ease-in-out infinite;filter:drop-shadow(0 8px 22px rgba(241,0,117,.5));}
-.ent-text{margin:0;font-size:13px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#9db8e6;}
-.ent-dots i{font-style:normal;opacity:0;animation:entDots 1.4s infinite;}
-.ent-dots i:nth-child(2){animation-delay:.2s;} .ent-dots i:nth-child(3){animation-delay:.4s;}
 
 /* Fase bienvenida — tarjeta blanca con ilustración (estilo modal) */
-.ent-welcome{opacity:0;pointer-events:none;transition:opacity .35s ease;padding:20px;}
+.ent-welcome{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;opacity:0;pointer-events:none;transition:opacity .35s ease;padding:20px;}
 .ent-splash.phase-welcome .ent-welcome{opacity:1;}
 .ent-card{position:relative;background:linear-gradient(180deg,#ffffff,#f6f4ff);border-radius:30px;padding:16px 40px 30px;width:min(90vw,440px);text-align:center;
-  box-shadow:0 40px 100px rgba(40,18,90,.45);transform:scale(.82) translateY(18px);opacity:0;}
-.ent-splash.phase-welcome .ent-card{animation:entCardIn .55s cubic-bezier(.34,1.56,.64,1) forwards;}
-.ent-splash.ent-going .ent-card{animation:entMagicOut .58s cubic-bezier(.5,0,.3,1) forwards;}
+  box-shadow:0 40px 100px rgba(40,18,90,.45);transform:scale(.82) translateY(18px);opacity:0;will-change:transform,opacity;backface-visibility:hidden;}
+.ent-splash.phase-welcome .ent-card{animation:entCardIn .5s cubic-bezier(.34,1.52,.64,1) forwards;}
+.ent-splash.ent-going .ent-card{animation:entMagicOut .5s cubic-bezier(.4,0,.5,1) forwards;}
 .ent-illus{width:min(82%,300px);margin:0 auto 2px;}
 .ent-scene{width:100%;height:auto;display:block;overflow:visible;}
 .ent-name-line{font-size:30px;font-weight:800;color:#20233f;margin:0;letter-spacing:-.3px;}
@@ -79,11 +68,9 @@ html:has(.ent-splash.show){overflow:hidden;}
 .spk{animation:entTwinkle 2s ease-in-out infinite;}
 .spk.s2{animation-delay:.5s;} .spk.s3{animation-delay:1s;}
 
-@keyframes entSpin{to{transform:rotate(360deg);}}
-@keyframes entBeat{0%,100%{transform:scale(1);}15%{transform:scale(1.13);}30%{transform:scale(1);}45%{transform:scale(1.08);}60%{transform:scale(1);}}
-@keyframes entDots{0%,20%{opacity:0;}50%{opacity:1;}100%{opacity:0;}}
 @keyframes entCardIn{from{opacity:0;transform:scale(.82) translateY(18px);}to{opacity:1;transform:none;}}
-@keyframes entMagicOut{35%{opacity:1;transform:scale(1.04);}100%{opacity:0;transform:scale(1.18) translateY(-6px);filter:blur(8px);}}
+/* Salida "mágica" solo con transform+opacity (compositor GPU) → fluido, sin blur pesado */
+@keyframes entMagicOut{30%{opacity:1;transform:scale(1.05) translateY(-4px);}100%{opacity:0;transform:scale(1.22) translateY(-10px);}}
 @keyframes entCharIn{from{opacity:0;transform:translateY(14px) scale(.9);}to{opacity:1;transform:none;}}
 @keyframes entWave{0%,55%,100%{transform:rotate(0);}12%,34%{transform:rotate(15deg);}23%,45%{transform:rotate(-9deg);}}
 @keyframes entFloatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}

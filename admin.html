@@ -20,16 +20,12 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=23">
+<link rel="stylesheet" href="admin.css?v=24">
 </head>
 <body>
 
-<!-- SPLASH DE INGRESO + BIENVENIDA (se activa al iniciar sesión) -->
+<!-- BIENVENIDA (se activa al iniciar sesión) -->
 <div class="ent-splash" id="ent-splash" role="status" aria-live="polite">
-  <div class="ent-load">
-    <div class="ent-badge"><img src="images/logo/logo.webp" alt="KJA" class="ent-logo" width="80" height="80"></div>
-    <p class="ent-text">Verificando acceso<span class="ent-dots"><i>.</i><i>.</i><i>.</i></span></p>
-  </div>
   <div class="ent-welcome">
     <div class="ent-card">
       <div class="ent-illus">
@@ -633,26 +629,22 @@ function mostrarDash(email){ $('login-wrap').style.display='none'; $('dash').sty
   cargarPerfil().then(()=>{ prefillNumero(); if(esAdmin()){ cargarComentarios(); contarPapelera(); } }); cargarClientes(); dibujar(); }
 function mostrarLogin(){ $('dash').style.display='none'; $('login-wrap').style.display='flex'; }
 
-/* Ingreso con splash de carga + bienvenida animada (mismo lenguaje visual de la web).
-   La fase de carga dura lo que tarda de verdad el perfil (con un mínimo para que no parpadee). */
+/* Ingreso con bienvenida animada (sin splash de carga): el velo aparece de inmediato
+   y, al tener el perfil, entra la tarjeta directamente. */
 async function entrarConBienvenida(email){
   const ov=$('ent-splash');
-  ov.classList.remove('phase-welcome');
-  ov.classList.add('show');
+  ov.classList.remove('phase-welcome','ent-going');
+  ov.classList.add('show');                 // el velo oscuro aparece de inmediato (tapa cualquier salto)
   $('login-wrap').style.display='none';
-  $('dash').style.display='block';   // el panel queda DETRÁS del velo (se ve oscurecido y difuminado)
+  $('dash').style.display='block';          // el panel queda DETRÁS del velo (oscurecido y difuminado)
 
-  // Fase 1: cargar el perfil real (para saber el nombre); breve para que no se sienta demora
-  const t0=performance.now();
+  // Cargar el perfil real (para el nombre) — mientras, solo se ve el velo, sin splash
   await cargarPerfil();
-  await new Promise(r=>setTimeout(r, Math.max(0, 350-(performance.now()-t0))));
-
-  // Preparar el panel (ya visible detrás del velo)
   prefillNumero();
   if(esAdmin()){ cargarComentarios(); contarPapelera(); }
   cargarClientes(); dibujar();
 
-  // Fase 2: tarjeta de bienvenida con ilustración
+  // Tarjeta de bienvenida (entra ya con el nombre correcto, sin parpadeo)
   const nombre = PERFIL.nombre || email.split('@')[0];
   const h=new Date().getHours();
   const desea = h<12 ? 'Que tengas un excelente día' : (h<19 ? 'Que tengas una excelente tarde' : 'Que tengas una linda noche');
@@ -661,12 +653,12 @@ async function entrarConBienvenida(email){
   $('ent-sub').innerHTML = '<span class="ent-sun">'+sun+'</span> '+desea;
   ov.classList.add('phase-welcome');
 
-  // Bienvenida corta, luego desaparición "mágica" de la tarjeta y se revela el panel
-  await new Promise(r=>setTimeout(r, 1350));
+  // Bienvenida corta; salida "mágica": la tarjeta se disipa y el velo se aclara A LA VEZ (fluido)
+  await new Promise(r=>setTimeout(r, 1300));
   ov.classList.add('ent-going');
-  await new Promise(r=>setTimeout(r, 480));
-  ov.classList.remove('show');
-  setTimeout(()=>ov.classList.remove('phase-welcome','ent-going'), 600);
+  await new Promise(r=>setTimeout(r, 200));   // deja que la tarjeta empiece a disiparse
+  ov.classList.remove('show');                // el velo se aclara mientras la tarjeta termina → un solo movimiento
+  setTimeout(()=>ov.classList.remove('phase-welcome','ent-going'), 650);
 }
 function loginMsg(t,tipo){ const e=$('login-msg'); e.textContent=t; e.className='msg '+(tipo||'error'); if(!t)e.style.display='none'; }
 
