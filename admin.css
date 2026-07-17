@@ -50,47 +50,46 @@ html:has(.ent-splash.show){overflow:hidden;}
 .ent-dots i{font-style:normal;opacity:0;animation:entDots 1.4s infinite;}
 .ent-dots i:nth-child(2){animation-delay:.2s;} .ent-dots i:nth-child(3){animation-delay:.4s;}
 
-/* Fase bienvenida */
-.ent-welcome{gap:0;opacity:0;pointer-events:none;transition:opacity .4s ease;}
+/* Fase bienvenida — tarjeta blanca con ilustración (estilo modal) */
+.ent-welcome{opacity:0;pointer-events:none;transition:opacity .35s ease;padding:20px;}
 .ent-splash.phase-welcome .ent-welcome{opacity:1;}
-.ent-welcome>*{position:relative;z-index:2;}
+.ent-card{position:relative;background:linear-gradient(180deg,#ffffff,#f6f4ff);border-radius:30px;padding:16px 40px 30px;width:min(90vw,440px);text-align:center;
+  box-shadow:0 40px 100px rgba(40,18,90,.45);transform:scale(.82) translateY(18px);opacity:0;}
+.ent-splash.phase-welcome .ent-card{animation:entCardIn .55s cubic-bezier(.34,1.56,.64,1) forwards;}
+.ent-splash.ent-going .ent-card{animation:entMagicOut .58s cubic-bezier(.5,0,.3,1) forwards;}
+.ent-illus{width:min(82%,300px);margin:0 auto 2px;}
+.ent-scene{width:100%;height:auto;display:block;overflow:visible;}
+.ent-name-line{font-size:30px;font-weight:800;color:#20233f;margin:0;letter-spacing:-.3px;}
+.ent-name{background:linear-gradient(90deg,#7c5cff,#b07bff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.ent-sub{font-size:15px;font-weight:500;color:#6b7280;margin:9px 0 20px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ent-prog{display:flex;align-items:center;justify-content:center;gap:9px;}
+.ent-prog-track{width:120px;height:8px;border-radius:99px;background:#e9e5f7;overflow:hidden;}
+.ent-prog-fill{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#7c5cff,#b07bff);}
+.ent-splash.phase-welcome .ent-prog-fill{animation:entFill 1.25s .25s cubic-bezier(.4,0,.2,1) forwards;}
+.ent-prog i{width:7px;height:7px;border-radius:50%;background:#d7d1ee;}
+.ent-splash.phase-welcome .ent-prog i{animation:entDotGlow 1.2s ease infinite;}
+.ent-prog i:nth-child(3){animation-delay:.2s;}
 
-/* Campo de partículas + estelas de luz que fluyen (la animación protagonista) */
-.ent-fx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-.ent-p{position:absolute;border-radius:50%;opacity:0;animation-name:entPart;animation-timing-function:linear;animation-iteration-count:infinite;}
-@keyframes entPart{0%{opacity:0;transform:translate(0,0) scale(.3);}12%{opacity:1;transform:scale(1);}72%{opacity:1;}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1);}}
-.ent-wisp{position:absolute;left:-30%;width:80%;height:230px;border-radius:50%;filter:blur(48px);opacity:0;}
-.ent-wisp.w1{top:40%;background:radial-gradient(ellipse,rgba(91,155,255,.8),transparent 68%);animation:entWisp 2.6s ease-in-out infinite;}
-.ent-wisp.w2{top:56%;background:radial-gradient(ellipse,rgba(255,90,168,.7),transparent 68%);animation:entWisp 3.1s ease-in-out .35s infinite reverse;}
-.ent-wisp.w3{top:47%;background:radial-gradient(ellipse,rgba(14,165,233,.6),transparent 68%);animation:entWisp 2.9s ease-in-out .7s infinite;}
-@keyframes entWisp{0%{opacity:0;transform:translate(-12%,-50%) scaleX(.8);}45%{opacity:1;}100%{opacity:0;transform:translate(72%,-50%) scaleX(1.3);}}
-
-/* Orbe con la mano saludando */
-.ent-orb{position:relative;width:118px;height:118px;border-radius:50%;display:grid;place-items:center;margin-bottom:26px;
-  background:radial-gradient(circle at 35% 28%,rgba(120,170,255,.3),rgba(24,48,96,.55) 55%,rgba(10,22,50,.72));
-  box-shadow:0 0 0 1.5px rgba(130,185,255,.65), 0 0 62px rgba(70,135,255,.6), inset 0 0 36px rgba(100,160,255,.32);
-  opacity:0;transform:scale(.4);}
-.ent-splash.phase-welcome .ent-orb{animation:entPop .5s .04s cubic-bezier(.34,1.56,.64,1) forwards;}
-.ent-hand{font-size:52px;line-height:1;transform-origin:70% 80%;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3));}
-.ent-splash.phase-welcome .ent-hand{animation:entWave 2.4s .7s ease-in-out infinite;}
-.ent-greet{margin:0;font-size:24px;font-weight:600;color:#dbe7ff;opacity:0;}
-.ent-name{margin:2px 0 0;font-size:58px;font-weight:800;line-height:1.05;background:linear-gradient(90deg,#5b9bff,#8f7bff 45%,#ff5aa8);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;filter:drop-shadow(0 6px 26px rgba(80,120,255,.4));}
-.ent-sub{margin:16px 0 0;font-size:17px;font-weight:500;color:#aec4ee;opacity:0;}
-.ent-bar{margin-top:26px;width:230px;height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;opacity:0;}
-.ent-bar span{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#3d8bfd,#8f7bff 50%,#f10075);}
-.ent-splash.phase-welcome .ent-greet{animation:entUp .38s .16s ease forwards;}
-.ent-splash.phase-welcome .ent-name{animation:entUp .42s .26s cubic-bezier(.22,.61,.36,1) forwards;}
-.ent-splash.phase-welcome .ent-sub{animation:entUp .38s .42s ease forwards;}
-.ent-splash.phase-welcome .ent-bar{animation:entUp .3s .56s ease forwards;}
-.ent-splash.phase-welcome .ent-bar span{animation:entFill 1.05s .58s cubic-bezier(.4,0,.2,1) forwards;}
+/* Movimiento de la ilustración */
+.ent-arm{transform-box:fill-box;transform-origin:78% 94%;animation:entWave 2.2s ease-in-out infinite;}
+.ent-splash.phase-welcome .ent-char{animation:entCharIn .6s .08s cubic-bezier(.34,1.56,.64,1) backwards;}
+.fb,.spk{transform-box:fill-box;transform-origin:center;}
+.fb-l{animation:entFloatY 3.2s ease-in-out infinite;}
+.fb-r{animation:entFloatY 3.6s ease-in-out .4s infinite reverse;}
+.spk{animation:entTwinkle 2s ease-in-out infinite;}
+.spk.s2{animation-delay:.5s;} .spk.s3{animation-delay:1s;}
 
 @keyframes entSpin{to{transform:rotate(360deg);}}
 @keyframes entBeat{0%,100%{transform:scale(1);}15%{transform:scale(1.13);}30%{transform:scale(1);}45%{transform:scale(1.08);}60%{transform:scale(1);}}
 @keyframes entDots{0%,20%{opacity:0;}50%{opacity:1;}100%{opacity:0;}}
-@keyframes entPop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
-@keyframes entUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-@keyframes entWave{0%,60%,100%{transform:rotate(0);}10%,30%,50%{transform:rotate(16deg);}20%,40%{transform:rotate(-12deg);}}
-@keyframes entFill{from{width:0;}to{width:100%;}}
+@keyframes entCardIn{from{opacity:0;transform:scale(.82) translateY(18px);}to{opacity:1;transform:none;}}
+@keyframes entMagicOut{35%{opacity:1;transform:scale(1.04);}100%{opacity:0;transform:scale(1.18) translateY(-6px);filter:blur(8px);}}
+@keyframes entCharIn{from{opacity:0;transform:translateY(14px) scale(.9);}to{opacity:1;transform:none;}}
+@keyframes entWave{0%,55%,100%{transform:rotate(0);}12%,34%{transform:rotate(15deg);}23%,45%{transform:rotate(-9deg);}}
+@keyframes entFloatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+@keyframes entTwinkle{0%,100%{transform:scale(.55);opacity:.4;}50%{transform:scale(1.1);opacity:1;}}
+@keyframes entFill{to{width:100%;}}
+@keyframes entDotGlow{0%,100%{background:#d7d1ee;}50%{background:#a97bff;}}
 
 /* ── LOGIN (tarjeta dividida: formulario + foto con callouts) ── */
 .login-wrap{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;}

@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=22">
+<link rel="stylesheet" href="admin.css?v=23">
 </head>
 <body>
 
@@ -31,12 +31,61 @@
     <p class="ent-text">Verificando acceso<span class="ent-dots"><i>.</i><i>.</i><i>.</i></span></p>
   </div>
   <div class="ent-welcome">
-    <div class="ent-fx" id="ent-fx"><span class="ent-wisp w1"></span><span class="ent-wisp w2"></span><span class="ent-wisp w3"></span></div>
-    <div class="ent-orb"><span class="ent-hand">👋</span></div>
-    <p class="ent-greet" id="ent-greet">¡Buenos días,</p>
-    <h2 class="ent-name" id="ent-name">—</h2>
-    <p class="ent-sub" id="ent-sub">Que tengas un excelente día ☀️</p>
-    <div class="ent-bar"><span></span></div>
+    <div class="ent-card">
+      <div class="ent-illus">
+        <svg class="ent-scene" viewBox="0 0 280 214" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="gBack" cx="50%" cy="44%" r="60%">
+              <stop offset="0%" stop-color="#efeaff"/><stop offset="100%" stop-color="#e0d8ff"/>
+            </radialGradient>
+            <linearGradient id="gHood" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8f7bff"/><stop offset="100%" stop-color="#6b53e6"/>
+            </linearGradient>
+          </defs>
+          <circle cx="140" cy="98" r="86" fill="url(#gBack)"/>
+          <!-- burbujas de chat -->
+          <g class="fb fb-l">
+            <rect x="18" y="60" width="54" height="40" rx="15" fill="#b3a6ff"/>
+            <path d="M30 100 l4 12 l11 -12 z" fill="#b3a6ff"/>
+            <path d="M45 74 c-3-5-12-3-12 3 c0 6 9 11 12 13 c3-2 12-7 12-13 c0-6-9-8-12-3 z" fill="#fff"/>
+          </g>
+          <g class="fb fb-r">
+            <rect x="208" y="52" width="58" height="42" rx="15" fill="#cec6ff"/>
+            <path d="M252 94 l-4 12 l-11 -12 z" fill="#cec6ff"/>
+            <rect x="220" y="66" width="34" height="4.6" rx="2.3" fill="#fff"/>
+            <rect x="220" y="77" width="24" height="4.6" rx="2.3" fill="#fff"/>
+          </g>
+          <!-- destellos -->
+          <path class="spk s1" d="M100 40 q2.4 6.6 8 8 q-5.6 1.4-8 8 q-2.4-6.6-8-8 q5.6-1.4 8-8Z" fill="#b7a9ff"/>
+          <path class="spk s2" d="M204 118 q1.8 5 6 6 q-4.2 1-6 6 q-1.8-5-6-6 q4.2-1 6-6Z" fill="#c7bcff"/>
+          <path class="spk s3" d="M70 150 q1.6 4.4 5.4 5.4 q-3.8 1-5.4 5.4 q-1.6-4.4-5.4-5.4 q3.8-1 5.4-5.4Z" fill="#cfc6ff"/>
+          <!-- personaje -->
+          <g class="ent-char">
+            <path d="M92 214 c0-38 22-56 48-56 c26 0 48 18 48 56 z" fill="url(#gHood)"/>
+            <path d="M118 150 h44 l-4 18 a18 12 0 0 1 -36 0 z" fill="#f0c39a"/>
+            <circle cx="140" cy="104" r="32" fill="#f3c7a0"/>
+            <circle cx="109" cy="106" r="5.5" fill="#eab98f"/>
+            <path d="M108 104 c-3-27 16-44 32-44 c17 0 35 16 32 44 c-6-16-15-20-19-15 c-9-9-32-4-32 9 c-3 0-11 2-13 6 z" fill="#2c2646"/>
+            <path d="M124 102 q5.5 -7 11 0" stroke="#3a2f52" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+            <path d="M145 102 q5.5 -7 11 0" stroke="#3a2f52" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+            <circle cx="123" cy="116" r="5.5" fill="#ffb0ab" opacity=".55"/>
+            <circle cx="157" cy="116" r="5.5" fill="#ffb0ab" opacity=".55"/>
+            <path d="M131 116 q9 12 18 0" stroke="#7a4a2c" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+            <g class="ent-arm">
+              <path d="M112 156 c-16-8-26-30-23-50 c1.5-10 14-10 17-1 c5 16 13 30 24 37 z" fill="url(#gHood)"/>
+              <circle cx="90" cy="62" r="13" fill="#f3c7a0"/>
+            </g>
+            <path d="M100 198 h80 l11 24 h-102 z" fill="#c6cedb"/>
+            <rect x="106" y="170" width="68" height="30" rx="6" fill="#aab4c4"/>
+            <rect x="110" y="174" width="60" height="22" rx="4" fill="#e9edf3"/>
+            <circle cx="140" cy="185" r="4" fill="#c6cedb"/>
+          </g>
+        </svg>
+      </div>
+      <h2 class="ent-name-line">¡Bienvenido, <span class="ent-name" id="ent-name">—</span>!</h2>
+      <p class="ent-sub" id="ent-sub">Que tengas un excelente día ☀️</p>
+      <div class="ent-prog"><span class="ent-prog-track"><span class="ent-prog-fill"></span></span><i></i><i></i></div>
+    </div>
   </div>
 </div>
 
@@ -586,23 +635,6 @@ function mostrarLogin(){ $('dash').style.display='none'; $('login-wrap').style.d
 
 /* Ingreso con splash de carga + bienvenida animada (mismo lenguaje visual de la web).
    La fase de carga dura lo que tarda de verdad el perfil (con un mínimo para que no parpadee). */
-// Genera un campo de partículas que fluyen (la animación protagonista de la bienvenida)
-function crearParticulas(){
-  const fx=$('ent-fx'); if(!fx) return;
-  fx.querySelectorAll('.ent-p').forEach(p=>p.remove());
-  const cols=['#a99bff','#7db0ff','#ff7ab8','#ffffff','#5cc8f5'];
-  let html='';
-  for(let i=0;i<66;i++){
-    const x=(Math.random()*100).toFixed(1), y=(Math.random()*100).toFixed(1);
-    const s=(2+Math.random()*4).toFixed(1);
-    const c=cols[(Math.random()*cols.length)|0];
-    const dur=(1.5+Math.random()*1.6).toFixed(2), del=(Math.random()*0.5).toFixed(2);
-    const dx=(-30+Math.random()*60).toFixed(0), dy=(-26-Math.random()*46).toFixed(0);
-    html+=`<i class="ent-p" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;background:${c};box-shadow:0 0 ${s*3}px ${c};--dx:${dx}px;--dy:${dy}px;animation-duration:${dur}s;animation-delay:${del}s;"></i>`;
-  }
-  fx.insertAdjacentHTML('beforeend', html);
-}
-
 async function entrarConBienvenida(email){
   const ov=$('ent-splash');
   ov.classList.remove('phase-welcome');
@@ -620,22 +652,21 @@ async function entrarConBienvenida(email){
   if(esAdmin()){ cargarComentarios(); contarPapelera(); }
   cargarClientes(); dibujar();
 
-  // Fase 2: bienvenida con orbe/mano, saludo por hora y nombre grande
+  // Fase 2: tarjeta de bienvenida con ilustración
   const nombre = PERFIL.nombre || email.split('@')[0];
   const h=new Date().getHours();
-  const franja = h<12 ? {saludo:'¡Buenos días,', desea:'Que tengas un excelente día ☀️'}
-             : h<19 ? {saludo:'¡Buenas tardes,', desea:'Que tengas una excelente tarde 🌤️'}
-                    : {saludo:'¡Buenas noches,', desea:'Que tengas una linda noche 🌙'};
-  $('ent-greet').textContent = franja.saludo;
-  $('ent-name').textContent = nombre + '!';
-  $('ent-sub').textContent = franja.desea;
-  crearParticulas();
+  const desea = h<12 ? 'Que tengas un excelente día' : (h<19 ? 'Que tengas una excelente tarde' : 'Que tengas una linda noche');
+  const sun = h<12 ? '☀️' : (h<19 ? '🌤️' : '🌙');
+  $('ent-name').textContent = nombre;
+  $('ent-sub').innerHTML = '<span class="ent-sun">'+sun+'</span> '+desea;
   ov.classList.add('phase-welcome');
 
-  // Bienvenida corta y desvanecer el velo dejando ver el panel (sin demora)
-  await new Promise(r=>setTimeout(r, 1250));
+  // Bienvenida corta, luego desaparición "mágica" de la tarjeta y se revela el panel
+  await new Promise(r=>setTimeout(r, 1350));
+  ov.classList.add('ent-going');
+  await new Promise(r=>setTimeout(r, 480));
   ov.classList.remove('show');
-  setTimeout(()=>ov.classList.remove('phase-welcome'), 600);
+  setTimeout(()=>ov.classList.remove('phase-welcome','ent-going'), 600);
 }
 function loginMsg(t,tipo){ const e=$('login-msg'); e.textContent=t; e.className='msg '+(tipo||'error'); if(!t)e.style.display='none'; }
 
