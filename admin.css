@@ -246,19 +246,44 @@ span.flatpickr-weekday{color:#64748b;font-weight:700;font-size:11px;text-transfo
 @keyframes shake{10%,90%{transform:translateX(-2px);}20%,80%{transform:translateX(4px);}30%,50%,70%{transform:translateX(-9px);}40%,60%{transform:translateX(9px);}}
 .login-card.shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97);}
 
-/* ── DASHBOARD ── */
-#dash{display:none;height:100vh;}
-.topbar{display:flex;align-items:center;gap:14px;background:var(--azul-osc);color:#fff;padding:10px 20px;height:56px;}
-.topbar img{height:30px;} .topbar .ttl{font-weight:600;font-size:15px;} .topbar .spacer{flex:1;}
-.topbar .who{font-size:13px;opacity:.85;}
-.topbar button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;}
-.topbar button:hover{background:rgba(255,255,255,.28);}
-.body{display:flex;height:calc(100vh - 56px);}
-.side{width:210px;flex-shrink:0;background:#fff;border-right:1px solid #e2e8f0;padding:16px 12px;}
-.side button{width:100%;text-align:left;padding:12px 14px;border:none;background:none;border-radius:10px;font-size:14px;font-weight:600;color:#475569;cursor:pointer;font-family:inherit;margin-bottom:6px;}
-.side button:hover{background:#f1f5f9;}
-.side button.active{background:#e8f0fb;color:var(--azul);}
-.content{flex:1;overflow:auto;}
+/* ── DASHBOARD (layout moderno: sidebar oscura flotante + tarjeta blanca) ── */
+#dash{display:none;height:100vh;background:#eaeef4;padding:16px;}
+.body{display:flex;gap:16px;height:calc(100vh - 32px);}
+
+/* Sidebar oscura flotante con colores KJA */
+.side{width:248px;flex-shrink:0;display:flex;flex-direction:column;gap:3px;
+  background:linear-gradient(180deg,#0b2a5c,#0d264c 55%,#0a1f47);
+  border-radius:22px;padding:22px 15px;color:#c7d2e4;box-shadow:0 18px 44px rgba(6,20,50,.26);}
+.side-brand{display:flex;align-items:center;gap:10px;padding:2px 8px 16px;}
+.side-brand img{height:30px;width:auto;}
+.side-brand span{font-size:20px;font-weight:800;color:#fff;letter-spacing:.4px;}
+.side-brand span i{color:#f10075;font-style:normal;}
+.side-sect{font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#5f76a3;padding:15px 12px 7px;}
+.side button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border:none;background:none;border-radius:13px;font-size:13.5px;font-weight:600;color:#aebbd4;cursor:pointer;font-family:inherit;transition:.16s;}
+.side button svg{width:19px;height:19px;flex-shrink:0;opacity:.85;}
+.side button .side-lbl{flex:1;}
+.side button:hover{background:rgba(255,255,255,.07);color:#fff;}
+.side button.active{background:linear-gradient(90deg,#f10075,#ff4da6);color:#fff;box-shadow:0 8px 20px rgba(241,0,117,.34);}
+.side button.active svg{opacity:1;}
+.side button.active .com-pend,.side button.active .pap-num{background:#fff;color:#f10075;}
+/* Separación inferior para no chocar con el widget de accesibilidad (esquina inf. izq.) */
+.side-logout{margin-top:auto;margin-bottom:60px;color:#f6a5c4;}
+.side-logout:hover{background:rgba(241,0,117,.14)!important;color:#ff8bbb!important;}
+
+/* Área principal: tarjeta blanca redondeada con cabecera de bienvenida */
+.content{flex:1;display:flex;flex-direction:column;min-width:0;background:#fff;border-radius:22px;box-shadow:0 18px 44px rgba(6,20,50,.08);overflow:hidden;}
+.dash-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 28px;border-bottom:1px solid #eef1f6;flex-shrink:0;}
+.welcome-hi{font-size:13px;color:#94a3b8;font-weight:500;}
+.welcome-name{font-size:25px;font-weight:800;color:#0d264c;line-height:1.15;margin-top:2px;}
+.tb-right{display:flex;align-items:center;gap:15px;flex-shrink:0;}
+.tb-bell{position:relative;width:44px;height:44px;border-radius:50%;border:none;background:#f4f7fc;color:#0d264c;display:grid;place-items:center;cursor:pointer;transition:.16s;}
+.tb-bell svg{width:20px;height:20px;}
+.tb-bell:hover{background:#e8f0fb;color:var(--azul);}
+.tb-bell-dot{position:absolute;top:10px;right:11px;width:9px;height:9px;border-radius:50%;background:#f10075;border:2px solid #fff;}
+.tb-user{display:flex;align-items:center;gap:11px;}
+.tb-ava{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:15px;font-weight:800;box-shadow:0 4px 12px rgba(0,20,60,.18);}
+.tb-user-role{font-size:12.5px;font-weight:600;color:#64748b;white-space:nowrap;}
+.views-area{flex:1;overflow:auto;min-height:0;}
 
 /* Generar */
 .gen{display:flex;height:100%;}
@@ -266,8 +291,10 @@ span.flatpickr-weekday{color:#64748b;font-weight:700;font-size:11px;text-transfo
 .panel::-webkit-scrollbar { display: none; }
 .panel h2{font-size:16px;color:var(--azul);}
 .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px;}
-.btn-nuevo{border:1px solid #cbd5e1;background:#fff;color:var(--azul);border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.14s;}
-.btn-nuevo:hover{background:#e8f0fb;border-color:var(--azul);}
+.btn-nuevo{display:inline-flex;align-items:center;gap:6px;border:none;background:#EC0272;color:#fff;border-radius:10px;padding:8px 15px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.16s;box-shadow:0 4px 12px rgba(236,2,114,.3);}
+.btn-nuevo svg{width:14px;height:14px;}
+.btn-nuevo:hover{background:#d10166;transform:translateY(-1px);box-shadow:0 7px 18px rgba(236,2,114,.42);}
+.btn-nuevo:active{transform:translateY(0);}
 .panel .editing{font-size:12px;color:var(--rosa);font-weight:600;margin-bottom:14px;display:none;
   align-items:center;justify-content:space-between;gap:10px;background:#fff0f6;border:1px solid #fbcfe8;border-radius:10px;padding:9px 12px;}
 .panel .editing[style*="block"]{display:flex !important;}
@@ -607,15 +634,19 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 /* --- RESPONSIVE MOBILE OPTIMIZATIONS --- */
 @media(max-width:900px){
   /* Layout principal - Scroll natural del documento */
-  #dash { height: auto; min-height: 100vh; }
-  .body { display: block; height: auto; }
-  .side { width: 100%; display: flex; flex-direction: row; padding: 10px; border-right: none; border-bottom: 1px solid #e2e8f0; overflow-x: auto; scrollbar-width: none; gap: 10px; }
+  #dash { height: auto; min-height: 100vh; padding: 10px; }
+  .body { display: flex; flex-direction: column; height: auto; gap: 12px; }
+  .side { width: 100%; flex-direction: row; align-items: center; border-radius: 18px; padding: 10px; overflow-x: auto; scrollbar-width: none; gap: 8px; }
   .side::-webkit-scrollbar { display: none; }
-  .side button { width: auto; flex: 1; margin: 0; text-align: center; padding: 10px 14px; white-space: nowrap; }
-  .content { display: block; overflow: visible; height: auto; }
-  .topbar .who { display: none; }
-  .topbar .ttl { font-size: 13px; }
-  
+  .side-brand, .side-sect { display: none; }
+  .side button { width: auto; flex: none; margin: 0; padding: 10px 14px; white-space: nowrap; border-radius: 11px; }
+  .side-logout { margin-top: 0; margin-left: auto; }
+  .content { display: flex; overflow: visible; height: auto; border-radius: 18px; }
+  .dash-topbar { padding: 16px 18px; flex-wrap: wrap; gap: 12px; }
+  .welcome-name { font-size: 20px; }
+  .tb-user-role { display: none; }
+  .views-area { overflow: visible; }
+
   /* Pestaña Generar */
   .view.gen, .view.emit { display: none; height: auto; overflow: visible; }
   .view.active.gen, .view.active.emit { display: flex; flex-direction: column; }
