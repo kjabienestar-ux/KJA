@@ -25,22 +25,22 @@ html:has(.ent-splash.show){overflow:hidden;}
 .ent-splash.phase-welcome .ent-welcome{opacity:1;}
 .ent-welcome>*{position:relative;z-index:2;}
 
-/* Nebulosa de brillos de fondo */
-.ent-glows{position:absolute;inset:0;z-index:0;pointer-events:none;}
-.ent-glows span{position:absolute;border-radius:50%;filter:blur(70px);opacity:0;}
-.ent-glows span:nth-child(1){width:460px;height:460px;left:50%;top:42%;margin:-230px 0 0 -230px;background:radial-gradient(circle,rgba(61,139,253,.55),transparent 70%);}
-.ent-glows span:nth-child(2){width:300px;height:300px;left:34%;top:56%;background:radial-gradient(circle,rgba(241,0,117,.5),transparent 70%);}
-.ent-glows span:nth-child(3){width:320px;height:320px;right:30%;top:38%;background:radial-gradient(circle,rgba(14,165,233,.45),transparent 70%);}
-.ent-splash.phase-welcome .ent-glows span{animation:entNebula 2.6s ease forwards, entFloat 6s ease-in-out .6s infinite;}
-.ent-splash.phase-welcome .ent-glows span:nth-child(2){animation-delay:.15s,.75s;}
-.ent-splash.phase-welcome .ent-glows span:nth-child(3){animation-delay:.3s,.9s;}
+/* Campo de partículas + estelas de luz que fluyen (la animación protagonista) */
+.ent-fx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.ent-p{position:absolute;border-radius:50%;opacity:0;animation-name:entPart;animation-timing-function:linear;animation-iteration-count:infinite;}
+@keyframes entPart{0%{opacity:0;transform:translate(0,0) scale(.3);}12%{opacity:1;transform:scale(1);}72%{opacity:1;}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1);}}
+.ent-wisp{position:absolute;left:-30%;width:80%;height:230px;border-radius:50%;filter:blur(48px);opacity:0;}
+.ent-wisp.w1{top:40%;background:radial-gradient(ellipse,rgba(91,155,255,.8),transparent 68%);animation:entWisp 2.6s ease-in-out infinite;}
+.ent-wisp.w2{top:56%;background:radial-gradient(ellipse,rgba(255,90,168,.7),transparent 68%);animation:entWisp 3.1s ease-in-out .35s infinite reverse;}
+.ent-wisp.w3{top:47%;background:radial-gradient(ellipse,rgba(14,165,233,.6),transparent 68%);animation:entWisp 2.9s ease-in-out .7s infinite;}
+@keyframes entWisp{0%{opacity:0;transform:translate(-12%,-50%) scaleX(.8);}45%{opacity:1;}100%{opacity:0;transform:translate(72%,-50%) scaleX(1.3);}}
 
 /* Orbe con la mano saludando */
 .ent-orb{position:relative;width:118px;height:118px;border-radius:50%;display:grid;place-items:center;margin-bottom:26px;
   background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.18),rgba(61,139,253,.12) 60%,rgba(11,30,66,.4));
   box-shadow:0 0 0 1.5px rgba(120,170,255,.5), 0 0 55px rgba(61,139,253,.6), inset 0 0 30px rgba(120,170,255,.25);
   opacity:0;transform:scale(.4);}
-.ent-splash.phase-welcome .ent-orb{animation:entPop .7s .1s cubic-bezier(.34,1.56,.64,1) forwards;}
+.ent-splash.phase-welcome .ent-orb{animation:entPop .5s .04s cubic-bezier(.34,1.56,.64,1) forwards;}
 .ent-hand{font-size:52px;line-height:1;transform-origin:70% 80%;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3));}
 .ent-splash.phase-welcome .ent-hand{animation:entWave 2.4s .7s ease-in-out infinite;}
 .ent-greet{margin:0;font-size:24px;font-weight:600;color:#dbe7ff;opacity:0;}
@@ -48,11 +48,11 @@ html:has(.ent-splash.show){overflow:hidden;}
 .ent-sub{margin:16px 0 0;font-size:17px;font-weight:500;color:#aec4ee;opacity:0;}
 .ent-bar{margin-top:26px;width:230px;height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;opacity:0;}
 .ent-bar span{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#3d8bfd,#8f7bff 50%,#f10075);}
-.ent-splash.phase-welcome .ent-greet{animation:entUp .55s .5s ease forwards;}
-.ent-splash.phase-welcome .ent-name{animation:entUp .6s .64s cubic-bezier(.22,.61,.36,1) forwards;}
-.ent-splash.phase-welcome .ent-sub{animation:entUp .55s .84s ease forwards;}
-.ent-splash.phase-welcome .ent-bar{animation:entUp .4s 1s ease forwards;}
-.ent-splash.phase-welcome .ent-bar span{animation:entFill 1.7s 1s cubic-bezier(.4,0,.2,1) forwards;}
+.ent-splash.phase-welcome .ent-greet{animation:entUp .38s .16s ease forwards;}
+.ent-splash.phase-welcome .ent-name{animation:entUp .42s .26s cubic-bezier(.22,.61,.36,1) forwards;}
+.ent-splash.phase-welcome .ent-sub{animation:entUp .38s .42s ease forwards;}
+.ent-splash.phase-welcome .ent-bar{animation:entUp .3s .56s ease forwards;}
+.ent-splash.phase-welcome .ent-bar span{animation:entFill 1.05s .58s cubic-bezier(.4,0,.2,1) forwards;}
 
 @keyframes entSpin{to{transform:rotate(360deg);}}
 @keyframes entBeat{0%,100%{transform:scale(1);}15%{transform:scale(1.13);}30%{transform:scale(1);}45%{transform:scale(1.08);}60%{transform:scale(1);}}
@@ -60,8 +60,6 @@ html:has(.ent-splash.show){overflow:hidden;}
 @keyframes entPop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
 @keyframes entUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 @keyframes entWave{0%,60%,100%{transform:rotate(0);}10%,30%,50%{transform:rotate(16deg);}20%,40%{transform:rotate(-12deg);}}
-@keyframes entNebula{from{opacity:0;}to{opacity:1;}}
-@keyframes entFloat{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(14px,-18px) scale(1.08);}}
 @keyframes entFill{from{width:0;}to{width:100%;}}
 
 /* ── LOGIN (tarjeta dividida: formulario + foto con callouts) ── */

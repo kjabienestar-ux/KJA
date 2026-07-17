@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=14">
+<link rel="stylesheet" href="admin.css?v=16">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
     <p class="ent-text">Verificando acceso<span class="ent-dots"><i>.</i><i>.</i><i>.</i></span></p>
   </div>
   <div class="ent-welcome">
-    <div class="ent-glows"><span></span><span></span><span></span></div>
+    <div class="ent-fx" id="ent-fx"><span class="ent-wisp w1"></span><span class="ent-wisp w2"></span><span class="ent-wisp w3"></span></div>
     <div class="ent-orb"><span class="ent-hand">👋</span></div>
     <p class="ent-greet" id="ent-greet">¡Buenos días,</p>
     <h2 class="ent-name" id="ent-name">—</h2>
@@ -569,16 +569,33 @@ function mostrarLogin(){ $('dash').style.display='none'; $('login-wrap').style.d
 
 /* Ingreso con splash de carga + bienvenida animada (mismo lenguaje visual de la web).
    La fase de carga dura lo que tarda de verdad el perfil (con un mínimo para que no parpadee). */
+// Genera un campo de partículas que fluyen (la animación protagonista de la bienvenida)
+function crearParticulas(){
+  const fx=$('ent-fx'); if(!fx) return;
+  fx.querySelectorAll('.ent-p').forEach(p=>p.remove());
+  const cols=['#a99bff','#7db0ff','#ff7ab8','#ffffff','#5cc8f5'];
+  let html='';
+  for(let i=0;i<66;i++){
+    const x=(Math.random()*100).toFixed(1), y=(Math.random()*100).toFixed(1);
+    const s=(2+Math.random()*4).toFixed(1);
+    const c=cols[(Math.random()*cols.length)|0];
+    const dur=(1.5+Math.random()*1.6).toFixed(2), del=(Math.random()*0.5).toFixed(2);
+    const dx=(-30+Math.random()*60).toFixed(0), dy=(-26-Math.random()*46).toFixed(0);
+    html+=`<i class="ent-p" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;background:${c};box-shadow:0 0 ${s*3}px ${c};--dx:${dx}px;--dy:${dy}px;animation-duration:${dur}s;animation-delay:${del}s;"></i>`;
+  }
+  fx.insertAdjacentHTML('beforeend', html);
+}
+
 async function entrarConBienvenida(email){
   const ov=$('ent-splash');
   ov.classList.remove('phase-welcome');
   ov.classList.add('show');
   $('login-wrap').style.display='none';
 
-  // Fase 1: cargar el perfil real (para saber el nombre) con mínimo de tiempo visible
+  // Fase 1: cargar el perfil real (para saber el nombre); breve para que no se sienta demora
   const t0=performance.now();
   await cargarPerfil();
-  await new Promise(r=>setTimeout(r, Math.max(0, 750-(performance.now()-t0))));
+  await new Promise(r=>setTimeout(r, Math.max(0, 350-(performance.now()-t0))));
 
   // Preparar el panel por detrás SIN mostrarlo (para que la bienvenida quede sobre fondo limpio)
   prefillNumero();
@@ -594,10 +611,11 @@ async function entrarConBienvenida(email){
   $('ent-greet').textContent = franja.saludo;
   $('ent-name').textContent = nombre + '!';
   $('ent-sub').textContent = franja.desea;
+  crearParticulas();
   ov.classList.add('phase-welcome');
 
-  // Mantener la bienvenida y revelar el panel justo al desvanecer el overlay
-  await new Promise(r=>setTimeout(r, 2000));
+  // Bienvenida corta y revelar el panel justo al desvanecer el overlay (sin demora)
+  await new Promise(r=>setTimeout(r, 1250));
   $('dash').style.display='block';
   ov.classList.remove('show');
   setTimeout(()=>ov.classList.remove('phase-welcome'), 600);
