@@ -913,7 +913,7 @@ async function ejecutarGuardado(d){
   finally{ btn.disabled=false; }
 }
 
-['f-tipo','f-nombre','f-dni','f-size','f-titulo','f-duracion','f-inicio','f-fin','f-emision','f-numero']
+['f-tipo','f-nombre','f-dni','f-size','f-titulo','f-duracion','f-inicio','f-fin','f-emision','f-numero','f-nota']
   .forEach(id=>$(id).addEventListener('input',dibujar));
 
 /* ───── Validación de DNI (8 dígitos; extranjero: 8–15) ───── */
