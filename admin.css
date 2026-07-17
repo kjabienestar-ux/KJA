@@ -583,6 +583,7 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .bit-dot svg{width:17px;height:17px;}
 .bit-crear{background:#dcfce7;color:#15803d;} .bit-editar{background:#e0e7ff;color:#4338ca;}
 .bit-ocultar{background:#fef3c7;color:#b45309;} .bit-restaurar{background:#e8f0fb;color:#004fb0;} .bit-eliminar{background:#fee2e2;color:#b91c1c;}
+.bit-enviar{background:#cffafe;color:#0e7490;}
 .bit-cont{flex:1;min-width:0;}
 .bit-linea{font-size:13.5px;color:#475569;line-height:1.55;}
 .bit-linea b{color:#0f172a;font-weight:700;}
