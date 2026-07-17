@@ -117,28 +117,44 @@
   }
 
   function dibujarParrafo(ctx, runs, c){
-    const fam=c.font||SANS, size=c.size;
-    ctx.fillStyle=c.color; ctx.textBaseline='middle'; ctx.textAlign='left';
-    const fontW=w=>`${w?700:400} ${size}px ${fam}`;
+    const fam=c.font||SANS;
+    const ratio=(c.lh||c.size*1.2)/c.size;   // mantiene la proporción interlínea/tamaño al reducir
     const tokens=[];
     runs.forEach(r=>{ r.t.split(/\s+/).forEach(w=>{ if(w.length) tokens.push({text:w,bold:!!r.b}); }); });
-    const wWidth=tk=>{ ctx.font=fontW(tk.bold); return ctx.measureText(tk.text).width; };
-    ctx.font=fontW(false); const spaceW=ctx.measureText(' ').width;
-    const lineas=[]; let cur=[], curW=0;
-    for(const tk of tokens){
-      const tw=wWidth(tk); const add=(cur.length?spaceW:0)+tw;
-      if(curW+add>c.maxW && cur.length){ lineas.push({tokens:cur,width:curW}); cur=[tk]; curW=tw; }
-      else { cur.push(tk); curW+=add; }
+
+    // Envuelve el texto con un tamaño dado; devuelve las líneas y ayudantes de medición
+    function envolver(size){
+      const fontW=w=>`${w?700:400} ${size}px ${fam}`;
+      const wWidth=tk=>{ ctx.font=fontW(tk.bold); return ctx.measureText(tk.text).width; };
+      ctx.font=fontW(false); const spaceW=ctx.measureText(' ').width;
+      const lineas=[]; let cur=[], curW=0;
+      for(const tk of tokens){
+        const tw=wWidth(tk); const add=(cur.length?spaceW:0)+tw;
+        if(curW+add>c.maxW && cur.length){ lineas.push({tokens:cur,width:curW}); cur=[tk]; curW=tw; }
+        else { cur.push(tk); curW+=add; }
+      }
+      if(cur.length) lineas.push({tokens:cur,width:curW});
+      return {lineas, spaceW, wWidth, fontW};
     }
-    if(cur.length) lineas.push({tokens:cur,width:curW});
-    lineas.forEach((ln,i)=>{
-      const y=c.topY+i*c.lh; const last=i===lineas.length-1;
-      let x=c.x, gap=spaceW;
+
+    // Auto-ajuste: si hay un piso (c.maxY, la línea de la fecha) y el texto lo pasaría,
+    // se reduce el tamaño hasta que la última línea quede por encima de la fecha.
+    let size=c.size, r=envolver(size);
+    if(c.maxY){
+      while(size>20 && (c.topY + (r.lineas.length-1)*(size*ratio)) > c.maxY){
+        size-=1; r=envolver(size);
+      }
+    }
+    const lh=size*ratio;
+    ctx.fillStyle=c.color; ctx.textBaseline='middle'; ctx.textAlign='left';
+    r.lineas.forEach((ln,i)=>{
+      const y=c.topY+i*lh; const last=i===r.lineas.length-1;
+      let x=c.x, gap=r.spaceW;
       if(c.align==='justify' && !last && ln.tokens.length>1){
-        gap=(c.maxW - ln.tokens.reduce((s,t)=>s+wWidth(t),0))/(ln.tokens.length-1);
+        gap=(c.maxW - ln.tokens.reduce((s,t)=>s+r.wWidth(t),0))/(ln.tokens.length-1);
       } else if(c.align==='center'){ x=c.x+(c.maxW-ln.width)/2; }
       else if(c.align==='right'){ x=c.x+(c.maxW-ln.width); }
-      for(const tk of ln.tokens){ ctx.font=fontW(tk.bold); ctx.fillText(tk.text,x,y); x+=wWidth(tk)+gap; }
+      for(const tk of ln.tokens){ ctx.font=r.fontW(tk.bold); ctx.fillText(tk.text,x,y); x+=r.wWidth(tk)+gap; }
     });
   }
 
@@ -166,7 +182,10 @@
     }
 
     dibujarSimple(ctx, d.nombre, cfgNombre);
-    dibujarParrafo(ctx, cfg.runs(d), cfg.cuerpo);
+    // El párrafo no debe pisar la línea "Lima, [fecha]": se le pasa como piso la Y de la fecha
+    // menos una interlínea de aire; si el texto es largo, dibujarParrafo lo reduce para caber.
+    const cuerpoCfg = { ...cfg.cuerpo, maxY: cfg.emision.cy - (cfg.cuerpo.lh||46) };
+    dibujarParrafo(ctx, cfg.runs(d), cuerpoCfg);
     dibujarSimple(ctx, `Lima, ${d.fEmision}`, cfg.emision);
     dibujarSimple(ctx, d.codigo, cfg.codigo);
     // QR
