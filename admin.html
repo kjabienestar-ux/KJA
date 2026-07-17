@@ -817,8 +817,32 @@ async function guardarYGenerar(){
     const m = $('f-extranjero').checked ? 'DNI de extranjero inválido: debe tener entre 8 y 15 dígitos.' : 'El DNI debe tener exactamente 8 dígitos (o marca "Extranjero").';
     status(m,'error'); abrirAlerta(m, 'DNI inválido'); return; }
 
+  // Temario sin marcar "Solo títulos" pero sin NINGUNA fecha ni hora en los módulos:
+  // saldría con los recuadros vacíos y "Total = 0 hrs". Se ofrece activar la opción con un clic.
+  if(temarioActivo() && !soloTitulos() && modulos.length){
+    const vacio = m => !(m.fechaInicio||'').trim() && !(m.fechaFin||'').trim() && !String(m.horas||'').trim();
+    if(modulos.every(vacio)){
+      abrirConfirm(
+        'Tu temario tiene <b>solo títulos</b>: ningún módulo lleva fechas ni horas.<br><br>' +
+        'Si lo generas así, el temario saldrá con los <b>recuadros de fechas y horas vacíos</b> y "Total de horas académicas = 0 hrs".<br><br>' +
+        '¿Activo la opción <b>"Solo títulos (sin fechas ni horas)"</b> y continúo?',
+        ()=>{ $('f-solo-titulos').checked=true; $('f-solo-titulos').dispatchEvent(new Event('change')); guardarYGenerar(); },
+        'Temario sin fechas ni horas');
+      $('btn-confirm-ok').textContent='Sí, activar y continuar';
+      return;
+    }
+  }
+
   const btn=$('btn-guardar'); btn.disabled=true; status('Validando…','info');
   const avisos = advertenciasDe(d);
+  // Temario a medias: algunos módulos con fechas/horas y otros sin llenar → recuadros vacíos
+  if(temarioActivo() && !soloTitulos() && modulos.length){
+    const faltan = modulos.map((m,i)=>({i:i+1, falta: !((m.fechaInicio||'').trim() && (m.fechaFin||'').trim() && String(m.horas||'').trim())}))
+                          .filter(x=>x.falta).map(x=>x.i);
+    if(faltan.length){
+      avisos.push('El temario tiene módulos con <b>fechas u horas sin llenar</b> (módulo ' + faltan.join(', módulo ') + '): esos recuadros saldrán vacíos en el PDF. Si el temario es solo de títulos, cancela y marca <b>"Solo títulos"</b>.');
+    }
+  }
   try{
     // número ya usado (busca el NÚMERO en cualquier mes/año, no solo el código exacto)
     const usado = await numeroUsado($('f-numero').value.trim());
