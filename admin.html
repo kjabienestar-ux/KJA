@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=21">
+<link rel="stylesheet" href="admin.css?v=22">
 </head>
 <body>
 
@@ -518,6 +518,23 @@
   </div>
 </div>
 
+<!-- Modal de ÉXITO: confirmación animada al emitir/actualizar un certificado -->
+<div class="exito-ov" id="exito-ov">
+  <div class="exito-card">
+    <div class="exito-check">
+      <svg viewBox="0 0 52 52"><circle class="ex-c" cx="26" cy="26" r="24"/><path class="ex-p" d="M15 27l7 7 15-15"/></svg>
+    </div>
+    <h3 class="exito-tit" id="exito-tit">¡Certificado emitido!</h3>
+    <p class="exito-sub" id="exito-sub">Generando PDF…</p>
+    <div class="exito-info">
+      <div class="exito-cod" id="exito-cod">—</div>
+      <div class="exito-name" id="exito-name">—</div>
+      <div class="exito-ttl" id="exito-ttl">—</div>
+    </div>
+    <button class="exito-btn" id="exito-btn">Listo</button>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL  = "https://xadxmfgdxwplmhijagix.supabase.co";
 const SUPABASE_ANON = "sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub";
@@ -957,12 +974,32 @@ async function ejecutarGuardado(d){
       else status('Error al guardar: '+error.message,'error');
       btn.disabled=false; return;
     }
-    status(editingId?'✓ Actualizado. Descargando PDF…':'✓ Guardado. Descargando PDF…','ok');
+    const editando=!!editingId;
+    status('');
+    mostrarExito({ codigo:d.codigo, nombre:d.nombre, titulo:d.titulo, editando });
     await descargarPDF(d, tem);
+    exitoPdfListo();
     cargarClientes(); modoNuevo();
-  }catch(err){ status('Error: '+(err.message||err),'error'); }
+  }catch(err){ status('Error: '+(err.message||err),'error'); abrirAlerta('No se pudo completar: '+(err.message||err), 'Error al generar'); }
   finally{ btn.disabled=false; }
 }
+
+/* Confirmación animada de emisión */
+function mostrarExito({codigo,nombre,titulo,editando}){
+  $('exito-tit').textContent = editando ? '¡Certificado actualizado!' : '¡Certificado emitido!';
+  $('exito-cod').textContent = codigo || '';
+  $('exito-name').textContent = nombre || '';
+  $('exito-ttl').textContent = titulo || '';
+  $('exito-sub').innerHTML = '<span class="ex-spin"></span> Generando PDF…';
+  const ov=$('exito-ov');
+  ov.classList.remove('open'); void ov.offsetWidth;   // reinicia la animación del check
+  ov.classList.add('open');
+}
+function exitoPdfListo(){
+  $('exito-sub').innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#15803d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M20 6 9 17l-5-5"/></svg> PDF descargado a tu dispositivo';
+}
+$('exito-btn').addEventListener('click', ()=>$('exito-ov').classList.remove('open'));
+$('exito-ov').addEventListener('click', e=>{ if(e.target===$('exito-ov')) $('exito-ov').classList.remove('open'); });
 
 ['f-tipo','f-nombre','f-dni','f-size','f-titulo','f-duracion','f-inicio','f-fin','f-emision','f-numero','f-nota']
   .forEach(id=>$(id).addEventListener('input',dibujar));
