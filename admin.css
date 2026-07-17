@@ -691,17 +691,26 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
   #cert { max-height: none; }
   
   /* Pestaña Emitidos */
-  .emit { padding: 16px; gap: 20px; }
+  .emit { padding: 14px; gap: 22px; }
   .emit-main { min-width: 0; flex: none; overflow: visible; display: block; }
+  .emit-head h2 { font-size: 20px; }
   .emit-sidebar { max-width: 100%; padding-right: 0; display: flex; flex-direction: column; gap: 16px; }
-  .dash-card { max-width: 100%; }
-  .emit .toolbar { flex-direction: column; align-items: stretch; gap: 12px; }
-  .search-wrap { max-width: 100%; width: 100%; }
-  
+  .dash-card { max-width: 100%; min-width: 0; padding: 18px 16px; }
+  .emit .toolbar { flex-direction: column; align-items: stretch; gap: 10px; margin-bottom: 16px; }
+  .search-wrap { max-width: 100%; width: 100%; min-width: 0; }
+  .emit .count { align-self: flex-start; }
+
+  /* Tarjetas de gráfico a ancho completo se apilan (h3 arriba, gráfico abajo) */
+  .dash-card.full-w { flex-direction: column; align-items: stretch; }
+  .dash-card.full-w h3 { width: auto !important; margin-bottom: 12px !important; }
+  .dash-card.full-w .chart-container { width: 100% !important; height: 180px !important; }
+
   /* Lista de clientes en móvil */
   #tabla-wrap { flex: none; overflow: visible; padding-right: 0; padding-bottom: 10px; width: 100%; }
+  .cli-dia-label { font-size: 12.5px; padding: 5px 13px; }
   .cli-row { gap: 11px; padding: 11px 13px; }
-  .chev { padding: 7px 13px; }
+  .cli-name { font-size: 14px; }
+  .chev { padding: 7px 14px; }
   
   /* Modal / Drawer */
   .drawer { width: 100%; border-radius: 0; }
