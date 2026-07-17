@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=16">
+<link rel="stylesheet" href="admin.css?v=17">
 </head>
 <body>
 
@@ -591,13 +591,14 @@ async function entrarConBienvenida(email){
   ov.classList.remove('phase-welcome');
   ov.classList.add('show');
   $('login-wrap').style.display='none';
+  $('dash').style.display='block';   // el panel queda DETRÁS del velo (se ve oscurecido y difuminado)
 
   // Fase 1: cargar el perfil real (para saber el nombre); breve para que no se sienta demora
   const t0=performance.now();
   await cargarPerfil();
   await new Promise(r=>setTimeout(r, Math.max(0, 350-(performance.now()-t0))));
 
-  // Preparar el panel por detrás SIN mostrarlo (para que la bienvenida quede sobre fondo limpio)
+  // Preparar el panel (ya visible detrás del velo)
   prefillNumero();
   if(esAdmin()){ cargarComentarios(); contarPapelera(); }
   cargarClientes(); dibujar();
@@ -614,9 +615,8 @@ async function entrarConBienvenida(email){
   crearParticulas();
   ov.classList.add('phase-welcome');
 
-  // Bienvenida corta y revelar el panel justo al desvanecer el overlay (sin demora)
+  // Bienvenida corta y desvanecer el velo dejando ver el panel (sin demora)
   await new Promise(r=>setTimeout(r, 1250));
-  $('dash').style.display='block';
   ov.classList.remove('show');
   setTimeout(()=>ov.classList.remove('phase-welcome'), 600);
 }
