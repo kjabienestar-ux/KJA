@@ -20,7 +20,7 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=17">
+<link rel="stylesheet" href="admin.css?v=19">
 </head>
 <body>
 
@@ -1304,30 +1304,49 @@ function renderRankingEquipo(listaCerts){
   }).join('');
 }
 
-const PICO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+// Fecha del certificado más reciente de un cliente (para ordenar y agrupar por día)
+function ultimaFechaCliente(g){
+  let m=0;
+  g.certs.forEach(c=>{ const t=new Date(c.created_at||c.fecha_emision||0).getTime(); if(t>m) m=t; });
+  return m;
+}
 function pintarClientes(list, totalCerts){
   $('count').textContent=`${list.length} cliente(s) · ${totalCerts} certificado(s)`;
-  if(!list.length){ 
+  if(!list.length){
     $('tabla-wrap').innerHTML=`<div class="empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="12" cy="14" r="3"/></svg>
       <div class="e-tit">No hay resultados</div>
       <div class="e-sub">No se encontraron certificados para los filtros actuales.</div>
-    </div>`; 
-    return; 
+    </div>`;
+    return;
   }
-  let html='<table><thead><tr><th>Cliente</th><th>DNI</th><th>Certificados</th><th></th></tr></thead><tbody>';
-  list.forEach((g,i)=>{
-    const dly = (i * 0.05).toFixed(2);
-    html+=`<tr class="cli-row" data-i="${i}" style="animation-delay:${dly}s">
-      <td><span class="person"><span class="pico">${PICO}</span>${g.nombre}</span></td>
-      <td>${g.dni? g.dni : '<span style="color:#cbd5e1;">—</span>'}</td>
-      <td><span class="badge-num">${g.certs.length}</span></td>
-      <td style="text-align:right;"><span class="chev">Ver ›</span></td>
-    </tr>`;
+  // Ordenar por más reciente y agrupar por día (Hoy / Ayer / fecha)
+  const ordenados=[...list].sort((a,b)=>ultimaFechaCliente(b)-ultimaFechaCliente(a));
+  const secciones={}, orden=[];
+  ordenados.forEach(g=>{
+    const d=new Date(ultimaFechaCliente(g));
+    const clave=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+    if(!secciones[clave]){ secciones[clave]=[]; orden.push({clave,fecha:d}); }
+    secciones[clave].push(g);
   });
-  html+='</tbody></table>';
+  const flat=[]; let html='';
+  orden.forEach(sec=>{
+    const items=secciones[sec.clave];
+    html+=`<section class="cli-dia"><div class="cli-dia-head"><span class="cli-dia-label">${etiquetaDia(sec.fecha)}</span><span class="cli-dia-count">${items.length} ${items.length===1?'cliente':'clientes'}</span></div><div class="cli-dia-body">`;
+    items.forEach(g=>{
+      const idx=flat.push(g)-1;
+      const nom=g.nombre||'—';
+      html+=`<div class="cli-row" data-i="${idx}" style="animation-delay:${(idx*0.03).toFixed(2)}s">
+        <span class="cli-ava" style="background:${colorDe(nom)}">${inicialesDe(nom)}</span>
+        <div class="cli-info"><span class="cli-name">${nom}</span><span class="cli-dni">${g.dni?('DNI '+g.dni):'Sin DNI'}</span></div>
+        <span class="badge-num" title="${g.certs.length} certificado(s)">${g.certs.length}</span>
+        <span class="chev">Ver ›</span>
+      </div>`;
+    });
+    html+='</div></section>';
+  });
   $('tabla-wrap').innerHTML=html;
-  $('tabla-wrap').querySelectorAll('.cli-row').forEach(r=>r.onclick=()=>abrirDrawer(list[+r.dataset.i]));
+  $('tabla-wrap').querySelectorAll('.cli-row').forEach(r=>r.onclick=()=>abrirDrawer(flat[+r.dataset.i]));
 }
 
 /* Fecha y hora LOCAL del envío del correo (el guardado es timestamptz UTC;
