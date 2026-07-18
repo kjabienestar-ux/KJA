@@ -141,7 +141,14 @@
 <div id="dash">
   <div class="body">
     <nav class="side">
-      <div class="side-brand"><img src="images/logo/logo.webp" alt="KJA" onerror="this.style.display='none'"><span>KJA<i>.</i></span></div>
+      <div class="side-brand">
+        <div class="side-brand-inner">
+          <img src="images/logo/logo.webp" alt="KJA" onerror="this.style.display='none'"><span>KJA<i>.</i></span>
+        </div>
+        <button id="side-toggle" class="side-toggle" title="Alternar menú">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+      </div>
       <div class="side-sect">Menú principal</div>
       <button data-view="gen" class="active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg>
@@ -1843,6 +1850,11 @@ function pintarBitacora(){
 }
 $('bit-filtro').addEventListener('input', pintarBitacora);
 
+// Toggle Sidebar
+$('side-toggle').addEventListener('click', () => {
+  const side = document.querySelector('.side');
+  side.classList.toggle('collapsed');
+});
 /* ───── INICIO ───── */
 (async ()=>{
   await KJACert.preloadFonts();

@@ -281,8 +281,32 @@ span.flatpickr-weekday{color:#64748b;font-weight:700;font-size:11px;text-transfo
 /* Sidebar oscura flotante con colores KJA */
 .side{width:248px;flex-shrink:0;display:flex;flex-direction:column;gap:3px;
   background:linear-gradient(180deg,#0b2a5c,#0d264c 55%,#0a1f47);
-  border-radius:22px;padding:22px 15px;color:#c7d2e4;box-shadow:0 18px 44px rgba(6,20,50,.26);}
-.side-brand{display:flex;align-items:center;gap:10px;padding:2px 8px 16px;}
+  border-radius:22px;padding:22px 15px;color:#c7d2e4;box-shadow:0 18px 44px rgba(6,20,50,.26);
+  position: relative; overflow: hidden; transition: width 0.3s cubic-bezier(0.25,0.8,0.25,1), padding 0.3s;}
+.side.collapsed { width: 84px; padding-left: 12px; padding-right: 12px; }
+.side.collapsed .side-brand-inner span, 
+.side.collapsed .side-sect, 
+.side.collapsed .side-lbl,
+.side.collapsed .com-pend,
+.side.collapsed .pap-num { display: none !important; }
+.side.collapsed .side-brand { justify-content: center; padding-left: 0; padding-right: 0; }
+.side.collapsed .side-brand-inner img { margin-left: 0; margin-right: 0; }
+.side.collapsed .side-toggle { margin: 0 auto; display: none; }
+.side.collapsed button { justify-content: center; padding: 12px; }
+.side.collapsed button svg { margin: 0; }
+.side.collapsed:hover .side-toggle { display: flex; } /* Show toggle when hovered if collapsed */
+.side::before {
+  content: ""; position: absolute; inset: 0;
+  background: url('images/login/login-image.webp') center/cover no-repeat;
+  opacity: 0.15; z-index: 0; pointer-events: none;
+}
+.side > * { position: relative; z-index: 1; }
+.side-brand{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 8px 16px;}
+.side-brand-inner { display: flex; align-items: center; gap: 10px; }
+.side-toggle { background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: #fff; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+.side-toggle:hover { background: rgba(241,0,117,0.8); }
+.side-toggle svg { width: 16px; height: 16px; transition: transform 0.3s; }
+.side.collapsed .side-toggle svg { transform: rotate(180deg); }
 .side-brand img{height:30px;width:auto;}
 .side-brand span{font-size:20px;font-weight:800;color:#fff;letter-spacing:.4px;}
 .side-brand span i{color:#f10075;font-style:normal;}
