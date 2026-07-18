@@ -28,12 +28,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Precarga de la imagen principal (LCP) para que aparezca antes -->
-    <link rel="preload" as="image" href="images/nosotros/nosotros.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="images/nosotros/fondoo-1.webp" fetchpriority="high">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="shared.css?v=10">
-    <link rel="stylesheet" href="nosotros.css?v=18">
+    <link rel="stylesheet" href="nosotros.css?v=26">
     <link rel="stylesheet" href="accessibility.css">
 </head>
 
@@ -105,17 +105,16 @@
          ════════════════════════════════════════════════════════════ -->
     <!-- ===== HERO NOSOTROS REDISEÑADO ===== -->
     <section class="nos-hero">
-        <!-- Esferas decorativas 3D (para emular y superar a cursos/terapias) -->
-        <div class="nos-orb nos-orb--pink" aria-hidden="true"></div>
-        <div class="nos-orb nos-orb--blue" aria-hidden="true"></div>
-        <div class="nos-orb nos-orb--glass" aria-hidden="true"></div>
-        <div class="nos-shape" aria-hidden="true"></div>
-
         <div class="nos-hero-inner">
             <!-- Columna izquierda: contenido de texto -->
             <div class="nos-hero-content">
-                <span class="nos-eyebrow">Centro de atención psicológica integral</span>
+                <span class="nos-eyebrow">
+                    <svg class="nos-eyebrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
+                    Centro de atención psicológica integral
+                </span>
+                <div class="nos-eyebrow-rule" aria-hidden="true"></div>
                 <h1 class="nos-hero-title">Conoce <em>KJA</em></h1>
+                <div class="nos-title-rule" aria-hidden="true"></div>
                 <p class="nos-hero-desc">Desarrollando tu bienestar mental y emocional con un enfoque humano, científico y comprometido.</p>
                 <div class="nos-hero-actions">
                     <a href="#nosotros" class="nos-btn-primary">
@@ -129,13 +128,38 @@
                         Contáctanos
                     </a>
                 </div>
+
+                <!-- Tres pilares -->
+                <div class="nos-hero-features">
+                    <div class="nos-feature">
+                        <svg class="nos-feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+                        <div class="nos-feature-text">
+                            <strong>Enfoque Humano</strong>
+                            <span>Escuchamos, comprendemos y acompañamos.</span>
+                        </div>
+                    </div>
+                    <div class="nos-feature">
+                        <svg class="nos-feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+                        <div class="nos-feature-text">
+                            <strong>Basados en Ciencia</strong>
+                            <span>Intervenciones psicológicas con respaldo científico.</span>
+                        </div>
+                    </div>
+                    <div class="nos-feature">
+                        <svg class="nos-feature-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>
+                        <div class="nos-feature-text">
+                            <strong>Compromiso Real</strong>
+                            <span>Trabajamos por tu bienestar y crecimiento personal.</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Columna derecha: collage / imagen de equipo flotante -->
             <div class="nos-hero-visual" aria-hidden="true">
                 <div class="nos-collage-container">
                     <div class="nos-collage-main">
-                        <img src="images/nosotros/nosotros.webp" alt="Equipo de KJA" fetchpriority="high">
+                        <img src="images/nosotros/fondoo-1.webp" alt="Familia acompañada por KJA — bienestar emocional y salud mental" fetchpriority="high">
                     </div>
                     <!-- Tarjeta flotante 1: Personas atendidas -->
                     <div class="nos-floating-card nos-floating-card--professionals">
@@ -186,7 +210,7 @@
                         </div>
                         Directores
                     </button>
-                    <button class="nosotros-tab" type="button" onclick="switchAboutTab(this, 'mision')">
+                    <button class="nosotros-tab" type="button" onclick="switchAboutTab(this, 'mision')" style="display: none;">
                         <div class="nosotros-tab-icon" style="color: #8b5cf6; background: #f5f3ff;">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m15.5 8.5 3-3"/><path d="M18.5 5.5H22"/><path d="M18.5 5.5V2"/><path d="M12 12l4-4"/></svg>
                         </div>
@@ -326,7 +350,7 @@
             </div>
 
             <!-- ════ TAB 3 · MISIÓN Y VISIÓN ════ -->
-                     <div class="about-panel" id="about-mision">
+                     <div class="about-panel" id="about-mision" style="display: none;">
                 <div class="mv-light-wrapper">
                     <div class="mv-deco-ring"></div>
 
@@ -411,14 +435,19 @@
                     <p class="bento-subtitle">Profesionales de distintas áreas que hacen posible nuestra labor todos los días.</p>
                 </div>
 
-                <!-- Fila horizontal: foto + nombre + área (sin bio) -->
+                <!-- Fila horizontal: tarjeta tipo perfil (foto a sangre, nombre + verificado, área en píldora) -->
                 <div class="team-row">
                     <div class="tr-card">
                         <div class="tr-photo">
                             <img src="images/nosotros/equipo-mario.webp" alt="Mario, del área de Marketing de KJA"
                                 loading="lazy" decoding="async" width="720" height="960" />
-                            <span class="tr-area">Marketing</span>
-                            <div class="tr-name">Mario</div>
+                            <div class="tr-blur" aria-hidden="true"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                            <div class="tr-overlay">
+                                <span class="tr-name">Mario
+                                    <svg class="tr-verified" viewBox="0 0 22 22" aria-hidden="true"><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg>
+                                </span>
+                                <span class="tr-area">Marketing</span>
+                            </div>
                         </div>
                     </div>
 
@@ -426,8 +455,13 @@
                         <div class="tr-photo">
                             <img src="images/nosotros/equipo-laura.webp" alt="Laura, del área de Marketing de KJA"
                                 loading="lazy" decoding="async" width="720" height="1011" />
-                            <span class="tr-area">Marketing</span>
-                            <div class="tr-name">Laura</div>
+                            <div class="tr-blur" aria-hidden="true"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                            <div class="tr-overlay">
+                                <span class="tr-name">Laura
+                                    <svg class="tr-verified" viewBox="0 0 22 22" aria-hidden="true"><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg>
+                                </span>
+                                <span class="tr-area">Marketing</span>
+                            </div>
                         </div>
                     </div>
 
@@ -435,8 +469,13 @@
                         <div class="tr-photo">
                             <img src="images/nosotros/equipo-stefany.webp" alt="Stefany, del área de Contabilidad de KJA"
                                 loading="lazy" decoding="async" width="720" height="960" />
-                            <span class="tr-area">Contabilidad</span>
-                            <div class="tr-name">Stefany</div>
+                            <div class="tr-blur" aria-hidden="true"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                            <div class="tr-overlay">
+                                <span class="tr-name">Stefany
+                                    <svg class="tr-verified" viewBox="0 0 22 22" aria-hidden="true"><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg>
+                                </span>
+                                <span class="tr-area">Contabilidad</span>
+                            </div>
                         </div>
                     </div>
 
@@ -444,8 +483,13 @@
                         <div class="tr-photo">
                             <img src="images/nosotros/equipo-yeiser.webp" alt="Yeiser, del área de Ingeniería de KJA"
                                 loading="lazy" decoding="async" width="720" height="956" />
-                            <span class="tr-area">Ingeniería</span>
-                            <div class="tr-name">Yeiser</div>
+                            <div class="tr-blur" aria-hidden="true"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                            <div class="tr-overlay">
+                                <span class="tr-name">Yeiser
+                                    <svg class="tr-verified" viewBox="0 0 22 22" aria-hidden="true"><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg>
+                                </span>
+                                <span class="tr-area">Ingeniería</span>
+                            </div>
                         </div>
                     </div>
 
@@ -453,8 +497,27 @@
                         <div class="tr-photo">
                             <img src="images/nosotros/equipo-antony.webp" alt="Antony, del área de Ingeniería de KJA"
                                 loading="lazy" decoding="async" width="720" height="960" />
-                            <span class="tr-area">Ingeniería</span>
-                            <div class="tr-name">Antony</div>
+                            <div class="tr-blur" aria-hidden="true"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                            <div class="tr-overlay">
+                                <span class="tr-name">Antony
+                                    <svg class="tr-verified" viewBox="0 0 22 22" aria-hidden="true"><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg>
+                                </span>
+                                <span class="tr-area">Ingeniería</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tr-card">
+                        <div class="tr-photo">
+                            <img src="images/nosotros/equipo-camila.webp" alt="Camila, del área de Administración de KJA"
+                                loading="lazy" decoding="async" width="720" height="955" />
+                            <div class="tr-blur" aria-hidden="true"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                            <div class="tr-overlay">
+                                <span class="tr-name">Camila
+                                    <svg class="tr-verified" viewBox="0 0 22 22" aria-hidden="true"><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg>
+                                </span>
+                                <span class="tr-area">Administración</span>
+                            </div>
                         </div>
                     </div>
                 </div>

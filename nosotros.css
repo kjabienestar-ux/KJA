@@ -38,25 +38,22 @@
   position: relative;
   overflow: hidden;
   padding: 130px 24px 100px;
-  background-color: #04122d;
-  background-image: url('images/nosotros/ooour-background.webp');
+  background-color: #1a2a54;
+  background-image: url('images/nosotros/our-background.webp');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
   isolation: isolate;
 }
 
-/* Velo de legibilidad: difumina y oscurece suavemente la foto de fondo detrás del título */
+/* Velo de legibilidad muy sutil: solo oscurece el lado izquierdo (donde va
+   el texto) para no tapar las decoraciones del fondo (ola, puntos, hoja). */
 .nos-hero::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
-  background:
-    radial-gradient(1000px 600px at 50% 50%, rgba(4, 18, 45, 0.65) 0%, rgba(4, 18, 45, 0.4) 60%, transparent 100%),
-    linear-gradient(180deg, rgba(4, 18, 45, 0.4) 0%, rgba(4, 18, 45, 0.2) 50%, rgba(4, 18, 45, 0.6) 100%);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  background: linear-gradient(90deg, rgba(12, 26, 58, .55) 0%, rgba(12, 26, 58, .28) 34%, rgba(12, 26, 58, 0) 58%);
 }
 
 /* Media luna inferior de transición */
@@ -105,42 +102,61 @@
 }
 
 .nos-eyebrow {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 2.5px;
+  letter-spacing: 2.4px;
   text-transform: uppercase;
   color: #fff;
-  background: rgba(14, 38, 77, 0.65);
-  border: 1px solid rgba(255, 255, 255, .18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  padding: 7px 18px;
-  border-radius: 999px;
-  margin-bottom: 24px;
+  margin-bottom: 10px;
 }
-@media (max-width: 991px) {
-  .nos-eyebrow {
-    margin: 0 auto 24px;
-  }
+.nos-eyebrow-icon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  color: #f10075;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+}
+/* Filo rosa corto bajo el eyebrow */
+.nos-eyebrow-rule {
+  width: 54px;
+  height: 3px;
+  border-radius: 999px;
+  background: #f10075;
+  margin: 0 auto 22px;
+}
+@media (min-width: 992px) {
+  .nos-eyebrow-rule { margin-left: 0; }
 }
 
 .nos-hero-title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 600;
-  font-size: clamp(2.6rem, 5.5vw, 4.8rem);
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 5.5vw, 4.6rem);
   line-height: 1.05;
   letter-spacing: -1.5px;
   color: #fff;
-  margin: 0 0 18px;
+  margin: 0 0 8px;
 }
 .nos-hero-title em {
-  font-style: italic;
-  font-weight: 500;
-  background: linear-gradient(100deg, #ff5fa8, #ff8cb9);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 15px rgba(255, 95, 168, 0.4));
+  font-style: normal;
+  font-weight: 800;
+  color: #f10075;
+}
+/* Filo rosa debajo del título (como la referencia) */
+.nos-title-rule {
+  width: 88px;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f10075, #ff5fa8);
+  margin: 0 auto 20px;
+}
+@media (min-width: 992px) {
+  .nos-title-rule { margin-left: 2px; }
 }
 
 .nos-hero-desc {
@@ -222,6 +238,65 @@
   border-color: #fff;
   background: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px);
+}
+
+/* ── Tres pilares bajo los botones (Enfoque Humano / Ciencia / Compromiso) ── */
+.nos-hero-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px 28px;
+  margin-top: 40px;
+  justify-content: center;
+}
+@media (min-width: 992px) {
+  .nos-hero-features {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+  .nos-feature { flex: 1 1 0; min-width: 0; }
+}
+.nos-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  max-width: 220px;
+  position: relative;
+}
+/* Separador vertical entre pilares (solo en escritorio) */
+@media (min-width: 620px) {
+  .nos-feature:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: -15px;
+    top: 2px;
+    bottom: 2px;
+    width: 1px;
+    background: rgba(255, 255, 255, .16);
+  }
+}
+.nos-feature-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #f10075;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nos-feature-text { display: flex; flex-direction: column; gap: 3px; }
+.nos-feature-text strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+.nos-feature-text span {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, .72);
 }
 
 /* Columna Visual / Collage */
@@ -1982,13 +2057,17 @@
   .team-row { flex-wrap: wrap; }
   .tr-card { flex: 0 0 auto; width: min(400px, 100%); }
 }
+/* ── Tarjeta tipo perfil (foto a sangre + degradado al negro) ── */
 .tr-card {
-  border-radius: 20px;
+  position: relative;
+  border-radius: 22px;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0, 30, 80, .12);
-  transition: transform .25s ease, box-shadow .25s ease;
+  background: #17181c;
+  border: 1px solid rgba(255, 255, 255, .06);
+  box-shadow: 0 18px 42px rgba(8, 20, 45, .28);
+  transition: transform .3s ease, box-shadow .3s ease;
 }
-.tr-card:hover { transform: translateY(-6px); box-shadow: 0 20px 44px rgba(0, 30, 80, .18); }
+.tr-card:hover { transform: translateY(-8px); box-shadow: 0 30px 60px rgba(8, 20, 45, .4); }
 /* Proporción 5:7 (la de la foto más alta): todas las tarjetas idénticas
    y el recorte de las demás fotos es mínimo */
 .tr-photo { position: relative; aspect-ratio: 5 / 7; overflow: hidden; }
@@ -1998,35 +2077,115 @@
   object-fit: cover;
   object-position: top center;
   display: block;
-  transition: transform .35s ease;
+  transition: transform .45s ease;
 }
-.tr-card:hover .tr-photo img { transform: scale(1.04); }
-/* Tarjetas flotantes sobre la foto */
+.tr-card:hover .tr-photo img { transform: scale(1.05); }
+/* ── Blur progresivo en degradado (variable blur estilo iOS) ──
+   Se apilan varias capas de backdrop-filter con máscaras de gradiente:
+   cada capa desenfoca más y se revela más abajo, así el desenfoque
+   crece de forma continua hacia la base de la foto (sin borde duro). */
+.tr-blur {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 15%;
+  z-index: 1;
+  pointer-events: none;
+}
+.tr-blur > div {
+  position: absolute;
+  inset: 0;
+}
+.tr-blur > div:nth-child(1) {
+  -webkit-backdrop-filter: blur(0.6px);
+  backdrop-filter: blur(0.6px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 44%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 44%);
+}
+.tr-blur > div:nth-child(2) {
+  -webkit-backdrop-filter: blur(1.5px);
+  backdrop-filter: blur(1.5px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 8%, #000 30%, #000 48%, transparent 66%);
+  mask-image: linear-gradient(to bottom, transparent 8%, #000 30%, #000 48%, transparent 66%);
+}
+.tr-blur > div:nth-child(3) {
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 26%, #000 46%, #000 62%, transparent 80%);
+  mask-image: linear-gradient(to bottom, transparent 26%, #000 46%, #000 62%, transparent 80%);
+}
+.tr-blur > div:nth-child(4) {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 44%, #000 62%, #000 76%, transparent 90%);
+  mask-image: linear-gradient(to bottom, transparent 44%, #000 62%, #000 76%, transparent 90%);
+}
+.tr-blur > div:nth-child(5) {
+  -webkit-backdrop-filter: blur(11px);
+  backdrop-filter: blur(11px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 60%, #000 78%, #000 90%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 60%, #000 78%, #000 90%, transparent 100%);
+}
+.tr-blur > div:nth-child(6) {
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 76%, #000 92%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 76%, #000 92%, #000 100%);
+}
+/* Velo oscuro muy tenue sobre el blur para legibilidad del texto blanco.
+   Se funde muy arriba para no dejar una franja visible. */
+.tr-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(8, 10, 18, .52) 0%, rgba(8, 10, 18, .18) 10%, transparent 22%);
+}
+/* Contenido sobre el blur: área (izq) + nombre (der) en una fila */
+.tr-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 13px 13px 15px;
+}
+/* Área a la izquierda (píldora clara, tipo "Follow") */
 .tr-area {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: #f10075;
-  color: #fff;
-  font-size: 11px;
+  order: 0;
+  background: rgba(255, 255, 255, .94);
+  color: #14161b;
+  font-size: 10.5px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  padding: 8px 14px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(241, 0, 117, .35);
+  letter-spacing: .2px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
 }
+/* Nombre a la derecha, con la insignia verificada */
 .tr-name {
-  position: absolute;
-  left: 12px;
-  bottom: 12px;
-  background: rgba(255, 255, 255, .88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #0d264c;
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
   font-size: 13.5px;
-  font-weight: 800;
-  padding: 6px 14px;
-  border-radius: 10px;
-  box-shadow: 0 8px 18px rgba(0, 20, 60, .2);
+  font-weight: 700;
+  letter-spacing: .1px;
+  white-space: nowrap;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .45);
+}
+.tr-verified {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  fill: #0a63d4;
 }
