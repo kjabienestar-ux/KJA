@@ -4,6 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>
+        /* Revelado progresivo: marca que el JS de animación está activo ANTES del
+           primer render, para poder pre-ocultar el contenido animado sin destello.
+           Sin JS esta clase nunca se añade y el hero (H1, CTA) queda visible.
+           Failsafe: si GSAP tarda en cargar (móvil lento), revelamos igual a los
+           1.2 s para no dejar oculto el H1. Reglas en index.css (.js-anim/.anim-ready). */
+        (function () {
+            var h = document.documentElement;
+            h.classList.add('js-anim');
+            setTimeout(function () { h.classList.add('anim-ready'); }, 1200);
+        })();
+    </script>
     <title>Psicólogos en San Luis, Lima | KJA Centro Psicológico</title>
     <meta name="description"
         content="Centro psicológico en San Luis, Lima. Terapia individual, de pareja, familiar e infantil con psicólogos colegiados, presencial u online. Agenda por WhatsApp.">
@@ -62,7 +74,9 @@
             { "@type": "Country", "name": "Perú" }
           ],
           "sameAs": [
-            "https://www.facebook.com/profile.php?id=100046561643330"
+            "https://www.facebook.com/profile.php?id=100046561643330",
+            "https://www.instagram.com/centropsicologico_kja_",
+            "https://www.tiktok.com/@kjabienestar"
           ],
           "openingHoursSpecification": [
             {
@@ -131,7 +145,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://images.unsplash.com">
-    <link rel="preload" as="image" href="images/dashboard/fondo-1.webp" fetchpriority="high">
+    <link rel="preload" as="image"
+        imagesrcset="images/dashboard/fondo-1-480.webp 480w, images/dashboard/fondo-1-768.webp 768w, images/dashboard/fondo-1-1280.webp 1280w, images/dashboard/fondo-1-1920.webp 1920w"
+        imagesizes="100vw" fetchpriority="high">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&display=swap"
         rel="stylesheet">
@@ -139,19 +155,16 @@
     <!-- Tailwind compilado estático (solo clases usadas) -->
     <link rel="stylesheet" href="tailwind.css?v=1">
     <link rel="stylesheet" href="accessibility.css">
-    <link rel="stylesheet" href="index.css?v=4">
+    <link rel="stylesheet" href="index.css?v=6">
     <!-- GSAP & ScrollTrigger -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <!-- Sin JS, el contenido animado debe verse igual y el splash no debe tapar la página -->
+    <!-- Sin JS: el splash no debe tapar la página. El contenido animado ya es
+         visible por defecto (ver revelado progresivo .js-anim en index.css). -->
     <noscript>
         <style>
             .kja-splash {
                 display: none !important;
-            }
-
-            .opacity-0 {
-                opacity: 1 !important;
             }
         </style>
     </noscript>
@@ -174,7 +187,7 @@
             <!-- Left: Logo -->
             <div class="nav-left logo-container">
                 <a href="index.html">
-                    <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
+                    <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
                 </a>
             </div>
             
@@ -200,7 +213,7 @@
         <nav class="nav-mobile-only">
             <div class="logo-container">
                 <a href="index.html">
-                    <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
+                    <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
                 </a>
             </div>
             <ul class="nav-links" id="nav-menu">
@@ -221,14 +234,21 @@
     <section id="inicio" class="hero-carousel" aria-label="Carrusel principal KJA">
 
         <!-- SLIDE BACKGROUNDS (separados para Ken Burns) -->
+        <!-- El 1er fondo es el elemento LCP: <img> responsivo (srcset) y eager.
+             Los otros 3 llevan data-bg y se cargan tras 'load' (ver script diferido
+             más abajo) para no competir por ancho de banda con el LCP en móvil. -->
         <div class="carousel-bg-track" id="carouselBgTrack">
-            <div class="carousel-bg active" style="background-image: url('images/dashboard/fondo-1.webp')">
+            <div class="carousel-bg active">
+                <img class="carousel-bg-media"
+                    src="images/dashboard/fondo-1-1280.webp"
+                    srcset="images/dashboard/fondo-1-480.webp 480w, images/dashboard/fondo-1-768.webp 768w, images/dashboard/fondo-1-1280.webp 1280w, images/dashboard/fondo-1-1920.webp 1920w"
+                    sizes="100vw" width="1920" height="813" alt="" fetchpriority="high" decoding="async">
             </div>
-            <div class="carousel-bg" style="background-image: url('images/dashboard/fondoo-2.webp')">
+            <div class="carousel-bg" data-bg="images/dashboard/fondoo-2.webp">
             </div>
-            <div class="carousel-bg" style="background-image: url('images/dashboard/fondo-3.webp')">
+            <div class="carousel-bg" data-bg="images/dashboard/fondo-3.webp">
             </div>
-            <div class="carousel-bg" style="background-image: url('images/dashboard/fondoo-4.webp')">
+            <div class="carousel-bg" data-bg="images/dashboard/fondoo-4.webp">
             </div>
         </div>
 
@@ -240,23 +260,16 @@
             <div class="trust-badge-card">
                 <div class="trust-badge-header">
                     <div class="trust-badge-icons">
-                        <div class="trust-icon-circle google">
-                            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.16v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.16C1.43 8.55 1 10.22 1 12s.43 3.45 1.16 4.93l3.68-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.16 7.07l3.68 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                        </div>
                         <div class="trust-icon-circle facebook">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.5c-1.5 0-1.96.93-1.96 1.89v2.26h3.32l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07"/></svg>
                         </div>
                     </div>
                     <div class="trust-badge-rating">
-                        <div class="trust-stars">
-                            <svg fill="#FBBC05" width="12" height="12" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg fill="#FBBC05" width="12" height="12" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg fill="#FBBC05" width="12" height="12" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg fill="#FBBC05" width="12" height="12" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                            <svg fill="#FBBC05" width="12" height="12" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        <div class="trust-rating-text">
+                            <strong>+8,000</strong> <span>seguidores</span>
                         </div>
                         <div class="trust-rating-text">
-                            <strong>4.9</strong> <span>2k+ Reviews</span>
+                            <strong>96%</strong> <span>de recomendación</span>
                         </div>
                     </div>
                 </div>
@@ -269,12 +282,12 @@
 
             <div class="carousel-slide active" data-index="0">
                 <div class="carousel-content">
-                    <span class="carousel-eyebrow animate-hero opacity-0">Centro Psicológico KJA</span>
-                    <h1 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">
+                    <span class="carousel-eyebrow animate-hero">Centro Psicológico KJA</span>
+                    <h1 class="carousel-title animate-hero text-white font-bold leading-tight">
                         Descúbrete<br><span class="text-[#f10075] italic font-light">y crece sin</span><br>límites.</h1>
-                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Tu bienestar emocional es nuestra
+                    <p class="carousel-desc animate-hero text-gray-200">Tu bienestar emocional es nuestra
                         prioridad. Terapias personalizadas para toda la familia.</p>
-                    <div class="carousel-actions animate-hero opacity-0">
+                    <div class="carousel-actions animate-hero">
                         <a href="terapia.html" class="hero-cta">Agenda tu cita</a>
                         <a href="#terapia" class="carousel-link">Nuestros servicios →</a>
                     </div>
@@ -295,12 +308,12 @@
 
             <div class="carousel-slide" data-index="1">
                 <div class="carousel-content">
-                    <span class="carousel-eyebrow animate-hero opacity-0">Terapia Familiar</span>
-                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Juntos
+                    <span class="carousel-eyebrow animate-hero">Terapia Familiar</span>
+                    <h2 class="carousel-title animate-hero text-white font-bold leading-tight">Juntos
                         somos<br><span class="text-[#f10075] italic font-light">más</span><br>fuertes.</h2>
-                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Fortalecemos los vínculos familiares y
+                    <p class="carousel-desc animate-hero text-gray-200">Fortalecemos los vínculos familiares y
                         abrimos canales de comunicación saludables para todos.</p>
-                    <div class="carousel-actions animate-hero opacity-0">
+                    <div class="carousel-actions animate-hero">
                         <a href="terapia.html" class="hero-cta">Ver terapias</a>
                         <a href="nosotros.html" class="carousel-link">Sobre KJA →</a>
                     </div>
@@ -321,12 +334,12 @@
 
             <div class="carousel-slide" data-index="2">
                 <div class="carousel-content">
-                    <span class="carousel-eyebrow animate-hero opacity-0">Jóvenes y Adolescentes</span>
-                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Cada
+                    <span class="carousel-eyebrow animate-hero">Jóvenes y Adolescentes</span>
+                    <h2 class="carousel-title animate-hero text-white font-bold leading-tight">Cada
                         etapa<br><span class="text-[#f10075] italic font-light">merece</span><br>apoyo.</h2>
-                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Acompañamos a los adolescentes en su
+                    <p class="carousel-desc animate-hero text-gray-200">Acompañamos a los adolescentes en su
                         búsqueda de identidad y bienestar emocional.</p>
-                    <div class="carousel-actions animate-hero opacity-0">
+                    <div class="carousel-actions animate-hero">
                         <a href="terapia.html" class="hero-cta">Conoce más</a>
                         <a href="terapia.html" class="carousel-link">Ver todas las terapias →</a>
                     </div>
@@ -347,12 +360,12 @@
 
             <div class="carousel-slide" data-index="3">
                 <div class="carousel-content">
-                    <span class="carousel-eyebrow animate-hero opacity-0">Capacitación y Talleres</span>
-                    <h2 class="carousel-title animate-hero opacity-0 text-white font-bold leading-tight">Aprende,
+                    <span class="carousel-eyebrow animate-hero">Capacitación y Talleres</span>
+                    <h2 class="carousel-title animate-hero text-white font-bold leading-tight">Aprende,
                         crece<br><span class="text-[#f10075] italic font-light">y</span><br>transforma.</h2>
-                    <p class="carousel-desc animate-hero opacity-0 text-gray-200">Cursos y talleres especializados en
+                    <p class="carousel-desc animate-hero text-gray-200">Cursos y talleres especializados en
                         salud mental y desarrollo humano para profesionales.</p>
-                    <div class="carousel-actions animate-hero opacity-0">
+                    <div class="carousel-actions animate-hero">
                         <a href="cursos.html" class="hero-cta">Ver cursos</a>
                         <a href="nosotros.html" class="carousel-link">Sobre nosotros →</a>
                     </div>
@@ -425,32 +438,32 @@
         <div class="ticker-container">
             <div class="ticker-track">
                 <!-- Set 1 -->
-                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
+                <img width="500" height="500" src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
                     style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
-                <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
-                <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
-                <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
+                <img width="71" height="60" src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
+                <img width="320" height="320" src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
+                <img width="500" height="500" src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
 
                 <!-- Set 2 -->
-                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
+                <img width="500" height="500" src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
                     style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
-                <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
-                <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
-                <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
+                <img width="71" height="60" src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
+                <img width="320" height="320" src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
+                <img width="500" height="500" src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
 
                 <!-- Set 3 -->
-                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
+                <img width="500" height="500" src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
                     style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
-                <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
-                <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
-                <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
+                <img width="71" height="60" src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
+                <img width="320" height="320" src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
+                <img width="500" height="500" src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
 
                 <!-- Set 4 -->
-                <img src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
+                <img width="500" height="500" src="images/institutions/logos/upn.png" alt="UPN" class="ticker-logo"
                     style="mix-blend-mode: darken; clip-path: circle(48% at 50% 50%);">
-                <img src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
-                <img src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
-                <img src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
+                <img width="71" height="60" src="images/institutions/logos/utp.png" alt="UTP" class="ticker-logo">
+                <img width="320" height="320" src="images/institutions/logos/ucv.png" alt="UCV" class="ticker-logo">
+                <img width="500" height="500" src="images/institutions/logos/senati.png" alt="SENATI" class="ticker-logo">
             </div>
         </div>
     </section>
@@ -467,7 +480,7 @@
 
                 <!-- 1. Terapias Psicológicas -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_psicologicas.webp" alt="Terapia Psicológica" loading="lazy"
+                    <img width="1728" height="910" src="./images/Terapia/t_psicologicas.webp" alt="Terapia Psicológica" loading="lazy"
                         class="accordion-bg" />
                     <div class="accordion-overlay"></div>
 
@@ -487,7 +500,7 @@
 
                 <!-- 2. Para Niños -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_para_ninos.webp" alt="Terapia para Niños" loading="lazy"
+                    <img width="1537" height="1023" src="./images/Terapia/t_para_ninos.webp" alt="Terapia para Niños" loading="lazy"
                         class="accordion-bg" />
                     <div class="accordion-overlay"></div>
 
@@ -507,7 +520,7 @@
 
                 <!-- 3. Para Adolescentes -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_adolescentes.webp" alt="Terapia para Adolescentes" loading="lazy"
+                    <img width="1537" height="1023" src="./images/Terapia/t_adolescentes.webp" alt="Terapia para Adolescentes" loading="lazy"
                         class="accordion-bg" />
                     <div class="accordion-overlay"></div>
 
@@ -527,7 +540,7 @@
 
                 <!-- 4. Para Adultos -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_para_adultos.webp" alt="Terapia para Adultos" loading="lazy"
+                    <img width="1537" height="1023" src="./images/Terapia/t_para_adultos.webp" alt="Terapia para Adultos" loading="lazy"
                         class="accordion-bg" />
                     <div class="accordion-overlay"></div>
 
@@ -547,7 +560,7 @@
 
                 <!-- 5. Terapia de Pareja -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_pareja.webp" alt="Terapia de Pareja" loading="lazy"
+                    <img width="1672" height="940" src="./images/Terapia/t_pareja.webp" alt="Terapia de Pareja" loading="lazy"
                         class="accordion-bg" />
                     <div class="accordion-overlay"></div>
 
@@ -567,7 +580,7 @@
 
                 <!-- 6. Terapia de Familia -->
                 <div class="accordion-card">
-                    <img src="./images/Terapia/t_familiaar.webp" alt="Terapia de Familia" loading="lazy"
+                    <img width="1537" height="1023" src="./images/Terapia/t_familiaar.webp" alt="Terapia de Familia" loading="lazy"
                         class="accordion-bg" />
                     <div class="accordion-overlay"></div>
 
@@ -653,6 +666,10 @@
             </div>
             <script>
                 // Testimonios renderizados desde datos: una sola plantilla en lugar de 24 tarjetas duplicadas.
+                // PENDIENTE-CLIENTA: estos testimonios son de muestra con fotos de stock (Unsplash) y el
+                // encabezado dice "TESTIMONIOS REALES DE NUESTROS PACIENTES". En un sitio de salud mental
+                // esto es un claim que debe respaldarse con testimonios REALES (con consentimiento) o
+                // retirarse. Decisión de la directora — no inventar aquí.
                 (function () {
                     const TESTIMONIOS = [
                         { name: 'María Pérez', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&q=80&auto=format', time: 'hace 3 semanas', likes: 42, comments: 3, text: 'Me ayudaron mucho con mi hijo, notamos cambios desde las primeras sesiones. Muy agradecida con todo el equipo 🙏' },
@@ -676,7 +693,7 @@
                             '</div>' +
                             '<div class="fb-post__body">' +
                                 '<div class="fb-post__user">' +
-                                    '<img class="fb-post__avatar" src="' + t.avatar + '" alt="' + t.name + '" loading="lazy">' +
+                                    '<img class="fb-post__avatar" width="48" height="48" src="' + t.avatar + '" alt="' + t.name + '" loading="lazy">' +
                                     '<div>' +
                                         '<div class="fb-post__name">' + t.name + '</div>' +
                                         '<div class="fb-post__meta">recomienda a <strong>KJA Centro de Capacitación y Formación Psicológica</strong></div>' +
@@ -1211,7 +1228,7 @@
                     <div class="flex flex-col items-center gap-1 animate-[hoverFluid_8s_ease-in-out_infinite]">
                         <!-- Búho -->
                         <div class="relative w-full h-full drop-shadow-[0_15px_25px_rgba(0,79,176,0.2)]">
-                            <img src="images/dashboard/buho.png" alt="Búho KJA" class="w-full h-full object-contain" />
+                            <img width="279" height="370" src="images/dashboard/buho.png" alt="Búho KJA" class="w-full h-full object-contain" />
                         </div>
                     </div>
                 </div>
@@ -1728,7 +1745,7 @@
                                     class="absolute inset-0 bg-gradient-to-r from-[#004fb0] to-[#f10075] blur-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl animate-pulse">
                                 </div>
 
-                                <img src="images/flyer-terapias/02_terapia_lenguaje.webp" alt="Flyer de terapia de lenguaje para niños en KJA"
+                                <img width="800" height="941" src="images/flyer-terapias/02_terapia_lenguaje.webp" alt="Flyer de terapia de lenguaje para niños en KJA"
                                     id="modalImage"
                                     class="relative w-full h-auto rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/20 z-10 transition-transform duration-500 hover:-translate-y-3"
                                     loading="lazy" decoding="async" />
@@ -1820,11 +1837,11 @@
         <div class="max-w-6xl mx-auto px-4">
             <div class="text-center mb-12">
                 <p
-                    class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-pricing-header opacity-0">
+                    class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-pricing-header">
                     Tarifas Transparentes</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-3 animate-pricing-header opacity-0">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-3 animate-pricing-header">
                     Planes de <span class="text-[#f10075] italic font-light">Acompañamiento</span></h2>
-                <p class="text-sm text-gray-500 max-w-xl mx-auto animate-pricing-header opacity-0">Elige la modalidad
+                <p class="text-sm text-gray-500 max-w-xl mx-auto animate-pricing-header">Elige la modalidad
                     que mejor se adapte a tus necesidades de bienestar emocional.</p>
             </div>
 
@@ -1834,7 +1851,7 @@
 
                     <!-- Plan 1 -->
                     <div
-                        class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
+                        class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card group">
                         <div>
                             <div class="flex justify-between items-center mb-4">
                                 <span
@@ -1879,7 +1896,7 @@
 
                     <!-- Plan 2 (Destacado) -->
                     <div
-                        class="plans-card plans-card--featured bg-white border-2 border-[#f10075] rounded-3xl p-8 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col justify-between relative animate-pricing-card opacity-0 group">
+                        class="plans-card plans-card--featured bg-white border-2 border-[#f10075] rounded-3xl p-8 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col justify-between relative animate-pricing-card group">
                         <div
                             class="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#f10075] text-white text-[10px] font-bold tracking-widest uppercase px-4 py-1 rounded-full shadow-sm">
                             RECOMENDADO</div>
@@ -1928,7 +1945,7 @@
 
                     <!-- Plan 3 -->
                     <div
-                        class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card opacity-0 group">
+                        class="plans-card bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between animate-pricing-card group">
                         <div>
                             <div class="flex justify-between items-center mb-4">
                                 <span
@@ -1991,7 +2008,7 @@
             <div class="faq-premium-layout">
 
                 <!-- Left Sidebar: Section Info & Support Widget -->
-                <div class="faq-premium-sidebar animate-faq-header opacity-0">
+                <div class="faq-premium-sidebar animate-faq-header">
                     <div class="faq-decor-dots" aria-hidden="true"></div>
                     <div class="faq-decor-ring" aria-hidden="true"></div>
                     <div>
@@ -2004,8 +2021,9 @@
                     <!-- Interactive Glassmorphic Widget -->
                     <div class="support-agent-widget">
                         <div class="agent-avatar-container">
+<!-- PENDIENTE-CLIENTA: foto de stock (Unsplash) usada como "asesora KJA" — reemplazar por foto real del equipo. Decisión de la directora. -->
                             <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80&auto=format"
-                                alt="Asesora de Bienestar KJA" class="agent-avatar-img" />
+                                alt="Asesora de Bienestar KJA" class="agent-avatar-img" width="100" height="100" loading="lazy" />
                             <span class="agent-status-badge"></span>
                         </div>
                         <div class="agent-info">
@@ -2068,7 +2086,7 @@
                 <div class="faq-premium-accordion">
 
                     <!-- Item 1 -->
-                    <div class="faq-premium-item animate-faq-item opacity-0" id="faqItem0">
+                    <div class="faq-premium-item animate-faq-item" id="faqItem0">
                         <button class="faq-premium-btn" onclick="toggleFaqPremium(0)" aria-expanded="false">
                             <span class="faq-premium-num">01</span>
                             <span class="faq-premium-q">¿Cómo es la primera sesión?</span>
@@ -2089,7 +2107,7 @@
                     </div>
 
                     <!-- Item 2 -->
-                    <div class="faq-premium-item animate-faq-item opacity-0" id="faqItem1">
+                    <div class="faq-premium-item animate-faq-item" id="faqItem1">
                         <button class="faq-premium-btn" onclick="toggleFaqPremium(1)" aria-expanded="false">
                             <span class="faq-premium-num">02</span>
                             <span class="faq-premium-q">¿Cómo agendo mi cita?</span>
@@ -2111,7 +2129,7 @@
                     </div>
 
                     <!-- Item 3 -->
-                    <div class="faq-premium-item animate-faq-item opacity-0" id="faqItem2">
+                    <div class="faq-premium-item animate-faq-item" id="faqItem2">
                         <button class="faq-premium-btn" onclick="toggleFaqPremium(2)" aria-expanded="false">
                             <span class="faq-premium-num">03</span>
                             <span class="faq-premium-q">¿Tengo que entrar yo o solo mi hijo?</span>
@@ -2132,7 +2150,7 @@
                     </div>
 
                     <!-- Item 4 -->
-                    <div class="faq-premium-item animate-faq-item opacity-0" id="faqItem3">
+                    <div class="faq-premium-item animate-faq-item" id="faqItem3">
                         <button class="faq-premium-btn" onclick="toggleFaqPremium(3)" aria-expanded="false">
                             <span class="faq-premium-num">04</span>
                             <span class="faq-premium-q">¿Qué precios manejan?</span>
@@ -2153,7 +2171,7 @@
                     </div>
 
                     <!-- Item 5 -->
-                    <div class="faq-premium-item animate-faq-item opacity-0" id="faqItem4">
+                    <div class="faq-premium-item animate-faq-item" id="faqItem4">
                         <button class="faq-premium-btn" onclick="toggleFaqPremium(4)" aria-expanded="false">
                             <span class="faq-premium-num">05</span>
                             <span class="faq-premium-q">¿Ofrecen sesiones en línea?</span>
@@ -2266,20 +2284,19 @@
         <div class="footer-content">
             <div class="footer-logo">
                 <a href="index.html">
-                    <img src="images/logo/kja.webp" alt="KJA Logo" class="footer-logo-img">
+                    <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="footer-logo-img">
                 </a>
             </div>
             <div class="footer-info">
                 <p><strong>SÍGUENOS EN NUESTRAS REDES SOCIALES</strong></p>
                 <div class="social-icons">
-                    <!-- Pendiente: URL real de TikTok — descomentar el ícono cuando exista el perfil
-                    <a href="#" title="TikTok" class="tt">
+                    <a href="https://www.tiktok.com/@kjabienestar" target="_blank"
+                        rel="noopener noreferrer" title="TikTok" class="tt">
                         <svg viewBox="0 0 24 24">
                             <path
                                 d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.86-.74-3.94-1.74-.22-.2-.43-.43-.62-.67-.02 3.22-.01 6.44-.02 9.66-.08 2.43-1.09 4.88-3.1 6.28-2.61 1.8-6.22 1.68-8.7-0.31-2.48-1.92-3.41-5.32-2.18-8.28 1.11-2.73 4.12-4.52 7.07-4.14v4.11c-1.39-.24-2.85.35-3.55 1.58-.72 1.21-.5 2.87.5 3.84.99.99 2.66 1.07 3.73.18.72-.56.96-1.52.95-2.42V0.02z" />
                         </svg>
                     </a>
-                    -->
                     <a href="https://www.facebook.com/profile.php?id=100046561643330" target="_blank"
                         rel="noopener noreferrer" title="Facebook" class="fb">
                         <svg viewBox="0 0 24 24">
@@ -2287,14 +2304,13 @@
                                 d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.95z" />
                         </svg>
                     </a>
-                    <!-- Pendiente: URL real de Instagram — descomentar el ícono cuando exista el perfil
-                    <a href="#" title="Instagram" class="ig">
+                    <a href="https://www.instagram.com/centropsicologico_kja_" target="_blank"
+                        rel="noopener noreferrer" title="Instagram" class="ig">
                         <svg viewBox="0 0 24 24">
                             <path
                                 d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
                         </svg>
                     </a>
-                    -->
                 </div>
             </div>
             <div class="footer-info">
@@ -2330,8 +2346,28 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=10"></script>
-    <script defer src="accessibility.js"></script>
+    <script defer src="script.js?v=11"></script>
+    <script defer src="accessibility.js?v=1"></script>
+    <script>
+        /* Fondos 2-4 del carrusel: se cargan EN CUANTO termina el LCP (fondo-1),
+           no antes (para no competir con él) y no en 'load' (que en móvil lento
+           llega después de la 1ª rotación a los 5s, dejando el slide 2 en blanco). */
+        (function () {
+            function cargarFondos() {
+                document.querySelectorAll('.carousel-bg[data-bg]').forEach(function (el) {
+                    el.style.backgroundImage = "url('" + el.dataset.bg + "')";
+                });
+            }
+            var hero = document.querySelector('.carousel-bg-media');
+            if (!hero || hero.complete) cargarFondos();
+            else {
+                hero.addEventListener('load', cargarFondos);
+                hero.addEventListener('error', cargarFondos);
+                // Red de seguridad por si el evento no dispara
+                addEventListener('load', cargarFondos);
+            }
+        })();
+    </script>
     <script>
         function toggleFaqPremium(index) {
             const items = document.querySelectorAll('.faq-premium-item');
@@ -2546,7 +2582,7 @@
                     '</div>' +
                     '<div class="fb-post__body">' +
                         '<div class="fb-post__user">' +
-                            '<img class="fb-post__avatar" src="' + avatarDe(c.nombre) + '" alt="' + esc(c.nombre) + '" loading="lazy">' +
+                            '<img class="fb-post__avatar" width="48" height="48" src="' + avatarDe(c.nombre) + '" alt="' + esc(c.nombre) + '" loading="lazy">' +
                             '<div>' +
                                 '<div class="fb-post__name">' + esc(c.nombre) + '</div>' +
                                 '<div class="fb-post__meta">comentó en <strong>kjadmb.com</strong></div>' +

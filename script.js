@@ -18,6 +18,16 @@ function kjaCanAnimate() {
     return typeof gsap !== 'undefined' && !KJA_REDUCED_MOTION;
 }
 
+// ¿Animar la ENTRADA? Solo si GSAP está disponible y el failsafe de revelado
+// progresivo (.anim-ready, añadido a los 1.2 s por el script inline del <head>
+// de index.html) aún NO venció. Si GSAP llegó tarde (móvil lento) el contenido
+// ya se reveló: saltamos la animación de entrada para no parpadear
+// (visible → oculto → animado). En páginas sin ese script, .anim-ready nunca
+// aparece y esto equivale a kjaCanAnimate().
+function kjaShouldAnimateEntrance() {
+    return kjaCanAnimate() && !document.documentElement.classList.contains('anim-ready');
+}
+
 // ============================================================
 //  PROMO COUNTDOWN — siempre < 5h, bucle infinito
 // ============================================================
@@ -230,7 +240,7 @@ function toggleFaq(btn) {
 //  GSAP SCROLLTRIGGER ANIMATIONS (Features & Pricing)
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    if (!kjaCanAnimate() || typeof ScrollTrigger === 'undefined') {
+    if (!kjaShouldAnimateEntrance() || typeof ScrollTrigger === 'undefined') {
         kjaRevealAll();
         return;
     }
@@ -599,7 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Los botones de áreas ahora son estáticos en el HTML.
 
     // Animación GSAP de la sección al hacer scroll
-    if (!kjaCanAnimate()) {
+    if (!kjaShouldAnimateEntrance()) {
         kjaRevealAll();
     } else {
         gsap.fromTo('.areas-anim',
