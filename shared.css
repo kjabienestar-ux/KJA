@@ -2495,9 +2495,17 @@ header.scrolled .hamburger span {
     left: -20px;
     right: -20px;
     bottom: -20px;
-    background: url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1400&q=80') center/cover;
+    /* Fondo decorativo con blur(8px): no requiere alta resolución. Se sirve
+       liviano (w=800; w=480 en móvil) en vez del w=1400 original (~184KB). */
+    background: url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&q=70') center/cover;
     filter: blur(8px);
     z-index: -2;
+}
+
+@media (max-width: 768px) {
+    .ubicanos-section::before {
+        background-image: url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=480&q=70');
+    }
 }
 
 .ubicanos-section::after {
