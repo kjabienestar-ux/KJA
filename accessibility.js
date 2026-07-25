@@ -692,12 +692,27 @@
         }, wait);
     }
 
-    if (document.readyState === 'complete') {
+    // Ocultar el splash cuando el CONTENIDO PRINCIPAL está listo — no en 'load',
+    // que espera a TODOS los recursos (incl. terceros como los avatares de Unsplash)
+    // y podía dejar el velo hasta el tope de 4.5s. Preferimos, por orden:
+    //  1) la imagen LCP del hero (.carousel-bg-media) cuando exista,
+    //  2) DOMContentLoaded en el resto de páginas.
+    // 'load' y el tope duro quedan solo como red de seguridad.
+    const heroImg = document.querySelector('.carousel-bg-media');
+    if (heroImg) {
+        if (heroImg.complete) {
+            hideSplash();
+        } else {
+            heroImg.addEventListener('load', hideSplash);
+            heroImg.addEventListener('error', hideSplash);
+        }
+    } else if (document.readyState !== 'loading') {
         hideSplash();
     } else {
-        window.addEventListener('load', hideSplash);
+        document.addEventListener('DOMContentLoaded', hideSplash);
     }
-    // Nunca dejar la pantalla bloqueada aunque algún recurso falle
+    // Redes de seguridad: si algo del contenido principal no dispara, y tope duro.
+    window.addEventListener('load', hideSplash);
     setTimeout(hideSplash, MAX_VISIBLE);
 })();
 

@@ -1,6 +1,46 @@
 /* index.css — estilos propios de index.html (extraidos de bloques <style> embebidos) */
 
-        /* Desactivar transiciones CSS para que GSAP las controle de forma limpia */
+/* Imagen LCP del hero: <img> responsivo que llena el 1er .carousel-bg (ver index.html).
+   Hereda el crossfade (opacity del div) y el Ken Burns (transform del div). */
+.carousel-bg-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ── Revelado progresivo (accesibilidad + SEO + agentes de IA) ──────────────
+   El contenido "animado" es VISIBLE por defecto en el HTML. Solo se pre-oculta
+   mientras el JS de animación está activo (.js-anim, añadido por el script
+   inline del <head> antes del primer render) y el failsafe no ha vencido
+   (.anim-ready, a 1.2 s). Así el H1 y los CTA del hero se ven sin JS y aunque
+   GSAP tarde en móvil; con JS la animación de entrada es idéntica a antes.
+   Los estados ocultos de modales usan su propio .opacity-0 y no se ven afectados. */
+html.js-anim:not(.anim-ready) .animate-hero,
+html.js-anim:not(.anim-ready) .animate-features-header,
+html.js-anim:not(.anim-ready) .animate-features-card,
+html.js-anim:not(.anim-ready) .animate-pricing-header,
+html.js-anim:not(.anim-ready) .animate-pricing-card,
+html.js-anim:not(.anim-ready) .animate-faq-header,
+html.js-anim:not(.anim-ready) .animate-faq-item,
+html.js-anim:not(.anim-ready) .areas-anim {
+    opacity: 0;
+}
+
+        /* ⚠️ INTENCIONAL — NO QUITAR sin leer esto:
+           Este bloque fuerza el contenido del hero (incluido el <h1>) a estar
+           SIEMPRE visible (opacity:1) y sin desplazamiento (transform:none). Con
+           ello se ANULA a propósito la animación de entrada por GSAP del hero.
+           Motivo: el H1 del home es la señal principal para que Google/agentes de
+           IA asocien la marca "KJA" con este dominio; nunca debe depender de que
+           GSAP cargue ni de una animación para ser visible/rastreable.
+           Consecuencia: la clase .animate-hero en estos elementos queda inerte
+           (GSAP la sigue seleccionando, pero estos !important le impiden mover
+           opacity/transform). Se conserva por si algún día se decide reactivar la
+           animación del hero (habría que quitar los !important de opacity/transform
+           Y garantizar el H1 visible por otra vía). El pre-ocultado .js-anim de
+           arriba tampoco afecta al hero por este mismo !important. */
         .carousel-eyebrow,
         .carousel-title,
         .carousel-desc,

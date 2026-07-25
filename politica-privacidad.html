@@ -13,6 +13,14 @@
     <link rel="stylesheet" href="shared.css?v=10">
     <link rel="stylesheet" href="accessibility.css">
     <link rel="stylesheet" href="politica-privacidad.css">
+    <!-- Sin JS, el splash de carga no debe tapar la página -->
+    <noscript>
+        <style>
+            .kja-splash {
+                display: none !important;
+            }
+        </style>
+    </noscript>
 </head>
 <body>
 
@@ -31,7 +39,7 @@
             <!-- Left: Logo -->
             <div class="nav-left logo-container">
                 <a href="index.html">
-                    <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
+                    <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
                 </a>
             </div>
             
@@ -57,7 +65,7 @@
         <nav class="nav-mobile-only">
             <div class="logo-container">
                 <a href="index.html">
-                    <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
+                    <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
                 </a>
             </div>
             <ul class="nav-links" id="nav-menu">
@@ -138,7 +146,7 @@
         <div class="footer-content">
             <div class="footer-logo">
                 <a href="index.html">
-                    <img src="images/logo/kja.webp" alt="KJA Logo" class="footer-logo-img">
+                    <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="footer-logo-img">
                 </a>
             </div>
             <div class="footer-info">
@@ -171,8 +179,8 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=10"></script>
-    <script defer src="accessibility.js"></script>
+    <script defer src="script.js?v=11"></script>
+    <script defer src="accessibility.js?v=1"></script>
 </body>
 </html>
 

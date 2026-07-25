@@ -34,6 +34,14 @@
 <script src="certificados/cert-render.js"></script>
 
 <link rel="stylesheet" href="certificado.css?v=2">
+<!-- Sin JS, el splash de carga no debe tapar la página -->
+<noscript>
+    <style>
+        .kja-splash {
+            display: none !important;
+        }
+    </style>
+</noscript>
 </head>
 <body>
 
@@ -52,7 +60,7 @@
             <!-- Left: Logo -->
             <div class="nav-left logo-container">
                 <a href="index.html">
-                    <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
+                    <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
                 </a>
             </div>
             
@@ -78,7 +86,7 @@
   <nav class="nav-mobile-only">
     <div class="logo-container">
       <a href="index.html">
-        <img src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
+        <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
       </a>
     </div>
     <ul class="nav-links" id="nav-menu">
@@ -141,10 +149,11 @@
       <!-- Tarjeta de egresados -->
       <div class="hero-experts-card">
         <span class="hx-label">Egresados</span>
+        <!-- PENDIENTE-CLIENTA: fotos de stock (Unsplash) como "egresados" — reemplazar por fotos reales. Decisión de la directora. -->
         <div class="hx-avatars">
-          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=70&auto=format" alt="">
-          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&q=70&auto=format" alt="">
-          <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&q=70&auto=format" alt="">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=70&auto=format" alt="" width="80" height="80" loading="lazy">
+          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&q=70&auto=format" alt="" width="80" height="80" loading="lazy">
+          <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&q=70&auto=format" alt="" width="80" height="80" loading="lazy">
           <span class="hx-more">500+</span>
         </div>
       </div>
@@ -171,13 +180,13 @@
     <!-- Columna izquierda: collage de certificados reales -->
     <div class="cs-collage" aria-hidden="true">
       <div class="cs-img cs-img--1">
-        <img src="images/certificados/certificado-1.webp" alt="" loading="lazy">
+        <img width="2000" height="1414" src="images/certificados/certificado-1.webp" alt="" loading="lazy">
       </div>
       <div class="cs-img cs-img--2">
-        <img src="images/certificados/certificado-2.webp" alt="" loading="lazy">
+        <img width="2000" height="1414" src="images/certificados/certificado-2.webp" alt="" loading="lazy">
       </div>
       <div class="cs-img cs-img--3">
-        <img src="images/certificados/certificado-3.webp" alt="" loading="lazy">
+        <img width="2000" height="1414" src="images/certificados/certificado-3.webp" alt="" loading="lazy">
       </div>
     </div>
 
@@ -276,7 +285,7 @@
 
 <footer>
   <div class="footer-content">
-    <div class="footer-logo"><a href="index.html"><img src="images/logo/kja.webp" alt="KJA Logo" class="footer-logo-img"></a></div>
+    <div class="footer-logo"><a href="index.html"><img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="footer-logo-img"></a></div>
     <div class="footer-info">
       <p>📍 Jr. Río Amazonas 214, San Luis,<br>Lima, Perú</p>
       <p>📞 +51 988 918 238</p>
@@ -627,6 +636,6 @@ document.addEventListener('click', (e) => {
   if(id) verificarPorCodigo(id);
 })();
 </script>
-<script defer src="accessibility.js"></script>
+<script defer src="accessibility.js?v=1"></script>
 </body>
 </html>
