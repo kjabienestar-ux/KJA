@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KJA · Registro de Asistencia</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="images/logo/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="asistencia.css?v=7">
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div class="login-wrap" id="login-wrap">
+  <div class="bg"></div>
+  <a href="index.html" class="btn-volver">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Volver al Inicio
+  </a>
+  <form class="login-card" id="login-form">
+    <div cl ass="lc-head">
+      <span class="lc-sello"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+      <span class="lc-pill"><i></i> Sistema en línea</span>
+    </div>
+    <img class="lf-logo" src="images/logo/kja.webp" alt="KJA" onerror="this.style.display='none'">
+    <h1>Registro de<br>Asistencia</h1>
+    <p class="lf-sub">Control interno KJA · acceso del equipo</p>
+    <div class="msg" id="login-msg"></div>
+    <div class="in-group">
+      <input id="email" type="email" autocomplete="username" placeholder="Correo electrónico" required>
+    </div>
+    <div class="in-group pw-wrap">
+      <input id="password" type="password" autocomplete="current-password" placeholder="Contraseña" required>
+      <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Mostrar u ocultar contraseña">
+        <svg id="pw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
+    <p class="lf-foot">Módulo separado del panel de certificados</p>
+  </form>
+</div>
+
+<!-- ══════════════ APLICACIÓN ══════════════ -->
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="tb-brand">
+      <img src="images/logo/logo.webp" alt="KJA" onerror="this.style.display='none'">
+      <div><b>Asistencia</b><small>Control interno KJA</small></div>
+    </div>
+    <div class="tb-right">
+      <span class="tb-pill"><i></i> En línea</span>
+      <div class="tb-user">
+        <span class="tb-ava" id="tb-ava">--</span>
+        <span class="tb-user-meta"><b id="tb-name">—</b><small id="tb-role">—</small></span>
+      </div>
+      <button class="tb-logout" id="btn-logout" title="Cerrar sesión" aria-label="Cerrar sesión">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="tools-left">
+      <div class="month-nav">
+        <button id="mes-prev" aria-label="Mes anterior">‹</button>
+        <span id="mes-lbl">—</span>
+        <button id="mes-next" aria-label="Mes siguiente">›</button>
+        <button id="mes-hoy" class="btn-ghost">Hoy</button>
+      </div>
+      <div class="seg" id="modo-seg">
+        <button data-modo="grilla" class="active">Grilla</button>
+        <button data-modo="lista">Pasar lista</button>
+        <button data-modo="horarios">Horarios</button>
+        <button data-modo="resumen">Resumen</button>
+      </div>
+    </div>
+    <div class="tools-right">
+      <input type="search" id="buscar" placeholder="Buscar colaborador…" class="inp-buscar">
+      <select id="filtro-area" class="inp-sel"><option value="">Todas las áreas</option></select>
+      <label class="chk-inact"><input type="checkbox" id="ver-inactivos"> Inactivos</label>
+      <div class="solo-editor gest-btns" style="display:none;">
+        <button class="btn-mini" id="btn-add-area">+ Área</button>
+        <button class="btn-mini" id="btn-add-colab">+ Colaborador</button>
+        <button class="btn-mini" id="btn-feriados">Feriados</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="stage">
+    <!-- Leyenda -->
+    <div class="leyenda">
+      <span class="lg lg-p">P · Presente</span>
+      <span class="lg lg-t">T · Tardanza</span>
+      <span class="lg lg-j">J · Justificación</span>
+      <span class="lg lg-ng">NG · No gestiona</span>
+      <span class="lg lg-off">▨ No labora</span>
+    </div>
+
+    <!-- VISTA GRILLA -->
+    <section id="vista-grilla" class="vista">
+      <div class="grid-scroll" id="grid-scroll"></div>
+    </section>
+
+    <!-- VISTA PASAR LISTA -->
+    <section id="vista-lista" class="vista" hidden>
+      <div class="lista-head">
+        <label>Fecha:
+          <input type="date" id="lista-fecha" class="inp-sel">
+        </label>
+        <span class="lista-hint" id="lista-hint"></span>
+      </div>
+      <div id="lista-body"></div>
+    </section>
+
+    <!-- VISTA HORARIOS -->
+    <section id="vista-horarios" class="vista" hidden>
+      <div class="grid-scroll" id="horarios-body"></div>
+    </section>
+
+    <!-- VISTA RESUMEN -->
+    <section id="vista-resumen" class="vista" hidden>
+      <div class="grid-scroll" id="resumen-body"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Popover de celda -->
+<div id="pop" class="pop" hidden></div>
+
+<!-- Modal genérico -->
+<div id="modal" class="modal-wrap" hidden>
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="modal-title">—</h3><button id="modal-x" aria-label="Cerrar">✕</button></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" hidden></div>
+
+<script>
+/* ════════════════════ CONFIG / SUPABASE ════════════════════ */
+const SUPABASE_URL  = "https://xadxmfgdxwplmhijagix.supabase.co";
+const SUPABASE_ANON = "sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const $ = id => document.getElementById(id);
+
+/* Estados de asistencia (catálogo). Añadir uno nuevo (p. ej. TT) = una línea. */
+const ESTADOS = {
+  P:  { lbl:'Presente',      cls:'e-p'  },
+  T:  { lbl:'Tardanza',      cls:'e-t'  },
+  J:  { lbl:'Justificación', cls:'e-j'  },
+  NG: { lbl:'No gestiona',   cls:'e-ng' },
+};
+/* Modalidad del día (horario semanal). Colores fieles a la hoja HORARIOS. */
+const MODS = {
+  virtual:     { lbl:'Virtual',     ab:'Virt', cls:'m-vir' },
+  presencial:  { lbl:'Presencial',  ab:'Pres', cls:'m-pre' },
+  opcional:    { lbl:'Opcional',    ab:'Opc',  cls:'m-opc' },
+  no_gestiona: { lbl:'No gestiona', ab:'NG',   cls:'m-ng'  },
+};
+const DIAS_ISO = [ ['Lun',1],['Mar',2],['Mié',3],['Jue',4],['Vie',5],['Sáb',6],['Dom',7] ];
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+/* ════════════════════ ESTADO EN MEMORIA ════════════════════ */
+let PERFIL = { id:null, nombre:'', rol:'visor' };
+let PERFILES = {};              // id -> nombre
+let AREAS = [];                 // [{id,nombre,orden,activo}]
+let COLABS = [];                // [{id,area_id,nombre,dni,dias_laborables,horario,activo,orden}]
+let REG = {};                   // 'colabId|fecha' -> {estado,nota,marcado_por}
+let EXC_EMP = {};               // 'fecha' -> {tipo,nota}
+let EXC_COL = {};               // 'colabId|fecha' -> {tipo,nota}
+let YEAR, MONTH;                // MONTH 0-11
+let MODO = 'grilla';
+const puedeEditar = () => PERFIL.rol === 'editor' || PERFIL.rol === 'direccion';
+const esDireccion = () => PERFIL.rol === 'direccion';
+
+/* ════════════════════ UTILIDADES ════════════════════ */
+const pad = n => String(n).padStart(2,'0');
+const fISO = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const isoDow = fecha => { const d = new Date(fecha+'T00:00:00'); const w = d.getDay(); return w===0?7:w; };
+const iniciales = n => (n||'?').trim().split(/\s+/).slice(0,2).map(p=>p[0]).join('').toUpperCase();
+const hhmm = t => t ? String(t).slice(0,5) : '';
+function horasDia(c, hd){ const i = hd && hd.ini ? hd.ini : c.hora_inicio, f = hd && hd.fin ? hd.fin : c.hora_fin; return i && f ? hhmm(i)+'–'+hhmm(f) : ''; }
+function toast(t, err){ const e=$('toast'); e.textContent=t; e.className='toast'+(err?' err':''); e.hidden=false; clearTimeout(e._t); e._t=setTimeout(()=>e.hidden=true, 2600); }
+function diasDelMes(y,m){ const n=new Date(y,m+1,0).getDate(); const out=[]; for(let d=1;d<=n;d++){ const dt=new Date(y,m,d); out.push({dia:d, fecha:fISO(dt), dow:isoDow(fISO(dt))}); } return out; }
+
+/* Resuelve si un colaborador labora una fecha, y con qué modalidad.
+   Prioridad: excepción persona (extra) > feriado empresa > excepción persona (no lab) > horario semanal. */
+function modDelDia(colab, dow){
+  const h = (colab.horario_semanal||{})[dow];
+  if(h && h.mod) return h.mod;
+  // compatibilidad con colaboradores antiguos que solo tenían dias_laborables
+  return (colab.dias_laborables||[]).includes(dow) ? 'virtual' : 'no_gestiona';
+}
+function estadoDia(colab, fecha){
+  const dow = isoDow(fecha);
+  const mod = modDelDia(colab, dow);
+  const pex = EXC_COL[colab.id+'|'+fecha];
+  const eex = EXC_EMP[fecha];
+  if(pex && pex.tipo==='laborable_extra') return { lab:true,  mod:(mod==='no_gestiona'?'presencial':mod), motivo:'extra' };
+  if(eex)                                 return { lab:false, mod, motivo:'feriado' };
+  if(pex && pex.tipo==='no_laborable')    return { lab:false, mod, motivo:'permiso' };
+  return { lab: mod!=='no_gestiona', mod, motivo:'horario' };
+}
+
+/* ════════════════════ AUTENTICACIÓN ════════════════════ */
+async function iniciarSesionActiva(){
+  const { data:{ session } } = await db.auth.getSession();
+  if(session){ await entrar(); }
+}
+async function entrar(){
+  const { data:{ user } } = await db.auth.getUser();
+  if(!user) return mostrarLogin();
+  const { data:perf } = await db.from('asis_perfiles').select('id,nombre,rol,activo').eq('id', user.id).single();
+  if(!perf || !perf.activo){
+    loginMsg('Tu cuenta no tiene acceso al módulo de asistencia. Contacta a dirección.');
+    await db.auth.signOut({scope:'local'});
+    return;
+  }
+  PERFIL = { id:perf.id, nombre:perf.nombre||user.email, rol:perf.rol||'visor' };
+  $('login-wrap').style.display='none';
+  $('app').hidden = false;
+  aplicarRolUI();
+  const hoy = new Date(); YEAR = hoy.getFullYear(); MONTH = hoy.getMonth();
+  $('lista-fecha').value = fISO(hoy);
+  await cargarBase();
+  await cargarMes();
+  render();
+}
+function aplicarRolUI(){
+  $('tb-name').textContent = PERFIL.nombre;
+  $('tb-role').textContent = { direccion:'Dirección', editor:'Encargado(a)', visor:'Solo lectura' }[PERFIL.rol] || PERFIL.rol;
+  $('tb-ava').textContent = iniciales(PERFIL.nombre);
+  document.querySelectorAll('.solo-editor').forEach(el=> el.style.display = puedeEditar() ? '' : 'none');
+}
+function mostrarLogin(){ $('app').hidden = true; $('login-wrap').style.display='flex'; }
+function loginMsg(t){ const e=$('login-msg'); e.textContent=t||''; e.style.display = t?'block':'none'; }
+
+$('login-form').addEventListener('submit', async e=>{
+  e.preventDefault(); loginMsg('');
+  const b=$('btn-login'); b.disabled=true; b.textContent='Ingresando…';
+  const { data, error } = await db.auth.signInWithPassword({ email:$('email').value.trim(), password:$('password').value });
+  b.disabled=false; b.textContent='Ingresar';
+  if(error){
+    loginMsg(error.message==='Invalid login credentials' ? 'Correo o contraseña incorrectos.' : ('No se pudo ingresar: '+error.message));
+    const c=document.querySelector('.login-card'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+    return;
+  }
+  entrar();
+});
+$('btn-logout').addEventListener('click', async ()=>{
+  try{ await db.auth.signOut({scope:'local'}); }catch(e){}
+  Object.keys(localStorage).forEach(k=>{ if(k.startsWith('sb-')) localStorage.removeItem(k); });
+  location.reload();
+});
+$('pw-toggle').addEventListener('click', ()=>{
+  const inp=$('password'), ic=$('pw-icon');
+  if(inp.type==='password'){ inp.type='text';
+    ic.innerHTML='<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'; }
+  else{ inp.type='password'; ic.innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'; }
+});
+
+/* ════════════════════ CARGA DE DATOS ════════════════════ */
+async function cargarBase(){
+  const [{ data:perfs }, { data:areas }, { data:colabs }] = await Promise.all([
+    db.from('asis_perfiles').select('id,nombre'),
+    db.from('asis_areas').select('*').order('orden').order('nombre'),
+    db.from('asis_colaboradores').select('*').order('orden').order('nombre'),
+  ]);
+  PERFILES = {}; (perfs||[]).forEach(p=>PERFILES[p.id]=p.nombre);
+  AREAS = areas||[];
+  COLABS = (colabs||[]).map(c=>({ ...c, dias_laborables: c.dias_laborables||[], horario_semanal: c.horario_semanal||{} }));
+  // filtro de áreas
+  const sel = $('filtro-area'); sel.innerHTML = '<option value="">Todas las áreas</option>' +
+    AREAS.map(a=>`<option value="${a.id}">${esc(a.nombre)}</option>`).join('');
+}
+async function cargarMes(){
+  const dias = diasDelMes(YEAR, MONTH);
+  const desde = dias[0].fecha, hasta = dias[dias.length-1].fecha;
+  const [{ data:regs }, { data:excs }] = await Promise.all([
+    db.from('asis_registros').select('colaborador_id,fecha,estado,nota,marcado_por').gte('fecha',desde).lte('fecha',hasta),
+    db.from('asis_excepciones').select('fecha,ambito,colaborador_id,tipo,nota').gte('fecha',desde).lte('fecha',hasta),
+  ]);
+  REG={}; (regs||[]).forEach(r=> REG[r.colaborador_id+'|'+r.fecha]={estado:r.estado,nota:r.nota,marcado_por:r.marcado_por});
+  EXC_EMP={}; EXC_COL={};
+  (excs||[]).forEach(x=>{
+    if(x.ambito==='empresa') EXC_EMP[x.fecha]={tipo:x.tipo,nota:x.nota};
+    else EXC_COL[x.colaborador_id+'|'+x.fecha]={tipo:x.tipo,nota:x.nota};
+  });
+}
+
+/* ════════════════════ RENDER ════════════════════ */
+const esc = s => (s??'').toString().replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function colabsVisibles(){
+  const q = $('buscar').value.trim().toLowerCase();
+  const af = $('filtro-area').value;
+  const inact = $('ver-inactivos').checked;
+  return COLABS.filter(c=>
+    (inact || c.activo) &&
+    (!af || String(c.area_id)===af) &&
+    (!q || c.nombre.toLowerCase().includes(q))
+  );
+}
+function render(){
+  $('mes-lbl').textContent = MESES[MONTH]+' '+YEAR;
+  document.querySelectorAll('#modo-seg button').forEach(b=>b.classList.toggle('active', b.dataset.modo===MODO));
+  $('vista-grilla').hidden   = MODO!=='grilla';
+  $('vista-lista').hidden    = MODO!=='lista';
+  $('vista-horarios').hidden = MODO!=='horarios';
+  $('vista-resumen').hidden  = MODO!=='resumen';
+  if(MODO==='grilla') renderGrilla();
+  else if(MODO==='lista') renderLista();
+  else if(MODO==='horarios') renderHorarios();
+  else renderResumen();
+}
+
+function renderGrilla(){
+  const dias = diasDelMes(YEAR, MONTH);
+  const hoy = fISO(new Date());
+  const vis = colabsVisibles();
+  const porArea = agruparPorArea(vis);
+  let h = '<table class="grid"><thead><tr><th class="c-name">Colaborador</th>';
+  for(const d of dias){
+    const wl = DIAS_ISO.find(x=>x[1]===d.dow)[0];
+    h += `<th class="c-day${d.dow===7?' dow-dom':''}${d.fecha===hoy?' es-hoy':''}${EXC_EMP[d.fecha]?' es-fer':''}" title="${EXC_EMP[d.fecha]?'Feriado: '+esc(EXC_EMP[d.fecha].nota||''):''}"><span>${wl}</span><b>${d.dia}</b></th>`;
+  }
+  h += '</tr></thead><tbody>';
+  if(!vis.length) h += `<tr><td class="c-empty" colspan="${dias.length+1}">Sin colaboradores. ${puedeEditar()?'Usa “+ Colaborador”.':''}</td></tr>`;
+  for(const [areaId, lista] of porArea){
+    const area = AREAS.find(a=>String(a.id)===String(areaId));
+    h += `<tr class="area-row"><td class="c-name" colspan="${dias.length+1}">${esc(area?area.nombre:'—')} <span class="area-n">${lista.length}</span></td></tr>`;
+    for(const c of lista){
+      h += `<tr data-colab="${c.id}"><td class="c-name">${nameCell(c)}</td>`;
+      for(const d of dias){
+        h += celda(c, d.fecha, hoy);
+      }
+      h += '</tr>';
+    }
+  }
+  h += '</tbody></table>';
+  $('grid-scroll').innerHTML = h;
+}
+function nameCell(c){
+  const off = c.activo ? '' : ' <span class="tag-off">inactivo</span>';
+  const edit = puedeEditar() ? `<button class="c-edit solo-editor" data-edit="${c.id}" title="Editar" aria-label="Editar">✎</button>` : '';
+  const hrs = c.hora_inicio && c.hora_fin ? hhmm(c.hora_inicio)+'–'+hhmm(c.hora_fin) : '';
+  return `<div class="nm"><span class="nm-t">${esc(c.nombre)}${off}</span>${hrs?`<small>${hrs}</small>`:''}</div>${edit}`;
+}
+function celda(c, fecha, hoy){
+  const dd = estadoDia(c, fecha);
+  const reg = REG[c.id+'|'+fecha];
+  const futuro = fecha > hoy;
+  if(!dd.lab){
+    return `<td class="cell off${dd.motivo==='feriado'?' fer':''}" data-c="${c.id}" data-f="${fecha}" title="${dd.motivo==='feriado'?'Feriado':(dd.motivo==='permiso'?'Permiso / no labora':'No labora este día')}"><span class="off-mk">▨</span></td>`;
+  }
+  const e = reg ? ESTADOS[reg.estado] : null;
+  const cls = e ? e.cls : (futuro?'vacia fut':'vacia');
+  const modAb = (!e && dd.mod && MODS[dd.mod]) ? `<i class="cmod">${MODS[dd.mod].ab}</i>` : '';
+  const txt = e ? reg.estado : modAb;
+  const note = reg && reg.nota ? ' •' : '';
+  const modTt = dd.mod && MODS[dd.mod] ? ' · '+MODS[dd.mod].lbl : '';
+  return `<td class="cell ${cls}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${modTt}"><span>${txt}${note}</span></td>`;
+}
+function agruparPorArea(lista){
+  const m = new Map();
+  for(const a of AREAS){ const g = lista.filter(c=>String(c.area_id)===String(a.id)); if(g.length) m.set(a.id, g); }
+  return m;
+}
+
+/* ── PASAR LISTA (una fecha, quienes laboran) ── */
+function renderLista(){
+  const fecha = $('lista-fecha').value || fISO(new Date());
+  const hoy = fISO(new Date());
+  const vis = colabsVisibles().filter(c=>{ const d=estadoDia(c,fecha); return d.lab; });
+  $('lista-hint').textContent = `${vis.length} colaborador(es) laboran este día`;
+  const porArea = agruparPorArea(vis);
+  let h='';
+  if(!vis.length) h = `<p class="c-empty">Nadie labora en la fecha seleccionada (o no hay colaboradores).</p>`;
+  for(const [areaId, lista] of porArea){
+    const area = AREAS.find(a=>String(a.id)===String(areaId));
+    h += `<div class="lista-area"><h4>${esc(area?area.nombre:'—')}</h4>`;
+    for(const c of lista){
+      const reg = REG[c.id+'|'+fecha];
+      h += `<div class="lista-row" data-c="${c.id}" data-f="${fecha}">
+        <span class="lr-name">${esc(c.nombre)}</span>
+        <div class="lr-btns">${['P','T','J','NG'].map(k=>`<button class="lr-b ${ESTADOS[k].cls}${reg&&reg.estado===k?' on':''}" data-set="${k}" ${puedeEditar()?'':'disabled'}>${k}</button>`).join('')}</div>
+      </div>`;
+    }
+    h += '</div>';
+  }
+  $('lista-body').innerHTML = h;
+}
+
+/* ── RESUMEN mensual ── */
+function renderResumen(){
+  const dias = diasDelMes(YEAR, MONTH);
+  const hoy = fISO(new Date());
+  const vis = colabsVisibles();
+  const porArea = agruparPorArea(vis);
+  let h = '<table class="grid resumen"><thead><tr><th class="c-name">Colaborador</th><th>P</th><th>T</th><th>J</th><th>NG</th><th>Labora</th><th>% Asist.</th></tr></thead><tbody>';
+  if(!vis.length) h += `<tr><td class="c-empty" colspan="7">Sin colaboradores.</td></tr>`;
+  for(const [areaId, lista] of porArea){
+    const area = AREAS.find(a=>String(a.id)===String(areaId));
+    h += `<tr class="area-row"><td class="c-name" colspan="7">${esc(area?area.nombre:'—')}</td></tr>`;
+    for(const c of lista){
+      let p=0,t=0,j=0,ng=0,lab=0;
+      for(const d of dias){
+        const dd = estadoDia(c, d.fecha); if(!dd.lab) continue;
+        lab++;
+        const r = REG[c.id+'|'+d.fecha];
+        if(r){ if(r.estado==='P')p++; else if(r.estado==='T')t++; else if(r.estado==='J')j++; else if(r.estado==='NG')ng++; }
+      }
+      const base = p+t+j; // días efectivamente gestionados con presencia/justificación
+      const pct = base ? Math.round((p+t)/base*100) : 0;
+      h += `<tr><td class="c-name">${esc(c.nombre)}</td><td class="r-p">${p}</td><td class="r-t">${t}</td><td class="r-j">${j}</td><td class="r-ng">${ng}</td><td>${lab}</td><td><b>${base?pct+'%':'—'}</b></td></tr>`;
+    }
+  }
+  h += '</tbody></table>';
+  $('resumen-body').innerHTML = h;
+}
+
+/* ── HORARIOS (tabla): Jornada unificada + modalidad/horas por día ── */
+function renderHorarios(){
+  const vis = colabsVisibles();
+  const porArea = agruparPorArea(vis);
+  const dias = DIAS_ISO.slice(0,6); // Lun..Sáb
+  let h = '<table class="grid horarios"><thead><tr><th class="c-name">Colaborador</th><th class="c-hor">Jornada</th>'+dias.map(d=>`<th>${d[0]}</th>`).join('')+'</tr></thead><tbody>';
+  if(!vis.length) h += `<tr><td class="c-empty" colspan="${dias.length+2}">Sin colaboradores. ${puedeEditar()?'Usa “+ Colaborador”.':''}</td></tr>`;
+  for(const [areaId, lista] of porArea){
+    const area = AREAS.find(a=>String(a.id)===String(areaId));
+    h += `<tr class="area-row"><td class="c-name" colspan="${dias.length+2}"><span class="ar-b"></span>${esc(area?area.nombre:'—')} <span class="area-n">${lista.length}</span></td></tr>`;
+    let z = 0;
+    for(const c of lista){
+      const editBtn = puedeEditar() ? `<button class="c-edit solo-editor" data-edit="${c.id}" title="Editar" aria-label="Editar">✎</button>` : '';
+      const offTag = c.activo ? '' : ' <span class="tag-off">inactivo</span>';
+      const nm = `<span class="nm-t">${esc(c.nombre)}${offTag}</span>${editBtn}`;
+      const jornada = (c.hora_inicio && c.hora_fin) ? hhmm(c.hora_inicio)+'<i>–</i>'+hhmm(c.hora_fin) : '—';
+      h += `<tr class="hrow${z++%2?' z':''}"><td class="c-name">${nm}</td><td class="c-hor">${jornada}</td>`;
+      for(const [,iso] of dias){
+        const hd = (c.horario_semanal||{})[iso];
+        const mod = hd && hd.mod ? hd.mod : 'no_gestiona';
+        const M = MODS[mod];
+        // solo muestra horas si el día tiene horario propio (distinto de la jornada general)
+        const horas = (mod!=='no_gestiona' && hd && (hd.ini || hd.fin)) ? horasDia(c, hd) : '';
+        h += `<td class="hs-cell"><span class="mchip ${M.cls}">${M.lbl}</span>${horas?`<small>${horas}</small>`:''}</td>`;
+      }
+      h += '</tr>';
+    }
+  }
+  h += '</tbody></table>';
+  $('horarios-body').innerHTML = h;
+}
+
+/* ════════════════════ EDICIÓN DE CELDAS ════════════════════ */
+async function setEstado(colabId, fecha, estado){
+  const payload = { colaborador_id:Number(colabId), fecha, estado, marcado_por:PERFIL.id, marcado_at:new Date().toISOString() };
+  const { error } = await db.from('asis_registros').upsert(payload, { onConflict:'colaborador_id,fecha' });
+  if(error){ toast('No se pudo guardar: '+error.message, true); return; }
+  REG[colabId+'|'+fecha] = { estado, nota:(REG[colabId+'|'+fecha]||{}).nota||null, marcado_por:PERFIL.id };
+  toast('Guardado');
+}
+async function quitarEstado(colabId, fecha){
+  const { error } = await db.from('asis_registros').delete().eq('colaborador_id',colabId).eq('fecha',fecha);
+  if(error){ toast('No se pudo quitar: '+error.message, true); return; }
+  delete REG[colabId+'|'+fecha];
+  toast('Marca eliminada');
+}
+async function marcarExcepcionTrabajo(colabId, fecha){
+  const { error } = await db.from('asis_excepciones').insert({ fecha, ambito:'colaborador', colaborador_id:Number(colabId), tipo:'laborable_extra', creado_por:PERFIL.id });
+  if(error){ toast('No se pudo habilitar: '+error.message, true); return; }
+  EXC_COL[colabId+'|'+fecha] = { tipo:'laborable_extra' };
+  toast('Día habilitado');
+}
+
+/* Popover al hacer clic en una celda */
+function abrirPop(td){
+  if(!puedeEditar()) return;
+  const colabId = td.dataset.c, fecha = td.dataset.f;
+  const c = COLABS.find(x=>String(x.id)===String(colabId));
+  const dd = estadoDia(c, fecha);
+  const pop = $('pop');
+  let h = `<div class="pop-head">${esc(c.nombre)}<small>${diaLabel(fecha)}</small></div>`;
+  if(!dd.lab){
+    h += `<p class="pop-off">${dd.motivo==='feriado'?'Feriado (empresa).':'No labora este día según su horario.'}</p>
+          <button class="pop-b act" data-act="extra">✓ Sí trabajó — habilitar</button>`;
+  } else {
+    h += '<div class="pop-grid">'+['P','T','J','NG'].map(k=>`<button class="pop-b ${ESTADOS[k].cls}" data-act="set" data-k="${k}">${k}<small>${ESTADOS[k].lbl}</small></button>`).join('')+'</div>';
+    if(REG[colabId+'|'+fecha]) h += `<button class="pop-b clr" data-act="clr">Quitar marca</button>`;
+  }
+  pop.innerHTML = h; pop.hidden=false;
+  const r = td.getBoundingClientRect();
+  const pw = 232;
+  let left = r.left + window.scrollX; if(left+pw > window.scrollX+innerWidth-8) left = window.scrollX+innerWidth-pw-8;
+  pop.style.left = left+'px';
+  pop.style.top  = (r.bottom + window.scrollY + 6)+'px';
+  pop._c = colabId; pop._f = fecha;
+}
+function cerrarPop(){ $('pop').hidden=true; }
+function diaLabel(fecha){ const d=new Date(fecha+'T00:00:00'); return `${DIAS_ISO.find(x=>x[1]===isoDow(fecha))[0]} ${d.getDate()} ${MESES[d.getMonth()].toLowerCase()}`; }
+
+/* ════════════════════ MODALES DE GESTIÓN ════════════════════ */
+function abrirModal(title, bodyHTML){ $('modal-title').textContent=title; $('modal-body').innerHTML=bodyHTML; $('modal').hidden=false; }
+function cerrarModal(){ $('modal').hidden=true; }
+$('modal-x').addEventListener('click', cerrarModal);
+$('modal').addEventListener('click', e=>{ if(e.target.id==='modal') cerrarModal(); });
+
+function modalArea(){
+  abrirModal('Nueva área', `
+    <label class="fld">Nombre del área<input id="m-area-nom" placeholder="Ej. Legal" maxlength="60"></label>
+    <div class="modal-foot"><button class="btn-mini" id="m-area-save">Crear área</button></div>`);
+  $('m-area-nom').focus();
+  $('m-area-save').onclick = async ()=>{
+    const nom = $('m-area-nom').value.trim(); if(!nom) return toast('Escribe un nombre', true);
+    const orden = (AREAS.reduce((m,a)=>Math.max(m,a.orden||0),0))+1;
+    const { error } = await db.from('asis_areas').insert({ nombre:nom, orden });
+    if(error) return toast('No se pudo crear: '+error.message, true);
+    await cargarBase(); cerrarModal(); render(); toast('Área creada');
+  };
+}
+function modalColab(existente){
+  const def = { area_id:AREAS[0]?.id, nombre:'', dni:'', hora_inicio:'08:00', hora_fin:'13:00', contrato_horas:null, activo:true,
+    horario_semanal:{ '1':{mod:'virtual'},'2':{mod:'virtual'},'3':{mod:'virtual'},'4':{mod:'virtual'},'5':{mod:'virtual'},'6':{mod:'no_gestiona'},'7':{mod:'no_gestiona'} } };
+  const c = existente || def;
+  const hs = c.horario_semanal || {};
+  const gIni = c.hora_inicio ? hhmm(c.hora_inicio) : '08:00';
+  const gFin = c.hora_fin ? hhmm(c.hora_fin) : '13:00';
+  const opts = AREAS.map(a=>`<option value="${a.id}" ${String(a.id)===String(c.area_id)?'selected':''}>${esc(a.nombre)}</option>`).join('');
+  const filas = DIAS_ISO.map(([lbl,iso])=>{
+    const d = hs[iso] || {}; const mod = d.mod || 'no_gestiona';
+    const ini = d.ini ? hhmm(d.ini) : gIni, fin = d.fin ? hhmm(d.fin) : gFin;
+    const mopts = [['no_gestiona','No gestiona'],['virtual','Virtual'],['presencial','Presencial'],['opcional','Opcional']]
+      .map(([v,l])=>`<option value="${v}" ${mod===v?'selected':''}>${l}</option>`).join('');
+    const off = mod==='no_gestiona' ? 'disabled' : '';
+    return `<div class="hs-row" data-dow="${iso}">
+      <span class="hs-d">${lbl}</span>
+      <select class="hs-mod">${mopts}</select>
+      <input type="time" class="hs-ini" value="${ini}" ${off}>
+      <input type="time" class="hs-fin" value="${fin}" ${off}>
+    </div>`;
+  }).join('');
+  abrirModal(existente?'Editar colaborador':'Nuevo colaborador', `
+    <label class="fld">Área<select id="m-c-area">${opts}</select></label>
+    <label class="fld">Nombre completo<input id="m-c-nom" value="${esc(c.nombre)}" maxlength="80"></label>
+    <div class="fld two">
+      <label>DNI (opcional)<input id="m-c-dni" value="${esc(c.dni||'')}" maxlength="15"></label>
+      <label>Horas de contrato (opcional)<input id="m-c-horas" type="number" min="0" step="1" value="${c.contrato_horas??''}" placeholder="Ej. 500"></label>
+    </div>
+    <div class="fld two">
+      <label>Hora inicio (general)<input id="m-c-ini" type="time" value="${gIni}"></label>
+      <label>Hora fin (general)<input id="m-c-fin" type="time" value="${gFin}"></label>
+    </div>
+    <div class="fld">Horario semanal <small class="hs-hint">Modalidad y horas por día. Si dejas la hora igual a la general no hace falta cambiarla.</small>
+      <div class="hs-grid">
+        <div class="hs-row hs-head"><span class="hs-d"></span><span>Modalidad</span><span>Entrada</span><span>Salida</span></div>
+        ${filas}
+      </div>
+    </div>
+    ${existente?`<label class="fld chk-inline"><input type="checkbox" id="m-c-act" ${c.activo?'checked':''}> Activo</label>`:''}
+    <div class="modal-foot">
+      ${existente?'<button class="btn-mini ghost" id="m-c-del">Eliminar</button>':''}
+      <button class="btn-mini" id="m-c-save">${existente?'Guardar':'Crear colaborador'}</button>
+    </div>`);
+  document.querySelectorAll('.hs-row:not(.hs-head)').forEach(r=>{
+    const sel = r.querySelector('.hs-mod');
+    sel.addEventListener('change', ()=>{
+      const off = sel.value==='no_gestiona';
+      r.querySelector('.hs-ini').disabled = off; r.querySelector('.hs-fin').disabled = off;
+    });
+  });
+  $('m-c-save').onclick = async ()=>{
+    const nombre = $('m-c-nom').value.trim(); if(!nombre) return toast('Escribe el nombre', true);
+    const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
+    const hsNew = {};
+    document.querySelectorAll('.hs-row:not(.hs-head)').forEach(r=>{
+      const mod = r.querySelector('.hs-mod').value; if(mod==='no_gestiona') return;
+      const o = { mod };
+      const i = r.querySelector('.hs-ini').value, f = r.querySelector('.hs-fin').value;
+      if(i && i!==gi) o.ini = i;   // solo guarda horas propias si difieren de la general
+      if(f && f!==gf) o.fin = f;
+      hsNew[r.dataset.dow] = o;
+    });
+    const payload = {
+      area_id:Number($('m-c-area').value), nombre,
+      dni:$('m-c-dni').value.trim()||null,
+      contrato_horas: $('m-c-horas').value!==''? Number($('m-c-horas').value) : null,
+      hora_inicio: gi, hora_fin: gf,
+      horario_semanal: hsNew,
+      dias_laborables: Object.keys(hsNew).map(Number).sort((a,b)=>a-b),
+    };
+    if(existente) payload.activo = $('m-c-act').checked;
+    const q = existente ? db.from('asis_colaboradores').update(payload).eq('id',existente.id)
+                        : db.from('asis_colaboradores').insert(payload);
+    const { error } = await q;
+    if(error) return toast('No se pudo guardar: '+error.message, true);
+    await cargarBase(); cerrarModal(); render(); toast('Guardado');
+  };
+  if(existente){
+    $('m-c-del').onclick = async ()=>{
+      if(!confirm('¿Eliminar a '+c.nombre+'? Se borrarán también sus marcas.')) return;
+      const { error } = await db.from('asis_colaboradores').delete().eq('id',existente.id);
+      if(error) return toast('No se pudo eliminar: '+error.message, true);
+      await cargarBase(); await cargarMes(); cerrarModal(); render(); toast('Colaborador eliminado');
+    };
+  }
+}
+async function modalFeriados(){
+  const dias = diasDelMes(YEAR, MONTH);
+  const lista = dias.filter(d=>EXC_EMP[d.fecha]).map(d=>`<li><b>${d.dia} ${MESES[MONTH].toLowerCase()}</b> — ${esc(EXC_EMP[d.fecha].nota||'Feriado')} <button class="lnk" data-del-fer="${d.fecha}">quitar</button></li>`).join('');
+  abrirModal('Feriados / días no laborables — '+MESES[MONTH]+' '+YEAR, `
+    <p class="modal-note">Un feriado bloquea ese día para todo el equipo (sale como “no labora”). Puedes habilitar excepciones por persona desde su celda.</p>
+    <label class="fld">Fecha<input type="date" id="m-fer-fecha" min="${dias[0].fecha}" max="${dias[dias.length-1].fecha}" value="${dias[0].fecha}"></label>
+    <label class="fld">Motivo (opcional)<input id="m-fer-nota" placeholder="Ej. Feriado nacional" maxlength="60"></label>
+    <div class="modal-foot"><button class="btn-mini" id="m-fer-add">Agregar feriado</button></div>
+    <ul class="fer-list">${lista||'<li class="muted">Sin feriados este mes.</li>'}</ul>`);
+  $('m-fer-add').onclick = async ()=>{
+    const fecha=$('m-fer-fecha').value; if(!fecha) return;
+    const { error } = await db.from('asis_excepciones').insert({ fecha, ambito:'empresa', tipo:'feriado', nota:$('m-fer-nota').value.trim()||null, creado_por:PERFIL.id });
+    if(error) return toast('No se pudo agregar: '+error.message, true);
+    await cargarMes(); render(); modalFeriados(); toast('Feriado agregado');
+  };
+  document.querySelectorAll('[data-del-fer]').forEach(b=> b.onclick = async ()=>{
+    const f=b.dataset.delFer;
+    const { error } = await db.from('asis_excepciones').delete().eq('fecha',f).eq('ambito','empresa');
+    if(error) return toast('No se pudo quitar: '+error.message, true);
+    await cargarMes(); render(); modalFeriados();
+  });
+}
+
+/* ════════════════════ EVENTOS ════════════════════ */
+$('mes-prev').onclick = async ()=>{ MONTH--; if(MONTH<0){MONTH=11;YEAR--;} await cargarMes(); render(); };
+$('mes-next').onclick = async ()=>{ MONTH++; if(MONTH>11){MONTH=0;YEAR++;} await cargarMes(); render(); };
+$('mes-hoy').onclick  = async ()=>{ const h=new Date(); YEAR=h.getFullYear(); MONTH=h.getMonth(); await cargarMes(); render(); };
+document.querySelectorAll('#modo-seg button').forEach(b=> b.onclick = ()=>{ MODO=b.dataset.modo; render(); });
+$('buscar').addEventListener('input', ()=>{ if(MODO!=='lista') render(); else renderLista(); });
+$('filtro-area').addEventListener('change', render);
+$('ver-inactivos').addEventListener('change', render);
+$('lista-fecha').addEventListener('change', renderLista);
+$('btn-add-area').onclick  = modalArea;
+$('btn-add-colab').onclick = ()=>modalColab(null);
+$('btn-feriados').onclick  = modalFeriados;
+
+/* Delegación de clics en el escenario */
+$('app').addEventListener('click', async e=>{
+  const editBtn = e.target.closest('[data-edit]');
+  if(editBtn){ const c=COLABS.find(x=>String(x.id)===editBtn.dataset.edit); if(c) modalColab(c); return; }
+  const cell = e.target.closest('td.cell');
+  if(cell){ abrirPop(cell); e.stopPropagation(); return; }
+  const lrb = e.target.closest('.lr-b');
+  if(lrb){ const row=lrb.closest('.lista-row'); await setEstado(row.dataset.c,row.dataset.f,lrb.dataset.set); renderLista(); return; }
+});
+/* Acciones del popover */
+$('pop').addEventListener('click', async e=>{
+  const b=e.target.closest('.pop-b'); if(!b) return;
+  const pop=$('pop'), c=pop._c, f=pop._f;
+  if(b.dataset.act==='set'){ await setEstado(c,f,b.dataset.k); }
+  else if(b.dataset.act==='clr'){ await quitarEstado(c,f); }
+  else if(b.dataset.act==='extra'){ await marcarExcepcionTrabajo(c,f); }
+  cerrarPop(); render();
+});
+document.addEventListener('click', e=>{ if(!e.target.closest('#pop') && !e.target.closest('td.cell')) cerrarPop(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ cerrarPop(); cerrarModal(); } });
+
+/* ════════════════════ ARRANQUE ════════════════════ */
+iniciarSesionActiva();
+</script>
+</body>
+</html>
