@@ -868,7 +868,7 @@ html.js-anim:not(.anim-ready) .areas-anim {
         /* ===== FACEBOOK TESTIMONIAL CARDS (renderizadas por JS en #commitmentTrack) ===== */
         .fb-post {
             padding: 0;
-            overflow: hidden;
+            overflow: visible;
             background: #fff;
             border: 1px solid #e4e6ea;
             border-radius: 16px;
@@ -880,6 +880,7 @@ html.js-anim:not(.anim-ready) .areas-anim {
             display: flex;
             align-items: center;
             gap: 8px;
+            border-radius: 16px 16px 0 0;
         }
 
         .fb-post__bar svg {
@@ -910,6 +911,7 @@ html.js-anim:not(.anim-ready) .areas-anim {
             flex: 1;
             display: flex;
             flex-direction: column;
+            border-radius: 0 0 16px 16px;
         }
 
         .fb-post__user {
@@ -1025,37 +1027,213 @@ html.js-anim:not(.anim-ready) .areas-anim {
             color: #65676b;
         }
 
-        /* Reacciones interactivas de los comentarios web (Me gusta / Me encanta / Me divierte) */
-        .wr-bar {
-            display: flex;
-            gap: 8px;
+        /* Selector compacto de reacciones interactivas de los comentarios web */
+        .wr-reaction {
+            position: relative;
             width: 100%;
+            touch-action: manipulation;
+            z-index: 2;
         }
-        .wr-btn {
-            flex: 1;
+
+        /* Puente invisible: evita perder :hover al cruzar el espacio hacia la bandeja. */
+        .wr-reaction::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 100%;
+            height: 10px;
+            pointer-events: auto;
+        }
+
+        .wr-trigger {
+            width: 100%;
+            min-height: 42px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 7px;
             border: 1px solid #e4e6ea;
             background: #f7f8fa;
-            border-radius: 20px;
-            padding: 7px 4px;
+            border-radius: 999px;
+            padding: 8px 16px;
             cursor: pointer;
             font-family: inherit;
-            font-size: 0.8rem;
+            font-size: 0.82rem;
+            font-weight: 700;
             color: #65676b;
-            transition: background .15s, border-color .15s, color .15s, transform .15s;
+            transition: background .22s ease, border-color .22s ease, color .22s ease, transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease;
         }
-        .wr-btn:hover { background: #eef0f3; transform: translateY(-1px); }
-        .wr-btn .wr-emo { font-size: 1rem; line-height: 1; }
-        .wr-btn .wr-n { font-weight: 700; color: #1c1e21; }
-        .wr-btn.reacted .wr-n,
-        .wr-btn.reacted { font-weight: 700; }
-        .wr-btn.reacted.wr-like { background: #e7f0ff; border-color: #1877f2; color: #1877f2; }
-        .wr-btn.reacted.wr-love { background: #ffeaf0; border-color: #f33e58; color: #f33e58; }
-        .wr-btn.reacted.wr-haha { background: #fff6e0; border-color: #f5a623; color: #b8860b; }
-        .wr-btn.reacted .wr-n { color: inherit; }
+
+        .wr-trigger:hover,
+        .wr-reaction:focus-within .wr-trigger,
+        .wr-reaction.is-open .wr-trigger {
+            background: #eef0f3;
+            border-color: #ccd2da;
+            color: #1c1e21;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(24, 119, 242, 0.12);
+        }
+
+        .wr-trigger.reacted {
+            background: #e7f0ff;
+            border-color: #1877f2;
+            color: #1877f2;
+        }
+
+        .wr-trigger:disabled {
+            cursor: default;
+            opacity: .6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .wr-trigger-emo {
+            font-size: 1.2rem;
+            line-height: 1;
+            transition: transform .28s cubic-bezier(.175,.885,.32,1.275);
+        }
+
+        .wr-trigger:hover .wr-trigger-emo,
+        .wr-reaction:focus-within .wr-trigger-emo {
+            transform: scale(1.12) rotate(-5deg);
+        }
+
+        .wr-trigger-label { line-height: 1; }
+
+        .wr-panel {
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 10px);
+            z-index: 30;
+            display: flex;
+            align-items: stretch;
+            gap: 5px;
+            width: max-content;
+            max-width: min(320px, calc(100vw - 40px));
+            padding: 7px;
+            border: 1px solid rgba(228, 230, 234, .95);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, .98);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, .16), 0 0 0 1px rgba(24, 119, 242, .05);
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 8px) scale(.92);
+            transform-origin: bottom center;
+            transition: opacity .2s ease, transform .25s cubic-bezier(.22,1,.36,1);
+        }
+
+        .wr-reaction:hover .wr-panel,
+        .wr-reaction.is-open .wr-panel {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, 0) scale(1);
+        }
+
+        .wr-option {
+            min-width: 78px;
+            min-height: 52px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            border: 0;
+            border-radius: 13px;
+            background: transparent;
+            padding: 5px 7px;
+            cursor: pointer;
+            font-family: inherit;
+            color: #65676b;
+            transition: background .16s ease, color .16s ease, transform .22s cubic-bezier(.175,.885,.32,1.275);
+        }
+
+        .wr-option:hover,
+        .wr-option:focus-visible {
+            background: #f2f4f7;
+            color: #1c1e21;
+            transform: translateY(-4px);
+        }
+
+        .wr-option .wr-emo {
+            font-size: 1.65rem;
+            line-height: 1;
+            transition: transform .24s cubic-bezier(.175,.885,.32,1.275), filter .24s ease;
+        }
+
+        .wr-option:hover .wr-emo,
+        .wr-option:focus-visible .wr-emo {
+            transform: scale(1.22) rotate(-7deg);
+            filter: saturate(1.18);
+        }
+
+        .wr-option-label {
+            font-size: .62rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .wr-option .wr-n {
+            font-size: .66rem;
+            font-weight: 800;
+            color: #1c1e21;
+        }
+
+        .wr-option.reacted {
+            background: #e7f0ff;
+            color: #1877f2;
+        }
+
+        .wr-option.reacted.wr-love { background: #ffeaf0; color: #f33e58; }
+        .wr-option.reacted.wr-haha { background: #fff6e0; color: #b8860b; }
+        .wr-option.reacted .wr-n { color: inherit; }
+        .wr-option[aria-disabled="true"]:not(.reacted) { opacity: .52; }
+        .wr-reaction.is-locked .wr-option { cursor: default; }
+
+        .wr-burst {
+            position: absolute;
+            left: 50%;
+            bottom: 28px;
+            z-index: 35;
+            pointer-events: none;
+            font-size: 1.25rem;
+            line-height: 1;
+            animation: wrReactionBurst .8s cubic-bezier(.22,1,.36,1) forwards;
+            animation-delay: calc(var(--wr-burst-index) * 35ms);
+        }
+
+        .wr-pop { animation: wrReactionPop .48s cubic-bezier(.175,.885,.32,1.275); }
+
+        @keyframes wrReactionPop {
+            0%, 100% { transform: scale(1); }
+            38% { transform: scale(1.08); }
+            70% { transform: scale(.97); }
+        }
+
+        @keyframes wrReactionBurst {
+            0% { opacity: 0; transform: translate(calc(-50% + ((var(--wr-burst-index) - 1) * 22px)), 0) scale(.55) rotate(-12deg); }
+            18% { opacity: 1; }
+            100% { opacity: 0; transform: translate(calc(-50% + ((var(--wr-burst-index) - 1) * 22px)), -50px) scale(1.1) rotate(12deg); }
+        }
+
+        @media (max-width: 640px) {
+            .wr-panel {
+                width: min(300px, calc(100vw - 48px));
+                max-width: calc(100vw - 48px);
+            }
+            .wr-option { flex: 1; min-width: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .wr-panel,
+            .wr-trigger,
+            .wr-trigger-emo,
+            .wr-option,
+            .wr-option .wr-emo { transition: none; }
+            .wr-pop,
+            .wr-burst { animation: none !important; }
+            .wr-burst { display: none; }
+        }
 
 
         /* ===== STAT PULSE ===== */
