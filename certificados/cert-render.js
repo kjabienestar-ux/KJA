@@ -36,7 +36,7 @@
 
   const TIPOS = {
     taller:{
-      plantilla:'Certificado_taller/PLANTILLA_CERTIFICADO_TALLER.webp?v=4',
+      plantilla:'Certificado_taller/PLANTILLA_CERTIFICADO_TALLER.webp?v=5',
       etiquetaTitulo:'Nombre del taller', fechas:'simple',
       nombre:{cx:1000, cy:675, maxW:1600, font:ROMANA, size:108, weight:400, color:'#071F70', upper:true, lh:108, align:'center'},
       cuerpo:{x:234, topY:912, maxW:1532, size:31, lh:46, color:'#2b2b2b', align:'justify'},
@@ -47,7 +47,7 @@
                  {t:` con una duración de ${d.duracion} horas académicas, realizado durante el periodo del ${d.fInicio}.`}]
     },
     curso:{
-      plantilla:'Certificado_cursos/PLANTILLA_CERTIFICADO_CURSOS.webp?v=3',
+      plantilla:'Certificado_cursos/PLANTILLA_CERTIFICADO_CURSOS.webp?v=4',
       etiquetaTitulo:'Nombre del curso', fechas:'rango',
       nombre:{cx:780, cy:662, maxW:1340, font:SCRIPT, size:104, weight:400, color:'#000000', lh:110, align:'center'},
       cuerpo:{x:120, topY:800, maxW:1300, size:31, lh:46, color:'#2b2b2b', align:'justify'},
@@ -58,7 +58,7 @@
                  {t:` con una duración de ${d.duracion} horas académicas, realizado durante el periodo del ${d.fInicio}, hasta el ${d.fFin}.`}]
     },
     especializacion:{
-      plantilla:'Certiicado_curso_especializacion/PLANTILLA_CERTIFICADO_CURSO_ESPECIALIZACION.webp?v=3',
+      plantilla:'Certiicado_curso_especializacion/PLANTILLA_CERTIFICADO_CURSO_ESPECIALIZACION.webp?v=4',
       etiquetaTitulo:'Nombre del curso de especialización', fechas:'rango',
       nombre:{cx:1005, cy:615, maxW:1700, font:SCRIPT, size:96, weight:400, color:'#1a1a1a', lh:100, align:'center'},
       cuerpo:{x:256, topY:725, maxW:1490, size:31, lh:46, color:'#2b2b2b', align:'justify'},
@@ -69,7 +69,7 @@
                  {t:` con una duración de ${d.duracion} horas académicas, realizado durante el periodo del ${d.fInicio}, hasta el ${d.fFin}.`}]
     },
     constancia:{
-      plantilla:'Certificado_constancia_taller_presencial/PLANTILLA_CERTIFICADO_TALLER_PRESENCIAL.webp?v=3',
+      plantilla:'Certificado_constancia_taller_presencial/PLANTILLA_CERTIFICADO_TALLER_PRESENCIAL.webp?v=4',
       etiquetaTitulo:'Nombre del taller', fechas:'simple',
       nombre:{cx:780, cy:660, maxW:1450, font:SCRIPT, size:92, weight:400, color:'#000000', lh:96, align:'center'},
       cuerpo:{x:160, topY:790, maxW:1380, size:31, lh:46, color:'#2b2b2b', align:'justify'},
