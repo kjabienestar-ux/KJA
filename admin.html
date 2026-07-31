@@ -473,11 +473,11 @@
 <!-- Drawer: certificados de un cliente -->
 <div class="drawer-ov" id="drawer-ov"></div>
 <aside class="drawer" id="drawer">
-  <div class="drawer-head">
+  <div class="drawer-head" id="drawer-head">
     <div class="dh-profile">
       <div class="dh-avatar" id="drawer-avatar"></div>
       <div class="dh-info">
-        <div class="dh-kicker">Cliente · Registro KJA</div>
+        <div class="dh-kicker">Cliente</div>
         <div class="drawer-name" id="drawer-name"></div>
         <div class="dh-chips">
           <span class="dh-chip" id="drawer-dni">
@@ -1483,9 +1483,13 @@ let grupoActual=null;
 function abrirDrawer(g){
   grupoActual=g;
   $('drawer-name').textContent=g.nombre;
-  // Sello con las iniciales del cliente y su color, igual que en la lista
-  const av=$('drawer-avatar');
-  av.textContent=inicialesDe(g.nombre); av.style.background=colorDe(g.nombre);
+  // Avatar con las iniciales en el color del cliente (el mismo de la lista), en tono
+  // suave: fondo al 12% y borde al 30%. Se usa hex con alfa para no depender de
+  // color-mix(), que no existe en navegadores algo antiguos.
+  const col=colorDe(g.nombre), av=$('drawer-avatar');
+  av.textContent=inicialesDe(g.nombre);
+  av.style.background=col+'1f'; av.style.borderColor=col+'4d'; av.style.color=col;
+  $('drawer-head').style.borderLeftColor=col;   // barra lateral del color del cliente
   $('drawer-dni').style.display = g.dni ? '' : 'none';
   $('drawer-dni-txt').textContent = g.dni ? 'DNI '+g.dni : '';
   $('drawer-count-txt').textContent = g.certs.length===1 ? '1 certificado' : g.certs.length+' certificados';
