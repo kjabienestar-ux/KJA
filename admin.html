@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=32">
+<link rel="stylesheet" href="admin.css?v=33">
 </head>
 <body>
 
@@ -1413,7 +1413,8 @@ function ultimaFechaCliente(g){
   return m;
 }
 function pintarClientes(list, totalCerts){
-  $('count').textContent=`${list.length} cliente(s) · ${totalCerts} certificado(s)`;
+  $('count').textContent=`${list.length===1?'1 cliente':list.length+' clientes'} · `
+    +`${totalCerts===1?'1 certificado':totalCerts+' certificados'}`;
   if(!list.length){
     $('tabla-wrap').innerHTML=`<div class="empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="12" cy="14" r="3"/></svg>
@@ -1441,7 +1442,7 @@ function pintarClientes(list, totalCerts){
       html+=`<div class="cli-row" data-i="${idx}" style="animation-delay:${(idx*0.03).toFixed(2)}s">
         <span class="cli-ava" style="background:${colorDe(nom)}">${inicialesDe(nom)}</span>
         <div class="cli-info"><span class="cli-name">${nom}</span><span class="cli-dni">${g.dni?('DNI '+g.dni):'Sin DNI'}</span></div>
-        <span class="badge-num" title="${g.certs.length} certificado(s)">${g.certs.length}</span>
+        <span class="badge-num" title="${g.certs.length===1?'1 certificado':g.certs.length+' certificados'}">${g.certs.length}</span>
         <span class="chev">Ver ›</span>
       </div>`;
     });
@@ -1527,7 +1528,8 @@ $('drawer-add').addEventListener('click', ()=>{ if(grupoActual) nuevoCertCliente
 $('drawer-del').addEventListener('click', eliminarCliente);
 async function eliminarCliente(){
   const g=grupoActual; if(!g) return;
-  if(!confirm(`¿Ocultar los ${g.certs.length} certificado(s) de "${g.nombre}"? No se borran de verdad; el administrador puede restaurarlos desde la Papelera.`)) return;
+  const nOcultar = g.certs.length===1 ? 'el certificado' : `los ${g.certs.length} certificados`;
+  if(!confirm(`¿Ocultar ${nOcultar} de "${g.nombre}"? No se borran de verdad; el administrador puede restaurarlos desde la Papelera.`)) return;
   // Borrado suave: se ocultan los certificados (el cliente se conserva)
   let r = g.clienteId
     ? await db.from('certificados').update({oculto:true}).eq('cliente_id',g.clienteId)
@@ -1572,7 +1574,9 @@ async function abrirTodosModal(){
   const g=grupoActual; if(!g || revisando) return;
   revisando=true;
   $('todos-nombre').textContent=g.nombre;
-  $('todos-sub').textContent=(g.dni?`DNI ${g.dni} · `:'')+`${g.certs.length} certificado(s) emitido(s)`;
+  const nc=g.certs.length;
+  $('todos-sub').textContent=(g.dni?`DNI ${g.dni} · `:'')
+    +(nc===1?'1 certificado emitido':`${nc} certificados emitidos`);
   const cont=$('todos-body'); cont.innerHTML='';
   const prog=document.createElement('div'); prog.className='todos-prog';
   prog.innerHTML='<span class="todos-spin"></span><span id="todos-prog-txt"></span>';
