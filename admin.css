@@ -654,11 +654,12 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .em-yasent b{font-weight:700;color:#082a5e;}
 
 /* Botón "Revisar todos" en la cabecera del cliente */
-.dh-revisar{display:inline-flex;align-items:center;gap:6px;margin-top:9px;padding:6px 13px;
-  border:1.5px solid #dbe4f0;border-radius:20px;background:#fff;color:#0a2a5e;
-  font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;transition:.18s;}
+/* Acción secundaria, debajo de "Emitir Nuevo Certificado" */
+.dh-revisar{display:flex;align-items:center;justify-content:center;gap:7px;margin:0 22px 4px;padding:10px;
+  border:1px solid #dbe4f0;border-radius:12px;background:#fff;color:#0a2a5e;
+  font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:.18s;}
 .dh-revisar:hover{border-color:var(--azul);color:var(--azul);background:#f4f8ff;
-  box-shadow:0 4px 12px rgba(0,79,176,.14);transform:translateY(-1px);}
+  box-shadow:0 4px 12px rgba(0,79,176,.12);}
 
 /* Revisión amplia: modal con todos los certificados del cliente */
 #todos-modal{z-index:99;padding:18px;}            /* debajo del visor grande (100) */
@@ -718,25 +719,22 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
   border-radius:20px 0 0 20px;overflow:hidden;
   box-shadow:-14px 0 54px rgba(0,30,70,.22);transform:translateX(100%);transition:transform .35s cubic-bezier(.22,.61,.36,1);display:flex;flex-direction:column;}
 .drawer.open{transform:none;}
-/* Cabecera del cliente: blanca y compacta, con una barra vertical del color del
-   cliente a la izquierda. El color lo pone abrirDrawer() según el nombre. */
-.drawer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-  padding:17px 20px 16px 17px;background:#f8fafc;border-bottom:1px solid #e6edf5;
-  border-left:4px solid var(--azul);}
-.dh-profile{display:flex;align-items:center;gap:13px;min-width:0;}
+/* Cabecera del cliente: solo identifica, nada de acciones. Al ras del cuerpo. */
+.drawer-head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 16px;background:#f8fafc;border-bottom:1px solid #e6edf5;}
+.dh-profile{display:flex;align-items:center;gap:11px;min-width:0;}
 /* Iniciales en el tono suave del color del cliente (fondo y borde los pone el JS) */
-.dh-avatar{flex-shrink:0;width:46px;height:46px;border-radius:15px;display:grid;place-items:center;
-  font-size:15px;font-weight:800;letter-spacing:.4px;border:1.5px solid transparent;}
+.dh-avatar{flex-shrink:0;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  font-size:13px;font-weight:800;letter-spacing:.4px;border:1.5px solid transparent;}
 .dh-info{min-width:0;}
-.dh-kicker{font-size:9.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#9aa9c0;}
-.drawer-name{font-size:16.5px;font-weight:800;color:#0a2a5e;line-height:1.25;margin-top:1px;max-width:270px;}
-.dh-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
-.dh-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;
-  background:#fff;border:1px solid #e4eaf3;font-size:11px;font-weight:600;color:#4b5c73;white-space:nowrap;
-  box-shadow:0 1px 2px rgba(0,30,80,.04);}
-.dh-chip svg{opacity:.75;flex-shrink:0;}
-.drawer-close{width:32px;height:32px;border:1px solid #e4eaf3;border-radius:50%;background:#fff;
-  color:#475569;font-size:15px;cursor:pointer;line-height:1;flex-shrink:0;transition:.2s;}
+.dh-kicker{font-size:8.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#a3b0c4;}
+.drawer-name{font-size:14.5px;font-weight:800;color:#0a2a5e;line-height:1.25;max-width:250px;}
+.dh-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.dh-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;
+  background:#fff;border:1px solid #e4eaf3;font-size:10.5px;font-weight:600;color:#4b5c73;white-space:nowrap;}
+.dh-chip svg{opacity:.7;flex-shrink:0;}
+.drawer-close{width:29px;height:29px;border:1px solid #e4eaf3;border-radius:50%;background:#fff;
+  color:#475569;font-size:13px;cursor:pointer;line-height:1;flex-shrink:0;transition:.2s;}
 .drawer-close:hover{background:#eef2f7;color:#0f172a;transform:rotate(90deg);}
 .drawer-add{margin:18px 22px 8px;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--azul-osc),var(--azul));color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;box-shadow:0 8px 20px rgba(0,79,176,.25);transition:.25s cubic-bezier(.22,.61,.36,1);display:flex;align-items:center;justify-content:center;gap:8px;}
 .drawer-add:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,79,176,.4);filter:brightness(1.05);}
