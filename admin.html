@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=27">
+<link rel="stylesheet" href="admin.css?v=28">
 </head>
 <body>
 
@@ -481,6 +481,10 @@
       <div class="dh-info">
         <div class="drawer-name" id="drawer-name"></div>
         <div class="drawer-sub" id="drawer-sub"></div>
+        <button class="dh-revisar" id="drawer-revisar">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span id="drawer-revisar-txt">Revisar todos</span>
+        </button>
       </div>
     </div>
     <button class="drawer-close" id="drawer-close" aria-label="Cerrar">✕</button>
@@ -499,6 +503,24 @@
 </div>
 
 <!-- Modal de previsualización del certificado -->
+<!-- Revisión amplia: todos los certificados del cliente, uno debajo del otro -->
+<div class="modal-overlay" id="todos-modal">
+  <div class="modal-box todos-box">
+    <button class="modal-close" id="todos-close" aria-label="Cerrar">✕</button>
+    <div class="todos-head">
+      <div class="em-seal">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="em-head-txt">
+        <div class="em-kicker">KJA · Registro oficial</div>
+        <h3 id="todos-nombre"></h3>
+        <p id="todos-sub"></p>
+      </div>
+    </div>
+    <div class="todos-body" id="todos-body"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="ver-modal">
   <div class="modal-box">
     <button class="modal-close" id="ver-close" aria-label="Cerrar">✕</button>
@@ -1454,6 +1476,8 @@ function abrirDrawer(g){
   grupoActual=g;
   $('drawer-name').textContent=g.nombre;
   $('drawer-sub').textContent=(g.dni?`DNI ${g.dni} · `:'')+`${g.certs.length} certificado(s)`;
+  $('drawer-revisar-txt').textContent = g.certs.length>1
+    ? `Revisar los ${g.certs.length} certificados` : 'Revisar el certificado';
   const cont=$('drawer-list'); cont.innerHTML='';
   g.certs.forEach((r, i)=>{
     const d=document.createElement('div'); d.className='dcert';
@@ -1532,6 +1556,69 @@ async function descargarFila(id, fmt){
     KJACert.exportarMulti([c1,c2], fn);
   } else { KJACert.exportar(c1, fn, fmt||'pdf'); }
 }
+
+/* ───── REVISAR TODOS: los certificados del cliente, grandes y uno debajo de otro ─────
+   Se dibuja cada uno en un canvas temporal y se guarda como imagen: un canvas de
+   2000×1414 pesa ~11 MB en memoria, así que se libera apenas se convierte. */
+async function imagenDe(dibujar){
+  const c=document.createElement('canvas'); c.width=KJACert.W; c.height=KJACert.H;
+  await dibujar(c);
+  const url=c.toDataURL('image/webp',0.92);
+  c.width=0; c.height=0;                    // libera la memoria del canvas
+  return url;
+}
+let revisando=false;
+async function abrirTodosModal(){
+  const g=grupoActual; if(!g || revisando) return;
+  revisando=true;
+  $('todos-nombre').textContent=g.nombre;
+  $('todos-sub').textContent=(g.dni?`DNI ${g.dni} · `:'')+`${g.certs.length} certificado(s) emitido(s)`;
+  const cont=$('todos-body'); cont.innerHTML='';
+  const prog=document.createElement('div'); prog.className='todos-prog';
+  prog.innerHTML='<span class="todos-spin"></span><span id="todos-prog-txt"></span>';
+  cont.appendChild(prog);
+  $('todos-modal').classList.add('open');
+  try{
+    for(let i=0;i<g.certs.length;i++){
+      const r=g.certs[i];
+      $('todos-prog-txt').textContent=`Preparando certificado ${i+1} de ${g.certs.length}…`;
+      const tem=r.temario, conTemario=!!(tem && tem.modulos && tem.modulos.length);
+      const art=document.createElement('article'); art.className='tcert';
+      art.innerHTML=`
+        <div class="tcert-bar">
+          <div class="tcert-id">
+            <span class="dc-tipo">${TIPO_LBL[r.tipo]||r.tipo}</span>
+            <span class="dc-cod">${r.codigo}</span>
+          </div>
+          <div class="tcert-tit">${r.titulo}</div>
+          <div class="tcert-meta">${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)} · Creado por <b>${nombreDe(r.creado_por)}</b></div>
+          <div class="tcert-acc"><button class="t-edit">Editar</button><button class="t-pdf">Descargar PDF</button></div>
+        </div>
+        <figure class="tcert-fig"><img alt="Certificado ${r.codigo}"><figcaption>Certificado</figcaption></figure>
+        ${conTemario?'<figure class="tcert-fig"><img alt="Temario"><figcaption>Temario</figcaption></figure>':''}`;
+      cont.insertBefore(art, prog);
+      const figs=art.querySelectorAll('.tcert-fig img');
+      figs[0].src=await imagenDe(c=>KJACert.render(c, rowToDatos(r)));
+      if(conTemario) figs[1].src=await imagenDe(c=>KJACert.renderTemario(c, tem));
+      art.querySelector('.t-pdf').onclick=()=>descargarFila(r.id,'pdf');
+      art.querySelector('.t-edit').onclick=()=>{ cerrarTodosModal(); cerrarDrawer(); editarFila(r.id); };
+      figs.forEach(im=>im.onclick=()=>verModal(r.id));   // clic en la imagen = verla en grande
+    }
+  }catch(e){
+    $('todos-prog-txt').textContent='No se pudieron generar todas las vistas: '+(e.message||e);
+    console.warn('[KJA] Error al revisar certificados:', e);
+    revisando=false; return;
+  }
+  prog.remove();
+  revisando=false;
+}
+function cerrarTodosModal(){
+  $('todos-modal').classList.remove('open');
+  $('todos-body').innerHTML='';   // suelta las imágenes en memoria
+}
+$('drawer-revisar').addEventListener('click', abrirTodosModal);
+$('todos-close').addEventListener('click', cerrarTodosModal);
+$('todos-modal').addEventListener('click', e=>{ if(e.target===$('todos-modal')) cerrarTodosModal(); });
 
 /* 👁 Ver: ventana emergente con el certificado (y temario si lo tiene) */
 async function verModal(id){
