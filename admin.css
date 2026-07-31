@@ -476,6 +476,7 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .modal-overlay{position:fixed;inset:0;background:rgba(10,30,70,.55);backdrop-filter:blur(3px);
   display:flex;align-items:center;justify-content:center;padding:24px;z-index:100;opacity:0;visibility:hidden;transition:.2s;}
 .modal-overlay.open{opacity:1;visibility:visible;}
+body.modal-abierto{overflow:hidden;}   /* el fondo no se desplaza con una ventana abierta */
 .modal-box{background:#fff;border-radius:16px;padding:18px;max-width:920px;width:100%;max-height:92vh;overflow:auto;
   box-shadow:0 30px 80px rgba(0,0,0,.4);transform:translateY(16px) scale(.97);transition:.25s cubic-bezier(.22,.61,.36,1);position:relative;}
 .modal-overlay.open .modal-box{transform:none;}
@@ -691,11 +692,17 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 .tcert-acc .t-edit{background:#fef3c7;color:#b45309;}
 .tcert-acc .t-pdf{background:var(--azul);color:#fff;}
 .tcert-acc button:hover{transform:translateY(-2px);filter:brightness(1.04);}
-.tcert-fig{margin:0 0 10px;}
+/* La figura reserva desde el principio la proporción del certificado: así la
+   imagen aparece sin mover nada de sitio mientras se navega. */
+.tcert-fig{margin:0 0 10px;position:relative;}
 .tcert-fig:last-child{margin-bottom:0;}
-.tcert-fig img{display:block;width:100%;height:auto;border-radius:9px;background:#fff;cursor:zoom-in;
-  border:1px solid #e2e8f0;box-shadow:0 5px 18px rgba(0,40,100,.09);min-height:100px;transition:.18s;}
+.tcert-fig img{display:block;width:100%;aspect-ratio:2000/1414;border-radius:9px;background:#fff;cursor:zoom-in;
+  border:1px solid #e2e8f0;box-shadow:0 5px 18px rgba(0,40,100,.09);transition:box-shadow .18s,opacity .25s;}
 .tcert-fig img:hover{box-shadow:0 8px 26px rgba(0,40,100,.18);}
+.tcert-fig.cargando img{opacity:0;}
+.tcert-fig > .todos-spin{display:none;}
+.tcert-fig.cargando > .todos-spin{display:block;position:absolute;top:0;bottom:26px;left:50%;margin:auto;
+  transform:translateX(-50%);}
 .tcert-fig figcaption{margin-top:6px;font-size:10px;font-weight:700;letter-spacing:1.1px;
   text-transform:uppercase;color:#94a3b8;text-align:center;}
 .todos-prog{display:flex;align-items:center;justify-content:center;gap:10px;padding:26px 0;

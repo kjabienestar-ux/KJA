@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=33">
+<link rel="stylesheet" href="admin.css?v=34">
 </head>
 <body>
 
@@ -1562,63 +1562,100 @@ async function descargarFila(id, fmt){
 /* ───── REVISAR TODOS: los certificados del cliente, grandes y uno debajo de otro ─────
    Se dibuja cada uno en un canvas temporal y se guarda como imagen: un canvas de
    2000×1414 pesa ~11 MB en memoria, así que se libera apenas se convierte. */
+let urlsRevision=[];                        // object URLs a liberar al cerrar
+const ANCHO_REVISION=1300;                  // el modal la muestra a ~650 px; 1300 = nítida en pantallas retina
 async function imagenDe(dibujar){
   const c=document.createElement('canvas'); c.width=KJACert.W; c.height=KJACert.H;
   await dibujar(c);
-  const url=c.toDataURL('image/webp',0.92);
-  c.width=0; c.height=0;                    // libera la memoria del canvas
+  // Se reduce ANTES de codificar: comprimir los 2000×1414 completos costaba ~280 ms
+  // por imagen y era lo que trababa la pantalla, para un tamaño que nadie ve.
+  const w=ANCHO_REVISION, h=Math.round(KJACert.H*w/KJACert.W);
+  const mini=document.createElement('canvas'); mini.width=w; mini.height=h;
+  const cx=mini.getContext('2d'); cx.imageSmoothingQuality='high';
+  cx.drawImage(c,0,0,w,h);
+  c.width=0; c.height=0;                    // libera la memoria del canvas grande
+  // toBlob + object URL en vez de toDataURL: no arma una cadena base64 gigante
+  const blob=await new Promise(res=>mini.toBlob(res,'image/webp',0.9));
+  const respaldo = blob ? null : mini.toDataURL('image/jpeg',0.88);   // si no hubiera WebP
+  mini.width=0; mini.height=0;
+  if(respaldo) return respaldo;
+  const url=URL.createObjectURL(blob);
+  urlsRevision.push(url);
   return url;
 }
-let revisando=false;
-async function abrirTodosModal(){
-  const g=grupoActual; if(!g || revisando) return;
-  revisando=true;
+/* Cede el control al navegador para que pinte antes de seguir dibujando */
+function esperarCuadro(){ return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))); }
+/* Cola: las vistas previas se generan de una en una y cediendo el cuadro entre
+   cada una, para que el desplazamiento nunca se sienta trabado. */
+let colaRevision=[], colaEnMarcha=false;
+function encolarRevision(tarea){ colaRevision.push(tarea); if(!colaEnMarcha) correrColaRevision(); }
+async function correrColaRevision(){
+  colaEnMarcha=true;
+  while(colaRevision.length){
+    const t=colaRevision.shift();
+    try{ await t(); }catch(e){ console.warn('[KJA] No se pudo generar una vista previa:', e); }
+    await esperarCuadro();
+  }
+  colaEnMarcha=false;
+}
+let obsRevision=null;
+function abrirTodosModal(){
+  const g=grupoActual; if(!g) return;
   $('todos-nombre').textContent=g.nombre;
   const nc=g.certs.length;
   $('todos-sub').textContent=(g.dni?`DNI ${g.dni} · `:'')
     +(nc===1?'1 certificado emitido':`${nc} certificados emitidos`);
   const cont=$('todos-body'); cont.innerHTML='';
-  const prog=document.createElement('div'); prog.className='todos-prog';
-  prog.innerHTML='<span class="todos-spin"></span><span id="todos-prog-txt"></span>';
-  cont.appendChild(prog);
-  $('todos-modal').classList.add('open');
-  try{
-    for(let i=0;i<g.certs.length;i++){
-      const r=g.certs[i];
-      $('todos-prog-txt').textContent=`Preparando certificado ${i+1} de ${g.certs.length}…`;
-      const tem=r.temario, conTemario=!!(tem && tem.modulos && tem.modulos.length);
-      const art=document.createElement('article'); art.className='tcert';
-      art.innerHTML=`
-        <div class="tcert-bar">
-          <div class="tcert-id">
-            <span class="dc-tipo">${TIPO_LBL[r.tipo]||r.tipo}</span>
-            <span class="dc-cod">${r.codigo}</span>
-          </div>
-          <div class="tcert-tit">${r.titulo}</div>
-          <div class="tcert-meta">${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)} · Creado por <b>${nombreDe(r.creado_por)}</b></div>
-          <div class="tcert-acc"><button class="t-edit">Editar</button><button class="t-pdf">Descargar PDF</button></div>
+  // Las tarjetas se arman de golpe (es solo texto) y las imágenes se dibujan
+  // cuando cada una se acerca a la pantalla: abrir es instantáneo.
+  g.certs.forEach(r=>{
+    const tem=r.temario, conTemario=!!(tem && tem.modulos && tem.modulos.length);
+    const art=document.createElement('article'); art.className='tcert';
+    art.innerHTML=`
+      <div class="tcert-bar">
+        <div class="tcert-id">
+          <span class="dc-tipo">${TIPO_LBL[r.tipo]||r.tipo}</span>
+          <span class="dc-cod">${r.codigo}</span>
         </div>
-        <figure class="tcert-fig"><img alt="Certificado ${r.codigo}"><figcaption>Certificado</figcaption></figure>
-        ${conTemario?'<figure class="tcert-fig"><img alt="Temario"><figcaption>Temario</figcaption></figure>':''}`;
-      cont.insertBefore(art, prog);
-      const figs=art.querySelectorAll('.tcert-fig img');
-      figs[0].src=await imagenDe(c=>KJACert.render(c, rowToDatos(r)));
-      if(conTemario) figs[1].src=await imagenDe(c=>KJACert.renderTemario(c, tem));
-      art.querySelector('.t-pdf').onclick=()=>descargarFila(r.id,'pdf');
-      art.querySelector('.t-edit').onclick=()=>{ cerrarTodosModal(); cerrarDrawer(); editarFila(r.id); };
-      figs.forEach(im=>im.onclick=()=>verModal(r.id));   // clic en la imagen = verla en grande
-    }
-  }catch(e){
-    $('todos-prog-txt').textContent='No se pudieron generar todas las vistas: '+(e.message||e);
-    console.warn('[KJA] Error al revisar certificados:', e);
-    revisando=false; return;
-  }
-  prog.remove();
-  revisando=false;
+        <div class="tcert-tit">${r.titulo}</div>
+        <div class="tcert-meta">${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)} · Creado por <b>${nombreDe(r.creado_por)}</b></div>
+        <div class="tcert-acc"><button class="t-edit">Editar</button><button class="t-pdf">Descargar PDF</button></div>
+      </div>
+      <figure class="tcert-fig cargando"><span class="todos-spin"></span><img alt="Certificado ${r.codigo}"><figcaption>Certificado</figcaption></figure>
+      ${conTemario?'<figure class="tcert-fig cargando"><span class="todos-spin"></span><img alt="Temario"><figcaption>Temario</figcaption></figure>':''}`;
+    cont.appendChild(art);
+    art.querySelector('.t-pdf').onclick=()=>descargarFila(r.id,'pdf');
+    art.querySelector('.t-edit').onclick=()=>{ cerrarTodosModal(); cerrarDrawer(); editarFila(r.id); };
+    const figs=[...art.querySelectorAll('.tcert-fig')];
+    figs[0].__dibujar=()=>imagenDe(c=>KJACert.render(c, rowToDatos(r)));
+    if(conTemario) figs[1].__dibujar=()=>imagenDe(c=>KJACert.renderTemario(c, tem));
+    figs.forEach(f=>{
+      f.querySelector('img').onclick=()=>verModal(r.id);   // clic en la imagen = verla en grande
+      f.__pintar=async()=>{
+        const url=await f.__dibujar();
+        f.querySelector('img').src=url;
+        f.classList.remove('cargando');
+      };
+    });
+  });
+  $('todos-modal').classList.add('open');
+  // El observador va después de abrir: si no, el modal aún está oculto y no mide.
+  obsRevision=new IntersectionObserver(entradas=>{
+    entradas.forEach(e=>{
+      if(!e.isIntersecting) return;
+      obsRevision.unobserve(e.target);
+      encolarRevision(e.target.__pintar);
+    });
+  }, { root:cont, rootMargin:'600px 0px' });
+  cont.querySelectorAll('.tcert-fig').forEach(f=>obsRevision.observe(f));
 }
 function cerrarTodosModal(){
   $('todos-modal').classList.remove('open');
-  $('todos-body').innerHTML='';   // suelta las imágenes en memoria
+  if(obsRevision){ obsRevision.disconnect(); obsRevision=null; }
+  colaRevision=[];                                    // nada pendiente para un modal cerrado
+  $('todos-body').innerHTML='';                       // suelta las imágenes
+  urlsRevision.forEach(u=>URL.revokeObjectURL(u));    // y su memoria de verdad
+  urlsRevision=[];
 }
 $('drawer-revisar').addEventListener('click', abrirTodosModal);
 $('todos-close').addEventListener('click', cerrarTodosModal);
@@ -1973,6 +2010,29 @@ $('side-toggle').addEventListener('click', () => {
   const side = document.querySelector('.side');
   side.classList.toggle('collapsed');
 });
+/* ───── SCROLL DEL FONDO ─────
+   Con una ventana abierta, la página de atrás no debe desplazarse. En vez de tocar
+   cada modal (son varios y se abren desde muchos sitios), se vigila la clase .open
+   de todos ellos. El relleno compensa el ancho de la barra para que no salte. */
+(function(){
+  const b=document.body;
+  function sincronizar(){
+    const hay = !!document.querySelector('.modal-overlay.open');
+    if(hay === b.classList.contains('modal-abierto')) return;
+    if(hay){
+      const barra = window.innerWidth - document.documentElement.clientWidth;
+      if(barra > 0) b.style.paddingRight = barra+'px';
+      b.classList.add('modal-abierto');
+    } else {
+      b.classList.remove('modal-abierto');
+      b.style.paddingRight='';
+    }
+  }
+  const obs=new MutationObserver(sincronizar);
+  document.querySelectorAll('.modal-overlay').forEach(m=>obs.observe(m,{attributes:true,attributeFilter:['class']}));
+  sincronizar();
+})();
+
 /* ───── INICIO ───── */
 (async ()=>{
   // Las fuentes se precargan, pero NUNCA deben bloquear el arranque: si la red del
