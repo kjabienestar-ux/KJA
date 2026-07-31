@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=28">
+<link rel="stylesheet" href="admin.css?v=29">
 </head>
 <body>
 
@@ -475,14 +475,22 @@
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
     <div class="dh-profile">
-      <div class="dh-avatar">
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-      </div>
+      <div class="dh-avatar" id="drawer-avatar"></div>
       <div class="dh-info">
+        <div class="dh-kicker">Cliente · Registro KJA</div>
         <div class="drawer-name" id="drawer-name"></div>
-        <div class="drawer-sub" id="drawer-sub"></div>
+        <div class="dh-chips">
+          <span class="dh-chip" id="drawer-dni">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><circle cx="8.5" cy="11.5" r="2"/><path d="M5.5 16.2a3.4 3.4 0 0 1 6 0"/><path d="M14.5 10h5M14.5 14h3"/></svg>
+            <span id="drawer-dni-txt"></span>
+          </span>
+          <span class="dh-chip" id="drawer-count">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.2 14.3-1.7 6.2 5.5-2.8 5.5 2.8-1.7-6.2"/></svg>
+            <span id="drawer-count-txt"></span>
+          </span>
+        </div>
         <button class="dh-revisar" id="drawer-revisar">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
           <span id="drawer-revisar-txt">Revisar todos</span>
         </button>
       </div>
@@ -1475,7 +1483,12 @@ let grupoActual=null;
 function abrirDrawer(g){
   grupoActual=g;
   $('drawer-name').textContent=g.nombre;
-  $('drawer-sub').textContent=(g.dni?`DNI ${g.dni} · `:'')+`${g.certs.length} certificado(s)`;
+  // Sello con las iniciales del cliente y su color, igual que en la lista
+  const av=$('drawer-avatar');
+  av.textContent=inicialesDe(g.nombre); av.style.background=colorDe(g.nombre);
+  $('drawer-dni').style.display = g.dni ? '' : 'none';
+  $('drawer-dni-txt').textContent = g.dni ? 'DNI '+g.dni : '';
+  $('drawer-count-txt').textContent = g.certs.length===1 ? '1 certificado' : g.certs.length+' certificados';
   $('drawer-revisar-txt').textContent = g.certs.length>1
     ? `Revisar los ${g.certs.length} certificados` : 'Revisar el certificado';
   const cont=$('drawer-list'); cont.innerHTML='';
