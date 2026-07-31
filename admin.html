@@ -18,7 +18,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="certificados/cert-render.js"></script>
+<script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
 <link rel="stylesheet" href="admin.css?v=26">
@@ -812,6 +812,15 @@ function initFlatpickr(){
   fpInicio=flatpickr('#f-inicio',opts);
   fpFin=flatpickr('#f-fin',opts);
   fpEmision=flatpickr('#f-emision',opts);
+}
+/* Pone una fecha en un campo. Si el calendario no llegó a iniciarse (red lenta o
+   bloqueada en la PC del usuario) se escribe directo en el input: el formulario
+   sigue funcionando porque al guardar se lee $('f-inicio').value, no el calendario. */
+function setFecha(fp, sel, valor){
+  const v = valor || todayISO();
+  if(fp){ fp.setDate(v); return; }
+  const el = document.querySelector(sel);
+  if(el) el.value = v;
 }
 function resetForm(){
   $('f-nombre').value=''; $('f-dni').value=''; $('f-titulo').value='';
@@ -1628,7 +1637,7 @@ function editarFila(id){
   setTipo(r.tipo); $('f-nombre').value=r.nombre; $('f-dni').value=r.dni||'';
   $('f-extranjero').checked = !!(r.dni && r.dni.length>8); actualizarDniUI();
   $('f-titulo').value=r.titulo; $('f-duracion').value=r.duracion||'';
-  fpInicio.setDate(r.fecha_inicio||'today'); fpFin.setDate(r.fecha_fin||'today'); fpEmision.setDate(r.fecha_emision||'today');
+  setFecha(fpInicio,'#f-inicio',r.fecha_inicio); setFecha(fpFin,'#f-fin',r.fecha_fin); setFecha(fpEmision,'#f-emision',r.fecha_emision);
   $('f-numero').value=(r.codigo.split('-')[1]||'').trim();
   // temario (si el certificado lo tiene)
   const tem=r.temario;
@@ -1858,8 +1867,14 @@ $('side-toggle').addEventListener('click', () => {
 });
 /* ───── INICIO ───── */
 (async ()=>{
-  await KJACert.preloadFonts();
-  initFlatpickr();
+  // Las fuentes se precargan, pero NUNCA deben bloquear el arranque: si la red del
+  // usuario tarda o bloquea Google Fonts, se sigue igual a los 6 segundos. Antes, un
+  // cuelgue aquí dejaba el panel a medias (sin calendario) y "Editar" no hacía nada.
+  try{
+    await Promise.race([ KJACert.preloadFonts(), new Promise(r=>setTimeout(r,6000)) ]);
+  }catch(e){ console.warn('[KJA] No se pudieron precargar las fuentes:', e); }
+  try{ initFlatpickr(); }
+  catch(e){ console.warn('[KJA] No se pudo iniciar el calendario; se usarán campos de fecha simples:', e); }
   resetForm();   // formulario en blanco, fechas en hoy
   // Siempre se muestra el login al entrar al panel (no salta directo al dashboard)
 })();
