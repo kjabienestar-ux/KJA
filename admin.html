@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=31">
+<link rel="stylesheet" href="admin.css?v=32">
 </head>
 <body>
 
@@ -477,18 +477,8 @@
     <div class="dh-profile">
       <div class="dh-avatar" id="drawer-avatar"></div>
       <div class="dh-info">
-        <div class="dh-kicker">Cliente</div>
         <div class="drawer-name" id="drawer-name"></div>
-        <div class="dh-chips">
-          <span class="dh-chip" id="drawer-dni">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><circle cx="8.5" cy="11.5" r="2"/><path d="M5.5 16.2a3.4 3.4 0 0 1 6 0"/><path d="M14.5 10h5M14.5 14h3"/></svg>
-            <span id="drawer-dni-txt"></span>
-          </span>
-          <span class="dh-chip" id="drawer-count">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.2 14.3-1.7 6.2 5.5-2.8 5.5 2.8-1.7-6.2"/></svg>
-            <span id="drawer-count-txt"></span>
-          </span>
-        </div>
+        <div class="drawer-sub" id="drawer-sub"></div>
       </div>
     </div>
     <button class="drawer-close" id="drawer-close" aria-label="Cerrar">✕</button>
@@ -1483,15 +1473,9 @@ let grupoActual=null;
 function abrirDrawer(g){
   grupoActual=g;
   $('drawer-name').textContent=g.nombre;
-  // Avatar con las iniciales en el color del cliente (el mismo de la lista), en tono
-  // suave: fondo al 12% y borde al 30%. Se usa hex con alfa para no depender de
-  // color-mix(), que no existe en navegadores algo antiguos.
-  const col=colorDe(g.nombre), av=$('drawer-avatar');
-  av.textContent=inicialesDe(g.nombre);
-  av.style.background=col+'1f'; av.style.borderColor=col+'4d'; av.style.color=col;
-  $('drawer-dni').style.display = g.dni ? '' : 'none';
-  $('drawer-dni-txt').textContent = g.dni ? 'DNI '+g.dni : '';
-  $('drawer-count-txt').textContent = g.certs.length===1 ? '1 certificado' : g.certs.length+' certificados';
+  $('drawer-avatar').textContent=inicialesDe(g.nombre);   // iniciales en vez de un icono genérico
+  const n=g.certs.length;
+  $('drawer-sub').textContent=(g.dni?`DNI ${g.dni} · `:'')+(n===1?'1 certificado':`${n} certificados`);
   $('drawer-revisar-txt').textContent = g.certs.length>1
     ? `Revisar los ${g.certs.length} certificados` : 'Revisar el certificado';
   const cont=$('drawer-list'); cont.innerHTML='';
