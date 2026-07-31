@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=26">
+<link rel="stylesheet" href="admin.css?v=27">
 </head>
 <body>
 
@@ -530,6 +530,11 @@
         <div class="em-cert-top"><span class="dc-tipo" id="em-tipo"></span><span class="dc-cod" id="em-cod"></span></div>
         <div class="em-tit" id="em-tit"></div>
         <div class="em-cli">Cliente: <b id="em-nombre"></b></div>
+      </div>
+      <!-- Aviso solo visible si el certificado ya se envió antes -->
+      <div class="em-yasent" id="em-yasent">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        <span>Este certificado <b>ya fue enviado</b> <span id="em-yasent-fecha"></span> — si lo envías otra vez, el cliente recibirá un correo nuevo.</span>
       </div>
       <div class="em-field">
         <label for="em-email">Correo del cliente</label>
@@ -1464,12 +1469,17 @@ function abrirDrawer(g){
         ${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)}
       </div>
       <div class="dc-autor"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Creado por <b>${nombreDe(r.creado_por)}</b>${r.created_at?`<span class="dc-creado-at"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${fechaHoraCorta(r.created_at)}</span>`:''}</div>
-      ${r.correo_enviado_at ? `<div class="dc-sent"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Enviado por correo el ${fechaHoraEnvio(r.correo_enviado_at)}</div>` : ''}
+      ${r.correo_enviado_at ? `<div class="dc-sent">
+        <span class="dc-sent-ico"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="dc-sent-txt"><b>Enviado por correo</b><span>${fechaHoraEnvio(r.correo_enviado_at)}</span></span>
+      </div>` : ''}
       <div class="dc-acc">
         <div class="dc-acc-row">
           <button class="ver"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Ver</button>
           <button class="edit"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
-          <button class="mail"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Enviar</button>
+          ${r.correo_enviado_at
+            ? `<button class="mail resend"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L3 8"/></svg> Volver a enviar</button>`
+            : `<button class="mail"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Enviar</button>`}
         </div>
         <div class="dc-acc-row">
           <button class="del"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/></svg> Ocultar</button>
@@ -1544,6 +1554,8 @@ let emailCertId=null;
 function emailValido(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
 function emStatus(t,tipo){ const e=$('em-status'); e.textContent=t; e.className='status '+(tipo||'info'); e.style.display = t ? 'block' : 'none'; }
 
+/* Texto del botón del modal: cambia si el certificado ya se envió alguna vez */
+function textoBotonEnvio(r){ return (r && r.correo_enviado_at) ? 'Volver a enviar' : 'Enviar certificado'; }
 async function abrirEmailModal(id){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
   emailCertId=id;
@@ -1552,6 +1564,10 @@ async function abrirEmailModal(id){
   $('em-tit').textContent=r.titulo;
   $('em-nombre').textContent=r.nombre;
   $('em-email').value=''; $('em-guardar').checked=true; $('em-revisado').checked=false; emStatus('');
+  // Si ya se envió antes: aviso visible y el botón dice "Volver a enviar"
+  $('em-yasent').classList.toggle('show', !!r.correo_enviado_at);
+  if(r.correo_enviado_at) $('em-yasent-fecha').textContent='el '+fechaHoraEnvio(r.correo_enviado_at);
+  $('em-send-txt').textContent=textoBotonEnvio(r);
   $('em-exito').classList.remove('show');
   $('email-modal').classList.add('open');
   $('em-email').focus();
@@ -1629,7 +1645,7 @@ $('em-enviar').addEventListener('click', async ()=>{
     emStatus(/failed to send a request|not found|404/i.test(m)
       ? 'El servicio de correo aún no está activo: falta desplegar la función y configurar la clave de Google.'
       : 'Error al enviar: '+m, 'error');
-  }finally{ btn.disabled=false; btn.classList.remove('sending'); $('em-send-txt').textContent='Enviar certificado'; }
+  }finally{ btn.disabled=false; btn.classList.remove('sending'); $('em-send-txt').textContent=textoBotonEnvio(r); }
 });
 
 function editarFila(id){
