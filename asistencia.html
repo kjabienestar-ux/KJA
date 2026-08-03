@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=7">
+<link rel="stylesheet" href="asistencia.css?v=9">
 </head>
 <body>
 
@@ -22,7 +22,7 @@
     Volver al Inicio
   </a>
   <form class="login-card" id="login-form">
-    <div cl ass="lc-head">
+    <div class="lc-head">
       <span class="lc-sello"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
       <span class="lc-pill"><i></i> Sistema en línea</span>
     </div>
@@ -46,86 +46,304 @@
 
 <!-- ══════════════ APLICACIÓN ══════════════ -->
 <div id="app" hidden>
-  <header class="topbar">
-    <div class="tb-brand">
+ <div class="shell">
+
+  <!-- ── Menú lateral ── -->
+  <nav class="side">
+    <div class="side-brand">
       <img src="images/logo/logo.webp" alt="KJA" onerror="this.style.display='none'">
-      <div><b>Asistencia</b><small>Control interno KJA</small></div>
+      <span>KJA<i>.</i></span>
     </div>
-    <div class="tb-right">
-      <span class="tb-pill"><i></i> En línea</span>
-      <div class="tb-user">
-        <span class="tb-ava" id="tb-ava">--</span>
-        <span class="tb-user-meta"><b id="tb-name">—</b><small id="tb-role">—</small></span>
+
+    <div class="side-sect">Registro diario</div>
+    <button data-modo="inicio" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      <span class="side-lbl">Inicio</span></button>
+    <button data-modo="lista">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9.5 3.5h5v3h-5z"/><path d="M9 13.5l2 2 4-4"/></svg>
+      <span class="side-lbl">Pasar lista</span><span class="side-badge" id="badge-pend" hidden>0</span></button>
+    <button data-modo="grilla">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      <span class="side-lbl">Mes completo</span></button>
+
+    <div class="side-sect">Equipo</div>
+    <button data-modo="horarios">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span class="side-lbl">Colaboradores</span></button>
+    <button data-modo="contratos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>
+      <span class="side-lbl">Contratos</span></button>
+    <button data-modo="resumen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><rect x="5" y="12" width="3.5" height="6" rx="1"/><rect x="10.2" y="7" width="3.5" height="11" rx="1"/><rect x="15.4" y="10" width="3.5" height="8" rx="1"/></svg>
+      <span class="side-lbl">Resumen</span></button>
+
+    <div class="side-user">
+      <span class="tb-ava" id="tb-ava">--</span>
+      <span class="tb-meta"><b id="tb-name">—</b><small id="tb-role">—</small></span>
+    </div>
+    <button class="side-logout" id="btn-logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span class="side-lbl">Cerrar sesión</span></button>
+  </nav>
+
+  <!-- ── Contenido ── -->
+  <main class="content">
+    <header class="head">
+      <div class="head-l">
+        <h1 id="head-title">Inicio</h1>
+        <p id="head-sub">—</p>
       </div>
-      <button class="tb-logout" id="btn-logout" title="Cerrar sesión" aria-label="Cerrar sesión">
+
+      <div class="head-r">
+        <!-- Controles contextuales: se muestran según la sección activa -->
+        <div class="month-nav ctx" data-for="grilla resumen">
+          <button id="mes-prev" aria-label="Mes anterior">‹</button>
+          <span id="mes-lbl">—</span>
+          <button id="mes-next" aria-label="Mes siguiente">›</button>
+          <button id="mes-hoy" class="btn-ghost">Hoy</button>
+        </div>
+        <!-- Custom Datepicker for Pasar Lista -->
+        <div class="cs-date-wrap ctx" data-for="lista" id="cs-head-date-wrap">
+          <button type="button" class="cs-date-trigger" id="cs-head-date-trigger">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span id="cs-head-date-val">Fecha</span>
+          </button>
+          <div class="eq-dp-pop cs-date-pop" id="cs-head-date-pop" hidden></div>
+          <input type="hidden" id="lista-fecha" value="">
+        </div>
+
+        <!-- Custom Search Input -->
+        <div class="cs-search-wrap ctx" data-for="lista grilla horarios contratos resumen">
+          <input type="search" id="buscar" placeholder="Buscar colaborador…" class="cs-search-inp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="cs-search-ico"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+
+        <!-- Custom Select Area Filter -->
+        <div class="custom-select ctx" data-for="lista grilla horarios contratos resumen" id="cs-filter-area-wrap">
+          <button type="button" class="cs-trigger" id="cs-filter-area-trigger">
+            <span id="cs-filter-area-val">Todas las áreas</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="cs-options" id="cs-filter-area-options" hidden>
+            <div class="cs-item selected" data-val="">
+              <span>Todas las áreas</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+          </div>
+          <select id="filtro-area" hidden><option value="">Todas las áreas</option></select>
+        </div>
+
+        <label class="cs-chk-pill ctx" data-for="horarios contratos" title="Mostrar también a quienes están dados de baja">
+          <input type="checkbox" id="ver-inactivos" class="cs-chk-input">
+          <span class="cs-chk-box">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span class="cs-chk-lbl">Dados de baja</span>
+          <span class="cs-chk-badge" id="n-bajas">0</span>
+        </label>
+        <button class="btn-mini ctx solo-editor" id="btn-feriados" data-for="grilla">Feriados</button>
+        <button class="btn-mini ctx solo-editor" id="btn-add-area" data-for="horarios">+ Área</button>
+        <button class="btn-mini ctx solo-editor" id="btn-add-colab" data-for="horarios contratos">+ Colaborador</button>
+      </div>
+
+      <button class="head-exit" id="btn-logout-m" aria-label="Cerrar sesión" title="Cerrar sesión">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
+    </header>
+
+    <div class="views-area">
+
+      <!-- ══ INICIO ══ -->
+      <section id="vista-inicio" class="vista">
+       <div class="top-row">
+        <div class="hero">
+          <div class="ring-wrap">
+            <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="ring-bg" cx="60" cy="60" r="52"/>
+              <circle class="ring-fg" cx="60" cy="60" r="52" id="ring-fg"/>
+            </svg>
+            <div class="ring-txt"><b id="ring-n">0</b><small id="ring-d">de 0</small></div>
+          </div>
+          <div class="hero-body">
+            <h2 id="hero-t">Asistencia de hoy</h2>
+            <p id="hero-s" class="hero-sub">—</p>
+            <div class="kpis">
+              <div class="kpi k-p"><b id="kpi-p">0</b><span>Presentes</span></div>
+              <div class="kpi k-t"><b id="kpi-t">0</b><span>Tardanzas</span></div>
+              <div class="kpi k-j"><b id="kpi-j">0</b><span>Justificados</span></div>
+              <div class="kpi k-ng"><b id="kpi-ng">0</b><span>No gestiona</span></div>
+            </div>
+            <button class="btn-primary" id="go-lista">Pasar lista de hoy</button>
+          </div>
+        </div>
+        <div class="card card-avisos">
+          <div class="card-h"><h3>Cierre de prácticas</h3><span class="pill" id="avisos-n">0</span></div>
+          <div id="avisos-body" class="card-b"></div>
+        </div>
+       </div>
+
+        <div class="card">
+          <div class="card-h">
+            <h3 id="equipo-title">Equipo de hoy</h3>
+            <div class="eq-date-nav" style="position:relative;">
+              <button id="eq-date-prev" class="eq-nav-arrow" title="Día anterior">‹</button>
+              <button id="eq-date-btn" class="eq-date-trigger" title="Cambiar fecha">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span id="eq-date-lbl">Hoy</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
+              <button id="eq-date-next" class="eq-nav-arrow" title="Día siguiente">›</button>
+
+              <!-- Custom Popover Calendario Moderno KJA -->
+              <div id="eq-dp-pop" class="eq-dp-pop" hidden>
+                <div class="eq-dp-head">
+                  <button id="eq-dp-prev" class="eq-dp-arrow" title="Mes anterior">‹</button>
+                  <strong id="eq-dp-mes">Agosto 2026</strong>
+                  <button id="eq-dp-next" class="eq-dp-arrow" title="Mes siguiente">›</button>
+                </div>
+                <div class="eq-dp-week">
+                  <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+                </div>
+                <div id="eq-dp-grid" class="eq-dp-grid"></div>
+                <div class="eq-dp-foot">
+                  <button id="eq-dp-hoy-btn" class="eq-dp-today-btn">Ir a hoy</button>
+                  <button id="eq-dp-close-btn" class="eq-dp-close-btn">Cerrar</button>
+                </div>
+              </div>
+            </div>
+            <span class="pill" id="equipo-n">0</span>
+          </div>
+          <div id="equipo-body" class="card-b"></div>
+        </div>
+      </section>
+
+      <!-- ══ PASAR LISTA ══ -->
+      <section id="vista-lista" class="vista" hidden>
+        <!-- Banner de Métricas / KPIs del llamado de asistencia (Fiel a la interfaz de referencia) -->
+        <div class="lista-kpi-bar" id="lista-kpi-bar">
+          <div class="lkpi-card">
+            <div class="lkpi-ico c-blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+            <div class="lkpi-info">
+              <span class="lkpi-lbl">Total colaboradores</span>
+              <b class="lkpi-num" id="lkpi-total">0</b>
+              <small class="lkpi-sub" id="lkpi-areas">en 0 áreas</small>
+            </div>
+          </div>
+          <div class="lkpi-card">
+            <div class="lkpi-ico c-green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div class="lkpi-info">
+              <span class="lkpi-lbl">Presentes</span>
+              <b class="lkpi-num" id="lkpi-p">0</b>
+              <small class="lkpi-sub" id="lkpi-p-pct">0% del total</small>
+            </div>
+          </div>
+          <div class="lkpi-card">
+            <div class="lkpi-ico c-yellow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+            <div class="lkpi-info">
+              <span class="lkpi-lbl">Pendientes</span>
+              <b class="lkpi-num" id="lkpi-pend">0</b>
+              <small class="lkpi-sub" id="lkpi-pend-pct">0% del total</small>
+            </div>
+          </div>
+          <div class="lkpi-card">
+            <div class="lkpi-ico c-red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+            <div class="lkpi-info">
+              <span class="lkpi-lbl">Ausentes</span>
+              <b class="lkpi-num" id="lkpi-aus">0</b>
+              <small class="lkpi-sub" id="lkpi-aus-pct">0% del total</small>
+            </div>
+          </div>
+          <div class="lkpi-card lkpi-prog">
+            <div class="lkpi-prog-head">
+              <span>Progreso del llamado</span>
+              <b id="lkpi-prog-pct">0%</b>
+            </div>
+            <div class="lkpi-pbar"><div class="lkpi-pfill" id="lkpi-pfill" style="width:0%"></div></div>
+            <div class="lkpi-prog-foot" id="lkpi-prog-txt">0 de 0 colaboradores marcados</div>
+          </div>
+        </div>
+
+        <div id="lista-body"></div>
+
+        <!-- Footer Leyenda Bar -->
+        <div class="lista-foot-bar">
+          <div class="lfoot-left">
+            <span class="lfoot-lbl">Leyenda:</span>
+            <div class="lfoot-chips">
+              <span class="lfoot-chip e-p">
+                <span class="chip-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+                <span>Presente</span>
+              </span>
+              <span class="lfoot-chip e-t">
+                <span class="chip-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></span>
+                <span>Tardanza</span>
+              </span>
+              <span class="lfoot-chip e-j">
+                <span class="chip-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6"/><path d="M9 17h4"/></svg></span>
+                <span>Justificación</span>
+              </span>
+              <span class="lfoot-chip e-ng">
+                <span class="chip-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.7" y1="5.7" x2="18.3" y2="18.3"/></svg></span>
+                <span>No gestiona</span>
+              </span>
+            </div>
+          </div>
+          <div class="lfoot-right">
+            <span class="live-pulse-dot" title="Sincronizado en tiempo real"></span>
+            <span id="lfoot-time" class="lfoot-time-txt">Última actualización: --:--</span>
+            <button type="button" id="lfoot-refresh" class="btn-refresh-modern" title="Actualizar lista">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+              <span>Actualizar</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ MES ══ -->
+      <section id="vista-grilla" class="vista" hidden>
+        <div class="leyenda">
+          <span class="lfoot-chip e-p">
+            <span class="chip-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+            <span>Presente</span>
+          </span>
+          <span class="lfoot-chip e-t">
+            <span class="chip-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></span>
+            <span>Tardanza</span>
+          </span>
+          <span class="lfoot-chip e-j">
+            <span class="chip-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6"/><path d="M9 17h4"/></svg></span>
+            <span>Justificación</span>
+          </span>
+          <span class="lfoot-chip e-ng">
+            <span class="chip-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.7" y1="5.7" x2="18.3" y2="18.3"/></svg></span>
+            <span>No gestiona</span>
+          </span>
+          <span class="lfoot-chip e-off">
+            <span class="chip-ico"></span>
+            <span>No labora</span>
+          </span>
+        </div>
+        <div class="grid-scroll" id="grid-scroll"></div>
+      </section>
+
+      <!-- ══ HORARIOS ══ -->
+      <section id="vista-horarios" class="vista" hidden>
+        <div class="grid-scroll" id="horarios-body"></div>
+      </section>
+
+      <!-- ══ CONTRATOS ══ -->
+      <section id="vista-contratos" class="vista" hidden>
+        <div class="grid-scroll" id="contratos-body"></div>
+      </section>
+
+      <!-- ══ RESUMEN ══ -->
+      <section id="vista-resumen" class="vista" hidden>
+        <div class="grid-scroll" id="resumen-body"></div>
+      </section>
+
     </div>
-  </header>
-
-  <div class="toolbar">
-    <div class="tools-left">
-      <div class="month-nav">
-        <button id="mes-prev" aria-label="Mes anterior">‹</button>
-        <span id="mes-lbl">—</span>
-        <button id="mes-next" aria-label="Mes siguiente">›</button>
-        <button id="mes-hoy" class="btn-ghost">Hoy</button>
-      </div>
-      <div class="seg" id="modo-seg">
-        <button data-modo="grilla" class="active">Grilla</button>
-        <button data-modo="lista">Pasar lista</button>
-        <button data-modo="horarios">Horarios</button>
-        <button data-modo="resumen">Resumen</button>
-      </div>
-    </div>
-    <div class="tools-right">
-      <input type="search" id="buscar" placeholder="Buscar colaborador…" class="inp-buscar">
-      <select id="filtro-area" class="inp-sel"><option value="">Todas las áreas</option></select>
-      <label class="chk-inact"><input type="checkbox" id="ver-inactivos"> Inactivos</label>
-      <div class="solo-editor gest-btns" style="display:none;">
-        <button class="btn-mini" id="btn-add-area">+ Área</button>
-        <button class="btn-mini" id="btn-add-colab">+ Colaborador</button>
-        <button class="btn-mini" id="btn-feriados">Feriados</button>
-      </div>
-    </div>
-  </div>
-
-  <main class="stage">
-    <!-- Leyenda -->
-    <div class="leyenda">
-      <span class="lg lg-p">P · Presente</span>
-      <span class="lg lg-t">T · Tardanza</span>
-      <span class="lg lg-j">J · Justificación</span>
-      <span class="lg lg-ng">NG · No gestiona</span>
-      <span class="lg lg-off">▨ No labora</span>
-    </div>
-
-    <!-- VISTA GRILLA -->
-    <section id="vista-grilla" class="vista">
-      <div class="grid-scroll" id="grid-scroll"></div>
-    </section>
-
-    <!-- VISTA PASAR LISTA -->
-    <section id="vista-lista" class="vista" hidden>
-      <div class="lista-head">
-        <label>Fecha:
-          <input type="date" id="lista-fecha" class="inp-sel">
-        </label>
-        <span class="lista-hint" id="lista-hint"></span>
-      </div>
-      <div id="lista-body"></div>
-    </section>
-
-    <!-- VISTA HORARIOS -->
-    <section id="vista-horarios" class="vista" hidden>
-      <div class="grid-scroll" id="horarios-body"></div>
-    </section>
-
-    <!-- VISTA RESUMEN -->
-    <section id="vista-resumen" class="vista" hidden>
-      <div class="grid-scroll" id="resumen-body"></div>
-    </section>
   </main>
+ </div>
 </div>
 
 <!-- Popover de celda -->
@@ -139,8 +357,31 @@
   </div>
 </div>
 
+<!-- Modal Confirmación Custom Ultra-Moderno -->
+<div id="modal-confirm" class="modal-wrap" hidden>
+  <div class="modal-card modal-confirm-card">
+    <div class="modal-confirm-ico" id="mconf-ico">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h3 class="modal-confirm-title" id="mconf-title">¿Estás seguro?</h3>
+    <p class="modal-confirm-text" id="mconf-text">Esta acción no se puede deshacer.</p>
+    <div class="modal-confirm-btns">
+      <button type="button" class="btn-confirm-cancel" id="mconf-cancel">Cancelar</button>
+      <button type="button" class="btn-confirm-ok danger" id="mconf-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast" class="toast" hidden></div>
+
+<!-- Drawer Lateral de Ficha y Calendario -->
+<div id="drawer" class="drawer-wrap" hidden>
+  <div class="drawer-panel">
+    <button class="drawer-x" id="drawer-x" aria-label="Cerrar">✕</button>
+    <div class="drawer-body" id="drawer-body"></div>
+  </div>
+</div>
 
 <script>
 /* ════════════════════ CONFIG / SUPABASE ════════════════════ */
@@ -156,45 +397,198 @@ const ESTADOS = {
   J:  { lbl:'Justificación', cls:'e-j'  },
   NG: { lbl:'No gestiona',   cls:'e-ng' },
 };
-/* Modalidad del día (horario semanal). Colores fieles a la hoja HORARIOS. */
+/* Modalidad del día (horario semanal). */
 const MODS = {
   virtual:     { lbl:'Virtual',     ab:'Virt', cls:'m-vir' },
   presencial:  { lbl:'Presencial',  ab:'Pres', cls:'m-pre' },
   opcional:    { lbl:'Opcional',    ab:'Opc',  cls:'m-opc' },
   no_gestiona: { lbl:'No gestiona', ab:'NG',   cls:'m-ng'  },
 };
+const ICO_EST = {
+  P:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  T:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>',
+  J:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>',
+  NG: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.7" y1="5.7" x2="18.3" y2="18.3"/></svg>',
+};
 const DIAS_ISO = [ ['Lun',1],['Mar',2],['Mié',3],['Jue',4],['Vie',5],['Sáb',6],['Dom',7] ];
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DIAS_LARGO = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const TIPO_HIST_LBL = { horario:'Cambio de horario', horas_contrato:'Cambio de horas de contrato', fechas:'Cambio de fechas', otro:'Otro cambio' };
+const TITULOS = {
+  inicio:    ['Inicio',        'Resumen del día'],
+  lista:     ['Pasar lista',   'Marca la asistencia del día'],
+  grilla:    ['Mes completo',  'Cuadro mensual de asistencia'],
+  horarios:  ['Colaboradores', 'Horario, contrato y estado de cada persona'],
+  contratos: ['Contratos',     'Horas de prácticas y proyección'],
+  resumen:   ['Resumen',       'Conteos del mes por persona'],
+};
 
 /* ════════════════════ ESTADO EN MEMORIA ════════════════════ */
 let PERFIL = { id:null, nombre:'', rol:'visor' };
 let PERFILES = {};              // id -> nombre
-let AREAS = [];                 // [{id,nombre,orden,activo}]
-let COLABS = [];                // [{id,area_id,nombre,dni,dias_laborables,horario,activo,orden}]
+let AREAS = [];
+let COLABS = [];
 let REG = {};                   // 'colabId|fecha' -> {estado,nota,marcado_por}
 let EXC_EMP = {};               // 'fecha' -> {tipo,nota}
 let EXC_COL = {};               // 'colabId|fecha' -> {tipo,nota}
+let HORAS_CUMPLIDAS = {};       // colabId -> horas acumuladas (P/T/J)
 let YEAR, MONTH;                // MONTH 0-11
-let MODO = 'grilla';
+let MODO = 'inicio';
+let MIG3 = false;               // ¿está aplicada la migración 3 (contratos)?
 const puedeEditar = () => PERFIL.rol === 'editor' || PERFIL.rol === 'direccion';
 const esDireccion = () => PERFIL.rol === 'direccion';
 
 /* ════════════════════ UTILIDADES ════════════════════ */
 const pad = n => String(n).padStart(2,'0');
 const fISO = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const addDays = (iso, n) => { const d = new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return fISO(d); };
+function stepTimeInp(input, minutes){
+  if(!input) return;
+  const val = input.value || '08:00';
+  const parts = val.split(':');
+  let h = parseInt(parts[0],10) || 0;
+  let m = parseInt(parts[1],10) || 0;
+  let total = h * 60 + m + minutes;
+  if(total < 0) total += 24 * 60;
+  total = total % (24 * 60);
+  input.value = `${pad(newH)}:${pad(newM)}`;
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+}
+function initCustomDatePicker(wrapId, triggerId, popId, valId, hiddenInpId){
+  const wrap = $(wrapId), trig = $(triggerId), pop = $(popId), valSpan = $(valId), hiddenInp = $(hiddenInpId);
+  if(!wrap || !trig || !pop || !hiddenInp) return;
+
+  let currentIso = hiddenInp.value || fISO(new Date());
+  let viewYear = parseInt(currentIso.slice(0,4), 10) || new Date().getFullYear();
+  let viewMonth = (parseInt(currentIso.slice(5,7), 10) - 1) || new Date().getMonth();
+
+  function renderPopGrid(){
+    pop.innerHTML = `
+      <div class="eq-dp-head">
+        <button type="button" class="cs-dp-prev" title="Mes anterior">‹</button>
+        <strong>${MESES[viewMonth]} ${viewYear}</strong>
+        <button type="button" class="cs-dp-next" title="Mes siguiente">›</button>
+      </div>
+      <div class="eq-dp-week">
+        <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+      </div>
+      <div class="eq-dp-grid"></div>
+      <div class="eq-dp-foot">
+        <button type="button" class="cs-dp-today eq-dp-today-btn">Hoy</button>
+        <button type="button" class="cs-dp-clear eq-dp-close-btn">Limpiar</button>
+      </div>
+    `;
+
+    const grid = pop.querySelector('.eq-dp-grid');
+    const dias = diasDelMes(viewYear, viewMonth);
+    const firstDow = new Date(viewYear, viewMonth, 1).getDay();
+
+    let html = '';
+    for(let i = 0; i < firstDow; i++){
+      html += '<div class="eq-dp-day d-empty"></div>';
+    }
+
+    const selIso = hiddenInp.value;
+    const hoyIso = fISO(new Date());
+
+    for(const d of dias){
+      const isSel = d.fecha === selIso ? ' d-sel' : '';
+      const isHoy = d.fecha === hoyIso ? ' d-hoy' : '';
+      html += `<button type="button" class="eq-dp-day${isSel}${isHoy}" data-fecha="${d.fecha}">${d.dia}</button>`;
+    }
+    grid.innerHTML = html;
+
+    pop.querySelector('.cs-dp-prev').onclick = (e) => {
+      e.stopPropagation();
+      viewMonth--;
+      if(viewMonth < 0){ viewMonth = 11; viewYear--; }
+      renderPopGrid();
+    };
+    pop.querySelector('.cs-dp-next').onclick = (e) => {
+      e.stopPropagation();
+      viewMonth++;
+      if(viewMonth > 11){ viewMonth = 0; viewYear++; }
+      renderPopGrid();
+    };
+    pop.querySelector('.cs-dp-today').onclick = (e) => {
+      e.stopPropagation();
+      const today = fISO(new Date());
+      hiddenInp.value = today;
+      valSpan.textContent = fmtFechaCorta(today);
+      pop.hidden = true;
+    };
+    pop.querySelector('.cs-dp-clear').onclick = (e) => {
+      e.stopPropagation();
+      hiddenInp.value = '';
+      valSpan.textContent = 'Seleccionar fecha';
+      pop.hidden = true;
+    };
+
+    grid.querySelectorAll('.eq-dp-day:not(.d-other)').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const f = btn.dataset.fecha;
+        hiddenInp.value = f;
+        valSpan.textContent = fmtFechaCorta(f);
+        pop.hidden = true;
+      };
+    });
+  }
+
+  trig.onclick = (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.cs-date-pop').forEach(p => { if(p !== pop) p.hidden = true; });
+    if($('cs-area-options')) $('cs-area-options').hidden = true;
+    document.querySelectorAll('.cs-mod-options').forEach(o => o.hidden = true);
+    pop.hidden = !pop.hidden;
+    if(!pop.hidden) renderPopGrid();
+  };
+}
 const isoDow = fecha => { const d = new Date(fecha+'T00:00:00'); const w = d.getDay(); return w===0?7:w; };
 const iniciales = n => (n||'?').trim().split(/\s+/).slice(0,2).map(p=>p[0]).join('').toUpperCase();
 const hhmm = t => t ? String(t).slice(0,5) : '';
+const esc = s => (s??'').toString().replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function horasDia(c, hd){ const i = hd && hd.ini ? hd.ini : c.hora_inicio, f = hd && hd.fin ? hd.fin : c.hora_fin; return i && f ? hhmm(i)+'–'+hhmm(f) : ''; }
 function toast(t, err){ const e=$('toast'); e.textContent=t; e.className='toast'+(err?' err':''); e.hidden=false; clearTimeout(e._t); e._t=setTimeout(()=>e.hidden=true, 2600); }
 function diasDelMes(y,m){ const n=new Date(y,m+1,0).getDate(); const out=[]; for(let d=1;d<=n;d++){ const dt=new Date(y,m,d); out.push({dia:d, fecha:fISO(dt), dow:isoDow(fISO(dt))}); } return out; }
+function fmtFechaLarga(iso){ const d=new Date(iso+'T00:00:00'); return `${DIAS_LARGO[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()].toLowerCase()}`; }
+function fmtFechaCorta(iso){ if(!iso) return '—'; const d=new Date(iso+'T00:00:00'); return pad(d.getDate())+' '+MESES[d.getMonth()].slice(0,3).toLowerCase()+' '+d.getFullYear(); }
+/* Días desde hoy hasta una fecha ISO (negativo si ya pasó) */
+function diasHasta(iso){
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  return Math.round((new Date(iso+'T00:00:00') - hoy)/86400000);
+}
+/* Compara la fecha del papel (contrato_fin_referencia) con la proyección real.
+   dias > 0 → va a terminar ANTES de lo que dice el contrato. */
+function compararConContrato(colab, fechaFinProyectada){
+  const ref = colab.contrato_fin_referencia;
+  if(!ref || !fechaFinProyectada || fechaFinProyectada==='Completado') return null;
+  return { ref, dias: diasHasta(ref) - diasHasta(fechaFinProyectada) };
+}
+/* "23 días antes" / "1 mes después" — diferencia contra la fecha del contrato */
+function difTexto(dias){
+  const a = Math.abs(dias);
+  if(a === 0) return 'justo en la fecha del contrato';
+  const cuando = dias > 0 ? 'antes' : 'después';
+  if(a < 14)  return `${a} día${a===1?'':'s'} ${cuando}`;
+  if(a < 60){ const s = Math.round(a/7);  return `${s} semana${s===1?'':'s'} ${cuando}`; }
+  const m = Math.round(a/30);             return `${m} mes${m===1?'':'es'} ${cuando}`;
+}
+/* Tiempo restante en lenguaje natural: "faltan 3 semanas" */
+function tiempoRestante(dias){
+  if(dias <= 0)  return 'Termina hoy';
+  if(dias === 1) return 'Termina mañana';
+  if(dias < 14)  return `Faltan ${dias} días`;
+  if(dias < 60){ const s=Math.round(dias/7);  return `Faltan ${s} semana${s===1?'':'s'}`; }
+  const m = Math.round(dias/30);              return `Faltan ${m} mes${m===1?'':'es'}`;
+}
+/* color estable a partir del nombre, para los avatares */
+function colorDe(n){ let h=0; for(const ch of (n||'')) h=(h*31+ch.charCodeAt(0))%360; return `hsl(${h} 62% 46%)`; }
 
-/* Resuelve si un colaborador labora una fecha, y con qué modalidad.
-   Prioridad: excepción persona (extra) > feriado empresa > excepción persona (no lab) > horario semanal. */
+/* Resuelve si un colaborador labora una fecha, y con qué modalidad. */
 function modDelDia(colab, dow){
   const h = (colab.horario_semanal||{})[dow];
   if(h && h.mod) return h.mod;
-  // compatibilidad con colaboradores antiguos que solo tenían dias_laborables
   return (colab.dias_laborables||[]).includes(dow) ? 'virtual' : 'no_gestiona';
 }
 function estadoDia(colab, fecha){
@@ -208,10 +602,70 @@ function estadoDia(colab, fecha){
   return { lab: mod!=='no_gestiona', mod, motivo:'horario' };
 }
 
+/* ════════════════════ CONTRATOS / HORAS ════════════════════
+   La fecha de fin NUNCA se guarda a mano: se proyecta en vivo con las horas
+   cumplidas + el horario actual, así no puede quedar incoherente. Las horas
+   de cada día se congelan en el registro al marcar. */
+function horasEntre(ini, fin){
+  if(!ini || !fin) return 0;
+  const [h1,m1] = ini.split(':').map(Number), [h2,m2] = fin.split(':').map(Number);
+  let mins = (h2*60+m2) - (h1*60+m1);
+  if(mins < 0) mins += 24*60;
+  return mins/60;
+}
+function duracionHorasDia(colab, fecha){
+  const dd = estadoDia(colab, fecha);
+  if(!dd.lab) return 0;
+  const hd = (colab.horario_semanal||{})[isoDow(fecha)] || {};
+  return horasEntre(hhmm(hd.ini || colab.hora_inicio), hhmm(hd.fin || colab.hora_fin));
+}
+function horasSemanaTipica(colabLike){
+  let total = 0;
+  for(let dow=1; dow<=7; dow++){
+    if(modDelDia(colabLike, dow)==='no_gestiona') continue;
+    const hd = (colabLike.horario_semanal||{})[dow] || {};
+    total += horasEntre(hhmm(hd.ini || colabLike.hora_inicio), hhmm(hd.fin || colabLike.hora_fin));
+  }
+  return total;
+}
+async function cargarHorasCumplidas(){
+  HORAS_CUMPLIDAS = {};
+  if(!MIG3) return;
+  const { data, error } = await db.from('asis_registros').select('colaborador_id,horas,estado').in('estado',['P','T','J']);
+  if(error) return;
+  (data||[]).forEach(r=>{ if(r.horas!=null) HORAS_CUMPLIDAS[r.colaborador_id] = (HORAS_CUMPLIDAS[r.colaborador_id]||0) + Number(r.horas); });
+}
+function resumenContrato(colab){
+  // horas registradas aquí + las que ya traía antes de usar el sistema
+  const previas   = Number(colab.horas_previas) || 0;
+  const marcadas  = HORAS_CUMPLIDAS[colab.id] || 0;
+  const cumplidas = previas + marcadas;
+  const meta = colab.contrato_horas;
+  const semanaH = horasSemanaTipica(colab);
+  const hoy = fISO(new Date());
+  const alertas = [];
+  if(meta==null || meta<=0) alertas.push('Sin horas de contrato definidas');
+  if(!colab.contrato_inicio) alertas.push('Sin fecha de inicio de contrato');
+  if(semanaH<=0) alertas.push('Sin horario activo esta semana');
+  let faltantes=null, fechaFin=null;
+  if(meta!=null && meta>0){
+    faltantes = Math.max(0, meta - cumplidas);
+    if(cumplidas > meta) alertas.push('Ya superó las horas de contrato');
+    if(faltantes>0 && semanaH>0){
+      const f = new Date(); f.setDate(f.getDate()+Math.ceil(faltantes/semanaH*7));
+      fechaFin = fISO(f);
+    } else if(faltantes<=0){ fechaFin = 'Completado'; }
+  }
+  if(colab.contrato_fin_referencia && faltantes>0 && colab.contrato_fin_referencia < hoy){
+    alertas.push('Venció la fecha del contrato y aún faltan horas');
+  }
+  return { cumplidas, previas, marcadas, meta, faltantes, semanaH, fechaFin, alertas };
+}
+
 /* ════════════════════ AUTENTICACIÓN ════════════════════ */
 async function iniciarSesionActiva(){
   const { data:{ session } } = await db.auth.getSession();
-  if(session){ await entrar(); }
+  if(session) await entrar();
 }
 async function entrar(){
   const { data:{ user } } = await db.auth.getUser();
@@ -236,7 +690,8 @@ function aplicarRolUI(){
   $('tb-name').textContent = PERFIL.nombre;
   $('tb-role').textContent = { direccion:'Dirección', editor:'Encargado(a)', visor:'Solo lectura' }[PERFIL.rol] || PERFIL.rol;
   $('tb-ava').textContent = iniciales(PERFIL.nombre);
-  document.querySelectorAll('.solo-editor').forEach(el=> el.style.display = puedeEditar() ? '' : 'none');
+  $('tb-ava').style.background = colorDe(PERFIL.nombre);
+  document.querySelectorAll('.solo-editor').forEach(el=> el.dataset.hide = puedeEditar() ? '' : '1');
 }
 function mostrarLogin(){ $('app').hidden = true; $('login-wrap').style.display='flex'; }
 function loginMsg(t){ const e=$('login-msg'); e.textContent=t||''; e.style.display = t?'block':'none'; }
@@ -253,11 +708,13 @@ $('login-form').addEventListener('submit', async e=>{
   }
   entrar();
 });
-$('btn-logout').addEventListener('click', async ()=>{
+async function cerrarSesion(){
   try{ await db.auth.signOut({scope:'local'}); }catch(e){}
   Object.keys(localStorage).forEach(k=>{ if(k.startsWith('sb-')) localStorage.removeItem(k); });
   location.reload();
-});
+}
+$('btn-logout').addEventListener('click', cerrarSesion);
+$('btn-logout-m').addEventListener('click', cerrarSesion);
 $('pw-toggle').addEventListener('click', ()=>{
   const inp=$('password'), ic=$('pw-icon');
   if(inp.type==='password'){ inp.type='text';
@@ -275,9 +732,14 @@ async function cargarBase(){
   PERFILES = {}; (perfs||[]).forEach(p=>PERFILES[p.id]=p.nombre);
   AREAS = areas||[];
   COLABS = (colabs||[]).map(c=>({ ...c, dias_laborables: c.dias_laborables||[], horario_semanal: c.horario_semanal||{} }));
-  // filtro de áreas
-  const sel = $('filtro-area'); sel.innerHTML = '<option value="">Todas las áreas</option>' +
-    AREAS.map(a=>`<option value="${a.id}">${esc(a.nombre)}</option>`).join('');
+  // ¿ya se ejecutó la migración 3? (si la columna no existe, el módulo sigue
+  // funcionando: solo se ocultan las proyecciones de contrato)
+  MIG3 = COLABS.length>0 && Object.prototype.hasOwnProperty.call(COLABS[0], 'contrato_inicio');
+  const sel = $('filtro-area'); const prev = sel.value;
+  sel.innerHTML = '<option value="">Todas las áreas</option>' + AREAS.map(a=>`<option value="${a.id}">${esc(a.nombre)}</option>`).join('');
+  sel.value = prev;
+  updateCustomAreaFilterOptions();
+  initHeadDatepicker();
 }
 async function cargarMes(){
   const dias = diasDelMes(YEAR, MONTH);
@@ -293,32 +755,710 @@ async function cargarMes(){
     else EXC_COL[x.colaborador_id+'|'+x.fecha]={tipo:x.tipo,nota:x.nota};
   });
 }
+/* Trae los registros de una fecha suelta (para el panel de inicio cuando hoy
+   cae fuera del mes que se está viendo). */
+async function regsDeFecha(fecha){
+  const dias = diasDelMes(YEAR, MONTH);
+  if(fecha >= dias[0].fecha && fecha <= dias[dias.length-1].fecha) return null; // ya está en REG
+  const { data } = await db.from('asis_registros').select('colaborador_id,fecha,estado').eq('fecha',fecha);
+  const m = {}; (data||[]).forEach(r=> m[r.colaborador_id+'|'+r.fecha]={estado:r.estado});
+  return m;
+}
 
 /* ════════════════════ RENDER ════════════════════ */
-const esc = s => (s??'').toString().replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function colabsVisibles(){
   const q = $('buscar').value.trim().toLowerCase();
   const af = $('filtro-area').value;
-  const inact = $('ver-inactivos').checked;
+  const inact = $('ver-inactivos').checked && (MODO==='horarios'||MODO==='contratos');
   return COLABS.filter(c=>
     (inact || c.activo) &&
     (!af || String(c.area_id)===af) &&
     (!q || c.nombre.toLowerCase().includes(q))
   );
 }
-function render(){
-  $('mes-lbl').textContent = MESES[MONTH]+' '+YEAR;
-  document.querySelectorAll('#modo-seg button').forEach(b=>b.classList.toggle('active', b.dataset.modo===MODO));
-  $('vista-grilla').hidden   = MODO!=='grilla';
-  $('vista-lista').hidden    = MODO!=='lista';
-  $('vista-horarios').hidden = MODO!=='horarios';
-  $('vista-resumen').hidden  = MODO!=='resumen';
-  if(MODO==='grilla') renderGrilla();
-  else if(MODO==='lista') renderLista();
-  else if(MODO==='horarios') renderHorarios();
-  else renderResumen();
+function agruparPorArea(lista){
+  const m = new Map();
+  for(const a of AREAS){ const g = lista.filter(c=>String(c.area_id)===String(a.id)); if(g.length) m.set(a.id, g); }
+  return m;
+}
+function avatar(nombre, cls){
+  return `<span class="ava ${cls||''}" style="background:${colorDe(nombre)}">${iniciales(nombre)}</span>`;
+}
+/* Nombre corto para los chips del panel de inicio: dos palabras, pero sin
+   cortar en una partícula ("Erika del" → "Erika del Socorro"). */
+const PARTICULAS = ['de','del','la','las','los','y','da','san','santa'];
+function nombreCorto(n){
+  const p = (n||'').trim().split(/\s+/);
+  if(p.length<=2) return p.join(' ');
+  const out = [p[0]];
+  for(let i=1; i<p.length && out.length<3; i++){
+    out.push(p[i]);
+    if(!PARTICULAS.includes(p[i].toLowerCase())) break;
+  }
+  return out.join(' ');
+}
+/* ── Avatar ilustrado estilo Memoji 3D Vectorial Premium ── */
+const PALETAS_FONDOS = [
+  ['#2563eb', '#1d4ed8'], // Azul Océano
+  ['#7c3aed', '#5b21b6'], // Violeta Eléctrico
+  ['#db2777', '#9d174d'], // Magenta Vívido
+  ['#059669', '#047857'], // Verde Esmeralda
+  ['#d97706', '#b45309'], // Ámbar Dorado
+  ['#0891b2', '#0e7490'], // Turquesa Neón
+  ['#4f46e5', '#3730a3'], // Índigo Zafiro
+  ['#e11d48', '#9f1239'], // Carmesí Rosa
+  ['#0284c7', '#0369a1'], // Azul Cielo
+  ['#65a30d', '#4d7c0f'], // Verde Lima
+  ['#ea580c', '#c2410c'], // Naranja Fuego
+  ['#9333ea', '#6b21a8'], // Púrpura Royal
+];
+
+const TONOS_PIEL = [
+  { base: '#ffdfc4', sombra: '#f0b892' },
+  { base: '#f5c6a5', sombra: '#d99c75' },
+  { base: '#e2a77f', sombra: '#be7b55' },
+  { base: '#c6845c', sombra: '#9c5e37' },
+  { base: '#9c5b36', sombra: '#753b1b' },
+];
+
+const TONOS_PELO = [
+  { base: '#2d2438', luz: '#4c3c5e' },
+  { base: '#3d2b1f', luz: '#614633' },
+  { base: '#6b462b', luz: '#996743' },
+  { base: '#1a1a1a', luz: '#383838' },
+  { base: '#8c6038', luz: '#b88251' },
+  { base: '#b04a28', luz: '#d96e48' },
+];
+
+function detectGenero(nombre){
+  const primer = (nombre||'').trim().split(/\s+/)[0].toLowerCase();
+  const maleSet = new Set([
+    'yeiser','yeison','yasser','jeison','yeis','diego','luis','carlos','juan','jorge','jose','josé',
+    'pedro','miguel','fernando','gabriel','alejandro','david','mateo','lucas','daniel','victor','víctor',
+    'eduardo','christian','cristian','sebastian','sebastián','mario','hugo','gonzalo','rodrigo','alvaro',
+    'álvaro','sergio','alberto','roberto','javier','oscar','óscar','pablo','raul','raúl','esteban','enrique',
+    'arturo','renzo','alessandro','stefano','fabricio','fabrizio','joaquin','joaquín','marcelo','adrian',
+    'adrián','marcos','marco','santiago','nicolas','nicolás','felipe','ignacio','bruno','alexander','antonio'
+  ]);
+  const femaleSet = new Set([
+    'maria','maría','ana','laura','sofia','sofía','camila','andrea','lucia','lucía','valeria','carmen',
+    'rosa','paula','claudia','diana','fiorella','patricia','daniela','gabriela','isabel','carolina',
+    'natalia','monica','mónica','jessica','yesenia','vanessa','veronica','verónica','silvia','milagros',
+    'angela','ángela','stephanie','stephany','brenda','adriana','estefani','estefany','karen','nicole',
+    'melissa','alexandra','solange','noelia','priscila','alisson','geraldine'
+  ]);
+  if(maleSet.has(primer)) return 'm';
+  if(femaleSet.has(primer)) return 'f';
+  if(primer.endsWith('o') || primer.endsWith('er') || primer.endsWith('or') || primer.endsWith('an') || primer.endsWith('on') || primer.endsWith('el') || primer.endsWith('ul') || primer.endsWith('os') || (primer.endsWith('is') && !primer.endsWith('lis'))) return 'm';
+  if(primer.endsWith('a') || primer.endsWith('ia') || primer.endsWith('ith') || primer.endsWith('eth') || primer.endsWith('lis')) return 'f';
+  return 'm';
 }
 
+function hashN(s){ let h=0; for(const c of (s||'')) h=(h*31+c.charCodeAt(0))>>>0; return h; }
+
+function avatarSVG(nombre){
+  const h = hashN(nombre);
+  const gen = detectGenero(nombre);
+  const bgGrad = PALETAS_FONDOS[Math.abs(h * 7 + 3) % PALETAS_FONDOS.length];
+  const piel = TONOS_PIEL[Math.abs(h * 13 + 5) % TONOS_PIEL.length];
+  const pelo = TONOS_PELO[Math.abs(h * 19 + 11) % TONOS_PELO.length];
+  const ropa = colorDe(nombre);
+  const corte = Math.abs(h * 23 + 17) % 4;
+  const uid = 'av_' + Math.abs(h).toString(36) + '_' + Math.floor(Math.random()*1000);
+
+  const CORTES_M = [
+    // 0: Modern Fade / Pompadour 3D
+    `<path d="M21 30C21 16 26 12 36 12s15 4 15 18c0-5-4-8-9-8-3 0-4.5.8-6.5.8s-3.5-.8-6.5-.8c-5 0-9 3-9 8Z" fill="${pelo.base}"/>
+     <path d="M25 18c4-4.5 10-5.5 17-3 4 1.5 7 5 8 9-3-4-8-5.5-13-4.5-5 1-8.5 2-12-1.5Z" fill="${pelo.luz}" opacity=".6"/>`,
+
+    // 1: Modern Side Sweep
+    `<path d="M20 30c0-13 7.5-18 16-18 8.5 0 14.5 4.5 15.5 10.5 0 0-5-5.5-11-4.5-5 1-7 3-11.5 3s-6-1.5-9 9Z" fill="${pelo.base}"/>
+     <path d="M24 14c5-2 12-1.5 17 2 3 2 5.5 5 6 8-4-3.5-9-4-14-2.5-4 1.2-6 2-9-1.5Z" fill="${pelo.luz}" opacity=".65"/>`,
+
+    // 2: Textured Crop Layered
+    `<path d="M20 30c1-10 6-16 16-16s15 6 16 16c0-4-3-7-6.5-7-2.5 0-4 1.2-6.5 1.2s-4-1.2-6.5-1.2c-3.5 0-6.5 3-6.5 7Z" fill="${pelo.base}"/>
+     <path d="M28 12.5l2.5-4 3.5 3 3.5-3.5 3.5 4 2.5-3" stroke="${pelo.luz}" stroke-width="2.5" stroke-linecap="round"/>`,
+
+    // 3: Classic Executive Part
+    `<path d="M20 29c0-10 6-15 16-15s16 5 16 15c0-4.5-4-8.5-9-8.5-3 0-4.5 1-7 1s-4-1-7-1c-5 0-9 4-9 8.5Z" fill="${pelo.base}"/>
+     <path d="M22 23c3-4 8-6.5 14-6.5 5 0 9.5 2 12 5.5-3-3-7-4.5-12-4.5-5.5 0-10.5 2-14 5.5Z" fill="${pelo.luz}" opacity=".55"/>`
+  ];
+
+  const CORTES_F = [
+    // 0: Modern Bob Cut 3D
+    `<path d="M18 35C18 20 24 12 36 12s18 8 18 23v14h-6V27c0-5-5-8.5-12-8.5S24 22 24 27v22h-6Z" fill="${pelo.base}"/>
+     <path d="M23 16c4-3.5 10-4.5 17-2.5 5 1.5 8.5 5 9.5 9.5-3.5-4-8.5-5.5-14.5-4-5.5 1.5-8.5 1.5-12-3Z" fill="${pelo.luz}" opacity=".55"/>`,
+
+    // 1: Long Wavy Glamour
+    `<path d="M17 37C17 20 24 11 36 11s19 9 19 26v19h-7V28c0-6-5-8.5-12-8.5S24 22 24 28v29h-7Z" fill="${pelo.base}"/>
+     <path d="M22 15c4.5-3 11-4 18-2 5.5 1.5 9.5 5.5 10.5 10-4-4.5-9.5-6-15.5-4.5-6 1.5-9.5 1-13-3.5Z" fill="${pelo.luz}" opacity=".6"/>`,
+
+    // 2: High Bun Updo 3D
+    `<path d="M20 30C20 19 26 13 36 13s16 6 16 17c0-5.5-4.5-8-9-7.5-2 .2-3.2.6-5.5.6s-3.5-.4-5.5-.6c-4.5-.5-9 2-9 7.5Z" fill="${pelo.base}"/>
+     <circle cx="36" cy="9.5" r="7" fill="${pelo.base}"/>
+     <circle cx="37.5" cy="8" r="4.5" fill="${pelo.luz}" opacity=".5"/>`,
+
+    // 3: Sleek Ponytail 3D
+    `<path d="M20 30C20 19 26 13 36 13s16 6 16 17c0-5.5-4.5-8-9-7.5-2 .2-3.2.6-5.5.6s-3.5-.4-5.5-.6c-4.5-.5-9 2-9 7.5Z" fill="${pelo.base}"/>
+     <path d="M47 24c5 2.5 9.5 9 7.5 21-1.2 2.5-3.5 2.5-3.5 0 1.2-8-2-14-5.5-17.5Z" fill="${pelo.base}"/>
+     <path d="M48 27c3.5 2 6 6.5 5 14-.5 1-2 1-2 0 .8-5-1.5-9-4-11.5Z" fill="${pelo.luz}" opacity=".5"/>`
+  ];
+
+  const peloSVG = (gen==='m' ? CORTES_M : CORTES_F)[corte];
+
+  return `<svg class="pav-i" viewBox="0 0 72 72" aria-hidden="true">
+    <defs>
+      <linearGradient id="${uid}_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="${bgGrad[0]}"/>
+        <stop offset="100%" stop-color="${bgGrad[1]}"/>
+      </linearGradient>
+      <linearGradient id="${uid}_skin" x1="20%" y1="0%" x2="80%" y2="100%">
+        <stop offset="0%" stop-color="${piel.base}"/>
+        <stop offset="100%" stop-color="${piel.sombra}"/>
+      </linearGradient>
+    </defs>
+    <!-- Fondo esfera 3D -->
+    <circle cx="36" cy="36" r="36" fill="url(#${uid}_bg)"/>
+    <circle cx="36" cy="36" r="34" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+    <!-- Orejas -->
+    <circle cx="21" cy="31" r="3.2" fill="url(#${uid}_skin)"/>
+    <circle cx="51" cy="31" r="3.2" fill="url(#${uid}_skin)"/>
+    <!-- Sombra de barbilla/cuello -->
+    <path d="M29.5 39h13v8a6.5 6.5 0 0 1-13 0Z" fill="${piel.sombra}"/>
+    <!-- Ropa 3D con volumen -->
+    <path d="M36 45c-13.5 0-22.5 7.5-22.5 19v8h45v-8c0-11.5-9-19-22.5-19Z" fill="${ropa}"/>
+    <path d="M29.5 45.5l6.5 8 6.5-8" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2.2" stroke-linecap="round"/>
+    <!-- Rostro 3D -->
+    <ellipse cx="36" cy="30" rx="13.5" ry="14.5" fill="url(#${uid}_skin)"/>
+    <!-- Peinado 3D -->
+    ${peloSVG}
+    <!-- Cejas expresivas -->
+    <path d="M27 25c2-1.2 5-1 6.5 0" fill="none" stroke="${pelo.base}" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+    <path d="M45 25c-2-1.2-5-1-6.5 0" fill="none" stroke="${pelo.base}" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+    <!-- Ojos 3D con brillo -->
+    <circle cx="30" cy="29.5" r="2" fill="#1e1b26"/>
+    <circle cx="42" cy="29.5" r="2" fill="#1e1b26"/>
+    <circle cx="30.7" cy="28.8" r="0.7" fill="#ffffff"/>
+    <circle cx="42.7" cy="28.8" r="0.7" fill="#ffffff"/>
+    <!-- Sonrisa amigable 3D -->
+    <path d="M32.5 34.5a3.8 3.8 0 0 0 7 0" stroke="#b85f39" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function getGreetingAndDate(fechaIso){
+  const now = new Date();
+  const h = now.getHours();
+  const saludo = h < 12 ? '¡Buenos días! ☀️' : (h < 19 ? '¡Buenas tardes! 🌤️' : '¡Buenas noches! 🌙');
+  
+  let targetDate = now;
+  if (fechaIso) {
+    const parts = fechaIso.split('-');
+    if (parts.length === 3) {
+      targetDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+  }
+  const dow = DIAS_LARGO[targetDate.getDay()];
+  const dia = targetDate.getDate();
+  const mes = MESES[targetDate.getMonth()].toLowerCase();
+  const capDow = dow.charAt(0).toUpperCase() + dow.slice(1);
+  const esHoy = fISO(now) === fechaIso;
+  const fechaTxt = esHoy ? `Hoy es ${capDow}, ${dia < 10 ? '0' + dia : dia} de ${mes}` : `${capDow}, ${dia < 10 ? '0' + dia : dia} de ${mes}`;
+  return `${saludo} · ${fechaTxt}`;
+}
+
+async function render(){
+  let [t,s] = TITULOS[MODO] || TITULOS.inicio;
+  if (MODO === 'lista') {
+    const fechaSel = $('lista-fecha')?.value || fISO(new Date());
+    s = getGreetingAndDate(fechaSel);
+  }
+  $('head-title').textContent = t;
+  $('head-sub').textContent = s;
+  $('mes-lbl').textContent = MESES[MONTH]+' '+YEAR;
+  document.querySelectorAll('.side button[data-modo]').forEach(b=>b.classList.toggle('active', b.dataset.modo===MODO));
+  // controles contextuales del encabezado
+  // cuántos están dados de baja (para que el filtro se note)
+  const nBajas = COLABS.filter(c=>!c.activo).length;
+  const bg = $('n-bajas');
+  if(bg){ bg.textContent = nBajas; }
+  document.querySelectorAll('.head-r .ctx').forEach(el=>{
+    const ok = (el.dataset.for||'').split(' ').includes(MODO) && el.dataset.hide!=='1';
+    el.style.display = ok ? '' : 'none';
+  });
+  ['inicio','lista','grilla','horarios','contratos','resumen'].forEach(m=> $('vista-'+m).hidden = (m!==MODO));
+
+  if(MODO==='inicio')          await renderInicio();
+  else if(MODO==='lista')      renderLista();
+  else if(MODO==='grilla')     renderGrilla();
+  else if(MODO==='horarios'){  await cargarHorasCumplidas(); renderHorarios(); }
+  else if(MODO==='contratos'){ await cargarHorasCumplidas(); renderContratos(); }
+  else                          renderResumen();
+}
+
+/* ── INICIO: estado del día de un vistazo ── */
+function statsFecha(fecha, regs){
+  const R = regs || REG;
+  const laboran = COLABS.filter(c=> c.activo && estadoDia(c, fecha).lab);
+  const s = { P:0,T:0,J:0,NG:0, total:laboran.length, marcados:0, pendientes:[] };
+  for(const c of laboran){
+    const r = R[c.id+'|'+fecha];
+    if(r && r.estado){ s[r.estado]++; s.marcados++; }
+    else s.pendientes.push(c);
+  }
+  return s;
+}
+let FECHA_EQUIPO = null;
+
+async function renderInicio(){
+  const hoy = fISO(new Date());
+  if(!FECHA_EQUIPO) FECHA_EQUIPO = hoy;
+  const fechaVer = FECHA_EQUIPO;
+
+  if($('eq-date-lbl')){
+    $('eq-date-lbl').textContent = (fechaVer === hoy) ? 'Hoy' : fmtFechaCorta(fechaVer);
+  }
+  if($('equipo-title')){
+    $('equipo-title').textContent = (fechaVer === hoy) ? 'Equipo de hoy' : `Equipo del ${fmtFechaLarga(fechaVer)}`;
+  }
+
+  const extra = await regsDeFecha(fechaVer);
+  const R = extra || REG;
+  const s = statsFecha(fechaVer, R);
+  const nombre = (PERFIL.nombre||'').split(' ')[0];
+  const h = new Date().getHours();
+  $('hero-t').textContent = `${h<12?'Buen día':(h<19?'Buenas tardes':'Buenas noches')}, ${nombre}`;
+  $('hero-s').textContent = s.total
+    ? `${fmtFechaLarga(hoy)} · ${s.total} ${s.total===1?'persona labora':'personas laboran'} hoy`
+    : `${fmtFechaLarga(hoy)} · hoy no labora nadie`;
+
+  const pct = s.total ? s.marcados/s.total : 0;
+  const C = 2*Math.PI*52;
+  const ring = $('ring-fg');
+  ring.style.strokeDasharray = C;
+  ring.style.strokeDashoffset = C*(1-pct);
+  ring.classList.toggle('full', s.total>0 && s.marcados===s.total);
+  $('ring-n').textContent = s.marcados;
+  $('ring-d').textContent = 'de '+s.total;
+  $('kpi-p').textContent=s.P; $('kpi-t').textContent=s.T; $('kpi-j').textContent=s.J; $('kpi-ng').textContent=s.NG;
+
+  // equipo de la fecha seleccionada, por área
+  $('equipo-n').textContent = `${s.marcados}/${s.total}`;
+  if(s.total===0){
+    $('equipo-body').innerHTML = `<p class="empty">En la fecha ${fmtFechaCorta(fechaVer)} no hay nadie con horario asignado.</p>`;
+  } else {
+    const laboran = COLABS.filter(c=> c.activo && estadoDia(c, fechaVer).lab);
+    let selId = window._colabSelId;
+    if(!selId || !laboran.some(x=>String(x.id)===String(selId))){
+      selId = laboran.some(x=>String(x.id)===String(PERFIL.id)) ? PERFIL.id : laboran[0]?.id;
+      window._colabSelId = selId;
+    }
+    let html = '<div class="equipo-layout"><div class="equipo-left"><div class="pcols">';
+    for(const [areaId, lista] of agruparPorArea(laboran)){
+      const area = AREAS.find(a=>String(a.id)===String(areaId));
+      const ok = lista.filter(c=> R[c.id+'|'+fechaVer]).length;
+      html += `<div class="pcol">
+        <div class="pcol-t">${esc(area?area.nombre:'—')}
+          <span class="pcol-n${ok===lista.length?' ok':''}">${ok}/${lista.length}</span></div>
+        <div class="pcol-l">`;
+      for(const c of lista){
+        const reg = R[c.id+'|'+fechaVer];
+        const E = reg ? ESTADOS[reg.estado] : null;
+        const tt = E ? `${c.nombre} · ${E.lbl}` : `${c.nombre} · sin marcar`;
+        const eCls = E ? E.cls : '';
+        const isSel = String(c.id) === String(selId) ? ' selected' : '';
+        html += `<div class="pcard ${E?eCls:'off'}${isSel}" data-c="${c.id}" style="cursor:pointer;" title="${esc(tt)}">
+          <span class="pav">${avatarSVG(c.nombre)}${E?`<i class="pav-b ${E.cls}">${reg.estado}</i>`:''}</span>
+          <b>${esc(nombreCorto(c.nombre))}</b></div>`;
+      }
+      html += '</div></div>';
+    }
+    html += '</div></div><div class="equipo-right" id="equipo-panel"></div></div>';
+    $('equipo-body').innerHTML = html;
+    renderEquipoPanel(selId, fechaVer);
+  }
+  // badge en el menú
+  const bd = $('badge-pend');
+  bd.textContent = s.pendientes.length; bd.hidden = s.pendientes.length===0;
+
+  // cierre de prácticas: quién termina primero y cuánto le falta
+  const box = $('avisos-body');
+  if(!MIG3){
+    $('avisos-n').textContent = '—';
+    box.innerHTML = `<p class="empty">El control de horas de contrato aún no está activo. Ejecuta la migración 3 en Supabase para verlo aquí.</p>`;
+    return;
+  }
+  await cargarHorasCumplidas();
+  const conFecha = [];   // tienen contrato y se les puede proyectar el término
+  const vencidos = [];   // ya pasó su fecha y aún deben horas
+  let sinDatos = 0;
+  for(const c of COLABS.filter(x=>x.activo)){
+    const r = resumenContrato(c);
+    if(r.meta==null || r.meta<=0){ sinDatos++; continue; }
+    if(r.fechaFin==='Completado'){ conFecha.push({c,r,orden:-1}); continue; }
+    if(!r.fechaFin){ sinDatos++; continue; }          // sin horario activo: no se puede proyectar
+    const dias = diasHasta(r.fechaFin);
+    (r.alertas.some(a=>a.startsWith('Venció')) ? vencidos : conFecha).push({c,r,orden:dias});
+  }
+  conFecha.sort((a,b)=>a.orden-b.orden);
+  const lista = [...vencidos, ...conFecha];
+  $('avisos-n').textContent = lista.length;
+
+  let htm = '';
+  if(sinDatos) htm += `<button type="button" class="sin-datos" id="ir-contratos">
+      <span class="sd-n">${sinDatos}</span> sin datos de contrato<i>Completar →</i></button>`;
+  if(!lista.length){
+    htm += sinDatos ? '' : `<p class="empty">Aún no hay contratos con horas definidas.</p>`;
+  } else {
+    htm += '<div class="cierres-list">' + lista.slice(0,6).map(({c,r,orden})=>{
+      const pct = Math.min(100, Math.round(r.cumplidas/r.meta*100));
+      const done = r.fechaFin==='Completado';
+      const venc = r.alertas.some(a=>a.startsWith('Venció'));
+      const cls = done ? 'ok' : (venc ? 'venc' : (orden<=30 ? 'pronto' : ''));
+      const txt = done ? 'Completó sus horas'
+                       : (venc ? 'Venció fecha' : tiempoRestante(orden));
+      const area = AREAS.find(a=>String(a.id)===String(c.area_id));
+      const areaNom = area ? area.nombre : '';
+      return `<div class="ci-card ${cls}" data-c="${c.id}" style="cursor:pointer;" title="Ver detalles de ${esc(c.nombre)}">
+        <div class="ci-head">
+          <div class="ci-ava">${avatarSVG(c.nombre)}</div>
+          <div class="ci-info">
+            <b>${esc(nombreCorto(c.nombre))}</b>
+            ${areaNom ? `<small>${esc(areaNom)}</small>` : ''}
+          </div>
+          <span class="ci-badge-pct ${done?'pb-done':(venc?'pb-warn':'pb-ok')}">${pct}%</span>
+        </div>
+        <div class="ci-pbar-wrap">
+          <div class="pbar-f ${done?'pb-done':(venc?'pb-warn':'pb-ok')}" style="width:${pct}%"></div>
+        </div>
+        <div class="ci-foot">
+          <span class="ci-txt">${esc(txt)}</span>
+          <span class="ci-fecha">${done?`${r.cumplidas.toFixed(0)}/${r.meta} h`:fmtFechaCorta(r.fechaFin)}</span>
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+    if(lista.length>6) htm += `<p class="mas">y ${lista.length-6} más en Contratos</p>`;
+  }
+  box.innerHTML = htm;
+  const ir = $('ir-contratos');
+  if(ir) ir.onclick = ()=>{ MODO='contratos'; render(); };
+  box.querySelectorAll('.ci-card').forEach(card => {
+    card.onclick = () => {
+      const colabId = card.dataset.c;
+      if(colabId) abrirDrawerColab(colabId);
+    };
+  });
+}
+
+/* ── PASAR LISTA ── */
+function getAreaIcon(nombre){
+  const n = String(nombre||'').toLowerCase();
+  if(n.includes('recursos') || n.includes('rh') || n.includes('humano')) return {
+    ico: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+    cls: 'icon-rh'
+  };
+  if(n.includes('marketing') || n.includes('ventas') || n.includes('mk')) return {
+    ico: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>',
+    cls: 'icon-mk'
+  };
+  if(n.includes('ingenier') || n.includes('sistemas') || n.includes('dev')) return {
+    ico: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>',
+    cls: 'icon-ing'
+  };
+  if(n.includes('diseñ') || n.includes('grafic') || n.includes('arte')) return {
+    ico: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.5-.75 1.5-1.5 0-.41-.15-.79-.41-1.08-.27-.29-.41-.67-.41-1.08 0-.92.75-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"></path></svg>',
+    cls: 'icon-dg'
+  };
+  if(n.includes('salud') || n.includes('medico') || n.includes('ssoma')) return {
+    ico: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>',
+    cls: 'icon-salud'
+  };
+  return {
+    ico: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path></svg>',
+    cls: 'icon-def'
+  };
+}
+
+function renderEqDP(dateStr, onSelect, container){
+  if(!container) return;
+  let d = dateStr ? new Date(dateStr + 'T00:00:00') : new Date();
+  if(isNaN(d.getTime())) d = new Date();
+
+  let year = d.getFullYear();
+  let month = d.getMonth();
+
+  function draw(){
+    const firstDow = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const hoyISO = fISO(new Date());
+
+    let h = `<div class="eq-dp-head">
+      <button type="button" class="eq-dp-btn prev-m">‹</button>
+      <span class="eq-dp-title">${MESES[month]} ${year}</span>
+      <button type="button" class="eq-dp-btn next-m">›</button>
+    </div>
+    <div class="eq-dp-week">
+      <span>D</span><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span>
+    </div>
+    <div class="eq-dp-grid">`;
+
+    for(let i = 0; i < firstDow; i++){
+      h += `<div class="eq-dp-day empty"></div>`;
+    }
+
+    for(let day = 1; day <= daysInMonth; day++){
+      const iso = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const isSel = iso === dateStr;
+      const isHoy = iso === hoyISO;
+      let cls = 'eq-dp-day';
+      if(isSel) cls += ' sel';
+      if(isHoy) cls += ' hoy';
+      h += `<div class="${cls}" data-iso="${iso}">${day}</div>`;
+    }
+    h += `</div>`;
+
+    container.innerHTML = h;
+
+    const btnPrev = container.querySelector('.prev-m');
+    if(btnPrev){
+      btnPrev.onclick = (e) => {
+        e.stopPropagation();
+        month--;
+        if(month < 0){ month = 11; year--; }
+        draw();
+      };
+    }
+    const btnNext = container.querySelector('.next-m');
+    if(btnNext){
+      btnNext.onclick = (e) => {
+        e.stopPropagation();
+        month++;
+        if(month > 11){ month = 0; year++; }
+        draw();
+      };
+    }
+    container.querySelectorAll('.eq-dp-day:not(.empty)').forEach(cell => {
+      cell.onclick = (e) => {
+        e.stopPropagation();
+        const selIso = cell.dataset.iso;
+        if(onSelect) onSelect(selIso);
+      };
+    });
+  }
+
+  draw();
+}
+
+function initHeadDatepicker(){
+  const wrap = $('cs-head-date-wrap');
+  if(!wrap) return;
+  const trig = $('cs-head-date-trigger');
+  const pop = $('cs-head-date-pop');
+  const valSpan = $('cs-head-date-val');
+  const hiddenInp = $('lista-fecha');
+
+  const hoy = fISO(new Date());
+  if(!hiddenInp.value) hiddenInp.value = hoy;
+  if(valSpan) valSpan.textContent = (hiddenInp.value === hoy) ? 'Hoy · ' + fmtFechaCorta(hoy) : fmtFechaCorta(hiddenInp.value);
+
+  trig.onclick = (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.cs-options, .cs-date-pop').forEach(o => { if(o !== pop) o.hidden = true; });
+    pop.hidden = !pop.hidden;
+    if(!pop.hidden){
+      renderEqDP(hiddenInp.value || hoy, (selFecha) => {
+        hiddenInp.value = selFecha;
+        if(valSpan) valSpan.textContent = (selFecha === hoy) ? 'Hoy · ' + fmtFechaCorta(selFecha) : fmtFechaCorta(selFecha);
+        pop.hidden = true;
+        renderLista();
+      }, pop);
+    }
+  };
+}
+
+function updateCustomAreaFilterOptions(){
+  const csWrap = $('cs-filter-area-wrap');
+  if(!csWrap) return;
+  const trig = $('cs-filter-area-trigger');
+  const options = $('cs-filter-area-options');
+  const valSpan = $('cs-filter-area-val');
+  const nativeSel = $('filtro-area');
+
+  if(trig && options){
+    trig.onclick = (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.cs-options, .cs-date-pop').forEach(o => { if(o !== options) o.hidden = true; });
+      options.hidden = !options.hidden;
+    };
+  }
+
+  const selVal = nativeSel ? nativeSel.value : '';
+  let items = `<div class="cs-item${!selVal ? ' selected' : ''}" data-val="">
+    <span>Todas las áreas</span>
+    ${!selVal ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+  </div>`;
+
+  if(typeof AREAS !== 'undefined' && AREAS){
+    for(const a of AREAS){
+      const isSel = String(a.id) === String(selVal);
+      items += `<div class="cs-item${isSel ? ' selected' : ''}" data-val="${a.id}">
+        <span>${esc(a.nombre)}</span>
+        ${isSel ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+      </div>`;
+    }
+  }
+  options.innerHTML = items;
+
+  options.querySelectorAll('.cs-item').forEach(item => {
+    item.onclick = (e) => {
+      e.stopPropagation();
+      const val = item.dataset.val;
+      if(nativeSel){
+        nativeSel.value = val;
+        nativeSel.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      const aObj = (typeof AREAS !== 'undefined' && AREAS) ? AREAS.find(x => String(x.id) === String(val)) : null;
+      if(valSpan) valSpan.textContent = aObj ? aObj.nombre : 'Todas las áreas';
+      options.hidden = true;
+    };
+  });
+}
+
+// Listener global de clics para cerrar desplegables y popovers al hacer clic afuera
+document.addEventListener('click', (e) => {
+  document.querySelectorAll('.cs-date-wrap').forEach(wrap => {
+    if (!wrap.contains(e.target)) {
+      const p = wrap.querySelector('.cs-date-pop');
+      if (p) p.hidden = true;
+    }
+  });
+  document.querySelectorAll('.custom-select').forEach(wrap => {
+    if (!wrap.contains(e.target)) {
+      const o = wrap.querySelector('.cs-options');
+      const t = wrap.querySelector('.cs-trigger');
+      if (o) o.hidden = true;
+      if (t) t.classList.remove('active');
+    }
+  });
+  document.querySelectorAll('.cs-mod-wrap').forEach(wrap => {
+    if (!wrap.contains(e.target)) {
+      const o = wrap.querySelector('.cs-mod-options');
+      if (o) o.hidden = true;
+      wrap.classList.remove('active-pop');
+    }
+  });
+});
+
+function renderLista(){
+  const fecha = $('lista-fecha').value || fISO(new Date());
+  if($('head-sub')) $('head-sub').textContent = getGreetingAndDate(fecha);
+  const vis = colabsVisibles().filter(c=> estadoDia(c,fecha).lab);
+  const porArea = agruparPorArea(vis);
+
+  // Compute Metrics
+  let countP = 0, countT = 0, countJ = 0, countNG = 0, countPend = 0;
+  for(const c of vis){
+    const reg = REG[c.id+'|'+fecha];
+    if(reg){
+      if(reg.estado === 'P') countP++;
+      else if(reg.estado === 'T') countT++;
+      else if(reg.estado === 'J') countJ++;
+      else if(reg.estado === 'NG') countNG++;
+    } else {
+      countPend++;
+    }
+  }
+  const countMarcados = vis.length - countPend;
+  const countAusentes = countT + countJ + countNG;
+  const pct = vis.length ? Math.round(countMarcados/vis.length*100) : 0;
+  const pctP = vis.length ? Math.round(countP/vis.length*100) : 0;
+  const pctPend = vis.length ? Math.round(countPend/vis.length*100) : 0;
+  const pctAus = vis.length ? Math.round(countAusentes/vis.length*100) : 0;
+
+  const numAreas = porArea ? (typeof porArea.size === 'number' ? porArea.size : (porArea.length || 0)) : 0;
+  if($('lkpi-total')) $('lkpi-total').textContent = vis.length;
+  if($('lkpi-areas')) $('lkpi-areas').textContent = `en ${numAreas} ${numAreas===1?'área':'áreas'}`;
+  if($('lkpi-p')) $('lkpi-p').textContent = countP;
+  if($('lkpi-p-pct')) $('lkpi-p-pct').textContent = `${pctP}% del total`;
+  if($('lkpi-pend')) $('lkpi-pend').textContent = countPend;
+  if($('lkpi-pend-pct')) $('lkpi-pend-pct').textContent = `${pctPend}% del total`;
+  if($('lkpi-aus')) $('lkpi-aus').textContent = countAusentes;
+  if($('lkpi-aus-pct')) $('lkpi-aus-pct').textContent = `${pctAus}% del total`;
+  if($('lkpi-prog-pct')) $('lkpi-prog-pct').textContent = `${pct}%`;
+  if($('lkpi-pfill')) $('lkpi-pfill').style.width = `${pct}%`;
+  if($('lkpi-prog-txt')) $('lkpi-prog-txt').textContent = `${countMarcados} de ${vis.length} colaboradores marcados`;
+
+  let h='';
+  if(!vis.length) h = `<p class="empty">Nadie labora en la fecha seleccionada.</p>`;
+  for(const [areaId, lista] of porArea){
+    const area = AREAS.find(a=>String(a.id)===String(areaId));
+    const areaNom = area ? area.nombre : 'Sin área';
+    const areaMeta = getAreaIcon(areaNom);
+    const ok = lista.filter(c=>REG[c.id+'|'+fecha]).length;
+
+    h += `<div class="lgrupo-card">
+      <div class="lgrupo-h">
+        <div class="lgrupo-h-left">
+          <div class="lgrupo-icon ${areaMeta.cls}">${areaMeta.ico}</div>
+          <h4>${esc(areaNom)}</h4>
+          <span class="lgrupo-count">${lista.length} ${lista.length===1?'colaborador':'colaboradores'}</span>
+        </div>
+        <div class="lgrupo-h-right">
+          <span class="lgrupo-n${ok===lista.length?' ok':''}">${ok} de ${lista.length} marcados</span>
+          <button type="button" class="lgrupo-toggle" title="Contraer/Expandir">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+      </div>
+      <div class="lgrupo-body">
+        <div class="lgrupo-grid">`;
+    for(const c of lista){
+      const reg = REG[c.id+'|'+fecha];
+      const dd = estadoDia(c, fecha);
+      const M = MODS[dd.mod] || MODS.virtual;
+      const hd = (c.horario_semanal||{})[isoDow(fecha)] || {};
+      const hrs = horasDia(c, hd);
+      const E = reg ? ESTADOS[reg.estado] : null;
+      const chip = E ? `<span class="lstate ${E.cls}">${ICO_EST[reg.estado]}${E.lbl}</span>`
+                     : `<span class="lstate sin">Sin marcar</span>`;
+      h += `<div class="lrow${E?' marcado '+E.cls:''}" data-c="${c.id}" data-f="${fecha}">
+        <span class="lav">${avatarSVG(c.nombre)}</span>
+        <div class="lrow-t">
+          <b>${esc(c.nombre)}</b>
+          <small><span class="mdot ${M.cls}"></span>${M.lbl}${hrs?' · '+hrs:''}</small>
+        </div>
+        ${chip}
+        <div class="lrow-b">${['P','T','J','NG'].map(k=>`<button class="sb ${ESTADOS[k].cls}${reg&&reg.estado===k?' on':''}" data-set="${k}" ${puedeEditar()?'':'disabled'} title="${ESTADOS[k].lbl}">${ICO_EST[k]}<i>${k}</i></button>`).join('')}</div>
+      </div>`;
+    }
+    h += '</div></div></div>';
+  }
+  $('lista-body').innerHTML = h;
+
+  // Toggle handlers for area cards
+  document.querySelectorAll('.lgrupo-h').forEach(head => {
+    head.onclick = () => {
+      const card = head.closest('.lgrupo-card');
+      if(card) card.classList.toggle('collapsed');
+    };
+  });
+
+  if($('lfoot-time')) {
+    const now = new Date();
+    $('lfoot-time').textContent = 'Última actualización: ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+  const btnRef = $('lfoot-refresh');
+  if(btnRef) btnRef.onclick = () => {
+    const svg = btnRef.querySelector('svg');
+    if(svg) {
+      svg.style.transform = 'rotate(360deg)';
+      setTimeout(() => { svg.style.transform = 'none'; }, 400);
+    }
+    renderLista();
+    toast('Lista actualizada');
+  };
+}
+
+/* ── MES (grilla) ── */
 function renderGrilla(){
   const dias = diasDelMes(YEAR, MONTH);
   const hoy = fISO(new Date());
@@ -327,18 +1467,17 @@ function renderGrilla(){
   let h = '<table class="grid"><thead><tr><th class="c-name">Colaborador</th>';
   for(const d of dias){
     const wl = DIAS_ISO.find(x=>x[1]===d.dow)[0];
-    h += `<th class="c-day${d.dow===7?' dow-dom':''}${d.fecha===hoy?' es-hoy':''}${EXC_EMP[d.fecha]?' es-fer':''}" title="${EXC_EMP[d.fecha]?'Feriado: '+esc(EXC_EMP[d.fecha].nota||''):''}"><span>${wl}</span><b>${d.dia}</b></th>`;
+    h += `<th class="c-day${d.dow===7?' dom':''}${d.fecha===hoy?' hoy':''}${EXC_EMP[d.fecha]?' fer':''}" title="${EXC_EMP[d.fecha]?'Feriado: '+esc(EXC_EMP[d.fecha].nota||''):''}"><span>${wl}</span><b>${d.dia}</b></th>`;
   }
   h += '</tr></thead><tbody>';
-  if(!vis.length) h += `<tr><td class="c-empty" colspan="${dias.length+1}">Sin colaboradores. ${puedeEditar()?'Usa “+ Colaborador”.':''}</td></tr>`;
+  if(!vis.length) h += `<tr><td class="c-empty" colspan="${dias.length+1}">Sin colaboradores.</td></tr>`;
   for(const [areaId, lista] of porArea){
     const area = AREAS.find(a=>String(a.id)===String(areaId));
-    h += `<tr class="area-row"><td class="c-name" colspan="${dias.length+1}">${esc(area?area.nombre:'—')} <span class="area-n">${lista.length}</span></td></tr>`;
+    h += `<tr class="area-row"><td class="c-name" colspan="${dias.length+1}"><span class="ar-b"></span>${esc(area?area.nombre:'—')} <span class="area-n">${lista.length}</span></td></tr>`;
+    let z=0;
     for(const c of lista){
-      h += `<tr data-colab="${c.id}"><td class="c-name">${nameCell(c)}</td>`;
-      for(const d of dias){
-        h += celda(c, d.fecha, hoy);
-      }
+      h += `<tr class="hrow${z++%2?' z':''}"><td class="c-name">${nameCell(c)}</td>`;
+      for(const d of dias) h += celda(c, d.fecha, hoy);
       h += '</tr>';
     }
   }
@@ -347,118 +1486,243 @@ function renderGrilla(){
 }
 function nameCell(c){
   const off = c.activo ? '' : ' <span class="tag-off">inactivo</span>';
-  const edit = puedeEditar() ? `<button class="c-edit solo-editor" data-edit="${c.id}" title="Editar" aria-label="Editar">✎</button>` : '';
-  const hrs = c.hora_inicio && c.hora_fin ? hhmm(c.hora_inicio)+'–'+hhmm(c.hora_fin) : '';
-  return `<div class="nm"><span class="nm-t">${esc(c.nombre)}${off}</span>${hrs?`<small>${hrs}</small>`:''}</div>${edit}`;
+  const edit = puedeEditar() ? `<button class="c-edit" data-edit="${c.id}" title="Editar" aria-label="Editar">✎</button>` : '';
+  return `<div class="nm-wrap"><div class="nm" data-c="${c.id}" style="cursor:pointer;" title="Ver ficha de ${esc(c.nombre)}"><span class="lav-sm">${avatarSVG(c.nombre)}</span><span class="nm-t">${esc(c.nombre)}${off}</span></div>${edit}</div>`;
 }
 function celda(c, fecha, hoy){
   const dd = estadoDia(c, fecha);
   const reg = REG[c.id+'|'+fecha];
-  const futuro = fecha > hoy;
   if(!dd.lab){
-    return `<td class="cell off${dd.motivo==='feriado'?' fer':''}" data-c="${c.id}" data-f="${fecha}" title="${dd.motivo==='feriado'?'Feriado':(dd.motivo==='permiso'?'Permiso / no labora':'No labora este día')}"><span class="off-mk">▨</span></td>`;
+    const tt = dd.motivo==='feriado'?'Feriado':(dd.motivo==='permiso'?'Permiso / no labora':'No labora este día');
+    return `<td class="cell off${dd.motivo==='feriado'?' fer':''}${fecha===hoy?' hoy-cell':''}" data-c="${c.id}" data-f="${fecha}" title="${tt}"></td>`;
   }
   const e = reg ? ESTADOS[reg.estado] : null;
-  const cls = e ? e.cls : (futuro?'vacia fut':'vacia');
-  const modAb = (!e && dd.mod && MODS[dd.mod]) ? `<i class="cmod">${MODS[dd.mod].ab}</i>` : '';
-  const txt = e ? reg.estado : modAb;
-  const note = reg && reg.nota ? ' •' : '';
-  const modTt = dd.mod && MODS[dd.mod] ? ' · '+MODS[dd.mod].lbl : '';
-  return `<td class="cell ${cls}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${modTt}"><span>${txt}${note}</span></td>`;
-}
-function agruparPorArea(lista){
-  const m = new Map();
-  for(const a of AREAS){ const g = lista.filter(c=>String(c.area_id)===String(a.id)); if(g.length) m.set(a.id, g); }
-  return m;
+  const modTt = MODS[dd.mod] ? ' · '+MODS[dd.mod].lbl : '';
+  const dot = e ? `<span class="dot ${e.cls}">${reg.estado}</span>`
+                : `<span class="dot vac"></span>`;
+  return `<td class="cell${fecha===hoy?' hoy-cell':''}${fecha>hoy?' fut':''}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${modTt}">${dot}${reg&&reg.nota?'<i class="hasnote"></i>':''}</td>`;
 }
 
-/* ── PASAR LISTA (una fecha, quienes laboran) ── */
-function renderLista(){
-  const fecha = $('lista-fecha').value || fISO(new Date());
-  const hoy = fISO(new Date());
-  const vis = colabsVisibles().filter(c=>{ const d=estadoDia(c,fecha); return d.lab; });
-  $('lista-hint').textContent = `${vis.length} colaborador(es) laboran este día`;
+/* ── COLABORADORES: una tarjeta por persona con su horario, su contrato y
+      las acciones de editar / dar de baja. Todo lo de esa persona junto. ── */
+function renderHorarios(){
+  const vis = colabsVisibles();
   const porArea = agruparPorArea(vis);
-  let h='';
-  if(!vis.length) h = `<p class="c-empty">Nadie labora en la fecha seleccionada (o no hay colaboradores).</p>`;
+  const dias = DIAS_ISO.slice(0,6);
+  const editable = puedeEditar();
+  let h = '';
+  if(!vis.length){
+    $('horarios-body').innerHTML = `<p class="empty">Sin colaboradores. ${editable?'Usa “+ Colaborador” para agregar al primero.':''}</p>`;
+    return;
+  }
   for(const [areaId, lista] of porArea){
     const area = AREAS.find(a=>String(a.id)===String(areaId));
-    h += `<div class="lista-area"><h4>${esc(area?area.nombre:'—')}</h4>`;
+    const areaMeta = getAreaIcon(area?area.nombre:'');
+    h += `<div class="egrupo">
+      <div class="egrupo-h">
+        <div class="ar-ico ${areaMeta.cls}">${areaMeta.ico}</div>
+        <h4>${esc(area?area.nombre:'—')}</h4>
+        <span class="egrupo-n">${lista.length}</span>
+      </div>
+      <div class="ecards">`;
     for(const c of lista){
-      const reg = REG[c.id+'|'+fecha];
-      h += `<div class="lista-row" data-c="${c.id}" data-f="${fecha}">
-        <span class="lr-name">${esc(c.nombre)}</span>
-        <div class="lr-btns">${['P','T','J','NG'].map(k=>`<button class="lr-b ${ESTADOS[k].cls}${reg&&reg.estado===k?' on':''}" data-set="${k}" ${puedeEditar()?'':'disabled'}>${k}</button>`).join('')}</div>
-      </div>`;
+      const semanaH = horasSemanaTipica(c);
+      const jornada = (c.hora_inicio && c.hora_fin) ? hhmm(c.hora_inicio)+' – '+hhmm(c.hora_fin) : 'Sin jornada';
+      // franja de días
+      let franja = '';
+      for(const [lbl,iso] of dias){
+        const hd = (c.horario_semanal||{})[iso];
+        const mod = hd && hd.mod ? hd.mod : 'no_gestiona';
+        const propio = mod!=='no_gestiona' && hd && (hd.ini || hd.fin) ? horasDia(c, hd) : '';
+        franja += `<div class="ed ${mod==='no_gestiona'?'off':''}" title="${lbl}: ${MODS[mod].lbl}${propio?' · '+propio:''}">
+          <span class="ed-d">${lbl}</span>
+          <i class="ed-m ${MODS[mod].cls}">${mod==='no_gestiona'?'—':MODS[mod].ab}</i>
+          ${propio?`<small>${propio}</small>`:''}
+        </div>`;
+      }
+      // bloque de contrato
+      let contrato;
+      if(!MIG3){
+        contrato = `<p class="ec-nomig">Activa el control de contratos para ver el avance.</p>`;
+      } else {
+        const r = resumenContrato(c);
+        if(r.meta==null || r.meta<=0){
+          contrato = `<div class="ec-sin">Sin horas de contrato definidas${editable?` · <button class="lnk" data-edit="${c.id}">definir</button>`:''}</div>`;
+        } else {
+          const pct = Math.min(100, Math.round(r.cumplidas/r.meta*100));
+          const done = r.fechaFin==='Completado';
+          const venc = r.alertas.some(a=>a.startsWith('Venció'));
+          const txt = done ? 'Completó sus horas'
+                    : (venc ? 'Pasó su fecha y aún debe horas'
+                    : (r.fechaFin ? `${tiempoRestante(diasHasta(r.fechaFin))} · termina ${fmtFechaCorta(r.fechaFin)}` : 'Sin horario activo'));
+          // comparación con la fecha que dice el contrato en papel
+          const cmp = compararConContrato(c, r.fechaFin);
+          const refLinea = cmp
+            ? `<div class="ec-ref ${cmp.dias>0?'ok':(cmp.dias<0?'tarde':'')}">
+                 <span>Contrato hasta ${fmtFechaCorta(cmp.ref)}</span><i>${difTexto(cmp.dias)}</i></div>`
+            : '';
+          contrato = `<div class="ec-con${done?' ok':(venc?' venc':'')}">
+            <div class="ec-top"><span>Contrato</span><b>${r.cumplidas.toFixed(0)} / ${r.meta} h</b></div>
+            <div class="pbar"><div class="pbar-f ${done?'pb-done':(venc?'pb-warn':'pb-ok')}" style="width:${pct}%"></div></div>
+            <div class="ec-bot"><span>${esc(txt)}</span><i>${pct}%</i></div>
+            ${refLinea}
+          </div>`;
+        }
+      }
+      const acciones = editable ? `
+        <button class="ec-act" data-edit="${c.id}" title="Editar" aria-label="Editar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <button class="ec-act ${c.activo?'baja':'alta'}" data-baja="${c.id}" title="${c.activo?'Dar de baja':'Reactivar'}" aria-label="${c.activo?'Dar de baja':'Reactivar'}">
+          ${c.activo
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/><line x1="12" y1="2" x2="12" y2="12"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 10 9 10"/></svg>'}
+        </button>` : '';
+      h += `<article class="ecard${c.activo?'':' inactivo'}">
+        <div class="ecard-h">
+          <span class="lav">${avatarSVG(c.nombre)}</span>
+          <div class="ecard-n">
+            <b>${esc(c.nombre)}${c.activo?'':' <span class="tag-off">de baja</span>'}</b>
+            <small>${jornada}${semanaH>0?` · ${semanaH.toFixed(0)} h/semana`:''}</small>
+          </div>
+          ${acciones}
+        </div>
+        <div class="ecard-dias">${franja}</div>
+        ${contrato}
+      </article>`;
     }
-    h += '</div>';
+    h += '</div></div>';
   }
-  $('lista-body').innerHTML = h;
+  // si hay gente dada de baja y está oculta, ofrecer verla desde aquí mismo
+  const bajas = COLABS.filter(c=>!c.activo).length;
+  if(bajas && !$('ver-inactivos').checked){
+    h += `<button type="button" class="ver-bajas" id="btn-ver-bajas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Hay ${bajas} colaborador${bajas===1?'':'es'} dado${bajas===1?'':'s'} de baja<i>Mostrar</i></button>`;
+  }
+  $('horarios-body').innerHTML = h;
+  const vb = $('btn-ver-bajas');
+  if(vb) vb.onclick = ()=>{ $('ver-inactivos').checked = true; render(); };
+}
+function confirmDialog({ title, text, okText = 'Confirmar', cancelText = 'Cancelar', danger = true }){
+  return new Promise(resolve => {
+    const modal = $('modal-confirm');
+    if (!modal) {
+      resolve(confirm(text));
+      return;
+    }
+    $('mconf-title').textContent = title || '¿Estás seguro?';
+    $('mconf-text').textContent = text || '';
+    const okBtn = $('mconf-ok');
+    const cancelBtn = $('mconf-cancel');
+    okBtn.textContent = okText;
+    cancelBtn.textContent = cancelText;
+    okBtn.className = danger ? 'btn-confirm-ok danger' : 'btn-confirm-ok';
+    
+    modal.hidden = false;
+    
+    const cleanup = (result) => {
+      modal.hidden = true;
+      okBtn.onclick = null;
+      cancelBtn.onclick = null;
+      resolve(result);
+    };
+    
+    okBtn.onclick = () => cleanup(true);
+    cancelBtn.onclick = () => cleanup(false);
+  });
+}
+
+/* Dar de baja / reactivar: conserva el historial de asistencia (no borra nada) */
+async function cambiarEstadoColab(id, activar){
+  const c = COLABS.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  if(!activar){
+    const ok = await confirmDialog({
+      title: `¿Dar de baja a ${c.nombre}?`,
+      text: `Saldrá de la lista diaria y del panel de Inicio, pero se conservará todo su historial de asistencia y sus horas acumuladas. Puedes reactivarlo en cualquier momento.`,
+      okText: 'Sí, dar de baja',
+      cancelText: 'Cancelar',
+      danger: true
+    });
+    if(!ok) return;
+  }
+  const { error } = await db.from('asis_colaboradores').update({ activo:activar }).eq('id', id);
+  if(error) return toast('No se pudo actualizar: '+error.message, true);
+  await cargarBase(); render();
+  toast(activar ? 'Colaborador reactivado' : 'Colaborador dado de baja');
+}
+
+/* ── CONTRATOS ── */
+function renderContratos(){
+  if(!MIG3){
+    $('contratos-body').innerHTML = `<div class="aviso-mig">
+      <h3>El control de contratos aún no está activo</h3>
+      <p>Ejecuta <code>supabase/asistencia_migracion_3_contratos.sql</code> en el SQL Editor de Supabase para habilitar las horas de prácticas, la proyección de término y el historial de cambios.</p>
+    </div>`;
+    return;
+  }
+  const vis = colabsVisibles();
+  const porArea = agruparPorArea(vis);
+  let h = '<table class="grid contratos"><thead><tr><th class="c-name">Colaborador</th><th class="c-hor">Inicio</th><th class="pb-th">Avance</th><th class="c-hor">Horas</th><th class="c-hor">Fin proyectado</th><th class="c-al"></th></tr></thead><tbody>';
+  if(!vis.length) h += `<tr><td class="c-empty" colspan="6">Sin colaboradores.</td></tr>`;
+  for(const [areaId, lista] of porArea){
+    const area = AREAS.find(a=>String(a.id)===String(areaId));
+    h += `<tr class="area-row"><td class="c-name" colspan="6"><span class="ar-b"></span>${esc(area?area.nombre:'—')} <span class="area-n">${lista.length}</span></td></tr>`;
+    let z=0;
+    for(const c of lista){
+      const r = resumenContrato(c);
+      const pct = r.meta ? Math.min(100, Math.round(r.cumplidas/r.meta*100)) : 0;
+      const barCls = r.alertas.length ? 'pb-warn' : (pct>=100 ? 'pb-done' : 'pb-ok');
+      const horasTxt = r.meta ? `${r.cumplidas.toFixed(1)} / ${r.meta} h` : `${r.cumplidas.toFixed(1)} h · sin meta`;
+      const finTxt = r.fechaFin==='Completado' ? '<b class="txt-ok">Completado</b>' : (r.fechaFin ? fmtFechaCorta(r.fechaFin) : '—');
+      const alertHtml = r.alertas.length ? `<span class="alert-badge" title="${esc(r.alertas.join(' · '))}">⚠ ${r.alertas.length}</span>` : '';
+      h += `<tr class="hrow${z++%2?' z':''}"><td class="c-name">${nameCell(c)}</td>
+        <td class="c-hor">${c.contrato_inicio?fmtFechaCorta(c.contrato_inicio):'—'}</td>
+        <td class="pb-cell"><div class="pbar"><div class="pbar-f ${barCls}" style="width:${pct}%"></div></div><small>${pct}%</small></td>
+        <td class="c-hor">${horasTxt}</td>
+        <td class="c-hor">${finTxt}</td>
+        <td class="c-al">${alertHtml}</td></tr>`;
+    }
+  }
+  h += '</tbody></table>';
+  $('contratos-body').innerHTML = h;
 }
 
 /* ── RESUMEN mensual ── */
 function renderResumen(){
   const dias = diasDelMes(YEAR, MONTH);
-  const hoy = fISO(new Date());
   const vis = colabsVisibles();
   const porArea = agruparPorArea(vis);
   let h = '<table class="grid resumen"><thead><tr><th class="c-name">Colaborador</th><th>P</th><th>T</th><th>J</th><th>NG</th><th>Labora</th><th>% Asist.</th></tr></thead><tbody>';
   if(!vis.length) h += `<tr><td class="c-empty" colspan="7">Sin colaboradores.</td></tr>`;
   for(const [areaId, lista] of porArea){
     const area = AREAS.find(a=>String(a.id)===String(areaId));
-    h += `<tr class="area-row"><td class="c-name" colspan="7">${esc(area?area.nombre:'—')}</td></tr>`;
+    h += `<tr class="area-row"><td class="c-name" colspan="7"><span class="ar-b"></span>${esc(area?area.nombre:'—')} <span class="area-n">${lista.length}</span></td></tr>`;
+    let z=0;
     for(const c of lista){
       let p=0,t=0,j=0,ng=0,lab=0;
       for(const d of dias){
-        const dd = estadoDia(c, d.fecha); if(!dd.lab) continue;
+        if(!estadoDia(c, d.fecha).lab) continue;
         lab++;
         const r = REG[c.id+'|'+d.fecha];
         if(r){ if(r.estado==='P')p++; else if(r.estado==='T')t++; else if(r.estado==='J')j++; else if(r.estado==='NG')ng++; }
       }
-      const base = p+t+j; // días efectivamente gestionados con presencia/justificación
+      const base = p+t+j;
       const pct = base ? Math.round((p+t)/base*100) : 0;
-      h += `<tr><td class="c-name">${esc(c.nombre)}</td><td class="r-p">${p}</td><td class="r-t">${t}</td><td class="r-j">${j}</td><td class="r-ng">${ng}</td><td>${lab}</td><td><b>${base?pct+'%':'—'}</b></td></tr>`;
+      h += `<tr class="hrow${z++%2?' z':''}"><td class="c-name">${nameCell(c)}</td><td class="r-p">${p}</td><td class="r-t">${t}</td><td class="r-j">${j}</td><td class="r-ng">${ng}</td><td>${lab}</td><td><b>${base?pct+'%':'—'}</b></td></tr>`;
     }
   }
   h += '</tbody></table>';
   $('resumen-body').innerHTML = h;
 }
 
-/* ── HORARIOS (tabla): Jornada unificada + modalidad/horas por día ── */
-function renderHorarios(){
-  const vis = colabsVisibles();
-  const porArea = agruparPorArea(vis);
-  const dias = DIAS_ISO.slice(0,6); // Lun..Sáb
-  let h = '<table class="grid horarios"><thead><tr><th class="c-name">Colaborador</th><th class="c-hor">Jornada</th>'+dias.map(d=>`<th>${d[0]}</th>`).join('')+'</tr></thead><tbody>';
-  if(!vis.length) h += `<tr><td class="c-empty" colspan="${dias.length+2}">Sin colaboradores. ${puedeEditar()?'Usa “+ Colaborador”.':''}</td></tr>`;
-  for(const [areaId, lista] of porArea){
-    const area = AREAS.find(a=>String(a.id)===String(areaId));
-    h += `<tr class="area-row"><td class="c-name" colspan="${dias.length+2}"><span class="ar-b"></span>${esc(area?area.nombre:'—')} <span class="area-n">${lista.length}</span></td></tr>`;
-    let z = 0;
-    for(const c of lista){
-      const editBtn = puedeEditar() ? `<button class="c-edit solo-editor" data-edit="${c.id}" title="Editar" aria-label="Editar">✎</button>` : '';
-      const offTag = c.activo ? '' : ' <span class="tag-off">inactivo</span>';
-      const nm = `<span class="nm-t">${esc(c.nombre)}${offTag}</span>${editBtn}`;
-      const jornada = (c.hora_inicio && c.hora_fin) ? hhmm(c.hora_inicio)+'<i>–</i>'+hhmm(c.hora_fin) : '—';
-      h += `<tr class="hrow${z++%2?' z':''}"><td class="c-name">${nm}</td><td class="c-hor">${jornada}</td>`;
-      for(const [,iso] of dias){
-        const hd = (c.horario_semanal||{})[iso];
-        const mod = hd && hd.mod ? hd.mod : 'no_gestiona';
-        const M = MODS[mod];
-        // solo muestra horas si el día tiene horario propio (distinto de la jornada general)
-        const horas = (mod!=='no_gestiona' && hd && (hd.ini || hd.fin)) ? horasDia(c, hd) : '';
-        h += `<td class="hs-cell"><span class="mchip ${M.cls}">${M.lbl}</span>${horas?`<small>${horas}</small>`:''}</td>`;
-      }
-      h += '</tr>';
-    }
-  }
-  h += '</tbody></table>';
-  $('horarios-body').innerHTML = h;
-}
-
-/* ════════════════════ EDICIÓN DE CELDAS ════════════════════ */
+/* ════════════════════ EDICIÓN DE ASISTENCIA ════════════════════ */
 async function setEstado(colabId, fecha, estado){
+  const colab = COLABS.find(x=>String(x.id)===String(colabId));
   const payload = { colaborador_id:Number(colabId), fecha, estado, marcado_por:PERFIL.id, marcado_at:new Date().toISOString() };
+  // las horas quedan congeladas con el horario vigente hoy (solo si existe la columna)
+  if(MIG3 && colab) payload.horas = estado==='NG' ? 0 : duracionHorasDia(colab, fecha);
   const { error } = await db.from('asis_registros').upsert(payload, { onConflict:'colaborador_id,fecha' });
   if(error){ toast('No se pudo guardar: '+error.message, true); return; }
   REG[colabId+'|'+fecha] = { estado, nota:(REG[colabId+'|'+fecha]||{}).nota||null, marcado_por:PERFIL.id };
@@ -477,7 +1741,7 @@ async function marcarExcepcionTrabajo(colabId, fecha){
   toast('Día habilitado');
 }
 
-/* Popover al hacer clic en una celda */
+/* Popover al hacer clic en una celda del mes */
 function abrirPop(td){
   if(!puedeEditar()) return;
   const colabId = td.dataset.c, fecha = td.dataset.f;
@@ -486,16 +1750,16 @@ function abrirPop(td){
   const pop = $('pop');
   let h = `<div class="pop-head">${esc(c.nombre)}<small>${diaLabel(fecha)}</small></div>`;
   if(!dd.lab){
-    h += `<p class="pop-off">${dd.motivo==='feriado'?'Feriado (empresa).':'No labora este día según su horario.'}</p>
-          <button class="pop-b act" data-act="extra">✓ Sí trabajó — habilitar</button>`;
+    h += `<p class="pop-off">${dd.motivo==='feriado'?'Feriado de la empresa.':'No labora este día según su horario.'}</p>
+          <button class="pop-b act" data-act="extra">Sí trabajó — habilitar</button>`;
   } else {
     h += '<div class="pop-grid">'+['P','T','J','NG'].map(k=>`<button class="pop-b ${ESTADOS[k].cls}" data-act="set" data-k="${k}">${k}<small>${ESTADOS[k].lbl}</small></button>`).join('')+'</div>';
     if(REG[colabId+'|'+fecha]) h += `<button class="pop-b clr" data-act="clr">Quitar marca</button>`;
   }
   pop.innerHTML = h; pop.hidden=false;
-  const r = td.getBoundingClientRect();
-  const pw = 232;
-  let left = r.left + window.scrollX; if(left+pw > window.scrollX+innerWidth-8) left = window.scrollX+innerWidth-pw-8;
+  const r = td.getBoundingClientRect(), pw = 236;
+  let left = r.left + window.scrollX;
+  if(left+pw > window.scrollX+innerWidth-8) left = window.scrollX+innerWidth-pw-8;
   pop.style.left = left+'px';
   pop.style.top  = (r.bottom + window.scrollY + 6)+'px';
   pop._c = colabId; pop._f = fecha;
@@ -503,7 +1767,269 @@ function abrirPop(td){
 function cerrarPop(){ $('pop').hidden=true; }
 function diaLabel(fecha){ const d=new Date(fecha+'T00:00:00'); return `${DIAS_ISO.find(x=>x[1]===isoDow(fecha))[0]} ${d.getDate()} ${MESES[d.getMonth()].toLowerCase()}`; }
 
-/* ════════════════════ MODALES DE GESTIÓN ════════════════════ */
+/* ════════════════════ PANEL INCRUSTADO DE ASISTENCIA ════════════════════ */
+function renderEquipoPanel(colabId, fechaVer){
+  const panel = $('equipo-panel');
+  if(!panel) return;
+  const fRef = fechaVer || FECHA_EQUIPO || fISO(new Date());
+  const c = COLABS.find(x => String(x.id) === String(colabId)) || COLABS.find(x => x.activo);
+  if(!c){
+    panel.innerHTML = `<div class="equipo-panel-card"><p class="empty">Selecciona un colaborador</p></div>`;
+    return;
+  }
+  window._colabSelId = c.id;
+  const area = AREAS.find(a => String(a.id) === String(c.area_id));
+  const dias = diasDelMes(YEAR, MONTH);
+  const r = MIG3 ? resumenContrato(c) : null;
+
+  // Asistencia del mes
+  let countP = 0, countT = 0, countJ = 0, countNG = 0;
+  for(const d of dias){
+    const reg = REG[c.id + '|' + d.fecha];
+    if(reg){
+      if(reg.estado === 'P') countP++;
+      else if(reg.estado === 'T') countT++;
+      else if(reg.estado === 'J') countJ++;
+      else if(reg.estado === 'NG') countNG++;
+    }
+  }
+
+  // Grilla del calendario
+  const firstDow = new Date(YEAR, MONTH, 1).getDay();
+  let calHTML = '';
+  for(let i = 0; i < firstDow; i++){
+    calHTML += '<div class="ep-day d-empty"></div>';
+  }
+
+  for(const d of dias){
+    const reg = REG[c.id + '|' + d.fecha];
+    const dd = estadoDia(c, d.fecha);
+    let cls = 'd-off';
+    if(reg){
+      cls = 'd-' + reg.estado.toLowerCase();
+    } else if(dd.lab){
+      cls = 'd-lab';
+    }
+    const isHoy = d.fecha === fRef ? ' d-hoy' : '';
+    const tt = reg ? `${d.dia} ${MESES[MONTH]} · ${ESTADOS[reg.estado]?.lbl || ''}` : `${d.dia} ${MESES[MONTH]}`;
+    calHTML += `<div class="ep-day ${cls}${isHoy}" title="${esc(tt)}">${d.dia}</div>`;
+  }
+
+  // Horario de la fecha seleccionada y modalidad
+  const dowRef = isoDow(fRef);
+  const hd = (c.horario_semanal || {})[dowRef] || {};
+  const modRef = modDelDia(c, dowRef);
+  const MRef = MODS[modRef] || MODS.virtual;
+  const ini = hd.ini ? hhmm(hd.ini) : (c.hora_inicio ? hhmm(c.hora_inicio) : '08:00');
+  const fin = hd.fin ? hhmm(hd.fin) : (c.hora_fin ? hhmm(c.hora_fin) : '13:00');
+
+  panel.innerHTML = `
+    <div class="equipo-panel-card">
+      <div class="ep-head">
+        <h4>Ficha de asistencia</h4>
+        <span>${countP} marcados</span>
+      </div>
+
+      <div class="ep-prof">
+        <div class="ep-ava">${avatarSVG(c.nombre)}</div>
+        <div class="ep-info">
+          <h3>${esc(c.nombre)}</h3>
+          <p>${esc(area ? area.nombre : 'Sin área')} · <span class="mchip ${MRef.cls}">${MRef.lbl}</span></p>
+        </div>
+      </div>
+
+      <div class="ep-stats">
+        <div class="ep-stat"><b>${countP}</b><span>Presentes</span></div>
+        <div class="ep-stat"><b>${countT}</b><span>Tardanzas</span></div>
+        <div class="ep-stat"><b>${r && r.meta ? r.cumplidas.toFixed(0) + 'h' : '—'}</b><span>Contrato</span></div>
+      </div>
+
+      <div>
+        <div class="ep-sect-title">
+          <div class="ep-nav-mes">
+            <button id="ep-mes-prev" aria-label="Mes anterior">‹</button>
+            <span>${MESES[MONTH]} ${YEAR}</span>
+            <button id="ep-mes-next" aria-label="Mes siguiente">›</button>
+          </div>
+          <small>${countP} asistencias</small>
+        </div>
+        <div class="ep-cal-head" style="margin-top:10px;">
+          <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+        </div>
+        <div class="ep-cal-grid">
+          ${calHTML}
+        </div>
+        <div class="ep-leg">
+          <span class="ep-leg-item l-p"><i></i> Presente</span>
+          <span class="ep-leg-item l-t"><i></i> Tardanza</span>
+          <span class="ep-leg-item l-off"><i></i> No labora</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="ep-sect-title">
+          <span>Jornada de la fecha</span>
+          <small>${fmtFechaCorta(fRef)}</small>
+        </div>
+        <div class="ep-times">
+          <span class="ep-time active">${ini}</span>
+          <span class="ep-time active">${fin}</span>
+          <span class="ep-time">${MRef.lbl}</span>
+        </div>
+      </div>
+
+      ${puedeEditar() ? `<button class="btn-lime" id="ep-btn-act">Editar colaborador</button>` : ''}
+    </div>
+  `;
+
+  const btnPrev = $('ep-mes-prev');
+  if(btnPrev){
+    btnPrev.onclick = async () => {
+      MONTH--; if(MONTH < 0){ MONTH = 11; YEAR--; }
+      await cargarMes();
+      render();
+    };
+  }
+
+  const btnNext = $('ep-mes-next');
+  if(btnNext){
+    btnNext.onclick = async () => {
+      MONTH++; if(MONTH > 11){ MONTH = 0; YEAR++; }
+      await cargarMes();
+      render();
+    };
+  }
+
+  const btnAct = $('ep-btn-act');
+  if(btnAct){
+    btnAct.onclick = () => modalColab(c);
+  }
+}
+
+/* ════════════════════ DRAWER LATERAL DE COLABORADOR ════════════════════ */
+function abrirDrawerColab(colabId){
+  const c = COLABS.find(x => String(x.id) === String(colabId));
+  if(!c) return;
+  const area = AREAS.find(a => String(a.id) === String(c.area_id));
+  const hoy = fISO(new Date());
+  const dias = diasDelMes(YEAR, MONTH);
+  const r = MIG3 ? resumenContrato(c) : null;
+
+  // Conteo de asistencia del mes
+  let countP = 0, countT = 0, countJ = 0, countNG = 0;
+  for(const d of dias){
+    const reg = REG[c.id + '|' + d.fecha];
+    if(reg){
+      if(reg.estado === 'P') countP++;
+      else if(reg.estado === 'T') countT++;
+      else if(reg.estado === 'J') countJ++;
+      else if(reg.estado === 'NG') countNG++;
+    }
+  }
+
+  // Grilla del calendario
+  const firstDow = new Date(YEAR, MONTH, 1).getDay();
+  let calHTML = '';
+  for(let i = 0; i < firstDow; i++){
+    calHTML += '<div class="dr-day d-empty"></div>';
+  }
+
+  for(const d of dias){
+    const reg = REG[c.id + '|' + d.fecha];
+    const dd = estadoDia(c, d.fecha);
+    let cls = 'd-off';
+    if(reg){
+      cls = 'd-' + reg.estado.toLowerCase();
+    } else if(dd.lab){
+      cls = 'd-lab';
+    }
+    const isHoy = d.fecha === hoy ? ' d-hoy' : '';
+    const tt = reg ? `${d.dia} ${MESES[MONTH]} · ${ESTADOS[reg.estado]?.lbl || ''}` : `${d.dia} ${MESES[MONTH]}`;
+    calHTML += `<div class="dr-day ${cls}${isHoy}" title="${esc(tt)}">${d.dia}</div>`;
+  }
+
+  // Jornada semanal
+  const hs = c.horario_semanal || {};
+  let hsHTML = '';
+  for(const [lbl, iso] of DIAS_ISO){
+    const hd = hs[iso] || {};
+    const mod = hd.mod || 'no_gestiona';
+    const M = MODS[mod] || MODS.no_gestiona;
+    const hrs = (mod !== 'no_gestiona' && (hd.ini || hd.fin)) ? horasDia(c, hd) : (mod !== 'no_gestiona' ? horasDia(c, null) : '');
+    hsHTML += `<div class="dr-hs-item">
+      <b>${lbl}</b>
+      <span class="mchip ${M.cls}">${M.lbl}</span>
+      <span>${hrs || '—'}</span>
+    </div>`;
+  }
+
+  const drawer = $('drawer');
+  const body = $('drawer-body');
+
+  body.innerHTML = `
+    <div class="dr-head">
+      <div class="dr-ava">${avatarSVG(c.nombre)}</div>
+      <div class="dr-info">
+        <h3>${esc(c.nombre)}</h3>
+        <p>${esc(area ? area.nombre : 'Sin área')}</p>
+        <div class="dr-pills">
+          <span class="dr-pill ok">${countP} Presentes</span>
+          ${countT ? `<span class="dr-pill">${countT} Tardanzas</span>` : ''}
+          ${r && r.meta ? `<span class="dr-pill">${r.cumplidas.toFixed(0)}/${r.meta}h</span>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="dr-card">
+      <div class="dr-card-h">
+        <h4>Asistencia de ${MESES[MONTH]} ${YEAR}</h4>
+        <span>${countP} días marcados</span>
+      </div>
+      <div class="dr-cal-head">
+        <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+      </div>
+      <div class="dr-cal-grid">
+        ${calHTML}
+      </div>
+      <div class="dr-leg">
+        <span class="dr-leg-i l-p"><i></i> Presente</span>
+        <span class="dr-leg-i l-t"><i></i> Tardanza</span>
+        <span class="dr-leg-i l-j"><i></i> Justificado</span>
+        <span class="dr-leg-i l-off"><i></i> No labora</span>
+      </div>
+    </div>
+
+    <div class="dr-card">
+      <div class="dr-card-h">
+        <h4>Jornada Semanal</h4>
+        <span>${c.hora_inicio ? hhmm(c.hora_inicio) + ' - ' + hhmm(c.hora_fin) : 'Horario asignado'}</span>
+      </div>
+      <div class="dr-hs-list">
+        ${hsHTML}
+      </div>
+    </div>
+
+    ${puedeEditar() ? `<button class="btn-mini" style="width:100%;margin-top:6px;" id="dr-btn-edit">Editar colaborador</button>` : ''}
+  `;
+
+  drawer.hidden = false;
+
+  const btnEdit = $('dr-btn-edit');
+  if(btnEdit){
+    btnEdit.onclick = () => {
+      cerrarDrawerColab();
+      modalColab(c);
+    };
+  }
+}
+
+function cerrarDrawerColab(){
+  $('drawer').hidden = true;
+}
+$('drawer-x').addEventListener('click', cerrarDrawerColab);
+$('drawer').addEventListener('click', e => { if(e.target.id === 'drawer') cerrarDrawerColab(); });
+
+/* ════════════════════ MODALES ════════════════════ */
 function abrirModal(title, bodyHTML){ $('modal-title').textContent=title; $('modal-body').innerHTML=bodyHTML; $('modal').hidden=false; }
 function cerrarModal(){ $('modal').hidden=true; }
 $('modal-x').addEventListener('click', cerrarModal);
@@ -522,82 +2048,374 @@ function modalArea(){
     await cargarBase(); cerrarModal(); render(); toast('Área creada');
   };
 }
-function modalColab(existente){
-  const def = { area_id:AREAS[0]?.id, nombre:'', dni:'', hora_inicio:'08:00', hora_fin:'13:00', contrato_horas:null, activo:true,
+async function modalColab(existente){
+  if(existente && MIG3) await cargarHorasCumplidas();
+  const def = { area_id:AREAS[0]?.id, nombre:'', dni:'', hora_inicio:'08:00', hora_fin:'13:00', contrato_horas:null,
+    contrato_inicio:null, contrato_fin_referencia:null, activo:true,
     horario_semanal:{ '1':{mod:'virtual'},'2':{mod:'virtual'},'3':{mod:'virtual'},'4':{mod:'virtual'},'5':{mod:'virtual'},'6':{mod:'no_gestiona'},'7':{mod:'no_gestiona'} } };
   const c = existente || def;
   const hs = c.horario_semanal || {};
   const gIni = c.hora_inicio ? hhmm(c.hora_inicio) : '08:00';
   const gFin = c.hora_fin ? hhmm(c.hora_fin) : '13:00';
   const opts = AREAS.map(a=>`<option value="${a.id}" ${String(a.id)===String(c.area_id)?'selected':''}>${esc(a.nombre)}</option>`).join('');
+  const selAreaObj = AREAS.find(a=>String(a.id)===String(c.area_id)) || AREAS[0];
+  const areaItemsHTML = AREAS.map(a => `
+    <div class="cs-item${String(a.id)===String(selAreaObj?.id)?' selected':''}" data-id="${a.id}">
+      <span>${esc(a.nombre)}</span>
+      ${String(a.id)===String(selAreaObj?.id)?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>':''}
+    </div>
+  `).join('');
+
+  const MOD_LBLS = { no_gestiona: 'No gestiona', virtual: 'Virtual', presencial: 'Presencial', opcional: 'Opcional' };
   const filas = DIAS_ISO.map(([lbl,iso])=>{
     const d = hs[iso] || {}; const mod = d.mod || 'no_gestiona';
     const ini = d.ini ? hhmm(d.ini) : gIni, fin = d.fin ? hhmm(d.fin) : gFin;
     const mopts = [['no_gestiona','No gestiona'],['virtual','Virtual'],['presencial','Presencial'],['opcional','Opcional']]
       .map(([v,l])=>`<option value="${v}" ${mod===v?'selected':''}>${l}</option>`).join('');
     const off = mod==='no_gestiona' ? 'disabled' : '';
-    return `<div class="hs-row" data-dow="${iso}">
-      <span class="hs-d">${lbl}</span>
-      <select class="hs-mod">${mopts}</select>
-      <input type="time" class="hs-ini" value="${ini}" ${off}>
-      <input type="time" class="hs-fin" value="${fin}" ${off}>
+    return `<div class="hs-day-card" data-dow="${iso}">
+      <div class="hs-card-head">
+        <span class="hs-d-badge">${lbl}</span>
+        <div class="cs-mod-wrap">
+          <button type="button" class="cs-mod-trigger mod-${mod}">
+            <span>${MOD_LBLS[mod]||'No gestiona'}</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="cs-mod-options" hidden>
+            <div class="cs-mod-item mod-no_gestiona" data-val="no_gestiona">No gestiona</div>
+            <div class="cs-mod-item mod-virtual" data-val="virtual">Virtual</div>
+            <div class="cs-mod-item mod-presencial" data-val="presencial">Presencial</div>
+            <div class="cs-mod-item mod-opcional" data-val="opcional">Opcional</div>
+          </div>
+          <select class="hs-mod" hidden>${mopts}</select>
+        </div>
+      </div>
+      <div class="hs-card-times">
+        <div class="time-step-wrap mini">
+          <input type="time" class="hs-ini time-step-inp" value="${ini}" ${off}>
+          <div class="time-step-btns">
+            <button type="button" class="t-btn-up" title="+30 min">▲</button>
+            <button type="button" class="t-btn-dn" title="-30 min">▼</button>
+          </div>
+        </div>
+        <span class="hs-time-sep">-</span>
+        <div class="time-step-wrap mini">
+          <input type="time" class="hs-fin time-step-inp" value="${fin}" ${off}>
+          <div class="time-step-btns">
+            <button type="button" class="t-btn-up" title="+30 min">▲</button>
+            <button type="button" class="t-btn-dn" title="-30 min">▼</button>
+          </div>
+        </div>
+      </div>
     </div>`;
   }).join('');
+
   abrirModal(existente?'Editar colaborador':'Nuevo colaborador', `
-    <label class="fld">Área<select id="m-c-area">${opts}</select></label>
-    <label class="fld">Nombre completo<input id="m-c-nom" value="${esc(c.nombre)}" maxlength="80"></label>
-    <div class="fld two">
-      <label>DNI (opcional)<input id="m-c-dni" value="${esc(c.dni||'')}" maxlength="15"></label>
-      <label>Horas de contrato (opcional)<input id="m-c-horas" type="number" min="0" step="1" value="${c.contrato_horas??''}" placeholder="Ej. 500"></label>
+    <div class="fld"><span>Área</span>
+      <div class="custom-select" id="cs-area-wrap">
+        <button type="button" class="cs-trigger" id="cs-area-trigger">
+          <span id="cs-area-val">${esc(selAreaObj ? selAreaObj.nombre : 'Seleccionar área')}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="cs-options" id="cs-area-options" hidden>
+          ${areaItemsHTML}
+        </div>
+        <select id="m-c-area" hidden>${opts}</select>
+      </div>
     </div>
-    <div class="fld two">
-      <label>Hora inicio (general)<input id="m-c-ini" type="time" value="${gIni}"></label>
-      <label>Hora fin (general)<input id="m-c-fin" type="time" value="${gFin}"></label>
+    <label class="fld">Nombre completo<input id="m-c-nom" value="${esc(c.nombre)}" maxlength="80" placeholder="Ej. Juan Pérez"></label>
+    <div class="fld-grid-2">
+      <label class="fld">DNI (opcional)<input id="m-c-dni" value="${esc(c.dni||'')}" maxlength="15" placeholder="8 dígitos"></label>
+      <label class="fld">Horas de contrato<input id="m-c-horas" type="number" min="0" step="1" value="${c.contrato_horas??''}" placeholder="Ej. 500"></label>
     </div>
-    <div class="fld">Horario semanal <small class="hs-hint">Modalidad y horas por día. Si dejas la hora igual a la general no hace falta cambiarla.</small>
-      <div class="hs-grid">
-        <div class="hs-row hs-head"><span class="hs-d"></span><span>Modalidad</span><span>Entrada</span><span>Salida</span></div>
+    ${MIG3?`<label class="fld">Horas ya cumplidas antes de usar el sistema
+      <small class="hs-hint">Si empezó sus prácticas antes de registrar aquí, anota las horas que ya traía. Se suman a las que se vayan marcando.</small>
+      <input id="m-c-hprev" type="number" min="0" step="1" value="${c.horas_previas??''}" placeholder="Ej. 416 · deja vacío si empieza ahora"></label>`:''}
+    <div class="fld-grid-2">
+      <label class="fld">Hora inicio (general)
+        <div class="time-step-wrap">
+          <input id="m-c-ini" type="time" class="time-step-inp" value="${gIni}">
+          <div class="time-step-btns">
+            <button type="button" class="t-btn-up" title="+30 min">▲</button>
+            <button type="button" class="t-btn-dn" title="-30 min">▼</button>
+          </div>
+        </div>
+      </label>
+      <label class="fld">Hora fin (general)
+        <div class="time-step-wrap">
+          <input id="m-c-fin" type="time" class="time-step-inp" value="${gFin}">
+          <div class="time-step-btns">
+            <button type="button" class="t-btn-up" title="+30 min">▲</button>
+            <button type="button" class="t-btn-dn" title="-30 min">▼</button>
+          </div>
+        </div>
+      </label>
+    </div>
+    ${MIG3?`<div class="fld-grid-2">
+      <div class="fld"><span>Inicio de contrato</span>
+        <div class="cs-date-wrap" id="cs-cini-wrap">
+          <button type="button" class="cs-date-trigger" id="cs-cini-trigger">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span id="cs-cini-val">${c.contrato_inicio ? fmtFechaCorta(c.contrato_inicio) : 'Seleccionar fecha'}</span>
+          </button>
+          <div class="eq-dp-pop cs-date-pop" id="cs-cini-pop" hidden></div>
+          <input type="hidden" id="m-c-cini" value="${c.contrato_inicio||''}">
+        </div>
+      </div>
+      <div class="fld"><span>Fin según contrato (referencia)</span>
+        <div class="cs-date-wrap" id="cs-cfin-wrap">
+          <button type="button" class="cs-date-trigger" id="cs-cfin-trigger">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span id="cs-cfin-val">${c.contrato_fin_referencia ? fmtFechaCorta(c.contrato_fin_referencia) : 'Seleccionar fecha'}</span>
+          </button>
+          <div class="eq-dp-pop cs-date-pop pop-right" id="cs-cfin-pop" hidden></div>
+          <input type="hidden" id="m-c-cfin" value="${c.contrato_fin_referencia||''}">
+        </div>
+      </div>
+    </div>`:''}
+    <div class="fld">Horario semanal <small class="hs-hint">Modalidad y horas por día. Si la hora es igual a la general, no hace falta cambiarla.</small>
+      <div class="hs-cards-grid">
         ${filas}
       </div>
     </div>
     ${existente?`<label class="fld chk-inline"><input type="checkbox" id="m-c-act" ${c.activo?'checked':''}> Activo</label>`:''}
+    ${existente&&MIG3?`
+    <div class="contrato-resumen" id="m-c-resumen"></div>
+    <button type="button" class="lnk" id="m-c-hist-toggle">Ver historial de cambios</button>
+    <ul id="m-c-hist" class="hist-list" hidden></ul>
+    <label class="fld">Motivo del cambio <small class="hs-hint">Si cambias el horario o las horas de contrato, queda guardado en el historial.</small>
+      <input id="m-c-motivo" placeholder="Ej. pasa a trabajar jueves, viernes y sábado" maxlength="140">
+    </label>`:''}
     <div class="modal-foot">
       ${existente?'<button class="btn-mini ghost" id="m-c-del">Eliminar</button>':''}
       <button class="btn-mini" id="m-c-save">${existente?'Guardar':'Crear colaborador'}</button>
     </div>`);
-  document.querySelectorAll('.hs-row:not(.hs-head)').forEach(r=>{
-    const sel = r.querySelector('.hs-mod');
-    sel.addEventListener('change', ()=>{
-      const off = sel.value==='no_gestiona';
-      r.querySelector('.hs-ini').disabled = off; r.querySelector('.hs-fin').disabled = off;
+
+  // Custom Area Select handlers
+  const csTrig = $('cs-area-trigger');
+  const csOpts = $('cs-area-options');
+  if(csTrig && csOpts){
+    csTrig.onclick = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      document.querySelectorAll('.cs-mod-options').forEach(o => o.hidden = true);
+      csOpts.hidden = !csOpts.hidden;
+      csTrig.classList.toggle('active', !csOpts.hidden);
+    };
+    csOpts.querySelectorAll('.cs-item').forEach(item => {
+      item.onclick = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const id = item.dataset.id || item.dataset.val;
+        const aObj = AREAS.find(x => String(x.id) === String(id));
+        $('m-c-area').value = id;
+        $('cs-area-val').textContent = aObj ? aObj.nombre : '';
+        csOpts.querySelectorAll('.cs-item').forEach(el => {
+          el.classList.remove('selected');
+          const checkSvg = el.querySelector('svg');
+          if (checkSvg) checkSvg.remove();
+        });
+        item.classList.add('selected');
+        if(!item.querySelector('svg')){
+          item.insertAdjacentHTML('beforeend', '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>');
+        }
+        csOpts.hidden = true;
+        csTrig.classList.remove('active');
+      };
+    });
+  }
+
+  // Custom Modality Select handlers
+  document.querySelectorAll('.cs-mod-wrap').forEach(wrap => {
+    const trig = wrap.querySelector('.cs-mod-trigger');
+    const opts = wrap.querySelector('.cs-mod-options');
+    const nativeSel = wrap.querySelector('.hs-mod');
+    const card = wrap.closest('.hs-day-card');
+
+    trig.onclick = (e) => {
+      e.stopPropagation();
+      if(csOpts) csOpts.hidden = true;
+      if(csTrig) csTrig.classList.remove('active');
+      document.querySelectorAll('.cs-mod-wrap').forEach(w => w.classList.remove('active-pop'));
+      document.querySelectorAll('.cs-mod-options').forEach(o => { if(o !== opts) o.hidden = true; });
+      opts.hidden = !opts.hidden;
+      if(!opts.hidden) wrap.classList.add('active-pop');
+    };
+
+    opts.querySelectorAll('.cs-mod-item').forEach(item => {
+      item.onclick = (e) => {
+        e.stopPropagation();
+        const val = item.dataset.val;
+        nativeSel.value = val;
+        nativeSel.dispatchEvent(new Event('change'));
+        trig.className = 'cs-mod-trigger mod-' + val;
+        trig.querySelector('span').textContent = MOD_LBLS[val] || val;
+        opts.hidden = true;
+        wrap.classList.remove('active-pop');
+        const off = val === 'no_gestiona';
+        if(card) card.querySelectorAll('input[type="time"]').forEach(inp => inp.disabled = off);
+      };
     });
   });
+
+  document.querySelectorAll('.time-step-btns button').forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      const wrap = btn.closest('.time-step-wrap');
+      const inp = wrap ? wrap.querySelector('input[type="time"]') : null;
+      if(!inp || inp.disabled) return;
+      const isUp = btn.classList.contains('t-btn-up');
+      stepTimeInp(inp, isUp ? 30 : -30);
+    };
+  });
+
+  if(MIG3){
+    initCustomDatePicker('cs-cini-wrap', 'cs-cini-trigger', 'cs-cini-pop', 'cs-cini-val', 'm-c-cini');
+    initCustomDatePicker('cs-cfin-wrap', 'cs-cfin-trigger', 'cs-cfin-pop', 'cs-cfin-val', 'm-c-cfin');
+  }
+
+  // Cierre global al hacer clic fuera del desplegable o calendarios
+  const cerrarCustomSelects = (e) => {
+    const areaWrap = document.getElementById('cs-area-wrap');
+    if (areaWrap && !areaWrap.contains(e.target)) {
+      const o = document.getElementById('cs-area-options');
+      const t = document.getElementById('cs-area-trigger');
+      if (o) o.hidden = true;
+      if (t) t.classList.remove('active');
+    }
+    document.querySelectorAll('.cs-mod-wrap').forEach(wrap => {
+      if (!wrap.contains(e.target)) {
+        const o = wrap.querySelector('.cs-mod-options');
+        if (o) o.hidden = true;
+        wrap.classList.remove('active-pop');
+      }
+    });
+    document.querySelectorAll('.cs-date-wrap').forEach(wrap => {
+      if (!wrap.contains(e.target)) {
+        const p = wrap.querySelector('.cs-date-pop');
+        if (p) p.hidden = true;
+      }
+    });
+  };
+  if (window._closeSelectsHandler) window.removeEventListener('click', window._closeSelectsHandler);
+  window._closeSelectsHandler = cerrarCustomSelects;
+  window.addEventListener('click', window._closeSelectsHandler);
+
+  if(existente && MIG3){
+    const r = resumenContrato(existente);
+    $('m-c-resumen').innerHTML = `
+      <div class="cr-row"><span>Horas cumplidas</span><b>${r.cumplidas.toFixed(1)} h</b></div>
+      ${r.previas>0?`<div class="cr-row sub"><span>· previas + registradas aquí</span><b>${r.previas.toFixed(0)} + ${r.marcadas.toFixed(1)} h</b></div>`:''}
+      <div class="cr-row"><span>Horas de contrato</span><b>${r.meta ?? '—'}</b></div>
+      <div class="cr-row"><span>Horas por semana (horario actual)</span><b id="cr-semana">${r.semanaH.toFixed(1)} h</b></div>
+      <div class="cr-row"><span>Termina (según sus horas)</span><b id="cr-fin">${r.fechaFin==='Completado'?'Completado':(r.fechaFin?fmtFechaCorta(r.fechaFin):'—')}</b></div>
+      <div class="cr-row"><span>Fecha del contrato</span><b>${existente.contrato_fin_referencia?fmtFechaCorta(existente.contrato_fin_referencia):'—'}</b></div>
+      <div class="cr-ref-box" id="cr-ref" hidden></div>
+      <div class="cr-cambio" id="cr-cambio" hidden></div>
+      ${r.alertas.length?`<div class="cr-alerts">${r.alertas.map(a=>'⚠ '+esc(a)).join('<br>')}</div>`:''}`;
+
+    /* Si cambias el horario o las horas, la proyección se recalcula en vivo y
+       se muestra cuánto se adelanta o se atrasa el término. */
+    const recalcular = ()=>{
+      const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
+      const hsTmp = {};
+      document.querySelectorAll('.hs-day-card').forEach(row=>{
+        const mod = row.querySelector('.hs-mod').value; if(mod==='no_gestiona') return;
+        const o = { mod };
+        const i = row.querySelector('.hs-ini').value, f = row.querySelector('.hs-fin').value;
+        if(i && i!==gi) o.ini = i;
+        if(f && f!==gf) o.fin = f;
+        hsTmp[row.dataset.dow] = o;
+      });
+      const sim = { ...existente, horario_semanal:hsTmp, hora_inicio:gi, hora_fin:gf,
+        contrato_horas: $('m-c-horas').value!=='' ? Number($('m-c-horas').value) : null,
+        horas_previas:  $('m-c-hprev') && $('m-c-hprev').value!=='' ? Number($('m-c-hprev').value) : 0 };
+      const n = resumenContrato(sim);
+      $('cr-semana').textContent = n.semanaH.toFixed(1)+' h';
+      $('cr-fin').textContent = n.fechaFin==='Completado' ? 'Completado' : (n.fechaFin ? fmtFechaCorta(n.fechaFin) : '—');
+      // comparación contra la fecha del papel
+      const refBox = $('cr-ref');
+      const cmp = compararConContrato({ contrato_fin_referencia: $('m-c-cfin')?.value || null }, n.fechaFin);
+      if(cmp){
+        refBox.hidden = false;
+        refBox.className = 'cr-ref-box '+(cmp.dias>0?'ok':(cmp.dias<0?'tarde':''));
+        refBox.textContent = cmp.dias>0 ? `Terminará ${difTexto(cmp.dias)} de lo que dice el contrato`
+                          : (cmp.dias<0 ? `Se pasaría ${difTexto(cmp.dias).replace(' después','')} de la fecha del contrato`
+                                        : 'Coincide con la fecha del contrato');
+      } else refBox.hidden = true;
+      const box = $('cr-cambio');
+      if(r.fechaFin && n.fechaFin && r.fechaFin!=='Completado' && n.fechaFin!=='Completado' && r.fechaFin!==n.fechaFin){
+        const d = diasHasta(r.fechaFin) - diasHasta(n.fechaFin);
+        box.hidden = false;
+        box.className = 'cr-cambio '+(d>0?'antes':'despues');
+        box.textContent = d>0 ? `Termina ${d} día${d===1?'':'s'} antes que con el horario actual`
+                              : `Termina ${-d} día${-d===1?'':'s'} después que con el horario actual`;
+      } else box.hidden = true;
+    };
+    document.querySelectorAll('.hs-mod,.hs-ini,.hs-fin').forEach(el=> el.addEventListener('change', recalcular));
+    ['m-c-ini','m-c-fin','m-c-horas','m-c-hprev','m-c-cfin'].forEach(id=> $(id) && $(id).addEventListener('input', recalcular));
+    recalcular();   // pinta la comparación en cuanto se abre
+    $('m-c-hist-toggle').onclick = async ()=>{
+      const box = $('m-c-hist');
+      if(!box.hidden){ box.hidden=true; return; }
+      box.hidden=false; box.innerHTML='<li class="muted">Cargando…</li>';
+      const { data } = await db.from('asis_historial_contrato').select('*').eq('colaborador_id',existente.id).order('created_at',{ascending:false});
+      box.innerHTML = (data&&data.length)
+        ? data.map(hh=>`<li><b>${fmtFechaCorta(hh.fecha)}</b> — ${TIPO_HIST_LBL[hh.tipo]||hh.tipo}${hh.nota?': '+esc(hh.nota):''}</li>`).join('')
+        : '<li class="muted">Sin cambios registrados.</li>';
+    };
+  }
+
   $('m-c-save').onclick = async ()=>{
     const nombre = $('m-c-nom').value.trim(); if(!nombre) return toast('Escribe el nombre', true);
     const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
     const hsNew = {};
-    document.querySelectorAll('.hs-row:not(.hs-head)').forEach(r=>{
+    document.querySelectorAll('.hs-day-card').forEach(r=>{
       const mod = r.querySelector('.hs-mod').value; if(mod==='no_gestiona') return;
       const o = { mod };
       const i = r.querySelector('.hs-ini').value, f = r.querySelector('.hs-fin').value;
-      if(i && i!==gi) o.ini = i;   // solo guarda horas propias si difieren de la general
+      if(i && i!==gi) o.ini = i;
       if(f && f!==gf) o.fin = f;
       hsNew[r.dataset.dow] = o;
     });
+    const horasNuevas = $('m-c-horas').value!=='' ? Number($('m-c-horas').value) : null;
     const payload = {
       area_id:Number($('m-c-area').value), nombre,
       dni:$('m-c-dni').value.trim()||null,
-      contrato_horas: $('m-c-horas').value!==''? Number($('m-c-horas').value) : null,
+      contrato_horas: horasNuevas,
       hora_inicio: gi, hora_fin: gf,
       horario_semanal: hsNew,
       dias_laborables: Object.keys(hsNew).map(Number).sort((a,b)=>a-b),
     };
+    if(MIG3){
+      payload.contrato_inicio = $('m-c-cini')?.value || null;
+      payload.contrato_fin_referencia = $('m-c-cfin')?.value || null;
+      payload.horas_previas = ($('m-c-hprev') && $('m-c-hprev').value!=='') ? Number($('m-c-hprev').value) : 0;
+    }
     if(existente) payload.activo = $('m-c-act').checked;
     const q = existente ? db.from('asis_colaboradores').update(payload).eq('id',existente.id)
                         : db.from('asis_colaboradores').insert(payload);
     const { error } = await q;
     if(error) return toast('No se pudo guardar: '+error.message, true);
-    await cargarBase(); cerrarModal(); render(); toast('Guardado');
+    // bitácora: registra el cambio de horario o de horas de contrato
+    let cambios = false;
+    if(existente && MIG3){
+      const motivo = ($('m-c-motivo')?.value||'').trim() || null;
+      const antes = horasSemanaTipica(existente);
+      const despues = horasSemanaTipica({ horario_semanal:hsNew, hora_inicio:gi, hora_fin:gf });
+      if(Math.abs(antes-despues) > 0.01){
+        await db.from('asis_historial_contrato').insert({ colaborador_id:existente.id, tipo:'horario',
+          horario_anterior:existente.horario_semanal||{}, horario_nuevo:hsNew, nota:motivo, creado_por:PERFIL.id });
+        cambios = true;
+      }
+      if((existente.contrato_horas??null) !== horasNuevas){
+        await db.from('asis_historial_contrato').insert({ colaborador_id:existente.id, tipo:'horas_contrato',
+          horas_anterior:existente.contrato_horas??null, horas_nueva:horasNuevas, nota:motivo, creado_por:PERFIL.id });
+        cambios = true;
+      }
+    }
+    await cargarBase(); cerrarModal(); render();
+    toast(cambios ? 'Guardado — el cambio quedó en el historial' : 'Guardado');
   };
   if(existente){
     $('m-c-del').onclick = async ()=>{
@@ -611,12 +2429,12 @@ function modalColab(existente){
 async function modalFeriados(){
   const dias = diasDelMes(YEAR, MONTH);
   const lista = dias.filter(d=>EXC_EMP[d.fecha]).map(d=>`<li><b>${d.dia} ${MESES[MONTH].toLowerCase()}</b> — ${esc(EXC_EMP[d.fecha].nota||'Feriado')} <button class="lnk" data-del-fer="${d.fecha}">quitar</button></li>`).join('');
-  abrirModal('Feriados / días no laborables — '+MESES[MONTH]+' '+YEAR, `
-    <p class="modal-note">Un feriado bloquea ese día para todo el equipo (sale como “no labora”). Puedes habilitar excepciones por persona desde su celda.</p>
+  abrirModal('Feriados — '+MESES[MONTH]+' '+YEAR, `
+    <p class="modal-note">Un feriado bloquea el día para todo el equipo. Si alguien igual trabaja, habilítalo desde su celda en el mes.</p>
     <label class="fld">Fecha<input type="date" id="m-fer-fecha" min="${dias[0].fecha}" max="${dias[dias.length-1].fecha}" value="${dias[0].fecha}"></label>
     <label class="fld">Motivo (opcional)<input id="m-fer-nota" placeholder="Ej. Feriado nacional" maxlength="60"></label>
     <div class="modal-foot"><button class="btn-mini" id="m-fer-add">Agregar feriado</button></div>
-    <ul class="fer-list">${lista||'<li class="muted">Sin feriados este mes.</li>'}</ul>`);
+    <ul class="hist-list">${lista||'<li class="muted">Sin feriados este mes.</li>'}</ul>`);
   $('m-fer-add').onclick = async ()=>{
     const fecha=$('m-fer-fecha').value; if(!fecha) return;
     const { error } = await db.from('asis_excepciones').insert({ fecha, ambito:'empresa', tipo:'feriado', nota:$('m-fer-nota').value.trim()||null, creado_por:PERFIL.id });
@@ -624,46 +2442,140 @@ async function modalFeriados(){
     await cargarMes(); render(); modalFeriados(); toast('Feriado agregado');
   };
   document.querySelectorAll('[data-del-fer]').forEach(b=> b.onclick = async ()=>{
-    const f=b.dataset.delFer;
-    const { error } = await db.from('asis_excepciones').delete().eq('fecha',f).eq('ambito','empresa');
+    const { error } = await db.from('asis_excepciones').delete().eq('fecha',b.dataset.delFer).eq('ambito','empresa');
     if(error) return toast('No se pudo quitar: '+error.message, true);
     await cargarMes(); render(); modalFeriados();
   });
 }
 
+/* ════════════════════ CALENDARIO POPOVER PERSONALIZADO (KJA DATEPICKER) ════════════════════ */
+let DP_YEAR = new Date().getFullYear();
+let DP_MONTH = new Date().getMonth();
+
+function renderCustomDatepicker(){
+  const mesLbl = $('eq-dp-mes');
+  const grid = $('eq-dp-grid');
+  if(!mesLbl || !grid) return;
+
+  mesLbl.textContent = `${MESES[DP_MONTH]} ${DP_YEAR}`;
+
+  const selIso = FECHA_EQUIPO || fISO(new Date());
+  const hoyIso = fISO(new Date());
+
+  const firstDow = new Date(DP_YEAR, DP_MONTH, 1).getDay();
+  const daysInMonth = new Date(DP_YEAR, DP_MONTH + 1, 0).getDate();
+  const prevDaysInMonth = new Date(DP_YEAR, DP_MONTH, 0).getDate();
+
+  let html = '';
+
+  // Días del mes anterior (atenuados)
+  for(let i = firstDow - 1; i >= 0; i--){
+    const num = prevDaysInMonth - i;
+    html += `<button class="eq-dp-day d-other" disabled>${num}</button>`;
+  }
+
+  // Días del mes actual
+  for(let d = 1; d <= daysInMonth; d++){
+    const iso = `${DP_YEAR}-${pad(DP_MONTH + 1)}-${pad(d)}`;
+    const isSel = iso === selIso ? ' d-sel' : '';
+    const isHoy = iso === hoyIso ? ' d-hoy' : '';
+    html += `<button class="eq-dp-day${isSel}${isHoy}" data-iso="${iso}">${d}</button>`;
+  }
+
+  grid.innerHTML = html;
+
+  grid.querySelectorAll('.eq-dp-day[data-iso]').forEach(btn => {
+    btn.onclick = async (e) => {
+      e.stopPropagation();
+      FECHA_EQUIPO = btn.dataset.iso;
+      cerrarCustomDatepicker();
+      await renderInicio();
+    };
+  });
+}
+
+function abrirCustomDatepicker(){
+  const pop = $('eq-dp-pop');
+  if(!pop) return;
+  const f = FECHA_EQUIPO || fISO(new Date());
+  const dt = new Date(f + 'T00:00:00');
+  DP_YEAR = dt.getFullYear();
+  DP_MONTH = dt.getMonth();
+  renderCustomDatepicker();
+  pop.hidden = false;
+}
+function cerrarCustomDatepicker(){
+  if($('eq-dp-pop')) $('eq-dp-pop').hidden = true;
+}
+
 /* ════════════════════ EVENTOS ════════════════════ */
+document.querySelectorAll('.side button[data-modo]').forEach(b=> b.onclick = ()=>{ MODO=b.dataset.modo; document.querySelector('.views-area')?.scrollTo(0,0); render(); });
+$('go-lista').onclick = ()=>{ MODO='lista'; $('lista-fecha').value = fISO(new Date()); render(); };
 $('mes-prev').onclick = async ()=>{ MONTH--; if(MONTH<0){MONTH=11;YEAR--;} await cargarMes(); render(); };
 $('mes-next').onclick = async ()=>{ MONTH++; if(MONTH>11){MONTH=0;YEAR++;} await cargarMes(); render(); };
 $('mes-hoy').onclick  = async ()=>{ const h=new Date(); YEAR=h.getFullYear(); MONTH=h.getMonth(); await cargarMes(); render(); };
-document.querySelectorAll('#modo-seg button').forEach(b=> b.onclick = ()=>{ MODO=b.dataset.modo; render(); });
-$('buscar').addEventListener('input', ()=>{ if(MODO!=='lista') render(); else renderLista(); });
+if($('eq-date-prev')) $('eq-date-prev').onclick = async ()=>{ FECHA_EQUIPO = addDays(FECHA_EQUIPO||fISO(new Date()), -1); await renderInicio(); };
+if($('eq-date-next')) $('eq-date-next').onclick = async ()=>{ FECHA_EQUIPO = addDays(FECHA_EQUIPO||fISO(new Date()), 1); await renderInicio(); };
+if($('eq-date-hoy'))  $('eq-date-hoy').onclick  = async ()=>{ FECHA_EQUIPO = fISO(new Date()); await renderInicio(); };
+if($('eq-date-btn'))  $('eq-date-btn').onclick  = (e)=>{ e.stopPropagation(); if($('eq-dp-pop').hidden) abrirCustomDatepicker(); else cerrarCustomDatepicker(); };
+if($('eq-dp-prev'))   $('eq-dp-prev').onclick   = (e)=>{ e.stopPropagation(); DP_MONTH--; if(DP_MONTH<0){ DP_MONTH=11; DP_YEAR--; } renderCustomDatepicker(); };
+if($('eq-dp-next'))   $('eq-dp-next').onclick   = (e)=>{ e.stopPropagation(); DP_MONTH++; if(DP_MONTH>11){ DP_MONTH=0; DP_YEAR++; } renderCustomDatepicker(); };
+if($('eq-dp-hoy-btn'))$('eq-dp-hoy-btn').onclick= async (e)=>{ e.stopPropagation(); FECHA_EQUIPO = fISO(new Date()); cerrarCustomDatepicker(); await renderInicio(); };
+if($('eq-dp-close-btn'))$('eq-dp-close-btn').onclick=(e)=>{ e.stopPropagation(); cerrarCustomDatepicker(); };
+document.addEventListener('click', e=>{ if(!e.target.closest('#eq-dp-pop') && !e.target.closest('#eq-date-btn')) cerrarCustomDatepicker(); });
+$('buscar').addEventListener('input', render);
 $('filtro-area').addEventListener('change', render);
 $('ver-inactivos').addEventListener('change', render);
-$('lista-fecha').addEventListener('change', renderLista);
+$('lista-fecha').addEventListener('change', async ()=>{
+  const f = $('lista-fecha').value;
+  if(f){ const d=new Date(f+'T00:00:00');
+    if(d.getFullYear()!==YEAR || d.getMonth()!==MONTH){ YEAR=d.getFullYear(); MONTH=d.getMonth(); await cargarMes(); } }
+  renderLista();
+});
 $('btn-add-area').onclick  = modalArea;
 $('btn-add-colab').onclick = ()=>modalColab(null);
 $('btn-feriados').onclick  = modalFeriados;
 
-/* Delegación de clics en el escenario */
+/* Delegación de clics dentro del contenido */
 $('app').addEventListener('click', async e=>{
   const editBtn = e.target.closest('[data-edit]');
   if(editBtn){ const c=COLABS.find(x=>String(x.id)===editBtn.dataset.edit); if(c) modalColab(c); return; }
+  const bajaBtn = e.target.closest('[data-baja]');
+  if(bajaBtn){ const c=COLABS.find(x=>String(x.id)===bajaBtn.dataset.baja); if(c) await cambiarEstadoColab(c.id, !c.activo); return; }
+  const pcard = e.target.closest('.pcard[data-c]');
+  if(pcard){
+    document.querySelectorAll('.pcard').forEach(el=> el.classList.remove('selected'));
+    pcard.classList.add('selected');
+    renderEquipoPanel(pcard.dataset.c);
+    return;
+  }
+  const nm = e.target.closest('.nm[data-c]');
+  if(nm){ abrirDrawerColab(nm.dataset.c); return; }
   const cell = e.target.closest('td.cell');
   if(cell){ abrirPop(cell); e.stopPropagation(); return; }
-  const lrb = e.target.closest('.lr-b');
-  if(lrb){ const row=lrb.closest('.lista-row'); await setEstado(row.dataset.c,row.dataset.f,lrb.dataset.set); renderLista(); return; }
+  const sb = e.target.closest('.sb');
+  if(sb){
+    const row=sb.closest('.lrow');
+    const yaEsta = sb.classList.contains('on');
+    sb.classList.remove('sb-pop');
+    void sb.offsetWidth;
+    sb.classList.add('sb-pop');
+    if(yaEsta) await quitarEstado(row.dataset.c,row.dataset.f);
+    else await setEstado(row.dataset.c,row.dataset.f,sb.dataset.set);
+    renderLista(); return;
+  }
 });
 /* Acciones del popover */
 $('pop').addEventListener('click', async e=>{
   const b=e.target.closest('.pop-b'); if(!b) return;
   const pop=$('pop'), c=pop._c, f=pop._f;
-  if(b.dataset.act==='set'){ await setEstado(c,f,b.dataset.k); }
-  else if(b.dataset.act==='clr'){ await quitarEstado(c,f); }
-  else if(b.dataset.act==='extra'){ await marcarExcepcionTrabajo(c,f); }
+  if(b.dataset.act==='set') await setEstado(c,f,b.dataset.k);
+  else if(b.dataset.act==='clr') await quitarEstado(c,f);
+  else if(b.dataset.act==='extra') await marcarExcepcionTrabajo(c,f);
   cerrarPop(); render();
 });
 document.addEventListener('click', e=>{ if(!e.target.closest('#pop') && !e.target.closest('td.cell')) cerrarPop(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ cerrarPop(); cerrarModal(); } });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ cerrarPop(); cerrarModal(); cerrarDrawerColab(); } });
 
 /* ════════════════════ ARRANQUE ════════════════════ */
 iniciarSesionActiva();
