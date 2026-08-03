@@ -1150,9 +1150,16 @@ function temarioActivo(){ return temarioAplica() && $('f-temario-on').checked; }
 function soloTitulos(){ return $('f-solo-titulos').checked; }
 function leerTemario(){
   if(!temarioActivo()) return null;
+  const d = leerDatos();   // el diseño del temario depende del tipo de certificado
   return { modulos: modulos.filter(m=>m.titulo||m.fechaInicio||m.horas),
            nota: $('f-nota').value.trim(), soloTitulos: soloTitulos(),
-           tituloSize: $('f-tem-size').value ? parseInt($('f-tem-size').value,10) : null };
+           tituloSize: $('f-tem-size').value ? parseInt($('f-tem-size').value,10) : null,
+           tipo: d.tipo, codigo: d.codigo };
+}
+/* El temario guardado no incluye el tipo ni el código: se toman del certificado
+   para que el diseño y el código impreso correspondan al registro. */
+function temarioDe(r){
+  return r && r.temario ? { ...r.temario, tipo:r.tipo, codigo:r.codigo } : (r ? r.temario : null);
 }
 function recomputeTotal(){ const t=modulos.reduce((s,m)=>s+(parseInt(m.horas,10)||0),0); $('f-total-horas').value = t? t+' hrs':''; }
 function renderModulos(){
@@ -1551,7 +1558,7 @@ async function descargarFila(id, fmt){
   const fn=r.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+r.nombre.replace(/\s+/g,'_');
   const c1=document.createElement('canvas'); c1.width=KJACert.W; c1.height=KJACert.H;
   await KJACert.render(c1, rowToDatos(r));
-  const tem=r.temario;
+  const tem=temarioDe(r);
   if((fmt||'pdf')==='pdf' && tem && tem.modulos && tem.modulos.length){
     const c2=document.createElement('canvas'); c2.width=KJACert.W; c2.height=KJACert.H;
     await KJACert.renderTemario(c2, tem);
@@ -1609,7 +1616,7 @@ function abrirTodosModal(){
   // Las tarjetas se arman de golpe (es solo texto) y las imágenes se dibujan
   // cuando cada una se acerca a la pantalla: abrir es instantáneo.
   g.certs.forEach(r=>{
-    const tem=r.temario, conTemario=!!(tem && tem.modulos && tem.modulos.length);
+    const tem=temarioDe(r), conTemario=!!(tem && tem.modulos && tem.modulos.length);
     const art=document.createElement('article'); art.className='tcert';
     art.innerHTML=`
       <div class="tcert-bar">
@@ -1665,7 +1672,7 @@ $('todos-modal').addEventListener('click', e=>{ if(e.target===$('todos-modal')) 
 async function verModal(id){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
   await KJACert.render($('ver-canvas'), rowToDatos(r));
-  const tem=r.temario, tc=$('ver-canvas-tem');
+  const tem=temarioDe(r), tc=$('ver-canvas-tem');
   if(tem && tem.modulos && tem.modulos.length){ tc.style.display='block'; await KJACert.renderTemario(tc, tem); }
   else tc.style.display='none';
   $('ver-pdf').onclick=()=>descargarFila(id,'pdf');
@@ -1719,7 +1726,7 @@ async function pdfBase64De(r){
   const c1=document.createElement('canvas'); c1.width=KJACert.W; c1.height=KJACert.H;
   await KJACert.render(c1, rowToDatos(r));
   pdf.addImage(c1.toDataURL('image/jpeg',0.85),'JPEG',0,0,KJACert.W,KJACert.H);
-  const tem=r.temario;
+  const tem=temarioDe(r);
   if(tem && tem.modulos && tem.modulos.length){
     const c2=document.createElement('canvas'); c2.width=KJACert.W; c2.height=KJACert.H;
     await KJACert.renderTemario(c2, tem);
@@ -1785,7 +1792,7 @@ function editarFila(id){
   setFecha(fpInicio,'#f-inicio',r.fecha_inicio); setFecha(fpFin,'#f-fin',r.fecha_fin); setFecha(fpEmision,'#f-emision',r.fecha_emision);
   $('f-numero').value=(r.codigo.split('-')[1]||'').trim();
   // temario (si el certificado lo tiene)
-  const tem=r.temario;
+  const tem=temarioDe(r);
   $('f-temario-on').checked = !!(tem && tem.modulos && tem.modulos.length);
   modulos = (tem && tem.modulos) ? tem.modulos.map(m=>({titulo:m.titulo||'',fechaInicio:m.fechaInicio||'',fechaFin:m.fechaFin||'',horas:m.horas||''})) : [];
   $('f-nota').value = (tem && tem.nota) || '';

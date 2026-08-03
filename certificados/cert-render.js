@@ -217,6 +217,18 @@
      datos.temario = { modulos:[{titulo, fechaInicio, fechaFin, horas}], nota } */
   const TEMARIO = {
     plantilla:'Certificado_cursos/PLANTILLA_TEMARIO_CURSOS.webp',
+    /* Ajustes propios de cada tipo. Si un tipo no está aquí, usa el diseño de
+       cursos. Si su plantilla aún no existe, cae en la de cursos (fondoTemario). */
+    porTipo:{
+      especializacion:{
+        plantilla:'Certiicado_curso_especializacion/PLANTILLA_TEMARIO_ESPECIALIZACION.webp?v=1',
+        soloTitulos:true,          // este diseño no lleva columnas de fecha/horas
+        notaEnPlantilla:true,      // la etiqueta "Nota Final" ya viene dibujada
+        nota:{ valueX:1249, cy:1163 },
+        area:{ left:310, right:1850, top:360, bottom:1050 },
+        codigo:{ cx:1772, cy:1304, size:26, color:'#2b2b2b' },
+      }
+    },
     cols:{ ini:1320, fin:1591, hrs:1858 },               // centros X de las columnas (bajo los íconos)
     bar:{ left:175, right:1260, areaTop:495, areaBottom:875, maxGap:125 },
     ordinalX:325, tituloX:975, tituloW:560,
@@ -251,15 +263,27 @@
     lines.forEach((l,i)=>ctx.fillText(l,cx,top+i*lh));
   }
 
+  /* Elige el fondo del temario por tipo. Si esa plantilla aún no está subida,
+     cae en la de cursos para no romper la generación. */
+  async function fondoTemario(cfg){
+    if(cfg.plantilla){
+      try{ return await cargarImg(KJACert.basePath+cfg.plantilla); }
+      catch(e){ console.warn('[KJACert] no se pudo cargar '+cfg.plantilla+', se usa el temario de cursos'); }
+    }
+    return cargarImg(KJACert.basePath+TEMARIO.plantilla);
+  }
+
   async function renderTemario(canvas, datos){
     const t=TEMARIO, ctx=canvas.getContext('2d');
+    const cfg=TEMARIO.porTipo[datos.tipo]||{};      // ajustes del diseño de ese tipo
     const mods=(datos.modulos||[]).slice(0,8);
-    const solo=!!datos.soloTitulos;   // temario de solo títulos (sin fechas/horas/total)
+    const solo=cfg.soloTitulos || !!datos.soloTitulos;   // sin fechas/horas/total
     ctx.clearRect(0,0,W,H);
-    const bg=await cargarImg(KJACert.basePath+t.plantilla);
+    const bg=await fondoTemario(cfg);
     ctx.drawImage(bg,0,0,W,H);
 
-    if(solo){
+    // los tipos con plantilla propia ya traen el fondo limpio: no hay que tapar nada
+    if(solo && !cfg.plantilla){
       // tapar (con blanco, el fondo ahí es blanco puro) los íconos de columnas y la caja de total
       ctx.fillStyle='#ffffff';
       ctx.fillRect(1228, 278, 752, 218);   // íconos fecha/fecha/hora
@@ -269,19 +293,22 @@
     const n=Math.max(mods.length,1);
     // En "solo títulos" usamos el espacio del total (oculto): barras y texto crecen
     // automáticamente cuando hay pocos módulos, para llenar el espacio disponible.
-    const areaTop=t.bar.areaTop, areaBottom = solo ? 960 : t.bar.areaBottom;
+    const A = cfg.area || {};
+    const areaTop = A.top ?? t.bar.areaTop;
+    const areaBottom = A.bottom ?? (solo ? 960 : t.bar.areaBottom);
     const span=areaBottom-areaTop;
     const gap=Math.min(solo?200:t.bar.maxGap, span/n);
     const startY=(areaTop+areaBottom)/2 - gap*n/2 + gap/2;
     const barH=solo ? Math.min(150, gap*0.82, gap-14) : Math.min(96, gap-14);
     // En "solo títulos" no existen las columnas de fechas/horas: la barra se extiende
     // hasta el borde derecho útil (antes quedaba un vacío feo de 1260 a ~1830).
-    const barRight = solo ? 1830 : t.bar.right;
-    const barW=barRight-t.bar.left;
+    const barLeft  = A.left ?? t.bar.left;
+    const barRight = A.right ?? (solo ? 1830 : t.bar.right);
+    const barW=barRight-barLeft;
     // Ordinal a la izquierda y título centrado en la barra extendida (sin chocar con el ordinal).
-    const ordinalX = solo ? 330 : t.ordinalX;
-    const tituloX = solo ? 1075 : t.tituloX;
-    const tituloW = solo ? 1050 : t.tituloW;
+    const ordinalX = solo ? barLeft+155 : t.ordinalX;
+    const tituloX = solo ? (barLeft+barRight)/2 + 145 : t.tituloX;
+    const tituloW = solo ? barW-490 : t.tituloW;
     const ordSize = solo ? Math.min(50, Math.max(32, barH*0.42)) : Math.min(48, barH*0.52);
     // tituloSize: tamaño manual elegido en el admin (campo "Tamaño Letra"); si no se elige, se autoajusta.
     const titSize = datos.tituloSize || (solo ? Math.min(42, Math.max(24, barH*0.34)) : 24);
@@ -290,8 +317,8 @@
 
     mods.forEach((m,i)=>{
       const cy=startY+i*gap;
-      roundRect(ctx, t.bar.left, cy-barH/2, barW, barH, 16);
-      const g=ctx.createLinearGradient(t.bar.left,0,barRight,0);
+      roundRect(ctx, barLeft, cy-barH/2, barW, barH, 16);
+      const g=ctx.createLinearGradient(barLeft,0,barRight,0);
       g.addColorStop(0,'#d7ddec'); g.addColorStop(1,'#fbfcff');
       ctx.fillStyle=g; ctx.fill();
       ctx.fillStyle='#15317e'; ctx.font=`400 ${ordSize}px ${SCRIPT}`;
@@ -309,9 +336,22 @@
       ctx.fillText(`Total de horas académicas = ${horasTotal(mods)} hrs`, t.total.cx, t.total.cy);
     }
 
-    ctx.fillStyle='#15317e'; ctx.font=`400 60px ${SCRIPT}`; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('Nota Final', t.nota.labelX, t.nota.cy);
-    ctx.font=`700 74px ${SANS}`; ctx.fillText(String(datos.nota||''), t.nota.valueX, t.nota.cy);
+    const N = cfg.nota || t.nota;
+    ctx.fillStyle='#15317e'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    // algunas plantillas ya traen dibujada la etiqueta "Nota Final"
+    if(!cfg.notaEnPlantilla){
+      ctx.font=`400 60px ${SCRIPT}`;
+      ctx.fillText('Nota Final', N.labelX ?? t.nota.labelX, N.cy);
+    }
+    ctx.font=`700 74px ${SANS}`;
+    ctx.fillText(String(datos.nota||''), N.valueX, N.cy);
+
+    // código de verificación (el mismo del certificado), si el diseño lo lleva
+    if(cfg.codigo && datos.codigo){
+      const C=cfg.codigo;
+      ctx.fillStyle=C.color||'#2b2b2b'; ctx.font=`500 ${C.size||26}px ${SANS}`;
+      ctx.textAlign='center'; ctx.fillText(datos.codigo, C.cx, C.cy);
+    }
   }
 
   /* PDF de varias páginas (ej. certificado + temario) */
