@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=9">
+<link rel="stylesheet" href="asistencia.css?v=10">
 </head>
 <body>
 
@@ -431,10 +431,12 @@ let COLABS = [];
 let REG = {};                   // 'colabId|fecha' -> {estado,nota,marcado_por}
 let EXC_EMP = {};               // 'fecha' -> {tipo,nota}
 let EXC_COL = {};               // 'colabId|fecha' -> {tipo,nota}
-let HORAS_CUMPLIDAS = {};       // colabId -> horas acumuladas (P/T/J)
+let HORAS_CUMPLIDAS = {};       // colabId -> horas acumuladas (P/T/J) del vínculo principal
+let HORAS_VOLUNT = {};          // colabId -> horas de voluntariado (solo colaboradores mixtos)
 let YEAR, MONTH;                // MONTH 0-11
 let MODO = 'inicio';
 let MIG3 = false;               // ¿está aplicada la migración 3 (contratos)?
+let HAS_VINCULO = false;        // ¿está agregada la columna tipo_vinculo en la BD?
 const puedeEditar = () => PERFIL.rol === 'editor' || PERFIL.rol === 'direccion';
 const esDireccion = () => PERFIL.rol === 'direccion';
 
@@ -619,21 +621,44 @@ function duracionHorasDia(colab, fecha){
   const hd = (colab.horario_semanal||{})[isoDow(fecha)] || {};
   return horasEntre(hhmm(hd.ini || colab.hora_inicio), hhmm(hd.fin || colab.hora_fin));
 }
-function horasSemanaTipica(colabLike){
+/* Con qué vínculo se cuenta un día. Solo los colaboradores mixtos ('ambos')
+   tienen días de distinto vínculo; el resto hereda el del colaborador. */
+function esMixto(colab){ return (colab && colab.tipo_vinculo) === 'ambos'; }
+function vincDelDia(colab, dow){
+  if(!esMixto(colab)) return colab && colab.tipo_vinculo === 'voluntariado' ? 'voluntariado' : 'practicas';
+  const h = (colab.horario_semanal||{})[dow];
+  return (h && h.vinc === 'voluntariado') ? 'voluntariado' : 'practicas';
+}
+/* Horas de una semana típica. Con `vinc` cuenta solo los días de ese vínculo;
+   sin él, cuenta todos (que es lo correcto para los no mixtos). */
+function horasSemanaTipica(colabLike, vinc){
   let total = 0;
   for(let dow=1; dow<=7; dow++){
     if(modDelDia(colabLike, dow)==='no_gestiona') continue;
+    if(vinc && vincDelDia(colabLike, dow)!==vinc) continue;
     const hd = (colabLike.horario_semanal||{})[dow] || {};
     total += horasEntre(hhmm(hd.ini || colabLike.hora_inicio), hhmm(hd.fin || colabLike.hora_fin));
   }
   return total;
 }
 async function cargarHorasCumplidas(){
-  HORAS_CUMPLIDAS = {};
+  HORAS_CUMPLIDAS = {}; HORAS_VOLUNT = {};
   if(!MIG3) return;
-  const { data, error } = await db.from('asis_registros').select('colaborador_id,horas,estado').in('estado',['P','T','J']);
+  const cols = 'colaborador_id,fecha,horas,estado' + (HAS_VINCULO ? ',vinculo' : '');
+  const { data, error } = await db.from('asis_registros').select(cols).in('estado',['P','T','J']);
   if(error) return;
-  (data||[]).forEach(r=>{ if(r.horas!=null) HORAS_CUMPLIDAS[r.colaborador_id] = (HORAS_CUMPLIDAS[r.colaborador_id]||0) + Number(r.horas); });
+  const porId = {}; COLABS.forEach(c=> porId[c.id]=c);
+  (data||[]).forEach(r=>{
+    if(r.horas==null) return;
+    const colab = porId[r.colaborador_id];
+    // Solo los mixtos reparten. En los demás todo va al contador principal,
+    // que para un voluntario puro ya son sus horas de voluntariado.
+    // El vínculo congelado manda; si el registro es anterior a la migración 4
+    // se reparte con el horario vigente hoy.
+    const v = esMixto(colab) ? (r.vinculo || vincDelDia(colab, isoDow(r.fecha))) : 'practicas';
+    const bolsa = v==='voluntariado' ? HORAS_VOLUNT : HORAS_CUMPLIDAS;
+    bolsa[r.colaborador_id] = (bolsa[r.colaborador_id]||0) + Number(r.horas);
+  });
 }
 function resumenContrato(colab){
   // horas registradas aquí + las que ya traía antes de usar el sistema
@@ -641,7 +666,9 @@ function resumenContrato(colab){
   const marcadas  = HORAS_CUMPLIDAS[colab.id] || 0;
   const cumplidas = previas + marcadas;
   const meta = colab.contrato_horas;
-  const semanaH = horasSemanaTipica(colab);
+  const mixto = esMixto(colab);
+  // en los mixtos la semana típica de prácticas excluye los días de voluntariado
+  const semanaH = horasSemanaTipica(colab, mixto ? 'practicas' : null);
   const hoy = fISO(new Date());
   const alertas = [];
   if(meta==null || meta<=0) alertas.push('Sin horas de contrato definidas');
@@ -659,7 +686,27 @@ function resumenContrato(colab){
   if(colab.contrato_fin_referencia && faltantes>0 && colab.contrato_fin_referencia < hoy){
     alertas.push('Venció la fecha del contrato y aún faltan horas');
   }
-  return { cumplidas, previas, marcadas, meta, faltantes, semanaH, fechaFin, alertas };
+  // Bloque paralelo de voluntariado: solo existe en los mixtos, con su propia
+  // meta y su propia proyección (es lo que sustenta la Constancia de Voluntariado).
+  let vol = null;
+  if(mixto){
+    const vCumplidas = HORAS_VOLUNT[colab.id] || 0;
+    const vMeta = colab.contrato_horas_voluntariado;
+    const vSemanaH = horasSemanaTipica(colab, 'voluntariado');
+    let vFaltantes = null, vFechaFin = null;
+    if(vMeta!=null && vMeta>0){
+      vFaltantes = Math.max(0, vMeta - vCumplidas);
+      if(vCumplidas > vMeta) alertas.push('Ya superó las horas de voluntariado');
+      if(vFaltantes>0 && vSemanaH>0){
+        const f = new Date(); f.setDate(f.getDate()+Math.ceil(vFaltantes/vSemanaH*7));
+        vFechaFin = fISO(f);
+      } else if(vFaltantes<=0){ vFechaFin = 'Completado'; }
+    }
+    if(vSemanaH<=0) alertas.push('Es mixto pero no tiene ningún día marcado como voluntariado');
+    if(vMeta==null || vMeta<=0) alertas.push('Sin horas de voluntariado definidas');
+    vol = { cumplidas:vCumplidas, meta:vMeta, faltantes:vFaltantes, semanaH:vSemanaH, fechaFin:vFechaFin };
+  }
+  return { cumplidas, previas, marcadas, meta, faltantes, semanaH, fechaFin, alertas, mixto, vol };
 }
 
 /* ════════════════════ AUTENTICACIÓN ════════════════════ */
@@ -731,10 +778,12 @@ async function cargarBase(){
   ]);
   PERFILES = {}; (perfs||[]).forEach(p=>PERFILES[p.id]=p.nombre);
   AREAS = areas||[];
-  COLABS = (colabs||[]).map(c=>({ ...c, dias_laborables: c.dias_laborables||[], horario_semanal: c.horario_semanal||{} }));
-  // ¿ya se ejecutó la migración 3? (si la columna no existe, el módulo sigue
-  // funcionando: solo se ocultan las proyecciones de contrato)
-  MIG3 = COLABS.length>0 && Object.prototype.hasOwnProperty.call(COLABS[0], 'contrato_inicio');
+  MIG3 = colabs && colabs.length > 0 && Object.prototype.hasOwnProperty.call(colabs[0], 'contrato_inicio');
+  HAS_VINCULO = colabs && colabs.length > 0 && Object.prototype.hasOwnProperty.call(colabs[0], 'tipo_vinculo');
+  COLABS = (colabs||[]).map(c=>({ ...c,
+    tipo_vinculo: (HAS_VINCULO && c.tipo_vinculo) ? c.tipo_vinculo : 'practicas',
+    dias_laborables: c.dias_laborables||[], horario_semanal: c.horario_semanal||{} }));
+
   const sel = $('filtro-area'); const prev = sel.value;
   sel.innerHTML = '<option value="">Todas las áreas</option>' + AREAS.map(a=>`<option value="${a.id}">${esc(a.nombre)}</option>`).join('');
   sel.value = prev;
@@ -1122,7 +1171,7 @@ async function renderInicio(){
         <div class="ci-head">
           <div class="ci-ava">${avatarSVG(c.nombre)}</div>
           <div class="ci-info">
-            <b>${esc(nombreCorto(c.nombre))}</b>
+            <b>${esc(nombreCorto(c.nombre))}${badgeVinculo(c)}</b>
             ${areaNom ? `<small>${esc(areaNom)}</small>` : ''}
           </div>
           <span class="ci-badge-pct ${done?'pb-done':(venc?'pb-warn':'pb-ok')}">${pct}%</span>
@@ -1484,10 +1533,18 @@ function renderGrilla(){
   h += '</tbody></table>';
   $('grid-scroll').innerHTML = h;
 }
+/* Distintivo de vínculo. Los de prácticas no llevan nada (son la mayoría). */
+function badgeVinculo(c){
+  const v = c && c.tipo_vinculo;
+  if(v==='voluntariado') return ' <span class="tag-vol">Voluntariado</span>';
+  if(v==='ambos')        return ' <span class="tag-vol mixto">Prácticas + Voluntariado</span>';
+  return '';
+}
 function nameCell(c){
   const off = c.activo ? '' : ' <span class="tag-off">inactivo</span>';
+  const vol = badgeVinculo(c);
   const edit = puedeEditar() ? `<button class="c-edit" data-edit="${c.id}" title="Editar" aria-label="Editar">✎</button>` : '';
-  return `<div class="nm-wrap"><div class="nm" data-c="${c.id}" style="cursor:pointer;" title="Ver ficha de ${esc(c.nombre)}"><span class="lav-sm">${avatarSVG(c.nombre)}</span><span class="nm-t">${esc(c.nombre)}${off}</span></div>${edit}</div>`;
+  return `<div class="nm-wrap"><div class="nm" data-c="${c.id}" style="cursor:pointer;" title="Ver ficha de ${esc(c.nombre)}"><span class="lav-sm">${avatarSVG(c.nombre)}</span><span class="nm-t">${esc(c.nombre)}${vol}${off}</span></div>${edit}</div>`;
 }
 function celda(c, fecha, hoy){
   const dd = estadoDia(c, fecha);
@@ -1582,7 +1639,7 @@ function renderHorarios(){
         <div class="ecard-h">
           <span class="lav">${avatarSVG(c.nombre)}</span>
           <div class="ecard-n">
-            <b>${esc(c.nombre)}${c.activo?'':' <span class="tag-off">de baja</span>'}</b>
+            <b>${esc(c.nombre)}${badgeVinculo(c)}${c.activo?'':' <span class="tag-off">de baja</span>'}</b>
             <small>${jornada}${semanaH>0?` · ${semanaH.toFixed(0)} h/semana`:''}</small>
           </div>
           ${acciones}
@@ -1723,6 +1780,9 @@ async function setEstado(colabId, fecha, estado){
   const payload = { colaborador_id:Number(colabId), fecha, estado, marcado_por:PERFIL.id, marcado_at:new Date().toISOString() };
   // las horas quedan congeladas con el horario vigente hoy (solo si existe la columna)
   if(MIG3 && colab) payload.horas = estado==='NG' ? 0 : duracionHorasDia(colab, fecha);
+  // el vínculo también se congela: si el día pasa de prácticas a voluntariado
+  // (o al revés), las horas ya marcadas se quedan donde se contaron
+  if(HAS_VINCULO && colab) payload.vinculo = vincDelDia(colab, isoDow(fecha));
   const { error } = await db.from('asis_registros').upsert(payload, { onConflict:'colaborador_id,fecha' });
   if(error){ toast('No se pudo guardar: '+error.message, true); return; }
   REG[colabId+'|'+fecha] = { estado, nota:(REG[colabId+'|'+fecha]||{}).nota||null, marcado_por:PERFIL.id };
@@ -2073,6 +2133,7 @@ async function modalColab(existente){
     const mopts = [['no_gestiona','No gestiona'],['virtual','Virtual'],['presencial','Presencial'],['opcional','Opcional']]
       .map(([v,l])=>`<option value="${v}" ${mod===v?'selected':''}>${l}</option>`).join('');
     const off = mod==='no_gestiona' ? 'disabled' : '';
+    const vd = d.vinc === 'voluntariado' ? 'voluntariado' : 'practicas';
     return `<div class="hs-day-card" data-dow="${iso}">
       <div class="hs-card-head">
         <span class="hs-d-badge">${lbl}</span>
@@ -2107,50 +2168,49 @@ async function modalColab(existente){
           </div>
         </div>
       </div>
+      <div class="hs-vinc-row">
+        <span>Cuenta como</span>
+        <select class="hs-vinc" ${off}>
+          <option value="practicas" ${vd==='practicas'?'selected':''}>🎓 Prácticas</option>
+          <option value="voluntariado" ${vd==='voluntariado'?'selected':''}>🤝 Voluntariado</option>
+        </select>
+      </div>
     </div>`;
   }).join('');
 
   abrirModal(existente?'Editar colaborador':'Nuevo colaborador', `
-    <div class="fld"><span>Área</span>
-      <div class="custom-select" id="cs-area-wrap">
-        <button type="button" class="cs-trigger" id="cs-area-trigger">
-          <span id="cs-area-val">${esc(selAreaObj ? selAreaObj.nombre : 'Seleccionar área')}</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        </button>
-        <div class="cs-options" id="cs-area-options" hidden>
-          ${areaItemsHTML}
-        </div>
-        <select id="m-c-area" hidden>${opts}</select>
-      </div>
+    <div class="modal-note" style="margin-bottom:18px;background:linear-gradient(135deg,#eff6ff,#e0e7ff);border:1px solid #c7d2fe;color:#1e3a8a;">
+      <strong style="display:block;margin-bottom:3px;font-size:13px;color:#1e40af;">💡 4 Datos Clave del Contrato a Registrar:</strong>
+      <span style="display:block;font-size:12px;line-height:1.5;">1. <b>Fechas de vigencia</b> · 2. <b>Meta de horas</b> · 3. <b>Horas previas</b> · 4. <b>Horario y modalidad</b></span>
     </div>
-    <label class="fld">Nombre completo<input id="m-c-nom" value="${esc(c.nombre)}" maxlength="80" placeholder="Ej. Juan Pérez"></label>
+
+    <div class="fld-grid-2">
+      <div class="fld"><span>Área</span>
+        <div class="custom-select" id="cs-area-wrap">
+          <button type="button" class="cs-trigger" id="cs-area-trigger">
+            <span id="cs-area-val">${esc(selAreaObj ? selAreaObj.nombre : 'Seleccionar área')}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="cs-options" id="cs-area-options" hidden>
+            ${areaItemsHTML}
+          </div>
+          <select id="m-c-area" hidden>${opts}</select>
+        </div>
+      </div>
+      <label class="fld">Nombre completo<input id="m-c-nom" value="${esc(c.nombre)}" maxlength="80" placeholder="Ej. Juan Pérez"></label>
+    </div>
     <div class="fld-grid-2">
       <label class="fld">DNI (opcional)<input id="m-c-dni" value="${esc(c.dni||'')}" maxlength="15" placeholder="8 dígitos"></label>
-      <label class="fld">Horas de contrato<input id="m-c-horas" type="number" min="0" step="1" value="${c.contrato_horas??''}" placeholder="Ej. 500"></label>
-    </div>
-    ${MIG3?`<label class="fld">Horas ya cumplidas antes de usar el sistema
-      <small class="hs-hint">Si empezó sus prácticas antes de registrar aquí, anota las horas que ya traía. Se suman a las que se vayan marcando.</small>
-      <input id="m-c-hprev" type="number" min="0" step="1" value="${c.horas_previas??''}" placeholder="Ej. 416 · deja vacío si empieza ahora"></label>`:''}
-    <div class="fld-grid-2">
-      <label class="fld">Hora inicio (general)
-        <div class="time-step-wrap">
-          <input id="m-c-ini" type="time" class="time-step-inp" value="${gIni}">
-          <div class="time-step-btns">
-            <button type="button" class="t-btn-up" title="+30 min">▲</button>
-            <button type="button" class="t-btn-dn" title="-30 min">▼</button>
-          </div>
-        </div>
-      </label>
-      <label class="fld">Hora fin (general)
-        <div class="time-step-wrap">
-          <input id="m-c-fin" type="time" class="time-step-inp" value="${gFin}">
-          <div class="time-step-btns">
-            <button type="button" class="t-btn-up" title="+30 min">▲</button>
-            <button type="button" class="t-btn-dn" title="-30 min">▼</button>
-          </div>
-        </div>
+      <label class="fld">Tipo de Vínculo
+        <select id="m-c-vinculo" style="margin-top:6px;">
+          <option value="practicas" ${(c.tipo_vinculo||'practicas')==='practicas'?'selected':''}>🎓 Prácticas Preprofesionales</option>
+          <option value="voluntariado" ${c.tipo_vinculo==='voluntariado'?'selected':''}>🤝 Voluntariado Institucional</option>
+          <option value="ambos" ${c.tipo_vinculo==='ambos'?'selected':''}>🎓🤝 Ambos (prácticas + voluntariado)</option>
+        </select>
       </label>
     </div>
+
+    <div class="m-sect-title"><span>1. Fechas de Vigencia</span></div>
     ${MIG3?`<div class="fld-grid-2">
       <div class="fld"><span>Inicio de contrato</span>
         <div class="cs-date-wrap" id="cs-cini-wrap">
@@ -2173,8 +2233,43 @@ async function modalColab(existente){
         </div>
       </div>
     </div>`:''}
-    <div class="fld">Horario semanal <small class="hs-hint">Modalidad y horas por día. Si la hora es igual a la general, no hace falta cambiarla.</small>
-      <div class="hs-cards-grid">
+
+    <div class="m-sect-title"><span>2. Meta de Horas & 3. Horas Previas</span></div>
+    <div class="fld-grid-2">
+      <label class="fld">Meta de horas (Contrato)<input id="m-c-horas" type="number" min="0" step="1" value="${c.contrato_horas??''}" placeholder="Ej. 500"></label>
+      ${MIG3?`<label class="fld">Horas previas (si aplica)
+        <small class="hs-hint">Horas ya cumplidas antes del sistema.</small>
+        <input id="m-c-hprev" type="number" min="0" step="1" value="${c.horas_previas??''}" placeholder="Ej. 120 · 0 si empieza hoy"></label>`:''}
+    </div>
+    <label class="fld" id="fld-horas-vol" ${c.tipo_vinculo==='ambos'?'':'hidden'}>Meta de horas de voluntariado
+      <small class="hs-hint">Se cuenta aparte de la meta de prácticas: es la que sustenta la Constancia de Voluntariado.</small>
+      <input id="m-c-horas-vol" type="number" min="0" step="1" value="${c.contrato_horas_voluntariado??''}" placeholder="Ej. 120">
+    </label>
+
+    <div class="m-sect-title"><span>4. Horario y Modalidad</span></div>
+    <div class="fld-grid-2">
+      <label class="fld">Hora inicio (general)
+        <div class="time-step-wrap">
+          <input id="m-c-ini" type="time" class="time-step-inp" value="${gIni}">
+          <div class="time-step-btns">
+            <button type="button" class="t-btn-up" title="+30 min">▲</button>
+            <button type="button" class="t-btn-dn" title="-30 min">▼</button>
+          </div>
+        </div>
+      </label>
+      <label class="fld">Hora fin (general)
+        <div class="time-step-wrap">
+          <input id="m-c-fin" type="time" class="time-step-inp" value="${gFin}">
+          <div class="time-step-btns">
+            <button type="button" class="t-btn-up" title="+30 min">▲</button>
+            <button type="button" class="t-btn-dn" title="-30 min">▼</button>
+          </div>
+        </div>
+      </label>
+    </div>
+    <div class="fld">Días laborables y modalidad por día
+      <small class="hs-hint" id="hs-hint-mixto" ${c.tipo_vinculo==='ambos'?'':'hidden'}>Marca cada día como prácticas o voluntariado: de ahí salen los dos contadores de horas.</small>
+      <div class="hs-cards-grid${c.tipo_vinculo==='ambos'?' mixto':''}" id="hs-grid">
         ${filas}
       </div>
     </div>
@@ -2269,6 +2364,17 @@ async function modalColab(existente){
     };
   });
 
+  /* El vínculo por día y la meta de voluntariado solo tienen sentido en los
+     mixtos: se muestran u ocultan según el tipo de vínculo elegido. */
+  const aplicarMixto = ()=>{
+    const mix = $('m-c-vinculo').value === 'ambos';
+    $('hs-grid').classList.toggle('mixto', mix);
+    const hint = $('hs-hint-mixto'), fldVol = $('fld-horas-vol');
+    if(hint) hint.hidden = !mix;
+    if(fldVol) fldVol.hidden = !mix;
+  };
+  $('m-c-vinculo').addEventListener('change', aplicarMixto);
+
   if(MIG3){
     initCustomDatePicker('cs-cini-wrap', 'cs-cini-trigger', 'cs-cini-pop', 'cs-cini-val', 'm-c-cini');
     initCustomDatePicker('cs-cfin-wrap', 'cs-cfin-trigger', 'cs-cfin-pop', 'cs-cfin-val', 'm-c-cfin');
@@ -2303,13 +2409,24 @@ async function modalColab(existente){
 
   if(existente && MIG3){
     const r = resumenContrato(existente);
+    // en los mixtos el resumen se parte en dos bloques, uno por documento
+    const volHTML = (v)=>{
+      if(!v) return '';
+      return `<div class="cr-sep">🤝 Voluntariado</div>
+        <div class="cr-row"><span>Horas cumplidas</span><b>${v.cumplidas.toFixed(1)} h</b></div>
+        <div class="cr-row"><span>Horas de voluntariado</span><b>${v.meta ?? '—'}</b></div>
+        <div class="cr-row"><span>Horas por semana</span><b>${v.semanaH.toFixed(1)} h</b></div>
+        <div class="cr-row"><span>Termina (según sus horas)</span><b>${v.fechaFin==='Completado'?'Completado':(v.fechaFin?fmtFechaCorta(v.fechaFin):'—')}</b></div>`;
+    };
     $('m-c-resumen').innerHTML = `
+      <div class="cr-sep" id="cr-sep-prac" ${r.mixto?'':'hidden'}>🎓 Prácticas</div>
       <div class="cr-row"><span>Horas cumplidas</span><b>${r.cumplidas.toFixed(1)} h</b></div>
       ${r.previas>0?`<div class="cr-row sub"><span>· previas + registradas aquí</span><b>${r.previas.toFixed(0)} + ${r.marcadas.toFixed(1)} h</b></div>`:''}
       <div class="cr-row"><span>Horas de contrato</span><b>${r.meta ?? '—'}</b></div>
       <div class="cr-row"><span>Horas por semana (horario actual)</span><b id="cr-semana">${r.semanaH.toFixed(1)} h</b></div>
       <div class="cr-row"><span>Termina (según sus horas)</span><b id="cr-fin">${r.fechaFin==='Completado'?'Completado':(r.fechaFin?fmtFechaCorta(r.fechaFin):'—')}</b></div>
       <div class="cr-row"><span>Fecha del contrato</span><b>${existente.contrato_fin_referencia?fmtFechaCorta(existente.contrato_fin_referencia):'—'}</b></div>
+      <div id="cr-vol">${volHTML(r.vol)}</div>
       <div class="cr-ref-box" id="cr-ref" hidden></div>
       <div class="cr-cambio" id="cr-cambio" hidden></div>
       ${r.alertas.length?`<div class="cr-alerts">${r.alertas.map(a=>'⚠ '+esc(a)).join('<br>')}</div>`:''}`;
@@ -2318,6 +2435,7 @@ async function modalColab(existente){
        se muestra cuánto se adelanta o se atrasa el término. */
     const recalcular = ()=>{
       const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
+      const vinc = $('m-c-vinculo').value;
       const hsTmp = {};
       document.querySelectorAll('.hs-day-card').forEach(row=>{
         const mod = row.querySelector('.hs-mod').value; if(mod==='no_gestiona') return;
@@ -2325,14 +2443,18 @@ async function modalColab(existente){
         const i = row.querySelector('.hs-ini').value, f = row.querySelector('.hs-fin').value;
         if(i && i!==gi) o.ini = i;
         if(f && f!==gf) o.fin = f;
+        if(vinc==='ambos' && row.querySelector('.hs-vinc')?.value==='voluntariado') o.vinc = 'voluntariado';
         hsTmp[row.dataset.dow] = o;
       });
-      const sim = { ...existente, horario_semanal:hsTmp, hora_inicio:gi, hora_fin:gf,
+      const sim = { ...existente, horario_semanal:hsTmp, hora_inicio:gi, hora_fin:gf, tipo_vinculo:vinc,
         contrato_horas: $('m-c-horas').value!=='' ? Number($('m-c-horas').value) : null,
+        contrato_horas_voluntariado: $('m-c-horas-vol') && $('m-c-horas-vol').value!=='' ? Number($('m-c-horas-vol').value) : null,
         horas_previas:  $('m-c-hprev') && $('m-c-hprev').value!=='' ? Number($('m-c-hprev').value) : 0 };
       const n = resumenContrato(sim);
       $('cr-semana').textContent = n.semanaH.toFixed(1)+' h';
       $('cr-fin').textContent = n.fechaFin==='Completado' ? 'Completado' : (n.fechaFin ? fmtFechaCorta(n.fechaFin) : '—');
+      $('cr-sep-prac').hidden = !n.mixto;
+      $('cr-vol').innerHTML = volHTML(n.vol);
       // comparación contra la fecha del papel
       const refBox = $('cr-ref');
       const cmp = compararConContrato({ contrato_fin_referencia: $('m-c-cfin')?.value || null }, n.fechaFin);
@@ -2352,8 +2474,9 @@ async function modalColab(existente){
                               : `Termina ${-d} día${-d===1?'':'s'} después que con el horario actual`;
       } else box.hidden = true;
     };
-    document.querySelectorAll('.hs-mod,.hs-ini,.hs-fin').forEach(el=> el.addEventListener('change', recalcular));
-    ['m-c-ini','m-c-fin','m-c-horas','m-c-hprev','m-c-cfin'].forEach(id=> $(id) && $(id).addEventListener('input', recalcular));
+    document.querySelectorAll('.hs-mod,.hs-ini,.hs-fin,.hs-vinc').forEach(el=> el.addEventListener('change', recalcular));
+    ['m-c-ini','m-c-fin','m-c-horas','m-c-hprev','m-c-horas-vol','m-c-cfin'].forEach(id=> $(id) && $(id).addEventListener('input', recalcular));
+    $('m-c-vinculo').addEventListener('change', recalcular);
     recalcular();   // pinta la comparación en cuanto se abre
     $('m-c-hist-toggle').onclick = async ()=>{
       const box = $('m-c-hist');
@@ -2369,6 +2492,7 @@ async function modalColab(existente){
   $('m-c-save').onclick = async ()=>{
     const nombre = $('m-c-nom').value.trim(); if(!nombre) return toast('Escribe el nombre', true);
     const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
+    const vinculo = $('m-c-vinculo')?.value || 'practicas';
     const hsNew = {};
     document.querySelectorAll('.hs-day-card').forEach(r=>{
       const mod = r.querySelector('.hs-mod').value; if(mod==='no_gestiona') return;
@@ -2376,6 +2500,8 @@ async function modalColab(existente){
       const i = r.querySelector('.hs-ini').value, f = r.querySelector('.hs-fin').value;
       if(i && i!==gi) o.ini = i;
       if(f && f!==gf) o.fin = f;
+      // el vínculo por día solo se guarda en los mixtos; en el resto sobra
+      if(vinculo==='ambos' && r.querySelector('.hs-vinc')?.value==='voluntariado') o.vinc = 'voluntariado';
       hsNew[r.dataset.dow] = o;
     });
     const horasNuevas = $('m-c-horas').value!=='' ? Number($('m-c-horas').value) : null;
@@ -2387,6 +2513,17 @@ async function modalColab(existente){
       horario_semanal: hsNew,
       dias_laborables: Object.keys(hsNew).map(Number).sort((a,b)=>a-b),
     };
+    // Los campos de la migración 4 solo se envían si ya fue aplicada en Supabase.
+    // Si no, el vínculo queda solo en memoria para esta sesión (el badge se ve,
+    // pero no se persiste ni se separan las horas).
+    if(HAS_VINCULO){
+      payload.tipo_vinculo = vinculo;
+      payload.contrato_horas_voluntariado = (vinculo==='ambos' && $('m-c-horas-vol')?.value!=='')
+        ? Number($('m-c-horas-vol').value) : null;
+    } else {
+      const idx = COLABS.findIndex(x=>String(x.id)===String(existente?.id));
+      if(idx>=0) COLABS[idx].tipo_vinculo = vinculo;
+    }
     if(MIG3){
       payload.contrato_inicio = $('m-c-cini')?.value || null;
       payload.contrato_fin_referencia = $('m-c-cfin')?.value || null;
