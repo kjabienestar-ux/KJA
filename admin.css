@@ -478,6 +478,9 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
   overflow-y:auto;overscroll-behavior:contain;}
 .modal-overlay.open{opacity:1;visibility:visible;}
 body.modal-abierto{overflow:hidden;}   /* el fondo no se desplaza con una ventana abierta */
+/* Los botones flotantes tapaban el pie de las ventanas en el móvil */
+body.modal-abierto .accessibility-fab,
+body.modal-abierto .whatsapp-widget{opacity:0;visibility:hidden;pointer-events:none;transition:.2s;}
 .modal-box{background:#fff;border-radius:16px;padding:18px;max-width:920px;width:100%;max-height:92vh;max-height:92dvh;overflow:auto;overscroll-behavior:contain;
   box-shadow:0 30px 80px rgba(0,0,0,.4);transform:translateY(16px) scale(.97);transition:.25s cubic-bezier(.22,.61,.36,1);position:relative;}
 .modal-overlay.open .modal-box{transform:none;}
