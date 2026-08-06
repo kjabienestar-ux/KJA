@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=10">
+<link rel="stylesheet" href="asistencia.css?v=14">
 </head>
 <body>
 
@@ -437,6 +437,7 @@ let YEAR, MONTH;                // MONTH 0-11
 let MODO = 'inicio';
 let MIG3 = false;               // ¿está aplicada la migración 3 (contratos)?
 let HAS_VINCULO = false;        // ¿está agregada la columna tipo_vinculo en la BD?
+let HAS_PEND = false;           // ¿está aplicada la migración 5 (contrato pendiente)?
 const puedeEditar = () => PERFIL.rol === 'editor' || PERFIL.rol === 'direccion';
 const esDireccion = () => PERFIL.rol === 'direccion';
 
@@ -459,6 +460,9 @@ function stepTimeInp(input, minutes){
 function initCustomDatePicker(wrapId, triggerId, popId, valId, hiddenInpId){
   const wrap = $(wrapId), trig = $(triggerId), pop = $(popId), valSpan = $(valId), hiddenInp = $(hiddenInpId);
   if(!wrap || !trig || !pop || !hiddenInp) return;
+  /* El input real es hidden y se escribe por código, así que hay que avisar a
+     mano: sin esto, quien escuche 'input'/'change' nunca se entera del cambio. */
+  const avisarCambio = ()=> hiddenInp.dispatchEvent(new Event('change', { bubbles:true }));
 
   let currentIso = hiddenInp.value || fISO(new Date());
   let viewYear = parseInt(currentIso.slice(0,4), 10) || new Date().getFullYear();
@@ -518,12 +522,14 @@ function initCustomDatePicker(wrapId, triggerId, popId, valId, hiddenInpId){
       hiddenInp.value = today;
       valSpan.textContent = fmtFechaCorta(today);
       pop.hidden = true;
+      avisarCambio();
     };
     pop.querySelector('.cs-dp-clear').onclick = (e) => {
       e.stopPropagation();
       hiddenInp.value = '';
       valSpan.textContent = 'Seleccionar fecha';
       pop.hidden = true;
+      avisarCambio();
     };
 
     grid.querySelectorAll('.eq-dp-day:not(.d-other)').forEach(btn => {
@@ -533,6 +539,7 @@ function initCustomDatePicker(wrapId, triggerId, popId, valId, hiddenInpId){
         hiddenInp.value = f;
         valSpan.textContent = fmtFechaCorta(f);
         pop.hidden = true;
+        avisarCambio();
       };
     });
   }
@@ -641,12 +648,37 @@ function horasSemanaTipica(colabLike, vinc){
   }
   return total;
 }
+/* ⚠ Los totales se arman en objetos LOCALES y recién al final se publican en
+   las globales. Antes se limpiaba la global y se iba sumando sobre ella: si dos
+   llamadas se solapaban (navegar entre secciones antes de que respondiera la
+   anterior) ambas limpiaban primero y después sumaban las dos, así que las
+   horas salían multiplicadas por el número de llamadas en vuelo. */
+/* Horas que suman las fechas de un contrato con el horario configurado.
+   Recorre día por día el rango real (no multiplica semanas), así los meses
+   desparejos y los días sueltos del final quedan bien contados.
+   Sirve para los contratos que no dicen las horas totales: se deducen de
+   "desde tal fecha hasta tal fecha, con este horario".
+   Ojo: no descuenta feriados ni permisos — es el total de la programación. */
+function horasEntreFechas(colabLike, desde, hasta, vinc){
+  if(!desde || !hasta || hasta < desde) return null;
+  const fin = new Date(hasta+'T00:00:00');
+  let total = 0, d = new Date(desde+'T00:00:00'), tope = 0;
+  while(d <= fin && tope++ < 3700){          // ~10 años de guarda
+    const dow = (d.getDay()===0) ? 7 : d.getDay();
+    if(modDelDia(colabLike, dow)!=='no_gestiona' && (!vinc || vincDelDia(colabLike, dow)===vinc)){
+      const hd = (colabLike.horario_semanal||{})[dow] || {};
+      total += horasEntre(hhmm(hd.ini || colabLike.hora_inicio), hhmm(hd.fin || colabLike.hora_fin));
+    }
+    d.setDate(d.getDate()+1);
+  }
+  return total;
+}
 async function cargarHorasCumplidas(){
-  HORAS_CUMPLIDAS = {}; HORAS_VOLUNT = {};
-  if(!MIG3) return;
+  if(!MIG3){ HORAS_CUMPLIDAS = {}; HORAS_VOLUNT = {}; return; }
   const cols = 'colaborador_id,fecha,horas,estado' + (HAS_VINCULO ? ',vinculo' : '');
   const { data, error } = await db.from('asis_registros').select(cols).in('estado',['P','T','J']);
   if(error) return;
+  const prac = {}, volunt = {};
   const porId = {}; COLABS.forEach(c=> porId[c.id]=c);
   (data||[]).forEach(r=>{
     if(r.horas==null) return;
@@ -656,9 +688,10 @@ async function cargarHorasCumplidas(){
     // El vínculo congelado manda; si el registro es anterior a la migración 4
     // se reparte con el horario vigente hoy.
     const v = esMixto(colab) ? (r.vinculo || vincDelDia(colab, isoDow(r.fecha))) : 'practicas';
-    const bolsa = v==='voluntariado' ? HORAS_VOLUNT : HORAS_CUMPLIDAS;
+    const bolsa = v==='voluntariado' ? volunt : prac;
     bolsa[r.colaborador_id] = (bolsa[r.colaborador_id]||0) + Number(r.horas);
   });
+  HORAS_CUMPLIDAS = prac; HORAS_VOLUNT = volunt;
 }
 function resumenContrato(colab){
   // horas registradas aquí + las que ya traía antes de usar el sistema
@@ -670,20 +703,26 @@ function resumenContrato(colab){
   // en los mixtos la semana típica de prácticas excluye los días de voluntariado
   const semanaH = horasSemanaTipica(colab, mixto ? 'practicas' : null);
   const hoy = fISO(new Date());
+  // Contrato marcado como pendiente: los datos son provisionales, así que no
+  // tiene sentido reclamar los que faltan ni tratar el término como firme.
+  const pendiente = !!colab.contrato_pendiente;
+  const nota = (colab.contrato_nota||'').trim();
   const alertas = [];
-  if(meta==null || meta<=0) alertas.push('Sin horas de contrato definidas');
-  if(!colab.contrato_inicio) alertas.push('Sin fecha de inicio de contrato');
-  if(semanaH<=0) alertas.push('Sin horario activo esta semana');
+  if(!pendiente){
+    if(meta==null || meta<=0) alertas.push('Sin horas de contrato definidas');
+    if(!colab.contrato_inicio) alertas.push('Sin fecha de inicio de contrato');
+    if(semanaH<=0) alertas.push('Sin horario activo esta semana');
+  }
   let faltantes=null, fechaFin=null;
   if(meta!=null && meta>0){
     faltantes = Math.max(0, meta - cumplidas);
-    if(cumplidas > meta) alertas.push('Ya superó las horas de contrato');
+    if(cumplidas > meta && !pendiente) alertas.push('Ya superó las horas de contrato');
     if(faltantes>0 && semanaH>0){
       const f = new Date(); f.setDate(f.getDate()+Math.ceil(faltantes/semanaH*7));
       fechaFin = fISO(f);
     } else if(faltantes<=0){ fechaFin = 'Completado'; }
   }
-  if(colab.contrato_fin_referencia && faltantes>0 && colab.contrato_fin_referencia < hoy){
+  if(!pendiente && colab.contrato_fin_referencia && faltantes>0 && colab.contrato_fin_referencia < hoy){
     alertas.push('Venció la fecha del contrato y aún faltan horas');
   }
   // Bloque paralelo de voluntariado: solo existe en los mixtos, con su propia
@@ -696,17 +735,99 @@ function resumenContrato(colab){
     let vFaltantes = null, vFechaFin = null;
     if(vMeta!=null && vMeta>0){
       vFaltantes = Math.max(0, vMeta - vCumplidas);
-      if(vCumplidas > vMeta) alertas.push('Ya superó las horas de voluntariado');
+      if(vCumplidas > vMeta && !pendiente) alertas.push('Ya superó las horas de voluntariado');
       if(vFaltantes>0 && vSemanaH>0){
         const f = new Date(); f.setDate(f.getDate()+Math.ceil(vFaltantes/vSemanaH*7));
         vFechaFin = fISO(f);
       } else if(vFaltantes<=0){ vFechaFin = 'Completado'; }
     }
-    if(vSemanaH<=0) alertas.push('Es mixto pero no tiene ningún día marcado como voluntariado');
-    if(vMeta==null || vMeta<=0) alertas.push('Sin horas de voluntariado definidas');
+    if(!pendiente){
+      if(vSemanaH<=0) alertas.push('Es mixto pero no tiene ningún día marcado como voluntariado');
+      if(vMeta==null || vMeta<=0) alertas.push('Sin horas de voluntariado definidas');
+    }
     vol = { cumplidas:vCumplidas, meta:vMeta, faltantes:vFaltantes, semanaH:vSemanaH, fechaFin:vFechaFin };
   }
-  return { cumplidas, previas, marcadas, meta, faltantes, semanaH, fechaFin, alertas, mixto, vol };
+  return { cumplidas, previas, marcadas, meta, faltantes, semanaH, fechaFin, alertas, mixto, vol, pendiente, nota };
+}
+const CR_ICO_DOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>';
+const CR_ICO_WARN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+function fmtFinContrato(f){ return f==='Completado' ? 'Completado' : (f ? fmtFechaCorta(f) : '—'); }
+function htmlVolBlock(v){
+  if(!v) return '';
+  return `<div class="cr-block cr-block-vol">
+    <div class="cr-sep">Voluntariado</div>
+    <div class="cr-stats">
+      <div class="cr-stat"><span class="cr-stat-lbl">Horas cumplidas</span><span class="cr-stat-val">${v.cumplidas.toFixed(1)} h</span></div>
+      <div class="cr-stat"><span class="cr-stat-lbl">Meta de horas</span><span class="cr-stat-val">${v.meta ?? '—'}</span></div>
+      <div class="cr-stat"><span class="cr-stat-lbl">Horas / semana</span><span class="cr-stat-val">${v.semanaH.toFixed(1)} h</span></div>
+      <div class="cr-stat"><span class="cr-stat-lbl">Término estimado</span><span class="cr-stat-val">${fmtFinContrato(v.fechaFin)}</span></div>
+    </div>
+  </div>`;
+}
+function htmlResumenContrato(r, colab){
+  const meta = r.meta;
+  const pct = meta > 0 ? Math.min(100, (r.cumplidas / meta) * 100) : 0;
+  const progSub = meta > 0
+    ? `${r.cumplidas.toFixed(1)} / ${meta} h${r.faltantes > 0 ? ` · faltan ${r.faltantes.toFixed(1)} h` : (r.faltantes === 0 ? ' · meta cumplida' : '')}`
+    : `${r.cumplidas.toFixed(1)} h registradas`;
+  return `
+    <div class="cr-head">
+      <span class="cr-head-icon">${CR_ICO_DOC}</span>
+      <div class="cr-head-text">
+        <strong>Seguimiento del contrato</strong>
+        <small>Proyección según el horario configurado</small>
+      </div>
+    </div>
+    <div class="cr-pend-banner" id="cr-pend"${r.pendiente ? '' : ' hidden'}>
+      <strong>Contrato pendiente de actualizar</strong>
+      <span id="cr-pend-nota">${r.nota ? esc(r.nota) : 'La proyección de término es provisional hasta confirmar horas y fechas.'}</span>
+    </div>
+    <div class="cr-progress-wrap" id="cr-progress"${meta > 0 ? '' : ' hidden'}>
+      <div class="cr-progress-meta">
+        <span>Avance del contrato</span>
+        <strong id="cr-progress-pct">${pct.toFixed(0)}%</strong>
+      </div>
+      <div class="cr-progress-track"><div class="cr-progress-fill" id="cr-progress-fill" style="width:${pct}%"></div></div>
+      <div class="cr-progress-sub" id="cr-progress-sub">${progSub}</div>
+    </div>
+    <div class="cr-block">
+      <div class="cr-sep" id="cr-sep-prac"${r.mixto ? '' : ' hidden'}>Prácticas</div>
+      <div class="cr-stats">
+        <div class="cr-stat cr-stat-main">
+          <span class="cr-stat-lbl">Horas cumplidas</span>
+          <span class="cr-stat-val">${r.cumplidas.toFixed(1)} h</span>
+          ${r.previas > 0 ? `<span class="cr-stat-sub">${r.previas.toFixed(0)} previas + ${r.marcadas.toFixed(1)} aquí</span>` : ''}
+        </div>
+        <div class="cr-stat"><span class="cr-stat-lbl">Meta de horas</span><span class="cr-stat-val" id="cr-meta">${meta ?? '—'}</span></div>
+        <div class="cr-stat"><span class="cr-stat-lbl">Horas / semana</span><span class="cr-stat-val" id="cr-semana">${r.semanaH.toFixed(1)} h</span></div>
+        <div class="cr-stat"><span class="cr-stat-lbl">Término estimado</span><span class="cr-stat-val" id="cr-fin">${fmtFinContrato(r.fechaFin)}</span></div>
+      </div>
+      <div class="cr-foot-row">
+        <span>Fecha del contrato (referencia)</span>
+        <b>${colab.contrato_fin_referencia ? fmtFechaCorta(colab.contrato_fin_referencia) : '—'}</b>
+      </div>
+    </div>
+    <div id="cr-vol">${htmlVolBlock(r.vol)}</div>
+    <div class="cr-ref-box" id="cr-ref" hidden></div>
+    <div class="cr-cambio" id="cr-cambio" hidden></div>
+    ${r.alertas.length ? `<div class="cr-alerts">${r.alertas.map(a => `<div class="cr-alert-item">${CR_ICO_WARN}<span>${esc(a)}</span></div>`).join('')}</div>` : ''}`;
+}
+function actualizarProgresoResumen(r){
+  const wrap = $('cr-progress'), fill = $('cr-progress-fill'), pctEl = $('cr-progress-pct'), sub = $('cr-progress-sub'), metaEl = $('cr-meta');
+  if(metaEl) metaEl.textContent = r.meta ?? '—';
+  const pend = $('cr-pend');
+  if(pend){
+    pend.hidden = !r.pendiente;
+    const n = $('cr-pend-nota');
+    if(n) n.textContent = r.nota || 'La proyección de término es provisional hasta confirmar horas y fechas.';
+  }
+  if(!wrap) return;
+  if(r.meta == null || r.meta <= 0){ wrap.hidden = true; return; }
+  wrap.hidden = false;
+  const pct = Math.min(100, (r.cumplidas / r.meta) * 100);
+  if(fill) fill.style.width = pct + '%';
+  if(pctEl) pctEl.textContent = pct.toFixed(0) + '%';
+  if(sub) sub.textContent = `${r.cumplidas.toFixed(1)} / ${r.meta} h${r.faltantes > 0 ? ` · faltan ${r.faltantes.toFixed(1)} h` : (r.faltantes === 0 ? ' · meta cumplida' : '')}`;
 }
 
 /* ════════════════════ AUTENTICACIÓN ════════════════════ */
@@ -780,6 +901,7 @@ async function cargarBase(){
   AREAS = areas||[];
   MIG3 = colabs && colabs.length > 0 && Object.prototype.hasOwnProperty.call(colabs[0], 'contrato_inicio');
   HAS_VINCULO = colabs && colabs.length > 0 && Object.prototype.hasOwnProperty.call(colabs[0], 'tipo_vinculo');
+  HAS_PEND    = colabs && colabs.length > 0 && Object.prototype.hasOwnProperty.call(colabs[0], 'contrato_pendiente');
   COLABS = (colabs||[]).map(c=>({ ...c,
     tipo_vinculo: (HAS_VINCULO && c.tipo_vinculo) ? c.tipo_vinculo : 'practicas',
     dias_laborables: c.dias_laborables||[], horario_semanal: c.horario_semanal||{} }));
@@ -1139,9 +1261,11 @@ async function renderInicio(){
   await cargarHorasCumplidas();
   const conFecha = [];   // tienen contrato y se les puede proyectar el término
   const vencidos = [];   // ya pasó su fecha y aún deben horas
-  let sinDatos = 0;
+  let sinDatos = 0, pendientes = 0;
   for(const c of COLABS.filter(x=>x.activo)){
     const r = resumenContrato(c);
+    // los pendientes salen del ranking: su proyección no es firme todavía
+    if(r.pendiente){ pendientes++; continue; }
     if(r.meta==null || r.meta<=0){ sinDatos++; continue; }
     if(r.fechaFin==='Completado'){ conFecha.push({c,r,orden:-1}); continue; }
     if(!r.fechaFin){ sinDatos++; continue; }          // sin horario activo: no se puede proyectar
@@ -1153,10 +1277,12 @@ async function renderInicio(){
   $('avisos-n').textContent = lista.length;
 
   let htm = '';
+  if(pendientes) htm += `<button type="button" class="sin-datos pend" id="ir-pendientes">
+      <span class="sd-n">${pendientes}</span> con contrato pendiente<i>Revisar →</i></button>`;
   if(sinDatos) htm += `<button type="button" class="sin-datos" id="ir-contratos">
       <span class="sd-n">${sinDatos}</span> sin datos de contrato<i>Completar →</i></button>`;
   if(!lista.length){
-    htm += sinDatos ? '' : `<p class="empty">Aún no hay contratos con horas definidas.</p>`;
+    htm += (sinDatos||pendientes) ? '' : `<p class="empty">Aún no hay contratos con horas definidas.</p>`;
   } else {
     htm += '<div class="cierres-list">' + lista.slice(0,6).map(({c,r,orden})=>{
       const pct = Math.min(100, Math.round(r.cumplidas/r.meta*100));
@@ -1190,6 +1316,8 @@ async function renderInicio(){
   box.innerHTML = htm;
   const ir = $('ir-contratos');
   if(ir) ir.onclick = ()=>{ MODO='contratos'; render(); };
+  const irP = $('ir-pendientes');
+  if(irP) irP.onclick = ()=>{ MODO='contratos'; render(); };
   box.querySelectorAll('.ci-card').forEach(card => {
     card.onclick = () => {
       const colabId = card.dataset.c;
@@ -1540,9 +1668,15 @@ function badgeVinculo(c){
   if(v==='ambos')        return ' <span class="tag-vol mixto">Prácticas + Voluntariado</span>';
   return '';
 }
+/* Aviso de que los datos del contrato todavía no son definitivos. */
+function badgePendiente(c){
+  if(!c || !c.contrato_pendiente) return '';
+  const t = (c.contrato_nota||'').trim();
+  return ` <span class="tag-pend"${t?` title="${esc(t)}"`:''}>Contrato pendiente</span>`;
+}
 function nameCell(c){
   const off = c.activo ? '' : ' <span class="tag-off">inactivo</span>';
-  const vol = badgeVinculo(c);
+  const vol = badgeVinculo(c) + badgePendiente(c);
   const edit = puedeEditar() ? `<button class="c-edit" data-edit="${c.id}" title="Editar" aria-label="Editar">✎</button>` : '';
   return `<div class="nm-wrap"><div class="nm" data-c="${c.id}" style="cursor:pointer;" title="Ver ficha de ${esc(c.nombre)}"><span class="lav-sm">${avatarSVG(c.nombre)}</span><span class="nm-t">${esc(c.nombre)}${vol}${off}</span></div>${edit}</div>`;
 }
@@ -1603,7 +1737,21 @@ function renderHorarios(){
         contrato = `<p class="ec-nomig">Activa el control de contratos para ver el avance.</p>`;
       } else {
         const r = resumenContrato(c);
-        if(r.meta==null || r.meta<=0){
+        if(r.pendiente){
+          contrato = `<div class="ec-pend-box">
+            <div class="ec-pend-top">
+              <span class="ec-pend-title">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Contrato pendiente de actualización
+              </span>
+              ${editable?`<button class="ec-pend-act" data-edit="${c.id}">
+                Actualizar
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              </button>`:''}
+            </div>
+            <p class="ec-pend-desc">${r.nota ? esc(r.nota) : 'Pendiente de confirmación de vigencia o meta de horas.'}</p>
+          </div>`;
+        } else if(r.meta==null || r.meta<=0){
           contrato = `<div class="ec-sin">Sin horas de contrato definidas${editable?` · <button class="lnk" data-edit="${c.id}">definir</button>`:''}</div>`;
         } else {
           const pct = Math.min(100, Math.round(r.cumplidas/r.meta*100));
@@ -1639,7 +1787,7 @@ function renderHorarios(){
         <div class="ecard-h">
           <span class="lav">${avatarSVG(c.nombre)}</span>
           <div class="ecard-n">
-            <b>${esc(c.nombre)}${badgeVinculo(c)}${c.activo?'':' <span class="tag-off">de baja</span>'}</b>
+            <b>${esc(c.nombre)}${badgeVinculo(c)}${badgePendiente(c)}${c.activo?'':' <span class="tag-off">de baja</span>'}</b>
             <small>${jornada}${semanaH>0?` · ${semanaH.toFixed(0)} h/semana`:''}</small>
           </div>
           ${acciones}
@@ -1730,11 +1878,15 @@ function renderContratos(){
     for(const c of lista){
       const r = resumenContrato(c);
       const pct = r.meta ? Math.min(100, Math.round(r.cumplidas/r.meta*100)) : 0;
-      const barCls = r.alertas.length ? 'pb-warn' : (pct>=100 ? 'pb-done' : 'pb-ok');
+      const barCls = r.pendiente ? 'pb-pend' : (r.alertas.length ? 'pb-warn' : (pct>=100 ? 'pb-done' : 'pb-ok'));
       const horasTxt = r.meta ? `${r.cumplidas.toFixed(1)} / ${r.meta} h` : `${r.cumplidas.toFixed(1)} h · sin meta`;
-      const finTxt = r.fechaFin==='Completado' ? '<b class="txt-ok">Completado</b>' : (r.fechaFin ? fmtFechaCorta(r.fechaFin) : '—');
-      const alertHtml = r.alertas.length ? `<span class="alert-badge" title="${esc(r.alertas.join(' · '))}">⚠ ${r.alertas.length}</span>` : '';
-      h += `<tr class="hrow${z++%2?' z':''}"><td class="c-name">${nameCell(c)}</td>
+      // en los pendientes la fecha proyectada no se presenta como firme
+      const finTxt = r.pendiente ? '<i class="txt-pend">Por definir</i>'
+                   : (r.fechaFin==='Completado' ? '<b class="txt-ok">Completado</b>' : (r.fechaFin ? fmtFechaCorta(r.fechaFin) : '—'));
+      const alertHtml = r.pendiente
+        ? `<span class="alert-badge pend"${r.nota?` title="${esc(r.nota)}"`:''}>Pendiente</span>`
+        : (r.alertas.length ? `<span class="alert-badge" title="${esc(r.alertas.join(' · '))}">⚠ ${r.alertas.length}</span>` : '');
+      h += `<tr class="hrow${z++%2?' z':''}${r.pendiente?' pend':''}"><td class="c-name">${nameCell(c)}</td>
         <td class="c-hor">${c.contrato_inicio?fmtFechaCorta(c.contrato_inicio):'—'}</td>
         <td class="pb-cell"><div class="pbar"><div class="pbar-f ${barCls}" style="width:${pct}%"></div></div><small>${pct}%</small></td>
         <td class="c-hor">${horasTxt}</td>
@@ -2087,26 +2239,55 @@ function cerrarDrawerColab(){
   $('drawer').hidden = true;
 }
 $('drawer-x').addEventListener('click', cerrarDrawerColab);
-$('drawer').addEventListener('click', e => { if(e.target.id === 'drawer') cerrarDrawerColab(); });
+cerrarAlClicEnFondo('drawer', cerrarDrawerColab);
 
 /* ════════════════════ MODALES ════════════════════ */
+/* Evita el doble guardado. El handler es async y el modal sigue activo mientras
+   la petición viaja, así que un segundo clic (o un doble clic impaciente) creaba
+   DOS filas idénticas. Mientras está en vuelo, el botón queda bloqueado. */
+function alGuardar(btnId, textoOcupado, fn){
+  const btn = $(btnId);
+  if(!btn) return;
+  btn.onclick = async ()=>{
+    if(btn.disabled) return;
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = textoOcupado;
+    try { await fn(); }
+    finally { btn.disabled = false; btn.textContent = original; }
+  };
+}
 function abrirModal(title, bodyHTML){ $('modal-title').textContent=title; $('modal-body').innerHTML=bodyHTML; $('modal').hidden=false; }
 function cerrarModal(){ $('modal').hidden=true; }
 $('modal-x').addEventListener('click', cerrarModal);
-$('modal').addEventListener('click', e=>{ if(e.target.id==='modal') cerrarModal(); });
+/* Cerrar al hacer clic en el fondo, pero SOLO si el gesto empezó ahí.
+   Si empieza dentro (seleccionar el texto de un campo) y se suelta fuera, el
+   navegador dispara el click en el ancestro común — que es el propio fondo —
+   y el modal se cerraba en plena selección. */
+function cerrarAlClicEnFondo(elId, cerrar){
+  const el = $(elId);
+  if(!el) return;
+  let enElFondo = false;
+  el.addEventListener('pointerdown', e=>{ enElFondo = (e.target.id===elId); });
+  el.addEventListener('pointerup',   e=>{ if(e.target.id!==elId) enElFondo = false; });
+  el.addEventListener('click', e=>{
+    if(e.target.id===elId && enElFondo) cerrar();
+    enElFondo = false;
+  });
+}
+cerrarAlClicEnFondo('modal', cerrarModal);
 
 function modalArea(){
   abrirModal('Nueva área', `
     <label class="fld">Nombre del área<input id="m-area-nom" placeholder="Ej. Legal" maxlength="60"></label>
     <div class="modal-foot"><button class="btn-mini" id="m-area-save">Crear área</button></div>`);
   $('m-area-nom').focus();
-  $('m-area-save').onclick = async ()=>{
+  alGuardar('m-area-save', 'Creando…', async ()=>{
     const nom = $('m-area-nom').value.trim(); if(!nom) return toast('Escribe un nombre', true);
     const orden = (AREAS.reduce((m,a)=>Math.max(m,a.orden||0),0))+1;
     const { error } = await db.from('asis_areas').insert({ nombre:nom, orden });
     if(error) return toast('No se pudo crear: '+error.message, true);
     await cargarBase(); cerrarModal(); render(); toast('Área creada');
-  };
+  });
 }
 async function modalColab(existente){
   if(existente && MIG3) await cargarHorasCumplidas();
@@ -2123,6 +2304,20 @@ async function modalColab(existente){
     <div class="cs-item${String(a.id)===String(selAreaObj?.id)?' selected':''}" data-id="${a.id}">
       <span>${esc(a.nombre)}</span>
       ${String(a.id)===String(selAreaObj?.id)?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>':''}
+    </div>
+  `).join('');
+
+  const VINC_OPTS = [
+    ['practicas', 'Prácticas Preprofesionales'],
+    ['voluntariado', 'Voluntariado Institucional'],
+    ['ambos', 'Ambos (prácticas + voluntariado)'],
+  ];
+  const selVinc = c.tipo_vinculo || 'practicas';
+  const selVincLbl = (VINC_OPTS.find(([v]) => v === selVinc) || VINC_OPTS[0])[1];
+  const vincItemsHTML = VINC_OPTS.map(([val, lbl]) => `
+    <div class="cs-item${val === selVinc ? ' selected' : ''}" data-val="${val}">
+      <span>${lbl}</span>
+      ${val === selVinc ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
     </div>
   `).join('');
 
@@ -2171,17 +2366,40 @@ async function modalColab(existente){
       <div class="hs-vinc-row">
         <span>Cuenta como</span>
         <select class="hs-vinc" ${off}>
-          <option value="practicas" ${vd==='practicas'?'selected':''}>🎓 Prácticas</option>
-          <option value="voluntariado" ${vd==='voluntariado'?'selected':''}>🤝 Voluntariado</option>
+          <option value="practicas" ${vd==='practicas'?'selected':''}>Prácticas</option>
+          <option value="voluntariado" ${vd==='voluntariado'?'selected':''}>Voluntariado</option>
         </select>
       </div>
     </div>`;
   }).join('');
 
   abrirModal(existente?'Editar colaborador':'Nuevo colaborador', `
-    <div class="modal-note" style="margin-bottom:18px;background:linear-gradient(135deg,#eff6ff,#e0e7ff);border:1px solid #c7d2fe;color:#1e3a8a;">
-      <strong style="display:block;margin-bottom:3px;font-size:13px;color:#1e40af;">💡 4 Datos Clave del Contrato a Registrar:</strong>
-      <span style="display:block;font-size:12px;line-height:1.5;">1. <b>Fechas de vigencia</b> · 2. <b>Meta de horas</b> · 3. <b>Horas previas</b> · 4. <b>Horario y modalidad</b></span>
+    <div class="modal-note-card">
+      <div class="mn-head">
+        <span class="mn-icon">💡</span>
+        <div class="mn-title-wrap">
+          <strong>4 Datos Clave del Contrato a Registrar</strong>
+          <small>Extrae únicamente esta información del documento para configurar al colaborador</small>
+        </div>
+      </div>
+      <div class="mn-pills">
+        <div class="mn-pill">
+          <span class="mn-num">1</span>
+          <span class="mn-txt"><b>Fechas de vigencia</b> (Inicio y fin)</span>
+        </div>
+        <div class="mn-pill">
+          <span class="mn-num">2</span>
+          <span class="mn-txt"><b>Meta de horas</b> (Total contrato)</span>
+        </div>
+        <div class="mn-pill">
+          <span class="mn-num">3</span>
+          <span class="mn-txt"><b>Horas previas</b> (Trabajadas)</span>
+        </div>
+        <div class="mn-pill">
+          <span class="mn-num">4</span>
+          <span class="mn-txt"><b>Horario y modalidad</b> (Días / Turnos)</span>
+        </div>
+      </div>
     </div>
 
     <div class="fld-grid-2">
@@ -2201,16 +2419,33 @@ async function modalColab(existente){
     </div>
     <div class="fld-grid-2">
       <label class="fld">DNI (opcional)<input id="m-c-dni" value="${esc(c.dni||'')}" maxlength="15" placeholder="8 dígitos"></label>
-      <label class="fld">Tipo de Vínculo
-        <select id="m-c-vinculo" style="margin-top:6px;">
-          <option value="practicas" ${(c.tipo_vinculo||'practicas')==='practicas'?'selected':''}>🎓 Prácticas Preprofesionales</option>
-          <option value="voluntariado" ${c.tipo_vinculo==='voluntariado'?'selected':''}>🤝 Voluntariado Institucional</option>
-          <option value="ambos" ${c.tipo_vinculo==='ambos'?'selected':''}>🎓🤝 Ambos (prácticas + voluntariado)</option>
-        </select>
-      </label>
+      <div class="fld"><span>Tipo de Vínculo</span>
+        <div class="custom-select" id="cs-vinculo-wrap">
+          <button type="button" class="cs-trigger" id="cs-vinculo-trigger">
+            <span id="cs-vinculo-val">${esc(selVincLbl)}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="cs-options" id="cs-vinculo-options" hidden>
+            ${vincItemsHTML}
+          </div>
+          <select id="m-c-vinculo" hidden>
+            <option value="practicas" ${selVinc==='practicas'?'selected':''}>Prácticas Preprofesionales</option>
+            <option value="voluntariado" ${selVinc==='voluntariado'?'selected':''}>Voluntariado Institucional</option>
+            <option value="ambos" ${selVinc==='ambos'?'selected':''}>Ambos</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <div class="m-sect-title"><span>1. Fechas de Vigencia</span></div>
+    ${MIG3&&HAS_PEND?`<div class="pend-box${c.contrato_pendiente?' on':''}" id="pend-box">
+      <label class="chk-inline">
+        <input type="checkbox" id="m-c-pend" ${c.contrato_pendiente?'checked':''}>
+        Datos del contrato pendientes de actualizar
+      </label>
+      <small class="hs-hint">Márcalo cuando el contrato esté incompleto o las horas y fechas aún puedan cambiar. Mientras esté activo no se avisa por datos faltantes ni se toma el término proyectado como definitivo.</small>
+      <input id="m-c-nota" maxlength="200" value="${esc(c.contrato_nota||'')}" placeholder="¿Qué falta? Ej. no figura fecha de culminación; confirmar horas con la universidad">
+    </div>`:''}
     ${MIG3?`<div class="fld-grid-2">
       <div class="fld"><span>Inicio de contrato</span>
         <div class="cs-date-wrap" id="cs-cini-wrap">
@@ -2236,14 +2471,18 @@ async function modalColab(existente){
 
     <div class="m-sect-title"><span>2. Meta de Horas & 3. Horas Previas</span></div>
     <div class="fld-grid-2">
-      <label class="fld">Meta de horas (Contrato)<input id="m-c-horas" type="number" min="0" step="1" value="${c.contrato_horas??''}" placeholder="Ej. 500"></label>
+      <label class="fld">Meta de horas (Contrato)
+        <input id="m-c-horas" type="number" min="0" step="1" value="${c.contrato_horas??''}" placeholder="Se calcula solo con las fechas">
+        <span class="calc-hint" id="calc-horas" hidden></span>
+      </label>
       ${MIG3?`<label class="fld">Horas previas (si aplica)
         <small class="hs-hint">Horas ya cumplidas antes del sistema.</small>
         <input id="m-c-hprev" type="number" min="0" step="1" value="${c.horas_previas??''}" placeholder="Ej. 120 · 0 si empieza hoy"></label>`:''}
     </div>
     <label class="fld" id="fld-horas-vol" ${c.tipo_vinculo==='ambos'?'':'hidden'}>Meta de horas de voluntariado
       <small class="hs-hint">Se cuenta aparte de la meta de prácticas: es la que sustenta la Constancia de Voluntariado.</small>
-      <input id="m-c-horas-vol" type="number" min="0" step="1" value="${c.contrato_horas_voluntariado??''}" placeholder="Ej. 120">
+      <input id="m-c-horas-vol" type="number" min="0" step="1" value="${c.contrato_horas_voluntariado??''}" placeholder="Se calcula solo con las fechas">
+      <span class="calc-hint" id="calc-horas-vol" hidden></span>
     </label>
 
     <div class="m-sect-title"><span>4. Horario y Modalidad</span></div>
@@ -2275,12 +2514,20 @@ async function modalColab(existente){
     </div>
     ${existente?`<label class="fld chk-inline"><input type="checkbox" id="m-c-act" ${c.activo?'checked':''}> Activo</label>`:''}
     ${existente&&MIG3?`
-    <div class="contrato-resumen" id="m-c-resumen"></div>
-    <button type="button" class="lnk" id="m-c-hist-toggle">Ver historial de cambios</button>
-    <ul id="m-c-hist" class="hist-list" hidden></ul>
-    <label class="fld">Motivo del cambio <small class="hs-hint">Si cambias el horario o las horas de contrato, queda guardado en el historial.</small>
-      <input id="m-c-motivo" placeholder="Ej. pasa a trabajar jueves, viernes y sábado" maxlength="140">
-    </label>`:''}
+    <div class="cr-section">
+      <div class="contrato-resumen" id="m-c-resumen"></div>
+      <div class="cr-hist-block">
+        <button type="button" class="cr-hist-toggle" id="m-c-hist-toggle" aria-expanded="false">
+          <span class="cr-hist-toggle-lbl">Historial de cambios</span>
+          <svg class="cr-hist-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <ul id="m-c-hist" class="cr-hist-list" hidden></ul>
+      </div>
+      <label class="fld cr-motivo-fld">Motivo del cambio
+        <small class="hs-hint">Si modificas horario u horas de contrato, describe el motivo para el historial.</small>
+        <input id="m-c-motivo" placeholder="Ej. pasa a trabajar jueves, viernes y sábado" maxlength="140">
+      </label>
+    </div>`:''}
     <div class="modal-foot">
       ${existente?'<button class="btn-mini ghost" id="m-c-del">Eliminar</button>':''}
       <button class="btn-mini" id="m-c-save">${existente?'Guardar':'Crear colaborador'}</button>
@@ -2289,12 +2536,32 @@ async function modalColab(existente){
   // Custom Area Select handlers
   const csTrig = $('cs-area-trigger');
   const csOpts = $('cs-area-options');
+  const csVincTrig = $('cs-vinculo-trigger');
+  const csVincOpts = $('cs-vinculo-options');
+  const marcarCsItem = (optsEl, item) => {
+    optsEl.querySelectorAll('.cs-item').forEach(el => {
+      el.classList.remove('selected');
+      const checkSvg = el.querySelector('svg');
+      if (checkSvg) checkSvg.remove();
+    });
+    item.classList.add('selected');
+    if(!item.querySelector('svg')){
+      item.insertAdjacentHTML('beforeend', '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>');
+    }
+  };
+  const cerrarOtrosModalSelects = (except) => {
+    document.querySelectorAll('.cs-mod-options').forEach(o => o.hidden = true);
+    document.querySelectorAll('.cs-mod-wrap').forEach(w => w.classList.remove('active-pop'));
+    if(except !== 'area' && csOpts){ csOpts.hidden = true; if(csTrig) csTrig.classList.remove('active'); }
+    if(except !== 'vinculo' && csVincOpts){ csVincOpts.hidden = true; if(csVincTrig) csVincTrig.classList.remove('active'); }
+  };
   if(csTrig && csOpts){
     csTrig.onclick = (e) => {
       e.stopPropagation();
       e.preventDefault();
-      document.querySelectorAll('.cs-mod-options').forEach(o => o.hidden = true);
-      csOpts.hidden = !csOpts.hidden;
+      const abrir = csOpts.hidden;
+      cerrarOtrosModalSelects('area');
+      csOpts.hidden = !abrir;
       csTrig.classList.toggle('active', !csOpts.hidden);
     };
     csOpts.querySelectorAll('.cs-item').forEach(item => {
@@ -2305,17 +2572,33 @@ async function modalColab(existente){
         const aObj = AREAS.find(x => String(x.id) === String(id));
         $('m-c-area').value = id;
         $('cs-area-val').textContent = aObj ? aObj.nombre : '';
-        csOpts.querySelectorAll('.cs-item').forEach(el => {
-          el.classList.remove('selected');
-          const checkSvg = el.querySelector('svg');
-          if (checkSvg) checkSvg.remove();
-        });
-        item.classList.add('selected');
-        if(!item.querySelector('svg')){
-          item.insertAdjacentHTML('beforeend', '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>');
-        }
+        marcarCsItem(csOpts, item);
         csOpts.hidden = true;
         csTrig.classList.remove('active');
+      };
+    });
+  }
+  if(csVincTrig && csVincOpts){
+    csVincTrig.onclick = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const abrir = csVincOpts.hidden;
+      cerrarOtrosModalSelects('vinculo');
+      csVincOpts.hidden = !abrir;
+      csVincTrig.classList.toggle('active', !csVincOpts.hidden);
+    };
+    csVincOpts.querySelectorAll('.cs-item').forEach(item => {
+      item.onclick = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const val = item.dataset.val;
+        const lbl = VINC_OPTS.find(([v]) => v === val)?.[1] || val;
+        $('m-c-vinculo').value = val;
+        $('cs-vinculo-val').textContent = lbl;
+        marcarCsItem(csVincOpts, item);
+        csVincOpts.hidden = true;
+        csVincTrig.classList.remove('active');
+        $('m-c-vinculo').dispatchEvent(new Event('change'));
       };
     });
   }
@@ -2329,8 +2612,7 @@ async function modalColab(existente){
 
     trig.onclick = (e) => {
       e.stopPropagation();
-      if(csOpts) csOpts.hidden = true;
-      if(csTrig) csTrig.classList.remove('active');
+      cerrarOtrosModalSelects();
       document.querySelectorAll('.cs-mod-wrap').forEach(w => w.classList.remove('active-pop'));
       document.querySelectorAll('.cs-mod-options').forEach(o => { if(o !== opts) o.hidden = true; });
       opts.hidden = !opts.hidden;
@@ -2375,9 +2657,84 @@ async function modalColab(existente){
   };
   $('m-c-vinculo').addEventListener('change', aplicarMixto);
 
+  /* Horas deducidas de las fechas + el horario, para los contratos que no las
+     dicen. Si el campo está vacío se rellena solo; si ya tiene un número (el
+     que vino del papel) NO se pisa: solo se muestra el cálculo al lado para
+     poder compararlos y aplicarlo con un clic. */
+  const horarioDelModal = ()=>{
+    const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
+    const vinc = $('m-c-vinculo').value;
+    const hs = {};
+    document.querySelectorAll('.hs-day-card').forEach(row=>{
+      const mod = row.querySelector('.hs-mod').value; if(mod==='no_gestiona') return;
+      const o = { mod };
+      const i = row.querySelector('.hs-ini').value, f = row.querySelector('.hs-fin').value;
+      if(i && i!==gi) o.ini = i;
+      if(f && f!==gf) o.fin = f;
+      if(vinc==='ambos' && row.querySelector('.hs-vinc')?.value==='voluntariado') o.vinc = 'voluntariado';
+      hs[row.dataset.dow] = o;
+    });
+    return { horario_semanal:hs, hora_inicio:gi, hora_fin:gf, tipo_vinculo:vinc };
+  };
+  const pintarSugerencia = (hintId, inpId, vinc)=>{
+    const hint = $(hintId), inp = $(inpId);
+    if(!hint || !inp) return;
+    const desde = $('m-c-cini')?.value || null, hasta = $('m-c-cfin')?.value || null;
+    const h = horasEntreFechas(horarioDelModal(), desde, hasta, vinc);
+    if(h==null || h<=0){ hint.hidden = true; return; }
+    const n = Math.round(h);
+    hint.hidden = false;
+    if(inp.value===''){                       // no hay dato del contrato: se llena solo
+      inp.value = n;
+      // se avisa primero (eso reentra aquí por el 'input') y el mensaje de
+      // "calculado" se escribe al final, para que no lo pise el de "coincide"
+      inp.dispatchEvent(new Event('input', { bubbles:true }));
+      hint.hidden = false;
+      hint.className = 'calc-hint auto';
+      hint.textContent = `Calculado con las fechas y el horario: ${n} h`;
+    } else if(Number(inp.value)===n){
+      hint.className = 'calc-hint ok';
+      hint.textContent = `Coincide con las fechas y el horario (${n} h)`;
+    } else {
+      const dif = n - Number(inp.value);
+      hint.className = 'calc-hint dif';
+      hint.innerHTML = `Según las fechas y el horario serían <b>${n} h</b> (${dif>0?'+':''}${dif}) · <button type="button" class="lnk" data-usar="${inpId}">usar este</button>`;
+      hint.querySelector('[data-usar]').onclick = ()=>{
+        inp.value = n;
+        inp.dispatchEvent(new Event('input', { bubbles:true }));
+        actualizarSugerencias();
+      };
+    }
+  };
+  const actualizarSugerencias = ()=>{
+    const mix = $('m-c-vinculo').value === 'ambos';
+    pintarSugerencia('calc-horas', 'm-c-horas', mix ? 'practicas' : null);
+    if(mix) pintarSugerencia('calc-horas-vol', 'm-c-horas-vol', 'voluntariado');
+    else if($('calc-horas-vol')) $('calc-horas-vol').hidden = true;
+  };
+  document.querySelectorAll('.hs-mod,.hs-ini,.hs-fin,.hs-vinc').forEach(el=> el.addEventListener('change', actualizarSugerencias));
+  ['m-c-ini','m-c-fin','m-c-cini','m-c-cfin','m-c-vinculo'].forEach(id=> $(id) && $(id).addEventListener('change', actualizarSugerencias));
+  ['m-c-horas','m-c-horas-vol'].forEach(id=> $(id) && $(id).addEventListener('input', ()=>{
+    // al escribir a mano se recalcula la comparación, pero sin volver a autollenar
+    const inp = $(id); if(inp.value==='') return;
+    actualizarSugerencias();
+  }));
+
+  // La nota solo tiene sentido mientras el contrato esté marcado como pendiente
+  const chkPend = $('m-c-pend');
+  if(chkPend){
+    const aplicarPend = ()=>{
+      $('pend-box').classList.toggle('on', chkPend.checked);
+      $('m-c-nota').disabled = !chkPend.checked;
+    };
+    chkPend.addEventListener('change', aplicarPend);
+    aplicarPend();
+  }
+
   if(MIG3){
     initCustomDatePicker('cs-cini-wrap', 'cs-cini-trigger', 'cs-cini-pop', 'cs-cini-val', 'm-c-cini');
     initCustomDatePicker('cs-cfin-wrap', 'cs-cfin-trigger', 'cs-cfin-pop', 'cs-cfin-val', 'm-c-cfin');
+    actualizarSugerencias();   // rellena la meta si el contrato no trae las horas
   }
 
   // Cierre global al hacer clic fuera del desplegable o calendarios
@@ -2386,6 +2743,13 @@ async function modalColab(existente){
     if (areaWrap && !areaWrap.contains(e.target)) {
       const o = document.getElementById('cs-area-options');
       const t = document.getElementById('cs-area-trigger');
+      if (o) o.hidden = true;
+      if (t) t.classList.remove('active');
+    }
+    const vincWrap = document.getElementById('cs-vinculo-wrap');
+    if (vincWrap && !vincWrap.contains(e.target)) {
+      const o = document.getElementById('cs-vinculo-options');
+      const t = document.getElementById('cs-vinculo-trigger');
       if (o) o.hidden = true;
       if (t) t.classList.remove('active');
     }
@@ -2409,27 +2773,7 @@ async function modalColab(existente){
 
   if(existente && MIG3){
     const r = resumenContrato(existente);
-    // en los mixtos el resumen se parte en dos bloques, uno por documento
-    const volHTML = (v)=>{
-      if(!v) return '';
-      return `<div class="cr-sep">🤝 Voluntariado</div>
-        <div class="cr-row"><span>Horas cumplidas</span><b>${v.cumplidas.toFixed(1)} h</b></div>
-        <div class="cr-row"><span>Horas de voluntariado</span><b>${v.meta ?? '—'}</b></div>
-        <div class="cr-row"><span>Horas por semana</span><b>${v.semanaH.toFixed(1)} h</b></div>
-        <div class="cr-row"><span>Termina (según sus horas)</span><b>${v.fechaFin==='Completado'?'Completado':(v.fechaFin?fmtFechaCorta(v.fechaFin):'—')}</b></div>`;
-    };
-    $('m-c-resumen').innerHTML = `
-      <div class="cr-sep" id="cr-sep-prac" ${r.mixto?'':'hidden'}>🎓 Prácticas</div>
-      <div class="cr-row"><span>Horas cumplidas</span><b>${r.cumplidas.toFixed(1)} h</b></div>
-      ${r.previas>0?`<div class="cr-row sub"><span>· previas + registradas aquí</span><b>${r.previas.toFixed(0)} + ${r.marcadas.toFixed(1)} h</b></div>`:''}
-      <div class="cr-row"><span>Horas de contrato</span><b>${r.meta ?? '—'}</b></div>
-      <div class="cr-row"><span>Horas por semana (horario actual)</span><b id="cr-semana">${r.semanaH.toFixed(1)} h</b></div>
-      <div class="cr-row"><span>Termina (según sus horas)</span><b id="cr-fin">${r.fechaFin==='Completado'?'Completado':(r.fechaFin?fmtFechaCorta(r.fechaFin):'—')}</b></div>
-      <div class="cr-row"><span>Fecha del contrato</span><b>${existente.contrato_fin_referencia?fmtFechaCorta(existente.contrato_fin_referencia):'—'}</b></div>
-      <div id="cr-vol">${volHTML(r.vol)}</div>
-      <div class="cr-ref-box" id="cr-ref" hidden></div>
-      <div class="cr-cambio" id="cr-cambio" hidden></div>
-      ${r.alertas.length?`<div class="cr-alerts">${r.alertas.map(a=>'⚠ '+esc(a)).join('<br>')}</div>`:''}`;
+    $('m-c-resumen').innerHTML = htmlResumenContrato(r, existente);
 
     /* Si cambias el horario o las horas, la proyección se recalcula en vivo y
        se muestra cuánto se adelanta o se atrasa el término. */
@@ -2449,12 +2793,15 @@ async function modalColab(existente){
       const sim = { ...existente, horario_semanal:hsTmp, hora_inicio:gi, hora_fin:gf, tipo_vinculo:vinc,
         contrato_horas: $('m-c-horas').value!=='' ? Number($('m-c-horas').value) : null,
         contrato_horas_voluntariado: $('m-c-horas-vol') && $('m-c-horas-vol').value!=='' ? Number($('m-c-horas-vol').value) : null,
-        horas_previas:  $('m-c-hprev') && $('m-c-hprev').value!=='' ? Number($('m-c-hprev').value) : 0 };
+        horas_previas:  $('m-c-hprev') && $('m-c-hprev').value!=='' ? Number($('m-c-hprev').value) : 0,
+        contrato_pendiente: !!$('m-c-pend')?.checked,
+        contrato_nota: $('m-c-nota')?.value || '' };
       const n = resumenContrato(sim);
       $('cr-semana').textContent = n.semanaH.toFixed(1)+' h';
-      $('cr-fin').textContent = n.fechaFin==='Completado' ? 'Completado' : (n.fechaFin ? fmtFechaCorta(n.fechaFin) : '—');
+      $('cr-fin').textContent = fmtFinContrato(n.fechaFin);
       $('cr-sep-prac').hidden = !n.mixto;
-      $('cr-vol').innerHTML = volHTML(n.vol);
+      $('cr-vol').innerHTML = htmlVolBlock(n.vol);
+      actualizarProgresoResumen(n);
       // comparación contra la fecha del papel
       const refBox = $('cr-ref');
       const cmp = compararConContrato({ contrato_fin_referencia: $('m-c-cfin')?.value || null }, n.fechaFin);
@@ -2475,22 +2822,38 @@ async function modalColab(existente){
       } else box.hidden = true;
     };
     document.querySelectorAll('.hs-mod,.hs-ini,.hs-fin,.hs-vinc').forEach(el=> el.addEventListener('change', recalcular));
-    ['m-c-ini','m-c-fin','m-c-horas','m-c-hprev','m-c-horas-vol','m-c-cfin'].forEach(id=> $(id) && $(id).addEventListener('input', recalcular));
+    ['m-c-ini','m-c-fin','m-c-horas','m-c-hprev','m-c-horas-vol','m-c-cfin','m-c-nota'].forEach(id=> $(id) && $(id).addEventListener('input', recalcular));
     $('m-c-vinculo').addEventListener('change', recalcular);
+    if($('m-c-pend')) $('m-c-pend').addEventListener('change', recalcular);
     recalcular();   // pinta la comparación en cuanto se abre
     $('m-c-hist-toggle').onclick = async ()=>{
-      const box = $('m-c-hist');
-      if(!box.hidden){ box.hidden=true; return; }
-      box.hidden=false; box.innerHTML='<li class="muted">Cargando…</li>';
+      const box = $('m-c-hist'), btn = $('m-c-hist-toggle');
+      if(!box.hidden){
+        box.hidden = true;
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      btn.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+      box.hidden = false;
+      box.innerHTML = '<li class="muted">Cargando…</li>';
       const { data } = await db.from('asis_historial_contrato').select('*').eq('colaborador_id',existente.id).order('created_at',{ascending:false});
       box.innerHTML = (data&&data.length)
-        ? data.map(hh=>`<li><b>${fmtFechaCorta(hh.fecha)}</b> — ${TIPO_HIST_LBL[hh.tipo]||hh.tipo}${hh.nota?': '+esc(hh.nota):''}</li>`).join('')
+        ? data.map(hh=>`<li class="cr-hist-item"><span class="cr-hist-date">${fmtFechaCorta(hh.fecha)}</span><span class="cr-hist-body"><b>${TIPO_HIST_LBL[hh.tipo]||hh.tipo}</b>${hh.nota?'<span class="cr-hist-note">'+esc(hh.nota)+'</span>':''}</span></li>`).join('')
         : '<li class="muted">Sin cambios registrados.</li>';
     };
   }
 
-  $('m-c-save').onclick = async ()=>{
+  alGuardar('m-c-save', existente?'Guardando…':'Creando…', async ()=>{
     const nombre = $('m-c-nom').value.trim(); if(!nombre) return toast('Escribe el nombre', true);
+    // segunda barrera contra duplicados: avisa si ya hay alguien con ese nombre
+    const repe = COLABS.find(x=> String(x.id)!==String(existente?.id)
+      && (x.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
+    if(repe){
+      const area = AREAS.find(a=>String(a.id)===String(repe.area_id));
+      if(!confirm(`Ya existe "${repe.nombre}"${area?' en '+area.nombre:''}${repe.activo?'':' (dado de baja)'}.\n\n¿Registrar de todos modos como una persona distinta?`)) return;
+    }
     const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
     const vinculo = $('m-c-vinculo')?.value || 'practicas';
     const hsNew = {};
@@ -2529,6 +2892,12 @@ async function modalColab(existente){
       payload.contrato_fin_referencia = $('m-c-cfin')?.value || null;
       payload.horas_previas = ($('m-c-hprev') && $('m-c-hprev').value!=='') ? Number($('m-c-hprev').value) : 0;
     }
+    // solo si la migración 5 ya está aplicada en Supabase
+    if(HAS_PEND && $('m-c-pend')){
+      const pend = $('m-c-pend').checked;
+      payload.contrato_pendiente = pend;
+      payload.contrato_nota = pend ? (($('m-c-nota')?.value||'').trim() || null) : null;
+    }
     if(existente) payload.activo = $('m-c-act').checked;
     const q = existente ? db.from('asis_colaboradores').update(payload).eq('id',existente.id)
                         : db.from('asis_colaboradores').insert(payload);
@@ -2553,14 +2922,14 @@ async function modalColab(existente){
     }
     await cargarBase(); cerrarModal(); render();
     toast(cambios ? 'Guardado — el cambio quedó en el historial' : 'Guardado');
-  };
+  });
   if(existente){
-    $('m-c-del').onclick = async ()=>{
+    alGuardar('m-c-del', 'Eliminando…', async ()=>{
       if(!confirm('¿Eliminar a '+c.nombre+'? Se borrarán también sus marcas.')) return;
       const { error } = await db.from('asis_colaboradores').delete().eq('id',existente.id);
       if(error) return toast('No se pudo eliminar: '+error.message, true);
       await cargarBase(); await cargarMes(); cerrarModal(); render(); toast('Colaborador eliminado');
-    };
+    });
   }
 }
 async function modalFeriados(){
@@ -2572,12 +2941,12 @@ async function modalFeriados(){
     <label class="fld">Motivo (opcional)<input id="m-fer-nota" placeholder="Ej. Feriado nacional" maxlength="60"></label>
     <div class="modal-foot"><button class="btn-mini" id="m-fer-add">Agregar feriado</button></div>
     <ul class="hist-list">${lista||'<li class="muted">Sin feriados este mes.</li>'}</ul>`);
-  $('m-fer-add').onclick = async ()=>{
+  alGuardar('m-fer-add', 'Agregando…', async ()=>{
     const fecha=$('m-fer-fecha').value; if(!fecha) return;
     const { error } = await db.from('asis_excepciones').insert({ fecha, ambito:'empresa', tipo:'feriado', nota:$('m-fer-nota').value.trim()||null, creado_por:PERFIL.id });
     if(error) return toast('No se pudo agregar: '+error.message, true);
     await cargarMes(); render(); modalFeriados(); toast('Feriado agregado');
-  };
+  });
   document.querySelectorAll('[data-del-fer]').forEach(b=> b.onclick = async ()=>{
     const { error } = await db.from('asis_excepciones').delete().eq('fecha',b.dataset.delFer).eq('ambito','empresa');
     if(error) return toast('No se pudo quitar: '+error.message, true);
