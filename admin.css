@@ -474,10 +474,11 @@ td .cod{font-family:monospace;font-size:12px;color:#64748b;}
 
 /* Modal de previsualización */
 .modal-overlay{position:fixed;inset:0;background:rgba(10,30,70,.55);backdrop-filter:blur(3px);
-  display:flex;align-items:center;justify-content:center;padding:24px;z-index:100;opacity:0;visibility:hidden;transition:.2s;}
+  display:flex;align-items:center;justify-content:center;padding:24px;z-index:100;opacity:0;visibility:hidden;transition:.2s;
+  overflow-y:auto;overscroll-behavior:contain;}
 .modal-overlay.open{opacity:1;visibility:visible;}
 body.modal-abierto{overflow:hidden;}   /* el fondo no se desplaza con una ventana abierta */
-.modal-box{background:#fff;border-radius:16px;padding:18px;max-width:920px;width:100%;max-height:92vh;overflow:auto;
+.modal-box{background:#fff;border-radius:16px;padding:18px;max-width:920px;width:100%;max-height:92vh;max-height:92dvh;overflow:auto;overscroll-behavior:contain;
   box-shadow:0 30px 80px rgba(0,0,0,.4);transform:translateY(16px) scale(.97);transition:.25s cubic-bezier(.22,.61,.36,1);position:relative;}
 .modal-overlay.open .modal-box{transform:none;}
 .modal-close{position:absolute;top:12px;right:14px;width:34px;height:34px;border:none;border-radius:50%;background:#f1f5f9;color:#475569;
@@ -489,10 +490,13 @@ body.modal-abierto{overflow:hidden;}   /* el fondo no se desplaza con una ventan
 .modal-actions .m-pdf{background:var(--azul);color:#fff;} .modal-actions .m-png{background:#e8edf5;color:#0a2a5e;}
 
 /* Modal: enviar certificado por correo */
-.email-box{max-width:520px;padding:0;overflow:hidden;}
+/* Cabecera fija + cuerpo con scroll propio: con mucho zoom (o pantallas bajas)
+   el contenido se desplaza y el botón "Enviar" siempre queda alcanzable. */
+.email-box{max-width:520px;padding:0;overflow:hidden;display:flex;flex-direction:column;
+  max-height:92vh;max-height:92dvh;}
 .email-box .modal-close{background:rgba(255,255,255,.14);color:#fff;}
 .email-box .modal-close:hover{background:rgba(255,255,255,.26);}
-.em-head{display:flex;align-items:center;gap:16px;padding:24px 28px;color:#fff;position:relative;
+.em-head{display:flex;align-items:center;gap:16px;padding:24px 58px 24px 28px;color:#fff;position:relative;flex-shrink:0;
   background:linear-gradient(135deg,#0b2a5c,#08386f 45%,#004fb0);}
 .em-head::before{content:'';position:absolute;inset:0;pointer-events:none;
   background:repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 2px, transparent 2px 7px);}
@@ -504,7 +508,7 @@ body.modal-abierto{overflow:hidden;}   /* el fondo no se desplaza con una ventan
 .em-kicker{font-size:10.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#9db8dd;}
 .em-head-txt h3{font-size:19px;font-weight:800;margin:4px 0 3px;}
 .em-head-txt p{font-size:12.5px;color:#c3d3ea;line-height:1.45;}
-.em-body{padding:22px 28px 26px;}
+.em-body{padding:22px 28px 26px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
 .em-cert{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:18px;}
 .em-cert-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
 .em-cert .dc-tipo{display:inline-block;font-size:11px;font-weight:800;color:var(--azul);background:#e8f0fb;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
@@ -515,7 +519,7 @@ body.modal-abierto{overflow:hidden;}   /* el fondo no se desplaza con una ventan
 .em-field input{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;background:#f8fafc;transition:.2s;}
 .em-field input:focus{outline:none;background:#fff;border-color:var(--azul);box-shadow:0 0 0 4px rgba(0,79,176,.1);}
 .em-chk{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#64748b;margin-top:10px;cursor:pointer;}
-.em-chk input{accent-color:var(--azul);width:15px;height:15px;}
+.em-chk input{accent-color:var(--azul);width:15px;height:15px;flex-shrink:0;}
 /* Advertencia de revisión antes de enviar */
 .em-revisar{margin-top:14px;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;padding:12px 14px;}
 .em-revisar-txt{font-size:12.5px;color:#92400e;line-height:1.55;}
@@ -523,6 +527,31 @@ body.modal-abierto{overflow:hidden;}   /* el fondo no se desplaza con una ventan
 .em-chk-revisar{margin-top:10px;color:#78350f;font-weight:600;}
 .em-chk-revisar input{accent-color:#d97706;flex-shrink:0;}
 .em-send{display:flex;align-items:center;justify-content:center;gap:8px;}
+
+/* Pantallas angostas o con mucho zoom: menos aire, la ventana ocupa casi todo */
+@media (max-width:560px){
+  .modal-overlay{padding:12px;}
+  .email-box{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);}
+  .em-head{padding:18px 52px 18px 18px;gap:12px;}
+  .em-body{padding:18px 18px 20px;}
+  .em-head-txt h3{font-size:17px;}
+  .email-box .modal-close{top:10px;right:10px;width:30px;height:30px;font-size:15px;}
+}
+/* Ventana baja (zoom alto del navegador): la cabecera se compacta y el
+   formulario conserva la altura para llegar al botón de enviar. */
+@media (max-height:620px){
+  .modal-overlay{padding:10px;}
+  .email-box{max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);}
+  .em-head{padding:13px 52px 13px 18px;gap:12px;}
+  .em-seal{width:40px;height:40px;}
+  .em-seal svg{width:18px;height:18px;}
+  .em-head-txt h3{font-size:16px;margin:2px 0 0;}
+  .em-head-txt p{display:none;}
+  .em-body{padding:16px 18px 18px;}
+  .em-cert{padding:11px 13px;margin-bottom:12px;}
+  .email-box .modal-close{top:9px;right:10px;width:30px;height:30px;font-size:15px;}
+}
+
 /* Comentarios de la web (moderación) */
 .com-pend{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;margin-left:8px;
   background:#f10075;color:#fff;border-radius:20px;font-size:11px;font-weight:800;}
