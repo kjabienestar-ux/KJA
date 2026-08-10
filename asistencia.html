@@ -2075,7 +2075,10 @@ function renderResumen(){
 /* ════════════════════ EDICIÓN DE ASISTENCIA ════════════════════ */
 async function setEstado(colabId, fecha, estado){
   const colab = COLABS.find(x=>String(x.id)===String(colabId));
-  const payload = { colaborador_id:Number(colabId), fecha, estado, marcado_por:PERFIL.id, marcado_at:new Date().toISOString() };
+  // origen 'panel' también al corregir: si dirección toca una marca hecha desde
+  // el enlace, deja de ser de la persona y el rastro tiene que decirlo
+  const payload = { colaborador_id:Number(colabId), fecha, estado, marcado_por:PERFIL.id,
+                    marcado_at:new Date().toISOString(), origen:'panel', dispositivo:null };
   // las horas quedan congeladas con el horario vigente hoy (solo si existe la columna)
   if(MIG3 && colab) payload.horas = estado==='NG' ? 0 : duracionHorasDia(colab, fecha);
   // el vínculo también se congela: si el día pasa de prácticas a voluntariado
@@ -2083,7 +2086,7 @@ async function setEstado(colabId, fecha, estado){
   if(HAS_VINCULO && colab) payload.vinculo = vincDelDia(colab, isoDow(fecha));
   const { error } = await db.from('asis_registros').upsert(payload, { onConflict:'colaborador_id,fecha' });
   if(error){ toast('No se pudo guardar: '+error.message, true); return; }
-  REG[colabId+'|'+fecha] = { estado, nota:(REG[colabId+'|'+fecha]||{}).nota||null, marcado_por:PERFIL.id };
+  REG[colabId+'|'+fecha] = { estado, nota:(REG[colabId+'|'+fecha]||{}).nota||null, marcado_por:PERFIL.id, origen:'panel', dispositivo:null };
   toast('Guardado');
 }
 async function quitarEstado(colabId, fecha){
