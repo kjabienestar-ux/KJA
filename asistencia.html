@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=16">
+<link rel="stylesheet" href="asistencia.css?v=17">
 </head>
 <body>
 
@@ -30,7 +30,7 @@
         <h1>Ingresar</h1>
         <p class="lf-sub">Registro de asistencia · equipo KJA</p>
 
-        <div class="msg" id="login-msg"></div>
+        <div class="msg" id="login-msg" role="alert" aria-live="assertive"></div>
 
         <div class="in-group">
           <label for="email">Correo electrónico</label>
@@ -43,6 +43,7 @@
           <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Mostrar u ocultar contraseña">
             <svg id="pw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
+          <p class="caps-aviso" id="caps-aviso" hidden>Bloq Mayús está activado</p>
         </div>
 
         <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
@@ -386,6 +387,17 @@
   </div>
 </div>
 
+<!-- Aviso previo al cierre por inactividad -->
+<div id="inact-aviso" class="inact-aviso" role="status" aria-live="polite" hidden>
+  <span class="ia-reloj">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+  </span>
+  <div>
+    <b>Tu sesión se cerrará en <span id="inact-seg">60</span> s</b>
+    <span>Mueve el mouse o toca la pantalla para seguir trabajando.</span>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast" class="toast" hidden></div>
 
@@ -401,7 +413,19 @@
 /* ════════════════════ CONFIG / SUPABASE ════════════════════ */
 const SUPABASE_URL  = "https://xadxmfgdxwplmhijagix.supabase.co";
 const SUPABASE_ANON = "sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub";
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+/* storageKey propio: la sesión de asistencia queda SEPARADA de la de
+   certificados (admin.html). Sin esto ambos módulos comparten el mismo token
+   en el navegador: entrar a uno abría sesión en el otro, y salir de uno
+   cerraba la del otro. */
+const CLAVE_SESION = 'kja-asistencia-auth';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: {
+    storageKey: CLAVE_SESION,
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: false,
+  }
+});
 const $ = id => document.getElementById(id);
 
 /* Estados de asistencia (catálogo). Añadir uno nuevo (p. ej. TT) = una línea. */
@@ -852,16 +876,23 @@ async function iniciarSesionActiva(){
 async function entrar(){
   const { data:{ user } } = await db.auth.getUser();
   if(!user) return mostrarLogin();
+  /* La cuenta debe existir en asis_perfiles y estar activa. Los correos del
+     panel de certificados viven en la tabla `perfiles`, no acá: pueden
+     autenticarse (el pool de usuarios es uno solo) pero no pasan de aquí, y
+     la RLS del servidor tampoco les devuelve una sola fila. */
   const { data:perf } = await db.from('asis_perfiles').select('id,nombre,rol,activo').eq('id', user.id).single();
   if(!perf || !perf.activo){
-    loginMsg('Tu cuenta no tiene acceso al módulo de asistencia. Contacta a dirección.');
     await db.auth.signOut({scope:'local'});
+    mostrarLogin();
+    loginMsg(perf ? 'Tu cuenta está dada de baja en el módulo de asistencia. Contacta a dirección.'
+                  : 'Esa cuenta no tiene acceso al registro de asistencia. Si usas el panel de certificados, es una cuenta distinta.');
     return;
   }
   PERFIL = { id:perf.id, nombre:perf.nombre||user.email, rol:perf.rol||'visor' };
   $('login-wrap').style.display='none';
   $('app').hidden = false;
   aplicarRolUI();
+  iniciarVigilanciaInactividad();
   const hoy = new Date(); YEAR = hoy.getFullYear(); MONTH = hoy.getMonth();
   $('lista-fecha').value = fISO(hoy);
   await cargarBase();
@@ -876,27 +907,128 @@ function aplicarRolUI(){
   document.querySelectorAll('.solo-editor').forEach(el=> el.dataset.hide = puedeEditar() ? '' : '1');
 }
 function mostrarLogin(){ $('app').hidden = true; $('login-wrap').style.display='flex'; }
-function loginMsg(t){ const e=$('login-msg'); e.textContent=t||''; e.style.display = t?'block':'none'; }
+function loginMsg(t, tipo){
+  const e=$('login-msg');
+  e.textContent = t||'';
+  e.className = 'msg' + (tipo ? ' '+tipo : '');
+  e.style.display = t ? 'block' : 'none';
+}
+
+/* ── Freno a los intentos fallidos ──
+   Supabase ya limita por IP del lado del servidor; esto agrega una espera
+   creciente en el navegador para que probar contraseñas a mano sea inviable. */
+const CLAVE_INTENTOS = 'kja-asis-intentos';
+function intentos(){ try{ return JSON.parse(localStorage.getItem(CLAVE_INTENTOS)) || {n:0, hasta:0}; }catch(e){ return {n:0, hasta:0}; } }
+function guardarIntentos(v){ try{ localStorage.setItem(CLAVE_INTENTOS, JSON.stringify(v)); }catch(e){} }
+function esperaTrasFallos(n){
+  if(n < 3)  return 0;                 // los primeros tropiezos son honestos
+  if(n < 5)  return 15 * 1000;
+  if(n < 8)  return 60 * 1000;
+  return 5 * 60 * 1000;                // insistencia sospechosa
+}
 
 $('login-form').addEventListener('submit', async e=>{
   e.preventDefault(); loginMsg('');
+
+  const est = intentos();
+  const restan = Math.ceil((est.hasta - Date.now()) / 1000);
+  if(restan > 0){
+    loginMsg(restan > 60
+      ? `Demasiados intentos fallidos. Espera ${Math.ceil(restan/60)} min antes de volver a probar.`
+      : `Demasiados intentos fallidos. Espera ${restan} s antes de volver a probar.`);
+    return;
+  }
+
   const b=$('btn-login'); b.disabled=true; b.textContent='Ingresando…';
-  const { data, error } = await db.auth.signInWithPassword({ email:$('email').value.trim(), password:$('password').value });
+  const { error } = await db.auth.signInWithPassword({
+    email: $('email').value.trim().toLowerCase(),
+    password: $('password').value
+  });
   b.disabled=false; b.textContent='Ingresar';
+
   if(error){
-    loginMsg(error.message==='Invalid login credentials' ? 'Correo o contraseña incorrectos.' : ('No se pudo ingresar: '+error.message));
+    const n = est.n + 1;
+    guardarIntentos({ n, hasta: Date.now() + esperaTrasFallos(n) });
+    /* Mensaje único a propósito: no revela si el correo existe. */
+    loginMsg(error.message === 'Invalid login credentials'
+      ? 'Correo o contraseña incorrectos.'
+      : ('No se pudo ingresar: ' + error.message));
+    $('password').value = '';
+    $('password').focus();
     const c=document.querySelector('.login-card'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
     return;
   }
+  guardarIntentos({ n:0, hasta:0 });
+  $('password').value = '';
   entrar();
 });
-async function cerrarSesion(){
+
+async function cerrarSesion(motivo){
+  detenerVigilanciaInactividad();
+  try{ if(motivo) sessionStorage.setItem(CLAVE_AVISO, motivo); }catch(e){}
   try{ await db.auth.signOut({scope:'local'}); }catch(e){}
-  Object.keys(localStorage).forEach(k=>{ if(k.startsWith('sb-')) localStorage.removeItem(k); });
+  /* Solo la clave de este módulo: borrar todas las `sb-` cerraría también la
+     sesión del panel de certificados abierta en otra pestaña. */
+  try{ localStorage.removeItem(CLAVE_SESION); }catch(e){}
   location.reload();
 }
-$('btn-logout').addEventListener('click', cerrarSesion);
-$('btn-logout-m').addEventListener('click', cerrarSesion);
+$('btn-logout').addEventListener('click', ()=>cerrarSesion());
+$('btn-logout-m').addEventListener('click', ()=>cerrarSesion());
+
+/* Si la sesión se cierra en otra pestaña (o el token es revocado), esta sale. */
+db.auth.onAuthStateChange((evento)=>{
+  if(evento === 'SIGNED_OUT' && PERFIL.id) location.reload();
+});
+
+/* ════════════════════ CIERRE POR INACTIVIDAD ════════════════════
+   A los 5 minutos sin actividad la sesión se cierra sola. El último minuto
+   se avisa con cuenta regresiva para que nadie pierda lo que está escribiendo.
+   La marca de actividad viaja por localStorage: trabajar en una pestaña
+   mantiene viva la sesión en todas. */
+const INACTIVIDAD_MS = 5 * 60 * 1000;
+const AVISO_MS       = 60 * 1000;
+const CLAVE_ACT      = 'kja-asis-actividad';
+const CLAVE_AVISO    = 'kja-asis-aviso';
+let ULTIMA_ACT = Date.now();
+let vigilante  = null;
+
+function marcarActividad(){
+  ULTIMA_ACT = Date.now();
+  try{ localStorage.setItem(CLAVE_ACT, String(ULTIMA_ACT)); }catch(e){}
+  if($('inact-aviso') && !$('inact-aviso').hidden) $('inact-aviso').hidden = true;
+}
+function iniciarVigilanciaInactividad(){
+  if(vigilante) return;
+  marcarActividad();
+  ['mousedown','keydown','touchstart','wheel','focusin'].forEach(ev=>
+    document.addEventListener(ev, marcarActividad, { passive:true }));
+  vigilante = setInterval(vigilarInactividad, 1000);
+}
+function detenerVigilanciaInactividad(){
+  if(vigilante){ clearInterval(vigilante); vigilante = null; }
+  ['mousedown','keydown','touchstart','wheel','focusin'].forEach(ev=>
+    document.removeEventListener(ev, marcarActividad));
+}
+function vigilarInactividad(){
+  if(!PERFIL.id) return;
+  try{
+    const otra = Number(localStorage.getItem(CLAVE_ACT)) || 0;
+    if(otra > ULTIMA_ACT) ULTIMA_ACT = otra;   // hubo actividad en otra pestaña
+  }catch(e){}
+  const inactivo = Date.now() - ULTIMA_ACT;
+  if(inactivo >= INACTIVIDAD_MS){
+    cerrarSesion('Cerramos tu sesión por 5 minutos de inactividad. Vuelve a ingresar.');
+    return;
+  }
+  const aviso = $('inact-aviso');
+  if(!aviso) return;
+  if(inactivo >= INACTIVIDAD_MS - AVISO_MS){
+    aviso.hidden = false;
+    $('inact-seg').textContent = Math.max(0, Math.ceil((INACTIVIDAD_MS - inactivo)/1000));
+  }else if(!aviso.hidden){
+    aviso.hidden = true;
+  }
+}
 $('pw-toggle').addEventListener('click', ()=>{
   const inp=$('password'), ic=$('pw-icon');
   if(inp.type==='password'){ inp.type='text';
@@ -3097,7 +3229,19 @@ $('pop').addEventListener('click', async e=>{
 document.addEventListener('click', e=>{ if(!e.target.closest('#pop') && !e.target.closest('td.cell')) cerrarPop(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ cerrarPop(); cerrarModal(); cerrarDrawerColab(); } });
 
+/* ── Bloq Mayús: la causa más común de "mi contraseña no funciona" ── */
+['keyup','keydown'].forEach(ev=> $('password').addEventListener(ev, e=>{
+  const on = e.getModifierState && e.getModifierState('CapsLock');
+  $('caps-aviso').hidden = !on;
+}));
+$('password').addEventListener('blur', ()=>{ $('caps-aviso').hidden = true; });
+
 /* ════════════════════ ARRANQUE ════════════════════ */
+/* Aviso heredado del cierre anterior (inactividad), si lo hubo. */
+try{
+  const pend = sessionStorage.getItem(CLAVE_AVISO);
+  if(pend){ sessionStorage.removeItem(CLAVE_AVISO); loginMsg(pend, 'info'); }
+}catch(e){}
 iniciarSesionActiva();
 </script>
 </body>
