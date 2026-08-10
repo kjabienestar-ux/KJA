@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=3">
+<link rel="stylesheet" href="marcar.css?v=4">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -32,7 +32,7 @@
     <p class="sub">Puede que esté incompleto o que dirección lo haya cambiado. Pide el enlace nuevo por el grupo.</p>
   </section>
 
-  <!-- Falla técnica (sin conexión o portal sin instalar) -->
+  <!-- Falla técnica -->
   <section class="tarjeta" id="v-falla" hidden>
     <span class="ico-grande gris">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
@@ -43,11 +43,11 @@
     <button class="btn" onclick="location.reload()">Reintentar</button>
   </section>
 
-  <!-- Elegir quién eres (una sola vez) -->
+  <!-- Elegir nombre -->
   <section class="tarjeta ancha" id="v-elegir" hidden>
     <img class="logo" src="images/logo/kja.webp" alt="KJA" onerror="this.style.display='none'">
-    <h1>¿Quién eres?</h1>
-    <p class="sub">Búscate en la lista y toca tu nombre. <b>Es la única vez que te lo vamos a preguntar</b>: este celular queda registrado como tuyo y la próxima vez entras directo.</p>
+    <h1 id="el-titulo">¿Quién eres?</h1>
+    <p class="sub">Búscate en la lista para marcar tu asistencia.</p>
 
     <div class="buscador">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -58,58 +58,53 @@
     <p class="vacio" id="vacio" hidden>No encontramos ese nombre.<br><span>Revisa cómo lo escribiste o avisa a dirección.</span></p>
   </section>
 
-  <!-- Pedir cambio de dispositivo -->
-  <section class="tarjeta" id="v-pedir" hidden>
-    <span class="avatar-grande" id="pd-ava"></span>
-    <h1 id="pd-nombre">—</h1>
-    <p class="sub">Este nombre ya está registrado en otro equipo. Si eres tú y cambiaste de celular o computadora, pide el cambio.</p>
-    <div class="aviso azul">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      <span><b>Tu marca se guarda con la hora de ahora.</b> Aunque dirección apruebe más tarde, va a quedar registrada a esta hora.</span>
+  <!-- Clave: crear o ingresar -->
+  <section class="tarjeta" id="v-pin" hidden>
+    <span class="avatar-grande" id="pin-ava"></span>
+    <h1 id="pin-titulo">—</h1>
+    <p class="sub" id="pin-sub">—</p>
+
+    <div class="puntos" id="pin-puntos">
+      <i></i><i></i><i></i><i></i>
     </div>
-    <button class="btn" id="btn-pedir">Pedir el cambio</button>
-    <button class="btn-plano" id="btn-volver2">No soy yo, volver</button>
-  </section>
+    <p class="pin-msg" id="pin-msg"></p>
 
-  <!-- Esperando aprobación -->
-  <section class="tarjeta" id="v-espera" hidden>
-    <span class="ico-grande azul">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-    </span>
-    <h1>Tu marca quedó guardada</h1>
-    <p class="sub" id="es-sub">—</p>
-    <div class="sello azul" id="es-sello"><span id="es-hora">—</span></div>
-    <p class="pie">Dirección tiene que confirmar que este equipo es tuyo. Cuando lo apruebe, tu asistencia se registra con <b>esa</b> hora, no con la de la aprobación.</p>
-  </section>
-
-  <!-- Confirmar la elección -->
-  <section class="tarjeta" id="v-confirmar" hidden>
-    <span class="avatar-grande" id="cf-ava"></span>
-    <h1 id="cf-nombre">—</h1>
-    <p class="sub">Este celular va a quedar registrado como tuyo, y solo podrás marcar tu propia asistencia.</p>
-    <div class="aviso">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
-      <span>Si este no eres tú, vuelve y elige tu nombre. Después no se puede cambiar solo.</span>
-    </div>
-    <button class="btn" id="btn-confirmar">Sí, soy yo</button>
-    <button class="btn-plano" id="btn-volver">Elegir otro nombre</button>
-  </section>
-
-  <!-- Marcar -->
-  <section class="tarjeta" id="v-marcar" hidden>
-    <span class="avatar-grande" id="mk-ava"></span>
-    <p class="saludo" id="mk-saludo">Hola</p>
-    <h1 id="mk-nombre">—</h1>
-    <p class="fecha" id="mk-fecha">—</p>
-
-    <div class="reloj" id="mk-reloj">--:--</div>
-
-    <div class="franja" id="mk-franja" hidden>
-      <span>Tu entrada</span><b id="mk-entrada">—</b>
+    <div class="teclado" id="teclado">
+      <button data-n="1">1</button><button data-n="2">2</button><button data-n="3">3</button>
+      <button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
+      <button data-n="7">7</button><button data-n="8">8</button><button data-n="9">9</button>
+      <button class="vacia" disabled></button>
+      <button data-n="0">0</button>
+      <button data-borrar aria-label="Borrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5H9l-6 7 6 7h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="m17 9-5 6M12 9l5 6"/></svg>
+      </button>
     </div>
 
-    <button class="btn grande" id="btn-marcar">Marcar mi asistencia</button>
-    <p class="pie" id="mk-pie"></p>
+    <button class="btn-plano" id="pin-volver">No soy yo, volver</button>
+  </section>
+
+  <!-- Mi día -->
+  <section class="tarjeta" id="v-dia" hidden>
+    <span class="avatar-grande" id="d-ava"></span>
+    <p class="saludo" id="d-saludo">Hola</p>
+    <h1 id="d-nombre">—</h1>
+    <p class="fecha" id="d-fecha">—</p>
+
+    <div class="reloj" id="d-reloj">--:--</div>
+
+    <div class="horario" id="d-horario" hidden>
+      <div class="h-bloque"><span>Entrada</span><b id="d-ini">—</b></div>
+      <div class="h-sep"></div>
+      <div class="h-bloque"><span>Salida</span><b id="d-fin">—</b></div>
+      <div class="h-sep"></div>
+      <div class="h-bloque"><span>Modalidad</span><b id="d-mod">—</b></div>
+    </div>
+
+    <div class="cuenta" id="d-cuenta" hidden><span id="d-cuenta-txt">—</span></div>
+
+    <button class="btn grande" id="d-marcar">Marcar mi asistencia</button>
+    <p class="pie" id="d-pie"></p>
+    <button class="btn-plano" id="d-salir">Salir</button>
   </section>
 
   <!-- Resultado -->
@@ -119,6 +114,7 @@
     <p class="sub" id="ls-sub">—</p>
     <div class="sello" id="ls-sello"><span id="ls-hora">—</span></div>
     <p class="pie" id="ls-pie"></p>
+    <button class="btn-plano" id="ls-salir">Salir</button>
   </section>
 
   <p class="marca-agua">KJA · Registro de asistencia</p>
@@ -134,56 +130,56 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
   auth: { persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
 });
 const $ = id => document.getElementById(id);
-
 const CLAVE = new URLSearchParams(location.search).get('k') || '';
-const LLAVE_DISP = 'kja-marcar-dispositivo';
 
-/* ── Identificador del dispositivo ──
-   Es un número al azar guardado en el navegador. No identifica a la persona
-   por sí solo: solo sirve para que el servidor recuerde a quién se amarró. */
-function dispositivo(){
+/* Solo se recuerda A QUIÉN preguntarle, nunca su clave: al volver entra
+   directo al teclado en vez de buscarse otra vez en la lista. */
+const LLAVE_YO = 'kja-marcar-quien';
+/* Identificador del equipo: no da acceso a nada, solo deja rastro para que
+   dirección note si varias personas marcan desde el mismo aparato. */
+const LLAVE_EQ = 'kja-marcar-equipo';
+function equipo(){
   let d = null;
-  try{ d = localStorage.getItem(LLAVE_DISP); }catch(e){}
+  try{ d = localStorage.getItem(LLAVE_EQ); }catch(e){}
   if(!d){
     d = (crypto.randomUUID ? crypto.randomUUID()
         : Date.now().toString(36) + Math.random().toString(36).slice(2));
-    try{ localStorage.setItem(LLAVE_DISP, d); }catch(e){}
+    try{ localStorage.setItem(LLAVE_EQ, d); }catch(e){}
   }
   return d;
 }
-const DISP = dispositivo();
+const EQUIPO = equipo();
 
 /* ════════════════════ VISTAS ════════════════════ */
-const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-confirmar','v-pedir','v-espera','v-marcar','v-listo'];
+const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-pin','v-dia','v-listo'];
 function ver(id){ VISTAS.forEach(v => $(v).hidden = (v !== id)); }
 
-/* ── Personaje ilustrado, el mismo criterio de color del panel ── */
 function hashN(s){ let h=0; for(const c of (s||'')) h=(h*31+c.charCodeAt(0))>>>0; return h; }
 function colorDe(n){ return `hsl(${hashN(n)%360} 62% 46%)`; }
 function iniciales(n){
   const p=(n||'').trim().split(/\s+/).filter(x=>x.length>2);
-  return ((p[0]||'')[0]||'' ).toUpperCase() + ((p[1]||'')[0]||'').toUpperCase();
+  return ((p[0]||'')[0]||'').toUpperCase() + ((p[1]||'')[0]||'').toUpperCase();
 }
-function pintarAvatar(el, nombre){
-  el.textContent = iniciales(nombre);
-  el.style.background = colorDe(nombre);
-}
-
-/* Nombre corto respetando partículas: "Erika del Socorro" → "Erika" */
+function pintarAvatar(el, nombre){ el.textContent = iniciales(nombre); el.style.background = colorDe(nombre); }
 function primerNombre(n){ return (n||'').trim().split(/\s+/)[0] || ''; }
 
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','setiembre','octubre','noviembre','diciembre'];
 const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 function fechaLarga(iso){
   const [a,m,d] = iso.split('-').map(Number);
-  const f = new Date(a, m-1, d);
-  const t = `${DIAS[f.getDay()]} ${d} de ${MESES[m-1]}`;
+  const t = `${DIAS[new Date(a,m-1,d).getDay()]} ${d} de ${MESES[m-1]}`;
   return t[0].toUpperCase() + t.slice(1);
 }
 function hhmm(t){ return t ? String(t).slice(0,5) : ''; }
+function minutos(t){ const [h,m] = String(t).split(':').map(Number); return h*60 + m; }
+function saludo(){
+  const h = new Date().getHours();
+  return h < 12 ? 'Buenos días,' : h < 19 ? 'Buenas tardes,' : 'Buenas noches,';
+}
+const MODS = { virtual:'Virtual', presencial:'Presencial', opcional:'Opcional', no_gestiona:'No gestiona' };
 
-/* ════════════════════ FLUJO ════════════════════ */
-let PERSONAS = [], OCUPADAS = [], ELEGIDO = null, ESTADO = null;
+/* ════════════════════ ESTADO ════════════════════ */
+let PERSONAS = [], YO = null, PIN = '', MODO_PIN = 'entrar', DIA = null, tReloj = null;
 
 function verFalla(error){
   const falta = /PGRST202|does not exist|schema cache/i.test(error.message || '');
@@ -197,111 +193,141 @@ function verFalla(error){
 
 async function cargar(){
   if(!CLAVE) return ver('v-clave');
-  const { data, error } = await db.rpc('asis_portal_estado', { p_clave: CLAVE, p_disp: DISP });
-  /* Falla técnica (sin conexión, o la migración del portal no está corrida)
-     ≠ clave equivocada. Mezclarlas manda a buscar el error donde no está. */
+  const { data, error } = await db.rpc('asis_portal_personas', { p_clave: CLAVE });
   if(error) return verFalla(error);
   if(!data || !data.ok) return ver('v-clave');
-  ESTADO = data;
+  PERSONAS = data.personas || [];
 
-  if(!data.vinculado){
-    if(data.pendiente) return pintarEspera(data.pendiente);
-    PERSONAS = data.personas || [];
-    OCUPADAS = data.ocupadas || [];
-    pintarLista($('buscar').value || '');
-    return ver('v-elegir');
-  }
-  pintarMarcar(data);
+  // ¿Este equipo ya se usó? Se salta la búsqueda y va directo al teclado.
+  let ultimo = null;
+  try{ ultimo = localStorage.getItem(LLAVE_YO); }catch(e){}
+  const rec = ultimo && PERSONAS.find(p => String(p.id) === String(ultimo));
+  if(rec) return abrirPin(rec);
+
+  pintarLista('');
+  ver('v-elegir');
 }
 
-function pintarEspera(p){
-  const n = primerNombre(p.nombre);
-  $('es-sub').textContent = p.labora
-    ? `Guardamos tu asistencia, ${n}${p.estado_previsto==='T' ? ', con tardanza' : ''}.`
-    : `Registramos tu pedido, ${n}. Hoy no te tocaba laborar.`;
-  $('es-sello').hidden = !p.labora;
-  $('es-hora').textContent = hhmm(p.hora);
-  ver('v-espera');
-}
-
-/* ── Elegir nombre ──
-   Dos grupos: los libres se toman de una; los ya registrados en otro equipo
-   solo pueden pedir el cambio, que aprueba dirección. */
-function fila(p, tomado){
-  return `<button class="persona${tomado?' tomada':''}" data-id="${p.id}" data-tomado="${tomado?1:0}">
-      <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}</span>
-      <span class="p-txt"><b>${p.nombre}</b><i>${tomado ? 'Registrado en otro equipo' : (p.area||'')}</i></span>
-      <span class="p-chev">${tomado ? '⟳' : '›'}</span>
-    </button>`;
-}
+/* ── Lista de nombres ── */
 function pintarLista(filtro){
   const f = (filtro||'').trim().toLowerCase();
-  const coincide = p => !f || p.nombre.toLowerCase().includes(f);
-  const libres = PERSONAS.filter(coincide), tomados = OCUPADAS.filter(coincide);
-  $('vacio').hidden = (libres.length + tomados.length) > 0;
-  $('lista').innerHTML =
-      libres.map(p => fila(p,false)).join('')
-    + (tomados.length ? `<p class="grupo">Ya registrados en otro equipo</p>` : '')
-    + tomados.map(p => fila(p,true)).join('');
+  const vis = f ? PERSONAS.filter(p => p.nombre.toLowerCase().includes(f)) : PERSONAS;
+  $('vacio').hidden = vis.length > 0;
+  $('lista').innerHTML = vis.map(p => `
+    <button class="persona" data-id="${p.id}">
+      <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}</span>
+      <span class="p-txt"><b>${p.nombre}</b><i>${p.tiene_clave ? (p.area||'') : 'Primera vez · crea tu clave'}</i></span>
+      <span class="p-chev">›</span>
+    </button>`).join('');
+  $('lista').querySelectorAll('.persona').forEach(b => b.onclick = () =>
+    abrirPin(PERSONAS.find(p => String(p.id) === b.dataset.id)));
+}
+$('buscar').addEventListener('input', e => pintarLista(e.target.value));
 
-  $('lista').querySelectorAll('.persona').forEach(b => b.onclick = () => {
-    const tomado = b.dataset.tomado === '1';
-    const lista = tomado ? OCUPADAS : PERSONAS;
-    ELEGIDO = lista.find(p => String(p.id) === b.dataset.id);
-    if(tomado){
-      pintarAvatar($('pd-ava'), ELEGIDO.nombre);
-      $('pd-nombre').textContent = ELEGIDO.nombre;
-      return ver('v-pedir');
+/* ── Teclado de la clave ── */
+function abrirPin(persona){
+  YO = persona; PIN = ''; MODO_PIN = persona.tiene_clave ? 'entrar' : 'crear';
+  pintarAvatar($('pin-ava'), YO.nombre);
+  $('pin-titulo').textContent = primerNombre(YO.nombre);
+  $('pin-sub').textContent = MODO_PIN === 'crear'
+    ? 'Crea tu clave de 4 dígitos. La vas a usar cada vez que marques, así que elige una que recuerdes.'
+    : 'Escribe tu clave de 4 dígitos.';
+  pinMsg('');
+  pintarPuntos();
+  ver('v-pin');
+}
+function pinMsg(t, tipo){
+  const e = $('pin-msg');
+  e.textContent = t || '';
+  e.className = 'pin-msg' + (tipo ? ' ' + tipo : '');
+}
+function pintarPuntos(){
+  $('pin-puntos').querySelectorAll('i').forEach((el,i)=> el.classList.toggle('on', i < PIN.length));
+}
+function sacudir(){
+  const p = $('pin-puntos');
+  p.classList.remove('mal'); void p.offsetWidth; p.classList.add('mal');
+}
+$('teclado').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b || b.disabled) return;
+  if(b.hasAttribute('data-borrar')){ PIN = PIN.slice(0,-1); pinMsg(''); return pintarPuntos(); }
+  if(PIN.length >= 4) return;
+  PIN += b.dataset.n; pintarPuntos();
+  if(PIN.length === 4) setTimeout(enviarPin, 150);
+});
+document.addEventListener('keydown', e => {
+  if($('v-pin').hidden) return;
+  if(/^[0-9]$/.test(e.key) && PIN.length < 4){
+    PIN += e.key; pintarPuntos();
+    if(PIN.length === 4) setTimeout(enviarPin, 150);
+  } else if(e.key === 'Backspace'){ PIN = PIN.slice(0,-1); pinMsg(''); pintarPuntos(); }
+});
+$('pin-volver').addEventListener('click', () => {
+  try{ localStorage.removeItem(LLAVE_YO); }catch(e){}
+  YO = null; PIN = '';
+  pintarLista($('buscar').value || '');
+  ver('v-elegir');
+});
+
+let PIN_PRIMERO = '';
+/* Mismas que rechaza el servidor. Se comprueban también acá para no hacerle
+   escribir dos veces una clave que igual va a ser rechazada. */
+const CLAVES_OBVIAS = ['0000','1111','2222','3333','4444','5555','6666','7777','8888','9999',
+                       '1234','4321','1212','2580','0123','9876'];
+async function enviarPin(){
+  // Crear la clave pide escribirla dos veces
+  if(MODO_PIN === 'crear' && !PIN_PRIMERO){
+    if(CLAVES_OBVIAS.includes(PIN)){
+      PIN = ''; pintarPuntos(); sacudir();
+      return pinMsg('Esa clave es muy fácil de adivinar. Elige otra.', 'mal');
     }
-    pintarAvatar($('cf-ava'), ELEGIDO.nombre);
-    $('cf-nombre').textContent = ELEGIDO.nombre;
-    ver('v-confirmar');
-  });
+    PIN_PRIMERO = PIN; PIN = ''; pintarPuntos();
+    $('pin-sub').textContent = 'Ahora repítela para confirmar.';
+    return pinMsg('');
+  }
+  if(MODO_PIN === 'crear' && PIN_PRIMERO && PIN !== PIN_PRIMERO){
+    PIN_PRIMERO = ''; PIN = ''; pintarPuntos(); sacudir();
+    $('pin-sub').textContent = 'Crea tu clave de 4 dígitos.';
+    return pinMsg('No coincidieron. Empecemos de nuevo.', 'mal');
+  }
+
+  pinMsg('Un momento…');
+  const fn = MODO_PIN === 'crear' ? 'asis_portal_crear_clave' : 'asis_portal_entrar';
+  const { data, error } = await db.rpc(fn, { p_clave: CLAVE, p_colab: YO.id, p_pin: PIN });
+  if(error){ PIN=''; pintarPuntos(); return verFalla(error); }
+
+  if(data && data.ok){
+    try{ localStorage.setItem(LLAVE_YO, String(YO.id)); }catch(e){}
+    YO.tiene_clave = true;
+    return pintarDia(data.dia);
+  }
+
+  const m = (data && data.motivo) || '';
+  PIN = ''; PIN_PRIMERO = ''; pintarPuntos(); sacudir();
+  if(m === 'obvia')      return pinMsg('Esa clave es muy fácil de adivinar. Elige otra.', 'mal');
+  if(m === 'ya_tiene'){  MODO_PIN='entrar'; $('pin-sub').textContent='Escribe tu clave de 4 dígitos.';
+                         return pinMsg('Ya tenías una clave creada.', 'mal'); }
+  if(m === 'sin_clave'){ MODO_PIN='crear';  $('pin-sub').textContent='Crea tu clave de 4 dígitos.';
+                         return pinMsg('Todavía no tienes clave. Créala ahora.', 'mal'); }
+  if(m === 'bloqueado')  return pinMsg(`Demasiados intentos. Vuelve en ${data.minutos} min o pide a dirección que reinicie tu clave.`, 'mal');
+  if(m === 'incorrecta'){
+    const r = data.restantes;
+    return pinMsg(r > 0 ? `Clave incorrecta. Te quedan ${r} ${r===1?'intento':'intentos'}.`
+                        : 'Clave incorrecta.', 'mal');
+  }
+  pinMsg('No se pudo. Intenta de nuevo.', 'mal');
 }
 
-$('btn-volver2').addEventListener('click', () => ver('v-elegir'));
-$('btn-pedir').addEventListener('click', async () => {
-  const b = $('btn-pedir'); b.disabled = true; b.textContent = 'Enviando…';
-  const { data, error } = await db.rpc('asis_portal_solicitar', {
-    p_clave: CLAVE, p_disp: DISP, p_colab: ELEGIDO.id, p_agente: navigator.userAgent
-  });
-  b.disabled = false; b.textContent = 'Pedir el cambio';
-  if(error || !data || !data.ok){
-    alert('No se pudo enviar el pedido. Intenta de nuevo o avisa a dirección.');
-    return;
-  }
-  cargar();
-});
-$('buscar').addEventListener('input', e => pintarLista(e.target.value));
-$('btn-volver').addEventListener('click', () => ver('v-elegir'));
+/* ── Mi día ── */
+function pintarDia(dia){
+  DIA = dia;
+  pintarAvatar($('d-ava'), dia.nombre);
+  $('d-saludo').textContent = saludo();
+  $('d-nombre').textContent = primerNombre(dia.nombre);
+  $('d-fecha').textContent = fechaLarga(dia.fecha);
 
-$('btn-confirmar').addEventListener('click', async () => {
-  const b = $('btn-confirmar'); b.disabled = true; b.textContent = 'Registrando…';
-  const { data, error } = await db.rpc('asis_portal_vincular', {
-    p_clave: CLAVE, p_disp: DISP, p_colab: ELEGIDO.id, p_agente: navigator.userAgent
-  });
-  b.disabled = false; b.textContent = 'Sí, soy yo';
-  if(error || !data || !data.ok){
-    const motivo = (data && data.motivo) || '';
-    alert(motivo === 'nombre_ocupado'
-      ? 'Ese nombre ya fue tomado desde otro celular. Avisa a dirección para que lo revise.'
-      : motivo === 'dispositivo_ocupado'
-        ? 'Este celular ya está registrado con otro nombre.'
-        : 'No se pudo registrar. Intenta de nuevo en un momento.');
-    return cargar();
-  }
-  cargar();
-});
-
-/* ── Pantalla de marcar ── */
-function pintarMarcar(d){
-  pintarAvatar($('mk-ava'), d.nombre);
-  $('mk-saludo').textContent = 'Hola,';
-  $('mk-nombre').textContent = primerNombre(d.nombre);
-  $('mk-fecha').textContent = fechaLarga(d.fecha);
-
-  if(d.marcado)  return pintarListo(d.estado, d.marcado_at ? new Date(d.marcado_at) : null, true);
-  if(!d.labora){
+  if(dia.marcado)  return pintarListo(dia.estado, dia.marcado_at ? new Date(dia.marcado_at) : null, true);
+  if(!dia.labora){
     $('ls-ico').className = 'ico-grande gris';
     $('ls-ico').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>';
     $('ls-titulo').textContent = 'Hoy no te toca';
@@ -310,44 +336,62 @@ function pintarMarcar(d){
     return ver('v-listo');
   }
 
-  if(d.hora_entrada){
-    $('mk-franja').hidden = false;
-    $('mk-entrada').textContent = hhmm(d.hora_entrada);
-    $('mk-pie').textContent = `Después de las ${sumaMin(d.hora_entrada, d.tolerancia)} tu marca cuenta como tardanza.`;
-  }else{
-    $('mk-franja').hidden = true;
-    $('mk-pie').textContent = 'No tienes hora de entrada registrada. Avisa a dirección para que la cargue.';
+  const hay = !!dia.hora_entrada;
+  $('d-horario').hidden = !hay;
+  if(hay){
+    $('d-ini').textContent = hhmm(dia.hora_entrada);
+    $('d-fin').textContent = hhmm(dia.hora_salida) || '—';
+    $('d-mod').textContent = MODS[dia.modalidad] || 'Virtual';
   }
+  $('d-pie').textContent = hay
+    ? `Si marcas después de las ${hhmm(dia.limite)}, cuenta como tardanza.`
+    : 'No tienes hora de entrada registrada. Avisa a dirección para que la cargue.';
   relojVivo();
-  ver('v-marcar');
+  ver('v-dia');
 }
-function sumaMin(t, min){
-  const [h,m] = String(t).split(':').map(Number);
-  const x = h*60 + m + (min||0);
-  return String(Math.floor(x/60)%24).padStart(2,'0') + ':' + String(x%60).padStart(2,'0');
+
+/* Mensaje que cambia solo según cuánto falta para el límite: es lo que
+   convierte la pantalla en algo vivo en vez de un botón mudo. */
+function pintarCuenta(){
+  const c = $('d-cuenta'), t = $('d-cuenta-txt');
+  if(!DIA || !DIA.limite){ c.hidden = true; return; }
+  const f = new Date();
+  const ahora = f.getHours()*60 + f.getMinutes();
+  const falta = minutos(DIA.limite) - ahora;
+  c.hidden = false;
+  if(falta > 60){ c.className = 'cuenta ok';   t.textContent = 'Vas con tiempo de sobra.'; }
+  else if(falta > 1){ c.className = 'cuenta ok';   t.textContent = `Te quedan ${falta} min para marcar como presente.`; }
+  else if(falta >= 0){ c.className = 'cuenta pronto'; t.textContent = 'Último minuto para marcar como presente.'; }
+  else {
+    c.className = 'cuenta tarde';
+    const d = Math.abs(falta);
+    t.textContent = d < 60 ? `Vas ${d} min tarde: se registrará como tardanza.`
+                           : 'Fuera de tu horario: se registrará como tardanza.';
+  }
 }
-let tReloj=null;
 function relojVivo(){
   const pinta = () => {
     const f = new Date();
-    $('mk-reloj').textContent = String(f.getHours()).padStart(2,'0')+':'+String(f.getMinutes()).padStart(2,'0');
+    $('d-reloj').textContent = String(f.getHours()).padStart(2,'0')+':'+String(f.getMinutes()).padStart(2,'0');
+    pintarCuenta();
   };
-  pinta(); clearInterval(tReloj); tReloj = setInterval(pinta, 10000);
+  pinta(); clearInterval(tReloj); tReloj = setInterval(pinta, 15000);
 }
 
-$('btn-marcar').addEventListener('click', async () => {
-  const b = $('btn-marcar'); b.disabled = true; b.textContent = 'Marcando…';
-  const { data, error } = await db.rpc('asis_portal_marcar', { p_clave: CLAVE, p_disp: DISP });
+$('d-marcar').addEventListener('click', async () => {
+  const b = $('d-marcar'); b.disabled = true; b.textContent = 'Marcando…';
+  const { data, error } = await db.rpc('asis_portal_marcar', {
+    p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_disp: EQUIPO
+  });
   b.disabled = false; b.textContent = 'Marcar mi asistencia';
-  if(error || !data){ alert('No se pudo marcar. Revisa tu conexión e intenta de nuevo.'); return; }
-
-  if(data.ok) return pintarListo(data.estado, new Date(), false);
-  if(data.motivo === 'ya_marcado') return pintarListo(data.estado, data.marcado_at ? new Date(data.marcado_at) : null, true);
-  if(data.motivo === 'no_labora')  return cargar();
+  if(error) return verFalla(error);
+  if(data && data.ok)               return pintarListo(data.estado, new Date(), false);
+  if(data.motivo === 'ya_marcado')  return pintarListo(data.estado, data.marcado_at ? new Date(data.marcado_at) : null, true);
+  if(data.motivo === 'no_labora')   return pintarDia(Object.assign({}, DIA, { labora:false }));
+  if(data.motivo === 'incorrecta'){ PIN=''; return abrirPin(YO); }
   alert('No se pudo marcar. Avisa a dirección.');
 });
 
-/* ── Resultado ── */
 const ICO_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 const ICO_T  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
 function pintarListo(estado, cuando, yaEstaba){
@@ -357,25 +401,26 @@ function pintarListo(estado, cuando, yaEstaba){
   $('ls-ico').innerHTML = tarde ? ICO_T : ICO_OK;
   $('ls-titulo').textContent = yaEstaba
     ? (tarde ? 'Marcaste con tardanza' : 'Ya marcaste hoy')
-    : (tarde ? 'Asistencia con tardanza' : '¡Asistencia registrada!');
+    : (tarde ? 'Asistencia con tardanza' : '¡Listo, quedó registrada!');
   $('ls-sub').textContent = yaEstaba
-    ? 'Ya habías marcado hoy. Se registra una sola vez al día.'
+    ? 'Tu asistencia de hoy ya estaba registrada. Se marca una sola vez al día.'
     : (tarde ? 'Quedó guardada, pero fuera de tu horario de entrada.'
-             : 'Quedó guardada dentro de tu horario. Que tengas buen día.');
+             : 'Dentro de tu horario. Que tengas buen día.');
   $('ls-sello').hidden = false;
   $('ls-sello').className = 'sello ' + (tarde ? 'ambar' : 'verde');
   $('ls-hora').textContent = cuando
     ? String(cuando.getHours()).padStart(2,'0')+':'+String(cuando.getMinutes()).padStart(2,'0')
     : '—';
-  $('ls-pie').textContent = tarde
-    ? 'Si tuviste un motivo, coméntalo con dirección para que lo justifique.'
-    : '';
+  $('ls-pie').textContent = tarde ? 'Si tuviste un motivo, coméntalo con dirección para que lo justifique.' : '';
   ver('v-listo');
 }
 
+/* Salir = olvidar la clave de esta sesión, no el nombre */
+function salir(){ PIN=''; PIN_PRIMERO=''; clearInterval(tReloj); abrirPin(YO); }
+$('d-salir').addEventListener('click', salir);
+$('ls-salir').addEventListener('click', salir);
+
 cargar();
-/* Al volver a la pestaña, refrescar por si el día cambió o ya marcaron */
-document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) cargar(); });
 </script>
 </body>
 </html>

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=19">
+<link rel="stylesheet" href="asistencia.css?v=20">
 </head>
 <body>
 
@@ -2116,23 +2116,20 @@ async function marcarExcepcionTrabajo(colabId, fecha){
 }
 
 /* ════════════════════ MARCADO PROPIO (solo dirección) ════════════════════
-   El enlace que se reparte, los pedidos de cambio de dispositivo y qué equipo
-   tiene registrado cada persona. */
-let PORTAL_CFG = null, SOLICITUDES = [], VINCULOS = [];
+   El enlace que se reparte y el estado de la clave de cada persona. */
+let PORTAL_CFG = null, CLAVES = {};
 
 async function cargarPortal(){
-  const [cfg, sol, vin] = await Promise.all([
+  const [cfg, est] = await Promise.all([
     db.from('asis_portal_config').select('clave,tolerancia_min,activo').eq('id',1).maybeSingle(),
-    db.from('asis_solicitudes_dispositivo')
-      .select('id,colaborador_id,fecha,hora,labora,estado_previsto,solicitado_at,agente')
-      .eq('estado','pendiente').order('solicitado_at'),
-    db.from('asis_vinculos').select('colaborador_id,dispositivo,agente,creado_at')
+    db.rpc('asis_estado_claves')
   ]);
-  PORTAL_CFG  = cfg.data || null;
-  SOLICITUDES = sol.data || [];
-  VINCULOS    = vin.data || [];
+  PORTAL_CFG = cfg.data || null;
+  CLAVES = {};
+  if(est.data && est.data.ok) (est.data.claves||[]).forEach(k=> CLAVES[k.colaborador_id] = k);
+  const n = Object.values(CLAVES).filter(k=>k.bloqueado).length;
   const bd = $('badge-disp');
-  if(bd){ bd.textContent = SOLICITUDES.length; bd.hidden = SOLICITUDES.length === 0; }
+  if(bd){ bd.textContent = n; bd.hidden = n === 0; }
 }
 
 function enlacePortal(){
@@ -2142,26 +2139,23 @@ function enlacePortal(){
     : 'https://www.kjadmb.com/marcar';
   return base + '?k=' + PORTAL_CFG.clave;
 }
-/* Navegador que usó la persona, en dos palabras: sirve para reconocer si el
-   equipo nuevo es plausible ("Android" cuando siempre entró por iPhone). */
-function equipoLegible(ua){
-  if(!ua) return 'Equipo desconocido';
-  const s = ua.toLowerCase();
-  const so = s.includes('iphone') ? 'iPhone' : s.includes('ipad') ? 'iPad'
-           : s.includes('android') ? 'Android' : s.includes('windows') ? 'Windows'
-           : s.includes('mac') ? 'Mac' : s.includes('linux') ? 'Linux' : 'Otro';
-  const nav = s.includes('edg/') ? 'Edge' : s.includes('opr/') ? 'Opera'
-            : s.includes('brave') ? 'Brave' : s.includes('chrome') ? 'Chrome'
-            : s.includes('firefox') ? 'Firefox' : s.includes('safari') ? 'Safari' : '';
-  return nav ? `${so} · ${nav}` : so;
-}
 function haceCuanto(iso){
-  const d = Math.floor((Date.now() - new Date(iso).getTime())/86400000);
-  if(d <= 0) return 'hoy';
-  if(d === 1) return 'ayer';
-  if(d < 30)  return `hace ${d} días`;
+  if(!iso) return '—';
+  const min = Math.floor((Date.now() - new Date(iso).getTime())/60000);
+  if(min < 1)  return 'recién';
+  if(min < 60) return `hace ${min} min`;
+  const h = Math.floor(min/60);
+  if(h < 24)   return `hace ${h} h`;
+  const d = Math.floor(h/24);
+  if(d === 1)  return 'ayer';
+  if(d < 30)   return `hace ${d} días`;
   const m = Math.round(d/30);
   return `hace ${m} mes${m===1?'':'es'}`;
+}
+/* El bloqueo mira hacia adelante: "se libera en 12 min" */
+function enCuanto(iso){
+  const min = Math.ceil((new Date(iso).getTime() - Date.now())/60000);
+  return min <= 0 ? 'ya' : `en ${min} min`;
 }
 
 async function renderDispositivos(){
@@ -2172,38 +2166,32 @@ async function renderDispositivos(){
     return;
   }
   const enlace = enlacePortal();
+  const activos = COLABS.filter(c=>c.activo);
+  const conClave = activos.filter(c=> CLAVES[c.id]);
+  const sinClave = activos.filter(c=> !CLAVES[c.id]);
+  const bloqueados = conClave.filter(c=> CLAVES[c.id].bloqueado);
 
-  const pend = SOLICITUDES.map(s=>{
-    const c = COLABS.find(x=>String(x.id)===String(s.colaborador_id));
-    const vie = VINCULOS.find(v=>String(v.colaborador_id)===String(s.colaborador_id));
-    const est = s.labora
-      ? `Intentó marcar a las <b>${String(s.hora).slice(0,5)}</b> · entraría como <b class="e-${s.estado_previsto}">${ESTADOS[s.estado_previsto]?.lbl||s.estado_previsto}</b>`
-      : 'Ese día no le tocaba laborar, no se registra asistencia';
-    return `<div class="sol-card">
-      <span class="sol-ava" style="background:${colorDe(c?c.nombre:'?')}">${iniciales(c?c.nombre:'?')}</span>
+  const fila = c=>{
+    const k = CLAVES[c.id];
+    const alerta = k.bloqueado || k.fallidos_total >= 5;
+    return `<div class="vin-row${k.bloqueado?' bloqueado':''}">
+      <span class="sol-ava chico" style="background:${colorDe(c.nombre)}">${iniciales(c.nombre)}</span>
       <div class="sol-txt">
-        <b>${esc(c?c.nombre:'Colaborador #'+s.colaborador_id)}</b>
-        <span>${est}</span>
-        <span class="sol-eq">Equipo nuevo: ${esc(equipoLegible(s.agente))}${vie?` · el anterior era ${esc(equipoLegible(vie.agente))}, registrado ${haceCuanto(vie.creado_at)}`:''}</span>
+        <b>${esc(c.nombre)}</b>
+        <span>${k.bloqueado
+          ? `Bloqueado por intentos fallidos · se libera ${enCuanto(k.bloqueado_hasta)}`
+          : `Último ingreso ${haceCuanto(k.ultimo_ingreso)}`}</span>
+        ${alerta && !k.bloqueado ? `<span class="sol-eq">${k.fallidos_total} intentos fallidos en total</span>` : ''}
       </div>
-      <div class="sol-btns">
-        <button class="btn-mini ok" data-aprobar="${s.id}">Aprobar</button>
-        <button class="btn-mini no" data-rechazar="${s.id}">Rechazar</button>
-      </div>
+      <button class="btn-mini no" data-reiniciar="${c.id}">Reiniciar</button>
     </div>`;
-  }).join('');
-
-  const conEquipo = VINCULOS.map(v=>{
-    const c = COLABS.find(x=>String(x.id)===String(v.colaborador_id));
-    return { v, c, nombre: c ? c.nombre : 'Colaborador #'+v.colaborador_id };
-  }).sort((a,b)=> a.nombre.localeCompare(b.nombre));
-  const sinEquipo = COLABS.filter(c=> c.activo && !VINCULOS.some(v=>String(v.colaborador_id)===String(c.id)));
+  };
 
   cont.innerHTML = `
     <div class="disp-wrap">
       <section class="disp-card enlace">
         <div class="disp-head"><h3>El enlace del equipo</h3>
-          <span class="disp-nota">Es el mismo para todos. Cada equipo se identifica solo la primera vez.</span></div>
+          <span class="disp-nota">Es el mismo para todos. Cada persona entra con su nombre y su clave.</span></div>
         <div class="enl-row">
           <input id="enl-input" readonly value="${esc(enlace)}">
           <button class="btn-mini ok" id="enl-copiar">Copiar</button>
@@ -2212,23 +2200,27 @@ async function renderDispositivos(){
         <p class="disp-nota">Tolerancia actual: <b>${PORTAL_CFG.tolerancia_min} min</b> desde la hora de entrada de cada persona.</p>
       </section>
 
+      ${bloqueados.length ? `
       <section class="disp-card">
-        <div class="disp-head"><h3>Pedidos de cambio de equipo</h3>
-          <span class="disp-nota">${SOLICITUDES.length ? 'La marca ya está guardada con la hora del intento: apruebes cuando apruebes, se registra a esa hora.' : ''}</span></div>
-        ${pend || '<div class="disp-vacio">No hay pedidos pendientes.</div>'}
+        <div class="disp-head"><h3>Bloqueados ahora</h3>
+          <span class="disp-nota">Cinco intentos fallidos bloquean 15 minutos. Si la olvidó, reinicia su clave y la vuelve a crear al entrar.</span></div>
+        ${bloqueados.map(fila).join('')}
+      </section>` : ''}
+
+      <section class="disp-card">
+        <div class="disp-head"><h3>Claves creadas</h3>
+          <span class="disp-nota">${conClave.length} de ${activos.length} personas ya tienen la suya</span></div>
+        ${conClave.filter(c=>!CLAVES[c.id].bloqueado).map(fila).join('')
+          || '<div class="disp-vacio">Todavía nadie ha creado su clave.</div>'}
       </section>
 
       <section class="disp-card">
-        <div class="disp-head"><h3>Equipos registrados</h3>
-          <span class="disp-nota">${conEquipo.length} de ${conEquipo.length + sinEquipo.length} personas ya usan el enlace</span></div>
-        ${conEquipo.map(({v,c,nombre})=>`
-          <div class="vin-row">
-            <span class="sol-ava chico" style="background:${colorDe(nombre)}">${iniciales(nombre)}</span>
-            <div class="sol-txt"><b>${esc(nombre)}</b>
-              <span>${esc(equipoLegible(v.agente))} · desde ${haceCuanto(v.creado_at)}</span></div>
-            <button class="btn-mini no" data-soltar="${v.colaborador_id}">Soltar</button>
-          </div>`).join('') || '<div class="disp-vacio">Todavía nadie ha usado el enlace.</div>'}
-        ${sinEquipo.length ? `<p class="disp-nota falta">Faltan por registrarse: ${sinEquipo.map(c=>esc(nombreCorto(c.nombre))).join(', ')}</p>` : ''}
+        <div class="disp-head"><h3>Todavía sin clave</h3>
+          <span class="disp-nota">La crean solos la primera vez que abren el enlace</span></div>
+        ${sinClave.length
+          ? `<div class="sin-clave">${sinClave.map(c=>`<span class="sc-chip">
+               <i style="background:${colorDe(c.nombre)}"></i>${esc(nombreCorto(c.nombre))}</span>`).join('')}</div>`
+          : '<div class="disp-vacio">Todo el equipo ya tiene su clave.</div>'}
       </section>
     </div>`;
 
@@ -2236,10 +2228,17 @@ async function renderDispositivos(){
     try{ await navigator.clipboard.writeText(enlace); toast('Enlace copiado'); }
     catch(e){ $('enl-input').select(); toast('Selecciónalo y copia con Ctrl+C', true); }
   };
-  cont.querySelectorAll('[data-aprobar]').forEach(b=> b.onclick = ()=> resolverDisp(b.dataset.aprobar, true));
-  cont.querySelectorAll('[data-rechazar]').forEach(b=> b.onclick = ()=> resolverDisp(b.dataset.rechazar, false));
-  cont.querySelectorAll('[data-soltar]').forEach(b=> b.onclick = ()=> soltarVinculo(b.dataset.soltar));
+  cont.querySelectorAll('[data-reiniciar]').forEach(b=> b.onclick = ()=> reiniciarClave(b.dataset.reiniciar));
   pintarQR(enlace);
+}
+
+async function reiniciarClave(colabId){
+  const c = COLABS.find(x=>String(x.id)===String(colabId));
+  if(!confirm(`¿Reiniciar la clave de ${c?c.nombre:'esta persona'}?\n\nVa a crear una nueva la próxima vez que abra el enlace.`)) return;
+  const { data, error } = await db.rpc('asis_reiniciar_clave', { p_colab:Number(colabId) });
+  if(error || !data || !data.ok){ toast('No se pudo reiniciar', true); return; }
+  toast('Clave reiniciada');
+  render();
 }
 
 /* El QR se genera con una librería que se trae solo al entrar a esta vista.
@@ -2257,23 +2256,6 @@ function pintarQR(texto){
   s.onload  = dibujar;
   s.onerror = ()=> falla('El código QR no cargó, pero el enlace de arriba sirve igual.');
   document.head.appendChild(s);
-}
-
-async function resolverDisp(id, aprobar){
-  if(!aprobar && !confirm('¿Rechazar el pedido? No se registrará ninguna asistencia.')) return;
-  const { data, error } = await db.rpc('asis_resolver_dispositivo', { p_id:Number(id), p_aprobar:aprobar });
-  if(error || !data || !data.ok){ toast('No se pudo: '+((data&&data.motivo)||(error&&error.message)||''), true); return; }
-  toast(aprobar ? (data.registro_creado ? 'Aprobado y asistencia registrada' : 'Aprobado') : 'Pedido rechazado');
-  await cargarMes();
-  render();
-}
-async function soltarVinculo(colabId){
-  const c = COLABS.find(x=>String(x.id)===String(colabId));
-  if(!confirm(`¿Soltar el equipo de ${c?c.nombre:'esta persona'}?\n\nVa a tener que volver a elegir su nombre la próxima vez que abra el enlace.`)) return;
-  const { data, error } = await db.rpc('asis_soltar_vinculo', { p_colab:Number(colabId) });
-  if(error || !data || !data.ok){ toast('No se pudo soltar', true); return; }
-  toast('Equipo soltado');
-  render();
 }
 
 /* ¿Este dispositivo marcó a alguien más ese día? Puede ser legítimo (una
