@@ -18,39 +18,80 @@ button{font-family:inherit;cursor:pointer;}
 :focus-visible{outline:2px solid var(--azul);outline-offset:2px;}
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
 
-/* ─────────── LOGIN ─────────── */
-.login-wrap{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;}
-.login-wrap .bg{position:absolute;inset:-30px;background:linear-gradient(135deg,var(--marino),var(--marino2) 45%,var(--azul));}
-.login-wrap .bg::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 7px);}
-.login-wrap .bg::after{content:"";position:absolute;inset:0;background:radial-gradient(1200px 500px at 80% -10%,rgba(241,0,117,.18),transparent 60%);}
-.btn-volver{position:absolute;top:22px;left:22px;z-index:3;display:inline-flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-size:13.5px;font-weight:600;padding:9px 15px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(6px);transition:.2s;}
-.btn-volver:hover{background:rgba(255,255,255,.22);}
+/* ─────────── LOGIN ───────────
+   Tarjeta de dos paneles: formulario a la izquierda, panel institucional a la
+   derecha (marino con textura de papel de seguridad). El panel es CSS puro, sin
+   imagen: pesa 0 KB y no depende de fotos de archivo ajenas a la marca. */
+.login-wrap{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:hidden;background:var(--papel);}
+.login-wrap::before{content:"";position:absolute;top:-220px;right:-180px;width:760px;height:760px;background:radial-gradient(circle,rgba(0,79,176,.10),transparent 70%);pointer-events:none;}
+.login-wrap::after{content:"";position:absolute;bottom:-240px;left:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(241,0,117,.07),transparent 70%);pointer-events:none;}
+
+.btn-volver{position:absolute;top:22px;left:22px;z-index:3;display:inline-flex;align-items:center;gap:8px;color:var(--marino);text-decoration:none;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;background:#fff;border:1px solid var(--linea);box-shadow:0 4px 14px rgba(6,20,50,.06);transition:.2s;}
+.btn-volver:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(6,20,50,.12);}
 .btn-volver svg{width:18px;height:18px;}
-.login-card{position:relative;z-index:2;width:100%;max-width:400px;background:#fff;border-radius:22px;padding:34px 32px 30px;display:flex;flex-direction:column;align-items:center;box-shadow:0 30px 80px rgba(3,12,32,.45);}
-.login-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:22px 22px 0 0;background:linear-gradient(90deg,var(--rosa),#ff4da6 40%,var(--azul2));}
-.lc-head{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.lc-sello{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--marino),var(--azul));border:2px solid #fff;outline:2px solid var(--azul);outline-offset:1px;}
-.lc-sello svg{width:20px;height:20px;}
-.lc-pill{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:#0f7a3d;background:#e7f8ee;padding:5px 11px;border-radius:999px;}
-.lc-pill i{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 1.8s infinite;}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.55);}70%{box-shadow:0 0 0 7px rgba(34,197,94,0);}100%{box-shadow:0 0 0 0 rgba(34,197,94,0);}}
-.lf-logo{height:34px;margin:6px 0 16px;}
-.login-card h1{font-size:26px;line-height:1.15;text-align:center;margin:0;color:var(--marino);font-weight:700;}
-.lf-sub{font-size:13px;color:var(--gris);margin:10px 0 22px;text-align:center;}
-.lf-foot{margin-top:20px;font-size:12.5px;color:var(--gris);text-align:center;}
-.msg{width:100%;max-width:320px;display:none;font-size:13px;color:#b42318;background:#fef3f2;border:1px solid #fecdca;padding:10px 12px;border-radius:12px;margin-bottom:12px;text-align:center;}
-.in-group{position:relative;width:100%;max-width:320px;margin-bottom:14px;}
-.in-group input{width:100%;padding:15px 18px;border:1px solid transparent;background:#f2f4f7;border-radius:14px;font-size:14px;font-family:inherit;color:#1f2937;transition:.2s;}
-.in-group input::placeholder{color:#98a2b3;}
+
+.login-card{position:relative;z-index:2;display:flex;width:100%;max-width:940px;min-height:540px;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(3,12,32,.16),0 0 0 1px rgba(6,20,50,.04);}
+/* Filo de acento institucional */
+.login-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;z-index:4;background:linear-gradient(90deg,var(--rosa),#ff4da6 40%,var(--azul2));}
+
+/* ── Panel del formulario ── */
+.lc-form{flex:1 1 55%;display:flex;align-items:center;justify-content:center;padding:44px 48px;}
+.login-form{width:100%;max-width:340px;}
+.lf-logo{height:34px;margin-bottom:22px;}
+.login-form h1{font-size:27px;line-height:1.15;margin:0;color:var(--marino);font-weight:700;}
+.lf-sub{font-size:13px;color:var(--gris);margin:10px 0 24px;}
+
+.msg{display:none;font-size:13px;color:#b42318;background:#fef3f2;border:1px solid #fecdca;padding:10px 12px;border-radius:12px;margin-bottom:14px;text-align:center;}
+
+.in-group{position:relative;margin-bottom:14px;}
+.in-group label{display:block;font-size:12px;font-weight:600;color:var(--marino);margin-bottom:6px;}
+.in-group input{width:100%;padding:14px 18px;border:1px solid var(--linea);background:#f7f9fc;border-radius:14px;font-size:14px;font-family:inherit;color:var(--tinta);transition:.2s;}
+.in-group input::placeholder{color:var(--gris2);}
 .in-group input:focus{outline:none;background:#fff;border-color:var(--azul);box-shadow:0 0 0 4px rgba(0,79,176,.1);}
-.pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:6px;background:none;border:none;color:#98a2b3;}
+.pw-wrap input{padding-right:46px;}
+.pw-toggle{position:absolute;right:8px;bottom:8px;padding:6px;background:none;border:none;color:var(--gris2);line-height:0;}
 .pw-toggle:hover{color:var(--azul);}
 .pw-toggle svg{width:20px;height:20px;display:block;}
-.btn-login{width:100%;max-width:320px;padding:15px;border:none;border-radius:16px;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,var(--azul),var(--azul2));transition:.2s;}
-.btn-login:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(0,79,176,.4);}
-.btn-login:disabled{opacity:.6;transform:none;}
+
+.btn-login{width:100%;margin-top:8px;padding:15px;border:none;border-radius:14px;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,var(--azul),var(--azul2));transition:.2s;}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(0,79,176,.32);}
+.btn-login:disabled{opacity:.6;transform:none;box-shadow:none;}
+.lf-foot{margin:20px 0 0;font-size:12.5px;color:var(--gris);text-align:center;}
+
+/* ── Panel institucional ── */
+.lc-art{flex:1 1 45%;position:relative;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:44px 42px;color:#fff;background:linear-gradient(135deg,var(--marino),var(--marino2) 45%,var(--azul));overflow:hidden;}
+/* Textura de papel de seguridad */
+.lc-art::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 7px);pointer-events:none;}
+.lc-art::after{content:"";position:absolute;inset:0;background:radial-gradient(760px 320px at 85% -10%,rgba(241,0,117,.22),transparent 62%);pointer-events:none;}
+.lc-art > *{position:relative;z-index:1;}
+
+.lc-pill{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:#eafff2;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:5px 12px;border-radius:999px;}
+.lc-pill i{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 1.8s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,.55);}70%{box-shadow:0 0 0 7px rgba(74,222,128,0);}100%{box-shadow:0 0 0 0 rgba(74,222,128,0);}}
+
+.lc-sello{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--azul),var(--azul2));border:2px solid rgba(255,255,255,.9);outline:2px solid rgba(255,255,255,.35);outline-offset:3px;margin:6px 0 4px;}
+.lc-sello svg{width:28px;height:28px;}
+.lc-art h2{font-size:23px;line-height:1.25;margin:0;font-weight:700;}
+.lc-art p{margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,.82);}
+.lc-nota{margin-top:auto !important;padding-top:20px;font-size:12px !important;color:rgba(255,255,255,.6) !important;border-top:1px solid rgba(255,255,255,.14);}
+
 .login-card.shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97);}
 @keyframes shake{10%,90%{transform:translateX(-1px);}20%,80%{transform:translateX(2px);}30%,50%,70%{transform:translateX(-4px);}40%,60%{transform:translateX(4px);}}
+
+/* ── Responsive ── */
+@media (max-width:880px){
+  /* En columna el botón deja de flotar: si no, se encima del logo. */
+  .login-wrap{padding:20px 16px;}
+  .btn-volver{position:static;align-self:flex-start;width:auto;margin:0 0 14px;}
+  .login-card{flex-direction:column;max-width:460px;min-height:0;}
+  .lc-form{padding:34px 26px;order:2;}
+  .lc-art{order:1;padding:26px;gap:10px;}
+  .lc-sello{width:48px;height:48px;}
+  .lc-sello svg{width:22px;height:22px;}
+  .lc-art h2{font-size:19px;}
+  .lc-art p{font-size:12.5px;}
+  .lc-nota{display:none;}
+}
 
 /* ─────────── SHELL ─────────── */
 #app{height:100vh;background:var(--papel);padding:16px;}

@@ -10,38 +10,57 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=14">
+<link rel="stylesheet" href="asistencia.css?v=15">
 </head>
 <body>
 
 <!-- ══════════════ LOGIN ══════════════ -->
 <div class="login-wrap" id="login-wrap">
-  <div class="bg"></div>
   <a href="index.html" class="btn-volver">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
     Volver al Inicio
   </a>
-  <form class="login-card" id="login-form">
-    <div class="lc-head">
-      <span class="lc-sello"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+
+  <div class="login-card">
+    <!-- Formulario -->
+    <div class="lc-form">
+      <form class="login-form" id="login-form">
+        <img class="lf-logo" src="images/logo/kja.webp" alt="KJA" onerror="this.style.display='none'">
+        <h1>Registro de<br>Asistencia</h1>
+        <p class="lf-sub">Control interno KJA · acceso del equipo</p>
+
+        <div class="msg" id="login-msg"></div>
+
+        <div class="in-group">
+          <label for="email">Correo electrónico</label>
+          <input id="email" type="email" autocomplete="username" placeholder="nombre@correo.com" required>
+        </div>
+
+        <div class="in-group pw-wrap">
+          <label for="password">Contraseña</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="Tu contraseña" required>
+          <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Mostrar u ocultar contraseña">
+            <svg id="pw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+
+        <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
+
+        <p class="lf-foot">Módulo separado del panel de certificados</p>
+      </form>
+    </div>
+
+    <!-- Panel institucional (sin imagen: gradiente + textura de papel de seguridad) -->
+    <aside class="lc-art">
       <span class="lc-pill"><i></i> Sistema en línea</span>
-    </div>
-    <img class="lf-logo" src="images/logo/kja.webp" alt="KJA" onerror="this.style.display='none'">
-    <h1>Registro de<br>Asistencia</h1>
-    <p class="lf-sub">Control interno KJA · acceso del equipo</p>
-    <div class="msg" id="login-msg"></div>
-    <div class="in-group">
-      <input id="email" type="email" autocomplete="username" placeholder="Correo electrónico" required>
-    </div>
-    <div class="in-group pw-wrap">
-      <input id="password" type="password" autocomplete="current-password" placeholder="Contraseña" required>
-      <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Mostrar u ocultar contraseña">
-        <svg id="pw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
-    </div>
-    <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
-    <p class="lf-foot">Módulo separado del panel de certificados</p>
-  </form>
+      <span class="lc-sello">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </span>
+      <h2>La asistencia del equipo,<br>en un solo lugar</h2>
+      <p>Pasa lista del día, revisa el mes completo y lleva el control de las horas de prácticas y voluntariado.</p>
+      <p class="lc-nota">Acceso restringido al personal de KJA Desarrollando mi Bienestar S.A.C.</p>
+    </aside>
+  </div>
 </div>
 
 <!-- ══════════════ APLICACIÓN ══════════════ -->
