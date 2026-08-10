@@ -455,18 +455,46 @@ span.flatpickr-weekday{color:#64748b;font-weight:700;font-size:11px;text-transfo
 .cli-name{font-size:14.5px;font-weight:700;color:#1e293b;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .cli-dni{font-size:12px;font-weight:500;color:#94a3b8;}
 .badge-num{flex-shrink:0;min-width:30px;text-align:center;background:#dcfce7;color:#166534;font-weight:800;font-size:13px;padding:5px 11px;border-radius:20px;white-space:nowrap;}
-/* Estado de envío por correo. El color hace el trabajo de un vistazo; el texto
-   queda para cuando hay que saber cuántos faltan. */
-.cli-mail{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:5px 12px 5px 10px;border-radius:20px;font-size:12.5px;font-weight:700;white-space:nowrap;border:1px solid transparent;}
-.cli-mail svg{width:14px;height:14px;flex-shrink:0;}
-.cli-mail.m-si{background:#e7f8ee;color:#0f7a3d;border-color:#bbe9cf;}
-.cli-mail.m-parcial{background:#fef3c7;color:#a16207;border-color:#fcd34d;}
-.cli-mail.m-no{background:#f1f5f9;color:#64748b;border-color:#e2e8f0;}
+/* Estado de envío por correo, tratado como un sello de despacho: medallón
+   circular con el ícono + placa con degradado y filo interior claro. El color
+   resuelve el vistazo; la etiqueta, el detalle. */
+.cli-mail{
+  flex-shrink:0;display:inline-flex;align-items:center;gap:8px;
+  padding:3px 14px 3px 3px;border-radius:999px;white-space:nowrap;
+  border:1px solid transparent;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85), 0 1px 2px rgba(15,40,90,.05);
+  transition:box-shadow .22s ease, transform .22s ease;
+}
+.cli-mail b{
+  font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+}
+.cm-ico{
+  flex:none;width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;
+}
+.cm-ico svg{width:13px;height:13px;display:block;}
+.cli-row:hover .cli-mail{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 5px 14px rgba(15,40,90,.12);}
+
+/* Enviado: medallón sólido, como un sello estampado */
+.cli-mail.m-si{background:linear-gradient(180deg,#f2fcf6,#e3f6ec);border-color:#bfe7d1;color:#0e7a3c;}
+.cli-mail.m-si .cm-ico{background:linear-gradient(140deg,#34d17d,#12874a);color:#fff;box-shadow:0 2px 6px rgba(15,122,60,.36);}
+
+/* Parcial: el medallón es el anillo de avance */
+.cli-mail.m-parcial{background:linear-gradient(180deg,#fffcf0,#fdf0cd);border-color:#f6d488;color:#9a6207;}
+.cli-mail.m-parcial .cm-ico{background:#fff;box-shadow:0 1px 3px rgba(154,98,7,.2);}
+.cm-anillo{width:20px !important;height:20px !important;}
+.cm-pista{fill:none;stroke:#f4dfa0;stroke-width:4.2;}
+.cm-avance{fill:none;stroke:#d99106;stroke-width:4.2;stroke-linecap:round;}
+
+/* Sin enviar: sobre cerrado, sin color de alarma — es un pendiente, no un error */
+.cli-mail.m-no{background:linear-gradient(180deg,#fcfdff,#eef2f7);border-color:#dde5ef;color:#68798f;}
+.cli-mail.m-no .cm-ico{background:#fff;color:#93a3b8;box-shadow:inset 0 0 0 1px #e3e9f1;}
+
 @media (max-width:640px){
-  /* En móvil la fila ya va justa: se queda el ícono, que es lo que se lee. */
-  .cli-mail{padding:6px;gap:0;}
+  /* En móvil la fila ya va justa: queda el medallón, que es lo que se lee. */
+  .cli-mail{padding:3px;gap:0;}
   .cli-mail b{display:none;}
-  .cli-mail.m-parcial b{display:inline;margin-left:5px;}
+  .cli-mail.m-parcial b{display:inline;margin:0 8px 0 5px;}
 }
 .chev{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;background:#f1f5f9;color:#475569;font-weight:700;font-size:13px;border-radius:24px;transition:.2s;white-space:nowrap;}
 .cli-row:hover .chev{background:var(--azul);color:#fff;box-shadow:0 6px 16px rgba(0,79,176,.3);transform:translateX(3px);}

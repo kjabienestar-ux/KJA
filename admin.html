@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=36">
+<link rel="stylesheet" href="admin.css?v=37">
 </head>
 <body>
 
@@ -1417,20 +1417,29 @@ function renderRankingEquipo(listaCerts){
    Un cliente puede tener varios certificados, así que el estado no es sí/no:
    puede haber enviado unos y otros no. La columna resume los tres casos. */
 const ICO_ENVIO={
-  si:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
-  parcial:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
-  no:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>'
+  si:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  no:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3.5 7.5l8.5 5.5 8.5-5.5"/></svg>'
 };
+/* Anillo de avance: en los parciales el propio ícono dice qué proporción va
+   enviada, en vez de repetir el número que ya está al lado. */
+function anilloEnvio(env, total){
+  const r=7.4, vuelta=2*Math.PI*r, hecho=vuelta*(env/total);
+  return `<svg viewBox="0 0 20 20" class="cm-anillo" aria-hidden="true">
+    <circle class="cm-pista" cx="10" cy="10" r="${r}"/>
+    <circle class="cm-avance" cx="10" cy="10" r="${r}" transform="rotate(-90 10 10)"
+      stroke-dasharray="${hecho.toFixed(2)} ${(vuelta-hecho).toFixed(2)}"/>
+  </svg>`;
+}
 function estadoEnvio(certs){
   const total=certs.length;
   const env=certs.filter(c=>c.correo_enviado_at).length;
-  if(env===0)     return { clase:'no', texto:'Sin enviar',
+  if(env===0)     return { clase:'no', texto:'Sin enviar', ico:ICO_ENVIO.no,
     detalle: total===1 ? 'El certificado aún no se envía por correo'
                        : `Ninguno de los ${total} certificados se ha enviado por correo` };
-  if(env===total) return { clase:'si', texto: total===1?'Enviado':'Enviados',
+  if(env===total) return { clase:'si', texto: total===1?'Enviado':'Enviados', ico:ICO_ENVIO.si,
     detalle: total===1 ? 'Certificado enviado por correo'
                        : `Los ${total} certificados fueron enviados por correo` };
-  return { clase:'parcial', texto:`${env} de ${total}`,
+  return { clase:'parcial', texto:`${env} de ${total}`, ico:anilloEnvio(env,total),
     detalle:`${env} de ${total} certificados enviados · ${total-env===1?'falta 1':'faltan '+(total-env)}` };
 }
 
@@ -1471,7 +1480,7 @@ function pintarClientes(list, totalCerts){
       html+=`<div class="cli-row" data-i="${idx}" style="animation-delay:${(idx*0.03).toFixed(2)}s">
         <span class="cli-ava" style="background:${colorDe(nom)}">${inicialesDe(nom)}</span>
         <div class="cli-info"><span class="cli-name">${nom}</span><span class="cli-dni">${g.dni?('DNI '+g.dni):'Sin DNI'}</span></div>
-        <span class="cli-mail m-${env.clase}" title="${env.detalle}">${ICO_ENVIO[env.clase]}<b>${env.texto}</b></span>
+        <span class="cli-mail m-${env.clase}" title="${env.detalle}"><span class="cm-ico">${env.ico}</span><b>${env.texto}</b></span>
         <span class="badge-num" title="${g.certs.length===1?'1 certificado':g.certs.length+' certificados'}">${g.certs.length}</span>
         <span class="chev">Ver ›</span>
       </div>`;
