@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=1">
+<link rel="stylesheet" href="marcar.css?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -30,6 +30,17 @@
     </span>
     <h1>Este enlace no es válido</h1>
     <p class="sub">Puede que esté incompleto o que dirección lo haya cambiado. Pide el enlace nuevo por el grupo.</p>
+  </section>
+
+  <!-- Falla técnica (sin conexión o portal sin instalar) -->
+  <section class="tarjeta" id="v-falla" hidden>
+    <span class="ico-grande gris">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    </span>
+    <h1 id="fa-titulo">No pudimos conectarnos</h1>
+    <p class="sub" id="fa-sub">—</p>
+    <p class="detalle" id="fa-detalle"></p>
+    <button class="btn" onclick="location.reload()">Reintentar</button>
   </section>
 
   <!-- Elegir quién eres (una sola vez) -->
@@ -119,7 +130,7 @@ function dispositivo(){
 const DISP = dispositivo();
 
 /* ════════════════════ VISTAS ════════════════════ */
-const VISTAS = ['v-carga','v-clave','v-elegir','v-confirmar','v-marcar','v-listo'];
+const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-confirmar','v-marcar','v-listo'];
 function ver(id){ VISTAS.forEach(v => $(v).hidden = (v !== id)); }
 
 /* ── Personaje ilustrado, el mismo criterio de color del panel ── */
@@ -150,10 +161,23 @@ function hhmm(t){ return t ? String(t).slice(0,5) : ''; }
 /* ════════════════════ FLUJO ════════════════════ */
 let PERSONAS = [], ELEGIDO = null, ESTADO = null;
 
+function verFalla(error){
+  const falta = /PGRST202|does not exist|schema cache/i.test(error.message || '');
+  $('fa-titulo').textContent = falta ? 'El sistema no está listo' : 'No pudimos conectarnos';
+  $('fa-sub').textContent = falta
+    ? 'Falta terminar de instalar el registro de asistencia. Avisa a dirección.'
+    : 'Revisa tu conexión a internet y vuelve a intentar.';
+  $('fa-detalle').textContent = error.message || '';
+  ver('v-falla');
+}
+
 async function cargar(){
   if(!CLAVE) return ver('v-clave');
   const { data, error } = await db.rpc('asis_portal_estado', { p_clave: CLAVE, p_disp: DISP });
-  if(error || !data || !data.ok) return ver('v-clave');
+  /* Falla técnica (sin conexión, o la migración del portal no está corrida)
+     ≠ clave equivocada. Mezclarlas manda a buscar el error donde no está. */
+  if(error) return verFalla(error);
+  if(!data || !data.ok) return ver('v-clave');
   ESTADO = data;
 
   if(!data.vinculado){

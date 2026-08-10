@@ -59,6 +59,13 @@ h1{font-size:23px;line-height:1.22;margin:0;color:var(--marino);font-weight:700;
 .sub{font-size:13.5px;line-height:1.6;color:var(--gris);margin:12px 0 0;}
 .sub b{color:var(--tinta);font-weight:600;}
 .pie{font-size:12px;line-height:1.55;color:var(--gris2);margin:16px 0 0;}
+/* Mensaje crudo del servidor: solo para que dirección sepa qué reportar */
+.detalle{
+  font-size:10.5px;line-height:1.5;color:var(--gris2);margin:14px 0 18px;
+  padding:8px 10px;border-radius:9px;background:#f7f9fc;border:1px solid var(--linea);
+  font-family:ui-monospace,Consolas,monospace;word-break:break-word;max-width:100%;
+}
+.detalle:empty{display:none;}
 
 /* ── Carga ── */
 .spinner{
