@@ -79,6 +79,44 @@ button{font-family:inherit;cursor:pointer;}
   .lf-sub{margin-bottom:24px;}
 }
 
+/* ─────────── MARCADO PROPIO (dispositivos) ─────────── */
+.disp-wrap{display:flex;flex-direction:column;gap:16px;padding:2px;}
+.disp-card{background:#fff;border:1px solid var(--linea);border-radius:18px;padding:20px 22px;box-shadow:var(--sombra);}
+.disp-card.enlace{background:linear-gradient(160deg,#f7faff,#fff);}
+.disp-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:14px;}
+.disp-head h3{margin:0;font-size:15px;color:var(--marino);font-weight:700;}
+.disp-nota{font-size:12px;color:var(--gris);}
+.disp-nota.falta{display:block;margin:12px 0 0;padding-top:12px;border-top:1px dashed var(--linea);}
+.disp-vacio{padding:18px;text-align:center;font-size:13px;color:var(--gris2);background:var(--papel);border-radius:12px;}
+
+.enl-row{display:flex;gap:8px;align-items:center;}
+.enl-row input{flex:1;min-width:0;padding:11px 14px;border:1px solid var(--linea);background:#fff;border-radius:12px;font-size:12.5px;font-family:ui-monospace,Consolas,monospace;color:var(--marino);}
+.enl-qr{display:flex;flex-direction:column;align-items:center;gap:8px;margin:16px 0 4px;}
+.enl-qr canvas{border-radius:12px;background:#fff;}
+.enl-qr span{font-size:11.5px;color:var(--gris2);text-align:center;}
+.enl-qr span:empty{display:none;}
+
+.sol-card,.vin-row{display:flex;align-items:center;gap:13px;padding:12px 14px;border:1px solid var(--linea);border-radius:14px;margin-bottom:9px;}
+.sol-card{background:#fffbeb;border-color:#fde68a;}
+.sol-card:last-child,.vin-row:last-child{margin-bottom:0;}
+.sol-ava{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;}
+.sol-ava.chico{width:34px;height:34px;font-size:11.5px;}
+.sol-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.sol-txt b{font-size:13.5px;color:var(--tinta);font-weight:600;}
+.sol-txt span{font-size:12px;color:var(--gris);}
+.sol-eq{font-size:11px !important;color:var(--gris2) !important;}
+.sol-btns{flex:none;display:flex;gap:7px;}
+.btn-mini.ok{background:var(--azul);color:#fff;border-color:var(--azul);}
+.btn-mini.no{background:#fff;color:#b42318;border-color:#fecdca;}
+
+@media (max-width:720px){
+  .sol-card,.vin-row{flex-wrap:wrap;}
+  .sol-btns{width:100%;}
+  .sol-btns .btn-mini{flex:1;}
+  .enl-row{flex-wrap:wrap;}
+  .enl-row .btn-mini{width:100%;}
+}
+
 /* Procedencia de la marca dentro del popover del mes */
 .pop-origen{margin:8px 0 0;padding:8px 10px;border-radius:10px;background:#eef3fc;color:#475569;font-size:11.5px;line-height:1.5;}
 .pop-origen.alerta{background:#fef3c7;color:#92400e;font-weight:600;}

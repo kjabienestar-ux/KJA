@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=2">
+<link rel="stylesheet" href="marcar.css?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -55,7 +55,31 @@
     </div>
 
     <div class="lista" id="lista"></div>
-    <p class="vacio" id="vacio" hidden>No encontramos ese nombre disponible.<br><span>Si ya alguien tomó tu nombre por error, avisa a dirección.</span></p>
+    <p class="vacio" id="vacio" hidden>No encontramos ese nombre.<br><span>Revisa cómo lo escribiste o avisa a dirección.</span></p>
+  </section>
+
+  <!-- Pedir cambio de dispositivo -->
+  <section class="tarjeta" id="v-pedir" hidden>
+    <span class="avatar-grande" id="pd-ava"></span>
+    <h1 id="pd-nombre">—</h1>
+    <p class="sub">Este nombre ya está registrado en otro equipo. Si eres tú y cambiaste de celular o computadora, pide el cambio.</p>
+    <div class="aviso azul">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span><b>Tu marca se guarda con la hora de ahora.</b> Aunque dirección apruebe más tarde, va a quedar registrada a esta hora.</span>
+    </div>
+    <button class="btn" id="btn-pedir">Pedir el cambio</button>
+    <button class="btn-plano" id="btn-volver2">No soy yo, volver</button>
+  </section>
+
+  <!-- Esperando aprobación -->
+  <section class="tarjeta" id="v-espera" hidden>
+    <span class="ico-grande azul">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    </span>
+    <h1>Tu marca quedó guardada</h1>
+    <p class="sub" id="es-sub">—</p>
+    <div class="sello azul" id="es-sello"><span id="es-hora">—</span></div>
+    <p class="pie">Dirección tiene que confirmar que este equipo es tuyo. Cuando lo apruebe, tu asistencia se registra con <b>esa</b> hora, no con la de la aprobación.</p>
   </section>
 
   <!-- Confirmar la elección -->
@@ -130,7 +154,7 @@ function dispositivo(){
 const DISP = dispositivo();
 
 /* ════════════════════ VISTAS ════════════════════ */
-const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-confirmar','v-marcar','v-listo'];
+const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-confirmar','v-pedir','v-espera','v-marcar','v-listo'];
 function ver(id){ VISTAS.forEach(v => $(v).hidden = (v !== id)); }
 
 /* ── Personaje ilustrado, el mismo criterio de color del panel ── */
@@ -159,7 +183,7 @@ function fechaLarga(iso){
 function hhmm(t){ return t ? String(t).slice(0,5) : ''; }
 
 /* ════════════════════ FLUJO ════════════════════ */
-let PERSONAS = [], ELEGIDO = null, ESTADO = null;
+let PERSONAS = [], OCUPADAS = [], ELEGIDO = null, ESTADO = null;
 
 function verFalla(error){
   const falta = /PGRST202|does not exist|schema cache/i.test(error.message || '');
@@ -181,31 +205,73 @@ async function cargar(){
   ESTADO = data;
 
   if(!data.vinculado){
+    if(data.pendiente) return pintarEspera(data.pendiente);
     PERSONAS = data.personas || [];
-    pintarLista('');
+    OCUPADAS = data.ocupadas || [];
+    pintarLista($('buscar').value || '');
     return ver('v-elegir');
   }
   pintarMarcar(data);
 }
 
-/* ── Elegir nombre ── */
+function pintarEspera(p){
+  const n = primerNombre(p.nombre);
+  $('es-sub').textContent = p.labora
+    ? `Guardamos tu asistencia, ${n}${p.estado_previsto==='T' ? ', con tardanza' : ''}.`
+    : `Registramos tu pedido, ${n}. Hoy no te tocaba laborar.`;
+  $('es-sello').hidden = !p.labora;
+  $('es-hora').textContent = hhmm(p.hora);
+  ver('v-espera');
+}
+
+/* ── Elegir nombre ──
+   Dos grupos: los libres se toman de una; los ya registrados en otro equipo
+   solo pueden pedir el cambio, que aprueba dirección. */
+function fila(p, tomado){
+  return `<button class="persona${tomado?' tomada':''}" data-id="${p.id}" data-tomado="${tomado?1:0}">
+      <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}</span>
+      <span class="p-txt"><b>${p.nombre}</b><i>${tomado ? 'Registrado en otro equipo' : (p.area||'')}</i></span>
+      <span class="p-chev">${tomado ? '⟳' : '›'}</span>
+    </button>`;
+}
 function pintarLista(filtro){
   const f = (filtro||'').trim().toLowerCase();
-  const vis = f ? PERSONAS.filter(p => p.nombre.toLowerCase().includes(f)) : PERSONAS;
-  $('vacio').hidden = vis.length > 0;
-  $('lista').innerHTML = vis.map(p => `
-    <button class="persona" data-id="${p.id}">
-      <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}</span>
-      <span class="p-txt"><b>${p.nombre}</b><i>${p.area||''}</i></span>
-      <span class="p-chev">›</span>
-    </button>`).join('');
+  const coincide = p => !f || p.nombre.toLowerCase().includes(f);
+  const libres = PERSONAS.filter(coincide), tomados = OCUPADAS.filter(coincide);
+  $('vacio').hidden = (libres.length + tomados.length) > 0;
+  $('lista').innerHTML =
+      libres.map(p => fila(p,false)).join('')
+    + (tomados.length ? `<p class="grupo">Ya registrados en otro equipo</p>` : '')
+    + tomados.map(p => fila(p,true)).join('');
+
   $('lista').querySelectorAll('.persona').forEach(b => b.onclick = () => {
-    ELEGIDO = PERSONAS.find(p => String(p.id) === b.dataset.id);
+    const tomado = b.dataset.tomado === '1';
+    const lista = tomado ? OCUPADAS : PERSONAS;
+    ELEGIDO = lista.find(p => String(p.id) === b.dataset.id);
+    if(tomado){
+      pintarAvatar($('pd-ava'), ELEGIDO.nombre);
+      $('pd-nombre').textContent = ELEGIDO.nombre;
+      return ver('v-pedir');
+    }
     pintarAvatar($('cf-ava'), ELEGIDO.nombre);
     $('cf-nombre').textContent = ELEGIDO.nombre;
     ver('v-confirmar');
   });
 }
+
+$('btn-volver2').addEventListener('click', () => ver('v-elegir'));
+$('btn-pedir').addEventListener('click', async () => {
+  const b = $('btn-pedir'); b.disabled = true; b.textContent = 'Enviando…';
+  const { data, error } = await db.rpc('asis_portal_solicitar', {
+    p_clave: CLAVE, p_disp: DISP, p_colab: ELEGIDO.id, p_agente: navigator.userAgent
+  });
+  b.disabled = false; b.textContent = 'Pedir el cambio';
+  if(error || !data || !data.ok){
+    alert('No se pudo enviar el pedido. Intenta de nuevo o avisa a dirección.');
+    return;
+  }
+  cargar();
+});
 $('buscar').addEventListener('input', e => pintarLista(e.target.value));
 $('btn-volver').addEventListener('click', () => ver('v-elegir'));
 
