@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=15">
+<link rel="stylesheet" href="asistencia.css?v=16">
 </head>
 <body>
 
@@ -26,8 +26,9 @@
     <div class="lc-form">
       <form class="login-form" id="login-form">
         <img class="lf-logo" src="images/logo/kja.webp" alt="KJA" onerror="this.style.display='none'">
-        <h1>Registro de<br>Asistencia</h1>
-        <p class="lf-sub">Control interno KJA · acceso del equipo</p>
+
+        <h1>Ingresar</h1>
+        <p class="lf-sub">Registro de asistencia · equipo KJA</p>
 
         <div class="msg" id="login-msg"></div>
 
@@ -46,20 +47,14 @@
 
         <button type="submit" class="btn-login" id="btn-login">Ingresar</button>
 
-        <p class="lf-foot">Módulo separado del panel de certificados</p>
+        <p class="lf-foot">¿No puedes entrar? Escribe a dirección para que revisen tu cuenta.<br>Módulo separado del panel de certificados.</p>
       </form>
     </div>
 
-    <!-- Panel institucional (sin imagen: gradiente + textura de papel de seguridad) -->
-    <aside class="lc-art">
-      <span class="lc-pill"><i></i> Sistema en línea</span>
-      <span class="lc-sello">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      </span>
-      <h2>La asistencia del equipo,<br>en un solo lugar</h2>
-      <p>Pasa lista del día, revisa el mes completo y lleva el control de las horas de prácticas y voluntariado.</p>
-      <p class="lc-nota">Acceso restringido al personal de KJA Desarrollando mi Bienestar S.A.C.</p>
-    </aside>
+    <!-- Arte paper-cut: capas de papel recortado y hojas tropicales (SVG) -->
+    <div class="lc-art">
+      <img src="images/login/paper-cut.svg?v=1" alt="" aria-hidden="true">
+    </div>
   </div>
 </div>
 
