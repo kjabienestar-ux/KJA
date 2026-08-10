@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=35">
+<link rel="stylesheet" href="admin.css?v=36">
 </head>
 <body>
 
@@ -1413,6 +1413,27 @@ function renderRankingEquipo(listaCerts){
   }).join('');
 }
 
+/* ───── Estado de envío por correo de los certificados de un cliente ─────
+   Un cliente puede tener varios certificados, así que el estado no es sí/no:
+   puede haber enviado unos y otros no. La columna resume los tres casos. */
+const ICO_ENVIO={
+  si:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  parcial:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  no:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>'
+};
+function estadoEnvio(certs){
+  const total=certs.length;
+  const env=certs.filter(c=>c.correo_enviado_at).length;
+  if(env===0)     return { clase:'no', texto:'Sin enviar',
+    detalle: total===1 ? 'El certificado aún no se envía por correo'
+                       : `Ninguno de los ${total} certificados se ha enviado por correo` };
+  if(env===total) return { clase:'si', texto: total===1?'Enviado':'Enviados',
+    detalle: total===1 ? 'Certificado enviado por correo'
+                       : `Los ${total} certificados fueron enviados por correo` };
+  return { clase:'parcial', texto:`${env} de ${total}`,
+    detalle:`${env} de ${total} certificados enviados · ${total-env===1?'falta 1':'faltan '+(total-env)}` };
+}
+
 // Fecha del certificado más reciente de un cliente (para ordenar y agrupar por día)
 function ultimaFechaCliente(g){
   let m=0;
@@ -1446,9 +1467,11 @@ function pintarClientes(list, totalCerts){
     items.forEach(g=>{
       const idx=flat.push(g)-1;
       const nom=g.nombre||'—';
+      const env=estadoEnvio(g.certs);
       html+=`<div class="cli-row" data-i="${idx}" style="animation-delay:${(idx*0.03).toFixed(2)}s">
         <span class="cli-ava" style="background:${colorDe(nom)}">${inicialesDe(nom)}</span>
         <div class="cli-info"><span class="cli-name">${nom}</span><span class="cli-dni">${g.dni?('DNI '+g.dni):'Sin DNI'}</span></div>
+        <span class="cli-mail m-${env.clase}" title="${env.detalle}">${ICO_ENVIO[env.clase]}<b>${env.texto}</b></span>
         <span class="badge-num" title="${g.certs.length===1?'1 certificado':g.certs.length+' certificados'}">${g.certs.length}</span>
         <span class="chev">Ver ›</span>
       </div>`;
