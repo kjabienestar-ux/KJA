@@ -1,4 +1,8 @@
 {
+  "rewrites": [
+    { "source": "/marcar", "destination": "/marcar.html" },
+    { "source": "/asistencia", "destination": "/asistencia.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
