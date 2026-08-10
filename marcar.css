@@ -1,0 +1,171 @@
+/* ════════════════════════════════════════════════════════════════
+   KJA · Portal de marcado de asistencia
+   Pantalla de un solo propósito, pensada para el celular: se abre, se
+   toca un botón y se cierra. Todo lo demás sobra.
+   ════════════════════════════════════════════════════════════════ */
+:root{
+  --azul:#004fb0; --azul2:#0a63d4; --marino:#0b2a5c; --marino2:#08386f; --rosa:#f10075;
+  --tinta:#0f172a; --gris:#64748b; --gris2:#94a3b8; --linea:#e8edf4;
+  --verde:#15803d; --verde-bg:#dcfce7; --ambar:#b45309; --ambar-bg:#fef3c7;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;}
+body{
+  font-family:'Poppins',system-ui,-apple-system,sans-serif;
+  color:var(--tinta);
+  background:linear-gradient(155deg,var(--marino),var(--marino2) 48%,var(--azul));
+  -webkit-font-smoothing:antialiased;
+  min-height:100dvh;
+}
+/* Textura de papel de seguridad, la misma del panel */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 7px);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(900px 460px at 85% -10%,rgba(241,0,117,.20),transparent 62%);
+}
+button{font-family:inherit;cursor:pointer;}
+[hidden]{display:none !important;}
+:focus-visible{outline:3px solid #fff;outline-offset:3px;}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+
+.lienzo{
+  position:relative;z-index:1;
+  min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:max(20px,env(safe-area-inset-top)) 18px max(20px,env(safe-area-inset-bottom));
+  gap:16px;
+}
+
+/* ── Tarjeta ── */
+.tarjeta{
+  position:relative;width:100%;max-width:400px;
+  background:#fff;border-radius:26px;padding:34px 28px 30px;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  box-shadow:0 30px 80px rgba(3,12,32,.42);
+  animation:entra .34s cubic-bezier(.22,1,.36,1);
+}
+.tarjeta.ancha{max-width:440px;padding:30px 22px 24px;}
+/* Filo de acento institucional */
+.tarjeta::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:26px 26px 0 0;
+  background:linear-gradient(90deg,var(--rosa),#ff4da6 40%,var(--azul2));
+}
+@keyframes entra{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+
+.logo{height:30px;margin-bottom:18px;}
+h1{font-size:23px;line-height:1.22;margin:0;color:var(--marino);font-weight:700;letter-spacing:-.01em;}
+.sub{font-size:13.5px;line-height:1.6;color:var(--gris);margin:12px 0 0;}
+.sub b{color:var(--tinta);font-weight:600;}
+.pie{font-size:12px;line-height:1.55;color:var(--gris2);margin:16px 0 0;}
+
+/* ── Carga ── */
+.spinner{
+  width:32px;height:32px;border-radius:50%;margin:6px 0;
+  border:3px solid var(--linea);border-top-color:var(--azul);
+  animation:gira .8s linear infinite;
+}
+@keyframes gira{to{transform:rotate(360deg);}}
+.cargando{font-size:13.5px;color:var(--gris);margin:14px 0 0;}
+
+/* ── Buscador ── */
+.buscador{position:relative;width:100%;margin:20px 0 12px;}
+.buscador svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--gris2);}
+.buscador input{
+  width:100%;padding:14px 16px 14px 44px;border:1px solid var(--linea);background:#f7f9fc;
+  border-radius:15px;font-size:15px;font-family:inherit;color:var(--tinta);
+}
+.buscador input::placeholder{color:var(--gris2);}
+.buscador input:focus{outline:none;background:#fff;border-color:var(--azul);box-shadow:0 0 0 4px rgba(0,79,176,.1);}
+
+/* ── Lista de personas ── */
+.lista{width:100%;max-height:46dvh;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:2px;}
+.persona{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:9px 12px;border:1px solid var(--linea);background:#fff;border-radius:14px;transition:.16s;
+}
+.persona:hover,.persona:active{border-color:var(--azul);background:#f7faff;transform:translateX(2px);}
+.ava{
+  flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  color:#fff;font-size:12.5px;font-weight:800;letter-spacing:.4px;
+}
+.p-txt{flex:1;min-width:0;display:flex;flex-direction:column;}
+.p-txt b{font-size:13.5px;font-weight:600;color:var(--tinta);line-height:1.3;}
+.p-txt i{font-size:11px;font-style:normal;color:var(--gris2);}
+.p-chev{flex:none;color:var(--gris2);font-size:19px;font-weight:700;}
+.vacio{font-size:13px;color:var(--gris);margin:14px 0 4px;line-height:1.6;}
+.vacio span{font-size:12px;color:var(--gris2);}
+
+/* ── Avatar grande ── */
+.avatar-grande{
+  width:74px;height:74px;border-radius:50%;display:grid;place-items:center;margin-bottom:16px;
+  color:#fff;font-size:24px;font-weight:800;letter-spacing:.5px;
+  border:3px solid #fff;box-shadow:0 8px 22px rgba(3,12,32,.22);
+}
+
+/* ── Confirmación ── */
+.aviso{
+  display:flex;align-items:flex-start;gap:10px;width:100%;margin:18px 0 20px;
+  padding:12px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:14px;
+  font-size:12.5px;line-height:1.55;color:var(--ambar);text-align:left;
+}
+.aviso svg{flex:none;width:17px;height:17px;margin-top:1px;}
+
+/* ── Botones ── */
+.btn{
+  width:100%;padding:16px;border:none;border-radius:16px;
+  font-weight:700;font-size:15px;color:#fff;
+  background:linear-gradient(135deg,var(--azul),var(--azul2));transition:.2s;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(0,79,176,.36);}
+.btn:active{transform:translateY(0);}
+.btn:disabled{opacity:.6;transform:none;box-shadow:none;}
+.btn.grande{padding:20px;font-size:16.5px;border-radius:19px;margin-top:22px;}
+.btn-plano{
+  width:100%;margin-top:10px;padding:12px;border:none;background:none;
+  color:var(--gris);font-size:13px;font-weight:600;
+}
+.btn-plano:hover{color:var(--azul);}
+
+/* ── Marcar ── */
+.saludo{font-size:13.5px;color:var(--gris);margin:0;}
+#mk-nombre{font-size:27px;margin-top:2px;}
+/* Sin text-transform: capitalize también volvería "De" el "de" de la fecha.
+   La primera letra la pone el JS. */
+.fecha{font-size:13px;color:var(--gris);margin:8px 0 0;}
+.reloj{
+  font-size:46px;font-weight:800;letter-spacing:-.02em;color:var(--marino);
+  margin:18px 0 4px;font-variant-numeric:tabular-nums;
+}
+.franja{
+  display:inline-flex;align-items:center;gap:9px;padding:7px 15px;border-radius:999px;
+  background:#eef3fc;font-size:12.5px;color:var(--gris);
+}
+.franja b{color:var(--marino);font-weight:700;font-variant-numeric:tabular-nums;}
+
+/* ── Resultado ── */
+.ico-grande{
+  width:78px;height:78px;border-radius:50%;display:grid;place-items:center;margin-bottom:20px;
+  border:2px solid #fff;
+}
+.ico-grande svg{width:36px;height:36px;}
+.ico-grande.verde{background:var(--verde-bg);color:var(--verde);outline:2px solid #bbf7d0;outline-offset:3px;}
+.ico-grande.ambar{background:var(--ambar-bg);color:var(--ambar);outline:2px solid #fde68a;outline-offset:3px;}
+.ico-grande.gris{background:#f1f5f9;color:var(--gris2);outline:2px solid var(--linea);outline-offset:3px;}
+.sello{
+  margin-top:20px;padding:11px 26px;border-radius:999px;
+  font-size:25px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+}
+.sello.verde{background:var(--verde-bg);color:var(--verde);}
+.sello.ambar{background:var(--ambar-bg);color:var(--ambar);}
+
+.marca-agua{
+  font-size:11.5px;color:rgba(255,255,255,.5);margin:0;letter-spacing:.04em;
+}
+
+@media (max-width:380px){
+  .tarjeta{padding:28px 20px 24px;}
+  .reloj{font-size:40px;}
+  #mk-nombre{font-size:24px;}
+}

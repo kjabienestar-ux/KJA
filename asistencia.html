@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=17">
+<link rel="stylesheet" href="asistencia.css?v=18">
 </head>
 <body>
 
@@ -1062,10 +1062,10 @@ async function cargarMes(){
   const dias = diasDelMes(YEAR, MONTH);
   const desde = dias[0].fecha, hasta = dias[dias.length-1].fecha;
   const [{ data:regs }, { data:excs }] = await Promise.all([
-    db.from('asis_registros').select('colaborador_id,fecha,estado,nota,marcado_por').gte('fecha',desde).lte('fecha',hasta),
+    db.from('asis_registros').select('colaborador_id,fecha,estado,nota,marcado_por,origen,dispositivo').gte('fecha',desde).lte('fecha',hasta),
     db.from('asis_excepciones').select('fecha,ambito,colaborador_id,tipo,nota').gte('fecha',desde).lte('fecha',hasta),
   ]);
-  REG={}; (regs||[]).forEach(r=> REG[r.colaborador_id+'|'+r.fecha]={estado:r.estado,nota:r.nota,marcado_por:r.marcado_por});
+  REG={}; (regs||[]).forEach(r=> REG[r.colaborador_id+'|'+r.fecha]={estado:r.estado,nota:r.nota,marcado_por:r.marcado_por,origen:r.origen,dispositivo:r.dispositivo});
   EXC_EMP={}; EXC_COL={};
   (excs||[]).forEach(x=>{
     if(x.ambito==='empresa') EXC_EMP[x.fecha]={tipo:x.tipo,nota:x.nota};
@@ -2099,6 +2099,22 @@ async function marcarExcepcionTrabajo(colabId, fecha){
   toast('Día habilitado');
 }
 
+/* ¿Este dispositivo marcó a alguien más ese día? Puede ser legítimo (una
+   computadora compartida en la oficina), por eso se avisa en vez de bloquear. */
+function otrosDelDispositivo(disp, fecha, exceptoId){
+  if(!disp) return [];
+  const nombres=[];
+  for(const k in REG){
+    const i=k.lastIndexOf('|'), cid=k.slice(0,i), f=k.slice(i+1);
+    if(f!==fecha || String(cid)===String(exceptoId)) continue;
+    if(REG[k].dispositivo===disp){
+      const c=COLABS.find(x=>String(x.id)===String(cid));
+      nombres.push(c ? nombreCorto(c.nombre) : ('#'+cid));
+    }
+  }
+  return nombres;
+}
+
 /* Popover al hacer clic en una celda del mes */
 function abrirPop(td){
   if(!puedeEditar()) return;
@@ -2112,7 +2128,14 @@ function abrirPop(td){
           <button class="pop-b act" data-act="extra">Sí trabajó — habilitar</button>`;
   } else {
     h += '<div class="pop-grid">'+['P','T','J','NG'].map(k=>`<button class="pop-b ${ESTADOS[k].cls}" data-act="set" data-k="${k}">${k}<small>${ESTADOS[k].lbl}</small></button>`).join('')+'</div>';
-    if(REG[colabId+'|'+fecha]) h += `<button class="pop-b clr" data-act="clr">Quitar marca</button>`;
+    const rg = REG[colabId+'|'+fecha];
+    if(rg && rg.origen==='portal'){
+      const otros = otrosDelDispositivo(rg.dispositivo, fecha, colabId);
+      h += otros.length
+        ? `<p class="pop-origen alerta">⚠ El mismo equipo marcó también a ${esc(otros.join(', '))}. Conviene revisarlo.</p>`
+        : `<p class="pop-origen">La marcó la propia persona desde el enlace.</p>`;
+    }
+    if(rg) h += `<button class="pop-b clr" data-act="clr">Quitar marca</button>`;
   }
   pop.innerHTML = h; pop.hidden=false;
   const r = td.getBoundingClientRect(), pw = 236;
