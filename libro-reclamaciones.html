@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Libro de Reclamaciones – KJA Centro Psicológico</title>
-    <meta name="description" content="Libro de reclamaciones virtual de KJA Centro Psicológico, conforme al Código de Protección y Defensa del Consumidor del Perú.">
+    <meta name="description"
+        content="Libro de reclamaciones virtual de KJA Centro Psicológico, conforme al Código de Protección y Defensa del Consumidor del Perú.">
     <meta name="theme-color" content="#004fb0">
     <link rel="icon" type="image/png" href="images/logo/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="shared.css?v=12">
     <link rel="stylesheet" href="accessibility.css">
     <link rel="stylesheet" href="libro-reclamaciones.css">
@@ -22,6 +26,7 @@
         </style>
     </noscript>
 </head>
+
 <body>
 
     <!-- ===== SPLASH / PANTALLA DE CARGA ===== -->
@@ -35,14 +40,14 @@
     </div>
 
     <header>
-                <nav class="nav-desktop-only">
+        <nav class="nav-desktop-only">
             <!-- Left: Logo -->
             <div class="nav-left logo-container">
                 <a href="index.html">
                     <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
                 </a>
             </div>
-            
+
             <!-- Center: Links -->
             <ul class="nav-center nav-links-center">
                 <li><a href="index.html">Inicio</a></li>
@@ -50,18 +55,24 @@
                 <li><a href="cursos.html">Cursos</a></li>
                 <li><a href="certificado.html">Certificados</a></li>
                 <li><a href="nosotros.html">Nosotros</a></li>
-                <li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank" rel="noopener noreferrer">Ubícanos</a></li>
+                <li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank"
+                        rel="noopener noreferrer">Ubícanos</a></li>
             </ul>
-            
+
             <!-- Right: Button -->
             <div class="nav-right">
                 <a href="terapia.html" class="nav-cta-btn">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
                     Agendar cita
                 </a>
             </div>
         </nav>
-        
+
         <nav class="nav-mobile-only">
             <div class="logo-container">
                 <a href="index.html">
@@ -74,7 +85,8 @@
                 <li><a href="cursos.html">Cursos</a></li>
                 <li><a href="certificado.html">Certificados</a></li>
                 <li><a href="nosotros.html">Nosotros</a></li>
-                <li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank" rel="noopener noreferrer">Ubícanos</a></li>
+                <li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank"
+                        rel="noopener noreferrer">Ubícanos</a></li>
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMenu()">
                 <span></span><span></span><span></span>
@@ -84,10 +96,15 @@
 
     <div class="page-hero">
         <h1>LIBRO DE <span>RECLAMA</span>CIONES</h1>
-        <p>Conforme a lo establecido en el Código de Protección y Defensa del Consumidor, ponemos a su disposición nuestro libro virtual de reclamaciones.</p>
+        <p>Conforme a lo establecido en el Código de Protección y Defensa del Consumidor, ponemos a su disposición
+            nuestro libro virtual de reclamaciones.</p>
     </div>
 
     <section class="container">
+        <figure class="reclamaciones-banner">
+            <img src="images/libro-reclamaciones/libro-reclamaciones-banner.webp" alt="Libro de Reclamaciones"
+                width="645" height="450" fetchpriority="high">
+        </figure>
         <form class="form-section" id="reclamacionesForm" onsubmit="submitForm(event)">
             <div class="form-title-group">
                 <h2>Hoja de Reclamación</h2>
@@ -97,7 +114,7 @@
 
             <!-- SECCIÓN 1: DATOS DEL CONSUMIDOR -->
             <div class="form-group-title">1. Identificación del Consumidor Reclamante</div>
-            
+
             <div class="form-row">
                 <div class="input-box">
                     <label for="fullName">Nombres y Apellidos *</label>
@@ -105,12 +122,36 @@
                 </div>
                 <div class="input-box">
                     <label for="docType">Tipo de Documento *</label>
-                    <select id="docType" required>
-                        <option value="DNI">DNI</option>
-                        <option value="CE">Carnet de Extranjería</option>
-                        <option value="RUC">RUC</option>
-                        <option value="Pasaporte">Pasaporte</option>
-                    </select>
+                    <div class="select-wrapper">
+                        <select id="docType" name="docType" class="doc-type-native" required aria-hidden="true"
+                            tabindex="-1">
+                            <option value="DNI">DNI</option>
+                            <option value="CE">Carnet de Extranjería</option>
+                            <option value="RUC">RUC</option>
+                            <option value="Pasaporte">Pasaporte</option>
+                        </select>
+                        <button type="button" class="doc-type-trigger" id="docTypeTrigger" aria-haspopup="listbox"
+                            aria-expanded="false" aria-controls="docTypeOptions">
+                            <span class="doc-type-trigger-label">DNI</span>
+                            <svg class="select-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                        <div class="doc-type-menu" id="docTypeOptions" role="listbox" tabindex="-1"
+                            aria-label="Tipo de Documento">
+                            <button type="button" class="doc-type-option is-selected" role="option" aria-selected="true"
+                                data-value="DNI">DNI<span class="doc-type-check" aria-hidden="true">✓</span></button>
+                            <button type="button" class="doc-type-option" role="option" aria-selected="false"
+                                data-value="CE">Carnet de Extranjería<span class="doc-type-check"
+                                    aria-hidden="true">✓</span></button>
+                            <button type="button" class="doc-type-option" role="option" aria-selected="false"
+                                data-value="RUC">RUC<span class="doc-type-check" aria-hidden="true">✓</span></button>
+                            <button type="button" class="doc-type-option" role="option" aria-selected="false"
+                                data-value="Pasaporte">Pasaporte<span class="doc-type-check"
+                                    aria-hidden="true">✓</span></button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -138,7 +179,7 @@
 
             <!-- SECCIÓN 2: BIEN CONTRATADO -->
             <div class="form-group-title">2. Identificación del Bien Contratado</div>
-            
+
             <div class="form-row">
                 <div class="input-box">
                     <label>Tipo de Bien *</label>
@@ -161,12 +202,13 @@
 
             <div class="input-box" style="margin-top: 10px;">
                 <label for="bienDesc">Descripción del Bien *</label>
-                <textarea id="bienDesc" rows="2" required placeholder="Indicar el servicio o producto adquirido (Ej: Terapia psicológica infantil, Taller de habilidades blandas, etc.)"></textarea>
+                <textarea id="bienDesc" rows="2" required
+                    placeholder="Indicar el servicio o producto adquirido (Ej: Terapia psicológica infantil, Taller de habilidades blandas, etc.)"></textarea>
             </div>
 
             <!-- SECCIÓN 3: DETALLE DE RECLAMACIÓN -->
             <div class="form-group-title">3. Detalle de la Reclamación y Pedido del Consumidor</div>
-            
+
             <div class="input-box" style="margin-bottom: 20px;">
                 <label>Tipo de Reclamación *</label>
                 <div class="radio-group">
@@ -178,7 +220,8 @@
                 <div class="radio-group">
                     <label class="radio-option">
                         <input type="radio" name="claimType" value="Queja">
-                        <strong>Queja:</strong> Disconformidad no relacionada a los productos o servicios (Ej: malestar o descontento respecto a la atención al público).
+                        <strong>Queja:</strong> Disconformidad no relacionada a los productos o servicios (Ej: malestar
+                        o descontento respecto a la atención al público).
                     </label>
                 </div>
             </div>
@@ -190,10 +233,21 @@
 
             <div class="input-box">
                 <label for="pedido">Pedido / Solicitud concreta del consumidor *</label>
-                <textarea id="pedido" rows="3" required placeholder="¿Cuál es tu solicitud o qué esperas del establecimiento?"></textarea>
+                <textarea id="pedido" rows="3" required
+                    placeholder="¿Cuál es tu solicitud o qué esperas del establecimiento?"></textarea>
             </div>
 
+            <fieldset class="declaration-box">
+                <legend>CONFIRMACIÓN Y DECLARACIÓN</legend>
+                <label class="declaration-option" for="dataConsent">
+                    <input type="checkbox" id="dataConsent" name="dataConsent" required>
+                    <span>Declaro que los datos consignados son verdaderos y autorizo el tratamiento de mis datos
+                        personales conforme a la Ley N° 29733.</span>
+                </label>
+            </fieldset>
+
             <button type="submit" class="btn-submit">Enviar Reclamación</button>
+
         </form>
     </section>
 
@@ -219,9 +273,12 @@
                 <p><strong>RECLAMACIONES</strong></p>
                 <a href="libro-reclamaciones.html" class="footer-libro-link" aria-label="Libro de Reclamaciones">
                     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 52V12a4 4 0 0 1 4-4h40v40H12a4 4 0 0 0-4 4z" stroke="currentColor" stroke-width="2.5" fill="none"/>
-                        <path d="M8 52a4 4 0 0 0 4 4h40V48H12a4 4 0 0 0-4 4z" stroke="currentColor" stroke-width="2.5" fill="none"/>
-                        <path d="M20 16h24M20 24h24M20 32h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M8 52V12a4 4 0 0 1 4-4h40v40H12a4 4 0 0 0-4 4z" stroke="currentColor"
+                            stroke-width="2.5" fill="none" />
+                        <path d="M8 52a4 4 0 0 0 4 4h40V48H12a4 4 0 0 0-4 4z" stroke="currentColor" stroke-width="2.5"
+                            fill="none" />
+                        <path d="M20 16h24M20 24h24M20 32h16" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
                     </svg>
                     <span>Libro de Reclamaciones</span>
                 </a>
@@ -237,23 +294,104 @@
 
     <!-- Toast Notification -->
     <div class="toast-notification" id="toast">
-        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #fff;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round" style="color: #fff;">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
         Reclamación enviada con éxito. Nos comunicaremos en un plazo máximo de 15 días hábiles.
     </div>
 
     <script defer src="script.js?v=11"></script>
     <script defer src="accessibility.js?v=1"></script>
     <script>
+        (function initDocumentTypeSelect() {
+            const wrapper = document.querySelector('.select-wrapper');
+            if (!wrapper) return;
+
+            const select = wrapper.querySelector('.doc-type-native');
+            const trigger = wrapper.querySelector('.doc-type-trigger');
+            const triggerLabel = wrapper.querySelector('.doc-type-trigger-label');
+            const menu = wrapper.querySelector('.doc-type-menu');
+            const options = [...wrapper.querySelectorAll('.doc-type-option')];
+
+            function updateSelection(value) {
+                const selectedOption = options.find(option => option.dataset.value === value) || options[0];
+                select.value = selectedOption.dataset.value;
+                triggerLabel.textContent = selectedOption.textContent.replace('✓', '').trim();
+
+                options.forEach(option => {
+                    const isSelected = option === selectedOption;
+                    option.classList.toggle('is-selected', isSelected);
+                    option.setAttribute('aria-selected', String(isSelected));
+                });
+            }
+
+            function setOpen(isOpen) {
+                wrapper.classList.toggle('is-open', isOpen);
+                trigger.setAttribute('aria-expanded', String(isOpen));
+                if (isOpen) {
+                    const selected = options.find(option => option.classList.contains('is-selected')) || options[0];
+                    selected.focus();
+                }
+            }
+
+            trigger.addEventListener('click', () => setOpen(!wrapper.classList.contains('is-open')));
+
+            trigger.addEventListener('keydown', event => {
+                if (['ArrowDown', 'Enter', ' '].includes(event.key)) {
+                    event.preventDefault();
+                    setOpen(true);
+                }
+            });
+
+            options.forEach((option, index) => {
+                option.addEventListener('click', () => {
+                    updateSelection(option.dataset.value);
+                    setOpen(false);
+                    trigger.focus();
+                });
+
+                option.addEventListener('keydown', event => {
+                    let nextIndex = index;
+                    if (event.key === 'ArrowDown') nextIndex = (index + 1) % options.length;
+                    if (event.key === 'ArrowUp') nextIndex = (index - 1 + options.length) % options.length;
+                    if (event.key === 'Home') nextIndex = 0;
+                    if (event.key === 'End') nextIndex = options.length - 1;
+
+                    if (nextIndex !== index) {
+                        event.preventDefault();
+                        options[nextIndex].focus();
+                    } else if (['Enter', ' '].includes(event.key)) {
+                        event.preventDefault();
+                        updateSelection(option.dataset.value);
+                        setOpen(false);
+                        trigger.focus();
+                    } else if (event.key === 'Escape' || event.key === 'Tab') {
+                        setOpen(false);
+                        trigger.focus();
+                    }
+                });
+            });
+
+            document.addEventListener('click', event => {
+                if (!wrapper.contains(event.target)) setOpen(false);
+            });
+
+            document.getElementById('reclamacionesForm').addEventListener('reset', () => {
+                setTimeout(() => updateSelection(select.options[0].value), 0);
+            });
+        }());
+
         function submitForm(event) {
             event.preventDefault();
-            
+
             // Show toast success animation
             const toast = document.getElementById('toast');
             toast.classList.add('show');
-            
+
             // Reset form
             document.getElementById('reclamacionesForm').reset();
-            
+
             // Hide toast after 5 seconds
             setTimeout(() => {
                 toast.classList.remove('show');
@@ -261,5 +399,5 @@
         }
     </script>
 </body>
-</html>
 
+</html>

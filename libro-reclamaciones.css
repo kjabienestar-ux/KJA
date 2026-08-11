@@ -1,4 +1,6 @@
 .form-section {
+        display: flex;
+        flex-direction: column;
         background: #fff;
         padding: 40px;
         border-radius: 20px;
@@ -6,6 +8,32 @@
         max-width: 800px;
         margin: 40px auto;
         border: 1px solid rgba(0, 79, 176, 0.05);
+    }
+
+    .reclamaciones-banner {
+        max-width: 800px;
+        margin: 38px auto 0;
+        padding: 18px;
+        background: #fff;
+        border: 1px solid rgba(0, 79, 176, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 12px 32px rgba(0, 30, 100, 0.08);
+        text-align: center;
+    }
+
+    .reclamaciones-banner img {
+        display: block;
+        width: 100%;
+        max-height: 360px;
+        object-fit: contain;
+        border-radius: 12px;
+    }
+
+    .reclamaciones-banner figcaption {
+        margin-top: 12px;
+        color: var(--text-light);
+        font-size: 13px;
+        font-weight: 600;
     }
 
     .form-title-group {
@@ -86,6 +114,209 @@
         border-color: var(--primary-pink);
         background: #fff;
         box-shadow: 0 4px 15px rgba(241, 0, 117, 0.08);
+    }
+
+    .select-wrapper {
+        position: relative;
+        z-index: 5;
+    }
+
+    .doc-type-native {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        border: 0;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        clip-path: inset(50%);
+    }
+
+    .doc-type-trigger {
+        position: relative;
+        width: 100%;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 1px solid rgba(0, 79, 176, 0.15);
+        border-radius: 15px;
+        color: var(--text-dark);
+        background: linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
+        font: 500 14px 'Poppins', sans-serif;
+        cursor: pointer;
+        text-align: left;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    .doc-type-trigger:hover {
+        border-color: rgba(0, 79, 176, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .doc-type-trigger:focus-visible {
+        outline: 3px solid rgba(241, 0, 117, 0.2);
+        outline-offset: 3px;
+    }
+
+    .select-wrapper.is-open .doc-type-trigger {
+        border-color: var(--primary-pink);
+        box-shadow: 0 8px 24px rgba(241, 0, 117, 0.14);
+    }
+
+    .select-chevron {
+        width: 18px;
+        height: 18px;
+        color: var(--primary-blue);
+        pointer-events: none;
+        flex: 0 0 auto;
+        transition: transform 0.25s ease, color 0.25s ease;
+    }
+
+    .select-wrapper.is-open .select-chevron {
+        transform: rotate(180deg);
+        color: var(--primary-pink);
+    }
+
+    .doc-type-menu {
+        position: absolute;
+        top: calc(100% + 9px);
+        left: 0;
+        right: 0;
+        display: grid;
+        gap: 5px;
+        padding: 8px;
+        border: 1px solid rgba(0, 79, 176, 0.1);
+        border-radius: 17px;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 18px 40px rgba(0, 30, 100, 0.18), 0 2px 8px rgba(0, 0, 0, 0.05);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-7px) scale(0.98);
+        transform-origin: top center;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .select-wrapper.is-open .doc-type-menu {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+    }
+
+    .doc-type-option {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 13px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        color: #26364d;
+        background: transparent;
+        font: 500 13px 'Poppins', sans-serif;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .doc-type-option:hover,
+    .doc-type-option:focus-visible {
+        color: var(--primary-blue);
+        background: #eef5ff;
+        border-color: rgba(0, 79, 176, 0.12);
+        outline: none;
+    }
+
+    .doc-type-option.is-selected {
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary-blue), #1674d1);
+        box-shadow: 0 5px 12px rgba(0, 79, 176, 0.2);
+    }
+
+    .doc-type-check {
+        font-size: 15px;
+        font-weight: 700;
+        opacity: 0;
+    }
+
+    .doc-type-option.is-selected .doc-type-check {
+        opacity: 1;
+    }
+
+    .declaration-box {
+        order: 1;
+        margin: 32px 0 0;
+        padding: 20px;
+        border: 1px solid rgba(0, 79, 176, 0.12);
+        border-radius: 14px;
+        background: #f8faff;
+    }
+
+    .declaration-box legend {
+        padding: 0 8px;
+        color: var(--primary-blue);
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+    }
+
+    .declaration-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        color: var(--text-dark);
+        font-size: 13px;
+        line-height: 1.6;
+        cursor: pointer;
+    }
+
+    .declaration-option input {
+        width: 19px;
+        height: 19px;
+        flex: 0 0 auto;
+        margin-top: 2px;
+        accent-color: var(--primary-blue);
+        cursor: pointer;
+    }
+
+    .declaration-option input:focus-visible {
+        outline: 3px solid rgba(241, 0, 117, 0.3);
+        outline-offset: 3px;
+    }
+
+    .btn-submit:focus-visible {
+        outline: 3px solid rgba(0, 79, 176, 0.35);
+        outline-offset: 3px;
+    }
+
+    .btn-submit {
+        order: 2;
+    }
+
+    .footer-libro-link img {
+        width: 36px;
+        height: 36px;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+        .reclamaciones-banner {
+            margin: 24px 15px 0;
+            padding: 12px;
+        }
+
+        .reclamaciones-banner img {
+            max-height: 260px;
+        }
+
+        .declaration-box {
+            padding: 16px;
+        }
     }
 
     .radio-group {
