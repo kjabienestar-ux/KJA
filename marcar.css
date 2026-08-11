@@ -32,6 +32,10 @@
 
 *{box-sizing:border-box;}
 html,body{margin:0;min-height:100%;}
+/* Suelo del documento. El degradado del body va con background-attachment:fixed
+   y solo cubre la ventana; sin este color, al desplazarse en una pantalla corta
+   —el historial en un celular chico— asomaba blanco debajo. */
+html{background:#0a2144;}
 body{
   font-family:'Poppins',system-ui,-apple-system,sans-serif;
   color:var(--text-main);
@@ -281,8 +285,19 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 #mk-nombre{font-size:27px;margin-top:2px;}
 .fecha{font-size:13px;color:var(--text-muted);margin:8px 0 0;}
 .reloj{
-  font-size:48px;font-weight:800;letter-spacing:-.02em;color:var(--text-main);
+  font-size:44px;font-weight:800;letter-spacing:-.02em;color:var(--text-main);
   margin:18px 0 4px;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,0.2);
+  display:flex;align-items:baseline;justify-content:center;
+}
+/* Las milésimas van más chicas: se ven correr sin desequilibrar la hora.
+   Ancho fijo para que el número no baile al cambiar de dígito. */
+.reloj i{
+  font-style:normal;font-size:.42em;font-weight:600;
+  color:var(--text-muted);margin-left:1px;
+  min-width:2.6ch;text-align:left;
+}
+.sello i{
+  font-style:normal;font-size:.5em;font-weight:600;opacity:.75;margin-left:1px;
 }
 
 /* ── Resultado ── */
@@ -388,8 +403,61 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
   font-size:11.5px;color:rgba(255,255,255,0.4);margin:0;letter-spacing:.04em;font-weight:500;
 }
 
-@media (max-width:380px){
-  .tarjeta{padding:32px 20px 24px;}
-  .reloj{font-size:42px;}
-  #mk-nombre{font-size:24px;}
+/* ════════ RESPONSIVE ════════
+   El portal se usa casi siempre desde el celular, así que los saltos van de
+   grande a chico: primero se aprieta el aire, después se achican los objetos
+   que se pueden tocar (que nunca bajan de ~44px). */
+@media (max-width:430px){
+  .lienzo{padding:14px 12px;gap:12px;}
+  .tarjeta{border-radius:34px;padding:32px 22px 26px;}
+  .tarjeta.ancha{padding:28px 16px 22px;}
+  h1{font-size:23px;}
+  .sub{font-size:13.5px;}
+  .avatar-grande{width:66px;height:66px;font-size:21px;}
+  .reloj{font-size:40px;}
+  .teclado{grid-template-columns:repeat(3,70px);gap:14px 18px;}
+  .teclado button{width:70px;height:70px;font-size:28px;}
+  .btn.grande{padding:19px;font-size:16px;margin-top:20px;}
+  .kpi b{font-size:21px;}
+  .cal{padding:13px 9px;gap:5px;border-radius:22px;}
+  .cal-dia{font-size:11.5px;}
+  .btn-wa{font-size:12.5px;padding:13px 10px;}
+}
+
+/* Pantallas angostas de verdad (iPhone SE, Galaxy A de gama baja) */
+@media (max-width:360px){
+  .tarjeta{padding:26px 16px 22px;border-radius:28px;}
+  .tarjeta.ancha{padding:24px 12px 20px;}
+  h1{font-size:21px;}
+  .reloj{font-size:34px;}
+  .reloj i{font-size:.4em;}
+  .avatar-grande{width:58px;height:58px;font-size:19px;margin-bottom:12px;}
+  .teclado{grid-template-columns:repeat(3,62px);gap:12px 14px;}
+  .teclado button{width:62px;height:62px;font-size:25px;}
+  .puntos{gap:16px;margin:24px 0 12px;}
+  .horario{padding:13px 4px;border-radius:20px;}
+  .h-bloque b{font-size:13.5px;}
+  .h-bloque span{font-size:9px;}
+  .kpis{gap:7px;}
+  .kpi{padding:11px 4px;border-radius:18px;}
+  .kpi b{font-size:19px;}
+  .kpi span{font-size:9.5px;}
+  .cal{padding:11px 7px;gap:4px;}
+  .cal-dia{font-size:10.5px;}
+  .cal-dow{font-size:8.5px;}
+  .leyenda{gap:5px 10px;}
+  .leyenda span{font-size:10px;}
+  .sello{padding:10px 20px;font-size:21px;}
+  .marca-agua{font-size:10.5px;}
+}
+
+/* Celular acostado o pantallas bajas: la tarjeta deja de ir centrada y el
+   contenido puede desplazarse, si no el teclado queda fuera de vista. */
+@media (max-height:680px){
+  .lienzo{justify-content:flex-start;}
+  .teclado button{height:60px;width:60px;font-size:24px;}
+  .teclado{grid-template-columns:repeat(3,60px);gap:10px 16px;margin:12px 0 8px;}
+  .reloj{font-size:34px;margin:12px 0 2px;}
+  .puntos{margin:20px 0 10px;}
+  .avatar-grande{width:56px;height:56px;font-size:18px;margin-bottom:10px;}
 }
