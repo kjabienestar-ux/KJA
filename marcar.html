@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=8">
+<link rel="stylesheet" href="marcar.css?v=10">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -54,7 +54,8 @@
       <input id="buscar" type="search" placeholder="Escribe tu nombre…" autocomplete="off" autocapitalize="words">
     </div>
 
-    <div class="lista" id="lista"></div>
+    <div class="areas" id="lista"></div>
+    <p class="desliza" id="desliza" hidden>Desliza para ver las demás áreas →</p>
     <p class="vacio" id="vacio" hidden>No encontramos ese nombre.<br><span>Revisa cómo lo escribiste o avisa a dirección.</span></p>
   </section>
 
@@ -218,6 +219,20 @@ function iniciales(n){
 function pintarAvatar(el, nombre){ el.textContent = iniciales(nombre); el.style.background = colorDe(nombre); }
 function primerNombre(n){ return (n||'').trim().split(/\s+/)[0] || ''; }
 
+/* Nombre corto para las columnas, igual que en el panel: se lleva el primer
+   nombre y sigue si lo que viene es una partícula, para no dejar "Erika del". */
+const PARTICULAS = ['de','del','la','las','los','san','santa','da','di','van','von'];
+function nombreCorto(n){
+  const p = (n||'').trim().split(/\s+/);
+  if(p.length <= 2) return p.join(' ');
+  const out = [p[0]];
+  for(let i = 1; i < p.length && out.length < 3; i++){
+    out.push(p[i]);
+    if(!PARTICULAS.includes(p[i].toLowerCase())) break;
+  }
+  return out.join(' ');
+}
+
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','setiembre','octubre','noviembre','diciembre'];
 const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 function fechaLarga(iso){
@@ -263,20 +278,52 @@ async function cargar(){
   ver('v-elegir');
 }
 
-/* ── Lista de nombres ── */
+const esc = s => (s ?? '').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ── Lista de nombres, una columna por área ──
+   En vertical, 27 nombres seguidos obligan a rodar la pantalla buscando el
+   propio. Por área, cada quien va directo a su columna y de ahí ubica su
+   nombre entre tres o cuatro. Es el mismo criterio del tablero "Equipo de
+   hoy" del panel. */
 function pintarLista(filtro){
   const f = (filtro||'').trim().toLowerCase();
   const vis = f ? PERSONAS.filter(p => p.nombre.toLowerCase().includes(f)) : PERSONAS;
   $('vacio').hidden = vis.length > 0;
-  $('lista').innerHTML = vis.map(p => `
-    <button class="persona" data-id="${p.id}">
-      <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}</span>
-      <span class="p-txt"><b>${p.nombre}</b><i>${p.tiene_clave ? (p.area||'') : 'Primera vez · crea tu clave'}</i></span>
-      <span class="p-chev">›</span>
-    </button>`).join('');
+
+  const porArea = new Map();
+  vis.forEach(p => {
+    const a = p.area || 'Sin área';
+    if(!porArea.has(a)) porArea.set(a, []);
+    porArea.get(a).push(p);
+  });
+  $('desliza').hidden = porArea.size < 2;
+
+  $('lista').innerHTML = [...porArea].map(([area, gente]) => `
+    <section class="area-col">
+      <h3 class="area-tit">${esc(area)}<i>${gente.length}</i></h3>
+      ${gente.map(p => `
+        <button class="persona" data-id="${p.id}" title="${esc(p.nombre)}">
+          <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}</span>
+          <span class="p-txt">
+            <b>${esc(nombreCorto(p.nombre))}</b>
+            ${p.tiene_clave ? '' : '<i>Primera vez</i>'}
+          </span>
+        </button>`).join('')}
+    </section>`).join('');
+
   $('lista').querySelectorAll('.persona').forEach(b => b.onclick = () =>
     abrirPin(PERSONAS.find(p => String(p.id) === b.dataset.id)));
+  $('lista').scrollLeft = 0;
+  marcarFinLista();
 }
+
+/* El desvanecido del borde derecho dice "hay más columnas". Se quita al llegar
+   al final para no insinuar que sigue habiendo. */
+function marcarFinLista(){
+  const l = $('lista');
+  l.classList.toggle('fin', l.scrollLeft + l.clientWidth >= l.scrollWidth - 4);
+}
+$('lista').addEventListener('scroll', marcarFinLista, { passive:true });
 $('buscar').addEventListener('input', e => pintarLista(e.target.value));
 
 /* ── Teclado de la clave ── */

@@ -85,7 +85,7 @@ button{font-family:inherit;cursor:pointer;}
   box-shadow:var(--glass-shadow), var(--glass-inset);
   animation:entra .5s cubic-bezier(.16,1,.3,1);
 }
-.tarjeta.ancha{max-width:460px;padding:40px 28px 30px;}
+.tarjeta.ancha{max-width:480px;padding:40px 24px 26px;}
 
 @keyframes entra{from{opacity:0;transform:translateY(30px) scale(0.95);}to{opacity:1;transform:none;}}
 
@@ -135,20 +135,55 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 }
 .buscador input:focus + svg, .buscador input:focus ~ svg { color: var(--text-main); }
 
-/* ── Lista de personas ── */
-.lista{
-  width:100%;max-height:48dvh;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:4px;
-  scroll-behavior:smooth;
+/* ── Personas agrupadas por área, en columnas que se deslizan ── */
+.areas{
+  width:100%;display:flex;gap:10px;
+  overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x proximity;scroll-behavior:smooth;
+  padding:4px 2px 12px;
+  -webkit-overflow-scrolling:touch;
+  /* El borde derecho se desvanece: así se entiende que la columna cortada
+     continúa. La clase .fin lo quita cuando ya no queda nada por deslizar. */
+  -webkit-mask-image:linear-gradient(90deg,#000 84%,rgba(0,0,0,.15));
+          mask-image:linear-gradient(90deg,#000 84%,rgba(0,0,0,.15));
 }
-.lista::-webkit-scrollbar { width: 6px; }
-.lista::-webkit-scrollbar-track { background: transparent; }
-.lista::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-.lista::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+.areas.fin{-webkit-mask-image:none;mask-image:none;}
+.areas::-webkit-scrollbar { height: 6px; }
+.areas::-webkit-scrollbar-track { background: transparent; }
+.areas::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+.areas::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+.area-col{
+  flex:0 0 168px;scroll-snap-align:start;
+  display:flex;flex-direction:column;gap:9px;
+  max-height:46dvh;overflow-y:auto;padding-right:2px;
+}
+.area-col::-webkit-scrollbar { width: 4px; }
+.area-col::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 10px; }
+
+.area-tit{
+  position:sticky;top:0;z-index:2;margin:0 0 2px;padding:7px 12px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--text-main);
+  background:rgba(10,33,68,.82);backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-radius:999px;border-top:1px solid rgba(255,255,255,.22);
+}
+.area-tit i{
+  font-style:normal;font-size:10px;font-weight:700;
+  min-width:18px;padding:1px 6px;border-radius:999px;
+  background:rgba(255,255,255,.16);color:var(--text-muted);
+}
+
+.desliza{
+  margin:0;font-size:11.5px;color:var(--gris2);letter-spacing:.02em;
+}
 
 .persona{
-  display:flex;align-items:center;gap:16px;width:100%;text-align:left;
-  padding:14px 16px;
-  background:rgba(255, 255, 255, 0.08);border-radius:24px;
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:11px 12px;
+  background:rgba(255, 255, 255, 0.08);border-radius:20px;
   border-top:1px solid rgba(255, 255, 255, 0.3);
   border-bottom:1px solid rgba(255, 255, 255, 0.02);
   border-left:1px solid rgba(255, 255, 255, 0.1);
@@ -166,15 +201,18 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 .persona:active{transform:translateY(0) scale(0.99);}
 
 .ava{
-  flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
-  color:#fff;font-size:14px;font-weight:700;letter-spacing:0.5px;
+  flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  color:#fff;font-size:12.5px;font-weight:700;letter-spacing:0.5px;
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
 }
-.p-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
-.p-txt b{font-size:14.5px;font-weight:600;color:var(--text-main);line-height:1.2;}
-.p-txt i{font-size:12px;font-style:normal;color:var(--text-muted);font-weight:500;}
-.p-chev{flex:none;color:var(--text-muted);font-size:20px;font-weight:600;transition:transform .2s;}
-.persona:hover .p-chev{transform:translateX(4px);color:var(--text-main);}
+.p-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+/* El nombre completo cabe en dos líneas dentro de la columna; el título del
+   botón lo muestra entero por si acaso. */
+.p-txt b{
+  font-size:12.5px;font-weight:600;color:var(--text-main);line-height:1.25;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.p-txt i{font-size:10.5px;font-style:normal;color:#ffd9ea;font-weight:600;}
 
 .vacio{font-size:13.5px;color:var(--text-muted);margin:20px 0 8px;line-height:1.6;}
 .vacio span{font-size:12.5px;color:rgba(255,255,255,0.4);}
