@@ -902,8 +902,9 @@ async function entrar(){
   $('app').hidden = false;
   aplicarRolUI();
   iniciarVigilanciaInactividad();
-  // El contador de pedidos pendientes tiene que verse desde cualquier vista
-  if(esDireccion()) cargarPortal().catch(()=>{});
+  /* Se carga para todos, no solo dirección: de ahí sale la tolerancia con la
+     que se calcula la hora al marcar desde el panel. */
+  cargarPortal().catch(()=>{});
   const hoy = new Date(); YEAR = hoy.getFullYear(); MONTH = hoy.getMonth();
   $('lista-fecha').value = fISO(hoy);
   await cargarBase();
@@ -1074,10 +1075,10 @@ async function cargarMes(){
   const dias = diasDelMes(YEAR, MONTH);
   const desde = dias[0].fecha, hasta = dias[dias.length-1].fecha;
   const [{ data:regs }, { data:excs }] = await Promise.all([
-    db.from('asis_registros').select('colaborador_id,fecha,estado,nota,marcado_por,origen,dispositivo').gte('fecha',desde).lte('fecha',hasta),
+    db.from('asis_registros').select('colaborador_id,fecha,estado,nota,marcado_por,origen,dispositivo,marcado_at').gte('fecha',desde).lte('fecha',hasta),
     db.from('asis_excepciones').select('fecha,ambito,colaborador_id,tipo,nota').gte('fecha',desde).lte('fecha',hasta),
   ]);
-  REG={}; (regs||[]).forEach(r=> REG[r.colaborador_id+'|'+r.fecha]={estado:r.estado,nota:r.nota,marcado_por:r.marcado_por,origen:r.origen,dispositivo:r.dispositivo});
+  REG={}; (regs||[]).forEach(r=> REG[r.colaborador_id+'|'+r.fecha]={estado:r.estado,nota:r.nota,marcado_por:r.marcado_por,origen:r.origen,dispositivo:r.dispositivo,marcado_at:r.marcado_at});
   EXC_EMP={}; EXC_COL={};
   (excs||[]).forEach(x=>{
     if(x.ambito==='empresa') EXC_EMP[x.fecha]={tipo:x.tipo,nota:x.nota};
@@ -2086,12 +2087,47 @@ function renderResumen(){
 }
 
 /* ════════════════════ EDICIÓN DE ASISTENCIA ════════════════════ */
+/* ── Hora que se sella al marcar desde el panel ──
+   Marcar acá no es fichar: es dejar constancia de cómo llegó esa persona. Si a
+   las 8:30 registro que llegó a tiempo, sellar "8:30" contradice el estado —el
+   límite eran las 8:15—. Por eso la hora se ajusta a la que corresponde:
+
+     Presente → la de ahora si aún estamos dentro del margen; si no, el límite.
+     Tardanza → la de ahora si ya pasó el margen; si no, un minuto después.
+
+   Justificado y No gestiona no dependen de la hora, así que quedan con la de
+   ahora. Y en un día pasado no tiene sentido usar la hora actual: se usa la
+   que corresponde a ese día. */
+function limiteMinutos(colab, fecha){
+  const hd = (colab && colab.horario_semanal || {})[isoDow(fecha)] || {};
+  const ini = hhmm(hd.ini || (colab && colab.hora_inicio));
+  if(!ini) return null;
+  const tol = (PORTAL_CFG && PORTAL_CFG.tolerancia_min != null) ? PORTAL_CFG.tolerancia_min : 15;
+  const [h, m] = ini.split(':').map(Number);
+  return h * 60 + m + tol;
+}
+function enFecha(fecha, minutos){
+  const [a, m, d] = fecha.split('-').map(Number);
+  return new Date(a, m - 1, d, Math.floor(minutos / 60), minutos % 60, 0, 0);
+}
+function selloMarca(colab, fecha, estado){
+  const ahora = new Date();
+  const esHoy = fecha === fISO(ahora);
+  const min   = ahora.getHours() * 60 + ahora.getMinutes();
+  const lim   = limiteMinutos(colab, fecha);
+  if(lim == null || (estado !== 'P' && estado !== 'T')){
+    return (esHoy ? ahora : enFecha(fecha, min)).toISOString();
+  }
+  if(estado === 'P') return enFecha(fecha, esHoy ? Math.min(min, lim)     : lim    ).toISOString();
+  return               enFecha(fecha, esHoy ? Math.max(min, lim + 1) : lim + 1).toISOString();
+}
+
 async function setEstado(colabId, fecha, estado){
   const colab = COLABS.find(x=>String(x.id)===String(colabId));
   // origen 'panel' también al corregir: si dirección toca una marca hecha desde
   // el enlace, deja de ser de la persona y el rastro tiene que decirlo
   const payload = { colaborador_id:Number(colabId), fecha, estado, marcado_por:PERFIL.id,
-                    marcado_at:new Date().toISOString(), origen:'panel', dispositivo:null };
+                    marcado_at:selloMarca(colab, fecha, estado), origen:'panel', dispositivo:null };
   // las horas quedan congeladas con el horario vigente hoy (solo si existe la columna)
   if(MIG3 && colab) payload.horas = estado==='NG' ? 0 : duracionHorasDia(colab, fecha);
   // el vínculo también se congela: si el día pasa de prácticas a voluntariado
@@ -2099,7 +2135,7 @@ async function setEstado(colabId, fecha, estado){
   if(HAS_VINCULO && colab) payload.vinculo = vincDelDia(colab, isoDow(fecha));
   const { error } = await db.from('asis_registros').upsert(payload, { onConflict:'colaborador_id,fecha' });
   if(error){ toast('No se pudo guardar: '+error.message, true); return; }
-  REG[colabId+'|'+fecha] = { estado, nota:(REG[colabId+'|'+fecha]||{}).nota||null, marcado_por:PERFIL.id, origen:'panel', dispositivo:null };
+  REG[colabId+'|'+fecha] = { estado, nota:(REG[colabId+'|'+fecha]||{}).nota||null, marcado_por:PERFIL.id, origen:'panel', dispositivo:null, marcado_at:payload.marcado_at };
   toast('Guardado');
 }
 async function quitarEstado(colabId, fecha){
@@ -2288,11 +2324,14 @@ function abrirPop(td){
   } else {
     h += '<div class="pop-grid">'+['P','T','J','NG'].map(k=>`<button class="pop-b ${ESTADOS[k].cls}" data-act="set" data-k="${k}">${k}<small>${ESTADOS[k].lbl}</small></button>`).join('')+'</div>';
     const rg = REG[colabId+'|'+fecha];
-    if(rg && rg.origen==='portal'){
-      const otros = otrosDelDispositivo(rg.dispositivo, fecha, colabId);
+    if(rg){
+      const hora = rg.marcado_at ? hhmm(new Date(rg.marcado_at).toTimeString()) : '';
+      const quien = rg.origen==='portal' ? 'La marcó la propia persona desde el enlace'
+                                         : 'Marcada desde el panel';
+      const otros = rg.origen==='portal' ? otrosDelDispositivo(rg.dispositivo, fecha, colabId) : [];
       h += otros.length
         ? `<p class="pop-origen alerta">⚠ El mismo equipo marcó también a ${esc(otros.join(', '))}. Conviene revisarlo.</p>`
-        : `<p class="pop-origen">La marcó la propia persona desde el enlace.</p>`;
+        : `<p class="pop-origen">${quien}${hora ? ' · <b>'+hora+'</b>' : ''}</p>`;
     }
     if(rg) h += `<button class="pop-b clr" data-act="clr">Quitar marca</button>`;
   }
