@@ -252,7 +252,52 @@ function iniciales(n){
   const p=(n||'').trim().split(/\s+/).filter(x=>x.length>2);
   return ((p[0]||'')[0]||'').toUpperCase() + ((p[1]||'')[0]||'').toUpperCase();
 }
-function pintarAvatar(el, nombre){ el.textContent = iniciales(nombre); el.style.background = colorDe(nombre); }
+/* ════════ AVATARES ILUSTRADOS ════════
+   Viven en el ámbito general a propósito: los usa tanto la lista como las
+   pantallas de clave, día e historial. Antes se definían dentro de pintarLista
+   y el resto reventaba con "getAvatarUrl is not defined". */
+const MEMOJIS_H = 14, MEMOJIS_M = 18;   // cuántas ilustraciones hay en images/
+const NOMBRES_M = /(alessandra|camila|daniela|mariana|merly|jimena|elizabeth|rocio|irene|stefany|celeste|rosa|maria|ana|carmen|julia|lucia|sofia|valeria|valdivia|lupa|lisbeth|lizbeth|mayerlin|jade|ruth|isabel|miriam|beatriz|ester|esther|leonor|margarita|marisol|pilar|raquel|sol)/;
+const NOMBRES_H = /(juan|kevin|jian|fabrizio|jhony|luis|diego|manuel|antony|gonzalo|jose|carlos|pedro|miguel|jorge|cesar|david|fernando|francisco|javier|roberto|ricardo|eduardo|daniel|alejandro|hector|mario|raul|sergio|victor|angel|antonio|martin|hugo|oscar|andres|ivan)/;
+
+function esVaron(p){
+  if(p.genero) return /^m/i.test(p.genero);
+  if(p.sexo)   return /^m/i.test(p.sexo);
+  const n = (p.nombre || '').toLowerCase();
+  if(NOMBRES_M.test(n)) return false;
+  if(NOMBRES_H.test(n)) return true;
+  const f = n.split(' ')[0];
+  if(/(a|as|is|in|z|th|e)$/.test(f) &&
+     !/(elias|matias|lucas|jesus|luis|tomas|nicolas|carlos|marcos|andres|alexis|jose|jorge|vicente|enrique)/.test(f)) return false;
+  return true;
+}
+
+/* Se reparten por posición dentro de su grupo, no por id: con ids salteados
+   varias personas caían en la misma ilustración. */
+let AVATARES = new Map();
+function repartirAvatares(){
+  AVATARES = new Map();
+  const h = [], m = [];
+  PERSONAS.forEach(p => (esVaron(p) ? h : m).push(p));
+  h.sort((a,b)=>a.id-b.id).forEach((p,i)=> AVATARES.set(p.id, `images/memoji-${i % MEMOJIS_H + 1}.webp`));
+  m.sort((a,b)=>a.id-b.id).forEach((p,i)=> AVATARES.set(p.id, `images/fmemoji-${i % MEMOJIS_M + 1}.webp`));
+}
+function getAvatarUrl(p){
+  if(!p) return '';
+  if(AVATARES.has(p.id)) return AVATARES.get(p.id);
+  // Reserva por si se pide antes de tener la lista cargada
+  return esVaron(p) ? `images/memoji-${(p.id||0) % MEMOJIS_H + 1}.webp`
+                    : `images/fmemoji-${(p.id||0) % MEMOJIS_M + 1}.webp`;
+}
+
+function pintarAvatar(el, p){
+  if (typeof p === 'string') {
+    el.textContent = iniciales(p); el.style.background = colorDe(p);
+  } else {
+    el.textContent = '';
+    el.style.background = `#fff url('${getAvatarUrl(p)}') center/cover no-repeat`;
+  }
+}
 function primerNombre(n){ return (n||'').trim().split(/\s+/)[0] || ''; }
 
 /* Nombre corto para las columnas, igual que en el panel: se lleva el primer
@@ -303,6 +348,7 @@ async function cargar(){
   if(error) return verFalla(error);
   if(!data || !data.ok) return ver('v-clave');
   PERSONAS = data.personas || [];
+  repartirAvatares();
 
   // ¿Este equipo ya se usó? Se salta la búsqueda y va directo al teclado.
   let ultimo = null;
@@ -390,33 +436,8 @@ function pintarLista(filtro){
         ? `<svg class="estrella-ico fill" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
         : `<svg class="estrella-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`);
 
-  // Helper del Avatar Memoji (para varones). Cuántas ilustraciones hay en images/
-  const MEMOJIS = 14;
-  const esVaron = p => {
-    if (p.genero) return /^m/i.test(p.genero);
-    if (p.sexo) return /^m/i.test(p.sexo);
-    const n = p.nombre.toLowerCase();
-    
-    if (/(alessandra|camila|daniela|mariana|merly|jimena|elizabeth|rocio|irene|stefany|celeste|rosa|maria|ana|carmen|julia|lucia|sofia|valeria|valdivia|lupa|lisbeth|lizbeth|mayerlin|jade|ruth|isabel|miriam|beatriz|ester|esther|leonor|margarita|marisol|pilar|raquel|sol)/.test(n)) return false;
-    if (/(juan|kevin|jian|fabrizio|jhony|luis|diego|manuel|antony|gonzalo|jose|carlos|pedro|miguel|jorge|cesar|david|fernando|francisco|javier|roberto|ricardo|eduardo|daniel|alejandro|hector|mario|raul|sergio|victor|angel|antonio|martin|hugo|oscar|andres|ivan)/.test(n)) return true;
-    
-    const f = n.split(' ')[0];
-    if (/(a|as|is|in|z|th|e)$/.test(f) && !/(elias|matias|lucas|jesus|luis|tomas|nicolas|carlos|marcos|andres|alexis|jose|jorge|vicente|enrique)/.test(f)) {
-       return false;
-    }
-    return true;
-  };
-  // Para evitar que se repitan por saltos en los IDs, usamos su posición secuencial
-  const maleIds = PERSONAS.filter(esVaron).map(p => p.id).sort((a,b) => a - b);
-
   const getAvatar = (p, e) => {
-    if (esVaron(p)) {
-      const idx = maleIds.indexOf(p.id);
-      // Hay 14 archivos: con un módulo mayor se pedían memoji-15..17, que no existen
-      const mId = (idx !== -1 ? idx : p.id) % MEMOJIS + 1;
-      return `<img class="ava" src="images/memoji-${mId}.webp" alt="" loading="lazy" style="object-fit:cover; background:#fff; border:none; padding:0;">`;
-    }
-    return `<span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}${e.sello}</span>`;
+    return `<img class="ava" src="${getAvatarUrl(p)}" alt="" loading="lazy" style="object-fit:cover; background:#fff; border:none; padding:0;">`;
   };
 
   // Paginación (Desktop)
@@ -490,7 +511,7 @@ $('buscar').addEventListener('input', e => {
 /* ── Teclado de la clave ── */
 function abrirPin(persona){
   YO = persona; PIN = ''; MODO_PIN = persona.tiene_clave ? 'entrar' : 'crear';
-  pintarAvatar($('pin-ava'), YO.nombre);
+  pintarAvatar($('pin-ava'), YO);
   $('pin-titulo').textContent = primerNombre(YO.nombre);
   $('pin-sub').textContent = MODO_PIN === 'crear'
     ? 'Crea tu clave de 4 dígitos. La vas a usar cada vez que marques, así que elige una que recuerdes.'
@@ -589,7 +610,7 @@ async function enviarPin(){
 /* ── Mi día ── */
 function pintarDia(dia){
   DIA = dia;
-  pintarAvatar($('d-ava'), dia.nombre);
+  pintarAvatar($('d-ava'), dia);
   $('d-saludo').textContent = saludo();
   $('d-nombre').textContent = primerNombre(dia.nombre);
   $('d-fecha').textContent = fechaLarga(dia.fecha);
@@ -741,7 +762,7 @@ async function abrirHistorial(anio, mes){
   H_MES  = mes  || H_MES  || (f.getMonth() + 1);
 
   detenerReloj();                 // el reloj solo corre en la pantalla del día
-  pintarAvatar($('h-ava'), DIA.nombre);
+  pintarAvatar($('h-ava'), DIA);
   $('h-nombre').textContent = primerNombre(DIA.nombre);
   $('h-cal').innerHTML = '<p class="cal-cargando">Cargando…</p>';
   ver('v-historial');
