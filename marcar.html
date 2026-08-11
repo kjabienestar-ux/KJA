@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=14">
+<link rel="stylesheet" href="marcar.css?v=15">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -297,6 +297,21 @@ const esc = s => (s ?? '').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':
    propio. Por área, cada quien va directo a su columna y de ahí ubica su
    nombre entre tres o cuatro. Es el mismo criterio del tablero "Equipo de
    hoy" del panel. */
+/* Cuatro situaciones posibles, cada una con su color: quien todavía no tiene
+   clave, quien ya marcó, quien labora hoy y falta, y quien hoy no labora. */
+const SELLO_OK = '<span class="ava-sello"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
+function estadoPersona(p){
+  if(p.marcado){
+    const tarde = p.estado === 'T';
+    return { cls:'marcado' + (tarde ? ' tarde' : ''), sello:SELLO_OK,
+             icls:'e-ok' + (tarde ? ' e-tarde' : ''),
+             nota:(tarde ? 'Tardanza · ' : 'Marcó ') + (p.hora || '') };
+  }
+  if(!p.tiene_clave) return { cls:'nueva', sello:'', icls:'e-nueva', nota:'Primera vez · crea tu clave' };
+  if(!p.labora)      return { cls:'no-labora', sello:'', icls:'e-off', nota:'Hoy no laboras' };
+  return { cls:'pendiente', sello:'', icls:'e-pend', nota:'Sin marcar' };
+}
+
 function pintarLista(filtro){
   const f = (filtro||'').trim().toLowerCase();
   const vis = f ? PERSONAS.filter(p => p.nombre.toLowerCase().includes(f)) : PERSONAS;
@@ -308,19 +323,24 @@ function pintarLista(filtro){
     if(!porArea.has(a)) porArea.set(a, []);
     porArea.get(a).push(p);
   });
-  $('lista').innerHTML = [...porArea].map(([area, gente]) => `
+  $('lista').innerHTML = [...porArea].map(([area, gente]) => {
+    const listos = gente.filter(p => p.marcado).length;
+    const deben  = gente.filter(p => p.labora).length;
+    return `
     <section class="area-col">
-      <h3 class="area-tit">${esc(area)}<i>${gente.length}</i></h3>
-      ${gente.map(p => `
-        <button class="persona" data-id="${p.id}" title="${esc(p.nombre)}">
-          <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}</span>
+      <h3 class="area-tit">${esc(area)}<i>${deben ? listos + '/' + deben : gente.length}</i></h3>
+      ${gente.map(p => {
+        const e = estadoPersona(p);
+        return `
+        <button class="persona ${e.cls}" data-id="${p.id}" title="${esc(p.nombre)}">
+          <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}${e.sello}</span>
           <span class="p-txt">
             <b class="n-largo">${esc(p.nombre)}</b>
             <b class="n-corto">${esc(nombreCorto(p.nombre))}</b>
-            ${p.tiene_clave ? '' : '<i>Primera vez</i>'}
+            <i class="${e.icls}">${e.nota}</i>
           </span>
-        </button>`).join('')}
-    </section>`).join('');
+        </button>`; }).join('')}
+    </section>`; }).join('');
 
   $('lista').querySelectorAll('.persona').forEach(b => b.onclick = () => {
     ver('v-carga');

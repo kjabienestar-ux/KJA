@@ -228,6 +228,44 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 .p-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
 .p-txt b{font-size:14.5px;font-weight:600;color:var(--text-main);line-height:1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .p-txt i{font-size:11.5px;font-style:normal;color:var(--text-muted);font-weight:500;}
+.p-txt i:empty{display:none;}
+
+/* ── Estado de cada persona en la lista ──
+   El color hace el trabajo de un vistazo; el texto da el detalle. */
+.ava{position:relative;}
+.ava-sello{
+  position:absolute;right:-3px;bottom:-3px;
+  width:19px;height:19px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#22c55e;color:#04240f;
+  border:2px solid #123a63;
+  box-shadow:0 2px 6px rgba(0,0,0,.35);
+}
+.ava-sello svg{width:11px;height:11px;}
+
+/* Ya marcó: verde, y el avatar recupera su color */
+.persona.marcado{
+  background:rgba(34,197,94,.16);
+  border-top-color:rgba(134,239,172,.5);
+}
+.persona.marcado.tarde{
+  background:rgba(245,158,11,.16);
+  border-top-color:rgba(253,224,71,.5);
+}
+.persona.marcado.tarde .ava-sello{background:#f59e0b;color:#3a2503;}
+.e-ok{color:#86efac !important;font-weight:600 !important;}
+.e-ok.e-tarde{color:#fcd34d !important;}
+
+/* Falta marcar: se mantiene bien visible, es la acción pendiente */
+.e-pend{color:rgba(255,255,255,.55) !important;}
+
+/* Primera vez: el rosa de la marca, para que salte */
+.persona.nueva{border-top-color:rgba(241,0,117,.45);}
+.e-nueva{color:#ffa8d0 !important;font-weight:600 !important;}
+
+/* Hoy no labora: apagado, no hay nada que hacer ahí */
+.persona.no-labora{opacity:.45;}
+.e-off{color:rgba(255,255,255,.4) !important;}
 
 /* Nombres responsivos */
 .n-largo { display: block; }
