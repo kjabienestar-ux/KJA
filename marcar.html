@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=10">
+<link rel="stylesheet" href="marcar.css?v=11">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -296,8 +296,6 @@ function pintarLista(filtro){
     if(!porArea.has(a)) porArea.set(a, []);
     porArea.get(a).push(p);
   });
-  $('desliza').hidden = porArea.size < 2;
-
   $('lista').innerHTML = [...porArea].map(([area, gente]) => `
     <section class="area-col">
       <h3 class="area-tit">${esc(area)}<i>${gente.length}</i></h3>
@@ -318,12 +316,26 @@ function pintarLista(filtro){
 }
 
 /* El desvanecido del borde derecho dice "hay más columnas". Se quita al llegar
-   al final para no insinuar que sigue habiendo. */
+   al final, y el aviso de deslizar solo aparece si de verdad hay algo oculto
+   —en pantalla ancha las columnas se acomodan en filas y no sobra nada—. */
 function marcarFinLista(){
   const l = $('lista');
-  l.classList.toggle('fin', l.scrollLeft + l.clientWidth >= l.scrollWidth - 4);
+  const hayMas = l.scrollWidth > l.clientWidth + 4;
+  l.classList.toggle('fin', !hayMas || l.scrollLeft + l.clientWidth >= l.scrollWidth - 4);
+  $('desliza').hidden = !hayMas;
 }
 $('lista').addEventListener('scroll', marcarFinLista, { passive:true });
+addEventListener('resize', marcarFinLista);
+
+/* Con mouse, la rueda desplaza en vertical y el carrusel no se movía: se
+   traduce el giro a desplazamiento horizontal. */
+$('lista').addEventListener('wheel', e => {
+  const l = $('lista');
+  if(l.scrollWidth <= l.clientWidth) return;
+  if(Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+  e.preventDefault();
+  l.scrollLeft += e.deltaY;
+}, { passive:false });
 $('buscar').addEventListener('input', e => pintarLista(e.target.value));
 
 /* ── Teclado de la clave ── */

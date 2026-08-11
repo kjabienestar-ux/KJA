@@ -138,6 +138,9 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 /* ── Personas agrupadas por área, en columnas que se deslizan ── */
 .areas{
   width:100%;display:flex;gap:10px;
+  /* Sin esto las columnas se estiran a la altura de la más larga y las cortas
+     quedan con un hueco enorme debajo. */
+  align-items:flex-start;
   overflow-x:auto;overflow-y:hidden;
   scroll-snap-type:x proximity;scroll-behavior:smooth;
   padding:4px 2px 12px;
@@ -178,6 +181,19 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 
 .desliza{
   margin:0;font-size:11.5px;color:var(--gris2);letter-spacing:.02em;
+}
+
+/* En pantalla ancha no hay por qué esconder áreas detrás de un deslizamiento:
+   la tarjeta crece y las columnas se acomodan en filas, todas a la vista. */
+@media (min-width:760px){
+  .tarjeta.ancha{max-width:min(94vw, 1040px);}
+  #v-elegir .areas{
+    flex-wrap:wrap;justify-content:center;
+    overflow-x:visible;
+    -webkit-mask-image:none;mask-image:none;
+  }
+  #v-elegir .area-col{flex:0 0 186px;}
+  .desliza{display:none;}
 }
 
 .persona{
