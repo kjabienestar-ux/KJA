@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=13">
+<link rel="stylesheet" href="marcar.css?v=14">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -57,13 +57,17 @@
     <div class="areas" id="lista"></div>
     <p class="desliza" id="desliza" hidden>Sigue bajando para ver las demás áreas</p>
     <p class="vacio" id="vacio" hidden>No encontramos ese nombre.<br><span>Revisa cómo lo escribiste o avisa a dirección.</span></p>
+    <a class="btn-wa" id="el-wa" href="#" target="_blank" rel="noopener" style="margin-top: 20px; max-width: 340px;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
+      No estoy en la lista, registrarme
+    </a>
   </section>
 
   <!-- Clave: crear o ingresar -->
   <section class="tarjeta" id="v-pin" hidden>
     <span class="avatar-grande" id="pin-ava"></span>
     <h1 id="pin-titulo">—</h1>
-    <p class="sub" id="pin-sub">—</p>
+    <p class="sub glass-badge" id="pin-sub">—</p>
 
     <div class="puntos" id="pin-puntos">
       <i></i><i></i><i></i><i></i>
@@ -81,7 +85,7 @@
       </button>
     </div>
 
-    <button class="btn-plano" id="pin-volver">No soy yo, volver</button>
+    <button class="btn-glass" id="pin-volver">No soy yo, volver</button>
   </section>
 
   <!-- Mi día -->
@@ -109,12 +113,14 @@
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
       <span id="d-wa-txt">Avisar a dirección</span>
     </a>
-    <button class="btn-plano" id="d-historial">Ver mi historial</button>
-    <button class="btn-plano tenue" id="d-salir">Salir</button>
+    <div class="acciones-sec">
+      <button class="btn-glass" id="d-historial">Ver mi historial</button>
+      <button class="btn-glass tenue" id="d-salir">Salir</button>
+    </div>
   </section>
 
   <!-- Mi historial -->
-  <section class="tarjeta ancha" id="v-historial" hidden>
+  <section class="tarjeta" id="v-historial" hidden>
     <span class="avatar-grande chico" id="h-ava"></span>
     <h1 id="h-nombre">—</h1>
     <p class="sub" id="h-sub">Tu asistencia registrada</p>
@@ -150,7 +156,9 @@
       ¿Algún dato está mal? Escríbeme
     </a>
 
-    <button class="btn-plano" id="h-volver">Volver</button>
+    <div class="acciones-sec">
+      <button class="btn-glass" id="h-volver">Volver</button>
+    </div>
   </section>
 
   <!-- Resultado -->
@@ -164,8 +172,10 @@
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
       <span id="ls-wa-txt">Avisar a dirección</span>
     </a>
-    <button class="btn-plano" id="ls-historial">Ver mi historial</button>
-    <button class="btn-plano tenue" id="ls-salir">Salir</button>
+    <div class="acciones-sec">
+      <button class="btn-glass" id="ls-historial">Ver mi historial</button>
+      <button class="btn-glass tenue" id="ls-salir">Salir</button>
+    </div>
   </section>
 
   <p class="marca-agua">KJA · Registro de asistencia</p>
@@ -205,6 +215,7 @@ const EQUIPO = equipo();
 const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-pin','v-dia','v-listo','v-historial'];
 /* WhatsApp de dirección, para cuando alguien vea sus datos mal */
 const WA_DIRECCION = '51922996170';
+$('el-wa').href = `https://wa.me/${WA_DIRECCION}?text=${encodeURIComponent('Hola, aún no estoy en la lista de asistencia. ¿Me podrían registrar?')}`;
 function ver(id){ VISTAS.forEach(v => $(v).hidden = (v !== id)); }
 
 function hashN(s){ let h=0; for(const c of (s||'')) h=(h*31+c.charCodeAt(0))>>>0; return h; }
@@ -311,8 +322,10 @@ function pintarLista(filtro){
         </button>`).join('')}
     </section>`).join('');
 
-  $('lista').querySelectorAll('.persona').forEach(b => b.onclick = () =>
-    abrirPin(PERSONAS.find(p => String(p.id) === b.dataset.id)));
+  $('lista').querySelectorAll('.persona').forEach(b => b.onclick = () => {
+    ver('v-carga');
+    setTimeout(() => abrirPin(PERSONAS.find(p => String(p.id) === b.dataset.id)), 400);
+  });
   $('lista').scrollTop = 0;
   marcarFinLista();
 }
@@ -370,8 +383,12 @@ document.addEventListener('keydown', e => {
 $('pin-volver').addEventListener('click', () => {
   try{ localStorage.removeItem(LLAVE_YO); }catch(e){}
   YO = null; PIN = '';
-  pintarLista($('buscar').value || '');
-  ver('v-elegir');
+  ver('v-carga');
+  setTimeout(() => {
+    pintarLista($('buscar').value || '');
+    ver('v-elegir');
+    marcarFinLista();   // se mide recién visible: oculta, la lista mide cero
+  }, 400);
 });
 
 let PIN_PRIMERO = '';
@@ -396,7 +413,7 @@ async function enviarPin(){
     return pinMsg('No coincidieron. Empecemos de nuevo.', 'mal');
   }
 
-  pinMsg('Un momento…');
+  ver('v-carga');
   const fn = MODO_PIN === 'crear' ? 'asis_portal_crear_clave' : 'asis_portal_entrar';
   const { data, error } = await db.rpc(fn, { p_clave: CLAVE, p_colab: YO.id, p_pin: PIN });
   if(error){ PIN=''; pintarPuntos(); return verFalla(error); }
@@ -407,6 +424,7 @@ async function enviarPin(){
     return pintarDia(data.dia);
   }
 
+  ver('v-pin');
   const m = (data && data.motivo) || '';
   PIN = ''; PIN_PRIMERO = ''; pintarPuntos(); sacudir();
   if(m === 'obvia')      return pinMsg('Esa clave es muy fácil de adivinar. Elige otra.', 'mal');
@@ -527,6 +545,7 @@ function horaGrabada(cuando){
 
 $('d-marcar').addEventListener('click', async () => {
   const b = $('d-marcar'); b.disabled = true; b.textContent = 'Marcando…';
+  ver('v-carga');
   const { data, error } = await db.rpc('asis_portal_marcar', {
     p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_disp: EQUIPO
   });
@@ -643,7 +662,8 @@ $('ls-historial').addEventListener('click', ()=> abrirHistorial());
 $('h-volver').addEventListener('click', ()=>{
   const marcado = DIA && DIA.marcado;
   if(!marcado) relojVivo();
-  ver(marcado ? 'v-listo' : 'v-dia');
+  ver('v-carga');
+  setTimeout(() => ver(marcado ? 'v-listo' : 'v-dia'), 400);
 });
 $('h-antes').addEventListener('click', ()=>{
   let m = H_MES - 1, a = H_ANIO;
@@ -657,7 +677,11 @@ $('h-desp').addEventListener('click', ()=>{
 });
 
 /* Salir = olvidar la clave de esta sesión, no el nombre */
-function salir(){ PIN=''; PIN_PRIMERO=''; detenerReloj(); abrirPin(YO); }
+function salir(){ 
+  PIN=''; PIN_PRIMERO=''; detenerReloj(); 
+  ver('v-carga');
+  setTimeout(() => abrirPin(YO), 400);
+}
 $('d-salir').addEventListener('click', salir);
 $('ls-salir').addEventListener('click', salir);
 
