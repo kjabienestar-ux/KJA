@@ -135,34 +135,23 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 }
 .buscador input:focus + svg, .buscador input:focus ~ svg { color: var(--text-main); }
 
-/* ── Personas agrupadas por área, en columnas que se deslizan ── */
+/* ── Personas agrupadas por área ──
+   En el celular es una lista vertical, con el nombre del área separando cada
+   grupo. En pantalla ancha las áreas pasan a columnas (ver más abajo). */
 .areas{
-  width:100%;display:flex;gap:10px;
-  /* Sin esto las columnas se estiran a la altura de la más larga y las cortas
-     quedan con un hueco enorme debajo. */
-  align-items:flex-start;
-  overflow-x:auto;overflow-y:hidden;
-  scroll-snap-type:x proximity;scroll-behavior:smooth;
-  padding:4px 2px 12px;
+  width:100%;display:flex;flex-direction:column;gap:16px;
+  max-height:52dvh;overflow-y:auto;overflow-x:hidden;
+  padding:4px 2px;scroll-behavior:smooth;
   -webkit-overflow-scrolling:touch;
-  /* El borde derecho se desvanece: así se entiende que la columna cortada
-     continúa. La clase .fin lo quita cuando ya no queda nada por deslizar. */
-  -webkit-mask-image:linear-gradient(90deg,#000 84%,rgba(0,0,0,.15));
-          mask-image:linear-gradient(90deg,#000 84%,rgba(0,0,0,.15));
 }
-.areas.fin{-webkit-mask-image:none;mask-image:none;}
-.areas::-webkit-scrollbar { height: 6px; }
+.areas::-webkit-scrollbar { width: 6px; }
 .areas::-webkit-scrollbar-track { background: transparent; }
 .areas::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 .areas::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
 .area-col{
-  flex:0 0 168px;scroll-snap-align:start;
-  display:flex;flex-direction:column;gap:9px;
-  max-height:46dvh;overflow-y:auto;padding-right:2px;
+  display:flex;flex-direction:column;gap:9px;width:100%;
 }
-.area-col::-webkit-scrollbar { width: 4px; }
-.area-col::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 10px; }
 
 .area-tit{
   position:sticky;top:0;z-index:2;margin:0 0 2px;padding:7px 12px;
@@ -183,17 +172,27 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
   margin:0;font-size:11.5px;color:var(--gris2);letter-spacing:.02em;
 }
 
-/* En pantalla ancha no hay por qué esconder áreas detrás de un deslizamiento:
-   la tarjeta crece y las columnas se acomodan en filas, todas a la vista. */
+/* En pantalla ancha la lista se abre en columnas: la tarjeta crece y las seis
+   áreas quedan a la vista de un golpe, sin desplazar nada. */
 @media (min-width:760px){
   .tarjeta.ancha{max-width:min(94vw, 1040px);}
   #v-elegir .areas{
-    flex-wrap:wrap;justify-content:center;
-    overflow-x:visible;
-    -webkit-mask-image:none;mask-image:none;
+    flex-direction:row;flex-wrap:wrap;justify-content:center;
+    align-items:flex-start;   /* si no, las columnas cortas se estiran y dejan hueco */
+    gap:10px 12px;max-height:none;overflow:visible;
   }
-  #v-elegir .area-col{flex:0 0 186px;}
+  #v-elegir .area-col{flex:0 0 190px;}
   .desliza{display:none;}
+}
+
+/* El nombre completo cabe en la lista del celular; en las columnas angostas de
+   escritorio se muestra el corto para que no se parta en tres líneas. */
+/* Especificidad a la par de `.p-txt b`, que fija display:-webkit-box; con
+   selectores más simples ganaba esa y se veían los dos nombres a la vez. */
+.p-txt b.n-corto{display:none;}
+@media (min-width:760px){
+  .p-txt b.n-largo{display:none;}
+  .p-txt b.n-corto{display:-webkit-box;}
 }
 
 .persona{

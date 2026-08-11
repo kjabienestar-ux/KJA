@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=11">
+<link rel="stylesheet" href="marcar.css?v=13">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -55,7 +55,7 @@
     </div>
 
     <div class="areas" id="lista"></div>
-    <p class="desliza" id="desliza" hidden>Desliza para ver las demás áreas →</p>
+    <p class="desliza" id="desliza" hidden>Sigue bajando para ver las demás áreas</p>
     <p class="vacio" id="vacio" hidden>No encontramos ese nombre.<br><span>Revisa cómo lo escribiste o avisa a dirección.</span></p>
   </section>
 
@@ -276,6 +276,7 @@ async function cargar(){
 
   pintarLista('');
   ver('v-elegir');
+  marcarFinLista();   // recién visible se puede medir: oculta, la lista mide cero
 }
 
 const esc = s => (s ?? '').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -303,7 +304,8 @@ function pintarLista(filtro){
         <button class="persona" data-id="${p.id}" title="${esc(p.nombre)}">
           <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}</span>
           <span class="p-txt">
-            <b>${esc(nombreCorto(p.nombre))}</b>
+            <b class="n-largo">${esc(p.nombre)}</b>
+            <b class="n-corto">${esc(nombreCorto(p.nombre))}</b>
             ${p.tiene_clave ? '' : '<i>Primera vez</i>'}
           </span>
         </button>`).join('')}
@@ -311,31 +313,19 @@ function pintarLista(filtro){
 
   $('lista').querySelectorAll('.persona').forEach(b => b.onclick = () =>
     abrirPin(PERSONAS.find(p => String(p.id) === b.dataset.id)));
-  $('lista').scrollLeft = 0;
+  $('lista').scrollTop = 0;
   marcarFinLista();
 }
 
-/* El desvanecido del borde derecho dice "hay más columnas". Se quita al llegar
-   al final, y el aviso de deslizar solo aparece si de verdad hay algo oculto
-   —en pantalla ancha las columnas se acomodan en filas y no sobra nada—. */
+/* Aviso de que la lista sigue hacia abajo. Solo aparece si de verdad hay algo
+   fuera de vista, y se apaga al llegar al final. */
 function marcarFinLista(){
   const l = $('lista');
-  const hayMas = l.scrollWidth > l.clientWidth + 4;
-  l.classList.toggle('fin', !hayMas || l.scrollLeft + l.clientWidth >= l.scrollWidth - 4);
-  $('desliza').hidden = !hayMas;
+  const hayMas = l.scrollHeight > l.clientHeight + 4;
+  $('desliza').hidden = !hayMas || (l.scrollTop + l.clientHeight >= l.scrollHeight - 8);
 }
 $('lista').addEventListener('scroll', marcarFinLista, { passive:true });
 addEventListener('resize', marcarFinLista);
-
-/* Con mouse, la rueda desplaza en vertical y el carrusel no se movía: se
-   traduce el giro a desplazamiento horizontal. */
-$('lista').addEventListener('wheel', e => {
-  const l = $('lista');
-  if(l.scrollWidth <= l.clientWidth) return;
-  if(Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-  e.preventDefault();
-  l.scrollLeft += e.deltaY;
-}, { passive:false });
 $('buscar').addEventListener('input', e => pintarLista(e.target.value));
 
 /* ── Teclado de la clave ── */
