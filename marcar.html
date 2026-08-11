@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=4">
+<link rel="stylesheet" href="marcar.css?v=5">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -104,7 +104,52 @@
 
     <button class="btn grande" id="d-marcar">Marcar mi asistencia</button>
     <p class="pie" id="d-pie"></p>
-    <button class="btn-plano" id="d-salir">Salir</button>
+    <a class="btn-wa" id="d-wa" href="#" target="_blank" rel="noopener" hidden>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
+      <span id="d-wa-txt">Avisar a dirección</span>
+    </a>
+    <button class="btn-plano" id="d-historial">Ver mi historial</button>
+    <button class="btn-plano tenue" id="d-salir">Salir</button>
+  </section>
+
+  <!-- Mi historial -->
+  <section class="tarjeta ancha" id="v-historial" hidden>
+    <span class="avatar-grande chico" id="h-ava"></span>
+    <h1 id="h-nombre">—</h1>
+    <p class="sub" id="h-sub">Tu asistencia registrada</p>
+
+    <div class="kpis">
+      <div class="kpi"><b id="h-p">0</b><span>Presentes</span></div>
+      <div class="kpi"><b id="h-t">0</b><span>Tardanzas</span></div>
+      <div class="kpi"><b id="h-j">0</b><span>Justificados</span></div>
+    </div>
+
+    <div class="mes-nav">
+      <button id="h-antes" aria-label="Mes anterior">‹</button>
+      <b id="h-mes">—</b>
+      <button id="h-desp" aria-label="Mes siguiente">›</button>
+    </div>
+
+    <div class="cal" id="h-cal"></div>
+
+    <div class="leyenda">
+      <span><i class="lg-p"></i>Presente</span>
+      <span><i class="lg-t"></i>Tardanza</span>
+      <span><i class="lg-j"></i>Justificado</span>
+      <span><i class="lg-off"></i>No laboras</span>
+    </div>
+
+    <div class="barra-horas" id="h-horas" hidden>
+      <div class="bh-top"><span>Horas acumuladas</span><b id="bh-txt">—</b></div>
+      <div class="bh-pista"><div class="bh-fill" id="bh-fill"></div></div>
+    </div>
+
+    <a class="btn-wa" id="h-wa" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
+      ¿Algún dato está mal? Escríbeme
+    </a>
+
+    <button class="btn-plano" id="h-volver">Volver</button>
   </section>
 
   <!-- Resultado -->
@@ -114,7 +159,12 @@
     <p class="sub" id="ls-sub">—</p>
     <div class="sello" id="ls-sello"><span id="ls-hora">—</span></div>
     <p class="pie" id="ls-pie"></p>
-    <button class="btn-plano" id="ls-salir">Salir</button>
+    <a class="btn-wa" id="ls-wa" href="#" target="_blank" rel="noopener" hidden>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
+      <span id="ls-wa-txt">Avisar a dirección</span>
+    </a>
+    <button class="btn-plano" id="ls-historial">Ver mi historial</button>
+    <button class="btn-plano tenue" id="ls-salir">Salir</button>
   </section>
 
   <p class="marca-agua">KJA · Registro de asistencia</p>
@@ -151,11 +201,16 @@ function equipo(){
 const EQUIPO = equipo();
 
 /* ════════════════════ VISTAS ════════════════════ */
-const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-pin','v-dia','v-listo'];
+const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-pin','v-dia','v-listo','v-historial'];
+/* WhatsApp de dirección, para cuando alguien vea sus datos mal */
+const WA_DIRECCION = '51922996170';
 function ver(id){ VISTAS.forEach(v => $(v).hidden = (v !== id)); }
 
 function hashN(s){ let h=0; for(const c of (s||'')) h=(h*31+c.charCodeAt(0))>>>0; return h; }
-function colorDe(n){ return `hsl(${hashN(n)%360} 62% 46%)`; }
+function colorDe(n){ 
+  const h = hashN(n)%360; 
+  return `linear-gradient(135deg, hsl(${h} 80% 65%), hsl(${(h+40)%360} 70% 50%))`; 
+}
 function iniciales(n){
   const p=(n||'').trim().split(/\s+/).filter(x=>x.length>2);
   return ((p[0]||'')[0]||'').toUpperCase() + ((p[1]||'')[0]||'').toUpperCase();
@@ -242,6 +297,7 @@ function pinMsg(t, tipo){
   e.className = 'pin-msg' + (tipo ? ' ' + tipo : '');
 }
 function pintarPuntos(){
+  $('pin-puntos').classList.remove('mal');
   $('pin-puntos').querySelectorAll('i').forEach((el,i)=> el.classList.toggle('on', i < PIN.length));
 }
 function sacudir(){
@@ -331,10 +387,16 @@ function pintarDia(dia){
     $('ls-ico').className = 'ico-grande gris';
     $('ls-ico').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>';
     $('ls-titulo').textContent = 'Hoy no te toca';
-    $('ls-sub').textContent = 'Según tu horario no laboras hoy, así que no hay nada que marcar. Si esto no está bien, avisa a dirección.';
+    $('ls-sub').textContent = 'Según tu horario no laboras hoy, así que no hay nada que marcar.';
     $('ls-sello').hidden = true; $('ls-pie').textContent = '';
+    // El caso más probable de dato mal cargado: el horario dice que hoy no labora
+    $('ls-wa').hidden = false;
+    $('ls-wa-txt').textContent = 'Sí me tocaba hoy, avisar';
+    $('ls-wa').href = enlaceWhatsApp(dia.nombre,
+      `Hoy ${fechaLarga(dia.fecha).toLowerCase()} sí me tocaba trabajar, pero el sistema dice que no laboro. ¿Pueden revisar mi horario?`);
     return ver('v-listo');
   }
+  $('ls-wa').hidden = true;
 
   const hay = !!dia.hora_entrada;
   $('d-horario').hidden = !hay;
@@ -345,7 +407,14 @@ function pintarDia(dia){
   }
   $('d-pie').textContent = hay
     ? `Si marcas después de las ${hhmm(dia.limite)}, cuenta como tardanza.`
-    : 'No tienes hora de entrada registrada. Avisa a dirección para que la cargue.';
+    : 'No tienes hora de entrada registrada, así que hoy contará como presente.';
+  // El botón de aviso solo aparece cuando hay algo concreto que reportar
+  $('d-wa').hidden = hay;
+  if(!hay){
+    $('d-wa-txt').textContent = 'Falta mi horario, avisar';
+    $('d-wa').href = enlaceWhatsApp(dia.nombre,
+      'No tengo hora de entrada registrada en el sistema de asistencia. ¿Pueden cargar mi horario?');
+  }
   relojVivo();
   ver('v-dia');
 }
@@ -414,6 +483,95 @@ function pintarListo(estado, cuando, yaEstaba){
   $('ls-pie').textContent = tarde ? 'Si tuviste un motivo, coméntalo con dirección para que lo justifique.' : '';
   ver('v-listo');
 }
+
+/* ════════════════════ MI HISTORIAL ════════════════════
+   Solo el propio: la función del servidor vuelve a pedir la clave y
+   devuelve únicamente los días de quien la escribió. */
+let H_ANIO = null, H_MES = null;
+
+function enlaceWhatsApp(nombre, motivo){
+  const t = `Hola, soy ${nombre}. ${motivo}`;
+  return `https://wa.me/${WA_DIRECCION}?text=${encodeURIComponent(t)}`;
+}
+
+async function abrirHistorial(anio, mes){
+  const f = new Date();
+  H_ANIO = anio || H_ANIO || f.getFullYear();
+  H_MES  = mes  || H_MES  || (f.getMonth() + 1);
+
+  pintarAvatar($('h-ava'), DIA.nombre);
+  $('h-nombre').textContent = primerNombre(DIA.nombre);
+  $('h-cal').innerHTML = '<p class="cal-cargando">Cargando…</p>';
+  ver('v-historial');
+
+  const { data, error } = await db.rpc('asis_portal_historial', {
+    p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_anio: H_ANIO, p_mes: H_MES
+  });
+  if(error) return verFalla(error);
+  if(!data || !data.ok){ $('h-cal').innerHTML = '<p class="cal-cargando">No se pudo cargar tu historial.</p>'; return; }
+  pintarHistorial(data);
+}
+
+function pintarHistorial(h){
+  H_ANIO = h.anio; H_MES = h.mes;
+  $('h-mes').textContent = MESES[h.mes-1][0].toUpperCase() + MESES[h.mes-1].slice(1) + ' ' + h.anio;
+  $('h-p').textContent = h.totales.P;
+  $('h-t').textContent = h.totales.T;
+  $('h-j').textContent = h.totales.J;
+
+  const faltan = h.totales.laborables - (h.totales.P + h.totales.T + h.totales.J + h.totales.NG);
+  $('h-sub').textContent = faltan > 0
+    ? `Te faltan ${faltan} ${faltan===1?'día':'días'} sin marcar este mes`
+    : 'Tienes todos tus días marcados';
+
+  // El mes arranca en el día de la semana que toque (lunes primero)
+  const primero = h.dias[0] ? h.dias[0].dow : 1;
+  const hoyD = Number(String(h.hoy).slice(8,10));
+  const mismoMes = Number(String(h.hoy).slice(0,4)) === h.anio && Number(String(h.hoy).slice(5,7)) === h.mes;
+
+  let cel = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
+    .map(d=>`<span class="cal-dow">${d}</span>`).join('');
+  cel += '<span class="cal-hueco" style="grid-column:span '+(primero-1)+'"></span>';
+  cel += h.dias.map(d=>{
+    const cls = d.estado ? 'e-'+d.estado : (d.lab ? (d.futuro ? 'pendiente' : 'sin') : 'off');
+    const hoy = (mismoMes && d.d === hoyD) ? ' hoy' : '';
+    const tit = d.estado ? {P:'Presente',T:'Tardanza',J:'Justificado',NG:'No gestiona'}[d.estado]
+              : (d.lab ? (d.futuro ? 'Pendiente' : 'Sin marcar') : 'No laboras');
+    return `<span class="cal-dia ${cls}${hoy}" title="${tit}">${d.d}</span>`;
+  }).join('');
+  $('h-cal').innerHTML = cel;
+
+  // Avance del contrato, solo si tiene meta cargada
+  if(h.meta){
+    $('h-horas').hidden = false;
+    const pct = Math.min(100, (h.horas / h.meta) * 100);
+    $('bh-txt').textContent = `${h.horas} de ${h.meta} h`;
+    $('bh-fill').style.width = pct.toFixed(1) + '%';
+  } else {
+    $('h-horas').hidden = true;
+  }
+
+  $('h-wa').href = enlaceWhatsApp(DIA.nombre,
+    'Revisando mi historial de asistencia vi un dato que no cuadra: ');
+
+  // No se puede navegar al futuro
+  const f = new Date();
+  $('h-desp').disabled = (h.anio === f.getFullYear() && h.mes === f.getMonth()+1);
+}
+
+$('d-historial').addEventListener('click', ()=> abrirHistorial());
+$('ls-historial').addEventListener('click', ()=> abrirHistorial());
+$('h-volver').addEventListener('click', ()=> ver(DIA && DIA.marcado ? 'v-listo' : 'v-dia'));
+$('h-antes').addEventListener('click', ()=>{
+  let m = H_MES - 1, a = H_ANIO;
+  if(m < 1){ m = 12; a--; }
+  abrirHistorial(a, m);
+});
+$('h-desp').addEventListener('click', ()=>{
+  let m = H_MES + 1, a = H_ANIO;
+  if(m > 12){ m = 1; a++; }
+  abrirHistorial(a, m);
+});
 
 /* Salir = olvidar la clave de esta sesión, no el nombre */
 function salir(){ PIN=''; PIN_PRIMERO=''; clearInterval(tReloj); abrirPin(YO); }
