@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=7">
+<link rel="stylesheet" href="marcar.css?v=8">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -90,7 +90,7 @@
     <h1 id="d-nombre">—</h1>
     <p class="fecha" id="d-fecha">—</p>
 
-    <div class="reloj" id="d-reloj">--:--:--<i id="d-ms">.000</i></div>
+    <div class="reloj" id="d-reloj">--:--:--</div>
 
     <div class="horario" id="d-horario" hidden>
       <div class="h-bloque"><span>Entrada</span><b id="d-ini">—</b></div>
@@ -157,7 +157,7 @@
     <span class="ico-grande" id="ls-ico"></span>
     <h1 id="ls-titulo">—</h1>
     <p class="sub" id="ls-sub">—</p>
-    <div class="sello" id="ls-sello"><span id="ls-hora">—</span><i id="ls-ms"></i></div>
+    <div class="sello" id="ls-sello"><span id="ls-hora">—</span></div>
     <p class="pie" id="ls-pie"></p>
     <a class="btn-wa" id="ls-wa" href="#" target="_blank" rel="noopener" hidden>
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
@@ -438,25 +438,23 @@ function pintarCuenta(){
                            : 'Fuera de tu horario: se registrará como tardanza.';
   }
 }
-/* Reloj vivo al milisegundo. Va con requestAnimationFrame en vez de un
-   setInterval corto: el navegador lo pausa solo cuando la pestaña no se ve, así
-   que no gasta batería de fondo. El texto del reloj se reescribe solo cuando
-   cambia el segundo; los milisegundos van en su propio nodo. */
+/* Reloj vivo, segundo a segundo. Va con requestAnimationFrame en vez de un
+   setInterval: el navegador lo pausa solo cuando la pestaña no se ve, así que
+   no gasta batería de fondo, y el segundo cambia justo cuando toca en vez de
+   irse corriendo. El texto solo se reescribe cuando el segundo cambia. */
 let rafReloj = null, ultSeg = -1;
 function dosDig(n){ return String(n).padStart(2,'0'); }
 function relojVivo(){
   detenerReloj();
-  const nodoReloj = $('d-reloj'), nodoMs = $('d-ms');
+  const nodoReloj = $('d-reloj');
   const pinta = () => {
     const f = new Date();
     const s = f.getSeconds();
     if(s !== ultSeg){
       ultSeg = s;
-      nodoReloj.firstChild.nodeValue =
-        `${dosDig(f.getHours())}:${dosDig(f.getMinutes())}:${dosDig(s)}`;
+      nodoReloj.textContent = `${dosDig(f.getHours())}:${dosDig(f.getMinutes())}:${dosDig(s)}`;
       pintarCuenta();
     }
-    nodoMs.textContent = '.' + String(f.getMilliseconds()).padStart(3,'0');
     rafReloj = requestAnimationFrame(pinta);
   };
   ultSeg = -1;
@@ -466,20 +464,16 @@ function detenerReloj(){
   if(rafReloj){ cancelAnimationFrame(rafReloj); rafReloj = null; }
 }
 
-/* La hora que queda grabada. El servidor la devuelve como texto con
-   microsegundos ("20:17:33.456789"); se recorta a milésimas para mostrarla.
-   Si viene de un registro anterior llega como fecha completa. */
-function partesHora(cuando){
-  if(!cuando) return null;
+/* La hora que queda grabada, al segundo. El servidor la devuelve como texto
+   ("20:17:33.456789", con microsegundos que se descartan); si viene de un
+   registro anterior llega como fecha completa. */
+function horaGrabada(cuando){
+  if(!cuando) return '—';
   if(typeof cuando === 'string'){
     const [h, m, resto = ''] = cuando.split(':');
-    const [s, frac = ''] = resto.split('.');
-    return { hms: `${h}:${m}:${s || '00'}`, ms: '.' + (frac + '000').slice(0, 3) };
+    return `${h}:${m}:${(resto.split('.')[0] || '00')}`;
   }
-  return {
-    hms: `${dosDig(cuando.getHours())}:${dosDig(cuando.getMinutes())}:${dosDig(cuando.getSeconds())}`,
-    ms:  '.' + String(cuando.getMilliseconds()).padStart(3, '0')
-  };
+  return `${dosDig(cuando.getHours())}:${dosDig(cuando.getMinutes())}:${dosDig(cuando.getSeconds())}`;
 }
 
 $('d-marcar').addEventListener('click', async () => {
@@ -513,9 +507,7 @@ function pintarListo(estado, cuando, yaEstaba){
              : 'Dentro de tu horario. Que tengas buen día.');
   $('ls-sello').hidden = false;
   $('ls-sello').className = 'sello ' + (tarde ? 'ambar' : 'verde');
-  const p = partesHora(cuando);
-  $('ls-hora').textContent = p ? p.hms : '—';
-  $('ls-ms').textContent   = p ? p.ms  : '';
+  $('ls-hora').textContent = horaGrabada(cuando);
   $('ls-pie').textContent = tarde ? 'Si tuviste un motivo, coméntalo con dirección para que lo justifique.' : '';
   ver('v-listo');
 }

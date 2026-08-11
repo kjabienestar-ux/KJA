@@ -285,19 +285,8 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 #mk-nombre{font-size:27px;margin-top:2px;}
 .fecha{font-size:13px;color:var(--text-muted);margin:8px 0 0;}
 .reloj{
-  font-size:44px;font-weight:800;letter-spacing:-.02em;color:var(--text-main);
+  font-size:46px;font-weight:800;letter-spacing:-.02em;color:var(--text-main);
   margin:18px 0 4px;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px rgba(0,0,0,0.2);
-  display:flex;align-items:baseline;justify-content:center;
-}
-/* Las milésimas van más chicas: se ven correr sin desequilibrar la hora.
-   Ancho fijo para que el número no baile al cambiar de dígito. */
-.reloj i{
-  font-style:normal;font-size:.42em;font-weight:600;
-  color:var(--text-muted);margin-left:1px;
-  min-width:2.6ch;text-align:left;
-}
-.sello i{
-  font-style:normal;font-size:.5em;font-weight:600;opacity:.75;margin-left:1px;
 }
 
 /* ── Resultado ── */
@@ -430,7 +419,6 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
   .tarjeta.ancha{padding:24px 12px 20px;}
   h1{font-size:21px;}
   .reloj{font-size:34px;}
-  .reloj i{font-size:.4em;}
   .avatar-grande{width:58px;height:58px;font-size:19px;margin-bottom:12px;}
   .teclado{grid-template-columns:repeat(3,62px);gap:12px 14px;}
   .teclado button{width:62px;height:62px;font-size:25px;}
