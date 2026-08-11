@@ -54,13 +54,38 @@
       <input id="buscar" type="search" placeholder="Escribe tu nombre…" autocomplete="off" autocapitalize="words">
     </div>
 
-    <div class="areas" id="lista"></div>
-    <p class="desliza" id="desliza" hidden>Sigue bajando para ver las demás áreas</p>
+    <div class="area-tabs-wrapper">
+      <div class="area-tabs" id="tabs-areas"></div>
+    </div>
+
+    <div class="grid-personas" id="lista"></div>
+    
+    <div class="ver-mas-wrap" id="ver-mas-wrap" hidden>
+      <button class="btn-ver-mas" id="btn-ver-mas">Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    </div>
+
+    <div class="areas-mobile" id="lista-mobile"></div>
+
     <p class="vacio" id="vacio" hidden>No encontramos ese nombre.<br><span>Revisa cómo lo escribiste o avisa a dirección.</span></p>
     <a class="btn-wa" id="el-wa" href="#" target="_blank" rel="noopener" style="margin-top: 20px; max-width: 340px;">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
       No estoy en la lista, registrarme
     </a>
+
+    <div class="trust-footer">
+      <div class="tf-item">
+        <span class="tf-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <div><b>Tu información está segura</b><span>Protegemos tus datos personales</span></div>
+      </div>
+      <div class="tf-item">
+        <span class="tf-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        <div><b>Asistencia en tiempo real</b><span>Se actualiza automáticamente</span></div>
+      </div>
+      <div class="tf-item">
+        <span class="tf-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+        <div><b>¿No te encuentras?</b><span>Contacta al administrador</span></div>
+      </div>
+    </div>
   </section>
 
   <!-- Clave: crear o ingresar -->
@@ -312,18 +337,90 @@ function estadoPersona(p){
   return { cls:'pendiente', sello:'', icls:'e-pend', nota:'Sin marcar' };
 }
 
+let AREA_ACTIVA = 'Todas';
+let LIMITE_LISTA = 12;
+
 function pintarLista(filtro){
   const f = (filtro||'').trim().toLowerCase();
-  const vis = f ? PERSONAS.filter(p => p.nombre.toLowerCase().includes(f)) : PERSONAS;
+
+  // Calcular métricas por área
+  const porArea = new Map();
+  PERSONAS.forEach(p => {
+    const a = p.area || 'Sin área';
+    if(!porArea.has(a)) porArea.set(a, { listos:0, deben:0, total:0 });
+    const stat = porArea.get(a);
+    stat.total++;
+    if(p.marcado) stat.listos++;
+    if(p.labora) stat.deben++;
+  });
+
+  // Renderizar Tabs
+  let tabsHtml = `<button class="area-tab ${AREA_ACTIVA === 'Todas' ? 'activa' : ''}" data-area="Todas">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Todas <b>${PERSONAS.length}</b>
+  </button>`;
+  
+  [...porArea.keys()].sort().forEach(area => {
+    const stat = porArea.get(area);
+    const txt = stat.deben ? `${stat.listos}/${stat.deben}` : stat.total;
+    const ico = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
+    tabsHtml += `<button class="area-tab ${AREA_ACTIVA === area ? 'activa' : ''}" data-area="${esc(area)}">
+      ${ico} ${esc(area)} <b>${txt}</b>
+    </button>`;
+  });
+  $('tabs-areas').innerHTML = tabsHtml;
+
+  // Eventos Tabs
+  $('tabs-areas').querySelectorAll('.area-tab').forEach(b => b.onclick = () => {
+    AREA_ACTIVA = b.dataset.area;
+    LIMITE_LISTA = 12;
+    pintarLista($('buscar').value);
+  });
+
+  // Filtrar
+  let vis = PERSONAS;
+  if (AREA_ACTIVA !== 'Todas') vis = vis.filter(p => (p.area || 'Sin área') === AREA_ACTIVA);
+  if (f) vis = vis.filter(p => p.nombre.toLowerCase().includes(f));
+
   $('vacio').hidden = vis.length > 0;
 
-  const porArea = new Map();
-  vis.forEach(p => {
+  // Helper del icono superior
+  const getTopIcon = p => p.marcado
+    ? `<svg class="check-ico" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2Zm4.707 8.707a1 1 0 0 0-1.414-1.414L10 14.586 8.707 13.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4Z"/></svg>`
+    : (p.tiene_clave 
+        ? `<svg class="estrella-ico fill" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+        : `<svg class="estrella-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`);
+
+  // Paginación (Desktop)
+  const mostrar = vis.slice(0, LIMITE_LISTA);
+  $('ver-mas-wrap').hidden = vis.length <= LIMITE_LISTA;
+
+  // Renderizar Grid (Desktop)
+  $('lista').innerHTML = mostrar.map(p => {
+    const e = estadoPersona(p);
+    return `
+    <button class="persona-card ${e.cls}" data-id="${p.id}" title="${esc(p.nombre)}">
+      ${getTopIcon(p)}
+      <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}${e.sello}</span>
+      <span class="p-txt">
+        <b>${esc(p.nombre)}</b>
+        <i class="${e.icls}">${e.nota}</i>
+        <span class="area-tag">${esc(p.area || 'Sin área')}</span>
+      </span>
+    </button>`;
+  }).join('');
+
+  // Renderizar Agrupado (Móvil)
+  const vis_mobile = f ? PERSONAS.filter(p => p.nombre.toLowerCase().includes(f)) : PERSONAS;
+  const porAreaMob = new Map();
+  vis_mobile.forEach(p => {
     const a = p.area || 'Sin área';
-    if(!porArea.has(a)) porArea.set(a, []);
-    porArea.get(a).push(p);
+    if(!porAreaMob.has(a)) porAreaMob.set(a, []);
+    porAreaMob.get(a).push(p);
   });
-  $('lista').innerHTML = [...porArea].map(([area, gente]) => {
+  
+  $('lista-mobile').innerHTML = [...porAreaMob.keys()].sort().map(area => {
+    const gente = porAreaMob.get(area);
     const listos = gente.filter(p => p.marcado).length;
     const deben  = gente.filter(p => p.labora).length;
     return `
@@ -332,34 +429,35 @@ function pintarLista(filtro){
       ${gente.map(p => {
         const e = estadoPersona(p);
         return `
-        <button class="persona ${e.cls}" data-id="${p.id}" title="${esc(p.nombre)}">
+        <button class="persona-card ${e.cls}" data-id="${p.id}" title="${esc(p.nombre)}">
+          ${getTopIcon(p)}
           <span class="ava" style="background:${colorDe(p.nombre)}">${iniciales(p.nombre)}${e.sello}</span>
           <span class="p-txt">
-            <b class="n-largo">${esc(p.nombre)}</b>
-            <b class="n-corto">${esc(nombreCorto(p.nombre))}</b>
+            <b>${esc(p.nombre)}</b>
             <i class="${e.icls}">${e.nota}</i>
           </span>
-        </button>`; }).join('')}
-    </section>`; }).join('');
+        </button>`; 
+      }).join('')}
+    </section>`;
+  }).join('');
 
-  $('lista').querySelectorAll('.persona').forEach(b => b.onclick = () => {
+  const eventoClick = b => {
     ver('v-carga');
     setTimeout(() => abrirPin(PERSONAS.find(p => String(p.id) === b.dataset.id)), 400);
-  });
-  $('lista').scrollTop = 0;
-  marcarFinLista();
+  };
+  $('lista').querySelectorAll('.persona-card').forEach(b => b.onclick = () => eventoClick(b));
+  $('lista-mobile').querySelectorAll('.persona-card').forEach(b => b.onclick = () => eventoClick(b));
 }
 
-/* Aviso de que la lista sigue hacia abajo. Solo aparece si de verdad hay algo
-   fuera de vista, y se apaga al llegar al final. */
-function marcarFinLista(){
-  const l = $('lista');
-  const hayMas = l.scrollHeight > l.clientHeight + 4;
-  $('desliza').hidden = !hayMas || (l.scrollTop + l.clientHeight >= l.scrollHeight - 8);
-}
-$('lista').addEventListener('scroll', marcarFinLista, { passive:true });
-addEventListener('resize', marcarFinLista);
-$('buscar').addEventListener('input', e => pintarLista(e.target.value));
+$('btn-ver-mas').addEventListener('click', () => {
+  LIMITE_LISTA += 12;
+  pintarLista($('buscar').value);
+});
+
+$('buscar').addEventListener('input', e => {
+  LIMITE_LISTA = 12;
+  pintarLista(e.target.value);
+});
 
 /* ── Teclado de la clave ── */
 function abrirPin(persona){
