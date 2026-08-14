@@ -435,6 +435,49 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 }
 .ch-eco b{font-size:13.5px;font-weight:600;line-height:1.5;color:var(--text-main);}
 
+/* ── Confirmación del aviso ──
+   Sin esto la pantalla cambiaba de golpe y no se leía como que algo ocurrió.
+   El check se dibuja, sale un halo y el texto entra escalonado. */
+.ico-grande{position:relative;}
+.ico-grande.exito{
+  background:rgba(34,197,94,.28);color:#86efac;
+  outline:2px solid rgba(134,239,172,.35);outline-offset:3px;
+}
+.ico-grande.anim{animation:sello .5s cubic-bezier(.2,1.4,.4,1);}
+@keyframes sello{0%{transform:scale(.6);opacity:0;}60%{transform:scale(1.06);}100%{transform:scale(1);opacity:1;}}
+
+.check-trazo polyline{stroke-dasharray:30;stroke-dashoffset:30;}
+.ico-grande.anim .check-trazo polyline{animation:trazo .45s .18s cubic-bezier(.65,0,.35,1) forwards;}
+@keyframes trazo{to{stroke-dashoffset:0;}}
+
+/* Onda que se expande una sola vez, como un sello al caer */
+.ico-grande.anim::after{
+  content:"";position:absolute;inset:-4px;border-radius:50%;
+  border:2px solid rgba(134,239,172,.55);
+  animation:onda .9s .2s cubic-bezier(.2,.8,.3,1) forwards;
+}
+@keyframes onda{from{transform:scale(.85);opacity:.85;}to{transform:scale(1.65);opacity:0;}}
+
+#ch-listo.entra > *{opacity:0;animation:sube .5s cubic-bezier(.16,1,.3,1) forwards;}
+#ch-listo.entra > *:nth-child(1){animation-delay:.30s;}
+#ch-listo.entra > *:nth-child(2){animation-delay:.40s;}
+#ch-listo.entra > *:nth-child(3){animation-delay:.50s;}
+#ch-listo.entra > *:nth-child(4){animation-delay:.60s;}
+@keyframes sube{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+/* Puntitos que laten mientras se envía, para que la espera no parezca colgada */
+.btn.enviando{position:relative;color:transparent;}
+.btn.enviando::after{
+  content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;
+  border-radius:50%;background:#0b2a5c;
+  box-shadow:-14px 0 0 #0b2a5c, 14px 0 0 #0b2a5c;
+  animation:puntitos .9s infinite ease-in-out;
+}
+@keyframes puntitos{
+  0%,100%{opacity:.25;}
+  50%    {opacity:1;}
+}
+
 /* ── Botones ── */
 .btn{
   width:100%;padding:18px;border-radius:24px;

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=17">
+<link rel="stylesheet" href="marcar.css?v=18">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -152,7 +152,7 @@
 
   <!-- Aviso de cambio de horario -->
   <section class="tarjeta" id="v-horario" hidden>
-    <span class="ico-grande azul">
+    <span class="ico-grande azul" id="ch-ico">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
     </span>
     <div id="ch-form">
@@ -718,6 +718,8 @@ function abrirCambioHorario(){
   const pend = DIA && DIA.aviso_horario;
   if(pend) return pintarAvisoEnviado(pend.texto, pend.creado_at, true);
 
+  $('ch-ico').className = 'ico-grande azul';
+  $('ch-ico').innerHTML = ICO_RELOJ;
   $('ch-texto').value = '';
   $('ch-form').hidden = false;
   $('ch-listo').hidden = true;
@@ -736,7 +738,20 @@ function cuando(iso){
   const d = Math.floor(h / 24);
   return d === 1 ? 'ayer' : `hace ${d} días`;
 }
+const ICO_RELOJ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+const ICO_TRAZO = '<svg class="check-trazo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
 function pintarAvisoEnviado(texto, creadoAt, yaEstaba){
+  const ico = $('ch-ico');
+  ico.innerHTML = ICO_TRAZO;
+  /* Recién enviado: el check se dibuja y sale un halo. Si ya estaba de antes no
+     se anima nada — no pasó nada ahora y fingirlo confunde. */
+  ico.className = 'ico-grande ' + (yaEstaba ? 'azul' : 'exito');
+  $('ch-listo').classList.toggle('entra', !yaEstaba);
+  if(!yaEstaba){
+    ico.classList.remove('anim'); void ico.offsetWidth; ico.classList.add('anim');
+  }
+
   $('ch-form').hidden = true;
   $('ch-listo').hidden = false;
   $('ch-listo-tit').textContent = yaEstaba ? 'Ya nos avisaste' : 'Aviso enviado';
@@ -760,10 +775,16 @@ $('ch-enviar').addEventListener('click', async ()=>{
   const texto = $('ch-texto').value.trim();
   if(texto.length < 6) return chMsg('Escribe tu horario con un poco más de detalle.', 'mal');
   const b = $('ch-enviar'); b.disabled = true; b.textContent = 'Enviando…';
-  const { data, error } = await db.rpc('asis_portal_pedir_horario', {
-    p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_texto: texto
-  });
+  b.classList.add('enviando');
+  /* Se le da al "Enviando…" un mínimo visible: la llamada suele volver en
+     menos de lo que tarda el ojo, y un cambio instantáneo no se lee como que
+     algo pasó. El pedido es real, solo no se atropella la confirmación. */
+  const [{ data, error }] = await Promise.all([
+    db.rpc('asis_portal_pedir_horario', { p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_texto: texto }),
+    new Promise(r => setTimeout(r, 650))
+  ]);
   b.disabled = false; b.textContent = 'Enviar a dirección';
+  b.classList.remove('enviando');
   if(error) return verFalla(error);
   if(!data || !data.ok){
     // El servidor ya tenía uno suyo esperando: se le muestra ese
