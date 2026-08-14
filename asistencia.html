@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=20">
+<link rel="stylesheet" href="asistencia.css?v=21">
 </head>
 <body>
 
@@ -2153,17 +2153,20 @@ async function marcarExcepcionTrabajo(colabId, fecha){
 
 /* ════════════════════ MARCADO PROPIO (solo dirección) ════════════════════
    El enlace que se reparte y el estado de la clave de cada persona. */
-let PORTAL_CFG = null, CLAVES = {};
+let PORTAL_CFG = null, CLAVES = {}, SOL_HORARIO = [];
 
 async function cargarPortal(){
-  const [cfg, est] = await Promise.all([
+  const [cfg, est, hor] = await Promise.all([
     db.from('asis_portal_config').select('clave,tolerancia_min,activo').eq('id',1).maybeSingle(),
-    db.rpc('asis_estado_claves')
+    db.rpc('asis_estado_claves'),
+    db.rpc('asis_solicitudes_horario_listar')
   ]);
   PORTAL_CFG = cfg.data || null;
   CLAVES = {};
   if(est.data && est.data.ok) (est.data.claves||[]).forEach(k=> CLAVES[k.colaborador_id] = k);
-  const n = Object.values(CLAVES).filter(k=>k.bloqueado).length;
+  SOL_HORARIO = (hor.data && hor.data.ok) ? (hor.data.solicitudes || []) : [];
+  // El contador junta lo que necesita atención: bloqueos y cambios de horario
+  const n = Object.values(CLAVES).filter(k=>k.bloqueado).length + SOL_HORARIO.length;
   const bd = $('badge-disp');
   if(bd){ bd.textContent = n; bd.hidden = n === 0; }
 }
@@ -2236,6 +2239,25 @@ async function renderDispositivos(){
         <p class="disp-nota">Tolerancia actual: <b>${PORTAL_CFG.tolerancia_min} min</b> desde la hora de entrada de cada persona.</p>
       </section>
 
+      ${SOL_HORARIO.length ? `
+      <section class="disp-card">
+        <div class="disp-head"><h3>Cambios de horario avisados</h3>
+          <span class="disp-nota">Lo escribió la propia persona desde el portal. Actualízalo en su ficha de Colaboradores y luego marca el aviso como atendido.</span></div>
+        ${SOL_HORARIO.map(s=>`
+          <div class="sol-card">
+            <span class="sol-ava" style="background:${colorDe(s.nombre)}">${iniciales(s.nombre)}</span>
+            <div class="sol-txt">
+              <b>${esc(s.nombre)}</b>
+              <span>Dice que ahora es: <b class="hor-nuevo">${esc(s.horario_nuevo)}</b></span>
+              <span class="sol-eq">En su ficha figura ${esc(s.horario_previo || '—')} · avisó ${haceCuanto(s.creado_at)}</span>
+            </div>
+            <div class="sol-btns">
+              <button class="btn-mini ok" data-hor-ok="${s.id}">Ya lo actualicé</button>
+              <button class="btn-mini no" data-hor-no="${s.id}">Descartar</button>
+            </div>
+          </div>`).join('')}
+      </section>` : ''}
+
       ${bloqueados.length ? `
       <section class="disp-card">
         <div class="disp-head"><h3>Bloqueados ahora</h3>
@@ -2265,7 +2287,17 @@ async function renderDispositivos(){
     catch(e){ $('enl-input').select(); toast('Selecciónalo y copia con Ctrl+C', true); }
   };
   cont.querySelectorAll('[data-reiniciar]').forEach(b=> b.onclick = ()=> reiniciarClave(b.dataset.reiniciar));
+  cont.querySelectorAll('[data-hor-ok]').forEach(b=> b.onclick = ()=> resolverHorario(b.dataset.horOk, true));
+  cont.querySelectorAll('[data-hor-no]').forEach(b=> b.onclick = ()=> resolverHorario(b.dataset.horNo, false));
   pintarQR(enlace);
+}
+
+async function resolverHorario(id, aplicada){
+  if(!aplicada && !confirm('¿Descartar este aviso sin cambiar el horario?')) return;
+  const { data, error } = await db.rpc('asis_resolver_horario', { p_id:Number(id), p_aplicada:aplicada });
+  if(error || !data || !data.ok){ toast('No se pudo: '+((data&&data.motivo)||''), true); return; }
+  toast(aplicada ? 'Aviso cerrado' : 'Aviso descartado');
+  render();
 }
 
 async function reiniciarClave(colabId){

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=15">
+<link rel="stylesheet" href="marcar.css?v=16">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -132,8 +132,14 @@
 
     <div class="cuenta" id="d-cuenta" hidden><span id="d-cuenta-txt">—</span></div>
 
+    <div class="aviso-zoom" id="d-zoom">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+      <span>Tu asistencia <b>solo es válida si estás conectado al Zoom</b>. Si marcas sin estar en la reunión, no cuenta.</span>
+    </div>
+
     <button class="btn grande" id="d-marcar">Marcar mi asistencia</button>
     <p class="pie" id="d-pie"></p>
+    <button class="btn-glass aviso-cambio" id="d-cambio" hidden>¿Cambió tu horario? Avísanos</button>
     <a class="btn-wa" id="d-wa" href="#" target="_blank" rel="noopener" hidden>
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
       <span id="d-wa-txt">Avisar a dirección</span>
@@ -142,6 +148,25 @@
       <button class="btn-glass" id="d-historial">Ver mi historial</button>
       <button class="btn-glass tenue" id="d-salir">Salir</button>
     </div>
+  </section>
+
+  <!-- Aviso de cambio de horario -->
+  <section class="tarjeta" id="v-horario" hidden>
+    <span class="ico-grande azul">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    </span>
+    <div id="ch-form">
+      <h1>¿Cambió tu horario?</h1>
+      <p class="sub">En tu ficha figura <b id="ch-actual">—</b>. Escribe cómo quedó tu horario nuevo y dirección lo actualiza.</p>
+      <textarea id="ch-texto" rows="3" maxlength="400" placeholder="Ej. Ahora entro 14:00 y salgo 18:00, de lunes a viernes"></textarea>
+      <p class="pin-msg" id="ch-msg"></p>
+      <button class="btn" id="ch-enviar">Enviar a dirección</button>
+    </div>
+    <div id="ch-listo" hidden>
+      <h1>Aviso enviado</h1>
+      <p class="sub">Dirección va a revisar tu horario. Mientras tanto, si hoy te tocaba trabajar, avísale para que registre tu asistencia a mano.</p>
+    </div>
+    <button class="btn-glass" id="ch-volver">Volver</button>
   </section>
 
   <!-- Mi historial -->
@@ -197,6 +222,7 @@
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5 0a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4c0-.1-.5-1.3-.7-1.7s-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3A2.8 2.8 0 0 0 6.9 12a4.9 4.9 0 0 0 1 2.1 11 11 0 0 0 4.2 3.7c1.6.6 2.2.7 3 .6a2.5 2.5 0 0 0 1.7-1.2 2 2 0 0 0 .1-1.2z"/></svg>
       <span id="ls-wa-txt">Avisar a dirección</span>
     </a>
+    <button class="btn-glass aviso-cambio" id="ls-cambio" hidden>¿Cambió tu horario? Avísanos</button>
     <div class="acciones-sec">
       <button class="btn-glass" id="ls-historial">Ver mi historial</button>
       <button class="btn-glass tenue" id="ls-salir">Salir</button>
@@ -237,7 +263,7 @@ function equipo(){
 const EQUIPO = equipo();
 
 /* ════════════════════ VISTAS ════════════════════ */
-const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-pin','v-dia','v-listo','v-historial'];
+const VISTAS = ['v-carga','v-clave','v-falla','v-elegir','v-pin','v-dia','v-listo','v-historial','v-horario'];
 /* WhatsApp de dirección, para cuando alguien vea sus datos mal */
 const WA_DIRECCION = '51922996170';
 $('el-wa').href = `https://wa.me/${WA_DIRECCION}?text=${encodeURIComponent('Hola, aún no estoy en la lista de asistencia. ¿Me podrían registrar?')}`;
@@ -627,9 +653,11 @@ function pintarDia(dia){
     $('ls-wa-txt').textContent = 'Sí me tocaba hoy, avisar';
     $('ls-wa').href = enlaceWhatsApp(dia.nombre,
       `Hoy ${fechaLarga(dia.fecha).toLowerCase()} sí me tocaba trabajar, pero el sistema dice que no laboro. ¿Pueden revisar mi horario?`);
+    $('ls-cambio').hidden = false;   // el motivo más probable es un horario desactualizado
     return ver('v-listo');
   }
   $('ls-wa').hidden = true;
+  $('ls-cambio').hidden = true;
 
   const hay = !!dia.hora_entrada;
   $('d-horario').hidden = !hay;
@@ -648,9 +676,67 @@ function pintarDia(dia){
     $('d-wa').href = enlaceWhatsApp(dia.nombre,
       'No tengo hora de entrada registrada en el sistema de asistencia. ¿Pueden cargar mi horario?');
   }
+
+  /* Fuera de su jornada el botón no sirve de nada: se apaga y se explica por
+     qué, con la salida a mano por si lo que cambió fue su horario. */
+  const puede = dia.puede_marcar !== false;
+  $('d-marcar').disabled = !puede;
+  $('d-marcar').textContent = puede ? 'Marcar mi asistencia'
+    : (dia.ventana === 'antes' ? 'Todavía no abre' : 'Tu jornada ya terminó');
+  $('d-zoom').hidden = !puede;
+  $('d-cambio').hidden = puede;
+  if(!puede){
+    $('d-pie').textContent = dia.ventana === 'antes'
+      ? `Tu marcado abre a las ${hhmm(dia.hora_entrada)}. Vuelve a esa hora.`
+      : `Tu jornada terminó a las ${hhmm(dia.hora_salida)}, ya no se puede marcar por hoy.`;
+  }
+
   relojVivo();
   ver('v-dia');
 }
+
+/* ── Aviso de cambio de horario ──
+   Muchos cambian de horario a mitad de contrato. Cuando el sistema le cierra
+   la puerta a alguien porque su ficha dice otra cosa, puede avisarlo desde
+   acá en vez de quedarse sin marcar y sin saber a quién escribirle. */
+function abrirCambioHorario(){
+  $('ch-actual').textContent = DIA && DIA.hora_entrada
+    ? `${hhmm(DIA.hora_entrada)} a ${hhmm(DIA.hora_salida) || '—'}`
+    : 'sin horario cargado';
+  $('ch-texto').value = '';
+  $('ch-form').hidden = false;
+  $('ch-listo').hidden = true;
+  chMsg('');
+  ver('v-horario');
+  setTimeout(()=> $('ch-texto').focus(), 200);
+}
+function chMsg(t, tipo){
+  const e = $('ch-msg');
+  e.textContent = t || '';
+  e.className = 'pin-msg' + (tipo ? ' ' + tipo : '');
+}
+$('d-cambio').addEventListener('click', abrirCambioHorario);
+$('ls-cambio').addEventListener('click', abrirCambioHorario);
+$('ch-volver').addEventListener('click', ()=>{ ver('v-carga'); setTimeout(()=> pintarDia(DIA), 300); });
+
+$('ch-enviar').addEventListener('click', async ()=>{
+  const texto = $('ch-texto').value.trim();
+  if(texto.length < 6) return chMsg('Escribe tu horario con un poco más de detalle.', 'mal');
+  const b = $('ch-enviar'); b.disabled = true; b.textContent = 'Enviando…';
+  const { data, error } = await db.rpc('asis_portal_pedir_horario', {
+    p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_texto: texto
+  });
+  b.disabled = false; b.textContent = 'Enviar a dirección';
+  if(error) return verFalla(error);
+  if(!data || !data.ok){
+    return chMsg(data && data.motivo === 'corto'
+      ? 'Escribe tu horario con un poco más de detalle.'
+      : 'No se pudo enviar. Intenta de nuevo o escribe por WhatsApp.', 'mal');
+  }
+  $('ch-form').hidden = true;
+  $('ch-listo').hidden = false;
+  chMsg('');
+});
 
 /* Mensaje que cambia solo según cuánto falta para el límite: es lo que
    convierte la pantalla en algo vivo en vez de un botón mudo. */
@@ -721,6 +807,8 @@ $('d-marcar').addEventListener('click', async () => {
   if(data && data.ok)               return pintarListo(data.estado, data.hora, false);
   if(data.motivo === 'ya_marcado')  return pintarListo(data.estado, data.marcado_at ? new Date(data.marcado_at) : null, true);
   if(data.motivo === 'no_labora')   return pintarDia(Object.assign({}, DIA, { labora:false }));
+  // Se pasó de su ventana entre que abrió la pantalla y tocó el botón
+  if(data.motivo === 'fuera_ventana') return pintarDia(data.dia || Object.assign({}, DIA, { puede_marcar:false, ventana:data.ventana }));
   if(data.motivo === 'incorrecta'){ PIN=''; return abrirPin(YO); }
   alert('No se pudo marcar. Avisa a dirección.');
 });

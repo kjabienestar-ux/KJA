@@ -107,6 +107,8 @@ button{font-family:inherit;cursor:pointer;}
 .sol-eq{font-size:11px !important;color:var(--gris2) !important;}
 .sol-btns{flex:none;display:flex;gap:7px;}
 .vin-row.bloqueado{background:#fffbeb;border-color:#fde68a;}
+/* Lo que la persona escribió va destacado: es el dato que hay que copiar */
+.hor-nuevo{color:var(--marino) !important;font-weight:700;}
 .sin-clave{display:flex;flex-wrap:wrap;gap:7px;}
 .sc-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 13px 6px 9px;border:1px solid var(--linea);border-radius:999px;font-size:12.5px;color:var(--gris);background:#fff;}
 .sc-chip i{width:8px;height:8px;border-radius:50%;flex:none;}

@@ -390,6 +390,40 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
   50% { box-shadow: 0 6px 36px rgba(244,63,94,0.5), inset 0 1px 2px rgba(255,255,255,0.5); transform:scale(1.02); }
 }
 
+/* ── Aviso del Zoom ──
+   Va justo encima del botón, que es donde de verdad se lee: si estuviera al
+   pie de la tarjeta, se marca antes de llegar ahí. */
+.aviso-zoom{
+  display:flex;align-items:flex-start;gap:11px;width:100%;margin-top:18px;
+  padding:13px 16px;border-radius:20px;text-align:left;
+  background:rgba(0,0,0,.22);
+  border-top:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.25);
+  font-size:12.5px;line-height:1.5;color:var(--text-muted);
+}
+.aviso-zoom svg{flex:none;width:19px;height:19px;margin-top:1px;color:#7dd3fc;}
+.aviso-zoom b{color:var(--text-main);font-weight:600;}
+
+/* Botón que se apaga cuando la persona está fuera de su jornada */
+.btn:disabled{opacity:.45;transform:none;box-shadow:none;cursor:not-allowed;}
+.aviso-cambio{margin-top:10px;color:#ffd9ea !important;}
+.aviso-cambio:hover{color:#fff !important;}
+
+/* ── Cambio de horario ── */
+#v-horario textarea{
+  width:100%;margin-top:20px;padding:15px 18px;
+  border:none;border-radius:20px;resize:vertical;min-height:92px;
+  background:rgba(0,0,0,.22);color:var(--text-main);
+  font-family:inherit;font-size:14.5px;line-height:1.5;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.3), 0 1px 0 rgba(255,255,255,.12);
+}
+#v-horario textarea::placeholder{color:rgba(255,255,255,.42);}
+#v-horario textarea:focus{
+  outline:none;background:rgba(0,0,0,.3);
+  box-shadow:0 0 0 3px rgba(255,255,255,.2), inset 0 2px 6px rgba(0,0,0,.4);
+}
+#ch-actual{color:var(--text-main);font-weight:600;}
+
 /* ── Botones ── */
 .btn{
   width:100%;padding:18px;border-radius:24px;
