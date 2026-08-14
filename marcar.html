@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="marcar.css?v=16">
+<link rel="stylesheet" href="marcar.css?v=17">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -163,8 +163,13 @@
       <button class="btn" id="ch-enviar">Enviar a dirección</button>
     </div>
     <div id="ch-listo" hidden>
-      <h1>Aviso enviado</h1>
-      <p class="sub">Dirección va a revisar tu horario. Mientras tanto, si hoy te tocaba trabajar, avísale para que registre tu asistencia a mano.</p>
+      <h1 id="ch-listo-tit">Aviso enviado</h1>
+      <p class="sub" id="ch-listo-sub">Dirección va a revisar tu horario.</p>
+      <div class="ch-eco" id="ch-eco" hidden>
+        <span>Lo que enviaste</span>
+        <b id="ch-eco-txt">—</b>
+      </div>
+      <p class="pie">Si hoy te tocaba trabajar, avísale a dirección para que registre tu asistencia a mano mientras tanto.</p>
     </div>
     <button class="btn-glass" id="ch-volver">Volver</button>
   </section>
@@ -685,6 +690,10 @@ function pintarDia(dia){
     : (dia.ventana === 'antes' ? 'Todavía no abre' : 'Tu jornada ya terminó');
   $('d-zoom').hidden = !puede;
   $('d-cambio').hidden = puede;
+  // Si ya avisó, el botón lo dice: entrar y ver el formulario en blanco confunde
+  const yaAviso = !!(dia.aviso_horario);
+  $('d-cambio').textContent = yaAviso ? 'Ya avisaste del cambio de horario' : '¿Cambió tu horario? Avísanos';
+  $('ls-cambio').textContent = $('d-cambio').textContent;
   if(!puede){
     $('d-pie').textContent = dia.ventana === 'antes'
       ? `Tu marcado abre a las ${hhmm(dia.hora_entrada)}. Vuelve a esa hora.`
@@ -703,12 +712,40 @@ function abrirCambioHorario(){
   $('ch-actual').textContent = DIA && DIA.hora_entrada
     ? `${hhmm(DIA.hora_entrada)} a ${hhmm(DIA.hora_salida) || '—'}`
     : 'sin horario cargado';
+  chMsg('');
+
+  // Ya mandó uno y sigue pendiente: no tiene sentido volver a pedírselo
+  const pend = DIA && DIA.aviso_horario;
+  if(pend) return pintarAvisoEnviado(pend.texto, pend.creado_at, true);
+
   $('ch-texto').value = '';
   $('ch-form').hidden = false;
   $('ch-listo').hidden = true;
-  chMsg('');
   ver('v-horario');
   setTimeout(()=> $('ch-texto').focus(), 200);
+}
+
+/* Cuándo lo mandó, en lenguaje de persona */
+function cuando(iso){
+  if(!iso) return '';
+  const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if(min < 2)   return 'recién';
+  if(min < 60)  return `hace ${min} minutos`;
+  const h = Math.floor(min / 60);
+  if(h < 24)    return `hace ${h} ${h === 1 ? 'hora' : 'horas'}`;
+  const d = Math.floor(h / 24);
+  return d === 1 ? 'ayer' : `hace ${d} días`;
+}
+function pintarAvisoEnviado(texto, creadoAt, yaEstaba){
+  $('ch-form').hidden = true;
+  $('ch-listo').hidden = false;
+  $('ch-listo-tit').textContent = yaEstaba ? 'Ya nos avisaste' : 'Aviso enviado';
+  $('ch-listo-sub').textContent = yaEstaba
+    ? `Mandaste tu aviso ${cuando(creadoAt)} y dirección todavía lo está revisando. No hace falta que lo envíes otra vez.`
+    : 'Dirección va a revisar tu horario.';
+  $('ch-eco').hidden = !texto;
+  $('ch-eco-txt').textContent = texto || '';
+  ver('v-horario');
 }
 function chMsg(t, tipo){
   const e = $('ch-msg');
@@ -729,12 +766,18 @@ $('ch-enviar').addEventListener('click', async ()=>{
   b.disabled = false; b.textContent = 'Enviar a dirección';
   if(error) return verFalla(error);
   if(!data || !data.ok){
+    // El servidor ya tenía uno suyo esperando: se le muestra ese
+    if(data && data.motivo === 'ya_pendiente'){
+      if(DIA) DIA.aviso_horario = { texto:data.texto, creado_at:data.creado_at };
+      return pintarAvisoEnviado(data.texto, data.creado_at, true);
+    }
     return chMsg(data && data.motivo === 'corto'
       ? 'Escribe tu horario con un poco más de detalle.'
       : 'No se pudo enviar. Intenta de nuevo o escribe por WhatsApp.', 'mal');
   }
-  $('ch-form').hidden = true;
-  $('ch-listo').hidden = false;
+  // Se recuerda en el día para que al volver ya no ofrezca el formulario
+  if(DIA) DIA.aviso_horario = { texto:data.texto || texto, creado_at:data.creado_at || new Date().toISOString() };
+  pintarAvisoEnviado(data.texto || texto, data.creado_at, false);
   chMsg('');
 });
 
