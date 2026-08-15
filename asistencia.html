@@ -3060,6 +3060,11 @@ async function modalColab(existente){
      dicen. Si el campo está vacío se rellena solo; si ya tiene un número (el
      que vino del papel) NO se pisa: solo se muestra el cálculo al lado para
      poder compararlos y aplicarlo con un clic. */
+  /* La hora de cada día se guarda SIEMPRE, aunque coincida con la general.
+     Antes solo se guardaba la que se diferenciaba de la general, y eso ataba
+     unos días a otros: mover la hora general arrastraba en silencio a todos
+     los días que "coincidían", y un día cambiado a las 07:00 podía quedar
+     descrito por una general de la tarde. Cada día dice su hora y punto. */
   const horarioDelModal = ()=>{
     const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
     const vinc = $('m-c-vinculo').value;
@@ -3068,12 +3073,24 @@ async function modalColab(existente){
       const mod = row.querySelector('.hs-mod').value; if(mod==='no_gestiona') return;
       const o = { mod };
       const i = row.querySelector('.hs-ini').value, f = row.querySelector('.hs-fin').value;
-      if(i && i!==gi) o.ini = i;
-      if(f && f!==gf) o.fin = f;
+      if(i || gi) o.ini = i || gi;
+      if(f || gf) o.fin = f || gf;
       if(vinc==='ambos' && row.querySelector('.hs-vinc')?.value==='voluntariado') o.vinc = 'voluntariado';
       hs[row.dataset.dow] = o;
     });
     return { horario_semanal:hs, hora_inicio:gi, hora_fin:gf, tipo_vinculo:vinc };
+  };
+
+  /* Un horario mal cargado no se ve hasta que alguien no puede marcar, así que
+     se revisa antes de guardar. Devuelve el primer problema, o null. */
+  const revisarHorario = (hs)=>{
+    const nom = d => (DIAS_ISO.find(([,iso])=> String(iso) === String(d)) || ['Ese día'])[0];
+    for(const dow of Object.keys(hs)){
+      const o = hs[dow];
+      if(!o.ini || !o.fin) return `${nom(dow)} está gestionado pero le falta la hora de ${o.ini ? 'salida' : 'entrada'}.`;
+      if(o.fin <= o.ini)   return `${nom(dow)} termina a las ${o.fin} y empieza a las ${o.ini}: la salida tiene que ser después de la entrada.`;
+    }
+    return null;
   };
   const pintarSugerencia = (hintId, inpId, vinc)=>{
     const hint = $(hintId), inp = $(inpId);
@@ -3177,18 +3194,7 @@ async function modalColab(existente){
     /* Si cambias el horario o las horas, la proyección se recalcula en vivo y
        se muestra cuánto se adelanta o se atrasa el término. */
     const recalcular = ()=>{
-      const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
-      const vinc = $('m-c-vinculo').value;
-      const hsTmp = {};
-      document.querySelectorAll('.hs-day-card').forEach(row=>{
-        const mod = row.querySelector('.hs-mod').value; if(mod==='no_gestiona') return;
-        const o = { mod };
-        const i = row.querySelector('.hs-ini').value, f = row.querySelector('.hs-fin').value;
-        if(i && i!==gi) o.ini = i;
-        if(f && f!==gf) o.fin = f;
-        if(vinc==='ambos' && row.querySelector('.hs-vinc')?.value==='voluntariado') o.vinc = 'voluntariado';
-        hsTmp[row.dataset.dow] = o;
-      });
+      const { horario_semanal:hsTmp, hora_inicio:gi, hora_fin:gf, tipo_vinculo:vinc } = horarioDelModal();
       const sim = { ...existente, horario_semanal:hsTmp, hora_inicio:gi, hora_fin:gf, tipo_vinculo:vinc,
         contrato_horas: $('m-c-horas').value!=='' ? Number($('m-c-horas').value) : null,
         contrato_horas_voluntariado: $('m-c-horas-vol') && $('m-c-horas-vol').value!=='' ? Number($('m-c-horas-vol').value) : null,
@@ -3253,19 +3259,11 @@ async function modalColab(existente){
       const area = AREAS.find(a=>String(a.id)===String(repe.area_id));
       if(!confirm(`Ya existe "${repe.nombre}"${area?' en '+area.nombre:''}${repe.activo?'':' (dado de baja)'}.\n\n¿Registrar de todos modos como una persona distinta?`)) return;
     }
-    const gi = $('m-c-ini').value || null, gf = $('m-c-fin').value || null;
-    const vinculo = $('m-c-vinculo')?.value || 'practicas';
-    const hsNew = {};
-    document.querySelectorAll('.hs-day-card').forEach(r=>{
-      const mod = r.querySelector('.hs-mod').value; if(mod==='no_gestiona') return;
-      const o = { mod };
-      const i = r.querySelector('.hs-ini').value, f = r.querySelector('.hs-fin').value;
-      if(i && i!==gi) o.ini = i;
-      if(f && f!==gf) o.fin = f;
-      // el vínculo por día solo se guarda en los mixtos; en el resto sobra
-      if(vinculo==='ambos' && r.querySelector('.hs-vinc')?.value==='voluntariado') o.vinc = 'voluntariado';
-      hsNew[r.dataset.dow] = o;
-    });
+    // el vínculo por día solo se guarda en los mixtos; en el resto sobra
+    const { horario_semanal:hsNew, hora_inicio:gi, hora_fin:gf, tipo_vinculo:vinculo } = horarioDelModal();
+    // Antes de guardar: un horario incoherente deja a la persona sin poder marcar
+    const problema = revisarHorario(hsNew);
+    if(problema) return toast(problema, true);
     const horasNuevas = $('m-c-horas').value!=='' ? Number($('m-c-horas').value) : null;
     const payload = {
       area_id:Number($('m-c-area').value), nombre,
