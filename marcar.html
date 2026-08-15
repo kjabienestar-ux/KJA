@@ -809,6 +809,25 @@ function pintarCuenta(){
   if(!DIA || !DIA.limite){ c.hidden = true; return; }
   const f = new Date();
   const ahora = f.getHours()*60 + f.getMinutes();
+
+  /* Antes de su hora de entrada el marcado todavía no abre: contarle los
+     minutos que le quedan para "marcar como presente" cuando el botón está
+     apagado se lee como que ya podría marcar. Lo que le sirve saber es
+     cuánto falta para que abra — y cuando llega la hora, abre solo. */
+  if(DIA.puede_marcar === false && DIA.ventana === 'antes' && DIA.hora_entrada){
+    const abre = minutos(DIA.hora_entrada) - ahora;
+    if(abre > 0){
+      c.hidden = false;
+      c.className = 'cuenta ok';
+      t.textContent = abre > 60 ? `Tu marcado abre a las ${hhmm(DIA.hora_entrada)}.`
+                    : abre === 1 ? 'Tu marcado abre en 1 min.'
+                                 : `Tu marcado abre en ${abre} min.`;
+      return;
+    }
+    // Llegó su hora estando en la pantalla: se abre sin recargar
+    return abrirVentana();
+  }
+
   const falta = minutos(DIA.limite) - ahora;
   c.hidden = false;
   if(falta > 60){ c.className = 'cuenta ok';   t.textContent = 'Vas con tiempo de sobra.'; }
@@ -821,6 +840,19 @@ function pintarCuenta(){
                            : 'Fuera de tu horario: se registrará como tardanza.';
   }
 }
+/* Le llegó su hora mientras miraba la pantalla. Se repinta el día completo
+   (botón, pie, Zoom) fuera del tick del reloj: pintarDia reinicia el reloj y
+   hacerlo desde adentro dejaría dos bucles corriendo. La regla real sigue
+   siendo del servidor: al marcar vuelve a validar la ventana. */
+let abriendo = false;
+function abrirVentana(){
+  if(abriendo) return;
+  abriendo = true;
+  DIA.ventana = 'presente';
+  DIA.puede_marcar = true;
+  setTimeout(()=>{ abriendo = false; pintarDia(DIA); }, 0);
+}
+
 /* Reloj vivo, segundo a segundo. Va con requestAnimationFrame en vez de un
    setInterval: el navegador lo pausa solo cuando la pestaña no se ve, así que
    no gasta batería de fondo, y el segundo cambia justo cuando toca en vez de
