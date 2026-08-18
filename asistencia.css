@@ -258,6 +258,44 @@ button{font-family:inherit;cursor:pointer;}
 }
 @media (max-width:1150px){ .top-row{grid-template-columns:1fr;} }
 
+/* Aviso de quienes cerraron su jornada sin marcar. Va arriba de todo y en
+   ámbar: no es un dato más del resumen, es algo que alguien debe resolver. */
+.nomarcaron{
+  display:flex;align-items:flex-start;gap:14px;
+  background:linear-gradient(180deg,#fffaf0,#fff5e2);
+  border:1px solid #f6d78a;border-left:4px solid #e79b0b;
+  border-radius:16px;padding:14px 16px;margin-bottom:18px;
+  box-shadow:0 6px 18px rgba(231,155,11,.10);
+}
+.nomarcaron[hidden]{display:none;}
+.nm-ico{
+  flex:none;width:34px;height:34px;border-radius:11px;
+  background:#fdefd0;color:#b45309;display:grid;place-items:center;
+}
+.nm-ico svg{width:19px;height:19px;}
+.nm-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;}
+.nm-txt > b{font-size:13.5px;color:#7c4a03;font-weight:700;line-height:1.35;}
+.nm-txt > small{font-size:11.5px;color:#a1741f;line-height:1.45;}
+.nm-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.nm-chip{
+  display:inline-flex;align-items:baseline;gap:6px;cursor:pointer;
+  background:#fff;border:1px solid #f0dcb0;border-radius:999px;padding:4px 11px;
+  transition:.18s;
+}
+.nm-chip:hover{border-color:#e79b0b;background:#fffdf7;transform:translateY(-1px);}
+.nm-chip b{font-size:12px;color:#5b3a06;font-weight:600;}
+.nm-chip small{font-size:10.5px;color:#a1741f;}
+.nm-btn{
+  flex:none;align-self:center;border:none;cursor:pointer;
+  background:#e79b0b;color:#fff;font:600 12.5px 'Poppins',sans-serif;
+  border-radius:11px;padding:9px 16px;transition:.18s;
+}
+.nm-btn:hover{background:#c98209;transform:translateY(-1px);box-shadow:0 6px 16px rgba(231,155,11,.3);}
+@media (max-width:700px){
+  .nomarcaron{flex-wrap:wrap;}
+  .nm-btn{width:100%;}
+}
+
 .hero{
   display:flex;
   align-items:center;

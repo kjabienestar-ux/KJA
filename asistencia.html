@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=22">
+<link rel="stylesheet" href="asistencia.css?v=23">
 </head>
 <body>
 
@@ -173,6 +173,7 @@
 
       <!-- ══ INICIO ══ -->
       <section id="vista-inicio" class="vista">
+       <div class="nomarcaron" id="nomarcaron" hidden></div>
        <div class="top-row">
         <div class="hero">
           <div class="ring-wrap">
@@ -1357,6 +1358,61 @@ function statsFecha(fecha, regs){
 }
 let FECHA_EQUIPO = null;
 
+/* ── Aviso de días cerrados sin marca ──
+   Un día que ya terminó y quedó sin registro no se arregla solo: o la persona
+   no pudo marcar, o su horario está mal cargado. Se avisa acá para que no se
+   descubra recién a fin de mes, cuando ya nadie recuerda qué pasó.
+   Solo cuenta a quien YA cerró su jornada: mientras siga dentro de su horario
+   no marcar todavía es normal. */
+function sinMarcarCerrados(fecha, R){
+  const hoy = fISO(new Date());
+  if(fecha > hoy) return [];
+  const ahora = new Date();
+  const minsAhora = ahora.getHours()*60 + ahora.getMinutes();
+  const out = [];
+  for(const c of COLABS){
+    if(!c.activo) continue;
+    if(!estadoDia(c, fecha).lab) continue;
+    if(R[c.id+'|'+fecha]) continue;
+    const hd = (c.horario_semanal||{})[isoDow(fecha)] || {};
+    const fin = hhmm(hd.fin || c.hora_fin);
+    if(fecha === hoy){
+      if(!fin) continue;                        // sin hora de salida no hay forma de saber si ya cerró
+      const [H,M] = fin.split(':').map(Number);
+      if(minsAhora < H*60 + M) continue;        // todavía está dentro de su jornada
+    }
+    out.push({ c, fin });
+  }
+  return out;
+}
+function renderSinMarcar(fecha, R){
+  const box = $('nomarcaron');
+  if(!box) return;
+  const lista = sinMarcarCerrados(fecha, R);
+  if(!lista.length){ box.hidden = true; box.innerHTML = ''; return; }
+  const hoy = fISO(new Date());
+  const cuando = fecha === hoy ? 'hoy' : `el ${fmtFechaCorta(fecha)}`;
+  const n = lista.length;
+  const chips = lista.map(({c,fin})=>
+    `<span class="nm-chip" data-c="${c.id}" title="Ver ficha de ${esc(c.nombre)}">
+       <b>${esc(nombreCorto(c.nombre))}</b>${fin?`<small>salía ${fin}</small>`:''}
+     </span>`).join('');
+  box.innerHTML = `
+    <div class="nm-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13.5"/><line x1="12" y1="17.5" x2="12.01" y2="17.5"/></svg></div>
+    <div class="nm-txt">
+      <b>${n === 1 ? 'Una persona terminó su jornada sin marcar' : `${n} personas terminaron su jornada sin marcar`} ${cuando}</b>
+      <div class="nm-chips">${chips}</div>
+      <small>Si no fue una falta, márcala tú desde Pasar lista o revisa que su horario esté bien cargado.</small>
+    </div>
+    ${puedeEditar() ? `<button class="nm-btn" id="nm-ir">Pasar lista</button>` : ''}`;
+  box.hidden = false;
+  const btn = $('nm-ir');
+  if(btn) btn.onclick = ()=>{ MODO='lista'; $('lista-fecha').value = fecha; render(); };
+  box.querySelectorAll('.nm-chip').forEach(ch=>{
+    ch.onclick = ()=> abrirDrawerColab(ch.dataset.c);
+  });
+}
+
 async function renderInicio(){
   const hoy = fISO(new Date());
   if(!FECHA_EQUIPO) FECHA_EQUIPO = hoy;
@@ -1388,6 +1444,8 @@ async function renderInicio(){
   $('ring-n').textContent = s.marcados;
   $('ring-d').textContent = 'de '+s.total;
   $('kpi-p').textContent=s.P; $('kpi-t').textContent=s.T; $('kpi-j').textContent=s.J; $('kpi-ng').textContent=s.NG;
+
+  renderSinMarcar(fechaVer, R);
 
   // equipo de la fecha seleccionada, por área
   $('equipo-n').textContent = `${s.marcados}/${s.total}`;
