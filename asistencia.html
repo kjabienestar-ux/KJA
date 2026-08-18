@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=21">
+<link rel="stylesheet" href="asistencia.css?v=22">
 </head>
 <body>
 
@@ -340,6 +340,10 @@
             <span class="chip-ico"></span>
             <span>No labora</span>
           </span>
+          <span class="lfoot-chip e-pre">
+            <span class="chip-ico"></span>
+            <span>Antes de su contrato</span>
+          </span>
         </div>
         <div class="grid-scroll" id="grid-scroll"></div>
       </section>
@@ -647,11 +651,24 @@ function modDelDia(colab, dow){
   if(h && h.mod) return h.mod;
   return (colab.dias_laborables||[]).includes(dow) ? 'virtual' : 'no_gestiona';
 }
+/* Fecha de inicio del contrato en formato ISO corto, o null si no está cargada. */
+function inicioContrato(colab){
+  const ci = colab && colab.contrato_inicio;
+  return ci ? String(ci).slice(0,10) : null;
+}
+/* Los días anteriores al inicio del contrato no son "faltó" ni "libre": la
+   persona todavía no formaba parte del equipo. Se marcan aparte para que no
+   se lean como ausencias. */
+function antesDelContrato(colab, fecha){
+  const ci = inicioContrato(colab);
+  return !!ci && fecha < ci;
+}
 function estadoDia(colab, fecha){
   const dow = isoDow(fecha);
   const mod = modDelDia(colab, dow);
   const pex = EXC_COL[colab.id+'|'+fecha];
   const eex = EXC_EMP[fecha];
+  if(antesDelContrato(colab, fecha)) return { lab:false, mod, motivo:'preinicio' };
   if(pex && pex.tipo==='laborable_extra') return { lab:true,  mod:(mod==='no_gestiona'?'presencial':mod), motivo:'extra' };
   if(eex)                                 return { lab:false, mod, motivo:'feriado' };
   if(pex && pex.tipo==='no_laborable')    return { lab:false, mod, motivo:'permiso' };
@@ -1843,15 +1860,29 @@ function nameCell(c){
 function celda(c, fecha, hoy){
   const dd = estadoDia(c, fecha);
   const reg = REG[c.id+'|'+fecha];
-  if(!dd.lab){
+  // Antes del inicio de contrato: celda tachada. Si por algún motivo hay una
+  // marca cargada ese día, se muestra igual — nunca se esconden datos reales.
+  if(dd.motivo==='preinicio' && !reg){
+    const tt = `${esc(c.nombre)} · Su contrato inicia el ${fmtFechaCorta(inicioContrato(c))}`;
+    return `<td class="cell pre${fecha===hoy?' hoy-cell':''}" data-c="${c.id}" data-f="${fecha}" title="${tt}"></td>`;
+  }
+  if(!dd.lab && !reg){
     const tt = dd.motivo==='feriado'?'Feriado':(dd.motivo==='permiso'?'Permiso / no labora':'No labora este día');
-    return `<td class="cell off${dd.motivo==='feriado'?' fer':''}${fecha===hoy?' hoy-cell':''}" data-c="${c.id}" data-f="${fecha}" title="${tt}"></td>`;
+    const ini0 = inicioContrato(c) === fecha ? ' ini-contrato' : '';
+    return `<td class="cell off${dd.motivo==='feriado'?' fer':''}${ini0}${fecha===hoy?' hoy-cell':''}" data-c="${c.id}" data-f="${fecha}" title="${tt}"></td>`;
+  }
+  if(!dd.lab && reg){
+    const e0 = ESTADOS[reg.estado];
+    const tt0 = dd.motivo==='preinicio' ? ' · Marca anterior al inicio de contrato' : ' · Día no laborable con marca';
+    return `<td class="cell${fecha===hoy?' hoy-cell':''}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${tt0}"><span class="dot ${e0?e0.cls:''}">${reg.estado}</span></td>`;
   }
   const e = reg ? ESTADOS[reg.estado] : null;
   const modTt = MODS[dd.mod] ? ' · '+MODS[dd.mod].lbl : '';
+  const ini = inicioContrato(c) === fecha ? ' ini-contrato' : '';
+  const iniTt = ini ? ' · Inicia su contrato' : '';
   const dot = e ? `<span class="dot ${e.cls}">${reg.estado}</span>`
                 : `<span class="dot vac"></span>`;
-  return `<td class="cell${fecha===hoy?' hoy-cell':''}${fecha>hoy?' fut':''}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${modTt}">${dot}${reg&&reg.nota?'<i class="hasnote"></i>':''}</td>`;
+  return `<td class="cell${ini}${fecha===hoy?' hoy-cell':''}${fecha>hoy?' fut':''}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${modTt}${iniTt}">${dot}${reg&&reg.nota?'<i class="hasnote"></i>':''}</td>`;
 }
 
 /* ── COLABORADORES: una tarjeta por persona con su horario, su contrato y
@@ -2350,7 +2381,10 @@ function abrirPop(td){
   const dd = estadoDia(c, fecha);
   const pop = $('pop');
   let h = `<div class="pop-head">${esc(c.nombre)}<small>${diaLabel(fecha)}</small></div>`;
-  if(!dd.lab){
+  if(dd.motivo==='preinicio'){
+    h += `<p class="pop-off">Su contrato inicia el <b>${fmtFechaCorta(inicioContrato(c))}</b>. Los días anteriores no cuentan como asistencia.</p>
+          <p class="pop-hint">Si la fecha está mal, corrígela en Colaboradores.</p>`;
+  } else if(!dd.lab){
     h += `<p class="pop-off">${dd.motivo==='feriado'?'Feriado de la empresa.':'No labora este día según su horario.'}</p>
           <button class="pop-b act" data-act="extra">Sí trabajó — habilitar</button>`;
   } else {
