@@ -227,6 +227,43 @@ span.flatpickr-weekday{color:#64748b;font-weight:700;font-size:11px;text-transfo
 .flatpickr-day.today:hover{background:#fce7f3;border-color:#fce7f3;color:var(--rosa);}
 .flatpickr-day.selected,.flatpickr-day.selected:hover{background:var(--azul);border-color:var(--azul);color:#fff;box-shadow:0 8px 22px rgba(0,79,176,.35);font-weight:700;transform:scale(1.08);}
 
+/* Selector de mes propio — reemplaza el <select> nativo de flatpickr, que lo
+   dibujaba el sistema operativo y quedaba fuera del diseño del calendario.
+   El nombre del mes abre una rejilla de 12 meses sobre el propio calendario. */
+.kja-cal .cur-month{cursor:pointer;border-radius:12px;padding:2px 8px;margin-right:5px;transition:background .2s;color:#0a2a5e;font-weight:700;}
+.kja-cal .cur-month:hover{background:#e8f0fb;}
+.kja-cal .cur-month::after{
+  content:'';display:inline-block;width:6px;height:6px;margin-left:7px;
+  border-right:2px solid #0a2a5e;border-bottom:2px solid #0a2a5e;
+  transform:translateY(-2px) rotate(45deg);transition:transform .2s;
+}
+.kja-cal.mp-open .cur-month{background:#e8f0fb;}
+.kja-cal.mp-open .cur-month::after{transform:translateY(1px) rotate(-135deg);}
+
+.kja-mp{
+  position:absolute;inset:0;z-index:5;background:#fff;border-radius:22px;padding:16px;
+  display:flex;flex-direction:column;gap:12px;
+  opacity:0;visibility:hidden;transform:scale(.97);
+  transition:opacity .18s ease,transform .18s cubic-bezier(.22,.61,.36,1),visibility .18s;
+}
+.kja-cal.mp-open .kja-mp{opacity:1;visibility:visible;transform:none;}
+.kja-mp-head{display:flex;align-items:center;justify-content:center;gap:14px;}
+.kja-mp-year{font-size:15px;font-weight:700;color:#0a2a5e;min-width:56px;text-align:center;}
+.kja-mp-nav{
+  width:30px;height:30px;border:none;border-radius:10px;background:#f1f5f9;color:var(--azul);
+  cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;padding:0;
+}
+.kja-mp-nav svg{width:15px;height:15px;}
+.kja-mp-nav:hover{background:#e8f0fb;transform:scale(1.06);}
+.kja-mp-grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.kja-mp-grid button{
+  border:none;border-radius:12px;background:#f8fafc;color:#334155;
+  font:600 13px 'Poppins',sans-serif;cursor:pointer;padding:10px 0;
+  transition:all .2s cubic-bezier(.25,.8,.25,1);
+}
+.kja-mp-grid button:hover{background:#f1f5f9;color:var(--azul);transform:translateY(-1px);}
+.kja-mp-grid button.on{background:var(--azul);color:#fff;box-shadow:0 8px 22px rgba(0,79,176,.35);}
+
 /* Campo de fecha con ícono */
 .datewrap{position:relative;}
 .datewrap .cal-ico{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--azul);pointer-events:none;opacity:.75;}

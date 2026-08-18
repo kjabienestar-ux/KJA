@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="accessibility.css">
-<link rel="stylesheet" href="admin.css?v=37">
+<link rel="stylesheet" href="admin.css?v=38">
 </head>
 <body>
 
@@ -831,9 +831,54 @@ async function cargarClientes(){
 /* Calendario con diseño propio (flatpickr) y fecha por defecto = hoy */
 let fpInicio, fpFin, fpEmision;
 function todayISO(){ return new Date().toLocaleDateString('en-CA'); }   // 'YYYY-MM-DD' local
+
+/* ── Selector de mes propio ──────────────────────────────────────────────
+   El desplegable de meses que trae flatpickr es un <select> nativo: lo dibuja
+   el sistema operativo, así que quedaba como una lista blanca sin relación con
+   el diseño del calendario. Se usa `monthSelectorType:'static'` (el mes pasa a
+   ser texto) y se le agrega este panel: rejilla de 12 meses + salto de año.
+   Solo navega el calendario — no elige la fecha, igual que el select. */
+const MES_AB = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MES_LG = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function mejorarCalendario(fp){
+  const cal = fp && fp.calendarContainer;
+  if(!cal || cal._kjaMes) return;
+  cal.classList.add('kja-cal');
+  const panel = document.createElement('div');
+  panel.className = 'kja-mp';
+  panel.innerHTML = `<div class="kja-mp-head">
+      <button type="button" class="kja-mp-nav" data-y="-1" aria-label="Año anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+      <b class="kja-mp-year"></b>
+      <button type="button" class="kja-mp-nav" data-y="1" aria-label="Año siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+    </div>
+    <div class="kja-mp-grid">${MES_AB.map((m,i)=>`<button type="button" data-m="${i}" title="${MES_LG[i]}">${m}</button>`).join('')}</div>`;
+  cal.appendChild(panel);
+  cal._kjaMes = panel;
+  let anio = fp.currentYear;
+  const pintar = ()=>{
+    panel.querySelector('.kja-mp-year').textContent = anio;
+    panel.querySelectorAll('.kja-mp-grid button').forEach(b=>
+      b.classList.toggle('on', +b.dataset.m === fp.currentMonth && anio === fp.currentYear));
+  };
+  const abrir  = ()=>{ anio = fp.currentYear; pintar(); cal.classList.add('mp-open'); };
+  const cerrar = ()=> cal.classList.remove('mp-open');
+  cal.addEventListener('click', e=>{
+    if(e.target.closest('.flatpickr-current-month') && !e.target.closest('.numInputWrapper')){
+      cal.classList.contains('mp-open') ? cerrar() : abrir();
+      return;
+    }
+    const nav = e.target.closest('.kja-mp-nav');
+    if(nav){ anio += Number(nav.dataset.y); pintar(); return; }
+    const mes = e.target.closest('.kja-mp-grid button');
+    if(mes){ fp.jumpToDate(new Date(anio, Number(mes.dataset.m), 1)); cerrar(); }
+  });
+  if(Array.isArray(fp.config.onClose)) fp.config.onClose.push(cerrar);
+}
+const onReadyKJA = (_sel,_str,fp)=>mejorarCalendario(fp);
 function initFlatpickr(){
   const opts={locale:'es', dateFormat:'Y-m-d', altInput:true, altFormat:'d \\d\\e F \\d\\e\\l Y',
-              defaultDate:'today', disableMobile:true, onChange:dibujar};
+              defaultDate:'today', disableMobile:true, monthSelectorType:'static',
+              onReady:onReadyKJA, onChange:dibujar};
   fpInicio=flatpickr('#f-inicio',opts);
   fpFin=flatpickr('#f-fin',opts);
   fpEmision=flatpickr('#f-emision',opts);
@@ -1177,7 +1222,7 @@ function renderModulos(){
     if(!solo){
       const hIn=row.querySelector('.m-horas'); hIn.value=m.horas||'';
       hIn.addEventListener('input',()=>{ modulos[i].horas=hIn.value; recomputeTotal(); dibujar(); });
-      const base={locale:'es',dateFormat:'Y-m-d',altInput:true,altFormat:'d/m/Y',disableMobile:true};
+      const base={locale:'es',dateFormat:'Y-m-d',altInput:true,altFormat:'d/m/Y',disableMobile:true,monthSelectorType:'static',onReady:onReadyKJA};
       fpModulos.push(
         flatpickr(row.querySelector('.m-inicio'), {...base, defaultDate:m.fechaInicio||null, onChange:(_,s)=>{ modulos[i].fechaInicio=s; dibujar(); }}),
         flatpickr(row.querySelector('.m-fin'),    {...base, defaultDate:m.fechaFin||null,    onChange:(_,s)=>{ modulos[i].fechaFin=s; dibujar(); }})
@@ -1280,6 +1325,8 @@ function inicializarDashCharts() {
   dashCal = flatpickr('#dash-cal', {
     inline: true,
     locale: 'es',
+    monthSelectorType: 'static',
+    onReady: onReadyKJA,
     onDayCreate: function(dObj, dStr, fp, dayElem) {
       const y = dayElem.dateObj.getFullYear();
       const m = String(dayElem.dateObj.getMonth() + 1).padStart(2, '0');
