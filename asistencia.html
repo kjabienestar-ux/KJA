@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="asistencia.css?v=23">
+<link rel="stylesheet" href="asistencia.css?v=24">
 </head>
 <body>
 
@@ -160,6 +160,7 @@
           <span class="cs-chk-badge" id="n-bajas">0</span>
         </label>
         <button class="btn-mini ctx solo-editor" id="btn-feriados" data-for="grilla">Feriados</button>
+        <button class="btn-mini ctx" id="btn-export-hor" data-for="horarios">Exportar horarios</button>
         <button class="btn-mini ctx solo-editor" id="btn-add-area" data-for="horarios">+ Área</button>
         <button class="btn-mini ctx solo-editor" id="btn-add-colab" data-for="horarios contratos">+ Colaborador</button>
       </div>
@@ -1943,6 +1944,114 @@ function celda(c, fecha, hoy){
   return `<td class="cell${ini}${fecha===hoy?' hoy-cell':''}${fecha>hoy?' fut':''}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${modTt}${iniTt}">${dot}${reg&&reg.nota?'<i class="hasnote"></i>':''}</td>`;
 }
 
+/* ════════════════════ EXPORTAR ÁREAS, DÍAS Y HORARIOS ════════════════════
+   Fuera del panel también piden estos datos (diseño de piezas, coordinación,
+   informes). Antes había que ir tarjeta por tarjeta copiando a mano; esto arma
+   el cuadro completo de una y lo deja listo para pegar o descargar. */
+function diasLaboralesDe(c){
+  const out = [];
+  for(const [lbl, iso] of DIAS_ISO){
+    const mod = modDelDia(c, iso);
+    if(mod === 'no_gestiona') continue;
+    const hd = (c.horario_semanal||{})[iso] || {};
+    out.push({ lbl, iso, mod, ini: hhmm(hd.ini || c.hora_inicio), fin: hhmm(hd.fin || c.hora_fin) });
+  }
+  return out;
+}
+/* "Lun a Vie" cuando son seguidos; si no, la lista suelta. */
+function rangoDias(ds){
+  if(!ds.length) return '—';
+  const isos = ds.map(d=>d.iso);
+  const seguidos = isos.every((v,i)=> i===0 || v === isos[i-1]+1);
+  return (seguidos && isos.length > 2) ? `${ds[0].lbl} a ${ds[ds.length-1].lbl}` : ds.map(d=>d.lbl).join(', ');
+}
+function mismoValor(arr){ return arr.every(v=> v === arr[0]); }
+/* Horario y modalidad resumidos: una sola línea si todos los días son iguales,
+   y el detalle por día solo cuando de verdad cambian. */
+function horarioResumen(ds){
+  if(!ds.length) return '—';
+  const rango = h => (h.ini && h.fin) ? `${h.ini}–${h.fin}` : 'sin horario';
+  if(mismoValor(ds.map(rango))) return rango(ds[0]);
+  return ds.map(d=> `${d.lbl} ${rango(d)}`).join(' · ');
+}
+function modalidadResumen(ds){
+  if(!ds.length) return '—';
+  if(mismoValor(ds.map(d=>d.mod))) return MODS[ds[0].mod] ? MODS[ds[0].mod].lbl : ds[0].mod;
+  return ds.map(d=> `${d.lbl} ${MODS[d.mod] ? MODS[d.mod].lbl : d.mod}`).join(' · ');
+}
+function filasHorarios(){
+  const filas = [];
+  for(const [areaId, lista] of agruparPorArea(colabsVisibles())){
+    const area = AREAS.find(a=>String(a.id)===String(areaId));
+    for(const c of lista){
+      const ds = diasLaboralesDe(c);
+      const hs = horasSemanaTipica(c);
+      filas.push({
+        area: area ? area.nombre : '—',
+        nombre: c.nombre,
+        dias: rangoDias(ds),
+        horario: horarioResumen(ds),
+        modalidad: modalidadResumen(ds),
+        horas: hs ? (Math.round(hs*10)/10) + ' h' : '—',
+        inicio: inicioContrato(c) ? fmtFechaCorta(inicioContrato(c)) : '—',
+        activo: c.activo
+      });
+    }
+  }
+  return filas;
+}
+const COLS_HOR = ['Área','Colaborador','Días','Horario','Modalidad','Horas/semana','Inicio de contrato'];
+function filaValores(f){ return [f.area, f.nombre, f.dias, f.horario, f.modalidad, f.horas, f.inicio]; }
+/* Tabulado: se pega directo en Sheets/Excel y cae en columnas. */
+function horariosTSV(){
+  return [COLS_HOR.join('\t')].concat(filasHorarios().map(f=> filaValores(f).join('\t'))).join('\n');
+}
+/* Lista por áreas: para leer o pegar en un texto, no en una hoja de cálculo. */
+function horariosLista(){
+  const filas = filasHorarios();
+  let out = [], areaAct = null;
+  for(const f of filas){
+    if(f.area !== areaAct){ areaAct = f.area; out.push((out.length?'\n':'') + areaAct.toUpperCase()); }
+    out.push(`• ${f.nombre} — ${f.dias} · ${f.horario} · ${f.modalidad}${f.activo?'':' (dado de baja)'}`);
+  }
+  return out.length ? out.join('\n') : 'Sin colaboradores que mostrar.';
+}
+/* CSV con ; y BOM: es lo que abre bien el Excel en español. */
+function horariosCSV(){
+  const q = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
+  const lineas = [COLS_HOR.map(q).join(';')].concat(filasHorarios().map(f=> filaValores(f).map(q).join(';')));
+  return '\ufeff' + lineas.join('\r\n');
+}
+function bajarArchivo(texto, nombre, tipo){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([texto], {type:tipo}));
+  a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+async function copiar(texto, queCosa){
+  try{ await navigator.clipboard.writeText(texto); toast(queCosa+' copiado'); }
+  catch(e){ toast('No se pudo copiar, selecciona el texto a mano', true); }
+}
+function abrirExportHorarios(){
+  const filas = filasHorarios();
+  if(!filas.length){ toast('No hay colaboradores que exportar', true); return; }
+  const hoy = fmtFechaCorta(fISO(new Date()));
+  abrirModal('Áreas, días y horarios', `
+    <p class="exp-intro">${filas.length} ${filas.length===1?'colaborador':'colaboradores'} · datos al ${hoy}.
+      Respeta los filtros de área y búsqueda que tengas puestos.</p>
+    <pre class="exp-prev" id="exp-prev"></pre>
+    <div class="exp-acc">
+      <button class="btn-mini sec" id="exp-copiar-tabla">Copiar como tabla</button>
+      <button class="btn-mini sec" id="exp-copiar-lista">Copiar como lista</button>
+      <button class="btn-primary" id="exp-csv">Descargar Excel (CSV)</button>
+    </div>`);
+  $('exp-prev').textContent = horariosLista();
+  $('exp-copiar-tabla').onclick = ()=> copiar(horariosTSV(), 'Cuadro');
+  $('exp-copiar-lista').onclick = ()=> copiar(horariosLista(), 'Listado');
+  $('exp-csv').onclick = ()=> bajarArchivo(horariosCSV(), `KJA_horarios_${fISO(new Date())}.csv`, 'text/csv;charset=utf-8;');
+}
+
 /* ── COLABORADORES: una tarjeta por persona con su horario, su contrato y
       las acciones de editar / dar de baja. Todo lo de esa persona junto. ── */
 function renderHorarios(){
@@ -3528,6 +3637,7 @@ $('lista-fecha').addEventListener('change', async ()=>{
   renderLista();
 });
 $('btn-add-area').onclick  = modalArea;
+$('btn-export-hor').onclick = abrirExportHorarios;
 $('btn-add-colab').onclick = ()=>modalColab(null);
 $('btn-feriados').onclick  = modalFeriados;
 
