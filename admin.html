@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="assets/css/accessibility.css">
-<link rel="stylesheet" href="assets/css/paginas/admin.css?v=40">
+<link rel="stylesheet" href="assets/css/paginas/admin.css?v=41">
 </head>
 <body>
 
@@ -656,6 +656,7 @@ function aplicarRolUI(){
     $('tb-ava').style.background = 'radial-gradient(circle at 30% 25%, rgba(255,255,255,.34), transparent 55%), '+colorDe(nombre);
   }
   if(PERFIL.serie) $('hint-numero').textContent = 'Tu serie: '+PERFIL.serie+'–'+(PERFIL.serie+999)+' · el mes y el año salen de la fecha de emisión.';
+  aplicarBloqueoNumero();
 }
 
 /* ───── LOGIN ───── */
@@ -903,19 +904,34 @@ function resetForm(){
   if(fpInicio){ fpInicio.setDate('today'); fpFin.setDate('today'); fpEmision.setDate('today'); }
   dibujar();
 }
+/* El número sale de la serie del usuario y NO se toca a mano: cambiarlo rompía
+   la correlación (huecos, saltos y números pisados entre colaboradores).
+   Se bloquea siempre salvo para el admin, o si la persona aún no tiene serie
+   asignada (si no, no podría emitir nada). */
+function numeroEditable(){ return esAdmin() || !PERFIL.serie; }
+function aplicarBloqueoNumero(){
+  const campo=$('f-numero'), libre=numeroEditable();
+  campo.readOnly = !libre;
+  campo.classList.toggle('bloqueado', !libre);
+  campo.title = libre ? '' : 'Lo asigna tu serie automáticamente';
+  if(!libre && PERFIL.serie){
+    $('hint-numero').textContent = 'Asignado automáticamente de tu serie ('+PERFIL.serie+'–'+(PERFIL.serie+999)+'). El mes y el año salen de la fecha de emisión.';
+  }
+}
 function modoNuevo(){
   editingId=null; $('editing-flag').style.display='none'; $('btn-cancel').style.display='none';
-  $('f-numero').readOnly=false;
+  aplicarBloqueoNumero();
   $('btn-guardar').textContent='Guardar y generar (PDF)'; $('gen-title').textContent='Generar Certificado'; status('');
   resetForm();
   prefillNumero();   // pone el siguiente número disponible de la serie del usuario
 }
+let numeroAsignado='';   // el último número que entregó la serie, para detectar manipulaciones
 /* Auto-número: rellena el campo con el siguiente número libre del rango de la persona logueada */
 async function prefillNumero(){
   if(editingId || !PERFIL.serie) return;
   try{
     const { data, error } = await db.rpc('siguiente_numero', { p_serie: PERFIL.serie });
-    if(!error && data!=null){ $('f-numero').value = data; dibujar(); }
+    if(!error && data!=null){ $('f-numero').value = data; numeroAsignado = String(data); aplicarBloqueoNumero(); dibujar(); }
   }catch(e){}
 }
 /* ¿El NÚMERO ya está usado en algún certificado (de cualquier mes/año)? Devuelve el código existente o null */
@@ -958,6 +974,10 @@ function validarCertificado(d){
   // Serie protegida: al CREAR, el número debe estar dentro del rango asignado al usuario
   const num = parseInt($('f-numero').value, 10);
   if(isNaN(num)) return 'El número del certificado debe ser numérico.';
+  // El campo está bloqueado en pantalla; esto atrapa cualquier cambio hecho por fuera
+  if(!editingId && !numeroEditable() && String(num) !== String(numeroAsignado)){
+    return 'El número de certificado lo asigna el sistema y no se puede cambiar. Vuelve a abrir "Generar certificado" para tomar el siguiente de tu serie.';
+  }
   if(!editingId && PERFIL.serie && (num < PERFIL.serie || num > PERFIL.serie + 999)){
     return 'Tu serie asignada es la ' + PERFIL.serie + ': el número debe estar entre ' + PERFIL.serie + ' y ' + (PERFIL.serie + 999) + '. No cambies el primer dígito.';
   }
@@ -1939,6 +1959,7 @@ function editarFila(id){
   setFont(r.font_nombre||'');                                    // conserva la fuente elegida
   editingId=id; $('editing-flag').style.display='block'; $('btn-cancel').style.display='block';
   $('f-numero').readOnly = !esAdmin();   // el número de un certificado emitido solo lo cambia el admin
+  $('f-numero').classList.toggle('bloqueado', !esAdmin());
   if(r.creado_por && PERFIL.id && r.creado_por !== PERFIL.id){
     abrirAlerta('Este certificado fue creado por <b>' + nombreDe(r.creado_por) + '</b>. Cualquier cambio que hagas quedará registrado en la bitácora con tu nombre.', 'Certificado de otro usuario');
   }
