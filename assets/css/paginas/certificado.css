@@ -111,7 +111,7 @@ footer { margin-top: auto; }
 .cert-mockup {
   background:
     linear-gradient(160deg, rgba(129, 129, 129, 0.089) 0%, rgba(240,245,255,.32) 100%),
-    url('certificados/icon/certificate.avif') center top/contain no-repeat;
+    url('/certificados/icon/certificate.avif') center top/contain no-repeat;
   border-radius: 20px;
   padding: 28px;
   width: 100%;
