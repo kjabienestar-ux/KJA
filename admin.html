@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=2"></script>
 
 <link rel="stylesheet" href="assets/css/accessibility.css">
-<link rel="stylesheet" href="assets/css/paginas/admin.css?v=39">
+<link rel="stylesheet" href="assets/css/paginas/admin.css?v=40">
 </head>
 <body>
 
@@ -1147,17 +1147,31 @@ function actualizarDniUI(){
   const ext=$('f-extranjero').checked;
   $('f-dni').maxLength = dniMax();
   $('f-dni').placeholder = ext ? '8 a 15 dígitos' : '8 dígitos';
-  $('dni-hint').textContent = ext ? 'Extranjero: 8 a 15 dígitos (sin autocompletar).' : 'DNI de 8 dígitos · autocompleta el nombre desde RENIEC.';
+  if(!reniecCortado){
+    $('dni-hint').classList.remove('hint-aviso');
+    $('dni-hint').textContent = ext ? 'Extranjero: 8 a 15 dígitos (sin autocompletar).' : 'DNI de 8 dígitos · autocompleta el nombre desde RENIEC.';
+  }
   const v=$('f-dni').value.trim();
   $('f-dni').classList.toggle('invalid', v.length>0 && !dniValido());
 }
 let ultimoDniConsultado='';
+/* El proveedor de RENIEC (decolecta) tiene un tope de consultas al mes. Cuando se
+   agota, cada intento gasta una petición igual y no devuelve nada, así que se apaga
+   el autocompletado hasta recargar la página y se pide el nombre a mano. */
+let reniecCortado=false;
+function apagarReniec(mensaje){
+  reniecCortado=true;
+  $('dni-hint').textContent=mensaje;
+  $('dni-hint').classList.add('hint-aviso');
+  $('btn-dni').disabled=true;
+  $('f-nombre').focus();
+}
 $('f-dni').addEventListener('input', ()=>{
   $('f-dni').value = $('f-dni').value.replace(/\D/g,'').slice(0, dniMax());  // solo dígitos
   actualizarDniUI();
   const dni=$('f-dni').value;
   // Autocompletar nombre con RENIEC cuando es un DNI peruano de 8 dígitos
-  if(!$('f-extranjero').checked && /^\d{8}$/.test(dni) && dni!==ultimoDniConsultado){
+  if(!reniecCortado && !$('f-extranjero').checked && /^\d{8}$/.test(dni) && dni!==ultimoDniConsultado){
     ultimoDniConsultado=dni; consultarDni(dni);
   }
 });
@@ -1179,7 +1193,19 @@ async function consultarDni(dni){
   $('dni-hint').textContent='Consultando RENIEC…';
   try{
     const { data, error } = await db.functions.invoke('consulta-dni', { body: { dni } });
-    if(error || !data || !data.nombre){ $('dni-hint').textContent='No se encontró ese DNI en RENIEC.'; return; }
+    if(error){
+      // La función devuelve el código real del proveedor en el cuerpo (campo status)
+      let st=0;
+      try{ st=(await error.context.json()).status||0; }catch(_){}
+      if(st===401 || st===403 || st===429){
+        apagarReniec('Se agotaron las consultas del mes a RENIEC. Escribe el DNI y el nombre a mano: el certificado sale igual. El autocompletado vuelve el próximo mes.');
+        return;
+      }
+      if(st===404){ $('dni-hint').textContent='Ese DNI no aparece en RENIEC. Escribe el nombre a mano.'; return; }
+      $('dni-hint').textContent='RENIEC no está disponible ahora. Escribe el nombre a mano.';
+      return;
+    }
+    if(!data || !data.nombre){ $('dni-hint').textContent='Ese DNI no aparece en RENIEC. Escribe el nombre a mano.'; return; }
     const nom=$('f-nombre');
     nom.value = nombreTitulo(data.nombre);                      // autocompleta el nombre en formato título
     nom.classList.remove('autofilled'); void nom.offsetWidth; nom.classList.add('autofilled');  // resaltado amarillo
@@ -1188,11 +1214,13 @@ async function consultarDni(dni){
   }catch(e){ $('dni-hint').textContent='No se pudo consultar (revisa tu conexión).'; }
   finally{
     $('dni-loading').classList.remove('show');
-    $('btn-dni').disabled=false; $('btn-dni').querySelector('.btn-dni-txt').textContent='Buscar';
+    $('btn-dni').querySelector('.btn-dni-txt').textContent='Buscar';
+    if(!reniecCortado) $('btn-dni').disabled=false;
   }
 }
 /* Botón Buscar (RENIEC) */
 $('btn-dni').addEventListener('click', ()=>{
+  if(reniecCortado) return;
   const dni=$('f-dni').value.trim();
   if(!dni){ $('dni-hint').textContent='Escribe un DNI primero.'; $('f-dni').focus(); return; }
   if(!$('f-extranjero').checked && !/^\d{8}$/.test(dni)){ $('f-dni').classList.add('invalid'); $('dni-hint').textContent='El DNI peruano debe tener 8 dígitos.'; return; }
