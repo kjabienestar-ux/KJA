@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/paginas/marcar.css?v=20">
+<link rel="stylesheet" href="assets/css/paginas/marcar.css?v=21">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -745,9 +745,12 @@ function pintarDia(dia){
   $('d-marcar').textContent = puede ? 'Marcar mi asistencia'
     : (dia.ventana === 'antes' ? 'Todavía no abre' : 'Tu jornada ya terminó');
   $('d-zoom').hidden = !puede || (dia.modalidad || 'virtual') !== 'virtual';
-  // La evidencia solo tiene sentido si de verdad puede marcar ahora
-  $('d-evi').hidden = !puede;
-  if(puede) pintarEvidencia(dia); else limpiarEvidencia();
+  /* Se puede ir preparando la foto aunque todavía no abra el horario: así,
+     cuando llegue la hora, solo hay que pulsar. Si la jornada ya cerró, el
+     bloque desaparece porque ya no sirve de nada. */
+  const adelantado = !puede && dia.ventana === 'antes';
+  $('d-evi').hidden = !(puede || adelantado);
+  if(puede || adelantado) pintarEvidencia(dia, adelantado); else limpiarEvidencia();
   $('d-cambio').hidden = puede;
   // Si ya avisó, el botón lo dice: entrar y ver el formulario en blanco confunde
   const yaAviso = !!(dia.aviso_horario);
@@ -1026,13 +1029,30 @@ function ubicacion(){
 
 /* El texto cambia según la modalidad del día: no es lo mismo probar que
    estás en el Zoom que probar que llegaste al consultorio. */
-function pintarEvidencia(dia){
+function pintarEvidencia(dia, adelantado){
   const virtual = (dia.modalidad || 'virtual') === 'virtual';
+  $('evi-titulo').textContent = adelantado ? 'Ve preparando tu evidencia' : 'Adjunta tu evidencia';
   $('evi-sub').textContent = virtual
     ? 'Una captura del Zoom donde se vea tu nombre en la lista'
     : 'Una foto de tu llegada al consultorio';
   $('evi-camara-txt').textContent = virtual ? 'Tomar foto' : 'Tomar foto de mi llegada';
-  limpiarEvidencia();
+
+  /* La foto NO se borra al repintar el día: si alguien la adjuntó y luego
+     abrió su ventana, miró su historial o volvió de otra pantalla, sería
+     absurdo obligarle a tomarla otra vez. Solo se descarta si cambió la
+     persona o el día. */
+  const marca = (YO ? YO.id : '?') + '|' + (dia.fecha || '');
+  if(EVI && EVI.marca !== marca) limpiarEvidencia();
+  else refrescarBotonMarcar();
+}
+
+const EVI_NOTA = 'Dirección revisa estas fotos. Una evidencia que no corresponda al día o a la reunión se considera falta.';
+/* Un aviso que dice qué hacer, no solo qué pasó. Va dentro del bloque, en
+   ámbar, para que no haya que leer un alert y perderlo. */
+function avisoEvi(texto, malo){
+  const n = $('evi-nota');
+  n.textContent = texto || EVI_NOTA;
+  n.classList.toggle('evi-nota--alerta', !!malo);
 }
 
 function limpiarEvidencia(){
@@ -1054,20 +1074,21 @@ function refrescarBotonMarcar(){
 
 async function tomarEvidencia(archivo, origen){
   if(!archivo) return;
-  $('evi-nota').textContent = 'Preparando la imagen…';
+  avisoEvi('Preparando la imagen…');
   try{
     const r = await comprimir(archivo);
-    EVI = { blob:r.blob, origen, ancho:r.ancho, alto:r.alto };
+    EVI = { blob:r.blob, origen, ancho:r.ancho, alto:r.alto,
+            marca: (YO ? YO.id : '?') + '|' + ((DIA && DIA.fecha) || '') };
     $('evi-img').src = URL.createObjectURL(r.blob);
     $('evi-peso').textContent = kb(archivo.size) + ' → ' + kb(r.blob.size) +
       (origen === 'archivo' ? ' · subida desde el equipo' : ' · tomada ahora');
     $('evi-previa').hidden = false;
+    avisoEvi();
   }catch(e){
     EVI = null;
     $('evi-previa').hidden = true;
-    alert('No pudimos leer esa imagen. Intenta con otra.');
+    avisoEvi('No pudimos leer ese archivo. Prueba con otra imagen (JPG o PNG) o usa "Tomar foto".', true);
   }
-  $('evi-nota').textContent = 'Dirección revisa estas fotos. Una evidencia que no corresponda al día o a la reunión se considera falta.';
   refrescarBotonMarcar();
 }
 
@@ -1110,13 +1131,27 @@ $('d-marcar').addEventListener('click', async () => {
   // La ubicación se pide en paralelo y nunca detiene el marcado
   const geo = await ubicacion();
 
+  /* Subida con reintentos: una foto que no sube por un bache de señal no
+     puede costarle la asistencia a nadie. Tres intentos, esperando cada vez
+     un poco más. Los rechazos de verdad (PIN, ventana, ya marcó) no se
+     reintentan: no van a cambiar por insistir. */
   let ruta = null;
-  try{
-    ruta = await subirEvidencia();
-  }catch(e){
-    b.disabled = false; refrescarBotonMarcar();
-    return falloEvidencia(e.motivo);
+  const SIN_REINTENTO = ['incorrecta','clave','ya_marcado','no_labora','fuera_ventana'];
+  for(let intento = 1; intento <= 3; intento++){
+    try{
+      b.textContent = intento === 1 ? 'Subiendo evidencia…' : `Reintentando (${intento} de 3)…`;
+      avisoEvi(intento === 1 ? 'Subiendo tu evidencia…' : 'La conexión falló. Reintentando…', intento > 1);
+      ruta = await subirEvidencia();
+      break;
+    }catch(e){
+      if(SIN_REINTENTO.includes(e.motivo) || intento === 3){
+        b.disabled = false; refrescarBotonMarcar();
+        return falloEvidencia(e.motivo);
+      }
+      await new Promise(r => setTimeout(r, intento * 1500));
+    }
   }
+  avisoEvi();
 
   b.textContent = 'Marcando…';
   ver('v-carga');
@@ -1144,25 +1179,40 @@ $('d-marcar').addEventListener('click', async () => {
 /* La subida falló. Se explica en su idioma y se ofrece avisar por WhatsApp:
    nadie se queda sin marcar en silencio. */
 function falloEvidencia(motivo){
-  const textos = {
-    ya_marcado:      'Ya marcaste hoy.',
-    no_labora:       'Hoy no te toca trabajar, no hay nada que marcar.',
-    fuera_ventana:   'Tu horario de marcado ya cerró.',
-    incorrecta:      'Tu PIN no coincide. Vuelve a ingresarlo.',
-    clave:           'El enlace no es válido. Pide el enlace nuevo a dirección.',
-    subida:          'No se pudo subir la foto. Revisa tu conexión y vuelve a intentar.',
-    falta_evidencia: 'Falta la foto de evidencia.'
-  };
   ver('v-dia');
-  alert(textos[motivo] || 'No se pudo subir la evidencia. Intenta otra vez o avisa a dirección.');
-  if(motivo === 'incorrecta'){ PIN = ''; return abrirPin(YO); }
-  // Deja a mano el botón de WhatsApp para que reporte y dirección marque a mano
-  if(motivo === 'subida' || motivo === 'permiso'){
-    $('d-wa').hidden = false;
-    $('d-wa-txt').textContent = 'No puedo subir mi foto, avisar';
-    $('d-wa').href = enlaceWhatsApp(YO ? YO.nombre : '',
-      'No puedo subir la foto de evidencia para marcar mi asistencia. ¿Pueden marcarme a mano?');
+
+  // Casos que se resuelven cambiando de pantalla: no hay nada que reintentar
+  if(motivo === 'incorrecta'){
+    PIN = '';
+    avisoEvi('Tu PIN no coincide. Vuelve a ingresarlo; tu foto se conserva.', true);
+    return abrirPin(YO);
   }
+  if(motivo === 'ya_marcado')    return pintarListo(DIA && DIA.estado, null, true);
+  if(motivo === 'no_labora')     return pintarDia(Object.assign({}, DIA, { labora:false }));
+  if(motivo === 'fuera_ventana') return pintarDia(Object.assign({}, DIA, { puede_marcar:false, ventana:'cerrada' }));
+
+  if(motivo === 'clave'){
+    avisoEvi('Tu enlace ya no es válido. Pide el enlace nuevo a dirección por WhatsApp.', true);
+    return brindarWhatsApp('Mi enlace para marcar asistencia ya no funciona. ¿Me pueden enviar el nuevo?',
+                           'Pedir mi enlace nuevo');
+  }
+  if(motivo === 'falta_evidencia'){
+    limpiarEvidencia();
+    return avisoEvi('La foto no llegó al servidor. Vuelve a adjuntarla y marca otra vez.', true);
+  }
+
+  // Se cayó la subida tras los tres intentos: la foto sigue cargada, así que
+  // basta con volver a pulsar. Y si no hay manera, que dirección lo marque.
+  avisoEvi('No pudimos subir tu foto después de 3 intentos. Tu foto sigue lista: vuelve a pulsar "Marcar mi asistencia" cuando tengas señal. Si no lo consigues, avisa a dirección y te marcan a mano.', true);
+  brindarWhatsApp('No puedo subir la foto de evidencia para marcar mi asistencia. ¿Pueden marcarme a mano?',
+                  'No puedo subir mi foto, avisar');
+}
+
+/* Deja el botón de WhatsApp listo con un mensaje concreto ya escrito */
+function brindarWhatsApp(mensaje, etiqueta){
+  $('d-wa').hidden = false;
+  $('d-wa-txt').textContent = etiqueta;
+  $('d-wa').href = enlaceWhatsApp(YO ? YO.nombre : '', mensaje);
 }
 
 const ICO_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';

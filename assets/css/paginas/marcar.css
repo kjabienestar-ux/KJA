@@ -461,6 +461,14 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 }
 .evi-nota{
   margin:12px 0 0;font-size:11px;line-height:1.5;color:rgba(255,255,255,.55);
+  transition:color .2s ease, background .2s ease;
+}
+/* Aviso dentro del bloque cuando algo va mal: ámbar, no rojo. No es un
+   error del sistema, es algo que la persona todavía puede resolver. */
+.evi-nota--alerta{
+  color:#fde68a;font-weight:600;
+  background:rgba(217,119,6,.14);border:1px solid rgba(217,119,6,.35);
+  border-radius:14px;padding:9px 11px;
 }
 
 /* Botón que se apaga cuando la persona está fuera de su jornada */
