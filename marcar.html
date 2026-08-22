@@ -1010,8 +1010,10 @@ function horaGrabada(cuando){
    móviles y el bucket no se llena. De paso se le va el EXIF.
    ══════════════════════════════════════════════════════════════════ */
 const EVI_BUCKET = 'asis-evidencias';
-const EVI_LADO   = 1080;   // px del lado largo
-const EVI_CALIDAD = 0.6;
+const EVI_LADO    = 960;   // px del lado largo: de sobra para leer un nombre en el Zoom
+const EVI_CALIDAD = 0.55;  // punto de partida; baja sola si la foto sale pesada
+const EVI_TOPE    = 180 * 1024;   // objetivo: ninguna evidencia por encima de 180 KB
+const EVI_TIPOS_OK = ['image/jpeg','image/png','image/webp','image/heic','image/heif','image/gif','image/bmp'];
 let EVI = null;            // { blob, origen, ancho, alto, tipo, ext }
 
 /* Safari (iPhone) no sabe codificar WebP con toBlob: cuando el formato no
@@ -1047,9 +1049,17 @@ async function comprimir(archivo){
       x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);   // el JPEG no tiene transparencia
       x.drawImage(img, 0, 0, w, h);
       URL.revokeObjectURL(img.src);
-      c.toBlob(b => b ? resolve({ blob:b, ancho:w, alto:h, tipo:b.type || tipo })
-                      : reject(new Error('no se pudo comprimir')),
-               tipo, EVI_CALIDAD);
+      /* Se codifica y, si sale por encima del tope, se vuelve a codificar con
+         menos calidad. Tres pasadas como mucho: más allá de 0.35 la imagen
+         empieza a no servir como evidencia. */
+      const intentar = (calidad) => {
+        c.toBlob(b => {
+          if(!b) return reject(new Error('no se pudo comprimir'));
+          if(b.size > EVI_TOPE && calidad > 0.36) return intentar(calidad - 0.1);
+          resolve({ blob:b, ancho:w, alto:h, tipo:b.type || tipo });
+        }, tipo, calidad);
+      };
+      intentar(EVI_CALIDAD);
     };
     img.onerror = () => reject(new Error('no es una imagen válida'));
     img.src = URL.createObjectURL(archivo);
@@ -1171,6 +1181,18 @@ function refrescarBotonMarcar(){
 
 async function tomarEvidencia(archivo, origen){
   if(!archivo) return;
+  /* Solo imágenes. El accept del input se puede saltar eligiendo "todos los
+     archivos", así que se comprueba aquí; y de todas formas lo que se sube es
+     lo que sale del canvas, no el archivo original. */
+  const tipoOk = (archivo.type || '').startsWith('image/') || EVI_TIPOS_OK.includes(archivo.type);
+  if(!tipoOk){
+    limpiarEvidencia();
+    return avisoEvi('Eso no es una imagen. Adjunta una foto o captura de pantalla (JPG, PNG o HEIC).', true);
+  }
+  if(archivo.size > 25 * 1024 * 1024){
+    limpiarEvidencia();
+    return avisoEvi('Esa imagen es demasiado grande (más de 25 MB). Toma la foto con la cámara del teléfono.', true);
+  }
   avisoEvi('Preparando la imagen…');
   try{
     const r = await comprimir(archivo);

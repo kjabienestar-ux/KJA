@@ -2334,14 +2334,35 @@ async function setEstado(colabId, fecha, estado){
   if(HAS_VINCULO && colab) payload.vinculo = vincDelDia(colab, isoDow(fecha));
   const { error } = await db.from('asis_registros').upsert(payload, { onConflict:'colaborador_id,fecha' });
   if(error){ toast('No se pudo guardar: '+error.message, true); return; }
-  REG[colabId+'|'+fecha] = { estado, nota:(REG[colabId+'|'+fecha]||{}).nota||null, marcado_por:PERFIL.id, origen:'panel', dispositivo:null, marcado_at:payload.marcado_at };
+  /* La foto se conserva: corregir el estado desde el panel no borra la
+     evidencia que dejó la persona, ni en la base ni en la pantalla. */
+  const previo = REG[colabId+'|'+fecha] || {};
+  REG[colabId+'|'+fecha] = { estado, nota:previo.nota||null, marcado_por:PERFIL.id,
+                             origen:'panel', dispositivo:null, marcado_at:payload.marcado_at,
+                             evidencia_path:previo.evidencia_path||null,
+                             evidencia_origen:previo.evidencia_origen||null,
+                             evidencia_lat:previo.evidencia_lat!=null?previo.evidencia_lat:null,
+                             evidencia_lon:previo.evidencia_lon!=null?previo.evidencia_lon:null };
   toast('Guardado');
 }
 async function quitarEstado(colabId, fecha){
+  const rg = REG[colabId+'|'+fecha];
+  /* Si la marca traía foto hay que borrarla ANTES de eliminar la fila: en
+     cuanto se borra el registro se pierde la ruta y la imagen se queda en el
+     bucket sin que nadie pueda verla ni eliminarla. */
+  if(rg && rg.evidencia_path){
+    const ok = await confirmDialog({
+      title: 'Quitar la marca y su foto',
+      text: 'Esta marca tiene una foto de evidencia. Al quitarla se borra también la imagen, y no se puede recuperar.',
+      okText: 'Quitar marca y foto' });
+    if(!ok) return;
+    const { error: eFoto } = await db.storage.from(EVI_BUCKET).remove([rg.evidencia_path]);
+    if(eFoto){ toast('No se pudo borrar la foto, la marca se mantiene: '+eFoto.message, true); return; }
+  }
   const { error } = await db.from('asis_registros').delete().eq('colaborador_id',colabId).eq('fecha',fecha);
   if(error){ toast('No se pudo quitar: '+error.message, true); return; }
   delete REG[colabId+'|'+fecha];
-  toast('Marca eliminada');
+  toast(rg && rg.evidencia_path ? 'Marca y foto eliminadas' : 'Marca eliminada');
 }
 async function marcarExcepcionTrabajo(colabId, fecha){
   const { error } = await db.from('asis_excepciones').insert({ fecha, ambito:'colaborador', colaborador_id:Number(colabId), tipo:'laborable_extra', creado_por:PERFIL.id });
