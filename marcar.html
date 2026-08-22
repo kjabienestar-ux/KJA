@@ -741,7 +741,13 @@ function pintarDia(dia){
   $('d-nombre').textContent = primerNombre(dia.nombre);
   $('d-fecha').textContent = fechaLarga(dia.fecha);
 
-  if(dia.marcado)  return pintarListo(dia.estado, dia.marcado_at ? new Date(dia.marcado_at) : null, true);
+  /* Ya marcó: fuera el bloque de evidencia antes de irnos, o quedaría
+     montado por debajo y reaparecería al volver de otra pantalla. */
+  if(dia.marcado){
+    limpiarEvidencia();
+    $('d-evi').hidden = true;
+    return pintarListo(dia.estado, dia.marcado_at ? new Date(dia.marcado_at) : null, true);
+  }
   // Se le pasó el día entero sin marcar: el botón ya no sirve, así que en vez
   // de la pantalla de marcado se le dice qué pasó y a quién escribirle.
   if(dia.labora && dia.puede_marcar === false && dia.ventana !== 'antes') return pintarNoMarco(dia);
@@ -1005,13 +1011,31 @@ function horaGrabada(cuando){
    ══════════════════════════════════════════════════════════════════ */
 const EVI_BUCKET = 'asis-evidencias';
 const EVI_LADO   = 1080;   // px del lado largo
-const EVI_CALIDAD = 0.6;   // WebP
-let EVI = null;            // { blob, origen, ancho, alto }
+const EVI_CALIDAD = 0.6;
+let EVI = null;            // { blob, origen, ancho, alto, tipo, ext }
+
+/* Safari (iPhone) no sabe codificar WebP con toBlob: cuando el formato no
+   lo reconoce devuelve PNG, y una foto en PNG pesa más de 1 MB. Se detecta
+   una sola vez y se cae a JPEG, que sí entiende todo el mundo y para una
+   fotografía pesa lo mismo o menos que el WebP. */
+let EVI_TIPO = null;       // 'image/webp' o 'image/jpeg'
+function tipoSoportado(){
+  if(EVI_TIPO) return Promise.resolve(EVI_TIPO);
+  return new Promise(resolve => {
+    const c = document.createElement('canvas'); c.width = c.height = 8;
+    c.toBlob(b => {
+      EVI_TIPO = (b && b.type === 'image/webp') ? 'image/webp' : 'image/jpeg';
+      resolve(EVI_TIPO);
+    }, 'image/webp', 0.6);
+  });
+}
+const extDe = tipo => tipo === 'image/webp' ? 'webp' : 'jpg';
 
 function kb(bytes){ return Math.max(1, Math.round(bytes / 1024)) + ' KB'; }
 
 /* Redimensiona y recodifica. Devuelve un blob WebP pequeño. */
-function comprimir(archivo){
+async function comprimir(archivo){
+  const tipo = await tipoSoportado();
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -1019,10 +1043,13 @@ function comprimir(archivo){
       const w = Math.round(img.width * escala), h = Math.round(img.height * escala);
       const c = document.createElement('canvas');
       c.width = w; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      const x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);   // el JPEG no tiene transparencia
+      x.drawImage(img, 0, 0, w, h);
       URL.revokeObjectURL(img.src);
-      c.toBlob(b => b ? resolve({ blob:b, ancho:w, alto:h }) : reject(new Error('no se pudo comprimir')),
-               'image/webp', EVI_CALIDAD);
+      c.toBlob(b => b ? resolve({ blob:b, ancho:w, alto:h, tipo:b.type || tipo })
+                      : reject(new Error('no se pudo comprimir')),
+               tipo, EVI_CALIDAD);
     };
     img.onerror = () => reject(new Error('no es una imagen válida'));
     img.src = URL.createObjectURL(archivo);
@@ -1050,7 +1077,7 @@ function sellar(blob, texto){
       x.textBaseline = 'middle';
       x.fillText(texto, Math.round(alto * 0.4), img.height - alto / 2, img.width - alto);
 
-      c.toBlob(b => resolve(b || blob), 'image/webp', EVI_CALIDAD);
+      c.toBlob(b => resolve(b || blob), (EVI && EVI.tipo) || 'image/jpeg', EVI_CALIDAD);
     };
     img.onerror = () => resolve(blob);   // si algo falla, se sube sin sello
     img.src = URL.createObjectURL(blob);
@@ -1148,6 +1175,7 @@ async function tomarEvidencia(archivo, origen){
   try{
     const r = await comprimir(archivo);
     EVI = { blob:r.blob, origen, ancho:r.ancho, alto:r.alto,
+            tipo: r.tipo, ext: extDe(r.tipo),
             marca: (YO ? YO.id : '?') + '|' + ((DIA && DIA.fecha) || '') };
     $('evi-img').src = URL.createObjectURL(r.blob);
     $('evi-peso').textContent = kb(archivo.size) + ' → ' + kb(r.blob.size) +
@@ -1175,7 +1203,7 @@ async function subirEvidencia(){
   const r = await fetch(SUPABASE_URL + '/functions/v1/asis-evidencia', {
     method:'POST',
     headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer ' + SUPABASE_ANON, 'Content-Type':'application/json' },
-    body: JSON.stringify({ clave:CLAVE, colab:YO.id, pin:PIN, ext:'webp' })
+    body: JSON.stringify({ clave:CLAVE, colab:YO.id, pin:PIN, ext:(EVI.ext || 'webp') })
   });
   const permiso = await r.json().catch(() => null);
   if(!r.ok || !permiso || !permiso.ok){
@@ -1192,7 +1220,7 @@ async function subirEvidencia(){
 
   evoPaso(60, 'Subiendo tu evidencia…', kb(sellada.size) + ' · esto es rápido');
   const { error } = await db.storage.from(EVI_BUCKET)
-    .uploadToSignedUrl(permiso.ruta, permiso.token, sellada, { contentType:'image/webp' });
+    .uploadToSignedUrl(permiso.ruta, permiso.token, sellada, { contentType: EVI.tipo || 'image/jpeg' });
   if(error){ const e = new Error('subida'); e.motivo = 'subida'; throw e; }
   evoPaso(85, 'Registrando tu asistencia…', 'Ya casi');
   return permiso.ruta;
@@ -1245,10 +1273,23 @@ $('d-marcar').addEventListener('click', async () => {
   evoListo();
   await new Promise(r => setTimeout(r, 900));   // que se vea el visto antes de pasar
   evoCarga(false);
-  b.disabled = false; refrescarBotonMarcar();
+  b.disabled = false;
+  /* La marca ya está hecha: se anota en DIA para que, si vuelve del
+     historial o de cualquier otra pantalla, vea "ya marcaste" y no el
+     formulario para subir otra foto. */
+  if(data && data.ok){
+    DIA = Object.assign({}, DIA, { marcado:true, estado:data.estado,
+                                   marcado_at: new Date().toISOString() });
+    limpiarEvidencia();
+  }
+  refrescarBotonMarcar();
   // La hora la manda el servidor, no el reloj del celular: es la que quedó grabada
   if(data && data.ok)               return pintarListo(data.estado, data.hora, false);
-  if(data.motivo === 'ya_marcado')  return pintarListo(data.estado, data.marcado_at ? new Date(data.marcado_at) : null, true);
+  if(data.motivo === 'ya_marcado'){
+    DIA = Object.assign({}, DIA, { marcado:true, estado:data.estado, marcado_at:data.marcado_at });
+    limpiarEvidencia();
+    return pintarListo(data.estado, data.marcado_at ? new Date(data.marcado_at) : null, true);
+  }
   if(data.motivo === 'no_labora')   return pintarDia(Object.assign({}, DIA, { labora:false }));
   // Se pasó de su ventana entre que abrió la pantalla y tocó el botón
   if(data.motivo === 'fuera_ventana'){
