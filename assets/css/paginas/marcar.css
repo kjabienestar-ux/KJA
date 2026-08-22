@@ -417,6 +417,52 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 .aviso-zoom svg{flex:none;width:19px;height:19px;margin-top:1px;color:#7dd3fc;}
 .aviso-zoom b{color:var(--text-main);font-weight:600;}
 
+/* ── Evidencia fotográfica ──────────────────────────────────────────
+   Bloque que aparece sobre el botón de marcar: sin foto no se puede
+   marcar, así que tiene que leerse como parte del paso, no como extra. */
+.evi{
+  width:100%;margin-top:16px;padding:16px;border-radius:24px;text-align:left;
+  background:rgba(0,0,0,.22);
+  border-top:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.25);
+}
+.evi-cab{display:flex;align-items:flex-start;gap:11px;}
+.evi-cab > svg{flex:none;width:19px;height:19px;margin-top:2px;color:#f9a8d4;}
+.evi-txt{display:flex;flex-direction:column;gap:2px;}
+.evi-txt b{font-size:13.5px;font-weight:600;color:var(--text-main);}
+.evi-txt span{font-size:12px;line-height:1.45;color:var(--text-muted);}
+
+.evi-botones{display:flex;gap:9px;margin-top:13px;}
+.btn-evi{
+  flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:44px;padding:10px 12px;border:0;border-radius:16px;cursor:pointer;
+  font-family:inherit;font-size:12.5px;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,rgba(241,0,117,.92),rgba(190,0,92,.92));
+  box-shadow:0 8px 20px rgba(241,0,117,.28);
+  transition:transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.btn-evi:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(241,0,117,.36);}
+.btn-evi:active{transform:none;}
+.btn-evi svg{width:16px;height:16px;flex:none;}
+.btn-evi.tenue{
+  background:rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+  color:var(--text-muted);font-weight:500;
+}
+.btn-evi.tenue:hover{background:rgba(255,255,255,.2);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.25);}
+
+.evi-previa{margin:13px 0 0;position:relative;cursor:pointer;}
+.evi-previa img{
+  display:block;width:100%;max-height:190px;object-fit:cover;
+  border-radius:18px;border:1px solid rgba(255,255,255,.22);
+  box-shadow:0 10px 24px rgba(0,0,0,.3);
+}
+.evi-previa figcaption{
+  margin-top:7px;font-size:11px;color:#86efac;font-weight:600;letter-spacing:.02em;
+}
+.evi-nota{
+  margin:12px 0 0;font-size:11px;line-height:1.5;color:rgba(255,255,255,.55);
+}
+
 /* Botón que se apaga cuando la persona está fuera de su jornada */
 .btn:disabled{opacity:.45;transform:none;box-shadow:none;cursor:not-allowed;}
 .aviso-cambio{margin-top:10px;color:#ffd9ea !important;}

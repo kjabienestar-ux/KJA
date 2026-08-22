@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/paginas/marcar.css?v=19">
+<link rel="stylesheet" href="assets/css/paginas/marcar.css?v=20">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -135,6 +135,41 @@
     <div class="aviso-zoom" id="d-zoom">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
       <span>Tu asistencia <b>solo es válida si estás conectado al Zoom</b>. Si marcas sin estar en la reunión, no cuenta.</span>
+    </div>
+
+    <!-- Evidencia: foto obligatoria antes de poder marcar -->
+    <div class="evi" id="d-evi" hidden>
+      <div class="evi-cab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <div class="evi-txt">
+          <b id="evi-titulo">Adjunta tu evidencia</b>
+          <span id="evi-sub">Una captura del Zoom donde se vea tu nombre en la lista</span>
+        </div>
+      </div>
+
+      <figure class="evi-previa" id="evi-previa" hidden>
+        <img id="evi-img" alt="Evidencia adjuntada">
+        <figcaption id="evi-peso">—</figcaption>
+      </figure>
+
+      <div class="evi-botones">
+        <button type="button" class="btn-evi" id="evi-camara">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span id="evi-camara-txt">Tomar foto</span>
+        </button>
+        <button type="button" class="btn-evi tenue" id="evi-archivo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Subir imagen</span>
+        </button>
+      </div>
+
+      <p class="evi-nota" id="evi-nota">
+        Dirección revisa estas fotos. Una evidencia que no corresponda al día
+        o a la reunión se considera falta.
+      </p>
+
+      <input type="file" accept="image/*" capture="environment" id="evi-in-camara" hidden>
+      <input type="file" accept="image/*" id="evi-in-archivo" hidden>
     </div>
 
     <button class="btn grande" id="d-marcar">Marcar mi asistencia</button>
@@ -706,9 +741,13 @@ function pintarDia(dia){
      qué, con la salida a mano por si lo que cambió fue su horario. */
   const puede = dia.puede_marcar !== false;
   $('d-marcar').disabled = !puede;
+  $('d-marcar').dataset.bloqueado = puede ? '0' : '1';
   $('d-marcar').textContent = puede ? 'Marcar mi asistencia'
     : (dia.ventana === 'antes' ? 'Todavía no abre' : 'Tu jornada ya terminó');
-  $('d-zoom').hidden = !puede;
+  $('d-zoom').hidden = !puede || (dia.modalidad || 'virtual') !== 'virtual';
+  // La evidencia solo tiene sentido si de verdad puede marcar ahora
+  $('d-evi').hidden = !puede;
+  if(puede) pintarEvidencia(dia); else limpiarEvidencia();
   $('d-cambio').hidden = puede;
   // Si ya avisó, el botón lo dice: entrar y ver el formulario en blanco confunde
   const yaAviso = !!(dia.aviso_horario);
@@ -911,14 +950,184 @@ function horaGrabada(cuando){
   return `${dosDig(cuando.getHours())}:${dosDig(cuando.getMinutes())}:${dosDig(cuando.getSeconds())}`;
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   EVIDENCIA FOTOGRÁFICA
+   La foto se encoge y se recodifica en el propio celular antes de subir:
+   4 MB de cámara quedan en ~100 KB. Así la subida es rápida con datos
+   móviles y el bucket no se llena. De paso se le va el EXIF.
+   ══════════════════════════════════════════════════════════════════ */
+const EVI_BUCKET = 'asis-evidencias';
+const EVI_LADO   = 1080;   // px del lado largo
+const EVI_CALIDAD = 0.6;   // WebP
+let EVI = null;            // { blob, origen, ancho, alto }
+
+function kb(bytes){ return Math.max(1, Math.round(bytes / 1024)) + ' KB'; }
+
+/* Redimensiona y recodifica. Devuelve un blob WebP pequeño. */
+function comprimir(archivo){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const escala = Math.min(1, EVI_LADO / Math.max(img.width, img.height));
+      const w = Math.round(img.width * escala), h = Math.round(img.height * escala);
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(img.src);
+      c.toBlob(b => b ? resolve({ blob:b, ancho:w, alto:h }) : reject(new Error('no se pudo comprimir')),
+               'image/webp', EVI_CALIDAD);
+    };
+    img.onerror = () => reject(new Error('no es una imagen válida'));
+    img.src = URL.createObjectURL(archivo);
+  });
+}
+
+/* Estampa nombre, fecha y hora del SERVIDOR sobre la foto ya comprimida.
+   La hora no sale del celular: cambiar el reloj del teléfono no sirve. */
+function sellar(blob, texto){
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.width; c.height = img.height;
+      const x = c.getContext('2d');
+      x.drawImage(img, 0, 0);
+      URL.revokeObjectURL(img.src);
+
+      const alto = Math.max(26, Math.round(img.height * 0.055));
+      const fuente = Math.round(alto * 0.52);
+      x.fillStyle = 'rgba(6,20,50,.78)';
+      x.fillRect(0, img.height - alto, img.width, alto);
+      x.fillStyle = '#ffffff';
+      x.font = '600 ' + fuente + 'px Poppins, system-ui, sans-serif';
+      x.textBaseline = 'middle';
+      x.fillText(texto, Math.round(alto * 0.4), img.height - alto / 2, img.width - alto);
+
+      c.toBlob(b => resolve(b || blob), 'image/webp', EVI_CALIDAD);
+    };
+    img.onerror = () => resolve(blob);   // si algo falla, se sube sin sello
+    img.src = URL.createObjectURL(blob);
+  });
+}
+
+/* Ubicación: nunca bloquea. Si no la dan o tarda, se marca igual sin ella. */
+function ubicacion(){
+  return new Promise(resolve => {
+    if(!navigator.geolocation) return resolve(null);
+    let listo = false;
+    const fin = v => { if(!listo){ listo = true; resolve(v); } };
+    navigator.geolocation.getCurrentPosition(
+      pos => fin({ lat:+pos.coords.latitude.toFixed(6), lon:+pos.coords.longitude.toFixed(6) }),
+      () => fin(null),
+      { enableHighAccuracy:true, timeout:6000, maximumAge:60000 });
+    setTimeout(() => fin(null), 6500);
+  });
+}
+
+/* El texto cambia según la modalidad del día: no es lo mismo probar que
+   estás en el Zoom que probar que llegaste al consultorio. */
+function pintarEvidencia(dia){
+  const virtual = (dia.modalidad || 'virtual') === 'virtual';
+  $('evi-sub').textContent = virtual
+    ? 'Una captura del Zoom donde se vea tu nombre en la lista'
+    : 'Una foto de tu llegada al consultorio';
+  $('evi-camara-txt').textContent = virtual ? 'Tomar foto' : 'Tomar foto de mi llegada';
+  limpiarEvidencia();
+}
+
+function limpiarEvidencia(){
+  EVI = null;
+  $('evi-previa').hidden = true;
+  $('evi-img').removeAttribute('src');
+  $('evi-in-camara').value = ''; $('evi-in-archivo').value = '';
+  refrescarBotonMarcar();
+}
+
+/* Sin evidencia el botón no deja marcar: es la regla que pediste */
+function refrescarBotonMarcar(){
+  const b = $('d-marcar');
+  if(b.dataset.bloqueado === '1') return;      // fuera de ventana: manda eso
+  const falta = !EVI;
+  b.disabled = falta;
+  b.textContent = falta ? 'Adjunta tu evidencia para marcar' : 'Marcar mi asistencia';
+}
+
+async function tomarEvidencia(archivo, origen){
+  if(!archivo) return;
+  $('evi-nota').textContent = 'Preparando la imagen…';
+  try{
+    const r = await comprimir(archivo);
+    EVI = { blob:r.blob, origen, ancho:r.ancho, alto:r.alto };
+    $('evi-img').src = URL.createObjectURL(r.blob);
+    $('evi-peso').textContent = kb(archivo.size) + ' → ' + kb(r.blob.size) +
+      (origen === 'archivo' ? ' · subida desde el equipo' : ' · tomada ahora');
+    $('evi-previa').hidden = false;
+  }catch(e){
+    EVI = null;
+    $('evi-previa').hidden = true;
+    alert('No pudimos leer esa imagen. Intenta con otra.');
+  }
+  $('evi-nota').textContent = 'Dirección revisa estas fotos. Una evidencia que no corresponda al día o a la reunión se considera falta.';
+  refrescarBotonMarcar();
+}
+
+$('evi-camara').addEventListener('click', () => $('evi-in-camara').click());
+$('evi-archivo').addEventListener('click', () => $('evi-in-archivo').click());
+$('evi-in-camara').addEventListener('change', e => tomarEvidencia(e.target.files[0], 'camara'));
+$('evi-in-archivo').addEventListener('change', e => tomarEvidencia(e.target.files[0], 'archivo'));
+$('evi-previa').addEventListener('click', () => $('evi-in-camara').click());
+
+/* Pide el permiso de subida, sella la foto con la hora del servidor y la sube.
+   Devuelve la ruta guardada, o lanza con un motivo entendible. */
+async function subirEvidencia(){
+  const r = await fetch(SUPABASE_URL + '/functions/v1/asis-evidencia', {
+    method:'POST',
+    headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer ' + SUPABASE_ANON, 'Content-Type':'application/json' },
+    body: JSON.stringify({ clave:CLAVE, colab:YO.id, pin:PIN, ext:'webp' })
+  });
+  const permiso = await r.json().catch(() => null);
+  if(!r.ok || !permiso || !permiso.ok){
+    const e = new Error('permiso'); e.motivo = (permiso && permiso.motivo) || 'permiso'; throw e;
+  }
+
+  const cuando = new Date(permiso.servidor_at);
+  const sello = (permiso.nombre || YO.nombre) + ' · ' +
+    cuando.toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'numeric', timeZone:'America/Lima' }) + ' · ' +
+    cuando.toLocaleTimeString('es-PE', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'America/Lima' }) + ' · KJA';
+
+  const sellada = await sellar(EVI.blob, sello);
+  const { error } = await db.storage.from(EVI_BUCKET)
+    .uploadToSignedUrl(permiso.ruta, permiso.token, sellada, { contentType:'image/webp' });
+  if(error){ const e = new Error('subida'); e.motivo = 'subida'; throw e; }
+  return permiso.ruta;
+}
+
 $('d-marcar').addEventListener('click', async () => {
-  const b = $('d-marcar'); b.disabled = true; b.textContent = 'Marcando…';
+  const b = $('d-marcar');
+  if(!EVI){ refrescarBotonMarcar(); return; }
+  b.disabled = true; b.textContent = 'Subiendo evidencia…';
+
+  // La ubicación se pide en paralelo y nunca detiene el marcado
+  const geo = await ubicacion();
+
+  let ruta = null;
+  try{
+    ruta = await subirEvidencia();
+  }catch(e){
+    b.disabled = false; refrescarBotonMarcar();
+    return falloEvidencia(e.motivo);
+  }
+
+  b.textContent = 'Marcando…';
   ver('v-carga');
   const { data, error } = await db.rpc('asis_portal_marcar', {
-    p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_disp: EQUIPO
+    p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_disp: EQUIPO,
+    p_foto: ruta, p_foto_org: EVI.origen,
+    p_lat: geo ? geo.lat : null, p_lon: geo ? geo.lon : null
   });
-  b.disabled = false; b.textContent = 'Marcar mi asistencia';
+  b.disabled = false; refrescarBotonMarcar();
   if(error) return verFalla(error);
+  if(data && data.motivo === 'falta_evidencia') return falloEvidencia('falta_evidencia');
   // La hora la manda el servidor, no el reloj del celular: es la que quedó grabada
   if(data && data.ok)               return pintarListo(data.estado, data.hora, false);
   if(data.motivo === 'ya_marcado')  return pintarListo(data.estado, data.marcado_at ? new Date(data.marcado_at) : null, true);
@@ -931,6 +1140,30 @@ $('d-marcar').addEventListener('click', async () => {
   if(data.motivo === 'incorrecta'){ PIN=''; return abrirPin(YO); }
   alert('No se pudo marcar. Avisa a dirección.');
 });
+
+/* La subida falló. Se explica en su idioma y se ofrece avisar por WhatsApp:
+   nadie se queda sin marcar en silencio. */
+function falloEvidencia(motivo){
+  const textos = {
+    ya_marcado:      'Ya marcaste hoy.',
+    no_labora:       'Hoy no te toca trabajar, no hay nada que marcar.',
+    fuera_ventana:   'Tu horario de marcado ya cerró.',
+    incorrecta:      'Tu PIN no coincide. Vuelve a ingresarlo.',
+    clave:           'El enlace no es válido. Pide el enlace nuevo a dirección.',
+    subida:          'No se pudo subir la foto. Revisa tu conexión y vuelve a intentar.',
+    falta_evidencia: 'Falta la foto de evidencia.'
+  };
+  ver('v-dia');
+  alert(textos[motivo] || 'No se pudo subir la evidencia. Intenta otra vez o avisa a dirección.');
+  if(motivo === 'incorrecta'){ PIN = ''; return abrirPin(YO); }
+  // Deja a mano el botón de WhatsApp para que reporte y dirección marque a mano
+  if(motivo === 'subida' || motivo === 'permiso'){
+    $('d-wa').hidden = false;
+    $('d-wa-txt').textContent = 'No puedo subir mi foto, avisar';
+    $('d-wa').href = enlaceWhatsApp(YO ? YO.nombre : '',
+      'No puedo subir la foto de evidencia para marcar mi asistencia. ¿Pueden marcarme a mano?');
+  }
+}
 
 const ICO_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 const ICO_T  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
