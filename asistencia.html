@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="assets/css/paginas/asistencia.css?v=24">
+<link rel="stylesheet" href="assets/css/paginas/asistencia.css?v=25">
 </head>
 <body>
 
@@ -1094,10 +1094,10 @@ async function cargarMes(){
   const dias = diasDelMes(YEAR, MONTH);
   const desde = dias[0].fecha, hasta = dias[dias.length-1].fecha;
   const [{ data:regs }, { data:excs }] = await Promise.all([
-    db.from('asis_registros').select('colaborador_id,fecha,estado,nota,marcado_por,origen,dispositivo,marcado_at').gte('fecha',desde).lte('fecha',hasta),
+    db.from('asis_registros').select('colaborador_id,fecha,estado,nota,marcado_por,origen,dispositivo,marcado_at,evidencia_path,evidencia_origen,evidencia_lat,evidencia_lon').gte('fecha',desde).lte('fecha',hasta),
     db.from('asis_excepciones').select('fecha,ambito,colaborador_id,tipo,nota').gte('fecha',desde).lte('fecha',hasta),
   ]);
-  REG={}; (regs||[]).forEach(r=> REG[r.colaborador_id+'|'+r.fecha]={estado:r.estado,nota:r.nota,marcado_por:r.marcado_por,origen:r.origen,dispositivo:r.dispositivo,marcado_at:r.marcado_at});
+  REG={}; (regs||[]).forEach(r=> REG[r.colaborador_id+'|'+r.fecha]={estado:r.estado,nota:r.nota,marcado_por:r.marcado_por,origen:r.origen,dispositivo:r.dispositivo,marcado_at:r.marcado_at,evidencia_path:r.evidencia_path,evidencia_origen:r.evidencia_origen,evidencia_lat:r.evidencia_lat,evidencia_lon:r.evidencia_lon});
   EXC_EMP={}; EXC_COL={};
   (excs||[]).forEach(x=>{
     if(x.ambito==='empresa') EXC_EMP[x.fecha]={tipo:x.tipo,nota:x.nota};
@@ -1933,7 +1933,7 @@ function celda(c, fecha, hoy){
   if(!dd.lab && reg){
     const e0 = ESTADOS[reg.estado];
     const tt0 = dd.motivo==='preinicio' ? ' · Marca anterior al inicio de contrato' : ' · Día no laborable con marca';
-    return `<td class="cell${fecha===hoy?' hoy-cell':''}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${tt0}"><span class="dot ${e0?e0.cls:''}">${reg.estado}</span></td>`;
+    return `<td class="cell${fecha===hoy?' hoy-cell':''}${reg.evidencia_path?' con-evi':''}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${tt0}${reg.evidencia_path?' · con foto de evidencia':''}"><span class="dot ${e0?e0.cls:''}">${reg.estado}</span></td>`;
   }
   const e = reg ? ESTADOS[reg.estado] : null;
   const modTt = MODS[dd.mod] ? ' · '+MODS[dd.mod].lbl : '';
@@ -1941,7 +1941,8 @@ function celda(c, fecha, hoy){
   const iniTt = ini ? ' · Inicia su contrato' : '';
   const dot = e ? `<span class="dot ${e.cls}">${reg.estado}</span>`
                 : `<span class="dot vac"></span>`;
-  return `<td class="cell${ini}${fecha===hoy?' hoy-cell':''}${fecha>hoy?' fut':''}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${modTt}${iniTt}">${dot}${reg&&reg.nota?'<i class="hasnote"></i>':''}</td>`;
+  const conEvi = reg && reg.evidencia_path ? ' con-evi' : '';
+  return `<td class="cell${ini}${fecha===hoy?' hoy-cell':''}${fecha>hoy?' fut':''}${conEvi}" data-c="${c.id}" data-f="${fecha}" title="${esc(c.nombre)}${modTt}${iniTt}${conEvi?' · con foto de evidencia':''}">${dot}${reg&&reg.nota?'<i class="hasnote"></i>':''}</td>`;
 }
 
 /* ════════════════════ EXPORTAR ÁREAS, DÍAS Y HORARIOS ════════════════════
@@ -2565,6 +2566,17 @@ function abrirPop(td){
       h += otros.length
         ? `<p class="pop-origen alerta">⚠ El mismo equipo marcó también a ${esc(otros.join(', '))}. Conviene revisarlo.</p>`
         : `<p class="pop-origen">${quien}${hora ? ' · <b>'+hora+'</b>' : ''}</p>`;
+
+      // Evidencia fotográfica: se ve, se amplía y se puede borrar
+      if(rg.evidencia_path){
+        const subida = rg.evidencia_origen === 'archivo';
+        h += `<button class="pop-b evi" data-act="evi">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Ver evidencia${subida ? ' <i class="pop-evi-tag">subida</i>' : ''}
+              </button>`;
+      } else if(rg.origen === 'portal'){
+        h += `<p class="pop-origen sin-evi">Marcó sin foto de evidencia.</p>`;
+      }
     }
     if(rg) h += `<button class="pop-b clr" data-act="clr">Quitar marca</button>`;
   }
@@ -2577,6 +2589,79 @@ function abrirPop(td){
   pop._c = colabId; pop._f = fecha;
 }
 function cerrarPop(){ $('pop').hidden=true; }
+
+/* ════════════════════ EVIDENCIA FOTOGRÁFICA ════════════════════
+   El bucket es privado: la foto se abre con un enlace firmado que caduca
+   en una hora, así que no queda ninguna URL suelta circulando. */
+const EVI_BUCKET = 'asis-evidencias';
+
+async function verEvidencia(colabId, fecha){
+  const rg = REG[colabId+'|'+fecha];
+  if(!rg || !rg.evidencia_path) return;
+  const c = COLABS.find(x => String(x.id) === String(colabId));
+  const nombre = c ? c.nombre : '';
+
+  abrirModal('Evidencia · ' + nombre, `<div class="evi-visor"><p class="empty">Abriendo la foto…</p></div>`);
+
+  const { data, error } = await db.storage.from(EVI_BUCKET).createSignedUrl(rg.evidencia_path, 3600);
+  if(error || !data){
+    $('modal-body').innerHTML = `<div class="evi-visor">
+      <p class="empty">No se pudo abrir la foto.${error ? '<br><small>'+esc(error.message)+'</small>' : ''}</p></div>`;
+    return;
+  }
+
+  const hora = rg.marcado_at ? new Date(rg.marcado_at).toLocaleTimeString('es-PE',
+                 { hour:'2-digit', minute:'2-digit', timeZone:'America/Lima' }) : '—';
+  const comoLlego = rg.evidencia_origen === 'archivo'
+    ? '<span class="evi-chip alerta">Subida desde el equipo</span>'
+    : '<span class="evi-chip">Tomada con la cámara</span>';
+  const mapa = (rg.evidencia_lat != null && rg.evidencia_lon != null)
+    ? `<a class="evi-chip enlace" target="_blank" rel="noopener"
+          href="https://www.google.com/maps?q=${rg.evidencia_lat},${rg.evidencia_lon}">Ver en el mapa</a>`
+    : '<span class="evi-chip tenue">Sin ubicación</span>';
+
+  $('modal-body').innerHTML = `
+    <div class="evi-visor">
+      <a href="${data.signedUrl}" target="_blank" rel="noopener" class="evi-foto">
+        <img src="${data.signedUrl}" alt="Evidencia de ${esc(nombre)}">
+      </a>
+      <div class="evi-datos">
+        <span class="evi-chip">${diaLabel(fecha)} · ${hora}</span>
+        ${comoLlego}
+        ${mapa}
+      </div>
+      <div class="evi-acciones">
+        <a class="btn-mini" href="${data.signedUrl}" target="_blank" rel="noopener">Abrir en grande</a>
+        ${puedeEditar() ? '<button class="btn-mini peligro" id="evi-borrar">Eliminar foto</button>' : ''}
+      </div>
+      <p class="evi-pie">El enlace de esta foto caduca en una hora. Eliminarla no borra la marca de asistencia.</p>
+    </div>`;
+
+  const btn = $('evi-borrar');
+  if(btn) btn.onclick = () => borrarEvidencia(colabId, fecha);
+}
+
+async function borrarEvidencia(colabId, fecha){
+  const rg = REG[colabId+'|'+fecha];
+  if(!rg || !rg.evidencia_path) return;
+  const ok = await confirmDialog({
+    title: 'Eliminar la foto',
+    text: 'Se borra la imagen del servidor y no se puede recuperar. La marca de asistencia se mantiene.',
+    okText: 'Eliminar foto' });
+  if(!ok) return;
+
+  const { error: e1 } = await db.storage.from(EVI_BUCKET).remove([rg.evidencia_path]);
+  if(e1){ toast('No se pudo borrar la foto: ' + e1.message, true); return; }
+
+  const { error: e2 } = await db.from('asis_registros')
+    .update({ evidencia_path:null, evidencia_origen:null, evidencia_lat:null, evidencia_lon:null })
+    .eq('colaborador_id', colabId).eq('fecha', fecha);
+  if(e2){ toast('La foto se borró, pero el registro no se actualizó: ' + e2.message, true); return; }
+
+  rg.evidencia_path = null; rg.evidencia_origen = null; rg.evidencia_lat = null; rg.evidencia_lon = null;
+  cerrarModal(); cerrarPop(); render();
+  toast('Foto eliminada');
+}
 function diaLabel(fecha){ const d=new Date(fecha+'T00:00:00'); return `${DIAS_ISO.find(x=>x[1]===isoDow(fecha))[0]} ${d.getDate()} ${MESES[d.getMonth()].toLowerCase()}`; }
 
 /* ════════════════════ PANEL INCRUSTADO DE ASISTENCIA ════════════════════ */
@@ -3677,6 +3762,7 @@ $('pop').addEventListener('click', async e=>{
   if(b.dataset.act==='set') await setEstado(c,f,b.dataset.k);
   else if(b.dataset.act==='clr') await quitarEstado(c,f);
   else if(b.dataset.act==='extra') await marcarExcepcionTrabajo(c,f);
+  else if(b.dataset.act==='evi'){ cerrarPop(); return verEvidencia(c,f); }
   cerrarPop(); render();
 });
 document.addEventListener('click', e=>{ if(!e.target.closest('#pop') && !e.target.closest('td.cell')) cerrarPop(); });

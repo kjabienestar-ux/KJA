@@ -2429,3 +2429,46 @@ table.grid.resumen td.c-name{text-align:left;padding:6px 14px;height:auto;}
   .hs-row{grid-template-columns:42px 1fr 78px 78px;gap:6px;padding:7px 8px;}
   th.c-name,td.c-name{min-width:170px;max-width:170px;}
 }
+
+
+/* ════════════════════ EVIDENCIA FOTOGRÁFICA ════════════════════
+   La foto que la persona adjuntó al marcar desde su enlace. Se ve desde
+   el globo de la celda y se abre en el modal, con enlace firmado. */
+.pop-b.evi{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  margin-top:8px;background:#eef4ff;border:1px solid #dce8fb;color:#0a63d4;font-weight:600;
+}
+.pop-b.evi:hover{background:#e2ecfe;border-color:#c9dcfa;}
+.pop-b.evi svg{width:15px;height:15px;flex:none;}
+.pop-evi-tag{
+  font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.03em;
+  background:#fef3c7;color:#92400e;border-radius:99px;padding:1px 6px;
+}
+.pop-origen.sin-evi{color:#b45309;font-weight:600;}
+
+.evi-visor{display:flex;flex-direction:column;gap:12px;}
+.evi-foto{display:block;border-radius:14px;overflow:hidden;background:#0f172a;line-height:0;}
+.evi-foto img{display:block;width:100%;max-height:60vh;object-fit:contain;}
+.evi-datos{display:flex;flex-wrap:wrap;gap:7px;}
+.evi-chip{
+  display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;
+  background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;
+  font-size:11.5px;font-weight:600;text-decoration:none;
+}
+.evi-chip.alerta{background:#fef3c7;border-color:#fde68a;color:#92400e;}
+.evi-chip.tenue{background:#f8fafc;color:#94a3b8;}
+.evi-chip.enlace{background:#eef4ff;border-color:#dce8fb;color:#0a63d4;}
+.evi-chip.enlace:hover{background:#e2ecfe;}
+.evi-acciones{display:flex;gap:8px;flex-wrap:wrap;}
+.evi-acciones .btn-mini{text-decoration:none;display:inline-flex;align-items:center;}
+.btn-mini.peligro{background:#fee2e2;border-color:#fecaca;color:#b91c1c;}
+.btn-mini.peligro:hover{background:#fecaca;}
+.evi-pie{margin:0;font-size:11px;line-height:1.5;color:#94a3b8;}
+
+/* Puntito en la celda: se ve de un vistazo quién dejó foto y quién no */
+td.cell.con-evi{position:relative;}
+td.cell.con-evi::after{
+  content:'';position:absolute;right:3px;bottom:3px;
+  width:5px;height:5px;border-radius:50%;background:#0a63d4;
+  box-shadow:0 0 0 1.5px #fff;
+}
