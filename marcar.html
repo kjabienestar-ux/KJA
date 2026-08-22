@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/paginas/marcar.css?v=21">
+<link rel="stylesheet" href="assets/css/paginas/marcar.css?v=22">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -152,7 +152,7 @@
         <figcaption id="evi-peso">—</figcaption>
       </figure>
 
-      <div class="evi-botones">
+      <div class="evi-botones" id="evi-botones">
         <button type="button" class="btn-evi" id="evi-camara">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           <span id="evi-camara-txt">Tomar foto</span>
@@ -161,6 +161,24 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           <span>Subir imagen</span>
         </button>
+      </div>
+
+      <div class="evi-carga" id="evi-carga" hidden>
+        <div class="evi-carga-cab">
+          <span class="evi-anillo" id="evi-anillo">
+            <svg viewBox="0 0 44 44" aria-hidden="true">
+              <circle class="evi-anillo-fondo" cx="22" cy="22" r="19"></circle>
+              <circle class="evi-anillo-linea" id="evi-anillo-linea" cx="22" cy="22" r="19"></circle>
+            </svg>
+            <b id="evi-pct">0%</b>
+            <svg class="evi-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <div class="evi-pasos">
+            <b id="evi-paso">Preparando tu foto…</b>
+            <span id="evi-paso-sub">No cierres esta pantalla</span>
+          </div>
+        </div>
+        <div class="evi-barra"><i id="evi-barra-i"></i></div>
       </div>
 
       <p class="evi-nota" id="evi-nota">
@@ -595,22 +613,45 @@ function pintarPuntos(){
   $('pin-puntos').classList.remove('mal');
   $('pin-puntos').querySelectorAll('i').forEach((el,i)=> el.classList.toggle('on', i < PIN.length));
 }
+/* Los puntos laten y el teclado se apaga mientras el servidor responde.
+   Se queda en la misma pantalla: sin saltos ni animaciones de por medio. */
+function pinComprobando(activo){
+  $('pin-puntos').classList.toggle('comprobando', activo);
+  $('teclado').classList.toggle('esperando', activo);
+  if(activo) pinMsg('Comprobando…');
+}
 function sacudir(){
   const p = $('pin-puntos');
   p.classList.remove('mal'); void p.offsetWidth; p.classList.add('mal');
 }
-$('teclado').addEventListener('click', e => {
-  const b = e.target.closest('button'); if(!b || b.disabled) return;
+/* El teclado responde a pointerdown, no a click: en el móvil el click llega
+   cuando el dedo se levanta, y ese hueco es lo que se sentía lento. Se marca
+   el evento para que el click posterior no cuente la tecla dos veces. */
+function pulsarTecla(b){
+  if(!b || b.disabled) return;
   if(b.hasAttribute('data-borrar')){ PIN = PIN.slice(0,-1); pinMsg(''); return pintarPuntos(); }
   if(PIN.length >= 4) return;
-  PIN += b.dataset.n; pintarPuntos();
-  if(PIN.length === 4) setTimeout(enviarPin, 150);
+  PIN += b.dataset.n;
+  pintarPuntos();
+  // El cuarto dígito se envía en cuanto el punto está pintado, sin esperas
+  if(PIN.length === 4) requestAnimationFrame(() => requestAnimationFrame(enviarPin));
+}
+$('teclado').addEventListener('pointerdown', e => {
+  const b = e.target.closest('button'); if(!b || b.disabled) return;
+  e.preventDefault();          // evita el zoom por doble toque y el foco tardío
+  b.dataset.tocada = '1';
+  pulsarTecla(b);
+});
+$('teclado').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.tocada === '1'){ delete b.dataset.tocada; return; }   // ya contó
+  pulsarTecla(b);
 });
 document.addEventListener('keydown', e => {
   if($('v-pin').hidden) return;
   if(/^[0-9]$/.test(e.key) && PIN.length < 4){
     PIN += e.key; pintarPuntos();
-    if(PIN.length === 4) setTimeout(enviarPin, 150);
+    if(PIN.length === 4) requestAnimationFrame(() => requestAnimationFrame(enviarPin));
   } else if(e.key === 'Backspace'){ PIN = PIN.slice(0,-1); pinMsg(''); pintarPuntos(); }
 });
 $('pin-volver').addEventListener('click', () => {
@@ -645,9 +686,13 @@ async function enviarPin(){
     return pinMsg('No coincidieron. Empecemos de nuevo.', 'mal');
   }
 
-  ver('v-carga');
+  /* Antes saltaba a la pantalla de carga: eso encadenaba dos animaciones de
+     entrada de medio segundo cada una y era el grueso de la lentitud. Ahora
+     la comprobación pasa en la misma pantalla, con los puntos latiendo. */
+  pinComprobando(true);
   const fn = MODO_PIN === 'crear' ? 'asis_portal_crear_clave' : 'asis_portal_entrar';
   const { data, error } = await db.rpc(fn, { p_clave: CLAVE, p_colab: YO.id, p_pin: PIN });
+  pinComprobando(false);
   if(error){ PIN=''; pintarPuntos(); return verFalla(error); }
 
   if(data && data.ok){
@@ -657,7 +702,6 @@ async function enviarPin(){
     return pintarDia(data.dia);
   }
 
-  ver('v-pin');
   const m = (data && data.motivo) || '';
   PIN = ''; PIN_PRIMERO = ''; pintarPuntos(); sacudir();
   if(m === 'obvia')      return pinMsg('Esa clave es muy fácil de adivinar. Elige otra.', 'mal');
@@ -1046,6 +1090,31 @@ function pintarEvidencia(dia, adelantado){
   else refrescarBotonMarcar();
 }
 
+/* Progreso de la subida. No es un porcentaje de bytes —la subida de una
+   foto de 100 KB dura un parpadeo— sino de PASOS reales: cada uno se enciende
+   cuando de verdad ocurre. Da la sensación de que algo avanza y, sobre todo,
+   deja claro que la evidencia se está registrando. */
+const EVI_LARGO_ANILLO = 2 * Math.PI * 19;
+function evoCarga(activo){
+  $('evi-carga').hidden = !activo;
+  $('evi-botones').style.display = activo ? 'none' : '';
+  $('evi-anillo').classList.remove('listo');
+  if(activo) evoPaso(0, 'Preparando tu foto…', 'No cierres esta pantalla');
+}
+function evoPaso(pct, titulo, sub){
+  const p = Math.max(0, Math.min(100, pct));
+  $('evi-barra-i').style.width = p + '%';
+  $('evi-anillo-linea').style.strokeDashoffset = EVI_LARGO_ANILLO * (1 - p / 100);
+  $('evi-pct').textContent = Math.round(p) + '%';
+  if(titulo) $('evi-paso').textContent = titulo;
+  if(sub !== undefined) $('evi-paso-sub').textContent = sub;
+}
+function evoListo(){
+  evoPaso(100, '¡Evidencia registrada!', 'Gracias por dejar constancia');
+  $('evi-anillo').classList.add('listo');
+  if(navigator.vibrate) { try{ navigator.vibrate(30); }catch(e){} }
+}
+
 const EVI_NOTA = 'Dirección revisa estas fotos. Una evidencia que no corresponda al día o a la reunión se considera falta.';
 /* Un aviso que dice qué hacer, no solo qué pasó. Va dentro del bloque, en
    ámbar, para que no haya que leer un alert y perderlo. */
@@ -1056,6 +1125,7 @@ function avisoEvi(texto, malo){
 }
 
 function limpiarEvidencia(){
+  evoCarga(false);
   EVI = null;
   $('evi-previa').hidden = true;
   $('evi-img').removeAttribute('src');
@@ -1101,6 +1171,7 @@ $('evi-previa').addEventListener('click', () => $('evi-in-camara').click());
 /* Pide el permiso de subida, sella la foto con la hora del servidor y la sube.
    Devuelve la ruta guardada, o lanza con un motivo entendible. */
 async function subirEvidencia(){
+  evoPaso(15, 'Verificando tu identidad…');
   const r = await fetch(SUPABASE_URL + '/functions/v1/asis-evidencia', {
     method:'POST',
     headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer ' + SUPABASE_ANON, 'Content-Type':'application/json' },
@@ -1116,10 +1187,14 @@ async function subirEvidencia(){
     cuando.toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'numeric', timeZone:'America/Lima' }) + ' · ' +
     cuando.toLocaleTimeString('es-PE', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'America/Lima' }) + ' · KJA';
 
+  evoPaso(40, 'Sellando la fecha y la hora…', 'Con la hora del servidor, no la del celular');
   const sellada = await sellar(EVI.blob, sello);
+
+  evoPaso(60, 'Subiendo tu evidencia…', kb(sellada.size) + ' · esto es rápido');
   const { error } = await db.storage.from(EVI_BUCKET)
     .uploadToSignedUrl(permiso.ruta, permiso.token, sellada, { contentType:'image/webp' });
   if(error){ const e = new Error('subida'); e.motivo = 'subida'; throw e; }
+  evoPaso(85, 'Registrando tu asistencia…', 'Ya casi');
   return permiso.ruta;
 }
 
@@ -1137,14 +1212,16 @@ $('d-marcar').addEventListener('click', async () => {
      reintentan: no van a cambiar por insistir. */
   let ruta = null;
   const SIN_REINTENTO = ['incorrecta','clave','ya_marcado','no_labora','fuera_ventana'];
+  evoCarga(true);
+  b.textContent = 'Registrando…';
   for(let intento = 1; intento <= 3; intento++){
     try{
-      b.textContent = intento === 1 ? 'Subiendo evidencia…' : `Reintentando (${intento} de 3)…`;
-      avisoEvi(intento === 1 ? 'Subiendo tu evidencia…' : 'La conexión falló. Reintentando…', intento > 1);
+      if(intento > 1) evoPaso(18, `Reintentando (${intento} de 3)…`, 'La conexión falló, seguimos intentando');
       ruta = await subirEvidencia();
       break;
     }catch(e){
       if(SIN_REINTENTO.includes(e.motivo) || intento === 3){
+        evoCarga(false);
         b.disabled = false; refrescarBotonMarcar();
         return falloEvidencia(e.motivo);
       }
@@ -1153,16 +1230,22 @@ $('d-marcar').addEventListener('click', async () => {
   }
   avisoEvi();
 
-  b.textContent = 'Marcando…';
-  ver('v-carga');
+  /* Sin saltar a la pantalla de carga: el progreso ya se ve aquí mismo y
+     cambiar de tarjeta solo añadiría otra animación de medio segundo. */
   const { data, error } = await db.rpc('asis_portal_marcar', {
     p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_disp: EQUIPO,
     p_foto: ruta, p_foto_org: EVI.origen,
     p_lat: geo ? geo.lat : null, p_lon: geo ? geo.lon : null
   });
+  if(error){ evoCarga(false); b.disabled = false; refrescarBotonMarcar(); return verFalla(error); }
+  if(data && data.motivo === 'falta_evidencia'){
+    evoCarga(false); b.disabled = false; refrescarBotonMarcar();
+    return falloEvidencia('falta_evidencia');
+  }
+  evoListo();
+  await new Promise(r => setTimeout(r, 900));   // que se vea el visto antes de pasar
+  evoCarga(false);
   b.disabled = false; refrescarBotonMarcar();
-  if(error) return verFalla(error);
-  if(data && data.motivo === 'falta_evidencia') return falloEvidencia('falta_evidencia');
   // La hora la manda el servidor, no el reloj del celular: es la que quedó grabada
   if(data && data.ok)               return pintarListo(data.estado, data.hora, false);
   if(data.motivo === 'ya_marcado')  return pintarListo(data.estado, data.marcado_at ? new Date(data.marcado_at) : null, true);
