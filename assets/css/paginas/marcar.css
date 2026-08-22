@@ -47,6 +47,11 @@ body{
   background-attachment: fixed;
   -webkit-font-smoothing:antialiased;
   min-height:100dvh;
+  /* Corta el zoom por doble toque, que era lo que descuadraba la pantalla
+     al ir tecleando. El pellizco para ampliar sigue disponible. */
+  touch-action:manipulation;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
 }
 /* Textura sutil y esferas decorativas de fondo para realzar el glassmorphism */
 body::before{
@@ -65,10 +70,12 @@ button{font-family:inherit;cursor:pointer;}
 
 .lienzo{
   position:relative;z-index:1; /* Por encima de las esferas de fondo */
-  min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:max(20px,env(safe-area-inset-top)) 18px max(20px,env(safe-area-inset-bottom));
+  min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:max(20px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom));
   gap:16px;
 }
+/* Se centra sola cuando hay sitio y no se recorta cuando no lo hay */
+.lienzo > .tarjeta{margin-block:auto;}
 
 /* ── Tarjeta Glassmorphism (Apple Style) ── */
 .tarjeta{
@@ -307,7 +314,7 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 }
 
 /* ── Clave de 4 dígitos ── */
-.puntos{display:flex;gap:20px;margin:32px 0 16px;}
+.puntos{display:flex;gap:20px;margin:32px 0 16px;margin:clamp(16px, 3.2dvh, 32px) 0 clamp(8px, 1.6dvh, 16px);}
 .puntos i{
   width:14px;height:14px;border-radius:50%;
   background:transparent;
@@ -328,13 +335,19 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 .pin-msg.mal{color:#fca5a5;font-weight:600;}
 
 .teclado{
-  display:grid;grid-template-columns:repeat(3,76px);
+  display:grid;
+  grid-template-columns:repeat(3, 76px);
+  grid-template-columns:repeat(3, clamp(54px, 8.4dvh, 76px));
   justify-content:center;
   gap:16px 24px;
-  width:100%;max-width:320px;margin:20px 0 12px;
+  gap:clamp(8px, 1.5dvh, 16px) clamp(14px, 5vw, 24px);
+  width:100%;max-width:320px;
+  margin:20px 0 12px;
+  margin:clamp(10px, 2dvh, 20px) 0 clamp(6px, 1.2dvh, 12px);
 }
 .teclado button{
   height:76px;width:76px;
+  height:clamp(54px, 8.4dvh, 76px);width:clamp(54px, 8.4dvh, 76px);
   /* Sin esto el navegador móvil espera por si viene un doble toque */
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
   background:rgba(255, 255, 255, 0.12);border-radius:50%;
@@ -343,7 +356,7 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
   border-left:1px solid rgba(255,255,255,0.1);
   border-right:1px solid rgba(255,255,255,0.02);
   border-bottom:1px solid rgba(255,255,255,0.02);
-  font-size:32px;font-weight:400;color:var(--text-main);
+  font-size:32px;font-size:clamp(23px, 3.6dvh, 32px);font-weight:400;color:var(--text-main);
   display:grid;place-items:center;transition:all .25s cubic-bezier(0.4,0,0.2,1);
   box-shadow:0 8px 24px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.2);
   backdrop-filter:blur(20px) saturate(120%);
@@ -875,8 +888,33 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 
 /* Celular acostado o pantallas bajas: la tarjeta deja de ir centrada y el
    contenido puede desplazarse, si no el teclado queda fuera de vista. */
-@media (max-height:680px){
+/* Pantallas muy bajas (iPhone SE con las barras, o el móvil acostado):
+   el teclado encoge un punto más para que el PIN siga entrando entero. */
+@media (max-height:615px){
+  #v-pin{padding:18px 18px 16px;}
+  #v-pin .avatar-grande{width:40px;height:40px;font-size:15px;margin-bottom:4px;}
+  #v-pin h1{font-size:18px;}
+  #v-pin .sub{margin:7px 0 0;font-size:12px;padding:6px 12px;}
+  #v-pin .puntos{margin:10px 0 4px;gap:16px;}
+  #v-pin .puntos i{width:12px;height:12px;}
+  #v-pin .pin-msg{min-height:16px;margin:4px 0 0;font-size:11.5px;}
+  #v-pin .teclado{grid-template-columns:repeat(3,52px);gap:8px 14px;margin:8px 0 4px;}
+  #v-pin .teclado button{width:52px;height:52px;font-size:22px;}
+  #v-pin #pin-volver{margin-top:8px;padding:11px 18px;font-size:12.5px;}
+}
+
+@media (max-height:760px){
   .lienzo{justify-content:flex-start;}
+  /* Pantalla del PIN apretada: es la que más se usa y tiene que caber
+     entera, sin scroll y sin que el botón de volver quede tapado por la
+     barra del navegador. Se recorta el aire, no los elementos. */
+  #v-pin{padding:24px 22px 20px;}
+  #v-pin .avatar-grande{width:46px;height:46px;font-size:17px;margin-bottom:6px;}
+  #v-pin h1{font-size:20px;}
+  #v-pin .sub{margin:9px 0 0;font-size:12.5px;padding:7px 14px;}
+  #v-pin .puntos{margin:14px 0 6px;}
+  #v-pin .pin-msg{min-height:20px;margin:6px 0 0;font-size:12px;}
+  #v-pin #pin-volver{margin-top:12px;}
   .teclado button{height:60px;width:60px;font-size:24px;}
   .teclado{grid-template-columns:repeat(3,60px);gap:10px 16px;margin:12px 0 8px;}
   .reloj{font-size:34px;margin:12px 0 2px;}
