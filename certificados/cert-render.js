@@ -94,29 +94,42 @@
          firmas con sus sellos ya están dibujados en la imagen: acá solo se
          rellena el hueco libre que queda entre el título (y=357) y las
          firmas (y=1197). */
-      plantilla:'Constancia_charlas/PLANTILLA_CONSTANCIA_CHARLAS.webp?v=1',
+      plantilla:'Constancia_charlas/PLANTILLA_CONSTANCIA_CHARLAS.webp?v=2',
       etiqueta:'Constancia de charlas',
       etiquetaTitulo:'Proceso realizado (ej. evaluación psicológica)',
       campos:'documento', fechas:'rango',
       lienzo:{w:1275, h:1650},
-      cuerpo:{x:150, topY:455, maxW:975, size:23, lh:35, color:'#000000', align:'justify', espacio:20, font:TIMES},
+      /* maxY = donde arranca el bloque de firmas en la plantilla (y=1053). */
+      cuerpo:{x:150, topY:440, maxW:975, size:23, lh:35, color:'#000000', align:'justify', espacio:20, font:TIMES, maxY:1030},
       emision:{x:150, maxW:975, size:23, color:'#000000', weight:700, align:'left', font:TIMES},
       codigo:{cx:637, cy:1592, size:15, color:'#666666', weight:500, align:'center'},
       qr:{left:1090, top:1420, size:105},
       parrafos:(d)=>{
         const x = d.datos || {};
+        const proc = x.proceso || d.titulo || '';
+        /* La constancia se emite a quien asistió o a quien expuso: cambia a
+           quién describe el primer párrafo y en qué calidad participó. */
+        const paraExpositor = x.dirigido === 'expositor';
+
         const p1 = [{t:'El Centro Psicológico '},{t:'KJA – Desarrollando Mi Bienestar',b:1},
-                    {t:' deja constancia de que el estudiante '},{t:d.nombre||'',b:1}];
+                    {t: paraExpositor ? ' deja constancia de que ' : ' deja constancia de que el estudiante '},
+                    {t:d.nombre||'',b:1}];
         if(x.dni||d.dni) p1.push({t:', identificado con DNI N.° '},{t:String(x.dni||d.dni),b:1});
         if(x.edad)       p1.push({t:', de '},{t:String(x.edad),b:1},{t:' años de edad'});
         if(x.grado)      p1.push({t:', cursante del '},{t:x.grado,b:1});
         if(x.colegio)    p1.push({t:' en la Institución Educativa '},{t:x.colegio,b:1});
         if(x.turno)      p1.push({t:', turno '},{t:x.turno,b:1});
         if(x.domicilio)  p1.push({t:', con domicilio en '},{t:x.domicilio,b:1});
-        // Sin proceso la frase quedaba como "un proceso de en nuestra institución"
-        const proc = x.proceso || d.titulo || '';
-        if(proc) p1.push({t:', ha participado en un proceso de '},{t:proc,b:1},{t:' en nuestra institución.'});
-        else     p1.push({t:', ha participado en un proceso en nuestra institución.'});
+
+        if(paraExpositor){
+          if(proc) p1.push({t:', participó en calidad de expositor en '},{t:proc,b:1},
+                           {t:', realizado en nuestra institución.'});
+          else     p1.push({t:', participó en calidad de expositor en una actividad realizada en nuestra institución.'});
+        } else {
+          // Sin proceso la frase quedaba como "un proceso de en nuestra institución"
+          if(proc) p1.push({t:', ha participado en un proceso de '},{t:proc,b:1},{t:' en nuestra institución.'});
+          else     p1.push({t:', ha participado en un proceso en nuestra institución.'});
+        }
 
         /* Quién lo organizó: a solicitud de un tercero, o el propio centro. */
         const p2 = x.porKja
@@ -132,10 +145,11 @@
         // "fue realizado ... realizado el día" repetía; "llevándose a cabo"
         // hace juego con el "iniciándose" del caso de varios días.
         else       p2.push({t:', llevándose a cabo el día '},{t:d.fInicio||'',b:1});
+        if(d.duracion) p2.push({t:', con una duración de '},{t:String(d.duracion)+' horas académicas',b:1});
         p2.push({t:', habiendo cumplido con las sesiones programadas correspondientes.'});
 
         /* Expositores, si se indicaron. Se listan en castellano: "A, B y C". */
-        const exp = (x.expositores||'').split(',').map(s=>s.trim()).filter(Boolean);
+        const exp = paraExpositor ? [] : (x.expositores||'').split(',').map(s=>s.trim()).filter(Boolean);
         if(exp.length){
           const lista = exp.length>1 ? exp.slice(0,-1).join(', ')+' y '+exp[exp.length-1] : exp[0];
           p2.push({t:' Estuvo a cargo de '},{t:lista,b:1},{t:'.'});
@@ -226,6 +240,7 @@
     }
     const lh=size*ratio;
     const alto=(r.lineas.length-1)*lh;   // lo que ocupa, para apilar párrafos debajo
+    if(c.medir) return {lineas:r.lineas.length, lh, alto};   // solo medir, sin pintar
     ctx.fillStyle=c.color; ctx.textBaseline='middle'; ctx.textAlign='left';
     r.lineas.forEach((ln,i)=>{
       const y=c.topY+i*lh; const last=i===r.lineas.length-1;
@@ -247,12 +262,31 @@
      No son certificados decorados sino cartas: varios párrafos justificados,
      uno debajo del otro, con negritas en línea. Se apilan reusando el mismo
      dibujarParrafo, avanzando la Y con lo que cada uno ocupó. */
-  function dibujarDocumento(ctx, parrafos, c){
+  function altoDocumento(ctx, parrafos, c){
     let y=c.topY;
     for(const runs of parrafos){
       if(!runs || !runs.length) continue;
-      const r=dibujarParrafo(ctx, runs, {...c, topY:y});
+      const r=dibujarParrafo(ctx, runs, {...c, topY:y, medir:true});
       y += r.alto + r.lh + (c.espacio||0);
+    }
+    return y;
+  }
+  /* El hueco entre el título y las firmas es fijo, pero el texto no: depende
+     de cuántos datos traiga. Si no cabe, se reduce el cuerpo hasta que quepa
+     —incluida la línea de "Lima, fecha"— en vez de escribir sobre las firmas. */
+  function dibujarDocumento(ctx, parrafos, c){
+    let cfg={...c};
+    if(c.maxY){
+      const reserva=(c.espacio||0)+(c.lh||c.size*1.4);   // el sitio de "Lima, fecha"
+      while(cfg.size>13 && altoDocumento(ctx, parrafos, cfg)+reserva > c.maxY){
+        cfg={...cfg, size:cfg.size-1, lh:Math.round((cfg.lh||cfg.size*1.4)*(cfg.size-1)/cfg.size)};
+      }
+    }
+    let y=cfg.topY;
+    for(const runs of parrafos){
+      if(!runs || !runs.length) continue;
+      const r=dibujarParrafo(ctx, runs, {...cfg, topY:y});
+      y += r.alto + r.lh + (cfg.espacio||0);
     }
     return y;
   }

@@ -18,7 +18,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="certificados/cert-render.js?v=7"></script>
+<script src="certificados/cert-render.js?v=8"></script>
 
 <link rel="stylesheet" href="assets/css/accessibility.css">
 <link rel="stylesheet" href="assets/css/paginas/admin.css?v=41">
@@ -219,6 +219,11 @@
                   <div data-val="constancia_charlas">Constancia de Charlas</div>
                 </div>
               </div>
+            </div>
+            <div class="field" id="wrap-dirigido" style="display:none;margin-bottom:0;">
+              <label>¿A quién va dirigida?</label>
+              <label class="chk-temario"><input type="radio" name="dirigido" value="asistente" checked> Al asistente</label>
+              <label class="chk-temario"><input type="radio" name="dirigido" value="expositor"> Al expositor (el interno que la dictó)</label>
             </div>
           </div>
 
@@ -849,15 +854,21 @@ function esDocumento(tipo){ const t=KJACert.TIPOS[tipo]; return !!(t && t.campos
 /* El lema del ano y el titulo van dentro de la plantilla, por eso no se piden aca. */
 const CAMPOS_DOC=['edad','turno','grado','colegio','domicilio','solicitante','lugar','expositores'];
 function docActivo(){ return $('f-doc-on').checked; }
+function dirigidoA(){ const r=document.querySelector('input[name="dirigido"]:checked'); return r?r.value:'asistente'; }
 function leerDatosDoc(){
-  if(!docActivo()) return null;      // apagado: el documento sale sin esos datos
   const o={};
+  // "dirigida al expositor" vale aunque el bloque de datos esté apagado
+  if(dirigidoA()==='expositor') o.dirigido='expositor';
+  if(!docActivo()) return Object.keys(o).length ? o : null;
   CAMPOS_DOC.forEach(k=>{ const v=($('f-doc-'+k).value||'').trim(); if(v) o[k]=v; });
   if(o.edad) o.edad=parseInt(o.edad,10);
   /* Lo organizó el propio centro: entonces no hay a quién atribuirle la
      solicitud, así que ese dato se descarta para que no queden los dos. */
   if($('f-doc-porkja').checked){ o.porKja=true; delete o.solicitante; }
   if(!$('f-doc-exp-on').checked) delete o.expositores;
+  /* Al expositor no se le listan expositores ni se le describen los datos de
+     escolaridad: la constancia habla de él, no del taller al que asistió. */
+  if(dirigidoA()==='expositor'){ o.dirigido='expositor'; delete o.expositores; }
   return Object.keys(o).length ? o : null;
 }
 function pintarDatosDoc(datos){
@@ -868,13 +879,17 @@ function pintarDatosDoc(datos){
   $('doc-builder').style.display = $('f-doc-on').checked ? 'block' : 'none';
   $('f-doc-porkja').checked = !!o.porKja;
   $('f-doc-exp-on').checked = !!o.expositores;
+  const rad=document.querySelector(`input[name="dirigido"][value="${o.dirigido||'asistente'}"]`);
+  if(rad) rad.checked=true;
   sincronizarDoc();
 }
 
 /* Muestra u oculta lo que depende de las casillas del documento */
 function sincronizarDoc(){
+  const paraExp = dirigidoA()==='expositor';
   $('wrap-solicitante').style.display = $('f-doc-porkja').checked ? 'none' : 'block';
-  $('wrap-expositores').style.display = $('f-doc-exp-on').checked ? 'block' : 'none';
+  $('f-doc-exp-on').closest('label').style.display = paraExp ? 'none' : 'flex';
+  $('wrap-expositores').style.display = (!paraExp && $('f-doc-exp-on').checked) ? 'block' : 'none';
 }
 function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
   $('lbl-titulo').textContent=cfg.etiquetaTitulo;
@@ -890,7 +905,8 @@ function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
   const doc=esDocumento(d.tipo);
   $('doc-group').style.display = doc ? 'block' : 'none';
   if(doc) $('doc-builder').style.display = $('f-doc-on').checked ? 'block' : 'none';
-  $('wrap-duracion').style.display = doc ? 'none' : 'block';
+  $('wrap-duracion').style.display = 'block';   // las horas también aplican a la constancia
+  $('wrap-dirigido').style.display = doc ? 'block' : 'none';
   $('font-cselect').closest('.field').style.display = doc ? 'none' : 'block';
   $('size-wrap').closest('.row2').style.display = doc ? 'none' : 'flex';
   const aplica=temarioAplica();                 // el temario solo aplica a Curso / Especialización
@@ -980,6 +996,7 @@ function resetForm(){
   pintarDatosDoc(null);
   $('f-doc-on').checked=true; $('doc-builder').style.display='block';
   $('f-doc-varios').checked=false; $('f-doc-porkja').checked=false; $('f-doc-exp-on').checked=false;
+  const rad0=document.querySelector('input[name="dirigido"][value="asistente"]'); if(rad0) rad0.checked=true;
   sincronizarDoc();
   $('f-extranjero').checked=false; actualizarDniUI();
   resetTemario();
@@ -1251,6 +1268,8 @@ $('f-doc-on').addEventListener('change',()=>{
 ['f-doc-porkja','f-doc-exp-on'].forEach(id=>
   $(id).addEventListener('change',()=>{ sincronizarDoc(); dibujar(); }));
 $('f-doc-varios').addEventListener('change',dibujar);
+document.querySelectorAll('input[name="dirigido"]').forEach(r=>
+  r.addEventListener('change',()=>{ sincronizarDoc(); dibujar(); }));
 
 /* ───── Validación de DNI (8 dígitos; extranjero: 8–15) ───── */
 function dniMax(){ return $('f-extranjero').checked ? 15 : 8; }
