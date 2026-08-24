@@ -91,6 +91,7 @@
          definitiva; el fondo se dibuja en blanco si la imagen no está. */
       plantilla:'Constancia_charlas/PLANTILLA_CONSTANCIA_CHARLAS.webp?v=1',
       etiqueta:'Constancia de charlas',
+      etiquetaTitulo:'Proceso realizado (ej. evaluación psicológica)',
       campos:'documento', fechas:'rango',
       lienzo:{w:2480, h:3508},
       lema:{cx:1240, cy:415, maxW:1900, size:44, color:'#1a1a1a', font:"'Poppins',sans-serif", weight:600, align:'center'},

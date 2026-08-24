@@ -379,7 +379,7 @@ function banner(txt,err){ const b=$('banner'); b.className='banner show '+(err?'
 function limpiarBanner(){ $('banner').className='banner'; }
 function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,titulo:r.titulo,duracion:r.duracion,
   fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo,
-  fontSizeNombre:r.font_size_nombre,fontNombre:r.font_nombre||null}; }
+  fontSizeNombre:r.font_size_nombre,fontNombre:r.font_nombre||null,datos:r.datos||null}; }
 
 function setLoading(isLoading) {
   const btn = $('btn-buscar');

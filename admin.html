@@ -216,6 +216,7 @@
                   <div data-val="curso">Certificado de Curso</div>
                   <div data-val="especializacion">Certificado de Curso de Especialización</div>
                   <div data-val="constancia">Constancia de Taller Presencial</div>
+                  <div data-val="constancia_charlas">Constancia de Charlas</div>
                 </div>
               </div>
             </div>
@@ -306,7 +307,7 @@
             <div class="f-group-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Detalles del Evento</div>
             <div class="field"><label id="lbl-titulo">Nombre del taller</label>
               <input id="f-titulo" type="text" placeholder="Nombre del curso / taller"></div>
-            <div class="field"><label>Duración (horas académicas)</label>
+            <div class="field" id="wrap-duracion"><label>Duración (horas académicas)</label>
               <input id="f-duracion" type="number" placeholder="Ej: 20" min="1"></div>
             <div class="row2">
               <div class="field" id="wrap-inicio"><label id="lbl-inicio">Fecha del periodo</label>
@@ -323,6 +324,30 @@
               <input id="f-numero" type="text" placeholder="Ej: 8148">
               <div class="codigo-preview" id="codigo-preview">—</div>
               <div class="hint" id="hint-numero">El mes y el año salen de la fecha de emisión.</div></div>
+          </div>
+
+          <div class="f-group" id="doc-group" style="display:none;">
+            <div class="f-group-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> Datos del estudiante y del proceso</div>
+            <div class="row2">
+              <div class="field"><label>Edad</label>
+                <input id="f-doc-edad" type="number" min="1" max="99" placeholder="Ej: 12"></div>
+              <div class="field"><label>Turno</label>
+                <input id="f-doc-turno" type="text" placeholder="Ej: tarde"></div>
+            </div>
+            <div class="field"><label>Grado que cursa</label>
+              <input id="f-doc-grado" type="text" placeholder="Ej: 1.er grado de educación secundaria"></div>
+            <div class="field"><label>Institución educativa</label>
+              <input id="f-doc-colegio" type="text" placeholder="Ej: N.° 1204 Villa Jardín"></div>
+            <div class="field"><label>Domicilio <span class="opt">(se imprime, pero no se publica)</span></label>
+              <input id="f-doc-domicilio" type="text" placeholder="Ej: Jr. Río Amazonas N.° 160, Urb. Las Moras de San Luis"></div>
+            <div class="field"><label>A solicitud de</label>
+              <input id="f-doc-solicitante" type="text" placeholder="Ej: la institución educativa"></div>
+            <div class="row2">
+              <div class="field"><label>Lugar de expedición</label>
+                <input id="f-doc-lugar" type="text" placeholder="Lima"></div>
+              <div class="field"><label>Lema del año</label>
+                <input id="f-doc-lema" type="text" placeholder="“Año de la Esperanza y el Fortalecimiento de la Democracia”"></div>
+            </div>
           </div>
 
           <div class="f-group" id="temario-group" style="display:none;">
@@ -737,7 +762,9 @@ function setTipo(val){
   $('f-tipo').value=val; let lbl='';
   tipoCsel.querySelectorAll('.cselect-list div').forEach(d=>{ const on=d.dataset.val===val; d.classList.toggle('sel',on); if(on) lbl=d.textContent; });
   $('tipo-label').textContent=lbl;
-  if(KJACert.TIPOS[val]) $('f-size').value = KJACert.TIPOS[val].nombre.size;
+  // Los documentos (hoja A4) no llevan el nombre en grande: no hay tamaño que fijar
+  const t=KJACert.TIPOS[val];
+  if(t && t.nombre) $('f-size').value = t.nombre.size;
 }
 $('tipo-btn').addEventListener('click', e=>{ e.stopPropagation(); tipoCsel.classList.toggle('open'); });
 tipoCsel.querySelectorAll('.cselect-list div').forEach(opt=>{
@@ -806,13 +833,38 @@ function leerDatos(){
     duracion:$('f-duracion').value,fechaInicio:$('f-inicio').value,
     fechaFin:cfg.fechas==='rango'?$('f-fin').value:null,fechaEmision:$('f-emision').value,codigo,
     fontSizeNombre:$('f-size').value ? parseInt($('f-size').value, 10) : null,
-    fontNombre:$('f-font').value || null};
+    fontNombre:$('f-font').value || null,
+    datos: esDocumento(tipo) ? leerDatosDoc() : null};
+}
+
+/* ── Campos propios de los documentos (constancia de charlas) ──
+   Van todos juntos en la columna `datos` jsonb: son de un solo tipo y no
+   tiene sentido darle una columna a cada uno. Los vacíos no se guardan, así
+   el documento se dibuja sin esa frase en vez de con un hueco. */
+function esDocumento(tipo){ const t=KJACert.TIPOS[tipo]; return !!(t && t.campos==='documento'); }
+const CAMPOS_DOC=['edad','turno','grado','colegio','domicilio','solicitante','lugar','lema'];
+function leerDatosDoc(){
+  const o={};
+  CAMPOS_DOC.forEach(k=>{ const v=($('f-doc-'+k).value||'').trim(); if(v) o[k]=v; });
+  if(o.edad) o.edad=parseInt(o.edad,10);
+  return Object.keys(o).length ? o : null;
+}
+function pintarDatosDoc(datos){
+  const o=datos||{};
+  CAMPOS_DOC.forEach(k=>{ $('f-doc-'+k).value = (o[k]!==undefined && o[k]!==null) ? o[k] : ''; });
 }
 function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
   $('lbl-titulo').textContent=cfg.etiquetaTitulo;
   $('wrap-fin').style.display=cfg.fechas==='rango'?'block':'none';
   $('lbl-inicio').textContent=cfg.fechas==='rango'?'Periodo: desde':'Fecha del periodo';
   $('codigo-preview').textContent=d.codigo;
+  /* Un documento A4 no tiene nombre en grande ni duración en horas: esos
+     controles se esconden para no pedir datos que no se van a dibujar. */
+  const doc=esDocumento(d.tipo);
+  $('doc-group').style.display = doc ? 'block' : 'none';
+  $('wrap-duracion').style.display = doc ? 'none' : 'block';
+  $('font-cselect').closest('.field').style.display = doc ? 'none' : 'block';
+  $('size-wrap').closest('.row2').style.display = doc ? 'none' : 'flex';
   const aplica=temarioAplica();                 // el temario solo aplica a Curso / Especialización
   $('temario-group').style.display = aplica ? 'block' : 'none';
   if(!aplica){ $('f-temario-on').checked=false; $('temario-builder').style.display='none'; vistaTemario=false; }
@@ -897,6 +949,7 @@ function setFecha(fp, sel, valor){
 function resetForm(){
   $('f-nombre').value=''; $('f-dni').value=''; $('f-titulo').value='';
   $('f-duracion').value=''; $('f-numero').value='';
+  pintarDatosDoc(null);
   $('f-extranjero').checked=false; actualizarDniUI();
   resetTemario();
   setTipo($('f-tipo').value || 'taller'); // Ensures f-size starts with the right default number
@@ -1096,7 +1149,8 @@ async function ejecutarGuardado(d){
     const tem=leerTemario();
     const payload={codigo:d.codigo,tipo:d.tipo,nombre:d.nombre,dni:d.dni||null,titulo:d.titulo,
       duracion:d.duracion,fecha_inicio:d.fechaInicio||null,fecha_fin:d.fechaFin||null,
-      fecha_emision:d.fechaEmision||null,cliente_id:clienteId,temario:tem,font_size_nombre:d.fontSizeNombre||null,font_nombre:d.fontNombre||null};
+      fecha_emision:d.fechaEmision||null,cliente_id:clienteId,temario:tem,font_size_nombre:d.fontSizeNombre||null,font_nombre:d.fontNombre||null,
+      datos:d.datos||null};
     let error;
     if(editingId){ ({error}=await db.from('certificados').update(payload).eq('id',editingId)); }
     else{ ({error}=await db.from('certificados').insert(payload)); }
@@ -1704,9 +1758,9 @@ function nuevoCertCliente(nombre, dni){
   irA('gen'); dibujar();
   status(`Nuevo certificado para ${nombre}. Completa los datos y guarda.`,'info');
 }
-function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,titulo:r.titulo,duracion:r.duracion,
+function rowToDatos(r){ return {tipo:r.tipo,nombre:r.nombre,dni:r.dni,titulo:r.titulo,duracion:r.duracion,
   fechaInicio:r.fecha_inicio,fechaFin:r.fecha_fin,fechaEmision:r.fecha_emision,codigo:r.codigo,
-  fontSizeNombre:r.font_size_nombre,fontNombre:r.font_nombre||null}; }
+  fontSizeNombre:r.font_size_nombre,fontNombre:r.font_nombre||null,datos:r.datos||null}; }
 async function descargarFila(id, fmt){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
   const fn=r.codigo.replace(/[^a-z0-9]/gi,'_')+'_'+r.nombre.replace(/\s+/g,'_');
@@ -1955,6 +2009,7 @@ function editarFila(id){
   $('wrap-total').style.display = (tem && tem.soloTitulos) ? 'none' : 'block';
   $('temario-builder').style.display = $('f-temario-on').checked ? 'block' : 'none';
   vistaTemario=false; renderModulos();
+  pintarDatosDoc(r.datos);                                       // campos propios del documento
   if(r.font_size_nombre) $('f-size').value=r.font_size_nombre;   // conserva el tamaño elegido
   setFont(r.font_nombre||'');                                    // conserva la fuente elegida
   editingId=id; $('editing-flag').style.display='block'; $('btn-cancel').style.display='block';
