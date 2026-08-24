@@ -569,7 +569,7 @@ const topicsData = {
         title: "Tratamiento de Terapia Emocional",
         desc: "Aprende a gestionar tus emociones y mejorar tu bienestar emocional. Nuestro equipo te acompaña en el proceso de autodescubrimiento, fortaleciendo tu amor propio a tu propio ritmo.",
         price: "S/ 59.90",
-        image: "images/flyer-terapias/01_terapia_dependencia_emocional.webp",
+        image: "images/flyer-terapias/18_terapia_emocional.webp",
         courses: []
     },
     "default": {
