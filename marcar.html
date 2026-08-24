@@ -318,6 +318,59 @@ function conTope(promesa, ms = 15000){
 }
 const esTiempoAgotado = e => !!e && e.motivo === 'tiempo_agotado';
 
+/* ── Que nadie se quede marcando con una versión vieja ──
+   El portal es una página de "la dejo abierta y toco": la pestaña se queda
+   días sin cerrarse, y cambiar de pestaña NO pide nada al servidor, así que
+   el JavaScript que corre puede ser el de la semana pasada por más que el
+   Cache-Control esté bien puesto. Fue justo lo que pasó con la evidencia:
+   gente marcando sin foto porque su página era anterior al cambio.
+
+   Se vigila el ETag del propio archivo, que Vercel calcula del contenido: si
+   el del servidor ya no es el que había al entrar, es que se publicó algo
+   nuevo. No hay número de versión que subir a mano. */
+let MI_ETAG = null;              // el que había cuando se cargó esta pantalla
+let RECARGA_PENDIENTE = false;
+let ULTIMO_CHEQUEO = 0;
+let MARCANDO = false;            // hay un marcado a medias, no tocar nada
+
+async function etagDelServidor(){
+  try{
+    const r = await conTope(fetch(location.pathname, { method:'HEAD', cache:'no-store' }), 8000);
+    return r.ok ? r.headers.get('etag') : null;
+  }catch(e){ return null; }      // sin señal no se avisa de nada; ya se reintentará
+}
+
+async function revisarVersion(){
+  if(RECARGA_PENDIENTE) return recargarSiSePuede();
+  if(Date.now() - ULTIMO_CHEQUEO < 60000) return;   // como mucho una vez por minuto
+  ULTIMO_CHEQUEO = Date.now();
+  const et = await etagDelServidor();
+  if(!et) return;
+  if(!MI_ETAG){ MI_ETAG = et; return; }             // primera vez: solo se anota
+  if(et !== MI_ETAG){ RECARGA_PENDIENTE = true; recargarSiSePuede(); }
+}
+
+/* Recargar a media marcación sería peor que la versión vieja: se perdería la
+   foto ya adjunta o la clave a medio escribir. Se espera al primer momento en
+   que no hay nada que perder. */
+function momentoSeguro(){
+  if(MARCANDO || PIN_EN_VUELO) return false;
+  if(EVI) return false;                             // hay una foto adjunta sin registrar
+  if(!$('v-pin').hidden && PIN.length > 0) return false;
+  return true;
+}
+function recargarSiSePuede(){
+  if(RECARGA_PENDIENTE && momentoSeguro()) location.reload();
+}
+
+/* Se mira al volver a primer plano (el caso típico: dejó la pestaña abierta
+   y vuelve al día siguiente) y cada cuarto de hora si se queda encendida. */
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') revisarVersion();
+});
+window.addEventListener('pageshow', () => revisarVersion());
+setInterval(revisarVersion, 15 * 60 * 1000);
+
 /* Solo se recuerda A QUIÉN preguntarle, nunca su clave: al volver entra
    directo al teclado en vez de buscarse otra vez en la lista. */
 const LLAVE_YO = 'kja-marcar-quien';
@@ -443,6 +496,7 @@ function verFalla(error){
 }
 
 async function cargar(){
+  revisarVersion();                    // anota contra qué versión se está corriendo
   if(!CLAVE) return ver('v-clave');
   const { data, error } = await db.rpc('asis_portal_personas', { p_clave: CLAVE });
   if(error) return verFalla(error);
@@ -1165,6 +1219,9 @@ function pintarEvidencia(dia, adelantado){
    deja claro que la evidencia se está registrando. */
 const EVI_LARGO_ANILLO = 2 * Math.PI * 19;
 function evoCarga(activo){
+  // Apagar el progreso quiere decir que ya no hay un marcado a medias, sea
+  // porque terminó o porque falló: a partir de aquí sí se puede recargar.
+  if(!activo) MARCANDO = false;
   $('evi-carga').hidden = !activo;
   $('evi-botones').style.display = activo ? 'none' : '';
   $('evi-anillo').classList.remove('listo');
@@ -1290,6 +1347,7 @@ async function subirEvidencia(){
 $('d-marcar').addEventListener('click', async () => {
   const b = $('d-marcar');
   if(!EVI){ refrescarBotonMarcar(); return; }
+  MARCANDO = true;
   b.disabled = true; b.textContent = 'Subiendo evidencia…';
 
   // La ubicación se pide en paralelo y nunca detiene el marcado
@@ -1441,6 +1499,10 @@ function pintarNoMarco(dia){
   ver('v-listo');
 }
 function pintarListo(estado, cuando, yaEstaba){
+  /* Ya está registrado: si había una versión nueva esperando, este es el
+     momento sin nada que perder. */
+  MARCANDO = false;
+  setTimeout(recargarSiSePuede, 1200);
   $('v-listo').classList.remove('alerta');
   detenerReloj();
   const tarde = estado === 'T';
