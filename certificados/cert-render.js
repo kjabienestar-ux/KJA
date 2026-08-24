@@ -16,7 +16,12 @@
            (fechas en formato ISO 'YYYY-MM-DD')
    ══════════════════════════════════════════════════════════════════════ */
 (function(){
+  /* Lienzo por defecto: los cuatro certificados clásicos son apaisados y
+     comparten medida. Un tipo puede traer el suyo en `lienzo:{w,h}` — hace
+     falta para los documentos en A4 vertical, que no son certificados
+     decorados sino hojas con membrete. */
   const W=2000, H=1414;
+  const lienzoDe = cfg => (cfg && cfg.lienzo) || {w:W, h:H};
   const SCRIPT="'Damion',cursive";        // nombre cursivo (≈ Adam Script de Canva)
   const SANS="'Poppins',sans-serif";      // párrafo / código / emisión
   const ROMANA="'Cinzel',serif";          // nombre del Taller
@@ -104,7 +109,7 @@
     const lineas=[]; let linea='';
     for(const p of palabras){
       const test=linea?linea+' '+p:p;
-      if(ctx.measureText(test).width>(c.maxW||W) && linea){ lineas.push(linea); linea=p; }
+      if(ctx.measureText(test).width>(c.maxW||ctx.canvas.width) && linea){ lineas.push(linea); linea=p; }
       else linea=test;
     }
     if(linea) lineas.push(linea);
@@ -160,6 +165,9 @@
 
   async function render(canvas, datos){
     const cfg=TIPOS[datos.tipo]; if(!cfg) return;
+    const L=lienzoDe(cfg);
+    // El lienzo lo manda el tipo: cambiarlo también limpia el canvas
+    if(canvas.width!==L.w || canvas.height!==L.h){ canvas.width=L.w; canvas.height=L.h; }
     const ctx=canvas.getContext('2d');
     const d={
       ...datos,
@@ -167,9 +175,9 @@
       fFin:fechaLarga(datos.fechaFin),
       fEmision:fechaLarga(datos.fechaEmision)
     };
-    ctx.clearRect(0,0,W,H);
+    ctx.clearRect(0,0,L.w,L.h);
     const bg=await cargarImg(KJACert.basePath+cfg.plantilla);
-    ctx.drawImage(bg,0,0,W,H);
+    ctx.drawImage(bg,0,0,L.w,L.h);
     
     let cfgNombre = cfg.nombre;
     if (d.fontSizeNombre) {
@@ -206,9 +214,12 @@
     if(formato==='png'){
       const a=document.createElement('a'); a.href=url; a.download=nombreArchivo+'.png'; a.click();
     }else{
+      /* La medida y la orientación salen del canvas que se dibujó, no de una
+         constante: así un documento en A4 vertical sale vertical en el PDF. */
+      const w=canvas.width, h=canvas.height;
       const {jsPDF}=window.jspdf;
-      const pdf=new jsPDF({orientation:'landscape',unit:'px',format:[W,H],compress:false});
-      pdf.addImage(url,'PNG',0,0,W,H,undefined,'NONE');
+      const pdf=new jsPDF({orientation: w>=h ? 'landscape' : 'portrait', unit:'px', format:[w,h], compress:false});
+      pdf.addImage(url,'PNG',0,0,w,h,undefined,'NONE');
       pdf.save(nombreArchivo+'.pdf');
     }
   }
