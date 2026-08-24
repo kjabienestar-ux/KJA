@@ -25,6 +25,10 @@
   const SCRIPT="'Damion',cursive";        // nombre cursivo (≈ Adam Script de Canva)
   const SANS="'Poppins',sans-serif";      // párrafo / código / emisión
   const ROMANA="'Cinzel',serif";          // nombre del Taller
+  /* Tinos es métricamente compatible con Times New Roman: es la fuente de la
+     plantilla de la constancia, que salió de un Word. Sin esto el cuerpo se
+     dibujaba en Poppins y chocaba con el membrete. */
+  const TIMES="'Tinos','Times New Roman',serif";
 
   /* Fuentes elegibles para el nombre (datos.fontNombre guarda solo el nombre de la familia) */
   const FUENTES_NOMBRE={
@@ -85,23 +89,20 @@
                  {t:` con una duración de ${d.duracion} horas académicas, realizado durante el ${d.fInicio}.`}]
     },
     constancia_charlas:{
-      /* Hoja A4 vertical a 300 dpi. No lleva nombre en grande ni párrafo
-         único: es una carta con membrete, así que usa `campos:'documento'`.
-         Las coordenadas son provisionales hasta que llegue la plantilla
-         definitiva; el fondo se dibuja en blanco si la imagen no está. */
+      /* Hoja tamaño Carta a 150 dpi, la medida en que vino la plantilla del
+         Word. El membrete, el lema del año, el título "CONSTANCIA" y las dos
+         firmas con sus sellos ya están dibujados en la imagen: acá solo se
+         rellena el hueco libre que queda entre el título (y=357) y las
+         firmas (y=1197). */
       plantilla:'Constancia_charlas/PLANTILLA_CONSTANCIA_CHARLAS.webp?v=1',
       etiqueta:'Constancia de charlas',
       etiquetaTitulo:'Proceso realizado (ej. evaluación psicológica)',
       campos:'documento', fechas:'rango',
-      lienzo:{w:2480, h:3508},
-      lema:{cx:1240, cy:415, maxW:1900, size:44, color:'#1a1a1a', font:"'Poppins',sans-serif", weight:600, align:'center'},
-      titulo:{cx:1240, cy:640, maxW:1900, size:96, color:'#000000', font:"'Cinzel',serif", weight:700, align:'center'},
-      cuerpo:{x:300, topY:980, maxW:1880, size:48, lh:78, color:'#1a1a1a', align:'justify', espacio:44},
-      emision:{x:300, cy:0, maxW:1880, size:48, color:'#1a1a1a', weight:700, align:'left'},
-      codigo:{cx:1240, cy:3380, size:34, color:'#555555', weight:500, align:'center'},
-      qr:{left:2050, top:3080, size:230},
-      /* Cada entrada es un párrafo. El domicilio se omite si no viene: la RPC
-         pública no lo emite, y no puede salir "con domicilio en undefined". */
+      lienzo:{w:1275, h:1650},
+      cuerpo:{x:150, topY:455, maxW:975, size:23, lh:35, color:'#000000', align:'justify', espacio:20, font:TIMES},
+      emision:{x:150, maxW:975, size:23, color:'#000000', weight:700, align:'left', font:TIMES},
+      codigo:{cx:637, cy:1592, size:15, color:'#666666', weight:500, align:'center'},
+      qr:{left:1090, top:1420, size:105},
       parrafos:(d)=>{
         const x = d.datos || {};
         const p1 = [{t:'El Centro Psicológico '},{t:'KJA – Desarrollando Mi Bienestar',b:1},
@@ -112,8 +113,10 @@
         if(x.colegio)    p1.push({t:' en la Institución Educativa '},{t:x.colegio,b:1});
         if(x.turno)      p1.push({t:', turno '},{t:x.turno,b:1});
         if(x.domicilio)  p1.push({t:', con domicilio en '},{t:x.domicilio,b:1});
-        p1.push({t:', ha participado en un proceso de '},{t:x.proceso||d.titulo||'',b:1},
-                {t:' en nuestra institución.'});
+        // Sin proceso la frase quedaba como "un proceso de en nuestra institución"
+        const proc = x.proceso || d.titulo || '';
+        if(proc) p1.push({t:', ha participado en un proceso de '},{t:proc,b:1},{t:' en nuestra institución.'});
+        else     p1.push({t:', ha participado en un proceso en nuestra institución.'});
 
         const p2 = [{t:'Dicho proceso fue realizado a solicitud de '},
                     {t:x.solicitante||'la institución educativa',b:1},
@@ -260,7 +263,7 @@
 
     /* Los documentos (hoja A4 con membrete) se pintan distinto: no tienen el
        nombre en grande ni un párrafo único, sino título y párrafos apilados. */
-    if(cfg.campos==='documento') return dibujarDoc(ctx, cfg, d, L);
+    if(cfg.campos==='documento') return await dibujarDoc(ctx, cfg, d, L);
 
     let cfgNombre = cfg.nombre;
     if (d.fontSizeNombre) {
@@ -295,8 +298,18 @@
   /* Pinta un documento A4: lema del año, título, párrafos, lugar y fecha,
      código y QR. La fecha va debajo del último párrafo, no en una Y fija:
      el largo del cuerpo depende de cuántos datos traiga el estudiante. */
-  function dibujarDoc(ctx, cfg, d, L){
+  async function dibujarDoc(ctx, cfg, d, L){
+    /* El canvas no espera a que baje la fuente: si no se pide antes, dibuja
+       con la de reserva y el documento sale en otra tipografía. */
+    const fam=(cfg.cuerpo && cfg.cuerpo.font) || SANS;
+    const cual=(fam.match(/'([^']+)'/)||[])[1];
+    if(cual){ try{ await Promise.all([
+      document.fonts.load(`400 ${cfg.cuerpo.size}px '${cual}'`),
+      document.fonts.load(`700 ${cfg.cuerpo.size}px '${cual}'`)]); }catch(e){} }
     const x=d.datos||{};
+    /* El lema del año y el título van en la plantilla, no acá. Si algún día
+       se exporta una plantilla sin ellos, basta con declarar `lema`/`titulo`
+       en el tipo y se vuelven a dibujar. */
     if(cfg.lema && (x.lema||d.lema)) dibujarSimple(ctx, x.lema||d.lema, cfg.lema);
     if(cfg.titulo) dibujarSimple(ctx, x.encabezado||'CONSTANCIA', cfg.titulo);
 
@@ -480,7 +493,8 @@
 
   function preloadFonts(){
     const fuentes=["400 108px 'Cinzel'","700 108px 'Cinzel'","400 31px 'Poppins'","600 24px 'Poppins'",
-                   "700 31px 'Poppins'","500 30px 'Poppins'","400 96px 'Damion'"];
+                   "700 31px 'Poppins'","500 30px 'Poppins'","400 96px 'Damion'",
+                   "400 23px 'Tinos'","700 23px 'Tinos'"];
     return Promise.all(fuentes.map(f=>document.fonts.load(f).catch(()=>{}))).then(()=>document.fonts.ready);
   }
 

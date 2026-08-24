@@ -9,7 +9,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Damion&family=Great+Vibes&family=Alex+Brush&family=Allura&family=Pinyon+Script&family=Sacramento&family=Playfair+Display:wght@500&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Damion&family=Great+Vibes&family=Alex+Brush&family=Allura&family=Pinyon+Script&family=Sacramento&family=Playfair+Display:wght@500&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
@@ -18,7 +18,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="certificados/cert-render.js?v=4"></script>
+<script src="certificados/cert-render.js?v=5"></script>
 
 <link rel="stylesheet" href="assets/css/accessibility.css">
 <link rel="stylesheet" href="assets/css/paginas/admin.css?v=41">
@@ -342,12 +342,8 @@
               <input id="f-doc-domicilio" type="text" placeholder="Ej: Jr. Río Amazonas N.° 160, Urb. Las Moras de San Luis"></div>
             <div class="field"><label>A solicitud de</label>
               <input id="f-doc-solicitante" type="text" placeholder="Ej: la institución educativa"></div>
-            <div class="row2">
-              <div class="field"><label>Lugar de expedición</label>
-                <input id="f-doc-lugar" type="text" placeholder="Lima"></div>
-              <div class="field"><label>Lema del año</label>
-                <input id="f-doc-lema" type="text" placeholder="“Año de la Esperanza y el Fortalecimiento de la Democracia”"></div>
-            </div>
+            <div class="field"><label>Lugar de expedición</label>
+              <input id="f-doc-lugar" type="text" placeholder="Lima"></div>
           </div>
 
           <div class="f-group" id="temario-group" style="display:none;">
@@ -842,7 +838,8 @@ function leerDatos(){
    tiene sentido darle una columna a cada uno. Los vacíos no se guardan, así
    el documento se dibuja sin esa frase en vez de con un hueco. */
 function esDocumento(tipo){ const t=KJACert.TIPOS[tipo]; return !!(t && t.campos==='documento'); }
-const CAMPOS_DOC=['edad','turno','grado','colegio','domicilio','solicitante','lugar','lema'];
+/* El lema del ano y el titulo van dentro de la plantilla, por eso no se piden aca. */
+const CAMPOS_DOC=['edad','turno','grado','colegio','domicilio','solicitante','lugar'];
 function leerDatosDoc(){
   const o={};
   CAMPOS_DOC.forEach(k=>{ const v=($('f-doc-'+k).value||'').trim(); if(v) o[k]=v; });
