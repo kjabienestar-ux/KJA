@@ -654,7 +654,8 @@ const SUPABASE_ANON = "sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub";
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 KJACert.basePath = 'certificados/';   // las plantillas están en /certificados (admin.html está en la raíz)
 const $=id=>document.getElementById(id);
-const TIPO_LBL={taller:'Taller',curso:'Curso',especializacion:'Especialización',constancia:'Constancia'};
+const TIPO_LBL={taller:'Taller',curso:'Curso',especializacion:'Especialización',constancia:'Constancia',
+                constancia_charlas:'Constancia de charlas'};
 
 /* ───── PERFIL / ROLES ─────
    Cada usuario tiene un rol (admin/colaborador) y una serie de mil (1000, 2000…).
@@ -840,7 +841,7 @@ function leerDatos(){
   const codigo=KJACert.codigoDe($('f-numero').value, $('f-emision').value);
   return {tipo,cfg,nombre:$('f-nombre').value.trim(),dni:$('f-dni').value.trim(),titulo:$('f-titulo').value.trim(),
     duracion:$('f-duracion').value,fechaInicio:$('f-inicio').value,
-    fechaFin: (cfg.fechas==='rango' && (!esDocumento(tipo) || $('f-doc-varios').checked)) ? $('f-fin').value : null,fechaEmision:$('f-emision').value,codigo,
+    fechaFin: pideFechaFin(tipo) ? $('f-fin').value : null,fechaEmision:$('f-emision').value,codigo,
     fontSizeNombre:$('f-size').value ? parseInt($('f-size').value, 10) : null,
     fontNombre:$('f-font').value || null,
     datos: esDocumento(tipo) ? leerDatosDoc() : null};
@@ -851,6 +852,14 @@ function leerDatos(){
    tiene sentido darle una columna a cada uno. Los vacíos no se guardan, así
    el documento se dibuja sin esa frase en vez de con un hueco. */
 function esDocumento(tipo){ const t=KJACert.TIPOS[tipo]; return !!(t && t.campos==='documento'); }
+/* ¿Hace falta la fecha de cierre? Un documento de un solo día no la tiene.
+   El formulario, la lectura de datos y las validaciones consultan esta misma
+   función: si cada uno decidiera por su cuenta, se acabaría pidiendo una
+   fecha que ni siquiera está en pantalla. */
+function pideFechaFin(tipo){
+  const cfg=KJACert.TIPOS[tipo];
+  return !!cfg && cfg.fechas==='rango' && (!esDocumento(tipo) || $('f-doc-varios').checked);
+}
 /* El lema del ano y el titulo van dentro de la plantilla, por eso no se piden aca. */
 const CAMPOS_DOC=['edad','turno','grado','colegio','domicilio','solicitante','lugar','expositores'];
 function docActivo(){ return $('f-doc-on').checked; }
@@ -895,10 +904,9 @@ function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
   $('lbl-titulo').textContent=cfg.etiquetaTitulo;
   const esDoc=esDocumento(d.tipo);
   $('chk-varios-dias').style.display = esDoc ? 'flex' : 'none';
-  $('wrap-fin').style.display = cfg.fechas!=='rango' ? 'none'
-    : (esDoc && !$('f-doc-varios').checked) ? 'none' : 'block';
-  $('lbl-inicio').textContent = (esDoc && !$('f-doc-varios').checked) ? 'Fecha del proceso'
-    : cfg.fechas==='rango' ? 'Periodo: desde' : 'Fecha del periodo';
+  $('wrap-fin').style.display = pideFechaFin(d.tipo) ? 'block' : 'none';
+  $('lbl-inicio').textContent = pideFechaFin(d.tipo) ? 'Periodo: desde'
+    : esDoc ? 'Fecha del proceso' : 'Fecha del periodo';
   $('codigo-preview').textContent=d.codigo;
   /* Un documento A4 no tiene nombre en grande ni duración en horas: esos
      controles se esconden para no pedir datos que no se van a dibujar. */
@@ -1064,12 +1072,17 @@ $('btn-nuevo').addEventListener('click', modoNuevo);
 function validarCertificado(d){
   if(!d.nombre) return 'Completa el nombre del cliente.';
   if(!d.titulo) return 'Completa el título del ' + (TIPO_LBL[d.tipo]||'certificado').toLowerCase() + '.';
+  /* Las horas son obligatorias en un certificado, pero no en un documento:
+     una constancia de evaluación psicológica no se mide en horas. Si se
+     ponen, igual tienen que ser un número creíble. */
   const horas = parseInt(d.duracion, 10);
-  if(!d.duracion || isNaN(horas) || horas <= 0) return 'Ingresa la duración (horas académicas).';
-  if(horas > 1000) return 'La duración (' + horas + ' horas académicas) parece un error de tipeo. Revísala.';
+  if(!esDocumento(d.tipo) || d.duracion){
+    if(!d.duracion || isNaN(horas) || horas <= 0) return 'Ingresa la duración (horas académicas).';
+    if(horas > 1000) return 'La duración (' + horas + ' horas académicas) parece un error de tipeo. Revísala.';
+  }
   if(!$('f-numero').value.trim()) return 'Ingresa el número del certificado.';
   if(!d.fechaInicio) return 'Selecciona la fecha del periodo.';
-  if(d.cfg.fechas === 'rango' && !d.fechaFin) return 'Selecciona la fecha final del periodo.';
+  if(pideFechaFin(d.tipo) && !d.fechaFin) return 'Selecciona la fecha final del periodo.';
   if(!d.fechaEmision) return 'Selecciona la fecha de emisión.';
 
   // Serie protegida: al CREAR, el número debe estar dentro del rango asignado al usuario
@@ -1085,9 +1098,11 @@ function validarCertificado(d){
 
   // Coherencia de fechas
   const ini = new Date(d.fechaInicio);
-  const fin = new Date(d.cfg.fechas === 'rango' ? d.fechaFin : d.fechaInicio);
+  // Sin fecha de cierre, el periodo es ese mismo día (antes salía 1970 y la
+  // comparación decía que el final era anterior al inicio)
+  const fin = new Date(d.fechaFin || d.fechaInicio);
   if(fin < ini) return 'La fecha final es anterior a la fecha de inicio. Revisa las fechas.';
-  if(d.cfg.fechas === 'rango'){
+  if(d.fechaFin && horas > 0){
     const dias = Math.floor((fin - ini) / 864e5) + 1;
     // imposible: más de 12 horas académicas por día en promedio
     if(horas > dias * 12) return 'No es viable: ' + horas + ' horas en ' + dias + ' día(s) (más de 12 h por día). Revisa las fechas o la duración.';
