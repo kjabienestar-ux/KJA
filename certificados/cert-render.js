@@ -83,6 +83,46 @@
       qr:{left:1647, top:200, size:196, frame:{color:'#ffffff', width:7, gap:14}},
       runs:(d)=>[{t:'Por haber participado satisfactoriamente en el taller: '},{t:`"${d.titulo}"`,b:1},
                  {t:` con una duración de ${d.duracion} horas académicas, realizado durante el ${d.fInicio}.`}]
+    },
+    constancia_charlas:{
+      /* Hoja A4 vertical a 300 dpi. No lleva nombre en grande ni párrafo
+         único: es una carta con membrete, así que usa `campos:'documento'`.
+         Las coordenadas son provisionales hasta que llegue la plantilla
+         definitiva; el fondo se dibuja en blanco si la imagen no está. */
+      plantilla:'Constancia_charlas/PLANTILLA_CONSTANCIA_CHARLAS.webp?v=1',
+      etiqueta:'Constancia de charlas',
+      campos:'documento', fechas:'rango',
+      lienzo:{w:2480, h:3508},
+      lema:{cx:1240, cy:415, maxW:1900, size:44, color:'#1a1a1a', font:"'Poppins',sans-serif", weight:600, align:'center'},
+      titulo:{cx:1240, cy:640, maxW:1900, size:96, color:'#000000', font:"'Cinzel',serif", weight:700, align:'center'},
+      cuerpo:{x:300, topY:980, maxW:1880, size:48, lh:78, color:'#1a1a1a', align:'justify', espacio:44},
+      emision:{x:300, cy:0, maxW:1880, size:48, color:'#1a1a1a', weight:700, align:'left'},
+      codigo:{cx:1240, cy:3380, size:34, color:'#555555', weight:500, align:'center'},
+      qr:{left:2050, top:3080, size:230},
+      /* Cada entrada es un párrafo. El domicilio se omite si no viene: la RPC
+         pública no lo emite, y no puede salir "con domicilio en undefined". */
+      parrafos:(d)=>{
+        const x = d.datos || {};
+        const p1 = [{t:'El Centro Psicológico '},{t:'KJA – Desarrollando Mi Bienestar',b:1},
+                    {t:' deja constancia de que el estudiante '},{t:d.nombre||'',b:1}];
+        if(x.dni||d.dni) p1.push({t:', identificado con DNI N.° '},{t:String(x.dni||d.dni),b:1});
+        if(x.edad)       p1.push({t:', de '},{t:String(x.edad),b:1},{t:' años de edad'});
+        if(x.grado)      p1.push({t:', cursante del '},{t:x.grado,b:1});
+        if(x.colegio)    p1.push({t:' en la Institución Educativa '},{t:x.colegio,b:1});
+        if(x.turno)      p1.push({t:', turno '},{t:x.turno,b:1});
+        if(x.domicilio)  p1.push({t:', con domicilio en '},{t:x.domicilio,b:1});
+        p1.push({t:', ha participado en un proceso de '},{t:x.proceso||d.titulo||'',b:1},
+                {t:' en nuestra institución.'});
+
+        const p2 = [{t:'Dicho proceso fue realizado a solicitud de '},
+                    {t:x.solicitante||'la institución educativa',b:1},
+                    {t:', iniciándose el día '},{t:d.fInicio||'',b:1},
+                    {t:' y culminando el día '},{t:d.fFin||'',b:1},
+                    {t:', habiendo cumplido con las sesiones programadas correspondientes.'}];
+
+        const p3 = [{t:'Se expide la presente constancia a solicitud del interesado, para los fines que estime pertinentes.'}];
+        return [p1, p2, p3];
+      }
     }
   };
 
@@ -124,8 +164,21 @@
   function dibujarParrafo(ctx, runs, c){
     const fam=c.font||SANS;
     const ratio=(c.lh||c.size*1.2)/c.size;   // mantiene la proporción interlínea/tamaño al reducir
+    /* Un fragmento que no empieza con espacio va PEGADO al anterior: si no,
+       `{t:nombre,b:1}` seguido de `{t:', identificado'}` se dibujaba como
+       "Nombre , identificado", con el espacio delante de la coma. */
     const tokens=[];
-    runs.forEach(r=>{ r.t.split(/\s+/).forEach(w=>{ if(w.length) tokens.push({text:w,bold:!!r.b}); }); });
+    let cierraAnterior=true;        // el primer fragmento nunca va pegado a nada
+    runs.forEach(r=>{
+      const abre=/^\s/.test(r.t);
+      const pega = !abre && !cierraAnterior && tokens.length>0;
+      r.t.split(/\s+/).forEach((w,i)=>{
+        if(!w.length) return;
+        tokens.push({text:w, bold:!!r.b, pegado: i===0 && pega});
+      });
+      // ¿este fragmento deja el separador puesto para el siguiente?
+      if(r.t.length) cierraAnterior=/\s$/.test(r.t);
+    });
 
     // Envuelve el texto con un tamaño dado; devuelve las líneas y ayudantes de medición
     function envolver(size){
@@ -134,7 +187,7 @@
       ctx.font=fontW(false); const spaceW=ctx.measureText(' ').width;
       const lineas=[]; let cur=[], curW=0;
       for(const tk of tokens){
-        const tw=wWidth(tk); const add=(cur.length?spaceW:0)+tw;
+        const tw=wWidth(tk); const add=(cur.length && !tk.pegado ? spaceW : 0)+tw;
         if(curW+add>c.maxW && cur.length){ lineas.push({tokens:cur,width:curW}); cur=[tk]; curW=tw; }
         else { cur.push(tk); curW+=add; }
       }
@@ -151,16 +204,36 @@
       }
     }
     const lh=size*ratio;
+    const alto=(r.lineas.length-1)*lh;   // lo que ocupa, para apilar párrafos debajo
     ctx.fillStyle=c.color; ctx.textBaseline='middle'; ctx.textAlign='left';
     r.lineas.forEach((ln,i)=>{
       const y=c.topY+i*lh; const last=i===r.lineas.length-1;
       let x=c.x, gap=r.spaceW;
-      if(c.align==='justify' && !last && ln.tokens.length>1){
-        gap=(c.maxW - ln.tokens.reduce((s,t)=>s+r.wWidth(t),0))/(ln.tokens.length-1);
+      const huecos=ln.tokens.slice(1).filter(t=>!t.pegado).length;
+      if(c.align==='justify' && !last && huecos>0){
+        gap=(c.maxW - ln.tokens.reduce((s,t)=>s+r.wWidth(t),0))/huecos;
       } else if(c.align==='center'){ x=c.x+(c.maxW-ln.width)/2; }
       else if(c.align==='right'){ x=c.x+(c.maxW-ln.width); }
-      for(const tk of ln.tokens){ ctx.font=r.fontW(tk.bold); ctx.fillText(tk.text,x,y); x+=r.wWidth(tk)+gap; }
+      ln.tokens.forEach((tk,j)=>{
+        if(j>0 && !tk.pegado) x+=gap;
+        ctx.font=r.fontW(tk.bold); ctx.fillText(tk.text,x,y); x+=r.wWidth(tk);
+      });
     });
+    return {lineas:r.lineas.length, lh, alto};
+  }
+
+  /* ── Documentos (hoja A4 con membrete) ──
+     No son certificados decorados sino cartas: varios párrafos justificados,
+     uno debajo del otro, con negritas en línea. Se apilan reusando el mismo
+     dibujarParrafo, avanzando la Y con lo que cada uno ocupó. */
+  function dibujarDocumento(ctx, parrafos, c){
+    let y=c.topY;
+    for(const runs of parrafos){
+      if(!runs || !runs.length) continue;
+      const r=dibujarParrafo(ctx, runs, {...c, topY:y});
+      y += r.alto + r.lh + (c.espacio||0);
+    }
+    return y;
   }
 
   async function render(canvas, datos){
@@ -176,9 +249,18 @@
       fEmision:fechaLarga(datos.fechaEmision)
     };
     ctx.clearRect(0,0,L.w,L.h);
-    const bg=await cargarImg(KJACert.basePath+cfg.plantilla);
-    ctx.drawImage(bg,0,0,L.w,L.h);
-    
+    /* Si la plantilla todavía no existe (o no cargó), se dibuja la hoja en
+       blanco en vez de reventar: así el formulario se puede seguir usando y
+       se ve el texto colocado. */
+    let bg=null;
+    try{ bg=await cargarImg(KJACert.basePath+cfg.plantilla); }catch(e){ bg=null; }
+    if(bg) ctx.drawImage(bg,0,0,L.w,L.h);
+    else { ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,L.w,L.h); }
+
+    /* Los documentos (hoja A4 con membrete) se pintan distinto: no tienen el
+       nombre en grande ni un párrafo único, sino título y párrafos apilados. */
+    if(cfg.campos==='documento') return dibujarDoc(ctx, cfg, d, L);
+
     let cfgNombre = cfg.nombre;
     if (d.fontSizeNombre) {
       cfgNombre = { ...cfg.nombre, size: d.fontSizeNombre, lh: d.fontSizeNombre };
@@ -206,6 +288,27 @@
       const o=q.frame.gap;
       ctx.strokeStyle=q.frame.color; ctx.lineWidth=q.frame.width;
       ctx.strokeRect(q.left-o, q.top-o, q.size+2*o, q.size+2*o);
+    }
+  }
+
+  /* Pinta un documento A4: lema del año, título, párrafos, lugar y fecha,
+     código y QR. La fecha va debajo del último párrafo, no en una Y fija:
+     el largo del cuerpo depende de cuántos datos traiga el estudiante. */
+  function dibujarDoc(ctx, cfg, d, L){
+    const x=d.datos||{};
+    if(cfg.lema && (x.lema||d.lema)) dibujarSimple(ctx, x.lema||d.lema, cfg.lema);
+    if(cfg.titulo) dibujarSimple(ctx, x.encabezado||'CONSTANCIA', cfg.titulo);
+
+    const finY = dibujarDocumento(ctx, cfg.parrafos(d), cfg.cuerpo);
+    dibujarSimple(ctx, `${x.lugar||'Lima'}, ${d.fEmision}`,
+                  {...cfg.emision, cy: finY + (cfg.cuerpo.espacio||0)});
+
+    if(cfg.codigo) dibujarSimple(ctx, d.codigo, cfg.codigo);
+    if(cfg.qr){
+      const q=cfg.qr, qc=document.createElement('canvas');
+      new QRious({element:qc, value:`${KJACert.verifyBase}?id=${encodeURIComponent(d.codigo)}`,
+                  size:600, background:'white', foreground:'#000000', level:'M'});
+      ctx.drawImage(qc, q.left, q.top, q.size, q.size);
     }
   }
 
