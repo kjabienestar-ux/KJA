@@ -18,7 +18,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="certificados/cert-render.js?v=6"></script>
+<script src="certificados/cert-render.js?v=7"></script>
 
 <link rel="stylesheet" href="assets/css/accessibility.css">
 <link rel="stylesheet" href="assets/css/paginas/admin.css?v=41">
@@ -309,6 +309,7 @@
               <input id="f-titulo" type="text" placeholder="Nombre del curso / taller"></div>
             <div class="field" id="wrap-duracion"><label>Duración (horas académicas)</label>
               <input id="f-duracion" type="number" placeholder="Ej: 20" min="1"></div>
+            <label class="chk-temario" id="chk-varios-dias" style="display:none;"><input type="checkbox" id="f-doc-varios"> Duró más de un día</label>
             <div class="row2">
               <div class="field" id="wrap-inicio"><label id="lbl-inicio">Fecha del periodo</label>
                 <div class="datewrap"><input id="f-inicio" type="text" placeholder="Seleccionar">
@@ -342,8 +343,12 @@
               <input id="f-doc-colegio" type="text" placeholder="Ej: N.° 1204 Villa Jardín"></div>
             <div class="field"><label>Domicilio <span class="opt">(se imprime, pero no se publica)</span></label>
               <input id="f-doc-domicilio" type="text" placeholder="Ej: Jr. Río Amazonas N.° 160, Urb. Las Moras de San Luis"></div>
-            <div class="field"><label>A solicitud de</label>
+            <label class="chk-temario"><input type="checkbox" id="f-doc-porkja"> Lo realizó el propio centro KJA</label>
+            <div class="field" id="wrap-solicitante"><label>A solicitud de</label>
               <input id="f-doc-solicitante" type="text" placeholder="Ej: la institución educativa"></div>
+            <label class="chk-temario"><input type="checkbox" id="f-doc-exp-on"> Indicar expositor(es)</label>
+            <div class="field" id="wrap-expositores" style="display:none;"><label>Expositor(es) <span class="opt">(sepáralos con comas)</span></label>
+              <input id="f-doc-expositores" type="text" placeholder="Ej: Ps. Jean Pierre Bouverie, Ps. Karen Lucero"></div>
             <div class="field"><label>Lugar de expedición</label>
               <input id="f-doc-lugar" type="text" placeholder="Lima"></div>
             </div>
@@ -830,7 +835,7 @@ function leerDatos(){
   const codigo=KJACert.codigoDe($('f-numero').value, $('f-emision').value);
   return {tipo,cfg,nombre:$('f-nombre').value.trim(),dni:$('f-dni').value.trim(),titulo:$('f-titulo').value.trim(),
     duracion:$('f-duracion').value,fechaInicio:$('f-inicio').value,
-    fechaFin:cfg.fechas==='rango'?$('f-fin').value:null,fechaEmision:$('f-emision').value,codigo,
+    fechaFin: (cfg.fechas==='rango' && (!esDocumento(tipo) || $('f-doc-varios').checked)) ? $('f-fin').value : null,fechaEmision:$('f-emision').value,codigo,
     fontSizeNombre:$('f-size').value ? parseInt($('f-size').value, 10) : null,
     fontNombre:$('f-font').value || null,
     datos: esDocumento(tipo) ? leerDatosDoc() : null};
@@ -842,26 +847,43 @@ function leerDatos(){
    el documento se dibuja sin esa frase en vez de con un hueco. */
 function esDocumento(tipo){ const t=KJACert.TIPOS[tipo]; return !!(t && t.campos==='documento'); }
 /* El lema del ano y el titulo van dentro de la plantilla, por eso no se piden aca. */
-const CAMPOS_DOC=['edad','turno','grado','colegio','domicilio','solicitante','lugar'];
+const CAMPOS_DOC=['edad','turno','grado','colegio','domicilio','solicitante','lugar','expositores'];
 function docActivo(){ return $('f-doc-on').checked; }
 function leerDatosDoc(){
   if(!docActivo()) return null;      // apagado: el documento sale sin esos datos
   const o={};
   CAMPOS_DOC.forEach(k=>{ const v=($('f-doc-'+k).value||'').trim(); if(v) o[k]=v; });
   if(o.edad) o.edad=parseInt(o.edad,10);
+  /* Lo organizó el propio centro: entonces no hay a quién atribuirle la
+     solicitud, así que ese dato se descarta para que no queden los dos. */
+  if($('f-doc-porkja').checked){ o.porKja=true; delete o.solicitante; }
+  if(!$('f-doc-exp-on').checked) delete o.expositores;
   return Object.keys(o).length ? o : null;
 }
 function pintarDatosDoc(datos){
   const o=datos||{};
   CAMPOS_DOC.forEach(k=>{ $('f-doc-'+k).value = (o[k]!==undefined && o[k]!==null) ? o[k] : ''; });
-  // Al editar, el interruptor refleja si ese certificado traía datos o no
+  // Al editar, los interruptores reflejan lo que traía ese certificado
   $('f-doc-on').checked = !!(datos && Object.keys(o).length);
   $('doc-builder').style.display = $('f-doc-on').checked ? 'block' : 'none';
+  $('f-doc-porkja').checked = !!o.porKja;
+  $('f-doc-exp-on').checked = !!o.expositores;
+  sincronizarDoc();
+}
+
+/* Muestra u oculta lo que depende de las casillas del documento */
+function sincronizarDoc(){
+  $('wrap-solicitante').style.display = $('f-doc-porkja').checked ? 'none' : 'block';
+  $('wrap-expositores').style.display = $('f-doc-exp-on').checked ? 'block' : 'none';
 }
 function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
   $('lbl-titulo').textContent=cfg.etiquetaTitulo;
-  $('wrap-fin').style.display=cfg.fechas==='rango'?'block':'none';
-  $('lbl-inicio').textContent=cfg.fechas==='rango'?'Periodo: desde':'Fecha del periodo';
+  const esDoc=esDocumento(d.tipo);
+  $('chk-varios-dias').style.display = esDoc ? 'flex' : 'none';
+  $('wrap-fin').style.display = cfg.fechas!=='rango' ? 'none'
+    : (esDoc && !$('f-doc-varios').checked) ? 'none' : 'block';
+  $('lbl-inicio').textContent = (esDoc && !$('f-doc-varios').checked) ? 'Fecha del proceso'
+    : cfg.fechas==='rango' ? 'Periodo: desde' : 'Fecha del periodo';
   $('codigo-preview').textContent=d.codigo;
   /* Un documento A4 no tiene nombre en grande ni duración en horas: esos
      controles se esconden para no pedir datos que no se van a dibujar. */
@@ -957,6 +979,8 @@ function resetForm(){
   $('f-duracion').value=''; $('f-numero').value='';
   pintarDatosDoc(null);
   $('f-doc-on').checked=true; $('doc-builder').style.display='block';
+  $('f-doc-varios').checked=false; $('f-doc-porkja').checked=false; $('f-doc-exp-on').checked=false;
+  sincronizarDoc();
   $('f-extranjero').checked=false; actualizarDniUI();
   resetTemario();
   setTipo($('f-tipo').value || 'taller'); // Ensures f-size starts with the right default number
@@ -1224,6 +1248,9 @@ $('f-doc-on').addEventListener('change',()=>{
   $('doc-builder').style.display = docActivo() ? 'block' : 'none';
   dibujar();
 });
+['f-doc-porkja','f-doc-exp-on'].forEach(id=>
+  $(id).addEventListener('change',()=>{ sincronizarDoc(); dibujar(); }));
+$('f-doc-varios').addEventListener('change',dibujar);
 
 /* ───── Validación de DNI (8 dígitos; extranjero: 8–15) ───── */
 function dniMax(){ return $('f-extranjero').checked ? 15 : 8; }
@@ -2025,6 +2052,8 @@ function editarFila(id){
   $('temario-builder').style.display = $('f-temario-on').checked ? 'block' : 'none';
   vistaTemario=false; renderModulos();
   pintarDatosDoc(r.datos);                                       // campos propios del documento
+  // Si la fila trae fecha de fin, es que duró más de un día
+  $('f-doc-varios').checked = !!r.fecha_fin;
   if(r.font_size_nombre) $('f-size').value=r.font_size_nombre;   // conserva el tamaño elegido
   setFont(r.font_nombre||'');                                    // conserva la fuente elegida
   editingId=id; $('editing-flag').style.display='block'; $('btn-cancel').style.display='block';

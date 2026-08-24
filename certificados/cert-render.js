@@ -118,11 +118,28 @@
         if(proc) p1.push({t:', ha participado en un proceso de '},{t:proc,b:1},{t:' en nuestra institución.'});
         else     p1.push({t:', ha participado en un proceso en nuestra institución.'});
 
-        const p2 = [{t:'Dicho proceso fue realizado a solicitud de '},
-                    {t:x.solicitante||'la institución educativa',b:1},
-                    {t:', iniciándose el día '},{t:d.fInicio||'',b:1},
-                    {t:' y culminando el día '},{t:d.fFin||'',b:1},
-                    {t:', habiendo cumplido con las sesiones programadas correspondientes.'}];
+        /* Quién lo organizó: a solicitud de un tercero, o el propio centro. */
+        const p2 = x.porKja
+          ? [{t:'Dicho proceso fue realizado por el propio Centro Psicológico '},
+             {t:'KJA – Desarrollando Mi Bienestar',b:1}]
+          : [{t:'Dicho proceso fue realizado a solicitud de '},
+             {t:x.solicitante||'la institución educativa',b:1}];
+
+        /* Un solo día no tiene "inicio y fin": si no hay fecha de cierre, se
+           dice sencillamente el día en que se hizo. */
+        if(d.fFin) p2.push({t:', iniciándose el día '},{t:d.fInicio||'',b:1},
+                           {t:' y culminando el día '},{t:d.fFin,b:1});
+        // "fue realizado ... realizado el día" repetía; "llevándose a cabo"
+        // hace juego con el "iniciándose" del caso de varios días.
+        else       p2.push({t:', llevándose a cabo el día '},{t:d.fInicio||'',b:1});
+        p2.push({t:', habiendo cumplido con las sesiones programadas correspondientes.'});
+
+        /* Expositores, si se indicaron. Se listan en castellano: "A, B y C". */
+        const exp = (x.expositores||'').split(',').map(s=>s.trim()).filter(Boolean);
+        if(exp.length){
+          const lista = exp.length>1 ? exp.slice(0,-1).join(', ')+' y '+exp[exp.length-1] : exp[0];
+          p2.push({t:' Estuvo a cargo de '},{t:lista,b:1},{t:'.'});
+        }
 
         const p3 = [{t:'Se expide la presente constancia a solicitud del interesado, para los fines que estime pertinentes.'}];
         return [p1, p2, p3];
