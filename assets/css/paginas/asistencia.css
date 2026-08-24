@@ -1,4 +1,4 @@
-/* ════════════════════════════════════════════════════════════════
+﻿/* ════════════════════════════════════════════════════════════════
    KJA · Registro de Asistencia
    Estructura: menú lateral marino + área de trabajo en tarjeta blanca
    sobre gris claro. El azul vive en el menú; el contenido respira.
@@ -163,7 +163,7 @@ button{font-family:inherit;cursor:pointer;}
   content:"";
   position:absolute;
   inset:0;
-  background:url('/images/login/login-image.webp') center/cover no-repeat;
+  background:url('../../../images/login/login-image.webp') center/cover no-repeat;
   opacity:0.18;
   z-index:0;
   pointer-events:none;

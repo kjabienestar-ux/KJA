@@ -1,4 +1,4 @@
-/* terapia.css — estilos propios de terapia.html (extraidos de bloques <style> embebidos) */
+﻿/* terapia.css — estilos propios de terapia.html (extraidos de bloques <style> embebidos) */
 
 /* CATALOG HEADER */
 .catalog-header-text {
@@ -433,7 +433,7 @@
 
         .hero-v2 {
             background-color: #F8F9F5;
-            background-image: url('/images/terapia-dash/image-dashboard.webp');
+            background-image: url('../../../images/terapia-dash/image-dashboard.webp');
             background-size: cover;
             background-position: right center;
             background-repeat: no-repeat;
@@ -644,7 +644,7 @@
                 width: 100%;
                 max-width: 560px;
                 height: 340px;
-                background-image: url('/images/terapia-dash/dashboard2.webp');
+                background-image: url('../../../images/terapia-dash/dashboard2.webp');
                 background-size: cover;
                 background-position: 62% 20%;
                 background-repeat: no-repeat;

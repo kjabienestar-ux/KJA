@@ -1,4 +1,4 @@
-:root{ --azul:#004fb0; --azul-osc:#15315f; --rosa:#f10075; }
+﻿:root{ --azul:#004fb0; --azul-osc:#15315f; --rosa:#f10075; }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Poppins',system-ui,sans-serif;background:#eef1f6;color:#1f2937;}
 
@@ -90,7 +90,7 @@ html:has(.ent-splash.show){overflow:hidden;}
 
 /* ── LOGIN (tarjeta dividida: formulario + foto con callouts) ── */
 .login-wrap{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;}
-.login-wrap .bg{position:absolute;inset:-30px;background:url('/images/login/login-image.webp') center/cover no-repeat;transform:scale(1.05);filter:blur(16px);}
+.login-wrap .bg{position:absolute;inset:-30px;background:url('../../../images/login/login-image.webp') center/cover no-repeat;transform:scale(1.05);filter:blur(16px);}
 .login-wrap .bg::after{content:"";position:absolute;inset:0;background:rgba(6,16,38,.55);}
 
 /* Botón Volver */
@@ -163,7 +163,7 @@ html:has(.ent-splash.show){overflow:hidden;}
 
 /* Columna de la foto con callouts */
 .login-photo{position:relative;flex:1 1 58%;min-height:560px;border-radius:26px;overflow:hidden;
-  background:url('/images/login/login-image.webp') center/cover no-repeat;}
+  background:url('../../../images/login/login-image.webp') center/cover no-repeat;}
 .login-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,15,35,.2),transparent 35%,rgba(5,15,35,.35));}
 
 .ph-tag{position:absolute;z-index:2;display:flex;align-items:center;gap:11px;color:#fff;
@@ -344,7 +344,7 @@ span.flatpickr-weekday{color:#64748b;font-weight:700;font-size:11px;text-transfo
 .side.collapsed:hover .side-toggle { display: flex; } /* Show toggle when hovered if collapsed */
 .side::before {
   content: ""; position: absolute; inset: 0;
-  background: url('/images/login/login-image.webp') center/cover no-repeat;
+  background: url('../../../images/login/login-image.webp') center/cover no-repeat;
   opacity: 0.15; z-index: 0; pointer-events: none;
 }
 .side > * { position: relative; z-index: 1; }

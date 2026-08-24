@@ -368,35 +368,27 @@
                 <div class="course-modal-left">
                     <h2 id="course-modal-title" class="course-modal-title"></h2>
                     
-                    <!-- Box 1: Qué aprenderás -->
+                    <!-- Box 1: Qué aprenderé -->
                     <div class="info-box">
-                        <div class="info-box-header">¿Qué aprenderás en el curso?</div>
+                        <div class="info-box-header">¿Qué aprenderé en este curso?</div>
                         <div class="info-box-body">
                             <ul id="course-modal-learn"></ul>
                         </div>
                     </div>
                     
-                    <!-- Box 2: Conocimientos deseables -->
+                    <!-- Box 2: Dirigido a -->
                     <div class="info-box">
-                        <div class="info-box-header">Conocimientos deseables</div>
+                        <div class="info-box-header">Dirigido a</div>
                         <div class="info-box-body">
                             <ul id="course-modal-requirements"></ul>
                         </div>
                     </div>
                     
-                    <!-- Box 3: Certificación -->
+                    <!-- Box 3: Beneficios -->
                     <div class="info-box">
-                        <div class="info-box-header">Certificación</div>
+                        <div class="info-box-header">Beneficios de tu inscripción</div>
                         <div class="info-box-body">
                             <ul id="course-modal-certification"></ul>
-                        </div>
-                    </div>
-
-                    <!-- Box 4: Temario -->
-                    <div class="info-box">
-                        <div class="info-box-header">Temario del curso</div>
-                        <div class="info-box-body">
-                            <ul id="course-modal-syllabus"></ul>
                         </div>
                     </div>
                 </div>
@@ -413,7 +405,7 @@
                         <!-- Box 5: Cursos relacionados -->
                         <div class="related-box">
                             <h4>Cursos relacionados:</h4>
-                            <p id="course-modal-related"></p>
+                            <div id="course-modal-related" class="related-chips"></div>
                         </div>
                     </div>
                 </div>
@@ -436,111 +428,99 @@
                 title: 'WISC-V: Aplicaciones Clínicas y Neuropsicológicas',
                 meta: 'Curso online',
                 image: 'images/cursos/wisc-v.webp',
-                description: 'Curso online sobre la Escala de Inteligencia de Wechsler para Niños - Quinta Edición: aprende a administrar, calificar e interpretar el instrumento con enfoque clínico y neuropsicológico.',
+                description: 'Aprenderás a aplicar, calificar e interpretar la escala WISC-V desde un enfoque neuropsicológico, identificando perfiles cognitivos para diagnósticos precisos en niños y adolescentes.',
                 learn: [
-                    'Fundamentos teóricos y estructura factorial del WISC-V.',
-                    'Administración y calificación correcta de las subpruebas.',
-                    'Interpretación de los índices primarios y secundarios.',
-                    'Aplicaciones clínicas y neuropsicológicas e integración de resultados en el informe.'
+                    'Administración y puntuación: Manejo correcto de las subpruebas e índices del WISC-V.',
+                    'Análisis de perfiles: Identificación de fortalezas y debilidades cognitivas.',
+                    'Diagnóstico diferencial: Detección de TDAH, Dificultades de Aprendizaje, TEL y Altas Capacidades.',
+                    'Redacción de informes: Elaboración de reportes clínicos y recomendaciones de intervención.'
                 ],
                 requirements: [
-                    'Dirigido a psicólogos, bachilleres y estudiantes de psicología de últimos ciclos con nociones básicas de psicometría.'
+                    'Psicólogos (clínicos, educativos y neuropsicólogos).',
+                    'Estudiantes de últimos ciclos de Psicología.',
+                    'Especialistas en neurodesarrollo infantil.'
                 ],
                 certification: [
-                    'Incluye certificado con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
-                    'Material académico incluido.',
-                    'Curso válido solo en Perú.'
+                    'Casos prácticos: Análisis guiado de perfiles reales.',
+                    'Plantillas de apoyo: Guías para agilizar la redacción de informes.',
+                    'Certificado de participación: Documento que acredita tu especialización.'
                 ],
-                syllabus: [
-                    'Módulo 1: Bases teóricas de la inteligencia y estructura del WISC-V.',
-                    'Módulo 2: Administración y calificación de las subpruebas.',
-                    'Módulo 3: Interpretación clínica de índices y análisis de fortalezas y debilidades.',
-                    'Módulo 4: Aplicaciones neuropsicológicas y elaboración del informe de resultados.'
-                ],
-                related: 'Evaluaciones Psicológicas en Niños y Adolescentes, Neuropsicología Infantil',
+                syllabus: [],
+                related: 'Evaluaciones Psicológicas en Niños y Adolescentes, Neuropsicología Infantil: Psicología Clínica y Educativa',
                 waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20WISC-V%20Aplicaciones%20Cl%C3%ADnicas%20y%20Neuropsicol%C3%B3gicas'
             },
             'evaluaciones-ninos': {
                 title: 'Evaluaciones Psicológicas en Niños y Adolescentes',
                 meta: 'Curso online',
                 image: 'images/cursos/evaluaciones-psicologicas-ninos.webp',
-                description: 'Curso online para planificar y ejecutar procesos completos de evaluación psicológica en niños y adolescentes: selección de pruebas psicométricas y proyectivas, aplicación, interpretación y redacción de informes de calidad profesional.',
+                description: 'Aprenderás a seleccionar, aplicar e integrar las principales herramientas de evaluación psicológica infanto-juvenil para estructurar diagnósticos precisos e intervenciones efectivas.',
                 learn: [
-                    'Diseño del proceso de evaluación según el motivo de consulta.',
-                    'Aplicación de las principales pruebas psicométricas y proyectivas en niños y adolescentes.',
-                    'Interpretación integrada de resultados cuantitativos y cualitativos.',
-                    'Redacción de informes psicológicos claros y con valor clínico.'
+                    'Proceso de evaluación: Manejo de la entrevista clínica, anamnesis y motivo de consulta.',
+                    'Baterías de pruebas: Aplicación de test emocionales, conductuales, proyectivos y cognitivos.',
+                    'Diagnóstico e integración: Sintetizar resultados para identificar trastornos del neurodesarrollo y afectivos.',
+                    'Informes y devolución: Redacción de reportes claros y entrega de resultados a padres y colegios.'
                 ],
                 requirements: [
-                    'Dirigido a psicólogos, bachilleres y estudiantes de psicología interesados en el área clínica y educativa infantil y adolescente.'
+                    'Psicólogos (clínicos, educativos y en formación).',
+                    'Estudiantes de últimos ciclos de Psicología.',
+                    'Especialistas e internistas en salud mental infanto-juvenil.'
                 ],
                 certification: [
-                    'Incluye certificado con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
-                    'Material académico incluido.',
-                    'Curso válido solo en Perú.'
+                    'Casos prácticos: Análisis guiado de expedientes e historias clínicas reales.',
+                    'Material descargable: Plantillas, guías de entrevista y modelos de informes.',
+                    'Certificado de participación: Acreditación que respalda tu formación continua.'
                 ],
-                syllabus: [
-                    'Módulo 1: El proceso de evaluación psicológica infantil y adolescente y la entrevista inicial.',
-                    'Módulo 2: Pruebas psicométricas de inteligencia, atención y aprendizaje.',
-                    'Módulo 3: Pruebas proyectivas y evaluación socioemocional.',
-                    'Módulo 4: Integración de resultados y elaboración del informe.'
-                ],
-                related: 'WISC-V: Aplicaciones Clínicas y Neuropsicológicas, Neuropsicología Infantil',
+                syllabus: [],
+                related: 'WISC-V: Aplicaciones Clínicas y Neuropsicológicas, Neuropsicología Infantil: Psicología Clínica y Educativa',
                 waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Evaluaciones%20Psicol%C3%B3gicas%20en%20Ni%C3%B1os%20y%20Adolescentes'
             },
             'reclutamiento-seleccion': {
                 title: 'Reclutamiento, Selección y Pruebas Psicológicas',
                 meta: 'Curso online',
                 image: 'images/cursos/reclutamiento-seleccion.webp',
-                description: 'Fórmate en el proceso completo de selección de personal: desde la elaboración del perfil del puesto hasta la aplicación de pruebas de inteligencia, personalidad y habilidades.',
+                description: 'Aprenderás a gestionar procesos de atracción de talento y a seleccionar candidatos ideales mediante la aplicación e interpretación de pruebas psicométricas y proyectivas laborales.',
                 learn: [
-                    'Elaboración del perfil del puesto.',
-                    'Análisis y descripción de pruebas.',
-                    'Reclutamiento y selección.',
-                    'Pruebas de inteligencia, personalidad y habilidades.'
+                    'Atracción de talento: Levantamiento de perfil de puesto y estrategias de reclutamiento efectivo.',
+                    'Entrevista por competencias: Diseño y aplicación de preguntas situacionales y método STAR.',
+                    'Batería de pruebas: Aplicación e interpretación de test psicométricos, proyectivos y de personalidad laboral.',
+                    'Informe de selección: Integración de resultados y redacción de reportes apto/no apto.'
                 ],
                 requirements: [
-                    'Dirigido a psicólogos, estudiantes de psicología y profesionales de recursos humanos.'
+                    'Psicólogos organizacionales y consultores de Selección / RR. HH.',
+                    'Estudiantes de últimos ciclos de Psicología o Administración.',
+                    'Analistas y asistentes de Gestión Humana.'
                 ],
                 certification: [
-                    'Certificado digital emitido por KJA - Centro de Capacitación y Formación Psicológica, verificable con código QR.'
+                    'Casos prácticos: Simulación de procesos reales de selección y evaluación.',
+                    'Material descargable: Plantillas de perfil, modelos de entrevista e informes psicolaborales.',
+                    'Certificado de participación: Acreditación que respalda tu formación en gestión del talento.'
                 ],
-                syllabus: [
-                    'Elaboración del perfil del puesto.',
-                    'Análisis y descripción de pruebas.',
-                    'Reclutamiento y selección.',
-                    'Pruebas de inteligencia.',
-                    'Pruebas de personalidad.',
-                    'Pruebas de habilidades.'
-                ],
-                related: 'Evaluaciones Psicológicas en Niños y Adolescentes, Terapia Cognitivo Conductual',
+                syllabus: [],
+                related: 'Evaluaciones Psicológicas en Niños y Adolescentes, Terapia Cognitivo Conductual y Terapia Racional Emotiva Conductual',
                 waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Reclutamiento%2C%20Selecci%C3%B3n%20y%20Pruebas%20Psicol%C3%B3gicas'
             },
             'ados2-adir': {
                 title: 'ADOS-2 y ADI-R: Evaluación y Diagnóstico de Autismo',
                 meta: 'Curso online · Modalidad en vivo',
                 image: 'images/cursos/ados2-adir.webp',
-                description: 'Curso online 100% en vivo sobre los dos instrumentos de referencia internacional para la evaluación y el diagnóstico del autismo: la observación clínica estructurada ADOS-2 y la entrevista diagnóstica para padres ADI-R.',
+                description: 'Aprenderás a administrar e interpretar las herramientas de referencia de oro (ADOS-2 y ADI-R) para realizar una evaluación diagnóstica precisa del Trastorno del Espectro Autista (TEA) en diferentes etapas de la vida.',
                 learn: [
-                    'Criterios diagnósticos actuales del TEA y proceso de evaluación integral.',
-                    'Administración de los módulos del ADOS-2 según edad y nivel de lenguaje.',
-                    'Aplicación de la entrevista ADI-R y codificación de algoritmos.',
-                    'Integración de resultados para la formulación diagnóstica.'
+                    'Fundamentos del TEA: Criterios diagnósticos actualizados (DSM-5 / CIE-11) y fenotipos clínicos.',
+                    'Administración del ADI-R: Estructura de la entrevista clínica profunda a padres o cuidadores.',
+                    'Aplicación del ADOS-2: Manejo de los distintos módulos según la edad y nivel de lenguaje del evaluado.',
+                    'Codificación e informe: Algoritmos de puntuación e integración de hallazgos para el reporte clínico.'
                 ],
                 requirements: [
-                    'Dirigido a psicólogos, médicos, terapeutas y profesionales de la salud con experiencia o interés en trastornos del neurodesarrollo.'
+                    'Psicólogos, neuropsicólogos y médicos (psiquiatras/neuropediatras).',
+                    'Estudiantes de últimos ciclos de Psicología.',
+                    'Terapeutas del lenguaje, ocupacionales y especialistas en neurodesarrollo.'
                 ],
                 certification: [
-                    'Certificado académico emitido por KJA - Centro de Capacitación y Formación Psicológica.',
-                    'Material académico incluido.',
-                    '¡Curso válido solo para Perú!'
+                    'Casos prácticos: Análisis guiado de vídeos de evaluación y codificación en vivo.',
+                    'Material descargable: Guías de observación, esquemas de entrevista y modelos de informe.',
+                    'Certificado de participación: Acreditación que respalda tu formación en diagnóstico de autismo.'
                 ],
-                syllabus: [
-                    'Módulo 1: Actualización en TEA y proceso diagnóstico integral.',
-                    'Módulo 2: ADOS-2 — estructura, módulos y administración.',
-                    'Módulo 3: ADI-R — entrevista, codificación y algoritmos.',
-                    'Módulo 4: Integración de resultados y casos clínicos.'
-                ],
+                syllabus: [],
                 related: 'Neuropsicología Infantil, Terapia e Integración Sensorial en Niños con TEA y TDAH',
                 waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20ADOS-2%20y%20ADI-R%20Evaluaci%C3%B3n%20y%20Diagn%C3%B3stico%20de%20Autismo'
             },
@@ -548,86 +528,74 @@
                 title: 'Terapia Cognitivo Conductual y Terapia Racional Emotiva Conductual',
                 meta: 'Curso online · 300 horas académicas',
                 image: 'images/cursos/terapia-cognitivo-conductual.webp',
-                description: 'Domina los dos grandes modelos de intervención con mayor evidencia científica: la TCC y la TREC. ¡Ahora con 50% de descuento e incluye GRATIS 1 curso grabado (6 h.a.)! Solo válido en Perú.',
+                description: 'Aprenderás a aplicar los principios y técnicas de la TCC y TREC para reestructurar pensamientos disfuncionales y modificar patrones de conducta en el tratamiento de los trastornos más frecuentes.',
                 learn: [
-                    'Conceptualización cognitiva de casos y planificación del tratamiento.',
-                    'Técnicas de reestructuración cognitiva y trabajo con creencias.',
-                    'Modelo ABC de la Terapia Racional Emotiva Conductual y debate de creencias irracionales.',
-                    'Estrategias conductuales y aplicación clínica en ansiedad, depresión y otros cuadros.'
+                    'Modelo ABC y creencias: Identificación de pensamientos automáticos y creencias irracionales.',
+                    'Técnicas cognitivas y debatimiento: Aplicación del debate socrático y reestructuración cognitiva.',
+                    'Estrategias conductuales: Diseño de experimentos conductuales, exposición y desensibilización.',
+                    'Plan de intervención: Formulación de casos clínicos y estructuración de sesiones terapéuticas.'
                 ],
                 requirements: [
-                    'Dirigido a psicólogos, bachilleres y estudiantes de psicología de últimos ciclos con interés en el área clínica.'
+                    'Psicólogos clínicos, psicoterapeutas y profesionales de la salud mental.',
+                    'Estudiantes de últimos ciclos de Psicología.',
+                    'Psiquiatras e internistas en salud mental.'
                 ],
                 certification: [
-                    'Certificado académico con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
-                    'Material académico incluido.',
-                    'Bono: ¡GRATIS! 1 curso grabado (6 h.a.).',
-                    '50% de descuento — solo válido en Perú.'
+                    'Casos prácticos: Análisis de casos reales y role-playing de sesiones de terapia.',
+                    'Material descargable: Registros de pensamientos, autorregistros y guías de debate.',
+                    'Certificado de participación: Acreditación que respalda tu formación en modelos cognitivo-conductuales.'
                 ],
-                syllabus: [
-                    'Módulo 1: Fundamentos del modelo cognitivo conductual.',
-                    'Módulo 2: Evaluación y conceptualización de casos.',
-                    'Módulo 3: Terapia Racional Emotiva Conductual — modelo ABC y debate de creencias.',
-                    'Módulo 4: Técnicas cognitivas y conductuales de intervención.',
-                    'Módulo 5: Aplicación clínica por trastornos y prevención de recaídas.'
-                ],
-                related: 'Neuropsicología Infantil, Evaluaciones Psicológicas en Niños y Adolescentes',
+                syllabus: [],
+                related: 'Neuropsicología Infantil: Psicología Clínica y Educativa, Evaluaciones Psicológicas en Niños y Adolescentes',
                 waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Terapia%20Cognitivo%20Conductual%20y%20Terapia%20Racional%20Emotiva%20Conductual'
             },
             'neuropsicologia-infantil': {
                 title: 'Neuropsicología Infantil: Psicología Clínica y Educativa',
                 meta: 'Clases en vivo vía Zoom · 300 horas académicas',
                 image: 'images/cursos/neuropsicologia-infantil.webp',
-                description: 'Curso online con clases en vivo vía Zoom: evaluación de las funciones cognitivas del niño, diagnóstico de los trastornos del neurodesarrollo e intervención clínica y educativa. ¡50% de descuento + 1 curso GRATIS! Vacantes limitadas.',
+                description: 'Aprenderás a relacionar el funcionamiento del sistema nervioso en desarrollo con los procesos de aprendizaje y conducta, integrando la evaluación y el abordaje en los ámbitos clínico y escolar.',
                 learn: [
-                    'Bases del neurodesarrollo y maduración de las funciones cognitivas.',
-                    'Evaluación neuropsicológica de atención, memoria, lenguaje y funciones ejecutivas.',
-                    'Perfiles neuropsicológicos del TDAH, TEA y trastornos del aprendizaje.',
-                    'Intervención neuropsicológica en el ámbito clínico y educativo.'
+                    'Desarrollo neurobiológico: Maduración cerebral y su impacto en las funciones cognitivas superiores.',
+                    'Evaluación neuropsicológica: Identificación de alteraciones en atención, memoria, lenguaje y funciones ejecutivas.',
+                    'Trastornos del neurodesarrollo: Abordaje de TDAH, dislexia, discalculia y dificultades específicas del aprendizaje.',
+                    'Intervención y adaptaciones: Diseño de programas de estimulación cognitiva y adaptaciones curriculares en el aula.'
                 ],
                 requirements: [
-                    'Dirigido a psicólogos, terapeutas y profesionales de la salud y educación con interés en el neurodesarrollo infantil.'
+                    'Psicólogos (clínicos y educativos) y neuropsicólogos.',
+                    'Estudiantes de últimos ciclos de Psicología o Educación.',
+                    'Docentes, terapeutas de lenguaje y profesionales de apoyo a la inclusión.'
                 ],
                 certification: [
-                    'Certificado académico emitido por KJA - Centro de Capacitación y Formación Psicológica.',
-                    'Material académico incluido.',
-                    'Bono: 1 curso gratis.',
-                    '50% de descuento — vacantes limitadas, solo válido en Perú.'
+                    'Casos prácticos: Análisis de perfiles neuropsicológicos y propuestas de intervención escolar.',
+                    'Material descargable: Baterías de cribado, fichas de estimulación y guías de adecuación curricular.',
+                    'Certificado de participación: Acreditación que respalda tu formación en neuropsicología infantil.'
                 ],
-                syllabus: [
-                    'Módulo 1: Neurodesarrollo y organización cerebral de las funciones cognitivas.',
-                    'Módulo 2: Instrumentos de evaluación neuropsicológica infantil.',
-                    'Módulo 3: Perfiles clínicos de los trastornos del neurodesarrollo.',
-                    'Módulo 4: Intervención y rehabilitación neuropsicológica clínica y educativa.'
-                ],
-                related: 'ADOS-2 y ADI-R, WISC-V: Aplicaciones Clínicas y Neuropsicológicas',
+                syllabus: [],
+                related: 'ADOS-2 y ADI-R: Evaluación y Diagnóstico de Autismo, WISC-V: Aplicaciones Clínicas y Neuropsicológicas',
                 waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Neuropsicolog%C3%ADa%20Infantil%20-%20Psicolog%C3%ADa%20Cl%C3%ADnica%20y%20Educativa'
             },
             'integracion-sensorial': {
                 title: 'Terapia e Integración Sensorial en Niños con TEA y TDAH',
                 meta: 'Curso asincrónico · 300 horas académicas',
                 image: 'images/cursos/terapia-integracion-sensorial.webp',
-                description: 'Curso asincrónico sobre el enfoque de integración sensorial: comprende cómo el procesamiento sensorial impacta en la conducta y el aprendizaje, y aprende estrategias de intervención en niños con TEA y TDAH. ¡50% de descuento!',
+                description: 'Aprenderás a identificar las disfunciones del procesamiento sensorial en niños con TEA y TDAH para diseñar estrategias de regulación e intervención que mejoren su conducta y participación diaria.',
                 learn: [
-                    'Fundamentos de la teoría de integración sensorial de Ayres.',
-                    'Detección de señales de disfunción del procesamiento sensorial.',
-                    'Elaboración del perfil sensorial del niño.',
-                    'Estrategias y actividades de intervención en niños con TEA y TDAH.'
+                    'Sistemas sensoriales y regulación: Comprensión de los 7 sistemas sensoriales y el perfil de procesamiento en el neurodesarrollo.',
+                    'Evaluación e identificación: Herramientas de observación y cuestionarios para detectar hiper/hiporrespuesta e hiperactividad sensorial.',
+                    'Estrategias de dieta sensorial: Diseño de rutinas y actividades sensoriales autorreguladoras para el hogar y el colegio.',
+                    'Intervención en TEA y TDAH: Adaptaciones ambientales y técnicas para el manejo de crisis y sobrecarga sensorial.'
                 ],
                 requirements: [
-                    'Dirigido a terapeutas ocupacionales, psicólogos, terapeutas de lenguaje, educadores y padres de familia.'
+                    'Terapeutas ocupacionales, psicólogos y terapeutas de lenguaje.',
+                    'Estudiantes de últimos ciclos de ciencias de la salud o educación.',
+                    'Docentes, educadores especiales y profesionales del desarrollo infantil.'
                 ],
                 certification: [
-                    'Incluye certificado con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
-                    'Material académico incluido.',
-                    'Válido para concursos públicos y privados.',
-                    '50% de descuento — solo válido en Perú.'
+                    'Casos prácticos: Análisis de perfiles sensoriales reales y diseño de actividades.',
+                    'Material descargable: Plantillas de dieta sensorial, cuestionarios de observación y guías adaptativas.',
+                    'Certificado de participación: Acreditación que respalda tu formación en abordaje sensorial.'
                 ],
-                syllabus: [
-                    'Módulo 1: Sistemas sensoriales y teoría de la integración sensorial.',
-                    'Módulo 2: Evaluación y perfil sensorial del niño.',
-                    'Módulo 3: Estrategias de intervención y dieta sensorial en TEA y TDAH.'
-                ],
+                syllabus: [],
                 related: 'Terapia del Habla y del Lenguaje, ADOS-2 y ADI-R',
                 waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20curso%20de%20Terapia%20e%20Integraci%C3%B3n%20Sensorial%20en%20Ni%C3%B1os%20con%20TEA%20y%20TDAH'
             },
@@ -649,11 +617,7 @@
                     'Incluye certificado con código QR verificable, emitido por KJA - Centro de Capacitación y Formación Psicológica.',
                     'Material académico incluido.'
                 ],
-                syllabus: [
-                    'Módulo 1: Desarrollo típico del habla y del lenguaje.',
-                    'Módulo 2: Detección de retrasos y trastornos del habla y lenguaje.',
-                    'Módulo 3: Estrategias prácticas de estimulación e intervención.'
-                ],
+                syllabus: [],
                 related: 'Terapia e Integración Sensorial en Niños con TEA y TDAH, Neuropsicología Infantil',
                 waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20el%20taller%20de%20Terapia%20del%20Habla%20y%20del%20Lenguaje'
             }
@@ -669,14 +633,15 @@
             document.getElementById('course-modal-image').src = customImage || data.image;
             document.getElementById('course-modal-image').alt = data.title;
             document.getElementById('course-modal-desc').textContent = data.description;
-            document.getElementById('course-modal-related').textContent = data.related;
             document.getElementById('course-modal-wa-link').href = data.waLink;
+
+            // Renderizar cursos relacionados como chips clicables
+            renderRelatedCourses('course-modal-related', data.related);
 
             // Renderizar listas
             renderModalList('course-modal-learn', data.learn);
             renderModalList('course-modal-requirements', data.requirements);
             renderModalList('course-modal-certification', data.certification);
-            renderModalList('course-modal-syllabus', data.syllabus);
 
             // Mostrar modal
             const modal = document.getElementById('course-modal');
@@ -702,10 +667,34 @@
             }
         }
 
+        function renderRelatedCourses(elementId, relatedString) {
+            const container = document.getElementById(elementId);
+            if (!container) return;
+            container.innerHTML = '';
+            if (!relatedString) return;
+            relatedString.split(',').forEach(function(name) {
+                const courseName = name.trim();
+                const courseId = getCourseIdByTitle(courseName);
+                const chip = document.createElement('button');
+                chip.className = 'related-chip-btn';
+                chip.textContent = courseName;
+                if (courseId) {
+                    chip.onclick = function() { openCourseModal(courseId); };
+                    chip.setAttribute('data-tooltip', 'Ir a: ' + courseName);
+                } else {
+                    chip.disabled = true;
+                    chip.style.opacity = '0.5';
+                    chip.style.cursor = 'default';
+                }
+                container.appendChild(chip);
+            });
+        }
+
         function renderModalList(elementId, itemsArray) {
             const list = document.getElementById(elementId);
+            if (!list) return;  // elemento no existe en el DOM, ignorar
             list.innerHTML = '';
-            itemsArray.forEach(item => {
+            (itemsArray || []).forEach(item => {
                 const li = document.createElement('li');
                 li.textContent = item;
                 list.appendChild(li);
@@ -772,7 +761,7 @@
             tipo: 'curso',
             modalidad: 'zoom',                    // 'vivo' | 'grabado' | 'zoom' | 'presencial' | 'presencial-virtual'
             titulo: 'WISC-V: Aplicaciones Clínicas y Neuropsicológicas',
-            descripcion: 'Curso online: domina la administración, calificación e interpretación clínica y neuropsicológica de la Escala de Inteligencia de Wechsler para Niños (WISC-V). Incluye material académico y certificado con QR.',
+            descripcion: 'Aprenderás a aplicar, calificar e interpretar la escala WISC-V desde un enfoque neuropsicológico, identificando perfiles cognitivos para diagnósticos precisos en niños y adolescentes.',
             duracion: 'Online',
             audiencia: 'Psicólogos y estudiantes',
             imagen: 'images/cursos/wisc-v.webp',
@@ -786,7 +775,7 @@
             tipo: 'curso',
             modalidad: 'zoom',
             titulo: 'Evaluaciones Psicológicas en Niños y Adolescentes',
-            descripcion: 'Curso online: aprende a seleccionar, aplicar e interpretar las principales pruebas psicométricas y proyectivas en niños y adolescentes. Incluye material académico y certificado con QR.',
+            descripcion: 'Aprenderás a seleccionar, aplicar e integrar las principales herramientas de evaluación psicológica infanto-juvenil para estructurar diagnósticos precisos e intervenciones efectivas.',
             duracion: 'Online',
             audiencia: 'Psicólogos y estudiantes',
             imagen: 'images/cursos/evaluaciones-psicologicas-ninos.webp',
@@ -800,7 +789,7 @@
             tipo: 'curso',
             modalidad: 'zoom',
             titulo: 'Reclutamiento, Selección y Pruebas Psicológicas',
-            descripcion: 'Fórmate en el proceso completo de selección de personal: elaboración del perfil del puesto, reclutamiento y aplicación de pruebas de inteligencia, personalidad y habilidades.',
+            descripcion: 'Aprenderás a gestionar procesos de atracción de talento y a seleccionar candidatos ideales mediante la aplicación e interpretación de pruebas psicométricas y proyectivas laborales.',
             duracion: 'Online',
             audiencia: 'Psicólogos y RR.HH.',
             imagen: 'images/cursos/reclutamiento-seleccion.webp',
@@ -816,7 +805,7 @@
             tipo: 'especializacion',
             modalidad: 'vivo',
             titulo: 'ADOS-2 y ADI-R: Evaluación y Diagnóstico de Autismo',
-            descripcion: 'Curso 100% en vivo sobre los instrumentos de referencia internacional para la evaluación y el diagnóstico del autismo: ADOS-2 y ADI-R. Incluye certificado y material académico. ¡Válido solo para Perú!',
+            descripcion: 'Aprenderás a administrar e interpretar las herramientas de referencia de oro (ADOS-2 y ADI-R) para realizar una evaluación diagnóstica precisa del Trastorno del Espectro Autista (TEA) en diferentes etapas de la vida.',
             duracion: 'En vivo',
             audiencia: 'Profesionales de la salud',
             imagen: 'images/cursos/ados2-adir.webp',
@@ -830,7 +819,7 @@
             tipo: 'especializacion',
             modalidad: 'zoom',
             titulo: 'Terapia Cognitivo Conductual y Terapia Racional Emotiva Conductual',
-            descripcion: 'Curso online de TCC y TREC: conceptualización de casos, reestructuración cognitiva y técnicas conductuales aplicadas. ¡50% de descuento + 1 curso grabado GRATIS (6 h.a.)! Solo válido en Perú.',
+            descripcion: 'Aprenderás a aplicar los principios y técnicas de la TCC y TREC para reestructurar pensamientos disfuncionales y modificar patrones de conducta en el tratamiento de los trastornos más frecuentes.',
             duracion: '300 horas',
             audiencia: 'Psicólogos y estudiantes',
             imagen: 'images/cursos/terapia-cognitivo-conductual.webp',
@@ -844,7 +833,7 @@
             tipo: 'especializacion',
             modalidad: 'vivo',
             titulo: 'Neuropsicología Infantil: Psicología Clínica y Educativa',
-            descripcion: 'Clases en vivo vía Zoom: evaluación de funciones cognitivas, trastornos del neurodesarrollo e intervención clínica y educativa. ¡50% de descuento + 1 curso GRATIS! Vacantes limitadas, solo válido en Perú.',
+            descripcion: 'Aprenderás a relacionar el funcionamiento del sistema nervioso en desarrollo con los procesos de aprendizaje y conducta, integrando la evaluación y el abordaje en los ámbitos clínico y escolar.',
             duracion: '300 horas',
             audiencia: 'Profesionales de la salud',
             imagen: 'images/cursos/neuropsicologia-infantil.webp',
@@ -860,7 +849,7 @@
             tipo: 'taller',
             modalidad: 'grabado',
             titulo: 'Terapia e Integración Sensorial en Niños con TEA y TDAH',
-            descripcion: 'Curso asincrónico sobre el enfoque de integración sensorial: perfil sensorial y estrategias de intervención en niños con TEA y TDAH. ¡50% de descuento! Válido para concursos públicos y privados.',
+            descripcion: 'Aprenderás a identificar las disfunciones del procesamiento sensorial en niños con TEA y TDAH para diseñar estrategias de regulación e intervención que mejoren su conducta y participación diaria.',
             duracion: '300 horas',
             audiencia: 'Terapeutas y educadores',
             imagen: 'images/cursos/terapia-integracion-sensorial.webp',

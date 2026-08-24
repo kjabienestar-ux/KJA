@@ -4781,6 +4781,73 @@ body.modal-open {
     line-height: 1.4;
 }
 
+/* Chips clicables de cursos relacionados */
+.related-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.related-chip-btn {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 9999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    padding: 6px 13px;
+    cursor: pointer;
+    text-align: left;
+    line-height: 1.3;
+    transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+    backdrop-filter: blur(4px);
+}
+
+.related-chip-btn:hover {
+    background: rgba(255, 255, 255, 0.32);
+    border-color: rgba(255, 255, 255, 0.65);
+    transform: translateY(-1px) scale(1.02);
+}
+
+.related-chip-btn:active {
+    transform: scale(0.97);
+}
+
+/* Hover overlay "Ir a →" dentro del chip */
+.related-chip-btn[data-tooltip] {
+    position: relative;
+    overflow: hidden;
+}
+
+.related-chip-btn[data-tooltip]::before {
+    content: 'Ir a \2192';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f10075 0%, #c8005e 100%);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.3px;
+    border-radius: inherit;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.related-chip-btn[data-tooltip]:hover::before {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* Floating WhatsApp button at the very bottom center of the modal */
 .course-modal-footer {
     position: absolute;
