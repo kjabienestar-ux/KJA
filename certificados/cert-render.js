@@ -112,7 +112,7 @@
         const paraExpositor = x.dirigido === 'expositor';
 
         const p1 = [{t:'El Centro Psicológico '},{t:'KJA – Desarrollando Mi Bienestar',b:1},
-                    {t: paraExpositor ? ' deja constancia de que ' : ' deja constancia de que el estudiante '},
+                    {t: paraExpositor ? ' deja constancia de que ' : ' deja constancia de que el colaborador '},
                     {t:d.nombre||'',b:1}];
         if(x.dni||d.dni) p1.push({t:', identificado con DNI N.° '},{t:String(x.dni||d.dni),b:1});
         if(x.edad)       p1.push({t:', de '},{t:String(x.edad),b:1},{t:' años de edad'});
@@ -348,7 +348,7 @@
 
   /* Pinta un documento A4: lema del año, título, párrafos, lugar y fecha,
      código y QR. La fecha va debajo del último párrafo, no en una Y fija:
-     el largo del cuerpo depende de cuántos datos traiga el estudiante. */
+     el largo del cuerpo depende de cuántos datos traiga el colaborador. */
   async function dibujarDoc(ctx, cfg, d, L){
     /* El canvas no espera a que baje la fuente: si no se pide antes, dibuja
        con la de reserva y el documento sale en otra tipografía. */
