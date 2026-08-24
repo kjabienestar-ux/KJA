@@ -18,7 +18,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="certificados/cert-render.js?v=5"></script>
+<script src="certificados/cert-render.js?v=6"></script>
 
 <link rel="stylesheet" href="assets/css/accessibility.css">
 <link rel="stylesheet" href="assets/css/paginas/admin.css?v=41">
@@ -328,6 +328,8 @@
 
           <div class="f-group" id="doc-group" style="display:none;">
             <div class="f-group-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> Datos del estudiante y del proceso</div>
+            <label class="chk-temario"><input type="checkbox" id="f-doc-on" checked> Incluir los datos del estudiante</label>
+            <div id="doc-builder">
             <div class="row2">
               <div class="field"><label>Edad</label>
                 <input id="f-doc-edad" type="number" min="1" max="99" placeholder="Ej: 12"></div>
@@ -344,6 +346,7 @@
               <input id="f-doc-solicitante" type="text" placeholder="Ej: la institución educativa"></div>
             <div class="field"><label>Lugar de expedición</label>
               <input id="f-doc-lugar" type="text" placeholder="Lima"></div>
+            </div>
           </div>
 
           <div class="f-group" id="temario-group" style="display:none;">
@@ -840,7 +843,9 @@ function leerDatos(){
 function esDocumento(tipo){ const t=KJACert.TIPOS[tipo]; return !!(t && t.campos==='documento'); }
 /* El lema del ano y el titulo van dentro de la plantilla, por eso no se piden aca. */
 const CAMPOS_DOC=['edad','turno','grado','colegio','domicilio','solicitante','lugar'];
+function docActivo(){ return $('f-doc-on').checked; }
 function leerDatosDoc(){
+  if(!docActivo()) return null;      // apagado: el documento sale sin esos datos
   const o={};
   CAMPOS_DOC.forEach(k=>{ const v=($('f-doc-'+k).value||'').trim(); if(v) o[k]=v; });
   if(o.edad) o.edad=parseInt(o.edad,10);
@@ -849,6 +854,9 @@ function leerDatosDoc(){
 function pintarDatosDoc(datos){
   const o=datos||{};
   CAMPOS_DOC.forEach(k=>{ $('f-doc-'+k).value = (o[k]!==undefined && o[k]!==null) ? o[k] : ''; });
+  // Al editar, el interruptor refleja si ese certificado traía datos o no
+  $('f-doc-on').checked = !!(datos && Object.keys(o).length);
+  $('doc-builder').style.display = $('f-doc-on').checked ? 'block' : 'none';
 }
 function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
   $('lbl-titulo').textContent=cfg.etiquetaTitulo;
@@ -859,6 +867,7 @@ function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
      controles se esconden para no pedir datos que no se van a dibujar. */
   const doc=esDocumento(d.tipo);
   $('doc-group').style.display = doc ? 'block' : 'none';
+  if(doc) $('doc-builder').style.display = $('f-doc-on').checked ? 'block' : 'none';
   $('wrap-duracion').style.display = doc ? 'none' : 'block';
   $('font-cselect').closest('.field').style.display = doc ? 'none' : 'block';
   $('size-wrap').closest('.row2').style.display = doc ? 'none' : 'flex';
@@ -947,6 +956,7 @@ function resetForm(){
   $('f-nombre').value=''; $('f-dni').value=''; $('f-titulo').value='';
   $('f-duracion').value=''; $('f-numero').value='';
   pintarDatosDoc(null);
+  $('f-doc-on').checked=true; $('doc-builder').style.display='block';
   $('f-extranjero').checked=false; actualizarDniUI();
   resetTemario();
   setTipo($('f-tipo').value || 'taller'); // Ensures f-size starts with the right default number
@@ -1206,6 +1216,14 @@ $('exito-ov').addEventListener('click', e=>{ if(e.target===$('exito-ov')) $('exi
 
 ['f-tipo','f-nombre','f-dni','f-size','f-titulo','f-duracion','f-inicio','f-fin','f-emision','f-numero','f-nota']
   .forEach(id=>$(id).addEventListener('input',dibujar));
+
+/* Los campos del documento también refrescan la vista previa: sin esto se
+   escribía el colegio o la edad y no pasaba nada en el lienzo. */
+CAMPOS_DOC.forEach(k=>$('f-doc-'+k).addEventListener('input',dibujar));
+$('f-doc-on').addEventListener('change',()=>{
+  $('doc-builder').style.display = docActivo() ? 'block' : 'none';
+  dibujar();
+});
 
 /* ───── Validación de DNI (8 dígitos; extranjero: 8–15) ───── */
 function dniMax(){ return $('f-extranjero').checked ? 15 : 8; }
