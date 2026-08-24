@@ -525,7 +525,7 @@ const topicsData = {
     },
     "familiar": {
         title: "Tratamiento de Terapia Familiar",
-        desc: "Los conflictos o la falta de comunicación en el hogar pueden desgastar la armonía familiar. Nuestro equipo crea un espacio seguro para resolver crisis, sanar la convivencia y fortalecer la unión afectiva.",
+        desc: "Los conflictos o la falta de comunicación en el hogar pueden desgastar la armonía familiar. Nuestro equipo crea un espacio seguro para trabajar en resolver crisis, mejorar la convivencia y fortalecer la unión afectiva.",
         price: "S/ 59.90",
         image: "images/flyer-terapias/12_terapia_familiar.webp",
         courses: []
@@ -567,7 +567,7 @@ const topicsData = {
     },
     "terapia emocional": {
         title: "Tratamiento de Terapia Emocional",
-        desc: "Aprende a gestionar tus emociones y mejorar tu bienestar emocional. Nuestro equipo te acompaña en el proceso de autodescubrimiento, fortaleciendo tu amor propio y sanación integral.",
+        desc: "Aprende a gestionar tus emociones y mejorar tu bienestar emocional. Nuestro equipo te acompaña en el proceso de autodescubrimiento, fortaleciendo tu amor propio a tu propio ritmo.",
         price: "S/ 59.90",
         image: "images/flyer-terapias/01_terapia_dependencia_emocional.webp",
         courses: []
@@ -637,8 +637,7 @@ function openTopicModal(topicName) {
     // Inyectar textos
     document.getElementById('modalTitle').textContent = data.title;
     document.getElementById('modalDesc').textContent = data.desc;
-    document.getElementById('modalPrice').textContent = data.price;
-    
+
     // Inyectar imagen
     const imgEl = document.getElementById('modalImage');
     if (imgEl && data.image) {
