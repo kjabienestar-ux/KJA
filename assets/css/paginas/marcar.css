@@ -371,10 +371,13 @@ h1{font-size:26px;line-height:1.2;margin:0;color:var(--rosa);font-weight:700;let
 }
 /* Mientras se comprueba la clave, el teclado se apaga y los puntos laten */
 .teclado.esperando{pointer-events:none;opacity:.5;transition:opacity .2s ease;}
-.pin-puntos.comprobando i{animation:pinLate 1s ease-in-out infinite;}
-.pin-puntos.comprobando i:nth-child(2){animation-delay:.12s;}
-.pin-puntos.comprobando i:nth-child(3){animation-delay:.24s;}
-.pin-puntos.comprobando i:nth-child(4){animation-delay:.36s;}
+/* Ojo: el elemento es id="pin-puntos" con class="puntos". El selector iba
+   por .pin-puntos y no enganchaba nunca, así que los puntos se quedaban
+   quietos y la espera parecía la pantalla colgada. */
+.puntos.comprobando i{animation:pinLate 1s ease-in-out infinite;}
+.puntos.comprobando i:nth-child(2){animation-delay:.12s;}
+.puntos.comprobando i:nth-child(3){animation-delay:.24s;}
+.puntos.comprobando i:nth-child(4){animation-delay:.36s;}
 @keyframes pinLate{
   0%,100%{transform:scale(1);opacity:1;}
   50%{transform:scale(.72);opacity:.55;}

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/paginas/marcar.css?v=23">
+<link rel="stylesheet" href="assets/css/paginas/marcar.css?v=24">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -301,6 +301,22 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
 });
 const $ = id => document.getElementById(id);
 const CLAVE = new URLSearchParams(location.search).get('k') || '';
+
+/* ── Ninguna espera puede ser eterna ──
+   Un celular que pierde señal a mitad de una llamada deja la promesa colgada
+   para siempre: la pantalla se queda en "Comprobando…" con el teclado apagado
+   y la única salida es cerrar el navegador. Todo lo que va al servidor pasa
+   por acá, así que como mucho se espera unos segundos y luego se avisa. */
+class TiempoAgotado extends Error {
+  constructor(){ super('tiempo_agotado'); this.motivo = 'tiempo_agotado'; }
+}
+function conTope(promesa, ms = 15000){
+  return Promise.race([
+    promesa,
+    new Promise((_, rechazar) => setTimeout(() => rechazar(new TiempoAgotado()), ms))
+  ]);
+}
+const esTiempoAgotado = e => !!e && e.motivo === 'tiempo_agotado';
 
 /* Solo se recuerda A QUIÉN preguntarle, nunca su clave: al volver entra
    directo al teclado en vez de buscarse otra vez en la lista. */
@@ -615,7 +631,9 @@ function pintarPuntos(){
 }
 /* Los puntos laten y el teclado se apaga mientras el servidor responde.
    Se queda en la misma pantalla: sin saltos ni animaciones de por medio. */
+let PIN_EN_VUELO = false;
 function pinComprobando(activo){
+  PIN_EN_VUELO = activo;
   $('pin-puntos').classList.toggle('comprobando', activo);
   $('teclado').classList.toggle('esperando', activo);
   if(activo) pinMsg('Comprobando…');
@@ -670,6 +688,8 @@ let PIN_PRIMERO = '';
 const CLAVES_OBVIAS = ['0000','1111','2222','3333','4444','5555','6666','7777','8888','9999',
                        '1234','4321','1212','2580','0123','9876'];
 async function enviarPin(){
+  // Dos toques muy seguidos en el cuarto dígito mandaban dos consultas a la vez
+  if(PIN_EN_VUELO) return;
   // Crear la clave pide escribirla dos veces
   if(MODO_PIN === 'crear' && !PIN_PRIMERO){
     if(CLAVES_OBVIAS.includes(PIN)){
@@ -691,7 +711,19 @@ async function enviarPin(){
      la comprobación pasa en la misma pantalla, con los puntos latiendo. */
   pinComprobando(true);
   const fn = MODO_PIN === 'crear' ? 'asis_portal_crear_clave' : 'asis_portal_entrar';
-  const { data, error } = await db.rpc(fn, { p_clave: CLAVE, p_colab: YO.id, p_pin: PIN });
+  let data, error;
+  try{
+    ({ data, error } = await conTope(db.rpc(fn, { p_clave: CLAVE, p_colab: YO.id, p_pin: PIN })));
+  }catch(e){
+    /* Se acabó el tiempo: se devuelve el teclado y se dice qué pasó. La clave
+       se borra porque nadie sabe si llegó o no, y volver a escribirla es más
+       barato que quedarse mirando una pantalla muerta. */
+    pinComprobando(false);
+    PIN = ''; pintarPuntos();
+    return pinMsg(esTiempoAgotado(e)
+      ? 'La conexión está lenta y no respondió. Revisa tu señal y vuelve a escribir tu clave.'
+      : 'No se pudo conectar. Revisa tu señal e intenta de nuevo.', 'mal');
+  }
   pinComprobando(false);
   if(error){ PIN=''; pintarPuntos(); return verFalla(error); }
 
@@ -1184,7 +1216,13 @@ async function tomarEvidencia(archivo, origen){
   /* Solo imágenes. El accept del input se puede saltar eligiendo "todos los
      archivos", así que se comprueba aquí; y de todas formas lo que se sube es
      lo que sale del canvas, no el archivo original. */
-  const tipoOk = (archivo.type || '').startsWith('image/') || EVI_TIPOS_OK.includes(archivo.type);
+  /* Varios Android (y algún HEIC de iPhone) entregan la foto de la cámara con
+     el type vacío. Rechazarla dejaba a esa persona sin poder adjuntar nada y,
+     como sin evidencia no se marca, sin poder marcar. Si no viene el tipo, se
+     deja pasar y decide el canvas: si no es una imagen, `comprimir` falla y
+     ahí sí se avisa. */
+  const tipo = archivo.type || '';
+  const tipoOk = tipo === '' || tipo.startsWith('image/') || EVI_TIPOS_OK.includes(tipo);
   if(!tipoOk){
     limpiarEvidencia();
     return avisoEvi('Eso no es una imagen. Adjunta una foto o captura de pantalla (JPG, PNG o HEIC).', true);
@@ -1222,11 +1260,11 @@ $('evi-previa').addEventListener('click', () => $('evi-in-camara').click());
    Devuelve la ruta guardada, o lanza con un motivo entendible. */
 async function subirEvidencia(){
   evoPaso(15, 'Verificando tu identidad…');
-  const r = await fetch(SUPABASE_URL + '/functions/v1/asis-evidencia', {
+  const r = await conTope(fetch(SUPABASE_URL + '/functions/v1/asis-evidencia', {
     method:'POST',
     headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer ' + SUPABASE_ANON, 'Content-Type':'application/json' },
     body: JSON.stringify({ clave:CLAVE, colab:YO.id, pin:PIN, ext:(EVI.ext || 'webp') })
-  });
+  }));
   const permiso = await r.json().catch(() => null);
   if(!r.ok || !permiso || !permiso.ok){
     const e = new Error('permiso'); e.motivo = (permiso && permiso.motivo) || 'permiso'; throw e;
@@ -1241,8 +1279,9 @@ async function subirEvidencia(){
   const sellada = await sellar(EVI.blob, sello);
 
   evoPaso(60, 'Subiendo tu evidencia…', kb(sellada.size) + ' · esto es rápido');
-  const { error } = await db.storage.from(EVI_BUCKET)
-    .uploadToSignedUrl(permiso.ruta, permiso.token, sellada, { contentType: EVI.tipo || 'image/jpeg' });
+  // Más holgado que el resto: acá sí viajan los kilobytes de la foto
+  const { error } = await conTope(db.storage.from(EVI_BUCKET)
+    .uploadToSignedUrl(permiso.ruta, permiso.token, sellada, { contentType: EVI.tipo || 'image/jpeg' }), 30000);
   if(error){ const e = new Error('subida'); e.motivo = 'subida'; throw e; }
   evoPaso(85, 'Registrando tu asistencia…', 'Ya casi');
   return permiso.ruta;
@@ -1282,11 +1321,22 @@ $('d-marcar').addEventListener('click', async () => {
 
   /* Sin saltar a la pantalla de carga: el progreso ya se ve aquí mismo y
      cambiar de tarjeta solo añadiría otra animación de medio segundo. */
-  const { data, error } = await db.rpc('asis_portal_marcar', {
-    p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_disp: EQUIPO,
-    p_foto: ruta, p_foto_org: EVI.origen,
-    p_lat: geo ? geo.lat : null, p_lon: geo ? geo.lon : null
-  });
+  let data, error;
+  try{
+    ({ data, error } = await conTope(db.rpc('asis_portal_marcar', {
+      p_clave: CLAVE, p_colab: YO.id, p_pin: PIN, p_disp: EQUIPO,
+      p_foto: ruta, p_foto_org: EVI.origen,
+      p_lat: geo ? geo.lat : null, p_lon: geo ? geo.lon : null
+    })));
+  }catch(e){
+    /* La foto ya está arriba; lo que no respondió fue el registro. Se deja el
+       botón vivo para reintentar: repetir el marcado no duplica nada porque
+       el servidor responde 'ya_marcado' si la primera sí llegó. */
+    evoCarga(false); b.disabled = false; refrescarBotonMarcar();
+    return avisoEvi(esTiempoAgotado(e)
+      ? 'Tu foto se subió, pero el registro no respondió a tiempo. Revisa tu señal y vuelve a pulsar "Marcar mi asistencia".'
+      : 'No se pudo registrar tu asistencia. Revisa tu señal e intenta de nuevo.', true);
+  }
   if(error){ evoCarga(false); b.disabled = false; refrescarBotonMarcar(); return verFalla(error); }
   if(data && data.motivo === 'falta_evidencia'){
     evoCarga(false); b.disabled = false; refrescarBotonMarcar();
@@ -1369,6 +1419,10 @@ const ICO_ALERTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
    contacto a mano, en vez de un botón apagado que no explica nada. */
 function pintarNoMarco(dia){
   detenerReloj();
+  /* La jornada cerró: el bloque de evidencia ya no sirve y, si se deja
+     encendido, queda montado por debajo y reaparece al volver del historial. */
+  limpiarEvidencia();
+  $('d-evi').hidden = true;
   $('v-listo').classList.add('alerta');
   $('ls-ico').className = 'ico-grande ambar';
   $('ls-ico').innerHTML = ICO_ALERTA;
