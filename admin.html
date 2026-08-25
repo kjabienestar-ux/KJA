@@ -2110,13 +2110,15 @@ $('em-enviar').addEventListener('click', async ()=>{
       throw new Error(msg);
     }
     if(data && data.error) throw new Error(data.error);
-    // Guardar el correo del cliente y la fecha de envío (si falla, el envío igual fue exitoso)
+    // Guardar el correo del cliente y la fecha de envío (si falla, el envío igual fue exitoso).
+    // Se usan RPCs (security definer) en vez de .update() directo para que cualquier
+    // colaborador pueda registrar el envío, sin importar quién creó el certificado.
     try{
-      if($('em-guardar').checked && r.cliente_id) await db.from('clientes').update({email:para}).eq('id',r.cliente_id);
+      if($('em-guardar').checked && r.cliente_id) await db.rpc('guardar_email_cliente', { p_cliente_id: r.cliente_id, p_email: para });
       const ahora=new Date().toISOString();
-      await db.from('certificados').update({correo_enviado_at:ahora}).eq('id',r.id);
+      await db.rpc('marcar_certificado_enviado', { p_cert_id: r.id, p_ahora: ahora });
       r.correo_enviado_at=ahora;
-    }catch(e){}
+    }catch(e){ console.warn('[KJA] No se pudo registrar el envío en la BD:', e); }
     // Éxito: check animado y cierre suave
     $('em-exito-sub').textContent='El certificado llegó a '+para;
     $('em-exito').classList.add('show');
