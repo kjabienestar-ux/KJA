@@ -21,7 +21,7 @@
 <script src="certificados/cert-render.js?v=9"></script>
 
 <link rel="stylesheet" href="assets/css/accessibility.css">
-<link rel="stylesheet" href="assets/css/paginas/admin.css?v=41">
+<link rel="stylesheet" href="assets/css/paginas/admin.css?v=42">
 </head>
 <body>
 
@@ -412,7 +412,20 @@
           <button class="btn-cancel" id="btn-cancel">✕ Cancelar edición y volver</button>
           <div class="status" id="status"></div>
         </div>
-        <div class="stage"><canvas id="cert" width="2000" height="1414"></canvas></div>
+        <div class="stage">
+          <!-- Zoom de la vista previa: la constancia es una hoja Carta vertical
+               y a "ajustar" el texto queda muy chico para revisarlo. La barra va
+               fija arriba (no flotando) para no chocar con el botón de WhatsApp. -->
+          <div class="zoom-bar" role="group" aria-label="Zoom de la vista previa">
+            <span class="zoom-tag">Vista previa</span>
+            <button type="button" class="zoom-btn" id="zoom-out" title="Alejar (Ctrl + rueda del mouse)" aria-label="Alejar">−</button>
+            <button type="button" class="zoom-lvl" id="zoom-lvl" title="Ver al 100%">100%</button>
+            <button type="button" class="zoom-btn" id="zoom-in" title="Acercar (Ctrl + rueda del mouse)" aria-label="Acercar">+</button>
+            <span class="zoom-sep"></span>
+            <button type="button" class="zoom-fit" id="zoom-fit" title="Ajustar a la ventana">Ajustar</button>
+          </div>
+          <div class="stage-scroll" id="stage-scroll"><canvas id="cert" width="2000" height="1414"></canvas></div>
+        </div>
       </div>
 
       <!-- VIEW: EMITIDOS -->
@@ -824,6 +837,7 @@ document.querySelectorAll('.side button[data-view]').forEach(b=>{
     $('view-papelera').classList.toggle('active', v==='papelera');
     $('view-bitacora').classList.toggle('active', v==='bitacora');
     $('views-area')?.scrollTo(0,0);
+    if(v==='gen')  aplicarZoom();   // la vista estaba oculta: recalcular el "Ajustar"
     if(v==='emit') cargarEmitidos();
     if(v==='com') cargarComentarios();
     if(v==='papelera') cargarPapelera();
@@ -924,7 +938,58 @@ function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
 function dibujar(){ actualizarUI();
   if(vistaTemario && temarioActivo()) KJACert.renderTemario($('cert'), leerTemario());
   else KJACert.render($('cert'), leerDatos());
+  /* render() fija el tamaño del lienzo antes de su primer await, así que acá
+     ya se puede recalcular el zoom con las medidas nuevas. */
+  aplicarZoom();
 }
+
+/* ── Zoom de la vista previa (como el de Word) ────────────────────────────
+   El lienzo cambia de forma según el tipo (apaisado 2000×1414 o la hoja
+   Carta vertical de la constancia de charlas), donde "Ajustar" deja el texto
+   demasiado chico para revisarlo. Por eso: pasos fijos, 100% = un píxel del
+   lienzo por píxel de pantalla, y Ctrl + rueda del mouse. */
+const ZOOM_PASOS=[.1,.25,.4,.5,.6,.75,.9,1,1.25,1.5,2,3];
+let zoomNivel=null;                     // null = ajustar a la ventana
+function zoomAjuste(){
+  const box=$('stage-scroll'), c=$('cert');
+  if(!box.clientWidth || !c.width) return 1;
+  const s=getComputedStyle(box);
+  const w=box.clientWidth  - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+  const h=box.clientHeight - parseFloat(s.paddingTop)  - parseFloat(s.paddingBottom);
+  return Math.max(.05, Math.min(w/c.width, h/c.height));
+}
+function zoomActual(){ return zoomNivel==null ? zoomAjuste() : zoomNivel; }
+function aplicarZoom(){
+  const box=$('stage-scroll'), c=$('cert'), z=zoomActual();
+  /* Se guarda qué punto del lienzo estaba al centro para volver a él después
+     de cambiar el tamaño: si no, acercar te manda a la esquina superior. */
+  const rx=(box.scrollLeft+box.clientWidth /2)/Math.max(1,box.scrollWidth);
+  const ry=(box.scrollTop +box.clientHeight/2)/Math.max(1,box.scrollHeight);
+  c.style.maxWidth='none'; c.style.maxHeight='none';
+  c.style.width=Math.round(c.width*z)+'px'; c.style.height='auto';
+  box.scrollLeft=rx*box.scrollWidth -box.clientWidth /2;
+  box.scrollTop =ry*box.scrollHeight-box.clientHeight/2;
+  $('zoom-lvl').textContent=Math.round(z*100)+'%';
+  $('zoom-fit').classList.toggle('on', zoomNivel==null);
+  $('zoom-out').disabled = z<=ZOOM_PASOS[0]+1e-4;
+  $('zoom-in').disabled  = z>=ZOOM_PASOS[ZOOM_PASOS.length-1]-1e-4;
+}
+function zoomPaso(dir){
+  const z=zoomActual();
+  const sig = dir>0 ? ZOOM_PASOS.find(p=>p>z+1e-4)
+                    : ZOOM_PASOS.slice().reverse().find(p=>p<z-1e-4);
+  if(sig==null) return;
+  zoomNivel=sig; aplicarZoom();
+}
+$('zoom-in').addEventListener('click', ()=>zoomPaso(1));
+$('zoom-out').addEventListener('click',()=>zoomPaso(-1));
+$('zoom-lvl').addEventListener('click',()=>{ zoomNivel=1;    aplicarZoom(); });
+$('zoom-fit').addEventListener('click',()=>{ zoomNivel=null; aplicarZoom(); });
+$('stage-scroll').addEventListener('wheel',e=>{
+  if(!e.ctrlKey) return;                // sin Ctrl la rueda desplaza, como siempre
+  e.preventDefault(); zoomPaso(e.deltaY<0 ? 1 : -1);
+},{passive:false});
+window.addEventListener('resize',()=>{ if(zoomNivel==null) aplicarZoom(); });
 function nombreArchivo(d){ return `${d.codigo.replace(/[^a-z0-9]/gi,'_')}_${d.nombre.replace(/\s+/g,'_')}`; }
 function status(t,tipo){ const e=$('status'); e.textContent=t; e.className='status '+(tipo||'info'); if(!t)e.style.display='none'; }
 
