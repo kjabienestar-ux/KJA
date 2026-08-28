@@ -681,16 +681,24 @@ function nombreDe(uid){ return uid && PERFILES_MAP[uid] ? PERFILES_MAP[uid] : '�
 
 async function cargarPerfil(){
   try{
-    const { data:{ user } } = await db.auth.getUser();
-    if(!user) return;
+    const { data:{ user }, error:userError } = await db.auth.getUser();
+    if(userError || !user) throw userError || new Error('Sesión no disponible');
     PERFIL.id = user.id;
-    const { data } = await db.from('perfiles').select('nombre,rol,serie').eq('id', user.id).single();
-    if(data){ PERFIL.rol=data.rol||'colaborador'; PERFIL.serie=data.serie; PERFIL.nombre=data.nombre||''; }
-    const { data:todos } = await db.from('perfiles').select('id,nombre,rol');
+    const { data, error:perfilError } = await db.from('perfiles').select('nombre,rol,serie').eq('id', user.id).single();
+    if(perfilError || !data) throw perfilError || new Error('La cuenta no tiene perfil de certificados');
+    PERFIL.rol=data.rol||'colaborador'; PERFIL.serie=data.serie; PERFIL.nombre=data.nombre||'';
+    const { data:todos, error:mapError } = await db.from('perfiles').select('id,nombre,rol');
+    if(mapError) console.warn('[KJA] no se pudo cargar el mapa de autores:', mapError);
     PERFILES_MAP={}; ADMIN_UID=null;
     (todos||[]).forEach(p=>{ PERFILES_MAP[p.id]=p.nombre; if(p.rol==='admin' && !ADMIN_UID) ADMIN_UID=p.id; });
-  }catch(e){ console.warn('[KJA] perfil no cargado:', e); }
-  aplicarRolUI();
+    aplicarRolUI();
+    return true;
+  }catch(e){
+    PERFIL={ id:null, rol:'colaborador', serie:null, nombre:'' };
+    aplicarRolUI();
+    console.warn('[KJA] perfil no cargado:', e);
+    return false;
+  }
 }
 function aplicarRolUI(){
   document.querySelectorAll('.solo-admin').forEach(el=>{ el.style.display = esAdmin() ? '' : 'none'; });
@@ -708,8 +716,15 @@ function aplicarRolUI(){
 }
 
 /* ───── LOGIN ───── */
-function mostrarDash(email){ $('login-wrap').style.display='none'; $('dash').style.display='block'; $('who').textContent=email;
-  cargarPerfil().then(()=>{ prefillNumero(); if(esAdmin()){ cargarComentarios(); contarPapelera(); } }); cargarClientes(); dibujar(); }
+async function mostrarDash(email){
+  $('login-wrap').style.display='none'; $('dash').style.display='block'; $('who').textContent=email;
+  if(!await cargarPerfil()){
+    $('dash').style.display='none'; $('login-wrap').style.display='flex';
+    loginMsg('Tu cuenta no tiene acceso al módulo de certificados.');
+    return;
+  }
+  prefillNumero(); if(esAdmin()){ cargarComentarios(); contarPapelera(); } cargarClientes(); dibujar();
+}
 function mostrarLogin(){ $('dash').style.display='none'; $('login-wrap').style.display='flex'; }
 
 /* Ingreso con bienvenida animada (sin splash de carga): el velo aparece de inmediato
@@ -722,7 +737,14 @@ async function entrarConBienvenida(email){
   $('dash').style.display='block';          // el panel queda DETRÁS del velo (oscurecido y difuminado)
 
   // Cargar el perfil real (para el nombre) — mientras, solo se ve el velo, sin splash
-  await cargarPerfil();
+  const perfilOk=await cargarPerfil();
+  if(!perfilOk){
+    ov.classList.remove('show','phase-welcome','ent-going');
+    $('dash').style.display='none'; $('login-wrap').style.display='flex';
+    try{ await db.auth.signOut({scope:'local'}); }catch(e){}
+    loginMsg('Tu cuenta no tiene acceso al módulo de certificados. Comunícate con el administrador.');
+    return;
+  }
   prefillNumero();
   if(esAdmin()){ cargarComentarios(); contarPapelera(); }
   cargarClientes(); dibujar();
@@ -1082,7 +1104,7 @@ function resetForm(){
    la correlación (huecos, saltos y números pisados entre colaboradores).
    Se bloquea siempre salvo para el admin, o si la persona aún no tiene serie
    asignada (si no, no podría emitir nada). */
-function numeroEditable(){ return esAdmin() || !PERFIL.serie; }
+function numeroEditable(){ return !!PERFIL.id && (esAdmin() || !PERFIL.serie); }
 function aplicarBloqueoNumero(){
   const campo=$('f-numero'), libre=numeroEditable();
   campo.readOnly = !libre;
@@ -1270,8 +1292,10 @@ async function ejecutarGuardado(d){
     q = d.dni ? q.eq('dni',d.dni) : q.ilike('nombre',d.nombre);
     const {data:cli,error:e1}=await q; if(e1) throw e1;
     if(cli&&cli.length){ clienteId=cli[0].id;
-      const upd={nombre:d.nombre}; if(d.dni) upd.dni=d.dni;   // sincroniza el cliente con el último certificado
-      await db.from('clientes').update(upd).eq('id',clienteId);
+      const {error:eSync}=await db.rpc('sincronizar_cliente_certificados',{
+        p_cliente_id:clienteId,p_nombre:d.nombre,p_dni:d.dni||null
+      });
+      if(eSync) throw eSync;
     } else{ const {data:nuevo,error:e2}=await db.from('clientes').insert({nombre:d.nombre,dni:d.dni||null}).select('id').single();
       if(e2) throw e2; clienteId=nuevo.id; }
     const tem=leerTemario();
@@ -1299,8 +1323,9 @@ async function ejecutarGuardado(d){
       if(!error && (!res.data || res.data.id!==editingId)){
         error={message:'La base de datos no confirmó la actualización del certificado.'};
       }
+      if(!error && res.data?.codigo) d.codigo=res.data.codigo;
     }
-    else{ ({error}=await db.from('certificados').insert(payload)); }
+    else{ ({error}=await db.from('certificados').insert(payload).select('id').single()); }
     if(error){
       if(error.code==='23505') status('Ese código ya existe. Cambia el número.','error');
       else status('Error al guardar: '+error.message,'error');
@@ -1914,10 +1939,9 @@ async function eliminarCliente(){
   const nOcultar = g.certs.length===1 ? 'el certificado' : `los ${g.certs.length} certificados`;
   if(!confirm(`¿Ocultar ${nOcultar} de "${g.nombre}"? No se borran de verdad; el administrador puede restaurarlos desde la Papelera.`)) return;
   // Borrado suave: se ocultan los certificados (el cliente se conserva)
-  let r = g.clienteId
-    ? await db.from('certificados').update({oculto:true}).eq('cliente_id',g.clienteId)
-    : await db.from('certificados').update({oculto:true}).eq('nombre',g.nombre);
-  if(r.error){ alert('Error al ocultar: '+r.error.message); return; }
+  const ids=g.certs.map(c=>c.id);
+  const r=await db.rpc('cambiar_oculto_certificados_admin',{p_cert_ids:ids,p_oculto:true});
+  if(r.error || r.data!==ids.length){ alert('Error al ocultar: '+(r.error?.message||'la base no confirmó todos los certificados')); return; }
   cerrarDrawer(); cargarEmitidos(); if(esAdmin()) contarPapelera();
 }
 function nuevoCertCliente(nombre, dni){
@@ -2140,14 +2164,20 @@ $('em-enviar').addEventListener('click', async ()=>{
     // Guardar el correo del cliente y la fecha de envío (si falla, el envío igual fue exitoso).
     // Se usan RPCs (security definer) en vez de .update() directo para que cualquier
     // colaborador pueda registrar el envío, sin importar quién creó el certificado.
-    try{
-      if($('em-guardar').checked && r.cliente_id) await db.rpc('guardar_email_cliente', { p_cliente_id: r.cliente_id, p_email: para });
-      const ahora=new Date().toISOString();
-      await db.rpc('marcar_certificado_enviado', { p_cert_id: r.id, p_ahora: ahora });
-      r.correo_enviado_at=ahora;
-    }catch(e){ console.warn('[KJA] No se pudo registrar el envío en la BD:', e); }
+    const erroresRegistro=[];
+    if($('em-guardar').checked && r.cliente_id){
+      const guardado=await db.rpc('guardar_email_cliente', { p_cliente_id: r.cliente_id, p_email: para });
+      if(guardado.error) erroresRegistro.push(guardado.error);
+    }
+    const ahora=new Date().toISOString();
+    const marcado=await db.rpc('marcar_certificado_enviado', { p_cert_id: r.id, p_ahora: ahora });
+    if(marcado.error) erroresRegistro.push(marcado.error);
+    else r.correo_enviado_at=ahora;
+    const avisoRegistro=erroresRegistro.length
+      ? ' El correo sí salió, pero no se pudo registrar todo el estado en la base de datos; avisa al administrador.' : '';
+    if(erroresRegistro.length) console.warn('[KJA] No se pudo registrar todo el envío en la BD:', erroresRegistro);
     // Éxito: check animado y cierre suave
-    $('em-exito-sub').textContent='El certificado llegó a '+para;
+    $('em-exito-sub').textContent='El certificado llegó a '+para+'.'+avisoRegistro;
     $('em-exito').classList.add('show');
     if(grupoActual){ const g=grupos.find(x=>x.key===grupoActual.key); if(g) abrirDrawer(g); }
     setTimeout(()=>{
@@ -2219,8 +2249,8 @@ $('confirm-modal').addEventListener('click', e=>{ if(e.target===$('confirm-modal
 function eliminarFila(id){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
   abrirConfirm(`Vas a <b>ocultar</b> el certificado de <br><b style="color:#0f172a;">${r.nombre}</b> (${r.codigo}).<br><br>No se borra de verdad: el administrador puede restaurarlo desde la Papelera.`, async () => {
-    const {error}=await db.from('certificados').update({oculto:true}).eq('id',id);
-    if(error){ alert('Error al ocultar: '+error.message); return; }
+    const {data,error}=await db.rpc('cambiar_oculto_certificados_admin',{p_cert_ids:[id],p_oculto:true});
+    if(error || data!==1){ alert('Error al ocultar: '+(error?.message||'la base no confirmó el certificado')); return; }
     await cargarEmitidos();
     if(esAdmin()) contarPapelera();
     if(grupoActual){ const g=grupos.find(x=>x.key===grupoActual.key); if(g) abrirDrawer(g); else cerrarDrawer(); }
@@ -2267,10 +2297,10 @@ async function cargarComentarios(){
     const ok=card.querySelector('.com-ok');
     const hide=card.querySelector('.com-hide');
     const del=card.querySelector('.com-del');
-    if(ok) ok.onclick=async()=>{ await db.from('comentarios').update({aprobado:true}).eq('id',id); cargarComentarios(); };
-    if(hide) hide.onclick=async()=>{ await db.from('comentarios').update({aprobado:false}).eq('id',id); cargarComentarios(); };
+    if(ok) ok.onclick=async()=>{ const {data,error}=await db.from('comentarios').update({aprobado:true}).eq('id',id).select('id').maybeSingle(); if(error||!data){ abrirAlerta('No se pudo aprobar el comentario: '+(error?.message||'sin confirmación'),'Error'); return; } cargarComentarios(); };
+    if(hide) hide.onclick=async()=>{ const {data,error}=await db.from('comentarios').update({aprobado:false}).eq('id',id).select('id').maybeSingle(); if(error||!data){ abrirAlerta('No se pudo ocultar el comentario: '+(error?.message||'sin confirmación'),'Error'); return; } cargarComentarios(); };
     if(del) del.onclick=async()=>{ if(!confirm('¿Eliminar este comentario definitivamente?')) return;
-      await db.from('comentarios').delete().eq('id',id); cargarComentarios(); };
+      const {data,error}=await db.from('comentarios').delete().eq('id',id).select('id').maybeSingle(); if(error||!data){ abrirAlerta('No se pudo eliminar el comentario: '+(error?.message||'sin confirmación'),'Error'); return; } cargarComentarios(); };
   });
 }
 
@@ -2280,8 +2310,8 @@ function eliminarDefinitivo(id, nombre, codigo, origen){
     'Vas a eliminar <b>DEFINITIVAMENTE</b> el certificado de <br><b style="color:#0f172a;">'+nombre+'</b> ('+codigo+').<br><br>' +
     'Esta acción <b>no se puede deshacer</b> y no pasa por la Papelera. Quedará registrada en la bitácora.',
     async () => {
-      const {error}=await db.from('certificados').delete().eq('id',id);
-      if(error){ abrirAlerta('Error al eliminar: '+error.message, 'No se pudo eliminar'); return; }
+      const {data,error}=await db.rpc('eliminar_certificado_admin',{p_cert_id:id});
+      if(error || data!==id){ abrirAlerta('Error al eliminar: '+(error?.message||'la base no confirmó el certificado'), 'No se pudo eliminar'); return; }
       if(origen==='papelera'){ cargarPapelera(); contarPapelera(); }
       else{
         await cargarEmitidos();
@@ -2317,8 +2347,8 @@ async function cargarPapelera(){
     </div>`).join('');
   $('papelera-wrap').querySelectorAll('.pap-restore').forEach(btn=>{
     btn.onclick=async()=>{
-      const {error}=await db.from('certificados').update({oculto:false}).eq('id',btn.dataset.id);
-      if(error){ abrirAlerta('Error al restaurar: '+error.message, 'No se pudo restaurar'); return; }
+      const {data,error}=await db.rpc('cambiar_oculto_certificados_admin',{p_cert_ids:[btn.dataset.id],p_oculto:false});
+      if(error || data!==1){ abrirAlerta('Error al restaurar: '+(error?.message||'la base no confirmó el certificado'), 'No se pudo restaurar'); return; }
       cargarPapelera(); contarPapelera();
     };
   });

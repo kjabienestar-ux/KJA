@@ -7,6 +7,8 @@
 // Desplegar:  supabase functions deploy consulta-dni
 // Secreto:    supabase secrets set DECOLECTA_TOKEN=tu_token   (o desde el dashboard)
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -24,12 +26,22 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    // Solo un usuario autenticado (admin logueado) puede consultar — no la llave pública anónima.
-    const jwt = (req.headers.get("Authorization") || "").replace("Bearer ", "");
-    try {
-      const payload = JSON.parse(atob(jwt.split(".")[1] || ""));
-      if (payload.role !== "authenticated") return json({ error: "No autorizado" }, 401);
-    } catch { return json({ error: "No autorizado" }, 401); }
+    // El dashboard de asistencia comparte Auth con este proyecto. Validamos la
+    // sesión y además que la cuenta pertenezca al equipo de certificados, para
+    // proteger la cuota mensual de consultas RENIEC.
+    const jwt = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!jwt || !supabaseUrl || !anonKey) return json({ error: "No autorizado" }, 401);
+    const usuario = createClient(supabaseUrl, anonKey, {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: `Bearer ${jwt}` } },
+    });
+    const { data: identidad, error: eIdentidad } = await usuario.auth.getUser(jwt);
+    if (eIdentidad || !identidad?.user) return json({ error: "Sesión inválida" }, 401);
+    const { data: esMiembro, error: ePermiso } = await usuario.rpc("cert_es_miembro");
+    if (ePermiso) return json({ error: "No se pudo validar el acceso" }, 500);
+    if (!esMiembro) return json({ error: "No tienes acceso al módulo de certificados" }, 403);
 
     const { dni } = await req.json();
     if (!dni || !/^\d{8,15}$/.test(String(dni))) {

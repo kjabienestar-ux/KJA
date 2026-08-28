@@ -523,7 +523,8 @@ async function verificarPorCodigo(codigo){
   setLoading(true);
   try{
     const { data, error } = await db.rpc('verificar_codigo', { p_codigo: codigo });
-    if(error || !data || !data.length){ banner('No encontramos ningún certificado con ese código.',true); return; }
+    if(error){ banner('No pudimos consultar el registro en este momento. Inténtalo nuevamente.',true); return; }
+    if(!data || !data.length){ banner('No encontramos ningún certificado con ese código.',true); return; }
     const cert = data.find(r=>r.codigo===codigo) || data[0];
     banner('Certificado verificado · emitido oficialmente por KJA');
     await pintarLista(cert.nombre, data, codigo, false);
@@ -536,7 +537,8 @@ async function buscar(){
   limpiarBanner(); $('picker').innerHTML=''; ocultarResultados(false);
   setLoading(true);
   try{
-    const { data } = await db.rpc('buscar_certificados', { p_query: raw });
+    const { data, error } = await db.rpc('buscar_certificados', { p_query: raw });
+    if(error){ banner('No pudimos consultar el registro en este momento. Inténtalo nuevamente.',true); return; }
     const grupos = agruparPorCliente(data);
     if(!grupos.length){ banner('No encontramos certificados con esos datos. Revisa que esté completo.',true); return; }
     if(grupos.length===1){ setLoading(false); await pintarLista(grupos[0].nombre, grupos[0].certs, null, true); return; }
@@ -595,7 +597,8 @@ $('q').addEventListener('input', async (e) => {
 
   clearTimeout(autocompleteTimeout);
   autocompleteTimeout = setTimeout(async () => {
-    const { data } = await db.rpc('buscar_certificados', { p_query: raw });
+    const { data, error } = await db.rpc('buscar_certificados', { p_query: raw });
+    if(error){ dropdown.classList.remove('show'); return; }
     const cls = agruparPorCliente(data).slice(0,6).map(g=>({id:g.id, nombre:g.nombre}));
     searchCache[rawLower] = cls;
     renderAutocomplete(cls, dropdown);

@@ -9,6 +9,7 @@
 // especialización o constancia).
 
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const VERIFY_BASE = "https://www.kjadmb.com/certificado.html";
 
@@ -166,12 +167,22 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    // Solo un usuario autenticado (admin logueado) puede enviar — no la llave pública anónima.
-    const jwt = (req.headers.get("Authorization") || "").replace("Bearer ", "");
-    try {
-      const payload = JSON.parse(atob(jwt.split(".")[1] || ""));
-      if (payload.role !== "authenticated") return json({ error: "No autorizado" }, 401);
-    } catch { return json({ error: "No autorizado" }, 401); }
+    // No basta con que la cuenta sea authenticated: el dashboard de asistencia
+    // usa el mismo proyecto Auth. Se valida el JWT y la pertenencia al perfil
+    // específico del equipo de certificados.
+    const jwt = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!jwt || !supabaseUrl || !anonKey) return json({ error: "No autorizado" }, 401);
+    const usuario = createClient(supabaseUrl, anonKey, {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: `Bearer ${jwt}` } },
+    });
+    const { data: identidad, error: eIdentidad } = await usuario.auth.getUser(jwt);
+    if (eIdentidad || !identidad?.user) return json({ error: "Sesión inválida" }, 401);
+    const { data: esMiembro, error: ePermiso } = await usuario.rpc("cert_es_miembro");
+    if (ePermiso) return json({ error: "No se pudo validar el acceso" }, 500);
+    if (!esMiembro) return json({ error: "No tienes acceso al módulo de certificados" }, 403);
 
     const { para, nombre, titulo, codigo, tipo, pdfBase64, archivo } = await req.json();
 
