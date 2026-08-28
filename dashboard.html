@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 767px)">
-<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=33">
+<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=37">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -169,36 +169,43 @@
           </div>
           <nav class="mobile-quick-grid" aria-label="Accesos rápidos">
             <button type="button" data-mobile-action="asistencia">
-              <span class="mobile-action-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 15l2 2 4-4"/></svg></span>
+              <img class="card-deco-3d" src="images/dashboard/asistencia-3d.webp" alt="" aria-hidden="true">
+              <span class="mobile-action-icon-3d"><img src="images/dashboard/asistencia-3d.webp" alt=""></span>
               <span><b>Mi asistencia</b><small>Historial y calendario</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="marcar" id="mobile-action-mark">
+              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M8.5 3.8 7 2.5M15.5 3.8 17 2.5"/></svg>
               <span class="mobile-action-icon mint"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M8.5 3.8 7 2.5M15.5 3.8 17 2.5"/></svg></span>
-              <span><b id="mobile-action-mark-title">Marcar asistencia</b><small id="mobile-action-mark-note">Registrar ahora</small></span>
+              <span><b id="mobile-action-mark-title">Asistencia registrada</b><small id="mobile-action-mark-note">Marcado - 10:08 a. m.</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="perfil">
+              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.3 3.5-6 8-6s7.2 1.7 8 6"/></svg>
               <span class="mobile-action-icon pink"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.3 3.5-6 8-6s7.2 1.7 8 6"/></svg></span>
               <span><b>Mi perfil</b><small>Datos personales</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="jornada">
+              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 11h16"/><path d="M8 15h3M14 15h2"/></svg>
               <span class="mobile-action-icon amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 11h16"/><path d="M8 15h3M14 15h2"/></svg></span>
               <span><b>Jornada de hoy</b><small>Horario y estado</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="equipo" id="mobile-action-team" hidden>
+              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.5-3.6 2.5-5 6-5s5.5 1.4 6 5M15 15c3.6 0 5.5 1.4 6 4"/></svg>
               <span class="mobile-action-icon violet"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.5-3.6 2.5-5 6-5s5.5 1.4 6 5M15 15c3.6 0 5.5 1.4 6 4"/></svg></span>
               <span><b>Mi equipo</b><small>Personas de mi área</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="gestion" id="mobile-action-admin" hidden>
+              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5M8 14h3M14 14h2M8 17h8"/></svg>
               <span class="mobile-action-icon navy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5M8 14h3M14 14h2M8 17h8"/></svg></span>
               <span><b>Gestión</b><small>Panel administrativo</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
           </nav>
+
 
           <article class="mobile-today-summary" id="mobile-today-summary" tabindex="-1">
             <header><span><small>HOY</small><b id="mobile-today-date">—</b></span><span class="mobile-today-status" id="mobile-today-status">Cargando</span></header>
