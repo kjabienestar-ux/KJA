@@ -59,6 +59,7 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ ok: false, motivo: "metodo" }, 405);
 
   try {
+    const inicioPeticion = performance.now();
     const { dni, pin } = await req.json();
     const dniLimpio = String(dni || "").replace(/\D/g, "");
     const pinLimpio = String(pin || "");
@@ -88,7 +89,7 @@ Deno.serve(async (req) => {
     const id = Number(entrada.colab);
     const { data: yaTiene, error: eExiste } = await sb
       .from("asis_perfiles")
-      .select("id, acceso_panel")
+      .select("id, acceso_panel, rol, nivel, nombre, activo")
       .eq("colaborador_id", id)
       .maybeSingle();
     if (eExiste) return json({ ok: false, motivo: "servidor" }, 500);
@@ -117,35 +118,58 @@ Deno.serve(async (req) => {
     if (yaTiene && yaTiene.id !== uid) {
       return json({ ok: false, motivo: "identidad_inconsistente" }, 409);
     }
-    const ePerfil = yaTiene
-      ? (await sb.from("asis_perfiles").update({ nombre, activo: true }).eq("id", uid)).error
-      : (await sb.from("asis_perfiles").upsert({
+    const perfilSinCambios = !!yaTiene && yaTiene.nombre === nombre && yaTiene.activo;
+    const guardarPerfil = yaTiene
+      ? perfilSinCambios
+        ? Promise.resolve({ error: null })
+        : sb.from("asis_perfiles").update({ nombre, activo: true }).eq("id", uid)
+      : sb.from("asis_perfiles").upsert({
           id: uid,
           nombre,
           colaborador_id: id,
           acceso_panel: false,
           activo: true,
-        }, { onConflict: "id", ignoreDuplicates: true })).error;
-    if (ePerfil) return json({ ok: false, motivo: "no_se_pudo_crear_perfil" }, 500);
+        }, { onConflict: "id", ignoreDuplicates: true });
 
     const sid = sessionId(sesion.data.session.access_token);
     if (!sid) return json({ ok: false, motivo: "sesion_invalida" }, 500);
     const venceAt = new Date(Date.now() + OCHO_HORAS).toISOString();
 
-    await sb.from("dash_sesiones").delete().eq("perfil_id", uid).lt("vence_at", new Date().toISOString());
-    const { error: eSesion } = await sb.from("dash_sesiones").upsert({
-      session_id: sid,
-      perfil_id: uid,
-      vence_at: venceAt,
-      revocada_at: null,
-    }, { onConflict: "session_id" });
+    const limpiarVencidas = () => sb.from("dash_sesiones").delete()
+      .eq("perfil_id", uid).lt("vence_at", new Date().toISOString());
+    const guardarSesion = () => sb.from("dash_sesiones").upsert({
+        session_id: sid,
+        perfil_id: uid,
+        vence_at: venceAt,
+        revocada_at: null,
+      }, { onConflict: "session_id" });
+
+    let ePerfil = null;
+    let eSesion = null;
+    if (perfilSinCambios) {
+      const [, sesionRes] = await Promise.all([limpiarVencidas(), guardarSesion()]);
+      eSesion = sesionRes.error;
+    } else {
+      const perfilRes = await guardarPerfil;
+      ePerfil = perfilRes.error;
+      if (!ePerfil) {
+        const [, sesionRes] = await Promise.all([limpiarVencidas(), guardarSesion()]);
+        eSesion = sesionRes.error;
+      }
+    }
+    if (ePerfil) return json({ ok: false, motivo: "no_se_pudo_crear_perfil" }, 500);
     if (eSesion) return json({ ok: false, motivo: "no_se_pudo_registrar_sesion" }, 500);
 
-    const { data: perfil } = await sb
-      .from("asis_perfiles")
-      .select("nivel, colaborador_id, asis_colaboradores(area_id, nombre)")
-      .eq("id", uid)
-      .single();
+    // La sesión ya quedó registrada. Obtener aquí el arranque evita que el
+    // teléfono haga otras dos solicitudes antes de poder mostrar el portal.
+    // Los campos son opcionales para conservar compatibilidad con el cliente
+    // anterior: si esta lectura falla, el navegador usa su flujo de respaldo.
+    const sbSesion = createClient(url, anonKey, {
+      global: { headers: { Authorization: `Bearer ${sesion.data.session.access_token}` } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data: inicio, error: eInicio } = await sbSesion.rpc("dash_inicio");
+    const inicioRapido = !eInicio && inicio?.ok ? inicio : null;
 
     return json({
       ok: true,
@@ -154,10 +178,13 @@ Deno.serve(async (req) => {
       vence_at: venceAt,
       perfil: {
         colab: id,
-        nombre: perfil?.asis_colaboradores?.nombre ?? nombre,
-        nivel: perfil?.nivel ?? "miembro",
-        area: perfil?.asis_colaboradores?.area_id ?? entrada.area ?? null,
+        nombre: inicioRapido?.colaborador?.nombre ?? nombre,
+        nivel: inicioRapido?.perfil?.nivel ?? yaTiene?.nivel ?? "miembro",
+        area: inicioRapido?.colaborador?.area_id ?? entrada.area ?? null,
       },
+      inicio: inicioRapido,
+      acceso: { rol: yaTiene?.rol ?? "visor", acceso_panel: false },
+      servidor_ms: Math.round(performance.now() - inicioPeticion),
     });
   } catch (e) {
     const motivo = String(e?.message) === "falta_secreto" ? "falta_configurar_secreto" : "servidor";

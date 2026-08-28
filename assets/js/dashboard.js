@@ -246,7 +246,7 @@ $('form-colab').addEventListener('submit',async e=>{
     const {data:auth,error}=await db.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});
     if(error) throw error;
     localStorage.setItem(DEADLINE_KEY,data.vence_at);
-    $('pin').value=''; showPortalBootstrap(); await openPortal(auth?.session);
+    $('pin').value=''; showPortalBootstrap(); await openPortal(auth?.session,{inicio:data.inicio,acceso:data.acceso});
   }catch(err){ if($('portal').dataset.loading==='true')showAccess();else hideBoot(); formMsg('colab-msg','No se pudo conectar con el portal. Revisa tu señal e inténtalo otra vez.'); }
   finally{ setBusy(btn,false,''); }
 });
@@ -313,12 +313,18 @@ async function init(){
   showAccess();
 }
 
-async function openPortal(activeSession){
+async function openPortal(activeSession,bootstrap=null){
   const session=activeSession||(await db.auth.getSession()).data.session;
-  const accessRequest=session?.user?.id
-    ? db.from('asis_perfiles').select('rol,acceso_panel').eq('id',session.user.id).maybeSingle()
-    : Promise.resolve({data:null,error:null});
-  const [{data,error},{data:access}]=await Promise.all([db.rpc('dash_inicio'),accessRequest]);
+  let data=bootstrap?.inicio?.ok?bootstrap.inicio:null,error=null,access=bootstrap?.acceso||null;
+  if(!data){
+    const accessRequest=session?.user?.id
+      ? db.from('asis_perfiles').select('rol,acceso_panel').eq('id',session.user.id).maybeSingle()
+      : Promise.resolve({data:null,error:null});
+    const [inicioRes,accessRes]=await Promise.all([db.rpc('dash_inicio'),accessRequest]);
+    data=inicioRes.data;error=inicioRes.error;access=accessRes.data;
+  }else if(!access&&session?.user?.id){
+    access=(await db.from('asis_perfiles').select('rol,acceso_panel').eq('id',session.user.id).maybeSingle()).data;
+  }
   if(error||!data?.ok){
     await db.auth.signOut({scope:'local'}).catch(()=>{});
     return showAccess(error ? 'El dashboard todavía no está habilitado en la base de datos.' : 'Tu sesión venció. Vuelve a ingresar.');
