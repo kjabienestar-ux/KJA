@@ -221,23 +221,40 @@
   transform: translateX(4px);
 }
 
-.nos-btn-outline {
+.nos-btn-portal {
   display: inline-flex;
   align-items: center;
-  padding: 14px 28px;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: 700;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 11px 17px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
   text-decoration: none;
-  transition: all 0.3s ease;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  color: #fff !important;
-  background: transparent;
+  transition: transform 160ms cubic-bezier(.23, 1, .32, 1), background-color 160ms ease, border-color 160ms ease;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(255, 255, 255, 0.07);
 }
-.nos-btn-outline:hover {
-  border-color: #fff;
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+.nos-btn-portal svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nos-btn-portal:hover {
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+.nos-btn-portal:active {
+  transform: scale(.97);
 }
 
 /* ── Tres pilares bajo los botones (Enfoque Humano / Ciencia / Compromiso) ── */

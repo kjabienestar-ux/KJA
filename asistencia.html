@@ -487,7 +487,9 @@ let EXC_COL = {};               // 'colabId|fecha' -> {tipo,nota}
 let HORAS_CUMPLIDAS = {};       // colabId -> horas acumuladas (P/T/J) del vínculo principal
 let HORAS_VOLUNT = {};          // colabId -> horas de voluntariado (solo colaboradores mixtos)
 let YEAR, MONTH;                // MONTH 0-11
-let MODO = 'inicio';
+const MODOS_VALIDOS = ['inicio','lista','grilla','horarios','contratos','resumen','dispositivos'];
+const MODO_SOLICITADO = new URLSearchParams(location.search).get('modo');
+let MODO = MODOS_VALIDOS.includes(MODO_SOLICITADO) ? MODO_SOLICITADO : 'inicio';
 let MIG3 = false;               // ¿está aplicada la migración 3 (contratos)?
 let HAS_VINCULO = false;        // ¿está agregada la columna tipo_vinculo en la BD?
 let HAS_PEND = false;           // ¿está aplicada la migración 5 (contrato pendiente)?
@@ -908,12 +910,12 @@ async function entrar(){
      panel de certificados viven en la tabla `perfiles`, no acá: pueden
      autenticarse (el pool de usuarios es uno solo) pero no pasan de aquí, y
      la RLS del servidor tampoco les devuelve una sola fila. */
-  const { data:perf } = await db.from('asis_perfiles').select('id,nombre,rol,activo').eq('id', user.id).single();
-  if(!perf || !perf.activo){
+  const { data:perf } = await db.from('asis_perfiles').select('id,nombre,rol,activo,acceso_panel').eq('id', user.id).single();
+  if(!perf || !perf.activo || !perf.acceso_panel){
     await db.auth.signOut({scope:'local'});
     mostrarLogin();
-    loginMsg(perf ? 'Tu cuenta está dada de baja en el módulo de asistencia. Contacta a dirección.'
-                  : 'Esa cuenta no tiene acceso al registro de asistencia. Si usas el panel de certificados, es una cuenta distinta.');
+    loginMsg(perf && !perf.activo ? 'Tu cuenta está dada de baja en el módulo de asistencia. Contacta a dirección.'
+                  : 'Esa cuenta no tiene acceso administrativo al registro de asistencia.');
     return;
   }
   PERFIL = { id:perf.id, nombre:perf.nombre||user.email, rol:perf.rol||'visor' };
@@ -2581,9 +2583,11 @@ function abrirPop(td){
     const rg = REG[colabId+'|'+fecha];
     if(rg){
       const hora = rg.marcado_at ? hhmm(new Date(rg.marcado_at).toTimeString()) : '';
-      const quien = rg.origen==='portal' ? 'La marcó la propia persona desde el enlace'
-                                         : 'Marcada desde el panel';
-      const otros = rg.origen==='portal' ? otrosDelDispositivo(rg.dispositivo, fecha, colabId) : [];
+      const propia = rg.origen==='portal' || rg.origen==='dashboard';
+      const quien = rg.origen==='dashboard' ? 'La marcó la propia persona desde su dashboard'
+                   : rg.origen==='portal'   ? 'La marcó la propia persona desde el enlace'
+                                            : 'Marcada desde el panel';
+      const otros = propia ? otrosDelDispositivo(rg.dispositivo, fecha, colabId) : [];
       h += otros.length
         ? `<p class="pop-origen alerta">⚠ El mismo equipo marcó también a ${esc(otros.join(', '))}. Conviene revisarlo.</p>`
         : `<p class="pop-origen">${quien}${hora ? ' · <b>'+hora+'</b>' : ''}</p>`;
@@ -2595,7 +2599,7 @@ function abrirPop(td){
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                 Ver evidencia${subida ? ' <i class="pop-evi-tag">subida</i>' : ''}
               </button>`;
-      } else if(rg.origen === 'portal'){
+      } else if(propia){
         h += `<p class="pop-origen sin-evi">Marcó sin foto de evidencia.</p>`;
       }
     }
