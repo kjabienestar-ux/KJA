@@ -1280,7 +1280,26 @@ async function ejecutarGuardado(d){
       fecha_emision:d.fechaEmision||null,cliente_id:clienteId,temario:tem,font_size_nombre:d.fontSizeNombre||null,font_nombre:d.fontNombre||null,
       datos:d.datos||null};
     let error;
-    if(editingId){ ({error}=await db.from('certificados').update(payload).eq('id',editingId)); }
+    if(editingId){
+      // La RLS anterior dejaba que otro colaborador enviara el UPDATE, pero
+      // filtraba la fila: Supabase respondía sin error aunque modificara 0 registros.
+      // La RPC valida que sea miembro del equipo, actualiza la fila y devuelve
+      // el certificado guardado; así nunca mostramos un éxito falso.
+      let res=await db.rpc('actualizar_certificado_equipo',{
+        p_cert_id:editingId,
+        p_cambios:payload
+      });
+      // Despliegue compatible: si el HTML llega antes que la migración, quienes
+      // ya tenían permiso pueden seguir editando. El select confirma una fila;
+      // para los demás se muestra el error real en vez de un éxito falso.
+      if(res.error && (res.error.code==='PGRST202' || /schema cache|actualizar_certificado_equipo/i.test(res.error.message||''))){
+        res=await db.from('certificados').update(payload).eq('id',editingId).select('id').maybeSingle();
+      }
+      error=res.error;
+      if(!error && (!res.data || res.data.id!==editingId)){
+        error={message:'La base de datos no confirmó la actualización del certificado.'};
+      }
+    }
     else{ ({error}=await db.from('certificados').insert(payload)); }
     if(error){
       if(error.code==='23505') status('Ese código ya existe. Cambia el número.','error');
@@ -1824,6 +1843,13 @@ function fechaHoraCorta(iso){
   const h = d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
   return f + ' · ' + h;
 }
+function ultimaEdicionHtml(r, clase){
+  if(!r.actualizado_por) return '';
+  return `<div class="${clase||'dc-autor'}" style="margin-top:3px;">
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    Última edición por <b>${nombreDe(r.actualizado_por)}</b>${r.actualizado_at?`<span class="dc-creado-at">${fechaHoraCorta(r.actualizado_at)}</span>`:''}
+  </div>`;
+}
 
 /* Drawer con los certificados del cliente */
 let grupoActual=null;
@@ -1850,6 +1876,7 @@ function abrirDrawer(g){
         ${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)}
       </div>
       <div class="dc-autor"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Creado por <b>${nombreDe(r.creado_por)}</b>${r.created_at?`<span class="dc-creado-at"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${fechaHoraCorta(r.created_at)}</span>`:''}</div>
+      ${ultimaEdicionHtml(r)}
       ${r.correo_enviado_at ? `<div class="dc-sent">
         <span class="dc-sent-ico"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
         <span class="dc-sent-txt"><b>Enviado por correo</b><span>${fechaHoraEnvio(r.correo_enviado_at)}</span></span>
@@ -1974,7 +2001,7 @@ function abrirTodosModal(){
           <span class="dc-cod">${r.codigo}</span>
         </div>
         <div class="tcert-tit">${r.titulo}</div>
-        <div class="tcert-meta">${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)} · Creado por <b>${nombreDe(r.creado_por)}</b></div>
+        <div class="tcert-meta">${r.duracion||'--'} horas · ${KJACert.fechaLarga(r.fecha_emision)} · Creado por <b>${nombreDe(r.creado_por)}</b>${r.actualizado_por?` · Última edición por <b>${nombreDe(r.actualizado_por)}</b>${r.actualizado_at?' ('+fechaHoraCorta(r.actualizado_at)+')':''}`:''}</div>
         <div class="tcert-acc"><button class="t-edit">Editar</button><button class="t-pdf">Descargar PDF</button></div>
       </div>
       <figure class="tcert-fig cargando"><span class="todos-spin"></span><img alt="Certificado ${r.codigo}"><figcaption>Certificado</figcaption></figure>
