@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 767px)">
-<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=42">
+<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=43">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -153,7 +153,12 @@
             </button>
           </div>
           <div class="mobile-portal-person">
-            <span class="mobile-profile-avatar" id="mobile-home-avatar">KJ</span>
+            <span class="mobile-profile-photo">
+              <span class="mobile-profile-avatar" id="mobile-home-avatar">KJ</span>
+              <button class="mobile-profile-photo-edit" id="mobile-home-photo" type="button" aria-label="Subir foto de perfil" title="Subir foto">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+              </button>
+            </span>
             <div>
               <h1 id="mobile-home-name">Equipo KJA</h1>
               <p id="mobile-home-area">Tu área</p>
@@ -665,7 +670,7 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/js/dashboard.js?v=22"></script>
+<script src="assets/js/dashboard.js?v=23"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=1"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=1"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=1"></script>

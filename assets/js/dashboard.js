@@ -37,6 +37,10 @@ function profilePhotoMessage(text,type=''){
   const el=$('profile-photo-message');if(!el)return;
   el.textContent=text||'';el.className='profile-photo-message'+(type?' '+type:'');
 }
+function profilePhotoIssue(text){
+  profilePhotoMessage(text,'error');
+  if(APP.view==='inicio')toast(text,true);
+}
 function paintProfilePhoto(url=''){
   PROFILE_AVATAR_IDS.forEach(id=>{
     const el=$(id);if(!el)return;
@@ -46,10 +50,13 @@ function paintProfilePhoto(url=''){
   const hasPhoto=!!APP.avatar.path;
   if($('profile-photo-change'))$('profile-photo-change').textContent=hasPhoto?'Cambiar foto':'Subir foto';
   if($('profile-photo-remove'))$('profile-photo-remove').hidden=!hasPhoto;
+  const mobileEdit=$('mobile-home-photo');
+  if(mobileEdit){const label=hasPhoto?'Cambiar foto de perfil':'Subir foto de perfil';mobileEdit.setAttribute('aria-label',label);mobileEdit.title=label}
 }
 function setProfilePhotoBusy(on){
   APP.avatar.busy=on;
-  ['profile-photo-camera','profile-photo-change','profile-photo-remove'].forEach(id=>{const el=$(id);if(el)el.disabled=on});
+  ['profile-photo-camera','profile-photo-change','profile-photo-remove','mobile-home-photo'].forEach(id=>{const el=$(id);if(el)el.disabled=on});
+  if($('mobile-home-photo'))$('mobile-home-photo').toggleAttribute('aria-busy',on);
   if($('profile-photo-change'))$('profile-photo-change').textContent=on?'Preparando…':APP.avatar.path?'Cambiar foto':'Subir foto';
 }
 function preloadImage(url){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(url);img.onerror=reject;img.src=url})}
@@ -107,9 +114,9 @@ async function compressProfilePhoto(file){
 async function chooseProfilePhoto(file){
   if(!file||APP.avatar.busy)return;
   const validType=/^image\/(jpeg|png|webp)$/i.test(file.type)||/\.(jpe?g|png|webp)$/i.test(file.name||'');
-  if(!validType)return profilePhotoMessage('Elige una imagen JPG, PNG o WebP.','error');
-  if(file.size>PROFILE_MAX_SOURCE)return profilePhotoMessage('La foto supera el máximo de 3 MB. Elige una más liviana.','error');
-  const colab=APP.inicio?.colaborador?.id;if(!colab)return profilePhotoMessage('Tu perfil no está disponible en esta sesión.','error');
+  if(!validType)return profilePhotoIssue('Elige una imagen JPG, PNG o WebP.');
+  if(file.size>PROFILE_MAX_SOURCE)return profilePhotoIssue('La foto supera el máximo de 3 MB. Elige una más liviana.');
+  const colab=APP.inicio?.colaborador?.id;if(!colab)return profilePhotoIssue('Tu perfil no está disponible en esta sesión.');
   setProfilePhotoBusy(true);profilePhotoMessage('Recortando y comprimiendo la foto…');
   try{
     const prepared=await compressProfilePhoto(file),path=`${colab}/avatar.${prepared.ext}`,previous=APP.avatar.path;
@@ -124,7 +131,7 @@ async function chooseProfilePhoto(file){
     profilePhotoMessage(`Foto guardada · ${Math.max(1,Math.round(prepared.blob.size/1024))} KB`,'success');toast('Foto de perfil actualizada.');
   }catch(error){
     const message=error?.message==='peso_final'?'No se pudo reducir la foto lo suficiente. Elige otra imagen.':'No se pudo guardar la foto. Revisa tu conexión e inténtalo otra vez.';
-    profilePhotoMessage(message,'error');
+    profilePhotoIssue(message);
   }finally{setProfilePhotoBusy(false);$('profile-photo-input').value=''}
 }
 async function removeProfilePhoto(){
@@ -711,6 +718,7 @@ document.querySelectorAll('[data-mobile-action]').forEach(button=>button.onclick
   }
 });
 $('mobile-home-logout').onclick=()=>logout();
+$('mobile-home-photo').onclick=()=>$('profile-photo-input').click();
 $('profile-photo-camera').onclick=()=>$('profile-photo-input').click();
 $('profile-photo-change').onclick=()=>$('profile-photo-input').click();
 $('profile-photo-remove').onclick=removeProfilePhoto;
