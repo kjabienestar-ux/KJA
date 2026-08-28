@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 767px)">
-<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=37">
+<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=42">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -170,37 +170,37 @@
           <nav class="mobile-quick-grid" aria-label="Accesos rápidos">
             <button type="button" data-mobile-action="asistencia">
               <img class="card-deco-3d" src="images/dashboard/asistencia-3d.webp" alt="" aria-hidden="true">
-              <span class="mobile-action-icon-3d"><img src="images/dashboard/asistencia-3d.webp" alt=""></span>
+
               <span><b>Mi asistencia</b><small>Historial y calendario</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="marcar" id="mobile-action-mark">
-              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M8.5 3.8 7 2.5M15.5 3.8 17 2.5"/></svg>
-              <span class="mobile-action-icon mint"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M8.5 3.8 7 2.5M15.5 3.8 17 2.5"/></svg></span>
+              <img class="card-deco-3d" src="images/dashboard/marcar-3d.webp" alt="" aria-hidden="true">
+
               <span><b id="mobile-action-mark-title">Asistencia registrada</b><small id="mobile-action-mark-note">Marcado - 10:08 a. m.</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="perfil">
-              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.3 3.5-6 8-6s7.2 1.7 8 6"/></svg>
-              <span class="mobile-action-icon pink"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.3 3.5-6 8-6s7.2 1.7 8 6"/></svg></span>
+              <img class="card-deco-3d" src="images/dashboard/perfil-3d.webp" alt="" aria-hidden="true">
+
               <span><b>Mi perfil</b><small>Datos personales</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="jornada">
-              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 11h16"/><path d="M8 15h3M14 15h2"/></svg>
-              <span class="mobile-action-icon amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 11h16"/><path d="M8 15h3M14 15h2"/></svg></span>
+              <img class="card-deco-3d" src="images/dashboard/jornada-3d.webp" alt="" aria-hidden="true">
+
               <span><b>Jornada de hoy</b><small>Horario y estado</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="equipo" id="mobile-action-team" hidden>
               <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.5-3.6 2.5-5 6-5s5.5 1.4 6 5M15 15c3.6 0 5.5 1.4 6 4"/></svg>
-              <span class="mobile-action-icon violet"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.5-3.6 2.5-5 6-5s5.5 1.4 6 5M15 15c3.6 0 5.5 1.4 6 4"/></svg></span>
+
               <span><b>Mi equipo</b><small>Personas de mi área</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="gestion" id="mobile-action-admin" hidden>
               <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5M8 14h3M14 14h2M8 17h8"/></svg>
-              <span class="mobile-action-icon navy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5M8 14h3M14 14h2M8 17h8"/></svg></span>
+
               <span><b>Gestión</b><small>Panel administrativo</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
@@ -272,9 +272,24 @@
     </section>
 
     <section class="view" id="view-perfil" hidden>
-      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p>Estos datos son de consulta. Dirección gestiona cualquier cambio.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
+      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p>Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
       <div class="profile-layout">
-        <article class="profile-identity"><span class="profile-avatar" id="profile-avatar">KJ</span><h2 id="profile-name">—</h2><p id="profile-area">—</p><span class="profile-badge" id="profile-link">—</span></article>
+        <article class="profile-identity">
+          <div class="profile-photo-wrap">
+            <span class="profile-avatar" id="profile-avatar">KJ</span>
+            <button class="profile-photo-camera" id="profile-photo-camera" type="button" aria-label="Cambiar foto de perfil" title="Cambiar foto">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </button>
+          </div>
+          <h2 id="profile-name">—</h2><p id="profile-area">—</p><span class="profile-badge" id="profile-link">—</span>
+          <div class="profile-photo-actions">
+            <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+            <button class="profile-photo-change" id="profile-photo-change" type="button">Subir foto</button>
+            <button class="profile-photo-remove" id="profile-photo-remove" type="button" hidden>Quitar</button>
+          </div>
+          <small class="profile-photo-hint">JPG, PNG o WebP · máximo 3 MB</small>
+          <p class="profile-photo-message" id="profile-photo-message" role="status" aria-live="polite"></p>
+        </article>
         <article class="profile-data"><div id="profile-fields"></div><div class="profile-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span><b>¿Hay algo que corregir?</b>Comunícalo a Dirección para mantener tu información laboral al día.</span><a href="https://wa.me/51988918238" target="_blank" rel="noopener">Informar un cambio</a></div></article>
       </div>
     </section>
@@ -637,9 +652,9 @@
       <input id="evidence-camera" type="file" accept="image/*" capture="environment" hidden>
       <input id="evidence-file" type="file" accept="image/*" hidden>
       <div class="evidence-empty" id="evidence-empty">
-        <span><svg viewBox="0 0 24 24"><path d="M4 7h4l2-2h4l2 2h4v12H4z"/><circle cx="12" cy="13" r="4"/></svg></span>
+        <span class="evidence-icon-3d"><img src="images/dashboard/camera-3d.webp" alt="" aria-hidden="true"></span>
         <b id="evidence-title">Añade tu evidencia</b><p>La imagen se comprime antes de subir.</p>
-        <div><button id="take-photo" type="button">Tomar foto</button><button id="choose-photo" type="button">Elegir archivo</button></div>
+        <div class="evidence-actions"><button id="take-photo" type="button">Tomar foto</button><button id="choose-photo" type="button">Elegir archivo</button></div>
       </div>
       <button class="evidence-preview" id="evidence-preview" type="button" hidden><img id="evidence-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Vista previa de la evidencia"><span id="evidence-size">Cambiar imagen</span></button>
     </div>
@@ -650,7 +665,7 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/js/dashboard.js?v=21"></script>
+<script src="assets/js/dashboard.js?v=22"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=1"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=1"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=1"></script>

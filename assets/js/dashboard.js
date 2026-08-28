@@ -4,6 +4,10 @@ const SUPABASE_ANON = 'sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub';
 const AUTH_KEY = 'kja-dashboard-auth';
 const DEADLINE_KEY = 'kja-dashboard-vence';
 const SHELL_KEY = 'kja-dashboard-shell';
+const PROFILE_BUCKET = 'perfil-fotos';
+const PROFILE_MAX_SOURCE = 3 * 1024 * 1024;
+const PROFILE_MAX_STORED = 480 * 1024;
+const PROFILE_AVATAR_IDS = ['side-avatar','mobile-avatar','rail-avatar','mobile-home-avatar','profile-avatar'];
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
   auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:false, storageKey:AUTH_KEY }
 });
@@ -21,13 +25,121 @@ const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','ag
 const dayNames = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const shortDays = ['D','L','M','M','J','V','S'];
 
-let APP = { inicio:null, historial:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminAccess:null, adminAccessRequest:0, adminRoles:null, adminRolesRequest:0 };
+let APP = { inicio:null, historial:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, avatar:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminAccess:null, adminAccessRequest:0, adminRoles:null, adminRolesRequest:0 };
 let EVIDENCE = null;
 
 function formMsg(id,text){ const el=$(id); el.textContent=text||''; el.classList.toggle('show',!!text); }
 function markMsg(text){ $('mark-msg').textContent=text||''; $('mark-msg').classList.toggle('show',!!text); }
 function toast(text,bad=false){ const el=$('toast'); el.textContent=text; el.classList.toggle('bad',bad); el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),3500); }
 function setBusy(button,on,label){ button.disabled=on; if(!button.dataset.label) button.dataset.label=button.querySelector('span')?.textContent||button.textContent; const span=button.querySelector('span'); if(span) span.textContent=on?label:button.dataset.label; }
+
+function profilePhotoMessage(text,type=''){
+  const el=$('profile-photo-message');if(!el)return;
+  el.textContent=text||'';el.className='profile-photo-message'+(type?' '+type:'');
+}
+function paintProfilePhoto(url=''){
+  PROFILE_AVATAR_IDS.forEach(id=>{
+    const el=$(id);if(!el)return;
+    el.classList.toggle('has-photo',!!url);
+    if(url)el.style.backgroundImage=`url("${url}")`;else el.style.removeProperty('background-image');
+  });
+  const hasPhoto=!!APP.avatar.path;
+  if($('profile-photo-change'))$('profile-photo-change').textContent=hasPhoto?'Cambiar foto':'Subir foto';
+  if($('profile-photo-remove'))$('profile-photo-remove').hidden=!hasPhoto;
+}
+function setProfilePhotoBusy(on){
+  APP.avatar.busy=on;
+  ['profile-photo-camera','profile-photo-change','profile-photo-remove'].forEach(id=>{const el=$(id);if(el)el.disabled=on});
+  if($('profile-photo-change'))$('profile-photo-change').textContent=on?'Preparando…':APP.avatar.path?'Cambiar foto':'Subir foto';
+}
+function preloadImage(url){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(url);img.onerror=reject;img.src=url})}
+async function loadProfilePhoto(announce=false){
+  if(!APP.identity.hasPersonal)return;
+  const {data,error}=await db.rpc('dash_mi_foto');
+  if(error||!data?.ok){
+    APP.avatar={path:'',url:'',busy:false};paintProfilePhoto('');
+    if(announce)profilePhotoMessage('No se pudo cargar tu foto. Revisa la conexión e inténtalo otra vez.','error');
+    return;
+  }
+  APP.avatar.path=data.path||'';APP.avatar.url='';paintProfilePhoto('');
+  if(!APP.avatar.path){if(announce)profilePhotoMessage('Aún no tienes una foto de perfil.');return;}
+  const {data:signed,error:signedError}=await db.storage.from(PROFILE_BUCKET).createSignedUrl(APP.avatar.path,3600);
+  if(signedError||!signed?.signedUrl){if(announce)profilePhotoMessage('No se pudo abrir tu foto. Puedes reemplazarla o quitarla.','error');return;}
+  try{
+    const url=signed.signedUrl+(signed.signedUrl.includes('?')?'&':'?')+'v='+(data.actualizada_at||Date.now());
+    await preloadImage(url);APP.avatar.url=url;paintProfilePhoto(url);
+  }catch{
+    paintProfilePhoto('');if(announce)profilePhotoMessage('La foto guardada ya no está disponible. Puedes subir otra.','error');
+  }
+}
+function canvasBlob(canvas,type,quality){return new Promise(resolve=>canvas.toBlob(resolve,type,quality))}
+async function decodeProfilePhoto(file){
+  if('createImageBitmap' in window){
+    try{const bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});return {source:bitmap,width:bitmap.width,height:bitmap.height,close:()=>bitmap.close()}}catch(e){}
+  }
+  return new Promise((resolve,reject)=>{
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>resolve({source:img,width:img.naturalWidth,height:img.naturalHeight,close:()=>URL.revokeObjectURL(url)});
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('imagen'))};img.src=url;
+  });
+}
+async function compressProfilePhoto(file){
+  const decoded=await decodeProfilePhoto(file);
+  try{
+    if(!decoded.width||!decoded.height)throw new Error('imagen');
+    const side=Math.max(1,Math.min(640,decoded.width,decoded.height)),canvas=document.createElement('canvas');
+    canvas.width=side;canvas.height=side;
+    const sx=Math.max(0,(decoded.width-Math.min(decoded.width,decoded.height))/2);
+    const sy=Math.max(0,(decoded.height-Math.min(decoded.width,decoded.height))/2);
+    const sourceSide=Math.min(decoded.width,decoded.height),ctx=canvas.getContext('2d',{alpha:false});
+    if(!ctx)throw new Error('canvas');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,side,side);ctx.drawImage(decoded.source,sx,sy,sourceSide,sourceSide,0,0,side,side);
+    let type='image/webp',ext='webp',blob=null;
+    for(const quality of [.86,.78,.7,.62]){blob=await canvasBlob(canvas,type,quality);if(blob?.type===type&&blob.size<=PROFILE_MAX_STORED)break}
+    if(!blob||blob.type!==type||blob.size>PROFILE_MAX_STORED){
+      type='image/jpeg';ext='jpg';
+      for(const quality of [.84,.76,.68,.6]){blob=await canvasBlob(canvas,type,quality);if(blob&&blob.size<=PROFILE_MAX_STORED)break}
+    }
+    if(!blob||blob.size>PROFILE_MAX_STORED)throw new Error('peso_final');
+    return {blob,type,ext};
+  }finally{decoded.close()}
+}
+async function chooseProfilePhoto(file){
+  if(!file||APP.avatar.busy)return;
+  const validType=/^image\/(jpeg|png|webp)$/i.test(file.type)||/\.(jpe?g|png|webp)$/i.test(file.name||'');
+  if(!validType)return profilePhotoMessage('Elige una imagen JPG, PNG o WebP.','error');
+  if(file.size>PROFILE_MAX_SOURCE)return profilePhotoMessage('La foto supera el máximo de 3 MB. Elige una más liviana.','error');
+  const colab=APP.inicio?.colaborador?.id;if(!colab)return profilePhotoMessage('Tu perfil no está disponible en esta sesión.','error');
+  setProfilePhotoBusy(true);profilePhotoMessage('Recortando y comprimiendo la foto…');
+  try{
+    const prepared=await compressProfilePhoto(file),path=`${colab}/avatar.${prepared.ext}`,previous=APP.avatar.path;
+    profilePhotoMessage('Subiendo la versión optimizada…');
+    const {error:uploadError}=await db.storage.from(PROFILE_BUCKET).upload(path,prepared.blob,{upsert:true,contentType:prepared.type,cacheControl:'3600'});
+    if(uploadError)throw uploadError;
+    const {data,error}=await db.rpc('dash_guardar_foto',{p_path:path});
+    if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'guardar');
+    APP.avatar.path=path;
+    if(previous&&previous!==path)await db.storage.from(PROFILE_BUCKET).remove([previous]).catch(()=>{});
+    await loadProfilePhoto();
+    profilePhotoMessage(`Foto guardada · ${Math.max(1,Math.round(prepared.blob.size/1024))} KB`,'success');toast('Foto de perfil actualizada.');
+  }catch(error){
+    const message=error?.message==='peso_final'?'No se pudo reducir la foto lo suficiente. Elige otra imagen.':'No se pudo guardar la foto. Revisa tu conexión e inténtalo otra vez.';
+    profilePhotoMessage(message,'error');
+  }finally{setProfilePhotoBusy(false);$('profile-photo-input').value=''}
+}
+async function removeProfilePhoto(){
+  if(!APP.avatar.path||APP.avatar.busy)return;
+  if(!confirm('¿Quitar tu foto de perfil? Volverán a mostrarse tus iniciales.'))return;
+  setProfilePhotoBusy(true);profilePhotoMessage('Quitando la foto…');
+  try{
+    const path=APP.avatar.path,{error:storageError}=await db.storage.from(PROFILE_BUCKET).remove([path]);
+    if(storageError)throw storageError;
+    const {data,error}=await db.rpc('dash_quitar_foto');
+    if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'quitar');
+    APP.avatar={path:'',url:'',busy:true};paintProfilePhoto('');profilePhotoMessage('Foto eliminada. Tus iniciales vuelven a estar visibles.','success');toast('Foto de perfil eliminada.');
+  }catch{profilePhotoMessage('No se pudo quitar la foto. Revisa tu conexión e inténtalo otra vez.','error')}
+  finally{setProfilePhotoBusy(false)}
+}
 
 function resetPortalBootstrap(reveal=false){
   const portal=$('portal'),state=$('portal-bootstrap'),wasLoading=portal.dataset.loading==='true';
@@ -250,7 +362,7 @@ async function openPortal(activeSession){
   $('portal').hidden=false; $('portal').inert=false; $('portal').removeAttribute('aria-hidden');
   resetPortalBootstrap(true); startSessionClock(); hideBoot();
   const backgroundLoads=[];
-  if(c)backgroundLoads.push(loadHistory());
+  if(c)backgroundLoads.push(loadHistory(),loadProfilePhoto());
   if(initialLoad?.then)backgroundLoads.push(initialLoad);
   if(backgroundLoads.length)void Promise.allSettled(backgroundLoads);
 }
@@ -362,7 +474,7 @@ function renderWeek(){
 }
 
 function renderProfile(){
-  const c=APP.inicio.colaborador;if(!c)return; $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=c.nombre; $('profile-area').textContent=c.area||'Sin área';
+  const c=APP.inicio.colaborador;if(!c)return; $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
   $('profile-link').textContent=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
   const dates=v=>v?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(v+'T12:00:00')):'—';
   const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?c.contrato_horas+' h':'—'],['Horas previas',Number(c.horas_previas||0)+' h']];
@@ -599,6 +711,10 @@ document.querySelectorAll('[data-mobile-action]').forEach(button=>button.onclick
   }
 });
 $('mobile-home-logout').onclick=()=>logout();
+$('profile-photo-camera').onclick=()=>$('profile-photo-input').click();
+$('profile-photo-change').onclick=()=>$('profile-photo-input').click();
+$('profile-photo-remove').onclick=removeProfilePhoto;
+$('profile-photo-input').onchange=event=>chooseProfilePhoto(event.target.files?.[0]);
 $('team-list').onclick=e=>{const button=e.target.closest('[data-team-profile]');if(button)openTeamProfile(button.dataset.teamProfile)};
 document.querySelectorAll('[data-close-team-profile]').forEach(button=>button.onclick=closeTeamProfile);
 $('month-prev').onclick=()=>{ APP.month--;if(APP.month<1){APP.month=12;APP.year--}loadHistory(); };
