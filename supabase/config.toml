@@ -1,0 +1,10 @@
+project_id = "xadxmfgdxwplmhijagix"
+
+# dash-entrar recibe la clave publicable y valida DNI + PIN dentro de la
+# función. La verificación JWT antigua no admite claves sb_publishable_.
+[functions.dash-entrar]
+verify_jwt = false
+
+# Esta función solo se usa con la sesión autenticada obtenida al entrar.
+[functions.dash-evidencia]
+verify_jwt = true
