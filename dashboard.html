@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 767px)">
-<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=46">
+<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=47">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -42,7 +42,15 @@
       <div class="story-day" aria-hidden="true">
         <span>ENTRADA</span><i></i><b>08:00</b><i class="active"></i><strong>AHORA</strong><i></i><b>14:00</b><i></i><span>SALIDA</span>
       </div>
-      <img class="story-owl" src="images/dashboard/buho.webp" alt="" aria-hidden="true">
+      <div class="story-attendance-mark" aria-hidden="true">
+        <svg viewBox="0 0 144 144" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+          <circle class="story-clock-face" cx="65" cy="64" r="37"/>
+          <path class="story-clock-hand" d="M65 43v23l16 9"/>
+          <path class="story-clock-ticks" d="M65 32v5M97 64h-5M65 96v-5M33 64h5"/>
+          <circle class="story-check-disc" cx="102" cy="101" r="24"/>
+          <path class="story-check" d="m90 101 8 8 17-18"/>
+        </svg>
+      </div>
     </div>
 
     <div class="access-form-wrap">
