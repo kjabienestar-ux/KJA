@@ -21,12 +21,12 @@
   .back-home{top:24px;left:28px;min-height:42px;padding:0 13px 0 10px;border:1px solid rgba(255,255,255,.66);border-radius:12px;color:#294866;background:rgba(255,255,255,.48);-webkit-backdrop-filter:blur(14px) saturate(120%);backdrop-filter:blur(14px) saturate(120%);box-shadow:0 8px 24px rgba(10,37,70,.08)}
   .access-shell{position:relative;z-index:1;width:min(1200px,100%);height:clamp(620px,74vh,720px);min-height:620px;grid-template-columns:minmax(0,1.06fr) minmax(430px,.94fr);border:1px solid rgba(255,255,255,.68);border-radius:32px;background:rgba(255,255,255,.20);-webkit-backdrop-filter:blur(10px) saturate(112%);backdrop-filter:blur(10px) saturate(112%);box-shadow:0 34px 90px rgba(9,34,66,.20),inset 0 1px 0 rgba(255,255,255,.72)}
   .access-story{padding:56px;background:linear-gradient(138deg,rgba(4,24,53,.96),rgba(5,43,91,.90) 54%,rgba(2,88,166,.82)),url("../../../images/dashboard/login-mobile-kja.webp") center/cover no-repeat}
-  .access-story:before{opacity:1;background:linear-gradient(118deg,rgba(255,255,255,.07),transparent 38%,rgba(73,197,209,.08))}
+  .access-story:before{opacity:1;background:radial-gradient(circle at 84% 68%,rgba(2,20,47,.72) 0,rgba(2,27,60,.4) 24%,transparent 47%),linear-gradient(118deg,rgba(255,255,255,.07),transparent 38%,rgba(73,197,209,.08))}
   .access-story:after{width:460px;height:460px;right:-205px;top:-170px;border-color:rgba(255,255,255,.15);box-shadow:0 0 0 62px rgba(255,255,255,.035),0 0 0 124px rgba(255,255,255,.024)}
   .story-copy{margin-top:clamp(72px,9vh,104px);max-width:520px}
   .story-copy h1{max-width:13ch;font-size:clamp(48px,4.2vw,64px);line-height:1.02;letter-spacing:-.04em;text-wrap:balance}
   .story-copy>p:last-child{max-width:42ch;margin-top:25px;color:#d3e1f0;font-size:14px;line-height:1.75}
-  .story-owl{right:14px;bottom:73px;width:230px;opacity:.23;filter:saturate(.82) brightness(1.2)}
+  .story-owl{right:20px;bottom:78px;width:212px;opacity:.7;filter:drop-shadow(0 18px 28px rgba(1,15,34,.46)) saturate(1.08) contrast(1.05) brightness(1.04)}
   .story-day{left:56px;right:56px;bottom:45px}
   .access-form-wrap{position:relative;align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:52px clamp(42px,4vw,68px);border-left:1px solid rgba(255,255,255,.54);background:linear-gradient(150deg,rgba(255,255,255,.82),rgba(239,247,253,.70));-webkit-backdrop-filter:blur(28px) saturate(128%) brightness(1.04);backdrop-filter:blur(28px) saturate(128%) brightness(1.04)}
   .access-form-wrap:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 90% 4%,rgba(255,255,255,.72),transparent 42%),linear-gradient(130deg,transparent 58%,rgba(89,167,215,.07))}
