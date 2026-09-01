@@ -10,8 +10,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 767px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=81">
+<link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
+<link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=82">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -33,28 +34,13 @@
   </a>
   <section class="access-shell">
     <div class="access-story">
-      <div class="story-brand"><img src="images/logo/kja.webp" alt="KJA"><div class="story-brand-text"><b>PORTAL KJA</b><span>Plataforma Institucional</span></div></div>
+      <div class="story-brand"><img src="images/logo/kja.webp" alt="KJA"><div class="story-brand-text"><b>PORTAL DEL EQUIPO</b></div></div>
       <div class="story-copy">
-        <p class="eyebrow">PORTAL INTERNO KJA</p>
-        <h1>Tu jornada,<br><em>más clara.</em></h1>
-        <div class="story-divider"></div>
-        <p>Consulta tu horario, registra tu asistencia y mantén tu avance en un solo lugar.</p>
-      </div>
-      <div class="story-features" aria-hidden="true">
-        <p>Dentro de tu portal</p>
-        <div class="story-feature-grid">
-          <span class="story-feature">
-            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
-            <span><small>Consulta</small><b>Tu horario</b></span>
-          </span>
-          <span class="story-feature">
-            <svg viewBox="0 0 24 24"><path d="M9 11l3 3 7-7"/><path d="M21 12a9 9 0 1 1-5.3-8.2"/></svg>
-            <span><small>Registra</small><b>Tu asistencia</b></span>
-          </span>
-          <span class="story-feature">
-            <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
-            <span><small>Revisa</small><b>Tu avance</b></span>
-          </span>
+        <h1>Tu jornada empieza <em>aquí.</em></h1>
+        <p>Organiza tu horario, registra tu asistencia y consulta tu información de trabajo en un solo lugar.</p>
+        <div class="story-trust" aria-label="Características del portal">
+          <span><i aria-hidden="true"></i>Acceso privado</span>
+          <span><i aria-hidden="true"></i>Portal del equipo KJA</span>
         </div>
       </div>
     </div>
@@ -69,7 +55,7 @@
           <p class="eyebrow">ACCESO SEGURO</p>
         </div>
         <h2>Ingresa a tu portal</h2>
-        <p id="login-help-text" aria-live="polite">Ingresa con tu DNI y PIN de asistencia.</p>
+        <p>Selecciona tu tipo de acceso para continuar.</p>
       </div>
 
       <div class="login-panel">
@@ -77,6 +63,7 @@
           <button class="active" id="tab-colab" type="button" role="tab" aria-selected="true" aria-controls="form-colab">Colaborador</button>
           <button id="tab-admin" type="button" role="tab" aria-selected="false" aria-controls="form-admin">Dirección</button>
         </div>
+        <p class="login-role-help" id="login-help-text" aria-live="polite">Ingresa con tu DNI y PIN de asistencia.</p>
 
       <form id="form-colab" class="login-form" role="tabpanel" aria-labelledby="tab-colab">
         <div class="field">
@@ -128,7 +115,7 @@
 
       <div class="access-footer">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-        <span>Tu información está protegida y encriptada</span>
+        <span>Acceso privado KJA · Conexión protegida</span>
       </div>
     </div>
   </section>
