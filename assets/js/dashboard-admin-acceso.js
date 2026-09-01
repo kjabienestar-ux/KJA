@@ -1,7 +1,7 @@
 /* KJA · Fase 5 — Acceso, PIN y cierre seguro de la transición. */
 const OFFICE_RADIUS_M=1000;
 const OFFICE_MAP_DEFAULT=[-12.046374,-77.042793];
-let OFFICE_MAP=null,OFFICE_MARKER=null,OFFICE_RADIUS=null,OFFICE_MAP_LIBRARY=null,OFFICE_MAP_INITIALIZING=false,OFFICE_ORIGINAL=null,OFFICE_SELECTED_LABEL='',OFFICE_SEARCH_AT=0;
+let OFFICE_MAP=null,OFFICE_MARKER=null,OFFICE_RADIUS=null,OFFICE_MAP_INITIALIZING=false,OFFICE_ORIGINAL=null,OFFICE_SELECTED_LABEL='',OFFICE_SEARCH_AT=0;
 function setOfficeDetectLabel(text){const button=$('admin-office-detect'),label=button.querySelector('span');if(label)label.textContent=text;else button.textContent=text}
 
 function accessMessage(text,bad=false){
@@ -149,33 +149,13 @@ function setOfficePoint(lat,lon,{source='map',accuracy=null,focus=false,label=''
   $('admin-office-lat').value=lat.toFixed(6);$('admin-office-lon').value=lon.toFixed(6);OFFICE_SELECTED_LABEL=label||'';
   paintOfficeMapPoint({lat,lon},{focus});syncOfficeSelection({source,accuracy});
 }
-function loadOfficeMapLibrary(){
-  if(window.L)return Promise.resolve(window.L);if(OFFICE_MAP_LIBRARY)return OFFICE_MAP_LIBRARY;
-  OFFICE_MAP_LIBRARY=new Promise((resolve,reject)=>{
-    const timeout=setTimeout(()=>reject(new Error('map_timeout')),12000);
-    let style=document.querySelector('link[data-kja-office-map]');
-    const styleReady=new Promise((ok,fail)=>{
-      if(style?.dataset.loaded==='true'||style?.sheet)return ok();
-      if(!style){style=document.createElement('link');style.rel='stylesheet';style.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';style.integrity='sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';style.crossOrigin='anonymous';style.dataset.kjaOfficeMap='true';document.head.appendChild(style)}
-      style.onload=()=>{style.dataset.loaded='true';ok()};style.onerror=()=>fail(new Error('map_style'));
-    });
-    let script=document.querySelector('script[data-kja-office-map]');
-    const scriptReady=new Promise((ok,fail)=>{
-      if(window.L)return ok();
-      if(!script){script=document.createElement('script');script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';script.integrity='sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';script.crossOrigin='anonymous';script.dataset.kjaOfficeMap='true';document.head.appendChild(script)}
-      script.onload=()=>{script.dataset.loaded='true';window.L?ok():fail(new Error('map_library'))};script.onerror=()=>fail(new Error('map_library'));
-    });
-    Promise.all([styleReady,scriptReady]).then(()=>{clearTimeout(timeout);resolve(window.L)}).catch(error=>{clearTimeout(timeout);reject(error)});
-  }).catch(error=>{OFFICE_MAP_LIBRARY=null;throw error});
-  return OFFICE_MAP_LIBRARY;
-}
 async function prepareOfficeMap(){
   const shell=$('admin-office-map-shell');if(!shell||APP.adminSection!=='marcado')return;
   if(OFFICE_MAP){const point=readOfficePoint();point?paintOfficeMapPoint(point):clearOfficeMapPoint();requestAnimationFrame(()=>OFFICE_MAP.invalidateSize(false));return;}
   if(OFFICE_MAP_INITIALIZING)return;OFFICE_MAP_INITIALIZING=true;
   shell.dataset.state='loading';$('admin-office-map-state').querySelector('b').textContent='Cargando mapa…';$('admin-office-map-state').querySelector('small').textContent='También puedes usar las coordenadas exactas.';$('admin-office-map-retry').hidden=true;
   try{
-    await loadOfficeMapLibrary();
+    await loadKjaMapLibrary();
     OFFICE_MAP=window.L.map('admin-office-map',{zoomControl:true,attributionControl:true}).setView(OFFICE_MAP_DEFAULT,11);
     window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(OFFICE_MAP);
     OFFICE_MAP.on('click',event=>setOfficePoint(event.latlng.lat,event.latlng.lng,{source:'map'}));
@@ -186,7 +166,7 @@ async function prepareOfficeMap(){
   }finally{OFFICE_MAP_INITIALIZING=false}
 }
 function retryOfficeMap(){
-  document.querySelectorAll('[data-kja-office-map]').forEach(node=>{if(node.dataset.loaded!=='true')node.remove()});OFFICE_MAP_LIBRARY=null;prepareOfficeMap();
+  resetKjaMapLibrary();prepareOfficeMap();
 }
 function officeSearchCacheKey(query){return 'kja-office-search:'+query.trim().toLocaleLowerCase('es-PE')}
 function readOfficeSearchCache(query){try{const saved=JSON.parse(localStorage.getItem(officeSearchCacheKey(query))||'null');return saved&&Date.now()-saved.at<2592000000?saved.items:null}catch(error){return null}}

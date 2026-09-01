@@ -5214,6 +5214,217 @@ input:-webkit-autofill:active {
 .mark-mode-check[data-location-state="error"] { color:#925208;background:#fff3df; }
 .mark-mode-check[data-location-state="error"] .mark-mode-icon { color:#a8640d; }
 
+/* Ruta presencial: contexto de geocerca sin competir con la acción principal. */
+.mark-sheet[data-state="confirm"][data-mode="presencial"] {
+  width:min(1040px,calc(100vw - 36px));
+}
+.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-confirm-view {
+  display:grid;
+  grid-template-columns:minmax(340px,.9fr) minmax(410px,1.1fr);
+  column-gap:24px;
+  align-items:start;
+}
+.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-confirm-head,
+.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-assurance,
+.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-mode-check,
+.mark-sheet[data-state="confirm"][data-mode="presencial"] .evidence-picker,
+.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-msg,
+.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-confirm,
+.mark-sheet[data-state="confirm"][data-mode="presencial"] .privacy-note {
+  grid-column:1;
+}
+.mark-confirm-head > p:not(.eyebrow) {
+  margin:0 0 20px;
+  color:#6f7e91;
+  font-size:11px;
+  line-height:1.65;
+}
+.mark-route-panel {
+  grid-column:2;
+  grid-row:1 / 8;
+  min-width:0;
+  padding:16px;
+  border:1px solid rgba(14,58,98,.12);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(247,251,253,.98),rgba(237,246,250,.92));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 15px 32px rgba(12,48,80,.08);
+}
+.mark-route-head {
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  align-items:center;
+  gap:11px;
+  margin-bottom:13px;
+}
+.mark-route-head > span:first-child {
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  color:#075abc;
+  background:#fff;
+  box-shadow:0 7px 18px rgba(12,55,98,.10);
+}
+.mark-route-head svg,
+.mark-route-open svg {
+  width:20px;
+  height:20px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.mark-route-head h3 {
+  margin:0;
+  color:#11365e;
+  font-size:15px;
+  line-height:1.25;
+}
+.mark-route-head p {
+  margin:3px 0 0;
+  color:#687e94;
+  font-size:10px;
+  line-height:1.5;
+}
+.mark-route-map-shell {
+  position:relative;
+  height:350px;
+  overflow:hidden;
+  border:1px solid rgba(13,54,94,.14);
+  border-radius:15px;
+  background:#e8f0f4;
+  isolation:isolate;
+}
+.mark-route-map {
+  width:100%;
+  height:100%;
+  background:#e8f0f4;
+}
+.mark-route-map-state {
+  position:absolute;
+  z-index:500;
+  inset:0;
+  display:grid;
+  align-content:center;
+  justify-items:center;
+  gap:6px;
+  padding:24px;
+  color:#405a73;
+  background:linear-gradient(145deg,#edf4f7,#e5eef3);
+  text-align:center;
+}
+.mark-route-map-state > span {
+  width:25px;
+  height:25px;
+  border:3px solid rgba(7,90,188,.16);
+  border-top-color:#075abc;
+  border-radius:50%;
+  animation:office-map-spin .8s linear infinite;
+}
+.mark-route-map-state b { font-size:13px; }
+.mark-route-map-state small { max-width:270px;color:#708195;font-size:10px;line-height:1.5; }
+.mark-route-map-shell[data-state="ready"] .mark-route-map-state { display:none; }
+.mark-route-map-shell[data-state="error"] .mark-route-map-state > span { display:none; }
+.mark-route-legend {
+  position:absolute;
+  z-index:450;
+  left:10px;
+  bottom:10px;
+  display:flex;
+  gap:10px;
+  padding:7px 10px;
+  border:1px solid rgba(13,54,94,.08);
+  border-radius:999px;
+  color:#3f5872;
+  background:rgba(255,255,255,.94);
+  box-shadow:0 6px 16px rgba(13,47,79,.13);
+  font-size:9px;
+  font-weight:750;
+  pointer-events:none;
+}
+.mark-route-map-shell[data-state="error"] .mark-route-legend { display:none; }
+.mark-route-legend span { display:flex;align-items:center;gap:5px; }
+.mark-route-legend i { width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 3px rgba(7,90,188,.10); }
+.mark-route-legend i.office { background:#e21b72;box-shadow:0 0 0 3px rgba(226,27,114,.11); }
+.mark-route-legend i.user { background:#075abc; }
+.mark-route-map-shell .leaflet-control-zoom { overflow:hidden;border:0;border-radius:10px;box-shadow:0 7px 18px rgba(13,47,79,.16); }
+.mark-route-map-shell .leaflet-control-zoom a { width:34px;height:34px;color:#173c62;font:600 20px/34px Inter,sans-serif;background:#fff; }
+.mark-route-map-shell .leaflet-control-attribution { padding:3px 6px;color:#5e7082;background:rgba(255,255,255,.88);font-size:9px; }
+.mark-route-map-shell .leaflet-control-attribution a { color:#075abc; }
+.mark-route-marker { border:0!important;background:transparent!important; }
+.mark-route-marker > span {
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border:3px solid #fff;
+  border-radius:14px 14px 14px 4px;
+  color:#fff;
+  box-shadow:0 9px 20px rgba(4,56,113,.28);
+  transform:rotate(-45deg);
+}
+.mark-route-marker.office > span { background:#e21b72;box-shadow:0 9px 20px rgba(190,18,91,.30); }
+.mark-route-marker.user > span { background:#075abc; }
+.mark-route-marker svg { width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transform:rotate(45deg); }
+.mark-route-facts {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin:10px 0;
+}
+.mark-route-facts > span {
+  min-width:0;
+  padding:10px 11px;
+  border:1px solid rgba(15,57,95,.10);
+  border-radius:11px;
+  background:rgba(255,255,255,.82);
+}
+.mark-route-facts small,.mark-route-facts b { display:block; }
+.mark-route-facts small { color:#75889c;font-size:9px;font-weight:750;letter-spacing:.06em;text-transform:uppercase; }
+.mark-route-facts b { overflow:hidden;margin-top:3px;color:#173d66;font-size:12px;text-overflow:ellipsis;white-space:nowrap; }
+.mark-route-facts b[data-state="ready"] { color:#08765f; }
+.mark-route-facts b[data-state="error"] { color:#a35f0b; }
+.mark-route-open {
+  min-height:54px;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  grid-template-areas:"icon title arrow" "icon copy arrow";
+  align-items:center;
+  column-gap:10px;
+  padding:9px 12px;
+  border-radius:12px;
+  color:#fff;
+  background:#075abc;
+  box-shadow:0 9px 20px rgba(7,90,188,.20);
+  text-decoration:none;
+  transition:background-color 160ms ease,transform 160ms ease,box-shadow 160ms ease;
+}
+.mark-route-open > span { grid-area:icon;width:34px;height:34px;display:grid;place-items:center;border-radius:10px;color:#075abc;background:#fff; }
+.mark-route-open > b { grid-area:title;font-size:12px;line-height:1.2; }
+.mark-route-open > small { grid-area:copy;margin-top:2px;color:#d5e8fb;font-size:9px; }
+.mark-route-open > svg { grid-area:arrow;width:19px; }
+.mark-route-open:not(.disabled):hover { color:#fff;background:#064c9e;box-shadow:0 12px 24px rgba(7,90,188,.28);transform:translateY(-1px); }
+.mark-route-open.disabled { color:#738398;background:#e3e9ef;box-shadow:none;pointer-events:none; }
+.mark-route-open.disabled > span { color:#718197;background:#f7f9fb; }
+.mark-route-open.disabled > small { color:#8997a7; }
+.mark-route-note { display:block;margin:8px 2px 0;color:#7a8b9d;font-size:9px;line-height:1.45; }
+
+@media (max-width:900px) {
+  .mark-sheet[data-state="confirm"][data-mode="presencial"] { width:min(600px,calc(100vw - 36px)); }
+  .mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-confirm-view { display:block; }
+  .mark-route-panel { margin:0 0 15px; }
+  .mark-route-map-shell { height:290px; }
+}
+@media (max-width:600px) {
+  .mark-sheet[data-state="confirm"][data-mode="presencial"] { width:100%; }
+  .mark-route-panel { padding:12px;border-radius:16px; }
+  .mark-route-map-shell { height:245px; }
+  .mark-route-head h3 { font-size:14px; }
+  .mark-route-legend { gap:8px;max-width:calc(100% - 20px); }
+}
+
 .admin-office-rule {
   min-width:0;
   padding:18px 20px 20px;
@@ -5490,4 +5701,4 @@ input:-webkit-autofill:active {
 @media (prefers-reduced-motion:reduce){
   .access .primary:hover{transform:none}
 }
-@media (prefers-reduced-motion:reduce) { .admin-office-map-state > span { animation:none; } }
+@media (prefers-reduced-motion:reduce) { .admin-office-map-state > span,.mark-route-map-state > span { animation:none; } }

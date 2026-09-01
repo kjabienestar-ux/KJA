@@ -85,6 +85,7 @@ let EVIDENCE = null;
 let MARK_BUSY = false;
 let MARK_SYNC_PROMISE = null;
 let MARK_GEO = null;
+let MARK_PROTOCOL_STATE = null;
 let MODE_BUSY = false;
 let DASH_ETAG = null;
 let DASH_UPDATE_PENDING = false;
@@ -1344,6 +1345,7 @@ async function refreshMarkEligibility({render=true,quiet=false,geo=null}={}){
   }
   try{
     const data=await pending;
+    MARK_PROTOCOL_STATE=data;
     if(data?.dia&&APP.inicio){APP.inicio.dia=data.dia;APP.inicio.exigir_evidencia=true;if(render)renderHome();}
     return data;
   }catch(error){
@@ -1405,14 +1407,17 @@ async function handleMarkAction(){
 function openMarkModal(){
   MARK_GEO=null;clearEvidence();resetMarkProgress();setMarkFlow('confirm');$('mark-sheet').removeAttribute('data-receipt-state');
   const d=APP.inicio.dia||{},virtual=(d.modalidad||'virtual')==='virtual';
+  $('mark-sheet').dataset.mode=virtual?'virtual':'presencial';
+  $('mark-route-panel').hidden=virtual;
   $('evidence-copy').textContent=virtual?'Adjunta una captura del Zoom donde se vea tu nombre.':'Adjunta una fotografía de tu llegada al consultorio.';
   $('evidence-title').textContent=virtual?'Captura de tu reunión':'Foto de tu llegada';
   renderMarkModeCheck();
   $('mark-modal').hidden=false;document.body.style.overflow='hidden';
+  if(!virtual&&typeof prepareMarkRouteMap==='function')requestAnimationFrame(()=>prepareMarkRouteMap());
 }
 $('open-mark').onclick=handleMarkAction;
 document.querySelectorAll('[data-today-mode]').forEach(button=>button.onclick=()=>changeTodayMode(button.dataset.todayMode));
-document.querySelectorAll('[data-close-mark]').forEach(x=>x.onclick=closeMark); function closeMark(){ if(MARK_BUSY)return;$('mark-modal').hidden=true;document.body.style.overflow='';MARK_GEO=null;clearEvidence();setMarkFlow('confirm');resetMarkProgress();reloadDashboardIfSafe(); }
+document.querySelectorAll('[data-close-mark]').forEach(x=>x.onclick=closeMark); function closeMark(){ if(MARK_BUSY)return;$('mark-modal').hidden=true;document.body.style.overflow='';MARK_GEO=null;if(typeof resetMarkRouteMap==='function')resetMarkRouteMap();clearEvidence();setMarkFlow('confirm');resetMarkProgress();reloadDashboardIfSafe(); }
 $('take-photo').onclick=()=>$('evidence-camera').click();$('choose-photo').onclick=()=>$('evidence-file').click();$('evidence-preview').onclick=()=>$('evidence-camera').click();
 $('evidence-camera').onchange=e=>chooseEvidence(e.target.files[0],'camara');$('evidence-file').onchange=e=>chooseEvidence(e.target.files[0],'archivo');
 
@@ -1438,25 +1443,27 @@ function renderMarkModeCheck(){
   $('mark-mode-virtual-icon').hidden=presencial;$('mark-mode-office-icon').hidden=!presencial;button.hidden=!presencial;
   if(!presencial){panel.removeAttribute('data-location-state');$('mark-mode-label').textContent='MODALIDAD VIRTUAL';$('mark-mode-title').textContent='No requiere ubicación';$('mark-mode-detail').textContent='Solo guardaremos la evidencia de tu reunión.';syncMarkConfirm();return;}
   $('mark-mode-label').textContent='MODALIDAD PRESENCIAL';
-  if(MARK_GEO?.verified&&Date.now()-Number(MARK_GEO.capturedAt||0)>=120000)MARK_GEO={verified:false,error:true,message:'La verificación venció. Actualiza tu ubicación para confirmar que sigues cerca de la oficina.'};
+  if(MARK_GEO?.verified&&Date.now()-Number(MARK_GEO.capturedAt||0)>=120000)MARK_GEO={...MARK_GEO,verified:false,error:true,message:'La verificación venció. Actualiza tu ubicación para confirmar que sigues cerca de la oficina.'};
   if(MARK_GEO?.verified){
     panel.dataset.locationState='ready';$('mark-mode-title').textContent='Ubicación verificada';$('mark-mode-detail').textContent=`Estás a ${formatDistance(MARK_GEO.distance)} de la oficina · precisión ${MARK_GEO.accuracy} m.`;button.textContent='Verificar otra vez';
   }else{
     panel.dataset.locationState=MARK_GEO?.error?'error':'pending';$('mark-mode-title').textContent=MARK_GEO?.error?'Ubicación sin validar':'Verifica que estás cerca de la oficina';$('mark-mode-detail').textContent=MARK_GEO?.message||'El registro se habilita dentro de un radio de 1 km.';button.textContent='Verificar ubicación';
   }
   syncMarkConfirm();
+  if(typeof renderMarkRouteMap==='function')renderMarkRouteMap();
 }
 
 async function verifyMarkLocation(){
   const button=$('verify-mark-location');button.disabled=true;button.textContent='Ubicando…';markMsg('');
+  let geo=null;
   try{
-    const geo=await geolocation();
+    geo=await geolocation();
     if(!geo.ok)throw Object.assign(new Error(geo.motivo),{motivo:geo.motivo});
     const fresh=await refreshMarkEligibility({render:false,geo});
     if(!fresh?.puede_marcar){const error=new Error(fresh?.motivo||'ubicacion_invalida');error.motivo=fresh?.motivo||'ubicacion_invalida';error.distance=fresh?.distancia_m;throw error;}
     MARK_GEO={...geo,verified:true,distance:Number(fresh.distancia_m||0)};
   }catch(error){
-    MARK_GEO={verified:false,error:true,message:error.motivo==='fuera_radio'&&Number.isFinite(Number(error.distance))?`Estás a ${formatDistance(error.distance)}; debes estar dentro de 1 km.`:markFailureMessage(error.motivo)};
+    MARK_GEO={...(geo?.ok?geo:{}),verified:false,error:true,distance:Number.isFinite(Number(error.distance))?Number(error.distance):null,message:error.motivo==='fuera_radio'&&Number.isFinite(Number(error.distance))?`Estás a ${formatDistance(error.distance)}; debes estar dentro de 1 km.`:markFailureMessage(error.motivo)};
   }finally{button.disabled=false;renderMarkModeCheck();}
 }
 $('verify-mark-location').onclick=verifyMarkLocation;
