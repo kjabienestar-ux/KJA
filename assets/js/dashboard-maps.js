@@ -54,6 +54,11 @@ function markRouteOffice(){
   const lat=markRoutePoint(MARK_PROTOCOL_STATE?.oficina_lat),lon=markRoutePoint(MARK_PROTOCOL_STATE?.oficina_lon);
   return lat!=null&&lon!=null&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180?{lat,lon}:null;
 }
+function markRouteOfficeState(){
+  if(markRouteOffice())return 'ready';
+  if(MARK_PROTOCOL_STATE?.motivo==='ubicacion_requerida'||MARK_PROTOCOL_STATE?.dia?.geocerca_configurada===true||MARK_PROTOCOL_STATE?.geocerca_configurada===true)return 'migration';
+  return 'missing';
+}
 function markRouteUser(){
   const lat=markRoutePoint(MARK_GEO?.lat),lon=markRoutePoint(MARK_GEO?.lon);
   return lat!=null&&lon!=null&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180?{lat,lon}:null;
@@ -74,12 +79,12 @@ function markDirectionsUrl(user,office){
 }
 function paintMarkRouteSummary(){
   const panel=$('mark-route-panel');if(!panel)return;
-  const office=markRouteOffice(),user=markRouteUser(),serverDistance=markRoutePoint(MARK_GEO?.distance),distance=serverDistance??markRouteDistanceFallback(user,office),link=$('mark-route-open');
+  const office=markRouteOffice(),officeState=markRouteOfficeState(),user=markRouteUser(),serverDistance=markRoutePoint(MARK_GEO?.distance),distance=serverDistance??markRouteDistanceFallback(user,office),link=$('mark-route-open');
   $('mark-route-distance').textContent=user&&office&&Number.isFinite(distance)?formatDistance(distance):'Por verificar';
   const inside=user&&office&&Number.isFinite(distance)&&distance<=Number(MARK_PROTOCOL_STATE?.radio_presencial_m||1000);
-  $('mark-route-status').textContent=!office?'Oficina sin configurar':!user?'Ubicación pendiente':inside?'Dentro del radio':'Fuera del radio';
+  $('mark-route-status').textContent=officeState==='migration'?'Actualización pendiente':!office?'Oficina sin configurar':!user?'Ubicación pendiente':inside?'Dentro del radio':'Fuera del radio';
   $('mark-route-status').dataset.state=!office?'error':!user?'pending':inside?'ready':'error';
-  $('mark-route-copy').textContent=!office?'Dirección debe configurar el punto oficial antes de habilitar el marcado presencial.':!user?'Verifica tu ubicación para aparecer en el mapa y calcular tu distancia.':inside?`Estás a ${formatDistance(distance)} de la oficina. Puedes continuar con tu registro.`:`Estás a ${formatDistance(distance)} de la oficina. Revisa la ruta para acercarte al radio permitido.`;
+  $('mark-route-copy').textContent=officeState==='migration'?'La oficina sí está guardada. Falta instalar la actualización de ruta en Supabase.':!office?'Dirección debe guardar el punto oficial antes de habilitar el marcado presencial.':!user?'Verifica tu ubicación para aparecer en el mapa y calcular tu distancia.':inside?`Estás a ${formatDistance(distance)} de la oficina. Puedes continuar con tu registro.`:`Estás a ${formatDistance(distance)} de la oficina. Revisa la ruta para acercarte al radio permitido.`;
   const url=markDirectionsUrl(user,office);if(url){link.href=url;link.removeAttribute('aria-disabled');link.classList.remove('disabled')}else{link.removeAttribute('href');link.setAttribute('aria-disabled','true');link.classList.add('disabled')}
 }
 function paintMarkRouteLayers(){
@@ -106,7 +111,12 @@ function paintMarkRouteLayers(){
 async function prepareMarkRouteMap(){
   const panel=$('mark-route-panel'),shell=$('mark-route-map-shell');if(!panel||panel.hidden||(APP.inicio?.dia?.modalidad||'virtual')!=='presencial')return;
   paintMarkRouteSummary();
-  if(!markRouteOffice()){shell.dataset.state='error';$('mark-route-map-state').querySelector('b').textContent='Oficina sin ubicación';$('mark-route-map-state').querySelector('small').textContent='Dirección debe guardar el punto oficial.';return}
+  if(!markRouteOffice()){
+    const migration=markRouteOfficeState()==='migration';shell.dataset.state='error';
+    $('mark-route-map-state').querySelector('b').textContent=migration?'Falta actualizar Supabase':'Oficina sin ubicación';
+    $('mark-route-map-state').querySelector('small').textContent=migration?'Ejecuta dashboard_15_ruta_presencial.sql; la ubicación guardada no se perderá.':'Dirección debe guardar el punto oficial.';
+    return;
+  }
   if(MARK_ROUTE_MAP){paintMarkRouteLayers();requestAnimationFrame(()=>MARK_ROUTE_MAP.invalidateSize(false));return}
   if(MARK_ROUTE_MAP_INITIALIZING)return;MARK_ROUTE_MAP_INITIALIZING=true;shell.dataset.state='loading';
   try{

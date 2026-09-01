@@ -5224,15 +5224,7 @@ input:-webkit-autofill:active {
   column-gap:24px;
   align-items:start;
 }
-.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-confirm-head,
-.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-assurance,
-.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-mode-check,
-.mark-sheet[data-state="confirm"][data-mode="presencial"] .evidence-picker,
-.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-msg,
-.mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-confirm,
-.mark-sheet[data-state="confirm"][data-mode="presencial"] .privacy-note {
-  grid-column:1;
-}
+.mark-confirm-main { min-width:0; }
 .mark-confirm-head > p:not(.eyebrow) {
   margin:0 0 20px;
   color:#6f7e91;
@@ -5240,8 +5232,6 @@ input:-webkit-autofill:active {
   line-height:1.65;
 }
 .mark-route-panel {
-  grid-column:2;
-  grid-row:1 / 8;
   min-width:0;
   padding:16px;
   border:1px solid rgba(14,58,98,.12);
@@ -5414,7 +5404,7 @@ input:-webkit-autofill:active {
 @media (max-width:900px) {
   .mark-sheet[data-state="confirm"][data-mode="presencial"] { width:min(600px,calc(100vw - 36px)); }
   .mark-sheet[data-state="confirm"][data-mode="presencial"] .mark-confirm-view { display:block; }
-  .mark-route-panel { margin:0 0 15px; }
+  .mark-route-panel { margin:18px 0 0; }
   .mark-route-map-shell { height:290px; }
 }
 @media (max-width:600px) {

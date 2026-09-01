@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 767px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=80">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=81">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -839,6 +839,7 @@
   <section class="mark-sheet" id="mark-sheet" role="dialog" aria-modal="true" aria-labelledby="mark-title" data-state="confirm">
     <button class="modal-close" data-close-mark aria-label="Cerrar">×</button>
     <div class="mark-confirm-view" id="mark-confirm-view">
+      <div class="mark-confirm-main">
       <header class="mark-confirm-head">
         <p class="eyebrow">REGISTRO DE HOY</p><h2 id="mark-title">Confirma tu asistencia</h2><p id="evidence-copy">Adjunta la evidencia correspondiente a tu modalidad de hoy.</p>
       </header>
@@ -847,6 +848,20 @@
         <span class="mark-mode-icon" aria-hidden="true"><svg id="mark-mode-virtual-icon" viewBox="0 0 24 24"><path d="M4 5h16v11H4zM8 20h8M12 16v4"/></svg><svg id="mark-mode-office-icon" viewBox="0 0 24 24" hidden><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg></span>
         <span><small id="mark-mode-label">MODALIDAD VIRTUAL</small><b id="mark-mode-title">No requiere ubicación</b><em id="mark-mode-detail">Solo guardaremos la evidencia de tu reunión.</em></span>
         <button type="button" id="verify-mark-location" hidden>Verificar ubicación</button>
+      </div>
+      <div class="evidence-picker" id="evidence-picker">
+        <input id="evidence-camera" type="file" accept="image/*" capture="environment" hidden>
+        <input id="evidence-file" type="file" accept="image/*" hidden>
+        <div class="evidence-empty" id="evidence-empty">
+          <span class="evidence-icon-3d"><img src="images/dashboard/camera-3d.webp" alt="" aria-hidden="true"></span>
+          <b id="evidence-title">Añade tu evidencia</b><p>La imagen se comprime antes de subir.</p>
+          <div class="evidence-actions"><button id="take-photo" type="button">Tomar foto</button><button id="choose-photo" type="button">Elegir archivo</button></div>
+        </div>
+        <button class="evidence-preview" id="evidence-preview" type="button" hidden><img id="evidence-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Vista previa de la evidencia"><span id="evidence-size">Cambiar imagen</span></button>
+      </div>
+      <div class="mark-msg" id="mark-msg" aria-live="polite"></div>
+      <button class="primary mark-confirm" id="confirm-mark" type="button" disabled aria-disabled="true"><span>Adjunta una evidencia para continuar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button>
+      <p class="privacy-note"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg>La evidencia queda en el registro privado de KJA y solo puede consultarla el personal autorizado.</p>
       </div>
       <aside class="mark-route-panel" id="mark-route-panel" aria-labelledby="mark-route-title" hidden>
         <header class="mark-route-head">
@@ -868,19 +883,6 @@
         </a>
         <small class="mark-route-note">Google Maps se abrirá con ambos puntos. KJA no guarda tu recorrido.</small>
       </aside>
-      <div class="evidence-picker" id="evidence-picker">
-        <input id="evidence-camera" type="file" accept="image/*" capture="environment" hidden>
-        <input id="evidence-file" type="file" accept="image/*" hidden>
-        <div class="evidence-empty" id="evidence-empty">
-          <span class="evidence-icon-3d"><img src="images/dashboard/camera-3d.webp" alt="" aria-hidden="true"></span>
-          <b id="evidence-title">Añade tu evidencia</b><p>La imagen se comprime antes de subir.</p>
-          <div class="evidence-actions"><button id="take-photo" type="button">Tomar foto</button><button id="choose-photo" type="button">Elegir archivo</button></div>
-        </div>
-        <button class="evidence-preview" id="evidence-preview" type="button" hidden><img id="evidence-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Vista previa de la evidencia"><span id="evidence-size">Cambiar imagen</span></button>
-      </div>
-      <div class="mark-msg" id="mark-msg" aria-live="polite"></div>
-      <button class="primary mark-confirm" id="confirm-mark" type="button" disabled aria-disabled="true"><span>Adjunta una evidencia para continuar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button>
-      <p class="privacy-note"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg>La evidencia queda en el registro privado de KJA y solo puede consultarla el personal autorizado.</p>
     </div>
 
     <div class="mark-processing" id="mark-processing" role="status" aria-live="polite" tabindex="-1" hidden>
@@ -910,7 +912,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="assets/js/dashboard.js?v=50"></script>
-<script src="assets/js/dashboard-maps.js?v=1"></script>
+<script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=1"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=1"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
