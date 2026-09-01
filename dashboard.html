@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 767px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=78">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=79">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -637,10 +637,25 @@
               <label class="admin-policy-number"><span><b>Tolerancia</b><small>Minutos después de la entrada</small></span><span><input type="number" id="admin-access-tolerance" min="0" max="120" required><i>min</i></span></label>
               <label class="admin-policy-toggle fixed"><span><b>Evidencia obligatoria</b><small>Regla fija para todas las personas</small></span><input type="checkbox" id="admin-access-evidence" checked disabled aria-disabled="true"><i></i></label>
               <div class="admin-office-rule" id="admin-office-rule">
-                <div><span class="admin-office-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg></span><span><b>Ubicación de la oficina</b><small id="admin-office-status">Aún no configurada</small></span></div>
-                <p>El marcado presencial se habilita dentro de un radio fijo de <b>1 km</b>.</p>
-                <input type="hidden" id="admin-office-lat"><input type="hidden" id="admin-office-lon">
-                <button type="button" id="admin-office-detect">Usar mi ubicación actual</button>
+                <div class="admin-office-heading"><span class="admin-office-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg></span><span><b>Ubicación de la oficina</b><small id="admin-office-status">Aún no configurada</small></span><span class="admin-office-radius">Radio 1 km</span></div>
+                <p>Busca una dirección, toca el mapa o arrastra el marcador. El círculo muestra el área donde se habilitará el marcado presencial.</p>
+                <div class="admin-office-search">
+                  <label class="sr-only" for="admin-office-search">Buscar dirección de la oficina</label>
+                  <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg><input type="search" id="admin-office-search" autocomplete="off" aria-controls="admin-office-results" aria-expanded="false" placeholder="Buscar calle, distrito o referencia"></span>
+                  <button type="button" id="admin-office-search-button">Buscar</button>
+                </div>
+                <div class="admin-office-results" id="admin-office-results" role="listbox" aria-label="Resultados de ubicación" hidden></div>
+                <div class="admin-office-map-shell" id="admin-office-map-shell" data-state="loading">
+                  <div id="admin-office-map" class="admin-office-map" role="region" aria-label="Mapa para seleccionar la ubicación oficial de la oficina"></div>
+                  <div class="admin-office-map-state" id="admin-office-map-state" role="status" aria-live="polite"><span></span><b>Cargando mapa…</b><small>También puedes usar las coordenadas exactas.</small><button type="button" id="admin-office-map-retry" hidden>Reintentar</button></div>
+                  <span class="admin-office-map-hint">Haz clic para colocar la oficina</span>
+                </div>
+                <div class="admin-office-selection" aria-live="polite"><span><small>PUNTO SELECCIONADO</small><b id="admin-office-coordinate">Selecciona una ubicación en el mapa</b></span><span id="admin-office-save-state">Sin guardar</span></div>
+                <details class="admin-office-coordinates" id="admin-office-coordinates">
+                  <summary>Usar coordenadas exactas</summary>
+                  <div><label for="admin-office-lat"><span>Latitud</span><input type="number" id="admin-office-lat" min="-90" max="90" step="0.000001" inputmode="decimal" placeholder="-12.046374"></label><label for="admin-office-lon"><span>Longitud</span><input type="number" id="admin-office-lon" min="-180" max="180" step="0.000001" inputmode="decimal" placeholder="-77.042793"></label></div>
+                </details>
+                <div class="admin-office-actions"><button type="button" id="admin-office-detect"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2V5M12 19v3M2 12h3M19 12h3"/></svg><span>Usar mi ubicación actual</span></button><small>Solo Dirección puede cambiar este punto.</small></div>
               </div>
               <label class="admin-policy-toggle legacy"><span><b>Activación anterior disponible</b><small>No afecta el ingreso por dashboard</small></span><input type="checkbox" id="admin-access-legacy"><i></i></label>
               <button class="admin-primary-action" id="admin-access-save" type="submit">Guardar reglas</button>
@@ -875,7 +890,7 @@
 <script src="assets/js/dashboard.js?v=49"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=1"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=1"></script>
-<script src="assets/js/dashboard-admin-acceso.js?v=4"></script>
+<script src="assets/js/dashboard-admin-acceso.js?v=5"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=1"></script>
 </body>
 </html>
