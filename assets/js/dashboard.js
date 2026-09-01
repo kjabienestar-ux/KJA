@@ -263,11 +263,18 @@ function showBoot(mode='loading'){
   boot.classList.remove('out');
 }
 
+const REMEMBER_DNI_KEY='kja_remember_dni';
+const LOGIN_HELP={
+  collaborator:'Ingresa con tu DNI y PIN de asistencia.',
+  admin:'Ingresa con tu correo y contraseña institucional.'
+};
+
 function switchLogin(admin,focusField=true){
   $('tab-colab').classList.toggle('active',!admin); $('tab-admin').classList.toggle('active',admin);
   $('tab-colab').setAttribute('aria-selected',String(!admin)); $('tab-admin').setAttribute('aria-selected',String(admin));
   $('tab-colab').tabIndex=admin?-1:0; $('tab-admin').tabIndex=admin?0:-1;
   $('form-colab').hidden=admin; $('form-admin').hidden=!admin;
+  $('login-help-text').textContent=admin?LOGIN_HELP.admin:LOGIN_HELP.collaborator;
   if(focusField)setTimeout(()=>$(admin?'admin-email':'dni').focus(),30);
 }
 $('tab-colab').onclick=()=>switchLogin(false); $('tab-admin').onclick=()=>switchLogin(true);
@@ -283,6 +290,25 @@ document.querySelectorAll('[data-reveal]').forEach(b=>b.onclick=()=>{
   b.setAttribute('aria-label',`${label} ${b.dataset.reveal==='pin'?'PIN':'contraseña'}`);
 });
 ['dni','pin'].forEach(id=>$(id).addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,id==='dni'?8:4)));
+
+function loadRememberedDni(){
+  const dni=localStorage.getItem(REMEMBER_DNI_KEY)||'';
+  if(/^\d{8}$/.test(dni)){
+    $('dni').value=dni;
+    $('remember-dni').checked=true;
+  }
+}
+
+$('remember-dni').addEventListener('change',event=>{
+  if(event.target.checked){
+    const dni=$('dni').value.trim();
+    if(/^\d{8}$/.test(dni))localStorage.setItem(REMEMBER_DNI_KEY,dni);
+  }else localStorage.removeItem(REMEMBER_DNI_KEY);
+});
+$('dni').addEventListener('input',event=>{
+  if($('remember-dni').checked&&/^\d{8}$/.test(event.target.value))localStorage.setItem(REMEMBER_DNI_KEY,event.target.value);
+});
+loadRememberedDni();
 
 function loginText(data){
   if(data?.motivo==='sin_clave') return 'Todavía no tienes un PIN. Créalo desde el enlace de marcado que comparte Dirección.';

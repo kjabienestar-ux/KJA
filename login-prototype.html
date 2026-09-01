@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b2347">
+  <title>Prototipo KJA · Liquid Glass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --blue:#004fb0;
+      --pink:#f10075;
+      --navy:#0b2347;
+      --navy-deep:#071a36;
+      --ink:#14233c;
+      --muted:#687990;
+      --cloud:#edf3fb;
+      --mint:#24a68a;
+      --paper:#f5f1e8;
+      --white:#fff;
+      --ease:cubic-bezier(.22,.68,0,1.1);
+      --switcher-space:112px;
+    }
+
+    *{box-sizing:border-box}
+    html{min-height:100%;background:var(--navy)}
+    body{min-height:100dvh;margin:0;color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit}
+    [hidden]{display:none!important}
+    :focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+
+    .prototype-corner,
+    .real-login-link{position:fixed;z-index:80;top:18px;min-height:38px;display:inline-flex;align-items:center;gap:8px;padding:0 13px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:#fff;background:rgba(7,26,54,.66);box-shadow:0 8px 24px rgba(2,16,35,.16);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;backdrop-filter:blur(12px)}
+    .prototype-corner{left:18px;color:#ffd1e7;border-color:rgba(241,0,117,.35)}
+    .prototype-corner i{width:7px;height:7px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 4px rgba(241,0,117,.18)}
+    .real-login-link{right:18px;text-decoration:none;letter-spacing:.03em;text-transform:none}
+    .real-login-link svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    .variant{position:relative;min-height:100dvh;display:none;overflow:hidden;padding:96px 28px var(--switcher-space)}
+    .variant.is-active{display:flex}
+    .variant-inner{position:relative;z-index:2;width:min(1180px,100%);margin:auto}
+    .eyebrow{margin:0 0 14px;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase}
+    .brand-lockup{display:inline-flex;align-items:center;gap:12px;color:#fff;text-decoration:none}
+    .brand-lockup img{width:148px;height:auto;display:block;object-fit:contain}
+    .brand-lockup small{display:block;margin-top:4px;color:rgba(255,255,255,.66);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+    .variant h1,.variant h2,.variant h3,.variant p{margin-top:0}
+
+    .demo-card{width:min(430px,100%);padding:28px;border-radius:24px;color:var(--ink);background:#fff;box-shadow:0 24px 70px rgba(7,26,54,.18)}
+    .demo-card-head{margin-bottom:20px}
+    .demo-card-kicker{display:flex;align-items:center;gap:8px;margin-bottom:13px;color:#55708d;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    .demo-card-kicker i{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 4px rgba(36,166,138,.12)}
+    .demo-card h2{margin-bottom:7px;color:var(--navy);font-family:Fraunces,Georgia,serif;font-size:30px;line-height:1.12;letter-spacing:-.03em}
+    .demo-card-head>p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
+    .demo-role-switch{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin:0 0 15px;padding:4px;border:1px solid #dce6f0;border-radius:13px;background:#edf3fb}
+    .demo-role-switch button{min-height:44px;border:0;border-radius:9px;color:#687990;background:transparent;font-size:12px;font-weight:700}
+    .demo-role-switch button[aria-selected="true"]{color:var(--pink);background:#fff;box-shadow:0 3px 10px rgba(9,36,76,.08),inset 0 -3px 0 var(--pink)}
+    .demo-role-copy{min-height:35px;margin:0 0 13px;color:#63768c;font-size:11px;line-height:1.5}
+    .demo-form{display:grid;gap:13px}
+    .demo-field{display:grid;gap:6px;color:#405671;font-size:11px;font-weight:700}
+    .demo-input{height:52px;display:flex;align-items:center;gap:10px;padding:0 12px;border:1px solid #d4dfeb;border-radius:12px;background:#f7f9fc;transition:border-color .18s,box-shadow .18s,background-color .18s}
+    .demo-input:focus-within{border-color:var(--pink);background:#fff;box-shadow:0 0 0 3px rgba(241,0,117,.12)}
+    .demo-input>svg{width:19px;height:19px;flex:0 0 auto;color:#0b568f;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .demo-input input{width:100%;min-width:0;border:0;outline:0;color:var(--ink);background:transparent;font-size:15px}
+    .demo-input input::placeholder{color:#8190a3}
+    .password-toggle{min-width:44px;height:44px;padding:0;border:0;border-radius:9px;color:var(--blue);background:transparent;font-size:11px;font-weight:800}
+    .demo-options{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#718198;font-size:10px}
+    .demo-options label{display:flex;align-items:center;gap:6px;cursor:pointer}
+    .demo-options input{width:15px;height:15px;margin:0;accent-color:var(--pink)}
+    .demo-options a{color:var(--navy);font-weight:800;text-decoration:none}
+    .demo-options a:hover{color:var(--pink);text-decoration:underline}
+    .demo-submit{min-height:52px;display:flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:12px;color:#fff;background:var(--navy);box-shadow:0 12px 25px rgba(11,35,71,.2);font-size:13px;font-weight:800;transition:transform .18s,background-color .18s,box-shadow .18s}
+    .demo-submit:hover{background:var(--blue);transform:translateY(-2px);box-shadow:0 15px 28px rgba(0,79,176,.23)}
+    .demo-submit svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .demo-response{margin:0;padding:10px 12px;border-radius:10px;color:#08785f;background:#e5f7f1;font-size:11px;line-height:1.45}
+    .demo-security{display:flex;align-items:flex-start;gap:7px;margin:18px 0 0;padding-top:15px;border-top:1px solid #e7edf3;color:#8291a4;font-size:9px;line-height:1.5}
+    .demo-security svg{width:15px;height:15px;flex:0 0 auto;color:var(--mint);fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+    /* Liquid Glass: la opción más cercana al login actual, pero más controlada. */
+    .variant-liquid{align-items:center;background:linear-gradient(112deg,rgba(5,28,60,.85),rgba(5,44,88,.53) 52%,rgba(5,20,42,.84)),url("images/dashboard/login-mobile-kja.webp") center/cover no-repeat}
+    .variant-liquid:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 16% 10%,rgba(255,255,255,.18),transparent 28%),radial-gradient(circle at 87% 82%,rgba(104,210,255,.2),transparent 28%);pointer-events:none}
+    .liquid-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,430px);align-items:center;gap:clamp(40px,9vw,130px)}
+    .liquid-copy{max-width:540px;color:#fff}
+    .liquid-copy .eyebrow{margin-top:70px;color:#ffc0dd}
+    .liquid-copy h1{margin-bottom:20px;font-family:Fraunces,Georgia,serif;font-size:clamp(52px,7vw,86px);line-height:.98;letter-spacing:-.05em}
+    .liquid-copy h1 em{color:#ffb7d6;font-style:normal}
+    .liquid-copy>p:last-of-type{max-width:42ch;margin-bottom:28px;color:rgba(255,255,255,.78);font-size:14px;line-height:1.7}
+    .liquid-proof{display:flex;flex-wrap:wrap;gap:9px}
+    .liquid-proof span{padding:9px 12px;border:1px solid rgba(255,255,255,.21);border-radius:999px;color:rgba(255,255,255,.84);background:rgba(255,255,255,.1);font-size:10px;font-weight:700;backdrop-filter:blur(10px)}
+    .liquid-card{border:1px solid rgba(255,255,255,.6);background:linear-gradient(140deg,rgba(255,255,255,.76),rgba(237,246,253,.5));box-shadow:0 28px 75px rgba(2,18,40,.3),inset 0 1px 0 rgba(255,255,255,.94);backdrop-filter:blur(25px) saturate(135%)}
+    .liquid-card .demo-card-kicker{color:#315b7d}
+
+    /* 3D inmersivo: escenario profundo con capas en perspectiva. */
+    .variant-immersive{align-items:center;background:radial-gradient(circle at 19% 22%,rgba(0,121,210,.28),transparent 25%),radial-gradient(circle at 80% 75%,rgba(241,0,117,.16),transparent 24%),#06162e;color:#fff;perspective:1600px}
+    .variant-immersive:before{content:"";position:absolute;inset:0;opacity:.22;background:linear-gradient(rgba(129,203,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(129,203,255,.07) 1px,transparent 1px);background-size:55px 55px;transform:perspective(700px) rotateX(62deg) scale(1.6) translateY(20%);transform-origin:center bottom}
+    .variant-immersive:after{content:"";position:absolute;width:520px;height:520px;right:-180px;top:-180px;border:1px solid rgba(129,203,255,.25);border-radius:50%;box-shadow:0 0 0 52px rgba(129,203,255,.04),0 0 0 104px rgba(129,203,255,.025)}
+    .immersive-scene{display:grid;grid-template-columns:minmax(0,1fr) minmax(370px,430px);align-items:center;gap:clamp(40px,8vw,110px);transform-style:preserve-3d}
+    .immersive-copy{position:relative;z-index:2;transform:translateZ(30px)}
+    .immersive-copy .eyebrow{color:#72d8ff}
+    .immersive-copy h1{max-width:8ch;margin-bottom:22px;font-family:Fraunces,Georgia,serif;font-size:clamp(58px,7vw,94px);line-height:.9;letter-spacing:-.06em}
+    .immersive-copy h1 em{color:#ff6dab;font-style:normal}
+    .immersive-copy>p{max-width:39ch;color:#a9c1dd;font-size:14px;line-height:1.7}
+    .immersive-orbit{position:relative;width:min(320px,70vw);aspect-ratio:1;margin:44px 0 0 22px;display:grid;place-items:center;border:1px solid rgba(114,216,255,.28);border-radius:50%;transform:translateZ(55px) rotateX(11deg) rotateY(-12deg)}
+    .immersive-orbit:before,.immersive-orbit:after{content:"";position:absolute;border:1px solid rgba(241,0,117,.42);border-radius:50%;transform:rotate(48deg)}
+    .immersive-orbit:before{inset:24px -20px}.immersive-orbit:after{inset:-17px 25px;transform:rotate(-48deg)}
+    .immersive-mark{width:154px;height:154px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.3);border-radius:38px;background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.04));box-shadow:0 30px 50px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.45);transform:rotate(-9deg)}
+    .immersive-mark img{width:122px;filter:drop-shadow(0 10px 12px rgba(241,0,117,.25))}
+    .immersive-floating{position:absolute;padding:8px 11px;border:1px solid rgba(114,216,255,.25);border-radius:10px;color:#d6e9ff;background:rgba(5,29,60,.8);font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;box-shadow:0 13px 28px rgba(0,0,0,.25);backdrop-filter:blur(10px)}
+    .immersive-floating.one{top:24px;right:-34px}.immersive-floating.two{bottom:26px;left:-55px;color:#ffacd0}
+    .immersive-card{position:relative;z-index:3;border:1px solid rgba(114,216,255,.35);background:linear-gradient(145deg,rgba(245,251,255,.97),rgba(218,235,249,.9));box-shadow:20px 28px 0 rgba(0,79,176,.35),0 35px 85px rgba(0,0,0,.4);transform:rotateY(-7deg) rotateX(2deg) translateZ(80px)}
+
+    /* Liquid 3D: fondo líquido con la tarjeta inclinada del escenario inmersivo. */
+    .variant-liquid-3d{align-items:center;background:linear-gradient(112deg,rgba(5,28,60,.88),rgba(5,44,88,.52) 52%,rgba(5,20,42,.88)),url("images/dashboard/login-mobile-kja.webp") center/cover no-repeat;color:#fff;perspective:1600px}
+    .variant-liquid-3d:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 12% 12%,rgba(255,255,255,.2),transparent 25%),radial-gradient(circle at 87% 78%,rgba(104,210,255,.2),transparent 27%),radial-gradient(circle at 72% 20%,rgba(241,0,117,.13),transparent 23%);pointer-events:none}
+    .variant-liquid-3d:after{content:"";position:absolute;width:560px;height:560px;right:-210px;top:-210px;border:1px solid rgba(255,255,255,.2);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.035),0 0 0 84px rgba(114,216,255,.045);pointer-events:none}
+    .liquid-3d-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(370px,430px);align-items:center;gap:clamp(40px,9vw,130px);transform-style:preserve-3d}
+    .liquid-3d-copy{position:relative;isolation:isolate;max-width:560px;padding:clamp(22px,3vw,34px);border-left:2px solid rgba(241,0,117,.72);border-radius:28px;color:#fff;transform:translateZ(30px)}
+    .liquid-3d-copy:before{content:"";position:absolute;inset:0;z-index:-1;border:1px solid rgba(255,255,255,.18);border-radius:28px;background:linear-gradient(135deg,rgba(5,25,54,.78),rgba(5,25,54,.44) 68%,rgba(5,25,54,.18));box-shadow:0 25px 55px rgba(2,16,36,.26),inset 0 1px 0 rgba(255,255,255,.18);backdrop-filter:blur(14px) saturate(120%);pointer-events:none}
+    .liquid-3d-copy .eyebrow{margin-top:42px;color:#ffc0dd}
+    .liquid-3d-copy h1{margin-bottom:20px;font-family:Fraunces,Georgia,serif;font-size:clamp(52px,7vw,86px);line-height:.98;letter-spacing:-.05em}
+    .liquid-3d-copy h1 em{color:#ffb7d6;font-style:normal}
+    .liquid-3d-copy>p{max-width:42ch;margin-bottom:28px;color:rgba(255,255,255,.8);font-size:14px;line-height:1.7}
+    .liquid-3d-copy .eyebrow,.liquid-3d-copy h1,.liquid-3d-copy>p{text-shadow:0 2px 14px rgba(2,14,32,.48)}
+    .liquid-3d-orbit{width:min(210px,100%);margin:26px 26px 0 auto;transform:translateZ(42px) rotateX(11deg) rotateY(-12deg)}
+    .liquid-3d-orbit .immersive-mark{width:105px;height:105px;border-radius:27px}
+    .liquid-3d-orbit .immersive-mark img{width:82px}
+    .liquid-3d-orbit .immersive-floating{padding:7px 9px;font-size:8px}
+    .liquid-3d-orbit .immersive-floating.one{top:14px;right:-25px}
+    .liquid-3d-orbit .immersive-floating.two{bottom:16px;left:-38px}
+    .liquid-3d-card{transform-style:preserve-3d}
+
+    /* Spatial UI: tarjetas suspendidas en un tablero abierto. */
+    .variant-spatial{align-items:center;background:#e9f1f8;color:var(--ink)}
+    .variant-spatial:before{content:"";position:absolute;inset:0;opacity:.55;background:radial-gradient(circle at 9% 8%,#fff 0 5%,transparent 28%),radial-gradient(circle at 93% 88%,#c7e4f6 0 3%,transparent 23%)}
+    .spatial-board{position:relative;min-height:620px;display:grid;grid-template-columns:minmax(230px,.7fr) minmax(390px,430px);align-items:center;gap:clamp(50px,10vw,150px);padding:clamp(30px,6vw,80px);border:1px solid rgba(255,255,255,.9);border-radius:38px;background:linear-gradient(135deg,rgba(255,255,255,.48),rgba(223,238,249,.3));box-shadow:0 28px 80px rgba(33,75,111,.13),inset 0 1px 0 #fff;backdrop-filter:blur(14px)}
+    .spatial-board:after{content:"";position:absolute;z-index:-1;inset:14px;border:1px dashed rgba(0,79,176,.13);border-radius:28px;pointer-events:none}
+    .spatial-copy{position:relative;z-index:2}
+    .spatial-copy .eyebrow{color:var(--blue)}
+    .spatial-copy h1{max-width:8ch;margin-bottom:22px;color:var(--navy);font-family:Fraunces,Georgia,serif;font-size:clamp(50px,6vw,78px);line-height:.94;letter-spacing:-.06em}
+    .spatial-copy h1 em{color:var(--pink);font-style:normal}
+    .spatial-copy>p{max-width:29ch;color:#5f748b;font-size:14px;line-height:1.7}
+    .spatial-map{position:absolute;left:40px;bottom:36px;display:flex;align-items:center;gap:9px;color:#64809a;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .spatial-map i{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 5px rgba(36,166,138,.12)}
+    .spatial-card{position:relative;z-index:2;transform:translateY(-12px);border:1px solid rgba(255,255,255,.88);box-shadow:0 25px 55px rgba(36,76,110,.16),0 2px 5px rgba(36,76,110,.04)}
+    .spatial-satellite{position:absolute;z-index:3;display:grid;gap:3px;padding:12px 14px;border:1px solid rgba(255,255,255,.84);border-radius:14px;background:rgba(255,255,255,.7);box-shadow:0 15px 32px rgba(36,76,110,.12);backdrop-filter:blur(12px)}
+    .spatial-satellite b{color:var(--navy);font-size:11px}.spatial-satellite small{color:#7890a5;font-size:8px}.spatial-satellite.a{top:80px;right:-30px}.spatial-satellite.b{left:-34px;bottom:98px}.spatial-satellite.b b{color:var(--pink)}
+
+    /* Megabrutalismo: sistema plano, directo y deliberadamente estridente. */
+    .variant-mega{align-items:center;background:#f1eee7;color:#111;--mega-black:#111;--mega-yellow:#f8d84b}
+    .variant-mega:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 49.8%,rgba(17,17,17,.13) 50%,transparent 50.2%),linear-gradient(transparent 49.8%,rgba(17,17,17,.1) 50%,transparent 50.2%);background-size:80px 80px;opacity:.45}
+    .mega-shell{position:relative;z-index:2;width:min(1220px,100%);margin:auto;border:4px solid var(--mega-black);background:#f1eee7;box-shadow:14px 14px 0 var(--pink)}
+    .mega-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 22px;border-bottom:4px solid var(--mega-black)}
+    .mega-brand{display:flex;align-items:center;gap:12px;color:var(--mega-black);font-family:Poppins,sans-serif;font-size:17px;font-weight:900;letter-spacing:-.04em;text-transform:uppercase}
+    .mega-brand img{width:72px;height:32px;object-fit:contain}
+    .mega-code{padding:7px 10px;border:3px solid var(--mega-black);background:var(--mega-yellow);font-size:10px;font-weight:900;letter-spacing:.08em}
+    .mega-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,430px);min-height:550px}
+    .mega-copy{padding:clamp(30px,5vw,72px);border-right:4px solid var(--mega-black)}
+    .mega-copy .eyebrow{color:var(--blue)}
+    .mega-copy h1{max-width:7ch;margin-bottom:25px;color:var(--mega-black);font-family:Poppins,sans-serif;font-size:clamp(54px,7vw,96px);font-weight:900;line-height:.88;letter-spacing:-.09em;text-transform:uppercase}
+    .mega-copy h1 em{color:var(--pink);font-style:normal}
+    .mega-copy>p{max-width:32ch;margin-bottom:30px;font-family:Poppins,sans-serif;font-size:13px;font-weight:600;line-height:1.6}
+    .mega-stickers{display:flex;flex-wrap:wrap;gap:12px}
+    .mega-stickers span{padding:10px 12px;border:3px solid var(--mega-black);font-family:Poppins,sans-serif;font-size:10px;font-weight:900;text-transform:uppercase;transform:rotate(-2deg)}
+    .mega-stickers span:nth-child(2){background:var(--blue);color:#fff;transform:rotate(2deg)}
+    .mega-stickers span:nth-child(3){background:var(--mega-yellow);transform:rotate(-1deg)}
+    .mega-form-zone{display:grid;align-content:center;padding:30px;background:var(--mega-yellow)}
+    .mega-card{border:4px solid var(--mega-black);border-radius:0;background:#fff;box-shadow:10px 10px 0 var(--mega-black)}
+    .mega-card .demo-card-kicker{color:var(--mega-black)}
+    .mega-card .demo-card-kicker i{border-radius:0;background:var(--pink);box-shadow:none}
+    .mega-card h2{font-family:Poppins,sans-serif;font-weight:900;text-transform:uppercase}
+    .mega-card .demo-role-switch{border:3px solid var(--mega-black);border-radius:0;background:#fff}
+    .mega-card .demo-role-switch button[aria-selected="true"]{border-radius:0;color:#fff;background:var(--blue);box-shadow:none}
+    .mega-card .demo-input{border:3px solid var(--mega-black);border-radius:0;background:#fff}
+    .mega-card .demo-input:focus-within{border-color:var(--pink);box-shadow:4px 4px 0 var(--pink)}
+    .mega-card .demo-submit{border:3px solid var(--mega-black);border-radius:0;color:#fff;background:var(--pink);box-shadow:5px 5px 0 var(--mega-black);font-family:Poppins,sans-serif;text-transform:uppercase}
+    .mega-card .demo-submit:hover{background:var(--blue);transform:none;box-shadow:5px 5px 0 var(--mega-black)}
+    .mega-card .demo-security{border-top:3px solid var(--mega-black);color:#222}
+
+    /* Phygital: una credencial tangible conectada con el acceso digital. */
+    .variant-phygital{align-items:center;background:var(--paper);color:#263b53}
+    .variant-phygital:before{content:"";position:absolute;inset:0;opacity:.4;background:radial-gradient(rgba(103,76,40,.18) .65px,transparent .65px);background-size:7px 7px;mix-blend-mode:multiply;pointer-events:none}
+    .phygital-stage{position:relative;z-index:2;display:grid;grid-template-columns:minmax(300px,.95fr) minmax(390px,430px);align-items:center;gap:clamp(70px,12vw,170px);width:min(1120px,100%);margin:auto;padding:clamp(30px,5vw,68px);border:1px solid #d8cbb8;background:rgba(252,249,242,.7);box-shadow:0 24px 70px rgba(93,70,41,.13)}
+    .phygital-story .eyebrow{color:#9b5c32}
+    .phygital-story h1{max-width:8ch;margin-bottom:22px;color:#263b53;font-family:Fraunces,Georgia,serif;font-size:clamp(53px,6.5vw,80px);line-height:.93;letter-spacing:-.06em}
+    .phygital-story h1 em{color:#b33d68;font-style:normal}
+    .phygital-story>p{max-width:32ch;color:#6e756f;font-size:14px;line-height:1.7}
+    .phygital-photo{position:relative;height:110px;margin-top:30px;overflow:hidden;border:1px solid #c9bba8;background:url("images/dashboard/fondo-1-1280.webp") center/cover;filter:saturate(.72)}
+    .phygital-photo span{position:absolute;left:10px;bottom:9px;padding:5px 7px;color:#fff;background:rgba(38,59,83,.86);font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+    .phygital-form-wrap{position:relative}
+    .physical-card{position:absolute;z-index:4;top:-42px;left:-72px;width:220px;min-height:142px;padding:15px;border:1px solid #c7b79f;color:#263b53;background:linear-gradient(135deg,#fbf7ed,#e9dfca);box-shadow:9px 12px 0 rgba(38,59,83,.13),0 18px 35px rgba(83,64,41,.2);transform:rotate(-7deg)}
+    .physical-card:after{content:"";position:absolute;right:14px;bottom:14px;width:41px;height:41px;background:repeating-linear-gradient(0deg,#263b53 0 2px,transparent 2px 4px),repeating-linear-gradient(90deg,transparent 0 3px,#263b53 3px 5px);opacity:.35}
+    .physical-card img{width:92px;height:auto;object-fit:contain}
+    .physical-card small,.physical-card b{display:block}.physical-card small{margin-top:14px;color:#9b5c32;font-size:7px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.physical-card b{margin-top:3px;font-size:11px}
+    .phygital-card{padding-top:42px;border:1px solid #d9cbb8;border-radius:3px;background:#fffdf8;box-shadow:0 18px 45px rgba(83,64,41,.14)}
+    .phygital-card .demo-card-kicker{color:#9b5c32}
+    .phygital-card .demo-role-switch{border-color:#ddcfbe;border-radius:3px;background:#f4eee3}
+    .phygital-card .demo-role-switch button[aria-selected="true"]{color:#fff;background:#263b53;box-shadow:none;border-radius:2px}
+    .phygital-card .demo-input{border-color:#d9cbb8;border-radius:3px;background:#fbf7ee}
+    .phygital-card .demo-input:focus-within{border-color:#b33d68;box-shadow:0 0 0 3px rgba(179,61,104,.13)}
+    .phygital-card .demo-submit{border-radius:3px;background:#263b53;box-shadow:4px 4px 0 #b33d68}
+    .phygital-card .demo-submit:hover{background:#b33d68;transform:none}
+    .phygital-card .demo-security{border-color:#e4d9ca}
+
+    /* Barra de comparación, deliberadamente común y contrastante. */
+    .prototype-switcher{position:fixed;z-index:90;right:50%;bottom:max(16px,env(safe-area-inset-bottom));width:min(650px,calc(100% - 28px));display:grid;grid-template-columns:48px minmax(0,1fr) 48px;align-items:center;gap:12px;padding:9px 11px;border:1px solid rgba(255,255,255,.22);border-radius:18px;color:#fff;background:rgba(7,26,54,.91);box-shadow:0 18px 45px rgba(2,16,35,.27);transform:translateX(50%);backdrop-filter:blur(16px) saturate(120%)}
+    .prototype-switcher button{width:48px;height:48px;display:grid;place-items:center;padding:0;border:1px solid rgba(255,255,255,.2);border-radius:13px;color:#fff;background:rgba(255,255,255,.09);transition:background-color .18s,transform .18s}
+    .prototype-switcher button:hover{background:rgba(241,0,117,.55);transform:translateY(-2px)}
+    .prototype-switcher button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .switcher-copy{min-width:0;display:grid;gap:2px;text-align:center}
+    .switcher-copy small{color:#89d9ff;font-size:8px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+    .switcher-copy strong{overflow:hidden;color:#fff;font-size:13px;text-overflow:ellipsis;white-space:nowrap}
+    .switcher-copy span{overflow:hidden;color:#b7c7da;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+    .prototype-status{position:fixed;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+    @media(max-width:940px){
+      .variant{padding-inline:20px}
+      .liquid-layout,.immersive-scene,.liquid-3d-layout,.spatial-board,.mega-layout,.phygital-stage{grid-template-columns:1fr;gap:34px}
+      .liquid-copy .eyebrow{margin-top:40px}
+      .liquid-3d-copy{padding:24px}
+      .liquid-3d-copy .eyebrow{margin-top:40px}
+      .immersive-copy h1,.spatial-copy h1,.phygital-story h1{max-width:10ch}
+      .immersive-orbit{width:220px;margin-top:28px}
+      .immersive-mark{width:112px;height:112px;border-radius:28px}.immersive-mark img{width:88px}
+      .immersive-floating.one{right:-20px}.immersive-floating.two{left:-20px}
+      .immersive-card{transform:none}
+      .liquid-3d-card{transform:rotateY(-4deg) rotateX(1deg) translateZ(36px)}
+      .liquid-3d-orbit{width:180px;margin-top:22px;transform:translateZ(25px) rotateX(8deg) rotateY(-8deg)}
+      .liquid-3d-orbit .immersive-mark{width:88px;height:88px;border-radius:23px}
+      .liquid-3d-orbit .immersive-mark img{width:68px}
+      .spatial-board{min-height:0;padding:32px}
+      .spatial-map{position:static;margin-top:34px}
+      .spatial-satellite.a{top:28px;right:-12px}.spatial-satellite.b{left:-12px;bottom:28px}
+      .mega-copy{border-right:0;border-bottom:4px solid var(--mega-black)}
+      .mega-layout{min-height:0}
+      .phygital-stage{padding:34px}
+      .phygital-form-wrap{margin-top:30px}
+    }
+
+    @media(max-width:600px){
+      :root{--switcher-space:124px}
+      .prototype-corner,.real-login-link{top:max(10px,env(safe-area-inset-top));min-height:34px;padding-inline:9px;font-size:8px}
+      .prototype-corner{left:10px}.real-login-link{right:10px}
+      .real-login-link span{display:none}
+      .variant{min-height:100svh;padding:70px 15px var(--switcher-space)}
+      .brand-lockup img{width:128px}
+      .demo-card{padding:21px 17px;border-radius:19px}
+      .demo-card h2{font-size:26px}
+      .demo-role-switch button{min-height:44px}
+      .demo-options{align-items:flex-start;flex-direction:column}
+      .liquid-layout,.immersive-scene,.liquid-3d-layout,.spatial-board,.mega-layout,.phygital-stage{gap:26px}
+      .liquid-copy .eyebrow{margin-top:30px}
+      .liquid-3d-copy{padding:21px 17px;border-radius:20px}
+      .liquid-3d-copy:before{border-radius:20px}
+      .liquid-3d-copy .eyebrow{margin-top:30px}
+      .liquid-copy h1{font-size:clamp(51px,15vw,70px)}
+      .liquid-3d-copy h1{font-size:clamp(51px,15vw,70px)}
+      .liquid-copy>p:last-of-type{font-size:13px}
+      .liquid-3d-copy>p{font-size:13px}
+      .liquid-proof{display:none}
+      .immersive-copy h1,.spatial-copy h1,.phygital-story h1{font-size:clamp(49px,14vw,67px)}
+      .immersive-orbit{margin:20px auto 0}
+      .immersive-card{box-shadow:0 20px 46px rgba(0,0,0,.34)}
+      .liquid-3d-card{transform:perspective(900px) rotateY(-2deg) rotateX(1deg);box-shadow:0 20px 46px rgba(0,0,0,.34)}
+      .liquid-3d-orbit{width:155px;margin:20px auto 0;transform:perspective(700px) rotateY(-2deg) rotateX(1deg)}
+      .liquid-3d-orbit .immersive-mark{width:74px;height:74px;border-radius:20px}
+      .liquid-3d-orbit .immersive-mark img{width:58px}
+      .liquid-3d-orbit .immersive-floating{padding:6px 7px;font-size:7px}
+      .liquid-3d-orbit .immersive-floating.one{top:9px;right:-18px}
+      .liquid-3d-orbit .immersive-floating.two{bottom:10px;left:-27px}
+      .spatial-board{padding:24px 16px;border-radius:25px}
+      .spatial-satellite{display:none}
+      .mega-shell{box-shadow:8px 8px 0 var(--pink)}
+      .mega-header{padding:13px 14px}
+      .mega-brand{font-size:13px}.mega-brand img{width:62px}
+      .mega-copy{padding:28px 20px}.mega-copy h1{font-size:clamp(52px,15vw,76px)}
+      .mega-form-zone{padding:22px 15px}
+      .physical-card{position:relative;top:auto;left:auto;width:190px;margin:0 0 -19px 18px;padding:12px;transform:rotate(-5deg)}
+      .physical-card img{width:77px}.physical-card small{margin-top:8px}
+      .phygital-card{padding-top:25px}
+      .prototype-switcher{grid-template-columns:43px minmax(0,1fr) 43px;gap:7px;padding:7px;border-radius:15px}
+      .prototype-switcher button{width:43px;height:43px;border-radius:11px}
+      .switcher-copy strong{font-size:12px}.switcher-copy span{font-size:9px}
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+      .demo-submit:hover,.prototype-switcher button:hover{transform:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="prototype-corner"><i aria-hidden="true"></i>Prototipo · no procesa credenciales</div>
+  <a class="real-login-link" href="dashboard.html"><span>Volver al login real</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+
+  <main id="prototype-main">
+    <section class="variant variant-liquid is-active" data-variant="liquid-glass" aria-labelledby="liquid-title">
+      <div class="variant-inner liquid-layout">
+        <header class="liquid-copy">
+          <a class="brand-lockup" href="#" aria-label="KJA, prototipo">
+            <img src="images/logo/kja.webp" alt="KJA">
+            <span><small>Portal del equipo</small></span>
+          </a>
+          <p class="eyebrow">Acceso privado · KJA</p>
+          <h1 id="liquid-title">Tu jornada,<br><em>más clara.</em></h1>
+          <p>Consulta tu horario, registra tu asistencia y mantén tu avance en un solo lugar.</p>
+          <div class="liquid-proof" aria-hidden="true"><span>◌ Sesión segura</span><span>✦ Equipo KJA</span></div>
+        </header>
+        <article class="demo-card liquid-card" aria-label="Login Liquid Glass">
+          <div class="demo-card-head"><div class="demo-card-kicker"><i aria-hidden="true"></i>Acceso seguro</div><h2>Ingresa a tu portal</h2><p>Elige tu tipo de acceso para continuar.</p></div>
+          <div class="demo-role-switch" role="tablist" aria-label="Tipo de acceso"><button type="button" role="tab" data-role="collaborator" aria-selected="true">Colaborador</button><button type="button" role="tab" data-role="admin" aria-selected="false">Dirección</button></div>
+          <p class="demo-role-copy" data-role-copy="collaborator">Ingresa con tu DNI y PIN de asistencia.</p><p class="demo-role-copy" data-role-copy="admin" hidden>Ingresa con tu correo y contraseña institucional.</p>
+          <form class="demo-form" data-role-form="collaborator"><label class="demo-field">DNI<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg><input inputmode="numeric" maxlength="8" placeholder="Ingresa tu DNI"></div></label><label class="demo-field">PIN de asistencia<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" inputmode="numeric" maxlength="4" placeholder="Ingresa tu PIN"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar PIN">Ver</button></div></label><div class="demo-options"><label><input type="checkbox">Recordarme en este dispositivo</label><a href="https://wa.me/51988918238?text=Hola%2C%20necesito%20restablecer%20mi%20PIN%20de%20asistencia." target="_blank" rel="noopener">¿Olvidaste tu PIN?</a></div><button class="demo-submit" type="submit">Entrar a mi portal <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form>
+          <form class="demo-form" data-role-form="admin" hidden><label class="demo-field">Correo administrativo<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg><input type="email" placeholder="nombre@correo.com"></div></label><label class="demo-field">Contraseña<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" placeholder="Tu contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button></div></label><button class="demo-submit" type="submit">Ingresar como Dirección <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form>
+          <footer class="demo-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Esta pantalla es una exploración visual. El acceso real permanece en dashboard.html.</footer>
+        </article>
+      </div>
+    </section>
+
+    <section class="variant variant-immersive" data-variant="3d-immersive" aria-labelledby="immersive-title" hidden>
+      <div class="variant-inner immersive-scene">
+        <header class="immersive-copy"><a class="brand-lockup" href="#" aria-label="KJA, prototipo"><img src="images/logo/kja.webp" alt="KJA"><span><small>Portal del equipo</small></span></a><p class="eyebrow">Sistema KJA · Nivel de acceso</p><h1 id="immersive-title">Entra al <em>espacio</em> de tu jornada.</h1><p>Una puerta digital con profundidad, señales de estado y una presencia más tecnológica.</p><div class="immersive-orbit" aria-hidden="true"><div class="immersive-mark"><img src="images/logo/logo-160.webp" alt=""></div><span class="immersive-floating one">Sesión segura</span><span class="immersive-floating two">KJA / 01</span></div></header>
+        <article class="demo-card immersive-card" aria-label="Login 3D inmersivo"><div class="demo-card-head"><div class="demo-card-kicker"><i aria-hidden="true"></i>Canal protegido</div><h2>Accede al portal</h2><p>La profundidad visual acompaña un acceso directo.</p></div><div class="demo-role-switch" role="tablist" aria-label="Tipo de acceso"><button type="button" role="tab" data-role="collaborator" aria-selected="true">Colaborador</button><button type="button" role="tab" data-role="admin" aria-selected="false">Dirección</button></div><p class="demo-role-copy" data-role-copy="collaborator">Ingresa con tu DNI y PIN de asistencia.</p><p class="demo-role-copy" data-role-copy="admin" hidden>Ingresa con tu correo y contraseña institucional.</p><form class="demo-form" data-role-form="collaborator"><label class="demo-field">DNI<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg><input inputmode="numeric" maxlength="8" placeholder="Ingresa tu DNI"></div></label><label class="demo-field">PIN de asistencia<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" inputmode="numeric" maxlength="4" placeholder="Ingresa tu PIN"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar PIN">Ver</button></div></label><div class="demo-options"><label><input type="checkbox">Recordarme en este dispositivo</label><a href="https://wa.me/51988918238?text=Hola%2C%20necesito%20restablecer%20mi%20PIN%20de%20asistencia." target="_blank" rel="noopener">¿Olvidaste tu PIN?</a></div><button class="demo-submit" type="submit">Entrar a mi portal <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><form class="demo-form" data-role-form="admin" hidden><label class="demo-field">Correo administrativo<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg><input type="email" placeholder="nombre@correo.com"></div></label><label class="demo-field">Contraseña<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" placeholder="Tu contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button></div></label><button class="demo-submit" type="submit">Ingresar como Dirección <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><footer class="demo-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Exploración 3D visual. Ningún dato se envía.</footer></article>
+      </div>
+    </section>
+
+    <section class="variant variant-liquid-3d" data-variant="liquid-3d" aria-labelledby="liquid-3d-title" hidden>
+      <div class="variant-inner liquid-3d-layout">
+        <header class="liquid-3d-copy"><a class="brand-lockup" href="#" aria-label="KJA, prototipo"><img src="images/logo/kja.webp" alt="KJA"><span><small>Portal del equipo</small></span></a><p class="eyebrow">Acceso privado · KJA</p><h1 id="liquid-3d-title">Tu jornada,<br><em>en profundidad.</em></h1><p>El mismo portal de confianza, con una capa visual más inmersiva para acompañar tu ingreso.</p><div class="liquid-proof" aria-hidden="true"><span>◌ Sesión segura</span><span>✦ Equipo KJA</span></div><div class="immersive-orbit liquid-3d-orbit" aria-hidden="true"><div class="immersive-mark"><img src="images/logo/logo-160.webp" alt=""></div><span class="immersive-floating one">Sesión segura</span><span class="immersive-floating two">KJA / 01</span></div></header>
+        <article class="demo-card immersive-card liquid-3d-card" aria-label="Login Liquid 3D"><div class="demo-card-head"><div class="demo-card-kicker"><i aria-hidden="true"></i>Canal protegido</div><h2>Accede al portal</h2><p>La fotografía líquida se encuentra con una tarjeta 3D.</p></div><div class="demo-role-switch" role="tablist" aria-label="Tipo de acceso"><button type="button" role="tab" data-role="collaborator" aria-selected="true">Colaborador</button><button type="button" role="tab" data-role="admin" aria-selected="false">Dirección</button></div><p class="demo-role-copy" data-role-copy="collaborator">Ingresa con tu DNI y PIN de asistencia.</p><p class="demo-role-copy" data-role-copy="admin" hidden>Ingresa con tu correo y contraseña institucional.</p><form class="demo-form" data-role-form="collaborator"><label class="demo-field">DNI<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg><input inputmode="numeric" maxlength="8" placeholder="Ingresa tu DNI"></div></label><label class="demo-field">PIN de asistencia<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" inputmode="numeric" maxlength="4" placeholder="Ingresa tu PIN"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar PIN">Ver</button></div></label><div class="demo-options"><label><input type="checkbox">Recordarme en este dispositivo</label><a href="https://wa.me/51988918238?text=Hola%2C%20necesito%20restablecer%20mi%20PIN%20de%20asistencia." target="_blank" rel="noopener">¿Olvidaste tu PIN?</a></div><button class="demo-submit" type="submit">Entrar a mi portal <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><form class="demo-form" data-role-form="admin" hidden><label class="demo-field">Correo administrativo<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg><input type="email" placeholder="nombre@correo.com"></div></label><label class="demo-field">Contraseña<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" placeholder="Tu contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button></div></label><button class="demo-submit" type="submit">Ingresar como Dirección <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><footer class="demo-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Exploración Liquid 3D. Ningún dato se envía.</footer></article>
+      </div>
+    </section>
+
+    <section class="variant variant-spatial" data-variant="spatial-ui" aria-labelledby="spatial-title" hidden>
+      <div class="variant-inner spatial-board"><header class="spatial-copy"><a class="brand-lockup" href="#" aria-label="KJA, prototipo"><img src="images/logo/kja.webp" alt="KJA"><span><small style="color:#64809a">Portal del equipo</small></span></a><p class="eyebrow">Tu espacio de trabajo</p><h1 id="spatial-title">Todo en su <em>lugar.</em></h1><p>Una experiencia espacial para encontrar rápidamente tu jornada, tu asistencia y tu siguiente acción.</p><div class="spatial-map" aria-hidden="true"><i></i>Portal operativo · Lima</div></header><span class="spatial-satellite a" aria-hidden="true"><b>Hoy</b><small>08:00 — 13:00</small></span><span class="spatial-satellite b" aria-hidden="true"><b>96%</b><small>avance mensual</small></span><article class="demo-card spatial-card" aria-label="Login Spatial UI"><div class="demo-card-head"><div class="demo-card-kicker"><i aria-hidden="true"></i>Tu punto de entrada</div><h2>Ingresa a tu portal</h2><p>Una tarjeta clara dentro de tu espacio.</p></div><div class="demo-role-switch" role="tablist" aria-label="Tipo de acceso"><button type="button" role="tab" data-role="collaborator" aria-selected="true">Colaborador</button><button type="button" role="tab" data-role="admin" aria-selected="false">Dirección</button></div><p class="demo-role-copy" data-role-copy="collaborator">Ingresa con tu DNI y PIN de asistencia.</p><p class="demo-role-copy" data-role-copy="admin" hidden>Ingresa con tu correo y contraseña institucional.</p><form class="demo-form" data-role-form="collaborator"><label class="demo-field">DNI<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg><input inputmode="numeric" maxlength="8" placeholder="Ingresa tu DNI"></div></label><label class="demo-field">PIN de asistencia<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" inputmode="numeric" maxlength="4" placeholder="Ingresa tu PIN"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar PIN">Ver</button></div></label><div class="demo-options"><label><input type="checkbox">Recordarme en este dispositivo</label><a href="https://wa.me/51988918238?text=Hola%2C%20necesito%20restablecer%20mi%20PIN%20de%20asistencia." target="_blank" rel="noopener">¿Olvidaste tu PIN?</a></div><button class="demo-submit" type="submit">Entrar a mi portal <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><form class="demo-form" data-role-form="admin" hidden><label class="demo-field">Correo administrativo<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg><input type="email" placeholder="nombre@correo.com"></div></label><label class="demo-field">Contraseña<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" placeholder="Tu contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button></div></label><button class="demo-submit" type="submit">Ingresar como Dirección <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><footer class="demo-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Exploración Spatial UI. Ningún dato se envía.</footer></article></div>
+    </section>
+
+    <section class="variant variant-mega" data-variant="megabrutalism" aria-labelledby="mega-title" hidden>
+      <div class="mega-shell"><header class="mega-header"><div class="mega-brand"><img src="images/logo/kja.webp" alt="KJA"><span>Portal interno</span></div><span class="mega-code">KJA / ACCESS_01</span></header><div class="mega-layout"><div class="mega-copy"><p class="eyebrow">Sin vueltas · entra directo</p><h1 id="mega-title">Entra.<br><em>Marca.</em><br>Avanza.</h1><p>La interfaz más frontal de la galería: jerarquía grande, botones contundentes y una identidad imposible de ignorar.</p><div class="mega-stickers" aria-hidden="true"><span>Asistencia</span><span>Equipo KJA</span><span>Hoy cuenta</span></div></div><div class="mega-form-zone"><article class="demo-card mega-card" aria-label="Login Megabrutalismo"><div class="demo-card-head"><div class="demo-card-kicker"><i aria-hidden="true"></i>Acceso seguro</div><h2>Ingresa aquí</h2><p>Una acción. Un siguiente paso.</p></div><div class="demo-role-switch" role="tablist" aria-label="Tipo de acceso"><button type="button" role="tab" data-role="collaborator" aria-selected="true">Colaborador</button><button type="button" role="tab" data-role="admin" aria-selected="false">Dirección</button></div><p class="demo-role-copy" data-role-copy="collaborator">Ingresa con tu DNI y PIN de asistencia.</p><p class="demo-role-copy" data-role-copy="admin" hidden>Ingresa con tu correo y contraseña institucional.</p><form class="demo-form" data-role-form="collaborator"><label class="demo-field">DNI<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg><input inputmode="numeric" maxlength="8" placeholder="Ingresa tu DNI"></div></label><label class="demo-field">PIN de asistencia<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" inputmode="numeric" maxlength="4" placeholder="Ingresa tu PIN"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar PIN">Ver</button></div></label><div class="demo-options"><label><input type="checkbox">Recordarme en este dispositivo</label><a href="https://wa.me/51988918238?text=Hola%2C%20necesito%20restablecer%20mi%20PIN%20de%20asistencia." target="_blank" rel="noopener">¿Olvidaste tu PIN?</a></div><button class="demo-submit" type="submit">Entrar a mi portal <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><form class="demo-form" data-role-form="admin" hidden><label class="demo-field">Correo administrativo<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg><input type="email" placeholder="nombre@correo.com"></div></label><label class="demo-field">Contraseña<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" placeholder="Tu contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button></div></label><button class="demo-submit" type="submit">Ingresar como Dirección <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><footer class="demo-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Exploración Megabrutalista. Ningún dato se envía.</footer></article></div></div></div>
+    </section>
+
+    <section class="variant variant-phygital" data-variant="phygital" aria-labelledby="phygital-title" hidden>
+      <div class="phygital-stage"><header class="phygital-story"><a class="brand-lockup" href="#" aria-label="KJA, prototipo"><img src="images/logo/kja.webp" alt="KJA"><span><small style="color:#9b5c32">Credencial del equipo</small></span></a><p class="eyebrow">Identidad física · acceso digital</p><h1 id="phygital-title">Tu acceso,<br><em>con identidad.</em></h1><p>Una credencial que conserva la calidez de KJA y abre la puerta a una jornada organizada.</p><div class="phygital-photo" aria-hidden="true"><span>El espacio KJA también está aquí</span></div></header><div class="phygital-form-wrap"><article class="physical-card" aria-hidden="true"><img src="images/logo/kja.webp" alt=""><small>Credencial de equipo</small><b>Acceso institucional</b></article><article class="demo-card phygital-card" aria-label="Login Phygital"><div class="demo-card-head"><div class="demo-card-kicker"><i aria-hidden="true"></i>Validación de identidad</div><h2>Ingresa a tu portal</h2><p>Elige tu tipo de acceso para continuar.</p></div><div class="demo-role-switch" role="tablist" aria-label="Tipo de acceso"><button type="button" role="tab" data-role="collaborator" aria-selected="true">Colaborador</button><button type="button" role="tab" data-role="admin" aria-selected="false">Dirección</button></div><p class="demo-role-copy" data-role-copy="collaborator">Ingresa con tu DNI y PIN de asistencia.</p><p class="demo-role-copy" data-role-copy="admin" hidden>Ingresa con tu correo y contraseña institucional.</p><form class="demo-form" data-role-form="collaborator"><label class="demo-field">DNI<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg><input inputmode="numeric" maxlength="8" placeholder="Ingresa tu DNI"></div></label><label class="demo-field">PIN de asistencia<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" inputmode="numeric" maxlength="4" placeholder="Ingresa tu PIN"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar PIN">Ver</button></div></label><div class="demo-options"><label><input type="checkbox">Recordarme en este dispositivo</label><a href="https://wa.me/51988918238?text=Hola%2C%20necesito%20restablecer%20mi%20PIN%20de%20asistencia." target="_blank" rel="noopener">¿Olvidaste tu PIN?</a></div><button class="demo-submit" type="submit">Entrar a mi portal <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><form class="demo-form" data-role-form="admin" hidden><label class="demo-field">Correo administrativo<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg><input type="email" placeholder="nombre@correo.com"></div></label><label class="demo-field">Contraseña<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" placeholder="Tu contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button></div></label><button class="demo-submit" type="submit">Ingresar como Dirección <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><footer class="demo-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Exploración Phygital. Ningún dato se envía.</footer></article></div></div>
+    </section>
+  </main>
+
+  <nav class="prototype-switcher" aria-label="Comparar tendencias del login">
+    <button type="button" data-cycle="prev" aria-label="Ver variante anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="switcher-copy"><small>Variante activa</small><strong id="variant-name">Liquid Glass</strong><span id="variant-description">Elegancia translúcida sobre la identidad KJA.</span></div>
+    <button type="button" data-cycle="next" aria-label="Ver siguiente variante"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+  </nav>
+  <p class="prototype-status" id="variant-status" aria-live="polite"></p>
+
+  <script>
+    const VARIANTS=[
+      {key:'liquid-glass',label:'Liquid Glass',description:'Elegancia translúcida sobre la identidad KJA.'},
+      {key:'3d-immersive',label:'3D inmersivo',description:'Profundidad, perspectiva y presencia tecnológica.'},
+      {key:'liquid-3d',label:'Liquid 3D',description:'Fotografía líquida con profundidad y presencia 3D.'},
+      {key:'spatial-ui',label:'Spatial UI',description:'Un espacio abierto con tarjetas suspendidas.'},
+      {key:'megabrutalism',label:'Megabrutalismo',description:'Directo, expresivo y visualmente contundente.'},
+      {key:'phygital',label:'Phygital',description:'La credencial física se encuentra con lo digital.'}
+    ];
+    const DEFAULT_VARIANT=VARIANTS[0].key;
+    const variantFromUrl=new URLSearchParams(window.location.search).get('variant');
+    let currentKey=VARIANTS.some(variant=>variant.key===variantFromUrl)?variantFromUrl:DEFAULT_VARIANT;
+    const panels=[...document.querySelectorAll('[data-variant]')];
+    const variantName=document.getElementById('variant-name');
+    const variantDescription=document.getElementById('variant-description');
+    const variantStatus=document.getElementById('variant-status');
+
+    function currentVariant(){return VARIANTS.find(variant=>variant.key===currentKey)||VARIANTS[0]}
+    function syncUrl(){
+      const url=new URL(window.location.href);
+      url.searchParams.set('variant',currentKey);
+      window.history.replaceState(null,'',`${url.search}${url.hash}`);
+    }
+    function renderVariant(key,updateUrl=true){
+      currentKey=VARIANTS.some(variant=>variant.key===key)?key:DEFAULT_VARIANT;
+      const variant=currentVariant();
+      document.documentElement.dataset.variant=currentKey;
+      document.body.dataset.variant=currentKey;
+      panels.forEach(panel=>{
+        const active=panel.dataset.variant===currentKey;
+        panel.hidden=!active;
+        panel.classList.toggle('is-active',active);
+        panel.setAttribute('aria-hidden',String(!active));
+      });
+      variantName.textContent=variant.label;
+      variantDescription.textContent=variant.description;
+      variantStatus.textContent=`Variante activa: ${variant.label}. ${variant.description}`;
+      document.title=`Prototipo KJA · ${variant.label}`;
+      if(updateUrl)syncUrl();
+    }
+    function cycle(direction){
+      const index=VARIANTS.findIndex(variant=>variant.key===currentKey);
+      const next=(index+direction+VARIANTS.length)%VARIANTS.length;
+      renderVariant(VARIANTS[next].key);
+    }
+    document.querySelectorAll('[data-cycle]').forEach(button=>button.addEventListener('click',()=>cycle(button.dataset.cycle==='next'?1:-1)));
+    document.addEventListener('keydown',event=>{
+      if(!['ArrowLeft','ArrowRight'].includes(event.key))return;
+      if(event.target?.matches?.('input,textarea,select,[contenteditable="true"]'))return;
+      event.preventDefault();
+      cycle(event.key==='ArrowRight'?1:-1);
+    });
+
+    document.querySelectorAll('.demo-role-switch').forEach(switcher=>{
+      const card=switcher.closest('.demo-card');
+      function setRole(role){
+        switcher.querySelectorAll('[data-role]').forEach(button=>button.setAttribute('aria-selected',String(button.dataset.role===role)));
+        card.querySelectorAll('[data-role-copy]').forEach(copy=>copy.hidden=copy.dataset.roleCopy!==role);
+        card.querySelectorAll('[data-role-form]').forEach(form=>form.hidden=form.dataset.roleForm!==role);
+      }
+      switcher.querySelectorAll('[data-role]').forEach(button=>button.addEventListener('click',()=>setRole(button.dataset.role)));
+      setRole('collaborator');
+    });
+    document.querySelectorAll('[data-password-toggle]').forEach(button=>button.addEventListener('click',()=>{
+      const input=button.closest('.demo-input').querySelector('input');
+      const visible=input.type==='password';
+      input.type=visible?'text':'password';
+      button.textContent=visible?'Ocultar':'Ver';
+      button.setAttribute('aria-label',`${visible?'Ocultar':'Mostrar'} ${input.placeholder.includes('PIN')?'PIN':'contraseña'}`);
+    }));
+    document.querySelectorAll('.demo-form').forEach(form=>form.addEventListener('submit',event=>{
+      event.preventDefault();
+      const response=form.querySelector('.demo-response');
+      response.textContent='Vista previa: el login real validaría estos datos aquí. Nada fue enviado.';
+      response.hidden=false;
+    }));
+    document.querySelectorAll('.brand-lockup').forEach(link=>link.addEventListener('click',event=>event.preventDefault()));
+    renderVariant(currentKey);
+  </script>
+</body>
+</html>
