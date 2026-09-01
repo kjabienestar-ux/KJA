@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-variant="liquid-3d">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#0b2347">
-  <title>Prototipo KJA · Liquid Glass</title>
+  <title>Prototipo KJA · Liquid 3D</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
@@ -113,25 +113,32 @@
     .immersive-floating.one{top:24px;right:-34px}.immersive-floating.two{bottom:26px;left:-55px;color:#ffacd0}
     .immersive-card{position:relative;z-index:3;border:1px solid rgba(114,216,255,.35);background:linear-gradient(145deg,rgba(245,251,255,.97),rgba(218,235,249,.9));box-shadow:20px 28px 0 rgba(0,79,176,.35),0 35px 85px rgba(0,0,0,.4);transform:rotateY(-7deg) rotateX(2deg) translateZ(80px)}
 
-    /* Liquid 3D: fondo líquido con la tarjeta inclinada del escenario inmersivo. */
-    .variant-liquid-3d{align-items:center;background:linear-gradient(112deg,rgba(5,28,60,.88),rgba(5,44,88,.52) 52%,rgba(5,20,42,.88)),url("images/dashboard/login-mobile-kja.webp") center/cover no-repeat;color:#fff;perspective:1600px}
-    .variant-liquid-3d:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 12% 12%,rgba(255,255,255,.2),transparent 25%),radial-gradient(circle at 87% 78%,rgba(104,210,255,.2),transparent 27%),radial-gradient(circle at 72% 20%,rgba(241,0,117,.13),transparent 23%);pointer-events:none}
-    .variant-liquid-3d:after{content:"";position:absolute;width:560px;height:560px;right:-210px;top:-210px;border:1px solid rgba(255,255,255,.2);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.035),0 0 0 84px rgba(114,216,255,.045);pointer-events:none}
-    .liquid-3d-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(370px,430px);align-items:center;gap:clamp(40px,9vw,130px);transform-style:preserve-3d}
-    .liquid-3d-copy{position:relative;isolation:isolate;max-width:560px;padding:clamp(22px,3vw,34px);border-left:2px solid rgba(241,0,117,.72);border-radius:28px;color:#fff;transform:translateZ(30px)}
-    .liquid-3d-copy:before{content:"";position:absolute;inset:0;z-index:-1;border:1px solid rgba(255,255,255,.18);border-radius:28px;background:linear-gradient(135deg,rgba(5,25,54,.78),rgba(5,25,54,.44) 68%,rgba(5,25,54,.18));box-shadow:0 25px 55px rgba(2,16,36,.26),inset 0 1px 0 rgba(255,255,255,.18);backdrop-filter:blur(14px) saturate(120%);pointer-events:none}
-    .liquid-3d-copy .eyebrow{margin-top:42px;color:#ffc0dd}
-    .liquid-3d-copy h1{margin-bottom:20px;font-family:Fraunces,Georgia,serif;font-size:clamp(52px,7vw,86px);line-height:.98;letter-spacing:-.05em}
-    .liquid-3d-copy h1 em{color:#ffb7d6;font-style:normal}
-    .liquid-3d-copy>p{max-width:42ch;margin-bottom:28px;color:rgba(255,255,255,.8);font-size:14px;line-height:1.7}
-    .liquid-3d-copy .eyebrow,.liquid-3d-copy h1,.liquid-3d-copy>p{text-shadow:0 2px 14px rgba(2,14,32,.48)}
-    .liquid-3d-orbit{width:min(210px,100%);margin:26px 26px 0 auto;transform:translateZ(42px) rotateX(11deg) rotateY(-12deg)}
-    .liquid-3d-orbit .immersive-mark{width:105px;height:105px;border-radius:27px}
-    .liquid-3d-orbit .immersive-mark img{width:82px}
-    .liquid-3d-orbit .immersive-floating{padding:7px 9px;font-size:8px}
-    .liquid-3d-orbit .immersive-floating.one{top:14px;right:-25px}
-    .liquid-3d-orbit .immersive-floating.two{bottom:16px;left:-38px}
-    .liquid-3d-card{transform-style:preserve-3d}
+    /* Liquid 3D seleccionado: fotografía real, reflejos contenidos y profundidad funcional. */
+    .variant-liquid-3d{align-items:center;background:linear-gradient(90deg,rgba(4,24,52,.94) 0%,rgba(5,33,68,.83) 38%,rgba(5,33,68,.42) 67%,rgba(4,21,45,.72) 100%),url("images/dashboard/fondo-1-1920.webp") center/cover no-repeat;color:#fff;perspective:1800px}
+    .variant-liquid-3d:before{content:"";position:absolute;inset:0;background:linear-gradient(124deg,rgba(113,204,255,.14),transparent 31%,rgba(241,0,117,.1) 58%,transparent 77%),radial-gradient(ellipse at 54% 112%,rgba(82,184,232,.24),transparent 44%);mix-blend-mode:screen;pointer-events:none}
+    .variant-liquid-3d:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.07),transparent 20%,transparent 76%,rgba(2,14,31,.38));pointer-events:none}
+    .liquid-3d-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,438px);align-items:center;gap:clamp(56px,8vw,118px);transform-style:preserve-3d}
+    .liquid-3d-copy{position:relative;z-index:2;max-width:600px;padding:18px 0 20px;color:#fff;transform:translateZ(28px)}
+    .liquid-3d-copy .brand-lockup{margin-bottom:clamp(52px,8vh,92px)}
+    .liquid-3d-copy .brand-lockup img{width:176px;filter:drop-shadow(0 10px 25px rgba(1,14,31,.25))}
+    .liquid-3d-copy h1{max-width:9ch;margin-bottom:20px;font-family:Fraunces,Georgia,serif;font-size:clamp(54px,6.1vw,82px);line-height:.96;letter-spacing:-.035em;text-wrap:balance;text-shadow:0 4px 24px rgba(1,13,29,.44)}
+    .liquid-3d-copy h1 em{color:#ffc0dc;font-style:normal}
+    .liquid-3d-copy>p{max-width:48ch;margin-bottom:27px;color:rgba(242,248,255,.86);font-size:14px;line-height:1.72;text-shadow:0 2px 14px rgba(1,13,29,.5)}
+    .liquid-3d-proof{display:flex;flex-wrap:wrap;gap:10px}
+    .liquid-3d-proof span{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:#eef8ff;background:rgba(4,28,59,.42);font-size:10px;font-weight:700;box-shadow:0 8px 22px rgba(1,14,31,.12);backdrop-filter:blur(12px)}
+    .liquid-3d-proof i{width:7px;height:7px;border-radius:50%;background:#48d6b2;box-shadow:0 0 0 4px rgba(72,214,178,.12)}
+    .liquid-3d-proof span:last-child i{background:#ff6fab;box-shadow:0 0 0 4px rgba(255,111,171,.12)}
+    .liquid-3d-card{position:relative;z-index:3;border:0;border-radius:16px;background:rgba(248,251,254,.97);box-shadow:0 38px 90px rgba(1,15,34,.42),0 10px 30px rgba(0,79,176,.16);transform:rotateY(-4deg) rotateX(1deg) translateZ(68px);transform-style:preserve-3d;animation:liquid-card-in .65s cubic-bezier(.16,1,.3,1) both}
+    .liquid-3d-card:before{content:"";position:absolute;z-index:-1;inset:18px -18px -20px 22px;border-radius:16px;background:linear-gradient(145deg,rgba(0,79,176,.38),rgba(241,0,117,.2));filter:blur(5px);transform:translateZ(-42px);pointer-events:none}
+    .liquid-3d-card:after{content:"";position:absolute;inset:0 0 auto;height:34%;border-radius:16px 16px 48% 48%;background:linear-gradient(115deg,rgba(255,255,255,.64),rgba(255,255,255,0));opacity:.55;pointer-events:none}
+    .liquid-3d-card>*{position:relative;z-index:1}
+    .liquid-3d-card .demo-card-kicker{color:#315b7d}
+    .liquid-3d-card .demo-card-kicker i{background:var(--mint)}
+    .liquid-3d-card .demo-card-head>p{color:#60748a}
+    .liquid-3d-card .demo-role-switch{background:#eaf1f7}
+    .liquid-3d-card .demo-input{background:#fff}
+    .liquid-3d-card .demo-security{color:#697d92}
+    @keyframes liquid-card-in{from{opacity:.76;filter:blur(6px);transform:rotateY(-4deg) rotateX(1deg) translate3d(0,22px,40px)}to{opacity:1;filter:none;transform:rotateY(-4deg) rotateX(1deg) translate3d(0,0,68px)}}
 
     /* Spatial UI: tarjetas suspendidas en un tablero abierto. */
     .variant-spatial{align-items:center;background:#e9f1f8;color:var(--ink)}
@@ -220,17 +227,14 @@
       .variant{padding-inline:20px}
       .liquid-layout,.immersive-scene,.liquid-3d-layout,.spatial-board,.mega-layout,.phygital-stage{grid-template-columns:1fr;gap:34px}
       .liquid-copy .eyebrow{margin-top:40px}
-      .liquid-3d-copy{padding:24px}
-      .liquid-3d-copy .eyebrow{margin-top:40px}
+      .liquid-3d-copy{max-width:650px;padding:12px 0}
+      .liquid-3d-copy .brand-lockup{margin-bottom:42px}
       .immersive-copy h1,.spatial-copy h1,.phygital-story h1{max-width:10ch}
       .immersive-orbit{width:220px;margin-top:28px}
       .immersive-mark{width:112px;height:112px;border-radius:28px}.immersive-mark img{width:88px}
       .immersive-floating.one{right:-20px}.immersive-floating.two{left:-20px}
       .immersive-card{transform:none}
-      .liquid-3d-card{transform:rotateY(-4deg) rotateX(1deg) translateZ(36px)}
-      .liquid-3d-orbit{width:180px;margin-top:22px;transform:translateZ(25px) rotateX(8deg) rotateY(-8deg)}
-      .liquid-3d-orbit .immersive-mark{width:88px;height:88px;border-radius:23px}
-      .liquid-3d-orbit .immersive-mark img{width:68px}
+      .liquid-3d-card{justify-self:center;transform:rotateY(-3deg) rotateX(1deg) translateZ(36px)}
       .spatial-board{min-height:0;padding:32px}
       .spatial-map{position:static;margin-top:34px}
       .spatial-satellite.a{top:28px;right:-12px}.spatial-satellite.b{left:-12px;bottom:28px}
@@ -253,24 +257,21 @@
       .demo-options{align-items:flex-start;flex-direction:column}
       .liquid-layout,.immersive-scene,.liquid-3d-layout,.spatial-board,.mega-layout,.phygital-stage{gap:26px}
       .liquid-copy .eyebrow{margin-top:30px}
-      .liquid-3d-copy{padding:21px 17px;border-radius:20px}
-      .liquid-3d-copy:before{border-radius:20px}
-      .liquid-3d-copy .eyebrow{margin-top:30px}
+      .variant-liquid-3d{background:linear-gradient(180deg,rgba(4,27,58,.82),rgba(4,27,58,.58) 42%,rgba(4,20,43,.9)),url("images/dashboard/login-mobile-kja.webp") center/cover no-repeat}
+      .liquid-3d-copy{padding:10px 2px}
+      .liquid-3d-copy .brand-lockup{margin-bottom:27px}
+      .liquid-3d-copy .brand-lockup img{width:146px}
       .liquid-copy h1{font-size:clamp(51px,15vw,70px)}
-      .liquid-3d-copy h1{font-size:clamp(51px,15vw,70px)}
+      .liquid-3d-copy h1{max-width:10ch;font-size:clamp(43px,12.5vw,58px);line-height:1}
       .liquid-copy>p:last-of-type{font-size:13px}
-      .liquid-3d-copy>p{font-size:13px}
+      .liquid-3d-copy>p{margin-bottom:20px;font-size:13px}
+      .liquid-3d-proof{display:none}
       .liquid-proof{display:none}
       .immersive-copy h1,.spatial-copy h1,.phygital-story h1{font-size:clamp(49px,14vw,67px)}
       .immersive-orbit{margin:20px auto 0}
       .immersive-card{box-shadow:0 20px 46px rgba(0,0,0,.34)}
-      .liquid-3d-card{transform:perspective(900px) rotateY(-2deg) rotateX(1deg);box-shadow:0 20px 46px rgba(0,0,0,.34)}
-      .liquid-3d-orbit{width:155px;margin:20px auto 0;transform:perspective(700px) rotateY(-2deg) rotateX(1deg)}
-      .liquid-3d-orbit .immersive-mark{width:74px;height:74px;border-radius:20px}
-      .liquid-3d-orbit .immersive-mark img{width:58px}
-      .liquid-3d-orbit .immersive-floating{padding:6px 7px;font-size:7px}
-      .liquid-3d-orbit .immersive-floating.one{top:9px;right:-18px}
-      .liquid-3d-orbit .immersive-floating.two{bottom:10px;left:-27px}
+      .liquid-3d-card{transform:none;box-shadow:0 24px 56px rgba(1,15,34,.36)}
+      .liquid-3d-card:before{display:none}
       .spatial-board{padding:24px 16px;border-radius:25px}
       .spatial-satellite{display:none}
       .mega-shell{box-shadow:8px 8px 0 var(--pink)}
@@ -292,12 +293,12 @@
     }
   </style>
 </head>
-<body>
+<body data-variant="liquid-3d">
   <div class="prototype-corner"><i aria-hidden="true"></i>Prototipo · no procesa credenciales</div>
   <a class="real-login-link" href="dashboard.html"><span>Volver al login real</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
 
   <main id="prototype-main">
-    <section class="variant variant-liquid is-active" data-variant="liquid-glass" aria-labelledby="liquid-title">
+    <section class="variant variant-liquid" data-variant="liquid-glass" aria-labelledby="liquid-title" aria-hidden="true" hidden>
       <div class="variant-inner liquid-layout">
         <header class="liquid-copy">
           <a class="brand-lockup" href="#" aria-label="KJA, prototipo">
@@ -327,10 +328,10 @@
       </div>
     </section>
 
-    <section class="variant variant-liquid-3d" data-variant="liquid-3d" aria-labelledby="liquid-3d-title" hidden>
+    <section class="variant variant-liquid-3d is-active" data-variant="liquid-3d" aria-labelledby="liquid-3d-title" aria-hidden="false">
       <div class="variant-inner liquid-3d-layout">
-        <header class="liquid-3d-copy"><a class="brand-lockup" href="#" aria-label="KJA, prototipo"><img src="images/logo/kja.webp" alt="KJA"><span><small>Portal del equipo</small></span></a><p class="eyebrow">Acceso privado · KJA</p><h1 id="liquid-3d-title">Tu jornada,<br><em>en profundidad.</em></h1><p>El mismo portal de confianza, con una capa visual más inmersiva para acompañar tu ingreso.</p><div class="liquid-proof" aria-hidden="true"><span>◌ Sesión segura</span><span>✦ Equipo KJA</span></div><div class="immersive-orbit liquid-3d-orbit" aria-hidden="true"><div class="immersive-mark"><img src="images/logo/logo-160.webp" alt=""></div><span class="immersive-floating one">Sesión segura</span><span class="immersive-floating two">KJA / 01</span></div></header>
-        <article class="demo-card immersive-card liquid-3d-card" aria-label="Login Liquid 3D"><div class="demo-card-head"><div class="demo-card-kicker"><i aria-hidden="true"></i>Canal protegido</div><h2>Accede al portal</h2><p>La fotografía líquida se encuentra con una tarjeta 3D.</p></div><div class="demo-role-switch" role="tablist" aria-label="Tipo de acceso"><button type="button" role="tab" data-role="collaborator" aria-selected="true">Colaborador</button><button type="button" role="tab" data-role="admin" aria-selected="false">Dirección</button></div><p class="demo-role-copy" data-role-copy="collaborator">Ingresa con tu DNI y PIN de asistencia.</p><p class="demo-role-copy" data-role-copy="admin" hidden>Ingresa con tu correo y contraseña institucional.</p><form class="demo-form" data-role-form="collaborator"><label class="demo-field">DNI<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg><input inputmode="numeric" maxlength="8" placeholder="Ingresa tu DNI"></div></label><label class="demo-field">PIN de asistencia<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" inputmode="numeric" maxlength="4" placeholder="Ingresa tu PIN"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar PIN">Ver</button></div></label><div class="demo-options"><label><input type="checkbox">Recordarme en este dispositivo</label><a href="https://wa.me/51988918238?text=Hola%2C%20necesito%20restablecer%20mi%20PIN%20de%20asistencia." target="_blank" rel="noopener">¿Olvidaste tu PIN?</a></div><button class="demo-submit" type="submit">Entrar a mi portal <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><form class="demo-form" data-role-form="admin" hidden><label class="demo-field">Correo administrativo<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg><input type="email" placeholder="nombre@correo.com"></div></label><label class="demo-field">Contraseña<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" placeholder="Tu contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button></div></label><button class="demo-submit" type="submit">Ingresar como Dirección <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><footer class="demo-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Exploración Liquid 3D. Ningún dato se envía.</footer></article>
+        <header class="liquid-3d-copy"><a class="brand-lockup" href="#" aria-label="KJA, prototipo"><img src="images/logo/kja.webp" alt="KJA"><span><small>Portal del equipo</small></span></a><h1 id="liquid-3d-title">Tu jornada empieza <em>aquí.</em></h1><p>Un acceso claro al espacio donde organizas tu horario, registras tu asistencia y consultas tu información de trabajo.</p><div class="liquid-3d-proof" aria-label="Características del acceso"><span><i aria-hidden="true"></i>Acceso privado</span><span><i aria-hidden="true"></i>Portal del equipo KJA</span></div></header>
+        <article class="demo-card liquid-3d-card" aria-label="Login Liquid 3D"><div class="demo-card-head"><div class="demo-card-kicker"><i aria-hidden="true"></i>Acceso disponible</div><h2>Ingresa a tu portal</h2><p>Selecciona tu tipo de acceso y utiliza tus credenciales asignadas.</p></div><div class="demo-role-switch" role="tablist" aria-label="Tipo de acceso"><button type="button" role="tab" data-role="collaborator" aria-selected="true">Colaborador</button><button type="button" role="tab" data-role="admin" aria-selected="false">Dirección</button></div><p class="demo-role-copy" data-role-copy="collaborator">Ingresa con tu DNI y PIN de asistencia.</p><p class="demo-role-copy" data-role-copy="admin" hidden>Ingresa con tu correo y contraseña institucional.</p><form class="demo-form" data-role-form="collaborator"><label class="demo-field">DNI<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg><input inputmode="numeric" maxlength="8" autocomplete="username" placeholder="Ingresa tu DNI"></div></label><label class="demo-field">PIN de asistencia<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" placeholder="Ingresa tu PIN"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar PIN">Ver</button></div></label><div class="demo-options"><label><input type="checkbox">Recordarme en este dispositivo</label><a href="https://wa.me/51988918238?text=Hola%2C%20necesito%20restablecer%20mi%20PIN%20de%20asistencia." target="_blank" rel="noopener">¿Olvidaste tu PIN?</a></div><button class="demo-submit" type="submit">Entrar a mi portal <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><form class="demo-form" data-role-form="admin" hidden><label class="demo-field">Correo administrativo<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg><input type="email" autocomplete="username" placeholder="nombre@correo.com"></div></label><label class="demo-field">Contraseña<div class="demo-input"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" autocomplete="current-password" placeholder="Tu contraseña"><button class="password-toggle" type="button" data-password-toggle aria-label="Mostrar contraseña">Ver</button></div></label><button class="demo-submit" type="submit">Ingresar como Dirección <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></button><p class="demo-response" hidden></p></form><footer class="demo-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Acceso privado KJA · Esta vista previa no envía datos.</footer></article>
       </div>
     </section>
 
@@ -349,7 +350,7 @@
 
   <nav class="prototype-switcher" aria-label="Comparar tendencias del login">
     <button type="button" data-cycle="prev" aria-label="Ver variante anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-    <div class="switcher-copy"><small>Variante activa</small><strong id="variant-name">Liquid Glass</strong><span id="variant-description">Elegancia translúcida sobre la identidad KJA.</span></div>
+    <div class="switcher-copy"><small>Variante seleccionada</small><strong id="variant-name">Liquid 3D</strong><span id="variant-description">Fotografía líquida con profundidad y presencia 3D.</span></div>
     <button type="button" data-cycle="next" aria-label="Ver siguiente variante"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
   </nav>
   <p class="prototype-status" id="variant-status" aria-live="polite"></p>
@@ -363,7 +364,7 @@
       {key:'megabrutalism',label:'Megabrutalismo',description:'Directo, expresivo y visualmente contundente.'},
       {key:'phygital',label:'Phygital',description:'La credencial física se encuentra con lo digital.'}
     ];
-    const DEFAULT_VARIANT=VARIANTS[0].key;
+    const DEFAULT_VARIANT='liquid-3d';
     const variantFromUrl=new URLSearchParams(window.location.search).get('variant');
     let currentKey=VARIANTS.some(variant=>variant.key===variantFromUrl)?variantFromUrl:DEFAULT_VARIANT;
     const panels=[...document.querySelectorAll('[data-variant]')];
