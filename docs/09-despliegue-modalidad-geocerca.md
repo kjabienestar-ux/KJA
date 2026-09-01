@@ -1,0 +1,27 @@
+# Modalidad diaria y geocerca presencial
+
+Esta fase instala el selector **Virtual / Presencial** y hace que Supabase valide el radio presencial de 1 km. La ubicación del navegador nunca decide por sí sola: el servidor vuelve a calcular la distancia antes de insertar la asistencia.
+
+## Activación
+
+1. Ejecutar completo `supabase/dashboard_13_modalidad_y_geocerca.sql` en el SQL Editor de Supabase.
+2. Confirmar cinco filas `OK` y una fila `PENDIENTE` para “punto de oficina”.
+3. Publicar `dashboard.html`, `assets/js/dashboard.js`, `assets/js/dashboard-admin-acceso.js` y `assets/css/paginas/dashboard.css`.
+4. Ingresar como Dirección y abrir **Gestión → Acceso y marcado** desde la oficina.
+5. En “Ubicación de la oficina”, pulsar **Usar mi ubicación actual** y después **Guardar reglas**.
+6. Volver a ejecutar únicamente la consulta final del SQL si se desea comprobar que “punto de oficina” cambió a `OK`.
+
+La captura del punto oficial requiere HTTPS o `localhost`. Si la precisión supera 150 m, la interfaz pide mejorar la señal antes de guardarlo.
+
+## Pruebas mínimas
+
+- Virtual: permite marcar dentro del horario con evidencia y no solicita ubicación.
+- Presencial dentro del radio: solicita ubicación, muestra la distancia y habilita el registro con evidencia.
+- Presencial fuera del radio: informa la distancia y mantiene deshabilitada la confirmación.
+- Ubicación denegada o imprecisa: no permite marcar presencial y explica cómo recuperarse.
+- Modalidad marcada: el selector queda bloqueado y el historial conserva la modalidad efectiva.
+- Dashboard antiguo: el protocolo anterior es rechazado; el portal anterior ya no tiene permiso para insertar asistencias.
+
+## Alcance de seguridad
+
+La geocerca del navegador reduce marcaciones accidentales o desde ubicaciones lejanas, pero no prueba presencia física absoluta: un dispositivo manipulado puede falsificar GPS. Para un control antifraude más fuerte se recomienda combinarla posteriormente con QR rotativo dentro de la oficina, red Wi‑Fi corporativa o un dispositivo de marcación administrado.

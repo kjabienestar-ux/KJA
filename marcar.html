@@ -834,6 +834,23 @@ function pintarDia(dia){
     $('d-evi').hidden = true;
     return pintarListo(dia.estado, dia.marcado_at ? new Date(dia.marcado_at) : null, true);
   }
+  if(dia.labora && (dia.horario_completo === false || dia.ventana === 'sin_horario')){
+    limpiarEvidencia();
+    $('d-evi').hidden = true;
+    $('v-listo').classList.add('alerta');
+    $('ls-ico').className = 'ico-grande ambar';
+    $('ls-ico').innerHTML = ICO_ALERTA;
+    $('ls-titulo').textContent = 'Tu horario necesita revisión';
+    $('ls-sub').textContent = 'Falta una hora de entrada o salida válida. Por seguridad, el sistema no permite marcar hasta corregirla.';
+    $('ls-sello').hidden = true;
+    $('ls-pie').textContent = 'Dirección debe completar tu horario antes de que puedas registrar asistencia.';
+    $('ls-wa').hidden = false;
+    $('ls-wa-txt').textContent = 'Pedir revisión de mi horario';
+    $('ls-wa').href = enlaceWhatsApp(dia.nombre,
+      'El sistema no me deja marcar porque mi horario de hoy está incompleto. ¿Pueden revisarlo?');
+    $('ls-cambio').hidden = false;
+    return ver('v-listo');
+  }
   // Se le pasó el día entero sin marcar: el botón ya no sirve, así que en vez
   // de la pantalla de marcado se le dice qué pasó y a quién escribirle.
   if(dia.labora && dia.puede_marcar === false && dia.ventana !== 'antes') return pintarNoMarco(dia);
@@ -1358,7 +1375,7 @@ $('d-marcar').addEventListener('click', async () => {
      un poco más. Los rechazos de verdad (PIN, ventana, ya marcó) no se
      reintentan: no van a cambiar por insistir. */
   let ruta = null;
-  const SIN_REINTENTO = ['incorrecta','clave','ya_marcado','no_labora','fuera_ventana'];
+  const SIN_REINTENTO = ['incorrecta','clave','ya_marcado','no_labora','fuera_ventana','horario_incompleto','evidencia_invalida'];
   evoCarga(true);
   b.textContent = 'Registrando…';
   for(let intento = 1; intento <= 3; intento++){
@@ -1444,6 +1461,7 @@ function falloEvidencia(motivo){
   if(motivo === 'ya_marcado')    return pintarListo(DIA && DIA.estado, null, true);
   if(motivo === 'no_labora')     return pintarDia(Object.assign({}, DIA, { labora:false }));
   if(motivo === 'fuera_ventana') return pintarDia(Object.assign({}, DIA, { puede_marcar:false, ventana:'cerrada' }));
+  if(motivo === 'horario_incompleto') return pintarDia(Object.assign({}, DIA, { puede_marcar:false, horario_completo:false, ventana:'sin_horario' }));
 
   if(motivo === 'clave'){
     avisoEvi('Tu enlace ya no es válido. Pide el enlace nuevo a dirección por WhatsApp.', true);
@@ -1453,6 +1471,9 @@ function falloEvidencia(motivo){
   if(motivo === 'falta_evidencia'){
     limpiarEvidencia();
     return avisoEvi('La foto no llegó al servidor. Vuelve a adjuntarla y marca otra vez.', true);
+  }
+  if(motivo === 'evidencia_invalida' || motivo === 'evidencia_no_verificada'){
+    return avisoEvi('No pudimos validar la foto subida. Vuelve a adjuntarla y marca otra vez.', true);
   }
 
   // Se cayó la subida tras los tres intentos: la foto sigue cargada, así que

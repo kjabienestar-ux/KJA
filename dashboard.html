@@ -9,9 +9,9 @@
 <link rel="icon" href="images/logo/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 767px)">
-<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=48">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=78">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -33,30 +33,41 @@
   </a>
   <section class="access-shell">
     <div class="access-story">
-      <div class="story-brand"><img src="images/logo/logo.webp" alt="KJA"><span>Portal del equipo</span></div>
+      <div class="story-brand"><img src="images/logo/kja.webp" alt="KJA"><div class="story-brand-text"><b>PORTAL DEL EQUIPO</b><span>Plataforma Institucional</span></div></div>
       <div class="story-copy">
-        <p class="eyebrow">Tu jornada, en un solo lugar</p>
-        <h1>Empieza el día<br>con claridad.</h1>
+        <p class="eyebrow">TU JORNADA, NUESTRO COMPROMISO</p>
+        <h1>Empieza el día<br>con <em>claridad.</em></h1>
+        <div class="story-divider"></div>
         <p>Consulta tu horario, registra tu asistencia y sigue tu avance sin buscar enlaces ni enviar capturas.</p>
       </div>
-      <div class="story-day" aria-hidden="true">
-        <span>ENTRADA</span><i></i><b>08:00</b><i class="active"></i><strong>AHORA</strong><i></i><b>14:00</b><i></i><span>SALIDA</span>
-      </div>
-      <div class="story-attendance-mark" aria-hidden="true">
-        <svg viewBox="0 0 144 144" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-          <circle class="story-clock-face" cx="65" cy="64" r="37"/>
-          <path class="story-clock-hand" d="M65 43v23l16 9"/>
-          <path class="story-clock-ticks" d="M65 32v5M97 64h-5M65 96v-5M33 64h5"/>
-          <circle class="story-check-disc" cx="102" cy="101" r="24"/>
-          <path class="story-check" d="m90 101 8 8 17-18"/>
-        </svg>
+      <div class="story-features" aria-hidden="true">
+        <p>Dentro de tu portal</p>
+        <div class="story-feature-grid">
+          <span class="story-feature">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+            <span><small>Consulta</small><b>Tu horario</b></span>
+          </span>
+          <span class="story-feature">
+            <svg viewBox="0 0 24 24"><path d="M9 11l3 3 7-7"/><path d="M21 12a9 9 0 1 1-5.3-8.2"/></svg>
+            <span><small>Registra</small><b>Tu asistencia</b></span>
+          </span>
+          <span class="story-feature">
+            <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+            <span><small>Revisa</small><b>Tu avance</b></span>
+          </span>
+        </div>
       </div>
     </div>
 
     <div class="access-form-wrap">
       <div class="access-form-head">
         <span class="mobile-logo"><img src="images/logo/kja.webp" alt="KJA"></span>
-        <p class="eyebrow">Acceso seguro</p>
+        <div class="secure-badge">
+          <div class="secure-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          </div>
+          <p class="eyebrow">ACCESO SEGURO</p>
+        </div>
         <h2>Ingresa a tu portal</h2>
         <p>Usa los mismos datos con los que marcas asistencia.</p>
       </div>
@@ -72,20 +83,26 @@
           <label for="dni">DNI</label>
           <div class="field-box">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg>
-            <input id="dni" name="dni" inputmode="numeric" autocomplete="username" maxlength="8" placeholder="8 dígitos" required>
+            <input id="dni" name="dni" inputmode="numeric" autocomplete="username" maxlength="8" placeholder="Ingresa tu DNI" required>
           </div>
+          <small class="field-hint">Ejemplo: 12345678</small>
         </div>
         <div class="field">
           <label for="pin">PIN de asistencia</label>
           <div class="field-box">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-            <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" placeholder="••••" required>
+            <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" placeholder="Ingresa tu PIN" required>
             <button class="reveal" type="button" data-reveal="pin" aria-label="Mostrar PIN"><span>Ver</span><svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg><svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 6.2A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-2.2 3M6.2 6.2A15.7 15.7 0 0 0 2.5 12s3.5 6 9.5 6c1 0 2-.2 2.9-.5M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>
           </div>
         </div>
+
+        <div class="form-options">
+          <label class="remember-me"><input type="checkbox" id="remember-dni"><span>Recordarme en este dispositivo</span></label>
+          <a href="#" class="forgot-pin">¿Olvidaste tu PIN?</a>
+        </div>
+
         <div class="form-msg" id="colab-msg" role="alert" aria-live="assertive"></div>
-        <button class="primary" id="btn-colab" type="submit"><span>Entrar a mi portal</span><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-        <p class="form-note">¿Aún no tienes PIN? Por esta primera etapa puedes crearlo desde el enlace de marcado que comparte Dirección.</p>
+        <button class="primary" id="btn-colab" type="submit"><svg viewBox="0 0 24 24" class="btn-icon"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg><span>Entrar a mi portal</span></button>
       </form>
 
       <form id="form-admin" class="login-form" role="tabpanel" aria-labelledby="tab-admin" hidden>
@@ -105,8 +122,13 @@
           </div>
         </div>
         <div class="form-msg" id="admin-msg" role="alert" aria-live="assertive"></div>
-        <button class="primary" id="btn-admin" type="submit"><span>Ingresar como Dirección</span><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button class="primary" id="btn-admin" type="submit"><svg viewBox="0 0 24 24" class="btn-icon"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg><span>Ingresar como Dirección</span></button>
       </form>
+      </div>
+
+      <div class="access-footer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span>Tu información está protegida y encriptada</span>
       </div>
     </div>
   </section>
@@ -142,6 +164,12 @@
   <div class="side-scrim" id="side-scrim"></div>
 
   <main class="workspace" id="workspace" tabindex="-1">
+    <div class="time-ambience" id="time-ambience" aria-hidden="true">
+      <span class="time-ambience-stars"></span>
+      <span class="time-ambience-orb"></span>
+      <span class="time-ambience-haze"></span>
+    </div>
+
     <section class="portal-bootstrap" id="portal-bootstrap" role="status" aria-live="polite" hidden>
       <div class="portal-bootstrap-status">
         <span class="portal-bootstrap-mark" aria-hidden="true"><img src="images/logo/logo.webp" alt=""></span>
@@ -234,54 +262,148 @@
 
       <header class="view-head">
         <div><p class="eyebrow" id="today-label">TU JORNADA</p><h1 id="welcome">Buenos días</h1><p id="welcome-sub">Aquí tienes lo importante de hoy.</p></div>
-        <span class="session-chip"><i></i>Sesión segura · <b id="session-left">8 h</b></span>
+        <div class="header-tools">
+          <button class="time-preview-switch" id="time-preview-switch" type="button" role="switch" aria-checked="false" aria-label="Probar ambiente de día" title="Probar ambiente de día">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            <span class="time-preview-label">Probar día</span>
+            <span class="time-preview-track" aria-hidden="true"><i></i></span>
+          </button>
+          <span class="session-chip"><i></i>Sesión segura · <b id="session-left">8 h</b></span>
+        </div>
       </header>
 
       <div class="today-layout">
-        <article class="day-card">
+        <article class="day-card" id="today-attendance-card" data-attendance-state="loading">
           <div class="day-card-head">
-            <span><small>HOY</small><b id="day-date">—</b></span>
+            <span class="day-date-group">
+              <span class="day-date-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M7 3v3M17 3v3M4.5 9h15M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/><path d="m9 14 2 2 4-4"/></svg>
+              </span>
+              <b id="day-date">—</b>
+            </span>
             <span class="status-pill" id="day-status">Cargando</span>
           </div>
-          <div class="day-timeline" id="day-timeline">
-            <div class="time-label start"><small>ENTRADA</small><b id="time-start">—</b></div>
-            <div class="rail"><i class="done"></i><span id="now-marker"><em></em><b>Ahora</b></span><i></i></div>
-            <div class="time-label end"><small>SALIDA</small><b id="time-end">—</b></div>
+
+          <div class="day-card-grid">
+            <section class="day-schedule" aria-labelledby="day-schedule-title">
+              <div class="day-section-heading">
+                <span class="day-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 1.5"/></svg></span>
+                <span><small>HORARIO ASIGNADO</small><b id="day-schedule-title">Tu jornada de hoy</b></span>
+              </div>
+              <div class="today-mode-choice" id="today-mode-choice">
+                <div class="today-mode-copy"><small>MODALIDAD DE HOY</small><b id="day-mode">Preparando modalidad</b><p id="today-mode-help">Podrás elegir antes de registrar tu asistencia.</p></div>
+                <div class="today-mode-switch" role="radiogroup" aria-label="Modalidad de trabajo de hoy">
+                  <button type="button" id="today-mode-virtual" data-today-mode="virtual" role="radio" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4zM8 20h8M12 16v4"/></svg><span><b>Virtual</b><small>Desde casa</small></span></button>
+                  <button type="button" id="today-mode-presencial" data-today-mode="presencial" role="radio" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg><span><b>Presencial</b><small>En oficina</small></span></button>
+                </div>
+              </div>
+              <div class="day-timeline" id="day-timeline">
+                <div class="time-label start"><small>ENTRADA</small><b id="time-start">—</b></div>
+                <div class="rail-arc">
+                  <svg viewBox="0 0 400 90" preserveAspectRatio="xMidYMid meet" class="arc-svg">
+                    <defs>
+                      <linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#0a4da1"/>
+                        <stop offset="100%" stop-color="#3b9eff"/>
+                      </linearGradient>
+                    </defs>
+                    <path class="arc-track" d="M12,78 Q200,6 388,78" fill="none"/>
+                    <path class="arc-progress" id="arc-progress" d="M12,78 Q200,6 388,78" fill="none"/>
+                    <circle class="arc-terminal" cx="12" cy="78" r="6.5" fill="#0a4da1" stroke="#fff" stroke-width="3"/>
+                    <circle class="arc-terminal" cx="388" cy="78" r="6.5" fill="#cbd5e1" stroke="#fff" stroke-width="3"/>
+                    <g id="arc-now-group">
+                      <circle class="arc-now-glow" id="arc-now-glow" cx="200" cy="6" r="12" fill="none" stroke="#3b9eff" stroke-width="2" opacity="0.3"/>
+                      <circle class="arc-now-dot" id="arc-now-dot" cx="200" cy="6" r="6.5" fill="#0084ff" stroke="#fff" stroke-width="3"/>
+                      <g id="arc-now-label">
+                        <rect rx="5" ry="5" fill="#edf5fe" stroke="#d5e5f8" stroke-width="1"/>
+                        <text fill="#0a4da1" font-size="9" font-weight="700" text-anchor="middle" letter-spacing="0.5">Ahora</text>
+                      </g>
+                    </g>
+                  </svg>
+                </div>
+                <div class="time-label end"><small>SALIDA</small><b id="time-end">—</b></div>
+              </div>
+              <div class="shift-clock" id="shift-clock">
+                <p class="clock-label" id="clock-label">Tiempo restante de jornada</p>
+                <div class="clock-digits">
+                  <div class="clock-digit-group">
+                    <div class="clock-digit" id="clock-h"><span>00</span></div>
+                    <small>HORAS</small>
+                  </div>
+                  <span class="clock-sep">:</span>
+                  <div class="clock-digit-group">
+                    <div class="clock-digit" id="clock-m"><span>00</span></div>
+                    <small>MINUTOS</small>
+                  </div>
+                  <span class="clock-sep">:</span>
+                  <div class="clock-digit-group">
+                    <div class="clock-digit" id="clock-s"><span>00</span></div>
+                    <small>SEGUNDOS</small>
+                  </div>
+                </div>
+                <p class="clock-caption" id="clock-caption">Calculando…</p>
+              </div>
+              <div class="day-context">
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><b id="day-window">—</b></span>
+              </div>
+            </section>
+
+            <section class="day-action" id="day-action" aria-labelledby="attendance-state-title">
+              <div class="day-action-mascot" aria-hidden="true">
+                <img src="images/dashboard/asistencia-capybara.png" alt="" width="612" height="408" decoding="async">
+              </div>
+              <div class="day-action-copy">
+                <small>ESTADO DEL MARCADO</small>
+                <h2 id="attendance-state-title">Preparando tu jornada</h2>
+                <p id="mark-help">La hora se registra directamente desde el servidor.</p>
+              </div>
+              <button class="mark-button" id="open-mark" type="button" aria-describedby="mark-help"><span class="mark-button-copy"><small id="mark-caption">MARCAR AHORA</small><b id="mark-label">Registrar mi asistencia</b></span><svg id="mark-action-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><svg id="mark-action-view" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg></button>
+            </section>
           </div>
-          <div class="day-context">
-            <span id="day-mode">—</span><span id="day-window">—</span>
-          </div>
-          <div class="day-action" id="day-action">
-            <button class="mark-button" id="open-mark"><span id="mark-label">Marcar mi asistencia</span><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button>
-            <p id="mark-help">La hora se registra directamente desde el servidor.</p>
+
+          <div class="day-summary" aria-label="Resumen del mes">
+            <article class="progress-card">
+              <div class="hours-ring" id="hours-ring" role="img" aria-label="Cargando progreso de horas"><span><strong id="hours-done">0</strong><b>h</b></span><small>de <b id="hours-goal">—</b> horas</small></div>
+              <div class="summary-copy"><p class="eyebrow">HORAS DEL MES</p><strong class="hours-rate" id="hours-rate">Cargando avance</strong><p id="hours-note">Preparando tu meta mensual…</p><div class="progress-track"><i id="hours-bar"></i></div></div>
+            </article>
+            <article class="month-card">
+              <div class="month-card-heading"><span class="month-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 11h16"/><path d="m8 15 2 2 5-5"/></svg></span><span><small>ASISTENCIA DEL MES</small><b id="month-rate">—</b><em id="month-note">Cargando resumen</em></span></div>
+              <div class="month-days-visual" id="month-days-visual" role="img" aria-label="Cargando días del mes"></div>
+            </article>
           </div>
         </article>
-
-        <aside class="day-aside">
-          <article class="progress-card">
-            <p class="eyebrow">AVANCE GENERAL</p>
-            <div class="progress-number"><strong id="hours-done">0</strong><span>h</span><small>de <b id="hours-goal">—</b> horas</small></div>
-            <div class="progress-track"><i id="hours-bar"></i></div>
-            <p id="hours-note">Cargando tu avance…</p>
-          </article>
-          <article class="month-card">
-            <span class="month-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 11h16"/></svg></span>
-            <span><small>ASISTENCIA DEL MES</small><b id="month-rate">—</b><em id="month-note">Cargando resumen</em></span>
-          </article>
-        </aside>
       </div>
 
-      <section class="week-strip">
-        <div class="section-title"><span><p class="eyebrow">ESTA SEMANA</p><h2>Tu ritmo de trabajo</h2></span><button data-go="asistencia">Ver mes completo</button></div>
-        <div class="week-days" id="week-days"></div>
-      </section>
     </section>
 
     <section class="view" id="view-asistencia" hidden>
-      <header class="view-head"><div><p class="eyebrow">REGISTRO PERSONAL</p><h1>Mi asistencia</h1><p>Consulta cada día registrado y el acumulado de tus horas.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
-      <div class="month-toolbar"><button id="month-prev" aria-label="Mes anterior">‹</button><b id="month-title">—</b><button id="month-next" aria-label="Mes siguiente">›</button></div>
+      <header class="view-head"><div><h1>Mi asistencia</h1><p>Revisa tu historial y gestiona cualquier cambio o ausencia desde un solo lugar.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
+
+      <div class="attendance-topbar">
+        <div class="month-toolbar"><button id="month-prev" aria-label="Mes anterior">‹</button><b id="month-title">—</b><button id="month-next" aria-label="Mes siguiente">›</button></div>
+        <button class="attendance-new-request" id="attendance-new-request" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva solicitud</button>
+      </div>
+
       <div class="attendance-stats" id="attendance-stats"></div>
-      <article class="calendar-card"><div class="calendar-week"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="calendar-grid" id="calendar-grid"></div><div class="calendar-legend"><span><i class="p"></i>Presente</span><span><i class="t"></i>Tardanza</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestionó</span></div></article>
+
+      <div class="attendance-workspace">
+        <article class="calendar-card attendance-calendar">
+          <div class="attendance-calendar-head"><span><b>Historial del mes</b><small>Selecciona un día para consultar su estado.</small></span><span class="attendance-hours" id="attendance-hours-summary">— h acumuladas</span></div>
+          <div class="calendar-week"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+          <div class="calendar-legend"><span><i class="p"></i>Presente</span><span><i class="t"></i>Tardanza</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestionó</span></div>
+        </article>
+
+        <aside class="attendance-request-center" aria-labelledby="request-center-title">
+          <header><span><b id="request-center-title">Centro de solicitudes</b><small>Informa a Dirección y sigue la respuesta.</small></span><i id="personal-request-count">0</i></header>
+          <div class="attendance-request-actions">
+            <button type="button" data-personal-request="justificacion"><span class="request-action-icon"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4"/></svg></span><span><b>Justificar una ausencia</b><small>Comentario y evidencia obligatoria</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-personal-request="dia_libre"><span class="request-action-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 2v4M16 2v4M5 9h14"/><path d="m9 14 2 2 4-4"/></svg></span><span><b>Usé un día libre</b><small>Indica el día asignado y adjunta evidencia</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-personal-request="cambio_horario"><span class="request-action-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><b>Cambiar horario o turno</b><small>Detalla la nueva jornada solicitada</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+          </div>
+          <section class="personal-request-history"><div><b>Solicitudes recientes</b><button id="personal-requests-refresh" type="button">Actualizar</button></div><div id="personal-request-list"><p class="request-empty">Todavía no has enviado solicitudes.</p></div></section>
+        </aside>
+      </div>
     </section>
 
     <section class="view" id="view-perfil" hidden>
@@ -341,9 +463,9 @@
           <div class="admin-status-list" id="admin-status-list"><p class="admin-empty">Cargando colaboradores…</p></div>
         </article>
         <article class="admin-panel admin-request-panel">
-          <div class="admin-panel-head"><span><small>SOLICITUDES</small><h2>Cambios de horario</h2></span><span class="admin-count" id="admin-request-count">0</span></div>
+          <div class="admin-panel-head"><span><small>SOLICITUDES</small><h2>Solicitudes del personal</h2></span><span class="admin-count" id="admin-request-count">0</span></div>
           <div class="admin-request-list" id="admin-request-list"><p class="admin-empty">Cargando solicitudes…</p></div>
-          <button class="admin-panel-foot" type="button" data-admin-section="colaboradores">Revisar en Colaboradores <span>→</span></button>
+          <button class="admin-panel-foot" id="admin-request-refresh" type="button">Actualizar solicitudes <span>↻</span></button>
         </article>
       </div>
 
@@ -513,7 +635,13 @@
             <header><small>POLÍTICA DE MARCADO</small><h3>Reglas activas</h3><p>La tolerancia y la evidencia aplican también al dashboard personal.</p></header>
             <form id="admin-access-settings">
               <label class="admin-policy-number"><span><b>Tolerancia</b><small>Minutos después de la entrada</small></span><span><input type="number" id="admin-access-tolerance" min="0" max="120" required><i>min</i></span></label>
-              <label class="admin-policy-toggle"><span><b>Evidencia obligatoria</b><small>Exige imagen antes de registrar</small></span><input type="checkbox" id="admin-access-evidence"><i></i></label>
+              <label class="admin-policy-toggle fixed"><span><b>Evidencia obligatoria</b><small>Regla fija para todas las personas</small></span><input type="checkbox" id="admin-access-evidence" checked disabled aria-disabled="true"><i></i></label>
+              <div class="admin-office-rule" id="admin-office-rule">
+                <div><span class="admin-office-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg></span><span><b>Ubicación de la oficina</b><small id="admin-office-status">Aún no configurada</small></span></div>
+                <p>El marcado presencial se habilita dentro de un radio fijo de <b>1 km</b>.</p>
+                <input type="hidden" id="admin-office-lat"><input type="hidden" id="admin-office-lon">
+                <button type="button" id="admin-office-detect">Usar mi ubicación actual</button>
+              </div>
               <label class="admin-policy-toggle legacy"><span><b>Activación anterior disponible</b><small>No afecta el ingreso por dashboard</small></span><input type="checkbox" id="admin-access-legacy"><i></i></label>
               <button class="admin-primary-action" id="admin-access-save" type="submit">Guardar reglas</button>
             </form>
@@ -656,32 +784,98 @@
   </section>
 </div>
 
+<div class="modal attendance-day-modal" id="attendance-day-modal" hidden>
+  <div class="modal-backdrop" data-close-attendance-day></div>
+  <section class="attendance-day-sheet" role="dialog" aria-modal="true" aria-label="Detalle de asistencia">
+    <button class="modal-close" type="button" data-close-attendance-day aria-label="Cerrar">×</button>
+    <div class="attendance-day-content" id="attendance-day-content">
+      <div class="attendance-day-loading" role="status"><i></i><span>Consultando el registro del día…</span></div>
+    </div>
+  </section>
+</div>
+
+<div class="modal personal-request-modal" id="personal-request-modal" hidden>
+  <div class="modal-backdrop" data-close-personal-request></div>
+  <section class="personal-request-sheet" role="dialog" aria-modal="true" aria-labelledby="personal-request-title">
+    <button class="modal-close" type="button" data-close-personal-request aria-label="Cerrar">×</button>
+    <header><span class="personal-request-icon" id="personal-request-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4"/></svg></span><span><h2 id="personal-request-title">Nueva solicitud</h2><p id="personal-request-copy">Completa la información que revisará Dirección.</p></span></header>
+    <form id="personal-request-form">
+      <input id="personal-request-type" type="hidden" value="justificacion">
+      <label class="personal-request-kind" id="personal-request-kind" hidden><span>Tipo de cambio</span><select id="personal-request-kind-value"><option value="cambio_horario">Cambio de horario</option><option value="cambio_turno">Cambio de turno</option></select></label>
+      <div class="personal-request-dates">
+        <label><span>Desde</span><input id="personal-request-start" type="date" required></label>
+        <label><span>Hasta</span><input id="personal-request-end" type="date" required></label>
+      </div>
+      <label class="personal-request-detail"><span id="personal-request-detail-label">Cuéntanos qué ocurrió</span><textarea id="personal-request-detail" rows="5" maxlength="700" required placeholder="Incluye la información necesaria para que Dirección pueda revisar tu solicitud."></textarea><small><i id="personal-request-detail-count">0</i>/700</small></label>
+      <div class="personal-request-evidence" id="personal-request-evidence">
+        <input id="personal-request-file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        <button type="button" id="personal-request-file-button"><span><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><b>Adjuntar evidencia</b><small>JPG, PNG o WebP · máximo 3 MB</small></button>
+        <div class="personal-request-preview" id="personal-request-preview" hidden><img id="personal-request-image" alt="Vista previa de la evidencia"><span><b id="personal-request-file-name">Evidencia lista</b><button type="button" id="personal-request-file-change">Cambiar</button></span></div>
+      </div>
+      <p class="personal-request-note" id="personal-request-note">La evidencia es obligatoria para justificar una ausencia o informar el uso de un día libre.</p>
+      <p class="personal-request-message" id="personal-request-message" role="status" aria-live="polite"></p>
+      <footer><button type="button" class="admin-secondary-action" data-close-personal-request>Cancelar</button><button type="submit" class="admin-primary-action" id="personal-request-submit">Enviar a Dirección</button></footer>
+    </form>
+  </section>
+</div>
+
 <div class="modal" id="mark-modal" hidden>
   <div class="modal-backdrop" data-close-mark></div>
-  <section class="mark-sheet" role="dialog" aria-modal="true" aria-labelledby="mark-title">
+  <section class="mark-sheet" id="mark-sheet" role="dialog" aria-modal="true" aria-labelledby="mark-title" data-state="confirm">
     <button class="modal-close" data-close-mark aria-label="Cerrar">×</button>
-    <p class="eyebrow">REGISTRO DE HOY</p><h2 id="mark-title">Confirma tu asistencia</h2><p id="evidence-copy">Adjunta la evidencia correspondiente a tu modalidad de hoy.</p>
-    <div class="evidence-picker" id="evidence-picker">
-      <input id="evidence-camera" type="file" accept="image/*" capture="environment" hidden>
-      <input id="evidence-file" type="file" accept="image/*" hidden>
-      <div class="evidence-empty" id="evidence-empty">
-        <span class="evidence-icon-3d"><img src="images/dashboard/camera-3d.webp" alt="" aria-hidden="true"></span>
-        <b id="evidence-title">Añade tu evidencia</b><p>La imagen se comprime antes de subir.</p>
-        <div class="evidence-actions"><button id="take-photo" type="button">Tomar foto</button><button id="choose-photo" type="button">Elegir archivo</button></div>
+    <div class="mark-confirm-view" id="mark-confirm-view">
+      <p class="eyebrow">REGISTRO DE HOY</p><h2 id="mark-title">Confirma tu asistencia</h2><p id="evidence-copy">Adjunta la evidencia correspondiente a tu modalidad de hoy.</p>
+      <div class="mark-assurance" aria-label="Validaciones del registro"><span><i></i>Evidencia obligatoria</span><span><i></i>Horario validado por servidor</span></div>
+      <div class="mark-mode-check" id="mark-mode-check" data-mode="virtual">
+        <span class="mark-mode-icon" aria-hidden="true"><svg id="mark-mode-virtual-icon" viewBox="0 0 24 24"><path d="M4 5h16v11H4zM8 20h8M12 16v4"/></svg><svg id="mark-mode-office-icon" viewBox="0 0 24 24" hidden><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg></span>
+        <span><small id="mark-mode-label">MODALIDAD VIRTUAL</small><b id="mark-mode-title">No requiere ubicación</b><em id="mark-mode-detail">Solo guardaremos la evidencia de tu reunión.</em></span>
+        <button type="button" id="verify-mark-location" hidden>Verificar ubicación</button>
       </div>
-      <button class="evidence-preview" id="evidence-preview" type="button" hidden><img id="evidence-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Vista previa de la evidencia"><span id="evidence-size">Cambiar imagen</span></button>
+      <div class="evidence-picker" id="evidence-picker">
+        <input id="evidence-camera" type="file" accept="image/*" capture="environment" hidden>
+        <input id="evidence-file" type="file" accept="image/*" hidden>
+        <div class="evidence-empty" id="evidence-empty">
+          <span class="evidence-icon-3d"><img src="images/dashboard/camera-3d.webp" alt="" aria-hidden="true"></span>
+          <b id="evidence-title">Añade tu evidencia</b><p>La imagen se comprime antes de subir.</p>
+          <div class="evidence-actions"><button id="take-photo" type="button">Tomar foto</button><button id="choose-photo" type="button">Elegir archivo</button></div>
+        </div>
+        <button class="evidence-preview" id="evidence-preview" type="button" hidden><img id="evidence-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Vista previa de la evidencia"><span id="evidence-size">Cambiar imagen</span></button>
+      </div>
+      <div class="mark-msg" id="mark-msg" aria-live="polite"></div>
+      <button class="primary mark-confirm" id="confirm-mark" type="button" disabled aria-disabled="true"><span>Adjunta una evidencia para continuar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button>
+      <p class="privacy-note"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg>La evidencia queda en el registro privado de KJA y solo puede consultarla el personal autorizado.</p>
     </div>
-    <div class="mark-msg" id="mark-msg" aria-live="polite"></div>
-    <button class="primary mark-confirm" id="confirm-mark" type="button"><span>Registrar mi asistencia</span><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button>
-    <p class="privacy-note"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg>La evidencia queda en el registro privado de KJA y solo la consulta personal autorizado.</p>
+
+    <div class="mark-processing" id="mark-processing" role="status" aria-live="polite" tabindex="-1" hidden>
+      <div class="mark-loader" aria-hidden="true"><i></i><em class="mark-particles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></em><span><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6z"/><path d="M12 8v4l3 2"/></svg></span></div>
+      <p class="eyebrow">REGISTRO SEGURO</p><h2 id="mark-processing-title">Estamos registrando tu asistencia</h2><p id="mark-processing-copy">Preparando la validación…</p>
+      <div class="mark-processing-track" id="mark-processing-track" aria-hidden="true"><i></i></div>
+      <div class="mark-steps" aria-label="Progreso del registro">
+        <span id="mark-step-location"><i></i><b>Dispositivo y ubicación</b><small>En espera</small></span>
+        <span id="mark-step-evidence"><i></i><b>Evidencia protegida</b><small>En espera</small></span>
+        <span id="mark-step-server"><i></i><b>Hora del servidor</b><small>En espera</small></span>
+      </div>
+      <p class="mark-processing-note">No cierres esta ventana mientras termina el registro.</p>
+    </div>
+
+    <div class="mark-receipt" id="mark-receipt" role="status" aria-live="polite" tabindex="-1" hidden>
+      <div class="receipt-seal" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27"/><path d="m20 32 8 8 17-18"/></svg></div>
+      <p class="eyebrow">COMPROBANTE DE ASISTENCIA</p><h2 id="mark-receipt-title">¡Registro confirmado!</h2><p id="receipt-summary">La hora fue validada directamente por el servidor de KJA.</p>
+      <div class="receipt-card">
+        <div class="receipt-main"><span><small>ESTADO</small><b id="receipt-state">Presente</b></span><strong id="receipt-time">—</strong></div>
+        <div class="receipt-details"><span><small>Fecha</small><b id="receipt-date">—</b></span><span><small>Modalidad</small><b id="receipt-mode">—</b></span><span><small>Evidencia</small><b id="receipt-evidence">—</b></span></div>
+      </div>
+      <button class="primary receipt-close" id="receipt-close" type="button" data-close-mark><span>Volver al inicio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+      <p class="receipt-note"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6z"/></svg>Este registro ya forma parte de tu historial privado.</p>
+    </div>
   </section>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/js/dashboard.js?v=24"></script>
+<script src="assets/js/dashboard.js?v=49"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=1"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=1"></script>
-<script src="assets/js/dashboard-admin-acceso.js?v=1"></script>
+<script src="assets/js/dashboard-admin-acceso.js?v=4"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=1"></script>
 </body>
 </html>
