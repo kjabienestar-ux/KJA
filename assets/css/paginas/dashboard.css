@@ -6170,6 +6170,14 @@ input:-webkit-autofill:active {
   right:auto;
   left:50%;
   width:min(94%,500px);
+  -webkit-mask-image:
+    linear-gradient(90deg,transparent 0,#000 6%,#000 96%,transparent 100%),
+    linear-gradient(180deg,#000 0,#000 78%,transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:
+    linear-gradient(90deg,transparent 0,#000 6%,#000 96%,transparent 100%),
+    linear-gradient(180deg,#000 0,#000 78%,transparent 100%);
+  mask-composite:intersect;
   transform:translateX(-50%);
 }
 
