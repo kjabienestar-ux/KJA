@@ -694,7 +694,7 @@ function renderRailSchedule(d){
 async function loadHistory(){
   const {data,error}=await db.rpc('dash_historial',{p_anio:APP.year,p_mes:APP.month});
   if(error||!data?.ok){ toast('No se pudo cargar el historial.',true); return; }
-  APP.historial=data; renderHistory(); renderProgress();
+  APP.historial=data; renderHistory(); renderProgress(); renderProfile();
 }
 
 function renderProgress(){
@@ -928,10 +928,33 @@ function renderRailCalendar(h){
 
 function renderProfile(){
   const c=APP.inicio.colaborador;if(!c)return; $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
-  $('profile-link').textContent=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
+  const linkLabel=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
+  $('profile-link').textContent=linkLabel;
+  if($('profile-record-state')){$('profile-record-state').textContent=c.activo===false?'Ficha inactiva':'Ficha activa';$('profile-record-state').classList.toggle('is-inactive',c.activo===false)}
   const dates=v=>v?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(v+'T12:00:00')):'—';
-  const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?c.contrato_horas+' h':'—'],['Horas previas',Number(c.horas_previas||0)+' h']];
-  $('profile-fields').innerHTML=fields.map(x=>`<div class="profile-field"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
+  const dayLabels=['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],dayFull=['','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  const schedule=c.horario_semanal&&typeof c.horario_semanal==='object'?c.horario_semanal:{};
+  const configuredDays=Object.keys(schedule).map(Number),baseDays=(c.dias_laborables||[]).map(Number);
+  const workDays=[...new Set([...baseDays,...configuredDays])].filter(day=>day>=1&&day<=7&&schedule[String(day)]?.mod!=='no_gestiona').sort((a,b)=>a-b);
+  const clockMinutes=value=>{const [hours,minutes]=String(value||'').split(':').map(Number);return Number.isFinite(hours)?hours*60+(Number.isFinite(minutes)?minutes:0):null};
+  const durationMinutes=(start,end)=>{const from=clockMinutes(start),to=clockMinutes(end);if(from===null||to===null)return 0;return to>=from?to-from:(1440-from)+to};
+  const modeLabel={virtual:'Virtual',presencial:'Presencial',opcional:'Flexible'};
+  const scheduleRows=workDays.map(day=>{
+    const detail=schedule[String(day)]||{},start=detail.ini||c.hora_inicio,end=detail.fin||c.hora_fin,mode=modeLabel[detail.mod]||'Virtual';
+    return {day,label:dayLabels[day],full:dayFull[day],start,end,mode,minutes:durationMinutes(start,end)};
+  });
+  const weekMinutes=scheduleRows.reduce((total,row)=>total+row.minutes,0);
+  const formatHours=value=>Number(value||0).toLocaleString('es-PE',{minimumFractionDigits:Number(value||0)%1?1:0,maximumFractionDigits:1})+' h';
+  const weeklyHours=weekMinutes?formatHours(weekMinutes/60):'—',generalHours=c.hora_inicio&&c.hora_fin?`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`:'Sin horario general';
+  const hours=Number(APP.historial?.horas??c.horas_previas??0),practiceGoal=Number(c.contrato_horas||0),volunteerGoal=c.tipo_vinculo==='ambos'?Number(c.contrato_horas_voluntariado||0):0;
+  const goal=Number(APP.historial?.meta??(practiceGoal+volunteerGoal)),pending=goal?Math.max(0,goal-hours):0,progress=goal?Math.min(100,(hours/goal)*100):0;
+  const metaDetail=c.tipo_vinculo==='ambos'&&volunteerGoal?`Prácticas ${formatHours(practiceGoal)} · Voluntariado ${formatHours(volunteerGoal)}`:'Meta definida por Dirección';
+  const scheduleHtml=scheduleRows.length?scheduleRows.map(row=>`<li class="profile-schedule-day"><span class="profile-day-badge" title="${esc(row.full)}">${esc(row.label)}</span><span><b>${esc(fmtTime(row.start))} — ${esc(fmtTime(row.end))}</b><small>${esc(row.full)}</small></span><em class="profile-mode ${String(row.mode).toLowerCase()}">${esc(row.mode)}</em></li>`).join(''):'<li class="profile-schedule-empty">Dirección aún no configuró una jornada semanal.</li>';
+  const fact=(label,value,detail='')=>`<div class="profile-field"><small>${esc(label)}</small><b>${esc(value)}</b>${detail?`<em>${esc(detail)}</em>`:''}</div>`;
+  $('profile-fields').innerHTML=`
+    <section class="profile-fact-group profile-fact-main"><header><h3>Datos principales</h3><p>Información registrada para tu identificación laboral.</p></header><div class="profile-field-grid">${fact('DNI',c.dni||'—','Dato protegido')}${fact('Área',c.area||'—','Equipo asignado')}${fact('Tipo de vínculo',linkLabel,'Condición registrada')}</div></section>
+    <section class="profile-fact-group profile-fact-schedule"><header><span><h3>Jornada habitual</h3><p>Detalle semanal configurado por Dirección.</p></span><strong>${esc(weeklyHours)} <small>por semana</small></strong></header><div class="profile-field-grid">${fact('Horario general',generalHours,'Referencia base')}${fact('Días laborables',String(workDays.length||'—'),workDays.map(day=>dayFull[day]).join(', ')||'Sin días configurados')}${fact('Carga semanal estimada',weeklyHours,'Según el horario vigente')}</div><ul class="profile-week-schedule" aria-label="Horario semanal">${scheduleHtml}</ul></section>
+    <section class="profile-fact-group profile-fact-progress"><header><h3>Vínculo y avance</h3><p>Fechas y horas acumuladas en tu ficha.</p></header><div class="profile-field-grid">${fact('Inicio del vínculo',dates(c.contrato_inicio),'Fecha registrada')}${fact('Fecha de referencia',dates(c.contrato_fin_referencia),'Cierre estimado')}${fact('Meta total',goal?formatHours(goal):'—',goal?metaDetail:'Sin meta configurada')}</div><div class="profile-hours-summary"><div><span><small>HORAS ACUMULADAS</small><b>${esc(formatHours(hours))}</b></span><span><small>PENDIENTES</small><b>${goal?esc(formatHours(pending)):'—'}</b></span><strong>${goal?Math.round(progress)+'%':'Sin meta'}</strong></div><div class="profile-hours-track" role="progressbar" aria-label="Avance de horas" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progress)}"><i style="width:${progress.toFixed(1)}%"></i></div><p>${APP.historial?'Incluye las horas previas reconocidas y los registros del portal.':'Mostrando las horas previas reconocidas mientras carga el historial.'}</p></div></section>`;
 }
 
 async function loadTeam(){
