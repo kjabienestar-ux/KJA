@@ -6525,3 +6525,74 @@ input:-webkit-autofill:active {
   .portal #view-perfil .profile-notice{grid-template-columns:30px 1fr !important;padding:17px 18px}
   .portal #view-perfil .profile-notice a{grid-column:2;width:max-content}
 }
+
+/* Perfil compacto: misma información, menos altura y repetición. */
+.portal #view-perfil .profile-data-head{padding:18px 22px 16px}
+.portal #view-perfil .profile-data-head h2{font-size:17px}
+.portal #view-perfil .profile-data-head p{margin-top:3px;font-size:10px}
+.portal #view-perfil .profile-record-state{padding:6px 9px;font-size:9px}
+.portal #view-perfil .profile-fact-group{padding:15px 22px 17px}
+.portal #view-perfil .profile-fact-main{padding-top:17px;padding-bottom:17px}
+.portal #view-perfil .profile-fact-group>header{align-items:center;margin-bottom:12px}
+.portal #view-perfil .profile-fact-group h3{font-size:12px}
+.portal #view-perfil .profile-fact-group>header>strong{display:flex;align-items:baseline;gap:5px;font-size:14px}
+.portal #view-perfil .profile-fact-group>header>strong small{display:inline;margin:0;font-size:7px}
+.portal #view-perfil .profile-field-grid{gap:0 18px}
+.portal #view-perfil .profile-field small{font-size:8px}
+.portal #view-perfil .profile-field b{margin-top:4px;font-size:12px}
+.portal #view-perfil .profile-field em{margin-top:2px;font-size:8px}
+.portal #view-perfil .profile-fact-schedule .profile-field-grid{grid-template-columns:1.15fr .85fr}
+.portal #view-perfil .profile-week-schedule{
+  display:flex;
+  gap:7px;
+  margin-top:12px;
+  padding-top:11px;
+  overflow-x:auto;
+  overscroll-behavior-inline:contain;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(88,124,163,.34) transparent;
+}
+.portal #view-perfil .profile-schedule-day{
+  flex:1 0 105px;
+  grid-template-columns:27px minmax(0,1fr);
+  gap:7px;
+  padding:7px 8px;
+  border-radius:10px;
+}
+.portal #view-perfil .profile-day-badge{width:27px;height:27px;border-radius:8px;font-size:8px}
+.portal #view-perfil .profile-schedule-day>span:nth-child(2) b{font-size:9px}
+.portal #view-perfil .profile-schedule-day>span:nth-child(2) small{margin-top:2px;font-size:8px}
+.portal #view-perfil .profile-hours-summary{margin-top:13px;padding:11px 13px;border-radius:12px}
+.portal #view-perfil .profile-hours-summary>div:first-child{gap:20px}
+.portal #view-perfil .profile-hours-summary span small{font-size:7px}
+.portal #view-perfil .profile-hours-summary span b{margin-top:3px;font-size:13px}
+.portal #view-perfil .profile-hours-summary>div:first-child>strong{font-size:17px}
+.portal #view-perfil .profile-hours-track{height:5px;margin-top:9px}
+.portal #view-perfil .profile-hours-summary p{margin-top:6px;font-size:8px}
+.portal #view-perfil .profile-notice{padding:12px 22px}
+.portal #view-perfil .profile-notice svg{width:20px}
+.portal #view-perfil .profile-notice span{font-size:10px}
+.portal #view-perfil .profile-notice span b{font-size:11px}
+.portal #view-perfil .profile-notice a{padding:7px 10px;font-size:9px}
+
+@media (min-width:1051px){
+  .portal #view-perfil .profile-facts{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)}
+  .portal #view-perfil .profile-fact-main{grid-column:1/-1}
+  .portal #view-perfil .profile-fact-schedule{border-right:1px solid rgba(118,143,173,.18);border-bottom:0}
+  .portal #view-perfil .profile-fact-progress{border-bottom:0}
+  .portal #view-perfil .profile-fact-progress .profile-field-grid{grid-template-columns:1fr 1fr;gap:12px 16px}
+  .portal #view-perfil .profile-fact-progress .profile-field:last-child{grid-column:1/-1}
+}
+
+@media (max-width:650px){
+  .portal #view-perfil .profile-data-head,.portal #view-perfil .profile-fact-group{padding-left:16px;padding-right:16px}
+  .portal #view-perfil .profile-fact-main .profile-field-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}
+  .portal #view-perfil .profile-fact-main .profile-field:last-child{grid-column:1/-1}
+  .portal #view-perfil .profile-fact-schedule .profile-field-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .portal #view-perfil .profile-fact-progress .profile-field-grid{grid-template-columns:1fr 1fr;gap:14px 16px}
+  .portal #view-perfil .profile-fact-progress .profile-field:last-child{grid-column:1/-1}
+  .portal #view-perfil .profile-field{padding-bottom:0;border-bottom:0}
+  .portal #view-perfil .profile-hours-summary>div:first-child{grid-template-columns:1fr 1fr auto;gap:12px}
+  .portal #view-perfil .profile-hours-summary>div:first-child>strong{grid-column:auto;justify-self:end}
+  .portal #view-perfil .profile-notice{padding:12px 16px}
+}
