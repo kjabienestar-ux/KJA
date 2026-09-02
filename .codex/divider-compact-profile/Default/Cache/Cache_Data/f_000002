@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b2a5c">
+<title>Mi portal - KJA</title>
+<link rel="icon" href="images/logo/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 767px)">
+<link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=48">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#workspace">Saltar al contenido</a>
+
+<div class="boot" id="boot" aria-live="polite" aria-busy="true">
+  <div class="boot-inner">
+    <div class="boot-badge" aria-hidden="true">
+      <img class="boot-logo" src="images/logo/logo-160.webp" alt="">
+    </div>
+    <p class="boot-text"><span id="boot-text-label">Cargando</span><span class="boot-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></p>
+  </div>
+</div>
+
+<main class="access" id="access" hidden>
+  <a class="back-home" href="index.html" aria-label="Volver al inicio">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>Inicio
+  </a>
+  <section class="access-shell">
+    <div class="access-story">
+      <div class="story-brand"><img src="images/logo/logo.webp" alt="KJA"><span>Portal del equipo</span></div>
+      <div class="story-copy">
+        <p class="eyebrow">Tu jornada, en un solo lugar</p>
+        <h1>Empieza el día<br>con claridad.</h1>
+        <p>Consulta tu horario, registra tu asistencia y sigue tu avance sin buscar enlaces ni enviar capturas.</p>
+      </div>
+      <div class="story-features" aria-hidden="true">
+        <p>Dentro de tu portal</p>
+        <div class="story-feature-grid">
+          <span class="story-feature">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+            <span><small>Consulta</small><b>Tu horario</b></span>
+          </span>
+          <span class="story-feature">
+            <svg viewBox="0 0 24 24"><path d="M9 11l3 3 7-7"/><path d="M21 12a9 9 0 1 1-5.3-8.2"/></svg>
+            <span><small>Registra</small><b>Tu asistencia</b></span>
+          </span>
+          <span class="story-feature">
+            <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+            <span><small>Revisa</small><b>Tu avance</b></span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="access-form-wrap">
+      <div class="access-form-head">
+        <span class="mobile-logo"><img src="images/logo/kja.webp" alt="KJA"></span>
+        <p class="eyebrow">Acceso seguro</p>
+        <h2>Ingresa a tu portal</h2>
+        <p>Usa los mismos datos con los que marcas asistencia.</p>
+      </div>
+
+      <div class="login-panel">
+        <div class="login-tabs" role="tablist" aria-label="Tipo de acceso">
+          <button class="active" id="tab-colab" type="button" role="tab" aria-selected="true" aria-controls="form-colab">Colaborador</button>
+          <button id="tab-admin" type="button" role="tab" aria-selected="false" aria-controls="form-admin">Dirección</button>
+        </div>
+
+      <form id="form-colab" class="login-form" role="tabpanel" aria-labelledby="tab-colab">
+        <div class="field">
+          <label for="dni">DNI</label>
+          <div class="field-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16c.7-1.7 4.3-1.7 5 0M14 9h4M14 13h4"/></svg>
+            <input id="dni" name="dni" inputmode="numeric" autocomplete="username" maxlength="8" placeholder="8 dígitos" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="pin">PIN de asistencia</label>
+          <div class="field-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" placeholder="••••" required>
+            <button class="reveal" type="button" data-reveal="pin" aria-label="Mostrar PIN"><span>Ver</span><svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg><svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 6.2A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-2.2 3M6.2 6.2A15.7 15.7 0 0 0 2.5 12s3.5 6 9.5 6c1 0 2-.2 2.9-.5M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>
+          </div>
+        </div>
+        <div class="form-msg" id="colab-msg" role="alert" aria-live="assertive"></div>
+        <button class="primary" id="btn-colab" type="submit"><span>Entrar a mi portal</span><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <p class="form-note">¿Aún no tienes PIN? Por esta primera etapa puedes crearlo desde el enlace de marcado que comparte Dirección.</p>
+      </form>
+
+      <form id="form-admin" class="login-form" role="tabpanel" aria-labelledby="tab-admin" hidden>
+        <div class="field">
+          <label for="admin-email">Correo administrativo</label>
+          <div class="field-box">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg>
+            <input id="admin-email" type="email" autocomplete="username" placeholder="nombre@correo.com" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="admin-pass">Contraseña</label>
+          <div class="field-box">
+            <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input id="admin-pass" type="password" autocomplete="current-password" placeholder="Tu contraseña" required>
+            <button class="reveal" type="button" data-reveal="admin-pass" aria-label="Mostrar contraseña"><span>Ver</span><svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg><svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 6.2A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-2.2 3M6.2 6.2A15.7 15.7 0 0 0 2.5 12s3.5 6 9.5 6c1 0 2-.2 2.9-.5M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>
+          </div>
+        </div>
+        <div class="form-msg" id="admin-msg" role="alert" aria-live="assertive"></div>
+        <button class="primary" id="btn-admin" type="submit"><span>Ingresar como Dirección</span><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="portal" id="portal" hidden inert aria-hidden="true">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><img src="images/logo/logo.webp" alt="KJA"><span>Portal <b>KJA</b></span></div>
+    <nav class="side-nav" aria-label="Navegación principal">
+      <span class="side-nav-divider personal" id="personal-nav-divider" hidden>MI ESPACIO</span>
+      <button class="active" data-view="inicio" id="nav-inicio" hidden><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button>
+      <button data-view="asistencia" id="nav-asistencia" hidden><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 15l2 2 4-4"/></svg><span>Mi asistencia</span></button>
+      <button data-view="perfil" id="nav-perfil" hidden><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.3 3.5-6 8-6s7.2 1.7 8 6"/></svg><span>Mi perfil</span></button>
+      <span class="side-nav-divider" id="team-nav-divider" hidden>LIDERAZGO</span>
+      <button data-view="equipo" id="nav-equipo" hidden><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.5-3.6 2.5-5 6-5s5.5 1.4 6 5M15 15c3.6 0 5.5 1.4 6 4"/></svg><span>Mi equipo</span></button>
+      <span class="side-nav-divider" id="admin-nav-divider" hidden>ADMINISTRACIÓN</span>
+      <button data-view="gestion" id="nav-gestion" hidden><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5M8 14h3M14 14h2M8 17h8"/></svg><span>Gestión de asistencia</span></button>
+    </nav>
+    <div class="side-help"><span>¿Necesitas ayuda?</span><a href="https://wa.me/51988918238" target="_blank" rel="noopener">Contactar a Dirección</a></div>
+    <div class="side-user">
+      <span class="avatar" id="side-avatar">KJ</span>
+      <span><b id="side-name">—</b><small id="side-role">Miembro</small></span>
+      <button id="logout" aria-label="Cerrar sesión" title="Cerrar sesión"><svg viewBox="0 0 24 24"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg></button>
+    </div>
+  </aside>
+
+  <header class="mobile-head">
+    <button id="menu-toggle" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button class="mobile-back-home" id="mobile-back-home" type="button" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span>Inicio</span></button>
+    <img src="images/logo/logo.webp" alt="KJA">
+    <span class="avatar" id="mobile-avatar">KJ</span>
+  </header>
+  <div class="side-scrim" id="side-scrim"></div>
+
+  <main class="workspace" id="workspace" tabindex="-1">
+    <section class="portal-bootstrap" id="portal-bootstrap" role="status" aria-live="polite" hidden>
+      <div class="portal-bootstrap-status">
+        <span class="portal-bootstrap-mark" aria-hidden="true"><img src="images/logo/logo.webp" alt=""></span>
+        <span><strong>Acceso confirmado</strong><small>Sincronizando tu jornada y permisos</small></span>
+      </div>
+      <div class="portal-bootstrap-progress" aria-hidden="true"><i></i></div>
+    </section>
+
+    <section class="view active" id="view-inicio">
+      <section class="mobile-portal-home" aria-label="Inicio rápido">
+        <header class="mobile-portal-hero">
+          <div class="mobile-portal-brand">
+            <span class="mobile-brand-mark"><img src="images/logo/logo.webp" alt=""></span>
+            <span><b>Portal KJA</b><small>Tu espacio de trabajo</small></span>
+            <button id="mobile-home-logout" type="button" aria-label="Cerrar sesión" title="Cerrar sesión">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>
+            </button>
+          </div>
+          <div class="mobile-portal-person">
+            <span class="mobile-profile-photo">
+              <span class="mobile-profile-avatar" id="mobile-home-avatar">KJ</span>
+              <button class="mobile-profile-photo-edit" id="mobile-home-photo" type="button" aria-label="Subir foto de perfil" title="Subir foto">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+              </button>
+            </span>
+            <div>
+              <h1 id="mobile-home-name">Equipo KJA</h1>
+              <p id="mobile-home-area">Tu área</p>
+              <span><b id="mobile-home-role">Colaborador</b><i aria-hidden="true"></i><small id="mobile-home-dni">DNI —</small></span>
+            </div>
+          </div>
+        </header>
+
+        <div class="mobile-portal-sheet">
+          <div class="mobile-sheet-heading">
+            <span><h2>¿Qué deseas hacer?</h2><p>Accede rápido a lo más importante.</p></span>
+            <span class="mobile-session-state"><i></i>Sesión segura</span>
+          </div>
+          <nav class="mobile-quick-grid" aria-label="Accesos rápidos">
+            <button type="button" data-mobile-action="asistencia">
+              <img class="card-deco-3d" src="images/dashboard/marcar-3d.webp" alt="" aria-hidden="true">
+
+              <span><b>Mi asistencia</b><small>Historial y calendario</small></span>
+              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <button type="button" data-mobile-action="marcar" id="mobile-action-mark">
+              <img class="card-deco-3d" src="images/dashboard/asistencia-3d.webp" alt="" aria-hidden="true">
+
+              <span><b id="mobile-action-mark-title">Asistencia registrada</b><small id="mobile-action-mark-note">Marcado - 10:08 a. m.</small></span>
+              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <button type="button" data-mobile-action="perfil">
+              <img class="card-deco-3d" src="images/dashboard/perfil-3d.webp" alt="" aria-hidden="true">
+
+              <span><b>Mi perfil</b><small>Datos personales</small></span>
+              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <button type="button" data-mobile-action="jornada">
+              <img class="card-deco-3d" src="images/dashboard/jornada-3d.webp" alt="" aria-hidden="true">
+
+              <span><b>Jornada de hoy</b><small>Horario y estado</small></span>
+              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <button type="button" data-mobile-action="equipo" id="mobile-action-team" hidden>
+              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.5-3.6 2.5-5 6-5s5.5 1.4 6 5M15 15c3.6 0 5.5 1.4 6 4"/></svg>
+
+              <span><b>Mi equipo</b><small>Personas de mi área</small></span>
+              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <button type="button" data-mobile-action="gestion" id="mobile-action-admin" hidden>
+              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5M8 14h3M14 14h2M8 17h8"/></svg>
+
+              <span><b>Gestión</b><small>Panel administrativo</small></span>
+              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </nav>
+
+
+          <article class="mobile-today-summary" id="mobile-today-summary" tabindex="-1">
+            <header><span><small>HOY</small><b id="mobile-today-date">—</b></span><span class="mobile-today-status" id="mobile-today-status">Cargando</span></header>
+            <div class="mobile-today-hours">
+              <span><small>Entrada</small><b id="mobile-today-start">—</b></span>
+              <i aria-hidden="true"><em></em></i>
+              <span><small>Salida</small><b id="mobile-today-end">—</b></span>
+            </div>
+            <p id="mobile-today-detail">Preparando tu jornada…</p>
+          </article>
+        </div>
+      </section>
+
+      <header class="view-head">
+        <div><p class="eyebrow" id="today-label">TU JORNADA</p><h1 id="welcome">Buenos días</h1><p id="welcome-sub">Aquí tienes lo importante de hoy.</p></div>
+        <span class="session-chip"><i></i>Sesión segura · <b id="session-left">8 h</b></span>
+      </header>
+
+      <div class="today-layout">
+        <article class="day-card" id="today-attendance-card" data-attendance-state="loading">
+          <div class="day-card-head">
+            <span><small>HOY</small><b id="day-date">—</b></span>
+            <span class="status-pill" id="day-status">Cargando</span>
+          </div>
+
+          <div class="day-card-grid">
+            <section class="day-schedule" aria-labelledby="day-schedule-title">
+              <div class="day-section-heading">
+                <span class="day-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 1.5"/></svg></span>
+                <span><small>HORARIO ASIGNADO</small><b id="day-schedule-title">Tu jornada de hoy</b></span>
+              </div>
+              <div class="day-timeline" id="day-timeline">
+                <div class="time-label start"><small>ENTRADA</small><b id="time-start">—</b></div>
+                <div class="rail"><i class="done"></i><span id="now-marker"><em></em><b>Ahora</b></span><i></i></div>
+                <div class="time-label end"><small>SALIDA</small><b id="time-end">—</b></div>
+              </div>
+              <div class="day-context">
+                <span id="day-mode">—</span><span id="day-window">—</span>
+              </div>
+            </section>
+
+            <section class="day-action" id="day-action" aria-labelledby="attendance-state-title">
+              <div class="day-action-mascot" aria-hidden="true">
+                <img src="images/dashboard/asistencia-capybara.png" alt="" width="612" height="408" decoding="async">
+              </div>
+              <div class="day-action-copy">
+                <small>ESTADO DEL MARCADO</small>
+                <h2 id="attendance-state-title">Preparando tu jornada</h2>
+                <p id="mark-help">La hora se registra directamente desde el servidor.</p>
+              </div>
+              <button class="mark-button" id="open-mark"><span class="mark-button-copy"><small id="mark-caption">ACCIÓN DISPONIBLE</small><b id="mark-label">Marcar mi asistencia</b></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button>
+            </section>
+          </div>
+
+          <div class="day-summary" aria-label="Resumen del mes">
+            <article class="progress-card">
+              <span class="summary-icon hours" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></span>
+              <div class="summary-copy"><p class="eyebrow">HORAS DEL MES</p><div class="progress-number"><strong id="hours-done">0</strong><span>h</span><small>de <b id="hours-goal">—</b> horas</small></div><p id="hours-note">Cargando tu avance…</p></div>
+            <div class="progress-track"><i id="hours-bar"></i></div>
+            </article>
+            <article class="month-card">
+              <span class="month-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 11h16"/></svg></span>
+              <span><small>ASISTENCIA DEL MES</small><b id="month-rate">—</b><em id="month-note">Cargando resumen</em></span>
+            </article>
+          </div>
+        </article>
+      </div>
+
+      <section class="week-strip">
+        <div class="section-title"><span><p class="eyebrow">ESTA SEMANA</p><h2>Tu ritmo de trabajo</h2></span><button data-go="asistencia">Ver mes completo</button></div>
+        <div class="week-days" id="week-days"></div>
+      </section>
+    </section>
+
+    <section class="view" id="view-asistencia" hidden>
+      <header class="view-head"><div><p class="eyebrow">REGISTRO PERSONAL</p><h1>Mi asistencia</h1><p>Consulta cada día registrado y el acumulado de tus horas.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
+      <div class="month-toolbar"><button id="month-prev" aria-label="Mes anterior">‹</button><b id="month-title">—</b><button id="month-next" aria-label="Mes siguiente">›</button></div>
+      <div class="attendance-stats" id="attendance-stats"></div>
+      <article class="calendar-card"><div class="calendar-week"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="calendar-grid" id="calendar-grid"></div><div class="calendar-legend"><span><i class="p"></i>Presente</span><span><i class="t"></i>Tardanza</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestionó</span></div></article>
+    </section>
+
+    <section class="view" id="view-perfil" hidden>
+      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p>Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
+      <div class="profile-layout">
+        <article class="profile-identity">
+          <div class="profile-photo-wrap">
+            <span class="profile-avatar" id="profile-avatar">KJ</span>
+            <button class="profile-photo-camera" id="profile-photo-camera" type="button" aria-label="Cambiar foto de perfil" title="Cambiar foto">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </button>
+          </div>
+          <h2 id="profile-name">—</h2><p id="profile-area">—</p><span class="profile-badge" id="profile-link">—</span>
+          <div class="profile-photo-actions">
+            <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+            <button class="profile-photo-change" id="profile-photo-change" type="button">Subir foto</button>
+            <button class="profile-photo-remove" id="profile-photo-remove" type="button" hidden>Quitar</button>
+          </div>
+          <small class="profile-photo-hint">JPG, PNG o WebP · máximo 3 MB</small>
+          <p class="profile-photo-message" id="profile-photo-message" role="status" aria-live="polite"></p>
+        </article>
+        <article class="profile-data"><div id="profile-fields"></div><div class="profile-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span><b>¿Hay algo que corregir?</b>Comunícalo a Dirección para mantener tu información laboral al día.</span><a href="https://wa.me/51988918238" target="_blank" rel="noopener">Informar un cambio</a></div></article>
+      </div>
+    </section>
+
+    <section class="view" id="view-equipo" hidden>
+      <header class="view-head"><div><p class="eyebrow">VISIBILIDAD POR ÁREA</p><h1 id="team-title">Mi equipo</h1><p id="team-sub">Estado de asistencia de las personas que puedes consultar.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
+      <div class="team-summary" id="team-summary"></div>
+      <div class="team-list" id="team-list"></div>
+    </section>
+
+    <section class="view admin-view" id="view-gestion" hidden>
+      <header class="view-head admin-view-head">
+        <div><p class="eyebrow">CENTRO DE GESTIÓN</p><h1>Administración de asistencia</h1><p>Supervisa la jornada y entra a cada herramienta operativa desde un solo lugar.</p></div>
+        <button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button>
+        <div class="admin-head-actions"><span class="admin-role-chip" id="admin-role-chip">Acceso administrativo</span><button class="admin-refresh" id="admin-refresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualizar</button></div>
+      </header>
+
+      <nav class="admin-section-nav" aria-label="Secciones de administración">
+        <button class="active" type="button" data-admin-section="overview">Resumen operativo</button>
+        <button type="button" data-admin-section="lista">Pasar lista</button>
+        <button type="button" data-admin-section="mes">Mes completo</button>
+        <button type="button" data-admin-section="resumen">Resumen mensual</button>
+        <button type="button" data-admin-section="colaboradores">Colaboradores</button>
+        <button type="button" data-admin-section="contratos">Contratos</button>
+        <button type="button" data-admin-section="roles" id="admin-roles-tab" hidden>Roles y equipos</button>
+        <button type="button" data-admin-section="marcado" id="admin-access-tab">Marcado propio</button>
+        <a href="asistencia.html?modo=lista" title="Abrir la versión anterior como respaldo">Panel anterior ↗</a>
+      </nav>
+
+      <div id="admin-overview-section">
+      <div class="admin-kpis" id="admin-kpis" aria-live="polite"></div>
+
+      <div class="admin-overview-grid">
+        <article class="admin-panel admin-live-panel">
+          <div class="admin-panel-head"><span><small>ESTADO EN VIVO</small><h2>Asistencia de hoy</h2></span><button type="button" data-admin-section="lista">Gestionar lista <span>→</span></button></div>
+          <div class="admin-status-list" id="admin-status-list"><p class="admin-empty">Cargando colaboradores…</p></div>
+        </article>
+        <article class="admin-panel admin-request-panel">
+          <div class="admin-panel-head"><span><small>SOLICITUDES</small><h2>Cambios de horario</h2></span><span class="admin-count" id="admin-request-count">0</span></div>
+          <div class="admin-request-list" id="admin-request-list"><p class="admin-empty">Cargando solicitudes…</p></div>
+          <button class="admin-panel-foot" type="button" data-admin-section="colaboradores">Revisar en Colaboradores <span>→</span></button>
+        </article>
+      </div>
+
+      <section class="admin-modules">
+        <div class="section-title"><span><p class="eyebrow">OPERACIÓN</p><h2>Herramientas administrativas</h2></span><small id="admin-refreshed">—</small></div>
+        <div class="admin-module-grid">
+          <button class="admin-module" type="button" data-admin-section="lista"><span class="admin-module-icon blue"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v4H9zM9 14l2 2 4-5"/></svg></span><span><b>Pasar lista</b><small>Registrar y corregir estados del día</small></span><i>→</i></button>
+          <button class="admin-module" type="button" data-admin-section="mes"><span class="admin-module-icon cyan"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><span><b>Mes completo</b><small>Consultar el cuadro mensual</small></span><i>→</i></button>
+          <button class="admin-module" type="button" data-admin-section="colaboradores"><span class="admin-module-icon pink"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.3 3.5-6 8-6s7.2 1.7 8 6"/></svg></span><span><b>Colaboradores</b><small>DNI, horarios, áreas y estado</small></span><i>→</i></button>
+          <button class="admin-module" type="button" data-admin-section="contratos"><span class="admin-module-icon navy"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4"/></svg></span><span><b>Contratos</b><small>Horas, metas y proyecciones</small></span><i>→</i></button>
+          <button class="admin-module" type="button" data-admin-section="resumen"><span class="admin-module-icon green"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 17v-5M12 17V6M18 17V9"/></svg></span><span><b>Resumen</b><small>Indicadores mensuales del equipo</small></span><i>→</i></button>
+          <button class="admin-module direction-only" id="admin-roles-module" type="button" data-admin-section="roles" hidden><span class="admin-module-icon cyan"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.5-3.6 2.3-5 5-5s4.5 1.4 5 5M14 15c3.8 0 5.7 1.4 6 4M12 5l1 1 2-2"/></svg></span><span><b>Roles y equipos</b><small>Designar líderes técnicos por área</small></span><i>→</i></button>
+          <button class="admin-module direction-only" id="admin-device-module" type="button" data-admin-section="marcado"><span class="admin-module-icon amber"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10.5 18.5h3"/></svg></span><span><b>Marcado propio</b><small>Acceso, PIN y seguridad del portal</small></span><i>→</i></button>
+        </div>
+      </section>
+      </div>
+
+      <section class="admin-list-section" id="admin-list-section" hidden>
+        <div class="admin-list-toolbar">
+          <div class="admin-date-control">
+            <button type="button" id="admin-date-prev" aria-label="Día anterior">‹</button>
+            <input type="date" id="admin-list-date" aria-label="Fecha de la lista">
+            <button type="button" id="admin-date-next" aria-label="Día siguiente">›</button>
+            <button type="button" id="admin-date-today">Hoy</button>
+          </div>
+          <div class="admin-list-filters">
+            <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-list-search" placeholder="Buscar colaborador…"></label>
+            <label><span class="sr-only">Filtrar por área</span><select id="admin-list-area"><option value="">Todas las áreas</option></select></label>
+          </div>
+        </div>
+
+        <div class="admin-list-kpis" id="admin-list-kpis"></div>
+        <div class="admin-list-message" id="admin-list-message" role="status" aria-live="polite"></div>
+        <div class="admin-roster" id="admin-roster"><p class="admin-empty">Ejecuta la migración de la fase 2 para cargar la lista.</p></div>
+        <div class="admin-list-legend"><span><i class="p"></i>Presente</span><span><i class="t"></i>Tardanza</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestiona</span><small>Selecciona nuevamente el estado activo para quitar la marca.</small></div>
+      </section>
+
+      <section class="admin-month-section" id="admin-month-section" hidden>
+        <div class="admin-month-toolbar">
+          <div><p class="eyebrow">LIBRO DE ASISTENCIA</p><h2>Mes completo</h2><p>Una lectura diaria del equipo, con feriados, excepciones y evidencias.</p></div>
+          <div class="admin-month-actions">
+            <div class="admin-month-picker">
+              <button type="button" id="admin-month-prev" aria-label="Mes anterior">‹</button>
+              <input type="month" id="admin-month-value" aria-label="Mes del libro de asistencia">
+              <button type="button" id="admin-month-next" aria-label="Mes siguiente">›</button>
+              <button type="button" id="admin-month-today">Mes actual</button>
+            </div>
+            <button class="admin-secondary-action" id="admin-month-holidays" type="button">Feriados</button>
+            <button class="admin-primary-action" id="admin-month-export" type="button">Exportar CSV</button>
+          </div>
+        </div>
+        <div class="admin-month-filters">
+          <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-month-search" placeholder="Buscar colaborador…"></label>
+          <label><span class="sr-only">Filtrar por área</span><select id="admin-month-area"><option value="">Todas las áreas</option></select></label>
+          <label class="admin-toggle"><input type="checkbox" id="admin-month-inactive"><span>Incluir bajas</span></label>
+          <span class="admin-month-stamp" id="admin-month-stamp">—</span>
+        </div>
+        <div class="admin-list-kpis admin-month-kpis" id="admin-month-kpis"></div>
+        <div class="admin-list-message" id="admin-month-message" role="status" aria-live="polite"></div>
+        <div class="admin-month-ledger" id="admin-month-ledger"><p class="admin-empty">Ejecuta la migración de la fase 4 para cargar el mes.</p></div>
+        <div class="admin-month-legend"><span><i class="p">P</i>Presente</span><span><i class="t">T</i>Tardanza</span><span><i class="j">J</i>Justificado</span><span><i class="ng">NG</i>No gestiona</span><span><i class="off"></i>No laborable</span><span><i class="holiday"></i>Feriado</span><small>Selecciona una celda para consultar o gestionar el día.</small></div>
+        <a class="admin-legacy-link" href="asistencia.html?modo=grilla">Abrir Mes completo en el panel anterior ↗</a>
+      </section>
+
+      <section class="admin-month-section" id="admin-summary-section" hidden>
+        <div class="admin-month-toolbar">
+          <div><p class="eyebrow">LECTURA EJECUTIVA</p><h2>Resumen mensual</h2><p>Indicadores comparables por persona y área, calculados con las reglas vigentes.</p></div>
+          <div class="admin-month-actions">
+            <div class="admin-month-picker">
+              <button type="button" id="admin-summary-prev" aria-label="Mes anterior">‹</button>
+              <input type="month" id="admin-summary-value" aria-label="Mes del resumen">
+              <button type="button" id="admin-summary-next" aria-label="Mes siguiente">›</button>
+              <button type="button" id="admin-summary-today">Mes actual</button>
+            </div>
+            <button class="admin-primary-action" id="admin-summary-export" type="button">Exportar resumen</button>
+          </div>
+        </div>
+        <div class="admin-month-filters">
+          <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-summary-search" placeholder="Buscar colaborador…"></label>
+          <label><span class="sr-only">Filtrar por área</span><select id="admin-summary-area"><option value="">Todas las áreas</option></select></label>
+          <label class="admin-toggle"><input type="checkbox" id="admin-summary-inactive"><span>Incluir bajas</span></label>
+          <span class="admin-month-stamp" id="admin-summary-stamp">—</span>
+        </div>
+        <div class="admin-summary-hero" id="admin-summary-kpis"></div>
+        <div class="admin-list-message" id="admin-summary-message" role="status" aria-live="polite"></div>
+        <div class="admin-summary-table" id="admin-summary-table"><p class="admin-empty">Ejecuta la migración de la fase 4 para cargar el resumen.</p></div>
+        <a class="admin-legacy-link" href="asistencia.html?modo=resumen">Abrir Resumen en el panel anterior ↗</a>
+      </section>
+
+      <section class="admin-team-section" id="admin-people-section" hidden>
+        <div class="admin-team-toolbar">
+          <div><p class="eyebrow">DIRECTORIO OPERATIVO</p><h2>Personas, identidad y jornada</h2></div>
+          <div class="admin-team-actions">
+            <input type="search" id="admin-people-search" placeholder="Buscar por nombre o DNI…" aria-label="Buscar colaborador">
+            <select id="admin-people-area" aria-label="Filtrar colaboradores por área"><option value="">Todas las áreas</option></select>
+            <label class="admin-toggle"><input type="checkbox" id="admin-people-inactive"><span>Incluir bajas</span></label>
+            <button class="admin-primary-action" id="admin-new-person" type="button">+ Nuevo colaborador</button>
+          </div>
+        </div>
+        <div class="admin-list-kpis" id="admin-people-kpis"></div>
+        <div class="admin-list-message" id="admin-team-message" role="status" aria-live="polite"></div>
+        <div class="admin-people-groups" id="admin-people-list"><p class="admin-empty">Ejecuta la migración de la fase 3 para cargar colaboradores.</p></div>
+        <a class="admin-legacy-link" href="asistencia.html?modo=horarios">Abrir Colaboradores en el panel anterior ↗</a>
+      </section>
+
+      <section class="admin-team-section" id="admin-contracts-section" hidden>
+        <div class="admin-team-toolbar">
+          <div><p class="eyebrow">SEGUIMIENTO CONTRACTUAL</p><h2>Horas, metas y término estimado</h2></div>
+          <div class="admin-team-actions">
+            <input type="search" id="admin-contract-search" placeholder="Buscar colaborador…" aria-label="Buscar contrato">
+            <select id="admin-contract-area" aria-label="Filtrar contratos por área"><option value="">Todas las áreas</option></select>
+            <label class="admin-toggle"><input type="checkbox" id="admin-contract-inactive"><span>Incluir bajas</span></label>
+            <label class="admin-toggle"><input type="checkbox" id="admin-contract-pending"><span>Solo pendientes</span></label>
+          </div>
+        </div>
+        <div class="admin-list-kpis" id="admin-contract-kpis"></div>
+        <div class="admin-list-message" id="admin-contract-message" role="status" aria-live="polite"></div>
+        <div class="admin-contract-list" id="admin-contract-list"><p class="admin-empty">Ejecuta la migración de la fase 3 para cargar contratos.</p></div>
+        <a class="admin-legacy-link" href="asistencia.html?modo=contratos">Abrir Contratos en el panel anterior ↗</a>
+      </section>
+
+      <section class="admin-roles-section" id="admin-roles-section" hidden>
+        <div class="admin-roles-toolbar">
+          <div><p class="eyebrow">ESTRUCTURA DEL EQUIPO</p><h2>Roles y liderazgo por área</h2><p>Designa quién acompaña a cada equipo. El cambio no modifica contratos, PIN ni asistencias.</p></div>
+          <span class="admin-roles-lock"><i></i>Solo administradores de sistemas</span>
+        </div>
+        <div class="admin-roles-message" id="admin-roles-message" role="status" aria-live="polite"></div>
+        <div class="admin-list-kpis" id="admin-roles-kpis"></div>
+        <div class="admin-role-map" id="admin-role-map"><p class="admin-empty">Ejecuta la migración de la fase 6 para administrar líderes.</p></div>
+        <section class="admin-roles-audit">
+          <div class="admin-access-section-head"><span><p class="eyebrow">TRAZABILIDAD</p><h3>Cambios recientes de liderazgo</h3></span></div>
+          <div class="admin-role-audit-list" id="admin-role-audit"><p class="admin-empty">Las asignaciones aparecerán aquí.</p></div>
+        </section>
+      </section>
+
+      <section class="admin-access-section" id="admin-access-section" hidden>
+        <div class="admin-access-toolbar">
+          <div><p class="eyebrow">CONTROL DE ACCESO</p><h2>Marcado propio</h2><p>Administra la ruta oficial, la activación de PIN y las reglas comunes de marcado.</p></div>
+          <span class="admin-access-health" id="admin-access-health"><i></i>Verificando configuración</span>
+        </div>
+
+        <div class="admin-access-message" id="admin-access-message" role="status" aria-live="polite"></div>
+
+        <div class="admin-access-layout">
+          <article class="admin-route-card">
+            <header><span><small>RUTA DE INGRESO</small><h3>Cómo entra el equipo</h3></span><span class="admin-route-badge">Portal unificado</span></header>
+            <div class="admin-route-flow">
+              <section class="admin-route-step primary-route">
+                <span class="route-number">01</span>
+                <div><small>USO DIARIO</small><h4>Portal KJA</h4><p>Comparte esta dirección con todo el equipo para consultar y marcar asistencia.</p></div>
+                <div class="admin-route-link"><input id="admin-portal-url" readonly aria-label="Dirección del Portal KJA"><button type="button" data-copy-access="portal">Copiar</button></div>
+              </section>
+              <span class="admin-route-connector"><i></i><b>solo si aún no tiene PIN</b></span>
+              <section class="admin-route-step activation-route">
+                <span class="route-number">02</span>
+                <div><small>ACTIVACIÓN INICIAL</small><h4>Crear PIN</h4><p>Este enlace anterior se usa una sola vez. Después, la persona entra por Portal KJA.</p></div>
+                <div class="admin-route-link"><input id="admin-activation-url" readonly aria-label="Enlace de activación de PIN"><button type="button" data-copy-access="activation">Copiar</button></div>
+              </section>
+            </div>
+            <div class="admin-qr-block">
+              <div class="admin-qr-canvas"><canvas id="admin-access-qr" hidden></canvas><span id="admin-access-qr-message">Preparando QR…</span></div>
+              <div><small>QR DEL PORTAL OFICIAL</small><b>Listo para inducciones y piezas internas</b><p>El código dirige al dashboard, no expone PIN ni información de una persona.</p><button type="button" id="admin-download-qr">Descargar QR</button></div>
+            </div>
+          </article>
+
+          <article class="admin-policy-card">
+            <header><small>POLÍTICA DE MARCADO</small><h3>Reglas activas</h3><p>La tolerancia y la evidencia aplican también al dashboard personal.</p></header>
+            <form id="admin-access-settings">
+              <label class="admin-policy-number"><span><b>Tolerancia</b><small>Minutos después de la entrada</small></span><span><input type="number" id="admin-access-tolerance" min="0" max="120" required><i>min</i></span></label>
+              <label class="admin-policy-toggle"><span><b>Evidencia obligatoria</b><small>Exige imagen antes de registrar</small></span><input type="checkbox" id="admin-access-evidence"><i></i></label>
+              <label class="admin-policy-toggle legacy"><span><b>Activación anterior disponible</b><small>No afecta el ingreso por dashboard</small></span><input type="checkbox" id="admin-access-legacy"><i></i></label>
+              <button class="admin-primary-action" id="admin-access-save" type="submit">Guardar reglas</button>
+            </form>
+            <div class="admin-link-security"><span><b>Seguridad del enlace de activación</b><small>Regenerarlo invalida únicamente la dirección anterior.</small></span><button type="button" id="admin-access-rotate">Regenerar enlace</button></div>
+            <small class="admin-policy-updated" id="admin-access-updated">—</small>
+          </article>
+        </div>
+
+        <div class="admin-list-kpis" id="admin-access-kpis"></div>
+
+        <section class="admin-access-requests" id="admin-access-requests-wrap">
+          <div class="admin-access-section-head"><span><p class="eyebrow">AVISOS DEL EQUIPO</p><h3>Cambios de horario pendientes</h3></span><span id="admin-access-request-count">0</span></div>
+          <div id="admin-access-requests"><p class="admin-empty">No hay avisos pendientes.</p></div>
+        </section>
+
+        <section class="admin-access-directory">
+          <div class="admin-access-section-head">
+            <span><p class="eyebrow">ESTADO DE ACCESO</p><h3>PIN y sesiones del equipo</h3></span>
+            <div class="admin-access-filters"><input type="search" id="admin-access-search" placeholder="Buscar persona…" aria-label="Buscar persona"><select id="admin-access-filter" aria-label="Filtrar estado de PIN"><option value="">Todo el equipo</option><option value="ready">PIN configurado</option><option value="missing">Sin PIN</option><option value="blocked">Bloqueados</option><option value="no-dni">Sin DNI</option></select></div>
+          </div>
+          <div class="admin-access-list" id="admin-access-list"><p class="admin-empty">Ejecuta la migración de la fase 5 para cargar accesos.</p></div>
+        </section>
+
+        <section class="admin-access-audit">
+          <div class="admin-access-section-head"><span><p class="eyebrow">TRAZABILIDAD</p><h3>Actividad administrativa reciente</h3></span></div>
+          <div class="admin-audit-list" id="admin-access-audit"><p class="admin-empty">Las acciones sensibles aparecerán aquí.</p></div>
+        </section>
+
+        <a class="admin-legacy-link" href="asistencia.html?modo=dispositivos">Abrir Marcado propio en el panel anterior ↗</a>
+      </section>
+    </section>
+  </main>
+
+  <aside class="portal-rail" id="portal-rail" aria-label="Resumen personal">
+    <section class="rail-profile">
+      <div class="rail-title"><span>Mi espacio</span><button type="button" data-go="perfil" aria-label="Ver mi perfil"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/></svg></button></div>
+      <span class="rail-avatar" id="rail-avatar">KJ</span>
+      <h2 id="rail-name">—</h2>
+      <p id="rail-area">Equipo KJA</p>
+      <span class="rail-role" id="rail-role">Miembro</span>
+    </section>
+
+    <section class="rail-calendar">
+      <div class="rail-section-head">
+        <span><small>CALENDARIO</small><b id="rail-month">—</b></span>
+        <button id="rail-calendar-open" type="button" aria-label="Abrir asistencia completa"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+      </div>
+      <div class="rail-calendar-week" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div class="rail-calendar-grid" id="rail-calendar-grid"></div>
+      <div class="rail-calendar-key"><span><i></i>Registrado</span><span><i></i>Hoy</span></div>
+    </section>
+
+    <section class="rail-schedule">
+      <div class="rail-section-head">
+        <span><small>AGENDA DE HOY</small><b>Tu jornada</b></span>
+      </div>
+      <div id="rail-schedule-list" class="rail-schedule-list">
+        <p class="rail-empty">Cargando tu horario…</p>
+      </div>
+    </section>
+
+    <section class="rail-insight">
+      <span class="rail-insight-icon"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
+      <span><small>ASISTENCIA DEL MES</small><b id="rail-rate">—</b><em id="rail-rate-note">Cargando resumen</em></span>
+    </section>
+  </aside>
+</div>
+
+<div class="modal admin-editor-modal" id="admin-person-modal" hidden>
+  <div class="modal-backdrop" data-close-person></div>
+  <section class="admin-editor-sheet" role="dialog" aria-modal="true" aria-labelledby="admin-person-title">
+    <header class="admin-editor-head">
+      <div><p class="eyebrow">FICHA DEL EQUIPO</p><h2 id="admin-person-title">Nuevo colaborador</h2><p>Identidad, contrato y horario permanecen unidos en una sola ficha.</p></div>
+      <button class="modal-close" type="button" data-close-person aria-label="Cerrar">×</button>
+    </header>
+    <form id="admin-person-form">
+      <input type="hidden" id="admin-person-id">
+      <section class="admin-editor-block">
+        <div class="admin-editor-label"><b>Identidad laboral</b><span>Datos para reconocer a la persona y permitir su acceso.</span></div>
+        <div class="admin-form-grid">
+          <label class="admin-field span-2">Nombre completo<input id="admin-person-name" maxlength="80" required placeholder="Nombres y apellidos"></label>
+          <label class="admin-field">DNI<input id="admin-person-dni" inputmode="numeric" maxlength="8" placeholder="8 dígitos"></label>
+          <label class="admin-field">Tipo de vínculo<select id="admin-person-link"><option value="practicas">Prácticas</option><option value="voluntariado">Voluntariado</option><option value="ambos">Prácticas + voluntariado</option></select></label>
+          <div class="admin-field span-2"><span>Área</span><div class="admin-area-field"><select id="admin-person-area" required></select><button type="button" id="admin-area-reveal">+ Nueva área</button></div></div>
+          <div class="admin-area-create span-2" id="admin-area-create" hidden><input id="admin-area-name" maxlength="60" placeholder="Nombre de la nueva área"><button type="button" id="admin-area-save">Crear área</button></div>
+        </div>
+      </section>
+
+      <section class="admin-editor-block">
+        <div class="admin-editor-label"><b>Contrato</b><span>Registra lo que figura en el documento y las horas anteriores al sistema.</span></div>
+        <label class="admin-pending-check"><input type="checkbox" id="admin-contract-is-pending"><span><b>Datos pendientes de actualizar</b><small>La fecha proyectada se mostrará como provisional.</small></span></label>
+        <label class="admin-field" id="admin-contract-note-wrap" hidden>Qué falta confirmar<input id="admin-contract-note" maxlength="200" placeholder="Ej. confirmar horas con la universidad"></label>
+        <div class="admin-form-grid contract-fields">
+          <label class="admin-field">Inicio<input type="date" id="admin-contract-start"></label>
+          <label class="admin-field">Fin según documento<input type="date" id="admin-contract-end"></label>
+          <label class="admin-field">Meta principal (h)<input type="number" min="0" step="1" id="admin-contract-hours"></label>
+          <label class="admin-field">Horas previas<input type="number" min="0" step="0.5" id="admin-contract-previous" value="0"></label>
+          <label class="admin-field span-2" id="admin-volunteer-hours-wrap" hidden>Meta de voluntariado (h)<input type="number" min="0" step="1" id="admin-volunteer-hours"></label>
+        </div>
+      </section>
+
+      <section class="admin-editor-block schedule-block">
+        <div class="admin-editor-label"><b>Jornada semanal</b><span>Cada día conserva su modalidad y horario propio.</span></div>
+        <div class="admin-general-hours"><label class="admin-field">Entrada general<input type="time" id="admin-general-start" value="08:00"></label><label class="admin-field">Salida general<input type="time" id="admin-general-end" value="13:00"></label></div>
+        <div class="admin-schedule-head"><span>Día</span><span>Modalidad</span><span>Entrada</span><span>Salida</span><span>Cuenta como</span></div>
+        <div class="admin-schedule-grid" id="admin-schedule-grid"></div>
+      </section>
+
+      <section class="admin-editor-block" id="admin-history-block" hidden>
+        <div class="admin-editor-label"><b>Historial de cambios</b><span>Horario, metas, fechas e identidad.</span></div>
+        <div class="admin-history-list" id="admin-history-list"></div>
+        <label class="admin-field">Motivo de esta actualización<input id="admin-change-reason" maxlength="140" placeholder="Ej. nuevo horario aprobado por Dirección"></label>
+      </section>
+
+      <div class="admin-editor-message" id="admin-editor-message" role="status" aria-live="polite"></div>
+      <footer class="admin-editor-foot"><button type="button" class="admin-secondary-action" data-close-person>Cancelar</button><button type="submit" class="admin-primary-action" id="admin-person-save">Guardar cambios</button></footer>
+    </form>
+  </section>
+</div>
+
+<div class="modal admin-month-modal" id="admin-month-modal" hidden>
+  <div class="modal-backdrop" data-close-month-modal></div>
+  <section class="admin-month-sheet" role="dialog" aria-modal="true" aria-labelledby="admin-month-modal-title">
+    <header class="admin-editor-head">
+      <div><p class="eyebrow" id="admin-month-modal-eyebrow">DETALLE DEL MES</p><h2 id="admin-month-modal-title">Detalle</h2><p id="admin-month-modal-copy"></p></div>
+      <button class="modal-close" type="button" data-close-month-modal aria-label="Cerrar">×</button>
+    </header>
+    <div class="admin-month-modal-body" id="admin-month-modal-body"></div>
+    <div class="admin-editor-message" id="admin-month-modal-message" role="status" aria-live="polite"></div>
+  </section>
+</div>
+
+<div class="modal team-profile-modal" id="team-profile-modal" hidden>
+  <div class="modal-backdrop" data-close-team-profile></div>
+  <section class="team-profile-sheet" role="dialog" aria-modal="true" aria-labelledby="team-profile-title">
+    <button class="modal-close" type="button" data-close-team-profile aria-label="Cerrar">×</button>
+    <header class="team-profile-head"><span class="team-profile-avatar" id="team-profile-avatar">KJ</span><span><p class="eyebrow">PERFIL DEL EQUIPO</p><h2 id="team-profile-title">Colaborador</h2><p id="team-profile-area">Área</p></span></header>
+    <div class="team-profile-body" id="team-profile-body"><p class="admin-empty">Cargando perfil…</p></div>
+    <p class="team-profile-privacy">Vista de consulta. El líder no puede modificar el perfil ni la asistencia.</p>
+  </section>
+</div>
+
+<div class="modal" id="mark-modal" hidden>
+  <div class="modal-backdrop" data-close-mark></div>
+  <section class="mark-sheet" role="dialog" aria-modal="true" aria-labelledby="mark-title">
+    <button class="modal-close" data-close-mark aria-label="Cerrar">×</button>
+    <p class="eyebrow">REGISTRO DE HOY</p><h2 id="mark-title">Confirma tu asistencia</h2><p id="evidence-copy">Adjunta la evidencia correspondiente a tu modalidad de hoy.</p>
+    <div class="evidence-picker" id="evidence-picker">
+      <input id="evidence-camera" type="file" accept="image/*" capture="environment" hidden>
+      <input id="evidence-file" type="file" accept="image/*" hidden>
+      <div class="evidence-empty" id="evidence-empty">
+        <span class="evidence-icon-3d"><img src="images/dashboard/camera-3d.webp" alt="" aria-hidden="true"></span>
+        <b id="evidence-title">Añade tu evidencia</b><p>La imagen se comprime antes de subir.</p>
+        <div class="evidence-actions"><button id="take-photo" type="button">Tomar foto</button><button id="choose-photo" type="button">Elegir archivo</button></div>
+      </div>
+      <button class="evidence-preview" id="evidence-preview" type="button" hidden><img id="evidence-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Vista previa de la evidencia"><span id="evidence-size">Cambiar imagen</span></button>
+    </div>
+    <div class="mark-msg" id="mark-msg" aria-live="polite"></div>
+    <button class="primary mark-confirm" id="confirm-mark" type="button"><span>Registrar mi asistencia</span><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button>
+    <p class="privacy-note"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg>La evidencia queda en el registro privado de KJA y solo la consulta personal autorizado.</p>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="assets/js/dashboard.js?v=27"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=1"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=1"></script>
+<script src="assets/js/dashboard-admin-acceso.js?v=1"></script>
+<script src="assets/js/dashboard-admin-roles.js?v=1"></script>
+</body>
+</html>

@@ -175,29 +175,82 @@ async function compressProfilePhoto(file){
     return {blob,type,ext};
   }finally{decoded.close()}
 }
+let cropperInstance = null;
+
 async function chooseProfilePhoto(file){
   if(!file||APP.avatar.busy)return;
   const validType=/^image\/(jpeg|png|webp)$/i.test(file.type)||/\.(jpe?g|png|webp)$/i.test(file.name||'');
-  if(!validType)return profilePhotoIssue('Elige una imagen JPG, PNG o WebP.');
-  if(file.size>PROFILE_MAX_SOURCE)return profilePhotoIssue('La foto supera el máximo de 3 MB. Elige una más liviana.');
-  const colab=APP.inicio?.colaborador?.id;if(!colab)return profilePhotoIssue('Tu perfil no está disponible en esta sesión.');
-  setProfilePhotoBusy(true);profilePhotoMessage('Recortando y comprimiendo la foto…');
-  try{
-    const prepared=await compressProfilePhoto(file),path=`${colab}/avatar.${prepared.ext}`,previous=APP.avatar.path;
-    profilePhotoMessage('Subiendo la versión optimizada…');
-    const {error:uploadError}=await db.storage.from(PROFILE_BUCKET).upload(path,prepared.blob,{upsert:true,contentType:prepared.type,cacheControl:'3600'});
-    if(uploadError)throw uploadError;
-    const {data,error}=await db.rpc('dash_guardar_foto',{p_path:path});
-    if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'guardar');
-    APP.avatar.path=path;
-    if(previous&&previous!==path)await db.storage.from(PROFILE_BUCKET).remove([previous]).catch(()=>{});
-    await loadProfilePhoto();
-    profilePhotoMessage(`Foto guardada · ${Math.max(1,Math.round(prepared.blob.size/1024))} KB`,'success');toast('Foto de perfil actualizada.');
-  }catch(error){
-    const message=error?.message==='peso_final'?'No se pudo reducir la foto lo suficiente. Elige otra imagen.':'No se pudo guardar la foto. Revisa tu conexión e inténtalo otra vez.';
-    profilePhotoIssue(message);
-  }finally{setProfilePhotoBusy(false);$('profile-photo-input').value=''}
+  if(!validType){ $('profile-photo-input').value=''; return profilePhotoIssue('Elige una imagen JPG, PNG o WebP.'); }
+  if(file.size>PROFILE_MAX_SOURCE){ $('profile-photo-input').value=''; return profilePhotoIssue('La foto supera el máximo de 3 MB. Elige una más liviana.'); }
+  
+  const url = URL.createObjectURL(file);
+  const img = $('cropper-image');
+  const loader = $('avatar-crop-loader');
+  
+  loader.hidden = false;
+  $('avatar-crop-modal').hidden = false;
+  
+  img.onload = () => {
+    if (cropperInstance) cropperInstance.destroy();
+    cropperInstance = new Cropper(img, {
+      aspectRatio: 1,
+      viewMode: 1,
+      dragMode: 'move',
+      autoCropArea: 0.9,
+      restore: false,
+      guides: true,
+      center: true,
+      highlight: true,
+      cropBoxMovable: true,
+      cropBoxResizable: true,
+      toggleDragModeOnDblclick: true,
+      ready() { loader.hidden = true; },
+    });
+  };
+  
+  img.src = url;
 }
+
+function closeCropperModal() {
+  $('avatar-crop-modal').hidden = true;
+  if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+  $('cropper-image').src = '';
+  $('profile-photo-input').value = '';
+}
+
+$('cropper-close-btn').onclick = closeCropperModal;
+$('cropper-cancel-btn').onclick = closeCropperModal;
+$('cropper-close-bg').onclick = closeCropperModal;
+
+$('cropper-save-btn').onclick = async () => {
+  if (!cropperInstance || APP.avatar.busy) return;
+  const colab=APP.inicio?.colaborador?.id;if(!colab){ closeCropperModal(); return profilePhotoIssue('Tu perfil no está disponible en esta sesión.'); }
+  
+  const canvas = cropperInstance.getCroppedCanvas({ width: 640, height: 640 });
+  if (!canvas) return;
+  
+  closeCropperModal();
+  setProfilePhotoBusy(true);profilePhotoMessage('Comprimiendo foto recortada…');
+  
+  canvas.toBlob(async (blob) => {
+    if (!blob) { setProfilePhotoBusy(false); return profilePhotoIssue('Error al procesar el recorte.'); }
+    try{
+      const prepared=await compressProfilePhoto(blob),path=`${colab}/avatar.${prepared.ext}`,previous=APP.avatar.path;
+      profilePhotoMessage('Subiendo la versión optimizada…');
+      const {error:uploadError}=await db.storage.from(PROFILE_BUCKET).upload(path,prepared.blob,{upsert:true,contentType:prepared.type,cacheControl:'3600'});
+      if(uploadError)throw uploadError;
+      const {data,error}=await db.rpc('dash_guardar_foto',{p_path:path});
+      if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'guardar');
+      APP.avatar.path=path;
+      if(previous&&previous!==path)await db.storage.from(PROFILE_BUCKET).remove([previous]).catch(()=>{});
+      await loadProfilePhoto();
+      profilePhotoMessage(`Foto guardada · ${Math.max(1,Math.round(prepared.blob.size/1024))} KB`,'success');toast('Foto de perfil actualizada.');
+    }catch(error){
+      const message=error?.message==='peso_final'?'No se pudo reducir la foto lo suficiente. Elige otra imagen.':'No se pudo guardar la foto. Revisa tu conexión e inténtalo otra vez.';
+      profilePhotoIssue(message);
+    }finally{setProfilePhotoBusy(false);$('profile-photo-input').value=''}
+  }, 'image/jpeg', 1.0);
+};
 async function removeProfilePhoto(){
   if(!APP.avatar.path||APP.avatar.busy)return;
   if(!confirm('¿Quitar tu foto de perfil? Volverán a mostrarse tus iniciales.'))return;
@@ -527,23 +580,35 @@ function renderHome(){
 }
 
 function renderTodayMode(d={}){
-  const choice=$('today-mode-choice'),virtual=$('today-mode-virtual'),office=$('today-mode-presencial');
-  if(!choice||!virtual||!office)return;
+  const choices=document.querySelectorAll('.today-mode-choice-container');
+  if(!choices.length)return;
   const laborable=!!d.labora,mode=d.modalidad==='presencial'?'presencial':laborable?'virtual':'no_gestiona',locked=!!d.marcado||!laborable;
-  choice.dataset.mode=mode;choice.dataset.locked=String(locked);
-  $('day-mode').textContent=mode==='presencial'?'Trabajo presencial':mode==='virtual'?'Trabajo virtual':'Día no laborable';
-  [virtual,office].forEach(button=>{
-    const selected=laborable&&button.dataset.todayMode===mode;
-    button.setAttribute('aria-checked',String(selected));
-    button.disabled=locked||MODE_BUSY;
+  
+  const dayModeTitle=$('day-mode');
+  if(dayModeTitle) dayModeTitle.textContent=mode==='presencial'?'Trabajo presencial':mode==='virtual'?'Trabajo virtual':'Día no laborable';
+
+  choices.forEach(choice => {
+    choice.dataset.mode=mode;
+    choice.dataset.locked=String(locked);
+    const virtual=choice.querySelector('[data-today-mode="virtual"]');
+    const office=choice.querySelector('[data-today-mode="presencial"]');
+    if(virtual&&office){
+      [virtual,office].forEach(button=>{
+        const selected=laborable&&button.dataset.todayMode===mode;
+        button.setAttribute('aria-checked',String(selected));
+        button.disabled=locked||MODE_BUSY;
+      });
+    }
+    const help=choice.querySelector('.today-mode-help');
+    if(help){
+      if(!laborable)help.textContent='Hoy no tienes una jornada programada.';
+      else if(d.marcado)help.textContent='La modalidad quedó fijada al registrar tu asistencia.';
+      else if(MODE_BUSY)help.textContent='Guardando tu modalidad…';
+      else if(mode==='presencial'&&!d.geocerca_configurada)help.textContent='Dirección debe configurar la ubicación de la oficina.';
+      else if(mode==='presencial')help.textContent=`Para marcar deberás estar dentro de ${Number(d.radio_presencial_m||1000)/1000} km de la oficina.`;
+      else help.textContent=d.modalidad_elegida?'Elegiste trabajar virtual hoy.':'Puedes cambiarla si asistes a la oficina.';
+    }
   });
-  const help=$('today-mode-help');
-  if(!laborable)help.textContent='Hoy no tienes una jornada programada.';
-  else if(d.marcado)help.textContent='La modalidad quedó fijada al registrar tu asistencia.';
-  else if(MODE_BUSY)help.textContent='Guardando tu modalidad…';
-  else if(mode==='presencial'&&!d.geocerca_configurada)help.textContent='Dirección debe configurar la ubicación de la oficina.';
-  else if(mode==='presencial')help.textContent=`Para marcar deberás estar dentro de ${Number(d.radio_presencial_m||1000)/1000} km de la oficina.`;
-  else help.textContent=d.modalidad_elegida?'Elegiste trabajar virtual hoy.':'Puedes cambiarla si hoy debes asistir a la oficina.';
 }
 
 async function changeTodayMode(mode){
@@ -560,6 +625,7 @@ async function changeTodayMode(mode){
     if(!data?.ok)throw Object.assign(new Error(data?.motivo||'servidor'),{motivo:data?.motivo||'servidor'});
     if(data.dia)APP.inicio.dia=data.dia;
     MARK_GEO=null;renderHome();
+    if(!$('mark-modal').hidden) openMarkModal();
     toast(mode==='presencial'?'Hoy trabajarás presencial. La ubicación se verificará al marcar.':'Hoy trabajarás virtual. Tu evidencia seguirá siendo obligatoria.');
   }catch(error){toast(markFailureMessage(error.motivo),true);}
   finally{MODE_BUSY=false;renderTodayMode(APP.inicio?.dia||day);}
@@ -694,7 +760,7 @@ function renderRailSchedule(d){
 async function loadHistory(){
   const {data,error}=await db.rpc('dash_historial',{p_anio:APP.year,p_mes:APP.month});
   if(error||!data?.ok){ toast('No se pudo cargar el historial.',true); return; }
-  APP.historial=data; renderHistory(); renderProgress(); renderProfile();
+  APP.historial=data; renderHistory(); renderProgress();
 }
 
 function renderProgress(){
@@ -928,33 +994,10 @@ function renderRailCalendar(h){
 
 function renderProfile(){
   const c=APP.inicio.colaborador;if(!c)return; $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
-  const linkLabel=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
-  $('profile-link').textContent=linkLabel;
-  if($('profile-record-state')){$('profile-record-state').textContent=c.activo===false?'Ficha inactiva':'Ficha activa';$('profile-record-state').classList.toggle('is-inactive',c.activo===false)}
+  $('profile-link').textContent=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
   const dates=v=>v?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(v+'T12:00:00')):'—';
-  const dayLabels=['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],dayFull=['','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-  const schedule=c.horario_semanal&&typeof c.horario_semanal==='object'?c.horario_semanal:{};
-  const configuredDays=Object.keys(schedule).map(Number),baseDays=(c.dias_laborables||[]).map(Number);
-  const workDays=[...new Set([...baseDays,...configuredDays])].filter(day=>day>=1&&day<=7&&schedule[String(day)]?.mod!=='no_gestiona').sort((a,b)=>a-b);
-  const clockMinutes=value=>{const [hours,minutes]=String(value||'').split(':').map(Number);return Number.isFinite(hours)?hours*60+(Number.isFinite(minutes)?minutes:0):null};
-  const durationMinutes=(start,end)=>{const from=clockMinutes(start),to=clockMinutes(end);if(from===null||to===null)return 0;return to>=from?to-from:(1440-from)+to};
-  const modeLabel={virtual:'Virtual',presencial:'Presencial',opcional:'Flexible'};
-  const scheduleRows=workDays.map(day=>{
-    const detail=schedule[String(day)]||{},start=detail.ini||c.hora_inicio,end=detail.fin||c.hora_fin,mode=modeLabel[detail.mod]||'Virtual';
-    return {day,label:dayLabels[day],full:dayFull[day],start,end,mode,minutes:durationMinutes(start,end)};
-  });
-  const weekMinutes=scheduleRows.reduce((total,row)=>total+row.minutes,0);
-  const formatHours=value=>Number(value||0).toLocaleString('es-PE',{minimumFractionDigits:Number(value||0)%1?1:0,maximumFractionDigits:1})+' h';
-  const weeklyHours=weekMinutes?formatHours(weekMinutes/60):'—',generalHours=c.hora_inicio&&c.hora_fin?`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`:'Sin horario general';
-  const hours=Number(APP.historial?.horas??c.horas_previas??0),practiceGoal=Number(c.contrato_horas||0),volunteerGoal=c.tipo_vinculo==='ambos'?Number(c.contrato_horas_voluntariado||0):0;
-  const goal=Number(APP.historial?.meta??(practiceGoal+volunteerGoal)),pending=goal?Math.max(0,goal-hours):0,progress=goal?Math.min(100,(hours/goal)*100):0;
-  const metaDetail=c.tipo_vinculo==='ambos'&&volunteerGoal?`Prácticas ${formatHours(practiceGoal)} · Voluntariado ${formatHours(volunteerGoal)}`:'Meta definida por Dirección';
-  const scheduleHtml=scheduleRows.length?scheduleRows.map(row=>`<li class="profile-schedule-day" aria-label="${esc(`${row.full}, ${fmtTime(row.start)} a ${fmtTime(row.end)}, ${row.mode}`)}"><span class="profile-day-badge" title="${esc(row.full)}">${esc(row.label)}</span><span><b>${esc(fmtTime(row.start))} — ${esc(fmtTime(row.end))}</b><small>${esc(row.mode)}</small></span></li>`).join(''):'<li class="profile-schedule-empty">Sin jornada semanal configurada.</li>';
-  const fact=(label,value,detail='')=>`<div class="profile-field"><small>${esc(label)}</small><b>${esc(value)}</b>${detail?`<em>${esc(detail)}</em>`:''}</div>`;
-  $('profile-fields').innerHTML=`
-    <section class="profile-fact-group profile-fact-main"><div class="profile-field-grid">${fact('DNI',c.dni||'—')}${fact('Área',c.area||'—')}${fact('Vínculo',linkLabel)}</div></section>
-    <section class="profile-fact-group profile-fact-schedule"><header><h3>Jornada habitual</h3><strong>${esc(weeklyHours)} <small>semanales</small></strong></header><div class="profile-field-grid">${fact('Horario general',generalHours)}${fact('Días laborables',workDays.map(day=>dayLabels[day]).join(', ')||'—')}</div><ul class="profile-week-schedule" aria-label="Horario semanal">${scheduleHtml}</ul></section>
-    <section class="profile-fact-group profile-fact-progress"><header><h3>Vínculo y horas</h3></header><div class="profile-field-grid">${fact('Inicio',dates(c.contrato_inicio))}${fact('Referencia',dates(c.contrato_fin_referencia))}${fact('Meta total',goal?formatHours(goal):'—',goal?metaDetail:'Sin meta configurada')}</div><div class="profile-hours-summary"><div><span><small>ACUMULADAS</small><b>${esc(formatHours(hours))}</b></span><span><small>PENDIENTES</small><b>${goal?esc(formatHours(pending)):'—'}</b></span><strong>${goal?Math.round(progress)+'%':'Sin meta'}</strong></div><div class="profile-hours-track" role="progressbar" aria-label="Avance de horas" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progress)}"><i style="width:${progress.toFixed(1)}%"></i></div><p>${APP.historial?'Incluye horas previas y registros del portal.':'Cargando el historial de horas.'}</p></div></section>`;
+  const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?c.contrato_horas+' h':'—'],['Horas previas',Number(c.horas_previas||0)+' h']];
+  $('profile-fields').innerHTML=fields.map(x=>`<div class="profile-field"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
 }
 
 async function loadTeam(){
