@@ -5972,3 +5972,182 @@ input:-webkit-autofill:active {
   from{opacity:.82;filter:blur(4px);transform:translateY(14px)}
   to{opacity:1;filter:none;transform:none}
 }
+
+/* Noche viva: luna legible, reflejo lunar continuo y movimiento de bajo costo. */
+.time-ambience-reflection{
+  position:absolute;
+  z-index:0;
+  top:-16%;
+  bottom:-16%;
+  left:-34%;
+  width:42%;
+  opacity:0;
+  pointer-events:none;
+  background:linear-gradient(108deg,transparent 5%,rgba(210,231,255,.05) 35%,rgba(223,239,255,.28) 50%,rgba(196,221,250,.06) 65%,transparent 95%);
+  filter:blur(26px);
+  transform:translate3d(0,0,0) skewX(-10deg);
+  transition:opacity 900ms ease;
+}
+
+.portal[data-time-phase="night"]{
+  --ambient-shell:#b9c8d8;
+  --ambient-surface:rgba(221,231,241,.89);
+  --ambient-strong:rgba(232,239,246,.94);
+  --ambient-inset:rgba(239,245,250,.69);
+  --banner-light:rgba(202,226,255,.46);
+  --banner-light-opacity:.92;
+  --glass-reflection:rgba(190,219,251,.26);
+  --glass-reflection-dark:rgba(180,214,250,.21);
+  --glass-edge:rgba(239,247,255,.48);
+  --glass-highlight:rgba(245,250,255,.63);
+}
+
+.portal[data-time-phase="night"] .time-ambience{
+  background:linear-gradient(142deg,#aebfd1 0%,#c7d4e0 54%,#b7c7d7 100%);
+}
+
+.portal[data-time-phase="night"] .time-ambience-orb{
+  z-index:1;
+  width:92px;
+  height:92px;
+  background:
+    radial-gradient(circle at 67% 32%,rgba(126,148,175,.2) 0 5%,transparent 6%),
+    radial-gradient(circle at 37% 66%,rgba(119,143,171,.18) 0 7%,transparent 8%),
+    radial-gradient(circle at 31% 28%,#fff 0 10%,#f2f7fd 45%,#cbd9e8 100%);
+  box-shadow:0 10px 30px rgba(69,92,120,.16),0 0 58px 20px rgba(220,237,255,.28),inset -13px -10px 20px rgba(71,94,123,.2);
+  opacity:.78;
+  animation:ambience-moon-float 9s ease-in-out infinite;
+}
+
+.portal[data-time-phase="night"] .time-ambience-orb::after{
+  content:"";
+  position:absolute;
+  inset:-18px;
+  border:1px solid rgba(227,241,255,.22);
+  border-radius:50%;
+  opacity:.7;
+  animation:ambience-moon-halo 5.5s ease-in-out infinite;
+}
+
+.portal[data-time-phase="night"] .time-ambience-haze{
+  top:4%;
+  opacity:.44;
+  background:radial-gradient(ellipse at var(--orb-x) var(--orb-y),rgba(207,229,255,.3),transparent 62%);
+  animation-duration:17s;
+}
+
+.portal[data-time-phase="night"] .time-ambience-reflection{
+  opacity:.62;
+  animation:ambience-moonbeam 18s cubic-bezier(.45,0,.55,1) infinite alternate;
+}
+
+.portal[data-time-phase="night"] #view-inicio > .view-head::before{
+  left:58% !important;
+  top:50% !important;
+  width:clamp(250px,32vw,410px) !important;
+  height:230px !important;
+  animation:ambience-banner-light 7s ease-in-out infinite !important;
+}
+
+.portal[data-time-phase="night"] #view-inicio > .view-head::after{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  left:58% !important;
+  top:50% !important;
+  width:46px !important;
+  height:46px !important;
+  border-radius:50% !important;
+  background:
+    radial-gradient(circle at 68% 31%,rgba(111,137,168,.24) 0 5%,transparent 6%),
+    radial-gradient(circle at 35% 67%,rgba(111,137,168,.2) 0 7%,transparent 8%),
+    radial-gradient(circle at 31% 27%,#fff 0 10%,#eff6fd 48%,#c8d9e9 100%) !important;
+  box-shadow:0 0 24px 9px rgba(214,233,255,.24),inset -7px -5px 10px rgba(69,94,124,.2) !important;
+  opacity:.92 !important;
+  transform:translate(-50%,-50%) !important;
+  pointer-events:none !important;
+  animation:ambience-banner-moon 8s ease-in-out infinite !important;
+}
+
+.portal[data-time-phase="night"] .portal-rail,
+.portal[data-time-phase="night"] .today-layout .day-schedule,
+.portal[data-time-phase="night"] .today-layout .progress-card,
+.portal[data-time-phase="night"] .today-layout .month-card,
+.portal[data-time-phase="night"] .calendar-card,
+.portal[data-time-phase="night"] .profile-identity,
+.portal[data-time-phase="night"] .profile-data{
+  box-shadow:inset 0 1px 0 var(--glass-highlight),inset 18px 0 40px rgba(207,229,255,.08),0 14px 32px rgba(10,31,56,.1);
+}
+
+.portal[data-ambience-paused="true"] .time-ambience-reflection,
+.portal[data-ambience-paused="true"] .time-ambience-orb::after,
+.portal[data-ambience-paused="true"] #view-inicio > .view-head::before,
+.portal[data-ambience-paused="true"] #view-inicio > .view-head::after,
+.portal[data-ambience-paused="true"] .mobile-portal-hero::before{
+  animation-play-state:paused !important;
+}
+
+@keyframes ambience-moon-float{
+  0%,100%{transform:translate(-50%,-50%) translate3d(0,0,0) rotate(-1deg)}
+  50%{transform:translate(-50%,-50%) translate3d(0,-9px,0) rotate(1deg)}
+}
+
+@keyframes ambience-moon-halo{
+  0%,100%{opacity:.38;transform:scale(.94)}
+  50%{opacity:.76;transform:scale(1.06)}
+}
+
+@keyframes ambience-moonbeam{
+  from{transform:translate3d(0,0,0) skewX(-10deg);opacity:.36}
+  to{transform:translate3d(300%,0,0) skewX(-10deg);opacity:.62}
+}
+
+@keyframes ambience-banner-light{
+  0%,100%{scale:.96}
+  50%{scale:1.04}
+}
+
+@keyframes ambience-banner-moon{
+  0%,100%{translate:0 0;rotate:-1deg}
+  50%{translate:0 -3px;rotate:1deg}
+}
+
+@media (max-width:900px){
+  .portal[data-time-phase="night"] .time-ambience-orb{width:70px;height:70px;opacity:.66}
+  .portal[data-time-phase="night"] .time-ambience-reflection{opacity:.36}
+  .portal[data-time-phase="night"] #view-inicio > .view-head::after{width:38px !important;height:38px !important}
+
+  .portal[data-time-phase="night"] .mobile-portal-home{
+    background:linear-gradient(145deg,#062b56 0%,#0a4a82 100%);
+  }
+
+  .portal[data-time-phase="night"] .mobile-portal-hero::before{
+    content:"";
+    position:absolute;
+    z-index:-1;
+    top:88px;
+    right:27px;
+    width:54px;
+    height:54px;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 68% 31%,rgba(97,124,157,.24) 0 5%,transparent 6%),
+      radial-gradient(circle at 35% 67%,rgba(97,124,157,.2) 0 7%,transparent 8%),
+      radial-gradient(circle at 31% 27%,#fff 0 10%,#eef6fd 48%,#c6d8e9 100%);
+    box-shadow:0 0 34px 12px rgba(205,229,255,.2),inset -8px -6px 12px rgba(55,84,119,.22);
+    opacity:.78;
+    animation:ambience-banner-moon 8s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .time-ambience-reflection,
+  .portal[data-time-phase="night"] .time-ambience-orb,
+  .portal[data-time-phase="night"] .time-ambience-orb::after,
+  .portal[data-time-phase="night"] #view-inicio > .view-head::before,
+  .portal[data-time-phase="night"] #view-inicio > .view-head::after,
+  .portal[data-time-phase="night"] .mobile-portal-hero::before{
+    animation:none !important;
+  }
+  .portal[data-time-phase="night"] .time-ambience-reflection{left:34%;opacity:.28;transform:skewX(-10deg)}
+}
