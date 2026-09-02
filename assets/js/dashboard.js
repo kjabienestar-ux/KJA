@@ -497,10 +497,10 @@ async function openPortal(activeSession,bootstrap=null){
   $('mobile-action-team').hidden=!APP.identity.isLeader;
   $('mobile-action-admin').hidden=!APP.access.acceso_panel;
   $('admin-role-chip').textContent=({direccion:'Dirección',editor:'Encargado(a)',visor:'Solo lectura'}[APP.access.rol]||APP.access.rol);
-  $('admin-device-module').hidden=APP.access.rol!=='direccion';
+  const deviceModule=$('admin-device-module'); if(deviceModule)deviceModule.hidden=APP.access.rol!=='direccion';
   $('admin-access-tab').hidden=APP.access.rol!=='direccion';
   const managesRoles=APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel;
-  $('admin-roles-tab').hidden=!managesRoles;$('admin-roles-module').hidden=!managesRoles;
+  $('admin-roles-tab').hidden=!managesRoles; const rolesModule=$('admin-roles-module'); if(rolesModule)rolesModule.hidden=!managesRoles;
   if(c){ renderHome(); renderProfile(); }
   else if(APP.access.acceso_panel){
     $('rail-area').textContent='Vista de Dirección';

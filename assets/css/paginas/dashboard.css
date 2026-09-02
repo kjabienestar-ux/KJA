@@ -6298,3 +6298,150 @@ input:-webkit-autofill:active {
 
 .avatar-crop-modal .mark-sheet { animation: avatar-crop-in .25s ease; }
 @keyframes avatar-crop-in { from { opacity: 0; transform: scale(.95) translateY(12px); } to { opacity: 1; transform: none; } }
+
+/*
+   Rediseño visual del panel de Dirección.
+   Se mantiene separado del shell personal para no alterar sus vistas ni su
+   comportamiento responsive. El shell administrativo queda anclado al
+   viewport y desplaza únicamente la sección activa en escritorio.
+*/
+@media (min-width:901px){
+  .portal.admin-wide{
+    display:block;
+    height:100dvh;
+    min-height:100dvh;
+    overflow:hidden;
+    --admin-ambient-background:linear-gradient(135deg,#c9e2f2 0%,#e5eff5 100%);
+    background:var(--admin-ambient-background);
+  }
+
+  .portal.admin-wide[data-time-phase="dawn"]{
+    --admin-ambient-background:linear-gradient(135deg,#e5edf5 0%,#f1e7e2 100%);
+  }
+
+  .portal.admin-wide[data-time-phase="day"]{
+    --admin-ambient-background:linear-gradient(135deg,#c9e2f2 0%,#e5eff5 100%);
+  }
+
+  .portal.admin-wide[data-time-phase="sunset"]{
+    --admin-ambient-background:linear-gradient(135deg,#e3e7f0 0%,#f1e4df 100%);
+  }
+
+  .portal.admin-wide[data-time-phase="night"]{
+    --admin-ambient-background:linear-gradient(142deg,#aebfd1 0%,#c7d4e0 54%,#b7c7d7 100%);
+  }
+
+  .portal.admin-wide .sidebar{
+    position:fixed!important;
+    z-index:50;
+    inset:16px auto auto 16px!important;
+    width:236px!important;
+    height:calc(100dvh - 32px);
+    min-height:0;
+    margin:0;
+    overflow-y:auto;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:22px;
+  }
+
+  .portal.admin-wide .workspace{
+    height:100dvh;
+    min-height:100dvh;
+    margin-left:268px!important;
+    padding:16px 16px 16px 0!important;
+    overflow:hidden;
+    background:transparent;
+  }
+
+  .portal.admin-wide .time-ambience{
+    background:transparent;
+  }
+
+  .portal.admin-wide .view{
+    width:100%;
+    max-width:none;
+    margin:0;
+  }
+
+  .portal.admin-wide #view-gestion{
+    --admin-gutter:22px;
+    position:fixed!important;
+    z-index:10;
+    inset:16px 16px 16px 268px;
+    width:auto;
+    height:auto;
+    min-height:0;
+    display:grid;
+    grid-template-rows:auto auto minmax(0,1fr);
+    row-gap:16px;
+    padding:0 var(--admin-gutter);
+    overflow:hidden;
+    background:transparent;
+  }
+
+  .portal.admin-wide #view-gestion>.view-head{
+    grid-row:1;
+    margin:0!important;
+    overflow:hidden!important;
+  }
+
+  .portal.admin-wide .admin-head-actions{
+    gap:8px;
+  }
+
+  .portal.admin-wide .admin-role-chip{
+    padding:8px 11px;
+    color:#08765d;
+    background:#e4f7f1;
+  }
+
+  .portal.admin-wide .admin-section-nav{
+    grid-row:2;
+    margin:0;
+  }
+
+  .portal.admin-wide .admin-section-nav button,
+  .portal.admin-wide .admin-section-nav a{
+    min-height:34px;
+    padding-inline:12px;
+    border-radius:9px;
+  }
+
+  .portal.admin-wide .admin-section-nav button.active{
+    color:#fff;
+  }
+
+  .portal.admin-wide #view-gestion>#admin-overview-section,
+  .portal.admin-wide #view-gestion>#admin-list-section,
+  .portal.admin-wide #view-gestion>#admin-month-section,
+  .portal.admin-wide #view-gestion>#admin-summary-section,
+  .portal.admin-wide #view-gestion>#admin-people-section,
+  .portal.admin-wide #view-gestion>#admin-contracts-section,
+  .portal.admin-wide #view-gestion>#admin-roles-section,
+  .portal.admin-wide #view-gestion>#admin-access-section{
+    grid-row:3;
+    min-height:0;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-gutter:stable;
+  }
+
+  .portal.admin-wide #admin-overview-section{
+    padding:18px 0 0;
+  }
+
+  .portal.admin-wide #admin-list-section,
+  .portal.admin-wide #admin-month-section,
+  .portal.admin-wide #admin-summary-section,
+  .portal.admin-wide #admin-people-section,
+  .portal.admin-wide #admin-contracts-section,
+  .portal.admin-wide #admin-roles-section,
+  .portal.admin-wide #admin-access-section{
+    padding:20px 0 0;
+  }
+
+  .portal.admin-wide .admin-kpis{
+    gap:12px;
+    margin-bottom:16px;
+  }
+}
