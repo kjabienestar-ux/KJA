@@ -6166,9 +6166,11 @@ input:-webkit-autofill:active {
 }
 
 .today-layout .day-action-mascot{
-  top:14px;
-  right:6%;
-  width:88%;
+  top:30px;
+  right:auto;
+  left:50%;
+  width:min(94%,500px);
+  transform:translateX(-50%);
 }
 
 .today-layout .day-action-mascot img{
@@ -6218,44 +6220,6 @@ input:-webkit-autofill:active {
   display:none;
 }
 
-@media (min-width:1650px){
-  .today-layout .day-card-grid .day-action{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) minmax(220px,1fr);
-    grid-template-rows:auto auto;
-    align-content:center;
-    column-gap:22px;
-    padding:34px 28px;
-  }
-
-  .today-layout .day-card-grid .day-action::after{
-    background:
-      radial-gradient(circle at 25% 50%,rgba(57,117,183,.2),transparent 38%),
-      linear-gradient(90deg,rgba(7,26,52,0) 0 47%,rgba(7,26,52,.42) 58%,#071a34 72%);
-  }
-
-  .today-layout .day-action-mascot{
-    top:50%;
-    right:auto;
-    left:1.5%;
-    width:50%;
-    transform:translateY(-50%);
-  }
-
-  .today-layout .day-action-copy,
-  .today-layout .day-card-grid .mark-button{
-    grid-column:2;
-  }
-
-  .today-layout .day-action-copy{
-    align-self:end;
-  }
-
-  .today-layout .day-card-grid .mark-button{
-    align-self:start;
-  }
-}
-
 .today-layout .day-card[data-attendance-state="closed"] .mark-button:disabled .mark-button-copy b,
 .today-layout .day-card[data-attendance-state="off"] .mark-button:disabled .mark-button-copy b{
   overflow:visible;
@@ -6266,5 +6230,5 @@ input:-webkit-autofill:active {
 
 @media (max-width:650px){
   .today-layout .day-card-grid .day-action{padding-top:182px}
-  .today-layout .day-action-mascot{top:10px;right:3%;width:94%}
+  .today-layout .day-action-mascot{top:10px;right:auto;left:50%;width:94%;transform:translateX(-50%)}
 }
