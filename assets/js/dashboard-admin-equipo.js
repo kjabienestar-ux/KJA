@@ -2,6 +2,7 @@
 const ADMIN_DAYS=[['Lun',1],['Mar',2],['Mié',3],['Jue',4],['Vie',5],['Sáb',6],['Dom',7]];
 const ADMIN_MODES={virtual:['Virtual','Virt'],presencial:['Presencial','Pres'],opcional:['Opcional','Opc'],no_gestiona:['No gestiona','—']};
 const ADMIN_LINKS={practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Mixto'};
+let ADMIN_DAYS_OFF={person:null,busy:false,trigger:null};
 
 function teamMsg(text){
   const el=$(APP.adminSection==='contratos'?'admin-contract-message':'admin-team-message');
@@ -28,7 +29,10 @@ async function loadAdminTeam(){
   btn.disabled=true;teamMsg('');
   const target=APP.adminSection==='contratos'?'admin-contract-list':'admin-people-list';
   $(target).innerHTML='<p class="admin-empty">Cargando información del equipo…</p>';
-  const {data,error}=await db.rpc('dash_admin_equipo',{p_incluir_inactivos:true});
+  const [{data,error},{data:balancesData}]=await Promise.all([
+    db.rpc('dash_admin_equipo',{p_incluir_inactivos:true}),
+    APP.access.rol==='direccion'?db.rpc('dash_admin_saldos_dias_libres'):Promise.resolve({data:null,error:null})
+  ]);
   if(request!==APP.adminTeamRequest)return;
   btn.disabled=false;
   if(error||!data?.ok){
@@ -38,6 +42,10 @@ async function loadAdminTeam(){
     $(target).innerHTML='<p class="admin-empty">La información del equipo no está disponible.</p>';
     return;
   }
+  const balances=new Map((balancesData?.ok?balancesData.saldos||[]:[]).map(item=>[String(item.id),Number(item.saldo)||0]));
+  data.personas=(data.personas||[]).map(person=>({...person,dias_libres_saldo:balances.has(String(person.id))?balances.get(String(person.id)):null}));
+  data.personas=await hydrateProfilePhotos(data.personas);
+  if(request!==APP.adminTeamRequest)return;
   APP.adminTeam=data;
   fillAdminTeamFilters();
   $('admin-new-person').hidden=!data.puede_editar;
@@ -80,8 +88,9 @@ function renderAdminPeople(){
       const days=ADMIN_DAYS.map(([label,dow])=>{const mode=adminMode(p,dow),day=(p.horario_semanal||{})[String(dow)]||{},time=mode==='no_gestiona'?'':`${fmtTime(day.ini||p.hora_inicio)}–${fmtTime(day.fin||p.hora_fin)}`;return `<span class="admin-day-chip ${mode}"><b>${label}</b><i>${ADMIN_MODES[mode]?.[1]||'—'}</i><small>${esc(time)}</small></span>`}).join('');
       const summary=p.resumen||{},pct=summary.meta>0?Math.min(100,Math.round(Number(summary.cumplidas||0)/Number(summary.meta)*100)):0;
       const contract=summary.pendiente?'Contrato por confirmar':summary.meta>0?`${adminHours(summary.cumplidas)} de ${adminHours(summary.meta)} · ${pct}%`:'Contrato sin meta';
+      const daysOff=APP.access.rol==='direccion'?`<button type="button" class="days-off" data-team-days-off="${p.id}" aria-label="Gestionar días libres de ${esc(p.nombre)}">Días libres${p.dias_libres_saldo==null?'':` · ${p.dias_libres_saldo}`}</button>`:'';
       html+=`<article class="admin-person-card ${p.activo?'':'inactive'}">
-        <div class="admin-person-card-head"><span class="avatar">${initials(p.nombre)}</span><span><b>${esc(p.nombre)}</b><small>${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)} · ${p.activo?'Activo':'Dado de baja'}</small></span><div>${canEdit?`<button type="button" data-team-edit="${p.id}" aria-label="Editar ${esc(p.nombre)}">Editar</button><button type="button" class="${p.activo?'danger':''}" data-team-status="${p.id}" data-next-active="${!p.activo}">${p.activo?'Dar de baja':'Reactivar'}</button>`:''}</div></div>
+        <div class="admin-person-card-head">${profileAvatarMarkup(p)}<span><b>${esc(p.nombre)}</b><small>${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)} · ${p.activo?'Activo':'Dado de baja'}</small></span><div>${daysOff}${canEdit?`<button type="button" data-team-edit="${p.id}" aria-label="Editar ${esc(p.nombre)}">Editar</button><button type="button" class="${p.activo?'danger':''}" data-team-status="${p.id}" data-next-active="${!p.activo}">${p.activo?'Dar de baja':'Reactivar'}</button>`:''}</div></div>
         <div class="admin-identity-line"><span>DNI <b>${esc(p.dni||'Sin registrar')}</b></span><span class="${p.tiene_pin?'ready':'missing'}">${p.tiene_pin?'PIN configurado':'Sin PIN'}</span><span>${p.tiene_cuenta?'Portal activado':'Aún no ingresó'}</span></div>
         <div class="admin-week-ledger">${days}</div>
         <div class="admin-person-contract ${summary.pendiente?'pending':''}"><span><small>SEGUIMIENTO</small><b>${esc(contract)}</b></span><i style="--contract-progress:${pct}%"></i></div>
@@ -112,7 +121,7 @@ function renderAdminContracts(){
     const alerts=(r.alertas||[]).slice(0,2).map(x=>`<small>${esc(x)}</small>`).join('');
     const vol=r.voluntariado?`<div class="admin-vol-progress"><span>Voluntariado</span><b>${adminHours(r.voluntariado.cumplidas)} / ${adminHours(r.voluntariado.meta)}</b></div>`:'';
     html+=`<article class="admin-contract-row ${p.activo?'':'inactive'}">
-      <span class="admin-contract-person"><i class="avatar">${initials(p.nombre)}</i><span><b>${esc(p.nombre)}</b><small>${esc(p.area||'Sin área')} · ${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)}</small></span></span>
+      <span class="admin-contract-person">${profileAvatarMarkup(p,'i')}<span><b>${esc(p.nombre)}</b><small>${esc(p.area||'Sin área')} · ${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)}</small></span></span>
       <span class="admin-contract-progress"><span><b>${adminHours(done)} / ${adminHours(meta||null)}</b><small>${pct}% completado</small></span><i><u style="width:${pct}%"></u></i>${vol}</span>
       <span class="admin-contract-week"><b>${adminHours(r.semana_horas)}</b><small>por semana</small></span>
       <span class="admin-contract-date"><b>${esc(projected)}</b><small>${p.contrato_fin_referencia?'Documento: '+adminDate(p.contrato_fin_referencia):'Sin fecha de referencia'}</small></span>
@@ -237,11 +246,68 @@ async function changeAdminPersonStatus(id,next){
   await loadAdminTeam();toast(next?'Colaborador reactivado.':'Colaborador dado de baja; su historial se conserva.');
 }
 
+function daysOffMessage(text,bad=false){
+  const element=$('admin-days-off-message');element.textContent=text||'';element.classList.toggle('bad',!!text&&bad);
+}
+function syncDaysOffMode(mode='add'){
+  const value=mode==='remove'?'remove':'add';$('admin-days-off-mode').value=value;
+  document.querySelectorAll('[data-days-off-mode]').forEach(button=>{
+    const selected=button.dataset.daysOffMode===value;button.setAttribute('aria-checked',String(selected));button.tabIndex=selected?0:-1;
+  });
+  $('admin-days-off-save').textContent=value==='add'?'Agregar días':'Descontar días';
+}
+function renderDaysOffHistory(items=[]){
+  $('admin-days-off-history').innerHTML=items.length?items.slice(0,12).map(item=>{
+    const amount=Number(item.cantidad)||0,date=new Date(item.creado_at).toLocaleString('es-PE',{dateStyle:'medium',timeStyle:'short',timeZone:'America/Lima'});
+    return `<article><b class="${amount>0?'plus':'minus'}">${amount>0?'+':''}${amount}</b><span><strong>${esc(item.motivo)}</strong><small>${esc(item.actor||'Dirección')} · ${esc(date)}</small></span><em>${item.saldo_anterior} → ${item.saldo_resultante}</em></article>`;
+  }).join(''):'<p class="empty">Todavía no hay movimientos para esta persona.</p>';
+}
+async function openAdminDaysOff(id,trigger=null){
+  if(APP.access.rol!=='direccion')return teamMsg('Solo Dirección puede gestionar días libres.');
+  const person=(APP.adminTeam?.personas||[]).find(item=>String(item.id)===String(id));if(!person)return;
+  ADMIN_DAYS_OFF={person,busy:false,trigger:trigger||document.activeElement};
+  $('admin-days-off-person-id').value=person.id;$('admin-days-off-person').textContent=`${person.nombre} · ${person.area||'Sin área'}`;
+  $('admin-days-off-balance').textContent=person.dias_libres_saldo??'—';$('admin-days-off-amount').value='1';$('admin-days-off-reason').value='';
+  paintPersonAvatar($('admin-days-off-avatar'),person);syncDaysOffMode('add');daysOffMessage('');
+  $('admin-days-off-history').innerHTML='<p class="empty">Cargando movimientos…</p>';$('admin-days-off-modal').hidden=false;document.body.style.overflow='hidden';
+  const {data,error}=await db.rpc('dash_admin_dias_libres',{p_colab:Number(person.id)});
+  if(ADMIN_DAYS_OFF.person!==person)return;
+  if(error||!data?.ok){
+    const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_dias_libres'));
+    daysOffMessage(missing?'Falta instalar la migración de días libres en Supabase.':'No se pudo cargar el saldo. Actualiza e inténtalo nuevamente.',true);
+    $('admin-days-off-save').disabled=true;renderDaysOffHistory([]);return;
+  }
+  person.dias_libres_saldo=Number(data.persona?.saldo)||0;$('admin-days-off-balance').textContent=person.dias_libres_saldo;
+  $('admin-days-off-save').disabled=false;renderDaysOffHistory(data.movimientos||[]);setTimeout(()=>$('admin-days-off-amount').focus(),20);
+}
+function closeAdminDaysOff(){
+  if(ADMIN_DAYS_OFF.busy)return;
+  $('admin-days-off-modal').hidden=true;document.body.style.overflow='';daysOffMessage('');
+  const trigger=ADMIN_DAYS_OFF.trigger;ADMIN_DAYS_OFF={person:null,busy:false,trigger:null};if(trigger?.isConnected)setTimeout(()=>trigger.focus(),0);
+}
+async function saveAdminDaysOff(event){
+  event.preventDefault();if(ADMIN_DAYS_OFF.busy||!ADMIN_DAYS_OFF.person)return;
+  const amount=Number($('admin-days-off-amount').value),reason=$('admin-days-off-reason').value.trim(),mode=$('admin-days-off-mode').value;
+  if(!Number.isInteger(amount)||amount<1||amount>30)return daysOffMessage('Ingresa una cantidad entre 1 y 30 días.',true);
+  if(reason.length<3)return daysOffMessage('Escribe un motivo breve para dejar constancia.',true);
+  const signed=mode==='remove'?-amount:amount,button=$('admin-days-off-save');ADMIN_DAYS_OFF.busy=true;button.disabled=true;button.textContent='Guardando…';daysOffMessage('Guardando el movimiento…');
+  const {data,error}=await db.rpc('dash_admin_ajustar_dias_libres',{p_colab:Number(ADMIN_DAYS_OFF.person.id),p_cantidad:signed,p_motivo:reason});
+  ADMIN_DAYS_OFF.busy=false;button.disabled=false;syncDaysOffMode(mode);
+  if(error||!data?.ok){
+    const messages={cantidad:'La cantidad debe estar entre 1 y 30.',detalle:'Escribe un motivo de 3 a 180 caracteres.',saldo_insuficiente:'No puedes descontar más días que el saldo disponible.',saldo_maximo:'El saldo no puede superar 365 días.',sin_permiso:'Solo Dirección puede realizar este cambio.'};
+    return daysOffMessage(messages[data?.motivo]||'No se pudo guardar el movimiento.',true);
+  }
+  ADMIN_DAYS_OFF.person.dias_libres_saldo=Number(data.saldo)||0;$('admin-days-off-balance').textContent=ADMIN_DAYS_OFF.person.dias_libres_saldo;
+  $('admin-days-off-amount').value='1';$('admin-days-off-reason').value='';renderAdminPeople();toast(mode==='add'?'Días libres agregados.':'Saldo de días libres corregido.');
+  const refreshed=await db.rpc('dash_admin_dias_libres',{p_colab:Number(ADMIN_DAYS_OFF.person.id)});if(refreshed.data?.ok)renderDaysOffHistory(refreshed.data.movimientos||[]);
+  daysOffMessage('Movimiento guardado.');
+}
+
 ['admin-people-search','admin-contract-search'].forEach(id=>$(id).addEventListener('input',()=>id.includes('contract')?renderAdminContracts():renderAdminPeople()));
 ['admin-people-area','admin-people-inactive'].forEach(id=>$(id).addEventListener('change',renderAdminPeople));
 ['admin-contract-area','admin-contract-inactive','admin-contract-pending'].forEach(id=>$(id).addEventListener('change',renderAdminContracts));
 $('admin-new-person').onclick=()=>openAdminPerson();
-$('admin-people-list').onclick=e=>{const edit=e.target.closest('[data-team-edit]'),status=e.target.closest('[data-team-status]');if(edit)return openAdminPerson(edit.dataset.teamEdit);if(status)return changeAdminPersonStatus(status.dataset.teamStatus,status.dataset.nextActive==='true')};
+$('admin-people-list').onclick=e=>{const days=e.target.closest('[data-team-days-off]'),edit=e.target.closest('[data-team-edit]'),status=e.target.closest('[data-team-status]');if(days)return openAdminDaysOff(days.dataset.teamDaysOff,days);if(edit)return openAdminPerson(edit.dataset.teamEdit);if(status)return changeAdminPersonStatus(status.dataset.teamStatus,status.dataset.nextActive==='true')};
 $('admin-contract-list').onclick=e=>{const edit=e.target.closest('[data-team-edit]');if(edit)openAdminPerson(edit.dataset.teamEdit)};
 document.querySelectorAll('[data-close-person]').forEach(x=>x.onclick=closeAdminPerson);
 $('admin-person-form').addEventListener('submit',saveAdminPerson);
@@ -251,4 +317,13 @@ $('admin-contract-is-pending').addEventListener('change',updateAdminEditorCondit
 $('admin-schedule-grid').addEventListener('change',e=>{if(e.target.classList.contains('schedule-mode'))updateAdminEditorConditions()});
 $('admin-area-reveal').onclick=()=>{$('admin-area-create').hidden=!$('admin-area-create').hidden;if(!$('admin-area-create').hidden)$('admin-area-name').focus()};
 $('admin-area-save').onclick=createAdminArea;
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('admin-person-modal').hidden)closeAdminPerson()});
+document.querySelectorAll('[data-close-days-off]').forEach(button=>button.onclick=closeAdminDaysOff);
+document.querySelectorAll('[data-days-off-mode]').forEach(button=>{
+  button.onclick=()=>syncDaysOffMode(button.dataset.daysOffMode);
+  button.onkeydown=event=>{
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;event.preventDefault();
+    const mode=['ArrowRight','ArrowDown'].includes(event.key)?'remove':'add';syncDaysOffMode(mode);document.querySelector(`[data-days-off-mode="${mode}"]`).focus();
+  };
+});
+$('admin-days-off-form').addEventListener('submit',saveAdminDaysOff);
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('admin-days-off-modal').hidden)return closeAdminDaysOff();if(!$('admin-person-modal').hidden)closeAdminPerson()});

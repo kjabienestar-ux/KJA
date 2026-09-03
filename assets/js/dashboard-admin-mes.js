@@ -59,6 +59,8 @@ async function loadAdminMonth(force=false){
     monthMessage(missing?'La fase 4 todavía no está instalada en Supabase. Ejecuta dashboard_07_admin_mes.sql.':'No se pudo cargar el mes. Actualiza e inténtalo nuevamente.');
     $(target).innerHTML='<p class="admin-empty">La información mensual no está disponible.</p>';return;
   }
+  data.personas=await hydrateProfilePhotos(data.personas||[]);
+  if(request!==APP.adminMonthRequest)return;
   APP.adminMonth=data;APP.adminMonthKey=key;fillMonthFilters();renderAdminMonthViews();
 }
 
@@ -92,7 +94,7 @@ function renderAdminMonthLedger(){
   let currentArea='';
   for(const person of people){
     if(person.area!==currentArea){currentArea=person.area;html+=`<tr class="admin-month-area-row"><td colspan="${sample.length+1}"><i></i><b>${esc(currentArea||'Sin área')}</b><span>${people.filter(x=>x.area===currentArea).length}</span></td></tr>`}
-    html+=`<tr><th class="person-col"><span class="avatar">${initials(person.nombre)}</span><span><b>${esc(person.nombre)}</b><small>${person.activo?'Activo':'Dado de baja'}</small></span></th>`;
+    html+=`<tr><th class="person-col">${profileAvatarMarkup(person)}<span><b>${esc(person.nombre)}</b><small>${person.activo?'Activo':'Dado de baja'}</small></span></th>`;
     for(const day of person.dias||[]){
       const content=day.estado||(!day.laborable?'—':'·'),detail=`${person.nombre} · ${day.fecha} · ${day.estado?statusText(day.estado):day.laborable?'Sin registro':day.motivo}`;
       html+=`<td><button type="button" class="${monthCellClass(day)}" data-month-person="${person.id}" data-month-date="${day.fecha}" aria-label="${esc(detail)}"><b>${content}</b>${day.nota?'<i class="note"></i>':''}${day.evidencia?'<i class="camera"></i>':''}</button></td>`;
@@ -116,7 +118,7 @@ function renderAdminMonthSummary(){
   for(const person of people){
     const r=person.resumen||{},pct=r.porcentaje==null?null:Number(r.porcentaje),bar=pct==null?0:pct;
     html+=`<article class="admin-summary-row ${person.activo?'':'inactive'}">
-      <span class="admin-summary-person"><i class="avatar">${initials(person.nombre)}</i><span><b>${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')} · ${person.activo?'Activo':'Dado de baja'}</small></span></span>
+      <span class="admin-summary-person">${profileAvatarMarkup(person,'i')}<span><b>${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')} · ${person.activo?'Activo':'Dado de baja'}</small></span></span>
       <span class="admin-summary-states"><i class="p">P <b>${r.P||0}</b></i><i class="t">T <b>${r.T||0}</b></i><i class="j">J <b>${r.J||0}</b></i><i class="ng">NG <b>${r.NG||0}</b></i></span>
       <span><b>${r.programados||0}</b><small>${r.programados_transcurridos||0} transcurridos</small></span>
       <span class="${Number(r.pendientes)>0?'needs-review':''}"><b>${r.pendientes||0}</b><small>a la fecha</small></span>

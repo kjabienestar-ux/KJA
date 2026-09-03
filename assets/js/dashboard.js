@@ -9,7 +9,12 @@ const REQUEST_BUCKET = 'solicitud-evidencias';
 const PROFILE_MAX_SOURCE = 3 * 1024 * 1024;
 const PROFILE_MAX_STORED = 480 * 1024;
 const PROFILE_AVATAR_IDS = ['side-avatar','mobile-avatar','rail-avatar','mobile-home-avatar','profile-avatar'];
+const PROFILE_SIGNED_CACHE = new Map();
 const MARK_PROTOCOL = 20260902;
+const WEATHER_CACHE_KEY = 'kja-dashboard-weather';
+const AMBIENCE_MODE_KEY = 'kja-dashboard-ambience-mode';
+const WEATHER_REFRESH_MS = 30 * 60 * 1000;
+const WEATHER_DEFAULT_COORDS = {lat:-12.0464,lon:-77.0428};
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
   auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:false, storageKey:AUTH_KEY }
 });
@@ -28,8 +33,11 @@ const dayNames = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','S�
 const shortDays = ['D','L','M','M','J','V','S'];
 
 let AMBIENCE_TIMER = null;
-let AMBIENCE_PREVIEW_DAY = false;
-let PERSONAL_REQUEST = {file:null,previewUrl:'',busy:false};
+let AMBIENCE_WEATHER_TIMER = null;
+let AMBIENCE_OVERRIDE = null;
+let AMBIENCE_WEATHER = {kind:'partly-cloudy',label:'Clima local',temperature:null,cloudCover:45,windSpeed:8};
+let PERSONAL_REQUEST = {file:null,previewUrl:'',busy:false,trigger:null};
+let REQUEST_CALENDAR = {targetId:'',trigger:null,year:0,month:0};
 let ATTENDANCE_DAY_TRIGGER = null;
 let ATTENDANCE_EVIDENCE_TRIGGER = null;
 let ATTENDANCE_DAY_EVIDENCES = [];
@@ -40,16 +48,80 @@ function limaClock(){
   return {value:hour+(minute/60)};
 }
 
+function classifyAmbienceWeather(current={}){
+  const code=Number(current.weather_code??0),cloud=Math.max(0,Math.min(100,Number(current.cloud_cover??0)));
+  if(code>=95)return 'storm';
+  if((code>=51&&code<=67)||(code>=80&&code<=82)||(code>=71&&code<=77)||(code>=85&&code<=86))return 'rain';
+  if(code===45||code===48)return 'fog';
+  if(code===3||cloud>=78)return 'cloudy';
+  if(code===1||code===2||cloud>=24)return 'partly-cloudy';
+  return 'clear';
+}
+
+function ambienceWeatherLabel(kind){
+  return {clear:'Despejado','partly-cloudy':'Parcialmente nublado',cloudy:'Nublado',fog:'Neblina',rain:'Lluvia',storm:'Tormenta'}[kind]||'Clima local';
+}
+
+function applyWeatherAmbience(current={}){
+  const portal=$('portal');if(!portal)return;
+  const kind=classifyAmbienceWeather(current),cloudCover=Math.max(0,Math.min(100,Number(current.cloud_cover??45))),windSpeed=Math.max(0,Number(current.wind_speed_10m??8));
+  const temperature=Number.isFinite(Number(current.temperature_2m))?Math.round(Number(current.temperature_2m)):null;
+  AMBIENCE_WEATHER={kind,label:ambienceWeatherLabel(kind),temperature,cloudCover,windSpeed};
+  portal.dataset.weather=kind;
+  portal.style.setProperty('--weather-cloud-cover',(cloudCover/100).toFixed(2));
+  portal.style.setProperty('--weather-cloud-opacity',Math.min(.82,.08+(cloudCover/100)*.74).toFixed(2));
+  portal.style.setProperty('--weather-cloud-duration',`${Math.max(16,Math.min(42,38-(windSpeed*.65))).toFixed(1)}s`);
+  const label=$('weather-label');if(label)label.textContent=`${AMBIENCE_WEATHER.label}${temperature===null?'':` · ${temperature}°`}`;
+  const chip=$('weather-chip');if(chip){const source=`${AMBIENCE_WEATHER.label}${temperature===null?'':`, ${temperature} °C`}. Datos meteorológicos de Open-Meteo.`;chip.setAttribute('aria-label',source);chip.title=source}
+  paintTimeAmbience();
+}
+
+function weatherPosition(){
+  return new Promise(resolve=>{
+    if(!navigator.geolocation)return resolve(WEATHER_DEFAULT_COORDS);
+    navigator.geolocation.getCurrentPosition(
+      position=>resolve({lat:+position.coords.latitude.toFixed(4),lon:+position.coords.longitude.toFixed(4)}),
+      ()=>resolve(WEATHER_DEFAULT_COORDS),
+      {enableHighAccuracy:false,timeout:5000,maximumAge:WEATHER_REFRESH_MS}
+    );
+  });
+}
+
+async function weatherCoordinates(){
+  try{
+    if(!navigator.permissions||!navigator.geolocation)return WEATHER_DEFAULT_COORDS;
+    const permission=await navigator.permissions.query({name:'geolocation'});
+    return permission.state==='granted'?await weatherPosition():WEATHER_DEFAULT_COORDS;
+  }catch{return WEATHER_DEFAULT_COORDS}
+}
+
+async function loadWeatherAmbience(){
+  try{
+    const cached=JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY)||'null');
+    if(cached?.current)applyWeatherAmbience(cached.current);
+    if(cached?.savedAt&&Date.now()-cached.savedAt<WEATHER_REFRESH_MS)return;
+  }catch{}
+  try{
+    const coords=await weatherCoordinates(),controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+    const params=new URLSearchParams({latitude:String(coords.lat),longitude:String(coords.lon),current:'temperature_2m,weather_code,cloud_cover,precipitation,is_day,wind_speed_10m',timezone:'auto',forecast_days:'1'});
+    const response=await fetch(`https://api.open-meteo.com/v1/forecast?${params}`,{signal:controller.signal});clearTimeout(timeout);
+    if(!response.ok)throw new Error('weather');
+    const data=await response.json();if(!data?.current)throw new Error('weather');
+    applyWeatherAmbience(data.current);
+    try{localStorage.setItem(WEATHER_CACHE_KEY,JSON.stringify({savedAt:Date.now(),current:data.current}))}catch{}
+  }catch{/* El ambiente horario sigue funcionando si el clima no está disponible. */}
+}
+
 function paintTimeAmbience(){
   const portal=$('portal'),ambience=$('time-ambience');if(!portal||!ambience)return;
-  const live=limaClock(),value=AMBIENCE_PREVIEW_DAY?12:live.value;
+  const live=limaClock(),value=AMBIENCE_OVERRIDE==='day'?12:AMBIENCE_OVERRIDE==='night'?23:live.value;
   const daylight=value>=5&&value<19;
   const progress=daylight?(value-5)/14:((value>=19?value-19:value+5)/10);
   const x=8+(progress*84);
   const y=76-(Math.sin(Math.PI*progress)*56);
   const phase=value>=5&&value<8?'dawn':value>=8&&value<16?'day':value>=16&&value<19?'sunset':'night';
   portal.dataset.timePhase=phase;
-  portal.dataset.timePreview=AMBIENCE_PREVIEW_DAY?'day':'auto';
+  portal.dataset.timePreview=AMBIENCE_OVERRIDE||'auto';
   const person=APP?.inicio?.colaborador;
   if(person&&$('welcome')){
     const greeting=value<12?'Buenos días':value<19?'Buenas tardes':'Buenas noches';
@@ -62,25 +134,33 @@ function paintTimeAmbience(){
   ambience.style.setProperty('--orb-y',`${y.toFixed(2)}%`);
   const preview=$('time-preview-switch');
   if(preview){
-    preview.setAttribute('aria-checked',String(AMBIENCE_PREVIEW_DAY));
-    preview.setAttribute('aria-label',AMBIENCE_PREVIEW_DAY?'Volver al ambiente automático':'Probar ambiente de día');
-    preview.title=AMBIENCE_PREVIEW_DAY?'Volver al horario automático':'Probar ambiente de día';
-    const label=preview.querySelector('.time-preview-label');if(label)label.textContent=AMBIENCE_PREVIEW_DAY?'Viendo día':'Probar día';
+    const night=phase==='night',action=night?'Cambiar a modo día':'Cambiar a modo noche';
+    preview.setAttribute('aria-checked',String(night));
+    preview.setAttribute('aria-label',action);
+    preview.title=`${action} · ${AMBIENCE_WEATHER.label}`;
+    const label=preview.querySelector('.time-preview-label');if(label)label.textContent=night?'Modo noche':'Modo día';
   }
 }
 
 function startTimeAmbience(){
+  try{const saved=localStorage.getItem(AMBIENCE_MODE_KEY);AMBIENCE_OVERRIDE=saved==='day'||saved==='night'?saved:null}catch{}
   const schedule=()=>{paintTimeAmbience();clearInterval(AMBIENCE_TIMER);AMBIENCE_TIMER=setInterval(paintTimeAmbience,60000)};
   schedule();
+  loadWeatherAmbience();
+  clearInterval(AMBIENCE_WEATHER_TIMER);AMBIENCE_WEATHER_TIMER=setInterval(loadWeatherAmbience,WEATHER_REFRESH_MS);
   const preview=$('time-preview-switch');
-  if(preview)preview.addEventListener('click',()=>{AMBIENCE_PREVIEW_DAY=!AMBIENCE_PREVIEW_DAY;paintTimeAmbience()});
+  if(preview)preview.addEventListener('click',()=>{
+    AMBIENCE_OVERRIDE=$('portal')?.dataset.timePhase==='night'?'day':'night';
+    try{localStorage.setItem(AMBIENCE_MODE_KEY,AMBIENCE_OVERRIDE)}catch{}
+    paintTimeAmbience();
+  });
   document.addEventListener('visibilitychange',()=>{
     const portal=$('portal');if(portal)portal.dataset.ambiencePaused=String(document.hidden);
-    if(document.hidden){clearInterval(AMBIENCE_TIMER);AMBIENCE_TIMER=null}else schedule();
+    if(document.hidden){clearInterval(AMBIENCE_TIMER);clearInterval(AMBIENCE_WEATHER_TIMER);AMBIENCE_TIMER=null;AMBIENCE_WEATHER_TIMER=null}else{schedule();loadWeatherAmbience();AMBIENCE_WEATHER_TIMER=setInterval(loadWeatherAmbience,WEATHER_REFRESH_MS)};
   });
 }
 
-let APP = { inicio:null, historial:null, personalRequests:[], teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0 };
+let APP = { inicio:null, historial:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0 };
 let EVIDENCE = null;
 let MARK_BUSY = false;
 let MARK_SYNC_PROMISE = null;
@@ -117,6 +197,58 @@ function paintProfilePhoto(url=''){
   const mobileEdit=$('mobile-home-photo');
   if(mobileEdit){const label=hasPhoto?'Cambiar foto de perfil':'Subir foto de perfil';mobileEdit.setAttribute('aria-label',label);mobileEdit.title=label}
 }
+
+async function hydrateProfilePhotos(people=[]){
+  if(!Array.isArray(people)||!people.length)return people||[];
+  const ids=[...new Set(people.map(person=>Number(person?.id)).filter(Number.isFinite))];
+  if(!ids.length)return people;
+  let metadata=people;
+  if(people.some(person=>!Object.prototype.hasOwnProperty.call(person,'foto_path'))){
+    const {data,error}=await db.from('asis_colaboradores').select('id,foto_path,foto_actualizada_at').in('id',ids);
+    if(!error){
+      const byId=new Map((data||[]).map(item=>[String(item.id),item]));
+      metadata=people.map(person=>({...person,...(byId.get(String(person.id))||{})}));
+    }
+  }
+  const now=Date.now(),pending=[],seen=new Set();
+  metadata.forEach(person=>{
+    const path=String(person.foto_path||''),version=String(person.foto_actualizada_at||''),key=`${path}|${version}`;
+    if(!path||seen.has(key))return;
+    seen.add(key);
+    const cached=PROFILE_SIGNED_CACHE.get(key);
+    if(!cached||cached.expiresAt<=now)pending.push({path,key,version});
+  });
+  if(pending.length){
+    try{
+      const {data,error}=await db.storage.from(PROFILE_BUCKET).createSignedUrls(pending.map(item=>item.path),3600);
+      if(!error)(data||[]).forEach((signed,index)=>{
+        if(!signed?.signedUrl||!pending[index])return;
+        const item=pending[index],separator=signed.signedUrl.includes('?')?'&':'?';
+        PROFILE_SIGNED_CACHE.set(item.key,{url:`${signed.signedUrl}${separator}v=${encodeURIComponent(item.version||now)}`,expiresAt:now+50*60*1000});
+      });
+    }catch(error){}
+  }
+  return metadata.map(person=>{
+    const key=`${String(person.foto_path||'')}|${String(person.foto_actualizada_at||'')}`;
+    return {...person,foto_url:PROFILE_SIGNED_CACHE.get(key)?.url||''};
+  });
+}
+
+function profileAvatarMarkup(person,tag='span'){
+  const safeTag=tag==='i'?'i':'span',url=String(person?.foto_url||'');
+  return `<${safeTag} class="avatar${url?' has-photo':''}" aria-hidden="true">${initials(person?.nombre)}${url?`<img data-profile-photo src="${esc(url)}" alt="" loading="lazy" decoding="async">`:''}</${safeTag}>`;
+}
+
+function paintPersonAvatar(element,person){
+  if(!element)return;
+  const url=String(person?.foto_url||'');element.textContent=initials(person?.nombre);element.classList.toggle('has-photo',!!url);
+  if(url)element.style.backgroundImage=`url("${url.replace(/["\\]/g,'\\$&')}")`;else element.style.removeProperty('background-image');
+}
+document.addEventListener('error',event=>{
+  const image=event.target;
+  if(!(image instanceof HTMLImageElement)||!image.matches('[data-profile-photo]'))return;
+  image.parentElement?.classList.remove('has-photo');image.remove();
+},true);
 function setProfilePhotoBusy(on){
   APP.avatar.busy=on;
   ['profile-photo-camera','profile-photo-change','profile-photo-remove','mobile-home-photo'].forEach(id=>{const el=$(id);if(el)el.disabled=on});
@@ -889,9 +1021,119 @@ function personalRequestLabel(type){return ({justificacion:'Justificación',dia_
 function personalRequestMessage(text,type=''){const el=$('personal-request-message');el.textContent=text||'';el.className='personal-request-message'+(type?' '+type:'')}
 function formatRequestDate(value){return value?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(value+'T12:00:00')):'—'}
 
+function requestDateParts(value){
+  const parts=String(value||'').split('-').map(Number);
+  return parts.length===3&&parts.every(Number.isFinite)?{year:parts[0],month:parts[1],day:parts[2]}:null;
+}
+
+function requestIsoDate(year,month,day){return `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`}
+
+function requestDateLabel(value){
+  if(!value)return 'Seleccionar fecha';
+  const text=new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(value+'T12:00:00'));
+  return text.charAt(0).toUpperCase()+text.slice(1).replace('.', '');
+}
+
+function syncRequestDateButtons(){
+  document.querySelectorAll('[data-request-date]').forEach(button=>{
+    const input=$(button.dataset.requestDate),label=button.querySelector('[data-request-date-label]');
+    if(input&&label)label.textContent=requestDateLabel(input.value);
+  });
+}
+
+function syncRequestKindButtons(value=$('personal-request-kind-value').value){
+  $('personal-request-kind-value').value=value;
+  document.querySelectorAll('[data-request-kind]').forEach(button=>{
+    const selected=button.dataset.requestKind===value;
+    button.setAttribute('aria-checked',String(selected));button.tabIndex=selected?0:-1;
+  });
+}
+
+function requestMonthAllowed(year,month,direction){
+  const input=$(REQUEST_CALENDAR.targetId);
+  if(!input)return false;
+  const first=requestIsoDate(year,month,1),last=requestIsoDate(year,month,new Date(year,month,0).getDate());
+  return direction<0?(!input.min||last>=input.min):(!input.max||first<=input.max);
+}
+
+function renderRequestCalendar(){
+  const input=$(REQUEST_CALENDAR.targetId);
+  if(!input)return;
+  const {year,month}=REQUEST_CALENDAR,selected=input.value,today=isoLima();
+  $('request-calendar-title').textContent=`${monthNames[month-1]} ${year}`;
+  $('request-calendar-prev').disabled=!requestMonthAllowed(month===1?year-1:year,month===1?12:month-1,-1);
+  $('request-calendar-next').disabled=!requestMonthAllowed(month===12?year+1:year,month===12?1:month+1,1);
+  const offset=(new Date(year,month-1,1).getDay()+6)%7,days=new Date(year,month,0).getDate();
+  let html='<span aria-hidden="true"></span>'.repeat(offset);
+  for(let day=1;day<=days;day++){
+    const value=requestIsoDate(year,month,day),disabled=(input.min&&value<input.min)||(input.max&&value>input.max);
+    const classes=[value===today?'today':'',value===selected?'selected':''].filter(Boolean).join(' ');
+    html+=`<button type="button" class="${classes}" data-request-calendar-date="${value}" ${disabled?'disabled':''} aria-label="${esc(requestDateLabel(value))}" ${value===selected?'aria-pressed="true"':''}>${day}</button>`;
+  }
+  $('request-calendar-grid').innerHTML=html;
+  const todayUnavailable=(input.min&&today<input.min)||(input.max&&today>input.max);
+  $('request-calendar-today').disabled=!!todayUnavailable;
+}
+
+function closeRequestCalendar(returnFocus=false){
+  const calendar=$('request-calendar');
+  if(calendar.hidden)return false;
+  calendar.hidden=true;
+  document.querySelectorAll('[data-request-date]').forEach(button=>button.setAttribute('aria-expanded','false'));
+  const trigger=REQUEST_CALENDAR.trigger;
+  REQUEST_CALENDAR={targetId:'',trigger:null,year:0,month:0};
+  if(returnFocus&&trigger?.isConnected)trigger.focus();
+  return true;
+}
+
+function positionRequestCalendar(button){
+  const calendar=$('request-calendar'),field=button.closest('.request-date-field');
+  if(!field)return;
+  calendar.dataset.side=button.dataset.requestDate==='personal-request-end'?'end':'start';
+  const anchorTop=field.offsetTop+button.offsetTop;
+  let top=anchorTop+button.offsetHeight+6;
+  const buttonRect=button.getBoundingClientRect(),spaceBelow=window.innerHeight-buttonRect.bottom-12;
+  if(spaceBelow<calendar.offsetHeight&&buttonRect.top>calendar.offsetHeight+12)top=anchorTop-calendar.offsetHeight-6;
+  calendar.style.top=`${top}px`;
+}
+
+function openRequestCalendar(button){
+  const targetId=button.dataset.requestDate,input=$(targetId);
+  if(!input)return;
+  if(!($('request-calendar').hidden)&&REQUEST_CALENDAR.targetId===targetId){closeRequestCalendar(true);return}
+  const base=requestDateParts(input.value||isoLima());
+  REQUEST_CALENDAR={targetId,trigger:button,year:base.year,month:base.month};
+  document.querySelectorAll('[data-request-date]').forEach(item=>item.setAttribute('aria-expanded',String(item===button)));
+  $('request-calendar').hidden=false;
+  renderRequestCalendar();
+  requestAnimationFrame(()=>{
+    positionRequestCalendar(button);
+    ($('request-calendar-grid').querySelector('.selected:not(:disabled)')||$('request-calendar-grid').querySelector('button:not(:disabled)'))?.focus();
+  });
+}
+
+function moveRequestCalendar(amount){
+  let {year,month}=REQUEST_CALENDAR;
+  month+=amount;
+  if(month<1){month=12;year--}else if(month>12){month=1;year++}
+  REQUEST_CALENDAR.year=year;REQUEST_CALENDAR.month=month;renderRequestCalendar();
+  if(REQUEST_CALENDAR.trigger)positionRequestCalendar(REQUEST_CALENDAR.trigger);
+}
+
+function chooseRequestCalendarDate(value){
+  const input=$(REQUEST_CALENDAR.targetId);
+  if(!input)return;
+  input.value=value;
+  input.dispatchEvent(new Event('change',{bubbles:true}));
+  syncRequestDateButtons();
+  closeRequestCalendar(true);
+}
+
 async function loadPersonalRequests(){
   if(!APP.identity.hasPersonal)return;
-  const {data,error}=await db.rpc('dash_solicitudes_personales');
+  const [{data,error},{data:daysData}]=await Promise.all([db.rpc('dash_solicitudes_personales'),db.rpc('dash_mis_dias_libres')]);
+  APP.daysOffBalance=daysData?.ok?Number(daysData.saldo)||0:null;
+  $('personal-days-off-balance').textContent=APP.daysOffBalance==null?'Consulta tus días disponibles':`${APP.daysOffBalance} ${APP.daysOffBalance===1?'día disponible':'días disponibles'}`;
   if(error||!data?.ok){
     $('personal-request-list').innerHTML='<p class="request-empty">Las solicitudes estarán disponibles al instalar la migración 11.</p>';
     $('personal-request-count').textContent='0';
@@ -918,23 +1160,36 @@ function resetPersonalRequestEvidence(){
   $('personal-request-image').removeAttribute('src');$('personal-request-file-name').textContent='Evidencia lista';
 }
 
-function openPersonalRequest(type='justificacion',date=''){
+function openPersonalRequest(type='justificacion',date='',trigger=null){
+  if(!APP.identity.hasPersonal||!APP.inicio?.colaborador?.id){
+    toast('Este acceso necesita un perfil de colaborador vinculado a la cuenta.',true);
+    return;
+  }
   const normalized=PERSONAL_REQUEST_TYPES[type]?type:'justificacion',config=PERSONAL_REQUEST_TYPES[normalized],today=isoLima(),absence=config.evidence;
+  if(normalized==='dia_libre'&&APP.daysOffBalance===0){toast('No tienes días libres disponibles. Dirección debe asignarte uno antes de solicitarlo.',true);return}
+  PERSONAL_REQUEST.trigger=trigger||document.activeElement;
   resetPersonalRequestEvidence();personalRequestMessage('');
   $('personal-request-type').value=normalized;
   $('personal-request-kind').hidden=absence;
-  $('personal-request-kind-value').value=normalized==='cambio_turno'?'cambio_turno':'cambio_horario';
+  syncRequestKindButtons(normalized==='cambio_turno'?'cambio_turno':'cambio_horario');
   $('personal-request-title').textContent=config.title;$('personal-request-copy').textContent=config.copy;
   $('personal-request-detail-label').textContent=config.label;$('personal-request-detail').placeholder=config.placeholder;$('personal-request-detail').value='';$('personal-request-detail-count').textContent='0';
   $('personal-request-evidence').hidden=!config.evidence;$('personal-request-note').hidden=!config.evidence;
   const start=$('personal-request-start'),end=$('personal-request-end'),selected=date||today;
   start.min=absence?addIsoDays(today,-90):addIsoDays(today,-7);start.max=absence?today:addIsoDays(today,180);
-  end.min=start.min;end.max=start.max;start.value=selected;end.value=selected;
+  const safeSelected=selected<start.min?start.min:selected>start.max?start.max:selected;
+  end.min=start.min;end.max=start.max;start.value=safeSelected;end.value=safeSelected;
+  closeRequestCalendar();syncRequestDateButtons();
   $('personal-request-modal').hidden=false;
-  setTimeout(()=>start.focus(),30);
+  setTimeout(()=>document.querySelector('[data-request-date="personal-request-start"]')?.focus(),30);
 }
 
-function closePersonalRequest(){if(PERSONAL_REQUEST.busy)return;$('personal-request-modal').hidden=true;resetPersonalRequestEvidence();personalRequestMessage('')}
+function closePersonalRequest(){
+  if(PERSONAL_REQUEST.busy)return;
+  closeRequestCalendar();$('personal-request-modal').hidden=true;resetPersonalRequestEvidence();personalRequestMessage('');
+  const trigger=PERSONAL_REQUEST.trigger;PERSONAL_REQUEST.trigger=null;
+  if(trigger?.isConnected)setTimeout(()=>trigger.focus(),0);
+}
 
 async function choosePersonalRequestEvidence(file){
   if(!file||PERSONAL_REQUEST.busy)return;
@@ -970,7 +1225,7 @@ async function submitPersonalRequest(event){
     const {data,error}=await db.rpc('dash_crear_solicitud',{p_tipo:type,p_fecha_inicio:start,p_fecha_fin:end,p_detalle:detail,p_evidencia:path||null});
     if(error||!data?.ok){
       if(path)await db.storage.from(REQUEST_BUCKET).remove([path]).catch(()=>{});
-      const reason=data?.motivo||'guardar',messages={duplicada:'Ya existe una solicitud pendiente para esas fechas.',rango_ausencia:'Las justificaciones solo pueden corresponder a los últimos 90 días.',rango_cambio:'La fecha del cambio está fuera del rango permitido.',evidencia:'La evidencia es obligatoria.',detalle:'Amplía el comentario antes de enviarlo.'};
+      const reason=data?.motivo||'guardar',messages={duplicada:'Ya existe una solicitud pendiente para esas fechas.',rango_ausencia:'Las justificaciones solo pueden corresponder a los últimos 90 días.',rango_cambio:'La fecha del cambio está fuera del rango permitido.',fechas:'Revisa el rango de fechas seleccionado.',evidencia:'La evidencia es obligatoria.',detalle:'Amplía el comentario antes de enviarlo.',sesion:'Tu sesión venció. Vuelve a ingresar al portal.',sin_permiso:'Tu cuenta no tiene permiso para enviar esta solicitud.'};
       throw new Error(messages[reason]||'No se pudo guardar la solicitud.');
     }
     personalRequestMessage('Solicitud enviada a Dirección.','success');toast('Solicitud enviada a Dirección.');
@@ -1003,21 +1258,21 @@ function renderProfile(){
 async function loadTeam(){
   const today=isoLima();
   const [{data:people,error},{data:marks}]=await Promise.all([
-    db.from('asis_colaboradores').select('id,nombre,area_id,dni,dias_laborables,hora_inicio,hora_fin,tipo_vinculo,contrato_inicio,contrato_fin_referencia,asis_areas(nombre)').eq('activo',true).order('nombre'),
+    db.from('asis_colaboradores').select('id,nombre,area_id,dni,dias_laborables,hora_inicio,hora_fin,tipo_vinculo,contrato_inicio,contrato_fin_referencia,foto_path,foto_actualizada_at,asis_areas(nombre)').eq('activo',true).order('nombre'),
     db.from('asis_registros').select('colaborador_id,estado,marcado_at').eq('fecha',today)
   ]);
   if(error){ $('team-list').innerHTML='<p style="padding:25px">No se pudo cargar el equipo.</p>';return; }
-  const by=new Map((marks||[]).map(x=>[String(x.colaborador_id),x])),p=people||[];APP.teamPeople=p;
+  const by=new Map((marks||[]).map(x=>[String(x.colaborador_id),x])),p=await hydrateProfilePhotos(people||[]);APP.teamPeople=p;
   const present=p.filter(x=>['P','T','J'].includes(by.get(String(x.id))?.estado)).length,late=p.filter(x=>by.get(String(x.id))?.estado==='T').length,pending=p.length-present;
   $('team-summary').innerHTML=[['Personas visibles',p.length],['Registraron hoy',present],['Tardanzas',late],['Sin registro',pending]].map(x=>`<div class="team-kpi"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
-  $('team-list').innerHTML=p.length?p.map(x=>{const m=by.get(String(x.id)),s=m?.estado||'',label=m?statusLabel(s,true):'Sin registro';return `<div class="team-row"><span class="avatar">${initials(x.nombre)}</span><span><strong>${esc(x.nombre)}</strong><small>${esc(x.asis_areas?.nombre||'Sin área')}</small></span><span><small>${m?.marcado_at?new Date(m.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'Sin hora registrada'}</small></span><span class="team-state ${s.toLowerCase()}">${esc(label)}</span><button class="team-profile-open" type="button" data-team-profile="${x.id}">Ver perfil</button></div>`}).join(''):'<p style="padding:25px">No hay personas para mostrar.</p>';
+  $('team-list').innerHTML=p.length?p.map(x=>{const m=by.get(String(x.id)),s=m?.estado||'',label=m?statusLabel(s,true):'Sin registro';return `<div class="team-row">${profileAvatarMarkup(x)}<span><strong>${esc(x.nombre)}</strong><small>${esc(x.asis_areas?.nombre||'Sin área')}</small></span><span><small>${m?.marcado_at?new Date(m.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'Sin hora registrada'}</small></span><span class="team-state ${s.toLowerCase()}">${esc(label)}</span><button class="team-profile-open" type="button" data-team-profile="${x.id}">Ver perfil</button></div>`}).join(''):'<p style="padding:25px">No hay personas para mostrar.</p>';
 }
 
 async function openTeamProfile(id){
   if(!APP.identity.isLeader)return toast('Solo el líder técnico puede consultar este equipo.',true);
   const person=APP.teamPeople.find(item=>String(item.id)===String(id));if(!person)return;
   $('team-profile-modal').hidden=false;$('team-profile-title').textContent=person.nombre;$('team-profile-area').textContent=person.asis_areas?.nombre||'Sin área';
-  $('team-profile-avatar').textContent=initials(person.nombre);$('team-profile-body').innerHTML='<p class="admin-empty">Cargando perfil y asistencia…</p>';
+  paintPersonAvatar($('team-profile-avatar'),person);$('team-profile-body').innerHTML='<p class="admin-empty">Cargando perfil y asistencia…</p>';
   const now=new Date(),year=Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric'}).format(now)),month=Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',month:'numeric'}).format(now));
   const {data,error}=await db.rpc('dash_historial',{p_anio:year,p_mes:month,p_colab:Number(id)});
   if(error||!data?.ok){$('team-profile-body').innerHTML='<p class="admin-empty">No se pudo cargar el historial autorizado.</p>';return;}
@@ -1033,7 +1288,7 @@ async function loadAdminHub(){
   const btn=$('admin-refresh'); btn.disabled=true;
   const today=isoLima();
   const [peopleRes,marksRes,legacyRequestsRes,personalRequestsRes]=await Promise.all([
-    db.from('asis_colaboradores').select('id,nombre,area_id,asis_areas(nombre)').eq('activo',true).order('nombre'),
+    db.from('asis_colaboradores').select('id,nombre,area_id,foto_path,foto_actualizada_at,asis_areas(nombre)').eq('activo',true).order('nombre'),
     db.from('asis_registros').select('colaborador_id,estado,marcado_at,origen').eq('fecha',today),
     db.from('asis_solicitudes_horario').select('id,colaborador_id,horario_nuevo,creado_at').eq('estado','pendiente').order('creado_at',{ascending:false}),
     APP.access.rol==='direccion'?db.rpc('dash_admin_solicitudes_personales'):Promise.resolve({data:{ok:true,solicitudes:[]},error:null})
@@ -1043,7 +1298,7 @@ async function loadAdminHub(){
     $('admin-status-list').innerHTML='<p class="admin-empty">No se pudo cargar el estado operativo. Actualiza nuevamente.</p>';
     toast('No se pudo actualizar la administración.',true); return;
   }
-  const people=peopleRes.data||[],marks=marksRes.data||[],legacyRequests=legacyRequestsRes.data||[],personalRequests=personalRequestsRes.data?.ok?personalRequestsRes.data.solicitudes||[]:[];
+  const people=await hydrateProfilePhotos(peopleRes.data||[]),marks=marksRes.data||[],legacyRequests=legacyRequestsRes.data||[],personalRequests=personalRequestsRes.data?.ok?personalRequestsRes.data.solicitudes||[]:[];
   const byMark=new Map(marks.map(x=>[String(x.colaborador_id),x]));
   const byPerson=new Map(people.map(x=>[String(x.id),x]));
   const registered=people.filter(x=>byMark.has(String(x.id))).length;
@@ -1061,7 +1316,7 @@ async function loadAdminHub(){
   let statusHtml=sorted.slice(0,14).map(person=>{
     const mark=byMark.get(String(person.id)),state=mark?.estado||'',label=mark?statusLabel(state,true):'Sin registro';
     const time=mark?.marcado_at?new Date(mark.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'—';
-    return `<div class="admin-status-row"><span class="avatar">${initials(person.nombre)}</span><span><strong>${esc(person.nombre)}</strong><small>${esc(person.asis_areas?.nombre||'Sin área')}</small></span><span class="admin-status-time">${esc(time)}${mark?.origen?' · '+esc(mark.origen):''}</span><span class="admin-status-pill ${state.toLowerCase()}">${esc(label)}</span></div>`;
+    return `<div class="admin-status-row">${profileAvatarMarkup(person)}<span><strong>${esc(person.nombre)}</strong><small>${esc(person.asis_areas?.nombre||'Sin área')}</small></span><span class="admin-status-time">${esc(time)}${mark?.origen?' · '+esc(mark.origen):''}</span><span class="admin-status-pill ${state.toLowerCase()}">${esc(label)}</span></div>`;
   }).join('');
   if(sorted.length>14)statusHtml+=`<p class="admin-empty">Mostrando 14 de ${sorted.length}. Abre Pasar lista para gestionar el equipo completo.</p>`;
   $('admin-status-list').innerHTML=statusHtml||'<p class="admin-empty">No hay colaboradores activos.</p>';
@@ -1133,6 +1388,8 @@ async function loadAdminAttendance(){
     adminListMsg(missing?'La fase 2 todavía no está instalada en Supabase. Ejecuta dashboard_05_admin_lista.sql.':'No se pudo cargar la lista. Actualiza e inténtalo nuevamente.');
     $('admin-roster').innerHTML='<p class="admin-empty">La lista no está disponible.</p>';return;
   }
+  data.personas=await hydrateProfilePhotos(data.personas||[]);
+  if(request!==APP.adminListRequest)return;
   APP.adminList=data;
   const areas=[...new Map((data.personas||[]).map(x=>[String(x.area_id),x.area||'Sin área'])).entries()].sort((a,b)=>a[1].localeCompare(b[1],'es'));
   const current=$('admin-list-area').value;
@@ -1163,7 +1420,7 @@ function renderAdminAttendance(){
       const shift=`${fmtTime(person.hora_entrada)} — ${fmtTime(person.hora_salida)}`;
       const time=person.marcado_at?new Date(person.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):mode;
       const evidence=person.evidencia_path?`<button class="admin-evidence-button" type="button" data-admin-evidence="${esc(person.evidencia_path)}">Ver evidencia</button>`:'';
-      html+=`<div class="admin-roster-row" data-admin-person="${person.id}"><span class="avatar">${initials(person.nombre)}</span><span class="admin-person"><b>${esc(person.nombre)}</b><small>${esc(mode)}${person.nota?' · '+esc(person.nota):''}</small>${evidence}</span><span class="admin-shift"><b>${esc(shift)}</b><small>${person.horas!=null?Number(person.horas).toFixed(1)+' h':'Horario del día'}</small></span><span class="admin-current-state ${state.toLowerCase()}">${esc(label)}${person.marcado_at?' · '+esc(time):''}</span><span class="admin-state-actions">${['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn ${s.toLowerCase()} ${state===s?'on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" aria-pressed="${state===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('')}</span></div>`;
+      html+=`<div class="admin-roster-row" data-admin-person="${person.id}">${profileAvatarMarkup(person)}<span class="admin-person"><b>${esc(person.nombre)}</b><small>${esc(mode)}${person.nota?' · '+esc(person.nota):''}</small>${evidence}</span><span class="admin-shift"><b>${esc(shift)}</b><small>${person.horas!=null?Number(person.horas).toFixed(1)+' h':'Horario del día'}</small></span><span class="admin-current-state ${state.toLowerCase()}">${esc(label)}${person.marcado_at?' · '+esc(time):''}</span><span class="admin-state-actions">${['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn ${s.toLowerCase()} ${state===s?'on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" aria-pressed="${state===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('')}</span></div>`;
     }
     html+='</section>';
   }
@@ -1193,7 +1450,10 @@ async function resolveAdminPersonalRequest(id,approved){
     const {data,error}=await db.rpc('dash_admin_resolver_solicitud',{p_id:Number(id),p_aprobada:approved,p_respuesta:response||null});
     if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'resolver');
     toast(approved?'Solicitud aprobada.':'Solicitud rechazada.');await loadAdminHub();
-  }catch{toast('No se pudo resolver la solicitud. Actualiza e inténtalo otra vez.',true);row?.querySelectorAll('button,input').forEach(control=>control.disabled=false)}
+  }catch(error){
+    const detail=String(error?.message||''),message=detail.includes('saldo_dias_libres_insuficiente')?'No se puede aprobar: la persona no tiene suficientes días libres disponibles.':detail.includes('dia_libre_sin_dias_laborables')?'El rango solicitado no contiene días laborables.':'No se pudo resolver la solicitud. Actualiza e inténtalo otra vez.';
+    toast(message,true);row?.querySelectorAll('button,input').forEach(control=>control.disabled=false)
+  }
 }
 
 async function saveAdminState(personId,state,remove){
@@ -1258,9 +1518,27 @@ $('team-list').onclick=e=>{const button=e.target.closest('[data-team-profile]');
 document.querySelectorAll('[data-close-team-profile]').forEach(button=>button.onclick=closeTeamProfile);
 $('month-prev').onclick=()=>{ APP.month--;if(APP.month<1){APP.month=12;APP.year--}loadHistory(); };
 $('month-next').onclick=()=>{ const n=new Date(),cur=n.getFullYear()*12+n.getMonth(),target=APP.year*12+(APP.month-1);if(target>=cur)return;APP.month++;if(APP.month>12){APP.month=1;APP.year++}loadHistory(); };
-$('attendance-new-request').onclick=()=>openPersonalRequest('justificacion');
-document.querySelectorAll('[data-personal-request]').forEach(button=>button.onclick=()=>openPersonalRequest(button.dataset.personalRequest));
+document.addEventListener('click',event=>{
+  const button=event.target.closest('[data-personal-request]');
+  if(button&&!button.disabled){openPersonalRequest(button.dataset.personalRequest,'',button);return}
+  const dateButton=event.target.closest('[data-request-date]');
+  if(dateButton){openRequestCalendar(dateButton);return}
+  if(!event.target.closest('#request-calendar'))closeRequestCalendar();
+});
 document.querySelectorAll('[data-close-personal-request]').forEach(button=>button.onclick=closePersonalRequest);
+document.querySelectorAll('[data-request-kind]').forEach(button=>{
+  button.onclick=()=>syncRequestKindButtons(button.dataset.requestKind);
+  button.onkeydown=event=>{
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+    event.preventDefault();
+    const options=[...document.querySelectorAll('[data-request-kind]')],index=options.indexOf(button),step=['ArrowRight','ArrowDown'].includes(event.key)?1:-1,next=options[(index+step+options.length)%options.length];
+    syncRequestKindButtons(next.dataset.requestKind);next.focus();
+  };
+});
+$('request-calendar-prev').onclick=()=>moveRequestCalendar(-1);
+$('request-calendar-next').onclick=()=>moveRequestCalendar(1);
+$('request-calendar-today').onclick=()=>chooseRequestCalendarDate(isoLima());
+$('request-calendar-grid').onclick=event=>{const day=event.target.closest('[data-request-calendar-date]');if(day&&!day.disabled)chooseRequestCalendarDate(day.dataset.requestCalendarDate)};
 document.querySelectorAll('[data-close-attendance-day]').forEach(button=>button.onclick=closeAttendanceDay);
 $('attendance-day-content').onclick=event=>{
   const closeEvidence=event.target.closest('[data-close-attendance-evidence]');if(closeEvidence)return closeAttendanceEvidence();
@@ -1275,7 +1553,8 @@ $('personal-request-file-button').onclick=()=>$('personal-request-file').click()
 $('personal-request-file-change').onclick=()=>$('personal-request-file').click();
 $('personal-request-file').onchange=event=>choosePersonalRequestEvidence(event.target.files?.[0]);
 $('personal-request-detail').oninput=event=>$('personal-request-detail-count').textContent=event.target.value.length;
-$('personal-request-start').onchange=event=>{const end=$('personal-request-end');end.min=event.target.value;if(!end.value||end.value<event.target.value)end.value=event.target.value};
+$('personal-request-start').onchange=event=>{const end=$('personal-request-end');end.min=event.target.value;if(!end.value||end.value<event.target.value)end.value=event.target.value;syncRequestDateButtons()};
+$('personal-request-end').onchange=syncRequestDateButtons;
 $('calendar-grid').onclick=event=>{const day=event.target.closest('[data-history-date]');if(day)openAttendanceDay(day.dataset.historyDate)};
 $('rail-calendar-open').onclick=()=>goView('asistencia');
 $('admin-refresh').onclick=()=>APP.adminSection==='lista'?loadAdminAttendance():(APP.adminSection==='mes'||APP.adminSection==='resumen')&&typeof loadAdminMonth==='function'?loadAdminMonth(true):APP.adminSection==='marcado'&&typeof loadAdminAccess==='function'?loadAdminAccess():APP.adminSection==='roles'&&typeof loadAdminRoles==='function'?loadAdminRoles():(APP.adminSection==='colaboradores'||APP.adminSection==='contratos')&&typeof loadAdminTeam==='function'?loadAdminTeam():loadAdminHub();
@@ -1305,6 +1584,7 @@ $('menu-toggle').onclick=openMenu;$('side-scrim').onclick=closeMenu;
 $('mobile-back-home').onclick=()=>goView('inicio');
 document.addEventListener('keydown',event=>{
   if(event.key!=='Escape')return;
+  if(closeRequestCalendar(true))return;
   if(!$('personal-request-modal').hidden)return closePersonalRequest();
   if(!$('attendance-day-modal').hidden){if(closeAttendanceEvidence())return;closeAttendanceDay()}
 });
