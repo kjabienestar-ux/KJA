@@ -6533,6 +6533,7 @@ input:-webkit-autofill:active {
   .portal.admin-wide #view-gestion>#admin-overview-section,
   .portal.admin-wide #view-gestion>#admin-control-section,
   .portal.admin-wide #view-gestion>#admin-list-section,
+  .portal.admin-wide #view-gestion>#admin-close-section,
   .portal.admin-wide #view-gestion>#admin-month-section,
   .portal.admin-wide #view-gestion>#admin-summary-section,
   .portal.admin-wide #view-gestion>#admin-people-section,
@@ -6552,6 +6553,7 @@ input:-webkit-autofill:active {
 
   .portal.admin-wide #admin-list-section,
   .portal.admin-wide #admin-control-section,
+  .portal.admin-wide #admin-close-section,
   .portal.admin-wide #admin-month-section,
   .portal.admin-wide #admin-summary-section,
   .portal.admin-wide #admin-people-section,
@@ -6862,6 +6864,7 @@ input:-webkit-autofill:active {
 /* Administración del cierre diario */
 .admin-close-section[hidden]{display:none}
 .admin-close-section{display:grid;gap:15px}
+@media(min-width:901px){.portal.admin-wide #admin-close-section{scrollbar-width:thin;scrollbar-color:#94a9bd transparent}.portal.admin-wide #admin-close-section::-webkit-scrollbar{width:10px}.portal.admin-wide #admin-close-section::-webkit-scrollbar-track{background:transparent}.portal.admin-wide #admin-close-section::-webkit-scrollbar-thumb{border:2px solid transparent;border-radius:999px;background:#94a9bd;background-clip:padding-box}}
 .admin-close-toolbar,.admin-close-status-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px 19px;border:1px solid #e2e7ed;border-radius:15px;background:#fff}
 .admin-close-toolbar h2,.admin-close-toolbar p,.admin-close-status-head h3,.admin-close-status-head p,.admin-close-assignment h3,.admin-close-assignment p,.admin-close-assignments h3,.admin-close-assignments p{margin:0}
 .admin-close-toolbar h2{color:#183552;font-size:18px}.admin-close-toolbar p,.admin-close-status-head p{margin-top:4px;color:#506278;font-size:12px;line-height:1.5}
@@ -6922,7 +6925,7 @@ body.admin-review-open{overflow:hidden}
 .admin-review-note,.admin-review-history{padding-bottom:17px;border-bottom:1px solid #e8edf2}.admin-review-note small,.admin-review-history small{color:#718096;font-size:9px;font-weight:800;letter-spacing:.08em}.admin-review-note p,.admin-review-history p{margin:7px 0 0;color:#334a65;font-size:12px;line-height:1.55;overflow-wrap:anywhere}.admin-review-history{margin-top:16px}.admin-review-history p{color:#922e43}
 .admin-review-observation{display:grid;gap:6px;margin-top:18px;color:#334a65;font-size:11px;font-weight:800}.admin-review-observation[hidden]{display:none}.admin-review-observation textarea{width:100%;min-height:108px;padding:11px 12px;resize:vertical;border:1px solid #ccd8e4;border-radius:10px;outline:0;color:#253d58;background:#fbfcfe;font:500 12px/1.5 Inter,sans-serif}.admin-review-observation textarea:focus{border-color:#6d9fd5;box-shadow:0 0 0 3px rgba(7,90,188,.09)}.admin-review-observation>small{color:#738399;font-size:9px;font-weight:500}
 .admin-review-message{min-height:34px;margin:12px 0 0;color:#607087;font-size:10px;line-height:1.45}.admin-review-message.is-error{color:#922e43}
-.admin-review-decision footer{display:grid;gap:8px;margin-top:auto;padding-top:15px;border-top:1px solid #e8edf2}.admin-review-decision footer button{min-height:45px;display:flex;align-items:center;justify-content:center;gap:9px;border-radius:10px;font-size:11px;font-weight:800}.admin-review-decision footer button[hidden]{display:none}.admin-review-decision footer svg{width:17px;height:17px}.admin-review-observe{border:1px solid #e3b5bf;color:#922e43;background:#fff7f8}.admin-review-observe:hover:not(:disabled){background:#ffecef}.admin-review-observe:disabled{color:#8996a6;border-color:#dce3ea;background:#f3f5f7}.admin-review-approve{border:0;color:#fff;background:#08735a;box-shadow:0 8px 18px rgba(8,115,90,.15)}.admin-review-approve:hover:not(:disabled){background:#095f4d}.admin-review-decision footer button:focus-visible,.admin-review-tabs button:focus-visible,.admin-review-gallery>a:focus-visible{outline:3px solid #075abc;outline-offset:3px}
+.admin-review-decision footer{position:sticky;z-index:2;bottom:-22px;display:grid;gap:8px;margin-top:auto;padding:15px 0 22px;border-top:1px solid #e8edf2;background:#fff}.admin-review-decision footer button{min-height:45px;display:flex;align-items:center;justify-content:center;gap:9px;border-radius:10px;font-size:11px;font-weight:800}.admin-review-decision footer button[hidden]{display:none}.admin-review-decision footer svg{width:17px;height:17px}.admin-review-observe{border:1px solid #e3b5bf;color:#922e43;background:#fff7f8}.admin-review-observe:hover:not(:disabled){background:#ffecef}.admin-review-observe:disabled{color:#8996a6;border-color:#dce3ea;background:#f3f5f7}.admin-review-approve{border:0;color:#fff;background:#08735a;box-shadow:0 8px 18px rgba(8,115,90,.15)}.admin-review-approve:hover:not(:disabled){background:#095f4d}.admin-review-decision footer button:focus-visible,.admin-review-tabs button:focus-visible,.admin-review-gallery>a:focus-visible{outline:3px solid #075abc;outline-offset:3px}
 
 .team-state.completa,.team-state.regularizada,.team-state.lista_para_salir,.admin-status-pill.completa,.admin-status-pill.regularizada,.admin-status-pill.lista_para_salir,.admin-current-state.completa,.admin-current-state.regularizada,.admin-current-state.lista_para_salir{color:#08735a;background:#e4f7f0}
 .team-state.incompleta,.admin-status-pill.incompleta,.admin-current-state.incompleta{color:#922e43;background:#ffe8ed}
@@ -6961,7 +6964,7 @@ body.admin-review-open{overflow:hidden}
   .admin-close-fields{grid-template-columns:1fr}.admin-close-fields .span-2{grid-column:1}
   .team-profile-stats{grid-template-columns:repeat(2,1fr)}
   .team-profile-stats span{padding:7px 0}.team-profile-stats span:nth-child(2n){border-right:0}
-  .admin-review-modal{align-items:end;padding:0}.admin-review-sheet{width:100%;max-height:94dvh;border-radius:18px 18px 0 0}.admin-review-head{padding:17px 16px 14px}.admin-review-tabs{padding-inline:12px}.admin-review-gallery-wrap{padding:17px 14px}.admin-review-gallery{grid-template-columns:1fr;max-height:390px}.admin-review-gallery>a{min-height:240px}.admin-review-decision{padding:18px 16px max(18px,env(safe-area-inset-bottom))}
+  .admin-review-modal{align-items:end;padding:0}.admin-review-sheet{width:100%;max-height:94dvh;border-radius:18px 18px 0 0}.admin-review-head{padding:17px 16px 14px}.admin-review-tabs{padding-inline:12px}.admin-review-gallery-wrap{padding:17px 14px}.admin-review-gallery{grid-template-columns:1fr;max-height:390px}.admin-review-gallery>a{min-height:240px}.admin-review-decision{padding:18px 16px max(18px,env(safe-area-inset-bottom))}.admin-review-decision footer{position:static;padding-bottom:0}
   .team-evidence-guide{align-items:flex-start;flex-direction:column}.team-row-actions{grid-column:2/-1;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.team-row-actions .team-profile-open{grid-column:auto}.team-row-progress{display:none}
 }
 

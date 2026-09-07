@@ -271,6 +271,8 @@ test('phase 2 review is private, auditable and reopens observed evidence safely'
   assert.match(html,/Selecciona “por revisar” o “Ver evidencias”/);
   assert.match(adminJs,/'Ver evidencias'/);
   assert.match(css,/\.admin-close-review-trigger\{[^}]*background:#eff6ff/);
+  assert.match(css,/\.portal\.admin-wide #view-gestion>#admin-close-section,[\s\S]*?overflow-y:auto/);
+  assert.match(css,/\.admin-review-decision footer\{[^}]*position:sticky[^}]*bottom:-22px/);
   assert.match(js,/Corrección solicitada:/);
 });
 
