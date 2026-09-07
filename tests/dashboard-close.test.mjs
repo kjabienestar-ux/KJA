@@ -244,7 +244,7 @@ test('Facebook receipt previews compact, ordered private images', () => {
   assert.match(js,/toca para ampliar/);
   assert.doesNotMatch(js,/navigator\.share|wa\.me|submitFacebookShare|downloadFacebookShareFiles/);
   assert.match(css,/\.facebook-share-workspace\{[\s\S]*?grid-template-columns:/);
-  assert.match(css,/\.facebook-share-modal \.modal-backdrop\{[\s\S]*?background:rgba\(6,26,54,\.14\)[\s\S]*?backdrop-filter:blur\(10px\)/);
+  assert.match(css,/\.facebook-share-modal \.modal-backdrop\{[\s\S]*?background:transparent!important[\s\S]*?backdrop-filter:blur\(5px\)/);
   assert.match(css,/\.facebook-share-gallery\{[\s\S]*?grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(css,/\.facebook-share-gallery img\{[\s\S]*?object-fit:contain/);
   assert.match(css,/@media\(max-width:700px\)\{[\s\S]*?\.facebook-share-gallery\{[\s\S]*?grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);

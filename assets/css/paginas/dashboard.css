@@ -8213,9 +8213,9 @@ body.daily-evidence-open{overflow:hidden}
 body.facebook-share-open{overflow:hidden}
 .facebook-share-modal{z-index:1010;padding:20px}
 .facebook-share-modal .modal-backdrop{
-  background:rgba(6,26,54,.14);
-  -webkit-backdrop-filter:blur(10px) saturate(88%);
-  backdrop-filter:blur(10px) saturate(88%);
+  background:transparent!important;
+  -webkit-backdrop-filter:blur(5px) saturate(92%) brightness(.94);
+  backdrop-filter:blur(5px) saturate(92%) brightness(.94);
 }
 .facebook-share-sheet{
   position:relative;
