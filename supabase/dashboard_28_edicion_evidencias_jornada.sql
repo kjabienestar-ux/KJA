@@ -22,6 +22,13 @@ create index if not exists asis_entrega_reemplazos_colab_fecha_idx
 alter table public.asis_entrega_reemplazos enable row level security;
 revoke all on public.asis_entrega_reemplazos from anon, authenticated;
 
+-- Una ruta puede formar parte de la versión histórica y de la versión activa.
+-- Dentro de una misma entrega continúa siendo imposible repetirla.
+alter table public.asis_entrega_archivos
+  drop constraint if exists asis_entrega_archivos_path_key;
+create unique index if not exists asis_entrega_archivos_entrega_path_idx
+  on public.asis_entrega_archivos(entrega_id,path);
+
 -- Una sola regla reutilizable para la interfaz y para las dos barreras SQL.
 create or replace function public.dash_evidencia_editable(p_colab bigint, p_fecha date)
 returns boolean
@@ -84,6 +91,61 @@ end $$;
 
 revoke all on function public.dash_cierre_resumen_colab(bigint,date)
   from public,anon,authenticated;
+
+-- Devuelve únicamente la entrega activa de la propia sesión. Las URLs siguen
+-- siendo privadas y el navegador las firma después mediante la política RLS.
+create or replace function public.dash_mi_entrega_editable(
+  p_requisito text,
+  p_asignacion bigint default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path=public
+as $$
+declare
+  v_colab bigint:=public.dash_colab();
+  v_fecha date;
+  v_entrega public.asis_entregas_diarias;
+  v_archivos jsonb;
+begin
+  if not public.dash_sesion_vigente() or v_colab is null then
+    return jsonb_build_object('ok',false,'motivo','sesion');
+  end if;
+  if coalesce(p_requisito,'') not in ('comparticiones','rpe','asignado')
+     or (p_requisito='asignado')<>(p_asignacion is not null) then
+    return jsonb_build_object('ok',false,'motivo','datos');
+  end if;
+  v_fecha:=public.asis_cierre_fecha_activa(v_colab);
+  if not public.dash_evidencia_editable(v_colab,v_fecha) then
+    return jsonb_build_object('ok',false,'motivo','fuera_horario_edicion');
+  end if;
+  select * into v_entrega
+    from public.asis_entregas_diarias e
+   where e.colaborador_id=v_colab and e.fecha=v_fecha and e.estado='completo'
+     and ((p_requisito<>'asignado' and e.requisito=p_requisito)
+       or (p_requisito='asignado' and e.asignacion_id=p_asignacion));
+  if v_entrega.id is null then
+    return jsonb_build_object('ok',false,'motivo','sin_entrega');
+  end if;
+  select coalesce(jsonb_agg(jsonb_build_object(
+           'path',f.path,'mime',f.mime,'bytes',f.bytes,'orden',f.orden
+         ) order by f.orden),'[]'::jsonb)
+    into v_archivos
+    from public.asis_entrega_archivos f
+   where f.entrega_id=v_entrega.id;
+  return jsonb_build_object(
+    'ok',true,'entrega',v_entrega.id,'modalidad',v_entrega.modalidad,
+    'detalle',v_entrega.detalle,'archivos',v_archivos,
+    'edicion_hasta_at',public.asis_cierre_fin_at(v_colab,v_fecha)
+  );
+end $$;
+
+revoke all on function public.dash_mi_entrega_editable(text,bigint)
+  from public,anon;
+grant execute on function public.dash_mi_entrega_editable(text,bigint)
+  to authenticated;
 
 -- Crea una ruta privada nueva sólo cuando ya existe una entrega activa que el
 -- propio colaborador está autorizado a corregir.
@@ -183,11 +245,16 @@ revoke all on function public.dash_reemplazo_permiso(text,bigint,text,text,text)
 grant execute on function public.dash_reemplazo_permiso(text,bigint,text,text,text)
   to authenticated;
 
+-- Retira la primera firma de esta fase si se alcanzó a ejecutar antes de que
+-- se incorporara la conservación selectiva de imágenes.
+drop function if exists public.dash_reemplazar_entrega(text,bigint,text,text[],text,text);
+
 create or replace function public.dash_reemplazar_entrega(
   p_requisito text,
   p_asignacion bigint default null,
   p_modalidad text default null,
   p_paths text[] default '{}',
+  p_conservar_paths text[] default '{}',
   p_detalle text default null,
   p_video_path text default null
 )
@@ -203,8 +270,11 @@ declare
   v_cfg public.asis_cierre_config;
   v_anterior public.asis_entregas_diarias;
   v_nueva bigint;
-  v_total integer:=coalesce(cardinality(p_paths),0);
-  v_todos text[];
+  v_nuevas integer:=coalesce(cardinality(p_paths),0);
+  v_conservadas integer:=coalesce(cardinality(p_conservar_paths),0);
+  v_imagenes integer:=0;
+  v_videos integer:=0;
+  v_subidas text[];
   v_path text;
   v_obj storage.objects;
   v_mime text;
@@ -224,25 +294,13 @@ begin
   if not public.dash_evidencia_editable(v_colab,v_fecha) then
     return jsonb_build_object('ok',false,'motivo','fuera_horario_edicion');
   end if;
-  if coalesce(p_requisito,'') not in ('comparticiones','rpe','asignado') or v_total not between 1 and 5 then
+  if coalesce(p_requisito,'') not in ('comparticiones','rpe','asignado')
+     or v_nuevas not between 0 and 5 or v_conservadas not between 0 and 6 then
     return jsonb_build_object('ok',false,'motivo','archivos');
   end if;
-  if (select count(distinct x) from unnest(p_paths) x)<>v_total then
+  if (select count(distinct x) from unnest(p_paths) x)<>v_nuevas
+     or (select count(distinct x) from unnest(p_conservar_paths) x)<>v_conservadas then
     return jsonb_build_object('ok',false,'motivo','archivos_duplicados');
-  end if;
-  if p_requisito='comparticiones' then
-    if p_video_path is not null then return jsonb_build_object('ok',false,'motivo','video_no_permitido'); end if;
-    if coalesce(p_modalidad,'')='collage' then
-      if not v_cfg.collage_permitido or v_total<>1 then
-        return jsonb_build_object('ok',false,'motivo','cantidad_comparticiones');
-      end if;
-    elsif p_modalidad='individuales' then
-      if v_total<v_cfg.comparticiones_min then
-        return jsonb_build_object('ok',false,'motivo','cantidad_comparticiones');
-      end if;
-    else return jsonb_build_object('ok',false,'motivo','modalidad'); end if;
-  elsif p_modalidad is not null then
-    return jsonb_build_object('ok',false,'motivo','modalidad');
   end if;
   if p_requisito='asignado' and not exists(
     select 1 from public.asis_asignaciones_diarias a
@@ -253,13 +311,60 @@ begin
     return jsonb_build_object('ok',false,'motivo','asignacion');
   end if;
 
-  v_todos:=case when p_video_path is null then p_paths else array_append(p_paths,p_video_path) end;
-  if (select count(distinct x) from unnest(v_todos) x)<>cardinality(v_todos) then
+  perform pg_advisory_xact_lock(v_colab);
+  if not public.dash_evidencia_editable(v_colab,v_fecha) then
+    return jsonb_build_object('ok',false,'motivo','fuera_horario_edicion');
+  end if;
+  select * into v_anterior
+    from public.asis_entregas_diarias e
+   where e.colaborador_id=v_colab and e.fecha=v_fecha and e.estado='completo'
+     and ((p_requisito<>'asignado' and e.requisito=p_requisito)
+       or (p_requisito='asignado' and e.asignacion_id=p_asignacion))
+   for update;
+  if v_anterior.id is null then
+    return jsonb_build_object('ok',false,'motivo','sin_entrega');
+  end if;
+
+  -- Sólo se pueden conservar rutas de la versión que se está editando.
+  if (select count(*) from public.asis_entrega_archivos f
+       where f.entrega_id=v_anterior.id and f.path=any(p_conservar_paths))<>v_conservadas then
+    return jsonb_build_object('ok',false,'motivo','archivo_ajeno');
+  end if;
+  select count(*) filter(where f.mime in ('image/jpeg','image/webp')),
+         count(*) filter(where f.mime in ('video/mp4','video/webm'))
+    into v_imagenes,v_videos
+    from public.asis_entrega_archivos f
+   where f.entrega_id=v_anterior.id and f.path=any(p_conservar_paths);
+  v_imagenes:=coalesce(v_imagenes,0)+v_nuevas;
+  v_videos:=coalesce(v_videos,0)+(case when p_video_path is null then 0 else 1 end);
+
+  if p_requisito='comparticiones' then
+    if v_videos<>0 then return jsonb_build_object('ok',false,'motivo','video_no_permitido'); end if;
+    if coalesce(p_modalidad,'')='collage' then
+      if not v_cfg.collage_permitido or v_imagenes<>1 then
+        return jsonb_build_object('ok',false,'motivo','cantidad_comparticiones');
+      end if;
+    elsif p_modalidad='individuales' then
+      if v_imagenes<v_cfg.comparticiones_min or v_imagenes>5 then
+        return jsonb_build_object('ok',false,'motivo','cantidad_comparticiones');
+      end if;
+    else return jsonb_build_object('ok',false,'motivo','modalidad'); end if;
+  else
+    if p_modalidad is not null then return jsonb_build_object('ok',false,'motivo','modalidad'); end if;
+    if v_imagenes not between 1 and 5 then
+      return jsonb_build_object('ok',false,'motivo','archivos');
+    end if;
+    if v_videos>1 then return jsonb_build_object('ok',false,'motivo','video_existente'); end if;
+  end if;
+
+  v_subidas:=case when p_video_path is null then p_paths else array_append(p_paths,p_video_path) end;
+  if (select count(distinct x) from unnest(v_subidas) x)<>cardinality(v_subidas)
+     or exists(select 1 from unnest(v_subidas) x where x=any(p_conservar_paths)) then
     return jsonb_build_object('ok',false,'motivo','archivos_duplicados');
   end if;
-  if (select count(*) from public.asis_carga_permisos p
-       where p.path=any(v_todos) and p.colaborador_id=v_colab and p.fecha=v_fecha
-         and p.vinculado_at is null)<>cardinality(v_todos) then
+  if cardinality(v_subidas)>0 and (select count(*) from public.asis_carga_permisos p
+       where p.path=any(v_subidas) and p.colaborador_id=v_colab and p.fecha=v_fecha
+         and p.vinculado_at is null)<>cardinality(v_subidas) then
     return jsonb_build_object('ok',false,'motivo','permiso');
   end if;
 
@@ -291,20 +396,6 @@ begin
     end if;
   end if;
 
-  perform pg_advisory_xact_lock(v_colab);
-  if not public.dash_evidencia_editable(v_colab,v_fecha) then
-    return jsonb_build_object('ok',false,'motivo','fuera_horario_edicion');
-  end if;
-  select * into v_anterior
-    from public.asis_entregas_diarias e
-   where e.colaborador_id=v_colab and e.fecha=v_fecha and e.estado='completo'
-     and ((p_requisito<>'asignado' and e.requisito=p_requisito)
-       or (p_requisito='asignado' and e.asignacion_id=p_asignacion))
-   for update;
-  if v_anterior.id is null then
-    return jsonb_build_object('ok',false,'motivo','sin_entrega');
-  end if;
-
   update public.asis_entregas_diarias set estado='anulado'
    where id=v_anterior.id;
   insert into public.asis_entregas_diarias(
@@ -312,9 +403,19 @@ begin
   ) values(
     v_colab,v_fecha,p_requisito,p_asignacion,
     case when p_requisito='comparticiones' then p_modalidad else null end,
-    nullif(left(btrim(coalesce(p_detalle,'')),700),'')
+    coalesce(nullif(left(btrim(coalesce(p_detalle,'')),700),''),v_anterior.detalle)
   ) returning id into v_nueva;
 
+  foreach v_path in array p_conservar_paths loop
+    select f.mime,f.bytes into v_mime,v_bytes
+      from public.asis_entrega_archivos f
+     where f.entrega_id=v_anterior.id and f.path=v_path;
+    if v_mime in ('image/jpeg','image/webp') then
+      v_orden:=v_orden+1;
+      insert into public.asis_entrega_archivos(entrega_id,path,mime,bytes,orden)
+      values(v_nueva,v_path,v_mime,v_bytes::integer,v_orden);
+    end if;
+  end loop;
   foreach v_path in array p_paths loop
     v_orden:=v_orden+1;
     select * into v_obj from storage.objects
@@ -322,6 +423,16 @@ begin
     insert into public.asis_entrega_archivos(entrega_id,path,mime,bytes,orden)
     values(v_nueva,v_path,v_obj.metadata->>'mimetype',
       (v_obj.metadata->>'size')::integer,v_orden);
+  end loop;
+  foreach v_path in array p_conservar_paths loop
+    select f.mime,f.bytes into v_mime,v_bytes
+      from public.asis_entrega_archivos f
+     where f.entrega_id=v_anterior.id and f.path=v_path;
+    if v_mime in ('video/mp4','video/webm') then
+      v_orden:=v_orden+1;
+      insert into public.asis_entrega_archivos(entrega_id,path,mime,bytes,orden)
+      values(v_nueva,v_path,v_mime,v_bytes::integer,v_orden);
+    end if;
   end loop;
   if p_video_path is not null then
     select * into v_obj from storage.objects
@@ -331,7 +442,7 @@ begin
       (v_obj.metadata->>'size')::integer,v_orden+1);
   end if;
   update public.asis_carga_permisos set vinculado_at=now()
-   where path=any(v_todos) and colaborador_id=v_colab and fecha=v_fecha;
+   where path=any(v_subidas) and colaborador_id=v_colab and fecha=v_fecha;
   insert into public.asis_entrega_reemplazos(
     entrega_anterior_id,entrega_nueva_id,colaborador_id,fecha
   ) values(v_anterior.id,v_nueva,v_colab,v_fecha);
@@ -344,9 +455,9 @@ exception when unique_violation then
   return jsonb_build_object('ok',false,'motivo','cambio_concurrente');
 end $$;
 
-revoke all on function public.dash_reemplazar_entrega(text,bigint,text,text[],text,text)
+revoke all on function public.dash_reemplazar_entrega(text,bigint,text,text[],text[],text,text)
   from public,anon;
-grant execute on function public.dash_reemplazar_entrega(text,bigint,text,text[],text,text)
+grant execute on function public.dash_reemplazar_entrega(text,bigint,text,text[],text[],text,text)
   to authenticated;
 
 notify pgrst,'reload schema';
@@ -359,11 +470,17 @@ from (
     from information_schema.tables
    where table_schema='public' and table_name='asis_entrega_reemplazos'
   union all
-  select 'RPC de edición',count(*)::int,3
+  select 'RPC de edición',count(*)::int,4
     from pg_proc p join pg_namespace n on n.oid=p.pronamespace
    where n.nspname='public' and p.proname in (
-     'dash_evidencia_editable','dash_reemplazo_permiso','dash_reemplazar_entrega'
+     'dash_evidencia_editable','dash_mi_entrega_editable',
+     'dash_reemplazo_permiso','dash_reemplazar_entrega'
    )
+  union all
+  select 'rutas reutilizables por versión',count(*)::int,1
+    from pg_indexes
+   where schemaname='public' and tablename='asis_entrega_archivos'
+     and indexname='asis_entrega_archivos_entrega_path_idx'
   union all
   select 'resumen con ventana editable',count(*)::int,1
     from pg_proc p join pg_namespace n on n.oid=p.pronamespace

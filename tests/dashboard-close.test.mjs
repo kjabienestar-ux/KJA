@@ -177,6 +177,7 @@ test('phase 8 lets the owner replace evidence only while their workday is open',
   for (const fragment of [
     'create table if not exists public.asis_entrega_reemplazos',
     'create or replace function public.dash_evidencia_editable',
+    'create or replace function public.dash_mi_entrega_editable',
     'now() between v_reg.marcado_at and v_fin_at',
     'create or replace function public.dash_reemplazo_permiso',
     'create or replace function public.dash_reemplazar_entrega',
@@ -184,15 +185,22 @@ test('phase 8 lets the owner replace evidence only while their workday is open',
     'puede_editar_evidencias',
     "'fuera_horario_edicion'",
     'perform pg_advisory_xact_lock(v_colab)',
+    'p_conservar_paths text[]',
+    'drop constraint if exists asis_entrega_archivos_path_key',
   ]) assert.ok(evidenceEditSql.includes(fragment), `evidence edit migration missing: ${fragment}`);
   assert.match(js,/complete&&!!item\.editable/);
   assert.match(js,/editing\?'dash_reemplazar_entrega':'dash_confirmar_entrega'/);
   assert.match(js,/La edición sólo está disponible durante tu horario de trabajo/);
+  assert.match(js,/db\.rpc\('dash_mi_entrega_editable'/);
+  assert.match(js,/data-remove-existing-file/);
+  assert.match(js,/p_conservar_paths:/);
   assert.match(html,/id="daily-evidence-edit-note"[^>]*hidden/);
+  assert.match(html,/Quita con × sólo las incorrectas/);
   assert.match(edge,/body\.accion === "reemplazar"/);
   assert.match(edge,/dash_reemplazo_permiso/);
   assert.match(css,/\.day-card\.has-daily-close \.day-close-item\.is-editable/);
   assert.match(css,/\.daily-evidence-edit-note\{/);
+  assert.match(css,/\.daily-evidence-preview\.is-existing em/);
 });
 
 test('phase 2 review is private, auditable and reopens observed evidence safely', () => {
@@ -318,7 +326,7 @@ test('daily pending panel is visible before entry and evidence opens without inl
   assert.match(html,/id="daily-evidence-process"[\s\S]*?id="daily-upload-step-confirm"/);
   assert.match(js,/setDailyEvidenceProcess\('upload'/);
   assert.match(js,/setDailyEvidenceProcess\('success'/);
-  assert.match(js,/Subiendo \$\{index\+1\} de \$\{count\}/);
+  assert.match(js,/Subiendo \$\{index\+1\} de \$\{DAILY_EVIDENCE\.files\.length\}/);
   assert.match(css,/@keyframes daily-check-draw/);
   assert.match(css,/\.portal\[data-time-phase\] \.today-layout \.day-card\.has-daily-close \.day-close\{[\s\S]*?var\(--ambient-strong\)/);
   assert.match(css,/Rediseño editorial del checklist/);

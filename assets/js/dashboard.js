@@ -164,8 +164,9 @@ function startTimeAmbience(){
 
 let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
-let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],video:null,busy:false,editing:false};
+let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
+let DAILY_EVIDENCE_LOAD=0;
 let DAILY_EXIT_BUSY=false;
 let MARK_BUSY = false;
 let MARK_SYNC_PROMISE = null;
@@ -1867,7 +1868,8 @@ function setDailyEvidenceProcess(phase,{title='',copy='',progress=0,current=0,to
 
 function closeDailyEvidenceEditor({restoreFocus=true}={}){
   if(DAILY_EVIDENCE.busy)return;
-  clearDailyEvidenceFiles();clearDailyEvidenceVideo();DAILY_EVIDENCE={requirement:'',assignment:null,title:'',files:[],video:null,busy:false,editing:false};
+  DAILY_EVIDENCE_LOAD++;
+  clearDailyEvidenceFiles();clearDailyEvidenceVideo();DAILY_EVIDENCE={requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
   $('daily-evidence-detail').value='';$('daily-issue-detail').value='';$('daily-issue-form').hidden=true;$('daily-issue-message').textContent='';dailyEvidenceMessage('');setDailyEvidenceProcess('idle');$('daily-evidence-editor').hidden=true;
   document.body.classList.remove('daily-evidence-open');
   if(restoreFocus&&DAILY_EVIDENCE_TRIGGER){DAILY_EVIDENCE_TRIGGER.focus();DAILY_EVIDENCE_TRIGGER=null}
@@ -1877,6 +1879,27 @@ function mountDailyEvidencePortal(){
   const editor=$('daily-evidence-editor');
   if(editor&&editor.parentElement!==document.body)document.body.append(editor);
   return editor;
+}
+
+async function loadDailyEditableEvidence(request){
+  const picker=$('daily-evidence-picker'),submit=$('daily-evidence-submit');
+  DAILY_EVIDENCE.loading=true;picker.disabled=true;submit.disabled=true;dailyEvidenceMessage('Cargando las imágenes que ya enviaste…','is-info');
+  const {data,error}=await db.rpc('dash_mi_entrega_editable',{p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment});
+  if(request!==DAILY_EVIDENCE_LOAD)return;
+  if(error||!data?.ok){DAILY_EVIDENCE.loading=false;dailyEvidenceMessage(dailyEvidenceFailure(data?.motivo||'cargar_actuales'),'is-error');return}
+  try{
+    const images=(data.archivos||[]).filter(file=>String(file.mime||'').startsWith('image/'));
+    const signed=await Promise.all(images.map(async file=>{const result=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);if(result.error||!result.data?.signedUrl)throw new Error('firma');return {...file,url:result.data.signedUrl}}));
+    if(request!==DAILY_EVIDENCE_LOAD)return;
+    DAILY_EVIDENCE.existingFiles=signed;
+    DAILY_EVIDENCE.existingVideoPath=(data.archivos||[]).find(file=>String(file.mime||'').startsWith('video/'))?.path||null;
+    $('daily-evidence-detail').value=data.detalle||'';
+    const savedMode=document.querySelector(`input[name="daily-evidence-mode"][value="${data.modalidad||'individuales'}"]`);if(savedMode)savedMode.checked=true;
+    if(DAILY_EVIDENCE.existingVideoPath)$('daily-video').hidden=true;
+    renderDailyEvidencePreviews();
+    dailyEvidenceMessage(`${signed.length} ${signed.length===1?'imagen actual':'imágenes actuales'}. Quita con × sólo las que deseas cambiar.${DAILY_EVIDENCE.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
+    DAILY_EVIDENCE.loading=false;picker.disabled=false;submit.disabled=false;
+  }catch{DAILY_EVIDENCE.loading=false;dailyEvidenceMessage('No pudimos mostrar tus imágenes actuales. Cierra el editor e inténtalo nuevamente.','is-error')}
 }
 
 function openDailyEvidenceEditor(requirement,assignment=null){
@@ -1890,11 +1913,11 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   if(editing&&!data.puede_editar_evidencias){toast('La edición sólo está disponible durante tu horario de trabajo.');return}
   closeDailyEvidenceEditor({restoreFocus:false});
   mountDailyEvidencePortal();
-  DAILY_EVIDENCE={requirement,assignment:assignment==null?null:Number(assignment),title:item.titulo,files:[],video:null,busy:false,editing};
+  DAILY_EVIDENCE={requirement,assignment:assignment==null?null:Number(assignment),title:item.titulo,files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing};
   $('daily-evidence-editor').querySelector('.daily-evidence-sheet').dataset.requirement=requirement;
   setDailyEvidenceProcess('idle');
   $('daily-evidence-title').textContent=editing?`Editar ${item.titulo}`:item.titulo;
-  $('daily-evidence-copy').textContent=editing?'Corrige la entrega antes de finalizar tu horario.':item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
+  $('daily-evidence-copy').textContent=editing?'Quita las imágenes incorrectas y añade sus reemplazos.':item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
   $('daily-evidence-edit-note').hidden=!editing;
   $('daily-evidence-edit-until').textContent=`Puedes editar hasta las ${fmtTime(data.hora_salida_programada)}`;
   $('daily-issue').hidden=requirement==='salida'||editing;
@@ -1906,11 +1929,12 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   $('daily-evidence-collage-option').hidden=!data.collage_permitido;
   const firstMode=document.querySelector('input[name="daily-evidence-mode"][value="individuales"]');if(firstMode)firstMode.checked=true;
   $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · ${data.comparticiones_min||5} capturas${data.collage_permitido?' o 1 collage':''}`:requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
-  $('daily-evidence-picker').querySelector('b').textContent=editing?'Elegir imágenes corregidas':'Elegir imágenes';
+  $('daily-evidence-picker').querySelector('b').textContent=editing?'Añadir imágenes':'Elegir imágenes';
   $('daily-evidence-submit').querySelector('span').textContent=editing?'Guardar cambios':'Guardar evidencia';
   $('daily-evidence-editor').hidden=false;
   document.body.classList.add('daily-evidence-open');
   requestAnimationFrame(()=>$('daily-evidence-cancel-top').focus({preventScroll:true}));
+  if(editing)loadDailyEditableEvidence(++DAILY_EVIDENCE_LOAD);
 }
 
 function dailyEvidenceMode(){
@@ -1929,21 +1953,22 @@ async function submitDailyIssue(){
 
 function renderDailyEvidencePreviews(){
   const box=$('daily-evidence-previews');if(!box)return;
-  box.hidden=!DAILY_EVIDENCE.files.length;
-  box.innerHTML=DAILY_EVIDENCE.files.map((item,index)=>`<div class="daily-evidence-preview" style="--preview-index:${index}"><em>${index+1}</em><img src="${esc(item.url)}" alt="Vista previa ${index+1}"><button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
+  const existing=DAILY_EVIDENCE.existingFiles||[],fresh=DAILY_EVIDENCE.files||[];
+  box.hidden=!(existing.length+fresh.length);
+  box.innerHTML=existing.map((item,index)=>`<div class="daily-evidence-preview is-existing" style="--preview-index:${index}"><em>Actual</em><img src="${esc(item.url)}" alt="Imagen actual ${index+1}"><button type="button" data-remove-existing-file="${index}" aria-label="Quitar imagen actual ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('')+fresh.map((item,index)=>`<div class="daily-evidence-preview is-new" style="--preview-index:${existing.length+index}"><em>Nueva</em><img src="${esc(item.url)}" alt="Imagen nueva ${index+1}"><button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen nueva ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
 }
 
 async function chooseDailyEvidence(files){
   if(!files?.length)return;
-  const max=DAILY_EVIDENCE.requirement==='salida'||DAILY_EVIDENCE.requirement==='comparticiones'&&dailyEvidenceMode()==='collage'?1:5;
+  const allowed=DAILY_EVIDENCE.requirement==='salida'||DAILY_EVIDENCE.requirement==='comparticiones'&&dailyEvidenceMode()==='collage'?1:5,max=Math.max(0,allowed-(DAILY_EVIDENCE.existingFiles?.length||0));
   const selected=[...files].slice(0,max);
-  if([...files].length>max)return dailyEvidenceMessage(max===1?(DAILY_EVIDENCE.requirement==='salida'?'La evidencia de salida admite una sola foto.':'El modo collage admite una sola imagen.'):'Puedes adjuntar como máximo 5 imágenes.');
+  if([...files].length>max)return dailyEvidenceMessage(max===0?'Quita primero una imagen actual para poder añadir su reemplazo.':max===1?(DAILY_EVIDENCE.requirement==='salida'?'La evidencia de salida admite una sola foto.':'El modo collage admite una sola imagen.'):`Puedes añadir ${max} ${max===1?'imagen más':'imágenes más'} como máximo.`);
   if(selected.some(file=>file.size>25*1024*1024))return dailyEvidenceMessage('Una de las imágenes supera 25 MB. Elige una versión más pequeña.');
   dailyEvidenceMessage('Preparando imágenes…','is-info');
   try{
     clearDailyEvidenceFiles();
     const prepared=await Promise.all(selected.map(async file=>{const blob=await compressImage(file);return {blob,url:URL.createObjectURL(blob)}}));
-    DAILY_EVIDENCE.files=prepared;renderDailyEvidencePreviews();dailyEvidenceMessage(`${prepared.length} ${prepared.length===1?'imagen lista':'imágenes listas'} para entregar.`,'is-ready');
+    DAILY_EVIDENCE.files=prepared;renderDailyEvidencePreviews();const total=(DAILY_EVIDENCE.existingFiles?.length||0)+prepared.length;dailyEvidenceMessage(`${total} ${total===1?'imagen quedará':'imágenes quedarán'} en la entrega al guardar.`,'is-ready');
   }catch{clearDailyEvidenceFiles();dailyEvidenceMessage('No pudimos procesar una imagen. Prueba con JPG, PNG o WebP.')}
 }
 
@@ -2020,32 +2045,34 @@ function dailyEvidenceFailure(reason){
     ya_completo:'Esta evidencia ya estaba registrada.',
     fuera_horario_edicion:'Tu horario de trabajo ya terminó. La evidencia quedó bloqueada y no puede modificarse.',
     sin_entrega:'La entrega cambió o ya no está disponible. Actualiza el portal e inténtalo de nuevo.',
+    cargar_actuales:'No pudimos cargar tus imágenes actuales. Cierra el editor e inténtalo nuevamente.',
+    archivo_ajeno:'La entrega cambió mientras la editabas. Vuelve a abrirla antes de guardar.',
     cambio_concurrente:'La evidencia cambió mientras la editabas. Actualiza el portal antes de volver a intentarlo.',
     subida:'No pudimos subir una imagen. Revisa tu conexión e inténtalo nuevamente.'
   }[reason]||'No pudimos guardar la evidencia. Revisa los archivos e inténtalo otra vez.';
 }
 
 async function submitDailyEvidence(event){
-  event.preventDefault();if(DAILY_EVIDENCE.busy)return;
-  const editing=!!DAILY_EVIDENCE.editing,mode=dailyEvidenceMode(),min=Number(APP.cierre?.comparticiones_min||5),count=DAILY_EVIDENCE.files.length,total=count+(DAILY_EVIDENCE.video?1:0);
+  event.preventDefault();if(DAILY_EVIDENCE.busy||DAILY_EVIDENCE.loading)return;
+  const editing=!!DAILY_EVIDENCE.editing,mode=dailyEvidenceMode(),min=Number(APP.cierre?.comparticiones_min||5),count=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length,uploadTotal=DAILY_EVIDENCE.files.length+(DAILY_EVIDENCE.video?1:0);
   const selection=CLOSE_MODEL.evidenceSelectionPolicy({requirement:DAILY_EVIDENCE.requirement,mode,count,min,collageAllowed:!!APP.cierre?.collage_permitido});
   if(!selection.ok){const messages={vacio:'Selecciona al menos una imagen.',minimo:`Selecciona ${min} capturas para completar este requisito.`,maximo:'Puedes adjuntar como máximo 5 imágenes.',cantidad_collage:'Selecciona una sola imagen tipo collage.',collage_no_permitido:'La modalidad collage está deshabilitada.'};return dailyEvidenceMessage(messages[selection.reason]||'Revisa las imágenes seleccionadas.')}
 
   const button=$('daily-evidence-submit');DAILY_EVIDENCE.busy=true;button.disabled=true;button.querySelector('span').textContent='Subiendo…';dailyEvidenceMessage('');
   const paths=[];
   try{
-    setDailyEvidenceProcess('upload',{title:editing?'Preparando tu corrección':'Preparando un envío seguro',copy:`Validando ${total} ${total===1?'evidencia':'evidencias'} antes de enviarlas.`,progress:.08,current:0,total});
+    setDailyEvidenceProcess('upload',{title:editing?'Preparando tu corrección':'Preparando un envío seguro',copy:uploadTotal?`Validando ${uploadTotal} ${uploadTotal===1?'archivo nuevo':'archivos nuevos'} antes de enviarlos.`:'Conservando las imágenes correctas y retirando las seleccionadas.',progress:.08,current:0,total:Math.max(uploadTotal,1)});
     dailyUploadStep('prepare','done','Archivos protegidos');
-    dailyUploadStep('upload','active',`0 de ${total} archivos`);
+    dailyUploadStep('upload',uploadTotal?'active':'done',uploadTotal?`0 de ${uploadTotal} archivos`:'Sin archivos nuevos');
     for(let index=0;index<DAILY_EVIDENCE.files.length;index++){
-      $('daily-upload-copy').textContent=`Subiendo ${index+1} de ${count}. Mantén esta ventana abierta.`;
-      $('daily-upload-progress-bar').style.transform=`scaleX(${.12+(index/total)*.68})`;
+      $('daily-upload-copy').textContent=`Subiendo ${index+1} de ${DAILY_EVIDENCE.files.length}. Mantén esta ventana abierta.`;
+      $('daily-upload-progress-bar').style.transform=`scaleX(${.12+(index/uploadTotal)*.68})`;
       paths.push(await uploadDailyEvidence(DAILY_EVIDENCE.files[index].blob));
-      $('daily-upload-count').textContent=`${index+1} de ${total} archivos`;
-      $('daily-upload-progress-bar').style.transform=`scaleX(${.12+((index+1)/total)*.68})`;
+      $('daily-upload-count').textContent=`${index+1} de ${uploadTotal} archivos`;
+      $('daily-upload-progress-bar').style.transform=`scaleX(${.12+((index+1)/uploadTotal)*.68})`;
     }
-    let videoPath=null;if(DAILY_EVIDENCE.video){$('daily-upload-copy').textContent='Subiendo el video corto. Mantén esta ventana abierta.';videoPath=await uploadDailyVideo();paths.push(videoPath);$('daily-upload-count').textContent=`${total} de ${total} archivos`;}
-    dailyUploadStep('upload','done',`${total} ${total===1?'archivo enviado':'archivos enviados'}`);
+    let videoPath=null;if(DAILY_EVIDENCE.video){$('daily-upload-copy').textContent='Subiendo el video corto. Mantén esta ventana abierta.';videoPath=await uploadDailyVideo();paths.push(videoPath);$('daily-upload-count').textContent=`${uploadTotal} de ${uploadTotal} archivos`;}
+    dailyUploadStep('upload','done',uploadTotal?`${uploadTotal} ${uploadTotal===1?'archivo enviado':'archivos enviados'}`:'Imágenes actuales organizadas');
     dailyUploadStep('confirm','active','Guardando registro oficial');
     $('daily-upload-title').textContent=editing?'Confirmando los cambios':'Confirmando tu entrega';
     $('daily-upload-copy').textContent=editing?'Las imágenes llegaron. Estamos reemplazando la versión anterior de forma segura.':'Las imágenes llegaron. Estamos registrando el requisito como completo.';
@@ -2054,7 +2081,7 @@ async function submitDailyEvidence(event){
       p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment,
       p_modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?mode:null,
       p_paths:paths.filter(path=>path!==videoPath),p_detalle:$('daily-evidence-detail').value.trim()||null,
-      ...(editing?{p_video_path:videoPath}: {})
+      ...(editing?{p_conservar_paths:[...(DAILY_EVIDENCE.existingFiles||[]).map(file=>file.path),...(DAILY_EVIDENCE.existingVideoPath?[DAILY_EVIDENCE.existingVideoPath]:[])],p_video_path:videoPath}: {})
     });
     if(error||!data?.ok)throw Object.assign(new Error(data?.motivo||error?.message||'guardar'),{motivo:data?.motivo||'guardar'});
     let videoWarning='';
@@ -2066,7 +2093,7 @@ async function submitDailyEvidence(event){
       revision_nota:null
     }]});
     dailyUploadStep('confirm','done','Entrega registrada');
-    setDailyEvidenceProcess('success',{title:editing?'¡Cambios guardados!':'¡Evidencia completada!',copy:editing?`${DAILY_EVIDENCE.title} fue reemplazada y volvió a revisión.`:`${DAILY_EVIDENCE.title} quedó registrada correctamente.${videoWarning}`,progress:1,current:total,total});
+    setDailyEvidenceProcess('success',{title:editing?'¡Cambios guardados!':'¡Evidencia completada!',copy:editing?`${DAILY_EVIDENCE.title} fue actualizada y volvió a revisión.`:`${DAILY_EVIDENCE.title} quedó registrada correctamente.${videoWarning}`,progress:1,current:Math.max(uploadTotal,1),total:Math.max(uploadTotal,1)});
     await new Promise(resolve=>setTimeout(resolve,matchMedia('(prefers-reduced-motion: reduce)').matches?320:760));
     DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast(editing?'Cambios guardados. La evidencia volvió a revisión.':'Evidencia guardada correctamente.');
   }catch(error){
@@ -2128,11 +2155,14 @@ $('daily-video-picker').onclick=()=>$('daily-video-file').click();
 $('daily-video-file').onchange=event=>chooseDailyVideo(event.target.files);
 $('daily-video-remove').onclick=clearDailyEvidenceVideo;
 $('daily-evidence-previews').addEventListener('click',event=>{
-  const button=event.target.closest('[data-remove-daily-file]');if(!button||DAILY_EVIDENCE.busy)return;
-  const index=Number(button.dataset.removeDailyFile),item=DAILY_EVIDENCE.files[index];if(item?.url)URL.revokeObjectURL(item.url);
-  DAILY_EVIDENCE.files.splice(index,1);renderDailyEvidencePreviews();
+  const button=event.target.closest('[data-remove-daily-file],[data-remove-existing-file]');if(!button||DAILY_EVIDENCE.busy||DAILY_EVIDENCE.loading)return;
+  if(button.dataset.removeExistingFile!=null){DAILY_EVIDENCE.existingFiles.splice(Number(button.dataset.removeExistingFile),1)}
+  else{const index=Number(button.dataset.removeDailyFile),item=DAILY_EVIDENCE.files[index];if(item?.url)URL.revokeObjectURL(item.url);DAILY_EVIDENCE.files.splice(index,1)}
+  renderDailyEvidencePreviews();
+  const total=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length;
+  dailyEvidenceMessage(total?`${total} ${total===1?'imagen quedará':'imágenes quedarán'} al guardar. Puedes añadir reemplazos.`:'Quitaste todas las imágenes. Añade al menos una antes de guardar.',total?'is-info':'is-error');
 });
-document.querySelectorAll('input[name="daily-evidence-mode"]').forEach(input=>input.addEventListener('change',()=>{clearDailyEvidenceFiles();dailyEvidenceMessage('Selecciona las imágenes para el formato elegido.','is-info')}));
+document.querySelectorAll('input[name="daily-evidence-mode"]').forEach(input=>input.addEventListener('change',()=>{clearDailyEvidenceFiles();DAILY_EVIDENCE.existingFiles=[];renderDailyEvidencePreviews();dailyEvidenceMessage('El formato cambió. Selecciona nuevamente las imágenes que conservará esta entrega.','is-info')}));
 $('daily-evidence-editor').addEventListener('submit',submitDailyEvidence);
 $('daily-issue-toggle').onclick=()=>{$('daily-issue-form').hidden=!$('daily-issue-form').hidden;if(!$('daily-issue-form').hidden)$('daily-issue-detail').focus()};
 $('daily-issue-submit').onclick=submitDailyIssue;
