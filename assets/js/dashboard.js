@@ -1677,22 +1677,31 @@ function dailyCloseGuidePresentation(data){
 
 function dailyCloseItemMarkup(item,{entry=false}={}){
   const complete=!!item.completo,locked=!!item.locked,editable=complete&&!!item.editable;
+  const facebookReceipt=complete&&item.tipo==='comparticiones';
   const review=item.revision_estado||'';
-  const status=review==='observada'?'Corregir':editable?'Editar':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Primero':locked&&item.tipo==='salida'?'Al finalizar':locked?'Después':item.impedimento?'Informado':'Pendiente';
+  const status=review==='observada'?'Corregir':facebookReceipt?'Compartido':editable?'Editar':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Primero':locked&&item.tipo==='salida'?'Al finalizar':locked?'Después':item.impedimento?'Informado':'Pendiente';
   const icons={
     comparticiones:'<svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 21v-8h2.8l.4-3.1h-3.2v-2c0-.9.3-1.5 1.6-1.5H17V3.6c-.8-.1-1.6-.2-2.4-.2-2.4 0-4.1 1.5-4.1 4.2v2.3H7.8V13h2.7v8h3.2Z"/></svg>',
     rpe:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v5h5M10 12h5M10 16h5"/></svg>',
     salida:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4l1.5-2h5L16 7h4v12H4z"/><circle cx="12" cy="13" r="3"/><path d="M18 3v3M16.5 4.5h3"/></svg>'
   };
-  const icon=complete?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>':icons[item.tipo]||'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>';
+  const checkIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
+  const icon=facebookReceipt
+    ? `${icons.comparticiones}<span class="day-close-check-badge">${checkIcon}</span>`
+    : complete?checkIcon:icons[item.tipo]||'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>';
   const attrs=entry||locked||complete&&!editable?'disabled':`data-daily-requirement="${esc(item.tipo)}" aria-haspopup="dialog" aria-controls="daily-evidence-editor"${editable?' data-daily-edit="true"':''}${item.asignacion==null?'':` data-daily-assignment="${esc(item.asignacion)}"`}`;
   const description=item.tipo==='salida'&&!complete
     ? (locked?'1 foto con la hora visible, disponible al finalizar':'Adjunta 1 foto donde se vea la hora de salida')
     : (item.descripcion||'Adjunta la evidencia correspondiente');
-  return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${editable?'is-editable ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}${editable?` aria-label="Editar ${esc(item.titulo)}"`:''}>
+  const receipt=facebookReceipt?`<span class="facebook-share-receipt">
+      <span class="facebook-share-author"><small>COMPARTIDO POR</small><b>${esc(item.compartido_por||'Colaborador KJA')}</b><em>${esc(item.compartido_dni?`DNI ${item.compartido_dni}`:'DNI verificado')}</em></span>
+      <span class="facebook-share-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.2 1.8"/></svg><span><small>HORA REGISTRADA</small><b>${esc(item.registrado_at?formatAttendanceClock(item.registrado_at):'Por sincronizar')}</b><em>Hora del servidor</em></span></span>
+    </span>`:'';
+  return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${editable?'is-editable ':''}${facebookReceipt?'has-facebook-receipt ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}${editable?` aria-label="Editar ${esc(item.titulo)}"`:''}>
     <span class="day-close-check">${icon}</span>
     <span class="day-close-item-copy"><b>${esc(item.titulo)}</b><small>${esc(description)}</small></span>
     <span class="day-close-item-status">${esc(status)}${editable?'<svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l10.5-10.5-4-4zM12.8 7.2l4 4"/></svg>':!complete&&!locked?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>':''}</span>
+    ${receipt}
   </button>`;
 }
 
@@ -1763,7 +1772,12 @@ function renderDailyClose(){
     tipo:'entrada',titulo:entryComplete?'Entrada registrada':'Registrar asistencia',
     descripcion:entryComplete?`Marcada a las ${formatAttendanceClock(data.entrada_at)}`:'Registra primero tu asistencia de entrada',
     completo:entryComplete,locked:true
-  },...(data.requisitos||[]).map(item=>({...item,editable:item.tipo!=='salida'&&!!item.completo&&!!data.puede_editar_evidencias,locked:locked||!!item.bloqueado})),...(data.asignaciones||[]).map(item=>({
+  },...(data.requisitos||[]).map(item=>({...item,
+    compartido_por:item.tipo==='comparticiones'?APP.inicio?.colaborador?.nombre:null,
+    compartido_dni:item.tipo==='comparticiones'?APP.inicio?.colaborador?.dni:null,
+    editable:item.tipo!=='salida'&&!!item.completo&&!!data.puede_editar_evidencias,
+    locked:locked||!!item.bloqueado
+  })),...(data.asignaciones||[]).map(item=>({
     tipo:'asignado',asignacion:item.id,titulo:item.titulo,
     descripcion:item.instrucciones||`${cap(item.tipo||'Entregable')} asignado para hoy`,
     completo:item.completo,editable:!!item.completo&&!!data.puede_editar_evidencias,locked

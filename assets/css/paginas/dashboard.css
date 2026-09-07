@@ -8074,3 +8074,140 @@ body.daily-evidence-open{overflow:hidden}
   .mobile-portal-sheet{padding-inline:12px}
   .mobile-quick-grid button{min-height:78px;padding:13px 76px 13px 14px}
 }
+
+/* Comprobante de compartición: identidad de Facebook y trazabilidad legible. */
+.day-card.has-daily-close .day-close-checklist{max-height:320px}
+.day-card.has-daily-close .day-close-item.has-facebook-receipt{
+  min-height:118px;
+  grid-template-columns:36px minmax(0,1fr) auto;
+  row-gap:0;
+  margin:4px 0;
+  padding:11px 12px 12px;
+  border:1px solid rgba(24,119,242,.18);
+  border-radius:13px;
+  background:linear-gradient(112deg,rgba(236,246,255,.96),rgba(255,255,255,.74) 58%,rgba(231,248,242,.82));
+  box-shadow:0 8px 22px rgba(17,73,128,.07),inset 0 1px 0 rgba(255,255,255,.85);
+}
+.day-card.has-daily-close .day-close-item.has-facebook-receipt .day-close-check{
+  width:36px;
+  height:36px;
+  overflow:visible;
+  border-color:rgba(255,255,255,.78);
+  color:#fff;
+  background:linear-gradient(155deg,#54a4ff 0%,#1877f2 48%,#0759c7 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(0,53,139,.2),0 5px 12px rgba(24,119,242,.23);
+}
+.day-card.has-daily-close .day-close-item.has-facebook-receipt .day-close-check>.brand-icon{
+  width:20px;
+  height:20px;
+  fill:#fff;
+  stroke:none;
+}
+.day-close-check-badge{
+  position:absolute;
+  right:-5px;
+  bottom:-5px;
+  z-index:2;
+  width:16px;
+  height:16px;
+  display:grid;
+  place-items:center;
+  border:2px solid #f4f9fd;
+  border-radius:50%;
+  color:#fff;
+  background:#159b78;
+  box-shadow:0 3px 7px rgba(8,115,90,.22);
+}
+.day-card.has-daily-close .day-close-check .day-close-check-badge svg{
+  width:9px;
+  height:9px;
+  fill:none;
+  stroke:#fff;
+  stroke-width:3;
+  filter:none;
+}
+.day-card.has-daily-close .day-close-item.has-facebook-receipt .day-close-item-copy b{color:#075abc;font-size:12.5px}
+.day-card.has-daily-close .day-close-item.has-facebook-receipt .day-close-item-copy small{color:#56718d}
+.day-card.has-daily-close .day-close-item.has-facebook-receipt .day-close-item-status{align-self:start;margin-top:7px;color:#08735a}
+.facebook-share-receipt{
+  grid-column:2/-1;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(132px,.54fr);
+  align-items:center;
+  gap:14px;
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(31,91,143,.13);
+  pointer-events:none;
+}
+.facebook-share-author,.facebook-share-time,.facebook-share-time>span{min-width:0;display:block}
+.facebook-share-author small,.facebook-share-author b,.facebook-share-author em,
+.facebook-share-time small,.facebook-share-time b,.facebook-share-time em{display:block;font-style:normal}
+.facebook-share-author small,.facebook-share-time small{
+  color:#668099;
+  font-size:7.5px;
+  font-weight:800;
+  line-height:1.3;
+  letter-spacing:.115em;
+}
+.facebook-share-author b{
+  margin-top:3px;
+  overflow:hidden;
+  color:#173656;
+  font-size:10.5px;
+  line-height:1.35;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.facebook-share-author em,.facebook-share-time em{margin-top:2px;color:#71869a;font-size:8px;line-height:1.3}
+.facebook-share-time{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:8px;padding-left:14px;border-left:1px solid rgba(31,91,143,.13)}
+.facebook-share-time>svg{
+  width:28px;
+  height:28px;
+  padding:6px;
+  border-radius:9px;
+  color:#08735a;
+  background:#e2f5ee;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.facebook-share-time b{margin-top:2px;color:#173656;font-size:11px;font-variant-numeric:tabular-nums;line-height:1.25}
+.day-card.has-daily-close .day-close-item.has-facebook-receipt.is-editable:hover{
+  background:linear-gradient(112deg,rgba(226,241,255,.98),rgba(255,255,255,.82) 58%,rgba(220,246,237,.9));
+  box-shadow:0 10px 25px rgba(17,73,128,.1),inset 0 0 0 1px rgba(24,119,242,.06);
+  transform:none;
+}
+.day-card.has-daily-close .day-close-item.has-facebook-receipt:focus-visible{outline-color:#1877f2}
+
+@media(max-width:900px){
+  .mobile-close-panel .day-close-item.has-facebook-receipt{
+    min-height:132px;
+    grid-template-columns:36px minmax(0,1fr) auto;
+    margin:5px -5px;
+    padding:11px 10px 12px;
+    border:1px solid rgba(24,119,242,.17);
+    background:linear-gradient(112deg,#edf7ff,#fff 60%,#edf9f5);
+  }
+  .mobile-close-panel .day-close-item.has-facebook-receipt .day-close-item-copy b{color:#075abc;font-size:12px}
+  .mobile-close-panel .day-close-item.has-facebook-receipt .day-close-item-status{grid-column:auto;justify-self:end;margin-top:7px}
+  .mobile-close-panel .facebook-share-receipt{grid-column:2/-1}
+  .mobile-close-panel .day-close-item.has-facebook-receipt .day-close-check{
+    overflow:visible;
+    border-color:rgba(255,255,255,.78);
+    color:#fff;
+    background:linear-gradient(155deg,#54a4ff 0%,#1877f2 48%,#0759c7 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 5px 12px rgba(24,119,242,.2);
+  }
+  .mobile-close-panel .day-close-item.has-facebook-receipt .day-close-check>.brand-icon{width:19px;height:19px;fill:#fff;stroke:none}
+}
+
+@media(max-width:420px){
+  .mobile-close-panel .day-close-item.has-facebook-receipt{min-height:158px;grid-template-columns:36px minmax(0,1fr)}
+  .mobile-close-panel .day-close-item.has-facebook-receipt .day-close-item-status{grid-column:2;justify-self:start;margin:4px 0 0}
+  .mobile-close-panel .facebook-share-receipt{grid-column:1/-1;grid-template-columns:1fr;gap:8px;margin-top:9px}
+  .mobile-close-panel .facebook-share-time{padding:8px 0 0;border-top:1px solid rgba(31,91,143,.1);border-left:0}
+  .facebook-share-author b{white-space:normal}
+}

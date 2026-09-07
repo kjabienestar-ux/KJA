@@ -20,6 +20,7 @@ const issueSql = fs.readFileSync(new URL('../supabase/dashboard_25_impedimentos_
 const exitPhotoSql = fs.readFileSync(new URL('../supabase/dashboard_26_evidencia_hora_salida.sql', import.meta.url), 'utf8');
 const shortVideoSql = fs.readFileSync(new URL('../supabase/dashboard_27_video_corto.sql', import.meta.url), 'utf8');
 const evidenceEditSql = fs.readFileSync(new URL('../supabase/dashboard_28_edicion_evidencias_jornada.sql', import.meta.url), 'utf8');
+const facebookReceiptSql = fs.readFileSync(new URL('../supabase/dashboard_29_comprobante_comparticiones.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -201,6 +202,24 @@ test('phase 8 lets the owner replace evidence only while their workday is open',
   assert.match(css,/\.day-card\.has-daily-close \.day-close-item\.is-editable/);
   assert.match(css,/\.daily-evidence-edit-note\{/);
   assert.match(css,/\.daily-evidence-preview\.is-existing em/);
+});
+
+test('completed Facebook evidence shows an identity-safe server receipt', () => {
+  for (const fragment of [
+    'dash_cierre_resumen_colab_base_29',
+    "e.requisito='comparticiones'",
+    "e.estado='completo'",
+    "jsonb_build_object('registrado_at',v_registrado_at)",
+    'max(e.completado_at)',
+  ]) assert.ok(facebookReceiptSql.includes(fragment), `Facebook receipt migration missing: ${fragment}`);
+  assert.match(js,/const facebookReceipt=complete&&item\.tipo==='comparticiones'/);
+  assert.match(js,/class="facebook-share-receipt"/);
+  assert.match(js,/COMPARTIDO POR/);
+  assert.match(js,/HORA REGISTRADA/);
+  assert.match(js,/APP\.inicio\?\.colaborador\?\.dni/);
+  assert.match(css,/\.day-close-item\.has-facebook-receipt\{/);
+  assert.match(css,/\.facebook-share-receipt\{/);
+  assert.match(css,/\.day-close-check-badge\{/);
 });
 
 test('phase 2 review is private, auditable and reopens observed evidence safely', () => {
