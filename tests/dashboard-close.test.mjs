@@ -69,8 +69,6 @@ test('dashboard has unique ids and the complete close workflow', () => {
     'mobile-close-action',
     'facebook-share-modal',
     'facebook-share-gallery',
-    'facebook-share-submit',
-    'facebook-share-download',
   ]) assert.ok(ids.includes(id), `missing #${id}`);
 
   assert.match(html, /id="daily-evidence-file"[^>]*\bmultiple\b/);
@@ -227,7 +225,7 @@ test('completed Facebook evidence shows an identity-safe server receipt', () => 
   assert.match(css,/\.day-close-check-badge\{/);
 });
 
-test('Facebook receipt previews private files and prepares a WhatsApp share safely', () => {
+test('Facebook receipt previews compact, ordered private images', () => {
   for (const fragment of [
     'create or replace function public.dash_mi_comprobante_comparticiones()',
     'public.dash_sesion_vigente()',
@@ -237,18 +235,20 @@ test('Facebook receipt previews private files and prepares a WhatsApp share safe
     "'area',coalesce(v_area,'Sin área')",
     "'archivos',v_archivos",
     'grant execute on function public.dash_mi_comprobante_comparticiones()',
-  ]) assert.ok(whatsappShareSql.includes(fragment), `WhatsApp share migration missing: ${fragment}`);
+  ]) assert.ok(whatsappShareSql.includes(fragment), `Facebook receipt migration missing: ${fragment}`);
   assert.match(html,/id="facebook-share-modal"[^>]*hidden/);
   assert.match(html,/id="facebook-share-gallery"[^>]*aria-live="polite"/);
+  assert.match(html,/Comprobante de evidencias/);
+  assert.doesNotMatch(html,/Compartir y elegir WhatsApp|Enviar evidencias por WhatsApp/);
   assert.match(js,/data-facebook-share-open/);
   assert.match(js,/db\.rpc\('dash_mi_comprobante_comparticiones'\)/);
   assert.match(js,/createSignedUrl\(file\.path,900\)/);
-  assert.match(js,/navigator\.canShare\(\{files:FACEBOOK_SHARE\.files\}\)/);
-  assert.match(js,/navigator\.share\(\{title:'Evidencias de Facebook · KJA'/);
-  assert.match(js,/https:\/\/wa\.me\/\?text=/);
+  assert.match(js,/toca para ampliar/);
+  assert.doesNotMatch(js,/navigator\.share|wa\.me|submitFacebookShare|downloadFacebookShareFiles/);
   assert.match(css,/\.facebook-share-workspace\{[\s\S]*?grid-template-columns:/);
+  assert.match(css,/\.facebook-share-gallery\{[\s\S]*?grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(css,/\.facebook-share-gallery img\{[\s\S]*?object-fit:contain/);
-  assert.match(css,/@media\(max-width:700px\)\{[\s\S]*?\.facebook-share-gallery\{[\s\S]*?grid-template-columns:1fr/);
+  assert.match(css,/@media\(max-width:700px\)\{[\s\S]*?\.facebook-share-gallery\{[\s\S]*?grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
 
 test('phase 2 review is private, auditable and reopens observed evidence safely', () => {

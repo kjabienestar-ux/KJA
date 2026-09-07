@@ -8249,24 +8249,24 @@ body.daily-evidence-open{overflow:hidden}
   border:0;
   border-radius:11px;
   color:#fff;
-  background:#08735a;
-  box-shadow:0 8px 18px rgba(8,115,90,.16);
+  background:#075abc;
+  box-shadow:0 8px 18px rgba(7,90,188,.17);
   text-align:left;
   cursor:pointer;
 }
-.facebook-share-open:hover{background:#09644f;box-shadow:0 10px 22px rgba(8,96,75,.2)}
+.facebook-share-open:hover{background:#064d9f;box-shadow:0 10px 22px rgba(7,75,159,.21)}
 .facebook-share-open-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:rgba(255,255,255,.13)}
 .facebook-share-open-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.facebook-share-open b,.facebook-share-open small{display:block}.facebook-share-open b{font-size:10.5px;line-height:1.3}.facebook-share-open small{margin-top:2px;color:#d9f2e9;font-size:8.5px;line-height:1.3}
+.facebook-share-open b,.facebook-share-open small{display:block}.facebook-share-open b{font-size:10.5px;line-height:1.3}.facebook-share-open small{margin-top:2px;color:#dcecff;font-size:8.5px;line-height:1.3}
 .facebook-share-open-arrow{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-/* Vista previa privada para compartir evidencias. */
+/* Comprobante privado de evidencias. */
 body.facebook-share-open{overflow:hidden}
 .facebook-share-modal{z-index:1010;padding:20px}
 .facebook-share-sheet{
   position:relative;
   z-index:1;
-  width:min(1120px,100%);
+  width:min(1040px,100%);
   max-height:calc(100dvh - 40px);
   display:grid;
   grid-template-rows:auto minmax(0,1fr);
@@ -8291,17 +8291,17 @@ body.facebook-share-open{overflow:hidden}
 .facebook-share-head h2,.facebook-share-head p{margin:0}.facebook-share-head h2{color:#102f55;font-size:20px;line-height:1.25;letter-spacing:-.025em}.facebook-share-head p{margin-top:4px;color:#5d7188;font-size:11px;line-height:1.45}
 .facebook-share-close{width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid #dbe5ed;border-radius:12px;color:#536a82;background:#f5f8fb}
 .facebook-share-close:hover{color:#09244c;background:#eaf1f7}.facebook-share-close:focus-visible{outline:3px solid #43c5d1;outline-offset:2px}.facebook-share-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
-.facebook-share-workspace{min-height:0;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,.72fr)}
-.facebook-share-gallery-wrap{min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);padding:20px 22px 22px;background:#edf3f8}
+.facebook-share-workspace{min-height:0;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.8fr)}
+.facebook-share-gallery-wrap{min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);padding:18px 20px 20px;background:#edf3f8}
 .facebook-share-gallery-wrap>header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:13px}
 .facebook-share-gallery-wrap h3,.facebook-share-gallery-wrap p{margin:0}.facebook-share-gallery-wrap h3{color:#173656;font-size:15px;letter-spacing:-.015em}.facebook-share-gallery-wrap p{margin-top:4px;color:#60758b;font-size:10px}
 .facebook-share-ready{flex:0 0 auto;padding:6px 9px;border-radius:999px;color:#75601e;background:#fff0d7;font-size:9px;font-weight:800}.facebook-share-ready[data-state="ready"]{color:#08735a;background:#dcf4eb}.facebook-share-ready[data-state="error"]{color:#922e43;background:#ffe8ed}
-.facebook-share-gallery{min-height:320px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:11px;overflow:auto;padding:2px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#9fb1c2 transparent}
+.facebook-share-gallery{min-height:260px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-content:start;gap:9px;overflow:auto;padding:2px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#9fb1c2 transparent}
 .facebook-share-gallery figure{min-width:0;margin:0;overflow:hidden;border-radius:12px;background:#fff;box-shadow:0 8px 22px rgba(16,47,85,.08)}
-.facebook-share-gallery figure>a{min-height:205px;display:grid;place-items:center;padding:7px;background:#071a34}
-.facebook-share-gallery img{width:100%;height:auto;max-height:390px;display:block;object-fit:contain}
+.facebook-share-gallery figure>a{min-height:138px;display:grid;place-items:center;padding:5px;background:#071a34}
+.facebook-share-gallery img{width:100%;height:auto;max-height:210px;display:block;object-fit:contain}
 .facebook-share-gallery figcaption{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;color:#173656}.facebook-share-gallery figcaption span b,.facebook-share-gallery figcaption span small{display:block}.facebook-share-gallery figcaption b{font-size:10px}.facebook-share-gallery figcaption small{margin-top:2px;color:#71849a;font-size:8px}.facebook-share-gallery figcaption em{font-style:normal;color:#075abc;font-size:8px;font-weight:800}
-.facebook-share-skeleton{min-height:245px;border-radius:12px;background:linear-gradient(110deg,#dfe7ee 28%,#f3f7fa 43%,#dfe7ee 58%);background-size:220% 100%;animation:facebook-share-loading 1.4s ease-in-out infinite}
+.facebook-share-skeleton{min-height:190px;border-radius:12px;background:linear-gradient(110deg,#dfe7ee 28%,#f3f7fa 43%,#dfe7ee 58%);background-size:220% 100%;animation:facebook-share-loading 1.4s ease-in-out infinite}
 .facebook-share-error{grid-column:1/-1;align-self:center;max-width:44ch;margin:auto!important;padding:24px;color:#922e43!important;text-align:center;font-size:11px!important;line-height:1.55}
 .facebook-share-details{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:auto;padding:22px;background:#fff;scrollbar-width:thin;scrollbar-color:#b4c1ce transparent}
 .facebook-share-person{display:grid;grid-template-columns:46px minmax(0,1fr);align-items:center;gap:12px;padding-bottom:17px;border-bottom:1px solid #e5ebf1}
@@ -8311,11 +8311,7 @@ body.facebook-share-open{overflow:hidden}
 .facebook-share-facts>div{min-width:0;padding:9px 8px;border-bottom:1px solid #e8edf2}.facebook-share-facts>div:nth-child(odd){padding-left:0}.facebook-share-facts>div:nth-child(even){padding-right:0}
 .facebook-share-facts dt{color:#718399;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}.facebook-share-facts dd{margin:4px 0 0;overflow-wrap:anywhere;color:#243f5d;font-size:10px;font-weight:700;line-height:1.35;font-variant-numeric:tabular-nums}
 .facebook-share-comment{margin-top:15px;padding-bottom:15px;border-bottom:1px solid #e8edf2}.facebook-share-comment small{color:#718399;font-size:8px;font-weight:800;letter-spacing:.08em}.facebook-share-comment p{margin:6px 0 0;color:#40566f;font-size:10px;line-height:1.5;overflow-wrap:anywhere}
-.facebook-share-help{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:10px;margin-top:15px;padding:11px 12px;border-radius:11px;color:#155c4d;background:#eaf7f2}.facebook-share-help svg{width:32px;height:32px;padding:6px;border-radius:9px;color:#08735a;background:#d7f0e7;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.facebook-share-help p{margin:0;font-size:9px;line-height:1.45}
-.facebook-share-message{min-height:30px;margin:10px 0 0;color:#60758b;font-size:9px;line-height:1.45}.facebook-share-message.is-error{color:#922e43}.facebook-share-message.is-success{color:#08735a}.facebook-share-message.is-info{color:#075abc}
-.facebook-share-details footer{display:grid;gap:8px;margin-top:auto;padding-top:13px;border-top:1px solid #e6ecf1}.facebook-share-details footer button{min-height:47px;display:flex;align-items:center;justify-content:center;gap:9px;border-radius:11px;font-size:10px;font-weight:800}.facebook-share-details footer button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.facebook-share-download{border:1px solid #cbd9e5;color:#31516f;background:#fff}.facebook-share-download:hover:not(:disabled){border-color:#8facbf;background:#f4f8fb}
-.facebook-share-submit{border:0;color:#fff;background:#08735a;box-shadow:0 9px 20px rgba(8,115,90,.18)}.facebook-share-submit:hover:not(:disabled){background:#09634f}.facebook-share-submit:disabled{color:#7d8b9a;background:#e5ebf0;box-shadow:none;cursor:wait}.facebook-share-details footer button:focus-visible,.facebook-share-gallery a:focus-visible{outline:3px solid #43c5d1;outline-offset:2px}
+.facebook-receipt-note{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:10px;margin-top:15px;padding:11px 12px;border-radius:11px;color:#31516f;background:#eef5fb}.facebook-receipt-note svg{width:32px;height:32px;padding:7px;border-radius:9px;color:#075abc;background:#deecf9;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.facebook-receipt-note p{margin:0;font-size:9px;line-height:1.45}.facebook-share-gallery a:focus-visible{outline:3px solid #43c5d1;outline-offset:2px}
 @keyframes facebook-share-sheet-in{from{opacity:.68;transform:translateY(14px);filter:blur(2px)}to{opacity:1;transform:none;filter:none}}
 @keyframes facebook-share-loading{to{background-position:-220% 0}}
 
@@ -8329,9 +8325,8 @@ body.facebook-share-open{overflow:hidden}
   .facebook-share-sheet{width:100%;max-height:96dvh;border-radius:18px 18px 0 0}
   .facebook-share-head{grid-template-columns:42px minmax(0,1fr) 42px;padding:15px 14px}.facebook-share-brand{width:42px;height:42px}.facebook-share-head h2{font-size:17px}.facebook-share-head p{font-size:10px}
   .facebook-share-workspace{display:block;overflow:auto;overscroll-behavior:contain}
-  .facebook-share-gallery-wrap{display:block;padding:17px 14px}.facebook-share-gallery{min-height:0;grid-template-columns:1fr;overflow:visible}.facebook-share-gallery figure>a{min-height:220px}.facebook-share-gallery img{max-height:none}
+  .facebook-share-gallery-wrap{display:block;padding:17px 14px}.facebook-share-gallery{min-height:0;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;overflow:visible}.facebook-share-gallery figure>a{min-height:120px}.facebook-share-gallery img{max-height:210px}
   .facebook-share-details{overflow:visible;padding:18px 16px max(18px,env(safe-area-inset-bottom))}
-  .facebook-share-details footer{margin-top:4px}
 }
 @media(max-width:420px){
   .mobile-close-panel article.day-close-item.has-facebook-receipt{min-height:0;grid-template-columns:36px minmax(0,1fr)}

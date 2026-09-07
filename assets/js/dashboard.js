@@ -39,7 +39,7 @@ let AMBIENCE_WEATHER_TIMER = null;
 let AMBIENCE_OVERRIDE = null;
 let AMBIENCE_WEATHER = {kind:'partly-cloudy',label:'Clima local',temperature:null,cloudCover:45,windSpeed:8};
 let PERSONAL_REQUEST = {file:null,previewUrl:'',busy:false,trigger:null};
-let FACEBOOK_SHARE = {trigger:null,data:null,signed:[],files:[],native:false,busy:false,request:0};
+let FACEBOOK_SHARE = {trigger:null,data:null,signed:[],request:0};
 let REQUEST_CALENDAR = {targetId:'',trigger:null,year:0,month:0};
 let ATTENDANCE_DAY_TRIGGER = null;
 let ATTENDANCE_EVIDENCE_TRIGGER = null;
@@ -1704,7 +1704,7 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
         <span class="facebook-share-author"><small>COMPARTIDO POR</small><b>${esc(item.compartido_por||'Colaborador KJA')}</b><em>${esc(item.compartido_dni?`DNI ${item.compartido_dni}`:'DNI verificado')}</em></span>
         <span class="facebook-share-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.2 1.8"/></svg><span><small>HORA REGISTRADA</small><b>${esc(item.registrado_at?formatAttendanceClock(item.registrado_at):'Por sincronizar')}</b><em>Hora del servidor</em></span></span>
       </span>
-      <button class="facebook-share-open" type="button" data-facebook-share-open aria-haspopup="dialog" aria-controls="facebook-share-modal"><span class="facebook-share-open-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-12 6.9L4 20l1.5-3.8A8 8 0 1 1 20 11.5Z"/><path d="M9 8.8c.7 2.4 2 3.8 4.4 4.5M9.1 8.7l1-.5M13.5 13.3l.5-1"/></svg></span><span><b>Enviar evidencia por WhatsApp</b><small>Revisa las imágenes completas antes de compartir</small></span><svg class="facebook-share-open-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <button class="facebook-share-open" type="button" data-facebook-share-open aria-haspopup="dialog" aria-controls="facebook-share-modal"><span class="facebook-share-open-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m5.5 17 4-4 3 3 2-2 4 3.5"/></svg></span><span><b>Ver comprobante de evidencias</b><small>Consulta las capturas y sus datos de registro</small></span><svg class="facebook-share-open-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </article>`;
   }
   return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${editable?'is-editable ':''}${facebookReceipt?'has-facebook-receipt ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}${editable?` aria-label="Editar ${esc(item.titulo)}"`:''}>
@@ -2174,28 +2174,6 @@ function facebookShareReviewLabel(value){
   return {aprobada:'Aprobada por Dirección',observada:'Corrección solicitada',pendiente:'Pendiente de revisión'}[value]||'Pendiente de revisión';
 }
 
-function facebookShareSummary(data){
-  const files=data.archivos||[];
-  return [
-    'EVIDENCIAS DE FACEBOOK · PORTAL KJA',
-    `Compartido por: ${data.colaborador||'Colaborador KJA'}`,
-    `DNI: ${data.dni||'Verificado'}`,
-    `Área: ${data.area||'Sin área'}`,
-    `Fecha: ${facebookShareDate(data.fecha)}`,
-    `Hora registrada: ${formatAttendanceClock(data.registrado_at)} (servidor KJA)`,
-    `Jornada: ${fmtTime(data.jornada_inicio)} a ${fmtTime(data.jornada_fin)}`,
-    `Formato: ${data.modalidad==='collage'?'Collage':'Capturas individuales'}`,
-    `Archivos: ${files.length}`,
-    `Código de entrega: KJA-FB-${data.entrega_id}`,
-    `Revisión: ${facebookShareReviewLabel(data.revision_estado)}`
-  ].join('\n');
-}
-
-function facebookShareMessage(text,type=''){
-  const element=$('facebook-share-message');if(!element)return;
-  element.textContent=text||'';element.className='facebook-share-message'+(type?' '+type:'');
-}
-
 function resetFacebookShareModal(){
   $('facebook-share-gallery').setAttribute('aria-busy','true');
   $('facebook-share-gallery').innerHTML='<span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span>';
@@ -2206,9 +2184,6 @@ function resetFacebookShareModal(){
   $('facebook-share-person-name').textContent=APP.inicio?.colaborador?.nombre||'Colaborador KJA';
   $('facebook-share-person-dni').textContent=APP.inicio?.colaborador?.dni?`DNI ${APP.inicio.colaborador.dni}`:'DNI verificado';
   $('facebook-share-comment').textContent='Sin comentario adicional.';
-  $('facebook-share-download').hidden=true;
-  const submit=$('facebook-share-submit');submit.disabled=true;submit.querySelector('span').textContent='Preparando envío…';
-  facebookShareMessage('');
 }
 
 function populateFacebookShareDetails(data){
@@ -2230,7 +2205,7 @@ function populateFacebookShareDetails(data){
 
 async function openFacebookShare(trigger){
   const modal=$('facebook-share-modal'),request=FACEBOOK_SHARE.request+1;
-  FACEBOOK_SHARE={trigger:trigger||document.activeElement,data:null,signed:[],files:[],native:false,busy:false,request};
+  FACEBOOK_SHARE={trigger:trigger||document.activeElement,data:null,signed:[],request};
   resetFacebookShareModal();modal.hidden=false;document.body.classList.add('facebook-share-open');
   requestAnimationFrame(()=>$('facebook-share-modal').querySelector('.facebook-share-close').focus({preventScroll:true}));
   const {data,error}=await db.rpc('dash_mi_comprobante_comparticiones');
@@ -2251,23 +2226,9 @@ async function openFacebookShare(trigger){
     if(request!==FACEBOOK_SHARE.request)return;
     FACEBOOK_SHARE.signed=signed;
     const gallery=$('facebook-share-gallery');gallery.setAttribute('aria-busy','false');
-    gallery.innerHTML=signed.length?signed.map((file,index)=>`<figure><a href="${esc(file.url)}" target="_blank" rel="noopener" aria-label="Abrir captura ${index+1} en tamaño completo"><img src="${esc(file.url)}" alt="Captura ${index+1} de las comparticiones de Facebook" loading="${index<2?'eager':'lazy'}" decoding="async"></a><figcaption><span><b>Captura ${String(index+1).padStart(2,'0')}</b><small>${Math.max(1,Math.round(Number(file.bytes||0)/1024))} KB</small></span><em>${index+1} de ${signed.length}</em></figcaption></figure>`).join(''):'<p class="facebook-share-error">Esta entrega no contiene imágenes para compartir.</p>';
-    $('facebook-share-gallery-meta').textContent=`${signed.length} ${signed.length===1?'imagen completa':'imágenes completas'} · orden de envío`;
+    gallery.innerHTML=signed.length?signed.map((file,index)=>`<figure><a href="${esc(file.url)}" target="_blank" rel="noopener" aria-label="Abrir captura ${index+1} en tamaño completo"><img src="${esc(file.url)}" alt="Captura ${index+1} de las comparticiones de Facebook" loading="${index<3?'eager':'lazy'}" decoding="async"></a><figcaption><span><b>Captura ${String(index+1).padStart(2,'0')}</b><small>${Math.max(1,Math.round(Number(file.bytes||0)/1024))} KB</small></span><em>${index+1} de ${signed.length}</em></figcaption></figure>`).join(''):'<p class="facebook-share-error">Esta entrega no contiene imágenes.</p>';
+    $('facebook-share-gallery-meta').textContent=`${signed.length} ${signed.length===1?'imagen completa':'imágenes completas'} · toca para ampliar`;
     $('facebook-share-ready').textContent=signed.length?'Listas':'Sin imágenes';$('facebook-share-ready').dataset.state=signed.length?'ready':'error';
-    const prepared=await Promise.all(signed.map(async(file,index)=>{
-      try{
-        const response=await fetch(file.url);if(!response.ok)throw new Error('archivo');
-        const blob=await response.blob(),type=file.mime||blob.type||'image/jpeg',extension=type==='image/webp'?'webp':'jpg';
-        return new File([blob],`facebook-kja-${String(index+1).padStart(2,'0')}.${extension}`,{type});
-      }catch{return null}
-    }));
-    if(request!==FACEBOOK_SHARE.request)return;
-    FACEBOOK_SHARE.files=prepared.filter(Boolean);
-    try{FACEBOOK_SHARE.native=!!navigator.share&&!!navigator.canShare&&FACEBOOK_SHARE.files.length===signed.length&&navigator.canShare({files:FACEBOOK_SHARE.files})}catch{FACEBOOK_SHARE.native=false}
-    const submit=$('facebook-share-submit');submit.disabled=!signed.length;
-    submit.querySelector('span').textContent=FACEBOOK_SHARE.native?'Compartir y elegir WhatsApp':'Abrir WhatsApp con el resumen';
-    $('facebook-share-download').hidden=FACEBOOK_SHARE.native||!signed.length;
-    $('facebook-share-help').querySelector('p').innerHTML=FACEBOOK_SHARE.native?'Se abrirá el menú de tu teléfono. Elige <b>WhatsApp</b> y selecciona la conversación.':'WhatsApp recibirá el resumen escrito. Descarga las imágenes completas y adjúntalas en la conversación.';
   }catch{
     if(request!==FACEBOOK_SHARE.request)return;
     $('facebook-share-gallery').setAttribute('aria-busy','false');$('facebook-share-gallery').innerHTML='<p class="facebook-share-error">No pudimos abrir las imágenes privadas. Comprueba tu conexión e inténtalo nuevamente.</p>';
@@ -2276,39 +2237,10 @@ async function openFacebookShare(trigger){
 }
 
 function closeFacebookShare({restoreFocus=true}={}){
-  if(FACEBOOK_SHARE.busy)return;
   const trigger=FACEBOOK_SHARE.trigger;
   $('facebook-share-modal').hidden=true;document.body.classList.remove('facebook-share-open');
-  FACEBOOK_SHARE={trigger:null,data:null,signed:[],files:[],native:false,busy:false,request:FACEBOOK_SHARE.request+1};
+  FACEBOOK_SHARE={trigger:null,data:null,signed:[],request:FACEBOOK_SHARE.request+1};
   if(restoreFocus&&trigger?.isConnected)trigger.focus({preventScroll:true});
-}
-
-async function submitFacebookShare(){
-  if(FACEBOOK_SHARE.busy||!FACEBOOK_SHARE.data||!FACEBOOK_SHARE.signed.length)return;
-  const button=$('facebook-share-submit'),label=button.querySelector('span'),summary=facebookShareSummary(FACEBOOK_SHARE.data);
-  if(FACEBOOK_SHARE.native){
-    FACEBOOK_SHARE.busy=true;button.disabled=true;label.textContent='Abriendo opciones…';facebookShareMessage('Preparando el menú seguro para compartir.');
-    try{
-      await navigator.share({title:'Evidencias de Facebook · KJA',text:summary,files:FACEBOOK_SHARE.files});
-      facebookShareMessage('El menú de compartir se cerró. Tus evidencias permanecen privadas en el portal.','is-success');
-    }catch(error){if(error?.name!=='AbortError')facebookShareMessage('No se pudo abrir el menú. Puedes intentarlo nuevamente.','is-error')}
-    finally{FACEBOOK_SHARE.busy=false;button.disabled=false;label.textContent='Compartir y elegir WhatsApp'}
-    return;
-  }
-  const link=document.createElement('a');link.href=`https://wa.me/?text=${encodeURIComponent(summary)}`;link.target='_blank';link.rel='noopener';document.body.append(link);link.click();link.remove();
-  $('facebook-share-download').hidden=false;
-  facebookShareMessage('Abrimos WhatsApp con el resumen. Descarga y adjunta las imágenes completas si tu navegador no permite compartir archivos.','is-info');
-}
-
-async function downloadFacebookShareFiles(){
-  if(FACEBOOK_SHARE.busy||!FACEBOOK_SHARE.signed.length)return;
-  FACEBOOK_SHARE.busy=true;const button=$('facebook-share-download');button.disabled=true;button.querySelector('span').textContent='Preparando descargas…';
-  try{
-    const files=FACEBOOK_SHARE.files.length===FACEBOOK_SHARE.signed.length?FACEBOOK_SHARE.files:await Promise.all(FACEBOOK_SHARE.signed.map(async(file,index)=>{const response=await fetch(file.url);if(!response.ok)throw new Error('archivo');const blob=await response.blob(),extension=(file.mime||blob.type)==='image/webp'?'webp':'jpg';return new File([blob],`facebook-kja-${String(index+1).padStart(2,'0')}.${extension}`,{type:file.mime||blob.type})}));
-    for(const file of files){const url=URL.createObjectURL(file),link=document.createElement('a');link.href=url;link.download=file.name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);await new Promise(resolve=>setTimeout(resolve,140))}
-    facebookShareMessage('Imágenes descargadas en orden. Ahora adjúntalas en WhatsApp.','is-success');
-  }catch{facebookShareMessage('No pudimos descargar las imágenes. Revisa tu conexión e inténtalo nuevamente.','is-error')}
-  finally{FACEBOOK_SHARE.busy=false;button.disabled=false;button.querySelector('span').textContent='Descargar imágenes'}
 }
 
 $('day-close-checklist').addEventListener('click',event=>{
@@ -2365,8 +2297,6 @@ $('daily-exit-modal').addEventListener('keydown',event=>{
   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 });
-$('facebook-share-submit').onclick=submitFacebookShare;
-$('facebook-share-download').onclick=downloadFacebookShareFiles;
 document.querySelectorAll('[data-close-facebook-share]').forEach(button=>button.onclick=()=>closeFacebookShare());
 $('facebook-share-modal').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeFacebookShare();return}
