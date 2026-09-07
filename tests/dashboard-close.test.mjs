@@ -60,6 +60,10 @@ test('dashboard has unique ids and the complete close workflow', () => {
     'daily-issue-form',
     'daily-issue-detail',
     'daily-issue-submit',
+    'mobile-close-panel',
+    'mobile-close-list',
+    'mobile-close-count',
+    'mobile-close-action',
   ]) assert.ok(ids.includes(id), `missing #${id}`);
 
   assert.match(html, /id="daily-evidence-file"[^>]*\bmultiple\b/);
@@ -301,6 +305,17 @@ test('daily pending panel is visible before entry and evidence opens without inl
   assert.match(css,/type-rpe:not\(\.is-complete\) \.day-close-check,[\s\S]*?linear-gradient\(155deg,#ffc85c/);
   assert.match(css,/type-salida:not\(\.is-complete\) \.day-close-check\{[\s\S]*?linear-gradient\(155deg,#62d7e4/);
   assert.match(css,/\.day-card\.has-daily-close \.day-close-item\.is-complete\{[\s\S]*?rgba\(36,166,138,\.13\)/);
+});
+
+test('mobile home exposes the same pending closure actions without tap zoom', () => {
+  assert.match(html,/id="mobile-close-panel"[^>]*aria-labelledby="mobile-close-title"/);
+  assert.match(js,/function renderMobileDailyClose\(data,items\)/);
+  assert.match(js,/mobile-close-list'\)\.innerHTML=items\.map/);
+  assert.match(js,/\$\('mobile-close-list'\)\.addEventListener\('click'/);
+  assert.match(js,/\$\('mobile-close-action'\)\.onclick/);
+  assert.match(css,/@media\(max-width:900px\), \(hover:none\)\{[\s\S]*?button:active:not\(:disabled\),a:active,\[role="button"\]:active\{transform:none!important\}/);
+  assert.match(css,/button,a,\[role="button"\]\{touch-action:manipulation\}/);
+  assert.match(css,/\.mobile-close-panel \.day-close-item\{[\s\S]*?min-height:62px/);
 });
 
 test('the rail announcement opens an accessible full-screen viewer', () => {

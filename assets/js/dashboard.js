@@ -1536,9 +1536,9 @@ document.querySelectorAll('[data-mobile-action]').forEach(button=>button.onclick
   if(['asistencia','perfil','equipo','gestion'].includes(action))return goView(action);
   if(action==='marcar')return handleMarkAction();
   if(action==='jornada'){
-    const summary=$('mobile-today-summary');
-    summary.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
-    summary.focus({preventScroll:true});
+    const target=!$('mobile-close-panel').hidden?$('mobile-close-panel'):$('mobile-today-summary');
+    target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+    target.focus?.({preventScroll:true});
   }
 });
 $('mobile-home-logout').onclick=()=>logout();
@@ -1695,6 +1695,32 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
   </button>`;
 }
 
+function renderMobileDailyClose(data,items){
+  const panel=$('mobile-close-panel');if(!panel)return;
+  panel.hidden=false;
+  const entryComplete=!!data.entrada_at,closed=['completa','regularizada','incompleta'].includes(data.estado),pendingItems=items.filter(item=>!item.completo);
+  panel.dataset.state=closed?CLOSE_MODEL.stateTone(data.estado):entryComplete?(pendingItems.length?'pending':'ready'):'waiting';
+  $('mobile-close-title').textContent=entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
+  $('mobile-close-copy').textContent=entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
+  $('mobile-close-count').textContent=pendingItems.length?`${pendingItems.length} ${pendingItems.length===1?'pendiente':'pendientes'}`:'Todo listo';
+  $('mobile-close-list').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:index===0})).join('');
+  const action=$('mobile-close-action');action.hidden=false;action.disabled=true;action.dataset.action='';
+  if(!entryComplete){
+    const source=$('open-mark');action.dataset.action='entry';action.disabled=source?.disabled??true;action.querySelector('span').textContent='Registrar mi entrada';
+    $('mobile-close-footer-title').textContent='Empieza por tu entrada';$('mobile-close-footer-copy').textContent='Después podrás abrir cada evidencia.';
+  }else if(data.salida_at){
+    action.hidden=true;$('mobile-close-footer-title').textContent='Jornada completada';$('mobile-close-footer-copy').textContent=`Salida registrada a las ${formatAttendanceClock(data.salida_at)}.`;
+  }else if(data.estado==='incompleta'){
+    action.hidden=true;$('mobile-close-footer-title').textContent='Jornada incompleta';$('mobile-close-footer-copy').textContent='El plazo terminó sin completar el cierre.';
+  }else if(pendingItems.length){
+    action.querySelector('span').textContent='Salida bloqueada';$('mobile-close-footer-title').textContent=`Completa ${pendingItems.length} ${pendingItems.length===1?'pendiente':'pendientes'}`;$('mobile-close-footer-copy').textContent='Toca cada fila pendiente para adjuntar su evidencia.';
+  }else if(data.puede_marcar_salida){
+    action.dataset.action='exit';action.disabled=false;action.querySelector('span').textContent='Marcar mi salida';$('mobile-close-footer-title').textContent='Todo listo para salir';$('mobile-close-footer-copy').textContent='Confirma el cierre con la hora del servidor.';
+  }else{
+    action.querySelector('span').textContent=`Salida desde ${fmtTime(data.salida_desde)}`;$('mobile-close-footer-title').textContent='Evidencias completas';$('mobile-close-footer-copy').textContent='La salida se habilitará en el horario indicado.';
+  }
+}
+
 function mergeDailyReviewState(closeData,reviewData){
   if(!closeData||!reviewData?.ok)return closeData;
   const reviews=reviewData.revisiones||[];
@@ -1727,7 +1753,7 @@ function mergeDailyIssueState(closeData,issueData){
 
 function renderDailyClose(){
   const data=APP.cierre,section=$('day-close'),card=$('today-attendance-card');if(!section)return;
-  if(!data?.ok||!data.aplica){section.hidden=true;card?.classList.remove('has-daily-close');return;}
+  if(!data?.ok||!data.aplica){section.hidden=true;$('mobile-close-panel').hidden=true;card?.classList.remove('has-daily-close');return;}
   const entryComplete=!!data.entrada_at,closed=['completa','regularizada','incompleta'].includes(data.estado);
   section.hidden=false;
   card?.classList.add('has-daily-close');
@@ -1742,6 +1768,7 @@ function renderDailyClose(){
     completo:item.completo,locked
   }))];
   $('day-close-checklist').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:index===0})).join('');
+  renderMobileDailyClose(data,items);
 
   $('day-close-title').textContent=entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
   $('day-close-copy').textContent=entryComplete?'Completa tus evidencias antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
@@ -2078,6 +2105,13 @@ $('day-close-checklist').addEventListener('click',event=>{
   DAILY_EVIDENCE_TRIGGER=button;
   openDailyEvidenceEditor(button.dataset.dailyRequirement,button.dataset.dailyAssignment||null);
 });
+$('mobile-close-list').addEventListener('click',event=>{
+  const button=event.target.closest('[data-daily-requirement]');if(!button)return;
+  DAILY_EVIDENCE_TRIGGER=button;openDailyEvidenceEditor(button.dataset.dailyRequirement,button.dataset.dailyAssignment||null);
+});
+$('mobile-close-action').onclick=event=>{
+  const action=event.currentTarget.dataset.action;if(action==='entry')handleMarkAction();if(action==='exit')openDailyExitModal();
+};
 $('daily-evidence-picker').onclick=()=>$('daily-evidence-file').click();
 $('daily-evidence-file').onchange=event=>chooseDailyEvidence(event.target.files);
 $('daily-video-picker').onclick=()=>$('daily-video-file').click();

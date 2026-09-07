@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=122">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=123">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
@@ -242,6 +242,17 @@
             </button>
           </nav>
 
+          <section class="mobile-close-panel" id="mobile-close-panel" aria-labelledby="mobile-close-title" tabindex="-1" hidden>
+            <header>
+              <span><h2 id="mobile-close-title">Pendientes de hoy</h2><p id="mobile-close-copy">Preparando los requisitos de tu jornada…</p></span>
+              <span class="mobile-close-count" id="mobile-close-count">—</span>
+            </header>
+            <div class="mobile-close-list" id="mobile-close-list"></div>
+            <footer>
+              <span><b id="mobile-close-footer-title">Revisa cada paso</b><small id="mobile-close-footer-copy">Tus evidencias habilitan la salida.</small></span>
+              <button type="button" id="mobile-close-action"><span>Continuar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            </footer>
+          </section>
 
           <article class="mobile-today-summary" id="mobile-today-summary" tabindex="-1">
             <header><span><small>HOY</small><b id="mobile-today-date">—</b></span><span class="mobile-today-status" id="mobile-today-status">Cargando</span></header>
@@ -1237,7 +1248,7 @@
 </div>
 
 <script src="assets/js/dashboard-close-model.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=123"></script>
+<script src="assets/js/dashboard.js?v=124"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=3"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=3"></script>
