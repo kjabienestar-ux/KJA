@@ -207,7 +207,7 @@ test('phase 8 lets the owner replace evidence only while their workday is open',
   assert.match(css,/\.daily-evidence-preview\.is-existing em/);
 });
 
-test('completed Facebook evidence shows an identity-safe server receipt', () => {
+test('completed Facebook evidence keeps identity details inside its private receipt', () => {
   for (const fragment of [
     'dash_cierre_resumen_colab_base_29',
     "e.requisito='comparticiones'",
@@ -215,13 +215,11 @@ test('completed Facebook evidence shows an identity-safe server receipt', () => 
     "jsonb_build_object('registrado_at',v_registrado_at)",
     'max(e.completado_at)',
   ]) assert.ok(facebookReceiptSql.includes(fragment), `Facebook receipt migration missing: ${fragment}`);
+  const dailyItemSource=js.slice(js.indexOf('function dailyCloseItemMarkup'),js.indexOf('function renderMobileDailyClose'));
   assert.match(js,/const facebookReceipt=complete&&item\.tipo==='comparticiones'/);
-  assert.match(js,/class="facebook-share-receipt"/);
-  assert.match(js,/COMPARTIDO POR/);
-  assert.match(js,/HORA REGISTRADA/);
+  assert.doesNotMatch(dailyItemSource,/class="facebook-share-receipt"|COMPARTIDO POR|HORA REGISTRADA/);
   assert.match(js,/APP\.inicio\?\.colaborador\?\.dni/);
   assert.match(css,/\.day-close-item\.has-facebook-receipt\{/);
-  assert.match(css,/\.facebook-share-receipt\{/);
   assert.match(css,/\.day-close-check-badge\{/);
 });
 

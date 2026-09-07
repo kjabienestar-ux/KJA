@@ -1700,10 +1700,6 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
       <span class="day-close-check">${icon}</span>
       <span class="day-close-item-copy"><b>${esc(item.titulo)}</b><small>${esc(description)}</small></span>
       <span class="facebook-evidence-actions"><span class="day-close-item-status">Compartido</span>${editAction}</span>
-      <span class="facebook-share-receipt">
-        <span class="facebook-share-author"><small>COMPARTIDO POR</small><b>${esc(item.compartido_por||'Colaborador KJA')}</b><em>${esc(item.compartido_dni?`DNI ${item.compartido_dni}`:'DNI verificado')}</em></span>
-        <span class="facebook-share-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.2 1.8"/></svg><span><small>HORA REGISTRADA</small><b>${esc(item.registrado_at?formatAttendanceClock(item.registrado_at):'Por sincronizar')}</b><em>Hora del servidor</em></span></span>
-      </span>
       <button class="facebook-share-open" type="button" data-facebook-share-open aria-haspopup="dialog" aria-controls="facebook-share-modal"><span class="facebook-share-open-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m5.5 17 4-4 3 3 2-2 4 3.5"/></svg></span><span><b>Ver comprobante de evidencias</b><small>Consulta las capturas y sus datos de registro</small></span><svg class="facebook-share-open-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </article>`;
   }
