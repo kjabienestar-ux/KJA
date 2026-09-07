@@ -7960,6 +7960,11 @@ body.daily-evidence-open{overflow:hidden}
     min-height:0;
   }
 
+  .portal[data-view="inicio"] .workspace{
+    position:relative;
+    z-index:1;
+  }
+
   .mobile-portal-home{
     display:block;
     color:#102f55;
@@ -7999,6 +8004,8 @@ body.daily-evidence-open{overflow:hidden}
   .mobile-profile-avatar{box-shadow:0 10px 28px rgba(16,47,85,.18)}
 
   .mobile-portal-sheet{
+    position:relative;
+    z-index:2;
     min-height:0;
     display:flex;
     flex-direction:column;
