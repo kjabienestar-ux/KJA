@@ -316,6 +316,10 @@ test('mobile home exposes the same pending closure actions without tap zoom', ()
   assert.match(css,/@media\(max-width:900px\), \(hover:none\)\{[\s\S]*?button:active:not\(:disabled\),a:active,\[role="button"\]:active\{transform:none!important\}/);
   assert.match(css,/button,a,\[role="button"\]\{touch-action:manipulation\}/);
   assert.match(css,/\.mobile-close-panel \.day-close-item\{[\s\S]*?min-height:62px/);
+  assert.match(css,/identidad legible, pendientes primero y accesos sin vacíos[\s\S]*?\.mobile-portal-home\{[\s\S]*?display:block;[\s\S]*?color:#102f55/);
+  assert.match(css,/\.mobile-portal-sheet\{[\s\S]*?min-height:0;[\s\S]*?display:flex;[\s\S]*?margin-top:-38px/);
+  assert.match(css,/\.mobile-close-panel\{order:2;[\s\S]*?\.mobile-quick-grid\{order:3;grid-template-columns:1fr/);
+  assert.match(css,/\.mobile-quick-grid button\{[\s\S]*?min-height:82px;[\s\S]*?padding:15px 82px 15px 16px/);
 });
 
 test('the rail announcement opens an accessible full-screen viewer', () => {

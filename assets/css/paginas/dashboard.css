@@ -7951,3 +7951,91 @@ body.daily-evidence-open{overflow:hidden}
   .mobile-close-panel .day-close-item{grid-template-columns:34px minmax(0,1fr)}.mobile-close-panel .day-close-item-status{grid-column:2;justify-self:start}
   .mobile-close-panel>footer{grid-template-columns:1fr}#mobile-close-action{width:100%}
 }
+
+/* Portada móvil compacta: identidad legible, pendientes primero y accesos sin vacíos. */
+@media(max-width:900px){
+  .portal[data-view="inicio"] .workspace,
+  .portal[data-view="inicio"] #view-inicio,
+  .mobile-portal-home{
+    min-height:0;
+  }
+
+  .mobile-portal-home{
+    display:block;
+    color:#102f55;
+    background:#e8f2f8;
+  }
+
+  .mobile-portal-hero{
+    min-height:0;
+    padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) 66px max(18px,env(safe-area-inset-left));
+    background:
+      radial-gradient(circle at 86% 82%,rgba(71,174,205,.18),transparent 30%),
+      linear-gradient(145deg,#f4f9fd 0%,#d9ebf4 100%);
+  }
+
+  .mobile-portal-hero:after{
+    right:-108px;
+    bottom:-96px;
+    border-color:rgba(12,68,112,.09);
+    box-shadow:0 0 0 38px rgba(12,68,112,.025),0 0 0 76px rgba(12,68,112,.018);
+  }
+
+  .mobile-portal-brand>span:nth-child(2) b{color:#102f55}
+  .mobile-portal-brand>span:nth-child(2) small{color:#526f89;font-size:12px}
+  .mobile-portal-brand button{
+    border-color:rgba(16,47,85,.12);
+    color:#164a7d;
+    background:rgba(255,255,255,.7);
+    box-shadow:0 5px 16px rgba(16,47,85,.07);
+  }
+
+  .mobile-portal-person{margin-top:26px}
+  .mobile-portal-person h1{color:#102f55;font-size:clamp(22px,6.2vw,27px)}
+  .mobile-portal-person p{margin:6px 0 7px;color:#526f89;font-size:13px}
+  .mobile-portal-person>div>span{color:#284f73}
+  .mobile-portal-person>div>span b,.mobile-portal-person>div>span small{font-size:12px}
+  .mobile-portal-person>div>span i{background:#159c91}
+  .mobile-profile-avatar{box-shadow:0 10px 28px rgba(16,47,85,.18)}
+
+  .mobile-portal-sheet{
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    margin-top:-38px;
+    padding:22px max(16px,env(safe-area-inset-right)) max(28px,calc(env(safe-area-inset-bottom) + 18px)) max(16px,env(safe-area-inset-left));
+    border-radius:24px 24px 0 0;
+    background:#edf4f9;
+    box-shadow:0 -10px 28px rgba(16,47,85,.1);
+  }
+
+  .mobile-sheet-heading{order:1;margin:0 2px 15px}
+  .mobile-sheet-heading h2{font-size:19px}
+  .mobile-sheet-heading p{color:#526a82;font-size:12px}
+  .mobile-session-state{color:#176c5d}
+  .mobile-close-panel{order:2;margin:0 0 16px;background:#fff;box-shadow:0 9px 24px rgba(16,47,85,.07)}
+  .mobile-quick-grid{order:3;grid-template-columns:1fr;gap:9px}
+  .mobile-today-summary{order:4}
+
+  .mobile-quick-grid button{
+    min-height:82px;
+    justify-content:center;
+    gap:4px;
+    padding:15px 82px 15px 16px;
+    border-radius:15px;
+    box-shadow:0 5px 16px rgba(16,47,85,.065);
+  }
+
+  .mobile-quick-grid button b{font-size:14px;line-height:1.3}
+  .mobile-quick-grid button small{max-width:24ch;color:#526a82;font-size:12px;line-height:1.35}
+  .mobile-quick-grid .card-deco-3d{right:18px;bottom:50%;width:64px;height:64px;opacity:.42;transform:translateY(50%)}
+  .mobile-quick-grid .card-deco-icon{right:8px;bottom:50%;width:86px;height:86px;opacity:.045;transform:translateY(50%) rotate(-10deg)}
+  .mobile-action-arrow{right:10px;top:10px;width:16px;height:16px}
+}
+
+@media(max-width:360px){
+  .mobile-portal-hero{min-height:0;padding-inline:14px;padding-bottom:62px}
+  .mobile-portal-person{margin-top:24px}
+  .mobile-portal-sheet{padding-inline:12px}
+  .mobile-quick-grid button{min-height:78px;padding:13px 76px 13px 14px}
+}
