@@ -70,7 +70,7 @@ function renderAdminCloseStatus(){
       const close=person.cierre||{},globalDone=(close.requisitos||[]).filter(item=>item.completo).length,globalTotal=(close.requisitos||[]).length,assignedDone=(close.asignaciones||[]).filter(item=>item.completo).length,assignedTotal=(close.asignaciones||[]).length;
       const evidence=`${globalDone+assignedDone}/${globalTotal+assignedTotal}`;
       const personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length;
-      const reviewAction=canReview&&personReviews.length?`<button type="button" class="admin-close-review-trigger ${pending?'has-pending':''}" data-admin-review-person="${esc(person.id)}">${pending?`${pending} por revisar`:'Ver entregas'}</button>`:'';
+      const reviewAction=canReview&&personReviews.length?`<button type="button" class="admin-close-review-trigger ${pending?'has-pending':''}" data-admin-review-person="${esc(person.id)}">${pending?`${pending} por revisar`:'Ver evidencias'}</button>`:'';
       html+=`<div class="admin-close-person"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small>${person.labora?'Jornada programada':'No labora'}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)}</b>${reviewAction}</span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(close.estado||'pendiente')}">${esc(adminCloseStateLabel(close.estado))}</span></div>`;
     }
     html+='</div></section>';

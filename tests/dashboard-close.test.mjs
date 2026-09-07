@@ -266,6 +266,11 @@ test('phase 2 review is private, auditable and reopens observed evidence safely'
   assert.match(adminJs,/createSignedUrl\(file\.path,900\)/);
   assert.match(adminJs,/dash_admin_revisar_entrega/);
   assert.match(js,/dash_mis_revisiones_cierre/);
+  assert.ok(html.indexOf('id="admin-close-status"') < html.indexOf('class="admin-close-grid"'), 'evidence review must appear before assignment management');
+  assert.match(html,/Evidencias y cierre del equipo/);
+  assert.match(html,/Selecciona “por revisar” o “Ver evidencias”/);
+  assert.match(adminJs,/'Ver evidencias'/);
+  assert.match(css,/\.admin-close-review-trigger\{[^}]*background:#eff6ff/);
   assert.match(js,/Corrección solicitada:/);
 });
 

@@ -324,7 +324,10 @@ body{background:#fff}
 .portal.admin-wide{grid-template-columns:218px minmax(0,1fr)}
 .portal.admin-wide .portal-rail{display:none}
 .admin-view{max-width:1320px}
-.admin-view-head{align-items:center}
+.admin-view-head{align-items:center; padding: 14px 24px !important;}
+.admin-view-head h1{font-size: 22px !important;}
+.admin-view-head > div > p.eyebrow {margin-bottom: 2px !important;}
+.admin-view-head > div > p:last-child {margin-top: 2px !important;}
 .admin-head-actions{display:flex;align-items:center;gap:9px}
 .admin-role-chip{padding:8px 11px;border-radius:20px;color:#0c7465;background:#e7f7f3;font-size:8px;font-weight:800}
 .admin-refresh{height:36px;display:flex;align-items:center;gap:7px;padding:0 12px;border:1px solid #dfe5ec;border-radius:10px;color:#43546b;background:#fff;font-size:9px;font-weight:700}
@@ -6893,7 +6896,7 @@ input:-webkit-autofill:active {
 .admin-review-summary>p{margin:0;padding:0 20px;color:#506278;font-size:11px;line-height:1.5}
 .admin-review-summary .admin-review-readonly{grid-column:1/-1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;border:0}.admin-review-readonly b{font-size:13px!important}.admin-review-readonly small{margin-top:3px;font-size:11px!important;font-weight:500!important;letter-spacing:0!important}.admin-review-readonly.is-warning{color:#79520e;background:#fff8eb}
 .admin-close-evidence-cell{display:flex;flex-direction:column;align-items:flex-start;gap:4px}.admin-close-evidence-cell>b{font-size:12px}
-.admin-close-review-trigger{min-height:28px;padding:0;border:0;border-bottom:1px solid currentColor;color:#075abc;background:transparent;font-size:10px;font-weight:800;text-align:left}.admin-close-review-trigger:hover{color:#093b75}.admin-close-review-trigger.has-pending{color:#9a5c00}.admin-close-review-trigger:focus-visible{outline:3px solid #075abc;outline-offset:3px;border-radius:4px}
+.admin-close-review-trigger{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid rgba(7,90,188,.22);border-radius:9px;color:#075abc;background:#eff6ff;font-size:10px;font-weight:800;text-align:left;transition:background-color .18s ease-out,border-color .18s ease-out,color .18s ease-out}.admin-close-review-trigger:hover{border-color:rgba(7,90,188,.38);color:#093b75;background:#e3efff}.admin-close-review-trigger.has-pending{border-color:#ebcb8c;color:#875407;background:#fff5df}.admin-close-review-trigger.has-pending:hover{border-color:#d9ae58;background:#ffedc8}.admin-close-review-trigger:focus-visible{outline:3px solid #075abc;outline-offset:3px}
 
 /* Mesa privada de revisión de evidencias */
 body.admin-review-open{overflow:hidden}
