@@ -124,6 +124,7 @@ async function loadAdminCloses(){
 }
 
 function adminReviewStateLabel(item){
+  if(item.estado==='anulado')return 'Versión reemplazada';
   return item.revision_estado==='aprobada'?'Aprobada':item.revision_estado==='observada'?'Corrección solicitada':'Pendiente de revisión';
 }
 

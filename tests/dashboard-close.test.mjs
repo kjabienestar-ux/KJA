@@ -19,6 +19,7 @@ const assignmentDrawSql = fs.readFileSync(new URL('../supabase/dashboard_24_sort
 const issueSql = fs.readFileSync(new URL('../supabase/dashboard_25_impedimentos_cierre.sql', import.meta.url), 'utf8');
 const exitPhotoSql = fs.readFileSync(new URL('../supabase/dashboard_26_evidencia_hora_salida.sql', import.meta.url), 'utf8');
 const shortVideoSql = fs.readFileSync(new URL('../supabase/dashboard_27_video_corto.sql', import.meta.url), 'utf8');
+const evidenceEditSql = fs.readFileSync(new URL('../supabase/dashboard_28_edicion_evidencias_jornada.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -170,6 +171,28 @@ test('phase 7 adds one private, size-limited optional video to RPE or assigned w
   assert.match(edge,/dash_video_permiso/);
   assert.match(edge,/jpg\|webp\|mp4\|webm/);
   assert.match(adminJs,/<video src=/);
+});
+
+test('phase 8 lets the owner replace evidence only while their workday is open', () => {
+  for (const fragment of [
+    'create table if not exists public.asis_entrega_reemplazos',
+    'create or replace function public.dash_evidencia_editable',
+    'now() between v_reg.marcado_at and v_fin_at',
+    'create or replace function public.dash_reemplazo_permiso',
+    'create or replace function public.dash_reemplazar_entrega',
+    "set estado='anulado'",
+    'puede_editar_evidencias',
+    "'fuera_horario_edicion'",
+    'perform pg_advisory_xact_lock(v_colab)',
+  ]) assert.ok(evidenceEditSql.includes(fragment), `evidence edit migration missing: ${fragment}`);
+  assert.match(js,/complete&&!!item\.editable/);
+  assert.match(js,/editing\?'dash_reemplazar_entrega':'dash_confirmar_entrega'/);
+  assert.match(js,/La edición sólo está disponible durante tu horario de trabajo/);
+  assert.match(html,/id="daily-evidence-edit-note"[^>]*hidden/);
+  assert.match(edge,/body\.accion === "reemplazar"/);
+  assert.match(edge,/dash_reemplazo_permiso/);
+  assert.match(css,/\.day-card\.has-daily-close \.day-close-item\.is-editable/);
+  assert.match(css,/\.daily-evidence-edit-note\{/);
 });
 
 test('phase 2 review is private, auditable and reopens observed evidence safely', () => {

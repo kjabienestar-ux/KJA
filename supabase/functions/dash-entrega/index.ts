@@ -70,10 +70,18 @@ Deno.serve(async (req) => {
     }
 
     const isVideo = body.tipo === "video";
+    const isReplacement = body.accion === "reemplazar";
     const extension = isVideo && ["mp4", "webm"].includes(String(body.ext || "").toLowerCase())
       ? String(body.ext).toLowerCase() : "jpg";
-    const rpc = isVideo ? "dash_video_permiso" : "dash_entrega_permiso";
-    const args = isVideo ? {
+    const rpc = isReplacement ? "dash_reemplazo_permiso"
+      : isVideo ? "dash_video_permiso" : "dash_entrega_permiso";
+    const args = isReplacement ? {
+      p_requisito: String(body.requisito || ""),
+      p_asignacion: body.asignacion == null ? null : Number(body.asignacion),
+      p_modalidad: body.modalidad == null ? null : String(body.modalidad),
+      p_tipo_archivo: isVideo ? "video" : "imagen",
+      p_ext: extension,
+    } : isVideo ? {
       p_requisito: String(body.requisito || ""),
       p_asignacion: body.asignacion == null ? null : Number(body.asignacion),
       p_ext: extension,

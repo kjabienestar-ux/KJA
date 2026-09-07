@@ -164,7 +164,7 @@ function startTimeAmbience(){
 
 let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
-let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],video:null,busy:false};
+let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],video:null,busy:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
 let DAILY_EXIT_BUSY=false;
 let MARK_BUSY = false;
@@ -1675,23 +1675,23 @@ function dailyCloseGuidePresentation(data){
 }
 
 function dailyCloseItemMarkup(item,{entry=false}={}){
-  const complete=!!item.completo,locked=!!item.locked;
+  const complete=!!item.completo,locked=!!item.locked,editable=complete&&!!item.editable;
   const review=item.revision_estado||'';
-  const status=review==='observada'?'Corregir':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Primero':locked&&item.tipo==='salida'?'Al finalizar':locked?'Después':item.impedimento?'Informado':'Pendiente';
+  const status=review==='observada'?'Corregir':editable?'Editar':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Primero':locked&&item.tipo==='salida'?'Al finalizar':locked?'Después':item.impedimento?'Informado':'Pendiente';
   const icons={
     comparticiones:'<svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 21v-8h2.8l.4-3.1h-3.2v-2c0-.9.3-1.5 1.6-1.5H17V3.6c-.8-.1-1.6-.2-2.4-.2-2.4 0-4.1 1.5-4.1 4.2v2.3H7.8V13h2.7v8h3.2Z"/></svg>',
     rpe:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v5h5M10 12h5M10 16h5"/></svg>',
     salida:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4l1.5-2h5L16 7h4v12H4z"/><circle cx="12" cy="13" r="3"/><path d="M18 3v3M16.5 4.5h3"/></svg>'
   };
   const icon=complete?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>':icons[item.tipo]||'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>';
-  const attrs=entry||complete||locked?'disabled':`data-daily-requirement="${esc(item.tipo)}" aria-haspopup="dialog" aria-controls="daily-evidence-editor"${item.asignacion==null?'':` data-daily-assignment="${esc(item.asignacion)}"`}`;
+  const attrs=entry||locked||complete&&!editable?'disabled':`data-daily-requirement="${esc(item.tipo)}" aria-haspopup="dialog" aria-controls="daily-evidence-editor"${editable?' data-daily-edit="true"':''}${item.asignacion==null?'':` data-daily-assignment="${esc(item.asignacion)}"`}`;
   const description=item.tipo==='salida'&&!complete
     ? (locked?'1 foto con la hora visible, disponible al finalizar':'Adjunta 1 foto donde se vea la hora de salida')
     : (item.descripcion||'Adjunta la evidencia correspondiente');
-  return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}>
+  return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${editable?'is-editable ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}${editable?` aria-label="Editar ${esc(item.titulo)}"`:''}>
     <span class="day-close-check">${icon}</span>
     <span class="day-close-item-copy"><b>${esc(item.titulo)}</b><small>${esc(description)}</small></span>
-    <span class="day-close-item-status">${esc(status)}${!complete&&!locked?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>':''}</span>
+    <span class="day-close-item-status">${esc(status)}${editable?'<svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l10.5-10.5-4-4zM12.8 7.2l4 4"/></svg>':!complete&&!locked?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>':''}</span>
   </button>`;
 }
 
@@ -1762,10 +1762,10 @@ function renderDailyClose(){
     tipo:'entrada',titulo:entryComplete?'Entrada registrada':'Registrar asistencia',
     descripcion:entryComplete?`Marcada a las ${formatAttendanceClock(data.entrada_at)}`:'Registra primero tu asistencia de entrada',
     completo:entryComplete,locked:true
-  },...(data.requisitos||[]).map(item=>({...item,locked:locked||!!item.bloqueado})),...(data.asignaciones||[]).map(item=>({
+  },...(data.requisitos||[]).map(item=>({...item,editable:item.tipo!=='salida'&&!!item.completo&&!!data.puede_editar_evidencias,locked:locked||!!item.bloqueado})),...(data.asignaciones||[]).map(item=>({
     tipo:'asignado',asignacion:item.id,titulo:item.titulo,
     descripcion:item.instrucciones||`${cap(item.tipo||'Entregable')} asignado para hoy`,
-    completo:item.completo,locked
+    completo:item.completo,editable:!!item.completo&&!!data.puede_editar_evidencias,locked
   }))];
   $('day-close-checklist').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:index===0})).join('');
   renderMobileDailyClose(data,items);
@@ -1867,7 +1867,7 @@ function setDailyEvidenceProcess(phase,{title='',copy='',progress=0,current=0,to
 
 function closeDailyEvidenceEditor({restoreFocus=true}={}){
   if(DAILY_EVIDENCE.busy)return;
-  clearDailyEvidenceFiles();clearDailyEvidenceVideo();DAILY_EVIDENCE={requirement:'',assignment:null,title:'',files:[],video:null,busy:false};
+  clearDailyEvidenceFiles();clearDailyEvidenceVideo();DAILY_EVIDENCE={requirement:'',assignment:null,title:'',files:[],video:null,busy:false,editing:false};
   $('daily-evidence-detail').value='';$('daily-issue-detail').value='';$('daily-issue-form').hidden=true;$('daily-issue-message').textContent='';dailyEvidenceMessage('');setDailyEvidenceProcess('idle');$('daily-evidence-editor').hidden=true;
   document.body.classList.remove('daily-evidence-open');
   if(restoreFocus&&DAILY_EVIDENCE_TRIGGER){DAILY_EVIDENCE_TRIGGER.focus();DAILY_EVIDENCE_TRIGGER=null}
@@ -1885,15 +1885,19 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   const item=requirement==='asignado'
     ?(data.asignaciones||[]).find(row=>String(row.id)===String(assignment))
     :(data.requisitos||[]).find(row=>row.tipo===requirement);
-  if(!item||item.completo)return;
+  if(!item)return;
+  const editing=!!item.completo;
+  if(editing&&!data.puede_editar_evidencias){toast('La edición sólo está disponible durante tu horario de trabajo.');return}
   closeDailyEvidenceEditor({restoreFocus:false});
   mountDailyEvidencePortal();
-  DAILY_EVIDENCE={requirement,assignment:assignment==null?null:Number(assignment),title:item.titulo,files:[],video:null,busy:false};
+  DAILY_EVIDENCE={requirement,assignment:assignment==null?null:Number(assignment),title:item.titulo,files:[],video:null,busy:false,editing};
   $('daily-evidence-editor').querySelector('.daily-evidence-sheet').dataset.requirement=requirement;
   setDailyEvidenceProcess('idle');
-  $('daily-evidence-title').textContent=item.titulo;
-  $('daily-evidence-copy').textContent=item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
-  $('daily-issue').hidden=requirement==='salida';
+  $('daily-evidence-title').textContent=editing?`Editar ${item.titulo}`:item.titulo;
+  $('daily-evidence-copy').textContent=editing?'Corrige la entrega antes de finalizar tu horario.':item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
+  $('daily-evidence-edit-note').hidden=!editing;
+  $('daily-evidence-edit-until').textContent=`Puedes editar hasta las ${fmtTime(data.hora_salida_programada)}`;
+  $('daily-issue').hidden=requirement==='salida'||editing;
   const issue=item.impedimento;$('daily-issue-form').hidden=!issue;$('daily-issue-detail').value=issue?.detalle||'';$('daily-issue-message').textContent=issue?'Aviso enviado. Puedes actualizar el motivo si cambió la situación.':'';$('daily-issue-toggle').querySelector('b').textContent=issue?'Impedimento informado':'¿No podrás completarlo hoy?';$('daily-issue-submit').textContent=issue?'Actualizar aviso':'Enviar aviso';
   $('daily-evidence-mode').hidden=requirement!=='comparticiones';
   $('daily-video').hidden=!['rpe','asignado'].includes(requirement);
@@ -1902,6 +1906,8 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   $('daily-evidence-collage-option').hidden=!data.collage_permitido;
   const firstMode=document.querySelector('input[name="daily-evidence-mode"][value="individuales"]');if(firstMode)firstMode.checked=true;
   $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · ${data.comparticiones_min||5} capturas${data.collage_permitido?' o 1 collage':''}`:requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
+  $('daily-evidence-picker').querySelector('b').textContent=editing?'Elegir imágenes corregidas':'Elegir imágenes';
+  $('daily-evidence-submit').querySelector('span').textContent=editing?'Guardar cambios':'Guardar evidencia';
   $('daily-evidence-editor').hidden=false;
   document.body.classList.add('daily-evidence-open');
   requestAnimationFrame(()=>$('daily-evidence-cancel-top').focus({preventScroll:true}));
@@ -1962,7 +1968,7 @@ async function requestDailyEvidencePermit(){
   const {data:{session}}=await db.auth.getSession();if(!session)throw Object.assign(new Error('sesion'),{motivo:'sesion'});
   const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{
     method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
-    body:JSON.stringify({requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?dailyEvidenceMode():null})
+    body:JSON.stringify({accion:DAILY_EVIDENCE.editing?'reemplazar':undefined,requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?dailyEvidenceMode():null})
   });
   const permit=await response.json().catch(()=>null);
   if(!response.ok||!permit?.ok)throw Object.assign(new Error(permit?.motivo||'permiso'),{motivo:permit?.motivo||'permiso'});
@@ -1971,7 +1977,7 @@ async function requestDailyEvidencePermit(){
 
 async function requestDailyVideoPermit(){
   const {data:{session}}=await db.auth.getSession();if(!session)throw Object.assign(new Error('sesion'),{motivo:'sesion'});
-  const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({tipo:'video',requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,ext:DAILY_EVIDENCE.video.ext})});
+  const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({accion:DAILY_EVIDENCE.editing?'reemplazar':undefined,tipo:'video',requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,ext:DAILY_EVIDENCE.video.ext})});
   const permit=await response.json().catch(()=>null);if(!response.ok||!permit?.ok)throw Object.assign(new Error(permit?.motivo||'permiso'),{motivo:permit?.motivo||'permiso'});return permit;
 }
 
@@ -2012,20 +2018,23 @@ function dailyEvidenceFailure(reason){
     cuota_diaria:'Alcanzaste el límite de cargas del día. Comunícate con Dirección si necesitas reemplazar una evidencia.',
     archivo_no_verificado:'Una imagen no llegó correctamente. Inténtalo otra vez.',
     ya_completo:'Esta evidencia ya estaba registrada.',
+    fuera_horario_edicion:'Tu horario de trabajo ya terminó. La evidencia quedó bloqueada y no puede modificarse.',
+    sin_entrega:'La entrega cambió o ya no está disponible. Actualiza el portal e inténtalo de nuevo.',
+    cambio_concurrente:'La evidencia cambió mientras la editabas. Actualiza el portal antes de volver a intentarlo.',
     subida:'No pudimos subir una imagen. Revisa tu conexión e inténtalo nuevamente.'
   }[reason]||'No pudimos guardar la evidencia. Revisa los archivos e inténtalo otra vez.';
 }
 
 async function submitDailyEvidence(event){
   event.preventDefault();if(DAILY_EVIDENCE.busy)return;
-  const mode=dailyEvidenceMode(),min=Number(APP.cierre?.comparticiones_min||5),count=DAILY_EVIDENCE.files.length,total=count+(DAILY_EVIDENCE.video?1:0);
+  const editing=!!DAILY_EVIDENCE.editing,mode=dailyEvidenceMode(),min=Number(APP.cierre?.comparticiones_min||5),count=DAILY_EVIDENCE.files.length,total=count+(DAILY_EVIDENCE.video?1:0);
   const selection=CLOSE_MODEL.evidenceSelectionPolicy({requirement:DAILY_EVIDENCE.requirement,mode,count,min,collageAllowed:!!APP.cierre?.collage_permitido});
   if(!selection.ok){const messages={vacio:'Selecciona al menos una imagen.',minimo:`Selecciona ${min} capturas para completar este requisito.`,maximo:'Puedes adjuntar como máximo 5 imágenes.',cantidad_collage:'Selecciona una sola imagen tipo collage.',collage_no_permitido:'La modalidad collage está deshabilitada.'};return dailyEvidenceMessage(messages[selection.reason]||'Revisa las imágenes seleccionadas.')}
 
   const button=$('daily-evidence-submit');DAILY_EVIDENCE.busy=true;button.disabled=true;button.querySelector('span').textContent='Subiendo…';dailyEvidenceMessage('');
   const paths=[];
   try{
-    setDailyEvidenceProcess('upload',{title:'Preparando un envío seguro',copy:`Validando ${total} ${total===1?'evidencia':'evidencias'} antes de enviarlas.`,progress:.08,current:0,total});
+    setDailyEvidenceProcess('upload',{title:editing?'Preparando tu corrección':'Preparando un envío seguro',copy:`Validando ${total} ${total===1?'evidencia':'evidencias'} antes de enviarlas.`,progress:.08,current:0,total});
     dailyUploadStep('prepare','done','Archivos protegidos');
     dailyUploadStep('upload','active',`0 de ${total} archivos`);
     for(let index=0;index<DAILY_EVIDENCE.files.length;index++){
@@ -2038,17 +2047,18 @@ async function submitDailyEvidence(event){
     let videoPath=null;if(DAILY_EVIDENCE.video){$('daily-upload-copy').textContent='Subiendo el video corto. Mantén esta ventana abierta.';videoPath=await uploadDailyVideo();paths.push(videoPath);$('daily-upload-count').textContent=`${total} de ${total} archivos`;}
     dailyUploadStep('upload','done',`${total} ${total===1?'archivo enviado':'archivos enviados'}`);
     dailyUploadStep('confirm','active','Guardando registro oficial');
-    $('daily-upload-title').textContent='Confirmando tu entrega';
-    $('daily-upload-copy').textContent='Las imágenes llegaron. Estamos registrando el requisito como completo.';
+    $('daily-upload-title').textContent=editing?'Confirmando los cambios':'Confirmando tu entrega';
+    $('daily-upload-copy').textContent=editing?'Las imágenes llegaron. Estamos reemplazando la versión anterior de forma segura.':'Las imágenes llegaron. Estamos registrando el requisito como completo.';
     $('daily-upload-progress-bar').style.transform='scaleX(.9)';
-    const {data,error}=await db.rpc('dash_confirmar_entrega',{
+    const {data,error}=await db.rpc(editing?'dash_reemplazar_entrega':'dash_confirmar_entrega',{
       p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment,
       p_modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?mode:null,
-      p_paths:paths.filter(path=>path!==videoPath),p_detalle:$('daily-evidence-detail').value.trim()||null
+      p_paths:paths.filter(path=>path!==videoPath),p_detalle:$('daily-evidence-detail').value.trim()||null,
+      ...(editing?{p_video_path:videoPath}: {})
     });
     if(error||!data?.ok)throw Object.assign(new Error(data?.motivo||error?.message||'guardar'),{motivo:data?.motivo||'guardar'});
     let videoWarning='';
-    if(videoPath){const attached=await db.rpc('dash_adjuntar_video',{p_entrega:data.entrega,p_path:videoPath});if(attached.error||!attached.data?.ok){videoWarning=' La evidencia principal se guardó, pero el video no pudo adjuntarse.';await cleanupDailyEvidence([videoPath])}}
+    if(videoPath&&!editing){const attached=await db.rpc('dash_adjuntar_video',{p_entrega:data.entrega,p_path:videoPath});if(attached.error||!attached.data?.ok){videoWarning=' La evidencia principal se guardó, pero el video no pudo adjuntarse.';await cleanupDailyEvidence([videoPath])}}
     APP.cierre=mergeDailyReviewState(data.resumen,{ok:true,revisiones:[{
       requisito:DAILY_EVIDENCE.requirement,
       asignacion_id:DAILY_EVIDENCE.assignment,
@@ -2056,14 +2066,14 @@ async function submitDailyEvidence(event){
       revision_nota:null
     }]});
     dailyUploadStep('confirm','done','Entrega registrada');
-    setDailyEvidenceProcess('success',{title:'¡Evidencia completada!',copy:`${DAILY_EVIDENCE.title} quedó registrada correctamente.${videoWarning}`,progress:1,current:total,total});
+    setDailyEvidenceProcess('success',{title:editing?'¡Cambios guardados!':'¡Evidencia completada!',copy:editing?`${DAILY_EVIDENCE.title} fue reemplazada y volvió a revisión.`:`${DAILY_EVIDENCE.title} quedó registrada correctamente.${videoWarning}`,progress:1,current:total,total});
     await new Promise(resolve=>setTimeout(resolve,matchMedia('(prefers-reduced-motion: reduce)').matches?320:760));
-    DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast('Evidencia guardada correctamente.');
+    DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast(editing?'Cambios guardados. La evidencia volvió a revisión.':'Evidencia guardada correctamente.');
   }catch(error){
     if(paths.length||error.path)cleanupDailyEvidence([...paths,...(error.path?[error.path]:[])]);
     DAILY_EVIDENCE.busy=false;setDailyEvidenceProcess('idle');dailyEvidenceMessage(dailyEvidenceFailure(error.motivo),'is-error');
   }finally{
-    DAILY_EVIDENCE.busy=false;button.disabled=false;button.querySelector('span').textContent='Guardar evidencia';renderDailyClose();
+    DAILY_EVIDENCE.busy=false;button.disabled=false;button.querySelector('span').textContent=DAILY_EVIDENCE.editing?'Guardar cambios':'Guardar evidencia';renderDailyClose();
   }
 }
 
