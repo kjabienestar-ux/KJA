@@ -21,6 +21,7 @@ const exitPhotoSql = fs.readFileSync(new URL('../supabase/dashboard_26_evidencia
 const shortVideoSql = fs.readFileSync(new URL('../supabase/dashboard_27_video_corto.sql', import.meta.url), 'utf8');
 const evidenceEditSql = fs.readFileSync(new URL('../supabase/dashboard_28_edicion_evidencias_jornada.sql', import.meta.url), 'utf8');
 const facebookReceiptSql = fs.readFileSync(new URL('../supabase/dashboard_29_comprobante_comparticiones.sql', import.meta.url), 'utf8');
+const whatsappShareSql = fs.readFileSync(new URL('../supabase/dashboard_30_compartir_evidencia_whatsapp.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -66,6 +67,10 @@ test('dashboard has unique ids and the complete close workflow', () => {
     'mobile-close-list',
     'mobile-close-count',
     'mobile-close-action',
+    'facebook-share-modal',
+    'facebook-share-gallery',
+    'facebook-share-submit',
+    'facebook-share-download',
   ]) assert.ok(ids.includes(id), `missing #${id}`);
 
   assert.match(html, /id="daily-evidence-file"[^>]*\bmultiple\b/);
@@ -220,6 +225,30 @@ test('completed Facebook evidence shows an identity-safe server receipt', () => 
   assert.match(css,/\.day-close-item\.has-facebook-receipt\{/);
   assert.match(css,/\.facebook-share-receipt\{/);
   assert.match(css,/\.day-close-check-badge\{/);
+});
+
+test('Facebook receipt previews private files and prepares a WhatsApp share safely', () => {
+  for (const fragment of [
+    'create or replace function public.dash_mi_comprobante_comparticiones()',
+    'public.dash_sesion_vigente()',
+    "e.requisito='comparticiones'",
+    "e.estado='completo'",
+    "'registrado_at',v_entrega.completado_at",
+    "'area',coalesce(v_area,'Sin área')",
+    "'archivos',v_archivos",
+    'grant execute on function public.dash_mi_comprobante_comparticiones()',
+  ]) assert.ok(whatsappShareSql.includes(fragment), `WhatsApp share migration missing: ${fragment}`);
+  assert.match(html,/id="facebook-share-modal"[^>]*hidden/);
+  assert.match(html,/id="facebook-share-gallery"[^>]*aria-live="polite"/);
+  assert.match(js,/data-facebook-share-open/);
+  assert.match(js,/db\.rpc\('dash_mi_comprobante_comparticiones'\)/);
+  assert.match(js,/createSignedUrl\(file\.path,900\)/);
+  assert.match(js,/navigator\.canShare\(\{files:FACEBOOK_SHARE\.files\}\)/);
+  assert.match(js,/navigator\.share\(\{title:'Evidencias de Facebook · KJA'/);
+  assert.match(js,/https:\/\/wa\.me\/\?text=/);
+  assert.match(css,/\.facebook-share-workspace\{[\s\S]*?grid-template-columns:/);
+  assert.match(css,/\.facebook-share-gallery img\{[\s\S]*?object-fit:contain/);
+  assert.match(css,/@media\(max-width:700px\)\{[\s\S]*?\.facebook-share-gallery\{[\s\S]*?grid-template-columns:1fr/);
 });
 
 test('phase 2 review is private, auditable and reopens observed evidence safely', () => {

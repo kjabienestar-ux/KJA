@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=130">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=131">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
@@ -934,6 +934,49 @@
   </section>
 </div>
 
+<div class="modal facebook-share-modal" id="facebook-share-modal" hidden>
+  <div class="modal-backdrop" data-close-facebook-share></div>
+  <section class="facebook-share-sheet" role="dialog" aria-modal="true" aria-labelledby="facebook-share-title" aria-describedby="facebook-share-copy" tabindex="-1">
+    <header class="facebook-share-head">
+      <span class="facebook-share-brand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.7 21v-8h2.8l.4-3.1h-3.2v-2c0-.9.3-1.5 1.6-1.5H17V3.6c-.8-.1-1.6-.2-2.4-.2-2.4 0-4.1 1.5-4.1 4.2v2.3H7.8V13h2.7v8h3.2Z"/></svg></span>
+      <span><h2 id="facebook-share-title">Enviar evidencias por WhatsApp</h2><p id="facebook-share-copy">Comprueba las imágenes y los datos antes de compartirlos.</p></span>
+      <button class="facebook-share-close" type="button" data-close-facebook-share aria-label="Cerrar comprobante"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <div class="facebook-share-workspace">
+      <section class="facebook-share-gallery-wrap" aria-labelledby="facebook-share-gallery-title">
+        <header><span><h3 id="facebook-share-gallery-title">Evidencias listas para enviar</h3><p id="facebook-share-gallery-meta">Preparando imágenes privadas…</p></span><span class="facebook-share-ready" id="facebook-share-ready">Verificando</span></header>
+        <div class="facebook-share-gallery" id="facebook-share-gallery" aria-live="polite" aria-busy="true">
+          <span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span>
+        </div>
+      </section>
+      <aside class="facebook-share-details">
+        <div class="facebook-share-person">
+          <span id="facebook-share-person-mark" aria-hidden="true">KJ</span>
+          <span><small>COMPROBANTE DE ENVÍO</small><b id="facebook-share-person-name">Colaborador KJA</b><em id="facebook-share-person-dni">DNI verificado</em></span>
+        </div>
+        <dl class="facebook-share-facts">
+          <div><dt>Área</dt><dd id="facebook-share-area">—</dd></div>
+          <div><dt>Vínculo</dt><dd id="facebook-share-link">—</dd></div>
+          <div><dt>Fecha</dt><dd id="facebook-share-date">—</dd></div>
+          <div><dt>Hora registrada</dt><dd id="facebook-share-time">—</dd></div>
+          <div><dt>Jornada</dt><dd id="facebook-share-schedule">—</dd></div>
+          <div><dt>Formato</dt><dd id="facebook-share-mode">—</dd></div>
+          <div><dt>Archivos</dt><dd id="facebook-share-file-count">—</dd></div>
+          <div><dt>Código de entrega</dt><dd id="facebook-share-id">—</dd></div>
+          <div><dt>Revisión</dt><dd id="facebook-share-review">—</dd></div>
+        </dl>
+        <div class="facebook-share-comment"><small>COMENTARIO DE LA ENTREGA</small><p id="facebook-share-comment">Sin comentario adicional.</p></div>
+        <div class="facebook-share-help" id="facebook-share-help"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-12 6.9L4 20l1.5-3.8A8 8 0 1 1 20 11.5Z"/><path d="M9 8.8c.7 2.4 2 3.8 4.4 4.5M9.1 8.7l1-.5M13.5 13.3l.5-1"/></svg><p>En tu teléfono se abrirá el menú para compartir. Elige <b>WhatsApp</b> y selecciona la conversación.</p></div>
+        <p class="facebook-share-message" id="facebook-share-message" role="status" aria-live="polite"></p>
+        <footer>
+          <button class="facebook-share-download" id="facebook-share-download" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Descargar imágenes</span></button>
+          <button class="facebook-share-submit" id="facebook-share-submit" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-12 6.9L4 20l1.5-3.8A8 8 0 1 1 20 11.5Z"/><path d="M9 8.8c.7 2.4 2 3.8 4.4 4.5M9.1 8.7l1-.5M13.5 13.3l.5-1"/></svg><span>Preparando envío…</span></button>
+        </footer>
+      </aside>
+    </div>
+  </section>
+</div>
+
 <div class="modal admin-review-modal" id="admin-review-modal" hidden>
   <div class="modal-backdrop" data-close-admin-review></div>
   <section class="admin-review-sheet" role="dialog" aria-modal="true" aria-labelledby="admin-review-title" aria-describedby="admin-review-copy">
@@ -1253,7 +1296,7 @@
 </div>
 
 <script src="assets/js/dashboard-close-model.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=128"></script>
+<script src="assets/js/dashboard.js?v=129"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=3"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=3"></script>
