@@ -22,6 +22,7 @@ const shortVideoSql = fs.readFileSync(new URL('../supabase/dashboard_27_video_co
 const evidenceEditSql = fs.readFileSync(new URL('../supabase/dashboard_28_edicion_evidencias_jornada.sql', import.meta.url), 'utf8');
 const facebookReceiptSql = fs.readFileSync(new URL('../supabase/dashboard_29_comprobante_comparticiones.sql', import.meta.url), 'utf8');
 const whatsappShareSql = fs.readFileSync(new URL('../supabase/dashboard_30_compartir_evidencia_whatsapp.sql', import.meta.url), 'utf8');
+const reviewNotesSql = fs.readFileSync(new URL('../supabase/dashboard_31_observaciones_revision.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -273,6 +274,14 @@ test('phase 2 review is private, auditable and reopens observed evidence safely'
   assert.match(css,/\.admin-close-review-trigger\{[^}]*background:#eff6ff/);
   assert.match(css,/\.portal\.admin-wide #view-gestion>#admin-close-section,[\s\S]*?overflow-y:auto/);
   assert.match(css,/\.admin-review-decision footer\{[^}]*position:sticky[^}]*bottom:-22px/);
+  assert.match(adminJs,/function adminReviewTime\(value\)/);
+  assert.match(adminJs,/Enviado \$\{adminReviewTime\(delivery\.completado_at\)\}/);
+  assert.match(adminJs,/p_nota:note\|\|null/);
+  assert.doesNotMatch(adminJs,/disabled=reviewed\|\|closed\|\|!canDecide/);
+  assert.match(html,/Observación de Dirección/);
+  assert.match(reviewNotesSql,/revision_nota = v_nota/);
+  assert.match(reviewNotesSql,/nota, actor_id[\s\S]*v_nota, auth\.uid\(\)/);
+  assert.match(reviewNotesSql,/if p_estado = 'observada' and v_salida is not null/);
   assert.match(js,/Corrección solicitada:/);
 });
 

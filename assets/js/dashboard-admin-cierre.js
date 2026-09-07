@@ -22,6 +22,12 @@ function adminReviewDate(value){
   return Number.isNaN(parsed.getTime())?'Fecha no disponible':new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric',timeZone:'America/Lima'}).format(parsed);
 }
 
+function adminReviewTime(value){
+  if(!value)return 'Hora no disponible';
+  const parsed=new Date(value);
+  return Number.isNaN(parsed.getTime())?'Hora no disponible':new Intl.DateTimeFormat('es-PE',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Lima'}).format(parsed);
+}
+
 function syncAdminCloseTargets(){
   const data=APP.adminClose;if(!data)return;
   const select=$('admin-close-target'),kind=$('admin-close-target-kind').value,current=select.value;
@@ -154,17 +160,18 @@ async function renderAdminReviewDelivery(id){
   [...$('admin-review-tabs').querySelectorAll('button')].forEach(button=>{const selected=String(button.dataset.adminReviewDelivery)===String(id);button.classList.toggle('active',selected);button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1});
   $('admin-review-evidence-title').textContent=adminReviewTitle(delivery);
   $('admin-review-evidence-meta').textContent=`${(delivery.archivos||[]).length} ${(delivery.archivos||[]).length===1?'archivo':'archivos'} · ${delivery.modalidad==='collage'?'Collage':delivery.requisito==='comparticiones'?'Capturas individuales':delivery.requisito==='salida'?'Foto de cierre':'Evidencia del día'}`;
+  $('admin-review-copy').textContent=`${delivery.area} · ${adminReviewDate(delivery.fecha)} · Enviado ${adminReviewTime(delivery.completado_at)}`;
   const state=$('admin-review-state');state.dataset.state=delivery.revision_estado;state.textContent=adminReviewStateLabel(delivery);
   $('admin-review-submitter-note').textContent=delivery.detalle||'Sin comentario adicional.';
-  const history=$('admin-review-history');history.hidden=delivery.revision_estado==='pendiente';history.querySelector('p').textContent=delivery.revision_estado==='observada'?delivery.revision_nota||'Se solicitó una corrección.':`Aprobada${delivery.revisor?` por ${delivery.revisor}`:''}.`;
+  const history=$('admin-review-history'),reviewNote=delivery.revision_nota?` Observación: ${delivery.revision_nota}`:'';history.hidden=delivery.revision_estado==='pendiente';history.querySelector('p').textContent=delivery.revision_estado==='observada'?delivery.revision_nota||'Se solicitó una corrección.':`Aprobada${delivery.revisor?` por ${delivery.revisor}`:''}.${reviewNote}`;
   $('admin-review-observation').value='';
   const canDecide=APP.access.rol==='direccion'&&APP.adminReview?.puede_revisar===true,reviewed=delivery.revision_estado!=='pendiente'||delivery.estado!=='completo',closed=!!delivery.jornada_cerrada;
   $('admin-review-modal').querySelector('.admin-review-decision').classList.toggle('is-readonly',!canDecide);
   $('admin-review-observation-wrap').hidden=reviewed||!canDecide;
-  $('admin-review-observation').disabled=reviewed||closed||!canDecide;
+  $('admin-review-observation').disabled=reviewed||!canDecide;
   $('admin-review-observe').hidden=reviewed||!canDecide;$('admin-review-approve').hidden=reviewed||!canDecide;
   $('admin-review-observe').disabled=closed;
-  adminReviewMessage(!canDecide?'Consulta privada de tu área. Solo Dirección puede aprobar o solicitar correcciones.':closed&&!reviewed?'La jornada ya fue cerrada: puedes aprobar la evidencia, pero no solicitar una corrección.':'');
+  adminReviewMessage(!canDecide?'Consulta privada de tu área. Solo Dirección puede aprobar o solicitar correcciones.':closed&&!reviewed?'La jornada ya fue cerrada: puedes aprobar y guardar una observación, pero el colaborador ya no puede reemplazar archivos.':'');
   const gallery=$('admin-review-gallery');gallery.innerHTML='<p class="admin-review-loading">Generando vistas privadas…</p>';
   const files=delivery.archivos||[];
   try{
@@ -195,7 +202,7 @@ async function submitAdminReview(state){
   const note=$('admin-review-observation').value.trim();
   if(state==='observada'&&note.length<3)return adminReviewMessage('Explica qué debe corregir antes de enviar la observación.','is-error');
   const approve=$('admin-review-approve'),observe=$('admin-review-observe');ADMIN_REVIEW.busy=true;approve.disabled=true;observe.disabled=true;adminReviewMessage(state==='aprobada'?'Aprobando evidencia…':'Enviando solicitud de corrección…');
-  const {data,error}=await db.rpc('dash_admin_revisar_entrega',{p_entrega:Number(delivery.id),p_estado:state,p_nota:state==='observada'?note:null});
+  const {data,error}=await db.rpc('dash_admin_revisar_entrega',{p_entrega:Number(delivery.id),p_estado:state,p_nota:note||null});
   ADMIN_REVIEW.busy=false;approve.disabled=false;observe.disabled=false;
   if(error||!data?.ok){
     const messages={nota:'Escribe una observación clara.',jornada_cerrada:'La jornada ya fue cerrada y no puede reabrirse. Solo puedes aprobar.',ya_revisada:'Otra persona ya revisó esta entrega. Actualiza la vista.',sin_permiso:'Solo Dirección puede revisar evidencias.'};
