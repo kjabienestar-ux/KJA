@@ -41,6 +41,26 @@ function monthRate(people){
   return base?Math.round((p+t)*100/base):null;
 }
 
+function mergeAdminMonthClosures(data,closeData){
+  const by=new Map((closeData?.cierres||[]).map(item=>[`${item.colaborador_id}|${item.fecha}`,item]));
+  for(const person of data.personas||[]){
+    const summary=person.resumen||{},counts={P:0,T:0,J:0,NG:0,incompletas:0,pendientes:0,horas:0};
+    for(const day of person.dias||[]){
+      const close=by.get(`${person.id}|${day.fecha}`);day.cierre_estado=close?.estado||null;day.salida_at=close?.salida_at||null;
+      const valid=!day.cierre_estado||['no_aplica','completa','regularizada'].includes(day.cierre_estado);
+      if(day.estado==='P'&&valid)counts.P++;
+      else if(day.estado==='T'&&valid)counts.T++;
+      else if(day.estado==='J')counts.J++;
+      else if(day.estado==='NG')counts.NG++;
+      if(day.cierre_estado==='incompleta')counts.incompletas++;
+      if(day.laborable&&day.fecha<=data.hoy&&!day.estado)counts.pendientes++;
+      if(day.laborable&&(day.estado==='J'||(['P','T'].includes(day.estado)&&valid)))counts.horas+=Number(day.horas||0);
+    }
+    const base=counts.P+counts.T+counts.J;
+    person.resumen={...summary,...counts,porcentaje:base?Math.round((counts.P+counts.T)*100/base):null};
+  }
+}
+
 async function loadAdminMonth(force=false){
   if(!APP.access.acceso_panel)return;
   const prefix=activeMonthPrefix(),value=currentMonthValue();syncMonthInputs(value);
@@ -50,15 +70,19 @@ async function loadAdminMonth(force=false){
   button.disabled=true;monthMessage('');
   const target=APP.adminSection==='resumen'?'admin-summary-table':'admin-month-ledger';
   $(target).innerHTML='<p class="admin-empty">Preparando el mes completo…</p>';
-  const {data,error}=await db.rpc('dash_admin_mes',{p_anio:year,p_mes:month,p_incluir_inactivos:include});
+  const [{data,error},{data:closeData,error:closeError}]=await Promise.all([
+    db.rpc('dash_admin_mes',{p_anio:year,p_mes:month,p_incluir_inactivos:include}),
+    db.rpc('dash_admin_cierres_mes',{p_anio:year,p_mes:month})
+  ]);
   if(request!==APP.adminMonthRequest)return;
   button.disabled=false;
-  if(error||!data?.ok){
+  if(error||!data?.ok||closeError||!closeData?.ok){
     APP.adminMonth=null;APP.adminMonthKey='';
     const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_mes'));
-    monthMessage(missing?'La fase 4 todavía no está instalada en Supabase. Ejecuta dashboard_07_admin_mes.sql.':'No se pudo cargar el mes. Actualiza e inténtalo nuevamente.');
+    monthMessage(missing?'La fase 4 todavía no está instalada en Supabase. Ejecuta dashboard_07_admin_mes.sql.':'No se pudo cargar el mes completo ni verificar sus cierres. Actualiza e inténtalo nuevamente.');
     $(target).innerHTML='<p class="admin-empty">La información mensual no está disponible.</p>';return;
   }
+  mergeAdminMonthClosures(data,closeData);
   data.personas=await hydrateProfilePhotos(data.personas||[]);
   if(request!==APP.adminMonthRequest)return;
   APP.adminMonth=data;APP.adminMonthKey=key;fillMonthFilters();renderAdminMonthViews();
@@ -71,7 +95,9 @@ function renderAdminMonthViews(){
 function statusText(state){return ({P:'Presente',T:'Tardanza',J:'Justificado',NG:'No gestiona'})[state]||'Sin registro'}
 function monthCellClass(day){
   const classes=['admin-month-cell'];
-  if(day.estado)classes.push(day.estado.toLowerCase());
+  if(day.cierre_estado==='incompleta')classes.push('incomplete');
+  else if(day.cierre_estado==='en_curso')classes.push('close-pending');
+  else if(day.estado)classes.push(day.estado.toLowerCase());
   else if(!day.laborable)classes.push(day.motivo==='feriado'?'holiday':day.motivo==='preinicio'?'pre':'off');
   else classes.push('empty');
   if(day.futura)classes.push('future');if(day.evidencia)classes.push('has-evidence');if(day.excepcion_tipo)classes.push('exception');
@@ -79,8 +105,8 @@ function monthCellClass(day){
 }
 function renderAdminMonthLedger(){
   const data=APP.adminMonth,people=monthPeople('month');
-  const p=sumMonth(people,'P'),t=sumMonth(people,'T'),j=sumMonth(people,'J'),pending=sumMonth(people,'pendientes');
-  const kpis=[['PERSONAS',people.length],['REGISTROS',p+t+j+sumMonth(people,'NG')],['ASISTENCIA',monthRate(people)==null?'—':`${monthRate(people)}%`],['TARDANZAS',t],['PENDIENTES A HOY',pending]];
+  const p=sumMonth(people,'P'),t=sumMonth(people,'T'),j=sumMonth(people,'J'),pending=sumMonth(people,'pendientes'),incomplete=sumMonth(people,'incompletas');
+  const kpis=[['PERSONAS',people.length],['JORNADAS VÁLIDAS',p+t+j+sumMonth(people,'NG')],['ASISTENCIA',monthRate(people)==null?'—':`${monthRate(people)}%`],['INCOMPLETAS',incomplete],['SIN ENTRADA',pending]];
   $('admin-month-kpis').innerHTML=kpis.map(item=>`<article class="admin-list-kpi"><small>${item[0]}</small><b>${item[1]}</b></article>`).join('');
   const sample=people[0]?.dias||APP.adminMonth.personas?.[0]?.dias||[];
   const holidays=new Map((data.feriados||[]).map(item=>[item.fecha,item.nota||'Feriado']));
@@ -96,7 +122,7 @@ function renderAdminMonthLedger(){
     if(person.area!==currentArea){currentArea=person.area;html+=`<tr class="admin-month-area-row"><td colspan="${sample.length+1}"><i></i><b>${esc(currentArea||'Sin área')}</b><span>${people.filter(x=>x.area===currentArea).length}</span></td></tr>`}
     html+=`<tr><th class="person-col">${profileAvatarMarkup(person)}<span><b>${esc(person.nombre)}</b><small>${person.activo?'Activo':'Dado de baja'}</small></span></th>`;
     for(const day of person.dias||[]){
-      const content=day.estado||(!day.laborable?'—':'·'),detail=`${person.nombre} · ${day.fecha} · ${day.estado?statusText(day.estado):day.laborable?'Sin registro':day.motivo}`;
+      const content=day.cierre_estado==='incompleta'?'INC':day.cierre_estado==='en_curso'?'…':day.estado||(!day.laborable?'—':'·'),detail=`${person.nombre} · ${day.fecha} · ${day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada, cierre pendiente':day.estado?statusText(day.estado):day.laborable?'Sin registro':day.motivo}`;
       html+=`<td><button type="button" class="${monthCellClass(day)}" data-month-person="${person.id}" data-month-date="${day.fecha}" aria-label="${esc(detail)}"><b>${content}</b>${day.nota?'<i class="note"></i>':''}${day.evidencia?'<i class="camera"></i>':''}</button></td>`;
     }
     html+='</tr>';
@@ -106,11 +132,11 @@ function renderAdminMonthLedger(){
 }
 
 function renderAdminMonthSummary(){
-  const people=monthPeople('summary'),rate=monthRate(people),p=sumMonth(people,'P'),t=sumMonth(people,'T'),j=sumMonth(people,'J'),ng=sumMonth(people,'NG'),pending=sumMonth(people,'pendientes'),hours=sumMonth(people,'horas');
+  const people=monthPeople('summary'),rate=monthRate(people),p=sumMonth(people,'P'),t=sumMonth(people,'T'),j=sumMonth(people,'J'),ng=sumMonth(people,'NG'),pending=sumMonth(people,'pendientes'),incomplete=sumMonth(people,'incompletas'),hours=sumMonth(people,'horas');
   const cards=[
     ['ASISTENCIA DEL MES',rate==null?'—':`${rate}%`,`${p+t} registros presentes o con tardanza`,'primary'],
     ['PUNTUALIDAD',p+t?`${Math.round(p*100/(p+t))}%`:'—',`${p} presentes · ${t} tardanzas`,''],
-    ['PENDIENTES A HOY',pending,`${j} justificados · ${ng} no gestiona`,'warning'],
+    ['PENDIENTES / INCOMPLETAS',pending+incomplete,`${pending} sin entrada · ${incomplete} sin salida`,'warning'],
     ['HORAS REGISTRADAS',`${hours.toFixed(1)} h`,`${people.length} personas en la lectura`,'']
   ];
   $('admin-summary-kpis').innerHTML=cards.map(card=>`<article class="${card[3]}"><small>${card[0]}</small><b>${card[1]}</b><span>${card[2]}</span></article>`).join('');
@@ -119,7 +145,7 @@ function renderAdminMonthSummary(){
     const r=person.resumen||{},pct=r.porcentaje==null?null:Number(r.porcentaje),bar=pct==null?0:pct;
     html+=`<article class="admin-summary-row ${person.activo?'':'inactive'}">
       <span class="admin-summary-person">${profileAvatarMarkup(person,'i')}<span><b>${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')} · ${person.activo?'Activo':'Dado de baja'}</small></span></span>
-      <span class="admin-summary-states"><i class="p">P <b>${r.P||0}</b></i><i class="t">T <b>${r.T||0}</b></i><i class="j">J <b>${r.J||0}</b></i><i class="ng">NG <b>${r.NG||0}</b></i></span>
+      <span class="admin-summary-states"><i class="p">P <b>${r.P||0}</b></i><i class="t">T <b>${r.T||0}</b></i><i class="j">J <b>${r.J||0}</b></i><i class="ng">NG <b>${r.NG||0}</b></i><i class="incomplete">INC <b>${r.incompletas||0}</b></i></span>
       <span><b>${r.programados||0}</b><small>${r.programados_transcurridos||0} transcurridos</small></span>
       <span class="${Number(r.pendientes)>0?'needs-review':''}"><b>${r.pendientes||0}</b><small>a la fecha</small></span>
       <span><b>${Number(r.horas||0).toFixed(1)} h</b><small>congeladas</small></span>
@@ -146,7 +172,8 @@ function openMonthCell(personId,date){
   const {person,day}=findMonthCell(personId,date);if(!person||!day)return;
   ADMIN_MONTH_DIALOG={kind:'cell',personId:String(personId),date};
   const dateText=new Date(date+'T12:00:00').toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const mark=day.estado?`<div class="month-day-current ${day.estado.toLowerCase()}"><span><small>ESTADO REGISTRADO</small><b>${statusText(day.estado)}</b></span><span>${day.marcado_at?new Date(day.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'—'}${day.origen?' · '+esc(day.origen):''}</span></div>`:'';
+  const visualState=day.cierre_estado==='incompleta'?'incomplete':day.cierre_estado==='en_curso'?'close-pending':day.estado?.toLowerCase(),visualLabel=day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada · cierre pendiente':statusText(day.estado);
+  const mark=day.estado?`<div class="month-day-current ${visualState}"><span><small>ESTADO DE LA JORNADA</small><b>${visualLabel}</b></span><span>${day.marcado_at?new Date(day.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'—'}${day.salida_at?' · salida '+new Date(day.salida_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):''}</span></div>`:'';
   const evidence=day.evidencia_path?`<button type="button" class="admin-secondary-action" data-month-action="evidence">Ver evidencia privada</button>`:'';
   const canEdit=!!APP.adminMonth.puede_editar,isFuture=day.fecha>APP.adminMonth.hoy;
   let actions='';
@@ -219,8 +246,8 @@ async function removeHoliday(date){
 function csvCell(value){const text=String(value??'');return /[;"\n]/.test(text)?`"${text.replace(/"/g,'""')}"`:text}
 function downloadMonthCsv(kind){
   if(!APP.adminMonth)return;const people=monthPeople(kind),summary=kind==='summary';let rows;
-  if(summary){rows=[['Colaborador','Área','Estado','P','T','J','NG','Programados','Transcurridos','Pendientes','Horas','Asistencia %'],...people.map(person=>{const r=person.resumen||{};return [person.nombre,person.area,person.activo?'Activo':'Baja',r.P||0,r.T||0,r.J||0,r.NG||0,r.programados||0,r.programados_transcurridos||0,r.pendientes||0,Number(r.horas||0).toFixed(1),r.porcentaje??'']})]}
-  else{rows=[['Colaborador','Área','Estado persona','Fecha','Laborable','Motivo','Modalidad','Estado asistencia','Horas','Hora de marca','Origen','Nota','Evidencia'],...people.flatMap(person=>(person.dias||[]).map(day=>[person.nombre,person.area,person.activo?'Activo':'Baja',day.fecha,day.laborable?'Sí':'No',day.motivo,day.modalidad,day.estado||'',day.horas??'',day.marcado_at||'',day.origen||'',day.nota||day.excepcion_nota||day.feriado_nota||'',day.evidencia?'Sí':'No']))]}
+  if(summary){rows=[['Colaborador','Área','Estado','P','T','J','NG','Incompletas','Programados','Transcurridos','Sin entrada','Horas','Asistencia %'],...people.map(person=>{const r=person.resumen||{};return [person.nombre,person.area,person.activo?'Activo':'Baja',r.P||0,r.T||0,r.J||0,r.NG||0,r.incompletas||0,r.programados||0,r.programados_transcurridos||0,r.pendientes||0,Number(r.horas||0).toFixed(1),r.porcentaje??'']})]}
+  else{rows=[['Colaborador','Área','Estado persona','Fecha','Laborable','Motivo','Modalidad','Estado entrada','Estado cierre','Horas','Hora de entrada','Hora de salida','Origen','Nota','Evidencia'],...people.flatMap(person=>(person.dias||[]).map(day=>[person.nombre,person.area,person.activo?'Activo':'Baja',day.fecha,day.laborable?'Sí':'No',day.motivo,day.modalidad,day.estado||'',day.cierre_estado||'no_aplica',day.horas??'',day.marcado_at||'',day.salida_at||'',day.origen||'',day.nota||day.excepcion_nota||day.feriado_nota||'',day.evidencia?'Sí':'No']))]}
   const content='\ufeff'+rows.map(row=>row.map(csvCell).join(';')).join('\r\n'),blob=new Blob([content],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
   link.href=url;link.download=`KJA_${summary?'resumen':'asistencia'}_${currentMonthValue()}.csv`;document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);toast('Archivo CSV preparado.');
 }

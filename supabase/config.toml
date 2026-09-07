@@ -8,3 +8,7 @@ verify_jwt = false
 # Esta función solo se usa con la sesión autenticada obtenida al entrar.
 [functions.dash-evidencia]
 verify_jwt = true
+
+# Emite permisos de un solo uso para las evidencias del cierre diario.
+[functions.dash-entrega]
+verify_jwt = true

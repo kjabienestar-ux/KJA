@@ -191,3 +191,14 @@ Verificar además:
 - Las cuentas del dashboard nacen con `acceso_panel = false`.
 - El plan gratuito de Storage requiere vigilar el crecimiento de evidencias y
   definir posteriormente una política de retención.
+
+## Activación del cierre de jornada
+
+La ampliación de salida, comparticiones, RPE y entregables asignados se instala
+con `supabase/dashboard_19_cierre_jornada.sql` y la Edge Function
+`dash-entrega`. El procedimiento completo, el orden seguro y la matriz de
+regresión están en `docs/10-despliegue-cierre-jornada.md`.
+
+No se debe publicar el checklist nuevo antes de ejecutar la migración y
+desplegar la función de subida. La activación inicial está fechada para el 7 de
+septiembre de 2026, de modo que el historial anterior conserva su validez.

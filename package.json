@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "test": "node --test tests/dashboard-close.test.mjs"
+  },
   "dependencies": {
     "jsdom": "^29.1.1"
   }

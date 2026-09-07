@@ -6,6 +6,8 @@ const DEADLINE_KEY = 'kja-dashboard-vence';
 const SHELL_KEY = 'kja-dashboard-shell';
 const PROFILE_BUCKET = 'perfil-fotos';
 const REQUEST_BUCKET = 'solicitud-evidencias';
+const DAILY_EVIDENCE_BUCKET = 'asis-cierre-evidencias';
+const CLOSE_MODEL = window.KJACloseModel;
 const PROFILE_MAX_SOURCE = 3 * 1024 * 1024;
 const PROFILE_MAX_STORED = 480 * 1024;
 const PROFILE_AVATAR_IDS = ['side-avatar','mobile-avatar','rail-avatar','mobile-home-avatar','profile-avatar'];
@@ -160,8 +162,11 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
+let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],video:null,busy:false};
+let DAILY_EVIDENCE_TRIGGER=null;
+let DAILY_EXIT_BUSY=false;
 let MARK_BUSY = false;
 let MARK_SYNC_PROMISE = null;
 let MARK_GEO = null;
@@ -631,6 +636,7 @@ async function openPortal(activeSession,bootstrap=null){
   $('admin-role-chip').textContent=({direccion:'Dirección',editor:'Encargado(a)',visor:'Solo lectura'}[APP.access.rol]||APP.access.rol);
   const deviceModule=$('admin-device-module'); if(deviceModule)deviceModule.hidden=APP.access.rol!=='direccion';
   $('admin-access-tab').hidden=APP.access.rol!=='direccion';
+  $('admin-control-tab').hidden=APP.access.rol!=='direccion';
   const managesRoles=APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel;
   $('admin-roles-tab').hidden=!managesRoles; const rolesModule=$('admin-roles-module'); if(rolesModule)rolesModule.hidden=!managesRoles;
   if(c){ renderHome(); renderProfile(); }
@@ -672,7 +678,8 @@ function renderHome(){
   const hour=Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',hour:'2-digit',hour12:false}).format(new Date()));
   const greeting=hour<12?'Buenos días':hour<19?'Buenas tardes':'Buenas noches';
   $('welcome').textContent=`${greeting}, ${c.nombre.split(' ')[0]}`;
-  $('welcome-sub').textContent=d.marcado?'Tu asistencia de hoy ya quedó registrada.':'Aquí tienes lo importante de tu jornada.';
+  $('welcome-sub').textContent=d.marcado?'Tu entrada de hoy ya quedó registrada.':'Aquí tienes lo importante de tu jornada.';
+  $('welcome-area').textContent=c.area||'Equipo KJA';
   const date=new Date((d.fecha||isoLima())+'T12:00:00');
   $('today-label').textContent=dayNames[date.getDay()].toUpperCase();
   $('day-date').textContent=new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'long',year:'numeric'}).format(date);
@@ -904,19 +911,19 @@ function renderProgress(){
   const t=h.totales||{},att=(t.P||0)+(t.T||0)+(t.J||0),rate=t.laborables?Math.round(att/t.laborables*100):0;
   $('month-rate').textContent=t.laborables?rate+'%':'—'; $('month-note').textContent=`${att} de ${t.laborables||0} días laborables`;
   const total=Math.max(0,Number(t.laborables)||0),dayStates=[],addDays=(state,count)=>dayStates.push(...Array(Math.min(Math.max(0,total-dayStates.length),Number(count)||0)).fill(state));
-  addDays('p',t.P);addDays('t',t.T);addDays('j',t.J);addDays('ng',t.NG);addDays('pending',total-dayStates.length);
+  addDays('p',t.P);addDays('t',t.T);addDays('j',t.J);addDays('ng',t.NG);addDays('incomplete',t.incompletas);addDays('pending',total-dayStates.length);
   $('month-days-visual').innerHTML=dayStates.slice(0,31).map(state=>`<i class="${state}"></i>`).join(''); $('month-days-visual').setAttribute('aria-label',total?`${att} de ${total} días laborables registrados`:'Sin días laborables registrados');
   $('rail-rate').textContent=t.laborables?rate+'%':'—'; $('rail-rate-note').textContent=`${att} de ${t.laborables||0} días registrados`;
 }
 
 function renderHistory(){
   const h=APP.historial;if(!h)return; $('month-title').textContent=cap(`${monthNames[h.mes-1]} ${h.anio}`);
-  const t=h.totales||{},items=[['Presentes',t.P||0],['Tardanzas',t.T||0],['Justificados',t.J||0],['No gestionó',t.NG||0]];
-  $('attendance-stats').innerHTML=items.map(x=>`<div class="att-stat"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
+  const t=h.totales||{},items=[['Presentes',t.P||0,''],['Tardanzas',t.T||0,''],['Justificados',t.J||0,''],['No gestionó',t.NG||0,''],['Incompletas',t.incompletas||0,'incomplete']];
+  $('attendance-stats').innerHTML=items.map(x=>`<div class="att-stat ${x[2]}"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
   $('attendance-hours-summary').textContent=`${(Number(h.horas)||0).toFixed(1)} h acumuladas`;
   const first=new Date(h.anio,h.mes-1,1).getDay(),offset=(first+6)%7; let html='<span class="cal-day empty"></span>'.repeat(offset);
   for(const d of h.dias||[]){
-    const cls=(d.estado||'').toLowerCase(),label=d.futuro?'Próximo':statusLabel(d.estado,d.lab),today=d.fecha===h.hoy;
+    const incomplete=d.cierre_estado==='incompleta',cls=incomplete?'incomplete':(d.estado||'').toLowerCase(),label=d.futuro?'Próximo':incomplete?'Jornada incompleta':statusLabel(d.estado,d.lab),today=d.fecha===h.hoy;
     html+=`<button type="button" class="cal-day ${cls} ${d.futuro?'future':''} ${!d.lab?'off':''} ${today?'today':''}" data-history-date="${esc(d.fecha)}" aria-label="${esc(`${d.d} de ${monthNames[h.mes-1]}: ${label}${today?', hoy':''}`)}"><span class="cal-day-top"><b>${d.d}</b>${today?'<em>Hoy</em>':'<i aria-hidden="true"></i>'}</span><small>${esc(label)}</small></button>`;
   }
   $('calendar-grid').innerHTML=html;
@@ -1241,8 +1248,8 @@ function renderRailCalendar(h){
   const first=new Date(h.anio,h.mes-1,1).getDay(),offset=(first+6)%7;
   let html='<span class="rail-cal-day empty"></span>'.repeat(offset);
   for(const d of h.dias||[]){
-    const registered=!!d.estado, cls=[registered?'registered':'',d.fecha===h.hoy?'today':'',d.futuro?'future':'',!d.lab?'off':''].filter(Boolean).join(' ');
-    html+=`<span class="rail-cal-day ${cls}" title="${esc(statusLabel(d.estado,d.lab))}"><b>${d.d}</b>${registered?'<i></i>':''}</span>`;
+    const registered=!!d.estado,incomplete=d.cierre_estado==='incompleta',cls=[registered?'registered':'',incomplete?'incomplete':'',d.fecha===h.hoy?'today':'',d.futuro?'future':'',!d.lab?'off':''].filter(Boolean).join(' ');
+    html+=`<span class="rail-cal-day ${cls}" title="${esc(incomplete?'Jornada incompleta':statusLabel(d.estado,d.lab))}"><b>${d.d}</b>${registered?'<i></i>':''}</span>`;
   }
   $('rail-calendar-grid').innerHTML=html;
 }
@@ -1257,15 +1264,29 @@ function renderProfile(){
 
 async function loadTeam(){
   const today=isoLima();
-  const [{data:people,error},{data:marks}]=await Promise.all([
+  const [{data:people,error},{data:marks},{data:closeData,error:closeError},{data:reviewData,error:reviewError},{data:issueData,error:issueError}]=await Promise.all([
     db.from('asis_colaboradores').select('id,nombre,area_id,dni,dias_laborables,hora_inicio,hora_fin,tipo_vinculo,contrato_inicio,contrato_fin_referencia,foto_path,foto_actualizada_at,asis_areas(nombre)').eq('activo',true).order('nombre'),
-    db.from('asis_registros').select('colaborador_id,estado,marcado_at').eq('fecha',today)
+    db.from('asis_registros').select('colaborador_id,estado,marcado_at').eq('fecha',today),
+    db.rpc('dash_equipo_cierres_hoy'),
+    db.rpc('dash_admin_revision_entregas',{p_fecha:today}),
+    db.rpc('dash_supervision_impedimentos',{p_fecha:today})
   ]);
-  if(error){ $('team-list').innerHTML='<p style="padding:25px">No se pudo cargar el equipo.</p>';return; }
-  const by=new Map((marks||[]).map(x=>[String(x.colaborador_id),x])),p=await hydrateProfilePhotos(people||[]);APP.teamPeople=p;
-  const present=p.filter(x=>['P','T','J'].includes(by.get(String(x.id))?.estado)).length,late=p.filter(x=>by.get(String(x.id))?.estado==='T').length,pending=p.length-present;
-  $('team-summary').innerHTML=[['Personas visibles',p.length],['Registraron hoy',present],['Tardanzas',late],['Sin registro',pending]].map(x=>`<div class="team-kpi"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
-  $('team-list').innerHTML=p.length?p.map(x=>{const m=by.get(String(x.id)),s=m?.estado||'',label=m?statusLabel(s,true):'Sin registro';return `<div class="team-row">${profileAvatarMarkup(x)}<span><strong>${esc(x.nombre)}</strong><small>${esc(x.asis_areas?.nombre||'Sin área')}</small></span><span><small>${m?.marcado_at?new Date(m.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'Sin hora registrada'}</small></span><span class="team-state ${s.toLowerCase()}">${esc(label)}</span><button class="team-profile-open" type="button" data-team-profile="${x.id}">Ver perfil</button></div>`}).join(''):'<p style="padding:25px">No hay personas para mostrar.</p>';
+  if(error||closeError||!closeData?.ok){$('team-summary').innerHTML='';$('team-list').innerHTML='<p class="admin-empty">El estado de cierre no está disponible. Actualiza nuevamente; no mostraremos asistencia parcial.</p>';return;}
+  APP.adminReview=!reviewError&&reviewData?.ok?reviewData:{ok:false,entregas:[]};
+  const by=new Map((marks||[]).map(x=>[String(x.colaborador_id),x])),byClose=new Map((closeData?.personas||[]).map(x=>[String(x.id),x.cierre||{}])),p=await hydrateProfilePhotos(people||[]);APP.teamPeople=p;
+  const reviews=APP.adminReview.entregas||[],byReview=new Map(),byIssue=new Map();
+  reviews.forEach(item=>{const key=String(item.colaborador_id);if(!byReview.has(key))byReview.set(key,[]);byReview.get(key).push(item)});
+  if(!issueError&&issueData?.ok)(issueData.impedimentos||[]).forEach(item=>{const key=String(item.colaborador_id);if(!byIssue.has(key))byIssue.set(key,[]);byIssue.get(key).push(item)});
+  const presentations=p.map(x=>CLOSE_MODEL.attendancePresentation(by.get(String(x.id)),byClose.get(String(x.id)))),complete=presentations.filter(x=>x.complete).length,incomplete=presentations.filter(x=>x.incomplete).length,entries=presentations.filter(x=>x.hasEntry).length;
+  $('team-summary').innerHTML=[['Personas visibles',p.length],['Entradas hoy',entries],['Jornadas completas',complete],['Incompletas',incomplete]].map(x=>`<div class="team-kpi"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
+  const guide=$('team-evidence-guide');guide.hidden=false;guide.className='team-evidence-guide'+(APP.adminReview.ok?'':' is-warning');guide.innerHTML=APP.adminReview.ok?'<span><b>Seguimiento privado de evidencias</b><small>Ves únicamente tu área. Puedes abrir los archivos para verificar avances; solo Dirección puede aprobar u observar.</small></span><i>SOLO LECTURA</i>':'<span><b>Falta habilitar la consulta de evidencias</b><small>Ejecuta la migración dashboard_22 para abrir los archivos de tu área. La asistencia continúa visible.</small></span>';
+  $('team-list').innerHTML=p.length?p.map(x=>{
+    const key=String(x.id),m=by.get(key),close=byClose.get(key)||{},view=CLOSE_MODEL.attendancePresentation(m,close),personReviews=byReview.get(key)||[],personIssues=byIssue.get(key)||[],issue=personIssues[0];
+    const requirements=[...(close.requisitos||[]),...(close.asignaciones||[])],missing=requirements.filter(item=>!item.completo).length,observed=personReviews.filter(item=>item.revision_estado==='observada').length,pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length,approved=personReviews.filter(item=>item.revision_estado==='aprobada').length;
+    const evidence=!m?{label:'Aún sin entrada',tone:'waiting'}:observed?{label:'Corrección pendiente',tone:'observed'}:issue?{label:'Impedimento informado',tone:'reported'}:missing?{label:`Falta${missing===1?'':'n'} ${missing} ${missing===1?'evidencia':'evidencias'}`,tone:'missing'}:pending?{label:`${pending} en revisión`,tone:'pending'}:approved&&approved===personReviews.length?{label:'Evidencias revisadas',tone:'approved'}:{label:'Evidencias completas',tone:'approved'};
+    const evidenceButton=personReviews.length?`<button class="team-evidence-open" type="button" data-team-review="${x.id}">Ver evidencias</button>`:'';
+    return `<div class="team-row">${profileAvatarMarkup(x)}<span><strong>${esc(x.nombre)}</strong><small>${esc(x.asis_areas?.nombre||'Sin área')}</small></span><span class="team-row-progress"><small>${m?.marcado_at?new Date(m.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'Sin hora registrada'}</small><em class="team-evidence-state ${evidence.tone}" ${issue?`title="${esc(issue.detalle)}" aria-label="Impedimento informado: ${esc(issue.detalle)}"`:''}>${esc(evidence.label)}</em>${issue?`<small class="team-issue-detail">${esc(issue.detalle)}</small>`:''}</span><span class="team-state ${view.state.toLowerCase()}">${esc(view.label)}</span><span class="team-row-actions">${evidenceButton}<button class="team-profile-open" type="button" data-team-profile="${x.id}">Ver perfil</button></span></div>`;
+  }).join(''):'<p style="padding:25px">No hay personas para mostrar.</p>';
 }
 
 async function openTeamProfile(id){
@@ -1277,9 +1298,9 @@ async function openTeamProfile(id){
   const {data,error}=await db.rpc('dash_historial',{p_anio:year,p_mes:month,p_colab:Number(id)});
   if(error||!data?.ok){$('team-profile-body').innerHTML='<p class="admin-empty">No se pudo cargar el historial autorizado.</p>';return;}
   const t=data.totales||{},days=data.dias||[],first=new Date(`${year}-${String(month).padStart(2,'0')}-01T12:00:00`),offset=(first.getDay()+6)%7;
-  const calendar='<span class="empty"></span>'.repeat(offset)+days.map(day=>`<span class="${String(day.estado||'').toLowerCase()} ${day.lab?'':'off'}"><b>${day.d}</b><i>${esc(day.estado||'')}</i></span>`).join('');
+  const calendar='<span class="empty"></span>'.repeat(offset)+days.map(day=>{const incomplete=day.cierre_estado==='incompleta',state=incomplete?'incomplete':String(day.estado||'').toLowerCase(),label=incomplete?'INC':day.estado||'';return `<span class="${state} ${day.lab?'':'off'}"><b>${day.d}</b><i>${esc(label)}</i></span>`}).join('');
   const profile=[['DNI',person.dni||'—'],['Vínculo',({practicas:'Practicante',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[person.tipo_vinculo]||person.tipo_vinculo||'—')],['Horario',`${fmtTime(person.hora_inicio)} — ${fmtTime(person.hora_fin)}`],['Contrato',`${person.contrato_inicio||'—'} → ${person.contrato_fin_referencia||'—'}`]];
-  $('team-profile-body').innerHTML=`<div class="team-profile-facts">${profile.map(item=>`<span><small>${item[0]}</small><b>${esc(item[1])}</b></span>`).join('')}</div><div class="team-profile-month"><header><span><small>ASISTENCIA DEL MES</small><b>${cap(monthNames[month-1])} ${year}</b></span><strong>${Number(data.horas||0).toFixed(1)} h</strong></header><div class="team-profile-stats"><span><b>${t.P||0}</b><small>Presentes</small></span><span><b>${t.T||0}</b><small>Tardanzas</small></span><span><b>${t.J||0}</b><small>Justificados</small></span><span><b>${t.NG||0}</b><small>No gestionó</small></span></div><div class="team-profile-week"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="team-profile-calendar">${calendar}</div></div>`;
+  $('team-profile-body').innerHTML=`<div class="team-profile-facts">${profile.map(item=>`<span><small>${item[0]}</small><b>${esc(item[1])}</b></span>`).join('')}</div><div class="team-profile-month"><header><span><small>ASISTENCIA DEL MES</small><b>${cap(monthNames[month-1])} ${year}</b></span><strong>${Number(data.horas||0).toFixed(1)} h</strong></header><div class="team-profile-stats"><span><b>${t.P||0}</b><small>Presentes</small></span><span><b>${t.T||0}</b><small>Tardanzas</small></span><span><b>${t.J||0}</b><small>Justificados</small></span><span><b>${t.NG||0}</b><small>No gestionó</small></span><span class="incomplete"><b>${t.incompletas||0}</b><small>Incompletas</small></span></div><div class="team-profile-week"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="team-profile-calendar">${calendar}</div></div>`;
 }
 function closeTeamProfile(){$('team-profile-modal').hidden=true}
 
@@ -1287,34 +1308,37 @@ async function loadAdminHub(){
   if(!APP.access.acceso_panel)return;
   const btn=$('admin-refresh'); btn.disabled=true;
   const today=isoLima();
-  const [peopleRes,marksRes,legacyRequestsRes,personalRequestsRes]=await Promise.all([
+  const [peopleRes,marksRes,legacyRequestsRes,personalRequestsRes,closesRes]=await Promise.all([
     db.from('asis_colaboradores').select('id,nombre,area_id,foto_path,foto_actualizada_at,asis_areas(nombre)').eq('activo',true).order('nombre'),
     db.from('asis_registros').select('colaborador_id,estado,marcado_at,origen').eq('fecha',today),
     db.from('asis_solicitudes_horario').select('id,colaborador_id,horario_nuevo,creado_at').eq('estado','pendiente').order('creado_at',{ascending:false}),
-    APP.access.rol==='direccion'?db.rpc('dash_admin_solicitudes_personales'):Promise.resolve({data:{ok:true,solicitudes:[]},error:null})
+    APP.access.rol==='direccion'?db.rpc('dash_admin_solicitudes_personales'):Promise.resolve({data:{ok:true,solicitudes:[]},error:null}),
+    db.rpc('dash_admin_cierres',{p_fecha:today})
   ]);
   btn.disabled=false;
-  if(peopleRes.error||marksRes.error){
+  if(peopleRes.error||marksRes.error||closesRes.error||!closesRes.data?.ok){
     $('admin-status-list').innerHTML='<p class="admin-empty">No se pudo cargar el estado operativo. Actualiza nuevamente.</p>';
     toast('No se pudo actualizar la administración.',true); return;
   }
   const people=await hydrateProfilePhotos(peopleRes.data||[]),marks=marksRes.data||[],legacyRequests=legacyRequestsRes.data||[],personalRequests=personalRequestsRes.data?.ok?personalRequestsRes.data.solicitudes||[]:[];
   const byMark=new Map(marks.map(x=>[String(x.colaborador_id),x]));
+  const byClose=new Map((closesRes.data?.personas||[]).map(x=>[String(x.id),x.cierre||{}]));
   const byPerson=new Map(people.map(x=>[String(x.id),x]));
   const registered=people.filter(x=>byMark.has(String(x.id))).length;
-  const late=people.filter(x=>byMark.get(String(x.id))?.estado==='T').length;
+  const complete=people.filter(x=>['completa','regularizada'].includes(byClose.get(String(x.id))?.estado)).length;
+  const incomplete=people.filter(x=>byClose.get(String(x.id))?.estado==='incompleta').length;
   const pending=Math.max(0,people.length-registered);
   const kpis=[
     ['COLABORADORES ACTIVOS',people.length,'Personas en el sistema',''],
-    ['REGISTRARON HOY',registered,`${people.length?Math.round(registered/people.length*100):0}% del equipo`,'registered'],
-    ['TARDANZAS',late,'Registros con estado T','late'],
+    ['JORNADAS COMPLETAS',complete,`${people.length?Math.round(complete/people.length*100):0}% del equipo`,'registered'],
+    ['JORNADAS INCOMPLETAS',incomplete,'Entrada sin cierre válido','late'],
     ['SIN REGISTRO',pending,'Revisión operativa pendiente','pending']
   ];
   $('admin-kpis').innerHTML=kpis.map(x=>`<article class="admin-kpi ${x[3]}"><small>${esc(x[0])}</small><b>${esc(x[1])}</b><span>${esc(x[2])}</span></article>`).join('');
 
   const sorted=[...people].sort((a,b)=>Number(byMark.has(String(a.id)))-Number(byMark.has(String(b.id)))||a.nombre.localeCompare(b.nombre,'es'));
   let statusHtml=sorted.slice(0,14).map(person=>{
-    const mark=byMark.get(String(person.id)),state=mark?.estado||'',label=mark?statusLabel(state,true):'Sin registro';
+    const mark=byMark.get(String(person.id)),view=CLOSE_MODEL.attendancePresentation(mark,byClose.get(String(person.id))),state=view.state,label=view.label;
     const time=mark?.marcado_at?new Date(mark.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'—';
     return `<div class="admin-status-row">${profileAvatarMarkup(person)}<span><strong>${esc(person.nombre)}</strong><small>${esc(person.asis_areas?.nombre||'Sin área')}</small></span><span class="admin-status-time">${esc(time)}${mark?.origen?' · '+esc(mark.origen):''}</span><span class="admin-status-pill ${state.toLowerCase()}">${esc(label)}</span></div>`;
   }).join('');
@@ -1343,13 +1367,16 @@ function addIsoDays(iso,amount){const d=new Date((iso||isoLima())+'T12:00:00');d
 async function showAdminSection(section){
   if(!APP.access.acceso_panel)return;
   if(section==='marcado'&&APP.access.rol!=='direccion'){toast('Marcado propio está reservado a Dirección.',true);section='overview'}
+  if(section==='control'&&APP.access.rol!=='direccion'){toast('El control diario está reservado a Dirección.',true);section='overview'}
   if(section==='roles'&&!(APP.identity.isSystem&&APP.access.rol==='direccion')){toast('Los roles están reservados al administrador de sistemas.',true);section='overview'}
-  const allowed=['overview','lista','mes','resumen','colaboradores','contratos','roles','marcado'];
+  const allowed=['overview','control','lista','mes','resumen','cierres','colaboradores','contratos','roles','marcado'];
   APP.adminSection=allowed.includes(section)?section:'overview';
   $('admin-overview-section').hidden=APP.adminSection!=='overview';
+  $('admin-control-section').hidden=APP.adminSection!=='control';
   $('admin-list-section').hidden=APP.adminSection!=='lista';
   $('admin-month-section').hidden=APP.adminSection!=='mes';
   $('admin-summary-section').hidden=APP.adminSection!=='resumen';
+  $('admin-close-section').hidden=APP.adminSection!=='cierres';
   $('admin-people-section').hidden=APP.adminSection!=='colaboradores';
   $('admin-contracts-section').hidden=APP.adminSection!=='contratos';
   $('admin-roles-section').hidden=APP.adminSection!=='roles';
@@ -1359,7 +1386,9 @@ async function showAdminSection(section){
     b.classList.toggle('active',active);
     if(b.closest('.admin-section-nav'))b.setAttribute('aria-pressed',String(active));
   });
-  if(APP.adminSection==='lista'){
+  if(APP.adminSection==='control'){
+    if(typeof loadAdminControl==='function')await loadAdminControl();
+  }else if(APP.adminSection==='lista'){
     if(!$('admin-list-date').value)$('admin-list-date').value=isoLima();
     $('admin-list-date').max=isoLima();
     await loadAdminAttendance();
@@ -1367,6 +1396,8 @@ async function showAdminSection(section){
     if(typeof loadAdminMonth==='function')await loadAdminMonth();
   }else if(APP.adminSection==='marcado'){
     if(typeof loadAdminAccess==='function')await loadAdminAccess();
+  }else if(APP.adminSection==='cierres'){
+    if(typeof loadAdminCloses==='function')await loadAdminCloses();
   }else if(APP.adminSection==='roles'){
     if(typeof loadAdminRoles==='function')await loadAdminRoles();
   }else if(APP.adminSection==='colaboradores'||APP.adminSection==='contratos'){
@@ -1379,16 +1410,17 @@ async function loadAdminAttendance(){
   const request=++APP.adminListRequest;
   btn.disabled=true; adminListMsg('');
   $('admin-roster').innerHTML='<p class="admin-empty">Cargando la lista del día…</p>';
-  const {data,error}=await db.rpc('dash_admin_lista',{p_fecha:date});
+  const [{data,error},{data:closeData,error:closeError}]=await Promise.all([db.rpc('dash_admin_lista',{p_fecha:date}),db.rpc('dash_admin_cierres',{p_fecha:date})]);
   if(request!==APP.adminListRequest)return;
   btn.disabled=false;
-  if(error||!data?.ok){
+  if(error||!data?.ok||closeError||!closeData?.ok){
     APP.adminList=null;
     const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_lista'));
-    adminListMsg(missing?'La fase 2 todavía no está instalada en Supabase. Ejecuta dashboard_05_admin_lista.sql.':'No se pudo cargar la lista. Actualiza e inténtalo nuevamente.');
+    adminListMsg(missing?'La fase 2 todavía no está instalada en Supabase. Ejecuta dashboard_05_admin_lista.sql.':'No se pudo cargar la lista completa ni verificar sus cierres. Actualiza e inténtalo nuevamente.');
     $('admin-roster').innerHTML='<p class="admin-empty">La lista no está disponible.</p>';return;
   }
-  data.personas=await hydrateProfilePhotos(data.personas||[]);
+  const byClose=new Map((closeData?.personas||[]).map(x=>[String(x.id),x.cierre||{}]));
+  data.personas=await hydrateProfilePhotos((data.personas||[]).map(person=>({...person,cierre:byClose.get(String(person.id))||null})));
   if(request!==APP.adminListRequest)return;
   APP.adminList=data;
   const areas=[...new Map((data.personas||[]).map(x=>[String(x.area_id),x.area||'Sin área'])).entries()].sort((a,b)=>a[1].localeCompare(b[1],'es'));
@@ -1401,10 +1433,11 @@ async function loadAdminAttendance(){
 
 function renderAdminAttendance(){
   const data=APP.adminList;if(!data)return;
-  const people=data.personas||[],counts={P:0,T:0,J:0,NG:0,pending:0};
+  const people=data.personas||[],counts={P:0,T:0,J:0,NG:0,pending:0,complete:0,incomplete:0};
   people.forEach(x=>x.estado?counts[x.estado]++:counts.pending++);
   const marked=people.length-counts.pending;
-  const kpis=[['PERSONAS DEL DÍA',people.length],['REGISTRADOS',marked],['PRESENTES',counts.P],['TARDANZAS',counts.T],['PENDIENTES',counts.pending]];
+  people.forEach(x=>{if(['completa','regularizada'].includes(x.cierre?.estado))counts.complete++;if(x.cierre?.estado==='incompleta')counts.incomplete++});
+  const kpis=[['PERSONAS DEL DÍA',people.length],['ENTRADAS',marked],['JORNADAS COMPLETAS',counts.complete],['INCOMPLETAS',counts.incomplete],['SIN ENTRADA',counts.pending]];
   $('admin-list-kpis').innerHTML=kpis.map(x=>`<article class="admin-list-kpi"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
   const query=$('admin-list-search').value.trim().toLocaleLowerCase('es'),area=$('admin-list-area').value;
   const visible=people.filter(x=>(!area||String(x.area_id)===area)&&(!query||String(x.nombre).toLocaleLowerCase('es').includes(query)));
@@ -1412,15 +1445,15 @@ function renderAdminAttendance(){
   const canEdit=!!data.puede_editar;
   let html='';
   for(const group of groups.values()){
-    const done=group.items.filter(x=>x.estado).length;
-    html+=`<section class="admin-area-group"><header class="admin-area-head"><span><i></i><b>${esc(group.name)}</b></span><small>${done} de ${group.items.length} registrados</small></header>`;
+    const done=group.items.filter(x=>['completa','regularizada'].includes(x.cierre?.estado)).length,entries=group.items.filter(x=>x.estado).length;
+    html+=`<section class="admin-area-group"><header class="admin-area-head"><span><i></i><b>${esc(group.name)}</b></span><small>${entries} con entrada · ${done} jornadas completas</small></header>`;
     for(const person of group.items){
-      const state=person.estado||'',label=state?statusLabel(state,true):'Sin registro';
+      const rawState=person.estado||'',view=CLOSE_MODEL.attendancePresentation(rawState?{estado:rawState}:null,person.cierre),state=view.state,label=view.label;
       const mode={virtual:'Virtual',presencial:'Presencial',opcional:'Opcional',no_gestiona:'No gestiona'}[person.modalidad]||cap(person.modalidad||'Sin modalidad');
       const shift=`${fmtTime(person.hora_entrada)} — ${fmtTime(person.hora_salida)}`;
       const time=person.marcado_at?new Date(person.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):mode;
       const evidence=person.evidencia_path?`<button class="admin-evidence-button" type="button" data-admin-evidence="${esc(person.evidencia_path)}">Ver evidencia</button>`:'';
-      html+=`<div class="admin-roster-row" data-admin-person="${person.id}">${profileAvatarMarkup(person)}<span class="admin-person"><b>${esc(person.nombre)}</b><small>${esc(mode)}${person.nota?' · '+esc(person.nota):''}</small>${evidence}</span><span class="admin-shift"><b>${esc(shift)}</b><small>${person.horas!=null?Number(person.horas).toFixed(1)+' h':'Horario del día'}</small></span><span class="admin-current-state ${state.toLowerCase()}">${esc(label)}${person.marcado_at?' · '+esc(time):''}</span><span class="admin-state-actions">${['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn ${s.toLowerCase()} ${state===s?'on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" aria-pressed="${state===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('')}</span></div>`;
+      html+=`<div class="admin-roster-row" data-admin-person="${person.id}">${profileAvatarMarkup(person)}<span class="admin-person"><b>${esc(person.nombre)}</b><small>${esc(mode)}${person.nota?' · '+esc(person.nota):''}</small>${evidence}</span><span class="admin-shift"><b>${esc(shift)}</b><small>${person.horas!=null?Number(person.horas).toFixed(1)+' h':'Horario del día'}</small></span><span class="admin-current-state ${state.toLowerCase()}">${esc(label)}${person.marcado_at?' · '+esc(time):''}</span><span class="admin-state-actions">${['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn ${s.toLowerCase()} ${rawState===s?'on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" aria-pressed="${rawState===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('')}</span></div>`;
     }
     html+='</section>';
   }
@@ -1514,7 +1547,7 @@ $('profile-photo-camera').onclick=()=>$('profile-photo-input').click();
 $('profile-photo-change').onclick=()=>$('profile-photo-input').click();
 $('profile-photo-remove').onclick=removeProfilePhoto;
 $('profile-photo-input').onchange=event=>chooseProfilePhoto(event.target.files?.[0]);
-$('team-list').onclick=e=>{const button=e.target.closest('[data-team-profile]');if(button)openTeamProfile(button.dataset.teamProfile)};
+$('team-list').onclick=e=>{const evidence=e.target.closest('[data-team-review]');if(evidence){openAdminReviewPerson(evidence.dataset.teamReview,evidence);return}const profile=e.target.closest('[data-team-profile]');if(profile)openTeamProfile(profile.dataset.teamProfile)};
 document.querySelectorAll('[data-close-team-profile]').forEach(button=>button.onclick=closeTeamProfile);
 $('month-prev').onclick=()=>{ APP.month--;if(APP.month<1){APP.month=12;APP.year--}loadHistory(); };
 $('month-next').onclick=()=>{ const n=new Date(),cur=n.getFullYear()*12+n.getMonth(),target=APP.year*12+(APP.month-1);if(target>=cur)return;APP.month++;if(APP.month>12){APP.month=1;APP.year++}loadHistory(); };
@@ -1557,7 +1590,26 @@ $('personal-request-start').onchange=event=>{const end=$('personal-request-end')
 $('personal-request-end').onchange=syncRequestDateButtons;
 $('calendar-grid').onclick=event=>{const day=event.target.closest('[data-history-date]');if(day)openAttendanceDay(day.dataset.historyDate)};
 $('rail-calendar-open').onclick=()=>goView('asistencia');
-$('admin-refresh').onclick=()=>APP.adminSection==='lista'?loadAdminAttendance():(APP.adminSection==='mes'||APP.adminSection==='resumen')&&typeof loadAdminMonth==='function'?loadAdminMonth(true):APP.adminSection==='marcado'&&typeof loadAdminAccess==='function'?loadAdminAccess():APP.adminSection==='roles'&&typeof loadAdminRoles==='function'?loadAdminRoles():(APP.adminSection==='colaboradores'||APP.adminSection==='contratos')&&typeof loadAdminTeam==='function'?loadAdminTeam():loadAdminHub();
+$('rail-announcement-open').onclick=()=>{
+  const modal=$('announcement-viewer');
+  modal.hidden=false;
+  document.body.classList.add('announcement-viewer-open');
+  requestAnimationFrame(()=>modal.querySelector('.announcement-viewer-close').focus());
+};
+function closeAnnouncementViewer(){
+  const modal=$('announcement-viewer');
+  if(modal.hidden)return false;
+  modal.hidden=true;
+  document.body.classList.remove('announcement-viewer-open');
+  $('rail-announcement-open').focus({preventScroll:true});
+  return true;
+}
+document.querySelectorAll('[data-close-announcement]').forEach(button=>button.onclick=closeAnnouncementViewer);
+$('announcement-viewer').addEventListener('keydown',event=>{
+  if(event.key==='Escape'){event.preventDefault();closeAnnouncementViewer();return}
+  if(event.key==='Tab'){event.preventDefault();$('announcement-viewer').querySelector('.announcement-viewer-close').focus()}
+});
+$('admin-refresh').onclick=()=>APP.adminSection==='control'&&typeof loadAdminControl==='function'?loadAdminControl():APP.adminSection==='lista'?loadAdminAttendance():(APP.adminSection==='mes'||APP.adminSection==='resumen')&&typeof loadAdminMonth==='function'?loadAdminMonth(true):APP.adminSection==='cierres'&&typeof loadAdminCloses==='function'?loadAdminCloses():APP.adminSection==='marcado'&&typeof loadAdminAccess==='function'?loadAdminAccess():APP.adminSection==='roles'&&typeof loadAdminRoles==='function'?loadAdminRoles():(APP.adminSection==='colaboradores'||APP.adminSection==='contratos')&&typeof loadAdminTeam==='function'?loadAdminTeam():loadAdminHub();
 $('admin-request-refresh').onclick=loadAdminHub;
 document.querySelectorAll('[data-admin-section]').forEach(b=>b.onclick=()=>showAdminSection(b.dataset.adminSection));
 $('admin-date-prev').onclick=()=>{$('admin-list-date').value=addIsoDays($('admin-list-date').value,-1);loadAdminAttendance()};
@@ -1584,12 +1636,486 @@ $('menu-toggle').onclick=openMenu;$('side-scrim').onclick=closeMenu;
 $('mobile-back-home').onclick=()=>goView('inicio');
 document.addEventListener('keydown',event=>{
   if(event.key!=='Escape')return;
+  if(closeAnnouncementViewer())return;
   if(closeRequestCalendar(true))return;
   if(!$('personal-request-modal').hidden)return closePersonalRequest();
   if(!$('attendance-day-modal').hidden){if(closeAttendanceEvidence())return;closeAttendanceDay()}
 });
 
 // ── Evidencia y marcado ──────────────────────────────────────────────
+function dailyCloseMessage(text,type=''){
+  const el=$('day-close-message');if(!el)return;
+  el.textContent=text||'';el.className='day-close-message'+(type?' '+type:'');
+}
+
+function dailyEvidenceMessage(text,type=''){
+  const el=$('daily-evidence-message');if(!el)return;
+  el.textContent=text||'';el.className='daily-evidence-message'+(type?' '+type:'');
+}
+
+function dailyCloseStatusCopy(state){
+  return {
+    sin_entrada:'Primero marca tu entrada',
+    en_curso:'Evidencias pendientes',
+    lista_para_salir:'Evidencias completas',
+    completa:'Jornada completa',
+    regularizada:'Jornada regularizada',
+    incompleta:'Jornada incompleta',
+    no_aplica:'Cierre no requerido'
+  }[state]||'Preparando cierre';
+}
+
+function dailyCloseGuidePresentation(data){
+  if(!data.entrada_at)return {stage:'entry',title:'Empieza registrando tu entrada',copy:'Después se habilitarán las evidencias pendientes.'};
+  if(data.estado==='completa'||data.estado==='regularizada')return {stage:'complete',title:'Jornada cerrada correctamente',copy:'Entrada, evidencias y salida quedaron registradas.'};
+  if(data.estado==='incompleta')return {stage:'incomplete',title:'El cierre quedó incompleto',copy:'El plazo terminó sin registrar todos los pasos.'};
+  if((data.pendientes||0)>0)return {stage:'evidence',title:'Completa tus evidencias',copy:'Selecciona cada requisito naranja para adjuntar las imágenes.'};
+  if(data.puede_marcar_salida)return {stage:'exit',title:'Todo listo para salir',copy:'Tus evidencias están completas. Confirma ahora tu salida.'};
+  return {stage:'ready',title:'Evidencias completas',copy:`La salida se habilitará desde las ${fmtTime(data.salida_desde)}.`};
+}
+
+function dailyCloseItemMarkup(item,{entry=false}={}){
+  const complete=!!item.completo,locked=!!item.locked;
+  const review=item.revision_estado||'';
+  const status=review==='observada'?'Corregir':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Primero':locked&&item.tipo==='salida'?'Al finalizar':locked?'Después':item.impedimento?'Informado':'Pendiente';
+  const icons={
+    comparticiones:'<svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 21v-8h2.8l.4-3.1h-3.2v-2c0-.9.3-1.5 1.6-1.5H17V3.6c-.8-.1-1.6-.2-2.4-.2-2.4 0-4.1 1.5-4.1 4.2v2.3H7.8V13h2.7v8h3.2Z"/></svg>',
+    rpe:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v5h5M10 12h5M10 16h5"/></svg>',
+    salida:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4l1.5-2h5L16 7h4v12H4z"/><circle cx="12" cy="13" r="3"/><path d="M18 3v3M16.5 4.5h3"/></svg>'
+  };
+  const icon=complete?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>':icons[item.tipo]||'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>';
+  const attrs=entry||complete||locked?'disabled':`data-daily-requirement="${esc(item.tipo)}" aria-haspopup="dialog" aria-controls="daily-evidence-editor"${item.asignacion==null?'':` data-daily-assignment="${esc(item.asignacion)}"`}`;
+  const description=item.tipo==='salida'&&!complete
+    ? (locked?'1 foto con la hora visible, disponible al finalizar':'Adjunta 1 foto donde se vea la hora de salida')
+    : (item.descripcion||'Adjunta la evidencia correspondiente');
+  return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}>
+    <span class="day-close-check">${icon}</span>
+    <span class="day-close-item-copy"><b>${esc(item.titulo)}</b><small>${esc(description)}</small></span>
+    <span class="day-close-item-status">${esc(status)}${!complete&&!locked?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>':''}</span>
+  </button>`;
+}
+
+function mergeDailyReviewState(closeData,reviewData){
+  if(!closeData||!reviewData?.ok)return closeData;
+  const reviews=reviewData.revisiones||[];
+  const apply=(item,assignment=null)=>{
+    const review=reviews.find(row=>row.requisito===(assignment==null?item.tipo:'asignado')&&(assignment==null||String(row.asignacion_id)===String(assignment)));
+    if(!review)return item;
+    item.revision_estado=review.revision_estado;
+    item.revision_nota=review.revision_nota||'';
+    if(review.revision_estado==='observada'){
+      item.completo=false;
+      item.descripcion=`Corrección solicitada: ${review.revision_nota||'revisa la evidencia y vuelve a enviarla'}`;
+    }
+    return item;
+  };
+  (closeData.requisitos||[]).forEach(item=>apply(item));
+  (closeData.asignaciones||[]).forEach(item=>apply(item,item.id));
+  return closeData;
+}
+
+function mergeDailyIssueState(closeData,issueData){
+  if(!closeData||!issueData?.ok)return closeData;
+  const issues=issueData.impedimentos||[],apply=(item,assignment=null)=>{
+    const issue=issues.find(row=>row.requisito===(assignment==null?item.tipo:'asignado')&&(assignment==null||String(row.asignacion_id)===String(assignment)));
+    if(issue)item.impedimento=issue;return item;
+  };
+  (closeData.requisitos||[]).forEach(item=>apply(item));
+  (closeData.asignaciones||[]).forEach(item=>apply(item,item.id));
+  return closeData;
+}
+
+function renderDailyClose(){
+  const data=APP.cierre,section=$('day-close'),card=$('today-attendance-card');if(!section)return;
+  if(!data?.ok||!data.aplica){section.hidden=true;card?.classList.remove('has-daily-close');return;}
+  const entryComplete=!!data.entrada_at,closed=['completa','regularizada','incompleta'].includes(data.estado);
+  section.hidden=false;
+  card?.classList.add('has-daily-close');
+  const locked=!entryComplete||closed||DAILY_EVIDENCE.busy;
+  const items=[{
+    tipo:'entrada',titulo:entryComplete?'Entrada registrada':'Registrar asistencia',
+    descripcion:entryComplete?`Marcada a las ${formatAttendanceClock(data.entrada_at)}`:'Registra primero tu asistencia de entrada',
+    completo:entryComplete,locked:true
+  },...(data.requisitos||[]).map(item=>({...item,locked:locked||!!item.bloqueado})),...(data.asignaciones||[]).map(item=>({
+    tipo:'asignado',asignacion:item.id,titulo:item.titulo,
+    descripcion:item.instrucciones||`${cap(item.tipo||'Entregable')} asignado para hoy`,
+    completo:item.completo,locked
+  }))];
+  $('day-close-checklist').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:index===0})).join('');
+
+  $('day-close-title').textContent=entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
+  $('day-close-copy').textContent=entryComplete?'Completa tus evidencias antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
+  const state=$('day-close-state');
+  state.dataset.state=entryComplete?CLOSE_MODEL.stateTone(data.estado):'waiting';
+  state.innerHTML=`<i></i>${esc(entryComplete?dailyCloseStatusCopy(data.estado):'Entrada pendiente')}`;
+  const guide=dailyCloseGuidePresentation(data),guideElement=$('day-close-guide');
+  guideElement.dataset.stage=guide.stage;$('day-close-guide-title').textContent=guide.title;$('day-close-guide-copy').textContent=guide.copy;
+  guideElement.querySelector('.day-close-journey').setAttribute('aria-label',`${guide.title}. ${guide.copy}`);
+  const button=$('day-close-button');
+  if(!entryComplete){
+    const sourceButton=$('open-mark');
+    $('day-close-time-label').textContent='HORA DE ENTRADA';
+    $('day-close-time').textContent=fmtTime(APP.inicio?.dia?.hora_entrada||data.hora_entrada_programada);
+    $('day-close-window').textContent='Primer paso de tu jornada';
+    button.dataset.action='entry';
+    button.disabled=sourceButton?.disabled??true;
+    $('day-close-button-caption').textContent=$('mark-caption')?.textContent||'MARCAR AHORA';
+    $('day-close-button-label').textContent=$('mark-label')?.textContent||'Registrar mi asistencia';
+    dailyCloseMessage('Registra tu entrada para habilitar las evidencias pendientes.');
+    return;
+  }
+
+  $('day-close-time-label').textContent='HORA DE SALIDA';
+  $('day-close-time').textContent=data.salida_at?formatAttendanceClock(data.salida_at):fmtTime(data.hora_salida_programada);
+  $('day-close-window').textContent=data.salida_at?'Hora oficial registrada':data.salida_desde&&data.salida_hasta?`Disponible de ${fmtTime(data.salida_desde)} a ${fmtTime(data.salida_hasta)}`:'Horario por revisar';
+  button.dataset.action='exit';
+  button.disabled=!data.puede_marcar_salida||DAILY_EVIDENCE.busy;
+  if(data.salida_at){
+    $('day-close-button-caption').textContent='SALIDA REGISTRADA';$('day-close-button-label').textContent=formatAttendanceClock(data.salida_at);
+    dailyCloseMessage(`Jornada completa · ${Number(data.horas_efectivas||0).toFixed(2)} horas acreditadas.`,'is-success');
+  }else if(data.estado==='incompleta'){
+    $('day-close-button-caption').textContent='PLAZO FINALIZADO';$('day-close-button-label').textContent='Jornada incompleta';
+    dailyCloseMessage('La entrada se conserva, pero esta jornada no suma asistencia ni horas.','is-error');
+  }else if((data.pendientes||0)>0){
+    $('day-close-button-caption').textContent='CIERRE PENDIENTE';$('day-close-button-label').textContent='Marcar mi salida';
+    dailyCloseMessage(`Completa ${data.pendientes} ${data.pendientes===1?'requisito':'requisitos'} antes de salir.`);
+  }else if(!data.puede_marcar_salida){
+    $('day-close-button-caption').textContent='EVIDENCIAS COMPLETAS';$('day-close-button-label').textContent='Marcar mi salida';
+    dailyCloseMessage(`Podrás cerrar tu jornada desde las ${fmtTime(data.salida_desde)}.`);
+  }else{
+    $('day-close-button-caption').textContent='TODO COMPLETO';$('day-close-button-label').textContent='Marcar mi salida';
+    dailyCloseMessage('Tus evidencias están completas. Ya puedes registrar la salida.','is-success');
+  }
+}
+
+async function loadDailyClose({quiet=false}={}){
+  if(!APP.identity.hasPersonal)return null;
+  const {data,error}=await db.rpc('dash_cierre_hoy');
+  if(error){
+    const missing=error.code==='PGRST202'||String(error.message||'').includes('dash_cierre_hoy');
+    if(missing){$('day-close').hidden=true;$('today-attendance-card')?.classList.remove('has-daily-close');return null;}
+    if(!quiet)dailyCloseMessage('No pudimos actualizar el cierre. Revisa tu conexión.','is-error');
+    return null;
+  }
+  if(!data?.ok){if(!quiet)dailyCloseMessage(data?.motivo==='sesion'?'Tu sesión venció. Vuelve a ingresar.':'No pudimos preparar el cierre.','is-error');return null;}
+  const [{data:reviews,error:reviewError},{data:issues,error:issueError}]=await Promise.all([db.rpc('dash_mis_revisiones_cierre'),db.rpc('dash_mis_impedimentos_cierre')]);
+  APP.cierre=mergeDailyIssueState(mergeDailyReviewState(data,reviewError?null:reviews),issueError?null:issues);renderDailyClose();return APP.cierre;
+}
+
+function clearDailyEvidenceFiles(){
+  DAILY_EVIDENCE.files.forEach(item=>{if(item.url)URL.revokeObjectURL(item.url)});
+  DAILY_EVIDENCE.files=[];$('daily-evidence-file').value='';renderDailyEvidencePreviews();
+}
+
+function clearDailyEvidenceVideo(){
+  if(DAILY_EVIDENCE.video?.url)URL.revokeObjectURL(DAILY_EVIDENCE.video.url);
+  DAILY_EVIDENCE.video=null;
+  $('daily-video-file').value='';$('daily-video-player').removeAttribute('src');$('daily-video-preview').hidden=true;$('daily-video-message').textContent='';
+}
+
+function dailyUploadStep(name,state,copy=''){
+  const step=$(`daily-upload-step-${name}`);if(!step)return;
+  step.dataset.state=state;
+  if(copy)step.querySelector('small').textContent=copy;
+}
+
+function setDailyEvidenceProcess(phase,{title='',copy='',progress=0,current=0,total=0}={}){
+  const sheet=$('daily-evidence-editor')?.querySelector('.daily-evidence-sheet'),process=$('daily-evidence-process');
+  if(!sheet||!process)return;
+  const active=phase==='upload'||phase==='success';
+  sheet.dataset.phase=phase;
+  process.hidden=!active;
+  $('daily-evidence-cancel-top').disabled=active;
+  $('daily-evidence-cancel').disabled=active;
+  if(title)$('daily-upload-title').textContent=title;
+  if(copy)$('daily-upload-copy').textContent=copy;
+  $('daily-upload-progress-bar').style.transform=`scaleX(${Math.max(0,Math.min(1,progress))})`;
+  if(total)$('daily-upload-count').textContent=`${current} de ${total} ${total===1?'archivo':'archivos'}`;
+  if(phase==='idle'){
+    dailyUploadStep('prepare','active','Optimización y protección');
+    dailyUploadStep('upload','waiting','En espera');
+    dailyUploadStep('confirm','waiting','Registro oficial de la jornada');
+  }
+}
+
+function closeDailyEvidenceEditor({restoreFocus=true}={}){
+  if(DAILY_EVIDENCE.busy)return;
+  clearDailyEvidenceFiles();clearDailyEvidenceVideo();DAILY_EVIDENCE={requirement:'',assignment:null,title:'',files:[],video:null,busy:false};
+  $('daily-evidence-detail').value='';$('daily-issue-detail').value='';$('daily-issue-form').hidden=true;$('daily-issue-message').textContent='';dailyEvidenceMessage('');setDailyEvidenceProcess('idle');$('daily-evidence-editor').hidden=true;
+  document.body.classList.remove('daily-evidence-open');
+  if(restoreFocus&&DAILY_EVIDENCE_TRIGGER){DAILY_EVIDENCE_TRIGGER.focus();DAILY_EVIDENCE_TRIGGER=null}
+}
+
+function mountDailyEvidencePortal(){
+  const editor=$('daily-evidence-editor');
+  if(editor&&editor.parentElement!==document.body)document.body.append(editor);
+  return editor;
+}
+
+function openDailyEvidenceEditor(requirement,assignment=null){
+  if(DAILY_EVIDENCE.busy)return;
+  const data=APP.cierre;if(!data?.entrada_at||data.salida_at||data.estado==='incompleta')return;
+  const item=requirement==='asignado'
+    ?(data.asignaciones||[]).find(row=>String(row.id)===String(assignment))
+    :(data.requisitos||[]).find(row=>row.tipo===requirement);
+  if(!item||item.completo)return;
+  closeDailyEvidenceEditor({restoreFocus:false});
+  mountDailyEvidencePortal();
+  DAILY_EVIDENCE={requirement,assignment:assignment==null?null:Number(assignment),title:item.titulo,files:[],video:null,busy:false};
+  $('daily-evidence-editor').querySelector('.daily-evidence-sheet').dataset.requirement=requirement;
+  setDailyEvidenceProcess('idle');
+  $('daily-evidence-title').textContent=item.titulo;
+  $('daily-evidence-copy').textContent=item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
+  $('daily-issue').hidden=requirement==='salida';
+  const issue=item.impedimento;$('daily-issue-form').hidden=!issue;$('daily-issue-detail').value=issue?.detalle||'';$('daily-issue-message').textContent=issue?'Aviso enviado. Puedes actualizar el motivo si cambió la situación.':'';$('daily-issue-toggle').querySelector('b').textContent=issue?'Impedimento informado':'¿No podrás completarlo hoy?';$('daily-issue-submit').textContent=issue?'Actualizar aviso':'Enviar aviso';
+  $('daily-evidence-mode').hidden=requirement!=='comparticiones';
+  $('daily-video').hidden=!['rpe','asignado'].includes(requirement);
+  $('daily-evidence-file').multiple=requirement!=='salida';
+  $('daily-evidence-individual-help').textContent=`Selecciona ${data.comparticiones_min||5} imágenes`;
+  $('daily-evidence-collage-option').hidden=!data.collage_permitido;
+  const firstMode=document.querySelector('input[name="daily-evidence-mode"][value="individuales"]');if(firstMode)firstMode.checked=true;
+  $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · ${data.comparticiones_min||5} capturas${data.collage_permitido?' o 1 collage':''}`:requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
+  $('daily-evidence-editor').hidden=false;
+  document.body.classList.add('daily-evidence-open');
+  requestAnimationFrame(()=>$('daily-evidence-cancel-top').focus({preventScroll:true}));
+}
+
+function dailyEvidenceMode(){
+  return document.querySelector('input[name="daily-evidence-mode"]:checked')?.value||'individuales';
+}
+
+async function submitDailyIssue(){
+  if(DAILY_EVIDENCE.busy)return;const detail=$('daily-issue-detail').value.trim(),message=$('daily-issue-message'),button=$('daily-issue-submit');
+  if(detail.length<10){message.textContent='Explica el motivo con al menos 10 caracteres.';message.className='is-error';return}
+  button.disabled=true;button.textContent='Enviando…';message.textContent='';message.className='';
+  const {data,error}=await db.rpc('dash_reportar_impedimento',{p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment,p_detalle:detail});
+  button.disabled=false;
+  if(error||!data?.ok){const labels={jornada:'La jornada ya no está abierta.',ya_completo:'Este requisito ya está completo.',datos:'Revisa la explicación ingresada.'};message.textContent=labels[data?.motivo]||'No pudimos enviar el aviso. Revisa tu conexión.';message.className='is-error';button.textContent='Enviar aviso';return}
+  message.textContent='Aviso enviado a Dirección. El requisito continúa pendiente.';message.className='is-success';button.textContent='Actualizar aviso';toast('Impedimento informado.');await loadDailyClose({quiet:true});
+}
+
+function renderDailyEvidencePreviews(){
+  const box=$('daily-evidence-previews');if(!box)return;
+  box.hidden=!DAILY_EVIDENCE.files.length;
+  box.innerHTML=DAILY_EVIDENCE.files.map((item,index)=>`<div class="daily-evidence-preview" style="--preview-index:${index}"><em>${index+1}</em><img src="${esc(item.url)}" alt="Vista previa ${index+1}"><button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
+}
+
+async function chooseDailyEvidence(files){
+  if(!files?.length)return;
+  const max=DAILY_EVIDENCE.requirement==='salida'||DAILY_EVIDENCE.requirement==='comparticiones'&&dailyEvidenceMode()==='collage'?1:5;
+  const selected=[...files].slice(0,max);
+  if([...files].length>max)return dailyEvidenceMessage(max===1?(DAILY_EVIDENCE.requirement==='salida'?'La evidencia de salida admite una sola foto.':'El modo collage admite una sola imagen.'):'Puedes adjuntar como máximo 5 imágenes.');
+  if(selected.some(file=>file.size>25*1024*1024))return dailyEvidenceMessage('Una de las imágenes supera 25 MB. Elige una versión más pequeña.');
+  dailyEvidenceMessage('Preparando imágenes…','is-info');
+  try{
+    clearDailyEvidenceFiles();
+    const prepared=await Promise.all(selected.map(async file=>{const blob=await compressImage(file);return {blob,url:URL.createObjectURL(blob)}}));
+    DAILY_EVIDENCE.files=prepared;renderDailyEvidencePreviews();dailyEvidenceMessage(`${prepared.length} ${prepared.length===1?'imagen lista':'imágenes listas'} para entregar.`,'is-ready');
+  }catch{clearDailyEvidenceFiles();dailyEvidenceMessage('No pudimos procesar una imagen. Prueba con JPG, PNG o WebP.')}
+}
+
+function readVideoMetadata(file){
+  return new Promise((resolve,reject)=>{const video=document.createElement('video'),url=URL.createObjectURL(file);video.preload='metadata';video.onloadedmetadata=()=>{const duration=Number(video.duration);URL.revokeObjectURL(url);Number.isFinite(duration)?resolve(duration):reject(new Error('duracion'))};video.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('formato'))};video.src=url});
+}
+
+async function chooseDailyVideo(files){
+  const file=files?.[0];if(!file)return;
+  const message=$('daily-video-message');message.className='daily-video-message';
+  if(!['video/mp4','video/webm'].includes(file.type)){message.textContent='Usa un video MP4 o WebM.';message.classList.add('is-error');return}
+  if(file.size>8*1024*1024){message.textContent='El video supera 8 MB. Recortalo o exportalo en menor calidad.';message.classList.add('is-error');return}
+  message.textContent='Comprobando duracion...';
+  try{
+    const duration=await readVideoMetadata(file);if(duration<=0||duration>30){message.textContent='El video debe durar como maximo 30 segundos.';message.classList.add('is-error');return}
+    clearDailyEvidenceVideo();const url=URL.createObjectURL(file),ext=file.type==='video/webm'?'webm':'mp4';DAILY_EVIDENCE.video={blob:file,url,type:file.type,ext,duration};
+    $('daily-video-player').src=url;$('daily-video-name').textContent=file.name||'Video listo';$('daily-video-meta').textContent=`${Math.ceil(duration)} s · ${(file.size/1024/1024).toFixed(1)} MB`;$('daily-video-preview').hidden=false;message.textContent='Video verificado y listo para adjuntar.';message.classList.add('is-ready');
+  }catch{message.textContent='No pudimos leer el video. Prueba con MP4 o WebM.';message.classList.add('is-error')}
+}
+
+async function requestDailyEvidencePermit(){
+  const {data:{session}}=await db.auth.getSession();if(!session)throw Object.assign(new Error('sesion'),{motivo:'sesion'});
+  const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{
+    method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+    body:JSON.stringify({requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?dailyEvidenceMode():null})
+  });
+  const permit=await response.json().catch(()=>null);
+  if(!response.ok||!permit?.ok)throw Object.assign(new Error(permit?.motivo||'permiso'),{motivo:permit?.motivo||'permiso'});
+  return permit;
+}
+
+async function requestDailyVideoPermit(){
+  const {data:{session}}=await db.auth.getSession();if(!session)throw Object.assign(new Error('sesion'),{motivo:'sesion'});
+  const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({tipo:'video',requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,ext:DAILY_EVIDENCE.video.ext})});
+  const permit=await response.json().catch(()=>null);if(!response.ok||!permit?.ok)throw Object.assign(new Error(permit?.motivo||'permiso'),{motivo:permit?.motivo||'permiso'});return permit;
+}
+
+async function uploadDailyEvidence(blob){
+  const permit=await requestDailyEvidencePermit();
+  const {error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).uploadToSignedUrl(permit.ruta,permit.token,blob,{contentType:'image/jpeg'});
+  if(error)throw Object.assign(new Error('subida'),{motivo:'subida'});
+  return permit.ruta;
+}
+
+async function uploadDailyVideo(){
+  const permit=await requestDailyVideoPermit();
+  const {error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).uploadToSignedUrl(permit.ruta,permit.token,DAILY_EVIDENCE.video.blob,{contentType:DAILY_EVIDENCE.video.type});
+  if(error)throw Object.assign(new Error('subida_video'),{motivo:'subida_video',path:permit.ruta});return permit.ruta;
+}
+
+async function cleanupDailyEvidence(paths){
+  if(!paths?.length)return;
+  try{
+    const {data:{session}}=await db.auth.getSession();if(!session)return;
+    await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{
+      method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+      body:JSON.stringify({accion:'limpiar',paths})
+    });
+  }catch{}
+}
+
+function dailyEvidenceFailure(reason){
+  return {
+    sesion:'Tu sesión venció. Vuelve a ingresar.',
+    no_habilitado:'El cierre diario todavía no está habilitado.',
+    sin_entrada_o_cerrada:'La jornada no tiene una entrada abierta.',
+    cantidad_comparticiones:'Completa la cantidad indicada de capturas o utiliza una imagen tipo collage.',
+    foto_salida:'Selecciona una sola foto donde se vea claramente la hora de salida.',
+    salida_aun_no_disponible:'La foto de salida se habilitará al comenzar tu ventana de cierre.',
+    salida_fuera_de_plazo:'La ventana para registrar la evidencia de salida ya terminó.',
+    collage_no_permitido:'La modalidad collage está deshabilitada. Adjunta las capturas individuales.',
+    cuota_diaria:'Alcanzaste el límite de cargas del día. Comunícate con Dirección si necesitas reemplazar una evidencia.',
+    archivo_no_verificado:'Una imagen no llegó correctamente. Inténtalo otra vez.',
+    ya_completo:'Esta evidencia ya estaba registrada.',
+    subida:'No pudimos subir una imagen. Revisa tu conexión e inténtalo nuevamente.'
+  }[reason]||'No pudimos guardar la evidencia. Revisa los archivos e inténtalo otra vez.';
+}
+
+async function submitDailyEvidence(event){
+  event.preventDefault();if(DAILY_EVIDENCE.busy)return;
+  const mode=dailyEvidenceMode(),min=Number(APP.cierre?.comparticiones_min||5),count=DAILY_EVIDENCE.files.length,total=count+(DAILY_EVIDENCE.video?1:0);
+  const selection=CLOSE_MODEL.evidenceSelectionPolicy({requirement:DAILY_EVIDENCE.requirement,mode,count,min,collageAllowed:!!APP.cierre?.collage_permitido});
+  if(!selection.ok){const messages={vacio:'Selecciona al menos una imagen.',minimo:`Selecciona ${min} capturas para completar este requisito.`,maximo:'Puedes adjuntar como máximo 5 imágenes.',cantidad_collage:'Selecciona una sola imagen tipo collage.',collage_no_permitido:'La modalidad collage está deshabilitada.'};return dailyEvidenceMessage(messages[selection.reason]||'Revisa las imágenes seleccionadas.')}
+
+  const button=$('daily-evidence-submit');DAILY_EVIDENCE.busy=true;button.disabled=true;button.querySelector('span').textContent='Subiendo…';dailyEvidenceMessage('');
+  const paths=[];
+  try{
+    setDailyEvidenceProcess('upload',{title:'Preparando un envío seguro',copy:`Validando ${total} ${total===1?'evidencia':'evidencias'} antes de enviarlas.`,progress:.08,current:0,total});
+    dailyUploadStep('prepare','done','Archivos protegidos');
+    dailyUploadStep('upload','active',`0 de ${total} archivos`);
+    for(let index=0;index<DAILY_EVIDENCE.files.length;index++){
+      $('daily-upload-copy').textContent=`Subiendo ${index+1} de ${count}. Mantén esta ventana abierta.`;
+      $('daily-upload-progress-bar').style.transform=`scaleX(${.12+(index/total)*.68})`;
+      paths.push(await uploadDailyEvidence(DAILY_EVIDENCE.files[index].blob));
+      $('daily-upload-count').textContent=`${index+1} de ${total} archivos`;
+      $('daily-upload-progress-bar').style.transform=`scaleX(${.12+((index+1)/total)*.68})`;
+    }
+    let videoPath=null;if(DAILY_EVIDENCE.video){$('daily-upload-copy').textContent='Subiendo el video corto. Mantén esta ventana abierta.';videoPath=await uploadDailyVideo();paths.push(videoPath);$('daily-upload-count').textContent=`${total} de ${total} archivos`;}
+    dailyUploadStep('upload','done',`${total} ${total===1?'archivo enviado':'archivos enviados'}`);
+    dailyUploadStep('confirm','active','Guardando registro oficial');
+    $('daily-upload-title').textContent='Confirmando tu entrega';
+    $('daily-upload-copy').textContent='Las imágenes llegaron. Estamos registrando el requisito como completo.';
+    $('daily-upload-progress-bar').style.transform='scaleX(.9)';
+    const {data,error}=await db.rpc('dash_confirmar_entrega',{
+      p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment,
+      p_modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?mode:null,
+      p_paths:paths.filter(path=>path!==videoPath),p_detalle:$('daily-evidence-detail').value.trim()||null
+    });
+    if(error||!data?.ok)throw Object.assign(new Error(data?.motivo||error?.message||'guardar'),{motivo:data?.motivo||'guardar'});
+    let videoWarning='';
+    if(videoPath){const attached=await db.rpc('dash_adjuntar_video',{p_entrega:data.entrega,p_path:videoPath});if(attached.error||!attached.data?.ok){videoWarning=' La evidencia principal se guardó, pero el video no pudo adjuntarse.';await cleanupDailyEvidence([videoPath])}}
+    APP.cierre=mergeDailyReviewState(data.resumen,{ok:true,revisiones:[{
+      requisito:DAILY_EVIDENCE.requirement,
+      asignacion_id:DAILY_EVIDENCE.assignment,
+      revision_estado:'pendiente',
+      revision_nota:null
+    }]});
+    dailyUploadStep('confirm','done','Entrega registrada');
+    setDailyEvidenceProcess('success',{title:'¡Evidencia completada!',copy:`${DAILY_EVIDENCE.title} quedó registrada correctamente.${videoWarning}`,progress:1,current:total,total});
+    await new Promise(resolve=>setTimeout(resolve,matchMedia('(prefers-reduced-motion: reduce)').matches?320:760));
+    DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast('Evidencia guardada correctamente.');
+  }catch(error){
+    if(paths.length||error.path)cleanupDailyEvidence([...paths,...(error.path?[error.path]:[])]);
+    DAILY_EVIDENCE.busy=false;setDailyEvidenceProcess('idle');dailyEvidenceMessage(dailyEvidenceFailure(error.motivo),'is-error');
+  }finally{
+    DAILY_EVIDENCE.busy=false;button.disabled=false;button.querySelector('span').textContent='Guardar evidencia';renderDailyClose();
+  }
+}
+
+function dailyExitMessage(text,type=''){
+  const message=$('daily-exit-message');if(!message)return;
+  message.textContent=text||'';message.className='daily-exit-message'+(type?' '+type:'');
+}
+
+function openDailyExitModal(){
+  if(!APP.cierre?.puede_marcar_salida||DAILY_EXIT_BUSY)return;
+  $('daily-exit-time').textContent=fmtTime(APP.cierre.hora_salida_programada);
+  dailyExitMessage('La hora oficial se tomará del servidor de KJA.');
+  $('daily-exit-modal').hidden=false;document.body.classList.add('daily-evidence-open');
+  requestAnimationFrame(()=>$('daily-exit-confirm').focus({preventScroll:true}));
+}
+
+function closeDailyExitModal(){
+  if(DAILY_EXIT_BUSY)return;
+  $('daily-exit-modal').hidden=true;document.body.classList.remove('daily-evidence-open');dailyExitMessage('');
+  $('day-close-button').focus({preventScroll:true});
+}
+
+async function markDailyExit(){
+  if(!APP.cierre?.puede_marcar_salida||DAILY_EXIT_BUSY)return;
+  DAILY_EXIT_BUSY=true;
+  const button=$('day-close-button'),confirmButton=$('daily-exit-confirm');button.disabled=true;confirmButton.disabled=true;confirmButton.querySelector('span').textContent='Registrando…';dailyExitMessage('Validando el cierre con la hora oficial…');
+  try{
+    const {data,error}=await db.rpc('dash_marcar_salida',{p_dispositivo:(navigator.userAgent||'').slice(0,120)});
+    if(error||!data?.ok){const reason=data?.motivo||'registro';const messages={salida_aun_no_disponible:`La salida se habilita desde las ${fmtTime(data?.desde)}.`,salida_fuera_de_plazo:'El plazo de salida terminó. La jornada quedará incompleta.',requisitos_pendientes:'Todavía existen evidencias pendientes.',ya_registrada:'La salida ya estaba registrada.',sesion:'Tu sesión venció. Vuelve a ingresar.'};throw Object.assign(new Error(messages[reason]||'No pudimos registrar la salida.'),{motivo:reason})}
+    APP.cierre=data.resumen;DAILY_EXIT_BUSY=false;$('daily-exit-modal').hidden=true;document.body.classList.remove('daily-evidence-open');renderDailyClose();toast('Salida registrada. Tu jornada está completa.');
+    const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory()]);
+    if(inicioRes.data?.ok){APP.inicio=inicioRes.data;renderHome()}
+  }catch(error){dailyExitMessage(error.message||'No pudimos registrar la salida.','is-error');await loadDailyClose({quiet:true})}
+  finally{DAILY_EXIT_BUSY=false;confirmButton.disabled=false;confirmButton.querySelector('span').textContent='Registrar mi salida';button.disabled=!APP.cierre?.puede_marcar_salida}
+}
+
+$('day-close-checklist').addEventListener('click',event=>{
+  const button=event.target.closest('[data-daily-requirement]');if(!button)return;
+  DAILY_EVIDENCE_TRIGGER=button;
+  openDailyEvidenceEditor(button.dataset.dailyRequirement,button.dataset.dailyAssignment||null);
+});
+$('daily-evidence-picker').onclick=()=>$('daily-evidence-file').click();
+$('daily-evidence-file').onchange=event=>chooseDailyEvidence(event.target.files);
+$('daily-video-picker').onclick=()=>$('daily-video-file').click();
+$('daily-video-file').onchange=event=>chooseDailyVideo(event.target.files);
+$('daily-video-remove').onclick=clearDailyEvidenceVideo;
+$('daily-evidence-previews').addEventListener('click',event=>{
+  const button=event.target.closest('[data-remove-daily-file]');if(!button||DAILY_EVIDENCE.busy)return;
+  const index=Number(button.dataset.removeDailyFile),item=DAILY_EVIDENCE.files[index];if(item?.url)URL.revokeObjectURL(item.url);
+  DAILY_EVIDENCE.files.splice(index,1);renderDailyEvidencePreviews();
+});
+document.querySelectorAll('input[name="daily-evidence-mode"]').forEach(input=>input.addEventListener('change',()=>{clearDailyEvidenceFiles();dailyEvidenceMessage('Selecciona las imágenes para el formato elegido.','is-info')}));
+$('daily-evidence-editor').addEventListener('submit',submitDailyEvidence);
+$('daily-issue-toggle').onclick=()=>{$('daily-issue-form').hidden=!$('daily-issue-form').hidden;if(!$('daily-issue-form').hidden)$('daily-issue-detail').focus()};
+$('daily-issue-submit').onclick=submitDailyIssue;
+$('daily-evidence-editor').addEventListener('click',event=>{if(event.target===$('daily-evidence-editor'))closeDailyEvidenceEditor()});
+$('daily-evidence-editor').addEventListener('keydown',event=>{
+  if(event.key==='Escape'){event.preventDefault();closeDailyEvidenceEditor();return}
+  if(event.key!=='Tab')return;
+  const focusable=[...$('daily-evidence-editor').querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')].filter(el=>!el.hidden&&el.offsetParent!==null);
+  if(!focusable.length)return;
+  const first=focusable[0],last=focusable.at(-1);
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+});
+$('daily-evidence-cancel').onclick=closeDailyEvidenceEditor;
+$('daily-evidence-cancel-top').onclick=closeDailyEvidenceEditor;
+$('day-close-button').onclick=()=>APP.cierre?.entrada_at?openDailyExitModal():handleMarkAction();
+$('daily-exit-confirm').onclick=markDailyExit;
+document.querySelectorAll('[data-close-daily-exit]').forEach(button=>button.onclick=closeDailyExitModal);
+$('daily-exit-modal').addEventListener('keydown',event=>{
+  if(event.key==='Escape'){event.preventDefault();closeDailyExitModal();return}
+  if(event.key!=='Tab')return;
+  const focusable=[...$('daily-exit-modal').querySelectorAll('button:not(:disabled)')];if(!focusable.length)return;
+  const first=focusable[0],last=focusable.at(-1);
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+});
+
 const MARK_STEPS=['location','evidence','server'];
 function setMarkFlow(state){
   const sheet=$('mark-sheet'),close=sheet.querySelector('.modal-close');
@@ -1704,8 +2230,8 @@ async function refreshMarkEligibility({render=true,quiet=false,geo=null}={}){
 function startMarkSync(){
   clearInterval(APP.markTimer);
   if(!APP.identity.hasPersonal)return;
-  void refreshMarkEligibility({quiet:true});
-  APP.markTimer=setInterval(()=>{if(!document.hidden&&!MARK_BUSY)void refreshMarkEligibility({quiet:true});},60000);
+  void Promise.all([refreshMarkEligibility({quiet:true}),loadDailyClose({quiet:true})]);
+  APP.markTimer=setInterval(()=>{if(!document.hidden&&!MARK_BUSY&&!DAILY_EVIDENCE.busy)void Promise.all([refreshMarkEligibility({quiet:true}),loadDailyClose({quiet:true})]);},60000);
 }
 
 function reloadDashboardIfSafe(){
@@ -1736,6 +2262,7 @@ document.addEventListener('visibilitychange',()=>{
   if(document.hidden)return;
   void checkDashboardVersion();
   if(APP.identity.hasPersonal&&!MARK_BUSY)void refreshMarkEligibility({quiet:true});
+  if(APP.identity.hasPersonal&&!DAILY_EVIDENCE.busy)void loadDailyClose({quiet:true});
 });
 window.addEventListener('pageshow',()=>void checkDashboardVersion());
 
@@ -1842,7 +2369,7 @@ $('confirm-mark').onclick=async()=>{
     if(error){const missing=error.code==='PGRST202'||String(error.message||'').includes('dash_marcar_seguro');const e=new Error(missing?'proteccion_no_disponible':'registro');e.motivo=missing?'proteccion_no_disponible':'registro';throw e;}if(!data?.ok){const e=new Error(data?.motivo||'registro');e.motivo=data?.motivo;throw e;}
     markProgressStep('server','done','Registro confirmado');$('mark-processing-copy').textContent='Tu asistencia quedó registrada.';
     clearEvidence();showMarkReceipt(data,hadEvidence);
-    (async()=>{try{const {data:fresh}=await db.rpc('dash_inicio');if(fresh?.ok){APP.inicio=fresh;renderHome();renderProfile();await loadHistory();}}catch(refreshError){console.warn('No se pudo refrescar el panel tras marcar.',refreshError);}})();
+    (async()=>{try{const {data:fresh}=await db.rpc('dash_inicio');if(fresh?.ok){APP.inicio=fresh;renderHome();renderProfile();await Promise.all([loadHistory(),loadDailyClose({quiet:true})]);}}catch(refreshError){console.warn('No se pudo refrescar el panel tras marcar.',refreshError);}})();
   }catch(e){
     setMarkFlow('confirm');
     markMsg(markFailureMessage(e.motivo,e.ventana));
