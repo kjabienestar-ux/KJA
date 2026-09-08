@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=151">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=153">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
@@ -272,27 +272,113 @@
             </button>
           </nav>
 
-          <section class="mobile-close-panel" id="mobile-close-panel" aria-labelledby="mobile-close-title" tabindex="-1" hidden>
-            <header>
-              <span><h2 id="mobile-close-title">Pendientes de hoy</h2><p id="mobile-close-copy">Preparando los requisitos de tu jornada…</p></span>
-              <span class="mobile-close-count" id="mobile-close-count">—</span>
-            </header>
-            <div class="mobile-close-list" id="mobile-close-list"></div>
-            <footer>
-              <span><b id="mobile-close-footer-title">Revisa cada paso</b><small id="mobile-close-footer-copy">Tus evidencias habilitan la salida.</small></span>
-              <button type="button" id="mobile-close-action"><span>Continuar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </footer>
-          </section>
+          <section class="mcv2" id="mobile-close-panel" aria-labelledby="mobile-close-title" tabindex="-1" hidden>
 
-          <article class="mobile-today-summary" id="mobile-today-summary" tabindex="-1">
-            <header><span><small>HOY</small><b id="mobile-today-date">—</b></span><span class="mobile-today-status" id="mobile-today-status">Cargando</span></header>
-            <div class="mobile-today-hours">
-              <span><small>Entrada</small><b id="mobile-today-start">—</b></span>
-              <i aria-hidden="true"><em></em></i>
-              <span><small>Salida</small><b id="mobile-today-end">—</b></span>
+            <!-- Search bar -->
+            <div class="mcv2-search" aria-hidden="true">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="search" placeholder="Buscar evidencias, tareas, etc..." disabled>
+              <button class="mcv2-notif" type="button" aria-label="Notificaciones">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+                <i></i>
+              </button>
+              <span class="mcv2-search-avatar" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.3 3.5-6 8-6s7.2 1.7 8 6"/></svg>
+              </span>
             </div>
-            <p id="mobile-today-detail">Preparando tu jornada…</p>
-          </article>
+
+            <!-- Header MI JORNADA -->
+            <header class="mcv2-head">
+              <div class="mcv2-head-left">
+                <span class="mcv2-head-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                </span>
+                <div>
+                  <small class="mcv2-eyebrow">MI JORNADA</small>
+                  <h2 id="mobile-close-title">Cierre de mi <strong>jornada</strong></h2>
+                  <p id="mobile-close-copy">Completa tus evidencias antes de registrar la salida.</p>
+                </div>
+              </div>
+              <span class="mcv2-state-pill" id="mobile-close-count">
+                <span>Jornada completa</span>
+              </span>
+            </header>
+
+            <!-- Banner ¡Buen trabajo! -->
+            <div class="mcv2-banner" id="mcv2-banner">
+              <div class="mcv2-banner-text">
+                <h3>¡Buen trabajo!</h3>
+                <p>Tu jornada se encuentra completa.<br>Revisa tu registro y finaliza el proceso.</p>
+                <button type="button" class="mcv2-banner-cta">Ver detalle <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+              </div>
+              <img class="mcv2-banner-img" src="images/dashboard/banner-buen-trabajo.jpg" alt="" aria-hidden="true">
+            </div>
+
+            <!-- Checklist cards -->
+            <div class="mcv2-checklist" id="mobile-close-list"></div>
+
+            <!-- Journey stepper -->
+            <div class="mcv2-journey" id="mcv2-journey" data-stage="evidence">
+              <div class="mcv2-journey-track">
+                <span class="mcv2-journey-step is-done" data-step="entry">
+                  <i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></i>
+                  <b>Entrada</b>
+                  <small id="mcv2-journey-entry-time">08:11 a. m.</small>
+                </span>
+                <span class="mcv2-journey-line done"></span>
+                <span class="mcv2-journey-step is-active" data-step="evidence">
+                  <i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></i>
+                  <b>Evidencias</b>
+                  <small>En proceso</small>
+                </span>
+                <span class="mcv2-journey-line pending"></span>
+                <span class="mcv2-journey-step is-pending" data-step="exit">
+                  <i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i>
+                  <b>Salida</b>
+                  <small>Pendiente</small>
+                </span>
+              </div>
+            </div>
+
+            <!-- Time cards -->
+            <div class="mcv2-time-cards" id="mobile-today-summary" tabindex="-1">
+              <div class="mcv2-time-card mcv2-time-exit">
+                <span class="mcv2-time-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                </span>
+                <div>
+                  <small>HORA DE SALIDA</small>
+                  <b id="mobile-today-end">—</b>
+                  <span>Hora oficial registrada</span>
+                </div>
+              </div>
+              <div class="mcv2-time-card mcv2-time-registered">
+                <span class="mcv2-time-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                </span>
+                <div>
+                  <small>SALIDA REGISTRADA</small>
+                  <b id="mobile-today-start">—</b>
+                </div>
+                <svg class="mcv2-time-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+            </div>
+
+            <!-- Hidden date/status for JS compat -->
+            <span hidden id="mobile-today-date" aria-hidden="true">—</span>
+            <span hidden id="mobile-today-status" aria-hidden="true">Cargando</span>
+            <p hidden id="mobile-today-detail" aria-hidden="true">Preparando tu jornada…</p>
+
+            <!-- Footer -->
+            <footer class="mcv2-footer">
+              <div class="mcv2-footer-status">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#22c55e" stroke="none"/><path d="m8 12 3 3 5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span><b id="mobile-close-footer-title">Jornada completa</b> · <small id="mobile-close-footer-copy">0.00 horas acreditadas.</small></span>
+              </div>
+              <button type="button" id="mobile-close-action" hidden><span>Continuar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            </footer>
+
+          </section>
         </div>
       </section>
 

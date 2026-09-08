@@ -308,3 +308,7 @@ La jornada combina cronología, acción y checklist. La tarjeta derecha muestra 
 - **Don't** comunicar asistencia, error o completitud únicamente mediante color.
 - **Don't** comprimir tipografía administrativa para evitar un scroll o un cambio de composición.
 - **Don't** introducir una nueva escala de curvas o colores cuando los tokens incumbentes cubren el caso.
+
+## KJA Precision — alcance exclusivo de `dashboard.html`
+
+`KJA Precision` es una capa visual local aplicada únicamente a `dashboard.html`; no modifica ni sustituye el sistema de diseño global descrito en este documento. Usa tipografía del sistema (`-apple-system`, BlinkMacSystemFont, `Segoe UI`, `system-ui`, sans-serif), canvas `#f5f5f7`, superficies blancas e tinta `#1d1d1f`. El azul `#0066cc` se reserva para interacción, mientras éxito, advertencia y peligro conservan colores semánticos acompañados de texto o forma. La composición se apoya en hairlines, radio principal de `18px` y sombras mínimas; hover y tap nunca aplican zoom. Los modales emplean blur funcional para separar contexto y, en móvil, los accesos principales se organizan en una cuadrícula de dos columnas.
