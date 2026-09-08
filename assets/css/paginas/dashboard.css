@@ -518,6 +518,117 @@ body{background:#fff}
 .admin-history-list{grid-column:2;display:grid;max-height:170px;overflow:auto;border:1px solid #e5e9ee;border-radius:10px}.admin-history-list article{display:grid;grid-template-columns:80px 1fr;gap:10px;padding:9px 11px;border-bottom:1px solid #edf0f3}.admin-history-list article:last-child{border-bottom:0}.admin-history-list time{color:#8794a5;font-size:7px}.admin-history-list b,.admin-history-list small{display:block}.admin-history-list b{color:#42546b;font-size:8px}.admin-history-list small{margin-top:2px;color:#8a96a6;font-size:6px}.admin-history-list p{margin:0;padding:14px;color:#8a96a6;font-size:7px}.admin-history-list+.admin-field{grid-column:2}
 .admin-editor-message{display:none;padding:11px 13px;border-radius:10px;color:#a03649;background:#fff0f3;font-size:8px}.admin-editor-message.show{display:block}.admin-editor-foot{display:flex;justify-content:flex-end;gap:8px;padding-top:2px}
 
+/* Horario de Facebook: agenda independiente dentro de la ficha del colaborador. */
+.facebook-schedule-block{
+  --facebook-blue:#1877f2;
+  --facebook-ink:#123b6d;
+  position:relative;
+  align-items:start;
+  border-color:#cfe0f4;
+  background:#f8fbff;
+}
+.facebook-schedule-label{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.facebook-schedule-label>span:last-child{min-width:0}
+.facebook-schedule-label>span:last-child>span{margin-top:5px;color:#66809e!important;font-size:11px!important;line-height:1.55}
+.facebook-schedule-label b{color:var(--facebook-ink);font-size:14px}
+.facebook-schedule-icon{
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+  display:grid!important;
+  place-items:center;
+  margin:0!important;
+  border-radius:12px;
+  color:#fff;
+  background:var(--facebook-blue);
+  box-shadow:0 8px 18px rgba(24,119,242,.22);
+}
+.facebook-schedule-icon svg{width:23px;height:23px;fill:currentColor;stroke:none}
+.facebook-schedule-note{
+  grid-column:2;
+  min-width:0;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:10px;
+  color:#315a85;
+  background:#eaf3fd;
+}
+.facebook-schedule-note b{font-size:11px;white-space:nowrap}
+.facebook-schedule-note span{margin:0!important;color:#527191!important;font-size:10px!important;line-height:1.45}
+.facebook-schedule-head,.facebook-schedule-row{display:grid;grid-template-columns:54px 94px minmax(100px,1fr) minmax(100px,1fr);align-items:center;gap:9px}
+.facebook-schedule-head{grid-column:2;padding:0 12px;color:#71849a;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.facebook-schedule-grid{grid-column:2;min-width:0;display:grid;overflow:hidden;border:1px solid #d8e4f0;border-radius:12px;background:#fff}
+.facebook-schedule-row{
+  min-height:52px;
+  padding:6px 11px;
+  border-bottom:1px solid #e8eef5;
+  background:#fff;
+  transition:background-color 180ms cubic-bezier(.16,1,.3,1),border-color 180ms ease;
+}
+.facebook-schedule-row:last-child{border-bottom:0}
+.facebook-schedule-row>b{color:#3d5570;font-size:11px}
+.facebook-schedule-row.is-active{background:#f3f8ff}
+.facebook-schedule-row.is-active>b{color:#0c579f}
+.facebook-schedule-row.is-off{background:#fbfcfd}
+.facebook-day-toggle{
+  position:relative;
+  width:82px;
+  height:38px;
+  display:flex;
+  align-items:center;
+  padding:0 10px 0 42px;
+  border:1px solid #d9e2eb;
+  border-radius:10px;
+  color:#687b91;
+  background:#f1f4f7;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+  user-select:none;
+}
+.facebook-day-toggle input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.facebook-day-toggle:before{content:"";position:absolute;left:8px;width:27px;height:16px;border-radius:999px;background:#aab7c5;transition:background-color 180ms ease}
+.facebook-day-toggle:after{content:"";position:absolute;left:10px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(9,36,76,.22);transition:transform 220ms cubic-bezier(.16,1,.3,1)}
+.facebook-schedule-row.is-active .facebook-day-toggle{border-color:#b8d7fb;color:#075abc;background:#e4f1ff}
+.facebook-schedule-row.is-active .facebook-day-toggle:before{background:var(--facebook-blue)}
+.facebook-schedule-row.is-active .facebook-day-toggle:after{transform:translateX(11px)}
+.facebook-day-toggle:has(input:focus-visible){outline:3px solid rgba(24,119,242,.22);outline-offset:2px}
+.facebook-time-field{min-width:0;display:block}
+.facebook-time-field>span{display:none}
+.facebook-time-field input{
+  width:100%;
+  height:38px;
+  padding:0 10px;
+  border:1px solid #d5e0ec;
+  border-radius:9px;
+  outline:0;
+  color:#294765;
+  background:#fff;
+  font:600 11px Inter,system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;
+}
+.facebook-time-field input:focus{border-color:#68a5e9;box-shadow:0 0 0 3px rgba(24,119,242,.1)}
+.facebook-time-field input:disabled{border-color:#e2e7ec;color:#8795a5;background:#f1f3f5;cursor:not-allowed}
+@media(hover:hover) and (pointer:fine){.facebook-schedule-row.is-active:hover{background:#eaf4ff}.facebook-day-toggle:hover{border-color:#a9c8e8}}
+@media(max-width:850px){
+  .facebook-schedule-note,.facebook-schedule-head,.facebook-schedule-grid{grid-column:1}
+}
+@media(max-width:600px){
+  .facebook-schedule-block{padding:14px}
+  .facebook-schedule-note{display:block;padding:11px 12px}.facebook-schedule-note b,.facebook-schedule-note span{display:block}.facebook-schedule-note span{margin-top:3px!important}
+  .facebook-schedule-head{display:none}
+  .facebook-schedule-row{grid-template-columns:44px minmax(0,1fr) minmax(0,1fr);gap:7px 8px;padding:10px}
+  .facebook-schedule-row>b{align-self:center}
+  .facebook-day-toggle{grid-column:2/4;width:100%}
+  .facebook-time-field>span{display:block;margin:0 0 4px;color:#71849a;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+  .facebook-time-field:nth-of-type(2){grid-column:2}.facebook-time-field:nth-of-type(3){grid-column:3}
+  .facebook-time-field input{height:40px;padding-inline:8px;font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.facebook-schedule-row,.facebook-day-toggle:before,.facebook-day-toggle:after{transition:none}}
+
 .admin-days-off-modal{z-index:365}.admin-days-off-modal[hidden]{display:none}
 .admin-days-off-sheet{position:relative;z-index:1;width:min(520px,100%);max-height:calc(100vh - 36px);overflow:auto;padding:24px;border-radius:18px;background:#f8fafc;box-shadow:0 30px 90px rgba(2,18,41,.34)}
 .admin-days-off-head{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:11px;padding-right:40px}.admin-days-off-head .avatar{width:42px;height:42px;border-radius:12px}.admin-days-off-head h2,.admin-days-off-head p{margin:0}.admin-days-off-head h2{color:var(--navy);font-size:19px}.admin-days-off-head p{margin-top:3px;color:#718197;font-size:10px}
@@ -1659,9 +1770,9 @@ input::placeholder{color:#748297;opacity:1}
     padding-top:max(24px,calc(env(safe-area-inset-top) + 16px));
   }
   .portal[data-personal="true"]:not([data-view="inicio"]) .view-head{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) auto;
-    align-items:start;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
     gap:10px 14px;
   }
   .portal[data-personal="true"]:not([data-view="inicio"]) .view-head>div:first-child{min-width:0}
@@ -5008,8 +5119,8 @@ input:-webkit-autofill:active {
 }
 
 @media (max-width:900px) {
-  .attendance-workspace { grid-template-columns:1fr; }
-  .attendance-request-center { order:-1; }
+  .attendance-workspace { grid-template-columns:1fr; gap: 24px; }
+  .attendance-request-center { order:2; }
   #personal-request-list { max-height:none; }
 }
 
@@ -5021,7 +5132,7 @@ input:-webkit-autofill:active {
 
 @media (max-width:600px) {
   .portal[data-time-phase] .view:not(#view-inicio) > .view-head { padding:17px 18px; }
-  .attendance-topbar { align-items:stretch;flex-direction:column; }
+  .attendance-topbar { align-items:stretch;flex-direction:column; gap: 12px; }
   .attendance-new-request { justify-content:center; }
   #view-asistencia .attendance-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .attendance-calendar { padding:15px 10px; }
@@ -8294,3 +8405,61 @@ body.facebook-share-open{overflow:hidden}
   .facebook-share-facts{grid-template-columns:1fr 1fr}
 }
 @media(prefers-reduced-motion:reduce){.facebook-share-sheet,.facebook-share-skeleton{animation:none}}
+
+/* Centro privado de notificaciones de revisión. */
+body.review-notification-open{overflow:hidden}
+.review-notification-trigger[hidden],.review-notification-layer[hidden],.review-notification-badge[hidden],.review-notification-summary button[hidden]{display:none!important}
+.review-notification-trigger{position:relative;width:38px;height:38px;display:grid;flex:0 0 38px;place-items:center;padding:0;border:1px solid rgba(255,255,255,.14);border-radius:10px;color:var(--white);background:rgba(255,255,255,.07);cursor:pointer;transition:color 180ms ease,background-color 180ms ease,box-shadow 180ms ease}
+.review-notification-trigger>svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.review-notification-trigger:hover{color:#fff;background:rgba(255,255,255,.13)}
+.review-notification-trigger:focus-visible{outline:3px solid rgba(96,212,222,.45);outline-offset:3px}
+.review-notification-trigger.has-unread{color:#fff;background:rgba(255,255,255,.12)}
+.review-notification-badge{position:absolute;top:-5px;right:-6px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px;border:2px solid var(--navy);border-radius:999px;color:var(--white);background:var(--pink);font-size:10px;font-style:normal;font-variant-numeric:tabular-nums;font-weight:800;line-height:1;animation:review-notification-badge-in 260ms cubic-bezier(.16,1,.3,1) both}
+@keyframes review-notification-badge-in{from{opacity:0;transform:translateY(3px) scale(.8)}to{opacity:1;transform:none}}
+
+.review-notification-layer{position:fixed;z-index:1250;inset:0;display:flex;align-items:flex-start;justify-content:flex-end;padding:72px 28px 24px}
+.review-notification-backdrop{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;border-radius:0;background:rgba(6,26,56,.16);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);cursor:default}
+.review-notification-panel{position:relative;z-index:1;width:min(410px,calc(100vw - 40px));max-height:calc(100dvh - 96px);display:flex;flex-direction:column;overflow:hidden;border-radius:16px;color:var(--ink);background:var(--white);box-shadow:0 24px 72px rgba(6,26,56,.28);animation:review-notification-panel-in 220ms cubic-bezier(.16,1,.3,1) both}
+@keyframes review-notification-panel-in{from{opacity:0;clip-path:inset(0 0 18% 0 round 16px);transform:translateY(-10px)}to{opacity:1;clip-path:inset(0 round 16px);transform:none}}
+.review-notification-panel:focus{outline:none}
+.review-notification-panel>header{display:grid;grid-template-columns:42px minmax(0,1fr) 36px;align-items:center;gap:12px;padding:18px 18px 15px;border-bottom:1px solid #e3e8ee}
+.review-notification-panel>header h2,.review-notification-panel>header p{margin:0}
+.review-notification-panel>header h2{color:var(--navy);font-size:20px;line-height:1.25;letter-spacing:-.02em}
+.review-notification-panel>header p{margin-top:3px;color:var(--muted);font-size:10px;line-height:1.45}
+.review-notification-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;color:var(--blue);background:var(--blue-soft)}
+.review-notification-mark svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.review-notification-close{width:36px;height:36px;display:grid;place-items:center;padding:0;border:0;border-radius:10px;color:var(--muted);background:var(--cloud);cursor:pointer}
+.review-notification-close:hover{color:var(--navy);background:var(--line)}
+.review-notification-close svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.review-notification-panel button:focus-visible{outline:3px solid rgba(7,90,188,.22);outline-offset:2px}
+
+.review-notification-summary{min-height:61px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px;background:#f4f8fb}
+.review-notification-summary span{min-width:0}.review-notification-summary b,.review-notification-summary small{display:block}.review-notification-summary b{color:var(--navy);font-size:13px}.review-notification-summary small{margin-top:2px;color:var(--muted);font-size:10px;line-height:1.4}
+.review-notification-summary button{flex:0 0 auto;padding:8px 10px;border:0;border-radius:10px;color:var(--blue);background:var(--blue-soft);font-size:10px;font-weight:800;cursor:pointer}
+.review-notification-summary button:hover{color:var(--white);background:var(--blue)}.review-notification-summary button:disabled{opacity:.55;cursor:wait}
+.review-notification-list{min-height:150px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#bdcbd8 transparent}
+.review-notification-item{margin:0;border-bottom:1px solid var(--line);background:var(--white)}
+.review-notification-item:last-child{border-bottom:0}.review-notification-item.is-unread{background:linear-gradient(90deg,var(--blue-soft) 0%,var(--white) 70%)}
+.review-notification-item>button{width:100%;display:grid;grid-template-columns:38px minmax(0,1fr);align-items:start;gap:11px;padding:15px 18px;border:0;color:inherit;background:transparent;text-align:left;cursor:pointer}
+.review-notification-item>button:hover{background:rgba(7,90,188,.045)}
+.review-notification-state{width:38px;height:38px;display:grid;place-items:center;border-radius:12px}
+.review-notification-state svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.review-notification-item[data-state="approved"] .review-notification-state{color:#08735a;background:#e4f7f0}.review-notification-item[data-state="observed"] .review-notification-state{color:#79520e;background:#fff0d7}
+.review-notification-copy{min-width:0}.review-notification-copy>span{display:flex;align-items:center;justify-content:space-between;gap:8px}.review-notification-copy b{color:var(--navy);font-size:13px;line-height:1.3}.review-notification-copy em{padding:4px 7px;border-radius:999px;color:var(--blue);background:var(--blue-soft);font-size:10px;font-style:normal;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.review-notification-copy strong{display:block;margin-top:3px;overflow:hidden;color:var(--ink);font-size:10px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
+.review-notification-copy p{display:-webkit-box;margin:7px 0 0;overflow:hidden;color:var(--muted);font-size:13px;line-height:1.5;-webkit-box-orient:vertical;-webkit-line-clamp:3}.review-notification-copy small{display:block;margin-top:7px;color:var(--muted);font-size:10px;font-variant-numeric:tabular-nums}
+.review-notification-loading,.review-notification-empty{min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center}.review-notification-loading{color:var(--muted);font-size:13px}
+.review-notification-empty b{color:var(--navy);font-size:13px}.review-notification-empty p{max-width:34ch;margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.5}.review-notification-empty button{margin-top:12px;padding:9px 13px;border:0;border-radius:10px;color:var(--white);background:var(--blue);font-size:13px;font-weight:800}.review-notification-empty.is-error b{color:#922e43}
+.review-notification-panel>footer{display:flex;align-items:center;gap:8px;padding:11px 18px;border-top:1px solid var(--line);color:var(--muted);background:var(--cloud);font-size:10px;line-height:1.4}
+.review-notification-panel>footer svg{width:15px;height:15px;flex:0 0 15px;fill:none;stroke:#24a68a;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+@media(max-width:900px){
+  .mobile-portal-brand{grid-template-columns:46px minmax(0,1fr) 40px 40px;gap:8px}
+  .mobile-portal-brand .review-notification-trigger{width:40px;height:40px;display:grid;padding:0;border-radius:10px}.mobile-portal-brand .review-notification-trigger>svg{width:20px;height:20px}.mobile-portal-brand .review-notification-badge{top:-5px;right:-5px;border-color:var(--white)}
+  .review-notification-layer{align-items:flex-end;padding:0}.review-notification-backdrop{background:rgba(6,26,56,.2);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  .review-notification-panel{width:100%;max-height:min(88dvh,720px);border-radius:20px 20px 0 0;animation-name:review-notification-sheet-in}
+  @keyframes review-notification-sheet-in{from{opacity:0;clip-path:inset(18% 0 0 0 round 20px);transform:translateY(28px)}to{opacity:1;clip-path:inset(0 round 20px);transform:none}}
+  .review-notification-panel>header{padding:18px max(17px,env(safe-area-inset-right)) 15px max(17px,env(safe-area-inset-left))}.review-notification-summary{padding-inline:max(17px,env(safe-area-inset-right)) max(17px,env(safe-area-inset-left))}
+  .review-notification-item>button{min-height:92px;padding:15px max(18px,env(safe-area-inset-right)) 15px max(18px,env(safe-area-inset-left))}.review-notification-panel>footer{padding:12px max(18px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
+}
+@media(prefers-reduced-motion:reduce){.review-notification-badge,.review-notification-panel{animation:none}}

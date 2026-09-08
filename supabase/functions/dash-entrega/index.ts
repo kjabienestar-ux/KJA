@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
     }
 
     if (body.accion === "limpiar") {
-      const paths = Array.isArray(body.paths) ? [...new Set(body.paths.map(String))].slice(0, 6) : [];
+      const paths = Array.isArray(body.paths) ? [...new Set(body.paths.map(String))].slice(0, 50) : [];
       const { data: colaborador } = await usuario.rpc("dash_colab");
       const parts = new Intl.DateTimeFormat("en-CA", {
         timeZone: "America/Lima", year: "numeric", month: "2-digit", day: "2-digit",

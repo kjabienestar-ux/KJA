@@ -23,14 +23,14 @@
     return {state,label:labels[state]||'Sin registro',complete:['P','T','J'].includes(state),incomplete:false,hasEntry:!!mark};
   }
 
-  function evidenceSelectionPolicy({requirement,mode,count,min=5,collageAllowed=true}){
+  function evidenceSelectionPolicy({requirement,mode,count,min=5,max=50,collageAllowed=true}){
     if(count<1)return {ok:false,reason:'vacio'};
     if(requirement!=='comparticiones')return count<=5?{ok:true}:{ok:false,reason:'maximo'};
     if(mode==='collage'){
       if(!collageAllowed)return {ok:false,reason:'collage_no_permitido'};
       return count===1?{ok:true}:{ok:false,reason:'cantidad_collage'};
     }
-    return count>=min&&count<=5?{ok:true}:{ok:false,reason:count<min?'minimo':'maximo'};
+    return count>=min&&count<=max?{ok:true}:{ok:false,reason:count<min?'minimo':'maximo'};
   }
 
   root.KJACloseModel=Object.freeze({stateTone,stateLabel,attendancePresentation,evidenceSelectionPolicy});

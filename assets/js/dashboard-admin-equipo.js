@@ -3,6 +3,7 @@ const ADMIN_DAYS=[['Lun',1],['Mar',2],['Mié',3],['Jue',4],['Vie',5],['Sáb',6],
 const ADMIN_MODES={virtual:['Virtual','Virt'],presencial:['Presencial','Pres'],opcional:['Opcional','Opc'],no_gestiona:['No gestiona','—']};
 const ADMIN_LINKS={practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Mixto'};
 let ADMIN_DAYS_OFF={person:null,busy:false,trigger:null};
+let ADMIN_FACEBOOK_SCHEDULE={configured:false,horario:{}};
 
 function teamMsg(text){
   const el=$(APP.adminSection==='contratos'?'admin-contract-message':'admin-team-message');
@@ -141,6 +142,44 @@ function scheduleRows(person){
   }).join('');
 }
 
+function fallbackFacebookSchedule(person){
+  const horario={};
+  ADMIN_DAYS.forEach(([,dow])=>{
+    const day=(person?.horario_semanal||{})[String(dow)]||{},mode=person?adminMode(person,dow):(dow<=5?'virtual':'no_gestiona');
+    if(mode!=='no_gestiona')horario[String(dow)]={ini:fmtTime(day.ini||person?.hora_inicio||'08:00'),fin:fmtTime(day.fin||person?.hora_fin||'13:00')};
+  });
+  return horario;
+}
+
+function facebookScheduleRows(state,person){
+  const schedule=state?.horario||fallbackFacebookSchedule(person),defaultStart=fmtTime(person?.hora_inicio||'08:00'),defaultEnd=fmtTime(person?.hora_fin||'13:00');
+  return ADMIN_DAYS.map(([label,dow])=>{
+    const day=schedule[String(dow)]||{},enabled=!!schedule[String(dow)],start=fmtTime(day.ini||defaultStart),end=fmtTime(day.fin||defaultEnd);
+    return `<div class="facebook-schedule-row ${enabled?'is-active':'is-off'}" data-facebook-day="${dow}"><b>${label}</b><label class="facebook-day-toggle"><input class="facebook-day-enabled" type="checkbox" ${enabled?'checked':''}><span>${enabled?'Sí':'No'}</span></label><label class="facebook-time-field"><span>Desde</span><input class="facebook-day-start" type="time" value="${start}" ${enabled?'':'disabled'} aria-label="Inicio de Facebook ${label}"></label><label class="facebook-time-field"><span>Hasta</span><input class="facebook-day-end" type="time" value="${end}" ${enabled?'':'disabled'} aria-label="Fin de Facebook ${label}"></label></div>`;
+  }).join('');
+}
+
+function syncFacebookScheduleRows(){
+  document.querySelectorAll('[data-facebook-day]').forEach(row=>{
+    const enabled=row.querySelector('.facebook-day-enabled').checked;
+    row.classList.toggle('is-active',enabled);row.classList.toggle('is-off',!enabled);
+    row.querySelector('.facebook-day-toggle span').textContent=enabled?'Sí':'No';
+    row.querySelector('.facebook-day-start').disabled=!enabled;row.querySelector('.facebook-day-end').disabled=!enabled;
+  });
+}
+
+function collectFacebookSchedule(){
+  const schedule={};let problem='';
+  document.querySelectorAll('[data-facebook-day]').forEach(row=>{
+    if(problem||!row.querySelector('.facebook-day-enabled').checked)return;
+    const ini=row.querySelector('.facebook-day-start').value,fin=row.querySelector('.facebook-day-end').value;
+    if(!ini||!fin||ini===fin){problem=`Revisa Facebook del ${row.querySelector('b').textContent}: inicio y fin deben ser distintos.`;return;}
+    schedule[row.dataset.facebookDay]={ini,fin};
+  });
+  if(problem)throw new Error(problem);
+  return schedule;
+}
+
 async function openAdminPerson(id){
   if(!APP.adminTeam?.puede_editar)return teamMsg('Tu rol permite consultar, pero no editar colaboradores.');
   const person=id?(APP.adminTeam.personas||[]).find(x=>String(x.id)===String(id)):null;
@@ -162,13 +201,19 @@ async function openAdminPerson(id){
   $('admin-general-start').value=fmtTime(person?.hora_inicio)==='—'?'08:00':fmtTime(person?.hora_inicio);
   $('admin-general-end').value=fmtTime(person?.hora_fin)==='—'?'13:00':fmtTime(person?.hora_fin);
   $('admin-schedule-grid').innerHTML=scheduleRows(person);
+  ADMIN_FACEBOOK_SCHEDULE={configured:false,horario:fallbackFacebookSchedule(person)};
+  $('admin-facebook-schedule-grid').innerHTML=facebookScheduleRows(ADMIN_FACEBOOK_SCHEDULE,person);
   $('admin-history-block').hidden=!person;
   $('admin-change-reason').value='';
   $('admin-history-list').innerHTML=person?'<p>Cargando historial…</p>':'';
   editorMsg('');updateAdminEditorConditions();
   $('admin-person-modal').hidden=false;document.body.style.overflow='hidden';
   setTimeout(()=>$('admin-person-name').focus(),30);
-  if(person)loadAdminPersonHistory(person.id);
+  if(person){
+    const [{data,error}]=await Promise.all([db.rpc('dash_admin_horario_compartir',{p_colab:Number(person.id)}),loadAdminPersonHistory(person.id)]);
+    if(data?.ok){ADMIN_FACEBOOK_SCHEDULE=data;$('admin-facebook-schedule-grid').innerHTML=facebookScheduleRows(data,person);}
+    else if(error)editorMsg('No se pudo cargar el horario de Facebook. Ejecuta dashboard 32 en Supabase.');
+  }
 }
 
 function closeAdminPerson(){
@@ -227,13 +272,19 @@ async function saveAdminPerson(event){
   if(name.length<2)return editorMsg('Escribe el nombre completo.');
   if(dni&&!/^\d{8}$/.test(dni))return editorMsg('El DNI debe tener exactamente 8 dígitos.');
   if($('admin-contract-start').value&&$('admin-contract-end').value&&$('admin-contract-end').value<$('admin-contract-start').value)return editorMsg('La fecha final no puede ser anterior al inicio del contrato.');
-  let payload;try{payload=collectAdminPerson()}catch(e){return editorMsg(e.message)}
+  let payload,facebookSchedule;try{payload=collectAdminPerson();facebookSchedule=collectFacebookSchedule()}catch(e){return editorMsg(e.message)}
   const button=$('admin-person-save');button.disabled=true;button.textContent='Guardando…';
   const {data,error}=await db.rpc('dash_admin_guardar_colaborador',{p_datos:payload,p_motivo:$('admin-change-reason').value.trim()||null});
-  button.disabled=false;button.textContent='Guardar cambios';
   if(error||!data?.ok){
+    button.disabled=false;button.textContent='Guardar cambios';
     const messages={sin_permiso:'Tu rol no permite editar.',nombre:'Revisa el nombre completo.',dni:'El DNI debe tener 8 dígitos.',dni_duplicado:'Ese DNI ya pertenece a otro colaborador.',area:'Selecciona un área activa.',horario:'Hay un día con horario incompleto o incoherente.',horario_general:'La salida general debe ser posterior a la entrada.',fechas:'La fecha final no puede ser anterior al inicio.',horas:'Las horas no pueden ser negativas.',duplicado:'Ya existe un registro con uno de estos datos.'};
     return editorMsg(messages[data?.motivo]||error?.message||'No se pudo guardar la ficha.');
+  }
+  const facebookResult=await db.rpc('dash_admin_guardar_horario_compartir',{p_colab:Number(data.id),p_horario:facebookSchedule});
+  button.disabled=false;button.textContent='Guardar cambios';
+  if(facebookResult.error||!facebookResult.data?.ok){
+    const messages={sin_permiso:'Tu rol no permite editar este horario.',horario:'Hay una franja de Facebook incompleta.',dia:'Revisa los días seleccionados.'};
+    return editorMsg(`La ficha se guardó, pero el horario de Facebook no: ${messages[facebookResult.data?.motivo]||'ejecuta dashboard 32 e inténtalo nuevamente.'}`);
   }
   closeAdminPerson();await loadAdminTeam();toast(data.nuevo?'Colaborador creado.':'Cambios guardados en el historial.');
 }
@@ -315,6 +366,7 @@ $('admin-person-dni').addEventListener('input',e=>e.target.value=e.target.value.
 $('admin-person-link').addEventListener('change',updateAdminEditorConditions);
 $('admin-contract-is-pending').addEventListener('change',updateAdminEditorConditions);
 $('admin-schedule-grid').addEventListener('change',e=>{if(e.target.classList.contains('schedule-mode'))updateAdminEditorConditions()});
+$('admin-facebook-schedule-grid').addEventListener('change',e=>{if(e.target.classList.contains('facebook-day-enabled'))syncFacebookScheduleRows()});
 $('admin-area-reveal').onclick=()=>{$('admin-area-create').hidden=!$('admin-area-create').hidden;if(!$('admin-area-create').hidden)$('admin-area-name').focus()};
 $('admin-area-save').onclick=createAdminArea;
 document.querySelectorAll('[data-close-days-off]').forEach(button=>button.onclick=closeAdminDaysOff);

@@ -9,6 +9,7 @@ const modelJs = fs.readFileSync(new URL('../assets/js/dashboard-close-model.js',
 const adminJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-cierre.js', import.meta.url), 'utf8');
 const adminControlJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-control.js', import.meta.url), 'utf8');
 const adminMonthJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-mes.js', import.meta.url), 'utf8');
+const adminTeamJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-equipo.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../assets/css/paginas/dashboard.css', import.meta.url), 'utf8');
 const sql = fs.readFileSync(new URL('../supabase/dashboard_19_cierre_jornada.sql', import.meta.url), 'utf8');
 const overnightSql = fs.readFileSync(new URL('../supabase/dashboard_20_cierre_ventana_nocturna.sql', import.meta.url), 'utf8');
@@ -23,6 +24,9 @@ const evidenceEditSql = fs.readFileSync(new URL('../supabase/dashboard_28_edicio
 const facebookReceiptSql = fs.readFileSync(new URL('../supabase/dashboard_29_comprobante_comparticiones.sql', import.meta.url), 'utf8');
 const whatsappShareSql = fs.readFileSync(new URL('../supabase/dashboard_30_compartir_evidencia_whatsapp.sql', import.meta.url), 'utf8');
 const reviewNotesSql = fs.readFileSync(new URL('../supabase/dashboard_31_observaciones_revision.sql', import.meta.url), 'utf8');
+const facebookScheduleSql = fs.readFileSync(new URL('../supabase/dashboard_32_horario_comparticiones.sql', import.meta.url), 'utf8');
+const reviewNotificationsSql = fs.readFileSync(new URL('../supabase/dashboard_34_notificaciones_revision.sql', import.meta.url), 'utf8');
+const expandedFacebookEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_35_comparticiones_hasta_50.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -31,6 +35,32 @@ test('dashboard JavaScript parses', () => {
   assert.doesNotThrow(() => new vm.Script(adminJs));
   assert.doesNotThrow(() => new vm.Script(adminControlJs));
   assert.doesNotThrow(() => new vm.Script(adminMonthJs));
+  assert.doesNotThrow(() => new vm.Script(adminTeamJs));
+});
+
+test('phase 14 separates Facebook schedule from the workday', () => {
+  for (const fragment of [
+    'create table if not exists public.asis_comparticiones_horarios',
+    'create or replace function public.asis_compartir_programado',
+    'create or replace function public.asis_compartir_fecha_activa',
+    'create or replace function public.dash_admin_horario_compartir',
+    'create or replace function public.dash_admin_guardar_horario_compartir',
+    "'{solo_comparticiones}'",
+    "'fuera_horario_compartir'",
+    'not public.asis_labora(v_persona,v_fecha)',
+  ]) assert.ok(facebookScheduleSql.includes(fragment), `Facebook schedule migration missing: ${fragment}`);
+  assert.match(facebookScheduleSql,/then coalesce\(\(select public\.asis_labora/);
+  assert.match(facebookScheduleSql,/p_requisito<>'comparticiones' then return public\.dash_entrega_permiso_base_32/);
+  assert.match(facebookScheduleSql,/public\.asis_compartir_fin_at\(v_colab,v_fecha\)<=v_hasta_at/);
+  assert.match(html,/id="admin-facebook-schedule-grid"/);
+  assert.match(css,/\.facebook-schedule-block\{/);
+  assert.match(css,/\.facebook-day-toggle:after\{/);
+  assert.match(css,/@media\(max-width:600px\)\{[\s\S]*?\.facebook-schedule-row\{/);
+  assert.match(adminTeamJs,/dash_admin_horario_compartir/);
+  assert.match(adminTeamJs,/dash_admin_guardar_horario_compartir/);
+  assert.match(adminTeamJs,/class="facebook-time-field"/);
+  assert.match(js,/data\.solo_comparticiones/);
+  assert.match(js,/HORARIO DE FACEBOOK/);
 });
 
 test('dashboard has unique ids and the complete close workflow', () => {
@@ -303,6 +333,34 @@ test('technical leaders get read-only evidence access limited to their own area'
   assert.match(html,/id="admin-review-access"[^>]*hidden/);
 });
 
+test('review decisions create private, readable notifications for the evidence owner', () => {
+  for (const fragment of [
+    'add column leida_at timestamptz',
+    'create or replace function public.dash_mis_notificaciones_revision',
+    'create or replace function public.dash_marcar_notificaciones_revision',
+    'entrega.colaborador_id = v_colab',
+    'revision.leida_at is null',
+    "'no_leidas', v_no_leidas",
+  ]) assert.ok(reviewNotificationsSql.includes(fragment), `notification migration missing: ${fragment}`);
+  assert.match(reviewNotificationsSql,/update public\.asis_entrega_revisiones[\s\S]*?set leida_at = creado_at/);
+  assert.match(reviewNotificationsSql,/revoke all on function public\.dash_mis_notificaciones_revision/);
+  assert.match(reviewNotificationsSql,/grant execute on function public\.dash_marcar_notificaciones_revision\(bigint\[\]\) to authenticated/);
+  assert.match(reviewNotesSql,/revision_nota = v_nota/);
+  assert.match(html,/data-review-notification-trigger/);
+  assert.match(html,/id="review-notification-panel"[^>]*role="dialog"[^>]*aria-modal="true"/);
+  assert.match(js,/dash_mis_notificaciones_revision/);
+  assert.match(js,/dash_marcar_notificaciones_revision/);
+  assert.match(js,/function startReviewNotificationSync\(\)/);
+  assert.match(js,/function mountReviewNotificationPortal\(\)[\s\S]*?document\.body\.appendChild\(layer\)/);
+  assert.match(js,/const layer=mountReviewNotificationPortal\(\)/);
+  assert.match(js,/const fresh=await loadReviewNotifications\(\{quiet:true\}\)/);
+  assert.match(js,/fresh\?\.unread>0\)await markReviewNotificationsRead\(null\)/);
+  assert.match(css,/\.review-notification-badge\{/);
+  assert.match(css,/\.review-notification-layer\{position:fixed;z-index:1250/);
+  assert.match(css,/@media\(max-width:900px\)\{[\s\S]*?\.review-notification-panel\{width:100%/);
+  assert.doesNotMatch(html,/id="time-preview-switch"|id="weather-chip"|class="session-chip"/);
+});
+
 test('migration enforces evidence before exit and preserves history', () => {
   for (const fragment of [
     'add column if not exists salida_at',
@@ -348,7 +406,30 @@ test('evidence policy respects collage configuration and minimum screenshots', (
   assert.equal(policy({requirement:'comparticiones',mode:'collage',count:1,min:5,collageAllowed:false}).reason,'collage_no_permitido');
   assert.equal(policy({requirement:'comparticiones',mode:'individuales',count:4,min:5,collageAllowed:true}).reason,'minimo');
   assert.equal(policy({requirement:'comparticiones',mode:'individuales',count:5,min:5,collageAllowed:false}).ok,true);
+  assert.equal(policy({requirement:'comparticiones',mode:'individuales',count:42,min:5,max:50,collageAllowed:false}).ok,true);
+  assert.equal(policy({requirement:'comparticiones',mode:'individuales',count:51,min:5,max:50,collageAllowed:false}).reason,'maximo');
   assert.equal(policy({requirement:'rpe',mode:null,count:1}).ok,true);
+  assert.equal(policy({requirement:'rpe',mode:null,count:6}).reason,'maximo');
+});
+
+test('Facebook accepts large evidence sets without weakening other upload limits', () => {
+  for (const fragment of [
+    'check (orden between 1 and 50)',
+    'v_total not between 1 and 50',
+    'v_total<v_cfg.comparticiones_min or v_total>50',
+    'v_nuevas not between 0 and 50',
+    'v_conservadas not between 0 and 50',
+    'v_imagenes<v_cfg.comparticiones_min or v_imagenes>50',
+    'public.asis_compartir_fecha_activa(v_colab)',
+    'public.asis_compartir_en_ventana(v_colab,v_fecha)',
+  ]) assert.ok(expandedFacebookEvidenceSql.includes(fragment), `expanded Facebook evidence migration missing: ${fragment}`);
+  assert.match(expandedFacebookEvidenceSql,/if coalesce\(p_requisito,''\)<>'comparticiones' then[\s\S]*?dash_confirmar_entrega_base_32/);
+  assert.match(expandedFacebookEvidenceSql,/dash_reemplazar_entrega_base_35/);
+  assert.match(js,/const FACEBOOK_EVIDENCE_MAX = 50/);
+  assert.match(js,/for\(let index=0;index<selected\.length;index\+\+\)/);
+  assert.match(js,/sourceBytes>300\*1024\*1024/);
+  assert.match(html,/Desde 5 y hasta 50 imágenes/);
+  assert.match(edge,/slice\(0, 50\)/);
 });
 
 test('all operational surfaces request closure-aware data', () => {

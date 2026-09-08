@@ -7,14 +7,14 @@ const SHELL_KEY = 'kja-dashboard-shell';
 const PROFILE_BUCKET = 'perfil-fotos';
 const REQUEST_BUCKET = 'solicitud-evidencias';
 const DAILY_EVIDENCE_BUCKET = 'asis-cierre-evidencias';
+const FACEBOOK_EVIDENCE_MAX = 50;
 const CLOSE_MODEL = window.KJACloseModel;
 const PROFILE_MAX_SOURCE = 3 * 1024 * 1024;
 const PROFILE_MAX_STORED = 480 * 1024;
-const PROFILE_AVATAR_IDS = ['side-avatar','mobile-avatar','rail-avatar','mobile-home-avatar','profile-avatar'];
+const PROFILE_AVATAR_IDS = ['side-avatar','mobile-avatar','rail-avatar','mobile-home-avatar','profile-avatar','head-avatar'];
 const PROFILE_SIGNED_CACHE = new Map();
 const MARK_PROTOCOL = 20260902;
 const WEATHER_CACHE_KEY = 'kja-dashboard-weather';
-const AMBIENCE_MODE_KEY = 'kja-dashboard-ambience-mode';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const WEATHER_DEFAULT_COORDS = {lat:-12.0464,lon:-77.0428};
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
@@ -36,7 +36,6 @@ const shortDays = ['D','L','M','M','J','V','S'];
 
 let AMBIENCE_TIMER = null;
 let AMBIENCE_WEATHER_TIMER = null;
-let AMBIENCE_OVERRIDE = null;
 let AMBIENCE_WEATHER = {kind:'partly-cloudy',label:'Clima local',temperature:null,cloudCover:45,windSpeed:8};
 let PERSONAL_REQUEST = {file:null,previewUrl:'',busy:false,trigger:null};
 let FACEBOOK_SHARE = {trigger:null,data:null,signed:[],request:0};
@@ -74,8 +73,6 @@ function applyWeatherAmbience(current={}){
   portal.style.setProperty('--weather-cloud-cover',(cloudCover/100).toFixed(2));
   portal.style.setProperty('--weather-cloud-opacity',Math.min(.82,.08+(cloudCover/100)*.74).toFixed(2));
   portal.style.setProperty('--weather-cloud-duration',`${Math.max(16,Math.min(42,38-(windSpeed*.65))).toFixed(1)}s`);
-  const label=$('weather-label');if(label)label.textContent=`${AMBIENCE_WEATHER.label}${temperature===null?'':` · ${temperature}°`}`;
-  const chip=$('weather-chip');if(chip){const source=`${AMBIENCE_WEATHER.label}${temperature===null?'':`, ${temperature} °C`}. Datos meteorológicos de Open-Meteo.`;chip.setAttribute('aria-label',source);chip.title=source}
   paintTimeAmbience();
 }
 
@@ -117,14 +114,14 @@ async function loadWeatherAmbience(){
 
 function paintTimeAmbience(){
   const portal=$('portal'),ambience=$('time-ambience');if(!portal||!ambience)return;
-  const live=limaClock(),value=AMBIENCE_OVERRIDE==='day'?12:AMBIENCE_OVERRIDE==='night'?23:live.value;
+  const live=limaClock(),value=live.value;
   const daylight=value>=5&&value<19;
   const progress=daylight?(value-5)/14:((value>=19?value-19:value+5)/10);
   const x=8+(progress*84);
   const y=76-(Math.sin(Math.PI*progress)*56);
   const phase=value>=5&&value<8?'dawn':value>=8&&value<16?'day':value>=16&&value<19?'sunset':'night';
   portal.dataset.timePhase=phase;
-  portal.dataset.timePreview=AMBIENCE_OVERRIDE||'auto';
+  portal.dataset.timePreview='auto';
   const person=APP?.inicio?.colaborador;
   if(person&&$('welcome')){
     const greeting=value<12?'Buenos días':value<19?'Buenas tardes':'Buenas noches';
@@ -135,35 +132,20 @@ function paintTimeAmbience(){
   portal.style.setProperty('--orb-progress',progress.toFixed(4));
   ambience.style.setProperty('--orb-x',`${x.toFixed(2)}%`);
   ambience.style.setProperty('--orb-y',`${y.toFixed(2)}%`);
-  const preview=$('time-preview-switch');
-  if(preview){
-    const night=phase==='night',action=night?'Cambiar a modo día':'Cambiar a modo noche';
-    preview.setAttribute('aria-checked',String(night));
-    preview.setAttribute('aria-label',action);
-    preview.title=`${action} · ${AMBIENCE_WEATHER.label}`;
-    const label=preview.querySelector('.time-preview-label');if(label)label.textContent=night?'Modo noche':'Modo día';
-  }
 }
 
 function startTimeAmbience(){
-  try{const saved=localStorage.getItem(AMBIENCE_MODE_KEY);AMBIENCE_OVERRIDE=saved==='day'||saved==='night'?saved:null}catch{}
   const schedule=()=>{paintTimeAmbience();clearInterval(AMBIENCE_TIMER);AMBIENCE_TIMER=setInterval(paintTimeAmbience,60000)};
   schedule();
   loadWeatherAmbience();
   clearInterval(AMBIENCE_WEATHER_TIMER);AMBIENCE_WEATHER_TIMER=setInterval(loadWeatherAmbience,WEATHER_REFRESH_MS);
-  const preview=$('time-preview-switch');
-  if(preview)preview.addEventListener('click',()=>{
-    AMBIENCE_OVERRIDE=$('portal')?.dataset.timePhase==='night'?'day':'night';
-    try{localStorage.setItem(AMBIENCE_MODE_KEY,AMBIENCE_OVERRIDE)}catch{}
-    paintTimeAmbience();
-  });
   document.addEventListener('visibilitychange',()=>{
     const portal=$('portal');if(portal)portal.dataset.ambiencePaused=String(document.hidden);
     if(document.hidden){clearInterval(AMBIENCE_TIMER);clearInterval(AMBIENCE_WEATHER_TIMER);AMBIENCE_TIMER=null;AMBIENCE_WEATHER_TIMER=null}else{schedule();loadWeatherAmbience();AMBIENCE_WEATHER_TIMER=setInterval(loadWeatherAmbience,WEATHER_REFRESH_MS)};
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, notificationTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
@@ -178,11 +160,126 @@ let DASH_ETAG = null;
 let DASH_UPDATE_PENDING = false;
 let DASH_VERSION_CHECKED_AT = 0;
 let DASH_VERSION_TIMER = null;
+let REVIEW_NOTIFICATION_TRIGGER = null;
 
 function formMsg(id,text){ const el=$(id); el.textContent=text||''; el.classList.toggle('show',!!text); }
 function markMsg(text){ $('mark-msg').textContent=text||''; $('mark-msg').classList.toggle('show',!!text); }
 function toast(text,bad=false){ const el=$('toast'); el.textContent=text; el.classList.toggle('bad',bad); el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),3500); }
 function setBusy(button,on,label){ button.disabled=on; if(!button.dataset.label) button.dataset.label=button.querySelector('span')?.textContent||button.textContent; const span=button.querySelector('span'); if(span) span.textContent=on?label:button.dataset.label; }
+
+function reviewNotificationDate(value){
+  if(!value)return 'Fecha no disponible';
+  const date=new Date(value);if(Number.isNaN(date.getTime()))return 'Fecha no disponible';
+  return new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(date);
+}
+
+function reviewNotificationMarkup(item){
+  const observed=item.estado==='observada',unread=!item.leida;
+  const title=observed?'Necesitas corregir una evidencia':'Evidencia aprobada';
+  const copy=item.nota||(observed?'Dirección indicó que debes revisar esta entrega.':'Dirección aprobó la entrega sin observaciones adicionales.');
+  const icon=observed
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg>';
+  return `<article class="review-notification-item${unread?' is-unread':''}" data-state="${observed?'observed':'approved'}" role="listitem"><button type="button" data-review-notification-id="${esc(item.id)}" aria-label="${esc(`${title}: ${item.titulo}. ${copy}`)}"><span class="review-notification-state">${icon}</span><span class="review-notification-copy"><span><b>${esc(title)}</b>${unread?'<em>Nueva</em>':''}</span><strong>${esc(item.titulo||'Evidencia enviada')}</strong><p>${esc(copy)}</p><small>${esc(reviewNotificationDate(item.creado_at))}</small></span></button></article>`;
+}
+
+function renderReviewNotifications(){
+  const state=APP.notifications||{},available=APP.identity.hasPersonal&&state.available,unread=Math.max(0,Number(state.unread)||0);
+  document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>{
+    button.hidden=!available;
+    button.classList.toggle('has-unread',unread>0);
+    button.setAttribute('aria-label',unread?`Abrir notificaciones, ${unread} ${unread===1?'notificación sin leer':'notificaciones sin leer'}`:'Abrir notificaciones');
+    const badge=button.querySelector('[data-review-notification-badge]');if(!badge)return;
+    badge.hidden=unread<1;badge.textContent=unread>99?'99+':String(unread);
+  });
+  const summary=$('review-notification-summary'),summaryCopy=$('review-notification-summary-copy'),readAll=$('review-notification-read-all'),list=$('review-notification-list');
+  if(!summary||!list)return;
+  summary.textContent=unread?`${unread} ${unread===1?'mensaje nuevo':'mensajes nuevos'}`:'Todo al día';
+  summaryCopy.textContent=unread?'Dirección respondió sobre tus evidencias.':'No tienes mensajes nuevos.';
+  readAll.hidden=unread<1;readAll.disabled=state.loading;
+  if(state.loading&&!state.items.length){list.innerHTML='<div class="review-notification-loading" role="status">Consultando tus notificaciones…</div>';return}
+  if(state.error&&!state.items.length){list.innerHTML='<div class="review-notification-empty is-error"><b>No pudimos actualizar los mensajes</b><p>Comprueba tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-review-notifications>Reintentar</button></div>';return}
+  list.innerHTML=state.items.length?state.items.map(reviewNotificationMarkup).join(''):'<div class="review-notification-empty"><b>Aún no tienes notificaciones</b><p>Las aprobaciones y observaciones de Dirección aparecerán aquí.</p></div>';
+}
+
+async function loadReviewNotifications({quiet=false}={}){
+  if(!APP.identity.hasPersonal)return null;
+  const request=(APP.notifications.request||0)+1;
+  APP.notifications={...APP.notifications,loading:true,error:'',request};renderReviewNotifications();
+  const {data,error}=await db.rpc('dash_mis_notificaciones_revision',{p_limite:16});
+  if(request!==APP.notifications.request)return null;
+  if(error||!data?.ok){
+    const missing=error?.code==='PGRST202'||String(error?.message||'').includes('dash_mis_notificaciones_revision');
+    APP.notifications={...APP.notifications,available:!missing,loading:false,error:missing?'':(error?.message||data?.motivo||'carga')};renderReviewNotifications();
+    if(!quiet&&!missing)toast('No pudimos actualizar tus notificaciones.',true);
+    return null;
+  }
+  APP.notifications={available:true,loading:false,error:'',unread:Number(data.no_leidas)||0,items:Array.isArray(data.notificaciones)?data.notificaciones:[],request};
+  renderReviewNotifications();return APP.notifications;
+}
+
+function closeReviewNotifications({restoreFocus=true}={}){
+  const layer=$('review-notification-layer');if(!layer||layer.hidden)return;
+  layer.hidden=true;document.body.classList.remove('review-notification-open');
+  document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.setAttribute('aria-expanded','false'));
+  if(restoreFocus&&REVIEW_NOTIFICATION_TRIGGER)REVIEW_NOTIFICATION_TRIGGER.focus();
+  REVIEW_NOTIFICATION_TRIGGER=null;
+}
+
+function mountReviewNotificationPortal(){
+  const layer=$('review-notification-layer');
+  if(layer&&layer.parentElement!==document.body)document.body.appendChild(layer);
+  return layer;
+}
+
+async function openReviewNotifications(trigger){
+  if(!APP.notifications.available)return;
+  const layer=mountReviewNotificationPortal();if(!layer)return;
+  REVIEW_NOTIFICATION_TRIGGER=trigger||document.activeElement;
+  layer.hidden=false;document.body.classList.add('review-notification-open');
+  document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.setAttribute('aria-expanded','true'));
+  renderReviewNotifications();$('review-notification-panel').focus({preventScroll:true});
+  const fresh=await loadReviewNotifications({quiet:true});
+  if(!layer.hidden&&fresh?.unread>0)await markReviewNotificationsRead(null);
+}
+
+async function markReviewNotificationsRead(ids=null){
+  if(APP.notifications.loading)return;
+  APP.notifications.loading=true;renderReviewNotifications();
+  const {data,error}=await db.rpc('dash_marcar_notificaciones_revision',{p_ids:ids});
+  if(error||!data?.ok){APP.notifications.loading=false;renderReviewNotifications();toast('No pudimos marcar el mensaje como leído.',true);return}
+  const selected=ids?new Set(ids.map(String)):null;
+  const items=APP.notifications.items.map(item=>!item.leida&&(!selected||selected.has(String(item.id)))?{...item,leida:true}:item);
+  const unread=selected?Math.max(0,APP.notifications.unread-(Number(data.marcadas)||0)):0;
+  APP.notifications={...APP.notifications,loading:false,unread,items};renderReviewNotifications();
+  if(!$('review-notification-layer').hidden)$('review-notification-panel').focus({preventScroll:true});
+}
+
+function startReviewNotificationSync(){
+  clearInterval(APP.notificationTimer);APP.notificationTimer=null;
+  if(!APP.identity.hasPersonal)return;
+  void loadReviewNotifications({quiet:true});
+  APP.notificationTimer=setInterval(()=>{if(!document.hidden)void loadReviewNotifications({quiet:true})},45000);
+}
+
+document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.onclick=()=>openReviewNotifications(button));
+document.querySelectorAll('[data-close-review-notifications]').forEach(button=>button.onclick=()=>closeReviewNotifications());
+$('review-notification-read-all').onclick=()=>markReviewNotificationsRead(null);
+$('review-notification-list').onclick=event=>{
+  const retry=event.target.closest('[data-retry-review-notifications]');if(retry){void loadReviewNotifications();return}
+  const button=event.target.closest('[data-review-notification-id]');if(!button)return;
+  const item=APP.notifications.items.find(notification=>String(notification.id)===String(button.dataset.reviewNotificationId));
+  if(item&&!item.leida)void markReviewNotificationsRead([Number(item.id)]);
+};
+$('review-notification-layer').addEventListener('keydown',event=>{
+  if(event.key==='Escape'){event.preventDefault();closeReviewNotifications();return}
+  if(event.key!=='Tab')return;
+  const focusable=[...$('review-notification-panel').querySelectorAll('button:not(:disabled):not([hidden])')].filter(element=>element.offsetParent!==null);
+  if(!focusable.length){event.preventDefault();$('review-notification-panel').focus();return}
+  const first=focusable[0],last=focusable.at(-1);
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+});
 
 function profilePhotoMessage(text,type=''){
   const el=$('profile-photo-message');if(!el)return;
@@ -548,7 +645,7 @@ $('form-admin').addEventListener('submit',async e=>{
 });
 
 async function logout(message){
-  clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(DASH_VERSION_TIMER); localStorage.removeItem(DEADLINE_KEY); localStorage.removeItem(SHELL_KEY);
+  clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(APP.notificationTimer);clearInterval(DASH_VERSION_TIMER); localStorage.removeItem(DEADLINE_KEY); localStorage.removeItem(SHELL_KEY);
   try{ await db.auth.signOut({scope:'local'}); }catch(e){}
   location.reload();
 }
@@ -624,6 +721,7 @@ async function openPortal(activeSession,bootstrap=null){
   $('portal').dataset.personal=String(APP.identity.hasPersonal);
   document.querySelectorAll('.mobile-inline-home').forEach(button=>button.hidden=!APP.identity.hasPersonal);
   $('side-name').textContent=name; $('side-role').textContent=role; $('side-avatar').textContent=ini; $('mobile-avatar').textContent=ini;
+  if($('head-avatar'))$('head-avatar').textContent=ini;
   $('rail-name').textContent=name; $('rail-role').textContent=role; $('rail-avatar').textContent=ini;
   $('mobile-home-name').textContent=name;
   $('mobile-home-avatar').textContent=ini;
@@ -658,6 +756,7 @@ async function openPortal(activeSession,bootstrap=null){
   $('portal').hidden=false; $('portal').inert=false; $('portal').removeAttribute('aria-hidden');
   resetPortalBootstrap(true); startSessionClock(); hideBoot();
   startMarkSync();
+  startReviewNotificationSync();
   startDashboardVersionWatch();
   const backgroundLoads=[];
   if(c)backgroundLoads.push(loadHistory(),loadProfilePhoto());
@@ -669,9 +768,10 @@ function startSessionClock(){
   clearInterval(APP.sessionTimer);
   const tick=()=>{
     const raw=localStorage.getItem(DEADLINE_KEY), end=Date.parse(raw||'');
-    if(!Number.isFinite(end)){ $('session-left').textContent='activa'; return; }
+    const label=$('session-left');
+    if(!Number.isFinite(end)){ if(label)label.textContent='activa'; return; }
     const ms=end-Date.now(); if(ms<=0) return logout('Tu sesión venció.');
-    const h=Math.floor(ms/3600000),m=Math.ceil((ms%3600000)/60000); $('session-left').textContent=h?`${h} h ${m} min`:`${m} min`;
+    const h=Math.floor(ms/3600000),m=Math.ceil((ms%3600000)/60000);if(label)label.textContent=h?`${h} h ${m} min`:`${m} min`;
   }; tick(); APP.sessionTimer=setInterval(tick,30000);
 }
 
@@ -683,7 +783,7 @@ function renderHome(){
   $('welcome-sub').textContent=d.marcado?'Tu entrada de hoy ya quedó registrada.':'Aquí tienes lo importante de tu jornada.';
   $('welcome-area').textContent=c.area||'Equipo KJA';
   const date=new Date((d.fecha||isoLima())+'T12:00:00');
-  $('today-label').textContent=dayNames[date.getDay()].toUpperCase();
+  if($('today-label'))$('today-label').textContent=dayNames[date.getDay()].toUpperCase();
   $('day-date').textContent=new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'long',year:'numeric'}).format(date);
   $('mobile-today-date').textContent=new Intl.DateTimeFormat('es-PE',{weekday:'long',day:'numeric',month:'long'}).format(date);
   $('time-start').textContent=fmtTime(d.hora_entrada); $('time-end').textContent=fmtTime(d.hora_salida);
@@ -906,9 +1006,9 @@ async function loadHistory(){
 
 function renderProgress(){
   const h=APP.historial;if(!h)return; const done=Number(h.horas)||0,goal=Number(h.meta)||0,pct=goal?Math.min(100,done/goal*100):0;
-  $('hours-done').textContent=done.toFixed(done%1?1:0); $('hours-goal').textContent=goal||'—'; $('hours-bar').style.transform=`scaleX(${pct/100})`;
+  $('hours-done').textContent=done.toFixed(done%1?1:0); if($('hours-goal'))$('hours-goal').textContent=goal||'—'; $('hours-bar').style.transform=`scaleX(${pct/100})`;
   $('hours-rate').textContent=goal?`${pct.toFixed(0)}% completado`:'Sin meta configurada';
-  $('hours-note').textContent=goal?`${Math.max(0,goal-done).toFixed(1)} h pendientes`:'Dirección aún no definió una meta de horas.';
+  if($('hours-note'))$('hours-note').textContent=goal?`${Math.max(0,goal-done).toFixed(1)} h pendientes`:'Dirección aún no definió una meta de horas.';
   $('hours-ring').style.setProperty('--hours-angle',`${pct*3.6}deg`); $('hours-ring').setAttribute('aria-label',goal?`${done} de ${goal} horas, ${pct.toFixed(0)} por ciento completado`:`${done} horas acumuladas, sin meta configurada`);
   const t=h.totales||{},att=(t.P||0)+(t.T||0)+(t.J||0),rate=t.laborables?Math.round(att/t.laborables*100):0;
   $('month-rate').textContent=t.laborables?rate+'%':'—'; $('month-note').textContent=`${att} de ${t.laborables||0} días laborables`;
@@ -1668,10 +1768,14 @@ function dailyCloseStatusCopy(state){
 }
 
 function dailyCloseGuidePresentation(data){
+  if(data.solo_comparticiones){
+    if((data.pendientes||0)>0)return {stage:data.puede_compartir?'facebook':'scheduled',title:data.puede_compartir?'Comparte y adjunta tus capturas':'Compartición programada',copy:data.puede_compartir?'Esta tarea es independiente de tu asistencia laboral.':'La carga se abrirá dentro de tu horario de Facebook.'};
+    return {stage:'facebook-complete',title:'Compartición registrada',copy:'Las capturas quedaron enviadas para revisión.'};
+  }
   if(!data.entrada_at)return {stage:'entry',title:'Empieza registrando tu entrada',copy:'Después se habilitarán las evidencias pendientes.'};
   if(data.estado==='completa'||data.estado==='regularizada')return {stage:'complete',title:'Jornada cerrada correctamente',copy:'Entrada, evidencias y salida quedaron registradas.'};
   if(data.estado==='incompleta')return {stage:'incomplete',title:'El cierre quedó incompleto',copy:'El plazo terminó sin registrar todos los pasos.'};
-  if((data.pendientes||0)>0)return {stage:'evidence',title:'Completa tus evidencias',copy:'Selecciona cada requisito naranja para adjuntar las imágenes.'};
+  if(((data.pendientes_salida??data.pendientes)||0)>0)return {stage:'evidence',title:'Completa tus evidencias',copy:'Selecciona cada requisito pendiente para adjuntar las imágenes.'};
   if(data.puede_marcar_salida)return {stage:'exit',title:'Todo listo para salir',copy:'Tus evidencias están completas. Confirma ahora tu salida.'};
   return {stage:'ready',title:'Evidencias completas',copy:`La salida se habilitará desde las ${fmtTime(data.salida_desde)}.`};
 }
@@ -1693,7 +1797,9 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
   const attrs=entry||locked||complete&&!editable?'disabled':`data-daily-requirement="${esc(item.tipo)}" aria-haspopup="dialog" aria-controls="daily-evidence-editor"${editable?' data-daily-edit="true"':''}${item.asignacion==null?'':` data-daily-assignment="${esc(item.asignacion)}"`}`;
   const description=item.tipo==='salida'&&!complete
     ? (locked?'1 foto con la hora visible, disponible al finalizar':'Adjunta 1 foto donde se vea la hora de salida')
-    : (item.descripcion||'Adjunta la evidencia correspondiente');
+    : item.tipo==='comparticiones'&&!complete&&!locked&&review!=='observada'
+      ? `Adjunta entre ${APP.cierre?.comparticiones_min||5} y ${FACEBOOK_EVIDENCE_MAX} capturas, o 1 collage`
+      : (item.descripcion||'Adjunta la evidencia correspondiente');
   if(facebookReceipt){
     const editAction=editable?`<button type="button" class="facebook-evidence-edit" ${attrs} aria-label="Editar ${esc(item.titulo)}"><span>Editar</span><svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l10.5-10.5-4-4zM12.8 7.2l4 4"/></svg></button>`:'';
     return `<article class="day-close-item type-comparticiones is-complete has-facebook-receipt ${editable?'is-editable ':''}${review==='pendiente'?'is-review ':''}">
@@ -1715,12 +1821,17 @@ function renderMobileDailyClose(data,items){
   panel.hidden=false;
   const entryComplete=!!data.entrada_at,closed=['completa','regularizada','incompleta'].includes(data.estado),pendingItems=items.filter(item=>!item.completo);
   panel.dataset.state=closed?CLOSE_MODEL.stateTone(data.estado):entryComplete?(pendingItems.length?'pending':'ready'):'waiting';
-  $('mobile-close-title').textContent=entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
-  $('mobile-close-copy').textContent=entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
+  const facebookOnly=!!data.solo_comparticiones;
+  $('mobile-close-title').textContent=facebookOnly?'Compartición de hoy':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
+  $('mobile-close-copy').textContent=facebookOnly?'No tienes jornada laboral hoy, pero sí una tarea programada de Facebook.':entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
   $('mobile-close-count').textContent=pendingItems.length?`${pendingItems.length} ${pendingItems.length===1?'pendiente':'pendientes'}`:'Todo listo';
-  $('mobile-close-list').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:index===0})).join('');
+  $('mobile-close-list').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:!facebookOnly&&index===0})).join('');
   const action=$('mobile-close-action');action.hidden=false;action.disabled=true;action.dataset.action='';
-  if(!entryComplete){
+  if(facebookOnly){
+    action.hidden=true;
+    $('mobile-close-footer-title').textContent=pendingItems.length?(data.puede_compartir?'Capturas pendientes':'Aún no abre tu horario'):'Evidencia enviada';
+    $('mobile-close-footer-copy').textContent=pendingItems.length?`Disponible de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}.`:'La entrega quedó lista para revisión.';
+  }else if(!entryComplete){
     const source=$('open-mark');action.dataset.action='entry';action.disabled=source?.disabled??true;action.querySelector('span').textContent='Registrar mi entrada';
     $('mobile-close-footer-title').textContent='Empieza por tu entrada';$('mobile-close-footer-copy').textContent='Después podrás abrir cada evidencia.';
   }else if(data.salida_at){
@@ -1769,36 +1880,47 @@ function mergeDailyIssueState(closeData,issueData){
 function renderDailyClose(){
   const data=APP.cierre,section=$('day-close'),card=$('today-attendance-card');if(!section)return;
   if(!data?.ok||!data.aplica){section.hidden=true;$('mobile-close-panel').hidden=true;card?.classList.remove('has-daily-close');return;}
-  const entryComplete=!!data.entrada_at,closed=['completa','regularizada','incompleta'].includes(data.estado);
+  const facebookOnly=!!data.solo_comparticiones,entryComplete=!!data.entrada_at,closed=!facebookOnly&&['completa','regularizada','incompleta'].includes(data.estado);
   section.hidden=false;
   card?.classList.add('has-daily-close');
   const locked=!entryComplete||closed||DAILY_EVIDENCE.busy;
-  const items=[{
+  const entryItem={
     tipo:'entrada',titulo:entryComplete?'Entrada registrada':'Registrar asistencia',
     descripcion:entryComplete?`Marcada a las ${formatAttendanceClock(data.entrada_at)}`:'Registra primero tu asistencia de entrada',
     completo:entryComplete,locked:true
-  },...(data.requisitos||[]).map(item=>({...item,
+  };
+  const items=[...(facebookOnly?[]:[entryItem]),...(data.requisitos||[]).map(item=>({...item,
     compartido_por:item.tipo==='comparticiones'?APP.inicio?.colaborador?.nombre:null,
     compartido_dni:item.tipo==='comparticiones'?APP.inicio?.colaborador?.dni:null,
-    editable:item.tipo!=='salida'&&!!item.completo&&!!data.puede_editar_evidencias,
-    locked:locked||!!item.bloqueado
+    editable:item.tipo!=='salida'&&!!item.completo&&(item.editable??data.puede_editar_evidencias),
+    locked:(item.tipo==='comparticiones'?DAILY_EVIDENCE.busy:locked)||!!item.bloqueado
   })),...(data.asignaciones||[]).map(item=>({
     tipo:'asignado',asignacion:item.id,titulo:item.titulo,
     descripcion:item.instrucciones||`${cap(item.tipo||'Entregable')} asignado para hoy`,
     completo:item.completo,editable:!!item.completo&&!!data.puede_editar_evidencias,locked
   }))];
-  $('day-close-checklist').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:index===0})).join('');
+  section.classList.toggle('is-facebook-only',facebookOnly);
+  $('day-close-checklist').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:!facebookOnly&&index===0})).join('');
   renderMobileDailyClose(data,items);
 
-  $('day-close-title').textContent=entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
-  $('day-close-copy').textContent=entryComplete?'Completa tus evidencias antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
+  $('day-close-title').textContent=facebookOnly?'Compartición programada':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
+  $('day-close-copy').textContent=facebookOnly?'Hoy no tienes jornada laboral; esta tarea sigue activa en su propio horario.':entryComplete?'Completa tus evidencias antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
   const state=$('day-close-state');
-  state.dataset.state=entryComplete?CLOSE_MODEL.stateTone(data.estado):'waiting';
-  state.innerHTML=`<i></i>${esc(entryComplete?dailyCloseStatusCopy(data.estado):'Entrada pendiente')}`;
+  state.dataset.state=facebookOnly?(data.pendientes?'waiting':'complete'):entryComplete?CLOSE_MODEL.stateTone(data.estado):'waiting';
+  state.innerHTML=`<i></i>${esc(facebookOnly?(data.pendientes?'Facebook pendiente':'Compartición completa'):entryComplete?dailyCloseStatusCopy(data.estado):'Entrada pendiente')}`;
   const guide=dailyCloseGuidePresentation(data),guideElement=$('day-close-guide');
   guideElement.dataset.stage=guide.stage;$('day-close-guide-title').textContent=guide.title;$('day-close-guide-copy').textContent=guide.copy;
   guideElement.querySelector('.day-close-journey').setAttribute('aria-label',`${guide.title}. ${guide.copy}`);
   const button=$('day-close-button');
+  if(facebookOnly){
+    $('day-close-time-label').textContent='HORARIO DE FACEBOOK';
+    $('day-close-time').textContent=`${fmtTime(data.compartir_desde)}–${fmtTime(data.compartir_hasta)}`;
+    $('day-close-window').textContent=data.puede_compartir?'Tu franja está abierta ahora':'Se habilitará en la franja indicada';
+    button.hidden=true;
+    dailyCloseMessage(data.pendientes?(data.puede_compartir?'Abre la tarea azul y adjunta tus evidencias.':'Esta tarea no exige entrada ni salida; espera a que abra su horario.'):'Compartición enviada correctamente.','is-success');
+    return;
+  }
+  button.hidden=false;
   if(!entryComplete){
     const sourceButton=$('open-mark');
     $('day-close-time-label').textContent='HORA DE ENTRADA';
@@ -1823,9 +1945,10 @@ function renderDailyClose(){
   }else if(data.estado==='incompleta'){
     $('day-close-button-caption').textContent='PLAZO FINALIZADO';$('day-close-button-label').textContent='Jornada incompleta';
     dailyCloseMessage('La entrada se conserva, pero esta jornada no suma asistencia ni horas.','is-error');
-  }else if((data.pendientes||0)>0){
+  }else if(((data.pendientes_salida??data.pendientes)||0)>0){
     $('day-close-button-caption').textContent='CIERRE PENDIENTE';$('day-close-button-label').textContent='Marcar mi salida';
-    dailyCloseMessage(`Completa ${data.pendientes} ${data.pendientes===1?'requisito':'requisitos'} antes de salir.`);
+    const pendingExit=data.pendientes_salida??data.pendientes;
+    dailyCloseMessage(`Completa ${pendingExit} ${pendingExit===1?'requisito':'requisitos'} antes de salir.`);
   }else if(!data.puede_marcar_salida){
     $('day-close-button-caption').textContent='EVIDENCIAS COMPLETAS';$('day-close-button-label').textContent='Marcar mi salida';
     dailyCloseMessage(`Podrás cerrar tu jornada desde las ${fmtTime(data.salida_desde)}.`);
@@ -1923,31 +2046,33 @@ async function loadDailyEditableEvidence(request){
 
 function openDailyEvidenceEditor(requirement,assignment=null){
   if(DAILY_EVIDENCE.busy)return;
-  const data=APP.cierre;if(!data?.entrada_at||data.salida_at||data.estado==='incompleta')return;
+  const data=APP.cierre,facebook=requirement==='comparticiones';
+  if(!data||(!facebook&&(!data.entrada_at||data.salida_at||data.estado==='incompleta')))return;
   const item=requirement==='asignado'
     ?(data.asignaciones||[]).find(row=>String(row.id)===String(assignment))
     :(data.requisitos||[]).find(row=>row.tipo===requirement);
   if(!item)return;
   const editing=!!item.completo;
-  if(editing&&!data.puede_editar_evidencias){toast('La edición sólo está disponible durante tu horario de trabajo.');return}
+  if(item.bloqueado&&!item.completo){toast(facebook?'La carga se habilitará dentro de tu horario de Facebook.':'Esta evidencia todavía no está disponible.');return}
+  if(editing&&!(item.editable??data.puede_editar_evidencias)){toast(facebook?'La edición sólo está disponible dentro de tu horario de Facebook.':'La edición sólo está disponible durante tu horario de trabajo.');return}
   closeDailyEvidenceEditor({restoreFocus:false});
   mountDailyEvidencePortal();
   DAILY_EVIDENCE={requirement,assignment:assignment==null?null:Number(assignment),title:item.titulo,files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing};
   $('daily-evidence-editor').querySelector('.daily-evidence-sheet').dataset.requirement=requirement;
   setDailyEvidenceProcess('idle');
   $('daily-evidence-title').textContent=editing?`Editar ${item.titulo}`:item.titulo;
-  $('daily-evidence-copy').textContent=editing?'Quita las imágenes incorrectas y añade sus reemplazos.':item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
+  $('daily-evidence-copy').textContent=editing?'Quita las imágenes incorrectas y añade sus reemplazos.':facebook?`Puedes adjuntar todas tus capturas: mínimo ${data.comparticiones_min||5} y hasta ${FACEBOOK_EVIDENCE_MAX}, o una sola imagen tipo collage.`:item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
   $('daily-evidence-edit-note').hidden=!editing;
-  $('daily-evidence-edit-until').textContent=`Puedes editar hasta las ${fmtTime(data.hora_salida_programada)}`;
+  $('daily-evidence-edit-until').textContent=`Puedes editar hasta las ${fmtTime(facebook?data.compartir_hasta:data.hora_salida_programada)}`;
   $('daily-issue').hidden=requirement==='salida'||editing;
   const issue=item.impedimento;$('daily-issue-form').hidden=!issue;$('daily-issue-detail').value=issue?.detalle||'';$('daily-issue-message').textContent=issue?'Aviso enviado. Puedes actualizar el motivo si cambió la situación.':'';$('daily-issue-toggle').querySelector('b').textContent=issue?'Impedimento informado':'¿No podrás completarlo hoy?';$('daily-issue-submit').textContent=issue?'Actualizar aviso':'Enviar aviso';
   $('daily-evidence-mode').hidden=requirement!=='comparticiones';
   $('daily-video').hidden=!['rpe','asignado'].includes(requirement);
   $('daily-evidence-file').multiple=requirement!=='salida';
-  $('daily-evidence-individual-help').textContent=`Selecciona ${data.comparticiones_min||5} imágenes`;
+  $('daily-evidence-individual-help').textContent=`Desde ${data.comparticiones_min||5} y hasta ${FACEBOOK_EVIDENCE_MAX} imágenes`;
   $('daily-evidence-collage-option').hidden=!data.collage_permitido;
   const firstMode=document.querySelector('input[name="daily-evidence-mode"][value="individuales"]');if(firstMode)firstMode.checked=true;
-  $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · ${data.comparticiones_min||5} capturas${data.collage_permitido?' o 1 collage':''}`:requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
+  $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · mínimo ${data.comparticiones_min||5}, hasta ${FACEBOOK_EVIDENCE_MAX}${data.collage_permitido?' o 1 collage':''}`:requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
   $('daily-evidence-picker').querySelector('b').textContent=editing?'Añadir imágenes':'Elegir imágenes';
   $('daily-evidence-submit').querySelector('span').textContent=editing?'Guardar cambios':'Guardar evidencia';
   $('daily-evidence-editor').hidden=false;
@@ -1973,22 +2098,34 @@ async function submitDailyIssue(){
 function renderDailyEvidencePreviews(){
   const box=$('daily-evidence-previews');if(!box)return;
   const existing=DAILY_EVIDENCE.existingFiles||[],fresh=DAILY_EVIDENCE.files||[];
-  box.hidden=!(existing.length+fresh.length);
-  box.innerHTML=existing.map((item,index)=>`<div class="daily-evidence-preview is-existing" style="--preview-index:${index}"><em>Actual</em><img src="${esc(item.url)}" alt="Imagen actual ${index+1}"><button type="button" data-remove-existing-file="${index}" aria-label="Quitar imagen actual ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('')+fresh.map((item,index)=>`<div class="daily-evidence-preview is-new" style="--preview-index:${existing.length+index}"><em>Nueva</em><img src="${esc(item.url)}" alt="Imagen nueva ${index+1}"><button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen nueva ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
+  const total=existing.length+fresh.length;
+  box.hidden=!total;box.classList.toggle('is-many',total>10);
+  box.setAttribute('aria-label',`${total} ${total===1?'imagen seleccionada':'imágenes seleccionadas'}`);
+  box.innerHTML=existing.map((item,index)=>`<div class="daily-evidence-preview is-existing" style="--preview-index:${Math.min(index,7)}"><em>Actual</em><img src="${esc(item.url)}" alt="Imagen actual ${index+1}" loading="lazy" decoding="async"><button type="button" data-remove-existing-file="${index}" aria-label="Quitar imagen actual ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('')+fresh.map((item,index)=>`<div class="daily-evidence-preview is-new" style="--preview-index:${Math.min(existing.length+index,7)}"><em>Nueva</em><img src="${esc(item.url)}" alt="Imagen nueva ${index+1}" loading="lazy" decoding="async"><button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen nueva ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
 }
 
 async function chooseDailyEvidence(files){
-  if(!files?.length)return;
-  const allowed=DAILY_EVIDENCE.requirement==='salida'||DAILY_EVIDENCE.requirement==='comparticiones'&&dailyEvidenceMode()==='collage'?1:5,max=Math.max(0,allowed-(DAILY_EVIDENCE.existingFiles?.length||0));
+  if(!files?.length||DAILY_EVIDENCE.loading||DAILY_EVIDENCE.busy)return;
+  const allowed=DAILY_EVIDENCE.requirement==='salida'||DAILY_EVIDENCE.requirement==='comparticiones'&&dailyEvidenceMode()==='collage'?1:DAILY_EVIDENCE.requirement==='comparticiones'?FACEBOOK_EVIDENCE_MAX:5,max=Math.max(0,allowed-(DAILY_EVIDENCE.existingFiles?.length||0));
   const selected=[...files].slice(0,max);
-  if([...files].length>max)return dailyEvidenceMessage(max===0?'Quita primero una imagen actual para poder añadir su reemplazo.':max===1?(DAILY_EVIDENCE.requirement==='salida'?'La evidencia de salida admite una sola foto.':'El modo collage admite una sola imagen.'):`Puedes añadir ${max} ${max===1?'imagen más':'imágenes más'} como máximo.`);
+  if([...files].length>max)return dailyEvidenceMessage(max===0?'Quita primero una imagen actual para poder añadir su reemplazo.':max===1?(DAILY_EVIDENCE.requirement==='salida'?'La evidencia de salida admite una sola foto.':'El modo collage admite una sola imagen.'):`Puedes añadir ${max} ${max===1?'imagen más':'imágenes más'}; Facebook admite hasta ${FACEBOOK_EVIDENCE_MAX} capturas por entrega.`);
   if(selected.some(file=>file.size>25*1024*1024))return dailyEvidenceMessage('Una de las imágenes supera 25 MB. Elige una versión más pequeña.');
-  dailyEvidenceMessage('Preparando imágenes…','is-info');
+  const sourceBytes=selected.reduce((total,file)=>total+Number(file.size||0),0);
+  if(sourceBytes>300*1024*1024)return dailyEvidenceMessage('La selección supera 300 MB antes de comprimir. Divide las capturas en archivos más pequeños.');
+  const state=DAILY_EVIDENCE,picker=$('daily-evidence-picker'),submit=$('daily-evidence-submit'),prepared=[];
+  state.loading=true;picker.disabled=true;submit.disabled=true;
+  dailyEvidenceMessage(`Preparando 0 de ${selected.length} imágenes…`,'is-info');
   try{
     clearDailyEvidenceFiles();
-    const prepared=await Promise.all(selected.map(async file=>{const blob=await compressImage(file);return {blob,url:URL.createObjectURL(blob)}}));
+    for(let index=0;index<selected.length;index++){
+      const blob=await compressImage(selected[index]);
+      if(state!==DAILY_EVIDENCE){prepared.forEach(item=>URL.revokeObjectURL(item.url));return}
+      prepared.push({blob,url:URL.createObjectURL(blob)});
+      dailyEvidenceMessage(`Preparando ${index+1} de ${selected.length} imágenes…`,'is-info');
+    }
     DAILY_EVIDENCE.files=prepared;renderDailyEvidencePreviews();const total=(DAILY_EVIDENCE.existingFiles?.length||0)+prepared.length;dailyEvidenceMessage(`${total} ${total===1?'imagen quedará':'imágenes quedarán'} en la entrega al guardar.`,'is-ready');
-  }catch{clearDailyEvidenceFiles();dailyEvidenceMessage('No pudimos procesar una imagen. Prueba con JPG, PNG o WebP.')}
+  }catch{prepared.forEach(item=>URL.revokeObjectURL(item.url));if(state===DAILY_EVIDENCE){DAILY_EVIDENCE.files=[];renderDailyEvidencePreviews();dailyEvidenceMessage('No pudimos procesar una imagen. Prueba con JPG, PNG o WebP.')}}
+  finally{if(state===DAILY_EVIDENCE){state.loading=false;picker.disabled=false;submit.disabled=false;$('daily-evidence-file').value=''}}
 }
 
 function readVideoMetadata(file){
@@ -2050,11 +2187,12 @@ async function cleanupDailyEvidence(paths){
 }
 
 function dailyEvidenceFailure(reason){
+  const min=Number(APP.cierre?.comparticiones_min||5);
   return {
     sesion:'Tu sesión venció. Vuelve a ingresar.',
     no_habilitado:'El cierre diario todavía no está habilitado.',
     sin_entrada_o_cerrada:'La jornada no tiene una entrada abierta.',
-    cantidad_comparticiones:'Completa la cantidad indicada de capturas o utiliza una imagen tipo collage.',
+    cantidad_comparticiones:`Adjunta entre ${min} y ${FACEBOOK_EVIDENCE_MAX} capturas, o utiliza una sola imagen tipo collage.`,
     foto_salida:'Selecciona una sola foto donde se vea claramente la hora de salida.',
     salida_aun_no_disponible:'La foto de salida se habilitará al comenzar tu ventana de cierre.',
     salida_fuera_de_plazo:'La ventana para registrar la evidencia de salida ya terminó.',
@@ -2062,7 +2200,9 @@ function dailyEvidenceFailure(reason){
     cuota_diaria:'Alcanzaste el límite de cargas del día. Comunícate con Dirección si necesitas reemplazar una evidencia.',
     archivo_no_verificado:'Una imagen no llegó correctamente. Inténtalo otra vez.',
     ya_completo:'Esta evidencia ya estaba registrada.',
-    fuera_horario_edicion:'Tu horario de trabajo ya terminó. La evidencia quedó bloqueada y no puede modificarse.',
+    fuera_horario_edicion:'La ventana autorizada para editar esta evidencia ya terminó.',
+    fuera_horario_compartir:'La carga de Facebook está fuera de su horario programado.',
+    no_programado:'Hoy no tienes una compartición de Facebook programada.',
     sin_entrega:'La entrega cambió o ya no está disponible. Actualiza el portal e inténtalo de nuevo.',
     cargar_actuales:'No pudimos cargar tus imágenes actuales. Cierra el editor e inténtalo nuevamente.',
     archivo_ajeno:'La entrega cambió mientras la editabas. Vuelve a abrirla antes de guardar.',
@@ -2074,8 +2214,9 @@ function dailyEvidenceFailure(reason){
 async function submitDailyEvidence(event){
   event.preventDefault();if(DAILY_EVIDENCE.busy||DAILY_EVIDENCE.loading)return;
   const editing=!!DAILY_EVIDENCE.editing,mode=dailyEvidenceMode(),min=Number(APP.cierre?.comparticiones_min||5),count=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length,uploadTotal=DAILY_EVIDENCE.files.length+(DAILY_EVIDENCE.video?1:0);
-  const selection=CLOSE_MODEL.evidenceSelectionPolicy({requirement:DAILY_EVIDENCE.requirement,mode,count,min,collageAllowed:!!APP.cierre?.collage_permitido});
-  if(!selection.ok){const messages={vacio:'Selecciona al menos una imagen.',minimo:`Selecciona ${min} capturas para completar este requisito.`,maximo:'Puedes adjuntar como máximo 5 imágenes.',cantidad_collage:'Selecciona una sola imagen tipo collage.',collage_no_permitido:'La modalidad collage está deshabilitada.'};return dailyEvidenceMessage(messages[selection.reason]||'Revisa las imágenes seleccionadas.')}
+  const max=DAILY_EVIDENCE.requirement==='comparticiones'?FACEBOOK_EVIDENCE_MAX:5;
+  const selection=CLOSE_MODEL.evidenceSelectionPolicy({requirement:DAILY_EVIDENCE.requirement,mode,count,min,max,collageAllowed:!!APP.cierre?.collage_permitido});
+  if(!selection.ok){const messages={vacio:'Selecciona al menos una imagen.',minimo:`Selecciona al menos ${min} capturas para completar este requisito.`,maximo:`Puedes adjuntar como máximo ${max} imágenes.`,cantidad_collage:'Selecciona una sola imagen tipo collage.',collage_no_permitido:'La modalidad collage está deshabilitada.'};return dailyEvidenceMessage(messages[selection.reason]||'Revisa las imágenes seleccionadas.')}
 
   const button=$('daily-evidence-submit');DAILY_EVIDENCE.busy=true;button.disabled=true;button.querySelector('span').textContent='Subiendo…';dailyEvidenceMessage('');
   const paths=[];
@@ -2190,7 +2331,7 @@ function populateFacebookShareDetails(data){
   $('facebook-share-area').textContent=data.area||'Sin área';
   $('facebook-share-date').textContent=facebookShareDate(data.fecha);
   $('facebook-share-time').textContent=formatAttendanceClock(data.registrado_at);
-  $('facebook-share-schedule').textContent=`${fmtTime(data.jornada_inicio)} — ${fmtTime(data.jornada_fin)}`;
+  $('facebook-share-schedule').textContent=`${fmtTime(data.compartir_inicio||data.jornada_inicio)} — ${fmtTime(data.compartir_fin||data.jornada_fin)}`;
   $('facebook-share-mode').textContent=data.modalidad==='collage'?'Collage':'Capturas individuales';
   $('facebook-share-file-count').textContent=`${files.length} ${files.length===1?'imagen':'imágenes'}`;
   $('facebook-share-id').textContent=`KJA-FB-${data.entrega_id}`;
@@ -2451,6 +2592,7 @@ document.addEventListener('visibilitychange',()=>{
   void checkDashboardVersion();
   if(APP.identity.hasPersonal&&!MARK_BUSY)void refreshMarkEligibility({quiet:true});
   if(APP.identity.hasPersonal&&!DAILY_EVIDENCE.busy)void loadDailyClose({quiet:true});
+  if(APP.identity.hasPersonal)void loadReviewNotifications({quiet:true});
 });
 window.addEventListener('pageshow',()=>void checkDashboardVersion());
 
