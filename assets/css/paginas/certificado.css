@@ -1834,7 +1834,7 @@ footer { margin-top: auto; }
   aspect-ratio: 1.414;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 4;
 }
 
 .cs-img--2 {
