@@ -8463,3 +8463,102 @@ body.review-notification-open{overflow:hidden}
   .review-notification-item>button{min-height:92px;padding:15px max(18px,env(safe-area-inset-right)) 15px max(18px,env(safe-area-inset-left))}.review-notification-panel>footer{padding:12px max(18px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
 }
 @media(prefers-reduced-motion:reduce){.review-notification-badge,.review-notification-panel{animation:none}}
+
+/* Accesos móviles: dos columnas estables, sin huecos ni reescalado al tocar. */
+@media(max-width:900px){
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  body,.portal{max-width:100%;overflow-x:clip}
+
+  .mobile-portal-sheet{row-gap:0}
+  .mobile-quick-grid{
+    order:3;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-auto-flow:row;
+    grid-auto-rows:minmax(124px,auto);
+    gap:10px;
+  }
+  .mobile-quick-grid button{
+    width:100%;
+    min-height:124px;
+    align-self:stretch;
+    justify-content:flex-end;
+    gap:3px;
+    padding:60px 13px 13px;
+    border-radius:16px;
+    contain:layout paint;
+    transform:none!important;
+    transform-origin:center;
+    transition:background-color 160ms ease,box-shadow 160ms ease,opacity 160ms ease;
+  }
+  .mobile-quick-grid button>span{width:100%;min-width:0}
+  .mobile-quick-grid button b{
+    min-height:2.6em;
+    display:flex;
+    align-items:flex-end;
+    font-size:14px;
+    line-height:1.3;
+    overflow-wrap:anywhere;
+  }
+  .mobile-quick-grid button small{
+    min-height:2.7em;
+    display:-webkit-box;
+    margin-top:3px;
+    overflow:hidden;
+    color:#526a82;
+    font-size:12px;
+    line-height:1.35;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+  }
+  .mobile-quick-grid .card-deco-3d{
+    inset:8px auto auto 10px;
+    width:52px;
+    height:52px;
+    opacity:.5;
+    transform:none!important;
+  }
+  .mobile-quick-grid .card-deco-icon{
+    inset:7px auto auto 9px;
+    width:58px;
+    height:58px;
+    opacity:.07;
+    transform:none!important;
+  }
+  .mobile-action-arrow{top:11px;right:10px;width:16px;height:16px;transform:none!important}
+
+  .mobile-quick-grid button.is-grid-orphan{
+    grid-column:1/-1;
+    min-height:88px;
+    padding:16px 82px 16px 16px;
+    justify-content:center;
+  }
+  .mobile-quick-grid button.is-grid-orphan b,
+  .mobile-quick-grid button.is-grid-orphan small{min-height:0;max-width:25ch}
+  .mobile-quick-grid button.is-grid-orphan .card-deco-3d{
+    inset:50% 15px auto auto;
+    width:64px;
+    height:64px;
+    transform:translateY(-50%)!important;
+  }
+  .mobile-quick-grid button.is-grid-orphan .card-deco-icon{
+    inset:50% 8px auto auto;
+    width:78px;
+    height:78px;
+    transform:translateY(-50%)!important;
+  }
+}
+
+/* Safari amplía automáticamente los formularios con texto menor de 16 px. */
+@media(max-width:900px) and (pointer:coarse){
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  select,
+  textarea{font-size:16px!important}
+}
+
+@media(max-width:350px){
+  .mobile-quick-grid{gap:8px;grid-auto-rows:minmax(132px,auto)}
+  .mobile-quick-grid button{min-height:132px;padding:58px 11px 12px}
+  .mobile-quick-grid button b{font-size:13px}
+  .mobile-quick-grid button small{font-size:11px}
+  .mobile-quick-grid button.is-grid-orphan{min-height:88px;padding:14px 76px 14px 14px}
+}

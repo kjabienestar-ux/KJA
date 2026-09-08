@@ -733,6 +733,7 @@ async function openPortal(activeSession,bootstrap=null){
   $('nav-gestion').hidden=!APP.access.acceso_panel; $('admin-nav-divider').hidden=!APP.access.acceso_panel;
   $('mobile-action-team').hidden=!APP.identity.isLeader;
   $('mobile-action-admin').hidden=!APP.access.acceso_panel;
+  syncMobileQuickGrid();
   $('admin-role-chip').textContent=({direccion:'Dirección',editor:'Encargado(a)',visor:'Solo lectura'}[APP.access.rol]||APP.access.rol);
   const deviceModule=$('admin-device-module'); if(deviceModule)deviceModule.hidden=APP.access.rol!=='direccion';
   $('admin-access-tab').hidden=APP.access.rol!=='direccion';
@@ -773,6 +774,14 @@ function startSessionClock(){
     const ms=end-Date.now(); if(ms<=0) return logout('Tu sesión venció.');
     const h=Math.floor(ms/3600000),m=Math.ceil((ms%3600000)/60000);if(label)label.textContent=h?`${h} h ${m} min`:`${m} min`;
   }; tick(); APP.sessionTimer=setInterval(tick,30000);
+}
+
+function syncMobileQuickGrid(){
+  const grid=document.querySelector('.mobile-quick-grid');if(!grid)return;
+  const cards=[...grid.children].filter(card=>!card.hidden);
+  grid.querySelectorAll('.is-grid-orphan').forEach(card=>card.classList.remove('is-grid-orphan'));
+  if(cards.length%2===1)cards.at(-1)?.classList.add('is-grid-orphan');
+  grid.dataset.visibleItems=String(cards.length);
 }
 
 function renderHome(){

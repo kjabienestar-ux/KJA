@@ -494,8 +494,11 @@ test('mobile home exposes the same pending closure actions without tap zoom', ()
   assert.match(css,/identidad legible, pendientes primero y accesos sin vacíos[\s\S]*?\.mobile-portal-home\{[\s\S]*?display:block;[\s\S]*?color:#102f55/);
   assert.match(css,/\.mobile-portal-sheet\{[\s\S]*?position:relative;[\s\S]*?z-index:2;[\s\S]*?min-height:0;[\s\S]*?display:flex;[\s\S]*?margin-top:-38px/);
   assert.match(css,/\.portal\[data-view="inicio"\] \.workspace\{[\s\S]*?position:relative;[\s\S]*?z-index:1/);
-  assert.match(css,/\.mobile-close-panel\{order:2;[\s\S]*?\.mobile-quick-grid\{order:3;grid-template-columns:1fr/);
-  assert.match(css,/\.mobile-quick-grid button\{[\s\S]*?min-height:82px;[\s\S]*?padding:15px 82px 15px 16px/);
+  assert.match(css,/Accesos móviles: dos columnas estables[\s\S]*?\.mobile-quick-grid\{[\s\S]*?grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.mobile-quick-grid button\{[\s\S]*?min-height:124px;[\s\S]*?contain:layout paint;[\s\S]*?transform:none!important/);
+  assert.match(css,/\.mobile-quick-grid button\.is-grid-orphan\{[\s\S]*?grid-column:1\/-1/);
+  assert.match(css,/Safari amplía automáticamente[\s\S]*?textarea\{font-size:16px!important\}/);
+  assert.match(js,/function syncMobileQuickGrid\(\)[\s\S]*?cards\.length%2===1[\s\S]*?classList\.add\('is-grid-orphan'\)/);
 });
 
 test('the rail announcement opens an accessible full-screen viewer', () => {

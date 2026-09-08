@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-04T21:12:39.5412270-05:00",
+  "title": "Design System: Portal KJA",
+  "extensions": {
+    "colorMeta": {
+      "institutional-navy": {
+        "role": "primary",
+        "displayName": "Navy institucional",
+        "canonical": "#09244c",
+        "tonalRamp": ["#031020", "#061a38", "#09244c", "#173b69", "#3d5f86", "#7892ad", "#b9c8d8", "#edf3f8"]
+      },
+      "institutional-navy-deep": {
+        "role": "primary",
+        "displayName": "Navy profundo",
+        "canonical": "#061a38",
+        "tonalRamp": ["#020a15", "#041127", "#061a38", "#132e50", "#355477", "#728aa5", "#b6c4d3", "#edf2f6"]
+      },
+      "action-blue": {
+        "role": "primary",
+        "displayName": "Azul de acción",
+        "canonical": "#075abc",
+        "tonalRamp": ["#02152f", "#032c64", "#075abc", "#2477d0", "#5195df", "#8bb8eb", "#c6dcf6", "#eff6fd"]
+      },
+      "kja-pink": {
+        "role": "secondary",
+        "displayName": "Rosa KJA",
+        "canonical": "#ef0b72",
+        "tonalRamp": ["#360018", "#760035", "#b90855", "#ef0b72", "#f64991", "#fa86b3", "#fcc3d8", "#fff0f6"]
+      },
+      "accent-cyan": {
+        "role": "tertiary",
+        "displayName": "Cyan de orientación",
+        "canonical": "#43c5d1",
+        "tonalRamp": ["#072d32", "#0e5961", "#188691", "#2baab5", "#43c5d1", "#7bd7df", "#b8e9ed", "#effbfc"]
+      },
+      "status-success": {
+        "role": "tertiary",
+        "displayName": "Verde de confirmación",
+        "canonical": "#24a68a",
+        "tonalRamp": ["#06281f", "#0c4f40", "#14765f", "#1c9278", "#24a68a", "#64c4ae", "#a9e0d2", "#eaf8f4"]
+      },
+      "status-warning": {
+        "role": "tertiary",
+        "displayName": "Naranja de atención",
+        "canonical": "#c97808",
+        "tonalRamp": ["#301a00", "#623800", "#955800", "#c97808", "#df982c", "#edbd68", "#f7dda7", "#fff5e3"]
+      },
+      "status-danger": {
+        "role": "tertiary",
+        "displayName": "Rojo de incidencia",
+        "canonical": "#c23b50",
+        "tonalRamp": ["#30080f", "#641523", "#96283a", "#c23b50", "#d66578", "#e99baa", "#f5cbd2", "#fff0f3"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta operativa",
+        "canonical": "#15243a",
+        "tonalRamp": ["#0a111c", "#15243a", "#2c3d55", "#4b5d73", "#718196", "#9da9b7", "#ccd3dc", "#f2f4f7"]
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "Texto secundario",
+        "canonical": "#738095",
+        "tonalRamp": ["#181d26", "#303946", "#4d5868", "#738095", "#929dad", "#b2bac5", "#d4d9e0", "#f3f5f7"]
+      },
+      "surface-page": {
+        "role": "neutral",
+        "displayName": "Fondo de portal",
+        "canonical": "#f6f8fb",
+        "tonalRamp": ["#20252c", "#404851", "#626c78", "#87919d", "#aeb6c0", "#d1d7df", "#e8ecf1", "#f6f8fb"]
+      },
+      "surface-card": {
+        "role": "neutral",
+        "displayName": "Tarjeta blanca",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#262626", "#4b4b4b", "#707070", "#969696", "#bcbcbc", "#dedede", "#f1f1f1", "#ffffff"]
+      },
+      "surface-subtle": {
+        "role": "neutral",
+        "displayName": "Superficie tenue",
+        "canonical": "#f8fafc",
+        "tonalRamp": ["#20252a", "#40484f", "#626b74", "#89919a", "#b0b7bf", "#d5dae0", "#eceff3", "#f8fafc"]
+      },
+      "divider": {
+        "role": "neutral",
+        "displayName": "Divisor frío",
+        "canonical": "#e3e8ee",
+        "tonalRamp": ["#1f252c", "#3c4650", "#596775", "#7a8897", "#9eabb8", "#c0cad4", "#d5dce4", "#eef2f6"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display editorial",
+        "purpose": "Titular principal del acceso sobre la fotografía institucional."
+      },
+      "headline": {
+        "displayName": "Headline operativo",
+        "purpose": "Títulos principales de vistas y cabeceras del espacio de trabajo."
+      },
+      "title": {
+        "displayName": "Título de sección",
+        "purpose": "Tarjetas, módulos, paneles y modales."
+      },
+      "body": {
+        "displayName": "Cuerpo operativo",
+        "purpose": "Instrucciones, descripciones y contenido cotidiano."
+      },
+      "label": {
+        "displayName": "Etiqueta compacta",
+        "purpose": "Fechas, categorías, encabezados y metadatos breves."
+      },
+      "action": {
+        "displayName": "Acción",
+        "purpose": "Botones y decisiones de alta prioridad."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-soft",
+        "value": "0 10px 30px rgba(9,36,76,.055)",
+        "purpose": "Separación ambiental de tarjetas y módulos en reposo."
+      },
+      {
+        "name": "surface-raised",
+        "value": "0 18px 50px rgba(9,36,76,.10)",
+        "purpose": "Hojas, paneles y modales elevados."
+      },
+      {
+        "name": "primary-action",
+        "value": "0 13px 27px rgba(11,35,71,.21)",
+        "purpose": "Acciones decisivas, especialmente en el acceso."
+      },
+      {
+        "name": "ambient-header",
+        "value": "0 9px 24px rgba(7,31,58,.16)",
+        "purpose": "Separa las cabeceras oscuras del fondo horario."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-ui",
+        "value": "cubic-bezier(.23,1,.32,1)",
+        "purpose": "Respuesta principal de controles y cambios breves de estado."
+      },
+      {
+        "name": "state-transition",
+        "value": "160ms ease",
+        "purpose": "Color, fondo, borde y sombra en hover o foco."
+      },
+      {
+        "name": "ambient-transition",
+        "value": "700ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Cambios graduales de cabecera, luz y fase horaria."
+      },
+      {
+        "name": "access-entry",
+        "value": "580ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Entrada inicial de la tarjeta de acceso; se elimina con movimiento reducido."
+      }
+    ],
+    "breakpoints": [
+      { "name": "xs", "value": "430px" },
+      { "name": "sm", "value": "650px" },
+      { "name": "mobile", "value": "900px" },
+      { "name": "rail-collapse", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción decisiva de acceso, marcado o confirmación.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Continuar</button>",
+      "css": ".ds-btn-primary{min-height:52px;padding:0 16px;border:0;border-radius:var(--radius-control,10px);color:#fff;background:var(--navy,#09244c);box-shadow:0 13px 27px rgba(11,35,71,.21);font:800 13px/1.3 Inter,system-ui,sans-serif;cursor:pointer;transition:transform 140ms cubic-bezier(.23,1,.32,1),background-color 160ms ease,box-shadow 160ms ease}.ds-btn-primary:hover{background:var(--blue,#075abc);box-shadow:0 16px 30px rgba(0,79,176,.23);transform:translateY(-1px)}.ds-btn-primary:focus-visible{outline:3px solid rgba(7,90,188,.24);outline-offset:3px}.ds-btn-primary:active{transform:scale(.98)}"
+    },
+    {
+      "name": "Botón secundario",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Acción complementaria o cancelación dentro de paneles y hojas.",
+      "html": "<button class=\"ds-btn-secondary\" type=\"button\">Cancelar</button>",
+      "css": ".ds-btn-secondary{min-height:44px;padding:0 16px;border:1px solid #dce3ea;border-radius:var(--radius-control,10px);color:#5f7085;background:#fff;font:800 12px/1.3 Inter,system-ui,sans-serif;cursor:pointer;transition:transform 140ms cubic-bezier(.23,1,.32,1),color 160ms ease,background-color 160ms ease,border-color 160ms ease}.ds-btn-secondary:hover{color:var(--blue,#075abc);border-color:#a9c7e8;background:#f6faff}.ds-btn-secondary:focus-visible{outline:3px solid rgba(7,90,188,.24);outline-offset:3px}.ds-btn-secondary:active{transform:scale(.98)}"
+    },
+    {
+      "name": "Campo de texto",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Campo claro para acceso, filtros y captura administrativa.",
+      "html": "<label class=\"ds-field\"><span>Documento</span><input type=\"text\" placeholder=\"Ingresa tu DNI\"></label>",
+      "css": ".ds-field{display:grid;gap:7px;color:#405671;font:700 11px/1.4 Inter,system-ui,sans-serif}.ds-field input{width:100%;height:52px;padding:0 12px;border:1px solid #d4dfeb;border-radius:var(--radius-panel,12px);outline:0;color:var(--ink,#15243a);background:#fff;font:500 14px/1.5 Inter,system-ui,sans-serif;transition:border-color 160ms ease,box-shadow 160ms ease}.ds-field input::placeholder{color:#76879c}.ds-field input:hover{border-color:#aabdd0}.ds-field input:focus-visible{border-color:var(--blue,#075abc);outline:3px solid rgba(7,90,188,.24);outline-offset:2px;box-shadow:none}"
+    },
+    {
+      "name": "Navegación activa",
+      "kind": "nav",
+      "refersTo": "nav-active",
+      "description": "Fila seleccionada de la navegación lateral del portal.",
+      "html": "<button class=\"ds-nav-active\" type=\"button\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m3 11 9-8 9 8v9H6v-9\"/><path d=\"M10 20v-6h4v6\"/></svg><span>Inicio</span></button>",
+      "css": ".ds-nav-active{position:relative;width:220px;min-height:48px;display:flex;align-items:center;gap:13px;padding:12px 14px;border:0;border-radius:var(--radius-control,10px);color:var(--navy,#09244c);background:#edf5ff;font:600 13px/1.35 Inter,system-ui,sans-serif;text-align:left;cursor:pointer;transition:background-color 160ms ease,color 160ms ease}.ds-nav-active:before{content:\"\";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 5px 5px 0;background:linear-gradient(180deg,var(--cyan,#43c5d1),var(--blue,#075abc))}.ds-nav-active svg{width:20px;height:20px;fill:none;stroke:var(--blue,#075abc);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ds-nav-active:hover{background:#e4f1ff}.ds-nav-active:focus-visible{outline:3px solid rgba(7,90,188,.24);outline-offset:3px}.ds-nav-active:active{transform:scale(.98)}"
+    },
+    {
+      "name": "Estado listo",
+      "kind": "chip",
+      "refersTo": "status-success",
+      "description": "Estado completo o listo, siempre acompañado de texto y punto.",
+      "html": "<span class=\"ds-status-success\"><i aria-hidden=\"true\"></i>Listo para salir</span>",
+      "css": ".ds-status-success{display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:6px 10px;border-radius:var(--radius-pill,999px);color:#08735a;background:#e4f7f0;font:800 11px/1.3 Inter,system-ui,sans-serif}.ds-status-success i{width:7px;height:7px;border-radius:50%;background:#159b78}"
+    },
+    {
+      "name": "Tarjeta operativa",
+      "kind": "card",
+      "refersTo": "card-standard",
+      "description": "Contenedor base para resúmenes, calendarios y módulos de trabajo.",
+      "html": "<article class=\"ds-card\"><small>HOY</small><h3>Jornada de trabajo</h3><p>Consulta tu horario y el estado de tu asistencia.</p></article>",
+      "css": ".ds-card{max-width:360px;padding:24px;border:1px solid rgba(9,36,76,.10);border-radius:var(--radius-card,16px);color:var(--ink,#15243a);background:#fff;box-shadow:0 10px 30px rgba(9,36,76,.055);font-family:Inter,system-ui,sans-serif;transition:transform 160ms cubic-bezier(.23,1,.32,1),border-color 160ms ease,box-shadow 160ms ease}.ds-card small{color:#087d88;font-size:10px;font-weight:800;line-height:1.4;letter-spacing:.14em}.ds-card h3{margin:8px 0 6px;color:var(--navy,#09244c);font-size:20px;line-height:1.3;letter-spacing:-.02em}.ds-card p{margin:0;color:var(--muted,#738095);font-size:14px;line-height:1.5}.ds-card:hover{transform:translateY(-2px);border-color:rgba(9,36,76,.16);box-shadow:0 12px 28px rgba(9,36,76,.08)}.ds-card:focus-within{outline:3px solid rgba(7,90,188,.24);outline-offset:3px}"
+    },
+    {
+      "name": "Requisito de cierre diario",
+      "kind": "custom",
+      "description": "Fila de checklist que combina evidencia, explicación y estado textual.",
+      "html": "<button class=\"ds-close-item\" type=\"button\"><span class=\"ds-close-check\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span><span class=\"ds-close-copy\"><b>Comparticiones</b><small>Evidencia registrada</small></span><span class=\"ds-close-state\">Completo</span></button>",
+      "css": ".ds-close-item{width:100%;min-height:68px;display:grid;grid-template-columns:35px minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 3px;border:0;border-bottom:1px solid #e7ebef;color:inherit;background:transparent;text-align:left;font-family:Inter,system-ui,sans-serif;cursor:pointer}.ds-close-check{width:31px;height:31px;display:grid;place-items:center;border:1px solid #bce3d5;border-radius:var(--radius-control,10px);color:#08735a;background:#e5f7f0}.ds-close-check svg{width:16px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}.ds-close-copy b,.ds-close-copy small{display:block}.ds-close-copy b{color:#263c58;font-size:13px;line-height:1.4}.ds-close-copy small{margin-top:3px;color:#506278;font-size:12px;line-height:1.45}.ds-close-state{color:#08735a;font-size:11px;font-weight:800;text-transform:uppercase}.ds-close-item:hover .ds-close-copy b{color:var(--blue,#075abc)}.ds-close-item:focus-visible{outline:3px solid var(--blue,#075abc);outline-offset:3px}.ds-close-item:active{transform:scale(.99)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Portal Institucional Cálido",
+    "overview": "El sistema combina una base institucional navy con superficies claras, acentos KJA y una presentación editorial contenida. La interfaz prioriza lectura operativa, estados reconocibles y controles cómodos, mientras reserva el carácter expresivo para el acceso, las cabeceras y el ambiente horario.\n\nLa densidad es moderada: los datos se organizan en tarjetas y paneles redondeados, con bordes suaves y elevación discreta. En escritorio, el portal puede usar vidrio ambiental y fondos que cambian con la hora o el clima; en móvil, la composición se simplifica en hojas y bloques de una sola columna sin perder jerarquía ni tamaño de toque.",
+    "keyCharacteristics": [
+      "Navy y azul como estructura institucional y acción.",
+      "Rosa KJA y cyan como acentos breves de identidad y orientación.",
+      "Superficies claras, bordes tenues y curvas consistentes.",
+      "Fraunces para momentos editoriales; Inter para la operación cotidiana.",
+      "Estados de asistencia expresados con texto, forma y color.",
+      "Ambiente temporal gradual con alternativas para movimiento y transparencia reducidos."
+    ],
+    "rules": [
+      {
+        "name": "The Institutional Structure Rule",
+        "body": "El navy organiza la interfaz; el azul indica acción y los acentos KJA señalan momentos concretos, sin competir entre sí.",
+        "section": "colors"
+      },
+      {
+        "name": "The State Redundancy Rule",
+        "body": "Los estados nunca dependen solo del color: se acompañan de texto, icono, punto o forma de píldora.",
+        "section": "colors"
+      },
+      {
+        "name": "The Editorial Accent Rule",
+        "body": "Fraunces se reserva para la entrada y los momentos de marca; la operación diaria permanece en Inter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Readable Density Rule",
+        "body": "La información administrativa puede ser compacta, pero no reduce el texto por debajo de la escala legible observada para hacerlo caber.",
+        "section": "typography"
+      },
+      {
+        "name": "The Progressive Collapse Rule",
+        "body": "Primero se elimina contexto secundario; después se apilan módulos. La acción principal y el estado de la jornada permanecen visibles.",
+        "section": "layout"
+      },
+      {
+        "name": "The Soft Depth Rule",
+        "body": "La profundidad debe separar funciones, no decorar cada bloque; las superficies internas se distinguen primero por tono y borde.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Ambient Continuity Rule",
+        "body": "Cuando está activo el ambiente horario, fondo, cabeceras y vidrio comparten la misma fuente de luz y transición.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Radius Hierarchy Rule",
+        "body": "El radio disminuye con la escala del objeto: armazón, tarjeta, panel, control y píldora mantienen una relación reconocible.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do usar navy para estructura y acciones de máxima prioridad, azul para interacción y rosa/cyan como acentos limitados.",
+      "Do conservar la jerarquía de radios de 20, 16, 12, 10px y radio completo para estados.",
+      "Do mantener controles táctiles de al menos 44px en flujos principales y modales.",
+      "Do acompañar verde, naranja y rojo con texto, iconos o indicadores de forma.",
+      "Do respetar `prefers-reduced-motion` y `prefers-reduced-transparency` en efectos ambientales y vidrio.",
+      "Do simplificar la composición por debajo de 900px sin ocultar la acción principal ni el estado de la jornada."
+    ],
+    "donts": [
+      "Don't usar Fraunces para tablas, formularios o navegación operativa.",
+      "Don't convertir el rosa KJA en el color estructural dominante del dashboard.",
+      "Don't aplicar sombras fuertes a cada subpanel; reservar la elevación marcada para hojas, modales y acciones decisivas.",
+      "Don't comunicar asistencia, error o completitud únicamente mediante color.",
+      "Don't comprimir tipografía administrativa para evitar un scroll o un cambio de composición.",
+      "Don't introducir una nueva escala de curvas o colores cuando los tokens incumbentes cubren el caso."
+    ]
+  }
+}
