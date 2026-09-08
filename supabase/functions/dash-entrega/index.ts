@@ -69,13 +69,22 @@ Deno.serve(async (req) => {
       return json({ ok: true, eliminados: orphaned.length });
     }
 
+    const isAdminUpload = body.accion === "admin_cargar";
     const isVideo = body.tipo === "video";
     const isReplacement = body.accion === "reemplazar";
     const extension = isVideo && ["mp4", "webm"].includes(String(body.ext || "").toLowerCase())
       ? String(body.ext).toLowerCase() : "jpg";
-    const rpc = isReplacement ? "dash_reemplazo_permiso"
+    const rpc = isAdminUpload ? "dash_admin_entrega_permiso"
+      : isReplacement ? "dash_reemplazo_permiso"
       : isVideo ? "dash_video_permiso" : "dash_entrega_permiso";
-    const args = isReplacement ? {
+    const args = isAdminUpload ? {
+      p_colaborador: Number(body.colaborador),
+      p_fecha: String(body.fecha || ""),
+      p_requisito: String(body.requisito || ""),
+      p_asignacion: body.asignacion == null ? null : Number(body.asignacion),
+      p_modalidad: body.modalidad == null ? null : String(body.modalidad),
+      p_ext: "jpg",
+    } : isReplacement ? {
       p_requisito: String(body.requisito || ""),
       p_asignacion: body.asignacion == null ? null : Number(body.asignacion),
       p_modalidad: body.modalidad == null ? null : String(body.modalidad),

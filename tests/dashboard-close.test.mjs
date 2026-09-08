@@ -27,6 +27,10 @@ const reviewNotesSql = fs.readFileSync(new URL('../supabase/dashboard_31_observa
 const facebookScheduleSql = fs.readFileSync(new URL('../supabase/dashboard_32_horario_comparticiones.sql', import.meta.url), 'utf8');
 const reviewNotificationsSql = fs.readFileSync(new URL('../supabase/dashboard_34_notificaciones_revision.sql', import.meta.url), 'utf8');
 const expandedFacebookEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_35_comparticiones_hasta_50.sql', import.meta.url), 'utf8');
+const automaticCloseSql = fs.readFileSync(new URL('../supabase/dashboard_36_cierre_automatico_por_evidencia.sql', import.meta.url), 'utf8');
+const directionEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_37_carga_evidencias_direccion.sql', import.meta.url), 'utf8');
+const oneFacebookEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_38_comparticiones_desde_una_imagen.sql', import.meta.url), 'utf8');
+const directionAccountsSql = fs.readFileSync(new URL('../supabase/dashboard_39_alta_direccion_fabrizio_erika.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -86,6 +90,10 @@ test('dashboard has unique ids and the complete close workflow', () => {
     'admin-review-gallery',
     'admin-review-observe',
     'admin-review-approve',
+    'admin-evidence-modal',
+    'admin-evidence-requirement-list',
+    'admin-evidence-files',
+    'admin-evidence-submit',
     'admin-control-section',
     'admin-control-date',
     'admin-control-kpis',
@@ -398,11 +406,66 @@ test('close-state model maps colors, validity and legacy attendance consistently
   assert.equal(model.stateTone('lista_para_salir'),'ready');
   assert.deepEqual({...model.attendancePresentation({estado:'P'},{aplica:true,estado:'incompleta',entrada_at:'2026-09-07T14:00:00Z'})},{state:'incompleta',label:'Incompleta',complete:false,incomplete:true,hasEntry:true});
   assert.equal(model.attendancePresentation({estado:'P'},null).complete,true);
+  assert.equal(model.stateLabel('regularizada'),'Completa');
+});
+
+test('exit evidence closes the workday automatically and safely repairs equivalent history', () => {
+  for (const fragment of [
+    'create table if not exists public.asis_cierre_regularizaciones_auto',
+    'rename to dash_confirmar_entrega_base_36',
+    "public.dash_marcar_salida('cierre_automatico_por_evidencia')",
+    "'salida_registrada',true",
+    "entrega.requisito='salida'",
+    "r.fecha<(now() at time zone 'America/Lima')::date",
+    "coalesce((cierre.resumen->>'pendientes_salida')::integer,1)=0",
+    'e.completado_at>=r.marcado_at',
+    'cierre_regularizado=true',
+    "salida_origen='dashboard'",
+  ]) assert.ok(automaticCloseSql.includes(fragment), `automatic close migration missing: ${fragment}`);
+  assert.match(automaticCloseSql,/salida_at=a\.salida_recuperada_at/);
+  assert.match(automaticCloseSql,/on conflict\(registro_id\) do nothing/);
+  assert.match(js,/const autoExit=!editing&&data\.salida_registrada===true/);
+  assert.match(js,/autoExit\?'Salida registrada\. Tu jornada está completa\.'/);
+});
+
+test('Direction can upload missing evidence for a collaborator with audit and private storage', () => {
+  for (const fragment of [
+    'create table if not exists public.asis_entregas_direccion',
+    'create or replace function public.dash_admin_entrega_permiso',
+    'create or replace function public.dash_admin_confirmar_entrega',
+    "public.asis_rol() is distinct from 'direccion'",
+    "revision_estado,revisado_at,revisado_por",
+    "'aprobada',now(),auth.uid()",
+    'insert into public.asis_entrega_revisiones',
+    "salida_origen='panel'",
+    'salida_por=auth.uid()',
+    'cierre_regularizado=true',
+    "'cargada_por_direccion',auditoria.id is not null",
+  ]) assert.ok(directionEvidenceSql.includes(fragment), `Direction evidence migration missing: ${fragment}`);
+  assert.match(directionEvidenceSql,/p_hora_salida time default null/);
+  assert.match(directionEvidenceSql,/length\(coalesce\(v_detalle,''\)\)<3/);
+  assert.match(directionEvidenceSql,/coalesce\(a\.salida_reportada_at,e\.completado_at\)/);
+  assert.match(edge,/body\.accion === "admin_cargar"/);
+  assert.match(edge,/"dash_admin_entrega_permiso"/);
+  assert.match(adminJs,/data-admin-upload-person/);
+  assert.match(adminJs,/dash_admin_confirmar_entrega/);
+  assert.match(adminJs,/accion:'admin_cargar'/);
+  assert.match(adminJs,/aria-pressed="\$\{String\(active\)\}"/);
+  assert.match(adminJs,/collageInput\.disabled=!collageAllowed/);
+  assert.match(adminJs,/\$\('admin-evidence-exit-time'\)\.value=''/);
+  assert.match(adminJs,/canUpload=canReview&&\(\$\('admin-close-date'\)\.value\|\|isoLima\(\)\)<=isoLima\(\)/);
+  assert.match(html,/id="admin-evidence-modal"[^>]*hidden/);
+  assert.match(html,/Hora visible en la foto de salida/);
+  assert.match(css,/\.admin-evidence-workspace\{[^}]*grid-template-columns:280px/);
+  assert.match(css,/\.admin-close-upload-trigger\{min-height:44px/);
+  assert.match(css,/\.admin-evidence-preview button\{[^}]*width:44px;height:44px/);
+  assert.match(css,/@media\(max-width:600px\)\{[\s\S]*?\.admin-evidence-workspace\{display:block/);
 });
 
 test('evidence policy respects collage configuration and minimum screenshots', () => {
   const context={};vm.createContext(context);new vm.Script(modelJs).runInContext(context);
   const policy=context.KJACloseModel.evidenceSelectionPolicy;
+  assert.equal(policy({requirement:'comparticiones',mode:'individuales',count:1,min:1,max:50,collageAllowed:true}).ok,true);
   assert.equal(policy({requirement:'comparticiones',mode:'collage',count:1,min:5,collageAllowed:false}).reason,'collage_no_permitido');
   assert.equal(policy({requirement:'comparticiones',mode:'individuales',count:4,min:5,collageAllowed:true}).reason,'minimo');
   assert.equal(policy({requirement:'comparticiones',mode:'individuales',count:5,min:5,collageAllowed:false}).ok,true);
@@ -428,8 +491,34 @@ test('Facebook accepts large evidence sets without weakening other upload limits
   assert.match(js,/const FACEBOOK_EVIDENCE_MAX = 50/);
   assert.match(js,/for\(let index=0;index<selected\.length;index\+\+\)/);
   assert.match(js,/sourceBytes>300\*1024\*1024/);
-  assert.match(html,/Desde 5 y hasta 50 imágenes/);
+  assert.match(html,/Desde 1 y hasta 50 imágenes/);
   assert.match(edge,/slice\(0, 50\)/);
+});
+
+test('Facebook requires only one image after phase 38', () => {
+  assert.match(oneFacebookEvidenceSql,/alter column comparticiones_min set default 1/);
+  assert.match(oneFacebookEvidenceSql,/set comparticiones_min=1/);
+  assert.match(js,/comparticiones_min\|\|1/);
+  assert.match(adminJs,/comparticiones_min\|\|1/);
+  assert.doesNotMatch(js,/comparticiones_min\|\|5/);
+  assert.doesNotMatch(adminJs,/Entre 5 y 50 capturas/);
+});
+
+test('phase 39 creates separate confirmed Direction accounts without changing personal PIN identities', () => {
+  for (const fragment of [
+    "('fabrizio@kja.com'::text,'72026017'::text)",
+    "('erika@kja.com'::text,'71338491'::text)",
+    'usuario.email_confirmed_at is not null',
+    "perfil.rol='direccion'",
+    "nivel='sistemas'",
+    'acceso_panel=true',
+    "v_uid,v_nombre,'direccion',true,null,'sistemas',true",
+    'colaborador_id=null',
+  ]) assert.ok(directionAccountsSql.includes(fragment), `Direction account migration missing: ${fragment}`);
+  assert.doesNotMatch(directionAccountsSql,/delete\s+from\s+(public\.)?asis_/i);
+  assert.doesNotMatch(directionAccountsSql,/update\s+public\.dash_sesiones/i);
+  assert.doesNotMatch(directionAccountsSql,/where\s+perfil\.colaborador_id=v_colaborador/i);
+  assert.doesNotMatch(directionAccountsSql,/kja2026/i);
 });
 
 test('all operational surfaces request closure-aware data', () => {

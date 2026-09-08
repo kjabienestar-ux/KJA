@@ -79,7 +79,7 @@ $$;
 revoke all on function public.dash_entrega_permiso(text,bigint,text,text) from public,anon;
 grant execute on function public.dash_entrega_permiso(text,bigint,text,text) to authenticated;
 
--- Confirma de 5 a 50 capturas individuales, o un único collage.
+-- Confirma de 1 a 50 capturas individuales, o un único collage.
 create or replace function public.dash_confirmar_entrega(
   p_requisito text,
   p_asignacion bigint default null,

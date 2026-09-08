@@ -1770,7 +1770,7 @@ function dailyCloseStatusCopy(state){
     en_curso:'Evidencias pendientes',
     lista_para_salir:'Evidencias completas',
     completa:'Jornada completa',
-    regularizada:'Jornada regularizada',
+    regularizada:'Jornada completa',
     incompleta:'Jornada incompleta',
     no_aplica:'Cierre no requerido'
   }[state]||'Preparando cierre';
@@ -1807,7 +1807,7 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
   const description=item.tipo==='salida'&&!complete
     ? (locked?'1 foto con la hora visible, disponible al finalizar':'Adjunta 1 foto donde se vea la hora de salida')
     : item.tipo==='comparticiones'&&!complete&&!locked&&review!=='observada'
-      ? `Adjunta entre ${APP.cierre?.comparticiones_min||5} y ${FACEBOOK_EVIDENCE_MAX} capturas, o 1 collage`
+      ? `Adjunta entre ${APP.cierre?.comparticiones_min||1} y ${FACEBOOK_EVIDENCE_MAX} capturas, o 1 collage`
       : (item.descripcion||'Adjunta la evidencia correspondiente');
   if(facebookReceipt){
     const editAction=editable?`<button type="button" class="facebook-evidence-edit" ${attrs} aria-label="Editar ${esc(item.titulo)}"><span>Editar</span><svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l10.5-10.5-4-4zM12.8 7.2l4 4"/></svg></button>`:'';
@@ -2070,7 +2070,7 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   $('daily-evidence-editor').querySelector('.daily-evidence-sheet').dataset.requirement=requirement;
   setDailyEvidenceProcess('idle');
   $('daily-evidence-title').textContent=editing?`Editar ${item.titulo}`:item.titulo;
-  $('daily-evidence-copy').textContent=editing?'Quita las imágenes incorrectas y añade sus reemplazos.':facebook?`Puedes adjuntar todas tus capturas: mínimo ${data.comparticiones_min||5} y hasta ${FACEBOOK_EVIDENCE_MAX}, o una sola imagen tipo collage.`:item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
+  $('daily-evidence-copy').textContent=editing?'Quita las imágenes incorrectas y añade sus reemplazos.':facebook?`Puedes adjuntar desde ${data.comparticiones_min||1} captura y hasta ${FACEBOOK_EVIDENCE_MAX}, o una sola imagen tipo collage.`:item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
   $('daily-evidence-edit-note').hidden=!editing;
   $('daily-evidence-edit-until').textContent=`Puedes editar hasta las ${fmtTime(facebook?data.compartir_hasta:data.hora_salida_programada)}`;
   $('daily-issue').hidden=requirement==='salida'||editing;
@@ -2078,10 +2078,10 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   $('daily-evidence-mode').hidden=requirement!=='comparticiones';
   $('daily-video').hidden=!['rpe','asignado'].includes(requirement);
   $('daily-evidence-file').multiple=requirement!=='salida';
-  $('daily-evidence-individual-help').textContent=`Desde ${data.comparticiones_min||5} y hasta ${FACEBOOK_EVIDENCE_MAX} imágenes`;
+  $('daily-evidence-individual-help').textContent=`Desde ${data.comparticiones_min||1} y hasta ${FACEBOOK_EVIDENCE_MAX} imágenes`;
   $('daily-evidence-collage-option').hidden=!data.collage_permitido;
   const firstMode=document.querySelector('input[name="daily-evidence-mode"][value="individuales"]');if(firstMode)firstMode.checked=true;
-  $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · mínimo ${data.comparticiones_min||5}, hasta ${FACEBOOK_EVIDENCE_MAX}${data.collage_permitido?' o 1 collage':''}`:requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
+  $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · desde ${data.comparticiones_min||1} hasta ${FACEBOOK_EVIDENCE_MAX}${data.collage_permitido?' o 1 collage':''}`:requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
   $('daily-evidence-picker').querySelector('b').textContent=editing?'Añadir imágenes':'Elegir imágenes';
   $('daily-evidence-submit').querySelector('span').textContent=editing?'Guardar cambios':'Guardar evidencia';
   $('daily-evidence-editor').hidden=false;
@@ -2196,7 +2196,7 @@ async function cleanupDailyEvidence(paths){
 }
 
 function dailyEvidenceFailure(reason){
-  const min=Number(APP.cierre?.comparticiones_min||5);
+  const min=Number(APP.cierre?.comparticiones_min||1);
   return {
     sesion:'Tu sesión venció. Vuelve a ingresar.',
     no_habilitado:'El cierre diario todavía no está habilitado.',
@@ -2222,7 +2222,7 @@ function dailyEvidenceFailure(reason){
 
 async function submitDailyEvidence(event){
   event.preventDefault();if(DAILY_EVIDENCE.busy||DAILY_EVIDENCE.loading)return;
-  const editing=!!DAILY_EVIDENCE.editing,mode=dailyEvidenceMode(),min=Number(APP.cierre?.comparticiones_min||5),count=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length,uploadTotal=DAILY_EVIDENCE.files.length+(DAILY_EVIDENCE.video?1:0);
+  const editing=!!DAILY_EVIDENCE.editing,mode=dailyEvidenceMode(),min=Number(APP.cierre?.comparticiones_min||1),count=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length,uploadTotal=DAILY_EVIDENCE.files.length+(DAILY_EVIDENCE.video?1:0);
   const max=DAILY_EVIDENCE.requirement==='comparticiones'?FACEBOOK_EVIDENCE_MAX:5;
   const selection=CLOSE_MODEL.evidenceSelectionPolicy({requirement:DAILY_EVIDENCE.requirement,mode,count,min,max,collageAllowed:!!APP.cierre?.collage_permitido});
   if(!selection.ok){const messages={vacio:'Selecciona al menos una imagen.',minimo:`Selecciona al menos ${min} capturas para completar este requisito.`,maximo:`Puedes adjuntar como máximo ${max} imágenes.`,cantidad_collage:'Selecciona una sola imagen tipo collage.',collage_no_permitido:'La modalidad collage está deshabilitada.'};return dailyEvidenceMessage(messages[selection.reason]||'Revisa las imágenes seleccionadas.')}
@@ -2255,16 +2255,18 @@ async function submitDailyEvidence(event){
     if(error||!data?.ok)throw Object.assign(new Error(data?.motivo||error?.message||'guardar'),{motivo:data?.motivo||'guardar'});
     let videoWarning='';
     if(videoPath&&!editing){const attached=await db.rpc('dash_adjuntar_video',{p_entrega:data.entrega,p_path:videoPath});if(attached.error||!attached.data?.ok){videoWarning=' La evidencia principal se guardó, pero el video no pudo adjuntarse.';await cleanupDailyEvidence([videoPath])}}
+    const autoExit=!editing&&data.salida_registrada===true;
     APP.cierre=mergeDailyReviewState(data.resumen,{ok:true,revisiones:[{
       requisito:DAILY_EVIDENCE.requirement,
       asignacion_id:DAILY_EVIDENCE.assignment,
       revision_estado:'pendiente',
       revision_nota:null
     }]});
-    dailyUploadStep('confirm','done','Entrega registrada');
-    setDailyEvidenceProcess('success',{title:editing?'¡Cambios guardados!':'¡Evidencia completada!',copy:editing?`${DAILY_EVIDENCE.title} fue actualizada y volvió a revisión.`:`${DAILY_EVIDENCE.title} quedó registrada correctamente.${videoWarning}`,progress:1,current:Math.max(uploadTotal,1),total:Math.max(uploadTotal,1)});
+    dailyUploadStep('confirm','done',autoExit?'Jornada cerrada':'Entrega registrada');
+    setDailyEvidenceProcess('success',{title:editing?'¡Cambios guardados!':autoExit?'¡Jornada completada!':'¡Evidencia completada!',copy:editing?`${DAILY_EVIDENCE.title} fue actualizada y volvió a revisión.`:autoExit?'La evidencia y tu hora de salida quedaron registradas correctamente.':`${DAILY_EVIDENCE.title} quedó registrada correctamente.${videoWarning}`,progress:1,current:Math.max(uploadTotal,1),total:Math.max(uploadTotal,1)});
     await new Promise(resolve=>setTimeout(resolve,matchMedia('(prefers-reduced-motion: reduce)').matches?320:760));
-    DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast(editing?'Cambios guardados. La evidencia volvió a revisión.':'Evidencia guardada correctamente.');
+    DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast(editing?'Cambios guardados. La evidencia volvió a revisión.':autoExit?'Salida registrada. Tu jornada está completa.':'Evidencia guardada correctamente.');
+    if(autoExit){const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory()]);if(inicioRes.data?.ok){APP.inicio=inicioRes.data;renderHome()}}
   }catch(error){
     if(paths.length||error.path)cleanupDailyEvidence([...paths,...(error.path?[error.path]:[])]);
     DAILY_EVIDENCE.busy=false;setDailyEvidenceProcess('idle');dailyEvidenceMessage(dailyEvidenceFailure(error.motivo),'is-error');

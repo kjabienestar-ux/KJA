@@ -18,7 +18,7 @@ function adminControlState(row){
   if((row.impedimentos||[]).length)return {key:'impedimento',label:'Impedimento informado',tone:'info'};
   if(Number(row.evidencias_pendientes)>0)return {key:'evidencias',label:'Faltan evidencias',tone:'warning'};
   if(row.entrada_at&&!row.salida_at)return {key:'sin_salida',label:row.cierre_estado==='lista_para_salir'?'Lista para salir':'Cierre pendiente',tone:'warning'};
-  if(['completa','regularizada'].includes(row.cierre_estado))return {key:'completa',label:row.cierre_estado==='regularizada'?'Regularizada':'Completa',tone:'success'};
+  if(['completa','regularizada'].includes(row.cierre_estado))return {key:'completa',label:'Completa',tone:'success'};
   return {key:'neutral',label:'Sin novedad',tone:'neutral'};
 }
 

@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=147">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=148">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
@@ -463,7 +463,7 @@
                   </div>
                   <fieldset class="daily-evidence-mode" id="daily-evidence-mode" hidden>
                     <legend>Formato de las comparticiones</legend>
-                    <label><input type="radio" name="daily-evidence-mode" value="individuales" checked><span><b>Capturas individuales</b><small id="daily-evidence-individual-help">Desde 5 y hasta 50 imágenes</small></span></label>
+                    <label><input type="radio" name="daily-evidence-mode" value="individuales" checked><span><b>Capturas individuales</b><small id="daily-evidence-individual-help">Desde 1 y hasta 50 imágenes</small></span></label>
                     <label id="daily-evidence-collage-option"><input type="radio" name="daily-evidence-mode" value="collage"><span><b>Una imagen tipo collage</b><small>Todas las comparticiones en una sola imagen</small></span></label>
                   </fieldset>
 
@@ -1015,6 +1015,7 @@
       </section>
       <aside class="admin-review-decision">
         <div class="admin-review-note"><small>COMENTARIO DEL COLABORADOR</small><p id="admin-review-submitter-note">Sin comentario adicional.</p></div>
+        <div class="admin-review-origin" id="admin-review-origin" hidden><small>REGISTRADA POR DIRECCIÓN</small><p id="admin-review-origin-copy"></p></div>
         <div class="admin-review-history" id="admin-review-history" hidden><small>ÚLTIMA REVISIÓN</small><p></p></div>
         <label class="admin-review-observation" id="admin-review-observation-wrap"><span>Observación de Dirección</span><textarea id="admin-review-observation" rows="4" maxlength="700" placeholder="Deja una observación sobre esta evidencia."></textarea><small>Opcional al aprobar; obligatoria para solicitar una corrección.</small></label>
         <p class="admin-review-message" id="admin-review-message" role="status" aria-live="polite"></p>
@@ -1024,6 +1025,49 @@
         </footer>
       </aside>
     </div>
+  </section>
+</div>
+
+<div class="modal admin-evidence-modal" id="admin-evidence-modal" hidden>
+  <div class="modal-backdrop" data-close-admin-evidence></div>
+  <section class="admin-evidence-sheet" role="dialog" aria-modal="true" aria-labelledby="admin-evidence-title" aria-describedby="admin-evidence-copy">
+    <header class="admin-evidence-head">
+      <span class="admin-evidence-person-mark" id="admin-evidence-person-mark" aria-hidden="true">KJ</span>
+      <span><h2 id="admin-evidence-title">Cargar evidencia</h2><p id="admin-evidence-copy">Registra un archivo recibido por interno.</p></span>
+      <button class="modal-close" type="button" data-close-admin-evidence aria-label="Cerrar carga">×</button>
+    </header>
+    <form id="admin-evidence-form">
+      <div class="admin-evidence-workspace">
+        <aside class="admin-evidence-requirements">
+          <h3>Evidencias pendientes</h3>
+          <p>Selecciona el requisito que vas a registrar en nombre del colaborador.</p>
+          <div id="admin-evidence-requirement-list" aria-label="Evidencias pendientes"></div>
+          <div class="admin-evidence-audit-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-5"/></svg><span><b>Registro auditable</b><small>Quedará guardado quién realizó la carga y cuándo.</small></span></div>
+        </aside>
+        <section class="admin-evidence-compose">
+          <header><span class="admin-evidence-kind-icon" id="admin-evidence-kind-icon" aria-hidden="true"></span><span><h3 id="admin-evidence-kind-title">Selecciona una evidencia</h3><p id="admin-evidence-kind-copy">Verás aquí los archivos y datos necesarios.</p></span></header>
+          <fieldset class="admin-evidence-format" id="admin-evidence-format" hidden>
+            <legend>Formato de comparticiones</legend>
+            <label><input type="radio" name="admin-evidence-mode" value="individuales" checked><span><b>Capturas individuales</b><small>Desde 1 hasta 50 imágenes</small></span></label>
+            <label><input type="radio" name="admin-evidence-mode" value="collage"><span><b>Una imagen collage</b><small>Todas las capturas en una imagen</small></span></label>
+          </fieldset>
+          <label class="admin-evidence-picker" id="admin-evidence-picker" for="admin-evidence-files" tabindex="0" role="button">
+            <input type="file" id="admin-evidence-files" accept="image/jpeg,image/png,image/webp" multiple hidden>
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="9" cy="10" r="1.5"/><path d="m5 16 4-4 3 3 2-2 5 5"/></svg></span>
+            <b id="admin-evidence-picker-title">Seleccionar imágenes</b>
+            <small id="admin-evidence-picker-copy">JPG, PNG o WebP · máximo 1 MB por imagen al guardar</small>
+          </label>
+          <div class="admin-evidence-previews" id="admin-evidence-previews"></div>
+          <label class="admin-evidence-field" id="admin-evidence-exit-time-wrap" hidden><span>Hora visible en la foto de salida</span><input type="time" id="admin-evidence-exit-time"><small>Se usará para calcular las horas reales; no se tomará la hora de esta carga.</small></label>
+          <label class="admin-evidence-field"><span>Nota de Dirección</span><textarea id="admin-evidence-note" rows="3" maxlength="700" placeholder="Ej. Evidencia recibida por WhatsApp y registrada por Dirección."></textarea><small>Esta nota formará parte de la entrega privada.</small></label>
+          <p class="admin-evidence-message" id="admin-evidence-message" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+      <footer class="admin-evidence-actions">
+        <button type="button" class="admin-evidence-cancel" data-close-admin-evidence>Cancelar</button>
+        <button type="submit" class="admin-evidence-submit" id="admin-evidence-submit"><span>Cargar en nombre del colaborador</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg></button>
+      </footer>
+    </form>
   </section>
 </div>
 
@@ -1327,14 +1371,14 @@
   </div>
 </div>
 
-<script src="assets/js/dashboard-close-model.js?v=2"></script>
-<script src="assets/js/dashboard.js?v=138"></script>
+<script src="assets/js/dashboard-close-model.js?v=3"></script>
+<script src="assets/js/dashboard.js?v=140"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=3"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=1"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=11"></script>
-<script src="assets/js/dashboard-admin-control.js?v=2"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=13"></script>
+<script src="assets/js/dashboard-admin-control.js?v=3"></script>
 </body>
 </html>

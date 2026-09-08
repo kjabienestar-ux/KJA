@@ -2,6 +2,24 @@
 
 let ADMIN_REVIEW={personId:null,deliveryId:null,trigger:null,busy:false,request:0};
 let ADMIN_DRAW={key:'',selection:[]};
+let ADMIN_EVIDENCE={personId:null,requirement:'',assignment:null,files:[],trigger:null,busy:false};
+
+function adminEvidenceIcon(kind){
+  if(kind==='comparticiones')return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V3h-3a5 5 0 0 0-5 5v3H6v5h3v5h5v-5h3l1-5h-4z"/></svg>';
+  if(kind==='salida')return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="17" height="13" rx="3"/><path d="m8 6 1.5-2h5L16 6"/><circle cx="12" cy="12.5" r="3.25"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4 4V20H7z"/><path d="M14 3.5V8h4M10 12h5M10 15h5"/></svg>';
+}
+
+function adminEvidencePerson(personId){
+  return (APP.adminClose?.personas||[]).find(person=>String(person.id)===String(personId));
+}
+
+function adminEvidenceMissing(person){
+  const close=person?.cierre||{},hasEntry=!!close.entrada_at;
+  const globals=(close.requisitos||[]).filter(item=>!item.completo&&(item.tipo==='comparticiones'||hasEntry)).map(item=>({kind:item.tipo,assignment:null,title:item.titulo,copy:item.descripcion||'Evidencia requerida'}));
+  const assigned=hasEntry?(close.asignaciones||[]).filter(item=>!item.completo).map(item=>({kind:'asignado',assignment:Number(item.id),title:item.titulo,copy:item.instrucciones||'Entregable asignado'})):[];
+  return [...globals,...assigned];
+}
 
 function adminCloseMsg(text,type=''){
   const el=$('admin-close-message');if(!el)return;
@@ -77,7 +95,8 @@ function renderAdminCloseStatus(){
       const evidence=`${globalDone+assignedDone}/${globalTotal+assignedTotal}`;
       const personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length;
       const reviewAction=canReview&&personReviews.length?`<button type="button" class="admin-close-review-trigger ${pending?'has-pending':''}" data-admin-review-person="${esc(person.id)}">${pending?`${pending} por revisar`:'Ver evidencias'}</button>`:'';
-      html+=`<div class="admin-close-person"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small>${person.labora?'Jornada programada':'No labora'}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)}</b>${reviewAction}</span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(close.estado||'pendiente')}">${esc(adminCloseStateLabel(close.estado))}</span></div>`;
+      const missing=adminEvidenceMissing(person),canUpload=canReview&&($('admin-close-date').value||isoLima())<=isoLima(),uploadAction=canUpload&&missing.length?`<button type="button" class="admin-close-upload-trigger" data-admin-upload-person="${esc(person.id)}">Subir faltante</button>`:'';
+      html+=`<div class="admin-close-person"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small>${person.labora?'Jornada programada':'No labora'}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)}</b><span class="admin-close-evidence-actions">${reviewAction}${uploadAction}</span></span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(close.estado||'pendiente')}">${esc(adminCloseStateLabel(close.estado))}</span></div>`;
     }
     html+='</div></section>';
   }
@@ -163,6 +182,7 @@ async function renderAdminReviewDelivery(id){
   $('admin-review-copy').textContent=`${delivery.area} · ${adminReviewDate(delivery.fecha)} · Enviado ${adminReviewTime(delivery.completado_at)}`;
   const state=$('admin-review-state');state.dataset.state=delivery.revision_estado;state.textContent=adminReviewStateLabel(delivery);
   $('admin-review-submitter-note').textContent=delivery.detalle||'Sin comentario adicional.';
+  const origin=$('admin-review-origin');origin.hidden=!delivery.cargada_por_direccion;$('admin-review-origin-copy').textContent=delivery.cargada_por_direccion?`Cargada por ${delivery.cargada_por||'Dirección'} en nombre del colaborador${delivery.salida_reportada_at?` · hora reportada ${adminReviewTime(delivery.salida_reportada_at)}`:''}.`:'';
   const history=$('admin-review-history'),reviewNote=delivery.revision_nota?` Observación: ${delivery.revision_nota}`:'';history.hidden=delivery.revision_estado==='pendiente';history.querySelector('p').textContent=delivery.revision_estado==='observada'?delivery.revision_nota||'Se solicitó una corrección.':`Aprobada${delivery.revisor?` por ${delivery.revisor}`:''}.${reviewNote}`;
   $('admin-review-observation').value='';
   const canDecide=APP.access.rol==='direccion'&&APP.adminReview?.puede_revisar===true,reviewed=delivery.revision_estado!=='pendiente'||delivery.estado!=='completo',closed=!!delivery.jornada_cerrada;
@@ -211,6 +231,127 @@ async function submitAdminReview(state){
   const personId=ADMIN_REVIEW.personId;closeAdminReview({restoreFocus:false});await loadAdminCloses();toast(state==='aprobada'?'Evidencia aprobada.':'Corrección solicitada al colaborador.');
   const next=(APP.adminReview?.entregas||[]).find(item=>String(item.colaborador_id)===String(personId)&&item.revision_estado==='pendiente'&&item.estado==='completo');
   if(next)openAdminReviewPerson(personId,null);
+}
+
+function adminEvidenceMessage(text,type=''){
+  const element=$('admin-evidence-message');if(!element)return;
+  element.textContent=text||'';element.className='admin-evidence-message'+(type?' '+type:'');
+}
+
+function clearAdminEvidenceFiles(){
+  (ADMIN_EVIDENCE.files||[]).forEach(file=>{if(file.url)URL.revokeObjectURL(file.url)});
+  ADMIN_EVIDENCE.files=[];if($('admin-evidence-files'))$('admin-evidence-files').value='';
+}
+
+function currentAdminEvidenceRequirement(){
+  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId);
+  return adminEvidenceMissing(person).find(item=>item.kind===ADMIN_EVIDENCE.requirement&&String(item.assignment||'')===String(ADMIN_EVIDENCE.assignment||''));
+}
+
+function adminEvidenceMode(){
+  return document.querySelector('input[name="admin-evidence-mode"]:checked')?.value||'individuales';
+}
+
+function renderAdminEvidenceComposer(){
+  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId),items=adminEvidenceMissing(person),selected=currentAdminEvidenceRequirement();
+  const selectedKey=selected?`${selected.kind}:${selected.assignment??''}`:'';
+  $('admin-evidence-requirement-list').innerHTML=items.map(item=>{const active=`${item.kind}:${item.assignment??''}`===selectedKey;return `<button type="button" aria-pressed="${String(active)}" class="admin-evidence-requirement${active?' active':''}" data-admin-evidence-kind="${esc(item.kind)}" data-admin-evidence-assignment="${esc(item.assignment??'')}" data-kind="${esc(item.kind)}"><i>${adminEvidenceIcon(item.kind)}</i><span><b>${esc(item.title)}</b><small>${item.kind==='comparticiones'?'Facebook':item.kind==='salida'?'Cierre de jornada':item.kind==='asignado'?'Asignación':'Reporte diario'}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
+  $('admin-evidence-kind-icon').innerHTML=selected?adminEvidenceIcon(selected.kind):'';
+  $('admin-evidence-kind-title').textContent=selected?.title||'Selecciona una evidencia';
+  $('admin-evidence-kind-copy').textContent=selected?.copy||'Verás aquí los archivos y datos necesarios.';
+  const isFacebook=selected?.kind==='comparticiones',isExit=selected?.kind==='salida',collageInput=document.querySelector('input[name="admin-evidence-mode"][value="collage"]'),collageAllowed=person?.cierre?.collage_permitido!==false;
+  collageInput.disabled=!collageAllowed;collageInput.closest('label').hidden=!collageAllowed;if(!collageAllowed&&collageInput.checked)document.querySelector('input[name="admin-evidence-mode"][value="individuales"]').checked=true;
+  const mode=adminEvidenceMode();
+  $('admin-evidence-format').hidden=!isFacebook;$('admin-evidence-exit-time-wrap').hidden=!isExit;
+  $('admin-evidence-files').multiple=!(isExit||(isFacebook&&mode==='collage'));
+  const max=isFacebook?(mode==='collage'?1:50):isExit?1:5;
+  $('admin-evidence-picker-title').textContent=ADMIN_EVIDENCE.files.length?'Añadir más imágenes':'Seleccionar imágenes';
+  $('admin-evidence-picker-copy').textContent=isFacebook&&mode==='individuales'?`De ${Number(person?.cierre?.comparticiones_min||1)} a 50 capturas · se optimizan antes de subir`:max===1?'Una imagen JPG, PNG o WebP':'De 1 a 5 imágenes · se optimizan antes de subir';
+  $('admin-evidence-previews').innerHTML=ADMIN_EVIDENCE.files.map((file,index)=>`<article class="admin-evidence-preview"><img src="${esc(file.url)}" alt="Vista previa ${index+1}"><button type="button" data-remove-admin-evidence="${index}" aria-label="Quitar imagen ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></article>`).join('');
+  const submit=$('admin-evidence-submit');submit.disabled=!selected||!ADMIN_EVIDENCE.files.length||ADMIN_EVIDENCE.busy;
+}
+
+function selectAdminEvidenceRequirement(kind,assignment=null){
+  if(ADMIN_EVIDENCE.busy)return;
+  clearAdminEvidenceFiles();ADMIN_EVIDENCE.requirement=kind;ADMIN_EVIDENCE.assignment=assignment?Number(assignment):null;
+  document.querySelector('input[name="admin-evidence-mode"][value="individuales"]').checked=true;
+  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId);
+  $('admin-evidence-exit-time').value='';
+  adminEvidenceMessage('');renderAdminEvidenceComposer();
+}
+
+function openAdminEvidence(personId,trigger=null){
+  if(APP.access.rol!=='direccion')return;
+  const person=adminEvidencePerson(personId),items=adminEvidenceMissing(person);if(!person||!items.length)return toast('Esta persona no tiene evidencias pendientes.',true);
+  ADMIN_EVIDENCE={personId:Number(personId),requirement:items[0].kind,assignment:items[0].assignment,files:[],trigger:trigger||document.activeElement,busy:false};
+  $('admin-evidence-person-mark').textContent=initials(person.nombre);$('admin-evidence-title').textContent=`Cargar evidencia de ${person.nombre}`;$('admin-evidence-copy').textContent=`${person.area} · ${adminReviewDate($('admin-close-date').value)} · carga por Dirección`;
+  $('admin-evidence-note').value='Evidencia recibida por interno y registrada por Dirección.';
+  document.querySelector('input[name="admin-evidence-mode"][value="individuales"]').checked=true;
+  $('admin-evidence-exit-time').value='';
+  adminEvidenceMessage('');renderAdminEvidenceComposer();$('admin-evidence-modal').hidden=false;document.body.classList.add('admin-evidence-open');
+  requestAnimationFrame(()=>$('admin-evidence-requirement-list').querySelector('button')?.focus({preventScroll:true}));
+}
+
+function closeAdminEvidence({restoreFocus=true}={}){
+  if(ADMIN_EVIDENCE.busy)return;
+  $('admin-evidence-modal').hidden=true;document.body.classList.remove('admin-evidence-open');clearAdminEvidenceFiles();
+  if(restoreFocus&&ADMIN_EVIDENCE.trigger)ADMIN_EVIDENCE.trigger.focus({preventScroll:true});
+  ADMIN_EVIDENCE={personId:null,requirement:'',assignment:null,files:[],trigger:null,busy:false};
+}
+
+async function chooseAdminEvidenceFiles(files){
+  const selected=currentAdminEvidenceRequirement();if(!selected||ADMIN_EVIDENCE.busy)return;
+  const incoming=[...files],mode=adminEvidenceMode(),max=selected.kind==='comparticiones'?(mode==='collage'?1:50):selected.kind==='salida'?1:5;
+  if(ADMIN_EVIDENCE.files.length+incoming.length>max)return adminEvidenceMessage(max===1?'Selecciona una sola imagen para este formato.':`Puedes adjuntar como máximo ${max} imágenes.`,'is-error');
+  try{
+    adminEvidenceMessage(`Preparando ${incoming.length} ${incoming.length===1?'imagen':'imágenes'}…`,'is-progress');
+    for(const file of incoming){
+      if(file.size>25*1024*1024)throw Object.assign(new Error('La imagen supera 25 MB.'),{friendly:true});
+      const blob=await compressImage(file),url=URL.createObjectURL(blob);ADMIN_EVIDENCE.files.push({blob,url,name:file.name});
+    }
+    adminEvidenceMessage('');renderAdminEvidenceComposer();
+  }catch(error){adminEvidenceMessage(error.friendly?error.message:'No pudimos preparar una de las imágenes. Usa JPG, PNG o WebP.','is-error')}
+  finally{$('admin-evidence-files').value=''}
+}
+
+async function uploadAdminEvidenceFile(file,selected,person,date){
+  const {data:{session}}=await db.auth.getSession();if(!session)throw Object.assign(new Error('sesion'),{motivo:'sesion'});
+  const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{
+    method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+    body:JSON.stringify({accion:'admin_cargar',colaborador:person.id,fecha:date,requisito:selected.kind,asignacion:selected.assignment,modalidad:selected.kind==='comparticiones'?adminEvidenceMode():null,ext:'jpg'})
+  });
+  const permit=await response.json().catch(()=>null);if(!response.ok||!permit?.ok)throw Object.assign(new Error(permit?.motivo||'permiso'),{motivo:permit?.motivo||'permiso'});
+  const {error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).uploadToSignedUrl(permit.ruta,permit.token,file.blob,{contentType:'image/jpeg'});
+  if(error)throw Object.assign(new Error('subida'),{motivo:'subida'});return permit.ruta;
+}
+
+async function submitAdminEvidence(event){
+  event.preventDefault();if(ADMIN_EVIDENCE.busy)return;
+  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId),selected=currentAdminEvidenceRequirement(),date=$('admin-close-date').value,files=ADMIN_EVIDENCE.files;
+  if(!person||!selected)return adminEvidenceMessage('La evidencia cambió. Cierra esta ventana y vuelve a intentarlo.','is-error');
+  const mode=adminEvidenceMode(),min=Number(person.cierre?.comparticiones_min||1),count=files.length;
+  if(selected.kind==='comparticiones'&&mode==='individuales'&&count<min)return adminEvidenceMessage(`Adjunta al menos ${min} capturas para completar Comparticiones de Facebook.`,'is-error');
+  if(!count)return adminEvidenceMessage('Selecciona al menos una imagen.','is-error');
+  const exitTime=$('admin-evidence-exit-time').value;if(selected.kind==='salida'&&!exitTime)return adminEvidenceMessage('Indica la hora que se ve en la foto de salida.','is-error');
+  const button=$('admin-evidence-submit'),paths=[];ADMIN_EVIDENCE.busy=true;button.disabled=true;button.querySelector('span').textContent='Preparando carga…';
+  try{
+    for(let index=0;index<files.length;index++){
+      adminEvidenceMessage(`Subiendo ${index+1} de ${files.length}. Mantén esta ventana abierta.`,'is-progress');button.querySelector('span').textContent=`Subiendo ${index+1} de ${files.length}`;
+      paths.push(await uploadAdminEvidenceFile(files[index],selected,person,date));
+    }
+    button.querySelector('span').textContent='Confirmando registro…';adminEvidenceMessage('Los archivos llegaron. Registrando la entrega y su auditoría…','is-progress');
+    const {data,error}=await db.rpc('dash_admin_confirmar_entrega',{
+      p_colaborador:Number(person.id),p_fecha:date,p_requisito:selected.kind,p_asignacion:selected.assignment,
+      p_modalidad:selected.kind==='comparticiones'?mode:null,p_paths:paths,p_detalle:$('admin-evidence-note').value.trim()||null,p_hora_salida:selected.kind==='salida'?exitTime:null
+    });
+    if(error||!data?.ok)throw Object.assign(new Error(data?.motivo||error?.message||'confirmar'),{motivo:data?.motivo||'confirmar'});
+    ADMIN_EVIDENCE.busy=false;closeAdminEvidence({restoreFocus:false});await loadAdminCloses();const status=$('admin-close-status');status.setAttribute('tabindex','-1');status.focus({preventScroll:true});toast(data.cierre_regularizado?'Evidencia registrada. La jornada quedó completa.':'Evidencia registrada por Dirección.');
+  }catch(error){
+    const messages={sin_permiso:'Solo Dirección puede realizar esta carga.',datos:'Revisa la persona, la fecha y el requisito seleccionado.',no_programado:'Este requisito no corresponde al horario de la persona en esa fecha.',asignacion:'La asignación ya no está activa o no corresponde a esta persona.',no_habilitado:'Este tipo de evidencia no estaba habilitado en la fecha seleccionada.',collage_no_permitido:'El formato collage no está habilitado.',permiso:'La autorización privada de carga venció. Vuelve a seleccionar las imágenes.',detalle_salida:'Añade una nota que indique cómo recibiste esta foto de salida.',ya_completo:'La evidencia ya fue registrada desde otra sesión.',hora_salida:'Indica la hora visible en la foto.',hora_salida_invalida:'La hora indicada no puede ser anterior a la entrada ni posterior a la hora actual.',hora_fuera_horario:'La hora visible está fuera de la ventana de salida de hoy.',sin_entrada:'No existe una entrada para asociar esta evidencia.',cantidad_comparticiones:`Adjunta al menos ${min} capturas o un collage.`,archivo_no_verificado:'Una imagen no llegó correctamente. Inténtalo otra vez.',cuota_diaria:'Se alcanzó el límite de cargas pendientes. Espera unos minutos e inténtalo nuevamente.',subida:'No pudimos subir una imagen. Revisa tu conexión.'};
+    adminEvidenceMessage(messages[error.motivo]||'No pudimos registrar la evidencia. Actualiza el panel e inténtalo otra vez.','is-error');
+  }finally{
+    ADMIN_EVIDENCE.busy=false;button.disabled=!ADMIN_EVIDENCE.files.length;button.querySelector('span').textContent='Cargar en nombre del colaborador';
+  }
 }
 
 async function submitAdminCloseAssignment(event){
@@ -265,14 +406,27 @@ $('admin-close-instructions').oninput=clearAdminDrawPreview;
 $('admin-close-area').onchange=renderAdminCloseStatus;
 $('admin-close-assignment-form').onsubmit=submitAdminCloseAssignment;
 $('admin-close-assignment-list').onclick=event=>{const button=event.target.closest('[data-cancel-admin-close]');if(button)cancelAdminCloseAssignment(button.dataset.cancelAdminClose)};
-$('admin-close-status').onclick=event=>{const button=event.target.closest('[data-admin-review-person]');if(button)openAdminReviewPerson(button.dataset.adminReviewPerson,button)};
+$('admin-close-status').onclick=event=>{const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminEvidence(upload.dataset.adminUploadPerson,upload)};
 $('admin-review-tabs').onclick=event=>{const button=event.target.closest('[data-admin-review-delivery]');if(button)renderAdminReviewDelivery(button.dataset.adminReviewDelivery)};
 $('admin-review-approve').onclick=()=>submitAdminReview('aprobada');
 $('admin-review-observe').onclick=()=>submitAdminReview('observada');
 document.querySelectorAll('[data-close-admin-review]').forEach(button=>button.onclick=()=>closeAdminReview());
+$('admin-evidence-requirement-list').onclick=event=>{const button=event.target.closest('[data-admin-evidence-kind]');if(button)selectAdminEvidenceRequirement(button.dataset.adminEvidenceKind,button.dataset.adminEvidenceAssignment||null)};
+$('admin-evidence-files').onchange=event=>chooseAdminEvidenceFiles(event.target.files||[]);
+$('admin-evidence-picker').onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();$('admin-evidence-files').click()}};
+$('admin-evidence-previews').onclick=event=>{const button=event.target.closest('[data-remove-admin-evidence]');if(!button||ADMIN_EVIDENCE.busy)return;const index=Number(button.dataset.removeAdminEvidence),file=ADMIN_EVIDENCE.files[index];if(file?.url)URL.revokeObjectURL(file.url);ADMIN_EVIDENCE.files.splice(index,1);renderAdminEvidenceComposer()};
+document.querySelectorAll('input[name="admin-evidence-mode"]').forEach(input=>input.onchange=()=>{clearAdminEvidenceFiles();adminEvidenceMessage('Selecciona las imágenes correspondientes al nuevo formato.');renderAdminEvidenceComposer()});
+$('admin-evidence-form').onsubmit=submitAdminEvidence;
+document.querySelectorAll('[data-close-admin-evidence]').forEach(button=>button.onclick=()=>closeAdminEvidence());
 $('admin-review-modal').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeAdminReview();return}
   if(event.key!=='Tab')return;
   const focusable=[...$('admin-review-modal').querySelectorAll('button:not(:disabled):not([hidden]),a[href],textarea:not(:disabled):not([hidden])')].filter(element=>element.offsetParent!==null);if(!focusable.length)return;
+  const first=focusable[0],last=focusable.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+});
+$('admin-evidence-modal').addEventListener('keydown',event=>{
+  if(event.key==='Escape'){event.preventDefault();closeAdminEvidence();return}
+  if(event.key!=='Tab')return;
+  const focusable=[...$('admin-evidence-modal').querySelectorAll('button:not(:disabled):not([hidden]),input:not(:disabled):not([hidden]),textarea:not(:disabled):not([hidden]),label[for]')].filter(element=>element.offsetParent!==null);if(!focusable.length)return;
   const first=focusable[0],last=focusable.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 });
