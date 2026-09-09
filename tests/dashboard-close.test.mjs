@@ -32,6 +32,10 @@ const directionEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_37_c
 const oneFacebookEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_38_comparticiones_desde_una_imagen.sql', import.meta.url), 'utf8');
 const directionAccountsSql = fs.readFileSync(new URL('../supabase/dashboard_39_alta_direccion_fabrizio_erika.sql', import.meta.url), 'utf8');
 const deletableReviewNotificationsSql = fs.readFileSync(new URL('../supabase/dashboard_40_eliminar_notificaciones_revision.sql', import.meta.url), 'utf8');
+const unifiedNotificationsSql = fs.readFileSync(new URL('../supabase/dashboard_41_centro_notificaciones.sql', import.meta.url), 'utf8');
+const lateExitSql = fs.readFileSync(new URL('../supabase/dashboard_42_entrada_y_salida_tardia.sql', import.meta.url), 'utf8');
+const repairedExitSql = fs.readFileSync(new URL('../supabase/dashboard_43_reparar_regularizacion_salida.sql', import.meta.url), 'utf8');
+const closeSchedulesSql = fs.readFileSync(new URL('../supabase/dashboard_44_horarios_en_cierres.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -389,6 +393,86 @@ test('review decisions create private, readable notifications for the evidence o
   ]) assert.ok(deletableReviewNotificationsSql.includes(fragment), `deletable notification migration missing: ${fragment}`);
 });
 
+test('direction messages, review notes and assignments share one private notification inbox', () => {
+  for (const fragment of [
+    'create table if not exists public.asis_notificaciones',
+    "'revision_aprobada','revision_observada','mensaje_direccion','asignacion'",
+    'create or replace function public.dash_admin_enviar_mensaje',
+    'create or replace function public.dash_notificar_revision_trg()',
+    'create or replace function public.dash_notificar_asignacion_trg()',
+    'new.nota',
+    "'asignacion:' || new.id::text || ':colaborador:' || colaborador.id::text",
+    'from public.asis_notificaciones notificacion',
+    'colaborador_id = public.dash_colab()',
+    'alter publication supabase_realtime add table public.asis_notificaciones',
+  ]) assert.ok(unifiedNotificationsSql.includes(fragment), `unified notification migration missing: ${fragment}`);
+  assert.match(unifiedNotificationsSql,/public\.asis_rol\(\) is distinct from 'direccion'/);
+  assert.match(unifiedNotificationsSql,/grant execute on function public\.dash_admin_enviar_mensaje\(bigint, text, text\) to authenticated/);
+
+  assert.match(html,/id="admin-message-modal"[^>]*hidden/);
+  assert.match(html,/id="admin-message-form"/);
+  assert.match(html,/id="admin-message-body"[^>]*minlength="3"[^>]*maxlength="700"/);
+  assert.match(adminJs,/data-admin-message-person/);
+  assert.match(adminJs,/db\.rpc\('dash_admin_enviar_mensaje'/);
+  assert.match(adminJs,/function openAdminMessage\(personId,trigger=null\)/);
+  assert.match(adminJs,/function submitAdminMessage\(event\)/);
+
+  assert.match(js,/function playNotificationSound\(\)/);
+  assert.match(js,/function announceFreshNotifications\(items\)/);
+  assert.match(js,/table:'asis_notificaciones'/);
+  assert.match(js,/first\.tipo==='asignacion'\?'Nueva asignación'/);
+  assert.match(js,/document\.title=unread/);
+  assert.match(css,/\.review-notification-item\[data-state="message"\]/);
+  assert.match(css,/\.review-notification-item\[data-state="assignment"\]/);
+  assert.match(css,/\.admin-close-message-trigger\{/);
+  assert.match(adminJs,/<span>Jornada<\/span><span>Mensaje<\/span>/);
+  assert.match(adminJs,/data-label="Mensaje" class="admin-close-message-cell"/);
+  assert.match(css,/\.admin-close-message-cell\{/);
+  assert.match(css,/\.admin-message-sheet\{/);
+});
+
+test('admin close evidence progress survives an incomplete close summary', () => {
+  assert.match(adminJs,/function adminCloseEvidenceProgress\(person,reviews=\[\]\)/);
+  assert.match(adminJs,/expected\.add\('requisito:comparticiones'\);expected\.add\('requisito:rpe'\)/);
+  assert.match(adminJs,/if\(item\.estado==='completo'\)complete\.add\(key\);else complete\.delete\(key\)/);
+  assert.match(adminJs,/progress=adminCloseEvidenceProgress\(person,personReviews\)/);
+  assert.doesNotMatch(adminJs,/globalDone\+assignedDone/);
+  const helperStart=adminJs.indexOf('function adminCloseEvidenceKey');
+  const helperEnd=adminJs.indexOf('\n\nfunction adminCloseMsg',helperStart);
+  const helperContext={};
+  vm.runInNewContext(adminJs.slice(helperStart,helperEnd),helperContext);
+  const complete=helperContext.adminCloseEvidenceProgress(
+    {labora:true,cierre:{}},
+    [
+      {id:10,requisito:'comparticiones',estado:'completo'},
+      {id:11,requisito:'rpe',estado:'completo'},
+    ],
+  );
+  assert.equal(complete.done,2);
+  assert.equal(complete.total,2);
+  const corrected=helperContext.adminCloseEvidenceProgress(
+    {labora:true,cierre:{}},
+    [
+      {id:10,requisito:'comparticiones',estado:'completo'},
+      {id:11,requisito:'rpe',estado:'completo'},
+      {id:12,requisito:'rpe',estado:'anulado'},
+    ],
+  );
+  assert.equal(corrected.done,1);
+  assert.equal(corrected.total,2);
+  const awaitingExit=helperContext.adminCloseEvidenceProgress(
+    {labora:true,cierre:{entrada_at:'2026-09-09T13:00:00Z',salida_at:null,aplica_jornada:true}},
+    [
+      {id:20,requisito:'comparticiones',estado:'completo'},
+      {id:21,requisito:'rpe',estado:'completo'},
+    ],
+  );
+  assert.equal(awaitingExit.done,2);
+  assert.equal(awaitingExit.total,3);
+  assert.match(adminJs,/globals\.push\(\{kind:'salida',assignment:null,title:'Evidencia de hora de salida'/);
+  assert.match(adminJs,/adminEvidenceMissing\(person,personReviews\)/);
+});
+
 test('migration enforces evidence before exit and preserves history', () => {
   for (const fragment of [
     'add column if not exists salida_at',
@@ -480,6 +564,58 @@ test('Direction can upload missing evidence for a collaborator with audit and pr
   assert.match(css,/\.admin-close-upload-trigger\{min-height:44px/);
   assert.match(css,/\.admin-evidence-preview button\{[^}]*width:44px;height:44px/);
   assert.match(css,/@media\(max-width:600px\)\{[\s\S]*?\.admin-evidence-workspace\{display:block/);
+});
+
+test('phase 42 restores entry visibility and supports audited late exits', () => {
+  for (const fragment of [
+    'salida_gracia_min=greatest(salida_gracia_min,60)',
+    'create or replace function public.dash_admin_cierres',
+    "'entrada_at',registro.marcado_at",
+    "'registro_encontrado',registro.id is not null",
+    'create or replace function public.dash_admin_regularizar_cierre',
+    "v_resumen->>'aplica_jornada'",
+    "v_resumen->>'pendientes_salida'",
+    'create or replace function public.dash_admin_confirmar_salida_tardia',
+    "entrega.requisito<>'comparticiones'",
+    "salida_origen='panel'",
+    'salida_por=auth.uid()',
+    'cierre_regularizado=true',
+  ]) assert.ok(lateExitSql.includes(fragment), `late exit migration missing: ${fragment}`);
+  assert.match(adminJs,/const rpc=isLateExit\?'dash_admin_confirmar_salida_tardia':'dash_admin_confirmar_entrega'/);
+  assert.match(adminJs,/db\.rpc\('dash_admin_regularizar_cierre'/);
+  assert.match(adminJs,/dashboard_42_entrada_y_salida_tardia\.sql/);
+});
+
+test('phase 43 repairs already uploaded exits from direct evidence state', () => {
+  for (const fragment of [
+    'create or replace function public.dash_admin_regularizar_cierre_impl',
+    "entrega.requisito='rpe'",
+    "entrega.requisito='comparticiones'",
+    "entrega.requisito='salida'",
+    'join public.asis_entregas_direccion auditoria',
+    "salida_at=v_salida_at",
+    'v_actualizada:=found',
+    'perform public.dash_admin_regularizar_cierre_impl(',
+    "registro.salida_at is null",
+  ]) assert.ok(repairedExitSql.includes(fragment), `repaired exit migration missing: ${fragment}`);
+  assert.doesNotMatch(repairedExitSql,/v_resumen->>'pendientes_salida'/);
+  assert.match(adminJs,/function adminCloseResolvedState\(person,progress,date\)/);
+  assert.match(adminJs,/if\(close\.salida_at\)return close\.estado==='regularizada'\?'regularizada':'completa'/);
+  assert.match(adminJs,/state=adminCloseResolvedState\(person,progress,selectedDate\)/);
+});
+
+test('close rows show each scheduled range and tint non-working days', () => {
+  for (const fragment of [
+    'rename to dash_admin_cierres_base_44',
+    "'hora_inicio_programada',public.asis_hora_entrada(colaborador,p_fecha)",
+    "'hora_salida_programada',public.asis_hora_salida(colaborador,p_fecha)",
+  ]) assert.ok(closeSchedulesSql.includes(fragment), `close schedule migration missing: ${fragment}`);
+  assert.match(adminJs,/function adminCloseClock\(value\)/);
+  assert.match(adminJs,/function adminCloseSchedule\(person\)/);
+  assert.match(adminJs,/admin-close-person\$\{person\.labora\?'':' is-off'\}/);
+  assert.match(adminJs,/class="admin-close-person-schedule"/);
+  assert.match(css,/\.admin-close-person\.is-off\{background:#fff2f4/);
+  assert.match(css,/\.admin-close-person-schedule\{font-variant-numeric:tabular-nums/);
 });
 
 test('evidence policy respects collage configuration and minimum screenshots', () => {

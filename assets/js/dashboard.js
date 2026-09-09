@@ -14,6 +14,7 @@ const PROFILE_MAX_STORED = 480 * 1024;
 const PROFILE_AVATAR_IDS = ['side-avatar','mobile-avatar','rail-avatar','mobile-home-avatar','profile-avatar','head-avatar'];
 const PROFILE_SIGNED_CACHE = new Map();
 const MARK_PROTOCOL = 20260902;
+const BASE_DOCUMENT_TITLE = document.title;
 const WEATHER_CACHE_KEY = 'kja-dashboard-weather';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const WEATHER_DEFAULT_COORDS = {lat:-12.0464,lon:-77.0428};
@@ -145,7 +146,7 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, notificationTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
@@ -161,11 +162,52 @@ let DASH_UPDATE_PENDING = false;
 let DASH_VERSION_CHECKED_AT = 0;
 let DASH_VERSION_TIMER = null;
 let REVIEW_NOTIFICATION_TRIGGER = null;
+let NOTIFICATION_AUDIO_CONTEXT = null;
+let NOTIFICATION_AUDIO_READY = false;
+let NOTIFICATION_BASELINED = false;
+const NOTIFICATION_KNOWN_IDS = new Set();
 
 function formMsg(id,text){ const el=$(id); el.textContent=text||''; el.classList.toggle('show',!!text); }
 function markMsg(text){ $('mark-msg').textContent=text||''; $('mark-msg').classList.toggle('show',!!text); }
 function toast(text,bad=false){ const el=$('toast'); el.textContent=text; el.classList.toggle('bad',bad); el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),3500); }
 function setBusy(button,on,label){ button.disabled=on; if(!button.dataset.label) button.dataset.label=button.querySelector('span')?.textContent||button.textContent; const span=button.querySelector('span'); if(span) span.textContent=on?label:button.dataset.label; }
+
+async function primeNotificationSound(){
+  if(NOTIFICATION_AUDIO_READY)return;
+  const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;
+  try{
+    NOTIFICATION_AUDIO_CONTEXT=NOTIFICATION_AUDIO_CONTEXT||new AudioContextClass();
+    if(NOTIFICATION_AUDIO_CONTEXT.state==='suspended')await NOTIFICATION_AUDIO_CONTEXT.resume();
+    NOTIFICATION_AUDIO_READY=NOTIFICATION_AUDIO_CONTEXT.state==='running';
+  }catch{/* El aviso visual sigue disponible cuando el navegador bloquea audio. */}
+}
+
+function playNotificationSound(){
+  const context=NOTIFICATION_AUDIO_CONTEXT;if(!NOTIFICATION_AUDIO_READY||!context||context.state!=='running')return;
+  try{
+    const master=context.createGain(),now=context.currentTime;
+    master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(.055,now+.012);master.gain.exponentialRampToValueAtTime(.0001,now+.34);master.connect(context.destination);
+    [{frequency:784,start:0,duration:.14},{frequency:1174,start:.12,duration:.2}].forEach(note=>{
+      const oscillator=context.createOscillator(),gain=context.createGain();
+      oscillator.type='sine';oscillator.frequency.setValueAtTime(note.frequency,now+note.start);
+      gain.gain.setValueAtTime(.0001,now+note.start);gain.gain.exponentialRampToValueAtTime(.72,now+note.start+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+note.start+note.duration);
+      oscillator.connect(gain);gain.connect(master);oscillator.start(now+note.start);oscillator.stop(now+note.start+note.duration+.02);
+    });
+  }catch{/* Nunca se bloquea la sincronización por un problema de audio. */}
+}
+
+function announceFreshNotifications(items){
+  const unread=(items||[]).filter(item=>!item.leida),fresh=unread.filter(item=>!NOTIFICATION_KNOWN_IDS.has(String(item.id)));
+  (items||[]).forEach(item=>NOTIFICATION_KNOWN_IDS.add(String(item.id)));
+  if(!NOTIFICATION_BASELINED){NOTIFICATION_BASELINED=true;return}
+  if(!fresh.length)return;
+  playNotificationSound();
+  const first=fresh[0],label=first.tipo==='asignacion'?'Nueva asignación':first.tipo==='mensaje_direccion'?'Nuevo mensaje de Dirección':'Nueva respuesta de Dirección';
+  toast(fresh.length===1?`${label}: ${first.titulo||'Revisa tu campana'}`:`Tienes ${fresh.length} notificaciones nuevas.`);
+}
+
+document.addEventListener('pointerdown',primeNotificationSound,{once:true,capture:true});
+document.addEventListener('keydown',primeNotificationSound,{once:true,capture:true});
 
 function reviewNotificationDate(value){
   if(!value)return 'Fecha no disponible';
@@ -203,15 +245,23 @@ function reviewNotificationListMarkup(items){
 }
 
 function reviewNotificationMarkup(item){
-  const observed=item.estado==='observada',unread=!item.leida,hasMessage=!!String(item.nota||'').trim();
+  const type=item.tipo||(item.estado==='observada'?'revision_observada':'revision_aprobada');
+  const observed=type==='revision_observada',assignment=type==='asignacion',direct=type==='mensaje_direccion',unread=!item.leida,hasMessage=!!String(item.nota||'').trim();
   const deleting=String(APP.notifications?.deletingId||'')===String(item.id);
-  const title=observed?'Necesitas corregir una evidencia':'Evidencia aprobada';
-  const copy=item.nota||(observed?'Dirección indicó que debes revisar esta entrega.':'Dirección aprobó la entrega sin observaciones adicionales.');
-  const icon=observed
-    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'
-    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg>';
+  const assignmentKind=assignment&&item.meta?.tipo_entregable?` · ${String(item.meta.tipo_entregable).toUpperCase()}`:'';
+  const title=assignment?`Nueva asignación${assignmentKind}`:direct?'Mensaje de Dirección':observed?'Necesitas corregir una evidencia':'Evidencia aprobada';
+  const copy=item.nota||(assignment?'Dirección te asignó un nuevo entregable. Revisa los requisitos de tu jornada.':observed?'Dirección indicó que debes revisar esta entrega.':'Dirección aprobó la entrega sin observaciones adicionales.');
+  const messageLabel=assignment?'Indicaciones':direct?'Mensaje de Dirección':'Observación de Dirección';
+  const icon=assignment
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg>'
+    : direct
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 4zM8 9h8M8 13h5"/></svg>'
+      : observed
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg>';
   const trash='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>';
-  return `<article class="review-notification-item${unread?' is-unread':''}${deleting?' is-deleting':''}" data-state="${observed?'observed':'approved'}" role="listitem"><button class="review-notification-content" type="button" data-review-notification-id="${esc(item.id)}" aria-label="${esc(`${title}: ${item.titulo}. ${copy}`)}"><span class="review-notification-state">${icon}</span><span class="review-notification-copy"><span><b>${esc(title)}</b>${unread?'<em>Nueva</em>':''}</span><strong>${esc(item.titulo||'Evidencia enviada')}</strong><p class="${hasMessage?'has-direction-message':'is-system-message'}">${hasMessage?'<span>Mensaje de Dirección</span>':''}${esc(copy)}</p><small>${esc(reviewNotificationDate(item.creado_at))}</small></span></button><button class="review-notification-delete" type="button" data-delete-review-notification="${esc(item.id)}" aria-label="${esc(`Eliminar notificación: ${title}, ${item.titulo||'Evidencia enviada'}`)}" title="Eliminar notificación" ${deleting?'disabled':''}>${trash}</button></article>`;
+  const state=assignment?'assignment':direct?'message':observed?'observed':'approved';
+  return `<article class="review-notification-item${unread?' is-unread':''}${deleting?' is-deleting':''}" data-state="${state}" role="listitem"><button class="review-notification-content" type="button" data-review-notification-id="${esc(item.id)}" aria-label="${esc(`${title}: ${item.titulo}. ${copy}`)}"><span class="review-notification-state">${icon}</span><span class="review-notification-copy"><span><b>${esc(title)}</b>${unread?'<em>Nueva</em>':''}</span><strong>${esc(item.titulo||'Aviso de Dirección')}</strong><p class="${hasMessage?'has-direction-message':'is-system-message'}">${hasMessage?`<span>${esc(messageLabel)}</span>`:''}${esc(copy)}</p><small>${esc(reviewNotificationDate(item.creado_at))}</small></span></button><button class="review-notification-delete" type="button" data-delete-review-notification="${esc(item.id)}" aria-label="${esc(`Eliminar notificación: ${title}, ${item.titulo||'Aviso de Dirección'}`)}" title="Eliminar notificación" ${deleting?'disabled':''}>${trash}</button></article>`;
 }
 
 function renderReviewNotifications(){
@@ -226,12 +276,13 @@ function renderReviewNotifications(){
   const summary=$('review-notification-summary'),summaryCopy=$('review-notification-summary-copy'),readAll=$('review-notification-read-all'),list=$('review-notification-list');
   if(!summary||!list)return;
   list.setAttribute('aria-busy',String(state.loading||state.deletingId!==null));
+  document.title=unread?`(${unread>99?'99+':unread}) ${BASE_DOCUMENT_TITLE}`:BASE_DOCUMENT_TITLE;
   summary.textContent=unread?`${unread} ${unread===1?'mensaje nuevo':'mensajes nuevos'}`:'Todo al día';
-  summaryCopy.textContent=unread?'Dirección respondió sobre tus evidencias.':'No tienes mensajes nuevos.';
+  summaryCopy.textContent=unread?'Tienes actividad nueva de Dirección.':'No tienes mensajes nuevos.';
   readAll.hidden=unread<1;readAll.disabled=state.loading;
   if(state.loading&&!state.items.length){list.innerHTML='<div class="review-notification-loading" role="status">Consultando tus notificaciones…</div>';return}
   if(state.error&&!state.items.length){list.innerHTML='<div class="review-notification-empty is-error"><b>No pudimos actualizar los mensajes</b><p>Comprueba tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-review-notifications>Reintentar</button></div>';return}
-  list.innerHTML=state.items.length?reviewNotificationListMarkup(state.items):'<div class="review-notification-empty"><b>Aún no tienes notificaciones</b><p>Las aprobaciones y observaciones de Dirección aparecerán aquí.</p></div>';
+  list.innerHTML=state.items.length?reviewNotificationListMarkup(state.items):'<div class="review-notification-empty"><b>Aún no tienes notificaciones</b><p>Los mensajes, revisiones y nuevas asignaciones aparecerán aquí.</p></div>';
 }
 
 async function loadReviewNotifications({quiet=false}={}){
@@ -239,7 +290,7 @@ async function loadReviewNotifications({quiet=false}={}){
   if(APP.notifications.deletingId!==null)return APP.notifications;
   const request=(APP.notifications.request||0)+1;
   APP.notifications={...APP.notifications,loading:true,error:'',request};renderReviewNotifications();
-  const {data,error}=await db.rpc('dash_mis_notificaciones_revision',{p_limite:16});
+  const {data,error}=await db.rpc('dash_mis_notificaciones_revision',{p_limite:24});
   if(request!==APP.notifications.request)return null;
   if(error||!data?.ok){
     const missing=error?.code==='PGRST202'||String(error?.message||'').includes('dash_mis_notificaciones_revision');
@@ -247,7 +298,8 @@ async function loadReviewNotifications({quiet=false}={}){
     if(!quiet&&!missing)toast('No pudimos actualizar tus notificaciones.',true);
     return null;
   }
-  APP.notifications={...APP.notifications,available:true,loading:false,error:'',unread:Number(data.no_leidas)||0,items:Array.isArray(data.notificaciones)?data.notificaciones:[],request,deletingId:null};
+  const items=Array.isArray(data.notificaciones)?data.notificaciones:[];announceFreshNotifications(items);
+  APP.notifications={...APP.notifications,available:true,loading:false,error:'',unread:Number(data.no_leidas)||0,items,request,deletingId:null};
   renderReviewNotifications();return APP.notifications;
 }
 
@@ -312,11 +364,18 @@ async function deleteReviewNotification(id){
   toast('Notificación eliminada.');
 }
 
-function startReviewNotificationSync(){
+async function startReviewNotificationSync(){
   clearInterval(APP.notificationTimer);APP.notificationTimer=null;
+  if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}
   if(!APP.identity.hasPersonal)return;
-  void loadReviewNotifications({quiet:true});
-  APP.notificationTimer=setInterval(()=>{if(!document.hidden)void loadReviewNotifications({quiet:true})},45000);
+  await loadReviewNotifications({quiet:true});
+  const collaboratorId=Number(APP.inicio?.colaborador?.id);
+  if(Number.isFinite(collaboratorId)&&typeof db.channel==='function'){
+    APP.notificationChannel=db.channel(`kja-notificaciones-${collaboratorId}`)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'asis_notificaciones',filter:`colaborador_id=eq.${collaboratorId}`},()=>void loadReviewNotifications({quiet:true}))
+      .subscribe();
+  }
+  APP.notificationTimer=setInterval(()=>{if(!document.hidden)void loadReviewNotifications({quiet:true})},30000);
 }
 
 document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.onclick=()=>openReviewNotifications(button));
@@ -703,7 +762,7 @@ $('form-admin').addEventListener('submit',async e=>{
 });
 
 async function logout(message){
-  clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(APP.notificationTimer);clearInterval(DASH_VERSION_TIMER); localStorage.removeItem(DEADLINE_KEY); localStorage.removeItem(SHELL_KEY);
+  clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(APP.notificationTimer);clearInterval(DASH_VERSION_TIMER);if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}document.title=BASE_DOCUMENT_TITLE;localStorage.removeItem(DEADLINE_KEY);localStorage.removeItem(SHELL_KEY);
   try{ await db.auth.signOut({scope:'local'}); }catch(e){}
   location.reload();
 }
