@@ -854,7 +854,7 @@ function renderHome(){
   $('day-date').textContent=new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'long',year:'numeric'}).format(date);
   $('mobile-today-date').textContent=new Intl.DateTimeFormat('es-PE',{weekday:'long',day:'numeric',month:'long'}).format(date);
   $('time-start').textContent=fmtTime(d.hora_entrada); $('time-end').textContent=fmtTime(d.hora_salida);
-  $('mobile-today-start').textContent=fmtTime(d.hora_entrada); $('mobile-today-end').textContent=fmtTime(d.hora_salida);
+  renderMobileTimeRecord({entryAt:d.marcado_at,scheduledExit:d.hora_salida});
   renderTodayMode(d);
   $('day-window').textContent=d.tolerancia!=null?`Tolerancia: ${d.tolerancia} min`:'Horario registrado';
   $('rail-area').textContent=c.area||'Equipo KJA';
@@ -1086,7 +1086,7 @@ function renderProgress(){
 }
 
 function renderHistory(){
-  const h=APP.historial;if(!h)return; $('month-title').textContent=cap(`${monthNames[h.mes-1]} ${h.anio}`);
+  const h=APP.historial;if(!h)return; const monthLabel=cap(`${monthNames[h.mes-1]} ${h.anio}`);$('month-title').textContent=monthLabel;$('mobile-month-title').textContent=monthLabel;
   const t=h.totales||{},items=[['Presentes',t.P||0,''],['Tardanzas',t.T||0,''],['Justificados',t.J||0,''],['No gestionó',t.NG||0,''],['Incompletas',t.incompletas||0,'incomplete']];
   $('attendance-stats').innerHTML=items.map(x=>`<div class="att-stat ${x[2]}"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
   $('attendance-hours-summary').textContent=`${(Number(h.horas)||0).toFixed(1)} h acumuladas`;
@@ -1097,12 +1097,25 @@ function renderHistory(){
   }
   $('calendar-grid').innerHTML=html;
   renderRailCalendar(h);
-  $('month-next').disabled=h.anio===new Date().getFullYear()&&h.mes===new Date().getMonth()+1;
+  const currentMonth=h.anio===new Date().getFullYear()&&h.mes===new Date().getMonth()+1;
+  $('month-next').disabled=currentMonth;$('mobile-month-next').disabled=currentMonth;
 }
 function statusLabel(state,lab){ return state?({P:'Presente',T:'Tardanza',J:'Justificado',NG:'No gestionó'}[state]||state):(lab?'Sin registro':'No laborable'); }
 
 function formatAttendanceDayDate(value){return value?cap(new Intl.DateTimeFormat('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(value+'T12:00:00'))):'Día seleccionado'}
 function formatAttendanceClock(value){return value?new Intl.DateTimeFormat('es-PE',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'America/Lima'}).format(new Date(value)):'—'}
+
+function renderMobileTimeRecord({entryAt=null,exitAt=null,scheduledExit=null}={}){
+  const entryTime=$('mobile-today-start'),exitTime=$('mobile-today-end');
+  if(!entryTime||!exitTime)return;
+  const hasEntry=!!entryAt,hasExit=!!exitAt;
+  entryTime.textContent=formatAttendanceClock(entryAt);
+  exitTime.textContent=formatAttendanceClock(exitAt);
+  $('mobile-entry-time-note').textContent=hasEntry?'Hora registrada':'Pendiente de marcar';
+  $('mobile-exit-time-note').textContent=hasExit?'Hora registrada':scheduledExit?`Programada: ${fmtTime(scheduledExit)}`:'Pendiente de marcar';
+  $('mobile-entry-time-card').classList.toggle('is-recorded',hasEntry);
+  $('mobile-exit-time-card').classList.toggle('is-recorded',hasExit);
+}
 function attendanceModeLabel(value){return ({virtual:'Trabajo virtual',presencial:'Trabajo presencial',no_gestiona:'No laborable'}[value]||value||'Sin modalidad')}
 function attendanceOriginLabel(value){return ({dashboard:'Portal personal',portal:'Portal de asistencia',panel:'Registro administrativo'}[value]||value||'Sin origen')}
 
@@ -1720,6 +1733,8 @@ $('team-list').onclick=e=>{const evidence=e.target.closest('[data-team-review]')
 document.querySelectorAll('[data-close-team-profile]').forEach(button=>button.onclick=closeTeamProfile);
 $('month-prev').onclick=()=>{ APP.month--;if(APP.month<1){APP.month=12;APP.year--}loadHistory(); };
 $('month-next').onclick=()=>{ const n=new Date(),cur=n.getFullYear()*12+n.getMonth(),target=APP.year*12+(APP.month-1);if(target>=cur)return;APP.month++;if(APP.month>12){APP.month=1;APP.year++}loadHistory(); };
+$('mobile-month-prev').onclick=()=>$('month-prev').click();
+$('mobile-month-next').onclick=()=>$('month-next').click();
 document.addEventListener('click',event=>{
   const button=event.target.closest('[data-personal-request]');
   if(button&&!button.disabled){openPersonalRequest(button.dataset.personalRequest,'',button);return}
@@ -1937,9 +1952,9 @@ function renderMobileDailyClose(data,items){
     action.querySelector('span').textContent=`Salida desde ${fmtTime(data.salida_desde)}`;$('mobile-close-footer-title').textContent='Evidencias completas';$('mobile-close-footer-copy').textContent='La salida se habilitará en el horario indicado.';
   }
   // Sync mobile time cards with close data
-  $('mobile-today-end').textContent=fmtTime(data.hora_salida_programada);
-  $('mobile-today-start').textContent=data.salida_at?formatAttendanceClock(data.salida_at):'—';
+  renderMobileTimeRecord({entryAt:data.entrada_at,exitAt:data.salida_at,scheduledExit:data.hora_salida_programada});
   if(data.salida_at)$('mobile-close-footer-copy').textContent=`${Number(data.horas_efectivas||0).toFixed(2)} horas acreditadas.`;
+  $('mobile-close-footer').hidden=action.hidden||action.disabled||action.dataset.action!=='exit';
 }
 
 function mergeDailyReviewState(closeData,reviewData){

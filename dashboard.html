@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=167">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=171">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
@@ -305,54 +305,27 @@
             <!-- Checklist cards -->
             <div class="mcv2-checklist" id="mobile-close-list"></div>
 
-            <!-- Journey stepper -->
-            <div class="mcv2-journey" id="mcv2-journey" data-stage="evidence">
-              <header class="mcv2-journey-head">
-                <span><b>Ruta de tu jornada</b><small>Completa cada etapa en orden</small></span>
-                <em>3 etapas</em>
-              </header>
-              <div class="mcv2-journey-track">
-                <span class="mcv2-journey-step is-done" data-step="entry">
-                  <i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></i>
-                  <b>Entrada</b>
-                  <small id="mcv2-journey-entry-time">08:11 a. m.</small>
-                </span>
-                <span class="mcv2-journey-line done"></span>
-                <span class="mcv2-journey-step is-active" data-step="evidence">
-                  <i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></i>
-                  <b>Evidencias</b>
-                  <small>En proceso</small>
-                </span>
-                <span class="mcv2-journey-line pending"></span>
-                <span class="mcv2-journey-step is-pending" data-step="exit">
-                  <i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i>
-                  <b>Salida</b>
-                  <small>Pendiente</small>
-                </span>
-              </div>
-            </div>
-
-            <!-- Time cards -->
-            <div class="mcv2-time-cards" id="mobile-today-summary" tabindex="-1">
-              <div class="mcv2-time-card mcv2-time-exit">
+            <!-- Resumen horario compacto -->
+            <div class="mcv2-time-cards" id="mobile-today-summary" role="status" aria-live="polite" tabindex="-1">
+              <div class="mcv2-time-card mcv2-time-entry" id="mobile-entry-time-card">
                 <span class="mcv2-time-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M14 5H6v14h8M10 12h10M17 9l3 3-3 3"/></svg>
                 </span>
                 <div>
-                  <small>HORA DE SALIDA</small>
-                  <b id="mobile-today-end">—</b>
-                  <span>Hora oficial registrada</span>
+                  <small>ENTRADA REGISTRADA</small>
+                  <b id="mobile-today-start">—</b>
+                  <span id="mobile-entry-time-note">Pendiente de marcar</span>
                 </div>
               </div>
-              <div class="mcv2-time-card mcv2-time-registered">
+              <div class="mcv2-time-card mcv2-time-exit" id="mobile-exit-time-card">
                 <span class="mcv2-time-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M10 5h8v14h-8M14 12H4M7 9l-3 3 3 3"/></svg>
                 </span>
                 <div>
                   <small>SALIDA REGISTRADA</small>
-                  <b id="mobile-today-start">—</b>
+                  <b id="mobile-today-end">—</b>
+                  <span id="mobile-exit-time-note">Pendiente de marcar</span>
                 </div>
-                <svg class="mcv2-time-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
               </div>
             </div>
 
@@ -362,7 +335,7 @@
             <p hidden id="mobile-today-detail" aria-hidden="true">Preparando tu jornada…</p>
 
             <!-- Footer -->
-            <footer class="mcv2-footer">
+            <footer class="mcv2-footer" id="mobile-close-footer" hidden>
               <div class="mcv2-footer-status">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#22c55e" stroke="none"/><path d="m8 12 3 3 5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span><b id="mobile-close-footer-title">Jornada completa</b> · <small id="mobile-close-footer-copy">0.00 horas acreditadas.</small></span>
@@ -606,14 +579,23 @@
 
       <div class="attendance-topbar">
         <div class="month-toolbar"><button id="month-prev" aria-label="Mes anterior">‹</button><b id="month-title">—</b><button id="month-next" aria-label="Mes siguiente">›</button></div>
-        <button class="attendance-new-request" id="attendance-new-request" type="button" data-personal-request="justificacion" aria-controls="personal-request-modal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva solicitud</button>
+        <button class="attendance-new-request" id="attendance-new-request" type="button" data-personal-request="justificacion" aria-controls="personal-request-modal" aria-label="Crear nueva solicitud"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva solicitud</button>
       </div>
 
       <div class="attendance-stats" id="attendance-stats"></div>
 
       <div class="attendance-workspace">
         <article class="calendar-card attendance-calendar">
-          <div class="attendance-calendar-head"><span><b>Historial del mes</b><small>Selecciona un día para consultar su estado.</small></span><span class="attendance-hours" id="attendance-hours-summary">— h acumuladas</span></div>
+          <div class="attendance-calendar-head">
+            <span><b>Historial del mes</b><small>Selecciona un día para consultar su estado.</small></span>
+            <span class="attendance-hours" id="attendance-hours-summary">— h acumuladas</span>
+            <div class="attendance-calendar-mobile-tools" role="group" aria-label="Controles del historial mensual">
+              <button type="button" id="mobile-month-prev" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+              <b id="mobile-month-title">—</b>
+              <button type="button" id="mobile-month-next" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+              <button type="button" class="attendance-calendar-request" data-personal-request="justificacion" aria-controls="personal-request-modal" aria-label="Crear nueva solicitud"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+            </div>
+          </div>
           <div class="calendar-week"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
           <div class="calendar-grid" id="calendar-grid"></div>
           <div class="calendar-legend"><span><i class="p"></i>Presente</span><span><i class="t"></i>Tardanza</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestionó</span><span><i class="incomplete"></i>Incompleta</span></div>
@@ -1453,7 +1435,7 @@
 </div>
 
 <script src="assets/js/dashboard-close-model.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=143"></script>
+<script src="assets/js/dashboard.js?v=146"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=3"></script>

@@ -4769,6 +4769,7 @@ input:-webkit-autofill:active {
 
 .attendance-calendar { min-width:0;padding:18px 20px; }
 .attendance-calendar-head { display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px; }
+.attendance-calendar-mobile-tools{display:none}
 .attendance-calendar-head b,.attendance-calendar-head small { display:block; }
 .attendance-calendar-head b { color:#0b2a5c;font-size:14px; }
 .attendance-calendar-head small { margin-top:3px;color:#667a91;font-size:10px; }
@@ -8196,7 +8197,7 @@ body.daily-evidence-open{overflow:hidden}
   .mobile-sheet-heading{order:1;margin:0 2px 15px}
   .mobile-sheet-heading h2{font-size:19px}
   .mobile-sheet-heading p{color:#526a82;font-size:12px}
-  .mobile-session-state{color:#176c5d}
+  .mobile-session-state{display:none}
   .mobile-close-panel{order:2;margin:0 0 16px;background:#fff;box-shadow:0 9px 24px rgba(16,47,85,.07)}
   .mobile-quick-grid{order:3;grid-template-columns:1fr;gap:9px}
   .mobile-today-summary{order:4}
@@ -8651,7 +8652,7 @@ body.review-notification-open{overflow:hidden}
   .mcv2{
     display:grid;
     gap:0;
-    margin-top:20px;
+    margin:20px 0 30px;
     color:#102f55;
   }
   .mcv2[hidden]{display:none}
@@ -8659,6 +8660,7 @@ body.review-notification-open{overflow:hidden}
 
   /* — Header MI JORNADA — */
   .mcv2-head{
+    position:relative;
     display:flex;
     align-items:flex-start;
     justify-content:space-between;
@@ -8671,6 +8673,7 @@ body.review-notification-open{overflow:hidden}
     gap:14px;
     min-width:0;
   }
+  .mcv2-head-left>div{min-width:0;padding-right:94px}
   .mcv2-head-icon{
     width:52px;
     height:52px;
@@ -8717,17 +8720,20 @@ body.review-notification-open{overflow:hidden}
 
   /* State pill */
   .mcv2-state-pill{
+    position:absolute;
+    top:0;
+    right:0;
     flex:0 0 auto;
     display:inline-flex;
     align-items:center;
     gap:6px;
-    min-height:34px;
-    padding:7px 14px;
+    min-height:30px;
+    padding:6px 10px;
     border:1px solid #fde68a;
     border-radius:999px;
     color:#b45309;
     background:#fffbeb;
-    font-size:12px;
+    font-size:10px;
     font-weight:700;
     white-space:nowrap;
   }
@@ -9107,156 +9113,48 @@ body.review-notification-open{overflow:hidden}
   }
 
   /* — Journey stepper — */
-  .mcv2-journey{
-    padding:18px 14px 17px;
-    margin-bottom:16px;
-    border:0;
-    border-radius:16px;
-    background:rgba(255,255,255,.72);
-    box-shadow:inset 0 0 0 1px rgba(182,199,214,.44);
-  }
-  .mcv2-journey-head{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:17px;
-    padding:0 3px;
-  }
-  .mcv2-journey-head span b,.mcv2-journey-head span small{display:block}
-  .mcv2-journey-head span b{color:#183653;font-size:13px;line-height:1.3}
-  .mcv2-journey-head span small{margin-top:3px;color:#728499;font-size:10px;line-height:1.35}
-  .mcv2-journey-head em{
-    flex:0 0 auto;
-    padding:5px 8px;
-    border-radius:999px;
-    color:#4b6380;
-    background:#eaf0f5;
-    font-size:9px;
-    font-style:normal;
-    font-weight:800;
-  }
-  .mcv2-journey-track{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr) 38px minmax(0,1fr);
-    align-items:flex-start;
-    gap:0;
-  }
-  .mcv2-journey-step{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-    min-width:0;
-    text-align:center;
-  }
-  .mcv2-journey-step i{
-    width:40px;
-    height:40px;
-    display:grid;
-    place-items:center;
-    border-radius:50%;
-    border:1px solid #d7e0e9;
-    color:#94a3b8;
-    background:#fff;
-    box-shadow:0 5px 14px rgba(16,47,85,.08);
-  }
-  .mcv2-journey-step svg{
-    width:20px;
-    height:20px;
-    fill:none;
-    stroke:currentColor;
-    stroke-width:2;
-    stroke-linecap:round;
-    stroke-linejoin:round;
-  }
-  .mcv2-journey-step b{
-    color:#475569;
-    font-size:12px;
-    font-weight:700;
-  }
-  .mcv2-journey-step small{
-    color:#94a3b8;
-    font-size:11px;
-    font-weight:500;
-  }
-
-  /* Step states */
-  .mcv2-journey-step.is-done i{
-    border-color:#16866a;
-    color:#fff;
-    background:#16866a;
-  }
-  .mcv2-journey-step.is-done b{color:#137158}
-  .mcv2-journey-step.is-done small{color:#16866a}
-
-  .mcv2-journey-step.is-active i{
-    border-color:#3b82f6;
-    color:#fff;
-    background:#3b82f6;
-  }
-  .mcv2-journey-step.is-active b{color:#1d4ed8}
-  .mcv2-journey-step.is-active small{color:#3b82f6}
-
-  .mcv2-journey-step.is-pending i{
-    border-color:#d7e0e9;
-    color:#8ea0b4;
-    background:#fff;
-  }
-  .mcv2-journey-step.is-pending b{color:#475569}
-  .mcv2-journey-step.is-pending small{color:#94a3b8}
-
-  /* Connector lines */
-  .mcv2-journey-line{
-    width:100%;
-    height:2px;
-    align-self:start;
-    margin-top:19px;
-    border-radius:999px;
-    background:#dce4ec;
-  }
-  .mcv2-journey-line.done{background:#16866a}
-  .mcv2-journey-line.pending{background:#dce4ec}
-
   /* — Time cards — */
+  /* Cierre compacto: resumen horario compartido y sin tarjetas apiladas. */
   .mcv2-time-cards{
     display:grid;
-    grid-template-columns:1.2fr 1fr;
-    gap:12px;
-    margin-bottom:16px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:0;
+    margin-bottom:0;
+    padding:5px;
+    border:1px solid rgba(188,202,216,.7);
+    border-radius:17px;
+    background:#fff;
+    box-shadow:0 8px 22px rgba(16,47,85,.065);
     outline:none;
   }
   .mcv2-time-cards:focus-visible{outline:3px solid #6B5CE7;outline-offset:3px}
   .mcv2-time-card{
     display:flex;
-    align-items:flex-start;
-    gap:12px;
-    padding:16px;
-    border:1px solid #e2e8f0;
-    border-radius:16px;
-    background:#fff;
+    align-items:center;
+    gap:9px;
+    min-width:0;
+    padding:11px 10px;
+    border:0;
+    border-radius:12px;
+    background:transparent;
   }
-  .mcv2-time-exit{
-    border-color:#e0e7ff;
-    background:linear-gradient(145deg,#faf5ff 0%,#f0f0ff 100%);
-  }
+  .mcv2-time-entry{background:#edf8f4}
+  .mcv2-time-exit{border-radius:0 12px 12px 0;background:#f3f0ff}
   .mcv2-time-icon{
-    width:38px;
-    height:38px;
-    flex:0 0 38px;
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
     display:grid;
     place-items:center;
-    border-radius:11px;
+    border-radius:10px;
     color:#6366f1;
     background:#e0e7ff;
   }
-  .mcv2-time-registered .mcv2-time-icon{
-    color:#475569;
-    background:#f1f5f9;
-  }
+  .mcv2-time-entry .mcv2-time-icon{color:#137158;background:#d9f2e8}
+  .mcv2-time-exit .mcv2-time-icon{color:#6356d8;background:#e3dffd}
   .mcv2-time-icon svg{
-    width:20px;
-    height:20px;
+    width:18px;
+    height:18px;
     fill:none;
     stroke:currentColor;
     stroke-width:1.8;
@@ -9267,73 +9165,38 @@ body.review-notification-open{overflow:hidden}
   .mcv2-time-card small{
     display:block;
     color:#64748b;
-    font-size:9px;
+    font-size:8px;
     font-weight:800;
-    letter-spacing:.08em;
+    letter-spacing:.07em;
     text-transform:uppercase;
   }
   .mcv2-time-card b{
     display:block;
-    margin-top:4px;
+    margin-top:2px;
     color:#0f172a;
-    font-size:22px;
+    font-size:18px;
     font-weight:800;
     line-height:1.2;
     letter-spacing:-.03em;
   }
-  .mcv2-time-registered b{font-size:18px}
+  .mcv2-time-card:not(.is-recorded) b{color:#94a3b8}
+  .mcv2-time-entry.is-recorded b{color:#0f5d4f}
+  .mcv2-time-exit.is-recorded b{color:#4f46e5}
   .mcv2-time-card>div>span{
     display:block;
-    margin-top:3px;
+    margin-top:2px;
     color:#94a3b8;
-    font-size:11px;
+    font-size:9px;
     font-weight:500;
   }
-  .mcv2-time-arrow{
-    width:20px;
-    height:20px;
-    flex:0 0 20px;
-    align-self:center;
-    color:#cbd5e1;
-    fill:none;
-    stroke:currentColor;
-    stroke-width:2;
-    stroke-linecap:round;
-    stroke-linejoin:round;
-  }
-
   /* — Footer — */
   .mcv2-footer{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    padding:16px 0 0;
+    display:block;
+    padding:10px 0 0;
   }
-  .mcv2-footer-status{
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .mcv2-footer-status>svg{
-    width:22px;
-    height:22px;
-    flex:0 0 22px;
-  }
-  .mcv2-footer-status span{
-    color:#475569;
-    font-size:12px;
-    line-height:1.4;
-  }
-  .mcv2-footer-status b{
-    color:#15803d;
-    font-weight:700;
-  }
-  .mcv2-footer-status small{
-    color:#64748b;
-    font-weight:500;
-  }
+  .mcv2-footer[hidden],.mcv2-footer-status{display:none}
   .mcv2-footer #mobile-close-action{
+    width:100%;
     min-height:44px;
     display:flex;
     align-items:center;
@@ -9351,16 +9214,18 @@ body.review-notification-open{overflow:hidden}
   .mcv2-footer #mobile-close-action svg{width:16px;height:16px}
   .mcv2-footer #mobile-close-action:disabled{color:#94a3b8;background:#e2e8f0}
   .mcv2-footer #mobile-close-action[hidden]{display:none}
+
 }
 
 /* mcv2 small devices */
 @media(max-width:420px){
-  .mcv2-head{flex-wrap:wrap}
-  .mcv2-state-pill{margin-top:-2px}
+  .mcv2-head{flex-wrap:nowrap}
   .mcv2-banner{min-height:124px;padding:16px}
   .mcv2-banner h3{font-size:16px}
   .mcv2-banner-figure{width:78px;height:78px;justify-self:end}
-  .mcv2-time-cards{grid-template-columns:1fr}
+  .mcv2-time-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mcv2-time-card{padding-inline:8px}
+  .mcv2-time-card>div>span{display:none}
   .mcv2-checklist{padding-left:16px}
   .mcv2 .day-close-item{grid-template-columns:40px minmax(0,1fr) 18px;gap:5px 12px;padding:14px 12px}
   .mcv2 .day-close-item::before{left:-11px}
@@ -9372,9 +9237,63 @@ body.review-notification-open{overflow:hidden}
   .mcv2-head-icon{width:44px;height:44px;flex-basis:44px;border-radius:12px}
   .mcv2-head-icon svg{width:22px;height:22px}
   .mcv2-head h2{font-size:19px}
-  .mcv2-journey-step i{width:38px;height:38px}
-  .mcv2-journey-track{grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1fr)}
-  .mcv2-journey-line{margin-top:18px}
+  .mcv2-time-icon{display:none}
+}
+
+/* Asistencia móvil: historial inmediato, controles integrados y fondo estable. */
+@media(max-width:600px){
+  #view-asistencia>.view-head{position:relative;margin-bottom:12px;padding-right:104px}
+  #view-asistencia>.view-head>div:first-child{padding-right:0}
+  #view-asistencia .mobile-inline-home{
+    position:absolute;
+    top:14px;
+    right:14px;
+    min-width:76px;
+    height:40px;
+    margin:0;
+    padding-inline:10px;
+    font-size:11px;
+  }
+  #view-asistencia>.attendance-topbar,
+  #view-asistencia>.attendance-stats{display:none}
+  #view-asistencia .attendance-workspace{gap:14px;margin-top:0}
+  #view-asistencia .attendance-calendar-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px}
+  #view-asistencia .attendance-calendar-mobile-tools{
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:40px minmax(0,1fr) 40px 40px;
+    align-items:center;
+    gap:6px;
+    padding-top:10px;
+    border-top:1px solid rgba(20,62,101,.09);
+  }
+  #view-asistencia .attendance-calendar-mobile-tools button{
+    width:40px;
+    height:40px;
+    display:grid;
+    place-items:center;
+    padding:0;
+    border:0;
+    border-radius:10px;
+    color:#174f84;
+    background:#edf4fb;
+  }
+  #view-asistencia .attendance-calendar-mobile-tools button:disabled{color:#9aabba;background:#f1f4f7}
+  #view-asistencia .attendance-calendar-mobile-tools button svg{width:18px;height:18px}
+  #view-asistencia .attendance-calendar-mobile-tools b{font-size:12px;text-align:center;text-transform:capitalize;white-space:nowrap}
+  #view-asistencia .attendance-calendar-mobile-tools .attendance-calendar-request{color:#fff;background:#0b568f}
+  .portal:not([data-view="inicio"]) .time-ambience{position:fixed;transition:none}
+  .portal:not([data-view="inicio"]) .time-ambience-orb,
+  .portal:not([data-view="inicio"]) .time-ambience-orb::after,
+  .portal:not([data-view="inicio"]) .time-ambience-haze,
+  .portal:not([data-view="inicio"]) .time-ambience-stars,
+  .portal:not([data-view="inicio"]) .time-ambience-stars::before,
+  .portal:not([data-view="inicio"]) .time-ambience-clouds,
+  .portal:not([data-view="inicio"]) .time-ambience-clouds::before,
+  .portal:not([data-view="inicio"]) .time-ambience-rain,
+  .portal:not([data-view="inicio"]) .time-ambience-reflection,
+  .portal:not([data-view="inicio"]) .view-head::before,
+  .portal:not([data-view="inicio"]) .view-head::after{animation:none!important;transition:none!important}
 }
 
 /* Dirección: cabecera utilitaria, sin franja editorial que compita con la operación. */
