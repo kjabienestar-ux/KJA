@@ -1861,7 +1861,9 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
   const icon=facebookReceipt
     ? `${icons.comparticiones}<span class="day-close-check-badge">${checkIcon}</span>`
     : complete?checkIcon:icons[item.tipo]||'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>';
-  const attrs=entry||locked||complete&&!editable?'disabled':`data-daily-requirement="${esc(item.tipo)}" aria-haspopup="dialog" aria-controls="daily-evidence-editor"${editable?' data-daily-edit="true"':''}${item.asignacion==null?'':` data-daily-assignment="${esc(item.asignacion)}"`}`;
+  const attrs=entry
+    ? `data-daily-action="entry" aria-haspopup="dialog" aria-controls="mark-modal" aria-label="${complete?'Ver detalle de la entrada registrada':'Registrar mi asistencia'}"`
+    : locked||complete&&!editable?'disabled':`data-daily-requirement="${esc(item.tipo)}" aria-haspopup="dialog" aria-controls="daily-evidence-editor"${editable?' data-daily-edit="true"':''}${item.asignacion==null?'':` data-daily-assignment="${esc(item.asignacion)}"`}`;
   const description=item.tipo==='salida'&&!complete
     ? (locked?'1 foto con la hora visible, disponible al finalizar':'Adjunta 1 foto donde se vea la hora de salida')
     : item.tipo==='comparticiones'&&!complete&&!locked&&review!=='observada'
@@ -2477,12 +2479,14 @@ function closeFacebookShare({restoreFocus=true}={}){
 
 $('day-close-checklist').addEventListener('click',event=>{
   const share=event.target.closest('[data-facebook-share-open]');if(share)return openFacebookShare(share);
+  const action=event.target.closest('[data-daily-action]');if(action?.dataset.dailyAction==='entry')return handleMarkAction();
   const button=event.target.closest('[data-daily-requirement]');if(!button)return;
   DAILY_EVIDENCE_TRIGGER=button;
   openDailyEvidenceEditor(button.dataset.dailyRequirement,button.dataset.dailyAssignment||null);
 });
 $('mobile-close-list').addEventListener('click',event=>{
   const share=event.target.closest('[data-facebook-share-open]');if(share)return openFacebookShare(share);
+  const action=event.target.closest('[data-daily-action]');if(action?.dataset.dailyAction==='entry')return handleMarkAction();
   const button=event.target.closest('[data-daily-requirement]');if(!button)return;
   DAILY_EVIDENCE_TRIGGER=button;openDailyEvidenceEditor(button.dataset.dailyRequirement,button.dataset.dailyAssignment||null);
 });
