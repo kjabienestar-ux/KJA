@@ -593,7 +593,11 @@ test('daily pending panel is visible before entry and evidence opens without inl
 
 test('mobile home exposes the same pending closure actions without tap zoom', () => {
   assert.match(html,/id="mobile-close-panel"[^>]*aria-labelledby="mobile-close-title"/);
+  assert.match(html,/id="mcv2-banner"[^>]*role="status"[\s\S]*?id="mobile-close-banner-progress"/);
+  assert.match(html,/class="mcv2-banner-figure"[^>]*src="images\/dashboard\/asistencia-3d\.webp"/);
+  assert.doesNotMatch(html,/mcv2-banner-cta/);
   assert.match(js,/function renderMobileDailyClose\(data,items\)/);
+  assert.match(js,/mobile-close-banner-title'[\s\S]*?mobile-close-banner-progress/);
   assert.match(js,/mobile-close-list'\)\.innerHTML=items\.map/);
   assert.match(js,/\$\('mobile-close-list'\)\.addEventListener\('click'/);
   assert.match(js,/\$\('mobile-close-action'\)\.onclick/);

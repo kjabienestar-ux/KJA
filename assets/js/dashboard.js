@@ -1893,6 +1893,28 @@ function renderMobileDailyClose(data,items){
   $('mobile-close-copy').textContent=facebookOnly?'No tienes jornada laboral hoy, pero sí una tarea programada de Facebook.':entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
   $('mobile-close-count').textContent=pendingItems.length?`${pendingItems.length} ${pendingItems.length===1?'pendiente':'pendientes'}`:'Todo listo';
   $('mobile-close-list').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:!facebookOnly&&index===0})).join('');
+  const completedItems=Math.max(0,items.length-pendingItems.length),progress=items.length?Math.round(completedItems/items.length*100):0;
+  let bannerTitle='',bannerCopy='';
+  if(facebookOnly){
+    bannerTitle=pendingItems.length?'Completa tu tarea programada':'Evidencia enviada';
+    bannerCopy=pendingItems.length?`Adjunta tus capturas entre ${fmtTime(data.compartir_desde)} y ${fmtTime(data.compartir_hasta)}.`:'La entrega quedó lista para revisión.';
+  }else if(!entryComplete){
+    bannerTitle='Tu jornada empieza aquí';bannerCopy='Registra tu entrada para habilitar las evidencias del día.';
+  }else if(data.salida_at){
+    bannerTitle='¡Jornada completada!';bannerCopy=`Tu salida quedó registrada a las ${formatAttendanceClock(data.salida_at)}.`;
+  }else if(data.estado==='incompleta'){
+    bannerTitle='Jornada incompleta';bannerCopy='El plazo terminó. Revisa el estado de las tareas que quedaron pendientes.';
+  }else if(pendingItems.length){
+    bannerTitle=`Te ${pendingItems.length===1?'falta':'faltan'} ${pendingItems.length} ${pendingItems.length===1?'pendiente':'pendientes'}`;bannerCopy='Abre cada tarea y adjunta la evidencia solicitada para continuar.';
+  }else if(data.puede_marcar_salida){
+    bannerTitle='Todo listo para cerrar';bannerCopy='Tus evidencias están completas. Ya puedes registrar tu salida.';
+  }else{
+    bannerTitle='Evidencias completas';bannerCopy=`Podrás registrar tu salida desde las ${fmtTime(data.salida_desde)}.`;
+  }
+  $('mobile-close-banner-title').textContent=bannerTitle;
+  $('mobile-close-banner-copy').textContent=bannerCopy;
+  $('mobile-close-banner-meta').textContent=items.length?`${completedItems} de ${items.length} completados`:'Sin tareas asignadas';
+  $('mobile-close-banner-progress').style.transform=`scaleX(${progress/100})`;
   const action=$('mobile-close-action');action.hidden=false;action.disabled=true;action.dataset.action='';
   if(facebookOnly){
     action.hidden=true;
