@@ -31,6 +31,7 @@ const automaticCloseSql = fs.readFileSync(new URL('../supabase/dashboard_36_cier
 const directionEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_37_carga_evidencias_direccion.sql', import.meta.url), 'utf8');
 const oneFacebookEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_38_comparticiones_desde_una_imagen.sql', import.meta.url), 'utf8');
 const directionAccountsSql = fs.readFileSync(new URL('../supabase/dashboard_39_alta_direccion_fabrizio_erika.sql', import.meta.url), 'utf8');
+const deletableReviewNotificationsSql = fs.readFileSync(new URL('../supabase/dashboard_40_eliminar_notificaciones_revision.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -358,6 +359,14 @@ test('review decisions create private, readable notifications for the evidence o
   assert.match(html,/id="review-notification-panel"[^>]*role="dialog"[^>]*aria-modal="true"/);
   assert.match(js,/dash_mis_notificaciones_revision/);
   assert.match(js,/dash_marcar_notificaciones_revision/);
+  assert.match(js,/dash_eliminar_notificacion_revision/);
+  assert.match(js,/data-delete-review-notification/);
+  assert.match(js,/has-direction-message/);
+  assert.match(js,/function reviewNotificationDayKey\(value\)/);
+  assert.match(js,/function reviewNotificationDayLabel\(key,value\)/);
+  assert.match(js,/function reviewNotificationListMarkup\(items\)/);
+  assert.match(js,/class="review-notification-day"/);
+  assert.match(js,/Falta activar la eliminación de notificaciones en Supabase/);
   assert.match(js,/function startReviewNotificationSync\(\)/);
   assert.match(js,/function mountReviewNotificationPortal\(\)[\s\S]*?document\.body\.appendChild\(layer\)/);
   assert.match(js,/const layer=mountReviewNotificationPortal\(\)/);
@@ -366,7 +375,18 @@ test('review decisions create private, readable notifications for the evidence o
   assert.match(css,/\.review-notification-badge\{/);
   assert.match(css,/\.review-notification-layer\{position:fixed;z-index:1250/);
   assert.match(css,/@media\(max-width:900px\)\{[\s\S]*?\.review-notification-panel\{width:100%/);
+  assert.match(css,/\.review-notification-item>\.review-notification-delete\{/);
+  assert.match(css,/\.review-notification-day>h3\{/);
+  assert.match(css,/\.review-notification-copy p\.has-direction-message\{[\s\S]*?background:/);
+  assert.match(html,/id="review-notification-list" role="region" aria-label="Historial de notificaciones"/);
   assert.doesNotMatch(html,/id="time-preview-switch"|id="weather-chip"|class="session-chip"/);
+  for (const fragment of [
+    'add column if not exists ocultada_por_colaborador_at timestamptz',
+    'create or replace function public.dash_eliminar_notificacion_revision',
+    'revision.ocultada_por_colaborador_at is null',
+    'entrega.colaborador_id = v_colab',
+    'grant execute on function public.dash_eliminar_notificacion_revision(bigint) to authenticated',
+  ]) assert.ok(deletableReviewNotificationsSql.includes(fragment), `deletable notification migration missing: ${fragment}`);
 });
 
 test('migration enforces evidence before exit and preserves history', () => {

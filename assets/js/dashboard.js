@@ -145,7 +145,7 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, notificationTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, notificationTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
@@ -173,14 +173,45 @@ function reviewNotificationDate(value){
   return new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(date);
 }
 
+function reviewNotificationDayKey(value){
+  const date=new Date(value);if(Number.isNaN(date.getTime()))return 'sin-fecha';
+  const parts={};
+  new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date).forEach(part=>{if(part.type!=='literal')parts[part.type]=part.value});
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function reviewNotificationDayLabel(key,value){
+  if(key==='sin-fecha')return 'Sin fecha';
+  if(key===isoLima())return 'Hoy';
+  if(key===addIsoDays(isoLima(),-1))return 'Ayer';
+  const date=new Date(value);if(Number.isNaN(date.getTime()))return 'Sin fecha';
+  const label=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',weekday:'long',day:'numeric',month:'long'}).format(date);
+  return label.charAt(0).toUpperCase()+label.slice(1);
+}
+
+function reviewNotificationListMarkup(items){
+  const groups=new Map();
+  items.forEach(item=>{
+    const key=reviewNotificationDayKey(item.creado_at);
+    if(!groups.has(key))groups.set(key,{key,value:item.creado_at,items:[]});
+    groups.get(key).items.push(item);
+  });
+  return [...groups.values()].map((group,index)=>{
+    const count=group.items.length,label=reviewNotificationDayLabel(group.key,group.value),headingId=`review-notification-day-${index}`;
+    return `<section class="review-notification-day" aria-labelledby="${headingId}"><h3 id="${headingId}"><span>${esc(label)}</span><small>${count} ${count===1?'aviso':'avisos'}</small></h3><div class="review-notification-day-items" role="list">${group.items.map(reviewNotificationMarkup).join('')}</div></section>`;
+  }).join('');
+}
+
 function reviewNotificationMarkup(item){
-  const observed=item.estado==='observada',unread=!item.leida;
+  const observed=item.estado==='observada',unread=!item.leida,hasMessage=!!String(item.nota||'').trim();
+  const deleting=String(APP.notifications?.deletingId||'')===String(item.id);
   const title=observed?'Necesitas corregir una evidencia':'Evidencia aprobada';
   const copy=item.nota||(observed?'Dirección indicó que debes revisar esta entrega.':'Dirección aprobó la entrega sin observaciones adicionales.');
   const icon=observed
     ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'
     : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg>';
-  return `<article class="review-notification-item${unread?' is-unread':''}" data-state="${observed?'observed':'approved'}" role="listitem"><button type="button" data-review-notification-id="${esc(item.id)}" aria-label="${esc(`${title}: ${item.titulo}. ${copy}`)}"><span class="review-notification-state">${icon}</span><span class="review-notification-copy"><span><b>${esc(title)}</b>${unread?'<em>Nueva</em>':''}</span><strong>${esc(item.titulo||'Evidencia enviada')}</strong><p>${esc(copy)}</p><small>${esc(reviewNotificationDate(item.creado_at))}</small></span></button></article>`;
+  const trash='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>';
+  return `<article class="review-notification-item${unread?' is-unread':''}${deleting?' is-deleting':''}" data-state="${observed?'observed':'approved'}" role="listitem"><button class="review-notification-content" type="button" data-review-notification-id="${esc(item.id)}" aria-label="${esc(`${title}: ${item.titulo}. ${copy}`)}"><span class="review-notification-state">${icon}</span><span class="review-notification-copy"><span><b>${esc(title)}</b>${unread?'<em>Nueva</em>':''}</span><strong>${esc(item.titulo||'Evidencia enviada')}</strong><p class="${hasMessage?'has-direction-message':'is-system-message'}">${hasMessage?'<span>Mensaje de Dirección</span>':''}${esc(copy)}</p><small>${esc(reviewNotificationDate(item.creado_at))}</small></span></button><button class="review-notification-delete" type="button" data-delete-review-notification="${esc(item.id)}" aria-label="${esc(`Eliminar notificación: ${title}, ${item.titulo||'Evidencia enviada'}`)}" title="Eliminar notificación" ${deleting?'disabled':''}>${trash}</button></article>`;
 }
 
 function renderReviewNotifications(){
@@ -194,16 +225,18 @@ function renderReviewNotifications(){
   });
   const summary=$('review-notification-summary'),summaryCopy=$('review-notification-summary-copy'),readAll=$('review-notification-read-all'),list=$('review-notification-list');
   if(!summary||!list)return;
+  list.setAttribute('aria-busy',String(state.loading||state.deletingId!==null));
   summary.textContent=unread?`${unread} ${unread===1?'mensaje nuevo':'mensajes nuevos'}`:'Todo al día';
   summaryCopy.textContent=unread?'Dirección respondió sobre tus evidencias.':'No tienes mensajes nuevos.';
   readAll.hidden=unread<1;readAll.disabled=state.loading;
   if(state.loading&&!state.items.length){list.innerHTML='<div class="review-notification-loading" role="status">Consultando tus notificaciones…</div>';return}
   if(state.error&&!state.items.length){list.innerHTML='<div class="review-notification-empty is-error"><b>No pudimos actualizar los mensajes</b><p>Comprueba tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-review-notifications>Reintentar</button></div>';return}
-  list.innerHTML=state.items.length?state.items.map(reviewNotificationMarkup).join(''):'<div class="review-notification-empty"><b>Aún no tienes notificaciones</b><p>Las aprobaciones y observaciones de Dirección aparecerán aquí.</p></div>';
+  list.innerHTML=state.items.length?reviewNotificationListMarkup(state.items):'<div class="review-notification-empty"><b>Aún no tienes notificaciones</b><p>Las aprobaciones y observaciones de Dirección aparecerán aquí.</p></div>';
 }
 
 async function loadReviewNotifications({quiet=false}={}){
   if(!APP.identity.hasPersonal)return null;
+  if(APP.notifications.deletingId!==null)return APP.notifications;
   const request=(APP.notifications.request||0)+1;
   APP.notifications={...APP.notifications,loading:true,error:'',request};renderReviewNotifications();
   const {data,error}=await db.rpc('dash_mis_notificaciones_revision',{p_limite:16});
@@ -214,7 +247,7 @@ async function loadReviewNotifications({quiet=false}={}){
     if(!quiet&&!missing)toast('No pudimos actualizar tus notificaciones.',true);
     return null;
   }
-  APP.notifications={available:true,loading:false,error:'',unread:Number(data.no_leidas)||0,items:Array.isArray(data.notificaciones)?data.notificaciones:[],request};
+  APP.notifications={...APP.notifications,available:true,loading:false,error:'',unread:Number(data.no_leidas)||0,items:Array.isArray(data.notificaciones)?data.notificaciones:[],request,deletingId:null};
   renderReviewNotifications();return APP.notifications;
 }
 
@@ -244,7 +277,7 @@ async function openReviewNotifications(trigger){
 }
 
 async function markReviewNotificationsRead(ids=null){
-  if(APP.notifications.loading)return;
+  if(APP.notifications.loading||APP.notifications.deletingId!==null)return;
   APP.notifications.loading=true;renderReviewNotifications();
   const {data,error}=await db.rpc('dash_marcar_notificaciones_revision',{p_ids:ids});
   if(error||!data?.ok){APP.notifications.loading=false;renderReviewNotifications();toast('No pudimos marcar el mensaje como leído.',true);return}
@@ -253,6 +286,30 @@ async function markReviewNotificationsRead(ids=null){
   const unread=selected?Math.max(0,APP.notifications.unread-(Number(data.marcadas)||0)):0;
   APP.notifications={...APP.notifications,loading:false,unread,items};renderReviewNotifications();
   if(!$('review-notification-layer').hidden)$('review-notification-panel').focus({preventScroll:true});
+}
+
+async function deleteReviewNotification(id){
+  if(APP.notifications.deletingId!==null)return;
+  const numericId=Number(id),index=APP.notifications.items.findIndex(item=>Number(item.id)===numericId);
+  if(!Number.isFinite(numericId)||index<0)return;
+  const removed=APP.notifications.items[index];
+  APP.notifications={...APP.notifications,deletingId:numericId};renderReviewNotifications();
+  $('review-notification-panel').focus({preventScroll:true});
+  const {data,error}=await db.rpc('dash_eliminar_notificacion_revision',{p_id:numericId});
+  if(error||!data?.ok){
+    APP.notifications={...APP.notifications,deletingId:null};renderReviewNotifications();
+    const retryDelete=$('review-notification-list').querySelector(`[data-delete-review-notification="${numericId}"]`);
+    (retryDelete||$('review-notification-panel')).focus({preventScroll:true});
+    const missing=error?.code==='PGRST202'||Number(error?.status)===404||String(error?.message||'').includes('dash_eliminar_notificacion_revision');
+    toast(missing?'Falta activar la eliminación de notificaciones en Supabase.':'No pudimos eliminar la notificación. Actualiza e inténtalo nuevamente.',true);return;
+  }
+  const items=APP.notifications.items.filter(item=>Number(item.id)!==numericId);
+  const unread=Math.max(0,Number(APP.notifications.unread||0)-(removed.leida?0:1));
+  APP.notifications={...APP.notifications,deletingId:null,unread,items};renderReviewNotifications();
+  const buttons=$('review-notification-list').querySelectorAll('[data-delete-review-notification]');
+  const nextDelete=buttons[Math.min(index,Math.max(0,items.length-1))];
+  (nextDelete||$('review-notification-panel')).focus({preventScroll:true});
+  toast('Notificación eliminada.');
 }
 
 function startReviewNotificationSync(){
@@ -267,6 +324,7 @@ document.querySelectorAll('[data-close-review-notifications]').forEach(button=>b
 $('review-notification-read-all').onclick=()=>markReviewNotificationsRead(null);
 $('review-notification-list').onclick=event=>{
   const retry=event.target.closest('[data-retry-review-notifications]');if(retry){void loadReviewNotifications();return}
+  const remove=event.target.closest('[data-delete-review-notification]');if(remove){void deleteReviewNotification(remove.dataset.deleteReviewNotification);return}
   const button=event.target.closest('[data-review-notification-id]');if(!button)return;
   const item=APP.notifications.items.find(notification=>String(notification.id)===String(button.dataset.reviewNotificationId));
   if(item&&!item.leida)void markReviewNotificationsRead([Number(item.id)]);
@@ -1854,6 +1912,10 @@ function renderMobileDailyClose(data,items){
   }else{
     action.querySelector('span').textContent=`Salida desde ${fmtTime(data.salida_desde)}`;$('mobile-close-footer-title').textContent='Evidencias completas';$('mobile-close-footer-copy').textContent='La salida se habilitará en el horario indicado.';
   }
+  // Sync mobile time cards with close data
+  $('mobile-today-end').textContent=fmtTime(data.hora_salida_programada);
+  $('mobile-today-start').textContent=data.salida_at?formatAttendanceClock(data.salida_at):'—';
+  if(data.salida_at)$('mobile-close-footer-copy').textContent=`${Number(data.horas_efectivas||0).toFixed(2)} horas acreditadas.`;
 }
 
 function mergeDailyReviewState(closeData,reviewData){

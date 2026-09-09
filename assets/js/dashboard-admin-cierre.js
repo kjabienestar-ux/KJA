@@ -34,6 +34,16 @@ function adminCloseTime(value){
   return value?new Intl.DateTimeFormat('es-PE',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Lima'}).format(new Date(value)):'—';
 }
 
+function adminCloseSearchText(value){
+  return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es');
+}
+
+function adminCloseAreaTone(value){
+  const text=String(value||'');let hash=0;
+  for(let index=0;index<text.length;index+=1)hash=(hash*31+text.charCodeAt(index))>>>0;
+  return hash%8;
+}
+
 function adminReviewDate(value){
   if(!value)return 'Fecha no disponible';
   const parsed=new Date(`${value}T12:00:00`);
@@ -83,13 +93,14 @@ function renderAdminCloseAssignments(){
 function renderAdminCloseStatus(){
   const data=APP.adminClose;if(!data)return;
   const reviews=APP.adminReview?.entregas||[],canReview=APP.access.rol==='direccion';
-  const area=$('admin-close-area').value,people=(data.personas||[]).filter(person=>!area||String(person.area_id)===area);
+  const area=$('admin-close-area').value,query=adminCloseSearchText($('admin-close-search').value.trim());
+  const people=(data.personas||[]).filter(person=>(!area||String(person.area_id)===area)&&(!query||adminCloseSearchText(person.nombre).includes(query)));
   const groups=new Map();
-  people.forEach(person=>{if(!groups.has(String(person.area_id)))groups.set(String(person.area_id),{name:person.area,items:[]});groups.get(String(person.area_id)).items.push(person)});
+  people.forEach(person=>{if(!groups.has(String(person.area_id)))groups.set(String(person.area_id),{id:person.area_id,name:person.area,items:[]});groups.get(String(person.area_id)).items.push(person)});
   let html='';
   for(const group of groups.values()){
     const complete=group.items.filter(person=>['completa','regularizada'].includes(person.cierre?.estado)).length;
-    html+=`<section class="admin-close-area"><header><span><b>${esc(group.name)}</b><small>${complete} de ${group.items.length} jornadas completas</small></span></header><div class="admin-close-table"><div class="admin-close-table-head"><span>Colaborador</span><span>Entrada</span><span>Evidencias</span><span>Salida</span><span>Jornada</span></div>`;
+    html+=`<section class="admin-close-area area-tone-${adminCloseAreaTone(group.id)}"><header><span><b>${esc(group.name)}</b><small>${complete} de ${group.items.length} jornadas completas</small></span></header><div class="admin-close-table"><div class="admin-close-table-head"><span>Colaborador</span><span>Entrada</span><span>Evidencias</span><span>Salida</span><span>Jornada</span></div>`;
     for(const person of group.items){
       const close=person.cierre||{},globalDone=(close.requisitos||[]).filter(item=>item.completo).length,globalTotal=(close.requisitos||[]).length,assignedDone=(close.asignaciones||[]).filter(item=>item.completo).length,assignedTotal=(close.asignaciones||[]).length;
       const evidence=`${globalDone+assignedDone}/${globalTotal+assignedTotal}`;
@@ -403,6 +414,7 @@ $('admin-close-draw-count').oninput=clearAdminDrawPreview;
 $('admin-close-type').onchange=clearAdminDrawPreview;
 $('admin-close-title').oninput=clearAdminDrawPreview;
 $('admin-close-instructions').oninput=clearAdminDrawPreview;
+$('admin-close-search').oninput=renderAdminCloseStatus;
 $('admin-close-area').onchange=renderAdminCloseStatus;
 $('admin-close-assignment-form').onsubmit=submitAdminCloseAssignment;
 $('admin-close-assignment-list').onclick=event=>{const button=event.target.closest('[data-cancel-admin-close]');if(button)cancelAdminCloseAssignment(button.dataset.cancelAdminClose)};
