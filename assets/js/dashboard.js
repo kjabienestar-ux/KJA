@@ -1961,7 +1961,9 @@ function dailyCloseGuidePresentation(data){
     return {stage:'facebook-complete',title:'Compartición registrada',copy:'Las capturas quedaron enviadas para revisión.'};
   }
   if(!data.entrada_at)return {stage:'entry',title:'Empieza registrando tu entrada',copy:'Después se habilitarán las evidencias pendientes.'};
-  if(data.estado==='completa'||data.estado==='regularizada')return {stage:'complete',title:'Jornada cerrada correctamente',copy:'Entrada, evidencias y salida quedaron registradas.'};
+  if(data.estado==='completa'||data.estado==='regularizada')return data.comparticiones_pendientes
+    ?{stage:'complete',title:'Jornada laboral cerrada',copy:data.puede_compartir?'Tu horario de Facebook está abierto; ya puedes adjuntar las capturas.':`Facebook se habilitará de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}.`}
+    :{stage:'complete',title:'Jornada cerrada correctamente',copy:'Entrada, evidencias y salida quedaron registradas.'};
   if(data.estado==='incompleta')return {stage:'incomplete',title:'El cierre quedó incompleto',copy:'El plazo terminó sin registrar todos los pasos.'};
   if(((data.pendientes_salida??data.pendientes)||0)>0)return {stage:'evidence',title:'Completa tus evidencias',copy:'Selecciona cada requisito pendiente para adjuntar las imágenes.'};
   if(data.puede_marcar_salida)return {stage:'exit',title:'Todo listo para salir',copy:'Tus evidencias están completas. Confirma ahora tu salida.'};
@@ -2024,7 +2026,9 @@ function renderMobileDailyClose(data,items){
   }else if(!entryComplete){
     bannerTitle='Tu jornada empieza aquí';bannerCopy='Registra tu entrada para habilitar las evidencias del día.';
   }else if(data.salida_at){
-    bannerTitle='¡Jornada completada!';bannerCopy=`Tu salida quedó registrada a las ${formatAttendanceClock(data.salida_at)}.`;
+    bannerTitle='¡Jornada laboral completada!';bannerCopy=data.comparticiones_pendientes
+      ?`Tu salida quedó registrada. Facebook ${data.puede_compartir?'está habilitado ahora':`se habilitará de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}`}.`
+      :`Tu salida quedó registrada a las ${formatAttendanceClock(data.salida_at)}.`;
   }else if(data.estado==='incompleta'){
     bannerTitle='Jornada incompleta';bannerCopy='El plazo terminó. Revisa el estado de las tareas que quedaron pendientes.';
   }else if(pendingItems.length){
@@ -2120,7 +2124,7 @@ function renderDailyClose(){
   renderMobileDailyClose(data,items);
 
   $('day-close-title').textContent=facebookOnly?'Compartición programada':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
-  $('day-close-copy').textContent=facebookOnly?'Hoy no tienes jornada laboral; esta tarea sigue activa en su propio horario.':entryComplete?'Completa tus evidencias antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
+  $('day-close-copy').textContent=facebookOnly?'Hoy no tienes jornada laboral; esta tarea sigue activa en su propio horario.':data.salida_at&&data.comparticiones_pendientes?'Tu jornada laboral ya cerró. Facebook continúa pendiente en su horario independiente.':entryComplete?'Completa tus evidencias laborales antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
   const state=$('day-close-state');
   state.dataset.state=facebookOnly?(data.pendientes?'waiting':'complete'):entryComplete?CLOSE_MODEL.stateTone(data.estado):'waiting';
   state.innerHTML=`<i></i>${esc(facebookOnly?(data.pendientes?'Facebook pendiente':'Compartición completa'):entryComplete?dailyCloseStatusCopy(data.estado):'Entrada pendiente')}`;
@@ -2157,7 +2161,9 @@ function renderDailyClose(){
   button.disabled=!data.puede_marcar_salida||DAILY_EVIDENCE.busy;
   if(data.salida_at){
     $('day-close-button-caption').textContent='SALIDA REGISTRADA';$('day-close-button-label').textContent=formatAttendanceClock(data.salida_at);
-    dailyCloseMessage(`Jornada completa · ${Number(data.horas_efectivas||0).toFixed(2)} horas acreditadas.`,'is-success');
+    dailyCloseMessage(data.comparticiones_pendientes
+      ?`Jornada laboral completa · Facebook ${data.puede_compartir?'está habilitado ahora':`se habilitará de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}`}.`
+      :`Jornada completa · ${Number(data.horas_efectivas||0).toFixed(2)} horas acreditadas.`,'is-success');
   }else if(data.estado==='incompleta'){
     $('day-close-button-caption').textContent='PLAZO FINALIZADO';$('day-close-button-label').textContent='Jornada incompleta';
     dailyCloseMessage('La entrada se conserva, pero esta jornada no suma asistencia ni horas.','is-error');
@@ -2464,16 +2470,17 @@ async function submitDailyEvidence(event){
     if(videoPath&&!editing){const attached=await db.rpc('dash_adjuntar_video',{p_entrega:data.entrega,p_path:videoPath});if(attached.error||!attached.data?.ok){videoWarning=' La evidencia principal se guardó, pero el video no pudo adjuntarse.';await cleanupDailyEvidence([videoPath])}}
     const exitRecorded=!editing&&data.salida_registrada===true;
     const autoExit=exitRecorded&&['completa','regularizada'].includes(data.resumen?.estado);
+    const facebookStillScheduled=autoExit&&!!data.resumen?.comparticiones_pendientes;
     APP.cierre=mergeDailyReviewState(data.resumen,{ok:true,revisiones:[{
       requisito:DAILY_EVIDENCE.requirement,
       asignacion_id:DAILY_EVIDENCE.assignment,
       revision_estado:'pendiente',
       revision_nota:null
     }]});
-    dailyUploadStep('confirm','done',autoExit?'Jornada cerrada':exitRecorded?'Salida registrada':'Entrega registrada');
-    setDailyEvidenceProcess('success',{title:editing?'¡Cambios guardados!':autoExit?'¡Jornada completada!':exitRecorded?'¡Salida registrada!':'¡Evidencia completada!',copy:editing?`${DAILY_EVIDENCE.title} fue actualizada y volvió a revisión.`:autoExit?'La evidencia y tu hora de salida quedaron registradas correctamente.':exitRecorded?'Tu hora de salida quedó guardada. La jornada seguirá incompleta hasta adjuntar las demás evidencias.':`${DAILY_EVIDENCE.title} quedó registrada correctamente.${videoWarning}`,progress:1,current:Math.max(uploadTotal,1),total:Math.max(uploadTotal,1)});
+    dailyUploadStep('confirm','done',autoExit?'Jornada laboral cerrada':exitRecorded?'Salida registrada':'Entrega registrada');
+    setDailyEvidenceProcess('success',{title:editing?'¡Cambios guardados!':autoExit?'¡Jornada laboral completada!':exitRecorded?'¡Salida registrada!':'¡Evidencia completada!',copy:editing?`${DAILY_EVIDENCE.title} fue actualizada y volvió a revisión.`:facebookStillScheduled?'Tu salida quedó registrada. Facebook seguirá pendiente hasta que abra su horario independiente.':autoExit?'La evidencia y tu hora de salida quedaron registradas correctamente.':exitRecorded?'Tu hora de salida quedó guardada. La jornada seguirá incompleta hasta adjuntar las demás evidencias laborales.':`${DAILY_EVIDENCE.title} quedó registrada correctamente.${videoWarning}`,progress:1,current:Math.max(uploadTotal,1),total:Math.max(uploadTotal,1)});
     await new Promise(resolve=>setTimeout(resolve,matchMedia('(prefers-reduced-motion: reduce)').matches?320:760));
-    DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast(editing?'Cambios guardados. La evidencia volvió a revisión.':autoExit?'Salida registrada. Tu jornada está completa.':exitRecorded?'Salida registrada. Aún tienes evidencias pendientes.':'Evidencia guardada correctamente.');
+    DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast(editing?'Cambios guardados. La evidencia volvió a revisión.':facebookStillScheduled?'Jornada laboral completa. Facebook continúa programado.':autoExit?'Salida registrada. Tu jornada está completa.':exitRecorded?'Salida registrada. Aún tienes evidencias laborales pendientes.':'Evidencia guardada correctamente.');
     if(autoExit){const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory()]);if(inicioRes.data?.ok){APP.inicio=inicioRes.data;renderHome()}}
   }catch(error){
     if(paths.length||error.path)cleanupDailyEvidence([...paths,...(error.path?[error.path]:[])]);

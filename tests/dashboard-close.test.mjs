@@ -39,6 +39,7 @@ const closeSchedulesSql = fs.readFileSync(new URL('../supabase/dashboard_44_hora
 const unavailableSeptemberFifthSql = fs.readFileSync(new URL('../supabase/dashboard_45_excluir_05_septiembre.sql', import.meta.url), 'utf8');
 const pendingExitSql = fs.readFileSync(new URL('../supabase/dashboard_46_conservar_salida_con_pendientes.sql', import.meta.url), 'utf8');
 const assignmentStatusSql = fs.readFileSync(new URL('../supabase/dashboard_47_estado_asignaciones.sql', import.meta.url), 'utf8');
+const separatedFacebookSql = fs.readFileSync(new URL('../supabase/dashboard_48_separar_jornada_y_comparticiones.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -436,7 +437,8 @@ test('direction messages, review notes and assignments share one private notific
 
 test('admin close evidence progress survives an incomplete close summary', () => {
   assert.match(adminJs,/function adminCloseEvidenceProgress\(person,reviews=\[\]\)/);
-  assert.match(adminJs,/expected\.add\('requisito:comparticiones'\);expected\.add\('requisito:rpe'\)/);
+  assert.match(adminJs,/if\(person\?\.labora&&close\.aplica_jornada!==false\)expected\.add\('requisito:rpe'\)/);
+  assert.match(adminJs,/if\(close\.aplica_comparticiones===true\)expected\.add\('requisito:comparticiones'\)/);
   assert.match(adminJs,/if\(item\.estado==='completo'\)complete\.add\(key\);else complete\.delete\(key\)/);
   assert.match(adminJs,/progress=adminCloseEvidenceProgress\(person,personReviews\)/);
   assert.doesNotMatch(adminJs,/globalDone\+assignedDone/);
@@ -604,7 +606,7 @@ test('phase 43 repairs already uploaded exits from direct evidence state', () =>
   ]) assert.ok(repairedExitSql.includes(fragment), `repaired exit migration missing: ${fragment}`);
   assert.doesNotMatch(repairedExitSql,/v_resumen->>'pendientes_salida'/);
   assert.match(adminJs,/function adminCloseResolvedState\(person,progress,date\)/);
-  assert.match(adminJs,/if\(close\.salida_at\)\{[\s\S]*?progress\.done<progress\.total[\s\S]*?return close\.estado==='regularizada'\?'regularizada':'completa'/);
+  assert.match(adminJs,/if\(close\.salida_at\)\{[\s\S]*?if\(close\.estado==='incompleta'\)return 'incompleta';[\s\S]*?return close\.estado==='regularizada'\?'regularizada':'completa'/);
   assert.match(adminJs,/state=adminCloseResolvedState\(person,progress,selectedDate\)/);
 });
 
@@ -651,9 +653,28 @@ test('exit evidence keeps its time while other evidence remains pending', () => 
     'Salida recuperada desde la evidencia registrada por el colaborador.',
     "colaborador.nombre ilike '%Mauricio%Obregon%'",
   ]) assert.ok(pendingExitSql.includes(fragment), `pending exit correction missing: ${fragment}`);
-  assert.match(adminJs,/if\(close\.estado==='incompleta'\|\|\(progress\.total>0&&progress\.done<progress\.total\)\)return 'incompleta'/);
+  assert.match(adminJs,/if\(close\.estado==='incompleta'\)return 'incompleta'/);
   assert.match(js,/const exitRecorded=!editing&&data\.salida_registrada===true/);
   assert.match(js,/La jornada seguirá incompleta hasta adjuntar las demás evidencias/);
+});
+
+test('workday state is independent from the configured Facebook window', () => {
+  for (const fragment of [
+    'rename to dash_cierre_resumen_colab_base_48',
+    "requisito.item->>'tipo'<>'comparticiones'",
+    "'{pendientes_jornada}'",
+    "'{comparticiones_pendientes}'",
+    "v_estado:='lista_para_salir'",
+    'create or replace function public.dash_marcar_salida',
+    "entrega.requisito='rpe'",
+    'public.asis_asignaciones_diarias',
+  ]) assert.ok(separatedFacebookSql.includes(fragment), `separated Facebook migration missing: ${fragment}`);
+  assert.doesNotMatch(separatedFacebookSql,/asis_compartir_programado[\s\S]*?v_pendientes:=v_pendientes\+1/);
+  assert.match(adminJs,/if\(close\.aplica_comparticiones===true\)expected\.add\('requisito:comparticiones'\)/);
+  assert.doesNotMatch(adminJs,/progress\.total>0&&progress\.done<progress\.total\)\)return 'incompleta'/);
+  assert.match(js,/Jornada laboral cerrada/);
+  assert.match(js,/Facebook continúa pendiente en su horario independiente/);
+  assert.match(js,/Facebook seguirá pendiente hasta que abra su horario independiente/);
 });
 
 test('assignment panel reports live completion and review states', () => {

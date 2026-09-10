@@ -34,7 +34,8 @@ function adminCloseEvidenceProgress(person,reviews=[]){
   const close=person?.cierre||{},expected=new Set(),complete=new Set(),latest=new Map();
   for(const item of close.requisitos||[]){const key=adminCloseEvidenceKey(item);if(!key)continue;expected.add(key);if(item.completo)complete.add(key)}
   for(const item of close.asignaciones||[]){const key=adminCloseEvidenceKey(item,true);if(!key)continue;expected.add(key);if(item.completo)complete.add(key)}
-  if(person?.labora&&close.aplica!==false){expected.add('requisito:comparticiones');expected.add('requisito:rpe')}
+  if(person?.labora&&close.aplica_jornada!==false)expected.add('requisito:rpe');
+  if(close.aplica_comparticiones===true)expected.add('requisito:comparticiones');
   if(close.entrada_at&&!close.salida_at&&close.aplica_jornada!==false)expected.add('requisito:salida');
   for(const item of reviews){
     const key=adminCloseEvidenceKey(item);if(!key)continue;expected.add(key);
@@ -57,7 +58,7 @@ function adminCloseStateLabel(state){
 function adminCloseResolvedState(person,progress,date){
   const close=person?.cierre||{};
   if(close.salida_at){
-    if(close.estado==='incompleta'||(progress.total>0&&progress.done<progress.total))return 'incompleta';
+    if(close.estado==='incompleta')return 'incompleta';
     return close.estado==='regularizada'?'regularizada':'completa';
   }
   if(!person?.labora)return close.estado||'no_aplica';
