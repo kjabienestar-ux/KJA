@@ -1957,10 +1957,13 @@ function dailyCloseStatusCopy(state){
 
 function dailyCloseGuidePresentation(data){
   if(data.solo_comparticiones){
-    if((data.pendientes||0)>0)return {stage:data.puede_compartir?'facebook':'scheduled',title:data.puede_compartir?'Comparte y adjunta tus capturas':'Compartición programada',copy:data.puede_compartir?'Esta tarea es independiente de tu asistencia laboral.':'La carga se abrirá dentro de tu horario de Facebook.'};
+    if((data.pendientes||0)>0)return data.comparticiones_vencidas
+      ?{stage:'incomplete',title:'Compartición no entregada',copy:`El horario de Facebook terminó a las ${fmtTime(data.compartir_hasta)} sin registrar las capturas.`}
+      :{stage:data.puede_compartir?'facebook':'scheduled',title:data.puede_compartir?'Comparte y adjunta tus capturas':'Compartición programada',copy:data.puede_compartir?'Esta tarea es independiente de tu asistencia laboral.':'La carga se abrirá dentro de tu horario de Facebook.'};
     return {stage:'facebook-complete',title:'Compartición registrada',copy:'Las capturas quedaron enviadas para revisión.'};
   }
   if(!data.entrada_at)return {stage:'entry',title:'Empieza registrando tu entrada',copy:'Después se habilitarán las evidencias pendientes.'};
+  if(data.comparticiones_vencidas)return {stage:'incomplete',title:'Compartición no entregada',copy:`El horario de Facebook terminó a las ${fmtTime(data.compartir_hasta)} sin registrar las capturas.`};
   if(data.estado==='completa'||data.estado==='regularizada')return data.comparticiones_pendientes
     ?{stage:'complete',title:'Jornada laboral cerrada',copy:data.puede_compartir?'Tu horario de Facebook está abierto; ya puedes adjuntar las capturas.':`Facebook se habilitará de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}.`}
     :{stage:'complete',title:'Jornada cerrada correctamente',copy:'Entrada, evidencias y salida quedaron registradas.'};
@@ -2012,7 +2015,7 @@ function renderMobileDailyClose(data,items){
   const panel=$('mobile-close-panel');if(!panel)return;
   panel.hidden=false;
   const entryComplete=!!data.entrada_at,closed=['completa','regularizada','incompleta'].includes(data.estado),pendingItems=items.filter(item=>!item.completo);
-  panel.dataset.state=closed?CLOSE_MODEL.stateTone(data.estado):entryComplete?(pendingItems.length?'pending':'ready'):'waiting';
+  panel.dataset.state=data.comparticiones_vencidas?'incomplete':closed?CLOSE_MODEL.stateTone(data.estado):entryComplete?(pendingItems.length?'pending':'ready'):'waiting';
   const facebookOnly=!!data.solo_comparticiones;
   $('mobile-close-title').textContent=facebookOnly?'Compartición de hoy':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
   $('mobile-close-copy').textContent=facebookOnly?'No tienes jornada laboral hoy, pero sí una tarea programada de Facebook.':entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
@@ -2021,12 +2024,14 @@ function renderMobileDailyClose(data,items){
   const completedItems=Math.max(0,items.length-pendingItems.length),progress=items.length?Math.round(completedItems/items.length*100):0;
   let bannerTitle='',bannerCopy='';
   if(facebookOnly){
-    bannerTitle=pendingItems.length?'Completa tu tarea programada':'Evidencia enviada';
-    bannerCopy=pendingItems.length?`Adjunta tus capturas entre ${fmtTime(data.compartir_desde)} y ${fmtTime(data.compartir_hasta)}.`:'La entrega quedó lista para revisión.';
+    bannerTitle=data.comparticiones_vencidas?'Compartición no entregada':pendingItems.length?'Completa tu tarea programada':'Evidencia enviada';
+    bannerCopy=data.comparticiones_vencidas?`El horario terminó a las ${fmtTime(data.compartir_hasta)} sin registrar las capturas.`:pendingItems.length?`Adjunta tus capturas entre ${fmtTime(data.compartir_desde)} y ${fmtTime(data.compartir_hasta)}.`:'La entrega quedó lista para revisión.';
   }else if(!entryComplete){
     bannerTitle='Tu jornada empieza aquí';bannerCopy='Registra tu entrada para habilitar las evidencias del día.';
   }else if(data.salida_at){
-    bannerTitle='¡Jornada laboral completada!';bannerCopy=data.comparticiones_pendientes
+    bannerTitle=data.comparticiones_vencidas?'Jornada incompleta':'¡Jornada laboral completada!';bannerCopy=data.comparticiones_vencidas
+      ?`El horario de Facebook terminó a las ${fmtTime(data.compartir_hasta)} sin registrar las capturas.`
+      :data.comparticiones_pendientes
       ?`Tu salida quedó registrada. Facebook ${data.puede_compartir?'está habilitado ahora':`se habilitará de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}`}.`
       :`Tu salida quedó registrada a las ${formatAttendanceClock(data.salida_at)}.`;
   }else if(data.estado==='incompleta'){
@@ -2045,8 +2050,8 @@ function renderMobileDailyClose(data,items){
   const action=$('mobile-close-action');action.hidden=false;action.disabled=true;action.dataset.action='';
   if(facebookOnly){
     action.hidden=true;
-    $('mobile-close-footer-title').textContent=pendingItems.length?(data.puede_compartir?'Capturas pendientes':'Aún no abre tu horario'):'Evidencia enviada';
-    $('mobile-close-footer-copy').textContent=pendingItems.length?`Disponible de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}.`:'La entrega quedó lista para revisión.';
+    $('mobile-close-footer-title').textContent=data.comparticiones_vencidas?'Plazo finalizado':pendingItems.length?(data.puede_compartir?'Capturas pendientes':'Aún no abre tu horario'):'Evidencia enviada';
+    $('mobile-close-footer-copy').textContent=data.comparticiones_vencidas?'La compartición de hoy quedó incompleta.':pendingItems.length?`Disponible de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}.`:'La entrega quedó lista para revisión.';
   }else if(!entryComplete){
     const source=$('open-mark');action.dataset.action='entry';action.disabled=source?.disabled??true;action.querySelector('span').textContent='Registrar mi entrada';
     $('mobile-close-footer-title').textContent='Empieza por tu entrada';$('mobile-close-footer-copy').textContent='Después podrás abrir cada evidencia.';
@@ -2124,10 +2129,10 @@ function renderDailyClose(){
   renderMobileDailyClose(data,items);
 
   $('day-close-title').textContent=facebookOnly?'Compartición programada':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
-  $('day-close-copy').textContent=facebookOnly?'Hoy no tienes jornada laboral; esta tarea sigue activa en su propio horario.':data.salida_at&&data.comparticiones_pendientes?'Tu jornada laboral ya cerró. Facebook continúa pendiente en su horario independiente.':entryComplete?'Completa tus evidencias laborales antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
+  $('day-close-copy').textContent=facebookOnly?'Hoy no tienes jornada laboral; esta tarea sigue activa en su propio horario.':data.comparticiones_vencidas?'La jornada laboral cerró, pero la compartición obligatoria no se entregó dentro de su horario.':data.salida_at&&data.comparticiones_pendientes?'Tu jornada laboral ya cerró. Facebook continúa pendiente en su horario independiente.':entryComplete?'Completa tus evidencias laborales antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
   const state=$('day-close-state');
-  state.dataset.state=facebookOnly?(data.pendientes?'waiting':'complete'):entryComplete?CLOSE_MODEL.stateTone(data.estado):'waiting';
-  state.innerHTML=`<i></i>${esc(facebookOnly?(data.pendientes?'Facebook pendiente':'Compartición completa'):entryComplete?dailyCloseStatusCopy(data.estado):'Entrada pendiente')}`;
+  state.dataset.state=facebookOnly?(data.comparticiones_vencidas?'incomplete':data.pendientes?'waiting':'complete'):entryComplete?CLOSE_MODEL.stateTone(data.estado):'waiting';
+  state.innerHTML=`<i></i>${esc(facebookOnly?(data.comparticiones_vencidas?'Compartición incompleta':data.pendientes?'Facebook pendiente':'Compartición completa'):entryComplete?dailyCloseStatusCopy(data.estado):'Entrada pendiente')}`;
   const guide=dailyCloseGuidePresentation(data),guideElement=$('day-close-guide');
   guideElement.dataset.stage=guide.stage;$('day-close-guide-title').textContent=guide.title;$('day-close-guide-copy').textContent=guide.copy;
   guideElement.querySelector('.day-close-journey').setAttribute('aria-label',`${guide.title}. ${guide.copy}`);
@@ -2137,7 +2142,7 @@ function renderDailyClose(){
     $('day-close-time').textContent=`${fmtTime(data.compartir_desde)}–${fmtTime(data.compartir_hasta)}`;
     $('day-close-window').textContent=data.puede_compartir?'Tu franja está abierta ahora':'Se habilitará en la franja indicada';
     button.hidden=true;
-    dailyCloseMessage(data.pendientes?(data.puede_compartir?'Abre la tarea azul y adjunta tus evidencias.':'Esta tarea no exige entrada ni salida; espera a que abra su horario.'):'Compartición enviada correctamente.','is-success');
+    dailyCloseMessage(data.comparticiones_vencidas?'El horario de Facebook terminó sin registrar las capturas.':data.pendientes?(data.puede_compartir?'Abre la tarea azul y adjunta tus evidencias.':'Esta tarea no exige entrada ni salida; espera a que abra su horario.'):'Compartición enviada correctamente.',data.comparticiones_vencidas?'is-error':'is-success');
     return;
   }
   button.hidden=false;
@@ -2161,9 +2166,11 @@ function renderDailyClose(){
   button.disabled=!data.puede_marcar_salida||DAILY_EVIDENCE.busy;
   if(data.salida_at){
     $('day-close-button-caption').textContent='SALIDA REGISTRADA';$('day-close-button-label').textContent=formatAttendanceClock(data.salida_at);
-    dailyCloseMessage(data.comparticiones_pendientes
+    dailyCloseMessage(data.comparticiones_vencidas
+      ?`Jornada incompleta · El horario de Facebook terminó sin registrar las capturas.`
+      :data.comparticiones_pendientes
       ?`Jornada laboral completa · Facebook ${data.puede_compartir?'está habilitado ahora':`se habilitará de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}`}.`
-      :`Jornada completa · ${Number(data.horas_efectivas||0).toFixed(2)} horas acreditadas.`,'is-success');
+      :`Jornada completa · ${Number(data.horas_efectivas||0).toFixed(2)} horas acreditadas.`,data.comparticiones_vencidas?'is-error':'is-success');
   }else if(data.estado==='incompleta'){
     $('day-close-button-caption').textContent='PLAZO FINALIZADO';$('day-close-button-label').textContent='Jornada incompleta';
     dailyCloseMessage('La entrada se conserva, pero esta jornada no suma asistencia ni horas.','is-error');

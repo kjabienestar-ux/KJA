@@ -40,6 +40,7 @@ const unavailableSeptemberFifthSql = fs.readFileSync(new URL('../supabase/dashbo
 const pendingExitSql = fs.readFileSync(new URL('../supabase/dashboard_46_conservar_salida_con_pendientes.sql', import.meta.url), 'utf8');
 const assignmentStatusSql = fs.readFileSync(new URL('../supabase/dashboard_47_estado_asignaciones.sql', import.meta.url), 'utf8');
 const separatedFacebookSql = fs.readFileSync(new URL('../supabase/dashboard_48_separar_jornada_y_comparticiones.sql', import.meta.url), 'utf8');
+const expiredFacebookSql = fs.readFileSync(new URL('../supabase/dashboard_49_vencimiento_comparticiones.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -675,6 +676,22 @@ test('workday state is independent from the configured Facebook window', () => {
   assert.match(js,/Jornada laboral cerrada/);
   assert.match(js,/Facebook continúa pendiente en su horario independiente/);
   assert.match(js,/Facebook seguirá pendiente hasta que abra su horario independiente/);
+});
+
+test('a missed Facebook window makes the day incomplete only after its deadline', () => {
+  for (const fragment of [
+    'rename to dash_cierre_resumen_colab_base_49',
+    'public.asis_compartir_fin_at(p_colaborador,p_fecha)',
+    'now()>v_compartir_hasta',
+    "'{comparticiones_vencidas}'",
+    "'{estado}'",
+    "to_jsonb('incompleta'::text)",
+  ]) assert.ok(expiredFacebookSql.includes(fragment), `expired Facebook migration missing: ${fragment}`);
+  assert.match(js,/if\(data\.comparticiones_vencidas\)return \{stage:'incomplete',title:'Compartición no entregada'/);
+  assert.match(js,/La jornada laboral cerró, pero la compartición obligatoria no se entregó dentro de su horario/);
+  assert.match(js,/Jornada incompleta · El horario de Facebook terminó sin registrar las capturas/);
+  assert.match(js,/data\.comparticiones_vencidas\?'Compartición incompleta'/);
+  assert.match(js,/data\.comparticiones_vencidas\?'Plazo finalizado'/);
 });
 
 test('assignment panel reports live completion and review states', () => {
