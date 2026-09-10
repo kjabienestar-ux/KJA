@@ -56,7 +56,10 @@ function adminCloseStateLabel(state){
 
 function adminCloseResolvedState(person,progress,date){
   const close=person?.cierre||{};
-  if(close.salida_at)return close.estado==='regularizada'?'regularizada':'completa';
+  if(close.salida_at){
+    if(close.estado==='incompleta'||(progress.total>0&&progress.done<progress.total))return 'incompleta';
+    return close.estado==='regularizada'?'regularizada':'completa';
+  }
   if(!person?.labora)return close.estado||'no_aplica';
   if(close.entrada_at){
     if(close.estado&&close.estado!=='pendiente'&&close.estado!=='sin_entrada')return close.estado;
@@ -130,11 +133,27 @@ function renderAdminDrawPreview(data){
 
 function renderAdminCloseAssignments(){
   const data=APP.adminClose,rows=data?.asignaciones||[];
-  $('admin-close-assignment-count').textContent=rows.length?`${rows.length} ${rows.length===1?'asignación':'asignaciones'}`:'Sin asignaciones';
-  $('admin-close-assignment-list').innerHTML=rows.length?rows.map(item=>`<div class="admin-close-assignment-row">
-    <span><small>${esc((item.tipo||'otro').toUpperCase())}</small><b>${esc(item.titulo)}</b><em>${esc(item.destino||'Destino no disponible')}</em></span>
-    ${data.puede_editar?`<button type="button" data-cancel-admin-close="${esc(item.id)}">Cancelar</button>`:''}
-  </div>`).join(''):'<p class="admin-empty">No hay entregables asignados para esta fecha.</p>';
+  const presentations=rows.map(adminCloseAssignmentPresentation),concluded=presentations.filter(item=>['entregada','aprobada'].includes(item.state)).length;
+  $('admin-close-assignment-count').textContent=rows.length?`${rows.length} ${rows.length===1?'asignación':'asignaciones'} · ${concluded} ${concluded===1?'concluida':'concluidas'}`:'Sin asignaciones';
+  $('admin-close-assignment-list').innerHTML=rows.length?rows.map((item,index)=>{const status=presentations[index];return `<div class="admin-close-assignment-row is-${esc(status.state)}">
+    <span class="admin-close-assignment-copy"><small>${esc((item.tipo||'otro').toUpperCase())}</small><b title="${esc(item.titulo)}">${esc(item.titulo)}</b><em>${esc(item.destino||'Destino no disponible')}</em></span>
+    <span class="admin-close-assignment-progress"><strong class="admin-assignment-state ${esc(status.state)}"><i aria-hidden="true"></i>${esc(status.label)}</strong><em>${esc(status.copy)}</em></span>
+    ${data.puede_editar&&item.cancelable!==false?`<button type="button" data-cancel-admin-close="${esc(item.id)}">Cancelar</button>`:''}
+  </div>`}).join(''):'<p class="admin-empty">No hay entregables asignados para esta fecha.</p>';
+}
+
+function adminCloseAssignmentPresentation(item){
+  const state=item.estado_asignacion||'pendiente',delivered=Number(item.entregados)||0,total=Number(item.destinatarios)||1;
+  const labels={pendiente:'Pendiente',parcial:'En progreso',entregada:'Entregada',aprobada:'Concluida',observada:'Con corrección',sin_destinatarios:'Sin destinatarios'};
+  const copy={
+    pendiente:'Aún no registra una entrega',
+    parcial:`${delivered} de ${total} personas entregaron`,
+    entregada:'Entrega recibida · pendiente de revisión',
+    aprobada:'Entrega revisada y aprobada',
+    observada:'Debe enviar una nueva versión',
+    sin_destinatarios:'No hay personas programadas'
+  }[state]||'Estado por confirmar';
+  return {state,label:labels[state]||'Pendiente',copy};
 }
 
 function renderAdminCloseStatus(){
@@ -188,14 +207,19 @@ function hydrateAdminCloseControls(){
   $('admin-close-assign').disabled=!canAssign;
 }
 
-async function loadAdminCloses(){
+let ADMIN_CLOSE_REQUEST=0;
+async function loadAdminCloses({quiet=false}={}){
   if(!APP.access.acceso_panel)return;
+  const request=++ADMIN_CLOSE_REQUEST,refresh=$('admin-close-assignments-refresh');
   const date=$('admin-close-date').value||isoLima();$('admin-close-date').value=date;
-  adminCloseMsg('');$('admin-close-status').innerHTML='<p class="admin-empty">Cargando cierres…</p>';
+  if(refresh){refresh.disabled=true;refresh.setAttribute('aria-busy','true');refresh.querySelector('span').textContent='Actualizando';}
+  adminCloseMsg('');if(!quiet)$('admin-close-status').innerHTML='<p class="admin-empty">Cargando cierres…</p>';
   const [{data,error},{data:reviewData,error:reviewError}]=await Promise.all([
     db.rpc('dash_admin_cierres',{p_fecha:date}),
     APP.access.rol==='direccion'?db.rpc('dash_admin_revision_entregas',{p_fecha:date}):Promise.resolve({data:null,error:null})
   ]);
+  if(request!==ADMIN_CLOSE_REQUEST)return;
+  if(refresh){refresh.disabled=false;refresh.removeAttribute('aria-busy');refresh.querySelector('span').textContent='Actualizar';}
   if(error||!data?.ok){
     APP.adminClose=null;
     const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_cierres'));
@@ -379,7 +403,7 @@ function selectAdminEvidenceRequirement(kind,assignment=null){
   adminEvidenceMessage('');renderAdminEvidenceComposer();
 }
 
-function openAdminEvidence(personId,trigger=null){
+function openAdminMissingEvidence(personId,trigger=null){
   if(APP.access.rol!=='direccion')return;
   const person=adminEvidencePerson(personId),items=adminEvidenceMissing(person);if(!person||!items.length)return toast('Esta persona no tiene evidencias pendientes.',true);
   ADMIN_EVIDENCE={personId:Number(personId),requirement:items[0].kind,assignment:items[0].assignment,files:[],trigger:trigger||document.activeElement,busy:false};
@@ -511,8 +535,9 @@ $('admin-close-instructions').oninput=clearAdminDrawPreview;
 $('admin-close-search').oninput=renderAdminCloseStatus;
 $('admin-close-area').onchange=renderAdminCloseStatus;
 $('admin-close-assignment-form').onsubmit=submitAdminCloseAssignment;
+$('admin-close-assignments-refresh').onclick=()=>loadAdminCloses({quiet:true});
 $('admin-close-assignment-list').onclick=event=>{const button=event.target.closest('[data-cancel-admin-close]');if(button)cancelAdminCloseAssignment(button.dataset.cancelAdminClose)};
-$('admin-close-status').onclick=event=>{const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]'),message=event.target.closest('[data-admin-message-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminEvidence(upload.dataset.adminUploadPerson,upload);if(message)openAdminMessage(message.dataset.adminMessagePerson,message)};
+$('admin-close-status').onclick=event=>{const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]'),message=event.target.closest('[data-admin-message-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminMissingEvidence(upload.dataset.adminUploadPerson,upload);if(message)openAdminMessage(message.dataset.adminMessagePerson,message)};
 $('admin-review-tabs').onclick=event=>{const button=event.target.closest('[data-admin-review-delivery]');if(button)renderAdminReviewDelivery(button.dataset.adminReviewDelivery)};
 $('admin-review-approve').onclick=()=>submitAdminReview('aprobada');
 $('admin-review-observe').onclick=()=>submitAdminReview('observada');
@@ -525,6 +550,7 @@ $('admin-evidence-picker').onkeydown=event=>{if(event.key==='Enter'||event.key==
 $('admin-evidence-previews').onclick=event=>{const button=event.target.closest('[data-remove-admin-evidence]');if(!button||ADMIN_EVIDENCE.busy)return;const index=Number(button.dataset.removeAdminEvidence),file=ADMIN_EVIDENCE.files[index];if(file?.url)URL.revokeObjectURL(file.url);ADMIN_EVIDENCE.files.splice(index,1);renderAdminEvidenceComposer()};
 document.querySelectorAll('input[name="admin-evidence-mode"]').forEach(input=>input.onchange=()=>{clearAdminEvidenceFiles();adminEvidenceMessage('Selecciona las imágenes correspondientes al nuevo formato.');renderAdminEvidenceComposer()});
 $('admin-evidence-form').onsubmit=submitAdminEvidence;
+setInterval(()=>{if(APP.adminSection==='cierres'&&!document.hidden&&$('admin-review-modal').hidden&&$('admin-evidence-modal').hidden)void loadAdminCloses({quiet:true})},30000);
 document.querySelectorAll('[data-close-admin-evidence]').forEach(button=>button.onclick=()=>closeAdminEvidence());
 $('admin-review-modal').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeAdminReview();return}

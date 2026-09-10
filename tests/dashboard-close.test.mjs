@@ -36,6 +36,9 @@ const unifiedNotificationsSql = fs.readFileSync(new URL('../supabase/dashboard_4
 const lateExitSql = fs.readFileSync(new URL('../supabase/dashboard_42_entrada_y_salida_tardia.sql', import.meta.url), 'utf8');
 const repairedExitSql = fs.readFileSync(new URL('../supabase/dashboard_43_reparar_regularizacion_salida.sql', import.meta.url), 'utf8');
 const closeSchedulesSql = fs.readFileSync(new URL('../supabase/dashboard_44_horarios_en_cierres.sql', import.meta.url), 'utf8');
+const unavailableSeptemberFifthSql = fs.readFileSync(new URL('../supabase/dashboard_45_excluir_05_septiembre.sql', import.meta.url), 'utf8');
+const pendingExitSql = fs.readFileSync(new URL('../supabase/dashboard_46_conservar_salida_con_pendientes.sql', import.meta.url), 'utf8');
+const assignmentStatusSql = fs.readFileSync(new URL('../supabase/dashboard_47_estado_asignaciones.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -528,7 +531,8 @@ test('exit evidence closes the workday automatically and safely repairs equivale
   ]) assert.ok(automaticCloseSql.includes(fragment), `automatic close migration missing: ${fragment}`);
   assert.match(automaticCloseSql,/salida_at=a\.salida_recuperada_at/);
   assert.match(automaticCloseSql,/on conflict\(registro_id\) do nothing/);
-  assert.match(js,/const autoExit=!editing&&data\.salida_registrada===true/);
+  assert.match(js,/const exitRecorded=!editing&&data\.salida_registrada===true/);
+  assert.match(js,/const autoExit=exitRecorded&&\['completa','regularizada'\]\.includes\(data\.resumen\?\.estado\)/);
   assert.match(js,/autoExit\?'Salida registrada\. Tu jornada está completa\.'/);
 });
 
@@ -600,7 +604,7 @@ test('phase 43 repairs already uploaded exits from direct evidence state', () =>
   ]) assert.ok(repairedExitSql.includes(fragment), `repaired exit migration missing: ${fragment}`);
   assert.doesNotMatch(repairedExitSql,/v_resumen->>'pendientes_salida'/);
   assert.match(adminJs,/function adminCloseResolvedState\(person,progress,date\)/);
-  assert.match(adminJs,/if\(close\.salida_at\)return close\.estado==='regularizada'\?'regularizada':'completa'/);
+  assert.match(adminJs,/if\(close\.salida_at\)\{[\s\S]*?progress\.done<progress\.total[\s\S]*?return close\.estado==='regularizada'\?'regularizada':'completa'/);
   assert.match(adminJs,/state=adminCloseResolvedState\(person,progress,selectedDate\)/);
 });
 
@@ -616,6 +620,65 @@ test('close rows show each scheduled range and tint non-working days', () => {
   assert.match(adminJs,/class="admin-close-person-schedule"/);
   assert.match(css,/\.admin-close-person\.is-off\{background:#fff2f4/);
   assert.match(css,/\.admin-close-person-schedule\{font-variant-numeric:tabular-nums/);
+});
+
+test('September 5 is excluded globally without deleting attendance history', () => {
+  for (const fragment of [
+    "fecha=date '2026-09-05'",
+    "ambito='empresa'",
+    "tipo='laborable_extra'",
+    "date '2026-09-05',",
+    "'Sistema de asistencia aun no disponible'",
+    'create or replace function public.asis_compartir_programado',
+    "and e.ambito='empresa'",
+    "then false",
+    "then 'OK'",
+  ]) assert.ok(unavailableSeptemberFifthSql.includes(fragment), `September 5 correction missing: ${fragment}`);
+  assert.doesNotMatch(unavailableSeptemberFifthSql,/delete\s+from\s+public\.asis_(registros|entregas_diarias)/i);
+});
+
+test('exit evidence keeps its time while other evidence remains pending', () => {
+  for (const fragment of [
+    'rename to dash_confirmar_entrega_base_46',
+    "p_requisito is distinct from 'salida'",
+    "and entrega.requisito='salida'",
+    'v_salida_at not between v_desde_at and v_hasta_at',
+    'set salida_at=v_salida_at',
+    "v_resultado-'salida_motivo'",
+    'rename to dash_cierre_resumen_colab_base_46',
+    "(v_resultado->>'pendientes')::integer",
+    "to_jsonb('incompleta'::text)",
+    'Salida recuperada desde la evidencia registrada por el colaborador.',
+    "colaborador.nombre ilike '%Mauricio%Obregon%'",
+  ]) assert.ok(pendingExitSql.includes(fragment), `pending exit correction missing: ${fragment}`);
+  assert.match(adminJs,/if\(close\.estado==='incompleta'\|\|\(progress\.total>0&&progress\.done<progress\.total\)\)return 'incompleta'/);
+  assert.match(js,/const exitRecorded=!editing&&data\.salida_registrada===true/);
+  assert.match(js,/La jornada seguirá incompleta hasta adjuntar las demás evidencias/);
+});
+
+test('assignment panel reports live completion and review states', () => {
+  for (const fragment of [
+    'rename to dash_admin_cierres_base_47',
+    "'destinatarios'",
+    "'entregados'",
+    "'aprobados'",
+    "'observados'",
+    "'estado_asignacion'",
+    "then 'aprobada'",
+    "then 'observada'",
+    "then 'entregada'",
+    "then 'parcial'",
+    "else 'pendiente'",
+    "entrega.asignacion_id=asignacion.id",
+  ]) assert.ok(assignmentStatusSql.includes(fragment), `assignment status migration missing: ${fragment}`);
+  assert.match(html,/id="admin-close-assignments-refresh"/);
+  assert.match(html,/id="admin-close-assignment-count" aria-live="polite"/);
+  assert.match(adminJs,/function adminCloseAssignmentPresentation\(item\)/);
+  assert.match(adminJs,/item\.estado_asignacion\|\|'pendiente'/);
+  assert.match(adminJs,/setInterval\(\(\)=>\{if\(APP\.adminSection==='cierres'/);
+  assert.match(adminJs,/loadAdminCloses\(\{quiet:true\}\)/);
+  assert.match(css,/\.admin-assignment-state\.aprobada\{/);
+  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{/);
 });
 
 test('evidence policy respects collage configuration and minimum screenshots', () => {
@@ -778,4 +841,52 @@ test('the rail announcement opens an accessible full-screen viewer', () => {
   assert.match(css,/\.announcement-viewer-stage\{[\s\S]*?overflow:auto/);
   assert.match(css,/@media\(max-width:650px\)\{[\s\S]*?height:100dvh/);
   assert.doesNotMatch(css,/\.rail-announcement-media:hover\{[^}]*transform:/);
+});
+
+test('desktop header replaces date chrome with live monthly attendance progress', () => {
+  assert.match(html,/class="dashboard-month-progress"/);
+  assert.match(html,/id="dashboard-month-days"/);
+  assert.doesNotMatch(html,/id="dashboard-month-rate"|id="dashboard-month-note"/);
+  assert.doesNotMatch(html,/class="month-card"|id="month-rate"|id="month-days-visual"/);
+  assert.match(html,/id="hours-accredited-detail"/);
+  assert.match(html,/id="hours-goal-detail"/);
+  assert.match(html,/id="hours-progress-track"[^>]*role="progressbar"[^>]*aria-valuenow="0"/);
+  assert.match(html,/id="day-date" hidden/);
+  assert.match(html,/id="day-status" hidden/);
+  assert.match(js,/function renderDashboardMonthProgress\(h\)/);
+  assert.match(js,/renderDashboardMonthProgress\(h\)/);
+  assert.match(js,/state=incomplete\?'incomplete':day\.futuro\?'future'/);
+  assert.match(js,/jornada incompleta':'jornadas incompletas'/);
+  assert.match(js,/<em aria-hidden="true">!<\/em>/);
+  assert.match(css,/\.dashboard-month-day\.today/);
+  assert.match(css,/\.dashboard-month-day\.incomplete\.today/);
+  assert.match(css,/grid-template-areas:"schedule close" "progress progress"/);
+  assert.match(css,/grid-template-columns:minmax\(230px,\.58fr\) minmax\(300px,1\.42fr\) auto/);
+  assert.match(css,/\.today-layout \.hours-progress-map/);
+  assert.match(css,/\.hours-progress-map \.progress-track i\{[\s\S]*?width:100%/);
+  assert.match(js,/hours-progress-track'\)\.setAttribute\('aria-valuenow'/);
+  assert.match(css,/border-bottom:0!important/);
+});
+
+test('request evidence viewer does not collide with Direction missing-evidence uploader', () => {
+  assert.match(js,/async function openAdminStoredEvidence\(path,bucket='asis-evidencias'\)/);
+  assert.match(js,/openAdminStoredEvidence\(evidence\.dataset\.requestEvidence,REQUEST_BUCKET\)/);
+  assert.match(adminJs,/function openAdminMissingEvidence\(personId,trigger=null\)/);
+  assert.match(adminJs,/openAdminMissingEvidence\(upload\.dataset\.adminUploadPerson,upload\)/);
+  assert.doesNotMatch(js,/function openAdminEvidence\(/);
+  assert.doesNotMatch(adminJs,/function openAdminEvidence\(/);
+});
+
+test('stored request evidence opens in an accessible in-dashboard modal', () => {
+  assert.match(html,/id="stored-evidence-viewer"[^>]*hidden/);
+  assert.match(html,/class="announcement-viewer-sheet stored-evidence-viewer-sheet"[^>]*role="dialog"[^>]*aria-modal="true"/);
+  assert.match(html,/id="stored-evidence-image"[^>]*hidden/);
+  assert.match(html,/id="stored-evidence-retry"/);
+  assert.match(js,/modal\.hidden=false;document\.body\.classList\.add\('stored-evidence-viewer-open'\)/);
+  assert.match(js,/image\.src=data\.signedUrl/);
+  assert.match(js,/function closeStoredEvidenceViewer/);
+  assert.match(js,/if\(closeStoredEvidenceViewer\(\)\)return/);
+  assert.doesNotMatch(js,/window\.open\(/);
+  assert.match(css,/body\.stored-evidence-viewer-open\{overflow:hidden\}/);
+  assert.match(css,/\.stored-evidence-viewer-stage img\{[\s\S]*?object-fit:contain/);
 });
