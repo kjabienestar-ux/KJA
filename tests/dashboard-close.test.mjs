@@ -10,6 +10,7 @@ const adminJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-cierre.js'
 const adminControlJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-control.js', import.meta.url), 'utf8');
 const adminMonthJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-mes.js', import.meta.url), 'utf8');
 const adminTeamJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-equipo.js', import.meta.url), 'utf8');
+const adminRolesJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-roles.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../assets/css/paginas/dashboard.css', import.meta.url), 'utf8');
 const sql = fs.readFileSync(new URL('../supabase/dashboard_19_cierre_jornada.sql', import.meta.url), 'utf8');
 const overnightSql = fs.readFileSync(new URL('../supabase/dashboard_20_cierre_ventana_nocturna.sql', import.meta.url), 'utf8');
@@ -41,6 +42,8 @@ const pendingExitSql = fs.readFileSync(new URL('../supabase/dashboard_46_conserv
 const assignmentStatusSql = fs.readFileSync(new URL('../supabase/dashboard_47_estado_asignaciones.sql', import.meta.url), 'utf8');
 const separatedFacebookSql = fs.readFileSync(new URL('../supabase/dashboard_48_separar_jornada_y_comparticiones.sql', import.meta.url), 'utf8');
 const expiredFacebookSql = fs.readFileSync(new URL('../supabase/dashboard_49_vencimiento_comparticiones.sql', import.meta.url), 'utf8');
+const visibleDirectionMessagesSql = fs.readFileSync(new URL('../supabase/dashboard_50_mensajes_direccion_visibles.sql', import.meta.url), 'utf8');
+const coLeadersSql = fs.readFileSync(new URL('../supabase/dashboard_51_colideres_tecnicos.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
 test('dashboard JavaScript parses', () => {
@@ -50,6 +53,99 @@ test('dashboard JavaScript parses', () => {
   assert.doesNotThrow(() => new vm.Script(adminControlJs));
   assert.doesNotThrow(() => new vm.Script(adminMonthJs));
   assert.doesNotThrow(() => new vm.Script(adminTeamJs));
+  assert.doesNotThrow(() => new vm.Script(adminRolesJs));
+});
+
+test('each area supports two co-leaders with the same server-side scope as its leader', () => {
+  for (const fragment of [
+    "check (nivel in ('sistemas','lider','colider','miembro'))",
+    "v_limite:=case when new.nivel='lider' then 1 else 2 end",
+    'create or replace function public.dash_admin_asignar_colider',
+    "'asignar_colider','reemplazar_colider','retirar_colider'",
+    "public.dash_nivel() in ('lider','colider')",
+    "public.dash_nivel() not in ('lider','colider','sistemas')",
+    "'co_lideres',coalesce",
+    "'co_lideres_max',2",
+    "'roles_por_revisar'",
+  ]) assert.ok(coLeadersSql.includes(fragment), `co-leader migration missing: ${fragment}`);
+  assert.match(coLeadersSql,/perfil\.nivel='colider'[\s\S]*?v_cantidad>=2/);
+  assert.match(coLeadersSql,/create policy "cierre evidencias: lectura autorizada"[\s\S]*?public\.dash_nivel\(\) in \('lider','colider'\)/);
+  assert.match(js,/colider:'Co-líder técnico'/);
+  assert.match(js,/\['lider','colider'\]\.includes\(p\.nivel\)/);
+  assert.match(adminRolesJs,/const coLeaderSlots=\[0,1\]/);
+  assert.match(adminRolesJs,/dash_admin_asignar_colider/);
+  assert.match(adminRolesJs,/data-colider-save/);
+  assert.match(html,/un líder y hasta dos co-líderes técnicos por área/);
+  assert.match(html,/dashboard-admin-roles\.js\?v=4/);
+  assert.match(css,/\.admin-role-colider-group\{/);
+  assert.match(css,/\.admin-role-seat\.is-colider\{/);
+  assert.match(adminRolesJs,/const ROLE_COLEADER_OPEN=new Set\(\)/);
+  assert.match(adminRolesJs,/data-colider-toggle=/);
+  assert.match(adminRolesJs,/aria-expanded=/);
+  assert.match(adminRolesJs,/class="admin-role-colider-panel"/);
+  assert.match(css,/\.admin-role-colider-panel\[hidden\]\{display:none\}/);
+  assert.match(html,/id="admin-role-confirm-modal"[^>]*data-tone="assign"[^>]*hidden/);
+  assert.match(html,/class="admin-role-confirm-sheet"[^>]*role="dialog"[^>]*aria-modal="true"/);
+  assert.match(adminRolesJs,/function confirmRoleAction/);
+  assert.match(adminRolesJs,/event\.key==='Escape'/);
+  assert.doesNotMatch(adminRolesJs,/\bconfirm\(/);
+  assert.match(css,/\.admin-role-confirm-sheet\{/);
+  assert.match(css,/@media\(max-width:900px\)\{\.admin-role-confirm-modal\{align-items:flex-end/);
+});
+
+test('operational overview prioritizes alerts and summarizes every admin section', () => {
+  assert.match(html,/class="admin-overview-today"/);
+  assert.match(html,/id="admin-attention-count"/);
+  assert.match(html,/id="admin-overview-map-title">Panorama de gestión/);
+  for (const section of ['control','cierres','lista','mes','resumen','colaboradores','contratos','roles','marcado']) {
+    assert.match(html,new RegExp(`class="admin-overview-module-grid"[\\s\\S]*?data-admin-section="${section}"`));
+  }
+  assert.match(js,/db\.rpc\('dash_admin_equipo'/);
+  assert.match(js,/db\.rpc\('dash_admin_mes'/);
+  assert.match(js,/db\.rpc\('dash_admin_control_diario'/);
+  assert.match(js,/priorities\.slice\(0,6\)/);
+  assert.match(js,/admin-overview-contract-value/);
+  assert.match(js,/admin-overview-roles-value/);
+  assert.match(css,/\.admin-overview-module-grid\{/);
+  assert.match(css,/\.admin-overview-module-grid>button\[hidden\]\{display:none\}/);
+  assert.match(html,/dashboard\.js\?v=159/);
+  assert.match(html,/dashboard\.css\?v=190/);
+});
+
+test('month ledger controls and metrics share one responsive workbench', () => {
+  assert.match(html,/class="admin-month-workbench"/);
+  assert.match(html,/class="admin-month-workbench-head"/);
+  assert.match(html,/class="admin-month-workbench-controls"/);
+  assert.match(html,/class="admin-month-workbench-head"[\s\S]*?id="admin-month-kpis" aria-live="polite"[\s\S]*?id="admin-month-export"/);
+  assert.match(html,/id="admin-month-prev"[^>]*>[\s\S]*?<svg/);
+  assert.match(html,/id="admin-month-holidays"[^>]*>[\s\S]*?Gestionar feriados/);
+  assert.match(adminMonthJs,/admin-list-kpi \$\{item\[2\]\}/);
+  assert.match(css,/\.admin-month-workbench\{/);
+  assert.match(css,/\.admin-month-workbench-head \.admin-month-kpis\{/);
+  assert.match(css,/\.admin-month-workbench-head \.admin-list-kpi\.danger b\{/);
+  assert.match(css,/\.portal\[data-time-phase\] \.admin-month-workbench \.admin-month-workbench-head \.admin-list-kpi\{/);
+  assert.match(css,/background:#173d69/);
+  assert.match(css,/@media\(max-width:760px\)\{\.admin-month-workbench-head/);
+  assert.match(html,/id="admin-month-area-trigger"[\s\S]*?role="combobox"[\s\S]*?aria-controls="admin-month-area-options"/);
+  assert.match(html,/id="admin-month-area-options"[\s\S]*?role="listbox"[\s\S]*?hidden/);
+  assert.match(html,/select id="admin-month-area" hidden aria-hidden="true" tabindex="-1"/);
+  assert.match(adminMonthJs,/function syncMonthAreaCombobox\(\)/);
+  assert.match(adminMonthJs,/select\.dispatchEvent\(new Event\('change',\{bubbles:true\}\)\)/);
+  for (const key of ['ArrowDown','ArrowUp','Home','End','Escape']) assert.ok(adminMonthJs.includes(key));
+  assert.match(css,/\.admin-month-area-options\[hidden\]\{display:none\}/);
+  assert.match(css,/\.admin-month-area-options button\[aria-selected="true"\]/);
+  assert.match(html,/dashboard-admin-mes\.js\?v=5/);
+});
+
+test('monthly summary prioritizes metrics and table inside a compact workbench', () => {
+  assert.match(html,/id="admin-summary-section"[\s\S]*?class="admin-summary-workbench"/);
+  assert.match(html,/class="admin-summary-workbench-head"[\s\S]*?id="admin-summary-kpis" aria-live="polite"[\s\S]*?id="admin-summary-export"/);
+  assert.match(html,/class="admin-summary-workbench-controls"[\s\S]*?id="admin-summary-value"[\s\S]*?class="admin-month-filters admin-summary-filters"/);
+  assert.match(html,/id="admin-summary-prev"[^>]*>[\s\S]*?<svg/);
+  assert.doesNotMatch(html,/LECTURA EJECUTIVA/);
+  assert.match(css,/\.admin-summary-workbench-head\{/);
+  assert.match(css,/\.admin-summary-workbench-head \.admin-summary-hero\{/);
+  assert.match(css,/max-height:clamp\(360px,calc\(100dvh - 330px\),680px\)/);
 });
 
 test('phase 14 separates Facebook schedule from the workday', () => {
@@ -434,6 +530,22 @@ test('direction messages, review notes and assignments share one private notific
   assert.match(adminJs,/data-label="Mensaje" class="admin-close-message-cell"/);
   assert.match(css,/\.admin-close-message-cell\{/);
   assert.match(css,/\.admin-message-sheet\{/);
+});
+
+test('every user notification visibly identifies the Direction message and sender', () => {
+  for (const fragment of [
+    'update public.asis_notificaciones notificacion',
+    "notificacion.dedupe_key='revision:'||revision.id::text",
+    'create or replace function public.dash_notificar_revision_trg',
+    'nullif(btrim(v_entrega.revision_nota)',
+    'create or replace function public.dash_mis_notificaciones_revision',
+    "'remitente',item.remitente",
+    'left join public.asis_perfiles perfil on perfil.id=notificacion.actor_id',
+  ]) assert.ok(visibleDirectionMessagesSql.includes(fragment), `visible Direction message migration missing: ${fragment}`);
+  assert.match(js,/const messageLabel=assignment\?'Indicaciones de Dirección':observed\?'Observación de Dirección':'Mensaje de Dirección'/);
+  assert.match(js,/const messageHeading=sender\?`\$\{messageLabel\} · \$\{sender\}`:messageLabel/);
+  assert.match(js,/class="has-direction-message\$\{hasMessage\?'':' is-system-message'\}"/);
+  assert.match(js,/\$\{esc\(messageHeading\)\}<\/span>\$\{esc\(copy\)\}/);
 });
 
 test('admin close evidence progress survives an incomplete close summary', () => {

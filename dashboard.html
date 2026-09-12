@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=182">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=190">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
@@ -659,20 +659,41 @@
       </nav>
 
       <div id="admin-overview-section">
-      <div class="admin-kpis" id="admin-kpis" aria-live="polite"></div>
+        <section class="admin-overview-today" aria-labelledby="admin-overview-title">
+          <header>
+            <span><small id="admin-overview-date">Operación de hoy</small><h2 id="admin-overview-title">Estado general del equipo</h2><p id="admin-overview-headline">Comprobando entradas, cierres y pendientes…</p></span>
+            <button type="button" data-admin-section="lista">Gestionar lista<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg></button>
+          </header>
+          <div class="admin-kpis" id="admin-kpis" aria-live="polite"></div>
+        </section>
 
-      <div class="admin-overview-grid">
-        <article class="admin-panel admin-live-panel">
-          <div class="admin-panel-head"><span><small>ESTADO EN VIVO</small><h2>Asistencia de hoy</h2></span><button type="button" data-admin-section="lista">Gestionar lista <span>→</span></button></div>
-          <div class="admin-status-list" id="admin-status-list"><p class="admin-empty">Cargando colaboradores…</p></div>
-        </article>
-        <article class="admin-panel admin-request-panel">
-          <div class="admin-panel-head"><span><small>SOLICITUDES</small><h2>Solicitudes del personal</h2></span><span class="admin-count" id="admin-request-count">0</span></div>
-          <div class="admin-request-list" id="admin-request-list"><p class="admin-empty">Cargando solicitudes…</p></div>
-          <button class="admin-panel-foot" id="admin-request-refresh" type="button">Actualizar solicitudes <span>↻</span></button>
-        </article>
-      </div>
+        <div class="admin-overview-grid">
+          <article class="admin-panel admin-live-panel">
+            <div class="admin-panel-head"><span><small>PRIORIDAD OPERATIVA</small><h2>Requieren atención</h2></span><span class="admin-count is-alert" id="admin-attention-count">0</span></div>
+            <div class="admin-status-list" id="admin-status-list"><p class="admin-empty">Cargando prioridades…</p></div>
+            <button class="admin-panel-foot" type="button" data-admin-section="lista">Abrir lista completa <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg></button>
+          </article>
+          <article class="admin-panel admin-request-panel">
+            <div class="admin-panel-head"><span><small>BANDEJA DE DIRECCIÓN</small><h2>Solicitudes del personal</h2></span><span class="admin-count" id="admin-request-count">0</span></div>
+            <div class="admin-request-list" id="admin-request-list"><p class="admin-empty">Cargando solicitudes…</p></div>
+            <button class="admin-panel-foot" id="admin-request-refresh" type="button">Actualizar solicitudes <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+          </article>
+        </div>
 
+        <section class="admin-overview-map" aria-labelledby="admin-overview-map-title">
+          <header><span><h2 id="admin-overview-map-title">Panorama de gestión</h2><p>Lo más importante de cada herramienta, sin salir del resumen.</p></span><small id="admin-refreshed">Actualizando…</small></header>
+          <div class="admin-overview-module-grid">
+            <button type="button" data-admin-section="control" id="admin-control-module" hidden><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM8 9h8M8 13h5M8 17h3"/></svg></span><span class="admin-overview-module-copy"><b>Control diario</b><small id="admin-overview-control-copy">Entradas, evidencias y salidas</small></span><span class="admin-overview-module-value" id="admin-overview-control-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-admin-section="cierres"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM9 8h6M9 12h6M9 16h4"/></svg></span><span class="admin-overview-module-copy"><b>Cierres y entregables</b><small id="admin-overview-close-copy">Estado de la jornada actual</small></span><span class="admin-overview-module-value" id="admin-overview-close-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-admin-section="lista"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span class="admin-overview-module-copy"><b>Pasar lista</b><small id="admin-overview-list-copy">Asistencia registrada hoy</small></span><span class="admin-overview-module-value" id="admin-overview-list-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-admin-section="mes"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v15H4zM8 3v4M16 3v4M4 9h16M8 13h2M14 13h2M8 17h2"/></svg></span><span class="admin-overview-module-copy"><b>Mes completo</b><small id="admin-overview-month-copy">Registros y pendientes del mes</small></span><span class="admin-overview-module-value" id="admin-overview-month-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-admin-section="resumen"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7"/></svg></span><span class="admin-overview-module-copy"><b>Resumen mensual</b><small id="admin-overview-summary-copy">Asistencia consolidada</small></span><span class="admin-overview-module-value" id="admin-overview-summary-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-admin-section="colaboradores"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2.5 20c.4-4 2.4-6 6-6s5.6 2 6 6M16 10a3 3 0 0 0 0-6M16 14c3 0 4.8 1.7 5 5"/></svg></span><span class="admin-overview-module-copy"><b>Colaboradores</b><small id="admin-overview-people-copy">Identidad y cuentas del equipo</small></span><span class="admin-overview-module-value" id="admin-overview-people-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-admin-section="contratos"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></span><span class="admin-overview-module-copy"><b>Contratos</b><small id="admin-overview-contract-copy">Metas, avance y alertas</small></span><span class="admin-overview-module-value" id="admin-overview-contract-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-admin-section="roles" id="admin-roles-module" hidden><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v5M6 21v-4a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v4M5 8h14v4H5z"/></svg></span><span class="admin-overview-module-copy"><b>Roles y equipos</b><small id="admin-overview-roles-copy">Líderes y co-líderes técnicos</small></span><span class="admin-overview-module-value" id="admin-overview-roles-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" data-admin-section="marcado" id="admin-device-module"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2"/></svg></span><span class="admin-overview-module-copy"><b>Marcado propio</b><small id="admin-overview-access-copy">Portal, PIN y geocerca</small></span><span class="admin-overview-module-value" id="admin-overview-access-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+          </div>
+        </section>
       </div>
 
       <section class="admin-control-section" id="admin-control-section" hidden>
@@ -749,26 +770,62 @@
       </section>
 
       <section class="admin-month-section" id="admin-month-section" hidden>
-        <div class="admin-month-toolbar">
-          <div><p class="eyebrow">LIBRO DE ASISTENCIA</p><h2>Mes completo</h2><p>Una lectura diaria del equipo, con feriados, excepciones y evidencias.</p></div>
-          <div class="admin-month-actions">
+        <div class="admin-month-workbench">
+          <header class="admin-month-workbench-head">
+            <span class="admin-month-heading"><h2>Mes completo</h2><p>Revisa asistencia, cierres, feriados y excepciones del equipo en un solo libro.</p></span>
+            <div class="admin-list-kpis admin-month-kpis" id="admin-month-kpis" aria-live="polite"></div>
+            <button class="admin-primary-action admin-month-export" id="admin-month-export" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Exportar CSV</span></button>
+          </header>
+          <div class="admin-month-workbench-controls">
+            <div class="admin-month-period-actions" aria-label="Período y calendario">
             <div class="admin-month-picker">
-              <button type="button" id="admin-month-prev" aria-label="Mes anterior">‹</button>
+                <button type="button" id="admin-month-prev" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
               <input type="month" id="admin-month-value" aria-label="Mes del libro de asistencia">
-              <button type="button" id="admin-month-next" aria-label="Mes siguiente">›</button>
-              <button type="button" id="admin-month-today">Mes actual</button>
+                <button type="button" id="admin-month-next" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             </div>
-            <button class="admin-secondary-action" id="admin-month-holidays" type="button">Feriados</button>
-            <button class="admin-primary-action" id="admin-month-export" type="button">Exportar CSV</button>
+              <button class="admin-month-today" type="button" id="admin-month-today">Ir al mes actual</button>
+              <button class="admin-secondary-action admin-month-holidays" id="admin-month-holidays" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 10h16M8 14h2M14 14h2"/></svg><span>Gestionar feriados</span></button>
+            </div>
+            <div class="admin-month-filters">
+              <label><span>Buscar</span><input type="search" id="admin-month-search" placeholder="Nombre del colaborador" autocomplete="off"></label>
+              <div class="admin-month-area-field">
+                <span id="admin-month-area-label">Área</span>
+                <div class="admin-month-area-combobox">
+                  <button
+                    class="admin-month-area-trigger"
+                    id="admin-month-area-trigger"
+                    type="button"
+                    role="combobox"
+                    aria-labelledby="admin-month-area-label admin-month-area-selected"
+                    aria-controls="admin-month-area-options"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                  >
+                    <svg class="admin-month-area-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 7h16M7 12h10M10 17h4" />
+                    </svg>
+                    <span id="admin-month-area-selected">Todas las áreas</span>
+                    <svg class="admin-month-area-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="m8 10 4 4 4-4" />
+                    </svg>
+                  </button>
+                  <div
+                    class="admin-month-area-options"
+                    id="admin-month-area-options"
+                    role="listbox"
+                    aria-labelledby="admin-month-area-label"
+                    hidden
+                  ></div>
+                </div>
+                <select id="admin-month-area" hidden aria-hidden="true" tabindex="-1">
+                  <option value="">Todas las áreas</option>
+                </select>
+              </div>
+              <label class="admin-toggle admin-month-inactive"><input type="checkbox" id="admin-month-inactive"><span>Incluir bajas</span></label>
+              <span class="sr-only" id="admin-month-stamp" aria-live="polite">—</span>
+            </div>
           </div>
         </div>
-        <div class="admin-month-filters">
-          <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-month-search" placeholder="Buscar colaborador…"></label>
-          <label><span class="sr-only">Filtrar por área</span><select id="admin-month-area"><option value="">Todas las áreas</option></select></label>
-          <label class="admin-toggle"><input type="checkbox" id="admin-month-inactive"><span>Incluir bajas</span></label>
-          <span class="admin-month-stamp" id="admin-month-stamp">—</span>
-        </div>
-        <div class="admin-list-kpis admin-month-kpis" id="admin-month-kpis"></div>
         <div class="admin-list-message" id="admin-month-message" role="status" aria-live="polite"></div>
         <div class="admin-month-ledger" id="admin-month-ledger"><p class="admin-empty">Ejecuta la migración de la fase 4 para cargar el mes.</p></div>
         <div class="admin-month-legend"><span><i class="p">P</i>Presente</span><span><i class="t">T</i>Tardanza</span><span><i class="j">J</i>Justificado</span><span><i class="ng">NG</i>No gestiona</span><span><i class="off"></i>No laborable</span><span><i class="holiday"></i>Feriado</span><small>Selecciona una celda para consultar o gestionar el día.</small></div>
@@ -776,25 +833,29 @@
       </section>
 
       <section class="admin-month-section" id="admin-summary-section" hidden>
-        <div class="admin-month-toolbar">
-          <div><p class="eyebrow">LECTURA EJECUTIVA</p><h2>Resumen mensual</h2><p>Indicadores comparables por persona y área, calculados con las reglas vigentes.</p></div>
-          <div class="admin-month-actions">
+        <div class="admin-summary-workbench">
+          <header class="admin-summary-workbench-head">
+            <div class="admin-summary-heading"><h2>Resumen mensual</h2><p>Indicadores comparables por persona y área, calculados con las reglas vigentes.</p></div>
+            <div class="admin-summary-hero" id="admin-summary-kpis" aria-live="polite"></div>
+            <button class="admin-primary-action admin-summary-export" id="admin-summary-export" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Exportar resumen</span></button>
+          </header>
+          <div class="admin-summary-workbench-controls">
+            <div class="admin-summary-period" aria-label="Período del resumen">
             <div class="admin-month-picker">
-              <button type="button" id="admin-summary-prev" aria-label="Mes anterior">‹</button>
+                <button type="button" id="admin-summary-prev" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
               <input type="month" id="admin-summary-value" aria-label="Mes del resumen">
-              <button type="button" id="admin-summary-next" aria-label="Mes siguiente">›</button>
-              <button type="button" id="admin-summary-today">Mes actual</button>
+                <button type="button" id="admin-summary-next" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             </div>
-            <button class="admin-primary-action" id="admin-summary-export" type="button">Exportar resumen</button>
+              <button class="admin-month-today" type="button" id="admin-summary-today">Mes actual</button>
+            </div>
+            <div class="admin-month-filters admin-summary-filters">
+              <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-summary-search" placeholder="Buscar colaborador…" autocomplete="off"></label>
+              <label><span class="sr-only">Filtrar por área</span><select id="admin-summary-area"><option value="">Todas las áreas</option></select></label>
+              <label class="admin-toggle"><input type="checkbox" id="admin-summary-inactive"><span>Incluir bajas</span></label>
+              <span class="sr-only" id="admin-summary-stamp" aria-live="polite">—</span>
+            </div>
           </div>
         </div>
-        <div class="admin-month-filters">
-          <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-summary-search" placeholder="Buscar colaborador…"></label>
-          <label><span class="sr-only">Filtrar por área</span><select id="admin-summary-area"><option value="">Todas las áreas</option></select></label>
-          <label class="admin-toggle"><input type="checkbox" id="admin-summary-inactive"><span>Incluir bajas</span></label>
-          <span class="admin-month-stamp" id="admin-summary-stamp">—</span>
-        </div>
-        <div class="admin-summary-hero" id="admin-summary-kpis"></div>
         <div class="admin-list-message" id="admin-summary-message" role="status" aria-live="polite"></div>
         <div class="admin-summary-table" id="admin-summary-table"><p class="admin-empty">Ejecuta la migración de la fase 4 para cargar el resumen.</p></div>
         <a class="admin-legacy-link" href="asistencia.html?modo=resumen">Abrir Resumen en el panel anterior ↗</a>
@@ -834,7 +895,7 @@
 
       <section class="admin-roles-section" id="admin-roles-section" hidden>
         <div class="admin-roles-toolbar">
-          <div><p class="eyebrow">ESTRUCTURA DEL EQUIPO</p><h2>Roles y liderazgo por área</h2><p>Designa quién acompaña a cada equipo. El cambio no modifica contratos, PIN ni asistencias.</p></div>
+          <div><p class="eyebrow">ESTRUCTURA DEL EQUIPO</p><h2>Roles y liderazgo por área</h2><p>Designa un líder y hasta dos co-líderes técnicos por área. Los tres cargos comparten el mismo alcance de consulta.</p></div>
           <span class="admin-roles-lock"><i></i>Solo administradores de sistemas</span>
         </div>
         <div class="admin-roles-message" id="admin-roles-message" role="status" aria-live="polite"></div>
@@ -1089,6 +1150,31 @@
         <button class="admin-message-submit" id="admin-message-submit" type="submit"><span>Enviar mensaje</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 4 17 8-17 8 3-8zm3 8h8"/></svg></button>
       </footer>
     </form>
+  </section>
+</div>
+
+<div class="modal admin-role-confirm-modal" id="admin-role-confirm-modal" data-tone="assign" hidden>
+  <button class="modal-backdrop" type="button" data-close-role-confirm aria-label="Cancelar cambio de liderazgo" tabindex="-1"></button>
+  <section class="admin-role-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="admin-role-confirm-title" aria-describedby="admin-role-confirm-copy">
+    <header class="admin-role-confirm-head">
+      <span class="admin-role-confirm-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-3.7 2.4-5.2 5.5-5.2s5 1.5 5.5 5.2M16 8.5h4M18 6.5v4"/></svg></span>
+      <span><h2 id="admin-role-confirm-title">Confirmar liderazgo</h2><p id="admin-role-confirm-copy">Revisa el cambio antes de aplicarlo.</p></span>
+      <button class="modal-close" type="button" data-close-role-confirm aria-label="Cerrar confirmación">×</button>
+    </header>
+    <div class="admin-role-confirm-body">
+      <dl class="admin-role-confirm-facts">
+        <div><dt id="admin-role-confirm-person-label">Persona</dt><dd id="admin-role-confirm-person">Colaborador</dd></div>
+        <div><dt>Área</dt><dd id="admin-role-confirm-area">Área</dd></div>
+      </dl>
+      <div class="admin-role-confirm-impact">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg>
+        <span><b id="admin-role-confirm-impact-title">Acceso que recibirá</b><p id="admin-role-confirm-impact-copy">Podrá consultar y acompañar a su equipo.</p></span>
+      </div>
+    </div>
+    <footer class="admin-role-confirm-actions">
+      <button class="admin-role-confirm-cancel" id="admin-role-confirm-cancel" type="button" data-close-role-confirm>Cancelar</button>
+      <button class="admin-role-confirm-submit" id="admin-role-confirm-submit" type="button">Confirmar cambio</button>
+    </footer>
   </section>
 </div>
 
@@ -1465,12 +1551,12 @@
 </div>
 
 <script src="assets/js/dashboard-close-model.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=157"></script>
+<script src="assets/js/dashboard.js?v=159"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=3"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=5"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
-<script src="assets/js/dashboard-admin-roles.js?v=1"></script>
+<script src="assets/js/dashboard-admin-roles.js?v=4"></script>
 <script src="assets/js/dashboard-admin-cierre.js?v=25"></script>
 <script src="assets/js/dashboard-admin-control.js?v=3"></script>
 </body>

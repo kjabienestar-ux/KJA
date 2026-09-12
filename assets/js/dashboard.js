@@ -252,7 +252,9 @@ function reviewNotificationMarkup(item){
   const assignmentKind=assignment&&item.meta?.tipo_entregable?` · ${String(item.meta.tipo_entregable).toUpperCase()}`:'';
   const title=assignment?`Nueva asignación${assignmentKind}`:direct?'Mensaje de Dirección':observed?'Necesitas corregir una evidencia':'Evidencia aprobada';
   const copy=item.nota||(assignment?'Dirección te asignó un nuevo entregable. Revisa los requisitos de tu jornada.':observed?'Dirección indicó que debes revisar esta entrega.':'Dirección aprobó la entrega sin observaciones adicionales.');
-  const messageLabel=assignment?'Indicaciones':direct?'Mensaje de Dirección':'Observación de Dirección';
+  const sender=String(item.remitente||'').trim();
+  const messageLabel=assignment?'Indicaciones de Dirección':observed?'Observación de Dirección':'Mensaje de Dirección';
+  const messageHeading=sender?`${messageLabel} · ${sender}`:messageLabel;
   const icon=assignment
     ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg>'
     : direct
@@ -262,7 +264,7 @@ function reviewNotificationMarkup(item){
         : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg>';
   const trash='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>';
   const state=assignment?'assignment':direct?'message':observed?'observed':'approved';
-  return `<article class="review-notification-item${unread?' is-unread':''}${deleting?' is-deleting':''}" data-state="${state}" role="listitem"><button class="review-notification-content" type="button" data-review-notification-id="${esc(item.id)}" aria-label="${esc(`${title}: ${item.titulo}. ${copy}`)}"><span class="review-notification-state">${icon}</span><span class="review-notification-copy"><span><b>${esc(title)}</b>${unread?'<em>Nueva</em>':''}</span><strong>${esc(item.titulo||'Aviso de Dirección')}</strong><p class="${hasMessage?'has-direction-message':'is-system-message'}">${hasMessage?`<span>${esc(messageLabel)}</span>`:''}${esc(copy)}</p><small>${esc(reviewNotificationDate(item.creado_at))}</small></span></button><button class="review-notification-delete" type="button" data-delete-review-notification="${esc(item.id)}" aria-label="${esc(`Eliminar notificación: ${title}, ${item.titulo||'Aviso de Dirección'}`)}" title="Eliminar notificación" ${deleting?'disabled':''}>${trash}</button></article>`;
+  return `<article class="review-notification-item${unread?' is-unread':''}${deleting?' is-deleting':''}" data-state="${state}" role="listitem"><button class="review-notification-content" type="button" data-review-notification-id="${esc(item.id)}" aria-label="${esc(`${title}: ${item.titulo}. ${messageHeading}: ${copy}`)}"><span class="review-notification-state">${icon}</span><span class="review-notification-copy"><span><b>${esc(title)}</b>${unread?'<em>Nueva</em>':''}</span><strong>${esc(item.titulo||'Aviso de Dirección')}</strong><p class="has-direction-message${hasMessage?'':' is-system-message'}"><span>${esc(messageHeading)}</span>${esc(copy)}</p><small>${esc(reviewNotificationDate(item.creado_at))}</small></span></button><button class="review-notification-delete" type="button" data-delete-review-notification="${esc(item.id)}" aria-label="${esc(`Eliminar notificación: ${title}, ${item.titulo||'Aviso de Dirección'}`)}" title="Eliminar notificación" ${deleting?'disabled':''}>${trash}</button></article>`;
 }
 
 function renderReviewNotifications(){
@@ -832,8 +834,8 @@ async function openPortal(activeSession,bootstrap=null){
   APP.year=lima.getFullYear(); APP.month=lima.getMonth()+1;
   $('access').hidden=true;
   const p=data.perfil||{}, c=data.colaborador;
-  const name=c?.nombre||p.nombre||'Equipo KJA', ini=initials(name), role={sistemas:'Administrador de sistemas',lider:'Líder técnico',miembro:'Colaborador'}[p.nivel]||'Colaborador';
-  APP.identity={nivel:p.nivel||'miembro',hasPersonal:!!c,isLeader:p.nivel==='lider'&&!!c,isSystem:p.nivel==='sistemas'};
+  const name=c?.nombre||p.nombre||'Equipo KJA', ini=initials(name), role={sistemas:'Administrador de sistemas',lider:'Líder técnico',colider:'Co-líder técnico',miembro:'Colaborador'}[p.nivel]||'Colaborador';
+  APP.identity={nivel:p.nivel||'miembro',hasPersonal:!!c,isLeader:['lider','colider'].includes(p.nivel)&&!!c,isSystem:p.nivel==='sistemas'};
   $('portal').dataset.role=APP.identity.nivel;
   $('portal').dataset.access=APP.access.rol;
   $('portal').dataset.personal=String(APP.identity.hasPersonal);
@@ -854,6 +856,7 @@ async function openPortal(activeSession,bootstrap=null){
   syncMobileQuickGrid();
   $('admin-role-chip').textContent=({direccion:'Dirección',editor:'Encargado(a)',visor:'Solo lectura'}[APP.access.rol]||APP.access.rol);
   const deviceModule=$('admin-device-module'); if(deviceModule)deviceModule.hidden=APP.access.rol!=='direccion';
+  const controlModule=$('admin-control-module'); if(controlModule)controlModule.hidden=APP.access.rol!=='direccion';
   $('admin-access-tab').hidden=APP.access.rol!=='direccion';
   $('admin-control-tab').hidden=APP.access.rol!=='direccion';
   const managesRoles=APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel;
@@ -1547,7 +1550,7 @@ async function loadTeam(){
 }
 
 async function openTeamProfile(id){
-  if(!APP.identity.isLeader)return toast('Solo el líder técnico puede consultar este equipo.',true);
+  if(!APP.identity.isLeader)return toast('Solo el líder o un co-líder técnico puede consultar este equipo.',true);
   const person=APP.teamPeople.find(item=>String(item.id)===String(id));if(!person)return;
   $('team-profile-modal').hidden=false;$('team-profile-title').textContent=person.nombre;$('team-profile-area').textContent=person.asis_areas?.nombre||'Sin área';
   paintPersonAvatar($('team-profile-avatar'),person);$('team-profile-body').innerHTML='<p class="admin-empty">Cargando perfil y asistencia…</p>';
@@ -1565,12 +1568,17 @@ async function loadAdminHub(){
   if(!APP.access.acceso_panel)return;
   const btn=$('admin-refresh'); btn.disabled=true;
   const today=isoLima();
-  const [peopleRes,marksRes,legacyRequestsRes,personalRequestsRes,closesRes]=await Promise.all([
+  const [year,month]=today.slice(0,7).split('-').map(Number),canDirect=APP.access.rol==='direccion',canManageRoles=APP.identity.isSystem&&canDirect;
+  const [peopleRes,marksRes,legacyRequestsRes,personalRequestsRes,closesRes,teamRes,monthRes,controlRes,rolesRes]=await Promise.all([
     db.from('asis_colaboradores').select('id,nombre,area_id,foto_path,foto_actualizada_at,asis_areas(nombre)').eq('activo',true).order('nombre'),
     db.from('asis_registros').select('colaborador_id,estado,marcado_at,origen').eq('fecha',today),
     db.from('asis_solicitudes_horario').select('id,colaborador_id,horario_nuevo,creado_at').eq('estado','pendiente').order('creado_at',{ascending:false}),
-    APP.access.rol==='direccion'?db.rpc('dash_admin_solicitudes_personales'):Promise.resolve({data:{ok:true,solicitudes:[]},error:null}),
-    db.rpc('dash_admin_cierres',{p_fecha:today})
+    canDirect?db.rpc('dash_admin_solicitudes_personales'):Promise.resolve({data:{ok:true,solicitudes:[]},error:null}),
+    db.rpc('dash_admin_cierres',{p_fecha:today}),
+    db.rpc('dash_admin_equipo',{p_incluir_inactivos:true}),
+    db.rpc('dash_admin_mes',{p_anio:year,p_mes:month,p_incluir_inactivos:false}),
+    canDirect?db.rpc('dash_admin_control_diario',{p_fecha:today}):Promise.resolve({data:null,error:null}),
+    canManageRoles?db.rpc('dash_admin_roles'):Promise.resolve({data:null,error:null})
   ]);
   btn.disabled=false;
   if(peopleRes.error||marksRes.error||closesRes.error||!closesRes.data?.ok){
@@ -1578,43 +1586,81 @@ async function loadAdminHub(){
     toast('No se pudo actualizar la administración.',true); return;
   }
   const people=await hydrateProfilePhotos(peopleRes.data||[]),marks=marksRes.data||[],legacyRequests=legacyRequestsRes.data||[],personalRequests=personalRequestsRes.data?.ok?personalRequestsRes.data.solicitudes||[]:[];
+  const teamData=!teamRes.error&&teamRes.data?.ok?teamRes.data:null,monthData=!monthRes.error&&monthRes.data?.ok?monthRes.data:null,controlData=!controlRes.error&&controlRes.data?.ok?controlRes.data:null,rolesData=!rolesRes.error&&rolesRes.data?.ok?rolesRes.data:null;
   const byMark=new Map(marks.map(x=>[String(x.colaborador_id),x]));
-  const byClose=new Map((closesRes.data?.personas||[]).map(x=>[String(x.id),x.cierre||{}]));
+  const closePeople=closesRes.data?.personas||[],byClose=new Map(closePeople.map(x=>[String(x.id),x.cierre||{}])),byClosePerson=new Map(closePeople.map(x=>[String(x.id),x]));
+  const byControl=new Map((controlData?.filas||[]).map(row=>[String(row.colaborador_id),row]));
   const byPerson=new Map(people.map(x=>[String(x.id),x]));
   const registered=people.filter(x=>byMark.has(String(x.id))).length;
   const complete=people.filter(x=>['completa','regularizada'].includes(byClose.get(String(x.id))?.estado)).length;
   const incomplete=people.filter(x=>byClose.get(String(x.id))?.estado==='incompleta').length;
   const pending=Math.max(0,people.length-registered);
+  const priorities=people.map(person=>{
+    const key=String(person.id),mark=byMark.get(key),close=byClose.get(key)||{},closePerson=byClosePerson.get(key),control=byControl.get(key);
+    if(closePerson?.labora===false||control?.labora===false)return null;
+    if(Number(control?.revision_observada)>0)return {person,label:'Corrección pendiente',detail:'Tiene una evidencia observada',tone:'danger',rank:1};
+    if(close.estado==='incompleta'||control?.cierre_estado==='incompleta')return {person,label:'Incompleta',detail:'La jornada terminó sin cierre válido',tone:'danger',rank:1};
+    if(Number(control?.revision_pendiente)>0)return {person,label:'Por revisar',detail:`${control.revision_pendiente} evidencia${Number(control.revision_pendiente)===1?'':'s'} pendiente${Number(control.revision_pendiente)===1?'':'s'}`,tone:'warning',rank:2};
+    if(Number(control?.evidencias_pendientes)>0)return {person,label:'Faltan evidencias',detail:`${control.evidencias_pendientes} requisito${Number(control.evidencias_pendientes)===1?'':'s'} pendiente${Number(control.evidencias_pendientes)===1?'':'s'}`,tone:'warning',rank:2};
+    if(!mark)return {person,label:'Sin entrada',detail:'Aún no registra asistencia',tone:'neutral',rank:3};
+    if(control?.entrada_at&&!control?.salida_at)return {person,label:'Cierre pendiente',detail:'Tiene entrada y todavía no registra salida',tone:'info',rank:4};
+    return null;
+  }).filter(Boolean).sort((a,b)=>a.rank-b.rank||a.person.nombre.localeCompare(b.person.nombre,'es'));
   const kpis=[
-    ['COLABORADORES ACTIVOS',people.length,'Personas en el sistema',''],
-    ['JORNADAS COMPLETAS',complete,`${people.length?Math.round(complete/people.length*100):0}% del equipo`,'registered'],
-    ['JORNADAS INCOMPLETAS',incomplete,'Entrada sin cierre válido','late'],
-    ['SIN REGISTRO',pending,'Revisión operativa pendiente','pending']
+    ['EQUIPO ACTIVO',people.length,'Personas programadas',''],
+    ['CON ENTRADA',registered,`${people.length?Math.round(registered/people.length*100):0}% del equipo`,'registered'],
+    ['JORNADAS COMPLETAS',complete,`${people.length?Math.round(complete/people.length*100):0}% del equipo`,'complete'],
+    ['REQUIEREN ATENCIÓN',priorities.length,priorities.length?'Revisar antes del cierre':'Sin alertas operativas','pending']
   ];
   $('admin-kpis').innerHTML=kpis.map(x=>`<article class="admin-kpi ${x[3]}"><small>${esc(x[0])}</small><b>${esc(x[1])}</b><span>${esc(x[2])}</span></article>`).join('');
+  $('admin-overview-date').textContent=cap(new Intl.DateTimeFormat('es-PE',{weekday:'long',day:'numeric',month:'long',timeZone:'America/Lima'}).format(new Date(today+'T12:00:00-05:00')));
+  $('admin-overview-headline').textContent=priorities.length?`${priorities.length} ${priorities.length===1?'persona requiere':'personas requieren'} atención; ${complete} ${complete===1?'jornada está completa':'jornadas están completas'}.`:complete?`Las ${complete} jornadas registradas están al día. No hay alertas operativas.`:'La jornada de hoy no presenta alertas operativas.';
 
-  const sorted=[...people].sort((a,b)=>Number(byMark.has(String(a.id)))-Number(byMark.has(String(b.id)))||a.nombre.localeCompare(b.nombre,'es'));
-  let statusHtml=sorted.slice(0,14).map(person=>{
-    const mark=byMark.get(String(person.id)),view=CLOSE_MODEL.attendancePresentation(mark,byClose.get(String(person.id))),state=view.state,label=view.label;
-    const time=mark?.marcado_at?new Date(mark.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'—';
-    return `<div class="admin-status-row">${profileAvatarMarkup(person)}<span><strong>${esc(person.nombre)}</strong><small>${esc(person.asis_areas?.nombre||'Sin área')}</small></span><span class="admin-status-time">${esc(time)}${mark?.origen?' · '+esc(mark.origen):''}</span><span class="admin-status-pill ${state.toLowerCase()}">${esc(label)}</span></div>`;
+  let statusHtml=priorities.slice(0,6).map(item=>{
+    return `<div class="admin-status-row">${profileAvatarMarkup(item.person)}<span><strong>${esc(item.person.nombre)}</strong><small>${esc(item.person.asis_areas?.nombre||'Sin área')}</small></span><span class="admin-status-time">${esc(item.detail)}</span><span class="admin-status-pill ${item.tone}">${esc(item.label)}</span></div>`;
   }).join('');
-  if(sorted.length>14)statusHtml+=`<p class="admin-empty">Mostrando 14 de ${sorted.length}. Abre Pasar lista para gestionar el equipo completo.</p>`;
-  $('admin-status-list').innerHTML=statusHtml||'<p class="admin-empty">No hay colaboradores activos.</p>';
+  if(priorities.length>6)statusHtml+=`<p class="admin-empty compact">Hay ${priorities.length-6} ${priorities.length-6===1?'caso adicional':'casos adicionales'} en la lista completa.</p>`;
+  $('admin-attention-count').textContent=priorities.length;$('admin-attention-count').classList.toggle('is-alert',priorities.length>0);
+  $('admin-status-list').innerHTML=statusHtml||'<div class="admin-overview-clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg><span><b>Todo bajo control</b><small>No hay personas que requieran atención inmediata.</small></span></div>';
 
   const totalRequests=personalRequests.length+legacyRequests.length;
   $('admin-request-count').textContent=totalRequests;
-  const personalHtml=personalRequests.slice(0,6).map(req=>{
+  const personalHtml=personalRequests.slice(0,3).map(req=>{
     const created=req.creado_at?new Date(req.creado_at).toLocaleDateString('es-PE',{day:'2-digit',month:'short',timeZone:'America/Lima'}):'—';
     const range=req.fecha_inicio===req.fecha_fin?formatRequestDate(req.fecha_inicio):`${formatRequestDate(req.fecha_inicio)} — ${formatRequestDate(req.fecha_fin)}`;
     const evidence=req.evidencia_path?`<button class="evidence" type="button" data-request-evidence="${esc(req.evidencia_path)}">Ver evidencia</button>`:'';
     return `<div class="admin-request personal" data-admin-personal-request="${req.id}"><span><b>${esc(req.nombre||'Colaborador')}</b><small>${esc(personalRequestLabel(req.tipo))} · ${esc(range)}</small></span><small>${esc(created)}</small><p>${esc(req.detalle||'Sin detalle')}</p><div class="admin-request-actions"><input data-request-response="${req.id}" maxlength="500" placeholder="Respuesta opcional">${evidence}<button class="approve" type="button" data-admin-personal-action="approve" data-request-id="${req.id}">Aprobar</button><button class="reject" type="button" data-admin-personal-action="reject" data-request-id="${req.id}">Rechazar</button></div></div>`;
   }).join('');
-  const remaining=Math.max(0,6-personalRequests.length),legacyHtml=legacyRequests.slice(0,remaining).map(req=>{
+  const remaining=Math.max(0,3-personalRequests.length),legacyHtml=legacyRequests.slice(0,remaining).map(req=>{
     const person=byPerson.get(String(req.colaborador_id)),created=req.creado_at?new Date(req.creado_at).toLocaleDateString('es-PE',{day:'2-digit',month:'short',timeZone:'America/Lima'}):'—';
     return `<div class="admin-request"><b>${esc(person?.nombre||'Colaborador')}</b><small>${esc(created)}</small><p>Cambio de horario · ${esc(req.horario_nuevo||'Sin detalle')}</p></div>`;
   }).join('');
   $('admin-request-list').innerHTML=personalHtml+legacyHtml||'<p class="admin-empty">No hay solicitudes pendientes.</p>';
+
+  const setOverview=(id,value)=>{const element=$(id);if(element)element.textContent=value};
+  const controlRows=controlData?.filas||[],evidencePending=controlRows.reduce((total,row)=>total+Number(row.evidencias_pendientes||0),0),reviewPending=controlRows.reduce((total,row)=>total+Number(row.revision_pendiente||0)+Number(row.revision_observada||0),0);
+  const monthSummary=monthData?.resumen||{},monthRecorded=Number(monthSummary.P||0)+Number(monthSummary.T||0)+Number(monthSummary.J||0)+Number(monthSummary.NG||0),monthBase=Number(monthSummary.P||0)+Number(monthSummary.T||0)+Number(monthSummary.J||0),monthRate=monthBase?Math.round((Number(monthSummary.P||0)+Number(monthSummary.T||0))*100/monthBase):null;
+  const teamPeople=teamData?.personas||[],activeTeam=teamPeople.length?teamPeople.filter(person=>person.activo):people,areaCount=new Set(activeTeam.map(person=>String(person.area_id)).filter(Boolean)).size,profileIssues=activeTeam.filter(person=>!person.dni||!person.tiene_pin).length;
+  const contractPending=activeTeam.filter(person=>person.resumen?.pendiente).length,contractAlerts=activeTeam.filter(person=>(person.resumen?.alertas||[]).length&&!person.resumen?.pendiente).length,contractAttention=contractPending+contractAlerts;
+  const roleSummary=rolesData?.resumen||{};
+  setOverview('admin-overview-control-value',`${priorities.length} ${priorities.length===1?'caso':'casos'}`);
+  setOverview('admin-overview-control-copy',evidencePending||reviewPending?`${evidencePending} evidencias · ${reviewPending} revisiones`:'Entradas, evidencias y salidas al día');
+  setOverview('admin-overview-close-value',`${complete}/${people.length}`);
+  setOverview('admin-overview-close-copy',incomplete?`${incomplete} incompleta${incomplete===1?'':'s'} · ${Math.max(0,people.length-complete-incomplete)} en curso`:'Jornadas completas de hoy');
+  setOverview('admin-overview-list-value',`${registered}/${people.length}`);
+  setOverview('admin-overview-list-copy',pending?`${pending} ${pending===1?'persona sin entrada':'personas sin entrada'}`:'Todo el equipo registró entrada');
+  setOverview('admin-overview-month-value',monthData?`${monthRecorded} registros`:'Consultar');
+  setOverview('admin-overview-month-copy',monthData?`${Number(monthSummary.pendientes||0)} pendientes · ${Number(monthSummary.horas||0).toFixed(1)} h`:'Registros y pendientes del mes');
+  setOverview('admin-overview-summary-value',monthRate==null?'Sin datos':`${monthRate}%`);
+  setOverview('admin-overview-summary-copy',monthData?`${Number(monthSummary.T||0)} tardanzas · ${Number(monthSummary.J||0)} justificados`:'Asistencia consolidada');
+  setOverview('admin-overview-people-value',`${activeTeam.length} activas`);
+  setOverview('admin-overview-people-copy',profileIssues?`${areaCount} áreas · ${profileIssues} con datos pendientes`:`${areaCount} áreas · identidades completas`);
+  setOverview('admin-overview-contract-value',contractAttention?`${contractAttention} por revisar`:'Al día');
+  setOverview('admin-overview-contract-copy',teamData?`${contractPending} pendientes · ${contractAlerts} con alertas`:'Metas, avance y alertas');
+  setOverview('admin-overview-roles-value',rolesData?`${Number(roleSummary.con_lider||0)}/${Number(roleSummary.areas||0)} con líder`:'Consultar');
+  setOverview('admin-overview-roles-copy',rolesData?`${Number(roleSummary.colideres||0)} co-líderes · ${Number(roleSummary.sin_lider||0)} sin líder`:'Líderes y co-líderes técnicos');
+  setOverview('admin-overview-access-value',teamData?`${activeTeam.filter(person=>!person.tiene_pin).length} sin PIN`:`${registered} marcas`);
+  setOverview('admin-overview-access-copy',teamData?'Portal, PIN y geocerca':'Accesos y marcado del equipo');
   $('admin-refreshed').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'});
 }
 
@@ -1802,7 +1848,7 @@ async function saveAdminState(personId,state,remove){
 function goView(view){
   if(view==='gestion'&&!APP.access.acceso_panel){toast('Esta cuenta no tiene acceso administrativo.',true);return;}
   if(['inicio','asistencia','perfil'].includes(view)&&!APP.identity.hasPersonal){toast('Esta cuenta no está vinculada a un perfil personal.',true);return;}
-  if(view==='equipo'&&!APP.identity.isLeader){toast('Mi equipo está reservado al líder técnico del área.',true);return;}
+  if(view==='equipo'&&!APP.identity.isLeader){toast('Mi equipo está reservado al líder y a los co-líderes técnicos del área.',true);return;}
   paintShell(view);
   if(matchMedia('(max-width:900px)').matches)window.scrollTo(0,0);
   closeMenu(); if(view==='asistencia')return loadPersonalRequests(); if(view==='equipo')return loadTeam(); if(view==='gestion')return showAdminSection(APP.adminSection);
