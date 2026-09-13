@@ -79,7 +79,9 @@
   }
   function note(text,error=false){status.textContent=text;status.dataset.error=String(error);retry.hidden=!error}
   function persist(){try{sessionStorage.setItem('kja-chat-windows:'+user,JSON.stringify([...windows.values()].map(w=>({id:w.id,minimized:w.minimized}))))}catch{}}
-  function toggleDirectory(show){panel.hidden=!show;directory.hidden=false;launcher.setAttribute('aria-expanded',String(show));if(show){syncPanel();renderContacts();const w=windows.get(activeId);if(w)w.input.focus();else search.focus()}else launcher.focus()}
+  const touchChat=()=>window.matchMedia?.('(max-width:700px), (pointer:coarse)').matches===true;
+  function focusChat(input){if(touchChat()){panel.tabIndex=-1;panel.focus({preventScroll:true})}else input.focus()}
+  function toggleDirectory(show){panel.hidden=!show;directory.hidden=false;launcher.setAttribute('aria-expanded',String(show));if(show){syncPanel();renderContacts();const w=windows.get(activeId);focusChat(w?w.input:search)}else launcher.focus()}
   launcher.onclick=()=>toggleDirectory(panel.hidden);closeDirectory.onclick=()=>toggleDirectory(false);
   function renderContacts(){
     const focusedContact=document.activeElement?.dataset?.contact;
@@ -156,8 +158,8 @@
       renderMessages(w,older);remember(w);windowNote(w,'');await markRead(w);
     }catch(error){if(current(w))windowNote(w,messageError(error)+' Usa Actualizar.',true)}finally{w.loading=false;w.older.disabled=false}
   }
-  function minimize(w,value){if(value){toggleDirectory(false)}else{activeId=w.id;syncPanel();if(!panel.hidden)w.input.focus();void history(w)}persist()}
-  function close(w){if(w.sending)return;remember(w);windows.delete(w.id);w.el.remove();if(activeId===w.id)activeId=null;syncPanel();renderContacts();persist();search.focus()}
+  function minimize(w,value){if(value){toggleDirectory(false)}else{activeId=w.id;syncPanel();if(!panel.hidden)focusChat(w.input);void history(w)}persist()}
+  function close(w){if(w.sending)return;remember(w);windows.delete(w.id);w.el.remove();if(activeId===w.id)activeId=null;syncPanel();renderContacts();persist();focusChat(search)}
   function open(id,options={}){
     const c=contacts.find(c=>c.id===id);if(!c)return;
     if(!options.restore)toggleDirectory(true);
@@ -167,14 +169,14 @@
     const cached=conversationCache.get(id);if(cached)Object.assign(w,{...cached,messages:new Map(cached.messages)});
     w.el=node('section','chat-window');w.el.setAttribute('aria-label','Conversación con '+c.nombre);
     const head=node('header','chat-heading');w.toggle=button('Minimizar chat','minus');w.close=button('Cerrar conversación','close');const title=node('strong','chat-peer-title',c.nombre);w.online=node('small','chat-peer-state');title.append(w.online);head.append(title,w.toggle,w.close);
-    w.avatar=node('span','chat-peer-avatar');w.avatar.append(avatarFor(c));const back=button('Volver a las personas','back','chat-icon chat-back');back.onclick=()=>{activeId=null;syncPanel();renderContacts();search.focus()};head.append(w.avatar,back);
+    w.avatar=node('span','chat-peer-avatar');w.avatar.append(avatarFor(c));const back=button('Volver a las personas','back','chat-icon chat-back');back.onclick=()=>{activeId=null;syncPanel();renderContacts();focusChat(search)};head.append(w.avatar,back);
     const body=node('div','chat-body');w.history=node('div','chat-history');w.history.setAttribute('role','log');w.history.setAttribute('aria-live','off');w.history.setAttribute('aria-label','Historial de mensajes');w.history.tabIndex=0;
     w.older=button('Ver mensajes anteriores',null,'chat-older');w.older.hidden=true;w.older.onclick=()=>history(w,true);
     w.status=node('p','chat-status');w.status.setAttribute('role','status');
     const update=button('Actualizar',null,'chat-older');update.onclick=()=>history(w);
-    const form=node('form','chat-compose');w.input=node('textarea');w.input.rows=2;w.input.maxLength=4000;w.input.placeholder='Escribe un mensaje…';w.input.setAttribute('aria-label','Mensaje para '+c.nombre);w.input.disabled=!c.activo;
+    const form=node('form','chat-compose');w.input=node('textarea');w.input.rows=1;w.input.maxLength=4000;w.input.placeholder='Mensaje…';w.input.setAttribute('aria-label','Mensaje para '+c.nombre);w.input.disabled=!c.activo;
     w.send=button('Enviar mensaje','send','chat-send');w.send.type='submit';w.send.disabled=true;form.append(w.input,w.send);
-    w.input.oninput=()=>{w.send.disabled=w.sending||!c.activo||!w.input.value.trim()};
+    w.input.oninput=()=>{w.send.disabled=w.sending||!c.activo||!w.input.value.trim();w.input.style.height='auto';w.input.style.height=Math.min(100,Math.max(44,w.input.scrollHeight))+'px'};
     form.onsubmit=async e=>{
       e.preventDefault();if(!current(w)||w.sending||!w.input.value.trim())return;
       const content=w.input.value.trim();if(Array.from(content).length>4000){windowNote(w,'El mensaje supera 4000 caracteres.',true);return}
@@ -184,7 +186,7 @@
         const m=await rpc('chat_enviar',{p_contacto:id,p_contenido:content,p_cliente_id:w.pending.id});if(!current(w))return;
         w.messages.set(Number(m.id),m);w.input.value='';w.pending=null;renderMessages(w);remember(w);w.history.scrollTop=w.history.scrollHeight;windowNote(w,'Mensaje enviado.');void refresh();
       }catch(error){if(current(w))windowNote(w,(error?.code==='P0001'?error.message:'No se confirmó el envío. Tu texto se conserva; pulsa Enviar para reintentar.'),true)}
-      finally{w.sending=false;if(current(w)){w.input.disabled=!c.activo;w.close.disabled=false;w.input.oninput();w.input.focus()}}
+      finally{w.sending=false;if(current(w)){w.input.disabled=!c.activo;w.close.disabled=false;w.input.oninput();if(!touchChat())w.input.focus()}}
     };
     w.input.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();form.requestSubmit()}};
     w.toggle.onclick=()=>minimize(w,!w.minimized);w.close.onclick=()=>{if(w.input.value.trim()&&!confirm('¿Cerrar esta conversación y descartar el mensaje sin enviar?'))return;close(w)};

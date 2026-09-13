@@ -4,11 +4,25 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 // DOM de eventos acotado: comprueba comportamiento, no sustituye revisión visual.
-function harness({failSend=false,waitSend=null,waitContacts=null,waitHistory=null,photos=[],photoError=false,presenceRows=[],presenceError=false}={}){
+test('mobile opening, returning and reopening do not focus a keyboard input',async()=>{
+  const h=harness({mobile:true});await h.start();h.find('chat-launcher')[0].onclick();
+  assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
+  await h.open();assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
+  h.find('chat-back')[0].onclick();assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
+  await h.open();assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
+});
+test('composer starts at one line and caps growth for long messages',async()=>{
+  const h=harness({mobile:true});await h.start();await h.open();
+  const input=h.find('chat-compose')[0].children[0];assert.equal(input.rows,1);
+  input.value='texto largo';input.scrollHeight=250;input.oninput();assert.equal(input.style.height,'100px');
+  input.value='';input.scrollHeight=24;input.oninput();assert.equal(input.style.height,'44px');
+});
+function harness({mobile=false,failSend=false,waitSend=null,waitContacts=null,waitHistory=null,photos=[],photoError=false,presenceRows=[],presenceError=false}={}){
   let document;
   let clock=Date.now();class ChatDate extends Date{static now(){return clock}}
   const connection={rows:presenceRows,error:presenceError},documentEvents={};
   class Element{
+    style={};
     children=[];attrs={};dataset={};listeners={};hidden=false;disabled=false;value='';textContent='';className='';scrollHeight=0;scrollTop=0;clientHeight=0;
     append(...nodes){for(const n of nodes){n.remove();n.parent=this;this.children.push(n)}}
     replaceChildren(...nodes){this.children.forEach(n=>n.parent=null);this.children=[];this.append(...nodes)}
@@ -40,6 +54,7 @@ function harness({failSend=false,waitSend=null,waitContacts=null,waitHistory=nul
     throw Error(name);
   }}});
   context.window=context;
+  context.matchMedia=()=>({matches:mobile});
   context.Date=ChatDate;
   vm.runInContext(fs.readFileSync(new URL('../assets/js/dashboard-chat.js',import.meta.url),'utf8'),context);
   function find(cls,root=document.body){return [root,...root.children.flatMap(c=>find('*',c))].filter(e=>cls==='*'||e.className.split(' ').includes(cls))}

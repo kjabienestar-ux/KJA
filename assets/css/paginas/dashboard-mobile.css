@@ -142,6 +142,25 @@
   .kja-chat .chat-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px}
   .kja-chat .chat-tabs button{width:auto;max-width:none;min-width:0;padding:10px 4px;white-space:normal;overflow:visible;text-overflow:clip}
 }
+/* Chat de teléfono: el historial ocupa el espacio que deja el teclado. */
+@media(max-width:700px){
+  .kja-chat .chat-panel{left:5%;right:5%;top:calc(var(--mobile-visible-top,0px) + var(--mobile-visible-height,100dvh) * .05);bottom:auto;width:90%;height:calc(var(--mobile-visible-height,100dvh) * .9);border-radius:20px}
+  .kja-chat .chat-heading{min-height:60px;flex-shrink:0;gap:6px;padding:8px 10px}
+  .kja-chat .chat-heading .chat-avatar{width:34px;height:34px}
+  .kja-chat .chat-peer-title{font-size:13px!important;line-height:1.25}
+  .kja-chat .chat-peer-state{margin-top:2px;font-size:10px}
+  .kja-chat .chat-history{gap:10px;padding:12px;overflow-anchor:auto}
+  .kja-chat .chat-bubble{padding:8px 11px;font-size:14px;line-height:1.4}
+  .kja-chat .chat-message time{margin-top:3px;font-size:9px}
+  .kja-chat .chat-compose{flex-shrink:0;align-items:flex-end;gap:8px;padding:8px 10px}
+  .kja-chat .chat-compose textarea{box-sizing:border-box;min-height:44px;height:44px;max-height:100px;padding:10px 13px;line-height:24px;border:1px solid #e1e5eb;border-radius:22px;overflow-y:auto}
+  .kja-chat .chat-compose textarea:focus{outline:0;border-color:#c5a14c;box-shadow:0 0 0 1px #c5a14c}
+  .kja-chat .chat-send{width:44px;height:44px}
+  .kja-chat .chat-compose:has(textarea:not(:disabled)) + .chat-hint{display:none}
+  .kja-chat .chat-body>.chat-older{min-height:28px;padding:3px 10px;font-size:10px!important}
+  .kja-chat .chat-status{padding:4px 12px;font-size:10px}
+  .kja-chat .chat-contact{padding:10px 12px}
+}
 @media(max-width:600px){
   #portal :is(.admin-overview-module-grid,.admin-access-layout,.admin-close-grid,.marketing-fields-grid){grid-template-columns:minmax(0,1fr)!important}
   #portal .admin-control-actions>*{flex:1 1 120px}
@@ -149,5 +168,4 @@
   #portal .admin-date-control{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;width:100%}
   #portal .admin-date-control>button:last-child{grid-column:1/-1}
   .modal .admin-schedule-row .schedule-mode,.modal .admin-schedule-row .schedule-link{grid-column:2/-1}
-  .kja-chat .chat-panel{top:calc(var(--mobile-visible-top,0px) + 8px);height:calc(var(--mobile-visible-height,100dvh) - 16px)}
 }
