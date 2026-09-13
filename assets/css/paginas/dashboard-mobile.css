@@ -1,0 +1,153 @@
+/* Capa móvil final: respeta [hidden] y los permisos del portal. */
+.mobile-admin-navigation,.mobile-scroll-hint{display:none}
+.mobile-admin-navigation[hidden]{display:none!important}
+@media(max-width:900px){
+  :root{--mobile-bottom-space:90px}
+  /* El ambiente no debe igualar las capas del drawer y su fondo oscuro. */
+  #portal>.workspace{position:relative;z-index:1}
+  #portal>.mobile-head{z-index:35}
+  #portal>.side-scrim{z-index:40}
+  #portal>.sidebar{z-index:50;top:var(--mobile-visible-top,0px);background:#fff}
+  body[data-mobile-menu-open=true]{overflow:hidden}
+  body[data-mobile-menu-open=true] .kja-chat{visibility:hidden;pointer-events:none}
+  /* En móvil el contenido crece en el documento, sin filas de viewport. */
+  #portal.admin-wide:not([data-loading=true])>.workspace{display:block;min-height:0}
+  #portal.admin-wide #view-gestion:not([hidden]){position:relative!important;inset:auto;display:block;height:auto;min-height:0;overflow:visible;margin:0;padding:0}
+  #portal #view-gestion>header.view-head.admin-view-head{display:flex;position:relative;min-height:0;height:auto;align-items:center;gap:12px;margin:0 0 16px!important;padding:8px 0!important;background:none!important;box-shadow:none!important}
+  #portal #view-gestion>header.view-head.admin-view-head::before,
+  #portal #view-gestion>header.view-head.admin-view-head::after{content:none!important;display:none!important}
+  #portal #view-gestion>.admin-view-head h1{color:var(--navy)!important;line-height:1.25!important}
+  #portal #view-gestion>.admin-view-head>div:first-child{flex:1 1 200px;min-width:0}
+  #portal #view-gestion>.admin-view-head .admin-head-actions{width:auto;flex:0 0 auto;margin-left:auto}
+  #portal #view-gestion>.mobile-admin-navigation{position:relative;inset:auto;height:auto;min-height:0}
+  #portal #view-gestion>.admin-section-nav{height:auto;min-height:0;align-content:start}
+  #portal #view-gestion>[id^=admin-]{position:relative;inset:auto;min-height:0;margin-top:0;overflow:visible}
+  #portal,#portal.admin-wide{width:100%;max-width:100%;min-width:0;height:auto;min-height:100dvh;overflow:visible}
+  #portal .workspace{min-width:0;max-width:100%;height:auto;overflow:visible;padding-bottom:calc(var(--mobile-bottom-space) + env(safe-area-inset-bottom,0px))!important}
+  #portal .view{min-width:0;max-width:100%;width:100%}
+  #portal .view:not(#view-inicio){padding-inline:0}
+  #portal .view>header{gap:12px;flex-wrap:wrap}
+  #portal #view-gestion>.admin-view-head h1{white-space:normal;overflow-wrap:anywhere;font-size:22px!important}
+  #portal .sidebar{height:var(--mobile-visible-height,100dvh);min-height:0;padding-bottom:max(20px,env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}
+  #portal .side-nav{margin-top:20px}
+  #portal .side-user{flex-shrink:0}
+  #portal .mobile-portal-home{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  #portal .mobile-profile-copy,#portal .mobile-quick-grid button>span{min-width:0;overflow-wrap:anywhere}
+  #portal .mobile-quick-grid button b,#portal .mobile-quick-grid button small{white-space:normal}
+
+  /* Cada sección administrativa queda a un toque, sin perder las restricciones de rol. */
+  #view-gestion.has-mobile-admin-nav>.admin-section-nav{display:flex;justify-content:flex-end;margin:0 0 12px;padding:0;border:0;background:transparent;box-shadow:none}
+  #view-gestion.has-mobile-admin-nav>.admin-section-nav>button{display:none}
+  #view-gestion>.mobile-admin-navigation{display:block;margin:6px 0 12px;padding:0;border:1px solid #dce5ee;border-radius:16px;background:#fff;box-shadow:0 4px 14px #18355206}
+  .mobile-admin-navigation summary{position:relative;display:block;min-height:68px;padding:13px 48px 13px 16px;list-style:none;cursor:pointer}
+  .mobile-admin-navigation summary::-webkit-details-marker{display:none}
+  .mobile-admin-navigation summary::after{content:'';position:absolute;right:20px;top:29px;width:8px;height:8px;border:solid #46617c;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .mobile-admin-navigation[open] summary::after{transform:rotate(225deg);top:33px}
+  .mobile-admin-navigation summary span{display:block;margin-bottom:4px;font-size:11px;font-weight:600;color:#61758a}
+  .mobile-admin-navigation summary strong{display:block;color:#163854;font-size:15px;line-height:1.4}
+  .mobile-admin-navigation summary:focus-visible{outline:3px solid #77a9d3;outline-offset:3px;border-radius:14px}
+  .mobile-admin-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:10px;border-top:1px solid #e6ecf2;max-height:48dvh;overflow:auto;overscroll-behavior:contain}
+  #portal .mobile-admin-options button{min-height:48px;padding:10px 12px;border:1px solid transparent;border-radius:10px;background:#f6f8fb;color:#405771;text-align:left;white-space:normal;line-height:1.4}
+  #portal .mobile-admin-options button[aria-pressed=true]{border-color:#d6a11b;background:#fff3cc;color:#513c08;font-weight:700}
+  #portal .mobile-admin-options button:focus-visible{outline:3px solid #77a9d3;outline-offset:1px}
+  /* Datos emparejados: evita una tarjeta de media pantalla por persona. */
+  #portal .admin-control-table{overflow:visible;border:0;background:transparent;box-shadow:none}
+  #portal .admin-control-table-head{display:none}
+  #portal .admin-control-row{min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;margin:0 0 12px;padding:16px;border:1px solid #e0e7ef;border-radius:18px;background:#fff;box-shadow:0 3px 12px #18355206}
+  #portal .admin-control-person{grid-column:1/-1;padding:0 0 13px;border-bottom:1px solid #edf1f5}
+  #portal .admin-control-person>i{width:40px;height:40px;flex-basis:40px;border-radius:13px;background:#edf3fa;color:#21466b;font-size:11px}
+  #portal .admin-control-person b{font-size:13px;white-space:normal;line-height:1.4}
+  #portal .admin-control-row>span[data-label]::before{content:attr(data-label);display:block;margin-bottom:5px;color:#718197;font-size:10px;font-weight:600;text-transform:none}
+  #portal .admin-control-row>span>b{font-size:13px;white-space:normal;line-height:1.4}
+  #portal .admin-control-row small{font-size:11px!important;white-space:normal;line-height:1.4}
+  #portal .admin-control-state{max-width:100%;white-space:normal;font-size:11px!important;padding:6px 9px}
+  #portal .admin-control-row>button{grid-column:1/-1;min-height:44px;margin-top:2px;border-color:#d9e5ef;border-radius:11px;background:#f2f7fc;color:#214f79;font-size:12px!important}
+  #portal>.mobile-head{height:64px;padding-inline:16px;border-bottom:1px solid #dfe7ef;background:#f8fbfe;box-shadow:0 2px 10px #18355205}
+  #portal>.mobile-head>button{width:44px;height:44px;border:1px solid #e1e9f1;border-radius:13px;background:#fff}
+  #portal>.mobile-head>img{width:42px;height:38px;object-fit:contain}
+  #portal>.mobile-head>.avatar{width:38px;height:38px;border-radius:13px;box-shadow:none;font-size:12px}
+  #view-gestion>:is(section,div){min-width:0;max-width:100%;height:auto;max-height:none}
+  #portal :is(.admin-overview-grid,.admin-access-layout,.admin-close-grid,.profile-layout,.attendance-layout,.admin-review-workspace,.marketing-layout){grid-template-columns:minmax(0,1fr)!important}
+  #portal :is(.admin-list-toolbar,.admin-team-toolbar,.admin-access-toolbar,.admin-roles-toolbar,.admin-control-head,.admin-month-workbench-head,.admin-summary-head){display:flex;flex-direction:column;align-items:stretch;gap:14px}
+  #portal :is(.admin-list-filters,.admin-access-filters,.admin-control-filters,.admin-close-filters,.admin-month-filters,.admin-summary-filters){display:grid;grid-template-columns:minmax(0,1fr)!important;gap:12px;width:100%;min-width:0}
+  #portal :is(.admin-team-actions,.admin-control-actions,.admin-month-period-actions,.admin-head-actions,.admin-office-actions,.month-toolbar){display:flex;flex-wrap:wrap;gap:10px;max-width:100%;min-width:0}
+  #portal :is(.admin-control-actions,.admin-month-period-actions)>label{flex:1 1 160px;min-width:0}
+  #portal :is(.admin-month-workbench-controls,.admin-close-command,.admin-close-fields){grid-template-columns:minmax(0,1fr)!important}
+  #portal :is(.admin-month-filters,.admin-close-fields)>.span-2{grid-column:auto}
+  #portal :is(.admin-month-area-field,.admin-month-area-combobox,.admin-month-picker,.admin-date-control){min-width:0;max-width:100%}
+  #portal .admin-month-area-options{max-height:min(280px,45dvh);overflow:auto;z-index:20}
+  #portal :is(.admin-list-kpis,.admin-control-kpis,.admin-overview-module-grid){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #portal :is(.admin-list-kpi,.admin-overview-module-copy,.admin-team-person,.team-row>span,.profile-data){min-width:0}
+  #portal :is(.admin-role-assignment,.admin-role-coliders,.admin-roles-grid,.admin-team-grid){grid-template-columns:minmax(0,1fr)!important}
+  #portal :is(.admin-roster-row,.admin-access-person){grid-template-columns:44px minmax(0,1fr);gap:12px;padding:16px;min-width:0}
+  #portal :is(.admin-roster-row,.admin-access-person)>:nth-child(n+3){grid-column:1/-1;min-width:0}
+  #portal :is(.admin-person,.admin-shift,.admin-state-actions){min-width:0;flex-wrap:wrap;white-space:normal}
+  #portal :is(.admin-person,.admin-access-person) b{white-space:normal;overflow-wrap:anywhere}
+  #portal :is(.admin-contract-head,.admin-summary-head){display:none}
+  #portal :is(.admin-contract-row,.admin-summary-row){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:16px;min-width:0}
+  #portal :is(.admin-contract-row,.admin-summary-row)>:first-child{grid-column:1/-1}
+  #portal .admin-summary-row>span:nth-child(4),#portal .admin-summary-row>span:nth-child(5){display:block}
+  #portal .admin-summary-states{grid-column:1/-1;grid-template-columns:repeat(5,minmax(0,1fr))}
+  #portal :is(.admin-contract-row,.admin-summary-row)>*{min-width:0;white-space:normal}
+  #portal .team-row>span:nth-child(3){display:block;grid-column:2/-1;white-space:normal}
+  #portal :is(.profile-notice,.admin-person-card,.admin-contract-row,.admin-summary-row,.admin-access-person){overflow-wrap:anywhere}
+  #portal .profile-notice a{white-space:normal}
+
+  /* Los registros extensos se desplazan dentro de su región, no arrastran la página. */
+  #portal :is(.admin-month-ledger,.admin-summary-table,.admin-control-table){max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;touch-action:pan-x pan-y}
+  #portal .admin-month-ledger{max-height:65dvh;overflow-y:auto;position:relative}
+  #portal .admin-month-table{width:max-content;min-width:100%}
+  #portal .admin-month-table .person-col{width:136px;min-width:136px;max-width:136px;position:sticky;left:0;z-index:2;background:#fff;white-space:normal}
+  #portal .admin-month-table .person-col b{white-space:normal;overflow-wrap:anywhere}
+  #portal .admin-month-table .person-col .avatar{display:none}
+  #portal .admin-month-table :is(th.day-col,td){min-width:46px}
+  #portal .admin-month-table td button{min-width:44px;min-height:44px}
+  #portal .admin-close-table-head{display:none!important}
+  #portal .admin-close-person{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:16px;min-width:0}
+  #portal .admin-close-person>span:first-child,#portal .admin-close-message-cell{grid-column:1/-1}
+  #portal .admin-close-person>*{min-width:0;white-space:normal}
+  .mobile-scroll-hint{display:block;margin:0;padding:10px 12px;color:var(--muted);background:#f4f7fa;font-size:12px;line-height:1.5}
+
+  /* Áreas táctiles y campos legibles, incluido Safari sin ampliación al enfocar. */
+  :is(#portal,.modal,.review-notification-layer,.kja-chat) :is(button,a[role=button]){min-height:44px;touch-action:manipulation}
+  :is(#portal,.modal,.review-notification-layer,.kja-chat) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){min-width:0;max-width:100%;font-size:16px!important}
+  :is(#portal,.modal) :is(input[type=checkbox],input[type=radio]){width:20px;height:20px;flex-shrink:0}
+  #portal :is(.calendar-card,.team-list,.profile-data,.marketing-editor){max-width:100%;min-width:0}
+  #portal :is(.calendar-grid,.calendar-week){grid-template-columns:repeat(7,minmax(0,1fr))}
+  #portal .cal-day{min-width:0;padding:6px 2px}
+  #portal .calendar-legend{flex-wrap:wrap;gap:8px 14px}
+  #portal .marketing-source{position:static}
+  #portal .marketing-actions{flex-wrap:wrap}
+  #portal .marketing-actions>*{flex:1 1 140px}
+  #portal .marketing-editor-nav{display:flex;flex-wrap:wrap}
+
+  /* Todo el formulario, incluidas sus acciones, queda dentro del viewport visible. */
+  .modal{top:var(--mobile-visible-top,0px)!important;bottom:auto!important;height:var(--mobile-visible-height,100dvh)!important;max-height:var(--mobile-visible-height,100dvh);padding:8px;align-items:flex-end;overflow:auto;overscroll-behavior:contain}
+  .modal :is([role=dialog],.avatar-crop-sheet){width:100%!important;min-width:0!important;max-width:100%!important;max-height:calc(var(--mobile-visible-height,100dvh) - 16px)!important;overflow-y:auto!important;overscroll-behavior:contain;border-radius:16px!important;padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
+  .modal :is(.admin-editor-block,.admin-form-grid,.contract-fields,.admin-general-hours,.personal-request-grid,.admin-role-confirm-facts,.admin-review-workspace){grid-template-columns:minmax(0,1fr)!important}
+  .modal :is(.span-2,.admin-pending-check,.contract-fields,.admin-general-hours){grid-column:auto!important}
+  .modal :is(.admin-editor-head,.admin-review-head,.admin-evidence-head){position:relative;gap:12px;padding:16px}
+  .modal :is(.admin-editor-foot,.admin-review-actions,.admin-evidence-actions,.admin-role-confirm-actions,.evidence-actions,.avatar-crop-actions){display:flex;flex-wrap:wrap;gap:10px;position:static}
+  .modal :is(.admin-editor-foot,.admin-review-actions,.admin-evidence-actions,.admin-role-confirm-actions)>button{flex:1 1 140px;min-width:0;white-space:normal}
+  .modal .admin-review-gallery{max-height:40dvh;overflow:auto}
+  .modal .admin-review-decision{min-width:0;max-height:none;overflow:visible}
+  .modal .admin-schedule-row{grid-template-columns:40px minmax(0,1fr) minmax(0,1fr);gap:8px}
+  .modal .admin-schedule-row :is(input,select){width:100%}
+  .modal .modal-close{width:44px;height:44px;flex:0 0 44px}
+  .review-notification-layer{top:var(--mobile-visible-top,0px);height:var(--mobile-visible-height,100dvh);padding:8px}
+  .review-notification-panel{max-height:calc(var(--mobile-visible-height,100dvh) - 16px);width:100%;margin:0}
+  body[data-mobile-dialog-open=true] .kja-chat{visibility:hidden;pointer-events:none}
+
+  .kja-chat{right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  .kja-chat .chat-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px}
+  .kja-chat .chat-tabs button{width:auto;max-width:none;min-width:0;padding:10px 4px;white-space:normal;overflow:visible;text-overflow:clip}
+}
+@media(max-width:600px){
+  #portal :is(.admin-overview-module-grid,.admin-access-layout,.admin-close-grid,.marketing-fields-grid){grid-template-columns:minmax(0,1fr)!important}
+  #portal .admin-control-actions>*{flex:1 1 120px}
+  #portal .admin-month-picker{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;width:100%}
+  #portal .admin-date-control{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;width:100%}
+  #portal .admin-date-control>button:last-child{grid-column:1/-1}
+  .modal .admin-schedule-row .schedule-mode,.modal .admin-schedule-row .schedule-link{grid-column:2/-1}
+  .kja-chat .chat-panel{top:calc(var(--mobile-visible-top,0px) + 8px);height:calc(var(--mobile-visible-height,100dvh) - 16px)}
+}

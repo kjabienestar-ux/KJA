@@ -108,7 +108,7 @@ test('operational overview prioritizes alerts and summarizes every admin section
   assert.match(js,/admin-overview-roles-value/);
   assert.match(css,/\.admin-overview-module-grid\{/);
   assert.match(css,/\.admin-overview-module-grid>button\[hidden\]\{display:none\}/);
-  assert.match(html,/dashboard\.js\?v=159/);
+  assert.ok(Number(html.match(/dashboard\.js\?v=(\d+)/)?.[1])>=159,'dashboard script must include the operational overview revision or a newer cache version');
   assert.match(html,/dashboard\.css\?v=190/);
 });
 

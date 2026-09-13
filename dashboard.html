@@ -7,6 +7,8 @@
 <meta name="theme-color" content="#0b2a5c">
 <title>Mi portal - KJA</title>
 <link rel="icon" href="images/logo/favicon.png">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-marketing.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-chat.css?v=6">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
@@ -14,6 +16,7 @@
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
   <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=190">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
+<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 </head>
@@ -139,6 +142,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="side-brand"><img src="images/logo/logo.webp" alt="KJA"><span>Portal <b>KJA</b></span></div>
     <nav class="side-nav" aria-label="Navegación principal">
+      <button id="nav-marketing" data-view="marketing" hidden><svg viewBox="0 0 24 24"><path d="M4 10v5h4l9 4V6l-9 4H4ZM8 15l2 6M20 9v7"/></svg><span>Publicaciones</span></button>
       <span class="side-nav-divider personal" id="personal-nav-divider" hidden>MI ESPACIO</span>
       <button class="active" data-view="inicio" id="nav-inicio" hidden><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button>
       <button data-view="asistencia" id="nav-asistencia" hidden><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 15l2 2 4-4"/></svg><span>Mi asistencia</span></button>
@@ -191,6 +195,64 @@
   </div>
 
   <main class="workspace" id="workspace" tabindex="-1">
+    <section class="view" id="view-marketing" hidden>
+      <header class="marketing-head"><div><h1>Publicaciones</h1><p>Del flyer al post de KJA. Prepara el contenido, revisa los datos y publica desde un mismo lugar.</p></div><button class="marketing-btn" id="marketing-new" type="button">Nueva publicación</button></header>
+      <ol class="marketing-steps" aria-label="Pasos de la publicación"><li aria-current="step">Subir flyer o pegar texto</li><li>Revisar copy</li><li>Publicar</li></ol>
+      <p class="marketing-status" id="marketing-status" role="status" aria-live="polite">Selecciona un flyer para comenzar.</p>
+      <div class="marketing-connection-row"><p class="marketing-note" id="marketing-connection">Comprobando conexiones…</p><button type="button" class="marketing-btn" id="marketing-retry" hidden>Reintentar conexión</button></div>
+      <div class="marketing-layout">
+        <aside class="marketing-source" aria-label="Flyer y borradores">
+          <div class="marketing-upload"><label for="marketing-file">El flyer de tu campaña</label><p class="marketing-note">Usa la imagen original para que el texto se pueda leer con claridad.</p><input id="marketing-file" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="marketing-file-help"><small id="marketing-file-help" class="marketing-note">JPG, PNG o WebP · Hasta 5 MB</small></div>
+          <img class="marketing-image" id="marketing-image" alt="Flyer de la publicación actual" hidden>
+          <section class="marketing-history"><h2>Mis publicaciones recientes</h2><ul id="marketing-history"><li>Aún no se consultaron tus borradores.</li></ul></section>
+        </aside>
+        <div class="marketing-editor" id="marketing-editor">
+          <nav class="marketing-editor-nav" aria-label="Secciones del editor"><button type="button" id="marketing-tab-prepare" aria-current="step">1. Contenido</button><button type="button" id="marketing-tab-review" disabled>2. Revisar copy</button><button type="button" id="marketing-tab-publish" disabled>3. Publicar</button></nav>
+          <div id="marketing-loading" class="marketing-loading" hidden><span class="marketing-spinner" aria-hidden="true"></span><span id="marketing-loading-text">Procesando…</span></div>
+          <section id="marketing-prepare-panel" aria-label="Preparar contenido">
+          <fieldset class="marketing-mode"><legend>¿Cómo quieres preparar el contenido?</legend><label><input type="radio" name="marketing-mode" id="marketing-mode-image" value="imagen" checked> Analizar imagen con Gemini</label><label><input type="radio" name="marketing-mode" id="marketing-mode-text" value="texto"> Pegar texto · sin consumir lecturas</label></fieldset>
+          <div id="marketing-image-method"><p class="marketing-note">Subir el flyer no consume Gemini. Pulsa el botón para analizarlo; si ya fue leído, se recuperarán sus datos guardados.</p><div class="marketing-actions"><button class="marketing-btn" id="marketing-analyze" type="button" disabled>Leer información del flyer</button></div></div>
+          <div id="marketing-text-method" hidden><div class="marketing-fields"><label for="marketing-source-text">Texto del flyer o información ya analizada<textarea id="marketing-source-text" maxlength="20000" rows="8" placeholder="Título: Nombre del curso&#10;Descripción: Presentación del curso&#10;Temario:&#10;Primer tema&#10;Segundo tema&#10;Modalidad: Online&#10;WhatsApp: 51988918238"></textarea><small>Reconoce encabezados como Título, Temario, Modalidad, Beneficios, Fecha, Precio y WhatsApp. Sin encabezados, conserva la primera línea como título y el resto como descripción. Revisa siempre la distribución.</small></label></div><button class="marketing-btn" type="button" id="marketing-organize">Generar copy con este texto</button><p class="marketing-note">Funciona sin Gemini y con la cuota agotada. Adjunta también el flyer para guardar y publicar la imagen.</p></div>
+
+          </section>
+          <section id="marketing-data-panel" aria-label="Datos de la publicación" hidden>
+          <h2>Información para el copy</h2><p class="marketing-note">Revisa el nombre y el WhatsApp. Abre los detalles para completar el contenido del curso.</p>
+          <div class="marketing-fields">
+            <label for="marketing-titulo">Nombre del curso o campaña *<input id="marketing-titulo" maxlength="300" required placeholder="Nombre tal como aparece en el flyer"></label>
+            <label for="marketing-telefono">WhatsApp de ventas *<input id="marketing-telefono" type="tel" maxlength="30" required placeholder="Ejemplo: 51988918238"><small>Incluye el código de país.</small></label>
+          </div>
+          <details class="marketing-details" id="marketing-extra"><summary>Temario y detalles del curso <span>Revisar campos opcionales</span></summary>
+          <div class="marketing-fields marketing-fields-grid">
+            <label for="marketing-descripcion">Descripción<textarea id="marketing-descripcion" maxlength="3000" placeholder="Presentación breve del curso"></textarea></label>
+            <label for="marketing-publico">A quién va dirigido<textarea id="marketing-publico" maxlength="3000" placeholder="Completar si está confirmado"></textarea></label>
+            <label for="marketing-temario">Temario<textarea id="marketing-temario" rows="5" maxlength="6000" placeholder="Un tema por línea"></textarea></label>
+            <label for="marketing-modalidad">Modalidad<input id="marketing-modalidad" maxlength="300" placeholder="Completar si está confirmada"></label>
+            <label for="marketing-beneficios">Beneficios incluidos<textarea id="marketing-beneficios" maxlength="3000" placeholder="Material, certificación u otros beneficios confirmados"></textarea></label>
+            <label for="marketing-detalles">Fechas, precio y condiciones<textarea id="marketing-detalles" maxlength="3000" placeholder="Incluye únicamente las condiciones de esta campaña"></textarea></label>
+            <label for="marketing-correo">Correo de contacto<input id="marketing-correo" type="email" maxlength="250" placeholder="Correo confirmado para esta campaña"></label>
+            <label for="marketing-mensaje">Mensaje que verá el cliente<textarea id="marketing-mensaje" maxlength="2000" placeholder="Se propone un mensaje al generar el borrador"></textarea><small>Quedará escrito en WhatsApp; el cliente decide enviarlo.</small></label>
+          </div>
+          </details>
+          <div class="marketing-actions"><button type="button" id="marketing-back-prepare" class="marketing-btn">Volver al copy</button><button class="marketing-btn primary" id="marketing-generate" type="button" disabled>Actualizar copy</button></div>
+          <p class="marketing-note marketing-upload-reminder">Adjunta el flyer para generar y guardar la publicación.</p>
+          </section>
+          <section class="marketing-review" id="marketing-review" hidden>
+            <h2>Revisa tu publicación</h2><p class="marketing-note">Compara el copy con el flyer. Puedes ajustar el texto antes de guardarlo.</p>
+            <div class="marketing-fields"><label for="marketing-copy">Copy de Facebook<textarea id="marketing-copy" maxlength="20000"></textarea></label></div>
+            <a class="marketing-link" id="marketing-link" target="_blank" rel="noopener noreferrer">Probar enlace de WhatsApp</a>
+            <div class="marketing-actions"><button class="marketing-btn" id="marketing-back-data" type="button">Corregir informaci?n</button><button class="marketing-btn" id="marketing-copy-button" type="button">Copiar texto</button><button class="marketing-btn primary" id="marketing-save" type="button">Guardar para despu?s</button></div>
+            <p class="marketing-note" id="marketing-destination"></p>
+            <div class="marketing-actions"><button class="marketing-btn primary" id="marketing-to-publish" type="button">Continuar a publicar</button></div>
+          </section>
+          <section id="marketing-publish-panel" hidden aria-label="Publicar post">
+            <h2>Publicar en Facebook</h2><p class="marketing-note">Se enviar?n el flyer y el copy que acabas de revisar. El borrador se guardar? antes del env?o.</p>
+            <button class="marketing-btn" id="marketing-return-review" type="button">Volver a revisar</button>
+            <label class="marketing-check"><input id="marketing-checked" type="checkbox"><span>Revisé el flyer, el copy y el número de WhatsApp. Este contenido está listo para publicarse.</span></label>
+            <div class="marketing-actions"><button class="marketing-btn primary" id="marketing-publish" type="button" disabled>Publicar en Facebook</button><a class="marketing-link" id="marketing-post" target="_blank" rel="noopener noreferrer" hidden>Ver publicación en Facebook</a></div>
+          </section>
+        </div>
+      </div>
+    </section>
     <section class="portal-bootstrap" id="portal-bootstrap" role="status" aria-live="polite" hidden>
       <div class="portal-bootstrap-status">
         <span class="portal-bootstrap-mark" aria-hidden="true"><img src="images/logo/logo.webp" alt=""></span>
@@ -1551,7 +1613,7 @@
 </div>
 
 <script src="assets/js/dashboard-close-model.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=159"></script>
+<script src="assets/js/dashboard.js?v=161"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=5"></script>
@@ -1559,5 +1621,9 @@
 <script src="assets/js/dashboard-admin-roles.js?v=4"></script>
 <script src="assets/js/dashboard-admin-cierre.js?v=25"></script>
 <script src="assets/js/dashboard-admin-control.js?v=3"></script>
+<script src="assets/js/marketing-model.js?v=3"></script>
+<script src="assets/js/dashboard-marketing.js?v=6"></script>
+<script src="assets/js/dashboard-chat.js?v=5"></script>
+<script src="assets/js/dashboard-mobile.js?v=3"></script>
 </body>
 </html>

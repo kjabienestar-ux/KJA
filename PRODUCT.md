@@ -37,6 +37,9 @@ El portal conecta el marcado de asistencia con la evidencia real de la gestión 
 - La primera entrega admite imágenes. El video corto requiere una fase posterior con una estrategia de transcodificación y cuotas.
 - Los registros anteriores a la fecha de activación del cierre obligatorio no deben perder validez.
 - `marcar.html`, el panel administrativo existente y el dominio de certificados deben seguir funcionando.
+- Publicaciones incorpora código local para que Marketing prepare un flyer, revise el copy y un enlace de WhatsApp, guarde borradores y publique en una página de Facebook con permiso específico. Su activación sigue pendiente de migración, asignación de accesos, secretos y despliegue; el código local no acredita conexiones operativas ni publicaciones reales. Véase `docs/18-publicaciones-marketing.md`.
+
+El portal incorpora un chat privado entre cuentas y un filtro para contactar a Dirección, con ventanas flotantes e historial persistente en Supabase. El código está preparado localmente; su activación requiere la migración y el despliegue descritos en `docs/19-chat-interno.md`.
 
 ## Brand Commitments
 

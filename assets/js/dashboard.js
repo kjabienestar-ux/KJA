@@ -851,6 +851,8 @@ async function openPortal(activeSession,bootstrap=null){
   ['personal-nav-divider','nav-inicio','nav-asistencia','nav-perfil'].forEach(id=>$(id).hidden=!APP.identity.hasPersonal);
   $('team-nav-divider').hidden=!APP.identity.isLeader;$('nav-equipo').hidden=!APP.identity.isLeader;
   $('nav-gestion').hidden=!APP.access.acceso_panel; $('admin-nav-divider').hidden=!APP.access.acceso_panel;
+  window.KJAMarketingPortal?.init();
+  window.KJAChat?.init(session?.user?.id);
   $('mobile-action-team').hidden=!APP.identity.isLeader;
   $('mobile-action-admin').hidden=!APP.access.acceso_panel;
   syncMobileQuickGrid();

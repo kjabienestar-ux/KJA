@@ -12,3 +12,7 @@ verify_jwt = true
 # Emite permisos de un solo uso para las evidencias del cierre diario.
 [functions.dash-entrega]
 verify_jwt = true
+
+# Publicaciones valida además usuario, permiso y propiedad dentro del manejador.
+[functions.marketing-publicaciones]
+verify_jwt = true
