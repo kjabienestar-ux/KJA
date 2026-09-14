@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "node --test tests/dashboard-close.test.mjs tests/marketing.test.mjs tests/marketing-gemini.test.mjs tests/chat.test.mjs tests/dashboard-mobile.test.mjs tests/ranking.test.mjs"
+    "test": "node --test tests/dashboard-close.test.mjs tests/marketing.test.mjs tests/marketing-gemini.test.mjs tests/chat.test.mjs tests/dashboard-mobile.test.mjs tests/ranking.test.mjs tests/geolocation.test.mjs"
   },
   "dependencies": {
     "jsdom": "^29.1.1"

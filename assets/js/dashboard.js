@@ -2790,8 +2790,10 @@ function markFailureMessage(reason,windowState=''){
     evidencia_no_verificada:'No pudimos verificar la foto subida. Vuelve a adjuntarla e inténtalo otra vez.',
     ubicacion_invalida:'El dispositivo entregó una ubicación inválida. Inténtalo nuevamente.',
     ubicacion_requerida:'Para marcar presencial debes permitir y verificar tu ubicación.',
-    ubicacion_denegada:'El permiso de ubicación está bloqueado. Habilítalo en el navegador y vuelve a intentarlo.',
-    ubicacion_no_disponible:'No pudimos obtener tu ubicación. Activa la ubicación del dispositivo e inténtalo otra vez.',
+    ubicacion_denegada:'El permiso de ubicación está bloqueado. Permite la ubicación para este sitio en Chrome o Safari y activa la ubicación precisa del teléfono. Si abriste el enlace dentro de WhatsApp, ábrelo en tu navegador y reintenta. Tu foto se conserva.',
+    ubicacion_no_disponible:'El teléfono no pudo obtener una ubicación válida. Activa la ubicación precisa, mantén Wi-Fi o datos encendidos y acércate a una ventana. Abre el portal en Chrome o Safari y vuelve a verificar. Tu foto se conserva.',
+    ubicacion_timeout:'El teléfono tardó demasiado en obtener la ubicación. Acércate a una ventana y pulsa Verificar ubicación otra vez. Tu foto se conserva.',
+    ubicacion_insegura:'Abre el portal desde su dirección HTTPS en Chrome o Safari para permitir la ubicación.',
     ubicacion_imprecisa:'La ubicación es demasiado imprecisa. Acércate a una ventana, activa el GPS y vuelve a verificar.',
     fuera_radio:'Estás fuera del radio presencial de 1 km. La asistencia no puede registrarse desde esta ubicación.',
     oficina_no_configurada:'Dirección aún no configuró la ubicación oficial. El marcado presencial permanece bloqueado.',
@@ -2925,7 +2927,29 @@ async function chooseEvidence(file,origin){
 }
 function compressImage(file){ return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,1280/Math.max(img.width,img.height)),w=Math.round(img.width*scale),h=Math.round(img.height*scale),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(img,0,0,w,h);URL.revokeObjectURL(img.src);const attempt=q=>c.toBlob(b=>{if(!b)return reject();if(b.size>180*1024&&q>.38)return attempt(q-.1);resolve(b)},'image/jpeg',q);attempt(.82)};img.onerror=reject;img.src=URL.createObjectURL(file)}); }
 function stamp(blob,text){ return new Promise(resolve=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);URL.revokeObjectURL(img.src);const bar=Math.max(28,Math.round(img.height*.06)),font=Math.round(bar*.42);x.fillStyle='rgba(5,23,50,.82)';x.fillRect(0,img.height-bar,img.width,bar);x.fillStyle='#fff';x.font=`600 ${font}px Poppins, sans-serif`;x.textBaseline='middle';x.fillText(text,Math.round(bar*.35),img.height-bar/2,img.width-bar);c.toBlob(b=>resolve(b||blob),'image/jpeg',.82)};img.onerror=()=>resolve(blob);img.src=URL.createObjectURL(blob)}); }
-function geolocation({timeout=12000,maximumAge=0}={}){return new Promise(resolve=>{if(!navigator.geolocation)return resolve({ok:false,motivo:'ubicacion_no_disponible'});let done=false;const end=x=>{if(!done){done=true;resolve(x)}};navigator.geolocation.getCurrentPosition(p=>end({ok:true,lat:+p.coords.latitude.toFixed(6),lon:+p.coords.longitude.toFixed(6),accuracy:Math.round(p.coords.accuracy||9999),capturedAt:Date.now()}),error=>end({ok:false,motivo:error?.code===1?'ubicacion_denegada':'ubicacion_no_disponible'}),{enableHighAccuracy:true,timeout,maximumAge});setTimeout(()=>end({ok:false,motivo:'ubicacion_no_disponible'}),timeout+500)});}
+async function geolocation({timeout=12000,maximumAge=0}={}){
+  if(window.isSecureContext===false)return {ok:false,motivo:'ubicacion_insegura'};
+  if(!navigator.geolocation)return {ok:false,motivo:'ubicacion_no_disponible'};
+  const attempt=high=>new Promise(resolve=>{
+    let done=false;
+    const end=result=>{if(done)return;done=true;clearTimeout(timer);resolve(result)};
+    const timer=setTimeout(()=>end({ok:false,motivo:'ubicacion_timeout'}),timeout+500);
+    try{navigator.geolocation.getCurrentPosition(p=>{
+      const {latitude:lat,longitude:lon,accuracy}=p.coords||{},age=Date.now()-Number(p.timestamp);
+      if(!Number.isFinite(lat)||Math.abs(lat)>90||!Number.isFinite(lon)||Math.abs(lon)>180||!Number.isFinite(accuracy)||accuracy<=0||!Number.isFinite(age)||age< -5000||age>=120000)return end({ok:false,motivo:'ubicacion_no_disponible'});
+      end({ok:true,lat:+lat.toFixed(6),lon:+lon.toFixed(6),accuracy:Math.ceil(accuracy),capturedAt:Number(p.timestamp)});
+    },error=>end({ok:false,motivo:error?.code===1?'ubicacion_denegada':error?.code===3?'ubicacion_timeout':'ubicacion_no_disponible'}),{enableHighAccuracy:high,timeout,maximumAge});}
+    catch(error){end({ok:false,motivo:error?.name==='SecurityError'?'ubicacion_denegada':'ubicacion_no_disponible'})}
+  });
+  const first=await attempt(true);
+  if((first.ok&&first.accuracy<=500)||first.motivo==='ubicacion_denegada')return first;
+  // Un segundo proveedor puede responder cuando la señal GPS interior no llega.
+  // El servidor mantiene el radio de 1 km y la precisión máxima de 500 m.
+  const second=await attempt(false);
+  if(second.motivo==='ubicacion_denegada')return second;
+  if(second.ok&&(!first.ok||second.accuracy<first.accuracy))return second;
+  return first.ok?first:second;
+}
 
 function formatDistance(meters){const value=Number(meters);return Number.isFinite(value)?value<1000?`${Math.round(value)} m`:`${(value/1000).toFixed(1)} km`:'—'}
 function renderMarkModeCheck(){
