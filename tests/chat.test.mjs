@@ -32,10 +32,26 @@ test('last collaborator shortcut wins when multiple opens are pending',async()=>
 });
 test('mobile opening, returning and reopening do not focus a keyboard input',async()=>{
   const h=harness({mobile:true});await h.start();h.find('chat-launcher')[0].onclick();
+  assert.equal(h.document.body.dataset.mobileChatOpen,'true');
   assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
   await h.open();assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
   h.find('chat-back')[0].onclick();assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
   await h.open();assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
+  h.find('chat-launcher')[0].onclick();assert.equal(h.document.body.dataset.mobileChatOpen,'false');
+});
+test('realtime incoming events play one sound, ignore other recipients and clean up',async()=>{
+  let sounds=0;const h=harness({realtime:true,sound:()=>sounds++});await h.start();await h.settle();
+  h.emitRealtime({new:{mensaje_id:42,destinatario:'me'}});await h.settle();assert.equal(sounds,1);
+  h.emitRealtime({new:{mensaje_id:42,destinatario:'me'}});h.emitRealtime({new:{mensaje_id:43,destinatario:'other'}});await h.settle();assert.equal(sounds,1);
+  h.logout();assert.equal(h.realtime.removed,1);assert.equal(h.document.body.dataset.mobileChatOpen,'false');
+});
+test('realtime sound is not produced by an outgoing chat send',async()=>{
+  let sounds=0;const h=harness({realtime:true,sound:()=>sounds++});await h.start();await h.open();await h.send('Mensaje propio');
+  assert.equal(sounds,0);
+});
+test('polling fallback does not sound the initial history but does sound a later arrival',async()=>{
+  let sounds=0;const h=harness({sound:()=>sounds++});await h.start();await h.open();assert.equal(sounds,0);
+  h.messages.push({...h.incoming,id:2,contenido:'Llegó después'});h.timers.get(1)();await h.settle();assert.equal(sounds,1);
 });
 test('composer starts at one line and caps growth for long messages',async()=>{
   const h=harness({mobile:true});await h.start();await h.open();
@@ -43,7 +59,7 @@ test('composer starts at one line and caps growth for long messages',async()=>{
   input.value='texto largo';input.scrollHeight=250;input.oninput();assert.equal(input.style.height,'100px');
   input.value='';input.scrollHeight=24;input.oninput();assert.equal(input.style.height,'44px');
 });
-function harness({mobile=false,waitMapping=null,failSend=false,waitSend=null,waitContacts=null,waitHistory=null,photos=[],photoError=false,presenceRows=[],presenceError=false}={}){
+function harness({mobile=false,realtime=false,sound=()=>{},waitMapping=null,failSend=false,waitSend=null,waitContacts=null,waitHistory=null,photos=[],photoError=false,presenceRows=[],presenceError=false}={}){
   let document;
   let clock=Date.now();class ChatDate extends Date{static now(){return clock}}
   const connection={rows:presenceRows,error:presenceError},documentEvents={};
@@ -61,7 +77,7 @@ function harness({mobile=false,waitMapping=null,failSend=false,waitSend=null,wai
     requestSubmit(){return this.onsubmit({preventDefault(){}})}
   }
   document={hidden:false,activeElement:null,hasFocus:()=>true,createElement:()=>new Element(),createElementNS:(ns)=>{const e=new Element();e.namespaceURI=ns;return e},addEventListener:(event,fn)=>documentEvents[event]=fn,body:new Element()};
-  const calls=[],timers=new Map(),storage=new Map();let authHandler,uuid=0;
+  const calls=[],timers=new Map(),storage=new Map(),realtimeState={channel:null,callback:null,removed:0};let authHandler,uuid=0;
   const contacts=[{id:'peer',nombre:'Ana <img src=x>',direccion:false,activo:true,no_leidos:1},{id:'director',nombre:'Dirección de prueba',direccion:true,activo:true,no_leidos:0}];
   const incoming={id:1,remitente:'peer',destinatario:'me',contenido:'Hola <script>bad()</script>',creado_at:'2026-09-12T12:00:00Z',leido_at:null};
   const messages=[incoming];
@@ -81,12 +97,20 @@ function harness({mobile=false,waitMapping=null,failSend=false,waitSend=null,wai
     throw Error(name);
   }}});
   context.window=context;
+  context.KJANotificationSound={play:sound};
+  if(realtime){
+    context.db.channel=topic=>{
+      const channel={on(_event,_filter,callback){realtimeState.callback=callback;return channel},subscribe(callback){callback?.('SUBSCRIBED');return channel}};
+      realtimeState.channel={topic,channel};return channel;
+    };
+    context.db.removeChannel=async()=>{realtimeState.removed++;return 'ok'};
+  }
   context.matchMedia=()=>({matches:mobile});
   context.Date=ChatDate;
   vm.runInContext(fs.readFileSync(new URL('../assets/js/dashboard-chat.js',import.meta.url),'utf8'),context);
   function find(cls,root=document.body){return [root,...root.children.flatMap(c=>find('*',c))].filter(e=>cls==='*'||e.className.split(' ').includes(cls))}
   const settle=async()=>{for(let i=0;i<8;i++)await new Promise(r=>setImmediate(r))};
-  return {context,document,calls,timers,storage,find,settle,messages,incoming,connection,documentEvents,advance:ms=>clock+=ms,logout:()=>authHandler('SIGNED_OUT'),async start(){await context.KJAChat.init('me')},async open(){find('chat-contact')[0].onclick();await settle()},async send(text){const input=find('chat-compose')[0].children[0];input.value=text;input.oninput();return find('chat-compose')[0].requestSubmit()}};
+  return {context,document,calls,timers,storage,find,settle,messages,incoming,connection,documentEvents,realtime:realtimeState,emitRealtime:payload=>realtimeState.callback?.(payload),advance:ms=>clock+=ms,logout:()=>authHandler('SIGNED_OUT'),async start(){await context.KJAChat.init('me')},async open(){find('chat-contact')[0].onclick();await settle()},async send(text){const input=find('chat-compose')[0].children[0];input.value=text;input.oninput();return find('chat-compose')[0].requestSubmit()}};
 }
 
 test('directory filters Dirección and renders names/messages as text',async()=>{

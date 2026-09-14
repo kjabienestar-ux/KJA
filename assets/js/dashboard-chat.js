@@ -25,6 +25,8 @@
   const windows=new Map();
   let activeId=null,presenceSession=null,presenceAt=0,presenceBusy=false,presenceKnown=false,presenceDesired=true;
   const onlineUntil=new Map();
+  let chatChannel=null,realtimeReady=false;
+  const notifiedEvents=new Set(),unreadSnapshots=new Map(),pollingAlertedCounts=new Map();
   const isOnline=id=>presenceKnown&&(onlineUntil.get(id)||0)>Date.now();
   async function presence(visible=!document.hidden){
     if(document.hidden)visible=false;
@@ -80,8 +82,43 @@
   function note(text,error=false){status.textContent=text;status.dataset.error=String(error);retry.hidden=!error}
   function persist(){try{sessionStorage.setItem('kja-chat-windows:'+user,JSON.stringify([...windows.values()].map(w=>({id:w.id,minimized:w.minimized}))))}catch{}}
   const touchChat=()=>window.matchMedia?.('(max-width:700px), (pointer:coarse)').matches===true;
+  function syncMobileLock(){document.body.dataset.mobileChatOpen=String(touchChat()&&!panel.hidden)}
   function focusChat(input){if(touchChat()){panel.tabIndex=-1;panel.focus({preventScroll:true})}else input.focus()}
-  function toggleDirectory(show){panel.hidden=!show;directory.hidden=false;launcher.setAttribute('aria-expanded',String(show));if(show){syncPanel();renderContacts();const w=windows.get(activeId);focusChat(w?w.input:search)}else launcher.focus()}
+  function playChatSound(){try{window.KJANotificationSound?.play?.()}catch{/* El sonido nunca debe interrumpir la sincronización. */}}
+  function notifyIncomingMessage(id){
+    const key=String(id||'');if(!key||notifiedEvents.has(key))return false;
+    notifiedEvents.add(key);playChatSound();return true;
+  }
+  function syncUnreadSnapshots(rows){
+    const seen=new Set();
+    for(const row of rows||[]){
+      const id=String(row.id||'');if(!id)continue;seen.add(id);
+      const unread=Math.max(0,Number(row.no_leidos)||0),previous=unreadSnapshots.get(id);
+      if(unread<1)pollingAlertedCounts.delete(id);
+      if(!realtimeReady&&previous!==undefined&&unread>previous){
+        playChatSound();pollingAlertedCounts.set(id,(pollingAlertedCounts.get(id)||0)+(unread-previous));
+      }
+      unreadSnapshots.set(id,unread);
+    }
+    for(const id of unreadSnapshots.keys())if(!seen.has(id)){unreadSnapshots.delete(id);pollingAlertedCounts.delete(id)}
+  }
+  function startRealtime(stamp){
+    if(chatChannel){void db.removeChannel(chatChannel);chatChannel=null}
+    realtimeReady=false;
+    if(!user||typeof db.channel!=='function')return;
+    chatChannel=db.channel('kja-chat-eventos-'+user)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_eventos',filter:`destinatario=eq.${user}`},payload=>{
+        if(stamp!==epoch||!user)return;
+        const event=payload?.new;if(!event||String(event.destinatario)!==String(user))return;
+        if(notifyIncomingMessage(event.mensaje_id))void refresh();
+      })
+      .subscribe(status=>{
+        if(stamp!==epoch)return;
+        realtimeReady=status==='SUBSCRIBED';
+        if(realtimeReady)void refresh();
+      });
+  }
+  function toggleDirectory(show){panel.hidden=!show;directory.hidden=false;launcher.setAttribute('aria-expanded',String(show));syncMobileLock();if(show){syncPanel();renderContacts();const w=windows.get(activeId);focusChat(w?w.input:search)}else launcher.focus()}
   launcher.onclick=()=>toggleDirectory(panel.hidden);closeDirectory.onclick=()=>toggleDirectory(false);
   function renderContacts(){
     const focusedContact=document.activeElement?.dataset?.contact;
@@ -150,7 +187,16 @@
           if(stamp!==epoch||!current(w))return;rows=rows.concat(page);
         }
       }
-      const arrived=w.loaded&&!older?rows.filter(m=>m.destinatario===user&&!w.messages.has(Number(m.id))).length:0;
+      const incoming=rows.filter(m=>m.destinatario===user&&!w.messages.has(Number(m.id)));
+      const arrived=w.loaded&&!older?incoming.length:0;
+      if(!realtimeReady&&w.loaded&&!older&&incoming.length){
+        let fallbackRemaining=pollingAlertedCounts.get(w.id)||0;
+        for(const message of incoming){
+          if(fallbackRemaining>0){notifiedEvents.add(String(message.id));fallbackRemaining--}
+          else notifyIncomingMessage(message.id);
+        }
+        if(fallbackRemaining)pollingAlertedCounts.set(w.id,fallbackRemaining);else pollingAlertedCounts.delete(w.id);
+      }
       for(const m of rows)w.messages.set(Number(m.id),m);
       if(!older)w.syncedThrough=Math.max(w.syncedThrough||0,...rows.map(m=>Number(m.id)));
       if(older||firstSync)w.hasOlder=rows.length===50;
@@ -199,11 +245,11 @@
     if(!user)return;renderContacts();if(!document.hidden)void presence();
     if(refreshBusy||document.hidden)return;refreshBusy=true;const stamp=epoch;
     try{
-      const data=await rpc('chat_contactos');if(stamp!==epoch)return;contacts=data;renderContacts();note('Mensajes privados · Historial guardado');void refreshPhotos(stamp);
+      const data=await rpc('chat_contactos');if(stamp!==epoch)return;syncUnreadSnapshots(data);contacts=data;renderContacts();note('Mensajes privados · Historial guardado');void refreshPhotos(stamp);
       await Promise.all([...windows.values()].filter(w=>!w.minimized).map(w=>history(w)));
     }catch(error){if(stamp===epoch)note(messageError(error),true)}finally{if(stamp===epoch)refreshBusy=false}
   }
-  function destroy(){epoch++;clearInterval(timer);timer=null;user=null;contacts=[];windows.clear();activeId=null;presenceSession=null;presenceAt=0;presenceBusy=false;presenceKnown=false;presenceDesired=true;onlineUntil.clear();conversationCache.clear();onlyRecent=false;photoCache.clear();photoUrls.clear();photoBusy=false;photoCheckAt=0;dock.replaceChildren(empty);empty.hidden=false;panel.hidden=true;list.replaceChildren();announcer.textContent='';root.hidden=true;directory.hidden=true;search.value='';count.hidden=true;refreshBusy=false;onlyDirection=false;launcher.setAttribute('aria-expanded','false')}
+  function destroy(){epoch++;if(chatChannel){void db.removeChannel(chatChannel);chatChannel=null}realtimeReady=false;notifiedEvents.clear();unreadSnapshots.clear();pollingAlertedCounts.clear();clearInterval(timer);timer=null;user=null;contacts=[];windows.clear();activeId=null;presenceSession=null;presenceAt=0;presenceBusy=false;presenceKnown=false;presenceDesired=true;onlineUntil.clear();conversationCache.clear();onlyRecent=false;photoCache.clear();photoUrls.clear();photoBusy=false;photoCheckAt=0;dock.replaceChildren(empty);empty.hidden=false;panel.hidden=true;syncMobileLock();list.replaceChildren();announcer.textContent='';root.hidden=true;directory.hidden=true;search.value='';count.hidden=true;refreshBusy=false;onlyDirection=false;launcher.setAttribute('aria-expanded','false')}
   retry.onclick=()=>void refresh();
   document.addEventListener('visibilitychange',()=>{presenceAt=0;void presence(!document.hidden);if(!document.hidden)void refresh()});
   window.addEventListener('pagehide',()=>void presence(false));
@@ -223,7 +269,7 @@
     if(!data.some(c=>c.id===id&&c.activo))throw Error('La cuenta del colaborador no está disponible para conversar.');
     contacts=data;open(id);
   }
-  window.KJAChat={openCollaborator,async init(id){if(!id)return;if(user===id)return;destroy();user=id;presenceSession=crypto.randomUUID();const stamp=epoch;root.hidden=false;note('Conectando…');await refresh();if(stamp!==epoch)return;
+  window.KJAChat={openCollaborator,async init(id){if(!id)return;if(user===id)return;destroy();user=id;presenceSession=crypto.randomUUID();const stamp=epoch;root.hidden=false;note('Conectando…');await refresh();if(stamp!==epoch)return;startRealtime(stamp);
     try{const saved=JSON.parse(sessionStorage.getItem('kja-chat-windows:'+id)||'[]');if(Array.isArray(saved))saved.slice(-2).forEach(w=>open(w.id,{restore:true,minimized:!!w.minimized}))}catch{}
     timer=setInterval(()=>void refresh(),5000);
   },destroy};

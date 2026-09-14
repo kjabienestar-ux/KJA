@@ -197,6 +197,9 @@ function playNotificationSound(){
   }catch{/* Nunca se bloquea la sincronización por un problema de audio. */}
 }
 
+// Interfaz compartida para módulos independientes del dashboard, como el chat.
+window.KJANotificationSound={prime:primeNotificationSound,play:playNotificationSound};
+
 function announceFreshNotifications(items){
   const unread=(items||[]).filter(item=>!item.leida),fresh=unread.filter(item=>!NOTIFICATION_KNOWN_IDS.has(String(item.id)));
   (items||[]).forEach(item=>NOTIFICATION_KNOWN_IDS.add(String(item.id)));
