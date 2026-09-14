@@ -1,0 +1,44 @@
+// node tests/ranking-sql-check.mjs <ruta-a-pglite/dist/index.js>
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import {pathToFileURL} from 'node:url';
+const {PGlite}=await import(pathToFileURL(process.argv[2]).href),db=new PGlite();
+try{
+ await db.exec(`create role anon;create role authenticated;create schema auth;
+ create function auth.uid() returns uuid language sql as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+ create table asis_perfiles(id uuid,activo boolean,rol text);
+ insert into asis_perfiles values('00000000-0000-4000-8000-000000000001',true,'direccion');
+ create table asis_areas(id bigint,nombre text,orden int,activo boolean);
+ insert into asis_areas values(1,'Área',1,true);
+ create table asis_colaboradores(id bigint,nombre text,area_id bigint,contrato_inicio date,activo boolean);
+ insert into asis_colaboradores values(1,'Ana',1,'2025-01-01',true),(2,'Beto',1,null,true);
+ create table asis_registros(colaborador_id bigint,fecha date,estado text,salida_at timestamptz,horas_efectivas numeric);
+ insert into asis_registros values(1,'2025-01-01','P',now(),12),(1,'2025-01-02','J',null,0);
+ create table asis_entregas_diarias(id bigint,colaborador_id bigint,fecha date,requisito text,asignacion_id bigint,estado text,revision_estado text,creado_at timestamptz);
+ create table asis_entrega_archivos(entrega_id bigint);
+ insert into asis_entrega_archivos values(2);
+ create table asis_asignaciones_diarias(id bigint,fecha date,activo boolean,requerido boolean,colaborador_id bigint,area_id bigint);
+ insert into asis_asignaciones_diarias values(1,'2025-01-01',true,true,1,null),(2,'2025-01-01',true,true,1,null),(3,'2025-01-01',false,true,1,null),(4,'2025-01-01',true,false,1,null);
+ insert into asis_entregas_diarias values(1,1,'2025-01-01','asignado',1,'completo','pendiente',now()),(2,1,'2025-01-01','rpe',null,'completo','aprobada',now());
+ create function asis_labora(asis_colaboradores,date) returns boolean language sql as $$select $2<=date '2025-01-02'$$;
+ create function asis_horas_dia(asis_colaboradores,date) returns numeric language sql as $$select 8::numeric$$;
+ create function dash_cierre_resumen_colab(bigint,date) returns jsonb language sql as $$select '{"aplica":true,"requisitos":[{"tipo":"rpe","completo":true}]}'::jsonb$$;
+ `);
+ const sql=await fs.readFile(new URL('../supabase/dashboard_53_ranking_mensual.sql',import.meta.url),'utf8');await db.exec(sql);await db.exec(sql);
+ await assert.rejects(()=>db.query("select dash_ranking_mes('2025-01-01')"),/Dirección/);
+ await db.exec("set request.jwt.claim.sub='00000000-0000-4000-8000-000000000001';set role authenticated");
+ const data=(await db.query("select dash_ranking_mes('2025-01-01') as result")).rows[0].result;
+ const ana=data.filas.find(r=>r.nombre==='Ana'),beto=data.filas.find(r=>r.nombre==='Beto');
+ assert.equal(ana.metricas.dias,1);assert.equal(ana.metricas.horas,8);assert.equal(ana.metricas.evidencias_aprobadas,1);assert.equal(ana.metricas.asignaciones_incumplidas,1);assert.equal(beto.inicio_conocido,false);
+ assert.equal(data.version,2);assert.equal(ana.metricas.dias_mes,1);assert.equal(ana.metricas.evidencias_subidas,1);
+ await db.exec("reset role;delete from asis_entrega_archivos;update asis_colaboradores set contrato_inicio='2025-01-02' where id=1;delete from asis_registros where fecha='2025-01-02';set role authenticated");
+ const newcomer=(await db.query("select dash_ranking_mes('2025-01-01') as result")).rows[0].result.filas[0];
+ assert.equal(newcomer.metricas.dias_mes,2);assert.equal(newcomer.metricas.dias,1);assert.equal(newcomer.metricas.evidencias_aprobadas,0);
+ await db.exec("reset role;update asis_colaboradores set contrato_inicio='2025-01-01' where id=1;set role authenticated");
+ const noFiles=(await db.query("select dash_ranking_mes('2025-01-01') as result")).rows[0].result.filas[0];
+ assert.equal(noFiles.metricas.evidencias_subidas,0);assert.equal(noFiles.metricas.evidencias_aprobadas,0);
+ await assert.rejects(()=>db.query("select dash_ranking_mes('2099-01-01')"),/inválido/);
+ await db.exec("reset role;update asis_perfiles set activo=false;set role authenticated");
+ await assert.rejects(()=>db.query("select dash_ranking_mes('2025-01-01')"),/Dirección/);
+ console.log('Ranking SQL OK: auth, repeat migration, justified days, hours cap, assignment exclusions, approvals and missing start.');
+}finally{await db.close()}

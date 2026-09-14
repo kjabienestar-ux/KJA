@@ -1,0 +1,53 @@
+/* Contratos y roles: cabeceras compactas y contenido desplazable. */
+#portal :is(#admin-contracts-section,#admin-roles-section)>:is(.admin-team-toolbar,.admin-roles-toolbar){display:grid;grid-template-columns:minmax(220px,1fr) minmax(420px,1.4fr);gap:14px;align-items:center;padding:16px 18px;border:1px solid #e0e7ee;border-radius:16px;background:#fff}
+#portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpis{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0;margin:0;min-width:0}
+#portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpi{min-width:0;padding:6px 12px;border:0;border-left:1px solid #e6ebf0;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none}
+#portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpi small{font-size:10px!important;letter-spacing:0;line-height:1.4;white-space:normal}
+#portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpi b{font-size:23px;margin-top:4px}
+#portal :is(#admin-contracts-section,#admin-roles-section) h2{font-size:19px;margin:0;line-height:1.3}
+#portal #admin-contracts-section .admin-team-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;padding-top:12px;border-top:1px solid #edf1f5}
+#portal #admin-contract-search{flex:1 1 180px;min-width:0}
+#portal #admin-contract-area{flex:1 1 160px;min-width:0}
+#portal #admin-contracts-section .admin-contract-row{border-radius:0;box-shadow:none;background:#fff;min-height:82px}
+#portal #admin-contracts-section .admin-contract-row:nth-child(odd){background:#f7fafc}
+#portal #admin-contracts-section .admin-contract-row.inactive{background:#f3f4f6}
+#portal #admin-role-map{gap:14px;align-items:start}
+#portal .admin-role-area{--area-pastel:#e4f2ef;background:#fff;box-shadow:0 3px 12px #17395608;overflow:hidden}
+#portal .admin-role-area:nth-child(13n + 2){--area-pastel:#eee7f8}
+#portal .admin-role-area:nth-child(13n + 3){--area-pastel:#fce9db}
+#portal .admin-role-area:nth-child(13n + 4){--area-pastel:#dfeefa}
+#portal .admin-role-area:nth-child(13n + 5){--area-pastel:#f7e2eb}
+#portal .admin-role-area:nth-child(13n + 6){--area-pastel:#ecf1d9}
+#portal .admin-role-area:nth-child(13n + 7){--area-pastel:#e4e8fa}
+#portal .admin-role-area:nth-child(13n + 8){--area-pastel:#fff1cc}
+#portal .admin-role-area:nth-child(13n + 9){--area-pastel:#d9f1f2}
+#portal .admin-role-area:nth-child(13n + 10){--area-pastel:#f5e3dd}
+#portal .admin-role-area:nth-child(13n + 11){--area-pastel:#e2efd9}
+#portal .admin-role-area:nth-child(13n + 12){--area-pastel:#f2e4f4}
+#portal .admin-role-area:nth-child(13n){--area-pastel:#e7eced}
+#portal .admin-role-area-head{background:var(--area-pastel);padding:15px 16px;border-bottom:1px solid #1739560d}
+#portal .admin-role-area-head h3{font-size:15px;overflow-wrap:anywhere}
+#portal .admin-role-assignment{background:var(--area-pastel);padding:14px 16px;grid-template-columns:minmax(0,1fr)}
+#portal .admin-role-assignment select{width:100%;min-width:0}
+#portal .admin-role-seat{padding:16px;gap:10px;grid-template-columns:40px minmax(0,1fr)}
+#portal .admin-role-seat>button{grid-column:2;justify-self:start}
+#portal .admin-role-area-foot{gap:8px;flex-wrap:wrap;padding:12px 16px}
+@media(min-width:901px){
+  /* Un bloque normal evita que la cuadrícula comprima y recorte la lista. */
+  #portal.admin-wide #view-gestion>:is(#admin-contracts-section,#admin-roles-section){display:block;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:80px;scrollbar-gutter:stable}
+  #portal :is(#admin-contracts-section,#admin-roles-section)>*{margin-bottom:12px}
+  #portal #admin-role-map{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(min-width:1500px){
+  #portal #admin-contracts-section>.admin-team-toolbar{grid-template-columns:minmax(200px,.8fr) minmax(380px,1fr) minmax(460px,1.4fr)}
+  #portal #admin-contracts-section .admin-team-actions{grid-column:auto;padding:0;border:0}
+}
+@media(max-width:1100px){
+  #portal :is(#admin-contracts-section,#admin-roles-section)>:is(.admin-team-toolbar,.admin-roles-toolbar){grid-template-columns:minmax(0,1fr)}
+}
+@media(min-width:701px) and (max-width:900px){#portal #admin-role-map{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+  #portal #admin-role-map{grid-template-columns:minmax(0,1fr)}
+  #portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px 0}
+  #portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpi{padding:4px 8px}
+}
