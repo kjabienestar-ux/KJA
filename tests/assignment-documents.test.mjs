@@ -3,6 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 const js=fs.readFileSync(new URL('../assets/js/dashboard.js',import.meta.url),'utf8');
+const adminJs=fs.readFileSync(new URL('../assets/js/dashboard-admin-cierre.js',import.meta.url),'utf8');
+for(const ext of ['pdf','doc','docx','ppt','pptx'])test(`Direction upload preserves ${ext} extension and MIME`,async()=>{
+  const h=harness();vm.runInContext(adminJs.slice(adminJs.indexOf('async function uploadAdminEvidenceFile('),adminJs.indexOf('async function submitAdminEvidence(')),h.c);
+  const file={blob:{size:100},...h.c.dailyDocumentType({name:'file.'+ext})};
+  await h.c.uploadAdminEvidenceFile(file,{kind:'asignado',assignment:42},{id:7},'2026-09-14');
+  assert.equal(h.requests[0].accion,'admin_cargar');assert.equal(h.requests[0].ext,ext);assert.equal(h.uploads[0][3].contentType,file.type);
+});
 function harness(requirement='asignado'){
   const elements=new Map(),messages=[],uploads=[],requests=[];
   const c={DAILY_EVIDENCE:{requirement,assignment:42,files:[],existingFiles:[]},FACEBOOK_EVIDENCE_MAX:50,
@@ -13,7 +20,8 @@ function harness(requirement='asignado'){
     compressImage:async()=>{throw new Error('Documents must not pass through image compression')},
     SUPABASE_URL:'https://example.test',SUPABASE_ANON:'test',DAILY_EVIDENCE_BUCKET:'asis-cierre-evidencias',
     db:{auth:{getSession:async()=>({data:{session:{access_token:'test'}}})},storage:{from:()=>({uploadToSignedUrl:async(...args)=>{uploads.push(args);return {}}})}},
-    fetch:async(url,options)=>{requests.push(JSON.parse(options.body));return {ok:true,json:async()=>({ok:true,ruta:'private/document.pdf',token:'token'})}},
+    cleanupDailyEvidence:async()=>{},
+    fetch:async(url,options)=>{const body=JSON.parse(options.body);requests.push(body);return {ok:true,json:async()=>({ok:true,ruta:'private/document.'+body.ext,token:'token'})}},
     esc:s=>String(s).replaceAll('<','&lt;').replaceAll('"','&quot;')};
   vm.createContext(c);
   for(const [start,end] of [['function dailyDocumentType(','function readVideoMetadata('],['async function requestDailyEvidencePermit(','async function requestDailyVideoPermit('],['async function uploadDailyEvidence(','async function uploadDailyVideo(']])vm.runInContext(js.slice(js.indexOf(start),js.indexOf(end)),c);
@@ -31,6 +39,14 @@ for(const ext of ['pdf','doc','docx','ppt','pptx'])test(`assigned ${ext} keeps b
 test('documents over 10 MB and unknown types cannot be submitted',async()=>{
   for(const file of [{name:'big.pdf',size:10485761},{name:'script.html',type:'text/html',size:10}]){
     const h=harness();await h.c.chooseDailyEvidence([file]);assert.equal(h.c.DAILY_EVIDENCE.files.length,0);assert.ok(h.messages.length);
+  }
+});
+test('old upload service returning jpg for documents is rejected before uploading',async()=>{
+  for(const ext of ['pdf','doc','docx','ppt','pptx']){
+    const h=harness();h.c.fetch=async()=>({ok:true,json:async()=>({ok:true,ruta:'private/document.jpg',token:'token'})});
+    await h.c.chooseDailyEvidence([{name:'archivo.'+ext,type:'',size:1024}]);
+    await assert.rejects(h.c.uploadDailyEvidence(h.c.DAILY_EVIDENCE.files[0]),error=>error.motivo==='formato_permiso');
+    assert.equal(h.uploads.length,0);assert.equal(h.c.DAILY_EVIDENCE.files.length,1);
   }
 });
 test('Facebook and exit still require images',async()=>{

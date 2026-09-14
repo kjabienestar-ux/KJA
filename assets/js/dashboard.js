@@ -2448,11 +2448,14 @@ async function chooseDailyVideo(files){
 
 async function requestDailyEvidencePermit(ext='jpg'){
   const {data:{session}}=await db.auth.getSession();if(!session)throw Object.assign(new Error('sesion'),{motivo:'sesion'});
+  const body={ext,accion:DAILY_EVIDENCE.editing?'reemplazar':undefined,requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?dailyEvidenceMode():null};
+  console.log('[entrega-debug] requestPermit →',JSON.stringify(body));
   const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{
     method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
-    body:JSON.stringify({ext,accion:DAILY_EVIDENCE.editing?'reemplazar':undefined,requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?dailyEvidenceMode():null})
+    body:JSON.stringify(body)
   });
   const permit=await response.json().catch(()=>null);
+  console.log('[entrega-debug] permit ←',JSON.stringify(permit));
   if(!response.ok||!permit?.ok)throw Object.assign(new Error(permit?.motivo||'permiso'),{motivo:permit?.motivo||'permiso'});
   return permit;
 }
@@ -2465,9 +2468,17 @@ async function requestDailyVideoPermit(){
 
 async function uploadDailyEvidence(file){
   const {blob,ext='jpg',type='image/jpeg'}=file;
+  console.log('[entrega-debug] uploadFile →',{ext,type,blobType:blob?.type,blobSize:blob?.size,name:file.name});
   const permit=await requestDailyEvidencePermit(ext);
+  // Una Edge Function antigua convierte documentos a rutas .jpg aunque SQL ya esté actualizado.
+  if(!String(permit.ruta||'').toLowerCase().endsWith('.'+ext.toLowerCase())){
+    await cleanupDailyEvidence([permit.ruta]);
+    throw Object.assign(new Error('formato_permiso'),{motivo:'formato_permiso'});
+  }
+  console.log('[entrega-debug] uploading to',permit.ruta,'with contentType',type);
   const {error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).uploadToSignedUrl(permit.ruta,permit.token,blob,{contentType:type});
-  if(error)throw Object.assign(new Error('subida'),{motivo:'subida'});
+  if(error){console.error('[entrega-debug] upload error',error);throw Object.assign(new Error('subida'),{motivo:'subida'});}
+  console.log('[entrega-debug] upload OK →',permit.ruta);
   return permit.ruta;
 }
 
@@ -2500,7 +2511,8 @@ function dailyEvidenceFailure(reason){
     salida_fuera_de_plazo:'La ventana para registrar la evidencia de salida ya terminó.',
     collage_no_permitido:'La modalidad collage está deshabilitada. Adjunta las capturas individuales.',
     cuota_diaria:'Alcanzaste el límite de cargas del día. Comunícate con Dirección si necesitas reemplazar una evidencia.',
-    archivo_no_verificado:'Un archivo no llegó correctamente. Inténtalo otra vez.',
+    archivo_no_verificado:'El servidor no pudo validar el formato o tamaño del archivo. Si es PDF o Word, Sistemas debe comprobar la actualización de la carga de documentos.',
+    formato_permiso:'El servidor de cargas aún no admite este documento. Sistemas debe actualizar la función dash-entrega. Tu archivo se conserva.',
     ya_completo:'Esta evidencia ya estaba registrada.',
     fuera_horario_edicion:'La ventana autorizada para editar esta evidencia ya terminó.',
     fuera_horario_compartir:'La carga de Facebook está fuera de su horario programado.',
@@ -2539,12 +2551,15 @@ async function submitDailyEvidence(event){
     $('daily-upload-title').textContent=editing?'Confirmando los cambios':'Confirmando tu entrega';
     $('daily-upload-copy').textContent=editing?'Los archivos llegaron. Estamos reemplazando la versión anterior de forma segura.':'Los archivos llegaron. Estamos registrando el requisito como completo.';
     $('daily-upload-progress-bar').style.transform='scaleX(.9)';
-    const {data,error}=await db.rpc(editing?'dash_reemplazar_entrega':'dash_confirmar_entrega',{
-      p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment,
+    const rpcName=editing?'dash_reemplazar_entrega':'dash_confirmar_entrega';
+    const rpcArgs={p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment,
       p_modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?mode:null,
       p_paths:paths.filter(path=>path!==videoPath),p_detalle:$('daily-evidence-detail').value.trim()||null,
       ...(editing?{p_conservar_paths:[...(DAILY_EVIDENCE.existingFiles||[]).map(file=>file.path),...(DAILY_EVIDENCE.existingVideoPath?[DAILY_EVIDENCE.existingVideoPath]:[])],p_video_path:videoPath}: {})
-    });
+    };
+    console.log('[entrega-debug] RPC',rpcName,'→',JSON.stringify(rpcArgs));
+    const {data,error}=await db.rpc(rpcName,rpcArgs);
+    console.log('[entrega-debug] RPC ←',{data,error:error?.message});
     if(error||!data?.ok)throw Object.assign(new Error(data?.motivo||error?.message||'guardar'),{motivo:data?.motivo||'guardar'});
     let videoWarning='';
     if(videoPath&&!editing){const attached=await db.rpc('dash_adjuntar_video',{p_entrega:data.entrega,p_path:videoPath});if(attached.error||!attached.data?.ok){videoWarning=' La evidencia principal se guardó, pero el video no pudo adjuntarse.';await cleanupDailyEvidence([videoPath])}}

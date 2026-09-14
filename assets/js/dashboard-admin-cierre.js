@@ -150,7 +150,7 @@ function renderAdminCloseAssignments(){
   $('admin-close-assignment-list').innerHTML=rows.length?visibleRows.map((item,index)=>{const status=adminCloseAssignmentPresentation(item);return `<div class="admin-close-assignment-row is-${esc(status.state)}">
     <span class="admin-close-assignment-copy"><small>${esc((item.tipo||'otro').toUpperCase())}</small><b title="${esc(item.titulo)}">${esc(item.titulo)}</b><em>${esc(item.destino||'Destino no disponible')}</em></span>
     <span class="admin-close-assignment-progress"><strong class="admin-assignment-state ${esc(status.state)}"><i aria-hidden="true"></i>${esc(status.label)}</strong><em>${esc(status.copy)}</em></span>
-    ${data.puede_editar&&item.cancelable!==false?`<button type="button" data-cancel-admin-close="${esc(item.id)}">Cancelar</button>`:''}
+    ${data.puede_editar?`<button type="button" data-cancel-admin-close="${esc(item.id)}">Quitar</button>`:''}
     <div class="assignment-deliveries">${adminAssignmentEvidence(item.id)}</div>
   </div>`}).join(''):'<p class="admin-empty">No hay entregables asignados para esta fecha.</p>';
 }
@@ -399,11 +399,17 @@ function renderAdminEvidenceComposer(){
   const mode=adminEvidenceMode();
   $('admin-evidence-format').hidden=!isFacebook;$('admin-evidence-exit-time-wrap').hidden=!isExit;
   $('admin-evidence-files').multiple=!(isExit||(isFacebook&&mode==='collage'));
+  $('admin-evidence-files').accept=selected?.kind==='asignado'?'image/jpeg,image/png,image/webp,.pdf,.doc,.docx,.ppt,.pptx':'image/jpeg,image/png,image/webp';
   const max=isFacebook?(mode==='collage'?1:50):isExit?1:5;
   $('admin-evidence-picker-title').textContent=ADMIN_EVIDENCE.files.length?'Añadir más imágenes':'Seleccionar imágenes';
   $('admin-evidence-picker-copy').textContent=isFacebook&&mode==='individuales'?`De ${Number(person?.cierre?.comparticiones_min||1)} a 50 capturas · se optimizan antes de subir`:max===1?'Una imagen JPG, PNG o WebP':'De 1 a 5 imágenes · se optimizan antes de subir';
   $('admin-evidence-previews').innerHTML=ADMIN_EVIDENCE.files.map((file,index)=>`<article class="admin-evidence-preview"><img src="${esc(file.url)}" alt="Vista previa ${index+1}"><button type="button" data-remove-admin-evidence="${index}" aria-label="Quitar imagen ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></article>`).join('');
   const submit=$('admin-evidence-submit');submit.disabled=!selected||!ADMIN_EVIDENCE.files.length||ADMIN_EVIDENCE.busy;
+  if(selected?.kind==='asignado'){
+    $('admin-evidence-picker-title').textContent=ADMIN_EVIDENCE.files.length?'Añadir archivos':'Seleccionar archivos';
+    $('admin-evidence-picker-copy').textContent='PDF, Word, PowerPoint o imágenes · hasta 5 archivos · documentos hasta 10 MB';
+    $('admin-evidence-previews').innerHTML=ADMIN_EVIDENCE.files.map((file,index)=>`<article class="admin-evidence-preview">${dailyFilePreview(file,index)}<button type="button" data-remove-admin-evidence="${index}" aria-label="Quitar archivo ${index+1}">×</button></article>`).join('');
+  }
 }
 
 function selectAdminEvidenceRequirement(kind,assignment=null){
@@ -441,6 +447,12 @@ async function chooseAdminEvidenceFiles(files){
   try{
     adminEvidenceMessage(`Preparando ${incoming.length} ${incoming.length===1?'imagen':'imágenes'}…`,'is-progress');
     for(const file of incoming){
+      const documentType=dailyDocumentType(file);
+      if(documentType){
+        if(selected.kind!=='asignado')throw Object.assign(new Error('Este requisito necesita imágenes.'),{friendly:true});
+        if(!file.size||file.size>10*1024*1024)throw Object.assign(new Error('El documento debe pesar entre 1 byte y 10 MB.'),{friendly:true});
+        ADMIN_EVIDENCE.files.push({blob:file,url:URL.createObjectURL(file),name:file.name,...documentType});continue;
+      }
       if(file.size>25*1024*1024)throw Object.assign(new Error('La imagen supera 25 MB.'),{friendly:true});
       const blob=await compressImage(file),url=URL.createObjectURL(blob);ADMIN_EVIDENCE.files.push({blob,url,name:file.name});
     }
@@ -453,10 +465,11 @@ async function uploadAdminEvidenceFile(file,selected,person,date){
   const {data:{session}}=await db.auth.getSession();if(!session)throw Object.assign(new Error('sesion'),{motivo:'sesion'});
   const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{
     method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
-    body:JSON.stringify({accion:'admin_cargar',colaborador:person.id,fecha:date,requisito:selected.kind,asignacion:selected.assignment,modalidad:selected.kind==='comparticiones'?adminEvidenceMode():null,ext:'jpg'})
+    body:JSON.stringify({accion:'admin_cargar',colaborador:person.id,fecha:date,requisito:selected.kind,asignacion:selected.assignment,modalidad:selected.kind==='comparticiones'?adminEvidenceMode():null,ext:file.ext||'jpg'})
   });
   const permit=await response.json().catch(()=>null);if(!response.ok||!permit?.ok)throw Object.assign(new Error(permit?.motivo||'permiso'),{motivo:permit?.motivo||'permiso'});
-  const {error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).uploadToSignedUrl(permit.ruta,permit.token,file.blob,{contentType:'image/jpeg'});
+  if(!String(permit.ruta||'').endsWith('.'+(file.ext||'jpg')))throw Object.assign(new Error('formato_documento'),{motivo:'formato_documento'});
+  const {error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).uploadToSignedUrl(permit.ruta,permit.token,file.blob,{contentType:file.type||'image/jpeg'});
   if(error)throw Object.assign(new Error('subida'),{motivo:'subida'});return permit.ruta;
 }
 
@@ -530,10 +543,28 @@ async function submitAdminCloseAssignment(event){
 }
 
 async function cancelAdminCloseAssignment(id){
-  if(!APP.adminClose?.puede_editar||!confirm('¿Cancelar este entregable? Solo es posible si nadie lo completó.'))return;
-  const {data,error}=await db.rpc('dash_admin_cancelar_entregable',{p_asignacion:Number(id)});
-  if(error||!data?.ok)return adminCloseMsg(data?.motivo==='no_cancelable'?'No puede cancelarse porque ya existe una entrega.':'No pudimos cancelar la asignación.','error');
-  toast('Asignación cancelada.');await loadAdminCloses();
+  if(!APP.adminClose?.puede_editar||document.getElementById('assignment-delete-dialog'))return;
+  const dialog=document.createElement('dialog');dialog.id='assignment-delete-dialog';dialog.className='assignment-delete-dialog';
+  dialog.setAttribute('aria-labelledby','assignment-delete-title');
+  dialog.innerHTML='<h2 id="assignment-delete-title">¿Eliminar asignación y evidencias?</h2><p>La asignación dejará de exigirse. Se borrarán definitivamente sus archivos, incluidas las versiones anteriores, aunque estén aprobados. Esta acción no se puede deshacer.</p><p>En una asignación de área, afecta a todos sus destinatarios.</p><p role="status"></p><div class="assignment-delete-actions"><button type="button" data-back>Conservar asignación</button><button type="button" data-remove>Eliminar y liberar espacio</button></div>';
+  const back=dialog.querySelector('[data-back]'),remove=dialog.querySelector('[data-remove]'),status=dialog.querySelector('[role=status]');let busy=false,retired=false;
+  back.onclick=()=>dialog.close();dialog.oncancel=e=>{if(busy)e.preventDefault()};dialog.onclose=()=>{dialog.remove();if(retired)void loadAdminCloses()};
+  remove.onclick=async()=>{
+    if(busy)return;busy=true;back.disabled=true;remove.disabled=true;status.textContent='Eliminando asignación y archivos…';
+    try{
+      const {data:{session}}=await db.auth.getSession();if(!session)throw Error('Tu sesión venció. Vuelve a ingresar.');
+      const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({accion:'eliminar_asignacion',asignacion:Number(id)})});
+      const data=await response.json();
+      if(!response.ok||!data?.ok||data.eliminada!==true){
+        if(data?.motivo==='limpieza_pendiente'){retired=true;throw Error('La asignación se retiró, pero quedan archivos por borrar. Pulsa Reintentar para completar la limpieza.');}
+        if(data?.motivo==='sin_permiso')throw Error('Tu cuenta no tiene permiso para eliminar esta asignación.');
+        throw Error('No se confirmó la eliminación. Reintenta; si persiste, Sistemas debe comprobar dashboard_58 y actualizar dash-entrega.');
+      }
+      retired=true;dialog.close();toast('Asignación eliminada y archivos borrados.');
+    }catch(error){status.textContent=error.message;remove.textContent='Reintentar eliminación';back.textContent='Cerrar';}
+    finally{busy=false;back.disabled=false;remove.disabled=false;}
+  };
+  document.body.append(dialog);dialog.showModal();back.focus();
 }
 
 $('admin-close-date').value=isoLima();

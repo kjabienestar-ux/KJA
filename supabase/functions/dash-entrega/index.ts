@@ -39,6 +39,22 @@ Deno.serve(async (req) => {
     if (identidadError || !identidad?.user) return json({ ok: false, motivo: "sesion" }, 401);
 
     const servicio = createClient(url, serviceKey, { auth: { persistSession: false } });
+    if (body.accion === "eliminar_asignacion") {
+      const id = Number(body.asignacion);
+      if (!Number.isSafeInteger(id) || id <= 0) return json({ok:false,motivo:"datos"},400);
+      const {data,error} = await usuario.rpc("dash_admin_retirar_archivos",{p_asignacion:id});
+      if(error) return json({ok:false,motivo:"migracion_eliminar"},400);
+      if(!data?.ok) return json({ok:false,motivo:data?.motivo||"sin_permiso"},403);
+      const paths = data.paths || [];
+      for(let i=0;i<paths.length;i+=100){
+        const batch=paths.slice(i,i+100);
+        const {error:removeError}=await servicio.storage.from(BUCKET).remove(batch);
+        if(removeError)return json({ok:false,motivo:"limpieza_pendiente"},503);
+        const {error:queueError}=await servicio.from("asis_asignacion_archivos_borrar").delete().eq("asignacion_id",id).in("path",batch);
+        if(queueError)return json({ok:false,motivo:"limpieza_pendiente"},503);
+      }
+      return json({ok:true,eliminada:true,archivos:paths.length});
+    }
     const cutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
     const { data: expired } = await servicio.from("asis_carga_permisos")
       .select("path").is("vinculado_at", null).lt("creado_at", cutoff).limit(100);
@@ -74,7 +90,7 @@ Deno.serve(async (req) => {
     const isReplacement = body.accion === "reemplazar";
     const documentExt = String(body.ext || '').toLowerCase();
     const isDocument = ['pdf','doc','docx','ppt','pptx'].includes(documentExt);
-    if (isDocument && (body.requisito !== 'asignado' || isVideo || isAdminUpload)) return json({ok:false,motivo:'formato_documento'},400);
+    if (isDocument && (body.requisito !== 'asignado' || isVideo)) return json({ok:false,motivo:'formato_documento'},400);
     const extension = isDocument ? documentExt : isVideo && ["mp4", "webm"].includes(String(body.ext || "").toLowerCase())
       ? String(body.ext).toLowerCase() : "jpg";
     const rpc = isAdminUpload ? "dash_admin_entrega_permiso"
