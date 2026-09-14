@@ -1,0 +1,12 @@
+.kja-chat .chat-attach{background:#fff0c4;color:#4b390c;border-radius:8px;padding:8px;min-height:44px;order:-1}
+.kja-chat .chat-compose textarea{min-width:0}
+.chat-image-preview:empty{display:none}
+.chat-image-preview{display:flex;gap:8px;align-items:center;padding:8px 12px;background:#fff8e5;font-size:12px;flex-shrink:0}
+.chat-image-preview img{width:54px;height:54px;object-fit:contain;border-radius:6px}
+.chat-image-preview button{margin-left:auto;background:transparent;color:#773414;min-height:44px}
+.kja-chat .chat-image-open{display:block;padding:4px;background:#fff0c4;border-radius:10px;max-width:100%;color:#4b390c;min-height:44px}
+.chat-image-open img{display:block;width:220px;max-width:100%;height:160px;object-fit:contain;border-radius:6px}
+.chat-image-dialog{max-width:94vw;max-height:92dvh;padding:12px;border:0;border-radius:12px;background:#fff}
+.chat-image-dialog::backdrop{background:#000b}
+.chat-image-dialog img{display:block;max-width:88vw;max-height:78dvh;object-fit:contain}
+.chat-image-dialog button{display:block;margin-left:auto;min-height:44px;padding:8px 16px;cursor:pointer}

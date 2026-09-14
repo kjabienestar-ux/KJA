@@ -159,6 +159,7 @@
       const mine=m.remitente===user,entry=node('div','chat-message'),time=node('time');entry.dataset.mine=String(mine);time.dateTime=m.creado_at;
       time.textContent=new Date(m.creado_at).toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+(mine?(m.leido_at?' · Leído':' · Enviado'):'');
       entry.append(node('p','chat-bubble',m.contenido),time);w.history.append(entry);
+      window.KJAChatImages?.render(entry,m,db,()=>!!current(w));
     }
     w.older.hidden=!w.hasOlder;
     if(older)w.history.scrollTop=previousTop+w.history.scrollHeight-previousHeight;
@@ -205,12 +206,12 @@
     }catch(error){if(current(w))windowNote(w,messageError(error)+' Usa Actualizar.',true)}finally{w.loading=false;w.older.disabled=false}
   }
   function minimize(w,value){if(value){toggleDirectory(false)}else{activeId=w.id;syncPanel();if(!panel.hidden)focusChat(w.input);void history(w)}persist()}
-  function close(w){if(w.sending)return;remember(w);windows.delete(w.id);w.el.remove();if(activeId===w.id)activeId=null;syncPanel();renderContacts();persist();focusChat(search)}
+  function close(w){if(w.sending)return;window.KJAChatImages?.clear(w);remember(w);windows.delete(w.id);w.el.remove();if(activeId===w.id)activeId=null;syncPanel();renderContacts();persist();focusChat(search)}
   function open(id,options={}){
     const c=contacts.find(c=>c.id===id);if(!c)return;
     if(!options.restore)toggleDirectory(true);
     if(windows.has(id)){const w=windows.get(id);dock.append(w.el);minimize(w,false);renderContacts();return}
-    if(windows.size>=2){const victim=[...windows.values()].find(w=>!w.sending&&!w.input.value.trim());if(!victim){toggleDirectory(true);note('Cierra una conversación o envía su borrador para abrir otra.',true);return}close(victim)}
+    if(windows.size>=2){const victim=[...windows.values()].find(w=>!w.sending&&!w.compressing&&!w.attachment&&!w.input.value.trim());if(!victim){toggleDirectory(true);note('Cierra una conversación o envía su borrador para abrir otra.',true);return}close(victim)}
     const w={id,epoch,minimized:false,messages:new Map(),syncedThrough:null,loaded:false,hasOlder:false,loading:false,sending:false,pending:null};
     const cached=conversationCache.get(id);if(cached)Object.assign(w,{...cached,messages:new Map(cached.messages)});
     w.el=node('section','chat-window');w.el.setAttribute('aria-label','Conversación con '+c.nombre);
@@ -222,22 +223,24 @@
     const update=button('Actualizar',null,'chat-older');update.onclick=()=>history(w);
     const form=node('form','chat-compose');w.input=node('textarea');w.input.rows=1;w.input.maxLength=4000;w.input.placeholder='Mensaje…';w.input.setAttribute('aria-label','Mensaje para '+c.nombre);w.input.disabled=!c.activo;
     w.send=button('Enviar mensaje','send','chat-send');w.send.type='submit';w.send.disabled=true;form.append(w.input,w.send);
-    w.input.oninput=()=>{w.send.disabled=w.sending||!c.activo||!w.input.value.trim();w.input.style.height='auto';w.input.style.height=Math.min(100,Math.max(44,w.input.scrollHeight))+'px'};
+    w.input.oninput=()=>{w.send.disabled=w.sending||w.compressing||!c.activo||(!w.input.value.trim()&&!w.attachment);w.input.style.height='auto';w.input.style.height=Math.min(100,Math.max(44,w.input.scrollHeight))+'px'};
     form.onsubmit=async e=>{
-      e.preventDefault();if(!current(w)||w.sending||!w.input.value.trim())return;
+      e.preventDefault();if(!current(w)||w.sending||w.compressing||!c.activo||(!w.input.value.trim()&&!w.attachment))return;
       const content=w.input.value.trim();if(Array.from(content).length>4000){windowNote(w,'El mensaje supera 4000 caracteres.',true);return}
-      if(!w.pending||w.pending.content!==content)w.pending={id:crypto.randomUUID(),content};
+      if(!w.pending||w.pending.content!==content||w.pending.imageKey!==w.attachment?.key)w.pending={id:crypto.randomUUID(),content,imageKey:w.attachment?.key};
       w.sending=true;w.send.disabled=true;w.input.disabled=true;w.close.disabled=true;windowNote(w,'Enviando…');
       try{
-        const m=await rpc('chat_enviar',{p_contacto:id,p_contenido:content,p_cliente_id:w.pending.id});if(!current(w))return;
+        const m=w.attachment?await window.KJAChatImages.send(w,db,user,content,current):await rpc('chat_enviar',{p_contacto:id,p_contenido:content,p_cliente_id:w.pending.id});if(!current(w))return;
+        window.KJAChatImages?.clear(w);
         w.messages.set(Number(m.id),m);w.input.value='';w.pending=null;renderMessages(w);remember(w);w.history.scrollTop=w.history.scrollHeight;windowNote(w,'Mensaje enviado.');void refresh();
       }catch(error){if(current(w))windowNote(w,(error?.code==='P0001'?error.message:'No se confirmó el envío. Tu texto se conserva; pulsa Enviar para reintentar.'),true)}
       finally{w.sending=false;if(current(w)){w.input.disabled=!c.activo;w.close.disabled=false;w.input.oninput();if(!touchChat())w.input.focus()}}
     };
     w.input.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();form.requestSubmit()}};
-    w.toggle.onclick=()=>minimize(w,!w.minimized);w.close.onclick=()=>{if(w.input.value.trim()&&!confirm('¿Cerrar esta conversación y descartar el mensaje sin enviar?'))return;close(w)};
+    w.toggle.onclick=()=>minimize(w,!w.minimized);w.close.onclick=()=>{if((w.input.value.trim()||w.attachment||w.compressing)&&!confirm('¿Cerrar esta conversación y descartar el mensaje sin enviar?'))return;close(w)};
     w.el.addEventListener('focusin',()=>void markRead(w));w.history.addEventListener('scroll',()=>void markRead(w));
     body.append(w.history,w.status,update,form,node('p','chat-hint',c.activo?'Enter envía · Shift + Enter agrega una línea':'Cuenta desactivada. Solo puedes consultar el historial.'));w.el.append(head,body);windows.set(id,w);dock.append(w.el);
+    if(c.activo)window.KJAChatImages?.mount(w,form,current,windowNote);
     if(w.messages.size){renderMessages(w);w.history.scrollTop=w.history.scrollHeight}else windowNote(w,'Cargando historial…');
     if(!options.restore||!options.minimized)minimize(w,false);else w.el.hidden=true;renderContacts();void history(w);persist();
   }
@@ -255,8 +258,8 @@
   window.addEventListener('pagehide',()=>void presence(false));
   window.addEventListener('focus',()=>void refresh());
   root.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!directory.hidden)toggleDirectory(false);else{const w=[...windows.values()].find(w=>w.el.contains(e.target));if(w){minimize(w,true);launcher.focus()}}}});
-  window.addEventListener('beforeunload',e=>{if([...windows.values()].some(w=>w.sending||w.input.value.trim())){e.preventDefault();e.returnValue=''}});
-  db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')destroy()});
+  window.addEventListener('beforeunload',e=>{if([...windows.values()].some(w=>w.sending||w.compressing||w.attachment||w.input.value.trim())){e.preventDefault();e.returnValue=''}});
+  db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){for(const w of windows.values())window.KJAChatImages?.clear(w);destroy()}});
   let externalOpen=0;
   async function openCollaborator(personId){
     if(!user)throw Error('El chat aún está conectando. Intenta nuevamente en unos segundos.');
