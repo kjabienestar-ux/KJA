@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
       const value = (type: string) => parts.find((part) => part.type === type)?.value || "";
       const prefix = `${value("year")}/${value("month")}/${value("day")}/${Number(colaborador)}/`;
       const valid = paths.filter((path) => path.startsWith(prefix)
-        && /^[0-9]{4}\/[0-9]{2}\/[0-9]{2}\/[0-9]+\/[0-9a-f-]+\.(jpg|webp|mp4|webm)$/.test(path));
+        && /^[0-9]{4}\/[0-9]{2}\/[0-9]{2}\/[0-9]+\/[0-9a-f-]+\.(jpg|webp|mp4|webm|pdf|doc|docx|ppt|pptx)$/.test(path));
       if (!valid.length) return json({ ok: true, eliminados: 0 });
       const { data: linked } = await servicio.from("asis_entrega_archivos").select("path").in("path", valid);
       const linkedPaths = new Set((linked || []).map((row: { path: string }) => row.path));
@@ -72,7 +72,10 @@ Deno.serve(async (req) => {
     const isAdminUpload = body.accion === "admin_cargar";
     const isVideo = body.tipo === "video";
     const isReplacement = body.accion === "reemplazar";
-    const extension = isVideo && ["mp4", "webm"].includes(String(body.ext || "").toLowerCase())
+    const documentExt = String(body.ext || '').toLowerCase();
+    const isDocument = ['pdf','doc','docx','ppt','pptx'].includes(documentExt);
+    if (isDocument && (body.requisito !== 'asignado' || isVideo || isAdminUpload)) return json({ok:false,motivo:'formato_documento'},400);
+    const extension = isDocument ? documentExt : isVideo && ["mp4", "webm"].includes(String(body.ext || "").toLowerCase())
       ? String(body.ext).toLowerCase() : "jpg";
     const rpc = isAdminUpload ? "dash_admin_entrega_permiso"
       : isReplacement ? "dash_reemplazo_permiso"
@@ -83,7 +86,7 @@ Deno.serve(async (req) => {
       p_requisito: String(body.requisito || ""),
       p_asignacion: body.asignacion == null ? null : Number(body.asignacion),
       p_modalidad: body.modalidad == null ? null : String(body.modalidad),
-      p_ext: "jpg",
+      p_ext: extension,
     } : isReplacement ? {
       p_requisito: String(body.requisito || ""),
       p_asignacion: body.asignacion == null ? null : Number(body.asignacion),
@@ -98,7 +101,7 @@ Deno.serve(async (req) => {
       p_requisito: String(body.requisito || ""),
       p_asignacion: body.asignacion == null ? null : Number(body.asignacion),
       p_modalidad: body.modalidad == null ? null : String(body.modalidad),
-      p_ext: "jpg",
+      p_ext: extension,
     };
     const { data, error } = await usuario.rpc(rpc, args);
     if (error) return json({ ok: false, motivo: "error_validacion" }, 500);

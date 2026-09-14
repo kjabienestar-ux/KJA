@@ -2307,12 +2307,12 @@ function mountDailyEvidencePortal(){
 
 async function loadDailyEditableEvidence(request){
   const picker=$('daily-evidence-picker'),submit=$('daily-evidence-submit');
-  DAILY_EVIDENCE.loading=true;picker.disabled=true;submit.disabled=true;dailyEvidenceMessage('Cargando las imágenes que ya enviaste…','is-info');
+  DAILY_EVIDENCE.loading=true;picker.disabled=true;submit.disabled=true;dailyEvidenceMessage('Cargando los archivos que ya enviaste…','is-info');
   const {data,error}=await db.rpc('dash_mi_entrega_editable',{p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment});
   if(request!==DAILY_EVIDENCE_LOAD)return;
   if(error||!data?.ok){DAILY_EVIDENCE.loading=false;dailyEvidenceMessage(dailyEvidenceFailure(data?.motivo||'cargar_actuales'),'is-error');return}
   try{
-    const images=(data.archivos||[]).filter(file=>String(file.mime||'').startsWith('image/'));
+    const images=(data.archivos||[]).filter(file=>!String(file.mime||'').startsWith('video/'));
     const signed=await Promise.all(images.map(async file=>{const result=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);if(result.error||!result.data?.signedUrl)throw new Error('firma');return {...file,url:result.data.signedUrl}}));
     if(request!==DAILY_EVIDENCE_LOAD)return;
     DAILY_EVIDENCE.existingFiles=signed;
@@ -2321,9 +2321,9 @@ async function loadDailyEditableEvidence(request){
     const savedMode=document.querySelector(`input[name="daily-evidence-mode"][value="${data.modalidad||'individuales'}"]`);if(savedMode)savedMode.checked=true;
     if(DAILY_EVIDENCE.existingVideoPath)$('daily-video').hidden=true;
     renderDailyEvidencePreviews();
-    dailyEvidenceMessage(`${signed.length} ${signed.length===1?'imagen actual':'imágenes actuales'}. Quita con × sólo las que deseas cambiar.${DAILY_EVIDENCE.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
+    dailyEvidenceMessage(`${signed.length} ${signed.length===1?'archivo actual':'archivos actuales'}. Quita con × sólo las que deseas cambiar.${DAILY_EVIDENCE.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
     DAILY_EVIDENCE.loading=false;picker.disabled=false;submit.disabled=false;
-  }catch{DAILY_EVIDENCE.loading=false;dailyEvidenceMessage('No pudimos mostrar tus imágenes actuales. Cierra el editor e inténtalo nuevamente.','is-error')}
+  }catch{DAILY_EVIDENCE.loading=false;dailyEvidenceMessage('No pudimos mostrar tus archivos actuales. Cierra el editor e inténtalo nuevamente.','is-error')}
 }
 
 function openDailyEvidenceEditor(requirement,assignment=null){
@@ -2343,7 +2343,7 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   $('daily-evidence-editor').querySelector('.daily-evidence-sheet').dataset.requirement=requirement;
   setDailyEvidenceProcess('idle');
   $('daily-evidence-title').textContent=editing?`Editar ${item.titulo}`:item.titulo;
-  $('daily-evidence-copy').textContent=editing?'Quita las imágenes incorrectas y añade sus reemplazos.':facebook?`Puedes adjuntar desde ${data.comparticiones_min||1} captura y hasta ${FACEBOOK_EVIDENCE_MAX}, o una sola imagen tipo collage.`:item.descripcion||item.instrucciones||'Selecciona las imágenes que correspondan.';
+  $('daily-evidence-copy').textContent=editing?'Quita los archivos incorrectos y añade sus reemplazos.':facebook?`Puedes adjuntar desde ${data.comparticiones_min||1} captura y hasta ${FACEBOOK_EVIDENCE_MAX}, o una sola imagen tipo collage.`:item.descripcion||item.instrucciones||'Selecciona los archivos que correspondan.';
   $('daily-evidence-edit-note').hidden=!editing;
   $('daily-evidence-edit-until').textContent=`Puedes editar hasta las ${fmtTime(facebook?data.compartir_hasta:data.hora_salida_programada)}`;
   $('daily-issue').hidden=requirement==='salida'||editing;
@@ -2351,11 +2351,12 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   $('daily-evidence-mode').hidden=requirement!=='comparticiones';
   $('daily-video').hidden=!['rpe','asignado'].includes(requirement);
   $('daily-evidence-file').multiple=requirement!=='salida';
+  $('daily-evidence-file').accept='image/jpeg,image/png,image/webp'+(requirement==='asignado'?',.pdf,.doc,.docx,.ppt,.pptx':'');
   $('daily-evidence-individual-help').textContent=`Desde ${data.comparticiones_min||1} y hasta ${FACEBOOK_EVIDENCE_MAX} imágenes`;
   $('daily-evidence-collage-option').hidden=!data.collage_permitido;
   const firstMode=document.querySelector('input[name="daily-evidence-mode"][value="individuales"]');if(firstMode)firstMode.checked=true;
-  $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · desde ${data.comparticiones_min||1} hasta ${FACEBOOK_EVIDENCE_MAX}${data.collage_permitido?' o 1 collage':''}`:requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
-  $('daily-evidence-picker').querySelector('b').textContent=editing?'Añadir imágenes':'Elegir imágenes';
+  $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · desde ${data.comparticiones_min||1} hasta ${FACEBOOK_EVIDENCE_MAX}${data.collage_permitido?' o 1 collage':''}`:requirement==='asignado'?'PDF, Word, PowerPoint o imágenes · hasta 5 archivos · documentos hasta 10 MB':requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
+  $('daily-evidence-picker').querySelector('b').textContent=requirement==='asignado'?'Elegir archivos':editing?'Añadir imágenes':'Elegir imágenes';
   $('daily-evidence-submit').querySelector('span').textContent=editing?'Guardar cambios':'Guardar evidencia';
   $('daily-evidence-editor').hidden=false;
   document.body.classList.add('daily-evidence-open');
@@ -2383,30 +2384,44 @@ function renderDailyEvidencePreviews(){
   const total=existing.length+fresh.length;
   box.hidden=!total;box.classList.toggle('is-many',total>10);
   box.setAttribute('aria-label',`${total} ${total===1?'imagen seleccionada':'imágenes seleccionadas'}`);
-  box.innerHTML=existing.map((item,index)=>`<div class="daily-evidence-preview is-existing" style="--preview-index:${Math.min(index,7)}"><em>Actual</em><img src="${esc(item.url)}" alt="Imagen actual ${index+1}" loading="lazy" decoding="async"><button type="button" data-remove-existing-file="${index}" aria-label="Quitar imagen actual ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('')+fresh.map((item,index)=>`<div class="daily-evidence-preview is-new" style="--preview-index:${Math.min(existing.length+index,7)}"><em>Nueva</em><img src="${esc(item.url)}" alt="Imagen nueva ${index+1}" loading="lazy" decoding="async"><button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen nueva ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
+  box.innerHTML=existing.map((item,index)=>`<div class="daily-evidence-preview is-existing" style="--preview-index:${Math.min(index,7)}"><em>Actual</em>${dailyFilePreview(item,index)}<button type="button" data-remove-existing-file="${index}" aria-label="Quitar archivo actual ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('')+fresh.map((item,index)=>`<div class="daily-evidence-preview is-new" style="--preview-index:${Math.min(existing.length+index,7)}"><em>Nueva</em>${dailyFilePreview(item,index)}<button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen nueva ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
+}
+
+function dailyDocumentType(file){
+  const ext=String(file.name||'').split('.').pop().toLowerCase();
+  const types={pdf:'application/pdf',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',ppt:'application/vnd.ms-powerpoint',pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation'};
+  return types[ext]?{ext,type:types[ext]}:null;
+}
+function dailyFilePreview(item,index){
+  const documentFile=String(item.type||item.mime||'').startsWith('application/');
+  return documentFile?'<a href="'+esc(item.url)+'" target="_blank" rel="noopener" style="display:grid;place-content:center;min-height:100px;padding:16px;overflow-wrap:anywhere">'+esc(item.name||'Documento '+(index+1))+' · Abrir</a>':'<img src="'+esc(item.url)+'" alt="Archivo '+(index+1)+'" loading="lazy" decoding="async">';
 }
 
 async function chooseDailyEvidence(files){
   if(!files?.length||DAILY_EVIDENCE.loading||DAILY_EVIDENCE.busy)return;
   const allowed=DAILY_EVIDENCE.requirement==='salida'||DAILY_EVIDENCE.requirement==='comparticiones'&&dailyEvidenceMode()==='collage'?1:DAILY_EVIDENCE.requirement==='comparticiones'?FACEBOOK_EVIDENCE_MAX:5,max=Math.max(0,allowed-(DAILY_EVIDENCE.existingFiles?.length||0));
   const selected=[...files].slice(0,max);
-  if([...files].length>max)return dailyEvidenceMessage(max===0?'Quita primero una imagen actual para poder añadir su reemplazo.':max===1?(DAILY_EVIDENCE.requirement==='salida'?'La evidencia de salida admite una sola foto.':'El modo collage admite una sola imagen.'):`Puedes añadir ${max} ${max===1?'imagen más':'imágenes más'}; Facebook admite hasta ${FACEBOOK_EVIDENCE_MAX} capturas por entrega.`);
+  if([...files].length>max)return dailyEvidenceMessage(max===0?'Quita primero un archivo actual para poder añadir su reemplazo.':max===1?(DAILY_EVIDENCE.requirement==='salida'?'La evidencia de salida admite una sola foto.':'El modo collage admite una sola imagen.'):`Puedes añadir ${max} ${max===1?'imagen más':'imágenes más'}; Facebook admite hasta ${FACEBOOK_EVIDENCE_MAX} capturas por entrega.`);
   if(selected.some(file=>file.size>25*1024*1024))return dailyEvidenceMessage('Una de las imágenes supera 25 MB. Elige una versión más pequeña.');
   const sourceBytes=selected.reduce((total,file)=>total+Number(file.size||0),0);
   if(sourceBytes>300*1024*1024)return dailyEvidenceMessage('La selección supera 300 MB antes de comprimir. Divide las capturas en archivos más pequeños.');
   const state=DAILY_EVIDENCE,picker=$('daily-evidence-picker'),submit=$('daily-evidence-submit'),prepared=[];
   state.loading=true;picker.disabled=true;submit.disabled=true;
-  dailyEvidenceMessage(`Preparando 0 de ${selected.length} imágenes…`,'is-info');
+  dailyEvidenceMessage(`Preparando 0 de ${selected.length} archivos…`,'is-info');
   try{
     clearDailyEvidenceFiles();
     for(let index=0;index<selected.length;index++){
-      const blob=await compressImage(selected[index]);
+      const file=selected[index],documentType=dailyDocumentType(file);
+      if(documentType&&state.requirement!=='asignado')throw new Error('Usa imágenes JPG, PNG o WebP para este requisito.');
+      if(documentType&&file.size>10*1024*1024)throw new Error('Cada documento debe pesar como máximo 10 MB.');
+      if(!documentType&&!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Usa PDF, DOC, DOCX, PPT, PPTX o imágenes JPG, PNG y WebP.');
+      const blob=documentType?file:await compressImage(file);
       if(state!==DAILY_EVIDENCE){prepared.forEach(item=>URL.revokeObjectURL(item.url));return}
-      prepared.push({blob,url:URL.createObjectURL(blob)});
-      dailyEvidenceMessage(`Preparando ${index+1} de ${selected.length} imágenes…`,'is-info');
+      prepared.push({blob,url:URL.createObjectURL(blob),name:file.name,type:documentType?.type||'image/jpeg',ext:documentType?.ext||'jpg'});
+      dailyEvidenceMessage(`Preparando ${index+1} de ${selected.length} archivos…`,'is-info');
     }
-    DAILY_EVIDENCE.files=prepared;renderDailyEvidencePreviews();const total=(DAILY_EVIDENCE.existingFiles?.length||0)+prepared.length;dailyEvidenceMessage(`${total} ${total===1?'imagen quedará':'imágenes quedarán'} en la entrega al guardar.`,'is-ready');
-  }catch{prepared.forEach(item=>URL.revokeObjectURL(item.url));if(state===DAILY_EVIDENCE){DAILY_EVIDENCE.files=[];renderDailyEvidencePreviews();dailyEvidenceMessage('No pudimos procesar una imagen. Prueba con JPG, PNG o WebP.')}}
+    DAILY_EVIDENCE.files=prepared;renderDailyEvidencePreviews();const total=(DAILY_EVIDENCE.existingFiles?.length||0)+prepared.length;dailyEvidenceMessage(`${total} ${total===1?'archivo quedará':'archivos quedarán'} en la entrega al guardar.`,'is-ready');
+  }catch(error){prepared.forEach(item=>URL.revokeObjectURL(item.url));if(state===DAILY_EVIDENCE){DAILY_EVIDENCE.files=[];renderDailyEvidencePreviews();dailyEvidenceMessage(error?.message||'No pudimos procesar el archivo. Revisa su formato.')}}
   finally{if(state===DAILY_EVIDENCE){state.loading=false;picker.disabled=false;submit.disabled=false;$('daily-evidence-file').value=''}}
 }
 
@@ -2427,11 +2442,11 @@ async function chooseDailyVideo(files){
   }catch{message.textContent='No pudimos leer el video. Prueba con MP4 o WebM.';message.classList.add('is-error')}
 }
 
-async function requestDailyEvidencePermit(){
+async function requestDailyEvidencePermit(ext='jpg'){
   const {data:{session}}=await db.auth.getSession();if(!session)throw Object.assign(new Error('sesion'),{motivo:'sesion'});
   const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{
     method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
-    body:JSON.stringify({accion:DAILY_EVIDENCE.editing?'reemplazar':undefined,requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?dailyEvidenceMode():null})
+    body:JSON.stringify({ext,accion:DAILY_EVIDENCE.editing?'reemplazar':undefined,requisito:DAILY_EVIDENCE.requirement,asignacion:DAILY_EVIDENCE.assignment,modalidad:DAILY_EVIDENCE.requirement==='comparticiones'?dailyEvidenceMode():null})
   });
   const permit=await response.json().catch(()=>null);
   if(!response.ok||!permit?.ok)throw Object.assign(new Error(permit?.motivo||'permiso'),{motivo:permit?.motivo||'permiso'});
@@ -2444,9 +2459,10 @@ async function requestDailyVideoPermit(){
   const permit=await response.json().catch(()=>null);if(!response.ok||!permit?.ok)throw Object.assign(new Error(permit?.motivo||'permiso'),{motivo:permit?.motivo||'permiso'});return permit;
 }
 
-async function uploadDailyEvidence(blob){
-  const permit=await requestDailyEvidencePermit();
-  const {error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).uploadToSignedUrl(permit.ruta,permit.token,blob,{contentType:'image/jpeg'});
+async function uploadDailyEvidence(file){
+  const {blob,ext='jpg',type='image/jpeg'}=file;
+  const permit=await requestDailyEvidencePermit(ext);
+  const {error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).uploadToSignedUrl(permit.ruta,permit.token,blob,{contentType:type});
   if(error)throw Object.assign(new Error('subida'),{motivo:'subida'});
   return permit.ruta;
 }
@@ -2480,16 +2496,16 @@ function dailyEvidenceFailure(reason){
     salida_fuera_de_plazo:'La ventana para registrar la evidencia de salida ya terminó.',
     collage_no_permitido:'La modalidad collage está deshabilitada. Adjunta las capturas individuales.',
     cuota_diaria:'Alcanzaste el límite de cargas del día. Comunícate con Dirección si necesitas reemplazar una evidencia.',
-    archivo_no_verificado:'Una imagen no llegó correctamente. Inténtalo otra vez.',
+    archivo_no_verificado:'Un archivo no llegó correctamente. Inténtalo otra vez.',
     ya_completo:'Esta evidencia ya estaba registrada.',
     fuera_horario_edicion:'La ventana autorizada para editar esta evidencia ya terminó.',
     fuera_horario_compartir:'La carga de Facebook está fuera de su horario programado.',
     no_programado:'Hoy no tienes una compartición de Facebook programada.',
     sin_entrega:'La entrega cambió o ya no está disponible. Actualiza el portal e inténtalo de nuevo.',
-    cargar_actuales:'No pudimos cargar tus imágenes actuales. Cierra el editor e inténtalo nuevamente.',
+    cargar_actuales:'No pudimos cargar tus archivos actuales. Cierra el editor e inténtalo nuevamente.',
     archivo_ajeno:'La entrega cambió mientras la editabas. Vuelve a abrirla antes de guardar.',
     cambio_concurrente:'La evidencia cambió mientras la editabas. Actualiza el portal antes de volver a intentarlo.',
-    subida:'No pudimos subir una imagen. Revisa tu conexión e inténtalo nuevamente.'
+    subida:'No pudimos subir un archivo. Revisa tu conexión e inténtalo nuevamente.'
   }[reason]||'No pudimos guardar la evidencia. Revisa los archivos e inténtalo otra vez.';
 }
 
@@ -2509,7 +2525,7 @@ async function submitDailyEvidence(event){
     for(let index=0;index<DAILY_EVIDENCE.files.length;index++){
       $('daily-upload-copy').textContent=`Subiendo ${index+1} de ${DAILY_EVIDENCE.files.length}. Mantén esta ventana abierta.`;
       $('daily-upload-progress-bar').style.transform=`scaleX(${.12+(index/uploadTotal)*.68})`;
-      paths.push(await uploadDailyEvidence(DAILY_EVIDENCE.files[index].blob));
+      paths.push(await uploadDailyEvidence(DAILY_EVIDENCE.files[index]));
       $('daily-upload-count').textContent=`${index+1} de ${uploadTotal} archivos`;
       $('daily-upload-progress-bar').style.transform=`scaleX(${.12+((index+1)/uploadTotal)*.68})`;
     }
@@ -2517,7 +2533,7 @@ async function submitDailyEvidence(event){
     dailyUploadStep('upload','done',uploadTotal?`${uploadTotal} ${uploadTotal===1?'archivo enviado':'archivos enviados'}`:'Imágenes actuales organizadas');
     dailyUploadStep('confirm','active','Guardando registro oficial');
     $('daily-upload-title').textContent=editing?'Confirmando los cambios':'Confirmando tu entrega';
-    $('daily-upload-copy').textContent=editing?'Las imágenes llegaron. Estamos reemplazando la versión anterior de forma segura.':'Las imágenes llegaron. Estamos registrando el requisito como completo.';
+    $('daily-upload-copy').textContent=editing?'Los archivos llegaron. Estamos reemplazando la versión anterior de forma segura.':'Los archivos llegaron. Estamos registrando el requisito como completo.';
     $('daily-upload-progress-bar').style.transform='scaleX(.9)';
     const {data,error}=await db.rpc(editing?'dash_reemplazar_entrega':'dash_confirmar_entrega',{
       p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment,
@@ -2693,7 +2709,7 @@ $('daily-evidence-previews').addEventListener('click',event=>{
   else{const index=Number(button.dataset.removeDailyFile),item=DAILY_EVIDENCE.files[index];if(item?.url)URL.revokeObjectURL(item.url);DAILY_EVIDENCE.files.splice(index,1)}
   renderDailyEvidencePreviews();
   const total=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length;
-  dailyEvidenceMessage(total?`${total} ${total===1?'imagen quedará':'imágenes quedarán'} al guardar. Puedes añadir reemplazos.`:'Quitaste todas las imágenes. Añade al menos una antes de guardar.',total?'is-info':'is-error');
+  dailyEvidenceMessage(total?`${total} ${total===1?'archivo quedará':'archivos quedarán'} al guardar. Puedes añadir reemplazos.`:'Quitaste todas las imágenes. Añade al menos una antes de guardar.',total?'is-info':'is-error');
 });
 document.querySelectorAll('input[name="daily-evidence-mode"]').forEach(input=>input.addEventListener('change',()=>{clearDailyEvidenceFiles();DAILY_EVIDENCE.existingFiles=[];renderDailyEvidencePreviews();dailyEvidenceMessage('El formato cambió. Selecciona nuevamente las imágenes que conservará esta entrega.','is-info')}));
 $('daily-evidence-editor').addEventListener('submit',submitDailyEvidence);
@@ -2927,13 +2943,14 @@ async function chooseEvidence(file,origin){
 }
 function compressImage(file){ return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,1280/Math.max(img.width,img.height)),w=Math.round(img.width*scale),h=Math.round(img.height*scale),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(img,0,0,w,h);URL.revokeObjectURL(img.src);const attempt=q=>c.toBlob(b=>{if(!b)return reject();if(b.size>180*1024&&q>.38)return attempt(q-.1);resolve(b)},'image/jpeg',q);attempt(.82)};img.onerror=reject;img.src=URL.createObjectURL(file)}); }
 function stamp(blob,text){ return new Promise(resolve=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);URL.revokeObjectURL(img.src);const bar=Math.max(28,Math.round(img.height*.06)),font=Math.round(bar*.42);x.fillStyle='rgba(5,23,50,.82)';x.fillRect(0,img.height-bar,img.width,bar);x.fillStyle='#fff';x.font=`600 ${font}px Poppins, sans-serif`;x.textBaseline='middle';x.fillText(text,Math.round(bar*.35),img.height-bar/2,img.width-bar);c.toBlob(b=>resolve(b||blob),'image/jpeg',.82)};img.onerror=()=>resolve(blob);img.src=URL.createObjectURL(blob)}); }
-async function geolocation({timeout=12000,maximumAge=0}={}){
+async function geolocation({timeout=25000,maximumAge=30000}={}){
   if(window.isSecureContext===false)return {ok:false,motivo:'ubicacion_insegura'};
   if(!navigator.geolocation)return {ok:false,motivo:'ubicacion_no_disponible'};
   const attempt=high=>new Promise(resolve=>{
     let done=false;
-    const end=result=>{if(done)return;done=true;clearTimeout(timer);resolve(result)};
-    const timer=setTimeout(()=>end({ok:false,motivo:'ubicacion_timeout'}),timeout+500);
+    const end=result=>{if(done)return;done=true;resolve(result)};
+    // El timeout nativo cuenta la adquisición, no la espera del permiso ni
+    // el tiempo con la página oculta. Un temporizador propio corta respuestas válidas.
     try{navigator.geolocation.getCurrentPosition(p=>{
       const {latitude:lat,longitude:lon,accuracy}=p.coords||{},age=Date.now()-Number(p.timestamp);
       if(!Number.isFinite(lat)||Math.abs(lat)>90||!Number.isFinite(lon)||Math.abs(lon)>180||!Number.isFinite(accuracy)||accuracy<=0||!Number.isFinite(age)||age< -5000||age>=120000)return end({ok:false,motivo:'ubicacion_no_disponible'});
@@ -2943,7 +2960,7 @@ async function geolocation({timeout=12000,maximumAge=0}={}){
   });
   const first=await attempt(true);
   if((first.ok&&first.accuracy<=500)||first.motivo==='ubicacion_denegada')return first;
-  // Un segundo proveedor puede responder cuando la señal GPS interior no llega.
+  // Menor precisión solicitada puede ayudar; el navegador elige el proveedor.
   // El servidor mantiene el radio de 1 km y la precisión máxima de 500 m.
   const second=await attempt(false);
   if(second.motivo==='ubicacion_denegada')return second;
