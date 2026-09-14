@@ -47,6 +47,8 @@ function adminCloseEvidenceProgress(person,reviews=[]){
 }
 
 function adminCloseMsg(text,type=''){
+  const assignmentMessage=$('admin-assignment-message');
+  if(assignmentMessage){assignmentMessage.textContent=text||'';assignmentMessage.className='admin-list-message'+(text?' show':'')+(type?' '+type:'');}
   const el=$('admin-close-message');if(!el)return;
   el.textContent=text||'';el.className='admin-list-message'+(text?' show':'')+(type?' '+type:'');
 }
@@ -110,7 +112,15 @@ function adminReviewTime(value){
 function syncAdminCloseTargets(){
   const data=APP.adminClose;if(!data)return;
   const select=$('admin-close-target'),kind=$('admin-close-target-kind').value,current=select.value;
-  const rows=kind==='area'||kind==='sorteo'?(data.areas||[]):(data.personas||[]);
+  const query=adminCloseSearchText($('admin-close-target-search')?.value||'');
+  const rows=(kind==='area'||kind==='sorteo'?(data.areas||[]):(data.personas||[])).filter(row=>adminCloseSearchText(`${row.nombre} ${row.area||''}`).includes(query));
+  if($('admin-close-target-results'))$('admin-close-target-results').textContent=`${rows.length} destinos encontrados`;
+  const matches=$('assignment-target-matches');
+  if(matches){
+    matches.hidden=!query.trim();
+    matches.innerHTML=rows.length?rows.map(row=>`<button type="button" data-assignment-target="${esc(row.id)}"><strong>${esc(row.nombre)}</strong>${kind==='persona'?`<small>${esc(row.area||'Sin área')}</small>`:''}</button>`).join(''):'<p>No hay coincidencias. Prueba con otro nombre o área.</p>';
+  }
+  if($('admin-close-draw-help'))$('admin-close-draw-help').hidden=kind!=='sorteo';
   select.innerHTML='<option value="">Seleccionar…</option>'+rows.map(row=>`<option value="${esc(row.id)}">${esc(kind==='area'?row.nombre:`${row.nombre} · ${row.area}`)}</option>`).join('');
   if(kind==='sorteo')select.innerHTML='<option value="">Seleccionar área…</option>'+rows.map(row=>`<option value="${esc(row.id)}">${esc(row.nombre)}</option>`).join('');
   if(rows.some(row=>String(row.id)===current))select.value=current;
@@ -133,13 +143,15 @@ function renderAdminDrawPreview(data){
 }
 
 function renderAdminCloseAssignments(){
-  const data=APP.adminClose,rows=data?.asignaciones||[];
+  const data=APP.adminClose,query=adminCloseSearchText($('admin-assignment-search')?.value||''),rows=(data?.asignaciones||[]).filter(item=>adminCloseSearchText(`${item.titulo} ${item.destino}`).includes(query));
+  const visibleRows=typeof paginateAssignments==='function'?paginateAssignments(rows):rows;
   const presentations=rows.map(adminCloseAssignmentPresentation),concluded=presentations.filter(item=>['entregada','aprobada'].includes(item.state)).length;
   $('admin-close-assignment-count').textContent=rows.length?`${rows.length} ${rows.length===1?'asignación':'asignaciones'} · ${concluded} ${concluded===1?'concluida':'concluidas'}`:'Sin asignaciones';
-  $('admin-close-assignment-list').innerHTML=rows.length?rows.map((item,index)=>{const status=presentations[index];return `<div class="admin-close-assignment-row is-${esc(status.state)}">
+  $('admin-close-assignment-list').innerHTML=rows.length?visibleRows.map((item,index)=>{const status=adminCloseAssignmentPresentation(item);return `<div class="admin-close-assignment-row is-${esc(status.state)}">
     <span class="admin-close-assignment-copy"><small>${esc((item.tipo||'otro').toUpperCase())}</small><b title="${esc(item.titulo)}">${esc(item.titulo)}</b><em>${esc(item.destino||'Destino no disponible')}</em></span>
     <span class="admin-close-assignment-progress"><strong class="admin-assignment-state ${esc(status.state)}"><i aria-hidden="true"></i>${esc(status.label)}</strong><em>${esc(status.copy)}</em></span>
     ${data.puede_editar&&item.cancelable!==false?`<button type="button" data-cancel-admin-close="${esc(item.id)}">Cancelar</button>`:''}
+    <div class="assignment-deliveries">${adminAssignmentEvidence(item.id)}</div>
   </div>`}).join(''):'<p class="admin-empty">No hay entregables asignados para esta fecha.</p>';
 }
 
@@ -230,6 +242,7 @@ async function loadAdminCloses({quiet=false}={}){
   APP.adminClose=data;
   APP.adminReview=APP.access.rol==='direccion'&&!reviewError&&reviewData?.ok?reviewData:{ok:false,entregas:[]};
   hydrateAdminCloseControls();renderAdminCloseAssignments();renderAdminReviewSummary();renderAdminCloseStatus();
+  if(typeof syncAssignmentCalendar==='function')syncAssignmentCalendar();
 }
 
 function adminReviewStateLabel(item){
@@ -247,7 +260,7 @@ function adminReviewMessage(text,type=''){
 }
 
 function adminReviewDeliveries(){
-  return (APP.adminReview?.entregas||[]).filter(item=>String(item.colaborador_id)===String(ADMIN_REVIEW.personId));
+  return (APP.adminReview?.entregas||[]).filter(item=>String(item.colaborador_id)===String(ADMIN_REVIEW.personId)&&(ADMIN_REVIEW.assignmentId==null||(item.requisito==='asignado'&&String(item.asignacion_id)===String(ADMIN_REVIEW.assignmentId))));
 }
 
 function closeAdminReview({restoreFocus=true}={}){
@@ -288,11 +301,11 @@ async function renderAdminReviewDelivery(id){
   }catch(error){if(request===ADMIN_REVIEW.request)gallery.innerHTML='<p class="admin-review-error">No pudimos abrir las imágenes privadas. Comprueba que tu sesión y el área asignada sigan vigentes.</p>'}
 }
 
-function openAdminReviewPerson(personId,trigger=null){
+function openAdminReviewPerson(personId,trigger=null,assignmentId=null){
   const canOpen=APP.access.rol==='direccion'||(APP.identity.isLeader&&APP.adminReview?.solo_lectura===true);if(!canOpen)return;
-  const deliveries=(APP.adminReview?.entregas||[]).filter(item=>String(item.colaborador_id)===String(personId));if(!deliveries.length)return;
+  const deliveries=(APP.adminReview?.entregas||[]).filter(item=>String(item.colaborador_id)===String(personId)&&(assignmentId==null||(item.requisito==='asignado'&&String(item.asignacion_id)===String(assignmentId))));if(!deliveries.length)return;
   const first=deliveries.find(item=>item.revision_estado==='pendiente'&&item.estado==='completo')||deliveries[0],person=deliveries[0];
-  ADMIN_REVIEW={personId:Number(personId),deliveryId:first.id,trigger:trigger||document.activeElement,busy:false,request:ADMIN_REVIEW.request+1};
+  ADMIN_REVIEW={personId:Number(personId),assignmentId,deliveryId:first.id,trigger:trigger||document.activeElement,busy:false,request:ADMIN_REVIEW.request+1};
   const readOnly=APP.access.rol!=='direccion';$('admin-review-access').hidden=!readOnly;
   $('admin-review-person-mark').textContent=initials(person.colaborador);$('admin-review-title').textContent=person.colaborador;$('admin-review-copy').textContent=`${person.area} · ${adminReviewDate(person.fecha)}`;
   $('admin-review-tabs').innerHTML=deliveries.map(item=>`<button type="button" role="tab" aria-selected="false" data-admin-review-delivery="${esc(item.id)}" data-state="${esc(item.revision_estado)}"><span>${esc(adminReviewTitle(item))}</span><small>${esc(adminReviewStateLabel(item))}</small></button>`).join('');
@@ -312,9 +325,9 @@ async function submitAdminReview(state){
     const messages={nota:'Escribe una observación clara.',jornada_cerrada:'La jornada ya fue cerrada y no puede reabrirse. Solo puedes aprobar.',ya_revisada:'Otra persona ya revisó esta entrega. Actualiza la vista.',sin_permiso:'Solo Dirección puede revisar evidencias.'};
     return adminReviewMessage(messages[data?.motivo]||'No pudimos guardar la revisión. Revisa tu conexión e inténtalo nuevamente.','is-error');
   }
-  const personId=ADMIN_REVIEW.personId;closeAdminReview({restoreFocus:false});await loadAdminCloses();toast(state==='aprobada'?'Evidencia aprobada.':'Corrección solicitada al colaborador.');
+  const personId=ADMIN_REVIEW.personId,assignmentId=ADMIN_REVIEW.assignmentId;closeAdminReview({restoreFocus:false});await loadAdminCloses();toast(state==='aprobada'?'Evidencia aprobada.':'Corrección solicitada al colaborador.');
   const next=(APP.adminReview?.entregas||[]).find(item=>String(item.colaborador_id)===String(personId)&&item.revision_estado==='pendiente'&&item.estado==='completo');
-  if(next)openAdminReviewPerson(personId,null);
+  if(next)openAdminReviewPerson(personId,null,assignmentId);
 }
 
 function adminMessageStatus(text,type=''){
@@ -483,6 +496,7 @@ async function submitAdminEvidence(event){
 }
 
 async function submitAdminCloseAssignment(event){
+  if($('admin-close-assign').disabled){event.preventDefault();return;}
   event.preventDefault();const data=APP.adminClose;if(!data?.puede_editar)return;
   const kind=$('admin-close-target-kind').value,target=Number($('admin-close-target').value),title=$('admin-close-title').value.trim();
   if(!target)return adminCloseMsg('Selecciona una persona o un área.','error');
@@ -492,9 +506,10 @@ async function submitAdminCloseAssignment(event){
     if(!Number.isInteger(count)||count<1||count>20)return adminCloseMsg('La cantidad del sorteo debe estar entre 1 y 20.','error');
     button.disabled=true;adminCloseMsg('');
     if(ADMIN_DRAW.key!==adminDrawKey()||!ADMIN_DRAW.selection.length){
-      button.textContent='Preparando selección…';
+      button.textContent='Preparando selección…';const requestedKey=adminDrawKey();
       const {data:preview,error}=await db.rpc('dash_admin_previsualizar_sorteo',{p_fecha:$('admin-close-date').value,p_area:target,p_cantidad:count,p_tipo:$('admin-close-type').value});
       button.disabled=false;
+      if(requestedKey!==adminDrawKey()||$('admin-close-target-kind').value!=='sorteo'){clearAdminDrawPreview();return adminCloseMsg('Cambiaste los datos. Previsualiza el sorteo nuevamente.','error');}
       if(error||!preview?.ok){button.textContent='Previsualizar sorteo';const message=preview?.motivo==='insuficientes'?`Solo hay ${preview.disponibles||0} personas elegibles para ese sorteo.`:preview?.motivo==='sin_permiso'?'Solo Dirección puede realizar sorteos.':'No pudimos preparar el sorteo. Revisa la fecha y el área.';return adminCloseMsg(message,'error')}
       renderAdminDrawPreview(preview);return;
     }
@@ -549,7 +564,7 @@ $('admin-evidence-picker').onkeydown=event=>{if(event.key==='Enter'||event.key==
 $('admin-evidence-previews').onclick=event=>{const button=event.target.closest('[data-remove-admin-evidence]');if(!button||ADMIN_EVIDENCE.busy)return;const index=Number(button.dataset.removeAdminEvidence),file=ADMIN_EVIDENCE.files[index];if(file?.url)URL.revokeObjectURL(file.url);ADMIN_EVIDENCE.files.splice(index,1);renderAdminEvidenceComposer()};
 document.querySelectorAll('input[name="admin-evidence-mode"]').forEach(input=>input.onchange=()=>{clearAdminEvidenceFiles();adminEvidenceMessage('Selecciona las imágenes correspondientes al nuevo formato.');renderAdminEvidenceComposer()});
 $('admin-evidence-form').onsubmit=submitAdminEvidence;
-setInterval(()=>{if(APP.adminSection==='cierres'&&!document.hidden&&$('admin-review-modal').hidden&&$('admin-evidence-modal').hidden)void loadAdminCloses({quiet:true})},30000);
+setInterval(()=>{if(['cierres','asignaciones'].includes(APP.adminSection)&&!document.hidden&&$('admin-review-modal').hidden&&$('admin-evidence-modal').hidden)void loadAdminCloses({quiet:true})},30000);
 document.querySelectorAll('[data-close-admin-evidence]').forEach(button=>button.onclick=()=>closeAdminEvidence());
 $('admin-review-modal').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeAdminReview();return}

@@ -825,7 +825,7 @@ test('assignment panel reports live completion and review states', () => {
   assert.match(html,/id="admin-close-assignment-count" aria-live="polite"/);
   assert.match(adminJs,/function adminCloseAssignmentPresentation\(item\)/);
   assert.match(adminJs,/item\.estado_asignacion\|\|'pendiente'/);
-  assert.match(adminJs,/setInterval\(\(\)=>\{if\(APP\.adminSection==='cierres'/);
+  assert.match(adminJs,/setInterval\(\(\)=>\{if\(\['cierres','asignaciones'\]\.includes\(APP\.adminSection\)/);
   assert.match(adminJs,/loadAdminCloses\(\{quiet:true\}\)/);
   assert.match(css,/\.admin-assignment-state\.aprobada\{/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{/);

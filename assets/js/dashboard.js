@@ -1679,7 +1679,7 @@ async function showAdminSection(section){
   if(section==='control'&&APP.access.rol!=='direccion'){toast('El control diario está reservado a Dirección.',true);section='overview'}
   if(section==='roles'&&!(APP.identity.isSystem&&APP.access.rol==='direccion')){toast('Los roles están reservados al administrador de sistemas.',true);section='overview'}
   if(section==='ranking'&&APP.access.rol!=='direccion')section='overview';
-  const allowed=['overview','control','ranking','lista','mes','resumen','cierres','colaboradores','contratos','roles','marcado'];
+  const allowed=['overview','control','ranking','lista','mes','resumen','cierres','asignaciones','colaboradores','contratos','roles','marcado'];
   APP.adminSection=allowed.includes(section)?section:'overview';
   $('admin-overview-section').hidden=APP.adminSection!=='overview';
   $('admin-control-section').hidden=APP.adminSection!=='control';
@@ -1688,6 +1688,7 @@ async function showAdminSection(section){
   $('admin-month-section').hidden=APP.adminSection!=='mes';
   $('admin-summary-section').hidden=APP.adminSection!=='resumen';
   $('admin-close-section').hidden=APP.adminSection!=='cierres';
+  $('admin-assignments-section').hidden=APP.adminSection!=='asignaciones';
   $('admin-people-section').hidden=APP.adminSection!=='colaboradores';
   $('admin-contracts-section').hidden=APP.adminSection!=='contratos';
   $('admin-roles-section').hidden=APP.adminSection!=='roles';
@@ -1709,7 +1710,7 @@ async function showAdminSection(section){
     if(typeof loadAdminMonth==='function')await loadAdminMonth();
   }else if(APP.adminSection==='marcado'){
     if(typeof loadAdminAccess==='function')await loadAdminAccess();
-  }else if(APP.adminSection==='cierres'){
+  }else if(['cierres','asignaciones'].includes(APP.adminSection)){
     if(typeof loadAdminCloses==='function')await loadAdminCloses();
   }else if(APP.adminSection==='roles'){
     if(typeof loadAdminRoles==='function')await loadAdminRoles();
@@ -1944,7 +1945,7 @@ $('announcement-viewer').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeAnnouncementViewer();return}
   if(event.key==='Tab'){event.preventDefault();$('announcement-viewer').querySelector('.announcement-viewer-close').focus()}
 });
-$('admin-refresh').onclick=()=>APP.adminSection==='ranking'&&typeof loadAdminRanking==='function'?loadAdminRanking():APP.adminSection==='control'&&typeof loadAdminControl==='function'?loadAdminControl():APP.adminSection==='lista'?loadAdminAttendance():(APP.adminSection==='mes'||APP.adminSection==='resumen')&&typeof loadAdminMonth==='function'?loadAdminMonth(true):APP.adminSection==='cierres'&&typeof loadAdminCloses==='function'?loadAdminCloses():APP.adminSection==='marcado'&&typeof loadAdminAccess==='function'?loadAdminAccess():APP.adminSection==='roles'&&typeof loadAdminRoles==='function'?loadAdminRoles():(APP.adminSection==='colaboradores'||APP.adminSection==='contratos')&&typeof loadAdminTeam==='function'?loadAdminTeam():loadAdminHub();
+$('admin-refresh').onclick=()=>APP.adminSection==='ranking'&&typeof loadAdminRanking==='function'?loadAdminRanking():APP.adminSection==='control'&&typeof loadAdminControl==='function'?loadAdminControl():APP.adminSection==='lista'?loadAdminAttendance():(APP.adminSection==='mes'||APP.adminSection==='resumen')&&typeof loadAdminMonth==='function'?loadAdminMonth(true):['cierres','asignaciones'].includes(APP.adminSection)&&typeof loadAdminCloses==='function'?loadAdminCloses():APP.adminSection==='marcado'&&typeof loadAdminAccess==='function'?loadAdminAccess():APP.adminSection==='roles'&&typeof loadAdminRoles==='function'?loadAdminRoles():(APP.adminSection==='colaboradores'||APP.adminSection==='contratos')&&typeof loadAdminTeam==='function'?loadAdminTeam():loadAdminHub();
 $('admin-request-refresh').onclick=loadAdminHub;
 document.querySelectorAll('[data-admin-section]').forEach(b=>b.onclick=()=>showAdminSection(b.dataset.adminSection));
 $('admin-date-prev').onclick=()=>{$('admin-list-date').value=addIsoDays($('admin-list-date').value,-1);loadAdminAttendance()};

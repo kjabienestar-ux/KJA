@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=190">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=5">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -716,6 +717,7 @@
         <button type="button" data-admin-section="mes">Mes completo</button>
         <button type="button" data-admin-section="resumen">Resumen mensual</button>
         <button type="button" data-admin-section="cierres">Cierres y entregables</button>
+        <button type="button" data-admin-section="asignaciones">Asignaciones</button>
         <button type="button" data-admin-section="colaboradores">Colaboradores</button>
         <button type="button" data-admin-section="contratos">Contratos</button>
         <button type="button" data-admin-section="roles" id="admin-roles-tab" hidden>Roles y equipos</button>
@@ -811,23 +813,42 @@
         <p class="admin-list-message" id="admin-close-message" role="status" aria-live="polite"></p>
         <div class="admin-close-status" id="admin-close-status"><p class="admin-empty">Cargando cierres…</p></div>
 
+
+      </section>
+
+      <section id="admin-assignments-section" class="admin-assignments-section" hidden>
+        <p class="admin-list-message" id="admin-assignment-message" role="status" aria-live="polite"></p>
+        <header class="assignment-section-head"><h2>Asignaciones</h2><label>Fecha de trabajo<input type="date" id="assignment-work-date"></label></header>
         <div class="admin-close-grid">
           <form class="admin-close-assignment" id="admin-close-assignment-form">
             <header><h3>Nueva asignación</h3><p>Solo bloqueará la salida del destino seleccionado.</p></header>
             <div class="admin-close-fields">
               <label>Asignar a<select id="admin-close-target-kind"><option value="persona">Una persona</option><option value="area">Toda un área</option><option value="sorteo" id="admin-close-draw-option">Sorteo dentro de un área</option></select></label>
-              <label>Destino<select id="admin-close-target" required></select></label>
+              <label class="span-2">Buscar destino<input id="admin-close-target-search" type="search" placeholder="Nombre de la persona o área" autocomplete="off" aria-controls="assignment-target-matches"><small id="admin-close-target-results" aria-live="polite"></small></label>
+              <div id="assignment-target-matches" class="assignment-target-matches span-2" role="group" aria-label="Destinos encontrados" hidden></div>
+              <label class="span-2">Destino<select id="admin-close-target" required></select></label>
               <label id="admin-close-draw-count-wrap" hidden>Cantidad de seleccionados<input type="number" id="admin-close-draw-count" min="1" max="20" value="1"></label>
               <label>Tipo<select id="admin-close-type"><option value="ppt">PPT</option><option value="gpt">GPT</option><option value="induccion">Inducción</option><option value="otro">Otro entregable</option></select></label>
               <label>Título<input type="text" id="admin-close-title" minlength="2" maxlength="120" required placeholder="Ej. PPT de inducción"></label>
               <label class="span-2">Indicaciones<textarea id="admin-close-instructions" rows="3" maxlength="700" placeholder="Explica qué debe adjuntar antes de salir."></textarea></label>
             </div>
+            <p class="assignment-guide" id="admin-close-draw-help" hidden>El sorteo prioriza a quienes tienen menos asignaciones del mismo tipo en los últimos 30 días. Solo participan personas activas que trabajan en la fecha elegida y no tienen ese tipo asignado ese día. Los empates se resuelven de forma estable: repetir la consulta no cambia el orden. Primero verás la selección; las asignaciones se crean al confirmar.</p>
+            <p class="assignment-guide" id="admin-assignment-date-note"></p>
             <div class="admin-close-draw-preview" id="admin-close-draw-preview" hidden></div>
             <button class="admin-primary-action" id="admin-close-assign" type="submit">Asignar entregable</button>
           </form>
 
           <article class="admin-close-assignments">
             <header><span><h3>Asignaciones del día</h3><p id="admin-close-assignment-count" aria-live="polite">Sin asignaciones</p></span><button type="button" id="admin-close-assignments-refresh" aria-label="Actualizar estados de las asignaciones"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg><span>Actualizar</span></button></header>
+            <details class="assignment-calendar" id="assignment-calendar-panel">
+              <summary>Calendario de asignaciones</summary>
+              <label>Mes<input type="month" id="assignment-calendar-month"></label>
+              <p id="assignment-calendar-message" aria-live="polite"></p>
+              <div class="assignment-calendar-days" id="assignment-calendar-days"></div>
+              <small>Los días con un punto tienen asignaciones. Selecciona un día para consultar sus entregas.</small>
+            </details>
+            <label class="assignment-search">Buscar asignación<input type="search" id="admin-assignment-search" placeholder="Título o destinatario" autocomplete="off"></label>
+            <nav class="assignment-pagination" aria-label="Paginación de asignaciones"><button type="button" id="assignment-prev">Anterior</button><span id="assignment-page" aria-live="polite"></span><button type="button" id="assignment-next">Siguiente</button></nav>
             <div id="admin-close-assignment-list"><p class="admin-empty">Cargando asignaciones…</p></div>
           </article>
         </div>
@@ -1712,7 +1733,8 @@
 <script src="assets/js/dashboard-admin-mes.js?v=5"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=4"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=27"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=30"></script>
+<script src="assets/js/dashboard-assignments.js?v=4"></script>
 <script src="assets/js/dashboard-admin-control.js?v=3"></script>
 <script src="assets/js/marketing-model.js?v=3"></script>
 <script src="assets/js/dashboard-marketing.js?v=6"></script>
@@ -1722,4 +1744,3 @@
 <script src="assets/js/dashboard-ranking.js?v=5"></script>
 </body>
 </html>
-
