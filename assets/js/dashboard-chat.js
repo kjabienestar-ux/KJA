@@ -211,7 +211,19 @@
   root.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!directory.hidden)toggleDirectory(false);else{const w=[...windows.values()].find(w=>w.el.contains(e.target));if(w){minimize(w,true);launcher.focus()}}}});
   window.addEventListener('beforeunload',e=>{if([...windows.values()].some(w=>w.sending||w.input.value.trim())){e.preventDefault();e.returnValue=''}});
   db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')destroy()});
-  window.KJAChat={async init(id){if(!id)return;if(user===id)return;destroy();user=id;presenceSession=crypto.randomUUID();const stamp=epoch;root.hidden=false;note('Conectando…');await refresh();if(stamp!==epoch)return;
+  let externalOpen=0;
+  async function openCollaborator(personId){
+    if(!user)throw Error('El chat aún está conectando. Intenta nuevamente en unos segundos.');
+    if(!/^\d+$/.test(String(personId))||Number(personId)<=0)throw Error('Colaborador inválido.');
+    const stamp=epoch,request=++externalOpen;
+    const id=await rpc('chat_cuenta_colaborador',{p_colaborador:personId});
+    if(stamp!==epoch||request!==externalOpen)return;
+    const data=await rpc('chat_contactos');
+    if(stamp!==epoch||request!==externalOpen)return;
+    if(!data.some(c=>c.id===id&&c.activo))throw Error('La cuenta del colaborador no está disponible para conversar.');
+    contacts=data;open(id);
+  }
+  window.KJAChat={openCollaborator,async init(id){if(!id)return;if(user===id)return;destroy();user=id;presenceSession=crypto.randomUUID();const stamp=epoch;root.hidden=false;note('Conectando…');await refresh();if(stamp!==epoch)return;
     try{const saved=JSON.parse(sessionStorage.getItem('kja-chat-windows:'+id)||'[]');if(Array.isArray(saved))saved.slice(-2).forEach(w=>open(w.id,{restore:true,minimized:!!w.minimized}))}catch{}
     timer=setInterval(()=>void refresh(),5000);
   },destroy};

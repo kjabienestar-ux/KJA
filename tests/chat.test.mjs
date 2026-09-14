@@ -4,6 +4,32 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 // DOM de eventos acotado: comprueba comportamiento, no sustituye revisión visual.
+test('admin shortcut resolves collaborator to chat account, restores history and never sends automatically',async()=>{
+  const h=harness({mobile:true});await h.start();
+  await h.context.KJAChat.openCollaborator(12);await h.settle();
+  assert.equal(h.find('chat-panel')[0].hidden,false);assert.equal(h.find('chat-window').length,1);
+  assert.ok(h.calls.some(c=>c.name==='chat_historial'&&c.args.p_contacto==='peer'));
+  const input=h.find('chat-compose')[0].children[0];input.value='Borrador';input.oninput();
+  await h.context.KJAChat.openCollaborator(12);await h.settle();
+  assert.equal(h.find('chat-window').length,1);assert.equal(input.value,'Borrador');
+  assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
+  assert.equal(h.calls.filter(c=>c.name==='chat_enviar').length,0);
+});
+test('missing linked account does not open another conversation',async()=>{
+  const h=harness();await h.start();await assert.rejects(h.context.KJAChat.openCollaborator(99),error=>error.code==='P0001'&&/cuenta activa/.test(error.message));
+  assert.equal(h.find('chat-window').length,0);
+});
+test('sign-out during account resolution cannot reopen the chat',async()=>{
+  let release;const waitMapping=new Promise(r=>release=r),h=harness({waitMapping});await h.start();
+  const opening=h.context.KJAChat.openCollaborator(12);h.logout();release();await opening;await h.settle();
+  assert.equal(h.find('chat-panel')[0].hidden,true);assert.equal(h.find('chat-window').length,0);
+});
+test('last collaborator shortcut wins when multiple opens are pending',async()=>{
+  let release;const h=harness({waitMapping:new Promise(r=>release=r)});await h.start();
+  const first=h.context.KJAChat.openCollaborator(12),second=h.context.KJAChat.openCollaborator(13);release();await Promise.all([first,second]);await h.settle();
+  assert.equal(h.find('chat-window').length,1);assert.ok(h.calls.some(c=>c.name==='chat_historial'&&c.args.p_contacto==='director'));
+  assert.equal(h.calls.some(c=>c.name==='chat_historial'&&c.args.p_contacto==='peer'),false);
+});
 test('mobile opening, returning and reopening do not focus a keyboard input',async()=>{
   const h=harness({mobile:true});await h.start();h.find('chat-launcher')[0].onclick();
   assert.equal(h.document.activeElement,h.find('chat-panel')[0]);
@@ -17,7 +43,7 @@ test('composer starts at one line and caps growth for long messages',async()=>{
   input.value='texto largo';input.scrollHeight=250;input.oninput();assert.equal(input.style.height,'100px');
   input.value='';input.scrollHeight=24;input.oninput();assert.equal(input.style.height,'44px');
 });
-function harness({mobile=false,failSend=false,waitSend=null,waitContacts=null,waitHistory=null,photos=[],photoError=false,presenceRows=[],presenceError=false}={}){
+function harness({mobile=false,waitMapping=null,failSend=false,waitSend=null,waitContacts=null,waitHistory=null,photos=[],photoError=false,presenceRows=[],presenceError=false}={}){
   let document;
   let clock=Date.now();class ChatDate extends Date{static now(){return clock}}
   const connection={rows:presenceRows,error:presenceError},documentEvents={};
@@ -41,6 +67,7 @@ function harness({mobile=false,failSend=false,waitSend=null,waitContacts=null,wa
   const messages=[incoming];
   const context=vm.createContext({document,console,crypto:{randomUUID:()=>`uuid-${++uuid}`},getComputedStyle:()=>({visibility:'visible'}),sessionStorage:{setItem:(k,v)=>storage.set(k,v),getItem:k=>storage.get(k)},setInterval:fn=>{timers.set(1,fn);return 1},clearInterval:id=>timers.delete(id),addEventListener(){},confirm:()=>true,db:{storage:{from:bucket=>({createSignedUrls:async paths=>{calls.push({name:'signPhotos',args:{bucket,paths}});return photoError?{error:{message:'denied'}}:{data:paths.map(path=>({signedUrl:'https://example.test/'+path+'?token=test'}))}}})},auth:{onAuthStateChange:fn=>authHandler=fn},rpc:async(name,args)=>{
     calls.push({name,args});
+    if(name==='chat_cuenta_colaborador'){if(waitMapping)await waitMapping;if(String(args.p_colaborador)==='12')return {data:'peer'};if(String(args.p_colaborador)==='13')return {data:'director'};return {error:{code:'P0001',message:'Este colaborador todavía no tiene una cuenta activa vinculada al chat.'}}}
     if(name==='chat_presencia')return connection.error?{error:{message:'presence unavailable'}}:{data:connection.rows};
     if(name==='chat_contactos'){if(waitContacts)await waitContacts;return connection.contactsError?{error:{message:'contacts unavailable'}}:{data:contacts}}
     if(name==='chat_fotos')return {data:photos};

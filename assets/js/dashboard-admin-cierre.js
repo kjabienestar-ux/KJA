@@ -324,14 +324,12 @@ function adminMessageStatus(text,type=''){
 
 function openAdminMessage(personId,trigger=null){
   if(APP.access.rol!=='direccion')return;
-  const person=adminEvidencePerson(personId);if(!person)return;
-  ADMIN_MESSAGE={personId:Number(person.id),trigger:trigger||document.activeElement,busy:false};
-  $('admin-message-person-mark').textContent=initials(person.nombre);
-  $('admin-message-recipient').textContent=person.nombre;
-  $('admin-message-recipient-area').textContent=person.area||'Equipo KJA';
-  $('admin-message-subject').value='';$('admin-message-body').value='';adminMessageStatus('');
-  $('admin-message-modal').hidden=false;document.body.classList.add('admin-message-open');
-  setTimeout(()=>$('admin-message-body').focus(),0);
+  if(!window.KJAChat?.openCollaborator){toast('El chat aún no está disponible. Recarga la página.',true);return}
+  if(trigger)trigger.disabled=true;
+  return window.KJAChat.openCollaborator(personId).catch(error=>{
+    const missing=error?.code==='PGRST202';
+    toast(missing?'Falta ejecutar chat_05_abrir_colaborador.sql en Supabase.':error?.message||'No se pudo abrir el chat. Intenta nuevamente.',true);
+  }).finally(()=>{if(trigger)trigger.disabled=false});
 }
 
 function closeAdminMessage({restoreFocus=true}={}){

@@ -29,8 +29,17 @@ try{
   await db.exec(photoSql);await db.exec(photoSql);
   const presenceSql=await fs.readFile(new URL('../supabase/chat_04_presencia.sql',import.meta.url),'utf8');
   await db.exec(presenceSql);await db.exec(presenceSql);
+  const shortcutSql=await fs.readFile(new URL('../supabase/chat_05_abrir_colaborador.sql',import.meta.url),'utf8');
+  await db.exec(shortcutSql);await db.exec(shortcutSql);
   const login=async(id,role='authenticated')=>{await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id]);await db.exec(`set role ${role}`)};
   const heartbeat=(session,visible=true)=>db.query('select * from public.chat_presencia($1,$2)',[session,visible]);
+  await login(a);
+  assert.equal((await db.query('select public.chat_cuenta_colaborador(2) as id')).rows[0].id,b);
+  await assert.rejects(db.query('select public.chat_cuenta_colaborador(1)'),/contigo mismo/);
+  await assert.rejects(db.query('select public.chat_cuenta_colaborador(3)'),/cuenta activa/);
+  await db.exec('reset role');await db.query("update public.asis_perfiles set rol='visor' where id=$1",[c]);
+  await login(c);await assert.rejects(db.query('select public.chat_cuenta_colaborador(2)'),/Solo Dirección/);
+  await db.exec('reset role');await db.query("update public.asis_perfiles set rol='direccion' where id=$1",[c]);
   await login(b);await heartbeat(token(100));await heartbeat(token(101));
   await login(a);assert.ok((await heartbeat(token(102))).rows.some(r=>r.id===b&&r.vigencia_segundos>0));
   await assert.rejects(db.query('select * from public.chat_sesiones'),/permission denied/);
@@ -80,6 +89,7 @@ try{
   assert.equal(new Set([...page,...older].map(m=>m.id)).size,90);
   await db.exec('reset role');await db.query('update public.asis_perfiles set activo=false where id=$1',[b]);
   await login(a);await assert.rejects(send(b,'Inactivo',token(32)),/no está disponible/);
+  await assert.rejects(db.query('select public.chat_cuenta_colaborador(2)'),/cuenta activa/);
   assert.equal((await db.query('select * from public.chat_contactos()')).rows.find(r=>r.id===b).activo,false);
   assert.equal((await db.query('select * from public.chat_fotos()')).rows.length,0);
   assert.equal((await db.query('select * from storage.objects')).rows.length,1);
@@ -87,5 +97,6 @@ try{
   await login('', 'anon');await assert.rejects(db.query('select * from public.chat_contactos()'),/permission denied/);
   await assert.rejects(db.query('select * from public.chat_fotos()'),/permission denied/);
   await assert.rejects(heartbeat(token(103)),/permission denied/);
+  await assert.rejects(db.query('select public.chat_cuenta_colaborador(2)'),/permission denied/);
   console.log('SQL OK: migración repetible, privacidad entre 3 cuentas, permisos, envío, idempotencia, cuota, paginación, lectura e inactivos.');
 }finally{await db.close()}

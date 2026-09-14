@@ -48,3 +48,8 @@ El servidor valida contenido, destinatario y un máximo de 30 mensajes por minut
 Esta entrega cubre comunicación de texto. Adjuntos, grupos y nuevos flujos de trabajos/pendientes requieren su propia implementación posterior.
 
 El panel amarillo (`dashboard-chat.js` y CSS versión 6) requiere publicar `dashboard.html` y ambos archivos del chat, más la migración 04 para presencia. La columna de 360px y las tres posiciones iguales mantienen **Equipo**, **Dirección** y **Mis chats** alineados y completos junto al buscador. Las pruebas incluyen historial, navegación del panel, expiración sin interacción, fallos de conexión y ocultación durante peticiones pendientes. Presentación final pendiente de comprobar en navegador.
+# Abrir desde Cierres y entregables
+
+Ejecutar `supabase/chat_05_abrir_colaborador.sql` después de chat_04. El botón «Mensaje» ahora llama a `KJAChat.openCollaborator(colaboradorId)` y abre la conversación flotante. La RPC resuelve el ID de colaborador a la cuenta activa vinculada, sin buscar por nombre; solo Dirección activa puede utilizar ese acceso. Si no tiene cuenta vinculada, está desactivado o es la misma cuenta, muestra un aviso. No se envía nada hasta que el usuario escriba y pulse Enviar. Se conserva el historial y los borradores existentes, y en móvil se mantiene el comportamiento sin teclado automático.
+
+Esta integración cambia el acceso desde el botón, no convierte las notificaciones privadas anteriores en mensajes de chat ni elimina su historial. Pruebas de apertura, reentrada, falta de cuenta, cierre de sesión, concurrencia y permisos SQL aislados.
