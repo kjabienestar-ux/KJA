@@ -187,11 +187,16 @@ function playNotificationSound(){
   const context=NOTIFICATION_AUDIO_CONTEXT;if(!NOTIFICATION_AUDIO_READY||!context||context.state!=='running')return;
   try{
     const master=context.createGain(),now=context.currentTime;
-    master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(.055,now+.012);master.gain.exponentialRampToValueAtTime(.0001,now+.34);master.connect(context.destination);
-    [{frequency:784,start:0,duration:.14},{frequency:1174,start:.12,duration:.2}].forEach(note=>{
+    const compressor=typeof context.createDynamicsCompressor==='function'?context.createDynamicsCompressor():null;
+    master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(.18,now+.015);master.gain.exponentialRampToValueAtTime(.0001,now+.52);
+    if(compressor){
+      compressor.threshold.setValueAtTime(-24,now);compressor.knee.setValueAtTime(18,now);compressor.ratio.setValueAtTime(6,now);compressor.attack.setValueAtTime(.003,now);compressor.release.setValueAtTime(.18,now);
+      master.connect(compressor);compressor.connect(context.destination);
+    }else master.connect(context.destination);
+    [{frequency:784,start:0,duration:.18,level:.78,type:'sine'},{frequency:1174,start:.14,duration:.28,level:.9,type:'triangle'}].forEach(note=>{
       const oscillator=context.createOscillator(),gain=context.createGain();
-      oscillator.type='sine';oscillator.frequency.setValueAtTime(note.frequency,now+note.start);
-      gain.gain.setValueAtTime(.0001,now+note.start);gain.gain.exponentialRampToValueAtTime(.72,now+note.start+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+note.start+note.duration);
+      oscillator.type=note.type;oscillator.frequency.setValueAtTime(note.frequency,now+note.start);
+      gain.gain.setValueAtTime(.0001,now+note.start);gain.gain.exponentialRampToValueAtTime(note.level,now+note.start+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+note.start+note.duration);
       oscillator.connect(gain);gain.connect(master);oscillator.start(now+note.start);oscillator.stop(now+note.start+note.duration+.02);
     });
   }catch{/* Nunca se bloquea la sincronización por un problema de audio. */}

@@ -532,6 +532,13 @@ test('direction messages, review notes and assignments share one private notific
   assert.match(css,/\.admin-message-sheet\{/);
 });
 
+test('notification sound is reinforced and protected from clipping', () => {
+  assert.match(js,/exponentialRampToValueAtTime\(\.18,now\+\.015\)/);
+  assert.match(js,/createDynamicsCompressor/);
+  assert.match(js,/duration:\.28,level:\.9,type:'triangle'/);
+  assert.match(html,/dashboard\.js\?v=169/);
+});
+
 test('every user notification visibly identifies the Direction message and sender', () => {
   for (const fragment of [
     'update public.asis_notificaciones notificacion',
