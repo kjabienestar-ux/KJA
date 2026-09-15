@@ -10287,3 +10287,5 @@ body.admin-role-confirm-open{overflow:hidden}
 @media(max-width:900px){
   .today-layout .hours-progress-map{grid-column:1/-1}
 }
+
+.admin-close-status-pill.justificado{color:#245c96;background:#e8f1fb}

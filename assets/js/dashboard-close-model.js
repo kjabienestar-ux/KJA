@@ -9,7 +9,7 @@
   function stateLabel(state){
     return {
       sin_entrada:'Sin entrada',en_curso:'En curso',lista_para_salir:'Lista para salir',
-      completa:'Completa',regularizada:'Completa',incompleta:'Incompleta',no_aplica:'No aplica'
+      completa:'Completa',regularizada:'Completa',incompleta:'Incompleta',justificado:'Justificado',no_aplica:'No aplica'
     }[state]||'Pendiente';
   }
 

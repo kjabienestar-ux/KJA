@@ -17,6 +17,7 @@ function adminEvidencePerson(personId){
 
 function adminEvidenceMissing(person,reviews=null){
   const close=person?.cierre||{},hasEntry=!!close.entrada_at,personReviews=reviews||(APP.adminReview?.entregas||[]).filter(item=>String(item.colaborador_id)===String(person?.id));
+  if(close.justificado)return (close.requisitos||[]).filter(item=>item.tipo==='comparticiones'&&!item.completo&&!personReviews.some(review=>review.requisito==='comparticiones'&&review.estado==='completo')).map(item=>({kind:item.tipo,assignment:null,title:item.titulo,copy:item.descripcion||'Evidencia requerida'}));
   const globals=(close.requisitos||[]).filter(item=>!item.completo&&(item.tipo==='comparticiones'||hasEntry)).map(item=>({kind:item.tipo,assignment:null,title:item.titulo,copy:item.descripcion||'Evidencia requerida'}));
   const exitDelivered=personReviews.some(item=>item.requisito==='salida'&&item.estado==='completo');
   if(hasEntry&&!close.salida_at&&!exitDelivered&&!globals.some(item=>item.kind==='salida'))globals.push({kind:'salida',assignment:null,title:'Evidencia de hora de salida',copy:'Adjunta la foto recibida e indica la hora visible'});
@@ -32,6 +33,7 @@ function adminCloseEvidenceKey(item,assignment=false){
 
 function adminCloseEvidenceProgress(person,reviews=[]){
   const close=person?.cierre||{},expected=new Set(),complete=new Set(),latest=new Map();
+  if(close.justificado)return adminCloseEvidenceProgress({cierre:{requisitos:(close.requisitos||[]).filter(item=>item.tipo==='comparticiones'),aplica_comparticiones:close.aplica_comparticiones}},reviews.filter(item=>item.requisito==='comparticiones'));
   for(const item of close.requisitos||[]){const key=adminCloseEvidenceKey(item);if(!key)continue;expected.add(key);if(item.completo)complete.add(key)}
   for(const item of close.asignaciones||[]){const key=adminCloseEvidenceKey(item,true);if(!key)continue;expected.add(key);if(item.completo)complete.add(key)}
   if(person?.labora&&close.aplica_jornada!==false)expected.add('requisito:rpe');
@@ -61,6 +63,7 @@ function adminCloseStateLabel(state){
 
 function adminCloseResolvedState(person,progress,date){
   const close=person?.cierre||{};
+  if(close.justificado)return 'justificado';
   if(close.salida_at){
     if(close.estado==='incompleta')return 'incompleta';
     return close.estado==='regularizada'?'regularizada':'completa';
@@ -182,7 +185,8 @@ function renderAdminCloseStatus(){
   let html='';
   for(const group of groups.values()){
     const complete=group.items.filter(person=>{const personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),progress=adminCloseEvidenceProgress(person,personReviews);return ['completa','regularizada'].includes(adminCloseResolvedState(person,progress,selectedDate))}).length;
-    html+=`<section class="admin-close-area area-tone-${adminCloseAreaTone(group.id)}"><header><span><b>${esc(group.name)}</b><small>${complete} de ${group.items.length} jornadas completas</small></span></header><div class="admin-close-table"><div class="admin-close-table-head"><span>Colaborador</span><span>Entrada</span><span>Evidencias</span><span>Salida</span><span>Jornada</span><span>Mensaje</span></div>`;
+    const justified=group.items.filter(person=>person.cierre?.justificado).length;
+    html+=`<section class="admin-close-area area-tone-${adminCloseAreaTone(group.id)}"><header><span><b>${esc(group.name)}</b><small>${complete} completas${justified?` · ${justified} justificadas`:''} de ${group.items.length} jornadas</small></span></header><div class="admin-close-table"><div class="admin-close-table-head"><span>Colaborador</span><span>Entrada</span><span>Evidencias</span><span>Salida</span><span>Jornada</span><span>Mensaje</span></div>`;
     for(const person of group.items){
       const close=person.cierre||{},personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),progress=adminCloseEvidenceProgress(person,personReviews);
       const evidence=`${progress.done}/${progress.total}`,state=adminCloseResolvedState(person,progress,selectedDate),pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length;
@@ -500,13 +504,14 @@ async function submitAdminEvidence(event){
       :{p_colaborador:Number(person.id),p_fecha:date,p_requisito:selected.kind,p_asignacion:selected.assignment,p_modalidad:selected.kind==='comparticiones'?mode:null,p_paths:paths,p_detalle:note,p_hora_salida:null};
     let {data,error}=await db.rpc(rpc,params);
     if(error||!data?.ok){const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes(rpc));throw Object.assign(new Error(data?.motivo||error?.message||'confirmar'),{motivo:missing&&isLateExit?'migracion_salida':data?.motivo||'confirmar'})}
-    if(!isLateExit){
+    if(!isLateExit&&!person.cierre?.justificado){
       const {data:regularization,error:regularizationError}=await db.rpc('dash_admin_regularizar_cierre',{p_colaborador:Number(person.id),p_fecha:date});
       if(!regularizationError&&regularization?.ok&&regularization.regularizada)data={...data,cierre_regularizado:true};
     }
     ADMIN_EVIDENCE.busy=false;closeAdminEvidence({restoreFocus:false});await loadAdminCloses();const status=$('admin-close-status');status.setAttribute('tabindex','-1');status.focus({preventScroll:true});toast(data.cierre_regularizado?'Evidencia registrada. La jornada quedó completa.':'Evidencia registrada por Dirección.');
   }catch(error){
     const messages={sin_permiso:'Solo Dirección puede realizar esta carga.',datos:'Revisa la persona, la fecha y la hora de salida.',no_programado:'Este requisito no corresponde al horario de la persona en esa fecha.',asignacion:'La asignación ya no está activa o no corresponde a esta persona.',no_habilitado:'Este tipo de evidencia no estaba habilitado en la fecha seleccionada.',collage_no_permitido:'El formato collage no está habilitado.',permiso:'La autorización privada de carga venció. Vuelve a seleccionar las imágenes.',detalle_salida:'Añade una nota que indique cómo recibiste esta foto de salida.',ya_completo:'La evidencia ya fue registrada desde otra sesión.',ya_cerrada:'La salida de esta jornada ya está registrada.',hora_salida:'Indica la hora visible en la foto.',hora_salida_invalida:'La hora indicada no puede ser anterior a la entrada ni posterior a la hora actual.',sin_entrada:'No existe una entrada para asociar esta evidencia.',migracion_salida:'Ejecuta dashboard_42_entrada_y_salida_tardia.sql en Supabase para habilitar esta regularización.',cantidad_comparticiones:`Adjunta al menos ${min} capturas o un collage.`,archivo_no_verificado:'Una imagen no llegó correctamente. Inténtalo otra vez.',cuota_diaria:'Se alcanzó el límite de cargas pendientes. Espera unos minutos e inténtalo nuevamente.',subida:'No pudimos subir una imagen. Revisa tu conexión.'};
+    messages.jornada_justificada='La jornada está justificada. Solo corresponde subir comparticiones de Facebook.';
     messages.formato_documento='El servidor rechazó el formato. Para PDF o Word en asignaciones, Sistemas debe desplegar la versión actual de dash-entrega; ejecutar el SQL no actualiza esa función.';
     messages.error_validacion='El servidor no pudo validar el permiso. Sistemas debe revisar los registros de dash-entrega y comprobar que dashboard_59 se ejecutó en el mismo proyecto.';
     adminEvidenceMessage(messages[error.motivo]||`No pudimos registrar la evidencia (${error.motivo||'sin respuesta'}). Inténtalo nuevamente.`,'is-error');
