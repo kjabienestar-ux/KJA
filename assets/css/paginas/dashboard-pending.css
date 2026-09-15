@@ -1,0 +1,49 @@
+/* Estados sólidos: la acción pendiente domina sobre el comprobante completado. */
+/* Checklist compacto: el énfasis pertenece a lo pendiente. */
+#today-attendance-card.has-daily-close{border-radius:18px;overflow:hidden}
+#day-close{background:#fff;border-radius:18px!important;isolation:isolate}
+#day-close .day-close-head{background:#fff;border-bottom:1px solid #e5eaf0;border-radius:18px 18px 0 0!important}
+#day-close .day-close-head h2{color:#173656}
+#day-close .day-close-head p{color:#60748a}
+#day-close .day-close-state{gap:7px;padding:8px 11px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:0;line-height:1.3;transition:background-color .2s,color .2s}
+#day-close .day-close-state[data-state=complete]{background:#edf8f2;color:#17664d;border:1px solid #cde7d9;box-shadow:none}
+#day-close .day-close-state[data-state=complete] i{display:grid;place-items:center;width:18px;height:18px;background:#168368;border-radius:50%;flex-shrink:0}
+#day-close .day-close-state[data-state=complete] i::after{content:"";display:block;width:7px;height:4px;border-left:1.7px solid white;border-bottom:1.7px solid white;transform:translateY(-1px) rotate(-45deg)}
+:is(#day-close,#mobile-close-panel) button{transition:background-color .18s,border-color .18s,box-shadow .18s,transform .18s}
+:is(#day-close,#mobile-close-panel) button:active:not(:disabled){transform:scale(.98)}
+:is(#day-close,#mobile-close-panel) .day-close-item.just-completed{animation:task-completed .55s ease-out both}
+:is(#day-close,#mobile-close-panel) .just-completed .day-close-check{animation:task-check .4s ease-out both}
+@keyframes task-completed{from{background:#d9f2e5;transform:translateY(3px)}to{transform:translateY(0)}}
+@keyframes task-check{0%{transform:scale(.85)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){
+ :is(#day-close,#mobile-close-panel) button,#day-close .day-close-state{transition:none}
+ :is(#day-close,#mobile-close-panel) .day-close-item.just-completed,:is(#day-close,#mobile-close-panel) .just-completed .day-close-check{animation:none}
+ :is(#day-close,#mobile-close-panel) button:active:not(:disabled){transform:none}
+}
+#day-close .day-close-checklist{background:#fff;border:1px solid #e5eaf0;display:block;padding:4px 12px;border-radius:12px}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-complete{background:transparent;border:0;border-bottom:1px solid #edf0f4;border-radius:0;box-shadow:none;margin:0;padding:9px 3px;min-height:55px}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-complete .day-close-item-copy b{color:#29465c;font-size:12px;font-weight:650}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-complete .day-close-item-copy small{color:#64758a;font-size:10px}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-complete .day-close-check{background:#e9f6ef;border:1px solid #c6e4d5;color:#168368;box-shadow:none}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-complete .day-close-check svg{color:#168368;stroke:currentColor}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-complete .day-close-item-status{color:#28765f;font-size:8px}
+:is(#day-close,#mobile-close-panel) .day-close-item.has-facebook-receipt{background:transparent;border:0;border-bottom:1px solid #edf0f4;padding:10px 3px;border-radius:0}
+:is(#day-close,#mobile-close-panel) .facebook-share-open{background:#eff5fc;color:#16559a;box-shadow:none;border:1px solid #dbe7f4;min-height:42px;padding:8px 12px}
+:is(#day-close,#mobile-close-panel) .facebook-share-open b{color:#16559a;font-size:11px}
+:is(#day-close,#mobile-close-panel) .facebook-share-open small{display:none}
+:is(#day-close,#mobile-close-panel) .facebook-share-open-icon{background:#dfeafa;color:#16559a}
+:is(#day-close,#mobile-close-panel) .facebook-share-open-icon svg{stroke:currentColor}
+:is(#day-close,#mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked){background:#fff7e8;border:1px solid #e6bf7a;border-radius:10px;margin:7px 0;padding:12px 10px;box-shadow:none;opacity:1}
+:is(#day-close,#mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked) .day-close-item-copy b{color:#634511;font-size:12px;font-weight:700}
+:is(#day-close,#mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked) .day-close-item-copy small{color:#775e36;font-size:11px;line-height:1.45}
+:is(#day-close,#mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked) .day-close-check{background:#ffedc7;border-color:#e6bf7a;color:#946009;box-shadow:none}
+:is(#day-close,#mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked) .day-close-item-status{background:#075bbb;color:#fff;border-radius:7px;padding:8px 10px;font-size:10px;text-transform:none;letter-spacing:0;white-space:normal}
+:is(#day-close,#mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked):hover{background:#fff0d4;border-color:#bf882d;transform:none}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-locked:not(.is-complete){background:#f4f6f9;border:1px solid #e1e6ed;border-radius:10px;margin:7px 0;opacity:1}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-locked:not(.is-complete) .day-close-item-copy b,:is(#day-close,#mobile-close-panel) .day-close-item.is-locked:not(.is-complete) .day-close-item-status{color:#536579}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-observed:not(.is-complete){background:#fff2f3;border-color:#dba0aa}
+:is(#day-close,#mobile-close-panel) .day-close-item.is-observed:not(.is-complete) .day-close-item-copy b{color:#9a3044}
+:is(#day-close,#mobile-close-panel) .day-close-item:focus-visible{outline:3px solid #075bbb;outline-offset:2px}
+@media(max-width:600px){
+ :is(#day-close,#mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked) .day-close-item-status{min-height:36px;display:flex;align-items:center;justify-content:center}
+}

@@ -2034,7 +2034,7 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
   const complete=!!item.completo,locked=!!item.locked,editable=complete&&!!item.editable;
   const facebookReceipt=complete&&item.tipo==='comparticiones';
   const review=item.revision_estado||'';
-  const status=review==='observada'?'Corregir':editable?'Editar':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Primero':locked&&item.tipo==='salida'?'Al finalizar':locked?'Después':item.impedimento?'Informado':'Pendiente';
+  const status=review==='observada'?'Corregir evidencia':editable?'Editar':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Marcar entrada':locked&&item.tipo==='salida'?'Al finalizar':locked?'Aún no disponible':item.impedimento?'Ver pendiente':'Subir evidencia';
   const icons={
     comparticiones:'<svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 21v-8h2.8l.4-3.1h-3.2v-2c0-.9.3-1.5 1.6-1.5H17V3.6c-.8-.1-1.6-.2-2.4-.2-2.4 0-4.1 1.5-4.1 4.2v2.3H7.8V13h2.7v8h3.2Z"/></svg>',
     rpe:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v5h5M10 12h5M10 16h5"/></svg>',
@@ -2182,12 +2182,27 @@ function renderDailyClose(){
     completo:item.completo,editable:!!item.completo&&!!data.puede_editar_evidencias,locked
   }))];
   section.classList.toggle('is-facebook-only',facebookOnly);
+  const motionKey=item=>`${item.tipo}:${item.asignacion??''}`;
+  const motionScope=`${APP.inicio?.colaborador?.id||''}:${data.fecha||''}:${data.entrada_at||''}`;
+  const previousTasks=section._taskMotionScope===motionScope?section._taskMotionState:null;
+  const newlyCompleted=new Set(items.filter(item=>item.completo&&previousTasks?.get(motionKey(item))===false).map(motionKey));
+  section._taskMotionScope=motionScope;section._taskMotionState=new Map(items.map(item=>[motionKey(item),!!item.completo]));
+  const missingEvidence=items.filter(item=>!item.completo&&item.tipo!=='entrada').length;
+  section.dataset.pending=String(missingEvidence);
   $('day-close-checklist').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:!facebookOnly&&index===0})).join('');
   renderMobileDailyClose(data,items);
+  if(newlyCompleted.size){
+    for(const container of [$('day-close-checklist'),$('mobile-close-list')]){
+      container?.querySelectorAll('.day-close-item').forEach((row,index)=>{
+        if(items[index]&&newlyCompleted.has(motionKey(items[index])))row.classList.add('just-completed');
+      });
+    }
+  }
 
   $('day-close-title').textContent=facebookOnly?'Compartición programada':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
   $('day-close-copy').textContent=facebookOnly?'Hoy no tienes jornada laboral; esta tarea sigue activa en su propio horario.':data.comparticiones_vencidas?'La jornada laboral cerró, pero la compartición obligatoria no se entregó dentro de su horario.':data.salida_at&&data.comparticiones_pendientes?'Tu jornada laboral ya cerró. Facebook continúa pendiente en su horario independiente.':entryComplete?'Completa tus evidencias laborales antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
   const state=$('day-close-state');
+  if(missingEvidence&&!closed&&entryComplete)$('day-close-copy').textContent=`Te ${missingEvidence===1?'falta 1 evidencia':`faltan ${missingEvidence} evidencias`}. Abre cada pendiente y sube lo solicitado antes de salir.`;
   state.dataset.state=facebookOnly?(data.comparticiones_vencidas?'incomplete':data.pendientes?'waiting':'complete'):entryComplete?CLOSE_MODEL.stateTone(data.estado):'waiting';
   state.innerHTML=`<i></i>${esc(facebookOnly?(data.comparticiones_vencidas?'Compartición incompleta':data.pendientes?'Facebook pendiente':'Compartición completa'):entryComplete?dailyCloseStatusCopy(data.estado):'Entrada pendiente')}`;
   const guide=dailyCloseGuidePresentation(data),guideElement=$('day-close-guide');

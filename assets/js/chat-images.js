@@ -27,7 +27,8 @@
   }
   function clear(w){if(w.attachment)URL.revokeObjectURL(w.attachment.url);w.attachment=null;w.imagePreview?.replaceChildren();if(w.imageFile)w.imageFile.value=''}
   function mount(w,form,current,note){
-    const pick=document.createElement('button');pick.type='button';pick.className='chat-attach';pick.textContent='Imagen';pick.setAttribute('aria-label','Adjuntar imagen');
+    const pick=document.createElement('button');pick.type='button';pick.className='chat-attach';pick.setAttribute('aria-label','Adjuntar imagen');pick.title='Adjuntar imagen';
+    pick.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg>';
     const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.hidden=true;w.imageFile=input;
     const preview=document.createElement('div');preview.className='chat-image-preview';w.imagePreview=preview;
     form.append(pick,input);form.before(preview);
@@ -58,6 +59,8 @@
   }
   function render(entry,m,db,current){
     if(!m.imagen_path)return;
+    entry.classList.add('has-image');
+    if(m.contenido==='Imagen')entry.querySelector('.chat-bubble')?.remove();
     const button=document.createElement('button');button.type='button';button.className='chat-image-open';button.textContent='Cargar imagen';entry.prepend(button);
     const load=async()=>{
       button.disabled=true;
@@ -67,7 +70,15 @@
         if(error||!data?.signedUrl)throw Error();
         const img=document.createElement('img');img.src=data.signedUrl;img.alt='Imagen del mensaje. Toca para ampliar';img.loading='lazy';
         img.onerror=()=>{button.textContent='Reintentar imagen';button.onclick=load};button.replaceChildren(img);
-        button.onclick=()=>{const dialog=document.createElement('dialog');dialog.className='chat-image-dialog';const large=document.createElement('img');large.src=img.src;large.alt='Imagen del mensaje';const close=document.createElement('button');close.textContent='Cerrar';close.onclick=()=>dialog.close();dialog.append(close,large);dialog.onclose=()=>{dialog.remove();button.focus()};document.body.append(dialog);dialog.showModal()};
+        button.onclick=()=>{
+          const dialog=document.createElement('dialog');dialog.className='chat-image-dialog';dialog.setAttribute('aria-label','Imagen del mensaje');
+          const large=document.createElement('img');large.src=img.src;large.alt='Imagen del mensaje';
+          const toolbar=document.createElement('div');toolbar.className='chat-image-toolbar';
+          const close=document.createElement('button');close.type='button';close.setAttribute('aria-label','Cerrar imagen');
+          close.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg><span>Cerrar</span>';
+          close.onclick=()=>dialog.close();toolbar.append(close);dialog.append(toolbar,large);
+          dialog.onclose=()=>{dialog.remove();button.focus()};document.body.append(dialog);dialog.showModal();
+        };
       }catch{button.textContent='Reintentar imagen';button.onclick=load}finally{button.disabled=false}
     };button.onclick=load;void load();
   }

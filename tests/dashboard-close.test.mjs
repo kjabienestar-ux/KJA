@@ -109,7 +109,7 @@ test('operational overview prioritizes alerts and summarizes every admin section
   assert.match(css,/\.admin-overview-module-grid\{/);
   assert.match(css,/\.admin-overview-module-grid>button\[hidden\]\{display:none\}/);
   assert.ok(Number(html.match(/dashboard\.js\?v=(\d+)/)?.[1])>=159,'dashboard script must include the operational overview revision or a newer cache version');
-  assert.match(html,/dashboard\.css\?v=190/);
+  assert.match(html,/dashboard\.css\?v=\d+/);
 });
 
 test('month ledger controls and metrics share one responsive workbench', () => {

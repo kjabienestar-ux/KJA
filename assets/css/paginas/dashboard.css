@@ -7653,6 +7653,17 @@ body.admin-evidence-open{overflow:hidden}
 }
 .rail-announcement-zoom svg{width:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .rail-announcement-media:hover .rail-announcement-zoom{background:#075abc}
+/* Reserva espacio para el acceso flotante al chat sin recortar el comunicado. */
+@media(min-width:1281px){
+  .portal-rail{display:flex;flex-direction:column;padding-bottom:82px;scroll-padding-bottom:82px}
+  .portal-rail>section{flex-shrink:0}
+  .portal-rail .rail-announcement{display:flex;flex-direction:column;flex:1 0 200px;min-height:200px}
+  .rail-announcement figcaption{flex-shrink:0}
+  .rail-announcement-media{display:flex;flex-direction:column;flex:1;min-height:0}
+  .rail-announcement-media>img{flex:1;min-height:0;height:0;object-fit:contain}
+  .rail-announcement-zoom{position:static;flex-shrink:0;justify-content:center;min-height:36px;border:0;border-top:1px solid #e2e8f0;border-radius:0;background:#f0f5fb;color:#164573;box-shadow:none;font-size:10px}
+  .rail-announcement-media:hover .rail-announcement-zoom{background:#e3edf8}
+}
 body.announcement-viewer-open{overflow:hidden}
 .announcement-viewer{
   position:fixed;

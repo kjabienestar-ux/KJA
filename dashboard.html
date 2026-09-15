@@ -9,13 +9,13 @@
 <link rel="icon" href="images/logo/favicon.png">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-marketing.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-chat.css?v=7">
-<link rel="stylesheet" href="assets/css/paginas/chat-images.css?v=1">
+<link rel="stylesheet" href="assets/css/paginas/chat-images.css?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=190">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=191">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=5">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
+<link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
 </head>
 <body>
 
@@ -1206,15 +1207,15 @@
     </section>
     <figure class="rail-announcement" aria-labelledby="rail-announcement-title">
       <figcaption>
-        <span><small>COMUNICADO</small><b id="rail-announcement-title">Registro de salida diario</b></span>
+        <span><small>COMUNICADO</small><b id="rail-announcement-title">Mensajería y Administración</b></span>
         <i aria-hidden="true"></i>
       </figcaption>
       <button class="rail-announcement-media" id="rail-announcement-open" type="button" aria-haspopup="dialog" aria-controls="announcement-viewer">
-        <img src="images/dashboard/comunicado-salida-diaria.jpeg" alt="Comunicado KJA sobre el registro obligatorio de la hora de salida y el envío del RPE" loading="eager" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+        <img src="images/dashboard/mensaje_admin.webp" alt="Comunicado KJA: mensajería del equipo y atención de Administración" loading="eager" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
         <div class="rail-announcement-fallback" hidden>
           <img src="images/logo/logo.webp" alt="" aria-hidden="true">
-          <b>Registro de salida diario</b>
-          <p>Adjunta tus evidencias y el RPE antes de finalizar tu jornada.</p>
+          <b>Mensajería y Administración</b>
+          <p>Busca a una persona en Mensajes o escribe a Administración si necesitas ayuda.</p>
           <small>Coloca aquí el flyer institucional.</small>
         </div>
         <span class="rail-announcement-zoom"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4M10.5 8v5M8 10.5h5"/></svg>Ver comunicado</span>
@@ -1227,11 +1228,11 @@
   <div class="modal-backdrop" data-close-announcement></div>
   <section class="announcement-viewer-sheet" role="dialog" aria-modal="true" aria-labelledby="announcement-viewer-title" tabindex="-1">
     <header>
-      <span><small>COMUNICADO KJA</small><h2 id="announcement-viewer-title">Registro de salida diario</h2></span>
+      <span><small>COMUNICADO KJA</small><h2 id="announcement-viewer-title">Mensajería y Administración</h2></span>
       <button class="announcement-viewer-close" type="button" data-close-announcement aria-label="Cerrar comunicado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
     </header>
     <div class="announcement-viewer-stage">
-      <img src="images/dashboard/comunicado-salida-diaria.jpeg" alt="Comunicado KJA sobre el registro obligatorio de la hora de salida y el envío del RPE">
+      <img src="images/dashboard/mensaje_admin.webp" alt="Comunicado KJA: mensajería del equipo y atención de Administración">
     </div>
   </section>
 </div>
@@ -1729,19 +1730,19 @@
 
 
 <script src="assets/js/dashboard-close-model.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=166"></script>
+<script src="assets/js/dashboard.js?v=168"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=5"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=4"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=33"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=34"></script>
 <script src="assets/js/dashboard-assignments.js?v=4"></script>
 <script src="assets/js/dashboard-admin-control.js?v=3"></script>
 <script src="assets/js/marketing-model.js?v=3"></script>
 <script src="assets/js/dashboard-marketing.js?v=6"></script>
-<script src="assets/js/chat-images.js?v=1"></script>
-<script src="assets/js/dashboard-chat.js?v=9"></script>
+<script src="assets/js/chat-images.js?v=3"></script>
+<script src="assets/js/dashboard-chat.js?v=11"></script>
 <script src="assets/js/dashboard-mobile.js?v=3"></script>
 <script src="assets/js/ranking-model.js?v=3"></script>
 <script src="assets/js/dashboard-ranking.js?v=5"></script>

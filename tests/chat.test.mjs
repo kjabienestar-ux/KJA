@@ -113,6 +113,17 @@ function harness({mobile=false,realtime=false,sound=()=>{},waitMapping=null,fail
   return {context,document,calls,timers,storage,find,settle,messages,incoming,connection,documentEvents,realtime:realtimeState,emitRealtime:payload=>realtimeState.callback?.(payload),advance:ms=>clock+=ms,logout:()=>authHandler('SIGNED_OUT'),async start(){await context.KJAChat.init('me')},async open(){find('chat-contact')[0].onclick();await settle()},async send(text){const input=find('chat-compose')[0].children[0];input.value=text;input.oninput();return find('chat-compose')[0].requestSubmit()}};
 }
 
+test('polling and read receipts reuse loaded image elements without signing again',async()=>{
+  const h=harness();let renders=0;
+  h.context.KJAChatImages={render:()=>renders++,mount(){},clear(){}};
+  h.messages[0].imagen_path='private/photo.jpg';
+  await h.start();await h.open();const initial=renders;
+  h.timers.get(1)();await h.settle();assert.equal(renders,initial);
+  h.messages[0].leido_at='2026-09-14T20:00:00Z';
+  h.timers.get(1)();await h.settle();assert.equal(renders,initial);
+  h.messages.push({...h.incoming,id:999,contenido:'Nuevo mensaje'});
+  h.timers.get(1)();await h.settle();assert.equal(renders,initial+1);
+});
 test('directory filters Dirección and renders names/messages as text',async()=>{
   const h=harness();await h.start();assert.equal(h.find('chat-contact').length,2);
   const tabs=h.find('chat-tabs')[0];tabs.children[1].onclick();assert.equal(h.find('chat-contact').length,1);assert.match(h.find('chat-person')[0].children[0].textContent,/Dirección/);

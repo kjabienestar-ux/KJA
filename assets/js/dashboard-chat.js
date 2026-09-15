@@ -82,7 +82,9 @@
   function note(text,error=false){status.textContent=text;status.dataset.error=String(error);retry.hidden=!error}
   function persist(){try{sessionStorage.setItem('kja-chat-windows:'+user,JSON.stringify([...windows.values()].map(w=>({id:w.id,minimized:w.minimized}))))}catch{}}
   const touchChat=()=>window.matchMedia?.('(max-width:700px), (pointer:coarse)').matches===true;
-  function syncMobileLock(){document.body.dataset.mobileChatOpen=String(touchChat()&&!panel.hidden)}
+  const backdrop=node('div','chat-backdrop');backdrop.hidden=true;backdrop.setAttribute('aria-hidden','true');document.body.append(backdrop);
+  backdrop.onclick=()=>toggleDirectory(false);
+  function syncMobileLock(){document.body.dataset.mobileChatOpen=String(touchChat()&&!panel.hidden);backdrop.hidden=panel.hidden}
   function focusChat(input){if(touchChat()){panel.tabIndex=-1;panel.focus({preventScroll:true})}else input.focus()}
   function playChatSound(){try{window.KJANotificationSound?.play?.()}catch{/* El sonido nunca debe interrumpir la sincronización. */}}
   function notifyIncomingMessage(id){
@@ -150,16 +152,25 @@
   function messageError(error){return error?.message?.includes('schema cache')||error?.code==='PGRST202'?'El chat todavía no está habilitado. Solicita su activación a Sistemas.':'No se pudo conectar con el chat. Vuelve a intentar.'}
   function windowNote(w,text,error=false){w.status.textContent=text;w.status.dataset.error=String(error)}
   function renderMessages(w,older=false){
+    const rows=[...w.messages.values()].sort((a,b)=>Number(a.id)-Number(b.id));
+    const signature=JSON.stringify(rows.map(m=>[m.id,m.contenido,m.imagen_path,m.leido_at,m.creado_at]));
+    if(w.renderSignature===signature){w.older.hidden=!w.hasOlder;return}
+    w.renderSignature=signature;
+    w.renderedMessages??=new Map();
     const nearBottom=w.history.scrollHeight-w.history.scrollTop-w.history.clientHeight<70;
     const previousHeight=w.history.scrollHeight,previousTop=w.history.scrollTop;
     w.history.replaceChildren(w.older);
-    const rows=[...w.messages.values()].sort((a,b)=>Number(a.id)-Number(b.id));
     if(!rows.length)w.history.append(node('p','chat-status','Este es el inicio de la conversación.'));
     for(const m of rows){
-      const mine=m.remitente===user,entry=node('div','chat-message'),time=node('time');entry.dataset.mine=String(mine);time.dateTime=m.creado_at;
+      const mine=m.remitente===user,key=String(m.id),cached=w.renderedMessages.get(key);
+      const reuse=cached&&cached.content===m.contenido&&cached.path===m.imagen_path;
+      const entry=reuse?cached.entry:node('div','chat-message'),time=reuse?cached.time:node('time');entry.dataset.mine=String(mine);time.dateTime=m.creado_at;
       time.textContent=new Date(m.creado_at).toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+(mine?(m.leido_at?' · Leído':' · Enviado'):'');
-      entry.append(node('p','chat-bubble',m.contenido),time);w.history.append(entry);
-      window.KJAChatImages?.render(entry,m,db,()=>!!current(w));
+      if(!reuse)entry.append(node('p','chat-bubble',m.contenido),time);w.history.append(entry);
+      if(!reuse){
+        w.renderedMessages.set(key,{entry,time,content:m.contenido,path:m.imagen_path});
+        window.KJAChatImages?.render(entry,m,db,()=>!!current(w));
+      }
     }
     w.older.hidden=!w.hasOlder;
     if(older)w.history.scrollTop=previousTop+w.history.scrollHeight-previousHeight;
