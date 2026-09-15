@@ -38,7 +38,9 @@ function adminCloseEvidenceProgress(person,reviews=[]){
   if(close.aplica_comparticiones===true)expected.add('requisito:comparticiones');
   if(close.entrada_at&&!close.salida_at&&close.aplica_jornada!==false)expected.add('requisito:salida');
   for(const item of reviews){
-    const key=adminCloseEvidenceKey(item);if(!key)continue;expected.add(key);
+    const key=adminCloseEvidenceKey(item);if(!key)continue;
+    if(item.requisito==='asignado'&&!expected.has(key))continue;
+    expected.add(key);
     const current=latest.get(key),itemOrder=Number(item.id)||new Date(item.completado_at||0).getTime(),currentOrder=Number(current?.id)||new Date(current?.completado_at||0).getTime();
     if(!current||itemOrder>currentOrder)latest.set(key,item);
   }
@@ -241,6 +243,9 @@ async function loadAdminCloses({quiet=false}={}){
   }
   APP.adminClose=data;
   APP.adminReview=APP.access.rol==='direccion'&&!reviewError&&reviewData?.ok?reviewData:{ok:false,entregas:[]};
+  // El historial de una asignación retirada no vuelve a convertirla en requisito.
+  const activeAssignments=new Set((APP.adminClose?.asignaciones||[]).map(item=>String(item.id)));
+  APP.adminReview.entregas=(APP.adminReview.entregas||[]).filter(item=>item.requisito!=='asignado'||activeAssignments.has(String(item.asignacion_id)));
   hydrateAdminCloseControls();renderAdminCloseAssignments();renderAdminReviewSummary();renderAdminCloseStatus();
   if(typeof syncAssignmentCalendar==='function')syncAssignmentCalendar();
 }
@@ -502,7 +507,9 @@ async function submitAdminEvidence(event){
     ADMIN_EVIDENCE.busy=false;closeAdminEvidence({restoreFocus:false});await loadAdminCloses();const status=$('admin-close-status');status.setAttribute('tabindex','-1');status.focus({preventScroll:true});toast(data.cierre_regularizado?'Evidencia registrada. La jornada quedó completa.':'Evidencia registrada por Dirección.');
   }catch(error){
     const messages={sin_permiso:'Solo Dirección puede realizar esta carga.',datos:'Revisa la persona, la fecha y la hora de salida.',no_programado:'Este requisito no corresponde al horario de la persona en esa fecha.',asignacion:'La asignación ya no está activa o no corresponde a esta persona.',no_habilitado:'Este tipo de evidencia no estaba habilitado en la fecha seleccionada.',collage_no_permitido:'El formato collage no está habilitado.',permiso:'La autorización privada de carga venció. Vuelve a seleccionar las imágenes.',detalle_salida:'Añade una nota que indique cómo recibiste esta foto de salida.',ya_completo:'La evidencia ya fue registrada desde otra sesión.',ya_cerrada:'La salida de esta jornada ya está registrada.',hora_salida:'Indica la hora visible en la foto.',hora_salida_invalida:'La hora indicada no puede ser anterior a la entrada ni posterior a la hora actual.',sin_entrada:'No existe una entrada para asociar esta evidencia.',migracion_salida:'Ejecuta dashboard_42_entrada_y_salida_tardia.sql en Supabase para habilitar esta regularización.',cantidad_comparticiones:`Adjunta al menos ${min} capturas o un collage.`,archivo_no_verificado:'Una imagen no llegó correctamente. Inténtalo otra vez.',cuota_diaria:'Se alcanzó el límite de cargas pendientes. Espera unos minutos e inténtalo nuevamente.',subida:'No pudimos subir una imagen. Revisa tu conexión.'};
-    adminEvidenceMessage(messages[error.motivo]||'No pudimos registrar la evidencia. Actualiza el panel e inténtalo otra vez.','is-error');
+    messages.formato_documento='El servidor rechazó el formato. Para PDF o Word en asignaciones, Sistemas debe desplegar la versión actual de dash-entrega; ejecutar el SQL no actualiza esa función.';
+    messages.error_validacion='El servidor no pudo validar el permiso. Sistemas debe revisar los registros de dash-entrega y comprobar que dashboard_59 se ejecutó en el mismo proyecto.';
+    adminEvidenceMessage(messages[error.motivo]||`No pudimos registrar la evidencia (${error.motivo||'sin respuesta'}). Inténtalo nuevamente.`,'is-error');
   }finally{
     ADMIN_EVIDENCE.busy=false;button.disabled=!ADMIN_EVIDENCE.files.length;button.querySelector('span').textContent='Cargar en nombre del colaborador';
   }
