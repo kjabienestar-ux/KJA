@@ -8517,6 +8517,26 @@ body.facebook-share-open{overflow:hidden}
 .facebook-share-skeleton{min-height:190px;border-radius:12px;background:linear-gradient(110deg,#dfe7ee 28%,#f3f7fa 43%,#dfe7ee 58%);background-size:220% 100%;animation:facebook-share-loading 1.4s ease-in-out infinite}
 .facebook-share-error{grid-column:1/-1;align-self:center;max-width:44ch;margin:auto!important;padding:24px;color:#922e43!important;text-align:center;font-size:11px!important;line-height:1.55}
 .facebook-share-details{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:auto;padding:22px;background:#fff;scrollbar-width:thin;scrollbar-color:#b4c1ce transparent}
+.facebook-export{margin-top:18px;padding-top:16px;border-top:1px solid #dce5ee;color:#17324d}
+.facebook-export[hidden]{display:none}
+.facebook-export form{display:grid;gap:8px;margin-bottom:16px}
+.facebook-export label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}
+.facebook-export input,.facebook-export textarea{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #b4c1ce;border-radius:8px;background:#fff;color:#17324d;font-family:inherit;line-height:1.5}
+.facebook-export input{font-size:16px;min-height:44px}
+.facebook-export textarea{font-family:inherit;font-size:12px;line-height:1.6;resize:vertical;margin-bottom:10px}
+.facebook-export button{width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:8px;background:#075abc;color:#fff;font-family:inherit;font-size:12px;font-weight:600;line-height:1.4;cursor:pointer}
+.facebook-export button:hover:not(:disabled){background:#06478f}
+.facebook-export button:disabled{opacity:.5;cursor:default}
+.facebook-export :is(button,input,textarea):focus-visible{outline:3px solid #43c5d1;outline-offset:2px}
+.facebook-export-alternatives{display:flex;gap:8px;margin-top:8px}
+.facebook-export-alternatives button{background:#eef5fb;color:#17324d}
+.facebook-export-alternatives button:hover:not(:disabled){background:#deecf9}
+.facebook-export [role=status]{font-size:12px;line-height:1.6;margin:12px 0 0}
+.facebook-export-web{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:8px;color:#075abc;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.facebook-export-web:focus-visible{outline:3px solid #43c5d1;outline-offset:2px}
+.facebook-export>p{font-size:12px;line-height:1.6}
+.facebook-export button.facebook-export-native{background:#25d366;color:#073b20}
+.facebook-export button.facebook-export-native:hover:not(:disabled){background:#1fbd5b}
 .facebook-share-person{display:grid;grid-template-columns:46px minmax(0,1fr);align-items:center;gap:12px;padding-bottom:17px;border-bottom:1px solid #e5ebf1}
 .facebook-share-person>span:first-child{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;color:#fff;background:#09244c;font-size:11px;font-weight:800;box-shadow:0 8px 18px rgba(9,36,76,.15)}
 .facebook-share-person small,.facebook-share-person b,.facebook-share-person em{display:block}.facebook-share-person small{color:#075abc;font-size:8px;font-weight:800;letter-spacing:.1em}.facebook-share-person b{margin-top:3px;color:#173656;font-size:13px;line-height:1.35}.facebook-share-person em{margin-top:2px;color:#667b91;font-size:9px;font-style:normal}

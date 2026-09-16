@@ -536,7 +536,7 @@ test('notification sound is reinforced and protected from clipping', () => {
   assert.match(js,/exponentialRampToValueAtTime\(\.18,now\+\.015\)/);
   assert.match(js,/createDynamicsCompressor/);
   assert.match(js,/duration:\.28,level:\.9,type:'triangle'/);
-  assert.match(html,/dashboard\.js\?v=169/);
+  assert.match(html,/dashboard\.js\?v=170/);
 });
 
 test('every user notification visibly identifies the Direction message and sender', () => {

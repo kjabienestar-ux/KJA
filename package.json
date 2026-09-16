@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "npx serve . -l 3000",
     "start": "npx serve . -l 3000",
-    "test": "node --test tests/dashboard-close.test.mjs tests/marketing.test.mjs tests/marketing-gemini.test.mjs tests/chat.test.mjs tests/dashboard-mobile.test.mjs tests/ranking.test.mjs tests/geolocation.test.mjs tests/assignment-documents.test.mjs tests/assignment-panel.test.mjs tests/chat-images.test.mjs"
+    "test": "node --test tests/dashboard-close.test.mjs tests/marketing.test.mjs tests/marketing-gemini.test.mjs tests/chat.test.mjs tests/dashboard-mobile.test.mjs tests/ranking.test.mjs tests/geolocation.test.mjs tests/assignment-documents.test.mjs tests/assignment-panel.test.mjs tests/chat-images.test.mjs tests/facebook-receipt.test.mjs"
   },
   "dependencies": {
     "jsdom": "^29.1.1"

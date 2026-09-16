@@ -2653,6 +2653,7 @@ function facebookShareReviewLabel(value){
 }
 
 function resetFacebookShareModal(){
+  globalThis.FacebookReceipt?.reset();
   $('facebook-share-gallery').setAttribute('aria-busy','true');
   $('facebook-share-gallery').innerHTML='<span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span>';
   $('facebook-share-gallery-meta').textContent='Preparando imágenes privadas…';
@@ -2703,6 +2704,7 @@ async function openFacebookShare(trigger){
     }));
     if(request!==FACEBOOK_SHARE.request)return;
     FACEBOOK_SHARE.signed=signed;
+    if(signed.length)globalThis.FacebookReceipt?.open(db,data,signed);
     const gallery=$('facebook-share-gallery');gallery.setAttribute('aria-busy','false');
     gallery.innerHTML=signed.length?signed.map((file,index)=>`<figure><a href="${esc(file.url)}" target="_blank" rel="noopener" aria-label="Abrir captura ${index+1} en tamaño completo"><img src="${esc(file.url)}" alt="Captura ${index+1} de las comparticiones de Facebook" loading="${index<3?'eager':'lazy'}" decoding="async"></a><figcaption><span><b>Captura ${String(index+1).padStart(2,'0')}</b><small>${Math.max(1,Math.round(Number(file.bytes||0)/1024))} KB</small></span><em>${index+1} de ${signed.length}</em></figcaption></figure>`).join(''):'<p class="facebook-share-error">Esta entrega no contiene imágenes.</p>';
     $('facebook-share-gallery-meta').textContent=`${signed.length} ${signed.length===1?'imagen completa':'imágenes completas'} · toca para ampliar`;
@@ -2715,6 +2717,7 @@ async function openFacebookShare(trigger){
 }
 
 function closeFacebookShare({restoreFocus=true}={}){
+  globalThis.FacebookReceipt?.reset();
   const trigger=FACEBOOK_SHARE.trigger;
   $('facebook-share-modal').hidden=true;document.body.classList.remove('facebook-share-open');
   FACEBOOK_SHARE={trigger:null,data:null,signed:[],request:FACEBOOK_SHARE.request+1};
@@ -2781,7 +2784,7 @@ document.querySelectorAll('[data-close-facebook-share]').forEach(button=>button.
 $('facebook-share-modal').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeFacebookShare();return}
   if(event.key!=='Tab')return;
-  const focusable=[...$('facebook-share-modal').querySelectorAll('button:not(:disabled),a[href]')].filter(element=>element.offsetParent!==null);
+  const focusable=[...$('facebook-share-modal').querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),textarea:not(:disabled)')].filter(element=>element.offsetParent!==null);
   if(!focusable.length)return;
   const first=focusable[0],last=focusable.at(-1);
   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}

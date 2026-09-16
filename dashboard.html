@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=192">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=195">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
@@ -1303,6 +1303,25 @@
           <div><dt>Revisión</dt><dd id="facebook-share-review">—</dd></div>
         </dl>
         <div class="facebook-share-comment"><small>COMENTARIO DE LA ENTREGA</small><p id="facebook-share-comment">Sin comentario adicional.</p></div>
+        <section id="facebook-export" class="facebook-export" aria-label="Compartir comprobante" hidden>
+          <form>
+            <label for="facebook-export-count">Cantidad de comparticiones</label>
+            <input id="facebook-export-count" type="number" inputmode="numeric" min="1" max="99999" step="1" required aria-describedby="facebook-export-status">
+            <button type="submit">Guardar y preparar comprobante</button>
+          </form>
+          <label for="facebook-export-message">Descripción de la foto para WhatsApp</label>
+          <textarea id="facebook-export-message" rows="8" readonly placeholder="Completa la cantidad y prepara el comprobante."></textarea>
+          <button type="button" class="facebook-export-native" data-ready data-native-share disabled aria-describedby="facebook-export-native-help">Compartir por WhatsApp de escritorio</button>
+          <p id="facebook-export-native-help">Requiere WhatsApp instalado en tu PC. Abre el menú de Windows: selecciona WhatsApp y luego el grupo. WhatsApp puede enviar el texto por separado. Si el menú no responde, usa las opciones de descarga y WhatsApp Web.</p>
+          <button type="button" data-ready data-share disabled>Descargar imagen y copiar descripción</button>
+          <div class="facebook-export-alternatives">
+            <button type="button" data-ready data-download disabled>Descargar imagen</button>
+            <button type="button" data-ready data-copy disabled>Copiar mensaje</button>
+          </div>
+          <a class="facebook-export-web" href="https://web.whatsapp.com/" target="_blank" rel="noopener noreferrer">Abrir WhatsApp Web</a>
+          <p>Abre el grupo en WhatsApp, adjunta la imagen descargada y pega el texto en la descripción de la foto antes de enviarla. La imagen aparecerá primero y el texto debajo, en un solo mensaje. En celular, abre tu aplicación de WhatsApp.</p>
+          <p id="facebook-export-status" role="status" aria-live="polite"></p>
+        </section>
         <div class="facebook-receipt-note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><p>Vista privada. Selecciona una captura para abrirla en tamaño completo.</p></div>
       </aside>
     </div>
@@ -1730,7 +1749,8 @@
 
 
 <script src="assets/js/dashboard-close-model.js?v=4"></script>
-<script src="assets/js/dashboard.js?v=169"></script>
+<script src="assets/js/facebook-receipt.js?v=5"></script>
+<script src="assets/js/dashboard.js?v=170"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=5"></script>
