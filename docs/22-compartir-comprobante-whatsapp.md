@@ -8,7 +8,7 @@ También está disponible el botón verde **Compartir por WhatsApp de escritorio
 
 1. Subir las evidencias y abrir **Ver comprobante de evidencias**.
 2. Introducir **Cantidad de comparticiones** (entero de 1 a 99999, independiente del número de capturas).
-3. Pulsar **Guardar y preparar comprobante**. La cantidad se guarda por entrega; se genera un JPEG solo con las capturas, sin datos añadidos, recortes ni barras del navegador. Nombre, cantidad, fecha, hora, área y código se preparan como texto separado para la descripción de la foto.
+3. Pulsar **Preparar comprobante**, junto al campo de cantidad. La cantidad se guarda por entrega; se genera un JPEG solo con las capturas, sin datos añadidos, recortes ni barras del navegador. Nombre, cantidad, fecha, hora, área y código se generan como descripción editable. Los cambios al texto se usan al copiar o compartir; no modifican los datos guardados y se regeneran al preparar de nuevo o reabrir el comprobante.
 4. Pulsar **Descargar imagen y copiar descripción**. Se inicia la descarga y se copia el texto; si se deniega el portapapeles, el texto queda seleccionado para copiar manualmente.
 5. Abrir WhatsApp Web con el enlace, o la aplicación en el celular. Entrar al grupo, adjuntar primero la imagen y pegar el texto en la descripción de la foto antes de enviarla. Así aparece la imagen arriba y el texto debajo en un solo mensaje. También están disponibles Descargar imagen y Copiar mensaje por separado.
 

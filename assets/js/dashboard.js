@@ -2315,7 +2315,7 @@ function setDailyEvidenceProcess(phase,{title='',copy='',progress=0,current=0,to
 }
 
 function closeDailyEvidenceEditor({restoreFocus=true}={}){
-  if(DAILY_EVIDENCE.busy)return;
+  if(DAILY_EVIDENCE.busy||DAILY_EVIDENCE.confirming)return;
   DAILY_EVIDENCE_LOAD++;
   clearDailyEvidenceFiles();clearDailyEvidenceVideo();DAILY_EVIDENCE={requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
   $('daily-evidence-detail').value='';$('daily-issue-detail').value='';$('daily-issue-form').hidden=true;$('daily-issue-message').textContent='';dailyEvidenceMessage('');setDailyEvidenceProcess('idle');$('daily-evidence-editor').hidden=true;
@@ -2340,12 +2340,13 @@ async function loadDailyEditableEvidence(request){
     const signed=await Promise.all(images.map(async file=>{const result=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);if(result.error||!result.data?.signedUrl)throw new Error('firma');return {...file,url:result.data.signedUrl}}));
     if(request!==DAILY_EVIDENCE_LOAD)return;
     DAILY_EVIDENCE.existingFiles=signed;
+    DAILY_EVIDENCE.entregaId=data.entrega;
     DAILY_EVIDENCE.existingVideoPath=(data.archivos||[]).find(file=>String(file.mime||'').startsWith('video/'))?.path||null;
     $('daily-evidence-detail').value=data.detalle||'';
     const savedMode=document.querySelector(`input[name="daily-evidence-mode"][value="${data.modalidad||'individuales'}"]`);if(savedMode)savedMode.checked=true;
     if(DAILY_EVIDENCE.existingVideoPath)$('daily-video').hidden=true;
     renderDailyEvidencePreviews();
-    dailyEvidenceMessage(`${signed.length} ${signed.length===1?'archivo actual':'archivos actuales'}. Quita con × sólo las que deseas cambiar.${DAILY_EVIDENCE.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
+    dailyEvidenceMessage(DAILY_EVIDENCE.requirement==='comparticiones'?`${signed.length} imágenes guardadas. La × permite eliminar una imagen después de confirmar.`:`${signed.length} ${signed.length===1?'archivo actual':'archivos actuales'}. Quita con × sólo las que deseas cambiar.${DAILY_EVIDENCE.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
     DAILY_EVIDENCE.loading=false;picker.disabled=false;submit.disabled=false;
   }catch{DAILY_EVIDENCE.loading=false;dailyEvidenceMessage('No pudimos mostrar tus archivos actuales. Cierra el editor e inténtalo nuevamente.','is-error')}
 }
@@ -2367,7 +2368,7 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   $('daily-evidence-editor').querySelector('.daily-evidence-sheet').dataset.requirement=requirement;
   setDailyEvidenceProcess('idle');
   $('daily-evidence-title').textContent=editing?`Editar ${item.titulo}`:item.titulo;
-  $('daily-evidence-copy').textContent=editing?'Quita los archivos incorrectos y añade sus reemplazos.':facebook?`Puedes adjuntar desde ${data.comparticiones_min||1} captura y hasta ${FACEBOOK_EVIDENCE_MAX}, o una sola imagen tipo collage.`:item.descripcion||item.instrucciones||'Selecciona los archivos que correspondan.';
+  $('daily-evidence-copy').textContent=editing?(facebook?'La × elimina una imagen guardada después de confirmar. También puedes añadir nuevas capturas.':'Quita los archivos incorrectos y añade sus reemplazos.'):facebook?`Puedes adjuntar desde ${data.comparticiones_min||1} captura y hasta ${FACEBOOK_EVIDENCE_MAX}, o una sola imagen tipo collage.`:item.descripcion||item.instrucciones||'Selecciona los archivos que correspondan.';
   $('daily-evidence-edit-note').hidden=!editing;
   $('daily-evidence-edit-until').textContent=`Puedes editar hasta las ${fmtTime(facebook?data.compartir_hasta:data.hora_salida_programada)}`;
   $('daily-issue').hidden=requirement==='salida'||editing;
@@ -2546,7 +2547,8 @@ function dailyEvidenceFailure(reason){
 }
 
 async function submitDailyEvidence(event){
-  event.preventDefault();if(DAILY_EVIDENCE.busy||DAILY_EVIDENCE.loading)return;
+  event.preventDefault();if(DAILY_EVIDENCE.busy||DAILY_EVIDENCE.loading||DAILY_EVIDENCE.confirming)return;
+  if(DAILY_EVIDENCE.existingFiles?.some(file=>file.deletionPending)){dailyEvidenceMessage('Termina la eliminación pendiente con la × antes de guardar.','is-error');return;}
   const editing=!!DAILY_EVIDENCE.editing,mode=dailyEvidenceMode(),min=Number(APP.cierre?.comparticiones_min||1),count=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length,uploadTotal=DAILY_EVIDENCE.files.length+(DAILY_EVIDENCE.video?1:0);
   const max=DAILY_EVIDENCE.requirement==='comparticiones'?FACEBOOK_EVIDENCE_MAX:5;
   const selection=CLOSE_MODEL.evidenceSelectionPolicy({requirement:DAILY_EVIDENCE.requirement,mode,count,min,max,collageAllowed:!!APP.cierre?.collage_permitido});
@@ -2745,8 +2747,87 @@ $('daily-evidence-file').onchange=event=>chooseDailyEvidence(event.target.files)
 $('daily-video-picker').onclick=()=>$('daily-video-file').click();
 $('daily-video-file').onchange=event=>chooseDailyVideo(event.target.files);
 $('daily-video-remove').onclick=clearDailyEvidenceVideo;
+async function deleteFacebookEvidenceImage(index){
+  const state=DAILY_EVIDENCE,file=state.existingFiles?.[index];
+  if(!file||state.busy||state.loading||state.confirming)return;
+  const last=state.existingFiles.length===1;
+  state.confirming=true;
+  let accepted=false;
+  try{accepted=await requestFacebookDeleteConfirmation({retry:!!file.deletionPending,last});}
+  finally{state.confirming=false;}
+  if(!accepted||DAILY_EVIDENCE!==state||state.busy||!state.existingFiles.includes(file))return;
+  const progress=$('facebook-delete-progress'),editor=$('daily-evidence-editor');
+  const lockedControls=[...editor.querySelectorAll('button,input,textarea')].map(control=>({control,disabled:control.disabled}));
+  lockedControls.forEach(({control})=>control.disabled=true);
+  progress.hidden=false;editor.setAttribute('aria-busy','true');
+  const submit=$('daily-evidence-submit'),picker=$('daily-evidence-picker');
+  state.busy=true;submit.disabled=true;picker.disabled=true;
+  const modes=[...document.querySelectorAll('input[name="daily-evidence-mode"]')];
+  const modeDisabled=modes.map(input=>input.disabled);modes.forEach(input=>input.disabled=true);
+  dailyEvidenceMessage('Eliminando imagen…','is-info');
+  try{
+    const {data:{session}}=await db.auth.getSession();if(!session)throw new Error('sesion');
+    const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{
+      method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+      body:JSON.stringify({accion:'eliminar_imagen_facebook',entrega:state.entregaId,path:file.path})
+    });
+    const result=await response.json().catch(()=>null);
+    if(!response.ok)console.warn('[Facebook: eliminar imagen]',{status:response.status,motivo:result?.motivo||result?.code||'sin_detalle'});
+    if(result?.retirada)file.deletionPending=true;
+    if(!response.ok||!result?.ok)throw new Error(result?.motivo||'conexion');
+    state.existingFiles.splice(index,1);
+    closeFacebookShare({restoreFocus:false});
+    if(!state.existingFiles.length){
+      state.editing=false;state.entregaId=null;
+      $('daily-evidence-title').textContent=state.title;
+      $('daily-evidence-edit-note').hidden=true;
+      submit.querySelector('span').textContent='Guardar evidencia';
+    }
+    renderDailyEvidencePreviews();
+    dailyEvidenceMessage(state.existingFiles.length?'Imagen eliminada del almacenamiento y de la base de datos.':'Imagen eliminada. Facebook quedó pendiente; puedes subir nuevas evidencias.','is-ready');
+    await loadDailyClose({quiet:true});
+  }catch(error){
+    const labels={limpieza_pendiente:'La imagen fue retirada de la entrega, pero falta borrar el archivo. Pulsa su × para reintentar.',migracion_eliminar:'Falta activar la eliminación de imágenes en el servidor.',datos:'El servidor no reconoce la solicitud de eliminación. Comprueba que dash-entrega esté actualizada y vuelve a abrir el editor.',requisito:'El servidor no reconoce la eliminación de Facebook. Debe desplegarse dash-entrega actualizada.',sin_entrega:'Esta entrega ya cambió o no está disponible. Cierra el editor y vuelve a abrirlo.',sin_permiso:'El servidor rechazó la eliminación por permisos. Informa a Dirección.',conexion:'No se pudo confirmar la eliminación. Reintenta o vuelve a abrir el editor.'};
+    dailyEvidenceMessage(labels[error.message]||dailyEvidenceFailure(error.message),'is-error');
+  }finally{
+    state.busy=false;submit.disabled=false;picker.disabled=false;modes.forEach((input,i)=>input.disabled=modeDisabled[i]);
+    lockedControls.forEach(({control,disabled})=>control.disabled=disabled);
+    progress.hidden=true;editor.removeAttribute('aria-busy');
+    $('daily-evidence-cancel-top').focus({preventScroll:true});
+  }
+}
+
+function requestFacebookDeleteConfirmation({retry=false,last=false}={}){
+  const modal=$('facebook-delete-modal'),confirmButton=$('facebook-delete-confirm'),warning=$('facebook-delete-warning');
+  if(!modal||!confirmButton||modal._confirmationOpen)return Promise.resolve(false);
+  // The editor is also mounted on body: escape ancestor stacking contexts.
+  if(modal.parentElement!==document.body)document.body.append(modal);
+  const editor=$('daily-evidence-editor'),previousInert=editor.inert,trigger=document.activeElement;
+  const cancelButton=modal.querySelector('.facebook-delete-cancel');
+  editor.inert=true;modal._confirmationOpen=true;
+  warning.hidden=!last;
+  modal.querySelector('.facebook-delete-kicker').textContent=retry?'Limpieza pendiente':'Eliminar evidencia';
+  modal.querySelector('#facebook-delete-title').textContent=retry?'¿Reintentar eliminar esta imagen?':'¿Eliminar esta imagen?';
+  modal.querySelector('#facebook-delete-copy').textContent=retry?'La imagen ya fue retirada del comprobante. Se intentará eliminar el archivo pendiente del almacenamiento.':'La imagen se quitará del comprobante y se eliminará del almacenamiento y de la base de datos. Esta acción no se puede deshacer.';
+  confirmButton.textContent=retry?'Reintentar eliminación':'Eliminar imagen';
+  modal.hidden=false;document.body.classList.add('facebook-delete-open');
+  return new Promise(resolve=>{
+    let settled=false;
+    const finish=value=>{if(settled)return;settled=true;modal.hidden=true;modal._confirmationOpen=false;editor.inert=previousInert;document.body.classList.remove('facebook-delete-open');cleanup();if(trigger?.isConnected)trigger.focus({preventScroll:true});resolve(value)};
+    const onConfirm=()=>finish(true),onCancel=()=>finish(false),onKey=event=>{
+      if(event.key==='Escape'){event.preventDefault();event.stopPropagation();finish(false);return;}
+      if(event.key==='Tab'){
+        if(event.shiftKey&&document.activeElement===cancelButton){event.preventDefault();confirmButton.focus();}
+        else if(!event.shiftKey&&document.activeElement===confirmButton){event.preventDefault();cancelButton.focus();}
+      }
+    };
+    const cleanup=()=>{confirmButton.removeEventListener('click',onConfirm);modal.querySelectorAll('[data-close-facebook-delete]').forEach(button=>button.removeEventListener('click',onCancel));modal.removeEventListener('keydown',onKey)};
+    confirmButton.addEventListener('click',onConfirm);modal.querySelectorAll('[data-close-facebook-delete]').forEach(button=>button.addEventListener('click',onCancel));modal.addEventListener('keydown',onKey);cancelButton.focus({preventScroll:true});
+  });
+}
 $('daily-evidence-previews').addEventListener('click',event=>{
   const button=event.target.closest('[data-remove-daily-file],[data-remove-existing-file]');if(!button||DAILY_EVIDENCE.busy||DAILY_EVIDENCE.loading)return;
+  if(button.dataset.removeExistingFile!=null&&DAILY_EVIDENCE.requirement==='comparticiones')return deleteFacebookEvidenceImage(Number(button.dataset.removeExistingFile));
   if(button.dataset.removeExistingFile!=null){DAILY_EVIDENCE.existingFiles.splice(Number(button.dataset.removeExistingFile),1)}
   else{const index=Number(button.dataset.removeDailyFile),item=DAILY_EVIDENCE.files[index];if(item?.url)URL.revokeObjectURL(item.url);DAILY_EVIDENCE.files.splice(index,1)}
   renderDailyEvidencePreviews();

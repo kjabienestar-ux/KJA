@@ -39,6 +39,22 @@ Deno.serve(async (req) => {
     if (identidadError || !identidad?.user) return json({ ok: false, motivo: "sesion" }, 401);
 
     const servicio = createClient(url, serviceKey, { auth: { persistSession: false } });
+    if (body.accion === "eliminar_imagen_facebook") {
+      const id=Number(body.entrega), path=body.path;
+      if(!Number.isSafeInteger(id)||id<=0||typeof path!=="string"||!path||path.length>500)
+        return json({ok:false,motivo:"datos"},400);
+      const {data,error}=await usuario.rpc("dash_retirar_imagen_facebook",{p_entrega:id,p_path:path});
+      if(error)return json({ok:false,motivo:"migracion_eliminar"},400);
+      if(!data?.ok)return json({ok:false,motivo:data?.motivo||"sin_permiso"},403);
+      // Paths are authorized and queued by SQL, never accepted directly from the client.
+      const paths=data.paths||[];
+      const {error:removeError}=await servicio.storage.from(BUCKET).remove(paths);
+      if(removeError)return json({ok:false,retirada:true,motivo:"limpieza_pendiente"},503);
+      const {error:queueError}=await servicio.from("asis_facebook_archivos_borrar")
+        .delete().eq("entrega_id",id).in("path",paths);
+      if(queueError)return json({ok:false,retirada:true,motivo:"limpieza_pendiente"},503);
+      return json({ok:true,eliminada:true});
+    }
     if (body.accion === "eliminar_asignacion") {
       const id = Number(body.asignacion);
       if (!Number.isSafeInteger(id) || id <= 0) return json({ok:false,motivo:"datos"},400);
@@ -54,6 +70,17 @@ Deno.serve(async (req) => {
         if(queueError)return json({ok:false,motivo:"limpieza_pendiente"},503);
       }
       return json({ok:true,eliminada:true,archivos:paths.length});
+    }
+    // Recover pending deletions for this owner on their next upload/cleanup request.
+    const {data:cleanupOwner}=await usuario.rpc("dash_colab");
+    if(cleanupOwner){
+      const {data:pending}=await servicio.from("asis_facebook_archivos_borrar")
+        .select("entrega_id,path").eq("colaborador_id",Number(cleanupOwner)).limit(50);
+      for(const item of pending||[]){
+        const {error:pendingError}=await servicio.storage.from(BUCKET).remove([item.path]);
+        if(!pendingError)await servicio.from("asis_facebook_archivos_borrar").delete()
+          .eq("entrega_id",item.entrega_id).eq("path",item.path).eq("colaborador_id",Number(cleanupOwner));
+      }
     }
     const cutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
     const { data: expired } = await servicio.from("asis_carga_permisos")

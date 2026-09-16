@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=195">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=200">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
@@ -585,6 +585,10 @@
                     <span><b>Elegir imágenes</b><small id="daily-evidence-picker-help">JPG, PNG o WebP · hasta 50 capturas de Facebook</small></span>
                   </button>
                   <div class="daily-evidence-previews" id="daily-evidence-previews" hidden></div>
+                  <div class="facebook-delete-progress" id="facebook-delete-progress" role="status" aria-live="polite" hidden>
+                    <span class="facebook-delete-spinner" aria-hidden="true"></span>
+                    <span><strong>Eliminando imagen…</strong><small>Espera mientras terminamos de borrar el archivo.</small></span>
+                  </div>
 
                   <section class="daily-video" id="daily-video" hidden>
                     <div class="daily-video-copy">
@@ -619,6 +623,15 @@
               </div>
             </form>
           </section>
+
+          <div class="modal facebook-delete-modal" id="facebook-delete-modal" hidden>
+            <button class="modal-backdrop" type="button" data-close-facebook-delete aria-label="Cancelar eliminación" tabindex="-1"></button>
+            <section class="facebook-delete-sheet" role="dialog" aria-modal="true" aria-labelledby="facebook-delete-title" aria-describedby="facebook-delete-copy">
+              <div class="facebook-delete-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 11v6m4-6v6M8 7l1-3h6l1 3m-9 0 1 14h10l1-14"/></svg></div>
+              <div class="facebook-delete-content"><p class="facebook-delete-kicker">Eliminar evidencia</p><h2 id="facebook-delete-title">¿Eliminar esta imagen?</h2><p id="facebook-delete-copy">La imagen se quitará del comprobante y se eliminará del almacenamiento y de la base de datos. Esta acción no se puede deshacer.</p><p class="facebook-delete-warning" id="facebook-delete-warning" hidden>Es la última imagen. Facebook volverá a quedar pendiente y tendrás que subir una nueva evidencia.</p></div>
+              <footer><button type="button" class="facebook-delete-cancel" data-close-facebook-delete>Conservar imagen</button><button type="button" class="facebook-delete-confirm" id="facebook-delete-confirm">Eliminar imagen</button></footer>
+            </section>
+          </div>
 
           <div class="day-summary" aria-label="Resumen del mes">
             <article class="progress-card">
@@ -1285,6 +1298,17 @@
         <div class="facebook-share-gallery" id="facebook-share-gallery" aria-live="polite" aria-busy="true">
           <span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span>
         </div>
+        <section id="facebook-export-tools" class="facebook-export facebook-export-tools" aria-label="Descarga y ayuda" hidden>
+          <button type="button" class="facebook-export-bundle" data-ready data-share disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span>Descargar imagen y copiar descripción</span></button>
+          <div class="facebook-export-alternatives">
+            <button type="button" data-ready data-download disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span>Descargar imagen</span></button>
+            <button type="button" data-ready data-copy disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H4v13h4"/></svg><span>Copiar mensaje</span></button>
+            <a class="facebook-export-web" href="https://web.whatsapp.com/" target="_blank" rel="noopener noreferrer" aria-label="Abrir WhatsApp Web en otra pestaña"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7m0-7L10 14M10 4H4v16h16v-6"/></svg><span>Abrir WhatsApp Web</span></a>
+          </div>
+          <details class="facebook-export-help"><summary>Cómo enviar la imagen con su descripción</summary><p>Adjunta la imagen en WhatsApp y pega el texto en la descripción antes de enviar. En celular, abre tu app. El selector de Windows puede separar el texto o quedarse pendiente; en ese caso usa descargar, copiar y WhatsApp Web.</p></details>
+          <p id="facebook-export-status" role="status" aria-live="polite"></p>
+        <div class="facebook-receipt-note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><p>Vista privada. Selecciona una captura para abrirla en tamaño completo.</p></div>
+        </section>
       </section>
       <aside class="facebook-share-details">
         <div class="facebook-share-person">
@@ -1306,23 +1330,17 @@
         <section id="facebook-export" class="facebook-export" aria-label="Compartir comprobante" hidden>
           <form>
             <label for="facebook-export-count">Cantidad de comparticiones</label>
-            <input id="facebook-export-count" type="number" inputmode="numeric" min="1" max="99999" step="1" required aria-describedby="facebook-export-status">
-            <button type="submit">Guardar y preparar comprobante</button>
+            <div class="facebook-export-quantity-row">
+              <input id="facebook-export-count" type="number" inputmode="numeric" min="1" max="99999" step="1" required aria-describedby="facebook-export-status" placeholder="Ej. 40">
+              <button type="submit">Preparar comprobante</button>
+            </div>
           </form>
           <label for="facebook-export-message">Descripción de la foto para WhatsApp</label>
-          <textarea id="facebook-export-message" rows="8" readonly placeholder="Completa la cantidad y prepara el comprobante."></textarea>
-          <button type="button" class="facebook-export-native" data-ready data-native-share disabled aria-describedby="facebook-export-native-help">Compartir por WhatsApp de escritorio</button>
-          <p id="facebook-export-native-help">Requiere WhatsApp instalado en tu PC. Abre el menú de Windows: selecciona WhatsApp y luego el grupo. WhatsApp puede enviar el texto por separado. Si el menú no responde, usa las opciones de descarga y WhatsApp Web.</p>
-          <button type="button" data-ready data-share disabled>Descargar imagen y copiar descripción</button>
-          <div class="facebook-export-alternatives">
-            <button type="button" data-ready data-download disabled>Descargar imagen</button>
-            <button type="button" data-ready data-copy disabled>Copiar mensaje</button>
-          </div>
-          <a class="facebook-export-web" href="https://web.whatsapp.com/" target="_blank" rel="noopener noreferrer">Abrir WhatsApp Web</a>
-          <p>Abre el grupo en WhatsApp, adjunta la imagen descargada y pega el texto en la descripción de la foto antes de enviarla. La imagen aparecerá primero y el texto debajo, en un solo mensaje. En celular, abre tu aplicación de WhatsApp.</p>
-          <p id="facebook-export-status" role="status" aria-live="polite"></p>
+          <p class="facebook-export-hint" id="facebook-export-message-help">Se genera con tus datos al preparar el comprobante. Puedes editarla antes de compartir.</p>
+          <textarea id="facebook-export-message" rows="5" disabled aria-describedby="facebook-export-message-help" placeholder="Aquí aparecerá tu descripción editable."></textarea>
+          <button type="button" class="facebook-export-native" data-ready data-native-share disabled aria-describedby="facebook-export-native-help"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.5 0 .2 5.3.2 11.8c0 2.1.5 4.1 1.6 5.9L.1 24l6.4-1.7a12 12 0 0 0 5.6 1.4h.1c6.5 0 11.8-5.3 11.8-11.8 0-3.2-1.3-6.2-3.5-8.4Zm-8.4 18.2a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.8 1 1-3.7-.3-.4a9.8 9.8 0 1 1 8.5 4.7Zm5.4-7.3c-.3-.1-1.7-.8-2-.9-.2-.1-.4-.1-.6.2l-.9 1.1c-.2.2-.3.2-.6.1-1.6-.8-2.7-1.5-3.8-3.4-.3-.5.3-.4.8-1.4.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.2.3-1 1-1 2.4s1 2.7 1.2 2.9c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.2-.3-.3-.6-.4Z"/></svg><span>WhatsApp de escritorio</span></button>
+          <p class="facebook-export-hint" id="facebook-export-native-help">Requiere la app instalada. Selecciona WhatsApp en el menú de Windows.</p>
         </section>
-        <div class="facebook-receipt-note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><p>Vista privada. Selecciona una captura para abrirla en tamaño completo.</p></div>
       </aside>
     </div>
   </section>
@@ -1749,8 +1767,8 @@
 
 
 <script src="assets/js/dashboard-close-model.js?v=4"></script>
-<script src="assets/js/facebook-receipt.js?v=5"></script>
-<script src="assets/js/dashboard.js?v=170"></script>
+<script src="assets/js/facebook-receipt.js?v=7"></script>
+<script src="assets/js/dashboard.js?v=173"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=5"></script>

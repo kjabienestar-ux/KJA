@@ -63,8 +63,11 @@ test('download and caption copy bypass native sharing, including clipboard failu
   f.textarea.select=()=>{selected=true;};
   await f.api.open(f.db,data,[{url:'fixture'}]);f.input.value='47';
   await f.form.onsubmit({preventDefault(){}});
+  assert.equal(f.textarea.disabled,false);
+  f.textarea.value='Texto editado: Cantidad: 47';f.textarea.oninput();
   await f.share.onclick();
   assert.equal(downloads,1);assert.match(copied,/Cantidad: 47/);
+  assert.equal(copied,'Texto editado: Cantidad: 47');
   assert.equal(anchor.download,'KJA-FB-12.jpg');assert.equal(nativeCalls,0);
   assert.match(f.status.textContent,/antes de enviar/);
   const native=f['[data-native-share]'];let payload;let finish;
@@ -73,13 +76,15 @@ test('download and caption copy bypass native sharing, including clipboard failu
   const pending=native.onclick();await native.onclick();
   assert.equal(nativeCalls,1);assert.match(f.status.textContent,/Ya hay un envío/);
   assert.equal(payload.files[0].name,'KJA-FB-12.jpg');assert.match(payload.text,/Cantidad: 47/);
+  assert.equal(payload.text,'Texto editado: Cantidad: 47');
   finish();await pending;assert.match(f.status.textContent,/no confirma/);
   f.context.navigator.share=async()=>{throw new DOMException('Cancelled','AbortError');};
   await native.onclick();assert.match(f.status.textContent,/cancelado/);
   f.context.navigator.canShare=()=>false;await native.onclick();assert.match(f.status.textContent,/no permite/);
   f.context.navigator.clipboard.writeText=async()=>{throw new Error('Denied');};
   await f.share.onclick();assert.equal(downloads,2);assert.equal(selected,true);assert.equal(nativeCalls,1);
-  f.input.oninput();await f.share.onclick();assert.equal(downloads,2);
+  f.textarea.value=' ';f.textarea.oninput();assert.equal(f.share.disabled,true);assert.equal(f['[data-download]'].disabled,false);
+  f.input.oninput();await f.share.onclick();assert.equal(downloads,2);assert.equal(f.textarea.disabled,true);
 });
 test('fixed image dimensions include all evidence and release canvas memory',async()=>{
   const f=fixture();let dimensions;let drawings=0;const paintedText=[];

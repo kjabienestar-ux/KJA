@@ -39,36 +39,45 @@
   function reset(){
     active?.controller.abort();active=null;
     const panel=document.getElementById('facebook-export');
-    if(panel){panel.hidden=true;panel.querySelector('form').reset();panel.querySelector('form').onsubmit=event=>event.preventDefault();panel.querySelector('textarea').value='';panel.querySelector('[role=status]').textContent='';panel.querySelectorAll('[data-ready]').forEach(b=>b.disabled=true);}
+    const controls=document.getElementById('facebook-share-modal');
+    if(panel){document.getElementById('facebook-export-tools').hidden=true;panel.hidden=true;controls.querySelector('form').reset();controls.querySelector('form').onsubmit=event=>event.preventDefault();controls.querySelector('textarea').value='';controls.querySelector('textarea').disabled=true;controls.querySelector('[role=status]').textContent='';controls.querySelectorAll('[data-ready]').forEach(b=>b.disabled=true);}
   }
   async function open(db,data,files){
     reset();
     const panel=document.getElementById('facebook-export');if(!panel)return;
-    const state={controller:new AbortController(),file:null};active=state;panel.hidden=false;
-    const form=panel.querySelector('form'),input=panel.querySelector('input'),status=panel.querySelector('[role=status]'),preview=panel.querySelector('textarea'),prepare=form.querySelector('button');
-    const ready=value=>panel.querySelectorAll('[data-ready]').forEach(b=>b.disabled=!value);
+    const controls=document.getElementById('facebook-share-modal');
+    const state={controller:new AbortController(),file:null};active=state;panel.hidden=false;document.getElementById('facebook-export-tools').hidden=false;
+    const form=controls.querySelector('form'),input=controls.querySelector('input'),status=controls.querySelector('[role=status]'),preview=controls.querySelector('textarea'),prepare=form.querySelector('button');
+    const ready=value=>controls.querySelectorAll('[data-ready]').forEach(b=>b.disabled=!value);
     let loaded=false;
     prepare.disabled=true;input.disabled=true;status.textContent='Consultando cantidad guardada…';
     try{
       const result=await db.rpc('dash_cantidad_compartida',{p_entrega_id:data.entrega_id});
       if(active!==state)return;
       if(result.error||!result.data?.ok)throw new Error('No pudimos cargar la cantidad guardada. Cierra y vuelve a abrir el comprobante; si persiste, informa a Dirección.');
-      loaded=true;input.value=result.data.cantidad??'';status.textContent='Indica cuántas comparticiones realizaste, no cuántas capturas subiste.';
+      loaded=true;input.value=result.data.cantidad??'';status.textContent='';
     }catch(error){if(active===state)status.textContent=error.message;return;}
     finally{if(active===state){prepare.disabled=!loaded;input.disabled=!loaded;}}
-    input.oninput=()=>{state.file=null;ready(false);preview.value='';status.textContent='Prepara el comprobante para guardar la cantidad y actualizar la imagen.';};
+    input.oninput=()=>{state.file=null;ready(false);preview.value='';preview.disabled=true;status.textContent='Prepara el comprobante para guardar la cantidad.';};
+    preview.oninput=()=>{
+      state.text=preview.value;
+      ready(Boolean(state.file&&state.text.trim()));
+      // Image download remains available even if the description is empty.
+      controls.querySelector('[data-download]').disabled=!state.file;
+      status.textContent=state.text.trim()?'Descripción editada para este envío.':'Escribe una descripción para compartir o copiar.';
+    };
     form.onsubmit=async event=>{
       event.preventDefault();const count=quantity(input.value);
       if(!count){input.reportValidity();return;}
-      ready(false);state.file=null;prepare.disabled=true;input.disabled=true;status.textContent='Guardando cantidad y preparando imagen…';
+      ready(false);state.file=null;preview.disabled=true;prepare.disabled=true;input.disabled=true;status.textContent='Guardando cantidad y preparando imagen…';
       try{
         const saved=await db.rpc('dash_cantidad_compartida',{p_entrega_id:data.entrega_id,p_cantidad:count});
         if(active!==state)return;
         if(saved.error||!saved.data?.ok)throw new Error('No se pudo guardar la cantidad. Inténtalo nuevamente.');
         const file=await render(data,files,count,state.controller.signal);
         if(active!==state)return;
-        state.file=file;state.text=message(data,count);preview.value=state.text;ready(true);
-        status.textContent='Listo. Descarga la imagen y copia la descripción. En WhatsApp, adjunta primero la imagen y pega el texto en su descripción antes de enviar.';
+        state.file=file;state.text=message(data,count);preview.value=state.text;preview.disabled=false;ready(true);
+        status.textContent='Comprobante listo. Revisa o edita la descripción.';
       }catch(error){if(active===state)status.textContent=error.message;}
       finally{if(active===state){prepare.disabled=false;input.disabled=false;}}
     };
@@ -76,8 +85,8 @@
       if(!state.file)return;
       const url=URL.createObjectURL(state.file),a=document.createElement('a');a.href=url;a.download=state.file.name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
     };
-    panel.querySelector('[data-share]').onclick=async()=>{
-      if(!state.file)return;
+    controls.querySelector('[data-share]').onclick=async()=>{
+      if(!state.file||!state.text?.trim())return;
       // Use download + clipboard instead of the OS share sheet on every device.
       let copied;
       try{copied=Promise.resolve(navigator.clipboard.writeText(state.text)).then(()=>true,()=>false);}
@@ -88,8 +97,8 @@
       if(ok)status.textContent='Descarga iniciada y descripción copiada. Abre WhatsApp, adjunta la imagen y pega el texto en la descripción antes de enviar. Así la imagen aparece primero y el texto debajo.';
       else{preview.focus();preview.select();status.textContent='Descarga iniciada. Copia la descripción seleccionada; luego adjunta la imagen en WhatsApp y pega el texto en su descripción antes de enviar.';}
     };
-    panel.querySelector('[data-native-share]').onclick=async()=>{
-      if(!state.file)return;
+    controls.querySelector('[data-native-share]').onclick=async()=>{
+      if(!state.file||!state.text?.trim())return;
       if(nativeSharePending){status.textContent='Ya hay un envío abierto en el sistema. Cierra el selector o usa Descargar imagen y copiar descripción.';return;}
       try{
         const payload={files:[state.file],text:state.text};
@@ -105,8 +114,9 @@
         if(active===state)status.textContent=error.name==='AbortError'?'Envío cancelado. El comprobante sigue disponible.':'No se pudo compartir. Usa Descargar imagen y copiar descripción y abre WhatsApp Web.';
       }finally{nativeSharePending=false;}
     };
-    panel.querySelector('[data-download]').onclick=download;
-    panel.querySelector('[data-copy]').onclick=async()=>{
+    controls.querySelector('[data-download]').onclick=download;
+    controls.querySelector('[data-copy]').onclick=async()=>{
+      if(!state.file||!state.text?.trim())return;
       try{await navigator.clipboard.writeText(state.text);if(active===state)status.textContent='Descripción copiada. Adjunta primero la imagen y pega este texto en la descripción de la foto antes de enviar.';}
       catch{preview.focus();preview.select();status.textContent='Selecciona y copia el mensaje del campo de texto.';}
     };
