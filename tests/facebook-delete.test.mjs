@@ -53,13 +53,14 @@ test('multiple clicks while confirmation is open produce one deletion',async()=>
   assert.equal(f.calls.filter(c=>c[0]==='fetch').length,1);assert.equal(f.state.confirming,false);
 });
 
-test('deletion displays progress and disables controls until the request settles',async()=>{
-  const f=fixture();let finish;
+test('deletion displays progress and disables controls until the request settles',{timeout:2000},async()=>{
+  const f=fixture();let finish,markRequestStarted;
+  const requestStarted=new Promise(resolve=>markRequestStarted=resolve);
   const control={disabled:false},alreadyDisabled={disabled:true};
   const editor=f.context.$('daily-evidence-editor');editor.querySelectorAll=()=>[control,alreadyDisabled];
-  f.context.fetch=()=>new Promise(resolve=>finish=resolve);
+  f.context.fetch=()=>new Promise(resolve=>{finish=resolve;markRequestStarted();});
   const pending=f.context.deleteFacebookEvidenceImage(0);
-  await Promise.resolve();await Promise.resolve();
+  await requestStarted;
   assert.equal(f.context.$('facebook-delete-progress').hidden,false);
   assert.equal(editor['aria-busy'],'true');assert.equal(control.disabled,true);
   finish({ok:false,json:async()=>({ok:false,motivo:'conexion'})});await pending;

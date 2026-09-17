@@ -61,4 +61,6 @@ La generación ocurre localmente con [jsPDF](https://github.com/parallax/jsPDF) 
 
 No se verificó visualmente el archivo en Excel: se intentó conectar el control de aplicaciones, pero su servicio nativo no estaba disponible. La herramienta de artefactos de hojas de cálculo tampoco estaba disponible; las comprobaciones cubren el código de exportación y su estructura, no la apariencia renderizada.
 
-Pendiente: ejecutar el SQL en Supabase y contrastar con datos reales. No se realizó verificación visual en navegador; no había navegador conectado en la sesión. La prueba preexistente `tests/facebook-delete.test.mjs:63` falla también contra el código anterior, como se comprobó en la implementación inicial; ese código no se modificó.
+Tras integrar el comunicado remoto, pasan las 186 pruebas de la suite. Se corrigió una condición de carrera preexistente en la prueba de progreso de eliminación: ahora espera al inicio de la solicitud simulada antes de verificar los controles, en lugar de asumir que dos microtareas bastan. No se cambió el comportamiento de eliminación del portal.
+
+Pendiente: ejecutar el SQL en Supabase y contrastar con datos reales. No se realizó verificación visual en navegador; no había navegador conectado en la sesión.
