@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=4">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
@@ -729,6 +730,7 @@
         <button class="active" type="button" data-admin-section="overview">Resumen operativo</button>
         <button type="button" data-admin-section="control" id="admin-control-tab" hidden>Control diario</button>
         <button type="button" data-admin-section="ranking" id="admin-ranking-tab" hidden>Ranking mensual · Beta</button>
+        <button type="button" data-admin-section="facebook" id="admin-facebook-tab" hidden>Reportes Facebook</button>
         <button type="button" data-admin-section="lista">Pasar lista</button>
         <button type="button" data-admin-section="mes">Mes completo</button>
         <button type="button" data-admin-section="resumen">Resumen mensual</button>
@@ -977,6 +979,26 @@
         <div class="admin-list-message" id="admin-team-message" role="status" aria-live="polite"></div>
         <div class="admin-people-groups" id="admin-people-list"><p class="admin-empty">Ejecuta la migración de la fase 3 para cargar colaboradores.</p></div>
         <a class="admin-legacy-link" href="asistencia.html?modo=horarios">Abrir Colaboradores en el panel anterior ↗</a>
+      </section>
+
+      <section id="admin-facebook-section" hidden aria-labelledby="fb-report-title">
+        <header class="fb-report-head"><div><h2 id="fb-report-title">Reportes de Facebook</h2><p>Una fila por persona, agrupada por área.</p></div><div class="fb-report-downloads"><button type="button" id="fb-report-export" disabled>Descargar Excel</button><button type="button" id="fb-report-pdf" aria-describedby="fb-report-pdf-help" disabled>Descargar PDF completo</button><small id="fb-report-pdf-help">PDF: todas las áreas del período y ranking al final.</small></div></header>
+        <p class="fb-report-note">Sí: tiene evidencia registrada. No: no tiene evidencia al consultar. Si no le corresponde compartir, se indica el motivo, por ejemplo “No comparte ese día”. Puedes preparar el reporte de mañana incluyendo hoy.</p>
+        <form id="fb-report-form" class="fb-report-filters">
+          <label>Reporte<select id="fb-report-kind"><option value="lunes">Lunes · jueves a domingo</option><option value="jueves">Jueves · lunes a miércoles</option><option value="general">General del mes</option><option value="custom">Rango personalizado</option></select></label>
+          <label id="fb-report-reference-label">Fecha del reporte<input type="date" id="fb-report-reference" required></label>
+          <label>Desde<input type="date" id="fb-report-from" required readonly></label>
+          <label>Hasta<input type="date" id="fb-report-to" required readonly></label>
+          <button type="submit">Consultar reporte</button>
+        </form>
+        <p id="fb-report-period"></p>
+        <p id="fb-report-status" role="status" aria-live="polite"></p>
+        <div id="fb-report-results" hidden>
+          <p id="fb-report-scope" class="fb-report-note"></p>
+          <label class="fb-report-area">Área<select id="fb-report-area"><option value="">Todas las áreas</option></select></label>
+          <div id="fb-report-matrix"></div>
+          <details class="fb-report-note"><summary>Criterios del reporte</summary><p>“Sí” incluye evidencias pendientes de revisión u observadas. “No” no confirma que la persona no haya compartido fuera del sistema. “No comparte ese día”, “Sistema aún no activo”, “Aún no incorporado” y “Falta fecha de ingreso” explican por qué no se evalúa esa fecha y no suman al total. “Sin información” indica que falta el registro del reporte. Se usa el equipo activo y sus áreas y horarios actuales; los cambios pueden alterar reportes anteriores.</p></details>
+        </div>
       </section>
 
       <section id="admin-ranking-section" hidden aria-labelledby="ranking-title">
@@ -1768,7 +1790,7 @@
 
 <script src="assets/js/dashboard-close-model.js?v=4"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
-<script src="assets/js/dashboard.js?v=173"></script>
+<script src="assets/js/dashboard.js?v=174"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=5"></script>
@@ -1784,5 +1806,10 @@
 <script src="assets/js/dashboard-mobile.js?v=3"></script>
 <script src="assets/js/ranking-model.js?v=3"></script>
 <script src="assets/js/dashboard-ranking.js?v=5"></script>
+<script src="assets/js/facebook-report-model.js?v=5"></script>
+<script src="assets/js/facebook-report-excel-layout.js?v=1"></script>
+<script src="assets/js/facebook-report-excel.js?v=2"></script>
+<script src="assets/js/facebook-report-pdf.js?v=1"></script>
+<script src="assets/js/dashboard-facebook-report.js?v=4"></script>
 </body>
 </html>

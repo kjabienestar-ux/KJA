@@ -870,6 +870,7 @@ async function openPortal(activeSession,bootstrap=null){
   $('admin-access-tab').hidden=APP.access.rol!=='direccion';
   $('admin-control-tab').hidden=APP.access.rol!=='direccion';
   $('admin-ranking-tab').hidden=APP.access.rol!=='direccion';
+  $('admin-facebook-tab').hidden=APP.access.rol!=='direccion';
   const managesRoles=APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel;
   $('admin-roles-tab').hidden=!managesRoles; const rolesModule=$('admin-roles-module'); if(rolesModule)rolesModule.hidden=!managesRoles;
   if(c){ renderHome(); renderProfile(); }
@@ -1684,11 +1685,13 @@ async function showAdminSection(section){
   if(section==='control'&&APP.access.rol!=='direccion'){toast('El control diario está reservado a Dirección.',true);section='overview'}
   if(section==='roles'&&!(APP.identity.isSystem&&APP.access.rol==='direccion')){toast('Los roles están reservados al administrador de sistemas.',true);section='overview'}
   if(section==='ranking'&&APP.access.rol!=='direccion')section='overview';
-  const allowed=['overview','control','ranking','lista','mes','resumen','cierres','asignaciones','colaboradores','contratos','roles','marcado'];
+  if(section==='facebook'&&APP.access.rol!=='direccion')section='overview';
+  const allowed=['overview','control','ranking','facebook','lista','mes','resumen','cierres','asignaciones','colaboradores','contratos','roles','marcado'];
   APP.adminSection=allowed.includes(section)?section:'overview';
   $('admin-overview-section').hidden=APP.adminSection!=='overview';
   $('admin-control-section').hidden=APP.adminSection!=='control';
   $('admin-ranking-section').hidden=APP.adminSection!=='ranking';
+  $('admin-facebook-section').hidden=APP.adminSection!=='facebook';
   $('admin-list-section').hidden=APP.adminSection!=='lista';
   $('admin-month-section').hidden=APP.adminSection!=='mes';
   $('admin-summary-section').hidden=APP.adminSection!=='resumen';
@@ -1703,7 +1706,9 @@ async function showAdminSection(section){
     b.classList.toggle('active',active);
     if(b.closest('.admin-section-nav'))b.setAttribute('aria-pressed',String(active));
   });
-  if(APP.adminSection==='ranking'){
+  if(APP.adminSection==='facebook'){
+    if(typeof loadAdminFacebookReport==='function')await loadAdminFacebookReport();
+  }else if(APP.adminSection==='ranking'){
     if(typeof loadAdminRanking==='function')await loadAdminRanking();
   }else if(APP.adminSection==='control'){
     if(typeof loadAdminControl==='function')await loadAdminControl();
