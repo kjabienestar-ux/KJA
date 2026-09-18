@@ -23,6 +23,22 @@
     return {state,label:labels[state]||'Sin registro',complete:['P','T','J'].includes(state),incomplete:false,hasEntry:!!mark};
   }
 
+  function incompleteReasons(mark,close){
+    if(!close||close.estado!=='incompleta')return [];
+    const reasons=[];
+    if(Object.hasOwn(close,'entrada_at')&&!close.entrada_at&&!mark)reasons.push('Registro de entrada');
+    const labels={rpe:'RPE y evidencias del día',salida:'Evidencia de salida'};
+    for(const item of close.requisitos||[]){
+      // Facebook has its own deadline and does not determine the working-day close.
+      if(item.tipo!=='comparticiones'&&!item.completo)reasons.push(item.titulo||labels[item.tipo]||'Evidencia pendiente');
+    }
+    for(const item of close.asignaciones||[]){
+      if(!item.completo&&item.estado!=='cancelada')reasons.push(item.titulo||'Entregable asignado');
+    }
+    if(Object.hasOwn(close,'salida_at')&&!close.salida_at)reasons.push('Registro de salida');
+    return [...new Set(reasons)];
+  }
+
   function evidenceSelectionPolicy({requirement,mode,count,min=5,max=50,collageAllowed=true}){
     if(count<1)return {ok:false,reason:'vacio'};
     if(requirement!=='comparticiones')return count<=5?{ok:true}:{ok:false,reason:'maximo'};
@@ -33,5 +49,5 @@
     return count>=min&&count<=max?{ok:true}:{ok:false,reason:count<min?'minimo':'maximo'};
   }
 
-  root.KJACloseModel=Object.freeze({stateTone,stateLabel,attendancePresentation,evidenceSelectionPolicy});
+  root.KJACloseModel=Object.freeze({stateTone,stateLabel,attendancePresentation,incompleteReasons,evidenceSelectionPolicy});
 })(typeof window==='undefined'?globalThis:window);

@@ -46,6 +46,59 @@ const visibleDirectionMessagesSql = fs.readFileSync(new URL('../supabase/dashboa
 const coLeadersSql = fs.readFileSync(new URL('../supabase/dashboard_51_colideres_tecnicos.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 
+test('incomplete reasons describe missing work without blaming independent Facebook tasks', () => {
+  const context={};
+  vm.runInNewContext(modelJs,context);
+  const reasons=context.KJACloseModel.incompleteReasons;
+  const close={estado:'incompleta',entrada_at:'2026-09-17T13:00:00Z',salida_at:null,requisitos:[
+    {tipo:'rpe',titulo:'RPE del día',completo:false},
+    {tipo:'salida',titulo:'Foto de salida',completo:true},
+    {tipo:'comparticiones',titulo:'Facebook',completo:false}
+  ],asignaciones:[{titulo:'Informe semanal',completo:false},{titulo:'Video',completo:true},{titulo:'Cancelado',estado:'cancelada',completo:false}]};
+  assert.deepEqual(Array.from(reasons({estado:'P'},close)),['RPE del día','Informe semanal','Registro de salida']);
+  assert.deepEqual(Array.from(reasons(null,{...close,entrada_at:null,salida_at:'2026-09-17T18:00:00Z',requisitos:[],asignaciones:[]})),['Registro de entrada']);
+  assert.deepEqual(Array.from(reasons(null,{estado:'incompleta'})),[]);
+  assert.deepEqual(Array.from(reasons(null,{...close,estado:'completa'})),[]);
+  assert.deepEqual(Array.from(reasons(null,null)),[]);
+});
+
+test('daily control explains incomplete days using actual closing requirements and keeps missing detail explicit', () => {
+  const context={};
+  vm.runInNewContext(modelJs,context);
+  context.CLOSE_MODEL=context.KJACloseModel;
+  vm.runInNewContext(adminControlJs.slice(0,adminControlJs.indexOf('function renderAdminControl()')),context);
+  const row={labora:true,cierre_estado:'incompleta',entrada_at:'2026-09-17T13:00:00Z',salida_at:null,evidencias_pendientes:1,
+    cierre:{requisitos:[{tipo:'rpe',titulo:'RPE del día',completo:false},{tipo:'comparticiones',titulo:'Facebook',completo:false}],asignaciones:[]}};
+  assert.equal(context.adminControlMissingDetail(row),'Faltó: RPE del día; Registro de salida');
+  assert.equal(context.adminControlMissingDetail({...row,salida_at:'2026-09-17T18:00:00Z'}),'Faltó: RPE del día');
+  assert.match(context.adminControlMissingDetail({...row,cierre:null}),/Detalle de evidencias no disponible/);
+  assert.equal(context.adminControlMissingDetail({...row,cierre_estado:'completa'}),'');
+  assert.equal(context.adminControlMissingDetail({...row,labora:false}),'');
+});
+
+test('month detail fetches the selected date and ignores responses after switching dialogs', async () => {
+  let resolve;
+  const container={innerHTML:'',setAttribute(){}};
+  const dialog={personId:'7',date:'2026-09-16'};
+  const context={ADMIN_MONTH_DIALOG:dialog,$:()=>container,esc:s=>String(s),db:{rpc:(name,args)=>{
+    assert.equal(name,'dash_admin_cierres');assert.equal(args.p_fecha,dialog.date);
+    return new Promise(done=>{resolve=done});
+  }}};
+  vm.runInNewContext(modelJs,context);context.CLOSE_MODEL=context.KJACloseModel;
+  vm.runInNewContext(adminMonthJs.slice(adminMonthJs.indexOf('async function loadMonthIncompleteReasons('),adminMonthJs.indexOf('function openMonthCell(')),context);
+  const request=context.loadMonthIncompleteReasons(dialog);
+  resolve({data:{ok:true,personas:[{id:7,cierre:{estado:'incompleta',entrada_at:'2026-09-16T13:00:00Z',salida_at:null,requisitos:[{tipo:'rpe',titulo:'RPE del día',completo:false}]}}]}});
+  await request;
+  assert.match(container.innerHTML,/RPE del día/);assert.match(container.innerHTML,/Registro de salida/);
+  const stale=context.loadMonthIncompleteReasons(dialog);
+  context.ADMIN_MONTH_DIALOG={personId:'8',date:dialog.date};container.innerHTML='Otro colaborador';
+  resolve({error:new Error('Error de red')});await stale;
+  assert.equal(container.innerHTML,'Otro colaborador');
+  context.ADMIN_MONTH_DIALOG=dialog;
+  const failure=context.loadMonthIncompleteReasons(dialog);resolve({error:new Error('Error de red')});await failure;
+  assert.match(container.innerHTML,/Reintentar/);
+});
+
 test('dashboard JavaScript parses', () => {
   assert.doesNotThrow(() => new vm.Script(js));
   assert.doesNotThrow(() => new vm.Script(modelJs));
@@ -134,7 +187,7 @@ test('month ledger controls and metrics share one responsive workbench', () => {
   for (const key of ['ArrowDown','ArrowUp','Home','End','Escape']) assert.ok(adminMonthJs.includes(key));
   assert.match(css,/\.admin-month-area-options\[hidden\]\{display:none\}/);
   assert.match(css,/\.admin-month-area-options button\[aria-selected="true"\]/);
-  assert.match(html,/dashboard-admin-mes\.js\?v=5/);
+  assert.match(html,/dashboard-admin-mes\.js\?v=\d+/);
 });
 
 test('monthly summary prioritizes metrics and table inside a compact workbench', () => {

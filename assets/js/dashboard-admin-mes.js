@@ -209,6 +209,28 @@ function findMonthCell(personId,date){
   const person=(APP.adminMonth?.personas||[]).find(item=>String(item.id)===String(personId));
   return {person,day:(person?.dias||[]).find(item=>item.fecha===date)};
 }
+async function loadMonthIncompleteReasons(dialog){
+  const container=$('month-incomplete-reasons');
+  if(!container)return;
+  container.setAttribute('aria-busy','true');
+  container.innerHTML='<p class="month-reasons-loading">Consultando los pendientes de este día…</p>';
+  try{
+    const {data,error}=await db.rpc('dash_admin_cierres',{p_fecha:dialog.date});
+    if(ADMIN_MONTH_DIALOG!==dialog||$('month-incomplete-reasons')!==container)return;
+    const close=(data?.personas||[]).find(person=>String(person.id)===dialog.personId)?.cierre;
+    if(error||!data?.ok||!close)throw new Error('Detalle no disponible');
+    const reasons=CLOSE_MODEL.incompleteReasons(null,close);
+    container.innerHTML=reasons.length
+      ?`<header><h3>Qué faltó para completar la jornada</h3><span>${reasons.length} ${reasons.length===1?'pendiente':'pendientes'}</span></header><ul>${reasons.map(reason=>`<li><span aria-hidden="true">−</span>${esc(reason)}</li>`).join('')}</ul>`
+      :'<p>No se encontraron pendientes en el cierre actual. Actualiza el mes para comprobar el estado de la jornada.</p>';
+  }catch(error){
+    if(ADMIN_MONTH_DIALOG!==dialog||$('month-incomplete-reasons')!==container)return;
+    container.innerHTML='<p>No se pudo consultar el detalle de esta jornada.</p><button type="button" class="admin-secondary-action" data-month-action="retry-reasons">Reintentar</button>';
+  }finally{
+    if(ADMIN_MONTH_DIALOG===dialog&&$('month-incomplete-reasons')===container)container.setAttribute('aria-busy','false');
+  }
+}
+
 function openMonthCell(personId,date){
   const {person,day}=findMonthCell(personId,date);if(!person||!day)return;
   ADMIN_MONTH_DIALOG={kind:'cell',personId:String(personId),date};
@@ -228,6 +250,11 @@ function openMonthCell(personId,date){
   const reason={preinicio:'Fecha anterior al inicio del contrato',extra:'Día adicional habilitado',feriado:`Feriado${day.feriado_nota?' · '+day.feriado_nota:''}`,permiso:`Permiso${day.excepcion_nota?' · '+day.excepcion_nota:''}`,horario:day.laborable?'Día programado por horario':'Día no programado'}[day.motivo]||day.motivo;
   openMonthModal('DETALLE DE ASISTENCIA',person.nombre,dateText,
     `<div class="month-day-facts"><span><small>CONDICIÓN</small><b>${esc(reason)}</b></span><span><small>MODALIDAD</small><b>${esc(cap(day.modalidad||'—'))}</b></span><span><small>HORAS</small><b>${day.horas==null?'—':Number(day.horas).toFixed(1)+' h'}</b></span></div>${mark}${day.nota?`<p class="month-day-note"><b>Nota:</b> ${esc(day.nota)}</p>`:''}<div class="month-modal-actions">${evidence}${actions||'<p class="admin-empty">No hay acciones disponibles para esta fecha.</p>'}</div>`);
+  if(day.cierre_estado==='incompleta'){
+    const body=$('admin-month-modal-body'),anchor=body.querySelector('.month-day-current')||body.querySelector('.month-day-facts');
+    anchor.insertAdjacentHTML('afterend','<section class="month-incomplete-reasons" id="month-incomplete-reasons" aria-live="polite" aria-busy="true"></section>');
+    void loadMonthIncompleteReasons(ADMIN_MONTH_DIALOG);
+  }
 }
 
 async function openPrivateMonthEvidence(path){
@@ -354,6 +381,7 @@ $('admin-month-modal-body').onclick=event=>{
   const state=event.target.closest('[data-month-state]');if(state)return changeMonthState(state.dataset.monthState);
   const removeHolidayButton=event.target.closest('[data-remove-holiday]');if(removeHolidayButton)return removeHoliday(removeHolidayButton.dataset.removeHoliday);
   const action=event.target.closest('[data-month-action]');if(!action||ADMIN_MONTH_DIALOG?.kind!=='cell')return;
+  if(action.dataset.monthAction==='retry-reasons')return loadMonthIncompleteReasons(ADMIN_MONTH_DIALOG);
   const {day}=findMonthCell(ADMIN_MONTH_DIALOG.personId,ADMIN_MONTH_DIALOG.date);
   if(action.dataset.monthAction==='evidence')return openPrivateMonthEvidence(day?.evidencia_path);
   if(action.dataset.monthAction==='remove-mark')return removeMonthMark();

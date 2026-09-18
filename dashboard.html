@@ -26,6 +26,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=14">
 </head>
 <body>
 
@@ -721,7 +722,7 @@
 
     <section class="view admin-view" id="view-gestion" hidden>
       <header class="view-head admin-view-head">
-        <div><p class="eyebrow">CENTRO DE GESTIÓN</p><h1>Administración de asistencia</h1><p>Supervisa la jornada y entra a cada herramienta operativa desde un solo lugar.</p></div>
+        <div><p class="eyebrow">CENTRO DE GESTIÓN</p><h1>Administración de asistencia</h1></div>
         <button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button>
         <div class="admin-head-actions"><span class="admin-role-chip" id="admin-role-chip">Acceso administrativo</span><button class="admin-refresh" id="admin-refresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualizar</button></div>
       </header>
@@ -784,9 +785,9 @@
       <section class="admin-control-section" id="admin-control-section" hidden>
         <header class="admin-control-head">
           <span><h2>Control diario</h2><p>Prioriza las jornadas que necesitan atención antes de cerrar el día.</p></span>
+          <div class="admin-control-kpis" id="admin-control-kpis" aria-live="polite"></div>
           <div class="admin-control-actions"><label>Fecha<input type="date" id="admin-control-date"></label><button type="button" id="admin-control-today">Hoy</button><button type="button" class="admin-primary-action" id="admin-control-export">Exportar CSV</button></div>
         </header>
-        <div class="admin-control-kpis" id="admin-control-kpis" aria-live="polite"></div>
         <div class="admin-control-filters">
           <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-control-search" placeholder="Buscar colaborador…"></label>
           <label><span class="sr-only">Filtrar por área</span><select id="admin-control-area"><option value="">Todas las áreas</option></select></label>
@@ -805,13 +806,13 @@
             <button type="button" id="admin-date-next" aria-label="Día siguiente">›</button>
             <button type="button" id="admin-date-today">Hoy</button>
           </div>
+          <div class="admin-list-kpis" id="admin-list-kpis" aria-live="polite"></div>
           <div class="admin-list-filters">
             <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-list-search" placeholder="Buscar colaborador…"></label>
             <label><span class="sr-only">Filtrar por área</span><select id="admin-list-area"><option value="">Todas las áreas</option></select></label>
           </div>
         </div>
 
-        <div class="admin-list-kpis" id="admin-list-kpis"></div>
         <div class="admin-list-message" id="admin-list-message" role="status" aria-live="polite"></div>
         <div class="admin-roster" id="admin-roster"><p class="admin-empty">Ejecuta la migración de la fase 2 para cargar la lista.</p></div>
         <div class="admin-list-legend"><span><i class="p"></i>Presente</span><span><i class="t"></i>Tardanza</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestiona</span><small>Selecciona nuevamente el estado activo para quitar la marca.</small></div>
@@ -1788,17 +1789,17 @@
 
 
 
-<script src="assets/js/dashboard-close-model.js?v=4"></script>
+<script src="assets/js/dashboard-close-model.js?v=5"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
-<script src="assets/js/dashboard.js?v=174"></script>
+<script src="assets/js/dashboard.js?v=175"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=5"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=6"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=4"></script>
 <script src="assets/js/dashboard-admin-cierre.js?v=35"></script>
 <script src="assets/js/dashboard-assignments.js?v=4"></script>
-<script src="assets/js/dashboard-admin-control.js?v=3"></script>
+<script src="assets/js/dashboard-admin-control.js?v=7"></script>
 <script src="assets/js/marketing-model.js?v=3"></script>
 <script src="assets/js/dashboard-marketing.js?v=6"></script>
 <script src="assets/js/chat-images.js?v=3"></script>
