@@ -25,14 +25,16 @@ function adminMode(person,dow){
 }
 
 async function loadAdminTeam(){
+  if(typeof closeAdminProfile==='function')closeAdminProfile(false);
   if(!APP.access.acceso_panel)return;
   const request=++APP.adminTeamRequest,btn=$('admin-refresh');
   btn.disabled=true;teamMsg('');
   const target=APP.adminSection==='contratos'?'admin-contract-list':'admin-people-list';
   $(target).innerHTML='<p class="admin-empty">Cargando información del equipo…</p>';
-  const [{data,error},{data:balancesData}]=await Promise.all([
+  const [{data,error},{data:balancesData},institutionResult]=await Promise.all([
     db.rpc('dash_admin_equipo',{p_incluir_inactivos:true}),
-    APP.access.rol==='direccion'?db.rpc('dash_admin_saldos_dias_libres'):Promise.resolve({data:null,error:null})
+    APP.access.rol==='direccion'?db.rpc('dash_admin_saldos_dias_libres'):Promise.resolve({data:null,error:null}),
+    Promise.resolve().then(()=>db.rpc('dash_admin_instituciones')).catch(()=>({data:null}))
   ]);
   if(request!==APP.adminTeamRequest)return;
   btn.disabled=false;
@@ -44,6 +46,9 @@ async function loadAdminTeam(){
     return;
   }
   const balances=new Map((balancesData?.ok?balancesData.saldos||[]:[]).map(item=>[String(item.id),Number(item.saldo)||0]));
+  data.instituciones_disponibles=!!institutionResult.data?.ok&&!institutionResult.error;
+  const institutions=new Map((institutionResult.data?.personas||[]).map(item=>[String(item.id),item.institucion]));
+  data.personas=(data.personas||[]).map(person=>({...person,institucion:institutions.get(String(person.id))??person.institucion??null}));
   data.personas=(data.personas||[]).map(person=>({...person,dias_libres_saldo:balances.has(String(person.id))?balances.get(String(person.id)):null}));
   data.personas=await hydrateProfilePhotos(data.personas);
   if(request!==APP.adminTeamRequest)return;
@@ -76,6 +81,7 @@ function filteredAdminPeople(kind){
 
 function renderAdminPeople(){
   if(!APP.adminTeam)return;
+  if(typeof renderAttendanceExport==='function')renderAttendanceExport();
   const all=APP.adminTeam.personas||[],visible=filteredAdminPeople('people'),canEdit=!!APP.adminTeam.puede_editar;
   const active=all.filter(p=>p.activo),inactive=all.length-active.length,noDni=active.filter(p=>!p.dni).length,noPin=active.filter(p=>!p.tiene_pin).length,pending=active.filter(p=>p.contrato_pendiente).length;
   const kpis=[['ACTIVOS',active.length],['DADOS DE BAJA',inactive],['SIN DNI',noDni],['SIN PIN',noPin],['CONTRATO PENDIENTE',pending]];
@@ -95,6 +101,7 @@ function renderAdminPeople(){
         <div class="admin-identity-line"><span>DNI <b>${esc(p.dni||'Sin registrar')}</b></span><span class="${p.tiene_pin?'ready':'missing'}">${p.tiene_pin?'PIN configurado':'Sin PIN'}</span><span>${p.tiene_cuenta?'Portal activado':'Aún no ingresó'}</span></div>
         <div class="admin-week-ledger">${days}</div>
         <div class="admin-person-contract ${summary.pendiente?'pending':''}"><span><small>SEGUIMIENTO</small><b>${esc(contract)}</b></span><i style="--contract-progress:${pct}%"></i></div>
+        ${$('admin-person-profile')?`<button type="button" class="admin-person-view-profile" data-team-profile="${p.id}" aria-label="Ver ficha completa de ${esc(p.nombre)}">Ver ficha completa <span>Datos, horario y Facebook</span></button>`:''}
       </article>`;
     }
     html+='</div></section>';
@@ -187,6 +194,11 @@ async function openAdminPerson(id){
   $('admin-person-id').value=person?.id||'';
   $('admin-person-name').value=person?.nombre||'';
   $('admin-person-dni').value=String(person?.dni||'').replace(/\D/g,'').slice(0,8);
+  if($('admin-person-institution')){
+    $('admin-person-institution').value=person?.institucion||'';
+    $('admin-person-institution').disabled=!APP.adminTeam.instituciones_disponibles;
+    $('admin-institution-help').textContent=APP.adminTeam.instituciones_disponibles?'Si no se registra, quedará vacía en el informe.':'Institución pendiente de habilitar en la base de datos (migración 66).';
+  }
   $('admin-person-link').value=person?.tipo_vinculo||'practicas';
   const areas=(APP.adminTeam.areas||[]).filter(a=>a.activo||String(a.id)===String(person?.area_id));
   $('admin-person-area').innerHTML=areas.map(a=>`<option value="${a.id}" ${String(a.id)===String(person?.area_id)?'selected':''}>${esc(a.nombre)}</option>`).join('');
@@ -274,7 +286,8 @@ async function saveAdminPerson(event){
   if($('admin-contract-start').value&&$('admin-contract-end').value&&$('admin-contract-end').value<$('admin-contract-start').value)return editorMsg('La fecha final no puede ser anterior al inicio del contrato.');
   let payload,facebookSchedule;try{payload=collectAdminPerson();facebookSchedule=collectFacebookSchedule()}catch(e){return editorMsg(e.message)}
   const button=$('admin-person-save');button.disabled=true;button.textContent='Guardando…';
-  const {data,error}=await db.rpc('dash_admin_guardar_colaborador',{p_datos:payload,p_motivo:$('admin-change-reason').value.trim()||null});
+  if(APP.adminTeam.instituciones_disponibles)payload.institucion=$('admin-person-institution')?.value.trim()||null;
+  const {data,error}=await db.rpc(APP.adminTeam.instituciones_disponibles?'dash_admin_guardar_ficha':'dash_admin_guardar_colaborador',{p_datos:payload,p_motivo:$('admin-change-reason').value.trim()||null});
   if(error||!data?.ok){
     button.disabled=false;button.textContent='Guardar cambios';
     const messages={sin_permiso:'Tu rol no permite editar.',nombre:'Revisa el nombre completo.',dni:'El DNI debe tener 8 dígitos.',dni_duplicado:'Ese DNI ya pertenece a otro colaborador.',area:'Selecciona un área activa.',horario:'Hay un día con horario incompleto o incoherente.',horario_general:'La salida general debe ser posterior a la entrada.',fechas:'La fecha final no puede ser anterior al inicio.',horas:'Las horas no pueden ser negativas.',duplicado:'Ya existe un registro con uno de estos datos.'};
@@ -358,7 +371,7 @@ async function saveAdminDaysOff(event){
 ['admin-people-area','admin-people-inactive'].forEach(id=>$(id).addEventListener('change',renderAdminPeople));
 ['admin-contract-area','admin-contract-inactive','admin-contract-pending'].forEach(id=>$(id).addEventListener('change',renderAdminContracts));
 $('admin-new-person').onclick=()=>openAdminPerson();
-$('admin-people-list').onclick=e=>{const days=e.target.closest('[data-team-days-off]'),edit=e.target.closest('[data-team-edit]'),status=e.target.closest('[data-team-status]');if(days)return openAdminDaysOff(days.dataset.teamDaysOff,days);if(edit)return openAdminPerson(edit.dataset.teamEdit);if(status)return changeAdminPersonStatus(status.dataset.teamStatus,status.dataset.nextActive==='true')};
+$('admin-people-list').onclick=e=>{const profile=e.target.closest('[data-team-profile]');if(profile)return openAdminProfile(profile.dataset.teamProfile,profile);const days=e.target.closest('[data-team-days-off]'),edit=e.target.closest('[data-team-edit]'),status=e.target.closest('[data-team-status]');if(days)return openAdminDaysOff(days.dataset.teamDaysOff,days);if(edit)return openAdminPerson(edit.dataset.teamEdit);if(status)return changeAdminPersonStatus(status.dataset.teamStatus,status.dataset.nextActive==='true')};
 $('admin-contract-list').onclick=e=>{const edit=e.target.closest('[data-team-edit]');if(edit)openAdminPerson(edit.dataset.teamEdit)};
 document.querySelectorAll('[data-close-person]').forEach(x=>x.onclick=closeAdminPerson);
 $('admin-person-form').addEventListener('submit',saveAdminPerson);

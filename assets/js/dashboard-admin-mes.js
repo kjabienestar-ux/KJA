@@ -14,8 +14,8 @@ function monthTitle(value){
   return `${monthNames[month-1]||''} ${year}`.replace(/^./,x=>x.toUpperCase());
 }
 function syncMonthInputs(value){
-  $('admin-month-value').value=value;$('admin-summary-value').value=value;
-  $('admin-month-stamp').textContent=monthTitle(value);$('admin-summary-stamp').textContent=monthTitle(value);
+  $('admin-month-value').value=value;if($('admin-summary-value'))$('admin-summary-value').value=value;
+  $('admin-month-stamp').textContent=monthTitle(value);if($('admin-summary-stamp'))$('admin-summary-stamp').textContent=monthTitle(value);
 }
 function shiftMonth(value,amount){
   const [year,month]=String(value).split('-').map(Number),date=new Date(year,month-1+amount,1);
@@ -32,7 +32,7 @@ function monthPeople(kind){
 function fillMonthFilters(){
   const areas=(APP.adminMonth?.areas||[]).filter(area=>area.activo);
   for(const id of ['admin-month-area','admin-summary-area']){
-    const select=$(id),current=select.value;
+    const select=$(id);if(!select)continue;const current=select.value;
     select.innerHTML='<option value="">Todas las áreas</option>'+areas.map(area=>`<option value="${area.id}">${esc(area.nombre)}</option>`).join('');
     if(areas.some(area=>String(area.id)===current))select.value=current;
   }
@@ -173,6 +173,7 @@ function renderAdminMonthLedger(){
 }
 
 function renderAdminMonthSummary(){
+  if(!$('admin-summary-table'))return;
   const people=monthPeople('summary'),rate=monthRate(people),p=sumMonth(people,'P'),t=sumMonth(people,'T'),j=sumMonth(people,'J'),ng=sumMonth(people,'NG'),pending=sumMonth(people,'pendientes'),incomplete=sumMonth(people,'incompletas'),hours=sumMonth(people,'horas');
   const cards=[
     ['ASISTENCIA DEL MES',rate==null?'—':`${rate}%`,`${p+t} registros presentes o con tardanza`,'primary'],
@@ -323,6 +324,7 @@ function downloadMonthCsv(kind){
 function setMonthFrom(prefix,value){syncMonthInputs(value);APP.adminMonthKey='';loadAdminMonth()}
 const initialAdminMonth=isoLima().slice(0,7);syncMonthInputs(initialAdminMonth);
 ['admin-month','admin-summary'].forEach(prefix=>{
+  if(!$(`${prefix}-value`))return;
   $(`${prefix}-prev`).onclick=()=>setMonthFrom(prefix,shiftMonth($(`${prefix}-value`).value,-1));
   $(`${prefix}-next`).onclick=()=>setMonthFrom(prefix,shiftMonth($(`${prefix}-value`).value,1));
   $(`${prefix}-today`).onclick=()=>setMonthFrom(prefix,isoLima().slice(0,7));
@@ -330,7 +332,7 @@ const initialAdminMonth=isoLima().slice(0,7);syncMonthInputs(initialAdminMonth);
   $(`${prefix}-inactive`).onchange=()=>{APP.adminMonthKey='';loadAdminMonth()};
 });
 $('admin-month-search').oninput=renderAdminMonthLedger;$('admin-month-area').onchange=renderAdminMonthLedger;
-$('admin-summary-search').oninput=renderAdminMonthSummary;$('admin-summary-area').onchange=renderAdminMonthSummary;
+if($('admin-summary-search'))$('admin-summary-search').oninput=renderAdminMonthSummary;if($('admin-summary-area'))$('admin-summary-area').onchange=renderAdminMonthSummary;
 $('admin-month-area-trigger').onclick=()=>{
   const open=$('admin-month-area-trigger').getAttribute('aria-expanded')!=='true';
   setMonthAreaOpen(open,{focusSelected:open});
@@ -374,7 +376,7 @@ $('admin-month-area-options').onfocusout=event=>{
 document.addEventListener('pointerdown',event=>{
   if(!event.target.closest('.admin-month-area-combobox'))setMonthAreaOpen(false);
 });
-$('admin-month-export').onclick=()=>downloadMonthCsv('month');$('admin-summary-export').onclick=()=>downloadMonthCsv('summary');
+$('admin-month-export').onclick=()=>downloadMonthCsv('month');if($('admin-summary-export'))$('admin-summary-export').onclick=()=>downloadMonthCsv('summary');
 $('admin-month-holidays').onclick=openHolidayManager;
 $('admin-month-ledger').onclick=event=>{const cell=event.target.closest('[data-month-person]');if(cell)openMonthCell(cell.dataset.monthPerson,cell.dataset.monthDate)};
 $('admin-month-modal-body').onclick=event=>{

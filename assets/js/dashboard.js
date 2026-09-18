@@ -1686,7 +1686,7 @@ async function showAdminSection(section){
   if(section==='roles'&&!(APP.identity.isSystem&&APP.access.rol==='direccion')){toast('Los roles están reservados al administrador de sistemas.',true);section='overview'}
   if(section==='ranking'&&APP.access.rol!=='direccion')section='overview';
   if(section==='facebook'&&APP.access.rol!=='direccion')section='overview';
-  const allowed=['overview','control','ranking','facebook','lista','mes','resumen','cierres','asignaciones','colaboradores','contratos','roles','marcado'];
+  const allowed=['overview','control','ranking','facebook','lista','mes','cierres','asignaciones','colaboradores','contratos','roles','marcado'];
   APP.adminSection=allowed.includes(section)?section:'overview';
   $('admin-overview-section').hidden=APP.adminSection!=='overview';
   $('admin-control-section').hidden=APP.adminSection!=='control';
@@ -1694,7 +1694,7 @@ async function showAdminSection(section){
   $('admin-facebook-section').hidden=APP.adminSection!=='facebook';
   $('admin-list-section').hidden=APP.adminSection!=='lista';
   $('admin-month-section').hidden=APP.adminSection!=='mes';
-  $('admin-summary-section').hidden=APP.adminSection!=='resumen';
+  if($('admin-summary-section'))$('admin-summary-section').hidden=true;
   $('admin-close-section').hidden=APP.adminSection!=='cierres';
   $('admin-assignments-section').hidden=APP.adminSection!=='asignaciones';
   $('admin-people-section').hidden=APP.adminSection!=='colaboradores';

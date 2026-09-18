@@ -16,6 +16,7 @@
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
   <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=200">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=7">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
@@ -734,7 +735,6 @@
         <button type="button" data-admin-section="facebook" id="admin-facebook-tab" hidden>Reportes Facebook</button>
         <button type="button" data-admin-section="lista">Pasar lista</button>
         <button type="button" data-admin-section="mes">Mes completo</button>
-        <button type="button" data-admin-section="resumen">Resumen mensual</button>
         <button type="button" data-admin-section="cierres">Cierres y entregables</button>
         <button type="button" data-admin-section="asignaciones">Asignaciones</button>
         <button type="button" data-admin-section="colaboradores">Colaboradores</button>
@@ -773,7 +773,6 @@
             <button type="button" data-admin-section="cierres"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM9 8h6M9 12h6M9 16h4"/></svg></span><span class="admin-overview-module-copy"><b>Cierres y entregables</b><small id="admin-overview-close-copy">Estado de la jornada actual</small></span><span class="admin-overview-module-value" id="admin-overview-close-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-admin-section="lista"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span class="admin-overview-module-copy"><b>Pasar lista</b><small id="admin-overview-list-copy">Asistencia registrada hoy</small></span><span class="admin-overview-module-value" id="admin-overview-list-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-admin-section="mes"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v15H4zM8 3v4M16 3v4M4 9h16M8 13h2M14 13h2M8 17h2"/></svg></span><span class="admin-overview-module-copy"><b>Mes completo</b><small id="admin-overview-month-copy">Registros y pendientes del mes</small></span><span class="admin-overview-module-value" id="admin-overview-month-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" data-admin-section="resumen"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7"/></svg></span><span class="admin-overview-module-copy"><b>Resumen mensual</b><small id="admin-overview-summary-copy">Asistencia consolidada</small></span><span class="admin-overview-module-value" id="admin-overview-summary-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-admin-section="colaboradores"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2.5 20c.4-4 2.4-6 6-6s5.6 2 6 6M16 10a3 3 0 0 0 0-6M16 14c3 0 4.8 1.7 5 5"/></svg></span><span class="admin-overview-module-copy"><b>Colaboradores</b><small id="admin-overview-people-copy">Identidad y cuentas del equipo</small></span><span class="admin-overview-module-value" id="admin-overview-people-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-admin-section="contratos"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></span><span class="admin-overview-module-copy"><b>Contratos</b><small id="admin-overview-contract-copy">Metas, avance y alertas</small></span><span class="admin-overview-module-value" id="admin-overview-contract-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-admin-section="roles" id="admin-roles-module" hidden><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v5M6 21v-4a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v4M5 8h14v4H5z"/></svg></span><span class="admin-overview-module-copy"><b>Roles y equipos</b><small id="admin-overview-roles-copy">Líderes y co-líderes técnicos</small></span><span class="admin-overview-module-value" id="admin-overview-roles-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
@@ -937,36 +936,8 @@
         <a class="admin-legacy-link" href="asistencia.html?modo=grilla">Abrir Mes completo en el panel anterior ↗</a>
       </section>
 
-      <section class="admin-month-section" id="admin-summary-section" hidden>
-        <div class="admin-summary-workbench">
-          <header class="admin-summary-workbench-head">
-            <div class="admin-summary-heading"><h2>Resumen mensual</h2><p>Indicadores comparables por persona y área, calculados con las reglas vigentes.</p></div>
-            <div class="admin-summary-hero" id="admin-summary-kpis" aria-live="polite"></div>
-            <button class="admin-primary-action admin-summary-export" id="admin-summary-export" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Exportar resumen</span></button>
-          </header>
-          <div class="admin-summary-workbench-controls">
-            <div class="admin-summary-period" aria-label="Período del resumen">
-            <div class="admin-month-picker">
-                <button type="button" id="admin-summary-prev" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-              <input type="month" id="admin-summary-value" aria-label="Mes del resumen">
-                <button type="button" id="admin-summary-next" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            </div>
-              <button class="admin-month-today" type="button" id="admin-summary-today">Mes actual</button>
-            </div>
-            <div class="admin-month-filters admin-summary-filters">
-              <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-summary-search" placeholder="Buscar colaborador…" autocomplete="off"></label>
-              <label><span class="sr-only">Filtrar por área</span><select id="admin-summary-area"><option value="">Todas las áreas</option></select></label>
-              <label class="admin-toggle"><input type="checkbox" id="admin-summary-inactive"><span>Incluir bajas</span></label>
-              <span class="sr-only" id="admin-summary-stamp" aria-live="polite">—</span>
-            </div>
-          </div>
-        </div>
-        <div class="admin-list-message" id="admin-summary-message" role="status" aria-live="polite"></div>
-        <div class="admin-summary-table" id="admin-summary-table"><p class="admin-empty">Ejecuta la migración de la fase 4 para cargar el resumen.</p></div>
-        <a class="admin-legacy-link" href="asistencia.html?modo=resumen">Abrir Resumen en el panel anterior ↗</a>
-      </section>
-
       <section class="admin-team-section" id="admin-people-section" hidden>
+        <section id="admin-person-profile" aria-labelledby="person-profile-title" hidden></section>
         <div class="admin-team-toolbar">
           <div><p class="eyebrow">DIRECTORIO OPERATIVO</p><h2>Personas, identidad y jornada</h2></div>
           <div class="admin-team-actions">
@@ -976,6 +947,18 @@
             <button class="admin-primary-action" id="admin-new-person" type="button">+ Nuevo colaborador</button>
           </div>
         </div>
+        <section class="admin-attendance-export" aria-labelledby="admin-attendance-export-title">
+          <header class="attendance-export-head"><div><h3 id="admin-attendance-export-title">Informe consolidado</h3><p>Todos los internos que elijas, en un solo archivo.</p></div><div class="attendance-export-sheets" aria-label="Hojas del Excel"><span>Resumen</span><span>Horarios</span><span>Asistencia</span></div></header>
+          <details class="attendance-export-selection">
+            <summary><span><b>Seleccionar internos</b><small id="attendance-export-preview">Cargando el directorio…</small></span><span class="attendance-export-count" id="attendance-export-count">0 seleccionados</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <fieldset id="attendance-export-picker" class="attendance-export-picker">
+            <legend class="sr-only">Internos del informe</legend>
+            <div class="attendance-export-tools"><label class="attendance-export-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input type="search" id="attendance-export-search" placeholder="Buscar nombre, DNI o área" aria-label="Buscar internos para exportar"></label><div><button type="button" id="attendance-export-visible">Seleccionar visibles</button><button type="button" id="attendance-export-clear">Limpiar</button><button type="button" id="attendance-export-original">Mis 7 anteriores</button></div></div>
+            <div id="attendance-export-options" class="attendance-export-options"></div>
+          </fieldset>
+          </details>
+          <footer class="attendance-export-footer"><p id="admin-attendance-export-status" role="status" aria-live="polite">Asistencia desde la fecha de ingreso de cada interno.</p><div class="attendance-export-downloads"><button type="button" class="admin-secondary-action" id="admin-attendance-export" disabled>PDF</button><button type="button" class="admin-primary-action" id="admin-attendance-excel" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></svg>Descargar Excel</button></div></footer>
+        </section>
         <div class="admin-list-kpis" id="admin-people-kpis"></div>
         <div class="admin-list-message" id="admin-team-message" role="status" aria-live="polite"></div>
         <div class="admin-people-groups" id="admin-people-list"><p class="admin-empty">Ejecuta la migración de la fase 3 para cargar colaboradores.</p></div>
@@ -1501,6 +1484,7 @@
         <div class="admin-form-grid">
           <label class="admin-field span-2">Nombre completo<input id="admin-person-name" maxlength="80" required placeholder="Nombres y apellidos"></label>
           <label class="admin-field">DNI<input id="admin-person-dni" inputmode="numeric" maxlength="8" placeholder="8 dígitos"></label>
+          <label class="admin-field">Institución (opcional)<input id="admin-person-institution" maxlength="160" placeholder="Universidad, instituto u organización" aria-describedby="admin-institution-help"><small id="admin-institution-help">Si no se registra, quedará vacía en el informe.</small></label>
           <label class="admin-field">Tipo de vínculo<select id="admin-person-link"><option value="practicas">Prácticas</option><option value="voluntariado">Voluntariado</option><option value="ambos">Prácticas + voluntariado</option></select></label>
           <div class="admin-field span-2"><span>Área</span><div class="admin-area-field"><select id="admin-person-area" required></select><button type="button" id="admin-area-reveal">+ Nueva área</button></div></div>
           <div class="admin-area-create span-2" id="admin-area-create" hidden><input id="admin-area-name" maxlength="60" placeholder="Nombre de la nueva área"><button type="button" id="admin-area-save">Crear área</button></div>
@@ -1791,10 +1775,13 @@
 
 <script src="assets/js/dashboard-close-model.js?v=5"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
-<script src="assets/js/dashboard.js?v=175"></script>
+<script src="assets/js/dashboard.js?v=176"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=6"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=6"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
+<script src="assets/js/dashboard-person-attendance.js?v=2"></script>
+<script src="assets/js/dashboard-person-profile.js?v=4"></script>
+<script src="assets/js/dashboard-attendance-export.js?v=3"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=7"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=4"></script>
 <script src="assets/js/dashboard-admin-cierre.js?v=35"></script>
@@ -1809,7 +1796,8 @@
 <script src="assets/js/dashboard-ranking.js?v=5"></script>
 <script src="assets/js/facebook-report-model.js?v=5"></script>
 <script src="assets/js/facebook-report-excel-layout.js?v=1"></script>
-<script src="assets/js/facebook-report-excel.js?v=2"></script>
+<script src="assets/js/facebook-report-excel.js?v=3"></script>
+<script src="assets/js/intern-report-excel.js?v=5"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=4"></script>
 </body>
