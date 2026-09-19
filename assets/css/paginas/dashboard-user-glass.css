@@ -289,11 +289,64 @@
     box-shadow: var(--user-glass-shadow);
   }
   #portal:not(.admin-wide) :is(.mobile-sheet-heading h2,#mobile-close-title) {
-    font-family: var(--user-display);
-    font-weight: 400;
-    letter-spacing: -.025em;
+    font-family: Inter, system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -.02em;
   }
-  #portal:not(.admin-wide) #mobile-close-title strong { font-weight: 400; }
+  #portal:not(.admin-wide) #mobile-close-title strong { font-weight: 600; }
+  #portal:not(.admin-wide) #mobile-close-panel { margin: 0 0 16px; padding: 10px 12px 14px; border-radius: 18px; box-shadow: none; background: transparent; }
+  #portal:not(.admin-wide) .mobile-portal-sheet:has(#mobile-close-panel:not([hidden])) { padding-top: 12px; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-head-left > div { padding-right: 0; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-head { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin-bottom: 12px; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-head-left { flex: 1 1 100%; min-width: 0; gap: 9px; padding: 0; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-head-icon { width: 34px; height: 34px; flex-basis: 34px; border-radius: 10px; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-head-icon svg { width: 19px; height: 19px; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-eyebrow { display: none; }
+  #portal:not(.admin-wide) #mobile-close-title { font-size: 18px; line-height: 1.25; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-head p { font-size: 11px; margin-top: 4px; line-height: 1.4; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-state-pill { position: static; align-self: flex-start; margin-left: 43px; min-height: 24px; padding: 4px 9px; font-size: 10px; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner {
+    grid-template-columns: minmax(0,1fr); min-height: 0; gap: 5px;
+    margin-bottom: 14px; padding: 12px; border-radius: 14px; box-shadow: none;
+    background: rgba(233,243,251,.72); color: #183d60; border: 1px solid rgba(255,255,255,.85);
+  }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner p,
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner-meta { color: #49657c; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner-progress { background: #cbdce7; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner-progress i { background: #168368; }
+  #portal:not(.admin-wide) #mobile-close-panel[data-state='complete'] .mcv2-banner,
+  #portal:not(.admin-wide) #mobile-close-panel[data-state='ready'] .mcv2-banner { background: rgba(222,242,231,.85); }
+  #portal:not(.admin-wide) #mobile-close-panel[data-state='incomplete'] .mcv2-banner { background: rgba(255,231,235,.88); }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner-figure,
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner::after { display: none; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner h3 { font-size: 13px; font-weight: 600; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner p { max-width: none; font-size: 11px; line-height: 1.4; margin-top: 3px; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-banner-progress { margin-top: 2px; height: 3px; }
+  #portal:not(.admin-wide) #mobile-close-list { gap: 8px; margin-bottom: 12px; padding-left: 14px; }
+  #portal:not(.admin-wide) #mobile-close-list::before { left: 4px; top: 34px; bottom: 34px; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item {
+    min-height: 68px; margin: 0; padding: 10px;
+    grid-template-columns: 30px minmax(0,1fr) minmax(68px,88px); grid-template-areas: 'icon copy state';
+    grid-template-rows: auto;
+    gap: 4px 9px; border-radius: 12px;
+  }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item::before { left: -11px; width: 6px; height: 6px; border-width: 2px; background: #c48c27; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item.is-complete::before { background: #168368; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item::after { display: none; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item .day-close-check { width: 30px; height: 30px; border-radius: 9px; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item .day-close-item-copy b { font-size: 12px; font-weight: 600; white-space: normal; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item .day-close-item-copy small { font-size: 11px; line-height: 1.35; margin-top: 2px; white-space: normal; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item .day-close-item-copy { align-self: center; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item .day-close-item-status { min-height: 0; font-size: 9px; padding: 4px 6px; justify-self: end; align-self: center; max-width: 100%; white-space: normal; text-align: center; justify-content: center; line-height: 1.35; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item:not(.is-complete):not(.is-locked) .day-close-item-status { padding: 5px 9px; min-height: 28px; font-size: 10px; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item:not(.is-complete):not(.is-locked) { row-gap: 10px; background: rgba(255,241,216,.85); }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item.is-locked:not(.is-complete) { background: rgba(250,243,230,.8); }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item.is-complete { background: rgba(225,242,232,.86); }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item:not(:disabled):active { border-color: #bb985d; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item.is-complete:not(:disabled):active { border-color: #6ba68a; }
+  #portal:not(.admin-wide) #mobile-close-panel .day-close-item.has-facebook-receipt { grid-template-areas: 'icon copy state' 'share share share'; }
+  #portal:not(.admin-wide) #mobile-close-panel .facebook-evidence-actions { align-self: center; justify-self: end; flex-wrap: wrap; max-width: 88px; }
+  #portal:not(.admin-wide) #mobile-close-panel .facebook-share-open { grid-area: share; }
   #portal:not(.admin-wide) :is(.day-schedule,.day-action,.day-close,.progress-card) { border-radius: 18px; }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
