@@ -49,5 +49,9 @@
     return count>=min&&count<=max?{ok:true}:{ok:false,reason:count<min?'minimo':'maximo'};
   }
 
-  root.KJACloseModel=Object.freeze({stateTone,stateLabel,attendancePresentation,incompleteReasons,evidenceSelectionPolicy});
+  function hasPendingWork(close){
+    return (close?.requisitos||[]).some(item=>!['salida','comparticiones'].includes(item.tipo)&&!item.completo)
+      || (close?.asignaciones||[]).some(item=>item.estado!=='cancelada'&&!item.completo);
+  }
+  root.KJACloseModel=Object.freeze({stateTone,stateLabel,attendancePresentation,incompleteReasons,evidenceSelectionPolicy,hasPendingWork});
 })(typeof window==='undefined'?globalThis:window);
