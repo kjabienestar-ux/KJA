@@ -1,0 +1,266 @@
+/* Liquid Glass material, scoped to administration. No layout or data overrides. */
+#portal.admin-wide #ranking-detail-avatar,
+#portal.admin-wide .ranking-top-avatar { position:relative;overflow:hidden; }
+#portal.admin-wide #ranking-detail-avatar img,
+#portal.admin-wide .ranking-top-avatar img { position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit; }
+#portal.admin-wide #ranking-chart .ranking-top-identity { position:relative;padding-left:42px;min-height:34px; }
+#portal.admin-wide .ranking-top-avatar { position:absolute;left:0;top:0;width:32px;height:32px;border-radius:50%;background:#eadfcd;color:#785238;display:grid;place-items:center;font-size:10px;font-weight:600; }
+#portal.admin-wide .ranking-area-stat[open] { padding:14px 12px;margin:0 -12px;background:#ffffff60;border-radius:16px;border-bottom-color:transparent; }
+#portal.admin-wide .ranking-area-reasons { margin-top:14px; }
+#portal.admin-wide .ranking-area-criteria { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px; }
+#portal.admin-wide .ranking-area-criterion { padding:12px;background:linear-gradient(135deg,#ffffffe0,#ffffff60);border:1px solid #fff;border-radius:12px;min-width:0; }
+#portal.admin-wide .ranking-area-criterion-heading { display:flex;justify-content:space-between;align-items:center;gap:8px;color:#51483f;font-size:11px; }
+#portal.admin-wide .ranking-area-criterion-heading b { font-size:20px;font-weight:600;color:var(--criterion);font-variant-numeric:tabular-nums; }
+#portal.admin-wide .ranking-area-criterion .ranking-bar { height:5px;margin:10px 0 7px;background:#e5e1db70; }
+#portal.admin-wide .ranking-area-criterion .ranking-bar > i { background:var(--criterion); }
+#portal.admin-wide .ranking-area-criterion > small { color:#6a6055;font-size:10px; }
+#portal.admin-wide .ranking-area-audit { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid #81736320; }
+#portal.admin-wide .ranking-area-audit > div { display:grid;gap:4px; }
+#portal.admin-wide .ranking-area-audit b { color:#514235;font-size:15px;font-variant-numeric:tabular-nums; }
+#portal.admin-wide .ranking-area-audit small { color:#6a6055;font-size:10px; }
+#portal.admin-wide .ranking-area-reasons .ranking-area-reading { margin:12px 0 0;font-size:11px;line-height:1.6;color:#6a6055; }
+#portal.admin-wide .ranking-area-stat > .ranking-bar > i[data-criterion=total] { background:#ad8866; }
+@media(max-width:380px) { #portal.admin-wide .ranking-area-criteria { grid-template-columns:minmax(0,1fr); } }
+#portal.admin-wide .ranking-analytics-side #ranking-insights { display:grid;grid-template-columns:minmax(0,1fr);gap:10px;order:0; }
+#portal.admin-wide #admin-ranking-section .ranking-header { overflow:visible;position:relative;z-index:3; }
+#portal.admin-wide .ranking-month-picker { position:relative; }
+#portal.admin-wide #admin-ranking-section .ranking-month-picker > summary { padding:12px 16px;border:1px solid #fff;border-radius:16px;background:#ffffffb3;min-height:42px;box-sizing:border-box;font-size:13px;font-weight:600;list-style:none; }
+#portal.admin-wide .ranking-month-picker > summary::after { content:'⌄';margin-left:12px; }
+#portal.admin-wide .ranking-month-popover { position:absolute;top:calc(100% + 8px);right:0;width:288px;max-width:80vw;padding:16px;background:#faf8f4f5;backdrop-filter:blur(24px);border:1px solid #fff;border-radius:20px;box-shadow:0 12px 36px #44362626;z-index:10; }
+#portal.admin-wide .ranking-year-nav { display:flex;justify-content:space-between;align-items:center;margin-bottom:12px; }
+#portal.admin-wide .ranking-month-popover button { border:0;border-radius:10px;min-height:36px;background:transparent;color:#514338;cursor:pointer;font:inherit;font-size:12px; }
+#portal.admin-wide .ranking-year-nav button { width:36px; }
+#portal.admin-wide #ranking-month-options { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px; }
+#portal.admin-wide .ranking-month-popover button:hover:not(:disabled) { background:#eee3d7; }
+#portal.admin-wide #ranking-month-options button[aria-pressed=true] { background:#965b40;color:#fff; }
+#portal.admin-wide .ranking-month-popover button:disabled { opacity:.35;cursor:default; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-sheet { background:linear-gradient(135deg,#fffdf9f5,#eef1f4f5);border:1px solid #fff;border-radius:26px;box-shadow:0 24px 70px #322c3530; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-head { background:transparent;padding:24px; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-avatar { background:#eadfcd;color:#785238;box-shadow:inset 0 1px 0 #fff; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-body { padding:20px 24px;background:transparent; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-criterion { display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px 14px;border:1px solid #fff;border-radius:18px;background:#ffffffa6;padding:16px;box-shadow:0 4px 14px #51433206; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-criterion-head { grid-column:1/-1; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-criterion-icon { display:none; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-criterion-score { display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:7px;margin:0; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-criterion-score strong { font-size:15px; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-ring { width:76px;aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--criterion-color) var(--progress),#e5e2dc 0);display:grid;place-items:center; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-ring b { width:60px;aspect-ratio:1;border-radius:50%;background:#fcfbf8;display:grid;place-items:center;font-size:18px;color:#413b34; }
+#portal.admin-wide #ranking-detail-modal .ranking-detail-explanation { grid-column:1/-1;margin:0;font-size:11px;line-height:1.6;color:#675d52; }
+#portal.admin-wide #ranking-detail-modal :is(.ranking-detail-evidence,.ranking-detail-penalties,.ranking-detail-footer) { background:#ffffffa6;border-color:#fff;box-shadow:none;border-radius:18px; }
+@media(max-width:540px) { #portal.admin-wide #ranking-detail-modal .ranking-detail-criteria-grid { grid-template-columns:minmax(0,1fr); } #portal.admin-wide .ranking-month-popover { right:auto;left:0; } }
+#portal.admin-wide #admin-ranking-section .ranking-header { display:grid;grid-template-columns:minmax(220px,1fr) auto auto;gap:12px 22px; }
+#portal.admin-wide #admin-ranking-section .ranking-header > .ranking-tools { order:0;align-self:center;flex-wrap:wrap; }
+#portal.admin-wide #admin-ranking-section .ranking-header > #ranking-status { grid-column:1/-1;order:0;border-top:1px solid #81736320;padding-top:9px; }
+#portal.admin-wide .ranking-analytics-side { display:grid;gap:14px;min-width:0; }
+#portal.admin-wide #admin-ranking-section .ranking-analytics-side #ranking-sticky-bar { order:0;padding:18px;background:var(--glass-surface);border:1px solid var(--glass-edge);border-radius:20px;box-shadow:var(--glass-shadow); }
+#portal.admin-wide .ranking-analytics-side .ranking-summary-inner { display:grid;gap:16px; }
+#portal.admin-wide .ranking-analytics-side #ranking-sticky-indicators { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px; }
+#portal.admin-wide .ranking-ring-stat { display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;min-width:0; }
+#portal.admin-wide .ranking-metric-ring { width:82px;max-width:100%;aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--cc) var(--progress),#dedad360 0);display:grid;place-items:center; }
+#portal.admin-wide .ranking-metric-ring strong { width:calc(100% - 12px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:#faf9f5;color:#37332f;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums; }
+#portal.admin-wide .ranking-ring-stat > b { font-size:11px;color:#51483e;font-weight:600; }
+#portal.admin-wide .ranking-ring-stat > small { font-size:10px;color:#6c6257; }
+#portal.admin-wide .ranking-analytics-side .ranking-summary-leader { justify-content:center;max-width:100%;white-space:normal; }
+@media(max-width:1200px) { #portal.admin-wide #admin-ranking-section .ranking-header { grid-template-columns:minmax(0,1fr) auto; } #portal.admin-wide #admin-ranking-section .ranking-header > .ranking-tools { grid-column:1/-1; } }
+@media(max-width:650px) { #portal.admin-wide #admin-ranking-section .ranking-header { grid-template-columns:minmax(0,1fr); } #portal.admin-wide .ranking-metric-ring { width:70px; } }
+#portal.admin-wide #admin-ranking-section #ranking-chart .ranking-chart-row {
+  appearance:none;display:grid;grid-template-columns:30px minmax(0,1fr) auto;grid-template-areas:'rank identity score' '. progress progress' '. detail detail';
+  gap:7px 12px;margin:0;padding:13px 8px;border:0;border-bottom:1px solid #82766921;border-radius:0;
+  background:transparent;box-shadow:none;transform:none;color:#302e2b;transition:background-color 160ms ease;
+}
+#portal.admin-wide #admin-ranking-section #ranking-chart .ranking-chart-row:last-child { border-bottom:0; }
+#portal.admin-wide #admin-ranking-section #ranking-chart .ranking-chart-row:hover { background:#ffffffb0;border-radius:12px; }
+#portal.admin-wide #admin-ranking-section #ranking-chart .ranking-chart-row:focus-visible { outline:2px solid #965c40;outline-offset:-2px;border-radius:12px; }
+#portal.admin-wide #ranking-chart .ranking-top-position { grid-area:rank;align-self:start;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#eceae580;color:#756c60;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums; }
+#portal.admin-wide #ranking-chart .ranking-top-position[data-podium=true] { background:linear-gradient(145deg,#fff1d0,#ecdbb9);color:#755327;box-shadow:inset 0 1px 0 #fff; }
+#portal.admin-wide #ranking-chart .ranking-top-identity { grid-area:identity;display:grid;gap:3px;min-width:0; }
+#portal.admin-wide #ranking-chart .ranking-top-identity strong { font-size:12px;line-height:1.4;font-weight:600;color:#302e2b;overflow-wrap:anywhere; }
+#portal.admin-wide #ranking-chart .ranking-top-identity small { font-size:10px;color:#6b6258; }
+#portal.admin-wide #ranking-chart .ranking-top-score { grid-area:score;display:flex;align-items:baseline;gap:4px;white-space:nowrap; }
+#portal.admin-wide #ranking-chart .ranking-top-score b { font-size:19px;font-weight:600;color:#704631;font-variant-numeric:tabular-nums;letter-spacing:-.025em; }
+#portal.admin-wide #ranking-chart .ranking-top-score small { font-size:10px;color:#6b6258; }
+#portal.admin-wide #admin-ranking-section #ranking-chart .ranking-chart-row > .ranking-bar { grid-area:progress;height:5px;margin:0;background:#dedad34d;border:0; }
+#portal.admin-wide #ranking-chart .ranking-bar > i[data-criterion=total] { background:linear-gradient(90deg,#be9772,#987050);border-radius:inherit; }
+#portal.admin-wide #ranking-chart .ranking-top-breakdown { grid-area:detail;display:flex;flex-wrap:wrap;gap:4px 12px; }
+#portal.admin-wide #ranking-chart .ranking-top-criterion { display:inline-flex;align-items:center;gap:5px;font-size:10px;line-height:1.5;color:#665d53; }
+#portal.admin-wide #ranking-chart .ranking-top-criterion::before { content:'';width:5px;height:5px;flex:none;border-radius:50%;background:var(--criterion); }
+#portal.admin-wide #ranking-chart .ranking-top-criterion b { font-weight:500;color:#413b35;font-variant-numeric:tabular-nums; }
+#portal.admin-wide #ranking-chart .ranking-top-penalty { font-size:10px;color:#973f30; }
+@media(max-width:540px) { #portal.admin-wide #admin-ranking-section #ranking-chart .ranking-chart-row { gap:7px 8px;padding:12px 2px;grid-template-columns:26px minmax(0,1fr) auto; } #portal.admin-wide #ranking-chart .ranking-top-score b { font-size:17px; } #portal.admin-wide #ranking-chart .ranking-top-score small { display:none; } }
+#portal.admin-wide .ranking-analytics { order:4;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,1fr);gap:14px;align-items:start; }
+#portal.admin-wide #admin-ranking-section .ranking-analytics .ranking-chart { margin:0;padding:18px;background:var(--glass-surface);border:1px solid var(--glass-edge);border-radius:20px;box-shadow:var(--glass-shadow); }
+#portal.admin-wide #admin-ranking-section .ranking-chart-row { grid-template-columns:minmax(140px,1fr) minmax(60px,.65fr) 48px;gap:5px 12px;padding:9px 0; }
+#portal.admin-wide #admin-ranking-section .ranking-chart-row > span { font-size:12px; }
+#portal.admin-wide #admin-ranking-section .ranking-score-reason { grid-column:1/-1;line-height:1.5;color:#625b54;font-size:10px;text-align:left; }
+#portal.admin-wide #ranking-insights { order:5;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px; }
+#portal.admin-wide #ranking-insights article { padding:16px 18px;border:1px solid var(--glass-edge);border-radius:18px;background:var(--glass-surface);box-shadow:var(--glass-shadow); }
+#portal.admin-wide #ranking-insights h3 { font-size:12px;color:#625b54;margin:0 0 10px;font-weight:500; }
+#portal.admin-wide #ranking-insights strong { font-size:21px;color:#6c402e; }
+#portal.admin-wide #ranking-insights p { font-size:12px;line-height:1.6;color:#514a43;margin:8px 0 0; }
+#portal.admin-wide .ranking-area-stat { padding:11px 0;border-bottom:1px solid #81736326; }
+#portal.admin-wide #admin-ranking-section .ranking-area-stat summary { display:flex;justify-content:space-between;gap:12px;font-size:12px; }
+#portal.admin-wide .ranking-area-stat summary::after { content:'+'; }
+#portal.admin-wide .ranking-area-stat[open] summary::after { content:'−'; }
+#portal.admin-wide .ranking-area-stat > .ranking-bar { margin:8px 0 5px; }
+#portal.admin-wide .ranking-area-stat > small { color:#625b54;font-size:11px; }
+#portal.admin-wide .ranking-area-reasons p { margin:7px 0;font-size:12px;color:#514a43; }
+#portal.admin-wide .ranking-directory #ranking-results { margin:14px 0; }
+@media(max-width:1000px) { #portal.admin-wide .ranking-analytics { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:650px) { #portal.admin-wide #ranking-insights { grid-template-columns:minmax(0,1fr); } }
+#portal.admin-wide #view-gestion > #admin-ranking-section { display:flex;flex-direction:column;gap:10px;padding:10px 2px 36px; }
+#portal.admin-wide #view-gestion > #admin-ranking-section[hidden] { display:none; }
+#portal.admin-wide #admin-ranking-section > * { flex-shrink:0; }
+#portal.admin-wide #admin-ranking-section .ranking-header { order:0;padding:16px 20px;align-items:center; }
+#portal.admin-wide #admin-ranking-section .ranking-header .eyebrow { margin:0 0 4px;font-size:10px; }
+#portal.admin-wide #admin-ranking-section .ranking-header h2 { font:400 25px/1.2 var(--claude-display); }
+#portal.admin-wide #admin-ranking-section .ranking-header p { font-size:12px; }
+#portal.admin-wide #admin-ranking-section .ranking-tools { order:1;margin:0;gap:10px; }
+#portal.admin-wide #admin-ranking-section .ranking-tools label { display:flex;align-items:center;gap:10px; }
+#portal.admin-wide #ranking-status { order:2;margin:0;font-size:11px;color:#625b54;line-height:1.5; }
+#portal.admin-wide #ranking-sticky-bar { order:3;margin:0; }
+#portal.admin-wide #ranking-results { order:4;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px; }
+#portal.admin-wide #ranking-pagination { order:5;display:flex;justify-content:center;align-items:center;gap:18px;font-size:12px; }
+#portal.admin-wide #admin-ranking-section .ranking-notice { order:6;margin:0;padding:9px 14px;font-size:11px;line-height:1.5;background:#fff5dfb3;border-color:#e1cba3;color:#774b21;box-shadow:none; }
+#portal.admin-wide #admin-ranking-section > details { order:7;margin:0;padding:10px 16px; }
+#portal.admin-wide #admin-ranking-section :is(.ranking-header,.ranking-person-btn,.ranking-extra,.ranking-explanation,.ranking-formula,.ranking-footnote-wrap,.ranking-leader,.ranking-sticky-chip) { background:var(--glass-surface);border:1px solid var(--glass-edge);box-shadow:var(--glass-shadow);border-radius:18px; }
+#portal.admin-wide #admin-ranking-section .ranking-header { -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px); }
+#portal.admin-wide #admin-ranking-section summary { min-height:22px;font-size:12px;cursor:pointer;color:#514338; }
+#portal.admin-wide #admin-ranking-section .ranking-person-btn { grid-template-columns:38px minmax(0,1fr);grid-template-rows:auto auto auto auto;padding:16px;margin:0;gap:5px 10px;min-height:158px; }
+#portal.admin-wide #admin-ranking-section .ranking-person-info { display:none; }
+#portal.admin-wide #admin-ranking-section .ranking-person-name { font-size:13px;line-height:1.4; }
+#portal.admin-wide #admin-ranking-section .ranking-person-area { font-size:11px; }
+#portal.admin-wide #admin-ranking-section .ranking-person-score { grid-row:3;grid-column:1/-1;font-size:24px;margin-top:8px;color:#87472f; }
+#portal.admin-wide #admin-ranking-section .ranking-person-minibars { grid-row:4;margin-top:6px; }
+#portal.admin-wide #admin-ranking-section .ranking-person-btn:hover { background:#fffdf8;transform:translateY(-2px); }
+#portal.admin-wide #admin-ranking-section .ranking-leaders { margin:12px 0 0;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px; }
+#portal.admin-wide #admin-ranking-section .ranking-leader { padding:14px; }
+#portal.admin-wide #admin-ranking-section .ranking-chart { margin:10px 0 0;background:#ffffff80;box-shadow:none; }
+#portal.admin-wide #ranking-pagination button { min-height:36px;padding:6px 16px;border:1px solid #fff;border-radius:18px;background:#ffffffb3;color:#653c2d;cursor:pointer; }
+#portal.admin-wide #ranking-pagination button:disabled { opacity:.4;cursor:default; }
+#portal.admin-wide #admin-ranking-section .ranking-tools button { min-height:38px;background:linear-gradient(160deg,#b66448,#94492f);box-shadow:inset 0 1px 0 #ffffff66;border-radius:20px;font-size:12px; }
+@media(max-width:1200px) { #portal.admin-wide #ranking-results { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:900px) { #portal.admin-wide #ranking-results { grid-template-columns:repeat(2,minmax(0,1fr)); } #portal.admin-wide #admin-ranking-section .ranking-leaders { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:540px) { #portal.admin-wide #ranking-results { grid-template-columns:minmax(0,1fr); } #portal.admin-wide #admin-ranking-section .ranking-header { align-items:stretch;flex-direction:column;gap:12px; } #portal.admin-wide #ranking-pagination { gap:8px;flex-wrap:wrap; } }
+@media(prefers-reduced-motion:reduce) { #portal.admin-wide #admin-ranking-section .ranking-person-btn { transition:none;transform:none; } }
+#portal.admin-wide .admin-overview-charts { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:24px; }
+#portal.admin-wide .admin-chart { min-width:0;padding:22px;background:var(--glass-surface);border:1px solid var(--glass-edge);border-radius:22px;box-shadow:var(--glass-shadow); }
+#portal.admin-wide .admin-chart h3 { margin:0;font:400 23px/1.25 var(--claude-display);color:#252523; }
+#portal.admin-wide .admin-chart header p { margin:6px 0 0;font-size:12px;color:#625b54; }
+#portal.admin-wide .admin-chart-ring { width:148px;aspect-ratio:1;border-radius:50%;margin:22px auto;display:grid;place-items:center; }
+#portal.admin-wide .admin-chart-ring > span { width:116px;aspect-ratio:1;border-radius:50%;background:#faf9f5;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+#portal.admin-wide .admin-chart-ring b { font-size:32px;line-height:1.2;color:#252523;font-variant-numeric:tabular-nums; }
+#portal.admin-wide .admin-chart-ring small { margin-top:4px;font-size:11px;color:#625b54; }
+#portal.admin-wide .admin-chart ul { list-style:none;padding:0;margin:0;display:grid;gap:9px; }
+#portal.admin-wide .admin-chart li { display:flex;align-items:center;gap:8px;font-size:12px;color:#504a44; }
+#portal.admin-wide .admin-chart li i { width:8px;height:8px;border-radius:50%;flex:none; }
+#portal.admin-wide .admin-chart li b { margin-left:auto;color:#252523;font-variant-numeric:tabular-nums; }
+@media(max-width:1200px) { #portal.admin-wide .admin-overview-charts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:480px) { #portal.admin-wide .admin-overview-charts { grid-template-columns:minmax(0,1fr); } }
+#portal.admin-wide {
+  --glass-surface: linear-gradient(135deg, #ffffffd9, #ffffff80 48%, #fff9f0b8);
+  --glass-edge: #ffffffd9;
+  --glass-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 #ffffff70, 0 8px 28px #5847350c;
+  --claude-line: #81736326;
+  background: radial-gradient(ellipse at 85% 12%, #e2e8f3 0, transparent 48%), radial-gradient(ellipse at 25% 65%, #f2dfcf 0, transparent 52%), #f4f1ec !important;
+}
+#portal.admin-wide .workspace,
+#portal.admin-wide #view-gestion { background: transparent !important; }
+#portal.admin-wide .sidebar,
+#portal.admin-wide .admin-section-nav,
+#portal.admin-wide .mobile-admin-navigation,
+#portal.admin-wide > .mobile-head {
+  background: var(--glass-surface) !important;
+  border: 1px solid var(--glass-edge) !important;
+  box-shadow: var(--glass-shadow) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(135%) !important;
+  backdrop-filter: blur(24px) saturate(135%) !important;
+}
+#portal.admin-wide .admin-section-nav {
+  padding: 7px;
+  gap: 4px;
+  border-radius: 24px;
+  margin-bottom: 8px;
+}
+#portal.admin-wide .admin-section-nav :is(button,a),
+#portal.admin-wide .side-nav button {
+  border-radius: 18px;
+  transition: background-color 180ms ease-out, box-shadow 180ms ease-out;
+}
+#portal.admin-wide .admin-section-nav button.active,
+#portal.admin-wide .side-nav button.active {
+  color: #653c2d !important;
+  background: linear-gradient(160deg, #fffefa, #eddccc) !important;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 6px #6e48371a !important;
+}
+#portal.admin-wide .admin-section-nav :is(button,a):hover,
+#portal.admin-wide .side-nav button:hover { background: #ffffffa6 !important; }
+#portal.admin-wide :is(.admin-overview-today,.admin-panel,.admin-overview-map,.admin-people-group,.admin-attendance-export,.admin-route-card,.admin-policy-card,.admin-access-requests,.admin-access-directory,.admin-access-audit,.admin-role-area,.admin-roles-audit) {
+  border: 1px solid var(--glass-edge) !important;
+  border-radius: 22px;
+  background: var(--glass-surface) !important;
+  box-shadow: var(--glass-shadow) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
+  backdrop-filter: blur(16px) saturate(120%) !important;
+}
+#portal.admin-wide .admin-overview-today { overflow: hidden; }
+#portal.admin-wide .admin-overview-today > header {
+  background: linear-gradient(110deg, #ffffff80, #ffffff0d) !important;
+}
+#portal.admin-wide .admin-overview-today .admin-kpi {
+  background: #ffffff38 !important;
+}
+#portal.admin-wide :is(.admin-panel-head,.admin-people-group > header) {
+  background: #ffffff40 !important;
+  border-radius: 22px 22px 0 0;
+}
+#portal.admin-wide :is(.admin-person-card,.admin-contract-row,.admin-list-kpi) {
+  background: #ffffffb3 !important;
+  border-color: #ffffffd9 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 3px 12px #58473506 !important;
+}
+#portal.admin-wide .admin-person-card { border-radius: 16px; }
+#portal.admin-wide .admin-status-row:hover,
+#portal.admin-wide .admin-overview-module-grid > button:hover,
+#portal.admin-wide .admin-panel-foot:hover { background: #ffffff75; }
+#portal.admin-wide .admin-panel-foot { border-radius: 0 0 22px 22px; }
+#portal.admin-wide #view-gestion .admin-refresh {
+  background: linear-gradient(150deg, #fff, #ffffff70) !important;
+  border-color: #fff !important;
+  border-radius: 20px !important;
+  box-shadow: inset 0 1px 0 #fff, 0 3px 10px #58473512 !important;
+}
+#portal.admin-wide .admin-overview-today > header > button,
+#portal.admin-wide .admin-primary-action {
+  border-radius: 22px;
+  background: linear-gradient(160deg, #b66448, #94492f) !important;
+  box-shadow: inset 0 1px 0 #ffffff66, 0 4px 12px #91493024;
+}
+#portal.admin-wide #view-gestion :is(button,a,input,select,summary):focus-visible {
+  outline: 2px solid #8b472f;
+  outline-offset: 3px;
+}
+#portal.admin-wide #view-gestion :is(button,input,select) { accent-color: #9a5036; }
+#portal.admin-wide #view-gestion ::selection { color: #40291f; background: #ebcbb4; }
+#portal.admin-wide #view-gestion { scrollbar-color: #b7aa9c transparent; }
+/* Dense records remain opaque enough for reliable reading. */
+#portal.admin-wide :is(.admin-summary-table,.admin-month-ledger) { background: #fdfcf9 !important; }
+@media (max-width: 900px) {
+  #portal.admin-wide .workspace { background: transparent !important; }
+  #portal.admin-wide .mobile-admin-navigation { border-radius: 20px; }
+  #portal.admin-wide :is(.admin-overview-today,.admin-panel,.admin-overview-map) { border-radius: 18px; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  #portal.admin-wide { --glass-surface: linear-gradient(135deg, #fffdfa, #f1ece5); }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active), print {
+  #portal.admin-wide { --glass-surface: #faf9f5; --glass-shadow: none; --glass-edge: #b7aa9c; }
+  #portal.admin-wide, #portal.admin-wide .workspace { background: #faf9f5 !important; }
+  #portal.admin-wide :is(.sidebar,.admin-section-nav,.mobile-admin-navigation,.mobile-head,.admin-overview-today,.admin-panel,.admin-overview-map,.admin-people-group,.admin-attendance-export,.admin-route-card,.admin-policy-card,.admin-access-requests,.admin-access-directory,.admin-access-audit,.admin-role-area,.admin-roles-audit) {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #portal.admin-wide .admin-section-nav :is(button,a),
+  #portal.admin-wide .side-nav button { transition: none; }
+}

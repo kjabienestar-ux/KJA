@@ -28,6 +28,7 @@
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=14">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
 </head>
 <body>
 
@@ -753,6 +754,7 @@
           <div class="admin-kpis" id="admin-kpis" aria-live="polite"></div>
         </section>
 
+        <section class="admin-overview-charts" aria-label="Gráficos de hoy" id="admin-overview-charts" aria-live="polite"><p class="admin-empty">Cargando gráficos de hoy…</p></section>
         <div class="admin-overview-grid">
           <article class="admin-panel admin-live-panel">
             <div class="admin-panel-head"><span><small>PRIORIDAD OPERATIVA</small><h2>Requieren atención</h2></span><span class="admin-count is-alert" id="admin-attention-count">0</span></div>
@@ -994,10 +996,13 @@
           </div>
           <div class="ranking-month-nav">
             <button type="button" id="ranking-month-prev" class="ranking-month-nav-btn" aria-label="Mes anterior">&#8249;</button>
-            <label>Mes<input type="month" id="ranking-month"></label>
+            <input type="month" id="ranking-month" hidden aria-label="Mes del ranking">
+            <details class="ranking-month-picker" id="ranking-month-picker"><summary id="ranking-month-label">Seleccionar mes</summary><div class="ranking-month-popover"><div class="ranking-year-nav"><button type="button" id="ranking-year-prev" aria-label="Año anterior">‹</button><b id="ranking-picker-year"></b><button type="button" id="ranking-year-next" aria-label="Año siguiente">›</button></div><div id="ranking-month-options"></div></div></details>
             <button type="button" id="ranking-month-next" class="ranking-month-nav-btn" aria-label="Mes siguiente" disabled>&#8250;</button>
             <button type="button" id="ranking-month-today" class="ranking-month-today-btn">Mes actual</button>
           </div>
+        <div class="ranking-tools"><label>Área<select id="ranking-area"><option value="">Todas las áreas</option></select></label><button type="button" id="ranking-refresh">Actualizar datos</button></div>
+        <p id="ranking-status" role="status" aria-live="polite"></p>
         </header>
         <p class="ranking-notice"><strong>ⓘ</strong> Facebook cuenta en tus días asignados aunque no trabajes. Las asignaciones incumplidas solo descuentan puntos. Dirección debe revisar evidencias pendientes antes de otorgar el reconocimiento.</p>
         <details class="ranking-explanation">
@@ -1008,21 +1013,22 @@
           <p><b>Facebook:</b> debe tener sus evidencias completas y aprobadas para el día asignado. Se usa la agenda de comparticiones, independiente de la jornada. Los archivos pendientes de revisión u observados no suman aún.</p>
         </details>
         <details class="ranking-formula"><summary>Opcional: cambiar cuánto vale cada criterio</summary><p>Los cuatro máximos deben sumar 100. Por ejemplo, cumplir todos los días de Facebook suma sus 30 puntos; cumplir la mitad suma 15. Los descuentos se configuran aparte. Estos ajustes solo simulan otra fórmula en esta página.</p><form id="ranking-form"><div id="ranking-weights"></div><button type="submit">Ver resultado con estos valores</button></form></details>
-        <div class="ranking-tools"><label>Área<select id="ranking-area"><option value="">Todas las áreas</option></select></label><button type="button" id="ranking-refresh">Actualizar datos</button></div>
-        <p id="ranking-status" role="status" aria-live="polite"></p>
 
-        <div id="ranking-leaders" class="ranking-leaders"></div>
-        <section id="ranking-chart" class="ranking-chart" aria-label="Comparación de puntajes"></section>
-        
-        <div id="ranking-sticky-bar" class="ranking-summary-strip" aria-label="Resumen global de métricas" hidden>
+
+        <details class="ranking-extra ranking-area-leaders"><summary>Líderes por área</summary><div id="ranking-leaders" class="ranking-leaders"></div></details>
+        <div class="ranking-analytics"><section id="ranking-chart" class="ranking-chart" aria-label="Comparación de puntajes"></section><div class="ranking-analytics-side"><div id="ranking-sticky-bar" class="ranking-summary-strip" aria-label="Resumen global de métricas" hidden>
           <div class="ranking-summary-inner">
             <div class="ranking-summary-indicators" id="ranking-sticky-indicators"></div>
             <button class="ranking-summary-leader" id="ranking-sticky-leader" type="button" hidden aria-label="Ver detalle del líder"></button>
           </div>
           <span class="ranking-summary-area-label" id="ranking-sticky-area-label" hidden></span>
-        </div>
+        </div><section id="ranking-area-analytics" class="ranking-chart" aria-label="Cumplimiento por área"></section>        <section id="ranking-insights" aria-label="Explicación de los resultados"></section></div></div>
 
-        <div id="ranking-results"></div>
+
+
+        <details class="ranking-extra ranking-directory"><summary>Ver todos los participantes y sus puntajes</summary><div id="ranking-results"></div>
+        <nav id="ranking-pagination" aria-label="Páginas del ranking"></nav>
+        </details>
         <details class="ranking-footnote-wrap">
           <summary>Notas y limitaciones del ranking</summary>
           <p class="ranking-footnote">Se evalúan fechas hasta ayer y solo franjas ya terminadas. Las justificaciones excluyen la jornada, pero Facebook conserva su agenda propia. Se usan el área y los horarios actuales: los cambios pueden modificar meses anteriores. No incluye cuentas inactivas. Los empates conservan la posición. Este ranking mide los cuatro requisitos indicados; no otorga puntos por horas extra ni evalúa reuniones.</p>
@@ -1775,7 +1781,7 @@
 
 <script src="assets/js/dashboard-close-model.js?v=5"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
-<script src="assets/js/dashboard.js?v=176"></script>
+<script src="assets/js/dashboard.js?v=177"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=2"></script>
@@ -1792,8 +1798,8 @@
 <script src="assets/js/chat-images.js?v=3"></script>
 <script src="assets/js/dashboard-chat.js?v=11"></script>
 <script src="assets/js/dashboard-mobile.js?v=3"></script>
-<script src="assets/js/ranking-model.js?v=3"></script>
-<script src="assets/js/dashboard-ranking.js?v=5"></script>
+<script src="assets/js/ranking-model.js?v=5"></script>
+<script src="assets/js/dashboard-ranking.js?v=13"></script>
 <script src="assets/js/facebook-report-model.js?v=5"></script>
 <script src="assets/js/facebook-report-excel-layout.js?v=1"></script>
 <script src="assets/js/facebook-report-excel.js?v=3"></script>

@@ -1576,9 +1576,36 @@ async function openTeamProfile(id){
 }
 function closeTeamProfile(){$('team-profile-modal').hidden=true}
 
+function renderAdminOverviewCharts(people,marks,closePeople){
+  const host=$('admin-overview-charts');if(!host)return;
+  const ids=new Set(people.map(p=>String(p.id))),closes=closePeople.filter(p=>ids.has(String(p.id)));
+  const byClose=new Map(closes.map(p=>[String(p.id),p.cierre||{}]));
+  const byMark=new Map(marks.map(p=>[String(p.colaborador_id),p]));
+  const count=fn=>people.filter(fn).length;
+  const complete=count(p=>['completa','regularizada'].includes(byClose.get(String(p.id))?.estado));
+  const incomplete=count(p=>byClose.get(String(p.id))?.estado==='incompleta');
+  const requirements=closes.flatMap(p=>(p.cierre?.requisitos||[]).filter(r=>r.tipo!=='salida'));
+  const tasks=closes.flatMap(p=>p.cierre?.asignaciones||[]);
+  const delivered=rows=>rows.filter(r=>r.completo===true).length;
+  const palette=['#187d69','#b45d3c','#c69a35','#7a8da4','#c9c6bf'];
+  const charts=[
+    {title:'General',note:'Jornadas · hoy',center:complete,label:'completas',parts:[['Completas',complete],['Incompletas',incomplete],['Otros estados',people.length-complete-incomplete]]},
+    {title:'Asistencias',note:'Registros · hoy',center:count(p=>byMark.has(String(p.id))),label:'registrados',parts:[['Presentes',count(p=>byMark.get(String(p.id))?.estado==='P')],['Tardanzas',count(p=>byMark.get(String(p.id))?.estado==='T')],['Justificados',count(p=>byMark.get(String(p.id))?.estado==='J')],['Otros registros',count(p=>byMark.has(String(p.id))&&!['P','T','J'].includes(byMark.get(String(p.id)).estado))],['Sin registro',count(p=>!byMark.has(String(p.id)))]]},
+    {title:'Evidencias',note:'Requisitos · hoy',center:delivered(requirements),label:'completados',parts:[['Completados',delivered(requirements)],['Pendientes',requirements.length-delivered(requirements)]]},
+    {title:'Tareas',note:'Entregas por colaborador · hoy',center:delivered(tasks),label:'entregadas',parts:[['Entregadas',delivered(tasks)],['Pendientes',tasks.length-delivered(tasks)]]}
+  ];
+  host.innerHTML=charts.map(chart=>{
+    const total=chart.parts.reduce((n,p)=>n+p[1],0);let offset=0;
+    const segments=chart.parts.map(([label,value],i)=>{const start=offset;offset+=total?value/total*100:0;return `${palette[i]} ${start}% ${offset}%`}).join(',');
+    const description=chart.parts.map(([label,value])=>`${label}: ${value}`).join(', ');
+    return `<article class="admin-chart"><header><h3>${chart.title}</h3><p>${chart.note}</p></header><div class="admin-chart-ring" role="img" aria-label="${esc(chart.title+': '+(total?description:'Sin datos para hoy'))}" style="background:${total?`conic-gradient(${segments})`:'#e5e2dd'}"><span><b>${total?chart.center:'—'}</b><small>${total?chart.label:'Sin datos'}</small></span></div><ul>${chart.parts.map(([label,value],i)=>`<li><i style="background:${palette[i]}" aria-hidden="true"></i><span>${label}</span><b>${value}</b></li>`).join('')}</ul></article>`;
+  }).join('');
+}
+
 async function loadAdminHub(){
   if(!APP.access.acceso_panel)return;
   const btn=$('admin-refresh'); btn.disabled=true;
+  if($('admin-overview-charts'))$('admin-overview-charts').innerHTML='<p class="admin-empty">Cargando gráficos de hoy…</p>';
   const today=isoLima();
   const [year,month]=today.slice(0,7).split('-').map(Number),canDirect=APP.access.rol==='direccion',canManageRoles=APP.identity.isSystem&&canDirect;
   const [peopleRes,marksRes,legacyRequestsRes,personalRequestsRes,closesRes,teamRes,monthRes,controlRes,rolesRes]=await Promise.all([
@@ -1594,6 +1621,7 @@ async function loadAdminHub(){
   ]);
   btn.disabled=false;
   if(peopleRes.error||marksRes.error||closesRes.error||!closesRes.data?.ok){
+    if($('admin-overview-charts'))$('admin-overview-charts').innerHTML='<p class="admin-empty">No se pudieron cargar los gráficos. Pulsa Actualizar para reintentar.</p>';
     $('admin-status-list').innerHTML='<p class="admin-empty">No se pudo cargar el estado operativo. Actualiza nuevamente.</p>';
     toast('No se pudo actualizar la administración.',true); return;
   }
@@ -1602,6 +1630,7 @@ async function loadAdminHub(){
   const byMark=new Map(marks.map(x=>[String(x.colaborador_id),x]));
   const closePeople=closesRes.data?.personas||[],byClose=new Map(closePeople.map(x=>[String(x.id),x.cierre||{}])),byClosePerson=new Map(closePeople.map(x=>[String(x.id),x]));
   const byControl=new Map((controlData?.filas||[]).map(row=>[String(row.colaborador_id),row]));
+  renderAdminOverviewCharts(people,marks,closePeople);
   const byPerson=new Map(people.map(x=>[String(x.id),x]));
   const registered=people.filter(x=>byMark.has(String(x.id))).length;
   const complete=people.filter(x=>['completa','regularizada'].includes(byClose.get(String(x.id))?.estado)).length;

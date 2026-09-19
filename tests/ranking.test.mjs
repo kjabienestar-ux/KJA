@@ -2,6 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import model from '../assets/js/ranking-model.js';
 const person=(nombre,extra={})=>({nombre,inicio_conocido:true,metricas:{dias_mes:10,dias:10,dias_participacion:12,entradas_puntuales:10,salidas_puntuales:10,rpe_mes:10,rpe_cumplidos:10,facebook_mes:12,facebook_cumplidos:12,...extra}});
+test('exit points use only the dedicated exit period, preserving other criteria',()=>{
+ const row=model.evaluate([person('Ana',{salidas_mes:8,salidas_puntuales:8})])[0];
+ assert.equal(row.parts.salida,20);assert.equal(row.parts.entrada,25);assert.equal(row.score,100);
+ assert.equal(model.evaluate([person('Ana',{salidas_mes:0,salidas_puntuales:0})])[0].parts.salida,null);
+});
 test('four requirements reach 100 with ties and no hours bonus',()=>{
  const rows=model.evaluate([person('Ana'),person('Beto',{horas:1000})]);assert.deepEqual(rows.map(r=>r.score),[100,100]);assert.deepEqual(rows.map(r=>r.rank),[1,1]);
 });

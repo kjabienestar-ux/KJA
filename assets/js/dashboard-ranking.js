@@ -13,7 +13,13 @@
   const CRITERION_ICONS={entrada:'🕐',rpe:'📄',facebook:'📘',salida:'🚪'};
   const CRITERION_COLORS={entrada:'#28649a',rpe:'#138574',facebook:'#7662a8',salida:'#a66a26'};
 
-  let rows=[],weights={...model.defaults},request=0,stickyLeaderRow=null;
+  let rows=[],weights={...model.defaults},request=0,stickyLeaderRow=null,exitPolicy=null;
+  function rankingPhoto(host,row){
+    host.textContent=initials(row.nombre);
+    if(!row.foto_url)return;
+    const image=el('img');image.src=row.foto_url;image.alt='';image.decoding='async';image.loading='lazy';
+    image.onerror=()=>image.remove();host.append(image);
+  }
 
   /* ── HELPERS ──────────────────────────────────────────── */
   function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
@@ -38,8 +44,28 @@
   get('ranking-month').value=now;get('ranking-month').max=now;
 
   function isCurrentMonth(){return get('ranking-month').value===now;}
+  let pickerYear=Number(now.slice(0,4));
+  const monthLabels=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  function updateMonthPicker(){
+    const value=get('ranking-month').value;
+    get('ranking-month-label').textContent=`${monthLabels[Number(value.slice(5))-1]} ${value.slice(0,4)}`;
+    get('ranking-picker-year').textContent=pickerYear;
+    get('ranking-year-next').disabled=pickerYear>=Number(now.slice(0,4));
+    const options=get('ranking-month-options');options.replaceChildren();
+    monthLabels.forEach((label,index)=>{
+      const target=`${pickerYear}-${String(index+1).padStart(2,'0')}`,button=el('button',label);
+      button.type='button';button.disabled=target>now;button.setAttribute('aria-pressed',String(target===value));
+      button.onclick=()=>{get('ranking-month').value=target;get('ranking-month-picker').open=false;get('ranking-month-label').focus();window.loadAdminRanking()};options.append(button);
+    });
+  }
+  get('ranking-year-prev').onclick=()=>{pickerYear--;updateMonthPicker()};
+  get('ranking-year-next').onclick=()=>{pickerYear++;updateMonthPicker()};
+  get('ranking-month-picker').addEventListener('toggle',()=>{if(get('ranking-month-picker').open){pickerYear=Number(get('ranking-month').value.slice(0,4));updateMonthPicker()}});
+  document.addEventListener('click',event=>{if(!get('ranking-month-picker').contains(event.target))get('ranking-month-picker').open=false});
+  get('ranking-month-picker').addEventListener('keydown',event=>{if(event.key==='Escape'){get('ranking-month-picker').open=false;get('ranking-month-label').focus()}});
 
   function updateMonthStatus(){
+    updateMonthPicker();
     const month=get('ranking-month').value;
     const isCurrent=month===now;
     const badge=get('ranking-month-badge');
@@ -81,7 +107,7 @@
     const m=row.metricas||{};
     const modal=get('ranking-detail-modal');
     // Header
-    get('ranking-detail-avatar').textContent=initials(row.nombre);
+    rankingPhoto(get('ranking-detail-avatar'),row);
     get('ranking-detail-name').textContent=row.nombre;
     get('ranking-detail-area').textContent=row.area||'Área no registrada';
     get('ranking-detail-rank').textContent=row.rank?`#${row.rank}`:'—';
@@ -98,11 +124,22 @@
       const head=el('div',undefined,'ranking-detail-criterion-head');
       const tipEl=el('span','ⓘ','ranking-criterion-tip');
       tipEl.setAttribute('tabindex','0');tipEl.setAttribute('aria-label',CRITERION_HELP[key]);tipEl.dataset.tooltip=CRITERION_HELP[key];
+      if(key==='salida'&&exitPolicy){
+        const help=`Cuenta con estado Presente o Tardanza y salida entre ${exitPolicy.before} min antes y ${exitPolicy.after} min después del fin del horario. Puntos = salidas válidas ÷ días evaluados × ${max}.`;
+        tipEl.setAttribute('aria-label',help);tipEl.dataset.tooltip=help;
+      }
       head.append(el('span',CRITERION_ICONS[key],'ranking-detail-criterion-icon'),el('span',labels[key],'ranking-detail-criterion-label'),tipEl);
       const scoreLine=el('div',undefined,'ranking-detail-criterion-score');
       scoreLine.append(el('strong',earned===null?'Sin programación':`${point(earned)} / ${max} pts`),el('small',`${done} de ${total} días`));
       const barEl=bar(earned,max,`${labels[key]}: ${point(earned)} de ${max}`,key);barEl.classList.add('ranking-detail-bar');
-      card.append(head,scoreLine,barEl);grid.append(card);
+      const pct=total?Math.min(100,Math.round(done/total*100)):null;
+      const ring=el('div',undefined,'ranking-detail-ring');ring.style.setProperty('--progress',`${pct||0}%`);
+      ring.setAttribute('role','img');ring.setAttribute('aria-label',`${SHORT_LABELS[key]}: ${pct===null?'sin programación':pct+'% de cumplimiento'}`);
+      ring.append(el('b',pct===null?'—':`${pct}%`));
+      const missing=Math.max(0,total-done);
+      const explanation=el('p',!total?'Sin días programados.':missing?`${missing} ${missing===1?'día no suma':'días no suman'} puntos.`:'Cumplimiento completo.','ranking-detail-explanation');
+      if(key==='salida'&&total)explanation.textContent=missing?`${missing} ${missing===1?'día sin salida válida':'días sin salida válida'}.`:'Todas las salidas evaluadas son válidas.';
+      card.append(head,ring,scoreLine,explanation);grid.append(card);
     }
     // Evidence
     const evDl=get('ranking-detail-evidence-dl');evDl.replaceChildren();
@@ -138,22 +175,19 @@
       const done=filtered.reduce((s,r)=>s+Number(r.metricas?.[num]||0),0);
       const expected=filtered.reduce((s,r)=>s+Number(r.metricas?.[den]||0),0);
       const pct=expected?Math.round(done/expected*100):null;
-      const chip=el('div',undefined,'ranking-sticky-chip');
+      const chip=el('div',undefined,'ranking-ring-stat');
       chip.style.setProperty('--cc',CRITERION_COLORS[key]);
-      const content=el('div',undefined,'rsc-content');
-      const head=el('div',undefined,'rsc-head');
-      head.append(el('span',SHORT_LABELS[key],'rsc-label'),el('strong',pct!==null?`${pct}%`:'—','rsc-pct'));
-      content.append(head,el('small',pct!==null?`${done}/${expected} días`:'sin datos','rsc-days'));
-      chip.append(el('span',CRITERION_ICONS[key],'rsc-icon'),content);
+      const ring=el('div',undefined,'ranking-metric-ring');
+      ring.style.setProperty('--progress',`${pct===null?0:Math.min(100,Math.max(0,pct))}%`);
+      ring.setAttribute('role','img');ring.setAttribute('aria-label',`${SHORT_LABELS[key]}: ${pct===null?'sin programación':pct+'%, '+done+' de '+expected+' días cumplidos'}`);
+      ring.append(el('strong',pct===null?'—':`${pct}%`));
+      chip.append(ring,el('b',SHORT_LABELS[key]),el('small',expected?`${done}/${expected} días`:'Sin programación'));
       indicators.append(chip);
     }
     // Leader chip
     const top=(area?filtered:all).find(r=>r.rank===1);
     stickyLeaderRow=top||null;
-    if(top){
-      leaderBtn.hidden=false;leaderBtn.replaceChildren();
-      leaderBtn.append(el('span','🥇','rsl-medal'),el('b',top.nombre.split(' ').slice(0,2).join(' '),'rsl-name'),el('strong',`${point(top.score)} pts`,'rsl-score'));
-    }else{leaderBtn.hidden=true;}
+    leaderBtn.hidden=true;
     // Area label
     if(area){
       const sel=get('ranking-area');
@@ -165,22 +199,81 @@
   get('ranking-sticky-leader').addEventListener('click',()=>{if(stickyLeaderRow)openRankingDetail(stickyLeaderRow);});
 
   /* ── RENDER ───────────────────────────────────────────── */
-  function render(){
+  function renderAnalytics(filtered){
+    const summary=model.summarize(filtered),host=get('ranking-area-analytics'),insights=get('ranking-insights');
+    host.replaceChildren(el('h3','Cumplimiento por área'),el('p','Promedio de puntajes evaluables · pulsa un área para ver sus criterios.'));
+    const groups=new Map();
+    filtered.forEach(row=>{const key=String(row.area_id);if(!groups.has(key))groups.set(key,{name:row.area||'Sin área',rows:[]});groups.get(key).rows.push(row)});
+    const areas=[...groups.values()].map(group=>({...group,...model.summarize(group.rows)})).sort((a,b)=>(b.average??-1)-(a.average??-1));
+    areas.forEach(area=>{
+      const detail=el('details',undefined,'ranking-area-stat'),heading=el('summary');
+      heading.append(el('span',area.name),el('b',area.average===null?'Sin evaluar':`${point(area.average)} pts`));
+      detail.append(heading,bar(area.average,100,`${area.name}: ${area.average===null?'sin evaluar':point(area.average)+' puntos promedio'}`,'total'),el('small',`${area.evaluated} de ${area.count} personas evaluables`));
+      const body=el('div',undefined,'ranking-area-reasons');
+      const criteria=el('div',undefined,'ranking-area-criteria');
+      area.criteria.forEach(c=>{
+        const tile=el('div',undefined,'ranking-area-criterion');tile.style.setProperty('--criterion',CRITERION_COLORS[c.key]);
+        const head=el('div',undefined,'ranking-area-criterion-heading');head.append(el('span',SHORT_LABELS[c.key]),el('b',c.rate===null?'—':`${Math.round(c.rate)}%`));
+        tile.append(head,bar(c.rate,100,`${SHORT_LABELS[c.key]}: ${c.rate===null?'sin programación':Math.round(c.rate)+'% de cumplimiento'}`,c.key),el('small',c.rate===null?'Sin días programados':`${c.done} de ${c.expected} días cumplidos`));criteria.append(tile);
+      });
+      const audit=el('div',undefined,'ranking-area-audit');
+      for(const [label,value] of [['Revisiones pendientes',String(area.pending)],['Descuento total',`${point(area.penalty)} pts`]]){
+        const item=el('div');item.append(el('b',value),el('small',label));audit.append(item);
+      }
+      const lowest=area.criteria.filter(c=>c.rate!==null).sort((a,b)=>a.rate-b.rate)[0];
+      const note=el('p',lowest?`Menor cumplimiento: ${SHORT_LABELS[lowest.key]} (${Math.round(lowest.rate)}%). Consulta las evidencias y los días programados para revisar el resultado.`:'No hay días programados para comparar los criterios.','ranking-area-reading');
+      body.append(criteria,audit,note);
+      detail.append(body);host.append(detail);
+    });
+    if(!areas.length)host.append(el('p','Sin áreas para este filtro.'));
+    insights.replaceChildren();
+    const stat=el('article');stat.append(el('h3','Lectura del mes'),el('strong',summary.average===null?'Sin evaluar':`${point(summary.average)} / 100`),el('p',`Promedio de ${summary.evaluated} colaboradores evaluables de ${summary.count}. Las áreas se comparan por promedio, no por tamaño.`));insights.append(stat);
+    const weak=summary.criteria.filter(c=>c.rate!==null).sort((a,b)=>a.rate-b.rate)[0],reason=el('article');
+    reason.append(el('h3','Qué limita el cumplimiento'),el('strong',weak?SHORT_LABELS[weak.key]:'Sin programación'),el('p',weak?`${weak.done} de ${weak.expected} días cumplidos (${Math.round(weak.rate)}%). Es el criterio con menor cumplimiento; revisa su desglose antes de atribuir causas.`:'No hay días programados evaluables.'));insights.append(reason);
+    const review=el('article');review.append(el('h3','Antes de reconocer al equipo'),el('strong',`${summary.pending} revisiones pendientes`),el('p',`${point(summary.penalty)} puntos descontados por asignaciones incumplidas entre personas evaluables. Las evidencias sin aprobar pueden afectar RPE y Facebook.`));insights.append(review);
+  }
+  function render(page=0){
+    page=Number.isInteger(page)?Math.max(0,page):0;
     const all=model.evaluate(rows,weights),area=get('ranking-area').value;
     const filtered=area?model.evaluate(rows.filter(r=>String(r.area_id)===area),weights):all;
+    const pageSize=8,pages=Math.max(1,Math.ceil(filtered.length/pageSize));
+    page=Math.min(page,pages-1);
+    const pagination=get('ranking-pagination');
+    if(pagination){
+      pagination.replaceChildren();
+      const previous=el('button','Anterior'),next=el('button','Siguiente');
+      previous.type=next.type='button';previous.disabled=page===0;next.disabled=page>=pages-1;
+      previous.onclick=()=>render(page-1);next.onclick=()=>render(page+1);
+      const status=el('span',`${filtered.length} colaboradores · Página ${page+1} de ${pages}`);status.setAttribute('aria-live','polite');
+      pagination.append(previous,status,next);
+    }
     // Sticky bar (replaces old stats cards)
     renderStickyBar(filtered,all);
+    renderAnalytics(filtered);
     get('ranking-results').replaceChildren();get('ranking-leaders').replaceChildren();
     // Guide text
     get('ranking-guide').textContent=`Entrada puntual: ${weights.entrada} puntos. RPE en horario o cargado por Administración: ${weights.rpe}. Facebook en sus días asignados, trabajes o no: ${weights.facebook}. Salida en horario: ${weights.salida}. Se descuentan ${weights.penalizacion} puntos por asignación incumplida, hasta ${weights.tope}.`;
     // Chart (top 10) — clickable rows
     const chart=get('ranking-chart');
     const areaName=area?(get('ranking-area').options[get('ranking-area').selectedIndex]?.text||''):'';
-    chart.replaceChildren(el('h3',area?`Comparación · ${areaName}`:'Comparación general'),el('p','Primeras 10 posiciones · Haz clic en cualquier persona para ver su desglose completo.'));
+    chart.replaceChildren(el('h3',area?`Top 10 · ${areaName}`:'Top 10 del equipo'),el('p','Puntaje sobre 100 · pulsa una persona para ver días cumplidos, evidencias y descuentos.'));
     for(const row of filtered.filter(r=>r.score!==null).slice(0,10)){
       const line=el('button',undefined,'ranking-chart-row');
       line.type='button';line.setAttribute('aria-label',`Ver desglose de ${row.nombre}`);
-      line.append(el('span',`#${row.rank} ${row.nombre}`),bar(row.score,100,`${row.nombre}: ${point(row.score)} de 100 puntos`,'total'),el('b',point(row.score)));
+      const position=el('span',String(row.rank),'ranking-top-position');
+      position.dataset.podium=row.rank<=3?'true':'false';
+      const identity=el('span',undefined,'ranking-top-identity');
+      identity.append(el('strong',row.nombre),el('small',row.area||'Sin área'));
+      const avatar=el('span',undefined,'ranking-top-avatar');rankingPhoto(avatar,row);identity.prepend(avatar);
+      const score=el('span',undefined,'ranking-top-score');score.append(el('b',point(row.score)),el('small','/ 100'));
+      line.append(position,identity,score,bar(row.score,100,`${row.nombre}: ${point(row.score)} de 100 puntos`,'total'));
+      const breakdown=el('span',undefined,'ranking-top-breakdown');
+      CRITERION_KEYS.forEach(key=>{
+        const chip=el('span',undefined,'ranking-top-criterion');chip.style.setProperty('--criterion',CRITERION_COLORS[key]);
+        chip.append(el('span',SHORT_LABELS[key]),el('b',row.parts[key]===null?'—':`${point(row.parts[key])}/${weights[key]}`));breakdown.append(chip);
+      });
+      if(row.penalty>0)breakdown.append(el('span',`−${point(row.penalty)} por asignaciones`,'ranking-top-penalty'));
+      line.append(breakdown);
       line.addEventListener('click',()=>openRankingDetail(row));chart.append(line);
     }
     if(!filtered.filter(r=>r.score!==null).length)chart.append(el('p','Sin datos evaluables en este período.'));
@@ -202,7 +295,7 @@
     // Full list — buttons with mini-bars
     if(!filtered.length){get('ranking-results').append(el('p','No hay colaboradores evaluables para este filtro.'));return}
     const loggedId=window.__kja_user_id;
-    for(const row of filtered){
+    for(const row of filtered.slice(page*pageSize,(page+1)*pageSize)){
       const isMe=loggedId&&row.colaborador_id===loggedId;
       const btn=el('button',undefined,'ranking-person-btn'+(isMe?' ranking-person-btn--me':''));
       btn.type='button';btn.setAttribute('aria-label',`Ver desglose de ${row.nombre}`);
@@ -226,7 +319,9 @@
     updateMonthStatus();
     get('ranking-status').textContent='Calculando los días terminados del mes…';
     get('ranking-results').replaceChildren();get('ranking-leaders').replaceChildren();
+    if(get('ranking-pagination'))get('ranking-pagination').replaceChildren();
     get('ranking-chart').replaceChildren();get('ranking-sticky-bar').hidden=true;
+    get('ranking-area-analytics').replaceChildren();get('ranking-insights').replaceChildren();
     rows=[];
     try{
       if(!/^\d{4}-\d{2}$/.test(month))throw Error('Selecciona un mes.');
@@ -234,6 +329,11 @@
       if(error)throw error;
       if(data.version!==3)throw Error('Actualiza la función ejecutando dashboard_54_ranking_cumplimiento.sql.');
       rows=data.filas||[];
+      exitPolicy={before:Number(data.salida_anticipacion_min),after:Number(data.salida_gracia_min)};
+      if(typeof hydrateProfilePhotos==='function'){
+        try{rows=await hydrateProfilePhotos(rows)}catch{}
+        if(token!==request)return;
+      }
       // Preserve selected area across month changes
       const previous=get('ranking-area').value;get('ranking-area').replaceChildren();
       const first=el('option','Todas las áreas');first.value='';get('ranking-area').append(first);
