@@ -53,5 +53,15 @@
     return (close?.requisitos||[]).some(item=>!['salida','comparticiones'].includes(item.tipo)&&!item.completo)
       || (close?.asignaciones||[]).some(item=>item.estado!=='cancelada'&&!item.completo);
   }
-  root.KJACloseModel=Object.freeze({stateTone,stateLabel,attendancePresentation,incompleteReasons,evidenceSelectionPolicy,hasPendingWork});
+  function teamEntryException(person,close,date){
+    if(person.contrato_pendiente)return 'Datos pendientes de actualizar';
+    const days=person.dias_laborables;
+    const weekday=new Date(`${date}T12:00:00Z`).getUTCDay()||7;
+    const day=person.horario_semanal?.[String(weekday)];
+    if(!Array.isArray(days)||!days.length)return 'Horario pendiente de actualizar';
+    if(close?.solo_comparticiones||close?.estado==='no_aplica'||day?.mod==='no_gestiona'||(!day?.mod&&!days.map(Number).includes(weekday)))return 'No labora hoy';
+    if(!(day?.ini||person.hora_inicio)||!(day?.fin||person.hora_fin))return 'Horario pendiente de actualizar';
+    return '';
+  }
+  root.KJACloseModel=Object.freeze({stateTone,stateLabel,attendancePresentation,incompleteReasons,evidenceSelectionPolicy,hasPendingWork,teamEntryException});
 })(typeof window==='undefined'?globalThis:window);

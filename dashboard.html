@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=13">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=31">
 </head>
 <body>
 
@@ -500,6 +500,7 @@
             </section>
 
             <section class="day-action" id="day-action" aria-labelledby="attendance-state-title">
+              <div class="day-off-intro" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 10h18m5 5 3 3 5-5"/></svg><span>Día no laborable</span></div>
               <div class="day-action-copy">
                 <h2 id="attendance-state-title">Preparando tu jornada</h2>
                 <p id="mark-help">La hora se registra directamente desde el servidor.</p>
@@ -718,9 +719,27 @@
 
     <section class="view" id="view-equipo" hidden>
       <header class="view-head"><div><p class="eyebrow">VISIBILIDAD POR ÁREA</p><h1 id="team-title">Mi equipo</h1><p id="team-sub">Estado de asistencia de las personas que puedes consultar.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
-      <div class="team-summary" id="team-summary"></div>
-      <div class="team-evidence-guide" id="team-evidence-guide" hidden></div>
-      <div class="team-list" id="team-list"></div>
+      <div class="team-top-bar" id="team-top-bar">
+        <div class="team-summary" id="team-summary"></div>
+        <div class="team-evidence-guide" id="team-evidence-guide" hidden></div>
+      </div>
+      <div class="team-workspace" id="team-workspace">
+        <div class="team-master-panel">
+          <div class="team-list-toolbar">
+            <div class="team-toolbar-info">
+              <b>Colaboradores</b>
+              <span id="team-list-count"></span>
+            </div>
+            <button type="button" class="team-view-general-btn active" id="team-view-general-btn" title="Ver informe general del equipo">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
+              <span>Informe general</span>
+            </button>
+          </div>
+          <div class="team-list" id="team-list"></div>
+        </div>
+        <aside class="team-detail-panel" id="team-detail-panel" aria-label="Informe y gráficos del equipo"></aside>
+      </div>
+      <dialog id="team-mobile-dialog" aria-label="Detalle del equipo"><form method="dialog" class="team-mobile-dialog-head"><b>Mi equipo</b><button type="submit" autofocus aria-label="Cerrar detalle">Cerrar ×</button></form><div id="team-mobile-dialog-body"></div></dialog>
     </section>
 
     <section class="view admin-view" id="view-gestion" hidden>
@@ -1780,9 +1799,9 @@
 
 
 
-<script src="assets/js/dashboard-close-model.js?v=6"></script>
+<script src="assets/js/dashboard-close-model.js?v=7"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
-<script src="assets/js/dashboard.js?v=178"></script>
+<script src="assets/js/dashboard.js?v=183"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=2"></script>

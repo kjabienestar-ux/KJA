@@ -546,14 +546,14 @@ async function chooseProfilePhoto(file){
   const validType=/^image\/(jpeg|png|webp)$/i.test(file.type)||/\.(jpe?g|png|webp)$/i.test(file.name||'');
   if(!validType){ $('profile-photo-input').value=''; return profilePhotoIssue('Elige una imagen JPG, PNG o WebP.'); }
   if(file.size>PROFILE_MAX_SOURCE){ $('profile-photo-input').value=''; return profilePhotoIssue('La foto supera el máximo de 3 MB. Elige una más liviana.'); }
-  
+
   const url = URL.createObjectURL(file);
   const img = $('cropper-image');
   const loader = $('avatar-crop-loader');
-  
+
   loader.hidden = false;
   $('avatar-crop-modal').hidden = false;
-  
+
   img.onload = () => {
     if (cropperInstance) cropperInstance.destroy();
     cropperInstance = new Cropper(img, {
@@ -571,7 +571,7 @@ async function chooseProfilePhoto(file){
       ready() { loader.hidden = true; },
     });
   };
-  
+
   img.src = url;
 }
 
@@ -589,13 +589,13 @@ $('cropper-close-bg').onclick = closeCropperModal;
 $('cropper-save-btn').onclick = async () => {
   if (!cropperInstance || APP.avatar.busy) return;
   const colab=APP.inicio?.colaborador?.id;if(!colab){ closeCropperModal(); return profilePhotoIssue('Tu perfil no está disponible en esta sesión.'); }
-  
+
   const canvas = cropperInstance.getCroppedCanvas({ width: 640, height: 640 });
   if (!canvas) return;
-  
+
   closeCropperModal();
   setProfilePhotoBusy(true);profilePhotoMessage('Comprimiendo foto recortada…');
-  
+
   canvas.toBlob(async (blob) => {
     if (!blob) { setProfilePhotoBusy(false); return profilePhotoIssue('Error al procesar el recorte.'); }
     try{
@@ -966,7 +966,7 @@ function renderTodayMode(d={}){
   const choices=document.querySelectorAll('.today-mode-choice-container');
   if(!choices.length)return;
   const laborable=!!d.labora,mode=d.modalidad==='presencial'?'presencial':laborable?'virtual':'no_gestiona',locked=!!d.marcado||!laborable;
-  
+
   const dayModeTitle=$('day-mode');
   if(dayModeTitle) dayModeTitle.textContent=mode==='presencial'?'Trabajo presencial':mode==='virtual'?'Trabajo virtual':'Día no laborable';
 
@@ -1537,44 +1537,410 @@ function renderProfile(){
 async function loadTeam(){
   const today=isoLima();
   const [{data:people,error},{data:marks},{data:closeData,error:closeError},{data:reviewData,error:reviewError},{data:issueData,error:issueError}]=await Promise.all([
-    db.from('asis_colaboradores').select('id,nombre,area_id,dni,dias_laborables,hora_inicio,hora_fin,tipo_vinculo,contrato_inicio,contrato_fin_referencia,foto_path,foto_actualizada_at,asis_areas(nombre)').eq('activo',true).order('nombre'),
+    db.from('asis_colaboradores').select('id,nombre,area_id,dni,dias_laborables,hora_inicio,hora_fin,horario_semanal,contrato_pendiente,tipo_vinculo,contrato_inicio,contrato_fin_referencia,foto_path,foto_actualizada_at,asis_areas(nombre)').eq('activo',true).order('nombre'),
     db.from('asis_registros').select('colaborador_id,estado,marcado_at').eq('fecha',today),
     db.rpc('dash_equipo_cierres_hoy'),
     db.rpc('dash_admin_revision_entregas',{p_fecha:today}),
     db.rpc('dash_supervision_impedimentos',{p_fecha:today})
   ]);
-  if(error||closeError||!closeData?.ok){$('team-summary').innerHTML='';$('team-list').innerHTML='<p class="admin-empty">El estado de cierre no está disponible. Actualiza nuevamente; no mostraremos asistencia parcial.</p>';return;}
+  if(error||closeError||!closeData?.ok){
+    $('team-summary').innerHTML='';
+    $('team-list').innerHTML='<p class="admin-empty">El estado de cierre no está disponible. Actualiza nuevamente; no mostraremos asistencia parcial.</p>';
+    if($('team-detail-panel')) $('team-detail-panel').innerHTML='';
+    return;
+  }
   APP.adminReview=!reviewError&&reviewData?.ok?reviewData:{ok:false,entregas:[]};
-  const by=new Map((marks||[]).map(x=>[String(x.colaborador_id),x])),byClose=new Map((closeData?.personas||[]).map(x=>[String(x.id),x.cierre||{}])),p=await hydrateProfilePhotos(people||[]);APP.teamPeople=p;
+  const by=new Map((marks||[]).map(x=>[String(x.colaborador_id),x])),byClose=new Map((closeData?.personas||[]).map(x=>[String(x.id),x.cierre||{}])),p=await hydrateProfilePhotos(people||[]);
+  APP.teamPeople=p;
   const reviews=APP.adminReview.entregas||[],byReview=new Map(),byIssue=new Map();
   reviews.forEach(item=>{const key=String(item.colaborador_id);if(!byReview.has(key))byReview.set(key,[]);byReview.get(key).push(item)});
   if(!issueError&&issueData?.ok)(issueData.impedimentos||[]).forEach(item=>{const key=String(item.colaborador_id);if(!byIssue.has(key))byIssue.set(key,[]);byIssue.get(key).push(item)});
   const presentations=p.map(x=>CLOSE_MODEL.attendancePresentation(by.get(String(x.id)),byClose.get(String(x.id)))),complete=presentations.filter(x=>x.complete).length,incomplete=presentations.filter(x=>x.incomplete).length,entries=presentations.filter(x=>x.hasEntry).length;
-  $('team-summary').innerHTML=[['Personas visibles',p.length],['Entradas hoy',entries],['Jornadas completas',complete],['Incompletas',incomplete]].map(x=>`<div class="team-kpi"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
-  const guide=$('team-evidence-guide');guide.hidden=false;guide.className='team-evidence-guide'+(APP.adminReview.ok?'':' is-warning');guide.innerHTML=APP.adminReview.ok?'<span><b>Seguimiento privado de evidencias</b><small>Ves únicamente tu área. Puedes abrir los archivos para verificar avances; solo Dirección puede aprobar u observar.</small></span><i>SOLO LECTURA</i>':'<span><b>Falta habilitar la consulta de evidencias</b><small>Ejecuta la migración dashboard_22 para abrir los archivos de tu área. La asistencia continúa visible.</small></span>';
+
+  APP.teamContext = { by, byClose, byReview, byIssue, p, complete, incomplete, entries, presentations };
+
+  if($('team-list-count')) $('team-list-count').textContent = `${p.length} ${p.length===1?'persona':'personas'}`;
+
+  $('team-summary').innerHTML=[['Personas visibles',p.length],['Entradas hoy',entries]].map(x=>`<div class="team-kpi"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
+  const guide=$('team-evidence-guide');guide.hidden=false;guide.className='team-evidence-guide'+(APP.adminReview.ok?'':' is-warning');
+  const guideNotice = APP.adminReview.ok
+    ? '<div class="team-guide-text"><span><b>Seguimiento privado de evidencias</b><small>Ves únicamente tu área. Puedes abrir los archivos para verificar avances; solo Dirección puede aprobar u observar.</small></span><i>SOLO LECTURA</i></div>'
+    : '<div class="team-guide-text"><span><b>Falta habilitar la consulta de evidencias</b><small>Ejecuta la migración dashboard_22 para abrir los archivos de tu área. La asistencia continúa visible.</small></span></div>';
+  guide.innerHTML = `
+    <div class="team-followup-kpis">
+      <div class="team-kpi"><small>Jornadas completas</small><b>${complete}</b></div>
+      <div class="team-kpi"><small>Incompletas</small><b>${incomplete}</b></div>
+    </div>
+    ${guideNotice}
+  `;
+
   $('team-list').innerHTML=p.length?p.map(x=>{
     const key=String(x.id),m=by.get(key),close=byClose.get(key)||{},view=CLOSE_MODEL.attendancePresentation(m,close),personReviews=byReview.get(key)||[],personIssues=byIssue.get(key)||[],issue=personIssues[0];
     const requirements=[...(close.requisitos||[]),...(close.asignaciones||[])],missing=requirements.filter(item=>!item.completo).length,observed=personReviews.filter(item=>item.revision_estado==='observada').length,pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length,approved=personReviews.filter(item=>item.revision_estado==='aprobada').length;
-    const evidence=!m?{label:'Aún sin entrada',tone:'waiting'}:observed?{label:'Corrección pendiente',tone:'observed'}:issue?{label:'Impedimento informado',tone:'reported'}:missing?{label:`Falta${missing===1?'':'n'} ${missing} ${missing===1?'evidencia':'evidencias'}`,tone:'missing'}:pending?{label:`${pending} en revisión`,tone:'pending'}:approved&&approved===personReviews.length?{label:'Evidencias revisadas',tone:'approved'}:{label:'Evidencias completas',tone:'approved'};
-    const evidenceButton=personReviews.length?`<button class="team-evidence-open" type="button" data-team-review="${x.id}">Ver evidencias</button>`:'';
-    return `<div class="team-row">${profileAvatarMarkup(x)}<span><strong>${esc(x.nombre)}</strong><small>${esc(x.asis_areas?.nombre||'Sin área')}</small></span><span class="team-row-progress"><small>${m?.marcado_at?new Date(m.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'Sin hora registrada'}</small><em class="team-evidence-state ${evidence.tone}" ${issue?`title="${esc(issue.detalle)}" aria-label="Impedimento informado: ${esc(issue.detalle)}"`:''}>${esc(evidence.label)}</em>${issue?`<small class="team-issue-detail">${esc(issue.detalle)}</small>`:''}</span><span class="team-state ${view.state.toLowerCase()}">${esc(view.label)}</span><span class="team-row-actions">${evidenceButton}<button class="team-profile-open" type="button" data-team-profile="${x.id}">Ver perfil</button></span></div>`;
+    const entryException=CLOSE_MODEL.teamEntryException(x,close,today);
+    const evidence=!m?{label:entryException||'Aún sin entrada',tone:'waiting'}:observed?{label:'Corrección pendiente',tone:'observed'}:issue?{label:'Impedimento informado',tone:'reported'}:missing?{label:`Falta${missing===1?'':'n'} ${missing} ${missing===1?'evidencia':'evidencias'}`,tone:'missing'}:pending?{label:`${pending} en revisión`,tone:'pending'}:approved&&approved===personReviews.length?{label:'Evidencias revisadas',tone:'approved'}:{label:'Evidencias completas',tone:'approved'};
+    const isSelected = APP.selectedTeamPersonId === String(x.id);
+    return `<div class="team-row ${isSelected?'is-selected':''}" data-team-person="${x.id}" role="button" tabindex="0" aria-selected="${isSelected?'true':'false'}">
+      ${profileAvatarMarkup(x)}
+      <div class="team-row-info">
+        <strong>${esc(x.nombre)}</strong>
+        <small>${esc(x.asis_areas?.nombre||'Sin área')}</small>
+      </div>
+      <div class="team-row-progress">
+        <small>${m?.marcado_at?new Date(m.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'Sin hora registrada'}</small>
+        <em class="team-evidence-state ${evidence.tone}" ${issue?`title="${esc(issue.detalle)}"`:''}>${esc(evidence.label)}</em>
+      </div>
+      <span class="team-state ${view.state.toLowerCase()}">${esc(view.label)}</span>
+      <div class="team-row-actions">
+        <button class="team-select-trigger" type="button" data-team-profile="${x.id}">Ver detalles</button>
+      </div>
+    </div>`;
   }).join(''):'<p style="padding:25px">No hay personas para mostrar.</p>';
+
+  if(APP.selectedTeamPersonId && p.some(x=>String(x.id)===APP.selectedTeamPersonId)){
+    selectTeamPerson(APP.selectedTeamPersonId,false);
+  } else {
+    selectTeamPerson(null,false);
+  }
 }
 
-async function openTeamProfile(id){
-  if(!APP.identity.isLeader)return toast('Solo el líder o un co-líder técnico puede consultar este equipo.',true);
-  const person=APP.teamPeople.find(item=>String(item.id)===String(id));if(!person)return;
-  $('team-profile-modal').hidden=false;$('team-profile-title').textContent=person.nombre;$('team-profile-area').textContent=person.asis_areas?.nombre||'Sin área';
-  paintPersonAvatar($('team-profile-avatar'),person);$('team-profile-body').innerHTML='<p class="admin-empty">Cargando perfil y asistencia…</p>';
-  const now=new Date(),year=Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric'}).format(now)),month=Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',month:'numeric'}).format(now));
-  const {data,error}=await db.rpc('dash_historial',{p_anio:year,p_mes:month,p_colab:Number(id)});
-  if(error||!data?.ok){$('team-profile-body').innerHTML='<p class="admin-empty">No se pudo cargar el historial autorizado.</p>';return;}
-  const t=data.totales||{},days=data.dias||[],first=new Date(`${year}-${String(month).padStart(2,'0')}-01T12:00:00`),offset=(first.getDay()+6)%7;
-  const calendar='<span class="empty"></span>'.repeat(offset)+days.map(day=>{const incomplete=day.cierre_estado==='incompleta',state=incomplete?'incomplete':String(day.estado||'').toLowerCase(),label=incomplete?'INC':day.estado||'';return `<span class="${state} ${day.lab?'':'off'}"><b>${day.d}</b><i>${esc(label)}</i></span>`}).join('');
-  const profile=[['DNI',person.dni||'—'],['Vínculo',({practicas:'Practicante',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[person.tipo_vinculo]||person.tipo_vinculo||'—')],['Horario',`${fmtTime(person.hora_inicio)} — ${fmtTime(person.hora_fin)}`],['Contrato',`${person.contrato_inicio||'—'} → ${person.contrato_fin_referencia||'—'}`]];
-  $('team-profile-body').innerHTML=`<div class="team-profile-facts">${profile.map(item=>`<span><small>${item[0]}</small><b>${esc(item[1])}</b></span>`).join('')}</div><div class="team-profile-month"><header><span><small>ASISTENCIA DEL MES</small><b>${cap(monthNames[month-1])} ${year}</b></span><strong>${Number(data.horas||0).toFixed(1)} h</strong></header><div class="team-profile-stats"><span><b>${t.P||0}</b><small>Presentes</small></span><span><b>${t.T||0}</b><small>Tardanzas</small></span><span><b>${t.J||0}</b><small>Justificados</small></span><span><b>${t.NG||0}</b><small>No gestionó</small></span><span class="incomplete"><b>${t.incompletas||0}</b><small>Incompletas</small></span></div><div class="team-profile-week"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="team-profile-calendar">${calendar}</div></div>`;
+const teamMobileViewport=window.matchMedia('(max-width: 900px)');
+const teamMobileDialog=$('team-mobile-dialog');
+let teamDetailTrigger=null;
+teamMobileDialog.addEventListener('close',()=>{
+  $('team-workspace').append($('team-detail-panel'));
+  teamDetailTrigger?.focus({preventScroll:true});
+});
+teamMobileViewport.addEventListener('change',event=>{if(!event.matches&&teamMobileDialog.open)teamMobileDialog.close();});
+function selectTeamPerson(id,openDetail=true){
+  const panel = $('team-detail-panel');
+  if(!panel) return;
+  if(openDetail&&teamMobileViewport.matches&&!teamMobileDialog.open){
+    teamDetailTrigger=document.activeElement;
+    $('team-mobile-dialog-body').append(panel);
+    teamMobileDialog.showModal();
+  }
+  const generalBtn = $('team-view-general-btn');
+  if(!id){
+    APP.selectedTeamPersonId = null;
+    document.querySelectorAll('#team-list .team-row').forEach(row=>{
+      row.classList.remove('is-selected');
+      row.setAttribute('aria-selected','false');
+    });
+    if(generalBtn) generalBtn.classList.add('active');
+    renderTeamGeneralReport();
+    return;
+  }
+  APP.selectedTeamPersonId = String(id);
+  document.querySelectorAll('#team-list .team-row').forEach(row=>{
+    const match = row.dataset.teamPerson === String(id);
+    row.classList.toggle('is-selected', match);
+    row.setAttribute('aria-selected', match ? 'true' : 'false');
+  });
+  if(generalBtn) generalBtn.classList.remove('active');
+  renderTeamPersonDetail(id);
 }
-function closeTeamProfile(){$('team-profile-modal').hidden=true}
+
+function renderTeamGeneralReport(){
+  const panel = $('team-detail-panel');
+  if(!panel || !APP.teamContext) return;
+  const { by, byClose, byReview, byIssue, p, complete, incomplete, entries } = APP.teamContext;
+
+  const present = p.filter(x=>by.get(String(x.id))?.estado==='P').length;
+  const late = p.filter(x=>by.get(String(x.id))?.estado==='T').length;
+  const justified = p.filter(x=>by.get(String(x.id))?.estado==='J').length;
+  const noEntry = p.filter(x=>!by.has(String(x.id))&&!CLOSE_MODEL.teamEntryException(x,byClose.get(String(x.id)),isoLima())).length;
+  const total = p.length || 1;
+
+  let totalReqs = 0, doneReqs = 0, observedCount = 0;
+  p.forEach(x => {
+    const c = byClose.get(String(x.id)) || {};
+    const reqs = [...(c.requisitos||[]), ...(c.asignaciones||[])];
+    totalReqs += reqs.length;
+    doneReqs += reqs.filter(r => r.completo).length;
+    const revs = byReview.get(String(x.id)) || [];
+    observedCount += revs.filter(r => r.revision_estado === 'observada').length;
+  });
+
+  const pP = Math.round((present / total) * 100);
+  const pT = Math.round((late / total) * 100);
+  const pJ = Math.round((justified / total) * 100);
+  const pNo = 100 - (pP + pT + pJ);
+  const attConic = total ? `conic-gradient(#24a68a 0% ${pP}%, #d68b18 ${pP}% ${pP + pT}%, #326fac ${pP + pT}% ${pP + pT + pJ}%, #c8c2b9 ${pP + pT + pJ}% 100%)` : '#e6dfd8';
+
+  const reqPct = totalReqs ? Math.round((doneReqs / totalReqs) * 100) : 100;
+  const reqConic = totalReqs ? `conic-gradient(#24a68a 0% ${reqPct}%, #e2b5bd ${reqPct}% 100%)` : '#24a68a';
+
+  const pendingAttention = p.filter(x => {
+    const m = by.get(String(x.id));
+    const revs = byReview.get(String(x.id)) || [];
+    const close = byClose.get(String(x.id)) || {};
+    const missing = (close.requisitos||[]).some(r => !r.completo);
+    if(!m&&CLOSE_MODEL.teamEntryException(x,close,isoLima()))return false;
+    return !m || revs.some(r => r.revision_estado === 'observada') || missing;
+  });
+
+  panel.innerHTML = `
+    <div class="team-general-dashboard">
+      <header class="team-dashboard-head">
+        <div>
+          <span class="team-dashboard-badge">SUPERVISIÓN EN VIVO</span>
+          <h3>Informe general del equipo</h3>
+          <p>Métricas consolidadas de asistencia, entregas y jornada del día de hoy.</p>
+        </div>
+      </header>
+
+      <div class="team-dashboard-kpis">
+        <div class="team-dashboard-kpi">
+          <small>Asistencia general</small>
+          <b>${Math.round((entries / total) * 100)}%</b>
+          <span>${entries} de ${total} presentes</span>
+        </div>
+        <div class="team-dashboard-kpi">
+          <small>Avance de evidencias</small>
+          <b>${reqPct}%</b>
+          <span>${doneReqs} de ${totalReqs} completas</span>
+        </div>
+        <div class="team-dashboard-kpi ${pendingAttention.length ? 'has-alert' : ''}">
+          <small>Pendientes de atención</small>
+          <b>${pendingAttention.length}</b>
+          <span>${pendingAttention.length ? 'Colaboradores requieren acción' : 'Equipo al día'}</span>
+        </div>
+      </div>
+
+      <div class="team-dashboard-charts">
+        <article class="team-chart-card">
+          <header class="team-chart-header">
+            <h4>Distribución de Asistencia</h4>
+            <span class="team-chart-caption">Hoy</span>
+          </header>
+          <div class="team-chart-body">
+            <div class="team-chart-ring" style="background:${attConic}">
+              <div class="team-chart-inner">
+                <strong>${entries}</strong>
+                <small>Registrados</small>
+              </div>
+            </div>
+            <ul class="team-chart-legend">
+              <li><i style="background:#24a68a"></i><span>Presentes a tiempo</span><b>${present}</b></li>
+              <li><i style="background:#d68b18"></i><span>Tardanzas</span><b>${late}</b></li>
+              <li><i style="background:#326fac"></i><span>Justificados</span><b>${justified}</b></li>
+              <li><i style="background:#c8c2b9"></i><span>Aún sin entrada</span><b>${noEntry}</b></li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="team-chart-card">
+          <header class="team-chart-header">
+            <h4>Cierres y Entregables</h4>
+            <span class="team-chart-caption">Progreso</span>
+          </header>
+          <div class="team-chart-body">
+            <div class="team-chart-ring" style="background:${reqConic}">
+              <div class="team-chart-inner">
+                <strong>${reqPct}%</strong>
+                <small>Completado</small>
+              </div>
+            </div>
+            <ul class="team-chart-legend">
+              <li><i style="background:#24a68a"></i><span>Requisitos listos</span><b>${doneReqs}</b></li>
+              <li><i style="background:#d68b18"></i><span>Faltantes / En curso</span><b>${totalReqs - doneReqs}</b></li>
+              <li><i style="background:#c23b50"></i><span>Observaciones</span><b>${observedCount}</b></li>
+              <li><i style="background:#0b5ca8"></i><span>Jornadas completas</span><b>${complete}</b></li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+      <section class="team-pending-section">
+        <header class="team-pending-header">
+          <h4>Colaboradores con pendientes hoy</h4>
+          <small>${pendingAttention.length ? `${pendingAttention.length} integrantes requieren seguimiento` : 'Todo el equipo está al día'}</small>
+        </header>
+        ${pendingAttention.length ? `
+          <div class="team-pending-list">
+            ${pendingAttention.map(item => {
+              const m = by.get(String(item.id));
+              const revs = byReview.get(String(item.id)) || [];
+              const isObserved = revs.some(r => r.revision_estado === 'observada');
+              const statusTag = !m ? 'Sin entrada registrada' : isObserved ? 'Corrección observada' : 'Faltan evidencias';
+              const statusCls = !m ? 'waiting' : isObserved ? 'observed' : 'missing';
+              return `
+                <div class="team-pending-item" role="button" tabindex="0" onclick="selectTeamPerson('${item.id}')">
+                  ${profileAvatarMarkup(item)}
+                  <div class="team-pending-item-info">
+                    <b>${esc(item.nombre)}</b>
+                    <small>${esc(item.asis_areas?.nombre||'Sin área')}</small>
+                  </div>
+                  <span class="team-pending-chip ${statusCls}">${statusTag}</span>
+                  <button type="button" class="team-pending-btn" aria-label="Ver perfil de ${esc(item.nombre)}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : `
+          <div class="team-pending-empty">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="m8 12 3 3 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p>¡Excelente! Todos los integrantes del equipo han completado sus registros y requisitos del día.</p>
+          </div>
+        `}
+      </section>
+    </div>
+  `;
+}
+
+async function renderTeamPersonDetail(id){
+  const panel = $('team-detail-panel');
+  if(!panel || !APP.teamPeople) return;
+  const person = APP.teamPeople.find(x => String(x.id) === String(id));
+  if(!person) return selectTeamPerson(null);
+
+  const { by, byClose, byReview, byIssue } = APP.teamContext || {};
+  const m = by?.get(String(id));
+  const close = byClose?.get(String(id)) || {};
+  const personReviews = byReview?.get(String(id)) || [];
+  const personIssues = byIssue?.get(String(id)) || [];
+  const issue = personIssues[0];
+  const view = CLOSE_MODEL.attendancePresentation(m, close);
+
+  panel.innerHTML = `
+    <div class="team-person-dashboard">
+      <div class="team-person-topbar">
+        <button class="team-back-general-btn" type="button" onclick="selectTeamPerson(null)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          <span>Volver al informe general</span>
+        </button>
+        ${personReviews.length ? `
+          <button class="team-evidence-open" type="button" data-team-review="${person.id}" title="Revisar ${personReviews.length} ${personReviews.length === 1 ? 'evidencia' : 'evidencias'}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>Revisar evidencias</span>
+            <span class="team-evidence-count">${personReviews.length}</span>
+          </button>` : ''}
+      </div>
+
+      <article class="team-person-card">
+        <div class="team-person-head">
+          ${profileAvatarMarkup(person)}
+          <div class="team-person-title-wrap">
+            <span class="team-person-area">${esc(person.asis_areas?.nombre || 'Sin área')}</span>
+            <h3>${esc(person.nombre)}</h3>
+            <div class="team-person-badges">
+              <span class="team-state ${view.state.toLowerCase()}">${esc(view.label)}</span>
+              <span class="team-person-contract">${esc({practicas:'Practicante',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[person.tipo_vinculo]||person.tipo_vinculo||'Equipo')}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="team-person-facts">
+          <div><small>DNI</small><b>${esc(person.dni || '—')}</b></div>
+          <div><small>HORARIO</small><b>${fmtTime(person.hora_inicio)} — ${fmtTime(person.hora_fin)}</b></div>
+          <div><small>CONTRATO</small><b>${person.contrato_inicio || '—'} → ${person.contrato_fin_referencia || '—'}</b></div>
+          <div><small>ENTRADA HOY</small><b>${m?.marcado_at ? new Date(m.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}) : 'Sin registro'}</b></div>
+        </div>
+      </article>
+
+      <div class="team-person-loading" id="team-person-month-loading">
+        <div class="team-loading-spinner"></div>
+        <span>Cargando análisis mensual y gráfico de asistencias…</span>
+      </div>
+
+      <div id="team-person-month-data" hidden></div>
+    </div>
+  `;
+
+  const now = new Date(),
+        year = Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric'}).format(now)),
+        month = Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',month:'numeric'}).format(now));
+
+  const { data, error } = await db.rpc('dash_historial', { p_anio: year, p_mes: month, p_colab: Number(id) });
+  const loadEl = $('team-person-month-loading'), dataEl = $('team-person-month-data');
+
+  if(error || !data?.ok){
+    if(loadEl) loadEl.innerHTML = '<p class="admin-empty">No se pudo cargar el historial mensual autorizado.</p>';
+    return;
+  }
+  if(loadEl) loadEl.hidden = true;
+  if(!dataEl) return;
+  dataEl.hidden = false;
+
+  const t = data.totales || {};
+  const days = data.dias || [];
+  const hours = Number(data.horas || 0).toFixed(1);
+  const sum = (t.P||0) + (t.T||0) + (t.J||0) + (t.NG||0) + (t.incompletas||0) || 1;
+  const pP = Math.round(((t.P||0) / sum) * 100);
+  const pT = Math.round(((t.T||0) / sum) * 100);
+  const pJ = Math.round(((t.J||0) / sum) * 100);
+  const pNG = Math.round(((t.NG||0) / sum) * 100);
+  const pINC = 100 - (pP + pT + pJ + pNG);
+
+  const monthConic = `conic-gradient(#24a68a 0% ${pP}%, #d68b18 ${pP}% ${pP + pT}%, #326fac ${pP + pT}% ${pP + pT + pJ}%, #a33d4d ${pP + pT + pJ}% ${pP + pT + pJ + pNG}%, #c23b50 ${pP + pT + pJ + pNG}% 100%)`;
+
+  const first = new Date(`${year}-${String(month).padStart(2,'0')}-01T12:00:00`), offset = (first.getDay() + 6) % 7;
+  const calendarHtml = '<span class="empty"></span>'.repeat(offset) + days.map(day => {
+    const inc = day.cierre_estado === 'incompleta';
+    const state = inc ? 'incomplete' : String(day.estado || '').toLowerCase();
+    const label = inc ? 'INC' : (day.estado || '');
+    return `<span class="${state} ${day.lab ? '' : 'off'}" title="Día ${day.d}: ${day.estado||'Sin registro'}"><b>${day.d}</b><i>${esc(label)}</i></span>`;
+  }).join('');
+
+  dataEl.innerHTML = `
+    <div class="team-person-analytics">
+      <article class="team-chart-card">
+        <header class="team-chart-header">
+          <h4>Asistencia del Mes · ${cap(monthNames[month-1])} ${year}</h4>
+          <span class="team-chart-caption">${hours} h acreditadas</span>
+        </header>
+        <div class="team-chart-body">
+          <div class="team-chart-ring" style="background:${monthConic}">
+            <div class="team-chart-inner">
+              <strong>${hours}</strong>
+              <small>Horas mes</small>
+            </div>
+          </div>
+          <ul class="team-chart-legend">
+            <li><i style="background:#24a68a"></i><span>Presentes (P)</span><b>${t.P||0}</b></li>
+            <li><i style="background:#d68b18"></i><span>Tardanzas (T)</span><b>${t.T||0}</b></li>
+            <li><i style="background:#326fac"></i><span>Justificados (J)</span><b>${t.J||0}</b></li>
+            <li><i style="background:#a33d4d"></i><span>No gestionó (NG)</span><b>${t.NG||0}</b></li>
+            <li><i style="background:#c23b50"></i><span>Incompletas</span><b>${t.incompletas||0}</b></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="team-person-calendar-card">
+        <header class="team-calendar-header">
+          <h4>Calendario Mensual</h4>
+          <small>Registro diario oficial</small>
+        </header>
+        <div class="team-profile-week">
+          <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+        </div>
+        <div class="team-profile-calendar">
+          ${calendarHtml}
+        </div>
+      </article>
+
+      ${issue ? `
+        <div class="team-issue-alert">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <div>
+            <b>Impedimento informado hoy</b>
+            <p>${esc(issue.detalle)}</p>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function openTeamProfile(id){
+  selectTeamPerson(id);
+}
+function closeTeamProfile(){
+  selectTeamPerson(null);
+}
 
 function renderAdminOverviewCharts(people,marks,closePeople){
   const host=$('admin-overview-charts');if(!host)return;
@@ -1922,7 +2288,31 @@ $('profile-photo-camera').onclick=()=>$('profile-photo-input').click();
 $('profile-photo-change').onclick=()=>$('profile-photo-input').click();
 $('profile-photo-remove').onclick=removeProfilePhoto;
 $('profile-photo-input').onchange=event=>chooseProfilePhoto(event.target.files?.[0]);
-$('team-list').onclick=e=>{const evidence=e.target.closest('[data-team-review]');if(evidence){openAdminReviewPerson(evidence.dataset.teamReview,evidence);return}const profile=e.target.closest('[data-team-profile]');if(profile)openTeamProfile(profile.dataset.teamProfile)};
+$('team-list').onclick=e=>{
+  const evidence=e.target.closest('[data-team-review]');
+  if(evidence){openAdminReviewPerson(evidence.dataset.teamReview,evidence);return}
+  const row=e.target.closest('[data-team-person]');
+  if(row){selectTeamPerson(row.dataset.teamPerson);return}
+  const profile=e.target.closest('[data-team-profile]');
+  if(profile)selectTeamPerson(profile.dataset.teamProfile);
+};
+$('team-list').onkeydown=e=>{
+  if(e.key==='Enter'||e.key===' '){
+    const row=e.target.closest('[data-team-person]');
+    if(row&&!e.target.closest('button')){e.preventDefault();selectTeamPerson(row.dataset.teamPerson);}
+  }
+};
+if($('team-view-general-btn')) $('team-view-general-btn').onclick=()=>selectTeamPerson(null);
+const teamWs=$('team-workspace');
+if(teamWs){
+  teamWs.addEventListener('click',e=>{
+    const evidence=e.target.closest('[data-team-review]');
+    if(evidence&&typeof openAdminReviewPerson==='function'){
+      e.stopPropagation();
+      openAdminReviewPerson(evidence.dataset.teamReview,evidence);
+    }
+  });
+}
 document.querySelectorAll('[data-close-team-profile]').forEach(button=>button.onclick=closeTeamProfile);
 $('month-prev').onclick=()=>{ APP.month--;if(APP.month<1){APP.month=12;APP.year--}loadHistory(); };
 $('month-next').onclick=()=>{ const n=new Date(),cur=n.getFullYear()*12+n.getMonth(),target=APP.year*12+(APP.month-1);if(target>=cur)return;APP.month++;if(APP.month>12){APP.month=1;APP.year++}loadHistory(); };
