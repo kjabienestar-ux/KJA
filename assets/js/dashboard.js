@@ -2575,7 +2575,7 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
     ? `data-daily-action="entry" aria-haspopup="dialog" aria-controls="mark-modal" aria-label="${complete?'Ver detalle de la entrada registrada':'Registrar mi asistencia'}"`
     : locked||complete&&!editable?'disabled':`data-daily-requirement="${esc(item.tipo)}" aria-haspopup="dialog" aria-controls="daily-evidence-editor"${editable?' data-daily-edit="true"':''}${item.asignacion==null?'':` data-daily-assignment="${esc(item.asignacion)}"`}`;
   const description=item.tipo==='salida'&&!complete
-    ? (CLOSE_MODEL.hasPendingWork(APP.cierre)?'Primero completa tu RPE y los entregables pendientes':locked?'1 foto con la hora visible, disponible al finalizar':'Último paso: adjunta 1 foto con la hora de salida')
+    ? (CLOSE_MODEL.hasPendingWork(APP.cierre)?`Primero completa ${dailyPendingWorkLabel(APP.cierre)}`:locked?'1 foto con la hora visible, disponible al finalizar':'Último paso: adjunta 1 foto con la hora de salida')
     : item.tipo==='comparticiones'&&!complete&&!locked&&review!=='observada'
       ? `Adjunta entre ${APP.cierre?.comparticiones_min||1} y ${FACEBOOK_EVIDENCE_MAX} capturas, o 1 collage`
       : (item.descripcion||'Adjunta la evidencia correspondiente');
@@ -2593,6 +2593,14 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
     <span class="day-close-item-copy"><b>${esc(item.titulo)}</b><small>${esc(description)}</small></span>
     <span class="day-close-item-status">${esc(status)}${editable?'<svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l10.5-10.5-4-4zM12.8 7.2l4 4"/></svg>':!complete&&!locked?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>':''}</span>
   </button>`;
+}
+
+function dailyPendingWorkLabel(close){
+  const rpe=(close?.requisitos||[]).some(item=>item.tipo==='rpe'&&!item.completo);
+  const assignments=(close?.asignaciones||[]).some(item=>item.estado!=='cancelada'&&!item.completo);
+  if(rpe&&assignments)return 'tu RPE y los entregables pendientes';
+  if(rpe)return 'tu RPE pendiente';
+  return 'los entregables pendientes';
 }
 
 function renderMobileDailyClose(data,items){
@@ -2886,7 +2894,7 @@ async function loadDailyEditableEvidence(request){
 
 function openDailyEvidenceEditor(requirement,assignment=null){
   if(DAILY_EVIDENCE.busy)return;
-  if(requirement==='salida'&&CLOSE_MODEL.hasPendingWork(APP.cierre)){toast('Primero completa tu RPE y los entregables pendientes. La salida es el último paso.');return;}
+  if(requirement==='salida'&&CLOSE_MODEL.hasPendingWork(APP.cierre)){toast(`Primero completa ${dailyPendingWorkLabel(APP.cierre)}. La salida es el último paso.`);return;}
   const data=APP.cierre,facebook=requirement==='comparticiones';
   if(!data||(!facebook&&(!data.entrada_at||data.salida_at||data.estado==='incompleta')))return;
   const item=requirement==='asignado'
@@ -3059,6 +3067,7 @@ function dailyEvidenceFailure(reason){
   return {
     sesion:'Tu sesión venció. Vuelve a ingresar.',
     no_habilitado:'El cierre diario todavía no está habilitado.',
+    rpe_no_requerido_presencial:'Hoy trabajas presencial y no necesitas registrar evidencia RPE. Actualiza el portal para continuar.',
     sin_entrada_o_cerrada:'La jornada no tiene una entrada abierta.',
     cantidad_comparticiones:`Adjunta entre ${min} y ${FACEBOOK_EVIDENCE_MAX} capturas, o utiliza una sola imagen tipo collage.`,
     foto_salida:'Selecciona una sola foto donde se vea claramente la hora de salida.',
@@ -3147,7 +3156,7 @@ function dailyExitMessage(text,type=''){
 }
 
 function openDailyExitModal(){
-  if(CLOSE_MODEL.hasPendingWork(APP.cierre)){toast('Completa tu RPE y los entregables pendientes antes de salir.');return;}
+  if(CLOSE_MODEL.hasPendingWork(APP.cierre)){toast(`Completa ${dailyPendingWorkLabel(APP.cierre)} antes de salir.`);return;}
   if(!APP.cierre?.puede_marcar_salida||DAILY_EXIT_BUSY)return;
   $('daily-exit-time').textContent=fmtTime(APP.cierre.hora_salida_programada);
   dailyExitMessage('La hora oficial se tomará del servidor de KJA.');
@@ -3162,7 +3171,7 @@ function closeDailyExitModal(){
 }
 
 async function markDailyExit(){
-  if(CLOSE_MODEL.hasPendingWork(APP.cierre)){dailyExitMessage('Completa tu RPE y los entregables pendientes antes de salir.','is-error');return;}
+  if(CLOSE_MODEL.hasPendingWork(APP.cierre)){dailyExitMessage(`Completa ${dailyPendingWorkLabel(APP.cierre)} antes de salir.`,'is-error');return;}
   if(!APP.cierre?.puede_marcar_salida||DAILY_EXIT_BUSY)return;
   DAILY_EXIT_BUSY=true;
   const button=$('day-close-button'),confirmButton=$('daily-exit-confirm');button.disabled=true;confirmButton.disabled=true;confirmButton.querySelector('span').textContent='Registrando…';dailyExitMessage('Validando el cierre con la hora oficial…');

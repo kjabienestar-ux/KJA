@@ -2,11 +2,11 @@
 (function(){'use strict';
   const get=id=>document.getElementById(id),model=window.KJARankingModel;
   const CRITERION_KEYS=['entrada','rpe','facebook','salida'];
-  const labels={entrada:'Entrada puntual',rpe:'RPE en horario / Administración',facebook:'Comparticiones de Facebook',salida:'Salida en horario',penalizacion:'Descuento por asignación',tope:'Descuento máximo'};
+  const labels={entrada:'Entrada puntual',rpe:'RPE en jornadas virtuales',facebook:'Comparticiones de Facebook',salida:'Salida en horario',penalizacion:'Descuento por asignación',tope:'Descuento máximo'};
   const SHORT_LABELS={entrada:'Entrada',rpe:'RPE',facebook:'Facebook',salida:'Salida'};
   const CRITERION_HELP={
     entrada:'Marca de entrada dentro de los minutos de tolerancia configurados por Dirección. Se compara con tus días laborables programados desde el día 1.',
-    rpe:'RPE aprobado, con archivo, subido dentro de la jornada. También cuenta si Administración lo cargó para esa fecha (se reconoce aunque se registre después).',
+    rpe:'Se evalúa únicamente en jornadas virtuales. Debe estar aprobado, tener archivo y haberse subido dentro de la jornada; también cuenta una carga auditada de Administración. Si todo el periodo fue presencial, recibe crédito neutral.',
     facebook:'Evidencias completas y aprobadas para cada día asignado en la agenda de comparticiones, trabajes o no ese día. Los pendientes de revisión y observados no suman aún.',
     salida:'Salida dentro de la ventana permitida (antes o después del horario programado según la política activa). Se evalúan solo las franjas ya terminadas.'
   };
@@ -118,7 +118,7 @@
     const grid=get('ranking-detail-criteria-grid');grid.replaceChildren();
     for(const key of CRITERION_KEYS){
       const[num,den]=model.pairs[key];
-      const earned=row.parts[key],max=weights[key],done=Number(m[num]||0),total=Number(m[den]||0);
+      const earned=row.parts[key],max=weights[key],done=Number(m[num]||0),total=Number(m[den]||0),neutralRpe=key==='rpe'&&total===0&&Number(m.rpe_exentos_presencial||0)>0;
       const card=el('div',undefined,'ranking-detail-criterion');
       card.style.setProperty('--criterion-color',CRITERION_COLORS[key]);
       const head=el('div',undefined,'ranking-detail-criterion-head');
@@ -130,14 +130,14 @@
       }
       head.append(el('span',CRITERION_ICONS[key],'ranking-detail-criterion-icon'),el('span',labels[key],'ranking-detail-criterion-label'),tipEl);
       const scoreLine=el('div',undefined,'ranking-detail-criterion-score');
-      scoreLine.append(el('strong',earned===null?'Sin programación':`${point(earned)} / ${max} pts`),el('small',`${done} de ${total} días`));
+      scoreLine.append(el('strong',neutralRpe?`Crédito neutral · ${point(earned)} / ${max} pts`:earned===null?'Sin programación':`${point(earned)} / ${max} pts`),el('small',neutralRpe?`${Number(m.rpe_exentos_presencial)} días presenciales exentos`:`${done} de ${total} días`));
       const barEl=bar(earned,max,`${labels[key]}: ${point(earned)} de ${max}`,key);barEl.classList.add('ranking-detail-bar');
       const pct=total?Math.min(100,Math.round(done/total*100)):null;
       const ring=el('div',undefined,'ranking-detail-ring');ring.style.setProperty('--progress',`${pct||0}%`);
-      ring.setAttribute('role','img');ring.setAttribute('aria-label',`${SHORT_LABELS[key]}: ${pct===null?'sin programación':pct+'% de cumplimiento'}`);
-      ring.append(el('b',pct===null?'—':`${pct}%`));
+      ring.setAttribute('role','img');ring.setAttribute('aria-label',`${SHORT_LABELS[key]}: ${neutralRpe?'exento por presencial':pct===null?'sin programación':pct+'% de cumplimiento'}`);
+      ring.append(el('b',neutralRpe?'Exento':pct===null?'—':`${pct}%`));
       const missing=Math.max(0,total-done);
-      const explanation=el('p',!total?'Sin días programados.':missing?`${missing} ${missing===1?'día no suma':'días no suman'} puntos.`:'Cumplimiento completo.','ranking-detail-explanation');
+      const explanation=el('p',neutralRpe?'Exento por presencial: no se solicitó evidencia RPE.':!total?'Sin días programados.':missing?`${missing} ${missing===1?'día no suma':'días no suman'} puntos.`:'Cumplimiento completo.','ranking-detail-explanation');
       if(key==='salida'&&total)explanation.textContent=missing?`${missing} ${missing===1?'día sin salida válida':'días sin salida válida'}.`:'Todas las salidas evaluadas son válidas.';
       card.append(head,ring,scoreLine,explanation);grid.append(card);
     }
@@ -252,7 +252,7 @@
     renderAnalytics(filtered);
     get('ranking-results').replaceChildren();get('ranking-leaders').replaceChildren();
     // Guide text
-    get('ranking-guide').textContent=`Entrada puntual: ${weights.entrada} puntos. RPE en horario o cargado por Administración: ${weights.rpe}. Facebook en sus días asignados, trabajes o no: ${weights.facebook}. Salida en horario: ${weights.salida}. Se descuentan ${weights.penalizacion} puntos por asignación incumplida, hasta ${weights.tope}.`;
+    get('ranking-guide').textContent=`Entrada puntual: ${weights.entrada} puntos. RPE solo en jornadas virtuales, en horario o cargado por Administración: ${weights.rpe}. Los periodos completamente presenciales reciben crédito neutral. Facebook en sus días asignados, trabajes o no: ${weights.facebook}. Salida en horario: ${weights.salida}. Se descuentan ${weights.penalizacion} puntos por asignación incumplida, hasta ${weights.tope}.`;
     // Chart (top 10) — clickable rows
     const chart=get('ranking-chart');
     const areaName=area?(get('ranking-area').options[get('ranking-area').selectedIndex]?.text||''):'';
@@ -327,7 +327,7 @@
       if(!/^\d{4}-\d{2}$/.test(month))throw Error('Selecciona un mes.');
       const{data,error}=await db.rpc('dash_ranking_mes',{p_mes:month+'-01'});if(token!==request)return;
       if(error)throw error;
-      if(data.version!==3)throw Error('Actualiza la función ejecutando dashboard_54_ranking_cumplimiento.sql.');
+      if(data.version!==4)throw Error('Actualiza la función ejecutando dashboard_70_rpe_presencial.sql.');
       rows=data.filas||[];
       exitPolicy={before:Number(data.salida_anticipacion_min),after:Number(data.salida_gracia_min)};
       if(typeof hydrateProfilePhotos==='function'){
@@ -348,7 +348,7 @@
     }catch(error){
       if(token!==request)return;
       get('ranking-status').textContent=error.code==='PGRST202'
-        ?'Falta ejecutar dashboard_54_ranking_cumplimiento.sql en Supabase.'
+        ?'Falta ejecutar dashboard_70_rpe_presencial.sql en Supabase.'
         :'No se pudo calcular el ranking. '+(error.message||'Intenta actualizar.');
     }
   };

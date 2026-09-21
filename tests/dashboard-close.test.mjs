@@ -610,13 +610,14 @@ test('every user notification visibly identifies the Direction message and sende
 
 test('admin close evidence progress survives an incomplete close summary', () => {
   assert.match(adminJs,/function adminCloseEvidenceProgress\(person,reviews=\[\]\)/);
-  assert.match(adminJs,/if\(person\?\.labora&&close\.aplica_jornada!==false\)expected\.add\('requisito:rpe'\)/);
+  assert.match(adminJs,/if\(person\?\.labora&&close\.aplica_jornada!==false&&close\.requiere_rpe!==false\)expected\.add\('requisito:rpe'\)/);
+  assert.match(adminJs,/if\(item\.requisito==='rpe'&&close\.requiere_rpe===false\)continue/);
   assert.match(adminJs,/if\(close\.aplica_comparticiones===true\)expected\.add\('requisito:comparticiones'\)/);
   assert.match(adminJs,/if\(item\.estado==='completo'\)complete\.add\(key\);else complete\.delete\(key\)/);
   assert.match(adminJs,/progress=adminCloseEvidenceProgress\(person,personReviews\)/);
   assert.doesNotMatch(adminJs,/globalDone\+assignedDone/);
   const helperStart=adminJs.indexOf('function adminCloseEvidenceKey');
-  const helperEnd=adminJs.indexOf('\n\nfunction adminCloseMsg',helperStart);
+  const helperEnd=adminJs.indexOf('function adminCloseMsg',helperStart);
   const helperContext={};
   vm.runInNewContext(adminJs.slice(helperStart,helperEnd),helperContext);
   const complete=helperContext.adminCloseEvidenceProgress(

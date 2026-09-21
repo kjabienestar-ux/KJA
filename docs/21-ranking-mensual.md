@@ -1,19 +1,19 @@
 # Ranking mensual: fórmula de prueba
 
-## Versión vigente: requisitos de cumplimiento (SQL 54)
+## Versión vigente: requisitos de cumplimiento (SQL 70)
 
-Ejecutar `dashboard_54_ranking_cumplimiento.sql` después de 53. La RPC devuelve versión 3; el cliente rechaza versiones anteriores. Las secciones inferiores describen las fórmulas previas y ya no gobiernan la evaluación vigente.
+Ejecutar las migraciones en orden hasta `dashboard_70_rpe_presencial.sql`. La RPC devuelve versión 4. Las secciones inferiores describen las fórmulas previas y ya no gobiernan la evaluación vigente.
 
 | Criterio actual | Máximo | Requisito |
 |---|---:|---|
 | Entrada puntual | 25 | Registro P según la puntualidad ya configurada en el sistema |
-| RPE | 25 | Requisito completo, archivo y aprobación; carga dentro de inicio/fin laboral o carga administrativa auditada para esa fecha |
+| RPE | 25 | Solo jornadas virtuales: requisito completo, archivo y aprobación; carga dentro de inicio/fin laboral o carga administrativa auditada para esa fecha |
 | Facebook | 30 | Comparticiones completas con archivo y aprobación para cada fecha de su agenda, incluso sin jornada laboral |
 | Salida en horario | 20 | Salida registrada dentro de la ventana de anticipación/gracia del cierre configurada |
 
-RPE significa el reporte que el usuario también llama ERP. La carga administrativa tiene una excepción explícita al horario de subida: su auditoría reconoce la fecha asignada, ya que actualmente no existe una hora reportada independiente para RPE. Facebook se valida por la evidencia vinculada a su fecha, no por consultar la red social ni por la hora de subida del archivo. Se exige que el resumen del requisito lo considere completo (incluidos los mínimos de imágenes/collage).
+RPE significa el reporte que el usuario también llama ERP. Desde la fecha configurada por la migración 70, una jornada presencial no solicita RPE ni entra en su denominador. Si todo el periodo evaluable fue presencial, recibe crédito neutral; si hubo jornadas virtuales, solo ellas determinan los puntos RPE. La carga administrativa tiene una excepción explícita al horario de subida: su auditoría reconoce la fecha asignada, ya que actualmente no existe una hora reportada independiente para RPE. Facebook se valida por la evidencia vinculada a su fecha, no por consultar la red social ni por la hora de subida del archivo.
 
-Cada criterio tiene su propio denominador desde el día 1: jornadas terminadas para entrada/salida, días con RPE exigible para RPE y agenda independiente para Facebook. Se cuentan cumplimientos solamente desde el ingreso. No se multiplica otra vez por participación; el denominador ya produce la proporción. Un colaborador con días de Facebook pero sin jornada también puede aparecer. No se premian horas extra ni se evalúan reuniones en esta fórmula. Criterios sin programación no reciben puntos ni redistribuyen su peso.
+Cada criterio tiene su propio denominador desde el día 1: jornadas terminadas para entrada/salida, jornadas virtuales con RPE exigible y agenda independiente para Facebook. Se cuentan cumplimientos solamente desde el ingreso. No se multiplica otra vez por participación; el denominador ya produce la proporción. Un colaborador con días de Facebook pero sin jornada también puede aparecer. No se premian horas extra ni se evalúan reuniones en esta fórmula. Los criterios sin programación no reciben puntos ni redistribuyen su peso, salvo el crédito neutral de RPE cuando el periodo tuvo jornadas presenciales evaluables y ninguna virtual.
 
 Solo fechas hasta ayer y ventanas ya cerradas. Se excluyen jornadas J/NG sin borrar por ello las obligaciones independientes de compartir. Las asignaciones obligatorias activas e incumplidas conservan el descuento de 3 puntos, tope 15; una entrega pendiente de revisión no produce esa penalización. Los pesos siguen siendo simulaciones locales. Se usan horarios y áreas actuales; no son instantáneas históricas ni premios oficiales.
 

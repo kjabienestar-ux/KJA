@@ -11,7 +11,8 @@
       const participation=Number(m.dias_mes)>0?Math.min(1,Math.max(0,Number(m.dias||0)/Number(m.dias_mes))):0;
       for(const [key,[num,den]] of Object.entries(pairs)){
         const required=Number(m[den]||0),done=Number(m[num]||0);
-        parts[key]=required>0?Math.min(1,Math.max(0,done/required))*weights[key]:null;
+        const neutralRpe=key==='rpe'&&required===0&&Number(m.rpe_exentos_presencial||0)>0;
+        parts[key]=required>0?Math.min(1,Math.max(0,done/required))*weights[key]:neutralRpe?weights[key]:null;
         if(parts[key]!==null){total+=parts[key];coverage+=weights[key]}
       }
       const penalty=Math.min(weights.tope,Math.max(0,Number(m.asignaciones_incumplidas)||0)*weights.penalizacion);

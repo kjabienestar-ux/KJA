@@ -11,7 +11,8 @@
 
 - Muestra el área del colaborador junto al saludo.
 - Conserva `marcado_at` como entrada.
-- Exige comparticiones y RPE antes de permitir la salida.
+- Exige comparticiones y RPE antes de permitir la salida; desde la migración 70,
+  RPE aplica únicamente a jornadas virtuales.
 - Admite cinco capturas de comparticiones o una imagen tipo collage.
 - Muestra entregables particulares cuando han sido asignados.
 - Añade en Administración la vista **Cierres y entregables** para asignar por

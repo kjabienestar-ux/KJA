@@ -202,3 +202,8 @@ regresión están en `docs/10-despliegue-cierre-jornada.md`.
 No se debe publicar el checklist nuevo antes de ejecutar la migración y
 desplegar la función de subida. La activación inicial está fechada para el 7 de
 septiembre de 2026, de modo que el historial anterior conserva su validez.
+
+La política posterior que exime RPE en jornadas presenciales se instala con
+`supabase/dashboard_70_rpe_presencial.sql`. Su fecha de vigencia se guarda al
+instalarla y no elimina evidencias históricas. El procedimiento y las pruebas
+operativas están en `docs/26-rpe-presencial.md`.
