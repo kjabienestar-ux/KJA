@@ -20,7 +20,7 @@ function adminEvidenceMissing(person,reviews=null){
   if(close.justificado)return (close.requisitos||[]).filter(item=>item.tipo==='comparticiones'&&!item.completo&&!personReviews.some(review=>review.requisito==='comparticiones'&&review.estado==='completo')).map(item=>({kind:item.tipo,assignment:null,title:item.titulo,copy:item.descripcion||'Evidencia requerida'}));
   const globals=(close.requisitos||[]).filter(item=>!item.completo&&(item.tipo==='comparticiones'||hasEntry)).map(item=>({kind:item.tipo,assignment:null,title:item.titulo,copy:item.descripcion||'Evidencia requerida'}));
   const exitDelivered=personReviews.some(item=>item.requisito==='salida'&&item.estado==='completo');
-  if(hasEntry&&!close.salida_at&&!exitDelivered&&!globals.some(item=>item.kind==='salida'))globals.push({kind:'salida',assignment:null,title:'Evidencia de hora de salida',copy:'Adjunta la foto recibida e indica la hora visible'});
+  if(close.requiere_salida!==false&&hasEntry&&!close.salida_at&&!exitDelivered&&!globals.some(item=>item.kind==='salida'))globals.push({kind:'salida',assignment:null,title:'Evidencia de hora de salida',copy:'Adjunta la foto recibida e indica la hora visible'});
   const assigned=hasEntry?(close.asignaciones||[]).filter(item=>!item.completo).map(item=>({kind:'asignado',assignment:Number(item.id),title:item.titulo,copy:item.instrucciones||'Entregable asignado'})):[];
   return [...globals,...assigned];
 }
@@ -33,7 +33,7 @@ function adminCloseEvidenceKey(item,assignment=false){
 
 function adminCloseEvidenceProgress(person,reviews=[]){
   const close=person?.cierre||{},expected=new Set(),complete=new Set(),latest=new Map();
-  if(close.justificado)return adminCloseEvidenceProgress({cierre:{requisitos:(close.requisitos||[]).filter(item=>item.tipo==='comparticiones'),aplica_comparticiones:close.aplica_comparticiones}},reviews.filter(item=>item.requisito==='comparticiones'));
+  if(close.justificado||close.solo_asistencia_comparticiones)return adminCloseEvidenceProgress({cierre:{requisitos:(close.requisitos||[]).filter(item=>item.tipo==='comparticiones'),aplica_comparticiones:close.aplica_comparticiones}},reviews.filter(item=>item.requisito==='comparticiones'));
   for(const item of close.requisitos||[]){const key=adminCloseEvidenceKey(item);if(!key)continue;expected.add(key);if(item.completo)complete.add(key)}
   for(const item of close.asignaciones||[]){const key=adminCloseEvidenceKey(item,true);if(!key)continue;expected.add(key);if(item.completo)complete.add(key)}
   if(person?.labora&&close.aplica_jornada!==false)expected.add('requisito:rpe');

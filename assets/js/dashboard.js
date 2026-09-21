@@ -2534,6 +2534,12 @@ function dailyCloseStatusCopy(state){
 }
 
 function dailyCloseGuidePresentation(data){
+  if(data.solo_asistencia_comparticiones&&!data.solo_comparticiones){
+    if(!data.entrada_at)return {stage:'entry',title:'Registra tu asistencia',copy:'Tu día requiere asistencia y las comparticiones programadas.'};
+    if(data.estado==='completa')return {stage:'complete',title:'Día completo',copy:'Tu asistencia y las comparticiones del día están registradas.'};
+    if(data.comparticiones_vencidas)return {stage:'incomplete',title:'Comparticiones pendientes',copy:'Terminó el horario sin completar las comparticiones.'};
+    return {stage:'facebook',title:'Completa tus comparticiones',copy:data.puede_compartir?'Adjunta tus capturas para completar el día.':'La carga se abrirá dentro de tu horario de Facebook.'};
+  }
   if(data.solo_comparticiones){
     if((data.pendientes||0)>0)return data.comparticiones_vencidas
       ?{stage:'incomplete',title:'Compartición no entregada',copy:`El horario de Facebook terminó a las ${fmtTime(data.compartir_hasta)} sin registrar las capturas.`}
@@ -2621,6 +2627,7 @@ function renderMobileDailyClose(data,items){
   }else{
     bannerTitle='Evidencias completas';bannerCopy=`Podrás registrar tu salida desde las ${fmtTime(data.salida_desde)}.`;
   }
+  if(data.solo_asistencia_comparticiones&&!facebookOnly){const guide=dailyCloseGuidePresentation(data);bannerTitle=guide.title;bannerCopy=guide.copy;$('mobile-close-copy').textContent='Registra tu asistencia y completa las comparticiones del día.';}
   $('mobile-close-banner-title').textContent=bannerTitle;
   $('mobile-close-banner-copy').textContent=bannerCopy;
   $('mobile-close-banner-meta').textContent=items.length?`${completedItems} de ${items.length} completados`:'Sin tareas asignadas';
@@ -2644,6 +2651,7 @@ function renderMobileDailyClose(data,items){
   }else{
     action.querySelector('span').textContent=`Salida desde ${fmtTime(data.salida_desde)}`;$('mobile-close-footer-title').textContent='Evidencias completas';$('mobile-close-footer-copy').textContent='La salida se habilitará en el horario indicado.';
   }
+  if(data.requiere_salida===false&&entryComplete)action.hidden=true;
   // Sync mobile time cards with close data
   renderMobileTimeRecord({entryAt:data.entrada_at,exitAt:data.salida_at,scheduledExit:data.hora_salida_programada});
   if(data.salida_at)$('mobile-close-footer-copy').textContent=`${Number(data.horas_efectivas||0).toFixed(2)} horas acreditadas.`;
@@ -2753,6 +2761,14 @@ function renderDailyClose(){
     return;
   }
 
+  if(data.requiere_salida===false){
+    button.hidden=true;
+    $('day-close-time-label').textContent='ASISTENCIA REGISTRADA';
+    $('day-close-time').textContent=formatAttendanceClock(data.entrada_at);
+    $('day-close-window').textContent='Completa tus comparticiones programadas';
+    dailyCloseMessage(dailyCloseGuidePresentation(data).copy,data.estado==='completa'?'is-success':'');
+    return;
+  }
   $('day-close-time-label').textContent='HORA DE SALIDA';
   $('day-close-time').textContent=data.salida_at?formatAttendanceClock(data.salida_at):fmtTime(data.hora_salida_programada);
   $('day-close-window').textContent=data.salida_at?'Hora oficial registrada':data.salida_desde&&data.salida_hasta?`Disponible de ${fmtTime(data.salida_desde)} a ${fmtTime(data.salida_hasta)}`:'Horario por revisar';

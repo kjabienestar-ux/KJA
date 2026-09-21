@@ -331,6 +331,50 @@
   display: block !important;
 }
 
+/* Pending actions share the warm palette of the daily checklist. */
+#portal:not(.admin-wide) :is(#day-close, #mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked) .day-close-item-status {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-height: 34px !important;
+  padding: 7px 11px !important;
+  border: 1px solid #dcbfae !important;
+  border-radius: 9px !important;
+  background: #f5e9e1 !important;
+  color: #75422f !important;
+  box-shadow: none !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-align: center !important;
+  transition: background-color 160ms ease-out, border-color 160ms ease-out;
+}
+#portal:not(.admin-wide) :is(#day-close, #mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked) .day-close-item-status::before {
+  content: none !important;
+}
+#portal:not(.admin-wide) :is(#day-close, #mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked) .day-close-item-status svg {
+  display: block !important;
+  width: 14px !important;
+  height: 14px !important;
+  flex-shrink: 0;
+}
+@media (hover: hover) {
+  #portal:not(.admin-wide) :is(#day-close, #mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked):not(:disabled):hover .day-close-item-status {
+    background: #eddbcf !important;
+    border-color: #bb927b !important;
+  }
+}
+#portal:not(.admin-wide) :is(#day-close, #mobile-close-panel) .day-close-item:not(.is-complete):not(.is-locked):focus-visible {
+  outline: 2px solid #75422f !important;
+  outline-offset: 3px !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  #portal:not(.admin-wide) :is(#day-close, #mobile-close-panel) .day-close-item-status { transition: none; }
+}
+
 /* Item Status Badge */
 #portal:not(.admin-wide) #day-close .day-close-item-status {
   display: inline-flex !important;
