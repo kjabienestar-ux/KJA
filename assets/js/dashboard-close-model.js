@@ -30,12 +30,12 @@
     const labels={rpe:'RPE y evidencias del día',salida:'Evidencia de salida'};
     for(const item of close.requisitos||[]){
       // Facebook has its own deadline and does not determine the working-day close.
-      if(item.tipo!=='comparticiones'&&!item.completo)reasons.push(item.titulo||labels[item.tipo]||'Evidencia pendiente');
+      if((item.tipo!=='comparticiones'||close.solo_asistencia_comparticiones)&&!item.completo)reasons.push(item.titulo||labels[item.tipo]||'Evidencia pendiente');
     }
     for(const item of close.asignaciones||[]){
       if(!item.completo&&item.estado!=='cancelada')reasons.push(item.titulo||'Entregable asignado');
     }
-    if(Object.hasOwn(close,'salida_at')&&!close.salida_at)reasons.push('Registro de salida');
+    if(close.requiere_salida!==false&&Object.hasOwn(close,'salida_at')&&!close.salida_at)reasons.push('Registro de salida');
     return [...new Set(reasons)];
   }
 
