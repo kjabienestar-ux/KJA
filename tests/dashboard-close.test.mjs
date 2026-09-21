@@ -1053,6 +1053,27 @@ test('the rail announcement opens an accessible full-screen viewer', () => {
   assert.doesNotMatch(css,/\.rail-announcement-media:hover\{[^}]*transform:/);
 });
 
+test('announcement carousel starts with reports, keeps both slides and pauses accessibly', () => {
+  const reportesWebp=fs.readFileSync(new URL('../images/dashboard/comunicado-reportes.webp',import.meta.url));
+  const reportesPng=fs.statSync(new URL('../images/dashboard/comunicado-reportes.png',import.meta.url));
+  assert.equal(reportesWebp.subarray(0,4).toString('ascii'),'RIFF');
+  assert.equal(reportesWebp.subarray(8,12).toString('ascii'),'WEBP');
+  assert.ok(reportesWebp.length<reportesPng.size);
+  assert.match(html,/id="rail-announcement-carousel"[\s\S]*?role="region"[\s\S]*?aria-roledescription="carrusel"/);
+  assert.match(html,/id="rail-announcement-image"[\s\S]*?comunicado-reportes\.webp/);
+  assert.match(html,/id="rail-announcement-prev"[\s\S]*?id="rail-announcement-dots"[\s\S]*?id="rail-announcement-next"/);
+  assert.match(html,/id="announcement-viewer-image"[\s\S]*?comunicado-reportes\.webp/);
+  assert.match(html,/id="announcement-viewer-prev"[\s\S]*?id="announcement-viewer-dots"[\s\S]*?id="announcement-viewer-next"/);
+  assert.ok(js.indexOf("title:'Reportes consolidados'")<js.indexOf("title:'Envío de comprobantes'"));
+  assert.match(js,/const ANNOUNCEMENT_ROTATION_MS=7000/);
+  assert.match(js,/announcementHoverPaused/);
+  assert.match(js,/announcementFocusPaused/);
+  assert.match(js,/announcementModalOpen/);
+  assert.match(js,/prefers-reduced-motion: reduce/);
+  assert.match(css,/\.rail-announcement-controls\{/);
+  assert.match(css,/\.announcement-main-sheet\{grid-template-rows:auto minmax\(0,1fr\) auto\}/);
+});
+
 test('desktop header replaces date chrome with live monthly attendance progress', () => {
   assert.match(html,/class="dashboard-month-progress"/);
   assert.match(html,/id="dashboard-month-days"/);

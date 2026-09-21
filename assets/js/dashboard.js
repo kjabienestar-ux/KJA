@@ -2368,25 +2368,103 @@ $('personal-request-start').onchange=event=>{const end=$('personal-request-end')
 $('personal-request-end').onchange=syncRequestDateButtons;
 $('calendar-grid').onclick=event=>{const day=event.target.closest('[data-history-date]');if(day)openAttendanceDay(day.dataset.historyDate)};
 $('rail-calendar-open').onclick=()=>goView('asistencia');
-$('rail-announcement-open').onclick=()=>{
+const ANNOUNCEMENTS=[
+  {title:'Reportes consolidados',src:'images/dashboard/comunicado-reportes.webp',alt:'Comunicado KJA sobre el seguimiento de comparticiones y reportes consolidados en Excel',fallback:'La Dirección generará reportes consolidados en Excel para dar seguimiento a las comparticiones.'},
+  {title:'Envío de comprobantes',src:'images/dashboard/comunicado-comparticiones.webp',alt:'Comunicado KJA sobre el envío de comprobantes de comparticiones por WhatsApp',fallback:'Envía tu comprobante de comparticiones por WhatsApp directamente desde el portal.'}
+];
+const ANNOUNCEMENT_ROTATION_MS=7000;
+let announcementIndex=0;
+let announcementTimer=null;
+let announcementHoverPaused=false;
+let announcementFocusPaused=false;
+let announcementModalOpen=false;
+const announcementCarousel=$('rail-announcement-carousel');
+const announcementImage=$('rail-announcement-image');
+const announcementFallback=$('rail-announcement-fallback');
+const announcementViewer=$('announcement-viewer');
+const announcementViewerImage=$('announcement-viewer-image');
+
+function announcementReducedMotion(){return typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches}
+function renderAnnouncementDots(id,controlsId,className){
+  const container=$(id);if(!container)return;
+  container.replaceChildren(...ANNOUNCEMENTS.map((item,index)=>{
+    const button=document.createElement('button');
+    button.type='button';button.className=className;button.role='tab';button.dataset.announcementIndex=String(index);button.setAttribute('aria-controls',controlsId);button.setAttribute('aria-label',`Mostrar comunicado: ${item.title}`);button.onclick=()=>showAnnouncement(index);
+    return button;
+  }));
+}
+function updateAnnouncementDots(){
+  document.querySelectorAll('[data-announcement-index]').forEach(button=>{const selected=Number(button.dataset.announcementIndex)===announcementIndex;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1});
+}
+function showAnnouncement(index){
+  announcementIndex=(index+ANNOUNCEMENTS.length)%ANNOUNCEMENTS.length;
+  const item=ANNOUNCEMENTS[announcementIndex];
+  $('rail-announcement-title').textContent=item.title;
+  $('announcement-viewer-title').textContent=item.title;
+  $('rail-announcement-fallback-title').textContent=item.title;
+  $('rail-announcement-fallback-copy').textContent=item.fallback;
+  if(announcementImage){announcementImage.src=item.src;announcementImage.alt=item.alt;announcementImage.hidden=false}
+  if(announcementViewerImage){announcementViewerImage.src=item.src;announcementViewerImage.alt=item.alt;announcementViewerImage.hidden=false}
+  if(announcementFallback)announcementFallback.hidden=true;
+  const status=`${announcementIndex+1} de ${ANNOUNCEMENTS.length}`;
+  $('rail-announcement-status').textContent=status;
+  $('announcement-viewer-status').textContent=status;
+  updateAnnouncementDots();
+  syncAnnouncementRotation();
+}
+function syncAnnouncementRotation(){
+  clearInterval(announcementTimer);announcementTimer=null;
+  if(ANNOUNCEMENTS.length<2||document.hidden||announcementModalOpen||announcementHoverPaused||announcementFocusPaused||announcementReducedMotion())return;
+  announcementTimer=setInterval(()=>showAnnouncement(announcementIndex+1),ANNOUNCEMENT_ROTATION_MS);
+}
+function openAnnouncementViewer(){
   const modal=$('announcement-viewer');
+  announcementModalOpen=true;syncAnnouncementRotation();
   modal.hidden=false;
   document.body.classList.add('announcement-viewer-open');
   requestAnimationFrame(()=>modal.querySelector('.announcement-viewer-close').focus());
-};
+}
+$('rail-announcement-open').onclick=openAnnouncementViewer;
 function closeAnnouncementViewer(){
   const modal=$('announcement-viewer');
   if(modal.hidden)return false;
   modal.hidden=true;
   document.body.classList.remove('announcement-viewer-open');
+  announcementModalOpen=false;syncAnnouncementRotation();
   $('rail-announcement-open').focus({preventScroll:true});
   return true;
 }
 document.querySelectorAll('[data-close-announcement]').forEach(button=>button.onclick=closeAnnouncementViewer);
+function announcementFocusableElements(){
+  return [...announcementViewer.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(element=>!element.hidden&&!element.closest('[hidden]'));
+}
+$('rail-announcement-image').onerror=()=>{announcementImage.hidden=true;announcementFallback.hidden=false};
+$('rail-announcement-prev').onclick=()=>showAnnouncement(announcementIndex-1);
+$('rail-announcement-next').onclick=()=>showAnnouncement(announcementIndex+1);
+$('announcement-viewer-prev').onclick=()=>showAnnouncement(announcementIndex-1);
+$('announcement-viewer-next').onclick=()=>showAnnouncement(announcementIndex+1);
+announcementCarousel.addEventListener('mouseenter',()=>{announcementHoverPaused=true;syncAnnouncementRotation()});
+announcementCarousel.addEventListener('mouseleave',()=>{announcementHoverPaused=false;syncAnnouncementRotation()});
+announcementCarousel.addEventListener('focusin',()=>{announcementFocusPaused=true;syncAnnouncementRotation()});
+announcementCarousel.addEventListener('focusout',event=>{if(!announcementCarousel.contains(event.relatedTarget)){announcementFocusPaused=false;syncAnnouncementRotation()}});
 $('announcement-viewer').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeAnnouncementViewer();return}
-  if(event.key==='Tab'){event.preventDefault();$('announcement-viewer').querySelector('.announcement-viewer-close').focus()}
+  if(event.key==='ArrowLeft'){event.preventDefault();showAnnouncement(announcementIndex-1);return}
+  if(event.key==='ArrowRight'){event.preventDefault();showAnnouncement(announcementIndex+1);return}
+  if(event.key==='Tab'){
+    const focusable=announcementFocusableElements();if(!focusable.length)return;
+    const first=focusable[0];const last=focusable[focusable.length-1];
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+  }
 });
+document.addEventListener('visibilitychange',syncAnnouncementRotation);
+const announcementMotionQuery=typeof matchMedia==='function'?matchMedia('(prefers-reduced-motion: reduce)'):null;
+if(announcementMotionQuery?.addEventListener)announcementMotionQuery.addEventListener('change',syncAnnouncementRotation);
+else if(announcementMotionQuery?.addListener)announcementMotionQuery.addListener(syncAnnouncementRotation);
+renderAnnouncementDots('rail-announcement-dots','rail-announcement-image','rail-announcement-dot');
+renderAnnouncementDots('announcement-viewer-dots','announcement-viewer-image','announcement-viewer-dot');
+showAnnouncement(0);
 $('admin-refresh').onclick=()=>APP.adminSection==='ranking'&&typeof loadAdminRanking==='function'?loadAdminRanking():APP.adminSection==='control'&&typeof loadAdminControl==='function'?loadAdminControl():APP.adminSection==='lista'?loadAdminAttendance():(APP.adminSection==='mes'||APP.adminSection==='resumen')&&typeof loadAdminMonth==='function'?loadAdminMonth(true):['cierres','asignaciones'].includes(APP.adminSection)&&typeof loadAdminCloses==='function'?loadAdminCloses():APP.adminSection==='marcado'&&typeof loadAdminAccess==='function'?loadAdminAccess():APP.adminSection==='roles'&&typeof loadAdminRoles==='function'?loadAdminRoles():(APP.adminSection==='colaboradores'||APP.adminSection==='contratos')&&typeof loadAdminTeam==='function'?loadAdminTeam():loadAdminHub();
 $('admin-request-refresh').onclick=loadAdminHub;
 document.querySelectorAll('[data-admin-section]').forEach(b=>b.onclick=()=>showAdminSection(b.dataset.adminSection));
