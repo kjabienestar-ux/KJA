@@ -1,0 +1,721 @@
+/* KJA · Modal de Anuncios y Comunicados Institucionales — v2 Rediseño Premium */
+
+/* ─── Variables de marca ─────────────────────────────────────────── */
+:root {
+  --kja-pink:       #ef0b72;
+  --kja-pink-dark:  #c2065c;
+  --kja-pink-glow:  rgba(239, 11, 114, 0.35);
+  --kja-navy:       #09244c;
+  --kja-navy-mid:   #0f3470;
+  --kja-glass-bg:   rgba(255, 255, 255, 0.7);
+  --kja-glass-bdr:  rgba(255, 255, 255, 0.55);
+}
+
+/* ─── Bloqueo de scroll ──────────────────────────────────────────── */
+body.kja-announcement-open {
+  overflow: hidden !important;
+}
+
+/* ─── Overlay / Backdrop ─────────────────────────────────────────── */
+.kja-announcement-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  /* Fondo con gradiente y blur para profundidad */
+  background: radial-gradient(ellipse at 60% 40%, rgba(9, 36, 76, 0.62) 0%, rgba(3, 14, 31, 0.78) 100%);
+  backdrop-filter: blur(10px) saturate(1.4);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.28s ease;
+  /* Patrón de puntos sutil en el fondo */
+  background-image:
+    radial-gradient(ellipse at 60% 40%, rgba(9, 36, 76, 0.62) 0%, rgba(3, 14, 31, 0.78) 100%),
+    radial-gradient(circle, rgba(239,11,114,0.07) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px;
+}
+
+.kja-announcement-overlay[hidden] {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.kja-announcement-backdrop {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ─── Tarjeta principal ──────────────────────────────────────────── */
+.kja-announcement-dialog {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 500px;
+  max-height: 92vh;
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  /* Glassmorphism base */
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(239, 11, 114, 0.12),
+    0 8px 32px -4px rgba(9, 36, 76, 0.22),
+    0 32px 64px -16px rgba(9, 36, 76, 0.32),
+    0 0 80px -20px rgba(239, 11, 114, 0.18);
+  overflow: hidden;
+  animation: kjaAnnouncementIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  outline: none;
+}
+
+@keyframes kjaAnnouncementIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(24px);
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* ─── Botón de cierre (fuera del flyer) ─────────────────────────── */
+/*
+  El botón es hijo directo del overlay (position: fixed).
+  Lo posicionamos con position: absolute para que flote
+  justo en la esquina superior derecha del dialog,
+  sin superponerse al contenido del flyer.
+*/
+.kja-announcement-close-btn {
+  position: absolute;
+  /* Alineación vertical: se calcula desde el centro del overlay
+     hacia arriba hasta la esquina del dialog y un poco más.       */
+  top: calc(50% - 46dvh - 8px);
+  /* Alineación horizontal: pegado al borde derecho del dialog     */
+  right: calc(50% - 210px - 8px);
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #ffffff;
+  background: rgba(9, 36, 76, 0.72);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(239, 11, 114, 0.2);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.15s ease,
+              color 0.15s ease,
+              box-shadow 0.15s ease;
+}
+
+.kja-announcement-close-btn:hover {
+  color: #ffffff;
+  background: var(--kja-pink);
+  transform: scale(1.12) rotate(90deg);
+  box-shadow:
+    0 6px 20px rgba(239, 11, 114, 0.45),
+    0 0 0 2px rgba(239, 11, 114, 0.5);
+  border-color: var(--kja-pink);
+}
+
+.kja-announcement-close-btn:active {
+  transform: scale(0.94);
+}
+
+.kja-announcement-close-btn:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.kja-announcement-close-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+/* En mobile el dialog ocupa todo el ancho, el botón flota arriba a la derecha */
+@media (max-width: 600px) {
+  .kja-announcement-close-btn {
+    top: calc(50% - 48dvh - 6px);
+    right: 12px;
+  }
+}
+
+/* ─── Header con gradiente de marca ─────────────────────────────── */
+.kja-announcement-header {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, var(--kja-navy) 0%, var(--kja-navy-mid) 55%, #1a4a9a 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decoración geométrica en el header */
+.kja-announcement-header::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239,11,114,0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.kja-announcement-header::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 30%;
+  width: 200px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+}
+
+.kja-announcement-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 52px 18px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Badge / Etiqueta */
+.kja-announcement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, var(--kja-pink) 0%, var(--kja-pink-dark) 100%);
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(239, 11, 114, 0.45);
+}
+
+/* Pulso animado antes del texto del badge */
+.kja-announcement-badge::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  animation: kjaAnnPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes kjaAnnPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.6); }
+}
+
+.kja-announcement-title {
+  margin: 5px 0 0 0;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.kja-announcement-sub {
+  margin: 2px 0 0 0;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* ─── Cuerpo scrolleable ─────────────────────────────────────────── */
+.kja-announcement-body {
+  padding: 16px 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f8faff;
+  /* Scroll personalizado */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(239,11,114,0.25) transparent;
+}
+
+.kja-announcement-body::-webkit-scrollbar {
+  width: 4px;
+}
+.kja-announcement-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.kja-announcement-body::-webkit-scrollbar-thumb {
+  background: rgba(239,11,114,0.3);
+  border-radius: 4px;
+}
+
+/* ─── Imagen / Flyer ─────────────────────────────────────────────── */
+.kja-announcement-media {
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  /* Marco con gradiente de marca */
+  background: linear-gradient(135deg, var(--kja-navy) 0%, var(--kja-navy-mid) 100%);
+  /* Borde brillante */
+  box-shadow:
+    0 0 0 2px rgba(239, 11, 114, 0.3),
+    0 8px 24px -4px rgba(9, 36, 76, 0.25),
+    0 2px 8px rgba(239, 11, 114, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Brillo sutil en la parte superior del flyer */
+.kja-announcement-media::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 14px 14px 0 0;
+}
+
+.kja-announcement-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 340px;
+  object-fit: contain;
+  border-radius: 14px;
+  position: relative;
+  z-index: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kja-announcement-media:hover img {
+  transform: scale(1.015);
+}
+
+/* ─── Mensaje principal ──────────────────────────────────────────── */
+.kja-announcement-message {
+  margin: 0;
+  color: #1e293b;
+  font-size: 13.5px;
+  line-height: 1.55;
+  font-weight: 400;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-radius: 10px;
+  border-left: 3px solid var(--kja-pink);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* ─── Puntos clave ───────────────────────────────────────────────── */
+.kja-announcement-points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.kja-announcement-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 13px;
+  background: #ffffff;
+  border: 1px solid rgba(9, 36, 76, 0.07);
+  border-radius: 10px;
+  color: #334155;
+  font-size: 12.5px;
+  line-height: 1.45;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.kja-announcement-point:hover {
+  transform: translateX(2px);
+  border-color: rgba(239, 11, 114, 0.2);
+  box-shadow: 0 2px 8px rgba(239, 11, 114, 0.08);
+}
+
+.kja-announcement-point-number {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--kja-pink) 0%, var(--kja-pink-dark) 100%);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(239, 11, 114, 0.4);
+}
+
+/* ─── Alerta destacada ───────────────────────────────────────────── */
+.kja-announcement-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  background: linear-gradient(135deg, rgba(255, 237, 244, 0.9) 0%, rgba(255, 241, 245, 0.95) 100%);
+  border: 1px solid rgba(239, 11, 114, 0.22);
+  border-left: 3px solid var(--kja-pink);
+  border-radius: 10px;
+  color: #9d1556;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+  box-shadow: 0 2px 8px rgba(239, 11, 114, 0.08);
+}
+
+.kja-announcement-alert svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  stroke: var(--kja-pink);
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────── */
+.kja-announcement-footer {
+  padding: 13px 18px;
+  background: #ffffff;
+  border-top: 1px solid rgba(9, 36, 76, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Indicador de día con puntos de progreso */
+.kja-announcement-days-indicator {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.kja-announcement-days-indicator i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+  animation: kjaAnnPulse 2s ease-in-out infinite;
+}
+
+/* Puntos de progreso de días */
+.kja-ann-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.kja-ann-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.kja-ann-dot--done {
+  background: linear-gradient(135deg, var(--kja-pink) 0%, var(--kja-pink-dark) 100%);
+  box-shadow: 0 0 5px rgba(239, 11, 114, 0.45);
+  transform: scale(1.1);
+}
+
+.kja-announcement-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ─── Botones ────────────────────────────────────────────────────── */
+.kja-announcement-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 22px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid transparent;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.kja-announcement-btn-primary {
+  background: linear-gradient(135deg, var(--kja-pink) 0%, var(--kja-pink-dark) 100%);
+  color: #ffffff;
+  box-shadow:
+    0 4px 14px rgba(239, 11, 114, 0.35),
+    0 2px 4px rgba(239, 11, 114, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.kja-announcement-btn-primary:hover {
+  background: linear-gradient(135deg, #f5228a 0%, var(--kja-pink) 100%);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:
+    0 8px 22px rgba(239, 11, 114, 0.42),
+    0 4px 8px rgba(239, 11, 114, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.kja-announcement-btn-primary:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow:
+    0 2px 8px rgba(239, 11, 114, 0.3),
+    inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.kja-announcement-btn-primary:focus-visible {
+  outline: 3px solid var(--kja-pink);
+  outline-offset: 3px;
+}
+
+/* Ícono check opcional dentro del botón */
+.kja-announcement-btn-primary::before {
+  content: '✓';
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+/* ─── Modo flyer completo ─────────────────────────────────── */
+.kja-announcement-dialog.flyer-mode {
+  max-width: 420px;
+  /* El dialog se ajusta a su contenido: imagen completa + footer */
+  max-height: 94dvh;
+  overflow: hidden;  /* las esquinas redondeadas recortan el fondo */
+  background: linear-gradient(160deg, var(--kja-navy) 0%, #0a1e40 100%);
+  border: 1px solid rgba(239, 11, 114, 0.25);
+  box-shadow:
+    0 0 0 1px rgba(239, 11, 114, 0.15),
+    0 32px 80px -16px rgba(9, 36, 76, 0.6),
+    0 0 60px -10px rgba(239, 11, 114, 0.2);
+}
+
+.kja-announcement-dialog.flyer-mode .kja-announcement-media {
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  margin: 0;
+}
+
+.kja-announcement-dialog.flyer-mode .kja-announcement-media::before {
+  display: none;
+}
+
+.kja-announcement-dialog.flyer-mode .kja-announcement-media img {
+  /* contain = imagen completa, sin recortes, con sus proporciones originales */
+  width: 100%;
+  height: auto;
+  /* La max-height descuenta el footer (~56px) + el padding del overlay (16px*2)
+     para que la imagen NUNCA quede tapada por el contador ni el botón.         */
+  /* dialog.max-height = 94dvh; footer ≈ 56px → imagen ocupa el resto */
+  max-height: calc(94dvh - 56px);
+  object-fit: contain;
+  object-position: center top;
+  border-radius: 16px 16px 0 0;
+  display: block;
+  transform: none;
+}
+
+.kja-announcement-dialog.flyer-mode .kja-announcement-media:hover img {
+  transform: none;
+}
+
+.kja-announcement-dialog.flyer-mode .kja-announcement-body {
+  padding: 0;
+  background: transparent;
+  gap: 0;
+  /* Sin scroll interno: la imagen tiene su propio max-height limitado */
+  overflow: hidden;
+  flex-shrink: 1;   /* cede espacio al footer si el viewport es muy pequeño */
+  min-height: 0;    /* necesario para que flex-shrink funcione en Safari    */
+}
+
+.kja-announcement-dialog.flyer-mode .kja-announcement-footer {
+  border-radius: 0 0 20px 20px;
+  background: linear-gradient(135deg, rgba(9,36,76,0.96) 0%, rgba(10,30,64,0.98) 100%);
+  border-top: 1px solid rgba(239, 11, 114, 0.2);
+  padding: 12px 16px;
+}
+
+.kja-announcement-dialog.flyer-mode .kja-announcement-days-indicator {
+  color: rgba(255,255,255,0.5);
+  font-size: 10.5px;
+}
+
+.kja-announcement-dialog.flyer-mode .kja-announcement-days-indicator i {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.kja-announcement-dialog.flyer-mode .kja-ann-dot {
+  background: rgba(255,255,255,0.2);
+}
+
+.kja-announcement-dialog.flyer-mode .kja-ann-dot--done {
+  background: linear-gradient(135deg, var(--kja-pink) 0%, var(--kja-pink-dark) 100%);
+  box-shadow: 0 0 6px rgba(239, 11, 114, 0.6);
+}
+
+.kja-announcement-dialog.flyer-mode .kja-announcement-btn-primary {
+  box-shadow:
+    0 4px 16px rgba(239, 11, 114, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ─── Nota al pie ────────────────────────────────────────────────── */
+.kja-announcement-footnote {
+  margin: 2px 0 0 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--kja-navy);
+  text-align: center;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(9,36,76,0.04) 0%, rgba(239,11,114,0.04) 100%);
+  border-radius: 8px;
+  border: 1px dashed rgba(239,11,114,0.2);
+}
+
+/* ─── Responsive móvil ───────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .kja-announcement-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .kja-announcement-dialog {
+    max-width: 100%;
+    max-height: 96dvh;
+    border-radius: 20px 20px 14px 14px;
+    animation: kjaAnnouncementInMobile 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes kjaAnnouncementInMobile {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .kja-announcement-brand {
+    padding: 16px 48px 16px 16px;
+  }
+
+  .kja-announcement-title {
+    font-size: 15px;
+  }
+
+  .kja-announcement-body {
+    padding: 14px 14px;
+    gap: 10px;
+  }
+
+  .kja-announcement-footer {
+    padding: 11px 14px;
+    flex-wrap: wrap;
+  }
+
+  .kja-announcement-actions {
+    width: 100%;
+  }
+
+  .kja-announcement-btn {
+    width: 100%;
+    padding: 11px 22px;
+    font-size: 13.5px;
+  }
+
+  .kja-announcement-days-indicator {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 2px;
+  }
+
+  /* Flyer mode en mobile: ocupa casi toda la pantalla */
+  .kja-announcement-dialog.flyer-mode {
+    max-height: 98dvh;
+    border-radius: 20px 20px 14px 14px;
+  }
+
+  /* En mobile el footer hace wrap (Aviso arriba, botón abajo) ≈ 80px */
+  .kja-announcement-dialog.flyer-mode .kja-announcement-media img {
+    max-height: calc(98dvh - 80px);
+  }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .kja-announcement-dialog,
+  .kja-announcement-overlay,
+  .kja-announcement-close-btn,
+  .kja-announcement-point,
+  .kja-announcement-media img,
+  .kja-announcement-btn-primary {
+    animation: none !important;
+    transition: none !important;
+  }
+}

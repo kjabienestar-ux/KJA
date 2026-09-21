@@ -896,6 +896,17 @@ async function openPortal(activeSession,bootstrap=null){
   if(c)backgroundLoads.push(loadHistory(),loadProfilePhoto());
   if(initialLoad?.then)backgroundLoads.push(initialLoad);
   if(backgroundLoads.length)void Promise.allSettled(backgroundLoads);
+  try{
+    if(window.KJAAnnouncementModal){
+      const currentUserData=Object.assign({},c||{},p||{},{
+        id:c?.id||session?.user?.id||p?.id,
+        dia:data?.dia||null,
+        dias_laborables:c?.dias_laborables||[],
+        horario_semanal:c?.horario_semanal||{}
+      });
+      window.KJAAnnouncementModal.checkAndShow(currentUserData);
+    }
+  }catch(announcementErr){console.warn('No se pudo verificar el anuncio emergente:',announcementErr);}
 }
 
 function startSessionClock(){
@@ -2413,6 +2424,7 @@ $('menu-toggle').onclick=openMenu;$('side-scrim').onclick=closeMenu;
 $('mobile-back-home').onclick=()=>goView('inicio');
 document.addEventListener('keydown',event=>{
   if(event.key!=='Escape')return;
+  if(window.KJAAnnouncementModal&&window.KJAAnnouncementModal.close())return;
   if(closeStoredEvidenceViewer())return;
   if(closeAnnouncementViewer())return;
   if(closeRequestCalendar(true))return;
