@@ -309,7 +309,7 @@ body{background:#fff}
 .calendar-card{border-radius:18px}
 .profile-identity,.profile-data,.team-list,.team-summary{border-radius:18px}
 
-@media(max-width:1279px){
+@media(max-width:1280px){
   .portal{grid-template-columns:218px minmax(0,1fr)}
   .portal-rail{display:none}
 }
@@ -931,7 +931,7 @@ button:disabled{cursor:not-allowed}
 .boot-text{color:var(--navy);font-size:12px;letter-spacing:.16em}
 
 /* Armazón del producto. */
-.portal{grid-template-columns:236px minmax(0,1fr) calc(clamp(360px,27vw,400px) + 16px);min-height:100dvh;color:var(--text-body);background:var(--surface-page)}
+.portal{grid-template-columns:236px minmax(0,1fr) 330px;min-height:100dvh;color:var(--text-body);background:var(--surface-page)}
 .portal.admin-wide{grid-template-columns:236px minmax(0,1fr)}
 .sidebar{padding:28px 18px 20px;border-right:1px solid var(--line-soft)}
 .side-brand{padding-inline:8px}
@@ -1106,7 +1106,7 @@ input::placeholder{color:#748297;opacity:1}
   .week-day:hover,.admin-module:hover{transform:translateY(-2px);border-color:var(--line-strong);box-shadow:0 12px 28px rgba(9,36,76,.08)}
 }
 
-@media(max-width:1279px){
+@media(max-width:1280px){
   .portal{grid-template-columns:228px minmax(0,1fr)}
   .portal.admin-wide{grid-template-columns:228px minmax(0,1fr)}
   .portal-rail{display:none}
@@ -7696,7 +7696,7 @@ body.admin-evidence-open{overflow:hidden}
 .rail-announcement-zoom svg{width:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .rail-announcement-media:hover .rail-announcement-zoom{background:#075abc}
 /* Reserva espacio para el acceso flotante al chat sin recortar el comunicado. */
-@media(min-width:1280px){
+@media(min-width:1281px){
   .portal-rail{display:flex;flex-direction:column;padding-bottom:82px;scroll-padding-bottom:82px}
   .portal-rail>section{flex-shrink:0}
   .portal-rail .rail-announcement{display:flex;flex-direction:column;flex:1 0 200px;min-height:200px}
@@ -10416,129 +10416,3 @@ body.admin-role-confirm-open{overflow:hidden}
 }
 
 .admin-close-status-pill.justificado{color:#245c96;background:#e8f1fb}
-
-/* Mi espacio: ancho contextual fluido y colapso progresivo del contenido. */
-@media (min-width:1280px){
-  #portal:not(.admin-wide):not([data-view="marketing"]){
-    /* La pista compensa el margen exterior del rail para conservar 360–400px visibles. */
-    grid-template-columns:236px minmax(0,1fr) calc(clamp(360px,27vw,400px) + 16px);
-  }
-  #portal:not(.admin-wide):not([data-view="marketing"]):not([data-loading="true"])>.portal-rail{
-    display:flex;
-    min-width:0;
-  }
-  #portal:not(.admin-wide) .rail-profile h2,
-  #portal:not(.admin-wide) .rail-profile p{
-    min-width:0;
-    overflow-wrap:anywhere;
-  }
-}
-
-@media (min-width:901px) and (max-width:1279px){
-  #portal:not(.admin-wide):not([data-view="marketing"]){
-    grid-template-columns:228px minmax(0,1fr);
-  }
-  #portal:not(.admin-wide)>.portal-rail{display:none}
-}
-
-/* En laptops, el centro gana altura en lugar de comprimir sus módulos. */
-@media (min-width:1280px) and (max-width:1439px){
-  #portal:not(.admin-wide)>.workspace{
-    padding-inline:clamp(16px,1.5vw,22px);
-  }
-  #portal:not(.admin-wide) #view-inicio>.view-head,
-  #portal:not(.admin-wide)[data-time-phase] #view-inicio>.view-head{
-    grid-template-columns:minmax(0,1fr) auto;
-  }
-  #portal:not(.admin-wide) #view-inicio>.view-head .dashboard-month-progress{
-    grid-column:1/-1;
-    grid-row:2;
-  }
-  #portal:not(.admin-wide) .today-layout .day-card{
-    grid-template-columns:minmax(0,1fr);
-    grid-template-areas:"schedule" "action" "close" "progress";
-  }
-  #portal:not(.admin-wide) .today-layout .day-card.has-daily-close{
-    align-items:stretch;
-    grid-template-areas:"schedule" "close" "progress" !important;
-    grid-template-rows:auto !important;
-  }
-  #portal:not(.admin-wide) .today-layout .progress-card{
-    grid-template-columns:96px minmax(0,1fr);
-    gap:14px 20px;
-    padding:20px 22px;
-  }
-  #portal:not(.admin-wide) .today-layout .hours-progress-map{
-    grid-column:1/-1;
-  }
-  #portal:not(.admin-wide) .attendance-workspace,
-  #portal:not(.admin-wide) .profile-layout{
-    grid-template-columns:minmax(0,1fr);
-  }
-  #portal:not(.admin-wide) .attendance-request-center{order:2}
-}
-
-/* En escritorio amplio, el perfil aprovecha el ancho sin ganar altura. */
-@media (min-width:1440px){
-  #portal:not(.admin-wide)>.portal-rail{
-    padding-inline:22px;
-  }
-  #portal:not(.admin-wide) .rail-profile{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) 68px 20px fit-content(218px) minmax(0,1fr);
-    grid-template-areas:
-      "title title title title title"
-      ". avatar gap name ."
-      ". avatar gap area ."
-      ". avatar gap role .";
-    align-items:center;
-    justify-content:stretch;
-    column-gap:0;
-    row-gap:0;
-    text-align:left;
-  }
-  #portal:not(.admin-wide) .rail-profile .rail-title{grid-area:title}
-  #portal:not(.admin-wide) .rail-profile .rail-avatar{
-    grid-area:avatar;
-    width:68px;
-    height:68px;
-    margin:8px 0 0;
-  }
-  #portal:not(.admin-wide) .rail-profile h2{
-    grid-area:name;
-    align-self:start;
-    margin-top:8px;
-  }
-  #portal:not(.admin-wide) .rail-profile p{
-    grid-area:area;
-    align-self:center;
-    margin:2px 0;
-  }
-  #portal:not(.admin-wide) .rail-profile .rail-role{
-    grid-area:role;
-    align-self:start;
-    justify-self:start;
-  }
-  #portal:not(.admin-wide) .rail-calendar{
-    padding:17px 16px 14px !important;
-  }
-  #portal:not(.admin-wide) .rail-cal-day{
-    min-height:31px !important;
-  }
-  #portal:not(.admin-wide) .rail-announcement-media>img{
-    width:100%;
-    height:auto;
-    object-fit:contain;
-  }
-}
-
-/* El área central aún es compacta en portátiles 1440p con el rail ampliado. */
-@media (min-width:1440px) and (max-width:1599px){
-  #portal:not(.admin-wide) .day-schedule .today-mode-choice{
-    grid-template-columns:minmax(0,1fr);
-  }
-  #portal:not(.admin-wide) .day-schedule .today-mode-switch{
-    width:100%;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-}
