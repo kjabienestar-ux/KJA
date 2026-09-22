@@ -931,7 +931,7 @@ button:disabled{cursor:not-allowed}
 .boot-text{color:var(--navy);font-size:12px;letter-spacing:.16em}
 
 /* Armazón del producto. */
-.portal{grid-template-columns:236px minmax(0,1fr) clamp(360px,27vw,400px);min-height:100dvh;color:var(--text-body);background:var(--surface-page)}
+.portal{grid-template-columns:236px minmax(0,1fr) calc(clamp(360px,27vw,400px) + 16px);min-height:100dvh;color:var(--text-body);background:var(--surface-page)}
 .portal.admin-wide{grid-template-columns:236px minmax(0,1fr)}
 .sidebar{padding:28px 18px 20px;border-right:1px solid var(--line-soft)}
 .side-brand{padding-inline:8px}
@@ -10420,7 +10420,8 @@ body.admin-role-confirm-open{overflow:hidden}
 /* Mi espacio: ancho contextual fluido y colapso progresivo del contenido. */
 @media (min-width:1280px){
   #portal:not(.admin-wide):not([data-view="marketing"]){
-    grid-template-columns:236px minmax(0,1fr) clamp(360px,27vw,400px);
+    /* La pista compensa el margen exterior del rail para conservar 360–400px visibles. */
+    grid-template-columns:236px minmax(0,1fr) calc(clamp(360px,27vw,400px) + 16px);
   }
   #portal:not(.admin-wide):not([data-view="marketing"]):not([data-loading="true"])>.portal-rail{
     display:flex;
