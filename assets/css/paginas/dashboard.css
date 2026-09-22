@@ -7496,7 +7496,7 @@ body.admin-evidence-open{overflow:hidden}
 .day-card.has-daily-close .day-close-item.type-salida:not(.is-complete) .day-close-check{color:#087084;border-color:#a8d9e0;background:#eaf8fa}
 .day-card.has-daily-close .day-close-item.is-complete:not(.is-entry) .day-close-check{color:#08735a;border-color:#a9daca;background:#e9f7f1}
 
-/* Columna personal: perfil compacto, calendario y comunicado institucional. */
+/* Columna personal: perfil compacto, espacio libre y comunicado institucional. */
 .portal-rail{
   padding:16px 18px 22px;
 }
@@ -10416,3 +10416,138 @@ body.admin-role-confirm-open{overflow:hidden}
 }
 
 .admin-close-status-pill.justificado{color:#245c96;background:#e8f1fb}
+
+/* Navegación lateral de escritorio: modo compacto con rail personal expandido. */
+.sidebar-collapse-toggle{
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  margin-left:auto;
+  padding:0;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:9px;
+  color:inherit;
+  background:rgba(255,255,255,.08);
+  transition:transform 180ms ease,background-color 180ms ease,border-color 180ms ease;
+}
+.sidebar-collapse-toggle:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.28)}
+.sidebar-collapse-toggle:focus-visible{outline:3px solid rgba(109,215,216,.72);outline-offset:2px}
+.sidebar-toggle-icon{width:17px;height:17px;transition:transform 180ms ease}
+.sidebar-tooltip{
+  position:fixed;
+  z-index:1200;
+  max-width:230px;
+  padding:7px 10px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:8px;
+  color:#fff;
+  background:#071a36;
+  box-shadow:0 10px 24px rgba(5,20,42,.22);
+  font-size:11px;
+  line-height:1.3;
+  pointer-events:none;
+  white-space:nowrap;
+}
+
+@media (max-width:1280px){
+  .sidebar-collapse-toggle{display:none!important}
+  .sidebar-tooltip{display:none!important}
+}
+
+@media (min-width:1281px){
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) .rail-calendar-space{
+    flex:0 0 160px;
+    min-height:160px;
+    margin-top:12px;
+  }
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]){
+    transition:grid-template-columns 220ms cubic-bezier(.22,1,.36,1);
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"]:not(.admin-wide):not([data-view="marketing"]){
+    grid-template-columns:88px minmax(0,1fr) 394px;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .sidebar{
+    padding-inline:4px;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-brand{
+    height:46px;
+    flex-direction:row;
+    justify-content:center;
+    gap:4px;
+    padding:0;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-brand img{
+    width:28px;
+    height:28px;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .sidebar-collapse-toggle{
+    width:28px;
+    height:28px;
+    margin:0;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .sidebar-toggle-icon{transform:rotate(180deg)}
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-nav{margin-top:18px}
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-nav-divider{display:none}
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-nav button{
+    justify-content:center;
+    gap:0;
+    padding-inline:0;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-nav button svg{width:21px;height:21px}
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .sidebar-label,
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-user-copy{
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0 0 0 0);
+    white-space:nowrap;
+    border:0;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-help{
+    position:relative;
+    align-self:center;
+    width:32px;
+    height:32px;
+    display:grid;
+    place-items:center;
+    gap:0;
+    padding:0;
+    border:0;
+    background:transparent;
+    box-shadow:none;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-help-heading{
+    display:grid;
+    place-items:center;
+    pointer-events:none;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-help-heading svg{width:21px;height:21px}
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-help>a{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    width:auto;
+    height:auto;
+    display:block;
+    padding:0;
+    font-size:0;
+    text-decoration:none;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-help>a svg{display:none}
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-user{
+    grid-template-columns:1fr;
+    justify-items:center;
+    gap:8px;
+  }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-user .avatar{width:36px;height:36px}
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] .side-user button{width:32px;height:32px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .sidebar-collapse-toggle,.sidebar-toggle-icon,#portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]){transition:none}
+}
