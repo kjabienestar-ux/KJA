@@ -1,373 +1,739 @@
-# Diagramas de secuencia — Administración
+# Diagramas de secuencia — Portal KJA (Mermaid)
 
-Estos diagramas describen el comportamiento implementado en el panel de
-Administración. Están escritos en Mermaid y pueden visualizarse en GitHub,
-GitLab, Notion o cualquier editor compatible.
+**Versión:** 1.0 · **Fecha:** 22/09/2026 · **Estado:** revisión documental del código local.
 
-Los participantes se agrupan así: **Administrador** es una cuenta con acceso al
-panel; **Dirección** es la única cuenta que puede revisar evidencias, operar
-sorteos o cambiar reglas de marcado; **Supabase** representa Auth, RPC y las
-tablas protegidas por RLS.
+Los once primeros diagramas mantienen el orden de los procesos administrativos
+anteriores; DS-012 en adelante amplían el alcance al portal completo. Los nombres
+de RPC son referencias a código local; `...` omite parámetros, no es una firma
+ejecutable. Mensajes conceptuales agrupan detalles internos. Cada operación debe
+validar sesión y permisos en servidor; un rechazo termina esa operación sin
+ejecutar sus pasos dependientes, aunque no se repita la rama en cada llamada.
+Storage es un servicio independiente: un borrado no forma parte de una transacción SQL.
 
-## 1. Entrada al dominio Administración y carga del resumen
+Enlaces: [requerimientos](01-requerimientos-portal-asistencia.md) ·
+[matriz](27-matriz-requerimientos.md).
+
+## DS-001. Acceso a Administración y resumen
+
+**Trazabilidad:** RF-049–RF-057, RF-064–RF-070, RF-114–RF-118. La matriz detalla asociaciones y RNF.
 
 ```mermaid
 sequenceDiagram
-    actor Admin as Administrador
-    participant Web as Dashboard web
-    participant Auth as Supabase Auth
-    participant RPC as RPC de Supabase
-
-    Admin->>Web: Abre Gestión
-    Web->>Auth: Obtiene sesión e identidad
-    Auth-->>Web: rol, nivel, acceso_panel, puede_editar
-    alt acceso_panel = false
-        Web-->>Admin: Oculta Gestión / muestra acceso denegado
-    else acceso_panel = true
-        Web->>Web: Activa vista única y pestaña Resumen
-        par Carga inicial concurrente
-            Web->>RPC: asis_colaboradores / asis_registros
-            Web->>RPC: solicitudes y cierres
-            Web->>RPC: equipo, mes y control diario
-            Web->>RPC: roles (solo Dirección + Sistemas)
-        end
-        RPC-->>Web: Datos permitidos por RLS y rol
-        Web-->>Admin: KPIs, prioridades y accesos disponibles
+    actor U as Cuenta administrativa
+    participant W as Dashboard
+    participant A as Supabase Auth
+    participant R as RPC de negocio
+    participant B as PostgreSQL y perfiles
+    U->>W: Abre Gestión
+    W->>A: Recupera sesión
+    A-->>W: Identidad autenticada
+    W->>R: Solicita perfil y datos administrativos
+    R->>B: Verifica activo, acceso_panel, rol y ámbito
+    alt Sin autorización
+    R-->>W: sin_permiso
+    W-->>U: Acceso denegado
+    else Autorizado
+    R-->>W: Perfil y datos permitidos
+    W->>R: Carga lista, mes, equipo y cierres según permisos
+    R-->>W: Resumen autorizado
+    W-->>U: Indicadores y herramientas
     end
 ```
 
-## 2. Pasar lista: marcar, corregir o retirar una asistencia
+## DS-002. Pasar lista y retirar asistencia
+
+**Trazabilidad:** RF-071–RF-078, RF-096. La matriz detalla asociaciones y RNF.
 
 ```mermaid
 sequenceDiagram
-    actor Admin as Administrador con edición
-    participant Web as Dashboard web
-    participant RPC as dash_admin_guardar_estado / quitar_estado
-    participant DB as asis_registros y evidencias
-
-    Admin->>Web: Selecciona fecha y pulsa P, T, J o NG
-    Web->>RPC: Guardar estado(colaborador, fecha, estado)
-    RPC->>DB: Valida rol, contrato, fecha y día laborable
-    alt Validación correcta
-        RPC->>DB: Inserta o actualiza la marca
-        RPC-->>Web: ok + estado actualizado
-        Web->>Web: Recarga lista y cierres
-        Web-->>Admin: Muestra la nueva marca
-    else Sin permiso, fecha inválida o no labora
-        RPC-->>Web: motivo de rechazo
-        Web-->>Admin: Muestra explicación sin cambiar la lista
+    actor U as Editor o Dirección
+    participant W as Pasar lista
+    participant R as RPC administrativa
+    participant B as PostgreSQL
+    participant S as Storage privado
+    U->>W: Selecciona fecha y estado P/T/J/NG
+    W->>R: dash_admin_guardar_estado(...)
+    R->>B: Valida rol, día y contrato
+    alt Rechazado
+    R-->>W: Motivo sin guardar
+    else Válido
+    R->>B: Guarda estado conservando nota y evidencia
+    R-->>W: Resultado
     end
-
-    Admin->>Web: Pulsa el estado ya activo para retirarlo
-    Web->>Admin: Pide confirmación si puede borrar evidencia asociada
-    Admin->>Web: Confirma
-    Web->>RPC: Quitar estado(colaborador, fecha, evidencia_eliminada)
-    RPC->>DB: Elimina marca según las reglas vigentes
-    RPC-->>Web: Resultado
-    Web-->>Admin: Lista actualizada
+    opt Retirar marca por decisión explícita
+    U->>W: Solicita retirar y confirma
+    W->>R: dash_admin_quitar_estado(evidencia_eliminada=false)
+    alt Requiere borrar evidencia
+    R-->>W: Ruta autorizada a retirar
+    W->>S: Elimina imagen
+    alt Storage confirma
+    W->>R: dash_admin_quitar_estado(evidencia_eliminada=true)
+    R->>B: Retira registro autorizado
+    else Storage falla
+    W-->>U: Conserva marca y muestra error
+    end
+    else Sin evidencia o rechazo
+    R-->>W: Resultado de retiro o motivo
+    end
+    end
+    W-->>U: Actualiza lista con resultado confirmado
 ```
 
-## 3. Gestión mensual: excepción, feriado o corrección
+## DS-003. Mes completo, excepciones y exportación
+
+**Trazabilidad:** RF-091–RF-101. La matriz detalla asociaciones y RNF.
 
 ```mermaid
 sequenceDiagram
-    actor Admin as Administrador con edición
-    participant Web as Mes completo
-    participant RPC as RPC administrativa
-    participant DB as Calendario y registros
-
-    Admin->>Web: Abre una celda del calendario
-    Web->>RPC: dash_admin_mes(año, mes, incluir bajas)
-    RPC-->>Web: Estado, horario, cierre, notas y evidencia
-    Web-->>Admin: Modal de detalle de la jornada
-    alt Corregir asistencia
-        Admin->>Web: Elige P, T, J o NG
-        Web->>RPC: dash_admin_guardar_estado(...)
-    else Habilitar día o registrar permiso
-        Admin->>Web: Elige tipo de excepción
-        Web->>RPC: dash_admin_guardar_excepcion(...)
-    else Restablecer horario normal
-        Admin->>Web: Quita excepción
-        Web->>RPC: dash_admin_quitar_excepcion(...)
-    else Gestionar feriado
-        Admin->>Web: Agrega o quita feriado
-        Web->>RPC: dash_admin_guardar_feriado / quitar_feriado
+    actor U as Cuenta administrativa
+    participant W as Mes completo
+    participant R as RPC administrativa
+    participant B as PostgreSQL
+    U->>W: Selecciona mes y filtros
+    W->>R: dash_admin_mes(año, mes, incluir bajas)
+    R->>B: Valida ámbito y resuelve calendario y marcas
+    R-->>W: Celdas e indicadores autorizados
+    opt Editor o Dirección modifica calendario
+    U->>W: Define feriado o excepción
+    W->>R: RPC guardar/quitar feriado o excepción
+    R->>B: Revalida rol y persiste sin borrar marcas
+    R-->>W: Resultado o sin_permiso
+    W->>R: Recarga periodo
+    R-->>W: Calendario actualizado
     end
-    RPC->>DB: Valida permiso y persiste el cambio
-    RPC-->>Web: Resultado actualizado
-    Web-->>Admin: Recarga grilla y KPIs
-```
-
-## 4. Cierre normal de jornada por el colaborador
-
-```mermaid
-sequenceDiagram
-    actor Colab as Colaborador
-    participant Web as Portal KJA
-    participant Storage as Storage privado
-    participant RPC as RPC de cierre
-    participant DB as Registros y entregas
-
-    Colab->>Web: Marca entrada
-    Web->>RPC: Registra asistencia
-    RPC->>DB: Valida horario, modalidad, geocerca y reglas
-    RPC-->>Web: Entrada registrada o motivo de bloqueo
-
-    Colab->>Web: Adjunta evidencia (RPE, Facebook o asignación)
-    Web->>RPC: Solicita ruta temporal de carga
-    RPC-->>Web: Permiso de carga de uso limitado
-    Web->>Storage: Sube archivo a ruta autorizada
-    Web->>RPC: dash_confirmar_entrega(datos, rutas)
-    RPC->>DB: Valida archivos, requisitos y estado de la entrega
-    RPC->>DB: Guarda entrega y archivos
-    RPC-->>Web: Resumen actualizado
-
-    Colab->>Web: Marca salida
-    Web->>RPC: dash_marcar_salida(dispositivo)
-    RPC->>DB: Valida entrada, horario y requisitos de jornada
-    alt Jornada completa
-        RPC->>DB: Guarda salida y horas efectivas
-        RPC-->>Web: Jornada completa
-    else Falta requisito
-        RPC-->>Web: Pendientes y motivo
-    end
-    Web-->>Colab: Estado de la jornada y próximos pasos
-```
-
-## 5. Revisión de evidencias desde Cierres y entregables
-
-```mermaid
-sequenceDiagram
-    actor Dir as Dirección
-    participant Web as Cierres y entregables
-    participant RPC as RPC de Supabase
-    participant Storage as Storage privado
-    participant DB as Entregas y revisiones
-
-    Dir->>Web: Filtra por fecha, área o colaborador
-    par Carga de tablero
-        Web->>RPC: dash_admin_cierres(fecha)
-        Web->>RPC: dash_admin_revision_entregas(fecha)
-    end
-    RPC-->>Web: Jornadas, requisitos y entregas activas
-    Web-->>Dir: Progreso, estado de jornada y bandeja de revisión
-
-    Dir->>Web: Abre una evidencia pendiente
-    Web->>Storage: Solicita URL firmada temporal
-    Storage-->>Web: URL de lectura limitada
-    Web-->>Dir: Muestra archivo y formulario de decisión
-    alt Aprueba
-        Dir->>Web: Aprueba entrega
-        Web->>RPC: dash_admin_revisar_entrega(entrega, aprobada)
-    else Observa
-        Dir->>Web: Escribe nota de al menos 3 caracteres
-        Web->>RPC: dash_admin_revisar_entrega(entrega, observada, nota)
-    end
-    RPC->>DB: Verifica rol Dirección y registra auditoría
-    RPC-->>Web: Estado de revisión actualizado
-    Web-->>Dir: Actualiza contador, evidencia y jornada
-```
-
-## 6. Dirección carga una evidencia recibida por otro canal
-
-```mermaid
-sequenceDiagram
-    actor Dir as Dirección
-    participant Web as Cierres y entregables
-    participant Edge as Edge Function dash-entrega
-    participant RPC as RPC administrativa
-    participant Storage as Storage privado
-    participant DB as Entregas y registros
-
-    Dir->>Web: Pulsa “Subir faltante”
-    Web->>Web: Calcula los requisitos pendientes permitidos
-    alt Jornada marcada J (justificada)
-        Web-->>Dir: Solo ofrece Comparticiones de Facebook
-    else Jornada ordinaria
-        Web-->>Dir: Ofrece requisitos realmente pendientes
-    end
-    Dir->>Web: Selecciona archivos y, si aplica, hora de salida
-    loop Por cada archivo
-        Web->>Edge: Solicita carga administrativa
-        Edge->>RPC: dash_admin_entrega_permiso(...)
-        RPC-->>Edge: Ruta autorizada o rechazo
-        Edge-->>Web: URL/ruta temporal
-        Web->>Storage: Sube archivo
-    end
-    Web->>RPC: dash_admin_confirmar_entrega(...)
-    RPC->>DB: Revalida rol, archivos, fecha, requisito y estado J
-    alt Evidencia válida
-        RPC->>DB: Guarda entrega, archivos y auditoría de Dirección
-        opt Jornada no justificada y ya reúne requisitos de salida
-            RPC->>DB: Regulariza salida con hora acreditada
-        end
-        RPC-->>Web: ok + resumen actualizado
-        Web-->>Dir: Recarga progreso y estado
-    else Validación falla
-        RPC-->>Web: motivo específico
-        Web-->>Dir: Muestra recuperación posible
+    opt Exportar
+    U->>W: Descarga CSV
+    W->>W: Genera archivo local con filtros vigentes
+    W-->>U: Archivo
     end
 ```
 
-## 7. Crear una asignación o realizar un sorteo
+## DS-004. Cierre laboral y registro de salida
+
+**Trazabilidad:** RF-132–RF-136, RF-140–RF-144. La matriz detalla asociaciones y RNF.
 
 ```mermaid
 sequenceDiagram
-    actor Admin as Administrador con edición
-    actor Dir as Dirección
-    participant Web as Asignaciones
-    participant RPC as RPC de asignaciones
-    participant DB as Asignaciones y carga de 30 días
-
-    Admin->>Web: Define fecha, destino, tipo, título e indicaciones
-    alt Destino: persona o área
-        Admin->>Web: Confirma asignación
-        Web->>RPC: dash_admin_asignar_entregable(...)
-        RPC->>DB: Valida permisos, programación y destinatarios
-        RPC->>DB: Crea asignación activa
-        RPC-->>Web: Resultado
-    else Destino: sorteo
-        Dir->>Web: Indica área y cantidad
-        Web->>RPC: dash_admin_previsualizar_sorteo(...)
-        RPC->>DB: Calcula personas elegibles y carga de 30 días
-        RPC-->>Web: Selección equilibrada propuesta
-        Web-->>Dir: Muestra previsualización
-        Dir->>Web: Confirma sin cambiar parámetros
-        Web->>RPC: dash_admin_confirmar_sorteo(...)
-        RPC->>DB: Revalida elegibilidad y crea asignaciones
-        RPC-->>Web: Cantidad creada
+    actor U as Colaborador
+    participant W as Cierre de jornada
+    participant E as Edge dash-entrega
+    participant R as RPC de cierre
+    participant B as PostgreSQL
+    participant S as Storage privado
+    U->>W: Consulta pendientes
+    W->>R: dash_cierre_hoy()
+    R->>B: Resuelve fecha activa y requisitos con excepciones
+    R-->>W: Requisitos aplicables
+    opt Adjunta evidencia exigible
+    W->>E: Solicita permiso para requisito
+    E->>R: dash_entrega_permiso(...)
+    R-->>E: Ruta autorizada o rechazo
+    E-->>W: Permiso firmado o motivo
+    W->>S: Carga archivo autorizado
+    alt Archivo cargado
+    W->>R: dash_confirmar_entrega(...)
+    R->>B: Verifica archivo y confirma entrega
+    R-->>W: Resumen y posible cierre automático
+    else Falla carga
+    W-->>U: Error sin confirmar entrega
     end
-    Web-->>Admin: Lista, estado y calendario actualizados
+    end
+    opt Salida manual pendiente
+    U->>W: Solicita registrar salida
+    W->>R: dash_marcar_salida(dispositivo)
+    R->>B: Valida sesión, entrada, ventana y requisitos laborales
+    alt Válido
+    R->>B: Guarda salida y horas efectivas
+    R-->>W: Salida y resumen con Facebook independiente
+    else Falta requisito o ventana no válida
+    R-->>W: Motivo sin nueva salida
+    end
+    end
+    W-->>U: Muestra estado confirmado
 ```
 
-## 8. Retiro de una asignación y limpieza de archivos
+## DS-005. Revisión de entregas
+
+**Trazabilidad:** RF-137, RF-141, RF-152, RF-155–RF-156. La matriz detalla asociaciones y RNF.
 
 ```mermaid
 sequenceDiagram
-    actor Admin as Administrador con edición
-    participant Web as Asignaciones
-    participant Edge as Edge Function dash-entrega
-    participant RPC as RPC de retiro
-    participant DB as Asignaciones y entregas
-    participant Storage as Storage privado
-
-    Admin->>Web: Pulsa “Quitar”
-    Web-->>Admin: Explica que se anularán entregas y archivos
-    Admin->>Web: Confirma retiro
-    Web->>Edge: eliminar_asignacion(asignación)
-    Edge->>RPC: dash_admin_retirar_archivos(asignación)
-    RPC->>DB: Desactiva asignación y anula entregas relacionadas
-    RPC->>DB: Registra rutas pendientes de limpieza
-    RPC-->>Edge: Rutas a borrar
-    loop Cada ruta exclusiva de la asignación
-        Edge->>Storage: Elimina archivo
+    actor U as Dirección o supervisor
+    participant W as Revisión
+    participant R as RPC de entregas
+    participant B as PostgreSQL
+    participant S as Storage privado
+    U->>W: Consulta fecha y persona
+    W->>R: dash_admin_revision_entregas(fecha)
+    R->>B: Filtra ámbito, canceladas y RPE exento
+    R-->>W: Entregas permitidas
+    W->>S: Solicita URL temporal de evidencia autorizada
+    S-->>W: Enlace temporal
+    alt Dirección decide
+    U->>W: Aprueba u observa con nota
+    W->>R: dash_admin_revisar_entrega(...)
+    R->>B: Verifica Dirección, requisito y nota
+    R->>B: Guarda revisión y trazabilidad
+    R-->>W: Resultado y actualización
+    else Líder o co-líder
+    W-->>U: Consulta sin aprobación
     end
-    Edge->>DB: Confirma limpieza o deja pendiente para reintento
-    Edge-->>Web: Resultado
-    Web-->>Admin: Recarga la lista y comunica el estado
 ```
 
-## 9. Alta o actualización de colaborador
+## DS-006. Carga administrativa y regularización
+
+**Trazabilidad:** RF-135–RF-143, RF-153. La matriz detalla asociaciones y RNF.
 
 ```mermaid
 sequenceDiagram
-    actor Admin as Administrador con edición
-    participant Web as Colaboradores
-    participant RPC as RPC de equipo
-    participant DB as Personas, contratos y horarios
-
-    Admin->>Web: Abre formulario de colaborador
-    Web->>RPC: dash_admin_equipo(incluir bajas)
-    RPC-->>Web: Áreas, personas, contratos y permisos
-    Admin->>Web: Completa identidad, contrato, jornada y Facebook
-    opt Está editando una persona existente
-        Admin->>Web: Indica motivo obligatorio del cambio
+    actor U as Dirección
+    participant W as Cierres y entregables
+    participant E as Edge dash-entrega
+    participant R as RPC administrativa
+    participant B as PostgreSQL
+    participant S as Storage privado
+    U->>W: Selecciona persona, fecha y requisito
+    W->>E: Solicita carga administrativa
+    E->>R: dash_admin_entrega_permiso(...)
+    R->>B: Revalida Dirección, J y exención presencial
+    alt No permitido
+    R-->>E: Motivo
+    E-->>W: Rechazo sin carga
+    else Permitido
+    R-->>E: Ruta autorizada
+    E-->>W: Permiso firmado
+    W->>S: Carga archivos
+    W->>R: dash_admin_confirmar_entrega(...)
+    R->>B: Verifica archivos y registra entrega y auditoría
+    opt Procede regularizar salida
+    R->>B: Conserva hora acreditada y origen administrativo
     end
-    Web->>RPC: dash_admin_guardar_colaborador(datos, motivo)
-    RPC->>DB: Valida rol, datos, fechas, horas y área
-    RPC->>DB: Crea/actualiza persona, contrato y horarios
-    opt Edición
-        RPC->>DB: Guarda historial auditable del cambio
+    R-->>W: Resultado y resumen
     end
-    RPC-->>Web: Persona actualizada
-    Web-->>Admin: Recarga tarjetas, contratos y filtros
+    W-->>U: Estado o error recuperable
 ```
 
-## 10. Marcado propio: reglas, PIN y solicitud de horario
+## DS-007. Asignación directa y sorteo
+
+**Trazabilidad:** RF-148–RF-150. La matriz detalla asociaciones y RNF.
 
 ```mermaid
 sequenceDiagram
-    actor Dir as Dirección
-    participant Web as Marcado propio
-    participant RPC as RPC de marcado
-    participant DB as Configuración, PIN y solicitudes
-
-    Dir->>Web: Abre Marcado propio
-    par Carga de configuración
-        Web->>RPC: dash_admin_marcado()
-        Web->>RPC: dash_admin_geocerca()
+    actor U as Editor o Dirección
+    participant W as Asignaciones
+    participant R as RPC de asignaciones
+    participant B as PostgreSQL
+    U->>W: Define fecha, destinatario y contenido
+    alt Asignación directa
+    W->>R: dash_admin_asignar_entregable(...)
+    R->>B: Valida permiso, programación y destino
+    R->>B: Crea asignación válida
+    else Sorteo exclusivo de Dirección
+    W->>R: dash_admin_previsualizar_sorteo(...)
+    R->>B: Calcula elegibles y carga de 30 días
+    R-->>W: Propuesta
+    W-->>U: Previsualización
+    U->>W: Confirma mismos parámetros
+    W->>R: dash_admin_confirmar_sorteo(...)
+    R->>B: Revalida y crea asignaciones
     end
-    RPC-->>Web: Reglas, accesos, PIN, sesiones y solicitudes
-    Web-->>Dir: Salud operativa, mapa y directorio
+    R-->>W: Resultado o motivo de rechazo
+    W-->>U: Lista y calendario actualizados
+```
 
-    alt Guardar política de marcado
-        Dir->>Web: Ajusta tolerancia, evidencia y geocerca
-        Web->>RPC: dash_admin_guardar_reglas(...)
-        RPC->>DB: Valida rol Dirección y persiste reglas
-    else Reiniciar PIN
-        Dir->>Web: Confirma reinicio para una persona
-        Web->>RPC: dash_admin_reiniciar_pin(colaborador)
-        RPC->>DB: Revoca PIN y sesiones aplicables
+## DS-008. Retiro de asignación y limpieza
+
+**Trazabilidad:** RF-150–RF-151. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Editor o Dirección
+    participant W as Asignaciones
+    participant E as Edge dash-entrega
+    participant R as RPC de retiro
+    participant B as PostgreSQL y cola privada
+    participant S as Storage privado
+    U->>W: Solicita quitar asignación
+    W-->>U: Explica anulación y borrado
+    U->>W: Confirma
+    W->>E: eliminar_asignacion(...)
+    E->>R: dash_admin_retirar_archivos(...)
+    R->>B: Valida permiso, desactiva y anula entregas
+    R->>B: Registra rutas exclusivas pendientes
+    R-->>E: Rutas de limpieza
+    E->>S: Elimina objetos autorizados
+    alt Borrado confirmado
+    E->>B: Confirma limpieza
+    E-->>W: Retiro completado
+    else Falla Storage
+    E-->>W: Anulación confirmada y limpieza pendiente
+    W-->>U: Permite reintento sin duplicar anulación
+    end
+```
+
+## DS-009. Colaboradores, contratos y áreas
+
+**Trazabilidad:** RF-079–RF-090, RF-164. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Cuenta administrativa
+    participant W as Colaboradores y contratos
+    participant R as RPC de equipo
+    participant B as PostgreSQL
+    U->>W: Consulta directorio y ficha
+    W->>R: dash_admin_equipo(incluir bajas)
+    R->>B: Valida lectura y calcula situación contractual
+    R-->>W: Datos permitidos
+    opt Editor o Dirección guarda cambios
+    U->>W: Completa datos e institución, con motivo al editar
+    W->>R: dash_admin_guardar_colaborador(...)
+    R->>B: Valida rol, DNI único, horarios y contrato
+    alt Válido
+    R->>B: Guarda ficha e historial en transacción
+    R-->>W: Ficha actualizada
+    else Inválido
+    R-->>W: Motivo sin cambio parcial
+    end
+    end
+    W-->>U: Consulta o confirmación
+```
+
+## DS-010. Configuración de acceso, PIN y oficina
+
+**Trazabilidad:** RF-102–RF-113, RF-130. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Dirección
+    participant W as Marcado propio
+    participant R as RPC de acceso
+    participant B as PostgreSQL
+    U->>W: Abre configuración
+    W->>R: dash_admin_marcado() y dash_admin_geocerca()
+    R->>B: Verifica permiso exclusivo
+    R-->>W: Reglas e indicadores sin secretos
+    alt Reiniciar PIN
+    U->>W: Confirma reinicio
+    W->>R: dash_admin_reiniciar_pin(colaborador)
+    R->>B: Retira huella y revoca sesiones personales
+    else Guardar reglas u oficina
+    U->>W: Revisa y confirma cambios
+    W->>R: RPC de reglas y geocerca
+    R->>B: Valida y audita valores anteriores y nuevos
     else Resolver solicitud de horario
-        Dir->>Web: Aplicar o descartar solicitud
-        Web->>RPC: dash_admin_resolver_horario(id, aplicada)
-        RPC->>DB: Actualiza solicitud y horario si fue aprobada
+    W->>R: dash_admin_resolver_horario(...)
+    R->>B: Valida y registra resolución
     end
-    RPC-->>Web: Resultado y datos actualizados
-    Web-->>Dir: Muestra confirmación y auditoría
+    R-->>W: Resultado o rechazo
+    W-->>U: Estado actualizado
 ```
 
-## 11. Asignar, reemplazar o retirar liderazgo
+## DS-011. Líderes y co-líderes
+
+**Trazabilidad:** RF-118–RF-125. La matriz detalla asociaciones y RNF.
 
 ```mermaid
 sequenceDiagram
-    actor Sys as Dirección con nivel Sistemas
-    participant Web as Roles y liderazgo
-    participant RPC as RPC de roles
-    participant DB as Áreas, liderazgos y auditoría
-
-    Sys->>Web: Abre Roles y liderazgo
-    Web->>RPC: dash_admin_roles()
-    RPC->>DB: Verifica Dirección + nivel Sistemas
-    RPC-->>Web: Áreas, líderes, co-líderes y auditoría
-    Web-->>Sys: Mapa organizacional
-
+    actor U as Dirección con nivel Sistemas
+    participant W as Roles y liderazgo
+    participant R as RPC de roles
+    participant B as PostgreSQL y auditoría
+    U->>W: Abre mapa organizacional
+    W->>R: dash_admin_roles()
+    R->>B: Valida rol, nivel y acceso_panel
+    R-->>W: Responsables y alertas
+    U->>W: Selecciona asignar, reemplazar o retirar y confirma
     alt Líder
-        Sys->>Web: Selecciona asignar, reemplazar o retirar líder
-        Web-->>Sys: Presenta confirmación y efecto del cambio
-        Sys->>Web: Confirma
-        Web->>RPC: dash_admin_asignar_lider(area, persona o null)
+    W->>R: dash_admin_asignar_lider(...)
     else Co-líder
-        Sys->>Web: Selecciona asignar, reemplazar o retirar co-líder
-        Web-->>Sys: Presenta confirmación y límite de 2 co-líderes
-        Sys->>Web: Confirma
-        Web->>RPC: dash_admin_asignar_colider(area, persona o null, anterior)
+    W->>R: dash_admin_asignar_colider(...)
     end
-    RPC->>DB: Valida alcance, límites y disponibilidad
-    RPC->>DB: Actualiza rol y registra auditoría
-    RPC-->>Web: Resultado
-    Web-->>Sys: Mapa y bitácora actualizados
+    R->>B: Revalida área, persona activa y límite 1 líder/2 co-líderes
+    alt Válido
+    R->>B: Actualiza responsables y auditoría atómicamente
+    R-->>W: Resultado
+    else Inválido
+    R-->>W: Rechazo sin cambios parciales
+    end
+    W-->>U: Mapa actualizado
 ```
 
-## Reglas transversales que aplican a todos los diagramas
+## DS-012. Inicio de sesión personal
 
-- El frontend decide qué controles mostrar; el servidor vuelve a validar cada
-  operación. Alterar HTML o conocer una URL no concede permiso.
-- Las operaciones de lectura y mutación pasan por RPC protegidas por sesión,
-  rol, nivel y RLS.
-- Las evidencias privadas no exponen una ruta pública: se cargan con permisos
-  temporales y se consultan con URL firmadas de duración limitada.
-- Las acciones que retiran datos, reinician PIN o cambian responsables piden
-  confirmación antes de enviar la mutación.
-- La jornada `J` conserva su registro y sus evidencias; en Cierres solo queda
-  exigible la compartición de Facebook cuando corresponde al horario.
+**Trazabilidad:** RF-001–RF-015. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Colaborador
+    participant W as Portal KJA
+    participant E as Edge dash-entrar
+    participant R as SQL de acceso
+    participant A as Supabase Auth
+    participant B as Perfiles y sesiones
+    U->>W: Ingresa DNI y PIN
+    W->>E: Envía credenciales por HTTPS
+    E->>R: Valida DNI, actividad, huella y bloqueo
+    alt Credenciales rechazadas o bloqueo
+    R-->>E: Motivo sin sesión
+    E-->>W: Error de acceso
+    else Validación correcta
+    R-->>E: Identidad de colaborador
+    E->>B: Comprueba vínculo y acceso administrativo
+    alt Cuenta administrativa vinculada
+    E-->>W: usa_tu_cuenta
+    else Cuenta personal
+    E->>E: Deriva contraseña técnica con secreto
+    E->>A: Autentica y crea identidad si corresponde
+    A-->>E: Sesión autenticada
+    E->>B: Vincula perfil y registra vencimiento de ocho horas
+    E-->>W: Tokens y datos de inicio, nunca contraseña técnica
+    W-->>U: Inicio y tiempo restante
+    end
+    end
+    opt Usuario cierra sesión
+    U->>W: Cerrar sesión
+    W->>A: Solicita signOut
+    W->>W: Limpia estado privado y vuelve al acceso
+    end
+```
+
+## DS-013. Entrada segura con modalidad y evidencia
+
+**Trazabilidad:** RF-025–RF-040, RF-126, RF-130–RF-131. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Colaborador
+    participant W as Portal KJA
+    participant G as Geolocalización del navegador
+    participant E as Edge dash-evidencia
+    participant R as RPC de marcado
+    participant B as PostgreSQL
+    participant S as Storage privado
+    U->>W: Elige modalidad y solicita marcar
+    W->>R: dash_protocolo_marcado(...)
+    R-->>W: Ventana y reglas o protocolo rechazado
+    opt Presencial
+    W->>G: Solicita permiso y coordenadas
+    G-->>W: Posición y precisión o denegación
+    end
+    U->>W: Captura o selecciona evidencia
+    W->>E: Solicita permiso de carga
+    E->>R: Valida permiso de evidencia
+    R-->>E: Ruta autorizada o rechazo
+    E-->>W: Permiso temporal o motivo
+    W->>S: Sube imagen procesada a ruta autorizada
+    alt Carga correcta
+    W->>R: dash_marcar_seguro(protocolo, modalidad, ruta, coordenadas)
+    R->>B: Revalida sesión, ventana, evidencia, duplicado y geocerca
+    alt Válido
+    R->>B: Guarda entrada con hora servidor y modalidad
+    R-->>W: Resultado confirmado
+    W->>R: Actualiza inicio, historial y cierre
+    R-->>W: Estado actualizado
+    else Incumple regla
+    R-->>W: Motivo sin marca nueva
+    end
+    else Falló carga
+    W-->>U: No confirma asistencia
+    end
+```
+
+## DS-014. Inicio, historial y perfil personal
+
+**Trazabilidad:** RF-016–RF-024, RF-041–RF-048, RF-125, RF-127. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Colaborador o líder autorizado
+    participant W as Portal KJA
+    participant R as RPC personal
+    participant B as PostgreSQL
+    U->>W: Abre inicio, historial o perfil
+    W->>R: dash_inicio() o dash_historial(...)
+    R->>B: Verifica sesión y acceso propio o de área
+    alt Sin alcance
+    R-->>W: Rechazo o datos no accesibles
+    else Permitido
+    R->>B: Calcula asistencia, horas y cierre aplicable
+    R-->>W: Datos autorizados
+    W-->>U: Calendario y perfil laboral de consulta
+    end
+    opt Actualiza foto propia
+    U->>W: Selecciona fotografía y confirma
+    W->>W: Prepara y carga por flujo privado autorizado
+    W->>R: dash_guardar_foto(path)
+    R->>B: Valida propiedad y vincula fotografía
+    R-->>W: Foto actualizada o motivo
+    end
+```
+
+## DS-015. Solicitudes personales
+
+**Trazabilidad:** RF-128–RF-129. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Colaborador
+    actor A as Dirección
+    participant W as Solicitudes
+    participant R as RPC de solicitudes
+    participant B as PostgreSQL
+    U->>W: Completa tipo, fechas, detalle y evidencia aplicable
+    W->>R: dash_crear_solicitud(...)
+    R->>B: Valida sesión, datos y ámbito
+    R-->>W: Solicitud creada o motivo
+    A->>W: Consulta pendientes
+    W->>R: dash_admin_solicitudes_personales()
+    R->>B: Verifica Dirección
+    R-->>W: Bandeja autorizada
+    A->>W: Aprueba o rechaza con respuesta
+    W->>R: dash_admin_resolver_solicitud(...)
+    R->>B: Revalida y registra decisión y efectos aplicables
+    R-->>W: Resultado
+    U->>W: Consulta estado y días libres
+    W->>R: dash_solicitudes_personales() y dash_mis_dias_libres()
+    R-->>W: Resultado propio
+```
+
+## DS-016. Evidencia Facebook, eliminación y comprobante
+
+**Trazabilidad:** RF-144–RF-147. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Colaborador
+    participant W as Comparticiones
+    participant E as Edge dash-entrega
+    participant R as RPC de entregas
+    participant B as PostgreSQL y cola privada
+    participant S as Storage privado
+    U->>W: Consulta agenda y entrega vigente
+    W->>R: Consulta resumen y entrega editable
+    R-->>W: Obligación, plazo y archivos autorizados
+    opt Quitar imagen guardada
+    U->>W: Selecciona imagen y confirma eliminación
+    W->>E: Solicita eliminar imagen Facebook
+    E->>R: Valida propietario, requisito y ventana de edición
+    R->>B: Retira referencias y encola ruta
+    alt Quedan imágenes
+    R->>B: Conserva entrega y reinicia revisión
+    else Última imagen
+    R->>B: Anula entrega y deja requisito pendiente
+    end
+    R-->>E: Ruta a limpiar o rechazo
+    E->>S: Elimina objeto autorizado
+    alt Fallo Storage
+    E-->>W: Limpieza pendiente con reintento
+    else Completado
+    E->>B: Confirma limpieza
+    E-->>W: Resultado
+    end
+    end
+    opt Compartir comprobante
+    U->>W: Solicita comprobante
+    W->>R: dash_mi_comprobante_comparticiones()
+    R-->>W: Datos permitidos
+    W-->>U: Comprobante y opción compartir o descargar
+    U->>W: Elige destino y confirma en aplicación externa
+    end
+```
+
+## DS-017. Resolución de excepciones de jornada
+
+**Trazabilidad:** RF-140–RF-144, RF-158. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Usuario autorizado
+    participant W as Vista diaria o mensual
+    participant R as RPC de resumen
+    participant B as PostgreSQL y política de cierre
+    U->>W: Consulta fecha y persona
+    W->>R: Consulta cierre o historial autorizado
+    R->>B: Comprueba acceso y política aplicable
+    alt Excepción individual de Alviery
+    R->>B: Evalúa asistencia y Facebook sin exigir salida, RPE ni asignaciones
+    else Jornada justificada
+    R->>B: Conserva J y evalúa Facebook si corresponde
+    else Jornada ordinaria
+    R->>B: Resuelve modalidad marcada, diaria y semanal
+    alt Presencial desde fecha de exención
+    R->>B: Excluye RPE sin borrar evidencias históricas
+    else RPE exigible
+    R->>B: Incluye requisito laboral RPE
+    end
+    R->>B: Evalúa salida, asignaciones y agenda Facebook independientes
+    end
+    R-->>W: Estado y requisitos aplicables
+    W-->>U: Muestra exenciones y pendientes sin inventar completitud
+```
+
+## DS-018. Ranking mensual provisional
+
+**Trazabilidad:** RF-157–RF-159. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Dirección
+    participant W as Ranking
+    participant R as dash_ranking_mes
+    participant B as PostgreSQL
+    U->>W: Selecciona mes
+    W->>R: dash_ranking_mes(primer día del mes)
+    R->>B: Valida Dirección activa
+    R->>B: Evalúa ventanas cerradas hasta ayer en Lima
+    R->>B: Calcula denominadores por criterio y excepciones
+    R-->>W: Versión de fórmula, numeradores y denominadores
+    W->>W: Calcula puntos, exenciones y descuentos
+    W-->>U: Ranking provisional y desglose
+    opt Simular pesos o filtrar área
+    U->>W: Ajusta controles
+    W->>W: Recalcula sin guardar política
+    W-->>U: Resultado de simulación
+    end
+```
+
+## DS-019. Reporte Facebook y exportaciones
+
+**Trazabilidad:** RF-160–RF-163. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Dirección
+    participant W as Reportes Facebook
+    participant R as dash_reporte_facebook
+    participant B as PostgreSQL
+    participant X as Generador local XLSX/PDF
+    U->>W: Selecciona corte o periodo
+    W->>R: dash_reporte_facebook(desde, hasta)
+    R->>B: Valida Dirección y límites de fechas
+    R->>B: Consulta agenda y última entrega con imagen
+    R-->>W: Sí, No, exclusiones y periodo efectivo
+    W-->>U: Tablas por área y aviso provisional
+    alt Descargar Excel
+    U->>W: Solicita XLSX
+    W->>X: Datos con filtro de área vigente
+    X-->>U: Resumen y Detalle en archivo local
+    else Descargar PDF completo
+    U->>W: Solicita PDF de todas las áreas
+    W->>X: Todas las áreas y ranking por total de Sí
+    X-->>U: PDF paginado local
+    end
+    opt Periodo cambia durante carga
+    W->>W: Descarta respuesta o descarga desactualizada
+    end
+```
+
+## DS-020. Chat privado con texto o imagen
+
+**Trazabilidad:** RF-165–RF-169. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Remitente
+    actor V as Destinatario
+    participant W as Chat del portal
+    participant R as RPC de chat
+    participant B as PostgreSQL
+    participant S as Storage privado
+    U->>W: Abre contacto
+    W->>R: chat_contactos() y chat_historial(...)
+    R->>B: Valida cuenta y participación
+    R-->>W: Historial permitido
+    U->>W: Escribe texto o selecciona imagen
+    opt Imagen
+    W->>W: Recodifica y valida límites
+    W->>S: Carga ruta propia sin sobrescritura
+    S-->>W: Resultado
+    end
+    U->>W: Pulsa Enviar
+    W->>R: chat_enviar o chat_enviar_imagen con cliente_id
+    R->>B: Valida participantes, contenido y archivo si corresponde
+    R->>B: Guarda una sola vez por identificador
+    R-->>W: Mensaje confirmado o error recuperable
+    W-->>V: Actualiza conversación autorizada
+    V->>W: Lee conversación
+    W->>R: chat_leer(...)
+    R->>B: Guarda lectura autorizada
+    opt Sesión cerrada o vencida
+    W->>W: Limpia ventanas y descarta respuestas tardías
+    end
+```
+
+## DS-021. Borrador, revisión y publicación de Marketing
+
+**Trazabilidad:** RF-170–RF-175. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Marketing autorizado
+    participant W as Publicaciones
+    participant E as Edge marketing-publicaciones
+    participant B as PostgreSQL y Storage privado
+    participant G as Gemini
+    participant F as Facebook
+    U->>W: Adjunta flyer o prepara texto manual
+    alt Lectura explícita de flyer
+    U->>W: Pulsa Leer información
+    W->>E: Solicita análisis de borrador
+    E->>B: Verifica permiso, propiedad, caché y reserva atómica
+    alt Extracción disponible
+    B-->>E: Datos persistidos
+    else Cuota disponible y reserva válida
+    E->>G: Solicita extracción
+    G-->>E: Resultado o error
+    E->>B: Persiste resultado válido
+    else Sin cuota o reserva ocupada
+    E-->>W: Motivo sin lectura nueva
+    end
+    E-->>W: Datos o error sin reintento automático
+    else Texto manual
+    W->>W: Organiza datos sin llamada a Gemini
+    end
+    U->>W: Revisa copy y enlace; confirma publicación
+    W->>E: Guarda borrador y solicita publicar revisado
+    E->>B: Revalida permiso y reclama borrador atómicamente
+    alt Reclamo autorizado
+    E->>F: Envía imagen y copy
+    alt Éxito confirmado
+    F-->>E: Identificador de publicación
+    E->>B: Guarda publicado e identificador
+    else Timeout o resultado ambiguo
+    E->>B: Conserva estado incierto para comprobación
+    end
+    else Sin permiso o reclamo duplicado
+    E-->>W: Rechazo sin nuevo envío
+    end
+    E-->>W: Resultado
+    W-->>U: Publicado, error o pendiente de comprobar
+```
+
+## DS-022. Impedimentos y control diario
+
+**Trazabilidad:** RF-154–RF-156. La matriz detalla asociaciones y RNF.
+
+```mermaid
+sequenceDiagram
+    actor U as Colaborador
+    actor A as Dirección o líder autorizado
+    participant W as Portal y supervisión
+    participant R as RPC de impedimentos
+    participant B as PostgreSQL
+    U->>W: Reporta motivo para un requisito pendiente
+    W->>R: dash_reportar_impedimento(...)
+    R->>B: Valida sesión, requisito, ventana y detalle
+    R->>B: Guarda aviso sin completar evidencia
+    R-->>W: Impedimento informado
+    A->>W: Consulta control diario o equipo
+    W->>R: dash_supervision_impedimentos(fecha)
+    R->>B: Filtra ámbito de Dirección o área
+    R-->>W: Avisos autorizados
+    opt Colaborador entrega evidencia
+    U->>W: Completa entrega por flujo de carga
+    W->>R: Confirma entrega válida
+    R->>B: Resuelve impedimento vinculado
+    R-->>W: Estado actualizado
+    end
+```
