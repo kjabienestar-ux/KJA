@@ -9,3 +9,7 @@ node_modules/
 # Temporales del sistema
 Thumbs.db
 .DS_Store
+
+# Intermedios y vistas de revisión del Gantt (se conserva el XLSX final)
+/outputs/gantt-kja-20260922/gantt-datos.json
+/outputs/gantt-kja-20260922/revision/

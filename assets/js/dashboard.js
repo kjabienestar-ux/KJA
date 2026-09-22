@@ -18,6 +18,7 @@ const BASE_DOCUMENT_TITLE = document.title;
 const WEATHER_CACHE_KEY = 'kja-dashboard-weather';
 const WEATHER_REFRESH_MS = 30 * 60 * 1000;
 const WEATHER_DEFAULT_COORDS = {lat:-12.0464,lon:-77.0428};
+const SIDEBAR_COLLAPSED_KEY = 'kja-dashboard-sidebar-collapsed';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
   auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:false, storageKey:AUTH_KEY }
 });
@@ -147,7 +148,7 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
@@ -779,6 +780,55 @@ async function logout(message){
 }
 $('logout').onclick=()=>logout();
 
+function sidebarStorageKey(){return APP.sessionUid?`${SIDEBAR_COLLAPSED_KEY}:${APP.sessionUid}`:''}
+function sidebarCanCollapse(){
+  const portal=$('portal');
+  return !!portal&&window.matchMedia('(min-width:1281px)').matches&&APP.identity.hasPersonal&&APP.view!=='gestion'&&APP.view!=='marketing';
+}
+function sidebarTooltipTarget(node){
+  const target=node?.closest?.('[data-sidebar-tooltip]');
+  return target&&$('sidebar')?.contains(target)?target:null;
+}
+function hideSidebarTooltip(){
+  const tooltip=$('sidebar-tooltip');
+  if(tooltip)tooltip.hidden=true;
+}
+function showSidebarTooltip(target){
+  const tooltip=$('sidebar-tooltip');
+  if(!tooltip||!sidebarCanCollapse()||$('portal').dataset.sidebarCollapsed!=='true'||!target?.dataset.sidebarTooltip)return hideSidebarTooltip();
+  tooltip.textContent=target.dataset.sidebarTooltip;
+  tooltip.hidden=false;
+  const rect=target.getBoundingClientRect(),width=tooltip.offsetWidth,height=tooltip.offsetHeight;
+  const left=Math.min(rect.right+10,window.innerWidth-width-10);
+  const top=Math.min(Math.max(10,rect.top+(rect.height-height)/2),window.innerHeight-height-10);
+  tooltip.style.left=`${Math.max(10,left)}px`;
+  tooltip.style.top=`${Math.max(10,top)}px`;
+}
+function setSidebarCollapsed(collapsed,{persist=true,focus=false}={}){
+  const portal=$('portal'),toggle=$('sidebar-collapse-toggle');
+  if(!portal||!toggle)return;
+  const available=sidebarCanCollapse(),active=available&&Boolean(collapsed),key=sidebarStorageKey();
+  if(active)portal.dataset.sidebarCollapsed='true';else delete portal.dataset.sidebarCollapsed;
+  toggle.hidden=!available;
+  const label=active?'Mostrar navegación':'Ocultar navegación';
+  toggle.setAttribute('aria-expanded',String(!active));
+  toggle.setAttribute('aria-label',label);
+  toggle.title=label;
+  toggle.dataset.sidebarTooltip=label;
+  if(persist&&available&&key){try{localStorage.setItem(key,String(active))}catch(e){}}
+  if(!active)hideSidebarTooltip();
+  if(focus){
+    if(available)toggle.focus({preventScroll:true});
+    else $('workspace')?.focus({preventScroll:true});
+  }
+}
+function syncSidebarCollapse(){
+  const available=sidebarCanCollapse(),key=sidebarStorageKey();
+  let collapsed=false;
+  if(available&&key){try{collapsed=localStorage.getItem(key)==='true'}catch(e){}}
+  setSidebarCollapsed(collapsed,{persist:false});
+}
+
 function paintShell(view){
   APP.view=view;
   $('portal').dataset.view=view;
@@ -792,6 +842,7 @@ function paintShell(view){
     if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
   $('portal').classList.toggle('admin-wide',view==='gestion');
+  syncSidebarCollapse();
 }
 
 function primeCachedShell(session,fallback){
@@ -801,6 +852,8 @@ function primeCachedShell(session,fallback){
     if(cached?.uid===session?.user?.id&&['inicio','equipo','gestion'].includes(cached.view))view=cached.view;
   }catch(e){}
   if(!['inicio','equipo','gestion'].includes(view))return;
+  APP.sessionUid=session?.user?.id||'';
+  if(view!=='gestion')APP.identity.hasPersonal=true;
   paintShell(view);
   if(view==='gestion'){$('nav-gestion').hidden=false;$('admin-nav-divider').hidden=false}
   else if(view==='equipo'){$('nav-equipo').hidden=false;$('team-nav-divider').hidden=false}
@@ -822,6 +875,7 @@ async function init(){
 
 async function openPortal(activeSession,bootstrap=null){
   const session=activeSession||(await db.auth.getSession()).data.session;
+  APP.sessionUid=session?.user?.id||'';
   let data=bootstrap?.inicio?.ok?bootstrap.inicio:null,error=null,access=bootstrap?.acceso||null;
   if(!data){
     const accessRequest=session?.user?.id
@@ -879,8 +933,6 @@ async function openPortal(activeSession,bootstrap=null){
     $('rail-schedule-list').innerHTML='<p class="rail-empty">Esta cuenta administra la asistencia del equipo.</p>';
   }else if(APP.identity.isLeader){
     $('rail-area').textContent='Vista de Dirección';
-    $('rail-month').textContent='Vista general';
-    $('rail-calendar-grid').innerHTML='';
     $('rail-schedule-list').innerHTML='<p class="rail-empty">Esta cuenta no está vinculada a una jornada personal.</p>';
     $('rail-rate-note').textContent='Consulta el estado desde Mi equipo';
   }
@@ -1197,7 +1249,6 @@ function renderHistory(){
     html+=`<button type="button" class="cal-day ${cls} ${d.futuro?'future':''} ${!d.lab?'off':''} ${today?'today':''}" data-history-date="${esc(d.fecha)}" aria-label="${esc(`${d.d} de ${monthNames[h.mes-1]}: ${label}${today?', hoy':''}`)}"><span class="cal-day-top"><b>${d.d}</b>${today?'<em>Hoy</em>':'<i aria-hidden="true"></i>'}</span><small>${esc(label)}</small></button>`;
   }
   $('calendar-grid').innerHTML=html;
-  renderRailCalendar(h);
   const currentMonth=h.anio===new Date().getFullYear()&&h.mes===new Date().getMonth()+1;
   $('month-next').disabled=currentMonth;$('mobile-month-next').disabled=currentMonth;
 }
@@ -1524,17 +1575,6 @@ async function submitPersonalRequest(event){
     return;
   }catch(error){personalRequestMessage(error.message==='subida'?'No se pudo subir la evidencia. Revisa tu conexión.':error.message||'No se pudo enviar la solicitud.')}
   PERSONAL_REQUEST.busy=false;button.disabled=false;button.textContent='Enviar a Dirección';
-}
-
-function renderRailCalendar(h){
-  $('rail-month').textContent=cap(`${monthNames[h.mes-1]} ${h.anio}`);
-  const first=new Date(h.anio,h.mes-1,1).getDay(),offset=(first+6)%7;
-  let html='<span class="rail-cal-day empty"></span>'.repeat(offset);
-  for(const d of h.dias||[]){
-    const registered=!!d.estado,incomplete=d.cierre_estado==='incompleta',cls=[registered?'registered':'',incomplete?'incomplete':'',d.fecha===h.hoy?'today':'',d.futuro?'future':'',!d.lab?'off':''].filter(Boolean).join(' ');
-    html+=`<span class="rail-cal-day ${cls}" title="${esc(incomplete?'Jornada incompleta':statusLabel(d.estado,d.lab))}"><b>${d.d}</b>${registered?'<i></i>':''}</span>`;
-  }
-  $('rail-calendar-grid').innerHTML=html;
 }
 
 function renderProfile(){
@@ -2367,7 +2407,6 @@ $('personal-request-detail').oninput=event=>$('personal-request-detail-count').t
 $('personal-request-start').onchange=event=>{const end=$('personal-request-end');end.min=event.target.value;if(!end.value||end.value<event.target.value)end.value=event.target.value;syncRequestDateButtons()};
 $('personal-request-end').onchange=syncRequestDateButtons;
 $('calendar-grid').onclick=event=>{const day=event.target.closest('[data-history-date]');if(day)openAttendanceDay(day.dataset.historyDate)};
-$('rail-calendar-open').onclick=()=>goView('asistencia');
 const ANNOUNCEMENTS=[
   {title:'Reportes consolidados',src:'images/dashboard/comunicado-reportes.webp',alt:'Comunicado KJA sobre el seguimiento de comparticiones y reportes consolidados en Excel',fallback:'La Dirección generará reportes consolidados en Excel para dar seguimiento a las comparticiones.'},
   {title:'Envío de comprobantes',src:'images/dashboard/comunicado-comparticiones.webp',alt:'Comunicado KJA sobre el envío de comprobantes de comparticiones por WhatsApp',fallback:'Envía tu comprobante de comparticiones por WhatsApp directamente desde el portal.'}
@@ -2499,6 +2538,14 @@ $('stored-evidence-viewer').addEventListener('keydown',event=>{
 
 function openMenu(){ $('sidebar').classList.add('open');$('side-scrim').classList.add('show'); } function closeMenu(){ $('sidebar').classList.remove('open');$('side-scrim').classList.remove('show'); }
 $('menu-toggle').onclick=openMenu;$('side-scrim').onclick=closeMenu;
+if($('sidebar-collapse-toggle'))$('sidebar-collapse-toggle').onclick=()=>setSidebarCollapsed($('portal').dataset.sidebarCollapsed!=='true',{persist:true,focus:true});
+const sidebarDesktopQuery=window.matchMedia('(min-width:1281px)');
+if(sidebarDesktopQuery.addEventListener)sidebarDesktopQuery.addEventListener('change',syncSidebarCollapse);
+else sidebarDesktopQuery.addListener?.(syncSidebarCollapse);
+document.addEventListener('pointerover',event=>{const target=sidebarTooltipTarget(event.target);if(target)showSidebarTooltip(target)});
+document.addEventListener('pointerout',event=>{const target=sidebarTooltipTarget(event.target),next=sidebarTooltipTarget(event.relatedTarget);if(target&&next!==target)hideSidebarTooltip()});
+document.addEventListener('focusin',event=>{const target=sidebarTooltipTarget(event.target);if(target)showSidebarTooltip(target)});
+document.addEventListener('focusout',event=>{const target=sidebarTooltipTarget(event.target),next=sidebarTooltipTarget(event.relatedTarget);if(target&&next!==target)hideSidebarTooltip()});
 $('mobile-back-home').onclick=()=>goView('inicio');
 document.addEventListener('keydown',event=>{
   if(event.key!=='Escape')return;
