@@ -1223,19 +1223,53 @@ function renderProgress(){
   renderDashboardMonthProgress(h);
 }
 
+let hideDashboardDayTooltip=null;
 function renderDashboardMonthProgress(h){
   const daysElement=$('dashboard-month-days');
   if(!daysElement)return;
+  if(!daysElement.dataset.responsiveBound){
+    const section=daysElement.parentElement,desktopParent=section.parentElement,desktopNext=section.nextElementSibling,mobileSlot=$('mobile-month-progress-slot'),media=window.matchMedia('(max-width:900px)');
+    const place=()=>{hideDashboardDayTooltip?.();if(media.matches&&mobileSlot)mobileSlot.append(section);else desktopParent.insertBefore(section,desktopNext);};
+    media.addEventListener('change',place);place();daysElement.dataset.responsiveBound='true';
+  }
   const totals=h.totales||{},total=Math.max(0,Number(totals.laborables)||0),registered=(Number(totals.P)||0)+(Number(totals.T)||0)+(Number(totals.J)||0),incompleteCount=Math.max(0,Number(totals.incompletas)||0);
-  const workdays=(h.dias||[]).filter(day=>day.lab);
-  daysElement.innerHTML=workdays.length?workdays.map(day=>{
-    const incomplete=day.cierre_estado==='incompleta',state=incomplete?'incomplete':day.futuro?'future':(day.estado||'pending').toLowerCase(),today=day.fecha===h.hoy,weekday=new Intl.DateTimeFormat('es-PE',{weekday:'short'}).format(new Date(`${day.fecha}T12:00:00`)).replace('.','').slice(0,2);
-    const label=incomplete?'Jornada incompleta':statusLabel(day.estado,day.lab);
-    const accessibleLabel=`${day.d} de ${monthNames[h.mes-1]}: ${label}${today?', hoy':''}`;
-    return `<span class="dashboard-month-day ${esc(state)}${today?' today':''}" title="${esc(accessibleLabel)}" aria-label="${esc(accessibleLabel)}">${incomplete?'<em aria-hidden="true">!</em>':''}<b>${esc(day.d)}</b><small>${esc(weekday)}</small></span>`;
-  }).join(''):'<span class="dashboard-month-empty">Sin días laborables este mes</span>';
-  daysElement.setAttribute('aria-label',total?`${registered} de ${total} días laborables registrados${incompleteCount?`; ${incompleteCount} ${incompleteCount===1?'jornada incompleta':'jornadas incompletas'}`:''}`:'Sin días laborables este mes');
+  hideDashboardDayTooltip?.();
+  const visibleDays=(h.dias||[]).map(day=>({day,view:KJAMonthProgress.present(day)})).filter(item=>item.view);
+  daysElement.innerHTML=visibleDays.length?visibleDays.map(({day,view})=>{
+    const today=day.fecha===h.hoy,weekday=new Intl.DateTimeFormat('es-PE',{weekday:'short'}).format(new Date(`${day.fecha}T12:00:00`)).replace('.','').slice(0,2);
+    const accessibleLabel=`${day.d} de ${monthNames[h.mes-1]}${today?', hoy':''}: ${view.reason}`;
+    return `<button type="button" class="dashboard-month-day ${esc(view.state)}${today?' today':''}" data-day-reason="${esc(accessibleLabel)}" aria-label="${esc(accessibleLabel)}">${view.alert?'<em aria-hidden="true">!</em>':''}<b>${esc(day.d)}</b><small>${esc(weekday)}</small></button>`;
+  }).join(''):'<span class="dashboard-month-empty">Sin jornadas ni comparticiones asignadas este mes</span>';
+  const sharingMissing=visibleDays.filter(({day})=>day.aplica_comparticiones&&day.comparticiones_vencidas&&!day.comparticiones_completas).length;
+  daysElement.setAttribute('aria-label',`${registered} de ${total} días laborables registrados; ${incompleteCount} jornadas incompletas; ${sharingMissing} días con comparticiones vencidas sin completar`);
+  if(!hideDashboardDayTooltip)hideDashboardDayTooltip=KJAMonthProgress.bind(daysElement);
   requestAnimationFrame(()=>daysElement.querySelector('.today')?.scrollIntoView({block:'nearest',inline:'center'}));
+}
+
+let selectedAttendanceDate='',selectedAttendanceRequest=0;
+async function selectAttendanceDate(date,{focus=false}={}){
+  const day=(APP.historial?.dias||[]).find(item=>item.fecha===date);
+  if(!day)return;
+  selectedAttendanceDate=date;const request=++selectedAttendanceRequest,view=KJAAttendanceCalendar.present(day);
+  document.querySelectorAll('#calendar-grid [data-history-date]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.historyDate===date)));
+  const panel=$('attendance-selected-day'),content=$('attendance-selected-content');
+  panel.dataset.tone=view.tone;
+  $('attendance-selected-title').textContent=formatAttendanceDayDate(date);
+  const fact=(label,value)=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`;
+  const deadline=day.aplica_comparticiones&&day.compartir_hasta?new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(day.compartir_hasta)):'';
+  content.innerHTML=`<span class="selected-day-status">${esc(view.label)}</span><p class="selected-day-reason">${esc(view.reason)}</p><dl class="selected-day-facts">${day.lab||day.marcado_at||day.salida_at?fact('Entrada',formatAttendanceClock(day.marcado_at))+fact('Salida',formatAttendanceClock(day.salida_at)):''}${deadline?fact('Plazo de Facebook',deadline):''}${day.aplica_comparticiones&&!day.comparticiones_vencidas?fact('Comparticiones',view.sharing):''}</dl><div id="attendance-selected-extra" aria-busy="true"><p>Consultando detalles…</p></div><button type="button" class="selected-day-record" data-selected-record="${esc(date)}">Ver registro y evidencias ↗</button>`;
+  if(focus&&window.matchMedia('(max-width:1100px)').matches)panel.focus({preventScroll:false});
+  try{
+    const {data,error}=await db.rpc('dash_dia_detalle',{p_fecha:date});
+    if(request!==selectedAttendanceRequest)return;
+    const extra=$('attendance-selected-extra');extra.setAttribute('aria-busy','false');
+    if(error||!data?.ok)throw Error('detalle');
+    extra.innerHTML=`<dl class="selected-day-facts">${day.lab?fact('Horario',`${fmtTime(data.hora_entrada)} — ${fmtTime(data.hora_salida)}`)+fact('Modalidad',attendanceModeLabel(data.modalidad)):''}${data.horas!=null?fact('Horas registradas',`${Number(data.horas).toFixed(1)} h`):''}</dl>${data.nota?`<p class="selected-day-note"><b>Observación</b><br>${esc(data.nota)}</p>`:''}${data.solicitud?`<p class="selected-day-note"><b>Solicitud: ${esc(personalRequestLabel(data.solicitud.tipo))}</b><br>${esc(data.solicitud.estado)}${data.solicitud.respuesta?` · ${esc(data.solicitud.respuesta)}`:''}</p>`:''}`;
+  }catch(error){
+    if(request!==selectedAttendanceRequest)return;
+    $('attendance-selected-extra').setAttribute('aria-busy','false');
+    $('attendance-selected-extra').innerHTML='<p>No se pudo consultar el detalle adicional.</p><button type="button" data-retry-selected-day>Reintentar</button>';
+  }
 }
 
 function renderHistory(){
@@ -1245,10 +1279,12 @@ function renderHistory(){
   $('attendance-hours-summary').textContent=`${(Number(h.horas)||0).toFixed(1)} h acumuladas`;
   const first=new Date(h.anio,h.mes-1,1).getDay(),offset=(first+6)%7; let html='<span class="cal-day empty"></span>'.repeat(offset);
   for(const d of h.dias||[]){
-    const incomplete=d.cierre_estado==='incompleta',cls=incomplete?'incomplete':(d.estado||'').toLowerCase(),label=d.futuro?'Próximo':incomplete?'Jornada incompleta':statusLabel(d.estado,d.lab),today=d.fecha===h.hoy;
-    html+=`<button type="button" class="cal-day ${cls} ${d.futuro?'future':''} ${!d.lab?'off':''} ${today?'today':''}" data-history-date="${esc(d.fecha)}" aria-label="${esc(`${d.d} de ${monthNames[h.mes-1]}: ${label}${today?', hoy':''}`)}"><span class="cal-day-top"><b>${d.d}</b>${today?'<em>Hoy</em>':'<i aria-hidden="true"></i>'}</span><small>${esc(label)}</small></button>`;
+    const view=KJAAttendanceCalendar.present(d),today=d.fecha===h.hoy;
+    html+=`<button type="button" class="cal-day ${view.tone} ${today?'today':''}" data-history-date="${esc(d.fecha)}" aria-controls="attendance-selected-day" aria-pressed="false" aria-label="${esc(`${d.d} de ${monthNames[h.mes-1]}: ${view.label}${today?', hoy':''}. Ver detalles.`)}"><span class="cal-day-top"><b>${d.d}</b>${today?'<em>Hoy</em>':'<i aria-hidden="true"></i>'}</span><small>${esc(view.label)}</small><span class="cal-day-action" aria-hidden="true">Ver detalle ↗</span></button>`;
   }
   $('calendar-grid').innerHTML=html;
+  const selection=(h.dias||[]).find(day=>day.fecha===selectedAttendanceDate)||(h.dias||[]).find(day=>day.fecha===h.hoy)||(h.dias||[])[0];
+  if(selection)selectAttendanceDate(selection.fecha);
   const currentMonth=h.anio===new Date().getFullYear()&&h.mes===new Date().getMonth()+1;
   $('month-next').disabled=currentMonth;$('mobile-month-next').disabled=currentMonth;
 }
@@ -2406,7 +2442,8 @@ $('personal-request-file').onchange=event=>choosePersonalRequestEvidence(event.t
 $('personal-request-detail').oninput=event=>$('personal-request-detail-count').textContent=event.target.value.length;
 $('personal-request-start').onchange=event=>{const end=$('personal-request-end');end.min=event.target.value;if(!end.value||end.value<event.target.value)end.value=event.target.value;syncRequestDateButtons()};
 $('personal-request-end').onchange=syncRequestDateButtons;
-$('calendar-grid').onclick=event=>{const day=event.target.closest('[data-history-date]');if(day)openAttendanceDay(day.dataset.historyDate)};
+$('calendar-grid').onclick=event=>{const day=event.target.closest('[data-history-date]');if(day)selectAttendanceDate(day.dataset.historyDate,{focus:true})};
+$('attendance-selected-content').onclick=event=>{const record=event.target.closest('[data-selected-record]');if(record)openAttendanceDay(record.dataset.selectedRecord);if(event.target.closest('[data-retry-selected-day]'))selectAttendanceDate(selectedAttendanceDate);};
 const ANNOUNCEMENTS=[
   {title:'Reportes consolidados',src:'images/dashboard/comunicado-reportes.webp',alt:'Comunicado KJA sobre el seguimiento de comparticiones y reportes consolidados en Excel',fallback:'La Dirección generará reportes consolidados en Excel para dar seguimiento a las comparticiones.'},
   {title:'Envío de comprobantes',src:'images/dashboard/comunicado-comparticiones.webp',alt:'Comunicado KJA sobre el envío de comprobantes de comparticiones por WhatsApp',fallback:'Envía tu comprobante de comparticiones por WhatsApp directamente desde el portal.'}

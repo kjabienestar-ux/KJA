@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=203">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=204">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=7">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=5">
@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=32">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=2">
 </head>
 <body>
 
@@ -309,6 +310,7 @@
         </header>
 
         <div class="mobile-portal-sheet">
+          <div id="mobile-month-progress-slot"></div>
           <div class="mobile-sheet-heading">
             <span><h2>¿Qué deseas hacer?</h2><p>Accede rápido a lo más importante.</p></span>
             <span class="mobile-session-state"><i></i>Sesión segura</span>
@@ -429,7 +431,7 @@
 
       <header class="view-head">
         <div class="welcome-only"><h1 id="welcome">Buenos días</h1><span id="welcome-sub" hidden aria-hidden="true">Aquí tienes lo importante de hoy.</span><span id="welcome-area" hidden aria-hidden="true">Equipo KJA</span><span id="day-date" hidden aria-hidden="true">—</span><span class="status-pill" id="day-status" hidden aria-hidden="true">Cargando</span></div>
-        <section class="dashboard-month-progress" aria-label="Asistencia del mes">
+        <section class="dashboard-month-progress" aria-label="Asistencia y comparticiones del mes">
           <div class="dashboard-month-days" id="dashboard-month-days" aria-live="polite"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </section>
         <div class="header-tools">
@@ -667,15 +669,15 @@
 
       <div class="attendance-topbar">
         <div class="month-toolbar"><button id="month-prev" aria-label="Mes anterior">‹</button><b id="month-title">—</b><button id="month-next" aria-label="Mes siguiente">›</button></div>
+        <div class="attendance-stats" id="attendance-stats"></div>
         <button class="attendance-new-request" id="attendance-new-request" type="button" data-personal-request="justificacion" aria-controls="personal-request-modal" aria-label="Crear nueva solicitud"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva solicitud</button>
       </div>
 
-      <div class="attendance-stats" id="attendance-stats"></div>
 
       <div class="attendance-workspace">
         <article class="calendar-card attendance-calendar">
           <div class="attendance-calendar-head">
-            <span><b>Historial del mes</b><small>Selecciona un día para consultar su estado.</small></span>
+            <span><b>Historial del mes</b><small>Haz clic en cualquier día: su color y detalles se explican en el panel.</small></span>
             <span class="attendance-hours" id="attendance-hours-summary">— h acumuladas</span>
             <div class="attendance-calendar-mobile-tools" role="group" aria-label="Controles del historial mensual">
               <button type="button" id="mobile-month-prev" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
@@ -686,18 +688,24 @@
           </div>
           <div class="calendar-week"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
           <div class="calendar-grid" id="calendar-grid"></div>
-          <div class="calendar-legend"><span><i class="p"></i>Presente</span><span><i class="t"></i>Tardanza</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestionó</span><span><i class="incomplete"></i>Incompleta</span></div>
+          <div class="calendar-legend"><span><i class="p"></i>Presente / compartido</span><span><i class="t"></i>Tardanza / por compartir</span><span><i class="j"></i>Justificado</span><span><i class="missing"></i>Falta compartir / cierre incompleto</span><span><i class="off"></i>Sin jornada</span></div>
         </article>
 
-        <aside class="attendance-request-center" aria-labelledby="request-center-title">
-          <header><span><b id="request-center-title">Centro de solicitudes</b><small>Informa a Dirección y sigue la respuesta.</small></span><i id="personal-request-count">0</i></header>
+        <div class="attendance-side-column">
+          <section class="attendance-selected-day" id="attendance-selected-day" aria-labelledby="attendance-selected-title" tabindex="-1">
+            <h2 id="attendance-selected-title">Detalle del día</h2>
+            <div id="attendance-selected-content" aria-live="polite"><p>Selecciona un día del calendario para consultar sus detalles.</p></div>
+          </section>
+        <details class="attendance-request-center attendance-requests-disclosure">
+          <summary><span><b id="request-center-title">Solicitudes</b><small>Justificaciones y cambios de horario</small></span><i id="personal-request-count">0</i><span aria-hidden="true">⌄</span></summary>
           <div class="attendance-request-actions">
             <button type="button" data-personal-request="justificacion" aria-controls="personal-request-modal"><span class="request-action-icon"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4"/></svg></span><span><b>Justificar una ausencia</b><small>Comentario y evidencia obligatoria</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-personal-request="dia_libre" aria-controls="personal-request-modal"><span class="request-action-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 2v4M16 2v4M5 9h14"/><path d="m9 14 2 2 4-4"/></svg></span><span><b>Usé un día libre</b><small id="personal-days-off-balance">Consulta tus días disponibles</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-personal-request="cambio_horario" aria-controls="personal-request-modal"><span class="request-action-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><b>Cambiar horario o turno</b><small>Detalla la nueva jornada solicitada</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
           </div>
           <section class="personal-request-history"><div><b>Solicitudes recientes</b><button id="personal-requests-refresh" type="button">Actualizar</button></div><div id="personal-request-list"><p class="request-empty">Todavía no has enviado solicitudes.</p></div></section>
-        </aside>
+        </details>
+        </div>
       </div>
     </section>
 
@@ -1817,7 +1825,9 @@
 <script src="assets/js/dashboard-close-model.js?v=7"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
 <script src="assets/js/dashboard-announcement-modal.js?v=4"></script>
-<script src="assets/js/dashboard.js?v=187"></script>
+<script src="assets/js/dashboard-month-progress.js?v=1"></script>
+<script src="assets/js/attendance-calendar-model.js?v=1"></script>
+<script src="assets/js/dashboard.js?v=190"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=2"></script>

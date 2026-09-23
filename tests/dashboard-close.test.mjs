@@ -1087,8 +1087,8 @@ test('desktop header replaces date chrome with live monthly attendance progress'
   assert.match(html,/id="day-status" hidden/);
   assert.match(js,/function renderDashboardMonthProgress\(h\)/);
   assert.match(js,/renderDashboardMonthProgress\(h\)/);
-  assert.match(js,/state=incomplete\?'incomplete':day\.futuro\?'future'/);
-  assert.match(js,/jornada incompleta':'jornadas incompletas'/);
+  assert.match(js,/KJAMonthProgress\.present\(day\)/);
+  assert.match(js,/data-day-reason=/);
   assert.match(js,/<em aria-hidden="true">!<\/em>/);
   assert.match(css,/\.dashboard-month-day\.today/);
   assert.match(css,/\.dashboard-month-day\.incomplete\.today/);
