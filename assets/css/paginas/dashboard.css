@@ -9470,7 +9470,7 @@ body.admin-role-confirm-open{overflow:hidden}
   .mcv2-time-cards{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:0;
+    gap:6px;
     margin-bottom:0;
     padding:5px;
     border:1px solid rgba(188,202,216,.7);
@@ -9490,8 +9490,9 @@ body.admin-role-confirm-open{overflow:hidden}
     border-radius:12px;
     background:transparent;
   }
-  .mcv2-time-entry{background:#edf8f4}
-  .mcv2-time-exit{border-radius:0 12px 12px 0;background:#f3f0ff}
+  .mcv2-time-entry{border-radius:12px 0 0 12px;background:#f3f5f7}
+  .mcv2-time-exit{border-radius:0 12px 12px 0;background:#f3f5f7}
+  .mcv2-time-card.is-recorded{background:#eaf3ff}
   .mcv2-time-icon{
     width:34px;
     height:34px;
@@ -9502,8 +9503,9 @@ body.admin-role-confirm-open{overflow:hidden}
     color:#6366f1;
     background:#e0e7ff;
   }
-  .mcv2-time-entry .mcv2-time-icon{color:#137158;background:#d9f2e8}
-  .mcv2-time-exit .mcv2-time-icon{color:#6356d8;background:#e3dffd}
+  .mcv2-time-entry .mcv2-time-icon,
+  .mcv2-time-exit .mcv2-time-icon{color:#64748b;background:#e2e8f0}
+  .mcv2-time-card.is-recorded .mcv2-time-icon{color:#2563eb;background:#dbeafe}
   .mcv2-time-icon svg{
     width:18px;
     height:18px;
@@ -9532,8 +9534,7 @@ body.admin-role-confirm-open{overflow:hidden}
     letter-spacing:-.03em;
   }
   .mcv2-time-card:not(.is-recorded) b{color:#94a3b8}
-  .mcv2-time-entry.is-recorded b{color:#0f5d4f}
-  .mcv2-time-exit.is-recorded b{color:#4f46e5}
+  .mcv2-time-card.is-recorded b{color:#1d4ed8}
   .mcv2-time-card>div>span{
     display:block;
     margin-top:2px;

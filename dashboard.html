@@ -15,24 +15,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=205">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=7">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=206">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=8">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=7">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=32">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=33">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=3">
 </head>
 <body>
 
@@ -296,12 +297,9 @@
             </button>
           </div>
           <div class="mobile-portal-person">
-            <span class="mobile-profile-photo">
+            <button class="mobile-profile-photo" id="mobile-profile-link" type="button" aria-label="Abrir Mi perfil">
               <span class="mobile-profile-avatar" id="mobile-home-avatar">KJ</span>
-              <button class="mobile-profile-photo-edit" id="mobile-home-photo" type="button" aria-label="Subir foto de perfil" title="Subir foto">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
-              </button>
-            </span>
+            </button>
             <div>
               <h1 id="mobile-home-name">Equipo KJA</h1>
               <p id="mobile-home-area">Tu área</p>
@@ -388,30 +386,6 @@
             <!-- Checklist cards -->
             <div class="mcv2-checklist" id="mobile-close-list"></div>
 
-            <!-- Resumen horario compacto -->
-            <div class="mcv2-time-cards" id="mobile-today-summary" role="status" aria-live="polite" tabindex="-1">
-              <div class="mcv2-time-card mcv2-time-entry" id="mobile-entry-time-card">
-                <span class="mcv2-time-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M14 5H6v14h8M10 12h10M17 9l3 3-3 3"/></svg>
-                </span>
-                <div>
-                  <small>ENTRADA REGISTRADA</small>
-                  <b id="mobile-today-start">—</b>
-                  <span id="mobile-entry-time-note">Pendiente de marcar</span>
-                </div>
-              </div>
-              <div class="mcv2-time-card mcv2-time-exit" id="mobile-exit-time-card">
-                <span class="mcv2-time-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M10 5h8v14h-8M14 12H4M7 9l-3 3 3 3"/></svg>
-                </span>
-                <div>
-                  <small>SALIDA REGISTRADA</small>
-                  <b id="mobile-today-end">—</b>
-                  <span id="mobile-exit-time-note">Pendiente de marcar</span>
-                </div>
-              </div>
-            </div>
-
             <!-- Hidden date/status for JS compat -->
             <span hidden id="mobile-today-date" aria-hidden="true">—</span>
             <span hidden id="mobile-today-status" aria-hidden="true">Cargando</span>
@@ -427,6 +401,30 @@
             </footer>
 
           </section>
+
+          <!-- Resumen horario fuera del cierre -->
+          <div class="mcv2-time-cards" id="mobile-today-summary" role="status" aria-live="polite" tabindex="-1">
+            <div class="mcv2-time-card mcv2-time-entry" id="mobile-entry-time-card">
+              <span class="mcv2-time-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M14 5H6v14h8M10 12h10M17 9l3 3-3 3"/></svg>
+              </span>
+              <div>
+                <small>ENTRADA REGISTRADA</small>
+                <b id="mobile-today-start">—</b>
+                <span id="mobile-entry-time-note">Pendiente de marcar</span>
+              </div>
+            </div>
+            <div class="mcv2-time-card mcv2-time-exit" id="mobile-exit-time-card">
+              <span class="mcv2-time-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M10 5h8v14h-8M14 12H4M7 9l-3 3 3 3"/></svg>
+              </span>
+              <div>
+                <small>SALIDA REGISTRADA</small>
+                <b id="mobile-today-end">—</b>
+                <span id="mobile-exit-time-note">Pendiente de marcar</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -729,7 +727,17 @@
           <small class="profile-photo-hint">JPG, PNG o WebP · máximo 3 MB</small>
           <p class="profile-photo-message" id="profile-photo-message" role="status" aria-live="polite"></p>
         </article>
-        <article class="profile-data"><div id="profile-fields"></div><div class="profile-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span><b>¿Hay algo que corregir?</b>Comunícalo a Dirección para mantener tu información laboral al día.</span><a href="https://wa.me/51988918238" target="_blank" rel="noopener">Informar un cambio</a></div></article>
+        <article class="profile-data">
+          <div id="profile-fields"></div>
+          <div class="profile-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span><b>¿Hay algo que corregir?</b>Comunícalo a Dirección para mantener tu información laboral al día.</span><a href="https://wa.me/51988918238" target="_blank" rel="noopener">Informar un cambio</a></div>
+          <div class="profile-session">
+            <span class="profile-session-copy">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>
+              <span><b>Sesión de la cuenta</b><small>Sal de forma segura al terminar de usar tu portal.</small></span>
+            </span>
+            <button id="profile-logout" type="button">Cerrar sesión</button>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -1006,7 +1014,7 @@
 
       <section id="admin-facebook-section" hidden aria-labelledby="fb-report-title">
         <header class="fb-report-head"><div><h2 id="fb-report-title">Reportes de Facebook</h2><p>Una fila por persona, agrupada por área.</p></div><div class="fb-report-downloads"><button type="button" id="fb-report-export" disabled>Descargar Excel</button><button type="button" id="fb-report-pdf" aria-describedby="fb-report-pdf-help" disabled>Descargar PDF completo</button><small id="fb-report-pdf-help">PDF: todas las áreas del período y ranking al final.</small></div></header>
-        <p class="fb-report-note">Sí: tiene evidencia registrada. No: no tiene evidencia al consultar. Si no le corresponde compartir, se indica el motivo, por ejemplo “No comparte ese día”. Puedes preparar el reporte de mañana incluyendo hoy.</p>
+        <details class="fb-report-note fb-report-help"><summary>Cómo leer el reporte</summary><p>Sí: tiene evidencia registrada. No: no tiene evidencia al consultar. Si no le corresponde compartir, se indica el motivo, por ejemplo “No comparte ese día”. Puedes preparar el reporte de mañana incluyendo hoy.</p></details>
         <form id="fb-report-form" class="fb-report-filters">
           <label>Reporte<select id="fb-report-kind"><option value="lunes">Lunes · jueves a domingo</option><option value="jueves">Jueves · lunes a miércoles</option><option value="general">General del mes</option><option value="custom">Rango personalizado</option></select></label>
           <label id="fb-report-reference-label">Fecha del reporte<input type="date" id="fb-report-reference" required></label>
@@ -1877,7 +1885,7 @@
 <script src="assets/js/dashboard-announcement-modal.js?v=4"></script>
 <script src="assets/js/dashboard-month-progress.js?v=1"></script>
 <script src="assets/js/attendance-calendar-model.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=194"></script>
+<script src="assets/js/dashboard.js?v=195"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=2"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
@@ -1902,7 +1910,7 @@
 <script src="assets/js/facebook-report-excel.js?v=3"></script>
 <script src="assets/js/intern-report-excel.js?v=5"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
-<script src="assets/js/dashboard-facebook-report.js?v=4"></script>
+<script src="assets/js/dashboard-facebook-report.js?v=6"></script>
 <script src="assets/js/dashboard-pausa-activa.js?v=2"></script>
 </body>
 </html>

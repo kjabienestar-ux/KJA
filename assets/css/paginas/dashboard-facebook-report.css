@@ -1,35 +1,337 @@
-#portal #view-gestion>#admin-facebook-section{grid-row:3;min-width:0;min-height:0;overflow-y:auto;padding:20px 0 80px;scrollbar-gutter:stable;color:#15243a}
-.fb-report-head{display:flex;align-items:center;justify-content:space-between;gap:20px}
-.fb-report-head h2{font-size:20px;letter-spacing:-.02em;margin:0}
-.fb-report-head p{margin:6px 0;color:#526177}
-.fb-report-downloads{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;max-width:410px}
-.fb-report-downloads small{flex-basis:100%;color:#526177;font-size:12px;text-align:right}
-@media(max-width:640px){.fb-report-downloads{justify-content:flex-start}.fb-report-downloads small{text-align:left}}
-.fb-report-note{max-width:90ch;color:#526177;font-size:13px;line-height:1.65;margin:18px 0}
-.fb-report-filters{display:flex;align-items:end;flex-wrap:wrap;gap:14px;padding:20px 0;border-block:1px solid #e3e8ee}
-#admin-facebook-section label{display:grid;gap:6px;font-size:13px;font-weight:600}
-#admin-facebook-section :is(input,select,button){font:inherit;min-height:44px;border:1px solid #c6d0de;border-radius:10px;padding:9px 12px;background:#fff;color:#15243a;max-width:100%}
-#admin-facebook-section button{cursor:pointer;font-weight:600}
-#admin-facebook-section button:hover:not(:disabled){background:#edf4fc;border-color:#075abc}
-#admin-facebook-section button:disabled{opacity:.5;cursor:not-allowed}
-#admin-facebook-section input[readonly]{background:#f0f3f7}
-#admin-facebook-section :focus-visible{outline:3px solid #075abc;outline-offset:3px}
-#admin-facebook-section [type=submit]{background:#075abc;color:#fff;border-color:#075abc}
-#admin-facebook-section [type=submit]:hover{background:#06478f}
-#admin-facebook-section h3{font-size:14px;margin:28px 0 12px}
-.fb-report-area{width:fit-content;margin:16px 0}
-.fb-report-table{width:100%;overflow:auto;background:#fff;border:1px solid #e3e8ee;border-radius:12px;scrollbar-color:#9caec4 #f6f8fb}
-.fb-report-table table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
-.fb-report-table :is(th,td){padding:12px 14px;text-align:left;border-bottom:1px solid #e3e8ee;white-space:nowrap}
-.fb-report-table th{background:#f0f4f9;font-weight:600;color:#334862}
-.fb-report-table tr:last-child td{border-bottom:0}
-.fb-report-table [data-answer="Sí"]{color:#126451;font-weight:600}
-.fb-report-table [data-answer="No"]{color:#a0273b;font-weight:600}
-.fb-report-table td[data-answer]:not([data-answer="Sí"]):not([data-answer="No"]){color:#526177;white-space:normal;min-width:155px;max-width:220px;font-size:12px;line-height:1.4}
-.fb-report-table tbody th{background:#fff;font-weight:500}
-.fb-report-table tfoot td{background:#f0f4f9;font-weight:600}
-.fb-report-table :is(th,td):not(:first-child){text-align:center}
-.fb-report-table th:first-child{position:sticky;left:0;z-index:1}
-#fb-report-status{margin:16px 0;color:#526177}
-#fb-report-status[data-error=true]{color:#a0273b}
-@media(max-width:640px){.fb-report-head{align-items:flex-start;flex-direction:column}.fb-report-filters>label{flex:1 1 140px;min-width:0}.fb-report-filters>label:first-child{flex-basis:100%}.fb-report-filters button{width:100%}.fb-report-table :is(th,td){padding:10px}}
+/* Claude visual treatment, scoped to the Dirección Facebook report. */
+#portal.admin-wide #view-gestion > #admin-facebook-section {
+  --fb-canvas: #faf9f5;
+  --fb-soft: #f5f0e8;
+  --fb-line: #e6dfd8;
+  --fb-ink: #252523;
+  --fb-muted: #6c6a64;
+  --fb-coral: #a9583e;
+  grid-row: 3;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 14px 0 56px;
+  scrollbar-gutter: stable;
+  color: var(--fb-ink);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+#portal.admin-wide #admin-facebook-section .fb-report-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--fb-line);
+}
+#portal.admin-wide #admin-facebook-section .fb-report-head h2 {
+  margin: 0;
+  color: #141413;
+  font: 400 clamp(24px, 2vw, 30px)/1.2 'Fraunces', Georgia, serif;
+  letter-spacing: -.035em;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-head p {
+  margin: 5px 0 0;
+  color: var(--fb-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  max-width: none;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-downloads small {
+  flex-basis: 100%;
+  color: var(--fb-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: right;
+}
+
+#portal.admin-wide #admin-facebook-section :is(input, select, button) {
+  max-width: 100%;
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 1px solid #d7cec2;
+  border-radius: 8px;
+  color: #3d3d3a;
+  background: var(--fb-canvas);
+  font: 500 12px/1.35 Inter, system-ui, sans-serif;
+}
+#portal.admin-wide #admin-facebook-section button {
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+#portal.admin-wide #admin-facebook-section button:hover:not(:disabled) {
+  border-color: #b5a797;
+  background: #efe9de;
+}
+#portal.admin-wide #admin-facebook-section button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+#portal.admin-wide #admin-facebook-section :is(input, select):hover { border-color: #b5a797; }
+#portal.admin-wide #admin-facebook-section input[readonly] {
+  color: #77746d;
+  background: #f3f0eb;
+}
+#portal.admin-wide #admin-facebook-section :is(input, select, button, summary, .fb-report-table):focus-visible {
+  outline: 2px solid var(--fb-coral);
+  outline-offset: 3px;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-downloads #fb-report-export,
+#portal.admin-wide #admin-facebook-section .fb-report-filters [type=submit] {
+  border-color: var(--fb-coral);
+  color: #fff;
+  background: var(--fb-coral);
+}
+#portal.admin-wide #admin-facebook-section .fb-report-downloads #fb-report-export:hover:not(:disabled),
+#portal.admin-wide #admin-facebook-section .fb-report-filters [type=submit]:hover {
+  border-color: #914930;
+  background: #914930;
+}
+#portal.admin-wide #admin-facebook-section #fb-report-pdf {
+  border-color: #d7cec2;
+  color: #3d3d3a;
+  background: var(--fb-canvas);
+}
+
+#portal.admin-wide #admin-facebook-section .fb-report-note {
+  max-width: 90ch;
+  margin: 10px 0;
+  color: var(--fb-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-help > summary,
+#portal.admin-wide #admin-facebook-section #fb-report-results > .fb-report-note > summary {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 32px;
+  color: var(--fb-coral);
+  cursor: pointer;
+  font-weight: 500;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-note[open] > summary { margin-bottom: 4px; }
+#portal.admin-wide #admin-facebook-section .fb-report-note p { margin: 0; }
+
+#portal.admin-wide #admin-facebook-section .fb-report-filters {
+  display: grid;
+  grid-template-columns: minmax(170px, 1.2fr) minmax(150px, .9fr) repeat(2, minmax(140px, .85fr)) auto;
+  align-items: end;
+  gap: 9px;
+  margin: 10px 0 8px;
+  padding: 11px;
+  border: 1px solid var(--fb-line);
+  border-radius: 10px;
+  background: var(--fb-soft);
+}
+#portal.admin-wide #admin-facebook-section .fb-report-filters > label {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  color: var(--fb-muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-filters :is(input, select) { width: 100%; }
+#portal.admin-wide #admin-facebook-section .fb-report-filters > button { white-space: nowrap; }
+#portal.admin-wide #admin-facebook-section #fb-report-period {
+  margin: 8px 0 4px;
+  color: var(--fb-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+#portal.admin-wide #admin-facebook-section #fb-report-status {
+  min-height: 18px;
+  margin: 3px 0 10px;
+  color: var(--fb-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+#portal.admin-wide #admin-facebook-section #fb-report-status[data-error=true] { color: #a0273b; }
+#portal.admin-wide #admin-facebook-section #fb-report-scope {
+  max-width: none;
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-left: 2px solid #d7cec2;
+  background: #f5f0e8;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-area {
+  display: grid;
+  width: min(100%, 330px);
+  gap: 4px;
+  margin: 10px 0 9px;
+  color: var(--fb-muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-area select { width: 100%; }
+
+#portal.admin-wide #admin-facebook-section #fb-report-matrix {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  gap: 8px;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-matrix-column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+}
+#portal.admin-wide #admin-facebook-section #fb-report-matrix[data-single-area="true"] > .fb-report-matrix-column:first-child,
+#portal.admin-wide #admin-facebook-section #fb-report-matrix > .fb-report-matrix-empty { grid-column: 1 / -1; }
+#portal.admin-wide #admin-facebook-section .fb-report-area-group {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--fb-line);
+  border-radius: 10px;
+  background: var(--fb-canvas);
+}
+#portal.admin-wide #admin-facebook-section .fb-report-area-group > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 13px;
+  color: #252523;
+  background: var(--fb-soft);
+  cursor: pointer;
+  list-style: none;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-area-group > summary::-webkit-details-marker { display: none; }
+#portal.admin-wide #admin-facebook-section .fb-report-area-group > summary::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  border: solid #786f64;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+  transition: transform 160ms ease;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-area-group[open] > summary { border-bottom: 1px solid var(--fb-line); }
+#portal.admin-wide #admin-facebook-section .fb-report-area-group[open] > summary::after { transform: rotate(225deg); }
+#portal.admin-wide #admin-facebook-section .fb-report-area-title { font-size: 13px; font-weight: 600; }
+#portal.admin-wide #admin-facebook-section .fb-report-area-count { color: var(--fb-muted); font-size: 11px; font-weight: 400; }
+#portal.admin-wide #admin-facebook-section .fb-report-table {
+  width: 100%;
+  min-width: 0;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  scrollbar-color: #c6bbae transparent;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-area-content { padding: 0 9px 9px; }
+#portal.admin-wide #admin-facebook-section .fb-report-table table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  color: #3d3d3a;
+  font: 400 12px/1.4 Inter, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-table :is(th, td) {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--fb-line);
+  text-align: center;
+  white-space: nowrap;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-table thead th {
+  color: #6c6a64;
+  background: #f5f0e8;
+  font-size: 10px;
+  font-weight: 600;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-table :is(th, td):first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 145px;
+  text-align: left;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-table thead th:first-child {
+  z-index: 2;
+  background: #f5f0e8;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-table tbody th {
+  color: #3d3d3a;
+  background: var(--fb-canvas);
+  font-weight: 500;
+  white-space: normal;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-table tbody tr:nth-child(even) td { background: #fdfcf9; }
+#portal.admin-wide #admin-facebook-section .fb-report-table tbody tr:nth-child(even) th { background: #fdfcf9; }
+#portal.admin-wide #admin-facebook-section .fb-report-table [data-answer="Sí"] { color: #126451; font-weight: 600; }
+#portal.admin-wide #admin-facebook-section .fb-report-table [data-answer="No"] { color: #a0273b; font-weight: 600; }
+#portal.admin-wide #admin-facebook-section .fb-report-table td[data-answer]:not([data-answer="Sí"]):not([data-answer="No"]) {
+  min-width: 155px;
+  max-width: 220px;
+  color: var(--fb-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: normal;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-table tfoot td {
+  color: #3d3d3a;
+  background: var(--fb-soft);
+  font-weight: 600;
+}
+#portal.admin-wide #admin-facebook-section #fb-report-matrix > .fb-report-matrix-empty { margin: 12px 0; color: var(--fb-muted); font-size: 12px; }
+
+@media (max-width: 1100px) {
+  #portal.admin-wide #admin-facebook-section .fb-report-head { flex-wrap: wrap; }
+  #portal.admin-wide #admin-facebook-section .fb-report-filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #portal.admin-wide #admin-facebook-section .fb-report-filters > button { grid-column: 1 / -1; justify-self: end; }
+}
+
+@media (max-width: 900px) {
+  #portal.admin-wide #admin-facebook-section #fb-report-matrix { display: flex; flex-direction: column; }
+  #portal.admin-wide #view-gestion > #admin-facebook-section {
+    overflow: visible;
+    padding: 10px 0 42px;
+    scrollbar-gutter: auto;
+  }
+  #portal.admin-wide #admin-facebook-section .fb-report-head { gap: 12px; }
+  #portal.admin-wide #admin-facebook-section .fb-report-downloads { justify-content: flex-start; }
+  #portal.admin-wide #admin-facebook-section .fb-report-downloads small { text-align: left; }
+  #portal.admin-wide #admin-facebook-section .fb-report-area-group > summary { min-height: 48px; }
+  #portal.admin-wide #admin-facebook-section .fb-report-table :is(th, td) { padding: 9px 10px; }
+}
+
+@media (max-width: 640px) {
+  #portal.admin-wide #admin-facebook-section .fb-report-head { flex-direction: column; align-items: stretch; }
+  #portal.admin-wide #admin-facebook-section .fb-report-downloads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  #portal.admin-wide #admin-facebook-section .fb-report-downloads :is(button, a) { min-height: 44px; white-space: normal; }
+  #portal.admin-wide #admin-facebook-section .fb-report-downloads small { grid-column: 1 / -1; }
+  #portal.admin-wide #admin-facebook-section .fb-report-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; padding: 10px; }
+  #portal.admin-wide #admin-facebook-section .fb-report-filters > label:first-child,
+  #portal.admin-wide #admin-facebook-section #fb-report-reference-label,
+  #portal.admin-wide #admin-facebook-section .fb-report-filters > button { grid-column: 1 / -1; }
+  #portal.admin-wide #admin-facebook-section .fb-report-filters > button { width: 100%; }
+  #portal.admin-wide #admin-facebook-section .fb-report-filters > label { font-size: 10px; }
+  #portal.admin-wide #admin-facebook-section :is(input, select, button) { min-height: 44px; }
+  #portal.admin-wide #admin-facebook-section .fb-report-help > summary,
+  #portal.admin-wide #admin-facebook-section #fb-report-results > .fb-report-note > summary { min-height: 44px; }
+  #portal.admin-wide #admin-facebook-section .fb-report-area { width: 100%; }
+  #portal.admin-wide #admin-facebook-section .fb-report-area-content { padding-inline: 6px; }
+  #portal.admin-wide #admin-facebook-section .fb-report-table :is(th, td) { padding: 9px 8px; }
+  #portal.admin-wide #admin-facebook-section .fb-report-table :is(th, td):first-child { min-width: 128px; }
+}
+
+@media (max-width: 380px) {
+  #portal.admin-wide #admin-facebook-section .fb-report-downloads { grid-template-columns: minmax(0, 1fr); }
+  #portal.admin-wide #admin-facebook-section .fb-report-downloads small { grid-column: auto; }
+}
