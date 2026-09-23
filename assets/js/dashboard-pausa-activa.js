@@ -522,6 +522,10 @@
     };
 
     container.querySelector("#pausa-btn-exit-anyway").onclick = () => {
+      if (currentBreak) {
+        completedBreaks.add(currentBreak.id);
+        saveCompletedToStorage();
+      }
       renderSelectionView();
     };
   }
