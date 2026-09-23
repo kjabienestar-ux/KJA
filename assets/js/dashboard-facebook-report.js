@@ -2,6 +2,7 @@
   'use strict';
   const get=id=>document.getElementById(id),m=globalThis.KJAFacebookReport;
   let data=null,request=0,pdfBusy=false;
+
   const today=()=>isoLima();
   const pretty=value=>new Intl.DateTimeFormat('es-PE',{timeZone:'UTC',weekday:'short',day:'2-digit',month:'short',year:'numeric'}).format(new Date(value+'T12:00:00Z'));
   function clear(){request++;data=null;get('fb-report-results').hidden=true;get('fb-report-results').setAttribute('aria-busy','false');get('fb-report-export').disabled=true;get('fb-report-pdf').disabled=true;get('fb-report-status').dataset.error='false';get('fb-report-status').textContent='Pulsa Consultar reporte para cargar este período.';}
@@ -22,12 +23,20 @@
   function rows(){return (data?.filas||[]).filter(r=>!get('fb-report-area').value||r.area===get('fb-report-area').value);}
   function row(values,header=false){const tr=document.createElement('tr');values.forEach(value=>{const td=document.createElement(header?'th':'td');td.textContent=value??'—';if(header)td.setAttribute('scope','col');tr.append(td);});return tr;}
   function provisional(){return data?.provisional===true||data?.hasta===(data?.hoy||today())||data?.filas.some(r=>r.estado==='en_plazo');}
+
   function render(){
     if(!data)return;
     const groups=m.matrix(rows(),data.desde,data.hasta),container=get('fb-report-matrix');container.replaceChildren();
     for(const group of groups){
-      const section=document.createElement('section'),heading=document.createElement('h3');
-      heading.textContent=`${group.area} · ${group.persons.length} ${group.persons.length===1?'persona':'personas'}`;
+      const section=document.createElement('details'),heading=document.createElement('summary'),title=document.createElement('span'),count=document.createElement('span');
+      section.className='fb-report-area-group';
+      section.open=container.children.length===0;
+      heading.className='fb-report-area-heading';
+      title.className='fb-report-area-title';
+      count.className='fb-report-area-count';
+      title.textContent=group.area;
+      count.textContent=` · ${group.persons.length} ${group.persons.length===1?'persona':'personas'}`;
+      heading.append(title,count);
       const region=document.createElement('div');region.className='fb-report-table';region.setAttribute('role','region');region.setAttribute('aria-label',`Facebook · ${group.area}`);region.setAttribute('tabindex','0');
       const table=document.createElement('table'),head=document.createElement('thead'),body=document.createElement('tbody'),foot=document.createElement('tfoot');
       head.append(row(['Colaborador',...group.dates.map(pretty)],true));
@@ -40,6 +49,7 @@
       table.append(head,body,foot);region.append(table);section.append(heading,region);container.append(section);
     }
     if(!groups.length){const empty=document.createElement('p');empty.textContent='No hay colaboradores para esta área y período.';container.append(empty);}
+
     get('fb-report-scope').textContent=`${pretty(data.desde)} al ${pretty(data.hasta)}${provisional()?' · Provisional: incluye hoy o franjas aún abiertas. Los “No” pueden cambiar al registrar evidencia.':''}`;
     get('fb-report-results').hidden=false;get('fb-report-export').disabled=!groups.length;
     get('fb-report-pdf').disabled=pdfBusy||!data.filas.length;

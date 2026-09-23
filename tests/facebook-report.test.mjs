@@ -46,6 +46,7 @@ function fixture(rpc){
     click(){}
     remove(){}
   }
+
   const downloads=[];
   const nodes=new Map(),get=id=>{if(!nodes.has(id))nodes.set(id,new Element());return nodes.get(id);};
   const ctx=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{append:link=>downloads.push(link)}},Option:function(text,value){this.text=text;this.value=value;},APP:{access:{rol:'direccion'},adminSection:'facebook'},db:{rpc},isoLima:()=> '2026-09-16',Intl,Date,Set,Blob,TextEncoder,URL:{createObjectURL:blob=>{downloads.push(blob);return 'blob:report';},revokeObjectURL(){}},setTimeout:fn=>fn()});
@@ -57,8 +58,12 @@ test('Wednesday defaults to Thursday 17, includes today and groups the result by
   const calls=[];const {ctx,get}=fixture(async(name,args)=>{calls.push({name,args});return {data:response};});
   await ctx.loadAdminFacebookReport();assert.equal(calls[0].name,'dash_reporte_facebook');assert.equal(calls[0].args.p_desde,'2026-09-14');assert.equal(calls[0].args.p_hasta,'2026-09-16');
   assert.equal(get('fb-report-reference').value,'2026-09-17');assert.equal(get('fb-report-reference').max,'2026-09-17');
-  assert.equal(get('fb-report-results').hidden,false);assert.equal(get('fb-report-export').disabled,false);assert.equal(get('fb-report-matrix').children.length,2);
-  get('fb-report-area').value='Diseño';get('fb-report-area').onchange();assert.equal(get('fb-report-matrix').children.length,1);assert.equal(get('fb-report-matrix').children[0].children[0].textContent,'Diseño · 1 persona');
+  const matrix=get('fb-report-matrix');
+  assert.equal(get('fb-report-results').hidden,false);assert.equal(get('fb-report-export').disabled,false);assert.equal(matrix.children.length,2);
+  assert.equal(matrix.children[0].open,true);assert.equal(matrix.children[1].open,false);
+  get('fb-report-area').value='Diseño';get('fb-report-area').onchange();assert.equal(matrix.children.length,1);
+  const summary=matrix.children[0].children[0];
+  assert.equal(summary.children[0].textContent,'Diseño');assert.equal(summary.children[1].textContent,' · 1 persona');
 });
 test('Monday 14 selection lists September 10–13, then Thursday lists September 14–16',()=>{
   const {get}=fixture(async()=>({data:response}));
