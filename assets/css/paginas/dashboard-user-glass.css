@@ -941,6 +941,9 @@
   #portal:not(.admin-wide) #mobile-close-panel .mcv2-time-card { min-width: 0; background: #f3f5f7; }
   #portal:not(.admin-wide) #mobile-close-panel .mcv2-time-icon { background: #e7edf2; color: #526d80; }
   #portal:not(.admin-wide) #mobile-close-panel .mcv2-time-card b { color: #294254; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-time-card.is-recorded { background: #eaf3ff; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-time-card.is-recorded .mcv2-time-icon { background: #dbeafe; color: #2563eb; }
+  #portal:not(.admin-wide) #mobile-close-panel .mcv2-time-card.is-recorded b { color: #1d4ed8; }
   #portal:not(.admin-wide) :is(.day-schedule,.day-action,.day-close,.progress-card) { border-radius: 18px; }
 }
 

@@ -31,6 +31,18 @@
 .person-profile-attendance .person-profile-table-wrap{max-height:560px;overflow:auto}
 .person-profile-attendance thead th{position:sticky;top:0;z-index:1}
 
+/* Cierre de sesión disponible dentro del perfil personal. */
+.profile-session{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:18px;padding:16px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc}
+.profile-session-copy{display:flex;align-items:center;gap:12px;min-width:0}
+.profile-session-copy>svg{width:24px;height:24px;flex:0 0 24px;color:#64748b;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.profile-session-copy span,.profile-session-copy b,.profile-session-copy small{display:block}
+.profile-session-copy b{color:#334155;font-size:11px}
+.profile-session-copy small{margin-top:3px;color:#7b8a9d;font-size:9px;line-height:1.45}
+.profile-session>button{min-height:40px;flex:0 0 auto;padding:0 15px;border:1px solid #e6aab4;border-radius:10px;color:#a4374a;background:#fff;font-size:10px;font-weight:800}
+.profile-session>button:hover{border-color:#d98595;background:#fff4f6}
+.profile-session>button:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+@media(max-width:600px){.profile-session{align-items:stretch;flex-direction:column}.profile-session>button{width:100%}}
+
 /* Informe consolidado: selecci?n progresiva y una acci?n principal. */
 /* La sección se desplaza dentro de una fila de altura limitada en escritorio.
    Un flujo normal impide que el grid reduzca el informe a su borde. */
