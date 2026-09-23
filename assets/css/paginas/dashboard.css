@@ -315,6 +315,7 @@ body{background:#fff}
 }
 
 @media(max-width:900px){
+  #mobile-month-progress-slot{margin-bottom:16px;min-width:0}
   body{background:var(--workspace)}
   .portal{width:100%;height:auto;min-height:100vh;margin:0;display:block;border:0;border-radius:0;box-shadow:none;overflow:visible}
   .sidebar{position:fixed;inset:0 auto 0 0;width:258px;height:100vh;min-height:0;overflow-y:auto;box-shadow:18px 0 45px rgba(10,31,61,.16)}
@@ -10550,4 +10551,40 @@ body.admin-role-confirm-open{overflow:hidden}
 
 @media(prefers-reduced-motion:reduce){
   .sidebar-collapse-toggle,.sidebar-toggle-icon,#portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]){transition:none}
+}
+
+/* Razones del calendario: fuera del contenedor desplazable para evitar recortes. */
+.dashboard-day-tooltip {
+  position:fixed;
+  z-index:1200;
+  width:max-content;
+  max-width:min(310px,calc(100vw - 16px));
+  padding:12px 15px;
+  border-radius:12px;
+  background:#09244c;
+  color:#fff;
+  box-shadow:0 8px 24px rgba(6,26,56,.2);
+  font-size:13px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.dashboard-day-tooltip[hidden]{display:none}
+.dashboard-month-day{font-family:inherit;cursor:help;padding:0}
+.dashboard-month-day:focus-visible{outline:3px solid #075abc;outline-offset:2px}
+.portal:not(.admin-wide) #view-inicio>.view-head .dashboard-month-day.sharing-pending{
+  color:#80530b;background:#fff1cf;border-color:#e0bf7a;opacity:1;
+}
+@media(max-width:900px){
+  .dashboard-month-progress{min-width:0;max-width:100%;margin-top:12px}
+  .dashboard-month-days{display:flex;gap:6px;overflow-x:auto;padding:5px 3px}
+  .dashboard-month-day{position:relative;flex:0 0 38px;min-height:44px;display:grid;place-content:center;gap:2px;border:1px solid #dce4ed;border-radius:10px;background:#f3f6fa;color:#54657a}
+  .dashboard-month-day b{font-size:12px}
+  .dashboard-month-day small{font-size:9px}
+  .dashboard-month-day.p{background:#e0f5ef;color:#176f5c}
+  .dashboard-month-day.t,.dashboard-month-day.sharing-pending{background:#fff1cf;color:#80530b}
+  .dashboard-month-day.j{background:#e8effa;color:#476caa}
+  .dashboard-month-day.future{opacity:.55}
+  .dashboard-month-day.today{border:2px solid #075abc}
+  .dashboard-month-day.incomplete,.dashboard-month-day.ng{background:#ffdee5;color:#9f2f47;border-color:#c23b50}
+  .dashboard-month-day em{position:absolute;top:1px;right:3px;font-size:10px;font-style:normal;font-weight:800}
 }
