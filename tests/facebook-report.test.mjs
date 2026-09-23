@@ -46,19 +46,47 @@ function fixture(rpc){
     click(){}
     remove(){}
   }
+  const media={matches:false,listener:null,addEventListener(type,fn){this.listener=fn;},addListener(fn){this.listener=fn;}};
   const downloads=[];
   const nodes=new Map(),get=id=>{if(!nodes.has(id))nodes.set(id,new Element());return nodes.get(id);};
-  const ctx=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{append:link=>downloads.push(link)}},Option:function(text,value){this.text=text;this.value=value;},APP:{access:{rol:'direccion'},adminSection:'facebook'},db:{rpc},isoLima:()=> '2026-09-16',Intl,Date,Set,Blob,TextEncoder,URL:{createObjectURL:blob=>{downloads.push(blob);return 'blob:report';},revokeObjectURL(){}},setTimeout:fn=>fn()});
+  const ctx=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{append:link=>downloads.push(link)}},matchMedia:()=>media,Option:function(text,value){this.text=text;this.value=value;},APP:{access:{rol:'direccion'},adminSection:'facebook'},db:{rpc},isoLima:()=> '2026-09-16',Intl,Date,Set,Blob,TextEncoder,URL:{createObjectURL:blob=>{downloads.push(blob);return 'blob:report';},revokeObjectURL(){}},setTimeout:fn=>fn()});
   ctx.window=ctx;vm.runInContext(modelSource,ctx);vm.runInContext(layoutSource,ctx);vm.runInContext(excelSource,ctx);vm.runInContext(uiSource,ctx);
-  return {ctx,get,downloads};
+  return {ctx,get,downloads,media};
 }
 const response={desde:'2026-09-10',hasta:'2026-09-13',inicio_sistema:'2026-09-07',habilitado:true,generado_at:'2026-09-16T15:00:00Z',filas:[{id:1,nombre:'Ana',area:'Diseño',fecha:'2026-09-10',estado:'con_evidencia',revision:'pendiente',capturas:3},{id:2,nombre:'Juan',area:'Salud',fecha:'2026-09-10',estado:'sin_evidencia',capturas:0}]};
 test('Wednesday defaults to Thursday 17, includes today and groups the result by area',async()=>{
   const calls=[];const {ctx,get}=fixture(async(name,args)=>{calls.push({name,args});return {data:response};});
   await ctx.loadAdminFacebookReport();assert.equal(calls[0].name,'dash_reporte_facebook');assert.equal(calls[0].args.p_desde,'2026-09-14');assert.equal(calls[0].args.p_hasta,'2026-09-16');
   assert.equal(get('fb-report-reference').value,'2026-09-17');assert.equal(get('fb-report-reference').max,'2026-09-17');
-  assert.equal(get('fb-report-results').hidden,false);assert.equal(get('fb-report-export').disabled,false);assert.equal(get('fb-report-matrix').children.length,2);
-  get('fb-report-area').value='Diseño';get('fb-report-area').onchange();assert.equal(get('fb-report-matrix').children.length,1);assert.equal(get('fb-report-matrix').children[0].children[0].textContent,'Diseño · 1 persona');
+  const matrix=get('fb-report-matrix');
+  assert.equal(get('fb-report-results').hidden,false);assert.equal(get('fb-report-export').disabled,false);assert.equal(matrix.children.length,2);
+  assert.equal(matrix.children[0].children[0].open,true);assert.equal(matrix.children[1].children[0].open,false);
+  get('fb-report-area').value='Diseño';get('fb-report-area').onchange();assert.equal(matrix.children.length,1);assert.equal(matrix.dataset.singleArea,'true');
+  const summary=matrix.children[0].children[0].children[0];
+  assert.equal(summary.children[0].textContent,'Diseño');assert.equal(summary.children[1].textContent,' · 1 persona');
+});
+test('desktop areas alternate into independent stacks and resize in report order without closing them',async()=>{
+  const third={id:3,nombre:'Eva',area:'Ingeniería',fecha:'2026-09-10',estado:'con_evidencia',revision:'aprobada',capturas:1};
+  const {ctx,get,media}=fixture(async()=>({data:{...response,filas:[...response.filas,third]}}));
+  await ctx.loadAdminFacebookReport();
+  const matrix=get('fb-report-matrix'),name=section=>section.children[0].children[0].textContent;
+  assert.deepEqual(matrix.children.map(column=>column.children.map(name)),[['Diseño','Salud'],['Ingeniería']]);
+  const [design,health]=matrix.children[0].children,engineering=matrix.children[1].children[0];
+  health.open=true;engineering.open=true;
+  media.matches=true;media.listener({matches:true});
+  assert.deepEqual(matrix.children.map(name),['Diseño','Ingeniería','Salud']);
+  assert.deepEqual(matrix.children.map(section=>section.open),[true,true,true]);
+  media.matches=false;media.listener({matches:false});
+  assert.deepEqual(matrix.children.map(column=>column.children.map(name)),[['Diseño','Salud'],['Ingeniería']]);
+  assert.equal(matrix.children[0].children[0],design);assert.equal(matrix.children[0].children[1],health);assert.equal(matrix.children[1].children[0],engineering);
+  assert.deepEqual([design.open,health.open,engineering.open],[true,true,true]);
+});
+test('empty area results stay as a full-width matrix message',async()=>{
+  const {ctx,get}=fixture(async()=>({data:{...response,filas:[]}}));
+  await ctx.loadAdminFacebookReport();
+  const matrix=get('fb-report-matrix');
+  assert.equal(matrix.children.length,1);assert.equal(matrix.children[0].className,'fb-report-matrix-empty');
+  assert.equal(matrix.children[0].textContent,'No hay colaboradores para esta área y período.');
 });
 test('Monday 14 selection lists September 10–13, then Thursday lists September 14–16',()=>{
   const {get}=fixture(async()=>({data:response}));

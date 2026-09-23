@@ -10589,3 +10589,26 @@ body.admin-role-confirm-open{overflow:hidden}
   .dashboard-month-day.incomplete,.dashboard-month-day.ng{background:#ffdee5;color:#9f2f47;border-color:#c23b50}
   .dashboard-month-day em{position:absolute;top:1px;right:3px;font-size:10px;font-style:normal;font-weight:800}
 }
+
+/* Entrada delegada: conserva el lenguaje del panel administrativo. */
+body.admin-entry-open { overflow:hidden; }
+#admin-list-section .admin-list-toolbar,#admin-list-section .admin-list-filters { flex-wrap:wrap; }
+#admin-entry-open { grid-column:1/-1;min-height:44px;height:auto;padding-block:10px;white-space:normal;text-align:left; }
+.admin-entry-modal { z-index:440; }
+.admin-entry-dialog { position:relative;z-index:1;width:min(620px,100%);max-height:calc(100dvh - 36px);overflow:auto;padding:28px;border-radius:16px;background:#fff;color:#243c56; }
+.admin-entry-dialog header { padding-right:40px; }
+.admin-entry-dialog h2 { margin:0;font-size:22px;line-height:1.25;overflow-wrap:anywhere; }
+.admin-entry-dialog p { font-size:14px;line-height:1.5; }
+.admin-entry-dialog fieldset { min-width:0;margin:0;padding:0;border:0; }
+.admin-entry-dialog label { display:grid;gap:6px;margin-top:16px;font-size:14px;font-weight:700; }
+.admin-entry-dialog input,.admin-entry-dialog select,.admin-entry-dialog textarea { box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #d1dce7;border-radius:10px;background:#fbfcfe;color:#243c56;font:inherit;font-size:16px; }
+.admin-entry-dialog :is(input,select,textarea,button):focus-visible { outline:2px solid #075abc;outline-offset:3px; }
+.admin-entry-dialog textarea { resize:vertical; }
+.admin-entry-row { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+.admin-entry-dialog .admin-entry-help,.admin-entry-dialog small { color:#40566e;font-size:14px;line-height:1.5; }
+#admin-entry-preview { display:block;max-width:100%;max-height:220px;object-fit:contain;margin-top:12px; }
+#admin-entry-preview[hidden] { display:none; }
+#admin-entry-message { color:#925208;overflow-wrap:anywhere; }
+.admin-entry-dialog footer { display:flex;justify-content:flex-end;gap:12px;margin-top:20px; }
+.admin-entry-dialog footer button { min-height:44px;font-size:14px; }
+@media(max-width:520px) { .admin-entry-dialog { padding:20px; }.admin-entry-row { grid-template-columns:1fr;gap:0; }.admin-entry-dialog footer { flex-wrap:wrap; } }

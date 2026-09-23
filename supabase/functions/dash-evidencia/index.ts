@@ -26,7 +26,10 @@ Deno.serve(async (req) => {
     const jwt = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
     if (!jwt) return json({ ok: false, motivo: "sesion" }, 401);
 
-    const { ext } = await req.json().catch(() => ({ ext: "webp" }));
+    const body = await req.json().catch(() => ({ ext: "webp" }));
+    const { ext } = body;
+    const adminEntry = body.accion === "entrada_direccion";
+    if (body.accion && !adminEntry) return json({ ok: false, motivo: "accion" }, 400);
     const url = Deno.env.get("SUPABASE_URL");
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -39,15 +42,18 @@ Deno.serve(async (req) => {
     const { data: identidad, error: eIdentidad } = await usuario.auth.getUser(jwt);
     if (eIdentidad || !identidad?.user) return json({ ok: false, motivo: "sesion" }, 401);
 
-    const { data, error } = await usuario.rpc("dash_evidencia_permiso", {
-      p_ext: String(ext || "webp"),
-    });
-    if (error) return json({ ok: false, motivo: "error_validacion" }, 500);
+    const { data, error } = adminEntry
+      ? await usuario.rpc("dash_admin_entrada_permiso", {
+        p_colaborador: body.colaborador, p_fecha: body.fecha, p_hora: body.hora,
+        p_modalidad: body.modalidad, p_nota: body.nota,
+      })
+      : await usuario.rpc("dash_evidencia_permiso", { p_ext: String(ext || "webp") });
+    if (error) return json({ ok: false, motivo: adminEntry && error.code === "PGRST202" ? "actualizacion" : "error_validacion" }, 500);
     if (!data?.ok) return json({ ok: false, motivo: data?.motivo || "no_autorizado" }, 403);
 
     const servicio = createClient(url, serviceKey, { auth: { persistSession: false } });
     const ruta = String(data.ruta);
-    await servicio.storage.from(BUCKET).remove([ruta]).catch(() => {});
+    if (!adminEntry) await servicio.storage.from(BUCKET).remove([ruta]).catch(() => {});
     const { data: firma, error: eFirma } = await servicio.storage.from(BUCKET).createSignedUploadUrl(ruta);
     if (eFirma || !firma) return json({ ok: false, motivo: "sin_permiso_subida" }, 500);
 
@@ -55,6 +61,7 @@ Deno.serve(async (req) => {
       ok: true,
       ruta,
       token: firma.token,
+      ...(adminEntry ? { permiso: data.permiso } : {}),
       nombre: data.nombre,
       servidor_at: data.servidor_at,
     });
