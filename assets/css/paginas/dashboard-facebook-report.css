@@ -182,7 +182,14 @@
   min-width: 0;
   gap: 8px;
 }
-#portal.admin-wide #admin-facebook-section #fb-report-matrix > .fb-report-area-group:only-child { grid-column: 1 / -1; }
+#portal.admin-wide #admin-facebook-section .fb-report-matrix-column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+}
+#portal.admin-wide #admin-facebook-section #fb-report-matrix[data-single-area="true"] > .fb-report-matrix-column:first-child,
+#portal.admin-wide #admin-facebook-section #fb-report-matrix > .fb-report-matrix-empty { grid-column: 1 / -1; }
 #portal.admin-wide #admin-facebook-section .fb-report-area-group {
   min-width: 0;
   overflow: hidden;
@@ -282,7 +289,7 @@
   background: var(--fb-soft);
   font-weight: 600;
 }
-#portal.admin-wide #admin-facebook-section #fb-report-matrix > p { margin: 12px 0; color: var(--fb-muted); font-size: 12px; }
+#portal.admin-wide #admin-facebook-section #fb-report-matrix > .fb-report-matrix-empty { margin: 12px 0; color: var(--fb-muted); font-size: 12px; }
 
 @media (max-width: 1100px) {
   #portal.admin-wide #admin-facebook-section .fb-report-head { flex-wrap: wrap; }
@@ -291,7 +298,7 @@
 }
 
 @media (max-width: 900px) {
-  #portal.admin-wide #admin-facebook-section #fb-report-matrix { grid-template-columns: minmax(0, 1fr); }
+  #portal.admin-wide #admin-facebook-section #fb-report-matrix { display: flex; flex-direction: column; }
   #portal.admin-wide #view-gestion > #admin-facebook-section {
     overflow: visible;
     padding: 10px 0 42px;
