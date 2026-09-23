@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=7">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
@@ -1006,7 +1006,7 @@
 
       <section id="admin-facebook-section" hidden aria-labelledby="fb-report-title">
         <header class="fb-report-head"><div><h2 id="fb-report-title">Reportes de Facebook</h2><p>Una fila por persona, agrupada por área.</p></div><div class="fb-report-downloads"><button type="button" id="fb-report-export" disabled>Descargar Excel</button><button type="button" id="fb-report-pdf" aria-describedby="fb-report-pdf-help" disabled>Descargar PDF completo</button><small id="fb-report-pdf-help">PDF: todas las áreas del período y ranking al final.</small></div></header>
-        <p class="fb-report-note">Sí: tiene evidencia registrada. No: no tiene evidencia al consultar. Si no le corresponde compartir, se indica el motivo, por ejemplo “No comparte ese día”. Puedes preparar el reporte de mañana incluyendo hoy.</p>
+        <details class="fb-report-note fb-report-help"><summary>Cómo leer el reporte</summary><p>Sí: tiene evidencia registrada. No: no tiene evidencia al consultar. Si no le corresponde compartir, se indica el motivo, por ejemplo “No comparte ese día”. Puedes preparar el reporte de mañana incluyendo hoy.</p></details>
         <form id="fb-report-form" class="fb-report-filters">
           <label>Reporte<select id="fb-report-kind"><option value="lunes">Lunes · jueves a domingo</option><option value="jueves">Jueves · lunes a miércoles</option><option value="general">General del mes</option><option value="custom">Rango personalizado</option></select></label>
           <label id="fb-report-reference-label">Fecha del reporte<input type="date" id="fb-report-reference" required></label>
@@ -1902,7 +1902,7 @@
 <script src="assets/js/facebook-report-excel.js?v=3"></script>
 <script src="assets/js/intern-report-excel.js?v=5"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
-<script src="assets/js/dashboard-facebook-report.js?v=4"></script>
+<script src="assets/js/dashboard-facebook-report.js?v=6"></script>
 <script src="assets/js/dashboard-pausa-activa.js?v=2"></script>
 </body>
 </html>
