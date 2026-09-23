@@ -2,6 +2,8 @@
 
 > **Audiencia:** Equipo de Marketing, Dirección, y cualquier persona que necesite actualizar contenido sin depender del equipo de desarrollo.
 
+> **Actualización del catálogo (septiembre de 2026):** `cursos.html` ahora presenta 9 áreas que agrupan cursos y talleres. Sus títulos, descripciones, flyers y temas se editan en `assets/js/cursos-data.js` (`title`, `description`, `image` y `learn`). Las tarjetas, los detalles y los mensajes de WhatsApp usan esa misma información. Los WebP utilizados están en `images/cursos/news/`, con nombres sin espacios ni tildes; se conservaron los archivos originales. Las instrucciones de las secciones 1–4 describen el catálogo anterior y ya no aplican a esta página. No añadir modalidad, duración, requisitos ni beneficios sin información confirmada por KJA.
+
 ## ¿Qué puedo actualizar sin un programador?
 
 | Acción | ¿Requiere programador? | Instrucciones abajo |
