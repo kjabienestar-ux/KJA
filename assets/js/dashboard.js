@@ -279,7 +279,7 @@ function reviewNotificationMarkup(item){
 function renderReviewNotifications(){
   const state=APP.notifications||{},available=APP.identity.hasPersonal&&state.available,unread=Math.max(0,Number(state.unread)||0);
   document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>{
-    button.hidden=!available;
+    button.hidden=!available&&!button.classList.contains('mobile-review-notification-trigger');
     button.classList.toggle('has-unread',unread>0);
     button.setAttribute('aria-label',unread?`Abrir notificaciones, ${unread} ${unread===1?'notificación sin leer':'notificaciones sin leer'}`:'Abrir notificaciones');
     const badge=button.querySelector('[data-review-notification-badge]');if(!badge)return;
@@ -427,8 +427,6 @@ function paintProfilePhoto(url=''){
   const hasPhoto=!!APP.avatar.path;
   if($('profile-photo-change'))$('profile-photo-change').textContent=hasPhoto?'Cambiar foto':'Subir foto';
   if($('profile-photo-remove'))$('profile-photo-remove').hidden=!hasPhoto;
-  const mobileEdit=$('mobile-home-photo');
-  if(mobileEdit){const label=hasPhoto?'Cambiar foto de perfil':'Subir foto de perfil';mobileEdit.setAttribute('aria-label',label);mobileEdit.title=label}
 }
 
 async function hydrateProfilePhotos(people=[]){
@@ -484,8 +482,7 @@ document.addEventListener('error',event=>{
 },true);
 function setProfilePhotoBusy(on){
   APP.avatar.busy=on;
-  ['profile-photo-camera','profile-photo-change','profile-photo-remove','mobile-home-photo'].forEach(id=>{const el=$(id);if(el)el.disabled=on});
-  if($('mobile-home-photo'))$('mobile-home-photo').toggleAttribute('aria-busy',on);
+  ['profile-photo-camera','profile-photo-change','profile-photo-remove'].forEach(id=>{const el=$(id);if(el)el.disabled=on});
   if($('profile-photo-change'))$('profile-photo-change').textContent=on?'Preparando…':APP.avatar.path?'Cambiar foto':'Subir foto';
 }
 function preloadImage(url){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(url);img.onerror=reject;img.src=url})}
@@ -905,10 +902,10 @@ async function openPortal(activeSession,bootstrap=null){
   $('side-name').textContent=name; $('side-role').textContent=role; $('side-avatar').textContent=ini; $('mobile-avatar').textContent=ini;
   if($('head-avatar'))$('head-avatar').textContent=ini;
   $('rail-name').textContent=name; $('rail-role').textContent=role; $('rail-avatar').textContent=ini;
-  $('mobile-home-name').textContent=name;
+  $('mobile-home-name').textContent=(name||'Equipo KJA').trim().split(/\s+/)[0]||'Equipo KJA';
   $('mobile-home-avatar').textContent=ini;
   $('mobile-home-role').textContent=role;
-  $('mobile-home-area').textContent=c?.area||'Equipo KJA';
+  $('mobile-home-area').textContent='Que tengas un buen día';
   $('mobile-home-dni').textContent=c?.dni?`DNI ${c.dni}`:'Perfil institucional';
   ['personal-nav-divider','nav-inicio','nav-asistencia','nav-perfil'].forEach(id=>$(id).hidden=!APP.identity.hasPersonal);
   $('team-nav-divider').hidden=!APP.identity.isLeader;$('nav-equipo').hidden=!APP.identity.isLeader;
@@ -1238,12 +1235,19 @@ function renderDashboardMonthProgress(h){
   daysElement.innerHTML=visibleDays.length?visibleDays.map(({day,view})=>{
     const today=day.fecha===h.hoy,weekday=new Intl.DateTimeFormat('es-PE',{weekday:'short'}).format(new Date(`${day.fecha}T12:00:00`)).replace('.','').slice(0,2);
     const accessibleLabel=`${day.d} de ${monthNames[h.mes-1]}${today?', hoy':''}: ${view.reason}`;
-    return `<button type="button" class="dashboard-month-day ${esc(view.state)}${today?' today':''}" data-day-reason="${esc(accessibleLabel)}" aria-label="${esc(accessibleLabel)}">${view.alert?'<em aria-hidden="true">!</em>':''}<b>${esc(day.d)}</b><small>${esc(weekday)}</small></button>`;
+    return `<button type="button" class="dashboard-month-day ${esc(view.state)}${today?' today':''}" data-day-reason="${esc(accessibleLabel)}" aria-label="${esc(accessibleLabel)}">${view.alert?'<em aria-hidden="true">!</em>':''}<small>${esc(weekday)}</small><b>${esc(day.d)}</b><span class="dashboard-month-status" aria-hidden="true"></span></button>`;
   }).join(''):'<span class="dashboard-month-empty">Sin jornadas ni comparticiones asignadas este mes</span>';
   const sharingMissing=visibleDays.filter(({day})=>day.aplica_comparticiones&&day.comparticiones_vencidas&&!day.comparticiones_completas).length;
   daysElement.setAttribute('aria-label',`${registered} de ${total} días laborables registrados; ${incompleteCount} jornadas incompletas; ${sharingMissing} días con comparticiones vencidas sin completar`);
   if(!hideDashboardDayTooltip)hideDashboardDayTooltip=KJAMonthProgress.bind(daysElement);
-  requestAnimationFrame(()=>daysElement.querySelector('.today')?.scrollIntoView({block:'nearest',inline:'center'}));
+  requestAnimationFrame(()=>{
+    const today=daysElement.querySelector('.today');
+    if(!today)return;
+    if(window.matchMedia('(max-width:900px)').matches){
+      const target=today.offsetLeft-(daysElement.clientWidth-today.offsetWidth)/2;
+      daysElement.scrollLeft=Math.max(0,Math.min(target,daysElement.scrollWidth-daysElement.clientWidth));
+    }else today.scrollIntoView({block:'nearest',inline:'center'});
+  });
 }
 
 let selectedAttendanceDate='',selectedAttendanceRequest=0;
@@ -2370,7 +2374,8 @@ document.querySelectorAll('[data-mobile-action]').forEach(button=>button.onclick
   }
 });
 $('mobile-home-logout').onclick=()=>logout();
-$('mobile-home-photo').onclick=()=>$('profile-photo-input').click();
+$('mobile-profile-link').onclick=()=>goView('perfil');
+$('profile-logout').onclick=()=>logout();
 $('profile-photo-camera').onclick=()=>$('profile-photo-input').click();
 $('profile-photo-change').onclick=()=>$('profile-photo-input').click();
 $('profile-photo-remove').onclick=removeProfilePhoto;
@@ -2695,7 +2700,11 @@ function renderMobileDailyClose(data,items){
   const facebookOnly=!!data.solo_comparticiones;
   $('mobile-close-title').textContent=facebookOnly?'Compartición de hoy':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
   $('mobile-close-copy').textContent=facebookOnly?'No tienes jornada laboral hoy, pero sí una tarea programada de Facebook.':entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
-  $('mobile-close-count').textContent=pendingItems.length?`${pendingItems.length} ${pendingItems.length===1?'pendiente':'pendientes'}`:'Todo listo';
+  const evidenceItems=items.filter(item=>item.tipo!=='entrada'),completedEvidence=evidenceItems.filter(item=>item.completo).length;
+  const mobileProgress=!entryComplete?0:evidenceItems.length?25+Math.round(completedEvidence/evidenceItems.length*75):100;
+  const progressPill=$('mobile-close-count');
+  progressPill.textContent=`${Math.min(100,mobileProgress)}%`;
+  progressPill.dataset.progressState=mobileProgress===0?'empty':mobileProgress>=100?'complete':'active';
   $('mobile-close-list').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:!facebookOnly&&index===0})).join('');
   const completedItems=Math.max(0,items.length-pendingItems.length),progress=items.length?Math.round(completedItems/items.length*100):0;
   let bannerTitle='',bannerCopy='';
