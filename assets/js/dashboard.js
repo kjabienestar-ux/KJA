@@ -157,6 +157,8 @@ let DAILY_EXIT_BUSY=false;
 let MARK_BUSY = false;
 let MARK_SYNC_PROMISE = null;
 let MARK_GEO = null;
+let MARK_GEO_REQUEST = null;
+let MARK_GEO_PERMISSION_CHECK = 0;
 let MARK_PROTOCOL_STATE = null;
 let MODE_BUSY = false;
 let DASH_ETAG = null;
@@ -1048,11 +1050,11 @@ function renderTodayMode(d={}){
     const help=choice.querySelector('.today-mode-help');
     if(help){
       if(!laborable)help.textContent='Hoy no tienes una jornada programada.';
-      else if(d.marcado)help.textContent='La modalidad quedó fijada al registrar tu asistencia.';
+      else if(d.marcado)help.textContent=`Tu jornada de hoy quedó registrada como ${mode}. Esta modalidad se usa en tus reportes de hoy.`;
       else if(MODE_BUSY)help.textContent='Guardando tu modalidad…';
       else if(mode==='presencial'&&!d.geocerca_configurada)help.textContent='Dirección debe configurar la ubicación de la oficina.';
-      else if(mode==='presencial')help.textContent=`Para marcar deberás estar dentro de ${Number(d.radio_presencial_m||1000)/1000} km de la oficina.`;
-      else help.textContent=d.modalidad_elegida?'Elegiste trabajar virtual hoy.':'Puedes cambiarla si asistes a la oficina.';
+      else if(mode==='presencial')help.textContent=`Tu elección aplica solo a hoy, aunque tu horario semanal diga virtual. Para marcar debes estar dentro de ${Number(d.radio_presencial_m||1000)/1000} km de la oficina.`;
+      else help.textContent='Puedes elegir Virtual o Presencial según tu jornada de hoy, aunque tu horario semanal indique otra modalidad. El cambio aplica solo a esta fecha.';
     }
   });
 }
@@ -2212,6 +2214,7 @@ async function showAdminSection(section){
 }
 
 async function loadAdminAttendance(){
+  if($('admin-entry-open'))$('admin-entry-open').hidden=APP.access?.rol!=='direccion';
   const date=$('admin-list-date').value||isoLima(),btn=$('admin-refresh');
   const request=++APP.adminListRequest;
   btn.disabled=true; adminListMsg('');
@@ -2261,7 +2264,8 @@ function renderAdminAttendance(){
       const missing=CLOSE_MODEL.incompleteReasons(rawState?{estado:rawState}:null,person.cierre);
       const missingDetail=view.incomplete?`<small class="admin-missing-detail">${missing.length?'Faltó: '+missing.map(esc).join('; '):'No se dispone del detalle del cierre. Consulta Cierres y entregables.'}</small>`:'';
       const evidence=person.evidencia_path?`<button class="admin-evidence-button" type="button" data-admin-evidence="${esc(person.evidencia_path)}">Ver evidencia</button>`:'';
-      html+=`<div class="admin-roster-row" data-admin-person="${person.id}">${profileAvatarMarkup(person)}<span class="admin-person"><b>${esc(person.nombre)}</b><small>${esc(mode)}${person.nota?' · '+esc(person.nota):''}</small>${evidence}</span><span class="admin-shift"><b>${esc(shift)}</b><small>${person.horas!=null?Number(person.horas).toFixed(1)+' h':'Horario del día'}</small></span><span class="admin-current-state ${state.toLowerCase()}">${esc(label)}${person.marcado_at?' · '+esc(time):''}</span>${missingDetail}<span class="admin-state-actions">${['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn ${s.toLowerCase()} ${rawState===s?'on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" aria-pressed="${rawState===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('')}</span></div>`;
+      const entryAction=APP.access?.rol==='direccion'&&!rawState?`<button class="admin-evidence-button" type="button" data-admin-entry="${esc(person.id)}">Registrar entrada con evidencia</button>`:'';
+      html+=`<div class="admin-roster-row" data-admin-person="${person.id}">${profileAvatarMarkup(person)}<span class="admin-person"><b>${esc(person.nombre)}</b><small>${esc(mode)}${person.nota?' · '+esc(person.nota):''}</small>${evidence}${entryAction}</span><span class="admin-shift"><b>${esc(shift)}</b><small>${person.horas!=null?Number(person.horas).toFixed(1)+' h':'Horario del día'}</small></span><span class="admin-current-state ${state.toLowerCase()}">${esc(label)}${person.marcado_at?' · '+esc(time):''}</span>${missingDetail}<span class="admin-state-actions">${['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn ${s.toLowerCase()} ${rawState===s?'on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" aria-pressed="${rawState===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('')}</span></div>`;
     }
     html+='</section>';
   }
@@ -2551,6 +2555,8 @@ $('admin-list-date').onchange=loadAdminAttendance;
 $('admin-list-search').oninput=renderAdminAttendance;
 $('admin-list-area').onchange=renderAdminAttendance;
 $('admin-roster').onclick=e=>{
+  const entry=e.target.closest('[data-admin-entry]');
+  if(entry&&typeof openAdminEntry==='function')return openAdminEntry(entry.dataset.adminEntry);
   const evidence=e.target.closest('[data-admin-evidence]');
   if(evidence)return openAdminStoredEvidence(evidence.dataset.adminEvidence);
   const button=e.target.closest('[data-admin-state]');if(!button)return;
@@ -3527,13 +3533,13 @@ function markProgressStep(key,state,copy){
   $('mark-processing-track').querySelector('i').style.transform=`scaleX(${completed/MARK_STEPS.length})`;
 }
 function showMarkReceipt(data,hadEvidence,context='new'){
-  const day=APP.inicio.dia||{},date=new Date((day.fecha||isoLima())+'T12:00:00'),late=data.estado==='T',label={P:'Presente',T:'Tardanza',J:'Justificado',NG:'No gestionó'}[data.estado]||'Registrado';
+  const day=data.dia||APP.inicio.dia||{},mode=data.modalidad||day.modalidad,date=new Date((day.fecha||isoLima())+'T12:00:00'),late=data.estado==='T',label={P:'Presente',T:'Tardanza',J:'Justificado',NG:'No gestionó'}[data.estado]||'Registrado';
   $('receipt-state').textContent=label;
   $('mark-receipt-title').textContent=context==='detail'?(late?'Detalle de tu tardanza':'Detalle de tu asistencia'):(late?'Registro confirmado con tardanza':'¡Registro confirmado!');
   $('receipt-summary').textContent=context==='detail'?'Este es el estado actual de tu registro de hoy.':late?'Tu asistencia fue registrada después de la hora de entrada.':'La hora fue validada directamente por el servidor de KJA.';
   $('receipt-time').textContent=fmtTime(data.hora);
   $('receipt-date').textContent=new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(date);
-  $('receipt-mode').textContent=({virtual:'Virtual',presencial:'Presencial',opcional:'Opcional'}[day.modalidad]||cap(day.modalidad||'No indicada'));
+  $('receipt-mode').textContent=({virtual:'Virtual',presencial:'Presencial',opcional:'Opcional'}[mode]||cap(mode||'No indicada'));
   $('receipt-evidence').textContent=hadEvidence===true?'Protegida y vinculada':hadEvidence===false?'Sin evidencia histórica':'Consulta restringida';
   $('mark-sheet').dataset.receiptState=late?'late':data.estado==='P'?'present':'neutral';
   setMarkFlow('receipt');
@@ -3558,9 +3564,10 @@ function markFailureMessage(reason,windowState=''){
     evidencia_no_verificada:'No pudimos verificar la foto subida. Vuelve a adjuntarla e inténtalo otra vez.',
     ubicacion_invalida:'El dispositivo entregó una ubicación inválida. Inténtalo nuevamente.',
     ubicacion_requerida:'Para marcar presencial debes permitir y verificar tu ubicación.',
-    ubicacion_denegada:'El permiso de ubicación está bloqueado. Permite la ubicación para este sitio en Chrome o Safari y activa la ubicación precisa del teléfono. Si abriste el enlace dentro de WhatsApp, ábrelo en tu navegador y reintenta. Tu foto se conserva.',
-    ubicacion_no_disponible:'El teléfono no pudo obtener una ubicación válida. Activa la ubicación precisa, mantén Wi-Fi o datos encendidos y acércate a una ventana. Abre el portal en Chrome o Safari y vuelve a verificar. Tu foto se conserva.',
-    ubicacion_timeout:'El teléfono tardó demasiado en obtener la ubicación. Acércate a una ventana y pulsa Verificar ubicación otra vez. Tu foto se conserva.',
+    ubicacion_denegada:'No tenemos permiso para acceder a tu ubicación. Abre los permisos de este sitio desde el icono junto a la dirección y permite Ubicación. En los ajustes del teléfono, permite también la ubicación para tu navegador. Después pulsa Verificar ubicación. Tu foto se conserva.',
+    ubicacion_no_disponible:'El dispositivo no pudo obtener tu ubicación. Revisa que la ubicación del teléfono esté encendida y que el navegador tenga permiso en los ajustes del teléfono. Activa Wi-Fi o datos y vuelve a verificar. Tu foto se conserva.',
+    ubicacion_timeout:'No recibimos tu ubicación a tiempo. Esto no confirma un permiso bloqueado. Revisa la ubicación del teléfono y su conexión, acércate a una ventana y pulsa Verificar ubicación otra vez. Tu foto se conserva.',
+    ubicacion_no_compatible:'Este navegador no ofrece acceso a la ubicación. Abre el enlace directamente en Chrome o Safari actualizado. Si estás dentro de WhatsApp u otra aplicación, usa Abrir en el navegador.',
     ubicacion_insegura:'Abre el portal desde su dirección HTTPS en Chrome o Safari para permitir la ubicación.',
     ubicacion_imprecisa:'La ubicación es demasiado imprecisa. Acércate a una ventana, activa el GPS y vuelve a verificar.',
     fuera_radio:'Estás fuera del radio presencial de 1 km. La asistencia no puede registrarse desde esta ubicación.',
@@ -3623,6 +3630,7 @@ function startMarkSync(){
 
 function reloadDashboardIfSafe(){
   if(!DASH_UPDATE_PENDING)return false;
+  if(typeof ADMIN_ENTRY!=='undefined'&&(ADMIN_ENTRY.busy||!$('admin-entry-modal').hidden))return false;
   if(MARK_BUSY||EVIDENCE||!$('mark-modal').hidden)return false;
   location.reload();return true;
 }
@@ -3666,6 +3674,7 @@ async function handleMarkAction(){
   finally{trigger.removeAttribute('aria-busy');}
 }
 function openMarkModal(){
+  cancelMarkLocation();
   MARK_GEO=null;clearEvidence();resetMarkProgress();setMarkFlow('confirm');$('mark-sheet').removeAttribute('data-receipt-state');
   const d=APP.inicio.dia||{},virtual=(d.modalidad||'virtual')==='virtual';
   $('mark-sheet').dataset.mode=virtual?'virtual':'presencial';
@@ -3674,11 +3683,12 @@ function openMarkModal(){
   $('evidence-title').textContent=virtual?'Captura de tu reunión':'Foto de tu llegada';
   renderMarkModeCheck();
   $('mark-modal').hidden=false;document.body.style.overflow='hidden';
+  if(!virtual)void checkMarkLocationPermission();
   if(!virtual&&typeof prepareMarkRouteMap==='function')requestAnimationFrame(()=>prepareMarkRouteMap());
 }
 $('open-mark').onclick=handleMarkAction;
 document.querySelectorAll('[data-today-mode]').forEach(button=>button.onclick=()=>changeTodayMode(button.dataset.todayMode));
-document.querySelectorAll('[data-close-mark]').forEach(x=>x.onclick=closeMark); function closeMark(){ if(MARK_BUSY)return;$('mark-modal').hidden=true;document.body.style.overflow='';MARK_GEO=null;if(typeof resetMarkRouteMap==='function')resetMarkRouteMap();clearEvidence();setMarkFlow('confirm');resetMarkProgress();reloadDashboardIfSafe(); }
+document.querySelectorAll('[data-close-mark]').forEach(x=>x.onclick=closeMark); function closeMark(){ if(MARK_BUSY)return;cancelMarkLocation();$('mark-modal').hidden=true;document.body.style.overflow='';MARK_GEO=null;if(typeof resetMarkRouteMap==='function')resetMarkRouteMap();clearEvidence();setMarkFlow('confirm');resetMarkProgress();reloadDashboardIfSafe(); }
 $('take-photo').onclick=()=>$('evidence-camera').click();$('choose-photo').onclick=()=>$('evidence-file').click();$('evidence-preview').onclick=()=>$('evidence-camera').click();
 $('evidence-camera').onchange=e=>chooseEvidence(e.target.files[0],'camara');$('evidence-file').onchange=e=>chooseEvidence(e.target.files[0],'archivo');
 
@@ -3695,12 +3705,15 @@ async function chooseEvidence(file,origin){
 }
 function compressImage(file){ return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,1280/Math.max(img.width,img.height)),w=Math.round(img.width*scale),h=Math.round(img.height*scale),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(img,0,0,w,h);URL.revokeObjectURL(img.src);const attempt=q=>c.toBlob(b=>{if(!b)return reject();if(b.size>180*1024&&q>.38)return attempt(q-.1);resolve(b)},'image/jpeg',q);attempt(.82)};img.onerror=reject;img.src=URL.createObjectURL(file)}); }
 function stamp(blob,text){ return new Promise(resolve=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);URL.revokeObjectURL(img.src);const bar=Math.max(28,Math.round(img.height*.06)),font=Math.round(bar*.42);x.fillStyle='rgba(5,23,50,.82)';x.fillRect(0,img.height-bar,img.width,bar);x.fillStyle='#fff';x.font=`600 ${font}px Poppins, sans-serif`;x.textBaseline='middle';x.fillText(text,Math.round(bar*.35),img.height-bar/2,img.width-bar);c.toBlob(b=>resolve(b||blob),'image/jpeg',.82)};img.onerror=()=>resolve(blob);img.src=URL.createObjectURL(blob)}); }
-async function geolocation({timeout=25000,maximumAge=30000}={}){
+async function geolocation({timeout=25000,maximumAge=30000,signal}={}){
   if(window.isSecureContext===false)return {ok:false,motivo:'ubicacion_insegura'};
-  if(!navigator.geolocation)return {ok:false,motivo:'ubicacion_no_disponible'};
+  if(!navigator.geolocation)return {ok:false,motivo:'ubicacion_no_compatible'};
   const attempt=high=>new Promise(resolve=>{
     let done=false;
-    const end=result=>{if(done)return;done=true;resolve(result)};
+    const end=result=>{if(done)return;done=true;signal?.removeEventListener('abort',cancel);resolve(result)};
+    const cancel=()=>end({ok:false,motivo:'ubicacion_cancelada'});
+    if(signal?.aborted)return cancel();
+    signal?.addEventListener('abort',cancel,{once:true});
     // El timeout nativo cuenta la adquisición, no la espera del permiso ni
     // el tiempo con la página oculta. Un temporizador propio corta respuestas válidas.
     try{navigator.geolocation.getCurrentPosition(p=>{
@@ -3711,6 +3724,7 @@ async function geolocation({timeout=25000,maximumAge=30000}={}){
     catch(error){end({ok:false,motivo:error?.name==='SecurityError'?'ubicacion_denegada':'ubicacion_no_disponible'})}
   });
   const first=await attempt(true);
+  if(signal?.aborted)return {ok:false,motivo:'ubicacion_cancelada'};
   if((first.ok&&first.accuracy<=500)||first.motivo==='ubicacion_denegada')return first;
   // Menor precisión solicitada puede ayudar; el navegador elige el proveedor.
   // El servidor mantiene el radio de 1 km y la precisión máxima de 500 m.
@@ -3721,34 +3735,70 @@ async function geolocation({timeout=25000,maximumAge=30000}={}){
 }
 
 function formatDistance(meters){const value=Number(meters);return Number.isFinite(value)?value<1000?`${Math.round(value)} m`:`${(value/1000).toFixed(1)} km`:'—'}
+async function checkMarkLocationPermission(){
+  const check=++MARK_GEO_PERMISSION_CHECK;
+  let reason=null,permission=null;
+  if(window.isSecureContext===false)reason='ubicacion_insegura';
+  else if(!navigator.geolocation)reason='ubicacion_no_compatible';
+  else if(navigator.permissions?.query){
+    try{permission=(await navigator.permissions.query({name:'geolocation'})).state;}catch{/* Algunos navegadores no permiten consultar este permiso. */}
+    if(permission==='denied')reason='ubicacion_denegada';
+  }
+  if(check!==MARK_GEO_PERMISSION_CHECK||$('mark-modal').hidden||APP.inicio?.dia?.modalidad!=='presencial'||MARK_GEO_REQUEST||MARK_GEO)return;
+  if(reason)MARK_GEO={verified:false,error:true,motivo:reason,message:markFailureMessage(reason)};
+  else if(permission==='prompt')MARK_GEO={verified:false,message:'Pulsa Verificar ubicación y elige Permitir cuando el navegador lo solicite. Necesitamos tu ubicación para comprobar que estás cerca de la oficina.'};
+  renderMarkModeCheck();
+}
+
+function markLocationErrorTitle(reason){
+  return ({ubicacion_denegada:'Permiso de ubicación bloqueado',ubicacion_no_disponible:'No se pudo obtener tu ubicación',ubicacion_timeout:'La ubicación está tardando demasiado',ubicacion_no_compatible:'Navegador sin acceso a ubicación',ubicacion_insegura:'Abre el portal con HTTPS',ubicacion_imprecisa:'Ubicación poco precisa',fuera_radio:'Estás fuera del radio permitido'})[reason]||'Ubicación sin validar';
+}
 function renderMarkModeCheck(){
   const day=APP.inicio?.dia||{},presencial=day.modalidad==='presencial',panel=$('mark-mode-check'),button=$('verify-mark-location');
+  button.disabled=false;
+  panel.setAttribute('aria-busy',String(!!MARK_GEO_REQUEST));
   panel.dataset.mode=presencial?'presencial':'virtual';
   $('mark-mode-virtual-icon').hidden=presencial;$('mark-mode-office-icon').hidden=!presencial;button.hidden=!presencial;
   if(!presencial){panel.removeAttribute('data-location-state');$('mark-mode-label').textContent='MODALIDAD VIRTUAL';$('mark-mode-title').textContent='No requiere ubicación';$('mark-mode-detail').textContent='Solo guardaremos la evidencia de tu reunión.';syncMarkConfirm();return;}
   $('mark-mode-label').textContent='MODALIDAD PRESENCIAL';
+  if(MARK_GEO_REQUEST){
+    panel.dataset.locationState='pending';$('mark-mode-title').textContent='Verificando ubicación…';
+    $('mark-mode-detail').textContent='Permite la ubicación precisa y mantén esta pantalla abierta. Si tarda demasiado, cancela y vuelve a verificar. Tu foto se conserva.';
+    button.textContent='Cancelar verificación';syncMarkConfirm();return;
+  }
   if(MARK_GEO?.verified&&Date.now()-Number(MARK_GEO.capturedAt||0)>=120000)MARK_GEO={...MARK_GEO,verified:false,error:true,message:'La verificación venció. Actualiza tu ubicación para confirmar que sigues cerca de la oficina.'};
   if(MARK_GEO?.verified){
     panel.dataset.locationState='ready';$('mark-mode-title').textContent='Ubicación verificada';$('mark-mode-detail').textContent=`Estás a ${formatDistance(MARK_GEO.distance)} de la oficina · precisión ${MARK_GEO.accuracy} m.`;button.textContent='Verificar otra vez';
   }else{
-    panel.dataset.locationState=MARK_GEO?.error?'error':'pending';$('mark-mode-title').textContent=MARK_GEO?.error?'Ubicación sin validar':'Verifica que estás cerca de la oficina';$('mark-mode-detail').textContent=MARK_GEO?.message||'El registro se habilita dentro de un radio de 1 km.';button.textContent='Verificar ubicación';
+    panel.dataset.locationState=MARK_GEO?.error?'error':'pending';$('mark-mode-title').textContent=MARK_GEO?.error?markLocationErrorTitle(MARK_GEO.motivo):'Verifica que estás cerca de la oficina';$('mark-mode-detail').textContent=MARK_GEO?.message||'Activa la ubicación del teléfono. Al verificar, permite el acceso en el navegador. El registro se habilita dentro de un radio de 1 km.';button.textContent='Verificar ubicación';
   }
   syncMarkConfirm();
   if(typeof renderMarkRouteMap==='function')renderMarkRouteMap();
 }
 
+function cancelMarkLocation(){
+  MARK_GEO_PERMISSION_CHECK++;
+  const request=MARK_GEO_REQUEST;MARK_GEO_REQUEST=null;request?.abort();
+}
 async function verifyMarkLocation(){
-  const button=$('verify-mark-location');button.disabled=true;button.textContent='Ubicando…';markMsg('');
+  if(MARK_BUSY)return;
+  if(MARK_GEO_REQUEST){cancelMarkLocation();MARK_GEO=null;renderMarkModeCheck();return;}
+  if(APP.inicio?.dia?.modalidad!=='presencial'||$('mark-modal').hidden)return;
+  MARK_GEO_PERMISSION_CHECK++;
+  const request=new AbortController();MARK_GEO_REQUEST=request;MARK_GEO=null;markMsg('');renderMarkModeCheck();
   let geo=null;
   try{
-    geo=await geolocation();
+    geo=await geolocation({signal:request.signal});
+    if(MARK_GEO_REQUEST!==request)return;
     if(!geo.ok)throw Object.assign(new Error(geo.motivo),{motivo:geo.motivo});
-    const fresh=await refreshMarkEligibility({render:false,geo});
+    const fresh=await requestMarkEligibility(geo);
+    if(MARK_GEO_REQUEST!==request)return;
     if(!fresh?.puede_marcar){const error=new Error(fresh?.motivo||'ubicacion_invalida');error.motivo=fresh?.motivo||'ubicacion_invalida';error.distance=fresh?.distancia_m;throw error;}
     MARK_GEO={...geo,verified:true,distance:Number(fresh.distancia_m||0)};
   }catch(error){
-    MARK_GEO={...(geo?.ok?geo:{}),verified:false,error:true,distance:Number.isFinite(Number(error.distance))?Number(error.distance):null,message:error.motivo==='fuera_radio'&&Number.isFinite(Number(error.distance))?`Estás a ${formatDistance(error.distance)}; debes estar dentro de 1 km.`:markFailureMessage(error.motivo)};
-  }finally{button.disabled=false;renderMarkModeCheck();}
+    if(MARK_GEO_REQUEST!==request)return;
+    MARK_GEO={...(geo?.ok?geo:{}),verified:false,error:true,motivo:error.motivo,distance:Number.isFinite(Number(error.distance))?Number(error.distance):null,message:error.motivo==='fuera_radio'&&Number.isFinite(Number(error.distance))?`Estás a ${formatDistance(error.distance)}; debes estar dentro de 1 km.`:markFailureMessage(error.motivo)};
+  }finally{if(MARK_GEO_REQUEST===request){MARK_GEO_REQUEST=null;renderMarkModeCheck();}}
 }
 $('verify-mark-location').onclick=verifyMarkLocation;
 async function uploadEvidence(){
@@ -3779,6 +3829,7 @@ $('confirm-mark').onclick=async()=>{
     const {data,error}=await db.rpc('dash_marcar_seguro',{p_protocolo:MARK_PROTOCOL,p_modalidad:mode,p_disp:(navigator.userAgent||'').slice(0,80),p_foto:path,p_foto_org:EVIDENCE.origin,p_lat:geo?.lat??null,p_lon:geo?.lon??null,p_precision:geo?.accuracy??null});
     if(error){const missing=error.code==='PGRST202'||String(error.message||'').includes('dash_marcar_seguro');const e=new Error(missing?'proteccion_no_disponible':'registro');e.motivo=missing?'proteccion_no_disponible':'registro';throw e;}if(!data?.ok){const e=new Error(data?.motivo||'registro');e.motivo=data?.motivo;throw e;}
     markProgressStep('server','done','Registro confirmado');$('mark-processing-copy').textContent='Tu asistencia quedó registrada.';
+    if(data.dia)APP.inicio.dia=data.dia;
     clearEvidence();showMarkReceipt(data,hadEvidence);
     (async()=>{try{const {data:fresh}=await db.rpc('dash_inicio');if(fresh?.ok){APP.inicio=fresh;renderHome();renderProfile();await Promise.all([loadHistory(),loadDailyClose({quiet:true})]);}}catch(refreshError){console.warn('No se pudo refrescar el panel tras marcar.',refreshError);}})();
   }catch(e){

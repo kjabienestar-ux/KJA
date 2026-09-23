@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=204">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=205">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=7">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=5">
@@ -844,6 +844,7 @@
           </div>
           <div class="admin-list-kpis" id="admin-list-kpis" aria-live="polite"></div>
           <div class="admin-list-filters">
+            <button type="button" class="admin-refresh" id="admin-entry-open" hidden>Registrar entrada por colaborador</button>
             <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-list-search" placeholder="Buscar colaborador…"></label>
             <label><span class="sr-only">Filtrar por área</span><select id="admin-list-area"><option value="">Todas las áreas</option></select></label>
           </div>
@@ -1476,6 +1477,32 @@
   </section>
 </div>
 
+<div class="modal admin-entry-modal" id="admin-entry-modal" hidden>
+  <button class="modal-backdrop" type="button" data-close-admin-entry aria-label="Cerrar registro" tabindex="-1"></button>
+  <section class="admin-entry-dialog" id="admin-entry-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-entry-title" aria-describedby="admin-entry-copy">
+    <header><h2 id="admin-entry-title">Registrar entrada por colaborador</h2><button type="button" class="modal-close" data-close-admin-entry aria-label="Cerrar registro">×</button></header>
+    <p id="admin-entry-copy">Adjunta la evidencia recibida y registra la hora real de entrada. Quedará constancia de que Dirección realizó el registro.</p>
+    <form id="admin-entry-form">
+      <fieldset id="admin-entry-fields">
+        <legend class="sr-only">Datos de la entrada</legend>
+        <label>Colaborador<select id="admin-entry-person" required><option value="">Selecciona al colaborador</option></select></label>
+        <div class="admin-entry-row">
+          <label>Fecha<input type="date" id="admin-entry-date" min="2020-01-01" required></label>
+          <label>Hora real de entrada (Lima)<input type="time" id="admin-entry-time" required></label>
+        </div>
+        <label>Modalidad de ese día<select id="admin-entry-mode" required><option value="">Selecciona la modalidad</option><option value="presencial">Presencial</option><option value="virtual">Virtual</option></select></label>
+        <p class="admin-entry-help">Presente o tardanza se calcula con la hora indicada. La modalidad se aplica solo a esta fecha. En presencial, Dirección valida la evidencia recibida; no se usa la ubicación de este equipo.</p>
+        <label>Evidencia recibida<input type="file" id="admin-entry-file" accept="image/jpeg,image/png,image/webp" aria-describedby="admin-entry-file-help"></label>
+        <small id="admin-entry-file-help">Una foto o captura JPG, PNG o WebP. Se optimiza antes de subir y se guarda de forma privada.</small>
+        <img id="admin-entry-preview" alt="Vista previa de la evidencia recibida" hidden>
+        <label>Motivo del registro por Dirección<textarea id="admin-entry-note" rows="3" minlength="5" maxlength="700" required placeholder="Ej. Sin celular; recibí la foto de llegada por WhatsApp."></textarea></label>
+      </fieldset>
+      <p id="admin-entry-message" role="status" aria-live="polite"></p>
+      <footer><button type="button" class="admin-evidence-cancel" data-close-admin-entry>Cancelar</button><button type="submit" class="admin-evidence-submit" id="admin-entry-submit" disabled>Registrar entrada</button></footer>
+    </form>
+  </section>
+</div>
+
 <div class="modal admin-evidence-modal" id="admin-evidence-modal" hidden>
   <div class="modal-backdrop" data-close-admin-evidence></div>
   <section class="admin-evidence-sheet" role="dialog" aria-modal="true" aria-labelledby="admin-evidence-title" aria-describedby="admin-evidence-copy">
@@ -1735,7 +1762,7 @@
       <div class="mark-assurance" aria-label="Validaciones del registro"><span><i></i>Evidencia obligatoria</span><span><i></i>Horario validado por servidor</span></div>
       <div class="mark-mode-check" id="mark-mode-check" data-mode="virtual">
         <span class="mark-mode-icon" aria-hidden="true"><svg id="mark-mode-virtual-icon" viewBox="0 0 24 24"><path d="M4 5h16v11H4zM8 20h8M12 16v4"/></svg><svg id="mark-mode-office-icon" viewBox="0 0 24 24" hidden><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg></span>
-        <span><small id="mark-mode-label">MODALIDAD VIRTUAL</small><b id="mark-mode-title">No requiere ubicación</b><em id="mark-mode-detail">Solo guardaremos la evidencia de tu reunión.</em></span>
+        <span role="status" aria-live="polite" aria-atomic="true"><small id="mark-mode-label">MODALIDAD VIRTUAL</small><b id="mark-mode-title">No requiere ubicación</b><em id="mark-mode-detail">Solo guardaremos la evidencia de tu reunión.</em></span>
         <button type="button" id="verify-mark-location" hidden>Verificar ubicación</button>
       </div>
       <div class="evidence-picker" id="evidence-picker">
@@ -1827,7 +1854,8 @@
 <script src="assets/js/dashboard-announcement-modal.js?v=4"></script>
 <script src="assets/js/dashboard-month-progress.js?v=1"></script>
 <script src="assets/js/attendance-calendar-model.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=190"></script>
+<script src="assets/js/dashboard.js?v=194"></script>
+<script src="assets/js/dashboard-admin-entrada.js?v=1"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=2"></script>
