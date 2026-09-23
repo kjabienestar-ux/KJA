@@ -42,6 +42,13 @@ La función anterior de evidencia personal conserva su contrato.
 El formulario detecta un servicio antiguo sin permiso administrativo y no
 sube la imagen a la asistencia personal de Dirección.
 
+Si aparece «Tu sesión venció» después de instalar el SQL, comprobar también la
+versión desplegada de `dash-evidencia`: la versión antigua llama al permiso de
+evidencia personal, que devuelve `sesion` para cuentas sin colaborador vinculado.
+En Supabase → Edge Functions → dash-evidencia, reemplazar el código por
+`supabase/functions/dash-evidencia/index.ts` y desplegarlo. Publicar el frontend
+actualizado para distinguir una cuenta aún autenticada de ese rechazo del servicio.
+
 ## Verificación
 
 - `node --test tests/admin-entry.test.mjs`: formulario, conservación de archivos,

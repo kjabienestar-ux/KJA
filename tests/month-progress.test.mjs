@@ -34,6 +34,24 @@ test('existing incomplete shifts retain their own explanation',()=>{
   assert.equal(view.state,'incomplete');assert.match(view.reason,/cierre o sus evidencias/);
 });
 
+test('mobile days open a concise dialog with the selected date and real summary',()=>{
+  const events=()=>({listeners:{},addEventListener(type,fn){this.listeners[type]=fn;}});
+  const win=Object.assign(events(),{matchMedia:()=>({matches:true})});
+  const title={},copy={},close={},done={};
+  const dialog=Object.assign(events(),{setAttribute(){},querySelector(s){return s==='h2'?title:s==='p'?copy:s.includes('-close')?close:done;},showModal(){this.open=true;},close(){this.open=false;},getBoundingClientRect(){return {left:10,right:350,top:100,bottom:400};}});
+  const tip=Object.assign(events(),{setAttribute(){},contains(){return false;}});
+  const doc=Object.assign(events(),{defaultView:win,body:{append(){}},createElement:tag=>tag==='dialog'?dialog:tip});
+  const container=Object.assign(events(),{ownerDocument:doc,dataset:{}});
+  const button={dataset:{dayReason:'23 de septiembre, hoy: Presente. Comparticiones entregadas.'},closest(){return this;}};
+  model.bind(container);
+  container.listeners.focusin({target:button});assert.equal(tip.hidden,true);
+  container.listeners.click({target:button});
+  assert.equal(dialog.open,true);assert.equal(title.textContent,'23 de septiembre, hoy');
+  assert.equal(copy.textContent,'Presente. Comparticiones entregadas.');
+  done.onclick();assert.equal(dialog.open,false);
+  container.listeners.click({target:button});close.onclick();assert.equal(dialog.open,false);
+});
+
 test('tooltip supports pointer, keyboard, tap, Escape, outside dismissal and rebinding',()=>{
   const events=()=>({listeners:{},addEventListener(type,fn){this.listeners[type]=fn;}});
   const doc=events(),win=events();win.innerWidth=360;win.innerHeight=700;doc.defaultView=win;
