@@ -39,6 +39,22 @@ test('old evidence service cannot upload a photo under the administrators own at
   const h=harness({permit:{ok:true,ruta:'personal.jpg',token:'token'}});await h.submit();
   assert.equal(h.uploads.length,0);assert.equal(h.rpc.length,0);assert.match(h.el('admin-entry-message').textContent,/no está activada/);
 });
+
+test('personal permission error with valid admin authentication explains service deployment',async()=>{
+  const h=harness({permit:{ok:false,motivo:'sesion'}});
+  h.c.db.auth.getUser=async()=>({data:{user:{id:'director'}},error:null});
+  await h.submit();
+  assert.match(h.el('admin-entry-message').textContent,/cuenta sigue autenticada/);
+  assert.match(h.el('admin-entry-message').textContent,/dash-evidencia/);
+  assert.ok(h.state().file);assert.equal(h.uploads.length,0);assert.equal(h.rpc.length,0);
+});
+
+test('invalid authentication keeps the login message',async()=>{
+  const h=harness({permit:{ok:false,motivo:'sesion'}});
+  h.c.db.auth.getUser=async()=>({data:{user:null},error:{message:'expired'}});
+  await h.submit();assert.match(h.el('admin-entry-message').textContent,/sesión venció/);
+  assert.ok(h.state().file);assert.equal(h.uploads.length,0);
+});
 test('non-Direction cannot submit and an existing entry is never overwritten',async()=>{
   const denied=harness();denied.c.APP.access.rol='editor';await denied.submit();assert.equal(denied.requests.length,0);
   const h=harness({confirmations:[{data:{ok:false,motivo:'ya_marcado'}}]});await h.submit();

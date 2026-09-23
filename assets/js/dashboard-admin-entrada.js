@@ -3,6 +3,7 @@ let ADMIN_ENTRY={busy:false,opening:0,file:null,url:null,permit:null,uploaded:fa
 function adminEntryMessage(text){$('admin-entry-message').textContent=text||'';}
 function adminEntryError(reason){
   return ({sin_permiso:'Solo Dirección puede registrar entradas por otra persona.',sesion:'Tu sesión venció. Vuelve a ingresar.',
+    sesion_servicio:'Tu cuenta sigue autenticada, pero el servicio de evidencias rechazó el permiso. Comprueba que dash-evidencia esté actualizado en Supabase para registrar entradas por Dirección. Si ya se actualizó, revisa la validación de sesión del servidor. Tu foto se conserva.',
     fecha_hora:'Indica una fecha y hora de entrada que ya hayan ocurrido (hora de Lima).',nota_requerida:'Explica brevemente por qué Dirección registra esta entrada.',
     modalidad_invalida:'Selecciona Presencial o Virtual.',no_existe:'El colaborador ya no está activo. Actualiza la lista.',
     antes_contrato:'La fecha es anterior al inicio de su contrato.',no_labora:'El colaborador no tiene jornada ese día. Configura primero su jornada o una excepción laboral.',
@@ -77,6 +78,13 @@ async function submitAdminEntry(event){
       const {data:{session}}=await db.auth.getSession();if(!session)throw Object.assign(new Error(),{motivo:'sesion'});
       const response=await fetch(SUPABASE_URL+'/functions/v1/dash-evidencia',{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(payload)});
       const permit=await response.json().catch(()=>null);
+      if(permit?.motivo==='sesion'){
+        // Una función antigua usa el permiso personal y confunde una cuenta
+        // administrativa sin colaborador vinculado con una sesión vencida.
+        let active=false;
+        try{const check=await db.auth.getUser();active=!check.error&&!!check.data?.user;}catch{/* Mantener el error original si no se pudo comprobar. */}
+        if(active)throw Object.assign(new Error(),{motivo:'sesion_servicio'});
+      }
       if(!response.ok||!permit?.ok)throw Object.assign(new Error(),{motivo:permit?.motivo});
       if(!permit.permiso||!permit.ruta||!permit.token)throw Object.assign(new Error(),{motivo:'actualizacion'});
       ADMIN_ENTRY.permit={...permit,signature};
