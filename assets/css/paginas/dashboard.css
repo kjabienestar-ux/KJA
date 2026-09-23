@@ -10590,25 +10590,65 @@ body.admin-role-confirm-open{overflow:hidden}
   .dashboard-month-day em{position:absolute;top:1px;right:3px;font-size:10px;font-style:normal;font-weight:800}
 }
 
-/* Entrada delegada: conserva el lenguaje del panel administrativo. */
-body.admin-entry-open { overflow:hidden; }
-#admin-list-section .admin-list-toolbar,#admin-list-section .admin-list-filters { flex-wrap:wrap; }
-#admin-entry-open { grid-column:1/-1;min-height:44px;height:auto;padding-block:10px;white-space:normal;text-align:left; }
-.admin-entry-modal { z-index:440; }
-.admin-entry-dialog { position:relative;z-index:1;width:min(620px,100%);max-height:calc(100dvh - 36px);overflow:auto;padding:28px;border-radius:16px;background:#fff;color:#243c56; }
-.admin-entry-dialog header { padding-right:40px; }
-.admin-entry-dialog h2 { margin:0;font-size:22px;line-height:1.25;overflow-wrap:anywhere; }
-.admin-entry-dialog p { font-size:14px;line-height:1.5; }
-.admin-entry-dialog fieldset { min-width:0;margin:0;padding:0;border:0; }
-.admin-entry-dialog label { display:grid;gap:6px;margin-top:16px;font-size:14px;font-weight:700; }
-.admin-entry-dialog input,.admin-entry-dialog select,.admin-entry-dialog textarea { box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #d1dce7;border-radius:10px;background:#fbfcfe;color:#243c56;font:inherit;font-size:16px; }
-.admin-entry-dialog :is(input,select,textarea,button):focus-visible { outline:2px solid #075abc;outline-offset:3px; }
-.admin-entry-dialog textarea { resize:vertical; }
-.admin-entry-row { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
-.admin-entry-dialog .admin-entry-help,.admin-entry-dialog small { color:#40566e;font-size:14px;line-height:1.5; }
-#admin-entry-preview { display:block;max-width:100%;max-height:220px;object-fit:contain;margin-top:12px; }
-#admin-entry-preview[hidden] { display:none; }
-#admin-entry-message { color:#925208;overflow-wrap:anywhere; }
-.admin-entry-dialog footer { display:flex;justify-content:flex-end;gap:12px;margin-top:20px; }
-.admin-entry-dialog footer button { min-height:44px;font-size:14px; }
-@media(max-width:520px) { .admin-entry-dialog { padding:20px; }.admin-entry-row { grid-template-columns:1fr;gap:0; }.admin-entry-dialog footer { flex-wrap:wrap; } }
+/* Entrada delegada: datos y evidencia en una sola mesa de trabajo. */
+body.admin-entry-open{overflow:hidden}
+#admin-list-section .admin-list-toolbar,#admin-list-section .admin-list-filters{flex-wrap:wrap}
+#admin-entry-open{grid-column:1/-1;min-height:44px;height:auto;padding-block:10px;white-space:normal;text-align:left}
+.admin-entry-modal{z-index:440;padding:24px}
+.admin-entry-dialog{position:relative;z-index:1;box-sizing:border-box;width:min(940px,100%);max-height:calc(100dvh - 48px);display:flex;flex-direction:column;overflow:hidden;border-radius:16px;background:#fff;color:#15243a;text-align:left;box-shadow:0 24px 80px rgba(6,26,56,.24)}
+.admin-entry-dialog>header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-shrink:0;padding:24px 28px;border-bottom:1px solid #e3e8ee}
+.admin-entry-heading{min-width:0}
+.admin-entry-dialog h2{margin:0;color:#09244c;font-size:24px;line-height:1.25;letter-spacing:-.025em;overflow-wrap:anywhere}
+.admin-entry-dialog #admin-entry-copy{max-width:60ch;margin:8px 0 0;color:#506278;font-size:14px;line-height:1.5}
+.admin-entry-dialog .modal-close{position:static;flex-shrink:0;width:40px;height:40px;border-radius:10px;background:#f6f8fb;color:#506278}
+#admin-entry-form{display:flex;flex-direction:column;min-height:0;overflow:hidden;margin:0}
+#admin-entry-fields{min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#bac7d5 transparent;margin:0;padding:0;border:0}
+.admin-entry-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+.admin-entry-details,.admin-entry-evidence{min-width:0;padding:24px 28px}
+.admin-entry-evidence{background:#f8fafc;border-left:1px solid #e3e8ee}
+.admin-entry-dialog h3{margin:0 0 18px;color:#09244c;font-size:16px;line-height:1.4;font-weight:700}
+.admin-entry-dialog label{display:grid;gap:7px;margin-top:16px;font-size:13px;line-height:1.45;font-weight:700}
+.admin-entry-dialog input,.admin-entry-dialog select,.admin-entry-dialog textarea{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#15243a;font:inherit;font-size:14px;line-height:1.5;caret-color:#075abc;transition:border-color .15s}
+.admin-entry-dialog input:hover,.admin-entry-dialog select:hover,.admin-entry-dialog textarea:hover{border-color:#8b9fb5}
+.admin-entry-dialog textarea::placeholder{color:#607087;font-weight:400}
+.admin-entry-dialog :is(input,select,textarea,button):focus-visible{outline:2px solid #075abc;outline-offset:3px}
+.admin-entry-dialog textarea{resize:vertical;min-height:90px}
+.admin-entry-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.admin-entry-dialog .admin-entry-help,.admin-entry-dialog small{display:block;margin:10px 0 0;color:#506278;font-size:13px;line-height:1.55;font-weight:400}
+.admin-entry-evidence>.admin-entry-help{margin-top:-8px;margin-bottom:16px}
+.admin-entry-dialog .admin-entry-picker{position:relative;min-height:230px;display:grid;place-items:center;overflow:hidden;margin:0;border:1px dashed #9aaec2;border-radius:12px;background:#fff;cursor:pointer;transition:border-color .15s,background .15s}
+.admin-entry-picker:hover{border-color:#075abc;background:#f0f6fc}
+.admin-entry-picker:focus-within{outline:2px solid #075abc;outline-offset:3px}
+.admin-entry-dialog .admin-entry-picker input{position:absolute;z-index:3;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.admin-entry-empty{display:flex;align-items:center;flex-direction:column;gap:10px;padding:26px 18px;text-align:center;color:#075abc}
+.admin-entry-empty svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.4}
+.admin-entry-empty b{font-size:14px}.admin-entry-empty>span{color:#506278;font-size:12px;font-weight:400}
+#admin-entry-preview{display:block;width:100%;height:270px;padding:12px 12px 48px;box-sizing:border-box;object-fit:contain;background:#edf1f5}
+.admin-entry-image-action{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);padding:6px 14px;border:1px solid #d1dce7;border-radius:8px;background:#fff;color:#075abc;font-size:13px;white-space:nowrap}
+.admin-entry-picker [hidden]{display:none!important}
+.admin-entry-picker[data-ready="true"]{border-style:solid;border-color:#cbd5e1}
+.admin-entry-file-status{margin:10px 0 0;color:#176653;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.admin-entry-file-status:empty{display:none}
+.admin-entry-audit{display:flex;align-items:flex-start;gap:10px;margin:22px 0 0;padding-top:18px;border-top:1px solid #e3e8ee;color:#506278;font-size:12px;line-height:1.6}
+.admin-entry-audit svg{flex:0 0 20px;width:20px;height:20px;fill:none;stroke:#176653;stroke-width:1.5}
+#admin-entry-message{flex-shrink:0;max-height:110px;overflow:auto;margin:0;padding:12px 28px;background:#fff3df;color:#75450d;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+#admin-entry-message:empty{display:none}
+.admin-entry-dialog footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-shrink:0;margin:0;padding:16px 28px;border-top:1px solid #e3e8ee;background:#fff}
+.admin-entry-footer-note{margin-right:auto;color:#506278;font-size:12px}
+.admin-entry-dialog footer button{min-height:44px;padding:10px 18px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#344b65;font:700 13px/1.4 Inter,system-ui,sans-serif;cursor:pointer}
+.admin-entry-dialog footer #admin-entry-submit{background:#075abc;color:#fff;border-color:#075abc}
+.admin-entry-dialog footer #admin-entry-submit:hover:not(:disabled){background:#064b9c}
+.admin-entry-dialog footer .admin-evidence-cancel:hover:not(:disabled){background:#f6f8fb}
+.admin-entry-dialog button:disabled{opacity:.5;cursor:not-allowed}
+.admin-entry-dialog fieldset:disabled{opacity:.75}
+.admin-entry-dialog ::selection{background:#d9eaff;color:#09244c}
+@media(max-width:720px){
+ .admin-entry-modal{padding:12px}.admin-entry-dialog{max-height:calc(100dvh - 24px)}
+ .admin-entry-layout{grid-template-columns:1fr}.admin-entry-evidence{border-left:0;border-top:1px solid #e3e8ee}
+ .admin-entry-dialog>header,.admin-entry-details,.admin-entry-evidence{padding:20px}
+ .admin-entry-dialog h2{font-size:20px}.admin-entry-dialog input,.admin-entry-dialog select,.admin-entry-dialog textarea{font-size:16px}
+ .admin-entry-dialog footer{padding:12px 20px max(12px,env(safe-area-inset-bottom))}.admin-entry-footer-note{display:none}
+ .admin-entry-dialog footer #admin-entry-submit{flex:1}#admin-entry-message{padding:12px 20px}
+ .admin-entry-dialog .admin-entry-picker{min-height:170px}#admin-entry-preview{height:240px}
+}
+@media(max-width:380px){.admin-entry-row{grid-template-columns:1fr;gap:0}.admin-entry-dialog footer{gap:8px;padding-inline:14px}}

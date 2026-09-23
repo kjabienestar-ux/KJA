@@ -1,0 +1,156 @@
+/* Comunicados del sidebar: documento, título y navegación en una sola superficie. */
+.portal-rail .rail-announcement {
+  flex: 0 0 auto;
+  min-height: 0;
+  margin: 18px 0 0;
+}
+.rail-announcement figcaption { margin: 0 1px 10px; }
+.rail-announcement figcaption b {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: #454540;
+  letter-spacing: -.01em;
+}
+.rail-announcement-heading-icon {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: #697584;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.portal-rail .rail-announcement-carousel {
+  display: block;
+  flex: none;
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgba(255,255,255,.72);
+  box-shadow: 0 5px 18px rgba(22,36,53,.06);
+}
+.rail-announcement .rail-announcement-media {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  border: 0;
+  border-radius: 0;
+  padding: 8px;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  animation: none;
+}
+.rail-announcement .rail-announcement-media > img {
+  box-sizing: border-box;
+  flex: none;
+  width: 100%;
+  height: auto;
+  max-height: 440px;
+  padding: 0;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 9px;
+}
+.rail-announcement .rail-announcement-media > img[hidden] { display: none; }
+.rail-announcement .rail-announcement-zoom {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  min-height: 30px;
+  padding: 0;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255,255,255,.94);
+  color: #152b47;
+  box-shadow: none;
+  text-align: left;
+}
+.rail-announcement-caption {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #152b47;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.rail-announcement-zoom > svg { width: 18px; height: 18px; flex-shrink: 0; }
+.rail-announcement .rail-announcement-media:hover { background: rgba(255,255,255,.6); box-shadow: none; }
+.rail-announcement .rail-announcement-media:hover .rail-announcement-zoom { background: #fff; color: #075abc; }
+.rail-announcement .rail-announcement-media:focus-visible { outline: 2px solid #075abc; outline-offset: -3px; }
+.rail-announcement .rail-announcement-controls {
+  justify-content: flex-end;
+  gap: 2px;
+  margin: 0 10px;
+  padding: 3px 0;
+  border-top: 1px solid rgba(21,43,71,.09);
+}
+.rail-announcement .rail-announcement-status {
+  order: 0;
+  flex-shrink: 0;
+  margin: 0 2px;
+  text-align: left;
+  color: #5f6d7d;
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+/* Flechas y contador ofrecen la misma navegación sin indicadores duplicados. */
+.rail-announcement .rail-announcement-dots { display: none; }
+.rail-announcement .rail-announcement-nav {
+  width: 36px;
+  height: 36px;
+  flex-basis: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #536278;
+}
+.rail-announcement .rail-announcement-nav:hover { background: #eaf0f4; color: #09244c; }
+.rail-announcement .rail-announcement-nav:focus-visible { outline: 2px solid #075abc; outline-offset: -2px; }
+.rail-announcement .rail-announcement-fallback {
+  min-height: 192px;
+  box-sizing: border-box;
+  padding: 18px;
+  border-radius: 9px;
+  background: #f2f1ee;
+}
+.rail-announcement .rail-announcement-fallback p { font-size: 12px; color: #536278; }
+.rail-announcement .rail-announcement-fallback small { font-size: 11px; color: #536278; }
+@media (max-width: 720px) {
+  .rail-announcement .rail-announcement-nav { width: 44px; height: 44px; flex-basis: 44px; }
+}
+@media (min-width: 1281px) {
+  .portal-rail .rail-announcement {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 260px;
+    min-height: 260px;
+  }
+  .portal-rail .rail-announcement-carousel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  .rail-announcement .rail-announcement-media { flex: 1; min-height: 0; }
+  .rail-announcement .rail-announcement-media > img {
+    flex: 1;
+    min-height: 0;
+    height: 0;
+    max-height: none;
+    object-fit: contain;
+  }
+  .rail-announcement .rail-announcement-controls { flex-shrink: 0; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .portal-rail .rail-announcement-carousel { background: #fff; }
+}

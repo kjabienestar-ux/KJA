@@ -43,6 +43,8 @@ async function openAdminEntry(personId=null){
 function clearAdminEntryFile(){
   if(ADMIN_ENTRY.url)URL.revokeObjectURL(ADMIN_ENTRY.url);
   ADMIN_ENTRY.file=null;ADMIN_ENTRY.url=null;
+  $('admin-entry-empty').hidden=false;$('admin-entry-image-action').hidden=true;
+  $('admin-entry-file-status').textContent='';$('admin-entry-picker').dataset.ready='false';
   $('admin-entry-preview').hidden=true;$('admin-entry-preview').removeAttribute('src');$('admin-entry-file').value='';
 }
 function closeAdminEntry(){
@@ -59,6 +61,9 @@ async function chooseAdminEntryFile(file){
   try{
     const blob=await compressImage(file);clearAdminEntryFile();resetAdminEntryPermit();
     ADMIN_ENTRY.file=blob;ADMIN_ENTRY.url=URL.createObjectURL(blob);
+    $('admin-entry-empty').hidden=true;$('admin-entry-image-action').hidden=false;
+    $('admin-entry-picker').dataset.ready='true';
+    $('admin-entry-file-status').textContent=`${file.name||'Imagen adjunta'} · ${Math.max(1,Math.round(blob.size/1024))} KB · lista para subir`;
     $('admin-entry-preview').src=ADMIN_ENTRY.url;$('admin-entry-preview').hidden=false;adminEntryMessage('');
   }catch{adminEntryMessage('No se pudo leer la imagen. Elige otra foto.');}
   finally{ADMIN_ENTRY.busy=false;renderAdminEntryState();}

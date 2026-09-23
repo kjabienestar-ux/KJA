@@ -23,8 +23,33 @@
     const doc=container.ownerDocument,win=doc.defaultView;
     const tip=doc.createElement('div');tip.id='dashboard-day-tooltip';tip.className='dashboard-day-tooltip';tip.setAttribute('role','tooltip');tip.hidden=true;doc.body.append(tip);
     let active=null,hovering=false,leaveTimer=null;
+    let dayDialog=null;
+    const mobile=()=>win.matchMedia?.('(max-width: 900px)').matches;
+    function openDay(button){
+      if(!button)return;
+      hide();
+      if(!dayDialog){
+        dayDialog=doc.createElement('dialog');
+        dayDialog.className='mobile-day-summary';
+        dayDialog.setAttribute('aria-labelledby','mobile-day-summary-title');
+        dayDialog.innerHTML='<button type="button" class="mobile-day-summary-close" aria-label="Cerrar detalle">×</button><svg class="mobile-day-summary-figure" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="9" y="15" width="39" height="42" rx="7" fill="#e4ece6"/><rect x="17" y="9" width="38" height="42" rx="7" fill="#fffdf8" stroke="#729182" stroke-width="1.5"/><path d="M26 6v8M45 6v8M18 22h36M26 31h6m7 0h6M26 39h6m7 0h6" stroke="#729182" stroke-width="2" stroke-linecap="round"/></svg><h2 id="mobile-day-summary-title"></h2><p class="mobile-day-summary-copy"></p><button type="button" class="mobile-day-summary-done">Entendido</button>';
+        doc.body.append(dayDialog);
+        dayDialog.querySelector('.mobile-day-summary-close').onclick=()=>dayDialog.close();
+        dayDialog.querySelector('.mobile-day-summary-done').onclick=()=>dayDialog.close();
+        dayDialog.addEventListener('click',event=>{
+          const r=dayDialog.getBoundingClientRect();
+          if(event.target===dayDialog&&(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom))dayDialog.close();
+        });
+      }
+      const text=button.dataset.dayReason||'';
+      const separator=text.indexOf(':');
+      dayDialog.querySelector('h2').textContent=separator<0?'Tu jornada':text.slice(0,separator);
+      dayDialog.querySelector('p').textContent=separator<0?text:text.slice(separator+1).trim();
+      dayDialog.showModal();
+    }
     function hide(){if(leaveTimer)win.clearTimeout(leaveTimer);leaveTimer=null;if(active)active.removeAttribute('aria-describedby');active=null;tip.hidden=true;}
     function show(button){
+      if(mobile())return;
       if(!button)return;
       if(leaveTimer)win.clearTimeout(leaveTimer);leaveTimer=null;
       if(active&&active!==button)active.removeAttribute('aria-describedby');
@@ -43,7 +68,7 @@
     tip.addEventListener('pointerleave',()=>{if(!hovering&&doc.activeElement!==active)hide();});
     container.addEventListener('focusin',event=>show(target(event)));
     container.addEventListener('focusout',()=>hide());
-    container.addEventListener('click',event=>show(target(event)));
+    container.addEventListener('click',event=>mobile()?openDay(target(event)):show(target(event)));
     doc.addEventListener('pointerdown',event=>{if(!container.contains(event.target)&&!tip.contains(event.target))hide();});
     doc.addEventListener('keydown',event=>{if(event.key==='Escape')hide();});
     container.addEventListener('scroll',hide);

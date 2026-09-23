@@ -31,9 +31,11 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=33">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=1">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=12">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-announcements.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=3">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-jornada.css?v=5">
 </head>
 <body>
 
@@ -292,9 +294,6 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
               <span class="review-notification-badge" data-review-notification-badge hidden>0</span>
             </button>
-            <button id="mobile-home-logout" type="button" aria-label="Cerrar sesión" title="Cerrar sesión">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>
-            </button>
           </div>
           <div class="mobile-portal-person">
             <button class="mobile-profile-photo" id="mobile-profile-link" type="button" aria-label="Abrir Mi perfil">
@@ -306,6 +305,9 @@
               <span><b id="mobile-home-role">Colaborador</b><i aria-hidden="true"></i><small id="mobile-home-dni">DNI —</small></span>
             </div>
           </div>
+          <button id="mobile-home-logout" type="button" aria-label="Cerrar sesión" title="Cerrar sesión">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>
+          </button>
         </header>
 
         <div class="mobile-portal-sheet">
@@ -316,31 +318,31 @@
           </div>
           <nav class="mobile-quick-grid" aria-label="Accesos rápidos">
             <button type="button" data-mobile-action="asistencia">
-              <img class="card-deco-3d" src="images/dashboard/marcar-3d.webp" alt="" aria-hidden="true">
+              <img class="mobile-access-figure" src="images/dashboard/access-calendar.svg" width="56" height="56" alt="" aria-hidden="true">
 
               <span><b>Mi asistencia</b><small>Historial y calendario</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="marcar" id="mobile-action-mark">
-              <img class="card-deco-3d" src="images/dashboard/asistencia-3d.webp" alt="" aria-hidden="true">
+              <img class="mobile-access-figure" src="images/dashboard/access-attendance.svg" width="56" height="56" alt="" aria-hidden="true">
 
               <span><b id="mobile-action-mark-title">Asistencia registrada</b><small id="mobile-action-mark-note">Marcado - 10:08 a. m.</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="perfil">
-              <img class="card-deco-3d" src="images/dashboard/perfil-3d.webp" alt="" aria-hidden="true">
+              <img class="mobile-access-figure" src="images/dashboard/access-profile.svg" width="56" height="56" alt="" aria-hidden="true">
 
               <span><b>Mi perfil</b><small>Datos personales</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="jornada">
-              <img class="card-deco-3d" src="images/dashboard/jornada-3d.webp" alt="" aria-hidden="true">
+              <img class="mobile-access-figure" src="images/dashboard/access-day.svg" width="56" height="56" alt="" aria-hidden="true">
 
               <span><b>Jornada de hoy</b><small>Horario y estado</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="equipo" id="mobile-action-team" hidden>
-              <svg class="card-deco-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.5-3.6 2.5-5 6-5s5.5 1.4 6 5M15 15c3.6 0 5.5 1.4 6 4"/></svg>
+              <img class="mobile-access-figure" src="images/dashboard/access-team.svg" width="56" height="56" alt="" aria-hidden="true">
 
               <span><b>Mi equipo</b><small>Personas de mi área</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
@@ -359,7 +361,7 @@
             <header class="mcv2-head">
               <div class="mcv2-head-left">
                 <span class="mcv2-head-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                  <svg viewBox="0 0 48 48" fill="none"><rect x="5" y="12" width="27" height="31" rx="5" fill="#e6ece7" transform="rotate(-8 5 12)"/><rect x="12" y="6" width="27" height="33" rx="5" fill="#fffdf9" stroke="#718c80" stroke-width="1.5"/><path d="M19 4v6M32 4v6M13 15h25" stroke="#718c80" stroke-width="1.5" stroke-linecap="round"/><path d="M19 22h12M19 27h7" stroke="#c4d2c8" stroke-width="2" stroke-linecap="round"/><circle cx="35" cy="35" r="9" fill="#407961" stroke="#fffdf9" stroke-width="2"/><path d="m31 35 3 3 5-6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <div>
                   <small class="mcv2-eyebrow">MI JORNADA</small>
@@ -823,6 +825,7 @@
             <button type="button" data-admin-section="contratos"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></span><span class="admin-overview-module-copy"><b>Contratos</b><small id="admin-overview-contract-copy">Metas, avance y alertas</small></span><span class="admin-overview-module-value" id="admin-overview-contract-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-admin-section="roles" id="admin-roles-module" hidden><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v5M6 21v-4a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v4M5 8h14v4H5z"/></svg></span><span class="admin-overview-module-copy"><b>Roles y equipos</b><small id="admin-overview-roles-copy">Líderes y co-líderes técnicos</small></span><span class="admin-overview-module-value" id="admin-overview-roles-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-admin-section="marcado" id="admin-device-module"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2"/></svg></span><span class="admin-overview-module-copy"><b>Marcado propio</b><small id="admin-overview-access-copy">Portal, PIN y geocerca</small></span><span class="admin-overview-module-value" id="admin-overview-access-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" id="admin-pausas-module"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M9 17h6"/></svg></span><span class="admin-overview-module-copy"><b>Pausas activas</b><small id="admin-overview-pausas-copy">Monitoreo y bienestar del equipo</small></span><span class="admin-overview-module-value" id="admin-overview-pausas-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
           </div>
         </section>
       </div>
@@ -831,7 +834,7 @@
         <header class="admin-control-head">
           <span><h2>Control diario</h2><p>Prioriza las jornadas que necesitan atención antes de cerrar el día.</p></span>
           <div class="admin-control-kpis" id="admin-control-kpis" aria-live="polite"></div>
-          <div class="admin-control-actions"><label>Fecha<input type="date" id="admin-control-date"></label><button type="button" id="admin-control-today">Hoy</button><button type="button" class="admin-primary-action" id="admin-control-export">Exportar CSV</button></div>
+          <div class="admin-control-actions"><label>Fecha<input type="date" id="admin-control-date"></label><button type="button" id="admin-control-today">Hoy</button><button type="button" class="admin-primary-action" id="admin-control-export">Exportar CSV</button><button type="button" class="admin-secondary-action admin-pausas-btn" id="admin-pausas-open-btn" title="Monitoreo y reseteo de pausas activas"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px; vertical-align:-2px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M9 17h6"/></svg>Pausas activas</button></div>
         </header>
         <div class="admin-control-filters">
           <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-control-search" placeholder="Buscar colaborador…"></label>
@@ -1269,29 +1272,32 @@
     <!-- Pausa Activa (Bienestar) -->
     <figure class="rail-pausa-activa" aria-labelledby="rail-pausa-title">
       <figcaption>
-        <span><small>BIENESTAR Y SALUD</small><b id="rail-pausa-title">Pausa activa</b></span>
+        <span><b id="rail-pausa-title">Tu bienestar</b></span>
       </figcaption>
-      <button type="button" class="rail-pausa-card" id="rail-pausa-open" aria-label="Iniciar pausa activa">
-        <span class="rail-pausa-icon-wrap">
-          <img src="assets/pausa-activa/d7974.svg" alt="" aria-hidden="true">
+      <button type="button" class="rail-pausa-card" id="rail-pausa-open" aria-label="Ver pausas activas" aria-haspopup="dialog" aria-controls="pausa-activa-container">
+        <span class="rail-pausa-top">
+          <span class="rail-pausa-duration"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>10 o 20 min</span>
+          <span class="rail-pausa-mark" aria-hidden="true"><i></i><i></i></span>
         </span>
         <span class="rail-pausa-info">
           <b>Pausas activas</b>
-          <span>Sesiones de ergonomía y descanso</span>
+          <span>Muévete. Respira. Continúa.</span>
         </span>
-        <span class="rail-pausa-arrow">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        <span class="rail-pausa-figure" aria-hidden="true"></span>
+        <span class="rail-pausa-footer">
+          <span>Elegir mi pausa</span>
+          <span class="rail-pausa-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
         </span>
       </button>
     </figure>
 
     <figure class="rail-announcement" aria-labelledby="rail-announcement-title">
       <figcaption>
-        <span><small>COMUNICADOS</small><b id="rail-announcement-title">Reportes consolidados</b></span>
-        <i aria-hidden="true"></i>
+        <b>Comunicados</b>
+        <svg class="rail-announcement-heading-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
       </figcaption>
       <div class="rail-announcement-carousel" id="rail-announcement-carousel" role="region" aria-roledescription="carrusel" aria-label="Carrusel de comunicados KJA">
-        <button class="rail-announcement-media" id="rail-announcement-open" type="button" aria-haspopup="dialog" aria-controls="announcement-viewer">
+        <button class="rail-announcement-media" id="rail-announcement-open" type="button" aria-label="Ampliar comunicado" aria-describedby="rail-announcement-title" aria-haspopup="dialog" aria-controls="announcement-viewer">
           <img id="rail-announcement-image" src="images/dashboard/comunicado-reportes.webp" alt="Comunicado KJA sobre el seguimiento de comparticiones y reportes consolidados en Excel" loading="eager">
           <div class="rail-announcement-fallback" id="rail-announcement-fallback" hidden>
             <img src="images/logo/logo.webp" alt="" aria-hidden="true">
@@ -1299,9 +1305,12 @@
             <p id="rail-announcement-fallback-copy">La Dirección generará reportes consolidados en Excel para dar seguimiento a las comparticiones.</p>
             <small>Consulta los comunicados del panel.</small>
           </div>
-          <span class="rail-announcement-zoom"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4M10.5 8v5M8 10.5h5"/></svg>Ver comunicado</span>
+          <span class="rail-announcement-zoom">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+          </span>
         </button>
         <div class="rail-announcement-controls" role="group" aria-label="Navegación de comunicados">
+          <b class="rail-announcement-caption" id="rail-announcement-title">Reportes consolidados</b>
           <button class="rail-announcement-nav" id="rail-announcement-prev" type="button" aria-label="Comunicado anterior" title="Comunicado anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
           <div class="rail-announcement-dots" id="rail-announcement-dots" role="tablist" aria-label="Seleccionar comunicado"></div>
           <span class="rail-announcement-status" id="rail-announcement-status" aria-live="polite">1 de 2</span>
@@ -1316,6 +1325,95 @@
 <div class="pausa-modal-overlay" id="pausa-activa-overlay" hidden>
   <div class="kja-announcement-backdrop" id="pausa-activa-backdrop"></div>
   <div id="pausa-activa-container" role="dialog" aria-modal="true" aria-labelledby="pausa-activa-title"></div>
+</div>
+
+<!-- Modal de Monitoreo Administrativo de Pausas Activas -->
+<div class="pausa-modal-overlay" id="admin-pausas-modal" hidden>
+  <div class="kja-announcement-backdrop" id="admin-pausas-backdrop"></div>
+  <div class="pausa-modal-dialog admin-pausas-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-pausas-title">
+    <div class="admin-pausas-header">
+      <div class="admin-pausas-title-group">
+        <div class="pausa-header-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 7v5l3 2"/>
+            <path d="M9 17h6"/>
+          </svg>
+        </div>
+        <div>
+          <h2 id="admin-pausas-title">Monitoreo de Pausas Activas</h2>
+          <p class="admin-pausas-subtitle">Control de ergonomía y bienestar del personal en tiempo real</p>
+        </div>
+      </div>
+      <button type="button" class="pausa-close-btn" id="admin-pausas-close-btn" aria-label="Cerrar ventana">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- KPIs rápidos -->
+    <div class="admin-pausas-kpi-bar">
+      <div class="admin-pausas-kpi">
+        <span class="kpi-val" id="admin-pausas-kpi-total">0</span>
+        <span class="kpi-lbl">Colaboradores</span>
+      </div>
+      <div class="admin-pausas-kpi">
+        <span class="kpi-val" id="admin-pausas-kpi-started" style="color:var(--pausa-terracotta);">0</span>
+        <span class="kpi-lbl">Con 1 pausa</span>
+      </div>
+      <div class="admin-pausas-kpi">
+        <span class="kpi-val" id="admin-pausas-kpi-done" style="color:var(--pausa-sage);">0</span>
+        <span class="kpi-lbl">2 de 2 listas ✓</span>
+      </div>
+      <div class="admin-pausas-kpi">
+        <span class="kpi-val" id="admin-pausas-kpi-none" style="color:var(--pausa-hint);">0</span>
+        <span class="kpi-lbl">Sin pausas hoy</span>
+      </div>
+    </div>
+
+    <!-- Barra de herramientas -->
+    <div class="admin-pausas-toolbar">
+      <div class="admin-pausas-search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" id="admin-pausas-search" placeholder="Buscar colaborador o área…" aria-label="Buscar colaborador">
+      </div>
+      <div class="admin-pausas-actions">
+        <button type="button" class="admin-pausas-btn-refresh" id="admin-pausas-refresh-btn" title="Actualizar datos">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>
+          Actualizar
+        </button>
+        <button type="button" class="admin-pausas-btn-reset-all" id="admin-pausas-reset-all-btn" title="Resetear pausas de todos los colaboradores para hoy">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Resetear todas
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabla de colaboradores -->
+    <div class="admin-pausas-table-wrap">
+      <table class="admin-pausas-table" aria-label="Lista de pausas activas por colaborador">
+        <thead>
+          <tr>
+            <th>Colaborador</th>
+            <th>Área</th>
+            <th>Estado de hoy</th>
+            <th>Pausas realizadas</th>
+            <th style="text-align:right;">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="admin-pausas-table-body">
+          <tr>
+            <td colspan="5" style="text-align:center; padding:32px; color:var(--pausa-hint);">Cargando información de pausas activas…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="admin-pausas-footer">
+      <span class="admin-pausas-info-note">
+        💡 <strong>Gestión de pausas:</strong> Puedes resetear individualmente si un colaborador tuvo una interrupción imprevista y necesita realizar su pausa nuevamente hoy.
+      </span>
+    </div>
+  </div>
 </div>
 
 <div class="modal announcement-viewer" id="announcement-viewer" hidden>
@@ -1511,25 +1609,42 @@
 <div class="modal admin-entry-modal" id="admin-entry-modal" hidden>
   <button class="modal-backdrop" type="button" data-close-admin-entry aria-label="Cerrar registro" tabindex="-1"></button>
   <section class="admin-entry-dialog" id="admin-entry-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-entry-title" aria-describedby="admin-entry-copy">
-    <header><h2 id="admin-entry-title">Registrar entrada por colaborador</h2><button type="button" class="modal-close" data-close-admin-entry aria-label="Cerrar registro">×</button></header>
-    <p id="admin-entry-copy">Adjunta la evidencia recibida y registra la hora real de entrada. Quedará constancia de que Dirección realizó el registro.</p>
+    <header><span class="admin-entry-heading"><h2 id="admin-entry-title">Registrar entrada</h2><p id="admin-entry-copy">Registra la llegada de un colaborador con la evidencia que recibiste.</p></span><button type="button" class="modal-close" data-close-admin-entry aria-label="Cerrar registro">×</button></header>
     <form id="admin-entry-form">
       <fieldset id="admin-entry-fields">
         <legend class="sr-only">Datos de la entrada</legend>
+        <div class="admin-entry-layout">
+        <section class="admin-entry-details" aria-labelledby="admin-entry-details-title">
+        <h3 id="admin-entry-details-title">Datos de la jornada</h3>
         <label>Colaborador<select id="admin-entry-person" required><option value="">Selecciona al colaborador</option></select></label>
         <div class="admin-entry-row">
           <label>Fecha<input type="date" id="admin-entry-date" min="2020-01-01" required></label>
           <label>Hora real de entrada (Lima)<input type="time" id="admin-entry-time" required></label>
         </div>
         <label>Modalidad de ese día<select id="admin-entry-mode" required><option value="">Selecciona la modalidad</option><option value="presencial">Presencial</option><option value="virtual">Virtual</option></select></label>
-        <p class="admin-entry-help">Presente o tardanza se calcula con la hora indicada. La modalidad se aplica solo a esta fecha. En presencial, Dirección valida la evidencia recibida; no se usa la ubicación de este equipo.</p>
-        <label>Evidencia recibida<input type="file" id="admin-entry-file" accept="image/jpeg,image/png,image/webp" aria-describedby="admin-entry-file-help"></label>
-        <small id="admin-entry-file-help">Una foto o captura JPG, PNG o WebP. Se optimiza antes de subir y se guarda de forma privada.</small>
-        <img id="admin-entry-preview" alt="Vista previa de la evidencia recibida" hidden>
-        <label>Motivo del registro por Dirección<textarea id="admin-entry-note" rows="3" minlength="5" maxlength="700" required placeholder="Ej. Sin celular; recibí la foto de llegada por WhatsApp."></textarea></label>
+        <p class="admin-entry-help">La hora determina presente o tardanza. La modalidad aplica solo a esta fecha.</p>
+        <label>Motivo del registro<textarea id="admin-entry-note" rows="3" minlength="5" maxlength="700" required placeholder="Ej. Sin celular; recibí su foto de llegada por WhatsApp."></textarea></label>
+        </section>
+        <section class="admin-entry-evidence" aria-labelledby="admin-entry-evidence-title">
+          <h3 id="admin-entry-evidence-title">Evidencia recibida</h3>
+          <p class="admin-entry-help">Adjunta la foto de llegada o la captura de la reunión.</p>
+          <label class="admin-entry-picker" id="admin-entry-picker">
+            <input type="file" id="admin-entry-file" accept="image/jpeg,image/png,image/webp" aria-label="Seleccionar o cambiar evidencia" aria-describedby="admin-entry-file-help">
+            <span class="admin-entry-empty" id="admin-entry-empty">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg>
+              <b>Seleccionar imagen</b><span>JPG, PNG o WebP · hasta 25 MB</span>
+            </span>
+            <img id="admin-entry-preview" alt="Vista previa de la evidencia recibida" hidden>
+            <span class="admin-entry-image-action" id="admin-entry-image-action" hidden>Cambiar imagen</span>
+          </label>
+          <p id="admin-entry-file-status" class="admin-entry-file-status" role="status" aria-live="polite"></p>
+          <small id="admin-entry-file-help">La imagen se optimiza y se guarda de forma privada.</small>
+          <p class="admin-entry-audit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></svg><span>Dirección valida la evidencia. El registro conservará tu autoría y la hora de carga.</span></p>
+        </section>
+        </div>
       </fieldset>
       <p id="admin-entry-message" role="status" aria-live="polite"></p>
-      <footer><button type="button" class="admin-evidence-cancel" data-close-admin-entry>Cancelar</button><button type="submit" class="admin-evidence-submit" id="admin-entry-submit" disabled>Registrar entrada</button></footer>
+      <footer><span class="admin-entry-footer-note">Registro realizado por Dirección</span><button type="button" class="admin-evidence-cancel" data-close-admin-entry>Cancelar</button><button type="submit" class="admin-evidence-submit" id="admin-entry-submit" disabled>Registrar entrada</button></footer>
     </form>
   </section>
 </div>
@@ -1883,10 +1998,10 @@
 <script src="assets/js/dashboard-close-model.js?v=7"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
 <script src="assets/js/dashboard-announcement-modal.js?v=4"></script>
-<script src="assets/js/dashboard-month-progress.js?v=1"></script>
+<script src="assets/js/dashboard-month-progress.js?v=2"></script>
 <script src="assets/js/attendance-calendar-model.js?v=1"></script>
 <script src="assets/js/dashboard.js?v=195"></script>
-<script src="assets/js/dashboard-admin-entrada.js?v=2"></script>
+<script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=2"></script>
@@ -1911,6 +2026,6 @@
 <script src="assets/js/intern-report-excel.js?v=5"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=6"></script>
-<script src="assets/js/dashboard-pausa-activa.js?v=2"></script>
+<script src="assets/js/dashboard-pausa-activa.js?v=12"></script>
 </body>
 </html>
