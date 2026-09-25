@@ -1017,45 +1017,131 @@
 }
 
 /* Stats KPIs: warm flat cards */
+/* Stats KPIs: distinctive harmonic colors for each metric */
+#portal:not(.admin-wide) #view-asistencia .attendance-topbar {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  margin: 0 0 20px !important;
+}
 #portal:not(.admin-wide) #view-asistencia .attendance-stats {
-  gap: 10px;
-  margin-bottom: 18px;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  margin: 0 !important;
+  min-width: 0 !important;
 }
 #portal:not(.admin-wide) #view-asistencia .att-stat {
-  border: 1px solid #e6dfd8 !important;
-  border-radius: 12px !important;
-  background: #faf9f5 !important;
-  box-shadow: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+  height: 82px !important;
+  padding: 12px 10px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 10px rgba(50, 40, 30, .02) !important;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+}
+#portal:not(.admin-wide) #view-asistencia .att-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(50, 40, 30, .06) !important;
 }
 #portal:not(.admin-wide) #view-asistencia .att-stat small {
-  color: #6c6a64;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: .03em;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .06em !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+  opacity: .85 !important;
 }
 #portal:not(.admin-wide) #view-asistencia .att-stat b {
-  color: #252523;
-  font-family: var(--user-display);
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--user-display), 'Fraunces', serif !important;
+  font-weight: 400 !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -.02em !important;
+  margin: 0 !important;
 }
+
+/* 1. Presentes: Esmeralda fresco sutil y translúcido */
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-p,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="p"] {
+  background: linear-gradient(145deg, rgba(238, 249, 242, 0.65), rgba(228, 246, 235, 0.4)) !important;
+  border: 1px solid rgba(62, 160, 114, 0.22) !important;
+}
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-p small,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="p"] small { color: #246347 !important; }
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-p b,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="p"] b { color: #1a4f38 !important; }
+
+/* 2. Tardanzas: Ámbar miel suave y translúcido */
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-t,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="t"] {
+  background: linear-gradient(145deg, rgba(254, 248, 237, 0.65), rgba(252, 242, 224, 0.4)) !important;
+  border: 1px solid rgba(220, 142, 34, 0.22) !important;
+}
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-t small,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="t"] small { color: #875e17 !important; }
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-t b,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="t"] b { color: #764e0a !important; }
+
+/* 3. Justificados: Azul zafiro sereno y translúcido */
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-j,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="j"] {
+  background: linear-gradient(145deg, rgba(240, 246, 255, 0.65), rgba(230, 240, 255, 0.4)) !important;
+  border: 1px solid rgba(75, 137, 235, 0.22) !important;
+}
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-j small,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="j"] small { color: #265487 !important; }
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-j b,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="j"] b { color: #1b4472 !important; }
+
+/* 4. No gestionó: Carmesí coral suave y translúcido */
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-ng,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="ng"] {
+  background: linear-gradient(145deg, rgba(254, 242, 242, 0.65), rgba(253, 233, 235, 0.4)) !important;
+  border: 1px solid rgba(225, 75, 95, 0.22) !important;
+}
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-ng small,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="ng"] small { color: #942b3b !important; }
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-ng b,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="ng"] b { color: #841b2b !important; }
+
+/* 5. Incompletas: Púrpura ciruela suave y translúcido */
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-incomplete,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="incomplete"] {
+  background: linear-gradient(145deg, rgba(247, 242, 255, 0.65), rgba(240, 232, 254, 0.4)) !important;
+  border: 1px solid rgba(155, 68, 238, 0.22) !important;
+}
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-incomplete small,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="incomplete"] small { color: #6d3298 !important; }
+#portal:not(.admin-wide) #view-asistencia .att-stat.stat-incomplete b,
+#portal:not(.admin-wide) #view-asistencia .att-stat[data-stat="incomplete"] b { color: #592082 !important; }
 
 /* Calendar card: warm canvas surface */
 #portal:not(.admin-wide) #view-asistencia .attendance-calendar {
   border: 1px solid #e6dfd8 !important;
   border-radius: 16px !important;
-  background: #faf9f5 !important;
-  box-shadow: none !important;
+  background: #fffdf9 !important;
+  box-shadow: 0 8px 24px rgba(54, 48, 39, .04) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 #portal:not(.admin-wide) #view-asistencia .attendance-calendar-head b {
   color: #252523;
   font-family: var(--user-display);
-  font-size: 18px;
-  font-weight: 400;
+  font-size: 19px;
+  font-weight: 500;
   letter-spacing: -.02em;
 }
 #portal:not(.admin-wide) #view-asistencia .attendance-calendar-head small {
@@ -1078,57 +1164,114 @@
 }
 #portal:not(.admin-wide) #view-asistencia .cal-day .cal-day-top b {
   color: #3d3d3a;
+  font-weight: 600;
 }
 #portal:not(.admin-wide) #view-asistencia .cal-day small {
   color: #6c6a64;
 }
-#portal:not(.admin-wide) #view-asistencia .cal-day.p {
-  border-color: #c6e0d0 !important;
-  background: linear-gradient(145deg, #edf6ef, #faf9f5) !important;
+#portal:not(.admin-wide) #view-asistencia .cal-day.p,
+#portal:not(.admin-wide) #view-asistencia .cal-day.shared {
+  border-color: #bde5ce !important;
+  background: linear-gradient(145deg, #eef8f2, #e5f5ec) !important;
+  color: #1e6246 !important;
 }
-#portal:not(.admin-wide) #view-asistencia .cal-day.p small { color: #2e7a55; }
-#portal:not(.admin-wide) #view-asistencia .cal-day.t {
-  border-color: #e4cfac !important;
-  background: linear-gradient(145deg, #fdf5e8, #faf9f5) !important;
+#portal:not(.admin-wide) #view-asistencia .cal-day.p small,
+#portal:not(.admin-wide) #view-asistencia .cal-day.shared small { color: #1e6246 !important; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.p .cal-day-top i,
+#portal:not(.admin-wide) #view-asistencia .cal-day.shared .cal-day-top i { background: #249b67 !important; }
+
+#portal:not(.admin-wide) #view-asistencia .cal-day.t,
+#portal:not(.admin-wide) #view-asistencia .cal-day.sharing-pending {
+  border-color: #f1d8a6 !important;
+  background: linear-gradient(145deg, #fdf7ec, #faeed7) !important;
+  color: #875c13 !important;
 }
-#portal:not(.admin-wide) #view-asistencia .cal-day.t small { color: #8a6318; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.t small,
+#portal:not(.admin-wide) #view-asistencia .cal-day.sharing-pending small { color: #875c13 !important; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.t .cal-day-top i,
+#portal:not(.admin-wide) #view-asistencia .cal-day.sharing-pending .cal-day-top i { background: #d97706 !important; }
+
 #portal:not(.admin-wide) #view-asistencia .cal-day.j {
-  border-color: #bdd3ec !important;
-  background: linear-gradient(145deg, #ecf3fb, #faf9f5) !important;
+  border-color: #bed7f4 !important;
+  background: linear-gradient(145deg, #eff5fc, #e3eefb) !important;
+  color: #265389 !important;
 }
-#portal:not(.admin-wide) #view-asistencia .cal-day.j small { color: #3a6da0; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.j small { color: #265389 !important; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.j .cal-day-top i { background: #2563eb !important; }
+
 #portal:not(.admin-wide) #view-asistencia .cal-day.ng {
-  border-color: #e2b5bd !important;
-  background: linear-gradient(145deg, #fcf0f2, #faf9f5) !important;
+  border-color: #f5bfc7 !important;
+  background: linear-gradient(145deg, #fdf1f1, #fae2e5) !important;
+  color: #9b2a3c !important;
 }
-#portal:not(.admin-wide) #view-asistencia .cal-day.ng small { color: #994050; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.ng small { color: #9b2a3c !important; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.ng .cal-day-top i { background: #dc2626 !important; }
+
+#portal:not(.admin-wide) #view-asistencia .cal-day.incomplete {
+  border-color: #dfcaf5 !important;
+  background: linear-gradient(145deg, #f7f1fc, #efe4f9) !important;
+  color: #6c3099 !important;
+}
+#portal:not(.admin-wide) #view-asistencia .cal-day.incomplete small { color: #6c3099 !important; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.incomplete .cal-day-top i { background: #8b5cf6 !important; }
+
+#portal:not(.admin-wide) #view-asistencia .cal-day.missing {
+  border-color: #f6c4bc !important;
+  background: linear-gradient(145deg, #fdf2f0, #fbe3df) !important;
+  color: #9e352a !important;
+}
+#portal:not(.admin-wide) #view-asistencia .cal-day.missing small { color: #9e352a !important; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.missing .cal-day-top i { background: #d74432 !important; }
+
 #portal:not(.admin-wide) #view-asistencia .cal-day.off {
-  background: #f5f0e8 !important;
-  border-color: #e0d8ce !important;
+  background: #f7f7f6 !important;
+  border-color: #ebe7e1 !important;
+  color: #88847e !important;
 }
-#portal:not(.admin-wide) #view-asistencia .cal-day.off small { color: #9a9088; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.off small { color: #88847e !important; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.off .cal-day-top i { background: #b7b4ad !important; }
+
+#portal:not(.admin-wide) #view-asistencia .cal-day.future {
+  background: #faf9f6 !important;
+  border-color: #eeeae3 !important;
+  color: #837c73 !important;
+}
+#portal:not(.admin-wide) #view-asistencia .cal-day.future small { color: #837c73 !important; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.future .cal-day-top i { background: #cac4bd !important; }
+
 #portal:not(.admin-wide) #view-asistencia .cal-day.today {
-  border-color: #a9583e !important;
-  background: #a9583e !important;
-  box-shadow: 0 6px 16px rgba(169, 88, 62, .22) !important;
+  border: 2px solid #8d5038 !important;
+  box-shadow: 0 0 0 3px rgba(141, 80, 56, .16), 0 4px 14px rgba(84, 52, 38, .12) !important;
 }
-#portal:not(.admin-wide) #view-asistencia .cal-day.today .cal-day-top b,
-#portal:not(.admin-wide) #view-asistencia .cal-day.today small { color: #fff !important; }
+#portal:not(.admin-wide) #view-asistencia .cal-day.today .cal-day-top b { color: #3d3d3a !important; font-weight: 700; }
 #portal:not(.admin-wide) #view-asistencia .cal-day.today .cal-day-top em {
-  color: #a9583e;
-  background: #fff;
+  color: #fff !important;
+  background: #8d5038 !important;
+  font-weight: 700 !important;
+  padding: 2px 6px !important;
+  border-radius: 999px !important;
+  font-size: 8px !important;
+  letter-spacing: .04em !important;
 }
 #portal:not(.admin-wide) #view-asistencia button.cal-day:hover {
   border-color: #b5a797 !important;
   box-shadow: 0 4px 12px rgba(88, 71, 53, .08) !important;
 }
 #portal:not(.admin-wide) #view-asistencia .calendar-legend {
-  border-color: #e6dfd8;
+  border-top: 1px solid #e6dfd8;
   color: #6c6a64;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 11px;
 }
-#portal:not(.admin-wide) #view-asistencia .calendar-legend .incomplete {
-  background: #d4956e;
-}
+#portal:not(.admin-wide) #view-asistencia .calendar-legend i.p { background: #249b67 !important; }
+#portal:not(.admin-wide) #view-asistencia .calendar-legend i.t { background: #d97706 !important; }
+#portal:not(.admin-wide) #view-asistencia .calendar-legend i.j { background: #2563eb !important; }
+#portal:not(.admin-wide) #view-asistencia .calendar-legend i.ng { background: #dc2626 !important; }
+#portal:not(.admin-wide) #view-asistencia .calendar-legend i.incomplete { background: #8b5cf6 !important; }
+#portal:not(.admin-wide) #view-asistencia .calendar-legend i.missing { background: #d74432 !important; }
+#portal:not(.admin-wide) #view-asistencia .calendar-legend i.off { background: #a19483 !important; }
 
 /* Request center: warm editorial sidebar */
 #portal:not(.admin-wide) #view-asistencia .attendance-request-center {
