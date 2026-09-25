@@ -1311,7 +1311,48 @@ function renderDashboardMonthProgress(h){
   });
 }
 
-let selectedAttendanceDate='',selectedAttendanceRequest=0;
+let selectedAttendanceDate='',selectedAttendanceRequest=0,attendanceMobileTeamMode=false,attendanceMobileSelectionSnapshot=null,attendanceDesktopTeamMode=false,attendanceDesktopSelectedTeammate='';
+const attendanceMobileQuery=window.matchMedia('(max-width:650px)');
+const attendanceDesktopQuery=window.matchMedia('(min-width:1051px)');
+function closeAttendanceMobilePanel(){
+  document.querySelectorAll('#view-asistencia .is-mobile-open, #view-asistencia .is-desktop-open').forEach(panel=>panel.classList.remove('is-mobile-open','is-desktop-open'));
+  $('attendance-mobile-backdrop').hidden=true;
+}
+function openAttendanceMobilePanel(panel){
+  if(!attendanceMobileQuery.matches)return;
+  closeAttendanceMobilePanel();panel.classList.add('is-mobile-open');$('attendance-mobile-backdrop').hidden=false;
+  requestAnimationFrame(()=>panel.querySelector('.attendance-mobile-modal-close')?.focus({preventScroll:true}));
+}
+function syncAttendanceMobileMode(){
+  const mobile=attendanceMobileQuery.matches,active=mobile&&attendanceMobileTeamMode,view=$('view-asistencia'),toggle=$('attendance-mobile-calendar-toggle');
+  if(!mobile){
+    if(attendanceMobileSelectionSnapshot){selectedAttendanceTeammates.clear();attendanceMobileSelectionSnapshot.forEach(id=>selectedAttendanceTeammates.add(id));attendanceMobileSelectionSnapshot=null}
+    attendanceMobileTeamMode=false;closeAttendanceMobilePanel();renderAttendanceTeammates();
+  }
+  view.classList.toggle('attendance-mobile-team-mode',active);
+  toggle.setAttribute('aria-checked',String(active));toggle.querySelector('span').textContent=active?'Calendario equipo':'Mi calendario';
+  renderAttendanceTeammateCalendar();
+}
+function renderAttendanceDesktopTeam(){
+  const panel=$('attendance-desktop-team-panel'),list=$('attendance-desktop-team-list');
+  if(!panel||!list)return;
+  $('attendance-desktop-team-title').textContent=`Equipo ${attendanceTeamArea()}`;
+  if(!attendanceTeammates.length){list.innerHTML='<p class="attendance-mobile-team-empty">No hay integrantes disponibles.</p>';return}
+  if(!attendanceTeammates.some(person=>String(person.id)===attendanceDesktopSelectedTeammate))attendanceDesktopSelectedTeammate=String(attendanceTeammates[0].id);
+  list.innerHTML=attendanceTeammates.map(person=>{
+    const selected=String(person.id)===attendanceDesktopSelectedTeammate,days=teammateWorkingDays(person);
+    const week=selected?`<div class="attendance-desktop-team-week">${days.map(day=>{const schedule=teammateSchedule(person,day);return `<span><b>${esc(attendanceWeekdays[day].slice(0,2))}</b>${esc(fmtTime(schedule.start))}<br>${esc(fmtTime(schedule.end))}</span>`}).join('')}</div>`:'';
+    return `<article class="attendance-desktop-team-person ${selected?'is-selected':''}"><button type="button" data-desktop-teammate="${esc(person.id)}" aria-pressed="${selected}">${attendanceTeammateAvatar(person)}<span><b>${esc(person.nombre)}</b><small>${days.length} ${days.length===1?'día':'días'} · ${esc(person.area)}</small></span><i aria-hidden="true">${selected?'−':'+'}</i></button>${week}</article>`;
+  }).join('');
+}
+function syncAttendanceDesktopMode(){
+  const active=attendanceDesktopQuery.matches&&attendanceDesktopTeamMode,toggle=$('attendance-desktop-calendar-toggle');
+  if(!active)closeAttendanceMobilePanel();
+  $('view-asistencia').classList.toggle('attendance-desktop-team-mode',active);
+  toggle.setAttribute('aria-checked',String(active));
+  if(active)renderAttendanceDesktopTeam();
+  renderAttendanceTeammateCalendar();
+}
 async function selectAttendanceDate(date,{focus=false}={}){
   const day=(APP.historial?.dias||[]).find(item=>item.fecha===date);
   if(!day)return;
@@ -1320,16 +1361,19 @@ async function selectAttendanceDate(date,{focus=false}={}){
   const panel=$('attendance-selected-day'),content=$('attendance-selected-content');
   panel.dataset.tone=view.tone;
   $('attendance-selected-title').textContent=formatAttendanceDayDate(date);
-  const fact=(label,value)=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`;
-  const deadline=day.aplica_comparticiones&&day.compartir_hasta?new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(day.compartir_hasta)):'';
-  content.innerHTML=`<span class="selected-day-status">${esc(view.label)}</span><p class="selected-day-reason">${esc(view.reason)}</p><dl class="selected-day-facts">${day.lab||day.marcado_at||day.salida_at?fact('Entrada',formatAttendanceClock(day.marcado_at))+fact('Salida',formatAttendanceClock(day.salida_at)):''}${deadline?fact('Plazo de Facebook',deadline):''}${day.aplica_comparticiones&&!day.comparticiones_vencidas?fact('Comparticiones',view.sharing):''}</dl><div id="attendance-selected-extra" aria-busy="true"><p>Consultando detalles…</p></div><button type="button" class="selected-day-record" data-selected-record="${esc(date)}">Ver registro y evidencias ↗</button>`;
+  const row=(label,value,{wide=false,id=''}={})=>`<div class="${wide?'is-wide':''}"><dt>${esc(label)}</dt><dd${id?` id="${id}"`:''}>${esc(value||'—')}</dd></div>`;
+  const sharingSummary=day.aplica_comparticiones?(day.comparticiones_completas?'Comparticiones entregadas':view.sharing):'—';
+  content.innerHTML=`<p class="selected-day-reason">${esc(view.reason)}</p><dl class="selected-day-facts selected-day-summary">${row('Entrada',formatAttendanceClock(day.marcado_at))}${row('Salida',formatAttendanceClock(day.salida_at))}${row('Comparticiones',sharingSummary,{wide:true})}${row('Horario','—',{wide:true,id:'attendance-summary-schedule'})}${row('Modalidad','—',{wide:true,id:'attendance-summary-mode'})}${row('Horas registradas','—',{wide:true,id:'attendance-summary-hours'})}</dl><div id="attendance-selected-extra" aria-busy="true"><p>Consultando detalles…</p></div><button type="button" class="selected-day-record" data-selected-record="${esc(date)}">Ver registro y evidencias ↗</button>`;
   if(focus&&window.matchMedia('(max-width:1100px)').matches)panel.focus({preventScroll:false});
   try{
     const {data,error}=await db.rpc('dash_dia_detalle',{p_fecha:date});
     if(request!==selectedAttendanceRequest)return;
     const extra=$('attendance-selected-extra');extra.setAttribute('aria-busy','false');
     if(error||!data?.ok)throw Error('detalle');
-    extra.innerHTML=`<dl class="selected-day-facts">${day.lab?fact('Horario',`${fmtTime(data.hora_entrada)} — ${fmtTime(data.hora_salida)}`)+fact('Modalidad',attendanceModeLabel(data.modalidad)):''}${data.horas!=null?fact('Horas registradas',`${Number(data.horas).toFixed(1)} h`):''}</dl>${data.nota?`<p class="selected-day-note"><b>Observación</b><br>${esc(data.nota)}</p>`:''}${data.solicitud?`<p class="selected-day-note"><b>Solicitud: ${esc(personalRequestLabel(data.solicitud.tipo))}</b><br>${esc(data.solicitud.estado)}${data.solicitud.respuesta?` · ${esc(data.solicitud.respuesta)}`:''}</p>`:''}`;
+    $('attendance-summary-schedule').textContent=day.lab&&data.hora_entrada&&data.hora_salida?`${fmtTime(data.hora_entrada)} — ${fmtTime(data.hora_salida)}`:'—';
+    $('attendance-summary-mode').textContent=day.lab&&data.modalidad?attendanceModeLabel(data.modalidad):'—';
+    $('attendance-summary-hours').textContent=data.horas!=null?`${Number(data.horas).toFixed(1)} h`:'—';
+    extra.innerHTML=`${data.nota?`<p class="selected-day-note"><b>Observación</b><br>${esc(data.nota)}</p>`:''}${data.solicitud?`<p class="selected-day-note"><b>Solicitud: ${esc(personalRequestLabel(data.solicitud.tipo))}</b><br>${esc(data.solicitud.estado)}${data.solicitud.respuesta?` · ${esc(data.solicitud.respuesta)}`:''}</p>`:''}`;
   }catch(error){
     if(request!==selectedAttendanceRequest)return;
     $('attendance-selected-extra').setAttribute('aria-busy','false');
@@ -1339,19 +1383,120 @@ async function selectAttendanceDate(date,{focus=false}={}){
 
 function renderHistory(){
   const h=APP.historial;if(!h)return; const monthLabel=cap(`${monthNames[h.mes-1]} ${h.anio}`);$('month-title').textContent=monthLabel;$('mobile-month-title').textContent=monthLabel;
-  const t=h.totales||{},items=[['Presentes',t.P||0,''],['Tardanzas',t.T||0,''],['Justificados',t.J||0,''],['No gestionó',t.NG||0,''],['Incompletas',t.incompletas||0,'incomplete']];
-  $('attendance-stats').innerHTML=items.map(x=>`<div class="att-stat ${x[2]}"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
-  $('attendance-hours-summary').textContent=`${(Number(h.horas)||0).toFixed(1)} h acumuladas`;
+  const t=h.totales||{},items=[['Presentes',t.P||0,'stat-p','p'],['Tardanzas',t.T||0,'stat-t','t'],['Justificados',t.J||0,'stat-j','j'],['No gestionó',t.NG||0,'stat-ng','ng'],['Incompletas',t.incompletas||0,'stat-incomplete incomplete','incomplete']];
+  $('attendance-stats').innerHTML=items.map(x=>`<div class="att-stat ${x[2]}" data-stat="${x[3]}"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
+  ($('attendance-hours-value')||$('attendance-hours-summary')).textContent=`${(Number(h.horas)||0).toFixed(1)} h`;
   const first=new Date(h.anio,h.mes-1,1).getDay(),offset=(first+6)%7; let html='<span class="cal-day empty"></span>'.repeat(offset);
   for(const d of h.dias||[]){
     const view=KJAAttendanceCalendar.present(d),today=d.fecha===h.hoy;
-    html+=`<button type="button" class="cal-day ${view.tone} ${today?'today':''}" data-history-date="${esc(d.fecha)}" aria-controls="attendance-selected-day" aria-pressed="false" aria-label="${esc(`${d.d} de ${monthNames[h.mes-1]}: ${view.label}${today?', hoy':''}. Ver detalles.`)}"><span class="cal-day-top"><b>${d.d}</b>${today?'<em>Hoy</em>':'<i aria-hidden="true"></i>'}</span><small>${esc(view.label)}</small><span class="cal-day-action" aria-hidden="true">Ver detalle ↗</span></button>`;
+    html+=`<button type="button" class="cal-day ${view.tone} ${today?'today':''}" data-history-date="${esc(d.fecha)}" aria-controls="attendance-selected-day" aria-pressed="false" aria-label="${esc(`${d.d} de ${monthNames[h.mes-1]}: ${view.label}${today?', hoy':''}. Ver detalles.`)}"><span class="cal-day-top"><b>${d.d}</b><span>${today?'<em>Hoy</em>':''}<i aria-hidden="true"></i></span></span><small>${esc(view.label)}</small><span class="cal-day-action" aria-hidden="true">Ver detalle ↗</span></button>`;
   }
+  const trailing=(7-((offset+(h.dias||[]).length)%7))%7; if(trailing>0) html+='<span class="cal-day empty trailing"></span>'.repeat(trailing);
   $('calendar-grid').innerHTML=html;
+  renderAttendanceTeammateCalendar();
   const selection=(h.dias||[]).find(day=>day.fecha===selectedAttendanceDate)||(h.dias||[]).find(day=>day.fecha===h.hoy)||(h.dias||[])[0];
   if(selection)selectAttendanceDate(selection.fecha);
   const currentMonth=h.anio===new Date().getFullYear()&&h.mes===new Date().getMonth()+1;
   $('month-next').disabled=currentMonth;$('mobile-month-next').disabled=currentMonth;
+}
+let attendanceTeammates=[],attendanceTeammatesLoaded=false,attendanceTeammatesLoading=false;
+const selectedAttendanceTeammates=new Set();
+const attendanceWeekdays=['','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+function attendanceTeamArea(){
+  const value=String(APP.inicio?.colaborador?.area||'Ingeniería').trim();
+  return value?value.charAt(0).toLocaleUpperCase('es-PE')+value.slice(1).toLocaleLowerCase('es-PE'):'Ingeniería';
+}
+function attendancePreviewAvatar(index,label){
+  const palettes=[['#c4d9f0','#446d9e'],['#f2d4bd','#a65f4d'],['#cce6dc','#397d67'],['#ded2f0','#76579b'],['#f0dfb8','#9a783b'],['#cbdce6','#456b80']],colors=palettes[index%palettes.length];
+  const hair=['M22 25c2-11 27-13 32 0-7-5-25-5-32 0','M20 28c0-16 34-16 34 0-8-8-26-9-34 0','M21 27c5-15 27-15 32 0-10-5-22-5-32 0'][index%3];
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72"><rect width="72" height="72" rx="36" fill="${colors[0]}"/><circle cx="36" cy="29" r="15" fill="#f6c9a9"/><path d="${hair}" fill="${colors[1]}"/><path d="M14 72c2-17 12-25 22-25s20 8 22 25" fill="${colors[1]}"/><circle cx="31" cy="30" r="1.2" fill="#58483f"/><circle cx="41" cy="30" r="1.2" fill="#58483f"/><path d="M32 37c3 2 5 2 8 0" fill="none" stroke="#b36f63" stroke-width="1.4" stroke-linecap="round"/><text x="58" y="65" text-anchor="middle" fill="white" font-family="Arial" font-size="8" font-weight="700">${label}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+function attendancePreviewTeammates(){
+  const area=attendanceTeamArea(),patterns=[
+    {days:[1,2,3,4,5],start:'08:00',end:'14:00',mode:'virtual'},
+    {days:[1,3,5],start:'09:00',end:'16:00',mode:'presencial'},
+    {days:[2,3,4,5],start:'08:30',end:'15:30',mode:'virtual'},
+    {days:[1,2,4,5],start:'10:00',end:'17:00',mode:'presencial'},
+    {days:[1,2,3,4],start:'07:30',end:'14:30',mode:'virtual'},
+    {days:[2,3,4,5,6],start:'09:30',end:'16:30',mode:'presencial'}
+  ];
+  return patterns.map((pattern,index)=>({id:`preview-${index+1}`,nombre:`Ingeniero ${index+1}`,area,dias_laborables:pattern.days,hora_inicio:pattern.start,hora_fin:pattern.end,horario_semanal:Object.fromEntries(pattern.days.map(day=>[String(day),{ini:pattern.start,fin:pattern.end,mod:pattern.mode}])),foto_url:attendancePreviewAvatar(index,String(index+1)),is_preview:true}));
+}
+function teammateSchedule(person,dow){
+  const day=person.horario_semanal?.[String(dow)]||{};
+  const works=day.mod?day.mod!=='no_gestiona':(person.dias_laborables||[]).map(Number).includes(dow);
+  return works?{start:day.ini||person.hora_inicio,end:day.fin||person.hora_fin,mode:day.mod||'virtual'}:null;
+}
+function teammateWorkingDays(person){
+  return Array.from({length:7},(_,index)=>index+1).filter(day=>teammateSchedule(person,day));
+}
+function attendanceTeammateAvatar(person){
+  const photo=String(person.foto_url||'');
+  return `<span class="attendance-teammate-avatar${photo?' has-photo':''}" aria-hidden="true">${esc(initials(person.nombre))}${photo?`<img data-profile-photo src="${esc(photo)}" alt="" loading="lazy" decoding="async">`:''}</span>`;
+}
+function openAttendanceTeamDay(date){
+  const dow=(new Date(`${date}T12:00:00`).getDay()+6)%7+1,working=attendanceTeammates.map(person=>({person,schedule:teammateSchedule(person,dow)})).filter(item=>item.schedule);
+  $('attendance-mobile-team-day-title').textContent=formatAttendanceDayDate(date);
+  $('attendance-mobile-team-day-copy').textContent=working.length?`${working.length} ${working.length===1?'integrante trabaja':'integrantes trabajan'} este día.`:'No hay integrantes con jornada programada este día.';
+  $('attendance-mobile-team-day-list').innerHTML=working.length?working.map(({person,schedule})=>`<article class="attendance-mobile-team-person">${attendanceTeammateAvatar(person)}<span><b>${esc(person.nombre)}</b><small>${esc(person.area)} · ${esc(attendanceModeLabel(schedule.mode))}</small></span><time>${esc(fmtTime(schedule.start))} — ${esc(fmtTime(schedule.end))}</time></article>`).join(''):'<p class="attendance-mobile-team-empty">Sin jornadas programadas.</p>';
+  const panel=$('attendance-mobile-team-day');
+  if(attendanceMobileQuery.matches)openAttendanceMobilePanel(panel);
+  else if(attendanceDesktopQuery.matches){closeAttendanceMobilePanel();panel.classList.add('is-desktop-open');$('attendance-mobile-backdrop').hidden=false;requestAnimationFrame(()=>panel.querySelector('.attendance-mobile-modal-close')?.focus({preventScroll:true}))}
+}
+function renderAttendanceTeammateCalendar(){
+  document.querySelectorAll('#calendar-grid [data-history-date]').forEach(button=>{
+    button.querySelector('.attendance-day-teammates')?.remove();
+    const mobileTeam=attendanceMobileQuery.matches&&attendanceMobileTeamMode;
+    const desktopTeam=attendanceDesktopQuery.matches&&attendanceDesktopTeamMode;
+    button.classList.toggle('team-mode',mobileTeam||desktopTeam);
+    button.dataset.baseLabel ||= button.getAttribute('aria-label');
+    button.setAttribute('aria-label',button.dataset.baseLabel);
+    if(attendanceMobileQuery.matches&&!mobileTeam)return;
+    const date=button.dataset.historyDate,dow=(new Date(`${date}T12:00:00`).getDay()+6)%7+1;
+    const working=attendanceTeammates.filter(person=>(mobileTeam||(desktopTeam?String(person.id)===attendanceDesktopSelectedTeammate:selectedAttendanceTeammates.has(String(person.id))))&&teammateSchedule(person,dow));
+    if(!working.length)return;
+    const marker=document.createElement('span');marker.className='attendance-day-teammates';marker.setAttribute('aria-hidden','true');
+    marker.innerHTML=working.slice(0,3).map(person=>`<i title="${esc(person.nombre)}">${attendanceTeammateAvatar(person)}</i>`).join('')+(working.length>3?`<em>+${working.length-3}</em>`:'');
+    button.append(marker);
+    button.setAttribute('aria-label',`${button.getAttribute('aria-label')} Trabajan: ${working.map(person=>person.nombre).join(', ')}.`);
+  });
+}
+function renderAttendanceTeammates(){
+  $('attendance-teammates-title').textContent=`Equipo ${attendanceTeamArea()}`;
+  const list=$('attendance-teammates-list'),selected=attendanceTeammates.filter(person=>selectedAttendanceTeammates.has(String(person.id)));
+  $('attendance-teammates-count').textContent=selected.length?String(selected.length):'';
+  $('attendance-teammates-count').setAttribute('aria-label',`${selected.length} ${selected.length===1?'compañero seleccionado':'compañeros seleccionados'}`);
+  const allSelected=attendanceTeammates.length>0&&selected.length===attendanceTeammates.length;
+  $('attendance-team-all').innerHTML=`<span aria-hidden="true">${allSelected?'×':'✓'}</span> ${allSelected?'Limpiar selección':'Seleccionar todos'}`;
+  $('attendance-team-all').setAttribute('aria-pressed',String(allSelected));
+  list.innerHTML=attendanceTeammates.length?attendanceTeammates.map(person=>{
+    const days=teammateWorkingDays(person),active=selectedAttendanceTeammates.has(String(person.id));
+    return `<button type="button" class="attendance-teammate ${active?'is-selected':''}" data-attendance-teammate="${esc(person.id)}" aria-pressed="${active}" aria-label="${esc(`${person.nombre}, ${days.length} días habituales. ${active?'Ocultar':'Mostrar'} en calendario`)}">${attendanceTeammateAvatar(person)}<span class="attendance-teammate-name"><b>${esc(person.nombre)}</b><small>${esc(person.area)} · ${days.length} ${days.length===1?'día':'días'}</small></span><span class="attendance-teammate-check" aria-hidden="true">${active?'✓':'+'}</span></button>`;
+  }).join(''):'<p class="attendance-teammate-empty">No hay compañeros activos para mostrar.</p>';
+  renderAttendanceTeammateCalendar();
+}
+async function loadAttendanceTeammates(){
+  if(attendanceTeammatesLoaded||attendanceTeammatesLoading)return;
+  $('attendance-teammates-title').textContent=`Equipo ${attendanceTeamArea()}`;
+  attendanceTeammatesLoading=true;
+  const list=$('attendance-teammates-list');
+  try{
+    const {data,error}=await db.rpc('dash_horarios_companeros');
+    if(error)throw error;
+    if(!data?.ok)throw Error('horarios');
+    attendanceTeammates=await hydrateProfilePhotos((Array.isArray(data.personas)?data.personas:[]).filter(person=>person.area===APP.inicio?.colaborador?.area));
+    if(!attendanceTeammates.length)throw Error('sin_companeros');
+    attendanceTeammatesLoaded=true;
+    $('attendance-team-preview-note').hidden=true;
+    renderAttendanceTeammates();
+  }catch(error){
+    attendanceTeammates=attendancePreviewTeammates();
+    selectedAttendanceTeammates.clear();
+    attendanceTeammatesLoaded=true;
+    $('attendance-team-preview-note').hidden=false;
+    renderAttendanceTeammates();
+  }finally{attendanceTeammatesLoading=false}
 }
 function statusLabel(state,lab){ return state?({P:'Presente',T:'Tardanza',J:'Justificado',NG:'No gestionó'}[state]||state):(lab?'Sin registro':'No laborable'); }
 
@@ -2431,7 +2576,7 @@ function goView(view){
   if(view==='equipo'&&!APP.identity.isLeader){toast('Mi equipo está reservado al líder y a los co-líderes técnicos del área.',true);return;}
   paintShell(view);
   if(matchMedia('(max-width:900px)').matches)window.scrollTo(0,0);
-  closeMenu(); if(view==='asistencia')return loadPersonalRequests(); if(view==='equipo')return loadTeam(); if(view==='gestion')return showAdminSection(APP.adminSection);
+  closeMenu(); if(view==='asistencia')return Promise.allSettled([loadPersonalRequests(),loadAttendanceTeammates()]); if(view==='equipo')return loadTeam(); if(view==='gestion')return showAdminSection(APP.adminSection);
 }
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>goView(b.dataset.view)); document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>goView(b.dataset.go));
 document.querySelectorAll('[data-mobile-action]').forEach(button=>button.onclick=()=>{
@@ -2518,7 +2663,51 @@ $('personal-request-file').onchange=event=>choosePersonalRequestEvidence(event.t
 $('personal-request-detail').oninput=event=>$('personal-request-detail-count').textContent=event.target.value.length;
 $('personal-request-start').onchange=event=>{const end=$('personal-request-end');end.min=event.target.value;if(!end.value||end.value<event.target.value)end.value=event.target.value;syncRequestDateButtons()};
 $('personal-request-end').onchange=syncRequestDateButtons;
-$('calendar-grid').onclick=event=>{const day=event.target.closest('[data-history-date]');if(day)selectAttendanceDate(day.dataset.historyDate,{focus:true})};
+$('calendar-grid').onclick=event=>{
+  const day=event.target.closest('[data-history-date]');if(!day)return;
+  if(attendanceMobileQuery.matches&&attendanceMobileTeamMode){document.querySelectorAll('#calendar-grid [data-history-date]').forEach(button=>button.setAttribute('aria-pressed',String(button===day)));openAttendanceTeamDay(day.dataset.historyDate);return}
+  if(attendanceDesktopQuery.matches&&attendanceDesktopTeamMode){document.querySelectorAll('#calendar-grid [data-history-date]').forEach(button=>button.setAttribute('aria-pressed',String(button===day)));openAttendanceTeamDay(day.dataset.historyDate);return}
+  selectAttendanceDate(day.dataset.historyDate,{focus:true});
+  if(attendanceMobileQuery.matches)openAttendanceMobilePanel($('attendance-selected-day'));
+};
+$('attendance-mobile-calendar-toggle').onclick=async()=>{
+  attendanceMobileTeamMode=!attendanceMobileTeamMode;
+  if(attendanceMobileTeamMode){attendanceMobileSelectionSnapshot=new Set(selectedAttendanceTeammates);await loadAttendanceTeammates();selectedAttendanceTeammates.clear();attendanceTeammates.forEach(person=>selectedAttendanceTeammates.add(String(person.id)));renderAttendanceTeammates()}
+  else if(attendanceMobileSelectionSnapshot){selectedAttendanceTeammates.clear();attendanceMobileSelectionSnapshot.forEach(id=>selectedAttendanceTeammates.add(id));attendanceMobileSelectionSnapshot=null;renderAttendanceTeammates()}
+  syncAttendanceMobileMode();
+};
+$('attendance-mobile-requests-open').onclick=()=>openAttendanceMobilePanel(document.querySelector('.attendance-request-center'));
+$('attendance-mobile-backdrop').onclick=closeAttendanceMobilePanel;
+document.querySelectorAll('[data-close-attendance-mobile]').forEach(button=>button.onclick=closeAttendanceMobilePanel);
+if(attendanceMobileQuery.addEventListener)attendanceMobileQuery.addEventListener('change',syncAttendanceMobileMode);
+else attendanceMobileQuery.addListener?.(syncAttendanceMobileMode);
+syncAttendanceMobileMode();
+$('attendance-desktop-calendar-toggle').onclick=async()=>{
+  attendanceDesktopTeamMode=!attendanceDesktopTeamMode;
+  if(attendanceDesktopTeamMode){await loadAttendanceTeammates();if(!attendanceDesktopSelectedTeammate&&attendanceTeammates[0])attendanceDesktopSelectedTeammate=String(attendanceTeammates[0].id);renderAttendanceDesktopTeam()}
+  syncAttendanceDesktopMode();
+};
+$('attendance-desktop-team-list').onclick=event=>{
+  const button=event.target.closest('[data-desktop-teammate]');if(!button)return;
+  attendanceDesktopSelectedTeammate=button.dataset.desktopTeammate;renderAttendanceDesktopTeam();renderAttendanceTeammateCalendar();
+};
+if(attendanceDesktopQuery.addEventListener)attendanceDesktopQuery.addEventListener('change',syncAttendanceDesktopMode);
+else attendanceDesktopQuery.addListener?.(syncAttendanceDesktopMode);
+syncAttendanceDesktopMode();
+$('attendance-teammates-list').onclick=event=>{
+  if(attendanceMobileQuery.matches&&attendanceMobileTeamMode)return;
+  if(event.target.closest('[data-retry-attendance-teammates]'))return loadAttendanceTeammates();
+  const button=event.target.closest('[data-attendance-teammate]');if(!button)return;
+  const id=button.dataset.attendanceTeammate;
+  if(selectedAttendanceTeammates.has(id))selectedAttendanceTeammates.delete(id);else selectedAttendanceTeammates.add(id);
+  renderAttendanceTeammates();
+};
+$('attendance-team-all').onclick=()=>{
+  const allSelected=attendanceTeammates.length>0&&attendanceTeammates.every(person=>selectedAttendanceTeammates.has(String(person.id)));
+  selectedAttendanceTeammates.clear();
+  if(!allSelected)attendanceTeammates.forEach(person=>selectedAttendanceTeammates.add(String(person.id)));
+  renderAttendanceTeammates();
+};
 $('attendance-selected-content').onclick=event=>{const record=event.target.closest('[data-selected-record]');if(record)openAttendanceDay(record.dataset.selectedRecord);if(event.target.closest('[data-retry-selected-day]'))selectAttendanceDate(selectedAttendanceDate);};
 const ANNOUNCEMENTS=[
   {title:'Reportes consolidados',src:'images/dashboard/comunicado-reportes.webp',alt:'Comunicado KJA sobre el seguimiento de comparticiones y reportes consolidados en Excel',fallback:'La Dirección generará reportes consolidados en Excel para dar seguimiento a las comparticiones.'},
@@ -2664,6 +2853,7 @@ document.addEventListener('focusout',event=>{const target=sidebarTooltipTarget(e
 $('mobile-back-home').onclick=()=>goView('inicio');
 document.addEventListener('keydown',event=>{
   if(event.key!=='Escape')return;
+  if(!$('attendance-mobile-backdrop').hidden)return closeAttendanceMobilePanel();
   if(window.KJAAnnouncementModal&&window.KJAAnnouncementModal.close())return;
   if(closeStoredEvidenceViewer())return;
   if(closeAnnouncementViewer())return;
