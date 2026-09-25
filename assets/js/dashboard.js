@@ -1234,21 +1234,26 @@ function renderDashboardMonthProgress(h){
   const totals=h.totales||{},total=Math.max(0,Number(totals.laborables)||0),registered=(Number(totals.P)||0)+(Number(totals.T)||0)+(Number(totals.J)||0),incompleteCount=Math.max(0,Number(totals.incompletas)||0);
   hideDashboardDayTooltip?.();
   const visibleDays=(h.dias||[]).map(day=>({day,view:KJAMonthProgress.present(day)})).filter(item=>item.view);
-  daysElement.innerHTML=visibleDays.length?visibleDays.map(({day,view})=>{
+  const daysMarkup=visibleDays.length?visibleDays.map(({day,view})=>{
     const today=day.fecha===h.hoy,weekday=new Intl.DateTimeFormat('es-PE',{weekday:'short'}).format(new Date(`${day.fecha}T12:00:00`)).replace('.','').slice(0,2);
     const accessibleLabel=`${day.d} de ${monthNames[h.mes-1]}${today?', hoy':''}: ${view.reason}`;
     return `<button type="button" class="dashboard-month-day ${esc(view.state)}${today?' today':''}" data-day-reason="${esc(accessibleLabel)}" aria-label="${esc(accessibleLabel)}">${view.alert?'<em aria-hidden="true">!</em>':''}<small>${esc(weekday)}</small><b>${esc(day.d)}</b><span class="dashboard-month-status" aria-hidden="true"></span></button>`;
   }).join(''):'<span class="dashboard-month-empty">Sin jornadas ni comparticiones asignadas este mes</span>';
+  // Background refreshes must not replace the buttons during a touch gesture.
+  if(daysElement.innerHTML!==daysMarkup)daysElement.innerHTML=daysMarkup;
   const sharingMissing=visibleDays.filter(({day})=>day.aplica_comparticiones&&day.comparticiones_vencidas&&!day.comparticiones_completas).length;
   daysElement.setAttribute('aria-label',`${registered} de ${total} días laborables registrados; ${incompleteCount} jornadas incompletas; ${sharingMissing} días con comparticiones vencidas sin completar`);
   if(!hideDashboardDayTooltip)hideDashboardDayTooltip=KJAMonthProgress.bind(daysElement);
+  const centerKey=`${h.anio}-${h.mes}-${h.hoy}`;
   requestAnimationFrame(()=>{
+    if(daysElement.dataset.centeredMonth===centerKey||!daysElement.clientWidth)return;
     const today=daysElement.querySelector('.today');
     if(!today)return;
     if(window.matchMedia('(max-width:900px)').matches){
       const target=today.offsetLeft-(daysElement.clientWidth-today.offsetWidth)/2;
       daysElement.scrollLeft=Math.max(0,Math.min(target,daysElement.scrollWidth-daysElement.clientWidth));
     }else today.scrollIntoView({block:'nearest',inline:'center'});
+    daysElement.dataset.centeredMonth=centerKey;
   });
 }
 
@@ -1624,7 +1629,10 @@ function renderProfile(){
   $('profile-link').textContent=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
   const dates=v=>v?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(v+'T12:00:00')):'—';
   const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?c.contrato_horas+' h':'—'],['Horas previas',Number(c.horas_previas||0)+' h']];
-  $('profile-fields').innerHTML=fields.map(x=>`<div class="profile-field"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
+  const fieldMarkup=items=>items.map(x=>`<div class="profile-field"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
+  $('profile-fields').innerHTML=window.matchMedia('(max-width: 900px)').matches
+    ? `<section class="profile-work-summary" aria-labelledby="profile-work-title"><h3 id="profile-work-title">Mi jornada</h3>${fieldMarkup([fields[2],fields[3]])}</section><details class="profile-work-details"><summary>Datos laborales<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div class="profile-work-fields">${fieldMarkup([fields[0],fields[1],...fields.slice(4)])}</div></details>`
+    : fieldMarkup(fields);
 }
 
 async function loadTeam(){
@@ -2709,7 +2717,10 @@ function renderMobileDailyClose(data,items){
   const evidenceItems=items.filter(item=>item.tipo!=='entrada'),completedEvidence=evidenceItems.filter(item=>item.completo).length;
   const mobileProgress=!entryComplete?0:evidenceItems.length?25+Math.round(completedEvidence/evidenceItems.length*75):100;
   const progressPill=$('mobile-close-count');
-  progressPill.textContent=`${Math.min(100,mobileProgress)}%`;
+  const progressValue=Math.min(100,mobileProgress);
+  progressPill.querySelector('.mcv2-progress-value').textContent=`${progressValue}%`;
+  progressPill.style.setProperty('--day-progress',String(progressValue));
+  progressPill.setAttribute('aria-valuenow',String(progressValue));
   progressPill.dataset.progressState=mobileProgress===0?'empty':mobileProgress>=100?'complete':'active';
   $('mobile-close-list').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:!facebookOnly&&index===0})).join('');
   const completedItems=Math.max(0,items.length-pendingItems.length),progress=items.length?Math.round(completedItems/items.length*100):0;
@@ -2926,7 +2937,6 @@ function clearDailyEvidenceFiles(){
 function clearDailyEvidenceVideo(){
   if(DAILY_EVIDENCE.video?.url)URL.revokeObjectURL(DAILY_EVIDENCE.video.url);
   DAILY_EVIDENCE.video=null;
-  $('daily-video-file').value='';$('daily-video-player').removeAttribute('src');$('daily-video-preview').hidden=true;$('daily-video-message').textContent='';
 }
 
 function dailyUploadStep(name,state,copy=''){
@@ -2983,8 +2993,7 @@ async function loadDailyEditableEvidence(request){
     DAILY_EVIDENCE.entregaId=data.entrega;
     DAILY_EVIDENCE.existingVideoPath=(data.archivos||[]).find(file=>String(file.mime||'').startsWith('video/'))?.path||null;
     $('daily-evidence-detail').value=data.detalle||'';
-    const savedMode=document.querySelector(`input[name="daily-evidence-mode"][value="${data.modalidad||'individuales'}"]`);if(savedMode)savedMode.checked=true;
-    if(DAILY_EVIDENCE.existingVideoPath)$('daily-video').hidden=true;
+    if($('daily-evidence-comment'))$('daily-evidence-comment').open=!!data.detalle;
     renderDailyEvidencePreviews();
     dailyEvidenceMessage(DAILY_EVIDENCE.requirement==='comparticiones'?`${signed.length} imágenes guardadas. La × permite eliminar una imagen después de confirmar.`:`${signed.length} ${signed.length===1?'archivo actual':'archivos actuales'}. Quita con × sólo las que deseas cambiar.${DAILY_EVIDENCE.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
     DAILY_EVIDENCE.loading=false;picker.disabled=false;submit.disabled=false;
@@ -3014,13 +3023,10 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   $('daily-evidence-edit-until').textContent=`Puedes editar hasta las ${fmtTime(facebook?data.compartir_hasta:data.hora_salida_programada)}`;
   $('daily-issue').hidden=requirement==='salida'||editing;
   const issue=item.impedimento;$('daily-issue-form').hidden=!issue;$('daily-issue-detail').value=issue?.detalle||'';$('daily-issue-message').textContent=issue?'Aviso enviado. Puedes actualizar el motivo si cambió la situación.':'';$('daily-issue-toggle').querySelector('b').textContent=issue?'Impedimento informado':'¿No podrás completarlo hoy?';$('daily-issue-submit').textContent=issue?'Actualizar aviso':'Enviar aviso';
-  $('daily-evidence-mode').hidden=requirement!=='comparticiones';
-  $('daily-video').hidden=!['rpe','asignado'].includes(requirement);
   $('daily-evidence-file').multiple=requirement!=='salida';
+  $('daily-evidence-comment').open=false;
+  $('daily-issue-toggle').setAttribute('aria-expanded',String(!$('daily-issue-form').hidden));
   $('daily-evidence-file').accept='image/jpeg,image/png,image/webp'+(requirement==='asignado'?',.pdf,.doc,.docx,.ppt,.pptx':'');
-  $('daily-evidence-individual-help').textContent=`Desde ${data.comparticiones_min||1} y hasta ${FACEBOOK_EVIDENCE_MAX} imágenes`;
-  $('daily-evidence-collage-option').hidden=!data.collage_permitido;
-  const firstMode=document.querySelector('input[name="daily-evidence-mode"][value="individuales"]');if(firstMode)firstMode.checked=true;
   $('daily-evidence-picker-help').textContent=requirement==='comparticiones'?`JPG, PNG o WebP · desde ${data.comparticiones_min||1} hasta ${FACEBOOK_EVIDENCE_MAX}${data.collage_permitido?' o 1 collage':''}`:requirement==='asignado'?'PDF, Word, PowerPoint o imágenes · hasta 5 archivos · documentos hasta 10 MB':requirement==='salida'?'JPG, PNG o WebP · selecciona 1 foto donde se vea la hora':'JPG, PNG o WebP · hasta 5 archivos';
   $('daily-evidence-picker').querySelector('b').textContent=requirement==='asignado'?'Elegir archivos':editing?'Añadir imágenes':'Elegir imágenes';
   $('daily-evidence-submit').querySelector('span').textContent=editing?'Guardar cambios':'Guardar evidencia';
@@ -3031,7 +3037,8 @@ function openDailyEvidenceEditor(requirement,assignment=null){
 }
 
 function dailyEvidenceMode(){
-  return document.querySelector('input[name="daily-evidence-mode"]:checked')?.value||'individuales';
+  const count=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length;
+  return DAILY_EVIDENCE.requirement==='comparticiones'&&APP.cierre?.collage_permitido&&count===1?'collage':'individuales';
 }
 
 async function submitDailyIssue(){
@@ -3065,7 +3072,7 @@ function dailyFilePreview(item,index){
 
 async function chooseDailyEvidence(files){
   if(!files?.length||DAILY_EVIDENCE.loading||DAILY_EVIDENCE.busy)return;
-  const allowed=DAILY_EVIDENCE.requirement==='salida'||DAILY_EVIDENCE.requirement==='comparticiones'&&dailyEvidenceMode()==='collage'?1:DAILY_EVIDENCE.requirement==='comparticiones'?FACEBOOK_EVIDENCE_MAX:5,max=Math.max(0,allowed-(DAILY_EVIDENCE.existingFiles?.length||0));
+  const allowed=DAILY_EVIDENCE.requirement==='salida'?1:DAILY_EVIDENCE.requirement==='comparticiones'?FACEBOOK_EVIDENCE_MAX:5,max=Math.max(0,allowed-(DAILY_EVIDENCE.existingFiles?.length||0));
   const selected=[...files].slice(0,max);
   if([...files].length>max)return dailyEvidenceMessage(max===0?'Quita primero un archivo actual para poder añadir su reemplazo.':max===1?(DAILY_EVIDENCE.requirement==='salida'?'La evidencia de salida admite una sola foto.':'El modo collage admite una sola imagen.'):`Puedes añadir ${max} ${max===1?'imagen más':'imágenes más'}; Facebook admite hasta ${FACEBOOK_EVIDENCE_MAX} capturas por entrega.`);
   if(selected.some(file=>file.size>25*1024*1024))return dailyEvidenceMessage('Una de las imágenes supera 25 MB. Elige una versión más pequeña.');
@@ -3089,23 +3096,6 @@ async function chooseDailyEvidence(files){
     DAILY_EVIDENCE.files=prepared;renderDailyEvidencePreviews();const total=(DAILY_EVIDENCE.existingFiles?.length||0)+prepared.length;dailyEvidenceMessage(`${total} ${total===1?'archivo quedará':'archivos quedarán'} en la entrega al guardar.`,'is-ready');
   }catch(error){prepared.forEach(item=>URL.revokeObjectURL(item.url));if(state===DAILY_EVIDENCE){DAILY_EVIDENCE.files=[];renderDailyEvidencePreviews();dailyEvidenceMessage(error?.message||'No pudimos procesar el archivo. Revisa su formato.')}}
   finally{if(state===DAILY_EVIDENCE){state.loading=false;picker.disabled=false;submit.disabled=false;$('daily-evidence-file').value=''}}
-}
-
-function readVideoMetadata(file){
-  return new Promise((resolve,reject)=>{const video=document.createElement('video'),url=URL.createObjectURL(file);video.preload='metadata';video.onloadedmetadata=()=>{const duration=Number(video.duration);URL.revokeObjectURL(url);Number.isFinite(duration)?resolve(duration):reject(new Error('duracion'))};video.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('formato'))};video.src=url});
-}
-
-async function chooseDailyVideo(files){
-  const file=files?.[0];if(!file)return;
-  const message=$('daily-video-message');message.className='daily-video-message';
-  if(!['video/mp4','video/webm'].includes(file.type)){message.textContent='Usa un video MP4 o WebM.';message.classList.add('is-error');return}
-  if(file.size>8*1024*1024){message.textContent='El video supera 8 MB. Recortalo o exportalo en menor calidad.';message.classList.add('is-error');return}
-  message.textContent='Comprobando duracion...';
-  try{
-    const duration=await readVideoMetadata(file);if(duration<=0||duration>30){message.textContent='El video debe durar como maximo 30 segundos.';message.classList.add('is-error');return}
-    clearDailyEvidenceVideo();const url=URL.createObjectURL(file),ext=file.type==='video/webm'?'webm':'mp4';DAILY_EVIDENCE.video={blob:file,url,type:file.type,ext,duration};
-    $('daily-video-player').src=url;$('daily-video-name').textContent=file.name||'Video listo';$('daily-video-meta').textContent=`${Math.ceil(duration)} s · ${(file.size/1024/1024).toFixed(1)} MB`;$('daily-video-preview').hidden=false;message.textContent='Video verificado y listo para adjuntar.';message.classList.add('is-ready');
-  }catch{message.textContent='No pudimos leer el video. Prueba con MP4 o WebM.';message.classList.add('is-error')}
 }
 
 async function requestDailyEvidencePermit(ext='jpg'){
@@ -3388,9 +3378,6 @@ $('mobile-close-action').onclick=event=>{
 };
 $('daily-evidence-picker').onclick=()=>$('daily-evidence-file').click();
 $('daily-evidence-file').onchange=event=>chooseDailyEvidence(event.target.files);
-$('daily-video-picker').onclick=()=>$('daily-video-file').click();
-$('daily-video-file').onchange=event=>chooseDailyVideo(event.target.files);
-$('daily-video-remove').onclick=clearDailyEvidenceVideo;
 async function deleteFacebookEvidenceImage(index){
   const state=DAILY_EVIDENCE,file=state.existingFiles?.[index];
   if(!file||state.busy||state.loading||state.confirming)return;
@@ -3406,8 +3393,6 @@ async function deleteFacebookEvidenceImage(index){
   progress.hidden=false;editor.setAttribute('aria-busy','true');
   const submit=$('daily-evidence-submit'),picker=$('daily-evidence-picker');
   state.busy=true;submit.disabled=true;picker.disabled=true;
-  const modes=[...document.querySelectorAll('input[name="daily-evidence-mode"]')];
-  const modeDisabled=modes.map(input=>input.disabled);modes.forEach(input=>input.disabled=true);
   dailyEvidenceMessage('Eliminando imagen…','is-info');
   try{
     const {data:{session}}=await db.auth.getSession();if(!session)throw new Error('sesion');
@@ -3434,7 +3419,7 @@ async function deleteFacebookEvidenceImage(index){
     const labels={limpieza_pendiente:'La imagen fue retirada de la entrega, pero falta borrar el archivo. Pulsa su × para reintentar.',migracion_eliminar:'Falta activar la eliminación de imágenes en el servidor.',datos:'El servidor no reconoce la solicitud de eliminación. Comprueba que dash-entrega esté actualizada y vuelve a abrir el editor.',requisito:'El servidor no reconoce la eliminación de Facebook. Debe desplegarse dash-entrega actualizada.',sin_entrega:'Esta entrega ya cambió o no está disponible. Cierra el editor y vuelve a abrirlo.',sin_permiso:'El servidor rechazó la eliminación por permisos. Informa a Dirección.',conexion:'No se pudo confirmar la eliminación. Reintenta o vuelve a abrir el editor.'};
     dailyEvidenceMessage(labels[error.message]||dailyEvidenceFailure(error.message),'is-error');
   }finally{
-    state.busy=false;submit.disabled=false;picker.disabled=false;modes.forEach((input,i)=>input.disabled=modeDisabled[i]);
+    state.busy=false;submit.disabled=false;picker.disabled=false;
     lockedControls.forEach(({control,disabled})=>control.disabled=disabled);
     progress.hidden=true;editor.removeAttribute('aria-busy');
     $('daily-evidence-cancel-top').focus({preventScroll:true});
@@ -3478,9 +3463,8 @@ $('daily-evidence-previews').addEventListener('click',event=>{
   const total=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length;
   dailyEvidenceMessage(total?`${total} ${total===1?'archivo quedará':'archivos quedarán'} al guardar. Puedes añadir reemplazos.`:'Quitaste todas las imágenes. Añade al menos una antes de guardar.',total?'is-info':'is-error');
 });
-document.querySelectorAll('input[name="daily-evidence-mode"]').forEach(input=>input.addEventListener('change',()=>{clearDailyEvidenceFiles();DAILY_EVIDENCE.existingFiles=[];renderDailyEvidencePreviews();dailyEvidenceMessage('El formato cambió. Selecciona nuevamente las imágenes que conservará esta entrega.','is-info')}));
 $('daily-evidence-editor').addEventListener('submit',submitDailyEvidence);
-$('daily-issue-toggle').onclick=()=>{$('daily-issue-form').hidden=!$('daily-issue-form').hidden;if(!$('daily-issue-form').hidden)$('daily-issue-detail').focus()};
+$('daily-issue-toggle').onclick=()=>{$('daily-issue-form').hidden=!$('daily-issue-form').hidden;$('daily-issue-toggle').setAttribute('aria-expanded',String(!$('daily-issue-form').hidden));if(!$('daily-issue-form').hidden)$('daily-issue-detail').focus()};
 $('daily-issue-submit').onclick=submitDailyIssue;
 $('daily-evidence-editor').addEventListener('click',event=>{if(event.target===$('daily-evidence-editor'))closeDailyEvidenceEditor()});
 $('daily-evidence-editor').addEventListener('keydown',event=>{
@@ -3526,7 +3510,7 @@ function setMarkFlow(state){
   close.hidden=state==='processing';close.disabled=state==='processing';
   sheet.setAttribute('aria-busy',state==='processing'?'true':'false');
   sheet.setAttribute('aria-labelledby',state==='processing'?'mark-processing-title':state==='receipt'?'mark-receipt-title':'mark-title');
-  const focusTarget=state==='processing'?$('mark-processing'):state==='receipt'?$('receipt-close'):null;
+  const focusTarget=state==='processing'?$('mark-processing'):state==='receipt'?close:null;
   if(focusTarget)requestAnimationFrame(()=>focusTarget.focus({preventScroll:true}));
 }
 function resetMarkProgress(){
@@ -3544,8 +3528,10 @@ function markProgressStep(key,state,copy){
 function showMarkReceipt(data,hadEvidence,context='new'){
   const day=data.dia||APP.inicio.dia||{},mode=data.modalidad||day.modalidad,date=new Date((day.fecha||isoLima())+'T12:00:00'),late=data.estado==='T',label={P:'Presente',T:'Tardanza',J:'Justificado',NG:'No gestionó'}[data.estado]||'Registrado';
   $('receipt-state').textContent=label;
-  $('mark-receipt-title').textContent=context==='detail'?(late?'Detalle de tu tardanza':'Detalle de tu asistencia'):(late?'Registro confirmado con tardanza':'¡Registro confirmado!');
-  $('receipt-summary').textContent=context==='detail'?'Este es el estado actual de tu registro de hoy.':late?'Tu asistencia fue registrada después de la hora de entrada.':'La hora fue validada directamente por el servidor de KJA.';
+  const onTime=data.estado==='P';
+  $('mark-receipt-title').textContent=late?'Entrada con tardanza':onTime?'¡Llegaste a tiempo!':context==='detail'?'Detalle de tu asistencia':'Entrada registrada';
+  $('receipt-summary').textContent=late?'Tu entrada quedó registrada después de tu horario.':onTime?'Gracias por tu puntualidad. Que tengas una buena jornada.':'Consulta los datos de tu registro de asistencia.';
+  $('receipt-person').src=onTime?'images/dashboard/attendance-on-time.png':'images/dashboard/attendance-late.png';
   $('receipt-time').textContent=fmtTime(data.hora);
   $('receipt-date').textContent=new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(date);
   $('receipt-mode').textContent=({virtual:'Virtual',presencial:'Presencial',opcional:'Opcional'}[mode]||cap(mode||'No indicada'));
@@ -3554,6 +3540,7 @@ function showMarkReceipt(data,hadEvidence,context='new'){
   setMarkFlow('receipt');
 }
 function openMarkStatus(){
+  if($('mark-modal').dataset.closing)return;
   const day=APP.inicio.dia||{};if(!day.marcado)return;
   const time=day.marcado_at?new Date(day.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Lima'}):'—';
   const evidence=typeof day.evidencia==='boolean'?day.evidencia:null;
@@ -3683,6 +3670,7 @@ async function handleMarkAction(){
   finally{trigger.removeAttribute('aria-busy');}
 }
 function openMarkModal(){
+  if($('mark-modal').dataset.closing)return;
   cancelMarkLocation();
   MARK_GEO=null;clearEvidence();resetMarkProgress();setMarkFlow('confirm');$('mark-sheet').removeAttribute('data-receipt-state');
   const d=APP.inicio.dia||{},virtual=(d.modalidad||'virtual')==='virtual';
@@ -3697,7 +3685,22 @@ function openMarkModal(){
 }
 $('open-mark').onclick=handleMarkAction;
 document.querySelectorAll('[data-today-mode]').forEach(button=>button.onclick=()=>changeTodayMode(button.dataset.todayMode));
-document.querySelectorAll('[data-close-mark]').forEach(x=>x.onclick=closeMark); function closeMark(){ if(MARK_BUSY)return;cancelMarkLocation();$('mark-modal').hidden=true;document.body.style.overflow='';MARK_GEO=null;if(typeof resetMarkRouteMap==='function')resetMarkRouteMap();clearEvidence();setMarkFlow('confirm');resetMarkProgress();reloadDashboardIfSafe(); }
+document.querySelectorAll('[data-close-mark]').forEach(x=>x.onclick=closeMark);
+function closeMark(){
+  const modal=$('mark-modal');
+  if(MARK_BUSY||modal.hidden||modal.dataset.closing)return;
+  cancelMarkLocation();
+  const finish=()=>{
+    modal.hidden=true;delete modal.dataset.closing;
+    document.body.style.overflow='';MARK_GEO=null;
+    if(typeof resetMarkRouteMap==='function')resetMarkRouteMap();
+    clearEvidence();setMarkFlow('confirm');resetMarkProgress();reloadDashboardIfSafe();
+  };
+  if($('mark-sheet').dataset.state==='receipt'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    modal.dataset.closing='true';
+    window.setTimeout(finish,180);
+  }else finish();
+}
 $('take-photo').onclick=()=>$('evidence-camera').click();$('choose-photo').onclick=()=>$('evidence-file').click();$('evidence-preview').onclick=()=>$('evidence-camera').click();
 $('evidence-camera').onchange=e=>chooseEvidence(e.target.files[0],'camara');$('evidence-file').onchange=e=>chooseEvidence(e.target.files[0],'archivo');
 

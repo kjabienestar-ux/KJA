@@ -1,0 +1,141 @@
+/* Attendance confirmation: the same calm surfaces as the mobile dashboard. */
+#mark-sheet:has(#mark-receipt:not([hidden])) {
+  width: min(460px,100%);
+  padding: 16px 24px 22px;
+  border: 0;
+  border-radius: 24px;
+  background: #fff;
+  color: #203248;
+  box-shadow: 0 18px 64px rgba(24,43,57,.16);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+#mark-sheet:has(#mark-receipt:not([hidden])) > .modal-close {
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  background: #E11D5F;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(225,29,95,.18);
+  transition: background-color 140ms ease, transform 140ms ease;
+}
+#mark-sheet:has(#mark-receipt:not([hidden])) > .modal-close:hover { background: #c81953; }
+#mark-sheet:has(#mark-receipt:not([hidden])) > .modal-close:active { transform: scale(.94); }
+#mark-modal[data-closing='true'] #mark-sheet { animation: receipt-dismiss 180ms ease-in both; }
+#mark-modal[data-closing='true'] > .modal-backdrop { animation: receipt-backdrop-dismiss 180ms ease-in both; }
+@keyframes receipt-dismiss {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(24px); }
+}
+@keyframes receipt-backdrop-dismiss { from { opacity: 1; } to { opacity: 0; } }
+#mark-receipt .receipt-welcome {
+  display: grid;
+  grid-template-columns: minmax(0,.95fr) minmax(0,1.05fr);
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px 0 0;
+  border-radius: 18px;
+  background: #f1f6f3;
+  text-align: left;
+}
+#mark-receipt .receipt-person {
+  display: block;
+  width: calc(100% + 18px);
+  max-width: none;
+  height: 240px;
+  margin-left: -9px;
+  align-self: end;
+  object-fit: contain;
+  object-position: center bottom;
+}
+#mark-receipt .receipt-welcome-copy { min-width: 0; padding: 48px 0 16px; }
+#mark-receipt .receipt-welcome h2 {
+  margin: 0;
+  padding: 0;
+  color: #203248;
+  font: 650 23px/1.25 Inter,system-ui,sans-serif;
+  letter-spacing: -.025em;
+  overflow-wrap: anywhere;
+}
+#mark-receipt #receipt-summary { margin: 8px 0 0; color: #526477; font-size: 12px; line-height: 1.5; }
+#mark-receipt .receipt-card {
+  margin: 6px 0 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#mark-receipt .receipt-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 0;
+  margin-top: 14px;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid #dce7e0;
+  border-radius: 0;
+  background: transparent;
+  color: #35684f;
+}
+#mark-receipt .receipt-main small { color: #476859; font-size: 11px; letter-spacing: 0; }
+#mark-receipt .receipt-main small { display: none; }
+#mark-receipt .receipt-main b { color: inherit; font: 600 14px/1.5 Inter,system-ui,sans-serif; }
+#mark-receipt .receipt-main strong { font: 650 30px/1.2 Inter,system-ui,sans-serif; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+#mark-receipt .receipt-details { display: grid; grid-template-columns: 1fr; gap: 0; padding: 10px 0 0; background: transparent; }
+#mark-receipt .receipt-details > span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 2px;
+  border-bottom: 1px solid #edf0f3;
+}
+#mark-receipt .receipt-details > span:last-child { border: 0; }
+#mark-receipt .receipt-details small { flex-shrink: 0; color: #526477; font-size: 12px; text-transform: none; letter-spacing: 0; }
+#mark-receipt .receipt-details b { text-align: right; color: #203248; font-size: 12px; font-weight: 500; }
+#mark-receipt .receipt-close {
+  min-height: 48px;
+  background: #E11D5F;
+  color: #fff;
+  border: 0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: none;
+  transition: background-color 150ms ease;
+}
+#mark-receipt .receipt-close:hover { background: #c81953; box-shadow: none; transform: none; }
+#mark-receipt .receipt-close:active { background: #b5164a; }
+#mark-receipt .receipt-note { color: #526477; font-size: 11px; margin-top: 12px; line-height: 1.5; }
+#mark-sheet[data-receipt-state='late'] #mark-receipt .receipt-welcome { background: #faf3ed; }
+#mark-sheet[data-receipt-state='late'] #mark-receipt .receipt-main { background: transparent; border-top-color: #eaded3; color: #855534; }
+#mark-sheet[data-receipt-state='late'] #mark-receipt .receipt-main :is(small,b) { color: #855534; }
+#mark-sheet[data-receipt-state='late'] #mark-receipt .receipt-main b::before { content: none; }
+#mark-sheet[data-receipt-state='late'] #mark-receipt .receipt-details { background: transparent; }
+#mark-sheet[data-receipt-state='late'] #mark-receipt .receipt-details small { color: #526477; }
+#mark-sheet[data-receipt-state='late'] #mark-receipt .receipt-details b { color: #203248; }
+#mark-sheet[data-receipt-state='neutral'] #mark-receipt .receipt-welcome { background: #edf2f6; }
+#mark-sheet[data-receipt-state='neutral'] #mark-receipt .receipt-main { background: transparent; color: #526477; }
+@media (max-width: 600px) {
+  #mark-sheet:has(#mark-receipt:not([hidden])) {
+    padding: 16px 20px max(20px,env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0;
+    max-height: calc(100dvh - 16px);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  #mark-receipt .receipt-welcome h2 { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #mark-modal[data-closing='true'] :is(#mark-sheet,.modal-backdrop) { animation: none; }
+  #mark-sheet:has(#mark-receipt:not([hidden])) > .modal-close { transition: none; transform: none; }
+}
+@media (max-width: 360px) {
+  #mark-receipt .receipt-welcome { grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: 4px; padding-right: 12px; }
+  #mark-receipt .receipt-person { height: 220px; }
+  #mark-receipt .receipt-welcome h2 { font-size: 20px; }
+}

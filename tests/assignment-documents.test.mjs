@@ -24,7 +24,7 @@ function harness(requirement='asignado'){
     fetch:async(url,options)=>{const body=JSON.parse(options.body);requests.push(body);return {ok:true,json:async()=>({ok:true,ruta:'private/document.'+body.ext,token:'token'})}},
     esc:s=>String(s).replaceAll('<','&lt;').replaceAll('"','&quot;')};
   vm.createContext(c);
-  for(const [start,end] of [['function dailyDocumentType(','function readVideoMetadata('],['async function requestDailyEvidencePermit(','async function requestDailyVideoPermit('],['async function uploadDailyEvidence(','async function uploadDailyVideo(']])vm.runInContext(js.slice(js.indexOf(start),js.indexOf(end)),c);
+  for(const [start,end] of [['function dailyDocumentType(','async function requestDailyEvidencePermit('],['async function requestDailyEvidencePermit(','async function requestDailyVideoPermit('],['async function uploadDailyEvidence(','async function uploadDailyVideo(']])vm.runInContext(js.slice(js.indexOf(start),js.indexOf(end)),c);
   return {c,messages,uploads,requests};
 }
 for(const ext of ['pdf','doc','docx','ppt','pptx'])test(`assigned ${ext} keeps bytes and MIME through signed upload`,async()=>{

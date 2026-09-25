@@ -1,6 +1,42 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import model from '../assets/js/dashboard-month-progress.js';
+import fs from 'node:fs';
+import vm from 'node:vm';
+
+function calendarRenderHarness(){
+  const source=fs.readFileSync(new URL('../assets/js/dashboard.js',import.meta.url),'utf8');
+  let markup='',replacements=0;
+  const days={dataset:{responsiveBound:'true'},clientWidth:350,scrollWidth:1500,scrollLeft:0,
+    get innerHTML(){return markup;},set innerHTML(value){markup=value;replacements++;},
+    setAttribute(){},querySelector(){return markup.includes(' today"')?{offsetLeft:800,offsetWidth:44}:null;}};
+  const context={$:()=>days,window:{matchMedia:()=>({matches:true})},requestAnimationFrame:fn=>fn(),
+    KJAMonthProgress:{...model,bind:()=>()=>{}},esc:String,
+    monthNames:['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']};
+  vm.runInNewContext(source.slice(source.indexOf('let hideDashboardDayTooltip='),source.indexOf("let selectedAttendanceDate=")),context);
+  const history={anio:2026,mes:9,hoy:'2026-09-25',dias:[{lab:true,fecha:'2026-09-25',d:25,estado:'P'}]};
+  return {days,history,render:context.renderDashboardMonthProgress,replacements:()=>replacements};
+}
+
+test('background refresh preserves the scrolled date and unchanged day buttons',()=>{
+  const h=calendarRenderHarness();h.render(h.history);
+  assert.ok(h.days.scrollLeft>0);
+  h.days.scrollLeft=120;
+  h.render(h.history);
+  assert.equal(h.days.scrollLeft,120);
+  assert.equal(h.replacements(),1);
+  h.history.dias[0].estado='T';h.render(h.history);
+  assert.equal(h.days.scrollLeft,120);
+  assert.match(h.days.innerHTML,/Entrada con tardanza/);
+});
+
+test('initial centering waits for a visible calendar and runs again on a new date',()=>{
+  const h=calendarRenderHarness();h.days.clientWidth=0;h.render(h.history);
+  assert.equal(h.days.scrollLeft,0);
+  h.days.clientWidth=350;h.render(h.history);assert.ok(h.days.scrollLeft>0);
+  h.days.scrollLeft=120;h.history.hoy='2026-09-26';h.history.dias[0].fecha='2026-09-26';h.history.dias[0].d=26;h.render(h.history);
+  assert.ok(h.days.scrollLeft>120);
+});
 
 test('a non-working day with assigned overdue sharing is visible and red',()=>{
   const view=model.present({lab:false,aplica_comparticiones:true,comparticiones_vencidas:true});
