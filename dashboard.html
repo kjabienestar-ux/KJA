@@ -33,12 +33,13 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=12">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcements.css?v=2">
-<link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=3">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-jornada.css?v=12">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-mobile.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
+  <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=25">
 </head>
 <body>
 
@@ -663,43 +664,77 @@
       <header class="view-head"><div><h1>Mi asistencia</h1><p>Revisa tu historial y gestiona cualquier cambio o ausencia desde un solo lugar.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
 
       <div class="attendance-topbar">
-        <div class="month-toolbar"><button id="month-prev" aria-label="Mes anterior">‹</button><b id="month-title">—</b><button id="month-next" aria-label="Mes siguiente">›</button></div>
         <div class="attendance-stats" id="attendance-stats"></div>
-        <button class="attendance-new-request" id="attendance-new-request" type="button" data-personal-request="justificacion" aria-controls="personal-request-modal" aria-label="Crear nueva solicitud"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva solicitud</button>
       </div>
 
-
       <div class="attendance-workspace">
+        <div class="attendance-main-column">
         <article class="calendar-card attendance-calendar">
           <div class="attendance-calendar-head">
-            <span><b>Historial del mes</b><small>Haz clic en cualquier día: su color y detalles se explican en el panel.</small></span>
-            <span class="attendance-hours" id="attendance-hours-summary">— h acumuladas</span>
-            <div class="attendance-calendar-mobile-tools" role="group" aria-label="Controles del historial mensual">
-              <button type="button" id="mobile-month-prev" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-              <b id="mobile-month-title">—</b>
-              <button type="button" id="mobile-month-next" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-              <button type="button" class="attendance-calendar-request" data-personal-request="justificacion" aria-controls="personal-request-modal" aria-label="Crear nueva solicitud"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+            <div class="attendance-calendar-heading">
+              <div class="attendance-calendar-title-wrap">
+                <b>Historial del mes</b>
+
+              </div>
+            </div>
+            <div class="month-toolbar" id="month-toolbar">
+              <button id="month-prev" type="button" aria-label="Mes anterior">‹</button>
+              <b id="month-title">—</b>
+              <button id="month-next" type="button" aria-label="Mes siguiente">›</button>
+            </div>
+            <span class="attendance-hours" id="attendance-hours-summary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-7"/></svg><span><b id="attendance-hours-value">— h</b><small>acumuladas</small></span></span>
+            <button class="attendance-mobile-calendar-toggle" id="attendance-mobile-calendar-toggle" type="button" role="switch" aria-checked="false"><span>Mi calendario</span><i aria-hidden="true"></i></button>
+            <div class="attendance-calendar-mobile-tools" role="group" aria-label="Controles del historial mensual" hidden>
+              <button type="button" id="mobile-month-prev" aria-label="Mes anterior" hidden></button>
+              <b id="mobile-month-title" hidden>—</b>
+              <button type="button" id="mobile-month-next" aria-label="Mes siguiente" hidden></button>
             </div>
           </div>
-          <div class="calendar-week"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+          <div class="calendar-week"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div>
           <div class="calendar-grid" id="calendar-grid"></div>
-          <div class="calendar-legend"><span><i class="p"></i>Presente / compartido</span><span><i class="t"></i>Tardanza / por compartir</span><span><i class="j"></i>Justificado</span><span><i class="missing"></i>Falta compartir / cierre incompleto</span><span><i class="off"></i>Sin jornada</span></div>
+          <div class="calendar-legend">
+            <span><i class="p"></i>Presente / compartido</span><span><i class="t"></i>Tardanza / por compartir</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestionó</span><span><i class="incomplete"></i>Incompleto</span><span><i class="missing"></i>No compartió</span><span><i class="off"></i>Sin jornada</span>
+          </div>
         </article>
 
+          <div class="attendance-mobile-actions"><button type="button" id="attendance-mobile-requests-open"><span aria-hidden="true">＋</span> Solicitudes</button></div>
+
+          <section class="attendance-teammates" aria-labelledby="attendance-teammates-title">
+            <div class="attendance-teammates-heading"><span><h2 id="attendance-teammates-title">Equipo</h2><p>Selecciona personas para ver sus días de trabajo en el calendario.</p></span><span id="attendance-teammates-count" aria-live="polite"></span></div>
+            <div class="attendance-team-controls"><button type="button" id="attendance-team-all"><span aria-hidden="true">✓</span> Seleccionar todos</button></div>
+            <p class="attendance-team-preview-note" id="attendance-team-preview-note" hidden><span aria-hidden="true">✦</span> Vista previa con datos de demostración</p>
+            <div class="attendance-teammates-list" id="attendance-teammates-list"><p>Consultando horarios del equipo…</p></div>
+          </section>
+        </div>
+
         <div class="attendance-side-column">
+          <button class="attendance-desktop-calendar-toggle" id="attendance-desktop-calendar-toggle" type="button" role="switch" aria-checked="false"><span>Mi calendario</span><i aria-hidden="true"></i><b>Área Ingeniería</b></button>
+          <button class="attendance-mobile-backdrop" id="attendance-mobile-backdrop" type="button" aria-label="Cerrar ventana" hidden></button>
           <section class="attendance-selected-day" id="attendance-selected-day" aria-labelledby="attendance-selected-title" tabindex="-1">
+            <button class="attendance-mobile-modal-close" type="button" data-close-attendance-mobile aria-label="Cerrar resumen">×</button>
             <h2 id="attendance-selected-title">Detalle del día</h2>
             <div id="attendance-selected-content" aria-live="polite"><p>Selecciona un día del calendario para consultar sus detalles.</p></div>
           </section>
-        <details class="attendance-request-center attendance-requests-disclosure">
-          <summary><span><b id="request-center-title">Solicitudes</b><small>Justificaciones y cambios de horario</small></span><i id="personal-request-count">0</i><span aria-hidden="true">⌄</span></summary>
+        <section class="attendance-request-center attendance-requests-disclosure" aria-labelledby="request-center-title">
+          <button class="attendance-mobile-modal-close" type="button" data-close-attendance-mobile aria-label="Cerrar solicitudes">×</button>
+          <header class="attendance-requests-header"><span><b id="request-center-title">Solicitudes</b><small>Justificaciones y cambios de horario</small></span><i id="personal-request-count">0</i></header>
           <div class="attendance-request-actions">
             <button type="button" data-personal-request="justificacion" aria-controls="personal-request-modal"><span class="request-action-icon"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4"/></svg></span><span><b>Justificar una ausencia</b><small>Comentario y evidencia obligatoria</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-personal-request="dia_libre" aria-controls="personal-request-modal"><span class="request-action-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 2v4M16 2v4M5 9h14"/><path d="m9 14 2 2 4-4"/></svg></span><span><b>Usé un día libre</b><small id="personal-days-off-balance">Consulta tus días disponibles</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
             <button type="button" data-personal-request="cambio_horario" aria-controls="personal-request-modal"><span class="request-action-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><b>Cambiar horario o turno</b><small>Detalla la nueva jornada solicitada</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
           </div>
           <section class="personal-request-history"><div><b>Solicitudes recientes</b><button id="personal-requests-refresh" type="button">Actualizar</button></div><div id="personal-request-list"><p class="request-empty">Todavía no has enviado solicitudes.</p></div></section>
-        </details>
+        </section>
+          <section class="attendance-desktop-team-panel" id="attendance-desktop-team-panel" aria-labelledby="attendance-desktop-team-title">
+            <header><h2 id="attendance-desktop-team-title">Equipo Ingeniería</h2><p>Selecciona un integrante para ver su semana en el calendario.</p></header>
+            <div id="attendance-desktop-team-list"></div>
+          </section>
+          <section class="attendance-mobile-team-day" id="attendance-mobile-team-day" aria-labelledby="attendance-mobile-team-day-title">
+            <button class="attendance-mobile-modal-close" type="button" data-close-attendance-mobile aria-label="Cerrar horario del equipo">×</button>
+            <h2 id="attendance-mobile-team-day-title">Equipo del día</h2>
+            <p id="attendance-mobile-team-day-copy">Personas con jornada programada.</p>
+            <div id="attendance-mobile-team-day-list"></div>
+          </section>
         </div>
       </div>
     </section>
@@ -1996,8 +2031,8 @@
 <script src="assets/js/facebook-receipt.js?v=7"></script>
 <script src="assets/js/dashboard-announcement-modal.js?v=4"></script>
 <script src="assets/js/dashboard-month-progress.js?v=2"></script>
-<script src="assets/js/attendance-calendar-model.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=205"></script>
+<script src="assets/js/attendance-calendar-model.js?v=2"></script>
+<script src="assets/js/dashboard.js?v=210"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
