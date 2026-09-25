@@ -11,7 +11,7 @@
   body[data-mobile-menu-open=true]{overflow:hidden}
   body[data-mobile-menu-open=true] .kja-chat{visibility:hidden;pointer-events:none}
   /* En móvil el contenido crece en el documento, sin filas de viewport. */
-  #portal.admin-wide:not([data-loading=true])>.workspace{display:block;min-height:0}
+  #portal.admin-wide>.workspace{display:block;min-height:0}
   #portal.admin-wide #view-gestion:not([hidden]){position:relative!important;inset:auto;display:block;height:auto;min-height:0;overflow:visible;margin:0;padding:0}
   #portal #view-gestion>header.view-head.admin-view-head{display:flex;position:relative;min-height:0;height:auto;align-items:center;gap:12px;margin:0 0 16px!important;padding:8px 0!important;background:none!important;box-shadow:none!important}
   #portal #view-gestion>header.view-head.admin-view-head::before,

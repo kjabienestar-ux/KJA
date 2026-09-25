@@ -45,6 +45,17 @@ const expiredFacebookSql = fs.readFileSync(new URL('../supabase/dashboard_49_ven
 const visibleDirectionMessagesSql = fs.readFileSync(new URL('../supabase/dashboard_50_mensajes_direccion_visibles.sql', import.meta.url), 'utf8');
 const coLeadersSql = fs.readFileSync(new URL('../supabase/dashboard_51_colideres_tecnicos.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
+const markedAttendanceStateJs=js.slice(js.indexOf('function markedAttendanceActionState('),js.indexOf('\nfunction syncMarkedAttendanceAction()',js.indexOf('function markedAttendanceActionState(')));
+const markedAttendanceActionJs=js.slice(js.indexOf('function syncMarkedAttendanceAction()'),js.indexOf('\nfunction renderHome()',js.indexOf('function syncMarkedAttendanceAction()')));
+const dailyCloseErrorJs=js.slice(js.indexOf('function showDailyCloseLoadError('),js.indexOf('\nfunction renderDailyClose()',js.indexOf('function showDailyCloseLoadError(')));
+const dailyCloseLoaderJs=js.slice(js.indexOf('async function loadDailyClose('),js.indexOf('\nfunction clearDailyEvidenceFiles()',js.indexOf('async function loadDailyClose(')));
+const initJs=js.slice(js.indexOf('async function init(){'),js.indexOf('\nasync function openPortal(',js.indexOf('async function init(){')));
+const primeCachedShellJs=js.slice(js.indexOf('function primeCachedShell('),js.indexOf('\nasync function init()',js.indexOf('function primeCachedShell(')));
+const showAccessJs=js.slice(js.indexOf('function showAccess('),js.indexOf('\nfunction hideBoot()',js.indexOf('function showAccess(')));
+const mobileSummaryJs=js.slice(js.indexOf('function syncMobileTodaySummary('),js.indexOf('\nfunction renderMobileTimeRecord(',js.indexOf('function syncMobileTodaySummary(')));
+const mobileTimeRecordJs=js.slice(js.indexOf('function renderMobileTimeRecord('),js.indexOf('\nfunction attendanceModeLabel(',js.indexOf('function renderMobileTimeRecord(')));
+const mobileEntryActionJs=js.slice(js.indexOf('function syncMobileEntryAction('),js.indexOf('\nfunction renderTodayMode(',js.indexOf('function syncMobileEntryAction(')));
+const markActionJs=js.slice(js.indexOf('async function handleMarkAction('),js.indexOf('\nfunction openMarkModal(',js.indexOf('async function handleMarkAction(')));
 
 test('incomplete reasons describe missing work without blaming independent Facebook tasks', () => {
   const context={};
@@ -60,6 +71,152 @@ test('incomplete reasons describe missing work without blaming independent Faceb
   assert.deepEqual(Array.from(reasons(null,{estado:'incompleta'})),[]);
   assert.deepEqual(Array.from(reasons(null,{...close,estado:'completa'})),[]);
   assert.deepEqual(Array.from(reasons(null,null)),[]);
+});
+
+test('restoring a remembered session shows the dashboard without the post-access loader and hides attendance until fresh data', async () => {
+  const events=[],classes=new Set(),elements={};
+  let notifyOpen;
+  const opened=new Promise(resolve=>{notifyOpen=resolve});
+  elements.portal={hidden:true,inert:true,removeAttribute(){},setAttribute(){}};
+  elements.access={hidden:false};
+  elements['today-attendance-card']={classList:{add:name=>classes.add(name)}};
+  elements['mobile-action-mark']={classList:{add:name=>classes.add(name)}};
+  const context={
+    APP:{sessionUid:'',identity:{hasPersonal:false}},DEADLINE_KEY:'deadline',SHELL_KEY:'shell',
+    db:{auth:{getSession:async()=>({data:{session:{user:{id:'collaborator-1'}}}})}},
+    localStorage:{getItem:key=>key==='deadline'?'2099-01-01T00:00:00.000Z':null},
+    $:id=>elements[id]||(elements[id]={hidden:true}),
+    paintShell:view=>events.push(`paint:${view}`),hideBoot:()=>events.push('hide-boot'),
+    showAccess(){throw new Error('unexpected access fallback')},
+    openPortal(){
+      events.push('open-portal');
+      assert.equal(elements.portal.hidden,false);
+      assert.equal(elements.access.hidden,true);
+      assert.ok(classes.has('daily-close-pending'));
+      notifyOpen();
+      return new Promise(resolve=>{context.releasePortal=resolve});
+    }
+  };
+  vm.runInNewContext(primeCachedShellJs,context);
+  vm.runInNewContext(initJs,context);
+  const loading=context.init();
+  await opened;
+  assert.deepEqual(events,['paint:inicio','hide-boot','open-portal']);
+  assert.doesNotMatch(html,/portal-bootstrap|Acceso confirmado|Sincronizando tu jornada/);
+  assert.doesNotMatch(css,/portal-bootstrap|\.portal\[data-loading="true"\]/);
+  assert.doesNotMatch(js,/showPortalBootstrap|resetPortalBootstrap/);
+  assert.match(css,/\.day-card\.daily-close-pending \.day-action/);
+  assert.match(css,/\.mobile-primary-attendance\.daily-close-pending/);
+  context.releasePortal();
+  await loading;
+});
+
+test('a failed initial dashboard request returns to access and clears pending attendance', () => {
+  const attrs={},events=[],classes=new Set();
+  const portal={hidden:false,inert:false,classList:{remove:name=>classes.delete(name)},setAttribute:(name,value)=>attrs[name]=value};
+  const elements={'portal':portal,'access':{hidden:true},'today-attendance-card':{classList:{remove(...names){names.forEach(name=>classes.delete(name))}}},'mobile-action-mark':{classList:{remove(...names){names.forEach(name=>classes.delete(name))}}}};
+  const context={
+    $:id=>elements[id],
+    localStorage:{removeItem:key=>events.push(`remove-storage:${key}`)},SHELL_KEY:'shell',
+    hideBoot:()=>events.push('hide-boot'),formMsg:(id,message)=>events.push(`message:${id}:${message}`)
+  };
+  classes.add('daily-close-pending');
+  vm.runInNewContext(showAccessJs,context);
+  context.showAccess('No se pudo cargar el dashboard.');
+  assert.equal(portal.hidden,true);
+  assert.equal(portal.inert,true);
+  assert.equal(attrs['aria-hidden'],'true');
+  assert.equal(elements.access.hidden,false);
+  assert.ok(!classes.has('daily-close-pending'));
+  assert.ok(events.includes('hide-boot'));
+  assert.match(js.slice(js.indexOf('async function openPortal('),js.indexOf('\nfunction startSessionClock()',js.indexOf('async function openPortal('))),/if\(error\|\|!data\?\.ok\)[\s\S]*?return showAccess\(/);
+});
+
+test('marked attendance stays hidden until close confirmation and recovers on no-close or retry', async () => {
+  const classes=new Set(),mobileClasses=new Set(),mobilePanelClasses=new Set(),errorClasses=new Set();
+  const card={classList:{toggle(name,enabled){enabled?classes.add(name):classes.delete(name)}}};
+  const mobileMark={classList:{toggle(name,enabled){enabled?mobileClasses.add(name):mobileClasses.delete(name)}}};
+  const mobilePanel={classList:{toggle(name,enabled){enabled?mobilePanelClasses.add(name):mobilePanelClasses.delete(name)}}};
+  const makePanel=()=>({hidden:true,classList:{add:name=>errorClasses.add(name),remove:name=>errorClasses.delete(name),contains:name=>errorClasses.has(name)}});
+  const elements={
+    'today-attendance-card':card,'mobile-action-mark':mobileMark,'mobile-primary-attendance':mobilePanel,
+    'day-close':makePanel(),'day-close-load-error':{hidden:true},'day-close-load-error-title':{textContent:''},'day-close-load-error-copy':{textContent:''},'day-close-retry':{disabled:false},
+    'mobile-close-panel':makePanel(),'mobile-close-load-error':{hidden:true},'mobile-close-load-error-title':{textContent:''},'mobile-close-load-error-copy':{textContent:''},'mobile-close-retry':{disabled:false}
+  };
+  let closeCalls=0,renderCount=0;const closeResolvers=[];
+  let context;
+  context={
+    APP:{inicio:{dia:{marcado:true}},cierre:null,dailyCloseResolved:false,dailyCloseGeneration:4,dailyCloseRequest:null,identity:{hasPersonal:true}},
+    $:id=>elements[id]||null,
+    db:{rpc(name){
+      if(name==='dash_cierre_hoy'){closeCalls++;return new Promise((resolve,reject)=>{closeResolvers.push({resolve,reject})})}
+      if(name==='dash_mis_revisiones_cierre'||name==='dash_mis_impedimentos_cierre')return Promise.resolve({data:[],error:null});
+      throw new Error(`unexpected RPC ${name}`);
+    }},
+    mergeDailyReviewState:data=>data,
+    mergeDailyIssueState:data=>data,
+    renderDailyClose(){renderCount++;context.clearDailyCloseLoadError();context.syncMarkedAttendanceAction();}
+  };
+  vm.runInNewContext(markedAttendanceStateJs,context);
+  vm.runInNewContext(markedAttendanceActionJs,context);
+  vm.runInNewContext(dailyCloseErrorJs,context);
+  vm.runInNewContext(dailyCloseLoaderJs,context);
+
+  context.syncMarkedAttendanceAction();
+  assert.ok(classes.has('daily-close-pending'));
+  assert.ok(mobileClasses.has('daily-close-pending'));
+  assert.ok(mobilePanelClasses.has('daily-close-pending'));
+  assert.match(css,/\.day-card\.daily-close-pending \.day-action/);
+  assert.match(html,/id="mobile-close-retry"/);
+  assert.match(html,/id="day-close-retry"/);
+
+  const initial=context.loadDailyClose({quiet:true});
+  const duplicate=context.loadDailyClose({quiet:true});
+  assert.equal(closeCalls,1);
+  closeResolvers[0].reject(new TypeError('network unavailable'));
+  await Promise.all([initial,duplicate]);
+  assert.equal(context.APP.dailyCloseResolved,false);
+  assert.equal(elements['day-close-load-error'].hidden,false);
+  assert.equal(elements['mobile-close-load-error'].hidden,false);
+  assert.equal(elements['day-close-retry'].disabled,false);
+  assert.ok(classes.has('daily-close-pending'));
+
+  const retry=context.loadDailyClose({quiet:true});
+  assert.equal(closeCalls,2);
+  assert.equal(elements['day-close-retry'].disabled,true);
+  closeResolvers[1].resolve({data:{ok:true,aplica:true,entrada_at:'2026-09-25T13:13:00Z',estado:'en_curso'},error:null});
+  await retry;
+  assert.equal(context.APP.dailyCloseResolved,true);
+  assert.equal(renderCount,1);
+  assert.equal(elements['day-close-load-error'].hidden,true);
+  assert.equal(elements['mobile-close-load-error'].hidden,true);
+  assert.ok(classes.has('daily-close-confirmed-hidden'));
+  assert.ok(mobileClasses.has('daily-close-confirmed-hidden'));
+  assert.ok(mobilePanelClasses.has('daily-close-confirmed-hidden'));
+  assert.ok(!classes.has('daily-close-pending'));
+
+  context.APP.dailyCloseResolved=false;context.APP.dailyCloseGeneration++;context.APP.dailyCloseRequest=null;
+  const noClose=context.loadDailyClose({quiet:true});
+  closeResolvers[2].resolve({data:{ok:true,aplica:false},error:null});
+  await noClose;
+  assert.equal(context.APP.dailyCloseResolved,true);
+  assert.ok(!classes.has('daily-close-confirmed-hidden'));
+  assert.ok(!mobileClasses.has('daily-close-confirmed-hidden'));
+  assert.ok(!mobilePanelClasses.has('daily-close-confirmed-hidden'));
+  assert.ok(!classes.has('daily-close-pending'));
+  assert.equal(renderCount,2);
+
+  context.APP.dailyCloseResolved=false;context.APP.dailyCloseGeneration++;context.APP.dailyCloseRequest=null;context.APP.cierre=null;
+  const stale=context.loadDailyClose({quiet:true});
+  context.APP.dailyCloseGeneration++;context.APP.dailyCloseRequest=null;
+  const fresh=context.loadDailyClose({quiet:true});
+  closeResolvers[3].resolve({data:{ok:true,aplica:true,entrada_at:'2026-09-25T13:13:00Z'},error:null});
+  await stale;
+  assert.equal(context.APP.cierre,null);
+  closeResolvers[4].resolve({data:{ok:true,aplica:true,entrada_at:'2026-09-25T13:14:00Z'},error:null});
+  await fresh;
+  assert.equal(context.APP.dailyCloseResolved,true);
+  assert.equal(context.APP.cierre.entrada_at,'2026-09-25T13:14:00Z');
 });
 
 test('daily control explains incomplete days using actual closing requirements and keeps missing detail explicit', () => {
@@ -1042,6 +1199,130 @@ test('mobile home exposes the same pending closure actions without tap zoom', ()
   assert.match(css,/\.mobile-quick-grid button\.is-grid-orphan\{[\s\S]*?grid-column:1\/-1/);
   assert.match(css,/Safari amplía automáticamente[\s\S]*?textarea\{font-size:16px!important\}/);
   assert.match(js,/function syncMobileQuickGrid\(\)[\s\S]*?cards\.length%2===1[\s\S]*?classList\.add\('is-grid-orphan'\)/);
+  assert.equal((html.match(/data-mobile-action="marcar"/g)||[]).length,1);
+  assert.match(html,/id="mobile-primary-attendance"[\s\S]*?id="mobile-action-mark"[\s\S]*?mobile-entry-action-error/);
+  assert.match(css,/\.mobile-today-summary\{order:1/);
+  assert.match(css,/\.mobile-primary-attendance\{order:2/);
+  assert.match(css,/\.mobile-sheet-heading\{order:3/);
+  assert.match(css,/\.mobile-close-panel\{order:4/);
+  assert.match(css,/\.mobile-quick-grid\{order:5/);
+});
+
+test('mobile entry and exit summary hides on non-working days and follows refreshed day state', () => {
+  const summary={hidden:false},otherMobilePanel={hidden:false},classes={entry:new Set(),exit:new Set()};
+  const elements={
+    'mobile-today-summary':summary,'mobile-close-panel':otherMobilePanel,
+    'mobile-today-start':{textContent:''},'mobile-today-end':{textContent:''},
+    'mobile-entry-time-note':{textContent:''},'mobile-exit-time-note':{textContent:''},
+    'mobile-entry-time-card':{classList:{toggle:(name,on)=>on?classes.entry.add(name):classes.entry.delete(name)}},
+    'mobile-exit-time-card':{classList:{toggle:(name,on)=>on?classes.exit.add(name):classes.exit.delete(name)}}
+  };
+  const context={
+    $:id=>elements[id]||null,
+    formatAttendanceClock:value=>value?'08:13 a. m.':'—',fmtTime:value=>value
+  };
+  vm.runInNewContext(mobileSummaryJs,context);
+  vm.runInNewContext(mobileTimeRecordJs,context);
+  context.syncMobileTodaySummary(false);
+  assert.equal(summary.hidden,true);
+  assert.equal(otherMobilePanel.hidden,false);
+  context.syncMobileTodaySummary(true);
+  assert.equal(summary.hidden,false);
+  context.renderMobileTimeRecord({entryAt:'2026-09-25T13:13:00Z',scheduledExit:'14:00'});
+  assert.equal(elements['mobile-today-start'].textContent,'08:13 a. m.');
+  assert.equal(elements['mobile-today-end'].textContent,'—');
+  assert.equal(elements['mobile-entry-time-note'].textContent,'Hora registrada');
+  assert.equal(elements['mobile-exit-time-note'].textContent,'Programada: 14:00');
+  context.syncMobileTodaySummary(false);
+  assert.equal(summary.hidden,true);
+
+  const renderHomeSource=js.slice(js.indexOf('function renderHome(){'),js.indexOf('\nfunction renderTodayMode(',js.indexOf('function renderHome(){')));
+  assert.match(renderHomeSource,/syncMobileTodaySummary\(d\.labora\)/);
+  assert.match(css,/\[hidden\]\{display:none!important\}/);
+  assert.match(html,/id="mobile-today-summary"[\s\S]*?id="mobile-today-start"[\s\S]*?id="mobile-today-end"/);
+});
+
+test('mobile primary attendance reflects availability, checking, confirmation and non-working days', () => {
+  const closeLabel={textContent:''};
+  const elements={
+    'mobile-primary-attendance':{hidden:true,dataset:{}},
+    'mobile-action-mark':{disabled:false,attrs:{},setAttribute(name,value){this.attrs[name]=value}},
+    'mobile-action-mark-title':{textContent:''},'mobile-action-mark-note':{textContent:''},
+    'mobile-entry-action-error':{textContent:'',hidden:true},
+    'open-mark':{disabled:false},'day-status':{textContent:'Pendiente'},'mark-help':{textContent:'Disponible'},
+    'mobile-close-action':{dataset:{action:'entry'},disabled:false,attrs:{},setAttribute(name,value){this.attrs[name]=value},querySelector:()=>closeLabel}
+  };
+  const context={
+    APP:{inicio:{dia:{labora:true,marcado:false,ventana:'abierta',modalidad:'virtual'}}},
+    MARK_ACTION_BUSY:false,MARK_BUSY:false,
+    $:id=>elements[id]||null,fmtTime:value=>value||'—'
+  };
+  vm.runInNewContext(mobileEntryActionJs,context);
+  context.syncMobileEntryAction();
+  assert.equal(elements['mobile-primary-attendance'].hidden,false);
+  assert.equal(elements['mobile-action-mark'].disabled,false);
+  assert.equal(elements['mobile-action-mark-title'].textContent,'Registrar mi asistencia');
+  assert.equal(elements['mobile-action-mark-note'].textContent,'Disponible ahora.');
+  assert.equal(elements['mobile-close-action'].disabled,false);
+  assert.equal(closeLabel.textContent,'Registrar mi entrada');
+
+  context.MARK_ACTION_BUSY=true;context.syncMobileEntryAction();
+  assert.equal(elements['mobile-action-mark'].disabled,true);
+  assert.equal(elements['mobile-close-action'].disabled,true);
+  assert.equal(elements['mobile-action-mark-title'].textContent,'Comprobando disponibilidad…');
+  assert.equal(closeLabel.textContent,'Comprobando…');
+  context.MARK_ACTION_BUSY=false;
+
+  context.MARK_BUSY=true;context.syncMobileEntryAction();
+  assert.equal(elements['mobile-action-mark'].disabled,true);
+  assert.equal(closeLabel.textContent,'Registrando…');
+  context.MARK_BUSY=false;
+
+  context.APP.inicio.dia.ventana='antes';context.APP.inicio.dia.hora_entrada='08:00';elements['open-mark'].disabled=true;context.syncMobileEntryAction();
+  assert.equal(elements['mobile-action-mark'].disabled,true);
+  assert.equal(elements['mobile-action-mark-title'].textContent,'Disponible desde las 08:00');
+  assert.equal(closeLabel.textContent,'Desde 08:00');
+
+  context.APP.inicio.dia={labora:true,marcado:true,marcado_at:'2026-09-25T13:13:00Z',estado:'P'};elements['open-mark'].disabled=false;context.syncMobileEntryAction();
+  assert.equal(elements['mobile-action-mark-title'].textContent,'Entrada registrada');
+  assert.match(elements['mobile-action-mark-note'].textContent,/Ver detalle/);
+  assert.equal(elements['mobile-action-mark'].disabled,false);
+
+  context.APP.inicio.dia={labora:false,marcado:false};context.syncMobileEntryAction();
+  assert.equal(elements['mobile-primary-attendance'].hidden,true);
+  assert.equal(elements['mobile-action-mark'].disabled,true);
+});
+
+test('mobile attendance entry access shares a single eligibility check and exposes retryable errors inline', async()=>{
+  let calls=0,openCount=0,resolveEligibility;
+  const trigger={attrs:{},setAttribute(name,value){this.attrs[name]=value},removeAttribute(name){delete this.attrs[name]}};
+  const error={textContent:'',hidden:true};
+  const context={
+    APP:{inicio:{dia:{labora:true,marcado:false}}},MARK_ACTION_BUSY:false,MARK_BUSY:false,
+    $:id=>id==='open-mark'?trigger:id==='mobile-entry-action-error'?error:null,
+    showMobileEntryActionError(message){error.textContent=message;error.hidden=!message},syncMobileEntryAction(){},
+    refreshMarkEligibility(){calls++;return new Promise(resolve=>{resolveEligibility=resolve})},
+    markFailureMessage:()=> 'No se pudo verificar la asistencia. Inténtalo otra vez.',toast(){},
+    openMarkModal(){openCount++},openMarkStatus(){throw new Error('unexpected marked state')}
+  };
+  vm.runInNewContext(markActionJs,context);
+  const first=context.handleMarkAction();
+  const duplicate=context.handleMarkAction();
+  assert.equal(calls,1);
+  assert.equal(context.MARK_ACTION_BUSY,true);
+  resolveEligibility({puede_marcar:true});
+  await Promise.all([first,duplicate]);
+  assert.equal(openCount,1);
+  assert.equal(context.MARK_ACTION_BUSY,false);
+  assert.equal(trigger.attrs['aria-busy'],undefined);
+
+  const failedContext={...context,MARK_ACTION_BUSY:false,$:id=>id==='open-mark'?trigger:id==='mobile-entry-action-error'?error:null,
+    refreshMarkEligibility:async()=>{throw Object.assign(new Error('offline'),{motivo:'servidor'})}};
+  vm.runInNewContext(markActionJs,failedContext);
+  await failedContext.handleMarkAction();
+  assert.equal(error.hidden,false);
+  assert.match(error.textContent,/Inténtalo otra vez/);
+  assert.equal(failedContext.MARK_ACTION_BUSY,false);
 });
 
 test('the rail announcement opens an accessible full-screen viewer', () => {
