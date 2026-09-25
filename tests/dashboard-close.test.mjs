@@ -1199,7 +1199,8 @@ test('mobile home exposes the same pending closure actions without tap zoom', ()
   assert.match(css,/\.mobile-quick-grid button\.is-grid-orphan\{[\s\S]*?grid-column:1\/-1/);
   assert.match(css,/Safari amplía automáticamente[\s\S]*?textarea\{font-size:16px!important\}/);
   assert.match(js,/function syncMobileQuickGrid\(\)[\s\S]*?cards\.length%2===1[\s\S]*?classList\.add\('is-grid-orphan'\)/);
-  assert.equal((html.match(/data-mobile-action="marcar"/g)||[]).length,1);
+  assert.equal((html.match(/data-mobile-action="marcar"/g)||[]).length,2);
+  assert.match(html,/<nav class="mobile-quick-grid"[\s\S]*?id="mobile-quick-attendance"[\s\S]*?<\/nav>/);
   assert.match(html,/id="mobile-primary-attendance"[\s\S]*?id="mobile-action-mark"[\s\S]*?mobile-entry-action-error/);
   assert.match(css,/\.mobile-today-summary\{order:1/);
   assert.match(css,/\.mobile-primary-attendance\{order:2/);
@@ -1248,13 +1249,15 @@ test('mobile primary attendance reflects availability, checking, confirmation an
     'mobile-primary-attendance':{hidden:true,dataset:{}},
     'mobile-action-mark':{disabled:false,attrs:{},setAttribute(name,value){this.attrs[name]=value}},
     'mobile-action-mark-title':{textContent:''},'mobile-action-mark-note':{textContent:''},
+    'mobile-quick-attendance':{hidden:false,disabled:true,setAttribute(){}},
+    'mobile-quick-attendance-title':{textContent:''},'mobile-quick-attendance-note':{textContent:''},
     'mobile-entry-action-error':{textContent:'',hidden:true},
     'open-mark':{disabled:false},'day-status':{textContent:'Pendiente'},'mark-help':{textContent:'Disponible'},
     'mobile-close-action':{dataset:{action:'entry'},disabled:false,attrs:{},setAttribute(name,value){this.attrs[name]=value},querySelector:()=>closeLabel}
   };
   const context={
     APP:{inicio:{dia:{labora:true,marcado:false,ventana:'abierta',modalidad:'virtual'}}},
-    MARK_ACTION_BUSY:false,MARK_BUSY:false,
+    MARK_ACTION_BUSY:false,MARK_BUSY:false,syncMobileQuickGrid(){},
     $:id=>elements[id]||null,fmtTime:value=>value||'—'
   };
   vm.runInNewContext(mobileEntryActionJs,context);
@@ -1265,8 +1268,10 @@ test('mobile primary attendance reflects availability, checking, confirmation an
   assert.equal(elements['mobile-action-mark-note'].textContent,'Disponible ahora.');
   assert.equal(elements['mobile-close-action'].disabled,false);
   assert.equal(closeLabel.textContent,'Registrar mi entrada');
+  assert.equal(elements['mobile-quick-attendance'].disabled,false);
 
   context.MARK_ACTION_BUSY=true;context.syncMobileEntryAction();
+  assert.equal(elements['mobile-quick-attendance'].disabled,true);
   assert.equal(elements['mobile-action-mark'].disabled,true);
   assert.equal(elements['mobile-close-action'].disabled,true);
   assert.equal(elements['mobile-action-mark-title'].textContent,'Comprobando disponibilidad…');
@@ -1284,11 +1289,15 @@ test('mobile primary attendance reflects availability, checking, confirmation an
   assert.equal(closeLabel.textContent,'Desde 08:00');
 
   context.APP.inicio.dia={labora:true,marcado:true,marcado_at:'2026-09-25T13:13:00Z',estado:'P'};elements['open-mark'].disabled=false;context.syncMobileEntryAction();
+  assert.equal(elements['mobile-quick-attendance'].hidden,false);
+  assert.equal(elements['mobile-quick-attendance'].disabled,false);
+  assert.equal(elements['mobile-quick-attendance-title'].textContent,'Ver mi asistencia');
   assert.equal(elements['mobile-action-mark-title'].textContent,'Entrada registrada');
   assert.match(elements['mobile-action-mark-note'].textContent,/Ver detalle/);
   assert.equal(elements['mobile-action-mark'].disabled,false);
 
   context.APP.inicio.dia={labora:false,marcado:false};context.syncMobileEntryAction();
+  assert.equal(elements['mobile-quick-attendance'].hidden,true);
   assert.equal(elements['mobile-primary-attendance'].hidden,true);
   assert.equal(elements['mobile-action-mark'].disabled,true);
 });

@@ -1063,6 +1063,16 @@ function syncMobileEntryAction(){
     note.textContent=day.ventana==='tardanza'?'Se registrará como tardanza.':day.modalidad==='presencial'?'Verificar ubicación y marcar':'Disponible ahora.';
     button.setAttribute('aria-label','Registrar mi asistencia');
   }
+  const quickAttendance=$('mobile-quick-attendance');
+  if(quickAttendance){
+    const hidden=!working&&!marked,visibilityChanged=quickAttendance.hidden!==hidden;
+    quickAttendance.hidden=hidden;
+    quickAttendance.disabled=busy||(!marked&&button.disabled);
+    quickAttendance.setAttribute('aria-busy',String(busy));
+    $('mobile-quick-attendance-title').textContent=marked?'Ver mi asistencia':busy?title.textContent:'Registrar asistencia';
+    $('mobile-quick-attendance-note').textContent=marked?'Detalle de mi entrada':note.textContent;
+    if(visibilityChanged)syncMobileQuickGrid();
+  }
   const closeAction=$('mobile-close-action');
   if(closeAction?.dataset.action==='entry'){
     closeAction.disabled=busy||!working||!!source?.disabled;
@@ -3017,7 +3027,7 @@ async function loadDailyClose({quiet=false}={}){
   const request=(async()=>{
     const fail=message=>{
       if(!APP.dailyCloseResolved)showDailyCloseLoadError(message);
-      else if(!quiet)dailyCloseMessage(message,'is-error');
+      else dailyCloseMessage(`${message} Los pendientes visibles corresponden a la última actualización.`,'is-error');
       return null;
     };
     let result;
@@ -3029,10 +3039,15 @@ async function loadDailyClose({quiet=false}={}){
     if(generation!==APP.dailyCloseGeneration)return APP.cierre;
     const {data,error}=result||{};
     if(error){
-      const missing=error.code==='PGRST202'||String(error.message||'').includes('dash_cierre_hoy');
-      return fail(missing?'No pudimos comprobar el cierre porque aún no está disponible en el servidor. Reintenta en unos momentos.':'No pudimos comprobar el cierre. Revisa tu conexión y vuelve a intentarlo.');
+      const missing=error.code==='PGRST202';
+      const message=missing?'La función de cierre no está disponible en el servidor.':'El servidor no pudo consultar el cierre de tu jornada.';
+      return fail(`${message} Referencia: ${error.code||'servidor'}`);
     }
-    if(!data?.ok)return fail(data?.motivo==='sesion'?'Tu sesión venció. Vuelve a ingresar.':'No pudimos preparar el cierre. Revisa tu conexión y vuelve a intentarlo.');
+    if(!data?.ok){
+      const reason=data?.motivo||'respuesta_invalida';
+      const messages={sesion:'Tu sesión venció. Vuelve a ingresar.',no_existe:'No se encontró el colaborador asociado a esta jornada.'};
+      return fail(`${messages[reason]||'El servidor no devolvió un cierre de jornada válido.'} Referencia: ${reason}`);
+    }
     const safeRpc=async name=>{try{return await db.rpc(name)}catch(rpcError){return {data:null,error:rpcError}}};
     const [{data:reviews,error:reviewError},{data:issues,error:issueError}]=await Promise.all([safeRpc('dash_mis_revisiones_cierre'),safeRpc('dash_mis_impedimentos_cierre')]);
     if(generation!==APP.dailyCloseGeneration)return APP.cierre;
