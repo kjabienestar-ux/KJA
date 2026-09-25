@@ -1320,12 +1320,15 @@
 /* Avatar: glow ring + glass depth */
 #portal:not(.admin-wide) #view-perfil .profile-avatar {
   border: 4px solid rgba(255,255,255,.85);
-  background: linear-gradient(145deg, #c06a4a, #a9583e, #8a432d) !important;
+  background-color: #a9583e;
   box-shadow:
     0 0 0 4px rgba(169, 88, 62, .12),
     0 12px 28px rgba(169, 88, 62, .24),
     inset 0 2px 4px rgba(255,255,255,.2) !important;
   transition: box-shadow 300ms ease, transform 300ms ease;
+}
+#portal:not(.admin-wide) #view-perfil .profile-avatar:not(.has-photo) {
+  background-image: linear-gradient(145deg, #c06a4a, #a9583e, #8a432d);
 }
 #portal:not(.admin-wide) #view-perfil .profile-identity:hover .profile-avatar {
   box-shadow:
@@ -2807,7 +2810,9 @@
 #mark-receipt .receipt-close { min-height: 46px; border-radius: 12px; background: #174d68; color: #fff; box-shadow: none; font-size: 13px; font-weight: 500; }
 #mark-receipt .receipt-close:hover { background: #103c53; transform: none; }
 #mark-receipt .receipt-note { color: #647580; font-size: 10px; line-height: 1.5; margin: 14px 0 0; }
-#mark-sheet:has(#mark-receipt:not([hidden])) .modal-close { background: #e7eef1; color: #526c7b; width: 36px; height: 36px; border-radius: 11px; }
+/* The animated receipt creates a stacking context above earlier siblings. */
+#mark-sheet > .modal-close { z-index: 2; }
+#mark-sheet:has(#mark-receipt:not([hidden])) .modal-close { background: #e7eef1; color: #526c7b; width: 44px; height: 44px; border-radius: 11px; }
 #mark-sheet:has(#mark-receipt:not([hidden])) button:focus-visible { outline: 3px solid #167d83; outline-offset: 3px; }
 #mark-sheet[data-receipt-state='late'] #mark-receipt .receipt-main { background: #fff0d8; color: #80521e; }
 #mark-sheet[data-receipt-state='late'] #mark-receipt .receipt-main small { color: #80521e; }

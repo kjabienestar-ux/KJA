@@ -40,15 +40,23 @@
   #portal:not(.admin-wide) .mobile-portal-hero {
     position: relative;
     isolation: isolate;
-    grid-template-columns: minmax(0,1fr) repeat(3,44px);
-    column-gap: 4px;
+    grid-template-columns: 52px minmax(0,1fr) repeat(2,44px);
+    column-gap: 8px;
+    height: auto;
     background: transparent !important;
   }
   #portal:not(.admin-wide) .mobile-portal-sheet { background: transparent !important; }
-  #portal:not(.admin-wide) .mobile-portal-person h1 { font-size: clamp(20px,5.3vw,25px); line-height: 1.2; }
+  #portal:not(.admin-wide) .mobile-portal-person > div {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    padding: 0;
+  }
+  #portal:not(.admin-wide) .mobile-portal-person > div > span { display: none; }
+  #portal:not(.admin-wide) .mobile-portal-person h1 { font-size: clamp(18px,4.8vw,22px); line-height: 1.2; overflow-wrap: anywhere; }
   #portal:not(.admin-wide) .mobile-portal-person h1::after { content: none; }
   #portal:not(.admin-wide) .mobile-profile-photo {
-    grid-column: 3;
+    grid-column: 1;
     box-sizing: border-box;
     padding: 3px;
     border-radius: 50%;
@@ -58,8 +66,8 @@
     display: grid;
     place-items: center;
     box-sizing: border-box;
-    width: 38px;
-    height: 38px;
+    width: 46px;
+    height: 46px;
     min-width: 0;
     min-height: 0;
     margin: 0;
@@ -70,7 +78,7 @@
     background-position: center;
     overflow: hidden;
   }
-  #portal:not(.admin-wide) .mobile-review-notification-trigger { grid-column: 2; }
+  #portal:not(.admin-wide) .mobile-review-notification-trigger { grid-column: 3; }
   #portal:not(.admin-wide) #mobile-home-logout {
     grid-column: 4;
     display: grid !important;
@@ -105,20 +113,38 @@
     margin: 0;
     aspect-ratio: 1;
   }
+  #portal:not(.admin-wide) .mobile-profile-photo {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    min-height: 52px;
+  }
   #portal:not(.admin-wide) #mobile-home-logout svg { display: block; width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
   #portal:not(.admin-wide) #mobile-home-logout:hover { background: #e9eef2; color: #203248; }
   #portal:not(.admin-wide) #mobile-home-logout:focus-visible { outline: 2px solid #075abc; outline-offset: 1px; }
   #portal:not(.admin-wide) .dashboard-month-days {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     scroll-snap-type: x proximity;
     scroll-padding-inline: 10px;
     padding: 8px 4px 12px;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y pinch-zoom;
   }
-  #portal:not(.admin-wide) .dashboard-month-day { transition: background-color .18s ease, box-shadow .18s ease; }
-  #portal:not(.admin-wide) .dashboard-month-day:active { background: #e2ebe8; }
-  #portal:not(.admin-wide) .dashboard-month-day.today { background: #315d79; box-shadow: 0 4px 10px rgba(31,66,91,.14); }
+  #portal:not(.admin-wide) .dashboard-month-day {
+    min-width: 44px;
+    scroll-snap-stop: normal;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 140ms cubic-bezier(.16,1,.3,1), background-color 120ms ease;
+  }
+  #portal:not(.admin-wide) .dashboard-month-day:active {
+    background: #e2ebe8;
+    transform: scale(.94);
+    transition-duration: 70ms;
+  }
+  #portal:not(.admin-wide) .dashboard-month-day.today { background: #E11D5F; border: 1px solid #F4E8E0; color: #fff; box-shadow: 0 4px 10px rgba(31,66,91,.08); }
+  #portal:not(.admin-wide) .dashboard-month-day.today b,
+  #portal:not(.admin-wide) .dashboard-month-day.today small { color: #fff; }
   #portal:not(.admin-wide) .dashboard-month-day:focus-visible { outline: 2px solid #075abc; outline-offset: 2px; }
   #portal:not(.admin-wide) #mobile-close-panel {
     background: #fff;
@@ -150,11 +176,46 @@
     line-height: 1.25;
     text-wrap: balance;
   }
-  #portal:not(.admin-wide) #mobile-close-panel .mcv2-state-pill {
+  #portal:not(.admin-wide) #mobile-close-panel #mobile-close-count {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent !important;
+    color: #365b4c !important;
     font-variant-numeric: tabular-nums;
     font-weight: 650;
+    font-size: 12px;
     box-shadow: none;
   }
+  #mobile-close-count .mcv2-progress-ring {
+    position: absolute;
+    inset: 0;
+    width: 48px;
+    height: 48px;
+    fill: none;
+    stroke-width: 3;
+    transform: rotate(-90deg);
+  }
+  #mobile-close-count .mcv2-progress-track { stroke: #e8efeb; }
+  #mobile-close-count .mcv2-progress-fill {
+    stroke: #47846b;
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: calc(100 - var(--day-progress,0));
+    transition: stroke-dashoffset 450ms cubic-bezier(.16,1,.3,1);
+  }
+  #mobile-close-count .mcv2-progress-value { line-height: 1; }
+  #mobile-close-count[data-progress-state='empty'] .mcv2-progress-fill { opacity: 0; }
+  #mobile-close-count[data-progress-state='active'] .mcv2-progress-fill {
+    animation: jornada-progress-glow 2200ms ease-in-out 3;
+  }
+  #mobile-close-count[data-progress-state='complete'] .mcv2-progress-track { stroke: #dcebe2; }
   #portal:not(.admin-wide) #mobile-close-list { padding-left: 25px; gap: 10px; }
   #portal:not(.admin-wide) #mobile-close-list::before {
     left: 8px;
@@ -199,7 +260,13 @@
   #portal:not(.admin-wide) #mobile-close-panel .day-close-item .day-close-item-status { font-weight: 650; letter-spacing: 0; }
   #portal:not(.admin-wide) #mobile-close-panel button:focus-visible { outline: 2px solid #075abc; outline-offset: 3px; }
 }
+@keyframes jornada-progress-glow {
+  0%, 100% { stroke-opacity: 1; }
+  50% { stroke-opacity: .5; }
+}
 @media (prefers-reduced-motion: reduce) {
   #portal:not(.admin-wide) .dashboard-month-days { scroll-behavior: auto; }
   #portal:not(.admin-wide) .dashboard-month-day { transition: none; }
+  #portal:not(.admin-wide) .dashboard-month-day:active { transform: none; }
+  #mobile-close-count .mcv2-progress-fill { transition: none; animation: none !important; }
 }

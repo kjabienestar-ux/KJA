@@ -1,0 +1,311 @@
+/* Mi perfil: use the mobile dashboard's quiet surfaces and readable type. */
+/* Keep disclosures usable if a mobile session is resized to desktop. */
+#view-perfil .profile-work-details summary svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+#view-perfil :is(.profile-work-summary,.profile-work-details) { grid-column: 1 / -1; }
+@media (max-width: 900px) {
+  #portal:not(.admin-wide):has(#view-perfil.active) {
+    background: #edf2f5 !important;
+  }
+  #portal:not(.admin-wide):has(#view-perfil.active)::before,
+  #portal:not(.admin-wide):has(#view-perfil.active)::after {
+    content: none !important;
+  }
+  #portal:not(.admin-wide) #view-perfil {
+    color: #203248;
+    font-family: Inter, system-ui, sans-serif;
+    padding-bottom: 24px;
+  }
+  #portal:not(.admin-wide) #view-perfil > .view-head {
+    position: relative;
+    display: block;
+    margin-bottom: 16px;
+    min-height: 44px;
+  }
+  #portal:not(.admin-wide) #view-perfil > .view-head > div:first-child {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    width: auto;
+    min-width: 0;
+    padding: 0 56px 0 0;
+  }
+  #portal:not(.admin-wide) #view-perfil > .view-head::after { content: none !important; }
+  #portal:not(.admin-wide) #view-perfil > .view-head .eyebrow,
+  #portal:not(.admin-wide) #view-perfil > .view-head > div > p:last-child { display: none; }
+  #portal:not(.admin-wide) #view-perfil > .view-head h1 {
+    margin: 0;
+    font: 700 24px/1.25 Inter, system-ui, sans-serif !important;
+    letter-spacing: -.025em !important;
+    color: #203248 !important;
+  }
+  #portal:not(.admin-wide) #view-perfil .mobile-inline-home {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    background: rgba(255,255,255,.58);
+    border: 1px solid rgba(255,255,255,.82);
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(35,55,68,.06), inset 0 1px 0 rgba(255,255,255,.9);
+    -webkit-backdrop-filter: blur(14px) saturate(125%);
+    backdrop-filter: blur(14px) saturate(125%);
+    color: #365b71;
+    font-size: 13px;
+  }
+  #portal:not(.admin-wide) #view-perfil .mobile-inline-home span { display: none; }
+  #portal:not(.admin-wide) #view-perfil .mobile-inline-home svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-layout { gap: 12px; align-items: start; }
+  #portal:not(.admin-wide) #view-perfil :is(.profile-identity,.profile-data) {
+    padding: 20px;
+    border: 0 !important;
+    border-radius: 20px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-identity {
+    display: grid;
+    grid-template-columns: 64px minmax(0,1fr);
+    column-gap: 16px;
+    text-align: left;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-identity::before { content: none; }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-wrap {
+    grid-row: 1 / 4;
+    width: 64px;
+    margin: 0;
+    align-self: start;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-avatar {
+    width: 64px;
+    height: 64px;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: #e7eef3 !important;
+    background-size: cover;
+    background-position: center;
+    box-shadow: none !important;
+    transform: none !important;
+    font-size: 20px;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-avatar:not(.has-photo) {
+    background-image: none !important;
+    color: #365b71;
+  }
+  /* The labeled action below remains the single photo picker on mobile. */
+  #portal:not(.admin-wide) #view-perfil .profile-photo-camera { display: none; }
+  #portal:not(.admin-wide) #view-perfil .profile-identity h2 {
+    margin: 0;
+    color: #203248;
+    font: 600 18px/1.4 Inter, system-ui, sans-serif;
+    letter-spacing: -.02em;
+    overflow-wrap: anywhere;
+  }
+  #portal:not(.admin-wide) #view-perfil #profile-area {
+    margin: 5px 0 8px;
+    color: #526477;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-badge {
+    grid-column: 2;
+    justify-self: start;
+    padding: 4px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: #edf4f0;
+    color: #38614e;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #edf0f3;
+    gap: 8px;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-actions button {
+    min-height: 44px;
+    font-size: 13px;
+    box-shadow: none;
+    transform: none;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-actions button:is(:hover,:active) {
+    box-shadow: none;
+    transform: none;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-change,
+  #portal:not(.admin-wide) #view-perfil .profile-photo-change:hover {
+    color: #365b71;
+    background: #edf3f7 !important;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-remove,
+  #portal:not(.admin-wide) #view-perfil .profile-photo-remove:hover {
+    color: #526477;
+    background: transparent;
+    border: 0;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    #portal:not(.admin-wide) #view-perfil .profile-photo-change:hover:not(:disabled) {
+      background: #dfeaf1 !important;
+      color: #203248;
+    }
+    #portal:not(.admin-wide) #view-perfil .profile-photo-remove:hover:not(:disabled) {
+      background: #edf3f7;
+      color: #365b71;
+    }
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-actions button:active:not(:disabled) {
+    background: #d5e3ec !important;
+    color: #203248;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-hint {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    font-size: 11px;
+    color: #526477;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-message { grid-column: 1 / -1; font-size: 12px !important; }
+  #portal:not(.admin-wide) #view-perfil .profile-photo-message:empty { display: none; }
+  #portal:not(.admin-wide) #view-perfil #profile-fields { display: block; }
+  #portal:not(.admin-wide) #view-perfil .profile-work-summary {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    column-gap: 16px;
+    border-bottom: 1px solid #edf0f3;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-work-summary h3 {
+    grid-column: 1 / -1;
+    margin: 0 0 6px;
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 600;
+    color: #203248;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-work-summary .profile-field {
+    padding: 8px 0 14px;
+    border: 0;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-work-fields {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    column-gap: 16px;
+    padding-bottom: 8px;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-field {
+    padding: 12px 0;
+    border-color: #edf0f3;
+    background: transparent;
+    overflow-wrap: anywhere;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-field small {
+    font-size: 12px;
+    color: #526477;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-field b {
+    margin-top: 5px;
+    font: 500 14px/1.5 Inter, system-ui, sans-serif;
+    color: #203248;
+    letter-spacing: 0;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-work-details summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 48px;
+    color: #203248;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-work-details summary::-webkit-details-marker { display: none; }
+  #portal:not(.admin-wide) #view-perfil .profile-work-details summary svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    flex-shrink: 0;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-work-details[open] summary svg { transform: rotate(180deg); }
+  #portal:not(.admin-wide) #view-perfil .profile-notice {
+    grid-template-columns: minmax(0,1fr) !important;
+    margin: 0;
+    padding: 12px 0;
+    gap: 4px;
+    border: 0;
+    border-top: 1px solid #edf0f3;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-notice svg { display: none; }
+  #portal:not(.admin-wide) #view-perfil .profile-notice span { color: #526477; font-size: 12px; line-height: 1.6; }
+  #portal:not(.admin-wide) #view-perfil .profile-notice span b { color: #203248; font-size: 13px; }
+  #portal:not(.admin-wide) #view-perfil .profile-notice a {
+    grid-column: 1;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #365b71;
+    font-size: 13px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-session {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    align-items: center;
+    margin: 0;
+    padding: 12px 0 0;
+    border: 0;
+    border-top: 1px solid #edf0f3;
+    border-radius: 0;
+    background: transparent;
+    gap: 12px;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-session-copy b { font-size: 13px; }
+  #portal:not(.admin-wide) #view-perfil .profile-session-copy { gap: 8px; }
+  #portal:not(.admin-wide) #view-perfil .profile-session-copy small { display: none; }
+  #portal:not(.admin-wide) #view-perfil .profile-session > button { width: auto; min-height: 44px; padding-inline: 12px; font-size: 13px; }
+  #portal:not(.admin-wide) #view-perfil :is(button,a,summary):focus-visible { outline: 3px solid #075abc; outline-offset: 3px; }
+}
+@media (max-width: 900px) and (prefers-reduced-transparency: reduce) {
+  #portal:not(.admin-wide) #view-perfil .mobile-inline-home {
+    background: #f7fafc;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
