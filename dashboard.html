@@ -15,10 +15,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
 <link rel="preload" as="image" href="images/dashboard/login-mobile-kja.webp" type="image/webp" media="(max-width: 900px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=206">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=209">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=8">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
-<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=6">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
@@ -279,14 +279,6 @@
         </div>
       </div>
     </section>
-    <section class="portal-bootstrap" id="portal-bootstrap" role="status" aria-live="polite" hidden>
-      <div class="portal-bootstrap-status">
-        <span class="portal-bootstrap-mark" aria-hidden="true"><img src="images/logo/logo.webp" alt=""></span>
-        <span><strong>Acceso confirmado</strong><small>Sincronizando tu jornada y permisos</small></span>
-      </div>
-      <div class="portal-bootstrap-progress" aria-hidden="true"><i></i></div>
-    </section>
-
     <section class="view active" id="view-inicio">
       <section class="mobile-portal-home" aria-label="Inicio rápido">
         <header class="mobile-portal-hero">
@@ -315,6 +307,14 @@
 
         <div class="mobile-portal-sheet">
           <div id="mobile-month-progress-slot"></div>
+          <section class="mobile-primary-attendance" id="mobile-primary-attendance" aria-label="Acción principal de asistencia" hidden>
+            <button type="button" data-mobile-action="marcar" id="mobile-action-mark" aria-describedby="mobile-entry-action-error">
+              <img class="mobile-access-figure" src="images/dashboard/access-attendance.svg" width="56" height="56" alt="" aria-hidden="true">
+              <span><b id="mobile-action-mark-title">Consultando asistencia…</b><small id="mobile-action-mark-note">Espera un momento</small></span>
+              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <p id="mobile-entry-action-error" role="alert" hidden></p>
+          </section>
           <div class="mobile-sheet-heading">
             <span><h2>¿Qué deseas hacer?</h2><p>Accede rápido a lo más importante.</p></span>
             <span class="mobile-session-state"><i></i>Sesión segura</span>
@@ -324,12 +324,6 @@
               <img class="mobile-access-figure" src="images/dashboard/access-calendar.svg" width="56" height="56" alt="" aria-hidden="true">
 
               <span><b>Mi asistencia</b><small>Historial y calendario</small></span>
-              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-            </button>
-            <button type="button" data-mobile-action="marcar" id="mobile-action-mark">
-              <img class="mobile-access-figure" src="images/dashboard/access-attendance.svg" width="56" height="56" alt="" aria-hidden="true">
-
-              <span><b id="mobile-action-mark-title">Asistencia registrada</b><small id="mobile-action-mark-note">Marcado - 10:08 a. m.</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button type="button" data-mobile-action="perfil">
@@ -359,6 +353,10 @@
           </nav>
 
           <section class="mcv2" id="mobile-close-panel" aria-labelledby="mobile-close-title" tabindex="-1" hidden>
+            <div class="mcv2-load-error" id="mobile-close-load-error" role="alert" hidden>
+              <span><b id="mobile-close-load-error-title">No pudimos comprobar el cierre</b><small id="mobile-close-load-error-copy">Revisa tu conexión y vuelve a intentarlo.</small></span>
+              <button type="button" id="mobile-close-retry">Reintentar</button>
+            </div>
 
             <!-- Header MI JORNADA -->
             <header class="mcv2-head">
@@ -524,6 +522,10 @@
           </div>
 
           <section class="day-close" id="day-close" aria-labelledby="day-close-title" hidden>
+            <div class="day-close-load-error" id="day-close-load-error" role="alert" hidden>
+              <span><b id="day-close-load-error-title">No pudimos comprobar el cierre</b><small id="day-close-load-error-copy">Revisa tu conexión y vuelve a intentarlo.</small></span>
+              <button type="button" id="day-close-retry">Reintentar</button>
+            </div>
             <header class="day-close-head">
               <span>
                 <h2 id="day-close-title">Cierre de mi jornada</h2>

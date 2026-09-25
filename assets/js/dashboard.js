@@ -148,13 +148,14 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
 let DAILY_EVIDENCE_LOAD=0;
 let DAILY_EXIT_BUSY=false;
 let MARK_BUSY = false;
+let MARK_ACTION_BUSY = false;
 let MARK_SYNC_PROMISE = null;
 let MARK_GEO = null;
 let MARK_GEO_REQUEST = null;
@@ -629,45 +630,17 @@ async function removeProfilePhoto(){
   finally{setProfilePhotoBusy(false)}
 }
 
-function resetPortalBootstrap(reveal=false){
-  const portal=$('portal'),state=$('portal-bootstrap'),wasLoading=portal.dataset.loading==='true';
-  if(state)state.hidden=true;
-  delete portal.dataset.loading; portal.removeAttribute('aria-busy');
-  if(!reveal||!wasLoading)return;
-  portal.classList.remove('portal-ready');
-  requestAnimationFrame(()=>{
-    portal.classList.add('portal-ready');
-    clearTimeout(portal._readyTimer);
-    portal._readyTimer=setTimeout(()=>portal.classList.remove('portal-ready'),260);
-  });
-}
-function showPortalBootstrap(){
-  const portal=$('portal');
-  clearTimeout(portal._readyTimer); portal.classList.remove('portal-ready');
-  portal.dataset.loading='true'; portal.setAttribute('aria-busy','true');
-  $('portal-bootstrap').hidden=false; $('access').hidden=true;
-  portal.hidden=false; portal.inert=false; portal.removeAttribute('aria-hidden');
-  $('workspace').focus({preventScroll:true});
-  showBoot('portal'); hideBoot();
-}
-
 function showAccess(message){
   localStorage.removeItem(SHELL_KEY);
-  resetPortalBootstrap();
+  $('today-attendance-card')?.classList.remove('daily-close-pending','daily-close-confirmed-hidden');
+  $('mobile-action-mark')?.classList.remove('daily-close-pending','daily-close-confirmed-hidden');
+  $('mobile-primary-attendance')?.classList.remove('daily-close-pending','daily-close-confirmed-hidden');
   $('portal').hidden=true; $('portal').inert=true; $('portal').setAttribute('aria-hidden','true'); $('access').hidden=false;
   if(message) formMsg('colab-msg',message);
   hideBoot();
 }
 function hideBoot(){
   const boot=$('boot'); if(!boot||boot.classList.contains('out'))return;
-  const portalTransition=boot.dataset.mode==='portal'&&!$('portal').hidden;
-  if(portalTransition){
-    $('portal').classList.remove('portal-entering');
-    void $('portal').offsetWidth;
-    $('portal').classList.add('portal-entering');
-    clearTimeout($('portal')._enterTimer);
-    $('portal')._enterTimer=setTimeout(()=>$('portal').classList.remove('portal-entering'),420);
-  }
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     boot.classList.add('out'); boot.setAttribute('aria-busy','false');
     boot._hideTimer=setTimeout(()=>{boot.hidden=true;boot.dataset.mode='loading';$('boot-text-label').textContent='Cargando'},220);
@@ -677,7 +650,7 @@ function showBoot(mode='loading'){
   const boot=$('boot'); if(!boot)return;
   clearTimeout(boot._hideTimer); boot.hidden=false; boot.setAttribute('aria-busy','true');
   boot.dataset.mode=mode;
-  $('boot-text-label').textContent={auth:'Verificando tu acceso',portal:'Preparando tu espacio',loading:'Cargando'}[mode]||'Cargando';
+  $('boot-text-label').textContent={auth:'Verificando tu acceso',loading:'Cargando'}[mode]||'Cargando';
   boot.classList.remove('out');
 }
 
@@ -753,8 +726,8 @@ $('form-colab').addEventListener('submit',async e=>{
     const {data:auth,error}=await db.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});
     if(error) throw error;
     localStorage.setItem(DEADLINE_KEY,data.vence_at);
-    $('pin').value=''; showPortalBootstrap(); await openPortal(auth?.session,{inicio:data.inicio,acceso:data.acceso});
-  }catch(err){ if($('portal').dataset.loading==='true')showAccess();else hideBoot(); formMsg('colab-msg','No se pudo conectar con el portal. Revisa tu señal e inténtalo otra vez.'); }
+    $('pin').value=''; await openPortal(auth?.session,{inicio:data.inicio,acceso:data.acceso});
+  }catch(err){ if(!$('portal').hidden)showAccess();else hideBoot(); formMsg('colab-msg','No se pudo conectar con el portal. Revisa tu señal e inténtalo otra vez.'); }
   finally{ setBusy(btn,false,''); }
 });
 
@@ -764,9 +737,9 @@ $('form-admin').addEventListener('submit',async e=>{
   try{
     const {data:auth,error}=await db.auth.signInWithPassword({email:$('admin-email').value.trim().toLowerCase(),password:$('admin-pass').value});
     if(error){ hideBoot(); formMsg('admin-msg','Correo o contraseña incorrectos.'); return; }
-    localStorage.removeItem(DEADLINE_KEY); $('admin-pass').value=''; showPortalBootstrap(); await openPortal(auth?.session);
+    localStorage.removeItem(DEADLINE_KEY); $('admin-pass').value=''; await openPortal(auth?.session);
   }catch(err){
-    if($('portal').dataset.loading==='true')showAccess();else hideBoot(); formMsg('admin-msg','No se pudo conectar con el portal. Revisa tu señal e inténtalo otra vez.');
+    if(!$('portal').hidden)showAccess();else hideBoot(); formMsg('admin-msg','No se pudo conectar con el portal. Revisa tu señal e inténtalo otra vez.');
   }finally{
     setBusy(btn,false,'');
   }
@@ -852,7 +825,11 @@ function primeCachedShell(session,fallback){
   }catch(e){}
   if(!['inicio','equipo','gestion'].includes(view))return;
   APP.sessionUid=session?.user?.id||'';
-  if(view!=='gestion')APP.identity.hasPersonal=true;
+  if(view!=='gestion'){
+    APP.identity.hasPersonal=true;
+    $('today-attendance-card')?.classList.add('daily-close-pending');
+    $('mobile-action-mark')?.classList.add('daily-close-pending');
+  }
   paintShell(view);
   if(view==='gestion'){$('nav-gestion').hidden=false;$('admin-nav-divider').hidden=false}
   else if(view==='equipo'){$('nav-equipo').hidden=false;$('team-nav-divider').hidden=false}
@@ -890,6 +867,8 @@ async function openPortal(activeSession,bootstrap=null){
     return showAccess(error ? 'El dashboard todavía no está habilitado en la base de datos.' : 'Tu sesión venció. Vuelve a ingresar.');
   }
   APP.inicio=data;
+  APP.cierre=null;APP.dailyCloseResolved=false;APP.dailyCloseGeneration++;APP.dailyCloseRequest=null;
+  resetDailyCloseUi();
   APP.access={rol:access?.rol||'visor',acceso_panel:!!access?.acceso_panel};
   const now=new Date(), lima=new Date(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'numeric',day:'numeric'}).format(now));
   APP.year=lima.getFullYear(); APP.month=lima.getMonth()+1;
@@ -939,7 +918,7 @@ async function openPortal(activeSession,bootstrap=null){
   const initialLoad=goView(initialView);
   try{localStorage.setItem(SHELL_KEY,JSON.stringify({uid:session?.user?.id||'',view:initialView}))}catch(e){}
   $('portal').hidden=false; $('portal').inert=false; $('portal').removeAttribute('aria-hidden');
-  resetPortalBootstrap(true); startSessionClock(); hideBoot();
+  startSessionClock(); hideBoot();
   startMarkSync();
   startReviewNotificationSync();
   startDashboardVersionWatch();
@@ -979,8 +958,30 @@ function syncMobileQuickGrid(){
   grid.dataset.visibleItems=String(cards.length);
 }
 
+function markedAttendanceActionState({marked,closeResolved,closeApplies,entryAt}){
+  if(!marked)return 'visible';
+  if(!closeResolved)return 'pending';
+  return closeApplies&&entryAt?'hidden':'visible';
+}
+
+function syncMarkedAttendanceAction(){
+  const nodes=[$('today-attendance-card'),$('mobile-action-mark'),$('mobile-primary-attendance')].filter(Boolean);if(!nodes.length)return;
+  const state=markedAttendanceActionState({
+    marked:!!APP.inicio?.dia?.marcado,
+    closeResolved:!!APP.dailyCloseResolved,
+    closeApplies:!!APP.cierre?.aplica,
+    entryAt:APP.cierre?.entrada_at
+  });
+  nodes.forEach(node=>{
+    node.classList.toggle('daily-close-pending',state==='pending');
+    node.classList.toggle('daily-close-confirmed-hidden',state==='hidden');
+  });
+  if(typeof syncMobileEntryAction==='function')syncMobileEntryAction();
+}
+
 function renderHome(){
   const c=APP.inicio.colaborador,d=APP.inicio.dia||{}; if(!c) return;
+  syncMarkedAttendanceAction();
   const hour=Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',hour:'2-digit',hour12:false}).format(new Date()));
   const greeting=hour<12?'Buenos días':hour<19?'Buenas tardes':'Buenas noches';
   $('welcome').textContent=`${greeting}, ${c.nombre.split(' ')[0]}`;
@@ -991,6 +992,7 @@ function renderHome(){
   $('day-date').textContent=new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'long',year:'numeric'}).format(date);
   $('mobile-today-date').textContent=new Intl.DateTimeFormat('es-PE',{weekday:'long',day:'numeric',month:'long'}).format(date);
   $('time-start').textContent=fmtTime(d.hora_entrada); $('time-end').textContent=fmtTime(d.hora_salida);
+  syncMobileTodaySummary(d.labora);
   renderMobileTimeRecord({entryAt:d.marcado_at,scheduledExit:d.hora_salida});
   renderTodayMode(d);
   $('day-window').textContent=d.tolerancia!=null?`Tolerancia: ${d.tolerancia} min`:'Horario registrado';
@@ -1018,10 +1020,62 @@ function renderHome(){
   if(pill.classList.contains('late'))mobileStatus.classList.add('late');
   if(pill.classList.contains('closed'))mobileStatus.classList.add('closed');
   mobileMark.disabled=btn.disabled;
-  $('mobile-action-mark-title').textContent=d.marcado?'Ver mi asistencia':btn.disabled?'Marcado no disponible':'Marcar asistencia';
-  $('mobile-action-mark-note').textContent=d.marcado?$('mark-label').textContent:btn.disabled?pill.textContent:'Registrar ahora';
+  $('mobile-primary-attendance').hidden=!d.labora;
+  syncMobileEntryAction();
   $('mobile-today-detail').textContent=`${$('day-mode').textContent} · ${$('mark-help').textContent}`;
   paintTimeAmbience();
+}
+
+function syncMobileEntryAction(){
+  const panel=$('mobile-primary-attendance'),button=$('mobile-action-mark');
+  if(!panel||!button)return;
+  const day=APP.inicio?.dia||{},title=$('mobile-action-mark-title'),note=$('mobile-action-mark-note'),error=$('mobile-entry-action-error'),source=$('open-mark');
+  const busy=MARK_ACTION_BUSY||MARK_BUSY,marked=!!day.marcado,working=!!day.labora;
+  panel.hidden=!working;
+  button.disabled=!working||busy||(!marked&&!!source?.disabled);
+  button.setAttribute('aria-busy',String(busy));
+  button.setAttribute('aria-disabled',String(button.disabled));
+  panel.dataset.state=marked?'marked':button.disabled?'unavailable':'pending';
+  if(error&&!MARK_ACTION_BUSY)error.hidden=!error.textContent;
+  if(busy){
+    title.textContent=MARK_BUSY?'Registrando asistencia…':'Comprobando disponibilidad…';
+    note.textContent=MARK_BUSY?'Espera la confirmación del servidor.':'Espera un momento.';
+  }else if(marked){
+    const time=day.marcado_at?new Date(day.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'';
+    title.textContent=day.estado==='NG'?'Jornada sin gestionar':'Entrada registrada';
+    note.textContent=`Ver detalle${time?' · '+time:''}`;
+    button.setAttribute('aria-label','Ver detalle de mi asistencia');
+  }else if(!working){
+    title.textContent='Hoy no necesitas marcar';note.textContent='Día no laborable';
+  }else if(day.horario_completo===false||day.ventana==='sin_horario'){
+    title.textContent='Horario por revisar';note.textContent='Dirección debe completar tu horario.';
+  }else if(day.modalidad==='presencial'&&!day.geocerca_configurada){
+    title.textContent='Ubicación pendiente';note.textContent='La oficina aún no está configurada.';
+  }else if(day.ventana==='antes'){
+    title.textContent=`Disponible desde las ${fmtTime(day.hora_entrada)}`;note.textContent='Tu horario todavía no comienza.';
+  }else if(day.ventana==='cerrada'){
+    title.textContent='Fuera del horario';note.textContent=`Tu jornada terminó a las ${fmtTime(day.hora_salida)}.`;
+  }else if(button.disabled){
+    title.textContent=$('day-status')?.textContent||'Marcado no disponible';
+    note.textContent=$('mark-help')?.textContent||'Revisa la disponibilidad de tu jornada.';
+  }else{
+    title.textContent=day.ventana==='tardanza'?'Aún puedes registrar tu ingreso':'Registrar mi asistencia';
+    note.textContent=day.ventana==='tardanza'?'Se registrará como tardanza.':day.modalidad==='presencial'?'Verificar ubicación y marcar':'Disponible ahora.';
+    button.setAttribute('aria-label','Registrar mi asistencia');
+  }
+  const closeAction=$('mobile-close-action');
+  if(closeAction?.dataset.action==='entry'){
+    closeAction.disabled=busy||!working||!!source?.disabled;
+    closeAction.setAttribute('aria-busy',String(busy));
+    closeAction.setAttribute('aria-disabled',String(closeAction.disabled));
+    const label=closeAction.querySelector('span');
+    if(label)label.textContent=MARK_BUSY?'Registrando…':MARK_ACTION_BUSY?'Comprobando…':source?.disabled&&day.ventana==='antes'?`Desde ${fmtTime(day.hora_entrada)}`:source?.disabled?'No disponible ahora':'Registrar mi entrada';
+  }
+}
+
+function showMobileEntryActionError(message=''){
+  const error=$('mobile-entry-action-error');if(!error)return;
+  error.textContent=message;error.hidden=!message;
 }
 
 function renderTodayMode(d={}){
@@ -1303,6 +1357,11 @@ function statusLabel(state,lab){ return state?({P:'Presente',T:'Tardanza',J:'Jus
 
 function formatAttendanceDayDate(value){return value?cap(new Intl.DateTimeFormat('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(value+'T12:00:00'))):'Día seleccionado'}
 function formatAttendanceClock(value){return value?new Intl.DateTimeFormat('es-PE',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'America/Lima'}).format(new Date(value)):'—'}
+
+function syncMobileTodaySummary(laborable){
+  const summary=$('mobile-today-summary');
+  if(summary)summary.hidden=!laborable;
+}
 
 function renderMobileTimeRecord({entryAt=null,exitAt=null,scheduledExit=null}={}){
   const entryTime=$('mobile-today-start'),exitTime=$('mobile-today-end');
@@ -2806,12 +2865,47 @@ function mergeDailyIssueState(closeData,issueData){
   return closeData;
 }
 
+function showDailyCloseLoadError(message='No pudimos comprobar el cierre. Revisa tu conexión y vuelve a intentarlo.',loading=false){
+  const views=[
+    {panel:$('day-close'),error:$('day-close-load-error'),title:$('day-close-load-error-title'),copy:$('day-close-load-error-copy'),retry:$('day-close-retry')},
+    {panel:$('mobile-close-panel'),error:$('mobile-close-load-error'),title:$('mobile-close-load-error-title'),copy:$('mobile-close-load-error-copy'),retry:$('mobile-close-retry')}
+  ];
+  views.forEach(({panel,error,title,copy,retry})=>{
+    if(!panel||!error)return;
+    panel.hidden=false;panel.classList.add('is-load-error');error.hidden=false;
+    if(title)title.textContent=loading?'Comprobando el cierre':'No pudimos comprobar el cierre';
+    if(copy)copy.textContent=loading?'Comprobando el cierre…':message;
+    if(retry)retry.disabled=loading;
+  });
+}
+
+function clearDailyCloseLoadError(){
+  const views=[
+    {panel:$('day-close'),error:$('day-close-load-error'),retry:$('day-close-retry')},
+    {panel:$('mobile-close-panel'),error:$('mobile-close-load-error'),retry:$('mobile-close-retry')}
+  ];
+  views.forEach(({panel,error,retry})=>{
+    panel?.classList.remove('is-load-error');
+    if(error)error.hidden=true;
+    if(retry)retry.disabled=false;
+  });
+}
+
+function resetDailyCloseUi(){
+  $('today-attendance-card')?.classList.remove('has-daily-close','daily-close-pending','daily-close-confirmed-hidden');
+  $('mobile-action-mark')?.classList.remove('daily-close-pending','daily-close-confirmed-hidden');
+  $('mobile-primary-attendance')?.classList.remove('daily-close-pending','daily-close-confirmed-hidden');
+  $('day-close').hidden=true;$('mobile-close-panel').hidden=true;clearDailyCloseLoadError();
+}
+
 function renderDailyClose(){
   const data=APP.cierre,section=$('day-close'),card=$('today-attendance-card');if(!section)return;
-  if(!data?.ok||!data.aplica){section.hidden=true;$('mobile-close-panel').hidden=true;card?.classList.remove('has-daily-close');return;}
+  clearDailyCloseLoadError();
+  if(!data?.ok||!data.aplica){section.hidden=true;$('mobile-close-panel').hidden=true;card?.classList.remove('has-daily-close');syncMarkedAttendanceAction();return;}
   const facebookOnly=!!data.solo_comparticiones,entryComplete=!!data.entrada_at,closed=!facebookOnly&&['completa','regularizada','incompleta'].includes(data.estado);
   section.hidden=false;
   card?.classList.add('has-daily-close');
+  syncMarkedAttendanceAction();
   const locked=!entryComplete||closed||DAILY_EVIDENCE.busy;
   const entryItem={
     tipo:'entrada',titulo:entryComplete?'Entrada registrada':'Registrar asistencia',
@@ -2917,16 +3011,37 @@ function renderDailyClose(){
 
 async function loadDailyClose({quiet=false}={}){
   if(!APP.identity.hasPersonal)return null;
-  const {data,error}=await db.rpc('dash_cierre_hoy');
-  if(error){
-    const missing=error.code==='PGRST202'||String(error.message||'').includes('dash_cierre_hoy');
-    if(missing){$('day-close').hidden=true;$('today-attendance-card')?.classList.remove('has-daily-close');return null;}
-    if(!quiet)dailyCloseMessage('No pudimos actualizar el cierre. Revisa tu conexión.','is-error');
-    return null;
-  }
-  if(!data?.ok){if(!quiet)dailyCloseMessage(data?.motivo==='sesion'?'Tu sesión venció. Vuelve a ingresar.':'No pudimos preparar el cierre.','is-error');return null;}
-  const [{data:reviews,error:reviewError},{data:issues,error:issueError}]=await Promise.all([db.rpc('dash_mis_revisiones_cierre'),db.rpc('dash_mis_impedimentos_cierre')]);
-  APP.cierre=mergeDailyIssueState(mergeDailyReviewState(data,reviewError?null:reviews),issueError?null:issues);renderDailyClose();return APP.cierre;
+  if(APP.dailyCloseRequest?.generation===APP.dailyCloseGeneration)return APP.dailyCloseRequest.promise;
+  if(!APP.dailyCloseResolved&&$('day-close')?.classList.contains('is-load-error'))showDailyCloseLoadError('',true);
+  const generation=APP.dailyCloseGeneration;
+  const request=(async()=>{
+    const fail=message=>{
+      if(!APP.dailyCloseResolved)showDailyCloseLoadError(message);
+      else if(!quiet)dailyCloseMessage(message,'is-error');
+      return null;
+    };
+    let result;
+    try{result=await db.rpc('dash_cierre_hoy')}
+    catch(error){
+      if(generation!==APP.dailyCloseGeneration)return APP.cierre;
+      return fail('No pudimos comprobar el cierre. Revisa tu conexión y vuelve a intentarlo.');
+    }
+    if(generation!==APP.dailyCloseGeneration)return APP.cierre;
+    const {data,error}=result||{};
+    if(error){
+      const missing=error.code==='PGRST202'||String(error.message||'').includes('dash_cierre_hoy');
+      return fail(missing?'No pudimos comprobar el cierre porque aún no está disponible en el servidor. Reintenta en unos momentos.':'No pudimos comprobar el cierre. Revisa tu conexión y vuelve a intentarlo.');
+    }
+    if(!data?.ok)return fail(data?.motivo==='sesion'?'Tu sesión venció. Vuelve a ingresar.':'No pudimos preparar el cierre. Revisa tu conexión y vuelve a intentarlo.');
+    const safeRpc=async name=>{try{return await db.rpc(name)}catch(rpcError){return {data:null,error:rpcError}}};
+    const [{data:reviews,error:reviewError},{data:issues,error:issueError}]=await Promise.all([safeRpc('dash_mis_revisiones_cierre'),safeRpc('dash_mis_impedimentos_cierre')]);
+    if(generation!==APP.dailyCloseGeneration)return APP.cierre;
+    APP.cierre=mergeDailyIssueState(mergeDailyReviewState(data,reviewError?null:reviews),issueError?null:issues);
+    APP.dailyCloseResolved=true;renderDailyClose();return APP.cierre;
+  })();
+  const entry={generation,promise:request};APP.dailyCloseRequest=entry;
+  try{return await request}
+  finally{if(APP.dailyCloseRequest===entry)APP.dailyCloseRequest=null;}
 }
 
 function clearDailyEvidenceFiles(){
@@ -3479,6 +3594,8 @@ $('daily-evidence-editor').addEventListener('keydown',event=>{
 $('daily-evidence-cancel').onclick=closeDailyEvidenceEditor;
 $('daily-evidence-cancel-top').onclick=closeDailyEvidenceEditor;
 $('day-close-button').onclick=()=>APP.cierre?.entrada_at?openDailyExitModal():handleMarkAction();
+$('day-close-retry').onclick=()=>void loadDailyClose({quiet:true});
+$('mobile-close-retry').onclick=()=>void loadDailyClose({quiet:true});
 $('daily-exit-confirm').onclick=markDailyExit;
 document.querySelectorAll('[data-close-daily-exit]').forEach(button=>button.onclick=closeDailyExitModal);
 $('daily-exit-modal').addEventListener('keydown',event=>{
@@ -3659,15 +3776,18 @@ document.addEventListener('visibilitychange',()=>{
 window.addEventListener('pageshow',()=>void checkDashboardVersion());
 
 async function handleMarkAction(){
+  if(MARK_ACTION_BUSY||MARK_BUSY)return;
   if((APP.inicio.dia||{}).marcado)return openMarkStatus();
-  const trigger=$('open-mark');trigger.setAttribute('aria-busy','true');
+  const trigger=$('open-mark');MARK_ACTION_BUSY=true;showMobileEntryActionError('');trigger?.setAttribute('aria-busy','true');syncMobileEntryAction();
   try{
     const fresh=await refreshMarkEligibility();
     if(fresh?.motivo==='ya_marcado'||fresh?.dia?.marcado)return openMarkStatus();
-    if(!fresh?.puede_marcar&&fresh?.motivo!=='ubicacion_requerida'){toast(markFailureMessage(fresh?.motivo,fresh?.dia?.ventana),true);return;}
+    if(!fresh?.puede_marcar&&fresh?.motivo!=='ubicacion_requerida'){
+      const message=markFailureMessage(fresh?.motivo,fresh?.dia?.ventana);showMobileEntryActionError(message);toast(message,true);return;
+    }
     openMarkModal();
-  }catch(error){toast(markFailureMessage(error.motivo,error.ventana),true);}
-  finally{trigger.removeAttribute('aria-busy');}
+  }catch(error){const message=markFailureMessage(error.motivo,error.ventana);showMobileEntryActionError(message);toast(message,true);}
+  finally{MARK_ACTION_BUSY=false;trigger?.removeAttribute('aria-busy');syncMobileEntryAction();}
 }
 function openMarkModal(){
   if($('mark-modal').dataset.closing)return;
@@ -3826,7 +3946,7 @@ $('confirm-mark').onclick=async()=>{
   if(!EVIDENCE)return markMsg('Adjunta la evidencia antes de registrar tu asistencia.');
   const mode=APP.inicio?.dia?.modalidad==='presencial'?'presencial':'virtual';
   if(mode==='presencial'&&(!MARK_GEO?.verified||Date.now()-Number(MARK_GEO.capturedAt||0)>=120000)){renderMarkModeCheck();return markMsg('Actualiza tu ubicación antes de registrar la asistencia presencial.');}
-  const btn=$('confirm-mark'),hadEvidence=true;MARK_BUSY=true;setBusy(btn,true,'Registrando…');markMsg('');resetMarkProgress();setMarkFlow('processing');
+  const btn=$('confirm-mark'),hadEvidence=true;MARK_BUSY=true;syncMobileEntryAction();setBusy(btn,true,'Registrando…');markMsg('');resetMarkProgress();setMarkFlow('processing');
   try{
     const geo=mode==='presencial'?MARK_GEO:null;
     const fresh=await refreshMarkEligibility({render:false,geo});
@@ -3842,13 +3962,14 @@ $('confirm-mark').onclick=async()=>{
     if(error){const missing=error.code==='PGRST202'||String(error.message||'').includes('dash_marcar_seguro');const e=new Error(missing?'proteccion_no_disponible':'registro');e.motivo=missing?'proteccion_no_disponible':'registro';throw e;}if(!data?.ok){const e=new Error(data?.motivo||'registro');e.motivo=data?.motivo;throw e;}
     markProgressStep('server','done','Registro confirmado');$('mark-processing-copy').textContent='Tu asistencia quedó registrada.';
     if(data.dia)APP.inicio.dia=data.dia;
+    APP.cierre=null;APP.dailyCloseResolved=false;APP.dailyCloseGeneration++;APP.dailyCloseRequest=null;resetDailyCloseUi();syncMarkedAttendanceAction();
     clearEvidence();showMarkReceipt(data,hadEvidence);
     (async()=>{try{const {data:fresh}=await db.rpc('dash_inicio');if(fresh?.ok){APP.inicio=fresh;renderHome();renderProfile();await Promise.all([loadHistory(),loadDailyClose({quiet:true})]);}}catch(refreshError){console.warn('No se pudo refrescar el panel tras marcar.',refreshError);}})();
   }catch(e){
     setMarkFlow('confirm');
     markMsg(markFailureMessage(e.motivo,e.ventana));
   }
-  finally{MARK_BUSY=false;setBusy(btn,false,'');syncMarkConfirm();reloadDashboardIfSafe();}
+  finally{MARK_BUSY=false;setBusy(btn,false,'');syncMarkConfirm();syncMobileEntryAction();reloadDashboardIfSafe();}
 };
 
 db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'&&!$('portal').hidden&&$('portal').dataset.loading!=='true')location.reload()});
