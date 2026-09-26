@@ -17,6 +17,34 @@
     return {state:(day.estado||'pending').toLowerCase(),alert:false,reason:attendance};
   }
 
+  // Follow the visible center while swiping, without rotating the day labels.
+  function curve(container){
+    if(!container)return;
+    if(container._updateMonthCurve){container._updateMonthCurve();return;}
+    const win=container.ownerDocument.defaultView;
+    const media=win.matchMedia('(max-width: 900px)');
+    let frame=0;
+    function update(){
+      frame=0;
+      const bounds=container.getBoundingClientRect();
+      if(!bounds.width)return;
+      const days=Array.from(container.querySelectorAll('.dashboard-month-day'));
+      const positions=days.map(day=>{
+        const rect=day.getBoundingClientRect();
+        const distance=Math.min(1,Math.abs((rect.left+rect.width/2-bounds.left-bounds.width/2)/(bounds.width/2)));
+        return media.matches?`${(26*distance*distance).toFixed(2)}px`:'0px';
+      });
+      days.forEach((day,index)=>day.style.setProperty('--day-arc-y',positions[index]));
+    }
+    const schedule=()=>{if(!frame)frame=win.requestAnimationFrame(update);};
+    container._updateMonthCurve=schedule;
+    container.addEventListener('scroll',schedule,{passive:true});
+    media.addEventListener('change',schedule);
+    if(win.ResizeObserver)new win.ResizeObserver(schedule).observe(container);
+    else win.addEventListener('resize',schedule);
+    schedule();
+  }
+
   function bind(container){
     if(!container||container.dataset.tooltipBound)return;
     container.dataset.tooltipBound='true';
@@ -76,6 +104,6 @@
     win.addEventListener('scroll',hide,true);
     return hide;
   }
-  root.KJAMonthProgress={present,bind};
-  if(typeof module!=='undefined')module.exports={present,bind};
+  root.KJAMonthProgress={present,bind,curve};
+  if(typeof module!=='undefined')module.exports={present,bind,curve};
 })(typeof globalThis!=='undefined'?globalThis:this);

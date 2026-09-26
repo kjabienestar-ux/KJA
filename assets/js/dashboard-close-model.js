@@ -53,6 +53,10 @@
     return (close?.requisitos||[]).some(item=>!['salida','comparticiones'].includes(item.tipo)&&!item.completo)
       || (close?.asignaciones||[]).some(item=>item.estado!=='cancelada'&&!item.completo);
   }
+  function workClosed(close){
+    return !!close?.salida_at || (close?.salida_ventana_vencida
+      ?? (close?.estado==='incompleta'&&!close?.comparticiones_vencidas));
+  }
   function teamEntryException(person,close,date){
     if(person.contrato_pendiente)return 'Datos pendientes de actualizar';
     const days=person.dias_laborables;
@@ -63,5 +67,5 @@
     if(!(day?.ini||person.hora_inicio)||!(day?.fin||person.hora_fin))return 'Horario pendiente de actualizar';
     return '';
   }
-  root.KJACloseModel=Object.freeze({stateTone,stateLabel,attendancePresentation,incompleteReasons,evidenceSelectionPolicy,hasPendingWork,teamEntryException});
+  root.KJACloseModel=Object.freeze({stateTone,stateLabel,attendancePresentation,incompleteReasons,evidenceSelectionPolicy,hasPendingWork,workClosed,teamEntryException});
 })(typeof window==='undefined'?globalThis:window);

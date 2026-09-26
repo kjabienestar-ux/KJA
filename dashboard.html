@@ -35,13 +35,15 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcements.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=3">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-jornada.css?v=12">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-jornada.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-mobile.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
   <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=26">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-loading.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-mobile.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-team-mobile.css?v=2">
 </head>
 <body>
 
@@ -688,9 +690,10 @@
         <article class="calendar-card attendance-calendar">
           <div class="attendance-calendar-head">
             <div class="attendance-calendar-heading">
+              <img class="attendance-history-figure" src="images/dashboard/attendance-phone.png" width="88" height="104" alt="" aria-hidden="true">
               <div class="attendance-calendar-title-wrap">
                 <b>Historial del mes</b>
-
+                <small class="attendance-history-hint">Toca un día para ver su detalle.</small>
               </div>
             </div>
             <div class="month-toolbar" id="month-toolbar">
@@ -791,6 +794,7 @@
     <section class="view" id="view-equipo" hidden>
       <header class="view-head"><div><p class="eyebrow">VISIBILIDAD POR ÁREA</p><h1 id="team-title">Mi equipo</h1><p id="team-sub">Estado de asistencia de las personas que puedes consultar.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
       <div class="team-top-bar" id="team-top-bar">
+        <div class="team-mobile-overview-heading"><span><b>Resumen de hoy</b><small>Asistencia y cierre de jornada</small></span><img src="images/dashboard/access-team.svg" width="64" height="64" alt="" aria-hidden="true"></div>
         <div class="team-summary" id="team-summary"></div>
         <div class="team-evidence-guide" id="team-evidence-guide" hidden></div>
       </div>
@@ -810,7 +814,7 @@
         </div>
         <aside class="team-detail-panel" id="team-detail-panel" aria-label="Informe y gráficos del equipo"></aside>
       </div>
-      <dialog id="team-mobile-dialog" aria-label="Detalle del equipo"><form method="dialog" class="team-mobile-dialog-head"><b>Mi equipo</b><button type="submit" autofocus aria-label="Cerrar detalle">Cerrar ×</button></form><div id="team-mobile-dialog-body"></div></dialog>
+      <dialog id="team-mobile-dialog" aria-label="Detalle del equipo"><form method="dialog" class="team-mobile-dialog-head"><b>Mi equipo</b><button type="submit" autofocus aria-label="Cerrar detalle">×</button></form><div id="team-mobile-dialog-body"></div></dialog>
     </section>
 
     <section class="view admin-view" id="view-gestion" hidden>
@@ -2073,12 +2077,12 @@
 
 
 
-<script src="assets/js/dashboard-close-model.js?v=7"></script>
+<script src="assets/js/dashboard-close-model.js?v=8"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
 <script src="assets/js/dashboard-announcement-modal.js?v=4"></script>
-<script src="assets/js/dashboard-month-progress.js?v=2"></script>
+<script src="assets/js/dashboard-month-progress.js?v=3"></script>
 <script src="assets/js/attendance-calendar-model.js?v=2"></script>
-<script src="assets/js/dashboard.js?v=214"></script>
+<script src="assets/js/dashboard.js?v=219"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>

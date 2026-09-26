@@ -1,0 +1,125 @@
+/* Mi equipo: variante móvil de la paleta personal del portal. */
+.team-mobile-overview-heading{display:none}
+#team-detail-panel .team-profile-calendar button{display:grid;place-items:center;min-width:0;min-height:44px;padding:4px 0;border:1px solid transparent;border-radius:9px;background:#fff;color:#526477;box-shadow:none;font:600 11px/1.3 Inter,system-ui,sans-serif;cursor:pointer}
+#team-detail-panel .team-profile-calendar button i{font-size:9px;font-style:normal;min-height:12px}
+#team-detail-panel .team-profile-calendar button.p{background:#e5f7f1;color:#08765d}
+#team-detail-panel .team-profile-calendar button.t{background:#fff0d7;color:#926000}
+#team-detail-panel .team-profile-calendar button.j{background:#e8f1fb;color:#285f9f}
+#team-detail-panel .team-profile-calendar button:is(.ng,.incomplete){background:#ffe8ed;color:#922e43}
+#team-detail-panel .team-profile-calendar button:disabled{opacity:.45;cursor:default}
+#team-detail-panel .team-profile-calendar button:not(:disabled):hover{border-color:#79988c;transform:none}
+#team-detail-panel .team-profile-calendar button[aria-pressed="true"]{border-color:#d51659;box-shadow:inset 0 0 0 1px #d51659}
+#team-detail-panel .team-day-detail{padding:16px;border:1px solid #e4ece7;border-radius:16px;background:#fff;color:#203248;font:400 12px/1.5 Inter,system-ui,sans-serif;scroll-margin:76px}
+#team-detail-panel .team-day-detail[hidden]{display:none}
+#team-detail-panel .team-day-detail>header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#team-detail-panel .team-day-detail h4{margin:3px 0 0;font:650 16px/1.4 Inter,system-ui,sans-serif;color:#203248}
+#team-detail-panel .team-day-detail header small{font-size:9px;letter-spacing:.06em;color:#62796d}
+#team-detail-panel .team-day-detail button{min-height:44px;padding:8px 12px;border:0;border-radius:10px;background:#fff0f5;color:#ad1749;font:600 11px/1.4 Inter,system-ui,sans-serif;box-shadow:none}
+#team-detail-panel .team-day-detail button:hover{background:#fbe0ea;color:#ad1749;transform:none}
+#team-detail-panel .team-day-detail button:focus-visible,#team-detail-panel .team-profile-calendar button:focus-visible{outline:2px solid #d51659;outline-offset:2px}
+#team-detail-panel .team-day-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0;padding:12px;background:#eff6f2;border-radius:12px}
+#team-detail-panel .team-day-times dt{font-size:10px;color:#62796d}
+#team-detail-panel .team-day-times dd{margin:3px 0 0;font-weight:650;color:#346b55;font-variant-numeric:tabular-nums}
+#team-detail-panel .team-day-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:10px;color:#637587}
+#team-detail-panel .team-day-counts span{padding:8px;border-bottom:1px solid #e4ece7}
+#team-detail-panel .team-day-counts b{display:block;font-size:21px;color:#203248;font-variant-numeric:tabular-nums}
+#team-detail-panel .team-day-note{font-size:10px;color:#637587}
+#team-detail-panel .team-day-activities details{border-bottom:1px solid #e4ece7;padding:4px 0}
+#team-detail-panel .team-day-activities summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;cursor:pointer;font-weight:600;list-style:none}
+#team-detail-panel .team-day-activities summary::-webkit-details-marker{display:none}
+#team-detail-panel .team-day-activities summary:after{content:'+';font-size:17px;color:#62796d}
+#team-detail-panel .team-day-activities details[open]>summary:after{content:'−'}
+#team-detail-panel .team-day-activities summary>span{flex:1;min-width:0;overflow-wrap:anywhere}
+#team-detail-panel .team-day-activities summary small{display:block;font-size:10px;font-weight:400;color:#637587}
+#team-detail-panel .team-day-activities em{font-size:9px;font-style:normal;padding:4px 6px;border-radius:6px;background:#fbefda;color:#875b21}
+#team-detail-panel .team-day-activities em.done{background:#e7f2ea;color:#346b55}
+#team-detail-panel .team-day-activities p{white-space:pre-wrap;overflow-wrap:anywhere;color:#526477}
+#team-detail-panel .team-day-files{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:10px}
+#team-detail-panel .team-day-preview{display:grid;gap:10px;margin-top:12px;padding:12px;background:#f3f7f4;border-radius:12px;scroll-margin:76px}
+#team-detail-panel .team-day-preview[hidden]{display:none}
+#team-detail-panel .team-day-preview :is(img,video){width:100%;max-height:300px;object-fit:contain;border-radius:8px}
+#team-detail-panel .team-day-preview a{color:#ad1749;font-weight:600;padding:8px 0}
+#team-detail-panel .team-day-preview nav{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#637587;font-size:11px}
+#team-detail-panel .team-day-preview button:disabled{opacity:.4;cursor:default}
+@media(max-width:900px){
+  #portal:not(.admin-wide) #view-equipo{color:#203248}
+  #portal:not(.admin-wide) #view-equipo>.view-head{position:relative;display:block;padding:0 60px 0 0!important;margin:4px 0 20px!important;background:transparent!important;border:0;box-shadow:none!important}
+  #portal:not(.admin-wide) #view-equipo>.view-head::before,
+  #portal:not(.admin-wide) #view-equipo>.view-head::after{content:none!important}
+  #portal:not(.admin-wide) #view-equipo #team-title{font:700 25px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:-.025em!important;color:#203248!important;margin:0}
+  #portal:not(.admin-wide) #view-equipo #team-sub{font:400 12px/1.5 Inter,system-ui,sans-serif!important;color:#526477!important;margin:7px 0 0;max-width:36ch}
+  #portal:not(.admin-wide) #view-equipo .mobile-inline-home{position:absolute!important;top:0;right:0;display:grid;place-items:center;width:44px;height:44px;min-width:44px;margin:0;padding:0;border:1px solid #fff;border-radius:50%;background:#e7f2f5;color:#52788b;box-shadow:none}
+  #portal:not(.admin-wide) #view-equipo .mobile-inline-home::before{content:none}
+  #portal:not(.admin-wide) #view-equipo .mobile-inline-home:hover{background:#dcecf1;color:#52788b;transform:none}
+  #portal:not(.admin-wide) #view-equipo .mobile-inline-home svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
+  #portal:not(.admin-wide) #view-equipo .team-top-bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 10px;margin-bottom:14px;padding:10px 12px 0;border:0;border-radius:20px;background:#fff;box-shadow:none;overflow:hidden}
+  #portal:not(.admin-wide) #view-equipo .team-mobile-overview-heading{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;gap:8px;background:#eff6f2;border-radius:12px;padding:5px 10px;margin-bottom:2px}
+  #portal:not(.admin-wide) #view-equipo .team-mobile-overview-heading b{display:block;color:#203248;font-size:13px;font-weight:700;letter-spacing:-.015em}
+  #portal:not(.admin-wide) #view-equipo .team-mobile-overview-heading small{display:block;margin-top:4px;color:#526e60;font-size:11px;line-height:1.4}
+  #portal:not(.admin-wide) #view-equipo .team-mobile-overview-heading img{width:36px;height:36px;flex-shrink:0}
+  #portal:not(.admin-wide) #view-equipo .team-mobile-overview-heading small{display:none}
+  #portal:not(.admin-wide) #view-equipo :is(.team-summary,.team-evidence-guide,.team-followup-kpis){display:contents}
+  #portal:not(.admin-wide) #view-equipo .team-evidence-guide[hidden]{display:none}
+  #portal:not(.admin-wide) #view-equipo .team-top-bar .team-kpi{display:flex;flex-direction:column;gap:5px;min-width:0;padding:10px 0;border:0;border-bottom:1px solid #edf1ee;border-radius:0;background:transparent;box-shadow:none}
+  #portal:not(.admin-wide) #view-equipo .team-top-bar .team-kpi::before,
+  #portal:not(.admin-wide) #view-equipo .team-top-bar .team-kpi::after{content:none!important}
+  #portal:not(.admin-wide) #view-equipo .team-top-bar .team-kpi{border-right:0!important}
+  #portal:not(.admin-wide) #view-equipo .team-top-bar .team-kpi small{min-height:28px;font:500 10px/1.4 Inter,system-ui,sans-serif;color:#637587;letter-spacing:0;text-transform:none;overflow-wrap:normal}
+  #portal:not(.admin-wide) #view-equipo .team-top-bar .team-kpi b{font:700 21px/1.1 Inter,system-ui,sans-serif;color:#346b55;font-variant-numeric:tabular-nums;letter-spacing:-.025em}
+  #portal:not(.admin-wide) #view-equipo .team-guide-text{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border:0;background:transparent}
+  #portal:not(.admin-wide) #view-equipo .team-guide-text b{font-size:10px;line-height:1.5;color:#637587;font-weight:500}
+  #portal:not(.admin-wide) #view-equipo .team-guide-text i{flex-shrink:0;padding:5px 8px;border:0;background:#edf5ef;color:#397453;font:600 9px/1.2 Inter,system-ui,sans-serif;letter-spacing:0;border-radius:8px}
+  #portal:not(.admin-wide) #view-equipo .team-master-panel{background:#fff;border:0;border-radius:20px;box-shadow:none;overflow:hidden}
+  #portal:not(.admin-wide) #view-equipo .team-list-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:16px 14px 12px;gap:12px;background:#fff;border:0;border-bottom:1px solid #edf1ee}
+  #portal:not(.admin-wide) #view-equipo .team-toolbar-info{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+  #portal:not(.admin-wide) #view-equipo .team-toolbar-info>b{font:700 16px/1.3 Inter,system-ui,sans-serif;color:#203248}
+  #portal:not(.admin-wide) #view-equipo #team-list-count{padding:0;background:transparent;color:#637587;font-size:11px;font-weight:400}
+  #portal:not(.admin-wide) #view-equipo .team-view-general-btn,
+  #portal:not(.admin-wide) #view-equipo .team-view-general-btn.active{min-height:44px;padding:10px 12px;border:0;border-radius:12px;background:#E11D5F;color:#fff;box-shadow:none;font:600 11px/1.3 Inter,system-ui,sans-serif}
+  #portal:not(.admin-wide) #view-equipo .team-view-general-btn:hover{background:#c61752;color:#fff;box-shadow:none;transform:none}
+  #portal:not(.admin-wide) #view-equipo .team-list{padding:0 10px 8px;gap:0;background:#fff;max-height:none}
+  #portal:not(.admin-wide) #view-equipo .team-row{display:grid;grid-template-columns:44px minmax(0,1fr) 64px;grid-template-rows:auto auto;align-items:center;gap:5px 10px;padding:14px 4px;border:0;border-bottom:1px solid #edf1ee;border-radius:0;background:#fff;box-shadow:none;transition:background-color 150ms ease}
+  #portal:not(.admin-wide) #view-equipo .team-row:last-child{border-bottom:0}
+  #portal:not(.admin-wide) #view-equipo .team-row::before,
+  #portal:not(.admin-wide) #view-equipo .team-row::after{content:none}
+  #portal:not(.admin-wide) #view-equipo .team-row:hover{background:#f7faf8;box-shadow:none;transform:none}
+  #portal:not(.admin-wide) #view-equipo .team-row.is-selected{background:#f0f6f2;border-color:#edf1ee;box-shadow:none}
+  #portal:not(.admin-wide) #view-equipo .team-row .avatar{grid-column:1;grid-row:1/3;width:44px;height:44px;border:0;border-radius:14px;background:#e1eee6;color:#397453;box-shadow:none;font-size:13px;font-weight:650;overflow:hidden}
+  #portal:not(.admin-wide) #view-equipo .team-row .avatar img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+  #portal:not(.admin-wide) #view-equipo .team-row-info{grid-column:2;grid-row:1;min-width:0}
+  #portal:not(.admin-wide) #view-equipo .team-row-progress{display:none}
+  #portal:not(.admin-wide) #view-equipo .team-row-info strong,
+  #portal:not(.admin-wide) #view-equipo .team-row.is-selected .team-row-info strong{color:#203248;font:600 12px/1.4 Inter,system-ui,sans-serif;white-space:normal;overflow-wrap:anywhere}
+  #portal:not(.admin-wide) #view-equipo .team-row-info small{color:#637587;font-size:10px;line-height:1.4;margin-top:3px}
+  #portal:not(.admin-wide) #view-equipo .team-state{grid-column:2;grid-row:2;justify-self:start;max-width:100%;padding:4px 7px;border:0;border-radius:7px;background:#edf2f5;color:#526477;box-shadow:none;font:600 9px/1.3 Inter,system-ui,sans-serif;text-transform:none;letter-spacing:0;white-space:normal}
+  #portal:not(.admin-wide) #view-equipo .team-state.p{background:#e7f2ea;color:#346b55}
+  #portal:not(.admin-wide) #view-equipo .team-state.t{background:#fbefda;color:#875b21}
+  #portal:not(.admin-wide) #view-equipo .team-state.ng{background:#fae9ed;color:#a13954}
+  #portal:not(.admin-wide) #view-equipo .team-state.j{background:#eaf1fa;color:#476a97}
+  #portal:not(.admin-wide) #view-equipo .team-row-actions{grid-column:3;grid-row:1/3;justify-self:end;width:64px;margin:0}
+  #portal:not(.admin-wide) #view-equipo .team-select-trigger{width:100%;min-height:44px;padding:8px 6px;border:0;border-radius:10px;background:#fff0f5;color:#ad1749;font:600 10px/1.35 Inter,system-ui,sans-serif;box-shadow:none;white-space:normal}
+  #portal:not(.admin-wide) #view-equipo .team-row.is-selected .team-select-trigger{background:#E11D5F;color:#fff;box-shadow:none}
+  #portal:not(.admin-wide) #view-equipo .team-select-trigger:hover{background:#fbe0ea;color:#ad1749;box-shadow:none;transform:none}
+  #portal:not(.admin-wide) #view-equipo .team-row.is-selected .team-select-trigger:hover{background:#c61752;color:#fff}
+  #portal:not(.admin-wide) #view-equipo #team-mobile-dialog{width:calc(100% - 20px);max-width:560px;max-height:calc(100dvh - 32px);margin:auto;padding:0;border:0;border-radius:24px;background:#fff;color:#203248}
+  #portal:not(.admin-wide) #view-equipo .team-mobile-dialog-head{padding:12px 16px;background:#fff;border-bottom:1px solid #edf1ee}
+  #portal:not(.admin-wide) #view-equipo .team-mobile-dialog-head>b{font:650 17px/1.3 Inter,system-ui,sans-serif;color:#203248}
+  #portal:not(.admin-wide) #view-equipo .team-mobile-dialog-head button{width:40px;height:40px;min-height:40px;padding:0;border:0;border-radius:50%;background:#E11D5F;color:#fff;font-size:24px}
+  #portal:not(.admin-wide) #view-equipo .team-mobile-dialog-head button:hover{background:#c61752;color:#fff}
+  #portal:not(.admin-wide) #view-equipo #team-mobile-dialog .team-detail-panel{background:#fff;padding:16px}
+  #portal:not(.admin-wide) #view-equipo #team-mobile-dialog :is(h3,h4){font-family:Inter,system-ui,sans-serif;font-weight:650;color:#203248;letter-spacing:-.015em}
+  #portal:not(.admin-wide) #view-equipo #team-mobile-dialog :is(.team-dashboard-kpi,.team-chart-card,.team-person-calendar-card){background:#f3f7f4;border:0;box-shadow:none;backdrop-filter:none;border-radius:14px}
+  #portal:not(.admin-wide) #view-equipo #team-mobile-dialog .team-dashboard-kpi b{font-family:Inter,system-ui,sans-serif;font-weight:700;color:#346b55}
+  #portal:not(.admin-wide) #view-equipo #team-mobile-dialog .team-dashboard-kpi.has-alert b{color:#a13954}
+  #portal:not(.admin-wide) #view-equipo #team-mobile-dialog .team-person-head{border:0;border-radius:14px;background:#eff6f2;padding:12px}
+  #portal:not(.admin-wide) #view-equipo :is(button,[role="button"]):focus-visible{outline:2px solid #E11D5F;outline-offset:2px}
+}
+@media(max-width:360px){
+  #portal:not(.admin-wide) #view-equipo .team-row{grid-template-columns:38px minmax(0,1fr) 60px;gap:5px 8px}
+  #portal:not(.admin-wide) #view-equipo .team-row .avatar{width:38px;height:38px;border-radius:12px}
+  #portal:not(.admin-wide) #view-equipo .team-row-actions{width:60px}
+  #portal:not(.admin-wide) #view-equipo .team-list-toolbar{padding-inline:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  #portal:not(.admin-wide) #view-equipo .team-row{transition:none}
+}
