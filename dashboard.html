@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=35">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=12">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcements.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=3">
@@ -40,7 +40,8 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
   <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=26">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=6">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=7">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-loading.css?v=2">
 </head>
 <body>
 
@@ -311,7 +312,7 @@
           <div id="mobile-month-progress-slot"></div>
           <section class="mobile-primary-attendance" id="mobile-primary-attendance" aria-label="Acción principal de asistencia" hidden>
             <button type="button" data-mobile-action="marcar" id="mobile-action-mark" aria-describedby="mobile-entry-action-error">
-              <img class="mobile-access-figure" src="images/dashboard/access-attendance.svg" width="56" height="56" alt="" aria-hidden="true">
+              <img class="mobile-access-figure" src="images/dashboard/attendance-phone.png" width="104" height="128" alt="" aria-hidden="true">
               <span><b id="mobile-action-mark-title">Consultando asistencia…</b><small id="mobile-action-mark-note">Espera un momento</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
@@ -453,7 +454,13 @@
       </header>
 
       <div class="today-layout">
-        <article class="day-card" id="today-attendance-card" data-attendance-state="loading">
+        <article class="day-card daily-close-pending" id="today-attendance-card" data-attendance-state="loading">
+          <div class="day-pending-placeholder" role="status">
+            <span class="pending-spinner" aria-hidden="true"></span>
+            <strong>Preparando tu jornada</strong>
+            <p>Consultando tu asistencia y tus pendientes…</p>
+            <div class="pending-placeholder-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
           <div class="day-card-grid">
             <section class="day-schedule" aria-labelledby="day-schedule-title">
               <div class="schedule-welcome">
@@ -2013,8 +2020,11 @@
     </div>
 
     <div class="mark-processing" id="mark-processing" role="status" aria-live="polite" tabindex="-1" hidden>
-      <div class="mark-loader" aria-hidden="true"><i></i><em class="mark-particles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></em><span><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.1 7 10 4.2-1.9 7-5.4 7-10V6z"/><path d="M12 8v4l3 2"/></svg></span></div>
-      <p class="eyebrow">REGISTRO SEGURO</p><h2 id="mark-processing-title">Estamos registrando tu asistencia</h2><p id="mark-processing-copy">Preparando la validación…</p>
+      <div class="mark-processing-hero">
+        <img src="images/dashboard/attendance-phone.png" width="180" height="180" alt="" aria-hidden="true">
+        <div><p class="eyebrow">TU ASISTENCIA</p><h2 id="mark-processing-title">Registrando tu entrada</h2><span class="mark-processing-activity"><i class="pending-spinner" aria-hidden="true"></i>Un momento, por favor</span></div>
+      </div>
+      <p id="mark-processing-copy">Preparando la validación…</p>
       <div class="mark-processing-track" id="mark-processing-track" aria-hidden="true"><i></i></div>
       <div class="mark-steps" aria-label="Progreso del registro">
         <span id="mark-step-location"><i></i><b>Dispositivo y ubicación</b><small>En espera</small></span>
@@ -2068,7 +2078,7 @@
 <script src="assets/js/dashboard-announcement-modal.js?v=4"></script>
 <script src="assets/js/dashboard-month-progress.js?v=2"></script>
 <script src="assets/js/attendance-calendar-model.js?v=2"></script>
-<script src="assets/js/dashboard.js?v=213"></script>
+<script src="assets/js/dashboard.js?v=214"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
@@ -2094,6 +2104,6 @@
 <script src="assets/js/intern-report-excel.js?v=5"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=6"></script>
-<script src="assets/js/dashboard-pausa-activa.js?v=12"></script>
+<script src="assets/js/dashboard-pausa-activa.js?v=13"></script>
 </body>
 </html>

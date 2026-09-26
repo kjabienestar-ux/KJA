@@ -1519,6 +1519,7 @@
 /* Glass remains readable with transparency or motion disabled. */
 .rail-pausa-card:focus-visible { outline: 3px solid #075abc; outline-offset: 4px; }
 .rail-pausa-duration { white-space: normal; }
+#pausa-sync-status { margin: 12px auto 0; max-width: 44ch; color: #475569; font-size: 12px; line-height: 1.5; text-wrap: pretty; }
 .rail-pausa-arrow { background: rgba(255,255,255,.65); }
 @media (prefers-reduced-transparency: reduce) {
   .rail-pausa-card, .pausa-modal-dialog { background: #f0eeeb; backdrop-filter: none; -webkit-backdrop-filter: none; }

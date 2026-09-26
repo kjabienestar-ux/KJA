@@ -8,8 +8,8 @@ function selection(done=false){
   const front={setAttribute(k,v){this[k]=v},focus(){this.focused=true}},start={focus(){this.focused=true}},back={inert:true,querySelector:()=>start};
   const card={classList:{toggle(){flipped=!flipped;return flipped}},querySelector:s=>s==='.pausa-card-front'?front:s==='.pausa-card-back'?back:start};
   const close={},container={querySelector:s=>s==='#pausa-btn-close-modal'?close:card};
-  const c={getModalContainer:()=>container,BREAKS:[{id:'visual',duration:600,title:'Descanso visual',zones:'Cuello'}],completedBreaks:new Set(done?['visual']:[]),closeModal(){},startSession(){c.started=true}};
-  vm.createContext(c);vm.runInContext(source.slice(source.indexOf('  function renderSelectionView()'),source.indexOf('  function startSession(')),c);c.renderSelectionView();
+  const c={currentBreak:null,viewMode:'selection',stopTimer(){},stopSuggestionCycle(){},getOverlay:()=>null,getActivityFigure:()=>'',getModalContainer:()=>container,BREAKS:[{id:'visual',duration:600,title:'Descanso visual',zones:'Cuello',activities:[]}],completedBreaks:new Set(done?['visual']:[]),closeModal(){},startSession(){c.started=true}};
+  vm.createContext(c);vm.runInContext(source.slice(source.indexOf('  function renderSelectionView()'),source.indexOf('  async function startSession(')),c);c.renderSelectionView();
   return {c,container,front,back,start,card};
 }
 test('keyboard reveals exercises and makes only the visible face interactive',()=>{

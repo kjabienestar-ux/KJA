@@ -46,3 +46,18 @@ test('finished shifts do not start another timer; upcoming shifts still count do
   assert.equal(upcoming.$('clock-finish-time').textContent,'');
   assert.equal(upcoming.$('clock-label').textContent,'Sin jornada programada');
 });
+
+test('fractional server seconds stay in two-digit groups across minute and end boundaries',()=>{
+  const h=clock('08:09:47.895789');
+  assert.deepEqual(['h','m','s'].map(id=>h.$('clock-'+id).querySelector().textContent),['05','50','13']);
+  h.advance(13000);
+  assert.deepEqual(['h','m','s'].map(id=>h.$('clock-'+id).querySelector().textContent),['05','50','00']);
+  h.advance(1000);
+  assert.deepEqual(['h','m','s'].map(id=>h.$('clock-'+id).querySelector().textContent),['05','49','59']);
+  assert.match(h.position(),/^\d{2}:\d{2}:\d{2}$/);
+  const end=clock('13:59:59.999999');
+  assert.equal(end.$('clock-s').querySelector().textContent,'01');
+  end.advance(1000);
+  assert.equal(end.$('clock-s').querySelector().textContent,'00');
+  assert.equal(end.running(),false);
+});
