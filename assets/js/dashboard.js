@@ -959,8 +959,8 @@ function syncMobileQuickGrid(){
 }
 
 function markedAttendanceActionState({marked,closeResolved,closeApplies,entryAt}){
-  if(!marked)return 'visible';
   if(!closeResolved)return 'pending';
+  if(!marked)return 'visible';
   return closeApplies&&entryAt?'hidden':'visible';
 }
 
@@ -1216,7 +1216,7 @@ function startShiftClock(d){
 
   function tick(){
     const nowSec=limaSeconds();
-    positionNow({...d,ahora:`${pad(Math.floor(nowSec/3600))}:${pad(Math.floor(nowSec%3600/60))}:${pad(nowSec%60)}`});
+    positionNow({...d,ahora:`${pad(Math.floor(nowSec/3600))}:${pad(Math.floor(nowSec%3600/60))}:${pad(Math.floor(nowSec%60))}`});
     let remain;
     if(nowSec<startSec){
       remain=startSec-nowSec;
@@ -1235,8 +1235,11 @@ function startShiftClock(d){
       remain=endSec-nowSec;
       clock.classList.remove('ended');
       if(label) label.textContent='Tiempo restante de jornada';
-      if(caption) caption.textContent=`Hasta las ${d.hora_salida} · hora del servidor`;
+      if(caption) caption.textContent=`Hasta las ${fmtTime(d.hora_salida)} · hora del servidor`;
     }
+    // El servidor incluye microsegundos; redondear el total antes de separarlo
+    // evita decimales y mantiene los cambios de minuto (nunca mostrar 60 s).
+    remain=Math.max(0,Math.ceil(remain));
     const h=Math.floor(remain/3600);
     const m=Math.floor((remain%3600)/60);
     const s=remain%60;

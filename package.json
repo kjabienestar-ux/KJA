@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test:pausas": "node --test tests/pausa-server.test.mjs tests/pausa-session-lock.test.mjs tests/pausa-sessions-sql.test.mjs tests/pausa-features.test.mjs tests/pausa-carousel.test.mjs tests/pausa-design.test.mjs",
     "test:cierre": "node --test tests/cierre-null-sql.test.mjs tests/daily-close-loading.test.mjs",
     "dev": "npx serve . -l 3000",
     "start": "npx serve . -l 3000",

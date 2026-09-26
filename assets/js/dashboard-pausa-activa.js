@@ -107,6 +107,54 @@
   let suggestionIdx = 0;
   let suggestionInterval = null;
   let completedBreaks = new Set();
+  let session = null, anchorAt = 0, remainingAtAnchor = 0;
+  let sessionOwner = null, requestVersion = 0, reading = null, finishing = false;
+  let retryAt = 0, viewMode = 'selection';
+  const monotonicNow = () => typeof performance !== 'undefined' ? performance.now() : Date.now();
+  const accountKey = () => String((typeof APP !== 'undefined' ? APP : window.APP)?.inicio?.colaborador?.id || '');
+  let channel = null;
+  try { if (window.BroadcastChannel) channel = new window.BroadcastChannel('kja-pausas-v2'); } catch {}
+  // Los mensajes solo invalidan la vista: nunca autorizan consumos ni finalizaciones.
+  function notifyTabs() { channel?.postMessage({ type: 'refresh' }); }
+  function clearSession() {
+    stopTimer(); stopSuggestionCycle(); session = null; currentBreak = null;
+    sessionOwner = null; retryAt = 0;
+    getOverlay()?.classList.remove('pausa-session-running');
+  }
+  function applySnapshot(data) {
+    if (data.version !== 2 || !Array.isArray(data.pausas) || !Number.isFinite(Date.parse(data.ahora))) {
+      throw new Error('Falta actualizar las pausas en Supabase (dashboard_78). Recarga cuando se aplique.');
+    }
+    const owner = accountKey();
+    if (owner && String(data.colaborador_id) !== owner) return false;
+    const previous = session, incoming = data.sesion;
+    completedBreaks = new Set(data.pausas);
+    if (incoming?.estado === 'en_curso') {
+      const item = BREAKS.find(b => b.id === incoming.pausa);
+      const remaining = (Date.parse(incoming.fin_at) - Date.parse(data.ahora)) / 1000;
+      if (!item || !incoming.id || !Number.isFinite(remaining)) throw new Error('La sesión de pausa no es válida. Actualiza e intenta nuevamente.');
+      const changed = previous?.id !== incoming.id;
+      session = incoming; currentBreak = item; sessionOwner = owner;
+      totalSeconds = item.duration; remainingAtAnchor = Math.max(0, Math.min(totalSeconds, remaining));
+      anchorAt = monotonicNow(); secondsLeft = Math.ceil(remainingAtAnchor);
+      if (changed) { currentActivityIdx = 0; suggestionIdx = 0; retryAt = 0; }
+      const overlay = getOverlay();
+      if (overlay) { overlay.hidden = false; overlay.classList.add('pausa-session-running'); }
+      document.body.classList.add('kja-announcement-open');
+      if (changed || viewMode === 'selection') renderSessionView();
+      startTimer();
+      if (changed && viewMode === 'session') startSuggestionCycle();
+    } else if (previous) {
+      clearSession();
+      if (incoming?.id === previous.id && incoming.estado === 'completada') {
+        playCompletionSound(); renderCompleteView();
+      } else if (!getOverlay()?.hidden) renderSelectionView();
+    } else if (!starting && viewMode === 'selection' && !getOverlay()?.hidden) {
+      renderSelectionView();
+    }
+    updateRailButton();
+    return true;
+  }
 
   // El servidor es la fuente de verdad del saldo diario.
   let starting = false;
@@ -117,21 +165,35 @@
       const messages = {
         fuera_horario: 'Solo puedes usar pausas dentro de tu horario laboral, después de marcar entrada y antes de salir.',
         consumida: 'Esta pausa ya fue usada hoy.', limite: 'Ya usaste tus dos pausas de hoy.',
-        sin_permiso: 'No tienes permiso para realizar esta acción.'
+        sin_permiso: 'No tienes permiso para realizar esta acción.',
+        sin_sesion: 'Tu sesión ha caducado. Vuelve a iniciar sesión.',
+        tiempo_insuficiente: 'No queda tiempo suficiente en tu jornada para completar esta pausa.',
+        tiempo_pendiente: 'La pausa todavía no termina. Estamos sincronizando el tiempo.',
+        sesion_no_disponible: 'La pausa fue restablecida o ya no está disponible.',
+        actualizar_portal: 'Actualiza la página para usar la nueva versión de pausas.'
       };
-      throw new Error(messages[data?.motivo] || 'No se pudo consultar o guardar las pausas. Intenta nuevamente.');
+      const failure = new Error(messages[data?.motivo] || 'No se pudo consultar o guardar las pausas. Intenta nuevamente.');
+      failure.reason = data?.motivo;
+      throw failure;
     }
     return data;
   }
   async function loadDailyBreaks() {
-    try {
-      const data = await pausaRPC('dash_mis_pausas');
-      const changed = JSON.stringify([...completedBreaks]) !== JSON.stringify(data.pausas || []);
-      completedBreaks = new Set(data.pausas || []);
-      updateRailButton();
-      if (changed && !starting && !currentBreak && getOverlay() && !getOverlay().hidden) renderSelectionView();
-      return true;
-    } catch { return false; }
+    if (reading) return reading;
+    const version = requestVersion, owner = accountKey();
+    reading = (async () => {
+      try {
+        const data = await pausaRPC('dash_mis_pausas');
+        if (version !== requestVersion || owner !== accountKey()) return false;
+        return applySnapshot(data);
+      } catch (error) {
+        if (version === requestVersion && ['sin_sesion','sin_colaborador'].includes(error.reason)) {
+          clearSession(); completedBreaks.clear(); closeModal(); updateRailButton();
+        }
+        return false;
+      }
+    })();
+    try { return await reading; } finally { reading = null; }
   }
 
   function usuarioMarcado() {
@@ -197,7 +259,7 @@
     if (!await loadDailyBreaks()) { showEntryRequiredToast('No se pudieron consultar tus pausas. Intenta nuevamente.'); return; }
     const overlay = getOverlay();
     if (!overlay) return;
-    renderSelectionView();
+    if (!currentBreak) renderSelectionView();
     overlay.hidden = false;
     document.body.classList.add("kja-announcement-open");
   }
@@ -293,7 +355,9 @@
   }
 
   function renderSelectionView() {
-    stopTimer(); stopSuggestionCycle(); currentBreak = null;
+    if (currentBreak) { renderSessionView(); return; }
+    viewMode = 'selection';
+    stopTimer(); stopSuggestionCycle();
     getOverlay()?.classList.remove("pausa-session-running");
     const container = getModalContainer();
     if (!container) return;
@@ -374,16 +438,25 @@
 
       const cardEl = container.querySelector(`#pausa-card-${b.id}`);
       if (cardEl) {
-        cardEl.tabIndex = 0;
-        cardEl.setAttribute('aria-label', b.title + '. Pulsa Enter para ver los detalles.');
-        cardEl.onkeydown = e => {
-          if (e.target === cardEl && (e.key === 'Enter' || e.key === ' ')) {
-            e.preventDefault(); cardEl.classList.toggle('is-flipped');
-          }
+        const front = cardEl.querySelector('.pausa-card-front');
+        const back = cardEl.querySelector('.pausa-card-back');
+        const flip = () => {
+          const expanded = cardEl.classList.toggle('is-flipped');
+          if (front) { front.inert = expanded; front.tabIndex = expanded ? -1 : 0; front.setAttribute('aria-expanded', String(expanded)); }
+          if (back) back.inert = !expanded;
+          if (expanded) back?.querySelector('.pausa-btn-start')?.focus();
+          else front?.focus();
         };
+        if (front) {
+          front.tabIndex = 0; front.setAttribute('role', 'button');
+          front.setAttribute('aria-expanded', 'false');
+          front.setAttribute('aria-label', b.title + '. Pulsa Enter para ver los detalles.');
+          front.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } };
+        }
+        if (back) back.inert = true;
         cardEl.onclick = (e) => {
           if (e.target.closest(".pausa-btn-start")) return;
-          cardEl.classList.toggle("is-flipped");
+          flip();
         };
 
         const startBtn = cardEl.querySelector(`[data-start-break="${b.id}"]`);
@@ -401,32 +474,26 @@
     if (starting || currentBreak || !BREAKS.includes(breakItem)) return;
     if (!usuarioMarcado()) { showEntryRequiredToast(); return; }
     starting = true;
+    const version = ++requestVersion, owner = accountKey();
     const startButton = getModalContainer()?.querySelector(`[data-start-break="${breakItem.id}"]`);
     if (startButton) { startButton.disabled = true; startButton.textContent = 'Guardando…'; }
     try {
-      const data = await pausaRPC('dash_registrar_pausa', {p_break_id:breakItem.id});
-      completedBreaks = new Set(data.pausas);
-      updateRailButton();
+      const data = await pausaRPC('dash_iniciar_pausa', {p_break_id:breakItem.id});
+      if (version !== requestVersion || owner !== accountKey()) return;
+      ++requestVersion; // Invalida lecturas iniciadas mientras se guardaba el inicio.
+      applySnapshot(data);
+      notifyTabs();
     } catch (error) { showEntryRequiredToast(error.message); return; }
     finally {
       starting = false;
       if (startButton) { startButton.disabled = false; startButton.textContent = 'Comenzar'; }
     }
-    currentBreak = breakItem;
-    getOverlay()?.classList.add("pausa-session-running");
-    totalSeconds = breakItem.duration;
-    secondsLeft = totalSeconds;
-    currentActivityIdx = 0;
-    suggestionIdx = 0;
-
-    renderSessionView();
-    startTimer();
-    startSuggestionCycle();
   }
 
   function renderSessionView() {
     const container = getModalContainer();
     if (!container || !currentBreak) return;
+    viewMode = 'session';
 
     const activity = currentBreak.activities[currentActivityIdx];
     const progress = ((totalSeconds - secondsLeft) / totalSeconds) * 100;
@@ -446,6 +513,7 @@
       <div class="pausa-timer-box">
         <span class="pausa-timer-label">Tiempo restante</span>
         <div class="pausa-timer-digit" id="pausa-timer-display">${formatTime(secondsLeft)}</div>
+        <p id="pausa-sync-status" role="status">El tiempo continúa al cambiar de pestaña. La misma pausa se recupera al volver.</p>
         <div class="pausa-progress-track">
           <div class="pausa-progress-bar" id="pausa-progress-bar" style="width: ${progress}%"></div>
         </div>
@@ -511,20 +579,39 @@
 
   function startTimer() {
     stopTimer();
-    timerInterval = setInterval(() => {
-      if (secondsLeft <= 1) {
-        stopTimer();
-        stopSuggestionCycle();
-        playCompletionSound();
-        renderCompleteView();
-      } else {
-        secondsLeft--;
-        const timerEl = document.getElementById("pausa-timer-display");
-        const barEl = document.getElementById("pausa-progress-bar");
-        if (timerEl) timerEl.textContent = formatTime(secondsLeft);
-        if (barEl) barEl.style.width = `${((totalSeconds - secondsLeft) / totalSeconds) * 100}%`;
-      }
-    }, 1000);
+    timerInterval = setInterval(tickTimer, 1000);
+    tickTimer();
+  }
+  function tickTimer() {
+    if (!session) return;
+    if (sessionOwner !== accountKey()) { ++requestVersion; clearSession(); completedBreaks.clear(); closeModal(); return; }
+    secondsLeft = Math.max(0, Math.ceil(remainingAtAnchor - (monotonicNow() - anchorAt) / 1000));
+    const timerEl = document.getElementById('pausa-timer-display');
+    const barEl = document.getElementById('pausa-progress-bar');
+    if (timerEl) timerEl.textContent = formatTime(secondsLeft);
+    if (barEl) barEl.style.width = `${((totalSeconds - secondsLeft) / totalSeconds) * 100}%`;
+    if (!secondsLeft && !finishing && monotonicNow() >= retryAt) finishSession(false);
+  }
+  async function finishSession(abandon) {
+    if (!session || finishing) return;
+    finishing = true;
+    const id = session.id, version = ++requestVersion, owner = accountKey();
+    const button = getModalContainer()?.querySelector('#pausa-btn-exit-anyway');
+    if (button) button.disabled = true;
+    const status = document.getElementById('pausa-sync-status');
+    if (status) status.textContent = 'Validando la pausa con el servidor…';
+    try {
+      const data = await pausaRPC('dash_cerrar_pausa', {p_sesion:id,p_abandonar:abandon});
+      if (version === requestVersion && owner === accountKey()) { ++requestVersion; applySnapshot(data); }
+      notifyTabs();
+    } catch (error) {
+      retryAt = monotonicNow() + 15000;
+      if (status) status.textContent = 'Sin confirmación del servidor. Reintentaremos automáticamente.';
+      if (abandon) showEntryRequiredToast(error.message);
+    } finally {
+      finishing = false;
+      if (button) button.disabled = false;
+    }
   }
 
   function startSuggestionCycle() {
@@ -538,7 +625,8 @@
   }
 
   function renderConfirmView() {
-    stopTimer();
+    if (!currentBreak) return;
+    viewMode = 'confirm';
     stopSuggestionCycle();
 
     const container = getModalContainer();
@@ -549,7 +637,7 @@
       <div style="display:flex; flex-direction:column; gap:6px;">
         <h2 style="font-size:24px; font-weight:700; color:#1e293b; margin:0; font-family:'Fraunces', Georgia, serif;">¿Seguro que quieres salir?</h2>
         <p style="font-size:14px; color:#475569; line-height:1.5; margin:0;">
-          Tu cuerpo ya empezó a descansar — si cierras ahora perderás el avance de esta sesión y no podrás retomarlo.
+          Abandonar termina esta pausa en todas tus pestañas. Quedará usada, pero no completada, y no podrás repetirla hoy. Cambiar de pestaña o recargar conserva el tiempo.
         </p>
       </div>
 
@@ -569,13 +657,11 @@
       startSuggestionCycle();
     };
 
-    container.querySelector("#pausa-btn-exit-anyway").onclick = () => {
-      renderSelectionView();
-    };
+    container.querySelector("#pausa-btn-exit-anyway").onclick = () => finishSession(true);
   }
 
   function renderCompleteView() {
-    currentBreak = null;
+    clearSession(); viewMode = 'complete';
     getOverlay()?.classList.remove("pausa-session-running");
     const container = getModalContainer();
     if (!container) return;
@@ -588,7 +674,7 @@
         </div>
         <h2 style="font-size:24px; font-weight:700; color:#1e293b; margin:0; font-family:'Fraunces', Georgia, serif;">Pausa completada</h2>
         <p style="font-size:14px; color:#475569; line-height:1.5; margin:0;">
-          Has terminado las actividades. Puedes volver a tus tareas cuando estés listo.
+          Cumpliste el tiempo de la pausa. Puedes volver a tus tareas cuando estés listo.
         </p>
       </div>
 
@@ -615,7 +701,7 @@
       const info=card.querySelector('.rail-pausa-info > span');
       if(info) info.textContent=count===2 ? 'Mañana, dos nuevas pausas.' : count===1 ? 'Te queda un momento para ti.' : 'Muévete. Respira. Continúa.';
       const footer=card.querySelector('.rail-pausa-footer > span:first-child');
-      if(footer) footer.textContent=count===2 ? 'Ver mis pausas' : count===1 ? 'Tomar la última pausa' : 'Tomar una pausa';
+      if(footer) footer.textContent=currentBreak ? 'Volver a mi pausa' : count===2 ? 'Ver mis pausas' : count===1 ? 'Tomar la última pausa' : 'Tomar una pausa';
       card.querySelectorAll('.rail-pausa-mark i').forEach((m,i)=>m.classList.toggle('used',i<count));
     }
     const btn = document.getElementById("rail-pausa-open");
@@ -641,7 +727,8 @@
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function renderAdminPausasTable(rows) {
     const body=el('admin-pausas-table-body'); if(!body)return;
-    body.innerHTML=rows.map(r=>'<tr><td>'+esc(r.colaborador)+'</td><td>'+esc(r.area)+'</td><td>'+r.pausas.length+' de 2 usadas</td><td>'+r.pausas.map(esc).join(', ')+'</td><td><button type="button" class="admin-pausas-btn-reset-row" data-id="'+esc(r.colaborador_id)+'" '+(r.pausas.length?'':'disabled')+'>Restablecer</button></td></tr>').join('') || '<tr><td colspan="5">No hay colaboradores.</td></tr>';
+    const labels={en_curso:'En curso',completada:'Tiempo cumplido',abandonada:'Abandonada'};
+    body.innerHTML=rows.map(r=>'<tr><td>'+esc(r.colaborador)+'</td><td>'+esc(r.area)+'</td><td>'+r.pausas.length+' de 2 usadas</td><td>'+r.pausas.map(id=>{const s=r.sesiones?.find(s=>s.pausa===id);return esc(id)+' · '+esc(labels[s?.estado]||'Uso anterior sin seguimiento');}).join('<br>')+'</td><td><button type="button" class="admin-pausas-btn-reset-row" data-id="'+esc(r.colaborador_id)+'" '+(r.pausas.length?'':'disabled')+'>Restablecer</button></td></tr>').join('') || '<tr><td colspan="5">No hay colaboradores.</td></tr>';
     body.querySelectorAll('[data-id]').forEach(btn=>btn.onclick=()=>resetColaboradorPausas(btn.dataset.id));
   }
   async function loadAdminPausas() {
@@ -659,7 +746,7 @@
   async function resetTodasPausas(){await resetPausas('dash_admin_reset_todas_pausas',{});}
   async function resetPausas(name,args){
     if(!window.confirm('¿Restablecer las pausas de hoy?'))return;
-    try{await pausaRPC(name,args);await loadDailyBreaks();await loadAdminPausas();showEntryRequiredToast('Pausas restablecidas.');}
+    try{await pausaRPC(name,args);++requestVersion;notifyTabs();await loadDailyBreaks();await loadAdminPausas();showEntryRequiredToast('Pausas restablecidas.');}
     catch(error){showEntryRequiredToast(error.message);}
   }
   window.KJA_PAUSAS={BREAKS,openAdmin:openAdminPausasModal,closeAdmin:closeAdminPausasModal,refreshAdmin:loadAdminPausas,resetColaborador:resetColaboradorPausas,resetTodas:resetTodasPausas,refreshRail:updateRailButton,loadCompleted:loadDailyBreaks,getCompletedBreaks:()=>new Set(completedBreaks),startSession,renderConfirm:renderConfirmView,isSessionActive:()=>!!currentBreak};
@@ -669,6 +756,12 @@
     Object.entries(actions).forEach(([id,fn])=>{if(el(id))el(id).onclick=fn;});
     if(el('admin-pausas-search'))el('admin-pausas-search').oninput=filterAdmin;
     window.addEventListener('hashchange',()=>{if(window.location.hash==='#admin-pausas')openAdminPausasModal();});
+    const resync = () => { if (!document.hidden) loadDailyBreaks(); };
+    document.addEventListener('visibilitychange', resync);
+    window.addEventListener('focus', resync);
+    window.addEventListener('pageshow', resync);
+    window.addEventListener('online', resync);
+    if (channel) channel.onmessage = resync;
     document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!getOverlay()?.hidden)closeModal();else closeAdminPausasModal();}});
 
     // Consultar las pausas del día en Supabase.

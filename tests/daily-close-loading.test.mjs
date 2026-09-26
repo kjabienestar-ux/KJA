@@ -5,6 +5,15 @@ import vm from 'node:vm';
 
 const source=fs.readFileSync(new URL('../assets/js/dashboard.js',import.meta.url),'utf8');
 const code=source.slice(source.indexOf('async function loadDailyClose('),source.indexOf('\nfunction clearDailyEvidenceFiles('));
+test('an unmarked entry waits for the close response before exposing the fallback action',()=>{
+  const env={};
+  vm.runInNewContext(source.slice(source.indexOf('function markedAttendanceActionState('),source.indexOf('\nfunction syncMarkedAttendanceAction(')),env);
+  for(const marked of [false,true]){
+    assert.equal(env.markedAttendanceActionState({marked,closeResolved:false}),'pending');
+  }
+  assert.equal(env.markedAttendanceActionState({marked:false,closeResolved:true,closeApplies:false}),'visible');
+  assert.equal(env.markedAttendanceActionState({marked:true,closeResolved:true,closeApplies:true,entryAt:'2026-09-26T13:00:00Z'}),'hidden');
+});
 function harness(rpc,previous){
   const nodes=new Map();let renders=0;
   const env={APP:{identity:{hasPersonal:true},cierre:previous,dailyCloseResolved:!!previous,dailyCloseGeneration:0},db:{rpc},

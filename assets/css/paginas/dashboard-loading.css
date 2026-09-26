@@ -1,0 +1,143 @@
+/* Estados de espera de la jornada y del registro de entrada. */
+.day-pending-placeholder{display:none}
+.pending-spinner{display:inline-block;width:22px;height:22px;border:2px solid #d8e9df;border-top-color:#397b60;border-radius:50%;animation:attendance-wait 1s linear infinite;flex-shrink:0}
+@keyframes attendance-wait{to{transform:rotate(360deg)}}
+@media(min-width:901px){
+  #portal:not(.admin-wide) #view-inicio .day-card.daily-close-pending{
+    grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
+    grid-template-areas:"schedule close" "progress close";
+    grid-template-rows:min-content 1fr;align-items:start;
+    gap:clamp(12px,1.6dvh,18px);
+  }
+  #portal:not(.admin-wide) #view-inicio .daily-close-pending .day-pending-placeholder{
+    display:grid;grid-area:close;gap:12px;min-width:0;padding:26px;
+    border-radius:24px;background:#fff;color:#203248;
+  }
+  .day-pending-placeholder strong{font-size:18px;line-height:1.35}
+  .day-pending-placeholder p{margin:0;color:#647587;font-size:13px;line-height:1.6}
+  .pending-placeholder-lines{display:grid;gap:12px;margin-top:10px}
+  .pending-placeholder-lines i{display:block;height:54px;border-radius:14px;background:#eff5f2}
+  #portal:not(.admin-wide) #view-inicio .day-card:has(.day-close.is-load-error) .day-pending-placeholder{display:none}
+  #portal:not(.admin-wide) #view-inicio .daily-close-pending #day-close.is-load-error{grid-area:close}
+  #portal:not(.admin-wide) #view-inicio .day-schedule .shift-clock:not(.ended){background:#f0f6f2;padding:18px 12px}
+  #portal:not(.admin-wide) #view-inicio .clock-label{color:#446957;font-size:10px;letter-spacing:.06em}
+  #portal:not(.admin-wide) #view-inicio .clock-digits{gap:clamp(6px,1vw,12px);justify-content:center}
+  #portal:not(.admin-wide) #view-inicio .clock-digit{display:grid;place-items:center;width:clamp(52px,4.2vw,68px);height:58px;border-radius:12px;background:#fff}
+  #portal:not(.admin-wide) #view-inicio .clock-digit span{font-size:30px;color:#346b55;font-variant-numeric:tabular-nums}
+  #portal:not(.admin-wide) #view-inicio .clock-digit-group small{color:#526e60;font-size:9px;margin-top:7px}
+  #portal:not(.admin-wide) #view-inicio .clock-sep{color:#8dab9c}
+  #portal:not(.admin-wide) #view-inicio .clock-caption{color:#526e60}
+  @container jornada-home (max-width:760px){
+    #portal:not(.admin-wide) #view-inicio .day-card.daily-close-pending{
+      grid-template-columns:minmax(0,1fr);grid-template-rows:auto;
+      grid-template-areas:"schedule" "close" "progress";
+    }
+  }
+}
+#mark-sheet[data-state="processing"]{width:min(480px,calc(100vw - 24px));max-width:480px;padding:24px;border:0;border-radius:26px;background:#fff;color:#203248}
+#mark-processing{padding:0;text-align:left}
+#mark-processing .mark-processing-hero{display:grid;grid-template-columns:minmax(100px,.8fr) minmax(0,1.2fr);align-items:center;gap:12px;padding:14px 16px 0 4px;border-radius:18px;background:#eff6f2;margin-bottom:20px;overflow:hidden}
+#mark-processing .mark-processing-hero img{display:block;align-self:end;width:100%;height:auto;max-height:190px;object-fit:contain;object-position:bottom}
+#mark-processing .mark-processing-hero>div{padding-block:12px 24px;min-width:0}
+#mark-processing .eyebrow{font-size:9px;letter-spacing:.12em;color:#4c735f;margin:0 0 10px}
+#mark-processing h2{font:700 clamp(20px,4.5vw,25px)/1.2 Inter,system-ui,sans-serif;color:#203248;letter-spacing:-.025em;margin:0 0 14px}
+#mark-processing .mark-processing-activity{display:flex;align-items:center;gap:8px;color:#426e59;font-size:11px;line-height:1.5}
+#mark-processing .pending-spinner{width:16px;height:16px}
+#mark-processing #mark-processing-copy{font-size:13px;line-height:1.5;color:#526477;margin:0;min-height:3em;max-width:none}
+#mark-processing .mark-processing-track{margin:12px 0 18px;height:4px;background:#e8efeb}
+#mark-processing .mark-processing-track i{background:#5b9a7f}
+#mark-processing .mark-steps{gap:0}
+#mark-processing .mark-steps>span{grid-template-columns:24px minmax(0,1fr);gap:4px 12px;padding:12px 10px;border:0;border-bottom:1px solid #edf1ee;border-radius:0;background:transparent;color:#637587}
+#mark-processing .mark-steps>span>i{grid-column:1;grid-row:1/3;align-self:center}
+#mark-processing .mark-steps b{font-size:12px;color:#304838}
+#mark-processing .mark-steps small{grid-column:2;white-space:normal;font-size:11px;font-weight:400;line-height:1.4}
+#mark-processing .mark-steps>span.active{background:#eff6f2;border-radius:12px;color:#346b55}
+#mark-processing .mark-steps>span.active>i{border-color:#a5c9b8;background:transparent}
+#mark-processing .mark-steps>span.active>i::after{background:#4f9274}
+#mark-processing .mark-steps>span.done{color:#346b55}
+#mark-processing .mark-steps>span.done>i{border-color:#5b9a7f;background:#5b9a7f}
+#mark-processing .mark-processing-note{margin-top:18px;color:#637587;font-size:11px;line-height:1.6;text-align:center}
+@media(max-width:380px){
+  #mark-sheet[data-state="processing"]{padding:16px}
+  #mark-processing .mark-processing-hero{grid-template-columns:96px minmax(0,1fr);gap:8px;padding-right:12px}
+}
+/* En móvil, la entrada y su comprobación comparten la misma paleta. */
+@media(max-width:900px){
+  #portal #mobile-primary-attendance{margin:12px 0 18px}
+  #portal #mobile-primary-attendance #mobile-action-mark{
+    grid-template-columns:88px minmax(0,1fr) 38px;gap:10px;
+    min-height:128px;padding:12px 14px 0 4px;overflow:hidden;
+    border:0;border-radius:20px;background:#eff6f2;color:#203248;
+    box-shadow:none;transition:background-color 160ms ease,transform 160ms ease;
+  }
+  #portal #mobile-primary-attendance #mobile-action-mark .mobile-access-figure{
+    width:100%;height:116px;align-self:end;object-fit:contain;object-position:bottom;filter:none;opacity:1;
+  }
+  #portal #mobile-primary-attendance #mobile-action-mark>span{padding:4px 0 16px}
+  #portal #mobile-primary-attendance #mobile-action-mark b{font-size:15px;line-height:1.35;font-weight:700;letter-spacing:-.015em}
+  #portal #mobile-primary-attendance #mobile-action-mark small{margin-top:6px;color:#526e60;font-size:12px;line-height:1.45;font-weight:400}
+  #portal #mobile-primary-attendance #mobile-action-mark .mobile-action-arrow{
+    width:38px;height:38px;padding:10px;box-sizing:border-box;margin-bottom:12px;
+    border-radius:50%;color:#fff;background:#E11D5F;
+  }
+  #portal #mobile-primary-attendance #mobile-action-mark:active:not(:disabled){transform:scale(.99);background:#e5f0e9}
+  #portal #mobile-primary-attendance #mobile-action-mark:focus-visible{outline:3px solid #E11D5F;outline-offset:3px}
+  #portal #mobile-primary-attendance #mobile-action-mark:disabled{background:#f0f2f3;color:#526477}
+  #portal #mobile-primary-attendance #mobile-action-mark:disabled small{color:#526477}
+  #portal #mobile-primary-attendance #mobile-action-mark:disabled .mobile-action-arrow{color:#647587;background:#dfe6e9}
+  #portal #mobile-primary-attendance #mobile-action-mark[aria-busy="true"] .mobile-action-arrow{
+    border:2px solid #d8e9df;border-top-color:#397b60;background:transparent;animation:attendance-wait 1s linear infinite;
+  }
+  #portal #mobile-primary-attendance #mobile-action-mark[aria-busy="true"] .mobile-action-arrow path{visibility:hidden}
+  #mark-modal{padding:12px;padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+  #mark-sheet:is([data-state="confirm"],[data-state="processing"]){
+    width:100%;max-width:480px;max-height:calc(100dvh - 32px - env(safe-area-inset-bottom,0px));
+    margin:auto;padding:20px;border:0;border-radius:24px;background:#fff;color:#203248;
+    overflow-y:auto;overscroll-behavior:contain;
+  }
+  #mark-sheet[data-state="confirm"]::before{content:none}
+  #mark-sheet[data-state="confirm"]>.modal-close{width:44px;height:44px;top:12px;right:12px;border-radius:50%;background:#E11D5F;color:#fff;box-shadow:none;z-index:2}
+  #mark-sheet .mark-confirm-head{padding:6px 36px 0 0;text-align:left}
+  #mark-sheet .mark-confirm-head .eyebrow,#mark-processing .eyebrow{display:none}
+  #mark-sheet .mark-confirm-head h2{font:700 23px/1.2 Inter,system-ui,sans-serif;letter-spacing:-.025em;color:#203248}
+  #mark-sheet #evidence-copy{color:#526477;font-size:12px;line-height:1.5}
+  #mark-sheet .mark-assurance{gap:8px;flex-wrap:wrap;color:#526e60}
+  #mark-sheet .mark-assurance span{background:#eff6f2;color:#526e60;border:0}
+  #mark-sheet .mark-mode-check{border:0;background:#eff6f2;border-radius:14px;box-shadow:none}
+  #mark-sheet .mark-mode-icon{color:#397b60;background:#dfeee5}
+  #mark-sheet #evidence-picker{border:1px dashed #b8cec1;background:#f5f8f6;border-radius:16px;box-shadow:none}
+  #mark-sheet .evidence-empty{padding:18px 12px}
+  #mark-sheet .evidence-icon-3d{width:64px;height:64px;margin-bottom:8px}
+  #mark-sheet .evidence-empty>b{color:#203248;font-size:15px}
+  #mark-sheet .evidence-empty>p{color:#526477;font-size:12px}
+  #mark-sheet .evidence-actions{display:flex;flex-wrap:wrap;gap:8px}
+  #mark-sheet .evidence-actions button{flex:1 1 110px;min-height:44px;padding:10px;border:0;border-radius:12px;font-size:12px;font-weight:600;background:#e1eee6;color:#346b55;box-shadow:none}
+  #mark-sheet #take-photo{background:#E11D5F;color:#fff}
+  #mark-sheet #confirm-mark{min-height:48px;background:#E11D5F;color:#fff;border:0;border-radius:14px;box-shadow:none;font-size:13px}
+  #mark-sheet #confirm-mark:disabled{background:#edf0ee;color:#637169;opacity:1}
+  #mark-sheet .privacy-note{font-size:10px!important;line-height:1.5;color:#637587!important}
+  #mark-sheet button:focus-visible{outline:2px solid #E11D5F;outline-offset:3px}
+  #mark-processing .mark-processing-hero{grid-template-columns:minmax(90px,.8fr) minmax(0,1.2fr);padding-top:10px;margin-bottom:16px}
+  #mark-processing .mark-processing-hero img{max-height:154px}
+  #mark-processing .mark-processing-hero>div{padding-block:12px 18px}
+  #mark-processing h2{font-size:22px}
+  #mark-processing #mark-processing-copy{min-height:3em;font-size:12px}
+  #mark-processing .mark-processing-note{font-size:11px;margin-top:14px}
+}
+@media(max-width:360px){
+  #portal #mobile-primary-attendance #mobile-action-mark{grid-template-columns:70px minmax(0,1fr) 32px;gap:8px;padding-right:10px}
+  #portal #mobile-primary-attendance #mobile-action-mark .mobile-action-arrow{width:32px;height:32px;padding:8px}
+  #mark-sheet:is([data-state="confirm"],[data-state="processing"]){padding:16px}
+  #mark-processing h2{font-size:20px}
+}
+@media(max-height:600px) and (max-width:900px){
+  #mark-processing .mark-processing-hero img{max-height:110px}
+  #mark-processing .mark-processing-hero{margin-bottom:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .pending-spinner{animation:none}
+  #mark-processing .mark-processing-track i{transition:none}
+  #mark-processing .mark-steps>span.active>i::after{animation:none}
+  #portal #mobile-primary-attendance #mobile-action-mark{transition:none;transform:none}
+  #portal #mobile-primary-attendance #mobile-action-mark[aria-busy="true"] .mobile-action-arrow{animation:none}
+}

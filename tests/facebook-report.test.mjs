@@ -37,13 +37,33 @@ test('CSV protects formulas and preserves quotes, accents and newlines',()=>{
 });
 function fixture(rpc){
   class Element{
-    constructor(){this.value='';this.children=[];this.dataset={};this.hidden=false;this.disabled=false;this.textContent='';}
+    constructor(){
+      this.value='';this.children=[];this.dataset={};this.hidden=false;this.disabled=false;this._textContent='';
+      this.classList={
+        _classes:new Set(),
+        add:(...c)=>c.forEach(cls=>this.classList._classes.add(cls)),
+        remove:(...c)=>c.forEach(cls=>this.classList._classes.delete(cls)),
+        toggle:(c,force)=>{
+          if(force===undefined)force=!this.classList._classes.has(c);
+          if(force)this.classList._classes.add(c);else this.classList._classes.delete(c);
+          return force;
+        },
+        contains:c=>this.classList._classes.has(c)
+      };
+    }
+    get textContent(){
+      return this._textContent || this.children.map(c=>c.textContent).join(' ');
+    }
+    set textContent(v){
+      this._textContent=v;
+    }
     append(...children){this.children.push(...children);}
-    replaceChildren(...children){this.children=children;}
+    replaceChildren(...children){this.children=children;this._textContent='';}
     get options(){return this.children;}
     setAttribute(key,value){this[key]=value;}
+    removeAttribute(key){delete this[key];}
     addEventListener(type,fn){this['on'+type]=fn;}
-    click(){}
+    click(){if(this.onclick)this.onclick();}
     remove(){}
   }
   const media={matches:false,listener:null,addEventListener(type,fn){this.listener=fn;},addListener(fn){this.listener=fn;}};
@@ -170,23 +190,40 @@ test('Excel download is a real ZIP workbook, respects area filter and retains ex
   const {ctx,get,downloads}=fixture(async()=>({data:{...response,filas:[...response.filas,{id:3,nombre:'=SUM(1,2) & <José>',area:'Diseño',fecha:'2026-09-10',estado:'no_programado'}]}}));
   await ctx.loadAdminFacebookReport();get('fb-report-area').value='Diseño';get('fb-report-area').onchange();get('fb-report-export').onclick();
   const [blob,link]=downloads;assert.equal(blob.type,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');assert.ok(link.download.endsWith('.xlsx'));
-  const files=unzipStored(await blob.arrayBuffer()),sheet=files.get('xl/worksheets/sheet2.xml');
-  assert.ok(files.has('[Content_Types].xml'));assert.ok(!files.has('xl/worksheets/sheet3.xml'));
-  assert.match(files.get('xl/workbook.xml'),/name="Resumen"/);assert.match(sheet,/No comparte ese día/);assert.match(sheet,/Diseño/);assert.ok(!sheet.includes('Salud'));
-  assert.match(sheet,/t="inlineStr"><is><t xml:space="preserve">=SUM\(1,2\) &amp; &lt;José&gt;/);
-  assert.match(sheet,/COUNTIF\(C9:C10,&quot;Sí&quot;\)/);assert.match(sheet,/state="frozen"/);assert.match(sheet,/<conditionalFormatting/);assert.match(files.get('xl/worksheets/sheet1.xml'),/<autoFilter/);
-  assert.ok(!sheet.includes('Capturas'));assert.equal(get('fb-report-export').disabled,false);
+  const files=unzipStored(await blob.arrayBuffer());
+  assert.ok(files.has('[Content_Types].xml'));
+  assert.ok(files.has('xl/worksheets/sheet1.xml'));
+  assert.ok(files.has('xl/worksheets/sheet2.xml'));
+  assert.ok(files.has('xl/worksheets/sheet3.xml'));
+  const areaSheet=files.get('xl/worksheets/sheet1.xml');
+  const personSheet=files.get('xl/worksheets/sheet2.xml');
+  const matrixSheet=files.get('xl/worksheets/sheet3.xml');
+  assert.match(files.get('xl/workbook.xml'),/name="Por Área"/);
+  assert.match(files.get('xl/workbook.xml'),/name="Por Persona"/);
+  assert.match(files.get('xl/workbook.xml'),/name="REVISION DIARIA"/);
+  assert.match(matrixSheet,/No comparte ese día/);
+  assert.match(personSheet,/Diseño/);
+  assert.ok(!personSheet.includes('Salud'));
+  assert.match(personSheet,/t="inlineStr"><is><t xml:space="preserve">=SUM\(1,2\) &amp; &lt;José&gt;/);
+  assert.match(matrixSheet,/state="frozen"/);
+  assert.match(matrixSheet,/<conditionalFormatting/);
+  assert.match(areaSheet,/<autoFilter/);
+  assert.match(areaSheet,/showGridLines="1"/);
+  assert.ok(!areaSheet.includes('Capturas'));
+  assert.equal(get('fb-report-export').disabled,false);
 });
-test('workbook consolidates all areas into two sheets and uses typed date headers beyond Z',()=>{
+
+test('workbook consolidates all areas into three executive sheets and uses visible gridlines with KPI cards',()=>{
   const ctx=vm.createContext({TextEncoder,Intl,Date});vm.runInContext(layoutSource,ctx);vm.runInContext(excelSource,ctx);
   const dates=m.days('2026-09-01','2026-09-30');
   const group={area:'Área / con : caracteres inválidos y nombre largo',dates,persons:[{nombre:'Ana',cells:dates.map(()=>({value:'Sí'}))}],totals:dates.map(()=>({yes:1,no:0}))};
   const files=unzipStored(ctx.KJAFacebookExcel.build([group,group],{desde:dates[0],hasta:dates.at(-1),generado_at:'2026-09-17T04:55:30Z',provisional:true}));
   const names=[...files.get('xl/workbook.xml').matchAll(/<sheet name="([^"]+)"/g)].map(m=>m[1]);
-  assert.deepEqual(names,['Resumen','Detalle']);
-  assert.match(files.get('xl/worksheets/sheet2.xml'),/<c r="AF8" s="4"><v>\d+<\/v>/);assert.match(files.get('xl/worksheets/sheet1.xml'),/PROVISIONAL/);
-  assert.match(files.get('xl/worksheets/sheet1.xml'),/showRowColHeaders="0"/);assert.match(files.get('xl/worksheets/sheet1.xml'),/showGridLines="0"/);
-  assert.match(files.get('xl/worksheets/sheet1.xml'),/SUM\(&apos;Detalle&apos;!C10:AF10\)/);
+  assert.deepEqual(names,['Por Área','Por Persona','REVISION DIARIA']);
+  assert.match(files.get('xl/worksheets/sheet1.xml'),/PROVISIONAL/);
+  assert.match(files.get('xl/worksheets/sheet1.xml'),/showGridLines="1"/);
+  assert.match(files.get('xl/worksheets/sheet1.xml'),/showRowColHeaders="1"/);
+  assert.match(files.get('xl/worksheets/sheet1.xml'),/COLABORADORES/);
   assert.match(files.get('xl/workbook.xml'),/_xlnm.Print_Area/);
 });
 
@@ -198,15 +235,50 @@ test('summary links each area to its own totals and excludes unassigned days fro
     {id:3,nombre:'José',area:'Área B',fecha:'2026-09-16',estado:'sin_evidencia'}
   ];
   const files=unzipStored(ctx.KJAFacebookExcel.build(m.matrix(rows,'2026-09-16','2026-09-16'),{desde:'2026-09-16',hasta:'2026-09-16',generado_at:'2026-09-17T05:00:00Z',provisional:false}));
-  const summary=files.get('xl/worksheets/sheet1.xml'),detail=files.get('xl/worksheets/sheet2.xml');
+  const summary=files.get('xl/worksheets/sheet1.xml'),personSheet=files.get('xl/worksheets/sheet2.xml'),detail=files.get('xl/worksheets/sheet3.xml');
   const value=(sheet,ref)=>sheet.match(new RegExp(`<c r="${ref}"[^>]*>(.*?)<\\/c>`))[1];
-  assert.match(value(summary,'B7'),/<v>3<\/v>/);
-  assert.match(value(summary,'D7'),/<v>1<\/v>/);assert.match(value(summary,'F7'),/<v>1<\/v>/);
-  assert.match(value(summary,'D11'),/SUM\(&apos;Detalle&apos;!C11:C11\)/);
-  assert.match(value(summary,'E12'),/SUM\(&apos;Detalle&apos;!C19:C19\)/);
-  assert.match(value(summary,'F11'),/<v>1<\/v>/);assert.match(value(summary,'G11'),/<v>1<\/v>/);
-  assert.match(value(summary,'G13'),/<v>0.5<\/v>/);
-  assert.match(value(detail,'C11'),/COUNTIF\(C9:C10,&quot;Sí&quot;\)/);
-  assert.match(value(detail,'C19'),/COUNTIF\(C17:C17,&quot;No&quot;\)/);
-  assert.ok(!detail.includes('xSplit='));
+  // KPI cards en fila 5 de Por Área
+  assert.match(value(summary,'A5'),/<v>3<\/v>/); // Total 3 colaboradores
+  assert.match(value(summary,'B5'),/<v>2<\/v>/); // Total 2 evaluados
+  assert.match(value(summary,'C5'),/<v>1<\/v>/); // Con evidencia (Sí): 1
+  assert.match(value(summary,'D5'),/<v>1<\/v>/); // Sin evidencia (No): 1
+  assert.match(value(summary,'E5'),/<v>1<\/v>/); // No aplica / otros: 1
+  assert.match(value(summary,'F5'),/<v>2<\/v>/); // 2 áreas
+  assert.match(value(summary,'G5'),/Regular/);   // Estado general
+  // Tabla de áreas en fila 7 y 8
+  assert.match(value(summary,'B7'),/<v>2<\/v>/); // Área A tiene 2 colaboradores
+  assert.match(value(summary,'C7'),/<v>1<\/v>/); // Área A tiene 1 sí
+  assert.match(value(summary,'D7'),/<v>0<\/v>/); // Área A tiene 0 no
+  assert.match(value(summary,'E7'),/<v>1<\/v>/); // Área A total evaluados = 1
+  assert.match(value(summary,'F7'),/<v>1<\/v>/); // Área A % cumplimiento = 100%
+  assert.match(value(summary,'B8'),/<v>1<\/v>/); // Área B tiene 1 colaborador
+  assert.match(value(summary,'D8'),/<v>1<\/v>/); // Área B tiene 1 no
+  assert.match(value(summary,'E8'),/<v>1<\/v>/); // Área B total evaluados = 1
+  assert.match(value(summary,'F8'),/<v>0<\/v>/); // Área B % cumplimiento = 0%
+  // Matriz diaria formulas
+  assert.match(detail,/COUNTIF\(C\d+:C\d+,&quot;Sí&quot;\)/);
+  assert.match(detail,/COUNTIF\(C\d+:C\d+,&quot;No&quot;\)/);
+  assert.ok(detail.includes('xSplit="2"'));
+});
+
+test('UI renders executive KPI cards and supports toggling between area and person views',async()=>{
+  const {ctx,get}=fixture(async()=>({data:response}));
+  await ctx.loadAdminFacebookReport();
+  const kpis=get('fb-report-kpis');
+  assert.ok(kpis.children.length>=5);
+  assert.equal(get('fb-btn-view-area').classList.contains('active'),true);
+  assert.equal(get('fb-report-matrix').hidden,false);
+  assert.equal(get('fb-report-person-view').hidden,true);
+
+  // Cambiar a vista por persona
+  get('fb-btn-view-person').click();
+  assert.equal(get('fb-btn-view-person').classList.contains('active'),true);
+  assert.equal(get('fb-report-matrix').hidden,true);
+  assert.equal(get('fb-report-person-view').hidden,false);
+  assert.ok(get('fb-report-person-view').children.length>0);
+
+  // Búsqueda en vista por persona
+  get('fb-report-search').value='Ana';
+  get('fb-report-search').oninput();
+  assert.ok(get('fb-report-person-view').children[0].textContent.includes('Ana'));
 });
