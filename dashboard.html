@@ -39,7 +39,8 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-mobile.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
-  <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=25">
+  <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=26">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=6">
 </head>
 <body>
 
@@ -327,6 +328,11 @@
               <span><b>Mi asistencia</b><small>Historial y calendario</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
+            <button type="button" data-mobile-action="marcar" id="mobile-quick-attendance" disabled aria-describedby="mobile-entry-action-error">
+              <img class="mobile-access-figure" src="images/dashboard/access-attendance.svg" width="56" height="56" alt="" aria-hidden="true">
+              <span><b id="mobile-quick-attendance-title">Asistencia de hoy</b><small id="mobile-quick-attendance-note">Consultando registro…</small></span>
+              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
             <button type="button" data-mobile-action="perfil">
               <img class="mobile-access-figure" src="images/dashboard/access-profile.svg" width="56" height="56" alt="" aria-hidden="true">
 
@@ -450,21 +456,17 @@
         <article class="day-card" id="today-attendance-card" data-attendance-state="loading">
           <div class="day-card-grid">
             <section class="day-schedule" aria-labelledby="day-schedule-title">
+              <div class="schedule-welcome">
+                <img class="schedule-figure" src="images/dashboard/attendance-phone.png" width="240" height="240" alt="" aria-hidden="true">
+                <div class="schedule-details">
               <div class="day-section-heading">
                 <span class="day-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 1.5"/></svg></span>
                 <span><small>HORARIO ASIGNADO</small><b id="day-schedule-title">Tu jornada de hoy</b></span>
               </div>
-              <div class="today-mode-choice today-mode-choice-container" id="today-mode-choice">
-                <div class="today-mode-copy"><small>MODALIDAD DE HOY</small><b id="day-mode">Preparando modalidad</b><p id="today-mode-help">Podrás elegir antes de registrar tu asistencia.</p></div>
-                <div class="today-mode-switch" role="radiogroup" aria-label="Modalidad de trabajo de hoy">
-                  <button type="button" id="today-mode-virtual" data-today-mode="virtual" role="radio" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4zM8 20h8M12 16v4"/></svg><span><b>Virtual</b><small>Desde casa</small></span></button>
-                  <button type="button" id="today-mode-presencial" data-today-mode="presencial" role="radio" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg><span><b>Presencial</b><small>En oficina</small></span></button>
-                </div>
-              </div>
               <div class="day-timeline" id="day-timeline">
                 <div class="time-label start"><small>ENTRADA</small><b id="time-start">—</b></div>
                 <div class="rail-arc">
-                  <svg viewBox="0 0 400 90" preserveAspectRatio="xMidYMid meet" class="arc-svg">
+                  <svg viewBox="0 0 400 110" preserveAspectRatio="xMidYMid meet" class="arc-svg" aria-hidden="true">
                     <defs>
                       <linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stop-color="#0a4da1"/>
@@ -484,11 +486,23 @@
                       </g>
                     </g>
                   </svg>
+                  <span class="timeline-caption" id="timeline-caption" aria-hidden="true">Ahora</span>
                 </div>
                 <div class="time-label end"><small>SALIDA</small><b id="time-end">—</b></div>
               </div>
+              </div>
+              </div>
+              <div class="today-mode-choice today-mode-choice-container" id="today-mode-choice">
+                <div class="today-mode-copy"><small>MODALIDAD DE HOY</small><b id="day-mode">Preparando modalidad</b><p id="today-mode-help">Podrás elegir antes de registrar tu asistencia.</p></div>
+                <div class="today-mode-switch" role="radiogroup" aria-label="Modalidad de trabajo de hoy">
+                  <button type="button" id="today-mode-virtual" data-today-mode="virtual" role="radio" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4zM8 20h8M12 16v4"/></svg><span><b>Virtual</b><small>Desde casa</small></span></button>
+                  <button type="button" id="today-mode-presencial" data-today-mode="presencial" role="radio" aria-checked="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg><span><b>Presencial</b><small>En oficina</small></span></button>
+                </div>
+              </div>
               <div class="shift-clock" id="shift-clock">
+                <span class="clock-finish-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="4"/><path d="M7 3v4M17 3v4M3 10h18M12 13v3l2 1"/></svg></span>
                 <p class="clock-label" id="clock-label">Tiempo restante de jornada</p>
+                <span class="clock-finish-time" id="clock-finish-time"></span>
                 <div class="clock-digits">
                   <div class="clock-digit-group">
                     <div class="clock-digit" id="clock-h"><span>00</span></div>
@@ -540,9 +554,9 @@
 
               <div class="day-close-guide" id="day-close-guide" data-stage="evidence">
                 <div class="day-close-journey" aria-label="Progreso del cierre de jornada">
-                  <span class="day-close-journey-step" data-journey-step="entry"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></i><b>Entrada</b></span>
-                  <span class="day-close-journey-step" data-journey-step="evidence"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></i><b>Evidencias</b></span>
-                  <span class="day-close-journey-step" data-journey-step="exit"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i><b>Salida</b></span>
+                  <span class="day-close-journey-step" data-journey-step="entry"><img class="journey-figure" src="images/dashboard/attendance-phone.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></i><b>Entrada</b></span>
+                  <span class="day-close-journey-step" data-journey-step="evidence"><img class="journey-figure" src="images/dashboard/evidence-worker.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></i><b>Evidencias</b></span>
+                  <span class="day-close-journey-step" data-journey-step="exit"><img class="journey-figure" src="images/dashboard/attendance-exit.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i><b>Salida</b></span>
                 </div>
                 <strong id="day-close-guide-title">Completa tus evidencias</strong>
                 <p id="day-close-guide-copy">Selecciona cada requisito pendiente para adjuntar las imágenes.</p>
@@ -641,7 +655,7 @@
 
           <div class="day-summary" aria-label="Resumen del mes">
             <article class="progress-card">
-              <div class="hours-ring" id="hours-ring" role="img" aria-label="Cargando progreso de horas"><span><strong id="hours-done">0</strong><b>h</b></span><small>de <b id="hours-goal">—</b> horas</small></div>
+              <div class="hours-ring" id="hours-ring" role="img" aria-label="Cargando progreso de horas"><svg class="hours-ring-visual" viewBox="0 0 120 120" aria-hidden="true"><circle class="hours-ring-track" cx="60" cy="60" r="53"/><circle class="hours-ring-fill" cx="60" cy="60" r="53" pathLength="100"/></svg><span><strong id="hours-done">0</strong><b>h</b></span><small>de <b id="hours-goal">—</b> horas</small></div>
               <div class="summary-copy"><p class="eyebrow">HORAS DEL MES</p><strong class="hours-rate" id="hours-rate">Cargando avance</strong></div>
               <div class="hours-progress-map" role="group" aria-label="Avance de horas del mes">
                 <header><span><small>ACREDITADAS</small><b id="hours-accredited-detail">0 h</b></span><span><small>META MENSUAL</small><b id="hours-goal-detail">—</b></span></header>
@@ -688,7 +702,7 @@
           <div class="calendar-week"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div>
           <div class="calendar-grid" id="calendar-grid"></div>
           <div class="calendar-legend">
-            <span><i class="p"></i>Presente / compartido</span><span><i class="t"></i>Tardanza / por compartir</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestionó</span><span><i class="incomplete"></i>Incompleto</span><span><i class="missing"></i>No compartió</span><span><i class="off"></i>Sin jornada</span>
+            <span><i class="p"></i>Presente</span><span><i class="shared"></i>Compartido · sin jornada</span><span><i class="t"></i>Tardanza / por compartir</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestionó</span><span><i class="incomplete"></i>Incompleto</span><span><i class="missing"></i>No compartió</span><span><i class="off"></i>Sin jornada</span>
           </div>
         </article>
 
@@ -2027,7 +2041,7 @@
 <script src="assets/js/dashboard-announcement-modal.js?v=4"></script>
 <script src="assets/js/dashboard-month-progress.js?v=2"></script>
 <script src="assets/js/attendance-calendar-model.js?v=2"></script>
-<script src="assets/js/dashboard.js?v=209"></script>
+<script src="assets/js/dashboard.js?v=213"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=11"></script>

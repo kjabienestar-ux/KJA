@@ -24,6 +24,17 @@ test('teammate avatar uses a signed photo when available and initials otherwise'
   assert.match(context.attendanceTeammateAvatar({nombre:'Ana Beltrán'}),/>AB<\/span>$/);
 });
 
+test('dated schedules start inclusively on the first attendance, across months',()=>{
+  const person={primera_asistencia:'2026-09-14',dias_laborables:[1,2,3,4,5],hora_inicio:'08:00',hora_fin:'14:00'};
+  assert.equal(context.teammateSchedule(person,1,'2026-09-07'),null);
+  assert.equal(context.teammateSchedule(person,1,'2026-08-31'),null);
+  assert.equal(context.teammateSchedule(person,1,'2026-09-14').start,'08:00');
+  assert.equal(context.teammateSchedule(person,1,'2026-10-05').end,'14:00');
+  assert.equal(context.teammateSchedule(person,7,'2026-09-20'),null);
+  for(const start of [null,undefined])assert.equal(context.teammateSchedule({...person,primera_asistencia:start},1,'2026-09-21'),null);
+  assert.equal(context.teammateWorkingDays(person).length,5); // Usual weekly schedule remains available.
+});
+
 test('preview supplies six engineers with distinct illustrated avatars and schedules',()=>{
   const people=context.attendancePreviewTeammates();
   assert.equal(people.length,6);

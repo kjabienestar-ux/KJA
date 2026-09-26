@@ -212,9 +212,15 @@
 #portal #view-asistencia .cal-day-action {position:absolute!important;right:9px!important;bottom:12px!important;width:7px!important;height:12px!important;overflow:hidden!important;color:transparent!important;font-size:0!important}
 #portal #view-asistencia .cal-day-action::after {content:'›';display:block;color:#9ab5c9;font:400 18px/11px 'Inter',sans-serif}
 
-#portal #view-asistencia .cal-day.p,#portal #view-asistencia .cal-day.shared {border-color:rgba(255,255,255,.94)!important;background:linear-gradient(145deg,rgba(241,252,248,.94),rgba(224,246,239,.8))!important}
-#portal #view-asistencia .cal-day.p>small,#portal #view-asistencia .cal-day.shared>small {background:rgba(210,241,231,.82)!important;color:#176a52!important}
-#portal #view-asistencia .cal-day.p .cal-day-top i,#portal #view-asistencia .cal-day.shared .cal-day-top i {background:#12a478!important;box-shadow:none!important}
+#portal #view-asistencia .cal-day.p {border-color:rgba(255,255,255,.94)!important;background:linear-gradient(145deg,rgba(241,252,248,.94),rgba(224,246,239,.8))!important}
+#portal #view-asistencia .cal-day.p>small {background:rgba(210,241,231,.82)!important;color:#176a52!important}
+#portal #view-asistencia .cal-day.p .cal-day-top i {background:#12a478!important;box-shadow:none!important}
+/* Verde oliva: comparticiones completadas en un día sin jornada laboral. */
+#portal #view-asistencia .cal-day.shared:not(.team-mode) {background:linear-gradient(145deg,#f2f6e5,#e2edc8)!important;color:#435d27!important}
+#portal #view-asistencia .cal-day.shared:not(.team-mode):not(.today):not([aria-pressed="true"]) {border-color:#bdcf98!important}
+#portal #view-asistencia .cal-day.shared>small {background:#d7e6b8!important;color:#435d27!important}
+#portal #view-asistencia .cal-day.shared .cal-day-top b {color:#435d27!important}
+#portal #view-asistencia .cal-day.shared .cal-day-top i,#portal #view-asistencia .calendar-legend i.shared {background:#6b873d!important;box-shadow:none!important}
 #portal #view-asistencia .cal-day.t,#portal #view-asistencia .cal-day.sharing-pending {border-color:rgba(255,255,255,.94)!important;background:linear-gradient(145deg,rgba(255,251,243,.95),rgba(250,237,214,.82))!important}
 #portal #view-asistencia .cal-day.t>small,#portal #view-asistencia .cal-day.sharing-pending>small {background:rgba(250,233,201,.86)!important;color:#a05f0b!important}
 #portal #view-asistencia .cal-day.t .cal-day-top i,#portal #view-asistencia .cal-day.sharing-pending .cal-day-top i {background:#f2aa2c!important;box-shadow:none!important}

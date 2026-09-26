@@ -1063,6 +1063,16 @@ function syncMobileEntryAction(){
     note.textContent=day.ventana==='tardanza'?'Se registrará como tardanza.':day.modalidad==='presencial'?'Verificar ubicación y marcar':'Disponible ahora.';
     button.setAttribute('aria-label','Registrar mi asistencia');
   }
+  const quickAttendance=$('mobile-quick-attendance');
+  if(quickAttendance){
+    const hidden=!working&&!marked,visibilityChanged=quickAttendance.hidden!==hidden;
+    quickAttendance.hidden=hidden;
+    quickAttendance.disabled=busy||(!marked&&button.disabled);
+    quickAttendance.setAttribute('aria-busy',String(busy));
+    $('mobile-quick-attendance-title').textContent=marked?'Ver mi asistencia':busy?title.textContent:'Registrar asistencia';
+    $('mobile-quick-attendance-note').textContent=marked?'Detalle de mi entrada':note.textContent;
+    if(visibilityChanged)syncMobileQuickGrid();
+  }
   const closeAction=$('mobile-close-action');
   if(closeAction?.dataset.action==='entry'){
     closeAction.disabled=busy||!working||!!source?.disabled;
@@ -1148,11 +1158,18 @@ function positionNow(d){
   // Animate progress stroke
   progress.style.strokeDasharray=len;
   progress.style.strokeDashoffset=len*(1-pct/100);
+  progress.style.setProperty('--arc-length',String(len));
 
   // Position now dot along arc
   const pt=track.getPointAtLength(len*pct/100);
   if(dot){ dot.setAttribute('cx',pt.x); dot.setAttribute('cy',pt.y); }
   if(glow){ glow.setAttribute('cx',pt.x); glow.setAttribute('cy',pt.y); }
+  const caption=document.getElementById('timeline-caption');
+  if(caption){
+    caption.textContent=pct>=100?'Fin':pct<=0?'Inicio':'Ahora';
+    caption.style.setProperty('--marker-x',`${pt.x/400*100}%`);
+    caption.style.setProperty('--marker-y',`${pt.y/110*100}%`);
+  }
 
   // Position 'Ahora' label below the dot
   if(labelG){
@@ -1160,7 +1177,7 @@ function positionNow(d){
     const t=labelG.querySelector('text');
     const lw=34, lh=16;
     if(r){ r.setAttribute('x',pt.x-lw/2); r.setAttribute('y',pt.y+12); r.setAttribute('width',lw); r.setAttribute('height',lh); }
-    if(t){ t.setAttribute('x',pt.x); t.setAttribute('y',pt.y+12+lh/2+3); }
+    if(t){ t.textContent=pct>=100?'Fin':pct<=0?'Inicio':'Ahora';t.setAttribute('x',pt.x); t.setAttribute('y',pt.y+12+lh/2+3); }
   }
 }
 
@@ -1171,6 +1188,8 @@ function startShiftClock(d){
   const clock=$('shift-clock'); if(!clock)return;
   const label=$('clock-label'), caption=$('clock-caption');
   const endM=minutes(d.hora_salida), startM=minutes(d.hora_entrada);
+  const finishTime=$('clock-finish-time');
+  if(finishTime)finishTime.textContent=d.labora&&d.hora_salida?`Hasta las ${fmtTime(d.hora_salida)}`:'';
 
   if(endM==null||startM==null||!d.labora){
     clock.classList.add('ended');
@@ -1185,7 +1204,10 @@ function startShiftClock(d){
     const s=el.querySelector('span');
     if(s&&s.textContent!==val){s.textContent=val;el.classList.remove('tick');void el.offsetWidth;el.classList.add('tick');}
   }
+  const referenceAt=Date.now(),serverParts=String(d.ahora||'').split(':').map(Number);
+  const serverSeconds=serverParts.length>=2&&serverParts.every(Number.isFinite)?serverParts[0]*3600+serverParts[1]*60+(serverParts[2]||0):null;
   function limaSeconds(){
+    if(serverSeconds!==null)return serverSeconds+Math.max(0,Math.floor((Date.now()-referenceAt)/1000));
     const now=new Date();
     const p=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Lima',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(now).split(':');
     return Number(p[0])*3600+Number(p[1])*60+Number(p[2]);
@@ -1194,6 +1216,7 @@ function startShiftClock(d){
 
   function tick(){
     const nowSec=limaSeconds();
+    positionNow({...d,ahora:`${pad(Math.floor(nowSec/3600))}:${pad(Math.floor(nowSec%3600/60))}:${pad(nowSec%60)}`});
     let remain;
     if(nowSec<startSec){
       remain=startSec-nowSec;
@@ -1203,11 +1226,11 @@ function startShiftClock(d){
     } else if(nowSec>=endSec){
       remain=0;
       clock.classList.add('ended');
-      if(label) label.textContent='Jornada finalizada';
-      if(caption) caption.textContent='Tu turno de hoy ha concluido ✓';
+      if(label) label.textContent='Tu turno ha terminado';
+      if(caption) caption.textContent='Revisa el cierre de tu jornada para confirmar tus evidencias y tu salida.';
       setDigit('clock-h','00');setDigit('clock-m','00');setDigit('clock-s','00');
       clearInterval(_clockInterval);_clockInterval=null;
-      return;
+      return false;
     } else {
       remain=endSec-nowSec;
       clock.classList.remove('ended');
@@ -1219,8 +1242,7 @@ function startShiftClock(d){
     const s=remain%60;
     setDigit('clock-h',pad(h));setDigit('clock-m',pad(m));setDigit('clock-s',pad(s));
   }
-  tick();
-  _clockInterval=setInterval(tick,1000);
+  if(tick()!==false)_clockInterval=setInterval(tick,1000);
 }
 
 function renderRailSchedule(d){
@@ -1271,6 +1293,7 @@ function renderProgress(){
   $('hours-rate').textContent=goal?`${pct.toFixed(0)}% completado`:'Sin meta configurada';
   if($('hours-note'))$('hours-note').textContent=goal?`Restan ${Math.max(0,goal-done).toFixed(1)} h para alcanzar tu objetivo mensual.`:'Dirección aún no definió una meta de horas.';
   $('hours-ring').style.setProperty('--hours-angle',`${pct*3.6}deg`); $('hours-ring').setAttribute('aria-label',goal?`${done} de ${goal} horas, ${pct.toFixed(0)} por ciento completado`:`${done} horas acumuladas, sin meta configurada`);
+  $('hours-ring').style.setProperty('--hours-percent',String(pct));
   const t=h.totales||{},att=(t.P||0)+(t.T||0)+(t.J||0),rate=t.laborables?Math.round(att/t.laborables*100):0;
   $('rail-rate').textContent=t.laborables?rate+'%':'—'; $('rail-rate-note').textContent=`${att} de ${t.laborables||0} días registrados`;
   renderDashboardMonthProgress(h);
@@ -1423,7 +1446,9 @@ function attendancePreviewTeammates(){
   ];
   return patterns.map((pattern,index)=>({id:`preview-${index+1}`,nombre:`Ingeniero ${index+1}`,area,dias_laborables:pattern.days,hora_inicio:pattern.start,hora_fin:pattern.end,horario_semanal:Object.fromEntries(pattern.days.map(day=>[String(day),{ini:pattern.start,fin:pattern.end,mod:pattern.mode}])),foto_url:attendancePreviewAvatar(index,String(index+1)),is_preview:true}));
 }
-function teammateSchedule(person,dow){
+function teammateSchedule(person,dow,date=null){
+  // Sin primera entrada confirmada no se proyectan jornadas en el calendario.
+  if(date&&(!person.primera_asistencia||date<person.primera_asistencia))return null;
   const day=person.horario_semanal?.[String(dow)]||{};
   const works=day.mod?day.mod!=='no_gestiona':(person.dias_laborables||[]).map(Number).includes(dow);
   return works?{start:day.ini||person.hora_inicio,end:day.fin||person.hora_fin,mode:day.mod||'virtual'}:null;
@@ -1436,7 +1461,7 @@ function attendanceTeammateAvatar(person){
   return `<span class="attendance-teammate-avatar${photo?' has-photo':''}" aria-hidden="true">${esc(initials(person.nombre))}${photo?`<img data-profile-photo src="${esc(photo)}" alt="" loading="lazy" decoding="async">`:''}</span>`;
 }
 function openAttendanceTeamDay(date){
-  const dow=(new Date(`${date}T12:00:00`).getDay()+6)%7+1,working=attendanceTeammates.map(person=>({person,schedule:teammateSchedule(person,dow)})).filter(item=>item.schedule);
+  const dow=(new Date(`${date}T12:00:00`).getDay()+6)%7+1,working=attendanceTeammates.map(person=>({person,schedule:teammateSchedule(person,dow,date)})).filter(item=>item.schedule);
   $('attendance-mobile-team-day-title').textContent=formatAttendanceDayDate(date);
   $('attendance-mobile-team-day-copy').textContent=working.length?`${working.length} ${working.length===1?'integrante trabaja':'integrantes trabajan'} este día.`:'No hay integrantes con jornada programada este día.';
   $('attendance-mobile-team-day-list').innerHTML=working.length?working.map(({person,schedule})=>`<article class="attendance-mobile-team-person">${attendanceTeammateAvatar(person)}<span><b>${esc(person.nombre)}</b><small>${esc(person.area)} · ${esc(attendanceModeLabel(schedule.mode))}</small></span><time>${esc(fmtTime(schedule.start))} — ${esc(fmtTime(schedule.end))}</time></article>`).join(''):'<p class="attendance-mobile-team-empty">Sin jornadas programadas.</p>';
@@ -1454,7 +1479,7 @@ function renderAttendanceTeammateCalendar(){
     button.setAttribute('aria-label',button.dataset.baseLabel);
     if(attendanceMobileQuery.matches&&!mobileTeam)return;
     const date=button.dataset.historyDate,dow=(new Date(`${date}T12:00:00`).getDay()+6)%7+1;
-    const working=attendanceTeammates.filter(person=>(mobileTeam||(desktopTeam?String(person.id)===attendanceDesktopSelectedTeammate:selectedAttendanceTeammates.has(String(person.id))))&&teammateSchedule(person,dow));
+    const working=attendanceTeammates.filter(person=>(mobileTeam||(desktopTeam?String(person.id)===attendanceDesktopSelectedTeammate:selectedAttendanceTeammates.has(String(person.id))))&&teammateSchedule(person,dow,date));
     if(!working.length)return;
     const marker=document.createElement('span');marker.className='attendance-day-teammates';marker.setAttribute('aria-hidden','true');
     marker.innerHTML=working.slice(0,3).map(person=>`<i title="${esc(person.nombre)}">${attendanceTeammateAvatar(person)}</i>`).join('')+(working.length>3?`<em>+${working.length-3}</em>`:'');
@@ -3207,7 +3232,7 @@ async function loadDailyClose({quiet=false}={}){
   const request=(async()=>{
     const fail=message=>{
       if(!APP.dailyCloseResolved)showDailyCloseLoadError(message);
-      else if(!quiet)dailyCloseMessage(message,'is-error');
+      else dailyCloseMessage(`${message} Los pendientes visibles corresponden a la última actualización.`,'is-error');
       return null;
     };
     let result;
@@ -3219,10 +3244,15 @@ async function loadDailyClose({quiet=false}={}){
     if(generation!==APP.dailyCloseGeneration)return APP.cierre;
     const {data,error}=result||{};
     if(error){
-      const missing=error.code==='PGRST202'||String(error.message||'').includes('dash_cierre_hoy');
-      return fail(missing?'No pudimos comprobar el cierre porque aún no está disponible en el servidor. Reintenta en unos momentos.':'No pudimos comprobar el cierre. Revisa tu conexión y vuelve a intentarlo.');
+      const missing=error.code==='PGRST202';
+      const message=missing?'La función de cierre no está disponible en el servidor.':'El servidor no pudo consultar el cierre de tu jornada.';
+      return fail(`${message} Referencia: ${error.code||'servidor'}`);
     }
-    if(!data?.ok)return fail(data?.motivo==='sesion'?'Tu sesión venció. Vuelve a ingresar.':'No pudimos preparar el cierre. Revisa tu conexión y vuelve a intentarlo.');
+    if(!data?.ok){
+      const reason=data?.motivo||'respuesta_invalida';
+      const messages={sesion:'Tu sesión venció. Vuelve a ingresar.',no_existe:'No se encontró el colaborador asociado a esta jornada.'};
+      return fail(`${messages[reason]||'El servidor no devolvió un cierre de jornada válido.'} Referencia: ${reason}`);
+    }
     const safeRpc=async name=>{try{return await db.rpc(name)}catch(rpcError){return {data:null,error:rpcError}}};
     const [{data:reviews,error:reviewError},{data:issues,error:issueError}]=await Promise.all([safeRpc('dash_mis_revisiones_cierre'),safeRpc('dash_mis_impedimentos_cierre')]);
     if(generation!==APP.dailyCloseGeneration)return APP.cierre;
