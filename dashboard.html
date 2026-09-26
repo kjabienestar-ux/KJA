@@ -1054,7 +1054,7 @@
       </section>
 
       <section id="admin-facebook-section" hidden aria-labelledby="fb-report-title">
-        <header class="fb-report-head"><div><h2 id="fb-report-title">Reportes de Facebook</h2><p>Una fila por persona, agrupada por área.</p></div><div class="fb-report-downloads"><button type="button" id="fb-report-export" disabled>Descargar Excel</button><button type="button" id="fb-report-pdf" aria-describedby="fb-report-pdf-help" disabled>Descargar PDF completo</button><small id="fb-report-pdf-help">PDF: todas las áreas del período y ranking al final.</small></div></header>
+        <header class="fb-report-head"><div><h2 id="fb-report-title">Reportes de Facebook</h2><p>Reportes ejecutivos de publicaciones por persona y por área.</p></div><div class="fb-report-downloads"><button type="button" id="fb-report-export" disabled title="Descarga el libro Excel con reporte por Área, por Persona y Matriz Diaria"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Excel</button><button type="button" id="fb-report-pdf" aria-describedby="fb-report-pdf-help" disabled>Descargar PDF completo</button><small id="fb-report-pdf-help">PDF: todas las áreas del período y ranking al final.</small></div></header>
         <details class="fb-report-note fb-report-help"><summary>Cómo leer el reporte</summary><p>Sí: tiene evidencia registrada. No: no tiene evidencia al consultar. Si no le corresponde compartir, se indica el motivo, por ejemplo “No comparte ese día”. Puedes preparar el reporte de mañana incluyendo hoy.</p></details>
         <form id="fb-report-form" class="fb-report-filters">
           <label>Reporte<select id="fb-report-kind"><option value="lunes">Lunes · jueves a domingo</option><option value="jueves">Jueves · lunes a miércoles</option><option value="general">General del mes</option><option value="custom">Rango personalizado</option></select></label>
@@ -1067,8 +1067,35 @@
         <p id="fb-report-status" role="status" aria-live="polite"></p>
         <div id="fb-report-results" hidden>
           <p id="fb-report-scope" class="fb-report-note"></p>
-          <label class="fb-report-area">Área<select id="fb-report-area"><option value="">Todas las áreas</option></select></label>
-          <div id="fb-report-matrix"></div>
+          
+          <!-- Tarjetas KPI de resumen ejecutivo (Estilo Transmedina) -->
+          <div class="fb-report-kpis" id="fb-report-kpis" aria-label="Métricas clave de publicaciones"></div>
+
+          <!-- Barra de herramientas: Vista por área / Vista por persona y filtros -->
+          <div class="fb-report-toolbar">
+            <div class="fb-report-view-toggle" role="tablist" aria-label="Modo de reporte">
+              <button type="button" class="fb-view-btn active" id="fb-btn-view-area" role="tab" aria-selected="true">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Vista por área
+              </button>
+              <button type="button" class="fb-view-btn" id="fb-btn-view-person" role="tab" aria-selected="false">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Vista por persona
+              </button>
+            </div>
+            <div class="fb-report-toolbar-filters">
+              <label class="fb-report-area">Área<select id="fb-report-area"><option value="">Todas las áreas</option></select></label>
+              <label class="fb-report-search" id="fb-report-search-wrap" hidden>Buscar colaborador<input type="search" id="fb-report-search" placeholder="Escribe un nombre…" aria-label="Buscar colaborador"></label>
+            </div>
+          </div>
+
+          <!-- Vista 1: Por Área (Resumen ejecutivo y matriz) -->
+          <div id="fb-report-area-summary" class="fb-report-view-pane active"></div>
+          <div id="fb-report-matrix" class="fb-report-view-pane active"></div>
+
+          <!-- Vista 2: Por Persona (Consolidado general) -->
+          <div id="fb-report-person-view" class="fb-report-view-pane" hidden></div>
+
           <details class="fb-report-note"><summary>Criterios del reporte</summary><p>“Sí” incluye evidencias pendientes de revisión u observadas. “No” no confirma que la persona no haya compartido fuera del sistema. “No comparte ese día”, “Sistema aún no activo”, “Aún no incorporado” y “Falta fecha de ingreso” explican por qué no se evalúa esa fecha y no suman al total. “Sin información” indica que falta el registro del reporte. Se usa el equipo activo y sus áreas y horarios actuales; los cambios pueden alterar reportes anteriores.</p></details>
         </div>
       </section>
