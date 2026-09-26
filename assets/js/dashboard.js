@@ -1320,7 +1320,8 @@ function renderDashboardMonthProgress(h){
     return `<button type="button" class="dashboard-month-day ${esc(view.state)}${today?' today':''}" data-day-reason="${esc(accessibleLabel)}" aria-label="${esc(accessibleLabel)}">${view.alert?'<em aria-hidden="true">!</em>':''}<small>${esc(weekday)}</small><b>${esc(day.d)}</b><span class="dashboard-month-status" aria-hidden="true"></span></button>`;
   }).join(''):'<span class="dashboard-month-empty">Sin jornadas ni comparticiones asignadas este mes</span>';
   // Background refreshes must not replace the buttons during a touch gesture.
-  if(daysElement.innerHTML!==daysMarkup)daysElement.innerHTML=daysMarkup;
+  if(daysElement._daysMarkup!==daysMarkup){daysElement.innerHTML=daysMarkup;daysElement._daysMarkup=daysMarkup;}
+  KJAMonthProgress.curve(daysElement);
   const sharingMissing=visibleDays.filter(({day})=>day.aplica_comparticiones&&day.comparticiones_vencidas&&!day.comparticiones_completas).length;
   daysElement.setAttribute('aria-label',`${registered} de ${total} días laborables registrados; ${incompleteCount} jornadas incompletas; ${sharingMissing} días con comparticiones vencidas sin completar`);
   if(!hideDashboardDayTooltip)hideDashboardDayTooltip=KJAMonthProgress.bind(daysElement);
@@ -1566,6 +1567,7 @@ function attendanceDayLoading(){
 }
 
 function renderAttendanceDay(data,evidences=[]){
+  if(attendanceMobileQuery.matches){renderAttendanceCompact(data,evidences);return;}
   const state=data.estado||'',label=data.futuro?'Próximo':statusLabel(state,data.labora),stateClass=(state||(!data.labora?'off':'pending')).toLowerCase();
   const request=data.solicitud||null,canJustify=!data.futuro&&data.fecha>=addIsoDays(isoLima(),-90);
   ATTENDANCE_DAY_EVIDENCES=evidences;
@@ -1590,10 +1592,62 @@ function renderAttendanceDay(data,evidences=[]){
     <div class="attendance-evidence-viewer" id="attendance-evidence-viewer" role="region" aria-label="Vista ampliada de evidencia" hidden><button type="button" class="attendance-evidence-close" data-close-attendance-evidence aria-label="Cerrar imagen ampliada"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button><div><div class="attendance-evidence-stage" id="attendance-evidence-stage"></div><p id="attendance-evidence-caption"></p></div></div>`;
 }
 
+function attendanceActivityGroups(data,evidences){
+  const groups=[{id:'entrada',titulo:'Asistencia',detalle:data.marcado_at?'Entrada registrada':'Sin entrada registrada',files:[]}];
+  for(const activity of data.actividades||[])groups.push({...activity,files:[]});
+  evidences.forEach((file,index)=>{
+    const id=file.actividad||(file.bucket==='solicitud-evidencias'?'solicitud':'entrada');
+    let group=groups.find(item=>item.id===id);
+    if(!group){group={id,titulo:file.label||'Solicitud',files:[]};groups.push(group);}
+    group.files.push({...file,index});
+  });
+  if(data.nota||data.solicitud){
+    groups.push({id:'detalle',titulo:'Notas y solicitud',files:[],detalle:[data.nota,
+      data.solicitud?`${personalRequestLabel(data.solicitud.tipo)} · ${data.solicitud.estado}`:'',
+      data.solicitud?.detalle,data.solicitud?.respuesta].filter(Boolean).join('\n\n')});
+  }
+  return groups;
+}
+
+function renderAttendanceCompact(data,evidences){
+  ATTENDANCE_DAY_EVIDENCES=evidences;
+  const content=$('attendance-day-content'),groups=attendanceActivityGroups(data,evidences);
+  content._activities=groups;content._activity=0;content._file=0;
+  content.innerHTML=`<div class="attendance-compact">
+    <header class="attendance-compact-head"><h2 id="attendance-day-title">${esc(formatAttendanceDayDate(data.fecha))}</h2><p>${esc(data.futuro?'Próximo':statusLabel(data.estado,data.labora))} · ${esc(attendanceModeLabel(data.modalidad))}</p></header>
+    <div class="attendance-record-overview"><img src="images/dashboard/attendance-history.png" width="100" height="132" alt="" aria-hidden="true"><dl class="attendance-compact-facts"><div><dt>Entrada</dt><dd>${esc(formatAttendanceClock(data.marcado_at))}</dd></div><div><dt>Salida</dt><dd>${esc(formatAttendanceClock(data.salida_at))}</dd></div><div><dt>Horario</dt><dd>${esc(fmtTime(data.hora_entrada))}–${esc(fmtTime(data.hora_salida))}</dd></div><div><dt>Horas del día</dt><dd>${data.horas==null?'—':esc(Number(data.horas).toFixed(1))+' h'}</dd></div></dl></div>
+    ${data.actividades_version? '':'<p class="attendance-history-warning">El servidor aún no incluye las entregas del día. Solo se muestran las evidencias disponibles.</p>'}
+    <div class="attendance-activity-heading"><b>Evidencias del día</b><small>${evidences.length} ${evidences.length===1?'archivo':'archivos'}</small></div>
+    <div class="attendance-activity-tabs" role="group" aria-label="Seleccionar actividad">${groups.map((group,index)=>`<button type="button" data-attendance-activity="${index}" aria-pressed="${index===0}" aria-controls="attendance-compact-stage">${esc(group.titulo)}${group.files.length?`<span>${group.files.length}</span>`:''}</button>`).join('')}</div>
+    <div id="attendance-compact-stage" class="attendance-compact-stage" aria-live="polite"></div>
+    <nav class="attendance-file-nav" aria-label="Archivos de la actividad"><button type="button" data-attendance-page="-1" aria-label="Archivo anterior">‹</button><span id="attendance-file-count" aria-live="polite"></span><button type="button" data-attendance-page="1" aria-label="Archivo siguiente">›</button></nav>
+    <footer class="attendance-compact-footer"><small>Registro privado de asistencia</small>${!data.futuro&&data.fecha>=addIsoDays(isoLima(),-90)?`<button type="button" id="attendance-day-justify" data-date="${esc(data.fecha)}">Enviar solicitud</button>`:''}</footer>
+    </div>
+    <div class="attendance-evidence-viewer" id="attendance-evidence-viewer" role="region" aria-label="Vista ampliada de evidencia" hidden><button type="button" class="attendance-evidence-close" data-close-attendance-evidence aria-label="Cerrar imagen ampliada">×</button><div><div class="attendance-evidence-stage" id="attendance-evidence-stage"></div><p id="attendance-evidence-caption"></p></div></div>`;
+  renderAttendanceActivity();
+}
+
+function renderAttendanceActivity(){
+  const content=$('attendance-day-content'),group=content._activities?.[content._activity];if(!group)return;
+  content.querySelectorAll('[data-attendance-activity]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.attendanceActivity)===content._activity)));
+  const file=group.files[content._file],stage=$('attendance-compact-stage');
+  if(!file){stage.innerHTML=`<div class="attendance-activity-empty"><b>${esc(group.titulo)}</b><p>${esc(group.detalle||'No hay archivos adjuntos en esta actividad.')}</p></div>`;}
+  else if(!file.url){stage.innerHTML='<div class="attendance-activity-empty"><b>No se pudo abrir este archivo</b><p>Revisa tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-attendance-day>Reintentar</button></div>';}
+  else if((file.mime||'').startsWith('video/')){stage.innerHTML=`<video controls playsinline preload="metadata" src="${esc(file.url)}" aria-label="${esc(file.label)}"></video>`;}
+  else if((file.mime||'image/').startsWith('image/')){stage.innerHTML=`<button class="attendance-compact-photo" type="button" data-attendance-evidence="${file.index}" aria-label="Ampliar ${esc(file.label||'evidencia')}"><img src="${esc(file.url)}" alt="${esc(file.label||'Evidencia')}" decoding="async"><span>Ampliar imagen</span></button>`;}
+  else{stage.innerHTML=`<div class="attendance-activity-empty"><b>${esc(file.label||'Documento')}</b><p>${esc(group.detalle||'Documento adjunto a esta actividad.')}</p><a href="${esc(file.url)}" target="_blank" rel="noopener noreferrer">Abrir documento ↗</a></div>`;}
+  $('attendance-file-count').textContent=file?`${content._file+1} de ${group.files.length} archivos`:'Sin archivos';
+  content.querySelector('[data-attendance-page="-1"]').disabled=content._file<=0;
+  content.querySelector('[data-attendance-page="1"]').disabled=content._file>=group.files.length-1;
+}
+
 function openAttendanceEvidence(index,trigger){
   const evidence=ATTENDANCE_DAY_EVIDENCES[index],viewer=$('attendance-evidence-viewer');if(!evidence||!viewer)return;
   ATTENDANCE_EVIDENCE_TRIGGER=trigger||document.activeElement;
-  $('attendance-evidence-stage').innerHTML=`<img src="${esc(evidence.url)}" alt="${esc(evidence.label||'Evidencia ampliada')}">`;
+  $('attendance-evidence-stage').innerHTML=(evidence.mime||'image/').startsWith('video/')
+    ?`<video controls playsinline src="${esc(evidence.url)}" style="max-width:100%;max-height:100%"></video>`
+    :(evidence.mime||'image/').startsWith('image/')?`<img src="${esc(evidence.url)}" alt="${esc(evidence.label||'Evidencia ampliada')}">`
+    :`<a href="${esc(evidence.url)}" target="_blank" rel="noopener noreferrer" style="color:white">Abrir ${esc(evidence.label||'documento')} ↗</a>`;
   $('attendance-evidence-caption').textContent=evidence.label||'Evidencia';
   const sheet=$('attendance-day-modal').querySelector('.attendance-day-sheet');sheet.scrollTop=0;sheet.classList.add('evidence-open');viewer.hidden=false;
   requestAnimationFrame(()=>viewer.querySelector('.attendance-evidence-close').focus({preventScroll:true}));
@@ -1616,18 +1670,21 @@ async function openAttendanceDay(date){
   $('attendance-day-modal').hidden=false;
   attendanceDayLoading();
   if(firstOpen)requestAnimationFrame(()=>$('attendance-day-modal').querySelector('.modal-close').focus({preventScroll:true}));
-  const {data,error}=await db.rpc('dash_dia_detalle',{p_fecha:date});
+  let data,error;
+  try{({data,error}=await db.rpc('dash_dia_detalle',{p_fecha:date}));}catch(failure){error=failure;}
   if(request!==APP.attendanceDayRequest)return;
   if(error||!data?.ok){
     $('attendance-day-content').innerHTML=`<div class="attendance-day-error"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/></svg></span><h2 id="attendance-day-title">No pudimos abrir este día</h2><p>${error?.message?.includes('dash_dia_detalle')?'Instala o vuelve a ejecutar la migración 11 para habilitar el detalle y las evidencias.':'Inténtalo nuevamente en unos segundos.'}</p><button type="button" data-retry-attendance-day>Reintentar</button></div>`;
     return;
   }
   const evidences=await Promise.all((data.evidencias||[]).map(async item=>{
-    const {data:signed}=await db.storage.from(item.bucket).createSignedUrl(item.path,3600);
-    return {...item,url:signed?.signedUrl||''};
+    try{
+      const {data:signed}=await db.storage.from(item.bucket).createSignedUrl(item.path,3600);
+      return {...item,url:signed?.signedUrl||''};
+    }catch(error){return {...item,url:''};}
   }));
   if(request!==APP.attendanceDayRequest)return;
-  renderAttendanceDay(data,evidences.filter(item=>item.url));
+  renderAttendanceDay(data,evidences);
 }
 
 const PERSONAL_REQUEST_TYPES={
@@ -2187,8 +2244,11 @@ async function renderTeamPersonDetail(id){
         year = Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric'}).format(now)),
         month = Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',month:'numeric'}).format(now));
 
-  const { data, error } = await db.rpc('dash_historial', { p_anio: year, p_mes: month, p_colab: Number(id) });
   const loadEl = $('team-person-month-loading'), dataEl = $('team-person-month-data');
+  let data,error;
+  try { ({data,error}=await db.rpc('dash_historial', { p_anio: year, p_mes: month, p_colab: Number(id) })); }
+  catch(err){ error=err; }
+  if(!dataEl?.isConnected || APP.selectedTeamPersonId!==String(id)) return;
 
   if(error || !data?.ok){
     if(loadEl) loadEl.innerHTML = '<p class="admin-empty">No se pudo cargar el historial mensual autorizado.</p>';
@@ -2215,7 +2275,8 @@ async function renderTeamPersonDetail(id){
     const inc = day.cierre_estado === 'incompleta';
     const state = inc ? 'incomplete' : String(day.estado || '').toLowerCase();
     const label = inc ? 'INC' : (day.estado || '');
-    return `<span class="${state} ${day.lab ? '' : 'off'}" title="Día ${day.d}: ${day.estado||'Sin registro'}"><b>${day.d}</b><i>${esc(label)}</i></span>`;
+    const date=day.fecha||`${year}-${String(month).padStart(2,'0')}-${String(day.d).padStart(2,'0')}`;
+    return `<button type="button" class="${state} ${day.lab ? '' : 'off'}" data-team-day="${esc(date)}" aria-label="Ver actividades del ${esc(date)}: ${esc(day.estado||'Sin registro')}" aria-controls="team-day-detail" aria-pressed="false" ${date>isoLima()?'disabled':''}><b>${day.d}</b><i>${esc(label)}</i></button>`;
   }).join('');
 
   dataEl.innerHTML = `
@@ -2245,7 +2306,7 @@ async function renderTeamPersonDetail(id){
       <article class="team-person-calendar-card">
         <header class="team-calendar-header">
           <h4>Calendario Mensual</h4>
-          <small>Registro diario oficial</small>
+          <small>Toca un día para ver sus entregas</small>
         </header>
         <div class="team-profile-week">
           <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
@@ -2254,6 +2315,8 @@ async function renderTeamPersonDetail(id){
           ${calendarHtml}
         </div>
       </article>
+
+      <section id="team-day-detail" class="team-day-detail" aria-label="Actividades del día" hidden></section>
 
       ${issue ? `
         <div class="team-issue-alert">
@@ -2267,6 +2330,87 @@ async function renderTeamPersonDetail(id){
     </div>
   `;
 }
+
+function teamDayActivities(data){
+  const cierre=data.cierre||{}, deliveries=data.entregas||[], groups=[];
+  const key=item=>item.asignacion_id!=null?`asignado-${item.asignacion_id}`:item.tipo;
+  const required=[...(cierre.requisitos||[]).map(item=>({...item,key:item.tipo})),
+    ...(cierre.asignaciones||[]).filter(item=>item.estado!=='cancelada').map(item=>({...item,key:`asignado-${item.id}`}))];
+  for(const item of required){
+    groups.push({key:item.key,titulo:item.titulo||item.tipo,completo:!!item.completo,
+      estado:item.estado,detalle:item.descripcion||item.instrucciones||'',files:[],entregas:0});
+  }
+  for(const delivery of deliveries){
+    let group=groups.find(item=>item.key===key(delivery));
+    if(!group){group={key:key(delivery),titulo:delivery.titulo||delivery.tipo,files:[],entregas:0};groups.push(group);}
+    group.completo=true;group.entregas++;
+    group.files.push(...(delivery.archivos||[]));
+    group.detalle=delivery.detalle||group.detalle||'';
+    group.fecha=delivery.completado_at;
+  }
+  return groups;
+}
+
+async function openTeamDay(date){
+  const host=$('team-day-detail'),id=APP.selectedTeamPersonId;
+  if(!host||!id) return;
+  const request=Symbol();host._request=request;
+  host.hidden=false;host.setAttribute('aria-busy','true');
+  $('team-detail-panel').querySelectorAll('[data-team-day]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.teamDay===date)));
+  const heading=new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'long',year:'numeric'}).format(new Date(`${date}T12:00:00`));
+  host.innerHTML=`<h4>${esc(heading)}</h4><p role="status">Consultando actividades y evidencias…</p>`;
+  host.scrollIntoView({block:'nearest',behavior:'instant'});
+  try{
+    const {data,error}=await db.rpc('dash_equipo_dia_detalle',{p_colaborador:Number(id),p_fecha:date});
+    if(!host.isConnected||host._request!==request||APP.selectedTeamPersonId!==id)return;
+    if(error||!data?.ok)throw new Error(error?.code==='PGRST202'?'update':data?.motivo||'load');
+    const groups=teamDayActivities(data),pending=groups.filter(item=>!item.completo).length;
+    const files=groups.reduce((n,item)=>n+item.files.length,0)+(data.entrada_archivos||[]).length;
+    const time=value=>value?new Date(value).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'Sin registro';
+    host._groups=[{key:'entrada',titulo:'Asistencia',completo:!!data.entrada_at,files:data.entrada_archivos||[],fecha:data.entrada_at},...groups];
+    host.innerHTML=`<header><div><small>ACTIVIDADES DEL DÍA</small><h4>${esc(heading)}</h4></div><button type="button" data-team-calendar aria-label="Volver al calendario">↑</button></header>
+      <dl class="team-day-times"><div><dt>Entrada</dt><dd>${time(data.entrada_at)}</dd></div><div><dt>Salida</dt><dd>${time(data.salida_at)}</dd></div><div><dt>Modalidad</dt><dd>${esc(({virtual:'Virtual',presencial:'Presencial'})[data.cierre?.modalidad]||'—')}</dd></div><div><dt>Horas registradas</dt><dd>${Number(data.horas||0).toFixed(1)} h</dd></div></dl>
+      <div class="team-day-counts"><span><b>${groups.filter(item=>item.completo).length}</b> Entregadas</span><span><b>${pending}</b> Pendientes</span><span><b>${files}</b> Archivos</span></div>
+      <p class="team-day-note">Entregas de RPE, salida, Facebook y actividades asignadas que correspondan. La asistencia se muestra por separado.</p>
+      <div class="team-day-activities">${host._groups.map((group,index)=>`<details><summary><span>${esc(group.titulo)}<small>${group.files.length} ${group.files.length===1?'archivo':'archivos'}</small></span><em class="${group.completo?'done':'pending'}">${group.completo?'Registrado':group.estado==='bloqueada'?'Bloqueada':'Pendiente'}</em></summary>
+        ${group.fecha?`<p>Registrado a las ${time(group.fecha)}</p>`:''}${group.detalle?`<p>${esc(group.detalle)}</p>`:''}
+        ${group.files.length?`<div class="team-day-files"><button type="button" data-team-file="${index}:0">Ver ${group.files.length===1?'archivo':`${group.files.length} archivos`}</button></div>`:`<p>${group.completo?'Registro sin archivos adjuntos.':'Todavía no hay una entrega registrada.'}</p>`}</details>`).join('')}</div>
+      <div class="team-day-preview" id="team-day-preview" hidden></div>`;
+  }catch(error){
+    if(!host.isConnected||host._request!==request||APP.selectedTeamPersonId!==id)return;
+    host.innerHTML=`<h4>${esc(heading)}</h4><p role="alert">${error.message==='update'?'Falta actualizar la consulta de actividades del equipo (migración 81).':error.message==='sin_permiso'?'No tienes acceso a este integrante.':'No se pudieron cargar las actividades de esta fecha.'}</p><button type="button" data-team-day="${esc(date)}">Reintentar</button>`;
+  }finally{if(host._request===request)host.removeAttribute('aria-busy');}
+}
+
+async function openTeamDayFile(value){
+  const host=$('team-day-detail'),preview=$('team-day-preview');
+  const [groupIndex,fileIndex]=value.split(':').map(Number),group=host?._groups?.[groupIndex],file=group?.files[fileIndex];
+  if(!file||!preview)return;
+  const request=Symbol();preview._request=request;preview.hidden=false;
+  preview.innerHTML='<p role="status">Cargando archivo…</p>';
+  try{
+    const {data,error}=await db.storage.from(file.bucket).createSignedUrl(file.path,900);
+    if(!preview.isConnected||preview._request!==request)return;
+    if(error||!data?.signedUrl)throw new Error('archivo');
+    const url=esc(data.signedUrl),label=esc(`${group.titulo} · archivo ${fileIndex+1}`);
+    preview.innerHTML=`<b>${label}</b>${file.mime?.startsWith('image/')?`<img src="${url}" alt="${label}">`:file.mime?.startsWith('video/')?`<video controls playsinline src="${url}"></video>`:''}<a href="${url}" target="_blank" rel="noopener noreferrer">Abrir archivo completo ↗</a>
+      <nav aria-label="Archivos de ${esc(group.titulo)}"><button type="button" data-team-file="${groupIndex}:${fileIndex-1}" aria-label="Archivo anterior" ${fileIndex===0?'disabled':''}>‹</button><span>${fileIndex+1} de ${group.files.length}</span><button type="button" data-team-file="${groupIndex}:${fileIndex+1}" aria-label="Archivo siguiente" ${fileIndex===group.files.length-1?'disabled':''}>›</button></nav>`;
+  }catch{
+    if(!preview.isConnected||preview._request!==request)return;
+    preview.innerHTML=`<p role="alert">No se pudo abrir el archivo. Inténtalo nuevamente.</p><button type="button" data-team-file="${esc(value)}">Reintentar</button>`;
+  }
+  preview.scrollIntoView({block:'nearest',behavior:'instant'});
+}
+
+$('team-detail-panel').addEventListener('click',event=>{
+  const day=event.target.closest('[data-team-day]');
+  if(day&&!day.disabled){openTeamDay(day.dataset.teamDay);return;}
+  const file=event.target.closest('[data-team-file]');
+  if(file){openTeamDayFile(file.dataset.teamFile);return;}
+  if(event.target.closest('[data-team-calendar]')){
+    $('team-detail-panel').querySelector('[data-team-day][aria-pressed="true"]')?.focus();
+  }
+});
 
 function openTeamProfile(id){
   selectTeamPerson(id);
@@ -2677,6 +2821,14 @@ $('request-calendar-today').onclick=()=>chooseRequestCalendarDate(isoLima());
 $('request-calendar-grid').onclick=event=>{const day=event.target.closest('[data-request-calendar-date]');if(day&&!day.disabled)chooseRequestCalendarDate(day.dataset.requestCalendarDate)};
 document.querySelectorAll('[data-close-attendance-day]').forEach(button=>button.onclick=closeAttendanceDay);
 $('attendance-day-content').onclick=event=>{
+  const activity=event.target.closest('[data-attendance-activity]');
+  if(activity){
+    const content=$('attendance-day-content'),index=Number(activity.dataset.attendanceActivity);
+    if(!content._activities?.[index])return;
+    content._activity=index;content._file=0;renderAttendanceActivity();return;
+  }
+  const page=event.target.closest('[data-attendance-page]');
+  if(page&&!page.disabled){const content=$('attendance-day-content');content._file+=Number(page.dataset.attendancePage);renderAttendanceActivity();return;}
   const closeEvidence=event.target.closest('[data-close-attendance-evidence]');if(closeEvidence)return closeAttendanceEvidence();
   const evidence=event.target.closest('[data-attendance-evidence]');if(evidence)return openAttendanceEvidence(Number(evidence.dataset.attendanceEvidence),evidence);
   const retry=event.target.closest('[data-retry-attendance-day]');if(retry)return openAttendanceDay(APP.attendanceDayDate);
@@ -2931,7 +3083,7 @@ function dailyCloseGuidePresentation(data){
   if(data.estado==='completa'||data.estado==='regularizada')return data.comparticiones_pendientes
     ?{stage:'complete',title:'Jornada laboral cerrada',copy:data.puede_compartir?'Tu horario de Facebook está abierto; ya puedes adjuntar las capturas.':`Facebook se habilitará de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}.`}
     :{stage:'complete',title:'Jornada cerrada correctamente',copy:'Entrada, evidencias y salida quedaron registradas.'};
-  if(data.estado==='incompleta')return {stage:'incomplete',title:'El cierre quedó incompleto',copy:'El plazo terminó sin registrar todos los pasos.'};
+  if(data.estado==='incompleta'&&CLOSE_MODEL.workClosed(data))return {stage:'incomplete',title:'El cierre quedó incompleto',copy:'El plazo terminó sin registrar todos los pasos.'};
   if(((data.pendientes_salida??data.pendientes)||0)>0)return {stage:'evidence',title:'Completa tus evidencias',copy:'Selecciona cada requisito pendiente para adjuntar las imágenes.'};
   if(data.puede_marcar_salida)return {stage:'exit',title:'Todo listo para salir',copy:'Tus evidencias están completas. Confirma ahora tu salida.'};
   return {stage:'ready',title:'Evidencias completas',copy:`La salida se habilitará desde las ${fmtTime(data.salida_desde)}.`};
@@ -2986,7 +3138,7 @@ function dailyPendingWorkLabel(close){
 function renderMobileDailyClose(data,items){
   const panel=$('mobile-close-panel');if(!panel)return;
   panel.hidden=false;
-  const entryComplete=!!data.entrada_at,closed=['completa','regularizada','incompleta'].includes(data.estado),pendingItems=items.filter(item=>!item.completo);
+  const entryComplete=!!data.entrada_at,closed=CLOSE_MODEL.workClosed(data),pendingItems=items.filter(item=>!item.completo&&(data.solo_comparticiones||data.solo_asistencia_comparticiones||item.tipo!=='comparticiones'));
   panel.dataset.state=data.comparticiones_vencidas?'incomplete':closed?CLOSE_MODEL.stateTone(data.estado):entryComplete?(pendingItems.length?'pending':'ready'):'waiting';
   const facebookOnly=!!data.solo_comparticiones;
   $('mobile-close-title').textContent=facebookOnly?'Compartición de hoy':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
@@ -3000,7 +3152,7 @@ function renderMobileDailyClose(data,items){
   progressPill.setAttribute('aria-valuenow',String(progressValue));
   progressPill.dataset.progressState=mobileProgress===0?'empty':mobileProgress>=100?'complete':'active';
   $('mobile-close-list').innerHTML=items.map((item,index)=>dailyCloseItemMarkup(item,{entry:!facebookOnly&&index===0})).join('');
-  const completedItems=Math.max(0,items.length-pendingItems.length),progress=items.length?Math.round(completedItems/items.length*100):0;
+  const completedItems=items.filter(item=>item.completo).length,progress=items.length?Math.round(completedItems/items.length*100):0;
   let bannerTitle='',bannerCopy='';
   if(facebookOnly){
     bannerTitle=data.comparticiones_vencidas?'Compartición no entregada':pendingItems.length?'Completa tu tarea programada':'Evidencia enviada';
@@ -3013,7 +3165,7 @@ function renderMobileDailyClose(data,items){
       :data.comparticiones_pendientes
       ?`Tu salida quedó registrada. Facebook ${data.puede_compartir?'está habilitado ahora':`se habilitará de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}`}.`
       :`Tu salida quedó registrada a las ${formatAttendanceClock(data.salida_at)}.`;
-  }else if(data.estado==='incompleta'){
+  }else if(data.estado==='incompleta'&&CLOSE_MODEL.workClosed(data)){
     bannerTitle='Jornada incompleta';bannerCopy='El plazo terminó. Revisa el estado de las tareas que quedaron pendientes.';
   }else if(pendingItems.length){
     bannerTitle=`Te ${pendingItems.length===1?'falta':'faltan'} ${pendingItems.length} ${pendingItems.length===1?'pendiente':'pendientes'}`;bannerCopy='Abre cada tarea y adjunta la evidencia solicitada para continuar.';
@@ -3037,7 +3189,7 @@ function renderMobileDailyClose(data,items){
     $('mobile-close-footer-title').textContent='Empieza por tu entrada';$('mobile-close-footer-copy').textContent='Después podrás abrir cada evidencia.';
   }else if(data.salida_at){
     action.hidden=true;$('mobile-close-footer-title').textContent='Jornada completada';$('mobile-close-footer-copy').textContent=`Salida registrada a las ${formatAttendanceClock(data.salida_at)}.`;
-  }else if(data.estado==='incompleta'){
+  }else if(data.estado==='incompleta'&&CLOSE_MODEL.workClosed(data)){
     action.hidden=true;$('mobile-close-footer-title').textContent='Jornada incompleta';$('mobile-close-footer-copy').textContent='El plazo terminó sin completar el cierre.';
   }else if(pendingItems.length){
     action.querySelector('span').textContent='Salida bloqueada';$('mobile-close-footer-title').textContent=`Completa ${pendingItems.length} ${pendingItems.length===1?'pendiente':'pendientes'}`;$('mobile-close-footer-copy').textContent='Toca cada fila pendiente para adjuntar su evidencia.';
@@ -3120,7 +3272,7 @@ function renderDailyClose(){
   const data=APP.cierre,section=$('day-close'),card=$('today-attendance-card');if(!section)return;
   clearDailyCloseLoadError();
   if(!data?.ok||!data.aplica){section.hidden=true;$('mobile-close-panel').hidden=true;card?.classList.remove('has-daily-close');syncMarkedAttendanceAction();return;}
-  const facebookOnly=!!data.solo_comparticiones,entryComplete=!!data.entrada_at,closed=!facebookOnly&&['completa','regularizada','incompleta'].includes(data.estado);
+  const facebookOnly=!!data.solo_comparticiones,entryComplete=!!data.entrada_at,closed=!facebookOnly&&CLOSE_MODEL.workClosed(data);
   section.hidden=false;
   card?.classList.add('has-daily-close');
   syncMarkedAttendanceAction();
@@ -3211,7 +3363,7 @@ function renderDailyClose(){
       :data.comparticiones_pendientes
       ?`Jornada laboral completa · Facebook ${data.puede_compartir?'está habilitado ahora':`se habilitará de ${fmtTime(data.compartir_desde)} a ${fmtTime(data.compartir_hasta)}`}.`
       :`Jornada completa · ${Number(data.horas_efectivas||0).toFixed(2)} horas acreditadas.`,data.comparticiones_vencidas?'is-error':'is-success');
-  }else if(data.estado==='incompleta'){
+  }else if(data.estado==='incompleta'&&CLOSE_MODEL.workClosed(data)){
     $('day-close-button-caption').textContent='PLAZO FINALIZADO';$('day-close-button-label').textContent='Jornada incompleta';
     dailyCloseMessage('La entrada se conserva, pero esta jornada no suma asistencia ni horas.','is-error');
   }else if(((data.pendientes_salida??data.pendientes)||0)>0){
@@ -3342,7 +3494,7 @@ function openDailyEvidenceEditor(requirement,assignment=null){
   if(DAILY_EVIDENCE.busy)return;
   if(requirement==='salida'&&CLOSE_MODEL.hasPendingWork(APP.cierre)){toast(`Primero completa ${dailyPendingWorkLabel(APP.cierre)}. La salida es el último paso.`);return;}
   const data=APP.cierre,facebook=requirement==='comparticiones';
-  if(!data||(!facebook&&(!data.entrada_at||data.salida_at||data.estado==='incompleta')))return;
+  if(!data||(!facebook&&(!data.entrada_at||CLOSE_MODEL.workClosed(data))))return;
   const item=requirement==='asignado'
     ?(data.asignaciones||[]).find(row=>String(row.id)===String(assignment))
     :(data.requisitos||[]).find(row=>row.tipo===requirement);

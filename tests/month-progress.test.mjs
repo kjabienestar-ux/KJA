@@ -11,12 +11,29 @@ function calendarRenderHarness(){
     get innerHTML(){return markup;},set innerHTML(value){markup=value;replacements++;},
     setAttribute(){},querySelector(){return markup.includes(' today"')?{offsetLeft:800,offsetWidth:44}:null;}};
   const context={$:()=>days,window:{matchMedia:()=>({matches:true})},requestAnimationFrame:fn=>fn(),
-    KJAMonthProgress:{...model,bind:()=>()=>{}},esc:String,
+    KJAMonthProgress:{...model,bind:()=>()=>{},curve:()=>{}},esc:String,
     monthNames:['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']};
   vm.runInNewContext(source.slice(source.indexOf('let hideDashboardDayTooltip='),source.indexOf("let selectedAttendanceDate=")),context);
   const history={anio:2026,mes:9,hoy:'2026-09-25',dias:[{lab:true,fecha:'2026-09-25',d:25,estado:'P'}]};
   return {days,history,render:context.renderDashboardMonthProgress,replacements:()=>replacements};
 }
+
+test('calendar curve follows the viewport on scroll and resets on desktop',()=>{
+  const listeners={},frames=[];
+  const media={matches:true,addEventListener:(name,fn)=>{listeners.media=fn;}};
+  let shift=0;
+  const days=[25,175,325].map(x=>({value:'',style:{setProperty(name,value){this.value=value;}},getBoundingClientRect:()=>({left:x-22-shift,width:44})}));
+  const container={ownerDocument:{defaultView:{matchMedia:()=>media,requestAnimationFrame:fn=>{frames.push(fn);return frames.length;},addEventListener(){}}},
+    getBoundingClientRect:()=>({left:0,width:350}),querySelectorAll:()=>days,addEventListener:(name,fn)=>{listeners[name]=fn;}};
+  const flush=()=>{while(frames.length)frames.shift()();};
+  model.curve(container);flush();
+  assert.equal(days[1].style.value,'0.00px');
+  assert.equal(days[0].style.value,days[2].style.value);
+  assert.ok(parseFloat(days[0].style.value)>18);
+  shift=150;listeners.scroll();flush();assert.equal(days[2].style.value,'0.00px');
+  media.matches=false;listeners.media();flush();
+  assert.ok(days.every(day=>day.style.value==='0px'));
+});
 
 test('background refresh preserves the scrolled date and unchanged day buttons',()=>{
   const h=calendarRenderHarness();h.render(h.history);
