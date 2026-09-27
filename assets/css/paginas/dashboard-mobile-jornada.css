@@ -34,18 +34,23 @@
   }
   #portal:not(.admin-wide) .mobile-portal-home {
     background:
-      linear-gradient(180deg, #cedbdf 0%, #e0e4e8 44%, #edf0f3 75%, #f4f8fb 100%) 0 0 / 100% 310px no-repeat,
+      linear-gradient(180deg, #dbe9eb 0%, #e0e4e8 44%, #edf0f3 75%, #f4f8fb 100%) 0 0 / 100% 260px no-repeat,
       #f4f8fb !important;
   }
+  html:has(#portal:not(.admin-wide):not([hidden])[data-view="inicio"]),
+  body:has(#portal:not(.admin-wide):not([hidden])[data-view="inicio"]){background:#DBE9EB}
   #portal:not(.admin-wide) .mobile-portal-hero {
     position: relative;
     isolation: isolate;
     grid-template-columns: 52px minmax(0,1fr) repeat(2,44px);
     column-gap: 8px;
     height: auto;
+    min-height:88px;
+    padding-top:16px;
+    padding-bottom:12px;
     background: transparent !important;
   }
-  #portal:not(.admin-wide) .mobile-portal-sheet { background: transparent !important; }
+  #portal:not(.admin-wide) .mobile-portal-sheet { padding-top:0;background: transparent !important; }
   #portal:not(.admin-wide) .mobile-portal-person > div {
     grid-column: 2;
     grid-row: 1;
@@ -127,14 +132,14 @@
     scroll-snap-type: x proximity;
     scroll-padding-inline: 10px;
     position: relative;
-    padding: 8px 4px 38px;
+    padding: 4px 4px 30px;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-x pan-y pinch-zoom;
     -webkit-mask-image: linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
     mask-image: linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
   }
-  #portal:not(.admin-wide) .dashboard-month-progress{position:relative;isolation:isolate;margin-bottom:8px}
+  #portal:not(.admin-wide) .dashboard-month-progress{position:relative;isolation:isolate;margin:0 0 4px}
   #portal:not(.admin-wide) .dashboard-month-progress::before,
   #portal:not(.admin-wide) .dashboard-month-progress::after{
     content:"";position:absolute;z-index:1;top:0;bottom:0;width:30px;pointer-events:none;
