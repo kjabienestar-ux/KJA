@@ -1,0 +1,111 @@
+/* El acceso comparte la paleta y las figuras del portal personal. */
+/* Safari puede tomar el tinte de su interfaz del fondo real de la página. */
+html:has(#access:not([hidden])),body:has(#access:not([hidden])){background:#DBE9EB}
+#access{display:grid;place-items:center;min-height:100svh;min-height:100dvh;padding:80px 32px 40px;background:#dbe9eb;color:#203248;overflow:visible;font-family:Inter,system-ui,sans-serif}
+#access[hidden]{display:none}
+#access::before,#access::after{content:none}
+#access .back-home{position:absolute;top:max(20px,env(safe-area-inset-top));left:auto;right:max(24px,env(safe-area-inset-right));display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:0;border-radius:12px;color:#426575;background:#edf5f6;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;font:600 12px/1.4 Inter,system-ui,sans-serif;text-decoration:none;transition:background-color 140ms ease,color 140ms ease}
+#access .back-home:hover{background:#f8fbfb;color:#203248;transform:none}
+#access .back-home:active{background:#cfdfe2}
+#access .back-home svg{width:18px;height:18px;flex:none;stroke-width:1.8}
+#access .access-shell{width:min(1040px,100%);min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,440px);gap:64px;padding:0;overflow:visible;align-items:center;background:transparent;box-shadow:none;border:0}
+#access .access-story{padding:0;background:transparent;color:#203248}
+#access .story-brand img{width:140px;filter:none}
+#access .story-brand-text{display:none}
+#access .story-copy{margin-top:40px;max-width:460px}
+#access .story-copy h1{font:700 clamp(36px,4vw,52px)/1.12 Inter,system-ui,sans-serif;letter-spacing:-.035em;color:#203248;text-shadow:none;max-width:12ch}
+#access .story-copy h1 em{color:#39735c}
+#access .story-copy>p:last-of-type{margin:20px 0 0;max-width:38ch;color:#526877;text-shadow:none;font:400 15px/1.75 Inter,system-ui,sans-serif}
+#access .story-trust{gap:8px 20px;margin-top:28px}
+#access .story-trust span{padding:0;min-height:28px;border:0;background:transparent;color:#456653;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;font-size:11px;font-weight:500}
+#access .story-trust i,#access .story-trust span:last-child i{width:6px;height:6px;background:#54856e;box-shadow:none}
+#access .access-form-wrap{width:100%;max-width:440px;min-height:0;display:block;align-self:center;margin:0;padding:24px;border:0;border-radius:24px;background:#fff;box-shadow:0 14px 40px rgba(40,69,78,.07);backdrop-filter:none;-webkit-backdrop-filter:none;transform:none;animation:login-arrive 320ms cubic-bezier(.16,1,.3,1) both}
+#access .access-form-wrap::before,#access .access-form-wrap::after{content:none;display:none}
+#access .access-form-head{margin:0 0 20px;width:100%;text-align:left}
+#access .mobile-logo{display:none}
+#access .login-welcome{display:grid;grid-template-columns:minmax(0,1fr) 120px;align-items:center;gap:0;padding:16px 0 0 18px;min-height:140px;overflow:hidden;border-radius:16px;background:#eff6f2}
+#access .login-welcome-copy{padding-bottom:16px;position:relative;z-index:1}
+#access .login-welcome h2{margin:0;color:#203248;font:700 23px/1.2 Inter,system-ui,sans-serif;letter-spacing:-.025em;text-shadow:none;text-wrap:balance}
+#access .login-welcome p{margin:9px 0 0;color:#546d60;font:400 12px/1.55 Inter,system-ui,sans-serif}
+#access .login-welcome-figure{display:block;align-self:end;width:144px;max-width:none;height:144px;object-fit:contain;margin-left:-10px}
+#access .login-panel{width:100%;margin:0;padding:0;border:0;background:transparent;box-shadow:none;backdrop-filter:none}
+#access .login-tabs{display:flex;min-height:48px;margin:0 0 12px;padding:4px;border:0;border-radius:12px;background:#f0f4f5;box-shadow:none}
+#access .login-tabs button{min-height:44px;padding:10px 8px;border:0;border-radius:9px;color:#566979;background:transparent;font:600 12px/1.4 Inter,system-ui,sans-serif;transition:background-color 140ms ease,color 140ms ease}
+#access .login-tabs button.active{background:#fff;color:#a91a4c;box-shadow:0 2px 6px rgba(35,58,70,.06)}
+#access .login-tabs button:not(.active):hover{background:#e5eded;color:#203248}
+#access .login-role-help{min-height:0;margin:0 0 16px;color:#5b6e7d;font-size:11px;line-height:1.5}
+#access .login-form{display:grid;gap:14px}
+#access .login-form[hidden]{display:none}
+#access .field label{margin:0 0 7px;color:#3c5363;font-size:12px;font-weight:600}
+#access .field-box{height:52px;min-height:52px;padding:0 12px;gap:10px;border:1px solid #dce5e5;border-radius:12px;background:#f7f9f8;box-shadow:none;transition:border-color 140ms ease,background-color 140ms ease}
+#access .field-box:hover{border-color:#91a99e}
+#access .field-box:focus-within{border-color:#54856e;background:#fff;box-shadow:0 0 0 3px rgba(84,133,110,.12)}
+#access .field-box>svg{width:18px;flex:0 0 18px;color:#658576}
+#access .field-box input{font:400 16px/1.5 Inter,system-ui,sans-serif;color:#203248;caret-color:#c81854}
+#access .field-box input::placeholder{color:#687a85;opacity:1}
+#access .field-hint{margin-top:5px;color:#637584;font-size:10px}
+#access .reveal{min-width:44px;width:44px;height:44px;color:#587767;background:transparent;box-shadow:none}
+#access .reveal:hover{background:#eaf1ec;color:#346b55}
+#access .form-options{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;margin:0;font-size:10px}
+#access .remember-me{min-height:36px;color:#536776;gap:7px;font-size:10px}
+#access .remember-me input{width:16px;height:16px;accent-color:#c81854}
+#access .forgot-pin{display:inline-flex;align-items:center;min-height:36px;color:#a91a4c;font-size:10px;white-space:nowrap}
+#access .primary{min-height:52px;margin:0;border:0;border-radius:12px;background:#df165c;color:#fff;box-shadow:none;font:650 13px/1.4 Inter,system-ui,sans-serif;transition:background-color 140ms ease,transform 140ms ease}
+#access .primary:hover{background:#bc124d;color:#fff;box-shadow:none;transform:none}
+#access .primary:active{transform:scale(.99)}
+#access .primary:disabled{background:#b65b7b;color:#fff;opacity:1;transform:none}
+#access .form-msg{color:#a12d48;background:#fff0f4;border:1px solid #f2d1db;font-size:12px}
+#access .access-footer{justify-content:center;margin-top:18px;padding-top:14px;border-top:1px solid #edf1ee;color:#617585;font-size:10px}
+#access .access-footer svg{color:#39735c}
+#access .access-support{margin-top:6px;text-align:center}
+#access .access-support a{display:inline-flex;align-items:center;min-height:36px;color:#596f7d;font-size:10px;line-height:1.5;text-underline-offset:3px}
+#access .access-support a:hover{color:#a91a4c}
+#access :is(button,a,input):focus-visible{outline:2px solid #c81854;outline-offset:3px}
+#access .field-box input:focus-visible{outline:none}
+#access ::selection{background:#f9dce7;color:#782243}
+@keyframes login-arrive{from{opacity:.6;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(min-width:901px){
+  #access{background:#09244c;overflow:hidden}
+  #access::before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background:rgba(7,25,51,.57)}
+  #access::after{content:"";position:absolute;z-index:-2;inset:-5px;pointer-events:none;background:url("../../../images/dashboard/fondo-1-1920.webp") center/cover no-repeat;filter:blur(2px)}
+  #access .story-copy h1{color:#fff;text-shadow:0 2px 8px rgba(2,14,31,.5)}
+  #access .story-copy h1 em{color:#ffc0dc}
+  #access .story-copy>p:last-of-type{color:#f3f7fb;text-shadow:0 1px 4px rgba(2,14,31,.6)}
+  #access .story-trust span{color:#eef8ff}
+  #access .story-trust i{background:#48d6b2}
+  #access .story-trust span:last-child i{background:#ff6fab}
+}
+@media(max-width:900px){
+  #access{display:flex;align-items:flex-start;justify-content:center;padding:max(72px,calc(env(safe-area-inset-top) + 60px)) max(16px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:#dbe9eb}
+  #access[hidden]{display:none}
+  #access .back-home{top:max(16px,env(safe-area-inset-top));right:max(18px,env(safe-area-inset-right))}
+  #access .access-shell{display:block;width:100%;max-width:440px;min-height:0;padding:0;margin:0 auto}
+  #access .access-story{display:none}
+  #access .access-form-wrap{padding:20px;border-radius:24px;margin:0;background:#fff}
+  #access .mobile-logo{display:block;margin:0 0 16px;width:max-content;background:transparent;box-shadow:none}
+  #access .mobile-logo img{display:block;width:94px;height:auto;filter:none}
+  #access .access-form-head{margin-bottom:16px}
+  #access .login-welcome{min-height:128px;grid-template-columns:minmax(0,1fr) 112px;padding:12px 0 0 14px}
+  #access .login-welcome-figure{width:134px;height:134px}
+  #access .login-welcome h2{font-size:22px}
+  #access .login-welcome p{font-size:11px;margin-top:8px}
+  #access .login-form{gap:12px}
+}
+@media(max-width:360px){
+  #access{padding-inline:12px}
+  #access .access-form-wrap{padding:16px}
+  #access .login-welcome{grid-template-columns:minmax(0,1fr) 94px;min-height:120px}
+  #access .login-welcome-figure{width:116px;height:116px}
+  #access .login-welcome h2{font-size:20px}
+}
+@media(max-height:620px) and (max-width:900px){
+  #access{padding-top:max(64px,calc(env(safe-area-inset-top) + 52px))}
+  #access .login-welcome{min-height:96px;grid-template-columns:minmax(0,1fr) 88px}
+  #access .login-welcome-figure{width:100px;height:100px}
+  #access .mobile-logo{margin-bottom:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  #access .access-form-wrap{animation:none}
+  #access :is(.primary,.login-tabs button,.field-box,.back-home){transition:none}
+  #access .primary:active{transform:none}
+}
