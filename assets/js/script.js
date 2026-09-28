@@ -71,20 +71,38 @@ function kjaShouldAnimateEntrance() {
 // ============================================================
 //  MOBILE MENU
 // ============================================================
-function toggleMenu() {
+function setMenuOpen(open) {
     const menu = document.getElementById('nav-menu');
     const hamburger = document.getElementById('hamburger');
-    if (menu) menu.classList.toggle('open');
-    if (hamburger) hamburger.classList.toggle('open');
+    if (menu) menu.classList.toggle('open', open);
+    if (hamburger) {
+        hamburger.classList.toggle('open', open);
+        hamburger.setAttribute('aria-expanded', String(open));
+        hamburger.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    }
+}
+
+function toggleMenu() {
+    setMenuOpen(!document.getElementById('nav-menu')?.classList.contains('open'));
 }
 
 document.addEventListener('click', function(e) {
     const menu      = document.getElementById('nav-menu');
     const hamburger = document.getElementById('hamburger');
-    if (menu && hamburger && !menu.contains(e.target) && !hamburger.contains(e.target)) {
-        menu.classList.remove('open');
-        hamburger.classList.remove('open');
+    if (menu && hamburger && !hamburger.contains(e.target)) {
+        if (!menu.contains(e.target) || e.target.closest('a')) setMenuOpen(false);
     }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('nav-menu')?.classList.contains('open')) {
+        setMenuOpen(false);
+        document.getElementById('hamburger')?.focus();
+    }
+});
+
+window.matchMedia('(min-width: 969px)').addEventListener('change', function(e) {
+    if (e.matches) setMenuOpen(false);
 });
 
 // ============================================================
@@ -735,8 +753,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
     if (!header) return;
 
-    const themeMeta = document.querySelector('meta[name="theme-color"]');
-    const themeColorDark = themeMeta ? themeMeta.content : '#004fb0';
+    const themeMetas = Array.from(document.querySelectorAll('meta[name="theme-color"]'),
+        meta => ({ meta, color: meta.content }));
+    const mobileViewport = window.matchMedia('(max-width: 968px)');
 
     // PERF: recordamos el último estado para escribir en el DOM SOLO cuando
     // cambia (de arriba<->scrolleado), no en cada evento de scroll. Así
@@ -748,12 +767,21 @@ document.addEventListener('DOMContentLoaded', () => {
         lastScrolled = isScrolled;
 
         header.classList.toggle('scrolled', isScrolled);
-        if (themeMeta) {
-            themeMeta.content = isScrolled ? '#ffffff' : themeColorDark;
+        const mobileHome = header.classList.contains('home-header') && mobileViewport.matches;
+        themeMetas.forEach(({ meta, color }) => {
+            meta.content = mobileHome ? color : (isScrolled ? '#ffffff' : color);
+        });
+        if (mobileHome) {
+            document.documentElement.style.removeProperty('background');
+        } else {
+            document.documentElement.style.background = isScrolled ? '#ffffff' : '#0a1628';
         }
-        document.documentElement.style.background = isScrolled ? '#ffffff' : '#0a1628';
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    mobileViewport.addEventListener('change', () => {
+        lastScrolled = null;
+        handleScroll();
+    });
     handleScroll();
 });
