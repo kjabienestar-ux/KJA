@@ -2,6 +2,7 @@
 const ADMIN_DAYS=[['Lun',1],['Mar',2],['Mié',3],['Jue',4],['Vie',5],['Sáb',6],['Dom',7]];
 const ADMIN_MODES={virtual:['Virtual','Virt'],presencial:['Presencial','Pres'],opcional:['Opcional','Opc'],no_gestiona:['No gestiona','—']};
 const ADMIN_LINKS={practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Mixto'};
+const ADMIN_INSTITUTIONS=['UTP - LIMA CENTRO','UTP - LIMA NORTE','UTP - ATE','SENATI - INDEPENDENCIA','SENATI - CENTRO DE LIMA','IDAT - SJM','UPEU - LIMA','UPC - SAN MIGUEL','UFV - SEDE CENTRAL','ZEGEL - PURUCHUCO'];
 let ADMIN_DAYS_OFF={person:null,busy:false,trigger:null};
 let ADMIN_FACEBOOK_SCHEDULE={configured:false,horario:{}};
 
@@ -187,6 +188,15 @@ function collectFacebookSchedule(){
   return schedule;
 }
 
+function fillAdminInstitutionOptions(current){
+  const select=$('admin-person-institution');if(!select)return;
+  const saved=String(current??'').trim(),key=value=>value.replace(/\s+/g,' ').toUpperCase();
+  const match=ADMIN_INSTITUTIONS.find(name=>key(name)===key(saved));
+  const legacy=saved&&!match?`<option value="${esc(saved)}">${esc(saved)} (valor anterior)</option>`:'';
+  select.innerHTML='<option value="">Sin institución</option>'+ADMIN_INSTITUTIONS.map(name=>`<option value="${esc(name)}">${esc(name)}</option>`).join('')+legacy;
+  select.value=match||saved;
+}
+
 async function openAdminPerson(id){
   if(!APP.adminTeam?.puede_editar)return teamMsg('Tu rol permite consultar, pero no editar colaboradores.');
   const person=id?(APP.adminTeam.personas||[]).find(x=>String(x.id)===String(id)):null;
@@ -195,9 +205,9 @@ async function openAdminPerson(id){
   $('admin-person-name').value=person?.nombre||'';
   $('admin-person-dni').value=String(person?.dni||'').replace(/\D/g,'').slice(0,8);
   if($('admin-person-institution')){
-    $('admin-person-institution').value=person?.institucion||'';
+    fillAdminInstitutionOptions(person?.institucion);
     $('admin-person-institution').disabled=!APP.adminTeam.instituciones_disponibles;
-    $('admin-institution-help').textContent=APP.adminTeam.instituciones_disponibles?'Si no se registra, quedará vacía en el informe.':'Institución pendiente de habilitar en la base de datos (migración 66).';
+    $('admin-institution-help').textContent=APP.adminTeam.instituciones_disponibles?'Elige la sede. Si no se registra, quedará vacía en el informe.':'Institución pendiente de habilitar en la base de datos (migración 66).';
   }
   $('admin-person-link').value=person?.tipo_vinculo||'practicas';
   const areas=(APP.adminTeam.areas||[]).filter(a=>a.activo||String(a.id)===String(person?.area_id));
@@ -290,7 +300,7 @@ async function saveAdminPerson(event){
   const {data,error}=await db.rpc(APP.adminTeam.instituciones_disponibles?'dash_admin_guardar_ficha':'dash_admin_guardar_colaborador',{p_datos:payload,p_motivo:$('admin-change-reason').value.trim()||null});
   if(error||!data?.ok){
     button.disabled=false;button.textContent='Guardar cambios';
-    const messages={sin_permiso:'Tu rol no permite editar.',nombre:'Revisa el nombre completo.',dni:'El DNI debe tener 8 dígitos.',dni_duplicado:'Ese DNI ya pertenece a otro colaborador.',area:'Selecciona un área activa.',horario:'Hay un día con horario incompleto o incoherente.',horario_general:'La salida general debe ser posterior a la entrada.',fechas:'La fecha final no puede ser anterior al inicio.',horas:'Las horas no pueden ser negativas.',duplicado:'Ya existe un registro con uno de estos datos.'};
+    const messages={sin_permiso:'Tu rol no permite editar.',nombre:'Revisa el nombre completo.',dni:'El DNI debe tener 8 dígitos.',dni_duplicado:'Ese DNI ya pertenece a otro colaborador.',area:'Selecciona un área activa.',horario:'Hay un día con horario incompleto o incoherente.',horario_general:'La salida general debe ser posterior a la entrada.',fechas:'La fecha final no puede ser anterior al inicio.',horas:'Las horas no pueden ser negativas.',duplicado:'Ya existe un registro con uno de estos datos.',institucion:'La institución no es válida.'};
     return editorMsg(messages[data?.motivo]||error?.message||'No se pudo guardar la ficha.');
   }
   const facebookResult=await db.rpc('dash_admin_guardar_horario_compartir',{p_colab:Number(data.id),p_horario:facebookSchedule});

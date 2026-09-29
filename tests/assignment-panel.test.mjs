@@ -9,7 +9,7 @@ function harness(){
   const $=id=>{if(!nodes.has(id))nodes.set(id,{value:'',disabled:false,hidden:false,innerHTML:'',textContent:'',addEventListener(){}});return nodes.get(id)};
   const c={$,APP:{adminClose:{puede_editar:true,personas:[{id:1,nombre:'José Pérez',area:'Diseño'},{id:2,nombre:'Ana',area:'Salud'}]},adminReview:{ok:true,entregas:[]}},
     esc:String,initials:()=> 'JP',isoLima:()=> '2026-09-14',adminReviewStateLabel:()=> 'Pendiente',adminReviewDate:String,
-    adminCloseMsg:m=>messages.push(m),toast(){},loadAdminCloses:async()=>{},renderAdminCloseAssignments(){},openAdminReviewPerson(){},
+    adminCloseMsg:m=>messages.push(m),toast(){},loadAdminCloses:async()=>{},withActionLoader:async(label,task)=>task(()=>{}),renderAdminCloseAssignments(){},openAdminReviewPerson(){},
     db:{rpc:async(name,args)=>{calls.push({name,args});return {data:{ok:true,seleccion:[{id:1,nombre:'José',carga_30d:0}],disponibles:2,cantidad:1}}}}};
   vm.createContext(c);
   for(const [start,end] of [['function adminCloseSearchText(','function adminCloseAreaTone('],['function syncAdminCloseTargets(','function renderAdminCloseAssignments('],['async function submitAdminCloseAssignment(','async function cancelAdminCloseAssignment(']])vm.runInContext(admin.slice(admin.indexOf(start),admin.indexOf(end)),c);

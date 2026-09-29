@@ -1410,6 +1410,35 @@ input::placeholder{color:#748297;opacity:1}
   box-shadow:0 4px 14px rgba(3,20,43,.08),inset 0 1px 0 rgba(255,255,255,.65);
   text-shadow:none;
 }
+/* Acciones de Dirección: bloquea la vista mientras guarda y recarga, sin ocultar el contexto. */
+.boot[data-mode="action"]{
+  background:rgba(10,30,54,.22);
+  -webkit-backdrop-filter:blur(6px) saturate(108%);
+  backdrop-filter:blur(6px) saturate(108%);
+}
+.boot[data-mode="action"] .boot-inner{gap:14px}
+.boot[data-mode="action"] .boot-badge{
+  width:88px;
+  height:88px;
+  border-radius:50%;
+  background:rgba(248,251,254,.92);
+  box-shadow:0 12px 34px rgba(3,20,43,.16),inset 0 1px 0 rgba(255,255,255,.82);
+}
+.boot[data-mode="action"] .boot-badge:before{inset:-7px;border-color:rgba(255,255,255,.34);border-top-color:rgba(255,255,255,.9);border-right-color:#76c7cc;animation-duration:.65s}
+.boot[data-mode="action"] .boot-logo{width:54px}
+.boot[data-mode="action"] .boot-text{
+  max-width:min(320px,calc(100vw - 48px));
+  padding:8px 14px;
+  border-radius:999px;
+  color:#153a62;
+  background:rgba(248,251,254,.94);
+  box-shadow:0 4px 14px rgba(3,20,43,.12);
+  font-size:12px;
+  line-height:1.4;
+  letter-spacing:.08em;
+  text-align:center;
+  text-shadow:none;
+}
 /* Portada operativa móvil. En escritorio se conserva el dashboard completo. */
 .mobile-portal-home{display:none}
 
