@@ -108,13 +108,13 @@
     color:#203248;font:700 clamp(20px,1.7vw,25px)/1.2 Inter,system-ui,sans-serif;letter-spacing:-.025em;
   }
   #portal:not(.admin-wide) #view-inicio .day-schedule .day-timeline{
-    grid-column:2;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;
+    grid-column:2;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:4px 0!important;
     min-height:0;height:auto;padding:12px 0 0;margin:0!important;
     border-top:1px solid #dce9e1;align-items:start;
   }
   #portal:not(.admin-wide) #view-inicio .time-label{position:static;text-align:left;min-width:0}
-  #portal:not(.admin-wide) #view-inicio .time-label.start{grid-column:1;grid-row:1}
-  #portal:not(.admin-wide) #view-inicio .time-label.end{grid-column:2;grid-row:1;text-align:right}
+  #portal:not(.admin-wide) #view-inicio .time-label.start{grid-column:1;grid-row:1;justify-self:start}
+  #portal:not(.admin-wide) #view-inicio .time-label.end{grid-column:2;grid-row:1;justify-self:end;text-align:right}
   #portal:not(.admin-wide) #view-inicio .rail-arc{display:block;grid-column:1/-1;grid-row:2;width:100%;height:auto;aspect-ratio:400/110;min-height:0;min-width:0;margin:0 0 20px;position:relative}
   #portal:not(.admin-wide) #view-inicio .arc-svg{display:block;width:100%;height:auto;overflow:visible}
   #portal:not(.admin-wide) #view-inicio .arc-track{stroke:#d2e4da;stroke-width:5}
