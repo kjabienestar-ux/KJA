@@ -79,7 +79,7 @@
             <div class="kja-wa-backdrop" data-wa-close></div>
             <section class="kja-wa-panel" role="dialog" aria-modal="true" aria-labelledby="kja-wa-title" tabindex="-1">
                 <div class="kja-wa-header">
-                    <div class="kja-wa-brand"><span class="kja-wa-brand-mark">KJA</span><span><b id="kja-wa-title">Asistente KJA</b><small>Encuentra rápidamente lo que necesitas</small></span></div>
+                    <div class="kja-wa-brand"><span class="kja-wa-brand-mark"><img src="images/logo/kja.webp" alt="Logo KJA"></span><span><b id="kja-wa-title">Asistente KJA</b><small>Encuentra rápidamente lo que necesitas</small></span></div>
                     <button class="kja-wa-close" type="button" data-wa-close aria-label="Cerrar asistente">×</button>
                 </div>
                 <div class="kja-wa-progress" aria-hidden="true"><i></i></div>
@@ -104,6 +104,10 @@
 
         function setQuestion(title, help) {
             question.replaceChildren();
+            const label = document.createElement('span');
+            label.className = 'kja-wa-question-label';
+            label.textContent = 'ELIGE UNA OPCIÓN';
+            question.appendChild(label);
             const heading = document.createElement('h3');
             heading.textContent = title;
             question.appendChild(heading);
