@@ -1374,11 +1374,11 @@
       </figcaption>
       <div class="rail-announcement-carousel" id="rail-announcement-carousel" role="region" aria-roledescription="carrusel" aria-label="Carrusel de comunicados KJA">
         <button class="rail-announcement-media" id="rail-announcement-open" type="button" aria-label="Ampliar comunicado" aria-describedby="rail-announcement-title" aria-haspopup="dialog" aria-controls="announcement-viewer">
-          <img id="rail-announcement-image" src="images/dashboard/comunicado-advertencia-evidencias.webp" alt="Comunicado KJA sobre puntualidad, cartas de advertencia por llegadas tardías y evidencias verídicas" loading="eager">
+          <img id="rail-announcement-image" src="images/dashboard/comunicado-comparticiones-3.webp" alt="Comunicado KJA: las evidencias de comparticiones en Facebook son obligatorias y deben subirse a la plataforma antes de enviarlas por WhatsApp" loading="eager">
           <div class="rail-announcement-fallback" id="rail-announcement-fallback" hidden>
             <img src="images/logo/logo.webp" alt="" aria-hidden="true">
-            <b id="rail-announcement-fallback-title">Puntualidad y evidencias</b>
-            <p id="rail-announcement-fallback-copy">Marca tu asistencia a tiempo: las llegadas tardías recibirán cartas de advertencia y las evidencias deben ser reales y verificables.</p>
+            <b id="rail-announcement-fallback-title">Evidencias obligatorias</b>
+            <p id="rail-announcement-fallback-copy">Sube a la plataforma las capturas de tus comparticiones; si solo las envías por WhatsApp no aparecerán en el reporte y se enviarán cartas de advertencia.</p>
             <small>Consulta los comunicados del panel.</small>
           </div>
           <span class="rail-announcement-zoom">
@@ -1386,7 +1386,7 @@
           </span>
         </button>
         <div class="rail-announcement-controls" role="group" aria-label="Navegación de comunicados">
-          <b class="rail-announcement-caption" id="rail-announcement-title">Puntualidad y evidencias</b>
+          <b class="rail-announcement-caption" id="rail-announcement-title">Evidencias obligatorias</b>
           <button class="rail-announcement-nav" id="rail-announcement-prev" type="button" aria-label="Comunicado anterior" title="Comunicado anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
           <div class="rail-announcement-dots" id="rail-announcement-dots" role="tablist" aria-label="Seleccionar comunicado"></div>
           <span class="rail-announcement-status" id="rail-announcement-status" aria-live="polite">1 de 2</span>
@@ -1496,18 +1496,21 @@
   <div class="modal-backdrop" data-close-announcement></div>
   <section class="announcement-viewer-sheet announcement-main-sheet" role="dialog" aria-modal="true" aria-labelledby="announcement-viewer-title" tabindex="-1">
     <header>
-      <span><small>COMUNICADO KJA</small><h2 id="announcement-viewer-title">Reportes consolidados</h2></span>
+      <span class="announcement-viewer-heading"><small>COMUNICADO KJA</small><h2 id="announcement-viewer-title">Evidencias obligatorias</h2></span>
+      <div class="announcement-viewer-controls" role="group" aria-label="Navegación de comunicados">
+        <div class="announcement-viewer-dots" id="announcement-viewer-dots" role="tablist" aria-label="Seleccionar comunicado"></div>
+        <span class="announcement-viewer-status" id="announcement-viewer-status" aria-live="polite">1 de 2</span>
+      </div>
+      <button class="announcement-viewer-zoom" id="announcement-viewer-zoom" type="button" aria-pressed="false" aria-controls="announcement-viewer-stage" aria-label="Ampliar imagen" title="Ampliar imagen"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5M8.5 11h5"/><path class="zoom-in-mark" d="M11 8.5v5"/></svg></button>
       <button class="announcement-viewer-close" type="button" data-close-announcement aria-label="Cerrar comunicado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
     </header>
-    <div class="announcement-viewer-stage">
-      <img id="announcement-viewer-image" src="images/dashboard/comunicado-advertencia-evidencias.webp" alt="Comunicado KJA sobre puntualidad, cartas de advertencia por llegadas tardías y evidencias verídicas">
+    <div class="announcement-viewer-stage" id="announcement-viewer-stage">
+      <div class="announcement-viewer-scroll" id="announcement-viewer-scroll">
+        <img id="announcement-viewer-image" src="images/dashboard/comunicado-comparticiones-3.webp" alt="Comunicado KJA: las evidencias de comparticiones en Facebook son obligatorias y deben subirse a la plataforma antes de enviarlas por WhatsApp">
+      </div>
+      <button class="announcement-viewer-nav announcement-viewer-side is-prev" id="announcement-viewer-prev" type="button" aria-label="Comunicado anterior" title="Comunicado anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+      <button class="announcement-viewer-nav announcement-viewer-side is-next" id="announcement-viewer-next" type="button" aria-label="Siguiente comunicado" title="Siguiente comunicado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
-    <footer class="announcement-viewer-controls" role="group" aria-label="Navegación de comunicados">
-      <button class="announcement-viewer-nav" id="announcement-viewer-prev" type="button" aria-label="Comunicado anterior" title="Comunicado anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-      <div class="announcement-viewer-dots" id="announcement-viewer-dots" role="tablist" aria-label="Seleccionar comunicado"></div>
-      <span class="announcement-viewer-status" id="announcement-viewer-status" aria-live="polite">1 de 2</span>
-      <button class="announcement-viewer-nav" id="announcement-viewer-next" type="button" aria-label="Siguiente comunicado" title="Siguiente comunicado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-    </footer>
   </section>
 </div>
 

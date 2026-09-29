@@ -2890,8 +2890,8 @@ $('attendance-team-all').onclick=()=>{
 };
 $('attendance-selected-content').onclick=event=>{const record=event.target.closest('[data-selected-record]');if(record)openAttendanceDay(record.dataset.selectedRecord);if(event.target.closest('[data-retry-selected-day]'))selectAttendanceDate(selectedAttendanceDate);};
 const ANNOUNCEMENTS=[
-  {title:'Puntualidad y evidencias',src:'images/dashboard/comunicado-advertencia-evidencias.webp',alt:'Comunicado KJA sobre puntualidad, cartas de advertencia por llegadas tardías y evidencias verídicas',fallback:'Marca tu asistencia a tiempo: las llegadas tardías recibirán cartas de advertencia y las evidencias deben ser reales y verificables.'},
-  {title:'Reportes consolidados',src:'images/dashboard/comunicado-reportes.webp',alt:'Comunicado KJA sobre el seguimiento de comparticiones y reportes consolidados en Excel',fallback:'La Dirección generará reportes consolidados en Excel para dar seguimiento a las comparticiones.'}
+  {title:'Evidencias obligatorias',src:'images/dashboard/comunicado-comparticiones-3.webp',alt:'Comunicado KJA: las evidencias de comparticiones en Facebook son obligatorias y deben subirse a la plataforma antes de enviarlas por WhatsApp',fallback:'Sube a la plataforma las capturas de tus comparticiones; si solo las envías por WhatsApp no aparecerán en el reporte y se enviarán cartas de advertencia.'},
+  {title:'Puntualidad y evidencias',src:'images/dashboard/comunicado-advertencia-evidencias.webp',alt:'Comunicado KJA sobre puntualidad, cartas de advertencia por llegadas tardías y evidencias verídicas',fallback:'Marca tu asistencia a tiempo: las llegadas tardías recibirán cartas de advertencia y las evidencias deben ser reales y verificables.'}
 ];
 const ANNOUNCEMENT_ROTATION_MS=7000;
 let announcementIndex=0;
@@ -2904,6 +2904,9 @@ const announcementImage=$('rail-announcement-image');
 const announcementFallback=$('rail-announcement-fallback');
 const announcementViewer=$('announcement-viewer');
 const announcementViewerImage=$('announcement-viewer-image');
+const announcementViewerStage=$('announcement-viewer-stage');
+const announcementViewerScroll=$('announcement-viewer-scroll');
+const announcementViewerZoom=$('announcement-viewer-zoom');
 
 function announcementReducedMotion(){return typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches}
 function renderAnnouncementDots(id,controlsId,className){
@@ -2917,8 +2920,17 @@ function renderAnnouncementDots(id,controlsId,className){
 function updateAnnouncementDots(){
   document.querySelectorAll('[data-announcement-index]').forEach(button=>{const selected=Number(button.dataset.announcementIndex)===announcementIndex;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1});
 }
+function setAnnouncementZoom(zoomed){
+  if(!announcementViewerStage)return;
+  announcementViewerStage.classList.toggle('is-zoomed',zoomed);
+  const label=zoomed?'Ver imagen completa':'Ampliar imagen';
+  announcementViewerZoom.setAttribute('aria-pressed',String(zoomed));announcementViewerZoom.setAttribute('aria-label',label);announcementViewerZoom.title=label;
+  announcementViewerScroll.scrollTop=0;announcementViewerScroll.scrollLeft=0;
+}
+function toggleAnnouncementZoom(){setAnnouncementZoom(!announcementViewerStage.classList.contains('is-zoomed'))}
 function showAnnouncement(index){
   announcementIndex=(index+ANNOUNCEMENTS.length)%ANNOUNCEMENTS.length;
+  setAnnouncementZoom(false);
   const item=ANNOUNCEMENTS[announcementIndex];
   $('rail-announcement-title').textContent=item.title;
   $('announcement-viewer-title').textContent=item.title;
@@ -2941,6 +2953,7 @@ function syncAnnouncementRotation(){
 function openAnnouncementViewer(){
   const modal=$('announcement-viewer');
   announcementModalOpen=true;syncAnnouncementRotation();
+  setAnnouncementZoom(false);
   modal.hidden=false;
   document.body.classList.add('announcement-viewer-open');
   requestAnimationFrame(()=>modal.querySelector('.announcement-viewer-close').focus());
@@ -2964,12 +2977,17 @@ $('rail-announcement-prev').onclick=()=>showAnnouncement(announcementIndex-1);
 $('rail-announcement-next').onclick=()=>showAnnouncement(announcementIndex+1);
 $('announcement-viewer-prev').onclick=()=>showAnnouncement(announcementIndex-1);
 $('announcement-viewer-next').onclick=()=>showAnnouncement(announcementIndex+1);
+announcementViewerZoom.onclick=toggleAnnouncementZoom;
+announcementViewerImage.onclick=toggleAnnouncementZoom;
+document.querySelectorAll('.announcement-viewer-side').forEach(button=>button.hidden=ANNOUNCEMENTS.length<2);
 announcementCarousel.addEventListener('mouseenter',()=>{announcementHoverPaused=true;syncAnnouncementRotation()});
 announcementCarousel.addEventListener('mouseleave',()=>{announcementHoverPaused=false;syncAnnouncementRotation()});
 announcementCarousel.addEventListener('focusin',()=>{announcementFocusPaused=true;syncAnnouncementRotation()});
 announcementCarousel.addEventListener('focusout',event=>{if(!announcementCarousel.contains(event.relatedTarget)){announcementFocusPaused=false;syncAnnouncementRotation()}});
 $('announcement-viewer').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeAnnouncementViewer();return}
+  if(['+','-','z','Z'].includes(event.key)){event.preventDefault();setAnnouncementZoom(event.key==='+'?true:event.key==='-'?false:!announcementViewerStage.classList.contains('is-zoomed'));return}
+  if(announcementViewerStage.classList.contains('is-zoomed')&&['ArrowUp','ArrowDown'].includes(event.key)){event.preventDefault();announcementViewerScroll.scrollBy({top:event.key==='ArrowDown'?90:-90,behavior:announcementReducedMotion()?'auto':'smooth'});return}
   if(event.key==='ArrowLeft'){event.preventDefault();showAnnouncement(announcementIndex-1);return}
   if(event.key==='ArrowRight'){event.preventDefault();showAnnouncement(announcementIndex+1);return}
   if(event.key==='Tab'){
