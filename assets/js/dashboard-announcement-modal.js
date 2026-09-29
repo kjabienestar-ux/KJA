@@ -57,7 +57,7 @@
     // Opcional: fecha en que el anuncio deja de aparecer para todos.
     fechaFin: null,
     // Pon false para desactivar el anuncio sin necesidad de borrar el código.
-    activo: true,
+    activo: false,
     // true = mostrar solo el flyer (imagen grande) sin repetir el texto encima.
     flyerMode: true
   };
