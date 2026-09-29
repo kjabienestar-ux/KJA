@@ -1344,18 +1344,19 @@ test('the rail announcement opens an accessible full-screen viewer', () => {
   assert.doesNotMatch(css,/\.rail-announcement-media:hover\{[^}]*transform:/);
 });
 
-test('announcement carousel starts with reports, keeps both slides and pauses accessibly', () => {
-  const reportesWebp=fs.readFileSync(new URL('../images/dashboard/comunicado-reportes.webp',import.meta.url));
-  const reportesPng=fs.statSync(new URL('../images/dashboard/comunicado-reportes.png',import.meta.url));
-  assert.equal(reportesWebp.subarray(0,4).toString('ascii'),'RIFF');
-  assert.equal(reportesWebp.subarray(8,12).toString('ascii'),'WEBP');
-  assert.ok(reportesWebp.length<reportesPng.size);
+test('announcement carousel starts with advertencia, keeps reports second and pauses accessibly', () => {
+  const advertenciaWebp=fs.readFileSync(new URL('../images/dashboard/comunicado-advertencia-evidencias.webp',import.meta.url));
+  const advertenciaPng=fs.statSync(new URL('../images/dashboard/comunicado-advertencia-evidencias.png',import.meta.url));
+  assert.equal(advertenciaWebp.subarray(0,4).toString('ascii'),'RIFF');
+  assert.equal(advertenciaWebp.subarray(8,12).toString('ascii'),'WEBP');
+  assert.ok(advertenciaWebp.length<advertenciaPng.size);
   assert.match(html,/id="rail-announcement-carousel"[\s\S]*?role="region"[\s\S]*?aria-roledescription="carrusel"/);
-  assert.match(html,/id="rail-announcement-image"[\s\S]*?comunicado-reportes\.webp/);
+  assert.match(html,/id="rail-announcement-image"[\s\S]*?comunicado-advertencia-evidencias\.webp/);
   assert.match(html,/id="rail-announcement-prev"[\s\S]*?id="rail-announcement-dots"[\s\S]*?id="rail-announcement-next"/);
-  assert.match(html,/id="announcement-viewer-image"[\s\S]*?comunicado-reportes\.webp/);
+  assert.match(html,/id="announcement-viewer-image"[\s\S]*?comunicado-advertencia-evidencias\.webp/);
   assert.match(html,/id="announcement-viewer-prev"[\s\S]*?id="announcement-viewer-dots"[\s\S]*?id="announcement-viewer-next"/);
-  assert.ok(js.indexOf("title:'Reportes consolidados'")<js.indexOf("title:'Envío de comprobantes'"));
+  assert.ok(js.indexOf("title:'Puntualidad y evidencias'")<js.indexOf("title:'Reportes consolidados'"));
+  assert.doesNotMatch(js,/comunicado-comparticiones\.webp/);
   assert.match(js,/const ANNOUNCEMENT_ROTATION_MS=7000/);
   assert.match(js,/announcementHoverPaused/);
   assert.match(js,/announcementFocusPaused/);

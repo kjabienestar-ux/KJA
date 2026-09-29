@@ -2890,8 +2890,8 @@ $('attendance-team-all').onclick=()=>{
 };
 $('attendance-selected-content').onclick=event=>{const record=event.target.closest('[data-selected-record]');if(record)openAttendanceDay(record.dataset.selectedRecord);if(event.target.closest('[data-retry-selected-day]'))selectAttendanceDate(selectedAttendanceDate);};
 const ANNOUNCEMENTS=[
-  {title:'Reportes consolidados',src:'images/dashboard/comunicado-reportes.webp',alt:'Comunicado KJA sobre el seguimiento de comparticiones y reportes consolidados en Excel',fallback:'La Dirección generará reportes consolidados en Excel para dar seguimiento a las comparticiones.'},
-  {title:'Envío de comprobantes',src:'images/dashboard/comunicado-comparticiones.webp',alt:'Comunicado KJA sobre el envío de comprobantes de comparticiones por WhatsApp',fallback:'Envía tu comprobante de comparticiones por WhatsApp directamente desde el portal.'}
+  {title:'Puntualidad y evidencias',src:'images/dashboard/comunicado-advertencia-evidencias.webp',alt:'Comunicado KJA sobre puntualidad, cartas de advertencia por llegadas tardías y evidencias verídicas',fallback:'Marca tu asistencia a tiempo: las llegadas tardías recibirán cartas de advertencia y las evidencias deben ser reales y verificables.'},
+  {title:'Reportes consolidados',src:'images/dashboard/comunicado-reportes.webp',alt:'Comunicado KJA sobre el seguimiento de comparticiones y reportes consolidados en Excel',fallback:'La Dirección generará reportes consolidados en Excel para dar seguimiento a las comparticiones.'}
 ];
 const ANNOUNCEMENT_ROTATION_MS=7000;
 let announcementIndex=0;
