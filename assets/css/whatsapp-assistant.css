@@ -15,19 +15,20 @@ body.kja-wa-open { overflow: hidden; }
 .kja-wa-close:hover { background: rgba(255,255,255,.2); }
 .kja-wa-progress { overflow: hidden; background: #e8edf4; }
 .kja-wa-progress i { display: block; width: 16%; height: 100%; border-radius: 0 4px 4px 0; background: linear-gradient(90deg,#f10075,#ff4b9f); transition: width .28s ease; }
-.kja-wa-content { display: block !important; position: relative; min-height: 0; overflow-y: auto !important; padding: 18px; overscroll-behavior: contain; visibility: visible !important; opacity: 1 !important; }
+.kja-wa-content { display: flex !important; position: relative; min-height: 0; flex-direction: column; align-items: flex-start; overflow-y: auto !important; padding: 18px; overscroll-behavior: contain; visibility: visible !important; opacity: 1 !important; }
 .kja-wa-content > * { visibility: visible !important; opacity: 1 !important; }
-.kja-wa-greeting { display: flex !important; align-items: flex-start; gap: 9px; margin-bottom: 16px; padding: 11px 13px; border-radius: 4px 15px 15px 15px; color: #30415e; background: #f0f5fb; font-size: 12px; }
+.kja-wa-greeting { display: flex !important; align-items: flex-start; align-self: flex-start; max-width: 88%; gap: 9px; margin: 0 0 10px; padding: 11px 13px; border: 1px solid #dce8f5; border-radius: 4px 15px 15px 15px; color: #30415e; background: #f0f5fb; font-size: 12px; }
 .kja-wa-greeting p { display: block !important; margin: 0; color: inherit; }
-.kja-wa-question { display: block !important; color: #09244c; }
-.kja-wa-question h3 { display: block !important; margin: 0; color: #09244c; font-size: 19px; line-height: 1.25; }
-.kja-wa-question p { display: block !important; margin: 6px 0 0; color: #687891; font-size: 12px; line-height: 1.45; }
-.kja-wa-options { display: grid !important; gap: 9px; margin-top: 15px; }
+.kja-wa-question { display: block !important; align-self: flex-start; max-width: 92%; padding: 12px 14px; border-radius: 4px 16px 16px 16px; color: #09244c; background: #e7f1fc; }
+.kja-wa-question h3 { display: block !important; margin: 0; color: #09244c; font-size: 18px; line-height: 1.25; }
+.kja-wa-question p { display: block !important; margin: 6px 0 0; color: #47627f; font-size: 12px; line-height: 1.45; }
+.kja-wa-options { display: flex !important; width: 100%; flex-direction: column; align-items: flex-end; gap: 9px; margin-top: 15px; }
 .kja-wa-option,.kja-wa-primary,.kja-wa-secondary,.kja-wa-send { min-height: 47px; padding: 11px 14px; border-radius: 13px; font: 700 12px/1.35 Poppins,"Segoe UI",sans-serif; cursor: pointer; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
-.kja-wa-option { border: 1px solid #dce5f0; color: #18365d; background: #fff; text-align: left; }
+.kja-wa-option { width: auto; max-width: 88%; border: 1px solid #ffc0de; color: #a80052; background: #fff1f7; text-align: left; box-shadow: 0 3px 10px rgba(241,0,117,.08); }
 .kja-wa-option b { display: block !important; color: inherit; font: inherit; }
-.kja-wa-option small { display: block !important; margin-top: 3px; color: #64748b; font: 500 10px/1.35 Poppins,"Segoe UI",sans-serif; }
-.kja-wa-option:hover,.kja-wa-option:focus-visible,.kja-wa-option[aria-pressed="true"] { border-color: #f10075; color: #d50066; background: #fff3f8; transform: translateY(-1px); }
+.kja-wa-option small { display: block !important; margin-top: 3px; color: #9a4d72; font: 500 10px/1.35 Poppins,"Segoe UI",sans-serif; }
+.kja-wa-option:hover,.kja-wa-option:focus-visible,.kja-wa-option[aria-pressed="true"] { border-color: #f10075; color: #fff; background: #f10075; transform: translateY(-1px); }
+.kja-wa-option:hover small,.kja-wa-option:focus-visible small,.kja-wa-option[aria-pressed="true"] small { color: rgba(255,255,255,.84); }
 .kja-wa-primary,.kja-wa-send { display: grid; border: 0; place-items: center; color: #fff; background: #f10075; box-shadow: 0 8px 20px rgba(241,0,117,.24); text-align: center; text-decoration: none; }
 .kja-wa-primary:hover,.kja-wa-send:hover { color: #fff; background: #d90068; transform: translateY(-1px); }
 .kja-wa-secondary { border: 1px solid #b9cbe0; color: #075abc; background: #fff; }
