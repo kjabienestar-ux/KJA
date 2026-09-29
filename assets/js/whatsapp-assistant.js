@@ -78,20 +78,20 @@
         overlay.innerHTML = `
             <div class="kja-wa-backdrop" data-wa-close></div>
             <section class="kja-wa-panel" role="dialog" aria-modal="true" aria-labelledby="kja-wa-title" tabindex="-1">
-                <header class="kja-wa-header">
+                <div class="kja-wa-header">
                     <div class="kja-wa-brand"><span class="kja-wa-brand-mark">KJA</span><span><b id="kja-wa-title">Asistente KJA</b><small>Encuentra rápidamente lo que necesitas</small></span></div>
                     <button class="kja-wa-close" type="button" data-wa-close aria-label="Cerrar asistente">×</button>
-                </header>
+                </div>
                 <div class="kja-wa-progress" aria-hidden="true"><i></i></div>
                 <div class="kja-wa-content">
                     <div class="kja-wa-greeting"><span aria-hidden="true">👋</span><p>¡Hola! Bienvenido a KJA. Estamos aquí para ayudarte.</p></div>
                     <div class="kja-wa-question" aria-live="polite"></div>
                     <div class="kja-wa-options"></div>
                 </div>
-                <footer class="kja-wa-footer">
+                <div class="kja-wa-footer">
                     <button class="kja-wa-back" type="button">← Regresar</button>
                     <span class="kja-wa-step" aria-live="polite"></span>
-                </footer>
+                </div>
             </section>`;
         document.body.appendChild(overlay);
 

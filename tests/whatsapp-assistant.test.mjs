@@ -32,6 +32,9 @@ test('encodes the configured number and message safely', () => {
 
 test('keeps the assistant body visible with a viewport-aware panel height', () => {
   const css = readFileSync(new URL('../assets/css/whatsapp-assistant.css', import.meta.url), 'utf8');
+  const script = readFileSync(new URL('../assets/js/whatsapp-assistant.js', import.meta.url), 'utf8');
   assert.match(css, /\.kja-wa-panel\s*\{[^}]*height:\s*min\(680px,\s*calc\(100dvh - 130px\)\)/s);
   assert.doesNotMatch(css, /\.kja-wa-panel\s*\{[^}]*max-height:/s);
+  assert.doesNotMatch(script, /<header class="kja-wa-header">/);
+  assert.doesNotMatch(script, /<footer class="kja-wa-footer">/);
 });
