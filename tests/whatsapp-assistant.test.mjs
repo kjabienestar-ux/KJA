@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
 const assistant = require('../assets/js/whatsapp-assistant.js');
@@ -27,4 +28,10 @@ test('encodes the configured number and message safely', () => {
   const url = assistant.whatsappUrl('+51 988 918 238', { service: 'cursos', intent: 'Quiero más información', detail: 'Virtual', timing: 'Este mes' });
   assert.ok(url.startsWith('https://wa.me/51988918238?text='));
   assert.equal(decodeURIComponent(url.split('?text=')[1]).includes('Cursos y talleres'), true);
+});
+
+test('keeps the assistant body visible with a viewport-aware panel height', () => {
+  const css = readFileSync(new URL('../assets/css/whatsapp-assistant.css', import.meta.url), 'utf8');
+  assert.match(css, /\.kja-wa-panel\s*\{[^}]*height:\s*min\(680px,\s*calc\(100dvh - 130px\)\)/s);
+  assert.doesNotMatch(css, /\.kja-wa-panel\s*\{[^}]*max-height:/s);
 });
