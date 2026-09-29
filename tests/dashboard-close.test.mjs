@@ -1344,26 +1344,33 @@ test('the rail announcement opens an accessible full-screen viewer', () => {
   assert.doesNotMatch(css,/\.rail-announcement-media:hover\{[^}]*transform:/);
 });
 
-test('announcement carousel starts with advertencia, keeps reports second and pauses accessibly', () => {
-  const advertenciaWebp=fs.readFileSync(new URL('../images/dashboard/comunicado-advertencia-evidencias.webp',import.meta.url));
-  const advertenciaPng=fs.statSync(new URL('../images/dashboard/comunicado-advertencia-evidencias.png',import.meta.url));
-  assert.equal(advertenciaWebp.subarray(0,4).toString('ascii'),'RIFF');
-  assert.equal(advertenciaWebp.subarray(8,12).toString('ascii'),'WEBP');
-  assert.ok(advertenciaWebp.length<advertenciaPng.size);
+test('announcement carousel starts with mandatory evidence, keeps advertencia second and pauses accessibly', () => {
+  const evidenciasWebp=fs.readFileSync(new URL('../images/dashboard/comunicado-comparticiones-3.webp',import.meta.url));
+  const evidenciasJpg=fs.statSync(new URL('../images/dashboard/comunicado-comparticiones-3.jpg',import.meta.url));
+  assert.equal(evidenciasWebp.subarray(0,4).toString('ascii'),'RIFF');
+  assert.equal(evidenciasWebp.subarray(8,12).toString('ascii'),'WEBP');
+  assert.ok(evidenciasWebp.length<evidenciasJpg.size);
   assert.match(html,/id="rail-announcement-carousel"[\s\S]*?role="region"[\s\S]*?aria-roledescription="carrusel"/);
-  assert.match(html,/id="rail-announcement-image"[\s\S]*?comunicado-advertencia-evidencias\.webp/);
+  assert.match(html,/id="rail-announcement-image"[\s\S]*?comunicado-comparticiones-3\.webp/);
   assert.match(html,/id="rail-announcement-prev"[\s\S]*?id="rail-announcement-dots"[\s\S]*?id="rail-announcement-next"/);
-  assert.match(html,/id="announcement-viewer-image"[\s\S]*?comunicado-advertencia-evidencias\.webp/);
-  assert.match(html,/id="announcement-viewer-prev"[\s\S]*?id="announcement-viewer-dots"[\s\S]*?id="announcement-viewer-next"/);
-  assert.ok(js.indexOf("title:'Puntualidad y evidencias'")<js.indexOf("title:'Reportes consolidados'"));
+  assert.match(html,/id="announcement-viewer-image"[\s\S]*?comunicado-comparticiones-3\.webp/);
+  assert.match(html,/<header>[\s\S]*?id="announcement-viewer-dots"[\s\S]*?id="announcement-viewer-zoom"[^>]*aria-pressed="false"[\s\S]*?<\/header>/);
+  assert.match(html,/id="announcement-viewer-stage"[\s\S]*?id="announcement-viewer-image"[\s\S]*?id="announcement-viewer-prev"[\s\S]*?id="announcement-viewer-next"/);
+  assert.doesNotMatch(html,/<footer class="announcement-viewer-controls"/);
+  assert.ok(js.indexOf("title:'Evidencias obligatorias'")<js.indexOf("title:'Puntualidad y evidencias'"));
   assert.doesNotMatch(js,/comunicado-comparticiones\.webp/);
+  assert.doesNotMatch(js,/comunicado-reportes\.webp/);
   assert.match(js,/const ANNOUNCEMENT_ROTATION_MS=7000/);
   assert.match(js,/announcementHoverPaused/);
   assert.match(js,/announcementFocusPaused/);
   assert.match(js,/announcementModalOpen/);
   assert.match(js,/prefers-reduced-motion: reduce/);
   assert.match(css,/\.rail-announcement-controls\{/);
-  assert.match(css,/\.announcement-main-sheet\{grid-template-rows:auto minmax\(0,1fr\) auto\}/);
+  assert.match(css,/\.announcement-main-sheet\{height:calc\(100dvh - 40px\);grid-template-rows:auto minmax\(0,1fr\)/);
+  assert.match(css,/\.announcement-main-sheet \.announcement-viewer-scroll img\{[^}]*max-height:100%;[^}]*object-fit:contain/);
+  assert.match(css,/\.announcement-viewer-stage\.is-zoomed \.announcement-viewer-scroll\{overflow:auto/);
+  assert.match(js,/function setAnnouncementZoom\(zoomed\)/);
+  assert.match(js,/function showAnnouncement\(index\)\{[\s\S]*?setAnnouncementZoom\(false\)/);
 });
 
 test('desktop header replaces date chrome with live monthly attendance progress', () => {
