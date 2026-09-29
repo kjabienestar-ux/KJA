@@ -6,28 +6,28 @@ import { readFileSync } from 'node:fs';
 const require = createRequire(import.meta.url);
 const assistant = require('../assets/js/whatsapp-assistant.js');
 
-test('uses real KJA service categories and adapts direct adviser flow', () => {
-  assert.ok(assistant.SERVICES.some(item => item.label === 'Terapia para niños'));
-  assert.ok(assistant.SERVICES.some(item => item.label === 'Cursos y talleres'));
-  assert.deepEqual(assistant.stepsFor('asesor'), ['service', 'notes', 'summary']);
-  assert.deepEqual(assistant.stepsFor('pareja'), ['service', 'intent', 'detail', 'timing', 'notes', 'summary']);
+test('starts with therapies or courses and exposes every current option', () => {
+  assert.deepEqual(assistant.CATEGORIES.map(item => item.label), ['Terapias', 'Cursos']);
+  assert.equal(assistant.THERAPIES.length, 18);
+  assert.equal(assistant.COURSES.length, 9);
+  assert.ok(assistant.THERAPIES.includes('Terapia de Ansiedad'));
+  assert.ok(assistant.COURSES.includes('TEA / Autismo'));
+  assert.ok(assistant.COURSES.includes('Salud Ocupacional y Bienestar'));
 });
 
-test('builds a professional WhatsApp message from every answer', () => {
-  const answers = { service: 'pareja', intent: 'Quiero conocer el precio', detail: 'Virtual', timing: 'Esta semana', notes: 'Preferimos atención por la tarde.' };
+test('builds a professional WhatsApp message from the two selections', () => {
+  const answers = { category: 'terapias', item: 'Terapia de Pareja' };
   const message = assistant.buildMessage(answers);
-  assert.match(message, /página web de KJA/);
-  assert.match(message, /Terapia de pareja/);
-  assert.match(message, /Quiero conocer el precio/);
-  assert.match(message, /Virtual/);
-  assert.match(message, /Esta semana/);
-  assert.match(message, /atención por la tarde/);
+  assert.match(message, /página web/);
+  assert.match(message, /Tipo de servicio: Terapias/);
+  assert.match(message, /Opción elegida: Terapia de Pareja/);
+  assert.match(message, /disponibilidad, modalidad y precio/);
 });
 
 test('encodes the configured number and message safely', () => {
-  const url = assistant.whatsappUrl('+51 988 918 238', { service: 'cursos', intent: 'Quiero más información', detail: 'Virtual', timing: 'Este mes' });
+  const url = assistant.whatsappUrl('+51 988 918 238', { category: 'cursos', item: 'Neuropsicología' });
   assert.ok(url.startsWith('https://wa.me/51988918238?text='));
-  assert.equal(decodeURIComponent(url.split('?text=')[1]).includes('Cursos y talleres'), true);
+  assert.equal(decodeURIComponent(url.split('?text=')[1]).includes('Neuropsicología'), true);
 });
 
 test('keeps the assistant body visible with a viewport-aware panel height', () => {
