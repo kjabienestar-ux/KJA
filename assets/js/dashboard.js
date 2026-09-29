@@ -757,6 +757,9 @@ function sidebarCanCollapse(){
   const portal=$('portal');
   return !!portal&&window.matchMedia('(min-width:1281px)').matches&&APP.identity.hasPersonal&&APP.view!=='gestion'&&APP.view!=='marketing';
 }
+function sidebarUsesHover(){
+  return window.matchMedia('(min-width:1281px) and (hover:hover) and (pointer:fine)').matches;
+}
 function sidebarTooltipTarget(node){
   const target=node?.closest?.('[data-sidebar-tooltip]');
   return target&&$('sidebar')?.contains(target)?target:null;
@@ -797,7 +800,8 @@ function setSidebarCollapsed(collapsed,{persist=true,focus=false}={}){
 function syncSidebarCollapse(){
   const available=sidebarCanCollapse(),key=sidebarStorageKey();
   let collapsed=false;
-  if(available&&key){try{collapsed=localStorage.getItem(key)==='true'}catch(e){}}
+  if(available&&sidebarUsesHover())collapsed=true;
+  else if(available&&key){try{collapsed=localStorage.getItem(key)==='true'}catch(e){}}
   setSidebarCollapsed(collapsed,{persist:false});
 }
 
@@ -3044,6 +3048,13 @@ if($('sidebar-collapse-toggle'))$('sidebar-collapse-toggle').onclick=()=>setSide
 const sidebarDesktopQuery=window.matchMedia('(min-width:1281px)');
 if(sidebarDesktopQuery.addEventListener)sidebarDesktopQuery.addEventListener('change',syncSidebarCollapse);
 else sidebarDesktopQuery.addListener?.(syncSidebarCollapse);
+const desktopSidebar=$('sidebar');
+desktopSidebar?.addEventListener('pointerenter',event=>{
+  if(event.pointerType==='mouse'&&sidebarCanCollapse()&&sidebarUsesHover())setSidebarCollapsed(false,{persist:false});
+});
+desktopSidebar?.addEventListener('pointerleave',event=>{
+  if(event.pointerType==='mouse'&&sidebarCanCollapse()&&sidebarUsesHover())setSidebarCollapsed(true,{persist:false});
+});
 document.addEventListener('pointerover',event=>{const target=sidebarTooltipTarget(event.target);if(target)showSidebarTooltip(target)});
 document.addEventListener('pointerout',event=>{const target=sidebarTooltipTarget(event.target),next=sidebarTooltipTarget(event.relatedTarget);if(target&&next!==target)hideSidebarTooltip()});
 document.addEventListener('focusin',event=>{const target=sidebarTooltipTarget(event.target);if(target)showSidebarTooltip(target)});
