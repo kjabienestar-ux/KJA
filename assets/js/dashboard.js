@@ -641,17 +641,24 @@ function showAccess(message){
 }
 function hideBoot(){
   const boot=$('boot'); if(!boot||boot.classList.contains('out'))return;
+  const seq=boot._seq;
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(seq!==boot._seq)return;
     boot.classList.add('out'); boot.setAttribute('aria-busy','false');
     boot._hideTimer=setTimeout(()=>{boot.hidden=true;boot.dataset.mode='loading';$('boot-text-label').textContent='Cargando'},220);
   }));
 }
-function showBoot(mode='loading'){
+function showBoot(mode='loading',label=''){
   const boot=$('boot'); if(!boot)return;
-  clearTimeout(boot._hideTimer); boot.hidden=false; boot.setAttribute('aria-busy','true');
+  clearTimeout(boot._hideTimer); boot._seq=(boot._seq||0)+1; boot.hidden=false; boot.setAttribute('aria-busy','true');
   boot.dataset.mode=mode;
-  $('boot-text-label').textContent={auth:'Verificando tu acceso',loading:'Cargando'}[mode]||'Cargando';
+  $('boot-text-label').textContent=label||{auth:'Verificando tu acceso',loading:'Cargando'}[mode]||'Cargando';
   boot.classList.remove('out');
+}
+async function withActionLoader(label,task){
+  showBoot('action',label);
+  try{return await task(text=>{$('boot-text-label').textContent=text})}
+  finally{hideBoot()}
 }
 
 const REMEMBER_DNI_KEY='kja_remember_dni';

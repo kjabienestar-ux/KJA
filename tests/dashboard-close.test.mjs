@@ -1357,6 +1357,10 @@ test('announcement carousel starts with mandatory evidence, keeps advertencia se
   assert.match(html,/<header>[\s\S]*?id="announcement-viewer-dots"[\s\S]*?id="announcement-viewer-zoom"[^>]*aria-pressed="false"[\s\S]*?<\/header>/);
   assert.match(html,/id="announcement-viewer-stage"[\s\S]*?id="announcement-viewer-image"[\s\S]*?id="announcement-viewer-prev"[\s\S]*?id="announcement-viewer-next"/);
   assert.doesNotMatch(html,/<footer class="announcement-viewer-controls"/);
+  // El scale global de button:active reemplaza cualquier transform: centrar con transform desplazaba la flecha al pulsarla.
+  const sideArrow=css.match(/\.announcement-viewer-side\{[^}]*\}/)[0];
+  assert.doesNotMatch(sideArrow,/transform:/);
+  assert.match(sideArrow,/top:0;\s*bottom:0;[\s\S]*margin:auto 0;/);
   assert.ok(js.indexOf("title:'Evidencias obligatorias'")<js.indexOf("title:'Puntualidad y evidencias'"));
   assert.doesNotMatch(js,/comunicado-comparticiones\.webp/);
   assert.doesNotMatch(js,/comunicado-reportes\.webp/);
@@ -1419,4 +1423,72 @@ test('stored request evidence opens in an accessible in-dashboard modal', () => 
   assert.doesNotMatch(js,/window\.open\(/);
   assert.match(css,/body\.stored-evidence-viewer-open\{overflow:hidden\}/);
   assert.match(css,/\.stored-evidence-viewer-stage img\{[\s\S]*?object-fit:contain/);
+});
+
+test('collaborator institution is chosen from the approved campus list and keeps legacy values', () => {
+  assert.match(html,/<select id="admin-person-institution" aria-describedby="admin-institution-help">/);
+  assert.doesNotMatch(html,/<input id="admin-person-institution"/);
+  const start=adminTeamJs.indexOf('function fillAdminInstitutionOptions(');
+  const list=adminTeamJs.match(/const ADMIN_INSTITUTIONS=\[[^\]]+\];/)[0];
+  const select={innerHTML:'',value:''};
+  const c={select,$:()=>select,esc:s=>String(s??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]))};
+  vm.createContext(c);
+  vm.runInContext(list+adminTeamJs.slice(start,adminTeamJs.indexOf('async function openAdminPerson(')),c);
+  assert.deepEqual([...vm.runInContext('ADMIN_INSTITUTIONS',c)],['UTP - LIMA CENTRO','UTP - LIMA NORTE','UTP - ATE','SENATI - INDEPENDENCIA','SENATI - CENTRO DE LIMA','IDAT - SJM','UPEU - LIMA','UPC - SAN MIGUEL','UFV - SEDE CENTRAL','ZEGEL - PURUCHUCO']);
+  c.fillAdminInstitutionOptions('utp -  ate');
+  assert.equal(select.value,'UTP - ATE');
+  assert.doesNotMatch(select.innerHTML,/valor anterior/);
+  c.fillAdminInstitutionOptions('Universidad <Antigua>');
+  assert.equal(select.value,'Universidad <Antigua>');
+  assert.match(select.innerHTML,/<option value="Universidad &lt;Antigua&gt;">Universidad &lt;Antigua&gt; \(valor anterior\)<\/option>$/);
+  c.fillAdminInstitutionOptions(null);
+  assert.equal(select.value,'');
+  assert.match(select.innerHTML,/^<option value="">Sin institución<\/option>/);
+  assert.match(adminTeamJs,/institucion:'La institución no es válida\.'/);
+});
+
+test('closes and deliverables actions show the full-screen action loader until the list reloads', () => {
+  assert.match(js,/async function withActionLoader\(label,task\)\{\s*showBoot\('action',label\);\s*try\{return await task\([\s\S]*?\}\s*finally\{hideBoot\(\)\}/);
+  assert.match(js,/if\(seq!==boot\._seq\)return;/);
+  for(const label of ['Aprobando evidencia','Preparando carga','Preparando sorteo','Creando asignaciones','Asignando entregable','Eliminando asignación y archivos'])assert.ok(adminJs.includes(`withActionLoader('${label}'`)||adminJs.includes(`'${label}':`)||adminJs.includes(`?'${label}'`),label);
+  assert.match(adminJs,/setLabel\(`Subiendo evidencia \$\{index\+1\} de \$\{files\.length\}`\)/);
+  assert.match(adminJs,/finally\{ADMIN_REVIEW\.busy=false;approve\.disabled=false;observe\.disabled=false\}/);
+  assert.match(adminJs,/dialog\.classList\.add\('is-busy'\)/);
+  assert.match(css,/\.boot\[data-mode="action"\]\{/);
+  const deleteCss=fs.readFileSync(new URL('../assets/css/paginas/assignment-delete.css',import.meta.url),'utf8');
+  assert.match(deleteCss,/\.assignment-delete-dialog\.is-busy\{visibility:hidden\}/);
+});
+
+test('approving an evidence closes the busy review modal and syncs already reviewed deliveries', async () => {
+  const slice=(start,end)=>adminJs.slice(adminJs.indexOf(start),adminJs.indexOf(end));
+  const harness=rpcResult=>{
+    const elements={},el=id=>elements[id]??={id,hidden:false,disabled:false,value:'',textContent:'',className:'',focus(){}};
+    const calls={reloads:0,reopened:[],toasts:[]};
+    const entregas=[{id:7,colaborador_id:3,requisito:'rpe',revision_estado:'pendiente',estado:'completo'},{id:8,colaborador_id:3,requisito:'salida',revision_estado:'pendiente',estado:'completo'}];
+    const c={
+      $:el,document:{body:{classList:{add(){},remove(){}}}},APP:{access:{rol:'direccion'},adminReview:{puede_revisar:true,entregas}},
+      db:{rpc:async()=>rpcResult},toast:text=>calls.toasts.push(text),
+      withActionLoader:async(label,task)=>task(()=>{}),
+      loadAdminCloses:async()=>{calls.reloads++;c.APP.adminReview.entregas=entregas.map(item=>item.id===7?{...item,revision_estado:'aprobada'}:item)},
+      openAdminReviewPerson:(...args)=>calls.reopened.push(args)
+    };
+    vm.createContext(c);
+    vm.runInContext(slice('function adminReviewMessage(','async function renderAdminReviewDelivery(')+slice('async function submitAdminReview(','function openAdminMessage(')+"var ADMIN_REVIEW={personId:3,assignmentId:null,deliveryId:7,trigger:null,busy:false,request:0};",c);
+    el('admin-review-modal').hidden=false;
+    return {c,el,calls};
+  };
+  const approved=harness({data:{ok:true},error:null});
+  await approved.c.submitAdminReview('aprobada');
+  assert.equal(approved.el('admin-review-modal').hidden,true);
+  assert.equal(approved.calls.reloads,1);
+  assert.deepEqual(approved.calls.toasts,['Evidencia aprobada.']);
+  assert.equal(approved.calls.reopened.length,1);
+  assert.equal(vm.runInContext('ADMIN_REVIEW.busy',approved.c),false);
+
+  const stale=harness({data:{ok:false,motivo:'ya_revisada'},error:null});
+  await stale.c.submitAdminReview('aprobada');
+  assert.equal(stale.calls.reloads,1);
+  assert.equal(stale.calls.reopened.length,1);
+  assert.doesNotMatch(stale.el('admin-review-message').textContent,/Actualiza la vista/);
+  assert.match(stale.el('admin-review-message').textContent,/ya estaba revisada/);
 });
