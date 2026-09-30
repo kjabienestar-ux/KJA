@@ -801,16 +801,16 @@
     font-size: 13px;
     font-weight: 500;
   }
-  #portal:not(.admin-wide) .side-nav button svg { color: #a9583e !important; }
+  #portal:not(.admin-wide) .side-nav button svg { color: #FE037C !important; }
   #portal:not(.admin-wide) .side-nav button:hover { background: #ffffffa6 !important; color: #3d3d3a !important; }
   #portal:not(.admin-wide) .side-nav button.active {
-    color: #75432f !important;
-    background: linear-gradient(135deg, #fffaf3, #eedcca) !important;
+    color: #FE037C !important;
+    background: linear-gradient(135deg, #fff0f6, #ffd6e8) !important;
     border-color: #ffffffd9 !important;
-    box-shadow: inset 0 1px 0 #fff, 0 3px 8px #58473512 !important;
+    box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(254,3,124,.08) !important;
   }
   #portal:not(.admin-wide) .side-nav-divider { color: #6c6a64; font-size: 11px; font-weight: 500; letter-spacing: .02em; }
-  #portal:not(.admin-wide) .sidebar :is(button,a):focus-visible { outline-color: #8b472f; }
+  #portal:not(.admin-wide) .sidebar :is(button,a):focus-visible { outline-color: #FE037C; }
   #portal:not(.admin-wide) .side-help {
     background: transparent !important;
     border: 1px solid #d9d2c6;

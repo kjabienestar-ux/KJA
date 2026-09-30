@@ -759,6 +759,23 @@ async function logout(message){
 }
 $('logout').onclick=()=>logout();
 
+let sidebarHoverTimer=null,sidebarPointerInside=false,sidebarPointerExitZone=false;
+function sidebarIsExitZone(event){
+  const footer=$('sidebar-session-actions');
+  return event.target===$('logout')||Boolean(footer&&Number.isFinite(event.clientY)&&event.clientY>=footer.getBoundingClientRect().top-32);
+}
+function sidebarHasNavigationFocus(){return document.activeElement!==$('logout')&&$('sidebar')?.contains(document.activeElement);}
+function clearSidebarHoverTimer(){clearTimeout(sidebarHoverTimer);sidebarHoverTimer=null;}
+function scheduleSidebarHover(collapsed){
+  clearSidebarHoverTimer();
+  sidebarHoverTimer=setTimeout(()=>{
+    sidebarHoverTimer=null;
+    if(!sidebarCanCollapse()||!sidebarUsesHover())return;
+    if(!collapsed&&sidebarPointerExitZone)return;
+    if(collapsed&&(sidebarPointerInside||$('sidebar')?.contains(document.activeElement)))return;
+    setSidebarCollapsed(collapsed,{persist:false});
+  },collapsed?220:80);
+}
 function sidebarStorageKey(){return APP.sessionUid?`${SIDEBAR_COLLAPSED_KEY}:${APP.sessionUid}`:''}
 function sidebarCanCollapse(){
   const portal=$('portal');
@@ -777,7 +794,7 @@ function hideSidebarTooltip(){
 }
 function showSidebarTooltip(target){
   const tooltip=$('sidebar-tooltip');
-  if(!tooltip||!sidebarCanCollapse()||$('portal').dataset.sidebarCollapsed!=='true'||!target?.dataset.sidebarTooltip)return hideSidebarTooltip();
+  if(!tooltip||!sidebarCanCollapse()||sidebarUsesHover()||$('portal').dataset.sidebarCollapsed!=='true'||!target?.dataset.sidebarTooltip)return hideSidebarTooltip();
   tooltip.textContent=target.dataset.sidebarTooltip;
   tooltip.hidden=false;
   const rect=target.getBoundingClientRect(),width=tooltip.offsetWidth,height=tooltip.offsetHeight;
@@ -787,6 +804,7 @@ function showSidebarTooltip(target){
   tooltip.style.top=`${Math.max(10,top)}px`;
 }
 function setSidebarCollapsed(collapsed,{persist=true,focus=false}={}){
+  clearSidebarHoverTimer();
   const portal=$('portal'),toggle=$('sidebar-collapse-toggle');
   if(!portal||!toggle)return;
   const available=sidebarCanCollapse(),active=available&&Boolean(collapsed),key=sidebarStorageKey();
@@ -807,7 +825,7 @@ function setSidebarCollapsed(collapsed,{persist=true,focus=false}={}){
 function syncSidebarCollapse(){
   const available=sidebarCanCollapse(),key=sidebarStorageKey();
   let collapsed=false;
-  if(available&&sidebarUsesHover())collapsed=true;
+  if(available&&sidebarUsesHover())collapsed=!((sidebarPointerInside&&!sidebarPointerExitZone)||sidebarHasNavigationFocus());
   else if(available&&key){try{collapsed=localStorage.getItem(key)==='true'}catch(e){}}
   setSidebarCollapsed(collapsed,{persist:false});
 }
@@ -2910,6 +2928,7 @@ let announcementTimer=null;
 let announcementHoverPaused=false;
 let announcementFocusPaused=false;
 let announcementModalOpen=false;
+let announcementTrigger=null;
 const announcementCarousel=$('rail-announcement-carousel');
 const announcementImage=$('rail-announcement-image');
 const announcementFallback=$('rail-announcement-fallback');
@@ -2961,8 +2980,24 @@ function syncAnnouncementRotation(){
   if(ANNOUNCEMENTS.length<2||document.hidden||announcementModalOpen||announcementHoverPaused||announcementFocusPaused||announcementReducedMotion())return;
   announcementTimer=setInterval(()=>showAnnouncement(announcementIndex+1),ANNOUNCEMENT_ROTATION_MS);
 }
-function openAnnouncementViewer(){
+function renderAnnouncementGallery(){
+  const gallery=$('rail-announcement-gallery');if(!gallery)return;
+  gallery.replaceChildren(...ANNOUNCEMENTS.map((item,index)=>{
+    const button=document.createElement('button'),image=document.createElement('img'),title=document.createElement('span');
+    button.type='button';button.className='rail-announcement-tile';
+    button.setAttribute('aria-label',`Ampliar comunicado: ${item.title}`);
+    button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls','announcement-viewer');
+    image.src=item.src;image.alt=item.alt;image.loading='eager';image.decoding='async';
+    title.textContent=item.title;
+    image.onerror=()=>{image.hidden=true;title.textContent=`${item.title}. ${item.fallback} Pulsa para abrir.`;};
+    button.append(image,title);
+    button.onclick=()=>{showAnnouncement(index);openAnnouncementViewer(button);};
+    return button;
+  }));
+}
+function openAnnouncementViewer(trigger){
   const modal=$('announcement-viewer');
+  announcementTrigger=trigger?.currentTarget||trigger||$('rail-announcement-open');
   announcementModalOpen=true;syncAnnouncementRotation();
   setAnnouncementZoom(false);
   modal.hidden=false;
@@ -2976,7 +3011,10 @@ function closeAnnouncementViewer(){
   modal.hidden=true;
   document.body.classList.remove('announcement-viewer-open');
   announcementModalOpen=false;syncAnnouncementRotation();
-  $('rail-announcement-open').focus({preventScroll:true});
+  const galleryTrigger=$('rail-announcement-gallery')?.querySelector('button');
+  const target=announcementTrigger?.getClientRects().length?announcementTrigger:
+    galleryTrigger?.getClientRects().length?galleryTrigger:$('rail-announcement-open');
+  target?.focus({preventScroll:true});
   return true;
 }
 document.querySelectorAll('[data-close-announcement]').forEach(button=>button.onclick=closeAnnouncementViewer);
@@ -3012,6 +3050,7 @@ document.addEventListener('visibilitychange',syncAnnouncementRotation);
 const announcementMotionQuery=typeof matchMedia==='function'?matchMedia('(prefers-reduced-motion: reduce)'):null;
 if(announcementMotionQuery?.addEventListener)announcementMotionQuery.addEventListener('change',syncAnnouncementRotation);
 else if(announcementMotionQuery?.addListener)announcementMotionQuery.addListener(syncAnnouncementRotation);
+renderAnnouncementGallery();
 renderAnnouncementDots('rail-announcement-dots','rail-announcement-image','rail-announcement-dot');
 renderAnnouncementDots('announcement-viewer-dots','announcement-viewer-image','announcement-viewer-dot');
 showAnnouncement(0);
@@ -3057,10 +3096,31 @@ if(sidebarDesktopQuery.addEventListener)sidebarDesktopQuery.addEventListener('ch
 else sidebarDesktopQuery.addListener?.(syncSidebarCollapse);
 const desktopSidebar=$('sidebar');
 desktopSidebar?.addEventListener('pointerenter',event=>{
-  if(event.pointerType==='mouse'&&sidebarCanCollapse()&&sidebarUsesHover())setSidebarCollapsed(false,{persist:false});
+  if(event.pointerType!=='mouse')return;
+  sidebarPointerInside=true;
+  sidebarPointerExitZone=sidebarIsExitZone(event);
+  if(sidebarPointerExitZone)clearSidebarHoverTimer();
+  else if(sidebarCanCollapse()&&sidebarUsesHover())scheduleSidebarHover(false);
+});
+desktopSidebar?.addEventListener('pointermove',event=>{
+  if(event.pointerType!=='mouse')return;
+  const wasExitZone=sidebarPointerExitZone;
+  sidebarPointerExitZone=sidebarIsExitZone(event);
+  if(sidebarPointerExitZone)clearSidebarHoverTimer();
+  else if(wasExitZone&&sidebarCanCollapse()&&sidebarUsesHover())scheduleSidebarHover(false);
 });
 desktopSidebar?.addEventListener('pointerleave',event=>{
-  if(event.pointerType==='mouse'&&sidebarCanCollapse()&&sidebarUsesHover())setSidebarCollapsed(true,{persist:false});
+  if(event.pointerType!=='mouse')return;
+  sidebarPointerInside=false;
+  sidebarPointerExitZone=false;
+  if(sidebarCanCollapse()&&sidebarUsesHover())scheduleSidebarHover(true);
+});
+desktopSidebar?.addEventListener('focusin',event=>{
+  clearSidebarHoverTimer();
+  if(event.target!==$('sidebar-collapse-toggle')&&event.target!==$('logout')&&sidebarCanCollapse()&&sidebarUsesHover())setSidebarCollapsed(false,{persist:false});
+});
+desktopSidebar?.addEventListener('focusout',event=>{
+  if(!desktopSidebar.contains(event.relatedTarget)&&!sidebarPointerInside&&sidebarCanCollapse()&&sidebarUsesHover())scheduleSidebarHover(true);
 });
 document.addEventListener('pointerover',event=>{const target=sidebarTooltipTarget(event.target);if(target)showSidebarTooltip(target)});
 document.addEventListener('pointerout',event=>{const target=sidebarTooltipTarget(event.target),next=sidebarTooltipTarget(event.relatedTarget);if(target&&next!==target)hideSidebarTooltip()});

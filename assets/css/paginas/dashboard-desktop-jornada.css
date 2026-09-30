@@ -33,7 +33,7 @@
     flex:none;align-content:start;
   }
   #portal:not(.admin-wide) #view-inicio .day-card.has-daily-close .progress-card{
-    align-self:start;
+    align-self:stretch;align-content:center;
   }
   #portal:not(.admin-wide) #view-inicio .day-card.has-daily-close #day-close{
     align-self:stretch;grid-template-rows:auto 1fr;
