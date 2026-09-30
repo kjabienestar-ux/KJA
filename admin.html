@@ -18,10 +18,10 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="certificados/cert-render.js?v=9"></script>
+<script src="certificados/cert-render.js?v=10"></script>
 
 <link rel="stylesheet" href="assets/css/accessibility.css?v=2">
-<link rel="stylesheet" href="assets/css/paginas/admin.css?v=42">
+<link rel="stylesheet" href="assets/css/paginas/admin.css?v=43">
 </head>
 <body>
 
@@ -404,6 +404,11 @@
             </div>
           </div>
 
+          <label class="firma-option" for="f-firma">
+            <span class="firma-copy"><strong>Incluir firmas</strong><small id="firma-help">Con las firmas de la plantilla.</small></span>
+            <input id="f-firma" type="checkbox" role="switch" checked aria-describedby="firma-help">
+            <span class="firma-switch" aria-hidden="true"></span>
+          </label>
           <button class="btn-primary" id="btn-guardar">Guardar y generar (PDF)</button>
           <div class="btns">
             <button class="btn" id="btn-png">Descargar PNG</button>
@@ -880,7 +885,7 @@ function leerDatos(){
     fechaFin: pideFechaFin(tipo) ? $('f-fin').value : null,fechaEmision:$('f-emision').value,codigo,
     fontSizeNombre:$('f-size').value ? parseInt($('f-size').value, 10) : null,
     fontNombre:$('f-font').value || null,
-    datos: esDocumento(tipo) ? leerDatosDoc() : null};
+    datos: {...(esDocumento(tipo) ? leerDatosDoc() : {}), incluirFirma:$('f-firma').checked}};
 }
 
 /* ── Campos propios de los documentos (constancia de charlas) ──
@@ -958,6 +963,7 @@ function actualizarUI(){ const d=leerDatos(),cfg=d.cfg;
   if(!aplica){ $('f-temario-on').checked=false; $('temario-builder').style.display='none'; vistaTemario=false; }
 }
 function dibujar(){ actualizarUI();
+  $('firma-help').textContent=$('f-firma').checked ? 'Con las firmas de la plantilla.' : 'Sin firmas: imprime y firma a mano.';
   if(vistaTemario && temarioActivo()) KJACert.renderTemario($('cert'), leerTemario());
   else KJACert.render($('cert'), leerDatos());
   /* render() fija el tamaño del lienzo antes de su primer await, así que acá
@@ -1086,6 +1092,7 @@ function setFecha(fp, sel, valor){
   if(el) el.value = v;
 }
 function resetForm(){
+  $('f-firma').checked=true;
   $('f-nombre').value=''; $('f-dni').value=''; $('f-titulo').value='';
   $('f-duracion').value=''; $('f-numero').value='';
   pintarDatosDoc(null);
@@ -1493,7 +1500,14 @@ $('f-extranjero').addEventListener('change', ()=>{
 });
 
 $('btn-guardar').addEventListener('click',guardarYGenerar);
-$('btn-png').addEventListener('click',()=>KJACert.exportar($('cert'),nombreArchivo(leerDatos()),'png'));
+$('f-firma').addEventListener('change',dibujar);
+$('btn-png').addEventListener('click',async()=>{
+  const d=leerDatos(), c=document.createElement('canvas');
+  c.width=KJACert.W; c.height=KJACert.H;
+  if(vistaTemario && temarioActivo()) await KJACert.renderTemario(c, leerTemario());
+  else await KJACert.render(c, d);
+  KJACert.exportar(c,nombreArchivo(d),'png');
+});
 $('btn-pdf').addEventListener('click',()=>descargarPDF(leerDatos(), leerTemario()));
 
 /* ───── TEMARIO (Curso / Especialización) ───── */
@@ -2194,6 +2208,7 @@ $('em-enviar').addEventListener('click', async ()=>{
 
 function editarFila(id){
   const r=emitidos.find(x=>x.id===id); if(!r) return;
+  $('f-firma').checked=r.datos?.incluirFirma!==false;
   setTipo(r.tipo); $('f-nombre').value=r.nombre; $('f-dni').value=r.dni||'';
   $('f-extranjero').checked = !!(r.dni && r.dni.length>8); actualizarDniUI();
   $('f-titulo').value=r.titulo; $('f-duracion').value=r.duracion||'';

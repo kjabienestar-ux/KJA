@@ -1,5 +1,15 @@
 ﻿:root{ --azul:#004fb0; --azul-osc:#15315f; --rosa:#f10075; }
 *{box-sizing:border-box;margin:0;padding:0;}
+.firma-option{display:flex;align-items:center;gap:12px;position:relative;min-height:56px;margin:16px 0;padding:8px 0;cursor:pointer;}
+.firma-copy{flex:1;min-width:0;}
+.firma-copy strong{display:block;font-size:13px;color:var(--azul-osc);}
+.firma-copy small{display:block;font-size:12px;line-height:1.5;color:#475569;}
+.firma-option input{position:absolute;right:0;width:44px;height:44px;opacity:0;cursor:pointer;}
+.firma-switch{display:block;flex:0 0 44px;height:26px;border-radius:20px;background:#64748b;pointer-events:none;}
+.firma-switch::after{content:'';display:block;width:20px;height:20px;margin:3px;border-radius:50%;background:#fff;}
+.firma-option input:checked + .firma-switch{background:var(--azul);}
+.firma-option input:checked + .firma-switch::after{transform:translateX(18px);}
+.firma-option input:focus-visible + .firma-switch{outline:3px solid var(--azul-osc);outline-offset:4px;}
 body{font-family:'Poppins',system-ui,sans-serif;background:#eef1f6;color:#1f2937;}
 
 /* ═══ Modal de ÉXITO al emitir un certificado ═══ */
