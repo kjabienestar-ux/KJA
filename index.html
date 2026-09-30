@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="home-page">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -19,8 +19,7 @@
     <title>Psicólogos en San Luis, Lima | KJA Centro Psicológico</title>
     <meta name="description"
         content="Centro psicológico en San Luis, Lima. Terapia individual, de pareja, familiar e infantil con psicólogos colegiados, presencial u online. Agenda por WhatsApp.">
-    <!-- En móvil dejamos que el navegador integre el contenido bajo su interfaz. -->
-    <meta name="theme-color" content="#004fb0" media="(min-width: 969px)">
+    <meta name="theme-color" content="#004fb0">
     <meta name="google-site-verification" content="pJ5ioGFOqoFVCWIPTlAlXL42nT91Vrpio-AXhcDK_Pw" />
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="KJA Centro Psicológico">
@@ -160,7 +159,7 @@
         .whatsapp-button::before { background: rgba(241, 0, 117, .35); }
         .whatsapp-button:hover { box-shadow: 0 12px 40px rgba(241, 0, 117, .55), 0 4px 12px rgba(0, 0, 0, .2); }
     </style>
-    <link rel="stylesheet" href="assets/css/paginas/index-mobile-polish.css?v=6">
+    <link rel="stylesheet" href="assets/css/paginas/index-mobile-polish.css?v=7">
     <link rel="stylesheet" href="assets/css/whatsapp-assistant.css?v=6">
     <!-- Estilos inline del selector de reacciones: espejo runtime de index.css. -->
     <style id="kja-reactions-css">
@@ -223,7 +222,7 @@
         </div>
     </div>
 
-    <header class="home-header">
+    <header>
         <nav class="nav-desktop-only">
             <!-- Left: Logo -->
             <div class="nav-left logo-container">
@@ -251,15 +250,11 @@
             </div>
         </nav>
 
-        <nav class="nav-mobile-only" aria-label="Navegación principal móvil">
+        <nav class="nav-mobile-only">
             <div class="logo-container">
                 <a href="index.html">
                     <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
                 </a>
-            </div>
-            <div class="home-quick-links">
-                <a href="#inicio">Inicio</a>
-                <a href="#terapia">Servicios</a>
             </div>
             <ul class="nav-links" id="nav-menu">
                 <li><a href="index.html" class="active">Inicio</a></li>
@@ -269,9 +264,9 @@
                 <li><a href="nosotros.html">Nosotros</a></li>
                 <li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank" rel="noopener noreferrer">Ubícanos</a></li>
             </ul>
-            <button type="button" class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Abrir menú" aria-controls="nav-menu" aria-expanded="false">
-                <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
-            </button>
+            <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
         </nav>
     </header>
 
@@ -2219,7 +2214,7 @@
         </div>
     </footer>
 
-    <script defer src="assets/js/script.js?v=13"></script>
+    <script defer src="assets/js/script.js?v=14"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>
     <script>

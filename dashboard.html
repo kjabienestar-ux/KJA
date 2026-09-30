@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=211">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=224">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=8">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=6">
@@ -28,7 +28,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=35">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=36">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcements.css?v=2">
@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
   <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=26">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=8">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-loading.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-mobile.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-team-mobile.css?v=2">
@@ -186,7 +186,7 @@
     </nav>
     <button class="guided-tour-trigger" id="nav-guided-tour" type="button" data-guided-tour-start data-sidebar-tooltip="Tutorial guiado" aria-label="Iniciar tutorial guiado del dashboard" title="Tutorial guiado" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z"/></svg><span class="sidebar-label">Tutorial guiado</span></button>
     <div class="side-help" data-sidebar-tooltip="¿Necesitas ayuda?"><div class="side-help-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg><span class="sidebar-label">¿Necesitas ayuda?</span></div><a href="https://wa.me/51922996170" target="_blank" rel="noopener" data-sidebar-tooltip="Contactar a Ingeniería"><span class="sidebar-label">Contactar a Ingeniería</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></div>
-    <div class="side-user">
+    <div class="side-user" id="sidebar-session-actions">
       <span class="avatar" id="side-avatar" title="Perfil del colaborador">KJ</span>
       <span class="side-user-copy"><b id="side-name">—</b><small id="side-role">Miembro</small></span>
       <button id="logout" aria-label="Cerrar sesión" title="Cerrar sesión" data-sidebar-tooltip="Cerrar sesión"><svg viewBox="0 0 24 24"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg></button>
@@ -1332,6 +1332,11 @@
       <h2 id="rail-name">—</h2>
       <p id="rail-area">Equipo KJA</p>
       <span class="rail-role" id="rail-role">Miembro</span>
+      <a class="rail-profile-support" href="https://wa.me/51922996170" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg>
+        <span>Contactar a Ingeniería</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+      </a>
     </section>
 
     <section class="rail-schedule">
@@ -1370,11 +1375,12 @@
       </button>
     </figure>
 
-    <figure class="rail-announcement" aria-labelledby="rail-announcement-title">
+    <figure class="rail-announcement" aria-labelledby="rail-announcements-heading">
       <figcaption>
-        <b>Comunicados</b>
+        <b id="rail-announcements-heading">Comunicados</b>
         <svg class="rail-announcement-heading-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
       </figcaption>
+      <div class="rail-announcement-gallery" id="rail-announcement-gallery" role="group" aria-label="Todos los comunicados"></div>
       <div class="rail-announcement-carousel" id="rail-announcement-carousel" role="region" aria-roledescription="carrusel" aria-label="Carrusel de comunicados KJA">
         <button class="rail-announcement-media" id="rail-announcement-open" type="button" aria-label="Ampliar comunicado" aria-describedby="rail-announcement-title" aria-haspopup="dialog" aria-controls="announcement-viewer">
           <img id="rail-announcement-image" src="images/dashboard/comunicado-comparticiones-3.webp" alt="Comunicado KJA: las evidencias de comparticiones en Facebook son obligatorias y deben subirse a la plataforma antes de enviarlas por WhatsApp" loading="eager">
@@ -2088,7 +2094,7 @@
 <script src="assets/js/dashboard-announcement-modal.js?v=5"></script>
 <script src="assets/js/dashboard-month-progress.js?v=3"></script>
 <script src="assets/js/attendance-calendar-model.js?v=2"></script>
-<script src="assets/js/dashboard.js?v=220"></script>
+<script src="assets/js/dashboard.js?v=223"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=12"></script>
@@ -2114,7 +2120,7 @@
 <script src="assets/js/intern-report-excel.js?v=5"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=6"></script>
-<script src="assets/js/dashboard-pausa-activa.js?v=13"></script>
+<script src="assets/js/dashboard-pausa-activa.js?v=14"></script>
 <script src="assets/js/dashboard-guided-tour.js?v=6"></script>
 </body>
 </html>

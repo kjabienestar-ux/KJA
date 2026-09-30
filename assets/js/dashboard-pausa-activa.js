@@ -697,7 +697,10 @@
       const label=card.querySelector('.rail-pausa-duration');
       if(label) label.textContent=count+' de 2 usadas hoy';
       const figure=card.querySelector('.rail-pausa-figure');
-      if(figure && !figure.querySelector('svg')) figure.innerHTML=getActivityFigure('movilidad',0,true);
+      if(figure && !figure.querySelector('svg')) figure.innerHTML=
+        '<span class="rail-pausa-character">'+getActivityFigure('movilidad',0,true)+'</span>'+
+        '<span class="rail-pausa-character rail-pausa-extra">'+getActivityFigure('movilidad',3,true)+'</span>'+
+        '<span class="rail-pausa-character rail-pausa-extra">'+getActivityFigure('visual',3,true)+'</span>';
       const info=card.querySelector('.rail-pausa-info > span');
       if(info) info.textContent=count===2 ? 'Mañana, dos nuevas pausas.' : count===1 ? 'Te queda un momento para ti.' : 'Muévete. Respira. Continúa.';
       const footer=card.querySelector('.rail-pausa-footer > span:first-child');
