@@ -7806,13 +7806,14 @@ body.announcement-viewer-open{overflow:hidden}
 .announcement-viewer-side{
   position:absolute;
   z-index:2;
-  top:50%;
+  top:0;
+  bottom:0;
   width:40px;
   height:40px;
+  margin:auto 0;
   border-radius:50%;
   background:rgba(255,255,255,.92);
   box-shadow:0 8px 22px rgba(9,36,76,.18);
-  transform:translateY(-50%);
 }
 .announcement-viewer-side.is-prev{left:12px}
 .announcement-viewer-side.is-next{right:12px}

@@ -1357,6 +1357,10 @@ test('announcement carousel starts with mandatory evidence, keeps advertencia se
   assert.match(html,/<header>[\s\S]*?id="announcement-viewer-dots"[\s\S]*?id="announcement-viewer-zoom"[^>]*aria-pressed="false"[\s\S]*?<\/header>/);
   assert.match(html,/id="announcement-viewer-stage"[\s\S]*?id="announcement-viewer-image"[\s\S]*?id="announcement-viewer-prev"[\s\S]*?id="announcement-viewer-next"/);
   assert.doesNotMatch(html,/<footer class="announcement-viewer-controls"/);
+  // El scale global de button:active reemplaza cualquier transform: centrar con transform desplazaba la flecha al pulsarla.
+  const sideArrow=css.match(/\.announcement-viewer-side\{[^}]*\}/)[0];
+  assert.doesNotMatch(sideArrow,/transform:/);
+  assert.match(sideArrow,/top:0;\s*bottom:0;[\s\S]*margin:auto 0;/);
   assert.ok(js.indexOf("title:'Evidencias obligatorias'")<js.indexOf("title:'Puntualidad y evidencias'"));
   assert.doesNotMatch(js,/comunicado-comparticiones\.webp/);
   assert.doesNotMatch(js,/comunicado-reportes\.webp/);
