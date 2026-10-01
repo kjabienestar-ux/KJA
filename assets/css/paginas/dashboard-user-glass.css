@@ -1,6 +1,10 @@
 /* Editorial type and liquid glass for the collaborator workspace.
    Keep the existing semantic colors and time-of-day canvas. */
 #portal:not(.admin-wide) {
+  --sidebar-ink:#25486b;
+  --sidebar-blue:#004fb0;
+  --sidebar-hover:#e4eef9;
+  --sidebar-accent:#bd1769;
   --user-display: 'Fraunces', Georgia, serif;
   --user-glass: linear-gradient(135deg, rgba(255,255,255,.88), rgba(247,252,255,.72) 55%, rgba(239,248,250,.78));
   --user-glass-edge: rgba(255,255,255,.9);
@@ -775,8 +779,8 @@
 }
 
   #portal:not(.admin-wide) .sidebar {
-    color: #3d3d3a !important;
-    background: linear-gradient(145deg, rgba(255,255,255,.66), rgba(255,255,255,.38) 48%, rgba(255,249,240,.52)) !important;
+    color: var(--sidebar-ink) !important;
+    background: linear-gradient(160deg, rgba(255,255,255,.84), rgba(235,244,255,.72)) !important;
     border: 1px solid rgba(255,255,255,.78) !important;
     border-radius: 26px;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.4), 0 12px 32px rgba(88,71,53,.06) !important;
@@ -785,7 +789,7 @@
   }
   #portal:not(.admin-wide) .sidebar::before,
   #portal:not(.admin-wide) .sidebar::after { content: none !important; }
-  #portal:not(.admin-wide) .side-brand { color: #252523; font-weight: 400; letter-spacing: -.025em; }
+  #portal:not(.admin-wide) .side-brand { color: var(--navy); font-weight: 400; letter-spacing: -.025em; }
   #portal:not(.admin-wide) .side-brand img {
     background: #fff;
     border-radius: 12px;
@@ -793,7 +797,7 @@
   }
   #portal:not(.admin-wide) .side-nav button {
     min-height: 46px;
-    color: #6c6a64 !important;
+    color: var(--sidebar-ink) !important;
     background: transparent !important;
     border: 1px solid transparent !important;
     border-radius: 14px;
@@ -801,16 +805,17 @@
     font-size: 13px;
     font-weight: 500;
   }
-  #portal:not(.admin-wide) .side-nav button svg { color: #FE037C !important; }
-  #portal:not(.admin-wide) .side-nav button:hover { background: #ffffffa6 !important; color: #3d3d3a !important; }
+  #portal:not(.admin-wide) .side-nav button svg { color: var(--sidebar-blue) !important; }
+  #portal:not(.admin-wide) .side-nav button:hover { background: var(--sidebar-hover) !important; color: var(--sidebar-blue) !important; }
   #portal:not(.admin-wide) .side-nav button.active {
-    color: #FE037C !important;
-    background: linear-gradient(135deg, #fff0f6, #ffd6e8) !important;
-    border-color: #ffffffd9 !important;
-    box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(254,3,124,.08) !important;
+    color: #fff !important;
+    background: var(--sidebar-blue) !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 12px rgba(0,79,176,.14) !important;
   }
-  #portal:not(.admin-wide) .side-nav-divider { color: #6c6a64; font-size: 11px; font-weight: 500; letter-spacing: .02em; }
-  #portal:not(.admin-wide) .sidebar :is(button,a):focus-visible { outline-color: #FE037C; }
+  #portal:not(.admin-wide) .side-nav button.active svg { color:#fff!important; }
+  #portal:not(.admin-wide) .side-nav-divider { color: #536c85; font-size: 11px; font-weight: 500; letter-spacing: .02em; }
+  #portal:not(.admin-wide) .sidebar :is(button,a):focus-visible { outline-color: var(--sidebar-accent); }
   #portal:not(.admin-wide) .side-help {
     background: transparent !important;
     border: 1px solid #d9d2c6;
@@ -820,10 +825,10 @@
   #portal:not(.admin-wide) .side-help span { color: #6c6a64; letter-spacing: 0; text-transform: none; }
   #portal:not(.admin-wide) .side-help a { color: #3d3d3a; text-decoration: none; }
   #portal:not(.admin-wide) .side-help a:hover { text-decoration: underline; text-underline-offset: 3px; }
-  #portal:not(.admin-wide) .side-user { border-color: #d9d2c6; }
+  #portal:not(.admin-wide) .side-user { border-color: #cbdced; }
   #portal:not(.admin-wide) .side-user b { color: #252523; }
   #portal:not(.admin-wide) .side-user small,
-  #portal:not(.admin-wide) .side-user button { color: #6c6a64; }
+  #portal:not(.admin-wide) .side-user button { color: var(--sidebar-ink); }
   #portal:not(.admin-wide) .side-user .avatar { color: #775342; background-color: #e8e0d2; box-shadow: none !important; font-weight: 500; }
   #portal:not(.admin-wide) .side-user .avatar.has-photo { color: transparent; background-position: center; background-size: cover; background-repeat: no-repeat; }
   #portal:not(.admin-wide) .side-help {

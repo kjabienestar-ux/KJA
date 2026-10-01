@@ -17,33 +17,41 @@
   display: inline-flex;
   align-items: center;
   width: 100%;
-  min-height: 36px;
+  min-height: 48px;
   gap: 10px;
   flex-shrink: 0;
   margin: 14px 0 12px;
   padding: 10px 12px;
-  border: 1px solid #e8b732;
+  position: relative;
+  border: 1px solid #cbdced;
   border-radius: 14px;
-  color: #33290e;
-  background: #f3c94d;
-  box-shadow: 0 4px 15px rgba(212, 154, 16, .2);
+  color: #004fb0;
+  background: #eaf2fc;
+  box-shadow: none;
+  overflow: hidden;
 }
 
 .guided-tour-trigger svg { flex-shrink: 0; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
-.guided-tour-trigger:hover { background: #ffe28c; }
+.guided-tour-trigger svg { color:#bd1769; }
+.guided-tour-trigger:hover { background: #dceafa; color: #003d89; border-color:#a9c6e7; }
 #portal .guided-tour-trigger + .side-help { margin-top: auto; }
 
 @media (min-width: 1281px) {
+  #portal[data-personal="true"] #sidebar .guided-tour-trigger { height:48px; padding:0; transition:width var(--sidebar-duration,220ms) cubic-bezier(.22,1,.36,1),background-color 150ms ease; }
+  #portal[data-personal="true"] #sidebar .guided-tour-trigger svg { position:absolute;left:18px;top:13px;width:20px;height:20px;transition:left var(--sidebar-duration,220ms) cubic-bezier(.22,1,.36,1); }
+  #portal[data-personal="true"] #sidebar .guided-tour-trigger .sidebar-label { position:absolute;left:52px;top:50%;translate:0 -50%;font-size:12px;font-weight:600;white-space:nowrap; }
+  #portal[data-personal="true"][data-sidebar-collapsed="true"] #sidebar .guided-tour-trigger svg { left:13px; }
   #portal[data-personal="true"][data-sidebar-collapsed="true"] .guided-tour-trigger {
     align-self: center;
     justify-content: center;
-    width: 44px;
-    min-height: 44px;
+    width: calc(100% - 10px);
+    min-height: 48px;
     padding: 0;
   }
 }
 .guided-tour-trigger:focus-visible,
-.mobile-guided-tour-trigger:focus-visible { outline: 2px solid #f1c64b; outline-offset: 3px; }
+.mobile-guided-tour-trigger:focus-visible { outline: 2px solid #a92765; outline-offset: 3px; }
+@media(prefers-reduced-motion:reduce){#portal #sidebar .guided-tour-trigger,#portal #sidebar .guided-tour-trigger svg{transition:none}}
 
 .mobile-guided-tour-trigger { display: none; }
 

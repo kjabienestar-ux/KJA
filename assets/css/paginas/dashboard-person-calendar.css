@@ -1,0 +1,72 @@
+.person-calendar{container-type:inline-size;color:#15243a;background:#fff;border:1px solid #e3e8ee;border-radius:16px;padding:24px;margin:20px 0;font:400 14px/1.5 Inter,system-ui,sans-serif;min-width:0;scroll-margin-top:24px}
+.person-calendar[hidden]{display:none}
+.person-calendar *{box-sizing:border-box}
+.person-calendar h3{margin:0;font-size:20px;line-height:1.3;letter-spacing:-.02em;color:#15243a}
+.person-calendar h4{margin:0 0 12px;font-size:20px;line-height:1.4;color:#15243a}
+.person-calendar h5{font-size:14px;margin:0}
+.person-calendar p{margin:8px 0 16px;color:#526477;overflow-wrap:anywhere}
+.person-calendar button{min-height:44px;border:1px solid #d5dde7;border-radius:10px;padding:8px 12px;background:#fff;color:#24425f;box-shadow:none;font:600 13px/1.35 Inter,system-ui,sans-serif;cursor:pointer;transform:none}
+.person-calendar button:hover:not(:disabled){background:#f0f5fb;border-color:#7b9abb;transform:none}
+.person-calendar button:disabled{opacity:.5;cursor:default}
+.person-calendar :is(button,input,a,summary):focus-visible{outline:3px solid #075abc;outline-offset:3px}
+.person-calendar button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;vertical-align:middle}
+.person-calendar input{font:inherit;color:#15243a;caret-color:#075abc}
+.person-calendar ::selection{background:#cfe3fa;color:#09244c}
+.pc-person,.pc-times{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.pc-person dt,.pc-times dt{color:#526477;font-size:12px}
+.pc-person dd,.pc-times dd{margin:3px 0 0;font-weight:600;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.pc-toolbar{display:flex;align-items:end;gap:8px;flex-wrap:wrap;padding:16px 0;border-top:1px solid #e3e8ee}
+.pc-toolbar label{display:grid;gap:4px;font-size:12px;color:#526477}
+.pc-toolbar input{min-height:44px;max-width:190px;border:1px solid #d5dde7;border-radius:10px;padding:8px 10px;background:#fff}
+.pc-summary{display:flex;gap:16px;flex-wrap:wrap;padding:12px 0 22px}
+.pc-summary span{color:#526477;font-size:13px}
+.pc-summary b{color:#15243a;font-variant-numeric:tabular-nums}
+.pc-workspace{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:28px;align-items:start}
+.pc-month,.pc-detail{min-width:0}
+.pc-week,.pc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.pc-week{margin-bottom:8px;text-align:center;color:#526477;font-size:12px}
+.person-calendar .pc-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:61px;padding:6px 1px;font-variant-numeric:tabular-nums;background:#f6f8fb;border-color:transparent}
+.pc-day b{font-size:15px}
+.pc-day span{font-size:10px;line-height:1.2}
+.person-calendar .pc-day:is(.missing,.incomplete){background:#ffe8ed;color:#922e43}
+.person-calendar .pc-day:is(.p,.shared){background:#e4f7f0;color:#08735a}
+.person-calendar .pc-day:is(.t,.sharing-pending){background:#fff0d7;color:#79520e}
+.person-calendar .pc-day.j{background:#e8f1fb;color:#285f9f}
+.person-calendar .pc-day[aria-pressed="true"]{outline:2px solid #075abc;outline-offset:1px}
+.pc-legend{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:12px;padding:12px 0;border-bottom:1px solid #e3e8ee}
+.pc-red{color:#922e43}
+.pc-alerts summary{min-height:44px;padding:12px 0;font-weight:600;cursor:pointer}
+.pc-alerts{margin-top:12px}
+.person-calendar .pc-alerts button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:6px 0;text-align:left;font-size:12px}
+.pc-alerts button span{color:#922e43}
+.pc-detail{border-left:1px solid #e3e8ee;padding-left:24px}
+.pc-detail>p{font-size:13px}
+.pc-state{display:inline-block;padding:5px 10px;background:#edf3fa;color:#24425f!important;border-radius:6px;font-weight:600}
+.pc-state:is(.missing,.incomplete){background:#ffe8ed;color:#922e43!important}
+.pc-times{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px 0;border-top:1px solid #e3e8ee;border-bottom:1px solid #e3e8ee}
+.pc-pending{padding:4px 0 12px}
+.pc-pending p{margin-bottom:0;font-size:13px}
+.pc-activities details{border-top:1px solid #e3e8ee;padding:8px 0}
+.pc-activities summary{display:flex;align-items:center;gap:10px;justify-content:space-between;min-height:44px;cursor:pointer}
+.pc-activities summary:after{content:'+';font-size:20px;color:#526477}
+.pc-activities details[open]>summary:after{content:'−'}
+.pc-activities summary span{flex:1;overflow-wrap:anywhere}
+.pc-activities summary strong{font-size:11px;padding:4px 7px;border-radius:5px;white-space:nowrap}
+.pc-done{background:#e4f7f0;color:#08735a}.pc-missing{background:#fff0d7;color:#79520e}
+.pc-activities p{font-size:13px;white-space:pre-wrap}
+.pc-preview{margin-top:18px;padding:14px;background:#f6f8fb;border-radius:12px}
+.pc-preview[hidden]{display:none}
+.pc-preview :is(img,video){display:block;width:100%;max-height:420px;object-fit:contain;margin:12px 0}
+.pc-preview a{display:inline-block;min-height:44px;padding:10px 0;color:#075abc;text-underline-offset:3px}
+.pc-preview nav{display:flex;align-items:center;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+.pc-message{padding:20px 0}
+.admin-month-person-calendar{display:block;max-width:190px;margin-top:6px;padding:4px 0;border:0;background:transparent;color:#075abc;font:600 12px/1.4 Inter,system-ui,sans-serif;text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:3px;box-shadow:none}
+.admin-month-person-calendar:focus-visible{outline:2px solid #075abc;outline-offset:3px}
+@media(max-width:1100px){#team-detail-panel .pc-workspace{grid-template-columns:1fr}#team-detail-panel .pc-detail{border-left:0;border-top:1px solid #e3e8ee;padding:22px 0 0}}
+@media(max-width:700px){.person-calendar{padding:16px;margin:16px 0}.pc-workspace{grid-template-columns:1fr;gap:20px}.pc-detail{border-left:0;border-top:1px solid #e3e8ee;padding:22px 0 0}.pc-person{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-summary{gap:8px 16px}.pc-day span{font-size:9px}.person-calendar .pc-day{min-height:54px}.pc-toolbar button[data-pc-current]{font-size:12px;padding:8px}.pc-toolbar input{max-width:158px}.pc-toolbar{gap:6px}.pc-alerts button{min-height:48px}}
+
+@container(max-width:620px){.pc-workspace{grid-template-columns:1fr}.pc-detail{border-left:0;border-top:1px solid #e3e8ee;padding:22px 0 0}}
+
+.person-calendar .pc-day.off,.person-calendar .pc-state.off{background:#edf0f3;color:#596574;border-color:#e3e8ee}
+
+.pc-back{margin-bottom:20px}
