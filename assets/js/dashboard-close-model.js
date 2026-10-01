@@ -14,6 +14,7 @@
   }
 
   function attendancePresentation(mark,close){
+    if(mark?.estado==='J'||close?.justificado===true||close?.estado==='justificado')return {state:'justificado',label:'Justificado',complete:true,incomplete:false,hasEntry:!!close?.entrada_at||!!mark};
     if(close&&close.aplica){
       const state=close.estado||'sin_entrada';
       return {state,label:stateLabel(state),complete:state==='completa'||state==='regularizada',incomplete:state==='incompleta',hasEntry:!!close.entrada_at||!!mark};
@@ -24,7 +25,7 @@
   }
 
   function incompleteReasons(mark,close){
-    if(!close||close.estado!=='incompleta')return [];
+    if(!close||close.estado!=='incompleta'||mark?.estado==='J'||close.justificado===true)return [];
     const reasons=[];
     if(Object.hasOwn(close,'entrada_at')&&!close.entrada_at&&!mark)reasons.push('Registro de entrada');
     const labels={rpe:'RPE y evidencias del día',salida:'Evidencia de salida'};

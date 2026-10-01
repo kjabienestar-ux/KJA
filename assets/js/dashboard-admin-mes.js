@@ -104,6 +104,7 @@ function mergeAdminMonthClosures(data,closeData){
 
 async function loadAdminMonth(force=false){
   if(!APP.access.acceso_panel)return;
+  closeAdminPersonCalendar();
   const prefix=activeMonthPrefix(),value=currentMonthValue();syncMonthInputs(value);
   const include=$(`${prefix}-inactive`).checked,key=`${value}|${include}`;
   if(!force&&APP.adminMonth&&APP.adminMonthKey===key){renderAdminMonthViews();return}
@@ -144,7 +145,19 @@ function monthCellClass(day){
   if(day.futura)classes.push('future');if(day.evidencia)classes.push('has-evidence');if(day.excepcion_tipo)classes.push('exception');
   return classes.join(' ');
 }
+function closeAdminPersonCalendar(returnToLedger=false){
+  const host=$('admin-person-calendar');
+  if(!host)return;
+  host._personCalendar=null;host.hidden=true;host.innerHTML='';
+  host.onclick=null;host.onchange=null;
+  if(returnToLedger){
+    const ledger=$('admin-month-ledger');
+    ledger.setAttribute('tabindex','-1');ledger.focus({preventScroll:true});
+    ledger.scrollIntoView({block:'start',behavior:'instant'});
+  }
+}
 function renderAdminMonthLedger(){
+  closeAdminPersonCalendar();
   const data=APP.adminMonth,people=monthPeople('month');
   const p=sumMonth(people,'P'),t=sumMonth(people,'T'),j=sumMonth(people,'J'),pending=sumMonth(people,'pendientes'),incomplete=sumMonth(people,'incompletas');
   const kpis=[['PERSONAS',people.length,''],['JORNADAS VÁLIDAS',p+t+j+sumMonth(people,'NG'),'ready'],['ASISTENCIA',monthRate(people)==null?'—':`${monthRate(people)}%`,'ready'],['INCOMPLETAS',incomplete,incomplete?'danger':''],['SIN ENTRADA',pending,pending?'warning':'']];
@@ -161,7 +174,7 @@ function renderAdminMonthLedger(){
   let currentArea='';
   for(const person of people){
     if(person.area!==currentArea){currentArea=person.area;html+=`<tr class="admin-month-area-row"><td colspan="${sample.length+1}"><i></i><b>${esc(currentArea||'Sin área')}</b><span>${people.filter(x=>x.area===currentArea).length}</span></td></tr>`}
-    html+=`<tr><th class="person-col">${profileAvatarMarkup(person)}<span><b>${esc(person.nombre)}</b><small>${person.activo?'Activo':'Dado de baja'}</small></span></th>`;
+    html+=`<tr><th class="person-col">${profileAvatarMarkup(person)}<span><b>${esc(person.nombre)}</b><small>${person.activo?'Activo':'Dado de baja'}</small><button type="button" class="admin-month-person-calendar" data-person-calendar="${person.id}" aria-label="Ver calendario y evidencias de ${esc(person.nombre)}">Ver calendario y evidencias</button></span></th>`;
     for(const day of person.dias||[]){
       const content=day.cierre_estado==='incompleta'?'INC':day.cierre_estado==='en_curso'?'…':day.estado||(!day.laborable?'—':'·'),detail=`${person.nombre} · ${day.fecha} · ${day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada, cierre pendiente':day.estado?statusText(day.estado):day.laborable?'Sin registro':day.motivo}`;
       html+=`<td><button type="button" class="${monthCellClass(day)}" data-month-person="${person.id}" data-month-date="${day.fecha}" aria-label="${esc(detail)}"><b>${content}</b>${day.nota?'<i class="note"></i>':''}${day.evidencia?'<i class="camera"></i>':''}</button></td>`;
@@ -378,7 +391,7 @@ document.addEventListener('pointerdown',event=>{
 });
 $('admin-month-export').onclick=()=>downloadMonthCsv('month');if($('admin-summary-export'))$('admin-summary-export').onclick=()=>downloadMonthCsv('summary');
 $('admin-month-holidays').onclick=openHolidayManager;
-$('admin-month-ledger').onclick=event=>{const cell=event.target.closest('[data-month-person]');if(cell)openMonthCell(cell.dataset.monthPerson,cell.dataset.monthDate)};
+$('admin-month-ledger').onclick=event=>{const calendar=event.target.closest('[data-person-calendar]');if(calendar){const person=APP.adminMonth?.personas?.find(p=>String(p.id)===calendar.dataset.personCalendar);if(person){const host=$('admin-person-calendar');KJAPersonCalendar.mount({host,person,month:currentMonthValue(),onBack:()=>closeAdminPersonCalendar(true)});host.querySelector('h3')?.focus({preventScroll:true});host.scrollIntoView({block:'start',behavior:'instant'});}return;}const cell=event.target.closest('[data-month-person]');if(cell)openMonthCell(cell.dataset.monthPerson,cell.dataset.monthDate)};
 $('admin-month-modal-body').onclick=event=>{
   const state=event.target.closest('[data-month-state]');if(state)return changeMonthState(state.dataset.monthState);
   const removeHolidayButton=event.target.closest('[data-remove-holiday]');if(removeHolidayButton)return removeHoliday(removeHolidayButton.dataset.removeHoliday);

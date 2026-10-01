@@ -8,6 +8,7 @@
     if(sharing&&day.comparticiones_vencidas&&!day.comparticiones_completas){
       return {state:'incomplete',alert:true,reason:prefix+'Tenías comparticiones de Facebook asignadas y el plazo venció sin completar las evidencias.'};
     }
+    if(day.estado==='J'||day.justificado===true||day.cierre_estado==='justificado')return {state:'j',alert:false,reason:'Jornada justificada.'+(sharing?(day.comparticiones_completas?' Comparticiones de Facebook entregadas.':' Comparticiones de Facebook pendientes; el plazo aún no vence.'):'')};
     if(day.cierre_estado==='incompleta')return {state:'incomplete',alert:true,reason:'Jornada incompleta: falta completar el cierre o sus evidencias. Consulta el detalle en Mi asistencia.'};
     const attendance=({P:'Presente.',T:'Entrada con tardanza.',J:'Jornada justificada.',NG:'No gestiona.'})[day.estado]||'Sin registro de entrada.';
     if(sharing){

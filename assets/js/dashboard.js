@@ -2260,6 +2260,7 @@ async function renderTeamPersonDetail(id){
         </div>
       </article>
 
+      ${issue?`<div class="team-issue-alert"><div><b>Impedimento informado hoy</b><p>${esc(issue.detalle)}</p></div></div>`:''}
       <div class="team-person-loading" id="team-person-month-loading">
         <div class="team-loading-spinner"></div>
         <span>Cargando análisis mensual y gráfico de asistencias…</span>
@@ -2269,95 +2270,9 @@ async function renderTeamPersonDetail(id){
     </div>
   `;
 
-  const now = new Date(),
-        year = Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric'}).format(now)),
-        month = Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',month:'numeric'}).format(now));
-
-  const loadEl = $('team-person-month-loading'), dataEl = $('team-person-month-data');
-  let data,error;
-  try { ({data,error}=await db.rpc('dash_historial', { p_anio: year, p_mes: month, p_colab: Number(id) })); }
-  catch(err){ error=err; }
-  if(!dataEl?.isConnected || APP.selectedTeamPersonId!==String(id)) return;
-
-  if(error || !data?.ok){
-    if(loadEl) loadEl.innerHTML = '<p class="admin-empty">No se pudo cargar el historial mensual autorizado.</p>';
-    return;
-  }
-  if(loadEl) loadEl.hidden = true;
-  if(!dataEl) return;
-  dataEl.hidden = false;
-
-  const t = data.totales || {};
-  const days = data.dias || [];
-  const hours = Number(data.horas || 0).toFixed(1);
-  const sum = (t.P||0) + (t.T||0) + (t.J||0) + (t.NG||0) + (t.incompletas||0) || 1;
-  const pP = Math.round(((t.P||0) / sum) * 100);
-  const pT = Math.round(((t.T||0) / sum) * 100);
-  const pJ = Math.round(((t.J||0) / sum) * 100);
-  const pNG = Math.round(((t.NG||0) / sum) * 100);
-  const pINC = 100 - (pP + pT + pJ + pNG);
-
-  const monthConic = `conic-gradient(#24a68a 0% ${pP}%, #d68b18 ${pP}% ${pP + pT}%, #326fac ${pP + pT}% ${pP + pT + pJ}%, #a33d4d ${pP + pT + pJ}% ${pP + pT + pJ + pNG}%, #c23b50 ${pP + pT + pJ + pNG}% 100%)`;
-
-  const first = new Date(`${year}-${String(month).padStart(2,'0')}-01T12:00:00`), offset = (first.getDay() + 6) % 7;
-  const calendarHtml = '<span class="empty"></span>'.repeat(offset) + days.map(day => {
-    const inc = day.cierre_estado === 'incompleta';
-    const state = inc ? 'incomplete' : String(day.estado || '').toLowerCase();
-    const label = inc ? 'INC' : (day.estado || '');
-    const date=day.fecha||`${year}-${String(month).padStart(2,'0')}-${String(day.d).padStart(2,'0')}`;
-    return `<button type="button" class="${state} ${day.lab ? '' : 'off'}" data-team-day="${esc(date)}" aria-label="Ver actividades del ${esc(date)}: ${esc(day.estado||'Sin registro')}" aria-controls="team-day-detail" aria-pressed="false" ${date>isoLima()?'disabled':''}><b>${day.d}</b><i>${esc(label)}</i></button>`;
-  }).join('');
-
-  dataEl.innerHTML = `
-    <div class="team-person-analytics">
-      <article class="team-chart-card">
-        <header class="team-chart-header">
-          <h4>Asistencia del Mes · ${cap(monthNames[month-1])} ${year}</h4>
-          <span class="team-chart-caption">${hours} h acreditadas</span>
-        </header>
-        <div class="team-chart-body">
-          <div class="team-chart-ring" style="background:${monthConic}">
-            <div class="team-chart-inner">
-              <strong>${hours}</strong>
-              <small>Horas mes</small>
-            </div>
-          </div>
-          <ul class="team-chart-legend">
-            <li><i style="background:#24a68a"></i><span>Presentes (P)</span><b>${t.P||0}</b></li>
-            <li><i style="background:#d68b18"></i><span>Tardanzas (T)</span><b>${t.T||0}</b></li>
-            <li><i style="background:#326fac"></i><span>Justificados (J)</span><b>${t.J||0}</b></li>
-            <li><i style="background:#a33d4d"></i><span>No gestionó (NG)</span><b>${t.NG||0}</b></li>
-            <li><i style="background:#c23b50"></i><span>Incompletas</span><b>${t.incompletas||0}</b></li>
-          </ul>
-        </div>
-      </article>
-
-      <article class="team-person-calendar-card">
-        <header class="team-calendar-header">
-          <h4>Calendario Mensual</h4>
-          <small>Toca un día para ver sus entregas</small>
-        </header>
-        <div class="team-profile-week">
-          <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
-        </div>
-        <div class="team-profile-calendar">
-          ${calendarHtml}
-        </div>
-      </article>
-
-      <section id="team-day-detail" class="team-day-detail" aria-label="Actividades del día" hidden></section>
-
-      ${issue ? `
-        <div class="team-issue-alert">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-          <div>
-            <b>Impedimento informado hoy</b>
-            <p>${esc(issue.detalle)}</p>
-          </div>
-        </div>
-      ` : ''}
-    </div>
-  `;
+  const host=$('team-person-month-data');
+  $('team-person-month-loading').hidden=true;
+  await KJAPersonCalendar.mount({host,person});
 }
 
 function teamDayActivities(data){
@@ -2367,7 +2282,7 @@ function teamDayActivities(data){
     ...(cierre.asignaciones||[]).filter(item=>item.estado!=='cancelada').map(item=>({...item,key:`asignado-${item.id}`}))];
   for(const item of required){
     groups.push({key:item.key,titulo:item.titulo||item.tipo,completo:!!item.completo,
-      estado:item.estado,detalle:item.descripcion||item.instrucciones||'',files:[],entregas:0});
+      estado:item.estado,revision:item.revision_estado,detalle:item.descripcion||item.instrucciones||'',files:[],entregas:0});
   }
   for(const delivery of deliveries){
     let group=groups.find(item=>item.key===key(delivery));

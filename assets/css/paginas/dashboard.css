@@ -10485,6 +10485,13 @@ body.admin-role-confirm-open{overflow:hidden}
 .admin-close-status-pill.justificado{color:#245c96;background:#e8f1fb}
 
 /* Navegación lateral de escritorio: modo compacto con rail personal expandido. */
+#sidebar .sidebar-icon{stroke-linecap:round;stroke-linejoin:round}
+#sidebar .sidebar-icon .icon-tone{fill:currentColor;fill-opacity:.15;stroke:none}
+#sidebar .sidebar-icon .icon-solid{fill:currentColor;stroke:none}
+#sidebar .sidebar-icon .icon-accent{stroke:var(--sidebar-accent,#bd1769)}
+#sidebar .active .sidebar-icon .icon-tone{fill-opacity:.23}
+#sidebar .active .sidebar-icon .icon-accent{stroke:currentColor}
+#portal #sidebar .side-nav button svg.sidebar-icon{width:22px;height:22px;flex:0 0 22px;margin-inline:-1px;stroke-width:1.65}
 .sidebar-collapse-toggle{
   width:32px;
   height:32px;
@@ -10595,11 +10602,11 @@ body.admin-role-confirm-open{overflow:hidden}
     transition:width var(--sidebar-duration) cubic-bezier(.22,1,.36,1),padding var(--sidebar-duration) cubic-bezier(.22,1,.36,1),color 150ms ease,background-color 150ms ease;
   }
   #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-sidebar-collapsed="true"] #sidebar .side-nav button{width:calc(100% - 10px)}
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button svg{width:20px;height:20px;flex:0 0 20px;color:#FE037C!important;stroke-width:1.7}
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button:hover{background:#fff0f6!important;color:#FE037C!important}
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button.active{background:#ffd6e8!important;color:#FE037C!important;border-color:rgba(255,255,255,.9)!important;box-shadow:0 3px 8px rgba(254,3,124,.08)!important;font-weight:600}
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button:is(.active,:hover) svg{color:#FE037C!important}
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button:focus-visible{outline:2px solid #FE037C;outline-offset:2px}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button svg{width:20px;height:20px;flex:0 0 20px;color:var(--sidebar-blue)!important;stroke-width:1.7}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button:hover{background:var(--sidebar-hover)!important;color:var(--sidebar-blue)!important}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button.active{background:var(--sidebar-blue)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 4px 12px rgba(0,79,176,.14)!important;font-weight:600}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button.active svg{color:#fff!important}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button:focus-visible{outline:2px solid var(--sidebar-accent);outline-offset:2px}
   #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav button .sidebar-label{position:absolute;left:52px;top:50%;translate:0 -50%}
   #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar :is(.sidebar-label,.side-user-copy,.side-nav-divider){
     opacity:var(--sidebar-copy-opacity);
@@ -10641,7 +10648,7 @@ body.admin-role-confirm-open{overflow:hidden}
   #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar :is(.side-help,.side-user-copy,.side-user>.avatar){display:none}
   #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-user{display:flex;justify-content:flex-start;align-items:center;flex:0 0 auto;width:100%;min-width:0;height:auto;margin-top:auto;padding-top:16px;gap:0}
   #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar #logout{position:relative;inset:auto;transform:none;display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;padding:12px;margin:0 0 0 7px;border:1px solid transparent;border-radius:13px;transition:background-color 160ms ease,color 160ms ease,border-color 160ms ease}
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar #logout:is(:hover,:focus-visible){background:#fbe3ef;color:#a92765;border-color:#edbfd5}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar #logout:is(:hover,:focus-visible){background:var(--sidebar-hover);color:var(--sidebar-blue);border-color:#cbdced}
   #portal #logout svg{width:20px;height:20px;transition:transform 160ms ease}
   #portal #logout:is(:hover,:focus-visible) svg{transform:translateX(2px)}
   #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #logout::after{content:'Cerrar sesión';position:absolute;left:46px;white-space:nowrap;font-size:12px;font-weight:600;opacity:var(--sidebar-copy-opacity,1);pointer-events:none;transition:opacity 130ms ease}
