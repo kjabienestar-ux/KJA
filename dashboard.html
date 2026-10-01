@@ -36,6 +36,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=3">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-jornada.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-mobile.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-guided-tour.css?v=6">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
   <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=26">
@@ -183,6 +184,7 @@
       <span class="side-nav-divider" id="admin-nav-divider" hidden>ADMINISTRACIÓN</span>
       <button data-view="gestion" id="nav-gestion" data-sidebar-tooltip="Gestión de asistencia" hidden><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5M8 14h3M14 14h2M8 17h8"/></svg><span class="sidebar-label">Gestión de asistencia</span></button>
     </nav>
+    <button class="guided-tour-trigger" id="nav-guided-tour" type="button" data-guided-tour-start data-sidebar-tooltip="Tutorial guiado" aria-label="Iniciar tutorial guiado del dashboard" title="Tutorial guiado" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z"/></svg><span class="sidebar-label">Tutorial guiado</span></button>
     <div class="side-help" data-sidebar-tooltip="¿Necesitas ayuda?"><div class="side-help-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg><span class="sidebar-label">¿Necesitas ayuda?</span></div><a href="https://wa.me/51922996170" target="_blank" rel="noopener" data-sidebar-tooltip="Contactar a Ingeniería"><span class="sidebar-label">Contactar a Ingeniería</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></div>
     <div class="side-user" id="sidebar-session-actions">
       <span class="avatar" id="side-avatar" title="Perfil del colaborador">KJ</span>
@@ -323,6 +325,7 @@
           <div class="mobile-sheet-heading">
             <span><h2>¿Qué deseas hacer?</h2><p>Accede rápido a lo más importante.</p></span>
             <span class="mobile-session-state"><i></i>Sesión segura</span>
+            <button class="mobile-guided-tour-trigger" type="button" data-guided-tour-start hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z"/></svg><span>Tutorial móvil</span></button>
           </div>
           <nav class="mobile-quick-grid" aria-label="Accesos rápidos">
             <button type="button" data-mobile-action="asistencia">
@@ -571,7 +574,7 @@
                 <p id="day-close-guide-copy">Selecciona cada requisito pendiente para adjuntar las imágenes.</p>
               </div>
 
-              <aside class="day-close-action">
+              <aside class="day-close-action" id="day-close-action">
                 <div class="day-close-time">
                   <small id="day-close-time-label">HORA DE SALIDA</small>
                   <b id="day-close-time">—</b>
@@ -2118,5 +2121,6 @@
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=6"></script>
 <script src="assets/js/dashboard-pausa-activa.js?v=14"></script>
+<script src="assets/js/dashboard-guided-tour.js?v=6"></script>
 </body>
 </html>
