@@ -1,0 +1,43 @@
+/* Libro mensual: controles compactos y tabla que ocupa el espacio disponible. */
+@media(min-width:901px){
+  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden])){grid-template-rows:44px auto minmax(0,1fr);row-gap:8px}
+  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden]))>.admin-view-head{min-height:44px;margin:0;padding:0!important}
+  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden])) .admin-view-head h1{font-size:28px!important;line-height:1.15}
+  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden])) .admin-refresh{height:36px;min-height:36px}
+  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden]))>.admin-section-nav{display:flex;flex-wrap:wrap;gap:2px;margin:0;padding:5px 8px;border-radius:14px}
+  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden]))>.admin-section-nav :is(button,a){min-height:32px;padding:6px 8px;font-size:11px!important;white-space:nowrap}
+  #portal.admin-wide #view-gestion>#admin-month-section:not([hidden]){padding:0;gap:8px;scrollbar-gutter:auto}
+  #portal.admin-wide #admin-month-section:not([hidden]):has(#admin-person-calendar[hidden]){display:flex;flex-direction:column;overflow:hidden}
+  #portal.admin-wide #admin-month-section>.admin-month-workbench{flex:none}
+  #portal.admin-wide #admin-month-section .admin-month-workbench-head{grid-template-columns:minmax(230px,.85fr) minmax(390px,1.25fr) auto;min-height:64px;padding:10px 16px;gap:14px}
+  #portal.admin-wide #admin-month-section .admin-month-heading h2{font-size:18px;line-height:1.2}
+  #portal.admin-wide #admin-month-section .admin-month-heading p{margin-top:3px;font-size:11px;line-height:1.35}
+  #portal.admin-wide #admin-month-section .admin-month-kpis{gap:0;align-self:center}
+  #portal.admin-wide #admin-month-section .admin-month-workbench-head .admin-list-kpi{min-height:42px;padding:0 10px;border:0!important;border-left:1px solid #ffffff26!important;border-radius:0;background:transparent!important;box-shadow:none!important;justify-items:start;text-align:left}
+  #portal.admin-wide #admin-month-section .admin-month-workbench-head .admin-list-kpi small{font-size:9px!important;letter-spacing:0;line-height:1.2}
+  #portal.admin-wide #admin-month-section .admin-month-workbench-head .admin-list-kpi b{margin-top:3px;font-size:22px!important;line-height:1}
+  #portal.admin-wide #admin-month-section .admin-month-export{min-height:36px;height:36px;font-size:12px!important;padding-inline:12px}
+  #portal.admin-wide #admin-month-section .admin-month-workbench-controls{grid-template-columns:max-content minmax(360px,1fr);gap:12px;padding:8px 12px;align-items:center}
+  #portal.admin-wide #admin-month-section .admin-month-period-actions{gap:6px}
+  #portal.admin-wide #admin-month-section .admin-month-picker{min-height:36px;padding:2px}
+  #portal.admin-wide #admin-month-section .admin-month-picker button{width:28px;height:30px}
+  #portal.admin-wide #admin-month-section .admin-month-picker input{width:140px;height:30px}
+  #portal.admin-wide #admin-month-section :is(.admin-month-today,.admin-month-holidays,.admin-month-inactive,.admin-month-area-trigger){min-height:36px;height:36px;font-size:11px!important;padding-inline:9px}
+  #portal.admin-wide #admin-month-section .admin-month-filters{grid-template-columns:minmax(150px,1fr) minmax(160px,.8fr) auto;gap:6px}
+  #portal.admin-wide #admin-month-section .admin-month-filters input[type="search"]{height:36px;font-size:11px!important}
+  #portal.admin-wide #admin-month-section .admin-month-filters>label:not(.admin-toggle){gap:3px}
+  #portal.admin-wide #admin-month-section .admin-month-area-field{gap:3px}
+  #portal.admin-wide #admin-month-section:has(#admin-person-calendar[hidden])>.admin-month-ledger{flex:1;min-height:0;max-height:none;overflow:auto}
+  #portal.admin-wide #admin-month-section .admin-month-table :is(.day-col,td){width:40px;min-width:40px}
+  #portal.admin-wide #admin-month-section .admin-month-table thead th{height:42px}
+  #portal.admin-wide #admin-month-section .admin-month-area-row td{height:28px;padding:0 12px;font-size:11px;text-align:left;background:#f5f3ef}
+  #portal.admin-wide #admin-month-section .admin-month-legend{flex:none;padding:7px 12px;gap:10px;border-radius:10px}
+  #portal.admin-wide #admin-month-section>.admin-list-message:empty{display:none}
+  #portal.admin-wide #admin-month-section>.admin-legacy-link{flex:none;margin:0;font-size:11px}
+}
+@media(min-width:901px) and (max-width:1250px){
+  #portal.admin-wide #admin-month-section .admin-month-workbench-head{grid-template-columns:minmax(0,1fr) auto}
+  #portal.admin-wide #admin-month-section .admin-month-kpis{grid-column:1/-1;grid-row:2}
+  #portal.admin-wide #admin-month-section .admin-month-export{grid-column:2;grid-row:1}
+  #portal.admin-wide #admin-month-section .admin-month-workbench-controls{grid-template-columns:1fr;gap:6px}
+}
