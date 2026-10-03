@@ -124,3 +124,13 @@
 @media(pointer:coarse){#admin-month-modal .md-file{min-height:44px}}
 @media(max-width:420px){.md-preview-footer{flex-wrap:wrap}.md-open-file{flex:1}.md-activity summary em{font-size:9px}.md-file-nav span{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.md-activity{transition:none}}
+
+/* Corrección de modalidad por fecha, junto al dato que modifica. */
+#admin-month-modal .md-mode-picker{display:inline-flex;gap:3px;margin:5px 0;padding:3px;border:1px solid #c4ceda;border-radius:8px;background:#eaf0f6}
+#admin-month-modal .md-mode-picker button{min-height:36px;padding:6px 12px;border:0;border-radius:5px;background:transparent;color:#294b73;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+#admin-month-modal .md-mode-picker button[aria-pressed="true"]{background:#1d426c;color:#fff}
+#admin-month-modal .md-mode-picker button:hover:not(:disabled):not([aria-pressed="true"]){background:#d5dfed}
+#admin-month-modal .md-mode-picker button:disabled{cursor:wait;opacity:.65}
+#admin-month-modal #month-mode-status{display:block;max-width:260px;white-space:normal;color:#294b73}
+#admin-month-modal #month-mode-status:empty{display:none}
+@media(pointer:coarse){#admin-month-modal .md-mode-picker button{min-height:44px}}
