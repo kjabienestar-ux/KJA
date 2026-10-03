@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=226">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=227">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=8">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=6">
@@ -46,8 +46,9 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-team-mobile.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-login.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-calendar.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-month-layout.css?v=1">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-month-layout.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=3">
 </head>
 <body>
 
@@ -830,14 +831,11 @@
       <dialog id="team-mobile-dialog" aria-label="Detalle del equipo"><form method="dialog" class="team-mobile-dialog-head"><b>Mi equipo</b><button type="submit" autofocus aria-label="Cerrar detalle">×</button></form><div id="team-mobile-dialog-body"></div></dialog>
     </section>
 
-    <section class="view admin-view" id="view-gestion" hidden>
-      <header class="view-head admin-view-head">
-        <div><p class="eyebrow">CENTRO DE GESTIÓN</p><h1>Administración de asistencia</h1></div>
-        <button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button>
-        <div class="admin-head-actions"><span class="admin-role-chip" id="admin-role-chip">Acceso administrativo</span><button class="admin-refresh" id="admin-refresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualizar</button></div>
-      </header>
+    <section class="view admin-view" id="view-gestion" aria-label="Gestión de asistencia" hidden>
+
 
       <nav class="admin-section-nav" aria-label="Secciones de administración">
+        <button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button>
         <button class="active" type="button" data-admin-section="overview">Resumen operativo</button>
         <button type="button" data-admin-section="control" id="admin-control-tab" hidden>Control diario</button>
         <button type="button" data-admin-section="ranking" id="admin-ranking-tab" hidden>Ranking mensual · Beta</button>
@@ -851,6 +849,8 @@
         <button type="button" data-admin-section="roles" id="admin-roles-tab" hidden>Roles y equipos</button>
         <button type="button" data-admin-section="marcado" id="admin-access-tab">Marcado propio</button>
         <a href="asistencia.html?modo=lista" title="Abrir la versión anterior como respaldo">Panel anterior ↗</a>
+        <button class="admin-refresh" id="admin-refresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualizar</button>
+        <span id="admin-role-chip" hidden>Acceso administrativo</span>
       </nav>
 
       <div id="admin-overview-section">
@@ -892,20 +892,31 @@
         </section>
       </div>
 
-      <section class="admin-control-section" id="admin-control-section" hidden>
-        <header class="admin-control-head">
-          <span><h2>Control diario</h2><p>Prioriza las jornadas que necesitan atención antes de cerrar el día.</p></span>
-          <div class="admin-control-kpis" id="admin-control-kpis" aria-live="polite"></div>
-          <div class="admin-control-actions"><label>Fecha<input type="date" id="admin-control-date"></label><button type="button" id="admin-control-today">Hoy</button><button type="button" class="admin-primary-action" id="admin-control-export">Exportar CSV</button><button type="button" class="admin-secondary-action admin-pausas-btn" id="admin-pausas-open-btn" title="Monitoreo y reseteo de pausas activas"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px; vertical-align:-2px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M9 17h6"/></svg>Pausas activas</button></div>
+      <section class="admin-control-section" id="admin-control-section" aria-labelledby="admin-control-title" hidden>
+        <header class="control-heading">
+          <div><h2 id="admin-control-title">Control diario</h2><p>Los pendientes del equipo, con el siguiente paso a la vista.</p></div>
+          <div class="control-tools">
+            <button type="button" id="admin-control-export" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5"/></svg>Exportar vista</button>
+            <button type="button" id="admin-pausas-open-btn" class="admin-pausas-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pausas activas</button>
+          </div>
         </header>
-        <div class="admin-control-filters">
-          <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-control-search" placeholder="Buscar colaborador…"></label>
-          <label><span class="sr-only">Filtrar por área</span><select id="admin-control-area"><option value="">Todas las áreas</option></select></label>
-          <label><span class="sr-only">Filtrar por situación</span><select id="admin-control-state"><option value="">Todas las situaciones</option><option value="sin_entrada">Sin entrada</option><option value="evidencias">Faltan evidencias</option><option value="impedimento">Impedimento informado</option><option value="revision">Revisión pendiente</option><option value="observada">Corrección pendiente</option><option value="sin_salida">Sin salida</option><option value="incompleta">Jornada incompleta</option><option value="completa">Jornada completa</option></select></label>
-          <span id="admin-control-result-count">—</span>
+        <div class="control-datebar">
+          <div class="control-date-navigation"><button type="button" id="admin-control-prev" aria-label="Día anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button><label><span class="sr-only">Fecha del control diario</span><input type="date" id="admin-control-date"></label><button type="button" id="admin-control-next" aria-label="Día siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button><button type="button" id="admin-control-today">Hoy</button></div>
+          <p id="admin-control-summary" aria-live="polite">Consultando la jornada…</p>
         </div>
-        <p class="admin-list-message" id="admin-control-message" role="status" aria-live="polite"></p>
-        <div class="admin-control-table" id="admin-control-table"><p class="admin-empty">Preparando el control diario…</p></div>
+        <section class="control-area-overview" aria-labelledby="control-area-title"><header><div><h3 id="control-area-title">Seguimiento por área</h3><p id="admin-control-chart-selection">Pulsa una barra para ver sus personas</p></div><div class="control-area-legend"><span class="pending">Pendientes</span><span class="review">Por revisar</span><span class="done">Concluidas</span><span class="clear">Sin pendientes</span></div><button type="button" id="admin-control-chart-reset" hidden>Ver todas</button></header><div id="admin-control-areas" aria-label="Distribución de personas por área"><p class="control-area-empty">Consultando las áreas…</p></div><p class="control-area-footnote">Cada persona aparece una vez. Por revisar tiene prioridad; sin pendientes no significa jornada completada. Vista general de la fecha, independiente de la búsqueda.</p></section>
+        <div class="control-workspace">
+          <div class="control-queues" id="admin-control-kpis" role="group" aria-label="Bandejas de seguimiento"></div>
+          <div class="control-filters">
+            <label class="control-search"><span class="sr-only">Buscar colaborador</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input type="search" id="admin-control-search" placeholder="Buscar persona o área"></label>
+            <label><span class="sr-only">Filtrar por área</span><select id="admin-control-area"><option value="">Todas las áreas</option></select></label>
+            <label><span class="sr-only">Filtrar por situación</span><select id="admin-control-state"><option value="">Cualquier pendiente</option><option value="sin_entrada">Sin entrada</option><option value="evidencias">Faltan evidencias</option><option value="impedimento">Impedimento informado</option><option value="revision">Por revisar</option><option value="observada">Con correcciones</option><option value="sin_salida">Sin salida</option><option value="incompleta">Jornada incompleta</option><option value="completa">Jornada completa</option><option value="justificado">Justificada</option><option value="no_aplica">No labora</option></select></label>
+            <button type="button" id="admin-control-clear" hidden>Limpiar</button>
+          </div>
+          <div class="control-list-meta"><span id="admin-control-result-count" role="status">—</span><label>Ordenar por <select id="admin-control-sort"><option value="priority">Prioridad</option><option value="name">Nombre</option><option value="area">Área</option></select></label></div>
+          <p class="admin-list-message" id="admin-control-message" role="status" aria-live="polite"></p>
+          <div class="control-case-list" id="admin-control-table" aria-busy="true"><p class="admin-empty">Preparando el control diario…</p></div>
+        </div>
       </section>
 
       <section class="admin-list-section" id="admin-list-section" hidden>
@@ -2131,12 +2142,12 @@
 <script src="assets/js/dashboard-person-profile.js?v=4"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=3"></script>
 <script src="assets/js/dashboard-month-day-detail.js?v=3"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=13"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=14"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=4"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=37"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=39"></script>
 <script src="assets/js/dashboard-assignments.js?v=4"></script>
-<script src="assets/js/dashboard-admin-control.js?v=7"></script>
+<script src="assets/js/dashboard-admin-control.js?v=10"></script>
 <script src="assets/js/marketing-model.js?v=3"></script>
 <script src="assets/js/dashboard-marketing.js?v=6"></script>
 <script src="assets/js/chat-images.js?v=3"></script>

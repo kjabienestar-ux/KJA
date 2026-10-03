@@ -1,11 +1,9 @@
-/* Libro mensual: controles compactos y tabla que ocupa el espacio disponible. */
+/* Navegación administrativa uniforme; libro mensual con controles compactos. */
 @media(min-width:901px){
-  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden])){grid-template-rows:44px auto minmax(0,1fr);row-gap:8px}
-  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden]))>.admin-view-head{min-height:44px;margin:0;padding:0!important}
-  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden])) .admin-view-head h1{font-size:28px!important;line-height:1.15}
-  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden])) .admin-refresh{height:36px;min-height:36px}
-  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden]))>.admin-section-nav{display:flex;flex-wrap:wrap;gap:2px;margin:0;padding:5px 8px;border-radius:14px}
-  #portal.admin-wide #view-gestion:has(#admin-month-section:not([hidden]))>.admin-section-nav :is(button,a){min-height:32px;padding:6px 8px;font-size:11px!important;white-space:nowrap}
+  #portal.admin-wide #view-gestion{grid-template-rows:44px minmax(0,1fr);row-gap:8px}
+  #portal.admin-wide #view-gestion>.admin-section-nav{grid-row:1;display:flex;flex-wrap:nowrap;align-items:center;gap:2px;min-height:44px;height:44px;box-sizing:border-box;margin:0;padding:5px 8px;border-radius:14px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+  #portal.admin-wide #view-gestion>.admin-section-nav :is(button,a){flex:0 0 auto;min-height:32px;padding:6px 8px;font-size:11px!important;white-space:nowrap}
+  #portal.admin-wide #view-gestion>[id$="-section"]{grid-row:2}
   #portal.admin-wide #view-gestion>#admin-month-section:not([hidden]){padding:0;gap:8px;scrollbar-gutter:auto}
   #portal.admin-wide #admin-month-section:not([hidden]):has(#admin-person-calendar[hidden]){display:flex;flex-direction:column;overflow:hidden}
   #portal.admin-wide #admin-month-section>.admin-month-workbench{flex:none}
@@ -41,3 +39,16 @@
   #portal.admin-wide #admin-month-section .admin-month-export{grid-column:2;grid-row:1}
   #portal.admin-wide #admin-month-section .admin-month-workbench-controls{grid-template-columns:1fr;gap:6px}
 }
+
+/* Actualizar forma parte de la barra; no necesita una fila propia. */
+#portal.admin-wide #view-gestion>.admin-section-nav #admin-refresh{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  flex:0 0 auto;margin-left:auto;min-height:32px;height:32px;padding:0 12px;
+  border:1px solid #176b60!important;border-radius:9px!important;
+  color:#fff!important;background:#176b60!important;box-shadow:none!important;
+  font-size:11px!important;white-space:nowrap;
+}
+#portal.admin-wide #view-gestion>.admin-section-nav #admin-refresh:hover:not(:disabled){background:#105348!important;border-color:#105348!important;transform:none!important}
+#portal.admin-wide #view-gestion>.admin-section-nav #admin-refresh:focus-visible{outline:2px solid #176b60;outline-offset:2px}
+#portal.admin-wide #view-gestion>.admin-section-nav #admin-refresh:disabled{opacity:.55;cursor:wait}
+#portal.admin-wide #view-gestion>.admin-section-nav #admin-refresh svg{width:14px;height:14px;flex:none}

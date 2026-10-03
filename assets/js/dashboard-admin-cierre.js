@@ -25,6 +25,20 @@ function adminEvidenceMissing(person,reviews=null){
   return [...globals,...assigned];
 }
 
+// Las evidencias opcionales se ofrecen para carga, sin contarlas como pendientes.
+function adminEvidenceAvailable(person,reviews=null){
+  const items=adminEvidenceMissing(person,reviews),close=person?.cierre||{};
+  const personReviews=reviews||(APP.adminReview?.entregas||[]).filter(item=>String(item.colaborador_id)===String(person?.id));
+  const exitDelivered=(close.requisitos||[]).some(item=>item.tipo==='salida'&&item.completo)
+    ||personReviews.some(item=>item.requisito==='salida'&&item.estado==='completo');
+  if(person?.labora===true&&close.aplica_jornada!==false&&!close.justificado
+    &&close.estado!=='justificado'&&close.entrada_at&&!exitDelivered&&!items.some(item=>item.kind==='salida')){
+    items.push({kind:'salida',assignment:null,optional:true,title:'Evidencia de salida (opcional)',
+      copy:'Adjunta la foto e indica la hora reportada. Esta evidencia no añade un requisito a la jornada.'});
+  }
+  return items;
+}
+
 function adminCloseEvidenceKey(item,assignment=false){
   const type=assignment?'asignado':item?.requisito||item?.tipo;
   if(type==='asignado')return item?.asignacion_id||item?.id?`asignacion:${item.asignacion_id||item.id}`:'';
@@ -192,7 +206,7 @@ function renderAdminCloseStatus(){
       const close=person.cierre||{},personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),progress=adminCloseEvidenceProgress(person,personReviews);
       const evidence=`${progress.done}/${progress.total}`,state=adminCloseResolvedState(person,progress,selectedDate),pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length;
       const reviewAction=canReview&&personReviews.length?`<button type="button" class="admin-close-review-trigger ${pending?'has-pending':''}" data-admin-review-person="${esc(person.id)}">${pending?`${pending} por revisar`:'Ver evidencias'}</button>`:'';
-      const missing=adminEvidenceMissing(person,personReviews),canUpload=canReview&&($('admin-close-date').value||isoLima())<=isoLima(),uploadAction=canUpload&&missing.length?`<button type="button" class="admin-close-upload-trigger" data-admin-upload-person="${esc(person.id)}">Subir faltante</button>`:'';
+      const missing=adminEvidenceAvailable(person,personReviews),canUpload=canReview&&($('admin-close-date').value||isoLima())<=isoLima(),uploadAction=canUpload&&missing.length?`<button type="button" class="admin-close-upload-trigger" data-admin-upload-person="${esc(person.id)}">${missing.every(item=>item.optional)?'Adjuntar salida':'Subir faltante'}</button>`:'';
       const messageAction=canReview?`<button type="button" class="admin-close-message-trigger" data-admin-message-person="${esc(person.id)}" aria-label="Enviar mensaje a ${esc(person.nombre)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 4zM8 9h8M8 13h5"/></svg><span>Mensaje</span></button>`:'';
       html+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)}</b><span class="admin-close-evidence-actions">${reviewAction}${uploadAction}</span></span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span><span data-label="Mensaje" class="admin-close-message-cell">${messageAction||'—'}</span></div>`;
     }
@@ -408,7 +422,7 @@ function clearAdminEvidenceFiles(){
 
 function currentAdminEvidenceRequirement(){
   const person=adminEvidencePerson(ADMIN_EVIDENCE.personId);
-  return adminEvidenceMissing(person).find(item=>item.kind===ADMIN_EVIDENCE.requirement&&String(item.assignment||'')===String(ADMIN_EVIDENCE.assignment||''));
+  return adminEvidenceAvailable(person).find(item=>item.kind===ADMIN_EVIDENCE.requirement&&String(item.assignment||'')===String(ADMIN_EVIDENCE.assignment||''));
 }
 
 function adminEvidenceMode(){
@@ -416,9 +430,9 @@ function adminEvidenceMode(){
 }
 
 function renderAdminEvidenceComposer(){
-  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId),items=adminEvidenceMissing(person),selected=currentAdminEvidenceRequirement();
+  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId),items=adminEvidenceAvailable(person),selected=currentAdminEvidenceRequirement();
   const selectedKey=selected?`${selected.kind}:${selected.assignment??''}`:'';
-  $('admin-evidence-requirement-list').innerHTML=items.map(item=>{const active=`${item.kind}:${item.assignment??''}`===selectedKey;return `<button type="button" aria-pressed="${String(active)}" class="admin-evidence-requirement${active?' active':''}" data-admin-evidence-kind="${esc(item.kind)}" data-admin-evidence-assignment="${esc(item.assignment??'')}" data-kind="${esc(item.kind)}"><i>${adminEvidenceIcon(item.kind)}</i><span><b>${esc(item.title)}</b><small>${item.kind==='comparticiones'?'Facebook':item.kind==='salida'?'Cierre de jornada':item.kind==='asignado'?'Asignación':'Reporte diario'}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
+  $('admin-evidence-requirement-list').innerHTML=items.map(item=>{const active=`${item.kind}:${item.assignment??''}`===selectedKey;return `<button type="button" aria-pressed="${String(active)}" class="admin-evidence-requirement${active?' active':''}" data-admin-evidence-kind="${esc(item.kind)}" data-admin-evidence-assignment="${esc(item.assignment??'')}" data-kind="${esc(item.kind)}"><i>${adminEvidenceIcon(item.kind)}</i><span><b>${esc(item.title)}</b><small>${item.kind==='comparticiones'?'Facebook':item.kind==='salida'?(item.optional?'Opcional':'Cierre de jornada'):item.kind==='asignado'?'Asignación':'Reporte diario'}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
   $('admin-evidence-kind-icon').innerHTML=selected?adminEvidenceIcon(selected.kind):'';
   $('admin-evidence-kind-title').textContent=selected?.title||'Selecciona una evidencia';
   $('admin-evidence-kind-copy').textContent=selected?.copy||'Verás aquí los archivos y datos necesarios.';
@@ -451,7 +465,7 @@ function selectAdminEvidenceRequirement(kind,assignment=null){
 
 function openAdminMissingEvidence(personId,trigger=null){
   if(APP.access.rol!=='direccion')return;
-  const person=adminEvidencePerson(personId),items=adminEvidenceMissing(person);if(!person||!items.length)return toast('Esta persona no tiene evidencias pendientes.',true);
+  const person=adminEvidencePerson(personId),items=adminEvidenceAvailable(person);if(!person||!items.length)return toast('Esta persona no tiene evidencias disponibles para cargar.',true);
   ADMIN_EVIDENCE={personId:Number(personId),requirement:items[0].kind,assignment:items[0].assignment,files:[],trigger:trigger||document.activeElement,busy:false};
   $('admin-evidence-person-mark').textContent=initials(person.nombre);$('admin-evidence-title').textContent=`Cargar evidencia de ${person.nombre}`;$('admin-evidence-copy').textContent=`${person.area} · ${adminReviewDate($('admin-close-date').value)} · carga por Dirección`;
   $('admin-evidence-note').value='Evidencia recibida por interno y registrada por Dirección.';
@@ -516,11 +530,11 @@ async function submitAdminEvidence(event){
       paths.push(await uploadAdminEvidenceFile(files[index],selected,person,date));
     }
     button.querySelector('span').textContent='Confirmando registro…';setLabel('Confirmando registro');adminEvidenceMessage('Los archivos llegaron. Registrando la entrega y su auditoría…','is-progress');
-    const note=$('admin-evidence-note').value.trim()||null,isLateExit=selected.kind==='salida';
+    const note=$('admin-evidence-note').value.trim()||null,isLateExit=selected.kind==='salida'&&!person.cierre?.salida_at;
     const rpc=isLateExit?'dash_admin_confirmar_salida_tardia':'dash_admin_confirmar_entrega';
     const params=isLateExit
       ?{p_colaborador:Number(person.id),p_fecha:date,p_paths:paths,p_detalle:note,p_hora_salida:exitTime}
-      :{p_colaborador:Number(person.id),p_fecha:date,p_requisito:selected.kind,p_asignacion:selected.assignment,p_modalidad:selected.kind==='comparticiones'?mode:null,p_paths:paths,p_detalle:note,p_hora_salida:null};
+      :{p_colaborador:Number(person.id),p_fecha:date,p_requisito:selected.kind,p_asignacion:selected.assignment,p_modalidad:selected.kind==='comparticiones'?mode:null,p_paths:paths,p_detalle:note,p_hora_salida:selected.kind==='salida'?exitTime:null};
     let {data,error}=await db.rpc(rpc,params);
     if(error||!data?.ok){const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes(rpc));throw Object.assign(new Error(data?.motivo||error?.message||'confirmar'),{motivo:missing&&isLateExit?'migracion_salida':data?.motivo||'confirmar'})}
     if(!isLateExit&&!person.cierre?.justificado){

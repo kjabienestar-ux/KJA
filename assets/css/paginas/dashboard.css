@@ -6993,7 +6993,7 @@ input:-webkit-autofill:active {
 
 /* Administración del cierre diario */
 .admin-close-section[hidden]{display:none}
-.admin-close-section{display:grid;gap:15px}
+.admin-close-section{display:grid;align-content:start;gap:15px}
 @media(min-width:901px){.portal.admin-wide #admin-close-section{scrollbar-width:thin;scrollbar-color:#94a9bd transparent}.portal.admin-wide #admin-close-section::-webkit-scrollbar{width:10px}.portal.admin-wide #admin-close-section::-webkit-scrollbar-track{background:transparent}.portal.admin-wide #admin-close-section::-webkit-scrollbar-thumb{border:2px solid transparent;border-radius:999px;background:#94a9bd;background-clip:padding-box}}
 .admin-close-toolbar,.admin-close-status-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px 19px;border:1px solid #e2e7ed;border-radius:15px;background:#fff}
 .admin-close-toolbar h2,.admin-close-toolbar p,.admin-close-status-head h3,.admin-close-status-head p,.admin-close-assignment h3,.admin-close-assignment p,.admin-close-assignments h3,.admin-close-assignments p{margin:0}
@@ -7038,7 +7038,7 @@ input:-webkit-autofill:active {
 .admin-review-summary .admin-review-readonly{grid-column:1/-1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;border:0}.admin-review-readonly b{font-size:13px!important}.admin-review-readonly small{margin-top:3px;font-size:11px!important;font-weight:500!important;letter-spacing:0!important}.admin-review-readonly.is-warning{color:#79520e;background:#fff8eb}
 .admin-close-evidence-cell{display:flex;flex-direction:column;align-items:flex-start;gap:5px}.admin-close-evidence-cell>b{font-size:12px}.admin-close-evidence-actions{display:flex;flex-wrap:wrap;gap:5px}
 .admin-close-review-trigger{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid rgba(7,90,188,.22);border-radius:9px;color:#075abc;background:#eff6ff;font-size:10px;font-weight:800;text-align:left;transition:background-color .18s ease-out,border-color .18s ease-out,color .18s ease-out}.admin-close-review-trigger:hover{border-color:rgba(7,90,188,.38);color:#093b75;background:#e3efff}.admin-close-review-trigger.has-pending{border-color:#ebcb8c;color:#875407;background:#fff5df}.admin-close-review-trigger.has-pending:hover{border-color:#d9ae58;background:#ffedc8}.admin-close-review-trigger:focus-visible{outline:3px solid #075abc;outline-offset:3px}
-.admin-close-upload-trigger{min-height:44px;padding:0 12px;border:1px solid rgba(7,90,188,.28);border-radius:9px;color:#075abc;background:#eff6ff;font-size:11px;font-weight:800}.admin-close-upload-trigger:hover{border-color:#6fa8df;background:#e4f1ff}.admin-close-upload-trigger:focus-visible{outline:3px solid #1774cf;outline-offset:3px}
+.admin-close-upload-trigger{min-height:44px;padding:0 12px;border:1px solid #c56851;border-radius:9px;color:#963e2c;background:#fff0e9;font-size:11px;font-weight:800}.admin-close-upload-trigger:hover{border-color:#963e2c;background:#ffe2d5}.admin-close-upload-trigger:focus-visible{outline:3px solid #963e2c;outline-offset:3px}
 
 /* Mesa privada de revisión de evidencias */
 body.admin-review-open{overflow:hidden}
