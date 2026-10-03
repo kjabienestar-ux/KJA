@@ -21,7 +21,7 @@
     step('facebook', 3, '2. Comparticiones de Facebook', 'Sube las capturas o el collage que comprueban tus comparticiones. Revisa el horario y confirma el envío: Facebook tiene su propio plazo, incluso si ya registraste tu salida.', ['#day-close-checklist .type-comparticiones'], 'evidence-worker.png', 1),
     step('rpe', 3, '3. Sube tu RPE', 'Adjunta el reporte y las evidencias de tus actividades del día. Comprueba que sean legibles y queden enviadas; corrige cualquier observación. Este requisito aparece cuando corresponde a tu jornada.', ['#day-close-checklist .type-rpe'], 'evidence-worker.png', 2),
     step('exit', 3, '4. Registra tu salida', 'Completa los requisitos laborales y adjunta la foto de salida cuando se solicite, o usa Marcar mi salida. Verifica la confirmación: cerrar sesión no marca salida. Facebook conserva su propio plazo.', ['#day-close-checklist .type-salida', '#day-close-action'], 'attendance-exit.png', 3),
-    step('space', 4, 'Mi espacio y listo', 'A la derecha tienes tu perfil, pausas activas y comunicados; Mensajes abre tus conversaciones. Ya puedes repetir el recorrido desde Tutorial guiado cuando lo necesites.', ['#portal-rail'], 'attendance-on-time.png')
+    step('space', 4, 'Tu perfil y listo', 'En Mi perfil encuentras tus datos laborales, pausas activas y comunicados; Mensajes abre tus conversaciones. Ya puedes repetir el recorrido desde Tutorial guiado cuando lo necesites.', ['#nav-perfil'], 'attendance-on-time.png')
   ];
   const mobileSteps = [
     step('navigation', 0, 'Tus accesos rápidos', 'Mi asistencia: historial. Mi perfil: datos personales. Jornada de hoy: horario.', ['.mobile-quick-grid']),
@@ -63,6 +63,26 @@
   function rememberTour() {
     try { localStorage.setItem(tourStorageKey || storageKey(), 'done'); }
     catch (_) { /* El tutorial sigue disponible aunque el navegador bloquee el almacenamiento. */ }
+  }
+
+  function automaticTourPending() {
+    return typeof APP !== 'undefined' && APP.guidedTourPending === true;
+  }
+
+  function rememberAutomaticTour() {
+    if (typeof APP === 'undefined') return;
+    APP.guidedTourPending = false;
+    rememberTour();
+    if (typeof db === 'undefined' || !db?.auth?.updateUser) return;
+    const userMetadata = {
+      ...(APP.guidedTourUserMetadata || {}),
+      kja_dashboard_guided_tour_pending: false,
+      kja_dashboard_guided_tour_started_at: new Date().toISOString()
+    };
+    APP.guidedTourUserMetadata = userMetadata;
+    Promise.resolve(db.auth.updateUser({ data: userMetadata })).then(({ error }) => {
+      if (error) console.warn('No se pudo guardar que el tutorial ya se inició.', error);
+    }).catch(error => console.warn('No se pudo guardar que el tutorial ya se inició.', error));
   }
 
   function isDisplayed(element) {
@@ -293,7 +313,7 @@
 
   function startTour({ automatic = false } = {}) {
     if (root || portal.hidden || portal.dataset.personal !== 'true' || portal.dataset.view !== 'inicio') return;
-    if (automatic && hasSeenTour()) return;
+    if (automatic && (!automaticTourPending() || hasSeenTour())) return;
     if ([...document.querySelectorAll('[aria-modal="true"]')].some(isDisplayed)) return;
 
     tourMode = screenMode();
@@ -310,6 +330,7 @@
     root.dataset.tourMode = tourMode;
     showStep(0);
     root.querySelector('.guided-tour-card').focus({ preventScroll: true });
+    if (automatic || automaticTourPending()) rememberAutomaticTour();
   }
 
   function closeTour(dismissed = false) {
@@ -350,7 +371,7 @@
 
   function maybeAutoStart() {
     syncTriggers();
-    if (hasSeenTour() || portal.hidden || portal.dataset.personal !== 'true' || portal.dataset.view !== 'inicio' || root || autoStartTimer || document.getElementById('today-attendance-card')?.classList.contains('daily-close-pending')) return;
+    if (!automaticTourPending() || hasSeenTour() || portal.hidden || portal.dataset.personal !== 'true' || portal.dataset.view !== 'inicio' || root || autoStartTimer || document.getElementById('today-attendance-card')?.classList.contains('daily-close-pending')) return;
     autoStartTimer = window.setTimeout(() => {
       autoStartTimer = null;
       startTour({ automatic: true });
