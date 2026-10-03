@@ -148,7 +148,7 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', guidedTourPending:false, guidedTourUserMetadata:{}, sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
@@ -413,19 +413,42 @@ $('review-notification-layer').addEventListener('keydown',event=>{
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 });
 
+const PROFILE_PHOTO_DIALOG_STATE={trigger:null,restoreFocus:true};
+function syncProfilePhotoDialogPreview(){
+  const preview=$('profile-photo-dialog-avatar'),avatar=$('profile-avatar');
+  if(!preview)return;
+  preview.textContent=avatar?.textContent||'';
+  preview.classList.toggle('has-photo',Boolean(APP.avatar.url));
+  preview.style.backgroundImage=APP.avatar.url?`url("${APP.avatar.url}")`:'';
+}
+function openProfilePhotoDialog(event){
+  const dialog=$('profile-photo-dialog');if(!dialog||dialog.open)return;
+  PROFILE_PHOTO_DIALOG_STATE.trigger=event?.currentTarget||$('profile-photo-camera');
+  PROFILE_PHOTO_DIALOG_STATE.restoreFocus=true;
+  syncProfilePhotoDialogPreview();
+  dialog.showModal();
+  setTimeout(()=>{if(dialog.open)$('profile-photo-change')?.focus({preventScroll:true})},0);
+}
+function closeProfilePhotoDialog({restoreFocus=true}={}){
+  const dialog=$('profile-photo-dialog');if(!dialog?.open)return;
+  PROFILE_PHOTO_DIALOG_STATE.restoreFocus=restoreFocus;
+  dialog.close();
+}
 function profilePhotoMessage(text,type=''){
   const el=$('profile-photo-message');if(!el)return;
   el.textContent=text||'';el.className='profile-photo-message'+(type?' '+type:'');
 }
 function profilePhotoIssue(text){
   profilePhotoMessage(text,'error');
-  if(APP.view==='inicio')toast(text,true);
+  if(APP.view==='inicio'||APP.view==='perfil')toast(text,true);
 }
 function paintProfilePhoto(url=''){
   PROFILE_AVATAR_IDS.forEach(id=>{
     const el=$(id);if(!el)return;
+    const fallback=el.textContent.trim();if(fallback)el.dataset.avatarInitials=fallback;
     el.classList.toggle('has-photo',!!url);
-    if(url)el.style.backgroundImage=`url("${url}")`;else el.style.removeProperty('background-image');
+    if(url){el.textContent='';el.style.backgroundImage=`url("${url}")`}
+    else {el.style.removeProperty('background-image');if(el.dataset.avatarInitials)el.textContent=el.dataset.avatarInitials;}
   });
   const hasPhoto=!!APP.avatar.path;
   if($('profile-photo-change'))$('profile-photo-change').textContent=hasPhoto?'Cambiar foto':'Subir foto';
@@ -618,16 +641,16 @@ $('cropper-save-btn').onclick = async () => {
 };
 async function removeProfilePhoto(){
   if(!APP.avatar.path||APP.avatar.busy)return;
-  if(!confirm('¿Quitar tu foto de perfil? Volverán a mostrarse tus iniciales.'))return;
+  let removed=false;
   setProfilePhotoBusy(true);profilePhotoMessage('Quitando la foto…');
   try{
     const path=APP.avatar.path,{error:storageError}=await db.storage.from(PROFILE_BUCKET).remove([path]);
     if(storageError)throw storageError;
     const {data,error}=await db.rpc('dash_quitar_foto');
     if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'quitar');
-    APP.avatar={path:'',url:'',busy:true};paintProfilePhoto('');profilePhotoMessage('Foto eliminada. Tus iniciales vuelven a estar visibles.','success');toast('Foto de perfil eliminada.');
+    APP.avatar={path:'',url:'',busy:true};paintProfilePhoto('');profilePhotoMessage('Foto eliminada. Tus iniciales vuelven a estar visibles.','success');toast('Foto de perfil eliminada.');removed=true;
   }catch{profilePhotoMessage('No se pudo quitar la foto. Revisa tu conexión e inténtalo otra vez.','error')}
-  finally{setProfilePhotoBusy(false)}
+  finally{setProfilePhotoBusy(false);if(removed)closeProfilePhotoDialog()}
 }
 
 function showAccess(message){
@@ -830,9 +853,19 @@ function syncSidebarCollapse(){
   setSidebarCollapsed(collapsed,{persist:false});
 }
 
+function syncProfileContext(view){
+  const rail=$('portal-rail'),context=$('profile-context');
+  if(!rail||!context)return;
+  const sections=[...rail.querySelectorAll(':scope > .rail-pausa-activa, :scope > .rail-announcement'),...context.querySelectorAll(':scope > .rail-pausa-activa, :scope > .rail-announcement')];
+  const unique=[...new Set(sections)];
+  if(view==='perfil')unique.forEach(section=>context.append(section));
+  else unique.forEach(section=>rail.append(section));
+}
+
 function paintShell(view){
   APP.view=view;
   $('portal').dataset.view=view;
+  syncProfileContext(view);
   const returnsHome=view!=='inicio'&&APP.identity.hasPersonal;
   $('mobile-back-home').hidden=!returnsHome;
   $('menu-toggle').hidden=returnsHome;
@@ -881,6 +914,8 @@ async function init(){
 async function openPortal(activeSession,bootstrap=null){
   const session=activeSession||(await db.auth.getSession()).data.session;
   APP.sessionUid=session?.user?.id||'';
+  APP.guidedTourUserMetadata={...(session?.user?.user_metadata||{})};
+  APP.guidedTourPending=APP.guidedTourUserMetadata.kja_dashboard_guided_tour_pending===true;
   let data=bootstrap?.inicio?.ok?bootstrap.inicio:null,error=null,access=bootstrap?.acceso||null;
   if(!data){
     const accessRequest=session?.user?.id
@@ -921,7 +956,11 @@ async function openPortal(activeSession,bootstrap=null){
   $('team-nav-divider').hidden=!APP.identity.isLeader;$('nav-equipo').hidden=!APP.identity.isLeader;
   $('nav-gestion').hidden=!APP.access.acceso_panel; $('admin-nav-divider').hidden=!APP.access.acceso_panel;
   window.KJAMarketingPortal?.init();
-  window.KJAChat?.init(session?.user?.id);
+  const chatUserId=session?.user?.id;
+  if(window.KJAChat)void window.KJAChat.init(chatUserId);
+  else window.addEventListener('kja-chat-ready',()=>{
+    if(APP.sessionUid===chatUserId)void window.KJAChat?.init(chatUserId);
+  },{once:true});
   $('mobile-action-team').hidden=!APP.identity.isLeader;
   $('mobile-action-admin').hidden=!APP.access.acceso_panel;
   syncMobileQuickGrid();
@@ -1313,7 +1352,7 @@ function renderRailSchedule(d){
 async function loadHistory(){
   const {data,error}=await db.rpc('dash_historial',{p_anio:APP.year,p_mes:APP.month});
   if(error||!data?.ok){ toast('No se pudo cargar el historial.',true); return; }
-  APP.historial=data; renderHistory(); renderProgress();
+  APP.historial=data; renderHistory(); renderProgress(); renderProfile();
 }
 
 function renderProgress(){
@@ -1394,7 +1433,7 @@ function renderAttendanceDesktopTeam(){
   if(!panel||!list)return;
   $('attendance-desktop-team-title').textContent=`Equipo ${attendanceTeamArea()}`;
   if(!attendanceTeammates.length){list.innerHTML='<p class="attendance-mobile-team-empty">No hay integrantes disponibles.</p>';return}
-  if(!attendanceTeammates.some(person=>String(person.id)===attendanceDesktopSelectedTeammate))attendanceDesktopSelectedTeammate=String(attendanceTeammates[0].id);
+  if(!attendanceTeammates.some(person=>String(person.id)===attendanceDesktopSelectedTeammate))attendanceDesktopSelectedTeammate=String(preferredAttendanceTeammate()?.id||'');
   list.innerHTML=attendanceTeammates.map(person=>{
     const selected=String(person.id)===attendanceDesktopSelectedTeammate,days=teammateWorkingDays(person);
     const week=selected?`<div class="attendance-desktop-team-week">${days.map(day=>{const schedule=teammateSchedule(person,day);return `<span><b>${esc(attendanceWeekdays[day].slice(0,2))}</b>${esc(fmtTime(schedule.start))}<br>${esc(fmtTime(schedule.end))}</span>`}).join('')}</div>`:'';
@@ -1461,6 +1500,10 @@ const attendanceWeekdays=['','Lunes','Martes','Miércoles','Jueves','Viernes','S
 function attendanceTeamArea(){
   const value=String(APP.inicio?.colaborador?.area||'Ingeniería').trim();
   return value?value.charAt(0).toLocaleUpperCase('es-PE')+value.slice(1).toLocaleLowerCase('es-PE'):'Ingeniería';
+}
+function preferredAttendanceTeammate(){
+  const ownId=String(APP.inicio?.colaborador?.id||'');
+  return attendanceTeammates.find(person=>String(person.id)===ownId)||attendanceTeammates[0]||null;
 }
 function attendancePreviewAvatar(index,label){
   const palettes=[['#c4d9f0','#446d9e'],['#f2d4bd','#a65f4d'],['#cce6dc','#397d67'],['#ded2f0','#76579b'],['#f0dfb8','#9a783b'],['#cbdce6','#456b80']],colors=palettes[index%palettes.length];
@@ -1942,15 +1985,32 @@ async function submitPersonalRequest(event){
   PERSONAL_REQUEST.busy=false;button.disabled=false;button.textContent='Enviar a Dirección';
 }
 
+const PROFILE_COVERS=['cielo','jardin','noche'];
+function profileCoverKey(){ return `kja.profile-cover.${APP.inicio?.colaborador?.id||'default'}`; }
+function syncProfileCover(){
+  const identity=document.querySelector('#view-perfil .profile-identity');if(!identity)return;
+  let cover='cielo';
+  try{const saved=localStorage.getItem(profileCoverKey());if(PROFILE_COVERS.includes(saved))cover=saved}catch{}
+  identity.dataset.cover=cover;
+  document.querySelectorAll('[data-profile-cover]').forEach(button=>{
+    const selected=button.dataset.profileCover===cover;
+    button.classList.toggle('is-selected',selected);button.setAttribute('aria-pressed',String(selected));
+  });
+}
+function setProfileCover(cover){
+  if(!PROFILE_COVERS.includes(cover))return;
+  try{localStorage.setItem(profileCoverKey(),cover)}catch{}
+  syncProfileCover();
+  const picker=document.querySelector('.profile-theme-picker');if(picker)picker.open=false;
+}
 function renderProfile(){
   const c=APP.inicio.colaborador;if(!c)return; $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
   $('profile-link').textContent=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
   const dates=v=>v?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(v+'T12:00:00')):'—';
-  const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?c.contrato_horas+' h':'—'],['Horas previas',Number(c.horas_previas||0)+' h']];
+  const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?`${c.contrato_horas} h`:'—'],['Horas previas',`${Number(c.horas_previas||0)} h`]];
   const fieldMarkup=items=>items.map(x=>`<div class="profile-field"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
-  $('profile-fields').innerHTML=window.matchMedia('(max-width: 900px)').matches
-    ? `<section class="profile-work-summary" aria-labelledby="profile-work-title"><h3 id="profile-work-title">Mi jornada</h3>${fieldMarkup([fields[2],fields[3]])}</section><details class="profile-work-details"><summary>Datos laborales<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div class="profile-work-fields">${fieldMarkup([fields[0],fields[1],...fields.slice(4)])}</div></details>`
-    : fieldMarkup(fields);
+  $('profile-fields').innerHTML=fieldMarkup(fields);
+  syncProfileCover();
 }
 
 async function loadTeam(){
@@ -2708,10 +2768,20 @@ document.querySelectorAll('[data-mobile-action]').forEach(button=>button.onclick
 $('mobile-home-logout').onclick=()=>logout();
 $('mobile-profile-link').onclick=()=>goView('perfil');
 $('profile-logout').onclick=()=>logout();
-$('profile-photo-camera').onclick=()=>$('profile-photo-input').click();
-$('profile-photo-change').onclick=()=>$('profile-photo-input').click();
+$('profile-mobile-logout').onclick=()=>logout();
+$('profile-photo-camera').onclick=openProfilePhotoDialog;
+$('profile-photo-dialog-close').onclick=()=>closeProfilePhotoDialog();
+$('profile-photo-dialog').addEventListener('close',()=>{
+  const {trigger,restoreFocus}=PROFILE_PHOTO_DIALOG_STATE;
+  PROFILE_PHOTO_DIALOG_STATE.trigger=null;PROFILE_PHOTO_DIALOG_STATE.restoreFocus=true;
+  if(restoreFocus&&trigger?.isConnected)setTimeout(()=>trigger.focus({preventScroll:true}),0);
+});
+$('profile-photo-dialog').addEventListener('cancel',event=>{if(APP.avatar.busy)event.preventDefault()});
+$('profile-photo-dialog').addEventListener('click',event=>{if(event.target===event.currentTarget)closeProfilePhotoDialog()});
+$('profile-photo-change').onclick=()=>{closeProfilePhotoDialog({restoreFocus:false});$('profile-photo-input').click()};
 $('profile-photo-remove').onclick=removeProfilePhoto;
 $('profile-photo-input').onchange=event=>chooseProfilePhoto(event.target.files?.[0]);
+document.querySelectorAll('[data-profile-cover]').forEach(button=>button.onclick=()=>setProfileCover(button.dataset.profileCover));
 $('team-list').onclick=e=>{
   const evidence=e.target.closest('[data-team-review]');
   if(evidence){openAdminReviewPerson(evidence.dataset.teamReview,evidence);return}
@@ -2808,7 +2878,7 @@ else attendanceMobileQuery.addListener?.(syncAttendanceMobileMode);
 syncAttendanceMobileMode();
 $('attendance-desktop-calendar-toggle').onclick=async()=>{
   attendanceDesktopTeamMode=!attendanceDesktopTeamMode;
-  if(attendanceDesktopTeamMode){await loadAttendanceTeammates();if(!attendanceDesktopSelectedTeammate&&attendanceTeammates[0])attendanceDesktopSelectedTeammate=String(attendanceTeammates[0].id);renderAttendanceDesktopTeam()}
+  if(attendanceDesktopTeamMode){await loadAttendanceTeammates();if(!attendanceTeammates.some(person=>String(person.id)===attendanceDesktopSelectedTeammate))attendanceDesktopSelectedTeammate=String(preferredAttendanceTeammate()?.id||'');renderAttendanceDesktopTeam()}
   syncAttendanceDesktopMode();
 };
 $('attendance-desktop-team-list').onclick=event=>{

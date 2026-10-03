@@ -100,11 +100,28 @@ Deno.serve(async (req) => {
     let sesion = await sbAuth.auth.signInWithPassword({ email: correo, password });
 
     if (sesion.error) {
+      const [{ data: colaborador, error: eColaborador }, { data: registro, error: eRegistro }] = await Promise.all([
+        sb.from("asis_colaboradores")
+          .select("foto_path, horas_previas")
+          .eq("id", id)
+          .maybeSingle(),
+        sb.from("asis_registros")
+          .select("colaborador_id")
+          .eq("colaborador_id", id)
+          .limit(1)
+          .maybeSingle(),
+      ]);
+      if (eColaborador || eRegistro) return json({ ok: false, motivo: "servidor" }, 500);
+      const tieneActividadPrevia = !!colaborador?.foto_path || !!registro || Number(colaborador?.horas_previas || 0) > 0;
       const { error: eNuevo } = await sb.auth.admin.createUser({
         email: correo,
         password,
         email_confirm: true,
-        user_metadata: { colaborador_id: id, origen: "dashboard" },
+        user_metadata: {
+          colaborador_id: id,
+          origen: "dashboard",
+          kja_dashboard_guided_tour_pending: !tieneActividadPrevia,
+        },
       });
       if (eNuevo && !String(eNuevo.message || "").toLowerCase().includes("already")) {
         return json({ ok: false, motivo: "no_se_pudo_crear_cuenta" }, 500);

@@ -10825,21 +10825,21 @@ body.admin-entry-open{overflow:hidden}
     grid-column:3;
     grid-row:1;
     grid-template-columns:minmax(0,1fr);
-    grid-template-rows:auto auto minmax(150px,1fr) auto;
+    grid-template-rows:max-content max-content minmax(220px,1fr);
     align-content:stretch;
     gap:12px;
     min-height:0;
-    padding:18px 14px;
+    padding:18px 14px 100px;
     overflow-y:auto;
+    scroll-padding-bottom:100px;
+    overscroll-behavior:contain;
   }
   .portal:not(.admin-wide)>.portal-rail>:is(.rail-calendar,.rail-schedule){display:none}
   .portal:not(.admin-wide)>.portal-rail>.rail-profile{grid-row:1}
   .portal:not(.admin-wide)>.portal-rail>.rail-pausa-activa{grid-row:2}
   .portal:not(.admin-wide)>.portal-rail>.rail-announcement{grid-row:3}
-  .portal:not(.admin-wide)>.portal-rail>.rail-insight{grid-row:4}
   .portal:not(.admin-wide)>.portal-rail>:is(.rail-pausa-activa,.rail-announcement){
     min-width:0;
-    min-height:0;
     margin:0;
   }
   .portal:not(.admin-wide)>.portal-rail .rail-profile .rail-avatar{
@@ -10849,11 +10849,11 @@ body.admin-entry-open{overflow:hidden}
   }
   .portal:not(.admin-wide)>.portal-rail .rail-profile h2{font-size:13px}
   .portal:not(.admin-wide)>.portal-rail .rail-pausa-activa{display:flex;flex-direction:column;gap:8px}
-  .portal:not(.admin-wide)>.portal-rail .rail-pausa-card{flex:1;min-height:116px;padding:10px 12px 9px}
+  .portal:not(.admin-wide)>.portal-rail .rail-pausa-card{flex:0 0 auto;min-height:160px;padding:10px 12px 9px}
   .portal:not(.admin-wide)>.portal-rail .rail-pausa-info b{font-size:clamp(17px,1.7vw,21px)}
   .portal:not(.admin-wide)>.portal-rail .rail-pausa-figure{width:48px;height:52px}
   .portal:not(.admin-wide)>.portal-rail .rail-pausa-footer{margin-top:6px;padding-top:6px}
-  .portal:not(.admin-wide)>.portal-rail .rail-announcement{display:flex;flex-direction:column;overflow:hidden}
+  .portal:not(.admin-wide)>.portal-rail .rail-announcement{display:flex;flex-direction:column;min-height:220px;overflow:hidden}
   .portal:not(.admin-wide)>.portal-rail .rail-announcement-carousel{display:flex;flex:1;min-height:0;flex-direction:column}
   .portal:not(.admin-wide)>.portal-rail .rail-announcement-media{flex:1;min-height:0;padding:6px}
   .portal:not(.admin-wide)>.portal-rail .rail-announcement-media>img{

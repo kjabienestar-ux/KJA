@@ -28,14 +28,14 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=37">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=54">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcements.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=3">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-jornada.css?v=14">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-profile-mobile.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-profile-mobile.css?v=18">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-guided-tour.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
@@ -738,7 +738,7 @@
           <section class="attendance-selected-day" id="attendance-selected-day" aria-labelledby="attendance-selected-title" tabindex="-1">
             <button class="attendance-mobile-modal-close" type="button" data-close-attendance-mobile aria-label="Cerrar resumen">×</button>
             <h2 id="attendance-selected-title">Detalle del día</h2>
-            <div id="attendance-selected-content" aria-live="polite"><p>Selecciona un día del calendario para consultar sus detalles.</p></div>
+            <div id="attendance-selected-content" aria-live="polite"><p>Selecciona un día del calendario para consultar los detalles de tu jornada.</p></div>
           </section>
         <section class="attendance-request-center attendance-requests-disclosure" aria-labelledby="request-center-title">
           <button class="attendance-mobile-modal-close" type="button" data-close-attendance-mobile aria-label="Cerrar solicitudes">×</button>
@@ -751,7 +751,7 @@
           <section class="personal-request-history"><div><b>Solicitudes recientes</b><button id="personal-requests-refresh" type="button">Actualizar</button></div><div id="personal-request-list"><p class="request-empty">Todavía no has enviado solicitudes.</p></div></section>
         </section>
           <section class="attendance-desktop-team-panel" id="attendance-desktop-team-panel" aria-labelledby="attendance-desktop-team-title">
-            <header><h2 id="attendance-desktop-team-title">Equipo Ingeniería</h2><p>Selecciona un integrante para ver su semana en el calendario.</p></header>
+            <header><h2 id="attendance-desktop-team-title">Equipo Ingeniería</h2><p>Selecciona un día para ver quiénes trabajan en tu área.</p></header>
             <div id="attendance-desktop-team-list"></div>
           </section>
           <section class="attendance-mobile-team-day" id="attendance-mobile-team-day" aria-labelledby="attendance-mobile-team-day-title">
@@ -765,35 +765,42 @@
     </section>
 
     <section class="view" id="view-perfil" hidden>
-      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p>Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
+      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p>Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.</p></div><div class="profile-header-actions"><details class="profile-theme-picker"><summary aria-label="Personalizar portada vertical"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M5 5h14v14H5zM8 9h8M8 13h5"/></svg><span>Personalizar portada</span></summary><div class="profile-theme-options" role="group" aria-label="Estilos de portada vertical"><button type="button" data-profile-cover="cielo">Cielo</button><button type="button" data-profile-cover="jardin">Jardín</button><button type="button" data-profile-cover="noche">Noche</button></div></details></div></header>
+      <div class="profile-mobile-controls"><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button><button class="profile-mobile-logout" id="profile-mobile-logout" type="button" aria-label="Cerrar sesión" title="Cerrar sesión"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5"/><path d="m14 8 4 4-4 4M18 12H9"/></svg></button></div>
       <div class="profile-layout">
         <article class="profile-identity">
           <div class="profile-photo-wrap">
             <span class="profile-avatar" id="profile-avatar">KJ</span>
-            <button class="profile-photo-camera" id="profile-photo-camera" type="button" aria-label="Cambiar foto de perfil" title="Cambiar foto">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            <button class="profile-photo-camera" id="profile-photo-camera" type="button" aria-label="Editar foto de perfil" title="Editar foto">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="m16.5 3.5 4 4L8 20l-5 1 1-5z"/></svg>
             </button>
           </div>
           <h2 id="profile-name">—</h2><p id="profile-area">—</p><span class="profile-badge" id="profile-link">—</span>
-          <div class="profile-photo-actions">
-            <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-            <button class="profile-photo-change" id="profile-photo-change" type="button">Subir foto</button>
-            <button class="profile-photo-remove" id="profile-photo-remove" type="button" hidden>Quitar</button>
-          </div>
-          <small class="profile-photo-hint">JPG, PNG o WebP · máximo 3 MB</small>
-          <p class="profile-photo-message" id="profile-photo-message" role="status" aria-live="polite"></p>
+          <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
         </article>
         <article class="profile-data">
           <div id="profile-fields"></div>
+          <div class="profile-utilities">
           <div class="profile-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span><b>¿Hay algo que corregir?</b>Comunícalo a Dirección para mantener tu información laboral al día.</span><a href="https://wa.me/51988918238" target="_blank" rel="noopener">Informar un cambio</a></div>
           <div class="profile-session">
-            <span class="profile-session-copy">
+            <span class="profile-session-copy profile-session-copy-mobile">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>
               <span><b>Sesión de la cuenta</b><small>Sal de forma segura al terminar de usar tu portal.</small></span>
             </span>
+            <span class="profile-session-copy profile-session-copy-support">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg>
+              <span><b>¿Necesitas apoyo?</b><small>El área de Ingeniería de KJA te ayudará a administrar tu información.</small></span>
+            </span>
             <button id="profile-logout" type="button">Cerrar sesión</button>
+            <a class="profile-engineering-contact" href="https://wa.me/51922996170" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg>
+              <span>Contactar a Ingeniería</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+          </div>
           </div>
         </article>
+        <section class="profile-context" id="profile-context" aria-label="Bienestar y comunicados"></section>
       </div>
     </section>
 
@@ -2071,6 +2078,23 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog class="profile-photo-dialog" id="profile-photo-dialog" aria-labelledby="profile-photo-dialog-title" aria-describedby="profile-photo-dialog-copy">
+  <header class="profile-photo-dialog-head">
+    <span><small>FOTO DE PERFIL</small><h2 id="profile-photo-dialog-title">Editar foto</h2></span>
+    <button type="button" id="profile-photo-dialog-close" aria-label="Cerrar opciones de foto">&times;</button>
+  </header>
+  <p class="profile-photo-dialog-copy" id="profile-photo-dialog-copy">Elige una foto nueva o quita la actual de tu perfil.</p>
+  <section class="profile-photo-upload-panel" aria-label="Seleccionar una foto de perfil">
+    <span class="profile-photo-dialog-avatar" id="profile-photo-dialog-avatar" aria-hidden="true">KJ</span>
+    <span class="profile-photo-upload-copy"><b>Selecciona una foto</b><small>JPG, PNG o WebP · máximo 3 MB</small></span>
+    <button class="profile-photo-change" id="profile-photo-change" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M5 15v4h14v-4"/></svg>Elegir foto</button>
+  </section>
+  <div class="profile-photo-actions">
+    <button class="profile-photo-remove" id="profile-photo-remove" type="button" hidden>Quitar foto</button>
+  </div>
+  <small class="profile-photo-hint">JPG, PNG o WebP · máximo 3 MB</small>
+  <p class="profile-photo-message" id="profile-photo-message" role="status" aria-live="polite"></p>
+</dialog>
 <div class="modal avatar-crop-modal" id="avatar-crop-modal" hidden>
   <div class="modal-backdrop" id="cropper-close-bg"></div>
   <div class="mark-sheet avatar-crop-sheet">
@@ -2099,7 +2123,7 @@
 <script src="assets/js/dashboard-month-progress.js?v=4"></script>
 <script src="assets/js/attendance-calendar-model.js?v=3"></script>
 <script src="assets/js/dashboard-person-calendar.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=225"></script>
+<script src="assets/js/dashboard.js?v=235"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=12"></script>
@@ -2116,7 +2140,7 @@
 <script src="assets/js/marketing-model.js?v=3"></script>
 <script src="assets/js/dashboard-marketing.js?v=6"></script>
 <script src="assets/js/chat-images.js?v=3"></script>
-<script src="assets/js/dashboard-chat.js?v=11"></script>
+<script src="assets/js/dashboard-chat.js?v=12"></script>
 <script src="assets/js/dashboard-mobile.js?v=3"></script>
 <script src="assets/js/ranking-model.js?v=6"></script>
 <script src="assets/js/dashboard-ranking.js?v=14"></script>
@@ -2127,6 +2151,6 @@
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=6"></script>
 <script src="assets/js/dashboard-pausa-activa.js?v=14"></script>
-<script src="assets/js/dashboard-guided-tour.js?v=6"></script>
+<script src="assets/js/dashboard-guided-tour.js?v=8"></script>
 </body>
 </html>
