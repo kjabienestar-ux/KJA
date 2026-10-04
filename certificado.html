@@ -34,7 +34,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="certificados/cert-render.js?v=11"></script>
 
-<link rel="stylesheet" href="assets/css/paginas/certificado.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/certificado.css?v=6">
 <!-- Sin JS, el splash de carga no debe tapar la página -->
 <noscript>
     <style>
@@ -111,17 +111,11 @@
   <div class="hero-inner">
     <!-- Columna izquierda: texto -->
     <div class="hero-text">
-      <div class="pill">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Verificación oficial KJA
-      </div>
       <h1>Consulta y valida tus <span class="hero-accent">certificados</span> oficiales.</h1>
       <p>Descarga los certificados que KJA emitió a tu nombre. Cada uno lleva un <strong>código QR único</strong> que garantiza su autenticidad.</p>
 
       <div class="hero-actions">
         <a href="#search-card" class="hero-btn-solid">Buscar mi certificado</a>
-        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20tengo%20una%20consulta%20sobre%20mi%20certificado"
-          target="_blank" class="hero-btn-outline">Escríbenos</a>
       </div>
     </div>
 
@@ -147,18 +141,6 @@
         </div>
       </div>
 
-      <!-- Tarjeta de egresados -->
-      <div class="hero-experts-card">
-        <span class="hx-label">Egresados</span>
-        <!-- PENDIENTE-CLIENTA: fotos de stock (Unsplash) como "egresados" — reemplazar por fotos reales. Decisión de la directora. -->
-        <div class="hx-avatars">
-          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=70&auto=format" alt="" width="80" height="80" loading="lazy">
-          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&q=70&auto=format" alt="" width="80" height="80" loading="lazy">
-          <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&q=70&auto=format" alt="" width="80" height="80" loading="lazy">
-          <span class="hx-more">500+</span>
-        </div>
-      </div>
-
       <!-- Puntos decorativos -->
       <span class="hero-mini-dot hero-mini-dot--a"></span>
       <span class="hero-mini-dot hero-mini-dot--b"></span>
@@ -181,33 +163,28 @@
     <!-- Columna izquierda: modelos de los documentos emitidos -->
     <div class="cs-collage" aria-hidden="true">
       <div class="cs-img cs-img--1">
-        <img width="2000" height="1414" src="images/certificados/certificado_curso.jpg?v=1" alt="" loading="lazy">
+        <img width="2000" height="1414" src="images/certificados/certificado_curso.jpg?v=2" alt="" loading="lazy">
       </div>
       <div class="cs-img cs-img--2">
-        <img width="2000" height="1414" src="images/certificados/certificado-2.webp" alt="" loading="lazy">
+        <img width="2000" height="1414" src="images/certificados/certificado-2.jpg?v=2" alt="" loading="lazy">
       </div>
       <div class="cs-img cs-img--3">
-        <img width="2000" height="1414" src="images/certificados/certificado-3.webp" alt="" loading="lazy">
+        <img width="2000" height="1414" src="images/certificados/certificado-3.jpg?v=2" alt="" loading="lazy">
       </div>
     </div>
 
     <!-- Columna derecha: buscador + pasos -->
     <div class="cs-right" id="search-card">
-      <span class="cs-eyebrow">Certificados oficiales</span>
       <h2>Busca tu certificado y <span class="cs-accent">descárgalo</span> en segundos</h2>
       <p class="lead">Verifica y descarga tu certificado desde nuestro <b>registro oficial</b> en línea.</p>
 
       <div class="verify-console">
         <div class="vc-head">
-          <svg class="vc-watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-          <span class="vc-seal" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-          </span>
-          <span class="vc-headtext">
-            <span class="vc-title">Verificación de Certificados</span>
-            <span class="vc-sub">Registro digital oficial · KJA</span>
-          </span>
-          <span class="vc-live"><i aria-hidden="true"></i>En línea</span>
+          <span class="vc-seal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+          <div class="vc-heading">
+          <h3 class="vc-title">Verificación de certificados</h3>
+          <p class="vc-sub">Registro digital oficial · KJA</p>
+          </div>
         </div>
 
         <div class="vc-body">
