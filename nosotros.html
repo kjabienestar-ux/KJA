@@ -33,7 +33,7 @@
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="assets/css/shared.css?v=12">
-    <link rel="stylesheet" href="assets/css/paginas/nosotros.css?v=27">
+    <link rel="stylesheet" href="assets/css/paginas/nosotros.css?v=28">
     <link rel="stylesheet" href="assets/css/accessibility.css?v=2">
     <link rel="stylesheet" href="assets/css/whatsapp-assistant.css?v=6">
     <!-- Sin JS, el splash de carga no debe tapar la página -->
@@ -156,44 +156,10 @@
                     </a>
                 </div>
 
-                <!-- Tres pilares -->
-                <div class="nos-hero-features">
-                    <div class="nos-feature">
-                        <svg class="nos-feature-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path
-                                d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z" />
-                        </svg>
-                        <div class="nos-feature-text">
-                            <strong>Enfoque Humano</strong>
-                            <span>Escuchamos, comprendemos y acompañamos.</span>
-                        </div>
-                    </div>
-                    <div class="nos-feature">
-                        <svg class="nos-feature-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
-                            <path d="m9 12 2 2 4-4" />
-                        </svg>
-                        <div class="nos-feature-text">
-                            <strong>Basados en Ciencia</strong>
-                            <span>Intervenciones psicológicas con respaldo científico.</span>
-                        </div>
-                    </div>
-                    <div class="nos-feature">
-                        <svg class="nos-feature-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <circle cx="12" cy="12" r="9" />
-                            <circle cx="12" cy="12" r="5" />
-                            <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
-                        </svg>
-                        <div class="nos-feature-text">
-                            <strong>Compromiso Real</strong>
-                            <span>Trabajamos por tu bienestar y crecimiento personal.</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Columna derecha: collage / imagen de equipo flotante -->
-            <div class="nos-hero-visual" aria-hidden="true">
+            <div class="nos-hero-visual">
                 <div class="nos-collage-container">
                     <div class="nos-collage-main">
                         <img width="1926" height="817" src="images/nosotros/fondoo-1.webp"
@@ -246,7 +212,7 @@
             <!-- Pestañas de navegación rediseñadas en fondo claro -->
             <div class="nosotros-tabs-wrapper">
                 <div class="nosotros-tabs" aria-label="Secciones de nosotros" id="about-tabs">
-                    <button class="nosotros-tab active" type="button" onclick="switchAboutTab(this, 'quienes')">
+                    <button class="nosotros-tab active" type="button" aria-controls="about-quienes" aria-pressed="true" onclick="switchAboutTab(this, 'quienes')">
                         <div class="nosotros-tab-icon" style="color: #f10075; background: #fff0f5;">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M16 21v-2a4 4 0 0 0-8 0v2" />
@@ -259,7 +225,7 @@
                         </div>
                         ¿Quiénes somos?
                     </button>
-                    <button class="nosotros-tab" type="button" onclick="switchAboutTab(this, 'directores')">
+                    <button class="nosotros-tab" type="button" aria-controls="about-directores" aria-pressed="false" onclick="switchAboutTab(this, 'directores')">
                         <div class="nosotros-tab-icon" style="color: #3b82f6; background: #eff6ff;">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M7 20v-2a4 4 0 0 1 8 0v2" />
@@ -272,7 +238,7 @@
                         </div>
                         Directores
                     </button>
-                    <button class="nosotros-tab" type="button" onclick="switchAboutTab(this, 'mision')"
+                    <button class="nosotros-tab" type="button" aria-controls="about-mision" aria-pressed="false" onclick="switchAboutTab(this, 'mision')"
                         style="display: none;">
                         <div class="nosotros-tab-icon" style="color: #8b5cf6; background: #f5f3ff;">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -286,7 +252,7 @@
                         </div>
                         Misión y Visión
                     </button>
-                    <button class="nosotros-tab" type="button" onclick="switchAboutTab(this, 'servicios')">
+                    <button class="nosotros-tab" type="button" aria-controls="about-servicios" aria-pressed="false" onclick="switchAboutTab(this, 'servicios')">
                         <div class="nosotros-tab-icon" style="color: #10b981; background: #ecfdf5;">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M16 21v-2a4 4 0 0 0-8 0v2" />
@@ -299,6 +265,12 @@
                         </div>
                         Servicios y Comunidad
                     </button>
+                    <a class="nosotros-tab" href="index.html#testimonios">
+                        <span class="nosotros-tab-icon" style="color: #8334d8; background: #f6efff;">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 7H5v6h5v-3H5m5 3c0 3-2 4-4 4M20 7h-5v6h5v-3h-5m5 3c0 3-2 4-4 4" /></svg>
+                        </span>
+                        Testimonios
+                    </a>
                 </div>
             </div>
 
@@ -332,11 +304,11 @@
 
                         <div class="eyebrow">Fundado en 2020</div>
                         <h2>Desarrollando tu<br /><em>Bienestar</em></h2>
-                        <p>KJA Desarrollando mi Bienestar S.A.C. es un centro psicologico integral ubicado en San Luis,
-                            Lima, Peru. Nacimos el 13 de octubre de 2020 con la mision de brindar acompanamiento
-                            psicologico de calidad, basado en la ciencia, la empatia y el compromiso con cada persona.
+                        <p>KJA Desarrollando mi Bienestar S.A.C. es un centro psicológico integral ubicado en San Luis,
+                            Lima, Perú. Nacimos el 13 de octubre de 2020 con la misión de brindar acompañamiento
+                            psicológico de calidad, basado en la ciencia, la empatía y el compromiso con cada persona.
                         </p>
-                        <a href="#nosotros" class="cta">Conoce más sobre nosotros ➔</a>
+                        <a href="#nosotros" class="cta" onclick="switchAboutTab(document.querySelector('[aria-controls=about-mision]'), 'mision')">Conoce más sobre nosotros ➔</a>
                     </div>
 
                     <div class="image-panel">
@@ -914,9 +886,13 @@
         // 1) quita .active de todas las pestañas y paneles
         // 2) marca como activa la pestaña pulsada y su panel correspondiente
         function switchAboutTab(btn, panel) {
-            document.querySelectorAll('#about-tabs .nosotros-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#about-tabs button.nosotros-tab').forEach(t => {
+                t.classList.remove('active');
+                t.setAttribute('aria-pressed', 'false');
+            });
             document.querySelectorAll('.about-panel').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
             document.getElementById('about-' + panel).classList.add('active');
         }
     </script>
