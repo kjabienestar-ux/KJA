@@ -1,4 +1,38 @@
 /* Estados sólidos: la acción pendiente domina sobre el comprobante completado. */
+#portal #view-inicio #day-close-guide .day-off-illustration{display:none}
+#portal #view-inicio #day-close-guide[data-stage="day-off"]{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  padding:8px 12px 16px!important;margin:4px 0!important;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+}
+#portal #view-inicio #day-close-guide[data-stage="day-off"] .day-off-illustration{
+  display:block;width:clamp(220px,24vw,310px);max-width:100%;height:auto;
+  object-fit:contain;align-self:center;margin:-8px auto 0;flex-shrink:0;
+  /* Desvanece los cortes del archivo en los laterales sin recortar la escena. */
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent);
+  mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent);
+}
+#portal #view-inicio #day-close-guide[data-stage="day-off"] #day-close-guide-title{
+  font-family:Fraunces,Georgia,serif;font-size:24px!important;line-height:1.2;
+  font-weight:500;letter-spacing:-.02em;margin:0 0 8px;
+}
+#portal #view-inicio #day-close-guide[data-stage="day-off"] #day-close-guide-copy{
+  max-width:34ch;margin:0 auto!important;line-height:1.6;
+}
+/* Prevalece sobre las reglas !important de dashboard-user-glass.css. */
+#portal #view-inicio #day-close.is-facebook-only .day-close-journey{display:none!important}
+#portal #view-inicio #day-close #day-close-button[hidden],
+#portal #view-inicio #mobile-close-panel #mobile-close-action[hidden]{display:none!important}
+#today-attendance-card.is-day-off .day-action,
+#mobile-action-mark.is-day-off,
+#mobile-primary-attendance.is-day-off{display:none!important}
+#today-attendance-card.is-day-off .day-card-grid{display:contents!important}
+#today-attendance-card.is-day-off .day-schedule{display:flex!important}
+#today-attendance-card.is-day-off .day-section-heading small,
+#today-attendance-card.is-day-off .clock-digits,
+#today-attendance-card.is-day-off .day-timeline,
+#today-attendance-card.is-day-off .day-context,
+#today-attendance-card.is-day-off .today-mode-switch{display:none!important}
 /* Checklist compacto: el énfasis pertenece a lo pendiente. */
 #today-attendance-card.has-daily-close{border-radius:18px;overflow:hidden}
 #day-close{background:#fff;border-radius:18px!important;isolation:isolate}

@@ -25,7 +25,15 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-const fmtTime = s => s ? String(s).slice(0,5) : '—';
+const fmtTime = s => {
+  if(!s)return '—';
+  const value=String(s);
+  if(/^\d{4}-\d{2}-\d{2}[T ]/.test(value)){
+    const date=new Date(value);
+    return Number.isNaN(date.getTime())?'—':new Intl.DateTimeFormat('es-PE',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:'America/Lima'}).format(date);
+  }
+  return value.slice(0,5);
+};
 // Solo devuelve letras o números: estas iniciales también se insertan en
 // plantillas HTML y no deben poder convertirse en marcado desde un nombre.
 const initials = n => String(n||'KJ').trim().split(/\s+/).slice(0,2)
@@ -1043,6 +1051,7 @@ function syncMarkedAttendanceAction(){
   nodes.forEach(node=>{
     node.classList.toggle('daily-close-pending',state==='pending');
     node.classList.toggle('daily-close-confirmed-hidden',state==='hidden');
+    node.classList.toggle('is-day-off',!!APP.cierre?.dia_libre_presencial);
   });
   if(typeof syncMobileEntryAction==='function')syncMobileEntryAction();
 }
@@ -1092,6 +1101,20 @@ function renderHome(){
   syncMobileEntryAction();
   $('mobile-today-detail').textContent=`${$('day-mode').textContent} · ${$('mark-help').textContent}`;
   paintTimeAmbience();
+  renderDayOffSchedule();
+}
+
+function renderDayOffSchedule(){
+  const dayOff=!!APP.cierre?.dia_libre_presencial;
+  $('day-schedule-title').textContent=dayOff?'¡Felicidades! Hoy es tu día de descanso':'Tu jornada de hoy';
+  if(!dayOff)return;
+  if(_clockInterval){clearInterval(_clockInterval);_clockInterval=null;}
+  $('day-mode').textContent='Día de descanso';
+  $('today-mode-help').textContent='Tienes un día de descanso asignado.';
+  $('shift-clock').classList.add('ended');
+  $('clock-label').textContent='Disfruta tu día libre';
+  $('clock-caption').textContent='Hoy no necesitas registrar entrada ni salida.';
+  $('clock-finish-time').textContent='';
 }
 
 function syncMobileEntryAction(){
@@ -3147,6 +3170,11 @@ function dailyCloseStatusCopy(state){
 }
 
 function dailyCloseGuidePresentation(data){
+  if(data.dia_libre_presencial){
+    return {stage:'day-off',title:'Disfruta tu descanso',copy:(data.pendientes||0)>0
+      ?'Hoy solo tienes que subir tus comparticiones de Facebook dentro de su horario.'
+      :'No tienes más pendientes por hoy. ¡Disfruta tu día libre!'};
+  }
   if(data.solo_asistencia_comparticiones&&!data.solo_comparticiones){
     if(!data.entrada_at)return {stage:'entry',title:'Registra tu asistencia',copy:'Tu día requiere asistencia y las comparticiones programadas.'};
     if(data.estado==='completa')return {stage:'complete',title:'Día completo',copy:'Tu asistencia y las comparticiones del día están registradas.'};
@@ -3222,10 +3250,10 @@ function renderMobileDailyClose(data,items){
   const entryComplete=!!data.entrada_at,closed=CLOSE_MODEL.workClosed(data),pendingItems=items.filter(item=>!item.completo&&(data.solo_comparticiones||data.solo_asistencia_comparticiones||item.tipo!=='comparticiones'));
   panel.dataset.state=data.comparticiones_vencidas?'incomplete':closed?CLOSE_MODEL.stateTone(data.estado):entryComplete?(pendingItems.length?'pending':'ready'):'waiting';
   const facebookOnly=!!data.solo_comparticiones;
-  $('mobile-close-title').textContent=facebookOnly?'Compartición de hoy':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
-  $('mobile-close-copy').textContent=facebookOnly?'No tienes jornada laboral hoy, pero sí una tarea programada de Facebook.':entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
+  $('mobile-close-title').textContent=data.dia_libre_presencial?'¡Hoy es tu día libre!':facebookOnly?'Compartición de hoy':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
+  $('mobile-close-copy').textContent=data.dia_libre_presencial?'¡Felicidades por tu día libre! Hoy solo debes subir tus comparticiones de Facebook.':facebookOnly?'No tienes jornada laboral hoy, pero sí una tarea programada de Facebook.':entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
   const evidenceItems=items.filter(item=>item.tipo!=='entrada'),completedEvidence=evidenceItems.filter(item=>item.completo).length;
-  const mobileProgress=!entryComplete?0:evidenceItems.length?25+Math.round(completedEvidence/evidenceItems.length*75):100;
+  const mobileProgress=facebookOnly?(evidenceItems.length?Math.round(completedEvidence/evidenceItems.length*100):100):!entryComplete?0:evidenceItems.length?25+Math.round(completedEvidence/evidenceItems.length*75):100;
   const progressPill=$('mobile-close-count');
   const progressValue=Math.min(100,mobileProgress);
   progressPill.querySelector('.mcv2-progress-value').textContent=`${progressValue}%`;
@@ -3358,6 +3386,7 @@ function renderDailyClose(){
   card?.classList.add('has-daily-close');
   syncMarkedAttendanceAction();
   const locked=!entryComplete||closed||DAILY_EVIDENCE.busy;
+  renderDayOffSchedule();
   const entryItem={
     tipo:'entrada',titulo:entryComplete?'Entrada registrada':'Registrar asistencia',
     descripcion:entryComplete?`Marcada a las ${formatAttendanceClock(data.entrada_at)}`:'Registra primero tu asistencia de entrada',
@@ -3392,10 +3421,11 @@ function renderDailyClose(){
     }
   }
 
-  $('day-close-title').textContent=facebookOnly?'Compartición programada':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
+  $('day-close-title').textContent=data.dia_libre_presencial?'¡Hoy es tu día libre!':facebookOnly?'Compartición programada':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
   $('day-close-copy').textContent=facebookOnly?'Hoy no tienes jornada laboral; esta tarea sigue activa en su propio horario.':data.comparticiones_vencidas?'La jornada laboral cerró, pero la compartición obligatoria no se entregó dentro de su horario.':data.salida_at&&data.comparticiones_pendientes?'Tu jornada laboral ya cerró. Facebook continúa pendiente en su horario independiente.':entryComplete?'Completa tus evidencias laborales antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
   const state=$('day-close-state');
-  if(missingEvidence&&!closed&&entryComplete)$('day-close-copy').textContent=`Te ${missingEvidence===1?'falta 1 evidencia':`faltan ${missingEvidence} evidencias`}. Abre cada pendiente y sube lo solicitado antes de salir.`;
+  if(missingEvidence&&!closed&&entryComplete&&!facebookOnly)$('day-close-copy').textContent=`Te ${missingEvidence===1?'falta 1 evidencia':`faltan ${missingEvidence} evidencias`}. Abre cada pendiente y sube lo solicitado antes de salir.`;
+  if(data.dia_libre_presencial)$('day-close-copy').textContent='¡Felicidades por tu día libre! Hoy solo debes subir tus comparticiones de Facebook.';
   state.dataset.state=facebookOnly?(data.comparticiones_vencidas?'incomplete':data.pendientes?'waiting':'complete'):entryComplete?CLOSE_MODEL.stateTone(data.estado):'waiting';
   state.innerHTML=`<i></i>${esc(facebookOnly?(data.comparticiones_vencidas?'Compartición incompleta':data.pendientes?'Facebook pendiente':'Compartición completa'):entryComplete?dailyCloseStatusCopy(data.estado):'Entrada pendiente')}`;
   const guide=dailyCloseGuidePresentation(data),guideElement=$('day-close-guide');
@@ -3406,7 +3436,7 @@ function renderDailyClose(){
     $('day-close-time-label').textContent='HORARIO DE FACEBOOK';
     $('day-close-time').textContent=`${fmtTime(data.compartir_desde)}–${fmtTime(data.compartir_hasta)}`;
     $('day-close-window').textContent=data.puede_compartir?'Tu franja está abierta ahora':'Se habilitará en la franja indicada';
-    button.hidden=true;
+    button.hidden=true;button.disabled=true;button.dataset.action='';
     dailyCloseMessage(data.comparticiones_vencidas?'El horario de Facebook terminó sin registrar las capturas.':data.pendientes?(data.puede_compartir?'Abre la tarea azul y adjunta tus evidencias.':'Esta tarea no exige entrada ni salida; espera a que abra su horario.'):'Compartición enviada correctamente.',data.comparticiones_vencidas?'is-error':'is-success');
     return;
   }
@@ -3816,6 +3846,7 @@ function dailyExitMessage(text,type=''){
 }
 
 function openDailyExitModal(){
+  if(APP.cierre?.dia_libre_presencial||APP.cierre?.solo_comparticiones||APP.cierre?.requiere_salida===false)return;
   if(CLOSE_MODEL.hasPendingWork(APP.cierre)){toast(`Completa ${dailyPendingWorkLabel(APP.cierre)} antes de salir.`);return;}
   if(!APP.cierre?.puede_marcar_salida||DAILY_EXIT_BUSY)return;
   $('daily-exit-time').textContent=fmtTime(APP.cierre.hora_salida_programada);
@@ -3831,6 +3862,7 @@ function closeDailyExitModal(){
 }
 
 async function markDailyExit(){
+  if(APP.cierre?.dia_libre_presencial||APP.cierre?.solo_comparticiones||APP.cierre?.requiere_salida===false)return;
   if(CLOSE_MODEL.hasPendingWork(APP.cierre)){dailyExitMessage(`Completa ${dailyPendingWorkLabel(APP.cierre)} antes de salir.`,'is-error');return;}
   if(!APP.cierre?.puede_marcar_salida||DAILY_EXIT_BUSY)return;
   DAILY_EXIT_BUSY=true;
@@ -4049,7 +4081,10 @@ $('daily-evidence-editor').addEventListener('keydown',event=>{
 });
 $('daily-evidence-cancel').onclick=closeDailyEvidenceEditor;
 $('daily-evidence-cancel-top').onclick=closeDailyEvidenceEditor;
-$('day-close-button').onclick=()=>APP.cierre?.entrada_at?openDailyExitModal():handleMarkAction();
+$('day-close-button').onclick=()=>{
+  if(APP.cierre?.dia_libre_presencial||APP.cierre?.solo_comparticiones)return;
+  return APP.cierre?.entrada_at?openDailyExitModal():handleMarkAction();
+};
 $('day-close-retry').onclick=()=>void loadDailyClose({quiet:true});
 $('mobile-close-retry').onclick=()=>void loadDailyClose({quiet:true});
 $('daily-exit-confirm').onclick=markDailyExit;
