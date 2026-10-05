@@ -48,15 +48,12 @@
 #portal:not(.admin-wide) #day-close {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, .78) !important;
+  border: 1px solid var(--user-glass-edge) !important;
   border-radius: 22px !important;
-  background: linear-gradient(150deg, rgba(255,253,250,.88), rgba(248,245,238,.72) 50%, rgba(255,255,255,.6)) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.95),
-    inset 0 -1px 0 rgba(255,255,255,.3),
-    0 16px 44px rgba(88, 71, 53, .07) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(140%) !important;
-  backdrop-filter: blur(24px) saturate(140%) !important;
+  background: var(--user-glass) !important;
+  box-shadow: var(--user-glass-shadow) !important;
+  -webkit-backdrop-filter: var(--user-glass-blur) !important;
+  backdrop-filter: var(--user-glass-blur) !important;
   padding: 24px 26px !important;
   transition: box-shadow 300ms ease, transform 300ms ease;
 }
@@ -762,11 +759,11 @@
 
 /* Matching glass on the personal rail; keep calendar states and images crisp. */
 #portal:not(.admin-wide) .portal-rail {
-  background: linear-gradient(145deg, rgba(255,255,255,.66), rgba(255,255,255,.38) 48%, rgba(255,249,240,.52)) !important;
-  border-color: rgba(255,255,255,.78) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.4), 0 12px 32px rgba(88,71,53,.06) !important;
-  -webkit-backdrop-filter: var(--user-sidebar-blur) !important;
-  backdrop-filter: var(--user-sidebar-blur) !important;
+  background: var(--user-glass) !important;
+  border-color: var(--user-glass-edge) !important;
+  box-shadow: var(--user-glass-shadow) !important;
+  -webkit-backdrop-filter: var(--user-glass-blur) !important;
+  backdrop-filter: var(--user-glass-blur) !important;
 }
 #portal:not(.admin-wide) :is(.workspace,.portal-rail) {
   scrollbar-width: none;
