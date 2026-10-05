@@ -14,6 +14,7 @@
   }
 
   function attendancePresentation(mark,close){
+    if(close?.dia_libre_presencial)return {state:'no_aplica',label:'Día libre',complete:true,incomplete:false,hasEntry:!!close.entrada_at||!!mark};
     if(mark?.estado==='J'||close?.justificado===true||close?.estado==='justificado')return {state:'justificado',label:'Justificado',complete:true,incomplete:false,hasEntry:!!close?.entrada_at||!!mark};
     if(close&&close.aplica){
       const state=close.estado||'sin_entrada';
@@ -25,6 +26,7 @@
   }
 
   function incompleteReasons(mark,close){
+    if(close?.dia_libre_presencial)return [];
     if(!close||close.estado!=='incompleta'||mark?.estado==='J'||close.justificado===true)return [];
     const reasons=[];
     if(Object.hasOwn(close,'entrada_at')&&!close.entrada_at&&!mark)reasons.push('Registro de entrada');

@@ -1,4 +1,20 @@
 /* Navegación administrativa uniforme; libro mensual con controles compactos. */
+#admin-month-modal .month-day-off-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:24px}
+#admin-month-modal .month-day-off-form label{display:grid;gap:7px;font-size:13px;font-weight:600;color:#35475f}
+#admin-month-modal .month-day-off-form :is(input,select){width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #d7cec2;border-radius:10px;background:#fff;color:#35475f;font:inherit}
+#admin-month-modal .month-day-off-form :is(input,select):focus-visible{outline:2px solid #075abc;outline-offset:2px}
+#admin-month-modal .month-day-off-form :is(.day-off-reason,p){grid-column:1/-1}
+#admin-month-modal .month-day-off-form p{margin:0;font-size:13px;line-height:1.5;color:#526279}
+#admin-month-modal .month-day-off-form button{min-height:44px;justify-self:start}
+#admin-month-days-off{white-space:nowrap}
+#portal #admin-month-days-off{min-height:36px;padding:6px 10px;font-size:11px}
+@media(min-width:901px) and (max-width:1200px){
+  #portal.admin-wide #admin-month-section .admin-month-workbench-controls{grid-template-columns:minmax(0,1fr)}
+  #portal.admin-wide #admin-month-section .admin-month-period-actions{flex-wrap:wrap}
+}
+#portal #admin-month-section .admin-month-cell.day-off{background:#e7f3ee;color:#17664d}
+#admin-month-modal .month-holiday-list :is(b,small,button){font-size:13px;line-height:1.5}
+@media(max-width:600px){#admin-month-modal .month-day-off-form{grid-template-columns:minmax(0,1fr)}}
 @media(min-width:901px){
   #portal.admin-wide #view-gestion{grid-template-rows:44px minmax(0,1fr);row-gap:8px}
   #portal.admin-wide #view-gestion>.admin-section-nav{grid-row:1;display:flex;flex-wrap:nowrap;align-items:center;gap:2px;min-height:44px;height:44px;box-sizing:border-box;margin:0;padding:5px 8px;border-radius:14px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}

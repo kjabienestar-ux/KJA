@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=7">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
-<link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=54">
@@ -46,7 +46,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-team-mobile.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-login.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-calendar.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-month-layout.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-month-layout.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=3">
 </head>
@@ -567,6 +567,7 @@
               <div class="day-close-checklist" id="day-close-checklist" aria-live="polite"></div>
 
               <div class="day-close-guide" id="day-close-guide" data-stage="evidence">
+                <img class="day-off-illustration" src="images/dashboard/dia-libre.webp" width="640" height="640" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 <div class="day-close-journey" aria-label="Progreso del cierre de jornada">
                   <span class="day-close-journey-step" data-journey-step="entry"><img class="journey-figure" src="images/dashboard/attendance-phone.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></i><b>Entrada</b></span>
                   <span class="day-close-journey-step" data-journey-step="evidence"><img class="journey-figure" src="images/dashboard/evidence-worker.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></i><b>Evidencias</b></span>
@@ -1010,6 +1011,7 @@
             </div>
               <button class="admin-month-today" type="button" id="admin-month-today">Ir al mes actual</button>
               <button class="admin-secondary-action admin-month-holidays" id="admin-month-holidays" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 10h16M8 14h2M14 14h2"/></svg><span>Gestionar feriados</span></button>
+              <button class="admin-secondary-action" id="admin-month-days-off" type="button">Días libres</button>
             </div>
             <div class="admin-month-filters">
               <label><span>Buscar</span><input type="search" id="admin-month-search" placeholder="Nombre del colaborador" autocomplete="off"></label>
@@ -1054,7 +1056,7 @@
         <div class="admin-list-message" id="admin-month-message" role="status" aria-live="polite"></div>
         <section id="admin-person-calendar" aria-label="Calendario del colaborador seleccionado" hidden></section>
         <div class="admin-month-ledger" id="admin-month-ledger"><p class="admin-empty">Ejecuta la migración de la fase 4 para cargar el mes.</p></div>
-        <div class="admin-month-legend"><span><i class="p">P</i>Presente</span><span><i class="t">T</i>Tardanza</span><span><i class="j">J</i>Justificado</span><span><i class="ng">NG</i>No gestiona</span><span><i class="off"></i>No laborable</span><span><i class="holiday"></i>Feriado</span><small>Selecciona una celda para consultar o gestionar el día.</small></div>
+        <div class="admin-month-legend"><span><i class="p">P</i>Presente</span><span><i class="t">T</i>Tardanza</span><span><i class="j">J</i>Justificado</span><span><i class="ng">NG</i>No gestiona</span><span><i class="p">DL</i>Día libre</span><span><i class="off"></i>No laborable</span><span><i class="holiday"></i>Feriado</span><small>Selecciona una celda para consultar o gestionar el día.</small></div>
         <a class="admin-legacy-link" href="asistencia.html?modo=grilla">Abrir Mes completo en el panel anterior ↗</a>
       </section>
 
@@ -2126,13 +2128,13 @@
 
 
 
-<script src="assets/js/dashboard-close-model.js?v=9"></script>
+<script src="assets/js/dashboard-close-model.js?v=10"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
 <script src="assets/js/dashboard-announcement-modal.js?v=5"></script>
 <script src="assets/js/dashboard-month-progress.js?v=4"></script>
 <script src="assets/js/attendance-calendar-model.js?v=3"></script>
 <script src="assets/js/dashboard-person-calendar.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=235"></script>
+<script src="assets/js/dashboard.js?v=238"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/dashboard-admin-equipo.js?v=12"></script>
@@ -2140,7 +2142,7 @@
 <script src="assets/js/dashboard-person-profile.js?v=4"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=3"></script>
 <script src="assets/js/dashboard-month-day-detail.js?v=3"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=14"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=15"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=4"></script>
 <script src="assets/js/dashboard-admin-cierre.js?v=39"></script>
