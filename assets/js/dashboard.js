@@ -3202,7 +3202,20 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
   const complete=!!item.completo,locked=!!item.locked,editable=complete&&!!item.editable;
   const facebookReceipt=complete&&item.tipo==='comparticiones';
   const review=item.revision_estado||'';
-  const status=review==='observada'?'Corregir evidencia':editable?'Editar':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Marcar entrada':locked&&item.tipo==='salida'?'Al finalizar':locked?'Aún no disponible':item.impedimento?'Ver pendiente':'Subir evidencia';
+  let unavailable=null;
+  if(item.tipo==='comparticiones'&&!complete&&locked){
+    const data=APP.cierre||{},start=item.compartir_desde||data.compartir_desde,end=item.compartir_hasta||data.compartir_hasta;
+    if(data.comparticiones_vencidas){
+      unavailable={label:'Plazo vencido',copy:`${end?`Tu plazo para subir comparticiones terminó a las ${fmtTime(end)} (hora de Perú).`:'Tu plazo para subir comparticiones ya terminó.'} Si necesitas más tiempo, solicita a administración una ampliación del horario.`};
+    }else if(data.puede_compartir===false&&start&&end){
+      unavailable={label:'Horario pendiente',copy:`Podrás subir tus comparticiones de ${fmtTime(start)} a ${fmtTime(end)} (hora de Perú). La carga se habilita al iniciar ese horario.`};
+    }else if(data.puede_compartir===false&&(!start||!end)){
+      unavailable={label:'Horario no disponible',copy:'No hay un horario de carga disponible. Contacta a administración para que revise tu horario de comparticiones.'};
+    }else{
+      unavailable={label:'Carga no disponible',copy:'La carga no está habilitada en este momento. Si estás enviando evidencias, espera a que termine. Si el bloqueo continúa, actualiza la página o contacta a administración.'};
+    }
+  }
+  const status=unavailable?unavailable.label:review==='observada'?'Corregir evidencia':editable?'Editar':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Marcar entrada':locked&&item.tipo==='salida'?'Al finalizar':locked?'Aún no disponible':item.impedimento?'Ver pendiente':'Subir evidencia';
   const icons={
     comparticiones:'<svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 21v-8h2.8l.4-3.1h-3.2v-2c0-.9.3-1.5 1.6-1.5H17V3.6c-.8-.1-1.6-.2-2.4-.2-2.4 0-4.1 1.5-4.1 4.2v2.3H7.8V13h2.7v8h3.2Z"/></svg>',
     rpe:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v5h5M10 12h5M10 16h5"/></svg>',
@@ -3229,10 +3242,11 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
       <button class="facebook-share-open" type="button" data-facebook-share-open aria-haspopup="dialog" aria-controls="facebook-share-modal"><span class="facebook-share-open-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m5.5 17 4-4 3 3 2-2 4 3.5"/></svg></span><span><b>Ver comprobante de evidencias</b><small>Consulta las capturas y sus datos de registro</small></span><svg class="facebook-share-open-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </article>`;
   }
-  return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${editable?'is-editable ':''}${facebookReceipt?'has-facebook-receipt ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}${editable?` aria-label="Editar ${esc(item.titulo)}"`:''}>
+  return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${unavailable?'has-unavailable-reason ':''}${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${editable?'is-editable ':''}${facebookReceipt?'has-facebook-receipt ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}${editable?` aria-label="Editar ${esc(item.titulo)}"`:''}>
     <span class="day-close-check">${icon}</span>
     <span class="day-close-item-copy"><b>${esc(item.titulo)}</b><small>${esc(description)}</small></span>
     <span class="day-close-item-status">${esc(status)}${editable?'<svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l10.5-10.5-4-4zM12.8 7.2l4 4"/></svg>':!complete&&!locked?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>':''}</span>
+    ${unavailable?`<span class="day-close-unavailable-reason">${esc(unavailable.copy)}${review==='observada'?` Corrección solicitada: ${esc(item.revision_nota||'revisa la evidencia antes de volver a enviarla')}.`:''}</span>`:''}
   </button>`;
 }
 

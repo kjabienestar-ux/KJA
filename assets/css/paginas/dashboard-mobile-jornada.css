@@ -278,6 +278,26 @@
   #portal:not(.admin-wide) #mobile-close-panel .day-close-item .day-close-item-status { font-weight: 650; letter-spacing: 0; }
   #portal:not(.admin-wide) #mobile-close-panel button:focus-visible { outline: 2px solid #075abc; outline-offset: 3px; }
 }
+/* Keep the reason readable even when the upload control is disabled. */
+#portal:not(.admin-wide) :is(#day-close, #mobile-close-panel) .day-close-item.has-unavailable-reason.is-locked:not(.is-complete) {
+  opacity: 1 !important;
+  height: auto;
+}
+#portal:not(.admin-wide) :is(#day-close, #mobile-close-panel) .has-unavailable-reason .day-close-item-copy small {
+  display: none !important;
+}
+#portal:not(.admin-wide) :is(#day-close, #mobile-close-panel) .day-close-unavailable-reason {
+  display: block;
+  grid-column: 1 / -1;
+  color: #52606d;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  margin-top: 6px;
+}
 @keyframes jornada-progress-glow {
   0%, 100% { stroke-opacity: 1; }
   50% { stroke-opacity: .5; }
