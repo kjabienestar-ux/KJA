@@ -13,6 +13,15 @@ Deno.serve(async(req:Request)=>{
   if(permissionError||allowed!==true)return reply({error:'Solo Dirección con nivel Sistemas puede gestionar estas cuentas.'},403);
   const body=await req.json();
   const admin=createClient(url,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false,autoRefreshToken:false}});
+  if(body.action==='password'){
+   if(typeof body.id!=='string'||typeof body.password!=='string'||body.password.length<12||body.password.length>128)
+    return reply({error:'Usa una contraseña de 12 a 128 caracteres.'},400);
+   const {data:profile,error:pe}=await admin.from('perfiles').select('id,activo').eq('id',body.id).maybeSingle();
+   if(pe||!profile)return reply({error:'No se encontró la cuenta de certificados.'},400);
+   const {error}=await admin.auth.admin.updateUserById(profile.id,{password:body.password});
+   if(error)return reply({error:'No se pudo cambiar la contraseña. Revisa los requisitos de seguridad y vuelve a intentarlo.'},400);
+   return reply({ok:true});
+  }
   if(body.action==='recovery'){
    const {data:profile,error:pe}=await admin.from('perfiles').select('id,activo').eq('id',body.id).maybeSingle();
    if(pe||!profile?.activo)return reply({error:'La cuenta no está activa.'},400);
@@ -25,7 +34,17 @@ Deno.serve(async(req:Request)=>{
    return reply({ok:true});
   }
   if(body.action!=='create')return reply({error:'Acción no válida.'},400);
-  const email=String(body.email||'').trim().toLowerCase(),name=String(body.nombre||'').trim();
+  const email=String(body.email||'').trim().toLowerCase();
+  let name=String(body.nombre||'').trim();
+  const collaborator=body.colaborador_id==null?null:Number(body.colaborador_id);
+  if(collaborator!==null){
+   if(!Number.isSafeInteger(collaborator)||collaborator<=0)return reply({error:'Selecciona un colaborador válido.'},400);
+   const candidates=await user.rpc('dash_cert_colaboradores');
+   if(candidates.error||!candidates.data?.ok)return reply({error:'No se pudo consultar el directorio. Instala la migración 101.'},400);
+   const person=candidates.data.colaboradores.find((p:any)=>Number(p.id)===collaborator);
+   if(!person?.activo||person.cuenta_id)return reply({error:'El colaborador está inactivo o ya tiene una cuenta vinculada.'},409);
+   name=person.nombre;
+  }
   const serie=body.serie===null?null:Number(body.serie),rol=body.rol;
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||name.length<2||name.length>100||!['admin','colaborador'].includes(rol)
     ||(serie===null?rol!=='admin':!Number.isInteger(serie)||serie<1000||serie>2147482000||serie%1000!==0))return reply({error:'Revisa correo, nombre, rol y serie.'},400);
@@ -33,6 +52,11 @@ Deno.serve(async(req:Request)=>{
   const lookup=await user.rpc('dash_cert_buscar_email',{p_email:email});
   if(lookup.error)return reply({error:'No se pudo consultar la cuenta.'},400);
   let id=lookup.data,created=false;
+  if(id&&collaborator!==null){
+   const linked=await admin.from('asis_perfiles').select('colaborador_id').eq('id',id).maybeSingle();
+   if(linked.error)return reply({error:'No se pudo comprobar la identidad del correo.'},400);
+   if(linked.data?.colaborador_id!=null&&Number(linked.data.colaborador_id)!==collaborator)return reply({error:'Este correo pertenece a otro colaborador.'},409);
+  }
   if(!id){
    if(typeof body.password!=='string'||body.password.length<12)return reply({error:'Usa una contraseña inicial de al menos 12 caracteres.'},400);
    const result=await admin.auth.admin.createUser({email,password:body.password,email_confirm:true});
@@ -43,7 +67,8 @@ Deno.serve(async(req:Request)=>{
    if(existing.error)return reply({error:'No se pudo comprobar el perfil.'},400);
    if(existing.data)return reply({error:'Esta cuenta ya tiene acceso registrado. Edítala desde la lista.'},409);
   }
-  const saved=await user.rpc('dash_cert_guardar',{p_id:id,p_nombre:name,p_rol:rol,p_serie:serie,p_activo:true});
+  const values={p_id:id,p_nombre:name,p_rol:rol,p_serie:serie,p_activo:true};
+  const saved=collaborator===null?await user.rpc('dash_cert_guardar',values):await user.rpc('dash_cert_guardar_vinculado',{...values,p_colaborador:collaborator});
   if(saved.error)return reply({error:(created?'La cuenta se creó, pero su acceso aún no está configurado. Corrige los datos y repite el alta. ':'')+saved.error.message},400);
   return reply({ok:true,linked:!created});
  }catch{return reply({error:'No se pudo completar la operación. Actualiza la lista antes de reintentar.'},500);}
