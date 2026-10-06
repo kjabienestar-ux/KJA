@@ -356,8 +356,8 @@
 #portal.admin-wide .admin-control-row[data-state="completa"]:is(:hover,:focus-within) { background-color: #e2efe5; }
 #portal.admin-wide :is(button,a,input,select,textarea,summary):focus-visible { outline: 2px solid #a9583e !important; outline-offset: 3px; }
 #portal.admin-wide * { scrollbar-color: #c6bbae transparent; }
-body:has(#portal.admin-wide:not([hidden])) .kja-chat .chat-launcher { color: #faf9f5; background: #252320; border-radius: 10px; box-shadow: 0 4px 16px #25232018; font-size: 13px; font-weight: 500; }
-body:has(#portal.admin-wide:not([hidden])) .kja-chat .chat-launcher:hover { background: #3d3d3a; }
+body:has(#portal.admin-wide:not([hidden])) .kja-chat .chat-launcher { color: #fff; background: #e0006f; border-radius: 10px; box-shadow: 0 6px 18px #e0006f40; font-size: 13px; font-weight: 500; }
+body:has(#portal.admin-wide:not([hidden])) .kja-chat .chat-launcher:hover { background: #c2065c; }
 @media (min-width: 901px) {
   #portal.admin-wide .sidebar { inset: 12px auto 12px 12px !important; width: 236px !important; height: calc(100dvh - 24px); padding-top: 30px; }
   #portal.admin-wide .workspace { margin-left: 236px !important; }
