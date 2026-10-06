@@ -140,6 +140,7 @@
 
   .kja-chat{right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
   .kja-chat .chat-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px}
+  .kja-chat .chat-tabs[data-count="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}
   .kja-chat .chat-tabs button{width:auto;max-width:none;min-width:0;padding:10px 4px;white-space:normal;overflow:visible;text-overflow:clip}
 }
 /* Chat de teléfono: el historial ocupa el espacio que deja el teclado. */
@@ -154,7 +155,7 @@
   .kja-chat .chat-message time{margin-top:3px;font-size:9px}
   .kja-chat .chat-compose{flex-shrink:0;align-items:flex-end;gap:8px;padding:8px 10px}
   .kja-chat .chat-compose textarea{box-sizing:border-box;min-height:44px;height:44px;max-height:100px;padding:10px 13px;line-height:24px;border:1px solid #e1e5eb;border-radius:22px;overflow-y:auto}
-  .kja-chat .chat-compose textarea:focus{outline:0;border-color:#c5a14c;box-shadow:0 0 0 1px #c5a14c}
+  .kja-chat .chat-compose textarea:focus{outline:0;border-color:#004fb0;box-shadow:0 0 0 1px #004fb0}
   .kja-chat .chat-send{width:44px;height:44px}
   .kja-chat .chat-compose:has(textarea:not(:disabled)) + .chat-hint{display:none}
   .kja-chat .chat-body>.chat-older{min-height:28px;padding:3px 10px;font-size:10px!important}
