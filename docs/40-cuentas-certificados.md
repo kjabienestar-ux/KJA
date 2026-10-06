@@ -6,6 +6,41 @@ Los permisos también se comprueban en el servidor en cada operación.
 
 ## Activar
 
+**Vinculación con colaboradores:** ejecutar después de la migración 100 el archivo
+`supabase/dashboard_101_vincular_cuentas_certificados.sql`, volver a desplegar
+`cert-cuentas` y publicar el dashboard y sus JS/CSS actualizados.
+
+Al crear o editar, buscar por nombre, DNI o área y seleccionar el colaborador.
+La búsqueda muestra resultados visibles, ignora tildes y admite varias palabras.
+La selección se conserva al buscar otra persona, pero no se añade a resultados
+que no coincidan. Cada resultado muestra nombre, DNI, área y si ya está vinculado.
+Se completa el nombre y se muestran DNI y área; al crear se selecciona el rol
+Colaborador. Completar correo, contraseña inicial (si es una cuenta nueva) y serie.
+El nombre vinculado también se toma del directorio en el servidor. Las series
+sugeridas excluyen las asignadas a perfiles activos y suspendidos; el servidor
+vuelve a validar al guardar. La lista de sugerencias no audita numeración histórica
+que pudiera proceder de perfiles eliminados antes de esta implementación.
+
+El vínculo es `perfiles.colaborador_id`, único por colaborador. No cambia
+`asis_perfiles`, el correo interno ni el PIN de asistencia. Si se proporciona un
+correo de Auth ya existente, se reutiliza sin cambiar su contraseña, siempre que
+no esté asociado a otra persona. Una persona puede conservar su acceso DNI/PIN y
+un acceso por correo a certificados: ambos apuntan a la misma ficha laboral.
+Se pueden vincular perfiles de certificados existentes desde Editar. No se
+vinculan personas automáticamente por coincidencias de nombre o correo.
+
+**Cambio vigente:** Administración utiliza **Cambiar contraseña** directamente,
+sin correo. Si la migración 100 ya está instalada, solo vuelve a desplegar
+`cert-cuentas` y publica el dashboard y sus JS/CSS actualizados. No requiere SQL nuevo.
+Los pasos 3 y 4 siguientes son opcionales, únicamente para la recuperación antigua
+por correo, que ya no aparece como acción del panel.
+
+Para cambiarla, abre la tarjeta de la cuenta, pulsa **Cambiar contraseña**, escribe
+la nueva clave dos veces (12–128 caracteres) y guarda. También puede cambiarse en
+cuentas suspendidas; el acceso permanece suspendido. La clave afecta a todos los
+módulos que compartan la misma cuenta Auth. No se registra la contraseña en la
+bitácora ni se muestra la anterior.
+
 1. Aplicar `supabase/certificados_hardening_roles_y_consistencia.sql` si aún no
    está instalado. Después ejecutar `supabase/dashboard_100_cuentas_certificados.sql`.
 2. Desplegar la función: `supabase functions deploy cert-cuentas --no-verify-jwt`.
@@ -23,6 +58,12 @@ variables del entorno de la Edge Function. No copiar la clave administrativa al
 frontend. Referencia: https://supabase.com/docs/reference/javascript/auth-admin-createuser
 
 ## Operación
+
+El directorio muestra las cuentas activas por defecto. **Mostrar usuarios suspendidos**
+incluye también las suspendidas y se combina con la búsqueda. La suspensión es
+indefinida hasta pulsar **Reactivar**; no hay vencimiento ni reactivación automática.
+La vista usa tres columnas en escritorio amplio, dos en pantallas intermedias y
+una en móvil, con iniciales e iconos de certificados para identificar las tarjetas.
 
 - Crear una cuenta con correo, nombre, rol, serie y contraseña inicial de al menos
   12 caracteres. El correo queda confirmado, igual que en el alta administrativa

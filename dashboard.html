@@ -8,8 +8,8 @@
 <title>Mi portal - KJA</title>
 <link rel="icon" href="images/logo/favicon.png">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-marketing.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-chat.css?v=7">
-<link rel="stylesheet" href="assets/css/paginas/chat-images.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-chat.css?v=12">
+<link rel="stylesheet" href="assets/css/paginas/chat-images.css?v=4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=228">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=8">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
-<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=6">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
@@ -26,7 +26,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=14">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=15">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=55">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
@@ -34,7 +34,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-days-off.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcements.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=3">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=4">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-jornada.css?v=15">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-mobile.css?v=18">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-guided-tour.css?v=8">
@@ -56,7 +56,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=7">
 </head>
 <body>
 
@@ -842,23 +842,43 @@
     <section class="view cert-accounts" id="view-cert-cuentas" aria-labelledby="cert-accounts-title" hidden>
       <header class="cert-accounts-head"><div><h1 id="cert-accounts-title">Cuentas de certificados</h1><p>Administra quién puede emitir certificados y la serie asignada a cada cuenta.</p></div><div class="cert-account-actions"><button type="button" id="cert-accounts-refresh">Actualizar</button><button type="button" class="cert-primary" id="cert-accounts-new">Nueva cuenta</button></div></header>
       <div id="cert-accounts-message" role="status" aria-live="polite"></div>
+      <form id="cert-password-form" class="cert-account-editor" hidden aria-labelledby="cert-password-title">
+        <header><h2 id="cert-password-title">Cambiar contraseña</h2><button type="button" id="cert-password-cancel">Cancelar</button></header>
+        <p id="cert-password-person"></p>
+        <p>El cambio se aplica a la cuenta KJA, incluidos otros módulos que usen el mismo correo. No se enviará ningún correo ni se reactivará un acceso suspendido.</p>
+        <input type="hidden" id="cert-password-id">
+        <div class="cert-account-fields">
+          <label>Nueva contraseña<input type="password" id="cert-password-new" required minlength="12" maxlength="128" autocomplete="new-password"><small>Entre 12 y 128 caracteres.</small></label>
+          <label>Repite la nueva contraseña<input type="password" id="cert-password-repeat" required minlength="12" maxlength="128" autocomplete="new-password"></label>
+        </div>
+        <p id="cert-password-message" role="status" aria-live="polite"></p>
+        <button type="submit" class="cert-primary">Guardar nueva contraseña</button>
+      </form>
       <form id="cert-account-form" class="cert-account-editor" hidden>
         <header><h2 id="cert-account-form-title">Nueva cuenta</h2><button type="button" id="cert-account-cancel">Cancelar</button></header>
         <input type="hidden" id="cert-account-id">
+        <div class="cert-account-linker">
+          <div class="cert-link-heading"><div><h3>Vincular colaborador</h3><p>Busca en el directorio y selecciona a la persona para completar sus datos.</p></div><button type="button" id="cert-collaborator-clear" hidden>Quitar vínculo</button></div>
+          <label class="cert-link-search">Buscar por nombre, DNI o área<input type="search" id="cert-collaborator-search" placeholder="Ej. Recursos Humanos o 77417918" autocomplete="off" aria-controls="cert-collaborator-results"></label>
+          <input type="hidden" id="cert-collaborator">
+          <span id="cert-collaborator-count" role="status" aria-live="polite"></span>
+          <div id="cert-collaborator-results" class="cert-link-results" role="group" aria-label="Resultados de colaboradores"></div>
+          <p id="cert-collaborator-detail" role="status">Puedes vincular una ficha de asistencia sin modificar su DNI ni su PIN.</p>
+        </div>
         <div class="cert-account-fields">
           <label>Nombre completo<input id="cert-account-name" required minlength="2" maxlength="100" autocomplete="off"></label>
           <label>Correo de acceso<input type="email" id="cert-account-email" required autocomplete="off"></label>
           <label>Rol<select id="cert-account-role"><option value="colaborador">Colaborador · emite certificados</option><option value="admin">Administrador · gestiona certificados</option></select></label>
-          <label>Serie de numeración<input type="number" id="cert-account-series" min="1000" max="2147482000" step="1000" placeholder="Ej. 13000"><small>Bloques de 1000. Debe ser única; se conserva si ya hay certificados emitidos.</small></label>
-          <label id="cert-account-password-field">Contraseña inicial<input type="password" id="cert-account-password" minlength="12" autocomplete="new-password"><small>Mínimo 12 caracteres. Si el correo ya tiene una cuenta, conservará su contraseña actual.</small></label>
+          <label>Serie de numeración<input type="number" id="cert-account-series" list="cert-series-options" min="1000" max="2147482000" step="1000" placeholder="Elige una serie libre"><datalist id="cert-series-options"></datalist><small id="cert-series-help">Las series de cuentas suspendidas siguen reservadas.</small></label>
+          <div id="cert-account-password-field"><label for="cert-account-password">Contraseña inicial</label><div class="cert-password-control"><input type="password" id="cert-account-password" minlength="12" autocomplete="new-password" aria-describedby="cert-password-help"><button type="button" id="cert-account-password-toggle" aria-label="Mostrar contraseña" aria-controls="cert-account-password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="cert-eye-slash" d="m3 3 18 18"/></svg></button></div><small id="cert-password-help">Mínimo 12 caracteres. Si el correo ya tiene una cuenta, conservará su contraseña actual.</small></div>
         </div>
         <p>Este rol solo corresponde al módulo de certificados.</p>
         <div id="cert-account-form-message" role="status" aria-live="polite"></div>
         <button type="submit" class="cert-primary" id="cert-account-save">Crear cuenta</button>
       </form>
-      <div class="cert-account-toolbar"><label>Buscar cuentas<input type="search" id="cert-account-search" placeholder="Nombre o correo"></label><span id="cert-account-count"></span></div>
+      <div class="cert-account-toolbar"><label>Buscar cuentas<input type="search" id="cert-account-search" placeholder="Nombre o correo"></label><label class="cert-suspended-toggle"><input type="checkbox" id="cert-account-show-suspended"><span>Mostrar usuarios suspendidos</span></label><span id="cert-account-count" role="status" aria-live="polite"></span></div>
       <div id="cert-account-list" class="cert-account-list"></div>
-      <p class="cert-account-note">Suspender el acceso conserva los certificados emitidos y no modifica el acceso a asistencia.</p>
+      <p class="cert-account-note">La suspensión dura hasta que pulses Reactivar. Conserva los certificados emitidos y no modifica el acceso a asistencia.</p>
     </section>
     <section class="view admin-view" id="view-gestion" aria-label="Gestión de asistencia" hidden>
 
@@ -2263,7 +2283,7 @@
   <footer><span>Puedes decidir cada fecha por separado.</span><button type="button" data-close-leave-review>Listo</button></footer>
 </dialog>
 <script src="assets/js/dashboard.js?v=245"></script>
-<script src="assets/js/dashboard-cert-accounts.js?v=1"></script>
+<script src="assets/js/dashboard-cert-accounts.js?v=6"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
@@ -2286,7 +2306,7 @@
 <script src="assets/js/marketing-model.js?v=3"></script>
 <script src="assets/js/dashboard-marketing.js?v=6"></script>
 <script src="assets/js/chat-images.js?v=3"></script>
-<script src="assets/js/dashboard-chat.js?v=12"></script>
+<script src="assets/js/dashboard-chat.js?v=16"></script>
 <script src="assets/js/dashboard-mobile.js?v=3"></script>
 <script src="assets/js/ranking-model.js?v=6"></script>
 <script src="assets/js/dashboard-ranking.js?v=14"></script>

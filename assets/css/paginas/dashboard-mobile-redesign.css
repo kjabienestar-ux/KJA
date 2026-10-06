@@ -476,8 +476,8 @@
     padding: 0;
     border-radius: 50%;
     color: #fff;
-    background: #e11d5f;
-    box-shadow: 0 10px 22px rgba(225, 29, 95, .28);
+    background: #e0006f;
+    box-shadow: 0 10px 22px rgba(224, 0, 111, .28);
   }
 
   #portal:not(.admin-wide) .kja-chat .chat-launcher > span:not(.chat-count) { display: none; }
@@ -566,10 +566,10 @@
   }
 
   .kja-chat .chat-launcher {
-    background: #e11d5f !important;
+    background: #e0006f !important;
     border-radius: 50% !important;
     color: #fff !important;
-    box-shadow: 0 10px 22px rgba(225, 29, 95, .28) !important;
+    box-shadow: 0 10px 22px rgba(224, 0, 111, .28) !important;
   }
 }
 

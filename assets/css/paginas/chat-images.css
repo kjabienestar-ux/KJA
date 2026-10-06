@@ -1,13 +1,13 @@
 .chat-backdrop{position:fixed;inset:0;z-index:89;background:rgba(16,35,55,.05);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
 .chat-backdrop[hidden]{display:none}
 .kja-chat .chat-attach{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;background:#f0f2f5;color:#465364;border-radius:50%;padding:10px;order:-1;transition:background .18s,transform .18s}
-.kja-chat .chat-attach:hover{background:#e2e8f0;color:#075bbb}
+.kja-chat .chat-attach:hover{background:#e2e8f0;color:#004fb0}
 .kja-chat .chat-attach:active{transform:scale(.94)}
 .kja-chat .chat-compose textarea{min-width:0}
 .chat-image-preview:empty{display:none}
-.chat-image-preview{display:flex;gap:8px;align-items:center;padding:8px 12px;background:#fff8e5;font-size:12px;flex-shrink:0}
+.chat-image-preview{display:flex;gap:8px;align-items:center;padding:8px 12px;background:#f5f6f8;font-size:12px;flex-shrink:0}
 .chat-image-preview img{width:54px;height:54px;object-fit:contain;border-radius:6px}
-.chat-image-preview button{margin-left:auto;background:transparent;color:#773414;min-height:44px}
+.chat-image-preview button{margin-left:auto;background:transparent;color:#c2065c;min-height:44px}
 .kja-chat .chat-image-open{display:block;padding:0;background:#e8edf3;border-radius:20px 20px 20px 6px;overflow:hidden;max-width:100%;color:#344256;min-height:44px}
 .chat-image-open img{display:block;width:260px;max-width:100%;height:auto;max-height:360px;object-fit:contain;border-radius:0}
 .chat-message[data-mine=true] .chat-image-open{border-radius:20px 20px 6px 20px;margin-left:auto}
