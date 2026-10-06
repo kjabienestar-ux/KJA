@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Recuperar contraseña · KJA</title>
+<link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=1">
+<style>body{margin:0;background:#f5f2ec;min-height:100dvh;display:grid;place-items:center}.cert-accounts{width:min(480px,100%);box-sizing:border-box}.cert-account-editor label{margin:18px 0}.cert-account-editor a{color:#196d61}.cert-account-editor h1{font-size:28px}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
+<body><main class="cert-accounts"><section class="cert-account-editor"><h1>Una nueva contraseña</h1><p id="recovery-status" role="status" aria-live="polite">Verificando el enlace de recuperación…</p>
+<form id="recovery-form" hidden><label>Nueva contraseña<input id="recovery-password" type="password" minlength="12" required autocomplete="new-password"></label><label>Repite la contraseña<input id="recovery-repeat" type="password" minlength="12" required autocomplete="new-password"></label><button class="cert-primary" type="submit" id="recovery-save">Guardar contraseña</button></form>
+<p><a href="admin.html">Volver a certificados</a></p></section></main><script src="assets/js/cert-password-recovery.js?v=1"></script></body></html>

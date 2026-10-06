@@ -1,0 +1,960 @@
+/* Anuncio integrado al espacio personal; conserva la imagen completa. */
+.rail-days-off {
+  --leave-ink:#09244c;
+  --leave-muted:#526174;
+  display:grid;
+  grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);
+  align-items:center;
+  gap:18px;
+  box-sizing:border-box;
+  width:100%;
+  padding:10px;
+  border:1px solid rgba(9,36,76,.12);
+  border-radius:16px;
+  background:#f7faff;
+  color:var(--leave-ink);
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+  transition:background-color .18s ease,border-color .18s ease;
+}
+.rail-days-off[hidden],.rail-days-off-status[hidden] { display:none; }
+.rail-days-off img { display:block; width:100%; height:auto; border-radius:10px; }
+.rail-days-off-content { display:grid; gap:10px; min-width:0; padding:12px 10px 10px 0; }
+.rail-days-off-content b {
+  color:var(--leave-ink);
+  font:700 18px/1.35 'Inter',sans-serif;
+  letter-spacing:-.02em;
+  text-wrap:balance;
+}
+.rail-days-off-copy { color:var(--leave-muted); font-size:12px; line-height:1.65; }
+.rail-days-off-action {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:44px;
+  margin-top:4px;
+  padding:8px 0 0;
+  border-top:1px solid rgba(9,36,76,.1);
+  color:#075abc;
+  font-size:12px;
+  font-weight:600;
+}
+.rail-days-off-action > span { text-underline-offset:4px; }
+.rail-days-off-action svg { flex-shrink:0; width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.rail-days-off:hover { background:#fff; border-color:rgba(7,90,188,.3); }
+.rail-days-off:hover .rail-days-off-action > span { text-decoration:underline; }
+.rail-days-off:active { background:#edf4fc; }
+.rail-days-off:focus-visible { outline:3px solid #075abc; outline-offset:3px; }
+.rail-days-off-status { padding:0 4px; }
+.rail-days-off-status p { display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:8px; margin:0; padding:10px 0; border-bottom:1px solid rgba(9,36,76,.12); font-size:12px; color:#09244c; }
+.rail-days-off-status small { flex-basis:100%; color:#526174; overflow-wrap:anywhere; }
+
+@media(max-width:600px) {
+  .rail-days-off { gap:14px; }
+  .rail-days-off-content { padding-right:4px; }
+  .rail-days-off-content b { font-size:17px; }
+}
+@media(max-width:380px) {
+  .rail-days-off { grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:12px; }
+  .rail-days-off-content b { font-size:16px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .rail-days-off,.rail-days-off-action { transition:none; }
+}
+
+
+.leave-counteroffer { grid-column:1/-1; width:100%; box-sizing:border-box; padding:14px; background:#edf4fc; border:1px solid #cddded; border-radius:12px; color:#09244c; }
+.leave-counteroffer b { font-size:13px; }
+.leave-counteroffer p,.leave-counteroffer small { display:block; font-size:12px; line-height:1.5; margin:8px 0; overflow-wrap:anywhere; }
+.leave-counteroffer > div { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.leave-counteroffer button,.leave-proposal-form button { min-height:40px; padding:8px 12px; border:1px solid #cddded; border-radius:8px; background:#fff; color:#075abc; font:600 12px/1.4 Inter,sans-serif; cursor:pointer; }
+.leave-counteroffer button[data-accept="true"] { color:#fff; background:#075abc; border-color:#075abc; }
+.leave-counteroffer button:disabled,.leave-proposal-form button:disabled { opacity:.5; cursor:wait; }
+.leave-counteroffer button:focus-visible,.leave-proposal-form summary:focus-visible { outline:2px solid #075abc; outline-offset:3px; }
+.leave-proposal-form { grid-column:1/-1; width:100%; padding-top:12px; border-top:1px solid #dce5ee; }
+.leave-proposal-form summary { color:#075abc; font-size:13px; cursor:pointer; padding:6px 0; }
+.leave-proposal-form label { display:grid; gap:6px; margin:12px 0; font-size:12px; }
+.leave-proposal-form input { width:100%; min-height:40px; box-sizing:border-box; padding:8px; border:1px solid #cddded; border-radius:8px; font:inherit; }
+.leave-proposal-wait { grid-column:1/-1; color:#526174; line-height:1.5; }
+
+/* Una entrada por envío, revisión individual dentro del diálogo. */
+#admin-request-list .leave-request-summary { display:flex; align-items:center; justify-content:space-between; gap:18px; width:100%; padding:18px 4px; border:0; border-bottom:1px solid #dce5ee; background:transparent; color:#09244c; text-align:left; font:inherit; cursor:pointer; }
+.leave-request-summary-main { display:grid; gap:6px; min-width:0; }
+.leave-request-summary-main b { font-size:14px; font-weight:600; }
+.leave-request-summary-main > span { font-size:12px; color:#526174; }
+.leave-request-summary-main small { font-size:11px; color:#526174; line-height:1.6; overflow-wrap:anywhere; }
+.leave-request-summary-action { display:flex; align-items:center; gap:6px; color:#075abc; font-size:12px; font-weight:600; flex-shrink:0; }
+.leave-request-summary-action svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; }
+#admin-request-list .leave-request-summary:hover { background:rgba(237,244,252,.6); }
+.leave-request-summary:focus-visible,.admin-leave-review button:focus-visible { outline:2px solid #075abc; outline-offset:3px; }
+.admin-leave-review { box-sizing:border-box; width:min(680px,calc(100vw - 28px)); max-height:calc(100dvh - 40px); margin:auto; padding:24px; border:1px solid #dce5ee; border-radius:20px; background:#f7fafc; color:#09244c; overflow:auto; font-family:Inter,sans-serif; }
+.admin-leave-review::backdrop { background:rgba(9,36,76,.48); backdrop-filter:blur(4px); }
+.admin-leave-review > header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.admin-leave-review h2 { margin:0; font-size:22px; line-height:1.3; letter-spacing:-.02em; }
+#admin-leave-review-person { margin:8px 0 0; font-size:14px; font-weight:600; }
+.admin-leave-review > header button { flex-shrink:0; width:36px; height:36px; padding:0; border:0; border-radius:10px; background:#edf2f7; color:#526174; font-size:24px; cursor:pointer; }
+#admin-leave-review-copy { margin:10px 0 18px; font-size:12px; color:#526174; }
+.leave-review-note { margin:0 0 20px; padding:12px 0; border-top:1px solid #dce5ee; border-bottom:1px solid #dce5ee; font-size:13px; line-height:1.6; overflow-wrap:anywhere; }
+#admin-leave-review-message { margin:0 0 12px; padding:10px 12px; border-radius:8px; background:#e3f6ef; color:#08745c; font-size:13px; line-height:1.5; }
+#admin-leave-review-message.bad { background:#ffe9ed; color:#a33d4d; }
+#admin-leave-review-days { display:grid; gap:0; max-height:none; overflow:visible; }
+#admin-leave-review-days .admin-request { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; padding:18px 0; border-bottom:1px solid #dce5ee; }
+#admin-leave-review-days .admin-request > span > b { font-size:14px; color:#09244c; }
+#admin-leave-review-days .admin-request > span > small { display:block; margin-top:5px; font-size:11px; color:#526174; }
+#admin-leave-review-days .admin-request-actions { display:flex; flex-wrap:wrap; gap:8px; grid-column:1/-1; }
+#admin-leave-review-days .admin-request-actions input { flex:1 1 220px; min-width:0; min-height:40px; padding:8px 10px; border:1px solid #cddded; border-radius:8px; background:#fff; font:inherit; font-size:12px; }
+#admin-leave-review-days .admin-request-actions button { min-height:40px; padding:8px 12px; border:0; border-radius:8px; font:600 12px Inter,sans-serif; cursor:pointer; }
+#admin-leave-review-days .approve { background:#e3f6ef; color:#08745c; }
+#admin-leave-review-days .reject { background:#ffe9ed; color:#a33d4d; }
+#admin-leave-review-days button:disabled { opacity:.5; cursor:not-allowed; }
+.leave-review-resolved { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; padding:18px 0; border-bottom:1px solid #dce5ee; font-size:14px; }
+.leave-review-resolved p { width:100%; margin:0; font-size:12px; color:#526174; }
+.admin-leave-review > footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:20px; }
+.admin-leave-review > footer span { color:#526174; font-size:12px; }
+.admin-leave-review > footer button { min-height:40px; padding:8px 20px; border:0; border-radius:8px; background:#075abc; color:#fff; font:600 13px Inter,sans-serif; cursor:pointer; }
+@media(max-width:600px) { .admin-leave-review { padding:20px 16px; } .admin-leave-review h2 { font-size:20px; } }
+
+/* Estados compactos y calendario con disponibilidad explícita. */
+#rail-days-off-status { padding:0; }
+.leave-history-open { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:54px; padding:10px 4px; border:0; border-bottom:1px solid #dce5ee; background:transparent; color:#09244c; text-align:left; cursor:pointer; font:inherit; }
+.leave-history-open > span { display:grid; gap:4px; }
+.leave-history-open b { font-size:13px; }
+.leave-history-open small { color:#526174; font-size:11px; }
+.leave-history-open svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; }
+.leave-history-open:hover { color:#075abc; }
+.leave-history-open:focus-visible { outline:2px solid #075abc; outline-offset:3px; }
+#personal-leave-history header p { font-size:12px; color:#526174; line-height:1.5; }
+.leave-history-row { padding:16px 0; border-bottom:1px solid #dce5ee; }
+.leave-history-row > div:first-child { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:13px; }
+.leave-history-row > p { font-size:12px; color:#526174; line-height:1.5; overflow-wrap:anywhere; }
+.leave-history-row .leave-counteroffer { margin-top:12px; }
+#personal-leave-history-message { padding:12px; font-size:13px; border-radius:8px; background:#e3f6ef; color:#08745c; }
+#personal-leave-history-message.bad { background:#ffe9ed; color:#a33d4d; }
+#admin-leave-evidence-open { min-height:40px; padding:10px 14px; border:1px solid #cddded; border-radius:10px; background:#edf4fc; color:#075abc; font:600 12px Inter,sans-serif; cursor:pointer; margin-bottom:12px; }
+#leave-evidence-image { display:block; max-width:100%; max-height:70dvh; height:auto; margin:16px auto 0; object-fit:contain; }
+#leave-evidence-image[hidden] { display:none; }
+#leave-evidence-message { font-size:13px; color:#526174; }
+
+/* ==========================================================================
+   DISEÑO PREMIUM MODAL DÍAS LIBRES (Inspirado en el Dashboard KJA)
+   ========================================================================== */
+
+/* Fondo oscuro con desenfoque de cristal suave */
+.is-day-off-request.modal {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.is-day-off-request .modal-backdrop {
+  background: rgba(9, 36, 76, 0.52);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: opacity .25s ease;
+}
+
+/* Hoja del modal como panel flotante elegante */
+.is-day-off-request .personal-request-sheet {
+  position: relative;
+  box-sizing: border-box;
+  width: min(960px, calc(100vw - 32px));
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 28px 24px;
+  border-radius: 24px;
+  background: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 25px 60px -15px rgba(9, 36, 76, 0.28), 0 0 0 1px rgba(9, 36, 76, 0.06);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(9, 36, 76, 0.15) transparent;
+}
+
+/* Ocultar el header genérico en modo días libres */
+.is-day-off-request .personal-request-sheet > header {
+  display: none !important;
+}
+
+/* Botón cerrar flotante circular */
+.is-day-off-request .modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(9, 36, 76, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(4px);
+  color: #475569;
+  font-size: 20px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.is-day-off-request .modal-close:hover {
+  background: #ffffff;
+  color: #09244c;
+  transform: scale(1.08);
+  border-color: rgba(9, 36, 76, 0.2);
+  box-shadow: 0 4px 12px rgba(9, 36, 76, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   BANNER HÉROE CON FIGURA 3D (day-off-rest.png)
+   -------------------------------------------------------------------------- */
+.day-off-hero {
+  display: none;
+}
+.is-day-off-request .day-off-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 24px 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 55%, #e6f2fd 100%);
+  border: 1px solid rgba(7, 90, 188, 0.15);
+  box-shadow: 0 10px 25px -8px rgba(7, 90, 188, 0.1), 0 2px 6px rgba(9, 36, 76, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+.is-day-off-request .day-off-hero::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: 60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.14) 0%, rgba(16, 185, 129, 0.08) 50%, transparent 70%);
+  pointer-events: none;
+}
+
+.day-off-hero-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.day-off-badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.day-off-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d97706;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.25);
+  animation: dayOffPulseDot 2s infinite ease-in-out;
+}
+@keyframes dayOffPulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+
+.day-off-badge-schedule {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+  font-size: 11px;
+  font-weight: 700;
+}
+.day-off-badge-schedule svg {
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+/* Tipografía de encabezado Fraunces (Igual al Dashboard "Buenos días, Yeiser") */
+.day-off-hero-heading {
+  margin: 0 0 6px;
+  color: #09244c;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.day-off-hero-text {
+  margin: 0 0 16px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 580px;
+}
+
+/* Barra de pasos en el Hero (Estilo stepper del Dashboard) */
+.day-off-steps-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(9, 36, 76, 0.08);
+  border-radius: 14px;
+}
+.day-off-step-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 12px;
+  transition: all .2s ease;
+}
+.day-off-step-item .step-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #475569;
+  display: grid;
+  place-items: center;
+  transition: all .2s ease;
+}
+.day-off-step-item .step-circle svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+.day-off-step-item .step-meta b {
+  display: block;
+  font-size: 11px;
+  color: #334155;
+  line-height: 1.2;
+}
+.day-off-step-item .step-meta small {
+  display: block;
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.2;
+}
+.day-off-step-item.is-current .step-circle {
+  background: #075abc;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(7, 90, 188, 0.35);
+}
+.day-off-step-item.is-current .step-meta b {
+  color: #075abc;
+}
+.day-off-step-item.is-completed .step-circle {
+  background: #10b981;
+  color: #ffffff;
+}
+.day-off-step-item.is-completed .step-meta b {
+  color: #065f46;
+}
+.step-divider {
+  width: 14px;
+  height: 1.5px;
+  background: #cbd5e1;
+}
+
+/* Arte de la figura 3D */
+.day-off-hero-art {
+  flex-shrink: 0;
+  position: relative;
+  width: 170px;
+  height: 170px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.day-off-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 20px rgba(9, 36, 76, 0.16));
+  transform: translateY(6px);
+  transition: transform .3s ease;
+}
+.day-off-hero:hover .day-off-hero-img {
+  transform: translateY(2px) scale(1.03);
+}
+
+/* --------------------------------------------------------------------------
+   FORMULARIO: COMPOSICIÓN 2 COLUMNAS (Tarjetas Blancas Elevadas)
+   -------------------------------------------------------------------------- */
+.is-day-off-request #personal-request-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  column-gap: 20px;
+  row-gap: 16px;
+  align-items: start;
+  margin-top: 0;
+}
+
+/* Tarjeta Izquierda: Calendario */
+.is-day-off-request .personal-request-dates {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(9, 36, 76, 0.08);
+  border-radius: 20px;
+  padding: 18px 20px 20px;
+  box-shadow: 0 4px 20px -2px rgba(9, 36, 76, 0.04);
+}
+.is-day-off-request .request-date-field[hidden] {
+  display: none !important;
+}
+.is-day-off-request .request-date-field > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #09244c;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.is-day-off-request .request-date-button {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: none;
+  transition: all .18s ease;
+}
+.is-day-off-request .request-date-button:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Widget Calendario */
+.is-day-off-request #request-calendar {
+  position: static;
+  inset: auto;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 16px;
+  background: #fcfdfe;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: inset 0 1px 3px rgba(9, 36, 76, 0.02);
+  animation: none;
+}
+.is-day-off-request #request-calendar > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+.is-day-off-request #request-calendar-title {
+  color: #09244c;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.is-day-off-request #request-calendar > header button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.is-day-off-request #request-calendar > header button:hover:not(:disabled) {
+  background: #075abc;
+  border-color: #075abc;
+  color: #ffffff;
+  transform: scale(1.06);
+}
+.is-day-off-request #request-calendar > header button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+/* Días de la semana */
+.is-day-off-request .request-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.is-day-off-request .request-calendar-weekdays span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 0;
+}
+
+/* Celdas de días */
+.is-day-off-request #request-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.is-day-off-request #request-calendar-grid button,
+.is-day-off-request #request-calendar-grid > span {
+  height: 42px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+  transition: all .18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Disponible (Verde Menta idéntico al selector superior del Dashboard) */
+.is-day-off-request #request-calendar-grid button:not(:disabled):not(.selected) {
+  background: #ecfdf5;
+  border: 1.5px solid #a7f3d0;
+  color: #065f46;
+  font-weight: 700;
+  cursor: pointer;
+}
+.is-day-off-request #request-calendar-grid button:not(:disabled):not(.selected):hover {
+  background: #d1fae5;
+  border-color: #34d399;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.22);
+}
+
+/* Elegido (Azul vibrante KJA) */
+.is-day-off-request #request-calendar-grid button.selected {
+  background: linear-gradient(135deg, #075abc 0%, #0284c7 100%) !important;
+  border: 1.5px solid #075abc !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(7, 90, 188, 0.38) !important;
+  position: relative;
+}
+.is-day-off-request #request-calendar-grid button.selected::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+/* No disponible */
+.is-day-off-request #request-calendar-grid button:disabled {
+  background: #f8fafc;
+  color: #94a3b8;
+  border: 1px solid #f1f5f9;
+  text-decoration: line-through;
+  text-decoration-color: #cbd5e1;
+  text-decoration-thickness: 1.5px;
+  opacity: .85;
+  cursor: not-allowed;
+}
+.is-day-off-request #request-calendar-today {
+  display: none;
+}
+
+/* Leyenda del calendario */
+.leave-calendar-legend {
+  display: none;
+}
+.is-day-off-request .leave-calendar-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+.is-day-off-request .leave-calendar-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+}
+.is-day-off-request .leave-calendar-legend i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+.is-day-off-request .leave-calendar-legend .available {
+  background: #ecfdf5;
+  border: 1.5px solid #a7f3d0;
+}
+.is-day-off-request .leave-calendar-legend .selected {
+  background: #075abc;
+  border: 1.5px solid #075abc;
+}
+.is-day-off-request .leave-calendar-legend .unavailable {
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  position: relative;
+}
+.is-day-off-request .leave-calendar-legend .unavailable::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 1px;
+  width: 10px;
+  height: 1.5px;
+  background: #94a3b8;
+  transform: rotate(-35deg);
+}
+
+.is-day-off-request #request-calendar > footer {
+  margin-top: 10px;
+  padding-top: 6px;
+  text-align: center;
+}
+.is-day-off-request #request-calendar-help {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 9999px;
+  padding: 4px 14px;
+  line-height: 1.5;
+}
+
+/* Resumen de selección de fechas */
+.leave-selection-summary {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #e0f7ef 100%);
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.leave-selection-summary[hidden] {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   TARJETA DERECHA: COMENTARIO Y EVIDENCIA (Con Cámara 3D)
+   -------------------------------------------------------------------------- */
+.is-day-off-request .personal-request-support {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(9, 36, 76, 0.08);
+  border-radius: 20px;
+  padding: 20px 22px 22px;
+  box-shadow: 0 4px 20px -2px rgba(9, 36, 76, 0.04);
+}
+
+/* Comentario */
+.is-day-off-request .personal-request-detail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.is-day-off-request .personal-request-detail > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #09244c;
+  font-size: 13px;
+  font-weight: 700;
+}
+.is-day-off-request .personal-request-detail textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 105px;
+  height: 110px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #09244c;
+  transition: all .18s ease;
+  resize: vertical;
+}
+.is-day-off-request .personal-request-detail textarea:focus {
+  background: #ffffff;
+  border-color: #075abc;
+  box-shadow: 0 0 0 3px rgba(7, 90, 188, 0.15);
+  outline: none;
+}
+.is-day-off-request .personal-request-detail > small {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Caja de Evidencia con Cámara 3D */
+.is-day-off-request #personal-request-evidence {
+  border: 1.5px dashed rgba(7, 90, 188, 0.35);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f3fc 100%);
+  overflow: hidden;
+  transition: all .2s ease;
+  margin-top: 0;
+}
+.is-day-off-request #personal-request-evidence:hover {
+  border-color: #075abc;
+  background: #e2effc;
+  transform: translateY(-1px);
+}
+
+.is-day-off-request #personal-request-file-button {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+.is-day-off-request .personal-request-file-art {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+}
+.is-day-off-request .evidence-3d-cam {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 10px rgba(7, 90, 188, 0.2));
+  transition: transform .25s ease;
+}
+.is-day-off-request #personal-request-file-button:hover .evidence-3d-cam {
+  transform: scale(1.1) rotate(-3deg);
+}
+.is-day-off-request .evidence-regular-icon {
+  display: none !important;
+}
+
+.is-day-off-request .personal-request-file-text b {
+  display: block;
+  color: #09244c;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.is-day-off-request .personal-request-file-text small {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+}
+.is-day-off-request .personal-request-file-cta {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #075abc;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid rgba(7, 90, 188, 0.2);
+  white-space: nowrap;
+  transition: all .18s ease;
+}
+.is-day-off-request #personal-request-file-button:hover .personal-request-file-cta {
+  background: #075abc;
+  color: #ffffff;
+}
+
+/* Nota de evidencia */
+.is-day-off-request #personal-request-note {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 0;
+}
+
+/* Vista previa de archivo */
+.is-day-off-request .personal-request-preview {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: #ffffff;
+}
+.is-day-off-request .personal-request-preview img {
+  width: 80px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* Mensajes de feedback */
+.is-day-off-request #personal-request-message {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  font-weight: 600;
+}
+.is-day-off-request #personal-request-message:empty {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   FOOTER: BOTONES DE ACCIÓN
+   -------------------------------------------------------------------------- */
+.is-day-off-request #personal-request-form > footer {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(9, 36, 76, 0.08);
+}
+.is-day-off-request .admin-secondary-action {
+  min-height: 44px;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1.5px solid #d5e0eb;
+  color: #475569;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.is-day-off-request .admin-secondary-action:hover {
+  background: #f1f5f9;
+  color: #09244c;
+  border-color: #cbd5e1;
+}
+.is-day-off-request .admin-primary-action {
+  min-height: 44px;
+  padding: 11px 28px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #075abc 0%, #004b99 100%);
+  border: 0;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(7, 90, 188, 0.35);
+  transition: all .18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.is-day-off-request .admin-primary-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(7, 90, 188, 0.45);
+}
+.is-day-off-request .admin-primary-action:active {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE DESIGN (Tablets y Móviles)
+   -------------------------------------------------------------------------- */
+@media (max-width: 840px) {
+  .is-day-off-request .personal-request-sheet {
+    width: 100%;
+    max-height: 94vh;
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+  .is-day-off-request .day-off-hero {
+    grid-template-columns: 1fr;
+    padding: 18px 16px;
+    gap: 12px;
+  }
+  .is-day-off-request .day-off-hero-art {
+    display: none;
+  }
+  .is-day-off-request #personal-request-form {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .is-day-off-request .personal-request-dates,
+  .is-day-off-request .personal-request-support {
+    grid-column: 1;
+    padding: 16px;
+  }
+  .day-off-steps-track {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: space-between;
+  }
+  .is-day-off-request .personal-request-detail textarea {
+    min-height: 90px;
+    height: 90px;
+  }
+}
+@media (max-width: 500px) {
+  .day-off-steps-track {
+    display: none;
+  }
+  .is-day-off-request #personal-request-file-button {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+  .is-day-off-request .personal-request-file-cta {
+    display: none;
+  }
+  .is-day-off-request #personal-request-form > footer > * {
+    flex: 1;
+  }
+}

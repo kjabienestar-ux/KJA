@@ -1126,6 +1126,51 @@
   <section class="personal-request-sheet" role="dialog" aria-modal="true" aria-labelledby="personal-request-title">
     <button class="modal-close" type="button" data-close-personal-request aria-label="Cerrar">×</button>
     <header><span class="personal-request-icon" id="personal-request-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4"/></svg></span><span><h2 id="personal-request-title">Nueva solicitud</h2><p id="personal-request-copy">Completa la información que revisará Dirección.</p></span></header>
+    <!-- Banner Héroe para Días Libres con Figura 3D e identidad visual del dashboard -->
+    <div class="day-off-hero" id="day-off-hero" aria-hidden="true">
+      <div class="day-off-hero-content">
+        <div class="day-off-hero-badges">
+          <span class="day-off-badge-status">
+            <i class="day-off-badge-dot"></i>
+            <span id="day-off-hero-balance">DÍAS LIBRES</span>
+          </span>
+          <span class="day-off-badge-schedule">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span>Martes a Viernes</span>
+          </span>
+        </div>
+        <h2 class="day-off-hero-heading">Elige tus días libres</h2>
+        <p class="day-off-hero-text" id="day-off-hero-text">Selecciona tus fechas para descansar y recargar energías. Dirección revisará cada día para coordinar su aprobación.</p>
+        <div class="day-off-steps-track" aria-label="Progreso de la solicitud">
+          <div class="day-off-step-item is-current" id="day-off-step-1">
+            <span class="step-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+            <div class="step-meta">
+              <b>1. Fechas</b>
+              <small id="day-off-step-1-status">0 seleccionados</small>
+            </div>
+          </div>
+          <span class="step-divider" aria-hidden="true"></span>
+          <div class="day-off-step-item" id="day-off-step-2">
+            <span class="step-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+            <div class="step-meta">
+              <b>2. Comentario</b>
+              <small>Opcional</small>
+            </div>
+          </div>
+          <span class="step-divider" aria-hidden="true"></span>
+          <div class="day-off-step-item" id="day-off-step-3">
+            <span class="step-circle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+            <div class="step-meta">
+              <b>3. Evidencia</b>
+              <small id="day-off-step-3-status">Solicitud previa</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="day-off-hero-art">
+        <img src="images/dashboard/day-off-rest.png" alt="Descanso merecido" class="day-off-hero-img" width="220" height="220" loading="eager" decoding="async">
+      </div>
+    </div>
     <form id="personal-request-form">
       <input id="personal-request-type" type="hidden" value="justificacion">
       <fieldset class="personal-request-kind" id="personal-request-kind" hidden>
@@ -1177,7 +1222,17 @@
       <label class="personal-request-detail"><span id="personal-request-detail-label">Cuéntanos qué ocurrió</span><textarea id="personal-request-detail" rows="5" maxlength="700" required placeholder="Incluye la información necesaria para que Dirección pueda revisar tu solicitud."></textarea><small><i id="personal-request-detail-count">0</i>/700</small></label>
       <div class="personal-request-evidence" id="personal-request-evidence">
         <input id="personal-request-file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-        <button type="button" id="personal-request-file-button"><span><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><b>Adjuntar evidencia</b><small>JPG, PNG o WebP · máximo 3 MB</small></button>
+        <button type="button" id="personal-request-file-button">
+          <span class="personal-request-file-art">
+            <img class="evidence-3d-cam" src="images/dashboard/camera-3d.webp" alt="" aria-hidden="true" width="56" height="56">
+            <svg class="evidence-regular-icon" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          </span>
+          <span class="personal-request-file-text">
+            <b>Adjuntar evidencia</b>
+            <small>JPG, PNG o WebP · máximo 3 MB</small>
+          </span>
+          <span class="personal-request-file-cta">Elegir archivo →</span>
+        </button>
         <div class="personal-request-preview" id="personal-request-preview" hidden><img id="personal-request-image" alt="Vista previa de la evidencia"><span><b id="personal-request-file-name">Evidencia lista</b><button type="button" id="personal-request-file-change">Cambiar</button></span></div>
       </div>
       <p class="personal-request-note" id="personal-request-note">La evidencia es obligatoria para justificar una ausencia o informar el uso de un día libre.</p>

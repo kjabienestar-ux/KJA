@@ -1,0 +1,149 @@
+/* Contracts: a readable work list inside the portal's warm visual system. */
+#portal #admin-contracts-section {
+  container: contracts / inline-size;
+  --contract-ink: #293c39;
+  --contract-muted: #626e6b;
+  --contract-line: #e3e7e2;
+  --contract-accent: #197467;
+  color: var(--contract-ink);
+  padding-bottom: 80px;
+}
+#portal #admin-contracts-section > .admin-team-toolbar {
+  display: grid;
+  grid-template-columns: minmax(230px, .8fr) minmax(480px, 1.6fr);
+  gap: 14px 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 20px;
+  background: rgba(255,253,249,.88);
+  box-shadow: none;
+}
+#portal #admin-contracts-section .contracts-heading h2 {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.025em;
+  color: var(--contract-ink);
+}
+#portal #admin-contracts-section .contracts-heading p {
+  margin: 4px 0 0;
+  max-width: none;
+  color: var(--contract-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+#portal #admin-contracts-section #admin-contract-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0,1fr)) !important;
+  align-self: center;
+  gap: 0;
+  background: transparent;
+}
+#portal #admin-contracts-section .admin-list-kpi {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  min-height: 0;
+  background: transparent !important;
+  border: 0;
+  border-left: 1px solid var(--contract-line);
+  border-radius: 0;
+  box-shadow: none;
+}
+#portal #admin-contracts-section .admin-list-kpi b { margin: 0; color: var(--contract-ink); font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+#portal #admin-contracts-section .admin-list-kpi small { color: var(--contract-muted); font-size: 11px !important; font-weight: 500; text-transform: none; }
+#portal #admin-contracts-section .admin-list-kpi:nth-child(3) b { color: #197467; }
+#portal #admin-contracts-section .admin-list-kpi:nth-child(4) b { color: #a15b26; }
+#portal #admin-contracts-section .admin-team-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--contract-line);
+}
+#portal #admin-contracts-section .contracts-filter { display: grid; gap: 5px; flex: 1 1 180px; min-width: 0; }
+#portal #admin-contracts-section .contracts-search { flex: 1.5 1 280px; }
+#portal #admin-contracts-section .contracts-filter > span { color: var(--contract-ink); font-size: 12px; font-weight: 600; }
+#portal #admin-contracts-section :is(input[type='search'],select) { width: 100%; min-width: 0; height: 44px; padding: 0 13px; border: 1px solid #d6ddd6; border-radius: 10px; background: #fff; color: var(--contract-ink); font: inherit; font-size: 13px; box-shadow: none; }
+#portal #admin-contract-search::placeholder { color: #697570; }
+#portal #admin-contracts-section .admin-toggle { min-height: 44px; padding: 0 13px; gap: 8px; border: 1px solid #d6ddd6; border-radius: 10px; background: transparent; color: #465b54; font-size: 12px; cursor: pointer; }
+#portal #admin-contracts-section .admin-toggle:has(input:checked) { background: #eaf4ef; border-color: #85b2a2; color: #175e50; }
+#portal #admin-contracts-section input[type='checkbox'] { accent-color: var(--contract-accent); width: 16px; height: 16px; }
+#portal #admin-contracts-section :is(button,input,select,a):focus-visible { outline: 2px solid var(--contract-accent); outline-offset: 3px; }
+#portal #admin-contracts-section .contracts-list-caption { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 6px 16px; margin: 14px 3px 8px; }
+#portal #admin-contracts-section .contracts-list-caption h3 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 15px; color: var(--contract-ink); }
+#portal #admin-contract-count { padding: 3px 8px; border-radius: 6px; background: #e5ebe5; font-size: 12px; font-weight: 600; }
+#portal #admin-contracts-section .contracts-list-caption p { margin: 0; color: var(--contract-muted); font-size: 12px; }
+#portal #admin-contract-list { border: 1px solid var(--contract-line); border-radius: 16px; box-shadow: none; background: #fffefa; overflow: hidden; }
+#portal #admin-contracts-section :is(.admin-contract-head,.admin-contract-row) { display: grid; grid-template-columns: minmax(190px,1.3fr) minmax(160px,1.5fr) 65px minmax(135px,.9fr) minmax(100px,.6fr) minmax(125px,.85fr) 70px; gap: 12px; padding: 12px 16px; }
+#portal #admin-contracts-section .admin-contract-head { min-height: 0; padding-block: 10px; background: #f0f3ee; color: #56655e; border-bottom: 1px solid var(--contract-line); font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+#portal #admin-contracts-section .admin-contract-row { min-height: 78px; margin: 0; border: 0; border-bottom: 1px solid #e9ede7; border-radius: 0; background: #fffefa; box-shadow: none; }
+#portal #admin-contracts-section .admin-contract-row:nth-child(odd) { background: #fafbf7; }
+#portal #admin-contracts-section .admin-contract-row:last-child { border-bottom: 0; }
+#portal #admin-contracts-section .admin-contract-row.inactive { opacity: 1; background: #f1f2ef; }
+#portal #admin-contracts-section .admin-contract-row > * { min-width: 0; }
+#portal #admin-contracts-section .admin-contract-person { grid-template-columns: 40px minmax(0,1fr); gap: 12px; }
+#portal #admin-contracts-section .admin-contract-person .avatar { width: 40px; height: 40px; border-radius: 12px; font-size: 12px; background: #e9e6dc; color: #6b5745; }
+#portal #admin-contracts-section .admin-contract-person b { font-size: 13px; font-weight: 650; line-height: 1.5; white-space: normal; color: var(--contract-ink); }
+#portal #admin-contracts-section :is(.admin-contract-person,.admin-contract-week,.admin-contract-date) small { margin-top: 5px; color: var(--contract-muted); font-size: 11px; line-height: 1.5; }
+#portal #admin-contracts-section :is(.admin-contract-week,.admin-contract-date) b { font-size: 12px; color: var(--contract-ink); font-weight: 600; }
+#portal #admin-contracts-section .admin-contract-progress > span { gap: 8px; }
+#portal #admin-contracts-section .admin-contract-progress b { font-size: 13px; color: var(--contract-ink); font-variant-numeric: tabular-nums; }
+#portal #admin-contracts-section .admin-contract-progress em { color: var(--contract-muted); font-size: 11px; font-weight: 400; font-style: normal; }
+#portal #admin-contracts-section .admin-contract-progress small { color: var(--contract-muted); font-size: 11px; }
+#portal #admin-contracts-section .admin-contract-progress > span > small { font-weight: 600; color: #286e5d; }
+#portal #admin-contracts-section .admin-contract-progress > i { margin-top: 6px; height: 5px; border-radius: 4px; background: #e5eae3; }
+#portal #admin-contracts-section .admin-contract-progress > i u { background: #388474; }
+#portal #admin-contracts-section .contract-remaining { display: block; margin-top: 4px; line-height: 1.4; }
+#portal #admin-contracts-section .admin-vol-progress { gap: 8px; flex-wrap: wrap; margin-top: 8px; color: var(--contract-muted); font-size: 11px; }
+#portal #admin-contracts-section .admin-vol-progress b { font-size: 11px; }
+#portal #admin-contracts-section .admin-contract-status > b { display: inline-flex; padding: 5px 9px; border-radius: 6px; font-size: 10px; font-weight: 600; line-height: 1.5; background: #edf1ee; color: #4c645a; }
+#portal #admin-contracts-section .admin-contract-status > b.complete { background: #e3f2e8; color: #1d6545; }
+#portal #admin-contracts-section .admin-contract-status > b.warning { background: #fff0df; color: #8f4c1d; }
+#portal #admin-contracts-section .admin-contract-status > b.pending { background: #f0e9df; color: #725535; }
+#portal #admin-contracts-section .admin-contract-status small { display: block; margin-top: 6px; color: #8f4c1d; font-size: 11px; line-height: 1.5; }
+#portal #admin-contracts-section .admin-contract-institution { color: var(--contract-ink); font-size: 11px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+#portal #admin-contracts-section .contract-institution-empty { color: var(--contract-muted); font-weight: 400; }
+#portal #admin-contracts-section .admin-contract-action button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 38px; padding: 0 10px; border: 1px solid #d7dfd7; border-radius: 9px; background: transparent; color: #30584a; font-size: 11px; }
+#portal #admin-contracts-section .admin-contract-action svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+#portal #admin-contracts-section .contract-mobile-label { display: none; }
+@media (hover:hover) {
+  #portal #admin-contracts-section .admin-contract-row:hover { background: #f1f6ef; }
+  #portal #admin-contracts-section .admin-contract-action button:hover { background: #e1eee5; border-color: #91b19f; }
+}
+@media(max-width:1250px) {
+  #portal #admin-contracts-section > .admin-team-toolbar { grid-template-columns: 1fr; gap: 12px; }
+  #portal #admin-contracts-section .admin-list-kpi:first-child { border-left: 0; padding-left: 0; }
+}
+@container contracts (max-width:1000px) {
+  #portal #admin-contracts-section > .admin-team-toolbar { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  #portal #admin-contract-list { background: transparent; border: 0; border-radius: 0; overflow: visible; }
+  #portal #admin-contracts-section .admin-contract-head { display: none; }
+  #portal #admin-contracts-section .admin-contract-row { grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px; margin-bottom: 8px; border: 1px solid var(--contract-line); border-radius: 14px; background: #fffefa; }
+  #portal #admin-contracts-section .admin-contract-person { grid-column: 1/-1; }
+  #portal #admin-contracts-section .admin-contract-progress { grid-column: 1/-1; }
+  #portal #admin-contracts-section .admin-contract-week { grid-column: 1; grid-row: 3; }
+  #portal #admin-contracts-section .admin-contract-date { grid-column: 2; grid-row: 3; }
+  #portal #admin-contracts-section .admin-contract-status { grid-column: 1; grid-row: 4; align-self: start; }
+  #portal #admin-contracts-section .admin-contract-institution { grid-column: 2; grid-row: 4; align-self: start; }
+  #portal #admin-contracts-section .admin-contract-action { grid-column: 1/-1; grid-row: 5; justify-self: end; align-self: end; }
+  #portal #admin-contracts-section .contract-mobile-label { display: block; margin-bottom: 7px; color: #65736b; font-size: 11px; }
+}
+@media(max-width:600px) {
+  #portal #admin-contracts-section > .admin-team-toolbar { padding: 16px; border-radius: 16px; }
+  #portal #admin-contracts-section #admin-contract-kpis { grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 12px 0; }
+  #portal #admin-contracts-section .admin-list-kpi { padding: 0 10px; flex-direction: column-reverse; align-items: flex-start; gap: 3px; }
+  #portal #admin-contracts-section .admin-list-kpi:nth-child(4) { border-left: 0; padding-left: 0; }
+  #portal #admin-contracts-section .admin-list-kpi b { font-size: 25px; }
+  #portal #admin-contracts-section .contracts-filter { flex-basis: 100%; }
+  #portal #admin-contracts-section .admin-toggle { flex: 1 1 130px; }
+  #portal #admin-contracts-section .admin-contract-action button { height: 44px; padding-inline: 14px; }
+  #portal #admin-contracts-section .contracts-list-caption { margin-top: 14px; }
+}

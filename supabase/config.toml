@@ -16,3 +16,7 @@ verify_jwt = true
 # Publicaciones valida además usuario, permiso y propiedad dentro del manejador.
 [functions.marketing-publicaciones]
 verify_jwt = true
+
+# Valida auth.getUser() y dash_gestiona_certificados() dentro del manejador.
+[functions.cert-cuentas]
+verify_jwt = false

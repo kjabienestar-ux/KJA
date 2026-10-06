@@ -96,6 +96,36 @@ function adminCloseTime(value){
   return value?new Intl.DateTimeFormat('es-PE',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Lima'}).format(new Date(value)):'—';
 }
 
+function adminCloseExitRecovery(person,reviews=[]){
+  const close=person?.cierre||{};
+  if(!close.entrada_at||close.salida_at||close.requiere_salida===false||close.aplica_jornada===false||close.justificado||close.estado==='justificado')return false;
+  return (close.requisitos||[]).some(item=>item.tipo==='salida'&&item.completo)
+    ||reviews.some(item=>item.requisito==='salida'&&item.estado==='completo');
+}
+
+async function recoverAdminCloseExit(personId,button){
+  if(APP.access.rol!=='direccion'||button.disabled)return;
+  const date=$('admin-close-date').value||isoLima();
+  button.disabled=true;button.textContent='Comprobando salida…';
+  try{
+    const {data,error}=await db.rpc('dash_admin_regularizar_cierre',{p_colaborador:Number(personId),p_fecha:date});
+    if(error)throw error;
+    if(data?.ok&&(data.regularizada||data.motivo==='ya_cerrada')){
+      await loadAdminCloses({quiet:true});
+      toast('Salida registrada. El estado de la jornada se volvió a comprobar.');
+    }else{
+      const reasons={requisitos_pendientes:'Aún faltan evidencias laborales. Completa los pendientes antes de recuperar la salida.',
+        evidencia_salida:'Revisa y aprueba la foto de salida. Si ya está aprobada, falta una hora válida para recuperar el registro; revisa el diagnóstico de salidas.',
+        hora_salida_invalida:'La hora de la evidencia no es válida: debe ser posterior a la entrada y no estar en el futuro.',
+        jornada_no_aplicable:'Esta jornada no requiere una salida o no tiene asistencia válida.',
+        no_programado:'La jornada no está programada para esa fecha.',datos:'Solo se pueden recuperar jornadas de los últimos 180 días.',
+        sin_permiso:'Solo Dirección puede recuperar una salida.',sin_entrada:'Primero debe existir una entrada registrada.'};
+      toast(reasons[data?.motivo]||'No se pudo recuperar la salida. Actualiza el panel y vuelve a intentarlo.',true);
+    }
+  }catch{toast('No pudimos comprobar la salida. Revisa tu conexión y vuelve a intentarlo.',true)}
+  finally{button.disabled=false;button.textContent='Recuperar salida';}
+}
+
 function adminCloseClock(value){
   const match=String(value||'').match(/^(\d{1,2}):(\d{2})/);if(!match)return '';
   const hour=Number(match[1]),suffix=hour<12?'a. m.':'p. m.';
@@ -164,10 +194,9 @@ function renderAdminDrawPreview(data){
 
 function renderAdminCloseAssignments(){
   const data=APP.adminClose,query=adminCloseSearchText($('admin-assignment-search')?.value||''),rows=(data?.asignaciones||[]).filter(item=>adminCloseSearchText(`${item.titulo} ${item.destino}`).includes(query));
-  const visibleRows=typeof paginateAssignments==='function'?paginateAssignments(rows):rows;
   const presentations=rows.map(adminCloseAssignmentPresentation),concluded=presentations.filter(item=>['entregada','aprobada'].includes(item.state)).length;
   $('admin-close-assignment-count').textContent=rows.length?`${rows.length} ${rows.length===1?'asignación':'asignaciones'} · ${concluded} ${concluded===1?'concluida':'concluidas'}`:'Sin asignaciones';
-  $('admin-close-assignment-list').innerHTML=rows.length?visibleRows.map((item,index)=>{const status=adminCloseAssignmentPresentation(item);return `<div class="admin-close-assignment-row is-${esc(status.state)}">
+  $('admin-close-assignment-list').innerHTML=rows.length?rows.map((item,index)=>{const status=adminCloseAssignmentPresentation(item);return `<div class="admin-close-assignment-row is-${esc(status.state)}">
     <span class="admin-close-assignment-copy"><small>${esc((item.tipo||'otro').toUpperCase())}</small><b title="${esc(item.titulo)}">${esc(item.titulo)}</b><em>${esc(item.destino||'Destino no disponible')}</em></span>
     <span class="admin-close-assignment-progress"><strong class="admin-assignment-state ${esc(status.state)}"><i aria-hidden="true"></i>${esc(status.label)}</strong><em>${esc(status.copy)}</em></span>
     ${data.puede_editar?`<button type="button" data-cancel-admin-close="${esc(item.id)}">Quitar</button>`:''}
@@ -207,8 +236,12 @@ function renderAdminCloseStatus(){
       const evidence=`${progress.done}/${progress.total}`,state=adminCloseResolvedState(person,progress,selectedDate),pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length;
       const reviewAction=canReview&&personReviews.length?`<button type="button" class="admin-close-review-trigger ${pending?'has-pending':''}" data-admin-review-person="${esc(person.id)}">${pending?`${pending} por revisar`:'Ver evidencias'}</button>`:'';
       const missing=adminEvidenceAvailable(person,personReviews),canUpload=canReview&&($('admin-close-date').value||isoLima())<=isoLima(),uploadAction=canUpload&&missing.length?`<button type="button" class="admin-close-upload-trigger" data-admin-upload-person="${esc(person.id)}">${missing.every(item=>item.optional)?'Adjuntar salida':'Subir faltante'}</button>`:'';
+      const recoverExit=adminCloseExitRecovery(person,personReviews);
+      const recoveryAction=canUpload&&recoverExit?`<button type="button" class="admin-close-upload-trigger" data-admin-recover-exit="${esc(person.id)}">Recuperar salida</button>`:'';
+      const exitNote=!close.salida_at&&close.entrada_at&&close.requiere_salida!==false&&close.aplica_jornada!==false&&!close.justificado
+        ?`<small>${recoverExit?'Foto recibida; falta registrar la salida.':'Falta registrar la salida.'}</small>`:'';
       const messageAction=canReview?`<button type="button" class="admin-close-message-trigger" data-admin-message-person="${esc(person.id)}" aria-label="Enviar mensaje a ${esc(person.nombre)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 4zM8 9h8M8 13h5"/></svg><span>Mensaje</span></button>`:'';
-      html+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)}</b><span class="admin-close-evidence-actions">${reviewAction}${uploadAction}</span></span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span><span data-label="Mensaje" class="admin-close-message-cell">${messageAction||'—'}</span></div>`;
+      html+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)} evidencias</b>${exitNote}<span class="admin-close-evidence-actions">${reviewAction}${uploadAction}${recoveryAction}</span></span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span><span data-label="Mensaje" class="admin-close-message-cell">${messageAction||'—'}</span></div>`;
     }
     html+='</div></section>';
   }
@@ -637,7 +670,7 @@ $('admin-close-area').onchange=renderAdminCloseStatus;
 $('admin-close-assignment-form').onsubmit=submitAdminCloseAssignment;
 $('admin-close-assignments-refresh').onclick=()=>loadAdminCloses({quiet:true});
 $('admin-close-assignment-list').onclick=event=>{const button=event.target.closest('[data-cancel-admin-close]');if(button)cancelAdminCloseAssignment(button.dataset.cancelAdminClose)};
-$('admin-close-status').onclick=event=>{const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]'),message=event.target.closest('[data-admin-message-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminMissingEvidence(upload.dataset.adminUploadPerson,upload);if(message)openAdminMessage(message.dataset.adminMessagePerson,message)};
+$('admin-close-status').onclick=event=>{const recovery=event.target.closest('[data-admin-recover-exit]');if(recovery){void recoverAdminCloseExit(recovery.dataset.adminRecoverExit,recovery);return;}const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]'),message=event.target.closest('[data-admin-message-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminMissingEvidence(upload.dataset.adminUploadPerson,upload);if(message)openAdminMessage(message.dataset.adminMessagePerson,message)};
 $('admin-review-tabs').onclick=event=>{const button=event.target.closest('[data-admin-review-delivery]');if(button)renderAdminReviewDelivery(button.dataset.adminReviewDelivery)};
 $('admin-review-approve').onclick=()=>submitAdminReview('aprobada');
 $('admin-review-observe').onclick=()=>submitAdminReview('observada');

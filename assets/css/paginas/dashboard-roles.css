@@ -1,0 +1,106 @@
+/* Roles shares the compact, warm work-list treatment of Contracts. */
+#portal #admin-roles-section .admin-role-area { --role-tint: #eaf0f8; --role-accent: #355a85; --role-edge: #c9d7e8; }
+#portal #admin-roles-section [data-area-tone='1'] { --role-tint: #f0eaf7; --role-accent: #695084; --role-edge: #dacee8; }
+#portal #admin-roles-section [data-area-tone='2'] { --role-tint: #faeddf; --role-accent: #865930; --role-edge: #ead4b9; }
+#portal #admin-roles-section [data-area-tone='3'] { --role-tint: #f7e9ee; --role-accent: #87485f; --role-edge: #e8cbd6; }
+#portal #admin-roles-section [data-area-tone='4'] { --role-tint: #e7f1f2; --role-accent: #386a70; --role-edge: #c4dfe1; }
+#portal #admin-roles-section [data-area-tone='5'] { --role-tint: #f2eedf; --role-accent: #71602e; --role-edge: #dfd6b5; }
+#portal #admin-roles-section { container: roles / inline-size; color: #302e2b; }
+#portal #admin-roles-section .admin-roles-toolbar { display: grid; grid-template-columns: minmax(240px,1fr) minmax(480px,1.6fr); gap: 24px; padding: 18px 20px; border-radius: 20px; }
+#portal #admin-roles-section .admin-roles-toolbar h2 { margin: 0; font: 500 28px/1.2 'Fraunces',Georgia,serif; letter-spacing: -.025em; color: #302e2b; }
+#portal #admin-roles-section .admin-roles-toolbar p { margin: 5px 0 0; color: #6b6761; font-size: 12px; line-height: 1.5; }
+#portal #admin-roles-section .admin-list-kpi { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 10px; padding: 8px 14px; background: transparent !important; border-left-color: #e5e1db; }
+#portal #admin-roles-section .admin-list-kpi b { margin: 0; color: #302e2b; font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+#portal #admin-roles-section .admin-list-kpi small { color: #6b6761; font-size: 11px !important; font-weight: 500; text-transform: none; }
+#portal #admin-roles-section .admin-list-kpi:nth-child(2) b { color: #197467; }
+#portal #admin-roles-section .admin-list-kpi:nth-child(5) b { color: #a15b26; }
+#portal #admin-roles-section .admin-roles-lock { padding: 4px 3px; background: transparent; color: #6b6761; font-size: 11px; font-weight: 500; white-space: normal; }
+#portal #admin-roles-section .admin-roles-lock i { background: #827365; box-shadow: none; }
+#portal #admin-roles-section #admin-role-map { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 14px; border: 0; border-radius: 0; overflow: visible; }
+#portal #admin-roles-section #admin-role-map > .admin-empty { grid-column: 1/-1; }
+#portal #admin-roles-section .admin-role-area { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); border: 1px solid #e5e1db; border-radius: 14px; background: #ffffff !important; box-shadow: none; }
+#portal #admin-roles-section .admin-role-area > * { min-width: 0; }
+#portal #admin-roles-section .admin-role-area-head { grid-column: 1/-1; display: flex; flex-direction: row; align-items: center; justify-content: space-between; min-height: 0; gap: 12px; padding: 12px 16px; border: 0; border-bottom: 1px solid #e5e1db; background: #f3f1ed; }
+#portal #admin-roles-section .admin-role-area-head small { display: none; }
+#portal #admin-roles-section .admin-role-area-head h3 { margin: 0; color: #302e2b; font-size: 14px; line-height: 1.4; }
+#portal #admin-roles-section .admin-role-area-count { flex-shrink: 0; padding: 0; background: transparent; color: #6b6761; font-size: 11px; font-weight: 500; }
+#portal #admin-roles-section .admin-role-seat { min-height: 0; padding: 14px 16px; grid-template-columns: 36px minmax(0,1fr); gap: 8px 10px; background: transparent; }
+#portal #admin-roles-section .admin-role-seat-mark { width: 36px; height: 36px; border-radius: 10px; background: #e9e6dc; color: #6b5745; box-shadow: none; font-size: 11px; }
+#portal #admin-roles-section .admin-role-seat-copy small { color: #6b6761; font-size: 10px; font-weight: 500; letter-spacing: 0; }
+#portal #admin-roles-section .admin-role-seat-copy b { color: #302e2b; font-size: 13px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+#portal #admin-roles-section .admin-role-seat-copy em { color: #197467; font-size: 11px; line-height: 1.5; }
+#portal #admin-roles-section .admin-role-seat-copy em.warning { color: #9b4c27; }
+#portal #admin-roles-section .admin-role-seat-copy em.vacant { color: #6b6761; }
+#portal #admin-roles-section .admin-role-seat > button { grid-column: 2; justify-self: start; width: auto; min-height: 32px; height: auto; padding: 6px 9px; font-size: 11px; font-weight: 500; color: #9c3746; border-color: #e5c9ce; }
+#portal #admin-roles-section .admin-role-assignment { align-content: center; gap: 8px; padding: 14px 16px; border: 0; background: transparent; }
+#portal #admin-roles-section .admin-role-assignment label { color: #57524b; font-size: 11px; font-weight: 600; }
+#portal #admin-roles-section select { min-width: 0; width: 100%; height: 40px; border: 1px solid #dcd6ce; border-radius: 9px; background: #fff; color: #302e2b; font-size: 12px; box-shadow: none; }
+#portal #admin-roles-section .admin-primary-action { height: 36px; border: 1px solid #d8d1c7; border-color: #d8d1c7 !important; border-radius: 9px; background: #eee9e2 !important; color: #594b3d !important; box-shadow: none; font-size: 11px; font-weight: 600; }
+#portal #admin-roles-section :is(button,select):disabled { opacity: .55; cursor: not-allowed; }
+#portal #admin-roles-section :is(button,select):focus-visible { outline: 2px solid #8a6148; outline-offset: 2px; }
+#portal #admin-roles-section .admin-role-colider-group { grid-column: 1/-1; border-top: 1px solid #ebe7e1; background: #fcfbf9; }
+#portal #admin-roles-section .admin-role-colider-toggle { min-height: 56px; padding: 10px 16px; }
+#portal #admin-roles-section .admin-role-colider-summary b { color: #302e2b; font-size: 12px; }
+#portal #admin-roles-section .admin-role-colider-summary small { max-width: none; white-space: normal; color: #6b6761; font-size: 11px; line-height: 1.5; }
+#portal #admin-roles-section .admin-role-colider-toggle-meta strong { border-radius: 6px; background: #eae6e0; color: #57524b; font-size: 11px; }
+#portal #admin-roles-section .admin-role-colider-toggle-meta em { color: #594b3d; font-size: 11px; }
+#portal #admin-roles-section .admin-role-colider-panel:not([hidden]) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); background: #ffffff; }
+#portal #admin-roles-section .admin-role-colider-slot + .admin-role-colider-slot { border-top: 0; border-left: 1px solid #e5e1db; }
+#portal #admin-roles-section .admin-role-area-foot { grid-column: 1/-1; flex-direction: row; align-items: center; justify-content: space-between; gap: 4px 12px; padding: 8px 16px; background: #f3f1ed; color: #6b6761; font-size: 11px; line-height: 1.4; }
+#portal #admin-roles-section .admin-roles-audit { margin-top: 18px; border: 1px solid #e5e1db; border-radius: 16px; }
+#portal #admin-roles-section .admin-access-section-head { padding: 14px 16px; background: #f3f1ed; }
+#portal #admin-roles-section .admin-access-section-head h3 { margin: 0; color: #302e2b; font-size: 14px; }
+#portal #admin-roles-section .admin-role-audit-list b { color: #302e2b; font-size: 12px; }
+#portal #admin-roles-section .admin-role-audit-list :is(small,time) { color: #6b6761; font-size: 11px; }
+#portal #admin-roles-section .admin-role-audit-change { color: #57524b; font-size: 12px; white-space: normal; overflow-wrap: anywhere; }
+@media (hover:hover) {
+  #portal #admin-roles-section .admin-role-colider-toggle:hover { background: #eee9e2; }
+  #portal #admin-roles-section .admin-primary-action:not(:disabled):hover { background: #e4dcd1 !important; }
+}
+/* Area identity stays in the header and small controls; content stays white. */
+#portal #admin-roles-section .admin-role-area-head { background: var(--role-tint); border-bottom-color: var(--role-edge); }
+#portal #admin-roles-section .admin-role-area-head :is(h3,.admin-role-area-count) { color: var(--role-accent); }
+#portal #admin-roles-section .admin-role-seat-mark,
+#portal #admin-roles-section .admin-role-colider-toggle-meta strong { background: var(--role-tint); color: var(--role-accent); }
+#portal #admin-roles-section .admin-role-colider-toggle-meta em { color: var(--role-accent); }
+#portal #admin-roles-section .admin-role-area :is(button,select):focus-visible { outline-color: var(--role-accent); }
+/* Emphasize the current leader without giving vacant seats the same weight. */
+#portal #admin-roles-section .admin-role-area:not(.vacant) > .admin-role-seat { grid-template-columns: 46px minmax(0,1fr); align-content: center; gap: 10px 12px; }
+#portal #admin-roles-section .admin-role-area:not(.vacant) > .admin-role-seat > .admin-role-seat-mark { width: 46px; height: 46px; align-self: start; background: var(--role-accent); color: #fff; font-size: 15px; font-weight: 700; }
+#portal #admin-roles-section .admin-role-area:not(.vacant) > .admin-role-seat .admin-role-seat-copy small { display: inline-block; padding: 3px 7px; border-radius: 5px; background: var(--role-tint); color: var(--role-accent); font-size: 10px; font-weight: 700; line-height: 1.4; }
+#portal #admin-roles-section .admin-role-area:not(.vacant) > .admin-role-seat .admin-role-seat-copy b { margin-top: 7px; font-size: 17px; font-weight: 700; line-height: 1.3; letter-spacing: -.015em; }
+#portal #admin-roles-section .admin-role-area:not(.vacant) > .admin-role-seat .admin-role-seat-copy em { margin-top: 6px; }
+@supports (appearance: base-select) {
+  #portal #admin-roles-section select,
+  #portal #admin-roles-section select::picker(select) { appearance: base-select; }
+  #portal #admin-roles-section select { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 11px; height: auto; min-height: 40px; background-image: none; }
+  #portal #admin-roles-section select::picker-icon { color: var(--role-accent); transition: rotate 160ms ease; }
+  #portal #admin-roles-section select:open::picker-icon { rotate: 180deg; }
+  #portal #admin-roles-section select:open { border-color: var(--role-accent); }
+  #portal #admin-roles-section select::picker(select) { margin-top: 6px; padding: 6px; border: 1px solid var(--role-edge); border-radius: 12px; background: #fff; color: #302e2b; box-shadow: 0 12px 28px #302e2b24; max-height: min(320px,45vh); overflow-y: auto; font: 12px/1.5 Inter,sans-serif; animation: role-picker-open 160ms ease-out; }
+  #portal #admin-roles-section option { min-height: 38px; padding: 9px 11px; border-radius: 7px; gap: 10px; white-space: normal; overflow-wrap: anywhere; }
+  #portal #admin-roles-section option:checked { background: var(--role-tint); color: var(--role-accent); font-weight: 600; }
+  #portal #admin-roles-section option:hover,
+  #portal #admin-roles-section option:focus-visible { background: var(--role-tint); color: var(--role-accent); outline: 1px solid var(--role-edge); outline-offset: -1px; }
+  #portal #admin-roles-section option::checkmark { color: var(--role-accent); }
+}
+@keyframes role-picker-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion:reduce) {
+  #portal #admin-roles-section select::picker-icon { transition: none; }
+  #portal #admin-roles-section select::picker(select) { animation: none; }
+}
+@container roles (max-width:1000px) {
+  #portal #admin-roles-section .admin-roles-toolbar { grid-template-columns: minmax(0,1fr); gap: 14px; }
+  #portal #admin-roles-section #admin-role-map { grid-template-columns: minmax(0,1fr); }
+}
+@container roles (max-width:600px) {
+  #portal #admin-roles-section .admin-role-audit-list article { grid-template-columns: 9px minmax(0,1fr); }
+  #portal #admin-roles-section :is(.admin-role-audit-change,.admin-role-audit-list time) { grid-column: 2; text-align: left; }
+  #portal #admin-roles-section .admin-role-area { grid-template-columns: minmax(0,1fr); }
+  #portal #admin-roles-section .admin-role-colider-panel:not([hidden]) { grid-template-columns: minmax(0,1fr); }
+  #portal #admin-roles-section .admin-role-colider-slot + .admin-role-colider-slot { border-left: 0; border-top: 1px solid #e5e1db; }
+  #portal #admin-roles-section .admin-list-kpis { grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 12px 0; }
+  #portal #admin-roles-section .admin-list-kpi { flex-direction: column-reverse; align-items: flex-start; gap: 3px; padding: 4px 8px; }
+  #portal #admin-roles-section .admin-role-seat > button { min-height: 44px; }
+  #portal #admin-roles-section .admin-primary-action { height: 44px; }
+}
