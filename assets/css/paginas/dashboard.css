@@ -10865,3 +10865,22 @@ body.admin-entry-open{overflow:hidden}
   .portal:not(.admin-wide)>.portal-rail .rail-announcement-controls{flex-shrink:0}
   .portal:not(.admin-wide)>.portal-rail .rail-insight{padding:12px 14px}
 }
+
+/* Personal navigation label remains visible in narrow desktop windows. */
+@media (min-width:901px){
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"]) #sidebar .side-nav-divider.personal{
+    display:flex;
+    align-items:center;
+    min-height:26px;
+    margin:4px 10px 8px;
+    padding:0 10px;
+    border-left:3px solid var(--sidebar-blue,#075abc);
+    border-radius:8px;
+    color:var(--sidebar-blue,#075abc)!important;
+    background:rgba(7,90,188,.1);
+    font-size:11px!important;
+    font-weight:800!important;
+    letter-spacing:.1em!important;
+    line-height:1!important;
+  }
+}
