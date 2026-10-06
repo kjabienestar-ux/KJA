@@ -34,7 +34,7 @@ async function loadAdminRoles(){
 
 function renderAdminRoles(){
   const data=APP.adminRoles;if(!data)return;const summary=data.resumen||{},coLeadersEnabled=Number(data.co_lideres_max)===2;
-  const kpis=[['ÁREAS ACTIVAS',summary.areas||0],['CON LÍDER',summary.con_lider||0],['SIN LÍDER',summary.sin_lider||0],['CO-LÍDERES',summary.colideres||0],['POR REVISAR',summary.roles_por_revisar??summary.lideres_por_revisar??0]];
+  const kpis=[['Áreas activas',summary.areas||0],['Con líder',summary.con_lider||0],['Sin líder',summary.sin_lider||0],['Co-líderes',summary.colideres||0],['Por revisar',summary.roles_por_revisar??summary.lideres_por_revisar??0]];
   $('admin-roles-kpis').innerHTML=kpis.map(item=>`<article class="admin-list-kpi"><small>${item[0]}</small><b>${item[1]}</b></article>`).join('');
   const areas=data.areas||[];
   $('admin-role-map').innerHTML=areas.length?areas.map(area=>{
@@ -62,7 +62,7 @@ function renderAdminRoles(){
         </div>
       </section>`;
     }).join('');
-    return `<article class="admin-role-area ${status.kind}" data-role-area="${area.id}">
+    return `<article class="admin-role-area ${status.kind}" data-role-area="${area.id}" data-area-tone="${Math.abs(Number(area.id)||0)%6}">
       <header class="admin-role-area-head"><span><small>ÁREA</small><h3>${esc(area.nombre)}</h3></span><span class="admin-role-area-count">${area.personas_activas||0} persona${Number(area.personas_activas)===1?'':'s'}</span></header>
       <div class="admin-role-seat">
         <span class="admin-role-seat-mark">${leader?initials(leader.nombre):'—'}</span>

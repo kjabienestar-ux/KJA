@@ -1,0 +1,94 @@
+/* Assignment workspace: permanent calendar, compact form and daily ledger. */
+#portal #admin-assignments-section { container: assignments / inline-size; color: #302e2b; }
+#portal #admin-assignments-section .assignment-section-head { padding: 18px 20px; border: 1px solid #e5e1db; border-radius: 18px; background: #faf9f5; }
+#portal #admin-assignments-section .assignment-section-head h2 { color: #302e2b; font: 500 28px/1.2 'Fraunces',Georgia,serif; letter-spacing: -.025em; }
+#portal #admin-assignments-section .assignment-section-head p { margin: 5px 0 0; color: #6b6761; font-size: 12px; line-height: 1.5; }
+#portal #admin-assignments-section .admin-close-grid { display: grid; grid-template-columns: 290px minmax(0,1fr); gap: 14px; align-items: start; }
+#portal #admin-assignments-section .assignment-sidebar { display: grid; gap: 12px; min-width: 0; }
+#portal #admin-assignments-section .assignment-create-panel { grid-column: 1/-1; border: 1px solid #dcd6ce; border-radius: 12px; background: #fff; }
+#portal #admin-assignments-section .assignment-create-panel[hidden] { display: none; }
+#portal #admin-assignments-section #assignment-create-toggle { padding: 10px 22px; flex-shrink: 0; }
+#portal #admin-assignments-section .assignment-create-panel > form { border: 0; }
+#portal #admin-assignments-section .assignment-create-panel .admin-close-fields { grid-template-columns: repeat(4,minmax(0,1fr)); align-items: start; }
+#portal #admin-assignments-section .assignment-create-panel .admin-close-fields > * { grid-column: auto; }
+#portal #admin-assignments-section .assignment-create-panel label:has(:is(#admin-close-target,#admin-close-instructions)) { grid-column: span 2; }
+#portal #admin-assignments-section .assignment-create-panel #assignment-target-matches { grid-column: 1/-1; }
+#portal #admin-assignments-section .assignment-create-panel textarea { min-height: 64px; height: 64px; }
+#portal #admin-assignments-section .assignment-create-panel #admin-close-assign { width: auto; min-width: 200px; padding-inline: 24px; }
+#portal #admin-assignments-section #admin-close-assignment-list { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+#portal #admin-assignments-section #admin-close-assignment-list > .admin-close-assignment-row { flex: 1 1 calc((100% - 20px)/3); min-width: min(280px,100%); box-sizing: border-box; align-content: start; }
+#portal #admin-assignments-section #admin-close-assignment-list > .admin-empty { width: 100%; }
+#portal #admin-assignments-section #admin-close-assignment-list > .admin-empty { grid-column: 1/-1; }
+#portal #admin-assignments-section :is(.assignment-calendar,.admin-close-assignment,.admin-close-assignments) { margin: 0; padding: 16px; border: 1px solid #e5e1db; border-radius: 14px; background: #fff; box-shadow: none; }
+#portal #admin-assignments-section :is(.assignment-calendar,.admin-close-assignment,.admin-close-assignments) > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 0 13px; border-bottom: 1px solid #ebe7e1; }
+#portal #admin-assignments-section .admin-close-assignment > header { display: block; }
+#portal #admin-assignments-section h3 { margin: 0; color: #302e2b; font-size: 15px; font-weight: 650; }
+#portal #admin-assignments-section :is(header p,.assignment-guide,.assignment-calendar p,.assignment-calendar small) { color: #6b6761; font-size: 12px; line-height: 1.5; }
+#portal #admin-assignments-section header p { margin: 5px 0 0; }
+#portal #admin-assignments-section :is(input,select,textarea) { box-sizing: border-box; min-width: 0; max-width: 100%; min-height: 42px; border: 1px solid #dcd6ce; border-radius: 9px; background: #fcfbf9; color: #302e2b; padding: 9px 11px; font: 12px/1.5 Inter,sans-serif; box-shadow: none; }
+#portal #admin-assignments-section :is(input,textarea)::placeholder { color: #77716a; font-weight: 400; }
+#portal #admin-assignments-section :is(button,input,select,textarea):focus-visible { outline: 2px solid #8a6148; outline-offset: 2px; }
+#portal #admin-assignments-section :is(.admin-close-fields label,.assignment-search,.assignment-section-head label) { color: #57524b; font-size: 12px; font-weight: 600; }
+#portal #admin-assignments-section .admin-close-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 15px 0; }
+#portal #admin-assignments-section .admin-close-fields > .span-2 { grid-column: 1/-1; }
+#portal #admin-assignments-section .admin-close-fields > label:nth-child(2) { grid-column: auto; }
+#portal #admin-assignments-section textarea { min-height: 86px; resize: vertical; }
+#portal #admin-assignments-section #admin-assignment-date-note { padding: 10px 12px; border-radius: 8px; background: #f3f0ea; color: #655443; }
+#portal #admin-assignments-section button { cursor: pointer; }
+#portal #admin-assignments-section button:disabled { opacity: .5; cursor: not-allowed; }
+#portal #admin-assignments-section .admin-primary-action { min-height: 42px; border-radius: 9px; box-shadow: none; font-size: 12px; }
+#portal #admin-assignments-section :is(.assignment-calendar > header button,.assignment-month-nav button,.assignment-pagination button,#admin-close-assignments-refresh) { min-height: 36px; padding: 7px 11px; border: 1px solid #dcd6ce; border-radius: 8px; background: #faf9f5; color: #594b3d; font-size: 12px; font-weight: 600; box-shadow: none; }
+#portal #admin-assignments-section .assignment-month-nav { display: grid; grid-template-columns: 34px minmax(0,1fr) 34px; align-items: center; gap: 7px; margin-top: 14px; }
+#portal #admin-assignments-section .assignment-month-nav label { margin: 0; min-width: 0; }
+#portal #admin-assignments-section .assignment-month-nav button { padding: 0; font-size: 24px; }
+#portal #admin-assignments-section .assignment-month-nav input { width: 100%; min-height: 36px; padding: 6px; }
+#portal #admin-assignments-section .assignment-month-nav label > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+#portal #admin-assignments-section #assignment-calendar-message { margin: 12px 0; min-height: 36px; }
+#portal #admin-assignments-section .assignment-calendar-days { gap: 4px; margin: 12px 0 16px; }
+#portal #admin-assignments-section .assignment-calendar-days > span { padding: 4px 0; color: #77716a; font-size: 11px; }
+#portal #admin-assignments-section .assignment-calendar-days button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 48px; padding: 4px 0; background: #faf9f6; color: #57524b; border: 1px solid transparent; border-radius: 8px; font-size: 12px; font-variant-numeric: tabular-nums; }
+#portal #admin-assignments-section .assignment-calendar-days button.has-assignments { background: #eee7f5; color: #694f84; }
+#portal #admin-assignments-section .assignment-calendar-days button small { font-size: 10px; font-weight: 700; color: inherit; line-height: 1; }
+#portal #admin-assignments-section .assignment-calendar-days button[aria-current='date'] { border-color: #8a6148; }
+#portal #admin-assignments-section .assignment-calendar-days button[aria-pressed='true'] { background: #695084; color: #fff; border-color: #695084; }
+#portal #admin-assignments-section .assignment-calendar-legend { display: flex; align-items: center; gap: 7px; padding-top: 12px; border-top: 1px solid #ebe7e1; }
+#portal #admin-assignments-section .assignment-calendar-legend i { width: 8px; height: 8px; flex-shrink: 0; border-radius: 3px; background: #967bad; }
+#portal #admin-assignments-section .assignment-pagination { color: #6b6761; font-size: 11px; gap: 6px; }
+#portal #admin-assignments-section .assignment-pagination button { font-size: 11px; padding-inline: 8px; }
+#portal #admin-assignments-section .admin-close-assignment-row { grid-template-columns: minmax(0,1fr) auto; padding: 12px; margin: 0; gap: 6px 8px; border: 1px solid #ebe7e1; border-radius: 10px; background: #fff; }
+#portal #admin-assignments-section .admin-close-assignment-row > button { grid-column: 2; grid-row: 1; }
+#portal #admin-assignments-section .admin-close-assignment-progress { grid-column: 1/-1; grid-row: 2; }
+#portal #admin-assignments-section .admin-close-assignment-copy b { color: #302e2b; font-size: 13px; }
+#portal #admin-assignments-section .admin-close-assignment-copy em { margin-top: 3px; font-size: 11px; }
+#portal #admin-assignments-section .assignment-evidence-link { min-height: 0; padding: 7px 9px; font-size: 11px; }
+#portal #admin-assignments-section .assignment-evidence-link small { font-size: 10px; }
+#portal #admin-assignments-section .admin-empty { padding: 28px 14px; color: #6b6761; background: #faf9f6; border-radius: 10px; font-size: 12px; line-height: 1.6; text-align: center; }
+@supports (appearance: base-select) {
+  #portal #admin-assignments-section select,
+  #portal #admin-assignments-section select::picker(select) { appearance: base-select; }
+  #portal #admin-assignments-section select { display: flex; align-items: center; justify-content: space-between; gap: 8px; background-image: none; }
+  #portal #admin-assignments-section select::picker-icon { color: #8a6148; transition: rotate 160ms ease; }
+  #portal #admin-assignments-section select:open::picker-icon { rotate: 180deg; }
+  #portal #admin-assignments-section select::picker(select) { margin-top: 5px; padding: 6px; max-height: min(320px,45vh); overflow-y: auto; border: 1px solid #dcd6ce; border-radius: 12px; background: #fff; color: #302e2b; box-shadow: 0 12px 28px #302e2b24; font: 12px/1.5 Inter,sans-serif; }
+  #portal #admin-assignments-section option { padding: 10px 12px; min-height: 38px; border-radius: 7px; white-space: normal; overflow-wrap: anywhere; }
+  #portal #admin-assignments-section option:is(:checked,:hover,:focus-visible) { background: #f0e8df; color: #6d4931; }
+}
+@container assignments (max-width:1000px) {
+  #portal #admin-assignments-section .assignment-create-panel .admin-close-fields { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@container assignments (max-width:680px) {
+  #portal #admin-assignments-section .admin-close-grid { grid-template-columns: minmax(0,1fr); }
+  #portal #admin-assignments-section #admin-close-assignment-list { grid-template-columns: minmax(0,1fr); }
+  #portal #admin-assignments-section .assignment-section-head { flex-direction: column; align-items: stretch; gap: 14px; }
+  #portal #admin-assignments-section .assignment-section-head label { justify-content: space-between; }
+  #portal #admin-assignments-section .admin-close-fields { grid-template-columns: minmax(0,1fr); }
+  #portal #admin-assignments-section .admin-close-fields > * { grid-column: 1; }
+  #portal #admin-assignments-section .assignment-create-panel .admin-close-fields { grid-template-columns: minmax(0,1fr); }
+  #portal #admin-assignments-section .assignment-create-panel .admin-close-fields > * { grid-column: 1; }
+}
+@media (hover:hover) {
+  #portal #admin-assignments-section .assignment-calendar-days button:hover { box-shadow: inset 0 0 0 1px #967bad; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #portal #admin-assignments-section select::picker-icon { transition: none; }
+}

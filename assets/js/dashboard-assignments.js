@@ -1,18 +1,6 @@
 /* Exploración de asignaciones; las revisiones conservan los permisos del panel. */
 let ASSIGNMENT_CALENDAR_REQUEST=0;
 let ASSIGNMENT_SELECTED_DATE='';
-let ASSIGNMENT_PAGE=0;
-let ASSIGNMENT_PAGE_KEY='';
-function paginateAssignments(rows){
-  const key=[$('admin-close-date').value,$('admin-assignment-search').value].join('|');
-  if(key!==ASSIGNMENT_PAGE_KEY){ASSIGNMENT_PAGE=0;ASSIGNMENT_PAGE_KEY=key;}
-  const pages=Math.max(1,Math.ceil(rows.length/3));
-  ASSIGNMENT_PAGE=Math.max(0,Math.min(ASSIGNMENT_PAGE,pages-1));
-  $('assignment-prev').disabled=ASSIGNMENT_PAGE===0;
-  $('assignment-next').disabled=ASSIGNMENT_PAGE>=pages-1;
-  $('assignment-page').textContent=`Página ${ASSIGNMENT_PAGE+1} de ${pages} · ${rows.length} asignaciones`;
-  return rows.slice(ASSIGNMENT_PAGE*3,ASSIGNMENT_PAGE*3+3);
-}
 function adminAssignmentEvidence(id){
   if(!APP.adminReview?.ok)return '<p>No se pudo consultar la evidencia. Pulsa Actualizar para reintentar.</p>';
   const deliveries=(APP.adminReview.entregas||[]).filter(item=>item.requisito==='asignado'&&String(item.asignacion_id)===String(id)&&item.estado==='completo');
@@ -25,7 +13,7 @@ function assignmentCalendarMarkup(month,days,selected){
   for(let i=0;i<(first.getUTCDay()+6)%7;i++)html+='<span></span>';
   for(let day=1;day<=length;day++){
     const date=`${month}-${String(day).padStart(2,'0')}`,count=counts.get(date)||0;
-    html+=`<button type="button" data-assignment-date="${date}" aria-pressed="${date===selected}" aria-label="${date}: ${count} asignaciones" class="${count?'has-assignments':''}">${day}${count?'<i aria-hidden="true"></i>':''}</button>`;
+    html+=`<button type="button" data-assignment-date="${date}" aria-pressed="${date===selected}" ${date===isoLima()?'aria-current="date"':''} aria-label="${date}: ${count} asignaciones" class="${count?'has-assignments':''}"><span>${day}</span>${count?`<small aria-hidden="true">${count}</small>`:''}</button>`;
   }
   return html;
 }
@@ -64,14 +52,33 @@ $('assignment-target-matches').onclick=event=>{
   $('admin-close-target').focus({preventScroll:true});
 };
 $('admin-assignment-search').oninput=renderAdminCloseAssignments;
+$('assignment-create-toggle').onclick=()=>{
+  const panel=$('assignment-create-panel'),button=$('assignment-create-toggle');
+  panel.hidden=!panel.hidden;
+  button.setAttribute('aria-expanded',String(!panel.hidden));
+  button.textContent=panel.hidden?'Nueva asignación':'Cerrar formulario';
+  if(!panel.hidden)$('admin-close-target-kind').focus({preventScroll:true});
+};
 $('assignment-work-date').onchange=()=>{
   if(!$('assignment-work-date').value)return;
   $('admin-close-date').value=$('assignment-work-date').value;
   clearAdminDrawPreview();void loadAdminCloses();
 };
-$('assignment-prev').onclick=()=>{ASSIGNMENT_PAGE--;renderAdminCloseAssignments()};
-$('assignment-next').onclick=()=>{ASSIGNMENT_PAGE++;renderAdminCloseAssignments()};
 $('assignment-calendar-month').onchange=loadAssignmentCalendar;
+function moveAssignmentMonth(offset){
+  const month=$('assignment-calendar-month').value||isoLima().slice(0,7);
+  const [year,number]=month.split('-').map(Number);
+  const next=new Date(Date.UTC(year,number-1+offset,1));
+  $('assignment-calendar-month').value=next.toISOString().slice(0,7);
+  void loadAssignmentCalendar();
+}
+$('assignment-month-prev').onclick=()=>moveAssignmentMonth(-1);
+$('assignment-month-next').onclick=()=>moveAssignmentMonth(1);
+$('assignment-calendar-today').onclick=()=>{
+  $('admin-close-date').value=isoLima();
+  $('assignment-calendar-month').value=isoLima().slice(0,7);
+  clearAdminDrawPreview();void loadAdminCloses();
+};
 $('assignment-calendar-days').onclick=event=>{
   const button=event.target.closest('[data-assignment-date]');if(!button)return;
   $('admin-close-date').value=button.dataset.assignmentDate;
