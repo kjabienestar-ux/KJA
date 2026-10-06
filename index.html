@@ -850,8 +850,239 @@
             .fb-post .wr-panel { left: auto; right: 0; transform: translate(0, 8px) scale(.92); transform-origin: bottom right; }
             .fb-post .wr-reaction:hover .wr-panel,
             .fb-post .wr-reaction.is-open .wr-panel { transform: translate(0, 0) scale(1); }
+
+            /* Carrusel doble de testimonios: dos pistas duplicadas para un movimiento continuo. */
+            .tst-row { display: none !important; }
+            .testimonials-marquee { padding: 24px 0 12px; }
+            .testimonials-marquee__head { max-width: 700px; margin: 0 auto 30px; text-align: center; }
+            .testimonials-marquee__eyebrow { color: var(--primary-pink); font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+            .testimonials-marquee__title { margin: 8px 0 7px; color: var(--primary-blue); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.15; letter-spacing: -.03em; }
+            .testimonials-marquee__subtitle { color: #5f6f86; font-size: .97rem; }
+            .testimonials-marquee__rating { display: inline-flex; align-items: center; gap: 8px; margin-top: 13px; padding: 7px 12px; border-radius: 999px; color: #8d5b00; background: #fff7df; font-size: .78rem; font-weight: 700; }
+            .testimonials-marquee__rating strong { color: #e6a900; letter-spacing: .08em; }
+            .testimonials-marquee__action { margin: 16px auto 0; }
+            .testimonials-marquee__rows { display: grid; gap: 20px; }
+            .testimonials-marquee__row { overflow: hidden; padding: 5px 0 14px; mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+            .testimonials-marquee__track { display: flex; width: max-content; gap: 20px; will-change: transform; }
+            .testimonials-marquee__row--right .testimonials-marquee__track { animation: testimonials-to-right 56s linear infinite; }
+            .testimonials-marquee__row--left .testimonials-marquee__track { animation: testimonials-to-left 52s linear infinite; }
+            .testimonials-marquee__row:hover .testimonials-marquee__track { animation-play-state: paused; }
+            .testimonials-marquee__card { position: relative; width: 340px; min-height: 198px; flex: 0 0 340px; padding: 21px 22px; overflow: hidden; border: 1px solid rgba(255,255,255,.88); border-radius: 18px; background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(239,247,255,.84)); box-shadow: 0 9px 24px rgba(18,55,104,.08), inset 0 1px 0 rgba(255,255,255,.9); cursor: pointer; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+            .testimonials-marquee__card::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(120deg, rgba(255,255,255,.6), transparent 38%, rgba(124,172,232,.08)); }
+            .testimonials-marquee__card::after { content: '“'; position: absolute; top: -13px; right: 14px; color: rgba(0,79,176,.09); font-family: Georgia, serif; font-size: 92px; font-weight: 700; line-height: 1; }
+            .testimonials-marquee__card:not([aria-hidden="true"]):hover { transform: translateY(-5px) scale(1.01); border-color: rgba(7,90,188,.22); box-shadow: 0 16px 32px rgba(18,55,104,.14), inset 0 1px 0 #fff; }
+            .testimonials-marquee__card:focus-visible { outline: 3px solid rgba(241,0,117,.55); outline-offset: 3px; }
+            .testimonials-marquee__source { position: absolute; z-index: 2; top: 14px; right: 16px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; box-shadow: 0 3px 9px rgba(15,48,92,.12); font-weight: 800; }
+            .testimonials-marquee__source--google { color: transparent; background: conic-gradient(from -35deg, #4285f4 0 25%, #34a853 0 45%, #fbbc05 0 64%, #ea4335 0 82%, #4285f4 0); -webkit-background-clip: text; background-clip: text; font: 900 18px/1 Arial, sans-serif; }
+            .testimonials-marquee__source--google::after { content: 'G'; color: transparent; background: inherit; -webkit-background-clip: text; background-clip: text; }
+            .testimonials-marquee__source--facebook { color: #fff; background: #1877f2; font: 900 20px/1 Arial, sans-serif; }
+            .testimonials-marquee__person { position: relative; z-index: 1; display: flex; align-items: center; gap: 11px; }
+            .testimonials-marquee__avatar { width: 42px; height: 42px; display: grid; flex: 0 0 42px; place-items: center; border: 2px solid #fff; border-radius: 50%; color: #fff; background: linear-gradient(135deg, var(--avatar-start), var(--avatar-end)); box-shadow: 0 4px 12px rgba(0,79,176,.18); font-size: .77rem; font-weight: 800; }
+            .testimonials-marquee__name { display: block; color: #17355d; font-size: .89rem; font-weight: 800; line-height: 1.25; }
+            .testimonials-marquee__date { display: block; margin-top: 2px; color: #8190a6; font-size: .68rem; }
+            .testimonials-marquee__stars { display: block; margin: 14px 0 8px; color: #e9ad18; font-size: .9rem; letter-spacing: .12em; }
+            .testimonials-marquee__text { margin: 0; color: #475a74; font-size: .84rem; line-height: 1.58; }
+            .testimonials-detail { position: fixed; z-index: 4500; inset: 0; display: grid; grid-template-columns: minmax(150px,220px) minmax(0,620px) minmax(150px,220px); align-items: center; justify-content: center; gap: 22px; padding: 32px 20px; overflow-y: auto; background: rgba(5,25,58,.38); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); }
+            .testimonials-detail[hidden] { display: none; }
+            body.testimonials-detail-open { overflow: hidden; }
+            .testimonials-detail__panel { position: relative; width: min(620px, 100%); min-height: 350px; overflow: visible; padding: 38px; border: 1px solid rgba(255,255,255,.8); border-radius: 26px; background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(231,243,255,.7)); box-shadow: 0 28px 70px rgba(3,28,68,.28), inset 0 1px 0 rgba(255,255,255,.92); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); }
+            .testimonials-detail__panel::before { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: linear-gradient(130deg, rgba(255,255,255,.58), transparent 38%, rgba(79,143,224,.1)); }
+            .testimonials-detail__close { position: absolute; z-index: 1; top: 16px; right: 16px; width: 35px; height: 35px; border: 1px solid rgba(7,90,188,.12); border-radius: 50%; color: #28537d; background: rgba(255,255,255,.64); font-size: 23px; line-height: 1; cursor: pointer; }
+            .testimonials-detail__person { position: relative; z-index: 1; display: flex; align-items: center; gap: 13px; padding-right: 42px; }
+            .testimonials-detail__avatar { width: 55px; height: 55px; display: grid; flex: 0 0 55px; place-items: center; border: 3px solid rgba(255,255,255,.9); border-radius: 50%; color: #fff; background: linear-gradient(135deg, var(--detail-avatar-start), var(--detail-avatar-end)); box-shadow: 0 7px 18px rgba(7,90,188,.22); font-weight: 800; }
+            .testimonials-detail__name { display: block; color: #15385f; font-size: 1.08rem; font-weight: 800; }
+            .testimonials-detail__date { display: block; margin-top: 2px; color: #6f819a; font-size: .8rem; }
+            .testimonials-detail__source { margin-left: auto; }
+            .testimonials-detail__stars { position: relative; z-index: 1; display: block; margin: 24px 0 13px; color: #e5a90d; font-size: 1.12rem; letter-spacing: .13em; }
+            .testimonials-detail__text { position: relative; z-index: 1; margin: 0; color: #36536f; font-size: 1.08rem; line-height: 1.82; }
+            .testimonials-detail__quote { position: absolute; z-index: 0; right: 24px; bottom: -21px; color: rgba(7,90,188,.08); font: 900 150px/.7 Georgia, serif; }
+            .testimonials-detail__controls { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 25px; padding-top: 17px; border-top: 1px solid rgba(7,90,188,.12); }
+            .testimonials-detail__controls button { border: 1px solid rgba(7,90,188,.13); border-radius: 999px; padding: 8px 12px; color: #175487; background: rgba(255,255,255,.58); font: 700 .76rem/1 Poppins, sans-serif; cursor: pointer; }
+            .testimonials-detail__controls button:hover { color: #fff; background: var(--primary-blue); }
+            .testimonials-detail__controls span { color: #6b7e97; font-size: .72rem; font-weight: 700; }
+            .testimonials-detail__peek { min-height: 210px; padding: 23px 20px; overflow: hidden; border: 1px solid rgba(255,255,255,.55); border-radius: 19px; color: #fff; background: linear-gradient(145deg, rgba(18,74,130,.5), rgba(4,35,83,.58)); box-shadow: 0 16px 38px rgba(3,25,60,.18), inset 0 1px 0 rgba(255,255,255,.25); backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%); text-align: left; cursor: pointer; opacity: .88; transition: transform .2s ease, opacity .2s ease; }
+            .testimonials-detail__peek:hover { opacity: 1; transform: translateY(-4px); }
+            .testimonials-detail__peek small,.testimonials-detail__peek b,.testimonials-detail__peek p { display: block; }
+            .testimonials-detail__peek small { color: #b9dcff; font-size: .67rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+            .testimonials-detail__peek b { margin-top: 11px; font-size: .9rem; line-height: 1.3; }
+            .testimonials-detail__peek p { display: -webkit-box; margin: 10px 0 0; overflow: hidden; color: rgba(255,255,255,.88); font-size: .76rem; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+            @keyframes testimonials-to-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+            @keyframes testimonials-to-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+            @media (max-width: 640px) {
+                .testimonials-marquee { padding-top: 10px; }
+                .testimonials-marquee__head { margin-bottom: 24px; }
+                .testimonials-marquee__subtitle { padding: 0 8px; font-size: .88rem; }
+                .testimonials-marquee__card { width: 260px; min-height: 205px; flex-basis: 260px; padding: 18px; }
+                .testimonials-marquee__track { gap: 14px; }
+                .testimonials-marquee__rows { gap: 13px; }
+                .testimonials-detail__panel { min-height: 0; padding: 27px 23px; }
+                .testimonials-detail { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+                .testimonials-detail__peek { display: none; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .testimonials-marquee__row { overflow-x: auto; mask-image: none; -webkit-mask-image: none; }
+                .testimonials-marquee__track { width: max-content; animation: none !important; }
+                .testimonials-marquee__row [aria-hidden="true"] { display: none; }
+            }
         </style>
         <div class="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
+            <div class="testimonials-marquee" aria-labelledby="testimonials-marquee-title">
+                <div class="testimonials-marquee__head">
+                    <p class="testimonials-marquee__eyebrow">Testimonios</p>
+                    <h2 class="testimonials-marquee__title" id="testimonials-marquee-title">Lo que dicen nuestros pacientes</h2>
+                    <p class="testimonials-marquee__subtitle">Opiniones reales de personas que confiaron en nosotros</p>
+                    <p class="testimonials-marquee__rating"><strong>★★★★★</strong> 5.0 · Reseñas de Google</p>
+                    <button type="button" class="tst-cta__btn testimonials-marquee__action" id="kja-com-abrir">Comparte tu experiencia</button>
+                </div>
+                <div class="testimonials-marquee__rows" aria-label="Opiniones de pacientes">
+                    <div class="testimonials-marquee__row testimonials-marquee__row--right"><div class="testimonials-marquee__track" id="testimonials-row-one"></div></div>
+                    <div class="testimonials-marquee__row testimonials-marquee__row--left"><div class="testimonials-marquee__track" id="testimonials-row-two"></div></div>
+                </div>
+            </div>
+            <div class="testimonials-detail" id="testimonials-detail" role="dialog" aria-modal="true" aria-labelledby="testimonials-detail-name" hidden>
+                <button class="testimonials-detail__peek testimonials-detail__peek--previous" id="testimonials-detail-previous-peek" type="button" aria-label="Ver comentario anterior">
+                    <small>Anterior</small><b id="testimonials-detail-previous-name"></b><p id="testimonials-detail-previous-text"></p>
+                </button>
+                <div class="testimonials-detail__panel">
+                    <button class="testimonials-detail__close" type="button" aria-label="Cerrar testimonio">×</button>
+                    <div class="testimonials-detail__person">
+                        <span class="testimonials-detail__avatar" id="testimonials-detail-avatar">KJ</span>
+                        <span><b class="testimonials-detail__name" id="testimonials-detail-name"></b><small class="testimonials-detail__date" id="testimonials-detail-date"></small></span>
+                        <span class="testimonials-marquee__source testimonials-detail__source" id="testimonials-detail-source" aria-hidden="true"></span>
+                    </div>
+                    <span class="testimonials-detail__stars" id="testimonials-detail-stars"></span>
+                    <p class="testimonials-detail__text" id="testimonials-detail-text"></p>
+                    <div class="testimonials-detail__controls">
+                        <button type="button" id="testimonials-detail-previous">← Anterior</button>
+                        <span id="testimonials-detail-count" aria-live="polite"></span>
+                        <button type="button" id="testimonials-detail-next">Siguiente →</button>
+                    </div>
+                    <span class="testimonials-detail__quote" aria-hidden="true">“</span>
+                </div>
+                <button class="testimonials-detail__peek testimonials-detail__peek--next" id="testimonials-detail-next-peek" type="button" aria-label="Ver siguiente comentario">
+                    <small>Siguiente</small><b id="testimonials-detail-next-name"></b><p id="testimonials-detail-next-text"></p>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const rows = [
+                        [
+                            ['Brittany Aliaga', 'BA', 'hace 11 meses', 'Estoy llevando terapia y me va muy bien, me siento muy a gusto y cómoda y me están ayudando mucho. Lo recomiendo.'],
+                            ['Keyko Minaya', 'KM', 'hace 11 meses', 'La terapia me ha ayudado a conocerme mejor y a manejar mis emociones con más claridad.'],
+                            ['Kevin Montoya Garcia', 'KM', 'hace un año', 'Gracias a la terapia, logré mejorar mi autoestima y cambiar patrones de pensamiento negativos. Me siento una persona más fuerte y segura.'],
+                            ['Sayumi Flores Llaullipoma', 'SF', 'hace un año', 'Ofrecen terapias a buen precio y con profesionales realmente buenos. Me ayudaron muchísimo a trabajar en mi autoestima y a sentirme mejor conmigo misma.']
+                        ],
+                        [
+                            ['Estela Sanchez', 'ES', 'hace 11 meses', 'He tomado terapia y aprendí que cuidar mi mente es tan importante como cuidar mi cuerpo.'],
+                            ['Emma Rios Prada', 'ER', 'hace un año', 'Brindan el apoyo necesario en momentos difíciles. Gracias a la terapia, aprendí a manejar mis emociones de una manera más saludable.'],
+                            ['Paolo Alessandro Arango Barrientos', 'PA', 'hace 11 meses', 'He llevado una terapia y me ayudó bastante en muchos temas y proyectos que realicé. ¡Muy recomendado!'],
+                            ['Koral Anaya', 'KA', 'hace un año', 'Mi hijo ha mejorado mucho desde que está en terapia. Gracias a ustedes por el apoyo 🙏.']
+                        ]
+                    ];
+                    const colors = [['#0a63d4', '#6f9eea'], ['#5c59b6', '#9b8fd6'], ['#168675', '#61bda9'], ['#c4558a', '#f19bc1']];
+                    let previous = [];
+                    const escapeHTML = function (value) { return String(value).replace(/[&<>"']/g, function (char) { return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[char]; }); };
+                    const card = function (item, index, duplicate, source) {
+                        const color = colors[index % colors.length];
+                        const details = ' data-name="' + escapeHTML(item[0]) + '" data-initials="' + item[1] + '" data-date="' + escapeHTML(item[2]) + '" data-text="' + escapeHTML(item[3]) + '" data-rating="' + item[4] + '" data-source="' + source + '" data-color-start="' + color[0] + '" data-color-end="' + color[1] + '"';
+                        return '<article class="testimonials-marquee__card"' + details + (duplicate ? ' aria-hidden="true"' : ' role="button" tabindex="0" aria-label="Ver testimonio completo de ' + escapeHTML(item[0]) + '"') + ' style="--avatar-start:' + color[0] + ';--avatar-end:' + color[1] + '">' +
+                            '<span class="testimonials-marquee__source testimonials-marquee__source--' + source + '" aria-label="Reseña de ' + (source === 'google' ? 'Google' : 'Facebook') + '">' + (source === 'facebook' ? 'f' : '') + '</span>' +
+                            '<div class="testimonials-marquee__person"><span class="testimonials-marquee__avatar">' + item[1] + '</span><span><b class="testimonials-marquee__name">' + escapeHTML(item[0]) + '</b><small class="testimonials-marquee__date">' + item[2] + '</small></span></div>' +
+                            '<span class="testimonials-marquee__stars" aria-label="' + item[4] + ' de 5 estrellas">' + '★★★★★'.slice(0, item[4]) + '☆☆☆☆☆'.slice(item[4]) + '</span><p class="testimonials-marquee__text">“' + escapeHTML(item[3]) + '”</p></article>';
+                    };
+                    const initials = function (name) { return String(name).trim().split(/\s+/).slice(0, 2).map(function (word) { return word.charAt(0); }).join('').toUpperCase() || 'KJ'; };
+                    const relativeDate = function (date) {
+                        const days = Math.max(0, Math.floor((Date.now() - new Date(date).getTime()) / 86400000));
+                        if (!Number.isFinite(days)) return 'Comentario anterior';
+                        if (days < 30) return days < 1 ? 'hoy' : 'hace ' + days + (days === 1 ? ' día' : ' días');
+                        const months = Math.floor(days / 30); return months < 12 ? 'hace ' + months + (months === 1 ? ' mes' : ' meses') : 'hace un año';
+                    };
+                    const render = function () {
+                        const allRows = rows.map(function (row, rowIndex) {
+                            return row.map(function (item) { return item.concat(5, 'google'); }).concat(previous.filter(function (_, index) { return index % 2 === rowIndex; }));
+                        });
+                        [['testimonials-row-one', allRows[0]], ['testimonials-row-two', allRows[1]]].forEach(function (entry) {
+                        const track = document.getElementById(entry[0]);
+                        if (!track) return;
+                        const cards = entry[1].map(function (item, index) { return card(item, index, false, item[5]); }).join('');
+                        const duplicates = entry[1].map(function (item, index) { return card(item, index, true, item[5]); }).join('');
+                        track.innerHTML = cards + duplicates;
+                    });
+                    };
+                    window.__kjaTestimonialMarquee = {
+                        addPrevious: function (comments) {
+                            previous = comments.map(function (comment) {
+                                const rating = Math.min(5, Math.max(1, parseInt(comment.estrellas, 10) || 5));
+                                return [comment.nombre || 'Paciente KJA', initials(comment.nombre), relativeDate(comment.created_at), comment.mensaje || '', rating, 'facebook'];
+                            });
+                            render();
+                        }
+                    };
+                    render();
+
+                    const detail = document.getElementById('testimonials-detail');
+                    const close = detail.querySelector('.testimonials-detail__close');
+                    let lastFocusedCard = null;
+                    let currentDetailIndex = 0;
+                    const detailCards = function () { return Array.from(document.querySelectorAll('.testimonials-marquee__card:not([aria-hidden="true"])')); };
+                    const setPreview = function (prefix, cardElement) {
+                        document.getElementById('testimonials-detail-' + prefix + '-name').textContent = cardElement.dataset.name;
+                        document.getElementById('testimonials-detail-' + prefix + '-text').textContent = '“' + cardElement.dataset.text + '”';
+                    };
+                    const populateDetail = function (index) {
+                        const cards = detailCards();
+                        if (!cards.length) return;
+                        currentDetailIndex = (index + cards.length) % cards.length;
+                        const cardElement = cards[currentDetailIndex];
+                        document.getElementById('testimonials-detail-avatar').textContent = cardElement.dataset.initials;
+                        document.getElementById('testimonials-detail-avatar').style.setProperty('--detail-avatar-start', cardElement.dataset.colorStart);
+                        document.getElementById('testimonials-detail-avatar').style.setProperty('--detail-avatar-end', cardElement.dataset.colorEnd);
+                        document.getElementById('testimonials-detail-name').textContent = cardElement.dataset.name;
+                        document.getElementById('testimonials-detail-date').textContent = cardElement.dataset.date;
+                        document.getElementById('testimonials-detail-text').textContent = '“' + cardElement.dataset.text + '”';
+                        document.getElementById('testimonials-detail-stars').textContent = '★★★★★'.slice(0, Number(cardElement.dataset.rating)) + '☆☆☆☆☆'.slice(Number(cardElement.dataset.rating));
+                        const source = document.getElementById('testimonials-detail-source');
+                        source.className = 'testimonials-marquee__source testimonials-detail__source testimonials-marquee__source--' + cardElement.dataset.source;
+                        source.textContent = cardElement.dataset.source === 'facebook' ? 'f' : '';
+                        setPreview('previous', cards[(currentDetailIndex - 1 + cards.length) % cards.length]);
+                        setPreview('next', cards[(currentDetailIndex + 1) % cards.length]);
+                        document.getElementById('testimonials-detail-count').textContent = (currentDetailIndex + 1) + ' de ' + cards.length;
+                    };
+                    const openDetail = function (cardElement) {
+                        if (!cardElement) return;
+                        const cards = detailCards();
+                        let index = cards.indexOf(cardElement);
+                        // Las tarjetas duplicadas mantienen fluido el bucle y deben abrir el original equivalente.
+                        if (index < 0) index = cards.findIndex(function (item) {
+                            return item.dataset.name === cardElement.dataset.name && item.dataset.date === cardElement.dataset.date && item.dataset.text === cardElement.dataset.text;
+                        });
+                        if (index < 0) return;
+                        lastFocusedCard = cards[index];
+                        populateDetail(index);
+                        detail.hidden = false;
+                        document.body.classList.add('testimonials-detail-open');
+                        close.focus();
+                    };
+                    const closeDetail = function () {
+                        if (detail.hidden) return;
+                        detail.hidden = true;
+                        document.body.classList.remove('testimonials-detail-open');
+                        lastFocusedCard && lastFocusedCard.focus();
+                    };
+                    const moveDetail = function (amount) { populateDetail(currentDetailIndex + amount); };
+                    document.querySelector('.testimonials-marquee__rows').addEventListener('click', function (event) { openDetail(event.target.closest('.testimonials-marquee__card')); });
+                    document.querySelector('.testimonials-marquee__rows').addEventListener('keydown', function (event) {
+                        if ((event.key === 'Enter' || event.key === ' ') && event.target.closest('.testimonials-marquee__card')) { event.preventDefault(); openDetail(event.target.closest('.testimonials-marquee__card')); }
+                    });
+                    close.addEventListener('click', closeDetail);
+                    document.getElementById('testimonials-detail-previous').addEventListener('click', function () { moveDetail(-1); });
+                    document.getElementById('testimonials-detail-next').addEventListener('click', function () { moveDetail(1); });
+                    document.getElementById('testimonials-detail-previous-peek').addEventListener('click', function () { moveDetail(-1); });
+                    document.getElementById('testimonials-detail-next-peek').addEventListener('click', function () { moveDetail(1); });
+                    detail.addEventListener('click', function (event) { if (event.target === detail) closeDetail(); });
+                    document.addEventListener('keydown', function (event) { if (event.key === 'Escape') closeDetail(); if (!detail.hidden && event.key === 'ArrowLeft') moveDetail(-1); if (!detail.hidden && event.key === 'ArrowRight') moveDetail(1); });
+                })();
+            </script>
             <!-- Toda la sección en una fila: invitación a comentar + carrusel de opiniones -->
             <div class="tst-row">
                 <aside class="tst-cta">
@@ -889,6 +1120,8 @@
                 // esto es un claim que debe respaldarse con testimonios REALES (con consentimiento) o
                 // retirarse. Decisión de la directora — no inventar aquí.
                 (function () {
+                    // El nuevo marquee doble sustituye esta implementación conservada por compatibilidad.
+                    if (document.getElementById('testimonials-row-one')) return;
                     const TESTIMONIOS = [
                         { name: 'María Pérez', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&q=80&auto=format', time: 'hace 3 semanas', likes: 42, comments: 3, text: 'Me ayudaron mucho con mi hijo, notamos cambios desde las primeras sesiones. Muy agradecida con todo el equipo 🙏' },
                         { name: 'Carlos Mendoza', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80&auto=format', time: 'hace 1 mes', likes: 89, comments: 12, text: 'Los cursos de especialización son excelentes. Los profesores dominan el tema y la metodología es súper práctica. 100% recomendado.' },
@@ -2466,7 +2699,9 @@
             fetch(SB_URL + '/rest/v1/rpc/comentarios_aprobados', { method: 'POST', headers: HDR, body: '{}' })
                 .then(function (r) { return r.ok ? r.json() : []; })
                 .then(function (lista) {
-                    if (Array.isArray(lista) && lista.length && window.__kjaMarquee) {
+                    if (Array.isArray(lista) && lista.length && window.__kjaTestimonialMarquee) {
+                        window.__kjaTestimonialMarquee.addPrevious(lista);
+                    } else if (Array.isArray(lista) && lista.length && window.__kjaMarquee) {
                         window.__kjaMarquee.pintar(lista.map(cardWeb).join(''));
                     }
                 }).catch(function () { });
