@@ -6058,6 +6058,13 @@ body.modal-open {
     padding: 0;
     margin: 0;
 }
+
+/* Con 7 enlaces, la barra se compacta en pantallas medianas para no desbordarse. */
+@media (min-width: 969px) and (max-width: 1140px) {
+    .nav-links-center {
+        gap: 18px;
+    }
+}
 .nav-links-center li a {
     color: #ffffff;
     text-decoration: none;
