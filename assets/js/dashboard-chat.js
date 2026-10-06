@@ -583,4 +583,5 @@
     try{const saved=JSON.parse(sessionStorage.getItem('kja-chat-windows:'+id)||'[]');if(Array.isArray(saved))saved.slice(-2).forEach(w=>open(w.id,{restore:true,minimized:!!w.minimized}))}catch{}
     timer=setInterval(()=>void refresh(),5000);
   },destroy};
+  window.dispatchEvent(new Event('kja-chat-ready'));
 })();

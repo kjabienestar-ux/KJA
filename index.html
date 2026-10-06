@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="home-page">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -19,8 +19,7 @@
     <title>Psicólogos en San Luis, Lima | KJA Centro Psicológico</title>
     <meta name="description"
         content="Centro psicológico en San Luis, Lima. Terapia individual, de pareja, familiar e infantil con psicólogos colegiados, presencial u online. Agenda por WhatsApp.">
-    <!-- En móvil dejamos que el navegador integre el contenido bajo su interfaz. -->
-    <meta name="theme-color" content="#004fb0" media="(min-width: 969px)">
+    <meta name="theme-color" content="#004fb0">
     <meta name="google-site-verification" content="pJ5ioGFOqoFVCWIPTlAlXL42nT91Vrpio-AXhcDK_Pw" />
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="KJA Centro Psicológico">
@@ -103,7 +102,7 @@
               "name": "¿Cómo es la primera sesión?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "La primera sesión, también llamada sesión de consulta psicológica, tiene una duración de 45 minutos y está enfocada en conocerte, entender tu situación actual y definir los objetivos del proceso terapéutico."
+                "text": "La primera sesión, también llamada sesión de consulta psicológica, está enfocada en conocerte, entender tu situación actual y definir los objetivos del proceso terapéutico."
               }
             },
             {
@@ -160,7 +159,8 @@
         .whatsapp-button::before { background: rgba(241, 0, 117, .35); }
         .whatsapp-button:hover { box-shadow: 0 12px 40px rgba(241, 0, 117, .55), 0 4px 12px rgba(0, 0, 0, .2); }
     </style>
-    <link rel="stylesheet" href="assets/css/paginas/index-mobile-polish.css?v=6">
+    <link rel="stylesheet" href="assets/css/paginas/index-mobile-polish.css?v=7">
+    <link rel="stylesheet" href="assets/css/whatsapp-assistant.css?v=6">
     <!-- Estilos inline del selector de reacciones: espejo runtime de index.css. -->
     <style id="kja-reactions-css">
         .fb-post { overflow: visible; }
@@ -208,9 +208,22 @@
             }
         </style>
     </noscript>
+    <link rel="stylesheet" href="assets/css/paginas/home-navigation.css?v=4">
+    <script defer src="assets/js/home-navigation.js?v=4"></script>
 </head>
 
 <body>
+    <aside id="kja-mobile-drawer" class="kja-mobile-drawer" aria-hidden="true" inert aria-label="Menú principal">
+        <div class="kja-drawer-top"><a href="index.html" aria-label="KJA, inicio"><img src="images/logo/kja.webp" width="418" height="121" alt="KJA"></a><button type="button" class="kja-drawer-close" aria-label="Cerrar menú"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+        <nav aria-label="Secciones"><ul class="kja-drawer-links"><li><a href="index.html" class="active" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7"/></svg>Inicio</a></li>
+<li><a href="terapia.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>Terapia</a></li>
+<li><a href="cursos.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 9 10-5 10 5-10 5L2 9Zm4 2v6c4 3 8 3 12 0v-6M22 9v8"/></svg>Cursos</a></li>
+<li><a href="certificado.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v13H6zM9 16v6l3-2 3 2v-6M9 7h6M9 11h6"/></svg>Certificados</a></li>
+<li><a href="nosotros.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 4a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.9"/></svg>Nosotros</a></li>
+<li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0ZM15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/></svg>Ubícanos</a></li></ul></nav>
+        <div class="kja-drawer-bottom"><a href="terapia.html" class="kja-drawer-cta">Agendar cita <span aria-hidden="true">→</span></a></div>
+    </aside>
+    <div class="kja-page" id="kja-page">
 
     <!-- ===== SPLASH / PANTALLA DE CARGA ===== -->
     <div id="kjaSplash" class="kja-splash" role="status" aria-live="polite" aria-label="Cargando, por favor espera">
@@ -222,7 +235,7 @@
         </div>
     </div>
 
-    <header class="home-header">
+    <header>
         <nav class="nav-desktop-only">
             <!-- Left: Logo -->
             <div class="nav-left logo-container">
@@ -250,29 +263,13 @@
             </div>
         </nav>
 
-        <nav class="nav-mobile-only" aria-label="Navegación principal móvil">
-            <div class="logo-container">
-                <a href="index.html">
-                    <img width="418" height="121" src="images/logo/kja.webp" alt="KJA Logo" class="logo-img">
-                </a>
-            </div>
-            <div class="home-quick-links">
-                <a href="#inicio">Inicio</a>
-                <a href="#terapia">Servicios</a>
-            </div>
-            <ul class="nav-links" id="nav-menu">
-                <li><a href="index.html" class="active">Inicio</a></li>
-                <li><a href="terapia.html">Terapia</a></li>
-                <li><a href="cursos.html">Cursos</a></li>
-                <li><a href="certificado.html">Certificados</a></li>
-                <li><a href="nosotros.html">Nosotros</a></li>
-                <li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank" rel="noopener noreferrer">Ubícanos</a></li>
-            </ul>
-            <button type="button" class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Abrir menú" aria-controls="nav-menu" aria-expanded="false">
-                <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
-            </button>
+        <nav class="kja-mobile-bar" aria-label="Navegación móvil">
+            <button type="button" class="kja-menu-toggle" aria-label="Abrir menú" aria-controls="kja-mobile-drawer" aria-expanded="false"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h10"/></svg></button>
+            <a class="kja-mobile-brand" href="index.html" aria-label="KJA, inicio"><img src="images/logo/kja.webp" width="418" height="121" alt="KJA"></a>
         </nav>
     </header>
+
+
 
     <!-- ===== HERO CAROUSEL ===== -->
     <section id="inicio" class="hero-carousel" aria-label="Carrusel principal KJA">
@@ -1685,17 +1682,16 @@
     </div>
     Fin de ocultamiento -->
 
-    <!-- ===== PLANES DE ACOMPAÑAMIENTO (PRICING) ===== -->
+    <!-- ===== PLANES DE ACOMPAÑAMIENTO ===== -->
     <section class="py-12 md:py-16 bg-white" id="planes">
         <div class="max-w-6xl mx-auto px-4">
             <div class="text-center mb-12">
                 <p
                     class="text-xs font-bold uppercase tracking-wider text-[#f10075] mb-2 animate-pricing-header">
-                    Tarifas Transparentes</p>
+                    Da el primer paso</p>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-[#004fb0] mb-3 animate-pricing-header">
                     Planes de <span class="text-[#f10075] italic font-light">Acompañamiento</span></h2>
-                <p class="text-sm text-gray-500 max-w-xl mx-auto animate-pricing-header">Elige la modalidad
-                    que mejor se adapte a tus necesidades de bienestar emocional.</p>
+                <p class="text-sm text-gray-500 max-w-xl mx-auto animate-pricing-header">No tienes que saber por dónde empezar. Te ayudamos a elegir el acompañamiento que necesitas.</p>
             </div>
 
             <!-- Wrapper: scroll horizontal en mobile, grid normal en desktop -->
@@ -1713,27 +1709,11 @@
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Terapia Individual</h3>
                             <p class="text-xs text-gray-500 mb-6">Para procesos de crecimiento personal, ansiedad y
                                 manejo del estrés.</p>
-                            <div class="mb-6 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-[#004fb0] mb-3">Precio por sesión</p>
-                                <div class="space-y-3">
-                                    <div class="flex items-baseline justify-between gap-3 border-b border-gray-200 pb-2">
-                                        <span class="text-sm text-gray-600">Adultos</span>
-                                        <span class="text-2xl font-extrabold text-gray-900 flex-shrink-0">S/ 100</span>
-                                    </div>
-                                    <div class="flex items-baseline justify-between gap-3 border-b border-gray-200 pb-2">
-                                        <span class="text-sm text-gray-600">Niños y adolescentes</span>
-                                        <span class="text-2xl font-extrabold text-gray-900 flex-shrink-0">S/ 70</span>
-                                    </div>
-                                </div>
+                            <div class="mb-6 rounded-2xl bg-blue-50 px-4 py-3">
+                                <p class="text-xl font-bold text-gray-900 mb-2">Un espacio para ti</p>
+                                <p class="text-xs text-gray-600">Para hablar de lo que sientes y trabajar en tu bienestar, a tu ritmo. Atención para adultos, niños y adolescentes.</p>
                             </div>
                             <ul class="space-y-3 mb-8">
-                                <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
-                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Sesiones de 45-50 minutos
-                                </li>
                                 <li class="flex items-center text-xs text-gray-600">
                                     <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
                                         stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
@@ -1750,10 +1730,9 @@
                                 </li>
                             </ul>
                         </div>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20Individual"
-                            target="_blank"
-                            class="w-full text-center py-3 rounded-xl border border-[#004fb0] text-[#004fb0] hover:bg-[#004fb0] hover:text-white font-semibold text-sm transition-colors duration-200">Agendar
-                            Cita</a>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20me%20interesa%20la%20Terapia%20Individual.%20%C2%BFPodr%C3%ADan%20orientarme%20sobre%20la%20atenci%C3%B3n%2C%20las%20tarifas%20y%20los%20horarios%20disponibles%3F"
+                            target="_blank" rel="noopener noreferrer"
+                            class="w-full text-center py-3 rounded-xl border border-[#004fb0] text-[#004fb0] hover:bg-[#004fb0] hover:text-white font-semibold text-sm transition-colors duration-200">Consultar mi sesión</a>
                     </div>
 
                     <!-- Plan 2 (Destacado) -->
@@ -1772,20 +1751,10 @@
                             <p class="text-xs text-gray-500 mb-6">Fortalece los vínculos familiares, comunicación y
                                 resolución de conflictos.</p>
                             <div class="mb-6 rounded-2xl bg-pink-50 px-4 py-3">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-[#f10075] mb-2">Precio por sesión</p>
-                                <div class="flex items-baseline gap-2">
-                                    <span class="text-4xl font-extrabold text-gray-900 flex-shrink-0">S/ 120</span>
-                                    <span class="text-xs text-gray-500">por sesión</span>
-                                </div>
+                                <p class="text-xl font-bold text-gray-900 mb-2">Vuelvan a escucharse</p>
+                                <p class="text-xs text-gray-600">Un espacio para comprender lo que les pasa y trabajar juntos en su relación, con acompañamiento profesional.</p>
                             </div>
                             <ul class="space-y-3 mb-8">
-                                <li class="flex items-center text-xs text-gray-600">
-                                    <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
-                                        stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Sesiones de 50-60 minutos
-                                </li>
                                 <li class="flex items-center text-xs text-gray-600">
                                     <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
                                         stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
@@ -1802,10 +1771,9 @@
                                 </li>
                             </ul>
                         </div>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20agendar%20una%20Terapia%20de%20Pareja"
-                            target="_blank"
-                            class="w-full text-center py-3 rounded-xl bg-[#f10075] hover:bg-[#d10065] text-white font-semibold text-sm shadow-md shadow-pink-500/10 transition-colors duration-200">Agendar
-                            Cita</a>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20me%20interesa%20la%20Terapia%20de%20Pareja.%20%C2%BFPodr%C3%ADan%20contarme%20c%C3%B3mo%20empezar%2C%20las%20tarifas%20y%20los%20horarios%20disponibles%3F"
+                            target="_blank" rel="noopener noreferrer"
+                            class="w-full text-center py-3 rounded-xl bg-[#f10075] hover:bg-[#d10065] text-white font-semibold text-sm shadow-md shadow-pink-500/10 transition-colors duration-200">Consultar terapia de pareja</a>
                     </div>
 
                     <!-- Plan 3 -->
@@ -1817,24 +1785,11 @@
                                     class="text-xs font-bold text-gray-600 tracking-wider uppercase bg-gray-100 px-3 py-1 rounded-full">Paquetes</span>
                             </div>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Paquete Bienestar</h3>
-                            <p class="text-xs text-gray-500 mb-6">Ahorra en tu proceso completo con un paquete de 4
+                            <p class="text-xs text-gray-500 mb-6">Dale continuidad a tu proceso con un paquete de 4
                                 sesiones prepagadas.</p>
-                            <div class="mb-6 rounded-2xl bg-gray-100 px-4 py-3">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">Precios por 4 sesiones</p>
-                                <div class="space-y-3">
-                                    <div class="flex items-baseline justify-between gap-3 border-b border-gray-200 pb-2">
-                                        <span class="text-sm text-gray-600">Adultos</span>
-                                        <span class="text-xl font-extrabold text-gray-900 flex-shrink-0">S/ 360</span>
-                                    </div>
-                                    <div class="flex items-baseline justify-between gap-3 border-b border-gray-200 pb-2">
-                                        <span class="text-sm text-gray-600 leading-tight">Niños y adolescentes</span>
-                                        <span class="text-xl font-extrabold text-gray-900 flex-shrink-0">S/ 240</span>
-                                    </div>
-                                    <div class="flex items-baseline justify-between gap-3 border-b border-gray-200 pb-2">
-                                        <span class="text-sm text-gray-600">Pareja</span>
-                                        <span class="text-xl font-extrabold text-gray-900 flex-shrink-0">S/ 430</span>
-                                    </div>
-                                </div>
+                            <div class="mb-6 rounded-2xl bg-gray-50 px-4 py-3">
+                                <p class="text-xl font-bold text-gray-900 mb-2">Dale continuidad a tu bienestar</p>
+                                <p class="text-xs text-gray-600">Cuatro sesiones para seguir trabajando en ti. Opciones para adultos, niños, adolescentes y parejas.</p>
                             </div>
                             <ul class="space-y-3 mb-8">
                                 <li class="flex items-center text-xs text-gray-600">
@@ -1842,7 +1797,7 @@
                                         stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                                     </svg>
-                                    Descuentos incluidos: S/ 40 en Adultos y Niños/Adolescentes; S/ 50 en Pareja
+                                    Beneficio especial al elegir el paquete de 4 sesiones
                                 </li>
                                 <li class="flex items-center text-xs text-gray-600">
                                     <svg class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" fill="none"
@@ -1860,10 +1815,9 @@
                                 </li>
                             </ul>
                         </div>
-                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20adquirir%2520el%2520Paquete%2520Bienestar"
-                            target="_blank"
-                            class="w-full text-center py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold text-sm transition-colors duration-200">Adquirir
-                            Plan</a>
+                        <a href="https://wa.me/51988918238?text=Hola%20KJA%2C%20me%20interesa%20el%20Paquete%20Bienestar%20de%204%20sesiones.%20%C2%BFPodr%C3%ADan%20contarme%20las%20opciones%2C%20los%20beneficios%20y%20las%20tarifas%3F"
+                            target="_blank" rel="noopener noreferrer"
+                            class="w-full text-center py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold text-sm transition-colors duration-200">Consultar beneficios del plan</a>
                     </div>
 
                 </div><!-- /grid -->
@@ -1875,6 +1829,7 @@
                     <span data-index="2"></span>
                 </div>
             </div><!-- /plans-scroll-wrapper -->
+
 
         </div>
     </section>
@@ -1977,8 +1932,7 @@
                         </button>
                         <div class="faq-premium-answer">
                             <div class="faq-premium-answer-inner">
-                                <p>La primera sesión, también llamada sesión de consulta psicológica, tiene una duración
-                                    de 45 minutos y está enfocada en conocerte, entender tu situación actual y definir
+                                <p>La primera sesión, también llamada sesión de consulta psicológica, está enfocada en conocerte, entender tu situación actual y definir
                                     los objetivos del proceso terapéutico.</p>
                             </div>
                         </div>
@@ -2218,8 +2172,9 @@
         </div>
     </footer>
 
-    <script defer src="assets/js/script.js?v=13"></script>
+    <script defer src="assets/js/script.js?v=14"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
+    <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>
     <script>
         /* Fondos 2-4 del carrusel: se cargan EN CUANTO termina el LCP (fondo-1),
            no antes (para no competir con él) y no en 'load' (que en móvil lento
@@ -2717,6 +2672,7 @@
             });
         })();
     </script>
+    </div>
 </body>
 
 </html>

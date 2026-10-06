@@ -8,3 +8,5 @@
 .assignment-delete-actions button:disabled{opacity:.6;cursor:wait}
 .assignment-delete-actions button:focus-visible{outline:3px solid #1372c9;outline-offset:3px}
 .assignment-delete-dialog [role=status]{color:#a32236}
+.assignment-delete-dialog.is-busy{visibility:hidden}
+.assignment-delete-dialog.is-busy::backdrop{background:transparent}

@@ -2206,3 +2206,144 @@
   flex: 0 0 auto;
   fill: #0a63d4;
 }
+
+/* Referencia Nosotros: cabecera compacta, fotografía y métricas laterales. */
+.nos-hero {
+  padding: 108px 0 58px;
+  background-size: 100% 100%;
+  background-position: center;
+}
+.nos-hero::before {
+  background: linear-gradient(90deg, rgba(8,22,51,.46), transparent 75%);
+}
+.nos-hero::after { bottom: -29px; height: 44px; background: #fbfcff; }
+.nos-hero-inner {
+  width: 78%; max-width: 1120px;
+  display: grid; grid-template-columns: 1.16fr 1fr;
+  gap: 42px; text-align: left; align-items: center;
+}
+.nos-hero-content { max-width: none; animation: none; }
+.nos-eyebrow { font-size: 9px; letter-spacing: 1.7px; gap: 10px; margin-bottom: 5px; }
+.nos-eyebrow-icon { width: 23px; height: 23px; }
+.nos-eyebrow-rule { width: 50px; height: 2px; margin: 0 0 12px; }
+.nos-hero-title { font-size: clamp(42px, 4.9vw, 70px); letter-spacing: -.035em; margin-bottom: 12px; }
+.nos-hero-title em { font-family: 'Fraunces', Georgia, serif; font-weight: 700; letter-spacing: -.025em; }
+.nos-title-rule { display: none; }
+.nos-hero-desc { font-size: 14px; line-height: 1.5; max-width: 440px; margin: 0 0 22px; color: #e3e8f4; }
+.nos-hero-actions { justify-content: flex-start; gap: 12px; flex-wrap: nowrap; }
+.nos-btn-primary { min-height: 42px; padding: 10px 20px; font-size: 12px; gap: 10px; }
+.nos-btn-portal { min-height: 42px; padding: 10px 16px; font-size: 11px; border-color: #b9c6e0; background: transparent; }
+.nos-hero-features { margin-top: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.nos-feature { gap: 10px; min-width: 0; }
+.nos-feature:not(:last-child)::after { right: -10px; background: rgba(255,255,255,.1); }
+.nos-feature-icon { width: 34px; height: 34px; padding: 7px; margin: 0; border-radius: 11px; color: #ff63b1; background: rgba(241,0,117,.22); stroke-width: 1.7; }
+.nos-feature:nth-child(2) .nos-feature-icon { color: #8da8ff; background: rgba(85,116,255,.24); }
+.nos-feature:nth-child(3) .nos-feature-icon { color: #8ae3cd; background: rgba(36,177,146,.25); }
+.nos-feature-text strong { font-size: 10px; line-height: 1.4; }
+.nos-feature-text span { font-size: 10px; line-height: 1.4; color: #d4deef; }
+.nos-hero-visual { animation: none; }
+.nos-collage-container { max-width: none; padding: 0; }
+.nos-collage-main { aspect-ratio: 1.4; border-radius: 18px; border: 1px solid rgba(255,255,255,.55); box-shadow: 0 16px 36px rgba(5,20,48,.13); }
+.nos-collage-main img { display: block; object-position: 44% center; }
+.nos-floating-card { padding: 11px 14px; gap: 10px; border-radius: 14px; animation: none; }
+.nos-floating-card--professionals { top: -15px; left: -28px; }
+.nos-floating-card--experience { bottom: 20px; right: -50px; }
+.nos-floating-icon { width: 32px; height: 32px; }
+.nos-floating-info strong { font-family: 'Poppins', sans-serif; font-size: 14px; }
+.nos-floating-info span { font-size: 9px; }
+.about-section { background: #fbfcff; margin-top: 0; padding: 0 0 64px; }
+.about-section > .container { width: 82%; max-width: 1160px; padding: 0; }
+.nosotros-tabs-wrapper { width: 100%; margin: 0 auto 20px; padding: 0; transform: translateY(-24px); margin-bottom: -4px; }
+.nosotros-tabs { padding: 5px; gap: 3px; border: 0; box-shadow: 0 12px 30px rgba(20,42,79,.1); }
+.nosotros-tab { height: 40px; padding: 0 15px; font-size: 10px; gap: 8px; text-decoration: none; }
+.nosotros-tab.active { background: #fde7f3; border-color: transparent; box-shadow: none; color: #cd0064; }
+.nosotros-tab-icon { width: 28px; height: 28px; }
+#about-quienes .about-card {
+  width: 100%; min-height: 280px; display: grid;
+  grid-template-columns: 32% minmax(0,1fr) 18%; gap: 14px;
+  border: 0; border-radius: 24px 16px 16px 24px; overflow: visible;
+  background: transparent; box-shadow: none;
+}
+#about-quienes .copy-panel { padding: 18px 10px 20px 22px; border-radius: 24px 0 0 24px; justify-content: flex-start; }
+#about-quienes .copy-panel::after { top: 0; right: -48px; width: 75px; height: 100%; border-radius: 0; transform: none; clip-path: polygon(0 0, 35% 0, 100% 100%, 0 100%); }
+#about-quienes .date-pill { height: 38px; width: max-content; gap: 10px; padding: 3px 14px 3px 0; margin-bottom: 16px; border: 0; box-shadow: 0 6px 22px rgba(204,51,127,.04); }
+#about-quienes .date-icon { width: 34px; height: 34px; background: #ffe7f3; color: #f10075; }
+#about-quienes .date-icon svg { stroke: currentColor; }
+#about-quienes .date-pill strong { font-size: 12px; }
+#about-quienes .date-pill span { font-size: 9px; }
+#about-quienes .eyebrow { font-size: 9px; letter-spacing: 1.3px; margin-bottom: 5px; color: #d60069; }
+#about-quienes .copy-panel h2 { font-size: clamp(27px,2.5vw,36px); line-height: 1.02; margin-bottom: 12px; }
+#about-quienes .copy-panel h2 em { color: #f10075; }
+#about-quienes .copy-panel p { font-size: 11px; line-height: 1.5; font-weight: 400; }
+#about-quienes .cta { min-height: 34px; height: auto; width: max-content; max-width: 100%; margin-top: 12px; padding: 7px 15px; border: 1px solid #f10075; color: #d60069; background: #fff; font-size: 9px; }
+#about-quienes .cta:hover { background: #fff0f7; }
+#about-quienes .image-panel { min-height: 280px; border-radius: 0 16px 16px 0; }
+#about-quienes .image-panel img { object-position: center; }
+#about-quienes .metrics { position: static; width: 100%; max-width: none; min-height: 0; display: grid; grid-template-columns: 1fr; gap: 5px; align-items: stretch; border-radius: 0; background: none; box-shadow: none; overflow: visible; transform: none; }
+#about-quienes .metric { flex-direction: row; justify-content: flex-start; text-align: left; gap: 10px; min-height: 0; padding: 12px; border: 0; border-radius: 15px; background: white; box-shadow: 0 5px 22px rgba(20,42,79,.045); }
+#about-quienes .metric svg { width: 33px; height: 33px; padding: 8px; border-radius: 11px; background: #ffedf7; stroke: #ed087a; }
+#about-quienes .metric:nth-child(2) svg { background: #f6efff; stroke: #8334d8; }
+#about-quienes .metric:nth-child(3) svg { background: #e9faf5; stroke: #10a888; }
+#about-quienes .metric:nth-child(4) svg { background: #fff6e5; stroke: #e7a100; }
+#about-quienes .metric strong { font-size: 13px; color: #193466; line-height: 1.2; }
+#about-quienes .metric span { font-size: 9px; font-weight: 400; line-height: 1.4; color: #5b6b86; }
+.nos-hero a:focus-visible { outline: 3px solid white; outline-offset: 4px; }
+@media (min-width: 1500px) {
+  .nos-hero { padding-top: 125px; padding-bottom: 72px; }
+  .nos-hero-desc { font-size: 16px; }
+  .nos-feature-text strong { font-size: 12px; }
+  .nos-feature-text span { font-size: 11px; }
+}
+@media (max-width: 991px) {
+  .nos-hero-inner { width: 88%; gap: 30px; grid-template-columns: 1.1fr 1fr; }
+  .nos-eyebrow { font-size: 8px; letter-spacing: 1px; }
+  .nos-hero-title { font-size: 44px; }
+  .nos-hero-actions { flex-wrap: wrap; }
+  .nos-hero-features { gap: 12px; }
+  .nos-feature { flex-direction: column; }
+  .nos-feature:not(:last-child)::after { right: -6px; }
+  .nos-floating-card--experience { right: -18px; }
+  .about-section > .container { width: 90%; }
+  #about-quienes .about-card { grid-template-columns: 38% minmax(0,1fr); }
+  #about-quienes .metrics { grid-column: 1 / -1; grid-template-columns: repeat(4,1fr); }
+}
+@media (max-width: 650px) {
+  .nos-hero { padding: 98px 0 60px; background-size: auto 100%; background-position: left top; }
+  .nos-hero-inner { width: calc(100% - 40px); grid-template-columns: 1fr; gap: 36px; }
+  .nos-hero-content { max-width: 480px; margin: auto; }
+  .nos-eyebrow { font-size: 8px; letter-spacing: .8px; }
+  .nos-hero-title { font-size: clamp(42px, 11vw, 60px); }
+  .nos-hero-desc { font-size: 14px; }
+  .nos-hero-actions { gap: 10px; }
+  .nos-btn-primary { padding: 11px 15px; font-size: 11px; min-height: 44px; }
+  .nos-btn-portal { padding: 11px 12px; font-size: 10px; min-height: 44px; }
+  .nos-hero-features { margin-top: 24px; gap: 18px; }
+  .nos-feature-text strong { font-size: 10px; }
+  .nos-feature-text span { font-size: 10px; }
+  .nos-collage-container { width: calc(100% - 20px); max-width: 430px; }
+  .nos-collage-main { aspect-ratio: 1.45; }
+  .nos-floating-card { padding: 10px 12px; }
+  .nos-floating-card--professionals { left: -10px; top: -16px; }
+  .nos-floating-card--experience { right: -10px; bottom: 14px; }
+  .about-section > .container { width: calc(100% - 32px); }
+  .nosotros-tabs-wrapper { transform: translateY(-22px); margin-bottom: -2px; }
+  .nosotros-tabs { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 3px; padding: 5px; background: #fff; border-radius: 20px; box-shadow: 0 12px 30px rgba(20,42,79,.1); }
+  .nosotros-tabs .nosotros-tab { grid-column: auto; height: 44px; padding: 0 8px; font-size: 10px; justify-content: flex-start; border: 0; box-shadow: none; background: transparent; }
+  .nosotros-tabs .nosotros-tab.active { background: #fde7f3; }
+  .nosotros-tab-icon { width: 25px; height: 25px; }
+  #about-quienes .about-card { grid-template-columns: 1fr; gap: 0; border-radius: 22px; }
+  #about-quienes .copy-panel { padding: 24px; border-radius: 22px 22px 0 0; }
+  #about-quienes .copy-panel::after { display: none; }
+  #about-quienes .date-pill { margin-bottom: 20px; }
+  #about-quienes .copy-panel h2 { font-size: 34px; }
+  #about-quienes .copy-panel p { font-size: 14px; line-height: 1.6; }
+  #about-quienes .cta { font-size: 11px; min-height: 44px; margin-top: 18px; }
+  #about-quienes .image-panel { min-height: 0; aspect-ratio: 1.4; border-radius: 0 0 18px 18px; }
+  #about-quienes .metrics { grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  #about-quienes .metric { min-height: 76px; padding: 12px; }
+  #about-quienes .metric strong { font-size: 14px; }
+  #about-quienes .metric span { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nos-hero *, .about-section * { animation: none !important; transition: none !important; }
+}

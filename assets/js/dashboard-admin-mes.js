@@ -87,6 +87,9 @@ function mergeAdminMonthClosures(data,closeData){
   for(const person of data.personas||[]){
     const summary=person.resumen||{},counts={P:0,T:0,J:0,NG:0,incompletas:0,pendientes:0,horas:0};
     for(const day of person.dias||[]){
+      const leave=(data.dias_libres||[]).find(item=>String(item.colaborador_id)===String(person.id)&&item.fecha===day.fecha);
+      day.dia_libre=!!leave;
+      if(leave){day.laborable=false;day.motivo='Día libre asignado';day.excepcion_nota=leave.motivo||'Reconocimiento por asistencia presencial';}
       const close=by.get(`${person.id}|${day.fecha}`);day.cierre_estado=close?.estado||null;day.salida_at=close?.salida_at||null;
       const valid=!day.cierre_estado||['no_aplica','completa','regularizada'].includes(day.cierre_estado);
       if(day.estado==='P'&&valid)counts.P++;
@@ -98,12 +101,16 @@ function mergeAdminMonthClosures(data,closeData){
       if(day.laborable&&(day.estado==='J'||(['P','T'].includes(day.estado)&&valid)))counts.horas+=Number(day.horas||0);
     }
     const base=counts.P+counts.T+counts.J;
-    person.resumen={...summary,...counts,porcentaje:base?Math.round((counts.P+counts.T)*100/base):null};
+    person.resumen={...summary,...counts,
+      programados:(person.dias||[]).filter(day=>day.laborable).length,
+      programados_transcurridos:(person.dias||[]).filter(day=>day.laborable&&day.fecha<=data.hoy).length,
+      porcentaje:base?Math.round((counts.P+counts.T)*100/base):null};
   }
 }
 
 async function loadAdminMonth(force=false){
   if(!APP.access.acceso_panel)return;
+  closeAdminPersonCalendar();
   const prefix=activeMonthPrefix(),value=currentMonthValue();syncMonthInputs(value);
   const include=$(`${prefix}-inactive`).checked,key=`${value}|${include}`;
   if(!force&&APP.adminMonth&&APP.adminMonthKey===key){renderAdminMonthViews();return}
@@ -136,7 +143,8 @@ function renderAdminMonthViews(){
 function statusText(state){return ({P:'Presente',T:'Tardanza',J:'Justificado',NG:'No gestiona'})[state]||'Sin registro'}
 function monthCellClass(day){
   const classes=['admin-month-cell'];
-  if(day.cierre_estado==='incompleta')classes.push('incomplete');
+  if(day.dia_libre)classes.push('day-off');
+  else if(day.cierre_estado==='incompleta')classes.push('incomplete');
   else if(day.cierre_estado==='en_curso')classes.push('close-pending');
   else if(day.estado)classes.push(day.estado.toLowerCase());
   else if(!day.laborable)classes.push(day.motivo==='feriado'?'holiday':day.motivo==='preinicio'?'pre':'off');
@@ -144,7 +152,19 @@ function monthCellClass(day){
   if(day.futura)classes.push('future');if(day.evidencia)classes.push('has-evidence');if(day.excepcion_tipo)classes.push('exception');
   return classes.join(' ');
 }
+function closeAdminPersonCalendar(returnToLedger=false){
+  const host=$('admin-person-calendar');
+  if(!host)return;
+  host._personCalendar=null;host.hidden=true;host.innerHTML='';
+  host.onclick=null;host.onchange=null;
+  if(returnToLedger){
+    const ledger=$('admin-month-ledger');
+    ledger.setAttribute('tabindex','-1');ledger.focus({preventScroll:true});
+    ledger.scrollIntoView({block:'start',behavior:'instant'});
+  }
+}
 function renderAdminMonthLedger(){
+  closeAdminPersonCalendar();
   const data=APP.adminMonth,people=monthPeople('month');
   const p=sumMonth(people,'P'),t=sumMonth(people,'T'),j=sumMonth(people,'J'),pending=sumMonth(people,'pendientes'),incomplete=sumMonth(people,'incompletas');
   const kpis=[['PERSONAS',people.length,''],['JORNADAS VÁLIDAS',p+t+j+sumMonth(people,'NG'),'ready'],['ASISTENCIA',monthRate(people)==null?'—':`${monthRate(people)}%`,'ready'],['INCOMPLETAS',incomplete,incomplete?'danger':''],['SIN ENTRADA',pending,pending?'warning':'']];
@@ -161,9 +181,9 @@ function renderAdminMonthLedger(){
   let currentArea='';
   for(const person of people){
     if(person.area!==currentArea){currentArea=person.area;html+=`<tr class="admin-month-area-row"><td colspan="${sample.length+1}"><i></i><b>${esc(currentArea||'Sin área')}</b><span>${people.filter(x=>x.area===currentArea).length}</span></td></tr>`}
-    html+=`<tr><th class="person-col">${profileAvatarMarkup(person)}<span><b>${esc(person.nombre)}</b><small>${person.activo?'Activo':'Dado de baja'}</small></span></th>`;
+    html+=`<tr><th class="person-col" scope="row"><div class="admin-month-person">${profileAvatarMarkup(person)}<div class="admin-month-person-info"><b>${esc(person.nombre)}</b><small class="admin-month-person-status ${person.activo?'is-active':'is-inactive'}">${person.activo?'Activo':'Dado de baja'}</small></div><button type="button" class="admin-month-person-calendar" data-person-calendar="${person.id}" aria-label="Ver calendario y evidencias de ${esc(person.nombre)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 11h18M8 15h2M14 15h2"/></svg><span>Ver calendario y evidencias</span><svg class="admin-month-person-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div></th>`;
     for(const day of person.dias||[]){
-      const content=day.cierre_estado==='incompleta'?'INC':day.cierre_estado==='en_curso'?'…':day.estado||(!day.laborable?'—':'·'),detail=`${person.nombre} · ${day.fecha} · ${day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada, cierre pendiente':day.estado?statusText(day.estado):day.laborable?'Sin registro':day.motivo}`;
+      const content=day.dia_libre?'DL':day.cierre_estado==='incompleta'?'INC':day.cierre_estado==='en_curso'?'…':day.estado||(!day.laborable?'—':'·'),detail=`${person.nombre} · ${day.fecha} · ${day.dia_libre?'Día libre asignado':day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada, cierre pendiente':day.estado?statusText(day.estado):day.laborable?'Sin registro':day.motivo}`;
       html+=`<td><button type="button" class="${monthCellClass(day)}" data-month-person="${person.id}" data-month-date="${day.fecha}" aria-label="${esc(detail)}"><b>${content}</b>${day.nota?'<i class="note"></i>':''}${day.evidencia?'<i class="camera"></i>':''}</button></td>`;
     }
     html+='</tr>';
@@ -198,13 +218,23 @@ function renderAdminMonthSummary(){
 }
 
 function closeMonthModal(){
+  $('admin-month-modal')._dayDetail?.dispose();
+  $('admin-month-modal')._dayDetail=null;
   $('admin-month-modal').hidden=true;document.body.style.overflow='';ADMIN_MONTH_DIALOG=null;
   $('admin-month-modal-message').textContent='';$('admin-month-modal-message').classList.remove('show');
+  $('admin-month-modal')._returnFocus?.focus({preventScroll:true});
 }
 function modalMonthMessage(text){const el=$('admin-month-modal-message');el.textContent=text||'';el.classList.toggle('show',!!text)}
 function openMonthModal(eyebrow,title,copy,body){
+  const modal=$('admin-month-modal');
+  modal._dayDetail?.dispose();modal._dayDetail=null;
+  if(modal.hidden)modal._returnFocus=document.activeElement;
+  modal.classList.toggle('month-detail-modal',ADMIN_MONTH_DIALOG?.kind==='cell');
+  modal.querySelector('.admin-editor-head').dataset.initials=String(title).trim().split(/\s+/).slice(0,2).map(word=>word[0]).join('').toUpperCase();
   $('admin-month-modal-eyebrow').textContent=eyebrow;$('admin-month-modal-title').textContent=title;$('admin-month-modal-copy').textContent=copy||'';$('admin-month-modal-body').innerHTML=body;modalMonthMessage('');
   $('admin-month-modal').hidden=false;document.body.style.overflow='hidden';
+  modal.querySelector('.admin-month-sheet').scrollTop=0;
+  modal.querySelector('.modal-close').focus({preventScroll:true});
 }
 function findMonthCell(personId,date){
   const person=(APP.adminMonth?.personas||[]).find(item=>String(item.id)===String(personId));
@@ -237,24 +267,70 @@ function openMonthCell(personId,date){
   ADMIN_MONTH_DIALOG={kind:'cell',personId:String(personId),date};
   const dateText=new Date(date+'T12:00:00').toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const visualState=day.cierre_estado==='incompleta'?'incomplete':day.cierre_estado==='en_curso'?'close-pending':day.estado?.toLowerCase(),visualLabel=day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada · cierre pendiente':statusText(day.estado);
-  const mark=day.estado?`<div class="month-day-current ${visualState}"><span><small>ESTADO DE LA JORNADA</small><b>${visualLabel}</b></span><span>${day.marcado_at?new Date(day.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):'—'}${day.salida_at?' · salida '+new Date(day.salida_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):''}</span></div>`:'';
-  const evidence=day.evidencia_path?`<button type="button" class="admin-secondary-action" data-month-action="evidence">Ver evidencia privada</button>`:'';
+  const mark=day.estado?`<div class="month-day-current ${visualState}"><b>${esc(visualLabel)}</b></div>`:'';
   const canEdit=!!APP.adminMonth.puede_editar,isFuture=day.fecha>APP.adminMonth.hoy;
   let actions='';
+  if(canEdit&&person.activo&&day.motivo!=='preinicio')actions+='<button type="button" class="admin-secondary-action" data-month-action="day-off">Gestionar día libre</button>';
   if(canEdit&&!isFuture&&day.laborable){actions+=`<div class="month-state-picker"><p>Registrar o corregir estado</p>${['P','T','J','NG'].map(state=>`<button type="button" class="${state.toLowerCase()} ${day.estado===state?'on':''}" data-month-state="${state}">${state}<small>${statusText(state)}</small></button>`).join('')}</div>`}
   if(canEdit&&day.estado)actions+='<button type="button" class="admin-danger-action" data-month-action="remove-mark">Quitar marca</button>';
-  if(canEdit&&!isFuture&&day.motivo!=='preinicio'){
+  if(canEdit&&!isFuture&&day.motivo!=='preinicio'&&!day.dia_libre){
     if(day.excepcion_tipo)actions+=`<button type="button" class="admin-secondary-action" data-month-action="clear-exception">Restablecer horario normal</button>`;
     else if(!day.laborable)actions+=`<button type="button" class="admin-primary-action" data-month-action="extra">Habilitar como día trabajado</button>`;
     else actions+=`<button type="button" class="admin-secondary-action" data-month-action="off">Registrar permiso / no laborable</button>`;
   }
   const reason={preinicio:'Fecha anterior al inicio del contrato',extra:'Día adicional habilitado',feriado:`Feriado${day.feriado_nota?' · '+day.feriado_nota:''}`,permiso:`Permiso${day.excepcion_nota?' · '+day.excepcion_nota:''}`,horario:day.laborable?'Día programado por horario':'Día no programado'}[day.motivo]||day.motivo;
   openMonthModal('DETALLE DE ASISTENCIA',person.nombre,dateText,
-    `<div class="month-day-facts"><span><small>CONDICIÓN</small><b>${esc(reason)}</b></span><span><small>MODALIDAD</small><b>${esc(cap(day.modalidad||'—'))}</b></span><span><small>HORAS</small><b>${day.horas==null?'—':Number(day.horas).toFixed(1)+' h'}</b></span></div>${mark}${day.nota?`<p class="month-day-note"><b>Nota:</b> ${esc(day.nota)}</p>`:''}<div class="month-modal-actions">${evidence}${actions||'<p class="admin-empty">No hay acciones disponibles para esta fecha.</p>'}</div>`);
+    `<div class="md-day-summary"><div class="md-person-context"><span>${esc(person.area||'Sin área')}</span>${person.dni?`<span>DNI ${esc(person.dni)}</span>`:''}<span>${person.activo?'Colaborador activo':'Dado de baja'}</span></div><div class="month-day-facts"><span><small>Condición del día</small><b>${esc(reason||'No registrada')}</b></span><span><small>Modalidad</small>${canEdit&&!isFuture&&day.estado?`<div class="md-mode-picker" role="group" aria-label="Modalidad de asistencia">${['virtual','presencial'].map(mode=>`<button type="button" data-month-mode="${mode}" aria-pressed="${day.modalidad===mode}">${cap(mode)}</button>`).join('')}</div><small>Solo para este día · guardado automático</small><small id="month-mode-status" role="status" aria-live="polite"></small>`:`<b>${esc(cap(day.modalidad||'No registrada'))}</b>`}</span><span><small>Origen de la marca</small><b>${esc(day.origen||'Sin registro')}</b></span></div>${mark}</div>${[...new Set([day.nota,day.excepcion_nota,day.feriado_nota].filter(Boolean))].map(note=>`<p class="month-day-note"><b>Nota:</b> ${esc(note)}</p>`).join('')}<section id="month-day-detail" aria-label="Registros y evidencias del día" aria-live="polite"></section><section class="md-management"><h3>Gestión de la jornada</h3>${canEdit?'':'<p>Tu rol tiene acceso de solo lectura.</p>'}<div class="month-modal-actions">${actions||'<p class="admin-empty">No hay acciones disponibles para esta fecha.</p>'}</div></section>`);
+  $('admin-month-modal')._dayDetail=KJAMonthDayDetail.mount($('month-day-detail'),{person,day,future:isFuture});
   if(day.cierre_estado==='incompleta'){
-    const body=$('admin-month-modal-body'),anchor=body.querySelector('.month-day-current')||body.querySelector('.month-day-facts');
+    const body=$('admin-month-modal-body'),anchor=body.querySelector('.md-day-summary');
     anchor.insertAdjacentHTML('afterend','<section class="month-incomplete-reasons" id="month-incomplete-reasons" aria-live="polite" aria-busy="true"></section>');
     void loadMonthIncompleteReasons(ADMIN_MONTH_DIALOG);
+  }
+}
+
+async function changeMonthMode(mode){
+  const dialog=ADMIN_MONTH_DIALOG;
+  if(dialog?.kind!=='cell'||dialog.savingMode||!APP.adminMonth?.puede_editar)return;
+  const {person,day}=findMonthCell(dialog.personId,dialog.date);
+  if(!person||!day?.estado||day.fecha>APP.adminMonth.hoy||!['virtual','presencial'].includes(mode)||day.modalidad===mode)return;
+  const picker=$('admin-month-modal-body').querySelector('.md-mode-picker'),status=$('month-mode-status');
+  const live=()=>ADMIN_MONTH_DIALOG===dialog&&status?.isConnected;
+  dialog.savingMode=true;
+  picker.setAttribute('aria-busy','true');
+  picker.querySelectorAll('button').forEach(button=>button.disabled=true);
+  status.textContent='Guardando modalidad…';
+  let saved=false;
+  try{
+    const {data,error}=await db.rpc('dash_admin_cambiar_modalidad',{p_colaborador:Number(person.id),p_fecha:day.fecha,p_modalidad:mode});
+    if(error||!data?.ok){
+      const messages={sin_permiso:'Tu rol no permite cambiar la modalidad.',sesion:'Tu sesión venció. Vuelve a iniciar sesión.',sin_registro:'La marca ya no existe. Actualiza el mes.',fecha:'No se puede corregir una fecha futura.'};
+      throw new Error(error?.code==='PGRST202'?'Falta aplicar la migración 85 en Supabase para guardar cambios.':messages[data?.motivo]||'No se pudo guardar. Inténtalo nuevamente.');
+    }
+    saved=true;
+    APP.adminMonthKey='';
+    if(live())status.textContent='Modalidad guardada. Actualizando jornada…';
+    await loadAdminMonth(true);
+    if(live()){
+      if(APP.adminMonth){
+        openMonthCell(dialog.personId,dialog.date);
+        const updatedStatus=$('month-mode-status');
+        if(updatedStatus)updatedStatus.textContent='Modalidad guardada.';
+        $('admin-month-modal-body').querySelector('[data-month-mode="'+mode+'"]')?.focus({preventScroll:true});
+      }else{
+        picker.querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.monthMode===mode)));
+        status.textContent='Modalidad guardada. No se pudo actualizar el detalle; cierra y actualiza el mes.';
+      }
+    }
+    toast('Modalidad actualizada a '+cap(mode)+'.');
+  }catch(error){
+    if(live())status.textContent=saved?'Modalidad guardada. Cierra y actualiza el mes para consultar los pendientes.':error.message;
+  }finally{
+    dialog.savingMode=false;
+    if(live()){
+      picker.removeAttribute('aria-busy');
+      picker.querySelectorAll('button').forEach(button=>button.disabled=saved);
+    }
   }
 }
 
@@ -299,6 +375,49 @@ function openHolidayManager(){
   const form=canEdit?`<form class="month-holiday-form" id="month-holiday-form"><label>Fecha<input type="date" id="month-holiday-date" min="${APP.adminMonth.inicio}" max="${APP.adminMonth.fin}" required></label><label>Motivo<input id="month-holiday-note" maxlength="60" placeholder="Ej. Feriado nacional"></label><button class="admin-primary-action" type="submit">Agregar feriado</button></form>`:'<p class="admin-empty">Tu rol permite consultar, pero no editar feriados.</p>';
   openMonthModal('CALENDARIO LABORAL','Feriados del mes','Bloquean el día para todo el equipo; una excepción personal puede habilitar a quien sí trabaje.',`${form}<ul class="month-holiday-list">${items||'<li class="empty">No hay feriados registrados este mes.</li>'}</ul>`);
   if(canEdit)$('month-holiday-form').onsubmit=saveHoliday;
+}
+
+function openDaysOffManager(personId='',date=''){
+  if(!APP.adminMonth)return;
+  const canEdit=!!APP.adminMonth.puede_editar;
+  const people=APP.adminMonth.personas||[];
+  ADMIN_MONTH_DIALOG={kind:'days-off'};
+  const options=people.filter(p=>p.activo).map(p=>`<option value="${p.id}" ${String(p.id)===String(personId)?'selected':''}>${esc(p.nombre)} · ${esc(p.area||'Sin área')}</option>`).join('');
+  const rows=(APP.adminMonth.dias_libres||[]).map(item=>{
+    const person=people.find(p=>String(p.id)===String(item.colaborador_id));
+    return `<li><span><b>${esc(person?.nombre||'Colaborador')} · ${esc(item.fecha)}</b><small>${esc(item.motivo||'Reconocimiento por asistencia presencial')}</small></span>${canEdit&&item.manual?`<button type="button" data-remove-day-off="${item.colaborador_id}" data-date="${item.fecha}">Quitar día libre</button>`:''}</li>`;
+  }).join('');
+  const form=canEdit?`<form id="month-day-off-form" class="month-day-off-form">
+    <label>Trabajador<select id="month-day-off-person" required><option value="">Selecciona un trabajador</option>${options}</select></label>
+    <label>Fecha del descanso<input type="date" id="month-day-off-date" value="${esc(date||APP.adminMonth.hoy)}" required min="2020-01-01" max="2100-12-31"></label>
+    <label class="day-off-reason">Motivo del premio<input id="month-day-off-reason" minlength="3" maxlength="180" placeholder="Ej. Meta cumplida o reconocimiento del equipo" required></label>
+    <p>Ese día no tendrá que marcar entrada ni salida ni entregar RPE. Facebook mantiene su horario. No se descuenta del saldo de días libres.</p>
+    <button type="submit" class="admin-primary-action">Asignar día libre</button>
+  </form>`:'<p>Tu rol permite consultar los días libres, pero no asignarlos.</p>';
+  openMonthModal('CALENDARIO LABORAL','Días libres',`Asigna descansos por persona. La lista muestra los asignados en ${monthTitle(currentMonthValue())}.`,`${form}<ul class="month-holiday-list">${rows||'<li class="empty">No hay días libres asignados este mes.</li>'}</ul>`);
+  $('month-day-off-form')?.addEventListener('submit',event=>{
+    event.preventDefault();saveManualDayOff(Number($('month-day-off-person').value),$('month-day-off-date').value,$('month-day-off-reason').value.trim());
+  });
+}
+
+async function saveManualDayOff(personId,date,reason='',remove=false){
+  const dialog=ADMIN_MONTH_DIALOG;
+  if(!APP.adminMonth?.puede_editar||dialog?.kind!=='days-off'||dialog.saving)return;
+  dialog.saving=true;
+  const controls=[...$('admin-month-modal-body').querySelectorAll('button,input,select')];
+  controls.forEach(control=>control.disabled=true);
+  modalMonthMessage(remove?'Quitando día libre…':'Asignando día libre…');
+  try{
+    const {data,error}=await db.rpc('dash_admin_dia_libre',{p_colab:personId,p_fecha:date,p_motivo:reason||null,p_quitar:remove});
+    if(error||!data?.ok){
+      const messages={sin_permiso:'No tienes permiso para asignar días libres.',detalle:'Escribe un motivo de entre 3 y 180 caracteres.',ya_asignado:'Esta persona ya tiene libre esa fecha.',colaborador:'Selecciona un trabajador activo y una fecha desde el inicio de su contrato.',beneficio_presencial:'Este descanso forma parte del beneficio presencial y no se puede quitar desde aquí.',fecha:'Selecciona una fecha válida.'};
+      throw new Error(error?.code==='PGRST202'?'Falta activar la migración 88 de días libres manuales.':messages[data?.motivo]||'No se pudo guardar el cambio. Inténtalo nuevamente.');
+    }
+    if(ADMIN_MONTH_DIALOG===dialog)closeMonthModal();
+    syncMonthInputs(date.slice(0,7));await loadAdminMonth(true);
+    toast(remove?'Día libre retirado.':'Día libre asignado.');
+  }catch(error){if(ADMIN_MONTH_DIALOG===dialog)modalMonthMessage(error.message||'No se pudo guardar el cambio.');}
+  finally{dialog.saving=false;controls.forEach(control=>control.disabled=false);}
 }
 async function saveHoliday(event){
   event.preventDefault();const date=$('month-holiday-date').value,note=$('month-holiday-note').value.trim();modalMonthMessage('Guardando feriado…');
@@ -378,12 +497,18 @@ document.addEventListener('pointerdown',event=>{
 });
 $('admin-month-export').onclick=()=>downloadMonthCsv('month');if($('admin-summary-export'))$('admin-summary-export').onclick=()=>downloadMonthCsv('summary');
 $('admin-month-holidays').onclick=openHolidayManager;
-$('admin-month-ledger').onclick=event=>{const cell=event.target.closest('[data-month-person]');if(cell)openMonthCell(cell.dataset.monthPerson,cell.dataset.monthDate)};
+$('admin-month-days-off').onclick=()=>openDaysOffManager();
+$('admin-month-ledger').onclick=event=>{const calendar=event.target.closest('[data-person-calendar]');if(calendar){const person=APP.adminMonth?.personas?.find(p=>String(p.id)===calendar.dataset.personCalendar);if(person){const host=$('admin-person-calendar');KJAPersonCalendar.mount({host,person,month:currentMonthValue(),onBack:()=>closeAdminPersonCalendar(true)});host.querySelector('h3')?.focus({preventScroll:true});host.scrollIntoView({block:'start',behavior:'instant'});}return;}const cell=event.target.closest('[data-month-person]');if(cell)openMonthCell(cell.dataset.monthPerson,cell.dataset.monthDate)};
 $('admin-month-modal-body').onclick=event=>{
+  const removeDayOff=event.target.closest('[data-remove-day-off]');
+  if(removeDayOff)return saveManualDayOff(Number(removeDayOff.dataset.removeDayOff),removeDayOff.dataset.date,'',true);
+  const mode=event.target.closest('[data-month-mode]');if(mode&&!mode.disabled)return changeMonthMode(mode.dataset.monthMode);
+  if(ADMIN_MONTH_DIALOG?.savingMode)return;
   const state=event.target.closest('[data-month-state]');if(state)return changeMonthState(state.dataset.monthState);
   const removeHolidayButton=event.target.closest('[data-remove-holiday]');if(removeHolidayButton)return removeHoliday(removeHolidayButton.dataset.removeHoliday);
   const action=event.target.closest('[data-month-action]');if(!action||ADMIN_MONTH_DIALOG?.kind!=='cell')return;
   if(action.dataset.monthAction==='retry-reasons')return loadMonthIncompleteReasons(ADMIN_MONTH_DIALOG);
+  if(action.dataset.monthAction==='day-off')return openDaysOffManager(ADMIN_MONTH_DIALOG.personId,ADMIN_MONTH_DIALOG.date);
   const {day}=findMonthCell(ADMIN_MONTH_DIALOG.personId,ADMIN_MONTH_DIALOG.date);
   if(action.dataset.monthAction==='evidence')return openPrivateMonthEvidence(day?.evidencia_path);
   if(action.dataset.monthAction==='remove-mark')return removeMonthMark();
@@ -392,5 +517,14 @@ $('admin-month-modal-body').onclick=event=>{
   if(action.dataset.monthAction==='clear-exception')return changeMonthException(null);
 };
 document.querySelectorAll('[data-close-month-modal]').forEach(item=>item.onclick=closeMonthModal);
-document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('admin-month-modal').hidden)closeMonthModal()});
+document.addEventListener('keydown',event=>{
+  const modal=$('admin-month-modal');if(modal.hidden)return;
+  if(event.key==='Escape'){event.preventDefault();closeMonthModal();return;}
+  if(event.key==='Tab'){
+    const controls=[...modal.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex="0"]')].filter(el=>el.getClientRects().length);
+    const first=controls[0],last=controls.at(-1);if(!first)return;
+    if(event.shiftKey&&(document.activeElement===first||!modal.contains(document.activeElement))){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&(document.activeElement===last||!modal.contains(document.activeElement))){event.preventDefault();first.focus();}
+  }
+});
 syncMonthAreaCombobox();

@@ -170,6 +170,49 @@
   };
 
   const imgCache={};
+  /* Zonas manuscritas en coordenadas del lienzo. Al cambiar una plantilla,
+     revisar estas zonas. Conservan sellos, nombres y líneas para firmar. */
+  const ZONAS_FIRMA={
+    taller:[[380,980,400,165],[1200,1050,440,100]],
+    curso:[[325,995,405,165],[1030,1060,435,100]],
+    especializacion:[[445,840,400,166],[1180,900,440,88]],
+    constancia:[[365,975,370,145],[1035,1035,390,83]],
+    constancia_charlas:[[325,1048,235,88],[800,1068,300,65]]
+  };
+  function quitarFirmas(ctx,tipo){
+    for(const [x,y,w,h] of ZONAS_FIRMA[tipo]||[]){
+      const region=ctx.getImageData(x,y,w,h), p=region.data;
+      // Interpolar el fondo claro alrededor de la tinta preserva las marcas
+      // de agua que pasan detrás de las firmas.
+      const tinta=new Uint8Array(w*h);
+      for(let row=0;row<h;row++) for(let col=0;col<w;col++){
+        const i=(row*w+col)*4;
+        if(p[i]>225 && p[i+1]>225 && p[i+2]>225) continue;
+        // Incluir el borde suavizado del trazo para no dejar firmas fantasma.
+        for(let dy=-3;dy<=3;dy++) for(let dx=-3;dx<=3;dx++){
+          if(row+dy>=0 && row+dy<h && col+dx>=0 && col+dx<w) tinta[(row+dy)*w+col+dx]=1;
+        }
+      }
+      for(let row=0;row<h;row++){
+        let col=0;
+        while(col<w){
+          if(!tinta[row*w+col]){col++;continue;}
+          const start=col;
+          while(col<w && tinta[row*w+col]) col++;
+          const left=(row*w+Math.max(0,start-1))*4;
+          const right=(row*w+Math.min(w-1,col))*4;
+          for(let k=start;k<col;k++){
+            const t=(k-start+1)/(col-start+1), i=(row*w+k)*4;
+            for(let c=0;c<3;c++) p[i+c]=Math.round((start ? p[left+c] : 255)*(1-t)+(col<w ? p[right+c] : 255)*t);
+          }
+        }
+      }
+      ctx.putImageData(region,x,y);
+    }
+    // Dos firmas cruzan su línea: restaurar ese tramo desde la misma línea.
+    if(tipo==='especializacion') ctx.drawImage(ctx.canvas,855,988,25,12,445,988,400,12);
+    if(tipo==='constancia_charlas') ctx.drawImage(ctx.canvas,565,1135,20,3,325,1135,235,3);
+  }
   function cargarImg(src){
     return imgCache[src] || (imgCache[src]=new Promise((res,rej)=>{
       const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=src;
@@ -311,6 +354,7 @@
     try{ bg=await cargarImg(KJACert.basePath+cfg.plantilla); }catch(e){ bg=null; }
     if(bg) ctx.drawImage(bg,0,0,L.w,L.h);
     else { ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,L.w,L.h); }
+    if(bg && d.datos?.incluirFirma===false) quitarFirmas(ctx,d.tipo);
 
     /* Los documentos (hoja A4 con membrete) se pintan distinto: no tienen el
        nombre en grande ni un párrafo único, sino título y párrafos apilados. */
@@ -410,7 +454,7 @@
     },
     cols:{ ini:1320, fin:1591, hrs:1858 },               // centros X de las columnas (bajo los íconos)
     bar:{ left:175, right:1260, areaTop:495, areaBottom:875, maxGap:125 },
-    ordinalX:325, tituloX:975, tituloW:560,
+    ordinalX:325, tituloLeft:510, dateWidth:180, columnGap:20,
     total:{ cx:1088, cy:986 },
     nota:{ labelX:735, valueX:1290, cy:1150 }
   };
@@ -433,11 +477,30 @@
     ctx.fillStyle='#1d4ed8'; ctx.font=`600 ${o.size||25}px ${SANS}`;
     ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(text, cx, cy+1);
   }
-  function wrapTem(ctx, text, cx, cy, maxW, font, lh, color){
-    ctx.font=font; ctx.fillStyle=color; ctx.textAlign='center'; ctx.textBaseline='middle';
-    const words=(text||'').split(/\s+/).filter(Boolean); const lines=[]; let ln='';
-    for(const w of words){ const t=ln?ln+' '+w:w; if(ctx.measureText(t).width>maxW && ln){lines.push(ln);ln=w;} else ln=t; }
-    if(ln) lines.push(ln);
+  function wrapTem(ctx, text, cx, cy, maxW, maxH, size, color){
+    ctx.fillStyle=color; ctx.textAlign='center'; ctx.textBaseline='middle';
+    const words=String(text||'').split(/\s+/).filter(Boolean);
+    let lines, lh;
+    // Medir de nuevo al reducir la fuente: nunca invadir fechas ni filas vecinas.
+    do {
+      ctx.font=`600 ${size}px ${SANS}`;
+      lh=size*1.22;
+      lines=[];
+      let ln='';
+      for(const word of words){
+        const joined=ln?ln+' '+word:word;
+        if(ctx.measureText(joined).width<=maxW){ ln=joined; continue; }
+        if(ln){ lines.push(ln); ln=''; }
+        // También admitir palabras o códigos largos sin espacios.
+        for(const char of word){
+          if(ln && ctx.measureText(ln+char).width>maxW){ lines.push(ln); ln=''; }
+          ln+=char;
+        }
+      }
+      if(ln) lines.push(ln);
+      if(lines.length*lh<=maxH && lines.every(l=>ctx.measureText(l).width<=maxW)) break;
+      size*=0.9;
+    } while(size>0.1);
     const top=cy-(lines.length-1)*lh/2;
     lines.forEach((l,i)=>ctx.fillText(l,cx,top+i*lh));
   }
@@ -486,12 +549,13 @@
     const barW=barRight-barLeft;
     // Ordinal a la izquierda y título centrado en la barra extendida (sin chocar con el ordinal).
     const ordinalX = solo ? barLeft+155 : t.ordinalX;
-    const tituloX = solo ? (barLeft+barRight)/2 + 145 : t.tituloX;
-    const tituloW = solo ? barW-490 : t.tituloW;
+    const tituloRight = Math.min(barRight, t.cols.ini-t.dateWidth/2-t.columnGap);
+    const tituloX = solo ? (barLeft+barRight)/2 + 145 : (t.tituloLeft+tituloRight)/2;
+    const tituloW = solo ? barW-490 : tituloRight-t.tituloLeft;
     const ordSize = solo ? Math.min(50, Math.max(32, barH*0.42)) : Math.min(48, barH*0.52);
     // tituloSize: tamaño manual elegido en el admin (campo "Tamaño Letra"); si no se elige, se autoajusta.
-    const titSize = datos.tituloSize || (solo ? Math.min(42, Math.max(24, barH*0.34)) : 24);
-    const titLh = Math.round(titSize*1.22);
+    const requestedSize=Number(datos.tituloSize);
+    const titSize = Number.isFinite(requestedSize) && requestedSize>0 ? requestedSize : (solo ? Math.min(42, Math.max(24, barH*0.34)) : 24);
     const titColor = solo ? '#2c326c' : '#3a5588';
 
     mods.forEach((m,i)=>{
@@ -502,10 +566,10 @@
       ctx.fillStyle=g; ctx.fill();
       ctx.fillStyle='#15317e'; ctx.font=`400 ${ordSize}px ${SCRIPT}`;
       ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(ordModulo(i+1), ordinalX, cy);
-      wrapTem(ctx, m.titulo, tituloX, cy, tituloW, `600 ${titSize}px ${SANS}`, titLh, titColor);
+      wrapTem(ctx, m.titulo, tituloX, cy, tituloW, barH-8, titSize, titColor);
       if(!solo){
-        pill(ctx, t.cols.ini, cy, fechaCorta(m.fechaInicio), {w:180});
-        pill(ctx, t.cols.fin, cy, fechaCorta(m.fechaFin),    {w:180});
+        pill(ctx, t.cols.ini, cy, fechaCorta(m.fechaInicio), {w:t.dateWidth});
+        pill(ctx, t.cols.fin, cy, fechaCorta(m.fechaFin),    {w:t.dateWidth});
         pill(ctx, t.cols.hrs, cy, (m.horas||'')+' hrs',      {w:130});
       }
     });

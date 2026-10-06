@@ -1,5 +1,15 @@
 ﻿:root{ --azul:#004fb0; --azul-osc:#15315f; --rosa:#f10075; }
 *{box-sizing:border-box;margin:0;padding:0;}
+.firma-option{display:flex;align-items:center;gap:12px;position:relative;min-height:56px;margin:16px 0;padding:8px 0;cursor:pointer;}
+.firma-copy{flex:1;min-width:0;}
+.firma-copy strong{display:block;font-size:13px;color:var(--azul-osc);}
+.firma-copy small{display:block;font-size:12px;line-height:1.5;color:#475569;}
+.firma-option input{position:absolute;right:0;width:44px;height:44px;opacity:0;cursor:pointer;}
+.firma-switch{display:block;flex:0 0 44px;height:26px;border-radius:20px;background:#64748b;pointer-events:none;}
+.firma-switch::after{content:'';display:block;width:20px;height:20px;margin:3px;border-radius:50%;background:#fff;}
+.firma-option input:checked + .firma-switch{background:var(--azul);}
+.firma-option input:checked + .firma-switch::after{transform:translateX(18px);}
+.firma-option input:focus-visible + .firma-switch{outline:3px solid var(--azul-osc);outline-offset:4px;}
 body{font-family:'Poppins',system-ui,sans-serif;background:#eef1f6;color:#1f2937;}
 
 /* ═══ Modal de ÉXITO al emitir un certificado ═══ */
@@ -375,6 +385,11 @@ span.flatpickr-weekday{color:#64748b;font-weight:700;font-size:11px;text-transfo
 .welcome-hi{font-size:13px;color:#94a3b8;font-weight:500;}
 .welcome-name{font-size:25px;font-weight:800;color:#0d264c;line-height:1.15;margin-top:2px;}
 .tb-right{display:flex;align-items:center;gap:15px;flex-shrink:0;}
+.tb-refresh{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border:1px solid #d5e1f0;border-radius:10px;background:#f4f7fc;color:#0d264c;font:600 13px 'Poppins',sans-serif;white-space:nowrap;cursor:pointer;transition:background-color .16s,color .16s;}
+.tb-refresh svg{width:18px;height:18px;flex-shrink:0;}
+.tb-refresh:hover{background:#e8f0fb;color:var(--azul);}
+.tb-refresh:focus-visible{outline:3px solid var(--azul);outline-offset:3px;}
+.tb-refresh:active{background:#dce8f8;}
 .tb-bell{position:relative;width:44px;height:44px;border-radius:50%;border:none;background:#f4f7fc;color:#0d264c;display:grid;place-items:center;cursor:pointer;transition:.16s;}
 .tb-bell svg{width:20px;height:20px;}
 .tb-bell:hover{background:#e8f0fb;color:var(--azul);}

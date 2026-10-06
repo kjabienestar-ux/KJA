@@ -4,9 +4,7 @@ html:has(#access:not([hidden])),body:has(#access:not([hidden])){background:#DBE9
 #access{display:grid;place-items:center;min-height:100svh;min-height:100dvh;padding:80px 32px 40px;background:#dbe9eb;color:#203248;overflow:visible;font-family:Inter,system-ui,sans-serif}
 #access[hidden]{display:none}
 #access::before,#access::after{content:none}
-#access .back-home{position:static;inset:auto;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 10px;border:0;border-radius:10px;color:#426575;background:#f0f5f5;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;font:600 11px/1.4 Inter,system-ui,sans-serif;text-decoration:none;transition:background-color 140ms ease,color 140ms ease}
-#access .login-brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-#access .login-brand-row .back-home{margin-left:auto;flex-shrink:0}
+#access .back-home{position:static;inset:auto;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 8px;margin:0 0 8px -8px;border:0;border-radius:10px;color:#426575;background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;font:600 11px/1.4 Inter,system-ui,sans-serif;text-decoration:none;transition:background-color 140ms ease,color 140ms ease}
 #access .back-home:hover{background:#f8fbfb;color:#203248;transform:none}
 #access .back-home:active{background:#cfdfe2}
 #access .back-home svg{width:18px;height:18px;flex:none;stroke-width:1.8}
@@ -83,7 +81,7 @@ html:has(#access:not([hidden])),body:has(#access:not([hidden])){background:#DBE9
   #access .access-shell{display:block;width:100%;max-width:440px;min-height:0;padding:0;margin:0 auto}
   #access .access-story{display:none}
   #access .access-form-wrap{padding:20px;border-radius:24px;margin:0;background:#fff}
-  #access .mobile-logo{display:block;margin:0;width:max-content;background:transparent;box-shadow:none}
+  #access .mobile-logo{display:block;margin:0 0 16px;width:max-content;background:transparent;box-shadow:none}
   #access .mobile-logo img{display:block;width:94px;height:auto;filter:none}
   #access .access-form-head{margin-bottom:16px}
   #access .login-welcome{min-height:128px;grid-template-columns:minmax(0,1fr) 112px;padding:12px 0 0 14px}
@@ -103,7 +101,6 @@ html:has(#access:not([hidden])),body:has(#access:not([hidden])){background:#DBE9
   #access{padding-top:calc(12px + env(safe-area-inset-top))}
   #access .login-welcome{min-height:96px;grid-template-columns:minmax(0,1fr) 88px}
   #access .login-welcome-figure{width:100px;height:100px}
-  #access .login-brand-row{margin-bottom:12px}
 }
 @media(prefers-reduced-motion:reduce){
   #access .access-form-wrap{animation:none}

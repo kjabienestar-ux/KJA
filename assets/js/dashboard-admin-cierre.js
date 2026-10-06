@@ -25,6 +25,20 @@ function adminEvidenceMissing(person,reviews=null){
   return [...globals,...assigned];
 }
 
+// Las evidencias opcionales se ofrecen para carga, sin contarlas como pendientes.
+function adminEvidenceAvailable(person,reviews=null){
+  const items=adminEvidenceMissing(person,reviews),close=person?.cierre||{};
+  const personReviews=reviews||(APP.adminReview?.entregas||[]).filter(item=>String(item.colaborador_id)===String(person?.id));
+  const exitDelivered=(close.requisitos||[]).some(item=>item.tipo==='salida'&&item.completo)
+    ||personReviews.some(item=>item.requisito==='salida'&&item.estado==='completo');
+  if(person?.labora===true&&close.aplica_jornada!==false&&!close.justificado
+    &&close.estado!=='justificado'&&close.entrada_at&&!exitDelivered&&!items.some(item=>item.kind==='salida')){
+    items.push({kind:'salida',assignment:null,optional:true,title:'Evidencia de salida (opcional)',
+      copy:'Adjunta la foto e indica la hora reportada. Esta evidencia no añade un requisito a la jornada.'});
+  }
+  return items;
+}
+
 function adminCloseEvidenceKey(item,assignment=false){
   const type=assignment?'asignado':item?.requisito||item?.tipo;
   if(type==='asignado')return item?.asignacion_id||item?.id?`asignacion:${item.asignacion_id||item.id}`:'';
@@ -192,7 +206,7 @@ function renderAdminCloseStatus(){
       const close=person.cierre||{},personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),progress=adminCloseEvidenceProgress(person,personReviews);
       const evidence=`${progress.done}/${progress.total}`,state=adminCloseResolvedState(person,progress,selectedDate),pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length;
       const reviewAction=canReview&&personReviews.length?`<button type="button" class="admin-close-review-trigger ${pending?'has-pending':''}" data-admin-review-person="${esc(person.id)}">${pending?`${pending} por revisar`:'Ver evidencias'}</button>`:'';
-      const missing=adminEvidenceMissing(person,personReviews),canUpload=canReview&&($('admin-close-date').value||isoLima())<=isoLima(),uploadAction=canUpload&&missing.length?`<button type="button" class="admin-close-upload-trigger" data-admin-upload-person="${esc(person.id)}">Subir faltante</button>`:'';
+      const missing=adminEvidenceAvailable(person,personReviews),canUpload=canReview&&($('admin-close-date').value||isoLima())<=isoLima(),uploadAction=canUpload&&missing.length?`<button type="button" class="admin-close-upload-trigger" data-admin-upload-person="${esc(person.id)}">${missing.every(item=>item.optional)?'Adjuntar salida':'Subir faltante'}</button>`:'';
       const messageAction=canReview?`<button type="button" class="admin-close-message-trigger" data-admin-message-person="${esc(person.id)}" aria-label="Enviar mensaje a ${esc(person.nombre)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 4zM8 9h8M8 13h5"/></svg><span>Mensaje</span></button>`:'';
       html+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)}</b><span class="admin-close-evidence-actions">${reviewAction}${uploadAction}</span></span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span><span data-label="Mensaje" class="admin-close-message-cell">${messageAction||'—'}</span></div>`;
     }
@@ -329,13 +343,31 @@ async function submitAdminReview(state){
   const note=$('admin-review-observation').value.trim();
   if(state==='observada'&&note.length<3)return adminReviewMessage('Explica qué debe corregir antes de enviar la observación.','is-error');
   const approve=$('admin-review-approve'),observe=$('admin-review-observe');ADMIN_REVIEW.busy=true;approve.disabled=true;observe.disabled=true;adminReviewMessage(state==='aprobada'?'Aprobando evidencia…':'Enviando solicitud de corrección…');
-  const {data,error}=await db.rpc('dash_admin_revisar_entrega',{p_entrega:Number(delivery.id),p_estado:state,p_nota:note||null});
-  ADMIN_REVIEW.busy=false;approve.disabled=false;observe.disabled=false;
-  if(error||!data?.ok){
-    const messages={nota:'Escribe una observación clara.',jornada_cerrada:'La jornada ya fue cerrada y no puede reabrirse. Solo puedes aprobar.',ya_revisada:'Otra persona ya revisó esta entrega. Actualiza la vista.',sin_permiso:'Solo Dirección puede revisar evidencias.'};
-    return adminReviewMessage(messages[data?.motivo]||'No pudimos guardar la revisión. Revisa tu conexión e inténtalo nuevamente.','is-error');
+  const personId=ADMIN_REVIEW.personId,assignmentId=ADMIN_REVIEW.assignmentId,trigger=ADMIN_REVIEW.trigger;
+  let saved=false,alreadyReviewed=false;
+  try{
+    saved=await withActionLoader(state==='aprobada'?'Aprobando evidencia':'Enviando corrección',async setLabel=>{
+      const {data,error}=await db.rpc('dash_admin_revisar_entrega',{p_entrega:Number(delivery.id),p_estado:state,p_nota:note||null});
+      if(!error&&data?.motivo==='ya_revisada'){
+        // La entrega cambió desde otra pestaña o sesión: se sincroniza la vista en lugar de pedir recargar.
+        alreadyReviewed=true;setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});return false;
+      }
+      if(error||!data?.ok){
+        const messages={nota:'Escribe una observación clara.',jornada_cerrada:'La jornada ya fue cerrada y no puede reabrirse. Solo puedes aprobar.',sin_permiso:'Solo Dirección puede revisar evidencias.'};
+        adminReviewMessage(messages[data?.motivo]||'No pudimos guardar la revisión. Revisa tu conexión e inténtalo nuevamente.','is-error');return false;
+      }
+      // closeAdminReview ignora el cierre mientras la revisión está ocupada.
+      ADMIN_REVIEW.busy=false;closeAdminReview({restoreFocus:false});setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});return true;
+    });
+  }catch{adminReviewMessage('No pudimos guardar la revisión. Revisa tu conexión e inténtalo nuevamente.','is-error')}
+  finally{ADMIN_REVIEW.busy=false;approve.disabled=false;observe.disabled=false}
+  if(alreadyReviewed){
+    const stillListed=(APP.adminReview?.entregas||[]).some(item=>String(item.colaborador_id)===String(personId)&&(assignmentId==null||String(item.asignacion_id)===String(assignmentId)));
+    if(!stillListed){closeAdminReview({restoreFocus:false});return toast('Esta evidencia ya estaba revisada. La vista se actualizó.');}
+    openAdminReviewPerson(personId,trigger,assignmentId);return adminReviewMessage('Esta evidencia ya estaba revisada. Actualizamos la vista con su estado actual.');
   }
-  const personId=ADMIN_REVIEW.personId,assignmentId=ADMIN_REVIEW.assignmentId;closeAdminReview({restoreFocus:false});await loadAdminCloses();toast(state==='aprobada'?'Evidencia aprobada.':'Corrección solicitada al colaborador.');
+  if(!saved)return;
+  toast(state==='aprobada'?'Evidencia aprobada.':'Corrección solicitada al colaborador.');
   const next=(APP.adminReview?.entregas||[]).find(item=>String(item.colaborador_id)===String(personId)&&item.revision_estado==='pendiente'&&item.estado==='completo');
   if(next)openAdminReviewPerson(personId,null,assignmentId);
 }
@@ -390,7 +422,7 @@ function clearAdminEvidenceFiles(){
 
 function currentAdminEvidenceRequirement(){
   const person=adminEvidencePerson(ADMIN_EVIDENCE.personId);
-  return adminEvidenceMissing(person).find(item=>item.kind===ADMIN_EVIDENCE.requirement&&String(item.assignment||'')===String(ADMIN_EVIDENCE.assignment||''));
+  return adminEvidenceAvailable(person).find(item=>item.kind===ADMIN_EVIDENCE.requirement&&String(item.assignment||'')===String(ADMIN_EVIDENCE.assignment||''));
 }
 
 function adminEvidenceMode(){
@@ -398,9 +430,9 @@ function adminEvidenceMode(){
 }
 
 function renderAdminEvidenceComposer(){
-  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId),items=adminEvidenceMissing(person),selected=currentAdminEvidenceRequirement();
+  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId),items=adminEvidenceAvailable(person),selected=currentAdminEvidenceRequirement();
   const selectedKey=selected?`${selected.kind}:${selected.assignment??''}`:'';
-  $('admin-evidence-requirement-list').innerHTML=items.map(item=>{const active=`${item.kind}:${item.assignment??''}`===selectedKey;return `<button type="button" aria-pressed="${String(active)}" class="admin-evidence-requirement${active?' active':''}" data-admin-evidence-kind="${esc(item.kind)}" data-admin-evidence-assignment="${esc(item.assignment??'')}" data-kind="${esc(item.kind)}"><i>${adminEvidenceIcon(item.kind)}</i><span><b>${esc(item.title)}</b><small>${item.kind==='comparticiones'?'Facebook':item.kind==='salida'?'Cierre de jornada':item.kind==='asignado'?'Asignación':'Reporte diario'}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
+  $('admin-evidence-requirement-list').innerHTML=items.map(item=>{const active=`${item.kind}:${item.assignment??''}`===selectedKey;return `<button type="button" aria-pressed="${String(active)}" class="admin-evidence-requirement${active?' active':''}" data-admin-evidence-kind="${esc(item.kind)}" data-admin-evidence-assignment="${esc(item.assignment??'')}" data-kind="${esc(item.kind)}"><i>${adminEvidenceIcon(item.kind)}</i><span><b>${esc(item.title)}</b><small>${item.kind==='comparticiones'?'Facebook':item.kind==='salida'?(item.optional?'Opcional':'Cierre de jornada'):item.kind==='asignado'?'Asignación':'Reporte diario'}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
   $('admin-evidence-kind-icon').innerHTML=selected?adminEvidenceIcon(selected.kind):'';
   $('admin-evidence-kind-title').textContent=selected?.title||'Selecciona una evidencia';
   $('admin-evidence-kind-copy').textContent=selected?.copy||'Verás aquí los archivos y datos necesarios.';
@@ -433,7 +465,7 @@ function selectAdminEvidenceRequirement(kind,assignment=null){
 
 function openAdminMissingEvidence(personId,trigger=null){
   if(APP.access.rol!=='direccion')return;
-  const person=adminEvidencePerson(personId),items=adminEvidenceMissing(person);if(!person||!items.length)return toast('Esta persona no tiene evidencias pendientes.',true);
+  const person=adminEvidencePerson(personId),items=adminEvidenceAvailable(person);if(!person||!items.length)return toast('Esta persona no tiene evidencias disponibles para cargar.',true);
   ADMIN_EVIDENCE={personId:Number(personId),requirement:items[0].kind,assignment:items[0].assignment,files:[],trigger:trigger||document.activeElement,busy:false};
   $('admin-evidence-person-mark').textContent=initials(person.nombre);$('admin-evidence-title').textContent=`Cargar evidencia de ${person.nombre}`;$('admin-evidence-copy').textContent=`${person.area} · ${adminReviewDate($('admin-close-date').value)} · carga por Dirección`;
   $('admin-evidence-note').value='Evidencia recibida por interno y registrada por Dirección.';
@@ -492,25 +524,25 @@ async function submitAdminEvidence(event){
   if(!count)return adminEvidenceMessage('Selecciona al menos una imagen.','is-error');
   const exitTime=$('admin-evidence-exit-time').value;if(selected.kind==='salida'&&!exitTime)return adminEvidenceMessage('Indica la hora que se ve en la foto de salida.','is-error');
   const button=$('admin-evidence-submit'),paths=[];ADMIN_EVIDENCE.busy=true;button.disabled=true;button.querySelector('span').textContent='Preparando carga…';
-  try{
+  try{await withActionLoader('Preparando carga',async setLabel=>{
     for(let index=0;index<files.length;index++){
-      adminEvidenceMessage(`Subiendo ${index+1} de ${files.length}. Mantén esta ventana abierta.`,'is-progress');button.querySelector('span').textContent=`Subiendo ${index+1} de ${files.length}`;
+      adminEvidenceMessage(`Subiendo ${index+1} de ${files.length}. Mantén esta ventana abierta.`,'is-progress');button.querySelector('span').textContent=`Subiendo ${index+1} de ${files.length}`;setLabel(`Subiendo evidencia ${index+1} de ${files.length}`);
       paths.push(await uploadAdminEvidenceFile(files[index],selected,person,date));
     }
-    button.querySelector('span').textContent='Confirmando registro…';adminEvidenceMessage('Los archivos llegaron. Registrando la entrega y su auditoría…','is-progress');
-    const note=$('admin-evidence-note').value.trim()||null,isLateExit=selected.kind==='salida';
+    button.querySelector('span').textContent='Confirmando registro…';setLabel('Confirmando registro');adminEvidenceMessage('Los archivos llegaron. Registrando la entrega y su auditoría…','is-progress');
+    const note=$('admin-evidence-note').value.trim()||null,isLateExit=selected.kind==='salida'&&!person.cierre?.salida_at;
     const rpc=isLateExit?'dash_admin_confirmar_salida_tardia':'dash_admin_confirmar_entrega';
     const params=isLateExit
       ?{p_colaborador:Number(person.id),p_fecha:date,p_paths:paths,p_detalle:note,p_hora_salida:exitTime}
-      :{p_colaborador:Number(person.id),p_fecha:date,p_requisito:selected.kind,p_asignacion:selected.assignment,p_modalidad:selected.kind==='comparticiones'?mode:null,p_paths:paths,p_detalle:note,p_hora_salida:null};
+      :{p_colaborador:Number(person.id),p_fecha:date,p_requisito:selected.kind,p_asignacion:selected.assignment,p_modalidad:selected.kind==='comparticiones'?mode:null,p_paths:paths,p_detalle:note,p_hora_salida:selected.kind==='salida'?exitTime:null};
     let {data,error}=await db.rpc(rpc,params);
     if(error||!data?.ok){const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes(rpc));throw Object.assign(new Error(data?.motivo||error?.message||'confirmar'),{motivo:missing&&isLateExit?'migracion_salida':data?.motivo||'confirmar'})}
     if(!isLateExit&&!person.cierre?.justificado){
       const {data:regularization,error:regularizationError}=await db.rpc('dash_admin_regularizar_cierre',{p_colaborador:Number(person.id),p_fecha:date});
       if(!regularizationError&&regularization?.ok&&regularization.regularizada)data={...data,cierre_regularizado:true};
     }
-    ADMIN_EVIDENCE.busy=false;closeAdminEvidence({restoreFocus:false});await loadAdminCloses();const status=$('admin-close-status');status.setAttribute('tabindex','-1');status.focus({preventScroll:true});toast(data.cierre_regularizado?'Evidencia registrada. La jornada quedó completa.':'Evidencia registrada por Dirección.');
-  }catch(error){
+    ADMIN_EVIDENCE.busy=false;closeAdminEvidence({restoreFocus:false});setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});const status=$('admin-close-status');status.setAttribute('tabindex','-1');status.focus({preventScroll:true});toast(data.cierre_regularizado?'Evidencia registrada. La jornada quedó completa.':'Evidencia registrada por Dirección.');
+  })}catch(error){
     const messages={sin_permiso:'Solo Dirección puede realizar esta carga.',datos:'Revisa la persona, la fecha y la hora de salida.',no_programado:'Este requisito no corresponde al horario de la persona en esa fecha.',rpe_no_requerido_presencial:'La jornada es presencial y no requiere evidencia RPE.',asignacion:'La asignación ya no está activa o no corresponde a esta persona.',no_habilitado:'Este tipo de evidencia no estaba habilitado en la fecha seleccionada.',collage_no_permitido:'El formato collage no está habilitado.',permiso:'La autorización privada de carga venció. Vuelve a seleccionar las imágenes.',detalle_salida:'Añade una nota que indique cómo recibiste esta foto de salida.',ya_completo:'La evidencia ya fue registrada desde otra sesión.',ya_cerrada:'La salida de esta jornada ya está registrada.',hora_salida:'Indica la hora visible en la foto.',hora_salida_invalida:'La hora indicada no puede ser anterior a la entrada ni posterior a la hora actual.',sin_entrada:'No existe una entrada para asociar esta evidencia.',migracion_salida:'Ejecuta dashboard_42_entrada_y_salida_tardia.sql en Supabase para habilitar esta regularización.',cantidad_comparticiones:`Adjunta al menos ${min} capturas o un collage.`,archivo_no_verificado:'Una imagen no llegó correctamente. Inténtalo otra vez.',cuota_diaria:'Se alcanzó el límite de cargas pendientes. Espera unos minutos e inténtalo nuevamente.',subida:'No pudimos subir una imagen. Revisa tu conexión.'};
     messages.jornada_justificada='La jornada está justificada. Solo corresponde subir comparticiones de Facebook.';
     messages.formato_documento='El servidor rechazó el formato. Para PDF o Word en asignaciones, Sistemas debe desplegar la versión actual de dash-entrega; ejecutar el SQL no actualiza esa función.';
@@ -533,26 +565,32 @@ async function submitAdminCloseAssignment(event){
     button.disabled=true;adminCloseMsg('');
     if(ADMIN_DRAW.key!==adminDrawKey()||!ADMIN_DRAW.selection.length){
       button.textContent='Preparando selección…';const requestedKey=adminDrawKey();
-      const {data:preview,error}=await db.rpc('dash_admin_previsualizar_sorteo',{p_fecha:$('admin-close-date').value,p_area:target,p_cantidad:count,p_tipo:$('admin-close-type').value});
+      const {data:preview,error}=await withActionLoader('Preparando sorteo',()=>db.rpc('dash_admin_previsualizar_sorteo',{p_fecha:$('admin-close-date').value,p_area:target,p_cantidad:count,p_tipo:$('admin-close-type').value})).catch(error=>({error}));
       button.disabled=false;
       if(requestedKey!==adminDrawKey()||$('admin-close-target-kind').value!=='sorteo'){clearAdminDrawPreview();return adminCloseMsg('Cambiaste los datos. Previsualiza el sorteo nuevamente.','error');}
       if(error||!preview?.ok){button.textContent='Previsualizar sorteo';const message=preview?.motivo==='insuficientes'?`Solo hay ${preview.disponibles||0} personas elegibles para ese sorteo.`:preview?.motivo==='sin_permiso'?'Solo Dirección puede realizar sorteos.':'No pudimos preparar el sorteo. Revisa la fecha y el área.';return adminCloseMsg(message,'error')}
       renderAdminDrawPreview(preview);return;
     }
     button.textContent='Creando asignaciones…';
-    const {data:result,error}=await db.rpc('dash_admin_confirmar_sorteo',{p_fecha:$('admin-close-date').value,p_area:target,p_colaboradores:ADMIN_DRAW.selection.map(person=>Number(person.id)),p_tipo:$('admin-close-type').value,p_titulo:title,p_instrucciones:$('admin-close-instructions').value.trim()||null});
-    button.disabled=false;
-    if(error||!result?.ok){clearAdminDrawPreview();return adminCloseMsg(result?.motivo==='ya_asignado'?'Una de las personas ya recibió esta asignación. Previsualiza nuevamente.':'No pudimos confirmar el sorteo. Revisa los datos e inténtalo nuevamente.','error')}
-    $('admin-close-title').value='';$('admin-close-instructions').value='';clearAdminDrawPreview();toast(`${result.cantidad} ${result.cantidad===1?'persona seleccionada':'personas seleccionadas'} por rotación justa.`);await loadAdminCloses();return;
+    const confirmed=await withActionLoader('Creando asignaciones',async setLabel=>{
+      const {data:result,error}=await db.rpc('dash_admin_confirmar_sorteo',{p_fecha:$('admin-close-date').value,p_area:target,p_colaboradores:ADMIN_DRAW.selection.map(person=>Number(person.id)),p_tipo:$('admin-close-type').value,p_titulo:title,p_instrucciones:$('admin-close-instructions').value.trim()||null});
+      if(error||!result?.ok)return {result};
+      button.disabled=false;$('admin-close-title').value='';$('admin-close-instructions').value='';clearAdminDrawPreview();setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});return {result,ok:true};
+    }).catch(()=>({}));
+    if(!confirmed.ok){button.disabled=false;clearAdminDrawPreview();return adminCloseMsg(confirmed.result?.motivo==='ya_asignado'?'Una de las personas ya recibió esta asignación. Previsualiza nuevamente.':'No pudimos confirmar el sorteo. Revisa los datos e inténtalo nuevamente.','error')}
+    toast(`${confirmed.result.cantidad} ${confirmed.result.cantidad===1?'persona seleccionada':'personas seleccionadas'} por rotación justa.`);return;
   }
   const button=$('admin-close-assign');button.disabled=true;button.textContent='Asignando…';adminCloseMsg('');
-  const {data:result,error}=await db.rpc('dash_admin_asignar_entregable',{
-    p_fecha:$('admin-close-date').value,p_colaborador:kind==='persona'?target:null,p_area:kind==='area'?target:null,
-    p_tipo:$('admin-close-type').value,p_titulo:title,p_instrucciones:$('admin-close-instructions').value.trim()||null
-  });
-  button.disabled=false;button.textContent='Asignar entregable';
-  if(error||!result?.ok)return adminCloseMsg(result?.motivo==='datos'?'Revisa la fecha y los datos de la asignación.':'No pudimos crear la asignación.','error');
-  $('admin-close-title').value='';$('admin-close-instructions').value='';toast('Entregable asignado correctamente.');await loadAdminCloses();
+  const assigned=await withActionLoader('Asignando entregable',async setLabel=>{
+    const {data:result,error}=await db.rpc('dash_admin_asignar_entregable',{
+      p_fecha:$('admin-close-date').value,p_colaborador:kind==='persona'?target:null,p_area:kind==='area'?target:null,
+      p_tipo:$('admin-close-type').value,p_titulo:title,p_instrucciones:$('admin-close-instructions').value.trim()||null
+    });
+    if(error||!result?.ok)return {result};
+    button.disabled=false;button.textContent='Asignar entregable';$('admin-close-title').value='';$('admin-close-instructions').value='';setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});return {ok:true};
+  }).catch(()=>({}));
+  if(!assigned.ok){button.disabled=false;button.textContent='Asignar entregable';return adminCloseMsg(assigned.result?.motivo==='datos'?'Revisa la fecha y los datos de la asignación.':'No pudimos crear la asignación.','error')}
+  toast('Entregable asignado correctamente.');
 }
 
 async function cancelAdminCloseAssignment(id){
@@ -561,21 +599,25 @@ async function cancelAdminCloseAssignment(id){
   dialog.setAttribute('aria-labelledby','assignment-delete-title');
   dialog.innerHTML='<h2 id="assignment-delete-title">¿Eliminar asignación y evidencias?</h2><p>La asignación dejará de exigirse. Se borrarán definitivamente sus archivos, incluidas las versiones anteriores, aunque estén aprobados. Esta acción no se puede deshacer.</p><p>En una asignación de área, afecta a todos sus destinatarios.</p><p role="status"></p><div class="assignment-delete-actions"><button type="button" data-back>Conservar asignación</button><button type="button" data-remove>Eliminar y liberar espacio</button></div>';
   const back=dialog.querySelector('[data-back]'),remove=dialog.querySelector('[data-remove]'),status=dialog.querySelector('[role=status]');let busy=false,retired=false;
-  back.onclick=()=>dialog.close();dialog.oncancel=e=>{if(busy)e.preventDefault()};dialog.onclose=()=>{dialog.remove();if(retired)void loadAdminCloses()};
+  let reloaded=false;
+  back.onclick=()=>dialog.close();dialog.oncancel=e=>{if(busy)e.preventDefault()};dialog.onclose=()=>{dialog.remove();if(retired&&!reloaded)void loadAdminCloses()};
   remove.onclick=async()=>{
-    if(busy)return;busy=true;back.disabled=true;remove.disabled=true;status.textContent='Eliminando asignación y archivos…';
+    if(busy)return;busy=true;back.disabled=true;remove.disabled=true;status.textContent='Eliminando asignación y archivos…';dialog.classList.add('is-busy');
     try{
-      const {data:{session}}=await db.auth.getSession();if(!session)throw Error('Tu sesión venció. Vuelve a ingresar.');
-      const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({accion:'eliminar_asignacion',asignacion:Number(id)})});
-      const data=await response.json();
-      if(!response.ok||!data?.ok||data.eliminada!==true){
-        if(data?.motivo==='limpieza_pendiente'){retired=true;throw Error('La asignación se retiró, pero quedan archivos por borrar. Pulsa Reintentar para completar la limpieza.');}
-        if(data?.motivo==='sin_permiso')throw Error('Tu cuenta no tiene permiso para eliminar esta asignación.');
-        throw Error('No se confirmó la eliminación. Reintenta; si persiste, Sistemas debe comprobar dashboard_58 y actualizar dash-entrega.');
-      }
-      retired=true;dialog.close();toast('Asignación eliminada y archivos borrados.');
+      await withActionLoader('Eliminando asignación y archivos',async setLabel=>{
+        const {data:{session}}=await db.auth.getSession();if(!session)throw Error('Tu sesión venció. Vuelve a ingresar.');
+        const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({accion:'eliminar_asignacion',asignacion:Number(id)})});
+        const data=await response.json();
+        if(!response.ok||!data?.ok||data.eliminada!==true){
+          if(data?.motivo==='limpieza_pendiente'){retired=true;throw Error('La asignación se retiró, pero quedan archivos por borrar. Pulsa Reintentar para completar la limpieza.');}
+          if(data?.motivo==='sin_permiso')throw Error('Tu cuenta no tiene permiso para eliminar esta asignación.');
+          throw Error('No se confirmó la eliminación. Reintenta; si persiste, Sistemas debe comprobar dashboard_58 y actualizar dash-entrega.');
+        }
+        retired=true;busy=false;reloaded=true;dialog.close();setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});
+      });
+      toast('Asignación eliminada y archivos borrados.');
     }catch(error){status.textContent=error.message;remove.textContent='Reintentar eliminación';back.textContent='Cerrar';}
-    finally{busy=false;back.disabled=false;remove.disabled=false;}
+    finally{busy=false;back.disabled=false;remove.disabled=false;dialog.classList.remove('is-busy');}
   };
   document.body.append(dialog);dialog.showModal();back.focus();
 }

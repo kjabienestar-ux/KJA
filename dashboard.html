@@ -14,36 +14,41 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=209">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=227">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=8">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=1">
+<link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=7">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
-<link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=15">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=35">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=55">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcements.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/attendance-calendar.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-redesign.css?v=4">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-jornada.css?v=14">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-profile-mobile.css?v=4">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile-jornada.css?v=15">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-profile-mobile.css?v=18">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-guided-tour.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
   <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=26">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=7">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-loading.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=15">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-loading.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-mobile.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-team-mobile.css?v=2">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-login.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-login.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-person-calendar.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-month-layout.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=3">
 </head>
 <body>
 
@@ -74,14 +79,12 @@
 
     <div class="access-form-wrap">
       <div class="access-form-head">
-        <div class="login-brand-row">
-          <span class="mobile-logo"><img src="images/logo/kja.webp" alt="KJA"></span>
-          <a class="back-home" href="index.html" aria-label="Volver al inicio">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5-7 7 7 7M3 12h18"/></svg><span>Volver al inicio</span>
-          </a>
-        </div>
+        <span class="mobile-logo"><img src="images/logo/kja.webp" alt="KJA"></span>
         <div class="login-welcome">
           <div class="login-welcome-copy">
+            <a class="back-home" href="index.html" aria-label="Volver al inicio">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5-7 7 7 7M3 12h18"/></svg><span>Volver al inicio</span>
+            </a>
             <h2>Ingresa a tu portal</h2>
             <p>Selecciona tu tipo de acceso para continuar.</p>
           </div>
@@ -175,19 +178,20 @@
     <nav class="side-nav" aria-label="Navegación principal">
       <button id="nav-marketing" data-view="marketing" data-sidebar-tooltip="Publicaciones" hidden><svg viewBox="0 0 24 24"><path d="M4 10v5h4l9 4V6l-9 4H4ZM8 15l2 6M20 9v7"/></svg><span class="sidebar-label">Publicaciones</span></button>
       <span class="side-nav-divider personal" id="personal-nav-divider" hidden>MI ESPACIO</span>
-      <button class="active" data-view="inicio" id="nav-inicio" data-sidebar-tooltip="Inicio" hidden><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span class="sidebar-label">Inicio</span></button>
-      <button data-view="asistencia" id="nav-asistencia" data-sidebar-tooltip="Mi asistencia" hidden><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 15l2 2 4-4"/></svg><span class="sidebar-label">Mi asistencia</span></button>
-      <button data-view="perfil" id="nav-perfil" data-sidebar-tooltip="Mi perfil" hidden><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.3 3.5-6 8-6s7.2 1.7 8 6"/></svg><span class="sidebar-label">Mi perfil</span></button>
+      <button class="active" data-view="inicio" id="nav-inicio" data-sidebar-tooltip="Inicio" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="m4 10 8-7 8 7v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3Z"/><path d="m2.5 10.5 8.2-7.2a2 2 0 0 1 2.6 0l8.2 7.2M4.5 9v9a2.5 2.5 0 0 0 2.5 2.5h10a2.5 2.5 0 0 0 2.5-2.5V9M9 20.5v-5a3 3 0 0 1 6 0v5M10 8h4"/></svg><span class="sidebar-label">Inicio</span></button>
+      <button data-view="asistencia" id="nav-asistencia" data-sidebar-tooltip="Mi asistencia" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="M3 9V6a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v3Z"/><path d="M10 20H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3v3M7 2v4M16 2v4M3 9h17M7 13h2M7 16h1"/><circle class="icon-tone" cx="17" cy="17" r="5"/><circle cx="17" cy="17" r="5"/><path class="icon-accent" d="m14.5 17 1.7 1.7 3.3-3.5"/></svg><span class="sidebar-label">Mi asistencia</span></button>
+      <button data-view="perfil" id="nav-perfil" data-sidebar-tooltip="Mi perfil" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-tone" x="3" y="2.5" width="18" height="19" rx="5"/><rect x="3" y="2.5" width="18" height="19" rx="5"/><circle cx="12" cy="9" r="3"/><path d="M7 18c.4-2.4 2-3.6 5-3.6s4.6 1.2 5 3.6"/></svg><span class="sidebar-label">Mi perfil</span></button>
       <span class="side-nav-divider" id="team-nav-divider" hidden>LIDERAZGO</span>
-      <button data-view="equipo" id="nav-equipo" data-sidebar-tooltip="Mi equipo" hidden><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.5-3.6 2.5-5 6-5s5.5 1.4 6 5M15 15c3.6 0 5.5 1.4 6 4"/></svg><span class="sidebar-label">Mi equipo</span></button>
+      <button data-view="equipo" id="nav-equipo" data-sidebar-tooltip="Mi equipo" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="M6 20v-2c0-3 2-4.5 6-4.5s6 1.5 6 4.5v2Z"/><circle cx="12" cy="6.5" r="3.2"/><path d="M6 20v-1.5c0-3.2 2-5 6-5s6 1.8 6 5V20M4.5 5.5a2.5 2.5 0 0 0 0 5M19.5 5.5a2.5 2.5 0 0 1 0 5M2 18v-1.5c0-2 1-3.1 3-3.5M22 18v-1.5c0-2-1-3.1-3-3.5"/></svg><span class="sidebar-label">Mi equipo</span></button>
       <span class="side-nav-divider" id="admin-nav-divider" hidden>ADMINISTRACIÓN</span>
       <button data-view="gestion" id="nav-gestion" data-sidebar-tooltip="Gestión de asistencia" hidden><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5M8 14h3M14 14h2M8 17h8"/></svg><span class="sidebar-label">Gestión de asistencia</span></button>
     </nav>
+    <button class="guided-tour-trigger" id="nav-guided-tour" type="button" data-guided-tour-start data-sidebar-tooltip="Tutorial guiado" aria-label="Iniciar tutorial guiado del dashboard" title="Tutorial guiado" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-tone" x="2.5" y="3.5" width="19" height="14" rx="4"/><rect x="2.5" y="3.5" width="19" height="14" rx="4"/><path class="icon-solid" d="m10 7.5 5 3-5 3Z"/><path d="M8 21h8M12 17.5V21"/></svg><span class="sidebar-label">Tutorial guiado</span></button>
     <div class="side-help" data-sidebar-tooltip="¿Necesitas ayuda?"><div class="side-help-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg><span class="sidebar-label">¿Necesitas ayuda?</span></div><a href="https://wa.me/51922996170" target="_blank" rel="noopener" data-sidebar-tooltip="Contactar a Ingeniería"><span class="sidebar-label">Contactar a Ingeniería</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></div>
-    <div class="side-user">
+    <div class="side-user" id="sidebar-session-actions">
       <span class="avatar" id="side-avatar" title="Perfil del colaborador">KJ</span>
       <span class="side-user-copy"><b id="side-name">—</b><small id="side-role">Miembro</small></span>
-      <button id="logout" aria-label="Cerrar sesión" title="Cerrar sesión" data-sidebar-tooltip="Cerrar sesión"><svg viewBox="0 0 24 24"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg></button>
+      <button id="logout" aria-label="Cerrar sesión" title="Cerrar sesión" data-sidebar-tooltip="Cerrar sesión"><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="M5 3h7v18H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M12 4V3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h6v-1M10 12h11m-4-4 4 4-4 4"/></svg></button>
     </div>
   </aside>
 
@@ -323,6 +327,7 @@
           <div class="mobile-sheet-heading">
             <span><h2>¿Qué deseas hacer?</h2><p>Accede rápido a lo más importante.</p></span>
             <span class="mobile-session-state"><i></i>Sesión segura</span>
+            <button class="mobile-guided-tour-trigger" type="button" data-guided-tour-start hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z"/></svg><span>Tutorial móvil</span></button>
           </div>
           <nav class="mobile-quick-grid" aria-label="Accesos rápidos">
             <button type="button" data-mobile-action="asistencia">
@@ -562,6 +567,7 @@
               <div class="day-close-checklist" id="day-close-checklist" aria-live="polite"></div>
 
               <div class="day-close-guide" id="day-close-guide" data-stage="evidence">
+                <img class="day-off-illustration" src="images/dashboard/dia-libre.webp" width="640" height="640" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 <div class="day-close-journey" aria-label="Progreso del cierre de jornada">
                   <span class="day-close-journey-step" data-journey-step="entry"><img class="journey-figure" src="images/dashboard/attendance-phone.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></i><b>Entrada</b></span>
                   <span class="day-close-journey-step" data-journey-step="evidence"><img class="journey-figure" src="images/dashboard/evidence-worker.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></i><b>Evidencias</b></span>
@@ -571,7 +577,7 @@
                 <p id="day-close-guide-copy">Selecciona cada requisito pendiente para adjuntar las imágenes.</p>
               </div>
 
-              <aside class="day-close-action">
+              <aside class="day-close-action" id="day-close-action">
                 <div class="day-close-time">
                   <small id="day-close-time-label">HORA DE SALIDA</small>
                   <b id="day-close-time">—</b>
@@ -732,7 +738,7 @@
           <section class="attendance-selected-day" id="attendance-selected-day" aria-labelledby="attendance-selected-title" tabindex="-1">
             <button class="attendance-mobile-modal-close" type="button" data-close-attendance-mobile aria-label="Cerrar resumen">×</button>
             <h2 id="attendance-selected-title">Detalle del día</h2>
-            <div id="attendance-selected-content" aria-live="polite"><p>Selecciona un día del calendario para consultar sus detalles.</p></div>
+            <div id="attendance-selected-content" aria-live="polite"><p>Selecciona un día del calendario para consultar los detalles de tu jornada.</p></div>
           </section>
         <section class="attendance-request-center attendance-requests-disclosure" aria-labelledby="request-center-title">
           <button class="attendance-mobile-modal-close" type="button" data-close-attendance-mobile aria-label="Cerrar solicitudes">×</button>
@@ -745,7 +751,7 @@
           <section class="personal-request-history"><div><b>Solicitudes recientes</b><button id="personal-requests-refresh" type="button">Actualizar</button></div><div id="personal-request-list"><p class="request-empty">Todavía no has enviado solicitudes.</p></div></section>
         </section>
           <section class="attendance-desktop-team-panel" id="attendance-desktop-team-panel" aria-labelledby="attendance-desktop-team-title">
-            <header><h2 id="attendance-desktop-team-title">Equipo Ingeniería</h2><p>Selecciona un integrante para ver su semana en el calendario.</p></header>
+            <header><h2 id="attendance-desktop-team-title">Equipo Ingeniería</h2><p>Selecciona un día para ver quiénes trabajan en tu área.</p></header>
             <div id="attendance-desktop-team-list"></div>
           </section>
           <section class="attendance-mobile-team-day" id="attendance-mobile-team-day" aria-labelledby="attendance-mobile-team-day-title">
@@ -759,35 +765,42 @@
     </section>
 
     <section class="view" id="view-perfil" hidden>
-      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p>Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.</p></div><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button></header>
+      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p>Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.</p></div><div class="profile-header-actions"><details class="profile-theme-picker"><summary aria-label="Personalizar portada vertical"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M5 5h14v14H5zM8 9h8M8 13h5"/></svg><span>Personalizar portada</span></summary><div class="profile-theme-options" role="group" aria-label="Estilos de portada vertical"><button type="button" data-profile-cover="cielo">Cielo</button><button type="button" data-profile-cover="jardin">Jardín</button><button type="button" data-profile-cover="noche">Noche</button></div></details></div></header>
+      <div class="profile-mobile-controls"><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button><button class="profile-mobile-logout" id="profile-mobile-logout" type="button" aria-label="Cerrar sesión" title="Cerrar sesión"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5"/><path d="m14 8 4 4-4 4M18 12H9"/></svg></button></div>
       <div class="profile-layout">
         <article class="profile-identity">
           <div class="profile-photo-wrap">
             <span class="profile-avatar" id="profile-avatar">KJ</span>
-            <button class="profile-photo-camera" id="profile-photo-camera" type="button" aria-label="Cambiar foto de perfil" title="Cambiar foto">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            <button class="profile-photo-camera" id="profile-photo-camera" type="button" aria-label="Editar foto de perfil" title="Editar foto">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="m16.5 3.5 4 4L8 20l-5 1 1-5z"/></svg>
             </button>
           </div>
           <h2 id="profile-name">—</h2><p id="profile-area">—</p><span class="profile-badge" id="profile-link">—</span>
-          <div class="profile-photo-actions">
-            <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-            <button class="profile-photo-change" id="profile-photo-change" type="button">Subir foto</button>
-            <button class="profile-photo-remove" id="profile-photo-remove" type="button" hidden>Quitar</button>
-          </div>
-          <small class="profile-photo-hint">JPG, PNG o WebP · máximo 3 MB</small>
-          <p class="profile-photo-message" id="profile-photo-message" role="status" aria-live="polite"></p>
+          <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
         </article>
         <article class="profile-data">
           <div id="profile-fields"></div>
+          <div class="profile-utilities">
           <div class="profile-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span><b>¿Hay algo que corregir?</b>Comunícalo a Dirección para mantener tu información laboral al día.</span><a href="https://wa.me/51988918238" target="_blank" rel="noopener">Informar un cambio</a></div>
           <div class="profile-session">
-            <span class="profile-session-copy">
+            <span class="profile-session-copy profile-session-copy-mobile">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>
               <span><b>Sesión de la cuenta</b><small>Sal de forma segura al terminar de usar tu portal.</small></span>
             </span>
+            <span class="profile-session-copy profile-session-copy-support">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg>
+              <span><b>¿Necesitas apoyo?</b><small>El área de Ingeniería de KJA te ayudará a administrar tu información.</small></span>
+            </span>
             <button id="profile-logout" type="button">Cerrar sesión</button>
+            <a class="profile-engineering-contact" href="https://wa.me/51922996170" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg>
+              <span>Contactar a Ingeniería</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+          </div>
           </div>
         </article>
+        <section class="profile-context" id="profile-context" aria-label="Bienestar y comunicados"></section>
       </div>
     </section>
 
@@ -817,14 +830,11 @@
       <dialog id="team-mobile-dialog" aria-label="Detalle del equipo"><form method="dialog" class="team-mobile-dialog-head"><b>Mi equipo</b><button type="submit" autofocus aria-label="Cerrar detalle">×</button></form><div id="team-mobile-dialog-body"></div></dialog>
     </section>
 
-    <section class="view admin-view" id="view-gestion" hidden>
-      <header class="view-head admin-view-head">
-        <div><p class="eyebrow">CENTRO DE GESTIÓN</p><h1>Administración de asistencia</h1></div>
-        <button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button>
-        <div class="admin-head-actions"><span class="admin-role-chip" id="admin-role-chip">Acceso administrativo</span><button class="admin-refresh" id="admin-refresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualizar</button></div>
-      </header>
+    <section class="view admin-view" id="view-gestion" aria-label="Gestión de asistencia" hidden>
+
 
       <nav class="admin-section-nav" aria-label="Secciones de administración">
+        <button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button>
         <button class="active" type="button" data-admin-section="overview">Resumen operativo</button>
         <button type="button" data-admin-section="control" id="admin-control-tab" hidden>Control diario</button>
         <button type="button" data-admin-section="ranking" id="admin-ranking-tab" hidden>Ranking mensual · Beta</button>
@@ -838,6 +848,8 @@
         <button type="button" data-admin-section="roles" id="admin-roles-tab" hidden>Roles y equipos</button>
         <button type="button" data-admin-section="marcado" id="admin-access-tab">Marcado propio</button>
         <a href="asistencia.html?modo=lista" title="Abrir la versión anterior como respaldo">Panel anterior ↗</a>
+        <button class="admin-refresh" id="admin-refresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualizar</button>
+        <span id="admin-role-chip" hidden>Acceso administrativo</span>
       </nav>
 
       <div id="admin-overview-section">
@@ -879,20 +891,31 @@
         </section>
       </div>
 
-      <section class="admin-control-section" id="admin-control-section" hidden>
-        <header class="admin-control-head">
-          <span><h2>Control diario</h2><p>Prioriza las jornadas que necesitan atención antes de cerrar el día.</p></span>
-          <div class="admin-control-kpis" id="admin-control-kpis" aria-live="polite"></div>
-          <div class="admin-control-actions"><label>Fecha<input type="date" id="admin-control-date"></label><button type="button" id="admin-control-today">Hoy</button><button type="button" class="admin-primary-action" id="admin-control-export">Exportar CSV</button><button type="button" class="admin-secondary-action admin-pausas-btn" id="admin-pausas-open-btn" title="Monitoreo y reseteo de pausas activas"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px; vertical-align:-2px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M9 17h6"/></svg>Pausas activas</button></div>
+      <section class="admin-control-section" id="admin-control-section" aria-labelledby="admin-control-title" hidden>
+        <header class="control-heading">
+          <div><h2 id="admin-control-title">Control diario</h2><p>Los pendientes del equipo, con el siguiente paso a la vista.</p></div>
+          <div class="control-tools">
+            <button type="button" id="admin-control-export" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5"/></svg>Exportar vista</button>
+            <button type="button" id="admin-pausas-open-btn" class="admin-pausas-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pausas activas</button>
+          </div>
         </header>
-        <div class="admin-control-filters">
-          <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-control-search" placeholder="Buscar colaborador…"></label>
-          <label><span class="sr-only">Filtrar por área</span><select id="admin-control-area"><option value="">Todas las áreas</option></select></label>
-          <label><span class="sr-only">Filtrar por situación</span><select id="admin-control-state"><option value="">Todas las situaciones</option><option value="sin_entrada">Sin entrada</option><option value="evidencias">Faltan evidencias</option><option value="impedimento">Impedimento informado</option><option value="revision">Revisión pendiente</option><option value="observada">Corrección pendiente</option><option value="sin_salida">Sin salida</option><option value="incompleta">Jornada incompleta</option><option value="completa">Jornada completa</option></select></label>
-          <span id="admin-control-result-count">—</span>
+        <div class="control-datebar">
+          <div class="control-date-navigation"><button type="button" id="admin-control-prev" aria-label="Día anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button><label><span class="sr-only">Fecha del control diario</span><input type="date" id="admin-control-date"></label><button type="button" id="admin-control-next" aria-label="Día siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button><button type="button" id="admin-control-today">Hoy</button></div>
+          <p id="admin-control-summary" aria-live="polite">Consultando la jornada…</p>
         </div>
-        <p class="admin-list-message" id="admin-control-message" role="status" aria-live="polite"></p>
-        <div class="admin-control-table" id="admin-control-table"><p class="admin-empty">Preparando el control diario…</p></div>
+        <section class="control-area-overview" aria-labelledby="control-area-title"><header><div><h3 id="control-area-title">Seguimiento por área</h3><p id="admin-control-chart-selection">Pulsa una barra para ver sus personas</p></div><div class="control-area-legend"><span class="pending">Pendientes</span><span class="review">Por revisar</span><span class="done">Concluidas</span><span class="clear">Sin pendientes</span></div><button type="button" id="admin-control-chart-reset" hidden>Ver todas</button></header><div id="admin-control-areas" aria-label="Distribución de personas por área"><p class="control-area-empty">Consultando las áreas…</p></div><p class="control-area-footnote">Cada persona aparece una vez. Por revisar tiene prioridad; sin pendientes no significa jornada completada. Vista general de la fecha, independiente de la búsqueda.</p></section>
+        <div class="control-workspace">
+          <div class="control-queues" id="admin-control-kpis" role="group" aria-label="Bandejas de seguimiento"></div>
+          <div class="control-filters">
+            <label class="control-search"><span class="sr-only">Buscar colaborador</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input type="search" id="admin-control-search" placeholder="Buscar persona o área"></label>
+            <label><span class="sr-only">Filtrar por área</span><select id="admin-control-area"><option value="">Todas las áreas</option></select></label>
+            <label><span class="sr-only">Filtrar por situación</span><select id="admin-control-state"><option value="">Cualquier pendiente</option><option value="sin_entrada">Sin entrada</option><option value="evidencias">Faltan evidencias</option><option value="impedimento">Impedimento informado</option><option value="revision">Por revisar</option><option value="observada">Con correcciones</option><option value="sin_salida">Sin salida</option><option value="incompleta">Jornada incompleta</option><option value="completa">Jornada completa</option><option value="justificado">Justificada</option><option value="no_aplica">No labora</option></select></label>
+            <button type="button" id="admin-control-clear" hidden>Limpiar</button>
+          </div>
+          <div class="control-list-meta"><span id="admin-control-result-count" role="status">—</span><label>Ordenar por <select id="admin-control-sort"><option value="priority">Prioridad</option><option value="name">Nombre</option><option value="area">Área</option></select></label></div>
+          <p class="admin-list-message" id="admin-control-message" role="status" aria-live="polite"></p>
+          <div class="control-case-list" id="admin-control-table" aria-busy="true"><p class="admin-empty">Preparando el control diario…</p></div>
+        </div>
       </section>
 
       <section class="admin-list-section" id="admin-list-section" hidden>
@@ -988,6 +1011,7 @@
             </div>
               <button class="admin-month-today" type="button" id="admin-month-today">Ir al mes actual</button>
               <button class="admin-secondary-action admin-month-holidays" id="admin-month-holidays" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 10h16M8 14h2M14 14h2"/></svg><span>Gestionar feriados</span></button>
+              <button class="admin-secondary-action" id="admin-month-days-off" type="button">Días libres</button>
             </div>
             <div class="admin-month-filters">
               <label><span>Buscar</span><input type="search" id="admin-month-search" placeholder="Nombre del colaborador" autocomplete="off"></label>
@@ -1030,8 +1054,9 @@
           </div>
         </div>
         <div class="admin-list-message" id="admin-month-message" role="status" aria-live="polite"></div>
+        <section id="admin-person-calendar" aria-label="Calendario del colaborador seleccionado" hidden></section>
         <div class="admin-month-ledger" id="admin-month-ledger"><p class="admin-empty">Ejecuta la migración de la fase 4 para cargar el mes.</p></div>
-        <div class="admin-month-legend"><span><i class="p">P</i>Presente</span><span><i class="t">T</i>Tardanza</span><span><i class="j">J</i>Justificado</span><span><i class="ng">NG</i>No gestiona</span><span><i class="off"></i>No laborable</span><span><i class="holiday"></i>Feriado</span><small>Selecciona una celda para consultar o gestionar el día.</small></div>
+        <div class="admin-month-legend"><span><i class="p">P</i>Presente</span><span><i class="t">T</i>Tardanza</span><span><i class="j">J</i>Justificado</span><span><i class="ng">NG</i>No gestiona</span><span><i class="p">DL</i>Día libre</span><span><i class="off"></i>No laborable</span><span><i class="holiday"></i>Feriado</span><small>Selecciona una celda para consultar o gestionar el día.</small></div>
         <a class="admin-legacy-link" href="asistencia.html?modo=grilla">Abrir Mes completo en el panel anterior ↗</a>
       </section>
 
@@ -1329,6 +1354,11 @@
       <h2 id="rail-name">—</h2>
       <p id="rail-area">Equipo KJA</p>
       <span class="rail-role" id="rail-role">Miembro</span>
+      <a class="rail-profile-support" href="https://wa.me/51922996170" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg>
+        <span>Contactar a Ingeniería</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+      </a>
     </section>
 
     <section class="rail-schedule">
@@ -1367,18 +1397,19 @@
       </button>
     </figure>
 
-    <figure class="rail-announcement" aria-labelledby="rail-announcement-title">
+    <figure class="rail-announcement" aria-labelledby="rail-announcements-heading">
       <figcaption>
-        <b>Comunicados</b>
+        <b id="rail-announcements-heading">Comunicados</b>
         <svg class="rail-announcement-heading-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
       </figcaption>
+      <div class="rail-announcement-gallery" id="rail-announcement-gallery" role="group" aria-label="Todos los comunicados"></div>
       <div class="rail-announcement-carousel" id="rail-announcement-carousel" role="region" aria-roledescription="carrusel" aria-label="Carrusel de comunicados KJA">
         <button class="rail-announcement-media" id="rail-announcement-open" type="button" aria-label="Ampliar comunicado" aria-describedby="rail-announcement-title" aria-haspopup="dialog" aria-controls="announcement-viewer">
-          <img id="rail-announcement-image" src="images/dashboard/comunicado-advertencia-evidencias.webp" alt="Comunicado KJA sobre puntualidad, cartas de advertencia por llegadas tardías y evidencias verídicas" loading="eager">
+          <img id="rail-announcement-image" src="images/dashboard/comunicado-comparticiones-3.webp" alt="Comunicado KJA: las evidencias de comparticiones en Facebook son obligatorias y deben subirse a la plataforma antes de enviarlas por WhatsApp" loading="eager">
           <div class="rail-announcement-fallback" id="rail-announcement-fallback" hidden>
             <img src="images/logo/logo.webp" alt="" aria-hidden="true">
-            <b id="rail-announcement-fallback-title">Puntualidad y evidencias</b>
-            <p id="rail-announcement-fallback-copy">Marca tu asistencia a tiempo: las llegadas tardías recibirán cartas de advertencia y las evidencias deben ser reales y verificables.</p>
+            <b id="rail-announcement-fallback-title">Evidencias obligatorias</b>
+            <p id="rail-announcement-fallback-copy">Sube a la plataforma las capturas de tus comparticiones; si solo las envías por WhatsApp no aparecerán en el reporte y se enviarán cartas de advertencia.</p>
             <small>Consulta los comunicados del panel.</small>
           </div>
           <span class="rail-announcement-zoom">
@@ -1386,7 +1417,7 @@
           </span>
         </button>
         <div class="rail-announcement-controls" role="group" aria-label="Navegación de comunicados">
-          <b class="rail-announcement-caption" id="rail-announcement-title">Puntualidad y evidencias</b>
+          <b class="rail-announcement-caption" id="rail-announcement-title">Evidencias obligatorias</b>
           <button class="rail-announcement-nav" id="rail-announcement-prev" type="button" aria-label="Comunicado anterior" title="Comunicado anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
           <div class="rail-announcement-dots" id="rail-announcement-dots" role="tablist" aria-label="Seleccionar comunicado"></div>
           <span class="rail-announcement-status" id="rail-announcement-status" aria-live="polite">1 de 2</span>
@@ -1496,18 +1527,21 @@
   <div class="modal-backdrop" data-close-announcement></div>
   <section class="announcement-viewer-sheet announcement-main-sheet" role="dialog" aria-modal="true" aria-labelledby="announcement-viewer-title" tabindex="-1">
     <header>
-      <span><small>COMUNICADO KJA</small><h2 id="announcement-viewer-title">Reportes consolidados</h2></span>
+      <span class="announcement-viewer-heading"><small>COMUNICADO KJA</small><h2 id="announcement-viewer-title">Evidencias obligatorias</h2></span>
+      <div class="announcement-viewer-controls" role="group" aria-label="Navegación de comunicados">
+        <div class="announcement-viewer-dots" id="announcement-viewer-dots" role="tablist" aria-label="Seleccionar comunicado"></div>
+        <span class="announcement-viewer-status" id="announcement-viewer-status" aria-live="polite">1 de 2</span>
+      </div>
+      <button class="announcement-viewer-zoom" id="announcement-viewer-zoom" type="button" aria-pressed="false" aria-controls="announcement-viewer-stage" aria-label="Ampliar imagen" title="Ampliar imagen"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5M8.5 11h5"/><path class="zoom-in-mark" d="M11 8.5v5"/></svg></button>
       <button class="announcement-viewer-close" type="button" data-close-announcement aria-label="Cerrar comunicado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
     </header>
-    <div class="announcement-viewer-stage">
-      <img id="announcement-viewer-image" src="images/dashboard/comunicado-advertencia-evidencias.webp" alt="Comunicado KJA sobre puntualidad, cartas de advertencia por llegadas tardías y evidencias verídicas">
+    <div class="announcement-viewer-stage" id="announcement-viewer-stage">
+      <div class="announcement-viewer-scroll" id="announcement-viewer-scroll">
+        <img id="announcement-viewer-image" src="images/dashboard/comunicado-comparticiones-3.webp" alt="Comunicado KJA: las evidencias de comparticiones en Facebook son obligatorias y deben subirse a la plataforma antes de enviarlas por WhatsApp">
+      </div>
+      <button class="announcement-viewer-nav announcement-viewer-side is-prev" id="announcement-viewer-prev" type="button" aria-label="Comunicado anterior" title="Comunicado anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+      <button class="announcement-viewer-nav announcement-viewer-side is-next" id="announcement-viewer-next" type="button" aria-label="Siguiente comunicado" title="Siguiente comunicado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
-    <footer class="announcement-viewer-controls" role="group" aria-label="Navegación de comunicados">
-      <button class="announcement-viewer-nav" id="announcement-viewer-prev" type="button" aria-label="Comunicado anterior" title="Comunicado anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-      <div class="announcement-viewer-dots" id="announcement-viewer-dots" role="tablist" aria-label="Seleccionar comunicado"></div>
-      <span class="announcement-viewer-status" id="announcement-viewer-status" aria-live="polite">1 de 2</span>
-      <button class="announcement-viewer-nav" id="announcement-viewer-next" type="button" aria-label="Siguiente comunicado" title="Siguiente comunicado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-    </footer>
   </section>
 </div>
 
@@ -1782,7 +1816,7 @@
         <div class="admin-form-grid">
           <label class="admin-field span-2">Nombre completo<input id="admin-person-name" maxlength="80" required placeholder="Nombres y apellidos"></label>
           <label class="admin-field">DNI<input id="admin-person-dni" inputmode="numeric" maxlength="8" placeholder="8 dígitos"></label>
-          <label class="admin-field">Institución (opcional)<input id="admin-person-institution" maxlength="160" placeholder="Universidad, instituto u organización" aria-describedby="admin-institution-help"><small id="admin-institution-help">Si no se registra, quedará vacía en el informe.</small></label>
+          <label class="admin-field">Institución (opcional)<select id="admin-person-institution" aria-describedby="admin-institution-help"><option value="">Sin institución</option></select><small id="admin-institution-help">Elige la sede. Si no se registra, quedará vacía en el informe.</small></label>
           <label class="admin-field">Tipo de vínculo<select id="admin-person-link"><option value="practicas">Prácticas</option><option value="voluntariado">Voluntariado</option><option value="ambos">Prácticas + voluntariado</option></select></label>
           <div class="admin-field span-2"><span>Área</span><div class="admin-area-field"><select id="admin-person-area" required></select><button type="button" id="admin-area-reveal">+ Nueva área</button></div></div>
           <div class="admin-area-create span-2" id="admin-area-create" hidden><input id="admin-area-name" maxlength="60" placeholder="Nombre de la nueva área"><button type="button" id="admin-area-save">Crear área</button></div>
@@ -2055,6 +2089,23 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog class="profile-photo-dialog" id="profile-photo-dialog" aria-labelledby="profile-photo-dialog-title" aria-describedby="profile-photo-dialog-copy">
+  <header class="profile-photo-dialog-head">
+    <span><small>FOTO DE PERFIL</small><h2 id="profile-photo-dialog-title">Editar foto</h2></span>
+    <button type="button" id="profile-photo-dialog-close" aria-label="Cerrar opciones de foto">&times;</button>
+  </header>
+  <p class="profile-photo-dialog-copy" id="profile-photo-dialog-copy">Elige una foto nueva o quita la actual de tu perfil.</p>
+  <section class="profile-photo-upload-panel" aria-label="Seleccionar una foto de perfil">
+    <span class="profile-photo-dialog-avatar" id="profile-photo-dialog-avatar" aria-hidden="true">KJ</span>
+    <span class="profile-photo-upload-copy"><b>Selecciona una foto</b><small>JPG, PNG o WebP · máximo 3 MB</small></span>
+    <button class="profile-photo-change" id="profile-photo-change" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M5 15v4h14v-4"/></svg>Elegir foto</button>
+  </section>
+  <div class="profile-photo-actions">
+    <button class="profile-photo-remove" id="profile-photo-remove" type="button" hidden>Quitar foto</button>
+  </div>
+  <small class="profile-photo-hint">JPG, PNG o WebP · máximo 3 MB</small>
+  <p class="profile-photo-message" id="profile-photo-message" role="status" aria-live="polite"></p>
+</dialog>
 <div class="modal avatar-crop-modal" id="avatar-crop-modal" hidden>
   <div class="modal-backdrop" id="cropper-close-bg"></div>
   <div class="mark-sheet avatar-crop-sheet">
@@ -2077,24 +2128,26 @@
 
 
 
-<script src="assets/js/dashboard-close-model.js?v=8"></script>
+<script src="assets/js/dashboard-close-model.js?v=10"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
 <script src="assets/js/dashboard-announcement-modal.js?v=5"></script>
-<script src="assets/js/dashboard-month-progress.js?v=3"></script>
-<script src="assets/js/attendance-calendar-model.js?v=2"></script>
-<script src="assets/js/dashboard.js?v=219"></script>
+<script src="assets/js/dashboard-month-progress.js?v=4"></script>
+<script src="assets/js/attendance-calendar-model.js?v=3"></script>
+<script src="assets/js/dashboard-person-calendar.js?v=3"></script>
+<script src="assets/js/dashboard.js?v=239"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=11"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=12"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=2"></script>
 <script src="assets/js/dashboard-person-profile.js?v=4"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=3"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=7"></script>
+<script src="assets/js/dashboard-month-day-detail.js?v=3"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=15"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=4"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=36"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=39"></script>
 <script src="assets/js/dashboard-assignments.js?v=4"></script>
-<script src="assets/js/dashboard-admin-control.js?v=7"></script>
+<script src="assets/js/dashboard-admin-control.js?v=10"></script>
 <script src="assets/js/marketing-model.js?v=3"></script>
 <script src="assets/js/dashboard-marketing.js?v=6"></script>
 <script src="assets/js/chat-images.js?v=3"></script>
@@ -2108,6 +2161,7 @@
 <script src="assets/js/intern-report-excel.js?v=5"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=6"></script>
-<script src="assets/js/dashboard-pausa-activa.js?v=13"></script>
+<script src="assets/js/dashboard-pausa-activa.js?v=14"></script>
+<script src="assets/js/dashboard-guided-tour.js?v=8"></script>
 </body>
 </html>

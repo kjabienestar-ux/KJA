@@ -25,7 +25,15 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-const fmtTime = s => s ? String(s).slice(0,5) : '—';
+const fmtTime = s => {
+  if(!s)return '—';
+  const value=String(s);
+  if(/^\d{4}-\d{2}-\d{2}[T ]/.test(value)){
+    const date=new Date(value);
+    return Number.isNaN(date.getTime())?'—':new Intl.DateTimeFormat('es-PE',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:'America/Lima'}).format(date);
+  }
+  return value.slice(0,5);
+};
 // Solo devuelve letras o números: estas iniciales también se insertan en
 // plantillas HTML y no deben poder convertirse en marcado desde un nombre.
 const initials = n => String(n||'KJ').trim().split(/\s+/).slice(0,2)
@@ -148,7 +156,7 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', guidedTourPending:false, guidedTourUserMetadata:{}, sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
@@ -413,19 +421,42 @@ $('review-notification-layer').addEventListener('keydown',event=>{
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 });
 
+const PROFILE_PHOTO_DIALOG_STATE={trigger:null,restoreFocus:true};
+function syncProfilePhotoDialogPreview(){
+  const preview=$('profile-photo-dialog-avatar'),avatar=$('profile-avatar');
+  if(!preview)return;
+  preview.textContent=avatar?.textContent||'';
+  preview.classList.toggle('has-photo',Boolean(APP.avatar.url));
+  preview.style.backgroundImage=APP.avatar.url?`url("${APP.avatar.url}")`:'';
+}
+function openProfilePhotoDialog(event){
+  const dialog=$('profile-photo-dialog');if(!dialog||dialog.open)return;
+  PROFILE_PHOTO_DIALOG_STATE.trigger=event?.currentTarget||$('profile-photo-camera');
+  PROFILE_PHOTO_DIALOG_STATE.restoreFocus=true;
+  syncProfilePhotoDialogPreview();
+  dialog.showModal();
+  setTimeout(()=>{if(dialog.open)$('profile-photo-change')?.focus({preventScroll:true})},0);
+}
+function closeProfilePhotoDialog({restoreFocus=true}={}){
+  const dialog=$('profile-photo-dialog');if(!dialog?.open)return;
+  PROFILE_PHOTO_DIALOG_STATE.restoreFocus=restoreFocus;
+  dialog.close();
+}
 function profilePhotoMessage(text,type=''){
   const el=$('profile-photo-message');if(!el)return;
   el.textContent=text||'';el.className='profile-photo-message'+(type?' '+type:'');
 }
 function profilePhotoIssue(text){
   profilePhotoMessage(text,'error');
-  if(APP.view==='inicio')toast(text,true);
+  if(APP.view==='inicio'||APP.view==='perfil')toast(text,true);
 }
 function paintProfilePhoto(url=''){
   PROFILE_AVATAR_IDS.forEach(id=>{
     const el=$(id);if(!el)return;
+    const fallback=el.textContent.trim();if(fallback)el.dataset.avatarInitials=fallback;
     el.classList.toggle('has-photo',!!url);
-    if(url)el.style.backgroundImage=`url("${url}")`;else el.style.removeProperty('background-image');
+    if(url){el.textContent='';el.style.backgroundImage=`url("${url}")`}
+    else {el.style.removeProperty('background-image');if(el.dataset.avatarInitials)el.textContent=el.dataset.avatarInitials;}
   });
   const hasPhoto=!!APP.avatar.path;
   if($('profile-photo-change'))$('profile-photo-change').textContent=hasPhoto?'Cambiar foto':'Subir foto';
@@ -618,16 +649,16 @@ $('cropper-save-btn').onclick = async () => {
 };
 async function removeProfilePhoto(){
   if(!APP.avatar.path||APP.avatar.busy)return;
-  if(!confirm('¿Quitar tu foto de perfil? Volverán a mostrarse tus iniciales.'))return;
+  let removed=false;
   setProfilePhotoBusy(true);profilePhotoMessage('Quitando la foto…');
   try{
     const path=APP.avatar.path,{error:storageError}=await db.storage.from(PROFILE_BUCKET).remove([path]);
     if(storageError)throw storageError;
     const {data,error}=await db.rpc('dash_quitar_foto');
     if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'quitar');
-    APP.avatar={path:'',url:'',busy:true};paintProfilePhoto('');profilePhotoMessage('Foto eliminada. Tus iniciales vuelven a estar visibles.','success');toast('Foto de perfil eliminada.');
+    APP.avatar={path:'',url:'',busy:true};paintProfilePhoto('');profilePhotoMessage('Foto eliminada. Tus iniciales vuelven a estar visibles.','success');toast('Foto de perfil eliminada.');removed=true;
   }catch{profilePhotoMessage('No se pudo quitar la foto. Revisa tu conexión e inténtalo otra vez.','error')}
-  finally{setProfilePhotoBusy(false)}
+  finally{setProfilePhotoBusy(false);if(removed)closeProfilePhotoDialog()}
 }
 
 function showAccess(message){
@@ -641,17 +672,24 @@ function showAccess(message){
 }
 function hideBoot(){
   const boot=$('boot'); if(!boot||boot.classList.contains('out'))return;
+  const seq=boot._seq;
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(seq!==boot._seq)return;
     boot.classList.add('out'); boot.setAttribute('aria-busy','false');
     boot._hideTimer=setTimeout(()=>{boot.hidden=true;boot.dataset.mode='loading';$('boot-text-label').textContent='Cargando'},220);
   }));
 }
-function showBoot(mode='loading'){
+function showBoot(mode='loading',label=''){
   const boot=$('boot'); if(!boot)return;
-  clearTimeout(boot._hideTimer); boot.hidden=false; boot.setAttribute('aria-busy','true');
+  clearTimeout(boot._hideTimer); boot._seq=(boot._seq||0)+1; boot.hidden=false; boot.setAttribute('aria-busy','true');
   boot.dataset.mode=mode;
-  $('boot-text-label').textContent={auth:'Verificando tu acceso',loading:'Cargando'}[mode]||'Cargando';
+  $('boot-text-label').textContent=label||{auth:'Verificando tu acceso',loading:'Cargando'}[mode]||'Cargando';
   boot.classList.remove('out');
+}
+async function withActionLoader(label,task){
+  showBoot('action',label);
+  try{return await task(text=>{$('boot-text-label').textContent=text})}
+  finally{hideBoot()}
 }
 
 const REMEMBER_DNI_KEY='kja_remember_dni';
@@ -752,10 +790,30 @@ async function logout(message){
 }
 $('logout').onclick=()=>logout();
 
+let sidebarHoverTimer=null,sidebarPointerInside=false,sidebarPointerExitZone=false;
+function sidebarIsExitZone(event){
+  const footer=$('sidebar-session-actions');
+  return event.target===$('logout')||Boolean(footer&&Number.isFinite(event.clientY)&&event.clientY>=footer.getBoundingClientRect().top-32);
+}
+function sidebarHasNavigationFocus(){return document.activeElement!==$('logout')&&$('sidebar')?.contains(document.activeElement);}
+function clearSidebarHoverTimer(){clearTimeout(sidebarHoverTimer);sidebarHoverTimer=null;}
+function scheduleSidebarHover(collapsed){
+  clearSidebarHoverTimer();
+  sidebarHoverTimer=setTimeout(()=>{
+    sidebarHoverTimer=null;
+    if(!sidebarCanCollapse()||!sidebarUsesHover())return;
+    if(!collapsed&&sidebarPointerExitZone)return;
+    if(collapsed&&(sidebarPointerInside||$('sidebar')?.contains(document.activeElement)))return;
+    setSidebarCollapsed(collapsed,{persist:false});
+  },collapsed?220:80);
+}
 function sidebarStorageKey(){return APP.sessionUid?`${SIDEBAR_COLLAPSED_KEY}:${APP.sessionUid}`:''}
 function sidebarCanCollapse(){
   const portal=$('portal');
   return !!portal&&window.matchMedia('(min-width:1281px)').matches&&APP.identity.hasPersonal&&APP.view!=='gestion'&&APP.view!=='marketing';
+}
+function sidebarUsesHover(){
+  return window.matchMedia('(min-width:1281px) and (hover:hover) and (pointer:fine)').matches;
 }
 function sidebarTooltipTarget(node){
   const target=node?.closest?.('[data-sidebar-tooltip]');
@@ -767,7 +825,7 @@ function hideSidebarTooltip(){
 }
 function showSidebarTooltip(target){
   const tooltip=$('sidebar-tooltip');
-  if(!tooltip||!sidebarCanCollapse()||$('portal').dataset.sidebarCollapsed!=='true'||!target?.dataset.sidebarTooltip)return hideSidebarTooltip();
+  if(!tooltip||!sidebarCanCollapse()||sidebarUsesHover()||$('portal').dataset.sidebarCollapsed!=='true'||!target?.dataset.sidebarTooltip)return hideSidebarTooltip();
   tooltip.textContent=target.dataset.sidebarTooltip;
   tooltip.hidden=false;
   const rect=target.getBoundingClientRect(),width=tooltip.offsetWidth,height=tooltip.offsetHeight;
@@ -777,6 +835,7 @@ function showSidebarTooltip(target){
   tooltip.style.top=`${Math.max(10,top)}px`;
 }
 function setSidebarCollapsed(collapsed,{persist=true,focus=false}={}){
+  clearSidebarHoverTimer();
   const portal=$('portal'),toggle=$('sidebar-collapse-toggle');
   if(!portal||!toggle)return;
   const available=sidebarCanCollapse(),active=available&&Boolean(collapsed),key=sidebarStorageKey();
@@ -797,13 +856,24 @@ function setSidebarCollapsed(collapsed,{persist=true,focus=false}={}){
 function syncSidebarCollapse(){
   const available=sidebarCanCollapse(),key=sidebarStorageKey();
   let collapsed=false;
-  if(available&&key){try{collapsed=localStorage.getItem(key)==='true'}catch(e){}}
+  if(available&&sidebarUsesHover())collapsed=!((sidebarPointerInside&&!sidebarPointerExitZone)||sidebarHasNavigationFocus());
+  else if(available&&key){try{collapsed=localStorage.getItem(key)==='true'}catch(e){}}
   setSidebarCollapsed(collapsed,{persist:false});
+}
+
+function syncProfileContext(view){
+  const rail=$('portal-rail'),context=$('profile-context');
+  if(!rail||!context)return;
+  const sections=[...rail.querySelectorAll(':scope > .rail-pausa-activa, :scope > .rail-announcement'),...context.querySelectorAll(':scope > .rail-pausa-activa, :scope > .rail-announcement')];
+  const unique=[...new Set(sections)];
+  if(view==='perfil')unique.forEach(section=>context.append(section));
+  else unique.forEach(section=>rail.append(section));
 }
 
 function paintShell(view){
   APP.view=view;
   $('portal').dataset.view=view;
+  syncProfileContext(view);
   const returnsHome=view!=='inicio'&&APP.identity.hasPersonal;
   $('mobile-back-home').hidden=!returnsHome;
   $('menu-toggle').hidden=returnsHome;
@@ -852,6 +922,8 @@ async function init(){
 async function openPortal(activeSession,bootstrap=null){
   const session=activeSession||(await db.auth.getSession()).data.session;
   APP.sessionUid=session?.user?.id||'';
+  APP.guidedTourUserMetadata={...(session?.user?.user_metadata||{})};
+  APP.guidedTourPending=APP.guidedTourUserMetadata.kja_dashboard_guided_tour_pending===true;
   let data=bootstrap?.inicio?.ok?bootstrap.inicio:null,error=null,access=bootstrap?.acceso||null;
   if(!data){
     const accessRequest=session?.user?.id
@@ -892,7 +964,11 @@ async function openPortal(activeSession,bootstrap=null){
   $('team-nav-divider').hidden=!APP.identity.isLeader;$('nav-equipo').hidden=!APP.identity.isLeader;
   $('nav-gestion').hidden=!APP.access.acceso_panel; $('admin-nav-divider').hidden=!APP.access.acceso_panel;
   window.KJAMarketingPortal?.init();
-  window.KJAChat?.init(session?.user?.id);
+  const chatUserId=session?.user?.id;
+  if(window.KJAChat)void window.KJAChat.init(chatUserId);
+  else window.addEventListener('kja-chat-ready',()=>{
+    if(APP.sessionUid===chatUserId)void window.KJAChat?.init(chatUserId);
+  },{once:true});
   $('mobile-action-team').hidden=!APP.identity.isLeader;
   $('mobile-action-admin').hidden=!APP.access.acceso_panel;
   syncMobileQuickGrid();
@@ -975,6 +1051,7 @@ function syncMarkedAttendanceAction(){
   nodes.forEach(node=>{
     node.classList.toggle('daily-close-pending',state==='pending');
     node.classList.toggle('daily-close-confirmed-hidden',state==='hidden');
+    node.classList.toggle('is-day-off',!!APP.cierre?.dia_libre_presencial);
   });
   if(typeof syncMobileEntryAction==='function')syncMobileEntryAction();
 }
@@ -1024,6 +1101,20 @@ function renderHome(){
   syncMobileEntryAction();
   $('mobile-today-detail').textContent=`${$('day-mode').textContent} · ${$('mark-help').textContent}`;
   paintTimeAmbience();
+  renderDayOffSchedule();
+}
+
+function renderDayOffSchedule(){
+  const dayOff=!!APP.cierre?.dia_libre_presencial;
+  $('day-schedule-title').textContent=dayOff?'¡Felicidades! Hoy es tu día de descanso':'Tu jornada de hoy';
+  if(!dayOff)return;
+  if(_clockInterval){clearInterval(_clockInterval);_clockInterval=null;}
+  $('day-mode').textContent='Día de descanso';
+  $('today-mode-help').textContent='Tienes un día de descanso asignado.';
+  $('shift-clock').classList.add('ended');
+  $('clock-label').textContent='Disfruta tu día libre';
+  $('clock-caption').textContent='Hoy no necesitas registrar entrada ni salida.';
+  $('clock-finish-time').textContent='';
 }
 
 function syncMobileEntryAction(){
@@ -1284,7 +1375,7 @@ function renderRailSchedule(d){
 async function loadHistory(){
   const {data,error}=await db.rpc('dash_historial',{p_anio:APP.year,p_mes:APP.month});
   if(error||!data?.ok){ toast('No se pudo cargar el historial.',true); return; }
-  APP.historial=data; renderHistory(); renderProgress();
+  APP.historial=data; renderHistory(); renderProgress(); renderProfile();
 }
 
 function renderProgress(){
@@ -1365,7 +1456,7 @@ function renderAttendanceDesktopTeam(){
   if(!panel||!list)return;
   $('attendance-desktop-team-title').textContent=`Equipo ${attendanceTeamArea()}`;
   if(!attendanceTeammates.length){list.innerHTML='<p class="attendance-mobile-team-empty">No hay integrantes disponibles.</p>';return}
-  if(!attendanceTeammates.some(person=>String(person.id)===attendanceDesktopSelectedTeammate))attendanceDesktopSelectedTeammate=String(attendanceTeammates[0].id);
+  if(!attendanceTeammates.some(person=>String(person.id)===attendanceDesktopSelectedTeammate))attendanceDesktopSelectedTeammate=String(preferredAttendanceTeammate()?.id||'');
   list.innerHTML=attendanceTeammates.map(person=>{
     const selected=String(person.id)===attendanceDesktopSelectedTeammate,days=teammateWorkingDays(person);
     const week=selected?`<div class="attendance-desktop-team-week">${days.map(day=>{const schedule=teammateSchedule(person,day);return `<span><b>${esc(attendanceWeekdays[day].slice(0,2))}</b>${esc(fmtTime(schedule.start))}<br>${esc(fmtTime(schedule.end))}</span>`}).join('')}</div>`:'';
@@ -1432,6 +1523,10 @@ const attendanceWeekdays=['','Lunes','Martes','Miércoles','Jueves','Viernes','S
 function attendanceTeamArea(){
   const value=String(APP.inicio?.colaborador?.area||'Ingeniería').trim();
   return value?value.charAt(0).toLocaleUpperCase('es-PE')+value.slice(1).toLocaleLowerCase('es-PE'):'Ingeniería';
+}
+function preferredAttendanceTeammate(){
+  const ownId=String(APP.inicio?.colaborador?.id||'');
+  return attendanceTeammates.find(person=>String(person.id)===ownId)||attendanceTeammates[0]||null;
 }
 function attendancePreviewAvatar(index,label){
   const palettes=[['#c4d9f0','#446d9e'],['#f2d4bd','#a65f4d'],['#cce6dc','#397d67'],['#ded2f0','#76579b'],['#f0dfb8','#9a783b'],['#cbdce6','#456b80']],colors=palettes[index%palettes.length];
@@ -1913,15 +2008,32 @@ async function submitPersonalRequest(event){
   PERSONAL_REQUEST.busy=false;button.disabled=false;button.textContent='Enviar a Dirección';
 }
 
+const PROFILE_COVERS=['cielo','jardin','noche'];
+function profileCoverKey(){ return `kja.profile-cover.${APP.inicio?.colaborador?.id||'default'}`; }
+function syncProfileCover(){
+  const identity=document.querySelector('#view-perfil .profile-identity');if(!identity)return;
+  let cover='cielo';
+  try{const saved=localStorage.getItem(profileCoverKey());if(PROFILE_COVERS.includes(saved))cover=saved}catch{}
+  identity.dataset.cover=cover;
+  document.querySelectorAll('[data-profile-cover]').forEach(button=>{
+    const selected=button.dataset.profileCover===cover;
+    button.classList.toggle('is-selected',selected);button.setAttribute('aria-pressed',String(selected));
+  });
+}
+function setProfileCover(cover){
+  if(!PROFILE_COVERS.includes(cover))return;
+  try{localStorage.setItem(profileCoverKey(),cover)}catch{}
+  syncProfileCover();
+  const picker=document.querySelector('.profile-theme-picker');if(picker)picker.open=false;
+}
 function renderProfile(){
   const c=APP.inicio.colaborador;if(!c)return; $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
   $('profile-link').textContent=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
   const dates=v=>v?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(v+'T12:00:00')):'—';
-  const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?c.contrato_horas+' h':'—'],['Horas previas',Number(c.horas_previas||0)+' h']];
+  const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?`${c.contrato_horas} h`:'—'],['Horas previas',`${Number(c.horas_previas||0)} h`]];
   const fieldMarkup=items=>items.map(x=>`<div class="profile-field"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
-  $('profile-fields').innerHTML=window.matchMedia('(max-width: 900px)').matches
-    ? `<section class="profile-work-summary" aria-labelledby="profile-work-title"><h3 id="profile-work-title">Mi jornada</h3>${fieldMarkup([fields[2],fields[3]])}</section><details class="profile-work-details"><summary>Datos laborales<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div class="profile-work-fields">${fieldMarkup([fields[0],fields[1],...fields.slice(4)])}</div></details>`
-    : fieldMarkup(fields);
+  $('profile-fields').innerHTML=fieldMarkup(fields);
+  syncProfileCover();
 }
 
 async function loadTeam(){
@@ -2231,6 +2343,7 @@ async function renderTeamPersonDetail(id){
         </div>
       </article>
 
+      ${issue?`<div class="team-issue-alert"><div><b>Impedimento informado hoy</b><p>${esc(issue.detalle)}</p></div></div>`:''}
       <div class="team-person-loading" id="team-person-month-loading">
         <div class="team-loading-spinner"></div>
         <span>Cargando análisis mensual y gráfico de asistencias…</span>
@@ -2240,95 +2353,9 @@ async function renderTeamPersonDetail(id){
     </div>
   `;
 
-  const now = new Date(),
-        year = Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric'}).format(now)),
-        month = Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',month:'numeric'}).format(now));
-
-  const loadEl = $('team-person-month-loading'), dataEl = $('team-person-month-data');
-  let data,error;
-  try { ({data,error}=await db.rpc('dash_historial', { p_anio: year, p_mes: month, p_colab: Number(id) })); }
-  catch(err){ error=err; }
-  if(!dataEl?.isConnected || APP.selectedTeamPersonId!==String(id)) return;
-
-  if(error || !data?.ok){
-    if(loadEl) loadEl.innerHTML = '<p class="admin-empty">No se pudo cargar el historial mensual autorizado.</p>';
-    return;
-  }
-  if(loadEl) loadEl.hidden = true;
-  if(!dataEl) return;
-  dataEl.hidden = false;
-
-  const t = data.totales || {};
-  const days = data.dias || [];
-  const hours = Number(data.horas || 0).toFixed(1);
-  const sum = (t.P||0) + (t.T||0) + (t.J||0) + (t.NG||0) + (t.incompletas||0) || 1;
-  const pP = Math.round(((t.P||0) / sum) * 100);
-  const pT = Math.round(((t.T||0) / sum) * 100);
-  const pJ = Math.round(((t.J||0) / sum) * 100);
-  const pNG = Math.round(((t.NG||0) / sum) * 100);
-  const pINC = 100 - (pP + pT + pJ + pNG);
-
-  const monthConic = `conic-gradient(#24a68a 0% ${pP}%, #d68b18 ${pP}% ${pP + pT}%, #326fac ${pP + pT}% ${pP + pT + pJ}%, #a33d4d ${pP + pT + pJ}% ${pP + pT + pJ + pNG}%, #c23b50 ${pP + pT + pJ + pNG}% 100%)`;
-
-  const first = new Date(`${year}-${String(month).padStart(2,'0')}-01T12:00:00`), offset = (first.getDay() + 6) % 7;
-  const calendarHtml = '<span class="empty"></span>'.repeat(offset) + days.map(day => {
-    const inc = day.cierre_estado === 'incompleta';
-    const state = inc ? 'incomplete' : String(day.estado || '').toLowerCase();
-    const label = inc ? 'INC' : (day.estado || '');
-    const date=day.fecha||`${year}-${String(month).padStart(2,'0')}-${String(day.d).padStart(2,'0')}`;
-    return `<button type="button" class="${state} ${day.lab ? '' : 'off'}" data-team-day="${esc(date)}" aria-label="Ver actividades del ${esc(date)}: ${esc(day.estado||'Sin registro')}" aria-controls="team-day-detail" aria-pressed="false" ${date>isoLima()?'disabled':''}><b>${day.d}</b><i>${esc(label)}</i></button>`;
-  }).join('');
-
-  dataEl.innerHTML = `
-    <div class="team-person-analytics">
-      <article class="team-chart-card">
-        <header class="team-chart-header">
-          <h4>Asistencia del Mes · ${cap(monthNames[month-1])} ${year}</h4>
-          <span class="team-chart-caption">${hours} h acreditadas</span>
-        </header>
-        <div class="team-chart-body">
-          <div class="team-chart-ring" style="background:${monthConic}">
-            <div class="team-chart-inner">
-              <strong>${hours}</strong>
-              <small>Horas mes</small>
-            </div>
-          </div>
-          <ul class="team-chart-legend">
-            <li><i style="background:#24a68a"></i><span>Presentes (P)</span><b>${t.P||0}</b></li>
-            <li><i style="background:#d68b18"></i><span>Tardanzas (T)</span><b>${t.T||0}</b></li>
-            <li><i style="background:#326fac"></i><span>Justificados (J)</span><b>${t.J||0}</b></li>
-            <li><i style="background:#a33d4d"></i><span>No gestionó (NG)</span><b>${t.NG||0}</b></li>
-            <li><i style="background:#c23b50"></i><span>Incompletas</span><b>${t.incompletas||0}</b></li>
-          </ul>
-        </div>
-      </article>
-
-      <article class="team-person-calendar-card">
-        <header class="team-calendar-header">
-          <h4>Calendario Mensual</h4>
-          <small>Toca un día para ver sus entregas</small>
-        </header>
-        <div class="team-profile-week">
-          <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
-        </div>
-        <div class="team-profile-calendar">
-          ${calendarHtml}
-        </div>
-      </article>
-
-      <section id="team-day-detail" class="team-day-detail" aria-label="Actividades del día" hidden></section>
-
-      ${issue ? `
-        <div class="team-issue-alert">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-          <div>
-            <b>Impedimento informado hoy</b>
-            <p>${esc(issue.detalle)}</p>
-          </div>
-        </div>
-      ` : ''}
-    </div>
-  `;
+  const host=$('team-person-month-data');
+  $('team-person-month-loading').hidden=true;
+  await KJAPersonCalendar.mount({host,person});
 }
 
 function teamDayActivities(data){
@@ -2338,7 +2365,7 @@ function teamDayActivities(data){
     ...(cierre.asignaciones||[]).filter(item=>item.estado!=='cancelada').map(item=>({...item,key:`asignado-${item.id}`}))];
   for(const item of required){
     groups.push({key:item.key,titulo:item.titulo||item.tipo,completo:!!item.completo,
-      estado:item.estado,detalle:item.descripcion||item.instrucciones||'',files:[],entregas:0});
+      estado:item.estado,revision:item.revision_estado,detalle:item.descripcion||item.instrucciones||'',files:[],entregas:0});
   }
   for(const delivery of deliveries){
     let group=groups.find(item=>item.key===key(delivery));
@@ -2764,10 +2791,20 @@ document.querySelectorAll('[data-mobile-action]').forEach(button=>button.onclick
 $('mobile-home-logout').onclick=()=>logout();
 $('mobile-profile-link').onclick=()=>goView('perfil');
 $('profile-logout').onclick=()=>logout();
-$('profile-photo-camera').onclick=()=>$('profile-photo-input').click();
-$('profile-photo-change').onclick=()=>$('profile-photo-input').click();
+$('profile-mobile-logout').onclick=()=>logout();
+$('profile-photo-camera').onclick=openProfilePhotoDialog;
+$('profile-photo-dialog-close').onclick=()=>closeProfilePhotoDialog();
+$('profile-photo-dialog').addEventListener('close',()=>{
+  const {trigger,restoreFocus}=PROFILE_PHOTO_DIALOG_STATE;
+  PROFILE_PHOTO_DIALOG_STATE.trigger=null;PROFILE_PHOTO_DIALOG_STATE.restoreFocus=true;
+  if(restoreFocus&&trigger?.isConnected)setTimeout(()=>trigger.focus({preventScroll:true}),0);
+});
+$('profile-photo-dialog').addEventListener('cancel',event=>{if(APP.avatar.busy)event.preventDefault()});
+$('profile-photo-dialog').addEventListener('click',event=>{if(event.target===event.currentTarget)closeProfilePhotoDialog()});
+$('profile-photo-change').onclick=()=>{closeProfilePhotoDialog({restoreFocus:false});$('profile-photo-input').click()};
 $('profile-photo-remove').onclick=removeProfilePhoto;
 $('profile-photo-input').onchange=event=>chooseProfilePhoto(event.target.files?.[0]);
+document.querySelectorAll('[data-profile-cover]').forEach(button=>button.onclick=()=>setProfileCover(button.dataset.profileCover));
 $('team-list').onclick=e=>{
   const evidence=e.target.closest('[data-team-review]');
   if(evidence){openAdminReviewPerson(evidence.dataset.teamReview,evidence);return}
@@ -2864,7 +2901,7 @@ else attendanceMobileQuery.addListener?.(syncAttendanceMobileMode);
 syncAttendanceMobileMode();
 $('attendance-desktop-calendar-toggle').onclick=async()=>{
   attendanceDesktopTeamMode=!attendanceDesktopTeamMode;
-  if(attendanceDesktopTeamMode){await loadAttendanceTeammates();if(!attendanceDesktopSelectedTeammate&&attendanceTeammates[0])attendanceDesktopSelectedTeammate=String(attendanceTeammates[0].id);renderAttendanceDesktopTeam()}
+  if(attendanceDesktopTeamMode){await loadAttendanceTeammates();if(!attendanceTeammates.some(person=>String(person.id)===attendanceDesktopSelectedTeammate))attendanceDesktopSelectedTeammate=String(preferredAttendanceTeammate()?.id||'');renderAttendanceDesktopTeam()}
   syncAttendanceDesktopMode();
 };
 $('attendance-desktop-team-list').onclick=event=>{
@@ -2890,8 +2927,8 @@ $('attendance-team-all').onclick=()=>{
 };
 $('attendance-selected-content').onclick=event=>{const record=event.target.closest('[data-selected-record]');if(record)openAttendanceDay(record.dataset.selectedRecord);if(event.target.closest('[data-retry-selected-day]'))selectAttendanceDate(selectedAttendanceDate);};
 const ANNOUNCEMENTS=[
-  {title:'Puntualidad y evidencias',src:'images/dashboard/comunicado-advertencia-evidencias.webp',alt:'Comunicado KJA sobre puntualidad, cartas de advertencia por llegadas tardías y evidencias verídicas',fallback:'Marca tu asistencia a tiempo: las llegadas tardías recibirán cartas de advertencia y las evidencias deben ser reales y verificables.'},
-  {title:'Reportes consolidados',src:'images/dashboard/comunicado-reportes.webp',alt:'Comunicado KJA sobre el seguimiento de comparticiones y reportes consolidados en Excel',fallback:'La Dirección generará reportes consolidados en Excel para dar seguimiento a las comparticiones.'}
+  {title:'Evidencias obligatorias',src:'images/dashboard/comunicado-comparticiones-3.webp',alt:'Comunicado KJA: las evidencias de comparticiones en Facebook son obligatorias y deben subirse a la plataforma antes de enviarlas por WhatsApp',fallback:'Sube a la plataforma las capturas de tus comparticiones; si solo las envías por WhatsApp no aparecerán en el reporte y se enviarán cartas de advertencia.'},
+  {title:'Puntualidad y evidencias',src:'images/dashboard/comunicado-advertencia-evidencias.webp',alt:'Comunicado KJA sobre puntualidad, cartas de advertencia por llegadas tardías y evidencias verídicas',fallback:'Marca tu asistencia a tiempo: las llegadas tardías recibirán cartas de advertencia y las evidencias deben ser reales y verificables.'}
 ];
 const ANNOUNCEMENT_ROTATION_MS=7000;
 let announcementIndex=0;
@@ -2899,11 +2936,15 @@ let announcementTimer=null;
 let announcementHoverPaused=false;
 let announcementFocusPaused=false;
 let announcementModalOpen=false;
+let announcementTrigger=null;
 const announcementCarousel=$('rail-announcement-carousel');
 const announcementImage=$('rail-announcement-image');
 const announcementFallback=$('rail-announcement-fallback');
 const announcementViewer=$('announcement-viewer');
 const announcementViewerImage=$('announcement-viewer-image');
+const announcementViewerStage=$('announcement-viewer-stage');
+const announcementViewerScroll=$('announcement-viewer-scroll');
+const announcementViewerZoom=$('announcement-viewer-zoom');
 
 function announcementReducedMotion(){return typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches}
 function renderAnnouncementDots(id,controlsId,className){
@@ -2917,8 +2958,17 @@ function renderAnnouncementDots(id,controlsId,className){
 function updateAnnouncementDots(){
   document.querySelectorAll('[data-announcement-index]').forEach(button=>{const selected=Number(button.dataset.announcementIndex)===announcementIndex;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1});
 }
+function setAnnouncementZoom(zoomed){
+  if(!announcementViewerStage)return;
+  announcementViewerStage.classList.toggle('is-zoomed',zoomed);
+  const label=zoomed?'Ver imagen completa':'Ampliar imagen';
+  announcementViewerZoom.setAttribute('aria-pressed',String(zoomed));announcementViewerZoom.setAttribute('aria-label',label);announcementViewerZoom.title=label;
+  announcementViewerScroll.scrollTop=0;announcementViewerScroll.scrollLeft=0;
+}
+function toggleAnnouncementZoom(){setAnnouncementZoom(!announcementViewerStage.classList.contains('is-zoomed'))}
 function showAnnouncement(index){
   announcementIndex=(index+ANNOUNCEMENTS.length)%ANNOUNCEMENTS.length;
+  setAnnouncementZoom(false);
   const item=ANNOUNCEMENTS[announcementIndex];
   $('rail-announcement-title').textContent=item.title;
   $('announcement-viewer-title').textContent=item.title;
@@ -2938,9 +2988,26 @@ function syncAnnouncementRotation(){
   if(ANNOUNCEMENTS.length<2||document.hidden||announcementModalOpen||announcementHoverPaused||announcementFocusPaused||announcementReducedMotion())return;
   announcementTimer=setInterval(()=>showAnnouncement(announcementIndex+1),ANNOUNCEMENT_ROTATION_MS);
 }
-function openAnnouncementViewer(){
+function renderAnnouncementGallery(){
+  const gallery=$('rail-announcement-gallery');if(!gallery)return;
+  gallery.replaceChildren(...ANNOUNCEMENTS.map((item,index)=>{
+    const button=document.createElement('button'),image=document.createElement('img'),title=document.createElement('span');
+    button.type='button';button.className='rail-announcement-tile';
+    button.setAttribute('aria-label',`Ampliar comunicado: ${item.title}`);
+    button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls','announcement-viewer');
+    image.src=item.src;image.alt=item.alt;image.loading='eager';image.decoding='async';
+    title.textContent=item.title;
+    image.onerror=()=>{image.hidden=true;title.textContent=`${item.title}. ${item.fallback} Pulsa para abrir.`;};
+    button.append(image,title);
+    button.onclick=()=>{showAnnouncement(index);openAnnouncementViewer(button);};
+    return button;
+  }));
+}
+function openAnnouncementViewer(trigger){
   const modal=$('announcement-viewer');
+  announcementTrigger=trigger?.currentTarget||trigger||$('rail-announcement-open');
   announcementModalOpen=true;syncAnnouncementRotation();
+  setAnnouncementZoom(false);
   modal.hidden=false;
   document.body.classList.add('announcement-viewer-open');
   requestAnimationFrame(()=>modal.querySelector('.announcement-viewer-close').focus());
@@ -2952,7 +3019,10 @@ function closeAnnouncementViewer(){
   modal.hidden=true;
   document.body.classList.remove('announcement-viewer-open');
   announcementModalOpen=false;syncAnnouncementRotation();
-  $('rail-announcement-open').focus({preventScroll:true});
+  const galleryTrigger=$('rail-announcement-gallery')?.querySelector('button');
+  const target=announcementTrigger?.getClientRects().length?announcementTrigger:
+    galleryTrigger?.getClientRects().length?galleryTrigger:$('rail-announcement-open');
+  target?.focus({preventScroll:true});
   return true;
 }
 document.querySelectorAll('[data-close-announcement]').forEach(button=>button.onclick=closeAnnouncementViewer);
@@ -2964,12 +3034,17 @@ $('rail-announcement-prev').onclick=()=>showAnnouncement(announcementIndex-1);
 $('rail-announcement-next').onclick=()=>showAnnouncement(announcementIndex+1);
 $('announcement-viewer-prev').onclick=()=>showAnnouncement(announcementIndex-1);
 $('announcement-viewer-next').onclick=()=>showAnnouncement(announcementIndex+1);
+announcementViewerZoom.onclick=toggleAnnouncementZoom;
+announcementViewerImage.onclick=toggleAnnouncementZoom;
+document.querySelectorAll('.announcement-viewer-side').forEach(button=>button.hidden=ANNOUNCEMENTS.length<2);
 announcementCarousel.addEventListener('mouseenter',()=>{announcementHoverPaused=true;syncAnnouncementRotation()});
 announcementCarousel.addEventListener('mouseleave',()=>{announcementHoverPaused=false;syncAnnouncementRotation()});
 announcementCarousel.addEventListener('focusin',()=>{announcementFocusPaused=true;syncAnnouncementRotation()});
 announcementCarousel.addEventListener('focusout',event=>{if(!announcementCarousel.contains(event.relatedTarget)){announcementFocusPaused=false;syncAnnouncementRotation()}});
 $('announcement-viewer').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeAnnouncementViewer();return}
+  if(['+','-','z','Z'].includes(event.key)){event.preventDefault();setAnnouncementZoom(event.key==='+'?true:event.key==='-'?false:!announcementViewerStage.classList.contains('is-zoomed'));return}
+  if(announcementViewerStage.classList.contains('is-zoomed')&&['ArrowUp','ArrowDown'].includes(event.key)){event.preventDefault();announcementViewerScroll.scrollBy({top:event.key==='ArrowDown'?90:-90,behavior:announcementReducedMotion()?'auto':'smooth'});return}
   if(event.key==='ArrowLeft'){event.preventDefault();showAnnouncement(announcementIndex-1);return}
   if(event.key==='ArrowRight'){event.preventDefault();showAnnouncement(announcementIndex+1);return}
   if(event.key==='Tab'){
@@ -2983,6 +3058,7 @@ document.addEventListener('visibilitychange',syncAnnouncementRotation);
 const announcementMotionQuery=typeof matchMedia==='function'?matchMedia('(prefers-reduced-motion: reduce)'):null;
 if(announcementMotionQuery?.addEventListener)announcementMotionQuery.addEventListener('change',syncAnnouncementRotation);
 else if(announcementMotionQuery?.addListener)announcementMotionQuery.addListener(syncAnnouncementRotation);
+renderAnnouncementGallery();
 renderAnnouncementDots('rail-announcement-dots','rail-announcement-image','rail-announcement-dot');
 renderAnnouncementDots('announcement-viewer-dots','announcement-viewer-image','announcement-viewer-dot');
 showAnnouncement(0);
@@ -3026,6 +3102,34 @@ if($('sidebar-collapse-toggle'))$('sidebar-collapse-toggle').onclick=()=>setSide
 const sidebarDesktopQuery=window.matchMedia('(min-width:1281px)');
 if(sidebarDesktopQuery.addEventListener)sidebarDesktopQuery.addEventListener('change',syncSidebarCollapse);
 else sidebarDesktopQuery.addListener?.(syncSidebarCollapse);
+const desktopSidebar=$('sidebar');
+desktopSidebar?.addEventListener('pointerenter',event=>{
+  if(event.pointerType!=='mouse')return;
+  sidebarPointerInside=true;
+  sidebarPointerExitZone=sidebarIsExitZone(event);
+  if(sidebarPointerExitZone)clearSidebarHoverTimer();
+  else if(sidebarCanCollapse()&&sidebarUsesHover())scheduleSidebarHover(false);
+});
+desktopSidebar?.addEventListener('pointermove',event=>{
+  if(event.pointerType!=='mouse')return;
+  const wasExitZone=sidebarPointerExitZone;
+  sidebarPointerExitZone=sidebarIsExitZone(event);
+  if(sidebarPointerExitZone)clearSidebarHoverTimer();
+  else if(wasExitZone&&sidebarCanCollapse()&&sidebarUsesHover())scheduleSidebarHover(false);
+});
+desktopSidebar?.addEventListener('pointerleave',event=>{
+  if(event.pointerType!=='mouse')return;
+  sidebarPointerInside=false;
+  sidebarPointerExitZone=false;
+  if(sidebarCanCollapse()&&sidebarUsesHover())scheduleSidebarHover(true);
+});
+desktopSidebar?.addEventListener('focusin',event=>{
+  clearSidebarHoverTimer();
+  if(event.target!==$('sidebar-collapse-toggle')&&event.target!==$('logout')&&sidebarCanCollapse()&&sidebarUsesHover())setSidebarCollapsed(false,{persist:false});
+});
+desktopSidebar?.addEventListener('focusout',event=>{
+  if(!desktopSidebar.contains(event.relatedTarget)&&!sidebarPointerInside&&sidebarCanCollapse()&&sidebarUsesHover())scheduleSidebarHover(true);
+});
 document.addEventListener('pointerover',event=>{const target=sidebarTooltipTarget(event.target);if(target)showSidebarTooltip(target)});
 document.addEventListener('pointerout',event=>{const target=sidebarTooltipTarget(event.target),next=sidebarTooltipTarget(event.relatedTarget);if(target&&next!==target)hideSidebarTooltip()});
 document.addEventListener('focusin',event=>{const target=sidebarTooltipTarget(event.target);if(target)showSidebarTooltip(target)});
@@ -3066,6 +3170,11 @@ function dailyCloseStatusCopy(state){
 }
 
 function dailyCloseGuidePresentation(data){
+  if(data.dia_libre_presencial){
+    return {stage:'day-off',title:'Disfruta tu descanso',copy:(data.pendientes||0)>0
+      ?'Hoy solo tienes que subir tus comparticiones de Facebook dentro de su horario.'
+      :'No tienes más pendientes por hoy. ¡Disfruta tu día libre!'};
+  }
   if(data.solo_asistencia_comparticiones&&!data.solo_comparticiones){
     if(!data.entrada_at)return {stage:'entry',title:'Registra tu asistencia',copy:'Tu día requiere asistencia y las comparticiones programadas.'};
     if(data.estado==='completa')return {stage:'complete',title:'Día completo',copy:'Tu asistencia y las comparticiones del día están registradas.'};
@@ -3093,7 +3202,20 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
   const complete=!!item.completo,locked=!!item.locked,editable=complete&&!!item.editable;
   const facebookReceipt=complete&&item.tipo==='comparticiones';
   const review=item.revision_estado||'';
-  const status=review==='observada'?'Corregir evidencia':editable?'Editar':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Marcar entrada':locked&&item.tipo==='salida'?'Al finalizar':locked?'Aún no disponible':item.impedimento?'Ver pendiente':'Subir evidencia';
+  let unavailable=null;
+  if(item.tipo==='comparticiones'&&!complete&&locked){
+    const data=APP.cierre||{},start=item.compartir_desde||data.compartir_desde,end=item.compartir_hasta||data.compartir_hasta;
+    if(data.comparticiones_vencidas){
+      unavailable={label:'Plazo vencido',copy:`${end?`Tu plazo para subir comparticiones terminó a las ${fmtTime(end)} (hora de Perú).`:'Tu plazo para subir comparticiones ya terminó.'} Si necesitas más tiempo, solicita a administración una ampliación del horario.`};
+    }else if(data.puede_compartir===false&&start&&end){
+      unavailable={label:'Horario pendiente',copy:`Podrás subir tus comparticiones de ${fmtTime(start)} a ${fmtTime(end)} (hora de Perú). La carga se habilita al iniciar ese horario.`};
+    }else if(data.puede_compartir===false&&(!start||!end)){
+      unavailable={label:'Horario no disponible',copy:'No hay un horario de carga disponible. Contacta a administración para que revise tu horario de comparticiones.'};
+    }else{
+      unavailable={label:'Carga no disponible',copy:'La carga no está habilitada en este momento. Si estás enviando evidencias, espera a que termine. Si el bloqueo continúa, actualiza la página o contacta a administración.'};
+    }
+  }
+  const status=unavailable?unavailable.label:review==='observada'?'Corregir evidencia':editable?'Editar':complete&&review==='pendiente'?'En revisión':complete?'Completo':entry?'Marcar entrada':locked&&item.tipo==='salida'?'Al finalizar':locked?'Aún no disponible':item.impedimento?'Ver pendiente':'Subir evidencia';
   const icons={
     comparticiones:'<svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 21v-8h2.8l.4-3.1h-3.2v-2c0-.9.3-1.5 1.6-1.5H17V3.6c-.8-.1-1.6-.2-2.4-.2-2.4 0-4.1 1.5-4.1 4.2v2.3H7.8V13h2.7v8h3.2Z"/></svg>',
     rpe:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v5h5M10 12h5M10 16h5"/></svg>',
@@ -3120,10 +3242,11 @@ function dailyCloseItemMarkup(item,{entry=false}={}){
       <button class="facebook-share-open" type="button" data-facebook-share-open aria-haspopup="dialog" aria-controls="facebook-share-modal"><span class="facebook-share-open-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m5.5 17 4-4 3 3 2-2 4 3.5"/></svg></span><span><b>Ver comprobante de evidencias</b><small>Consulta las capturas y sus datos de registro</small></span><svg class="facebook-share-open-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </article>`;
   }
-  return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${editable?'is-editable ':''}${facebookReceipt?'has-facebook-receipt ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}${editable?` aria-label="Editar ${esc(item.titulo)}"`:''}>
+  return `<button type="button" class="day-close-item type-${esc(item.tipo||'general')} ${unavailable?'has-unavailable-reason ':''}${entry?'is-entry ':''}${complete?'is-complete ':locked?'is-locked ':''}${editable?'is-editable ':''}${facebookReceipt?'has-facebook-receipt ':''}${review==='pendiente'?'is-review ':review==='observada'?'is-observed ':''}${item.impedimento?'has-issue ':''}" ${attrs}${editable?` aria-label="Editar ${esc(item.titulo)}"`:''}>
     <span class="day-close-check">${icon}</span>
     <span class="day-close-item-copy"><b>${esc(item.titulo)}</b><small>${esc(description)}</small></span>
     <span class="day-close-item-status">${esc(status)}${editable?'<svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l10.5-10.5-4-4zM12.8 7.2l4 4"/></svg>':!complete&&!locked?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>':''}</span>
+    ${unavailable?`<span class="day-close-unavailable-reason">${esc(unavailable.copy)}${review==='observada'?` Corrección solicitada: ${esc(item.revision_nota||'revisa la evidencia antes de volver a enviarla')}.`:''}</span>`:''}
   </button>`;
 }
 
@@ -3141,10 +3264,10 @@ function renderMobileDailyClose(data,items){
   const entryComplete=!!data.entrada_at,closed=CLOSE_MODEL.workClosed(data),pendingItems=items.filter(item=>!item.completo&&(data.solo_comparticiones||data.solo_asistencia_comparticiones||item.tipo!=='comparticiones'));
   panel.dataset.state=data.comparticiones_vencidas?'incomplete':closed?CLOSE_MODEL.stateTone(data.estado):entryComplete?(pendingItems.length?'pending':'ready'):'waiting';
   const facebookOnly=!!data.solo_comparticiones;
-  $('mobile-close-title').textContent=facebookOnly?'Compartición de hoy':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
-  $('mobile-close-copy').textContent=facebookOnly?'No tienes jornada laboral hoy, pero sí una tarea programada de Facebook.':entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
+  $('mobile-close-title').textContent=data.dia_libre_presencial?'¡Hoy es tu día libre!':facebookOnly?'Compartición de hoy':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
+  $('mobile-close-copy').textContent=data.dia_libre_presencial?'¡Felicidades por tu día libre! Hoy solo debes subir tus comparticiones de Facebook.':facebookOnly?'No tienes jornada laboral hoy, pero sí una tarea programada de Facebook.':entryComplete?'Completa estas evidencias antes de registrar tu salida.':'Estos son los pasos que completarás durante tu jornada.';
   const evidenceItems=items.filter(item=>item.tipo!=='entrada'),completedEvidence=evidenceItems.filter(item=>item.completo).length;
-  const mobileProgress=!entryComplete?0:evidenceItems.length?25+Math.round(completedEvidence/evidenceItems.length*75):100;
+  const mobileProgress=facebookOnly?(evidenceItems.length?Math.round(completedEvidence/evidenceItems.length*100):100):!entryComplete?0:evidenceItems.length?25+Math.round(completedEvidence/evidenceItems.length*75):100;
   const progressPill=$('mobile-close-count');
   const progressValue=Math.min(100,mobileProgress);
   progressPill.querySelector('.mcv2-progress-value').textContent=`${progressValue}%`;
@@ -3277,6 +3400,7 @@ function renderDailyClose(){
   card?.classList.add('has-daily-close');
   syncMarkedAttendanceAction();
   const locked=!entryComplete||closed||DAILY_EVIDENCE.busy;
+  renderDayOffSchedule();
   const entryItem={
     tipo:'entrada',titulo:entryComplete?'Entrada registrada':'Registrar asistencia',
     descripcion:entryComplete?`Marcada a las ${formatAttendanceClock(data.entrada_at)}`:'Registra primero tu asistencia de entrada',
@@ -3311,10 +3435,11 @@ function renderDailyClose(){
     }
   }
 
-  $('day-close-title').textContent=facebookOnly?'Compartición programada':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
+  $('day-close-title').textContent=data.dia_libre_presencial?'¡Hoy es tu día libre!':facebookOnly?'Compartición programada':entryComplete?'Cierre de mi jornada':'Pendientes de hoy';
   $('day-close-copy').textContent=facebookOnly?'Hoy no tienes jornada laboral; esta tarea sigue activa en su propio horario.':data.comparticiones_vencidas?'La jornada laboral cerró, pero la compartición obligatoria no se entregó dentro de su horario.':data.salida_at&&data.comparticiones_pendientes?'Tu jornada laboral ya cerró. Facebook continúa pendiente en su horario independiente.':entryComplete?'Completa tus evidencias laborales antes de registrar la salida.':'Revisa los pasos que completarás durante tu jornada.';
   const state=$('day-close-state');
-  if(missingEvidence&&!closed&&entryComplete)$('day-close-copy').textContent=`Te ${missingEvidence===1?'falta 1 evidencia':`faltan ${missingEvidence} evidencias`}. Abre cada pendiente y sube lo solicitado antes de salir.`;
+  if(missingEvidence&&!closed&&entryComplete&&!facebookOnly)$('day-close-copy').textContent=`Te ${missingEvidence===1?'falta 1 evidencia':`faltan ${missingEvidence} evidencias`}. Abre cada pendiente y sube lo solicitado antes de salir.`;
+  if(data.dia_libre_presencial)$('day-close-copy').textContent='¡Felicidades por tu día libre! Hoy solo debes subir tus comparticiones de Facebook.';
   state.dataset.state=facebookOnly?(data.comparticiones_vencidas?'incomplete':data.pendientes?'waiting':'complete'):entryComplete?CLOSE_MODEL.stateTone(data.estado):'waiting';
   state.innerHTML=`<i></i>${esc(facebookOnly?(data.comparticiones_vencidas?'Compartición incompleta':data.pendientes?'Facebook pendiente':'Compartición completa'):entryComplete?dailyCloseStatusCopy(data.estado):'Entrada pendiente')}`;
   const guide=dailyCloseGuidePresentation(data),guideElement=$('day-close-guide');
@@ -3325,7 +3450,7 @@ function renderDailyClose(){
     $('day-close-time-label').textContent='HORARIO DE FACEBOOK';
     $('day-close-time').textContent=`${fmtTime(data.compartir_desde)}–${fmtTime(data.compartir_hasta)}`;
     $('day-close-window').textContent=data.puede_compartir?'Tu franja está abierta ahora':'Se habilitará en la franja indicada';
-    button.hidden=true;
+    button.hidden=true;button.disabled=true;button.dataset.action='';
     dailyCloseMessage(data.comparticiones_vencidas?'El horario de Facebook terminó sin registrar las capturas.':data.pendientes?(data.puede_compartir?'Abre la tarea azul y adjunta tus evidencias.':'Esta tarea no exige entrada ni salida; espera a que abra su horario.'):'Compartición enviada correctamente.',data.comparticiones_vencidas?'is-error':'is-success');
     return;
   }
@@ -3735,6 +3860,7 @@ function dailyExitMessage(text,type=''){
 }
 
 function openDailyExitModal(){
+  if(APP.cierre?.dia_libre_presencial||APP.cierre?.solo_comparticiones||APP.cierre?.requiere_salida===false)return;
   if(CLOSE_MODEL.hasPendingWork(APP.cierre)){toast(`Completa ${dailyPendingWorkLabel(APP.cierre)} antes de salir.`);return;}
   if(!APP.cierre?.puede_marcar_salida||DAILY_EXIT_BUSY)return;
   $('daily-exit-time').textContent=fmtTime(APP.cierre.hora_salida_programada);
@@ -3750,6 +3876,7 @@ function closeDailyExitModal(){
 }
 
 async function markDailyExit(){
+  if(APP.cierre?.dia_libre_presencial||APP.cierre?.solo_comparticiones||APP.cierre?.requiere_salida===false)return;
   if(CLOSE_MODEL.hasPendingWork(APP.cierre)){dailyExitMessage(`Completa ${dailyPendingWorkLabel(APP.cierre)} antes de salir.`,'is-error');return;}
   if(!APP.cierre?.puede_marcar_salida||DAILY_EXIT_BUSY)return;
   DAILY_EXIT_BUSY=true;
@@ -3968,7 +4095,10 @@ $('daily-evidence-editor').addEventListener('keydown',event=>{
 });
 $('daily-evidence-cancel').onclick=closeDailyEvidenceEditor;
 $('daily-evidence-cancel-top').onclick=closeDailyEvidenceEditor;
-$('day-close-button').onclick=()=>APP.cierre?.entrada_at?openDailyExitModal():handleMarkAction();
+$('day-close-button').onclick=()=>{
+  if(APP.cierre?.dia_libre_presencial||APP.cierre?.solo_comparticiones)return;
+  return APP.cierre?.entrada_at?openDailyExitModal():handleMarkAction();
+};
 $('day-close-retry').onclick=()=>void loadDailyClose({quiet:true});
 $('mobile-close-retry').onclick=()=>void loadDailyClose({quiet:true});
 $('daily-exit-confirm').onclick=markDailyExit;
