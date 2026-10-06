@@ -33,6 +33,7 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="assets/css/paginas/cursos.css?v=4">
+    <link rel="stylesheet" href="assets/css/paginas/cursos-area.css?v=10">
     <!-- Sin JS, el splash de carga no debe tapar la página -->
     <noscript>
         <style>
@@ -168,7 +169,7 @@
             <div class="cursos-head-row">
                 <div class="cursos-head-left">
                     <h2>Cursos y talleres</h2>
-                    <p>Explora nuestras 9 áreas y consulta los temas de cada una.</p>
+                    <p>Elige un área y descubre sus cursos, talleres y próximas especializaciones.</p>
 
 
                 </div>
@@ -212,6 +213,58 @@
                 <p>Estamos preparando nuevos contenidos en esta categoría. ¡Mantente atento a nuestras redes!</p>
             </div>
         </div>
+    </section>
+
+    <section id="course-area-view" class="course-area-view" hidden aria-labelledby="area-title">
+        <div class="area-top">
+            <div class="area-wrap">
+                <div class="area-toolbar">
+                    <a href="cursos.html#catalogo" class="area-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5m6 6-6-6 6-6"/></svg>Ver las 9 áreas</a>
+                    <div class="area-switcher" id="area-switcher">
+                        <button type="button" class="area-switcher-trigger" id="area-picker" aria-expanded="false" aria-controls="area-switcher-menu">
+                            <img id="area-picker-image" alt="" width="52" height="38">
+                            <span class="area-switcher-copy"><span>Cambiar de área</span><strong id="area-picker-title"></strong></span>
+                            <span class="area-switcher-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+                        </button>
+                        <div class="area-switcher-menu" id="area-switcher-menu" hidden>
+                            <div class="area-switcher-heading"><span>Explora otra <em>área</em></span><span>9 áreas</span></div>
+                            <nav class="area-switcher-options" id="area-switcher-options" aria-label="Cambiar de área de formación"></nav>
+                        </div>
+                    </div>
+                </div>
+                <div class="area-hero">
+                    <div class="area-hero-copy">
+                        <nav class="area-breadcrumb" aria-label="Ruta de navegación">Formación KJA <span aria-hidden="true">/</span> <strong id="area-breadcrumb"></strong></nav>
+                        <div class="area-eyebrow"><span class="ch-eyebrow">Explora tu área</span><span id="area-number"></span></div>
+                        <h1 id="area-title"></h1>
+                        <p id="area-description"></p>
+                        <a id="area-consult" href="https://wa.me/51988918238" target="_blank" rel="noopener noreferrer" class="ch-btn-primary">Quiero orientación <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+                    </div>
+                    <div class="area-hero-visual">
+                        <span class="area-visual-orb area-visual-orb--pink" aria-hidden="true"></span>
+                        <span class="area-visual-orb area-visual-orb--blue" aria-hidden="true"></span>
+                        <figure class="area-flyer"><img id="area-image" alt="" width="800" height="400"><figcaption><strong>Formación KJA</strong><span>Desarrollando mi bienestar</span></figcaption></figure>
+                        <div class="area-photo-label"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 2 2 3 3 0 0 1 2-2h6v15h-6a3 3 0 0 0-2 2 3 3 0 0 0-2-2H4V4Zm8 2v15"/></svg><span><strong id="area-total"></strong> temas para seguir creciendo</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="area-content"><div class="area-wrap">
+            <div class="area-category-nav" role="tablist" aria-label="Tipos de formación">
+                <button type="button" class="area-nav-card" id="area-tab-course" role="tab" data-category="course" aria-controls="area-category-panel" aria-selected="true" tabindex="0"><span class="area-nav-marker" aria-hidden="true">01</span><div><span class="area-nav-step">APRENDE</span><span class="area-nav-title">Cursos</span><p id="area-course-count"></p></div><span class="area-nav-arrow" aria-hidden="true">↓</span></button>
+                <button type="button" class="area-nav-card area-nav-card--workshop" id="area-tab-workshop" role="tab" data-category="workshop" aria-controls="area-category-panel" aria-selected="false" tabindex="-1"><span class="area-nav-marker" aria-hidden="true">02</span><div><span class="area-nav-step">PRACTICA</span><span class="area-nav-title">Talleres</span><p id="area-workshop-count"></p></div><span class="area-nav-arrow" aria-hidden="true">↓</span></button>
+                <button type="button" class="area-nav-card area-nav-card--specialization" id="area-tab-specialization" role="tab" data-category="specialization" aria-controls="area-category-panel" aria-selected="false" tabindex="-1"><span class="area-nav-marker" aria-hidden="true">03</span><div><span class="area-nav-step">PROFUNDIZA</span><span class="area-nav-title">Especialización</span><p>Próximamente</p></div><span class="area-nav-arrow" aria-hidden="true">↓</span></button>
+            </div>
+            <section id="area-category-panel" class="area-category-panel" role="tabpanel" aria-labelledby="area-tab-course" tabindex="0"></section>
+            <template id="area-specialization-template">
+            <div class="area-specialization">
+                <span class="area-specialization-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8l10-5Zm-6 8v6c4 3 8 3 12 0v-6M22 8v8"/></svg></span>
+                <div><span class="area-section-eyebrow">03 / Tu próximo paso</span><h2 id="area-specialization-title">Especialización <em>para ir más allá.</em></h2><p>Estamos preparando nuevas propuestas para profundizar en esta área. Cuando estén disponibles, podrás conocerlas aquí.</p></div>
+                <span class="area-soon">Próximamente</span>
+            </div>
+            </template>
+            <div class="area-return"><a href="cursos.html#catalogo">← Seguir explorando las 9 áreas</a></div>
+        </div></div>
     </section>
 
     <div class="cta-banner">
@@ -287,214 +340,11 @@
 
 
 
-    <!-- MODAL DE DETALLES DE CURSO -->
-    <div id="course-modal" class="course-modal" role="dialog" aria-modal="true" aria-labelledby="course-modal-title" aria-hidden="true">
-        <div class="modal-overlay" onclick="closeCourseModal()"></div>
-        <div class="course-modal-wrapper">
-            <button class="course-modal-close" onclick="closeCourseModal()" aria-label="Cerrar detalles">&times;</button>
-
-            <div class="course-modal-body">
-                <!-- Columna Izquierda -->
-                <div class="course-modal-left">
-                    <h2 id="course-modal-title" class="course-modal-title"></h2>
-
-                    <!-- Box 1: Qué aprenderé -->
-                    <div class="info-box">
-                        <div class="info-box-header">Temas de cursos y talleres</div>
-                        <div class="info-box-body">
-                            <ul id="course-modal-learn"></ul>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Columna Derecha -->
-                <div class="course-modal-right">
-                    <div class="course-modal-circle-img-container">
-                        <img id="course-modal-image" alt="Imagen del área seleccionada" />
-                    </div>
-                    <div class="course-modal-right-text">
-                        <p id="course-modal-duration-modality" class="course-meta-text"></p>
-                        <p id="course-modal-desc"></p>
-
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Botón flotante verde de WhatsApp -->
-            <div class="course-modal-footer">
-                <a id="course-modal-wa-link" href="https://wa.me/51988918238" target="_blank" class="modal-btn-wa-course">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" /></svg>
-                    Consultar cursos y talleres
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <script src="assets/js/cursos-data.js?v=1"></script>
-    <!-- JAVASCRIPT DEL MODAL DE CURSOS -->
-    <script>
-        function openCourseModal(courseId, customImage) {
-            const data = COURSE_DATA[courseId];
-            if (!data) return;
-
-            // Llenar datos en el modal
-            document.getElementById('course-modal-title').textContent = data.title;
-            document.getElementById('course-modal-duration-modality').textContent = 'Cursos y talleres';
-            document.getElementById('course-modal-image').src = customImage || data.image;
-            document.getElementById('course-modal-image').alt = data.title;
-            document.getElementById('course-modal-desc').textContent = data.description;
-            document.getElementById('course-modal-wa-link').href = 'https://wa.me/51988918238?text=' + encodeURIComponent('Hola KJA, quisiera más información sobre los cursos y talleres de ' + data.title);
-
-            // Renderizar listas
-            renderModalList('course-modal-learn', data.learn);
-
-            // Mostrar modal
-            const modal = document.getElementById('course-modal');
-
-            // Bloquear scroll de la página de fondo
-            document.documentElement.classList.add('modal-open');
-            document.body.classList.add('modal-open');
-
-            modal.classList.add('open');
-            modal.setAttribute('aria-hidden', 'false');
-
-            // Animación GSAP (Entrada)
-            if (typeof gsap !== 'undefined') {
-                gsap.killTweensOf(['#course-modal .modal-overlay', '#course-modal .course-modal-wrapper']);
-                gsap.fromTo('#course-modal .modal-overlay',
-                    { opacity: 0 },
-                    { opacity: 1, duration: 0.35, ease: 'power2.out' }
-                );
-                gsap.fromTo('#course-modal .course-modal-wrapper',
-                    { scale: 0.82, y: 40, opacity: 0 },
-                    { scale: 1, y: 0, opacity: 1, duration: 0.55, ease: 'back.out(1.2)' }
-                );
-            }
-        }
-
-        function renderModalList(elementId, itemsArray) {
-            const list = document.getElementById(elementId);
-            if (!list) return;  // elemento no existe en el DOM, ignorar
-            list.innerHTML = '';
-            (itemsArray || []).forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = item;
-                list.appendChild(li);
-            });
-        }
-
-        function closeCourseModal() {
-            const modal = document.getElementById('course-modal');
-            if (!modal.classList.contains('open')) return;
-
-            // Desbloquear scroll de la página de fondo
-            document.documentElement.classList.remove('modal-open');
-            document.body.classList.remove('modal-open');
-
-            // Animación GSAP (Salida)
-            if (typeof gsap !== 'undefined') {
-                gsap.killTweensOf(['#course-modal .modal-overlay', '#course-modal .course-modal-wrapper']);
-                gsap.to('#course-modal .modal-overlay', { opacity: 0, duration: 0.25, ease: 'power2.in' });
-                gsap.to('#course-modal .course-modal-wrapper', {
-                    scale: 0.85,
-                    y: 30,
-                    opacity: 0,
-                    duration: 0.25,
-                    ease: 'power2.in',
-                    onComplete: () => {
-                        modal.classList.remove('open');
-                        modal.setAttribute('aria-hidden', 'true');
-                    }
-                });
-            } else {
-                modal.classList.remove('open');
-                modal.setAttribute('aria-hidden', 'true');
-            }
-        }
-
-        // Cerrar modal al presionar la tecla Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeCourseModal();
-            }
-        });
-    </script>
-
+    <script defer src="assets/js/cursos-data.js?v=4"></script>
+    <script defer src="assets/js/cursos-catalogo.js?v=8"></script>
     <script defer src="assets/js/script.js?v=11"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>
-
-    <script>
-    // Tarjetas y detalles comparten una única fuente: assets/js/cursos-data.js.
-    var cursosData = Object.entries(COURSE_DATA).map(function(entry) {
-        var data = entry[1];
-        return {
-            id: entry[0],
-            titulo: data.title,
-            descripcion: data.description,
-            imagen: data.image,
-            temas: data.learn,
-            waText: 'Hola KJA, quisiera más información sobre los cursos y talleres de ' + data.title
-        };
-    });
-
-    /* ─── Render engine ─── */
-    var gridEl = document.getElementById('cursos-grid');
-    var emptyEl = document.getElementById('cursos-empty');
-
-    function renderCard(item) {
-        var imgSrc = item.flyerSrc || item.imagen;
-        var waUrl = 'https://wa.me/51988918238?text=' + encodeURIComponent(item.waText);
-
-        var footPill = '<span class="ccv3-foot-pill">' + item.temas.length + ' temas</span>';
-        var ctaAttr = 'href="#course-modal" onclick="openCourseModal(\'' + item.id + '\'); return false;" aria-haspopup="dialog"';
-
-        return '<div class="curso-card-v3">' +
-            '<div class="ccv3-media">' +
-                '<img src="' + imgSrc + '" alt="' + item.titulo + '" loading="lazy" decoding="async" />' +
-            '</div>' +
-            '<div class="ccv3-body">' +
-                '<span class="ccv3-meta-top">Cursos y talleres</span>' +
-                '<h3>' + item.titulo + '</h3>' +
-                '<p>' + item.descripcion + '</p>' +
-                '<div class="ccv3-footer">' +
-                    footPill +
-                    '<a ' + ctaAttr + ' class="ccv3-btn">Más información</a>' +
-                    '<a href="' + waUrl + '" target="_blank" class="ccv3-coin" aria-label="Consultar por WhatsApp">' +
-                        '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>' +
-                    '</a>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
-    }
-
-    function renderGrid() {
-        var filtered = cursosData;
-
-        if (!filtered.length) {
-            gridEl.innerHTML = '';
-            emptyEl.style.display = 'block';
-            return;
-        }
-
-        emptyEl.style.display = 'none';
-        gridEl.innerHTML = filtered.map(renderCard).join('');
-
-        // GSAP stagger animation
-        if (typeof gsap !== 'undefined') {
-            var cards = gridEl.querySelectorAll('.curso-card-v3');
-            gsap.fromTo(cards,
-                { opacity: 0, y: 20 },
-                { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out', clearProps: 'all' }
-            );
-        }
-    }
-
-    // Initial render
-    renderGrid();
-    </script>
 
     </div>
 </body>
