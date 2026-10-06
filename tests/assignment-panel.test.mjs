@@ -53,12 +53,39 @@ test('calendar renders leap day, marks real dates and keeps empty days selectabl
   const h=harness(),html=h.c.assignmentCalendarMarkup('2024-02',[{fecha:'2024-02-12',total:3}],'2024-02-12');
   assert.match(html,/data-assignment-date="2024-02-29"/);assert.doesNotMatch(html,/2024-02-30/);assert.match(html,/2024-02-12: 3 asignaciones/);assert.equal((html.match(/<button /g)||[]).length,29);
 });
-test('pagination keeps three assignments and resets after a search',()=>{
-  const h=harness(),rows=Array.from({length:8},(_,id)=>({id}));
-  assert.equal(h.c.paginateAssignments(rows).length,3);
-  vm.runInContext('ASSIGNMENT_PAGE=2',h.c);assert.equal(h.c.paginateAssignments(rows)[0].id,6);
-  h.$('admin-assignment-search').value='different';assert.equal(h.c.paginateAssignments(rows)[0].id,0);
+test('calendar navigation crosses years and Today restores the working date',()=>{
+  const h=harness();
+  h.$('assignment-calendar-month').value='2026-01';
+  h.$('assignment-month-prev').onclick();
+  assert.equal(h.$('assignment-calendar-month').value,'2025-12');
+  h.$('assignment-month-next').onclick();
+  assert.equal(h.$('assignment-calendar-month').value,'2026-01');
+  h.$('assignment-calendar-today').onclick();
+  assert.equal(h.$('admin-close-date').value,'2026-09-14');
+  assert.equal(h.$('assignment-calendar-month').value,'2026-09');
 });
+
+test('daily list renders every assignment and search still filters the full list',()=>{
+  const h=harness();
+  h.c.APP.adminClose.asignaciones=Array.from({length:12},(_,id)=>({id,titulo:`Trabajo ${id}`,destino:`Persona ${id}`,estado_asignacion:'pendiente'}));
+  vm.runInContext(admin.slice(admin.indexOf('function renderAdminCloseAssignments('),admin.indexOf('function renderAdminCloseStatus(')),h.c);
+  h.c.renderAdminCloseAssignments();
+  assert.equal((h.$('admin-close-assignment-list').innerHTML.match(/data-cancel-admin-close=/g)||[]).length,12);
+  assert.match(h.$('admin-close-assignment-list').innerHTML,/Trabajo 11/);
+  h.$('admin-assignment-search').value='Trabajo 11';h.c.renderAdminCloseAssignments();
+  assert.equal((h.$('admin-close-assignment-list').innerHTML.match(/data-cancel-admin-close=/g)||[]).length,1);
+  assert.match(h.$('admin-close-assignment-list').innerHTML,/Trabajo 11/);
+});
+test('prominent creation button opens and closes the form without losing entered values',()=>{
+  const h=harness(),panel=h.$('assignment-create-panel'),button=h.$('assignment-create-toggle');
+  panel.hidden=true;button.setAttribute=(name,value)=>button[name]=value;
+  let focused=false;h.$('admin-close-target-kind').focus=()=>{focused=true;};
+  h.$('admin-close-title').value='Entregable en preparación';
+  button.onclick();assert.equal(panel.hidden,false);assert.equal(button['aria-expanded'],'true');assert.equal(focused,true);
+  button.onclick();assert.equal(panel.hidden,true);assert.equal(button['aria-expanded'],'false');
+  assert.equal(h.$('admin-close-title').value,'Entregable en preparación');
+});
+
 test('assignments form has its own section and top navigation entry',()=>{
   const html=fs.readFileSync(new URL('../dashboard.html',import.meta.url),'utf8');
   const section=html.slice(html.indexOf('<section id="admin-assignments-section"')).split('</section>')[0];

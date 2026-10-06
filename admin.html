@@ -693,6 +693,8 @@ async function cargarPerfil(){
     const { data:{ user }, error:userError } = await db.auth.getUser();
     if(userError || !user) throw userError || new Error('Sesión no disponible');
     PERFIL.id = user.id;
+    const { data:permitido,error:permisoError } = await db.rpc('cert_es_miembro');
+    if(permisoError||permitido!==true)throw new Error('La cuenta no tiene acceso activo a certificados');
     const { data, error:perfilError } = await db.from('perfiles').select('nombre,rol,serie').eq('id', user.id).single();
     if(perfilError || !data) throw perfilError || new Error('La cuenta no tiene perfil de certificados');
     PERFIL.rol=data.rol||'colaborador'; PERFIL.serie=data.serie; PERFIL.nombre=data.nombre||'';

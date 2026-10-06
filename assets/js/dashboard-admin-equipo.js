@@ -60,6 +60,7 @@ async function loadAdminTeam(){
 }
 
 function fillAdminTeamFilters(){
+  if(typeof renderAdminAreas==='function')renderAdminAreas();
   const areas=(APP.adminTeam?.areas||[]).filter(a=>a.activo);
   for(const id of ['admin-people-area','admin-contract-area']){
     const select=$(id),current=select.value;
@@ -81,6 +82,7 @@ function filteredAdminPeople(kind){
 }
 
 function renderAdminPeople(){
+  if(typeof syncAdminAreaPicker==='function')syncAdminAreaPicker();
   if(!APP.adminTeam)return;
   if(typeof renderAttendanceExport==='function')renderAttendanceExport();
   const all=APP.adminTeam.personas||[],visible=filteredAdminPeople('people'),canEdit=!!APP.adminTeam.puede_editar;
@@ -98,7 +100,7 @@ function renderAdminPeople(){
       const contract=summary.pendiente?'Contrato por confirmar':summary.meta>0?`${adminHours(summary.cumplidas)} de ${adminHours(summary.meta)} · ${pct}%`:'Contrato sin meta';
       const daysOff=APP.access.rol==='direccion'?`<button type="button" class="days-off" data-team-days-off="${p.id}" aria-label="Gestionar días libres de ${esc(p.nombre)}">Días libres${p.dias_libres_saldo==null?'':` · ${p.dias_libres_saldo}`}</button>`:'';
       html+=`<article class="admin-person-card ${p.activo?'':'inactive'}">
-        <div class="admin-person-card-head">${profileAvatarMarkup(p)}<span><b>${esc(p.nombre)}</b><small>${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)} · ${p.activo?'Activo':'Dado de baja'}</small></span><div>${daysOff}${canEdit?`<button type="button" data-team-edit="${p.id}" aria-label="Editar ${esc(p.nombre)}">Editar</button><button type="button" class="${p.activo?'danger':''}" data-team-status="${p.id}" data-next-active="${!p.activo}">${p.activo?'Dar de baja':'Reactivar'}</button>`:''}</div></div>
+        <div class="admin-person-card-head">${profileAvatarMarkup(p)}<span><b>${esc(p.nombre)}</b><small>${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)} · ${p.activo?'Activo':'Dado de baja'}</small></span><div>${daysOff}${canEdit?`<button type="button" data-team-edit="${p.id}" aria-label="Editar ${esc(p.nombre)}">Editar</button><button type="button" class="${p.activo?'danger':''}" data-team-status="${p.id}" data-next-active="${!p.activo}">${p.activo?'Dar de baja':'Reactivar'}</button>${p.activo===false?`<button type="button" class="danger" data-team-delete="${p.id}" aria-label="Eliminar definitivamente a ${esc(p.nombre)}">Eliminar definitivamente</button>`:''}`:''}</div></div>
         <div class="admin-identity-line"><span>DNI <b>${esc(p.dni||'Sin registrar')}</b></span><span class="${p.tiene_pin?'ready':'missing'}">${p.tiene_pin?'PIN configurado':'Sin PIN'}</span><span>${p.tiene_cuenta?'Portal activado':'Aún no ingresó'}</span></div>
         <div class="admin-week-ledger">${days}</div>
         <div class="admin-person-contract ${summary.pendiente?'pending':''}"><span><small>SEGUIMIENTO</small><b>${esc(contract)}</b></span><i style="--contract-progress:${pct}%"></i></div>
@@ -121,21 +123,23 @@ function renderAdminContracts(){
   if(!APP.adminTeam)return;
   const all=(APP.adminTeam.personas||[]).filter(p=>p.activo),visible=filteredAdminPeople('contracts'),canEdit=!!APP.adminTeam.puede_editar;
   const pending=all.filter(p=>p.resumen?.pendiente).length,complete=all.filter(p=>p.resumen?.completado).length,alerts=all.filter(p=>(p.resumen?.alertas||[]).length&&!p.resumen?.pendiente).length,noMeta=all.filter(p=>!(Number(p.resumen?.meta)>0)).length;
-  const kpis=[['CONTRATOS ACTIVOS',all.length],['PENDIENTES',pending],['COMPLETADOS',complete],['CON ALERTAS',alerts],['SIN META',noMeta]];
+  const kpis=[['Activos',all.length],['Pendientes',pending],['Completados',complete],['Con alertas',alerts],['Sin meta',noMeta]];
   $('admin-contract-kpis').innerHTML=kpis.map(x=>`<article class="admin-list-kpi"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
-  let html='<div class="admin-contract-head"><span>Colaborador</span><span>Avance principal</span><span>Jornada</span><span>Término estimado</span><span>Estado</span><span></span></div>';
+  if($('admin-contract-count'))$('admin-contract-count').textContent=`${visible.length}`;
+  let html='<div class="admin-contract-head" aria-hidden="true"><span>Colaborador</span><span>Horas y avance</span><span>Jornada</span><span>Término estimado</span><span>Estado</span><span>Institución</span><span></span></div>';
   for(const p of visible){
-    const r=p.resumen||{},meta=Number(r.meta)||0,done=Number(r.cumplidas)||0,pct=meta?Math.min(100,Math.round(done/meta*100)):0,[state,stateClass]=contractState(p);
+    const r=p.resumen||{},meta=Number(r.meta)||0,done=Number(r.cumplidas)||0,pct=meta>0?Math.max(0,Math.min(100,Math.round(done/meta*100))):0,[state,stateClass]=contractState(p);
     const projected=r.pendiente?'Por definir':r.completado?'Completado':adminDate(r.fecha_fin_estimada);
-    const alerts=(r.alertas||[]).slice(0,2).map(x=>`<small>${esc(x)}</small>`).join('');
-    const vol=r.voluntariado?`<div class="admin-vol-progress"><span>Voluntariado</span><b>${adminHours(r.voluntariado.cumplidas)} / ${adminHours(r.voluntariado.meta)}</b></div>`:'';
-    html+=`<article class="admin-contract-row ${p.activo?'':'inactive'}">
+    const alerts=(r.alertas||[]).map(x=>`<small>${esc(x)}</small>`).join('');
+    const vol=r.voluntariado?`<span class="admin-vol-progress"><span>Voluntariado</span><b>${adminHours(r.voluntariado.cumplidas)} / ${adminHours(r.voluntariado.meta)}</b></span>`:'';
+    html+=`<article class="admin-contract-row ${p.activo?'':'inactive'}" data-contract-state="${stateClass}" aria-label="Contrato de ${esc(p.nombre)}">
       <span class="admin-contract-person">${profileAvatarMarkup(p,'i')}<span><b>${esc(p.nombre)}</b><small>${esc(p.area||'Sin área')} · ${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)}</small></span></span>
-      <span class="admin-contract-progress"><span><b>${adminHours(done)} / ${adminHours(meta||null)}</b><small>${pct}% completado</small></span><i><u style="width:${pct}%"></u></i>${vol}</span>
-      <span class="admin-contract-week"><b>${adminHours(r.semana_horas)}</b><small>por semana</small></span>
-      <span class="admin-contract-date"><b>${esc(projected)}</b><small>${p.contrato_fin_referencia?'Documento: '+adminDate(p.contrato_fin_referencia):'Sin fecha de referencia'}</small></span>
+      <span class="admin-contract-progress"><span><b>${adminHours(done)} <em>${meta>0?'de '+adminHours(meta):'acumuladas'}</em></b><small>${meta>0?pct+'%':'Sin meta'}</small></span>${meta>0?`<i role="progressbar" aria-label="Avance de ${esc(p.nombre)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-valuetext="${adminHours(done)} de ${adminHours(meta)}"><u style="width:${pct}%"></u></i><small class="contract-remaining">${Math.max(0,meta-done)>0?adminHours(Math.max(0,meta-done))+' por completar':'Meta de horas alcanzada'}</small>`:'<small class="contract-remaining">Define las horas objetivo para calcular el avance.</small>'}${vol}</span>
+      <span class="admin-contract-week"><span class="contract-mobile-label">Jornada</span><b>${adminHours(r.semana_horas)}</b><small>por semana</small></span>
+      <span class="admin-contract-date"><span class="contract-mobile-label">Término estimado</span><b>${esc(projected)}</b><small>${p.contrato_fin_referencia?'Según documento: '+adminDate(p.contrato_fin_referencia):'Sin fecha de referencia'}</small></span>
       <span class="admin-contract-status"><b class="${stateClass}">${state}</b>${alerts}</span>
-      <span class="admin-contract-action">${canEdit?`<button type="button" data-team-edit="${p.id}">Editar</button>`:''}</span>
+      <span class="admin-contract-institution"><span class="contract-mobile-label">Institución</span><span${p.institucion?.trim()?'':' class="contract-institution-empty"'}>${esc(p.institucion?.trim()||'Sin institución')}</span></span>
+      <span class="admin-contract-action">${canEdit?`<button type="button" data-team-edit="${p.id}" aria-label="Editar contrato de ${esc(p.nombre)}">Editar <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14z"/></svg></button>`:''}</span>
     </article>`;
   }
   $('admin-contract-list').innerHTML=visible.length?html:'<p class="admin-empty">No hay contratos para los filtros seleccionados.</p>';
