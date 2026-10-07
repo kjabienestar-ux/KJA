@@ -1679,10 +1679,11 @@ function attendanceDayLoading(){
 function renderAttendanceDay(data,evidences=[]){
   if(attendanceMobileQuery.matches){renderAttendanceCompact(data,evidences);return;}
   const state=data.estado||'',label=data.futuro?'Próximo':statusLabel(state,data.labora),stateClass=(state||(!data.labora?'off':'pending')).toLowerCase();
-  const request=data.solicitud||null,canJustify=!data.futuro&&data.fecha>=addIsoDays(isoLima(),-90);
+  const request=data.solicitud||null;
   ATTENDANCE_DAY_EVIDENCES=evidences;
   const content=$('attendance-day-content'),groups=attendanceActivityGroups(data,evidences);
   content._activities=groups;content._activity=0;content._file=0;
+  const canJustify=!data.futuro&&data.fecha>=addIsoDays(isoLima(),-90)&&groups.some(group=>group.missing);
   const requestHtml=request?`<section class="attendance-day-request"><div><small>SOLICITUD RELACIONADA</small><b>${esc(personalRequestLabel(request.tipo))}</b></div><span class="request-status ${esc(request.estado)}">${esc(request.estado)}</span><p>${esc(request.detalle||'Sin comentario.')}</p>${request.respuesta?`<p class="attendance-day-response"><b>Respuesta de Dirección:</b> ${esc(request.respuesta)}</p>`:''}</section>`:'';
   $('attendance-day-content').innerHTML=`
     <header class="attendance-day-head"><span class="attendance-day-state-icon ${esc(stateClass)}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span><div><h2 id="attendance-day-title">${esc(formatAttendanceDayDate(data.fecha))}</h2><span class="attendance-day-status ${esc(stateClass)}"><i></i>${esc(label)}</span></div></header>
@@ -1693,13 +1694,13 @@ function renderAttendanceDay(data,evidences=[]){
           <div><small>HORA REGISTRADA</small><b>${esc(formatAttendanceClock(data.marcado_at))}</b><span>${esc(attendanceOriginLabel(data.origen))}</span></div>
           <div><small>HORAS DEL DÍA</small><b>${data.horas==null?'—':`${esc(Number(data.horas).toFixed(1))} h`}</b><span>${esc(data.vinculo==='voluntariado'?'Voluntariado':data.vinculo==='practicas'?'Prácticas':'Jornada registrada')}</span></div>
         </div>
-        ${data.marcado_at?`<div class="attendance-day-validation"><span><i></i>${esc(data.evidencia_origen==='camara'?'Foto tomada con cámara':data.evidencia_origen==='archivo'?'Imagen seleccionada':'Registro validado')}</span>${data.ubicacion_verificada?`<span><i></i>Oficina verificada${data.distancia_oficina_m!=null?' · '+esc(formatDistance(data.distancia_oficina_m)):''}</span>`:''}${data.dispositivo?`<span title="${esc(data.dispositivo)}"><i></i>${esc(data.dispositivo)}</span>`:''}</div>`:''}
+
         ${data.nota?`<section class="attendance-day-note"><small>OBSERVACIÓN DEL REGISTRO</small><p>${esc(data.nota)}</p></section>`:''}
         ${requestHtml}
       </div>
       <section class="attendance-day-evidence">
         <div class="attendance-day-section-title"><span><b>Evidencias del día</b><small>${evidences.length} ${evidences.length===1?'archivo asociado':'archivos asociados'} · Selecciona una actividad</small></span></div>
-        <div class="attendance-activity-tabs" role="group" aria-label="Seleccionar actividad">${groups.map((group,index)=>`<button type="button" data-attendance-activity="${index}" aria-pressed="${index===0}" aria-controls="attendance-compact-stage">${esc(group.titulo)}${group.files.length?`<span>${group.files.length}</span>`:''}</button>`).join('')}</div>
+        <div class="attendance-activity-tabs" role="group" aria-label="Seleccionar actividad">${groups.map((group,index)=>`<button type="button" class="${group.missing?'is-missing':''}" aria-label="${esc(group.titulo)}${group.missing?': falta evidencia':''}" data-attendance-activity="${index}" aria-pressed="${index===0}" aria-controls="attendance-compact-stage">${esc(group.titulo)}${group.missing?'<span>Falta</span>':group.files.length?`<span>${group.files.length}</span>`:''}</button>`).join('')}</div>
         <div id="attendance-compact-stage" class="attendance-compact-stage" aria-live="polite"></div>
         <nav class="attendance-file-nav" aria-label="Archivos de la actividad"><button type="button" data-attendance-page="-1" aria-label="Archivo anterior">‹</button><span id="attendance-file-count" aria-live="polite"></span><button type="button" data-attendance-page="1" aria-label="Archivo siguiente">›</button></nav>
       </section>
@@ -1718,6 +1719,20 @@ function attendanceActivityGroups(data,evidences){
     if(!group){group={id,titulo:file.label||'Solicitud',files:[]};groups.push(group);}
     group.files.push({...file,index});
   });
+  const day=typeof APP!=='undefined'?(APP.historial?.dias||[]).find(item=>item.fecha===data.fecha):null;
+  const jornada=!!(day?.aplica_jornada??data.labora)&&data.estado!=='J';
+  const virtual=data.modalidad!=='presencial';
+  const required=[
+    {tipo:'entrada',titulo:'Asistencia',aplica:jornada},
+    {tipo:'comparticiones',titulo:'Facebook',aplica:!!(day?.aplica_comparticiones??(data.labora&&virtual))},
+    {tipo:'rpe',titulo:'RPE',aplica:jornada&&virtual},
+    {tipo:'salida',titulo:'Salida',aplica:jornada}
+  ];
+  for(const requirement of required){
+    let group=groups.find(item=>item.id===requirement.tipo||item.tipo===requirement.tipo||item.titulo===requirement.titulo);
+    if(!group&&requirement.aplica){group={id:requirement.tipo,tipo:requirement.tipo,titulo:requirement.titulo,files:[]};groups.push(group);}
+    if(group){group.missing=!data.futuro&&requirement.aplica&&!group.files.length;if(group.missing)group.detalle='Falta adjuntar la evidencia de esta actividad.';}
+  }
   if(data.nota||data.solicitud){
     groups.push({id:'detalle',titulo:'Notas y solicitud',files:[],detalle:[data.nota,
       data.solicitud?`${personalRequestLabel(data.solicitud.tipo)} · ${data.solicitud.estado}`:'',
@@ -1735,10 +1750,10 @@ function renderAttendanceCompact(data,evidences){
     <div class="attendance-record-overview"><img src="images/dashboard/attendance-history.png" width="100" height="132" alt="" aria-hidden="true"><dl class="attendance-compact-facts"><div><dt>Entrada</dt><dd>${esc(formatAttendanceClock(data.marcado_at))}</dd></div><div><dt>Salida</dt><dd>${esc(formatAttendanceClock(data.salida_at))}</dd></div><div><dt>Horario</dt><dd>${esc(fmtTime(data.hora_entrada))}–${esc(fmtTime(data.hora_salida))}</dd></div><div><dt>Horas del día</dt><dd>${data.horas==null?'—':esc(Number(data.horas).toFixed(1))+' h'}</dd></div></dl></div>
     ${data.actividades_version? '':'<p class="attendance-history-warning">El servidor aún no incluye las entregas del día. Solo se muestran las evidencias disponibles.</p>'}
     <div class="attendance-activity-heading"><b>Evidencias del día</b><small>${evidences.length} ${evidences.length===1?'archivo':'archivos'}</small></div>
-    <div class="attendance-activity-tabs" role="group" aria-label="Seleccionar actividad">${groups.map((group,index)=>`<button type="button" data-attendance-activity="${index}" aria-pressed="${index===0}" aria-controls="attendance-compact-stage">${esc(group.titulo)}${group.files.length?`<span>${group.files.length}</span>`:''}</button>`).join('')}</div>
+    <div class="attendance-activity-tabs" role="group" aria-label="Seleccionar actividad">${groups.map((group,index)=>`<button type="button" class="${group.missing?'is-missing':''}" aria-label="${esc(group.titulo)}${group.missing?': falta evidencia':''}" data-attendance-activity="${index}" aria-pressed="${index===0}" aria-controls="attendance-compact-stage">${esc(group.titulo)}${group.missing?'<span>Falta</span>':group.files.length?`<span>${group.files.length}</span>`:''}</button>`).join('')}</div>
     <div id="attendance-compact-stage" class="attendance-compact-stage" aria-live="polite"></div>
     <nav class="attendance-file-nav" aria-label="Archivos de la actividad"><button type="button" data-attendance-page="-1" aria-label="Archivo anterior">‹</button><span id="attendance-file-count" aria-live="polite"></span><button type="button" data-attendance-page="1" aria-label="Archivo siguiente">›</button></nav>
-    <footer class="attendance-compact-footer"><small>Registro privado de asistencia</small>${!data.futuro&&data.fecha>=addIsoDays(isoLima(),-90)?`<button type="button" id="attendance-day-justify" data-date="${esc(data.fecha)}">Enviar solicitud</button>`:''}</footer>
+    <footer class="attendance-compact-footer"><small>Registro privado de asistencia</small>${!data.futuro&&data.fecha>=addIsoDays(isoLima(),-90)&&groups.some(group=>group.missing)?`<button type="button" id="attendance-day-justify" data-date="${esc(data.fecha)}">Enviar solicitud</button>`:''}</footer>
     </div>
     <div class="attendance-evidence-viewer" id="attendance-evidence-viewer" role="region" aria-label="Vista ampliada de evidencia" hidden><button type="button" class="attendance-evidence-close" data-close-attendance-evidence aria-label="Cerrar imagen ampliada">×</button><div><div class="attendance-evidence-stage" id="attendance-evidence-stage"></div><p id="attendance-evidence-caption"></p></div></div>`;
   renderAttendanceActivity();
