@@ -162,3 +162,9 @@
   #admin-person-modal .editor-calendar { right: auto; left: 0; }
   #admin-person-modal .editor-calendar button { min-height: 36px; }
 }
+
+#admin-person-modal .admin-editor-inline-action { align-self: start; justify-self: start; width: fit-content; min-height: 32px; padding: 6px 10px; border: 1px solid #cbdacc; border-radius: 7px; background: #edf4eb; color: #27634d; font: 600 12px/1.4 Inter,sans-serif; cursor: pointer; }
+#admin-person-modal .admin-editor-inline-action:hover { background: #e2edde; }
+#admin-institution-create:not([hidden]) { display: grid; gap: 8px; margin-top: 8px; }
+#admin-institution-create[hidden] { display: none; }
+#admin-contract-estimate { line-height: 1.5; }

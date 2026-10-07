@@ -195,9 +195,9 @@ function collectFacebookSchedule(){
 function fillAdminInstitutionOptions(current){
   const select=$('admin-person-institution');if(!select)return;
   const saved=String(current??'').trim(),key=value=>value.replace(/\s+/g,' ').toUpperCase();
-  const match=ADMIN_INSTITUTIONS.find(name=>key(name)===key(saved));
-  const legacy=saved&&!match?`<option value="${esc(saved)}">${esc(saved)} (valor anterior)</option>`:'';
-  select.innerHTML='<option value="">Sin institución</option>'+ADMIN_INSTITUTIONS.map(name=>`<option value="${esc(name)}">${esc(name)}</option>`).join('')+legacy;
+  const names=[...new Map([...ADMIN_INSTITUTIONS,...(APP.adminTeam?.personas||[]).map(p=>p.institucion),saved].filter(Boolean).map(name=>[key(name),name.trim()])).values()];
+  const match=names.find(name=>key(name)===key(saved));
+  select.innerHTML='<option value="">Sin institución</option>'+names.map(name=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');
   select.value=match||saved;
 }
 
@@ -210,6 +210,11 @@ async function openAdminPerson(id){
   $('admin-person-dni').value=String(person?.dni||'').replace(/\D/g,'').slice(0,8);
   if($('admin-person-institution')){
     fillAdminInstitutionOptions(person?.institucion);
+    $('admin-institution-create').hidden=true;
+    $('admin-institution-name').value='';
+    $('admin-institution-reveal').setAttribute('aria-expanded','false');
+    $('admin-institution-reveal').disabled=!APP.adminTeam.instituciones_disponibles;
+    $('admin-contract-estimate').textContent='Se calcula al cambiar las fechas o la jornada. Puedes ajustar la meta manualmente.';
     $('admin-person-institution').disabled=!APP.adminTeam.instituciones_disponibles;
     $('admin-institution-help').textContent=APP.adminTeam.instituciones_disponibles?'Elige la sede. Si no se registra, quedará vacía en el informe.':'Institución pendiente de habilitar en la base de datos (migración 66).';
   }
@@ -278,6 +283,34 @@ async function createAdminArea(){
   fillAdminTeamFilters();editorMsg('');toast('Área creada.');
 }
 
+function estimateAdminContractHours(start,end,schedule,mixed=false){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))throw Error('Completa las fechas de inicio y fin.');
+  const first=new Date(start+'T00:00:00Z'),last=new Date(end+'T00:00:00Z');
+  if(!Number.isFinite(+first)||!Number.isFinite(+last)||last<first)throw Error('Revisa el intervalo de fechas.');
+  const days=Math.round((last-first)/86400000)+1,weeks=Math.floor(days/7),remainder=days%7;
+  let minutes=0,volunteer=0;
+  for(const [key,day] of Object.entries(schedule)){
+    if(day.mod==='no_gestiona')continue;
+    if(!/^\d{2}:\d{2}$/.test(day.ini)||!/^\d{2}:\d{2}$/.test(day.fin))throw Error('Completa los horarios de la jornada semanal.');
+    const toMinutes=t=>Number(t.slice(0,2))*60+Number(t.slice(3));
+    const duration=toMinutes(day.fin)-toMinutes(day.ini);
+    if(duration<=0)throw Error('La salida debe ser posterior a la entrada.');
+    const offset=(Number(key)%7-first.getUTCDay()+7)%7,count=weeks+(offset<remainder?1:0);
+    if(mixed&&day.vinc==='voluntariado')volunteer+=count*duration;
+    else minutes+=count*duration;
+  }
+  return {hours:Math.round(minutes/60*100)/100,volunteer:Math.round(volunteer/60*100)/100};
+}
+function calculateAdminContractHours(){
+  const note=$('admin-contract-estimate');
+  try{
+    const person=collectAdminPerson(),mixed=person.tipo_vinculo==='ambos';
+    const result=estimateAdminContractHours(person.contrato_inicio||'',person.contrato_fin_referencia||'',person.horario_semanal,mixed);
+    $('admin-contract-hours').value=result.hours;
+    if(mixed)$('admin-volunteer-hours').value=result.volunteer;
+    note.textContent='Estimación con ambas fechas incluidas y la jornada semanal; no descuenta feriados ni ausencias. Las horas previas no se modifican.';
+  }catch(error){note.textContent=error.message;}
+}
 function collectAdminPerson(){
   const schedule={};let problem='';
   document.querySelectorAll('[data-schedule-day]').forEach(row=>{
@@ -396,6 +429,19 @@ $('admin-schedule-grid').addEventListener('change',e=>{if(e.target.classList.con
 $('admin-facebook-schedule-grid').addEventListener('change',e=>{if(e.target.classList.contains('facebook-day-enabled'))syncFacebookScheduleRows()});
 $('admin-area-reveal').onclick=()=>{$('admin-area-create').hidden=!$('admin-area-create').hidden;if(!$('admin-area-create').hidden)$('admin-area-name').focus()};
 $('admin-area-save').onclick=createAdminArea;
+$('admin-institution-reveal').onclick=()=>{
+  const block=$('admin-institution-create');block.hidden=!block.hidden;
+  $('admin-institution-reveal').setAttribute('aria-expanded',String(!block.hidden));
+  if(!block.hidden)$('admin-institution-name').focus();
+};
+$('admin-institution-add').onclick=()=>{
+  const name=$('admin-institution-name').value.trim().replace(/\s+/g,' ');
+  if(!name||name.length>160)return editorMsg('Escribe una institución de hasta 160 caracteres.');
+  fillAdminInstitutionOptions(name);$('admin-institution-create').hidden=true;
+  $('admin-institution-reveal').setAttribute('aria-expanded','false');editorMsg('');
+};
+$('admin-contract-calculate').onclick=calculateAdminContractHours;
+['admin-contract-start','admin-contract-end','admin-person-link','admin-schedule-grid'].forEach(id=>$(id).addEventListener('change',calculateAdminContractHours));
 document.querySelectorAll('[data-close-days-off]').forEach(button=>button.onclick=closeAdminDaysOff);
 document.querySelectorAll('[data-days-off-mode]').forEach(button=>{
   button.onclick=()=>syncDaysOffMode(button.dataset.daysOffMode);
