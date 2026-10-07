@@ -1,0 +1,216 @@
+/* Perfil dentro del entorno administrativo. */
+#portal.admin-wide[data-view="perfil"] .workspace { overflow-y: auto; }
+#portal.admin-wide #view-perfil.is-admin-profile {
+  box-sizing: border-box;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: 28px 20px;
+  color: #35332e;
+}
+#portal.admin-wide #view-perfil .view-head { margin-bottom: 24px; }
+#portal.admin-wide #view-perfil .view-head h1 { color: #35332e; }
+#portal.admin-wide #view-perfil .view-head p { color: #706b62; }
+#portal.admin-wide #view-perfil .eyebrow,
+#portal.admin-wide #view-perfil .profile-context,
+#portal.admin-wide #view-perfil .profile-utilities,
+#portal.admin-wide #view-perfil #profile-fields,
+#portal.admin-wide #view-perfil .profile-mobile-controls { display: none !important; }
+#portal.admin-wide #view-perfil .profile-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, .8fr) minmax(0, 1.4fr);
+  align-items: start;
+  gap: 24px;
+}
+#portal.admin-wide #view-perfil .profile-identity {
+  --admin-cover: #c3a26b;
+  position: relative;
+  overflow: hidden;
+  padding: 76px 24px 28px;
+  border: 1px solid #e4ddd2;
+  border-radius: 16px;
+  background: #fffdf9;
+  box-shadow: none;
+  text-align: center;
+}
+#portal.admin-wide #view-perfil .profile-identity[data-cover="jardin"] { --admin-cover: #7b8870; }
+#portal.admin-wide #view-perfil .profile-identity[data-cover="noche"] { --admin-cover: #5c5750; }
+#portal.admin-wide #view-perfil .profile-identity::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 116px;
+  background: var(--admin-cover);
+}
+#portal.admin-wide #view-perfil .profile-photo-wrap { position: relative; width: 100px; margin: 0 auto 18px; }
+#portal.admin-wide #view-perfil .profile-avatar {
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 100px;
+  margin: 0;
+  border: 4px solid #fffdf9;
+  border-radius: 50%;
+  background-color: #ece2d3;
+  color: #76583d;
+  font-size: 30px;
+  box-shadow: none;
+}
+#portal.admin-wide #view-perfil .profile-avatar:not(.has-photo) { background-image: none; }
+#portal.admin-wide #view-perfil .profile-photo-camera { background: #196f63; color: #fff; border: 3px solid #fffdf9; }
+#portal.admin-wide #view-perfil .profile-identity h2 { color: #35332e; font-size: 25px; overflow-wrap: anywhere; }
+#portal.admin-wide #view-perfil #profile-area { color: #706b62; font-size: 13px; }
+#portal.admin-wide #view-perfil .profile-badge { background: #efe5d7; border: 0; color: #795438; }
+#portal.admin-wide #view-perfil .profile-data {
+  display: block;
+  min-height: 0;
+  padding: 28px;
+  border: 1px solid #e4ddd2;
+  border-radius: 16px;
+  background: #fffdf9;
+  box-shadow: none;
+}
+#portal.admin-wide #view-perfil .admin-profile-settings { display: block; margin: 0; }
+#portal.admin-wide #view-perfil .admin-profile-settings p { color: #706b62; }
+#portal.admin-wide #view-perfil .admin-profile-name-row { flex-direction: column; align-items: flex-start; }
+#portal.admin-wide #view-perfil .admin-profile-name-row input { box-sizing: border-box; width: 100%; background: #fff; border-color: #d9cdbd; color: #35332e; min-height: 44px; }
+#portal.admin-wide #view-perfil .admin-profile-name-row button { min-height: 44px; background: #196f63; }
+#portal.admin-wide #view-perfil .profile-theme-picker { display: block !important; position: relative; }
+#portal.admin-wide #view-perfil .profile-theme-picker summary { display: flex; align-items: center; gap: 8px; padding: 10px 14px; min-height: 44px; box-sizing: border-box; border: 1px solid #d9cdbd; border-radius: 8px; color: #795438; background: #fffdf9; cursor: pointer; }
+#portal.admin-wide #view-perfil .profile-theme-picker summary svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+#portal.admin-wide #view-perfil .profile-theme-options { position: absolute; top: calc(100% + 8px); right: 0; z-index: 5; display: flex; gap: 8px; padding: 12px; border: 1px solid #e4ddd2; border-radius: 12px; background: #fffdf9; }
+#portal.admin-wide #view-perfil .profile-theme-options button { padding: 10px; border: 1px solid #d9cdbd; border-radius: 6px; background: #f6efe5; color: #514338; cursor: pointer; }
+#portal.admin-wide #view-perfil .profile-theme-options button.is-selected { border-color: #196f63; box-shadow: inset 0 0 0 1px #196f63; }
+#portal.admin-wide #view-perfil :focus-visible { outline: 2px solid #196f63; outline-offset: 3px; }
+@media(max-width: 700px) {
+  #portal.admin-wide #view-perfil.is-admin-profile { padding: 20px 12px 80px; }
+  #portal.admin-wide #view-perfil .profile-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  #portal.admin-wide #view-perfil .view-head { display: flex; flex-wrap: wrap; gap: 16px; }
+  #portal.admin-wide #view-perfil .profile-data { padding: 20px; }
+  #portal.admin-wide #view-perfil .admin-profile-name-row input { font-size: 16px; }
+}
+
+
+/* Composition administrative: accueil horizontal et panneau lateral. */
+.admin-profile-aside { display: none; }
+#portal.admin-wide #view-perfil.is-admin-profile { max-width: 1380px; padding: 0; margin: 20px auto; background: #fff; border-radius: 24px; min-height: 640px; overflow: hidden; position: relative; }
+#portal.admin-wide #view-perfil .view-head { display: flex; align-items: center; justify-content: space-between; padding: 30px 32px 22px; margin: 0; width: calc(100% - 320px); box-sizing: border-box; background: none !important; border: 0; box-shadow: none; border-radius: 0; }
+#portal.admin-wide #view-perfil .view-head::before,#portal.admin-wide #view-perfil .view-head::after { content: none !important; }
+#portal.admin-wide #view-perfil .view-head h1 { font: 700 27px/1.2 Inter,sans-serif; letter-spacing: -.03em; color: #292921 !important; }
+#portal.admin-wide #view-perfil #profile-description { display: none; }
+#portal.admin-wide #view-perfil .profile-layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; grid-template-rows: auto 1fr; gap: 24px 0; align-items: start; }
+#portal.admin-wide #view-perfil .profile-identity { grid-column: 1; grid-row: 1; display: grid; grid-template-columns: minmax(0,1fr) 126px; grid-template-rows: auto auto auto; column-gap: 24px; align-content: center; align-items: center; min-height: 206px; padding: 28px; margin: 0 32px; text-align: left; border: 0; background: var(--admin-cover); border-radius: 16px; color: #fff; }
+#portal.admin-wide #view-perfil .profile-identity::before { content: none; }
+#portal.admin-wide #view-perfil .profile-photo-wrap { grid-column: 2; grid-row: 1 / 4; margin: 0; width: 116px; }
+#portal.admin-wide #view-perfil .profile-avatar { width: 116px; height: 116px; box-sizing: border-box; border: 5px solid #ffffffb3; outline: 2px solid #ffffff40; outline-offset: 7px; background-color: #f4ebdc; background-size: cover; background-position: center; }
+#portal.admin-wide #view-perfil .profile-identity h2 { grid-column: 1; margin: 0 0 8px; font: 600 26px/1.3 Inter,sans-serif; color: #fff; }
+#portal.admin-wide #view-perfil #profile-area { grid-column: 1; margin: 0 0 18px; color: #fff; opacity: .95; }
+#portal.admin-wide #view-perfil .profile-badge { grid-column: 1; justify-self: start; margin: 0; padding: 8px 12px; border-radius: 8px; background: #fff; color: #6c542f; font-size: 12px; }
+#portal.admin-wide #view-perfil .profile-photo-camera { background: #fff; color: #775b32; border-color: #fff; box-shadow: 0 3px 8px #634d2926; }
+#portal.admin-wide #view-perfil .profile-data { grid-column: 1; grid-row: 2; margin: 0 32px 32px; padding: 28px; border: 1px solid #eeeae3; background: #fff; box-shadow: 0 5px 20px #41352008; }
+#portal.admin-wide #view-perfil .admin-settings-title { font: 650 18px/1.4 Inter,sans-serif; margin: 0 0 24px; color: #292921; }
+#portal.admin-wide #view-perfil .admin-profile-settings label { font-size: 13px; }
+#portal.admin-wide #view-perfil .admin-profile-settings p { font-size: 13px; line-height: 1.7; max-width: 55ch; }
+#portal.admin-wide #view-perfil .admin-profile-name-row input { background: #fcfbf8; }
+#portal.admin-wide #view-perfil .admin-profile-name-row button { margin-top: 6px; background: #8a6831; border-radius: 9px; font-size: 13px; }
+#portal.admin-wide #view-perfil .profile-theme-picker summary { font-size: 12px; min-height: 38px; background: #f7f2e9; border: 0; }
+#portal.admin-wide #view-perfil .admin-profile-aside { display: block; grid-column: 2; grid-row: 1 / 3; align-self: stretch; margin-top: -84px; padding: 30px 24px; background: #f6f0e6; min-height: 640px; box-sizing: border-box; }
+#portal.admin-wide #view-perfil .admin-profile-aside h2 { font: 600 22px/1.3 Inter,sans-serif; letter-spacing: -.025em; margin: 0 0 8px; color: #514331; }
+#portal.admin-wide #view-perfil .admin-profile-aside>p { color: #817665; font-size: 13px; margin: 0 0 30px; }
+#portal.admin-wide #view-perfil .admin-profile-aside h3 { margin: 26px 0 12px; font: 600 12px/1.4 Inter,sans-serif; color: #635b4d; }
+#portal.admin-wide #view-perfil .admin-profile-aside>button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 78px; padding: 14px 12px; margin-bottom: 10px; background: #fff; border: 0; border-radius: 12px; text-align: left; color: #3e3b33; cursor: pointer; box-shadow: 0 4px 12px #56402105; }
+#portal.admin-wide #view-perfil .admin-profile-aside>button:hover { background: #fdfbf7; box-shadow: 0 5px 14px #56402112; }
+#portal.admin-wide #view-perfil .admin-profile-aside button b { display: block; font-size: 12px; font-weight: 600; }
+#portal.admin-wide #view-perfil .admin-profile-aside button small { display: block; font-size: 10px; line-height: 1.5; margin-top: 4px; color: #817665; }
+#portal.admin-wide #view-perfil .admin-profile-aside button>span:last-child { margin-left: auto; color: #b29767; }
+#portal.admin-wide #view-perfil .admin-option-icon { display: grid; place-items: center; width: 34px; height: 38px; flex-shrink: 0; border-radius: 8px; background: #f7f1e6; color: #ad8b4c; }
+#portal.admin-wide #view-perfil .admin-option-icon svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+#portal.admin-wide #view-perfil .admin-profile-note { margin-top: 35px; padding-top: 20px; border-top: 1px solid #e4dac9; font-size: 12px; color: #776b56; }
+#portal.admin-wide #view-perfil .admin-profile-note p { line-height: 1.7; font-size: 12px; margin: 8px 0 0; }
+@media(max-width:1050px) {
+ #portal.admin-wide #view-perfil .view-head { width: 100%; }
+ #portal.admin-wide #view-perfil .profile-layout { grid-template-columns: minmax(0,1fr); }
+ #portal.admin-wide #view-perfil .admin-profile-aside { grid-column: 1; grid-row: 3; margin: 0; min-height: 0; }
+}
+@media(max-width:600px) {
+ #portal.admin-wide #view-perfil.is-admin-profile { padding: 0; margin: 12px 0 70px; }
+ #portal.admin-wide #view-perfil .view-head { padding: 24px 18px 18px; gap: 12px; }
+ #portal.admin-wide #view-perfil .profile-identity { margin: 0 16px; padding: 22px; grid-template-columns: minmax(0,1fr) 80px; gap: 0 12px; }
+ #portal.admin-wide #view-perfil .profile-identity h2 { font-size: 22px; }
+ #portal.admin-wide #view-perfil .profile-photo-wrap,#portal.admin-wide #view-perfil .profile-avatar { width: 76px; height: 76px; }
+ #portal.admin-wide #view-perfil .profile-data { margin: 0 16px 8px; padding: 22px; }
+}
+
+/* Encabezados alineados sin desplazar el panel lateral con márgenes negativos. */
+#portal.admin-wide #view-perfil.is-admin-profile:not([hidden]) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-rows: auto auto 1fr;
+  align-items: start;
+}
+#portal.admin-wide #view-perfil .profile-layout { display: contents; }
+#portal.admin-wide #view-perfil > .view-head {
+  grid-column: 1;
+  grid-row: 1;
+  width: 100% !important;
+  min-height: 88px;
+  padding: 24px 32px !important;
+  gap: 20px;
+}
+#portal.admin-wide #view-perfil .profile-identity { grid-row: 2; }
+#portal.admin-wide #view-perfil .profile-data { grid-row: 3; margin-top: 24px; }
+#portal.admin-wide #view-perfil .admin-profile-aside {
+  grid-column: 2;
+  grid-row: 1 / 4;
+  margin: 0;
+  padding: 30px 24px;
+  border-left: 1px solid #eee6d8;
+}
+#portal.admin-wide #view-perfil .profile-header-actions { flex-shrink: 0; }
+#portal.admin-wide #view-perfil .profile-theme-picker summary {
+  min-height: 42px;
+  padding: 10px 14px;
+  gap: 10px;
+  border: 1px solid #e3d6c0;
+  border-radius: 10px;
+  background: #faf6ed;
+  color: #785a2d;
+  font: 600 12px/1.4 Inter, sans-serif;
+  list-style: none;
+  transition: background .15s ease, border-color .15s ease;
+}
+#portal.admin-wide #view-perfil .profile-theme-picker summary::-webkit-details-marker { display: none; }
+#portal.admin-wide #view-perfil .profile-theme-picker summary::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  margin-left: 4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+}
+#portal.admin-wide #view-perfil .profile-theme-picker[open] summary::after { transform: rotate(225deg); }
+#portal.admin-wide #view-perfil .profile-theme-picker summary:hover,
+#portal.admin-wide #view-perfil .profile-theme-picker[open] summary { background: #f0e6d4; border-color: #cbb58c; }
+#portal.admin-wide #view-perfil .profile-theme-options {
+  min-width: 230px;
+  box-shadow: 0 10px 28px #51433118;
+}
+#portal.admin-wide #view-perfil .profile-theme-options button { flex: 1; font: 500 12px/1.4 Inter, sans-serif; }
+#portal.admin-wide #view-perfil .profile-theme-options button::before {
+  content: '';
+  display: block;
+  height: 26px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  background: #c3a26b;
+}
+#portal.admin-wide #view-perfil .profile-theme-options [data-profile-cover="jardin"]::before { background: #7b8870; }
+#portal.admin-wide #view-perfil .profile-theme-options [data-profile-cover="noche"]::before { background: #5c5750; }
+@media(max-width:1050px) {
+  #portal.admin-wide #view-perfil.is-admin-profile:not([hidden]) { grid-template-columns: minmax(0, 1fr); }
+  #portal.admin-wide #view-perfil .admin-profile-aside { grid-column: 1; grid-row: 4; border-left: 0; border-top: 1px solid #eee6d8; min-height: 0; }
+}
+@media(max-width:600px) {
+  #portal.admin-wide #view-perfil > .view-head { padding: 22px 18px !important; gap: 14px; }
+  #portal.admin-wide #view-perfil .profile-theme-options { right: 0; min-width: 210px; }
+}

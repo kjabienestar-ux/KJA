@@ -56,17 +56,51 @@
   function recentEmojis(){try{const saved=JSON.parse(localStorage.getItem(recentEmojiKey())||'[]');return Array.isArray(saved)?saved.filter(e=>typeof e==='string').slice(0,16):[]}catch{return []}}
   function rememberEmoji(emoji){try{localStorage.setItem(recentEmojiKey(),JSON.stringify([emoji,...recentEmojis().filter(e=>e!==emoji)].slice(0,16)))}catch{}}
   let openEmoji=null;
+  function emojiArtwork(emoji){
+    const image=node('img','chat-emoji-art');
+    image.src='images/chat/emoji-apple/'+Array.from(emoji,c=>c.codePointAt(0).toString(16)).join('-')+'.png';
+    image.alt=emoji;image.width=36;image.height=36;image.loading='lazy';image.decoding='async';
+    image.onerror=()=>image.replaceWith(document.createTextNode(emoji));
+    return image;
+  }
+  const chatEmojiSet=new Set(EMOJIS.flatMap(([,items])=>items));
+  const chatEmojiSegments=typeof Intl.Segmenter==='function'?new Intl.Segmenter('es',{granularity:'grapheme'}):null;
+  function messageBubble(content){
+    const text=String(content||''),bubble=node('p','chat-bubble');
+    if(!chatEmojiSegments){bubble.textContent=text;return bubble}
+    const segments=Array.from(chatEmojiSegments.segment(text),item=>item.segment);
+    if(!segments.some(segment=>chatEmojiSet.has(segment))){bubble.textContent=text;return bubble}
+    let plain='',emojiCount=0,hasText=false;
+    for(const segment of segments){
+      if(chatEmojiSet.has(segment)){
+        if(plain){bubble.append(document.createTextNode(plain));plain=''}
+        bubble.append(emojiArtwork(segment));emojiCount++;
+      }else{plain+=segment;if(segment.trim())hasText=true;}
+    }
+    if(plain)bubble.append(document.createTextNode(plain));
+    if(emojiCount>0&&emojiCount<=6&&!hasText)bubble.classList.add('chat-bubble-emoji-only');
+    return bubble;
+  }
   function closeEmoji(){if(!openEmoji)return;openEmoji.panel.hidden=true;openEmoji.toggle.setAttribute('aria-expanded','false');openEmoji=null}
   // Botón 😊 y panel por categorías; el emoji se inserta donde está el cursor y el panel sigue abierto.
   function mountEmoji(form,input){
     const toggle=button('Insertar emoji','smile','chat-emoji-btn'),panel=node('div','chat-emoji-panel'),tabs=node('div','chat-emoji-tabs'),grid=node('div','chat-emoji-grid');
+    const searchEmoji=node('input','chat-emoji-search'),caption=node('div','chat-emoji-caption');
+    searchEmoji.type='search';searchEmoji.placeholder='Buscar emoji';searchEmoji.setAttribute('aria-label','Buscar emoji');
     toggle.setAttribute('aria-expanded','false');panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Emojis');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Categorías de emojis');panel.append(tabs,grid);
+    panel.replaceChildren(searchEmoji,caption,grid,tabs);
+    const keywords={Caras:'cara feliz sonrisa risa triste llorar enojo dormir sorpresa amor',Gestos:'mano manos gracias saludo aplauso ok',Corazones:'corazon amor cariño estrella fuego',Trabajo:'trabajo oficina documento alerta listo calendario telefono',Celebración:'fiesta celebracion regalo cumpleaños comida deporte'};
+    const normalize=value=>value.toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     let category=null;
     function render(){
       const recent=recentEmojis(),groups=[...(recent.length?[['Recientes',recent]]:[]),...EMOJIS];
       if(!groups.some(([nombre])=>nombre===category))category=groups[0][0];
-      tabs.replaceChildren(...groups.map(([nombre,lista])=>{const b=node('button','chat-emoji-tab',nombre==='Recientes'?'🕘':lista[0]);b.type='button';b.title=nombre;b.setAttribute('aria-label',nombre);b.setAttribute('aria-pressed',String(nombre===category));b.onclick=()=>{category=nombre;render()};return b}));
-      grid.replaceChildren(...groups.find(([nombre])=>nombre===category)[1].map(emoji=>{const b=node('button','chat-emoji',emoji);b.type='button';b.onclick=()=>insert(emoji);return b}));
+      tabs.replaceChildren(...groups.map(([nombre,lista])=>{const b=node('button','chat-emoji-tab',nombre==='Recientes'?'🕘':lista[0]);b.type='button';b.title=nombre;b.setAttribute('aria-label',nombre);b.setAttribute('aria-pressed',String(nombre===category&&!searchEmoji.value));b.onclick=()=>{category=nombre;searchEmoji.value='';render()};return b}));
+      const query=normalize(searchEmoji.value.trim());
+      const list=query?[...new Set(EMOJIS.flatMap(([name,items])=>normalize(name+' '+(keywords[name]||'')).includes(query)?items:items.filter(emoji=>emoji.includes(query))))]:groups.find(([nombre])=>nombre===category)[1];
+      caption.textContent=query?'Resultados':category==='Recientes'?'Usados recientemente':category;
+      grid.replaceChildren(...list.map(emoji=>{const b=node('button','chat-emoji');b.append(emojiArtwork(emoji));b.type='button';b.setAttribute('aria-label','Insertar '+emoji);b.onclick=()=>insert(emoji);return b}));
+      if(!list.length)grid.append(node('p','chat-emoji-empty','No se encontraron emojis. Prueba con caras, manos o corazones.'));
     }
     function insert(emoji){
       if(input.disabled)return;
@@ -75,7 +109,8 @@
       try{input.setSelectionRange(start+emoji.length,start+emoji.length)}catch{}
       input.oninput?.();rememberEmoji(emoji);
     }
-    toggle.onclick=()=>{if(openEmoji?.panel===panel){closeEmoji();return}closeEmoji();category=null;render();panel.hidden=false;toggle.setAttribute('aria-expanded','true');openEmoji={panel,toggle}};
+    searchEmoji.oninput=render;
+    toggle.onclick=()=>{if(openEmoji?.panel===panel){closeEmoji();return}closeEmoji();category=null;searchEmoji.value='';render();panel.hidden=false;toggle.setAttribute('aria-expanded','true');openEmoji={panel,toggle}};
     panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closeEmoji();toggle.focus()}});
     form.append(toggle,panel);return toggle;
   }
@@ -165,23 +200,24 @@
     if(photoBusy||Date.now()<photoCheckAt)return;
     photoBusy=true;photoCheckAt=Date.now()+30000;
     try{
-      const rows=await rpc('chat_fotos');if(stamp!==epoch)return;
+      let rows;try{rows=await rpc('chat_fotos_perfiles')}catch{rows=await rpc('chat_fotos')}if(stamp!==epoch)return;
       const now=Date.now(),pending=[],seen=new Set();
       for(const row of rows){
-        const key=row.foto_path+'|'+row.foto_actualizada_at;
+        const key=(row.bucket||'perfil-fotos')+'|'+row.foto_path+'|'+row.foto_actualizada_at;
         if(!row.foto_path||seen.has(key))continue;seen.add(key);
-        if(!photoCache.has(key)||photoCache.get(key).expiresAt<=now)pending.push({key,path:row.foto_path,version:row.foto_actualizada_at});
+        if(!photoCache.has(key)||photoCache.get(key).expiresAt<=now)pending.push({key,path:row.foto_path,version:row.foto_actualizada_at,bucket:row.bucket||'perfil-fotos'});
       }
-      if(pending.length){
-        const {data,error}=await db.storage.from('perfil-fotos').createSignedUrls(pending.map(p=>p.path),3600);
+      for(const bucket of new Set(pending.map(p=>p.bucket))){
+        const batch=pending.filter(p=>p.bucket===bucket);
+        const {data,error}=await db.storage.from(bucket).createSignedUrls(batch.map(p=>p.path),3600);
         if(stamp!==epoch)return;
         if(!error)for(let i=0;i<(data||[]).length;i++){
-          const url=data[i]?.signedUrl,item=pending[i];
+          const url=data[i]?.signedUrl,item=batch[i];
           if(url&&item)photoCache.set(item.key,{url:url+(url.includes('?')?'&':'?')+'v='+encodeURIComponent(item.version||''),expiresAt:now+50*60*1000});
         }
       }
       photoUrls.clear();
-      for(const row of rows){const cached=photoCache.get(row.foto_path+'|'+row.foto_actualizada_at);if(cached&&cached.expiresAt>now)photoUrls.set(row.id,cached.url)}
+      for(const row of rows){const cached=photoCache.get((row.bucket||'perfil-fotos')+'|'+row.foto_path+'|'+row.foto_actualizada_at);if(cached&&cached.expiresAt>now)photoUrls.set(row.id,cached.url)}
       for(const key of photoCache.keys())if(!seen.has(key))photoCache.delete(key);
       renderContacts();
     }catch{/* Las fotos no bloquean los mensajes; se conservan las iniciales. */}
@@ -280,6 +316,9 @@
     for(const w of windows.values()){
       if(w.group){const g=groups.find(g=>'g:'+g.id===w.id);if(g)w.online.textContent=members(g);continue}
       const c=contacts.find(c=>c.id===w.id);if(!c)continue;
+      w.title=c.nombre;
+      if(w.peerName)w.peerName.textContent=c.nombre;
+      w.el.setAttribute('aria-label','Conversación con '+c.nombre);
       w.online.textContent=!c.activo?'Cuenta desactivada':isOnline(w.id)?'En línea':presenceKnown?'Sin conexión':'Estado no disponible';w.online.dataset.online=String(c.activo&&isOnline(w.id));
       const avatar=avatarFor(c);w.avatar.replaceChildren(avatar);
     }
@@ -339,7 +378,7 @@
       const reuse=cached&&cached.content===m.contenido&&cached.path===m.imagen_path;
       const entry=reuse?cached.entry:node('div','chat-message'),time=reuse?cached.time:node('time');entry.dataset.mine=String(mine);entry.dataset.follow=String(follow);time.dateTime=m.creado_at;
       time.textContent=date.toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'})+(mine&&!w.group?(m.leido_at?' · Leído':' · Enviado'):'');
-      if(!reuse)entry.append(node('p','chat-bubble',m.contenido),time);w.history.append(entry);
+      if(!reuse)entry.append(messageBubble(m.contenido),time);w.history.append(entry);
       if(!reuse){
         w.renderedMessages.set(key,{entry,time,content:m.contenido,path:m.imagen_path});
         if(!w.group)window.KJAChatImages?.render(entry,m,db,()=>!!current(w));
@@ -415,7 +454,7 @@
     const w={id,group:t.kind==='group',groupId:t.groupId,title:t.nombre,epoch,minimized:false,messages:new Map(),syncedThrough:null,loaded:false,hasOlder:false,loading:false,sending:false,pending:null,readUpTo:0};
     const cached=conversationCache.get(id);if(cached)Object.assign(w,{...cached,messages:new Map(cached.messages)});
     w.el=node('section','chat-window'+(w.group?' is-group':''));w.el.setAttribute('aria-label',(w.group?'Grupo ':'Conversación con ')+t.nombre);
-    const head=node('header','chat-heading');w.toggle=button('Minimizar chat','minus');w.close=button('Cerrar conversación','close');const title=node('strong','chat-peer-title',t.nombre);w.online=node('small','chat-peer-state');title.append(w.online);head.append(title,w.toggle,w.close);
+    const head=node('header','chat-heading');w.toggle=button('Minimizar chat','minus');w.close=button('Cerrar conversación','close');const title=node('strong','chat-peer-title');w.peerName=node('span','',t.nombre);w.online=node('small','chat-peer-state');title.append(w.peerName,w.online);head.append(title,w.toggle,w.close);
     w.avatar=node('span','chat-peer-avatar');w.avatar.append(w.group?groupAvatar(t.group):avatarFor(t.contact));const back=button('Volver a las personas','back','chat-icon chat-back');back.onclick=()=>{activeId=null;syncPanel();renderContacts();focusChat(search)};head.append(w.avatar,back);
     const update=button('Actualizar conversación','refresh','chat-icon chat-refresh');update.onclick=()=>history(w);head.append(update);
     if(w.group){w.online.textContent=members(t.group);w.leave=button('Salir del grupo','leave','chat-icon chat-leave');w.leave.onclick=()=>void leaveGroup(w);head.append(w.leave)}

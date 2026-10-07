@@ -54,7 +54,9 @@
 #portal.admin-wide .side-user b { color: #252523; }
 #portal.admin-wide .side-user small,
 #portal.admin-wide .side-user button { color: #6c6a64; }
-#portal.admin-wide .avatar { background: #e8e0d2 !important; color: #775342 !important; box-shadow: none !important; font-weight: 500; }
+#portal.admin-wide .avatar { background-color: #e8e0d2 !important; color: #775342 !important; box-shadow: none !important; font-weight: 500; }
+#portal.admin-wide .avatar:not(.has-photo) { background-image: none !important; }
+#portal.admin-wide .avatar.has-photo { background-size: cover; background-position: center; background-repeat: no-repeat; }
 #portal.admin-wide #view-gestion { color: #3d3d3a; }
 #portal.admin-wide #view-gestion > header.admin-view-head { background: transparent !important; box-shadow: none !important; }
 #portal.admin-wide #view-gestion .admin-view-head > div:first-child { display: block; min-height: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
@@ -356,8 +358,6 @@
 #portal.admin-wide .admin-control-row[data-state="completa"]:is(:hover,:focus-within) { background-color: #e2efe5; }
 #portal.admin-wide :is(button,a,input,select,textarea,summary):focus-visible { outline: 2px solid #a9583e !important; outline-offset: 3px; }
 #portal.admin-wide * { scrollbar-color: #c6bbae transparent; }
-body:has(#portal.admin-wide:not([hidden])) .kja-chat .chat-launcher { color: #fff; background: #e0006f; border-radius: 10px; box-shadow: 0 6px 18px #e0006f40; font-size: 13px; font-weight: 500; }
-body:has(#portal.admin-wide:not([hidden])) .kja-chat .chat-launcher:hover { background: #c2065c; }
 @media (min-width: 901px) {
   #portal.admin-wide .sidebar { inset: 12px auto 12px 12px !important; width: 236px !important; height: calc(100dvh - 24px); padding-top: 30px; }
   #portal.admin-wide .workspace { margin-left: 236px !important; }

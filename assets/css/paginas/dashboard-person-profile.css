@@ -93,3 +93,17 @@
 .admin-attendance-export :focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 .admin-attendance-export .attendance-export-search input:focus-visible{outline:none}
 @media(max-width:760px){.attendance-export-head{align-items:flex-start;flex-direction:column;gap:14px;padding:20px}.attendance-export-selection>summary{padding:17px 20px;gap:10px}.attendance-export-selection>summary small{max-width:38ch}.attendance-export-count{font-size:11px}.attendance-export-picker{padding:0 16px 16px}.attendance-export-options{grid-template-columns:1fr;max-height:310px}.attendance-export-footer{align-items:stretch;flex-direction:column;gap:14px;padding:18px 20px}.attendance-export-downloads{justify-content:flex-end}.attendance-export-downloads #admin-attendance-excel{flex:1}.attendance-export-tools{gap:12px}.attendance-export-tools>div{justify-content:space-between;width:100%}}
+
+/* Personalizaci?n de cuentas administrativas. */
+#portal .sidebar #side-profile-link { width: auto; height: auto; font: inherit; flex: 1; min-width: 0; padding: 0; border: 0; border-radius: 4px; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+#portal .sidebar #side-profile-link:focus-visible { outline: 2px solid #196f63; outline-offset: 4px; }
+.admin-profile-settings { margin-bottom: 20px; }
+.admin-profile-settings[hidden] { display: none; }
+.admin-profile-settings label { display: block; font-weight: 600; font-size: 14px; }
+.admin-profile-settings p { margin: 6px 0 12px; color: #64748b; font-size: 13px; line-height: 1.5; }
+.admin-profile-name-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.admin-profile-name-row input { flex: 1; min-width: 0; width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
+.admin-profile-name-row button { padding: 10px 16px; border: 0; border-radius: 8px; background: #196f63; color: white; font: inherit; cursor: pointer; }
+.admin-profile-name-row button:disabled { opacity: .6; cursor: wait; }
+#admin-profile-message { display: block; margin-top: 8px; }
+@media(max-width: 480px) { .admin-profile-name-row { flex-direction: column; } .admin-profile-name-row input { box-sizing: border-box; font-size: 16px; } }

@@ -8,14 +8,14 @@
 <title>Mi portal - KJA</title>
 <link rel="icon" href="images/logo/favicon.png">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-marketing.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-chat.css?v=14">
-<link rel="stylesheet" href="assets/css/paginas/chat-images.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-chat.css?v=18">
+<link rel="stylesheet" href="assets/css/paginas/chat-images.css?v=5">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
   <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=231">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=8">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=9">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=12">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
@@ -26,7 +26,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=16">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=18">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=11">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=55">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
@@ -57,6 +57,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=3">
 </head>
 <body>
 
@@ -199,7 +200,7 @@
     <div class="side-help" data-sidebar-tooltip="¿Necesitas ayuda?"><div class="side-help-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v6h4v-6H4ZM20 12h1v6h-4v-6h3ZM20 18v1a2 2 0 0 1-2 2h-5"/></svg><span class="sidebar-label">¿Necesitas ayuda?</span></div><a href="https://wa.me/51922996170" target="_blank" rel="noopener" data-sidebar-tooltip="Contactar a Ingeniería"><span class="sidebar-label">Contactar a Ingeniería</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></div>
     <div class="side-user" id="sidebar-session-actions">
       <span class="avatar" id="side-avatar" title="Perfil del colaborador">KJ</span>
-      <span class="side-user-copy"><b id="side-name">—</b><small id="side-role">Miembro</small></span>
+      <button type="button" class="side-user-copy" id="side-profile-link" aria-label="Personalizar mi perfil" title="Personalizar mi perfil"><b id="side-name">—</b><small id="side-role">Miembro</small></button>
       <button id="logout" aria-label="Cerrar sesión" title="Cerrar sesión" data-sidebar-tooltip="Cerrar sesión"><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="M5 3h7v18H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M12 4V3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h6v-1M10 12h11m-4-4 4 4-4 4"/></svg></button>
     </div>
   </aside>
@@ -776,7 +777,7 @@
     </section>
 
     <section class="view" id="view-perfil" hidden>
-      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p>Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.</p></div><div class="profile-header-actions"><details class="profile-theme-picker"><summary aria-label="Personalizar portada vertical"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M5 5h14v14H5zM8 9h8M8 13h5"/></svg><span>Personalizar portada</span></summary><div class="profile-theme-options" role="group" aria-label="Estilos de portada vertical"><button type="button" data-profile-cover="cielo">Cielo</button><button type="button" data-profile-cover="jardin">Jardín</button><button type="button" data-profile-cover="noche">Noche</button></div></details></div></header>
+      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p id="profile-description">Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.</p></div><div class="profile-header-actions"><details class="profile-theme-picker"><summary aria-label="Personalizar portada vertical"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M5 5h14v14H5zM8 9h8M8 13h5"/></svg><span>Personalizar portada</span></summary><div class="profile-theme-options" role="group" aria-label="Estilos de portada vertical"><button type="button" data-profile-cover="cielo">Cielo</button><button type="button" data-profile-cover="jardin">Jardín</button><button type="button" data-profile-cover="noche">Noche</button></div></details></div></header>
       <div class="profile-mobile-controls"><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button><button class="profile-mobile-logout" id="profile-mobile-logout" type="button" aria-label="Cerrar sesión" title="Cerrar sesión"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5"/><path d="m14 8 4 4-4 4M18 12H9"/></svg></button></div>
       <div class="profile-layout">
         <article class="profile-identity">
@@ -790,9 +791,16 @@
           <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
         </article>
         <article class="profile-data">
+          <form id="admin-profile-settings" class="admin-profile-settings" hidden>
+            <h2 class="admin-settings-title">Personaliza tu perfil</h2>
+            <label for="admin-profile-name">Nombre visible</label>
+            <p>Así aparecerás en tu perfil y en la barra lateral. No cambia tu nombre laboral ni tus permisos.</p>
+            <div class="admin-profile-name-row"><input id="admin-profile-name" name="nombre" maxlength="80" required autocomplete="nickname" placeholder="Ej. Yeiser Administrador"><button id="admin-profile-save" type="submit">Guardar nombre</button></div>
+            <small id="admin-profile-message" role="status" aria-live="polite"></small>
+          </form>
           <div id="profile-fields"></div>
           <div class="profile-utilities">
-          <div class="profile-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span><b>¿Hay algo que corregir?</b>Comunícalo a Dirección para mantener tu información laboral al día.</span><a href="https://wa.me/51988918238" target="_blank" rel="noopener">Informar un cambio</a></div>
+          <div class="profile-notice" id="profile-work-notice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span><b>¿Hay algo que corregir?</b>Comunícalo a Dirección para mantener tu información laboral al día.</span><a href="https://wa.me/51988918238" target="_blank" rel="noopener">Informar un cambio</a></div>
           <div class="profile-session">
             <span class="profile-session-copy profile-session-copy-mobile">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"/></svg>
@@ -811,6 +819,16 @@
           </div>
           </div>
         </article>
+        <aside class="admin-profile-aside" aria-label="Opciones de administración">
+          <h2>Tu espacio</h2>
+          <p>Tu cuenta, a tu manera.</p>
+          <h3>Personalización</h3>
+          <button type="button" id="admin-edit-photo"><span class="admin-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></span><span><b>Foto de perfil</b><small>Cambia o quita tu foto</small></span><span aria-hidden="true">→</span></button>
+          <button type="button" id="admin-edit-cover"><span class="admin-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg></span><span><b>Portada</b><small>Arena, Oliva o Grafito</small></span><span aria-hidden="true">→</span></button>
+          <h3>Administración</h3>
+          <button type="button" data-go="gestion"><span class="admin-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18m-13 5h3m4 0h3"/></svg></span><span><b>Gestión de asistencia</b><small>Volver al panel del equipo</small></span><span aria-hidden="true">→</span></button>
+          <div class="admin-profile-note"><b>Un perfil propio</b><p>Los cambios se aplican a tu cuenta. Tus permisos de administración se mantienen.</p></div>
+        </aside>
         <section class="profile-context" id="profile-context" aria-label="Bienestar y comunicados"></section>
       </div>
     </section>
@@ -2695,7 +2713,7 @@
   <div id="admin-leave-review-days" class="admin-request-list"></div>
   <footer><span>Puedes decidir cada fecha por separado.</span><button type="button" data-close-leave-review>Listo</button></footer>
 </dialog>
-<script src="assets/js/dashboard.js?v=245"></script>
+<script src="assets/js/dashboard.js?v=248"></script>
 <script src="assets/js/dashboard-cert-accounts.js?v=8"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
@@ -2718,8 +2736,8 @@
 <script src="assets/js/dashboard-admin-control.js?v=17"></script>
 <script src="assets/js/marketing-model.js?v=3"></script>
 <script src="assets/js/dashboard-marketing.js?v=6"></script>
-<script src="assets/js/chat-images.js?v=3"></script>
-<script src="assets/js/dashboard-chat.js?v=18"></script>
+<script src="assets/js/chat-images.js?v=4"></script>
+<script src="assets/js/dashboard-chat.js?v=22"></script>
 <script src="assets/js/dashboard-mobile.js?v=3"></script>
 <script src="assets/js/ranking-model.js?v=6"></script>
 <script src="assets/js/dashboard-ranking.js?v=14"></script>
