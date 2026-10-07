@@ -137,11 +137,136 @@ function adminControlAreaGroups(){
   const groups=new Map();
   for(const row of APP.adminControl?.filas||[]){
     const id=String(row.area_id??'__none');
-    if(!groups.has(id))groups.set(id,{id,name:row.area||'Sin área',total:0,pending:0,review:0,done:0,clear:0});
+    if(!groups.has(id))groups.set(id,{id,name:row.area||'Sin área',total:0,pending:0,review:0,done:0,clear:0,collaborators:[]});
     const group=groups.get(id);group.total++;group[adminControlAreaBucket(row)]++;
+    group.collaborators.push(row);
   }
   return [...groups.values()].sort((a,b)=>(b.pending+b.review)-(a.pending+a.review)||a.name.localeCompare(b.name,'es'));
 }
+function adminControlAreaIcon(name){
+  const slug=adminControlAreaSlug(name);
+  switch(slug){
+    case 'diseno':
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L19 9L13.5 14.5L6.5 7.5L12 2Z"/><path d="M6.5 7.5L3 17.5L13 14"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/><circle cx="18" cy="18" r="2.5"/><path d="M15.5 18H14"/></svg>';
+    case 'ingenieria':
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" fill-opacity="0.12"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/></svg>';
+    case 'rrhh':
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="6" r="3.5"/><path d="M6 18.5v-.5a6 6 0 0 1 12 0v.5"/><circle cx="19" cy="9" r="2.5"/><path d="M18.5 17a4.5 4.5 0 0 1 3.5 1.5"/><circle cx="5" cy="9" r="2.5"/><path d="M5.5 17A4.5 4.5 0 0 0 2 18.5"/></svg>';
+    case 'salud':
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L4 5.5v6.2c0 5 3.4 9.6 8 10.8 4.6-1.2 8-5.8 8-10.8V5.5L12 2Z"/><path d="M12 8v6M9 11h6"/></svg>';
+    case 'admin':
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M4 18h16M6 18V9M10 18V9M14 18V9M18 18V9M3 9l9-5 9 5"/></svg>';
+    case 'conta':
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v17M8 20h8M3 7h18"/><path d="M6 7l-2.5 5.5a2.5 2.5 0 0 0 5 0L6 7zM18 7l-2.5 5.5a2.5 2.5 0 0 0 5 0L18 7z"/></svg>';
+    case 'marketing':
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14V9a1 1 0 0 1 1-1h3l6-4v14l-6-4H5a1 1 0 0 1-1-1z"/><path d="M7 14v4a2 2 0 0 0 2 2h1"/><path d="M17.5 8.5a4.5 4.5 0 0 1 0 7"/><path d="M20 6a8 8 0 0 1 0 12"/></svg>';
+    case 'recluta':
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><circle cx="11" cy="9" r="2.2"/><path d="M7.5 14.5a3.5 3.5 0 0 1 7 0"/></svg>';
+    case 'voluntariado':
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/><circle cx="12" cy="11" r="2.5" fill="currentColor" fill-opacity="0.2"/></svg>';
+    default:
+      return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>';
+  }
+}
+
+function adminControlAreaSlug(name){
+  const n=String(name||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if(n.includes('diseno')||n.includes('grafic')) return 'diseno';
+  if(n.includes('ingenier')) return 'ingenieria';
+  if(n.includes('recurso')||n.includes('humano')||n.includes('rrhh')) return 'rrhh';
+  if(n.includes('salud')||n.includes('ocupacional')) return 'salud';
+  if(n.includes('admin')) return 'admin';
+  if(n.includes('conta')) return 'conta';
+  if(n.includes('market')) return 'marketing';
+  if(n.includes('recluta')||n.includes('selecc')) return 'recluta';
+  if(n.includes('voluntar')) return 'voluntariado';
+  return 'general';
+}
+
+function adminControlAreaWatermarkSvg(slug){
+  switch(slug){
+    case 'diseno':
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="75" cy="75" r="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity=".10"/><path d="M10 90 Q 50 10 90 50" fill="none" stroke="currentColor" stroke-width="2" opacity=".10"/><polygon points="45,25 75,55 55,75 25,45" fill="currentColor" opacity=".06"/><circle cx="50" cy="50" r="3" fill="currentColor" opacity=".12"/></svg>';
+    case 'ingenieria':
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><rect x="35" y="35" width="48" height="48" rx="6" fill="none" stroke="currentColor" stroke-width="2" opacity=".10"/><circle cx="59" cy="59" r="10" fill="currentColor" opacity=".06"/><path d="M15 35 h20 M15 59 h20 M15 83 h20 M59 15 v20 M83 15 v20" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".10"/><circle cx="15" cy="35" r="3" fill="currentColor" opacity=".12"/><circle cx="15" cy="59" r="3" fill="currentColor" opacity=".12"/><circle cx="59" cy="15" r="3" fill="currentColor" opacity=".12"/></svg>';
+    case 'rrhh':
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="65" cy="40" r="14" fill="currentColor" opacity=".06"/><circle cx="35" cy="65" r="10" fill="currentColor" opacity=".06"/><circle cx="75" cy="75" r="8" fill="currentColor" opacity=".06"/><path d="M65 40 L 35 65 M65 40 L 75 75 M35 65 L 75 75" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3" opacity=".10"/><circle cx="65" cy="40" r="24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".08"/></svg>';
+    case 'salud':
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><path d="M60 20 L 85 32 v22 c0 18 -11 32 -25 38 c-14 -6 -25 -20 -25 -38 V 32 Z" fill="currentColor" opacity=".05"/><path d="M15 65 L 35 65 L 45 42 L 55 82 L 65 52 L 75 68 L 92 68" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity=".11"/></svg>';
+    case 'admin':
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="20,38 55,20 90,38" fill="none" stroke="currentColor" stroke-width="2" opacity=".10"/><rect x="26" y="44" width="8" height="42" rx="2" fill="currentColor" opacity=".07"/><rect x="51" y="44" width="8" height="42" rx="2" fill="currentColor" opacity=".07"/><rect x="76" y="44" width="8" height="42" rx="2" fill="currentColor" opacity=".07"/><line x1="18" y1="90" x2="92" y2="90" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".10"/></svg>';
+    case 'conta':
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><line x1="25" y1="36" x2="85" y2="36" stroke="currentColor" stroke-width="2.5" opacity=".10"/><circle cx="55" cy="36" r="4" fill="currentColor" opacity=".12"/><path d="M25 36 L 15 58 L 35 58 Z" fill="currentColor" opacity=".06"/><path d="M85 36 L 75 58 L 95 58 Z" fill="currentColor" opacity=".06"/><line x1="55" y1="36" x2="55" y88 stroke="currentColor" stroke-width="2" opacity=".08"/><line x1="42" y1="88" x2="68" y2="88" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".10"/></svg>';
+    case 'marketing':
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><path d="M25 55 L 55 35 L 55 75 L 25 55 Z" fill="currentColor" opacity=".06"/><path d="M63 42 A 18 18 0 0 1 63 68" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".11"/><path d="M72 32 A 32 32 0 0 1 72 78" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".10"/><path d="M81 22 A 46 46 0 0 1 81 88" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".08"/></svg>';
+    case 'recluta':
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="55" cy="55" r="32" fill="none" stroke="currentColor" stroke-width="2" opacity=".09"/><circle cx="55" cy="55" r="18" fill="none" stroke="currentColor" stroke-width="1.8" opacity=".10"/><circle cx="55" cy="55" r="6" fill="currentColor" opacity=".12"/><line x1="55" y1="15" x2="55" y2="95" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity=".09"/><line x1="15" y1="55" x2="95" y2="55" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity=".09"/></svg>';
+    case 'voluntariado':
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><path d="M55 45 C 55 30 35 30 35 48 C 35 66 55 78 55 86 C 55 78 75 66 75 48 C 75 30 55 30 55 45 Z" fill="currentColor" opacity=".07"/><circle cx="55" cy="55" r="36" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4" opacity=".09"/></svg>';
+    default:
+      return '<svg class="control-area-watermark" viewBox="0 0 100 100" aria-hidden="true"><rect x="25" y="25" width="50" height="50" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity=".08"/><circle cx="50" cy="50" r="16" fill="currentColor" opacity=".05"/></svg>';
+  }
+}
+
+function adminControlDonutSvg(group){
+  const total = Math.max(1, group.total || 0);
+  const pending = group.pending || 0;
+  const review = group.review || 0;
+  const done = group.done || 0;
+  const clear = group.clear || 0;
+  const r = 15.9155;
+  let offset = 25;
+  const segments = [
+    { key: 'pending', color: '#f43f5e', count: pending },
+    { key: 'review', color: '#f59e0b', count: review },
+    { key: 'done', color: '#10b981', count: done },
+    { key: 'clear', color: '#cbd5e1', count: clear }
+  ];
+  let circles = '<circle cx="18" cy="18" r="'+r+'" fill="none" stroke="#f1f5f9" stroke-width="4.2"/>';
+  for(const seg of segments){
+    if(!seg.count) continue;
+    const pct = (seg.count / total) * 100;
+    circles += '<circle cx="18" cy="18" r="'+r+'" fill="none" stroke="'+seg.color+'" stroke-width="4.2" stroke-dasharray="'+pct.toFixed(2)+' '+(100 - pct).toFixed(2)+'" stroke-dashoffset="'+offset.toFixed(2)+'" stroke-linecap="round"/>';
+    offset -= pct;
+  }
+  const attention = pending + review;
+  const centerText = attention > 0
+    ? '<text x="18" y="21.5" text-anchor="middle" font-size="10" font-weight="700" fill="#e11d48">'+attention+'</text>'
+    : '<text x="18" y="21" text-anchor="middle" font-size="10" font-weight="700" fill="#10b981">✓</text>';
+  return '<svg class="control-area-donut" viewBox="0 0 36 36" width="46" height="46" aria-hidden="true">'+circles+centerText+'</svg>';
+}
+
+function adminControlCollaboratorAvatarUrl(c){
+  if(c?.foto_url) return c.foto_url;
+  const seed = encodeURIComponent(c?.colaborador_id || c?.id || c?.colaborador || 'colaborador');
+  return 'https://i.pravatar.cc/100?u=' + seed;
+}
+
+function adminControlAreaAvatars(group){
+  const people = group.collaborators || [];
+  const maxVisible = 5;
+  const count = Math.min(group.total || people.length, maxVisible);
+  if(count <= 0) return '';
+  let avatarsHtml = '';
+  for(let i = 0; i < count; i++){
+    const person = people[i] || { colaborador: 'Persona ' + (i + 1), colaborador_id: group.id + '_' + i };
+    const name = person.colaborador || 'Colaborador';
+    const photoUrl = adminControlCollaboratorAvatarUrl(person);
+    const inis = (typeof initials === 'function' ? initials(name) : name.slice(0, 2)).toUpperCase();
+    avatarsHtml += '<span class="control-avatar-item" title="' + esc(name) + '">' +
+      '<img src="' + esc(photoUrl) + '" alt="' + esc(name) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
+      '<span class="control-avatar-fallback">' + esc(inis) + '</span>' +
+    '</span>';
+  }
+  const remaining = (group.total || people.length) - count;
+  const moreHtml = remaining > 0 ? '<span class="control-avatar-more" title="' + remaining + ' personas más">+' + remaining + '</span>' : '';
+  return '<div class="control-area-avatars" aria-hidden="true"><div class="control-avatar-list">' + avatarsHtml + '</div>' + moreHtml + '</div>';
+}
+
+function adminControlPersonFigures(group){
+  return adminControlAreaAvatars(group);
+}
+
 function renderAdminControlAreas(){
   const host=$('admin-control-areas');if(!host)return;
   if(APP.adminControl?.partial){host.innerHTML='<p class="control-area-empty">Resumen por área no disponible: faltan datos por comprobar. Actualiza para ver la distribución completa.</p>';$('admin-control-chart-selection').textContent='Datos parciales';$('admin-control-chart-reset').hidden=true;return;}
@@ -149,25 +274,110 @@ function renderAdminControlAreas(){
   const signature=JSON.stringify([APP.adminControl.fecha,groups]);
   const animate=signature!==ADMIN_CONTROL_AREA_SIGNATURE;
   ADMIN_CONTROL_AREA_SIGNATURE=signature;
-  host.innerHTML=groups.length?groups.map(group=>'<div class="control-area-row'+(animate?' is-arriving':'')+(selected===group.id?' is-selected':'')+'"><button type="button" class="control-area-name" data-control-chart-area="'+esc(group.id)+'" aria-pressed="'+(selected===group.id)+'">'+esc(group.name)+'<small>'+group.total+' personas</small></button><div class="control-area-bar" role="group" aria-label="'+esc(group.name)+'">'+CONTROL_AREA_STATES.filter(([key])=>group[key]).map(([key,label])=>'<button type="button" class="control-area-segment '+key+'" style="flex-grow:'+group[key]+'" data-control-chart-area="'+esc(group.id)+'" data-control-chart-state="'+key+'" aria-pressed="'+(selected===group.id&&ADMIN_CONTROL_CHART===key)+'" aria-label="'+esc(group.name)+': '+group[key]+' '+label.toLowerCase()+' de '+group.total+' personas" title="'+group[key]+' '+label.toLowerCase()+' · '+Math.round(group[key]*100/group.total)+'%"><span>'+group[key]+'</span></button>').join('')+'</div><span class="control-area-count" title="Personas con pendientes o entregas por revisar">'+(group.pending+group.review)+'<small>por atender</small></span></div>').join(''):'<p class="control-area-empty">No hay áreas registradas para esta fecha.</p>';
+  host.innerHTML=groups.length?groups.map(group=>{
+    const attention=group.pending+group.review;
+    const slug=adminControlAreaSlug(group.name);
+    return '<div class="control-area-row area-theme-'+slug+(animate?' is-arriving':'')+(selected===group.id?' is-selected':'')+'" data-control-chart-area="'+esc(group.id)+'" role="button" tabindex="0" aria-pressed="'+(selected===group.id)+'">'+
+      adminControlAreaWatermarkSvg(slug)+
+      '<div class="control-area-top">'+
+        '<div class="control-area-brand">'+
+          '<span class="control-area-icon">'+adminControlAreaIcon(group.name)+'</span>'+
+          '<button type="button" class="control-area-name" data-control-chart-area="'+esc(group.id)+'" aria-pressed="'+(selected===group.id)+'">'+
+            '<strong>'+esc(group.name)+'</strong><small>'+group.total+' personas</small>'+
+          '</button>'+
+        '</div>'+
+        '<div class="control-area-chart-wrap" title="Donut de cumplimiento">'+
+          adminControlDonutSvg(group)+
+          '<span class="control-area-count" title="Personas con pendientes o entregas por revisar"><b>'+attention+'</b><small>por atender</small></span>'+
+          '<svg class="control-area-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>'+
+        '</div>'+
+      '</div>'+
+      adminControlAreaAvatars(group)+
+      '<div class="control-area-bar" role="group" aria-label="'+esc(group.name)+'">'+
+        CONTROL_AREA_STATES.filter(([key])=>group[key]).map(([key,label])=>{
+          return '<button type="button" class="control-area-segment '+key+'" style="flex-grow:'+group[key]+'" data-control-chart-area="'+esc(group.id)+'" data-control-chart-state="'+key+'" aria-pressed="'+(selected===group.id&&ADMIN_CONTROL_CHART===key)+'" aria-label="'+esc(group.name)+': '+group[key]+' '+label.toLowerCase()+' de '+group.total+' personas" title="'+group[key]+' '+label.toLowerCase()+' · '+Math.round(group[key]*100/group.total)+'%"><span class="control-seg-dot"></span><span>'+group[key]+' '+label+'</span></button>';
+        }).join('')+
+      '</div>'+
+    '</div>';
+  }).join(''):'<p class="control-area-empty">No hay áreas registradas para esta fecha.</p>';
   const active=CONTROL_AREA_STATES.find(([key])=>key===ADMIN_CONTROL_CHART);
   $('admin-control-chart-reset').hidden=!selected&&!active;
-  $('admin-control-chart-selection').textContent=active?'Filtro: '+active[1]:'Pulsa una barra para ver sus personas';
+  $('admin-control-chart-selection').textContent=active?'Filtro: '+active[1]:(selected?'Selecciona un área para filtrar':'Pulsa una tarjeta para ver sus personas en 2 columnas');
 }
 function selectAdminControlArea(area,state=''){
   $('admin-control-search').value='';$('admin-control-state').value='';$('admin-control-area').value=area;
   ADMIN_CONTROL_CHART=state;ADMIN_CONTROL_QUEUE='all';ADMIN_CONTROL_EXPANDED=null;renderAdminControl();
   $('admin-control-result-count').setAttribute('tabindex','-1');$('admin-control-result-count').focus({preventScroll:true});
+  if(area && typeof window !== 'undefined'){
+    const wrap=$('control-split-wrap');
+    if(wrap && typeof wrap.getBoundingClientRect === 'function'){
+      const rect=wrap.getBoundingClientRect();
+      if(rect.top < 0 || rect.top > 120){
+        wrap.scrollIntoView({behavior:'smooth',block:'start'});
+      }
+    }
+  }
 }
 
 function renderAdminControl(){
   if(!APP.adminControl?.ok)return;
   renderAdminControlAreas();
   const base=adminControlBaseRows(),rows=adminControlRows();
+  const selectedArea=$('admin-control-area')?.value||'';
+  const splitWrap=$('control-split-wrap');
+  if(splitWrap){
+    if(splitWrap.classList?.toggle)splitWrap.classList.toggle('is-split',!!selectedArea);
+    if(splitWrap.setAttribute)splitWrap.setAttribute('data-split',selectedArea?'true':'false');
+  }
+  const backBtn=$('control-back-areas-btn');
+  if(backBtn)backBtn.hidden=!selectedArea;
+  const banner=$('control-selected-area-banner');
+  if(banner){
+    if(selectedArea){
+      banner.hidden=false;
+      const groups=adminControlAreaGroups();
+      const currentGroup=groups.find(g=>g.id===selectedArea)||{name:'Área seleccionada',total:base.length,pending:0,review:0,done:0,clear:0};
+      const slug=adminControlAreaSlug(currentGroup.name);
+      if(banner.setAttribute)banner.setAttribute('class','control-selected-area-banner area-theme-'+slug);
+      else banner.className='control-selected-area-banner area-theme-'+slug;
+      const iconEl=$('control-selected-area-icon');
+      if(iconEl)iconEl.innerHTML=adminControlAreaIcon(currentGroup.name);
+      const titleEl=$('control-selected-area-title');
+      if(titleEl)titleEl.textContent=currentGroup.name;
+      const subEl=$('control-selected-area-sub');
+      if(subEl)subEl.textContent=currentGroup.total+(currentGroup.total===1?' persona en total':' personas en total');
+      const badgesEl=$('control-selected-area-badges');
+      if(badgesEl){
+        const att=currentGroup.pending+currentGroup.review;
+        badgesEl.innerHTML=
+          '<span class="control-banner-badge is-pending">🔴 '+att+' por atender</span>'+
+          '<span class="control-banner-badge is-done">🟢 '+currentGroup.done+' concluidas</span>'+
+          (currentGroup.clear?'<span class="control-banner-badge is-clear">⚪ '+currentGroup.clear+' sin pendientes</span>':'');
+      }
+    }else{
+      banner.hidden=true;
+    }
+  }
   const queues=[['attention','Por atender'],['review','Por revisar'],['done','Concluidas'],['all','Todo el equipo']];
   $('admin-control-kpis').innerHTML=queues.map(([key,label])=>'<button type="button" data-control-queue="'+key+'" aria-pressed="'+(ADMIN_CONTROL_QUEUE===key)+'">'+label+'<span>'+base.filter(row=>adminControlMatchesQueue(row,key)).length+'</span></button>').join('');
   const scheduled=base.filter(adminControlWork).length,hours=base.reduce((sum,row)=>sum+Number(row.horas_validas||0),0);
   $('admin-control-summary').textContent=scheduled+' jornadas programadas · '+hours.toFixed(1)+' h válidas';
+  const attCount=base.filter(row=>adminControlMatchesQueue(row,'attention')).length;
+  const revCount=base.filter(row=>adminControlMatchesQueue(row,'review')).length;
+  const doneCount=base.filter(row=>adminControlMatchesQueue(row,'done')).length;
+  const attVal=$('control-stat-attention-val');
+  if(attVal){attVal.textContent=attCount;const sub=$('control-stat-attention-sub');if(sub)sub.textContent='de '+base.length+' personas';}
+  const revVal=$('control-stat-review-val');
+  if(revVal){revVal.textContent=revCount;const sub=$('control-stat-review-sub');if(sub)sub.textContent=revCount===1?'entrega pendiente':'entregas pendientes';}
+  const doneVal=$('control-stat-done-val');
+  if(doneVal){doneVal.textContent=doneCount;const sub=$('control-stat-done-sub');if(sub)sub.textContent=doneCount===1?'jornada completa':'jornadas completadas';}
+  const hoursVal=$('control-stat-hours-val');
+  if(hoursVal){hoursVal.textContent=hours.toFixed(1)+' h';const sub=$('control-stat-hours-sub');if(sub)sub.textContent=scheduled+' programadas';}
+  if(typeof document!=='undefined'&&document.querySelectorAll){
+    document.querySelectorAll('.control-stat-card').forEach(card=>{
+      card.classList.toggle('is-active',card.dataset?.controlQueue===ADMIN_CONTROL_QUEUE);
+    });
+  }
   $('admin-control-result-count').textContent=rows.length+' de '+base.length+' personas'+(ADMIN_CONTROL_QUEUE==='attention'?' requieren seguimiento':'');
   $('admin-control-clear').hidden=!($('admin-control-search').value||$('admin-control-area').value||$('admin-control-state').value);
   $('admin-control-export').disabled=!rows.length||!!APP.adminControlLoading;
@@ -175,7 +385,23 @@ function renderAdminControl(){
   for(const row of rows){
     const state=adminControlState(row),step=adminControlNextStep(row),id=String(row.colaborador_id),expanded=ADMIN_CONTROL_EXPANDED===id;
     const review=Number(row.revision_pendiente)>0;
-    html+='<article class="control-case" data-person="'+esc(id)+'"><div class="control-case-row">'+
+    const isPending=adminControlNeedsAttention(row)||review;
+    const isDone=['completa','justificado'].includes(state.key);
+    const groupKey=isPending?(review?'review':'pending'):isDone?'done':'clear';
+    const groupLabel=groupKey==='review'
+      ?'Entrega por revisar'
+      :groupKey==='pending'
+      ?'Pendiente de atención'
+      :groupKey==='done'
+      ?'Jornada concluida'
+      :'Sin jornada programada';
+
+    html+='<article class="control-case situation-'+groupKey+'" data-person="'+esc(id)+'">'+
+      '<div class="control-case-situation-bar '+groupKey+'" title="Situación: '+groupLabel+'">'+
+        '<span class="control-situation-dot"></span>'+
+        '<span class="control-situation-text">'+groupLabel+'</span>'+
+      '</div>'+
+      '<div class="control-case-row">'+
       '<div class="control-person"><span class="control-avatar" aria-hidden="true">'+esc(initials(row.colaborador))+'</span><div><h3>'+esc(row.colaborador)+'</h3><p>'+esc(row.area||'Sin área')+(row.cierre?.modalidad?' · '+esc(cap(row.cierre.modalidad)):'')+'</p></div></div>'+
       '<div class="control-status"><span class="control-status-label '+state.tone+'"><i aria-hidden="true"></i>'+esc(state.label)+'</span></div>'+
       '<div class="control-next-step"><b>'+esc(step.title)+'</b><p>'+esc(step.copy)+'</p></div>'+
@@ -222,6 +448,14 @@ async function loadAdminControl(){
       const cierre=byClose.get(String(row.colaborador_id))||null;
       return {...row,cierre,cierre_estado:cierre?.estado||row.cierre_estado,impedimentos_disponibles:!issueError&&!!issueData?.ok,impedimentos:byIssue.get(String(row.colaborador_id))||[]};
     });
+    if(typeof hydrateProfilePhotos==='function'&&Array.isArray(data.filas)&&data.filas.length){
+      try{
+        const peopleList=data.filas.map(r=>({id:r.colaborador_id,nombre:r.colaborador}));
+        const hydrated=await hydrateProfilePhotos(peopleList);
+        const map=new Map(hydrated.map(p=>[String(p.id),p.foto_url]));
+        data.filas.forEach(r=>{r.foto_url=map.get(String(r.colaborador_id))||'';});
+      }catch(_e){}
+    }
     data.partial=!!(issueError||!issueData?.ok||closeError||!closeData?.ok);
     if(data.partial){ADMIN_CONTROL_CHART='';ADMIN_CONTROL_QUEUE='all';$('admin-control-state').value='';}
     APP.adminControl=data;APP.adminControlLoading=false;fillAdminControlAreas();renderAdminControl();
@@ -310,3 +544,18 @@ $('admin-control-table').onclick=event=>{
 
 $('admin-control-areas').onclick=event=>{const button=event.target.closest('[data-control-chart-area]');if(button)selectAdminControlArea(button.dataset.controlChartArea,button.dataset.controlChartState||'');};
 $('admin-control-chart-reset').onclick=()=>selectAdminControlArea('');
+const backAreasBtn=$('control-back-areas-btn');
+if(backAreasBtn)backAreasBtn.onclick=()=>selectAdminControlArea('');
+const statsGrid=$('control-stats-grid');
+if(statsGrid){
+  statsGrid.onclick=event=>{
+    const card=event.target.closest?.('[data-control-queue]');
+    if(!card)return;
+    ADMIN_CONTROL_CHART='';
+    ADMIN_CONTROL_QUEUE=card.dataset.controlQueue;
+    const stateEl=$('admin-control-state');
+    if(stateEl)stateEl.value='';
+    ADMIN_CONTROL_EXPANDED=null;
+    renderAdminControl();
+  };
+}

@@ -1,4 +1,13 @@
 /* Detalle diario: lectura operativa y revisión visual dentro del diálogo. */
+.md-facebook-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #cbd8e5}
+.md-facebook-actions p,.md-facebook-actions label,.md-facebook-actions [data-md-confirm]{width:100%;margin:0;font-size:12px;color:#213954}
+.md-facebook-actions button{min-height:36px;padding:7px 10px;border:1px solid #cbd8e5;border-radius:7px;background:#fff;color:#213954;font:inherit;cursor:pointer}
+.md-facebook-actions .md-remove-facebook,.md-facebook-actions [data-md-confirm-delete]{color:#a32b3d;border-color:#dbb8bf}
+.md-facebook-actions button:hover{background:#edf2f8}
+.md-facebook-actions button:disabled,.md-facebook-actions input:disabled{opacity:.6;cursor:wait}
+.md-facebook-actions input{display:block;width:100%;margin-top:8px;font:inherit}
+.md-facebook-actions [data-md-confirm] p{margin-bottom:8px}
+.md-facebook-actions [hidden]{display:none}
 #admin-month-modal.month-detail-modal .admin-month-sheet{width:min(1120px,calc(100vw - 40px));max-height:calc(100dvh - 40px);background:#f5f7fa;border:0;border-radius:18px;overflow:auto;scrollbar-color:#a8b5c4 transparent;box-shadow:0 28px 90px #091a3545}
 #admin-month-modal.month-detail-modal .admin-editor-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:14px;padding:18px 22px;background:#142c49;border-bottom:0}
 #admin-month-modal.month-detail-modal .admin-editor-head::before{content:attr(data-initials);display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:12px;background:#ffffff12;border:1px solid #ffffff26;color:#f4f7fc;font-size:17px;font-weight:650;letter-spacing:.02em}

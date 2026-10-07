@@ -371,8 +371,8 @@ body:has(#portal.admin-wide:not([hidden])) .kja-chat .chat-launcher:hover { back
 }
 @media (max-width: 900px) {
   #portal.admin-wide .workspace { padding-inline: 16px !important; background: #faf9f5 !important; }
-  #portal.admin-wide > .mobile-head { background: #f5f0e8; border-color: var(--claude-line); box-shadow: none; }
-  #portal.admin-wide > .mobile-head > button { color: #3d3d3a; background: #faf9f5; border-color: var(--claude-line); }
+  #portal.admin-wide > .mobile-head { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+  #portal.admin-wide #view-gestion > .admin-section-nav { display: none !important; }
   #portal.admin-wide #view-gestion .admin-view-head { min-height: 0; padding-block: 6px !important; margin-bottom: 6px !important; gap: 10px; }
   #portal.admin-wide #view-gestion .admin-view-head h1 { font-size: 29px !important; }
   #portal.admin-wide .mobile-admin-navigation { background: #f5f0e8; border-color: var(--claude-line); box-shadow: none; }

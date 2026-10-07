@@ -33,7 +33,9 @@ function renderAdminLeaveReview(){
   const items=ADMIN_LEAVE_REVIEW.items,first=items[0];if(!first)return;
   const host=$('admin-leave-review-days'),active=document.activeElement;
   const drafts=new Map([...host.querySelectorAll('[data-admin-personal-request]')].map(row=>[row.dataset.adminPersonalRequest,{
-    values:[...row.querySelectorAll('input')].map(input=>input.value),open:!!row.querySelector('details')?.open
+    values:[...row.querySelectorAll('input')].map(input=>input.value),
+    proposalDate:row.querySelector('[data-leave-proposal-date]')?.value||'',
+    open:!!row.querySelector('details')?.open
   }]));
   const focusedRow=active?.closest('[data-admin-personal-request]');
   const focusedId=focusedRow?.dataset.adminPersonalRequest;
@@ -42,7 +44,10 @@ function renderAdminLeaveReview(){
   const pending=items.filter(item=>item.estado==='pendiente').length;
   $('admin-leave-review-person').textContent=first.nombre||'Colaborador';
   $('admin-leave-review-copy').textContent=`${items.length} ${items.length===1?'día solicitado':'días solicitados'} · ${pending?`${pending} por revisar`:'Revisión completada'}`;
-  $('admin-leave-review-note').textContent=first.detalle||'Sin comentario';
+  const badge=$('admin-leave-review-badge');if(badge)badge.textContent=pending?`${pending} por revisar`:'Revisión completada';
+  const commentBox=$('admin-leave-comment-box'),commentText=(first.detalle||'').trim();
+  if(commentBox)commentBox.hidden=!commentText;
+  $('admin-leave-review-note').textContent=commentText||'Sin comentario';
   const evidence=items.find(item=>item.evidencia_path);
   $('admin-leave-evidence-open').hidden=!evidence;
   $('admin-leave-evidence-open').dataset.path=evidence?.evidencia_path||'';
@@ -51,6 +56,23 @@ function renderAdminLeaveReview(){
     const draft=drafts.get(row.dataset.adminPersonalRequest);if(!draft)return;
     row.querySelectorAll('input').forEach((input,index)=>input.value=draft.values[index]||'');
     const details=row.querySelector('details');if(details)details.open=draft.open;
+    if(draft.proposalDate){
+      const hiddenInput=row.querySelector('[data-leave-proposal-date]');
+      if(hiddenInput)hiddenInput.value=draft.proposalDate;
+      const widget=row.querySelector('.proposal-calendar-widget');
+      if(widget&&typeof renderProposalCalendarHtml==='function'){
+        widget.dataset.selected=draft.proposalDate;
+        const year=Number(widget.dataset.year),month=Number(widget.dataset.month);
+        widget.innerHTML=renderProposalCalendarHtml(year,month,draft.proposalDate,widget.dataset.original||'',widget.dataset.min,widget.dataset.max);
+      }
+      const pill=row.querySelector('[data-proposal-display]');
+      if(pill){
+        pill.classList.remove('empty');pill.classList.add('active');
+        const small=pill.querySelector('small'),b=pill.querySelector('[data-proposal-label]');
+        if(small)small.textContent='Fecha propuesta elegida:';
+        if(b&&typeof formatRequestDate==='function')b.textContent=formatRequestDate(draft.proposalDate);
+      }
+    }
   });
   if(focusWasInside){
     const row=[...host.querySelectorAll('[data-admin-personal-request]')].find(row=>row.dataset.adminPersonalRequest===focusedId);
@@ -72,6 +94,7 @@ function updateAdminLeaveDecision(id,approved,response){
 }
 
 function handleAdminRequestClick(event){
+  if(typeof handleProposalCalendarClick==='function'&&handleProposalCalendarClick(event))return;
   const group=event.target.closest('[data-leave-review]');if(group)return openAdminLeaveReview(Number(group.dataset.leaveReview),group);
   const proposal=event.target.closest('[data-leave-propose]');if(proposal&&!proposal.disabled)return proposeLeaveCounteroffer(proposal);
   const evidence=event.target.closest('[data-request-evidence]');if(evidence)return $('admin-leave-review').open?openLeaveEvidence(evidence.dataset.requestEvidence):openAdminStoredEvidence(evidence.dataset.requestEvidence,REQUEST_BUCKET);
@@ -91,22 +114,48 @@ $('admin-leave-review').addEventListener('close',()=>{
 
 let LEAVE_EVIDENCE_GENERATION=0;
 async function openLeaveEvidence(path){
-  const generation=++LEAVE_EVIDENCE_GENERATION,dialog=$('leave-evidence-viewer'),img=$('leave-evidence-image'),message=$('leave-evidence-message');
-  img.hidden=true;img.removeAttribute('src');message.textContent='Cargando comprobante…';
+  const generation=++LEAVE_EVIDENCE_GENERATION,dialog=$('leave-evidence-viewer'),img=$('leave-evidence-image'),message=$('leave-evidence-message'),loader=$('leave-evidence-loading-state'),link=$('leave-evidence-link');
+  img.hidden=true;img.removeAttribute('src');
+  if(link){link.hidden=true;link.removeAttribute('href');}
+  if(loader)loader.hidden=false;
+  message.textContent='Cargando comprobante…';
   if(!dialog.open)dialog.showModal();
   try{
-    const {data,error}=await db.storage.from(REQUEST_BUCKET).createSignedUrl(path,120);
+    const {data,error}=await db.storage.from(REQUEST_BUCKET).createSignedUrl(path,3600);
     if(generation!==LEAVE_EVIDENCE_GENERATION||!dialog.open)return;
     if(error||!data?.signedUrl)throw new Error('evidencia');
-    img.onload=()=>{if(generation===LEAVE_EVIDENCE_GENERATION){img.hidden=false;message.textContent='';}};
-    img.onerror=()=>{if(generation===LEAVE_EVIDENCE_GENERATION)message.textContent='No se pudo cargar la imagen. Cierra y vuelve a abrir el comprobante.';};
+    if(link){link.href=data.signedUrl;link.hidden=false;}
+    img.onload=()=>{
+      if(generation===LEAVE_EVIDENCE_GENERATION){
+        img.hidden=false;
+        if(loader)loader.hidden=true;
+        message.textContent='';
+      }
+    };
+    img.onerror=()=>{
+      if(generation===LEAVE_EVIDENCE_GENERATION){
+        if(loader)loader.hidden=false;
+        message.textContent='No se pudo cargar la imagen. Cierra y vuelve a abrir el comprobante.';
+      }
+    };
     img.src=data.signedUrl;
-  }catch{if(generation===LEAVE_EVIDENCE_GENERATION)message.textContent='No se pudo abrir el comprobante. Cierra e inténtalo nuevamente.';}
+  }catch{
+    if(generation===LEAVE_EVIDENCE_GENERATION){
+      if(loader)loader.hidden=false;
+      message.textContent='No se pudo abrir el comprobante. Cierra e inténtalo nuevamente.';
+    }
+  }
 }
 $('admin-leave-evidence-open').onclick=event=>openLeaveEvidence(event.currentTarget.dataset.path);
 document.addEventListener('click',event=>{if(event.target.closest('[data-open-leave-history]')){$('personal-leave-history-message').hidden=true;$('personal-leave-history').showModal();}});
 document.querySelectorAll('[data-close-personal-leave-history]').forEach(button=>button.onclick=()=>$('personal-leave-history').close());
 document.querySelectorAll('[data-close-leave-evidence]').forEach(button=>button.onclick=()=>$('leave-evidence-viewer').close());
-$('leave-evidence-viewer').addEventListener('close',()=>{LEAVE_EVIDENCE_GENERATION++;$('leave-evidence-image').removeAttribute('src');});
+$('leave-evidence-viewer').addEventListener('close',()=>{
+  LEAVE_EVIDENCE_GENERATION++;
+  $('leave-evidence-image').removeAttribute('src');
+  $('leave-evidence-image').hidden=true;
+  if($('leave-evidence-link'))$('leave-evidence-link').hidden=true;
+  if($('leave-evidence-loading-state'))$('leave-evidence-loading-state').hidden=false;
+});
 for(const id of ['personal-leave-history','leave-evidence-viewer'])$(id).addEventListener('keydown',event=>{if(event.key==='Escape')event.stopPropagation();});
 $('personal-leave-history').addEventListener('close',()=>document.querySelector('[data-open-leave-history]')?.focus());
