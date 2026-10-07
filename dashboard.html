@@ -14,10 +14,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=228">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=231">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=8">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
-<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=8">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=12">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
@@ -26,8 +26,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=15">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=9">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=16">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=11">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=55">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=13">
@@ -41,22 +41,22 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
   <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=26">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=15">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=16">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-loading.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-mobile.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-team-mobile.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-login.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-calendar.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-month-layout.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=3">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-control-refined.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=12">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-control-refined.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=7">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
 </head>
 <body>
 
@@ -204,11 +204,13 @@
     </div>
   </aside>
 
-  <header class="mobile-head">
-    <button id="menu-toggle" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-    <button class="mobile-back-home" id="mobile-back-home" type="button" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span>Inicio</span></button>
-    <img src="images/logo/logo.webp" alt="KJA">
-    <span class="avatar" id="mobile-avatar">KJ</span>
+  <header class="mobile-head" id="mobile-head">
+    <nav class="kja-mobile-bar" aria-label="Navegación móvil">
+      <button id="menu-toggle" class="kja-menu-toggle" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h10"/></svg></button>
+      <a class="kja-mobile-brand" href="dashboard.html" aria-label="KJA, inicio"><img src="images/logo/kja.webp" width="418" height="121" alt="KJA"></a>
+    </nav>
+    <button id="mobile-back-home" hidden style="display:none!important;" aria-hidden="true" tabindex="-1"></button>
+    <span class="avatar" id="mobile-avatar" hidden aria-hidden="true">KJ</span>
   </header>
   <div class="side-scrim" id="side-scrim"></div>
 
@@ -840,7 +842,138 @@
     </section>
 
     <section class="view cert-accounts" id="view-cert-cuentas" aria-labelledby="cert-accounts-title" hidden>
-      <header class="cert-accounts-head"><div><h1 id="cert-accounts-title">Cuentas de certificados</h1><p>Administra quién puede emitir certificados y la serie asignada a cada cuenta.</p></div><div class="cert-account-actions"><button type="button" id="cert-accounts-refresh">Actualizar</button><button type="button" class="cert-primary" id="cert-accounts-new">Nueva cuenta</button></div></header>
+      <header class="cert-accounts-head">
+        <div class="cert-head-brand">
+          <div class="cert-head-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="13" rx="2"/>
+              <path d="M7 8h10M7 11h6"/>
+              <circle cx="16" cy="17" r="3"/>
+              <path d="m14 19-1 3 3-1 3 1-1-3"/>
+            </svg>
+          </div>
+          <div class="cert-head-copy">
+            <h1 id="cert-accounts-title">Cuentas de certificados</h1>
+            <p>Administra quién puede emitir certificados y la serie asignada a cada cuenta.</p>
+          </div>
+        </div>
+        <div class="cert-account-actions">
+          <button type="button" id="cert-accounts-refresh" class="cert-btn-refresh">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6"/>
+              <path d="M19.9 11a8 8 0 0 0-14.8-3.4L2.5 16M21.5 8l-2.6 2.4A8 8 0 0 1 4.1 13"/>
+            </svg>
+            <span>Actualizar</span>
+          </button>
+          <button type="button" class="cert-primary" id="cert-accounts-new">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <line x1="12" y1="8" x2="12" y2="16"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            <span>Nueva cuenta</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="cert-stats-grid" id="cert-stats-grid">
+        <div class="cert-stat-card cert-stat-active">
+          <div class="cert-stat-icon-wrap is-green">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="cert-stat-info">
+            <span class="cert-stat-label">Cuentas activas</span>
+            <div class="cert-stat-val-row">
+              <strong class="cert-stat-value" id="cert-stat-active-val">0</strong>
+            </div>
+            <span class="cert-stat-sub" id="cert-stat-active-sub">de 0 cuentas</span>
+          </div>
+          <div class="cert-stat-chart">
+            <svg viewBox="0 0 48 32" class="cert-chart-bars is-green" aria-hidden="true">
+              <rect x="2" y="20" width="5" height="12" rx="2.5"/>
+              <rect x="11" y="14" width="5" height="18" rx="2.5"/>
+              <rect x="20" y="8" width="5" height="24" rx="2.5"/>
+              <rect x="29" y="12" width="5" height="20" rx="2.5"/>
+              <rect x="38" y="2" width="5" height="30" rx="2.5"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="cert-stat-card cert-stat-suspended">
+          <div class="cert-stat-icon-wrap is-red">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="6" y="4" width="4" height="16" rx="1"/>
+              <rect x="14" y="4" width="4" height="16" rx="1"/>
+            </svg>
+          </div>
+          <div class="cert-stat-info">
+            <span class="cert-stat-label">Cuentas suspendidas</span>
+            <div class="cert-stat-val-row">
+              <strong class="cert-stat-value" id="cert-stat-suspended-val">0</strong>
+            </div>
+            <span class="cert-stat-sub" id="cert-stat-suspended-sub">de 0 cuentas</span>
+          </div>
+          <div class="cert-stat-chart">
+            <svg viewBox="0 0 48 32" class="cert-chart-bars is-red" aria-hidden="true">
+              <rect x="2" y="22" width="5" height="10" rx="2.5"/>
+              <rect x="11" y="16" width="5" height="16" rx="2.5"/>
+              <rect x="20" y="10" width="5" height="22" rx="2.5"/>
+              <rect x="29" y="6" width="5" height="26" rx="2.5"/>
+              <rect x="38" y="14" width="5" height="18" rx="2.5"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="cert-stat-card cert-stat-series">
+          <div class="cert-stat-icon-wrap is-amber">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+          <div class="cert-stat-info">
+            <span class="cert-stat-label">Series asignadas</span>
+            <div class="cert-stat-val-row">
+              <strong class="cert-stat-value" id="cert-stat-series-val">0</strong>
+            </div>
+            <span class="cert-stat-sub">en total</span>
+          </div>
+          <div class="cert-stat-chart">
+            <svg viewBox="0 0 64 32" class="cert-chart-curve is-amber" aria-hidden="true">
+              <path d="M2 24 C 18 24, 24 16, 36 18 C 48 20, 52 8, 62 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="cert-stat-card cert-stat-collaborators">
+          <div class="cert-stat-icon-wrap is-teal">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="cert-stat-info">
+            <span class="cert-stat-label">Colaboradores</span>
+            <div class="cert-stat-val-row">
+              <strong class="cert-stat-value" id="cert-stat-collab-val">0</strong>
+            </div>
+            <span class="cert-stat-sub">cuentas registradas</span>
+          </div>
+          <div class="cert-stat-chart">
+            <svg viewBox="0 0 64 32" class="cert-chart-curve is-teal" aria-hidden="true">
+              <path d="M2 26 C 20 26, 28 20, 40 16 C 50 12, 54 8, 62 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
       <div id="cert-accounts-message" role="status" aria-live="polite"></div>
       <form id="cert-password-form" class="cert-account-editor" hidden aria-labelledby="cert-password-title">
         <header><h2 id="cert-password-title">Cambiar contraseña</h2><button type="button" id="cert-password-cancel">Cancelar</button></header>
@@ -870,15 +1003,48 @@
           <label>Correo de acceso<input type="email" id="cert-account-email" required autocomplete="off"></label>
           <label>Rol<select id="cert-account-role"><option value="colaborador">Colaborador · emite certificados</option><option value="admin">Administrador · gestiona certificados</option></select></label>
           <label>Serie de numeración<input type="number" id="cert-account-series" list="cert-series-options" min="1000" max="2147482000" step="1000" placeholder="Elige una serie libre"><datalist id="cert-series-options"></datalist><small id="cert-series-help">Las series de cuentas suspendidas siguen reservadas.</small></label>
-          <div id="cert-account-password-field"><label for="cert-account-password">Contraseña inicial</label><div class="cert-password-control"><input type="password" id="cert-account-password" minlength="12" autocomplete="new-password" aria-describedby="cert-password-help"><button type="button" id="cert-account-password-toggle" aria-label="Mostrar contraseña" aria-controls="cert-account-password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="cert-eye-slash" d="m3 3 18 18"/></svg></button></div><small id="cert-password-help">Mínimo 12 caracteres. Si el correo ya tiene una cuenta, conservará su contraseña actual.</small></div>
+          <div id="cert-account-password-field"><label for="cert-account-password">Contraseña inicial</label><div class="cert-password-control"><input type="password" id="cert-account-password" minlength="12" autocomplete="new-password" aria-describedby="cert-password-help"><button type="button" id="cert-account-password-toggle" aria-label="Mostrar contraseña" aria-controls="cert-account-password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="3" r="3"/><path class="cert-eye-slash" d="m3 3 18 18"/></svg></button></div><small id="cert-password-help">Mínimo 12 caracteres. Si el correo ya tiene una cuenta, conservará su contraseña actual.</small></div>
         </div>
         <p>Este rol solo corresponde al módulo de certificados.</p>
         <div id="cert-account-form-message" role="status" aria-live="polite"></div>
         <button type="submit" class="cert-primary" id="cert-account-save">Crear cuenta</button>
       </form>
-      <div class="cert-account-toolbar"><label>Buscar cuentas<input type="search" id="cert-account-search" placeholder="Nombre o correo"></label><label class="cert-suspended-toggle"><input type="checkbox" id="cert-account-show-suspended"><span>Mostrar usuarios suspendidos</span></label><span id="cert-account-count" role="status" aria-live="polite"></span></div>
+      <div class="cert-account-toolbar">
+        <div class="cert-search-col">
+          <label for="cert-account-search">Buscar cuentas</label>
+          <div class="cert-search-box">
+            <svg viewBox="0 0 24 24" class="cert-search-icon" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="search" id="cert-account-search" placeholder="Nombre o correo" autocomplete="off">
+          </div>
+        </div>
+        <label class="cert-suspended-toggle"><input type="checkbox" id="cert-account-show-suspended"><span>Mostrar usuarios suspendidos</span></label>
+        <span id="cert-account-count" role="status" aria-live="polite"></span>
+      </div>
       <div id="cert-account-list" class="cert-account-list"></div>
       <p class="cert-account-note">La suspensión dura hasta que pulses Reactivar. Conserva los certificados emitidos y no modifica el acceso a asistencia.</p>
+      <div class="modal cert-confirm-modal" id="cert-confirm-modal" hidden>
+        <button class="modal-backdrop" type="button" id="cert-confirm-backdrop" aria-label="Cancelar confirmación" tabindex="-1"></button>
+        <section class="cert-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="cert-confirm-title" aria-describedby="cert-confirm-desc">
+          <div class="cert-confirm-icon-wrap is-danger" id="cert-confirm-icon-wrap" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <div class="cert-confirm-copy">
+            <h3 id="cert-confirm-title">¿Suspender acceso?</h3>
+            <p id="cert-confirm-desc">¿Confirmar esta acción?</p>
+          </div>
+          <footer class="cert-confirm-actions">
+            <button type="button" class="cert-confirm-cancel" id="cert-confirm-cancel">Cancelar</button>
+            <button type="button" class="cert-confirm-ok cert-btn-danger" id="cert-confirm-ok">Confirmar</button>
+          </footer>
+        </section>
+      </div>
     </section>
     <section class="view admin-view" id="view-gestion" aria-label="Gestión de asistencia" hidden>
 
@@ -943,27 +1109,198 @@
 
       <section class="admin-control-section" id="admin-control-section" aria-labelledby="admin-control-title" hidden>
         <header class="control-heading">
-          <div><h2 id="admin-control-title">Control diario</h2><p id="admin-control-summary" aria-live="polite">Consultando la jornada…</p></div>
-          <div class="control-tools">
-            <button type="button" id="admin-control-export" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5"/></svg>Exportar vista</button>
-            <button type="button" id="admin-pausas-open-btn" class="admin-pausas-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pausas activas</button>
+          <div class="control-head-brand">
+            <div class="control-head-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+                <path d="m9 16 2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="control-head-copy">
+              <h2 id="admin-control-title">Control diario</h2>
+              <p id="admin-control-summary" aria-live="polite">Consultando la jornada…</p>
+            </div>
+          </div>
+          <div class="control-heading-actions">
+            <div class="control-datebar">
+              <div class="control-date-navigation">
+                <button type="button" id="admin-control-prev" aria-label="Día anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
+                <label><span class="sr-only">Fecha del control diario</span><input type="date" id="admin-control-date"></label>
+                <button type="button" id="admin-control-next" aria-label="Día siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
+                <button type="button" id="admin-control-today">Hoy</button>
+              </div>
+            </div>
+            <div class="control-tools">
+              <button type="button" id="admin-control-export" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5"/></svg>Exportar vista</button>
+              <button type="button" id="admin-pausas-open-btn" class="admin-pausas-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pausas activas</button>
+            </div>
           </div>
         </header>
-        <div class="control-datebar">
-          <div class="control-date-navigation"><button type="button" id="admin-control-prev" aria-label="Día anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button><label><span class="sr-only">Fecha del control diario</span><input type="date" id="admin-control-date"></label><button type="button" id="admin-control-next" aria-label="Día siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button><button type="button" id="admin-control-today">Hoy</button></div>
-        </div>
-        <section class="control-area-overview" aria-labelledby="control-area-title"><header><div><h3 id="control-area-title">Seguimiento por área</h3><p id="admin-control-chart-selection">Pulsa una barra para ver sus personas</p></div><div class="control-area-legend"><span class="pending">Pendientes</span><span class="review">Por revisar</span><span class="done">Concluidas</span><span class="clear">Sin pendientes</span></div><button type="button" id="admin-control-chart-reset" hidden>Ver todas</button></header><div id="admin-control-areas" aria-label="Distribución de personas por área"><p class="control-area-empty">Consultando las áreas…</p></div><p class="control-area-footnote">Cada persona aparece una vez. Por revisar tiene prioridad; sin pendientes no significa jornada completada. Vista general de la fecha, independiente de la búsqueda.</p></section>
-        <div class="control-workspace">
-          <div class="control-queues" id="admin-control-kpis" role="group" aria-label="Bandejas de seguimiento"></div>
-          <div class="control-filters">
-            <label class="control-search"><span class="sr-only">Buscar colaborador</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input type="search" id="admin-control-search" placeholder="Buscar persona o área"></label>
-            <label><span class="sr-only">Filtrar por área</span><select id="admin-control-area"><option value="">Todas las áreas</option></select></label>
-            <label><span class="sr-only">Filtrar por situación</span><select id="admin-control-state"><option value="">Cualquier pendiente</option><option value="sin_entrada">Sin entrada</option><option value="evidencias">Faltan evidencias</option><option value="impedimento">Impedimento informado</option><option value="revision">Por revisar</option><option value="observada">Con correcciones</option><option value="sin_salida">Sin salida</option><option value="incompleta">Jornada incompleta</option><option value="completa">Jornada completa</option><option value="justificado">Justificada</option><option value="no_aplica">No labora</option></select></label>
-            <button type="button" id="admin-control-clear" hidden>Limpiar</button>
+
+        <div class="cert-stats-grid control-stats-grid" id="control-stats-grid">
+          <div class="cert-stat-card control-stat-card" data-control-queue="attention">
+            <div class="cert-stat-icon-wrap is-red">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div class="cert-stat-info">
+              <span class="cert-stat-label">Por atender</span>
+              <div class="cert-stat-val-row">
+                <strong class="cert-stat-value" id="control-stat-attention-val">0</strong>
+              </div>
+              <span class="cert-stat-sub" id="control-stat-attention-sub">requieren seguimiento</span>
+            </div>
+            <div class="cert-stat-chart">
+              <svg viewBox="0 0 48 32" class="cert-chart-bars is-red" aria-hidden="true">
+                <rect x="2" y="22" width="5" height="10" rx="2.5"/>
+                <rect x="11" y="16" width="5" height="16" rx="2.5"/>
+                <rect x="20" y="10" width="5" height="22" rx="2.5"/>
+                <rect x="29" y="6" width="5" height="26" rx="2.5"/>
+                <rect x="38" y="14" width="5" height="18" rx="2.5"/>
+              </svg>
+            </div>
           </div>
-          <div class="control-list-meta"><span id="admin-control-result-count" role="status">—</span><label>Ordenar por <select id="admin-control-sort"><option value="priority">Prioridad</option><option value="name">Nombre</option><option value="area">Área</option></select></label></div>
-          <p class="admin-list-message" id="admin-control-message" role="status" aria-live="polite"></p>
-          <div class="control-case-list" id="admin-control-table" aria-busy="true"><p class="admin-empty">Preparando el control diario…</p></div>
+
+          <div class="cert-stat-card control-stat-card" data-control-queue="review">
+            <div class="cert-stat-icon-wrap is-amber">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </div>
+            <div class="cert-stat-info">
+              <span class="cert-stat-label">Por revisar</span>
+              <div class="cert-stat-val-row">
+                <strong class="cert-stat-value" id="control-stat-review-val">0</strong>
+              </div>
+              <span class="cert-stat-sub" id="control-stat-review-sub">entregas pendientes</span>
+            </div>
+            <div class="cert-stat-chart">
+              <svg viewBox="0 0 64 32" class="cert-chart-curve is-amber" aria-hidden="true">
+                <path d="M2 24 C 18 24, 24 16, 36 18 C 48 20, 52 8, 62 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="cert-stat-card control-stat-card" data-control-queue="done">
+            <div class="cert-stat-icon-wrap is-green">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div class="cert-stat-info">
+              <span class="cert-stat-label">Concluidas</span>
+              <div class="cert-stat-val-row">
+                <strong class="cert-stat-value" id="control-stat-done-val">0</strong>
+              </div>
+              <span class="cert-stat-sub" id="control-stat-done-sub">jornadas completadas</span>
+            </div>
+            <div class="cert-stat-chart">
+              <svg viewBox="0 0 48 32" class="cert-chart-bars is-green" aria-hidden="true">
+                <rect x="2" y="20" width="5" height="12" rx="2.5"/>
+                <rect x="11" y="14" width="5" height="18" rx="2.5"/>
+                <rect x="20" y="8" width="5" height="24" rx="2.5"/>
+                <rect x="29" y="12" width="5" height="20" rx="2.5"/>
+                <rect x="38" y="2" width="5" height="30" rx="2.5"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="cert-stat-card control-stat-card" data-control-queue="all">
+            <div class="cert-stat-icon-wrap is-teal">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="cert-stat-info">
+              <span class="cert-stat-label">Horas válidas</span>
+              <div class="cert-stat-val-row">
+                <strong class="cert-stat-value" id="control-stat-hours-val">0.0 h</strong>
+              </div>
+              <span class="cert-stat-sub" id="control-stat-hours-sub">0 programadas</span>
+            </div>
+            <div class="cert-stat-chart">
+              <svg viewBox="0 0 64 32" class="cert-chart-curve is-teal" aria-hidden="true">
+                <path d="M2 26 C 20 26, 28 20, 40 16 C 50 12, 54 8, 62 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-split-wrap" id="control-split-wrap" data-split="false">
+          <section class="control-area-overview" id="control-area-overview" aria-labelledby="control-area-title">
+            <header>
+              <div class="control-area-head-main">
+                <button type="button" class="control-back-areas-btn" id="control-back-areas-btn" hidden title="Volver a la cuadrícula de todas las áreas">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                  <span>Ver todas las áreas</span>
+                </button>
+                <div class="control-area-titles">
+                  <h3 id="control-area-title">Seguimiento por área</h3>
+                  <p id="admin-control-chart-selection">Pulsa una tarjeta para ver sus personas</p>
+                </div>
+              </div>
+              <div class="control-area-legend">
+                <span class="pending">Pendientes</span>
+                <span class="review">Por revisar</span>
+                <span class="done">Concluidas</span>
+                <span class="clear">Sin pendientes</span>
+              </div>
+              <button type="button" id="admin-control-chart-reset" hidden>Ver todas</button>
+            </header>
+            <div id="admin-control-areas" aria-label="Distribución de personas por área">
+              <p class="control-area-empty">Consultando las áreas…</p>
+            </div>
+            <p class="control-area-footnote">Cada persona aparece una vez. Por revisar tiene prioridad; sin pendientes no significa jornada completada. Vista general de la fecha, independiente de la búsqueda.</p>
+          </section>
+
+          <div class="control-workspace" id="control-workspace">
+            <div class="control-selected-area-banner" id="control-selected-area-banner" hidden>
+              <div class="control-selected-area-info">
+                <span class="control-selected-area-icon" id="control-selected-area-icon" aria-hidden="true">👥</span>
+                <div>
+                  <h3 id="control-selected-area-title">Área seleccionada</h3>
+                  <p id="control-selected-area-sub">Vista de colaboradores por estado</p>
+                </div>
+              </div>
+              <div class="control-selected-area-badges" id="control-selected-area-badges">
+                <!-- Badges de estado del área -->
+              </div>
+            </div>
+
+            <div class="control-workspace-head">
+              <div class="control-queues" id="admin-control-kpis" role="group" aria-label="Bandejas de seguimiento"></div>
+              <div class="control-list-meta">
+                <span id="admin-control-result-count" role="status">—</span>
+                <label>Ordenar por <select id="admin-control-sort"><option value="priority">Prioridad</option><option value="name">Nombre</option><option value="area">Área</option></select></label>
+              </div>
+            </div>
+            <div class="control-filters">
+              <div class="control-search-wrap">
+                <label class="control-search">
+                  <span class="sr-only">Buscar colaborador</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+                  <input type="search" id="admin-control-search" placeholder="Buscar persona o área" autocomplete="off">
+                </label>
+              </div>
+              <label class="control-select-label"><span class="sr-only">Filtrar por área</span><select id="admin-control-area"><option value="">Todas las áreas</option></select></label>
+              <label class="control-select-label"><span class="sr-only">Filtrar por situación</span><select id="admin-control-state"><option value="">Cualquier pendiente</option><option value="sin_entrada">Sin entrada</option><option value="evidencias">Faltan evidencias</option><option value="impedimento">Impedimento informado</option><option value="revision">Por revisar</option><option value="observada">Con correcciones</option><option value="sin_salida">Sin salida</option><option value="incompleta">Jornada incompleta</option><option value="completa">Jornada completa</option><option value="justificado">Justificada</option><option value="no_aplica">No labora</option></select></label>
+              <button type="button" id="admin-control-clear" hidden>Limpiar</button>
+            </div>
+            <p class="admin-list-message" id="admin-control-message" role="status" aria-live="polite"></p>
+            <div class="control-case-list" id="admin-control-table" aria-busy="true"><p class="admin-empty">Preparando el control diario…</p></div>
+          </div>
         </div>
       </section>
 
@@ -1445,7 +1782,7 @@
         <img src="images/dashboard/dias_libres.png" alt="Tienes días libres. Disfruta tu tiempo, lo mereces." loading="lazy" width="1254" height="1254">
         <span class="rail-days-off-content">
           <b id="rail-days-off-balance">Tus días libres</b>
-          <span class="rail-days-off-copy">Elige un día de martes a viernes y solicita la aprobación de Dirección.</span>
+          <span class="rail-days-off-copy">Elige un día de martes a jueves y solicita la aprobación de Dirección.</span>
           <span class="rail-days-off-action"><span>Elegir mi día</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
         </span>
       </button>
@@ -2018,7 +2355,7 @@
           </span>
           <span class="day-off-badge-schedule">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            <span>Martes a Viernes</span>
+            <span>Martes a Jueves</span>
           </span>
         </div>
         <h2 class="day-off-hero-heading">Elige tus días libres</h2>
@@ -2098,7 +2435,7 @@
           </header>
           <div class="request-calendar-weekdays" aria-hidden="true"><span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span></div>
           <div class="request-calendar-grid" id="request-calendar-grid"></div>
-          <div class="leave-calendar-legend" aria-label="Leyenda del calendario"><span><i class="available" aria-hidden="true"></i>Disponible</span><span><i class="selected" aria-hidden="true"></i>Elegido</span><span><i class="unavailable" aria-hidden="true"></i>No disponible</span></div>
+          <div class="leave-calendar-legend" aria-label="Leyenda del calendario"><span><i class="available" aria-hidden="true"></i>Disponible</span><span><i class="selected" aria-hidden="true"></i>Elegido</span><span><i class="pending" aria-hidden="true"></i>Pendiente</span><span><i class="unavailable" aria-hidden="true"></i>No disponible</span></div>
           <footer><button type="button" id="request-calendar-today">Ir a hoy</button><small id="request-calendar-help">Elige una fecha disponible</small></footer>
         </section>
       </div>
@@ -2268,22 +2605,98 @@
   <p id="personal-leave-history-message" role="status" hidden></p>
   <div id="personal-leave-history-content"></div>
 </dialog>
-<dialog id="leave-evidence-viewer" class="admin-leave-review" aria-labelledby="leave-evidence-title">
-  <header><h2 id="leave-evidence-title">Comprobante de solicitud previa</h2><button type="button" data-close-leave-evidence aria-label="Cerrar comprobante">×</button></header>
-  <p id="leave-evidence-message" role="status"></p>
-  <img id="leave-evidence-image" alt="Comprobante adjunto a la solicitud de días libres" hidden>
+<dialog id="leave-evidence-viewer" class="leave-evidence-viewer-modal" aria-labelledby="leave-evidence-title">
+  <div class="leave-evidence-sheet">
+    <header class="leave-evidence-header">
+      <div class="leave-evidence-header-info">
+        <span class="leave-evidence-badge">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          EVIDENCIA ADJUNTA
+        </span>
+        <h2 id="leave-evidence-title">Comprobante de solicitud previa</h2>
+      </div>
+      <div class="leave-evidence-header-actions">
+        <a id="leave-evidence-link" class="leave-evidence-btn-link" target="_blank" rel="noopener noreferrer" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
+          Abrir en pestaña nueva
+        </a>
+        <button type="button" class="leave-evidence-close-btn" data-close-leave-evidence aria-label="Cerrar comprobante">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </header>
+    <div class="leave-evidence-canvas">
+      <div id="leave-evidence-loading-state" class="leave-evidence-loader">
+        <div class="leave-evidence-spinner"></div>
+        <p id="leave-evidence-message" role="status">Cargando comprobante…</p>
+      </div>
+      <div class="leave-evidence-img-wrap">
+        <img id="leave-evidence-image" alt="Comprobante adjunto a la solicitud de días libres" hidden>
+      </div>
+    </div>
+    <footer class="leave-evidence-footer">
+      <span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        Fotografía adjunta por el colaborador para validar su derecho al descanso.
+      </span>
+      <button type="button" class="leave-evidence-footer-btn" data-close-leave-evidence>Cerrar vista</button>
+    </footer>
+  </div>
 </dialog>
 <dialog id="admin-leave-review" class="admin-leave-review" aria-labelledby="admin-leave-review-title" aria-describedby="admin-leave-review-copy">
-  <header><div><h2 id="admin-leave-review-title">Solicitud de días libres</h2><p id="admin-leave-review-person"></p></div><button type="button" data-close-leave-review aria-label="Cerrar solicitud">×</button></header>
-  <p id="admin-leave-review-copy" role="status"></p>
-  <p id="admin-leave-review-note" class="leave-review-note"></p>
-  <button type="button" id="admin-leave-evidence-open" hidden>Ver comprobante de solicitud previa</button>
+  <button type="button" class="modal-close" data-close-leave-review aria-label="Cerrar solicitud">×</button>
+  <div class="admin-leave-hero">
+    <div class="admin-leave-hero-content">
+      <div class="day-off-hero-badges">
+        <span class="day-off-badge-status">
+          <i class="day-off-badge-dot"></i>
+          <span>DIRECCIÓN · DÍAS LIBRES</span>
+        </span>
+        <span class="day-off-badge-schedule">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span id="admin-leave-review-badge">Revisión de solicitud</span>
+        </span>
+      </div>
+      <div class="admin-leave-hero-title-row">
+        <h2 class="day-off-hero-heading" id="admin-leave-review-title">Solicitud de días libres</h2>
+        <div class="admin-leave-hero-person">
+          <span class="admin-leave-hero-avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <b id="admin-leave-review-person">Colaborador</b>
+        </div>
+      </div>
+      <p id="admin-leave-review-copy" class="day-off-hero-text" role="status">Cargando fechas solicitadas…</p>
+    </div>
+    <div class="day-off-hero-art">
+      <img src="images/dashboard/day-off-rest.png" alt="Revisión de días libres" class="day-off-hero-img" width="140" height="130" loading="eager" decoding="async">
+    </div>
+  </div>
+  <div class="admin-leave-support-bar">
+    <div class="admin-leave-note-box" id="admin-leave-comment-box">
+      <div class="admin-leave-note-header">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Motivo o comentario del colaborador</span>
+      </div>
+      <p id="admin-leave-review-note" class="leave-review-note">Sin comentario</p>
+    </div>
+    <button type="button" id="admin-leave-evidence-open" class="admin-leave-evidence-btn" hidden>
+      <span class="evidence-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </span>
+      <span class="evidence-btn-text">
+        <b>Comprobante de solicitud previa</b>
+        <small>Ver evidencia adjunta del colaborador →</small>
+      </span>
+      <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
   <p id="admin-leave-review-message" role="status" aria-live="polite" hidden></p>
   <div id="admin-leave-review-days" class="admin-request-list"></div>
   <footer><span>Puedes decidir cada fecha por separado.</span><button type="button" data-close-leave-review>Listo</button></footer>
 </dialog>
 <script src="assets/js/dashboard.js?v=245"></script>
-<script src="assets/js/dashboard-cert-accounts.js?v=6"></script>
+<script src="assets/js/dashboard-cert-accounts.js?v=8"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
@@ -2296,13 +2709,13 @@
 <script src="assets/js/dashboard-person-attendance.js?v=2"></script>
 <script src="assets/js/dashboard-person-profile.js?v=4"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=3"></script>
-<script src="assets/js/dashboard-month-day-detail.js?v=3"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=15"></script>
+<script src="assets/js/dashboard-month-day-detail.js?v=4"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=16"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=6"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=41"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=42"></script>
 <script src="assets/js/dashboard-assignments.js?v=7"></script>
-<script src="assets/js/dashboard-admin-control.js?v=10"></script>
+<script src="assets/js/dashboard-admin-control.js?v=16"></script>
 <script src="assets/js/marketing-model.js?v=3"></script>
 <script src="assets/js/dashboard-marketing.js?v=6"></script>
 <script src="assets/js/chat-images.js?v=3"></script>

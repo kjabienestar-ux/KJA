@@ -6,8 +6,331 @@
   /* El ambiente no debe igualar las capas del drawer y su fondo oscuro. */
   #portal>.workspace{position:relative;z-index:1}
   #portal>.mobile-head{z-index:35}
-  #portal>.side-scrim{z-index:40}
-  #portal>.sidebar{z-index:50;top:var(--mobile-visible-top,0px);background:#fff}
+
+  /* Drawer Scrim: desenfoque suave del contenido de fondo */
+  #portal > .side-scrim {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 45 !important;
+    display: block !important;
+    background: rgba(15, 23, 42, 0.45) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    backdrop-filter: blur(6px) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 220ms ease !important;
+  }
+  #portal > .side-scrim.show {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Drawer Sidebar: flotante, limpio, estético, sin saturación ni manchas por transparencia */
+  #portal .sidebar,
+  #portal.admin-wide .sidebar {
+    position: fixed !important;
+    z-index: 50 !important;
+    inset: max(10px, env(safe-area-inset-top, 10px)) auto max(12px, env(safe-area-inset-bottom, 12px)) max(10px, env(safe-area-inset-left, 10px)) !important;
+    width: min(300px, calc(100vw - 36px)) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 20px) !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 16px 14px 12px !important;
+    border-radius: 26px !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 20px 48px -10px rgba(15, 30, 55, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.03) !important;
+    transform: translateX(calc(-100% - 24px)) !important;
+    transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #portal .sidebar.open,
+  #portal.admin-wide .sidebar.open {
+    transform: translateX(0) !important;
+  }
+  #portal .sidebar::before,
+  #portal .sidebar::after,
+  #portal.admin-wide .sidebar::before,
+  #portal.admin-wide .sidebar::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Drawer Brand Header */
+  #portal .sidebar .side-brand,
+  #portal.admin-wide .sidebar .side-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 11px !important;
+    height: auto !important;
+    min-height: 42px !important;
+    padding: 2px 4px 12px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    margin-bottom: 6px !important;
+    color: #0f172a !important;
+  }
+  #portal .sidebar .side-brand img,
+  #portal.admin-wide .sidebar .side-brand img {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 4px !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
+    object-fit: contain !important;
+  }
+  #portal .sidebar .side-brand span,
+  #portal.admin-wide .sidebar .side-brand span {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.015em !important;
+  }
+  #portal .sidebar .side-brand b,
+  #portal.admin-wide .sidebar .side-brand b {
+    font-weight: 800 !important;
+    color: #004fb0 !important;
+  }
+  #portal .sidebar .sidebar-collapse-toggle,
+  #portal.admin-wide .sidebar .sidebar-collapse-toggle {
+    display: none !important;
+  }
+
+  /* Mantener la visibilidad por rol por encima de los estilos del drawer. */
+  #portal .sidebar .side-nav > [hidden],
+  #portal.admin-wide .sidebar .side-nav > [hidden] {
+    display: none !important;
+  }
+
+  /* Drawer Nav Section */
+  #portal .sidebar .side-nav,
+  #portal.admin-wide .sidebar .side-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    margin-top: 4px !important;
+    flex: 1 1 auto !important;
+  }
+  #portal .sidebar .side-nav-divider,
+  #portal.admin-wide .sidebar .side-nav-divider {
+    display: block !important;
+    padding: 12px 10px 4px !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+  }
+  #portal .sidebar .side-nav button,
+  #portal.admin-wide .sidebar .side-nav button {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    height: auto !important;
+    padding: 9px 12px !important;
+    border-radius: 13px !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    color: #475569 !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    text-align: left !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease !important;
+  }
+  #portal .sidebar .side-nav button svg,
+  #portal.admin-wide .sidebar .side-nav button svg {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+    color: #64748b !important;
+    transition: color 150ms ease !important;
+  }
+  #portal .sidebar .side-nav button:hover,
+  #portal.admin-wide .sidebar .side-nav button:hover,
+  #portal .sidebar .side-nav button:focus-visible,
+  #portal.admin-wide .sidebar .side-nav button:focus-visible {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
+  #portal .sidebar .side-nav button:hover svg,
+  #portal.admin-wide .sidebar .side-nav button:hover svg {
+    color: #0f172a !important;
+  }
+
+  /* Drawer Active Item: suave, premium, color corporativo KJA, sin rayas ni manchas */
+  #portal .sidebar .side-nav button.active,
+  #portal.admin-wide .sidebar .side-nav button.active {
+    background: #edf5ff !important;
+    border-color: rgba(0, 79, 176, 0.12) !important;
+    color: #004fb0 !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(0, 79, 176, 0.08) !important;
+  }
+  #portal .sidebar .side-nav button.active::before,
+  #portal .sidebar .side-nav button.active::after,
+  #portal.admin-wide .sidebar .side-nav button.active::before,
+  #portal.admin-wide .sidebar .side-nav button.active::after {
+    display: none !important;
+    content: none !important;
+  }
+  #portal .sidebar .side-nav button.active svg,
+  #portal.admin-wide .sidebar .side-nav button.active svg {
+    color: #004fb0 !important;
+  }
+
+  /* Drawer Help Card */
+  #portal .sidebar .side-help,
+  #portal.admin-wide .sidebar .side-help {
+    margin-top: auto !important;
+    padding: 12px 13px !important;
+    border-radius: 14px !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    margin-bottom: 8px !important;
+  }
+  #portal .sidebar .side-help-heading,
+  #portal.admin-wide .sidebar .side-help-heading {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    margin-bottom: 5px !important;
+  }
+  #portal .sidebar .side-help-heading svg,
+  #portal.admin-wide .sidebar .side-help-heading svg {
+    width: 15px !important;
+    height: 15px !important;
+    color: #0284c7 !important;
+    flex-shrink: 0 !important;
+  }
+  #portal .sidebar .side-help-heading span,
+  #portal.admin-wide .sidebar .side-help-heading span {
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+  }
+  #portal .sidebar .side-help a,
+  #portal.admin-wide .sidebar .side-help a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    color: #0284c7 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: color 150ms ease !important;
+  }
+  #portal .sidebar .side-help a svg,
+  #portal.admin-wide .sidebar .side-help a svg {
+    width: 14px !important;
+    height: 14px !important;
+    color: currentColor !important;
+    transition: transform 150ms ease !important;
+  }
+  #portal .sidebar .side-help a:hover,
+  #portal.admin-wide .sidebar .side-help a:hover {
+    color: #0369a1 !important;
+  }
+  #portal .sidebar .side-help a:hover svg,
+  #portal.admin-wide .sidebar .side-help a:hover svg {
+    transform: translateX(2px) !important;
+  }
+
+  /* Drawer User Footer */
+  #portal .sidebar .side-user,
+  #portal.admin-wide .sidebar .side-user {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 4px 2px !important;
+    border-top: 1px solid #f1f5f9 !important;
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+  #portal .sidebar .side-user .avatar,
+  #portal.admin-wide .sidebar .side-user .avatar {
+    width: 36px !important;
+    height: 36px !important;
+    flex-shrink: 0 !important;
+    border-radius: 11px !important;
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe) !important;
+    color: #3730a3 !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    border: 1px solid rgba(99, 102, 241, 0.2) !important;
+    box-shadow: none !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+  #portal .sidebar .side-user-copy,
+  #portal.admin-wide .sidebar .side-user-copy {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  #portal .sidebar .side-user b,
+  #portal.admin-wide .sidebar .side-user b {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #0f172a !important;
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  #portal .sidebar .side-user small,
+  #portal.admin-wide .sidebar .side-user small {
+    font-size: 11px !important;
+    color: #64748b !important;
+    font-weight: 400 !important;
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    margin-top: 1px !important;
+  }
+  #portal .sidebar .side-user button#logout,
+  #portal.admin-wide .sidebar .side-user button#logout {
+    width: 34px !important;
+    height: 34px !important;
+    flex-shrink: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 10px !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #64748b !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    transition: all 150ms ease !important;
+  }
+  #portal .sidebar .side-user button#logout svg,
+  #portal.admin-wide .sidebar .side-user button#logout svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+  #portal .sidebar .side-user button#logout:hover,
+  #portal.admin-wide .sidebar .side-user button#logout:hover {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    border-color: #fecaca !important;
+  }
+
   body[data-mobile-menu-open=true]{overflow:hidden}
   body[data-mobile-menu-open=true] .kja-chat{visibility:hidden;pointer-events:none}
   /* En móvil el contenido crece en el documento, sin filas de viewport. */
@@ -28,16 +351,15 @@
   #portal .view:not(#view-inicio){padding-inline:0}
   #portal .view>header{gap:12px;flex-wrap:wrap}
   #portal #view-gestion>.admin-view-head h1{white-space:normal;overflow-wrap:anywhere;font-size:22px!important}
-  #portal .sidebar{height:var(--mobile-visible-height,100dvh);min-height:0;padding-bottom:max(20px,env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}
-  #portal .side-nav{margin-top:20px}
-  #portal .side-user{flex-shrink:0}
   #portal .mobile-portal-home{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
   #portal .mobile-profile-copy,#portal .mobile-quick-grid button>span{min-width:0;overflow-wrap:anywhere}
   #portal .mobile-quick-grid button b,#portal .mobile-quick-grid button small{white-space:normal}
 
   /* Cada sección administrativa queda a un toque, sin perder las restricciones de rol. */
-  #view-gestion.has-mobile-admin-nav>.admin-section-nav{display:flex;justify-content:flex-end;margin:0 0 12px;padding:0;border:0;background:transparent;box-shadow:none}
-  #view-gestion.has-mobile-admin-nav>.admin-section-nav>button{display:none}
+  #view-gestion.has-mobile-admin-nav > .admin-section-nav,
+  #portal.admin-wide #view-gestion > .admin-section-nav {
+    display: none !important;
+  }
   #view-gestion>.mobile-admin-navigation{display:block;margin:6px 0 12px;padding:0;border:1px solid #dce5ee;border-radius:16px;background:#fff;box-shadow:0 4px 14px #18355206}
   .mobile-admin-navigation summary{position:relative;display:block;min-height:68px;padding:13px 48px 13px 16px;list-style:none;cursor:pointer}
   .mobile-admin-navigation summary::-webkit-details-marker{display:none}
@@ -62,10 +384,98 @@
   #portal .admin-control-row small{font-size:11px!important;white-space:normal;line-height:1.4}
   #portal .admin-control-state{max-width:100%;white-space:normal;font-size:11px!important;padding:6px 9px}
   #portal .admin-control-row>button{grid-column:1/-1;min-height:44px;margin-top:2px;border-color:#d9e5ef;border-radius:11px;background:#f2f7fc;color:#214f79;font-size:12px!important}
-  #portal>.mobile-head{height:64px;padding-inline:16px;border-bottom:1px solid #dfe7ef;background:#f8fbfe;box-shadow:0 2px 10px #18355205}
-  #portal>.mobile-head>button{width:44px;height:44px;border:1px solid #e1e9f1;border-radius:13px;background:#fff}
-  #portal>.mobile-head>img{width:42px;height:38px;object-fit:contain}
-  #portal>.mobile-head>.avatar{width:38px;height:38px;border-radius:13px;box-shadow:none;font-size:12px}
+  #portal > header.mobile-head,
+  #portal.admin-wide > header.mobile-head,
+  .portal:not([data-view="inicio"]) .mobile-head {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 35 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: max(10px, env(safe-area-inset-top, 0px)) 16px 6px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none !important;
+  }
+  #portal .kja-mobile-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    width: max-content !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 5px 16px 5px 5px !important;
+    border-radius: 32px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 6px 24px rgba(9, 36, 76, 0.14) !important;
+    backdrop-filter: blur(16px) saturate(120%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
+    pointer-events: auto !important;
+  }
+  #portal #menu-toggle,
+  #portal .kja-menu-toggle {
+    display: grid !important;
+    place-items: center !important;
+    width: 42px !important;
+    height: 42px !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    background: #edf2f8 !important;
+    color: #004fb0 !important;
+    cursor: pointer !important;
+    touch-action: pan-y !important;
+    transition: background-color 150ms ease, transform 150ms ease !important;
+  }
+  #portal .kja-menu-toggle:hover {
+    background: #e2ecf8 !important;
+  }
+  #portal .kja-menu-toggle:active {
+    background: #dce7f5 !important;
+    transform: scale(0.96) !important;
+  }
+  #portal .kja-menu-toggle svg {
+    width: 22px !important;
+    height: 22px !important;
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 2 !important;
+    stroke-linecap: round !important;
+  }
+  #portal .kja-mobile-brand {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 42px !important;
+    text-decoration: none !important;
+  }
+  #portal .kja-mobile-brand img {
+    width: 92px !important;
+    height: auto !important;
+    max-height: 28px !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+  #portal #mobile-back-home,
+  #portal .mobile-back-home,
+  #mobile-back-home,
+  .mobile-back-home {
+    display: none !important;
+  }
+  #portal .mobile-head > img,
+  #portal .mobile-head > .avatar,
+  #portal #mobile-avatar {
+    display: none !important;
+  }
   #view-gestion>:is(section,div){min-width:0;max-width:100%;height:auto;max-height:none}
   #portal :is(.admin-overview-grid,.admin-access-layout,.admin-close-grid,.profile-layout,.attendance-layout,.admin-review-workspace,.marketing-layout){grid-template-columns:minmax(0,1fr)!important}
   #portal :is(.admin-list-toolbar,.admin-team-toolbar,.admin-access-toolbar,.admin-roles-toolbar,.admin-control-head,.admin-month-workbench-head,.admin-summary-head){display:flex;flex-direction:column;align-items:stretch;gap:14px}
@@ -102,6 +512,7 @@
   #portal .admin-month-table .person-col .avatar{display:none}
   #portal .admin-month-table :is(th.day-col,td){min-width:46px}
   #portal .admin-month-table td button{min-width:44px;min-height:44px}
+  #portal .admin-close-status{column-count:1!important}
   #portal .admin-close-table-head{display:none!important}
   #portal .admin-close-person{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:16px;min-width:0}
   #portal .admin-close-person>span:first-child,#portal .admin-close-message-cell{grid-column:1/-1}

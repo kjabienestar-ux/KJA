@@ -4,7 +4,7 @@ Aplicar `dashboard_97_evidencia_dias_libres.sql` después de la 96. Publicar das
 
 El panel personal muestra un acceso compacto a **Mis solicitudes**. Abre un diálogo con fechas, estados, respuestas y contraofertas, sin expandir la columna de bienestar. Las propuestas por responder se anuncian en el acceso.
 
-El calendario distingue disponibles en verde, elegidos en azul y no disponibles tachados, con una leyenda visible. Mantiene selección múltiple y restricciones de martes a viernes, saldo, horario y fechas futuras.
+El calendario distingue disponibles en verde, elegidos en azul y no disponibles tachados, con una leyenda visible. Mantiene selección múltiple y restricciones de martes a jueves, saldo, horario y fechas futuras.
 
 Antes de enviar se exige una imagen de la solicitud previa: captura o comprobante, JPG/PNG/WebP, máximo 3 MB en origen. Se comprime y se guarda en el bucket privado existente. Dirección verifica su contenido; el sistema no asume que adjuntar una imagen pruebe por sí solo una autorización.
 

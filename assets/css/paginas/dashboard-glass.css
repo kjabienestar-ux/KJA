@@ -245,7 +245,44 @@
 /* Dense records remain opaque enough for reliable reading. */
 #portal.admin-wide :is(.admin-summary-table,.admin-month-ledger) { background: #fdfcf9 !important; }
 @media (max-width: 900px) {
-  #portal.admin-wide .workspace { background: transparent !important; }
+  #portal.admin-wide > .mobile-head {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  #portal.admin-wide .sidebar {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 20px 48px -10px rgba(15, 30, 55, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.03) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    backdrop-filter: blur(20px) !important;
+  }
+  #portal.admin-wide .side-nav button {
+    color: #475569 !important;
+  }
+  #portal.admin-wide .side-nav button svg {
+    color: #64748b !important;
+  }
+  #portal.admin-wide .side-nav button.active {
+    color: #004fb0 !important;
+    background: #edf5ff !important;
+    border-color: rgba(0, 79, 176, 0.12) !important;
+    box-shadow: 0 2px 8px rgba(0, 79, 176, 0.08) !important;
+  }
+  #portal.admin-wide .side-nav button.active::before,
+  #portal.admin-wide .side-nav button.active::after {
+    display: none !important;
+    content: none !important;
+  }
+  #portal.admin-wide .side-nav button.active svg {
+    color: #004fb0 !important;
+  }
+  #portal.admin-wide #view-gestion > .admin-section-nav {
+    display: none !important;
+  }
+  #portal.admin-wide .workspace { background: transparent !important; padding-top: 6px !important; }
   #portal.admin-wide .mobile-admin-navigation { border-radius: 20px; }
   #portal.admin-wide :is(.admin-overview-today,.admin-panel,.admin-overview-map) { border-radius: 18px; }
 }

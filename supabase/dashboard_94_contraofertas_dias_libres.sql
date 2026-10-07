@@ -1,4 +1,4 @@
--- Aplicar después de dashboard_93. Martes a viernes y contraofertas consentidas.
+-- Aplicar después de dashboard_93. Martes a jueves y contraofertas consentidas.
 begin;
 alter table public.asis_solicitudes_personales
   add column if not exists contra_fecha date,
@@ -23,7 +23,7 @@ begin
   end if;
   if p_fecha_inicio is null or p_fecha_fin is distinct from p_fecha_inicio
     or p_fecha_inicio <= v_hoy or p_fecha_inicio > v_hoy+180
-    or extract(isodow from p_fecha_inicio) not in (2,3,4,5) then
+    or extract(isodow from p_fecha_inicio) not in (2,3,4) then
     return jsonb_build_object('ok',false,'motivo','dia_no_permitido');
   end if;
   if length(btrim(coalesce(p_detalle,''))) not between 8 and 700 then
@@ -89,7 +89,7 @@ declare c public.asis_colaboradores; hoy date:=(now() at time zone 'America/Lima
 begin
   select * into c from public.asis_colaboradores where id=p_colab for update;
   if not found or not c.activo then return 'colaborador'; end if;
-  if p_fecha is null or p_fecha<=hoy or p_fecha>hoy+180 or extract(isodow from p_fecha) not in(2,3,4,5) then return 'dia_no_permitido'; end if;
+  if p_fecha is null or p_fecha<=hoy or p_fecha>hoy+180 or extract(isodow from p_fecha) not in(2,3,4) then return 'dia_no_permitido'; end if;
   if p_fecha<c.contrato_inicio or not coalesce(public.asis_labora(c,p_fecha),false) then return 'no_laborable'; end if;
   if exists(select 1 from public.asis_solicitudes_personales s where s.colaborador_id=p_colab
     and s.id is distinct from p_excluir and s.tipo='dia_libre' and s.estado in('pendiente','aprobada')
