@@ -11,6 +11,9 @@ const FACEBOOK_EVIDENCE_MAX = 50;
 const CLOSE_MODEL = window.KJACloseModel;
 const PROFILE_MAX_SOURCE = 3 * 1024 * 1024;
 const PROFILE_MAX_STORED = 480 * 1024;
+const COVER_W = 1200;
+const COVER_H = 450;
+const COVER_MAX_STORED = 300 * 1024;
 const PROFILE_AVATAR_IDS = ['side-avatar','mobile-avatar','rail-avatar','mobile-home-avatar','profile-avatar','head-avatar'];
 const PROFILE_SIGNED_CACHE = new Map();
 const MARK_PROTOCOL = 20260902;
@@ -156,7 +159,7 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', guidedTourPending:false, guidedTourUserMetadata:{}, sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', guidedTourPending:false, guidedTourUserMetadata:{}, sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, cover:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
@@ -561,34 +564,42 @@ async function decodeProfilePhoto(file){
     img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('imagen'))};img.src=url;
   });
 }
-async function compressProfilePhoto(file){
+async function compressProfilePhoto(file,{width=640,height=640,maxBytes=PROFILE_MAX_STORED}={}){
   const decoded=await decodeProfilePhoto(file);
   try{
     if(!decoded.width||!decoded.height)throw new Error('imagen');
-    const side=Math.max(1,Math.min(640,decoded.width,decoded.height)),canvas=document.createElement('canvas');
-    canvas.width=side;canvas.height=side;
-    const sx=Math.max(0,(decoded.width-Math.min(decoded.width,decoded.height))/2);
-    const sy=Math.max(0,(decoded.height-Math.min(decoded.width,decoded.height))/2);
-    const sourceSide=Math.min(decoded.width,decoded.height),ctx=canvas.getContext('2d',{alpha:false});
+    const aspect=width/height,wide=decoded.width/decoded.height>aspect;
+    const sourceW=wide?decoded.height*aspect:decoded.width,sourceH=wide?decoded.height:decoded.width/aspect;
+    const sx=(decoded.width-sourceW)/2,sy=(decoded.height-sourceH)/2;
+    const outW=Math.max(1,Math.round(Math.min(width,sourceW))),outH=Math.max(1,Math.round(outW/aspect));
+    const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d',{alpha:false});
+    canvas.width=outW;canvas.height=outH;
     if(!ctx)throw new Error('canvas');
-    ctx.fillStyle='#fff';ctx.fillRect(0,0,side,side);ctx.drawImage(decoded.source,sx,sy,sourceSide,sourceSide,0,0,side,side);
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,outW,outH);ctx.drawImage(decoded.source,sx,sy,sourceW,sourceH,0,0,outW,outH);
     let type='image/webp',ext='webp',blob=null;
-    for(const quality of [.86,.78,.7,.62]){blob=await canvasBlob(canvas,type,quality);if(blob?.type===type&&blob.size<=PROFILE_MAX_STORED)break}
-    if(!blob||blob.type!==type||blob.size>PROFILE_MAX_STORED){
+    for(const quality of [.86,.78,.7,.62]){blob=await canvasBlob(canvas,type,quality);if(blob?.type===type&&blob.size<=maxBytes)break}
+    if(!blob||blob.type!==type||blob.size>maxBytes){
       type='image/jpeg';ext='jpg';
-      for(const quality of [.84,.76,.68,.6]){blob=await canvasBlob(canvas,type,quality);if(blob&&blob.size<=PROFILE_MAX_STORED)break}
+      for(const quality of [.84,.76,.68,.6]){blob=await canvasBlob(canvas,type,quality);if(blob&&blob.size<=maxBytes)break}
     }
-    if(!blob||blob.size>PROFILE_MAX_STORED)throw new Error('peso_final');
+    if(!blob||blob.size>maxBytes)throw new Error('peso_final');
     return {blob,type,ext};
   }finally{decoded.close()}
 }
 let cropperInstance = null;
+let cropperMode = 'avatar';
 
-async function chooseProfilePhoto(file){
-  if(!file||APP.avatar.busy)return;
+async function chooseProfilePhoto(file,mode='avatar'){
+  const cover=mode==='cover',input=$(cover?'profile-cover-input':'profile-photo-input'),issue=cover?coverIssue:profilePhotoIssue;
+  if(!file||(cover?APP.cover.busy:APP.avatar.busy))return;
   const validType=/^image\/(jpeg|png|webp)$/i.test(file.type)||/\.(jpe?g|png|webp)$/i.test(file.name||'');
-  if(!validType){ $('profile-photo-input').value=''; return profilePhotoIssue('Elige una imagen JPG, PNG o WebP.'); }
-  if(file.size>PROFILE_MAX_SOURCE){ $('profile-photo-input').value=''; return profilePhotoIssue('La foto supera el máximo de 3 MB. Elige una más liviana.'); }
+  if(!validType){ input.value=''; return issue('Elige una imagen JPG, PNG o WebP.'); }
+  if(file.size>PROFILE_MAX_SOURCE){ input.value=''; return issue(cover?'La imagen supera el máximo de 3 MB. Elige una más liviana.':'La foto supera el máximo de 3 MB. Elige una más liviana.'); }
+  cropperMode=cover?'cover':'avatar';
+  $('cropper-title').textContent=cover?'Recortar portada':'Recortar foto';
+  $('cropper-help').textContent=cover?'Arrastra y ajusta el recuadro para encuadrar tu portada.':'Arrastra y ajusta el recuadro para encuadrar tu foto.';
+  $('cropper-save-btn').textContent=cover?'Guardar portada':'Guardar foto';
+  $('avatar-crop-modal').classList.toggle('is-cover',cover);
 
   const url = URL.createObjectURL(file);
   const img = $('cropper-image');
@@ -600,7 +611,7 @@ async function chooseProfilePhoto(file){
   img.onload = () => {
     if (cropperInstance) cropperInstance.destroy();
     cropperInstance = new Cropper(img, {
-      aspectRatio: 1,
+      aspectRatio: cropperMode === 'cover' ? COVER_W / COVER_H : 1,
       viewMode: 1,
       dragMode: 'move',
       autoCropArea: 0.9,
@@ -623,6 +634,7 @@ function closeCropperModal() {
   if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
   $('cropper-image').src = '';
   $('profile-photo-input').value = '';
+  $('profile-cover-input').value = '';
 }
 
 $('cropper-close-btn').onclick = closeCropperModal;
@@ -630,6 +642,7 @@ $('cropper-cancel-btn').onclick = closeCropperModal;
 $('cropper-close-bg').onclick = closeCropperModal;
 
 $('cropper-save-btn').onclick = async () => {
+  if (cropperMode === 'cover') return saveProfileCover();
   if (!cropperInstance || APP.avatar.busy) return;
   const colab=APP.inicio?.colaborador?.id||(APP.access.acceso_panel?APP.sessionUid:null);if(!colab){ closeCropperModal(); return profilePhotoIssue('Tu perfil no está disponible en esta sesión.'); }
 
@@ -670,6 +683,109 @@ async function removeProfilePhoto(){
     APP.avatar={path:'',url:'',busy:true};paintProfilePhoto('');profilePhotoMessage('Foto eliminada. Tus iniciales vuelven a estar visibles.','success');toast('Foto de perfil eliminada.');removed=true;
   }catch{profilePhotoMessage('No se pudo quitar la foto. Revisa tu conexión e inténtalo otra vez.','error')}
   finally{setProfilePhotoBusy(false);if(removed)closeProfilePhotoDialog()}
+}
+
+/* Portada con imagen: mismo flujo que la foto (bucket privado, recorte y compresión), solo para colaboradores. */
+function coverMessage(text,type=''){
+  const el=$('profile-cover-message');if(!el)return;
+  el.textContent=text||'';el.className='profile-photo-message'+(type?' '+type:'');
+}
+function coverIssue(text){
+  coverMessage(text,'error');
+  if(APP.view==='perfil')toast(text,true);
+}
+function paintProfileCover(url=''){
+  const cover=$('profile-cover');if(!cover)return;
+  cover.classList.toggle('has-image',!!url);
+  if(url)cover.style.backgroundImage=`url("${url}")`;else cover.style.removeProperty('background-image');
+  const preview=$('profile-cover-dialog-preview');
+  if(preview){preview.classList.toggle('has-image',!!url);if(url)preview.style.backgroundImage=`url("${url}")`;else preview.style.removeProperty('background-image')}
+  const hasCover=!!APP.cover.path;
+  if($('profile-cover-change'))$('profile-cover-change').textContent=hasCover?'Cambiar portada':'Subir portada';
+  if($('profile-cover-remove'))$('profile-cover-remove').hidden=!hasCover;
+  const label=document.querySelector('#profile-cover-edit span');if(label)label.textContent=hasCover?'Cambiar portada':'Agregar portada';
+}
+function syncProfileCoverEditor(){
+  const editable=!!APP.identity.hasPersonal;
+  $('profile-cover')?.classList.toggle('is-readonly',!editable);
+  if($('profile-cover-edit'))$('profile-cover-edit').hidden=!editable;
+  if($('profile-shortcut-cover'))$('profile-shortcut-cover').hidden=!editable;
+}
+function setProfileCoverBusy(on){
+  APP.cover.busy=on;
+  ['profile-cover-edit','profile-cover-change','profile-cover-remove'].forEach(id=>{const el=$(id);if(el)el.disabled=on});
+  if($('profile-cover-change'))$('profile-cover-change').textContent=on?'Preparando…':APP.cover.path?'Cambiar portada':'Subir portada';
+}
+async function loadProfileCover(announce=false){
+  syncProfileCoverEditor();
+  if(!APP.identity.hasPersonal)return;
+  const {data,error}=await db.rpc('dash_mi_portada');
+  if(error||!data?.ok){
+    APP.cover={path:'',url:'',busy:false};paintProfileCover('');
+    if(announce)coverMessage('No se pudo cargar tu portada. Revisa la conexión e inténtalo otra vez.','error');
+    return;
+  }
+  APP.cover.path=data.path||'';APP.cover.url='';paintProfileCover('');
+  if(!APP.cover.path)return;
+  const {data:signed,error:signedError}=await db.storage.from(PROFILE_BUCKET).createSignedUrl(APP.cover.path,3600);
+  if(signedError||!signed?.signedUrl){if(announce)coverMessage('No se pudo abrir tu portada. Puedes reemplazarla o quitarla.','error');return;}
+  try{
+    const url=signed.signedUrl+(signed.signedUrl.includes('?')?'&':'?')+'v='+(data.actualizada_at||Date.now());
+    await preloadImage(url);APP.cover.url=url;paintProfileCover(url);
+  }catch{
+    paintProfileCover('');if(announce)coverMessage('La portada guardada ya no está disponible. Puedes subir otra.','error');
+  }
+}
+const COVER_DIALOG_STATE={trigger:null,restoreFocus:true};
+function openProfileCoverDialog(event){
+  const dialog=$('profile-cover-dialog');if(!dialog||dialog.open||!APP.identity.hasPersonal)return;
+  COVER_DIALOG_STATE.trigger=event?.currentTarget||$('profile-cover-edit');COVER_DIALOG_STATE.restoreFocus=true;
+  paintProfileCover(APP.cover.url);coverMessage('');
+  dialog.showModal();
+  setTimeout(()=>{if(dialog.open)$('profile-cover-change')?.focus({preventScroll:true})},0);
+}
+function closeProfileCoverDialog({restoreFocus=true}={}){
+  const dialog=$('profile-cover-dialog');if(!dialog?.open)return;
+  COVER_DIALOG_STATE.restoreFocus=restoreFocus;dialog.close();
+}
+async function saveProfileCover(){
+  const colab=APP.inicio?.colaborador?.id;
+  if(!cropperInstance||APP.cover.busy)return;
+  if(!colab||!APP.identity.hasPersonal){closeCropperModal();return coverIssue('Tu perfil no está disponible en esta sesión.')}
+  const canvas=cropperInstance.getCroppedCanvas({width:COVER_W,height:COVER_H,imageSmoothingQuality:'high'});
+  if(!canvas)return;
+  closeCropperModal();
+  setProfileCoverBusy(true);coverMessage('Comprimiendo portada recortada…');
+  try{
+    const source=await canvasBlob(canvas,'image/jpeg',1);
+    if(!source)throw new Error('recorte');
+    const prepared=await compressProfilePhoto(source,{width:COVER_W,height:COVER_H,maxBytes:COVER_MAX_STORED}),path=`${colab}/portada.${prepared.ext}`,previous=APP.cover.path;
+    coverMessage('Subiendo la versión optimizada…');
+    const {error:uploadError}=await db.storage.from(PROFILE_BUCKET).upload(path,prepared.blob,{upsert:true,contentType:prepared.type,cacheControl:'3600'});
+    if(uploadError)throw uploadError;
+    const {data,error}=await db.rpc('dash_guardar_portada',{p_path:path});
+    if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'guardar');
+    APP.cover.path=path;
+    if(previous&&previous!==path)await db.storage.from(PROFILE_BUCKET).remove([previous]).catch(()=>{});
+    await loadProfileCover();
+    coverMessage(`Portada guardada · ${Math.max(1,Math.round(prepared.blob.size/1024))} KB`,'success');toast('Portada actualizada.');
+    closeProfileCoverDialog();
+  }catch(error){
+    coverIssue(error?.message==='peso_final'?'No se pudo reducir la portada lo suficiente. Elige otra imagen.':'No se pudo guardar la portada. Revisa tu conexión e inténtalo otra vez.');
+  }finally{setProfileCoverBusy(false)}
+}
+async function removeProfileCover(){
+  if(!APP.cover.path||APP.cover.busy)return;
+  let removed=false;
+  setProfileCoverBusy(true);coverMessage('Quitando la portada…');
+  try{
+    const path=APP.cover.path,{error:storageError}=await db.storage.from(PROFILE_BUCKET).remove([path]);
+    if(storageError)throw storageError;
+    const {data,error}=await db.rpc('dash_quitar_portada');
+    if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'quitar');
+    APP.cover={path:'',url:'',busy:true};paintProfileCover('');toast('Portada eliminada.');removed=true;
+  }catch{coverMessage('No se pudo quitar la portada. Revisa tu conexión e inténtalo otra vez.','error')}
+  finally{setProfileCoverBusy(false);if(removed)closeProfileCoverDialog()}
 }
 
 function showAccess(message){
@@ -1014,7 +1130,7 @@ async function openPortal(activeSession,bootstrap=null){
   startReviewNotificationSync();
   startDashboardVersionWatch();
   const backgroundLoads=[];
-  if(c)backgroundLoads.push(loadHistory(),loadProfilePhoto(),loadPersonalRequests());
+  if(c)backgroundLoads.push(loadHistory(),loadProfilePhoto(),loadProfileCover(),loadPersonalRequests());
   if(initialLoad?.then)backgroundLoads.push(initialLoad);
   if(backgroundLoads.length)void Promise.allSettled(backgroundLoads);
   try{
@@ -2240,7 +2356,7 @@ function renderAdminProfileSettings(){
   const coverNames=admin?['Arena','Oliva','Grafito']:['Cielo','Jardín','Noche'];
   document.querySelectorAll('[data-profile-cover]').forEach((button,index)=>{button.textContent=coverNames[index];});
   $('admin-profile-settings').hidden=!admin;
-  $('profile-description').textContent=admin?'Personaliza tu nombre visible, foto y portada.':'Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.';
+  $('profile-description').textContent=admin?'Personaliza tu nombre visible, foto y portada.':'Puedes actualizar tu foto y tu portada. Dirección gestiona los demás datos laborales.';
   $('profile-work-notice').hidden=!APP.identity.hasPersonal;
   if(admin)$('admin-profile-name').value=APP.guidedTourUserMetadata.kja_nombre_visible||APP.inicio?.colaborador?.nombre||APP.inicio?.perfil?.nombre||'';
 }
@@ -2258,14 +2374,23 @@ async function saveAdminProfile(event){
     paintProfilePhoto(APP.avatar.url);message.textContent='Nombre actualizado.';
   }catch{message.textContent='No se pudo guardar. Inténtalo de nuevo.';}finally{button.disabled=false;}
 }
+function renderProfileQuick(c){
+  const box=$('profile-quick');if(!box)return;
+  if(!c){box.innerHTML='';return}
+  const days=(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).filter(Boolean).join(', ');
+  const until=c.contrato_fin_referencia?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(c.contrato_fin_referencia+'T12:00:00')):'';
+  const items=[['Horario',c.hora_inicio&&c.hora_fin?`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`:''],['Días',days],['Meta',c.contrato_horas?`${c.contrato_horas} h`:''],['Vigencia',until?`Hasta ${until}`:'']];
+  box.innerHTML=items.filter(item=>item[1]).map(([label,value])=>`<span class="profile-chip"><small>${esc(label)}</small><b>${esc(value)}</b></span>`).join('');
+}
 function renderProfile(){
   renderAdminProfileSettings();
+  syncProfileCoverEditor();
   const c=APP.inicio.colaborador;if(APP.access.acceso_panel||!c){
     $('profile-avatar').textContent=initials($('side-name').textContent);
     $('profile-name').textContent=$('side-name').textContent;
     $('profile-area').textContent='Panel de administración';
     $('profile-link').textContent='Administrador';
-    $('profile-fields').innerHTML='';
+    $('profile-fields').innerHTML='';renderProfileQuick(null);
     paintProfilePhoto(APP.avatar.url);syncProfileCover();return;
   } $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=(APP.access.acceso_panel&&APP.guidedTourUserMetadata.kja_nombre_visible)||c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
   $('profile-link').textContent=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
@@ -2273,6 +2398,7 @@ function renderProfile(){
   const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?`${c.contrato_horas} h`:'—'],['Horas previas',`${Number(c.horas_previas||0)} h`]];
   const fieldMarkup=items=>items.map(x=>`<div class="profile-field"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('');
   $('profile-fields').innerHTML=fieldMarkup(fields);
+  renderProfileQuick(c);
   syncProfileCover();
 }
 
@@ -3154,6 +3280,20 @@ $('profile-photo-dialog').addEventListener('click',event=>{if(event.target===eve
 $('profile-photo-change').onclick=()=>{closeProfilePhotoDialog({restoreFocus:false});$('profile-photo-input').click()};
 $('profile-photo-remove').onclick=removeProfilePhoto;
 $('profile-photo-input').onchange=event=>chooseProfilePhoto(event.target.files?.[0]);
+$('profile-cover-edit').onclick=openProfileCoverDialog;
+$('profile-shortcut-cover').onclick=openProfileCoverDialog;
+$('profile-shortcut-photo').onclick=openProfilePhotoDialog;
+$('profile-cover-dialog-close').onclick=()=>closeProfileCoverDialog();
+$('profile-cover-dialog').addEventListener('close',()=>{
+  const {trigger,restoreFocus}=COVER_DIALOG_STATE;
+  COVER_DIALOG_STATE.trigger=null;COVER_DIALOG_STATE.restoreFocus=true;
+  if(restoreFocus&&trigger?.isConnected)setTimeout(()=>trigger.focus({preventScroll:true}),0);
+});
+$('profile-cover-dialog').addEventListener('cancel',event=>{if(APP.cover.busy)event.preventDefault()});
+$('profile-cover-dialog').addEventListener('click',event=>{if(event.target===event.currentTarget)closeProfileCoverDialog()});
+$('profile-cover-change').onclick=()=>{closeProfileCoverDialog({restoreFocus:false});$('profile-cover-input').click()};
+$('profile-cover-remove').onclick=removeProfileCover;
+$('profile-cover-input').onchange=event=>chooseProfilePhoto(event.target.files?.[0],'cover');
 document.querySelectorAll('[data-profile-cover]').forEach(button=>button.onclick=()=>setProfileCover(button.dataset.profileCover));
 $('team-list').onclick=e=>{
   const evidence=e.target.closest('[data-team-review]');
