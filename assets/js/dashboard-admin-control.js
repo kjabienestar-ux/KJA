@@ -86,13 +86,16 @@ function adminControlRows(){
     return first||String(a.colaborador).localeCompare(String(b.colaborador),'es');
   });
 }
-function adminControlPendingDetail(row){
+function adminControlPendingItems(row){
   const parts=[],tasks=adminControlTasks(row);
   if(adminControlWork(row)&&!row.entrada_at)parts.push('Entrada sin registrar');
   if(tasks)parts.push(...tasks.filter(item=>!item.completo).map(item=>item.label));
   else if(adminControlPending(row))parts.push(adminControlPending(row)+' evidencias pendientes');
   if(adminControlWork(row)&&row.entrada_at&&!row.salida_at&&row.cierre?.requiere_salida!==false)parts.push('Salida sin registrar');
-  return [...new Set(parts)].join(' · ');
+  return [...new Set(parts)];
+}
+function adminControlPendingDetail(row){
+  return adminControlPendingItems(row).join(' · ');
 }
 function adminControlMissingDetail(row){
   if(adminControlState(row).key!=='incompleta')return '';
@@ -106,8 +109,8 @@ function adminControlNextStep(row){
   if(observed)return {title:observed+' '+(observed===1?'evidencia con corrección':'evidencias con corrección'),copy:'Comprueba las observaciones y la nueva entrega.'};
   if(issues.length)return {title:'Impedimento informado',copy:issues[0].detalle||'Consulta el aviso antes de gestionar la jornada.'};
   if(reviews)return {title:reviews+' '+(reviews===1?'entrega por revisar':'entregas por revisar'),copy:'Abre los archivos para aprobar u observar.'};
-  const detail=adminControlPendingDetail(row);
-  if(detail)return {title:detail,copy:adminControlTasks(row)?'Consulta los requisitos y el registro de esta fecha.':'El detalle no está disponible. Abre el caso para comprobarlo.'};
+  const items=adminControlPendingItems(row);
+  if(items.length)return {title:items.join(' · '),items,copy:adminControlTasks(row)?'':'El detalle no está disponible. Abre el caso para comprobarlo.'};
   const state=adminControlState(row);
   if(state.key==='justificado')return {title:'Jornada justificada',copy:'No se exige entrada, RPE ni salida.'};
   if(state.key==='no_aplica')return {title:'Sin jornada programada',copy:'No requiere entrada ni salida.'};
@@ -237,9 +240,7 @@ function adminControlDonutSvg(group){
 }
 
 function adminControlCollaboratorAvatarUrl(c){
-  if(c?.foto_url) return c.foto_url;
-  const seed = encodeURIComponent(c?.colaborador_id || c?.id || c?.colaborador || 'colaborador');
-  return 'https://i.pravatar.cc/100?u=' + seed;
+  return typeof c?.foto_url === 'string' ? c.foto_url.trim() : '';
 }
 
 function adminControlAreaAvatars(group){
@@ -252,10 +253,11 @@ function adminControlAreaAvatars(group){
     const person = people[i] || { colaborador: 'Persona ' + (i + 1), colaborador_id: group.id + '_' + i };
     const name = person.colaborador || 'Colaborador';
     const photoUrl = adminControlCollaboratorAvatarUrl(person);
-    const inis = (typeof initials === 'function' ? initials(name) : name.slice(0, 2)).toUpperCase();
+    const parts = name.trim().split(/\s+/);
+    const inis = (parts.length > 1 ? parts.slice(0, 2).map(part => part[0]).join('') : parts[0].slice(0, 2)).toUpperCase();
     avatarsHtml += '<span class="control-avatar-item" title="' + esc(name) + '">' +
-      '<img src="' + esc(photoUrl) + '" alt="' + esc(name) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
-      '<span class="control-avatar-fallback">' + esc(inis) + '</span>' +
+      (photoUrl ? '<img src="' + esc(photoUrl) + '" alt="' + esc(name) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' : '') +
+      '<span class="control-avatar-fallback"' + (photoUrl ? '' : ' style="display:flex"') + '>' + esc(inis) + '</span>' +
     '</span>';
   }
   const remaining = (group.total || people.length) - count;
@@ -404,7 +406,7 @@ function renderAdminControl(){
       '<div class="control-case-row">'+
       '<div class="control-person"><span class="control-avatar" aria-hidden="true">'+esc(initials(row.colaborador))+'</span><div><h3>'+esc(row.colaborador)+'</h3><p>'+esc(row.area||'Sin área')+(row.cierre?.modalidad?' · '+esc(cap(row.cierre.modalidad)):'')+'</p></div></div>'+
       '<div class="control-status"><span class="control-status-label '+state.tone+'"><i aria-hidden="true"></i>'+esc(state.label)+'</span></div>'+
-      '<div class="control-next-step"><b>'+esc(step.title)+'</b><p>'+esc(step.copy)+'</p></div>'+
+      '<div class="control-next-step">'+(step.items?'<ul class="control-pending-list" aria-label="Pendientes">'+step.items.map(item=>'<li>'+esc(item)+'</li>').join('')+'</ul>':'<b>'+esc(step.title)+'</b>')+(step.copy?'<p>'+esc(step.copy)+'</p>':'')+'</div>'+
       '<div class="control-times"><span><small>Entrada</small><b>'+esc(adminControlTime(row.entrada_at))+'</b></span><span><small>Salida</small><b>'+esc(adminControlTime(row.salida_at))+'</b></span></div>'+
       '<div class="control-row-actions"><button type="button" class="control-primary" data-control-open-close="'+esc(id)+'" data-area="'+esc(row.area_id||'')+'" data-action="'+(review?'review':'case')+'" aria-label="'+(review?'Revisar evidencias de ':'Abrir caso de ')+esc(row.colaborador)+'">'+(review?'Revisar':'Abrir caso')+'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>'+
       '<button type="button" class="control-detail-toggle" data-control-detail="'+esc(id)+'" aria-expanded="'+expanded+'" aria-controls="control-detail-'+esc(id)+'">'+(expanded?'Ocultar detalle':'Ver detalle')+'</button></div></div>'+

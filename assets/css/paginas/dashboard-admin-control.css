@@ -1885,6 +1885,35 @@
   min-width: 0;
 }
 
+#portal #admin-control-section .control-pending-list {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#portal #admin-control-section .control-pending-list li {
+  position: relative;
+  padding-left: 11px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #1e293b;
+  overflow-wrap: anywhere;
+}
+
+#portal #admin-control-section .control-pending-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .5em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
 #portal #admin-control-section .control-next-step b {
   display: block;
   font-size: 12px;
@@ -2211,7 +2240,8 @@
 
 @media (max-width: 768px) {
   #portal #admin-control-section .control-stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
   #portal #admin-control-section .control-case-list {
     grid-template-columns: 1fr;
@@ -2233,4 +2263,89 @@
   #portal #admin-control-section .control-tools button {
     flex: 1;
   }
+}
+
+/* Control diario móvil: resumen compacto y controles cómodos al tacto. */
+@media (max-width: 768px) {
+  #portal #admin-control-section {
+    padding: 16px 12px 80px;
+    gap: 16px;
+    min-width: 0;
+  }
+  #portal #admin-control-section .control-heading {
+    gap: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 0;
+  }
+  #portal #admin-control-section .control-head-brand { gap: 10px; }
+  #portal #admin-control-section .control-head-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+  }
+  #portal #admin-control-section .control-head-copy { min-width: 0; }
+  #portal #admin-control-section .control-head-copy h2 { font-size: 20px; }
+  #portal #admin-control-section .control-head-copy p { line-height: 1.5; }
+  #portal #admin-control-section .control-date-navigation {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
+    gap: 0;
+    padding: 2px;
+  }
+  #portal #admin-control-section .control-date-navigation label { min-width: 0; }
+  #portal #admin-control-section .control-date-navigation input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 4px;
+    font-size: 16px;
+  }
+  #portal #admin-control-section .control-date-navigation button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+  #portal #admin-control-section .control-tools { gap: 8px; }
+  #portal #admin-control-section .control-tools button {
+    min-height: 44px;
+    padding: 8px;
+    font-size: 12px;
+  }
+  #portal #admin-control-section .control-stat-card {
+    min-width: 0;
+    padding: 12px;
+    border-radius: 12px;
+    gap: 8px;
+    align-items: flex-start;
+    box-shadow: none;
+  }
+  #portal #admin-control-section .cert-stat-icon-wrap {
+    width: 26px;
+    height: 26px;
+  }
+  #portal #admin-control-section .cert-stat-icon-wrap svg { width: 16px; height: 16px; }
+  #portal #admin-control-section .cert-stat-label { font-size: 12px; color: #475569; }
+  #portal #admin-control-section .cert-stat-value { font-size: 24px; }
+  #portal #admin-control-section .cert-stat-sub { font-size: 11px; line-height: 1.4; color: #64748b; }
+  #portal #admin-control-section .cert-stat-chart { display: none; }
+  #portal #admin-control-section .control-area-overview,
+  #portal #admin-control-section .control-split-wrap .control-area-overview {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 14px;
+  }
+  #portal #admin-control-section .control-workspace { min-width: 0; width: 100%; }
+  #portal #admin-control-section .control-filters input,
+  #portal #admin-control-section .control-filters select {
+    min-width: 0;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  #portal #admin-control-section .control-queues { flex-wrap: wrap; gap: 8px; }
+}
+
+@media (max-width: 360px) {
+  #portal #admin-control-section .control-stat-card { flex-direction: column; }
 }
