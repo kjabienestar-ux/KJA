@@ -1667,7 +1667,8 @@ function renderAttendanceDay(data,evidences=[]){
   const state=data.estado||'',label=data.futuro?'Próximo':statusLabel(state,data.labora),stateClass=(state||(!data.labora?'off':'pending')).toLowerCase();
   const request=data.solicitud||null,canJustify=!data.futuro&&data.fecha>=addIsoDays(isoLima(),-90);
   ATTENDANCE_DAY_EVIDENCES=evidences;
-  const evidenceHtml=evidences.length?evidences.map((item,index)=>item.url?`<button type="button" class="attendance-day-photo" data-attendance-evidence="${index}" aria-label="Ampliar ${esc(item.label||`evidencia ${index+1}`)}"><span class="attendance-day-photo-canvas"><img src="${esc(item.url)}" alt="${esc(`${item.label||'Evidencia'} del ${formatAttendanceDayDate(data.fecha)}`)}" decoding="async"></span><span class="attendance-day-photo-meta"><b>${esc(item.label||`Evidencia ${index+1}`)}</b><small><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>Ampliar aquí</small></span></button>`:'').join(''):'<div class="attendance-day-no-photo"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h4l1.5-2h5L16 7h4v12H4z"/><circle cx="12" cy="13" r="3"/></svg></span><b>Sin evidencia fotográfica</b><small>Este día no tiene una imagen asociada al registro o a una solicitud.</small></div>';
+  const content=$('attendance-day-content'),groups=attendanceActivityGroups(data,evidences);
+  content._activities=groups;content._activity=0;content._file=0;
   const requestHtml=request?`<section class="attendance-day-request"><div><small>SOLICITUD RELACIONADA</small><b>${esc(personalRequestLabel(request.tipo))}</b></div><span class="request-status ${esc(request.estado)}">${esc(request.estado)}</span><p>${esc(request.detalle||'Sin comentario.')}</p>${request.respuesta?`<p class="attendance-day-response"><b>Respuesta de Dirección:</b> ${esc(request.respuesta)}</p>`:''}</section>`:'';
   $('attendance-day-content').innerHTML=`
     <header class="attendance-day-head"><span class="attendance-day-state-icon ${esc(stateClass)}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span><div><h2 id="attendance-day-title">${esc(formatAttendanceDayDate(data.fecha))}</h2><span class="attendance-day-status ${esc(stateClass)}"><i></i>${esc(label)}</span></div></header>
@@ -1682,10 +1683,16 @@ function renderAttendanceDay(data,evidences=[]){
         ${data.nota?`<section class="attendance-day-note"><small>OBSERVACIÓN DEL REGISTRO</small><p>${esc(data.nota)}</p></section>`:''}
         ${requestHtml}
       </div>
-      <section class="attendance-day-evidence"><div class="attendance-day-section-title"><span><b>Evidencia</b><small>${evidences.length?`${evidences.length} ${evidences.length===1?'imagen asociada':'imágenes asociadas'}`:'No se adjuntaron imágenes'}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4l1.5-2h5L16 7h4v12H4z"/><circle cx="12" cy="13" r="3"/></svg></div><div class="attendance-day-gallery">${evidenceHtml}</div></section>
+      <section class="attendance-day-evidence">
+        <div class="attendance-day-section-title"><span><b>Evidencias del día</b><small>${evidences.length} ${evidences.length===1?'archivo asociado':'archivos asociados'} · Selecciona una actividad</small></span></div>
+        <div class="attendance-activity-tabs" role="group" aria-label="Seleccionar actividad">${groups.map((group,index)=>`<button type="button" data-attendance-activity="${index}" aria-pressed="${index===0}" aria-controls="attendance-compact-stage">${esc(group.titulo)}${group.files.length?`<span>${group.files.length}</span>`:''}</button>`).join('')}</div>
+        <div id="attendance-compact-stage" class="attendance-compact-stage" aria-live="polite"></div>
+        <nav class="attendance-file-nav" aria-label="Archivos de la actividad"><button type="button" data-attendance-page="-1" aria-label="Archivo anterior">‹</button><span id="attendance-file-count" aria-live="polite"></span><button type="button" data-attendance-page="1" aria-label="Archivo siguiente">›</button></nav>
+      </section>
       <footer class="attendance-day-footer"><span>La información se obtiene del registro privado de asistencia.</span>${canJustify?`<button type="button" id="attendance-day-justify" data-date="${esc(data.fecha)}">${request?'Enviar otra solicitud':'Justificar este día'}</button>`:''}</footer>
     </div>
     <div class="attendance-evidence-viewer" id="attendance-evidence-viewer" role="region" aria-label="Vista ampliada de evidencia" hidden><button type="button" class="attendance-evidence-close" data-close-attendance-evidence aria-label="Cerrar imagen ampliada"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button><div><div class="attendance-evidence-stage" id="attendance-evidence-stage"></div><p id="attendance-evidence-caption"></p></div></div>`;
+  renderAttendanceActivity();
 }
 
 function attendanceActivityGroups(data,evidences){
@@ -2017,8 +2024,27 @@ function renderPersonalRequests(){
   $('personal-request-list').innerHTML=items.length?items.map(item=>{
     const range=item.fecha_inicio===item.fecha_fin?formatRequestDate(item.fecha_inicio):`${formatRequestDate(item.fecha_inicio)} — ${formatRequestDate(item.fecha_fin)}`;
     const response=item.respuesta?`<p>Dirección: ${esc(item.respuesta)}</p>`:'';
-    return `<article class="personal-request-row"><span><b>${esc(personalRequestLabel(item.tipo))}</b><small>${esc(range)} · ${item.evidencia?'Con evidencia':'Sin evidencia'}</small></span><span class="request-status ${esc(item.estado)}">${esc(item.estado)}</span>${response}${leaveCounterofferMarkup(item)}</article>`;
+    return `<article class="personal-request-row"><span><b>${esc(personalRequestLabel(item.tipo))}</b><small>${esc(range)} · ${item.evidencia?'Con evidencia':'Sin evidencia'}</small></span><div class="personal-request-controls"><span class="request-status ${esc(item.estado)}">${esc(item.estado)}</span>${['aprobada','rechazada'].includes(item.estado)?`<button type="button" class="personal-request-delete" data-delete-personal-request="${esc(item.id)}" aria-label="Eliminar ${esc(personalRequestLabel(item.tipo))} ${esc(range)} del historial" title="Eliminar del historial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg></button>`:''}</div>${response}${leaveCounterofferMarkup(item)}</article>`;
   }).join(''):'<p class="request-empty">Todavía no has enviado solicitudes.</p>';
+}
+
+async function deletePersonalRequest(button){
+  const id=Number(button.dataset.deletePersonalRequest);
+  const item=APP.personalRequests?.find(item=>Number(item.id)===id);
+  if(button.disabled||!item||!['aprobada','rechazada'].includes(item.estado))return;
+  button.disabled=true;
+  try{
+    const {data,error}=await db.rpc('dash_eliminar_solicitud_historial',{p_id:id});
+    if(error||!data?.ok){
+      const message=error?.code==='PGRST202'?'Instala la migración 102 para eliminar solicitudes del historial.':data?.motivo==='pendiente'?'Las solicitudes pendientes deben resolverse antes de eliminarlas.':'No se pudo eliminar la solicitud del historial. Inténtalo nuevamente.';
+      throw new Error(message);
+    }
+    APP.personalRequests=APP.personalRequests.filter(item=>Number(item.id)!==id);
+    renderPersonalRequests();
+    $('personal-requests-refresh')?.focus({preventScroll:true});
+    toast('Solicitud eliminada del historial.');
+  }catch(error){toast(error.message||'No se pudo eliminar la solicitud del historial.',true);}
+  finally{if(button.isConnected)button.disabled=false;}
 }
 
 function resetPersonalRequestEvidence(){
@@ -3026,6 +3052,7 @@ $('attendance-day-content').onclick=event=>{
   const date=justify.dataset.date;closeAttendanceDay();openPersonalRequest('justificacion',date);
 };
 $('personal-requests-refresh').onclick=loadPersonalRequests;
+$('personal-request-list').addEventListener('click',event=>{const button=event.target.closest('[data-delete-personal-request]');if(button)deletePersonalRequest(button)});
 $('personal-request-form').onsubmit=submitPersonalRequest;
 $('personal-request-file-button').onclick=()=>$('personal-request-file').click();
 $('personal-request-file-change').onclick=()=>$('personal-request-file').click();
