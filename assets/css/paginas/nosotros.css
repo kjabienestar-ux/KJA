@@ -2347,3 +2347,61 @@
 @media (prefers-reduced-motion: reduce) {
   .nos-hero *, .about-section * { animation: none !important; transition: none !important; }
 }
+
+/* Testimonios · collage glass en los colores de KJA */
+.nos-testimonials { position: relative; isolation: isolate; padding: 16px 20px 32px; }
+.nos-testimonials::before { content: ''; position: absolute; inset: 120px -35px 30px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 18% 28%, rgba(241,0,117,.14), transparent 48%), radial-gradient(ellipse at 85% 65%, rgba(0,79,176,.16), transparent 50%), radial-gradient(ellipse at 55% 80%, rgba(241,0,117,.06), transparent 50%); filter: blur(20px); }
+.nos-testimonials-heading { text-align: center; margin: 0 auto 65px; max-width: 760px; }
+.nos-testimonials-eyebrow { display: inline-flex; align-items: center; gap: 10px; color: #cf0867; font-size: 10px; letter-spacing: 2px; font-weight: 700; margin-bottom: 18px; }
+.nos-testimonials-eyebrow > span { font-size: 19px; }
+.nos-testimonials-heading h2 { font-family: 'Fraunces', Georgia, serif; font-size: clamp(32px, 4vw, 49px); line-height: 1.17; letter-spacing: -1.5px; color: var(--nos-navy, #19264e); font-weight: 600; margin: 0 0 18px; }
+.nos-testimonials-heading h2 em { font-family: inherit; font-weight: 400; color: #d72b78; }
+.nos-testimonials-heading > p { color: var(--nos-muted, #62708a); font-size: 14px; line-height: 1.8; }
+.nos-testimonials-board { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); align-items: start; gap: 44px 27px; padding: 0 4px 42px; }
+.nos-testimonial { --card-accent: #d72b78; --card-tint: rgba(241,0,117,.09); position: relative; display: flex; flex-direction: column; padding: 29px 26px 17px; min-width: 0; min-height: 270px; background: linear-gradient(135deg, rgba(255,255,255,.86), rgba(255,255,255,.48)); border: 1px solid rgba(255,255,255,.95); border-radius: 29px 48px 32px 16px; box-shadow: 0 14px 40px rgba(24,43,79,.07), inset 0 1px 0 #fff; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); transform: rotate(-2deg); transition: transform .25s ease, box-shadow .25s ease; }
+.nos-testimonial::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(ellipse at top left, var(--card-tint), transparent 65%); }
+.nos-testimonial:nth-child(3n+2) { --card-accent: #004fb0; --card-tint: rgba(0,79,176,.09); transform: translateY(33px) rotate(2deg); border-radius: 45px 21px 39px 27px; }
+.nos-testimonial:nth-child(3n) { transform: translateY(-12px) rotate(-1deg); border-radius: 22px 38px 19px 40px; }
+.nos-testimonial:nth-child(6n+4) { --card-accent: #004fb0; --card-tint: rgba(0,79,176,.07); transform: rotate(1.5deg); }
+.nos-testimonial:nth-child(6n+5) { --card-accent: #d72b78; --card-tint: rgba(241,0,117,.09); transform: translateY(22px) rotate(-1.5deg); }
+.nos-testimonial:hover { transform: translateY(-5px) rotate(0); box-shadow: 0 22px 45px rgba(24,43,79,.12); z-index: 1; }
+.nos-testimonial-person { display: flex; align-items: center; gap: 13px; position: relative; margin-top: -48px; margin-bottom: 18px; }
+.nos-testimonial-avatar { position: relative; overflow: hidden; flex-shrink: 0; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--card-accent); color: white; font-size: 25px; font-weight: 600; border: 3px solid #fff; outline: 2px solid var(--card-accent); box-shadow: 0 5px 12px rgba(25,38,78,.1); }
+.nos-testimonial-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.nos-testimonial-person h3 { font-size: 13px; font-weight: 700; line-height: 1.4; color: #19264e; margin: 16px 0 3px; overflow-wrap: anywhere; }
+.nos-testimonial-source { display: block; font-size: 9px; line-height: 1.6; color: #66738a; }
+.nos-testimonial-stars { color: var(--card-accent); font-size: 16px; letter-spacing: 3px; margin-bottom: 14px; position: relative; }
+.nos-testimonial blockquote { position: relative; margin: 0; color: #465371; font-size: 12px; line-height: 1.95; overflow-wrap: anywhere; flex: 1; }
+.nos-testimonial-footer { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 19px; border-top: 1px solid rgba(25,38,78,.07); padding-top: 11px; }
+
+.nos-testimonial-quote { font: 64px/.65 'Fraunces', Georgia, serif; color: var(--card-accent); transform: translateY(11px); }
+.nos-testimonials-bottom { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; text-align: center; margin-top: 20px; }
+.nos-testimonials-bottom p { flex-basis: 100%; color: #68758d; font-size: 10px; }
+.nos-testimonials-cta { display: inline-flex; align-items: center; gap: 22px; color: #004fb0; font-size: 12px; font-weight: 600; text-decoration: none; padding: 12px 20px; border: 1px solid rgba(0,79,176,.14); border-radius: 30px; background: rgba(255,255,255,.65); }
+.nos-testimonials-cta:hover { background: #004fb0; color: #fff; }
+#nos-testimonials-retry { border: 0; background: transparent; color: #004fb0; font: inherit; font-size: 11px; text-decoration: underline; cursor: pointer; }
+@media (max-width: 900px) { .nos-testimonials-board { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 45px 24px; } .nos-testimonial:nth-child(n) { transform: rotate(-1deg); } .nos-testimonial:nth-child(even) { transform: translateY(20px) rotate(1.5deg); } }
+@media (max-width: 560px) { .nos-testimonials { padding: 5px 8px 25px; } .nos-testimonials-heading { margin-bottom: 53px; } .nos-testimonials-heading h2 { letter-spacing: -.8px; } .nos-testimonials-heading > p { font-size: 12px; } .nos-testimonials-eyebrow { font-size: 8px; letter-spacing: 1.4px; } .nos-testimonials-board { grid-template-columns: minmax(0,1fr); gap: 46px; padding: 0 5px 10px; } .nos-testimonial:nth-child(n) { transform: rotate(-1deg); min-height: 230px; } .nos-testimonial:nth-child(even) { transform: rotate(1deg); } .nos-testimonial blockquote { font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { .nos-testimonial { transition: none; } }
+
+/* Silueta inclinada: el cristal toma la forma irregular sin deformar el texto. */
+.nos-testimonial { background: transparent; border-color: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.nos-testimonial::before {
+  background: radial-gradient(ellipse at top left, var(--card-tint), transparent 65%), linear-gradient(135deg, rgba(255,255,255,.88), rgba(255,255,255,.5));
+  border: 1px solid rgba(255,255,255,.95);
+  box-shadow: 0 14px 40px rgba(24,43,79,.07), inset 0 1px 0 #fff;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transform: skewX(-5deg);
+}
+.nos-testimonial:nth-child(even)::before { transform: skewX(4deg); }
+.nos-testimonial:hover { box-shadow: none; }
+.nos-testimonial-footer { border-top: 0; padding-top: 0; margin-top: 15px; justify-content: flex-start; }
+@media (max-width: 560px) {
+  .nos-testimonial::before { transform: skewX(-3deg); }
+  .nos-testimonial:nth-child(even)::before { transform: skewX(3deg); }
+}
+
+.nos-testimonial-avatar > svg { width: 29px; height: 29px; }
+.nos-testimonial-google { color: var(--card-accent); font-size: 10px; font-weight: 600; text-decoration: none; margin-left: auto; }
+.nos-testimonial-google:hover { text-decoration: underline; }

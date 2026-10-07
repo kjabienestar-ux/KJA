@@ -26,7 +26,7 @@ test('desktop day shows one selected file and preserves activity/file navigation
   env.renderAttendanceDay({fecha:'2026-10-06',estado:'P',labora:true,actividades:[{id:'facebook',titulo:'Facebook'}]},evidences);
   const content=env.$('attendance-day-content');
   assert.equal(content.querySelectorAll('img').length,1);
-  assert.equal(content.querySelectorAll('[data-attendance-activity]').length,2);
+  assert.equal(content.querySelectorAll('[data-attendance-activity]').length,4);
   assert.equal(content._activities[1].files.length,6);
   assert.ok(content.innerHTML.indexOf('HORARIO PROGRAMADO')<content.innerHTML.indexOf('Evidencias del día'));
   content._activity=1;content._file=5;env.renderAttendanceActivity();
@@ -35,6 +35,38 @@ test('desktop day shows one selected file and preserves activity/file navigation
   assert.equal(env.$('attendance-file-count').textContent,'6 de 6 archivos');
   assert.equal(content.querySelector('[data-attendance-page="1"]').disabled,true);
   assert.equal(content.querySelector('[data-attendance-activity="1"]').getAttribute('aria-pressed'),'true');
+});
+
+test('only missing required evidence enables justification and missing filters are marked',()=>{
+  const env=ui(),data={fecha:'2026-10-06',estado:'P',labora:true,modalidad:'virtual',marcado_at:'registered',dispositivo:'Browser private label',evidencia_origen:'archivo',actividades:[
+    {id:'fb',tipo:'comparticiones',titulo:'Facebook'},{id:'rpe',tipo:'rpe',titulo:'RPE'},{id:'salida',tipo:'salida',titulo:'Salida'}]};
+  const files=[{url:'entry.jpg'},{actividad:'fb',url:'fb.jpg'},{actividad:'rpe',url:'rpe.jpg'},{actividad:'salida',url:'exit.jpg'}];
+  env.renderAttendanceDay(data,files);
+  const content=env.$('attendance-day-content');
+  assert.equal(content.querySelector('#attendance-day-justify'),null);
+  assert.equal(content.querySelectorAll('.is-missing').length,0);
+  assert.equal(content.textContent.includes('Browser private label'),false);
+  assert.equal(content.textContent.includes('Imagen seleccionada'),false);
+  for(let missing=0;missing<4;missing++){
+    env.renderAttendanceDay(data,files.filter((_,index)=>index!==missing));
+    assert.ok(content.querySelector('#attendance-day-justify'));
+    assert.equal(content.querySelectorAll('.is-missing').length,1);
+    assert.match(content.querySelector('.is-missing').getAttribute('aria-label'),/falta evidencia/);
+  }
+  env.renderAttendanceDay({...data,actividades:[]},[]);
+  assert.equal(content.querySelectorAll('.is-missing').length,4);
+  env.renderAttendanceDay({...data,futuro:true},[]);
+  assert.equal(content.querySelector('#attendance-day-justify'),null);
+  env.APP.historial={dias:[{fecha:data.fecha,aplica_comparticiones:false,aplica_jornada:false}]};
+  env.renderAttendanceDay({...data,labora:false},[]);
+  assert.equal(content.querySelector('#attendance-day-justify'),null);
+  env.APP.historial={dias:[{fecha:data.fecha,aplica_comparticiones:true}]};
+  env.renderAttendanceDay({...data,estado:'J'},[]);
+  assert.equal(content.querySelectorAll('.is-missing').length,1);
+  assert.match(content.querySelector('.is-missing').textContent,/Facebook/);
+  // A failed signed URL is still an uploaded evidence, not missing work.
+  env.APP.historial=null;env.renderAttendanceDay(data,files.map(file=>({...file,url:''})));
+  assert.equal(content.querySelector('#attendance-day-justify'),null);
 });
 
 test('trash appears only for resolved requests and failed deletion keeps the row',async()=>{

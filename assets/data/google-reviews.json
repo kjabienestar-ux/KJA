@@ -1,0 +1,60 @@
+{
+  "source": "https://www.google.com/maps/place/KJA+DESARROLLANDO+MI+BIENESTAR/@-12.0772241,-77.0007552,17z/data=!4m8!3m7!1s0x9105c76e831ee2bb:0x6af9096ada4c088b!8m2!3d-12.0772241!4d-77.0007552!9m1!1b1!16s%2Fg%2F11w7gj4tb7?entry=ttu&g_ep=EgoyMDI2MTAwNC4wIKXMDSoASAFQAw%3D%3D",
+  "extractedAt": "2026-10-07",
+  "reviews": [
+    {
+      "avatar": "images/testimonios/google-review-1.jpg",
+      "id": "Ci9DQUlRQUNvZENodHljRjlvT25odldrVmZXa1UxZFdkcU1rTkhibGg2T1d4dFMwRRAB",
+      "name": "Keyko Minaya",
+      "profile": "https://www.google.com/maps/contrib/112205786371163196906/reviews?hl=es-419",
+      "rating": 5,
+      "text": "La terapia me ha ayudado a conocer mejor y a menejar mis emociones con más claridad",
+      "avatarOriginal": "https://lh3.googleusercontent.com/a-/ALV-UjV_IP6kGAJXh2BdbuRCICej6w0zPsvp5rG6jXKTwxRUsq2BD8vo=w45-h45-p-rp-mo-br100"
+    },
+    {
+      "avatar": "images/testimonios/google-review-2.jpg",
+      "id": "ChZDSUhNMG9nS0VQUHo5TlQxbWNHZVpREAE",
+      "name": "Evelyn Arteaga",
+      "profile": "https://www.google.com/maps/contrib/103216580069519839499/reviews?hl=es-419",
+      "rating": 5,
+      "text": "Si estás estudiando psicología y te interesa el ámbito educativo, este curso es excelente. Me enseñó herramientas que no había visto en la universidad",
+      "avatarOriginal": "https://lh3.googleusercontent.com/a-/ALV-UjUDW0xFbxZRavEryZvfcBQ-0oGZ6kRH_I6HvcP9hMFZcM73diH-aQ=w45-h45-p-rp-mo-br100"
+    },
+    {
+      "avatar": "images/testimonios/google-review-3.jpg",
+      "id": "ChZDSUhNMG9nS0VNbTVyNXF2NHEzcER3EAE",
+      "name": "Kevin Montoya Garcia",
+      "profile": "https://www.google.com/maps/contrib/109321779526008217523/reviews?hl=es-419",
+      "rating": 5,
+      "text": "Gracias a la terapia, logré mejorar mi autoestima y cambiar patrones de pensamiento negativos. Me siento una persona más fuerte y segura.",
+      "avatarOriginal": "https://lh3.googleusercontent.com/a-/ALV-UjXLeALO8G6pz6Yg9dpJFtAMjk8JkkbuulDLCyFIDnf3hy95RnHM=w45-h45-p-rp-mo-br100"
+    },
+    {
+      "avatar": "images/testimonios/google-review-4.jpg",
+      "id": "ChZDSUhNMG9nS0VJQ0FnTUR3NTRESkh3EAE",
+      "name": "Sayumi Flores Llaullipoma",
+      "profile": "https://www.google.com/maps/contrib/106578488009092353458/reviews?hl=es-419",
+      "rating": 5,
+      "text": "Ofrecen terapias a buen precio y con profesionales realmente buenos. Me ayudaron muchísimo a trabajar en mi autoestima y a sentirme mejor conmigo misma",
+      "avatarOriginal": "https://lh3.googleusercontent.com/a-/ALV-UjUYSDnRndWBgHaWaEDeR1pScHrijGAx4i0_h48M5Lhhi4MBTmg=w45-h45-p-rp-mo-br100"
+    },
+    {
+      "avatar": "images/testimonios/google-review-5.jpg",
+      "id": "ChZDSUhNMG9nS0VJQ0FnTUNveHNYQ0tREAE",
+      "name": "emma rios prada",
+      "profile": "https://www.google.com/maps/contrib/107619673769006956137/reviews?hl=es-419",
+      "rating": 5,
+      "text": "Brindan el apoyo necesario en momentos difíciles. Gracias a la terapia, aprendí a manejar mis emociones de una manera más saludable.",
+      "avatarOriginal": "https://lh3.googleusercontent.com/a-/ALV-UjVgvDn5GR5fnQZveCJdXeCx1uanWpxxABpyD6UqcIjl40TiSjZd=w45-h45-p-rp-mo-br100"
+    },
+    {
+      "avatar": "images/testimonios/google-review-6.jpg",
+      "id": "ChZDSUhNMG9nS0VQNjJ0OFRINS1hYkRBEAE",
+      "name": "Joseph Vela Chirre",
+      "profile": "https://www.google.com/maps/contrib/100611499194179351804/reviews?hl=es-419",
+      "rating": 5,
+      "text": "Súper recomendable para estudiantes que quieren especializarse en el área educativa. Me dio una visión más clara del campo laboral.",
+      "avatarOriginal": "https://lh3.googleusercontent.com/a-/ALV-UjXEy-vOBrdUyKUSHkehvn8YMNgwk3mgL-BX54atTE0311yv1bLTNw=w45-h45-p-rp-mo-br100"
+    }
+  ]
+}

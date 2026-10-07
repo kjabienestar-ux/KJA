@@ -141,3 +141,18 @@ test('the seventh nav link does not overflow the desktop bar and carousel arrows
     assert.doesNotMatch(arrow, /transform/);
     assert.match(arrow, /top: 0;\s*bottom: 0;[\s\S]*margin: auto 0;/);
 });
+
+test('cards preview the real video paused and muted, without autoplay', () => {
+    const window = page({ videos: sample });
+    const { previewSrc, coverHtml } = window.KJAVideos;
+    for (const item of sample.filter(video => video.url)) {
+        const src = previewSrc(item);
+        assert.ok(src, item.titulo);
+        assert.doesNotMatch(src, /autoplay=(1|true)/);
+    }
+    assert.equal(previewSrc(sample[0]), '');
+    assert.match(coverHtml(sample[1], true), /data-preview-src=/);
+    assert.doesNotMatch(coverHtml(sample[1]), /data-preview-src=/);
+    assert.doesNotMatch(coverHtml({ ...sample[1], portada: 'images/videos/x.webp' }, true), /data-preview-src=/);
+    assert.equal(window.document.querySelectorAll('.kv-slide .kv-live[data-preview-src]').length, 2);
+});

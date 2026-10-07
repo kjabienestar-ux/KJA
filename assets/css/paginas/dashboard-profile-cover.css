@@ -1,0 +1,302 @@
+/* Portada del perfil (estilo Facebook): banda superior de la tarjeta de identidad con la foto
+   montada sobre su borde inferior. Se carga al final porque las reglas del perfil están repartidas
+   en varias hojas con !important. La proporción 8:3 coincide con el recorte de 1200x450. */
+
+#portal:not(.admin-wide) #view-perfil article.profile-identity {
+  /* La altura de la portada y el padding-top comparten --cover-h: así la foto siempre cuadra con su borde.
+     En % se calcula sobre el ancho de la tarjeta (relación --cover-ratio), con tope de 260px. */
+  --cover-ratio: 8 / 3;
+  --cover-h: min(37.5%, 260px);
+  --cover-overlap: 52px;
+  --cover-gap: 24px;
+  --cover-bg: linear-gradient(135deg, #a6cce0, #6fa8c7);
+}
+#portal:not(.admin-wide) #view-perfil article.profile-identity[data-cover="jardin"] { --cover-bg: linear-gradient(135deg, #94c0a8, #5f9d7e); }
+#portal:not(.admin-wide) #view-perfil article.profile-identity[data-cover="noche"] { --cover-bg: linear-gradient(135deg, #2f4e7c, #162a4a); }
+
+#portal:not(.admin-wide) #view-perfil .profile-banner {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 0;
+  /* width explícito: con max-height activo el aspect-ratio ya no puede encoger el ancho. */
+  width: 100%;
+  aspect-ratio: var(--cover-ratio);
+  max-height: 260px;
+  border-radius: 19px 19px 0 0;
+  background: var(--cover-bg);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+#portal:not(.admin-wide) #view-perfil .profile-banner::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 42%;
+  background: linear-gradient(180deg, transparent, rgba(12, 28, 44, .22));
+  pointer-events: none;
+}
+
+#portal:not(.admin-wide) #view-perfil .profile-cover-edit {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px 0 12px;
+  border: 1px solid rgba(255, 255, 255, .7);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .88);
+  color: #1e384d;
+  font: 600 13px/1 Inter, system-ui, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(20, 44, 64, .2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: background .2s ease, transform .2s ease;
+}
+#portal:not(.admin-wide) #view-perfil .profile-cover-edit:hover { background: #fff; transform: translateY(-1px); }
+#portal:not(.admin-wide) #view-perfil .profile-cover-edit:focus-visible { outline: 3px solid #244b64; outline-offset: 2px; }
+#portal:not(.admin-wide) #view-perfil .profile-cover-edit:disabled { opacity: .6; cursor: progress; }
+#portal:not(.admin-wide) #view-perfil .profile-cover-edit[hidden] { display: none; }
+#portal:not(.admin-wide) #view-perfil .profile-cover-edit svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* La foto y el texto bajan para dejar libre la portada y la foto se monta sobre su borde. */
+#portal:not(.admin-wide) #view-perfil article.profile-identity {
+  padding-top: calc(var(--cover-h) - var(--cover-overlap)) !important;
+  justify-content: flex-start;
+}
+#portal:not(.admin-wide) #view-perfil article.profile-identity > :not(.profile-banner) { position: relative; z-index: 1; }
+#portal:not(.admin-wide) #view-perfil article.profile-identity .profile-photo-wrap { z-index: 2; }
+#portal:not(.admin-wide) #view-perfil article.profile-identity .profile-avatar { border-width: 5px; }
+
+/* Tablet y móvil: portada más alta (2:1); con background-size: cover se recortan un poco los lados. */
+@media (max-width: 900px) {
+  #portal:not(.admin-wide) #view-perfil article.profile-identity {
+    --cover-ratio: 2 / 1;
+    --cover-h: min(50%, 260px);
+  }
+}
+
+/* Texto de la cabecera: en móvil sigue siendo una columna centrada. */
+#portal:not(.admin-wide) #view-perfil .profile-headline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+#portal:not(.admin-wide) #view-perfil .profile-headline-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#portal:not(.admin-wide) #view-perfil .profile-aside { display: none; }
+
+/* Escritorio: foto a la izquierda y texto anclado a su pie, como el perfil de Facebook.
+   Una sola fila de grid: la foto sube sobre la portada (margen negativo) y rellena la fila,
+   así el texto y la foto comparten la misma línea base. */
+@media (min-width: 901px) {
+  #portal:not(.admin-wide) #view-perfil .profile-layout { container-type: inline-size; }
+  #portal:not(.admin-wide) #view-perfil article.profile-identity {
+    --avatar-wrap: 112px;
+    --avatar-h: 100px;
+    --cover-overlap: 32px;
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: minmax(calc(var(--avatar-h) - var(--cover-overlap)), auto);
+    column-gap: 24px;
+    align-items: end;
+    align-content: start;
+    justify-items: start;
+    min-height: 0;
+    padding-top: var(--cover-h) !important;
+    padding-bottom: 24px !important;
+    text-align: left;
+  }
+  #portal:not(.admin-wide) #view-perfil article.profile-identity .profile-photo-wrap {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    width: var(--avatar-wrap);
+    margin: calc(-1 * var(--cover-overlap)) 0 0;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-headline {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    align-items: flex-start;
+    padding-bottom: 6px;
+    text-align: left;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-headline h2 {
+    margin: 0 0 6px;
+    font-size: 27px;
+    line-height: 1.15;
+    text-align: left;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-headline-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-headline-meta #profile-area {
+    margin: 0;
+    font-size: 15px;
+    text-align: left;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-headline-meta #profile-area::after {
+    content: "·";
+    margin-left: 10px;
+    color: #9fb1bd;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-headline-meta .profile-badge {
+    align-self: center;
+    justify-self: start;
+    margin: 0;
+  }
+}
+
+/* Escritorio ancho: portada más alta y foto grande. */
+@media (min-width: 1161px) {
+  #portal:not(.admin-wide) #view-perfil article.profile-identity {
+    --cover-h: clamp(220px, 20vw, 280px);
+    --cover-overlap: 44px;
+    --avatar-wrap: 148px;
+    --avatar-h: 132px;
+    column-gap: 30px;
+    padding-bottom: 28px !important;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-banner {
+    aspect-ratio: auto;
+    height: var(--cover-h);
+    max-height: none;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-headline { padding-bottom: 6px; }
+  #portal:not(.admin-wide) #view-perfil .profile-headline h2 { margin-bottom: 8px; font-size: 32px; }
+
+  /* Lado derecho: accesos directos y datos rápidos, solo si la tarjeta es lo bastante ancha.
+     El aside mide lo mismo que la fila (no la estira): su contenido desborda hacia el relleno inferior
+     de la tarjeta, así el texto sigue anclado al pie de la foto. */
+  @container (min-width: 820px) {
+    #portal:not(.admin-wide) #view-perfil article.profile-identity {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      padding-bottom: 44px !important;
+    }
+    #portal:not(.admin-wide) #view-perfil .profile-aside {
+      grid-column: 3;
+      grid-row: 1;
+      align-self: start;
+      box-sizing: border-box;
+      height: calc(var(--avatar-h) - var(--cover-overlap));
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
+    #portal:not(.admin-wide) #view-perfil .profile-cover-edit { display: none; }
+    /* Con poco ancho solo caben los accesos; los datos rápidos aparecen desde ~1100px. */
+    #portal:not(.admin-wide) #view-perfil .profile-quick { display: none; }
+  }
+  @container (min-width: 1100px) {
+    #portal:not(.admin-wide) #view-perfil .profile-quick { display: flex; flex-wrap: nowrap; }
+  }
+}
+
+.profile-shortcuts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.profile-shortcuts button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(36, 75, 100, .2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .85);
+  color: #244b64;
+  font: 600 13px/1 Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.profile-shortcuts button:hover { border-color: #244b64; background: #244b64; color: #fff; }
+.profile-shortcuts button:focus-visible { outline: 3px solid #244b64; outline-offset: 2px; }
+.profile-shortcuts button[hidden] { display: none; }
+.profile-shortcuts svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.profile-quick { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.profile-chip {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 12px;
+  border: 1px solid rgba(190, 212, 224, .85);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .72);
+}
+.profile-chip small { color: #6a8394; font: 600 10px/1 Inter, system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+.profile-chip b { color: #1e384d; font: 600 13px/1.2 Inter, system-ui, sans-serif; white-space: nowrap; }
+
+@media (max-width: 600px) {
+  /* Nombre más compacto para dar protagonismo a la portada. */
+  #portal:not(.admin-wide) #view-perfil article.profile-identity h2 {
+    font-size: clamp(19px, 5.2vw, 22px);
+    line-height: 1.2;
+  }
+  #portal:not(.admin-wide) #view-perfil article.profile-identity #profile-area {
+    margin: 5px 0 9px;
+    font-size: 12px;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-cover-edit {
+    right: 10px;
+    bottom: 10px;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 14px;
+  }
+  #portal:not(.admin-wide) #view-perfil .profile-cover-edit span { display: none; }
+}
+
+/* Vista de administración: conserva su cabecera propia (colores), sin portada con imagen. */
+#portal.admin-wide #view-perfil .profile-banner,
+#portal.admin-wide #view-perfil .profile-aside { display: none; }
+
+/* Diálogo de portada */
+.profile-cover-dialog-preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 8 / 3;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #a6cce0, #6fa8c7) center / cover no-repeat;
+  grid-column: 1 / -1;
+}
+.profile-cover-dialog .profile-cover-upload-panel { grid-template-columns: minmax(0, 1fr) auto; }
+.profile-cover-dialog .profile-cover-upload-panel .profile-cover-dialog-preview { grid-column: 1 / -1; }
+@media (max-width: 520px) {
+  .profile-cover-dialog .profile-cover-upload-panel { grid-template-columns: minmax(0, 1fr); }
+  .profile-cover-dialog .profile-cover-upload-panel .profile-photo-change { width: 100%; justify-content: center; }
+}
