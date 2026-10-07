@@ -37,7 +37,8 @@
 /* Lista de personas y grupos */
 .chat-contacts{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:2px 8px 12px;scrollbar-width:thin;scrollbar-color:#c9ccd2 transparent}
 .chat-contact{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:10px;text-align:left;background:transparent;color:inherit;border-radius:14px;transition:background .15s}
-.chat-contact:hover{background:var(--chat-hover)}.chat-contact[aria-current=true]{background:var(--chat-fucsia-soft);box-shadow:inset 3px 0 0 var(--chat-fucsia)}
+.chat-contact:hover{background:var(--chat-hover)}.chat-contact[aria-current=true]{background:#fff3f8;box-shadow:inset 0 0 0 1px #f7cfe1}
+.chat-contact[aria-current=true]:hover{background:#ffeef5}.chat-contact[aria-current=true] .chat-person strong{color:var(--chat-fucsia-dark)}
 .chat-avatar{position:relative;display:grid;place-items:center;overflow:hidden;width:42px;height:42px;flex-shrink:0;border-radius:50%;background:var(--chat-hover);color:var(--chat-ink);font-size:13px;font-weight:650;letter-spacing:.02em}
 /* Tres tonos de la paleta (azul, fucsia y negro) repartidos entre las 6 claves de color. */
 :is(.chat-avatar,.chat-join-avatar):is([data-tone="0"],[data-tone="3"]){background:var(--chat-azul-soft);color:var(--chat-azul)}
@@ -87,6 +88,18 @@
 .chat-compose textarea{resize:none;flex:1;min-width:0;max-height:100px;min-height:44px;padding:11px 16px;border:1px solid transparent;border-radius:22px;background:var(--chat-hover);color:var(--chat-ink);font-size:13.5px;caret-color:var(--chat-azul);transition:background .15s,border-color .15s,box-shadow .15s}
 .chat-compose textarea:focus{outline:0;background:#fff;border-color:var(--chat-azul);box-shadow:0 0 0 3px #004fb026}.chat-compose textarea::placeholder{color:var(--chat-muted)}
 .chat-send{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;background:var(--chat-fucsia);color:#fff;border-radius:50%;transition:background .15s,transform .15s}.chat-send:hover{background:var(--chat-fucsia-dark)}.chat-send:active{transform:scale(.94)}
+/* Emojis */
+.chat-compose,.chat-mass-compose{position:relative}
+.kja-chat .chat-emoji-btn{order:-1;display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border-radius:50%;background:var(--chat-hover);color:var(--chat-muted);transition:background .15s,color .15s}
+.kja-chat .chat-emoji-btn:hover{color:var(--chat-fucsia-dark)}.kja-chat .chat-emoji-btn[aria-expanded=true]{background:var(--chat-fucsia-soft);color:var(--chat-fucsia-dark)}.chat-emoji-btn svg{width:21px;height:21px}
+.chat-emoji-panel{position:absolute;left:12px;bottom:calc(100% + 8px);z-index:5;width:min(344px,calc(100% - 24px));padding:10px;border-radius:16px;background:#fff;box-shadow:0 14px 40px #15171c2e,0 0 0 1px #15171c12}
+.chat-emoji-tabs{display:flex;gap:2px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--chat-line)}
+.kja-chat .chat-emoji-tab{flex:1;height:36px;border-radius:9px;background:transparent;font-size:18px;line-height:1;transition:background .15s}
+.kja-chat .chat-emoji-tab:hover{background:var(--chat-hover)}.kja-chat .chat-emoji-tab[aria-pressed=true]{background:var(--chat-fucsia-soft);box-shadow:inset 0 -2px 0 var(--chat-fucsia)}
+.chat-emoji-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;max-height:212px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.kja-chat .chat-emoji{height:38px;border-radius:9px;background:transparent;font-size:22px;line-height:1;transition:background .15s,transform .1s}
+.kja-chat .chat-emoji:hover{background:var(--chat-hover)}.kja-chat .chat-emoji:active{transform:scale(.88)}
+.chat-emoji,.chat-emoji-tab,.chat-bubble{font-family:Inter,system-ui,'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif}
 .chat-hint{margin:0;padding:2px 20px 10px;background:#fff;color:var(--chat-muted);font-size:10.5px}
 /* Unirse a un grupo */
 .chat-join{display:flex;flex-direction:column;min-width:0;min-height:0;width:100%;height:100%}

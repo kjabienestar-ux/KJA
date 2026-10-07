@@ -17,7 +17,7 @@
     if(name==='chat_grupo_enviar'){const m={id:preview.nextId++,grupo_id:args.p_grupo,remitente:user,autor:'Tú',contenido:String(args.p_contenido).trim(),creado_at:new Date().toISOString()};preview.messages.push(m);if(g){g.ultimo=m.contenido;g.ultimo_autor='Tú';g.ultimo_remitente=user;g.ultimo_at=m.creado_at}return {...m}}
     throw Error('Vista previa: '+name);
   }
-  const icons={chat:'M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5a9.5 9.5 0 0 1 19 0Z',close:'m6 6 12 12M6 18 18 6',minus:'M5 12h14',back:'m14 6-6 6 6 6',send:'m3 3 18 9-18 9 4-9-4-9Zm4 9h14',refresh:'M21 12a9 9 0 1 1-2.64-6.36L21 8M21 3v5h-5',
+  const icons={smile:'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01',chat:'M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5a9.5 9.5 0 0 1 19 0Z',close:'m6 6 12 12M6 18 18 6',minus:'M5 12h14',back:'m14 6-6 6 6 6',send:'m3 3 18 9-18 9 4-9-4-9Zm4 9h14',refresh:'M21 12a9 9 0 1 1-2.64-6.36L21 8M21 3v5h-5',
     users:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',leave:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
     compose:'M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z',megaphone:'m3 11 18-5v12L3 14v-3ZM11.6 16.8a3 3 0 1 1-5.8-1.6'};
   const node=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text)el.textContent=text;return el};
@@ -44,6 +44,42 @@
     if(dayKey(d)===dayKey(new Date(Date.now()-864e5)))return 'Ayer';
     return d.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});
   }
+  // Emojis: se insertan como texto (Unicode) y viajan con el mensaje; no requieren nada nuevo en el servidor.
+  const EMOJIS=[
+    ['Caras','😀 😃 😄 😁 😆 😅 😂 🤣 🙂 😉 😊 😇 🥰 😍 😘 😋 😜 🤗 🤔 🤨 😐 🙄 😏 😌 😴 😷 🤒 😎 🤓 🥳 😮 😲 😳 🥺 😢 😭 😤 😡 🤯 😱'],
+    ['Gestos','👍 👎 👌 ✌️ 🤞 🤝 👏 🙌 🙏 💪 👋 ☝️ 👉 👈 👆 👇 ✋ 🤙 ✍️ 🙋'],
+    ['Corazones','❤️ 🧡 💛 💚 💙 💜 🤍 🖤 💖 💕 💗 💯 ✨ ⭐ 🌟 🔥'],
+    ['Trabajo','✅ ☑️ ❌ ⚠️ ❗ ❓ 📌 📎 📅 🗓️ ⏰ ⏳ 📝 📄 📊 📈 💼 💻 📱 📞 📧 📢 🔔 💡 🧠 🎯 🚀'],
+    ['Celebración','🎉 🎊 🎂 🎁 🏆 🥇 🍀 ☕ 🍕 🌞 🌈 ⚽ 🎶']
+  ].map(([nombre,lista])=>[nombre,lista.split(' ')]);
+  const recentEmojiKey=()=>'kja-chat-emojis:'+user;
+  function recentEmojis(){try{const saved=JSON.parse(localStorage.getItem(recentEmojiKey())||'[]');return Array.isArray(saved)?saved.filter(e=>typeof e==='string').slice(0,16):[]}catch{return []}}
+  function rememberEmoji(emoji){try{localStorage.setItem(recentEmojiKey(),JSON.stringify([emoji,...recentEmojis().filter(e=>e!==emoji)].slice(0,16)))}catch{}}
+  let openEmoji=null;
+  function closeEmoji(){if(!openEmoji)return;openEmoji.panel.hidden=true;openEmoji.toggle.setAttribute('aria-expanded','false');openEmoji=null}
+  // Botón 😊 y panel por categorías; el emoji se inserta donde está el cursor y el panel sigue abierto.
+  function mountEmoji(form,input){
+    const toggle=button('Insertar emoji','smile','chat-emoji-btn'),panel=node('div','chat-emoji-panel'),tabs=node('div','chat-emoji-tabs'),grid=node('div','chat-emoji-grid');
+    toggle.setAttribute('aria-expanded','false');panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Emojis');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Categorías de emojis');panel.append(tabs,grid);
+    let category=null;
+    function render(){
+      const recent=recentEmojis(),groups=[...(recent.length?[['Recientes',recent]]:[]),...EMOJIS];
+      if(!groups.some(([nombre])=>nombre===category))category=groups[0][0];
+      tabs.replaceChildren(...groups.map(([nombre,lista])=>{const b=node('button','chat-emoji-tab',nombre==='Recientes'?'🕘':lista[0]);b.type='button';b.title=nombre;b.setAttribute('aria-label',nombre);b.setAttribute('aria-pressed',String(nombre===category));b.onclick=()=>{category=nombre;render()};return b}));
+      grid.replaceChildren(...groups.find(([nombre])=>nombre===category)[1].map(emoji=>{const b=node('button','chat-emoji',emoji);b.type='button';b.onclick=()=>insert(emoji);return b}));
+    }
+    function insert(emoji){
+      if(input.disabled)return;
+      const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
+      input.value=input.value.slice(0,start)+emoji+input.value.slice(end);input.focus();
+      try{input.setSelectionRange(start+emoji.length,start+emoji.length)}catch{}
+      input.oninput?.();rememberEmoji(emoji);
+    }
+    toggle.onclick=()=>{if(openEmoji?.panel===panel){closeEmoji();return}closeEmoji();category=null;render();panel.hidden=false;toggle.setAttribute('aria-expanded','true');openEmoji={panel,toggle}};
+    panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closeEmoji();toggle.focus()}});
+    form.append(toggle,panel);return toggle;
+  }
+  document.addEventListener('pointerdown',e=>{if(openEmoji&&!openEmoji.panel.contains(e.target)&&!openEmoji.toggle.contains(e.target))closeEmoji()});
   const root=node('aside','kja-chat');root.hidden=true;root.setAttribute('aria-label','Mensajes del equipo');
   const launcher=button('Abrir mensajes','chat','chat-launcher'),launchText=node('span','','Mensajes'),count=node('span','chat-count');count.hidden=true;launcher.append(launchText,count);launcher.setAttribute('aria-expanded','false');
   const directory=node('section','chat-directory');directory.hidden=true;directory.id='chat-directory';launcher.setAttribute('aria-controls',directory.id);
@@ -85,7 +121,7 @@
   const massProgress=node('div','chat-mass-progress'),massMeter=node('span','chat-mass-meter'),massFill=node('span'),massProgressText=node('p','','Enviando…'),massStop=textButton('Detener','chat-link chat-link-muted');massProgress.hidden=true;massMeter.append(massFill);massProgress.append(massProgressText,massMeter,massStop);
   const massStatus=node('p','chat-status');massStatus.setAttribute('role','status');
   const massForm=node('form','chat-mass-compose'),massInput=node('textarea');massInput.rows=1;massInput.maxLength=4000;massInput.placeholder='Escribe el mensaje…';massInput.setAttribute('aria-label','Mensaje para las personas seleccionadas');
-  const massSend=node('button','chat-send chat-send-wide'),massSendText=node('span','','Enviar');massSend.type='submit';massSend.disabled=true;massSend.append(svgIcon('send'),massSendText);massForm.append(massInput,massSend);
+  const massSend=node('button','chat-send chat-send-wide'),massSendText=node('span','','Enviar');massSend.type='submit';massSend.disabled=true;massSend.append(svgIcon('send'),massSendText);massForm.append(massInput,massSend);mountEmoji(massForm,massInput);
   mass.append(massHead,massPick,massList,massProgress,massStatus,massForm,node('p','chat-hint','Las respuestas llegarán a tus chats privados. Las listas se guardan en este navegador.'));
   dock.append(empty);if(GROUPS_ENABLED)dock.append(join);dock.append(mass);panel.append(directory,dock);root.append(launcher,panel,announcer);document.body.append(root);
   let user=null,epoch=0,contacts=[],tab='equipo',timer=null,refreshBusy=false;
@@ -360,7 +396,7 @@
     }catch(error){if(current(w))windowNote(w,(error?.code==='P0001'?error.message:messageError(error)+' Pulsa Actualizar (↻).'),true)}finally{w.loading=false;w.older.disabled=false}
   }
   function minimize(w,value){if(value){toggleDirectory(false)}else{activeId=w.id;syncPanel();if(!panel.hidden)focusChat(w.input);void history(w)}persist()}
-  function close(w){if(w.sending)return;window.KJAChatImages?.clear(w);remember(w);windows.delete(w.id);w.el.remove();if(activeId===w.id)activeId=null;syncPanel();renderContacts();persist();focusChat(search)}
+  function close(w){if(w.sending)return;if(openEmoji&&w.el.contains(openEmoji.panel))closeEmoji();window.KJAChatImages?.clear(w);remember(w);windows.delete(w.id);w.el.remove();if(activeId===w.id)activeId=null;syncPanel();renderContacts();persist();focusChat(search)}
   async function leaveGroup(w){
     if(w.sending||w.leaving||!confirm(`¿Salir del grupo ${w.title}? Dejarás de ver sus mensajes hasta que vuelvas a unirte.`))return;
     const stamp=epoch;w.leaving=true;w.leave.disabled=true;windowNote(w,'Saliendo del grupo…');
@@ -408,6 +444,7 @@
     const hint=w.group?(GROUPS_PREVIEW?'Vista previa · estos mensajes no se guardan ni se envían a nadie':'Lo verán todas las personas del grupo · Enter envía'):t.activo?'Enter envía · Shift + Enter agrega una línea':'Cuenta desactivada. Solo puedes consultar el historial.';
     body.append(w.history,w.status,form,node('p','chat-hint',hint));w.el.append(head,body);windows.set(id,w);dock.append(w.el);
     if(t.activo&&!w.group)window.KJAChatImages?.mount(w,form,current,windowNote);
+    if(t.activo)mountEmoji(form,w.input);
     if(w.messages.size){renderMessages(w);w.history.scrollTop=w.history.scrollHeight}else windowNote(w,'Cargando historial…');
     if(!options.restore||!options.minimized)minimize(w,false);else w.el.hidden=true;renderContacts();void history(w);persist();
   }
@@ -555,7 +592,7 @@
       await Promise.all([...windows.values()].filter(w=>!w.minimized).map(w=>history(w)));
     }catch(error){if(stamp===epoch)note(messageError(error),true)}finally{if(stamp===epoch)refreshBusy=false}
   }
-  function destroy(){epoch++;if(chatChannel){void db.removeChannel(chatChannel);chatChannel=null}if(groupChannel){void db.removeChannel(groupChannel);groupChannel=null}realtimeReady=false;groupRealtimeReady=false;notifiedEvents.clear();unreadSnapshots.clear();pollingAlertedCounts.clear();clearInterval(timer);timer=null;user=null;contacts=[];windows.clear();activeId=null;presenceSession=null;presenceAt=0;presenceBusy=false;presenceKnown=false;presenceDesired=true;onlineUntil.clear();conversationCache.clear();tab='equipo';photoCache.clear();photoUrls.clear();photoBusy=false;photoCheckAt=0;
+  function destroy(){epoch++;closeEmoji();if(chatChannel){void db.removeChannel(chatChannel);chatChannel=null}if(groupChannel){void db.removeChannel(groupChannel);groupChannel=null}realtimeReady=false;groupRealtimeReady=false;notifiedEvents.clear();unreadSnapshots.clear();pollingAlertedCounts.clear();clearInterval(timer);timer=null;user=null;contacts=[];windows.clear();activeId=null;presenceSession=null;presenceAt=0;presenceBusy=false;presenceKnown=false;presenceDesired=true;onlineUntil.clear();conversationCache.clear();tab='equipo';photoCache.clear();photoUrls.clear();photoBusy=false;photoCheckAt=0;
     groups=[];groupsError=false;joinTarget=null;joinBusy=false;joinStatus.textContent='';lastTotal=0;delete count.dataset.bump;
     if(massJob)massJob.cancel=true;massJob=null;massOpen=false;massSelected.clear();massKeys.clear();massVisible=[];massInput.value='';massSearch.value='';massStatus.textContent='';massProgress.hidden=true;massSave.hidden=true;massList.replaceChildren();massQuick.replaceChildren();
     newChatOpen=false;newChat.hidden=true;delete directory.dataset.view;ncSearch.value='';ncBody.replaceChildren();
@@ -583,5 +620,6 @@
     try{const saved=JSON.parse(sessionStorage.getItem('kja-chat-windows:'+id)||'[]');if(Array.isArray(saved))saved.slice(-2).forEach(w=>open(w.id,{restore:true,minimized:!!w.minimized}))}catch{}
     timer=setInterval(()=>void refresh(),5000);
   },destroy};
-  window.dispatchEvent(new Event('kja-chat-ready'));
+  // Avisa a dashboard.js si inició sesión antes de que cargara este script. Protegido para entornos sin Event (pruebas).
+  try{window.dispatchEvent(new Event('kja-chat-ready'))}catch{}
 })();
