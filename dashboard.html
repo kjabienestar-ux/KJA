@@ -54,7 +54,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=3">
@@ -2241,7 +2241,7 @@
         <div class="admin-form-grid">
           <label class="admin-field span-2">Nombre completo<input id="admin-person-name" maxlength="80" required placeholder="Nombres y apellidos"></label>
           <label class="admin-field">DNI<input id="admin-person-dni" inputmode="numeric" maxlength="8" placeholder="8 dígitos"></label>
-          <label class="admin-field">Institución (opcional)<select id="admin-person-institution" aria-describedby="admin-institution-help"><option value="">Sin institución</option></select><small id="admin-institution-help">Elige la sede. Si no se registra, quedará vacía en el informe.</small></label>
+          <div class="admin-field"><label for="admin-person-institution">Institución (opcional)</label><select id="admin-person-institution" aria-describedby="admin-institution-help"><option value="">Sin institución</option></select><small id="admin-institution-help">Elige la sede. Si no se registra, quedará vacía en el informe.</small><button type="button" id="admin-institution-reveal" class="admin-editor-inline-action" aria-expanded="false">+ Nueva institución</button><div id="admin-institution-create" hidden><label for="admin-institution-name">Universidad o institución</label><input id="admin-institution-name" maxlength="160" placeholder="Nombre de la universidad o sede"><button type="button" id="admin-institution-add" class="admin-editor-inline-action">Usar institución</button><small>Se guardará junto con los cambios del colaborador.</small></div></div>
           <label class="admin-field">Tipo de vínculo<select id="admin-person-link"><option value="practicas">Prácticas</option><option value="voluntariado">Voluntariado</option><option value="ambos">Prácticas + voluntariado</option></select></label>
           <div class="admin-field"><label for="admin-person-area">Área</label><div class="admin-area-field"><select id="admin-person-area" required></select><button type="button" id="admin-area-reveal">+ Nueva área</button></div></div>
           <div class="admin-area-create span-2" id="admin-area-create" hidden><input id="admin-area-name" maxlength="60" placeholder="Nombre de la nueva área"><button type="button" id="admin-area-save">Crear área</button></div>
@@ -2255,7 +2255,7 @@
         <div class="admin-form-grid contract-fields">
           <label class="admin-field">Inicio<input type="date" id="admin-contract-start"></label>
           <label class="admin-field">Fin según documento<input type="date" id="admin-contract-end"></label>
-          <label class="admin-field">Meta principal (h)<input type="number" min="0" step="1" id="admin-contract-hours"></label>
+          <div class="admin-field"><label for="admin-contract-hours">Meta principal (h)</label><input type="number" min="0" step="0.01" id="admin-contract-hours"><button type="button" id="admin-contract-calculate" class="admin-editor-inline-action">Calcular según fechas y jornada</button><small id="admin-contract-estimate" role="status">Se calcula al cambiar las fechas o la jornada. Puedes ajustar la meta manualmente.</small></div>
           <label class="admin-field">Horas previas<input type="number" min="0" step="0.5" id="admin-contract-previous" value="0"></label>
           <label class="admin-field span-2" id="admin-volunteer-hours-wrap" hidden>Meta de voluntariado (h)<input type="number" min="0" step="1" id="admin-volunteer-hours"></label>
         </div>
@@ -2718,7 +2718,7 @@
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=17"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=18"></script>
 <script src="assets/js/dashboard-person-delete.js?v=1"></script>
 <script src="assets/js/dashboard-areas.js?v=2"></script>
 <script src="assets/js/dashboard-area-picker.js?v=2"></script>
