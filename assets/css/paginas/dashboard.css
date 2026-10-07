@@ -7055,7 +7055,6 @@ input:-webkit-autofill:active {
 .admin-close-person.is-off{background:#fff2f4;box-shadow:inset 0 1px rgba(190,54,82,.08),inset 0 -1px rgba(190,54,82,.08)}
 .admin-close-person.is-off>span:first-child b{color:#762f40}
 .admin-close-person.is-off .admin-close-person-schedule{color:#a34359;font-weight:700}
-.admin-close-person.is-off .admin-close-message-trigger{border-color:rgba(135,61,108,.18);background:#fff8fb}
 .admin-close-status-pill{justify-self:start;padding:6px 9px;border-radius:999px;color:#79520e;background:#fff0d7;font-size:11px;font-weight:800;white-space:nowrap}.admin-close-status-pill.completa,.admin-close-status-pill.regularizada,.admin-close-status-pill.lista_para_salir{color:#08735a;background:#e4f7f0}.admin-close-status-pill.incompleta{color:#922e43;background:#ffe8ed}.admin-close-status-pill.sin_entrada,.admin-close-status-pill.no_aplica{color:#506278;background:#edf1f5}
 .admin-review-summary{min-height:76px;display:grid;grid-template-columns:repeat(3,minmax(115px,.4fr)) minmax(220px,1fr);align-items:center;gap:0;overflow:hidden;border:1px solid #dbe5ef;border-radius:15px;background:#f7fbff}
 .admin-review-summary>span{position:relative;min-height:52px;display:grid;grid-template-columns:10px 1fr;align-content:center;column-gap:9px;padding:0 18px;border-right:1px solid #dfe8f1}
@@ -10227,7 +10226,7 @@ body.admin-role-confirm-open{overflow:hidden}
 .admin-close-table-head,
 .admin-close-person{
   display:grid;
-  grid-template-columns:minmax(130px,1.3fr) 46px 66px minmax(96px,1fr) 46px 74px 72px;
+  grid-template-columns:minmax(130px,1.3fr) 46px 66px minmax(96px,1fr) 46px 74px 48px;
   align-items:center;
   gap:6px;
   padding:8px 14px;
@@ -10291,6 +10290,19 @@ body.admin-role-confirm-open{overflow:hidden}
   background:rgba(255,59,48,.08);
   color:#d70015;
   border-color:rgba(255,59,48,.18);
+}
+.admin-close-avatar{
+  position:relative;
+  overflow:hidden;
+}
+.admin-close-avatar img{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:inherit;
 }
 .admin-close-person-meta{
   display:flex;
@@ -10551,6 +10563,193 @@ body.admin-role-confirm-open{overflow:hidden}
   outline-offset:2px;
 }
 
+/* Cierres: paleta sobria, conservando la geometria de las tarjetas. */
+.admin-close-area{
+  border-color:#e5e1dc;
+  box-shadow:none;
+}
+.admin-close-area:hover{box-shadow:none}
+.admin-close-area>header,
+.admin-close-area .admin-close-table-head{background:#faf9f7}
+.admin-close-area>header small,
+.admin-close-area .admin-close-progress-pct,
+.admin-close-area .admin-close-table-head{color:#706b65}
+.admin-close-area .admin-close-area-badge{
+  color:#65758b;
+  background:#eef1f5;
+  border-color:#dce1e8;
+}
+.admin-close-area .admin-close-area-count{
+  background:#f3f1ee;
+  border-color:#e5e1dc;
+}
+.admin-close-area .admin-close-progress-bar{background:#e8e4df}
+.admin-close-area .admin-close-progress-fill{background:#91c9a5}
+.admin-close-area .admin-close-progress[data-progress-tone="low"] .admin-close-progress-bar{background:#f6e6e8}
+.admin-close-area .admin-close-progress[data-progress-tone="low"] .admin-close-progress-fill{background:#e3a0a8}
+.admin-close-area .admin-close-person{border-top-color:#efede9}
+.admin-close-area .admin-close-person:hover{background:#faf9f7}
+.admin-close-area .admin-close-person.is-off{background:#f8f7f5 !important}
+.admin-close-area .admin-close-person.is-off:hover{background:#f1eeea !important}
+.admin-close-area .admin-close-person>span:first-child b{color:#454950}
+.admin-close-area .admin-close-person>span:first-child small{color:#706b65}
+.admin-close-area .admin-close-avatar,
+.admin-close-area .admin-close-person.is-off .admin-close-avatar{
+  color:#6d6861;
+  background:#f2f0ed;
+  border-color:#e5e0d9;
+}
+.admin-close-area .admin-close-mode.pending{color:#706b65;background:#f2f0ed}
+.admin-close-area .admin-close-mode.virtual,
+.admin-close-area .admin-close-mode.presencial{
+  color:#666b74;
+  background:#f3f3f4;
+  border-color:#e3e3e6;
+}
+.admin-close-area .admin-close-exit-note{color:#805f30;background:#f5f0e6}
+
+/* Acciones compactas: revision acentuada, carga y mensaje secundarios. */
+.admin-close-area .admin-close-review-trigger,
+.admin-close-area .admin-close-upload-trigger,
+.admin-close-area .admin-close-message-trigger{
+  color:#5d626b;
+  background:#fff;
+  border-color:#dcdde0;
+  border-radius:5px;
+  box-shadow:none;
+  transition:background-color .15s ease,border-color .15s ease,color .15s ease;
+}
+.admin-close-area .admin-close-review-trigger.has-pending{
+  color:#53657e;
+  background:#eef1f6;
+  border-color:#d6deea;
+}
+.admin-close-area .admin-close-review-trigger:hover,
+.admin-close-area .admin-close-upload-trigger:hover,
+.admin-close-area .admin-close-message-trigger:hover{
+  color:#3f526e;
+  background:#e8edf4;
+  border-color:#a8b5c7;
+}
+.admin-close-area .admin-close-review-trigger:focus-visible,
+.admin-close-area .admin-close-upload-trigger:focus-visible,
+.admin-close-area .admin-close-message-trigger:focus-visible{
+  outline:2px solid #657a98;
+  outline-offset:2px;
+}
+.admin-close-area .admin-close-status-pill{border-color:transparent}
+.admin-close-area .admin-close-status-pill.sin_entrada,
+.admin-close-area .admin-close-status-pill.no_aplica{color:#706b65;background:#f2f0ed}
+.admin-close-area .admin-close-status-pill.en_curso{color:#805f30;background:#f5f0e6}
+.admin-close-area .admin-close-status-pill.completa,
+.admin-close-area .admin-close-status-pill.lista_para_salir,
+.admin-close-area .admin-close-status-pill.regularizada{color:#3e6853;background:#edf3ee}
+.admin-close-area .admin-close-status-pill.justificado{color:#625c73;background:#f1eff4}
+.admin-close-area .admin-close-status-pill.incompleta{color:#92554c;background:#f8eeeb}
+.admin-close-area .admin-close-status-pill::before{background:currentColor}
+
+/* Detalles geometricos contenidos en el icono, sin ocupar espacio adicional. */
+.admin-close-area .admin-close-area-badge{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.admin-close-area .admin-close-area-badge::before,
+.admin-close-area .admin-close-area-badge::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  border:1px solid currentColor;
+  opacity:.22;
+  z-index:-1;
+}
+.admin-close-area .admin-close-area-badge::before{
+  width:19px;
+  height:19px;
+  top:-7px;
+  right:-6px;
+  border-radius:50%;
+}
+.admin-close-area .admin-close-area-badge::after{
+  width:7px;
+  height:7px;
+  bottom:1px;
+  left:1px;
+  transform:rotate(45deg);
+  border-radius:1px;
+}
+.admin-close-area .admin-close-area-badge.tone-salud,
+.admin-close-area .admin-close-area-badge.tone-ingenieria{
+  color:#637b93;background:#eef2f6;border-color:#dce4ec;
+}
+.admin-close-area .admin-close-area-badge.tone-rrhh,
+.admin-close-area .admin-close-area-badge.tone-operaciones{
+  color:#967459;background:#f6f0e9;border-color:#e9ddcf;
+}
+.admin-close-area .admin-close-area-badge.tone-marketing,
+.admin-close-area .admin-close-area-badge.tone-diseno{
+  color:#8a6e80;background:#f4eff3;border-color:#e7dce4;
+}
+/* Mensaje: rosa con relieve suave e icono de conversacion. */
+.admin-close-area .admin-close-message-trigger{
+  width:28px;
+  min-height:28px;
+  padding:4px;
+  color:#fff;
+  background:linear-gradient(180deg,#d52c7b,#bc2068);
+  border-color:#bb2469;
+  border-radius:8px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 2px 4px rgba(137,28,79,.12);
+}
+.admin-close-area .admin-close-message-trigger:hover{
+  color:#fff;
+  background:linear-gradient(180deg,#c72570,#a91a5a);
+  border-color:#a91a5a;
+}
+.admin-close-area .admin-close-message-trigger:active{
+  background:#a91a5a;
+  box-shadow:inset 0 1px 2px rgba(94,13,48,.2);
+}
+.admin-close-area .admin-close-message-trigger:focus-visible{
+  outline:2px solid #b51e65;
+  outline-offset:2px;
+}
+.admin-close-area .admin-close-message-trigger svg{
+  width:16px;
+  height:16px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.admin-close-area .admin-close-message-trigger .admin-message-phone{
+  fill:currentColor;
+  stroke:none;
+}
+
+/* Revision en ambar; evidencias faltantes en rojo pastel. */
+.admin-close-area .admin-close-review-trigger.has-pending{
+  color:#805610;
+  background:#fff1cd;
+  border-color:#ebce88;
+}
+.admin-close-area .admin-close-review-trigger.has-pending:hover{
+  color:#6d4709;
+  background:#ffe6a6;
+  border-color:#d9b45b;
+}
+.admin-close-area .admin-close-upload-trigger:not(.is-recover){
+  color:#963f4b;
+  background:#fcebed;
+  border-color:#efcbd1;
+}
+.admin-close-area .admin-close-upload-trigger:not(.is-recover):hover{
+  color:#802f3b;
+  background:#f8dce1;
+  border-color:#dfa9b3;
+}
+
 /* Floating Messages Action */
 .admin-close-floating-messages{
   position:fixed;
@@ -10718,7 +10917,7 @@ body.admin-role-confirm-open{overflow:hidden}
   }
   .admin-close-message-trigger{
     min-height:30px!important;
-    padding:4px 12px!important;
+    padding:4px!important;
     font-size:11px!important;
   }
   .admin-close-command .admin-review-summary{

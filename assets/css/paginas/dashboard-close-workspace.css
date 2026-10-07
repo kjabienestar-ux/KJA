@@ -1,0 +1,208 @@
+/* Cierres y areas: misma paleta suave que la ventana de revision. */
+#portal #admin-close-section{
+  --close-ink:#403955;
+  --close-muted:#706981;
+  --close-line:#e0ddea;
+  background:transparent;
+  border-radius:24px;
+}
+/* La superficie administrativa global declara estas propiedades !important. */
+#portal #admin-close-section .admin-close-command{
+  background:#faf9fd !important;
+  border-color:#e0ddea !important;
+  border-radius:24px;
+  box-shadow:none !important;
+}
+#portal #admin-close-section .admin-close-filters{
+  background:transparent !important;
+  border-color:transparent !important;
+}
+#portal #admin-close-section .admin-close-heading-icon{
+  color:#655083;
+  background:#e8dff4;
+  border-radius:16px;
+  box-shadow:0 4px 10px rgba(77,56,108,.08);
+}
+#portal #admin-close-section .admin-close-heading-icon svg{stroke:currentColor}
+#portal #admin-close-section .admin-close-heading h2{color:var(--close-ink);font-weight:600}
+#portal #admin-close-section .admin-close-heading p,
+#portal #admin-close-section .admin-close-filters label>span{color:var(--close-muted)}
+#portal #admin-close-section .admin-review-summary>span.admin-review-stat{
+  background:#fff;
+  border-color:#e9e5f0;
+  border-radius:15px;
+  box-shadow:none;
+}
+#portal #admin-close-section .admin-review-summary>span.admin-review-stat:hover{transform:none;box-shadow:none}
+#portal #admin-close-section .admin-review-stat b{color:var(--close-ink);font-weight:600}
+#portal #admin-close-section .admin-review-stat-label small{color:var(--close-muted)}
+#portal #admin-close-section .admin-review-stat-label i.pending{background:#c89943}
+#portal #admin-close-section .admin-review-stat-label i.approved{background:#71a78b}
+#portal #admin-close-section .admin-review-stat-label i.observed{background:#cc8292}
+#portal #admin-close-section .admin-close-filters :is(input,select){
+  color:var(--close-ink);
+  background:#f1eff7;
+  border-color:var(--close-line);
+  border-radius:12px;
+  caret-color:#766498;
+}
+#portal #admin-close-section .admin-close-filters input::placeholder{color:#7a7287}
+#portal #admin-close-section .admin-close-field-wrap svg{color:#807391}
+#portal #admin-close-section .admin-close-filters :is(input,select):focus-visible{
+  background:#fff;
+  border-color:#a79aba;
+  box-shadow:0 0 0 3px #eee8f7;
+}
+#portal #admin-close-section :is(button,a,input,select):focus-visible{outline-color:#766498 !important}
+#portal #admin-close-section .admin-close-area{
+  border-color:var(--close-line);
+  border-radius:22px;
+  background:#fff;
+  box-shadow:none;
+}
+#portal #admin-close-section .admin-close-area>header{
+  background:#f4f1fa;
+  border-bottom-color:#e8e3f0;
+}
+#portal #admin-close-section .admin-close-area>header b{color:var(--close-ink);font-weight:600}
+#portal #admin-close-section .admin-close-area>header small,
+#portal #admin-close-section .admin-close-progress-pct{color:var(--close-muted)}
+#portal #admin-close-section .admin-close-area-count{
+  background:#fff;
+  border-color:#e5dfee;
+  border-radius:13px;
+}
+#portal #admin-close-section .admin-close-area-badge{
+  color:#746087;
+  background:#eae2f3;
+  border-color:#dbd0e9;
+  border-radius:13px;
+}
+#portal #admin-close-section .admin-close-area-badge:is(.tone-salud,.tone-ingenieria){
+  color:#5f7797;background:#e4ecf9;border-color:#d3def0;
+}
+#portal #admin-close-section .admin-close-area-badge:is(.tone-rrhh,.tone-operaciones){
+  color:#957452;background:#f5ebde;border-color:#e9dbc6;
+}
+#portal #admin-close-section .admin-close-table-head{
+  color:var(--close-muted);
+  background:#faf9fd;
+  border-bottom-color:var(--close-line);
+}
+#portal #admin-close-section .admin-close-person{border-top-color:#eeebf3}
+#portal #admin-close-section .admin-close-person:hover{background:#faf9fd}
+#portal #admin-close-section .admin-close-person.is-off{background:#f8f6fb !important}
+#portal #admin-close-section .admin-close-person.is-off:hover{background:#f0edf6 !important}
+#portal #admin-close-section .admin-close-person>span:first-child b{color:#4e485e}
+#portal #admin-close-section .admin-close-person>span:first-child small{color:var(--close-muted)}
+#portal #admin-close-section .admin-close-avatar{color:#71627f;background:#efebf5;border-color:#e2dbea}
+#portal #admin-close-section .admin-close-mode{color:#6d657c;background:#f1eef6;border-color:#e3ddea}
+#portal #admin-close-section .admin-close-table{scrollbar-color:#c7bfd6 transparent}
+#portal #admin-close-section .admin-close-table::-webkit-scrollbar-thumb{background:#c7bfd6}
+#portal #admin-close-section ::selection{color:#403955;background:#e1d5f2}
+
+/* Filas explicitas para evitar los huecos del auto-placement en movil.
+   Los !important sustituyen las reglas moviles anteriores del portal. */
+@media(max-width:900px){
+  #portal #admin-close-section .admin-close-area>header{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto !important;
+    gap:10px 12px !important;
+    padding:14px !important;
+  }
+  #portal #admin-close-section .admin-close-area-title-group{grid-column:1 !important;grid-row:1;gap:9px}
+  #portal #admin-close-section .admin-close-area-title-group>span:last-child{min-width:0}
+  #portal #admin-close-section .admin-close-area>header b{white-space:normal;font-size:14px}
+  #portal #admin-close-section .admin-close-area>header small{white-space:normal;font-size:10px;line-height:1.4}
+  #portal #admin-close-section .admin-close-area-count{grid-column:2 !important;grid-row:1;min-width:58px;padding:5px 8px !important}
+  #portal #admin-close-section .admin-close-progress{
+    grid-column:1/-1 !important;
+    grid-row:2;
+    width:100% !important;
+    max-width:none;
+    margin:0;
+    padding:0 !important;
+    border:0 !important;
+  }
+  #portal #admin-close-section .admin-close-progress-bar{flex:1;max-width:none}
+  #portal #admin-close-section .admin-close-person{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    grid-template-rows:auto auto auto auto;
+    align-items:center;
+    gap:8px 12px !important;
+    padding:14px !important;
+  }
+  #portal #admin-close-section .admin-close-person-cell{
+    grid-column:1/-1 !important;
+    grid-row:1;
+    padding:0 52px 0 0 !important;
+    border:0 !important;
+    min-height:44px;
+  }
+  #portal #admin-close-section .admin-close-person-meta b{
+    white-space:normal;
+    overflow-wrap:anywhere;
+    font-size:13px !important;
+    line-height:1.35;
+  }
+  #portal #admin-close-section .admin-close-person-schedule{white-space:normal;line-height:1.4}
+  #portal #admin-close-section .admin-close-message-cell{
+    grid-column:2 !important;
+    grid-row:1;
+    justify-self:end;
+    align-self:center;
+    width:44px;
+    z-index:1;
+  }
+  #portal #admin-close-section .admin-close-message-trigger{width:44px;min-height:44px !important;padding:10px !important;border-radius:12px}
+  #portal #admin-close-section .admin-close-message-trigger svg{width:20px;height:20px}
+  #portal #admin-close-section .admin-close-mode-cell{grid-column:1 !important;grid-row:2;justify-content:flex-start !important}
+  #portal #admin-close-section .admin-close-status-cell{grid-column:2 !important;grid-row:2;justify-content:flex-end !important}
+  #portal #admin-close-section .admin-close-time-cell:nth-of-type(2){grid-column:1 !important;grid-row:3;justify-content:flex-start !important}
+  #portal #admin-close-section .admin-close-time-cell:nth-of-type(5){grid-column:2 !important;grid-row:3;justify-content:flex-end !important}
+  #portal #admin-close-section .admin-close-time-cell{
+    display:flex !important;
+    align-items:center;
+    gap:5px;
+    color:var(--close-ink) !important;
+    font-size:12px !important;
+  }
+  #portal #admin-close-section .admin-close-person>.admin-close-time-cell::before{
+    content:attr(data-label) ":" !important;
+    display:inline !important;
+    color:var(--close-muted) !important;
+    font-size:11px !important;
+    font-weight:500 !important;
+    text-transform:none !important;
+  }
+  #portal #admin-close-section .admin-close-evidence-cell{
+    grid-column:1/-1 !important;
+    grid-row:4;
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:wrap;
+    align-items:center !important;
+    gap:6px 10px !important;
+    padding-top:9px;
+    border-top:1px solid var(--close-line);
+    text-align:left;
+  }
+  #portal #admin-close-section .admin-close-evidence-actions{
+    flex:1 1 100%;
+    flex-direction:row;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:0;
+  }
+  #portal #admin-close-section .admin-close-evidence-actions:empty{display:none}
+  #portal #admin-close-section .admin-close-evidence-actions button{min-height:44px;padding:8px 11px;border-radius:10px;font-size:11px}
+  #portal #admin-close-section .admin-close-command{padding:16px;gap:14px}
+  #portal #admin-close-section .admin-close-heading h2{font-size:17px}
+  #portal #admin-close-section .admin-close-command .admin-review-summary{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;width:100%;gap:6px !important}
+  #portal #admin-close-section .admin-review-summary>span.admin-review-stat{min-width:0 !important;padding:8px 5px}
+  #portal #admin-close-section .admin-review-stat-label small{font-size:9px;letter-spacing:0}
+  #portal #admin-close-section .admin-close-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%}
+  #portal #admin-close-section .admin-close-filters label{min-width:0;max-width:none;width:100%}
+  #portal #admin-close-section .admin-close-search{grid-column:1/-1}
+  #portal #admin-close-section .admin-close-filters :is(input,select){height:44px;padding-left:28px}
+}

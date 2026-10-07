@@ -1,0 +1,86 @@
+.mobile-admin-sidebar{display:none}
+#portal:has(#nav-gestion:not([hidden])) #sidebar .side-help{display:none !important}
+@media(max-width:900px){
+  html:has(#portal.admin-wide:not([hidden])),
+  body:has(#portal.admin-wide:not([hidden])),
+  #portal.admin-wide,
+  #portal.admin-wide .workspace{background:#f4f1ec !important}
+  #portal #admin-overview-section .admin-overview-today .admin-kpi{min-height:82px;padding:12px 14px}
+  #portal #admin-overview-section .admin-overview-today .admin-kpi b{font-size:28px !important;margin:5px 0 3px}
+  #portal #admin-overview-section .admin-kpi small{font-size:9px;letter-spacing:0}
+  #portal #admin-overview-section .admin-kpi span{font-size:10px !important;line-height:1.3}
+  /* Override the existing drawer's important theme declarations. */
+  #portal #sidebar{
+    background:#faf9fd !important;
+    border-color:#e0ddea !important;
+    box-shadow:0 20px 60px rgba(42,34,65,.22) !important;
+    overflow:hidden !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+  }
+  #portal #sidebar .side-brand{flex-shrink:0;border-color:#e8e3f0 !important}
+  #portal #sidebar .side-brand :is(span,b){color:#55456e !important}
+  #portal #sidebar .side-nav{
+    flex:1 1 0 !important;
+    min-height:0;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    scrollbar-color:#c7bfd6 transparent;
+    padding-bottom:12px;
+  }
+  #portal #sidebar .side-nav>button{flex-shrink:0;color:#554c68 !important;background:transparent !important;border-color:transparent !important;border-radius:14px !important}
+  #portal #sidebar .side-nav button svg{color:#817093 !important;stroke:currentColor !important}
+  #portal #sidebar .side-nav>button:hover{background:#f0ebf7 !important}
+  #portal #sidebar .side-nav>button.active,
+  #portal #sidebar #nav-gestion[aria-expanded="true"]{color:#51416b !important;background:#eae2f4 !important;border-color:#d9cce9 !important;box-shadow:none !important}
+  #portal #sidebar .side-nav-divider{flex-shrink:0;color:#80718e !important}
+  #portal #sidebar #nav-gestion .sidebar-label{flex:1}
+  #portal #sidebar #nav-gestion .sidebar-label::after{content:"Ver secciones";display:block;margin-top:3px;font-size:10px;font-weight:400;color:#766487}
+  #portal #sidebar #nav-gestion[aria-expanded="true"] .sidebar-label::after{content:"Ocultar secciones"}
+  #portal #sidebar #nav-gestion::after{content:"" !important;display:block !important;position:static !important;width:7px;height:7px;flex:0 0 7px;border:solid currentColor;border-width:0 1.5px 1.5px 0;background:transparent !important;transform:rotate(45deg)}
+  #portal #sidebar #nav-gestion[aria-expanded="true"]::after{transform:rotate(225deg)}
+  #portal #sidebar .mobile-admin-sidebar{display:block;flex-shrink:0;margin:0 0 8px 12px;padding:0;border:0;background:transparent}
+  #portal #sidebar .mobile-admin-sidebar[hidden]{display:none !important}
+  #portal #sidebar .mobile-admin-sidebar>summary{display:none}
+  #portal #sidebar .mobile-admin-sidebar:not([open]) .mobile-admin-options{display:none}
+  #portal #sidebar .mobile-admin-options{display:grid;grid-template-columns:1fr;gap:4px;padding:4px 0 4px 10px;border:0;border-left:1px solid #ddd3e9;max-height:none;overflow:visible}
+  #portal #sidebar .mobile-admin-options button{width:100% !important;min-height:44px !important;padding:9px 12px !important;color:#6b617c !important;background:transparent !important;border:1px solid transparent !important;border-radius:12px !important;font-size:12px !important;line-height:1.4;box-shadow:none !important}
+  #portal #sidebar .mobile-admin-options button[aria-pressed="true"]{color:#444c78 !important;background:#e1eafb !important;border-color:#b9c8e5 !important;font-weight:600 !important}
+  #portal #sidebar .mobile-admin-options button:hover{background:#eeebf5 !important}
+  #portal #sidebar .side-help{flex-shrink:0;margin:8px 0 !important;background:#f1edf7 !important;border-color:#e0ddea !important}
+  #portal #sidebar .side-help :is(span,a,svg){color:#706080 !important}
+  #portal #sidebar #sidebar-session-actions{
+    display:flex !important;
+    position:relative !important;
+    flex:0 0 auto !important;
+    width:100% !important;
+    min-height:68px;
+    margin:0 !important;
+    padding:12px 0 0 !important;
+    gap:10px !important;
+    background:#faf9fd !important;
+    border-top:1px solid #e0ddea !important;
+  }
+  #portal #sidebar #side-avatar{display:grid !important;flex:0 0 36px !important;color:#655083 !important;background-color:#e8dff4 !important}
+  #portal #sidebar #side-avatar.has-photo{color:transparent !important;background-size:cover !important;background-position:center !important}
+  #portal #sidebar #side-profile-link{display:block !important;position:static !important;flex:1 1 0 !important;width:auto !important;min-width:0 !important;min-height:44px;padding:4px 0 !important;border:0;background:transparent !important;text-align:left}
+  #portal #sidebar #side-name{color:#403955 !important}
+  #portal #sidebar #side-role{color:#706981 !important}
+  #portal #sidebar #logout{position:static !important;width:44px !important;min-height:44px !important;background:#f0ebf7 !important;border-color:#e0ddea !important;color:#756884 !important}
+  #portal #sidebar :is(button,a):focus-visible{outline:2px solid #766498 !important;outline-offset:2px}
+  #portal #admin-overview-section .admin-overview-today>header{display:none}
+  #portal #admin-overview-section .admin-overview-today .admin-kpis{border-top:0}
+  #portal #admin-overview-charts{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  #portal #admin-overview-charts .admin-chart{min-width:0;padding:14px 10px;border-radius:18px}
+  #portal #admin-overview-charts .admin-chart h3{font-size:18px;overflow-wrap:anywhere}
+  #portal #admin-overview-charts .admin-chart header p{font-size:10px;line-height:1.4;min-height:28px}
+  #portal #admin-overview-charts .admin-chart-ring{width:min(120px,100%);height:auto;aspect-ratio:1;margin:14px auto}
+  #portal #admin-overview-charts .admin-chart-ring>span{width:78%;min-width:0}
+  #portal #admin-overview-charts .admin-chart-ring b{font-size:25px}
+  #portal #admin-overview-charts .admin-chart-ring small{font-size:9px}
+  #portal #admin-overview-charts .admin-chart ul{font-size:10px}
+  #portal #admin-overview-charts .admin-chart li{gap:5px;align-items:start;font-size:10px;line-height:1.4}
+  #portal #admin-overview-charts .admin-chart li span{min-width:0;overflow-wrap:anywhere}
+  #portal #admin-overview-charts>.admin-empty{grid-column:1/-1}
+}
