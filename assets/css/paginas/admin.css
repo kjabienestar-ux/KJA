@@ -914,7 +914,7 @@ body.modal-abierto .whatsapp-widget{opacity:0;visibility:hidden;pointer-events:n
 @keyframes slideInRight{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:none;}}
 
 .dcert{background:#fff;border:1px solid transparent;border-radius:16px;padding:20px;margin-bottom:16px;transition:.25s;box-shadow:0 4px 14px rgba(0,20,60,.03);animation:slideInRight .4s cubic-bezier(.22,.61,.36,1) backwards;}
-.dcert:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,40,100,.08);border-color:#e2e8f0;}
+.dcert:hover{box-shadow:0 10px 24px rgba(0,40,100,.08);border-color:#e2e8f0;}
 .dcert .dc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
 .dcert .dc-tipo,
 .tcert-id .dc-tipo{display:inline-block;font-size:11px;font-weight:800;color:var(--azul);background:#e8f0fb;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
@@ -928,7 +928,8 @@ body.modal-abierto .whatsapp-widget{opacity:0;visibility:hidden;pointer-events:n
 .dcert .dc-acc{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
 .dc-acc-row{display:flex;gap:8px;}
 .dc-acc-row button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:11px;padding:10px 8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;white-space:nowrap;}
-.dc-acc-row button:hover{transform:translateY(-2px);}
+/* Mantener el área de clic estable al entrar con el cursor por un borde. */
+.dc-acc-row button:hover{filter:brightness(.97);}
 .dc-acc .ver{background:var(--azul);color:#fff;box-shadow:0 4px 12px rgba(0,79,176,.25);}
 .dc-acc .ver:hover{box-shadow:0 6px 16px rgba(0,79,176,.35);}
 .dc-acc .edit{background:#fef3c7;color:#b45309;}

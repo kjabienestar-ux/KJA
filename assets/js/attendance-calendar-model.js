@@ -9,10 +9,10 @@
     if(day.futuro)return {tone:'future',label:assigned&&!day.lab?'Compartir':'Próximo',reason:day.lab?'Jornada programada; la fecha aún no llega.':assigned?'No tienes jornada laboral, pero sí comparticiones programadas.':'Día sin jornada ni comparticiones asignadas.',sharing};
     if(day.estado==='J'||day.justificado===true||day.cierre_estado==='justificado')return {tone:'j',label:'Justificado',reason:'La jornada está justificada; no exige entrada, RPE ni salida.',sharing};
     if(day.cierre_estado==='incompleta')return {tone:'incomplete',label:'Cierre incompleto',reason:'El cierre de la jornada figura incompleto. Revisa la salida y las evidencias del registro.',sharing};
-    if(!day.lab&&assigned)return {tone:delivered?'shared':'sharing-pending',label:delivered?'Compartido':'Por compartir',reason:delivered?'No tenías jornada laboral y completaste tus comparticiones.':'No tienes jornada laboral, pero debes completar las comparticiones antes de que venza su plazo.',sharing};
-    const states={P:['p','Presente','La entrada está registrada como puntual.'],T:['t','Tardanza','La entrada está registrada fuera de la tolerancia de puntualidad.'],J:['j','Justificado','El día está registrado como justificado.'],NG:['ng','No gestionó','El día está registrado como no gestionado.']};
+    const states={P:['p','Presente',day.lab?'La entrada está registrada como puntual.':'Jornada laborada con entrada puntual fuera del horario habitual.'],T:['t','Tardanza',day.lab?'La entrada está registrada fuera de la tolerancia de puntualidad.':'Jornada laborada fuera del horario habitual y con tardanza.'],J:['j','Justificado','El día está registrado como justificado.'],NG:['ng','No gestionó','El día está registrado como no gestionado.']};
     const value=states[day.estado];
     if(value)return {tone:value[0],label:value[1],reason:value[2],sharing};
+    if(!day.lab&&assigned)return {tone:delivered?'shared':'sharing-pending',label:delivered?'Compartido':'Por compartir',reason:delivered?'No tenías jornada laboral y completaste tus comparticiones.':'No tienes jornada laboral, pero debes completar las comparticiones antes de que venza su plazo.',sharing};
     return day.lab?{tone:'pending',label:'Sin entrada',reason:'No hay una entrada registrada para esta jornada laboral.',sharing}:{tone:'off',label:'No laborable',reason:'No tenías jornada laboral programada.',sharing};
   }
   root.KJAAttendanceCalendar={present};

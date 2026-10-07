@@ -225,6 +225,40 @@ function adminCloseAssignmentPresentation(item){
   return {state,label:labels[state]||'Pendiente',copy};
 }
 
+function adminCloseAreaIcon(areaName){
+  const text=adminCloseSearchText(areaName);
+  if(text.includes('salud')||text.includes('ocupacional'))
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg>';
+  if(text.includes('diseno')||text.includes('grafic'))
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".7" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".7" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".7" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".7" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/></svg>';
+  if(text.includes('market')||text.includes('publicidad'))
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>';
+  if(text.includes('ingenier')||text.includes('sistema')||text.includes('desarroll'))
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+  if(text.includes('recursos')||text.includes('humanos')||text.includes('rrhh'))
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+  if(text.includes('recluta')||text.includes('seleccion'))
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5.5 21v-2a6.5 6.5 0 0 1 13 0v2"/><circle cx="19" cy="11" r="2"/></svg>';
+  if(text.includes('contab')||text.includes('finanz'))
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>';
+  if(text.includes('operacion')||text.includes('logist'))
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>';
+}
+
+function adminCloseAreaSlug(areaName){
+  const text=adminCloseSearchText(areaName);
+  if(text.includes('salud')||text.includes('ocupacional'))return 'tone-salud';
+  if(text.includes('diseno')||text.includes('grafic'))return 'tone-diseno';
+  if(text.includes('market')||text.includes('publicidad'))return 'tone-marketing';
+  if(text.includes('ingenier')||text.includes('sistema')||text.includes('desarroll'))return 'tone-ingenieria';
+  if(text.includes('recursos')||text.includes('humanos')||text.includes('rrhh'))return 'tone-rrhh';
+  if(text.includes('recluta')||text.includes('seleccion'))return 'tone-reclutamiento';
+  if(text.includes('contab')||text.includes('finanz'))return 'tone-finanzas';
+  if(text.includes('operacion')||text.includes('logist'))return 'tone-operaciones';
+  return 'tone-general';
+}
+
 function renderAdminCloseStatus(){
   const data=APP.adminClose;if(!data)return;
   const reviews=APP.adminReview?.entregas||[],canReview=APP.access.rol==='direccion';
@@ -233,27 +267,48 @@ function renderAdminCloseStatus(){
   const groups=new Map();
   people.forEach(person=>{if(!groups.has(String(person.area_id)))groups.set(String(person.area_id),{id:person.area_id,name:person.area,items:[]});groups.get(String(person.area_id)).items.push(person)});
   const selectedDate=$('admin-close-date').value||isoLima();
-  let html='';
-  for(const group of groups.values()){
+  const groupList=[...groups.values()];
+  if(!groupList.length){
+    $('admin-close-status').innerHTML='<p class="admin-empty">No hay colaboradores para el filtro seleccionado.</p>';
+    return;
+  }
+  let col1Html='',col2Html='',col1Weight=0,col2Weight=0;
+  for(const group of groupList){
     const complete=group.items.filter(person=>{const personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),progress=adminCloseEvidenceProgress(person,personReviews);return ['completa','regularizada'].includes(adminCloseResolvedState(person,progress,selectedDate))}).length;
     const justified=group.items.filter(person=>person.cierre?.justificado).length;
-    html+=`<section class="admin-close-area area-tone-${adminCloseAreaTone(group.id)}"><header><span><b>${esc(group.name)}</b><small>${complete} completas${justified?` · ${justified} justificadas`:''} de ${group.items.length} jornadas</small></span></header><div class="admin-close-table"><div class="admin-close-table-head"><span>Colaborador</span><span>Entrada</span><span>Modalidad</span><span>Evidencias</span><span>Salida</span><span>Jornada</span><span>Mensaje</span></div>`;
+    const total=group.items.length;
+    const pct=total?Math.round((complete*100)/total):0;
+    const areaBadgeClass=adminCloseAreaSlug(group.name);
+    let areaHtml=`<section class="admin-close-area area-tone-${adminCloseAreaTone(group.id)}"><header><div class="admin-close-area-title-group"><span class="admin-close-area-badge ${areaBadgeClass}" aria-hidden="true">${adminCloseAreaIcon(group.name)}</span><span><b>${esc(group.name)}</b><small>${complete} completas${justified?` · ${justified} justificadas`:''} de ${total} jornadas</small></span></div><div class="admin-close-progress"><div class="admin-close-progress-bar"><div class="admin-close-progress-fill" style="width:${pct}%"></div></div><span class="admin-close-progress-pct">${pct}%</span></div><div class="admin-close-area-count"><b>${total}</b><small>colaboradores</small></div></header><div class="admin-close-table"><div class="admin-close-table-head"><span>COLABORADOR</span><span>ENTRADA</span><span>MODALIDAD</span><span>EVIDENCIAS</span><span>SALIDA</span><span>JORNADA</span><span>MENSAJE</span></div>`;
     for(const person of group.items){
       const close=person.cierre||{},personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),progress=adminCloseEvidenceProgress(person,personReviews);
       const mode=adminCloseMode(close);
       const evidence=`${progress.done}/${progress.total}`,state=adminCloseResolvedState(person,progress,selectedDate),pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length;
-      const reviewAction=canReview&&personReviews.length?`<button type="button" class="admin-close-review-trigger ${pending?'has-pending':''}" data-admin-review-person="${esc(person.id)}">${pending?`${pending} por revisar`:'Ver evidencias'}</button>`:'';
-      const missing=adminEvidenceAvailable(person,personReviews),canUpload=canReview&&($('admin-close-date').value||isoLima())<=isoLima(),uploadAction=canUpload&&missing.length?`<button type="button" class="admin-close-upload-trigger" data-admin-upload-person="${esc(person.id)}">${missing.every(item=>item.optional)?'Adjuntar salida':'Subir faltante'}</button>`:'';
+      const reviewAction=canReview&&personReviews.length?`<button type="button" class="admin-close-review-trigger ${pending?'has-pending':''}" data-admin-review-person="${esc(person.id)}">${pending?`<svg viewBox="0 0 16 16" class="admin-action-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l8-8M6 4h6v6"/></svg><span>${pending} por revisar</span>`:`<svg viewBox="0 0 16 16" class="admin-action-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2.5"/></svg><span>Ver evidencias</span>`}</button>`:'';
+      const missing=adminEvidenceAvailable(person,personReviews),canUpload=canReview&&($('admin-close-date').value||isoLima())<=isoLima(),uploadAction=canUpload&&missing.length?`<button type="button" class="admin-close-upload-trigger" data-admin-upload-person="${esc(person.id)}"><svg viewBox="0 0 16 16" class="admin-action-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg><span>${missing.every(item=>item.optional)?'Adjuntar salida':'Subir faltante'}</span></button>`:'';
       const recoverExit=adminCloseExitRecovery(person,personReviews);
-      const recoveryAction=canUpload&&recoverExit?`<button type="button" class="admin-close-upload-trigger" data-admin-recover-exit="${esc(person.id)}">Recuperar salida</button>`:'';
+      const recoveryAction=canUpload&&recoverExit?`<button type="button" class="admin-close-upload-trigger is-recover" data-admin-recover-exit="${esc(person.id)}"><svg viewBox="0 0 16 16" class="admin-action-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 1 1 1.8 4.2L2 14v-4h4"/></svg><span>Recuperar salida</span></button>`:'';
       const exitNote=!close.salida_at&&close.entrada_at&&close.requiere_salida!==false&&close.aplica_jornada!==false&&!close.justificado
-        ?`<small>${recoverExit?'Foto recibida; falta registrar la salida.':'Falta registrar la salida.'}</small>`:'';
-      const messageAction=canReview?`<button type="button" class="admin-close-message-trigger" data-admin-message-person="${esc(person.id)}" aria-label="Enviar mensaje a ${esc(person.nombre)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 4zM8 9h8M8 13h5"/></svg><span>Mensaje</span></button>`:'';
-      html+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Modalidad" class="admin-close-mode-cell"><span class="admin-close-mode ${mode.state}">${mode.label}</span></span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)} evidencias</b>${exitNote}<span class="admin-close-evidence-actions">${reviewAction}${uploadAction}${recoveryAction}</span></span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span><span data-label="Mensaje" class="admin-close-message-cell">${messageAction||'—'}</span></div>`;
+        ?`<small class="admin-close-exit-note" title="${recoverExit?'Foto recibida; falta registrar la salida.':'Falta registrar la salida.'}"><svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5v2.5l1.5 1"/></svg><span>${recoverExit?'Foto lista · Falta salida':'Falta salida'}</span></small>`:'';
+      const messageAction=canReview?`<button type="button" class="admin-close-message-trigger" data-admin-message-person="${esc(person.id)}" aria-label="Enviar mensaje a ${esc(person.nombre)}"><svg viewBox="0 0 24 24" class="admin-action-icon" aria-hidden="true" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>Mensaje</span></button>`:'';
+      areaHtml+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador" class="admin-close-person-cell"><i class="admin-close-avatar" aria-hidden="true">${esc(initials(person.nombre))}</i><span class="admin-close-person-meta"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span></span><span data-label="Entrada" class="admin-close-time-cell">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Modalidad" class="admin-close-mode-cell"><span class="admin-close-mode ${mode.state}">${mode.label}</span></span><span data-label="Evidencias" class="admin-close-evidence-cell"><span class="admin-close-evidence-fraction"><b>${esc(evidence)}</b> evidencias</span>${exitNote}<span class="admin-close-evidence-actions">${reviewAction}${uploadAction}${recoveryAction}</span></span><span data-label="Salida" class="admin-close-time-cell">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-cell"><span class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span></span><span data-label="Mensaje" class="admin-close-message-cell">${messageAction||'—'}</span></div>`;
     }
-    html+='</div></section>';
+    areaHtml+='</div></section>';
+
+    const weight=total+3;
+    if(groupList.length>1&&col1Weight>col2Weight){
+      col2Html+=areaHtml;
+      col2Weight+=weight;
+    }else{
+      col1Html+=areaHtml;
+      col1Weight+=weight;
+    }
   }
-  $('admin-close-status').innerHTML=html||'<p class="admin-empty">No hay colaboradores para el filtro seleccionado.</p>';
+  if(col2Html){
+    $('admin-close-status').innerHTML=`<div class="admin-close-grid-cols"><div class="admin-close-col">${col1Html}</div><div class="admin-close-col">${col2Html}</div></div>`;
+  }else{
+    $('admin-close-status').innerHTML=`<div class="admin-close-grid-cols is-single"><div class="admin-close-col">${col1Html}</div></div>`;
+  }
 }
 
 function renderAdminReviewSummary(){
@@ -266,7 +321,7 @@ function renderAdminReviewSummary(){
     wrap.hidden=false;wrap.innerHTML='<span class="admin-review-readonly is-warning"><b>Revisión aún no instalada</b><small>Ejecuta dashboard_21_revision_evidencias.sql para abrir y validar las imágenes.</small></span>';return;
   }
   const rows=data.entregas||[],pending=rows.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length,approved=rows.filter(item=>item.revision_estado==='aprobada').length,observed=rows.filter(item=>item.revision_estado==='observada').length;
-  wrap.hidden=false;wrap.innerHTML=`<span><i class="pending"></i><small>POR REVISAR</small><b>${pending}</b></span><span><i class="approved"></i><small>APROBADAS</small><b>${approved}</b></span><span><i class="observed"></i><small>CON CORRECCIÓN</small><b>${observed}</b></span><p>${pending?'Selecciona una persona para validar sus archivos privados.':'No quedan evidencias pendientes para esta fecha.'}</p>`;
+  wrap.hidden=false;wrap.innerHTML=`<span class="admin-review-stat"><span class="admin-review-stat-label"><i class="pending"></i><small>POR REVISAR</small></span><b>${pending}</b></span><span class="admin-review-stat"><span class="admin-review-stat-label"><i class="approved"></i><small>APROBADAS</small></span><b>${approved}</b></span><span class="admin-review-stat"><span class="admin-review-stat-label"><i class="observed"></i><small>CON CORRECCIÓN</small></span><b>${observed}</b></span><p>${pending?'Selecciona una persona para validar sus archivos privados.':'No quedan evidencias pendientes para esta fecha.'}</p>`;
 }
 
 function hydrateAdminCloseControls(){

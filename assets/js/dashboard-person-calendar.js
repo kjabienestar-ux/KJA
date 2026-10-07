@@ -14,11 +14,17 @@
       const after=!!person.contrato_fin_referencia&&day.fecha>person.contrato_fin_referencia;
       // lab comes from the server: weekly schedule, holidays and individual exceptions.
       const scheduled=day.lab===true&&!before&&!after;
+      const worked=!before&&!after&&Boolean(
+        (['P','T','J'].includes(day.estado)||(day.marcado_at&&day.salida_at))&&
+        day.cierre_estado!=='incompleta'&&
+        !day.comparticiones_vencidas
+      );
+      const active=scheduled||worked;
       const personal=KJAAttendanceCalendar.present({...day,futuro:future});
-      const view=scheduled?personal:{tone:'off',label:before||after?'Fuera del contrato':'No laborable',
+      const view=active?personal:{tone:'off',label:before||after?'Fuera del contrato':'No laborable',
         reason:before?'Esta fecha es anterior al inicio del contrato.':after?'Esta fecha es posterior al fin de referencia del contrato.':'Este día no tiene jornada asignada en el horario de esta persona.',
         sharing:day.comparticiones_completas?'Hay comparticiones registradas; puedes consultar sus evidencias.':'Las comparticiones de esta fecha no se cuentan como incidencia en este calendario laboral.'};
-      return {...day,view,future,scheduled,alert:scheduled&&!future&&['missing','incomplete'].includes(view.tone)};
+      return {...day,view,future,scheduled,worked,alert:scheduled&&!future&&['missing','incomplete'].includes(view.tone)};
     });
   }
   function mount({host,person,month,onBack,today=isoLima(),rpc=(name,args)=>db.rpc(name,args),storage=db.storage}){
@@ -52,8 +58,8 @@
         if(error||!data?.ok)throw new Error(data?.motivo||'load');
         session.days=daysView(data.dias||[],today,{...person,...data.calendario_contrato});
         const alerts=session.days.filter(d=>d.alert);
-        const total=state=>session.days.filter(d=>d.scheduled&&!d.future&&d.estado===state&&(state==='J'||!['incompleta','en_curso','lista_para_salir'].includes(d.cierre_estado))).length;
-        const shared=session.days.filter(d=>d.scheduled&&!d.future&&d.aplica_comparticiones&&d.comparticiones_completas).length;
+        const total=state=>session.days.filter(d=>(d.scheduled||d.worked)&&!d.future&&d.estado===state&&(state==='J'||!['incompleta','en_curso','lista_para_salir'].includes(d.cierre_estado))).length;
+        const shared=session.days.filter(d=>(d.scheduled||d.worked)&&!d.future&&d.aplica_comparticiones&&d.comparticiones_completas).length;
         const unavailable=session.days.some(d=>!Object.hasOwn(d,'aplica_comparticiones'));
         const offset=(new Date(session.month+'-01T12:00:00Z').getUTCDay()+6)%7;
         const cells='<span aria-hidden="true"></span>'.repeat(offset)+session.days.map(d=>
@@ -87,19 +93,20 @@
         if(error||!data?.ok)throw new Error(data?.motivo||'load');
         const close=data.cierre||{};
         const justified=data.estado==='J'||close.justificado||close.estado==='justificado';
-        const groups=teamDayActivities(data).filter(g=>day.scheduled?(!justified||g.key==='comparticiones'||g.completo):g.completo);
+        const evaluated=day.scheduled||day.worked;
+        const groups=teamDayActivities(data).filter(g=>evaluated?(!justified||g.key==='comparticiones'||g.completo):g.completo);
         session.groups=groups;
         const missing=groups.filter(g=>!g.completo).map(g=>g.titulo);
-        if(day.scheduled&&close.aplica_jornada&&!justified&&!data.entrada_at)missing.unshift('Registro de entrada');
-        if(day.scheduled&&close.aplica_jornada&&!justified&&close.requiere_salida!==false&&!data.salida_at)missing.push('Registro de salida');
-        const absenceText=!day.scheduled?'No corresponde':justified?'No requerida · justificado':close.aplica_jornada?'Sin registro':'No corresponde';
+        if(evaluated&&close.aplica_jornada&&!justified&&!data.entrada_at)missing.unshift('Registro de entrada');
+        if(evaluated&&close.aplica_jornada&&!justified&&close.requiere_salida!==false&&!data.salida_at)missing.push('Registro de salida');
+        const absenceText=!evaluated?'No corresponde':justified?'No requerida · justificado':close.aplica_jornada?'Sin registro':'No corresponde';
         const notes=[day.nota,day.excepcion_nota,day.feriado_nota].filter(Boolean);
         const entryFiles=data.entrada_archivos||[];
         if(entryFiles.length)session.groups=[{titulo:'Evidencia de entrada',completo:true,files:entryFiles},...groups];
         detail.innerHTML=intro+
           '<dl class="pc-times">'+[['Entrada',data.entrada_at?clock(data.entrada_at):absenceText],['Salida',data.salida_at?clock(data.salida_at):absenceText],['Modalidad',({virtual:'Virtual',presencial:'Presencial'})[close.modalidad]||'No registrada'],['Horas',Number(data.horas||0).toFixed(1)+' h']].map(([k,v])=>'<div><dt>'+k+'</dt><dd>'+escape(v)+'</dd></div>').join('')+'</dl>'+
           (notes.length?'<p class="pc-note">'+escape(notes.join(' · '))+'</p>':'')+
-          '<div class="pc-pending"><b>'+ (!day.scheduled?'Sin jornada exigible':missing.length?'Falta registrar':'Sin evidencias pendientes')+'</b><p>'+escape(!day.scheduled?'Esta fecha no se evalúa como jornada laboral. Se conservan las evidencias que se hayan entregado.':missing.length?[...new Set(missing)].join(' · '):'Las entregas aplicables están registradas. Una entrega no implica que esté aprobada.')+'</p></div>'+
+          '<div class="pc-pending"><b>'+ (!evaluated?'Sin jornada exigible':missing.length?'Falta registrar':'Sin evidencias pendientes')+'</b><p>'+escape(!evaluated?'Esta fecha no se evalúa como jornada laboral. Se conservan las evidencias que se hayan entregado.':missing.length?[...new Set(missing)].join(' · '):'Las entregas aplicables están registradas. Una entrega no implica que esté aprobada.')+'</p></div>'+
           '<div class="pc-activities">'+session.groups.map((g,i)=>'<details '+(!g.completo?'open':'')+'><summary><span>'+escape(g.titulo)+'</span><strong class="'+(g.completo?'pc-done':'pc-missing')+'">'+(g.completo?'Entregado':'Sin entrega')+'</strong></summary>'+
             (g.detalle?'<p>'+escape(g.detalle)+'</p>':'')+(g.fecha?'<p>Registrado: '+escape(clock(g.fecha))+'</p>':'')+
             (g.revision?'<p>Revisión: '+escape(({pendiente:'Pendiente de revisión',aprobada:'Aprobada',observada:'Requiere corrección'})[g.revision]||g.revision)+'</p>':'')+

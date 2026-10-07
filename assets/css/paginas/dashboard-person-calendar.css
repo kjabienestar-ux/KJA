@@ -43,6 +43,9 @@
 .pc-detail>p{font-size:13px}
 .pc-state{display:inline-block;padding:5px 10px;background:#edf3fa;color:#24425f!important;border-radius:6px;font-weight:600}
 .pc-state:is(.missing,.incomplete){background:#ffe8ed;color:#922e43!important}
+.pc-state:is(.p,.shared){background:#e4f7f0;color:#08735a!important}
+.pc-state:is(.t,.sharing-pending){background:#fff0d7;color:#79520e!important}
+.pc-state.j{background:#e8f1fb;color:#285f9f!important}
 .pc-times{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px 0;border-top:1px solid #e3e8ee;border-bottom:1px solid #e3e8ee}
 .pc-pending{padding:4px 0 12px}
 .pc-pending p{margin-bottom:0;font-size:13px}

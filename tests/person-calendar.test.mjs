@@ -130,6 +130,37 @@ test('contract dates returned by the server apply even when the monthly director
   assert.match(x.get('[data-pc-detail]').innerHTML,/anterior al inicio/);
 });
 
+test('collaborator who worked and fulfilled duties on an unscheduled day shows as present and counts in totals',async()=>{
+  const x=setup(),pending=x.context.KJAPersonCalendar.mount({...x.options,month:'2026-10',today:'2026-10-07'});
+  const workedDay={
+    fecha:'2026-10-03',d:3,lab:false,estado:'P',cierre_estado:'completa',
+    marcado_at:'2026-10-03T13:09:00Z',salida_at:'2026-10-03T18:59:00Z',
+    aplica_comparticiones:true,comparticiones_completas:true,comparticiones_vencidas:false
+  };
+  x.queue.shift().resolve({data:{ok:true,dias:[workedDay],horas:5.8,calendario_contrato:{contrato_inicio:'2026-01-01',contrato_fin_referencia:null}}});
+  await tick();
+  x.queue.shift().resolve({
+    data:{
+      ok:true,estado:'P',entrada_at:'2026-10-03T13:09:00Z',salida_at:'2026-10-03T18:59:00Z',horas:5.8,
+      cierre:{modalidad:'virtual',aplica_jornada:true,requisitos:[{tipo:'comparticiones',titulo:'Facebook',completo:true}]},
+      entregas:[{tipo:'comparticiones',titulo:'Facebook',archivos:[{bucket:'asis-cierre-evidencias',path:'fb/1',mime:'image/jpeg'}]}],
+      entrada_archivos:[{bucket:'asis-cierre-evidencias',path:'entry/1',mime:'image/jpeg'}]
+    }
+  });
+  await pending;
+  const content=x.get('[data-pc-content]').innerHTML;
+  assert.match(content,/pc-day p/);
+  assert.match(content,/1 presentes · 0 tardanzas · 0 justificados/);
+  assert.match(content,/<b>1<\/b> días laborables con Facebook entregado/);
+  const detail=x.get('[data-pc-detail]').innerHTML;
+  assert.match(detail,/pc-state p/);
+  assert.match(detail,/Presente/);
+  assert.match(detail,/Sin evidencias pendientes/);
+  assert.doesNotMatch(detail,/Sin jornada exigible/);
+  assert.match(detail,/08:09/);
+  assert.match(detail,/13:59/);
+});
+
 test('back button returns to the ledger and closing invalidates a pending calendar request',async()=>{
   const x=setup();let returned=false;
   const pending=x.context.KJAPersonCalendar.mount({...x.options,onBack:()=>{returned=true;x.host._personCalendar=null;x.host.hidden=true;x.host.innerHTML='';}});

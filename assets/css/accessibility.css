@@ -498,7 +498,8 @@ html.acc-focus-highlight *:focus {
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.4s ease, transform 0.4s ease;
-    pointer-events: auto;
+    /* Aviso informativo: no debe bloquear controles, incluso cuando es invisible. */
+    pointer-events: none;
     display: flex;
     align-items: center;
     justify-content: center;
