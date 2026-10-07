@@ -18,7 +18,14 @@ test('calendar blocks other weekdays and reserved dates, and the announcement hi
  assert.equal(context.dayOffDateAllowed('2026-10-05'),false);
  assert.equal(context.dayOffDateAllowed('2026-10-10'),false);
  assert.equal(context.dayOffDateAllowed('2026-10-09'),false);
- assert.equal(context.dayOffDateAllowed('2026-10-16'),true);
+ assert.equal(context.dayOffDateAllowed('2026-10-16'),false);
+ assert.equal(context.dayOffDateAllowed('2026-10-13'),true);
+ assert.equal(context.isDayOffPending('2026-10-14'),false);
+ context.APP.daysOffRequests=[{fecha_inicio:'2026-10-14',estado:'pendiente'}];
+ assert.equal(context.isDayOffPending('2026-10-14'),true);
+ assert.equal(context.dayOffDateAllowed('2026-10-14'),false);
+ assert.equal(context.isDayOffPending('2026-10-21'),false);
+ context.APP.daysOffRequests=[];
  context.renderDaysOffAnnouncement();assert.equal(nodes.get('rail-days-off').hidden,false);
  context.APP.daysOffAvailable=0;context.renderDaysOffAnnouncement();assert.equal(nodes.get('rail-days-off').hidden,true);
  context.APP.daysOffAvailable=null;context.renderDaysOffAnnouncement();assert.equal(nodes.get('rail-days-off').hidden,true);
@@ -73,6 +80,8 @@ test('leave approval and counteroffers enforce consent, authorization, reservati
   const create=async(start,end=start)=>(await db.query("select dash_crear_solicitud('dia_libre',$1,$2,'Mi descanso solicitado') data",[start,end])).rows[0].data;
   const balance=async()=>(await db.query('select dash_mis_dias_libres() data')).rows[0].data;
   assert.equal((await create(dates[0],dates[1])).motivo,'dia_no_permitido');
+  const fridayDate=(await db.query(`select f::date::text fecha from generate_series((now() at time zone 'America/Lima')::date+1,(now() at time zone 'America/Lima')::date+20,interval '1 day') f where extract(isodow from f)=5 order by f limit 1`)).rows[0].fecha;
+  assert.equal((await create(fridayDate)).motivo,'dia_no_permitido');
   const request=await create(dates[0]);assert.equal(request.ok,true);
   assert.equal((await create(dates[0])).motivo,'duplicada');
   assert.equal((await create(dates[1])).motivo,'saldo_insuficiente');
@@ -118,7 +127,7 @@ test('leave approval and counteroffers enforce consent, authorization, reservati
   const migration95=fs.readFileSync('supabase/dashboard_95_seleccion_multiple_dias_libres.sql','utf8');
   await db.exec(migration95);await db.exec(migration95);
   await db.exec('update asis_colaboradores set dias_libres_saldo=3');
-  const batchDates=(await db.query(`select f::date::text fecha from generate_series(current_date+50,current_date+70,interval '1 day') f where extract(isodow from f) in(2,3,4,5) order by f limit 4`)).rows.map(r=>r.fecha);
+  const batchDates=(await db.query(`select f::date::text fecha from generate_series(current_date+50,current_date+70,interval '1 day') f where extract(isodow from f) in(2,3,4) order by f limit 4`)).rows.map(r=>r.fecha);
   const batch=async(dates)=>(await db.query("select dash_solicitar_dias_libres($1::date[],'Mis días libres') data",[dates])).rows[0].data;
   assert.equal((await batch(batchDates)).motivo,'saldo_insuficiente');
   assert.equal((await batch([batchDates[0],batchDates[0]])).motivo,'fechas');
@@ -156,7 +165,7 @@ test('leave approval and counteroffers enforce consent, authorization, reservati
   `);
   const migration97=fs.readFileSync('supabase/dashboard_97_evidencia_dias_libres.sql','utf8');
   await db.exec(migration97);await db.exec(migration97);
-  const evidenceDates=(await db.query(`select f::date::text fecha from generate_series(current_date+100,current_date+110,interval '1 day') f where extract(isodow from f) in(2,3,4,5) order by f limit 2`)).rows.map(r=>r.fecha);
+  const evidenceDates=(await db.query(`select f::date::text fecha from generate_series(current_date+100,current_date+110,interval '1 day') f where extract(isodow from f) in(2,3,4) order by f limit 2`)).rows.map(r=>r.fecha);
   const withEvidence=async(path)=>(await db.query("select dash_solicitar_dias_libres($1::date[],'Solicitud previa adjunta',$2) data",[evidenceDates,path])).rows[0].data;
   assert.equal((await withEvidence(null)).motivo,'evidencia');
   assert.equal((await withEvidence('2/bbbb.jpg')).motivo,'evidencia');

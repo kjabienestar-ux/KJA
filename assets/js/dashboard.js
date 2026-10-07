@@ -520,9 +520,20 @@ function setProfilePhotoBusy(on){
   if($('profile-photo-change'))$('profile-photo-change').textContent=on?'Preparando…':APP.avatar.path?'Cambiar foto':'Subir foto';
 }
 function preloadImage(url){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(url);img.onerror=reject;img.src=url})}
+function ownProfileBucket(){return APP.identity.hasPersonal?PROFILE_BUCKET:'admin-perfil-fotos';}
+async function ownProfilePhoto(action,path){
+  if(APP.identity.hasPersonal)return db.rpc(action,path===undefined?undefined:{p_path:path});
+  if(!APP.access.acceso_panel)return {error:new Error('Acceso no disponible')};
+  const metadata=APP.guidedTourUserMetadata||{};
+  if(action==='dash_mi_foto')return {data:{ok:true,path:metadata.kja_admin_foto||'',actualizada_at:metadata.kja_admin_foto_fecha}};
+  const changes={kja_admin_foto:action==='dash_quitar_foto'?'':path,kja_admin_foto_fecha:new Date().toISOString()};
+  const {error}=await db.auth.updateUser({data:changes});
+  if(!error)Object.assign(APP.guidedTourUserMetadata,changes);
+  return {error,data:{ok:!error}};
+}
 async function loadProfilePhoto(announce=false){
-  if(!APP.identity.hasPersonal)return;
-  const {data,error}=await db.rpc('dash_mi_foto');
+  if(!APP.identity.hasPersonal&&!APP.access.acceso_panel)return;
+  const {data,error}=await ownProfilePhoto('dash_mi_foto');
   if(error||!data?.ok){
     APP.avatar={path:'',url:'',busy:false};paintProfilePhoto('');
     if(announce)profilePhotoMessage('No se pudo cargar tu foto. Revisa la conexión e inténtalo otra vez.','error');
@@ -530,7 +541,7 @@ async function loadProfilePhoto(announce=false){
   }
   APP.avatar.path=data.path||'';APP.avatar.url='';paintProfilePhoto('');
   if(!APP.avatar.path){if(announce)profilePhotoMessage('Aún no tienes una foto de perfil.');return;}
-  const {data:signed,error:signedError}=await db.storage.from(PROFILE_BUCKET).createSignedUrl(APP.avatar.path,3600);
+  const {data:signed,error:signedError}=await db.storage.from(ownProfileBucket()).createSignedUrl(APP.avatar.path,3600);
   if(signedError||!signed?.signedUrl){if(announce)profilePhotoMessage('No se pudo abrir tu foto. Puedes reemplazarla o quitarla.','error');return;}
   try{
     const url=signed.signedUrl+(signed.signedUrl.includes('?')?'&':'?')+'v='+(data.actualizada_at||Date.now());
@@ -620,7 +631,7 @@ $('cropper-close-bg').onclick = closeCropperModal;
 
 $('cropper-save-btn').onclick = async () => {
   if (!cropperInstance || APP.avatar.busy) return;
-  const colab=APP.inicio?.colaborador?.id;if(!colab){ closeCropperModal(); return profilePhotoIssue('Tu perfil no está disponible en esta sesión.'); }
+  const colab=APP.inicio?.colaborador?.id||(APP.access.acceso_panel?APP.sessionUid:null);if(!colab){ closeCropperModal(); return profilePhotoIssue('Tu perfil no está disponible en esta sesión.'); }
 
   const canvas = cropperInstance.getCroppedCanvas({ width: 640, height: 640 });
   if (!canvas) return;
@@ -633,12 +644,12 @@ $('cropper-save-btn').onclick = async () => {
     try{
       const prepared=await compressProfilePhoto(blob),path=`${colab}/avatar.${prepared.ext}`,previous=APP.avatar.path;
       profilePhotoMessage('Subiendo la versión optimizada…');
-      const {error:uploadError}=await db.storage.from(PROFILE_BUCKET).upload(path,prepared.blob,{upsert:true,contentType:prepared.type,cacheControl:'3600'});
+      const {error:uploadError}=await db.storage.from(ownProfileBucket()).upload(path,prepared.blob,{upsert:true,contentType:prepared.type,cacheControl:'3600'});
       if(uploadError)throw uploadError;
-      const {data,error}=await db.rpc('dash_guardar_foto',{p_path:path});
+      const {data,error}=await ownProfilePhoto('dash_guardar_foto',path);
       if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'guardar');
       APP.avatar.path=path;
-      if(previous&&previous!==path)await db.storage.from(PROFILE_BUCKET).remove([previous]).catch(()=>{});
+      if(previous&&previous!==path)await db.storage.from(ownProfileBucket()).remove([previous]).catch(()=>{});
       await loadProfilePhoto();
       profilePhotoMessage(`Foto guardada · ${Math.max(1,Math.round(prepared.blob.size/1024))} KB`,'success');toast('Foto de perfil actualizada.');
     }catch(error){
@@ -652,9 +663,9 @@ async function removeProfilePhoto(){
   let removed=false;
   setProfilePhotoBusy(true);profilePhotoMessage('Quitando la foto…');
   try{
-    const path=APP.avatar.path,{error:storageError}=await db.storage.from(PROFILE_BUCKET).remove([path]);
+    const path=APP.avatar.path,{error:storageError}=await db.storage.from(ownProfileBucket()).remove([path]);
     if(storageError)throw storageError;
-    const {data,error}=await db.rpc('dash_quitar_foto');
+    const {data,error}=await ownProfilePhoto('dash_quitar_foto');
     if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'quitar');
     APP.avatar={path:'',url:'',busy:true};paintProfilePhoto('');profilePhotoMessage('Foto eliminada. Tus iniciales vuelven a estar visibles.','success');toast('Foto de perfil eliminada.');removed=true;
   }catch{profilePhotoMessage('No se pudo quitar la foto. Revisa tu conexión e inténtalo otra vez.','error')}
@@ -866,7 +877,7 @@ function syncProfileContext(view){
   if(!rail||!context)return;
   const sections=[...rail.querySelectorAll(':scope > .rail-pausa-activa, :scope > .rail-announcement'),...context.querySelectorAll(':scope > .rail-pausa-activa, :scope > .rail-announcement')];
   const unique=[...new Set(sections)];
-  if(view==='perfil')unique.forEach(section=>context.append(section));
+  if(view==='perfil'&&!APP.access.acceso_panel)unique.forEach(section=>context.append(section));
   else unique.forEach(section=>rail.append(section));
 }
 
@@ -883,7 +894,7 @@ function paintShell(view){
     b.classList.toggle('active',active);
     if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
-  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas');
+  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas'||(view==='perfil'&&APP.access.acceso_panel));
   syncSidebarCollapse();
 }
 
@@ -946,7 +957,7 @@ async function openPortal(activeSession,bootstrap=null){
   APP.year=lima.getFullYear(); APP.month=lima.getMonth()+1;
   $('access').hidden=true;
   const p=data.perfil||{}, c=data.colaborador;
-  const name=c?.nombre||p.nombre||'Equipo KJA', ini=initials(name), role={sistemas:'Administrador de sistemas',lider:'Líder técnico',colider:'Co-líder técnico',miembro:'Colaborador'}[p.nivel]||'Colaborador';
+  const name=(APP.access.acceso_panel&&APP.guidedTourUserMetadata.kja_nombre_visible)||c?.nombre||p.nombre||'Equipo KJA', ini=initials(name), role=APP.access.acceso_panel?'Administrador':{sistemas:'Administrador de sistemas',lider:'Líder técnico',colider:'Co-líder técnico',miembro:'Colaborador'}[p.nivel]||'Colaborador';
   APP.identity={nivel:p.nivel||'miembro',hasPersonal:!!c,isLeader:['lider','colider'].includes(p.nivel)&&!!c,isSystem:p.nivel==='sistemas'};
   $('portal').dataset.role=APP.identity.nivel;
   $('portal').dataset.access=APP.access.rol;
@@ -961,6 +972,7 @@ async function openPortal(activeSession,bootstrap=null){
   $('mobile-home-area').textContent='Que tengas un buen día';
   $('mobile-home-dni').textContent=c?.dni?`DNI ${c.dni}`:'Perfil institucional';
   ['personal-nav-divider','nav-inicio','nav-asistencia','nav-perfil'].forEach(id=>$(id).hidden=!APP.identity.hasPersonal);
+  $('nav-perfil').hidden=!(APP.identity.hasPersonal||APP.access.acceso_panel);
   $('team-nav-divider').hidden=!APP.identity.isLeader;$('nav-equipo').hidden=!APP.identity.isLeader;
   $('nav-gestion').hidden=!APP.access.acceso_panel; $('admin-nav-divider').hidden=!APP.access.acceso_panel;
   window.KJAMarketingPortal?.init();
@@ -984,6 +996,8 @@ async function openPortal(activeSession,bootstrap=null){
   $('admin-roles-tab').hidden=!managesRoles; const rolesModule=$('admin-roles-module'); if(rolesModule)rolesModule.hidden=!managesRoles;
   if(c){ renderHome(); renderProfile(); }
   else if(APP.access.acceso_panel){
+    renderProfile();
+    void loadProfilePhoto();
     $('rail-area').textContent='Vista de Dirección';
     $('rail-schedule-list').innerHTML='<p class="rail-empty">Esta cuenta administra la asistencia del equipo.</p>';
   }else if(APP.identity.isLeader){
@@ -1792,7 +1806,7 @@ async function openAttendanceDay(date){
 
 const PERSONAL_REQUEST_TYPES={
   justificacion:{title:'Justificar una ausencia',copy:'Explica lo ocurrido y adjunta una evidencia para que Dirección pueda revisarlo.',label:'Motivo de la justificación',placeholder:'Describe por qué no pudiste asistir y cualquier dato que Dirección deba considerar.',evidence:true},
-  dia_libre:{title:'Elige tu próximo día libre',copy:'Selecciona un día de martes a viernes. Tu descanso quedará confirmado cuando Dirección lo apruebe.',label:'Comentario para Dirección',placeholder:'Cuéntanos qué fecha prefieres o agrega una nota para Dirección.',evidence:false},
+  dia_libre:{title:'Elige tu próximo día libre',copy:'Selecciona un día de martes a jueves. Tu descanso quedará confirmado cuando Dirección lo apruebe.',label:'Comentario para Dirección',placeholder:'Cuéntanos qué fecha prefieres o agrega una nota para Dirección.',evidence:false},
   cambio_horario:{title:'Solicitar cambio de horario o turno',copy:'Detalla la jornada solicitada y desde qué fecha debería aplicarse.',label:'Nuevo horario o turno solicitado',placeholder:'Ej. cambiar temporalmente al turno de 14:00 a 19:00 durante esta semana.',evidence:false},
   cambio_turno:{title:'Solicitar cambio de horario o turno',copy:'Detalla la jornada solicitada y desde qué fecha debería aplicarse.',label:'Nuevo horario o turno solicitado',placeholder:'Ej. cambiar temporalmente al turno de 14:00 a 19:00 durante esta semana.',evidence:false}
 };
@@ -1838,7 +1852,18 @@ function requestMonthAllowed(year,month,direction){
 
 function dayOffDateAllowed(value){
   const day=new Date(`${value}T12:00:00Z`).getUTCDay();
-  return [2,3,4,5].includes(day)&&!(APP.daysOffOccupied||[]).some(item=>value>=item.inicio&&value<=item.fin);
+  return [2,3,4].includes(day)&&!isDayOffPending(value)&&!(APP.daysOffOccupied||[]).some(item=>value>=item.inicio&&value<=item.fin);
+}
+
+function isDayOffPending(value){
+  const matchDate=dateStr=>dateStr&&(dateStr===value||dateStr.slice(0,10)===value);
+  const inDaysOff=(APP.daysOffRequests||[]).some(item=>item.estado==='pendiente'&&(matchDate(item.fecha_inicio)||(item.contra_estado==='pendiente'&&matchDate(item.contra_fecha))));
+  if(inDaysOff)return true;
+  return (APP.personalRequests||[]).some(item=>item.tipo==='dia_libre'&&item.estado==='pendiente'&&(
+    matchDate(item.fecha_inicio)||
+    (item.fecha_fin&&value>=item.fecha_inicio.slice(0,10)&&value<=item.fecha_fin.slice(0,10))||
+    (item.contra_estado==='pendiente'&&matchDate(item.contra_fecha))
+  ));
 }
 
 function renderRequestCalendar(){
@@ -1851,10 +1876,14 @@ function renderRequestCalendar(){
   const offset=(new Date(year,month-1,1).getDay()+6)%7,days=new Date(year,month,0).getDate();
   let html='<span aria-hidden="true"></span>'.repeat(offset);
   for(let day=1;day<=days;day++){
-    const value=requestIsoDate(year,month,day),disabled=(input.min&&value<input.min)||(input.max&&value>input.max)||($('personal-request-type').value==='dia_libre'&&!dayOffDateAllowed(value));
-    const isSelected=$('personal-request-type').value==='dia_libre'?(PERSONAL_REQUEST.dates||[]).includes(value):value===selected;
-    const classes=[value===today?'today':'',isSelected?'selected':''].filter(Boolean).join(' ');
-    html+=`<button type="button" class="${classes}" data-request-calendar-date="${value}" ${disabled?'disabled':''} aria-label="${esc(requestDateLabel(value))}${disabled?' · No disponible':''}" aria-pressed="${isSelected}">${day}</button>`;
+    const value=requestIsoDate(year,month,day);
+    const isDayOff=$('personal-request-type').value==='dia_libre';
+    const isPending=isDayOff&&isDayOffPending(value);
+    const disabled=(input.min&&value<input.min)||(input.max&&value>input.max)||(isDayOff&&(!dayOffDateAllowed(value)||isPending));
+    const isSelected=isDayOff?(PERSONAL_REQUEST.dates||[]).includes(value):value===selected;
+    const classes=[value===today?'today':'',isSelected?'selected':'',isPending?'pending':''].filter(Boolean).join(' ');
+    const ariaStatus=isPending?' · Solicitud pendiente':disabled?' · No disponible':'';
+    html+=`<button type="button" class="${classes}" data-request-calendar-date="${value}" ${disabled?'disabled':''} aria-label="${esc(requestDateLabel(value))}${ariaStatus}" aria-pressed="${isSelected}" ${isPending?'title="Solicitud pendiente de aprobación"':''}>${day}</button>`;
   }
   $('request-calendar-grid').innerHTML=html;
   const todayUnavailable=(input.min&&today<input.min)||(input.max&&today>input.max)||($('personal-request-type').value==='dia_libre'&&!dayOffDateAllowed(today));
@@ -1990,7 +2019,7 @@ function leaveCounterofferMarkup(item){
 
 function leaveRequestError(error){
   const reason=String(error?.message||error||'');
-  const messages={dia_no_permitido:'Elige una fecha futura de martes a viernes, dentro de los próximos 180 días.',no_laborable:'Esa fecha no está disponible en el horario del colaborador.',duplicada:'Ya hay un descanso o una solicitud para esa fecha.',saldo_insuficiente:'No hay saldo suficiente para confirmar el descanso.',saldo_dias_libres_insuficiente:'No hay saldo suficiente para confirmar el descanso.',no_existe:'Esta solicitud ya cambió. Actualiza la lista.',contraoferta_pendiente:'La propuesta está esperando la respuesta del colaborador.',detalle:'Elige una fecha diferente y escribe un motivo de al menos 3 caracteres.',sin_permiso:'Solo Dirección puede proponer otra fecha.',sesion:'Tu sesión venció. Vuelve a ingresar.'};
+  const messages={dia_no_permitido:'Elige una fecha futura de martes a jueves, dentro de los próximos 180 días.',no_laborable:'Esa fecha no está disponible en el horario del colaborador.',duplicada:'Ya hay un descanso o una solicitud para esa fecha.',saldo_insuficiente:'No hay saldo suficiente para confirmar el descanso.',saldo_dias_libres_insuficiente:'No hay saldo suficiente para confirmar el descanso.',no_existe:'Esta solicitud ya cambió. Actualiza la lista.',contraoferta_pendiente:'La propuesta está esperando la respuesta del colaborador.',detalle:'Elige una fecha diferente y escribe un motivo de al menos 3 caracteres.',sin_permiso:'Solo Dirección puede proponer otra fecha.',sesion:'Tu sesión venció. Vuelve a ingresar.'};
   return messages[reason]||'No se pudo guardar el cambio. Actualiza e inténtalo otra vez.';
 }
 
@@ -2084,19 +2113,19 @@ function openPersonalRequest(type='justificacion',date='',trigger=null){
   end.min=start.min;end.max=start.max;start.value=safeSelected;end.value=safeSelected;
   end.closest('.request-date-field').hidden=dayOff;
   start.closest('.request-date-field').querySelector(':scope > span').textContent=dayOff?'Tus días libres':'Desde';
-  start.closest('.request-date-field').querySelector('small').textContent=dayOff?'Martes a viernes':'Fecha inicial';
+  start.closest('.request-date-field').querySelector('small').textContent=dayOff?'Martes a jueves':'Fecha inicial';
   $('personal-request-modal').classList.toggle('is-day-off-request',dayOff);
   $('request-calendar').setAttribute('role',dayOff?'group':'dialog');
-  $('request-calendar-help').textContent=dayOff?'De martes a viernes · fechas disponibles':'Elige una fecha disponible';
+  $('request-calendar-help').textContent=dayOff?'De martes a jueves · fechas disponibles':'Elige una fecha disponible';
   $('personal-request-detail').required=!dayOff;
   if(dayOff)$('personal-request-detail-label').textContent='Comentario para Dirección (opcional)';
   PERSONAL_REQUEST.dates=[];
   $('leave-selection-summary').hidden=true;
   if(dayOff){
-    start.value='';end.value='';$('personal-request-title').textContent='Elige tus días libres';$('personal-request-copy').textContent=`Puedes seleccionar hasta ${APP.daysOffAvailable} ${APP.daysOffAvailable===1?'día':'días'}, de martes a viernes, incluso en distintos meses. Dirección revisará cada fecha y podrá aprobarla, rechazarla o proponer otra. Las comparticiones de Facebook se mantienen.`;
+    start.value='';end.value='';$('personal-request-title').textContent='Elige tus días libres';$('personal-request-copy').textContent=`Puedes seleccionar hasta ${APP.daysOffAvailable} ${APP.daysOffAvailable===1?'día':'días'}, de martes a jueves, incluso en distintos meses. Dirección revisará cada fecha y podrá aprobarla, rechazarla o proponer otra. Las comparticiones de Facebook se mantienen.`;
     if(typeof document!=='undefined'&&typeof document.getElementById==='function'){
       const heroText=document.getElementById('day-off-hero-text');
-      if(heroText)heroText.textContent=`Puedes seleccionar hasta ${APP.daysOffAvailable} ${APP.daysOffAvailable===1?'día':'días'}, de martes a viernes, incluso en distintos meses. Dirección revisará cada fecha y podrá aprobarla, rechazarla o proponer otra.`;
+      if(heroText)heroText.textContent=`Puedes seleccionar hasta ${APP.daysOffAvailable} ${APP.daysOffAvailable===1?'día':'días'}, de martes a jueves, incluso en distintos meses. Dirección revisará cada fecha y podrá aprobarla, rechazarla o proponer otra.`;
       const s1=document.getElementById('day-off-step-1');if(s1){s1.classList.add('is-current');s1.classList.remove('is-completed');}
       const s2=document.getElementById('day-off-step-2');if(s2)s2.classList.remove('is-current','is-completed');
       const s3=document.getElementById('day-off-step-3');if(s3)s3.classList.remove('is-current','is-completed');
@@ -2140,9 +2169,9 @@ async function submitPersonalRequest(event){
   if(!$('personal-request-kind').hidden)type=$('personal-request-kind-value').value;
   const config=PERSONAL_REQUEST_TYPES[type],start=$('personal-request-start').value,end=$('personal-request-end').value,detail=$('personal-request-detail').value.trim()||(type==='dia_libre'?'Solicitud de días libres':'');
   const dates=[...(PERSONAL_REQUEST.dates||[])];
-  if(type==='dia_libre'&&(!dates.length||dates.length>APP.daysOffAvailable||dates.some(date=>date<$('personal-request-start').min||date>$('personal-request-start').max||!dayOffDateAllowed(date))))return personalRequestMessage(`Selecciona entre 1 y ${APP.daysOffAvailable} días disponibles, de martes a viernes.`);
+  if(type==='dia_libre'&&(!dates.length||dates.length>APP.daysOffAvailable||dates.some(date=>date<$('personal-request-start').min||date>$('personal-request-start').max||!dayOffDateAllowed(date))))return personalRequestMessage(`Selecciona entre 1 y ${APP.daysOffAvailable} días disponibles, de martes a jueves.`);
   if(!start||!end||end<start)return personalRequestMessage('Revisa el rango de fechas.');
-  if(type==='dia_libre'&&(start!==end||start<$('personal-request-start').min||start>$('personal-request-start').max||!dayOffDateAllowed(start)))return personalRequestMessage('Elige un día de martes a viernes futuro disponible en el calendario.');
+  if(type==='dia_libre'&&(start!==end||start<$('personal-request-start').min||start>$('personal-request-start').max||!dayOffDateAllowed(start)))return personalRequestMessage('Elige un día de martes a jueves futuro disponible en el calendario.');
   if(detail.length<8)return personalRequestMessage('Escribe un comentario de al menos 8 caracteres.');
   if((config.evidence||type==='dia_libre')&&!PERSONAL_REQUEST.file)return personalRequestMessage(type==='dia_libre'?'Adjunta la captura o comprobante de tu solicitud previa.':'Adjunta una evidencia para enviar esta solicitud.');
   const button=$('personal-request-submit');PERSONAL_REQUEST.busy=true;button.disabled=true;button.textContent='Enviando…';personalRequestMessage('Guardando la solicitud…');
@@ -2160,7 +2189,7 @@ async function submitPersonalRequest(event){
     if(error||!data?.ok){
       if(path)await db.storage.from(REQUEST_BUCKET).remove([path]).catch(()=>{});
       const reason=data?.motivo||'guardar',messages={duplicada:'Ya existe una solicitud pendiente para esas fechas.',rango_ausencia:'Las justificaciones solo pueden corresponder a los últimos 90 días.',rango_cambio:'La fecha del cambio está fuera del rango permitido.',fechas:'Revisa el rango de fechas seleccionado.',evidencia:'La evidencia es obligatoria.',detalle:'Amplía el comentario antes de enviarlo.',sesion:'Tu sesión venció. Vuelve a ingresar al portal.',sin_permiso:'Tu cuenta no tiene permiso para enviar esta solicitud.'};
-      Object.assign(messages,{dia_no_permitido:'Elige un día de martes a viernes futuro dentro de los próximos 180 días.',saldo_insuficiente:'Tu saldo ya está reservado o no tienes días disponibles. Actualiza tus solicitudes.',no_laborable:'Esa fecha no corresponde a una jornada laboral disponible.',colaborador:'Tu perfil no está activo o la fecha es anterior al inicio de tu contrato.'});
+      Object.assign(messages,{dia_no_permitido:'Elige un día de martes a jueves futuro dentro de los próximos 180 días.',saldo_insuficiente:'Tu saldo ya está reservado o no tienes días disponibles. Actualiza tus solicitudes.',no_laborable:'Esa fecha no corresponde a una jornada laboral disponible.',colaborador:'Tu perfil no está activo o la fecha es anterior al inicio de tu contrato.'});
       throw new Error(messages[reason]||'No se pudo guardar la solicitud.');
     }
     const success=type==='dia_libre'?`${dates.length} ${dates.length===1?'día enviado':'días enviados'} a Dirección.`:'Solicitud enviada a Dirección.';
@@ -2173,7 +2202,7 @@ async function submitPersonalRequest(event){
 }
 
 const PROFILE_COVERS=['cielo','jardin','noche'];
-function profileCoverKey(){ return `kja.profile-cover.${APP.inicio?.colaborador?.id||'default'}`; }
+function profileCoverKey(){ return `kja.profile-cover.${APP.inicio?.colaborador?.id||APP.sessionUid||'default'}`; }
 function syncProfileCover(){
   const identity=document.querySelector('#view-perfil .profile-identity');if(!identity)return;
   let cover='cielo';
@@ -2190,8 +2219,40 @@ function setProfileCover(cover){
   syncProfileCover();
   const picker=document.querySelector('.profile-theme-picker');if(picker)picker.open=false;
 }
+function renderAdminProfileSettings(){
+  const admin=!!APP.access.acceso_panel;
+  $('view-perfil').classList.toggle('is-admin-profile',admin);
+  const coverNames=admin?['Arena','Oliva','Grafito']:['Cielo','Jardín','Noche'];
+  document.querySelectorAll('[data-profile-cover]').forEach((button,index)=>{button.textContent=coverNames[index];});
+  $('admin-profile-settings').hidden=!admin;
+  $('profile-description').textContent=admin?'Personaliza tu nombre visible, foto y portada.':'Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.';
+  $('profile-work-notice').hidden=!APP.identity.hasPersonal;
+  if(admin)$('admin-profile-name').value=APP.guidedTourUserMetadata.kja_nombre_visible||APP.inicio?.colaborador?.nombre||APP.inicio?.perfil?.nombre||'';
+}
+async function saveAdminProfile(event){
+  event.preventDefault();if(!APP.access.acceso_panel)return;
+  const input=$('admin-profile-name'),name=input.value.trim().replace(/\s+/g,' '),button=$('admin-profile-save'),message=$('admin-profile-message');
+  if(!name||name.length>80){message.textContent='Escribe un nombre de 1 a 80 caracteres.';return;}
+  button.disabled=true;message.textContent='Guardando…';
+  try{
+    const {error}=await db.auth.updateUser({data:{kja_nombre_visible:name}});if(error)throw error;
+    APP.guidedTourUserMetadata.kja_nombre_visible=name;
+    ['side-name','rail-name','profile-name'].forEach(id=>$(id).textContent=name);
+    $('mobile-home-name').textContent=name.split(' ')[0];
+    PROFILE_AVATAR_IDS.forEach(id=>{const el=$(id);if(el){el.dataset.avatarInitials=initials(name);el.textContent=initials(name);}});
+    paintProfilePhoto(APP.avatar.url);message.textContent='Nombre actualizado.';
+  }catch{message.textContent='No se pudo guardar. Inténtalo de nuevo.';}finally{button.disabled=false;}
+}
 function renderProfile(){
-  const c=APP.inicio.colaborador;if(!c)return; $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
+  renderAdminProfileSettings();
+  const c=APP.inicio.colaborador;if(APP.access.acceso_panel||!c){
+    $('profile-avatar').textContent=initials($('side-name').textContent);
+    $('profile-name').textContent=$('side-name').textContent;
+    $('profile-area').textContent='Panel de administración';
+    $('profile-link').textContent='Administrador';
+    $('profile-fields').innerHTML='';
+    paintProfilePhoto(APP.avatar.url);syncProfileCover();return;
+  } $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=(APP.access.acceso_panel&&APP.guidedTourUserMetadata.kja_nombre_visible)||c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
   $('profile-link').textContent=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
   const dates=v=>v?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(v+'T12:00:00')):'—';
   const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?`${c.contrato_horas} h`:'—'],['Horas previas',`${Number(c.horas_previas||0)} h`]];
@@ -2636,6 +2697,97 @@ function renderAdminOverviewCharts(people,marks,closePeople){
   }).join('');
 }
 
+function renderProposalCalendarHtml(year,month,selectedDate,originalDate,minDate,maxDate){
+  const daysInMonth=new Date(year,month,0).getDate();
+  const offset=(new Date(year,month-1,1).getDay()+6)%7;
+  const minParts=requestDateParts(minDate),maxParts=requestDateParts(maxDate);
+  const prevDisabled=minParts&&(year<minParts.year||(year===minParts.year&&month<=minParts.month));
+  const nextDisabled=maxParts&&(year>maxParts.year||(year===maxParts.year&&month>=maxParts.month));
+  let daysHtml='<span class="proposal-cal-empty" aria-hidden="true"></span>'.repeat(offset);
+  for(let day=1;day<=daysInMonth;day++){
+    const value=requestIsoDate(year,month,day);
+    const dow=new Date(`${value}T12:00:00Z`).getUTCDay();
+    const isAllowed=[2,3,4].includes(dow)&&value>=minDate&&value<=maxDate&&value!==originalDate;
+    const isSelected=value===selectedDate;
+    const isOriginal=value===originalDate;
+    const classes=['proposal-cal-day',isAllowed?'allowed':'',isSelected?'selected':'',isOriginal?'original':''].filter(Boolean).join(' ');
+    const title=isSelected?'Fecha seleccionada':isOriginal?'Fecha original solicitada':isAllowed?'Martes a jueves disponible':'No disponible';
+    daysHtml+=`<button type="button" class="${classes}" data-proposal-day="${value}" ${isAllowed?'':'disabled'} title="${title}" aria-pressed="${isSelected}">${day}</button>`;
+  }
+  return `<header class="proposal-calendar-header">
+    <button type="button" class="proposal-calendar-nav" data-proposal-nav="-1" aria-label="Mes anterior" ${prevDisabled?'disabled':''}>‹</button>
+    <strong class="proposal-calendar-title">${monthNames[month-1]} ${year}</strong>
+    <button type="button" class="proposal-calendar-nav" data-proposal-nav="1" aria-label="Mes siguiente" ${nextDisabled?'disabled':''}>›</button>
+  </header>
+  <div class="proposal-calendar-weekdays" aria-hidden="true"><span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span></div>
+  <div class="proposal-calendar-grid">${daysHtml}</div>
+  <div class="proposal-calendar-legend"><span><i class="dot-avail"></i> Martes a jueves disponibles</span><span><i class="dot-sel"></i> Elegido</span></div>`;
+}
+
+function proposalFormMarkup(req){
+  const today=isoLima(),minDate=addIsoDays(today,1),maxDate=addIsoDays(today,180);
+  const originalDate=req.fecha_inicio||'';
+  const base=requestDateParts(originalDate||minDate)||{year:2026,month:10,day:1};
+  return `<details class="leave-proposal-form" data-proposal-card="${req.id}">
+    <summary>Proponer otra fecha</summary>
+    <div class="leave-proposal-container">
+      <div class="leave-proposal-cal-col">
+        <span class="leave-proposal-cal-label">Fecha alternativa · martes a jueves</span>
+        <div class="proposal-calendar-widget" data-proposal-cal="${req.id}" data-year="${base.year}" data-month="${base.month}" data-selected="" data-original="${esc(originalDate)}" data-min="${minDate}" data-max="${maxDate}">
+          ${renderProposalCalendarHtml(base.year,base.month,'',originalDate,minDate,maxDate)}
+        </div>
+      </div>
+      <div class="leave-proposal-form-col">
+        <input type="hidden" data-leave-proposal-date value="">
+        <div class="leave-proposal-selected-pill empty" data-proposal-display>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <div class="selected-pill-text">
+            <small>Selecciona una fecha:</small>
+            <b data-proposal-label>Pulsa un día en el calendario</b>
+          </div>
+        </div>
+        <label>Motivo de la propuesta<input data-leave-proposal-reason maxlength="500" placeholder="Explica por qué propones otra fecha"></label>
+        <button type="button" data-leave-propose>Enviar propuesta al colaborador</button>
+      </div>
+    </div>
+  </details>`;
+}
+
+function handleProposalCalendarClick(event){
+  const nav=event.target.closest('[data-proposal-nav]');
+  if(nav&&!nav.disabled){
+    const widget=nav.closest('.proposal-calendar-widget');
+    if(widget){
+      let year=Number(widget.dataset.year),month=Number(widget.dataset.month)+Number(nav.dataset.proposalNav);
+      if(month<1){month=12;year--;}else if(month>12){month=1;year++;}
+      widget.dataset.year=year;widget.dataset.month=month;
+      widget.innerHTML=renderProposalCalendarHtml(year,month,widget.dataset.selected||'',widget.dataset.original||'',widget.dataset.min,widget.dataset.max);
+    }
+    return true;
+  }
+  const dayBtn=event.target.closest('[data-proposal-day]');
+  if(dayBtn&&!dayBtn.disabled){
+    const row=dayBtn.closest('[data-admin-personal-request]'),widget=dayBtn.closest('.proposal-calendar-widget');
+    const day=dayBtn.dataset.proposalDay;
+    if(row&&widget){
+      const hiddenInput=row.querySelector('[data-leave-proposal-date]');
+      if(hiddenInput)hiddenInput.value=day;
+      widget.dataset.selected=day;
+      const pill=row.querySelector('[data-proposal-display]');
+      if(pill){
+        pill.classList.remove('empty');pill.classList.add('active');
+        const small=pill.querySelector('small'),b=pill.querySelector('[data-proposal-label]');
+        if(small)small.textContent='Fecha propuesta elegida:';
+        if(b)b.textContent=formatRequestDate(day);
+      }
+      const year=Number(widget.dataset.year),month=Number(widget.dataset.month);
+      widget.innerHTML=renderProposalCalendarHtml(year,month,day,widget.dataset.original||'',widget.dataset.min,widget.dataset.max);
+    }
+    return true;
+  }
+  return false;
+}
+
 function adminPersonalRequestMarkup(req,modal=false){
     if(req.estado!=='pendiente')return `<article class="leave-review-resolved"><b>${esc(requestDateLabel(req.fecha_inicio))}</b><span class="request-status ${esc(req.estado)}">${req.estado==='aprobada'?'Aprobado':'Rechazado'}</span>${req.respuesta?`<p>${esc(req.respuesta)}</p>`:''}</article>`;
 
@@ -2643,7 +2795,7 @@ function adminPersonalRequestMarkup(req,modal=false){
     const range=req.fecha_inicio===req.fecha_fin?formatRequestDate(req.fecha_inicio):`${formatRequestDate(req.fecha_inicio)} — ${formatRequestDate(req.fecha_fin)}`;
     const evidence=req.evidencia_path&&!modal?`<button class="evidence" type="button" data-request-evidence="${esc(req.evidencia_path)}">Ver evidencia</button>`:'';
     const waiting=req.contra_estado==='pendiente';
-    const proposal=req.tipo==='dia_libre'&&req.descanso_programado?(waiting?`<p class="leave-proposal-wait">Propuesta: ${esc(formatRequestDate(req.contra_fecha))}. Esperando la respuesta del colaborador.<br>${esc(req.contra_motivo||'')}</p>`:`<details class="leave-proposal-form"><summary>Proponer otra fecha</summary><label>Fecha alternativa · martes a viernes<input type="date" data-leave-proposal-date min="${addIsoDays(isoLima(),1)}" max="${addIsoDays(isoLima(),180)}"></label><label>Motivo de la propuesta<input data-leave-proposal-reason maxlength="500" placeholder="Explica por qué propones otra fecha"></label><button type="button" data-leave-propose>Enviar propuesta al colaborador</button></details>`):'';
+    const proposal=req.tipo==='dia_libre'&&req.descanso_programado?(waiting?`<p class="leave-proposal-wait">Propuesta: ${esc(formatRequestDate(req.contra_fecha))}. Esperando la respuesta del colaborador.<br>${esc(req.contra_motivo||'')}</p>`:proposalFormMarkup(req)):'';
     return `<div class="admin-request personal" data-admin-personal-request="${req.id}"><span><b>${esc(modal?requestDateLabel(req.fecha_inicio):req.nombre||'Colaborador')}</b><small>${esc(modal?'Día libre solicitado':personalRequestLabel(req.tipo)+' · '+range)}</small></span><small>${esc(created)}</small>${modal?'':`<p>${esc(req.detalle||'Sin detalle')}</p>`}<div class="admin-request-actions"><input data-request-response="${req.id}" maxlength="500" placeholder="Respuesta opcional">${evidence}<button class="approve" type="button" data-admin-personal-action="approve" data-request-id="${req.id}" ${waiting?'disabled':''}>Aprobar</button><button class="reject" type="button" data-admin-personal-action="reject" data-request-id="${req.id}">Rechazar</button></div>${proposal}</div>`;
 
 }
@@ -2948,8 +3100,9 @@ async function saveAdminState(personId,state,remove){
 function goView(view){
   if(view==='cert-cuentas'&&!(APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel)){toast('Esta sección está reservada a Dirección y Sistemas.',true);return;}
   if(view==='gestion'&&!APP.access.acceso_panel){toast('Esta cuenta no tiene acceso administrativo.',true);return;}
-  if(['inicio','asistencia','perfil'].includes(view)&&!APP.identity.hasPersonal){toast('Esta cuenta no está vinculada a un perfil personal.',true);return;}
+  if((['inicio','asistencia'].includes(view)||(view==='perfil'&&!APP.access.acceso_panel))&&!APP.identity.hasPersonal){toast('Esta cuenta no está vinculada a un perfil personal.',true);return;}
   if(view==='equipo'&&!APP.identity.isLeader){toast('Mi equipo está reservado al líder y a los co-líderes técnicos del área.',true);return;}
+  if(view==='perfil')renderProfile();
   paintShell(view);
   if(view==='cert-cuentas'){closeMenu();return loadCertificateAccounts();}
   if(matchMedia('(max-width:900px)').matches)window.scrollTo(0,0);
@@ -2970,6 +3123,10 @@ $('mobile-home-logout').onclick=()=>logout();
 $('mobile-profile-link').onclick=()=>goView('perfil');
 $('profile-logout').onclick=()=>logout();
 $('profile-mobile-logout').onclick=()=>logout();
+$('admin-profile-settings').onsubmit=saveAdminProfile;
+$('admin-edit-photo').onclick=openProfilePhotoDialog;
+$('admin-edit-cover').onclick=()=>{const picker=document.querySelector('.profile-theme-picker');picker.open=true;picker.querySelector('button')?.focus();};
+$('side-profile-link').onclick=()=>goView('perfil');
 $('profile-photo-camera').onclick=openProfilePhotoDialog;
 $('profile-photo-dialog-close').onclick=()=>closeProfilePhotoDialog();
 $('profile-photo-dialog').addEventListener('close',()=>{

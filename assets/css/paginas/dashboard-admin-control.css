@@ -1,304 +1,2351 @@
-/* Control diario: una bandeja de trabajo, aislada del resto del portal. */
+/* ==========================================================================
+   KJA · Control Diario (Rediseño visual inspirado en Cuentas de Certificados)
+   ========================================================================== */
+
 #portal #admin-control-section {
-  --control-ink:#203449;
-  --control-muted:#5b6875;
-  --control-line:#e1e5e9;
-  --control-accent:#174f72;
-  display:flex;flex-direction:column;gap:20px;min-height:0;
-  color:var(--control-ink);font-family:Inter,system-ui,sans-serif;
-}
-#portal #admin-control-section[hidden]{display:none}
-#portal.admin-wide #admin-control-section{height:100%;overflow:hidden;padding-bottom:0}
-#portal #admin-control-section *{box-sizing:border-box;scrollbar-color:#aebbc5 #f6f8fa;scrollbar-width:thin}
-#portal #admin-control-section ::selection{background:#d6e8f3;color:#173e59}
-#portal #admin-control-section :is(button,input,select){font:inherit;font-size:13px;letter-spacing:normal}
-#portal #admin-control-section button{cursor:pointer;transition:background-color 150ms ease,color 150ms ease}
-#portal #admin-control-section button:hover{transform:none}
-#portal #admin-control-section button:disabled{cursor:default;opacity:.45}
-#portal #admin-control-section :is(button,input,select):focus-visible{outline:2px solid var(--control-accent)!important;outline-offset:3px}
-#portal #admin-control-section svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-#portal #admin-control-section .control-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:5px 0 0}
-#portal #admin-control-section .control-heading h2{margin:0;color:var(--control-ink);font:600 clamp(24px,2vw,30px)/1.2 Inter,system-ui,sans-serif;letter-spacing:-.025em}
-#portal #admin-control-section .control-heading p{margin:7px 0 0;color:var(--control-muted);font-size:13px;line-height:1.6}
-#portal #admin-control-section .control-tools{display:flex;gap:8px;flex-wrap:wrap}
-#portal #admin-control-section .control-tools button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 13px;border:1px solid #d0d7dc;border-radius:8px;background:#fff;color:var(--control-ink);font-weight:500;box-shadow:none;white-space:nowrap}
-#portal #admin-control-section .control-tools button:hover{background:#f0f4f7}
-#portal #admin-control-section .control-datebar{display:flex;align-items:center;justify-content:space-between;gap:16px}
-#portal #admin-control-section .control-date-navigation{display:flex;align-items:center;gap:6px}
-#portal #admin-control-section .control-date-navigation button{display:grid;place-items:center;width:38px;min-height:40px;border:1px solid #d0d7dc;border-radius:7px;background:#fff;color:var(--control-ink)}
-#portal #admin-control-section .control-date-navigation button:last-child{width:auto;padding:0 13px;margin-left:5px}
-#portal #admin-control-section .control-date-navigation button:hover:not(:disabled){background:#edf3f7}
-#portal #admin-control-section .control-date-navigation input{width:151px;min-height:40px;padding:0 10px;border:1px solid #d0d7dc;border-radius:7px;color:var(--control-ink);background:#fff;font-weight:600;color-scheme:light;caret-color:var(--control-accent)}
-#portal #admin-control-section #admin-control-summary{margin:0;color:var(--control-muted);font-size:12px;font-variant-numeric:tabular-nums;text-align:right}
-#portal #admin-control-section .control-workspace{display:flex;flex-direction:column;min-height:0;flex:1;border:1px solid var(--control-line);border-radius:12px;background:#fff;overflow:hidden}
-#portal.admin-wide #admin-control-section #admin-control-kpis{display:flex;gap:24px;min-height:62px;padding:0 22px;margin:0;border:0;border-bottom:1px solid var(--control-line);border-radius:0;background:#fff;box-shadow:none;overflow-x:auto;flex-shrink:0}
-#portal.admin-wide #admin-control-section #admin-control-kpis button{position:relative;display:flex;align-items:center;justify-content:center;gap:9px;min-height:62px;padding:0 1px;flex:0 0 auto;border:0;border-radius:0;background:transparent;color:var(--control-muted);font-size:13px;font-weight:500;white-space:nowrap}
-#portal.admin-wide #admin-control-section #admin-control-kpis button:hover{color:var(--control-accent);background:transparent}
-#portal.admin-wide #admin-control-section #admin-control-kpis button[aria-pressed="true"]{color:var(--control-accent);font-weight:700}
-#portal.admin-wide #admin-control-section #admin-control-kpis button[aria-pressed="true"]:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--control-accent)}
-#portal.admin-wide #admin-control-section #admin-control-kpis span{position:static;display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 6px;border-radius:5px;background:#f0f2f4;color:var(--control-muted);font-size:11px;font-weight:600;opacity:1;font-variant-numeric:tabular-nums}
-#portal.admin-wide #admin-control-section #admin-control-kpis button[aria-pressed="true"] span{background:#e7f0f6;color:var(--control-accent)}
-#portal #admin-control-section .control-filters{display:grid;grid-template-columns:minmax(210px,1fr) minmax(145px,.5fr) minmax(170px,.55fr) auto;gap:10px;padding:18px 22px 10px;align-items:center}
-#portal #admin-control-section .control-filters label{position:relative;min-width:0}
-#portal #admin-control-section .control-filters :is(input,select){width:100%;height:42px;padding:0 12px;border:1px solid #d7dfe5;border-radius:7px;background:#fff;color:var(--control-ink);caret-color:var(--control-accent)}
-#portal #admin-control-section .control-filters input::placeholder{color:#627181}
-#portal #admin-control-section .control-search svg{position:absolute;left:12px;top:12px;color:var(--control-muted)}
-#portal #admin-control-section .control-search input{padding-left:39px}
-#portal #admin-control-section #admin-control-clear{height:42px;border:0;background:transparent;color:var(--control-accent);text-decoration:underline;text-underline-offset:4px}
-#portal #admin-control-section [hidden]{display:none!important}
-#portal #admin-control-section .control-list-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 22px 14px;color:var(--control-muted);font-size:12px}
-#portal #admin-control-section .control-list-meta label{display:flex;gap:5px;align-items:center}
-#portal #admin-control-section .control-list-meta select{min-height:32px;max-width:130px;border:0;background:transparent;color:var(--control-ink);font-size:12px;font-weight:600}
-#portal #admin-control-section #admin-control-message{margin:0 22px 12px;font-size:13px;line-height:1.5}
-#portal #admin-control-section #admin-control-message:empty{display:none}
-#portal #admin-control-section .control-case-list{flex:1;min-height:180px;overflow:auto;overscroll-behavior:contain}
-#portal #admin-control-section .control-columns,
-#portal #admin-control-section .control-case-row{display:grid;grid-template-columns:minmax(190px,1.1fr) minmax(116px,.65fr) minmax(230px,1.65fr) 115px 116px;align-items:center;gap:20px;padding-inline:22px}
-#portal #admin-control-section .control-columns{position:sticky;top:0;z-index:1;min-height:40px;border-block:1px solid var(--control-line);background:#f6f8fa;color:#596877;font-size:11px;font-weight:600}
-#portal #admin-control-section .control-case{border-bottom:1px solid #edf0f3;background:#fff}
-#portal #admin-control-section .control-case:last-child{border-bottom:0}
-#portal #admin-control-section .control-case-row{min-height:108px;padding-block:17px}
-#portal #admin-control-section .control-case:has([aria-expanded="true"]){background:#f8fafc}
-#portal #admin-control-section .control-person{display:flex;align-items:center;gap:11px;min-width:0}
-#portal #admin-control-section .control-avatar{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;background:#edf1f5;border:1px solid #dde5ec;border-radius:10px;color:#315271;font-size:11px;font-weight:700}
-#portal #admin-control-section .control-person h3{margin:0;color:var(--control-ink);font-size:13px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
-#portal #admin-control-section .control-person p{margin:4px 0 0;color:var(--control-muted);font-size:11px;line-height:1.5}
-#portal #admin-control-section .control-status-label{display:inline-flex;align-items:center;gap:6px;color:#5c6874;font-size:12px;font-weight:500;line-height:1.4}
-#portal #admin-control-section .control-status-label i{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
-#portal #admin-control-section .control-status-label.danger{color:#a33a45}
-#portal #admin-control-section .control-status-label.warning{color:#8b600f}
-#portal #admin-control-section .control-status-label.success{color:#247052}
-#portal #admin-control-section .control-status-label.info{color:#266582}
-#portal #admin-control-section .control-next-step{min-width:0}
-#portal #admin-control-section .control-next-step b{display:block;font-size:12px;font-weight:600;line-height:1.6;overflow-wrap:anywhere;color:var(--control-ink)}
-#portal #admin-control-section .control-next-step p{margin:4px 0 0;color:var(--control-muted);font-size:11px;line-height:1.6;overflow-wrap:anywhere}
-#portal #admin-control-section .control-times{display:flex;gap:15px;font-variant-numeric:tabular-nums}
-#portal #admin-control-section .control-times span{display:grid;gap:5px}
-#portal #admin-control-section .control-times small{color:var(--control-muted);font-size:10px}
-#portal #admin-control-section .control-times b{color:var(--control-ink);font-size:12px;font-weight:500}
-#portal #admin-control-section .control-row-actions{display:grid;justify-items:stretch;gap:3px}
-#portal #admin-control-section .control-primary{display:inline-flex;justify-content:center;align-items:center;gap:7px;min-height:38px;padding:7px 10px;border:1px solid #cddde8;border-radius:7px;background:#f3f8fb;color:#174f72;font-size:12px;font-weight:600;white-space:nowrap}
-#portal #admin-control-section .control-primary:hover{background:#e5f0f7;border-color:#a4c3d9}
-#portal #admin-control-section .control-primary svg{width:15px;height:15px}
-#portal #admin-control-section .control-detail-toggle{min-height:30px;padding:3px 5px;border:0;background:transparent;color:var(--control-muted);font-size:11px;text-underline-offset:4px}
-#portal #admin-control-section .control-detail-toggle:hover{color:var(--control-accent);text-decoration:underline}
-#portal #admin-control-section .control-detail{display:grid;grid-template-columns:1.15fr 1fr;gap:32px;margin:0 22px 20px;padding:20px 0 0;border-top:1px solid var(--control-line);animation:control-detail-in 180ms cubic-bezier(.16,1,.3,1)}
-#portal #admin-control-section .control-detail h3{font-size:12px;font-weight:600;margin:0 0 12px}
-#portal #admin-control-section .control-detail ul{list-style:none;padding:0;margin:0}
-#portal #admin-control-section .control-detail li{display:flex;align-items:center;gap:9px;padding:8px 0;font-size:12px;line-height:1.5}
-#portal #admin-control-section .control-detail li>span:nth-child(2){flex:1}
-#portal #admin-control-section .control-detail li>b{font-size:11px;font-weight:500;color:var(--control-muted);text-align:right}
-#portal #admin-control-section .control-task-dot{width:7px;height:7px;flex-shrink:0;border:1px solid #94620f;border-radius:50%}
-#portal #admin-control-section .control-task-dot.done{border-color:#247052;background:#247052}
-#portal #admin-control-section .control-detail p{margin:8px 0;color:var(--control-muted);font-size:12px;line-height:1.65;overflow-wrap:anywhere}
-#portal #admin-control-section .control-issue b{display:block;color:var(--control-ink);font-weight:600}
-#portal #admin-control-section .control-detail p.control-detail-note{font-size:11px}
-#portal #admin-control-section .control-empty{display:grid;place-items:center;align-content:center;gap:10px;min-height:260px;padding:32px;text-align:center}
-#portal #admin-control-section .control-empty svg{width:30px;height:30px;color:#526f7b}
-#portal #admin-control-section .control-empty h3{margin:0;color:var(--control-ink);font-size:16px;font-weight:600}
-#portal #admin-control-section .control-empty p{margin:0;color:var(--control-muted);font-size:13px;line-height:1.6}
-#portal #admin-control-section .control-empty button{min-height:42px;margin-top:8px;padding:0 15px;background:#f3f8fb;color:var(--control-accent);border:1px solid #cddde8;border-radius:7px}
-@keyframes control-detail-in{from{clip-path:inset(0 0 12% 0)}to{clip-path:inset(0)}}
-@media(max-width:1200px){
-  #portal #admin-control-section .control-columns,#portal #admin-control-section .control-case-row{grid-template-columns:minmax(160px,1fr) 108px minmax(175px,1.2fr) 100px 106px;gap:12px;padding-inline:16px}
-  #portal #admin-control-section .control-person{gap:8px}
-  #portal #admin-control-section .control-avatar{display:none}
-}
-@media(max-width:1000px){
-  #portal #admin-control-section .control-columns{display:none}
-  #portal #admin-control-section .control-case-row{grid-template-columns:minmax(0,1fr) 120px;gap:12px 24px;padding:20px}
-  #portal #admin-control-section .control-person{grid-column:1}
-  #portal #admin-control-section .control-avatar{display:grid}
-  #portal #admin-control-section .control-status{grid-column:2;grid-row:1}
-  #portal #admin-control-section .control-next-step{grid-column:1;grid-row:2}
-  #portal #admin-control-section .control-times{grid-column:1;grid-row:3}
-  #portal #admin-control-section .control-row-actions{grid-column:2;grid-row:2/4;align-self:center}
-}
-@media(max-width:900px){
-  #portal.admin-wide #admin-control-section{height:auto;overflow:visible;gap:16px}
-  #portal #admin-control-section .control-heading{align-items:flex-start;flex-direction:column;gap:14px}
-  #portal #admin-control-section .control-tools{width:100%}
-  #portal #admin-control-section .control-workspace{flex:none;overflow:hidden}
-  #portal #admin-control-section .control-case-list{max-height:none;overflow:visible}
-  #portal.admin-wide #admin-control-section #admin-control-kpis{gap:20px;padding:0 16px;min-height:58px}
-  #portal.admin-wide #admin-control-section #admin-control-kpis button{min-height:58px}
-  #portal #admin-control-section .control-filters{grid-template-columns:1fr 1fr;padding:16px}
-  #portal #admin-control-section .control-search{grid-column:1/-1}
-  #portal #admin-control-section .control-list-meta{padding-inline:16px}
-}
-@media(max-width:600px){
-  #portal #admin-control-section .control-heading h2{font-size:26px}
-  #portal #admin-control-section .control-tools button{flex:1;min-height:44px}
-  #portal #admin-control-section .control-datebar{align-items:flex-start;flex-direction:column;gap:10px}
-  #portal #admin-control-section .control-date-navigation{width:100%}
-  #portal #admin-control-section .control-date-navigation label{flex:1}
-  #portal #admin-control-section .control-date-navigation input{width:100%}
-  #portal #admin-control-section .control-date-navigation button{min-height:44px;width:40px}
-  #portal #admin-control-section .control-date-navigation input{min-height:44px}
-  #portal #admin-control-section #admin-control-summary{text-align:left;font-size:11px}
-  #portal #admin-control-section .control-filters{gap:8px;padding:14px 12px}
-  #portal #admin-control-section .control-filters :is(input,select){font-size:12px;min-height:44px;padding-right:4px}
-  #portal #admin-control-section .control-list-meta{flex-wrap:wrap;padding:0 12px 12px;font-size:11px}
-  #portal #admin-control-section .control-list-meta select{font-size:11px}
-  #portal #admin-control-section .control-case-row{grid-template-columns:1fr;gap:12px;padding:18px 14px}
-  #portal #admin-control-section .control-person{grid-column:1;grid-row:1}
-  #portal #admin-control-section .control-status{grid-column:1;grid-row:2;padding-left:47px}
-  #portal #admin-control-section .control-next-step{grid-column:1;grid-row:3}
-  #portal #admin-control-section .control-times{grid-column:1;grid-row:4;gap:26px}
-  #portal #admin-control-section .control-row-actions{grid-column:1;grid-row:5;display:flex;gap:12px;justify-content:flex-start}
-  #portal #admin-control-section .control-primary{min-height:44px;min-width:130px}
-  #portal #admin-control-section .control-detail-toggle{min-height:44px}
-  #portal #admin-control-section .control-detail{grid-template-columns:1fr;gap:20px;margin-inline:14px}
-  #portal #admin-control-section .control-detail li{align-items:flex-start}
-}
-@media(prefers-reduced-motion:reduce){
-  #portal #admin-control-section *,#portal #admin-control-section *:before,#portal #admin-control-section *:after{animation:none!important;transition:none!important;scroll-behavior:auto}
+  --control-ink: #0f172a;
+  --control-body: #1e293b;
+  --control-muted: #64748b;
+  --control-subtle: #94a3b8;
+  --control-border: #e2e8f0;
+  --control-card-border: #edf2f7;
+  --control-primary: #196d61;
+  --control-primary-hover: #13554c;
+  --control-primary-ring: rgba(25, 109, 97, .15);
+
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 28px 32px 80px;
+  background: radial-gradient(circle at 82% 0%, rgba(244, 63, 94, .05) 0%, rgba(244, 114, 182, .02) 40%, transparent 70%), #f8fafc;
+  background-attachment: local;
+  border-radius: 15px !important;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, .03);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #1e293b;
+  font: 400 14px/1.5 'Inter', system-ui, -apple-system, sans-serif;
+  scroll-behavior: auto !important;
+  -webkit-overflow-scrolling: touch;
+  isolation: isolate;
 }
 
-#portal #admin-control-section .control-detail-column{min-width:0}
-#portal #admin-control-section .control-detail li>span:nth-child(2){min-width:0;overflow-wrap:anywhere}
-
-/* Resumen por área y densidad de trabajo. */
-#portal #admin-control-section{gap:10px}
-#portal #admin-control-section .control-heading{padding:0}
-#portal #admin-control-section .control-heading h2{font-size:25px}
-#portal #admin-control-section .control-heading p{margin-top:3px;font-size:12px}
-#portal #admin-control-section .control-datebar{margin-bottom:2px}
-#portal #admin-control-section .control-area-overview{flex-shrink:0;padding:14px 18px 10px;background:#fff;border:1px solid var(--control-line);border-radius:10px}
-#portal #admin-control-section .control-area-overview>header{display:flex;align-items:center;gap:16px;margin-bottom:10px}
-#portal #admin-control-section .control-area-overview h3{font-size:14px;margin:0;font-weight:600}
-#portal #admin-control-section .control-area-overview header p{margin:3px 0 0;font-size:11px;color:var(--control-muted)}
-#portal #admin-control-section .control-area-legend{display:flex;flex-wrap:wrap;gap:12px;margin-left:auto;font-size:11px;color:var(--control-muted)}
-#portal #admin-control-section .control-area-legend span{display:flex;align-items:center;gap:5px}
-#portal #admin-control-section .control-area-legend span:before{content:"";width:8px;height:8px;background:var(--segment);border-radius:2px}
-#portal #admin-control-section .control-area-overview .pending{--segment:#b45147}
-#portal #admin-control-section .control-area-overview .review{--segment:#966c13}
-#portal #admin-control-section .control-area-overview .done{--segment:#28735e}
-#portal #admin-control-section .control-area-overview .clear{--segment:#596d7d}
-#portal #admin-control-section #admin-control-chart-reset{min-height:32px;background:#f3f7fa;color:var(--control-accent);border:1px solid #cddde8;border-radius:6px;font-size:11px;padding:0 10px}
-#portal #admin-control-section #admin-control-areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:5px 30px;max-height:180px;overflow:auto;padding:3px}
-#portal #admin-control-section .control-area-row{display:grid;grid-template-columns:minmax(100px,.7fr) minmax(100px,1fr) 55px;align-items:center;gap:12px;padding:4px 6px;border-radius:6px}
-#portal #admin-control-section .control-area-row.is-selected{background:#eaf2f8}
-#portal #admin-control-section .control-area-name{min-width:0;text-align:left;border:0;background:transparent;padding:0;color:var(--control-ink);font-size:12px;line-height:1.4;min-height:34px;font-weight:600;overflow-wrap:anywhere}
-#portal #admin-control-section .control-area-name:hover{text-decoration:underline;text-underline-offset:3px}
-#portal #admin-control-section .control-area-name small{display:block;color:var(--control-muted);font-size:10px;font-weight:400}
-#portal #admin-control-section .control-area-bar{display:flex;gap:2px;min-width:0;min-height:32px;align-items:stretch}
-#portal #admin-control-section .control-area-segment{flex-basis:0;min-width:24px;padding:3px 1px;border:0;border-radius:3px;background:var(--segment);color:white;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
-#portal #admin-control-section .control-area-segment:hover{filter:brightness(.87)}
-#portal #admin-control-section .control-area-segment[aria-pressed="true"]{outline:2px solid var(--control-ink);outline-offset:2px}
-#portal #admin-control-section .control-area-count{text-align:right;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
-#portal #admin-control-section .control-area-count small{display:block;font-size:9px;font-weight:400;color:var(--control-muted)}
-#portal #admin-control-section .control-area-footnote{margin:8px 0 0;color:var(--control-muted);font-size:10px;line-height:1.4}
-#portal #admin-control-section .control-area-empty{font-size:12px;color:var(--control-muted);margin:12px 0}
-#portal #admin-control-section .control-workspace{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto minmax(0,1fr)}
-#portal.admin-wide #admin-control-section #admin-control-kpis{grid-row:1;grid-column:1;min-height:46px;padding-inline:18px;gap:20px}
-#portal.admin-wide #admin-control-section #admin-control-kpis button{min-height:46px}
-#portal #admin-control-section .control-list-meta{grid-row:1;grid-column:2;padding:0 18px 0 6px;border-bottom:1px solid var(--control-line);font-size:11px}
-#portal #admin-control-section .control-filters{grid-row:2;grid-column:1/-1;padding:10px 18px;gap:8px}
-#portal #admin-control-section #admin-control-message{grid-row:3;grid-column:1/-1}
-#portal #admin-control-section .control-case-list{grid-row:4;grid-column:1/-1;min-height:140px}
-#portal #admin-control-section .control-case-row{min-height:82px;padding-block:10px}
-#portal #admin-control-section .control-next-step p{display:none}
-#portal #admin-control-section .control-row-actions{gap:0}
-@media(min-width:1100px){
- #portal #admin-control-section{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto minmax(0,1fr);gap:12px 20px}
- #portal #admin-control-section .control-heading{grid-row:1;grid-column:1}
- #portal #admin-control-section .control-datebar{grid-row:1;grid-column:2;flex-direction:column;align-items:flex-end;gap:5px}
- #portal #admin-control-section .control-area-overview{grid-row:2;grid-column:1/-1}
- #portal #admin-control-section .control-workspace{grid-row:3;grid-column:1/-1}
-}
-@media(max-width:1100px){
- #portal #admin-control-section .control-list-meta{grid-column:1/-1;grid-row:3;padding:0 16px 8px;border-bottom:0}
- #portal #admin-control-section .control-workspace{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto minmax(0,1fr)}
- #portal #admin-control-section #admin-control-message{grid-row:4}
- #portal #admin-control-section .control-case-list{grid-row:5}
- #portal #admin-control-section .control-area-overview>header{flex-wrap:wrap;gap:8px}
- #portal #admin-control-section .control-area-legend{margin-left:0}
-}
-@media(max-width:700px){
- #portal #admin-control-section #admin-control-areas{grid-template-columns:minmax(0,1fr);max-height:220px}
- #portal #admin-control-section .control-area-overview{padding:12px}
- #portal #admin-control-section .control-area-row{gap:8px;padding-inline:2px;grid-template-columns:minmax(90px,.8fr) minmax(110px,1fr) 48px}
- #portal #admin-control-section .control-area-segment{min-height:38px}
- #portal #admin-control-section .control-area-name{min-height:42px}
- #portal #admin-control-section .control-area-legend{font-size:10px;gap:8px}
- #portal #admin-control-section .control-case-row{padding-block:14px}
- #portal #admin-control-section .control-workspace{display:flex}
+#portal #admin-control-section[hidden] {
+  display: none !important;
 }
 
-/* Áreas con jerarquía propia; casos en dos columnas con orden de lectura horizontal. */
-#portal #admin-control-section .control-area-overview{background:#f8fafc;border-color:#d8e2ea;padding:15px 18px 10px}
-#portal #admin-control-section .control-area-overview h3{font-size:15px;letter-spacing:-.015em}
-#portal #admin-control-section #admin-control-areas{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:8px 14px;max-height:210px;padding:3px}
-#portal #admin-control-section .control-area-row{position:relative;grid-template-columns:minmax(0,1fr) auto;gap:7px 14px;padding:10px 12px;background:transparent;border-radius:8px;transition:background-color 180ms ease,box-shadow 180ms ease}
-#portal #admin-control-section .control-area-row:hover{background:#edf3f8}
-#portal #admin-control-section .control-area-row.is-selected{background:#e7f0f7;box-shadow:inset 0 0 0 1px #aac5d8}
-#portal #admin-control-section .control-area-name{grid-column:1;grid-row:1;min-height:30px;font-size:12px;line-height:1.3}
-#portal #admin-control-section .control-area-name small{display:inline;margin-left:7px;font-size:10px;white-space:nowrap}
-#portal #admin-control-section .control-area-count{grid-column:2;grid-row:1;display:flex;align-items:baseline;gap:5px;font-size:20px;line-height:1;font-weight:600;color:#254964}
-#portal #admin-control-section .control-area-count small{max-width:44px;text-align:left;line-height:1.2}
-#portal #admin-control-section .control-area-bar{grid-column:1/-1;grid-row:2;min-height:24px;gap:3px}
-#portal #admin-control-section .control-area-segment{position:relative;min-height:24px;border-radius:4px;transition:filter 140ms ease,box-shadow 140ms ease}
-#portal #admin-control-section .control-area-segment:hover,#portal #admin-control-section .control-area-segment:focus-visible{filter:brightness(.94);box-shadow:0 2px 5px #20344920}
-#portal #admin-control-section .control-area-row.is-arriving .control-area-bar{animation:control-area-reveal 420ms cubic-bezier(.16,1,.3,1)}
-#portal #admin-control-section .control-case-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;align-items:start;gap:0;padding:0 12px 12px;background:#fff;container-type:inline-size}
-#portal #admin-control-section .control-case{min-width:0;align-self:stretch;border-bottom:1px solid #e1e7ed;padding:0 12px;transition:background-color 160ms ease}
-#portal #admin-control-section .control-case:nth-child(odd){border-right:1px solid #e1e7ed}
-#portal #admin-control-section .control-case:hover{background:#f8fafc}
-#portal #admin-control-section .control-case:focus-within{background:#f3f7fb}
-#portal #admin-control-section .control-case-row{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;min-height:135px;padding:13px 0 11px;gap:8px 12px}
-#portal #admin-control-section .control-person{grid-column:1;grid-row:1;gap:9px}
-#portal #admin-control-section .control-avatar{display:grid;width:32px;height:32px;flex-basis:32px;border-radius:9px;background:#edf3f8;color:#315674}
-#portal #admin-control-section .control-person h3{font-size:12px;line-height:1.4}
-#portal #admin-control-section .control-person p{margin-top:2px;font-size:10px}
-#portal #admin-control-section .control-status{grid-column:2;grid-row:1;padding:0;max-width:130px;text-align:right}
-#portal #admin-control-section .control-status-label{font-size:11px;justify-content:flex-end}
-#portal #admin-control-section .control-next-step{grid-column:1/-1;grid-row:2;padding-left:41px}
-#portal #admin-control-section .control-next-step b{font-size:11px;font-weight:500;line-height:1.5}
-#portal #admin-control-section .control-times{grid-column:1;grid-row:3;gap:15px;padding-left:41px;align-self:center}
-#portal #admin-control-section .control-times span{display:flex;align-items:baseline;gap:5px}
-#portal #admin-control-section .control-times small{font-size:10px}
-#portal #admin-control-section .control-times b{font-size:11px}
-#portal #admin-control-section .control-row-actions{grid-column:2;grid-row:3;display:flex;flex-direction:row-reverse;align-items:center;gap:7px;align-self:center}
-#portal #admin-control-section .control-primary{min-height:34px;font-size:11px;padding:5px 9px}
-#portal #admin-control-section .control-detail-toggle{min-height:34px;font-size:10px;white-space:nowrap}
-#portal #admin-control-section .control-detail{grid-template-columns:minmax(0,1fr);gap:14px;margin:0 0 14px;padding-top:12px}
-#portal #admin-control-section .control-empty,#portal #admin-control-section .admin-control-loading{grid-column:1/-1}
-@keyframes control-area-reveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
-@media(max-width:1150px){
- #portal #admin-control-section .control-case-row{grid-template-columns:minmax(0,1fr);min-height:0}
- #portal #admin-control-section .control-person{grid-column:1;grid-row:1}
- #portal #admin-control-section .control-status{grid-column:1;grid-row:2;padding-left:41px;text-align:left;max-width:none}
- #portal #admin-control-section .control-next-step{grid-column:1;grid-row:3}
- #portal #admin-control-section .control-times{grid-column:1;grid-row:4}
- #portal #admin-control-section .control-row-actions{grid-column:1;grid-row:5;justify-content:flex-end}
-}
-@media(max-width:900px){
- #portal #admin-control-section .control-case-list{grid-template-columns:minmax(0,1fr);padding:0 10px 10px}
- #portal #admin-control-section .control-case:nth-child(odd){border-right:0}
- #portal #admin-control-section .control-case{padding:0 8px}
- #portal #admin-control-section .control-case-row{grid-template-columns:minmax(0,1fr) auto}
- #portal #admin-control-section .control-person{grid-column:1;grid-row:1}
- #portal #admin-control-section .control-status{grid-column:2;grid-row:1;padding:0;text-align:right}
- #portal #admin-control-section .control-next-step{grid-column:1/-1;grid-row:2}
- #portal #admin-control-section .control-times{grid-column:1;grid-row:3}
- #portal #admin-control-section .control-row-actions{grid-column:2;grid-row:3}
- #portal #admin-control-section .control-primary,#portal #admin-control-section .control-detail-toggle{min-height:44px}
- #portal #admin-control-section .control-area-segment{min-height:34px}
-}
-@media(max-width:540px){
- #portal #admin-control-section .control-case-row{grid-template-columns:minmax(0,1fr)}
- #portal #admin-control-section .control-person{grid-column:1;grid-row:1}
- #portal #admin-control-section .control-status{grid-column:1;grid-row:2;text-align:left;padding-left:41px}
- #portal #admin-control-section .control-next-step{grid-column:1;grid-row:3}
- #portal #admin-control-section .control-times{grid-column:1;grid-row:4}
- #portal #admin-control-section .control-row-actions{grid-column:1;grid-row:5;justify-content:flex-end}
- #portal #admin-control-section .control-area-name small{display:block;margin:3px 0 0}
-}
-@media(prefers-reduced-motion:reduce){
- #portal #admin-control-section .control-area-row.is-arriving .control-area-bar{animation:none}
+#portal #admin-control-section * {
+  box-sizing: border-box;
+  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-width: thin;
 }
 
-@container (max-width:850px){
- #portal #admin-control-section .control-case{grid-column:1/-1;border-right:0}
+#portal #admin-control-section ::selection {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+#portal #admin-control-section :is(button, input, select) {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  letter-spacing: normal;
+}
+
+#portal #admin-control-section svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   1. Header Section
+   -------------------------------------------------------------------------- */
+#portal #admin-control-section .control-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--control-border);
+  flex-wrap: wrap;
+}
+
+#portal #admin-control-section .control-head-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+#portal #admin-control-section .control-head-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #fff0f5;
+  border: 1px solid #fecdd3;
+  color: #e11d48;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(225, 29, 72, .08);
+}
+
+#portal #admin-control-section .control-head-copy {
+  display: flex;
+  flex-direction: column;
+}
+
+#portal #admin-control-section .control-head-copy h2,
+#portal #admin-control-section #admin-control-title {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  font-size: clamp(24px, 2.2vw, 30px);
+  font-weight: 700;
+  letter-spacing: -.025em;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+#portal #admin-control-section .control-head-copy p,
+#portal #admin-control-section #admin-control-summary {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 13.5px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+#portal #admin-control-section .control-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+#portal #admin-control-section .control-datebar {
+  display: flex;
+  align-items: center;
+}
+
+#portal #admin-control-section .control-date-navigation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 3px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+}
+
+#portal #admin-control-section .control-date-navigation button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  min-height: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  transition: background-color .12s ease, color .12s ease;
+}
+
+#portal #admin-control-section .control-date-navigation button:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+#portal #admin-control-section .control-date-navigation button:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+#portal #admin-control-section .control-date-navigation button#admin-control-today {
+  width: auto;
+  padding: 0 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--control-primary);
+}
+
+#portal #admin-control-section .control-date-navigation button#admin-control-today:hover {
+  background: #ecfdf5;
+}
+
+#portal #admin-control-section .control-date-navigation input {
+  min-height: 34px;
+  height: 34px;
+  width: 130px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 7px;
+  color: #0f172a;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color-scheme: light;
+}
+
+#portal #admin-control-section .control-date-navigation input:focus {
+  outline: none;
+  background: #edf2f7;
+}
+
+#portal #admin-control-section .control-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#portal #admin-control-section #admin-control-export {
+  min-height: 42px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+  font: 600 13px/1.4 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+  transition: background-color .12s ease, border-color .12s ease;
+  white-space: nowrap;
+}
+
+#portal #admin-control-section #admin-control-export:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+#portal #admin-control-section #admin-control-export:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+#portal #admin-control-section #admin-pausas-open-btn {
+  min-height: 42px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  background: var(--control-primary);
+  border: 1px solid var(--control-primary);
+  color: #fff;
+  font: 600 13px/1.4 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(25, 109, 97, .25);
+  transition: background-color .12s ease, border-color .12s ease;
+  white-space: nowrap;
+}
+
+#portal #admin-control-section #admin-pausas-open-btn:hover {
+  background: var(--control-primary-hover);
+  border-color: var(--control-primary-hover);
+}
+
+/* --------------------------------------------------------------------------
+   2. KPI Metric Stat Cards (Estilo idéntico a Cuentas de Certificados)
+   -------------------------------------------------------------------------- */
+#portal #admin-control-section .control-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 4px 0 6px;
+}
+
+#portal #admin-control-section .control-stat-card {
+  background: #fff;
+  border: 1px solid var(--control-card-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .02);
+  transition: transform .14s cubic-bezier(.16, 1, .3, 1), box-shadow .14s ease, border-color .14s ease;
+  will-change: transform;
+  transform: translateZ(0);
+  cursor: pointer;
+  position: relative;
+  text-align: left;
+}
+
+#portal #admin-control-section .control-stat-card:hover {
+  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, .05);
+  transform: translateY(-1px) translateZ(0);
+  border-color: #cbd5e1;
+}
+
+#portal #admin-control-section .control-stat-card.is-active {
+  border-color: var(--control-primary);
+  box-shadow: 0 0 0 1px var(--control-primary), 0 4px 12px rgba(25, 109, 97, .08);
+}
+
+#portal #admin-control-section .cert-stat-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .cert-stat-icon-wrap.is-green {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+#portal #admin-control-section .cert-stat-icon-wrap.is-red {
+  background: #fff1f2;
+  color: #f43f5e;
+}
+
+#portal #admin-control-section .cert-stat-icon-wrap.is-amber {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+#portal #admin-control-section .cert-stat-icon-wrap.is-teal {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+#portal #admin-control-section .cert-stat-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#portal #admin-control-section .cert-stat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+#portal #admin-control-section .cert-stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.15;
+  margin: 3px 0 2px;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+#portal #admin-control-section .cert-stat-sub {
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+#portal #admin-control-section .cert-stat-chart {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+#portal #admin-control-section .cert-chart-bars {
+  width: 42px;
+  height: 28px;
+}
+
+#portal #admin-control-section .cert-chart-bars.is-green rect {
+  fill: #34d399;
+}
+
+#portal #admin-control-section .cert-chart-bars.is-red rect {
+  fill: #fb7185;
+}
+
+#portal #admin-control-section .cert-chart-curve {
+  width: 56px;
+  height: 26px;
+}
+
+#portal #admin-control-section .cert-chart-curve.is-amber {
+  color: #f59e0b;
+}
+
+#portal #admin-control-section .cert-chart-curve.is-teal {
+  color: #0ea5e9;
+}
+
+/* --------------------------------------------------------------------------
+   3. Seguimiento por Área & Layout Split (Master-Detail en 2 Columnas)
+   -------------------------------------------------------------------------- */
+#portal #admin-control-section .control-split-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+}
+
+/* Modo Split: 2 Columnas (Izquierda Áreas, Derecha Usuarios) */
+#portal #admin-control-section .control-split-wrap.is-split,
+#portal #admin-control-section .control-split-wrap[data-split="true"] {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+@media (min-width: 1440px) {
+  #portal #admin-control-section .control-split-wrap.is-split,
+  #portal #admin-control-section .control-split-wrap[data-split="true"] {
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (max-width: 1180px) {
+  #portal #admin-control-section .control-split-wrap.is-split,
+  #portal #admin-control-section .control-split-wrap[data-split="true"] {
+    grid-template-columns: 290px minmax(0, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 960px) {
+  #portal #admin-control-section .control-split-wrap.is-split,
+  #portal #admin-control-section .control-split-wrap[data-split="true"] {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+#portal #admin-control-section .control-area-overview {
+  background: #fff;
+  border: 1px solid var(--control-card-border);
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .02);
+  flex-shrink: 0;
+}
+
+/* En Modo Split, la columna izquierda de áreas se fija cómodamente */
+#portal #admin-control-section .control-split-wrap.is-split .control-area-overview,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-overview {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 14px 14px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .03);
+  border: 1px solid var(--control-card-border);
+  overflow: hidden;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+@media (max-width: 960px) {
+  #portal #admin-control-section .control-split-wrap.is-split .control-area-overview,
+  #portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-overview {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding: 18px 20px;
+  }
+}
+
+#portal #admin-control-section .control-area-overview > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-overview > header,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-overview > header {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .control-area-head-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#portal #admin-control-section .control-back-areas-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font: 600 12.5px/1.3 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  transition: background-color .12s ease, border-color .12s ease, color .12s ease, transform .12s ease;
+  width: fit-content;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+}
+
+#portal #admin-control-section .control-back-areas-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: translateX(-2px);
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-back-areas-btn,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-back-areas-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font: 600 12px/1.3 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  transform: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .02);
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-back-areas-btn:hover,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-back-areas-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: none;
+}
+
+#portal #admin-control-section .control-back-areas-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+#portal #admin-control-section .control-area-overview h3 {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -.01em;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-overview h3,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-overview h3 {
+  font-size: 15px;
+}
+
+#portal #admin-control-section .control-area-overview header p {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: #64748b;
+  font-weight: 400;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-overview header p,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-overview header p {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+}
+
+#portal #admin-control-section .control-area-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 12px;
+  color: #64748b;
+  align-items: center;
+}
+
+#portal #admin-control-section .control-area-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+#portal #admin-control-section .control-area-legend span:before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--segment);
+}
+
+#portal #admin-control-section .control-area-overview .pending { --segment: #f43f5e; }
+#portal #admin-control-section .control-area-overview .review { --segment: #f59e0b; }
+#portal #admin-control-section .control-area-overview .done { --segment: #10b981; }
+#portal #admin-control-section .control-area-overview .clear { --segment: #94a3b8; }
+
+/* En modo split, ocultamos la leyenda redundante, botones duplicados y pie de página para dar máximo espacio vertical */
+#portal #admin-control-section .control-split-wrap.is-split .control-area-legend,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-legend,
+#portal #admin-control-section .control-split-wrap.is-split #admin-control-chart-reset,
+#portal #admin-control-section .control-split-wrap[data-split="true"] #admin-control-chart-reset,
+#portal #admin-control-section .control-split-wrap.is-split .control-area-footnote,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-footnote {
+  display: none !important;
+}
+
+#portal #admin-control-section #admin-control-chart-reset {
+  min-height: 32px;
+  padding: 5px 12px;
+  background: #fff;
+  color: var(--control-primary);
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .12s ease, border-color .12s ease;
+}
+
+#portal #admin-control-section #admin-control-chart-reset:hover {
+  background: #ecfdf5;
+  border-color: #10b981;
+}
+
+/* Cuadrícula Amplia SIN SCROLL en Modo Normal (4 columnas según diseño) */
+#portal #admin-control-section #admin-control-areas {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  max-height: none;
+  overflow: visible;
+  padding: 2px;
+}
+
+@media (max-width: 1300px) {
+  #portal #admin-control-section #admin-control-areas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  #portal #admin-control-section #admin-control-areas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  #portal #admin-control-section #admin-control-areas {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Columna de Áreas en Modo Split */
+#portal #admin-control-section .control-split-wrap.is-split #admin-control-areas,
+#portal #admin-control-section .control-split-wrap[data-split="true"] #admin-control-areas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  flex: 1 1 auto;
+  max-height: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  padding-right: 4px;
+  padding-bottom: 2px;
+}
+
+@media (max-width: 960px) {
+  #portal #admin-control-section .control-split-wrap.is-split #admin-control-areas,
+  #portal #admin-control-section .control-split-wrap[data-split="true"] #admin-control-areas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+    gap: 10px;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-row,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  gap: 0;
+  min-height: 56px;
+  box-sizing: border-box;
+  flex-shrink: 0 !important;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease, background-color .14s ease;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-row:hover,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-row:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-row.is-selected,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-row.is-selected {
+  background: #ffffff;
+  border-color: var(--area-color, #0f172a);
+  box-shadow: 0 0 0 1px var(--area-color, #0f172a), 0 4px 12px rgba(0, 0, 0, .05);
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-row.is-selected::before,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-row.is-selected::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: var(--area-color, #0f172a);
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-top,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-brand,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-icon,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  max-width: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  flex: 0 0 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-icon svg,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-name,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-name {
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.25;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-name strong,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-name strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-row.is-selected .control-area-name strong,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-row.is-selected .control-area-name strong {
+  color: var(--area-color, #0f172a);
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-name small,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-name small {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 2px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-chart-wrap,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-chart-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-donut,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-donut {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .control-split-wrap.is-split .control-area-count,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-count,
+#portal #admin-control-section .control-split-wrap.is-split .control-area-avatars,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-avatars,
+#portal #admin-control-section .control-split-wrap.is-split .control-area-arrow,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-arrow,
+#portal #admin-control-section .control-split-wrap.is-split .control-area-figures,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-figures,
+#portal #admin-control-section .control-split-wrap.is-split .control-area-bar,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-bar,
+#portal #admin-control-section .control-split-wrap.is-split .control-area-watermark,
+#portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-watermark {
+  display: none !important;
+}
+
+/* Tarjeta de Área */
+#portal #admin-control-section .control-area-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  transition: transform .16s cubic-bezier(.16, 1, .3, 1), box-shadow .16s ease, border-color .16s ease;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+#portal #admin-control-section .control-area-row:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, .06);
+  transform: translateY(-2px) translateZ(0);
+}
+
+#portal #admin-control-section .control-area-row.is-selected {
+  background: #ffffff;
+  border-color: var(--area-color, #0f172a);
+  box-shadow: 0 0 0 1.5px var(--area-color, #0f172a), 0 6px 16px rgba(0, 0, 0, .05);
+}
+
+/* Watermark SVG de Figuras únicas en el fondo de cada tarjeta */
+#portal #admin-control-section .control-area-watermark {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 76px;
+  height: 76px;
+  pointer-events: none;
+  color: var(--area-color, #64748b);
+  z-index: 0;
+  will-change: transform;
+  transform: translateZ(0);
+  transition: transform .25s ease;
+}
+
+#portal #admin-control-section .control-area-row:hover .control-area-watermark {
+  transform: scale(1.08) rotate(-3deg) translateZ(0);
+}
+
+/* 🎨 Diseño Gráfico */
+#portal #admin-control-section .area-theme-diseno {
+  --area-color: #8b5cf6;
+}
+#portal #admin-control-section .area-theme-diseno .control-area-icon {
+  background: #fbf9ff;
+  border-color: #e9d5ff;
+  color: #7c3aed;
+}
+
+/* 💻 Ingeniería */
+#portal #admin-control-section .area-theme-ingenieria {
+  --area-color: #0284c7;
+}
+#portal #admin-control-section .area-theme-ingenieria .control-area-icon {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
+}
+
+/* 👥 Recursos Humanos */
+#portal #admin-control-section .area-theme-rrhh {
+  --area-color: #e11d48;
+}
+#portal #admin-control-section .area-theme-rrhh .control-area-icon {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #e11d48;
+}
+
+/* 🩺 Salud Ocupacional */
+#portal #admin-control-section .area-theme-salud {
+  --area-color: #059669;
+}
+#portal #admin-control-section .area-theme-salud .control-area-icon {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #059669;
+}
+
+/* 🏢 Administración */
+#portal #admin-control-section .area-theme-admin {
+  --area-color: #d97706;
+}
+#portal #admin-control-section .area-theme-admin .control-area-icon {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #d97706;
+}
+
+/* 📊 Contabilidad */
+#portal #admin-control-section .area-theme-conta {
+  --area-color: #0d9488;
+}
+#portal #admin-control-section .area-theme-conta .control-area-icon {
+  background: #f0fdfa;
+  border-color: #99f6e4;
+  color: #0d9488;
+}
+
+/* 📢 Marketing */
+#portal #admin-control-section .area-theme-marketing {
+  --area-color: #ea580c;
+}
+#portal #admin-control-section .area-theme-marketing .control-area-icon {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #ea580c;
+}
+
+/* 🎯 Reclutamiento y Selección */
+#portal #admin-control-section .area-theme-recluta {
+  --area-color: #c026d3;
+}
+#portal #admin-control-section .area-theme-recluta .control-area-icon {
+  background: #fdf4ff;
+  border-color: #f5d0fe;
+  color: #c026d3;
+}
+
+/* 🤝 Voluntariado */
+#portal #admin-control-section .area-theme-voluntariado {
+  --area-color: #0891b2;
+}
+#portal #admin-control-section .area-theme-voluntariado .control-area-icon {
+  background: #ecfeff;
+  border-color: #a5f3fc;
+  color: #0891b2;
+}
+
+/* 📁 General */
+#portal #admin-control-section .area-theme-general {
+  --area-color: #64748b;
+}
+#portal #admin-control-section .area-theme-general .control-area-icon {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+/* Banner de área seleccionada adaptado al tema */
+#portal #admin-control-section .control-selected-area-banner {
+  background: #ffffff;
+  border: 1px solid var(--control-card-border);
+}
+#portal #admin-control-section .control-selected-area-banner .control-selected-area-icon {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: var(--area-color, var(--control-primary));
+}
+
+/* Fila Superior: Marca, Nombre del Área y Donut Chart */
+#portal #admin-control-section .control-area-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+#portal #admin-control-section .control-area-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+#portal #admin-control-section .control-area-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  max-width: 38px;
+  min-height: 38px;
+  max-height: 38px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: var(--area-color, #475569);
+  flex: 0 0 38px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .02);
+}
+
+#portal #admin-control-section .control-area-icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .control-area-name {
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  min-width: 0;
+}
+
+#portal #admin-control-section .control-area-name strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -.01em;
+}
+
+#portal #admin-control-section .control-area-name small {
+  display: block;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+#portal #admin-control-section .control-area-chart-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .control-area-donut {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  transition: transform .2s ease;
+}
+
+#portal #admin-control-section .control-area-row:hover .control-area-donut {
+  transform: scale(1.05);
+}
+
+#portal #admin-control-section .control-area-count {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  line-height: 1.15;
+}
+
+#portal #admin-control-section .control-area-count b {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+#portal #admin-control-section .control-area-count small {
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+#portal #admin-control-section .control-area-arrow {
+  color: #94a3b8;
+  margin-left: 2px;
+  flex-shrink: 0;
+  transition: transform .14s ease, color .14s ease;
+}
+
+#portal #admin-control-section .control-area-row:hover .control-area-arrow {
+  color: #0f172a;
+  transform: translateX(2px);
+}
+
+/* Fila de Avatares / Fotos de Colaboradores */
+#portal #admin-control-section .control-area-avatars {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  margin: 3px 0 1px;
+  position: relative;
+  z-index: 1;
+}
+
+#portal #admin-control-section .control-avatar-list {
+  display: flex;
+  align-items: center;
+}
+
+#portal #admin-control-section .control-avatar-item {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+  overflow: hidden;
+  margin-left: -6px;
+  background: #f1f5f9;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .14s ease, z-index .14s ease;
+}
+
+#portal #admin-control-section .control-avatar-item:first-child {
+  margin-left: 0;
+}
+
+#portal #admin-control-section .control-avatar-item:hover {
+  transform: scale(1.22) translateY(-1px);
+  z-index: 5;
+}
+
+#portal #admin-control-section .control-avatar-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#portal #admin-control-section .control-avatar-fallback {
+  display: none;
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+}
+
+#portal #admin-control-section .control-avatar-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+  margin-left: 6px;
+  background: #eff6ff;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid #dbeafe;
+  height: 20px;
+  line-height: 1;
+}
+
+/* Píldoras de Estado (Botones con Figuras y Etiquetas) */
+#portal #admin-control-section .control-area-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-height: 26px;
+  background: transparent;
+  border-radius: 0;
+}
+
+#portal #admin-control-section .control-area-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform .12s ease, filter .12s ease;
+  background: #fff;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .02);
+}
+
+#portal #admin-control-section .control-area-segment:hover {
+  filter: brightness(.95);
+  transform: translateY(-1px);
+}
+
+#portal #admin-control-section .control-area-segment[aria-pressed="true"] {
+  outline: 2px solid #0f172a;
+  outline-offset: 1px;
+}
+
+#portal #admin-control-section .control-area-segment .control-seg-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+#portal #admin-control-section .control-area-segment.pending {
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #fecdd3;
+}
+
+#portal #admin-control-section .control-area-segment.review {
+  background: #fef3c7;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+#portal #admin-control-section .control-area-segment.done {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+#portal #admin-control-section .control-area-segment.clear {
+  background: #f1f5f9;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+
+#portal #admin-control-section .control-area-footnote {
+  display: none !important;
+}
+
+#portal #admin-control-section .control-area-empty {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 16px 0;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   4. Banner de Área Seleccionada & Separadores de Grupo
+   -------------------------------------------------------------------------- */
+#portal #admin-control-section .control-selected-area-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid var(--control-border);
+  border-radius: 14px;
+  margin-bottom: 4px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, .03);
+  flex-wrap: wrap;
+}
+
+#portal #admin-control-section .control-selected-area-banner[hidden] {
+  display: none !important;
+}
+
+#portal #admin-control-section .control-selected-area-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#portal #admin-control-section .control-selected-area-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: var(--control-primary);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .control-selected-area-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+#portal #admin-control-section .control-selected-area-info h3 {
+  margin: 0;
+  font-size: 17.5px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -.01em;
+}
+
+#portal #admin-control-section .control-selected-area-info p {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+#portal #admin-control-section .control-selected-area-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#portal #admin-control-section .control-banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+#portal #admin-control-section .control-banner-badge.is-pending {
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+}
+
+#portal #admin-control-section .control-banner-badge.is-done {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+#portal #admin-control-section .control-banner-badge.is-clear {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+
+
+/* --------------------------------------------------------------------------
+   5. Workspace & Toolbar (Filtros, Tabs de Cola y Búsqueda)
+   -------------------------------------------------------------------------- */
+#portal #admin-control-section .control-workspace {
+  background: transparent;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  overflow: visible;
+  min-width: 0;
+}
+
+#portal #admin-control-section .control-workspace-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+#portal.admin-wide #admin-control-section #admin-control-kpis,
+#portal #admin-control-section #admin-control-kpis {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: #f1f5f9;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  min-height: 0;
+  margin: 0;
+}
+
+#portal.admin-wide #admin-control-section #admin-control-kpis button,
+#portal #admin-control-section #admin-control-kpis button {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent;
+  border: 0;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color .12s ease, color .12s ease;
+}
+
+#portal.admin-wide #admin-control-section #admin-control-kpis button:hover,
+#portal #admin-control-section #admin-control-kpis button:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, .5);
+}
+
+#portal.admin-wide #admin-control-section #admin-control-kpis button[aria-pressed="true"],
+#portal #admin-control-section #admin-control-kpis button[aria-pressed="true"] {
+  background: #fff;
+  color: #0f172a;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+}
+
+#portal.admin-wide #admin-control-section #admin-control-kpis button:after,
+#portal #admin-control-section #admin-control-kpis button:after {
+  content: none !important;
+  display: none !important;
+}
+
+#portal.admin-wide #admin-control-section #admin-control-kpis span,
+#portal #admin-control-section #admin-control-kpis span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+#portal.admin-wide #admin-control-section #admin-control-kpis button[aria-pressed="true"] span,
+#portal #admin-control-section #admin-control-kpis button[aria-pressed="true"] span {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+#portal #admin-control-section .control-list-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0;
+  border: 0;
+}
+
+#portal #admin-control-section .control-list-meta label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#portal #admin-control-section .control-list-meta select {
+  min-height: 36px;
+  padding: 4px 10px;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+#portal #admin-control-section .control-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0;
+}
+
+#portal #admin-control-section .control-search-wrap,
+#portal #admin-control-section .control-search {
+  position: relative;
+  flex: 1 1 280px;
+  max-width: 400px;
+}
+
+#portal #admin-control-section .control-search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+#portal #admin-control-section input#admin-control-search {
+  width: 100%;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 9px 14px 9px 38px;
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  background: #fff;
+  color: #0f172a;
+  font: 400 13.5px/1.4 'Inter', system-ui, sans-serif;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+#portal #admin-control-section input#admin-control-search:focus {
+  outline: none;
+  border-color: var(--control-primary);
+  box-shadow: 0 0 0 3px var(--control-primary-ring);
+}
+
+#portal #admin-control-section .control-select-label,
+#portal #admin-control-section .control-filters label:not(.control-search) {
+  display: flex;
+  min-width: 0;
+}
+
+#portal #admin-control-section select#admin-control-area,
+#portal #admin-control-section select#admin-control-state {
+  min-height: 42px;
+  padding: 9px 38px 9px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 11px;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  color: #0f172a;
+  font: 600 13px/1.4 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .03);
+  transition: border-color .12s ease, background-color .12s ease;
+}
+
+#portal #admin-control-section select#admin-control-area:hover,
+#portal #admin-control-section select#admin-control-state:hover {
+  border-color: #94a3b8;
+  background-color: #f8fafc;
+}
+
+#portal #admin-control-section select#admin-control-area:focus,
+#portal #admin-control-section select#admin-control-state:focus {
+  outline: none;
+  border-color: var(--control-primary);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px var(--control-primary-ring), 0 2px 6px rgba(0, 0, 0, .04);
+}
+
+#portal #admin-control-section select#admin-control-area option,
+#portal #admin-control-section select#admin-control-state option {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f172a;
+  background-color: #ffffff;
+}
+
+#portal #admin-control-section select#admin-control-area option:checked,
+#portal #admin-control-section select#admin-control-state option:checked {
+  background-color: #ecfdf5;
+  color: #065f46;
+  font-weight: 700;
+}
+
+#portal #admin-control-section #admin-control-clear {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 11px;
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .12s ease, border-color .12s ease, color .12s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .03);
+}
+
+#portal #admin-control-section #admin-control-clear:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+#portal #admin-control-section #admin-control-message:not(:empty) {
+  margin: 4px 0 12px;
+  padding: 12px 16px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 10px;
+  color: #9f1239;
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   5. Tarjetas de Colaboradores (Amplias, adaptables y sin sobreposición de nombres)
+   -------------------------------------------------------------------------- */
+#portal #admin-control-section .control-case-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
+  gap: 16px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  min-height: 180px;
+  contain: layout;
+}
+
+#portal #admin-control-section .control-case {
+  background: #ffffff;
+  border: 1px solid var(--control-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .02);
+  transition: transform .16s cubic-bezier(.16, 1, .3, 1), box-shadow .16s ease, border-color .16s ease;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
+}
+
+#portal #admin-control-section .control-case:hover {
+  transform: translateY(-2px) translateZ(0);
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, .06), 0 2px 6px -1px rgba(0, 0, 0, .03);
+  border-color: #cbd5e1;
+}
+
+/* Badge Superior de Situación (Pendiente, Concluida, Sin jornada) */
+#portal #admin-control-section .control-case-situation-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+  margin-bottom: 12px;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+}
+
+#portal #admin-control-section .control-case-situation-bar .control-situation-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+#portal #admin-control-section .control-case-situation-bar.pending {
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+}
+
+#portal #admin-control-section .control-case-situation-bar.review {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+#portal #admin-control-section .control-case-situation-bar.done {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+#portal #admin-control-section .control-case-situation-bar.clear {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+#portal #admin-control-section .control-case-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto auto;
+  gap: 12px 10px;
+  min-height: 0;
+  padding: 0;
+  align-items: flex-start;
+}
+
+/* Identidad (Avatar circular + Nombre + Área) */
+#portal #admin-control-section .control-person {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+#portal #admin-control-section .control-person > div {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+#portal #admin-control-section .control-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  border: 0;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .control-case:nth-child(3n+2) .control-avatar {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+#portal #admin-control-section .control-case:nth-child(3n) .control-avatar {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+#portal #admin-control-section .control-case:nth-child(4n) .control-avatar {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+#portal #admin-control-section .control-person h3 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: normal;
+}
+
+#portal #admin-control-section .control-person p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge de Estado (Pill con punto a la derecha) */
+#portal #admin-control-section .control-status {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: flex-start;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+#portal #admin-control-section .control-status-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+#portal #admin-control-section .control-status-label i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .control-status-label.danger {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
+}
+
+#portal #admin-control-section .control-status-label.danger i {
+  background: #ef4444;
+}
+
+#portal #admin-control-section .control-status-label.warning {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fef3c7;
+}
+
+#portal #admin-control-section .control-status-label.warning i {
+  background: #f59e0b;
+}
+
+#portal #admin-control-section .control-status-label.success {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #d1fae5;
+}
+
+#portal #admin-control-section .control-status-label.success i {
+  background: #10b981;
+}
+
+#portal #admin-control-section .control-status-label.info {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+#portal #admin-control-section .control-status-label.info i {
+  background: #3b82f6;
+}
+
+#portal #admin-control-section .control-status-label.neutral {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+#portal #admin-control-section .control-status-label.neutral i {
+  background: #64748b;
+}
+
+/* Requisitos / Siguiente Paso */
+#portal #admin-control-section .control-next-step {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  min-width: 0;
+}
+
+#portal #admin-control-section .control-pending-list {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#portal #admin-control-section .control-pending-list li {
+  position: relative;
+  padding-left: 11px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #1e293b;
+  overflow-wrap: anywhere;
+}
+
+#portal #admin-control-section .control-pending-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .5em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+#portal #admin-control-section .control-next-step b {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #1e293b;
+  overflow-wrap: anywhere;
+}
+
+#portal #admin-control-section .control-next-step p {
+  margin: 3px 0 0;
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* Horarios Entrada / Salida */
+#portal #admin-control-section .control-times {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-variant-numeric: tabular-nums;
+  padding-top: 2px;
+}
+
+#portal #admin-control-section .control-times span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+#portal #admin-control-section .control-times small {
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+#portal #admin-control-section .control-times b {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Acciones en la parte inferior */
+#portal #admin-control-section .control-row-actions {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+#portal #admin-control-section .control-detail-toggle {
+  min-height: 36px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--control-border);
+  background: #fff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color .12s ease, border-color .12s ease, color .12s ease;
+  white-space: nowrap;
+}
+
+#portal #admin-control-section .control-detail-toggle:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+#portal #admin-control-section .control-primary {
+  min-height: 36px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background-color .12s ease, border-color .12s ease, color .12s ease, box-shadow .12s ease;
+  white-space: nowrap;
+  box-shadow: none;
+}
+
+#portal #admin-control-section .control-primary:hover {
+  background: var(--control-primary);
+  border-color: var(--control-primary);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(25, 109, 97, .22);
+}
+
+#portal #admin-control-section .control-primary svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.2;
+}
+
+/* Panel Desplegable de Detalle */
+#portal #admin-control-section .control-detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--control-border);
+  animation: control-detail-in 180ms cubic-bezier(.16, 1, .3, 1);
+}
+
+#portal #admin-control-section .control-detail h3 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+#portal #admin-control-section .control-detail ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#portal #admin-control-section .control-detail li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #334155;
+}
+
+#portal #admin-control-section .control-detail li > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+#portal #admin-control-section .control-detail li > b {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-align: right;
+  white-space: nowrap;
+}
+
+#portal #admin-control-section .control-task-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+#portal #admin-control-section .control-task-dot.done {
+  background: #10b981;
+}
+
+#portal #admin-control-section .control-task-dot.pending {
+  background: #f59e0b;
+}
+
+#portal #admin-control-section .control-issue {
+  margin: 6px 0;
+  padding: 8px 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #1e40af;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+#portal #admin-control-section .control-issue b {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 2px;
+}
+
+#portal #admin-control-section .control-detail p {
+  margin: 4px 0;
+  color: #64748b;
+  font-size: 11.5px;
+}
+
+#portal #admin-control-section .control-detail p strong {
+  color: #0f172a;
+}
+
+#portal #admin-control-section .control-detail p.control-detail-note {
+  font-size: 10.5px;
+  color: #94a3b8;
+  margin-top: 6px;
+}
+
+@keyframes control-detail-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estado Vacío y Cargando */
+#portal #admin-control-section .control-empty,
+#portal #admin-control-section .admin-control-loading {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  color: #64748b;
+  gap: 12px;
+}
+
+#portal #admin-control-section .control-empty svg {
+  width: 36px;
+  height: 36px;
+  color: #94a3b8;
+}
+
+#portal #admin-control-section .control-empty h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+#portal #admin-control-section .control-empty p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+  max-width: 42ch;
+}
+
+#portal #admin-control-section .control-empty button {
+  min-height: 38px;
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .12s ease, border-color .12s ease;
+}
+
+#portal #admin-control-section .control-empty button:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+/* --------------------------------------------------------------------------
+   6. Responsividad (Desktop amplio -> Tablet -> Móvil)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1350px) {
+  #portal #admin-control-section .control-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  #portal #admin-control-section .control-case-list {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  #portal #admin-control-section .control-case-list {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  #portal #admin-control-section {
+    padding: 20px 16px 60px;
+    border-radius: 12px !important;
+  }
+  #portal #admin-control-section .control-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  #portal #admin-control-section .control-heading-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  #portal #admin-control-section .control-tools {
+    flex-wrap: wrap;
+  }
+  #portal #admin-control-section .control-workspace-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  #portal #admin-control-section .control-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #portal #admin-control-section .control-search-wrap,
+  #portal #admin-control-section .control-search {
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  #portal #admin-control-section .control-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  #portal #admin-control-section .control-case-list {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  #portal #admin-control-section .control-heading-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  #portal #admin-control-section .control-date-navigation {
+    width: 100%;
+    justify-content: space-between;
+  }
+  #portal #admin-control-section .control-date-navigation input {
+    flex: 1;
+    width: auto;
+  }
+  #portal #admin-control-section .control-tools button {
+    flex: 1;
+  }
+}
+
+/* Control diario móvil: resumen compacto y controles cómodos al tacto. */
+@media (max-width: 768px) {
+  #portal #admin-control-section {
+    padding: 16px 12px 80px;
+    gap: 16px;
+    min-width: 0;
+  }
+  #portal #admin-control-section .control-heading {
+    gap: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 0;
+  }
+  #portal #admin-control-section .control-head-brand { gap: 10px; }
+  #portal #admin-control-section .control-head-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+  }
+  #portal #admin-control-section .control-head-copy { min-width: 0; }
+  #portal #admin-control-section .control-head-copy h2 { font-size: 20px; }
+  #portal #admin-control-section .control-head-copy p { line-height: 1.5; }
+  #portal #admin-control-section .control-date-navigation {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
+    gap: 0;
+    padding: 2px;
+  }
+  #portal #admin-control-section .control-date-navigation label { min-width: 0; }
+  #portal #admin-control-section .control-date-navigation input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 4px;
+    font-size: 16px;
+  }
+  #portal #admin-control-section .control-date-navigation button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+  #portal #admin-control-section .control-tools { gap: 8px; }
+  #portal #admin-control-section .control-tools button {
+    min-height: 44px;
+    padding: 8px;
+    font-size: 12px;
+  }
+  #portal #admin-control-section .control-stat-card {
+    min-width: 0;
+    padding: 12px;
+    border-radius: 12px;
+    gap: 8px;
+    align-items: flex-start;
+    box-shadow: none;
+  }
+  #portal #admin-control-section .cert-stat-icon-wrap {
+    width: 26px;
+    height: 26px;
+  }
+  #portal #admin-control-section .cert-stat-icon-wrap svg { width: 16px; height: 16px; }
+  #portal #admin-control-section .cert-stat-label { font-size: 12px; color: #475569; }
+  #portal #admin-control-section .cert-stat-value { font-size: 24px; }
+  #portal #admin-control-section .cert-stat-sub { font-size: 11px; line-height: 1.4; color: #64748b; }
+  #portal #admin-control-section .cert-stat-chart { display: none; }
+  #portal #admin-control-section .control-area-overview,
+  #portal #admin-control-section .control-split-wrap .control-area-overview {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 14px;
+  }
+  #portal #admin-control-section .control-workspace { min-width: 0; width: 100%; }
+  #portal #admin-control-section .control-filters input,
+  #portal #admin-control-section .control-filters select {
+    min-width: 0;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  #portal #admin-control-section .control-queues { flex-wrap: wrap; gap: 8px; }
+}
+
+@media (max-width: 360px) {
+  #portal #admin-control-section .control-stat-card { flex-direction: column; }
 }

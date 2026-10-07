@@ -1,8 +1,8 @@
-# Días libres: martes a viernes y contraofertas
+# Días libres: martes a jueves y contraofertas
 
 Aplicar `supabase/dashboard_94_contraofertas_dias_libres.sql` después de la 93. Publicar dashboard.html, assets/js/dashboard.js y assets/css/paginas/dashboard-days-off.css actualizados. No volver a ejecutar la 93 después de la 94: restauraría la regla anterior.
 
-- El colaborador elige **martes, miércoles, jueves o viernes** en un calendario integrado al formulario. Una fecha futura por solicitud, dentro de los próximos 180 días y según su horario laboral.
+- El colaborador elige **martes, miércoles o jueves** en un calendario integrado al formulario. Una fecha futura por solicitud, dentro de los próximos 180 días y según su horario laboral.
 - Dirección revisa en **Solicitudes del personal**. Puede aprobar, rechazar o abrir **Proponer otra fecha**, elegir la fecha alternativa y explicar el motivo.
 - La propuesta conserva la solicitud pendiente y reserva un solo día de saldo. Tanto la fecha original como la alternativa quedan bloqueadas para evitar solicitudes duplicadas.
 - El colaborador ve la propuesta en **Tu bienestar** y en su historial de solicitudes. **Aceptar fecha** aprueba directamente la alternativa autorizada por Dirección. **Rechazar propuesta** cierra la solicitud y libera el saldo para una nueva elección.

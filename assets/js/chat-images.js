@@ -41,8 +41,10 @@
         w.attachment={blob,url:URL.createObjectURL(blob),key:crypto.randomUUID()};
         const img=document.createElement('img');img.src=w.attachment.url;img.alt='Imagen preparada para enviar';
         const label=document.createElement('span');label.textContent=`${Math.ceil(blob.size/1024)} KB · Lista para enviar`;
-        const remove=document.createElement('button');remove.type='button';remove.textContent='Quitar';remove.onclick=()=>{if(w.sending)return;clear(w);w.pending=null;w.input.oninput()};
-        preview.append(img,label,remove);note(w,'');
+        const remove=document.createElement('button');remove.type='button';remove.setAttribute('aria-label','Quitar imagen adjunta');remove.title='Quitar imagen';remove.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>';remove.onclick=()=>{if(w.sending)return;clear(w);w.pending=null;w.input.oninput()};
+        const thumbnail=document.createElement('div');thumbnail.className='chat-image-preview-tile';thumbnail.append(img,remove);
+        label.className='chat-image-preview-status';label.setAttribute('role','status');
+        preview.append(thumbnail,label);note(w,'');
       }catch(error){if(current(w))note(w,error.message,true)}
       finally{w.compressing=false;pick.disabled=false;if(current(w))w.input.oninput()}
     };

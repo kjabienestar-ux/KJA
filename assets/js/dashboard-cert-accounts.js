@@ -17,10 +17,25 @@ function renderCertificateAccounts(){
  const includeSuspended=$('cert-account-show-suspended').checked;
  const rows=CERT_ACCOUNTS.rows.filter(p=>(p.activo||includeSuspended)&&`${p.nombre} ${p.email}`.toLocaleLowerCase('es').includes(query));
  $('cert-account-count').textContent=`${rows.length} de ${CERT_ACCOUNTS.rows.length} cuentas`;
+ updateCertificateStats();
  $('cert-account-list').innerHTML=rows.map(p=>{
   const initials=String(p.nombre||'').trim().split(/\s+/).slice(0,2).map(word=>Array.from(word)[0]||'').join('').toLocaleUpperCase('es');
-  return `<article class="cert-account-row ${p.activo?'':'is-suspended'}"><div class="cert-account-identity"><span class="cert-account-avatar" aria-hidden="true">${esc(initials)}</span><div class="cert-account-person"><h3>${esc(p.nombre)}</h3><p>${esc(p.email||'Sin correo')}</p></div><svg class="cert-account-emblem" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="3" width="24" height="20" rx="3"/><path d="M9 9h14M9 13h8"/><circle cx="22" cy="21" r="5"/><path d="m18 25-1 5 5-2 5 2-1-5"/></svg></div><div class="cert-account-meta"><span class="cert-account-state ${p.activo?'':'suspended'}">${p.activo?'Acceso activo':'Suspendido · sin plazo'}</span><span>${p.rol==='admin'?'Administrador':'Colaborador'}</span><span class="cert-account-series">${p.serie==null?'Sin serie':`Serie ${esc(p.serie)}`}</span></div><div class="cert-account-actions"><button type="button" data-cert-action="edit" data-cert-id="${esc(p.id)}">Editar</button><button type="button" data-cert-action="password" data-cert-id="${esc(p.id)}">Cambiar contraseña</button><button type="button" class="${p.activo?'cert-danger':''}" data-cert-action="status" data-cert-id="${esc(p.id)}">${p.activo?'Suspender':'Reactivar'}</button></div></article>`;
+  return `<article class="cert-account-row ${p.activo?'':'is-suspended'}"><div class="cert-account-identity"><span class="cert-account-avatar" aria-hidden="true">${esc(initials)}</span><div class="cert-account-person"><h3>${esc(p.nombre)}</h3><p>${esc(p.email||'Sin correo')}</p></div><div class="cert-account-more-wrap"><button type="button" class="cert-account-more-btn" data-cert-more="${esc(p.id)}" aria-label="Más opciones para ${esc(p.nombre)}" title="Más opciones"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="1.8"/><circle cx="5" cy="12" r="1.8"/><circle cx="19" cy="1.8" r="1.8"/></svg></button><div class="cert-account-menu" id="cert-menu-${esc(p.id)}" hidden><button type="button" data-cert-action="recovery" data-cert-id="${esc(p.id)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>Enviar correo de recuperación</button><button type="button" data-cert-copy-email="${esc(p.email||'')}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar correo</button></div></div></div><div class="cert-account-meta"><span class="cert-account-state ${p.activo?'':'suspended'}"><span class="cert-status-dot" aria-hidden="true"></span>${p.activo?'Acceso activo':'Suspendido · sin plazo'}</span><span class="cert-role-tag"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>${p.rol==='admin'?'Administrador':'Colaborador'}</span></span><span class="cert-account-series">${p.serie==null?'Sin serie':`Serie ${esc(p.serie)}`}</span></div><div class="cert-account-actions"><button type="button" class="cert-btn-edit" data-cert-action="edit" data-cert-id="${esc(p.id)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg><span>Editar</span></button><button type="button" class="cert-btn-password" data-cert-action="password" data-cert-id="${esc(p.id)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>Cambiar contraseña</span></button><button type="button" class="cert-btn-toggle ${p.activo?'cert-danger':'cert-reactivate'}" data-cert-action="status" data-cert-id="${esc(p.id)}">${p.activo?`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>Suspender</span>`:`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Reactivar</span>`}</button></div></article>`;
  }).join('')||'<p class="cert-account-empty">No hay cuentas visibles con estos filtros. Puedes cambiar la búsqueda o marcar «Mostrar usuarios suspendidos».</p>';
+}
+function updateCertificateStats(){
+ const rows=CERT_ACCOUNTS.rows||[];
+ const total=rows.length;
+ const active=rows.filter(p=>p.activo).length;
+ const suspended=rows.filter(p=>!p.activo).length;
+ const seriesTotal=rows.filter(p=>p.serie!=null).reduce((sum,p)=>sum+(Number(p.serie)||0),0);
+ const collabs=rows.filter(p=>p.rol==='colaborador'||p.colaborador_id!=null).length||total;
+ const activeVal=$('cert-stat-active-val');if(activeVal)activeVal.textContent=String(active);
+ const activeSub=$('cert-stat-active-sub');if(activeSub)activeSub.textContent=`de ${total} cuentas`;
+ const suspVal=$('cert-stat-suspended-val');if(suspVal)suspVal.textContent=String(suspended);
+ const suspSub=$('cert-stat-suspended-sub');if(suspSub)suspSub.textContent=`de ${total} cuentas`;
+ const seriesVal=$('cert-stat-series-val');if(seriesVal)seriesVal.textContent=seriesTotal.toLocaleString('en-US');
+ const collabVal=$('cert-stat-collab-val');if(collabVal)collabVal.textContent=String(collabs);
 }
 function openCertificateAccount(person=null){
  if(CERT_ACCOUNTS.busy||!certAccountsAllowed())return;
@@ -110,6 +125,27 @@ $('cert-account-form').addEventListener('submit',async event=>{
  finally{certAccountsBusy(false);}
 });
 $('cert-account-list').addEventListener('click',async event=>{
+ const moreBtn=event.target.closest('[data-cert-more]');
+ if(moreBtn){
+  event.stopPropagation();
+  const menu=$(`cert-menu-${moreBtn.dataset.certMore}`);
+  const wasOpen=!menu?.hidden;
+  document.querySelectorAll('.cert-account-menu').forEach(m=>m.hidden=true);
+  if(menu)menu.hidden=wasOpen;
+  return;
+ }
+ const copyBtn=event.target.closest('[data-cert-copy-email]');
+ if(copyBtn){
+  event.stopPropagation();
+  document.querySelectorAll('.cert-account-menu').forEach(m=>m.hidden=true);
+  const email=copyBtn.dataset.certCopyEmail;
+  if(email){
+   try{await navigator.clipboard.writeText(email);toast('Correo copiado.');}
+   catch{toast(email);}
+  }
+  return;
+ }
+ if(typeof document!=='undefined')document.querySelectorAll('.cert-account-menu').forEach(m=>m.hidden=true);
  const button=event.target.closest('[data-cert-action]');if(!button||CERT_ACCOUNTS.busy||!certAccountsAllowed())return;
  const person=CERT_ACCOUNTS.rows.find(p=>p.id===button.dataset.certId);if(!person)return;
  const action=button.dataset.certAction;if(action==='edit')return openCertificateAccount(person);
@@ -120,13 +156,43 @@ $('cert-account-list').addEventListener('click',async event=>{
   $('cert-password-message').textContent='';$('cert-password-form').hidden=false;
   $('cert-password-new').focus();return;
  }
- const question=action==='recovery'?`¿Enviar un correo de recuperación a ${person.email}? La contraseña corresponde a su cuenta de acceso compartida con otros módulos.`:`¿${person.activo?'Suspender':'Reactivar'} el acceso a certificados de ${person.nombre}? Sus certificados emitidos se conservarán.`;
- if(!confirm(question))return;certAccountsBusy(true);certAccountsMessage('Procesando…');
+ let ok=false;
+ if(action==='recovery'){
+  ok=await confirmCertModal({
+   title:'¿Enviar correo de recuperación?',
+   desc:`Se enviará un correo a ${person.email}. La contraseña corresponde a su cuenta de acceso compartida con otros módulos.`,
+   confirmText:'Enviar correo',
+   cancelText:'Cancelar',
+   tone:'primary'
+  });
+ }else if(person.activo){
+  ok=await confirmCertModal({
+   title:`¿Suspender el acceso de ${person.nombre}?`,
+   desc:'Sus certificados emitidos se conservarán intactos. Podrás reactivar su cuenta en cualquier momento.',
+   confirmText:'Suspender acceso',
+   cancelText:'Cancelar',
+   tone:'danger'
+  });
+ }else{
+  ok=await confirmCertModal({
+   title:`¿Reactivar el acceso de ${person.nombre}?`,
+   desc:`El colaborador volverá a tener acceso y podrá emitir certificados con su serie asignada.`,
+   confirmText:'Reactivar acceso',
+   cancelText:'Cancelar',
+   tone:'success'
+  });
+ }
+ if(!ok)return;certAccountsBusy(true);certAccountsMessage('Procesando…');
  try{
-  if(action==='recovery'){await certificateAccountEdge({action:'recovery',id:person.id});certAccountsMessage('Correo de recuperación enviado.');}
+  if(action==='recovery'){await certificateAccountEdge({action:'recovery',id:person.id});certAccountsMessage('Correo de recuperación enviado.');toast('Correo de recuperación enviado.');}
   else{await saveCertificateProfile({...person,activo:!person.activo});certAccountsBusy(false);await loadCertificateAccounts();toast('Acceso actualizado.');}
  }catch(error){certAccountsMessage(error.message);}finally{certAccountsBusy(false);}
 });
+if(typeof document!=='undefined'){
+ document.addEventListener('click',event=>{
+  if(!event.target.closest('.cert-account-more-wrap'))document.querySelectorAll('.cert-account-menu').forEach(m=>m.hidden=true);
+ });
+}
 $('cert-accounts-new').onclick=()=>openCertificateAccount();
 $('cert-collaborator-search').addEventListener('input',()=>fillCertificateCollaborators());
 $('cert-collaborator').addEventListener('change',()=>applyCertificateCollaborator());
@@ -173,3 +239,60 @@ $('cert-password-form').addEventListener('submit',async event=>{
  }catch(error){message.textContent=error.message;}
  finally{certAccountsBusy(false);}
 });
+function confirmCertModal({title,desc,confirmText='Confirmar',cancelText='Cancelar',tone='danger'}){
+ if(typeof document==='undefined')return Promise.resolve(true);
+ const modal=typeof $==='function'?$('cert-confirm-modal'):document.getElementById('cert-confirm-modal');
+ if(!modal||!modal.querySelector){
+  const question=`${title}\n\n${desc}`;
+  return Promise.resolve(typeof confirm==='function'?confirm(question):true);
+ }
+ return new Promise(resolve=>{
+  const titleEl=$('cert-confirm-title');
+  const descEl=$('cert-confirm-desc');
+  const iconWrap=$('cert-confirm-icon-wrap');
+  const okBtn=$('cert-confirm-ok');
+  const cancelBtn=$('cert-confirm-cancel');
+  const backdrop=$('cert-confirm-backdrop');
+
+  if(titleEl)titleEl.textContent=title;
+  if(descEl)descEl.textContent=desc;
+  if(okBtn){
+   okBtn.textContent=confirmText;
+   okBtn.className=`cert-confirm-ok cert-tone-${tone}`;
+  }
+  if(cancelBtn)cancelBtn.textContent=cancelText;
+
+  if(iconWrap){
+   iconWrap.className=`cert-confirm-icon-wrap is-${tone}`;
+   if(tone==='danger'){
+    iconWrap.innerHTML='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+   }else if(tone==='success'){
+    iconWrap.innerHTML='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11.5 14.5 16 9.5"/></svg>';
+   }else{
+    iconWrap.innerHTML='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>';
+   }
+  }
+
+  modal.hidden=false;
+  modal.classList.add('is-open');
+  if(okBtn&&typeof okBtn.focus==='function')okBtn.focus();
+
+  function finish(result){
+   modal.hidden=true;
+   modal.classList.remove('is-open');
+   if(okBtn)okBtn.removeEventListener('click',onOk);
+   if(cancelBtn)cancelBtn.removeEventListener('click',onCancel);
+   if(backdrop)backdrop.removeEventListener('click',onCancel);
+   document.removeEventListener('keydown',onKey);
+   resolve(result);
+  }
+  function onOk(){finish(true);}
+  function onCancel(){finish(false);}
+  function onKey(e){if(e.key==='Escape'){e.preventDefault();finish(false);}}
+
+  if(okBtn)okBtn.addEventListener('click',onOk);
+  if(cancelBtn)cancelBtn.addEventListener('click',onCancel);
+  if(backdrop)backdrop.addEventListener('click',onCancel);
+  document.addEventListener('keydown',onKey);
+ });
+}

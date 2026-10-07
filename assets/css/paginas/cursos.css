@@ -420,6 +420,7 @@
 /* El catálogo continúa el mismo lienzo del hero: sin puntos,
    mismo degradado, para que ambos se lean como una sola sección */
 .catalog-section {
+    padding-top: 32px;
     background-color: transparent !important;
     background-image:
         radial-gradient(900px 480px at 92% 10%, rgba(0, 79, 176, 0.05) 0%, transparent 60%),
@@ -708,13 +709,9 @@
 
 .ch-chip--students svg { color: #22c55e; }
 
-/* Encabezado de la sección de programas: título + stats + destacado */
+/* Encabezado del catalogo */
 .cursos-head-row {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    align-items: center;
-    gap: 40px;
-    margin-bottom: 38px;
+    margin-bottom: 28px;
 }
 
 .cursos-head-left h2 {
@@ -827,27 +824,6 @@
     color: #7a8494;
 }
 
-/* Programa destacado */
-.cursos-head-featured {
-    position: relative;
-    justify-self: end;
-    width: 100%;
-    max-width: 440px;
-}
-
-/* Collage de tarjetas flotantes en el encabezado de programas */
-.programs-collage {
-    height: 380px;
-}
-
-.programs-collage .ch-card--1 {
-    top: 10px;
-}
-
-.programs-collage .ch-card--3 {
-    bottom: 0;
-}
-
 /* Valoración en tarjetas del grid */
 .curso-rating {
     display: inline-flex;
@@ -939,8 +915,6 @@
 
     /* Encabezado de programas apilado */
     .cursos-head-row {
-        grid-template-columns: 1fr;
-        gap: 30px;
         text-align: center;
     }
 
@@ -958,10 +932,6 @@
         justify-content: center;
     }
 
-    .cursos-head-featured {
-        justify-self: center;
-        max-width: 460px;
-    }
 }
 
 /* ============================================================
@@ -1192,48 +1162,6 @@
         background:
             linear-gradient(180deg, rgba(246, 249, 255, 0.78) 0%, rgba(246, 249, 255, 0.5) 60%, #f1f5fc 100%),
             url('../../../images/cursos/fondo-cursos.webp') left center / cover no-repeat;
-    }
-
-    /* Collage del encabezado de programas: abanico ordenado */
-    .programs-collage {
-        height: 305px;
-        max-width: 340px;
-    }
-
-    .programs-collage .ch-card {
-        width: 172px;
-        padding: 8px;
-    }
-
-    .programs-collage .ch-card img {
-        height: 92px;
-    }
-
-    .programs-collage .ch-card-info strong {
-        font-size: 0.76rem;
-    }
-
-    .programs-collage .ch-card-info span {
-        font-size: 0.65rem;
-    }
-
-    .programs-collage .ch-card--1 {
-        top: 0;
-        left: 0;
-        transform: rotate(-4deg);
-    }
-
-    .programs-collage .ch-card--2 {
-        top: 28px;
-        right: 0;
-        transform: rotate(4deg);
-    }
-
-    .programs-collage .ch-card--3 {
-        bottom: 0;
-        /* centrado con left calculado: la animación de flotado
-           sobreescribe transform, así que no se usa translateX */
-        left: calc(50% - 86px);
     }
 
     /* Banner CTA final más contenido */
