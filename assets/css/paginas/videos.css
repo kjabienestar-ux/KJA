@@ -338,9 +338,53 @@
     padding: 18% 9% 26%;
     text-align: left;
     background:
-        radial-gradient(120% 70% at 100% 0%, rgba(255, 255, 255, 0.22) 0%, transparent 55%),
-        linear-gradient(160deg, var(--tone-a) 0%, var(--tone-b) 100%);
+        radial-gradient(120% 70% at 100% 0%, rgba(241, 0, 117, 0.28) 0%, transparent 55%),
+        linear-gradient(160deg, #123a73 0%, #09244c 100%);
     color: #fff;
+    overflow: hidden;
+}
+
+/* Vista previa real: iframe pausado que llena la portada 9:16 y no recibe clics. */
+.kv-live {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.kv-live.is-ready {
+    opacity: 1;
+}
+
+.kv-live iframe {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 360px;
+    height: 640px;
+    max-width: none;
+    border: 0;
+    /* Se amplía y sube para recortar la cabecera (nombre de página, Compartir) que añade Facebook. */
+    transform: translate(-50%, -54%) scale(calc(var(--kv-s, 0.5) * 1.3));
+    pointer-events: none;
+}
+
+.kv-live::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(9, 36, 76, 0.1) 40%, rgba(9, 36, 76, 0.55) 100%);
+}
+
+.kv-art:has(.kv-live.is-ready) > :not(.kv-live) {
+    opacity: 0;
+}
+
+/* Con vista previa, el botón de reproducir es el del propio reproductor. */
+.kv-cover:has(.kv-live.is-ready) .kv-play {
+    display: none;
 }
 
 .kv-art-logo {
@@ -611,6 +655,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
+    background: #f10075;
 }
 
 .kv-empty {
