@@ -2,6 +2,12 @@
 .mobile-admin-navigation,.mobile-scroll-hint{display:none}
 .mobile-admin-navigation[hidden]{display:none!important}
 @media(max-width:900px){
+  /* Mantener la visibilidad por rol por encima de los estilos del drawer. */
+  #portal .sidebar .side-nav > [hidden],
+  #portal.admin-wide .sidebar .side-nav > [hidden] {
+    display: none !important;
+  }
+
   :root{--mobile-bottom-space:90px}
   /* El ambiente no debe igualar las capas del drawer y su fondo oscuro. */
   #portal>.workspace{position:relative;z-index:1}
