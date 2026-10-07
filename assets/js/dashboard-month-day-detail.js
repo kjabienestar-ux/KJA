@@ -14,7 +14,15 @@
         entregas:(data.entregas||[]).filter(item=>(item.asignacion_id!=null?'asignado-'+item.asignacion_id:item.tipo)===group.key)
       }))];
   }
-  function mount(host,{person,day,future=false,rpc=(name,args)=>db.rpc(name,args),storage=db.storage}){
+  async function facebookRequest(body){
+    const {data:{session}}=await db.auth.getSession();
+    if(!session)throw new Error('sesion');
+    const response=await fetch(SUPABASE_URL+'/functions/v1/dash-entrega',{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const result=await response.json();
+    if(!response.ok||!result?.ok)throw new Error(result?.motivo||'conexion');
+    return result;
+  }
+  function mount(host,{person,day,future=false,canManageFacebook=false,rpc=(name,args)=>db.rpc(name,args),storage=db.storage,request=facebookRequest,prepare=file=>compressImage(file)}){
     const session={groups:[],version:0,fileVersion:0,disposed:false};
     host._monthDayDetail=session;
     const live=()=>!session.disposed&&host.isConnected&&host._monthDayDetail===session;
@@ -30,7 +38,7 @@
         if(!live()||version!==session.version)return;
         if(error||!data?.ok)throw new Error(error?.code==='PGRST202'?'update':data?.motivo||'load');
         const close=data.cierre||{},justified=data.estado==='J'||close.justificado||close.estado==='justificado';
-        const groups=groupsFor(data,day);session.groups=groups;
+        const groups=groupsFor(data,day);session.groups=groups;session.close=close;
         const pending=groups.filter(g=>!g.completo&&!g.waived).map(g=>g.titulo);
         if(day.laborable&&!justified&&close.aplica_jornada&&close.requiere_salida!==false&&!data.salida_at)pending.push('Registro de salida');
         const fileCount=groups.reduce((n,g)=>n+g.files.length,0);
@@ -46,6 +54,17 @@
             (g.files.length?'<div class="md-files">'+g.files.map((file,f)=>button('class="md-file" data-md-file="'+i+':'+f+'" aria-pressed="false"',icon+'<span>Archivo '+(f+1)+'<small>'+escape(file.mime?.startsWith('image/')?'Imagen':file.mime?.startsWith('video/')?'Video':file.mime==='application/pdf'?'PDF':'Documento')+'</small></span>')).join('')+'</div>':'<p class="md-help">'+(g.completo?'Registro sin archivos adjuntos.':g.waived?'Este requisito no se exige para esta jornada.':'No hay evidencia registrada para esta actividad.')+'</p>')+'</div></details>').join('')+'</section>'+
           '<section class="md-preview" data-md-preview aria-label="Visor de evidencia"><p class="md-empty">'+(fileCount?'Selecciona un archivo para ver su evidencia.':'No hay archivos adjuntos en esta fecha.')+'</p></section></div>';
         const first=groups.findIndex(g=>g.files.length);
+        if(canManageFacebook){
+          const gi=groups.findIndex(g=>g.key==='comparticiones'),group=groups[gi];
+          const body=host.querySelector('[data-md-group="'+gi+'"] .md-activity-body');
+          if(body&&group){
+            body.insertAdjacentHTML('beforeend','<div class="md-facebook-actions">'+
+              (group.files.length?'<p>Quita las imágenes actuales para cambiar la entrega.</p>'+group.files.map((file,index)=>button('class="md-remove-facebook" data-md-remove="'+gi+':'+index+'"','Quitar imagen '+(index+1))).join(''):
+                '<label>Subir nuevas evidencias<input type="file" data-md-upload accept="image/jpeg,image/png,image/webp" multiple></label><p>Selecciona las capturas (hasta 50). La carga comienza al seleccionarlas.</p>')+
+              '<p>La carga requiere un colaborador activo, Facebook programado y una fecha dentro de los últimos 180 días.</p>'+
+              '<div data-md-confirm hidden><p data-md-confirm-copy>Esta imagen se eliminará permanentemente. Al quitar la última se anula la entrega. Solo podrás subir reemplazos si este día admite nuevas cargas.</p>'+button('data-md-confirm-delete','Eliminar imagen')+button('data-md-cancel-delete','Cancelar')+'</div><p data-md-status role="status"></p></div>');
+          }
+        }
         if(first>=0)void showFile(first+':0');
       }catch(error){
         if(!live()||version!==session.version)return;
@@ -72,15 +91,66 @@
         if(live()&&version===session.fileVersion)preview.innerHTML='<p role="alert">No se pudo abrir esta evidencia.</p>'+button('data-md-file="'+escape(value)+'"','Reintentar archivo');
       }finally{if(live()&&version===session.fileVersion)preview.removeAttribute('aria-busy');}
     }
+    const status=text=>{if(live()){const node=host.querySelector('[data-md-status]');if(node)node.textContent=text;}};
+    const busy=value=>{
+      session.busy=value;
+      host.querySelectorAll('.md-facebook-actions button,.md-facebook-actions input').forEach(node=>node.disabled=value);
+    };
+    const failure=error=>({limpieza_pendiente:'La imagen fue retirada, pero falta borrar el archivo. Pulsa Eliminar imagen para reintentar.',migracion_eliminar:'Falta aplicar la migración 102 y actualizar dash-entrega.',sin_permiso:'Tu sesión no permite modificar estas evidencias.',ya_completo:'Ya existe una entrega. Vuelve a abrir este día para consultar sus evidencias.',sesion:'Tu sesión venció. Vuelve a iniciar sesión.',datos:'La carga solo admite fechas dentro de los últimos 180 días.',colaborador:'La carga requiere un colaborador activo.',no_programado:'Facebook no está programado para esta persona en esta fecha.',no_habilitado:'La carga de evidencias no está habilitada para esta fecha.'})[error.message]||'No se pudo completar la operación. Inténtalo nuevamente.';
+    async function remove(){
+      if(!canManageFacebook||session.busy||!session.target)return;
+      const {file,delivery}=session.target;busy(true);status('Eliminando imagen…');
+      try{
+        await request({accion:'admin_eliminar_imagen_facebook',entrega:delivery.id,path:file.path});
+        if(live()){session.target=null;await load();status('Imagen eliminada.');}
+      }catch(error){
+        if(live()&&['archivo_ajeno','sin_entrega'].includes(error.message)){
+          session.target=null;await load();status('La evidencia cambió o ya fue retirada. Se actualizó el detalle del día.');
+        }else status(failure(error));
+      }finally{if(live())busy(false);}
+    }
+    host.onchange=async event=>{
+      if(!event.target.matches('[data-md-upload]')||!canManageFacebook||session.busy)return;
+      const files=Array.from(event.target.files||[]),min=Number(session.close?.comparticiones_min||1);
+      if(!files.length)return;
+      if(files.length<min||files.length>50||files.some(file=>!['image/jpeg','image/png','image/webp'].includes(file.type)||!file.size||file.size>25*1024*1024)){
+        status('Selecciona entre '+min+' y 50 imágenes JPG, PNG o WebP, de hasta 25 MB cada una.');event.target.value='';return;
+      }
+      busy(true);
+      try{
+        const paths=[];
+        for(const [index,file] of files.entries()){
+          if(!live())return;
+          status('Subiendo imagen '+(index+1)+' de '+files.length+'…');
+          const blob=await prepare(file);
+          if(!live())return;
+          const permit=await request({accion:'admin_cargar',colaborador:Number(person.id),fecha:day.fecha,requisito:'comparticiones',asignacion:null,modalidad:'individuales',ext:'jpg'});
+          const {error}=await storage.from('asis-cierre-evidencias').uploadToSignedUrl(permit.ruta,permit.token,blob,{contentType:'image/jpeg'});
+          if(error)throw error;
+          paths.push(permit.ruta);
+        }
+        if(!live())return;
+        const {data,error}=await rpc('dash_admin_confirmar_entrega',{p_colaborador:Number(person.id),p_fecha:day.fecha,p_requisito:'comparticiones',p_asignacion:null,p_modalidad:'individuales',p_paths:paths,p_detalle:'Evidencias de Facebook actualizadas por Dirección.',p_hora_salida:null});
+        if(error||!data?.ok)throw new Error(data?.motivo||'registro');
+        if(live()){await load();status('Nuevas evidencias guardadas.');}
+      }catch(error){status(failure(error));}finally{if(live()){busy(false);const input=host.querySelector('[data-md-upload]');if(input)input.value='';}}
+    };
     host.onclick=event=>{
       const b=event.target.closest('button');if(!b||b.disabled)return;
+      if(canManageFacebook&&!session.busy&&b.hasAttribute('data-md-remove')){
+        const [gi,fi]=b.dataset.mdRemove.split(':').map(Number),group=session.groups[gi],file=group?.files[fi];
+        const delivery=group?.entregas.find(item=>item.archivos?.some(saved=>saved.path===file?.path));
+        if(delivery&&file){session.target={file,delivery};host.querySelector('[data-md-confirm-copy]').textContent='Se eliminará permanentemente la imagen '+(fi+1)+'. Al quitar la última se anula la entrega. Solo podrás subir reemplazos si este día admite nuevas cargas.';host.querySelector('[data-md-confirm]').hidden=false;host.querySelector('[data-md-cancel-delete]').focus();}
+      }
+      if(b.hasAttribute('data-md-cancel-delete')){session.target=null;host.querySelector('[data-md-confirm]').hidden=true;status('');}
+      if(b.hasAttribute('data-md-confirm-delete'))void remove();
       if(b.hasAttribute('data-md-file')){
         void showFile(b.dataset.mdFile);
         if(host.ownerDocument?.defaultView?.matchMedia('(max-width:760px)').matches)host.querySelector('[data-md-preview]')?.scrollIntoView({block:'nearest'});
       }
       if(b.hasAttribute('data-md-retry'))void load();
     };
-    return {ready:load(),dispose(){session.disposed=true;session.fileVersion++;session.version++;host._monthDayDetail=null;host.onclick=null;}};
+    return {ready:load(),dispose(){session.disposed=true;session.fileVersion++;session.version++;host._monthDayDetail=null;host.onclick=null;host.onchange=null;}};
   }
   root.KJAMonthDayDetail={mount,groupsFor};
 })(globalThis);

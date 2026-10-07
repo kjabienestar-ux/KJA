@@ -2,7 +2,7 @@
 
 Aplicar `supabase/dashboard_95_seleccion_multiple_dias_libres.sql` después de la 94 y publicar el HTML, JavaScript y CSS actualizados.
 
-El calendario permite marcar y desmarcar varias fechas futuras de martes a viernes, incluso en meses diferentes, hasta el saldo disponible. Con saldo de tres días se pueden enviar uno, dos o tres. El contador y el resumen muestran la selección completa.
+El calendario permite marcar y desmarcar varias fechas futuras de martes a jueves, incluso en meses diferentes, hasta el saldo disponible. Con saldo de tres días se pueden enviar uno, dos o tres. El contador y el resumen muestran la selección completa.
 
 Un solo envío crea una solicitud por fecha. Dirección puede aprobar, rechazar o proponer una alternativa para cada una con el flujo de la 94. No se solicita automáticamente el rango entre la primera y la última fecha.
 

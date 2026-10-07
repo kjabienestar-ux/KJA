@@ -18,6 +18,43 @@ function setup(day={fecha:'2026-09-11',laborable:true}){
   return {context,host,preview,rendered,clickFile,queries,files,options,mount:()=>context.KJAMonthDayDetail.mount(host,options)};
 }
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
+function managementSetup(){
+  const x=setup(),actions={innerHTML:'',insertAdjacentHTML(position,html){this.innerHTML=html;}},confirmation={hidden:true},message={textContent:''},cancel={focus(){}};
+  x.host.querySelector=selector=>selector.includes('.md-activity-body')?actions:selector==='[data-md-confirm]'?confirmation:selector==='[data-md-status]'?message:selector==='[data-md-cancel-delete]'?cancel:x.preview;
+  x.options.canManageFacebook=true;
+  const click=(key,value='')=>x.host.onclick({target:{closest:()=>({disabled:false,dataset:{mdRemove:value},hasAttribute:attr=>attr===key})}});
+  return {...x,actions,confirmation,message,click};
+}
+test('admin removal confirms, preserves retry after storage failure, and reloads after success',async()=>{
+  const x=managementSetup(),calls=[];
+  x.options.request=async body=>{calls.push(body);if(calls.length===1)throw new Error('limpieza_pendiente');return {ok:true};};
+  const session=x.mount();
+  x.queries[0].resolve({data:{ok:true,cierre:{},entregas:[{id:44,tipo:'comparticiones',archivos:[{path:'fb.jpg',mime:'image/jpeg',bucket:'private'}]}]}});
+  await session.ready;
+  assert.match(x.actions.innerHTML,/Quitar imagen 1/);
+  x.click('data-md-remove','1:0');assert.equal(x.confirmation.hidden,false);assert.equal(calls.length,0);
+  x.click('data-md-cancel-delete');assert.equal(x.confirmation.hidden,true);assert.equal(calls.length,0);
+  x.click('data-md-remove','1:0');x.click('data-md-confirm-delete');await tick();
+  assert.equal(calls[0].entrega,44);assert.equal(calls[0].path,'fb.jpg');assert.match(x.message.textContent,/reintentar/);
+  x.click('data-md-confirm-delete');await tick();
+  assert.equal(calls.length,2);assert.equal(x.queries.length,2);
+  x.queries[1].resolve({data:{ok:true,cierre:{requisitos:[{tipo:'comparticiones',completo:false}]},entregas:[]}});await tick();
+  assert.match(x.actions.innerHTML,/data-md-upload/);session.dispose();
+});
+test('admin upload saves replacement for the exact person and historical date after signed uploads',async()=>{
+  const x=managementSetup(),calls=[];
+  x.options.prepare=async file=>file;
+  x.options.request=async body=>{calls.push(body);return {ruta:'new.jpg',token:'signed'};};
+  x.options.storage={from:()=>({uploadToSignedUrl:async(path,token)=>{assert.equal(path,'new.jpg');assert.equal(token,'signed');return {};}})};
+  const session=x.mount();
+  x.queries[0].resolve({data:{ok:true,cierre:{requisitos:[{tipo:'comparticiones',completo:false}]},entregas:[]}});await session.ready;
+  const pending=x.host.onchange({target:{matches:()=>true,files:[{type:'image/jpeg',size:100}]}});await tick();
+  assert.equal(calls[0].accion,'admin_cargar');assert.equal(calls[0].colaborador,19);assert.equal(calls[0].fecha,'2026-09-11');
+  assert.equal(x.queries[1].name,'dash_admin_confirmar_entrega');assert.deepEqual(Array.from(x.queries[1].args.p_paths),['new.jpg']);
+  x.queries[1].resolve({data:{ok:true}});await tick();
+  x.queries[2].resolve({data:{ok:true,cierre:{},entregas:[]}});await pending;
+  assert.match(x.message.textContent,/guardadas/);session.dispose();
+});
 const result={ok:true,estado:'P',entrada_at:'2026-09-11T13:00:00Z',salida_at:'2026-09-11T18:00:00Z',horas:5,
   cierre:{aplica_jornada:true,requisitos:[{tipo:'rpe',titulo:'RPE',completo:true,revision_estado:'pendiente'},{tipo:'comparticiones',titulo:'Facebook',completo:false}]},
   entrada_archivos:[{bucket:'asis-evidencias',path:'private/entry',mime:'image/jpeg'}],

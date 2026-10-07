@@ -1,110 +1,264 @@
-.cert-accounts{padding:30px;max-width:1400px;margin:0 auto;color:#30312d;font:400 14px/1.5 Inter,system-ui,sans-serif}
+.cert-accounts{padding:28px 32px 100px;max-width:1440px;margin:0 auto;color:#1e293b;font:400 14px/1.5 'Inter',system-ui,-apple-system,sans-serif}
 .cert-accounts[hidden],.cert-accounts [hidden]{display:none!important}
-.cert-accounts-head,.cert-account-editor>header{display:flex;align-items:center;justify-content:space-between;gap:24px}
-.cert-accounts h1{margin:0;font:500 clamp(26px,3vw,38px)/1.2 Fraunces,Georgia,serif;letter-spacing:-.025em}
+.cert-accounts h1,#cert-accounts-title{margin:0;font-family:'Inter',system-ui,-apple-system,sans-serif!important;font-size:clamp(24px,2.2vw,30px);font-weight:700;letter-spacing:-.025em;color:#0f172a;line-height:1.2}
 .cert-accounts h2{margin:0;font-size:20px}
-.cert-accounts-head p,.cert-account-note{color:#65665e;margin:10px 0 0;max-width:70ch}
-.cert-accounts button{min-height:44px;padding:10px 16px;border:1px solid #d8d1c4;border-radius:10px;background:#fffdf9;color:#4e5047;font:600 13px/1.4 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:none}
-.cert-accounts button:hover{background:#eee9df;transform:none}
+.cert-accounts-head p,.cert-account-note{color:#64748b;margin:6px 0 0;max-width:70ch}
+.cert-accounts button{min-height:42px;padding:9px 16px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:#334155;font:600 13px/1.4 'Inter',system-ui,sans-serif;cursor:pointer;box-shadow:none;transition:all .15s ease}
+.cert-accounts button:hover{background:#f8fafc;border-color:#cbd5e1;transform:none}
 .cert-accounts button:disabled{opacity:.55;cursor:wait}
-.cert-accounts button.cert-primary{background:#196d61;border-color:#196d61;color:#fff}
-.cert-accounts button.cert-danger{color:#a3353d;background:#fff8f7;border-color:#e2c3c3}
+.cert-accounts button.cert-primary{background:#196d61;border-color:#196d61;color:#fff;box-shadow:0 2px 6px rgba(25,109,97,.25)}
+.cert-accounts button.cert-primary:hover{background:#13554c;border-color:#13554c}
+.cert-accounts button.cert-danger{color:#e11d48;background:#fff;border-color:#fecdd3}
+.cert-accounts button.cert-danger:hover{background:#fff1f2;border-color:#fda4af}
 .cert-account-actions{display:flex;gap:8px;flex-wrap:wrap}
-.cert-account-editor{margin:24px 0;padding:24px;border:1px solid #dcd5ca;border-radius:16px;background:#fffdf9}
-.cert-account-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:24px 0 16px}
-#cert-account-password-field{display:flex;flex-direction:column;gap:7px;min-width:0}
-#cert-password-help{font-size:12px;color:#65665e}
+
+/* Head */
+.cert-accounts-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:24px;border-bottom:1px solid #e2e8f0}
+.cert-head-brand{display:flex;align-items:center;gap:16px;min-width:0}
+.cert-head-icon{width:48px;height:48px;border-radius:14px;background:#fff0f5;border:1px solid #fecdd3;color:#e11d48;display:grid;place-items:center;flex-shrink:0;box-shadow:0 2px 8px rgba(225,29,72,.08)}
+.cert-head-copy p{margin:4px 0 0;color:#64748b;font-size:13.5px;font-weight:400}
+.cert-accounts-head .cert-account-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}
+#cert-accounts-refresh{min-height:42px;padding:9px 18px;border-radius:10px;background:#fff;border:1px solid #e2e8f0;color:#1e293b;font:600 13px/1.4 'Inter',system-ui,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+#cert-accounts-refresh:hover{background:#f8fafc;border-color:#cbd5e1}
+#cert-accounts-new{min-height:42px;padding:9px 20px;border-radius:10px;background:#196d61;border:1px solid #196d61;color:#fff;font:600 13px/1.4 'Inter',system-ui,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 6px rgba(25,109,97,.25)}
+#cert-accounts-new:hover{background:#13554c;border-color:#13554c}
+
+/* KPI Stat Cards Grid */
+.cert-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0 26px}
+.cert-stat-card{background:#fff;border:1px solid #edf2f7;border-radius:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.02);transition:all .2s ease}
+.cert-stat-card:hover{box-shadow:0 6px 16px -2px rgba(0,0,0,.05);transform:translateY(-1px);border-color:#e2e8f0}
+.cert-stat-icon-wrap{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+.cert-stat-icon-wrap.is-green{background:#ecfdf5;color:#10b981}
+.cert-stat-icon-wrap.is-red{background:#fff1f2;color:#f43f5e}
+.cert-stat-icon-wrap.is-amber{background:#fef3c7;color:#d97706}
+.cert-stat-icon-wrap.is-teal{background:#e0f2fe;color:#0284c7}
+.cert-stat-info{flex:1;min-width:0;display:flex;flex-direction:column}
+.cert-stat-label{font-size:13px;font-weight:500;color:#64748b}
+.cert-stat-value{font-size:26px;font-weight:700;color:#0f172a;line-height:1.15;margin:3px 0 2px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.cert-stat-sub{font-size:11.5px;color:#94a3b8;font-weight:400}
+.cert-stat-chart{flex-shrink:0;display:flex;align-items:center;justify-content:flex-end}
+.cert-chart-bars{width:42px;height:28px}
+.cert-chart-bars.is-green rect{fill:#34d399}
+.cert-chart-bars.is-red rect{fill:#fb7185}
+.cert-chart-curve{width:56px;height:26px}
+.cert-chart-curve.is-amber{color:#f59e0b}
+.cert-chart-curve.is-teal{color:#0ea5e9}
+
+/* Forms: Compact & Elegant */
+.cert-account-editor{max-width:760px;margin:0 auto 24px;padding:20px 24px;border:1px solid #e2e8f0;border-radius:16px;background:#fff;box-shadow:0 4px 20px -2px rgba(15,23,42,.06)}
+.cert-account-editor>header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid #f1f5f9}
+.cert-account-editor>header h2{margin:0;font-size:17px;font-weight:700;color:#0f172a}
+#cert-account-cancel,#cert-password-cancel{min-height:30px!important;height:30px;padding:4px 12px!important;font-size:12px!important;border-radius:8px!important;background:#fff!important;border:1px solid #e2e8f0!important;color:#64748b!important;font-weight:600!important}
+#cert-account-cancel:hover,#cert-password-cancel:hover{background:#f8fafc!important;color:#0f172a!important;border-color:#cbd5e1!important}
+
+/* Compact Linker */
+.cert-account-linker{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;margin-top:14px;padding:12px 14px;border-radius:12px;background:#f8fafc;border:1px solid #edf2f7}
+.cert-account-linker p{grid-column:1/-1;margin:0;color:#334155;font-size:11.5px}
+.cert-link-heading{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cert-link-heading h3{margin:0;font-size:13.5px;font-weight:700;color:#0f172a}
+.cert-link-heading p{margin:2px 0 0;color:#64748b;font-size:11px}
+#cert-collaborator-clear{min-height:26px!important;height:26px;padding:3px 10px!important;border-radius:6px!important;border:1px solid #fecdd3!important;background:#fff!important;color:#e11d48!important;font-size:11px!important;font-weight:600!important;cursor:pointer}
+#cert-collaborator-clear:hover{background:#fff1f2!important;border-color:#fda4af!important}
+.cert-link-search{max-width:none;gap:4px!important;font-size:11.5px!important;font-weight:600!important;color:#334155}
+#view-cert-cuentas #cert-collaborator-search{min-height:32px!important;height:32px;padding:5px 10px!important;font-size:12px!important;border-radius:7px!important;border:1px solid #cbd5e1;background:#fff}
+#view-cert-cuentas #cert-collaborator-search:focus{border-color:#196d61;box-shadow:0 0 0 2px rgba(25,109,97,.12);outline:none}
+#cert-collaborator-count{align-self:end;padding-bottom:5px;font-size:11px;color:#64748b;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cert-link-results{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:6px;max-height:120px;overflow-y:auto;overscroll-behavior:contain;padding:2px;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+#view-cert-cuentas .cert-link-option{display:flex;align-items:center;gap:8px;min-width:0;min-height:36px!important;padding:5px 8px!important;text-align:left;border:1px solid #e2e8f0;border-radius:7px;background:#fff;color:#1e293b;box-shadow:none;transform:none;font-weight:400;cursor:pointer;transition:all .12s ease}
+#view-cert-cuentas .cert-link-option:not(:disabled):hover{background:#f1f5f9;border-color:#cbd5e1}
+#view-cert-cuentas .cert-link-option[aria-pressed="true"]{background:#ecfdf5;border-color:#10b981;box-shadow:0 0 0 1px #10b981}
+#view-cert-cuentas .cert-link-option:disabled{opacity:.5;cursor:not-allowed;background:#f8fafc}
+.cert-link-initials{display:grid;place-items:center;flex:0 0 26px;width:26px;height:26px;border-radius:6px;background:#f1f5f9;color:#475569;font-size:10px;font-weight:700}
+.cert-link-option-copy{flex:1;min-width:0;display:grid;gap:1px}
+.cert-link-option-copy strong{font-size:11.5px;font-weight:600;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cert-link-option-copy small{font-size:10px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cert-link-option-state{flex-shrink:0;font-size:9.5px;color:#196d61;font-weight:600;background:#e6f4f1;padding:2px 6px;border-radius:4px}
+[aria-pressed="true"] .cert-link-option-state{background:#10b981;color:#fff}
+#cert-collaborator-detail{grid-column:1/-1;margin:4px 0 0;padding:6px 10px;border-radius:6px;font-size:11px;line-height:1.4;background:#f1f5f9;border:1px solid #e2e8f0;color:#475569}
+#cert-collaborator-detail.is-linked{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+.cert-link-empty{grid-column:1/-1;padding:12px;text-align:center;color:#64748b;font-size:11.5px}
+
+/* Compact Fields */
+.cert-account-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;margin:14px 0 8px}
+.cert-account-editor label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:#334155}
+.cert-account-editor :is(input:not([type="hidden"]),select){min-height:35px!important;height:35px;width:100%;box-sizing:border-box;padding:6px 10px!important;border:1px solid #cbd5e1;border-radius:8px!important;background:#fff;color:#0f172a;font:400 13px/1.4 'Inter',system-ui,sans-serif;transition:border-color .15s,box-shadow .15s}
+.cert-account-editor :is(input:not([type="hidden"]),select):focus{border-color:#196d61!important;box-shadow:0 0 0 2px rgba(25,109,97,.12)!important;outline:none}
+.cert-account-editor label small{font-size:10.5px;font-weight:400;color:#64748b;line-height:1.3;margin-top:2px}
+#cert-account-password-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+#cert-account-password-field label{font-size:12px;font-weight:600;color:#334155}
+#cert-password-help{font-size:10.5px;color:#64748b;line-height:1.3}
 .cert-password-control{position:relative}
-#view-cert-cuentas .cert-password-control input{padding-right:52px}
-#view-cert-cuentas #cert-account-password-toggle{position:absolute;right:2px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:44px;min-height:40px;height:40px;padding:10px;border:0;background:transparent;color:#59675d;box-shadow:none;border-radius:7px}
-#view-cert-cuentas #cert-account-password-toggle:hover{background:#edf2eb;color:#196d61}
-#cert-account-password-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#view-cert-cuentas .cert-password-control input{padding-right:38px!important}
+#view-cert-cuentas #cert-account-password-toggle{position:absolute;right:2px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:32px!important;min-height:28px!important;height:28px!important;padding:5px!important;border:0!important;background:transparent!important;color:#64748b!important;box-shadow:none!important;border-radius:6px!important}
+#view-cert-cuentas #cert-account-password-toggle:hover{background:#edf2eb!important;color:#196d61!important}
+#cert-account-password-toggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 #cert-account-password-toggle .cert-eye-slash{display:none}
 #cert-account-password-toggle[aria-pressed="true"] .cert-eye-slash{display:block}
-.cert-account-linker{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;margin-top:22px;padding:20px;border-radius:12px;background:#f2f5f0}
-.cert-account-linker p{grid-column:1/-1;margin:0;color:#365c4b;font-size:12px}
-.cert-link-heading{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.cert-link-heading h3{margin:0 0 5px;font-size:16px;color:#294f42}
-.cert-link-search{max-width:580px}
-#cert-collaborator-count{align-self:end;padding-bottom:12px;font-size:12px;color:#556859;font-variant-numeric:tabular-nums}
-.cert-link-results{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:8px;max-height:260px;overflow:auto;overscroll-behavior:contain;padding:3px;scrollbar-width:thin;scrollbar-color:#b6c5b8 transparent}
-#view-cert-cuentas .cert-link-option{display:flex;align-items:center;gap:10px;min-width:0;min-height:72px;padding:12px;text-align:left;border:1px solid #dce3d8;border-radius:10px;background:#fffdf9;color:#303b32;box-shadow:none;transform:none;font-weight:400}
-#view-cert-cuentas .cert-link-option:not(:disabled):hover{background:#eaf1e7;border-color:#9aad9c}
-#view-cert-cuentas .cert-link-option[aria-pressed="true"]{background:#e2eee4;border-color:#39725e}
-#view-cert-cuentas .cert-link-option:disabled{opacity:.65;cursor:not-allowed}
-.cert-link-initials{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:9px;background:#e9e7df;color:#5d624d;font-size:11px;font-weight:700}
-.cert-link-option-copy{flex:1;min-width:0;display:grid;gap:4px}
-.cert-link-option-copy strong{font-size:13px;font-weight:600;overflow-wrap:anywhere}
-.cert-link-option-copy small{font-size:11px;color:#5c695e;overflow-wrap:anywhere}
-.cert-link-option-state{flex-shrink:0;font-size:10px;color:#28634e;font-weight:600}
-#cert-collaborator-detail{padding-top:12px;border-top:1px solid #d5dfd2;line-height:1.6}
-.cert-link-empty{grid-column:1/-1;padding:20px}
-#portal.admin-wide #view-cert-cuentas .cert-account-linker input:focus-visible,#portal.admin-wide #view-cert-cuentas .cert-account-linker button:focus-visible{outline:2px solid #196d61!important;outline-offset:2px}
-@media(max-width:1100px){.cert-link-results{grid-template-columns:minmax(0,1fr)}}
-@media(max-width:600px){.cert-link-heading{align-items:flex-start;flex-direction:column}.cert-account-linker{padding:14px}.cert-link-option-state{display:none}#cert-collaborator-count{padding-bottom:0}}
-.cert-accounts input[readonly]{background:#f1f3ef;color:#50594f}
-@media(max-width:800px){.cert-account-linker{grid-template-columns:minmax(0,1fr)}}
-.cert-accounts label{display:flex;flex-direction:column;gap:7px;font-size:13px;font-weight:600}
-.cert-accounts :is(input:not([type="hidden"]),select){min-height:44px;width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #d2cabd;border-radius:8px;background:#fff;color:#30312d;font:400 14px/1.4 Inter,system-ui,sans-serif}
-.cert-accounts label small{font-size:12px;font-weight:400;color:#65665e}
-.cert-accounts input:disabled{background:#f1eee7;color:#65665e}
-.cert-accounts :is(input,select,button):focus-visible{outline:2px solid #196d61;outline-offset:3px}
-.cert-account-toolbar{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:30px 0 16px}
-.cert-account-toolbar label{width:min(100%,380px)}
-#cert-account-count{color:#65665e;white-space:nowrap;font-variant-numeric:tabular-nums}
-.cert-account-list{border:1px solid #e3ddd3;border-radius:16px;background:#fffdf9;overflow:hidden}
-.cert-account-row{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:20px 24px;border-bottom:1px solid #e8e2d9}
-.cert-account-row:last-child{border-bottom:0}
-.cert-account-person{min-width:0}.cert-account-person h3{margin:0;font-size:15px;overflow-wrap:anywhere}
-.cert-account-person p{margin:3px 0 8px;color:#65665e;overflow-wrap:anywhere}
-.cert-account-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:#65665e}
-.cert-account-state{color:#196d61;font-weight:600}.cert-account-state.suspended{color:#963d34}
-#cert-accounts-message:not(:empty),#cert-account-form-message:not(:empty){margin:16px 0;padding:12px 16px;background:#f5eadf;border-radius:10px;color:#743d28}
-.cert-account-empty{padding:32px;text-align:center;color:#65665e}
-@media(max-width:800px){.cert-accounts{padding:20px 14px}.cert-accounts-head,.cert-account-row{align-items:flex-start;flex-direction:column;gap:16px}.cert-account-fields{grid-template-columns:1fr}.cert-account-editor{padding:18px}.cert-account-toolbar{align-items:flex-start;flex-direction:column;gap:8px}.cert-account-row{padding:18px}}
 
-/* Directorio: cada cuenta reúne sus datos y acciones en una de dos columnas. */
-#view-cert-cuentas{box-sizing:border-box;min-width:0;padding:26px 24px 100px}
-#view-cert-cuentas .cert-accounts-head{align-items:flex-start;padding-bottom:24px;border-bottom:1px solid #dcd5ca}
-#view-cert-cuentas .cert-accounts-head>.cert-account-actions{flex-shrink:0}
-#view-cert-cuentas h1{font-size:clamp(26px,2.3vw,34px)}
-#view-cert-cuentas .cert-account-toolbar{margin:24px 0 18px;flex-wrap:wrap}
-#view-cert-cuentas .cert-account-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;border:0;border-radius:0;background:transparent;overflow:visible}
-#view-cert-cuentas .cert-account-row{min-width:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:20px;padding:22px;border:1px solid #e3ddd3;border-radius:14px;background:#fffdf9}
-#view-cert-cuentas .cert-account-person h3{font-size:16px;line-height:1.4}
-#view-cert-cuentas .cert-account-person p{margin:5px 0 12px;font-size:13px}
-#view-cert-cuentas .cert-account-row>.cert-account-actions{margin-top:auto;padding-top:16px;border-top:1px solid #ece6dc;gap:8px}
-#view-cert-cuentas .cert-account-row button{padding:9px 12px;font-size:12px}
-#view-cert-cuentas .cert-account-empty{grid-column:1/-1;margin:0;border:1px solid #e3ddd3;border-radius:14px;background:#fffdf9}
-#view-cert-cuentas .cert-account-note{margin-top:20px;font-size:12px}
-#view-cert-cuentas .cert-suspended-toggle{display:flex;flex-direction:row;align-items:center;gap:10px;width:auto;min-height:44px;margin-right:auto;cursor:pointer;font-weight:500;color:#50594f}
-#view-cert-cuentas .cert-suspended-toggle input{appearance:auto;flex:none;width:18px;height:18px;min-height:0;padding:0;margin:0;accent-color:#196d61;cursor:pointer}
+/* Submit and Messages */
+.cert-account-editor>p{margin:6px 0 12px;font-size:11.5px;color:#64748b}
+#cert-account-save,#cert-password-form button[type="submit"]{min-height:36px!important;height:36px;padding:7px 18px!important;font-size:12.5px!important;font-weight:600!important;border-radius:8px!important}
+#cert-password-form{max-width:480px;margin:0 auto 20px;padding:18px 22px}
+#cert-password-person{font-size:12.5px;font-weight:600;color:#0f172a;margin:4px 0 2px}
+
+.cert-accounts input[readonly]{background:#f8fafc;color:#64748b}
+.cert-accounts input:disabled{background:#f8fafc;color:#94a3b8}
+.cert-accounts :is(input,select,button):focus-visible{outline:2px solid #196d61;outline-offset:2px}
+
+/* Toolbar */
+.cert-account-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:24px 0 20px;flex-wrap:wrap}
+.cert-search-col{display:flex;flex-direction:column;gap:6px}
+.cert-search-col label{font-size:13px;font-weight:700;color:#1e293b}
+.cert-search-box{position:relative;width:380px;max-width:100%}
+.cert-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#94a3b8;pointer-events:none}
+#view-cert-cuentas #cert-account-search{width:100%;min-height:42px;box-sizing:border-box;padding:9px 14px 9px 38px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:#0f172a;font:400 14px/1.4 'Inter',system-ui,sans-serif;transition:border-color .15s,box-shadow .15s}
+#view-cert-cuentas #cert-account-search:focus{outline:none;border-color:#196d61;box-shadow:0 0 0 3px rgba(25,109,97,.15)}
+#view-cert-cuentas .cert-suspended-toggle{display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:9px;width:auto;min-height:42px;margin-right:auto;margin-bottom:2px;cursor:pointer;font-size:13.5px;font-weight:500;color:#475569}
+#view-cert-cuentas .cert-suspended-toggle input{appearance:auto;flex:none;width:17px;height:17px;min-height:0;padding:0;margin:0;accent-color:#196d61;border-radius:4px;cursor:pointer}
+#cert-account-count{font-size:13px;font-weight:500;color:#64748b;font-variant-numeric:tabular-nums;white-space:nowrap;margin-bottom:10px}
+
+/* Cards List */
+.cert-account-list{border:0;border-radius:0;background:transparent;overflow:visible}
+#view-cert-cuentas .cert-account-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;border:0;background:transparent}
+#view-cert-cuentas .cert-account-row{min-width:0;display:flex;flex-direction:column;gap:18px;padding:22px;border:1px solid #e2e8f0;border-radius:16px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.02);transition:all .2s ease;position:relative}
+#view-cert-cuentas .cert-account-row:hover{transform:translateY(-2px);box-shadow:0 10px 24px -4px rgba(0,0,0,.06),0 2px 6px -1px rgba(0,0,0,.03);border-color:#cbd5e1}
+
+/* Card Identity */
 #view-cert-cuentas .cert-account-identity{display:flex;align-items:center;gap:12px;min-width:0}
-#view-cert-cuentas .cert-account-avatar{display:grid;place-items:center;flex:0 0 44px;height:44px;border-radius:12px;background:#e7eee7;color:#27594b;font-size:14px;font-weight:700}
-#view-cert-cuentas .cert-account-row:nth-child(3n+2) .cert-account-avatar{background:#eee6d9;color:#75573d}
-#view-cert-cuentas .cert-account-row:nth-child(3n) .cert-account-avatar{background:#e7eaf2;color:#4c607a}
-#view-cert-cuentas .cert-account-identity .cert-account-person{flex:1}
-#view-cert-cuentas .cert-account-identity p{margin-bottom:0}
-#view-cert-cuentas .cert-account-emblem{flex:0 0 30px;width:30px;height:30px;stroke:#958265;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
-#view-cert-cuentas .cert-account-meta{align-items:center;gap:8px 12px;font-size:11px}
-#view-cert-cuentas .cert-account-state{padding:4px 8px;border-radius:6px;background:#e9f3ed}
-#view-cert-cuentas .cert-account-state.suspended{background:#f8ece7}
-#view-cert-cuentas .cert-account-series{margin-left:auto;font-variant-numeric:tabular-nums}
-#view-cert-cuentas .is-suspended .cert-account-avatar{background:#eeeae4;color:#70695f}
-#view-cert-cuentas .cert-account-row>.cert-account-actions{display:grid;grid-template-columns:auto minmax(0,1fr) auto}
-#view-cert-cuentas .cert-account-row button{padding-inline:8px;white-space:normal}
-@media(min-width:701px) and (max-width:1350px){#view-cert-cuentas .cert-account-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#view-cert-cuentas .cert-account-avatar{display:grid;place-items:center;flex:0 0 44px;height:44px;border-radius:50%;background:#dcfce7;color:#15803d;font-size:14px;font-weight:700;letter-spacing:-.01em}
+#view-cert-cuentas .cert-account-row:nth-child(3n+2) .cert-account-avatar{background:#ffedd5;color:#c2410c}
+#view-cert-cuentas .cert-account-row:nth-child(3n) .cert-account-avatar{background:#e0f2fe;color:#0369a1}
+#view-cert-cuentas .is-suspended .cert-account-avatar{background:#f1f5f9!important;color:#64748b!important}
+#view-cert-cuentas .cert-account-person{flex:1;min-width:0}
+#view-cert-cuentas .cert-account-person h3{margin:0;font-size:15px;font-weight:700;color:#0f172a;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#view-cert-cuentas .cert-account-person p{margin:2px 0 0;font-size:12.5px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Card More Menu */
+.cert-account-more-wrap{position:relative;flex-shrink:0}
+.cert-account-more-btn{width:32px;height:32px;min-height:32px!important;padding:0!important;border-radius:8px!important;border:1px solid #e2e8f0!important;background:#fff!important;color:#64748b!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer;transition:all .15s ease}
+.cert-account-more-btn:hover{background:#f8fafc!important;border-color:#cbd5e1!important;color:#0f172a!important}
+.cert-account-menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 10px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.05);min-width:220px;z-index:50;padding:6px;display:flex;flex-direction:column;gap:2px}
+.cert-account-menu button{display:flex!important;align-items:center!important;gap:10px!important;width:100%!important;padding:8px 12px!important;border:0!important;background:transparent!important;color:#334155!important;font-size:12.5px!important;font-weight:500!important;border-radius:6px!important;text-align:left!important;cursor:pointer;min-height:36px!important;transform:none!important;box-shadow:none!important}
+.cert-account-menu button:hover{background:#f1f5f9!important;color:#0f172a!important}
+
+/* Card Meta Badges */
+#view-cert-cuentas .cert-account-meta{display:flex;align-items:center;gap:12px;font-size:12px;padding-top:2px}
+#view-cert-cuentas .cert-account-state{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9999px;background:#ecfdf5;color:#059669;font-size:11.5px;font-weight:600}
+#view-cert-cuentas .cert-status-dot{width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0}
+#view-cert-cuentas .cert-account-state.suspended{background:#fef2f2;color:#dc2626}
+#view-cert-cuentas .cert-account-state.suspended .cert-status-dot{background:#ef4444}
+#view-cert-cuentas .cert-role-tag{display:inline-flex;align-items:center;gap:6px;color:#475569;font-size:12px;font-weight:500}
+#view-cert-cuentas .cert-role-tag svg{color:#64748b;flex-shrink:0}
+#view-cert-cuentas .cert-account-series{margin-left:auto;color:#64748b;font-size:12px;font-weight:500;font-variant-numeric:tabular-nums}
+
+/* Card Actions */
+#view-cert-cuentas .cert-account-row>.cert-account-actions{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;margin-top:auto;padding-top:16px;border-top:1px solid #f1f5f9}
+#view-cert-cuentas .cert-account-row button{min-height:36px;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .15s ease;white-space:nowrap;box-shadow:none;transform:none}
+#view-cert-cuentas .cert-btn-edit,#view-cert-cuentas .cert-btn-password{background:#fff;border:1px solid #e2e8f0;color:#334155}
+#view-cert-cuentas .cert-btn-edit:hover,#view-cert-cuentas .cert-btn-password:hover{background:#f8fafc;border-color:#cbd5e1;color:#0f172a}
+#view-cert-cuentas .cert-btn-toggle.cert-danger{background:#fff;border:1px solid #fecdd3;color:#e11d48}
+#view-cert-cuentas .cert-btn-toggle.cert-danger:hover{background:#fff1f2;border-color:#fda4af}
+#view-cert-cuentas .cert-btn-toggle.cert-reactivate{background:#fff;border:1px solid #a7f3d0;color:#059669}
+#view-cert-cuentas .cert-btn-toggle.cert-reactivate:hover{background:#ecfdf5;border-color:#6ee7b7}
+
+/* Empty & Messages */
+#view-cert-cuentas .cert-account-empty{grid-column:1/-1;margin:0;padding:36px;text-align:center;border:1px dashed #cbd5e1;border-radius:16px;background:#fff;color:#64748b}
+#cert-accounts-message:not(:empty),#cert-account-form-message:not(:empty){margin:16px 0;padding:12px 16px;background:#fff1f2;border:1px solid #fecdd3;border-radius:10px;color:#9f1239}
+.cert-account-note{margin-top:24px;font-size:12.5px;color:#94a3b8}
+
+/* Shell Scroll & Responsiveness */
+#view-cert-cuentas{
+  box-sizing:border-box;
+  min-width:0;
+  padding:32px 32px 80px;
+  background:radial-gradient(circle at 82% 0%,rgba(244,63,94,.05) 0%,rgba(244,114,182,.02) 40%,transparent 70%),#f8fafc;
+  border-radius:15px!important;
+  border:1px solid #e2e8f0;
+  box-shadow:0 4px 20px rgba(15,23,42,.03);
+}
+
 @media(min-width:901px){
-  /* El shell administrativo bloquea el scroll del workspace: esta vista lo posee. */
-  #portal.admin-wide[data-view="cert-cuentas"] #view-cert-cuentas{height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#b9ad9b transparent}
+  #portal.admin-wide[data-view="cert-cuentas"] .workspace{
+    padding:16px 16px 16px 0!important;
+    display:flex;
+    flex-direction:column;
+    box-sizing:border-box;
+  }
+  #portal[data-view="cert-cuentas"] #view-cert-cuentas,
+  #portal.admin-wide[data-view="cert-cuentas"] #view-cert-cuentas{
+    height:100%;
+    min-height:0;
+    margin-left:18px;
+    width:calc(100% - 18px);
+    border-radius:15px!important;
+    border:1px solid #e2e8f0;
+    box-shadow:0 4px 24px rgba(15,23,42,.04);
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior-y:contain;
+    scrollbar-gutter:stable;
+    scrollbar-width:thin;
+    scrollbar-color:#cbd5e1 transparent;
+  }
+}
+
+#view-cert-cuentas::-webkit-scrollbar{width:6px}
+#view-cert-cuentas::-webkit-scrollbar-track{background:transparent}
+#view-cert-cuentas::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+#view-cert-cuentas::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+
+@media(max-width:1350px){
+  .cert-stats-grid{grid-template-columns:repeat(2,1fr)}
+  #view-cert-cuentas .cert-account-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:1100px){
-  #view-cert-cuentas .cert-accounts-head{flex-wrap:wrap;gap:18px}
-  #view-cert-cuentas .cert-account-row{padding:18px}
+  .cert-link-results{grid-template-columns:minmax(0,1fr)}
 }
-@media(max-width:700px){
-  #portal #view-cert-cuentas{padding:16px 0 40px;height:auto;overflow:visible}
+@media(max-width:800px){
+  .cert-account-fields{grid-template-columns:1fr}
+  .cert-account-linker{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:768px){
+  #portal #view-cert-cuentas{
+    margin:12px 10px 40px;
+    width:auto;
+    padding:20px 16px 60px;
+    border-radius:15px!important;
+    border:1px solid #e2e8f0;
+    box-shadow:0 4px 16px rgba(15,23,42,.03);
+    height:auto;
+    overflow:visible;
+  }
+  .cert-accounts-head{flex-direction:column;align-items:flex-start;gap:16px}
+  .cert-stats-grid{grid-template-columns:1fr}
+  .cert-account-toolbar{flex-direction:column;align-items:stretch;gap:12px}
+  .cert-search-box{width:100%}
   #view-cert-cuentas .cert-account-list{grid-template-columns:minmax(0,1fr);gap:12px}
-  #view-cert-cuentas .cert-account-row>.cert-account-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #view-cert-cuentas .cert-account-row>.cert-account-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
   #view-cert-cuentas [data-cert-action="password"]{grid-column:1/-1;grid-row:2}
 }
+
+/* Custom Confirmation Alert Modal */
+.cert-confirm-modal{position:fixed;inset:0;z-index:600;display:grid;place-items:center;padding:16px;animation:certModalFadeIn .18s ease-out}
+.cert-confirm-modal[hidden]{display:none!important}
+.cert-confirm-modal .modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:0;cursor:pointer}
+.cert-confirm-sheet{position:relative;z-index:1;width:min(410px,100%);box-sizing:border-box;padding:24px 22px 20px;border-radius:18px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 20px 45px -10px rgba(15,23,42,.22),0 2px 8px rgba(15,23,42,.05);display:flex;flex-direction:column;align-items:center;text-align:center;animation:certSheetPop .22s cubic-bezier(.16,1,.3,1)}
+@keyframes certModalFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes certSheetPop{from{opacity:0;transform:scale(.94) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.cert-confirm-icon-wrap{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;margin-bottom:12px;flex-shrink:0}
+.cert-confirm-icon-wrap.is-danger{background:#fef2f2;color:#e11d48;border:1px solid #fecdd3;box-shadow:0 4px 14px rgba(225,29,72,.12)}
+.cert-confirm-icon-wrap.is-success{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;box-shadow:0 4px 14px rgba(5,150,105,.12)}
+.cert-confirm-icon-wrap.is-primary{background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd;box-shadow:0 4px 14px rgba(2,132,199,.12)}
+.cert-confirm-copy{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+#cert-confirm-title{margin:0;font-size:17px;font-weight:700;color:#0f172a;line-height:1.3}
+#cert-confirm-desc{margin:0;font-size:13px;line-height:1.45;color:#64748b;max-width:34ch}
+.cert-confirm-actions{display:flex;align-items:center;gap:10px;width:100%}
+.cert-confirm-cancel{flex:1;min-height:38px!important;height:38px;padding:7px 14px!important;border-radius:9px!important;border:1px solid #e2e8f0!important;background:#fff!important;color:#475569!important;font:600 12.5px/1.4 'Inter',system-ui,sans-serif!important;cursor:pointer;transition:all .15s ease;transform:none!important;box-shadow:none!important}
+.cert-confirm-cancel:hover{background:#f8fafc!important;color:#0f172a!important;border-color:#cbd5e1!important}
+.cert-confirm-ok{flex:1;min-height:38px!important;height:38px;padding:7px 14px!important;border-radius:9px!important;border:0!important;color:#fff!important;font:600 12.5px/1.4 'Inter',system-ui,sans-serif!important;cursor:pointer;transition:all .15s ease;transform:none!important}
+.cert-confirm-ok.cert-tone-danger{background:#e11d48!important;box-shadow:0 2px 8px rgba(225,29,72,.28)!important}
+.cert-confirm-ok.cert-tone-danger:hover{background:#be123c!important}
+.cert-confirm-ok.cert-tone-success{background:#10b981!important;box-shadow:0 2px 8px rgba(16,185,129,.28)!important}
+.cert-confirm-ok.cert-tone-success:hover{background:#059669!important}
+.cert-confirm-ok.cert-tone-primary{background:#196d61!important;box-shadow:0 2px 8px rgba(25,109,97,.28)!important}
+.cert-confirm-ok.cert-tone-primary:hover{background:#13554c!important}

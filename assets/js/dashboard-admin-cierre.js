@@ -96,6 +96,13 @@ function adminCloseTime(value){
   return value?new Intl.DateTimeFormat('es-PE',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Lima'}).format(new Date(value)):'—';
 }
 
+function adminCloseMode(close){
+  if(!close?.entrada_at)return {label:'Sin marcar',state:'pending'};
+  if(close.modalidad==='presencial')return {label:'Presencial',state:'presencial'};
+  if(close.modalidad==='virtual')return {label:'Virtual',state:'virtual'};
+  return {label:'Sin dato',state:'pending'};
+}
+
 function adminCloseExitRecovery(person,reviews=[]){
   const close=person?.cierre||{};
   if(!close.entrada_at||close.salida_at||close.requiere_salida===false||close.aplica_jornada===false||close.justificado||close.estado==='justificado')return false;
@@ -230,9 +237,10 @@ function renderAdminCloseStatus(){
   for(const group of groups.values()){
     const complete=group.items.filter(person=>{const personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),progress=adminCloseEvidenceProgress(person,personReviews);return ['completa','regularizada'].includes(adminCloseResolvedState(person,progress,selectedDate))}).length;
     const justified=group.items.filter(person=>person.cierre?.justificado).length;
-    html+=`<section class="admin-close-area area-tone-${adminCloseAreaTone(group.id)}"><header><span><b>${esc(group.name)}</b><small>${complete} completas${justified?` · ${justified} justificadas`:''} de ${group.items.length} jornadas</small></span></header><div class="admin-close-table"><div class="admin-close-table-head"><span>Colaborador</span><span>Entrada</span><span>Evidencias</span><span>Salida</span><span>Jornada</span><span>Mensaje</span></div>`;
+    html+=`<section class="admin-close-area area-tone-${adminCloseAreaTone(group.id)}"><header><span><b>${esc(group.name)}</b><small>${complete} completas${justified?` · ${justified} justificadas`:''} de ${group.items.length} jornadas</small></span></header><div class="admin-close-table"><div class="admin-close-table-head"><span>Colaborador</span><span>Entrada</span><span>Modalidad</span><span>Evidencias</span><span>Salida</span><span>Jornada</span><span>Mensaje</span></div>`;
     for(const person of group.items){
       const close=person.cierre||{},personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),progress=adminCloseEvidenceProgress(person,personReviews);
+      const mode=adminCloseMode(close);
       const evidence=`${progress.done}/${progress.total}`,state=adminCloseResolvedState(person,progress,selectedDate),pending=personReviews.filter(item=>item.revision_estado==='pendiente'&&item.estado==='completo').length;
       const reviewAction=canReview&&personReviews.length?`<button type="button" class="admin-close-review-trigger ${pending?'has-pending':''}" data-admin-review-person="${esc(person.id)}">${pending?`${pending} por revisar`:'Ver evidencias'}</button>`:'';
       const missing=adminEvidenceAvailable(person,personReviews),canUpload=canReview&&($('admin-close-date').value||isoLima())<=isoLima(),uploadAction=canUpload&&missing.length?`<button type="button" class="admin-close-upload-trigger" data-admin-upload-person="${esc(person.id)}">${missing.every(item=>item.optional)?'Adjuntar salida':'Subir faltante'}</button>`:'';
@@ -241,7 +249,7 @@ function renderAdminCloseStatus(){
       const exitNote=!close.salida_at&&close.entrada_at&&close.requiere_salida!==false&&close.aplica_jornada!==false&&!close.justificado
         ?`<small>${recoverExit?'Foto recibida; falta registrar la salida.':'Falta registrar la salida.'}</small>`:'';
       const messageAction=canReview?`<button type="button" class="admin-close-message-trigger" data-admin-message-person="${esc(person.id)}" aria-label="Enviar mensaje a ${esc(person.nombre)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 4zM8 9h8M8 13h5"/></svg><span>Mensaje</span></button>`:'';
-      html+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)} evidencias</b>${exitNote}<span class="admin-close-evidence-actions">${reviewAction}${uploadAction}${recoveryAction}</span></span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span><span data-label="Mensaje" class="admin-close-message-cell">${messageAction||'—'}</span></div>`;
+      html+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span><span data-label="Entrada">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Modalidad" class="admin-close-mode-cell"><span class="admin-close-mode ${mode.state}">${mode.label}</span></span><span data-label="Evidencias" class="admin-close-evidence-cell"><b>${esc(evidence)} evidencias</b>${exitNote}<span class="admin-close-evidence-actions">${reviewAction}${uploadAction}${recoveryAction}</span></span><span data-label="Salida">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span><span data-label="Mensaje" class="admin-close-message-cell">${messageAction||'—'}</span></div>`;
     }
     html+='</div></section>';
   }
