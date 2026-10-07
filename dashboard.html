@@ -58,6 +58,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 </head>
 <body>
 
@@ -777,18 +778,35 @@
     </section>
 
     <section class="view" id="view-perfil" hidden>
-      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p id="profile-description">Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.</p></div><div class="profile-header-actions"><details class="profile-theme-picker"><summary aria-label="Personalizar portada vertical"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M5 5h14v14H5zM8 9h8M8 13h5"/></svg><span>Personalizar portada</span></summary><div class="profile-theme-options" role="group" aria-label="Estilos de portada vertical"><button type="button" data-profile-cover="cielo">Cielo</button><button type="button" data-profile-cover="jardin">Jardín</button><button type="button" data-profile-cover="noche">Noche</button></div></details></div></header>
+      <header class="view-head"><div><p class="eyebrow">INFORMACIÓN LABORAL</p><h1>Mi perfil</h1><p id="profile-description">Puedes actualizar tu foto y tu portada. Dirección gestiona los demás datos laborales.</p></div><div class="profile-header-actions"><details class="profile-theme-picker"><summary aria-label="Elegir fondo de color"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M5 5h14v14H5zM8 9h8M8 13h5"/></svg><span>Fondo de color</span></summary><div class="profile-theme-options" role="group" aria-label="Fondos de color de la portada"><button type="button" data-profile-cover="cielo">Cielo</button><button type="button" data-profile-cover="jardin">Jardín</button><button type="button" data-profile-cover="noche">Noche</button></div></details></div></header>
       <div class="profile-mobile-controls"><button class="mobile-inline-home" type="button" data-go="inicio" aria-label="Volver al inicio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v9H6v-9"/><path d="M10 20v-6h4v6"/></svg><span>Inicio</span></button><button class="profile-mobile-logout" id="profile-mobile-logout" type="button" aria-label="Cerrar sesión" title="Cerrar sesión"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5"/><path d="m14 8 4 4-4 4M18 12H9"/></svg></button></div>
       <div class="profile-layout">
         <article class="profile-identity">
+          <div class="profile-banner" id="profile-cover">
+            <button class="profile-cover-edit" id="profile-cover-edit" type="button" aria-label="Editar portada" title="Editar portada">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+              <span>Cambiar portada</span>
+            </button>
+          </div>
           <div class="profile-photo-wrap">
             <span class="profile-avatar" id="profile-avatar">KJ</span>
             <button class="profile-photo-camera" id="profile-photo-camera" type="button" aria-label="Editar foto de perfil" title="Editar foto">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="m16.5 3.5 4 4L8 20l-5 1 1-5z"/></svg>
             </button>
           </div>
-          <h2 id="profile-name">—</h2><p id="profile-area">—</p><span class="profile-badge" id="profile-link">—</span>
+          <div class="profile-headline">
+            <h2 id="profile-name">—</h2>
+            <div class="profile-headline-meta"><p id="profile-area">—</p><span class="profile-badge" id="profile-link">—</span></div>
+          </div>
+          <div class="profile-aside" id="profile-aside">
+            <div class="profile-shortcuts">
+              <button type="button" id="profile-shortcut-photo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Editar foto</button>
+              <button type="button" id="profile-shortcut-cover"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Cambiar portada</button>
+            </div>
+            <div class="profile-quick" id="profile-quick" aria-label="Datos rápidos"></div>
+          </div>
           <input id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+          <input id="profile-cover-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
         </article>
         <article class="profile-data">
           <form id="admin-profile-settings" class="admin-profile-settings" hidden>
@@ -2573,6 +2591,23 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog class="profile-photo-dialog profile-cover-dialog" id="profile-cover-dialog" aria-labelledby="profile-cover-dialog-title" aria-describedby="profile-cover-dialog-copy">
+  <header class="profile-photo-dialog-head">
+    <span><small>PORTADA DE PERFIL</small><h2 id="profile-cover-dialog-title">Editar portada</h2></span>
+    <button type="button" id="profile-cover-dialog-close" aria-label="Cerrar opciones de portada">&times;</button>
+  </header>
+  <p class="profile-photo-dialog-copy" id="profile-cover-dialog-copy">Elige una imagen horizontal para tu portada o quita la actual.</p>
+  <section class="profile-photo-upload-panel profile-cover-upload-panel" aria-label="Seleccionar una portada">
+    <span class="profile-cover-dialog-preview" id="profile-cover-dialog-preview" aria-hidden="true"></span>
+    <span class="profile-photo-upload-copy"><b>Selecciona una imagen</b><small>JPG, PNG o WebP · máximo 3 MB</small></span>
+    <button class="profile-photo-change" id="profile-cover-change" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M5 15v4h14v-4"/></svg>Elegir portada</button>
+  </section>
+  <div class="profile-photo-actions">
+    <button class="profile-photo-remove" id="profile-cover-remove" type="button" hidden>Quitar portada</button>
+  </div>
+  <small class="profile-photo-hint">Se recorta en proporción 8:3 · JPG, PNG o WebP</small>
+  <p class="profile-photo-message" id="profile-cover-message" role="status" aria-live="polite"></p>
+</dialog>
 <dialog class="profile-photo-dialog" id="profile-photo-dialog" aria-labelledby="profile-photo-dialog-title" aria-describedby="profile-photo-dialog-copy">
   <header class="profile-photo-dialog-head">
     <span><small>FOTO DE PERFIL</small><h2 id="profile-photo-dialog-title">Editar foto</h2></span>
@@ -2595,7 +2630,7 @@
   <div class="mark-sheet avatar-crop-sheet">
     <button class="modal-close" type="button" id="cropper-close-btn" aria-label="Cancelar recorte">&times;</button>
     <h2 id="cropper-title">Recortar foto</h2>
-    <p>Arrastra y ajusta el recuadro para encuadrar tu foto.</p>
+    <p id="cropper-help">Arrastra y ajusta el recuadro para encuadrar tu foto.</p>
     <div class="avatar-crop-area" id="avatar-crop-area">
       <div class="avatar-crop-loader" id="avatar-crop-loader">
         <div class="avatar-crop-spinner"></div>
@@ -2713,7 +2748,7 @@
   <div id="admin-leave-review-days" class="admin-request-list"></div>
   <footer><span>Puedes decidir cada fecha por separado.</span><button type="button" data-close-leave-review>Listo</button></footer>
 </dialog>
-<script src="assets/js/dashboard.js?v=250"></script>
+<script src="assets/js/dashboard.js?v=252"></script>
 <script src="assets/js/dashboard-cert-accounts.js?v=8"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
