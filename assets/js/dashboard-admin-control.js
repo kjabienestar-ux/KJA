@@ -230,7 +230,7 @@ function adminControlDonutSvg(group){
     offset -= pct;
   }
   const attention = pending + review;
-  const centerText = attention > 0 
+  const centerText = attention > 0
     ? '<text x="18" y="21.5" text-anchor="middle" font-size="10" font-weight="700" fill="#e11d48">'+attention+'</text>'
     : '<text x="18" y="21" text-anchor="middle" font-size="10" font-weight="700" fill="#10b981">✓</text>';
   return '<svg class="control-area-donut" viewBox="0 0 36 36" width="46" height="46" aria-hidden="true">'+circles+centerText+'</svg>';
@@ -559,4 +559,3 @@ if(statsGrid){
     renderAdminControl();
   };
 }
-

@@ -109,12 +109,6 @@
     display: none !important;
   }
 
-  /* Mantener la visibilidad por rol por encima de los estilos del drawer. */
-  #portal .sidebar .side-nav > [hidden],
-  #portal.admin-wide .sidebar .side-nav > [hidden] {
-    display: none !important;
-  }
-
   /* Drawer Nav Section */
   #portal .sidebar .side-nav,
   #portal.admin-wide .sidebar .side-nav {
