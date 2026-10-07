@@ -98,7 +98,7 @@ function mergeAdminMonthClosures(data,closeData){
       else if(day.estado==='NG')counts.NG++;
       if(day.cierre_estado==='incompleta')counts.incompletas++;
       if(day.laborable&&day.fecha<=data.hoy&&!day.estado)counts.pendientes++;
-      if(day.laborable&&(day.estado==='J'||(['P','T'].includes(day.estado)&&valid)))counts.horas+=Number(day.horas||0);
+      if((day.laborable||(['P','T','J'].includes(day.estado)&&valid))&&(day.estado==='J'||(['P','T'].includes(day.estado)&&valid)))counts.horas+=Number(day.horas||0);
     }
     const base=counts.P+counts.T+counts.J;
     person.resumen={...summary,...counts,

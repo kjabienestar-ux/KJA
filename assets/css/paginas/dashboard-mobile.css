@@ -513,9 +513,23 @@
   #portal .admin-month-table :is(th.day-col,td){min-width:46px}
   #portal .admin-month-table td button{min-width:44px;min-height:44px}
   #portal .admin-close-status{column-count:1!important}
+  #portal .admin-close-grid-cols{grid-template-columns:1fr!important}
   #portal .admin-close-table-head{display:none!important}
-  #portal .admin-close-person{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:16px;min-width:0}
-  #portal .admin-close-person>span:first-child,#portal .admin-close-message-cell{grid-column:1/-1}
+  #portal .admin-close-table{overflow-x:visible!important}
+  #portal .admin-close-person{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px 12px!important;
+    padding:12px 14px!important;
+    min-width:0!important;
+    width:100%!important;
+    border-top:1px solid rgba(0,0,0,.06)!important;
+    background:#ffffff!important;
+    box-sizing:border-box!important;
+  }
+  #portal .admin-close-person>span::before{display:none!important;content:none!important}
+  #portal .admin-close-person-cell{grid-column:1/-1!important;display:flex!important;align-items:center!important;min-width:0!important}
+  #portal .admin-close-person-meta{flex:1 1 auto!important;min-width:0!important}
   #portal .admin-close-person>*{min-width:0;white-space:normal}
   .mobile-scroll-hint{display:block;margin:0;padding:10px 12px;color:var(--muted);background:#f4f7fa;font-size:12px;line-height:1.5}
 

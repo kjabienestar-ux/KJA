@@ -22,6 +22,9 @@ test('attendance and sharing remain independent and future dates are never red',
   assert.equal(model.present({lab:true,cierre_estado:'incompleta'}).tone,'incomplete');
   assert.equal(model.present({lab:true,estado:'T'}).tone,'t');
   assert.equal(model.present({lab:true,futuro:true,cierre_estado:'incompleta'}).tone,'future');
+  assert.equal(model.present({lab:false,estado:'P',aplica_comparticiones:true,comparticiones_completas:true}).tone,'p');
+  assert.match(model.present({lab:false,estado:'P',aplica_comparticiones:true,comparticiones_completas:true}).reason,/Jornada laborada con entrada puntual fuera del horario habitual/);
+  assert.equal(model.present({lab:false,estado:'T'}).tone,'t');
 });
 test('day selection ignores stale responses and exposes recoverable errors',async()=>{
   const elements=new Map();

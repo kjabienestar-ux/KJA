@@ -2,8 +2,8 @@
   'use strict';
   function present(day){
     const sharing=day.aplica_comparticiones===true;
-    if(!day.lab&&!sharing)return null;
-    const prefix=day.lab?'':'No tenías jornada laboral. ';
+    if(!day.lab&&!sharing&&!day.estado)return null;
+    const prefix=(day.lab||day.estado)?'':'No tenías jornada laboral. ';
     if(day.futuro)return {state:'future',alert:false,reason:sharing?'Comparticiones programadas para esta fecha.':'Jornada programada para esta fecha.'};
     if(sharing&&day.comparticiones_vencidas&&!day.comparticiones_completas){
       return {state:'incomplete',alert:true,reason:prefix+'Tenías comparticiones de Facebook asignadas y el plazo venció sin completar las evidencias.'};
@@ -13,7 +13,7 @@
     const attendance=({P:'Presente.',T:'Entrada con tardanza.',J:'Jornada justificada.',NG:'No gestiona.'})[day.estado]||'Sin registro de entrada.';
     if(sharing){
       const reason=day.comparticiones_completas?'Comparticiones de Facebook entregadas.':'Comparticiones de Facebook pendientes; el plazo aún no vence.';
-      return {state:day.lab?(day.estado||'pending').toLowerCase():day.comparticiones_completas?'p':'sharing-pending',alert:false,reason:(day.lab?attendance+' ':prefix)+reason};
+      return {state:(day.lab||day.estado)?(day.estado||'pending').toLowerCase():day.comparticiones_completas?'p':'sharing-pending',alert:false,reason:(day.lab?attendance+' ':prefix)+reason};
     }
     return {state:(day.estado||'pending').toLowerCase(),alert:false,reason:attendance};
   }
