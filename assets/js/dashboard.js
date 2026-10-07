@@ -520,9 +520,20 @@ function setProfilePhotoBusy(on){
   if($('profile-photo-change'))$('profile-photo-change').textContent=on?'Preparando…':APP.avatar.path?'Cambiar foto':'Subir foto';
 }
 function preloadImage(url){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(url);img.onerror=reject;img.src=url})}
+function ownProfileBucket(){return APP.identity.hasPersonal?PROFILE_BUCKET:'admin-perfil-fotos';}
+async function ownProfilePhoto(action,path){
+  if(APP.identity.hasPersonal)return db.rpc(action,path===undefined?undefined:{p_path:path});
+  if(!APP.access.acceso_panel)return {error:new Error('Acceso no disponible')};
+  const metadata=APP.guidedTourUserMetadata||{};
+  if(action==='dash_mi_foto')return {data:{ok:true,path:metadata.kja_admin_foto||'',actualizada_at:metadata.kja_admin_foto_fecha}};
+  const changes={kja_admin_foto:action==='dash_quitar_foto'?'':path,kja_admin_foto_fecha:new Date().toISOString()};
+  const {error}=await db.auth.updateUser({data:changes});
+  if(!error)Object.assign(APP.guidedTourUserMetadata,changes);
+  return {error,data:{ok:!error}};
+}
 async function loadProfilePhoto(announce=false){
-  if(!APP.identity.hasPersonal)return;
-  const {data,error}=await db.rpc('dash_mi_foto');
+  if(!APP.identity.hasPersonal&&!APP.access.acceso_panel)return;
+  const {data,error}=await ownProfilePhoto('dash_mi_foto');
   if(error||!data?.ok){
     APP.avatar={path:'',url:'',busy:false};paintProfilePhoto('');
     if(announce)profilePhotoMessage('No se pudo cargar tu foto. Revisa la conexión e inténtalo otra vez.','error');
@@ -530,7 +541,7 @@ async function loadProfilePhoto(announce=false){
   }
   APP.avatar.path=data.path||'';APP.avatar.url='';paintProfilePhoto('');
   if(!APP.avatar.path){if(announce)profilePhotoMessage('Aún no tienes una foto de perfil.');return;}
-  const {data:signed,error:signedError}=await db.storage.from(PROFILE_BUCKET).createSignedUrl(APP.avatar.path,3600);
+  const {data:signed,error:signedError}=await db.storage.from(ownProfileBucket()).createSignedUrl(APP.avatar.path,3600);
   if(signedError||!signed?.signedUrl){if(announce)profilePhotoMessage('No se pudo abrir tu foto. Puedes reemplazarla o quitarla.','error');return;}
   try{
     const url=signed.signedUrl+(signed.signedUrl.includes('?')?'&':'?')+'v='+(data.actualizada_at||Date.now());
@@ -620,7 +631,7 @@ $('cropper-close-bg').onclick = closeCropperModal;
 
 $('cropper-save-btn').onclick = async () => {
   if (!cropperInstance || APP.avatar.busy) return;
-  const colab=APP.inicio?.colaborador?.id;if(!colab){ closeCropperModal(); return profilePhotoIssue('Tu perfil no está disponible en esta sesión.'); }
+  const colab=APP.inicio?.colaborador?.id||(APP.access.acceso_panel?APP.sessionUid:null);if(!colab){ closeCropperModal(); return profilePhotoIssue('Tu perfil no está disponible en esta sesión.'); }
 
   const canvas = cropperInstance.getCroppedCanvas({ width: 640, height: 640 });
   if (!canvas) return;
@@ -633,12 +644,12 @@ $('cropper-save-btn').onclick = async () => {
     try{
       const prepared=await compressProfilePhoto(blob),path=`${colab}/avatar.${prepared.ext}`,previous=APP.avatar.path;
       profilePhotoMessage('Subiendo la versión optimizada…');
-      const {error:uploadError}=await db.storage.from(PROFILE_BUCKET).upload(path,prepared.blob,{upsert:true,contentType:prepared.type,cacheControl:'3600'});
+      const {error:uploadError}=await db.storage.from(ownProfileBucket()).upload(path,prepared.blob,{upsert:true,contentType:prepared.type,cacheControl:'3600'});
       if(uploadError)throw uploadError;
-      const {data,error}=await db.rpc('dash_guardar_foto',{p_path:path});
+      const {data,error}=await ownProfilePhoto('dash_guardar_foto',path);
       if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'guardar');
       APP.avatar.path=path;
-      if(previous&&previous!==path)await db.storage.from(PROFILE_BUCKET).remove([previous]).catch(()=>{});
+      if(previous&&previous!==path)await db.storage.from(ownProfileBucket()).remove([previous]).catch(()=>{});
       await loadProfilePhoto();
       profilePhotoMessage(`Foto guardada · ${Math.max(1,Math.round(prepared.blob.size/1024))} KB`,'success');toast('Foto de perfil actualizada.');
     }catch(error){
@@ -652,9 +663,9 @@ async function removeProfilePhoto(){
   let removed=false;
   setProfilePhotoBusy(true);profilePhotoMessage('Quitando la foto…');
   try{
-    const path=APP.avatar.path,{error:storageError}=await db.storage.from(PROFILE_BUCKET).remove([path]);
+    const path=APP.avatar.path,{error:storageError}=await db.storage.from(ownProfileBucket()).remove([path]);
     if(storageError)throw storageError;
-    const {data,error}=await db.rpc('dash_quitar_foto');
+    const {data,error}=await ownProfilePhoto('dash_quitar_foto');
     if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'quitar');
     APP.avatar={path:'',url:'',busy:true};paintProfilePhoto('');profilePhotoMessage('Foto eliminada. Tus iniciales vuelven a estar visibles.','success');toast('Foto de perfil eliminada.');removed=true;
   }catch{profilePhotoMessage('No se pudo quitar la foto. Revisa tu conexión e inténtalo otra vez.','error')}
@@ -866,7 +877,7 @@ function syncProfileContext(view){
   if(!rail||!context)return;
   const sections=[...rail.querySelectorAll(':scope > .rail-pausa-activa, :scope > .rail-announcement'),...context.querySelectorAll(':scope > .rail-pausa-activa, :scope > .rail-announcement')];
   const unique=[...new Set(sections)];
-  if(view==='perfil')unique.forEach(section=>context.append(section));
+  if(view==='perfil'&&!APP.access.acceso_panel)unique.forEach(section=>context.append(section));
   else unique.forEach(section=>rail.append(section));
 }
 
@@ -883,7 +894,7 @@ function paintShell(view){
     b.classList.toggle('active',active);
     if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
-  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas');
+  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas'||(view==='perfil'&&APP.access.acceso_panel));
   syncSidebarCollapse();
 }
 
@@ -946,7 +957,7 @@ async function openPortal(activeSession,bootstrap=null){
   APP.year=lima.getFullYear(); APP.month=lima.getMonth()+1;
   $('access').hidden=true;
   const p=data.perfil||{}, c=data.colaborador;
-  const name=c?.nombre||p.nombre||'Equipo KJA', ini=initials(name), role={sistemas:'Administrador de sistemas',lider:'Líder técnico',colider:'Co-líder técnico',miembro:'Colaborador'}[p.nivel]||'Colaborador';
+  const name=(APP.access.acceso_panel&&APP.guidedTourUserMetadata.kja_nombre_visible)||c?.nombre||p.nombre||'Equipo KJA', ini=initials(name), role=APP.access.acceso_panel?'Administrador':{sistemas:'Administrador de sistemas',lider:'Líder técnico',colider:'Co-líder técnico',miembro:'Colaborador'}[p.nivel]||'Colaborador';
   APP.identity={nivel:p.nivel||'miembro',hasPersonal:!!c,isLeader:['lider','colider'].includes(p.nivel)&&!!c,isSystem:p.nivel==='sistemas'};
   $('portal').dataset.role=APP.identity.nivel;
   $('portal').dataset.access=APP.access.rol;
@@ -961,6 +972,7 @@ async function openPortal(activeSession,bootstrap=null){
   $('mobile-home-area').textContent='Que tengas un buen día';
   $('mobile-home-dni').textContent=c?.dni?`DNI ${c.dni}`:'Perfil institucional';
   ['personal-nav-divider','nav-inicio','nav-asistencia','nav-perfil'].forEach(id=>$(id).hidden=!APP.identity.hasPersonal);
+  $('nav-perfil').hidden=!(APP.identity.hasPersonal||APP.access.acceso_panel);
   $('team-nav-divider').hidden=!APP.identity.isLeader;$('nav-equipo').hidden=!APP.identity.isLeader;
   $('nav-gestion').hidden=!APP.access.acceso_panel; $('admin-nav-divider').hidden=!APP.access.acceso_panel;
   window.KJAMarketingPortal?.init();
@@ -984,6 +996,8 @@ async function openPortal(activeSession,bootstrap=null){
   $('admin-roles-tab').hidden=!managesRoles; const rolesModule=$('admin-roles-module'); if(rolesModule)rolesModule.hidden=!managesRoles;
   if(c){ renderHome(); renderProfile(); }
   else if(APP.access.acceso_panel){
+    renderProfile();
+    void loadProfilePhoto();
     $('rail-area').textContent='Vista de Dirección';
     $('rail-schedule-list').innerHTML='<p class="rail-empty">Esta cuenta administra la asistencia del equipo.</p>';
   }else if(APP.identity.isLeader){
@@ -2162,7 +2176,7 @@ async function submitPersonalRequest(event){
 }
 
 const PROFILE_COVERS=['cielo','jardin','noche'];
-function profileCoverKey(){ return `kja.profile-cover.${APP.inicio?.colaborador?.id||'default'}`; }
+function profileCoverKey(){ return `kja.profile-cover.${APP.inicio?.colaborador?.id||APP.sessionUid||'default'}`; }
 function syncProfileCover(){
   const identity=document.querySelector('#view-perfil .profile-identity');if(!identity)return;
   let cover='cielo';
@@ -2179,8 +2193,40 @@ function setProfileCover(cover){
   syncProfileCover();
   const picker=document.querySelector('.profile-theme-picker');if(picker)picker.open=false;
 }
+function renderAdminProfileSettings(){
+  const admin=!!APP.access.acceso_panel;
+  $('view-perfil').classList.toggle('is-admin-profile',admin);
+  const coverNames=admin?['Arena','Oliva','Grafito']:['Cielo','Jardín','Noche'];
+  document.querySelectorAll('[data-profile-cover]').forEach((button,index)=>{button.textContent=coverNames[index];});
+  $('admin-profile-settings').hidden=!admin;
+  $('profile-description').textContent=admin?'Personaliza tu nombre visible, foto y portada.':'Puedes actualizar tu foto. Dirección gestiona los demás datos laborales.';
+  $('profile-work-notice').hidden=!APP.identity.hasPersonal;
+  if(admin)$('admin-profile-name').value=APP.guidedTourUserMetadata.kja_nombre_visible||APP.inicio?.colaborador?.nombre||APP.inicio?.perfil?.nombre||'';
+}
+async function saveAdminProfile(event){
+  event.preventDefault();if(!APP.access.acceso_panel)return;
+  const input=$('admin-profile-name'),name=input.value.trim().replace(/\s+/g,' '),button=$('admin-profile-save'),message=$('admin-profile-message');
+  if(!name||name.length>80){message.textContent='Escribe un nombre de 1 a 80 caracteres.';return;}
+  button.disabled=true;message.textContent='Guardando…';
+  try{
+    const {error}=await db.auth.updateUser({data:{kja_nombre_visible:name}});if(error)throw error;
+    APP.guidedTourUserMetadata.kja_nombre_visible=name;
+    ['side-name','rail-name','profile-name'].forEach(id=>$(id).textContent=name);
+    $('mobile-home-name').textContent=name.split(' ')[0];
+    PROFILE_AVATAR_IDS.forEach(id=>{const el=$(id);if(el){el.dataset.avatarInitials=initials(name);el.textContent=initials(name);}});
+    paintProfilePhoto(APP.avatar.url);message.textContent='Nombre actualizado.';
+  }catch{message.textContent='No se pudo guardar. Inténtalo de nuevo.';}finally{button.disabled=false;}
+}
 function renderProfile(){
-  const c=APP.inicio.colaborador;if(!c)return; $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
+  renderAdminProfileSettings();
+  const c=APP.inicio.colaborador;if(APP.access.acceso_panel||!c){
+    $('profile-avatar').textContent=initials($('side-name').textContent);
+    $('profile-name').textContent=$('side-name').textContent;
+    $('profile-area').textContent='Panel de administración';
+    $('profile-link').textContent='Administrador';
+    $('profile-fields').innerHTML='';
+    paintProfilePhoto(APP.avatar.url);syncProfileCover();return;
+  } $('profile-avatar').textContent=initials(c.nombre); $('profile-name').textContent=(APP.access.acceso_panel&&APP.guidedTourUserMetadata.kja_nombre_visible)||c.nombre; $('profile-area').textContent=c.area||'Sin área';paintProfilePhoto(APP.avatar.url);
   $('profile-link').textContent=({practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Prácticas + voluntariado'}[c.tipo_vinculo]||c.tipo_vinculo||'Sin vínculo');
   const dates=v=>v?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(v+'T12:00:00')):'—';
   const fields=[['DNI',c.dni||'—'],['Área',c.area||'—'],['Horario general',`${fmtTime(c.hora_inicio)} — ${fmtTime(c.hora_fin)}`],['Días laborables',(c.dias_laborables||[]).map(n=>['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][n]).join(', ')||'—'],['Inicio de vínculo',dates(c.contrato_inicio)],['Fin de referencia',dates(c.contrato_fin_referencia)],['Meta de horas',c.contrato_horas?`${c.contrato_horas} h`:'—'],['Horas previas',`${Number(c.horas_previas||0)} h`]];
@@ -3028,8 +3074,9 @@ async function saveAdminState(personId,state,remove){
 function goView(view){
   if(view==='cert-cuentas'&&!(APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel)){toast('Esta sección está reservada a Dirección y Sistemas.',true);return;}
   if(view==='gestion'&&!APP.access.acceso_panel){toast('Esta cuenta no tiene acceso administrativo.',true);return;}
-  if(['inicio','asistencia','perfil'].includes(view)&&!APP.identity.hasPersonal){toast('Esta cuenta no está vinculada a un perfil personal.',true);return;}
+  if((['inicio','asistencia'].includes(view)||(view==='perfil'&&!APP.access.acceso_panel))&&!APP.identity.hasPersonal){toast('Esta cuenta no está vinculada a un perfil personal.',true);return;}
   if(view==='equipo'&&!APP.identity.isLeader){toast('Mi equipo está reservado al líder y a los co-líderes técnicos del área.',true);return;}
+  if(view==='perfil')renderProfile();
   paintShell(view);
   if(view==='cert-cuentas'){closeMenu();return loadCertificateAccounts();}
   if(matchMedia('(max-width:900px)').matches)window.scrollTo(0,0);
@@ -3050,6 +3097,10 @@ $('mobile-home-logout').onclick=()=>logout();
 $('mobile-profile-link').onclick=()=>goView('perfil');
 $('profile-logout').onclick=()=>logout();
 $('profile-mobile-logout').onclick=()=>logout();
+$('admin-profile-settings').onsubmit=saveAdminProfile;
+$('admin-edit-photo').onclick=openProfilePhotoDialog;
+$('admin-edit-cover').onclick=()=>{const picker=document.querySelector('.profile-theme-picker');picker.open=true;picker.querySelector('button')?.focus();};
+$('side-profile-link').onclick=()=>goView('perfil');
 $('profile-photo-camera').onclick=openProfilePhotoDialog;
 $('profile-photo-dialog-close').onclick=()=>closeProfilePhotoDialog();
 $('profile-photo-dialog').addEventListener('close',()=>{

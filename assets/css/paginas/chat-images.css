@@ -23,3 +23,21 @@
 .chat-image-dialog button:active{transform:scale(.96)}
 .chat-image-dialog button:focus-visible{outline:3px solid #1266c5;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.chat-image-dialog button{transition:none}}
+
+/* Aper?u int?gr? au champ de composition. */
+.kja-chat .chat-window:has(.chat-image-preview:not(:empty)) { --attachment-inset: 14px; }
+.kja-chat .chat-image-preview:not(:empty) { position: relative; display: flex; align-items: flex-end; gap: 14px; margin: 10px var(--attachment-inset) 0; padding: 12px 12px 14px; background: #fff; border: 1px solid #e2e4df; border-bottom: 0; border-radius: 22px 22px 0 0; }
+.kja-chat .chat-image-preview-tile { position: relative; flex: 0 0 auto; width: 126px; height: clamp(105px,22dvh,178px); border-radius: 16px; background: #f1f2ee; overflow: hidden; }
+.kja-chat .chat-image-preview-tile img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; }
+.kja-chat .chat-image-preview-tile button { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 32px; height: 32px; min-height: 32px; padding: 7px; margin: 0; border: 1px solid #ffffff70; border-radius: 50%; color: #fff; background: #343a3ee6; box-shadow: 0 2px 6px #0002; cursor: pointer; }
+.kja-chat .chat-image-preview-tile button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
+.kja-chat .chat-image-preview-tile button:hover { background: #171e22; }
+.kja-chat .chat-image-preview-tile button:focus-visible { outline: 2px solid #168b55; outline-offset: -2px; }
+.kja-chat .chat-image-preview-status { color: #717b72; font-size: 11px; line-height: 1.5; padding-bottom: 4px; }
+.kja-chat .chat-image-preview:not(:empty)+.chat-compose { margin: 0 var(--attachment-inset); padding: 10px 12px; border: 1px solid #e2e4df; border-top: 0; border-radius: 0 0 22px 22px; background: #fff; }
+.kja-chat .chat-image-preview:not(:empty)+.chat-compose::before { content: ''; position: absolute; left: 14px; right: 14px; top: 0; height: 1px; background: #e8ebe5; }
+.kja-chat .chat-image-preview:not(:empty)+.chat-compose textarea { padding-inline: 5px; background: #fff; border-radius: 8px; }
+.kja-chat .chat-image-preview:not(:empty)+.chat-compose .chat-send { border-radius: 50%; background: #20b75a; }
+.kja-chat .chat-image-preview:not(:empty)+.chat-compose .chat-send svg { transform: rotate(-90deg); }
+.kja-chat .chat-image-preview:not(:empty)+.chat-compose .chat-attach { background: #f2f4ef; }
+@media(max-width:420px) { .kja-chat .chat-window:has(.chat-image-preview:not(:empty)) { --attachment-inset: 8px; } .kja-chat .chat-image-preview-tile { width: 108px; } }

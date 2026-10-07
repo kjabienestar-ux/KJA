@@ -180,3 +180,46 @@
   .chat-compose{padding:10px 12px 6px}.chat-hint{padding:2px 14px 10px}
 }
 @media(max-height:520px) and (min-width:701px){.kja-chat{bottom:12px}.chat-panel{height:calc(100dvh - 94px);bottom:70px}.chat-heading{min-height:56px;padding:8px 16px}}
+
+/* Selector de emojis inspirado en el teclado de iPhone. */
+.kja-chat .chat-emoji-panel { width: min(370px,calc(100% - 24px)); padding: 12px; border-radius: 24px; background: #f1f1f3; box-shadow: 0 12px 36px #15171c26; border: 1px solid #ffffff; }
+.kja-chat .chat-emoji-search { display: block; width: 100%; min-height: 38px; margin: 0 0 12px; padding: 9px 13px; border: 0; border-radius: 11px; background: #e3e3e8; color: #29292e; font: 14px/1.4 Inter,system-ui,sans-serif; }
+.kja-chat .chat-emoji-search::placeholder { color: #686870; }
+.kja-chat .chat-emoji-caption { padding: 0 6px 8px; color: #6a6a72; font: 600 10px/1.5 Inter,system-ui,sans-serif; letter-spacing: .07em; text-transform: uppercase; }
+.kja-chat .chat-emoji-grid { height: 216px; max-height: min(216px,35dvh); align-content: start; gap: 3px; scrollbar-color: #bcbcc3 transparent; }
+.kja-chat .chat-emoji { height: 40px; font-size: 28px; font-family: 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif; border-radius: 10px; }
+.kja-chat .chat-emoji:hover { background: #dedee4; }
+.kja-chat .chat-emoji-tabs { margin: 10px 0 0; padding: 8px 0 0; border: 0; border-top: 1px solid #d8d8df; gap: 4px; }
+.kja-chat .chat-emoji-tab { height: 34px; border-radius: 50%; font-size: 19px; filter: grayscale(1); opacity: .65; }
+.kja-chat .chat-emoji-tab[aria-pressed=true] { background: #dcdce2; box-shadow: none; opacity: 1; }
+.kja-chat .chat-emoji-empty { grid-column: 1/-1; padding: 24px 12px; text-align: center; font-size: 13px; color: #686870; }
+.kja-chat .chat-emoji-panel :focus-visible { outline: 2px solid #73737e; outline-offset: 2px; }
+@media(max-width: 420px) { .kja-chat .chat-emoji { font-size: 25px; } .kja-chat .chat-emoji-search { font-size: 16px; } }
+
+/* Im?genes consistentes: el selector no depende de la fuente de Windows. */
+.kja-chat .chat-emoji-grid { grid-template-columns: repeat(7,minmax(0,1fr)); gap: 7px 3px; height: 240px; overflow-x: hidden; padding: 3px 2px; }
+.kja-chat .chat-emoji { display: grid; place-items: center; min-width: 0; height: 45px; padding: 3px; }
+.kja-chat .chat-emoji-art { display: block; width: 36px; height: 36px; max-width: 100%; object-fit: contain; pointer-events: none; }
+@media(max-width:360px) { .kja-chat .chat-emoji-art { width: 30px; height: 30px; } }
+
+/* El historial utiliza el mismo arte que el selector; los mensajes siguen siendo texto. */
+.kja-chat .chat-bubble .chat-emoji-art { display: inline-block; width: 22px; height: 22px; max-width: none; margin: 0 1px; vertical-align: -.3em; }
+.kja-chat .chat-bubble.chat-bubble-emoji-only { line-height: 1.4; }
+.kja-chat .chat-bubble-emoji-only .chat-emoji-art { width: 36px; height: 36px; margin: 2px; vertical-align: middle; }
+
+/* Conversaci?n con tonos y burbujas inspirados en WhatsApp. */
+.kja-chat .chat-history { background-color: #f5f1e9; background-image: url('../../../images/chat/wallpaper.svg'); background-size: 280px 280px; gap: 12px; }
+.kja-chat .chat-window .chat-heading { background: #faf8f4; border-bottom-color: #e8e3da; }
+.kja-chat .chat-message { position: relative; background: #fff; border-radius: 12px; padding: 0; box-shadow: 0 1px 2px #342d2014; min-width: 78px; }
+.kja-chat .chat-message[data-mine=true] { background: #d9fdd3; }
+.kja-chat .chat-message .chat-bubble { padding: 9px 12px 2px; background: transparent; border: 0; box-shadow: none; border-radius: inherit; color: #202c33; font-size: 14px; line-height: 1.5; }
+.kja-chat .chat-message time { margin: 0; padding: 0 10px 6px; text-align: right; color: #667467; font-size: 10px; }
+.kja-chat .chat-message[data-follow=false]::before { content: ''; position: absolute; top: 0; left: -6px; width: 12px; height: 12px; background: #fff; clip-path: polygon(0 0,100% 0,100% 100%); }
+.kja-chat .chat-message[data-mine=true][data-follow=false]::before { left: auto; right: -6px; background: #d9fdd3; transform: scaleX(-1); }
+.kja-chat .chat-day { padding: 5px 12px; border: 0; border-radius: 8px; background: #fffdf8; color: #58635c; box-shadow: 0 1px 2px #342d2014; font-weight: 500; }
+.kja-chat .chat-compose,.kja-chat .chat-hint { background: #faf8f4; border-color: #e8e3da; }
+.kja-chat .chat-compose textarea { background: #fff; caret-color: #15835f; }
+.kja-chat .chat-compose textarea:focus { border-color: #63ae92; box-shadow: 0 0 0 2px #15835f18; }
+.kja-chat .chat-compose .chat-send { background: #1ba566; color: #fff; }
+.kja-chat .chat-compose .chat-send:hover:not(:disabled) { background: #168b55; }
+.kja-chat .chat-message .chat-bubble::selection { background: #b7dfce; color: #202c33; }
