@@ -18,32 +18,12 @@
         }
     };
 
-    /* Paletas de portada: rosa, azul, naranja, turquesa, morado y azul noche. */
-    var TONES = [
-        ['#ff3d96', '#c4005e'],
-        ['#1c6fd6', '#0a2f6e'],
-        ['#ff9a3c', '#e8155f'],
-        ['#14a6a0', '#0b5f7a'],
-        ['#9b5cf6', '#4b1f9e'],
-        ['#123a73', '#09244c']
-    ];
-
     var MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
     function esc(value) {
         return String(value == null ? '' : value).replace(/[&<>'"]/g, function (c) {
             return { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c];
         });
-    }
-
-    /* FNV-1a: cada tema conserva su color y temas distintos se reparten mejor entre las paletas. */
-    function toneFor(tema) {
-        var text = String(tema || ''), hash = 0x811c9dc5;
-        for (var i = 0; i < text.length; i++) {
-            hash ^= text.charCodeAt(i);
-            hash = Math.imul(hash, 0x01000193) >>> 0;
-        }
-        return TONES[hash % TONES.length];
     }
 
     function formatDate(iso) {
@@ -93,13 +73,24 @@
         return PLATFORMS[item && item.plataforma] ? item.plataforma : 'youtube';
     }
 
-    /* Portada: imagen propia o una generada con la identidad de KJA. */
-    function coverHtml(item) {
+    /* Vista previa de la card: el mismo reproductor, pausado y en silencio, para mostrar un fotograma real. */
+    function previewSrc(item) {
+        var embed = videoEmbed(item);
+        if (!embed) return '';
+        var src = embed.src;
+        if (embed.platform === 'youtube') return src.replace('autoplay=1', 'autoplay=0&controls=0&mute=1&disablekb=1');
+        if (embed.platform === 'facebook') return src.replace('autoplay=true', 'autoplay=false').replace('show_text=false', 'show_text=false&mute=1');
+        return src.replace('autoplay=1', 'autoplay=0');
+    }
+
+    /* Portada: imagen propia, vista previa del video (solo en cards) o una portada generada con la identidad de KJA. */
+    function coverHtml(item, live) {
         if (item.portada) {
             return '<img class="kv-cover-img" src="' + esc(item.portada) + '" alt="" loading="lazy" decoding="async">';
         }
-        var tone = toneFor(item.tema);
-        return '<span class="kv-art" style="--tone-a:' + tone[0] + ';--tone-b:' + tone[1] + '">' +
+        var preview = live ? previewSrc(item) : '';
+        return '<span class="kv-art">' +
+            (preview ? '<span class="kv-live" data-preview-src="' + esc(preview) + '" aria-hidden="true"></span>' : '') +
             '<span class="kv-art-logo"><img src="images/logo/kja.webp" alt="" width="418" height="121" loading="lazy" decoding="async"></span>' +
             '<span class="kv-art-eyebrow">' + esc(item.tema) + '</span>' +
             '<span class="kv-art-title">' + esc(item.titulo) + '</span>' +
@@ -117,16 +108,43 @@
     var PLAY_ICON = '<span class="kv-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></span>';
 
     function cardHtml(item, index) {
-        var tone = toneFor(item.tema);
         return '<li class="kv-item">' +
             '<button type="button" class="kv-card" data-video-index="' + index + '" aria-haspopup="dialog" aria-label="Ver video: ' + esc(item.titulo) + '">' +
-                '<span class="kv-cover">' + coverHtml(item) + badgesHtml(item) + PLAY_ICON + '</span>' +
+                '<span class="kv-cover">' + coverHtml(item, true) + badgesHtml(item) + PLAY_ICON + '</span>' +
                 '<span class="kv-card-body">' +
                     '<span class="kv-card-title">' + esc(item.titulo) + '</span>' +
-                    '<span class="kv-card-meta"><i style="background:' + tone[0] + '"></i>' + esc(item.tema) + '<span aria-hidden="true">·</span>' + esc(formatDate(item.fecha)) + '</span>' +
+                    '<span class="kv-card-meta"><i></i>' + esc(item.tema) + '<span aria-hidden="true">·</span>' + esc(formatDate(item.fecha)) + '</span>' +
                 '</span>' +
             '</button>' +
         '</li>';
+    }
+
+    /* Los iframes se crean solo cuando la card entra en pantalla, para no cargar todos los reproductores a la vez. */
+    function mountPreviews(doc) {
+        var slots = doc.querySelectorAll('.kv-live[data-preview-src]');
+        if (!slots.length || typeof IntersectionObserver === 'undefined') return;
+        /* El iframe mide siempre 360x640 y se reduce al tamaño de la portada: así la interfaz del reproductor conserva sus proporciones en cualquier pantalla. */
+        var fit = function (slot) { if (slot.clientWidth) slot.style.setProperty('--kv-s', String(slot.clientWidth / 360)); };
+        var resizer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(function (items) { items.forEach(function (item) { fit(item.target); }); }) : null;
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                var slot = entry.target;
+                observer.unobserve(slot);
+                fit(slot);
+                if (resizer) resizer.observe(slot);
+                var frame = doc.createElement('iframe');
+                frame.setAttribute('tabindex', '-1');
+                frame.setAttribute('aria-hidden', 'true');
+                frame.setAttribute('loading', 'lazy');
+                frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+                frame.title = '';
+                frame.addEventListener('load', function () { slot.classList.add('is-ready'); });
+                frame.src = slot.getAttribute('data-preview-src');
+                slot.appendChild(frame);
+            });
+        }, { rootMargin: '200px' });
+        for (var i = 0; i < slots.length; i++) observer.observe(slots[i]);
     }
 
     function createVideosPage(doc, data, demo) {
@@ -142,6 +160,7 @@
             if (grid) grid.innerHTML = videos.map(cardHtml).join('');
             if (empty) empty.hidden = videos.length > 0;
             renderFeatured();
+            mountPreviews(doc);
         }
 
         function renderFeatured() {
@@ -152,7 +171,7 @@
             featured.innerHTML = '<div class="kv-feature-stack">' + stack.map(function (item, index) {
                 return '<button type="button" class="kv-feature-card kv-feature-card--' + (index + 1) + '" data-video-index="' + index + '" aria-haspopup="dialog" ' +
                     (index ? 'tabindex="-1" aria-hidden="true"' : 'aria-label="Ver el video más reciente: ' + esc(item.titulo) + '"') + '>' +
-                    '<span class="kv-cover">' + coverHtml(item) + badgesHtml(item) + PLAY_ICON + '</span>' +
+                    '<span class="kv-cover">' + coverHtml(item, true) + badgesHtml(item) + PLAY_ICON + '</span>' +
                 '</button>';
             }).join('') + '</div>' +
             '<p class="kv-feature-label"><b>Más reciente</b>' + esc(videos[0].titulo) + '</p>';
@@ -160,13 +179,14 @@
 
         function slideHtml(item, index) {
             return '<div class="kv-slide" data-slide-index="' + index + '">' +
-                '<div class="kv-slide-media"><span class="kv-cover">' + coverHtml(item) + badgesHtml(item) + PLAY_ICON + '</span></div>' +
+                '<div class="kv-slide-media"><span class="kv-cover">' + coverHtml(item, true) + badgesHtml(item) + PLAY_ICON + '</span></div>' +
                 '<div class="kv-slide-caption"><b>' + esc(item.titulo) + '</b><small>' + esc(item.tema) + '</small></div>' +
             '</div>';
         }
 
         function buildViewer() {
             stage.innerHTML = videos.map(slideHtml).join('');
+            mountPreviews(doc);
             var dots = $('kv-dots');
             if (dots) {
                 dots.innerHTML = videos.map(function (item, index) {
@@ -340,7 +360,7 @@
         };
     }
 
-    root.KJAVideos = { sortVideos: sortVideos, videoEmbed: videoEmbed, platformOf: platformOf, formatDate: formatDate, toneFor: toneFor, createVideosPage: createVideosPage };
+    root.KJAVideos = { sortVideos: sortVideos, videoEmbed: videoEmbed, platformOf: platformOf, formatDate: formatDate, previewSrc: previewSrc, coverHtml: coverHtml, createVideosPage: createVideosPage };
 
     /* VIDEO_DATA y VIDEOS_DEMO son const globales de videos-data.js: no cuelgan de window. */
     if (typeof VIDEO_DATA !== 'undefined' && root.document && root.document.getElementById('kv-grid')) {
