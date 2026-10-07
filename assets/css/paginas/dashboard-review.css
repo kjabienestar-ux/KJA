@@ -1,0 +1,257 @@
+/* Revision y carga de evidencias: superficies suaves inspiradas en la referencia. */
+#admin-review-modal{
+  --review-ink:#403955;
+  --review-muted:#706981;
+  --review-canvas:#eeedf5;
+  --review-line:#e0ddea;
+  --review-accent:#766498;
+  color:var(--review-ink);
+}
+#admin-review-modal .modal-backdrop{background:rgba(49,45,66,.46)}
+#admin-review-modal .admin-review-sheet{
+  border:6px solid #fff;
+  border-radius:28px;
+  background:var(--review-canvas);
+  box-shadow:0 24px 80px rgba(42,34,65,.22);
+}
+#admin-review-modal .admin-review-head{
+  padding:20px 22px;
+  background:#faf9fd;
+}
+#admin-review-modal .admin-review-person-mark{
+  color:#655083;
+  background:#e8dff4;
+  border-radius:16px;
+  box-shadow:0 4px 10px rgba(77,56,108,.08);
+}
+#admin-review-modal .admin-review-head h2{
+  color:var(--review-ink);
+  font-weight:600;
+}
+#admin-review-modal .admin-review-head p{
+  color:var(--review-muted);
+  line-height:1.5;
+}
+#admin-review-modal .modal-close{
+  width:36px;
+  height:36px;
+  color:#756884;
+  background:#eeebf4;
+  border:0;
+  border-radius:50%;
+}
+#admin-review-modal .modal-close:hover{color:#4d3f63;background:#e3dcee}
+#admin-review-modal .admin-review-tabs{
+  padding:12px 20px;
+  gap:10px;
+  border:0;
+  background:var(--review-canvas);
+  scrollbar-color:#c7bfd6 transparent;
+}
+#admin-review-modal .admin-review-tabs button{
+  padding:11px 14px;
+  border:1px solid transparent;
+  border-radius:15px;
+  color:var(--review-muted);
+  background:#f8f7fb;
+  transition:background-color .15s ease,border-color .15s ease;
+}
+#admin-review-modal .admin-review-tabs button:hover{background:#e8e8f5}
+#admin-review-modal .admin-review-tabs button.active{
+  color:#444c78;
+  background:#e1eafb;
+  border-color:#a8bcdf;
+  box-shadow:0 3px 8px rgba(68,76,120,.06);
+}
+#admin-review-modal .admin-review-tabs button span{font-weight:600;font-size:12px}
+#admin-review-modal .admin-review-tabs button small{font-size:10px}
+#admin-review-modal .admin-review-workspace{padding:4px 16px 16px;gap:16px}
+#admin-review-modal .admin-review-gallery-wrap{
+  padding:18px;
+  border-radius:22px;
+  background:#f8f7fc;
+}
+#admin-review-modal .admin-review-gallery-head{align-items:center;gap:10px}
+#admin-review-modal .admin-review-gallery-head b{color:var(--review-ink);font-weight:600}
+#admin-review-modal .admin-review-gallery-head small{color:var(--review-muted);line-height:1.5}
+#admin-review-modal .admin-review-state{color:#805a19;background:#fff0cc;font-weight:600}
+#admin-review-modal .admin-review-state[data-state="aprobada"]{color:#35654f;background:#e1f0e6}
+#admin-review-modal .admin-review-state[data-state="observada"]{color:#934459;background:#f8e5eb}
+#admin-review-modal .admin-review-gallery{gap:12px;scrollbar-color:#c7bfd6 transparent}
+#admin-review-modal .admin-review-media{
+  border:1px solid #e6e2ed;
+  border-radius:16px;
+  color:var(--review-ink);
+  background:#fff;
+  box-shadow:none;
+}
+#admin-review-modal .admin-review-media img{object-fit:contain}
+#admin-review-modal .admin-review-media>span{
+  color:#504460;
+  background:#f2edf9;
+  border:1px solid #e1d8eb;
+  border-radius:8px;
+  font-weight:600;
+}
+#admin-review-modal .admin-review-media>a{
+  color:#55456e;
+  background:#f2edf9;
+  border:1px solid #e1d8eb;
+  border-radius:10px;
+}
+#admin-review-modal .admin-review-media>a:hover{background:#e4d9f2}
+#admin-review-modal .admin-review-decision{
+  padding:20px;
+  border:0;
+  border-radius:22px;
+  background:#fff;
+}
+#admin-review-modal .admin-review-note,
+#admin-review-modal .admin-review-history{border-color:var(--review-line)}
+#admin-review-modal .admin-review-note small,
+#admin-review-modal .admin-review-history small{color:var(--review-muted);font-weight:600;letter-spacing:.05em}
+#admin-review-modal .admin-review-note p{color:var(--review-ink)}
+#admin-review-modal .admin-review-observation{color:var(--review-ink);font-size:12px;font-weight:600}
+#admin-review-modal .admin-review-observation textarea{
+  min-height:130px;
+  padding:13px;
+  color:var(--review-ink);
+  background:#f7f6fb;
+  border-color:var(--review-line);
+  border-radius:14px;
+  caret-color:var(--review-accent);
+}
+#admin-review-modal .admin-review-observation textarea::placeholder{color:#7a7287;opacity:1}
+#admin-review-modal .admin-review-observation textarea:focus{
+  border-color:var(--review-accent);
+  box-shadow:0 0 0 3px #eee8f7;
+}
+#admin-review-modal .admin-review-observation>small{color:var(--review-muted);line-height:1.6;font-size:10px}
+#admin-review-modal .admin-review-message,
+#admin-review-modal .admin-review-loading{color:var(--review-muted)}
+#admin-review-modal .admin-review-message.is-error,
+#admin-review-modal .admin-review-error{color:#934459}
+#admin-review-modal .admin-review-decision footer{bottom:-20px;padding-bottom:20px;border-color:var(--review-line);gap:10px}
+#admin-review-modal .admin-review-decision footer button{border-radius:14px;font-size:12px;font-weight:600}
+#admin-review-modal .admin-review-observe{color:#934459;border-color:#ecc9d3;background:#fcf2f5}
+#admin-review-modal .admin-review-observe:hover:not(:disabled){background:#f8e4eb}
+#admin-review-modal .admin-review-approve{
+  color:#fff;
+  background:#487461;
+  box-shadow:0 5px 12px rgba(55,97,77,.13);
+}
+#admin-review-modal .admin-review-approve:hover:not(:disabled){background:#365d4c}
+#admin-review-modal .admin-review-decision footer button:disabled{
+  color:#777180;
+  background:#eeecf1;
+  border-color:#dedbe4;
+  box-shadow:none;
+  cursor:not-allowed;
+}
+#admin-review-modal :is(button,a,textarea):focus-visible{outline:2px solid var(--review-accent);outline-offset:3px}
+#admin-review-modal ::selection{color:#403955;background:#e1d5f2}
+#admin-review-modal .admin-review-decision{scrollbar-width:thin;scrollbar-color:#c7bfd6 transparent}
+@media(max-width:860px){
+  #admin-review-modal .admin-review-workspace{padding:4px 12px 12px}
+  #admin-review-modal .admin-review-decision{margin-top:12px}
+  #admin-review-modal .admin-review-gallery-wrap{padding:16px}
+}
+@media(max-width:600px){
+  #admin-review-modal .admin-review-sheet{border-width:4px;border-radius:24px 24px 0 0}
+  #admin-review-modal .admin-review-head{padding:16px 12px;gap:10px}
+  #admin-review-modal .admin-review-head h2{font-size:17px;white-space:normal}
+  #admin-review-modal .admin-review-tabs{padding:10px 12px}
+  #admin-review-modal .admin-review-gallery-head{flex-wrap:wrap}
+  #admin-review-modal .admin-review-decision{padding:18px 16px}
+  #admin-review-modal .admin-review-decision footer{position:static;padding-bottom:env(safe-area-inset-bottom,0px)}
+}
+@media(prefers-reduced-motion:reduce){
+  #admin-review-modal .admin-review-sheet{animation:none}
+  #admin-review-modal .admin-review-tabs button{transition:none}
+}
+
+/* Carga delegada: mismo lenguaje visual, conservando el formulario. */
+#admin-evidence-modal{
+  --upload-ink:#403955;
+  --upload-muted:#706981;
+  --upload-line:#e0ddea;
+  --upload-accent:#766498;
+  color:var(--upload-ink);
+}
+#admin-evidence-modal .modal-backdrop{background:rgba(49,45,66,.46)}
+#admin-evidence-modal .admin-evidence-sheet{
+  border:6px solid #fff;
+  border-radius:28px;
+  background:#fff;
+  box-shadow:0 24px 80px rgba(42,34,65,.22);
+}
+#admin-evidence-modal .admin-evidence-head{background:#faf9fd;border-color:var(--upload-line)}
+#admin-evidence-modal .admin-evidence-head h2{color:var(--upload-ink);font-weight:600}
+#admin-evidence-modal .admin-evidence-head p{color:var(--upload-muted);line-height:1.5}
+#admin-evidence-modal .admin-evidence-person-mark{
+  color:#655083;
+  background:#e8dff4;
+  border-radius:16px;
+  box-shadow:0 4px 10px rgba(77,56,108,.08);
+}
+#admin-evidence-modal .modal-close{width:36px;height:36px;color:#756884;background:#eeebf4;border:0;border-radius:50%}
+#admin-evidence-modal .modal-close:hover{color:#4d3f63;background:#e3dcee}
+#admin-evidence-modal .admin-evidence-requirements{background:#f4f1fa;border-color:var(--upload-line)}
+#admin-evidence-modal .admin-evidence-requirements h3,
+#admin-evidence-modal .admin-evidence-compose>header h3{color:var(--upload-ink);font-weight:600}
+#admin-evidence-modal .admin-evidence-requirements>p,
+#admin-evidence-modal .admin-evidence-compose>header p{color:var(--upload-muted);line-height:1.5}
+#admin-evidence-modal .admin-evidence-requirement{color:var(--upload-ink);background:#faf9fd;border-radius:15px}
+#admin-evidence-modal .admin-evidence-requirement:hover{background:#e8e8f5}
+#admin-evidence-modal .admin-evidence-requirement.active{color:#444c78;background:#e1eafb;border-color:#a8bcdf;box-shadow:0 3px 8px rgba(68,76,120,.06)}
+#admin-evidence-modal .admin-evidence-requirement b{font-weight:600}
+#admin-evidence-modal .admin-evidence-requirement small{color:#656880}
+#admin-evidence-modal .admin-evidence-requirement>svg{color:#756884}
+#admin-evidence-modal .admin-evidence-requirement>i,
+#admin-evidence-modal .admin-evidence-kind-icon{color:#655083;background:#eae2f3;border-radius:13px}
+#admin-evidence-modal .admin-evidence-audit-note{border-color:var(--upload-line)}
+#admin-evidence-modal .admin-evidence-audit-note>svg{stroke:#658775}
+#admin-evidence-modal .admin-evidence-audit-note b{color:#476757}
+#admin-evidence-modal .admin-evidence-audit-note small{color:var(--upload-muted)}
+#admin-evidence-modal .admin-evidence-compose{background:#fff}
+#admin-evidence-modal .admin-evidence-format legend,
+#admin-evidence-modal .admin-evidence-format b{color:var(--upload-ink);font-weight:600}
+#admin-evidence-modal .admin-evidence-format label>span{color:var(--upload-ink);background:#faf9fd;border-color:var(--upload-line);border-radius:14px}
+#admin-evidence-modal .admin-evidence-format small{color:var(--upload-muted)}
+#admin-evidence-modal .admin-evidence-format input:checked+span{background:#e1eafb;border-color:#a8bcdf;box-shadow:none}
+#admin-evidence-modal .admin-evidence-picker{color:#55456e;background:#f7f4fb;border-color:#beb0d1;border-radius:18px}
+#admin-evidence-modal .admin-evidence-picker:hover{background:#eee7f7;border-color:#9580b1}
+#admin-evidence-modal .admin-evidence-picker>span{color:#655083;background:#e8dff4;border-radius:12px}
+#admin-evidence-modal .admin-evidence-picker b{font-weight:600}
+#admin-evidence-modal .admin-evidence-picker small{color:var(--upload-muted)}
+#admin-evidence-modal .admin-evidence-preview{background:#efebf5;border-radius:13px}
+#admin-evidence-modal .admin-evidence-preview button{color:#55456e;background:#f2edf9;border:1px solid #e1d8eb;border-radius:11px}
+#admin-evidence-modal .admin-evidence-preview button:hover{color:#934459;background:#f8e4eb;border-color:#ecc9d3}
+#admin-evidence-modal .admin-evidence-field{color:var(--upload-ink);font-weight:600}
+#admin-evidence-modal .admin-evidence-field :is(input,textarea){color:var(--upload-ink);background:#f7f6fb;border-color:var(--upload-line);border-radius:14px;caret-color:var(--upload-accent)}
+#admin-evidence-modal .admin-evidence-field :is(input,textarea)::placeholder{color:#7a7287;opacity:1}
+#admin-evidence-modal .admin-evidence-field :is(input,textarea):focus{border-color:var(--upload-accent);box-shadow:0 0 0 3px #eee8f7}
+#admin-evidence-modal .admin-evidence-field small,
+#admin-evidence-modal .admin-evidence-message{color:var(--upload-muted)}
+#admin-evidence-modal .admin-evidence-message.is-error{color:#934459}
+#admin-evidence-modal .admin-evidence-message.is-progress{color:#655083}
+#admin-evidence-modal .admin-evidence-actions{border-color:var(--upload-line);background:#faf9fd}
+#admin-evidence-modal .admin-evidence-actions button{border-radius:14px;font-weight:600}
+#admin-evidence-modal .admin-evidence-cancel{color:#655875;background:#fff;border-color:var(--upload-line)}
+#admin-evidence-modal .admin-evidence-cancel:hover:not(:disabled){background:#eee8f7;border-color:#c3b6d4}
+#admin-evidence-modal .admin-evidence-submit{color:#fff;background:#487461;box-shadow:0 5px 12px rgba(55,97,77,.13)}
+#admin-evidence-modal .admin-evidence-submit:hover:not(:disabled){background:#365d4c}
+#admin-evidence-modal .admin-evidence-actions button:disabled{color:#777180;background:#eeecf1;border-color:#dedbe4;box-shadow:none;cursor:not-allowed}
+#admin-evidence-modal :is(button,input,textarea,label):focus-visible,
+#admin-evidence-modal .admin-evidence-picker:focus-within,
+#admin-evidence-modal .admin-evidence-format input:focus-visible+span{outline:2px solid var(--upload-accent);outline-offset:3px}
+#admin-evidence-modal :is(.admin-evidence-requirements,.admin-evidence-compose,#admin-evidence-requirement-list){scrollbar-width:thin;scrollbar-color:#c7bfd6 transparent}
+#admin-evidence-modal ::selection{color:#403955;background:#e1d5f2}
+@media(max-width:600px){
+  #admin-evidence-modal .admin-evidence-sheet{border-width:4px;border-radius:24px 24px 0 0}
+  #admin-evidence-modal .admin-evidence-head{padding:16px 12px;gap:10px}
+  #admin-evidence-modal .admin-evidence-head h2{font-size:17px;white-space:normal}
+}
+@media(prefers-reduced-motion:reduce){
+  #admin-evidence-modal .admin-evidence-sheet{animation:none}
+}

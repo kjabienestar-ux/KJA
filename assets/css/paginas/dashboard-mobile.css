@@ -268,7 +268,7 @@
     height: 36px !important;
     flex-shrink: 0 !important;
     border-radius: 11px !important;
-    background: linear-gradient(135deg, #e0e7ff, #c7d2fe) !important;
+    background-color: #e8dff4 !important;
     color: #3730a3 !important;
     font-size: 12.5px !important;
     font-weight: 700 !important;
@@ -403,6 +403,10 @@
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     pointer-events: none !important;
+  }
+  /* El portal personal ya cuenta con navegacion inferior. */
+  #portal[data-personal="true"]:not(.admin-wide) > header.mobile-head {
+    display: none !important;
   }
   #portal .kja-mobile-bar {
     display: flex !important;

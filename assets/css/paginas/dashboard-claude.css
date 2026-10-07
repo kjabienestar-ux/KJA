@@ -360,6 +360,7 @@
 #portal.admin-wide * { scrollbar-color: #c6bbae transparent; }
 @media (min-width: 901px) {
   #portal.admin-wide .sidebar { inset: 12px auto 12px 12px !important; width: 236px !important; height: calc(100dvh - 24px); padding-top: 30px; }
+  #portal.admin-wide .side-user { margin-top: auto; flex-shrink: 0; }
   #portal.admin-wide .workspace { margin-left: 236px !important; }
   #portal.admin-wide #view-gestion { inset: 28px 24px 0 260px; padding-inline: 20px; grid-template-rows: auto auto minmax(0,1fr); row-gap: 6px; }
   #portal.admin-wide #view-gestion > .admin-view-head { min-height: 44px; padding: 0 !important; }

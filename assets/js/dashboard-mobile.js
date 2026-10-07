@@ -2,10 +2,21 @@
 (function(){
   'use strict';
   const root=document.documentElement;
+  const portal=document.getElementById('portal');
+  const themeMeta=document.querySelector('meta[name="theme-color"]');
+  const defaultThemeColor=themeMeta?.content||'#f4f1ec';
+  function syncThemeColor(){
+    if(!portal||!themeMeta)return;
+    const personalHome=window.matchMedia('(max-width:900px)').matches
+      &&!portal.hidden&&!portal.classList.contains('admin-wide')&&portal.dataset.view==='inicio';
+    themeMeta.content=personalHome?'#dbe9eb':defaultThemeColor;
+  }
+  if(portal)new MutationObserver(syncThemeColor).observe(portal,{attributes:true,attributeFilter:['hidden','class','data-view']});
   function viewport(){
     const view=window.visualViewport;
     root.style.setProperty('--mobile-visible-height',Math.round(view?.height||window.innerHeight)+'px');
     root.style.setProperty('--mobile-visible-top',Math.round(view?.offsetTop||0)+'px');
+    syncThemeColor();
   }
   viewport();window.addEventListener('resize',viewport,{passive:true});
   window.visualViewport?.addEventListener('resize',viewport,{passive:true});
@@ -15,24 +26,45 @@
   if(nav&&section){
     const label=document.createElement('details'),title=document.createElement('summary'),caption=document.createElement('span'),current=document.createElement('strong'),options=document.createElement('div');
     label.className='mobile-admin-navigation';caption.textContent='Administración';options.className='mobile-admin-options';
-    title.append(caption,current);label.append(title,options);nav.before(label);
+    title.append(caption,current);label.append(title,options);
+    const management=document.getElementById('nav-gestion');
+    if(management){
+      label.classList.add('mobile-admin-sidebar');label.id='mobile-admin-submenu';
+      management.after(label);
+      management.setAttribute('aria-controls',label.id);
+      management.setAttribute('aria-expanded','false');
+      management.addEventListener('click',event=>{
+        if(!window.matchMedia('(max-width:900px)').matches)return;
+        event.preventDefault();event.stopImmediatePropagation();
+        label.open=!label.open;
+        management.setAttribute('aria-expanded',String(label.open));
+      },true);
+    }else nav.before(label);
     const available=b=>!b.hidden&&!b.disabled&&b.getAttribute('aria-hidden')!=='true';
-    function close(){label.open=false;title.focus()}
+    function close(){label.open=false;if(management){management.setAttribute('aria-expanded','false');management.focus()}else title.focus()}
     label.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();close()}});
     let signature='';
     function sync(){
       const buttons=[...nav.querySelectorAll('button[data-admin-section]')].filter(available);
+      label.hidden=!buttons.length||Boolean(management?.hidden);
       const key=buttons.map(b=>[b.dataset.adminSection,b.textContent,b.classList.contains('active')].join(':')).join('|');if(key===signature)return;signature=key;
       current.textContent=buttons.find(b=>b.classList.contains('active'))?.textContent||'Elegir sección';
       options.replaceChildren();
       for(const b of buttons){
         const option=document.createElement('button');option.type='button';option.value=b.dataset.adminSection;option.textContent=b.textContent;
         option.setAttribute('aria-pressed',String(b.classList.contains('active')));
-        option.addEventListener('click',()=>{if(available(b)){b.click();close()}else sync()});options.append(option);
+        option.addEventListener('click',()=>{
+          if(!available(b)||(management&&management.hidden)){sync();return;}
+          if(management){
+            paintShell('gestion');b.click();close();closeMenu();
+            document.getElementById('menu-toggle')?.focus();
+            window.scrollTo(0,0);
+          }else{b.click();close()}
+        });options.append(option);
       }
-      label.hidden=!buttons.length;
     }
     new MutationObserver(sync).observe(nav,{subtree:true,attributes:true,attributeFilter:['hidden','disabled','class','aria-hidden'],childList:true});sync();section.classList.add('has-mobile-admin-nav');
+    if(management)new MutationObserver(()=>{signature='';sync()}).observe(management,{attributes:true,attributeFilter:['hidden']});
   }
   const ledger=document.getElementById('admin-month-ledger');
   if(ledger){
