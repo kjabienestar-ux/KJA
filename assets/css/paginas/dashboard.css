@@ -5003,10 +5003,13 @@ input:-webkit-autofill:active {
 .personal-request-detail textarea:focus { border-color:#4b8dce;box-shadow:0 0 0 3px var(--focus); }
 
 .personal-request-evidence { overflow:hidden;border:1px dashed rgba(7,90,188,.28);border-radius:var(--radius-panel);background:#f2f7fc; }
-#personal-request-file-button { width:100%;min-height:94px;display:grid;grid-template-columns:42px 1fr;align-items:center;gap:12px;padding:16px;border:0;color:#36516e;background:transparent;text-align:left; }
-#personal-request-file-button > .personal-request-file-art { width:42px;height:42px;grid-row:1/3;display:grid;place-items:center;border-radius:var(--radius-control);color:#075abc;background:#e2effc; }
-#personal-request-file-button > .personal-request-file-text { min-width:0;overflow-wrap:anywhere; }
-#personal-request-file-button > .personal-request-file-cta { grid-column:2; }
+#personal-request-file-button { width:100%;min-height:94px;display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:12px;padding:16px;border:0;color:#36516e;background:transparent;text-align:left; }
+#personal-request-file-button > .personal-request-file-art { width:42px;height:42px;display:grid;place-items:center;border-radius:var(--radius-control);color:#075abc;background:#e2effc; }
+#personal-request-file-button .personal-request-file-art img { width:42px;height:42px;object-fit:contain; }
+#personal-request-file-button .evidence-regular-icon { display:none; }
+#personal-request-file-button .personal-request-file-text { min-width:0;overflow-wrap:anywhere; }
+#personal-request-file-button .personal-request-file-cta { justify-self:end;padding:9px 12px;border-radius:10px;color:#075abc;background:#e2effc;font-size:11px;font-weight:700;white-space:nowrap; }
+@media(max-width:400px) { #personal-request-file-button { grid-template-columns:42px minmax(0,1fr); } #personal-request-file-button .personal-request-file-cta { grid-column:2;justify-self:start; } }
 #personal-request-file-button svg { width:21px;height:21px; }
 #personal-request-file-button b,#personal-request-file-button small { display:block; }
 #personal-request-file-button b { align-self:end;font-size:11px; }
@@ -5080,6 +5083,9 @@ input:-webkit-autofill:active {
 .attendance-day-evidence .attendance-activity-tabs button { display:flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid #cfdae6;border-radius:12px;color:#36516e;background:#fff;font-size:12px; }
 .attendance-day-evidence .attendance-activity-tabs button[aria-pressed="true"] { color:#075abc;background:#e2effc;border-color:#8cb7e3; }
 .attendance-day-evidence .attendance-activity-tabs button span { padding:2px 6px;border-radius:6px;background:#edf3f8;font-size:10px; }
+#attendance-day-modal .attendance-activity-tabs button.is-missing { border-color:#df8792;background:#fff0f2;color:#b32d43; }
+#attendance-day-modal .attendance-activity-tabs button.is-missing span { background:#fbdce2;color:#b32d43; }
+#attendance-day-modal .attendance-activity-tabs button.is-missing[aria-pressed="true"] { border-color:#bd3048;background:#fbdce2;color:#952238; }
 .attendance-day-evidence .attendance-compact-stage { display:grid;height:clamp(240px,38vh,420px);overflow:hidden;border-radius:14px;background:#e9f0f5; }
 .attendance-day-evidence .attendance-compact-photo { position:relative;width:100%;height:100%;min-height:0;padding:10px 10px 32px;border:0;background:transparent;cursor:zoom-in; }
 .attendance-day-evidence .attendance-compact-photo img,.attendance-day-evidence .attendance-compact-stage video { display:block;width:100%;height:100%;object-fit:contain; }
