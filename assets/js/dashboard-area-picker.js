@@ -1,14 +1,15 @@
-/* Selector visual del directorio; conserva el select como fuente del filtro. */
+/* Selector visual de áreas (directorio y contratos); conserva el select como fuente del filtro. */
 let syncAdminAreaPicker=()=>{};
-(()=>{
-  const select=document.getElementById('admin-people-area');
+let syncAdminContractAreaPicker=()=>{};
+
+function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCallback){
   if(!select)return;
   const wrap=document.createElement('div');wrap.className='area-picker';
-  wrap.innerHTML=`<button type="button" class="area-picker-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="area-picker-popup"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Todas las áreas</span><svg class="area-picker-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
-    <div id="area-picker-popup" class="area-picker-popup" popover="manual" role="dialog" aria-label="Filtrar por área" hidden>
-      <label class="area-picker-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input type="text" placeholder="Buscar un área…" aria-label="Buscar un área" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="area-picker-options" autocomplete="off"></label>
-      <div id="area-picker-options" role="listbox" aria-label="Áreas"></div><p class="area-picker-empty" role="status" hidden>No se encontraron áreas.</p>
-      <footer>Filtra el directorio por equipo</footer>
+  wrap.innerHTML=`<button type="button" class="area-picker-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="${popupId}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Todas las áreas</span><svg class="area-picker-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
+    <div id="${popupId}" class="area-picker-popup" popover="manual" role="dialog" aria-label="Filtrar por área" hidden>
+      <label class="area-picker-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input type="text" placeholder="Buscar un área…" aria-label="Buscar un área" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="${optionsId}" autocomplete="off"></label>
+      <div id="${optionsId}" role="listbox" aria-label="Áreas"></div><p class="area-picker-empty" role="status" hidden>No se encontraron áreas.</p>
+      <footer>${footerText}</footer>
     </div>`;
   select.before(wrap);select.hidden=true;
   const trigger=wrap.querySelector('button'),label=trigger.querySelector('span'),popup=wrap.querySelector('.area-picker-popup'),input=wrap.querySelector('input'),list=wrap.querySelector('[role="listbox"]'),empty=wrap.querySelector('.area-picker-empty');
@@ -29,7 +30,9 @@ let syncAdminAreaPicker=()=>{};
     items=[...select.options].filter(o=>!o.disabled&&normalize(o.textContent).includes(normalize(input.value.trim())));
     list.replaceChildren();
     items.forEach((o,i)=>{
-      const option=document.createElement('button');option.type='button';option.tabIndex=-1;option.id=`area-picker-option-${i}`;option.setAttribute('role','option');option.setAttribute('aria-selected',String(o.value===select.value));option.className='area-picker-option';
+      const option=document.createElement('button');option.type='button';option.tabIndex=-1;
+      option.id=popupId==='area-picker-popup'?`area-picker-option-${i}`:`${popupId}-option-${i}`;
+      option.setAttribute('role','option');option.setAttribute('aria-selected',String(o.value===select.value));option.className='area-picker-option';
       const text=document.createElement('span');text.textContent=o.textContent;option.append(text);
       if(o.value===select.value){const mark=document.createElementNS('http://www.w3.org/2000/svg','svg');mark.setAttribute('viewBox','0 0 24 24');mark.setAttribute('aria-hidden','true');mark.innerHTML='<path d="m5 12 4 4L19 6"/>';option.append(mark);}
       option.addEventListener('click',()=>choose(i));list.append(option);
@@ -57,12 +60,13 @@ let syncAdminAreaPicker=()=>{};
   function choose(i){
     if(!items[i])return;
     const value=items[i].value;
-    close(true);select.value=value;syncAdminAreaPicker();select.dispatchEvent(new Event('change',{bubbles:true}));
+    close(true);select.value=value;sync();select.dispatchEvent(new Event('change',{bubbles:true}));
   }
-  syncAdminAreaPicker=()=>{
+  function sync(){
     label.textContent=select.selectedOptions[0]?.textContent||'Todas las áreas';trigger.setAttribute('aria-label',`Filtrar por área: ${label.textContent}`);
     trigger.classList.toggle('has-selection',!!select.value);if(opened)render();
-  };
+  }
+  if(setSyncCallback)setSyncCallback(sync);
   trigger.addEventListener('click',()=>opened?close():open());
   trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();open();}});
   input.addEventListener('input',render);
@@ -79,7 +83,18 @@ let syncAdminAreaPicker=()=>{};
   document.addEventListener('focusin',e=>{if(opened&&!wrap.contains(e.target))close();});
   window.addEventListener('resize',()=>{if(opened)position();});
   document.addEventListener('scroll',e=>{if(opened&&!popup.contains(e.target))close();},true);
-  select.addEventListener('change',syncAdminAreaPicker);
-  new MutationObserver(syncAdminAreaPicker).observe(select,{childList:true,subtree:true,characterData:true});
-  syncAdminAreaPicker();
+  select.addEventListener('change',sync);
+  new MutationObserver(sync).observe(select,{childList:true,subtree:true,characterData:true});
+  sync();
+}
+
+(()=>{
+  const peopleSelect=document.getElementById('admin-people-area');
+  if(peopleSelect){
+    initAreaPickerElement(peopleSelect,'area-picker-popup','area-picker-options','Filtra el directorio por equipo',fn=>syncAdminAreaPicker=fn);
+  }
+  const contractSelect=document.getElementById('admin-contract-area');
+  if(contractSelect&&contractSelect!==peopleSelect){
+    initAreaPickerElement(contractSelect,'contract-area-picker-popup','contract-area-picker-options','Filtra contratos por equipo',fn=>syncAdminContractAreaPicker=fn);
+  }
 })();

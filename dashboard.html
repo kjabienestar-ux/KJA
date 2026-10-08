@@ -50,9 +50,9 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-calendar.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-month-layout.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=13">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-control-refined.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=5">
@@ -61,7 +61,9 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-operations.css?v=3">
 </head>
 <body>
 
@@ -1345,18 +1347,53 @@
 
       <section class="admin-list-section" id="admin-list-section" hidden>
         <div class="admin-list-toolbar">
-          <div class="admin-date-control">
-            <button type="button" id="admin-date-prev" aria-label="Día anterior">‹</button>
-            <input type="date" id="admin-list-date" aria-label="Fecha de la lista">
-            <button type="button" id="admin-date-next" aria-label="Día siguiente">›</button>
-            <button type="button" id="admin-date-today">Hoy</button>
+          <div class="admin-list-toolbar-top">
+            <div class="admin-date-control-wrap">
+              <div class="admin-date-control">
+                <button type="button" id="admin-date-prev" aria-label="Día anterior">‹</button>
+                <button type="button" class="admin-date-picker-trigger" id="admin-date-picker-trigger" aria-haspopup="dialog" aria-expanded="false" aria-label="Elegir fecha en el calendario">
+                  <svg viewBox="0 0 24 24" class="admin-cal-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span id="admin-date-display-text">Hoy</span>
+                </button>
+                <input type="date" id="admin-list-date" class="sr-only" aria-hidden="true" tabindex="-1">
+                <button type="button" id="admin-date-next" aria-label="Día siguiente">›</button>
+                <button type="button" id="admin-date-today">Hoy</button>
+              </div>
+              <div class="admin-calendar-popover" id="admin-calendar-popover" role="dialog" aria-label="Calendario de asistencia" hidden>
+                <header class="admin-cal-pop-head">
+                  <button type="button" class="admin-cal-nav-btn" id="admin-cal-pop-prev" aria-label="Mes anterior">‹</button>
+                  <strong class="admin-cal-pop-title" id="admin-cal-pop-title">Octubre 2026</strong>
+                  <button type="button" class="admin-cal-nav-btn" id="admin-cal-pop-next" aria-label="Mes siguiente">›</button>
+                </header>
+                <div class="admin-cal-pop-weekdays" aria-hidden="true">
+                  <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
+                </div>
+                <div class="admin-cal-pop-grid" id="admin-cal-pop-grid"></div>
+                <footer class="admin-cal-pop-foot">
+                  <button type="button" class="admin-cal-foot-today" id="admin-cal-pop-today">Ir a hoy</button>
+                  <button type="button" class="admin-cal-foot-close" id="admin-cal-pop-close">Cerrar</button>
+                </footer>
+              </div>
+            </div>
+            <div class="admin-list-filters">
+              <button type="button" class="admin-refresh" id="admin-entry-open" hidden>Registrar entrada por colaborador</button>
+              <label class="admin-search-label">
+                <span class="sr-only">Buscar colaborador</span>
+                <svg viewBox="0 0 24 24" class="admin-field-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="admin-list-search" placeholder="Buscar colaborador…">
+              </label>
+              <div class="admin-custom-select" id="admin-area-custom-select">
+                <button type="button" class="admin-custom-select-trigger" id="admin-area-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Filtrar por área">
+                  <span class="admin-custom-select-label" id="admin-area-label">Todas las áreas</span>
+                  <svg viewBox="0 0 24 24" class="admin-chevron-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="admin-custom-select-menu" id="admin-area-menu" role="listbox" hidden></div>
+                <select id="admin-list-area" class="sr-only" tabindex="-1" aria-hidden="true"><option value="">Todas las áreas</option></select>
+              </div>
+            </div>
           </div>
+          <div class="admin-date-strip" id="admin-date-strip" role="group" aria-label="Selección rápida de fecha"></div>
           <div class="admin-list-kpis" id="admin-list-kpis" aria-live="polite"></div>
-          <div class="admin-list-filters">
-            <button type="button" class="admin-refresh" id="admin-entry-open" hidden>Registrar entrada por colaborador</button>
-            <label><span class="sr-only">Buscar colaborador</span><input type="search" id="admin-list-search" placeholder="Buscar colaborador…"></label>
-            <label><span class="sr-only">Filtrar por área</span><select id="admin-list-area"><option value="">Todas las áreas</option></select></label>
-          </div>
         </div>
 
         <div class="admin-list-message" id="admin-list-message" role="status" aria-live="polite"></div>
@@ -1391,21 +1428,50 @@
                 <input type="search" id="admin-close-search" placeholder="Nombre del colaborador..." autocomplete="off">
               </div>
             </label>
-            <label class="admin-close-date-wrap">
-              <span>Fecha</span>
-              <div class="admin-close-field-wrap">
-                <svg viewBox="0 0 24 24" class="admin-field-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                <input type="date" id="admin-close-date">
+            <div class="admin-close-filter-col admin-close-date-wrap">
+              <span id="admin-close-date-title">Fecha</span>
+              <div class="admin-close-field-wrap admin-close-date-field-wrap">
+                <button type="button" class="admin-close-trigger-btn admin-close-date-trigger" id="admin-close-date-trigger" aria-haspopup="dialog" aria-expanded="false" aria-labelledby="admin-close-date-title admin-close-date-display" title="Cambiar fecha de cierre">
+                  <svg viewBox="0 0 24 24" class="admin-field-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span class="admin-close-trigger-text" id="admin-close-date-display">--/--/----</span>
+                  <svg viewBox="0 0 24 24" class="admin-chevron-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <input type="date" id="admin-close-date" class="sr-only" tabindex="-1" aria-hidden="true">
+                <div class="admin-close-calendar-popover" id="admin-close-calendar-popover" role="dialog" aria-label="Elegir fecha de cierre" hidden>
+                  <header class="admin-close-cal-head">
+                    <button type="button" class="admin-close-cal-nav" id="admin-close-cal-prev" aria-label="Mes anterior">‹</button>
+                    <strong class="admin-close-cal-title" id="admin-close-cal-title">Octubre 2026</strong>
+                    <button type="button" class="admin-close-cal-nav" id="admin-close-cal-next" aria-label="Mes siguiente">›</button>
+                  </header>
+                  <div class="admin-close-cal-weekdays" aria-hidden="true">
+                    <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
+                  </div>
+                  <div class="admin-close-cal-grid" id="admin-close-cal-grid"></div>
+                  <footer class="admin-close-cal-foot">
+                    <button type="button" class="admin-close-cal-today" id="admin-close-cal-today">Hoy</button>
+                    <button type="button" class="admin-close-cal-close" id="admin-close-cal-close">Cerrar</button>
+                  </footer>
+                </div>
               </div>
-            </label>
-            <label class="admin-close-area-wrap">
-              <span>Área</span>
-              <div class="admin-close-field-wrap">
-                <svg viewBox="0 0 24 24" class="admin-field-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                <select id="admin-close-area"><option value="">Todas las áreas</option></select>
-                <svg viewBox="0 0 24 24" class="admin-chevron-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="admin-close-filter-col admin-close-area-wrap">
+              <span id="admin-close-area-title">Área</span>
+              <div class="admin-close-field-wrap admin-close-area-field-wrap">
+                <button type="button" class="admin-close-trigger-btn admin-close-area-trigger" id="admin-close-area-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="admin-close-area-title admin-close-area-display" title="Filtrar por área">
+                  <svg viewBox="0 0 24 24" class="admin-field-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                  <span class="admin-close-trigger-text" id="admin-close-area-display">Todas las áreas</span>
+                  <svg viewBox="0 0 24 24" class="admin-chevron-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="admin-close-area-popover" id="admin-close-area-popover" role="listbox" hidden>
+                  <div class="admin-close-area-search">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="admin-close-area-search-input" placeholder="Buscar área…" autocomplete="off">
+                  </div>
+                  <div class="admin-close-area-options" id="admin-close-area-options"></div>
+                </div>
+                <select id="admin-close-area" class="sr-only" tabindex="-1" aria-hidden="true"><option value="">Todas las áreas</option></select>
               </div>
-            </label>
+            </div>
           </div>
         </div>
         <p class="admin-list-message" id="admin-close-message" role="status" aria-live="polite"></p>
@@ -1414,42 +1480,192 @@
 
       <section id="admin-assignments-section" class="admin-assignments-section" hidden>
         <p class="admin-list-message" id="admin-assignment-message" role="status" aria-live="polite"></p>
-        <header class="assignment-section-head"><div><h2>Asignaciones</h2><p>Organiza los entregables y consulta el trabajo asignado por fecha.</p></div><button type="button" class="admin-primary-action" id="assignment-create-toggle" aria-expanded="false" aria-controls="assignment-create-panel">Nueva asignación</button><label>Fecha de trabajo<input type="date" id="assignment-work-date"></label></header>
-        <div class="admin-close-grid">
-          <div class="assignment-create-panel" id="assignment-create-panel" hidden>
-          <form class="admin-close-assignment" id="admin-close-assignment-form">
-            <header><h3>Nueva asignación</h3><p>Solo bloqueará la salida del destino seleccionado.</p></header>
-            <div class="admin-close-fields">
-              <label>Asignar a<select id="admin-close-target-kind"><option value="persona">Una persona</option><option value="area">Toda un área</option><option value="sorteo" id="admin-close-draw-option">Sorteo dentro de un área</option></select></label>
-              <label class="span-2">Buscar destino<input id="admin-close-target-search" type="search" placeholder="Nombre de la persona o área" autocomplete="off" aria-controls="assignment-target-matches"><small id="admin-close-target-results" aria-live="polite"></small></label>
-              <div id="assignment-target-matches" class="assignment-target-matches span-2" role="group" aria-label="Destinos encontrados" hidden></div>
-              <label class="span-2">Destino<select id="admin-close-target" required></select></label>
-              <label id="admin-close-draw-count-wrap" hidden>Cantidad de seleccionados<input type="number" id="admin-close-draw-count" min="1" max="20" value="1"></label>
-              <label>Tipo<select id="admin-close-type"><option value="ppt">PPT</option><option value="gpt">GPT</option><option value="induccion">Inducción</option><option value="otro">Otro entregable</option></select></label>
-              <label>Título<input type="text" id="admin-close-title" minlength="2" maxlength="120" required placeholder="Ej. PPT de inducción"></label>
-              <label class="span-2">Indicaciones<textarea id="admin-close-instructions" rows="3" maxlength="700" placeholder="Explica qué debe adjuntar antes de salir."></textarea></label>
+
+        <header class="assignment-section-head">
+          <div class="assignment-hero-brand">
+            <div class="assignment-hero-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                <path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/>
+              </svg>
             </div>
-            <p class="assignment-guide" id="admin-close-draw-help" hidden>El sorteo prioriza a quienes tienen menos asignaciones del mismo tipo en los últimos 30 días. Solo participan personas activas que trabajan en la fecha elegida y no tienen ese tipo asignado ese día. Los empates se resuelven de forma estable: repetir la consulta no cambia el orden. Primero verás la selección; las asignaciones se crean al confirmar.</p>
-            <p class="assignment-guide" id="admin-assignment-date-note"></p>
-            <div class="admin-close-draw-preview" id="admin-close-draw-preview" hidden></div>
-            <button class="admin-primary-action" id="admin-close-assign" type="submit">Asignar entregable</button>
-          </form>
+            <div class="assignment-hero-text">
+              <small class="assignment-hero-eyebrow">PORTAL KJA · CONTROL OPERATIVO</small>
+              <h2>Asignaciones</h2>
+              <p>Organiza los entregables y consulta el trabajo asignado por fecha.</p>
+            </div>
           </div>
+          <div class="assignment-head-actions">
+            <button type="button" class="admin-primary-action assignment-toggle-btn" id="assignment-create-toggle" aria-expanded="true" aria-controls="assignment-create-panel">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="5"></line><line x1="12" y1="12" x2="12" y2="12"></line><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Nueva asignación</span>
+            </button>
+            <label class="assignment-work-date-label">
+              <span class="assignment-work-date-tag">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Fecha de trabajo
+              </span>
+              <input type="date" id="assignment-work-date">
+            </label>
+          </div>
+        </header>
+
+        <div class="admin-close-grid">
+          <!-- PANEL DE CREACIÓN DIRECTA (Visible a simple vista sin tener que pulsar antes el botón) -->
+          <div class="assignment-create-panel" id="assignment-create-panel">
+            <form class="admin-close-assignment" id="admin-close-assignment-form">
+              <header class="assignment-form-head">
+                <div class="assignment-form-title-group">
+                  <span class="assignment-badge-plus" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                  </span>
+                  <div>
+                    <h3>Nueva asignación</h3>
+                    <p>Solo bloqueará la salida del destino seleccionado.</p>
+                  </div>
+                </div>
+              </header>
+
+              <!-- Categorías visuales de Entregable (Inspiradas en las categorías médicas de la referencia) -->
+              <div class="assignment-categories-wrap">
+                <span class="assignment-field-title">Tipo de entregable</span>
+                <div class="assignment-type-chips" id="assignment-type-chips" role="group" aria-label="Tipos de entregables">
+                  <button type="button" class="type-chip is-active" data-type="ppt">
+                    <span class="chip-avatar chip-ppt"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h2a2 2 0 0 0 0-4H9v8"/></svg></span>
+                    <span class="chip-title">PPT</span>
+                  </button>
+                  <button type="button" class="type-chip" data-type="gpt">
+                    <span class="chip-avatar chip-gpt"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="16" cy="15" r="1" fill="currentColor"/></svg></span>
+                    <span class="chip-title">GPT</span>
+                  </button>
+                  <button type="button" class="type-chip" data-type="induccion">
+                    <span class="chip-avatar chip-induccion"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>
+                    <span class="chip-title">Inducción</span>
+                  </button>
+                  <button type="button" class="type-chip" data-type="otro">
+                    <span class="chip-avatar chip-otro"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>
+                    <span class="chip-title">Otro</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Segmented tabs para el destino: Persona / Área / Sorteo -->
+              <div class="assignment-target-kind-tabs" id="assignment-target-kind-tabs" role="tablist" aria-label="Destino de asignación">
+                <button type="button" class="target-kind-tab is-active" data-kind="persona">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span>Persona</span>
+                </button>
+                <button type="button" class="target-kind-tab" data-kind="area">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                  <span>Área</span>
+                </button>
+                <button type="button" class="target-kind-tab" data-kind="sorteo">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/><circle cx="16.5" cy="16.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+                  <span>Sorteo</span>
+                </button>
+              </div>
+
+              <div class="admin-close-fields">
+                <label class="sr-only">Asignar a<select id="admin-close-target-kind"><option value="persona">Una persona</option><option value="area">Toda un área</option><option value="sorteo" id="admin-close-draw-option">Sorteo dentro de un área</option></select></label>
+                <label class="span-2 assignment-search-target-wrap">
+                  <span>Buscar destino</span>
+                  <div class="assignment-input-icon-wrap">
+                    <svg class="assignment-field-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input id="admin-close-target-search" type="search" placeholder="Nombre de la persona o área…" autocomplete="off" aria-controls="assignment-target-matches">
+                  </div>
+                  <small id="admin-close-target-results" aria-live="polite"></small>
+                </label>
+                <div id="assignment-target-matches" class="assignment-target-matches span-2" role="group" aria-label="Destinos encontrados" hidden></div>
+                <label class="span-2">
+                  <span>Destino seleccionado</span>
+                  <select id="admin-close-target" required></select>
+                </label>
+                <label id="admin-close-draw-count-wrap" hidden>
+                  <span>Cantidad de seleccionados</span>
+                  <input type="number" id="admin-close-draw-count" min="1" max="20" value="1">
+                </label>
+                <label class="sr-only">Tipo<select id="admin-close-type"><option value="ppt">PPT</option><option value="gpt">GPT</option><option value="induccion">Inducción</option><option value="otro">Otro entregable</option></select></label>
+                <label class="span-2">
+                  <span>Título del entregable</span>
+                  <input type="text" id="admin-close-title" minlength="2" maxlength="120" required placeholder="Ej. PPT de inducción mensual">
+                </label>
+                <label class="span-2">
+                  <span>Indicaciones de entrega</span>
+                  <textarea id="admin-close-instructions" rows="2" maxlength="700" placeholder="Explica qué debe adjuntar antes de registrar su salida…"></textarea>
+                </label>
+              </div>
+
+              <p class="assignment-guide" id="admin-close-draw-help" hidden>El sorteo prioriza a quienes tienen menos asignaciones del mismo tipo en los últimos 30 días. Solo participan personas activas que trabajan en la fecha elegida y no tienen ese tipo asignado ese día. Los empates se resuelven de forma estable: repetir la consulta no cambia el orden. Primero verás la selección; las asignaciones se crean al confirmar.</p>
+              <p class="assignment-guide" id="admin-assignment-date-note"></p>
+              <div class="admin-close-draw-preview" id="admin-close-draw-preview" hidden></div>
+
+              <button class="admin-primary-action assignment-cta-btn" id="admin-close-assign" type="submit">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <span>Asignar entregable</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- PANEL DEL CALENDARIO (Estilo Seleccionar Fecha con Círculo Sólido e Indicadores) -->
           <div class="assignment-sidebar">
-          <aside class="assignment-calendar" id="assignment-calendar-panel" aria-labelledby="assignment-calendar-title">
-            <header><h3 id="assignment-calendar-title">Calendario</h3><button type="button" id="assignment-calendar-today">Hoy</button></header>
-            <div class="assignment-month-nav"><button type="button" id="assignment-month-prev" aria-label="Mes anterior">‹</button><label><span class="sr-only">Mes del calendario</span><input type="month" id="assignment-calendar-month"></label><button type="button" id="assignment-month-next" aria-label="Mes siguiente">›</button></div>
-            <p id="assignment-calendar-message" aria-live="polite"></p>
-            <div class="assignment-calendar-days" id="assignment-calendar-days"></div>
-            <small class="assignment-calendar-legend"><i aria-hidden="true"></i>El número pequeño indica los entregables asignados.</small>
-          </aside>
-
+            <aside class="assignment-calendar" id="assignment-calendar-panel" aria-labelledby="assignment-calendar-title">
+              <header class="assignment-card-header">
+                <div class="assignment-card-heading">
+                  <span class="assignment-icon-bubble" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </span>
+                  <h3 id="assignment-calendar-title">Calendario</h3>
+                </div>
+                <button type="button" id="assignment-calendar-today" class="assignment-today-pill">Hoy</button>
+              </header>
+              <div class="assignment-month-nav">
+                <button type="button" id="assignment-month-prev" aria-label="Mes anterior">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <label>
+                  <span class="sr-only">Mes del calendario</span>
+                  <input type="month" id="assignment-calendar-month">
+                </label>
+                <button type="button" id="assignment-month-next" aria-label="Mes siguiente">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+              <p id="assignment-calendar-message" aria-live="polite"></p>
+              <div class="assignment-calendar-days" id="assignment-calendar-days"></div>
+              <div class="assignment-calendar-legend">
+                <span><i class="legend-dot has-data" aria-hidden="true"></i>Con entregables</span>
+                <span><i class="legend-dot is-selected" aria-hidden="true"></i>Día seleccionado</span>
+              </div>
+            </aside>
           </div>
 
+          <!-- PANEL DE ASIGNACIONES DEL DÍA (Estilo Tarjetas de Doctores / Profesionales) -->
           <article class="admin-close-assignments">
-            <header><span><h3>Asignaciones del día</h3><p id="admin-close-assignment-count" aria-live="polite">Sin asignaciones</p></span><button type="button" id="admin-close-assignments-refresh" aria-label="Actualizar estados de las asignaciones"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg><span>Actualizar</span></button></header>
-            <label class="assignment-search">Buscar asignación<input type="search" id="admin-assignment-search" placeholder="Título o destinatario" autocomplete="off"></label>
-            <div id="admin-close-assignment-list"><p class="admin-empty">Cargando asignaciones…</p></div>
+            <header class="assignment-card-header">
+              <div class="assignment-card-heading">
+                <span class="assignment-icon-bubble" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                </span>
+                <div>
+                  <h3>Asignaciones del día</h3>
+                  <p id="admin-close-assignment-count" aria-live="polite">Sin asignaciones</p>
+                </div>
+              </div>
+              <button type="button" id="admin-close-assignments-refresh" class="assignment-refresh-btn" aria-label="Actualizar estados de las asignaciones">
+                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+                <span>Actualizar</span>
+              </button>
+            </header>
+            <label class="assignment-search">
+              <span class="sr-only">Buscar asignación</span>
+              <div class="assignment-input-icon-wrap">
+                <svg class="assignment-field-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="admin-assignment-search" placeholder="Buscar por título o destinatario…" autocomplete="off">
+              </div>
+            </label>
+            <div id="admin-close-assignment-list">
+              <p class="admin-empty">Cargando asignaciones…</p>
+            </div>
           </article>
         </div>
 
@@ -1523,9 +1739,25 @@
       <section class="admin-team-section" id="admin-people-section" hidden>
         <section id="admin-person-profile" aria-labelledby="person-profile-title" hidden></section>
         <div class="admin-team-toolbar">
-          <div><p class="eyebrow">DIRECTORIO OPERATIVO</p><h2>Personas, identidad y jornada</h2></div>
+          <div class="admin-team-heading">
+            <div class="admin-team-heading-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div>
+              <p class="eyebrow">DIRECTORIO OPERATIVO</p>
+              <h2>Personas, identidad y jornada</h2>
+            </div>
+          </div>
           <div class="admin-team-actions">
-            <input type="search" id="admin-people-search" placeholder="Buscar por nombre o DNI…" aria-label="Buscar colaborador">
+            <div class="admin-team-search-wrap">
+              <svg viewBox="0 0 24 24" class="admin-field-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="search" id="admin-people-search" placeholder="Buscar por nombre o DNI…" aria-label="Buscar colaborador">
+            </div>
             <select id="admin-people-area" aria-label="Filtrar colaboradores por área"><option value="">Todas las áreas</option></select>
             <button class="admin-secondary-action" id="admin-manage-areas" type="button" aria-expanded="false" aria-controls="admin-areas-panel" hidden>Gestionar áreas</button>
             <label class="admin-toggle"><input type="checkbox" id="admin-people-inactive"><span>Incluir bajas</span></label>
@@ -1570,7 +1802,7 @@
         <p id="fb-report-status" role="status" aria-live="polite"></p>
         <div id="fb-report-results" hidden>
           <p id="fb-report-scope" class="fb-report-note"></p>
-          
+
           <!-- Tarjetas KPI de resumen ejecutivo (Estilo Transmedina) -->
           <div class="fb-report-kpis" id="fb-report-kpis" aria-label="Métricas clave de publicaciones"></div>
 
@@ -1697,11 +1929,32 @@
 
       <section class="admin-team-section" id="admin-contracts-section" hidden>
         <div class="admin-team-toolbar">
-          <div class="contracts-heading"><h2>Contratos</h2><p>Horas, metas y fechas del equipo.</p></div>
+          <div class="contracts-heading">
+            <div class="contracts-heading-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </div>
+            <div>
+              <p class="eyebrow">SEGUIMIENTO OPERATIVO</p>
+              <h2>Contratos</h2>
+              <p class="contracts-sub">Horas, metas y fechas del equipo.</p>
+            </div>
+          </div>
           <div class="admin-list-kpis" id="admin-contract-kpis"></div>
           <div class="admin-team-actions">
-            <label class="contracts-filter contracts-search"><span>Buscar colaborador</span><input type="search" id="admin-contract-search" placeholder="Nombre o DNI"></label>
-            <label class="contracts-filter"><span>Área</span><select id="admin-contract-area"><option value="">Todas las áreas</option></select></label>
+            <label class="contracts-filter contracts-search">
+              <span>Buscar colaborador</span>
+              <div class="contracts-search-wrap">
+                <svg viewBox="0 0 24 24" class="admin-field-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="admin-contract-search" placeholder="Nombre o DNI">
+              </div>
+            </label>
+            <div class="contracts-filter"><span>Área</span><select id="admin-contract-area" aria-label="Filtrar contratos por área"><option value="">Todas las áreas</option></select></div>
             <label class="admin-toggle"><input type="checkbox" id="admin-contract-inactive"><span>Incluir bajas</span></label>
             <label class="admin-toggle"><input type="checkbox" id="admin-contract-pending"><span>Solo pendientes</span></label>
           </div>
@@ -1714,14 +1967,38 @@
 
       <section class="admin-roles-section" id="admin-roles-section" hidden>
         <div class="admin-roles-toolbar">
-          <div><h2>Roles y equipos</h2><p>Un líder y hasta dos co-líderes técnicos por área, con el mismo alcance de consulta.</p></div>
+          <div class="roles-heading">
+            <div class="roles-heading-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div>
+              <p class="eyebrow">ESTRUCTURA Y LIDERAZGO</p>
+              <h2>Roles y equipos</h2>
+              <p class="roles-sub">Un líder y hasta dos co-líderes técnicos por área, con el mismo alcance de consulta.</p>
+            </div>
+          </div>
           <div class="admin-list-kpis" id="admin-roles-kpis"></div>
         </div>
         <div class="admin-roles-message" id="admin-roles-message" role="status" aria-live="polite"></div>
-        <span class="admin-roles-lock"><i></i>Solo administradores de sistemas</span>
+        <div class="admin-roles-lock-wrap">
+          <span class="admin-roles-lock"><i></i>Solo administradores de sistemas</span>
+        </div>
         <div class="admin-role-map" id="admin-role-map"><p class="admin-empty">Ejecuta la migración de la fase 6 para administrar líderes.</p></div>
         <section class="admin-roles-audit">
-          <div class="admin-access-section-head"><span><h3>Cambios recientes de liderazgo</h3></span></div>
+          <div class="admin-access-section-head">
+            <div class="admin-audit-heading-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 14 14"/>
+              </svg>
+            </div>
+            <span><h3>Cambios recientes de liderazgo</h3><small>Historial de asignaciones y relevos de equipo</small></span>
+          </div>
           <div class="admin-role-audit-list" id="admin-role-audit"><p class="admin-empty">Las asignaciones aparecerán aquí.</p></div>
         </section>
       </section>

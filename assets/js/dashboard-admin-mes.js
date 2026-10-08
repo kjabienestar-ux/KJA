@@ -180,7 +180,7 @@ function renderAdminMonthLedger(){
   if(!people.length)html+=`<tr><td class="admin-month-empty" colspan="${sample.length+1}">No hay colaboradores para los filtros seleccionados.</td></tr>`;
   let currentArea='';
   for(const person of people){
-    if(person.area!==currentArea){currentArea=person.area;html+=`<tr class="admin-month-area-row"><td colspan="${sample.length+1}"><i></i><b>${esc(currentArea||'Sin área')}</b><span>${people.filter(x=>x.area===currentArea).length}</span></td></tr>`}
+    if(person.area!==currentArea){currentArea=person.area;html+=`<tr class="admin-month-area-row"><td colspan="${sample.length+1}"><span class="admin-month-area-sticky"><i></i><b>${esc(currentArea||'Sin área')}</b><span>${people.filter(x=>x.area===currentArea).length}</span></span></td></tr>`}
     html+=`<tr><th class="person-col" scope="row"><div class="admin-month-person">${profileAvatarMarkup(person)}<div class="admin-month-person-info"><b>${esc(person.nombre)}</b><small class="admin-month-person-status ${person.activo?'is-active':'is-inactive'}">${person.activo?'Activo':'Dado de baja'}</small></div><button type="button" class="admin-month-person-calendar" data-person-calendar="${person.id}" aria-label="Ver calendario y evidencias de ${esc(person.nombre)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 11h18M8 15h2M14 15h2"/></svg><span>Ver calendario y evidencias</span><svg class="admin-month-person-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div></th>`;
     for(const day of person.dias||[]){
       const content=day.dia_libre?'DL':day.cierre_estado==='incompleta'?'INC':day.cierre_estado==='en_curso'?'…':day.estado||(!day.laborable?'—':'·'),detail=`${person.nombre} · ${day.fecha} · ${day.dia_libre?'Día libre asignado':day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada, cierre pendiente':day.estado?statusText(day.estado):day.laborable?'Sin registro':day.motivo}`;
@@ -189,6 +189,17 @@ function renderAdminMonthLedger(){
     html+='</tr>';
   }
   html+='</tbody></table>';$('admin-month-ledger').innerHTML=html;
+  if(window.innerWidth<=768){
+    requestAnimationFrame(()=>{
+      const todayCol=$('admin-month-ledger')?.querySelector('.day-col.today');
+      if(todayCol){
+        const personCol=$('admin-month-ledger')?.querySelector('.person-col');
+        const offset=(personCol?.offsetWidth||168);
+        const targetLeft=Math.max(0,todayCol.offsetLeft-offset-8);
+        $('admin-month-ledger').scrollTo({left:targetLeft,behavior:'auto'});
+      }
+    });
+  }
   if(!data.puede_editar)monthMessage('Tu rol es de solo lectura. Puedes consultar celdas y exportar, pero no modificar el mes.');
 }
 
@@ -498,7 +509,26 @@ document.addEventListener('pointerdown',event=>{
 $('admin-month-export').onclick=()=>downloadMonthCsv('month');if($('admin-summary-export'))$('admin-summary-export').onclick=()=>downloadMonthCsv('summary');
 $('admin-month-holidays').onclick=openHolidayManager;
 $('admin-month-days-off').onclick=()=>openDaysOffManager();
-$('admin-month-ledger').onclick=event=>{const calendar=event.target.closest('[data-person-calendar]');if(calendar){const person=APP.adminMonth?.personas?.find(p=>String(p.id)===calendar.dataset.personCalendar);if(person){const host=$('admin-person-calendar');KJAPersonCalendar.mount({host,person,month:currentMonthValue(),onBack:()=>closeAdminPersonCalendar(true)});host.querySelector('h3')?.focus({preventScroll:true});host.scrollIntoView({block:'start',behavior:'instant'});}return;}const cell=event.target.closest('[data-month-person]');if(cell)openMonthCell(cell.dataset.monthPerson,cell.dataset.monthDate)};
+$('admin-month-ledger').onclick=event=>{
+  const calendar=event.target.closest('[data-person-calendar]');
+  if(calendar){
+    const person=APP.adminMonth?.personas?.find(p=>String(p.id)===calendar.dataset.personCalendar);
+    if(person){
+      const host=$('admin-person-calendar');
+      KJAPersonCalendar.mount({host,person,month:currentMonthValue(),onBack:()=>closeAdminPersonCalendar(true)});
+      host.querySelector('h3')?.focus({preventScroll:true});
+      host.scrollIntoView({block:'start',behavior:'instant'});
+    }
+    return;
+  }
+  const personInfo=event.target.closest('.admin-month-person-info');
+  if(personInfo){
+    const btn=personInfo.closest('.admin-month-person')?.querySelector('[data-person-calendar]');
+    if(btn){btn.click();return;}
+  }
+  const cell=event.target.closest('[data-month-person]');
+  if(cell)openMonthCell(cell.dataset.monthPerson,cell.dataset.monthDate);
+};
 $('admin-month-modal-body').onclick=event=>{
   const removeDayOff=event.target.closest('[data-remove-day-off]');
   if(removeDayOff)return saveManualDayOff(Number(removeDayOff.dataset.removeDayOff),removeDayOff.dataset.date,'',true);
@@ -517,6 +547,7 @@ $('admin-month-modal-body').onclick=event=>{
   if(action.dataset.monthAction==='clear-exception')return changeMonthException(null);
 };
 document.querySelectorAll('[data-close-month-modal]').forEach(item=>item.onclick=closeMonthModal);
+$('admin-month-modal')?.addEventListener('click',event=>{if(event.target===$('admin-month-modal'))closeMonthModal();});
 document.addEventListener('keydown',event=>{
   const modal=$('admin-month-modal');if(modal.hidden)return;
   if(event.key==='Escape'){event.preventDefault();closeMonthModal();return;}
