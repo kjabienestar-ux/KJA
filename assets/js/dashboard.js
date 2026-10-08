@@ -3774,6 +3774,8 @@ function dailyCloseStatusCopy(state){
 }
 
 function dailyCloseGuidePresentation(data){
+  const holiday=globalThis.KJAHoliday?.presentation(data);
+  if(holiday)return {stage:'holiday',title:holiday.guideTitle,copy:holiday.guideCopy};
   if(data.dia_libre_presencial){
     return {stage:'day-off',title:'Disfruta tu descanso',copy:(data.pendientes||0)>0
       ?'Hoy solo tienes que subir tus comparticiones de Facebook dentro de su horario.'
@@ -3989,6 +3991,7 @@ function clearDailyCloseLoadError(){
 }
 
 function resetDailyCloseUi(){
+  globalThis.KJAHoliday?.render(null);
   $('today-attendance-card')?.classList.remove('has-daily-close','daily-close-pending','daily-close-confirmed-hidden');
   $('mobile-action-mark')?.classList.remove('daily-close-pending','daily-close-confirmed-hidden');
   $('mobile-primary-attendance')?.classList.remove('daily-close-pending','daily-close-confirmed-hidden');
@@ -3997,6 +4000,7 @@ function resetDailyCloseUi(){
 
 function renderDailyClose(){
   const data=APP.cierre,section=$('day-close'),card=$('today-attendance-card');if(!section)return;
+  globalThis.KJAHoliday?.render(data);
   clearDailyCloseLoadError();
   if(!data?.ok||!data.aplica){section.hidden=true;$('mobile-close-panel').hidden=true;card?.classList.remove('has-daily-close');syncMarkedAttendanceAction();return;}
   const facebookOnly=!!data.solo_comparticiones,entryComplete=!!data.entrada_at,closed=!facebookOnly&&CLOSE_MODEL.workClosed(data);

@@ -64,6 +64,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-operations.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-holiday.css?v=1">
 </head>
 <body>
 
@@ -333,6 +334,7 @@
         </header>
 
         <div class="mobile-portal-sheet">
+          <section class="holiday-announcement" data-holiday-announcement aria-label="Feriado nacional" hidden></section>
           <div id="mobile-month-progress-slot"></div>
           <section class="mobile-primary-attendance" id="mobile-primary-attendance" aria-label="Acción principal de asistencia" hidden>
             <button type="button" data-mobile-action="marcar" id="mobile-action-mark" aria-describedby="mobile-entry-action-error">
@@ -488,6 +490,7 @@
           </div>
           <div class="day-card-grid">
             <section class="day-schedule" aria-labelledby="day-schedule-title">
+              <section class="holiday-announcement" data-holiday-announcement aria-label="Feriado nacional" hidden></section>
               <div class="schedule-welcome">
                 <img class="schedule-figure" src="images/dashboard/attendance-phone.png" width="240" height="240" alt="" aria-hidden="true">
                 <div class="schedule-details">
@@ -585,6 +588,7 @@
               <div class="day-close-checklist" id="day-close-checklist" aria-live="polite"></div>
 
               <div class="day-close-guide" id="day-close-guide" data-stage="evidence">
+                <img class="holiday-guide-figure" src="images/dashboard/evidence-worker.png" width="240" height="240" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 <img class="day-off-illustration" src="images/dashboard/day-off-rest.png" width="1254" height="1254" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 <div class="day-close-journey" aria-label="Progreso del cierre de jornada">
                   <span class="day-close-journey-step" data-journey-step="entry"><img class="journey-figure" src="images/dashboard/attendance-phone.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></i><b>Entrada</b></span>
@@ -3059,7 +3063,8 @@
   <div id="admin-leave-review-days" class="admin-request-list"></div>
   <footer><span>Puedes decidir cada fecha por separado.</span><button type="button" data-close-leave-review>Listo</button></footer>
 </dialog>
-<script src="assets/js/dashboard.js?v=252"></script>
+<script src="assets/js/dashboard-holiday.js?v=1"></script>
+<script src="assets/js/dashboard.js?v=253"></script>
 <script src="assets/js/dashboard-cert-accounts.js?v=8"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
