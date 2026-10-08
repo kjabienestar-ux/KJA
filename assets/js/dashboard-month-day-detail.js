@@ -22,8 +22,8 @@
     if(!response.ok||!result?.ok)throw new Error(result?.motivo||'conexion');
     return result;
   }
-  function mount(host,{person,day,future=false,canManageFacebook=false,rpc=(name,args)=>db.rpc(name,args),storage=db.storage,request=facebookRequest,prepare=file=>compressImage(file)}){
-    const session={groups:[],version:0,fileVersion:0,disposed:false};
+  function mount(host,{person,day,future=false,canManageFacebook=false,rpc=(name,args)=>db.rpc(name,args),storage=db.storage,request=facebookRequest,prepare=file=>compressImage(file),managementHtml=''}){
+    const session={groups:[],version:0,fileVersion:0,disposed:false,managementHtml};
     host._monthDayDetail=session;
     const live=()=>!session.disposed&&host.isConnected&&host._monthDayDetail===session;
     const button=(attrs,label)=>'<button type="button" '+attrs+'>'+label+'</button>';
@@ -51,18 +51,23 @@
             (g.revision?'<p class="md-review">Revisión: <b>'+escape(revision(g.revision))+'</b></p>':'')+
             (g.detalle&&!g.entregas.length?'<p>'+escape(g.detalle)+'</p>':'')+
             (g.entregas.length?g.entregas.map(item=>'<div class="md-delivery-note"><small>Entrega registrada · '+escape(time(item.completado_at))+'</small>'+(item.detalle?'<p>'+escape(item.detalle)+'</p>':'')+'</div>').join(''):g.fecha?'<p>Registrado a las '+escape(time(g.fecha))+'</p>':'')+
-            (g.files.length?'<div class="md-files">'+g.files.map((file,f)=>button('class="md-file" data-md-file="'+i+':'+f+'" aria-pressed="false"',icon+'<span>Archivo '+(f+1)+'<small>'+escape(file.mime?.startsWith('image/')?'Imagen':file.mime?.startsWith('video/')?'Video':file.mime==='application/pdf'?'PDF':'Documento')+'</small></span>')).join('')+'</div>':'<p class="md-help">'+(g.completo?'Registro sin archivos adjuntos.':g.waived?'Este requisito no se exige para esta jornada.':'No hay evidencia registrada para esta actividad.')+'</p>')+'</div></details>').join('')+'</section>'+
-          '<section class="md-preview" data-md-preview aria-label="Visor de evidencia"><p class="md-empty">'+(fileCount?'Selecciona un archivo para ver su evidencia.':'No hay archivos adjuntos en esta fecha.')+'</p></section></div>';
+            (g.files.length?'<div class="md-files">'+g.files.map((file,f)=>{
+              const isFb=canManageFacebook&&g.key==='comparticiones';
+              const fileBtn=button('class="md-file '+(isFb?'has-remove':'')+'" data-md-file="'+i+':'+f+'" aria-pressed="false"',icon+'<span>Archivo '+(f+1)+'<small>'+escape(file.mime?.startsWith('image/')?'Imagen':file.mime?.startsWith('video/')?'Video':file.mime==='application/pdf'?'PDF':'Documento')+'</small></span>');
+              if(!isFb)return fileBtn;
+              return '<div class="md-file-chip">'+fileBtn+button('class="md-file-remove-btn md-remove-facebook" data-md-remove="'+i+':'+f+'" title="Quitar imagen '+(f+1)+'" aria-label="Quitar imagen '+(f+1)+'"',glyph('M18 6 6 18M6 6l12 12'))+'</div>';
+            }).join('')+'</div>':'<p class="md-help">'+(g.completo?'Registro sin archivos adjuntos.':g.waived?'Este requisito no se exige para esta jornada.':'No hay evidencia registrada para esta actividad.')+'</p>')+'</div></details>').join('')+'</section>'+
+          '<div class="md-side-pane"><section class="md-preview" data-md-preview aria-label="Visor de evidencia"><p class="md-empty">'+(fileCount?'Selecciona un archivo para ver su evidencia.':'No hay archivos adjuntos en esta fecha.')+'</p></section>'+
+          (session.managementHtml?'<section class="md-management">'+session.managementHtml+'</section>':'')+'</div></div>';
         const first=groups.findIndex(g=>g.files.length);
         if(canManageFacebook){
           const gi=groups.findIndex(g=>g.key==='comparticiones'),group=groups[gi];
           const body=host.querySelector('[data-md-group="'+gi+'"] .md-activity-body');
           if(body&&group){
             body.insertAdjacentHTML('beforeend','<div class="md-facebook-actions">'+
-              (group.files.length?'<p>Quita las imágenes actuales para cambiar la entrega.</p>'+group.files.map((file,index)=>button('class="md-remove-facebook" data-md-remove="'+gi+':'+index+'"','Quitar imagen '+(index+1))).join(''):
-                '<label>Subir nuevas evidencias<input type="file" data-md-upload accept="image/jpeg,image/png,image/webp" multiple></label><p>Selecciona las capturas (hasta 50). La carga comienza al seleccionarlas.</p>')+
-              '<p>La carga requiere un colaborador activo, Facebook programado y una fecha dentro de los últimos 180 días.</p>'+
-              '<div data-md-confirm hidden><p data-md-confirm-copy>Esta imagen se eliminará permanentemente. Al quitar la última se anula la entrega. Solo podrás subir reemplazos si este día admite nuevas cargas.</p>'+button('data-md-confirm-delete','Eliminar imagen')+button('data-md-cancel-delete','Cancelar')+'</div><p data-md-status role="status"></p></div>');
+              (group.files.length?'<div class="md-facebook-fallback-actions" style="display:none">'+group.files.map((file,index)=>button('class="md-remove-facebook" data-md-remove="'+gi+':'+index+'"','Quitar imagen '+(index+1))).join('')+'</div>':
+                '<label class="md-upload-label">Subir nuevas evidencias<input type="file" data-md-upload accept="image/jpeg,image/png,image/webp" multiple></label><p class="md-upload-help">Selecciona las capturas (hasta 50). La carga comienza al seleccionarlas.</p>')+
+              '<div data-md-confirm hidden class="md-confirm-box" role="alert"><div class="md-confirm-header"><span class="md-confirm-icon">⚠️</span><strong>¿Quitar esta imagen?</strong></div><p data-md-confirm-copy>¿Deseas quitar esta imagen? Se eliminará permanentemente. Al quitar la última se anula la entrega.</p><div class="md-confirm-actions">'+button('data-md-confirm-delete class="md-confirm-btn"','Sí, quitar imagen')+button('data-md-cancel-delete class="md-cancel-btn"','Cancelar')+'</div></div><p data-md-status role="status"></p></div>');
           }
         }
         if(first>=0)void showFile(first+':0');
@@ -140,9 +145,22 @@
       if(canManageFacebook&&!session.busy&&b.hasAttribute('data-md-remove')){
         const [gi,fi]=b.dataset.mdRemove.split(':').map(Number),group=session.groups[gi],file=group?.files[fi];
         const delivery=group?.entregas.find(item=>item.archivos?.some(saved=>saved.path===file?.path));
-        if(delivery&&file){session.target={file,delivery};host.querySelector('[data-md-confirm-copy]').textContent='Se eliminará permanentemente la imagen '+(fi+1)+'. Al quitar la última se anula la entrega. Solo podrás subir reemplazos si este día admite nuevas cargas.';host.querySelector('[data-md-confirm]').hidden=false;host.querySelector('[data-md-cancel-delete]').focus();}
+        if(delivery&&file){
+          session.target={file,delivery};
+          host.querySelectorAll?.('.md-file-chip')?.forEach(c=>c.removeAttribute('data-target-delete'));
+          const targetChip=b.closest?.('.md-file-chip');
+          if(targetChip)targetChip.setAttribute('data-target-delete','true');
+          host.querySelector('[data-md-confirm-copy]').textContent='¿Deseas quitar la imagen '+(fi+1)+'? Se eliminará permanentemente. Al quitar la última se anula la entrega. Solo podrás subir reemplazos si este día admite nuevas cargas.';
+          host.querySelector('[data-md-confirm]').hidden=false;
+          host.querySelector('[data-md-cancel-delete]').focus();
+        }
       }
-      if(b.hasAttribute('data-md-cancel-delete')){session.target=null;host.querySelector('[data-md-confirm]').hidden=true;status('');}
+      if(b.hasAttribute('data-md-cancel-delete')){
+        session.target=null;
+        host.querySelectorAll?.('.md-file-chip')?.forEach(c=>c.removeAttribute('data-target-delete'));
+        host.querySelector('[data-md-confirm]').hidden=true;
+        status('');
+      }
       if(b.hasAttribute('data-md-confirm-delete'))void remove();
       if(b.hasAttribute('data-md-file')){
         void showFile(b.dataset.mdFile);

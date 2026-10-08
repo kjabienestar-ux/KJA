@@ -68,3 +68,437 @@
 #portal.admin-wide #view-gestion>.admin-section-nav #admin-refresh:focus-visible{outline:2px solid #176b60;outline-offset:2px}
 #portal.admin-wide #view-gestion>.admin-section-nav #admin-refresh:disabled{opacity:.55;cursor:wait}
 #portal.admin-wide #view-gestion>.admin-section-nav #admin-refresh svg{width:14px;height:14px;flex:none}
+
+/* ==========================================================================
+   OPTIMIZACIONES RESPONSIVE MOBILE PARA "MES COMPLETO" (max-width: 900px)
+   Mantiene el diseño e identidad visual intactos, mejorando la ergonomía táctil,
+   la densidad de información y la interactividad sin espacios desperdiciados.
+   ========================================================================== */
+@media (max-width: 900px) {
+  /* Contenedor principal de la sección en móvil con resguardo para el botón flotante */
+  #portal #admin-month-section {
+    padding: 10px 10px 84px !important;
+    gap: 10px !important;
+  }
+
+  #portal #admin-month-section .admin-month-workbench {
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    border: 1px solid #dce3ec !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+  }
+
+  /* 1. Cabecera Oscura: Título y Exportar en la misma fila superior */
+  #portal #admin-month-section .admin-month-workbench-head {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 10px 10px !important;
+    padding: 12px 14px 12px !important;
+    background: #252320 !important;
+  }
+
+  #portal #admin-month-section .admin-month-heading {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+  }
+
+  #portal #admin-month-section .admin-month-heading h2 {
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.02em !important;
+    margin: 0 !important;
+    color: #ffffff !important;
+  }
+
+  #portal #admin-month-section .admin-month-heading p {
+    display: none !important;
+  }
+
+  /* Botón Exportar CSV alineado a la derecha en la fila superior */
+  #portal #admin-month-section .admin-month-export {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-self: end !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    width: auto !important;
+    padding: 0 11px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    border-radius: 9px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: none !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+  }
+
+  #portal #admin-month-section .admin-month-export svg {
+    width: 14px !important;
+    height: 14px !important;
+    stroke: currentColor !important;
+    flex-shrink: 0 !important;
+  }
+
+  #portal #admin-month-section .admin-month-export:hover,
+  #portal #admin-month-section .admin-month-export:active {
+    background: rgba(255, 255, 255, 0.22) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(0.97) !important;
+  }
+
+  /* 2. Los 5 KPIs organizados en un Grid balanceado 3 + 2 (sin tarjetas huérfanas) */
+  #portal #admin-month-section .admin-month-kpis {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  /* 3 tarjetas superiores: Personas (span 2), Jornadas válidas (span 2), Asistencia (span 2) */
+  #portal #admin-month-section .admin-month-kpis .admin-list-kpi:nth-child(1),
+  #portal #admin-month-section .admin-month-kpis .admin-list-kpi:nth-child(2),
+  #portal #admin-month-section .admin-month-kpis .admin-list-kpi:nth-child(3) {
+    grid-column: span 2 !important;
+  }
+
+  /* 2 tarjetas inferiores: Incompletas (span 3), Sin entrada (span 3) */
+  #portal #admin-month-section .admin-month-kpis .admin-list-kpi:nth-child(4),
+  #portal #admin-month-section .admin-month-kpis .admin-list-kpi:nth-child(5) {
+    grid-column: span 3 !important;
+  }
+
+  #portal #admin-month-section .admin-month-workbench-head .admin-list-kpi {
+    min-height: 48px !important;
+    padding: 6px 8px !important;
+    border-radius: 9px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    cursor: default !important;
+    transition: background 0.15s ease, transform 0.1s ease !important;
+  }
+
+  #portal #admin-month-section .admin-month-workbench-head .admin-list-kpi:active {
+    transform: scale(0.97) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  #portal #admin-month-section .admin-month-workbench-head .admin-list-kpi small {
+    font-size: 8.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1.1 !important;
+    text-transform: uppercase !important;
+    color: #94a3b8 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+  }
+
+  #portal #admin-month-section .admin-month-workbench-head .admin-list-kpi b {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    margin-top: 3px !important;
+    color: #ffffff !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  #portal #admin-month-section .admin-month-workbench-head .admin-list-kpi.ready b {
+    color: #4ade80 !important;
+  }
+
+  #portal #admin-month-section .admin-month-workbench-head .admin-list-kpi.warning b {
+    color: #fbbf24 !important;
+  }
+
+  #portal #admin-month-section .admin-month-workbench-head .admin-list-kpi.danger b {
+    color: #f87171 !important;
+  }
+
+  /* 3. Panel de Controles: Navegación de Período y Filtros */
+  #portal #admin-month-section .admin-month-workbench-controls {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+
+  /* Selector de Mes con botones prev/next amplios y cómodos */
+  #portal #admin-month-section .admin-month-period-actions {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  #portal #admin-month-section .admin-month-picker {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    min-height: 40px !important;
+    height: 40px !important;
+    padding: 2px 4px !important;
+    background: #ffffff !important;
+    border: 1px solid #dce3ec !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+  }
+
+  #portal #admin-month-section .admin-month-picker button {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    border-radius: 8px !important;
+    display: grid !important;
+    place-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    color: #475569 !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease !important;
+  }
+
+  #portal #admin-month-section .admin-month-picker button:active {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
+
+  #portal #admin-month-section .admin-month-picker input {
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 36px !important;
+    border: 0 !important;
+    background: transparent !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    color: #1e293b !important;
+    cursor: pointer !important;
+  }
+
+  /* Fila de 3 Acciones Rápidas en una sola línea equilibrada */
+  #portal #admin-month-section :is(.admin-month-today, .admin-month-holidays, #admin-month-days-off) {
+    grid-column: span 1 !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 0 4px !important;
+    border-radius: 8px !important;
+    font-size: 10.5px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    background: #ffffff !important;
+    border: 1px solid #dce3ec !important;
+    color: #334155 !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+  }
+
+  #portal #admin-month-section :is(.admin-month-today, .admin-month-holidays, #admin-month-days-off):active {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    transform: scale(0.97) !important;
+  }
+
+  #portal #admin-month-section .admin-month-holidays svg {
+    width: 13px !important;
+    height: 13px !important;
+    margin-right: 3px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 4. Filtros compactos en 2 filas limpias */
+  #portal #admin-month-section .admin-month-filters {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 8px 8px !important;
+    width: 100% !important;
+  }
+
+  /* Buscar en fila 1 completa */
+  #portal #admin-month-section .admin-month-filters > label:not(.admin-toggle) {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    margin: 0 !important;
+  }
+
+  #portal #admin-month-section .admin-month-filters > label:not(.admin-toggle) span {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    color: #64748b !important;
+  }
+
+  #portal #admin-month-section .admin-month-filters input[type="search"] {
+    width: 100% !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 11px !important;
+    border: 1px solid #dce3ec !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    font-size: 12px !important;
+    color: #1e293b !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02) !important;
+  }
+
+  /* Área en fila 2, columna izquierda */
+  #portal #admin-month-section .admin-month-area-field {
+    grid-column: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  #portal #admin-month-section .admin-month-area-field > span {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    color: #64748b !important;
+  }
+
+  #portal #admin-month-section .admin-month-area-trigger {
+    width: 100% !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 10px !important;
+    border: 1px solid #dce3ec !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02) !important;
+  }
+
+  /* Incluir bajas en fila 2, columna derecha alineado como chip */
+  #portal #admin-month-section .admin-month-inactive {
+    grid-column: 2 !important;
+    align-self: end !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 10px !important;
+    border: 1px solid #dce3ec !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    margin: 0 !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02) !important;
+    cursor: pointer !important;
+  }
+
+  /* 5. Tabla / Libro mensual con scroll táctil suave y columna fija */
+  #portal #admin-month-section .admin-month-ledger {
+    max-height: calc(100dvh - 280px) !important;
+    min-height: 200px !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    border-radius: 12px !important;
+    border: 1px solid #dce3ec !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  }
+
+  #portal #admin-month-section .admin-month-table .person-col {
+    width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 5 !important;
+    background: #ffffff !important;
+    box-shadow: 2px 0 6px rgba(15, 23, 42, 0.06) !important;
+    padding: 6px 8px !important;
+  }
+
+  #portal #admin-month-section .admin-month-table thead .person-col {
+    z-index: 8 !important;
+    background: #f8fafc !important;
+  }
+
+  #portal #admin-month-section .admin-month-table thead th {
+    height: 38px !important;
+    font-size: 11px !important;
+  }
+
+  #portal #admin-month-section .admin-month-table :is(.day-col, td) {
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 38px !important;
+    font-size: 11px !important;
+    cursor: pointer !important;
+  }
+
+  #portal #admin-month-section .admin-month-table tbody td:active {
+    transform: scale(0.92) !important;
+  }
+
+  /* 6. Leyenda compacta en móvil */
+  #portal #admin-month-section .admin-month-legend {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px 10px !important;
+    padding: 8px 12px !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    font-size: 11px !important;
+  }
+
+  #portal #admin-month-section .admin-month-legend small {
+    width: 100% !important;
+    margin-top: 2px !important;
+    color: #64748b !important;
+    font-size: 10.5px !important;
+  }
+}
