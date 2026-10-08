@@ -420,8 +420,8 @@ async function renderAdminReviewDelivery(id){
   $('admin-review-observation-wrap').hidden=reviewed||!canDecide;
   $('admin-review-observation').disabled=reviewed||!canDecide;
   $('admin-review-observe').hidden=reviewed||!canDecide;$('admin-review-approve').hidden=reviewed||!canDecide;
-  $('admin-review-observe').disabled=closed;
-  adminReviewMessage(!canDecide?'Consulta privada de tu área. Solo Dirección puede aprobar o solicitar correcciones.':closed&&!reviewed?'La jornada ya fue cerrada: puedes aprobar y guardar una observación, pero el colaborador ya no puede reemplazar archivos.':'');
+  $('admin-review-observe').disabled=closed&&delivery.requisito!=='comparticiones';
+  adminReviewMessage(!canDecide?'Consulta privada de tu área. Solo Dirección puede aprobar o solicitar correcciones.':closed&&!reviewed&&delivery.requisito!=='comparticiones'?'La jornada ya fue cerrada: puedes aprobar y guardar una observación, pero el colaborador ya no puede reemplazar archivos.':'');
   const gallery=$('admin-review-gallery');gallery.innerHTML='<p class="admin-review-loading">Generando vistas privadas…</p>';
   const files=delivery.archivos||[];
   try{
