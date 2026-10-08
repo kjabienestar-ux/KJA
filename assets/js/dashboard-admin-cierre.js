@@ -47,6 +47,7 @@ function adminCloseEvidenceKey(item,assignment=false){
 
 function adminCloseEvidenceProgress(person,reviews=[]){
   const close=person?.cierre||{},expected=new Set(),complete=new Set(),latest=new Map();
+  if(close.feriado)return adminCloseEvidenceProgress({cierre:{requisitos:close.requisitos||[],aplica_comparticiones:close.aplica_comparticiones}},reviews.filter(item=>close.aplica_comparticiones&&item.requisito==='comparticiones'));
   if(close.justificado||close.solo_asistencia_comparticiones)return adminCloseEvidenceProgress({cierre:{requisitos:(close.requisitos||[]).filter(item=>item.tipo==='comparticiones'),aplica_comparticiones:close.aplica_comparticiones}},reviews.filter(item=>item.requisito==='comparticiones'));
   for(const item of close.requisitos||[]){const key=adminCloseEvidenceKey(item);if(!key)continue;expected.add(key);if(item.completo)complete.add(key)}
   for(const item of close.asignaciones||[]){const key=adminCloseEvidenceKey(item,true);if(!key)continue;expected.add(key);if(item.completo)complete.add(key)}
