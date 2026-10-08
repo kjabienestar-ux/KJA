@@ -1,145 +1,1562 @@
-/* Detalle diario: lectura operativa y revisión visual dentro del diálogo. */
-.md-facebook-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #cbd8e5}
-.md-facebook-actions p,.md-facebook-actions label,.md-facebook-actions [data-md-confirm]{width:100%;margin:0;font-size:12px;color:#213954}
-.md-facebook-actions button{min-height:36px;padding:7px 10px;border:1px solid #cbd8e5;border-radius:7px;background:#fff;color:#213954;font:inherit;cursor:pointer}
-.md-facebook-actions .md-remove-facebook,.md-facebook-actions [data-md-confirm-delete]{color:#a32b3d;border-color:#dbb8bf}
-.md-facebook-actions button:hover{background:#edf2f8}
-.md-facebook-actions button:disabled,.md-facebook-actions input:disabled{opacity:.6;cursor:wait}
-.md-facebook-actions input{display:block;width:100%;margin-top:8px;font:inherit}
-.md-facebook-actions [data-md-confirm] p{margin-bottom:8px}
-.md-facebook-actions [hidden]{display:none}
-#admin-month-modal.month-detail-modal .admin-month-sheet{width:min(1120px,calc(100vw - 40px));max-height:calc(100dvh - 40px);background:#f5f7fa;border:0;border-radius:18px;overflow:auto;scrollbar-color:#a8b5c4 transparent;box-shadow:0 28px 90px #091a3545}
-#admin-month-modal.month-detail-modal .admin-editor-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:14px;padding:18px 22px;background:#142c49;border-bottom:0}
-#admin-month-modal.month-detail-modal .admin-editor-head::before{content:attr(data-initials);display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:12px;background:#ffffff12;border:1px solid #ffffff26;color:#f4f7fc;font-size:17px;font-weight:650;letter-spacing:.02em}
-#admin-month-modal.month-detail-modal .admin-editor-head>div{flex:1;min-width:0}
-#admin-month-modal.month-detail-modal #admin-month-modal-eyebrow{display:none}
-#admin-month-modal.month-detail-modal #admin-month-modal-title{margin:0;color:#fff;font-size:22px;font-weight:650;letter-spacing:-.025em;line-height:1.25}
-#admin-month-modal.month-detail-modal #admin-month-modal-copy{margin-top:4px;color:#bdcde0;font-size:12px}
-#admin-month-modal.month-detail-modal .modal-close{position:static;width:36px;height:36px;flex-shrink:0;border:1px solid #ffffff24;border-radius:10px;background:#ffffff0d;color:#dce7f3}
-#admin-month-modal.month-detail-modal .modal-close:hover{background:#ffffff20;color:#fff}
-#admin-month-modal.month-detail-modal .admin-month-modal-body{padding:16px 22px 20px;gap:14px}
-#admin-month-modal.month-detail-modal h3{margin:0;font-size:16px;line-height:1.4;color:#213954}
-#admin-month-modal.month-detail-modal p{line-height:1.5;overflow-wrap:anywhere}
-#admin-month-modal.month-detail-modal button:focus-visible,#admin-month-modal.month-detail-modal a:focus-visible,#admin-month-modal.month-detail-modal summary:focus-visible{outline:3px solid #075abc;outline-offset:3px}
-.md-day-summary{display:flex;align-items:center;flex-wrap:wrap;gap:10px 18px;padding:0 0 14px;border-bottom:1px solid #dce3ec}
-.md-person-context{display:flex;flex-direction:column;gap:3px;font-size:12px;color:#596779}
-.md-person-context span+span{font-size:11px}
-#admin-month-modal.month-detail-modal .month-day-facts{display:flex;flex-wrap:wrap;gap:10px 18px;flex:1;border:0;border-radius:0;background:transparent;overflow:visible}
-#admin-month-modal.month-detail-modal .month-day-facts span{padding:0 0 0 16px;border:0;border-left:1px solid #e1e4e8}
-#admin-month-modal.month-detail-modal .month-day-facts small{font-weight:500;letter-spacing:0;color:#617086}
-#admin-month-modal.month-detail-modal .month-day-facts b{margin-top:4px;font-size:13px;line-height:1.4}
-#admin-month-modal.month-detail-modal .month-day-current{padding:7px 10px;border-radius:7px;max-width:240px;gap:6px}
-#admin-month-modal.month-detail-modal .month-day-current::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
-#admin-month-modal.month-detail-modal .month-day-current>span:last-child{font-size:12px}
-#admin-month-modal.month-detail-modal .month-day-current small{letter-spacing:0}
-#admin-month-modal.month-detail-modal .month-day-current b{margin:0;font-size:12px}
-.md-record-summary{display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px;margin-bottom:18px;padding:12px 14px;border-radius:10px;background:#eaf0f6}
-.md-timeline{display:flex;flex-wrap:wrap;gap:0;margin:0;padding:0;border:0;flex:1}
-.md-timeline>div{padding:0 20px;border-left:1px solid #cbd8e5}
-.md-timeline>div:first-child{padding-left:0;border-left:0}
-.md-timeline dt{font-size:12px;color:#617086}
-.md-timeline dd{margin:3px 0 0;font-size:19px;letter-spacing:-.025em;line-height:1.3;color:#213954;font-weight:650;font-variant-numeric:tabular-nums}
-.md-compliance{max-width:420px;margin:0;padding:0 0 0 14px;border-left:1px solid #cbd8e5;border-radius:0;background:transparent;color:#25634c;font-size:12px}
-.md-compliance.has-pending{background:#fff2db;color:#79520e}
-#admin-month-modal .md-compliance p{margin:4px 0 0;font-size:12px}
-.md-workspace{display:grid;grid-template-columns:minmax(300px,.65fr) minmax(0,1.35fr);align-items:start;gap:18px}
-.md-deliveries>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.md-deliveries>header>span{padding:3px 7px;border-radius:5px;background:#e3eaf3;font-size:11px;color:#3f5c80;white-space:nowrap}
-#admin-month-modal .md-help{margin:4px 0 8px;color:#617086;font-size:12px}
-.md-activity{padding:0 10px;margin-top:5px;border-bottom:1px solid #dce3ec;border-radius:8px;background:transparent;transition:background-color .15s ease}
-.md-activity[data-active="true"]{background:#e5edf8;border-bottom-color:transparent}
-.md-activity summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;cursor:pointer;list-style:none}
-.md-activity summary:hover .md-activity-label b{color:#075abc}
-.md-activity-icon{display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:8px;background:#e7ecf3;color:#537298}
-.md-activity-icon svg{width:17px;height:17px}
-.md-activity[data-active="true"] .md-activity-icon{background:#1d426c;color:#fff}
-.md-activity-label{flex:1}
-.md-activity summary::-webkit-details-marker{display:none}
-.md-activity summary>span{min-width:0}
-.md-activity summary b{display:block;color:#213954;font-size:12px;line-height:1.4}
-.md-activity summary small{display:block;margin-top:3px;color:#617086;font-weight:400}
-.md-activity summary em{flex-shrink:0;padding:3px 5px;border-radius:5px;font-size:10px;font-weight:600;font-style:normal}
-.md-activity .done{background:#e5f4ed;color:#25634c}
-.md-activity .pending{background:#fff0d7;color:#79520e}
-.md-activity .waived{background:#edf0f3;color:#526276}
-.md-activity summary::after{content:"";width:6px;height:6px;flex:none;border:solid #617086;border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
-.md-activity[open] summary::after{transform:rotate(225deg)}
-.md-activity-body{padding-bottom:10px}
-#admin-month-modal .md-activity-body p{margin:0 0 4px;font-size:12px;color:#526276;white-space:pre-wrap}
-.md-delivery-note{margin-bottom:6px}
-.md-delivery-note small{color:#617086;font-weight:400}
-.md-files{display:flex;flex-wrap:wrap;gap:6px}
-#admin-month-modal .md-file{display:flex;align-items:center;gap:6px;min-height:34px;padding:5px 8px;border:1px solid #d5dfed;border-radius:7px;background:#fff;color:#294b73;text-align:left}
-.md-file svg{width:18px;height:18px;flex:none}
-.md-file span{font-size:12px;font-weight:600}
-.md-file small{display:inline;margin-left:6px;color:#617086;font-weight:400}
-#admin-month-modal .md-file:hover{border-color:#92acc8;background:#f2f6fc}
-#admin-month-modal .md-file[aria-pressed="true"]{border-color:#1d426c;background:#1d426c;color:#fff}
-#admin-month-modal .md-file[aria-pressed="true"] small{color:#d1dfef}
-.md-preview{position:sticky;top:108px;min-width:0;overflow:hidden;border-radius:12px;background:#fff;box-shadow:0 6px 20px #17345012}
-.md-preview>header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#233952}
-.md-preview>header>div{flex:1;min-width:0}
-#admin-month-modal .md-preview h3{overflow-wrap:anywhere;color:#fff;font-size:14px}
-.md-preview small{display:block;margin-top:3px;color:#c2d1e3}
-.md-preview-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:8px;background:#ffffff12;color:#cfdeef}
-.md-preview-icon svg{width:18px;height:18px}
-.md-gallery-count{flex:none;padding:5px 8px;border-radius:6px;background:#ffffff13;color:#e7eff8;font-size:11px;font-variant-numeric:tabular-nums}
-.md-media{display:grid;place-items:center;min-height:270px;background:#0e1b2a}
-.md-media :is(img,video){display:block;width:100%;max-height:min(540px,calc(100dvh - 310px));object-fit:contain}
-.md-document{padding:30px;text-align:center;color:#e9eef5}
-.md-document svg{width:40px;height:40px}
-.md-preview-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px 0}
-.md-open-file{display:flex;align-items:center;justify-content:center;gap:6px;min-height:36px;margin:0;padding:7px 10px;border:0;border-radius:7px;background:#f0e5df;color:#844830;text-decoration:none;font-size:12px;font-weight:600}
-.md-open-file:hover{background:#e8d6cb}
-.md-open-file svg{width:15px;height:15px}
-#admin-month-modal .md-private{display:flex;align-items:center;justify-content:center;gap:5px;margin:10px 14px 12px;color:#617086;text-align:center;font-size:10px}
-.md-private svg{width:12px;height:12px;flex:none}
-.md-file-nav{display:flex;align-items:center;gap:6px;padding:0}
-.md-file-nav button,.md-error button,.md-preview>button{min-height:36px;padding:6px 10px;border:1px solid #c4ceda;border-radius:7px;background:#fff;color:#294b73}
-.md-file-nav span{font-size:12px;color:#526276;font-variant-numeric:tabular-nums}
-.md-file-nav button{display:flex;align-items:center;gap:4px;border:0;background:#eef2f7}
-.md-file-nav button:hover:not(:disabled){background:#dfe7f1}
-.md-file-nav svg{width:16px;height:16px}
-.md-file-nav button:disabled{opacity:.45;cursor:default}
-.md-empty,.md-loading,.md-error{padding:24px;color:#526276}
-.md-management{padding:14px;border:1px solid #dce3ec;border-radius:10px;background:#fff}
-.md-management h3{margin-bottom:12px!important}
-#admin-month-modal.month-detail-modal .month-state-picker{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0;border:0;border-radius:0;background:transparent}
-#admin-month-modal.month-detail-modal .month-state-picker p{flex:1 1 100%;margin-bottom:4px}
-#admin-month-modal.month-detail-modal .month-state-picker button{flex:1;min-width:80px;height:44px}
-#admin-month-modal.month-detail-modal .month-modal-actions{gap:8px}
-#admin-month-modal.month-detail-modal .month-day-note{padding:10px 14px;font-size:12px}
-@media(max-width:760px){
-  #admin-month-modal.month-detail-modal{padding:0;align-items:end}
-  #admin-month-modal.month-detail-modal .admin-month-sheet{width:100%;max-height:94dvh;border-radius:18px 18px 0 0}
-  #admin-month-modal.month-detail-modal .admin-editor-head{padding:16px}
-  #admin-month-modal.month-detail-modal #admin-month-modal-title{padding-right:0;font-size:20px}
-  #admin-month-modal.month-detail-modal .admin-editor-head::before{width:36px;height:36px;font-size:14px}
-  #admin-month-modal.month-detail-modal .admin-month-modal-body{padding:14px 16px max(20px,env(safe-area-inset-bottom))}
-  .md-day-summary{gap:10px 12px}
-  #admin-month-modal.month-detail-modal .month-day-facts{flex-basis:100%;order:3;gap:8px 14px}
-  #admin-month-modal.month-detail-modal .month-day-facts span{padding:0;border:0}
-  #admin-month-modal.month-detail-modal .month-day-current{flex-wrap:wrap;gap:8px}
-  .md-workspace{grid-template-columns:1fr;gap:16px}
-  .md-preview{position:static}
-  .md-timeline dd{font-size:14px}
-  .md-timeline{flex-basis:100%;row-gap:10px}
-  .md-timeline>div{padding-inline:10px}
-  .md-timeline>div:first-child{padding-left:0}
-  .md-compliance{max-width:none;flex-basis:100%;border-left:0;border-top:1px solid #cbd8e5;padding:10px 0 0}
-  .md-media{min-height:200px}
-  .md-person-context{flex:1;gap:3px}
-}
-@media(pointer:coarse){#admin-month-modal .md-file{min-height:44px}}
-@media(max-width:420px){.md-preview-footer{flex-wrap:wrap}.md-open-file{flex:1}.md-activity summary em{font-size:9px}.md-file-nav span{font-size:11px}}
-@media(prefers-reduced-motion:reduce){.md-activity{transition:none}}
+/* Detalle diario en Mes Completo: arquitectura limpia, compacta y autoajustable
+   - Fila 1: Barra de contexto del colaborador y condición del día
+   - Fila 2: Franja de métricas compactas (Entrada, Salida, Horas, Cumplimiento)
+   - Fila 3 (Workspace de 2 columnas balanceadas):
+     * Columna izquierda (.md-deliveries): Entregas y requisitos auditables con scroll independiente si es extenso
+     * Columna derecha (.md-side-pane): Visor de evidencia autoajustable (.md-preview) + Gestión de la jornada (.md-management)
+   Elimina completamente huecos vacíos y desbordes verticales innecesarios.
+*/
 
-/* Corrección de modalidad por fecha, junto al dato que modifica. */
-#admin-month-modal .md-mode-picker{display:inline-flex;gap:3px;margin:5px 0;padding:3px;border:1px solid #c4ceda;border-radius:8px;background:#eaf0f6}
-#admin-month-modal .md-mode-picker button{min-height:36px;padding:6px 12px;border:0;border-radius:5px;background:transparent;color:#294b73;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
-#admin-month-modal .md-mode-picker button[aria-pressed="true"]{background:#1d426c;color:#fff}
-#admin-month-modal .md-mode-picker button:hover:not(:disabled):not([aria-pressed="true"]){background:#d5dfed}
-#admin-month-modal .md-mode-picker button:disabled{cursor:wait;opacity:.65}
-#admin-month-modal #month-mode-status{display:block;max-width:260px;white-space:normal;color:#294b73}
-#admin-month-modal #month-mode-status:empty{display:none}
-@media(pointer:coarse){#admin-month-modal .md-mode-picker button{min-height:44px}}
+@keyframes mdSheetIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal y Sheet principal */
+#admin-month-modal.month-detail-modal {
+  padding: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+#admin-month-modal.month-detail-modal .modal-backdrop {
+  background: rgba(15, 23, 42, 0.52);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+#admin-month-modal.month-detail-modal .admin-month-sheet {
+  width: min(1140px, calc(100vw - 32px));
+  max-height: min(880px, calc(100dvh - 32px));
+  background: #f1f4f8;
+  border: 1px solid #dce3ec;
+  border-radius: 18px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.18), 0 0 1px 1px rgba(255, 255, 255, 0.8) inset;
+  animation: mdSheetIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Cabecera limpia y compacta */
+#admin-month-modal.month-detail-modal .admin-editor-head {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+#admin-month-modal.month-detail-modal .admin-editor-head::before {
+  content: attr(data-initials);
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0f4c5c 0%, #1b4965 100%);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 8px rgba(15, 76, 92, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#admin-month-modal.month-detail-modal .admin-editor-head > div {
+  flex: 1;
+  min-width: 0;
+}
+
+#admin-month-modal.month-detail-modal #admin-month-modal-eyebrow {
+  display: none;
+}
+
+#admin-month-modal.month-detail-modal #admin-month-modal-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+#admin-month-modal.month-detail-modal #admin-month-modal-copy {
+  margin: 2px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+#admin-month-modal.month-detail-modal .modal-close {
+  position: static;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 18px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#admin-month-modal.month-detail-modal .modal-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: scale(1.05);
+}
+
+/* Contenedor del cuerpo */
+#admin-month-modal.month-detail-modal .admin-month-modal-body {
+  padding: 12px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#admin-month-modal.month-detail-modal h3 {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #0f172a;
+}
+
+#admin-month-modal.month-detail-modal p {
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+#admin-month-modal.month-detail-modal button:focus-visible,
+#admin-month-modal.month-detail-modal a:focus-visible,
+#admin-month-modal.month-detail-modal summary:focus-visible {
+  outline: 2px solid #0f4c5c;
+  outline-offset: 2px;
+}
+
+/* 1. Barra superior de contexto del colaborador y condición del día */
+.md-day-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1px solid #dce3ec;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+}
+
+.md-person-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.md-person-context span:first-child {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #dbeafe;
+}
+
+.md-person-context span + span {
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+#admin-month-modal.month-detail-modal .month-day-facts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  flex: 1;
+  border: 0;
+  background: transparent;
+}
+
+#admin-month-modal.month-detail-modal .month-day-facts span {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 0 0 12px;
+  border: 0;
+  border-left: 1px solid #e2e8f0;
+}
+
+#admin-month-modal.month-detail-modal .month-day-facts small {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin: 0;
+}
+
+#admin-month-modal.month-detail-modal .month-day-facts b {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Selector de modalidad compacto */
+#admin-month-modal .md-mode-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  margin: 1px 0;
+}
+
+#admin-month-modal .md-mode-picker button {
+  min-height: 24px;
+  padding: 2px 10px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: #64748b;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#admin-month-modal .md-mode-picker button[aria-pressed="true"] {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+}
+
+#admin-month-modal .md-mode-picker button:hover:not(:disabled):not([aria-pressed="true"]) {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+#admin-month-modal .md-mode-picker button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+#admin-month-modal #month-mode-status {
+  display: block;
+  font-size: 10px;
+  color: #0f4c5c;
+  font-weight: 600;
+  margin-top: 1px;
+  white-space: normal;
+}
+
+#admin-month-modal #month-mode-status:empty {
+  display: none;
+}
+
+/* Badge de estado de asistencia de la jornada */
+#admin-month-modal.month-detail-modal .month-day-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+#admin-month-modal.month-detail-modal .month-day-current::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+#admin-month-modal.month-detail-modal .month-day-current b {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+#admin-month-modal.month-detail-modal .month-day-current.close-pending {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+#admin-month-modal.month-detail-modal .month-day-current.incomplete {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fee2e2;
+}
+
+#admin-month-modal.month-detail-modal .month-day-current.p {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+#admin-month-modal.month-detail-modal .month-day-current.t {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+#admin-month-modal.month-detail-modal .month-day-current.j {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+#admin-month-modal.month-detail-modal .month-day-current.ng {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+#admin-month-modal.month-detail-modal .month-day-note {
+  background: #ffffff;
+  border: 1px solid #dce3ec;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #334155;
+  margin: 0;
+}
+
+#admin-month-modal.month-detail-modal .month-incomplete-reasons {
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 0;
+}
+
+#admin-month-modal.month-detail-modal .month-incomplete-reasons header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#admin-month-modal.month-detail-modal .month-incomplete-reasons h3 {
+  margin: 0;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#admin-month-modal.month-detail-modal .month-incomplete-reasons header > span {
+  color: #b45309;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+#admin-month-modal.month-detail-modal .month-incomplete-reasons ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#admin-month-modal.month-detail-modal .month-incomplete-reasons li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: #78350f;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+#admin-month-modal.month-detail-modal .month-incomplete-reasons li > span {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fde68a;
+  color: #b45309;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+/* 2. Métricas de la jornada (KPI Strip) */
+.md-record-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.md-timeline {
+  display: contents;
+}
+
+.md-timeline > div {
+  background: #ffffff;
+  border: 1px solid #dce3ec;
+  border-radius: 12px;
+  padding: 8px 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.md-timeline > div dt {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.md-timeline > div:nth-child(1) dt { color: #047857; }
+.md-timeline > div:nth-child(2) dt { color: #1d4ed8; }
+.md-timeline > div:nth-child(3) dt { color: #6d28d9; }
+
+.md-timeline dd {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.md-compliance {
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid #dce3ec;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #14532d;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+}
+
+.md-compliance strong {
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.md-compliance p {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: #14532d;
+  line-height: 1.35;
+}
+
+.md-compliance.has-pending {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.md-compliance.has-pending strong {
+  color: #b45309;
+}
+
+.md-compliance.has-pending p {
+  color: #78350f;
+}
+
+#admin-month-modal .md-compliance p {
+  margin: 2px 0 0;
+  font-size: 11px;
+}
+
+/* 3. Espacio de trabajo (Grid de 2 columnas balanceadas) */
+.md-workspace {
+  display: grid;
+  grid-template-columns: minmax(340px, 0.95fr) minmax(420px, 1.15fr);
+  gap: 12px;
+  align-items: start;
+}
+
+/* COLUMNA IZQUIERDA: Entregas y evidencias con scroll independiente si hay muchas */
+.md-deliveries {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 240px);
+  min-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  padding-right: 2px;
+}
+
+.md-deliveries > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.md-deliveries > header h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.md-deliveries > header > span {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+#admin-month-modal .md-help {
+  margin: 0 0 8px 0;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* Tarjeta individual de actividad */
+.md-activity {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid #dce3ec;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+  transition: all 0.15s ease;
+}
+
+.md-activity:hover {
+  border-color: #cbd5e1;
+}
+
+.md-activity[data-active="true"] {
+  background: #fbfdff;
+  border-color: #0f4c5c;
+  box-shadow: 0 2px 8px rgba(15, 76, 92, 0.12);
+}
+
+.md-activity summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.md-activity summary::-webkit-details-marker {
+  display: none;
+}
+
+.md-activity summary:hover .md-activity-label b {
+  color: #0f4c5c;
+}
+
+.md-activity-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #475569;
+  transition: all 0.15s ease;
+}
+
+.md-activity-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.md-activity[data-active="true"] .md-activity-icon {
+  background: #0f4c5c;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 76, 92, 0.25);
+}
+
+.md-activity-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.md-activity summary b {
+  display: block;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.md-activity summary small {
+  display: block;
+  margin-top: 1px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.md-activity summary em {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.02em;
+}
+
+.md-activity .done {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.md-activity .pending {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.md-activity .waived {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.md-activity summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border: solid #94a3b8;
+  border-width: 0 1.8px 1.8px 0;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  margin-right: 2px;
+}
+
+.md-activity[open] summary::after {
+  transform: rotate(-135deg);
+  border-color: #0f4c5c;
+}
+
+.md-activity-body {
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+#admin-month-modal .md-activity-body p {
+  margin: 0 0 6px;
+  font-size: 11px;
+  color: #475569;
+  white-space: pre-wrap;
+}
+
+.md-delivery-note {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 2px 0 6px;
+}
+
+.md-delivery-note small {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.md-review {
+  background: #eff6ff;
+  color: #1e40af;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+/* Chips de archivos */
+.md-files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin-top: 6px;
+  padding-top: 5px;
+  padding-right: 6px;
+}
+
+.md-file-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+#admin-month-modal .md-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px solid #dce3ec;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+#admin-month-modal .md-file.has-remove {
+  padding-right: 18px;
+}
+
+.md-file svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.md-file span {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.md-file small {
+  display: inline;
+  margin-left: 4px;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 10px;
+}
+
+#admin-month-modal .md-file:hover {
+  border-color: #0f4c5c;
+  background: #f0fdfa;
+  color: #0f4c5c;
+}
+
+#admin-month-modal .md-file[aria-pressed="true"] {
+  border-color: #0f4c5c;
+  background: #0f4c5c;
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 76, 92, 0.25);
+}
+
+#admin-month-modal .md-file[aria-pressed="true"] small {
+  color: #cbd5e1;
+}
+
+/* Chip marcado para eliminar */
+.md-file-chip[data-target-delete="true"] .md-file {
+  border-color: #ef4444 !important;
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Botón flotante 'x' sobre la esquina del chip - Círculo perfecto blindado contra deformación y min-height de modal */
+#admin-month-modal .md-file-remove-btn,
+.modal .md-file-remove-btn,
+.md-file-chip .md-file-remove-btn {
+  position: absolute !important;
+  top: -6px !important;
+  right: -6px !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  max-width: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
+  box-sizing: border-box !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  touch-action: manipulation !important;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background 0.15s ease !important;
+}
+
+/* Área de toque expandida invisible para facilitar pulsación con el dedo en pantallas táctiles */
+#admin-month-modal .md-file-remove-btn::before,
+.modal .md-file-remove-btn::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -8px;
+  border-radius: 50%;
+}
+
+#admin-month-modal .md-file-remove-btn svg,
+.modal .md-file-remove-btn svg {
+  width: 10px !important;
+  height: 10px !important;
+  stroke: #ffffff !important;
+  stroke-width: 2.6 !important;
+  flex: none !important;
+  pointer-events: none !important;
+}
+
+#admin-month-modal .md-file-remove-btn:hover {
+  background: #dc2626 !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.55) !important;
+}
+
+#admin-month-modal .md-file-remove-btn:active {
+  transform: scale(0.92) !important;
+}
+
+.md-file-chip[data-target-delete="true"] .md-file-remove-btn {
+  background: #b91c1c !important;
+  transform: scale(1.15) !important;
+}
+
+/* Panel de Facebook con alerta de confirmación e inputs limpios */
+.md-facebook-actions {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.md-facebook-actions button:disabled,
+.md-facebook-actions input:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Cuadro de alerta de confirmación al presionar la 'x' */
+#admin-month-modal .md-confirm-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 6px;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: mdAlertSlide 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes mdAlertSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#admin-month-modal .md-confirm-box[hidden] {
+  display: none !important;
+}
+
+.md-confirm-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.md-confirm-icon {
+  font-size: 14px;
+}
+
+.md-confirm-header strong {
+  font-size: 12px;
+  font-weight: 700;
+  color: #991b1b;
+}
+
+#admin-month-modal .md-confirm-box p {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #7f1d1d;
+  font-weight: 500;
+}
+
+.md-confirm-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+#admin-month-modal .md-confirm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border: 1px solid #b91c1c !important;
+  border-radius: 6px !important;
+  padding: 5px 12px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.25) !important;
+}
+
+#admin-month-modal .md-confirm-btn:hover {
+  background: #b91c1c !important;
+  border-color: #991b1b !important;
+  transform: translateY(-1px);
+}
+
+#admin-month-modal .md-cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  padding: 5px 12px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+#admin-month-modal .md-cancel-btn:hover {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Estado de subida / borrado */
+#admin-month-modal [data-md-status] {
+  margin: 2px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f4c5c;
+}
+
+#admin-month-modal [data-md-status]:empty {
+  display: none;
+}
+
+/* Área de carga cuando no hay fotos */
+.md-upload-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 6px 14px;
+  background: #eff6ff;
+  border: 1px dashed #93c5fd;
+  border-radius: 8px;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.md-upload-label:hover {
+  background: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.md-upload-label input {
+  display: none;
+}
+
+.md-upload-help {
+  font-size: 10.5px;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+/* COLUMNA DERECHA (.md-side-pane): Visor y Gestión agrupados verticalmente sin huecos */
+.md-side-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Visor de evidencia con dimensionamiento autoajustable */
+.md-preview {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #dce3ec;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+}
+
+.md-preview > header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.md-preview > header > div {
+  flex: 1;
+  min-width: 0;
+}
+
+#admin-month-modal .md-preview h3 {
+  overflow-wrap: anywhere;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.md-preview small {
+  display: block;
+  margin-top: 1px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.md-preview-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.md-preview-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.md-gallery-count {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid #e2e8f0;
+}
+
+/* Área de media autoajustable a la evidencia */
+.md-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  max-height: 380px;
+  width: calc(100% - 16px);
+  background: #0b132b;
+  margin: 6px 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.md-media :is(img, video) {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 380px;
+  object-fit: contain;
+}
+
+.md-document {
+  padding: 24px 16px;
+  text-align: center;
+  color: #e2e8f0;
+}
+
+.md-document svg {
+  width: 36px;
+  height: 36px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.md-document p {
+  margin: 0;
+  font-size: 11px;
+}
+
+.md-preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px 6px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.md-open-file {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 28px;
+  margin: 0;
+  padding: 3px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 9999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.md-open-file:hover {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.md-open-file svg {
+  width: 12px;
+  height: 12px;
+}
+
+#admin-month-modal .md-private {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 0;
+  padding: 6px 10px 8px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 500;
+  background: #ffffff;
+  border-top: 1px solid #f8fafc;
+}
+
+.md-private svg {
+  width: 11px;
+  height: 11px;
+  flex: none;
+}
+
+.md-file-nav {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+}
+
+.md-file-nav button,
+.md-error button,
+.md-preview > button {
+  min-height: 28px;
+  padding: 3px 10px;
+  border: 1px solid #dce3ec;
+  border-radius: 9999px;
+  background: #f8fafc;
+  color: #334155;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.md-file-nav span {
+  font-size: 11px;
+  color: #334155;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.md-file-nav button:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.md-file-nav svg {
+  width: 13px;
+  height: 13px;
+}
+
+.md-file-nav button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.md-empty,
+.md-loading,
+.md-error {
+  padding: 20px;
+  color: #64748b;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* Panel de Gestión de la jornada (Ubicado inmediatamente debajo del visor) */
+.md-management {
+  padding: 10px 14px 12px;
+  border: 1px solid #dce3ec;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+  margin: 0;
+}
+
+.md-management h3 {
+  margin: 0 0 6px 0 !important;
+  font-size: 11px !important;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#admin-month-modal.month-detail-modal .month-state-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+#admin-month-modal.month-detail-modal .month-state-picker p {
+  flex: 1 1 100%;
+  margin: 0 0 3px 0;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+#admin-month-modal.month-detail-modal .month-state-picker button {
+  flex: 1;
+  min-width: 58px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #dce3ec;
+  background: #f8fafc;
+  color: #334155;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#admin-month-modal.month-detail-modal .month-state-picker button small {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  opacity: 0.75;
+}
+
+#admin-month-modal.month-detail-modal .month-state-picker button:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+#admin-month-modal.month-detail-modal .month-state-picker button.p.on {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.25);
+}
+
+#admin-month-modal.month-detail-modal .month-state-picker button.t.on {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #b45309;
+  box-shadow: 0 1px 4px rgba(245, 158, 11, 0.25);
+}
+
+#admin-month-modal.month-detail-modal .month-state-picker button.j.on {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  box-shadow: 0 1px 4px rgba(59, 130, 246, 0.25);
+}
+
+#admin-month-modal.month-detail-modal .month-state-picker button.ng.on {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #dc2626;
+  box-shadow: 0 1px 4px rgba(239, 68, 68, 0.25);
+}
+
+#admin-month-modal.month-detail-modal .month-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+#admin-month-modal.month-detail-modal .month-modal-actions button {
+  min-height: 28px;
+  padding: 3px 12px;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#admin-month-modal.month-detail-modal .admin-secondary-action {
+  background: #ffffff;
+  border: 1px solid #dce3ec;
+  color: #334155;
+}
+
+#admin-month-modal.month-detail-modal .admin-secondary-action:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+#admin-month-modal.month-detail-modal .admin-primary-action {
+  background: #0f4c5c;
+  border: 1px solid #0f4c5c;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 76, 92, 0.2);
+}
+
+#admin-month-modal.month-detail-modal .admin-primary-action:hover {
+  background: #1b4965;
+}
+
+#admin-month-modal.month-detail-modal .admin-danger-action {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #dc2626;
+}
+
+#admin-month-modal.month-detail-modal .admin-danger-action:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Responsividad adaptativa */
+@media (max-width: 900px) {
+  .md-workspace {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .md-deliveries {
+    max-height: none;
+  }
+  .md-record-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .md-compliance {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  #admin-month-modal.month-detail-modal {
+    padding: 0;
+    align-items: flex-end;
+  }
+  #admin-month-modal.month-detail-modal .admin-month-sheet {
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: 20px 20px 0 0;
+  }
+  #admin-month-modal.month-detail-modal .admin-editor-head {
+    padding: 12px 16px;
+  }
+  #admin-month-modal.month-detail-modal #admin-month-modal-title {
+    font-size: 15px;
+  }
+  #admin-month-modal.month-detail-modal .admin-editor-head::before {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+  #admin-month-modal.month-detail-modal .admin-month-modal-body {
+    padding: 12px 14px max(20px, env(safe-area-inset-bottom));
+  }
+  .md-day-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  #admin-month-modal.month-detail-modal .month-day-facts {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+  #admin-month-modal.month-detail-modal .month-day-facts span {
+    padding: 0;
+    border: 0;
+    width: 100%;
+  }
+  .md-record-summary {
+    grid-template-columns: 1fr;
+  }
+  .md-media {
+    min-height: 180px;
+  }
+}
+
+@media (pointer: coarse) {
+  #admin-month-modal .md-file {
+    min-height: 36px;
+  }
+  #admin-month-modal .md-mode-picker button {
+    min-height: 30px;
+  }
+  #admin-month-modal .md-file-remove-btn,
+  .modal .md-file-remove-btn,
+  .md-file-chip .md-file-remove-btn {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    max-width: 22px !important;
+    min-height: 22px !important;
+    max-height: 22px !important;
+    top: -7px !important;
+    right: -7px !important;
+  }
+  #admin-month-modal .md-file-remove-btn svg,
+  .modal .md-file-remove-btn svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .md-preview-footer {
+    flex-wrap: wrap;
+  }
+  .md-open-file {
+    flex: 1;
+  }
+  .md-activity summary em {
+    font-size: 9px;
+  }
+  .md-file-nav span {
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-activity,
+  #admin-month-modal.month-detail-modal .admin-month-sheet {
+    animation: none;
+    transition: none;
+  }
+}
