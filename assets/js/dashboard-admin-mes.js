@@ -380,13 +380,22 @@ async function changeMonthException(type){
   closeMonthModal();await loadAdminMonth(true);toast(type==='laborable_extra'?'Día habilitado.':type==='no_laborable'?'Permiso registrado.':'Horario restablecido.');
 }
 
-function openHolidayManager(){
+async function openHolidayManager(){
   if(!APP.adminMonth)return;
-  ADMIN_MONTH_DIALOG={kind:'holidays'};
-  const canEdit=!!APP.adminMonth.puede_editar,items=(APP.adminMonth.feriados||[]).map(item=>`<li><span><b>${new Date(item.fecha+'T12:00:00').toLocaleDateString('es-PE',{day:'numeric',month:'long'})}</b><small>${esc(item.nota||'Feriado')}</small></span>${canEdit?`<button type="button" data-remove-holiday="${item.fecha}">Quitar</button>`:''}</li>`).join('');
-  const form=canEdit?`<form class="month-holiday-form" id="month-holiday-form"><label>Fecha<input type="date" id="month-holiday-date" min="${APP.adminMonth.inicio}" max="${APP.adminMonth.fin}" required></label><label>Motivo<input id="month-holiday-note" maxlength="60" placeholder="Ej. Feriado nacional"></label><button class="admin-primary-action" type="submit">Agregar feriado</button></form>`:'<p class="admin-empty">Tu rol permite consultar, pero no editar feriados.</p>';
-  openMonthModal('CALENDARIO LABORAL','Feriados del mes','Bloquean el día para todo el equipo; una excepción personal puede habilitar a quien sí trabaje.',`${form}<ul class="month-holiday-list">${items||'<li class="empty">No hay feriados registrados este mes.</li>'}</ul>`);
-  if(canEdit)$('month-holiday-form').onsubmit=saveHoliday;
+  const dialog=ADMIN_MONTH_DIALOG={kind:'holidays',saving:false};
+  openMonthModal('CALENDARIO LABORAL','Programar feriados','Agenda un feriado para todo el equipo, también para los próximos meses.','<p role="status">Consultando próximos feriados…</p>');
+  try{
+    const {data,error}=await db.rpc('dash_admin_feriados_proximos');
+    if(ADMIN_MONTH_DIALOG!==dialog)return;
+    if(error||!data?.ok)throw new Error(error?.code==='PGRST202'?'La agenda de feriados aún no está disponible. Contacta a Sistemas.':'No se pudo cargar la agenda. Inténtalo nuevamente.');
+    dialog.today=data.hoy;
+    const canEdit=!!data.puede_editar;
+    const items=(data.feriados||[]).map(item=>`<li><span><b>${new Date(item.fecha+'T12:00:00').toLocaleDateString('es-PE',{day:'numeric',month:'long',year:'numeric'})}</b><small>${esc(item.nota||'Feriado')}</small><small>${item.solo_comparticiones?'Solo comparticiones programadas':'Sin jornada ni comparticiones'}</small></span>${canEdit?`<button type="button" data-remove-holiday="${esc(item.fecha)}" aria-label="Cancelar feriado del ${esc(item.fecha)}">Cancelar feriado</button>`:''}</li>`).join('');
+    const selected=APP.adminMonth.inicio>data.hoy?APP.adminMonth.inicio:data.hoy;
+    const form=canEdit?`<form class="month-holiday-form holiday-scheduler" id="month-holiday-form"><label>Fecha del feriado<input type="date" id="month-holiday-date" min="${data.hoy}" max="2100-12-31" value="${selected}" required></label><label>Nombre o motivo<input id="month-holiday-note" maxlength="60" placeholder="Ej. Feriado nacional"></label><p class="holiday-scheduler-effect">Ese día nadie tendrá que marcar asistencia ni subir RPE, salida o entregables. Solo se mantienen las comparticiones de quienes las tengan programadas. El anuncio aparecerá automáticamente ese día.</p><button class="admin-primary-action" type="submit">Agendar feriado</button></form>`:'<p class="admin-empty">Tu rol permite consultar, pero no editar feriados.</p>';
+    $('admin-month-modal-body').innerHTML=`${form}<h3>Próximos feriados</h3><ul class="month-holiday-list holiday-agenda">${items||'<li class="empty">No hay feriados programados desde hoy.</li>'}</ul>`;
+    if(canEdit)$('month-holiday-form').onsubmit=saveHoliday;
+  }catch(error){if(ADMIN_MONTH_DIALOG===dialog){modalMonthMessage(error.message);$('admin-month-modal-body').innerHTML='<button type="button" class="admin-secondary-action" data-retry-holidays>Reintentar</button>';}}
 }
 
 function openDaysOffManager(personId='',date=''){
@@ -432,15 +441,32 @@ async function saveManualDayOff(personId,date,reason='',remove=false){
   finally{dialog.saving=false;controls.forEach(control=>control.disabled=false);}
 }
 async function saveHoliday(event){
-  event.preventDefault();const date=$('month-holiday-date').value,note=$('month-holiday-note').value.trim();modalMonthMessage('Guardando feriado…');
-  const {data,error}=await db.rpc('dash_admin_guardar_feriado',{p_fecha:date,p_nota:note||null});
-  if(error||!data?.ok)return modalMonthMessage(data?.motivo==='nota'?'El motivo admite hasta 60 caracteres.':'No se pudo guardar el feriado.');
-  closeMonthModal();await loadAdminMonth(true);openHolidayManager();toast('Feriado guardado.');
+  event.preventDefault();
+  if(!$('month-holiday-form').reportValidity())return;
+  return mutateHoliday($('month-holiday-date').value,$('month-holiday-note').value.trim());
 }
 async function removeHoliday(date){
-  modalMonthMessage('Quitando feriado…');const {data,error}=await db.rpc('dash_admin_quitar_feriado',{p_fecha:date});
-  if(error||!data?.ok)return modalMonthMessage('No se pudo quitar el feriado.');
-  closeMonthModal();await loadAdminMonth(true);openHolidayManager();toast('Feriado retirado.');
+  return mutateHoliday(date,'',true);
+}
+async function mutateHoliday(date,note,remove=false){
+  const dialog=ADMIN_MONTH_DIALOG;
+  if(dialog?.kind!=='holidays'||dialog.saving)return;
+  dialog.saving=true;
+  const controls=[...$('admin-month-modal-body').querySelectorAll('input,button')];
+  controls.forEach(el=>el.disabled=true);
+  modalMonthMessage(remove?'Cancelando feriado…':'Agendando feriado…');
+  try{
+    const {data,error}=await db.rpc(remove?'dash_admin_quitar_feriado':'dash_admin_guardar_feriado',remove?{p_fecha:date}:{p_fecha:date,p_nota:note||null});
+    if(error||!data?.ok){
+      const messages={fecha:'Selecciona hoy o una fecha futura.',nota:'El motivo admite hasta 60 caracteres.',sin_permiso:'No tienes permiso para modificar feriados.'};
+      throw new Error(messages[data?.motivo]||'No se pudo guardar el cambio. Inténtalo nuevamente.');
+    }
+    if(ADMIN_MONTH_DIALOG!==dialog)return;
+    syncMonthInputs(date.slice(0,7));await loadAdminMonth(true);
+    if(ADMIN_MONTH_DIALOG===dialog)await openHolidayManager();
+    toast(remove?'Feriado cancelado. Se restableció el horario habitual.':'Feriado agendado para todo el equipo.');
+  }catch(error){if(ADMIN_MONTH_DIALOG===dialog)modalMonthMessage(error.message);}
+  finally{dialog.saving=false;controls.forEach(el=>el.disabled=false);}
 }
 
 function csvCell(value){const text=String(value??'');return /[;"\n]/.test(text)?`"${text.replace(/"/g,'""')}"`:text}
@@ -531,6 +557,7 @@ $('admin-month-ledger').onclick=event=>{
   if(cell)openMonthCell(cell.dataset.monthPerson,cell.dataset.monthDate);
 };
 $('admin-month-modal-body').onclick=event=>{
+  if(event.target.closest('[data-retry-holidays]'))return openHolidayManager();
   const removeDayOff=event.target.closest('[data-remove-day-off]');
   if(removeDayOff)return saveManualDayOff(Number(removeDayOff.dataset.removeDayOff),removeDayOff.dataset.date,'',true);
   const mode=event.target.closest('[data-month-mode]');if(mode&&!mode.disabled)return changeMonthMode(mode.dataset.monthMode);
