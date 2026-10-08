@@ -101,10 +101,21 @@ Deno.serve(async (req) => {
       }).formatToParts(new Date());
       const value = (type: string) => parts.find((part) => part.type === type)?.value || "";
       const prefix = `${value("year")}/${value("month")}/${value("day")}/${Number(colaborador)}/`;
-      const valid = paths.filter((path) => path.startsWith(prefix)
+      let valid = paths.filter((path) => path.startsWith(prefix)
         && /^[0-9]{4}\/[0-9]{2}\/[0-9]{2}\/[0-9]+\/[0-9a-f-]+\.(jpg|webp|mp4|webm|pdf|doc|docx|ppt|pptx)$/.test(path));
+      if (body.correccion != null) {
+        // Historical corrections can only clean up their own unused signed permits.
+        const correctionId=Number(body.correccion);
+        if(!Number.isSafeInteger(correctionId)||correctionId<=0)return json({ok:false,motivo:"datos"},400);
+        const {data:permits,error:permitError}=await servicio.from("asis_carga_permisos")
+          .select("path").eq("colaborador_id",Number(colaborador)).eq("correccion_entrega_id",correctionId)
+          .is("vinculado_at",null).in("path",paths);
+        if(permitError)return json({ok:false,motivo:"limpieza_pendiente"},503);
+        valid=(permits||[]).map((row: {path:string})=>row.path);
+      }
       if (!valid.length) return json({ ok: true, eliminados: 0 });
-      const { data: linked } = await servicio.from("asis_entrega_archivos").select("path").in("path", valid);
+      const { data: linked, error: linkedError } = await servicio.from("asis_entrega_archivos").select("path").in("path", valid);
+      if(linkedError)return json({ok:false,motivo:"limpieza_pendiente"},503);
       const linkedPaths = new Set((linked || []).map((row: { path: string }) => row.path));
       const orphaned = valid.filter((path) => !linkedPaths.has(path));
       if (orphaned.length) {
@@ -114,6 +125,10 @@ Deno.serve(async (req) => {
       return json({ ok: true, eliminados: orphaned.length });
     }
 
+    const isCorrection = body.accion === "corregir_comparticiones";
+    if(isCorrection && (!Number.isSafeInteger(Number(body.entrega)) || Number(body.entrega)<=0
+      || body.requisito!=="comparticiones" || body.tipo==="video"))
+      return json({ok:false,motivo:"datos"},400);
     const isAdminUpload = body.accion === "admin_cargar";
     const isVideo = body.tipo === "video";
     const isReplacement = body.accion === "reemplazar";
@@ -122,10 +137,12 @@ Deno.serve(async (req) => {
     if (isDocument && (body.requisito !== 'asignado' || isVideo)) return json({ok:false,motivo:'formato_documento'},400);
     const extension = isDocument ? documentExt : isVideo && ["mp4", "webm"].includes(String(body.ext || "").toLowerCase())
       ? String(body.ext).toLowerCase() : "jpg";
-    const rpc = isAdminUpload ? "dash_admin_entrega_permiso"
+    const rpc = isCorrection ? "dash_correccion_permiso" : isAdminUpload ? "dash_admin_entrega_permiso"
       : isReplacement ? "dash_reemplazo_permiso"
       : isVideo ? "dash_video_permiso" : "dash_entrega_permiso";
-    const args = isAdminUpload ? {
+    const args = isCorrection ? {
+      p_entrega: Number(body.entrega), p_modalidad: String(body.modalidad || ""), p_ext: extension,
+    } : isAdminUpload ? {
       p_colaborador: Number(body.colaborador),
       p_fecha: String(body.fecha || ""),
       p_requisito: String(body.requisito || ""),
