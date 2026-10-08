@@ -1,4 +1,16 @@
 /* Feriado: anuncio sereno, con la bandera peruana y las figuras del portal. */
+#admin-month-modal .holiday-scheduler{grid-template-columns:180px minmax(0,1fr);padding:20px;gap:16px}
+#admin-month-modal .holiday-scheduler label{font-size:12px;color:#40536a;gap:8px}
+#admin-month-modal .holiday-scheduler input{height:44px;font-size:14px;min-width:0}
+#admin-month-modal .holiday-scheduler input:focus-visible{outline:2px solid #075abc;outline-offset:2px}
+#admin-month-modal .holiday-scheduler-effect{grid-column:1/-1;margin:0;color:#50635d;font-size:14px;line-height:1.6}
+#admin-month-modal .holiday-scheduler button{grid-column:1/-1;justify-self:end;min-height:44px}
+#admin-month-modal .holiday-agenda li{padding:16px;gap:16px}
+#admin-month-modal .holiday-agenda b{font-size:14px}
+#admin-month-modal .holiday-agenda small{font-size:12px;line-height:1.5;color:#596471;overflow-wrap:anywhere}
+#admin-month-modal .holiday-agenda button{font-size:12px;min-height:44px;flex:none;cursor:pointer}
+#admin-month-modal .holiday-agenda .empty{font-size:14px;color:#596471}
+@media(max-width:600px){#admin-month-modal .holiday-scheduler{grid-template-columns:minmax(0,1fr)}#admin-month-modal .holiday-scheduler button{width:100%}#admin-month-modal .holiday-agenda li{align-items:start;flex-direction:column;gap:6px}}
 #portal [data-holiday-announcement][hidden]{display:none}
 #portal .holiday-announcement{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
