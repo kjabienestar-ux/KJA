@@ -69,7 +69,21 @@
   const ledger=document.getElementById('admin-month-ledger');
   if(ledger){
     ledger.tabIndex=0;ledger.setAttribute('role','region');ledger.setAttribute('aria-label','Asistencia mensual: desliza horizontalmente para ver todos los días');
-    const hint=document.createElement('p');hint.className='mobile-scroll-hint';hint.textContent='Desliza la tabla para ver los días del mes. Toca un día para consultar o editar su registro.';ledger.before(hint);
+    const hint=document.createElement('p');hint.className='mobile-scroll-hint';
+    hint.textContent='Desliza la tabla para ver los días del mes. Toca un día para consultar o editar su registro. ';
+    const jump=document.createElement('button');jump.type='button';jump.className='mobile-month-jump-today';jump.id='mobile-month-jump-today';jump.textContent='Ir a hoy ➔';
+    jump.addEventListener('click',()=>{
+      const todayCol=ledger.querySelector?.('.day-col.today')||(ledger.children||[]).find?.(el=>el.classList?.contains?.('today'));
+      if(todayCol){
+        const personCol=ledger.querySelector?.('.person-col');
+        const offset=(personCol?personCol.offsetWidth:168);
+        ledger.scrollTo?.({left:Math.max(0,(todayCol.offsetLeft||0)-offset-8),behavior:'smooth'});
+      }else{
+        document.getElementById('admin-month-today')?.click?.();
+      }
+    });
+    hint.append(jump);
+    ledger.before(hint);
   }
   const layers=[...document.querySelectorAll('.modal,.review-notification-layer')];
   function dialogs(){document.body.dataset.mobileDialogOpen=String(layers.some(el=>!el.hidden&&getComputedStyle(el).display!=='none'))}

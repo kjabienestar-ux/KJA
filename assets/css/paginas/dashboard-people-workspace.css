@@ -1,0 +1,905 @@
+/* ==========================================================================
+   KJA · Colaboradores (Directorio de Personas, Identidad y Jornada)
+   Rediseñado con la estética violeta/pizarra refinada del espacio de trabajo
+   ========================================================================== */
+
+#portal #admin-people-section {
+  --people-ink: #403955;
+  --people-muted: #706981;
+  --people-line: #e0ddea;
+  --people-line-hover: #beb4cf;
+  --people-primary: #655083;
+  --people-primary-hover: #53406d;
+  --people-primary-soft: #e8dff4;
+  --people-field-bg: #f1eff7;
+  --people-field-focus: #eee8f7;
+  --people-surface: #faf9fd;
+  --people-card-bg: #ffffff;
+  --people-card-shadow: 0 4px 16px rgba(64, 57, 85, 0.04);
+  --people-card-hover-shadow: 0 12px 28px rgba(64, 57, 85, 0.08);
+
+  background: transparent !important;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+#portal #admin-people-section[hidden] {
+  display: none !important;
+}
+
+#portal #admin-people-section * {
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   1. Barra de Herramientas Principal (Directorio Operativo)
+   -------------------------------------------------------------------------- */
+#portal #admin-people-section .admin-team-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  padding: 18px 24px !important;
+  background: var(--people-surface) !important;
+  border: 1px solid var(--people-line) !important;
+  border-radius: 24px !important;
+  box-shadow: none !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 4px !important;
+}
+
+#portal #admin-people-section .admin-team-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#portal #admin-people-section .admin-team-heading-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: var(--people-primary-soft);
+  color: var(--people-primary);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 10px rgba(77, 56, 108, 0.08);
+  flex-shrink: 0;
+}
+
+#portal #admin-people-section .admin-team-heading-icon svg {
+  stroke: currentColor;
+}
+
+#portal #admin-people-section .admin-team-heading .eyebrow {
+  color: var(--people-primary) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  margin: 0 0 2px !important;
+}
+
+#portal #admin-people-section .admin-team-heading h2 {
+  color: var(--people-ink) !important;
+  font-size: 19px !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.25 !important;
+}
+
+#portal #admin-people-section .admin-team-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Buscador de Colaboradores */
+#portal #admin-people-section .admin-team-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 220px;
+}
+
+#portal #admin-people-section .admin-team-search-wrap svg.admin-field-icon {
+  position: absolute;
+  left: 12px;
+  width: 15px;
+  height: 15px;
+  color: #807391;
+  pointer-events: none;
+}
+
+#portal #admin-people-section input#admin-people-search {
+  width: 100%;
+  height: 38px;
+  padding: 0 14px 0 34px !important;
+  border: 1px solid var(--people-line) !important;
+  border-radius: 12px !important;
+  background: var(--people-field-bg) !important;
+  color: var(--people-ink) !important;
+  font: 500 12.5px Inter, system-ui, sans-serif !important;
+  outline: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  box-shadow: none !important;
+}
+
+#portal #admin-people-section input#admin-people-search::placeholder {
+  color: #7a7287 !important;
+}
+
+#portal #admin-people-section input#admin-people-search:focus {
+  background: #ffffff !important;
+  border-color: #766498 !important;
+  box-shadow: 0 0 0 3px var(--people-field-focus) !important;
+}
+
+/* Botón Gestionar Áreas */
+#portal #admin-people-section #admin-manage-areas {
+  height: 38px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--people-line);
+  border-radius: 12px;
+  background: var(--people-field-bg);
+  color: var(--people-ink);
+  font: 600 12px Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+#portal #admin-people-section #admin-manage-areas:hover {
+  background: #eae5f4;
+  border-color: var(--people-line-hover);
+  color: var(--people-primary);
+}
+
+#portal #admin-people-section #admin-manage-areas[aria-expanded="true"] {
+  background: var(--people-primary);
+  color: #ffffff;
+  border-color: var(--people-primary);
+  box-shadow: 0 3px 10px rgba(101, 80, 131, 0.28);
+}
+
+/* Toggle Incluir Bajas */
+#portal #admin-people-section .admin-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: background 0.15s ease;
+  font: 500 12.5px Inter, system-ui, sans-serif;
+  color: #554d66;
+  white-space: nowrap;
+}
+
+#portal #admin-people-section .admin-toggle:hover {
+  background: rgba(101, 80, 131, 0.05);
+}
+
+#portal #admin-people-section .admin-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--people-primary);
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Botón + Nuevo Colaborador */
+#portal #admin-people-section #admin-new-person {
+  height: 38px;
+  min-height: 38px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--people-primary) !important;
+  color: #ffffff !important;
+  font: 600 12.5px Inter, system-ui, sans-serif !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 3px 10px rgba(101, 80, 131, 0.28) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+#portal #admin-people-section #admin-new-person:hover {
+  background: var(--people-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(101, 80, 131, 0.36) !important;
+}
+
+#portal #admin-people-section #admin-new-person:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(101, 80, 131, 0.24) !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. Tarjeta Informe Consolidado
+   -------------------------------------------------------------------------- */
+#portal #admin-people-section .admin-attendance-export {
+  background: var(--people-card-bg) !important;
+  border: 1px solid var(--people-line) !important;
+  border-radius: 24px !important;
+  box-shadow: var(--people-card-shadow) !important;
+  margin: 0 0 4px !important;
+  overflow: hidden;
+  transition: border-color 0.18s ease;
+}
+
+#portal #admin-people-section .attendance-export-head {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+#portal #admin-people-section .attendance-export-head h3 {
+  margin: 0 0 4px;
+  color: var(--people-ink);
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+#portal #admin-people-section .attendance-export-head p {
+  margin: 0;
+  color: var(--people-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#portal #admin-people-section .attendance-export-sheets {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+#portal #admin-people-section .attendance-export-sheets span {
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--people-field-bg);
+  color: var(--people-primary);
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 0;
+}
+
+#portal #admin-people-section .attendance-export-sheets span + span {
+  margin-left: 0;
+  padding-left: 12px;
+  border-left: 0;
+}
+
+#portal #admin-people-section .attendance-export-selection {
+  border-top: 1px solid var(--people-line);
+  border-bottom: 1px solid var(--people-line);
+}
+
+#portal #admin-people-section .attendance-export-selection > summary {
+  padding: 16px 24px;
+  background: var(--people-surface);
+  transition: background 0.15s ease;
+}
+
+#portal #admin-people-section .attendance-export-selection > summary:hover {
+  background: #f4effa;
+}
+
+#portal #admin-people-section .attendance-export-selection > summary b {
+  color: var(--people-ink);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+#portal #admin-people-section .attendance-export-selection > summary small {
+  color: var(--people-muted);
+  font-size: 12px;
+}
+
+#portal #admin-people-section .attendance-export-count {
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--people-primary-soft);
+  color: var(--people-primary);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+#portal #admin-people-section .attendance-export-tools {
+  padding: 16px 24px;
+}
+
+#portal #admin-people-section .attendance-export-search {
+  border: 1px solid var(--people-line);
+  border-radius: 12px;
+  background: var(--people-field-bg);
+  padding: 0 12px;
+  height: 38px;
+  min-height: 38px;
+}
+
+#portal #admin-people-section .attendance-export-search input {
+  color: var(--people-ink);
+  font-size: 12.5px;
+  caret-color: var(--people-primary);
+}
+
+#portal #admin-people-section .attendance-export-search:focus-within {
+  outline: none;
+  border-color: #766498;
+  box-shadow: 0 0 0 3px var(--people-field-focus);
+  background: #ffffff;
+}
+
+#portal #admin-people-section .attendance-export-tools button {
+  color: var(--people-primary);
+  font-weight: 600;
+  font-size: 12px;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+#portal #admin-people-section .attendance-export-tools button:hover {
+  background: var(--people-primary-soft);
+}
+
+#portal #admin-people-section .attendance-export-picker {
+  padding: 0 24px 20px;
+}
+
+#portal #admin-people-section .attendance-export-avatar {
+  background: var(--people-primary-soft);
+  color: var(--people-primary);
+  border-radius: 10px;
+}
+
+#portal #admin-people-section .attendance-export-option {
+  border-bottom-color: var(--people-line);
+}
+
+#portal #admin-people-section .attendance-export-option:hover {
+  background: #faf8fd;
+}
+
+#portal #admin-people-section .attendance-export-option:has(input:checked) {
+  background: #f4eef9;
+}
+
+#portal #admin-people-section .attendance-export-option input {
+  accent-color: var(--people-primary);
+}
+
+#portal #admin-people-section .attendance-export-footer {
+  padding: 16px 24px;
+  background: #ffffff;
+}
+
+#portal #admin-people-section #admin-attendance-export-status {
+  color: var(--people-muted);
+  font-size: 12.5px;
+}
+
+#portal #admin-people-section #admin-attendance-export {
+  height: 38px;
+  min-height: 38px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 1px solid var(--people-line);
+  background: var(--people-field-bg);
+  color: var(--people-ink);
+  font: 600 12.5px Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+#portal #admin-people-section #admin-attendance-export:hover:not(:disabled) {
+  background: #eae5f4;
+  border-color: var(--people-line-hover);
+  color: var(--people-primary);
+}
+
+#portal #admin-people-section #admin-attendance-excel {
+  height: 38px;
+  min-height: 38px;
+  padding: 0 20px;
+  border-radius: 12px;
+  border: 0;
+  background: var(--people-primary) !important;
+  color: #ffffff !important;
+  font: 600 12.5px Inter, system-ui, sans-serif;
+  box-shadow: 0 3px 10px rgba(101, 80, 131, 0.28);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#portal #admin-people-section #admin-attendance-excel:hover:not(:disabled) {
+  background: var(--people-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(101, 80, 131, 0.36);
+}
+
+/* --------------------------------------------------------------------------
+   3. Tarjetas KPI de Resumen
+   -------------------------------------------------------------------------- */
+#portal #admin-people-section #admin-people-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+#portal #admin-people-section #admin-people-kpis .admin-list-kpi {
+  background: var(--people-card-bg) !important;
+  border: 1px solid var(--people-line) !important;
+  border-radius: 18px !important;
+  padding: 18px 20px !important;
+  box-shadow: 0 2px 8px rgba(64, 57, 85, 0.03) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#portal #admin-people-section #admin-people-kpis .admin-list-kpi:hover {
+  transform: translateY(-2px);
+  border-color: var(--people-line-hover) !important;
+  box-shadow: 0 6px 18px rgba(64, 57, 85, 0.06) !important;
+}
+
+#portal #admin-people-section #admin-people-kpis .admin-list-kpi small {
+  display: block;
+  color: var(--people-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#portal #admin-people-section #admin-people-kpis .admin-list-kpi b {
+  display: block;
+  margin-top: 8px;
+  color: var(--people-ink);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* --------------------------------------------------------------------------
+   4. Grupos por Área
+   -------------------------------------------------------------------------- */
+#portal #admin-people-section .admin-people-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+#portal #admin-people-section .admin-people-group {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+#portal #admin-people-section .admin-people-group > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  border: 1px solid var(--people-line);
+  border-radius: 18px;
+  background: var(--people-surface);
+  margin-bottom: 14px;
+  min-height: auto;
+}
+
+#portal #admin-people-section .admin-people-group > header span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#portal #admin-people-section .admin-people-group > header i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--people-primary);
+  box-shadow: 0 0 0 4px var(--people-primary-soft);
+}
+
+#portal #admin-people-section .admin-people-group > header b {
+  color: var(--people-ink);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+#portal #admin-people-section .admin-people-group > header small {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--people-field-bg);
+  color: var(--people-primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   5. Cuadrícula y Tarjetas de Colaborador
+   -------------------------------------------------------------------------- */
+#portal #admin-people-section .admin-person-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+#portal #admin-people-section .admin-person-card {
+  background: var(--people-card-bg) !important;
+  border: 1px solid var(--people-line) !important;
+  border-radius: 22px !important;
+  padding: 22px !important;
+  box-shadow: var(--people-card-shadow) !important;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 0;
+  position: relative;
+}
+
+#portal #admin-people-section .admin-person-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--people-line-hover) !important;
+  box-shadow: var(--people-card-hover-shadow) !important;
+}
+
+#portal #admin-people-section .admin-person-card.inactive {
+  background: #fbfafd !important;
+  opacity: 0.76;
+}
+
+/* Encabezado de la Tarjeta */
+#portal #admin-people-section .admin-person-card-head {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+#portal #admin-people-section .admin-person-card-head > .avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--people-primary-soft);
+  color: var(--people-primary);
+  font-size: 13px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(101, 80, 131, 0.1);
+}
+
+#portal #admin-people-section .admin-person-card-head > span:nth-child(2) b {
+  color: var(--people-ink);
+  font-size: 14.5px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#portal #admin-people-section .admin-person-card-head > span:nth-child(2) small {
+  color: var(--people-muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+#portal #admin-people-section .admin-person-card-head > div {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+#portal #admin-people-section .admin-person-card-head button {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--people-line);
+  border-radius: 10px;
+  background: var(--people-field-bg);
+  color: #554d66;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+#portal #admin-people-section .admin-person-card-head button:hover {
+  background: #eee8f7;
+  color: var(--people-ink);
+  border-color: var(--people-line-hover);
+}
+
+#portal #admin-people-section .admin-person-card-head button.days-off {
+  color: #4f3b6c;
+  background: #f2eef9;
+  border-color: #ded6ec;
+  font-weight: 600;
+}
+
+#portal #admin-people-section .admin-person-card-head button.days-off:hover {
+  background: #e8e0f5;
+  color: #3b2857;
+}
+
+#portal #admin-people-section .admin-person-card-head button.danger:hover {
+  color: #a9384c;
+  border-color: #efc5cd;
+  background: #fff4f6;
+}
+
+/* Línea de Identidad (DNI, PIN, Portal) */
+#portal #admin-people-section .admin-identity-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0;
+  font-size: 12px;
+}
+
+#portal #admin-people-section .admin-identity-line span {
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #f4f1f8;
+  color: #5c5470;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+#portal #admin-people-section .admin-identity-line span b {
+  color: var(--people-ink);
+  font-weight: 700;
+}
+
+#portal #admin-people-section .admin-identity-line .ready {
+  color: #1e7046;
+  background: #e8f5ec;
+  font-weight: 600;
+}
+
+#portal #admin-people-section .admin-identity-line .missing {
+  color: #9c5c00;
+  background: #fff3e6;
+  font-weight: 600;
+}
+
+/* Cuadrícula de Horario Semanal */
+#portal #admin-people-section .admin-week-ledger {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border: 1px solid #e7e3ef;
+  border-radius: 14px;
+  background: #faf9fc;
+  overflow: hidden;
+}
+
+#portal #admin-people-section .admin-day-chip {
+  min-width: 0;
+  min-height: 58px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #eae5f2;
+  background: transparent;
+}
+
+#portal #admin-people-section .admin-day-chip:last-child {
+  border-right: 0;
+}
+
+#portal #admin-people-section .admin-day-chip b {
+  color: var(--people-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+#portal #admin-people-section .admin-day-chip i {
+  margin: 3px 0 2px;
+  font-size: 11px;
+  font-weight: 700;
+  font-style: normal;
+  color: #196d61;
+}
+
+#portal #admin-people-section .admin-day-chip.presencial i {
+  color: var(--people-primary);
+}
+
+#portal #admin-people-section .admin-day-chip.opcional i {
+  color: #b56c00;
+}
+
+#portal #admin-people-section .admin-day-chip.no_gestiona {
+  background: #f4f2f7;
+  color: #a49bb5;
+}
+
+#portal #admin-people-section .admin-day-chip.no_gestiona i {
+  color: #a49bb5;
+}
+
+#portal #admin-people-section .admin-day-chip small {
+  color: var(--people-muted);
+  font-size: 9.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra de Seguimiento / Progreso */
+#portal #admin-people-section .admin-person-contract {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  align-items: center;
+  gap: 14px;
+  margin-top: 2px;
+  padding-top: 12px;
+  border-top: 1px solid #eeebf3;
+}
+
+#portal #admin-people-section .admin-person-contract small {
+  color: var(--people-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#portal #admin-people-section .admin-person-contract b {
+  color: var(--people-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+#portal #admin-people-section .admin-person-contract > i {
+  height: 6px;
+  border-radius: 6px;
+  background: #eae5f2;
+  overflow: hidden;
+}
+
+#portal #admin-people-section .admin-person-contract > i:after {
+  background: linear-gradient(90deg, var(--people-primary), #9d7dbf);
+}
+
+/* Botón Ver Ficha Completa */
+#portal #admin-people-section .admin-person-card .admin-person-view-profile {
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #262133;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  text-align: left;
+}
+
+#portal #admin-people-section .admin-person-card .admin-person-view-profile:hover {
+  background: #171320;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(23, 19, 32, 0.22);
+}
+
+#portal #admin-people-section .admin-person-card .admin-person-view-profile span {
+  color: #c4bcdc;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+#portal #admin-people-section .admin-legacy-link {
+  color: #8c839d;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  align-self: flex-end;
+  transition: color 0.15s ease;
+}
+
+#portal #admin-people-section .admin-legacy-link:hover {
+  color: var(--people-primary);
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   6. Adaptabilidad Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  #portal #admin-people-section .admin-person-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  #portal #admin-people-section .admin-team-toolbar {
+    padding: 18px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  #portal #admin-people-section .admin-team-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #portal #admin-people-section .admin-team-search-wrap {
+    width: 100%;
+  }
+
+  #portal #admin-people-section #admin-people-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  #portal #admin-people-section .admin-person-card-head {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  #portal #admin-people-section .admin-person-card-head > div {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  #portal #admin-people-section .admin-person-card-head button {
+    flex: 1;
+  }
+
+  #portal #admin-people-section #admin-people-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  #portal #admin-people-section .admin-week-ledger {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  #portal #admin-people-section .admin-person-card .admin-person-view-profile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

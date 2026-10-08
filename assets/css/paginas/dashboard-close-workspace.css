@@ -26,7 +26,7 @@
 #portal #admin-close-section .admin-close-heading-icon svg{stroke:currentColor}
 #portal #admin-close-section .admin-close-heading h2{color:var(--close-ink);font-weight:600}
 #portal #admin-close-section .admin-close-heading p,
-#portal #admin-close-section .admin-close-filters label>span{color:var(--close-muted)}
+#portal #admin-close-section .admin-close-filters :is(label, .admin-close-filter-col)>span{color:var(--close-muted)}
 #portal #admin-close-section .admin-review-summary>span.admin-review-stat{
   background:#fff;
   border-color:#e9e5f0;
@@ -52,6 +52,333 @@
   background:#fff;
   border-color:#a79aba;
   box-shadow:0 0 0 3px #eee8f7;
+}
+
+/* Custom Desktop Filter Triggers (Fecha & Área) */
+#portal #admin-close-section .admin-close-trigger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 38px;
+  padding: 0 28px 0 32px;
+  border: 1px solid var(--close-line);
+  border-radius: 12px;
+  background: #f1eff7;
+  color: var(--close-ink);
+  font: 500 12px/38px Inter, system-ui, sans-serif;
+  text-align: left;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  position: relative;
+}
+#portal #admin-close-section .admin-close-trigger-btn:hover {
+  background: #eae5f4;
+  border-color: #beb4cf;
+}
+#portal #admin-close-section .admin-close-trigger-btn:is([aria-expanded="true"], :focus-visible) {
+  outline: none;
+  background: #ffffff;
+  border-color: #766498;
+  box-shadow: 0 0 0 3px #eee8f7;
+}
+#portal #admin-close-section .admin-close-field-wrap:has(.admin-close-trigger-btn[aria-expanded="true"]) .admin-chevron-icon {
+  transform: rotate(180deg);
+  color: #655083;
+}
+#portal #admin-close-section .admin-close-trigger-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--close-ink);
+}
+
+/* Custom Calendar Popover */
+#portal #admin-close-section .admin-close-calendar-popover {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  z-index: 1200;
+  width: 290px;
+  background: #ffffff;
+  border: 1px solid #e2dde9;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 16px 42px rgba(64, 57, 85, 0.16), 0 2px 8px rgba(64, 57, 85, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  animation: adminCloseCalFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#portal #admin-close-section .admin-close-calendar-popover[hidden] {
+  display: none !important;
+}
+
+@keyframes adminCloseCalFadeIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+#portal #admin-close-section .admin-close-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+#portal #admin-close-section .admin-close-cal-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--close-ink);
+  letter-spacing: -0.01em;
+  text-transform: capitalize;
+}
+#portal #admin-close-section .admin-close-cal-nav {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 9px;
+  background: #f1eff7;
+  color: #655083;
+  font-size: 17px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+#portal #admin-close-section .admin-close-cal-nav:hover:not(:disabled) {
+  background: #e6ddf1;
+  color: #403955;
+  transform: scale(1.06);
+}
+#portal #admin-close-section .admin-close-cal-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#portal #admin-close-section .admin-close-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  text-align: center;
+}
+#portal #admin-close-section .admin-close-cal-weekdays span {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #8c839d;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 3px 0;
+}
+
+#portal #admin-close-section .admin-close-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+#portal #admin-close-section .admin-close-cal-empty {
+  height: 34px;
+}
+#portal #admin-close-section .admin-close-cal-day {
+  height: 34px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--close-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.15s ease;
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+}
+#portal #admin-close-section .admin-close-cal-day:hover:not(:disabled):not(.is-selected) {
+  background: #f1eff7;
+  color: #655083;
+  transform: translateY(-1px);
+}
+#portal #admin-close-section .admin-close-cal-day.is-today:not(.is-selected) {
+  border: 1.5px solid #655083;
+  color: #655083;
+  font-weight: 700;
+  background: #faf8fd;
+}
+#portal #admin-close-section .admin-close-cal-day.is-selected {
+  background: #655083 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(101, 80, 131, 0.32);
+}
+#portal #admin-close-section .admin-close-cal-day:disabled {
+  color: #ccc7d5;
+  cursor: not-allowed;
+  background: transparent !important;
+  transform: none !important;
+}
+
+#portal #admin-close-section .admin-close-cal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #eeeaf5;
+}
+#portal #admin-close-section .admin-close-cal-today {
+  height: 29px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #f1eff7;
+  color: #655083;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+#portal #admin-close-section .admin-close-cal-today:hover {
+  background: #e6ddf1;
+  color: #403955;
+}
+#portal #admin-close-section .admin-close-cal-close {
+  height: 29px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #8c839d;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+#portal #admin-close-section .admin-close-cal-close:hover {
+  color: #403955;
+  background: #f1eff7;
+}
+
+/* Custom Area Popover */
+#portal #admin-close-section .admin-close-area-popover {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  z-index: 1200;
+  width: 250px;
+  max-width: 90vw;
+  background: #ffffff;
+  border: 1px solid #e2dde9;
+  border-radius: 18px;
+  padding: 10px;
+  box-shadow: 0 16px 42px rgba(64, 57, 85, 0.16), 0 2px 8px rgba(64, 57, 85, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  animation: adminCloseCalFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#portal #admin-close-section .admin-close-area-popover[hidden] {
+  display: none !important;
+}
+
+#portal #admin-close-section .admin-close-area-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+#portal #admin-close-section .admin-close-area-search svg {
+  position: absolute;
+  left: 10px;
+  width: 13px;
+  height: 13px;
+  color: #8c839d;
+  pointer-events: none;
+}
+#portal #admin-close-section .admin-close-area-search input {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px 0 28px !important;
+  border: 1px solid #e0ddea !important;
+  border-radius: 9px !important;
+  background: #f8f6fc !important;
+  color: var(--close-ink) !important;
+  font: 500 12px/32px Inter, system-ui, sans-serif !important;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: none !important;
+}
+#portal #admin-close-section .admin-close-area-search input:focus {
+  border-color: #655083 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px #eee8f7 !important;
+}
+
+#portal #admin-close-section .admin-close-area-options {
+  max-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #d1cbdc transparent;
+}
+#portal #admin-close-section .admin-close-area-options::-webkit-scrollbar {
+  width: 5px;
+}
+#portal #admin-close-section .admin-close-area-options::-webkit-scrollbar-thumb {
+  background: #d1cbdc;
+  border-radius: 4px;
+}
+
+#portal #admin-close-section .admin-close-area-opt-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--close-ink);
+  font: 500 12.5px Inter, system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  box-sizing: border-box;
+}
+#portal #admin-close-section .admin-close-area-opt-btn:hover {
+  background: #f4effa;
+  color: #655083;
+}
+#portal #admin-close-section .admin-close-area-opt-btn.is-selected {
+  background: #ece5f5;
+  color: #655083;
+  font-weight: 600;
+}
+#portal #admin-close-section .admin-close-area-opt-check {
+  font-size: 13px;
+  color: #655083;
+  font-weight: 700;
+}
+#portal #admin-close-section .admin-close-area-empty {
+  padding: 14px 10px;
+  text-align: center;
+  color: #8c839d;
+  font-size: 12px;
+  margin: 0;
 }
 #portal #admin-close-section :is(button,a,input,select):focus-visible{outline-color:#766498 !important}
 #portal #admin-close-section .admin-close-area{
@@ -202,7 +529,18 @@
   #portal #admin-close-section .admin-review-summary>span.admin-review-stat{min-width:0 !important;padding:8px 5px}
   #portal #admin-close-section .admin-review-stat-label small{font-size:9px;letter-spacing:0}
   #portal #admin-close-section .admin-close-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%}
-  #portal #admin-close-section .admin-close-filters label{min-width:0;max-width:none;width:100%}
+  #portal #admin-close-section .admin-close-filters :is(label, .admin-close-filter-col){min-width:0;max-width:none;width:100%}
   #portal #admin-close-section .admin-close-search{grid-column:1/-1}
-  #portal #admin-close-section .admin-close-filters :is(input,select){height:44px;padding-left:28px}
+  #portal #admin-close-section .admin-close-filters :is(input,select,.admin-close-trigger-btn){height:44px;padding-left:28px}
+  #portal #admin-close-section :is(.admin-close-calendar-popover, .admin-close-area-popover){
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(320px, calc(100vw - 32px)) !important;
+    max-height: 85vh;
+    box-shadow: 0 20px 60px rgba(40, 30, 60, 0.28) !important;
+    z-index: 2000 !important;
+  }
 }

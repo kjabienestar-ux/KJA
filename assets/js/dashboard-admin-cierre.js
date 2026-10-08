@@ -335,6 +335,8 @@ function hydrateAdminCloseControls(){
   const canAssign=!!data.puede_editar&&($('admin-close-date').value||isoLima())>=isoLima();
   $('admin-close-assignment-form').hidden=!data.puede_editar;
   $('admin-close-assign').disabled=!canAssign;
+  if(typeof syncAdminCloseAreaCustom==='function')syncAdminCloseAreaCustom();
+  if(typeof syncAdminCloseDatePicker==='function')syncAdminCloseDatePicker();
 }
 
 let ADMIN_CLOSE_REQUEST=0;
@@ -342,6 +344,7 @@ async function loadAdminCloses({quiet=false}={}){
   if(!APP.access.acceso_panel)return;
   const request=++ADMIN_CLOSE_REQUEST,refresh=$('admin-close-assignments-refresh');
   const date=$('admin-close-date').value||isoLima();$('admin-close-date').value=date;
+  if(typeof syncAdminCloseDatePicker==='function')syncAdminCloseDatePicker();
   if(refresh){refresh.disabled=true;refresh.setAttribute('aria-busy','true');refresh.querySelector('span').textContent='Actualizando';}
   adminCloseMsg('');if(!quiet)$('admin-close-status').innerHTML='<p class="admin-empty">Cargando cierres…</p>';
   const [{data,error},{data:reviewData,error:reviewError}]=await Promise.all([
@@ -775,3 +778,260 @@ $('admin-evidence-modal').addEventListener('keydown',event=>{
   const focusable=[...$('admin-evidence-modal').querySelectorAll('button:not(:disabled):not([hidden]),input:not(:disabled):not([hidden]),textarea:not(:disabled):not([hidden]),label[for]')].filter(element=>element.offsetParent!==null);if(!focusable.length)return;
   const first=focusable[0],last=focusable.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 });
+
+// --- Controles Visuales Desktop: Fecha y Área para Cierres ---
+const ADMIN_CLOSE_CALENDAR = { year: 0, month: 0, open: false };
+
+function formatAdminCloseDisplayDate(iso){
+  if(!iso) return '--/--/----';
+  const parts = String(iso).split('-');
+  return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : iso;
+}
+
+function syncAdminCloseDatePicker(){
+  const dateInput = $('admin-close-date'), display = $('admin-close-date-display');
+  if(!dateInput || !display) return;
+  const iso = dateInput.value || isoLima();
+  display.textContent = formatAdminCloseDisplayDate(iso);
+}
+
+function openAdminCloseCalendar(){
+  const popover = $('admin-close-calendar-popover'), trigger = $('admin-close-date-trigger');
+  if(!popover || !trigger) return;
+  closeAdminCloseAreaPopover();
+  const currDate = $('admin-close-date')?.value || isoLima();
+  const [y, m] = currDate.split('-').map(Number);
+  ADMIN_CLOSE_CALENDAR.year = y;
+  ADMIN_CLOSE_CALENDAR.month = m;
+  ADMIN_CLOSE_CALENDAR.open = true;
+  trigger.setAttribute('aria-expanded', 'true');
+  popover.hidden = false;
+  renderAdminCloseCalendarGrid();
+}
+
+function closeAdminCloseCalendar(returnFocus = false){
+  const popover = $('admin-close-calendar-popover'), trigger = $('admin-close-date-trigger');
+  if(!popover || popover.hidden) return;
+  ADMIN_CLOSE_CALENDAR.open = false;
+  trigger?.setAttribute('aria-expanded', 'false');
+  popover.hidden = true;
+  if(returnFocus && trigger) trigger.focus();
+}
+
+function renderAdminCloseCalendarGrid(){
+  const title = $('admin-close-cal-title'), grid = $('admin-close-cal-grid');
+  const prevBtn = $('admin-close-cal-prev'), nextBtn = $('admin-close-cal-next');
+  if(!grid) return;
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const { year, month } = ADMIN_CLOSE_CALENDAR;
+  const today = isoLima();
+  const dateInput = $('admin-close-date');
+  const minDate = dateInput?.min || '';
+  const maxDate = dateInput?.max || '';
+  const selectedDate = dateInput?.value || today;
+
+  if(title) title.textContent = `${monthNames[month - 1]} ${year}`;
+
+  const firstDay = new Date(year, month - 1, 1);
+  const startDay = (firstDay.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  if(prevBtn && minDate){
+    const prevMonthEnd = new Date(year, month - 1, 0);
+    const prevMonthEndIso = `${prevMonthEnd.getFullYear()}-${String(prevMonthEnd.getMonth() + 1).padStart(2,'0')}-${String(prevMonthEnd.getDate()).padStart(2,'0')}`;
+    prevBtn.disabled = prevMonthEndIso < minDate;
+  }
+  if(nextBtn && maxDate){
+    const nextMonthStartIso = `${month === 12 ? year + 1 : year}-${String(month === 12 ? 1 : month + 1).padStart(2,'0')}-01`;
+    nextBtn.disabled = nextMonthStartIso > maxDate;
+  }
+
+  let html = '';
+  for(let i = 0; i < startDay; i++){
+    html += '<span class="admin-close-cal-empty" aria-hidden="true"></span>';
+  }
+  for(let d = 1; d <= daysInMonth; d++){
+    const dIso = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const isSel = dIso === selectedDate;
+    const isToday = dIso === today;
+    const isDisabled = (minDate && dIso < minDate) || (maxDate && dIso > maxDate);
+    html += `<button type="button" class="admin-close-cal-day${isSel ? ' is-selected' : ''}${isToday ? ' is-today' : ''}" data-close-cal-date="${dIso}" ${isDisabled ? 'disabled' : ''} aria-pressed="${isSel}" aria-label="${d} de ${monthNames[month - 1]} de ${year}${isToday ? ' (Hoy)' : ''}">${d}</button>`;
+  }
+  grid.innerHTML = html;
+}
+
+function navAdminCloseCalendarMonth(delta){
+  let { year, month } = ADMIN_CLOSE_CALENDAR;
+  month += delta;
+  if(month < 1){ month = 12; year--; }
+  else if(month > 12){ month = 1; year++; }
+  ADMIN_CLOSE_CALENDAR.year = year;
+  ADMIN_CLOSE_CALENDAR.month = month;
+  renderAdminCloseCalendarGrid();
+}
+
+function syncAdminCloseAreaCustom(){
+  const select = $('admin-close-area');
+  const display = $('admin-close-area-display');
+  const list = $('admin-close-area-options');
+  if(!select) return;
+  const options = [...select.options];
+  const currentVal = select.value;
+  const currentOpt = options.find(o => o.value === currentVal) || options[0];
+  if(display) display.textContent = currentOpt ? currentOpt.textContent : 'Todas las áreas';
+
+  if(!list) return;
+  list.innerHTML = options.map(opt => {
+    const isSel = opt.value === currentVal;
+    return `<button type="button" class="admin-close-area-opt-btn${isSel ? ' is-selected' : ''}" role="option" aria-selected="${isSel}" data-area-val="${esc(opt.value)}"><span>${esc(opt.textContent)}</span><span class="admin-close-area-opt-check" aria-hidden="true">${isSel ? '✓' : ''}</span></button>`;
+  }).join('');
+}
+
+function openAdminCloseAreaPopover(){
+  const popover = $('admin-close-area-popover'), trigger = $('admin-close-area-trigger');
+  if(!popover || !trigger) return;
+  closeAdminCloseCalendar();
+  trigger.setAttribute('aria-expanded', 'true');
+  popover.hidden = false;
+  syncAdminCloseAreaCustom();
+  const searchInput = $('admin-close-area-search-input');
+  if(searchInput){
+    searchInput.value = '';
+    searchInput.focus();
+  }
+}
+
+function closeAdminCloseAreaPopover(returnFocus = false){
+  const popover = $('admin-close-area-popover'), trigger = $('admin-close-area-trigger');
+  if(!popover || popover.hidden) return;
+  trigger?.setAttribute('aria-expanded', 'false');
+  popover.hidden = true;
+  if(returnFocus && trigger) trigger.focus();
+}
+
+function filterAdminCloseAreaOptions(query){
+  const list = $('admin-close-area-options');
+  if(!list) return;
+  const normalize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
+  const normQuery = normalize(query || '');
+  let visibleCount = 0;
+  [...list.querySelectorAll('.admin-close-area-opt-btn')].forEach(btn => {
+    const text = normalize(btn.querySelector('span')?.textContent || '');
+    const match = !normQuery || text.includes(normQuery);
+    btn.hidden = !match;
+    if(match) visibleCount++;
+  });
+  let empty = list.querySelector('.admin-close-area-empty');
+  if(visibleCount === 0){
+    if(!empty){
+      empty = document.createElement('p');
+      empty.className = 'admin-close-area-empty';
+      empty.textContent = 'No se encontraron áreas';
+      list.appendChild(empty);
+    }
+    empty.hidden = false;
+  } else if(empty){
+    empty.hidden = true;
+  }
+}
+
+if($('admin-close-date-trigger')){
+  $('admin-close-date-trigger').onclick = (e) => {
+    e.stopPropagation();
+    if($('admin-close-calendar-popover') && !$('admin-close-calendar-popover').hidden){
+      closeAdminCloseCalendar();
+    } else {
+      openAdminCloseCalendar();
+    }
+  };
+}
+
+if($('admin-close-cal-prev')) $('admin-close-cal-prev').onclick = (e) => { e.stopPropagation(); navAdminCloseCalendarMonth(-1); };
+if($('admin-close-cal-next')) $('admin-close-cal-next').onclick = (e) => { e.stopPropagation(); navAdminCloseCalendarMonth(1); };
+if($('admin-close-cal-close')) $('admin-close-cal-close').onclick = (e) => { e.stopPropagation(); closeAdminCloseCalendar(true); };
+if($('admin-close-cal-today')) $('admin-close-cal-today').onclick = (e) => {
+  e.stopPropagation();
+  $('admin-close-date').value = isoLima();
+  syncAdminCloseDatePicker();
+  closeAdminCloseCalendar(true);
+  $('admin-close-date').onchange?.();
+};
+
+if($('admin-close-cal-grid')){
+  $('admin-close-cal-grid').onclick = (e) => {
+    const btn = e.target.closest('[data-close-cal-date]');
+    if(btn && !btn.disabled && btn.dataset.closeCalDate){
+      $('admin-close-date').value = btn.dataset.closeCalDate;
+      syncAdminCloseDatePicker();
+      closeAdminCloseCalendar(true);
+      $('admin-close-date').onchange?.();
+    }
+  };
+}
+
+if($('admin-close-area-trigger')){
+  $('admin-close-area-trigger').onclick = (e) => {
+    e.stopPropagation();
+    if($('admin-close-area-popover') && !$('admin-close-area-popover').hidden){
+      closeAdminCloseAreaPopover();
+    } else {
+      openAdminCloseAreaPopover();
+    }
+  };
+}
+
+if($('admin-close-area-search-input')){
+  $('admin-close-area-search-input').oninput = (e) => {
+    filterAdminCloseAreaOptions(e.target.value);
+  };
+  $('admin-close-area-search-input').onclick = (e) => e.stopPropagation();
+  $('admin-close-area-search-input').onkeydown = (e) => {
+    if(e.key === 'Escape'){
+      closeAdminCloseAreaPopover(true);
+    }
+  };
+}
+
+if($('admin-close-area-options')){
+  $('admin-close-area-options').onclick = (e) => {
+    const btn = e.target.closest('[data-area-val]');
+    if(btn){
+      $('admin-close-area').value = btn.dataset.areaVal;
+      syncAdminCloseAreaCustom();
+      closeAdminCloseAreaPopover(true);
+      $('admin-close-area').onchange?.();
+    }
+  };
+}
+
+document.addEventListener('pointerdown', (e) => {
+  const calPopover = $('admin-close-calendar-popover');
+  const calTrigger = $('admin-close-date-trigger');
+  if(calPopover && !calPopover.hidden && !calPopover.contains(e.target) && !calTrigger?.contains(e.target)){
+    closeAdminCloseCalendar();
+  }
+  const areaPopover = $('admin-close-area-popover');
+  const areaTrigger = $('admin-close-area-trigger');
+  if(areaPopover && !areaPopover.hidden && !areaPopover.contains(e.target) && !areaTrigger?.contains(e.target)){
+    closeAdminCloseAreaPopover();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    closeAdminCloseCalendar();
+    closeAdminCloseAreaPopover();
+  }
+});
+
+if($('admin-close-date')){
+  $('admin-close-date').addEventListener('change', syncAdminCloseDatePicker);
+}
+if($('admin-close-area')){
+  $('admin-close-area').addEventListener('change', syncAdminCloseAreaCustom);
+  if(typeof MutationObserver !== 'undefined'){
+    new MutationObserver(syncAdminCloseAreaCustom).observe($('admin-close-area'), { childList: true });
+  }
+}
+syncAdminCloseDatePicker();
+syncAdminCloseAreaCustom();

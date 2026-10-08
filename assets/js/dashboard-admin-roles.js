@@ -32,10 +32,39 @@ async function loadAdminRoles(){
   renderAdminRoles();
 }
 
+function roleAreaIcon(name){
+  const n=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  if(n.includes('salud')||n.includes('ocupacional'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>';
+  if(n.includes('psicolog')||n.includes('mente'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/></svg>';
+  if(n.includes('recurso')||n.includes('humano')||n.includes('rrhh'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+  if(n.includes('market')||n.includes('public'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>';
+  if(n.includes('ingenier')||n.includes('sistem')||n.includes('tech')||n.includes('desarroll'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
+  if(n.includes('disen')||n.includes('grafic'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/></svg>';
+  if(n.includes('clinic'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>';
+  if(n.includes('audio')||n.includes('video')||n.includes('visual'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
+  if(n.includes('recluta')||n.includes('selecc'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/><circle cx="10" cy="8" r="2.5"/><path d="M6 13a4 4 0 0 1 8 0"/></svg>';
+  if(n.includes('contab')||n.includes('finan'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>';
+  if(n.includes('admin'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>';
+  if(n.includes('voluntar'))
+    return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+  return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
+}
+
 function renderAdminRoles(){
   const data=APP.adminRoles;if(!data)return;const summary=data.resumen||{},coLeadersEnabled=Number(data.co_lideres_max)===2;
   const kpis=[['Áreas activas',summary.areas||0],['Con líder',summary.con_lider||0],['Sin líder',summary.sin_lider||0],['Co-líderes',summary.colideres||0],['Por revisar',summary.roles_por_revisar??summary.lideres_por_revisar??0]];
-  $('admin-roles-kpis').innerHTML=kpis.map(item=>`<article class="admin-list-kpi"><small>${item[0]}</small><b>${item[1]}</b></article>`).join('');
+  $('admin-roles-kpis').innerHTML=kpis.map((item,i)=>`<article class="admin-list-kpi kpi-${i}"><small>${item[0]}</small><b>${item[1]}</b></article>`).join('');
   const areas=data.areas||[];
   $('admin-role-map').innerHTML=areas.length?areas.map(area=>{
     const leader=area.lider,status=roleContractStatus(leader),coLeaders=(area.co_lideres||[]).slice(0,2),people=area.personas||[],assignable=people.filter(person=>person.asignable);
@@ -51,41 +80,195 @@ function renderAdminRoles(){
       ));
       const coOptions=coAssignable.map(person=>`<option value="${person.id}" ${String(person.id)===String(coLeader?.id)?'selected':''}>${esc(person.nombre)}</option>`).join('');
       return `<section class="admin-role-colider-slot ${coStatus.kind}" data-colider-slot="${slot}">
-        <div class="admin-role-seat is-colider">
+        <div class="admin-role-seat is-colider ${coLeader?'':'is-vacant'}">
           <span class="admin-role-seat-mark">${coLeader?initials(coLeader.nombre):'—'}</span>
-          <span class="admin-role-seat-copy"><small>CO-LÍDER TÉCNICO ${slot+1}</small><b>${coLeader?esc(coLeader.nombre):'Sin co-líder asignado'}</b><em class="${coStatus.kind}">${esc(coStatus.label)} · ${esc(coStatus.detail)}</em></span>
-          ${coLeader?`<button type="button" data-colider-remove="${area.id}" data-colider-index="${slot}">Quitar acceso</button>`:''}
+          <span class="admin-role-seat-copy">
+            <small class="role-seat-pill ${coLeader?'assigned':'vacant'}">CO-LÍDER TÉCNICO ${slot+1}</small>
+            <b>${coLeader?esc(coLeader.nombre):'Sin co-líder asignado'}</b>
+            <em class="${coStatus.kind}"><i class="role-status-dot"></i>${esc(coStatus.label)} · ${esc(coStatus.detail)}</em>
+          </span>
+          ${coLeader?`<button type="button" data-colider-remove="${area.id}" data-colider-index="${slot}" class="admin-role-remove-btn">Quitar acceso</button>`:''}
         </div>
         <div class="admin-role-assignment is-colider">
-          <label><span>${coLeader?'Reemplazar co-líder':'Asignar co-líder'}</span><select data-colider-select="${area.id}" data-colider-index="${slot}" ${coLeadersEnabled&&coAssignable.length?'':'disabled'}><option value="">Selecciona una persona</option>${coOptions}</select></label>
+          <label>
+            <span>${coLeader?'Reemplazar co-líder':'Asignar co-líder'}</span>
+            <select data-colider-select="${area.id}" data-colider-index="${slot}" ${coLeadersEnabled&&coAssignable.length?'':'disabled'}><option value="">Selecciona una persona</option>${coOptions}</select>
+          </label>
           <button class="admin-primary-action" type="button" data-colider-save="${area.id}" data-colider-index="${slot}" ${coLeadersEnabled&&coAssignable.length?'':'disabled'}>${coLeader?'Guardar reemplazo':'Asignar co-líder'}</button>
         </div>
       </section>`;
     }).join('');
     return `<article class="admin-role-area ${status.kind}" data-role-area="${area.id}" data-area-tone="${Math.abs(Number(area.id)||0)%6}">
-      <header class="admin-role-area-head"><span><small>ÁREA</small><h3>${esc(area.nombre)}</h3></span><span class="admin-role-area-count">${area.personas_activas||0} persona${Number(area.personas_activas)===1?'':'s'}</span></header>
-      <div class="admin-role-seat">
-        <span class="admin-role-seat-mark">${leader?initials(leader.nombre):'—'}</span>
-        <span class="admin-role-seat-copy"><small>LÍDER TÉCNICO ACTUAL</small><b>${leader?esc(leader.nombre):'Sin líder asignado'}</b><em class="${status.kind}">${esc(status.label)} · ${esc(status.detail)}</em></span>
-        ${leader?`<button type="button" data-role-remove="${area.id}">Quitar acceso</button>`:''}
+      <header class="admin-role-area-head">
+        <div class="admin-role-area-heading">
+          <span class="admin-role-area-icon">${roleAreaIcon(area.nombre)}</span>
+          <span><small>ÁREA</small><h3>${esc(area.nombre)}</h3></span>
+        </div>
+        <span class="admin-role-area-count">${area.personas_activas||0} persona${Number(area.personas_activas)===1?'':'s'}</span>
+      </header>
+      <div class="admin-role-seat ${leader?'':'is-vacant'}">
+        <span class="admin-role-seat-mark">${leader?initials(leader.nombre):'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}</span>
+        <span class="admin-role-seat-copy">
+          <small class="role-seat-pill ${leader?'assigned':'vacant'}">${leader?'LÍDER TÉCNICO ACTUAL':'LIDERAZGO VACANTE'}</small>
+          <b>${leader?esc(leader.nombre):'Sin líder asignado'}</b>
+          <em class="${status.kind}"><i class="role-status-dot"></i>${esc(status.label)} · ${esc(status.detail)}</em>
+        </span>
+        ${leader?`<button type="button" data-role-remove="${area.id}" class="admin-role-remove-btn">Quitar acceso</button>`:''}
       </div>
       <div class="admin-role-assignment">
-        <label><span>Asignar o reemplazar</span><select data-role-select="${area.id}" ${assignable.length?'':'disabled'}><option value="">Selecciona una persona</option>${options}</select></label>
+        <label>
+          <span>Asignar o reemplazar</span>
+          <select data-role-select="${area.id}" ${assignable.length?'':'disabled'}><option value="">Selecciona una persona</option>${options}</select>
+        </label>
         <button class="admin-primary-action" type="button" data-role-save="${area.id}" ${assignable.length?'':'disabled'}>${leader?'Guardar reemplazo':'Asignar liderazgo'}</button>
       </div>
       <div class="admin-role-colider-group ${coOpen?'is-open':''}">
         <button class="admin-role-colider-toggle" type="button" data-colider-toggle="${area.id}" aria-expanded="${coOpen}" aria-controls="admin-role-colider-panel-${area.id}">
-          <span class="admin-role-colider-summary"><b>Co-líderes técnicos</b><small>${coLeaders.length?coLeaders.map(person=>esc(person.nombre)).join(' · '):'Dos cupos disponibles'}</small></span>
-          <span class="admin-role-colider-toggle-meta"><strong>${coLeaders.length} / 2</strong><em data-colider-toggle-label>${coOpen?'Cerrar':coLeaders.length?'Gestionar':'Asignar'}</em><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg></span>
+          <span class="admin-role-colider-summary">
+            <b>Co-líderes técnicos</b>
+            <small>${coLeaders.length?coLeaders.map(person=>esc(person.nombre)).join(' · '):'Dos cupos disponibles'}</small>
+          </span>
+          <span class="admin-role-colider-toggle-meta">
+            <strong>${coLeaders.length} / 2</strong>
+            <em data-colider-toggle-label>${coOpen?'Cerrar':coLeaders.length?'Gestionar':'Asignar'}</em>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg>
+          </span>
         </button>
         <div class="admin-role-colider-panel" id="admin-role-colider-panel-${area.id}" ${coOpen?'':'hidden'}>
           ${coLeaderSlots}
         </div>
       </div>
-      <footer class="admin-role-area-foot"><span><i></i>${area.cuentas_activadas||0} cuentas activadas</span><span class="${waiting?'waiting':''}">${waiting?`${waiting} pendiente${waiting===1?'':'s'} de primer ingreso`:'Todo el equipo activo ya ingresó'}</span></footer>
+      <footer class="admin-role-area-foot">
+        <span class="role-foot-accounts"><i class="role-dot-pulse"></i>${area.cuentas_activadas||0} cuentas activadas</span>
+        <span class="${waiting?'waiting':'ready'}">${waiting?`${waiting} pendiente${waiting===1?'':'s'} de primer ingreso`:'Todo el equipo activo ya ingresó'}</span>
+      </footer>
     </article>`;
   }).join(''):'<p class="admin-empty">No hay áreas activas para administrar.</p>';
+  initRoleSelectPickers();
   renderRoleAudit();
+}
+
+function initRoleSelectPickers(){
+  const map=$('admin-role-map');if(!map)return;
+  map.querySelectorAll('select[data-role-select], select[data-colider-select]').forEach(initRoleCustomSelect);
+}
+
+function initRoleCustomSelect(select){
+  if(!select||select.dataset.rolePickerInit)return;
+  select.dataset.rolePickerInit='true';
+  const wrap=document.createElement('div');wrap.className='role-custom-select';
+  const trigger=document.createElement('button');trigger.type='button';trigger.className='role-picker-trigger';
+  trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
+  if(select.disabled)trigger.disabled=true;
+
+  const popup=document.createElement('div');popup.className='role-picker-popup';popup.hidden=true;
+  popup.setAttribute('role','dialog');popup.setAttribute('aria-label','Seleccionar colaborador');
+
+  const searchWrap=document.createElement('div');searchWrap.className='role-picker-search';
+  searchWrap.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Buscar colaborador…" autocomplete="off">';
+  const searchInput=searchWrap.querySelector('input');
+
+  const list=document.createElement('div');list.className='role-picker-options';list.setAttribute('role','listbox');
+  const empty=document.createElement('div');empty.className='role-picker-empty';empty.textContent='No hay coincidencias';empty.hidden=true;
+
+  popup.append(searchWrap,list,empty);
+  select.before(wrap);
+  wrap.append(trigger,select);
+  select.hidden=true;
+
+  let opened=false;
+
+  function getInitials(text){
+    if(!text||text.toLowerCase().includes('selecciona'))return '';
+    return text.trim().split(/\s+/).slice(0,2).map(w=>w[0]?.toUpperCase()).join('');
+  }
+
+  function syncTrigger(){
+    const opt=select.selectedOptions[0]||select.options[0];
+    const val=select.value;
+    const txt=opt?opt.textContent:'Selecciona una persona';
+    const inits=getInitials(txt);
+    trigger.innerHTML=`<span class="role-trigger-content"><span class="role-trigger-mark ${val?'has-val':'empty'}">${inits?esc(inits):'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}</span><span class="role-trigger-text ${val?'':'empty'}">${esc(txt)}</span></span><svg class="role-trigger-chevron" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 10 5 5 5-5"/></svg>`;
+    trigger.classList.toggle('has-selection',!!val);
+    trigger.setAttribute('aria-label',`Seleccionar: ${txt}`);
+  }
+
+  function renderOptions(){
+    const q=searchInput.value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    list.replaceChildren();
+    let count=0;
+    [...select.options].forEach(o=>{
+      const t=o.textContent;
+      const normalized=t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+      if(q&&!normalized.includes(q))return;
+      count++;
+      const btn=document.createElement('button');btn.type='button';btn.className='role-picker-option';
+      btn.setAttribute('role','option');
+      const isSelected=String(o.value)===String(select.value);
+      btn.setAttribute('aria-selected',String(isSelected));
+      if(isSelected)btn.classList.add('is-selected');
+      const inits=getInitials(t);
+      btn.innerHTML=`<span class="role-opt-info"><span class="role-opt-avatar ${o.value?'has-val':'empty'}">${inits?esc(inits):'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}</span><span class="role-opt-name ${o.value?'':'empty'}">${esc(t)}</span></span>${isSelected?'<svg class="role-opt-check" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 4 4L19 6"/></svg>':''}`;
+      btn.addEventListener('click',()=>{
+        select.value=o.value;
+        syncTrigger();
+        close(true);
+        select.dispatchEvent(new Event('change',{bubbles:true}));
+      });
+      list.append(btn);
+    });
+    empty.hidden=count>0;
+  }
+
+  function position(){
+    const r=trigger.getBoundingClientRect();
+    const width=Math.min(Math.max(r.width,250),window.innerWidth-24);
+    popup.style.position='fixed';popup.style.zIndex='2100';
+    popup.style.width=`${width}px`;popup.style.left=`${Math.max(12,Math.min(r.left,window.innerWidth-width-12))}px`;
+    const spaceBelow=window.innerHeight-r.bottom-12,spaceAbove=r.top-12,openUp=spaceBelow<220&&spaceAbove>spaceBelow;
+    popup.style.maxHeight=`${Math.max(120,Math.min(320,openUp?spaceAbove:spaceBelow))}px`;
+    popup.style.top=openUp?'auto':`${r.bottom+6}px`;popup.style.bottom=openUp?`${window.innerHeight-r.top+6}px`:'auto';
+  }
+
+  function close(focusTrigger=false){
+    if(!opened)return;opened=false;
+    popup.hidden=true;trigger.setAttribute('aria-expanded','false');
+    if(popup.parentNode===document.body)document.body.removeChild(popup);
+    if(focusTrigger)trigger.focus({preventScroll:true});
+  }
+
+  function open(){
+    if(select.disabled||opened)return;
+    document.querySelectorAll('.role-picker-popup:not([hidden])').forEach(p=>p.hidden=true);
+    opened=true;
+    if(!document.body.contains(popup))document.body.appendChild(popup);
+    searchInput.value='';
+    searchWrap.hidden=select.options.length<=5;
+    popup.hidden=false;trigger.setAttribute('aria-expanded','true');
+    renderOptions();
+    position();
+    if(!searchWrap.hidden)searchInput.focus({preventScroll:true});
+  }
+
+  trigger.addEventListener('click',()=>opened?close():open());
+  searchInput.addEventListener('input',renderOptions);
+
+  const onPointerDown=e=>{if(opened&&!wrap.contains(e.target)&&!popup.contains(e.target))close();};
+  const onScroll=e=>{if(opened&&!popup.contains(e.target))close();};
+  const onResize=()=>{if(opened)position();};
+
+  document.addEventListener('pointerdown',onPointerDown);
+  document.addEventListener('scroll',onScroll,true);
+  window.addEventListener('resize',onResize);
+
+  wrap.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&opened){e.preventDefault();close(true);}
+    if((e.key==='ArrowDown'||e.key==='Enter')&&!opened){e.preventDefault();open();}
+  });
+
+  select.addEventListener('change',syncTrigger);
+  new MutationObserver(syncTrigger).observe(select,{childList:true,characterData:true});
+  syncTrigger();
 }
 
 function renderRoleAudit(){

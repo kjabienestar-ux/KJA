@@ -9990,13 +9990,15 @@ body.admin-role-confirm-open{overflow:hidden}
   justify-content:flex-end;
   flex-wrap:wrap;
 }
-.admin-close-filters label{
+.admin-close-filters label,
+.admin-close-filters .admin-close-filter-col{
   display:flex;
   flex-direction:column;
   gap:4px;
   min-width:0;
 }
-.admin-close-filters label>span{
+.admin-close-filters label>span,
+.admin-close-filters .admin-close-filter-col>span{
   font-size:10.5px;
   font-weight:600;
   color:#636366;

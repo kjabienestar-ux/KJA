@@ -3096,12 +3096,108 @@ async function showAdminSection(section){
   }else await loadAdminHub();
 }
 
+const ADMIN_CALENDAR={year:0,month:0,open:false};
+
+function formatDisplayDate(iso){
+  if(!iso)return'';
+  const parts=iso.split('-');
+  return parts.length===3?`${parts[2]}/${parts[1]}/${parts[0]}`:iso;
+}
+
+function syncAdminDateDisplay(date){
+  const el=$('admin-date-display-text');
+  if(el)el.textContent=formatDisplayDate(date||$('admin-list-date')?.value||isoLima());
+}
+
+function openAdminCalendarPopover(){
+  const popover=$('admin-calendar-popover'),trigger=$('admin-date-picker-trigger');
+  if(!popover)return;
+  const currDate=$('admin-list-date')?.value||isoLima(),[y,m]=currDate.split('-').map(Number);
+  ADMIN_CALENDAR.year=y;ADMIN_CALENDAR.month=m;ADMIN_CALENDAR.open=true;
+  trigger?.setAttribute('aria-expanded','true');popover.hidden=false;
+  renderAdminCalendarPopoverGrid();
+}
+
+function closeAdminCalendarPopover(){
+  const popover=$('admin-calendar-popover'),trigger=$('admin-date-picker-trigger');
+  if(!popover||popover.hidden)return;
+  ADMIN_CALENDAR.open=false;trigger?.setAttribute('aria-expanded','false');
+  popover.hidden=true;
+}
+
+function renderAdminCalendarPopoverGrid(){
+  const title=$('admin-cal-pop-title'),grid=$('admin-cal-pop-grid'),nextBtn=$('admin-cal-pop-next');
+  if(!grid)return;
+  const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const {year,month}=ADMIN_CALENDAR,today=isoLima(),[todayY,todayM]=today.split('-').map(Number);
+  if(title)title.textContent=`${monthNames[month-1]} ${year}`;
+  if(nextBtn)nextBtn.disabled=year>todayY||(year===todayY&&month>=todayM);
+  const firstDay=new Date(year,month-1,1),startDay=(firstDay.getDay()+6)%7,daysInMonth=new Date(year,month,0).getDate(),selectedDate=$('admin-list-date')?.value||today;
+  let html='';
+  for(let i=0;i<startDay;i++)html+='<span class="admin-cal-pop-empty" aria-hidden="true"></span>';
+  for(let d=1;d<=daysInMonth;d++){
+    const dIso=`${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`,isFuture=dIso>today,isSel=dIso===selectedDate,isToday=dIso===today;
+    html+=`<button type="button" class="admin-cal-pop-day${isSel?' is-selected':''}${isToday?' is-today':''}" data-cal-date="${dIso}" ${isFuture?'disabled':''} aria-pressed="${isSel}" aria-label="${d} de ${monthNames[month-1]}${isToday?' (Hoy)':''}">${d}</button>`;
+  }
+  grid.innerHTML=html;
+}
+
+function navAdminCalendarMonth(delta){
+  let {year,month}=ADMIN_CALENDAR;
+  month+=delta;if(month<1){month=12;year--;}else if(month>12){month=1;year++;}
+  ADMIN_CALENDAR.year=year;ADMIN_CALENDAR.month=month;renderAdminCalendarPopoverGrid();
+}
+
+function syncAdminAreaCustomSelect(){
+  const select=$('admin-list-area'),menu=$('admin-area-menu'),label=$('admin-area-label');
+  if(!select||!menu)return;
+  const options=[...select.options],currentVal=select.value,currentOpt=options.find(o=>o.value===currentVal)||options[0];
+  if(label&&currentOpt)label.textContent=currentOpt.textContent;
+  menu.innerHTML=options.map(opt=>{
+    const isSel=opt.value===currentVal;
+    return `<button type="button" class="admin-area-option${isSel?' is-selected':''}" role="option" aria-selected="${isSel}" data-area-val="${esc(opt.value)}"><span>${esc(opt.textContent)}</span><span class="admin-area-check" aria-hidden="true">${isSel?'✓':''}</span></button>`;
+  }).join('');
+}
+
+function toggleAdminAreaMenu(force){
+  const menu=$('admin-area-menu'),trigger=$('admin-area-trigger');
+  if(!menu)return;
+  const open=force!==undefined?force:menu.hidden;
+  menu.hidden=!open;trigger?.setAttribute('aria-expanded',String(open));
+}
+
+function renderAdminDateStrip(selectedDate){
+  const host=$('admin-date-strip');if(!host)return;
+  const today=isoLima(),sel=selectedDate||today;
+  let endIso=addIsoDays(sel,2);
+  if(endIso>today)endIso=today;
+  const startIso=addIsoDays(endIso,-6),days=[];
+  for(let i=0;i<7;i++){
+    const dIso=addIsoDays(startIso,i);
+    if(dIso>today)break;
+    days.push(dIso);
+  }
+  const dayNames=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const fullNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  host.innerHTML=days.map(dIso=>{
+    const d=new Date(dIso+'T12:00:00');
+    const dayNum=d.getDate(),dayIdx=d.getDay(),isSel=dIso===sel,isToday=dIso===today;
+    return `<button type="button" class="admin-date-pill${isSel?' is-active':''}${isToday?' is-today':''}" data-date="${dIso}" aria-pressed="${isSel}" aria-label="${fullNames[dayIdx]} ${dayNum}${isToday?' (Hoy)':''}">`+
+      `<span class="pill-day-num">${dayNum}</span>`+
+      `<span class="pill-day-name">${isToday?'Hoy':dayNames[dayIdx]}</span>`+
+    `</button>`;
+  }).join('');
+}
+
 async function loadAdminAttendance(){
   if($('admin-entry-open'))$('admin-entry-open').hidden=APP.access?.rol!=='direccion';
   const date=$('admin-list-date').value||isoLima(),btn=$('admin-refresh');
   const request=++APP.adminListRequest;
   btn.disabled=true; adminListMsg('');
   $('admin-roster').innerHTML='<p class="admin-empty">Cargando la lista del día…</p>';
+  syncAdminDateDisplay(date);
+  syncAdminAreaCustomSelect();
+  renderAdminDateStrip(date);
   const [{data,error},{data:closeData,error:closeError}]=await Promise.all([db.rpc('dash_admin_lista',{p_fecha:date}),db.rpc('dash_admin_cierres',{p_fecha:date})]);
   if(request!==APP.adminListRequest)return;
   btn.disabled=false;
@@ -3119,6 +3215,7 @@ async function loadAdminAttendance(){
   const current=$('admin-list-area').value;
   $('admin-list-area').innerHTML='<option value="">Todas las áreas</option>'+areas.map(x=>`<option value="${esc(x[0])}">${esc(x[1])}</option>`).join('');
   if(areas.some(x=>x[0]===current))$('admin-list-area').value=current;
+  syncAdminAreaCustomSelect();
   $('admin-date-next').disabled=date>=isoLima();
   renderAdminAttendance();
 }
@@ -3129,8 +3226,8 @@ function renderAdminAttendance(){
   people.forEach(x=>x.estado?counts[x.estado]++:counts.pending++);
   const marked=people.length-counts.pending;
   people.forEach(x=>{if(['completa','regularizada'].includes(x.cierre?.estado))counts.complete++;if(x.cierre?.estado==='incompleta')counts.incomplete++});
-  const kpis=[['PERSONAS DEL DÍA',people.length],['ENTRADAS',marked],['JORNADAS COMPLETAS',counts.complete],['INCOMPLETAS',counts.incomplete],['SIN ENTRADA',counts.pending]];
-  $('admin-list-kpis').innerHTML=kpis.map(x=>`<article class="admin-list-kpi"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
+  const kpis=[['PERSONAS DEL DÍA',people.length,'total'],['ENTRADAS',marked,'entries'],['JORNADAS COMPLETAS',counts.complete,'complete'],['INCOMPLETAS',counts.incomplete,'incomplete'],['SIN ENTRADA',counts.pending,'pending']];
+  $('admin-list-kpis').innerHTML=kpis.map(x=>`<article class="admin-list-kpi ${x[2]}"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
   const query=$('admin-list-search').value.trim().toLocaleLowerCase('es'),area=$('admin-list-area').value;
   const visible=people.filter(x=>(!area||String(x.area_id)===area)&&(!query||String(x.nombre).toLocaleLowerCase('es').includes(query)));
   const groups=new Map();visible.forEach(x=>{const key=String(x.area_id);if(!groups.has(key))groups.set(key,{name:x.area||'Sin área',items:[]});groups.get(key).items.push(x)});
@@ -3148,7 +3245,7 @@ function renderAdminAttendance(){
       const missingDetail=view.incomplete?`<small class="admin-missing-detail">${missing.length?'Faltó: '+missing.map(esc).join('; '):'No se dispone del detalle del cierre. Consulta Cierres y entregables.'}</small>`:'';
       const evidence=person.evidencia_path?`<button class="admin-evidence-button" type="button" data-admin-evidence="${esc(person.evidencia_path)}">Ver evidencia</button>`:'';
       const entryAction=APP.access?.rol==='direccion'&&!rawState?`<button class="admin-evidence-button" type="button" data-admin-entry="${esc(person.id)}">Registrar entrada con evidencia</button>`:'';
-      html+=`<div class="admin-roster-row" data-admin-person="${person.id}">${profileAvatarMarkup(person)}<span class="admin-person"><b>${esc(person.nombre)}</b><small>${esc(mode)}${person.nota?' · '+esc(person.nota):''}</small>${evidence}${entryAction}</span><span class="admin-shift"><b>${esc(shift)}</b><small>${person.horas!=null?Number(person.horas).toFixed(1)+' h':'Horario del día'}</small></span><span class="admin-current-state ${state.toLowerCase()}">${esc(label)}${person.marcado_at?' · '+esc(time):''}</span>${missingDetail}<span class="admin-state-actions">${['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn ${s.toLowerCase()} ${rawState===s?'on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" aria-pressed="${rawState===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('')}</span></div>`;
+      html+=`<div class="admin-roster-row" data-admin-person="${person.id}">${profileAvatarMarkup(person)}<span class="admin-person"><b>${esc(person.nombre)}</b><small class="admin-mode-pill ${esc(person.modalidad||'virtual')}">${esc(mode)}${person.nota?' · '+esc(person.nota):''}</small>${evidence}${entryAction}</span><span class="admin-shift"><b>${esc(shift)}</b><small>${person.horas!=null?Number(person.horas).toFixed(1)+' h':'Horario del día'}</small></span><span class="admin-current-state ${state.toLowerCase()}"><i class="state-dot" aria-hidden="true"></i><span>${esc(label)}${person.marcado_at?' · '+esc(time):''}</span></span>${missingDetail}<span class="admin-state-actions">${['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn ${s.toLowerCase()} ${rawState===s?'on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" aria-pressed="${rawState===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('')}</span></div>`;
     }
     html+='</section>';
   }
@@ -3557,12 +3654,26 @@ showAnnouncement(0);
 $('admin-refresh').onclick=()=>APP.adminSection==='ranking'&&typeof loadAdminRanking==='function'?loadAdminRanking():APP.adminSection==='control'&&typeof loadAdminControl==='function'?loadAdminControl():APP.adminSection==='lista'?loadAdminAttendance():(APP.adminSection==='mes'||APP.adminSection==='resumen')&&typeof loadAdminMonth==='function'?loadAdminMonth(true):['cierres','asignaciones'].includes(APP.adminSection)&&typeof loadAdminCloses==='function'?loadAdminCloses():APP.adminSection==='marcado'&&typeof loadAdminAccess==='function'?loadAdminAccess():APP.adminSection==='roles'&&typeof loadAdminRoles==='function'?loadAdminRoles():(APP.adminSection==='colaboradores'||APP.adminSection==='contratos')&&typeof loadAdminTeam==='function'?loadAdminTeam():loadAdminHub();
 $('admin-request-refresh').onclick=loadAdminHub;
 document.querySelectorAll('[data-admin-section]').forEach(b=>b.onclick=()=>showAdminSection(b.dataset.adminSection));
-$('admin-date-prev').onclick=()=>{$('admin-list-date').value=addIsoDays($('admin-list-date').value,-1);loadAdminAttendance()};
-$('admin-date-next').onclick=()=>{const next=addIsoDays($('admin-list-date').value,1);if(next<=isoLima()){$('admin-list-date').value=next;loadAdminAttendance()}};
-$('admin-date-today').onclick=()=>{$('admin-list-date').value=isoLima();loadAdminAttendance()};
-$('admin-list-date').onchange=loadAdminAttendance;
+$('admin-date-prev').onclick=()=>{$('admin-list-date').value=addIsoDays($('admin-list-date').value,-1);syncAdminDateDisplay();loadAdminAttendance()};
+$('admin-date-next').onclick=()=>{const next=addIsoDays($('admin-list-date').value,1);if(next<=isoLima()){$('admin-list-date').value=next;syncAdminDateDisplay();loadAdminAttendance()}};
+$('admin-date-today').onclick=()=>{$('admin-list-date').value=isoLima();syncAdminDateDisplay();loadAdminAttendance()};
+$('admin-list-date').onchange=()=>{syncAdminDateDisplay();loadAdminAttendance()};
+if($('admin-date-strip'))$('admin-date-strip').onclick=e=>{const btn=e.target.closest('[data-date]');if(btn&&btn.dataset.date){$('admin-list-date').value=btn.dataset.date;syncAdminDateDisplay();loadAdminAttendance()}};
+if($('admin-date-picker-trigger'))$('admin-date-picker-trigger').onclick=e=>{e.stopPropagation();toggleAdminAreaMenu(false);if($('admin-calendar-popover')?.hidden)openAdminCalendarPopover();else closeAdminCalendarPopover();};
+if($('admin-cal-pop-prev'))$('admin-cal-pop-prev').onclick=e=>{e.stopPropagation();navAdminCalendarMonth(-1)};
+if($('admin-cal-pop-next'))$('admin-cal-pop-next').onclick=e=>{e.stopPropagation();navAdminCalendarMonth(1)};
+if($('admin-cal-pop-today'))$('admin-cal-pop-today').onclick=()=>{closeAdminCalendarPopover();$('admin-list-date').value=isoLima();syncAdminDateDisplay();loadAdminAttendance();};
+if($('admin-cal-pop-close'))$('admin-cal-pop-close').onclick=()=>closeAdminCalendarPopover();
+if($('admin-cal-pop-grid'))$('admin-cal-pop-grid').onclick=e=>{const btn=e.target.closest('[data-cal-date]');if(btn&&!btn.disabled&&btn.dataset.calDate){$('admin-list-date').value=btn.dataset.calDate;closeAdminCalendarPopover();syncAdminDateDisplay();loadAdminAttendance();}};
+if($('admin-area-trigger'))$('admin-area-trigger').onclick=e=>{e.stopPropagation();closeAdminCalendarPopover();toggleAdminAreaMenu();};
+if($('admin-area-menu'))$('admin-area-menu').onclick=e=>{const btn=e.target.closest('[data-area-val]');if(!btn)return;const select=$('admin-list-area');if(select){select.value=btn.dataset.areaVal;select.dispatchEvent(new Event('change',{bubbles:true}));}toggleAdminAreaMenu(false);};
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#admin-calendar-popover')&&!e.target.closest('#admin-date-picker-trigger'))closeAdminCalendarPopover();
+  if(!e.target.closest('#admin-area-custom-select'))toggleAdminAreaMenu(false);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAdminCalendarPopover();toggleAdminAreaMenu(false);}});
 $('admin-list-search').oninput=renderAdminAttendance;
-$('admin-list-area').onchange=renderAdminAttendance;
+$('admin-list-area').onchange=()=>{syncAdminAreaCustomSelect();renderAdminAttendance()};
 $('admin-roster').onclick=e=>{
   const entry=e.target.closest('[data-admin-entry]');
   if(entry&&typeof openAdminEntry==='function')return openAdminEntry(entry.dataset.adminEntry);

@@ -120,6 +120,7 @@ function contractState(person){
   return ['En curso','active'];
 }
 function renderAdminContracts(){
+  if(typeof syncAdminContractAreaPicker==='function')syncAdminContractAreaPicker();
   if(!APP.adminTeam)return;
   const all=(APP.adminTeam.personas||[]).filter(p=>p.activo),visible=filteredAdminPeople('contracts'),canEdit=!!APP.adminTeam.puede_editar;
   const pending=all.filter(p=>p.resumen?.pendiente).length,complete=all.filter(p=>p.resumen?.completado).length,alerts=all.filter(p=>(p.resumen?.alertas||[]).length&&!p.resumen?.pendiente).length,noMeta=all.filter(p=>!(Number(p.resumen?.meta)>0)).length;
