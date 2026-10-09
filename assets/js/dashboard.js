@@ -3088,6 +3088,9 @@ async function showAdminSection(section){
   $('admin-contracts-section').hidden=APP.adminSection!=='contratos';
   $('admin-roles-section').hidden=APP.adminSection!=='roles';
   $('admin-access-section').hidden=APP.adminSection!=='marcado';
+  if($('view-gestion'))$('view-gestion').dataset.adminSection=APP.adminSection;
+  if($('portal'))$('portal').dataset.adminSection=APP.adminSection;
+  if(document.body)document.body.dataset.adminSection=APP.adminSection;
   document.querySelectorAll('[data-admin-section]').forEach(b=>{
     const active=!!b.closest('.admin-section-nav')&&b.dataset.adminSection===APP.adminSection;
     b.classList.toggle('active',active);

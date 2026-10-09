@@ -18,6 +18,26 @@ function setup(day={fecha:'2026-09-11',laborable:true}){
   return {context,host,preview,rendered,clickFile,queries,files,options,mount:()=>context.KJAMonthDayDetail.mount(host,options)};
 }
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
+test('Facebook report detail signs only Facebook files for the chosen person and date',async()=>{
+  const x=setup();x.options.facebookOnly=true;
+  const session=x.mount();
+  assert.equal(x.queries[0].args.p_colaborador,19);
+  assert.equal(x.queries[0].args.p_fecha,'2026-09-11');
+  x.queries[0].resolve({data:{ok:true,entrada_archivos:[{path:'entry.jpg',mime:'image/jpeg',bucket:'private'}],cierre:{},entregas:[{tipo:'comparticiones',archivos:[{path:'facebook.jpg',mime:'image/jpeg',bucket:'private'}]}]}});
+  await session.ready;
+  assert.equal(x.files.length,1);assert.equal(x.files[0].path,'facebook.jpg');
+  assert.ok(!x.host.innerHTML.includes('md-record-summary'));
+  assert.ok(!x.host.innerHTML.includes('Registro de entrada'));
+  assert.ok(!x.host.innerHTML.includes('data-md-remove'));
+  session.dispose();
+});
+test('Facebook report without evidence shows an empty state and signs no files',async()=>{
+  const x=setup();x.options.facebookOnly=true;
+  const session=x.mount();x.queries[0].resolve({data:{ok:true,cierre:{},entregas:[]}});
+  await session.ready;
+  assert.match(x.host.innerHTML,/No hay evidencia registrada/);
+  assert.equal(x.files.length,0);session.dispose();
+});
 function managementSetup(){
   const x=setup(),actions={innerHTML:'',insertAdjacentHTML(position,html){this.innerHTML=html;}},confirmation={hidden:true},message={textContent:''},cancel={focus(){}};
   x.host.querySelector=selector=>selector.includes('.md-activity-body')?actions:selector==='[data-md-confirm]'?confirmation:selector==='[data-md-status]'?message:selector==='[data-md-cancel-delete]'?cancel:x.preview;
