@@ -22,7 +22,7 @@
     if(!response.ok||!result?.ok)throw new Error(result?.motivo||'conexion');
     return result;
   }
-  function mount(host,{person,day,future=false,canManageFacebook=false,rpc=(name,args)=>db.rpc(name,args),storage=db.storage,request=facebookRequest,prepare=file=>compressImage(file),managementHtml=''}){
+  function mount(host,{person,day,future=false,canManageFacebook=false,facebookOnly=false,rpc=(name,args)=>db.rpc(name,args),storage=db.storage,request=facebookRequest,prepare=file=>compressImage(file),managementHtml=''}){
     const session={groups:[],version:0,fileVersion:0,disposed:false,managementHtml};
     host._monthDayDetail=session;
     const live=()=>!session.disposed&&host.isConnected&&host._monthDayDetail===session;
@@ -38,14 +38,19 @@
         if(!live()||version!==session.version)return;
         if(error||!data?.ok)throw new Error(error?.code==='PGRST202'?'update':data?.motivo||'load');
         const close=data.cierre||{},justified=data.estado==='J'||close.justificado||close.estado==='justificado';
-        const groups=groupsFor(data,day);session.groups=groups;session.close=close;
+        let groups=groupsFor(data,day);
+        if(facebookOnly){
+          groups=groups.filter(g=>g.key==='comparticiones');
+          if(!groups.length)groups=[{key:'comparticiones',titulo:'Facebook',completo:false,files:[],entregas:[]}];
+        }
+        session.groups=groups;session.close=close;
         const pending=groups.filter(g=>!g.completo&&!g.waived).map(g=>g.titulo);
         if(day.laborable&&!justified&&close.aplica_jornada&&close.requiere_salida!==false&&!data.salida_at)pending.push('Registro de salida');
         const fileCount=groups.reduce((n,g)=>n+g.files.length,0);
         const noMark=!day.laborable?'No corresponde':justified?'No requerida · justificado':'Sin registro';
         const entries=[['Entrada',data.entrada_at?time(data.entrada_at):noMark],['Salida',data.salida_at?time(data.salida_at):noMark],['Tiempo registrado',data.horas==null?'Sin horas registradas':Number(data.horas).toFixed(1)+' h']];
-        host.innerHTML='<div class="md-record-summary"><dl class="md-timeline">'+entries.map(([label,value])=>'<div><dt>'+label+'</dt><dd>'+escape(value)+'</dd></div>').join('')+'</dl>'+
-          '<div class="md-compliance '+(pending.length?'has-pending':'')+'"><strong>'+(!day.laborable?'Día sin jornada exigible':pending.length?'Pendientes de la jornada':'Requisitos aplicables registrados')+'</strong><p>'+escape(!day.laborable?'Se conservan las entregas y archivos registrados en esta fecha.':pending.length?[...new Set(pending)].join(' · '):'Una entrega registrada no implica que haya sido aprobada.')+'</p></div></div>'+
+        host.innerHTML=(facebookOnly?'':'<div class="md-record-summary"><dl class="md-timeline">'+entries.map(([label,value])=>'<div><dt>'+label+'</dt><dd>'+escape(value)+'</dd></div>').join('')+'</dl>'+
+          '<div class="md-compliance '+(pending.length?'has-pending':'')+'"><strong>'+(!day.laborable?'Día sin jornada exigible':pending.length?'Pendientes de la jornada':'Requisitos aplicables registrados')+'</strong><p>'+escape(!day.laborable?'Se conservan las entregas y archivos registrados en esta fecha.':pending.length?[...new Set(pending)].join(' · '):'Una entrega registrada no implica que haya sido aprobada.')+'</p></div></div>')+
           '<div class="md-workspace"><section class="md-deliveries" aria-label="Entregas y requisitos"><header><h3>Entregas y evidencias</h3><span>'+fileCount+' '+(fileCount===1?'archivo':'archivos')+'</span></header><p class="md-help">Consulta cada actividad y selecciona sus archivos para revisarlos.</p>'+
           groups.map((g,i)=>'<details class="md-activity" data-md-group="'+i+'" open><summary><span class="md-activity-icon">'+activityIcon(g.key)+'</span><span class="md-activity-label"><b>'+escape(g.titulo)+'</b><small>'+g.files.length+' '+(g.files.length===1?'archivo':'archivos')+'</small></span><em class="'+(g.completo?'done':g.waived?'waived':'pending')+'">'+(g.completo?'Registrado':g.waived?'No exigible':'Sin entrega')+'</em></summary><div class="md-activity-body">'+
             (g.revision?'<p class="md-review">Revisión: <b>'+escape(revision(g.revision))+'</b></p>':'')+

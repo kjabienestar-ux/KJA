@@ -303,6 +303,24 @@ test('person preview Excel respects both area and search, including no-match sea
   assert.equal(get('fb-report-export').disabled,false);
 });
 
+test('report day buttons open the exact person/date in both views and reject revoked access',async()=>{
+  const {ctx,get}=fixture(async()=>({data:response}));
+  const opened=[];ctx.openFacebookReportEvidence=(person,date)=>opened.push({id:person.id,date});
+  await ctx.loadAdminFacebookReport();
+  const buttons=node=>[...(node.className==='fb-evidence-cell'?[node]:[]),...node.children.flatMap(buttons)];
+  const areaButtons=buttons(get('fb-report-matrix'));
+  assert.equal(areaButtons.length,2);
+  areaButtons[0].click();areaButtons[1].click();
+  assert.deepEqual(opened,[{id:1,date:'2026-09-10'},{id:2,date:'2026-09-10'}]);
+  get('fb-btn-view-person').click();
+  const personButtons=buttons(get('fb-report-person-view'));
+  assert.equal(personButtons.length,2);
+  assert.equal(personButtons[0]['aria-haspopup'],'dialog');
+  assert.match(personButtons[0]['aria-label'],/Ana/);
+  personButtons[1].click();assert.deepEqual(opened.at(-1),{id:2,date:'2026-09-10'});
+  ctx.APP.access.rol='colaborador';personButtons[0].click();assert.equal(opened.length,3);
+});
+
 test('UI renders executive KPI cards and supports toggling between area and person views',async()=>{
   const {ctx,get}=fixture(async()=>({data:response}));
   await ctx.loadAdminFacebookReport();
@@ -324,3 +342,40 @@ test('UI renders executive KPI cards and supports toggling between area and pers
   get('fb-report-search').oninput();
   assert.ok(get('fb-report-person-view').children[0].textContent.includes('Ana'));
 });
+
+test('custom range and preset selections display visual placeholder hero until report is consulted',async()=>{
+  let calls=0;
+  const {ctx,get}=fixture(async()=>{calls++;return {data:response};});
+  // Initially on a default preset, results may be loaded
+  await ctx.loadAdminFacebookReport();
+  assert.equal(get('fb-report-results').hidden,false);
+  assert.equal(get('fb-report-custom-placeholder').hidden,true);
+
+  // Switching to custom range reveals placeholder hero before consultation
+  get('fb-report-kind').value='custom';
+  get('fb-report-kind').onchange();
+  assert.equal(get('fb-report-results').hidden,true);
+  assert.equal(get('fb-report-custom-placeholder').hidden,false);
+  assert.ok(get('fb-placeholder-from-preview').textContent.length>0);
+  assert.ok(get('fb-placeholder-to-preview').textContent.length>0);
+
+  // Consulting report hides placeholder and shows results
+  await ctx.loadAdminFacebookReport();
+  assert.equal(get('fb-report-results').hidden,false);
+  assert.equal(get('fb-report-custom-placeholder').hidden,true);
+
+  // Switching to lunes or jueves also displays placeholder before consultation
+  get('fb-report-kind').value='lunes';
+  get('fb-report-kind').onchange();
+  assert.equal(get('fb-report-custom-placeholder').hidden,false);
+
+  get('fb-report-kind').value='jueves';
+  get('fb-report-kind').onchange();
+  assert.equal(get('fb-report-custom-placeholder').hidden,false);
+
+  // Consulting report once more hides placeholder
+  await ctx.loadAdminFacebookReport();
+  assert.equal(get('fb-report-custom-placeholder').hidden,true);
+  assert.equal(get('fb-report-results').hidden,false);
+});
+
