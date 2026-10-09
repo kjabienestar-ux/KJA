@@ -1510,6 +1510,41 @@
   .md-media {
     min-height: 180px;
   }
+  #admin-month-modal.month-detail-modal .month-modal-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    align-items: stretch;
+  }
+  #admin-month-modal.month-detail-modal .month-modal-actions button {
+    min-width: 0;
+    min-height: 44px;
+    height: auto;
+    padding: 10px;
+    font-size: 13px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+  #admin-month-modal.month-detail-modal .month-state-picker {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    min-width: 0;
+    margin-bottom: 0;
+  }
+  #admin-month-modal.month-detail-modal .month-state-picker p {
+    grid-column: 1 / -1;
+  }
+  #admin-month-modal.month-detail-modal .month-state-picker button {
+    flex-direction: column;
+    gap: 3px;
+    min-height: 64px;
+  }
+  #admin-month-modal.month-detail-modal .month-state-picker button small {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.35;
+  }
 }
 
 @media (pointer: coarse) {

@@ -117,7 +117,58 @@
     return {put,band,rules,merges,output};
   }
 
+  function createPreview(groups,meta){
+    const dates=groups[0].dates;
+    const search=(meta.search||'').trim().toLowerCase();
+    const people=groups.flatMap(g=>g.persons.map(p=>({...p,area:g.area})))
+      .filter(p=>!search||p.nombre.toLowerCase().includes(search)||p.area.toLowerCase().includes(search))
+      .sort((a,b)=>a.area.localeCompare(b.area,'es')||a.nombre.localeCompare(b.nombre,'es'));
+    if(!people.length){const error=new Error('No hay colaboradores que coincidan con la búsqueda.');error.code='EMPTY_PREVIEW';throw error;}
+    const previewFonts=[fontXml(10,'454545'),fontXml(10,'FFFFFF',true),fontXml(10,'126451',true),fontXml(10,'A0273B',true),fontXml(9,'526D76'),fontXml(10,'173D48',true)];
+    const previewFills=[fills[0],fills[1],fillXml('FFFFFF'),fillXml('F0F6F7'),fillXml('075565')];
+    const previewBorders=[borders[0],'<border><left/><right/><top/><bottom style="thin"><color rgb="FFD6E4E7"/></bottom><diagonal/></border>'];
+    // Header, alternating body rows, then the same rows with semantic text colors.
+    const previewSpecs=[[1,4,0,0],[0,2,1,0],[0,3,1,0],[2,2,1,0],[2,3,1,0],[3,2,1,0],[3,3,1,0],[4,2,1,0],[4,3,1,0],[5,2,1,164],[5,3,1,164],[1,4,0,164]];
+    const previewStyles=`<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="0.0%"/></numFmts><fonts count="${previewFonts.length}">${previewFonts.join('')}</fonts><fills count="${previewFills.length}">${previewFills.join('')}</fills><borders count="2">${previewBorders.join('')}</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${previewSpecs.length}">${previewSpecs.map(([f,b,br,n])=>`<xf numFmtId="${n}" fontId="${f}" fillId="${b}" borderId="${br}" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>`).join('')}</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+    const widths=[6,36,24,...dates.map(()=>22),16,16,14,16];
+    const sheet=page(widths),last=col(widths.length);
+    const yesCol=col(dates.length+4),noCol=col(dates.length+5),pctCol=col(dates.length+6);
+    const pretty=d=>new Intl.DateTimeFormat('es-PE',{timeZone:'UTC',weekday:'short',day:'2-digit',month:'short',year:'numeric'}).format(new Date(d+'T12:00:00Z'));
+    const headers=['N°','Colaborador','Área',...dates.map(pretty),'Sí compartió','No compartió','% Cump.','Estado'];
+    sheet.put(1,headers.map((v,i)=>cell(`${col(i+1)}1`,v,0)).join(''),30);
+    let totalYes=0,totalNo=0;
+    people.forEach((p,i)=>{
+      const row=i+2,z=i%2,yes=p.cells.filter(c=>c.value==='Sí').length,no=p.cells.filter(c=>c.value==='No').length;
+      const evaluated=yes+no,pct=evaluated?yes/evaluated:0;
+      totalYes+=yes;totalNo+=no;
+      const state=!evaluated?'Sin evaluar':pct>=.8?'Excelente':pct>=.5?'Regular':'Bajo';
+      const range=`D${row}:${col(dates.length+3)}${row}`;
+      sheet.put(row,
+        cell(`A${row}`,i+1,1+z)+cell(`B${row}`,p.nombre,1+z)+cell(`C${row}`,p.area,1+z)+
+        p.cells.map((c,j)=>cell(`${col(j+4)}${row}`,c.value,c.value==='Sí'?3+z:c.value==='No'?5+z:7+z)).join('')+
+        cell(`${yesCol}${row}`,yes,3+z,`COUNTIF(${range},"Sí")`)+
+        cell(`${noCol}${row}`,no,5+z,`COUNTIF(${range},"No")`)+
+        cell(`${pctCol}${row}`,evaluated?pct:'—',9+z)+cell(`${last}${row}`,state,state==='Excelente'?3+z:state==='Bajo'?5+z:7+z),
+        30);
+    });
+    const end=people.length+1,total=end+1;
+    sheet.merges.push(`A${total}:C${total}`);
+    sheet.put(total,cell(`A${total}`,`TOTAL (${people.length} colaboradores)`,0)+cell(`B${total}`,'',0)+cell(`C${total}`,'',0)+
+      dates.map((_,i)=>{
+        const yes=people.filter(p=>p.cells[i]?.value==='Sí').length,no=people.filter(p=>p.cells[i]?.value==='No').length;
+        return cell(`${col(i+4)}${total}`,`${yes} / ${no}`,0);
+      }).join('')+
+      cell(`${yesCol}${total}`,totalYes,0,`SUM(${yesCol}2:${yesCol}${end})`)+
+      cell(`${noCol}${total}`,totalNo,0,`SUM(${noCol}2:${noCol}${end})`)+
+      cell(`${pctCol}${total}`,totalYes+totalNo?totalYes/(totalYes+totalNo):'—',11)+cell(`${last}${total}`,'—',0),32);
+    // Preserve period and provisional context below the exact preview table.
+    sheet.band(total+2,1,widths.length,`${pretty(meta.desde)} al ${pretty(meta.hasta)}${meta.provisional?' · PROVISIONAL':''}${meta.area?' · Área: '+meta.area:''}${search?' · Búsqueda: '+meta.search:''}`,7,30);
+    const output=sheet.output(total+2,{freeze:1,freezeCol:3,filter:`A1:${last}${end}`,tab:'075565',landscape:true}).replace('showGridLines="1"','showGridLines="0"');
+    return {styles:previewStyles,sheets:[{name:'Vista por persona',xml:output,last:`${last}${total+2}`,repeat:1}]};
+  }
+
   function create(groups,meta){
+    if(meta.view==='person')return createPreview(groups,meta);
     const date=d=>d.split('-').reverse().join('/'),period=`Desde: ${date(meta.desde)}   Hasta: ${date(meta.hasta)}`;
     const updated=meta.generado_at ? new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',dateStyle:'short',timeStyle:'short'}).format(new Date(meta.generado_at)) : '';
     const dates=groups[0]?.dates||[];
@@ -480,4 +531,3 @@
 
   root.KJAFacebookExcelLayout={create};
 })(globalThis);
-

@@ -261,6 +261,48 @@ test('summary links each area to its own totals and excludes unassigned days fro
   assert.ok(detail.includes('xSplit="2"'));
 });
 
+test('person preview Excel preserves the visible columns, colors, zebra rows and daily totals',async()=>{
+  const {ctx,get,downloads}=fixture(async()=>({data:response}));
+  await ctx.loadAdminFacebookReport();
+  get('fb-btn-view-person').click();
+  get('fb-report-export').onclick();
+  const files=unzipStored(await downloads[0].arrayBuffer());
+  const sheet=files.get('xl/worksheets/sheet1.xml'),styles=files.get('xl/styles.xml');
+  assert.match(files.get('xl/workbook.xml'),/name="Vista por persona"/);
+  assert.equal(files.has('xl/worksheets/sheet2.xml'),false);
+  assert.match(sheet,/<c r="A1"[^>]*>.*?N°/);
+  assert.match(sheet,/<c r="B1"[^>]*>.*?Colaborador/);
+  assert.match(sheet,/<c r="C1"[^>]*>.*?Área/);
+  assert.match(sheet,/<c r="D1"[^>]*>.*?2026/);
+  assert.match(sheet,/<c r="D2" s="3"/); // Green on white.
+  assert.match(sheet,/<c r="D3" s="6"/); // Red on the alternate row.
+  assert.match(sheet,/<c r="E2" s="7"/); // Missing data remains explicit and muted.
+  assert.match(sheet,/COUNTIF\(D2:G2,&quot;Sí&quot;\)/);
+  assert.match(sheet,/TOTAL \(2 colaboradores\)/);
+  assert.match(sheet,/1 \/ 1/);
+  assert.match(sheet,/xSplit="3" ySplit="1"/);
+  assert.match(sheet,/showGridLines="0"/);
+  for(const color of ['075565','F0F6F7','126451','A0273B','D6E4E7'])assert.ok(styles.includes(color));
+});
+
+test('person preview Excel respects both area and search, including no-match searches',async()=>{
+  const {ctx,get,downloads}=fixture(async()=>({data:{...response,filas:[...response.filas,{id:3,nombre:'Ana Salud',area:'Salud',fecha:'2026-09-10',estado:'sin_evidencia'}]}}));
+  await ctx.loadAdminFacebookReport();
+  get('fb-report-area').value='Diseño';get('fb-report-area').onchange();
+  get('fb-btn-view-person').click();
+  get('fb-report-search').value='ANA';get('fb-report-search').oninput();
+  get('fb-report-export').onclick();
+  const files=unzipStored(await downloads[0].arrayBuffer()),sheet=files.get('xl/worksheets/sheet1.xml');
+  assert.match(sheet,/TOTAL \(1 colaboradores\)/);
+  assert.ok(!sheet.includes('Juan')&&!sheet.includes('Ana Salud'));
+  assert.match(sheet,/Búsqueda: ANA/);
+  get('fb-report-search').value='nadie coincide';
+  get('fb-report-export').onclick();
+  assert.equal(downloads.length,2); // Only the prior Blob and link.
+  assert.equal(get('fb-report-status').dataset.error,'true');
+  assert.equal(get('fb-report-export').disabled,false);
+});
+
 test('UI renders executive KPI cards and supports toggling between area and person views',async()=>{
   const {ctx,get}=fixture(async()=>({data:response}));
   await ctx.loadAdminFacebookReport();

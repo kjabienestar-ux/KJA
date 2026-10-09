@@ -63,6 +63,71 @@
   color: #173d48;
 }
 #portal.admin-wide #admin-facebook-section input[readonly] { background: #edf4f5; color: #526d76; }
+/* Controles del reporte: misma altura, indicador claro y espacio para fechas. */
+#portal.admin-wide #admin-facebook-section :is(.fb-report-filters,.fb-report-toolbar-filters) label {
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+#portal.admin-wide #admin-facebook-section :is(input,select) {
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid #c4d9dd;
+  background-color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+#portal.admin-wide #admin-facebook-section select {
+  appearance: none;
+  padding-right: 42px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23075565' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+}
+#portal.admin-wide #admin-facebook-section input[type="date"] {
+  color-scheme: light;
+  font-variant-numeric: tabular-nums;
+}
+#portal.admin-wide #admin-facebook-section input[type="date"]::-webkit-calendar-picker-indicator {
+  width: 20px;
+  height: 20px;
+  padding: 4px;
+  border-radius: 6px;
+  background-color: #edf4f5;
+  cursor: pointer;
+}
+#portal.admin-wide #admin-facebook-section :is(input,select):hover {
+  border-color: #075565;
+}
+#portal.admin-wide #admin-facebook-section :is(input,select):focus {
+  border-color: #075565;
+}
+#portal.admin-wide #admin-facebook-section .fb-report-filters > button {
+  min-height: 46px;
+  padding-inline: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+@media (min-width: 901px) {
+  #portal.admin-wide #admin-facebook-section .fb-report-filters:has(#fb-report-reference-label[hidden]) {
+    grid-template-columns: minmax(200px,1.3fr) repeat(2,minmax(150px,1fr)) auto;
+  }
+  #portal.admin-wide #admin-facebook-section .fb-report-filters:has(#fb-report-reference-label[hidden]) > button {
+    grid-column: auto;
+    justify-self: stretch;
+  }
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+  #portal.admin-wide #admin-facebook-section .fb-report-filters:has(#fb-report-reference-label[hidden]) {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+  #portal.admin-wide #admin-facebook-section .fb-report-filters:has(#fb-report-reference-label[hidden]) > button {
+    grid-column: 1 / -1;
+  }
+}
 #portal.admin-wide #admin-facebook-section .fb-report-downloads #fb-report-export,
 #portal.admin-wide #admin-facebook-section .fb-report-filters [type=submit] {
   color: #fff;
