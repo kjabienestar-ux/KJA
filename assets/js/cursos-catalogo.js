@@ -24,51 +24,47 @@
     const waUrl = message => 'https://wa.me/51988918238?text=' + encodeURIComponent(message);
 
     function renderAreaCard([id, data], index) {
-        return '<article class="curso-card-v3 catalog-area-card"' + (data.catalogFocus ? ' style="--catalog-focus:' + escape(data.catalogFocus) + '"' : '') + '>' +
+        return '<article class="catalog-area-card" style="--area-shadow-color:' + (index % 2 ? '#004fb02e' : '#cf00632e') + ';--catalog-focus:' + escape(data.catalogFocus || '76% center') + '">' +
             '<a href="' + areaUrl(id) + '" class="catalog-area-link" aria-label="Explorar área: ' + escape(data.title) + '">' +
-            '<div class="catalog-area-image"><img src="' + escape(data.catalogImage || data.image) + '" alt="" loading="lazy" decoding="async"></div>' +
+            '<div class="catalog-area-image"><img src="' + escape(data.catalogImage || data.image) + '" alt="" width="1200" height="600" loading="lazy" decoding="async"></div>' +
+            '<span class="catalog-area-veil" aria-hidden="true"></span><span class="catalog-area-lens" aria-hidden="true">' + arrow + '</span>' +
             '<div class="catalog-area-copy"><span class="catalog-area-label">Área ' + String(index + 1).padStart(2, '0') + '</span>' +
-            '<h3>' + escape(data.title) + '</h3><p class="catalog-area-description">' + escape(data.description) + '</p>' +
-            '<span class="catalog-area-action">Explorar contenidos <span aria-hidden="true">' + arrow + '</span></span></div></a></article>';
+            '<h3>' + escape(data.title) + '</h3><p class="catalog-area-description">' + escape(data.catalogSummary || data.description) + '</p>' +
+            '<span class="catalog-area-action">Explorar ' + arrow + '</span></div></a></article>';
     }
 
     function initCatalogExpansion() {
-        const desktop = window.matchMedia('(min-width: 1001px) and (hover: hover) and (pointer: fine)');
+        const wide = window.matchMedia('(min-width: 1051px)');
+        const desktop = window.matchMedia('(min-width: 1051px) and (hover: hover) and (pointer: fine)');
         grid.querySelectorAll('.catalog-area-row').forEach(row => {
             let timer;
-            let active;
+            const cards = [...row.querySelectorAll('.catalog-area-card')];
             function expand(card) {
                 clearTimeout(timer);
-                if (active === card) return;
-                const cards = [...row.querySelectorAll('.catalog-area-card')];
-                active = card;
                 row.classList.toggle('has-expanded', !!card);
                 cards.forEach(item => item.classList.toggle('is-expanded', item === card));
             }
-            row.querySelectorAll('.catalog-area-card').forEach(card => {
+            cards.forEach(card => {
                 card.addEventListener('pointerenter', () => {
                     if (!desktop.matches) return;
                     clearTimeout(timer);
                     timer = setTimeout(() => expand(card), 110);
                 });
                 card.querySelector('a').addEventListener('focus', () => {
-                    if (window.innerWidth > 1000) expand(card);
+                    if (wide.matches) expand(card);
                 });
             });
             row.addEventListener('pointerleave', () => {
                 clearTimeout(timer);
                 timer = setTimeout(() => {
-                    if (!row.contains(document.activeElement)) expand(null);
+                    const focused = document.activeElement.closest('.catalog-area-card');
+                    expand(wide.matches && row.contains(focused) ? focused : null);
                 }, 160);
             });
             row.addEventListener('focusout', event => {
                 if (!row.contains(event.relatedTarget)) expand(null);
             });
-            window.addEventListener('resize', () => {
-                const previous = active;
-                active = null;
-                expand(window.innerWidth > 1000 ? previous : null);
-            });
+            wide.addEventListener?.('change', () => expand(null));
         });
     }
 
@@ -217,6 +213,7 @@
 
     if (area) {
         document.querySelector('.cursos-hero').hidden = true;
+        document.getElementById('cursos-gratuitos').hidden = true;
         document.getElementById('catalogo').hidden = true;
         areaView.hidden = false;
         document.body.classList.add('course-area-page');
@@ -233,7 +230,11 @@
         initAreaSwitcher();
         initCategoryTabs();
     } else {
-        grid.innerHTML = [0, 3, 6].map(start => '<div class="catalog-area-row">' + entries.slice(start, start + 3).map((entry, index) => renderAreaCard(entry, start + index)).join('') + '</div>').join('');
+        grid.innerHTML = entries.reduce((rows, entry, index) => {
+            if (index % 3 === 0) rows.push([]);
+            rows[rows.length - 1].push(renderAreaCard(entry, index));
+            return rows;
+        }, []).map(cards => '<div class="catalog-area-row">' + cards.join('') + '</div>').join('');
         initCatalogExpansion();
     }
 })();
