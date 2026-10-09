@@ -372,9 +372,17 @@
 }
 @media (max-width: 900px) {
   #portal.admin-wide .workspace { padding-inline: 16px !important; background: #faf9f5 !important; }
-  #portal.admin-wide > .mobile-head { background: transparent !important; border: 0 !important; box-shadow: none !important; }
-  #portal.admin-wide #view-gestion > .admin-section-nav { display: none !important; }
-  #portal.admin-wide #view-gestion .admin-view-head { min-height: 0; padding-block: 6px !important; margin-bottom: 6px !important; gap: 10px; }
+  #portal.admin-wide #view-gestion > .admin-section-nav > :is(button, a) {
+    background: #f7f4ee !important;
+    border-color: #ded6c9 !important;
+    color: #55524c !important;
+  }
+  #portal.admin-wide #view-gestion > .admin-section-nav > button.active {
+    background: #2a2825 !important;
+    border-color: #2a2825 !important;
+    color: #f7f4ee !important;
+    box-shadow: 0 4px 12px rgba(42, 40, 37, 0.2) !important;
+  }
   #portal.admin-wide #view-gestion .admin-view-head h1 { font-size: 29px !important; }
   #portal.admin-wide .mobile-admin-navigation { background: #f5f0e8; border-color: var(--claude-line); box-shadow: none; }
   #portal.admin-wide .mobile-admin-navigation summary :is(span,strong) { color: #3d3d3a; }

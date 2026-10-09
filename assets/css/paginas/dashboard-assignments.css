@@ -45,10 +45,11 @@
   #portal .admin-section-nav button,#portal .admin-section-nav a{flex:0 0 auto;white-space:normal;padding:8px 10px}
 }
 @media(max-width:600px){.assignment-section-head{align-items:flex-start;flex-direction:column}.assignment-pagination{font-size:11px}.assignment-pagination button{min-height:44px}}
-/* El panel nuevo necesita su propio desbordamiento dentro del marco del dashboard. */
-#portal.admin-wide #view-gestion>#admin-assignments-section{
-  display:block;min-height:0;overflow-y:auto;overflow-x:hidden;
-  padding-bottom:64px;scrollbar-gutter:stable;
+@media(min-width:901px){
+  #portal.admin-wide #view-gestion>#admin-assignments-section{
+    display:block;min-height:0;overflow-y:auto;overflow-x:hidden;
+    padding-bottom:64px;scrollbar-gutter:stable;
+  }
 }
 #portal #admin-assignments-section[hidden]{display:none!important}
 @media(min-width:1001px){

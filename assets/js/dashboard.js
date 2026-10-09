@@ -2815,6 +2815,10 @@ function closeTeamProfile(){
 }
 
 function renderAdminOverviewCharts(people,marks,closePeople){
+  if(typeof window!=='undefined'){
+    window.KJA_OVERVIEW_DATA={people,marks,closePeople};
+    if(window.syncOverviewModalData) window.syncOverviewModalData();
+  }
   const host=$('admin-overview-charts');if(!host)return;
   const ids=new Set(people.map(p=>String(p.id))),closes=closePeople.filter(p=>ids.has(String(p.id)));
   const byClose=new Map(closes.map(p=>[String(p.id),p.cierre||{}]));
@@ -2827,16 +2831,16 @@ function renderAdminOverviewCharts(people,marks,closePeople){
   const delivered=rows=>rows.filter(r=>r.completo===true).length;
   const palette=['#187d69','#b45d3c','#c69a35','#7a8da4','#c9c6bf'];
   const charts=[
-    {title:'General',note:'Jornadas · hoy',center:complete,label:'completas',parts:[['Completas',complete],['Incompletas',incomplete],['Otros estados',people.length-complete-incomplete]]},
-    {title:'Asistencias',note:'Registros · hoy',center:count(p=>byMark.has(String(p.id))),label:'registrados',parts:[['Presentes',count(p=>byMark.get(String(p.id))?.estado==='P')],['Tardanzas',count(p=>byMark.get(String(p.id))?.estado==='T')],['Justificados',count(p=>byMark.get(String(p.id))?.estado==='J')],['Otros registros',count(p=>byMark.has(String(p.id))&&!['P','T','J'].includes(byMark.get(String(p.id)).estado))],['Sin registro',count(p=>!byMark.has(String(p.id)))]]},
-    {title:'Evidencias',note:'Requisitos · hoy',center:delivered(requirements),label:'completados',parts:[['Completados',delivered(requirements)],['Pendientes',requirements.length-delivered(requirements)]]},
-    {title:'Tareas',note:'Entregas por colaborador · hoy',center:delivered(tasks),label:'entregadas',parts:[['Entregadas',delivered(tasks)],['Pendientes',tasks.length-delivered(tasks)]]}
+    {key:'general',title:'General',note:'Jornadas · hoy',center:complete,label:'completas',parts:[['Completas',complete],['Incompletas',incomplete],['Otros estados',people.length-complete-incomplete]]},
+    {key:'asistencias',title:'Asistencias',note:'Registros · hoy',center:count(p=>byMark.has(String(p.id))),label:'registrados',parts:[['Presentes',count(p=>byMark.get(String(p.id))?.estado==='P')],['Tardanzas',count(p=>byMark.get(String(p.id))?.estado==='T')],['Justificados',count(p=>byMark.get(String(p.id))?.estado==='J')],['Otros registros',count(p=>byMark.has(String(p.id))&&!['P','T','J'].includes(byMark.get(String(p.id)).estado))],['Sin registro',count(p=>!byMark.has(String(p.id)))]]},
+    {key:'evidencias',title:'Evidencias',note:'Requisitos · hoy',center:delivered(requirements),label:'completados',parts:[['Completados',delivered(requirements)],['Pendientes',requirements.length-delivered(requirements)]]},
+    {key:'tareas',title:'Tareas',note:'Entregas por colaborador · hoy',center:delivered(tasks),label:'entregadas',parts:[['Entregadas',delivered(tasks)],['Pendientes',tasks.length-delivered(tasks)]]}
   ];
   host.innerHTML=charts.map(chart=>{
     const total=chart.parts.reduce((n,p)=>n+p[1],0);let offset=0;
     const segments=chart.parts.map(([label,value],i)=>{const start=offset;offset+=total?value/total*100:0;return `${palette[i]} ${start}% ${offset}%`}).join(',');
     const description=chart.parts.map(([label,value])=>`${label}: ${value}`).join(', ');
-    return `<article class="admin-chart"><header><h3>${chart.title}</h3><p>${chart.note}</p></header><div class="admin-chart-ring" role="img" aria-label="${esc(chart.title+': '+(total?description:'Sin datos para hoy'))}" style="background:${total?`conic-gradient(${segments})`:'#e5e2dd'}"><span><b>${total?chart.center:'—'}</b><small>${total?chart.label:'Sin datos'}</small></span></div><ul>${chart.parts.map(([label,value],i)=>`<li><i style="background:${palette[i]}" aria-hidden="true"></i><span>${label}</span><b>${value}</b></li>`).join('')}</ul></article>`;
+    return `<article class="admin-chart" data-overview-chart="${chart.key}" role="button" tabindex="0" title="Ver detalle de ${esc(chart.title)}"><header><h3>${chart.title}</h3><p>${chart.note}</p></header><div class="admin-chart-ring" role="img" aria-label="${esc(chart.title+': '+(total?description:'Sin datos para hoy'))}" style="background:${total?`conic-gradient(${segments})`:'#e5e2dd'}"><span><b>${total?chart.center:'—'}</b><small>${total?chart.label:'Sin datos'}</small></span></div><ul>${chart.parts.map(([label,value],i)=>`<li><i style="background:${palette[i]}" aria-hidden="true"></i><span>${label}</span><b>${value}</b></li>`).join('')}</ul><div class="admin-chart-footer"><span class="admin-chart-cta">Ver detalle <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div></article>`;
   }).join('');
 }
 
@@ -3073,7 +3077,12 @@ async function showAdminSection(section){
   document.querySelectorAll('[data-admin-section]').forEach(b=>{
     const active=!!b.closest('.admin-section-nav')&&b.dataset.adminSection===APP.adminSection;
     b.classList.toggle('active',active);
-    if(b.closest('.admin-section-nav'))b.setAttribute('aria-pressed',String(active));
+    if(b.closest('.admin-section-nav')){
+      b.setAttribute('aria-pressed',String(active));
+      if(active&&typeof b.scrollIntoView==='function'){
+        try{b.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}catch(_e){}
+      }
+    }
   });
   if(APP.adminSection==='facebook'){
     if(typeof loadAdminFacebookReport==='function')await loadAdminFacebookReport();

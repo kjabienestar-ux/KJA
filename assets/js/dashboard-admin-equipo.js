@@ -88,7 +88,14 @@ function renderAdminPeople(){
   const all=APP.adminTeam.personas||[],visible=filteredAdminPeople('people'),canEdit=!!APP.adminTeam.puede_editar;
   const active=all.filter(p=>p.activo),inactive=all.length-active.length,noDni=active.filter(p=>!p.dni).length,noPin=active.filter(p=>!p.tiene_pin).length,pending=active.filter(p=>p.contrato_pendiente).length;
   const kpis=[['ACTIVOS',active.length],['DADOS DE BAJA',inactive],['SIN DNI',noDni],['SIN PIN',noPin],['CONTRATO PENDIENTE',pending]];
-  $('admin-people-kpis').innerHTML=kpis.map(x=>`<article class="admin-list-kpi"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
+  const peopleKpis=$('admin-people-kpis');
+  if(peopleKpis)peopleKpis.innerHTML=kpis.map(x=>`<article class="admin-list-kpi"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
+
+  const searchQuery=$('admin-people-search')?.value?.trim().toLocaleLowerCase('es')||'';
+  const isSearching=Boolean(searchQuery);
+  const exportCard=typeof document!=='undefined'&&document.querySelector?document.querySelector('#admin-people-section .admin-attendance-export'):$('admin-attendance-export-card');
+  if(exportCard)exportCard.hidden=isSearching;
+  if(peopleKpis)peopleKpis.hidden=isSearching;
   const groups=new Map();
   visible.forEach(p=>{const key=String(p.area_id);if(!groups.has(key))groups.set(key,{name:p.area||'Sin área',items:[]});groups.get(key).items.push(p)});
   let html='';
@@ -125,7 +132,10 @@ function renderAdminContracts(){
   const all=(APP.adminTeam.personas||[]).filter(p=>p.activo),visible=filteredAdminPeople('contracts'),canEdit=!!APP.adminTeam.puede_editar;
   const pending=all.filter(p=>p.resumen?.pendiente).length,complete=all.filter(p=>p.resumen?.completado).length,alerts=all.filter(p=>(p.resumen?.alertas||[]).length&&!p.resumen?.pendiente).length,noMeta=all.filter(p=>!(Number(p.resumen?.meta)>0)).length;
   const kpis=[['Activos',all.length],['Pendientes',pending],['Completados',complete],['Con alertas',alerts],['Sin meta',noMeta]];
-  $('admin-contract-kpis').innerHTML=kpis.map(x=>`<article class="admin-list-kpi"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
+  const contractKpis=$('admin-contract-kpis');
+  if(contractKpis)contractKpis.innerHTML=kpis.map(x=>`<article class="admin-list-kpi"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
+  const contractSearchQuery=$('admin-contract-search')?.value?.trim().toLocaleLowerCase('es')||'';
+  if(contractKpis)contractKpis.hidden=Boolean(contractSearchQuery);
   if($('admin-contract-count'))$('admin-contract-count').textContent=`${visible.length}`;
   let html='<div class="admin-contract-head" aria-hidden="true"><span>Colaborador</span><span>Horas y avance</span><span>Jornada</span><span>Término estimado</span><span>Estado</span><span>Institución</span><span></span></div>';
   for(const p of visible){
@@ -415,7 +425,13 @@ async function saveAdminDaysOff(event){
   daysOffMessage('Movimiento guardado.');
 }
 
-['admin-people-search','admin-contract-search'].forEach(id=>$(id).addEventListener('input',()=>id.includes('contract')?renderAdminContracts():renderAdminPeople()));
+['admin-people-search','admin-contract-search'].forEach(id=>{
+  const el=$(id);if(!el)return;
+  const handler=()=>id.includes('contract')?renderAdminContracts():renderAdminPeople();
+  el.addEventListener('input',handler);
+  el.addEventListener('search',handler);
+  el.addEventListener('keydown',e=>{if(e.key==='Escape'&&el.value){el.value='';handler();}});
+});
 ['admin-people-area','admin-people-inactive'].forEach(id=>$(id).addEventListener('change',renderAdminPeople));
 ['admin-contract-area','admin-contract-inactive','admin-contract-pending'].forEach(id=>$(id).addEventListener('change',renderAdminContracts));
 $('admin-new-person').onclick=()=>openAdminPerson();
