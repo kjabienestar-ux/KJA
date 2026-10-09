@@ -24,7 +24,7 @@
     const waUrl = message => 'https://wa.me/51988918238?text=' + encodeURIComponent(message);
 
     function renderAreaCard([id, data], index) {
-        return '<article class="curso-card-v3 catalog-area-card">' +
+        return '<article class="curso-card-v3 catalog-area-card"' + (data.catalogFocus ? ' style="--catalog-focus:' + escape(data.catalogFocus) + '"' : '') + '>' +
             '<a href="' + areaUrl(id) + '" class="catalog-area-link" aria-label="Explorar área: ' + escape(data.title) + '">' +
             '<div class="catalog-area-image"><img src="' + escape(data.catalogImage || data.image) + '" alt="" loading="lazy" decoding="async"></div>' +
             '<div class="catalog-area-copy"><span class="catalog-area-label">Área ' + String(index + 1).padStart(2, '0') + '</span>' +
@@ -40,35 +40,10 @@
             function expand(card) {
                 clearTimeout(timer);
                 if (active === card) return;
-                const previousHeight = active && !row.classList.contains('catalog-stacked') ? parseFloat(row.style.getPropertyValue('--expanded-height')) || 200 : 200;
                 const cards = [...row.querySelectorAll('.catalog-area-card')];
                 active = card;
                 row.classList.toggle('has-expanded', !!card);
                 cards.forEach(item => item.classList.toggle('is-expanded', item === card));
-                if (!card) return;
-                // Narrow vertical labels leave enough room for the complete flyer.
-                const width = row.clientWidth - 36 - 124 - 2;
-                const image = card.querySelector('img');
-                const ratio = image.naturalWidth / image.naturalHeight || 2;
-                row.style.setProperty('--image-ratio', String(ratio));
-                let fittedHeight;
-                row.classList.remove('catalog-stacked');
-                for (let height = Math.max(200, previousHeight); height <= 360; height += 2) {
-                    const copyWidth = width - (height - 2) * ratio;
-                    if (copyWidth < 250) break;
-                    row.style.setProperty('--copy-width', copyWidth + 'px');
-                    if (card.querySelector('.catalog-area-copy').scrollHeight + 4 <= height) {
-                        fittedHeight = height;
-                        break;
-                    }
-                }
-                if (!fittedHeight) {
-                    // At narrower desktop widths the full image sits above the text.
-                    row.classList.add('catalog-stacked');
-                    row.style.setProperty('--copy-width', width + 'px');
-                    fittedHeight = width / ratio + card.querySelector('.catalog-area-copy').scrollHeight;
-                }
-                row.style.setProperty('--expanded-height', fittedHeight + 'px');
             }
             row.querySelectorAll('.catalog-area-card').forEach(card => {
                 card.addEventListener('pointerenter', () => {

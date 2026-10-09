@@ -208,6 +208,14 @@
             }
         </style>
     </noscript>
+    <!-- Precarga de Videos mientras el usuario está en Inicio -->
+    <link rel="prefetch" href="videos.html" as="document">
+    <link rel="prefetch" href="assets/css/paginas/videos.css?v=4" as="style">
+    <link rel="prefetch" href="assets/js/videos-data.js?v=1" as="script">
+    <link rel="prefetch" href="assets/js/videos.js?v=4" as="script">
+    <link rel="preconnect" href="https://www.facebook.com">
+    <link rel="preconnect" href="https://www.tiktok.com">
+    <script type="speculationrules">{"prefetch":[{"urls":["videos.html"],"eagerness":"moderate"}]}</script>
     <link rel="stylesheet" href="assets/css/paginas/home-navigation.css?v=4">
     <script defer src="assets/js/home-navigation.js?v=4"></script>
 </head>
@@ -886,7 +894,8 @@
             .testimonials-marquee__text { margin: 0; color: #475a74; font-size: .84rem; line-height: 1.58; }
             .testimonials-detail { position: fixed; z-index: 4500; inset: 0; display: grid; grid-template-columns: minmax(150px,220px) minmax(0,620px) minmax(150px,220px); align-items: center; justify-content: center; gap: 22px; padding: 32px 20px; overflow-y: auto; background: rgba(5,25,58,.38); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); }
             .testimonials-detail[hidden] { display: none; }
-            body.testimonials-detail-open { overflow: hidden; }
+            html.testimonials-detail-open, body.testimonials-detail-open { overflow: hidden !important; }
+            .testimonials-detail { overscroll-behavior: contain; }
             .testimonials-detail__panel { position: relative; width: min(620px, 100%); min-height: 350px; overflow: visible; padding: 38px; border: 1px solid rgba(255,255,255,.8); border-radius: 26px; background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(231,243,255,.7)); box-shadow: 0 28px 70px rgba(3,28,68,.28), inset 0 1px 0 rgba(255,255,255,.92); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); }
             .testimonials-detail__panel::before { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: linear-gradient(130deg, rgba(255,255,255,.58), transparent 38%, rgba(79,143,224,.1)); }
             .testimonials-detail__close { position: absolute; z-index: 1; top: 16px; right: 16px; width: 35px; height: 35px; border: 1px solid rgba(7,90,188,.12); border-radius: 50%; color: #28537d; background: rgba(255,255,255,.64); font-size: 23px; line-height: 1; cursor: pointer; }
@@ -1062,12 +1071,14 @@
                         lastFocusedCard = cards[index];
                         populateDetail(index);
                         detail.hidden = false;
+                        document.documentElement.classList.add('testimonials-detail-open');
                         document.body.classList.add('testimonials-detail-open');
                         close.focus();
                     };
                     const closeDetail = function () {
                         if (detail.hidden) return;
                         detail.hidden = true;
+                        document.documentElement.classList.remove('testimonials-detail-open');
                         document.body.classList.remove('testimonials-detail-open');
                         lastFocusedCard && lastFocusedCard.focus();
                     };
@@ -1082,6 +1093,12 @@
                     document.getElementById('testimonials-detail-previous-peek').addEventListener('click', function () { moveDetail(-1); });
                     document.getElementById('testimonials-detail-next-peek').addEventListener('click', function () { moveDetail(1); });
                     detail.addEventListener('click', function (event) { if (event.target === detail) closeDetail(); });
+                    // Si el modal no necesita scroll propio, se evita que el gesto desplace la página de fondo (iOS ignora overflow:hidden).
+                    const blockBackgroundScroll = function (event) {
+                        if (!detail.hidden && detail.scrollHeight <= detail.clientHeight) event.preventDefault();
+                    };
+                    detail.addEventListener('wheel', blockBackgroundScroll, { passive: false });
+                    detail.addEventListener('touchmove', blockBackgroundScroll, { passive: false });
                     document.addEventListener('keydown', function (event) { if (event.key === 'Escape') closeDetail(); if (!detail.hidden && event.key === 'ArrowLeft') moveDetail(-1); if (!detail.hidden && event.key === 'ArrowRight') moveDetail(1); });
                 })();
             </script>
