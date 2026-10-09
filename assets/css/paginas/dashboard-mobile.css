@@ -53,8 +53,12 @@
     transform: translateX(calc(-100% - 24px)) !important;
     transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1) !important;
     overflow-y: auto !important;
-    overscroll-behavior: contain !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-y: contain !important;
     -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
   }
   #portal .sidebar.open,
   #portal.admin-wide .sidebar.open {
@@ -344,7 +348,39 @@
   #portal #view-gestion>.admin-view-head .admin-head-actions{width:auto;flex:0 0 auto;margin-left:auto}
   #portal #view-gestion>.mobile-admin-navigation{position:relative;inset:auto;height:auto;min-height:0}
   #portal #view-gestion>.admin-section-nav{height:auto;min-height:0;align-content:start}
-  #portal #view-gestion>[id^=admin-]{position:relative;inset:auto;min-height:0;margin-top:0;overflow:visible}
+  #portal #view-gestion>[id^=admin-],
+  #portal.admin-wide #view-gestion>[id^=admin-],
+  #portal #view-gestion>:is(
+    #admin-overview-section,
+    #admin-control-section,
+    #admin-list-section,
+    #admin-close-section,
+    #admin-assignments-section,
+    #admin-month-section,
+    #admin-people-section,
+    #admin-facebook-section,
+    #admin-ranking-section,
+    #admin-contracts-section,
+    #admin-roles-section,
+    #admin-access-section
+  ),
+  #portal.admin-wide #view-gestion>:is(
+    #admin-overview-section,
+    #admin-control-section,
+    #admin-list-section,
+    #admin-close-section,
+    #admin-assignments-section,
+    #admin-month-section,
+    #admin-people-section,
+    #admin-facebook-section,
+    #admin-ranking-section,
+    #admin-contracts-section,
+    #admin-roles-section,
+    #admin-access-section
+  ),
+  #portal #view-gestion>#admin-people-section,
+  #portal.admin-wide #view-gestion>#admin-people-section,
+  #portal #admin-people-section{position:relative!important;inset:auto!important;min-height:0!important;height:auto!important;max-height:none!important;margin-top:0!important;overflow:visible!important;overflow-x:visible!important;overflow-y:visible!important;-webkit-overflow-scrolling:touch}
   #portal,#portal.admin-wide{width:100%;max-width:100%;min-width:0;height:auto;min-height:100dvh;overflow:visible}
   #portal .workspace{min-width:0;max-width:100%;height:auto;overflow:visible;padding-bottom:calc(var(--mobile-bottom-space) + env(safe-area-inset-bottom,0px))!important}
   #portal .view{min-width:0;max-width:100%;width:100%}
@@ -355,9 +391,72 @@
   #portal .mobile-profile-copy,#portal .mobile-quick-grid button>span{min-width:0;overflow-wrap:anywhere}
   #portal .mobile-quick-grid button b,#portal .mobile-quick-grid button small{white-space:normal}
 
-  /* Cada sección administrativa queda a un toque, sin perder las restricciones de rol. */
+  /* Barra de pestañas móvil horizontal con desplazamiento fluido a un toque */
   #view-gestion.has-mobile-admin-nav > .admin-section-nav,
-  #portal.admin-wide #view-gestion > .admin-section-nav {
+  #portal.admin-wide #view-gestion > .admin-section-nav,
+  #portal #view-gestion > .admin-section-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    scrollbar-width: none !important;
+    margin: 2px 0 16px 0 !important;
+    padding: 6px 2px 10px 2px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  #view-gestion.has-mobile-admin-nav > .admin-section-nav::-webkit-scrollbar,
+  #portal.admin-wide #view-gestion > .admin-section-nav::-webkit-scrollbar,
+  #portal #view-gestion > .admin-section-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+  #portal #view-gestion > .admin-section-nav > :is(button, a) {
+    flex: 0 0 auto !important;
+    min-height: 42px !important;
+    padding: 8px 16px !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    border: 1px solid #dce4ed !important;
+    background: #ffffff !important;
+    color: #435b75 !important;
+    box-shadow: 0 2px 6px rgba(16, 42, 69, 0.04) !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  #portal #view-gestion > .admin-section-nav > :is(button, a):active {
+    transform: scale(0.97) !important;
+  }
+  #portal #view-gestion > .admin-section-nav > button.active {
+    background: #0d2a4a !important;
+    color: #ffffff !important;
+    border-color: #0d2a4a !important;
+    box-shadow: 0 4px 14px rgba(13, 42, 74, 0.22) !important;
+    font-weight: 700 !important;
+  }
+  #portal #view-gestion > .admin-section-nav > a,
+  #portal #view-gestion > .admin-section-nav > .mobile-inline-home {
+    display: none !important;
+  }
+  #portal #view-gestion > .admin-section-nav > .admin-refresh {
+    margin-left: auto !important;
+    border-style: dashed !important;
+    background: #f4f7fb !important;
+  }
+  #portal #view-gestion > .admin-section-nav > [hidden] {
     display: none !important;
   }
   #view-gestion>.mobile-admin-navigation{display:block;margin:6px 0 12px;padding:0;border:1px solid #dce5ee;border-radius:16px;background:#fff;box-shadow:0 4px 14px #18355206}

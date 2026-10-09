@@ -1284,3 +1284,10 @@
     justify-content: space-between !important;
   }
 }
+
+@media (max-width: 900px) {
+  #portal #admin-assignments-section :is(input, select, textarea),
+  .asg-picker-search input {
+    font-size: 16px !important;
+  }
+}

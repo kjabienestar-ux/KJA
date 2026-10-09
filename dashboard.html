@@ -14,10 +14,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="images/dashboard/fondo-1-1920.webp" type="image/webp" media="(min-width: 901px)">
-  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=241">
+  <link rel="stylesheet" href="assets/css/paginas/dashboard.css?v=242">
   <link rel="stylesheet" href="assets/css/paginas/dashboard-person-profile.css?v=9">
 <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" />
-<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=14">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=16">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
@@ -52,19 +52,21 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=11">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-control-refined.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=6">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=1">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-operations.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-holiday.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-evidence-corrections.css?v=1">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-overview-modal.css?v=2">
 </head>
 <body>
 
@@ -308,6 +310,11 @@
       </div>
     </section>
     <section class="view active" id="view-inicio">
+      <section id="evidence-correction-banner" class="evidence-correction-banner" aria-label="Correcciones pendientes" hidden>
+        <strong id="evidence-correction-count"></strong>
+        <p>La entrega anterior fue anulada. Puedes volver a subir tus capturas.</p>
+        <div id="evidence-correction-pending"></div>
+      </section>
       <section class="mobile-portal-home" aria-label="Inicio rápido">
         <header class="mobile-portal-hero">
           <div class="mobile-portal-brand">
@@ -1774,7 +1781,7 @@
           <div id="admin-areas-message" role="status" aria-live="polite"></div>
           <div id="admin-areas-list"></div>
         </section>
-        <section class="admin-attendance-export" aria-labelledby="admin-attendance-export-title">
+        <section class="admin-attendance-export" id="admin-attendance-export-card" aria-labelledby="admin-attendance-export-title">
           <header class="attendance-export-head"><div><h3 id="admin-attendance-export-title">Informe consolidado</h3><p>Todos los internos que elijas, en un solo archivo.</p></div><div class="attendance-export-sheets" aria-label="Hojas del Excel"><span>Resumen</span><span>Horarios</span><span>Asistencia</span></div></header>
           <details class="attendance-export-selection">
             <summary><span><b>Seleccionar internos</b><small id="attendance-export-preview">Cargando el directorio…</small></span><span class="attendance-export-count" id="attendance-export-count">0 seleccionados</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
@@ -3063,8 +3070,112 @@
   <div id="admin-leave-review-days" class="admin-request-list"></div>
   <footer><span>Puedes decidir cada fecha por separado.</span><button type="button" data-close-leave-review>Listo</button></footer>
 </dialog>
+
+<dialog id="evidence-correction-modal" class="evidence-correction-modal" role="alertdialog" aria-labelledby="evidence-correction-title" aria-describedby="evidence-correction-copy evidence-correction-note">
+  <div class="evidence-correction-figure" aria-hidden="true">
+    <svg viewBox="0 0 96 96" fill="none"><rect x="19" y="12" width="52" height="66" rx="8" fill="#fff" stroke="currentColor" stroke-width="3"/><path d="M30 28h30M30 37h20M30 60l9-10 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="69" cy="69" r="18" fill="#fff0f3" stroke="currentColor" stroke-width="3"/><path d="m63 63 12 12m0-12L63 75" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+  </div>
+  <h2 id="evidence-correction-title">Tus comparticiones necesitan una corrección</h2>
+  <p id="evidence-correction-date" class="evidence-correction-date"></p>
+  <p id="evidence-correction-copy">Dirección anuló esta entrega. Revisa la observación y vuelve a subir tus capturas.</p>
+  <section class="evidence-correction-observation" aria-labelledby="evidence-correction-note-title">
+    <h3 id="evidence-correction-note-title">Observación de Dirección</h3>
+    <p id="evidence-correction-note"></p>
+  </section>
+  <p class="evidence-correction-help">Ya puedes enviar una nueva evidencia para esta fecha, aunque el horario haya terminado.</p>
+  <div class="evidence-correction-actions">
+    <button type="button" id="evidence-correction-upload">Subir nuevas comparticiones</button>
+    <button type="button" id="evidence-correction-later">Lo haré después</button>
+  </div>
+</dialog>
+
+<!-- ── MoonRow Modern SaaS Overview Modal ────────────────── -->
+<div id="admin-overview-modal" class="moonrow-modal" hidden aria-modal="true" role="dialog" aria-labelledby="moonrow-modal-title">
+  <div class="moonrow-backdrop" data-moonrow-close tabindex="-1" aria-label="Cerrar modal"></div>
+  <div class="moonrow-sheet" tabindex="-1">
+
+    <!-- Modal Header -->
+    <header class="moonrow-header">
+      <div class="moonrow-header-brand">
+        <div class="moonrow-brand-icon" id="moonrow-brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M12 7v5l3 2"/></svg>
+        </div>
+        <div class="moonrow-header-titles">
+          <h3 class="moonrow-title" id="moonrow-modal-title">Jornadas Generales de Hoy</h3>
+          <p class="moonrow-subtitle" id="moonrow-modal-subtitle">Monitoreo de estado de cierres y cumplimiento</p>
+        </div>
+      </div>
+
+      <div class="moonrow-header-actions">
+        <!-- MoonRow Nav Switcher Pills -->
+        <nav class="moonrow-nav-tabs" aria-label="Cambiar vista de métrica">
+          <button type="button" class="moonrow-tab-btn is-active" data-moonrow-tab="general" id="moonrow-tab-general">
+            <span>General</span>
+          </button>
+          <button type="button" class="moonrow-tab-btn" data-moonrow-tab="asistencias" id="moonrow-tab-asistencias">
+            <span>Asistencias</span>
+          </button>
+          <button type="button" class="moonrow-tab-btn" data-moonrow-tab="evidencias" id="moonrow-tab-evidencias">
+            <span>Evidencias</span>
+          </button>
+          <button type="button" class="moonrow-tab-btn" data-moonrow-tab="tareas" id="moonrow-tab-tareas">
+            <span>Tareas</span>
+          </button>
+        </nav>
+        <button type="button" class="moonrow-close-btn" data-moonrow-close aria-label="Cerrar">✕</button>
+      </div>
+    </header>
+
+    <!-- Modal Body -->
+    <div class="moonrow-body">
+
+      <!-- MoonRow Hero Analytics Grid (3 Cards) -->
+      <section class="moonrow-hero-grid" aria-label="Métricas destacadas">
+        <article class="moonrow-kpi-card" id="moonrow-hero-kpi-card"></article>
+        <article class="moonrow-progress-card" id="moonrow-hero-progress-card"></article>
+        <article class="moonrow-dark-card" id="moonrow-hero-dark-card"></article>
+      </section>
+
+      <!-- MoonRow Filter & Search Toolbar -->
+      <div class="moonrow-toolbar">
+        <div class="moonrow-filter-pills" id="moonrow-filter-pills" role="tablist"></div>
+        <div class="moonrow-search-wrap">
+          <div class="moonrow-search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="search" class="moonrow-search-input" id="moonrow-search-input" placeholder="Buscar colaborador o área…" aria-label="Buscar colaborador o área">
+          </div>
+          <select class="moonrow-area-select" id="moonrow-area-select" aria-label="Filtrar por área">
+            <option value="">Todas las áreas</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- MoonRow Data Table -->
+      <div class="moonrow-table-card">
+        <table class="moonrow-table">
+          <thead id="moonrow-table-head"></thead>
+          <tbody id="moonrow-table-body"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <footer class="moonrow-footer">
+      <span class="moonrow-footer-count" id="moonrow-footer-count">Mostrando registros…</span>
+      <div class="moonrow-footer-actions">
+        <button type="button" class="moonrow-btn-secondary" data-moonrow-close>Cerrar</button>
+        <button type="button" class="moonrow-btn-primary" data-jump-section="lista">Ir a pasar lista <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg></button>
+      </div>
+    </footer>
+
+  </div>
+</div>
+
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=253"></script>
+<script src="assets/js/dashboard.js?v=256"></script>
+<script src="assets/js/dashboard-overview-modal.js?v=1"></script>
+<script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
 <script src="assets/js/dashboard-cert-accounts.js?v=8"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
@@ -3082,7 +3193,7 @@
 <script src="assets/js/dashboard-admin-mes.js?v=17"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=6"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=48"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=49"></script>
 <script src="assets/js/dashboard-assignments.js?v=7"></script>
 <script src="assets/js/dashboard-admin-control.js?v=17"></script>
 <script src="assets/js/marketing-model.js?v=3"></script>

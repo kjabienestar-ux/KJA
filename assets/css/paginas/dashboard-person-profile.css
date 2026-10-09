@@ -46,7 +46,24 @@
 /* Informe consolidado: selecci?n progresiva y una acci?n principal. */
 /* La sección se desplaza dentro de una fila de altura limitada en escritorio.
    Un flujo normal impide que el grid reduzca el informe a su borde. */
-#portal #view-gestion>#admin-people-section{display:block;min-width:0;overflow-x:hidden}
+@media (min-width: 901px) {
+  #portal #view-gestion>#admin-people-section {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+@media (max-width: 900px) {
+  #portal #view-gestion>#admin-people-section {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: visible !important;
+  }
+}
 #portal #admin-people-section>*{min-width:0;margin-bottom:14px}
 #portal #admin-people-section>.admin-attendance-export{margin-bottom:24px}
 .admin-attendance-export{min-width:0;margin:0 0 24px;border:1px solid var(--line);border-radius:16px;background:var(--white)}

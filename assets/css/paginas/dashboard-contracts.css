@@ -729,3 +729,10 @@
     padding-inline: 14px;
   }
 }
+
+@media (max-width: 900px) {
+  #portal #admin-contracts-section input#admin-contract-search,
+  #portal #admin-contracts-section select {
+    font-size: 16px !important;
+  }
+}

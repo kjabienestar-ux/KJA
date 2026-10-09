@@ -279,9 +279,6 @@
   #portal.admin-wide .side-nav button.active svg {
     color: #004fb0 !important;
   }
-  #portal.admin-wide #view-gestion > .admin-section-nav {
-    display: none !important;
-  }
   #portal.admin-wide .workspace { background: transparent !important; padding-top: 6px !important; }
   #portal.admin-wide .mobile-admin-navigation { border-radius: 20px; }
   #portal.admin-wide :is(.admin-overview-today,.admin-panel,.admin-overview-map) { border-radius: 18px; }

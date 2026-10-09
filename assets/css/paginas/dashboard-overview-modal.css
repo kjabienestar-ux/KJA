@@ -1,0 +1,1105 @@
+/* ── MoonRow Modern SaaS Modal for Dashboard Overview Cards ── */
+
+html.moonrow-modal-open,
+body.moonrow-modal-open {
+  overflow: hidden !important;
+}
+
+.moonrow-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.moonrow-modal[hidden] {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.moonrow-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: moonrowFadeIn 0.25s ease;
+}
+
+@keyframes moonrowFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.moonrow-sheet {
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 25px 70px -15px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(15, 23, 42, 0.04);
+  width: 100%;
+  max-width: 1060px;
+  height: min(92vh, 920px);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  animation: moonrowSheetIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes moonrowSheetIn {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Modal Header ── */
+.moonrow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 28px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  flex: none;
+}
+
+.moonrow-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.moonrow-brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  flex: none;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.moonrow-brand-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.moonrow-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.moonrow-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.moonrow-subtitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.moonrow-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+/* ── MoonRow Navigation Tabs (Pills) ── */
+.moonrow-nav-tabs {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 9999px;
+  gap: 3px;
+}
+
+.moonrow-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+
+.moonrow-tab-btn:hover {
+  color: #0f172a;
+}
+
+.moonrow-tab-btn.is-active {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+}
+
+.moonrow-tab-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.moonrow-tab-btn:not(.is-active) .moonrow-tab-badge {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.moonrow-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  line-height: 1;
+  transition: all 0.15s ease;
+  flex: none;
+}
+
+.moonrow-close-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+  transform: scale(1.05);
+}
+
+/* ── Modal Scrollable Body ── */
+.moonrow-body {
+  padding: 24px 28px 36px;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #f8fafc;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+}
+
+.moonrow-body::-webkit-scrollbar {
+  width: 8px;
+}
+.moonrow-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+  margin: 10px 0;
+}
+.moonrow-body::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 9999px;
+  border: 2px solid #f1f5f9;
+}
+.moonrow-body::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* ── Hero Analytics Grid (MoonRow Style) ── */
+.moonrow-hero-grid {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr) 280px;
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* Card 1: Big KPI Number */
+.moonrow-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+
+.moonrow-kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.moonrow-kpi-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.moonrow-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.moonrow-chip.is-positive {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.moonrow-chip.is-neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.moonrow-chip.is-alert {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.moonrow-kpi-number-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.moonrow-kpi-val {
+  font-size: 44px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.moonrow-kpi-total {
+  font-size: 15px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.moonrow-kpi-sub {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.moonrow-kpi-action {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.moonrow-kpi-action:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Card 2: Segmented Horizontal Progress (Duckticket/Seevent/Ticketing style) */
+.moonrow-progress-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+
+.moonrow-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.moonrow-progress-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.moonrow-progress-summary-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Combined Segmented Top Bar */
+.moonrow-segmented-top-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  overflow: hidden;
+  display: flex;
+  margin-bottom: 18px;
+}
+
+.moonrow-seg-segment {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+/* Stacked Progress Breakdown Items */
+.moonrow-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.moonrow-breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.moonrow-breakdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.moonrow-breakdown-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.moonrow-breakdown-color-bar {
+  width: 3px;
+  height: 12px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.moonrow-breakdown-meta {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.moonrow-breakdown-meta small {
+  color: #64748b;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.moonrow-breakdown-bar-track {
+  width: 100%;
+  height: 7px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.moonrow-breakdown-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Card 3: Dark Floating Card (MoonRow Date & Target Card) */
+.moonrow-dark-card {
+  background: #0f172a;
+  border-radius: 20px;
+  padding: 22px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.moonrow-dark-card::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.moonrow-dark-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.moonrow-dark-date {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.moonrow-dark-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.moonrow-dark-kpi-row {
+  margin-bottom: 12px;
+}
+
+.moonrow-dark-number {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.moonrow-dark-label {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 3px;
+}
+
+.moonrow-dark-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  display: flex;
+  margin: 12px 0 10px;
+}
+
+.moonrow-dark-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10.5px;
+  color: #cbd5e1;
+}
+
+.moonrow-dark-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.moonrow-dark-legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ── Filter & Search Toolbar ── */
+.moonrow-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.moonrow-filter-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.moonrow-filter-btn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.moonrow-filter-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.moonrow-filter-btn.is-active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+}
+
+.moonrow-filter-count {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.moonrow-filter-btn.is-active .moonrow-filter-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.moonrow-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.moonrow-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.moonrow-search-box svg {
+  position: absolute;
+  left: 12px;
+  width: 14px;
+  height: 14px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.moonrow-search-input {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 7px 14px 7px 34px;
+  font-size: 12.5px;
+  color: #0f172a;
+  width: 210px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.moonrow-search-input:focus {
+  border-color: #0f172a;
+  width: 260px;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+}
+
+.moonrow-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.moonrow-area-select {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.moonrow-area-select:hover {
+  border-color: #cbd5e1;
+}
+
+/* ── MoonRow Table Container ── */
+.moonrow-table-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  overflow-x: auto;
+  overflow-y: visible;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.02);
+  flex: none;
+}
+
+.moonrow-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.moonrow-table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f8fafc;
+  padding: 12px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 0 #e2e8f0;
+}
+
+.moonrow-table th:first-child {
+  border-top-left-radius: 20px;
+}
+.moonrow-table th:last-child {
+  border-top-right-radius: 20px;
+}
+
+.moonrow-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.moonrow-table tr:last-child td {
+  border-bottom: none;
+}
+
+.moonrow-table tr:last-child td:first-child {
+  border-bottom-left-radius: 20px;
+}
+.moonrow-table tr:last-child td:last-child {
+  border-bottom-right-radius: 20px;
+}
+
+.moonrow-table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.moonrow-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* Collaborator Profile Cell */
+.moonrow-colab-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.moonrow-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex: none;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.moonrow-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.moonrow-colab-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.moonrow-colab-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.moonrow-area-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Detail info text */
+.moonrow-detail-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.moonrow-detail-main {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.moonrow-detail-sub {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+/* Status Badges (MoonRow Rounded Pills) */
+.moonrow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.moonrow-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.moonrow-badge.is-green {
+  background: #ecfdf5;
+  color: #059669;
+}
+.moonrow-badge.is-green .moonrow-badge-dot {
+  background: #10b981;
+}
+
+.moonrow-badge.is-coral {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.moonrow-badge.is-coral .moonrow-badge-dot {
+  background: #ef4444;
+}
+
+.moonrow-badge.is-amber {
+  background: #fffbeb;
+  color: #d97706;
+}
+.moonrow-badge.is-amber .moonrow-badge-dot {
+  background: #f59e0b;
+}
+
+.moonrow-badge.is-blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+.moonrow-badge.is-blue .moonrow-badge-dot {
+  background: #3b82f6;
+}
+
+.moonrow-badge.is-slate {
+  background: #f1f5f9;
+  color: #64748b;
+}
+.moonrow-badge.is-slate .moonrow-badge-dot {
+  background: #94a3b8;
+}
+
+/* Action button inside table */
+.moonrow-row-btn {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.moonrow-row-btn:hover {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+}
+
+/* Empty State */
+.moonrow-empty {
+  text-align: center;
+  padding: 42px 20px;
+  color: #64748b;
+}
+
+.moonrow-empty-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #94a3b8;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+}
+
+.moonrow-empty-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.moonrow-empty-desc {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── Modal Footer ── */
+.moonrow-footer {
+  padding: 16px 28px;
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex: none;
+}
+
+.moonrow-footer-count {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.moonrow-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.moonrow-btn-secondary {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 8px 18px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.moonrow-btn-secondary:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.moonrow-btn-primary {
+  background: #0f172a;
+  border: 1px solid #0f172a;
+  border-radius: 9999px;
+  padding: 8px 18px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.moonrow-btn-primary:hover {
+  background: #1e293b;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+}
+
+/* ── Dashboard Cards Affordance & Hover Effects ── */
+#portal.admin-wide .admin-chart,
+.admin-chart {
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+  position: relative;
+  outline: none;
+}
+
+#portal.admin-wide .admin-chart:hover,
+.admin-chart:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -8px rgba(37, 37, 35, 0.14), 0 0 0 1.5px rgba(24, 125, 105, 0.35);
+}
+
+#portal.admin-wide .admin-chart:focus-visible,
+.admin-chart:focus-visible {
+  box-shadow: 0 0 0 3px rgba(24, 125, 105, 0.4);
+}
+
+.admin-chart-footer {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.admin-chart-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #187d69;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.admin-chart:hover .admin-chart-cta {
+  color: #115749;
+  transform: translateX(2px);
+}
+
+/* ── Responsive Behavior ── */
+@media (max-width: 980px) {
+  .moonrow-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .moonrow-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .moonrow-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .moonrow-nav-tabs {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .moonrow-search-wrap {
+    width: 100%;
+    margin-left: 0;
+  }
+  .moonrow-search-box {
+    flex: 1;
+  }
+  .moonrow-search-input {
+    width: 100%;
+    font-size: 16px !important;
+  }
+  .moonrow-search-input:focus {
+    width: 100%;
+  }
+  .moonrow-area-select select {
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .moonrow-modal {
+    padding: 10px;
+  }
+  .moonrow-sheet {
+    max-height: 94vh;
+    border-radius: 18px;
+  }
+  .moonrow-header, .moonrow-body, .moonrow-footer {
+    padding: 16px;
+  }
+  .moonrow-tab-btn {
+    padding: 6px 12px;
+    font-size: 11.5px;
+  }
+  .moonrow-table th:nth-child(2),
+  .moonrow-table td:nth-child(2) {
+    display: none;
+  }
+}
