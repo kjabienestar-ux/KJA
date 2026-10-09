@@ -1003,7 +1003,7 @@ function paintShell(view){
   APP.view=view;
   $('portal').dataset.view=view;
   syncProfileContext(view);
-  const returnsHome=view!=='inicio'&&APP.identity.hasPersonal;
+  const returnsHome=view!=='inicio'&&APP.identity.hasPersonal&&!APP.access.acceso_panel;
   $('mobile-back-home').hidden=!returnsHome;
   $('menu-toggle').hidden=returnsHome;
   document.querySelectorAll('.view').forEach(v=>{v.hidden=v.id!==`view-${view}`;v.classList.toggle('active',!v.hidden)});
@@ -1032,7 +1032,8 @@ function primeCachedShell(session,fallback){
   paintShell(view);
   if(view==='gestion'){$('nav-gestion').hidden=false;$('admin-nav-divider').hidden=false}
   else if(view==='equipo'){$('nav-equipo').hidden=false;$('team-nav-divider').hidden=false}
-  else ['personal-nav-divider','nav-inicio','nav-asistencia','nav-perfil'].forEach(id=>$(id).hidden=false);
+  else if(view==='inicio'){$('personal-nav-divider').hidden=false;$('nav-inicio').hidden=false;$('nav-asistencia').hidden=false;$('nav-perfil').hidden=false;}
+  else if(view==='perfil'){$('nav-perfil').hidden=false;}
   $('access').hidden=true; $('portal').hidden=false;
   hideBoot();
 }
@@ -1089,10 +1090,23 @@ async function openPortal(activeSession,bootstrap=null){
   $('mobile-home-role').textContent=role;
   $('mobile-home-area').textContent='Que tengas un buen día';
   $('mobile-home-dni').textContent=c?.dni?`DNI ${c.dni}`:'Perfil institucional';
-  ['personal-nav-divider','nav-inicio','nav-asistencia','nav-perfil'].forEach(id=>$(id).hidden=!APP.identity.hasPersonal);
-  $('nav-perfil').hidden=!(APP.identity.hasPersonal||APP.access.acceso_panel);
-  $('team-nav-divider').hidden=!APP.identity.isLeader;$('nav-equipo').hidden=!APP.identity.isLeader;
-  $('nav-gestion').hidden=!APP.access.acceso_panel; $('admin-nav-divider').hidden=!APP.access.acceso_panel;
+  if(APP.access.acceso_panel){
+    ['personal-nav-divider','nav-inicio','nav-asistencia','team-nav-divider','nav-equipo'].forEach(id=>{
+      const el=$(id); if(el) el.hidden=true;
+    });
+    $('nav-perfil').hidden=false;
+    $('nav-gestion').hidden=false;
+    $('admin-nav-divider').hidden=false;
+  }else{
+    ['personal-nav-divider','nav-inicio','nav-asistencia'].forEach(id=>{
+      const el=$(id); if(el) el.hidden=!APP.identity.hasPersonal;
+    });
+    $('nav-perfil').hidden=!(APP.identity.hasPersonal||APP.access.acceso_panel);
+    $('team-nav-divider').hidden=!APP.identity.isLeader;
+    $('nav-equipo').hidden=!APP.identity.isLeader;
+    $('nav-gestion').hidden=true;
+    $('admin-nav-divider').hidden=true;
+  }
   window.KJAMarketingPortal?.init();
   const chatUserId=session?.user?.id;
   if(window.KJAChat)void window.KJAChat.init(chatUserId);
@@ -1123,7 +1137,7 @@ async function openPortal(activeSession,bootstrap=null){
     $('rail-schedule-list').innerHTML='<p class="rail-empty">Esta cuenta no está vinculada a una jornada personal.</p>';
     $('rail-rate-note').textContent='Consulta el estado desde Mi equipo';
   }
-  const initialView=APP.identity.isSystem&&APP.access.acceso_panel?'gestion':c?'inicio':APP.access.acceso_panel?'gestion':APP.identity.isLeader?'equipo':'inicio';
+  const initialView=APP.access.acceso_panel?'gestion':c?'inicio':APP.identity.isLeader?'equipo':'inicio';
   const initialLoad=goView(initialView);
   try{localStorage.setItem(SHELL_KEY,JSON.stringify({uid:session?.user?.id||'',view:initialView}))}catch(e){}
   $('portal').hidden=false; $('portal').inert=false; $('portal').removeAttribute('aria-hidden');

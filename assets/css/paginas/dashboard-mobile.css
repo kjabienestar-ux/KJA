@@ -53,8 +53,12 @@
     transform: translateX(calc(-100% - 24px)) !important;
     transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1) !important;
     overflow-y: auto !important;
-    overscroll-behavior: contain !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-y: contain !important;
     -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
   }
   #portal .sidebar.open,
   #portal.admin-wide .sidebar.open {

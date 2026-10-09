@@ -1,0 +1,77 @@
+/* Portada basada en la referencia: rosa KJA, azul y fotografía integrada. */
+.nos-cover { position: relative; isolation: isolate; overflow: hidden; min-height: 620px; padding: 135px 0 80px; background: radial-gradient(ellipse at 4% 0%, #e8e1ff 0, transparent 32%), radial-gradient(ellipse at 87% 7%, #fbe1f4 0, transparent 38%), #f6f8ff; color: #08172e; }
+.nos-cover-inner { position: relative; z-index: 3; width: min(74%, 1420px); margin: 0 auto; pointer-events: none; }
+.nos-cover-copy { width: 47%; max-width: 630px; pointer-events: auto; }
+.nos-cover h1 { font-family: 'Poppins', sans-serif; font-size: clamp(40px, 3.1vw, 58px); font-weight: 800; letter-spacing: -.035em; line-height: 1.12; margin: 0 0 20px; color: #08172e; }
+.nos-cover h1 > span { display: block; color: #f10075; font-weight: 400; }
+.nos-cover-copy > p { color: #606c88; font-size: clamp(15px, .95vw, 18px); line-height: 1.6; margin: 0 0 24px; max-width: 620px; }
+.nos-cover-actions { display: flex; gap: 18px; align-items: center; }
+.nos-cover-actions a { min-height: 50px; display: inline-flex; align-items: center; justify-content: center; gap: 18px; border-radius: 999px; padding: 12px 24px; font-size: clamp(13px, .9vw, 16px); font-weight: 700; text-decoration: none; white-space: nowrap; transition: background-color .18s, box-shadow .18s; }
+.nos-cover-actions .nos-cover-primary { position: relative; isolation: isolate; overflow: hidden; color: #fff; border-radius: 13px; background: linear-gradient(135deg, rgba(224,0,107,.86), rgba(190,0,88,.94)); border: 1px solid rgba(255,255,255,.65); -webkit-backdrop-filter: blur(16px) saturate(170%); backdrop-filter: blur(16px) saturate(170%); box-shadow: 0 6px 16px rgba(190,0,88,.16), inset 0 1px 1px rgba(255,255,255,.65), inset 0 -1px 2px rgba(255,255,255,.2); transition: box-shadow .2s ease, border-color .2s ease; }
+.nos-cover-actions .nos-cover-primary:hover { border-color: rgba(255,255,255,.9); box-shadow: 0 8px 20px rgba(190,0,88,.2), inset 0 1px 2px rgba(255,255,255,.8), inset 0 -1px 2px rgba(255,255,255,.25); }
+.nos-cover-actions .nos-cover-primary:active { box-shadow: 0 2px 8px rgba(190,0,88,.14), inset 0 2px 5px rgba(110,0,52,.25); }
+.nos-cover-primary > span { font-size: 24px; font-weight: 400; line-height: 1; }
+.nos-cover-actions .nos-cover-secondary { position: relative; isolation: isolate; overflow: hidden; min-height: 44px; padding: 11px 17px; gap: 10px; border-radius: 13px; font-size: 12px; font-weight: 600; line-height: 1.5; color: #fff; background: linear-gradient(135deg, rgba(72,91,126,.78), rgba(19,35,61,.88)); border: 1px solid rgba(255,255,255,.65); -webkit-backdrop-filter: blur(16px) saturate(170%); backdrop-filter: blur(16px) saturate(170%); box-shadow: 0 6px 16px rgba(9,36,76,.16), inset 0 1px 1px rgba(255,255,255,.65), inset 0 -1px 2px rgba(255,255,255,.2); transition: box-shadow .2s ease, border-color .2s ease; }
+.nos-cover-actions .nos-cover-primary::before,
+.nos-cover-actions .nos-cover-secondary::before { content: ''; position: absolute; z-index: -1; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.23), transparent 38%, transparent 65%, rgba(255,255,255,.12)); opacity: .8; transition: opacity .2s ease; }
+.nos-cover-actions .nos-cover-secondary svg { width: 16px; height: 16px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.nos-cover-actions .nos-cover-secondary:hover { border-color: rgba(255,255,255,.9); box-shadow: 0 8px 20px rgba(9,36,76,.2), inset 0 1px 2px rgba(255,255,255,.8), inset 0 -1px 2px rgba(255,255,255,.25); }
+.nos-cover-actions .nos-cover-primary:hover::before,
+.nos-cover-actions .nos-cover-secondary:hover::before { opacity: 1; }
+.nos-cover-actions .nos-cover-secondary:active { box-shadow: 0 2px 8px rgba(9,36,76,.14), inset 0 2px 5px rgba(9,36,76,.25); }
+.nos-cover-actions a:focus-visible { outline: 3px solid #004fb0; outline-offset: 5px; }
+.nos-cover-values { display: grid; grid-template-columns: repeat(3, 1fr); list-style: none; padding: 0; margin: 30px 0 0; max-width: 580px; }
+.nos-cover-values li { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; color: #05276c; font-size: clamp(11px, .85vw, 15px); line-height: 1.4; }
+.nos-cover-values li + li::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 0; width: 1px; background: linear-gradient(transparent, #dce6fa, transparent); }
+.nos-cover-value-icon { width: 50px; height: 50px; display: grid; place-items: center; color: #f100a0; background: #fce0f4; border-radius: 50%; }
+.nos-cover-value-icon svg { width: 29px; height: 29px; }
+.nos-cover-values li:nth-child(2) .nos-cover-value-icon { background: #e5eeff; color: #3480ff; }
+.nos-cover-values li:nth-child(3) .nos-cover-value-icon { background: #fbe9f9; color: #e65ad3; }
+.nos-cover-photo { position: absolute; z-index: 0; inset: 0 -3% 0 42%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%), linear-gradient(0deg, transparent 0%, #000 22%); mask-image: linear-gradient(90deg, transparent, #000 18%), linear-gradient(0deg, transparent 0%, #000 22%); -webkit-mask-composite: source-in; mask-composite: intersect; }
+.nos-cover-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 52% 58%; }
+.nos-cover-photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, #f6eafb88, transparent 45%), linear-gradient(90deg, #f6f8ff99, transparent 28%); }
+.nos-cover-badge { position: absolute; z-index: 2; text-align: center; color: #092970; font-size: clamp(11px, .9vw, 16px); line-height: 1.3; }
+.nos-cover-badge > span { width: clamp(66px, 4.8vw, 88px); aspect-ratio: 1; display: grid; place-items: center; margin: 0 auto 7px; border-radius: 50%; background: linear-gradient(135deg, #ffffffee, #f4eaffed); border: 1.5px solid #fff; box-shadow: 0 8px 35px #eee4ff55; color: #ab7cff; }
+.nos-cover-badge svg { width: 52%; height: 52%; }
+.nos-cover-badge p { margin: 0; }
+.nos-cover-badge--team { top: 115px; left: 47%; }
+.nos-cover-badge--heart { top: 130px; right: 5%; }
+.nos-cover-badge--heart > span { color: #eb64df; }
+.nos-cover-badge--wellness { right: 3%; bottom: 105px; }
+.nos-cover-orb { position: absolute; z-index: 1; width: 150px; height: 150px; left: -65px; top: 115px; border-radius: 50%; background: radial-gradient(circle at 28% 24%, #ff8bd0, #ec0084 58%, #a50063); box-shadow: 0 20px 70px #f1007525; }
+.nos-cover-dots { position: absolute; left: 3%; top: 48%; width: 140px; height: 155px; opacity: .45; background-image: radial-gradient(#c3b5f6 3px, transparent 4px); background-size: 30px 30px; }
+.nos-cover-wave { position: absolute; z-index: 2; bottom: -1px; left: 0; width: 100%; height: 90px; pointer-events: none; }
+#nosotros { scroll-margin-top: 105px; }
+@media (min-width: 1600px) { .nos-cover { min-height: 660px; padding-top: 145px; } }
+@media (min-width: 769px) and (max-width: 1100px) { .nos-cover { min-height: 620px; padding-top: 130px; } .nos-cover-inner { width: 88%; } .nos-cover-copy { width: 49%; } .nos-cover h1 { font-size: 44px; } .nos-cover-actions { gap: 10px; } .nos-cover-actions a { padding-inline: 18px; font-size: 12px; } .nos-cover-badge--team { left: 53%; } .nos-cover-badge--heart { right: 2%; } }
+@media (max-width: 768px) { .nos-cover { min-height: 0; padding: 115px 0 390px; } .nos-cover-inner { width: calc(100% - 40px); } .nos-cover-copy { width: 100%; max-width: 580px; margin: auto; } .nos-cover h1 { font-size: clamp(36px, 7.6vw, 56px); margin-bottom: 18px; } .nos-cover-copy > p { font-size: 15px; margin-bottom: 25px; max-width: 520px; } .nos-cover-actions { gap: 12px; flex-wrap: wrap; } .nos-cover-actions a { min-height: 50px; font-size: 13px; padding: 12px 22px; } .nos-cover-values { margin-top: 30px; } .nos-cover-values li { font-size: 11px; gap: 10px; } .nos-cover-value-icon { width: 49px; height: 49px; } .nos-cover-value-icon svg { width: 28px; height: 28px; } .nos-cover-photo { inset: auto -6% 0; height: 370px; mask-image: linear-gradient(180deg, transparent, #000 18%, #000 73%, transparent 98%); -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%, #000 73%, transparent 98%); } .nos-cover-photo img { object-position: center 60%; } .nos-cover-photo::after { background: linear-gradient(180deg, #f6f8ff55, transparent 45%); } .nos-cover-badge { font-size: 10px; } .nos-cover-badge > span { width: 58px; } .nos-cover-badge--team { left: 6%; top: auto; bottom: 245px; } .nos-cover-badge--heart { right: 5%; top: auto; bottom: 240px; } .nos-cover-badge--wellness { right: 5%; bottom: 60px; } .nos-cover-orb { width: 95px; height: 95px; left: auto; right: -62px; top: 110px; opacity: .65; } .nos-cover-dots { left: auto; right: -35px; top: 320px; opacity: .2; } .nos-cover-wave { height: 55px; } }
+@media (max-width: 370px) { .nos-cover-actions { gap: 9px; } .nos-cover-actions a { font-size: 11px; padding-inline: 15px; } .nos-cover-inner { width: calc(100% - 32px); } }
+@media (prefers-reduced-motion: reduce) { .nos-cover-actions a { transition: none; } }
+
+/* Contraste de la navegación sobre la nueva portada clara. */
+@media (min-width: 769px) {
+  .kja-page > header:not(.scrolled) { background: transparent; border-bottom-color: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .kja-page > header:not(.scrolled)::before { opacity: 0; }
+  .kja-page > header .nav-links-center li a { color: #0065dc; }
+  .kja-page > header .nav-links-center li a.active, .kja-page > header .nav-links-center li a:hover { color: #f10075; }
+  .kja-page > header .nav-links-center li a.active { text-decoration: underline; text-underline-offset: 15px; text-decoration-thickness: 2px; }
+}
+
+/* Separación entre la portada y el bloque de pestañas y contenido. */
+.nos-cover + .about-section { padding-top: 40px; }
+@media (max-width: 768px) {
+  .nos-cover + .about-section { padding-top: 28px; }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nos-cover-actions .nos-cover-primary { background-color: #c90060; }
+  .nos-cover-actions .nos-cover-secondary { background-color: #233754; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .nos-cover-actions .nos-cover-primary { background: #c90060; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .nos-cover-actions .nos-cover-secondary { background: #233754; backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nos-cover-actions .nos-cover-primary, .nos-cover-actions .nos-cover-primary::before,
+  .nos-cover-actions .nos-cover-secondary, .nos-cover-actions .nos-cover-secondary::before { transition: none; }
+}

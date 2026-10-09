@@ -893,6 +893,12 @@
     width: 100%;
   }
 
+  #portal #admin-people-section input#admin-people-search,
+  #portal #admin-people-section .admin-team-actions select,
+  #portal #admin-people-section .attendance-export-search input {
+    font-size: 16px !important;
+  }
+
   #portal #admin-people-section #admin-people-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

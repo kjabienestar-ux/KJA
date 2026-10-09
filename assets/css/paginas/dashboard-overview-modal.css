@@ -1073,9 +1073,13 @@ body.moonrow-modal-open {
   }
   .moonrow-search-input {
     width: 100%;
+    font-size: 16px !important;
   }
   .moonrow-search-input:focus {
     width: 100%;
+  }
+  .moonrow-area-select select {
+    font-size: 16px !important;
   }
 }
 
