@@ -44,6 +44,7 @@
 
   function setViewMode(mode){
     currentViewMode=mode;
+    get('fb-report-export').title=mode==='person'?'Descarga la tabla por persona con su diseño y los filtros visibles':'Descarga el libro Excel con reporte por Área, por Persona y Matriz Diaria';
     const btnArea=get('fb-btn-view-area'),btnPerson=get('fb-btn-view-person');
     const areaSummary=get('fb-report-area-summary');
     const matrixPane=get('fb-report-matrix'),personPane=get('fb-report-person-view');
@@ -383,11 +384,11 @@
     const button=get('fb-report-export');button.disabled=true;
     try{
       const currentArea=get('fb-report-area')?.value||'';
-      const bytes=globalThis.KJAFacebookExcel.build(m.matrix(rows(),data.desde,data.hasta),{...data,area:currentArea,provisional:provisional()});
+      const bytes=globalThis.KJAFacebookExcel.build(m.matrix(rows(),data.desde,data.hasta),{...data,area:currentArea,view:currentViewMode,search:currentViewMode==='person'?(get('fb-report-search')?.value||''):'',provisional:provisional()});
       const url=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),link=document.createElement('a');
       link.href=url;link.download=`facebook_${data.desde}_${data.hasta}.xlsx`;
       document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-    }catch(error){get('fb-report-status').dataset.error='true';get('fb-report-status').textContent='No se pudo preparar el Excel. Actualiza la página e inténtalo nuevamente.';}
+    }catch(error){get('fb-report-status').dataset.error='true';get('fb-report-status').textContent=error.code==='EMPTY_PREVIEW'?'No hay colaboradores para exportar. Cambia la búsqueda o el área seleccionada.':'No se pudo preparar el Excel. Actualiza la página e inténtalo nuevamente.';}
     finally{button.disabled=false;}
   };
 
@@ -413,4 +414,3 @@
   get('fb-report-kind').value=monday.report>thursday.report?'lunes':'jueves';
   get('fb-report-reference').value=limit;period();setViewMode('area');
 })();
-
