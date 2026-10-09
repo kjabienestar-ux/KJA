@@ -171,7 +171,7 @@
             featured.innerHTML = '<div class="kv-feature-stack">' + stack.map(function (item, index) {
                 return '<button type="button" class="kv-feature-card kv-feature-card--' + (index + 1) + '" data-video-index="' + index + '" aria-haspopup="dialog" ' +
                     (index ? 'tabindex="-1" aria-hidden="true"' : 'aria-label="Ver el video más reciente: ' + esc(item.titulo) + '"') + '>' +
-                    '<span class="kv-cover">' + coverHtml(item, true) + badgesHtml(item) + PLAY_ICON + '</span>' +
+                    '<span class="kv-cover">' + coverHtml(item, index === 0) + badgesHtml(item) + PLAY_ICON + '</span>' +
                 '</button>';
             }).join('') + '</div>' +
             '<p class="kv-feature-label"><b>Más reciente</b>' + esc(videos[0].titulo) + '</p>';
