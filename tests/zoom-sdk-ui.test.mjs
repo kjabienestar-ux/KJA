@@ -5,7 +5,7 @@ import vm from 'node:vm';
 const html=fs.readFileSync('zoom-sala.html','utf8'),source=fs.readFileSync('assets/js/zoom-sala.js','utf8');
 const wait=()=>new Promise(r=>setTimeout(r,20));
 async function until(fn){for(let i=0;i<100&&!fn();i++)await wait();assert.ok(fn(),'La condición no se confirmó');}
-async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=true,rejectOpen=false}={}){
+async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=true,rejectOpen=false,syncOnly=false}={}){
  const nodes=new Map();
  class Element{
  constructor(tag='div'){this.tagName=tag.toUpperCase();this.children=[];this.hidden=false;this.disabled=false;this._text='';}
@@ -30,7 +30,7 @@ async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=t
  w.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:identity?{id:'u'}:null}}),onAuthStateChange:()=>{}},
  functions:{invoke:async(_name,{body})=>{calls.push(body.action);return {data:body.action==='sdk-list'?{ok:true,admin:false,configured:true,meetings:[{id:'test',topic:'Ensayo',pilot:true,operators:[]}]}:{ok:true,meetingNumber:'12345678901',signature:'jwt',zak:'zak',passWord:'pass',userName:'Test'}};}}})};
  w.ZoomMtg={setZoomJSLib(){},preLoadWasm(){},prepareWebSDK(){},init(o){o.success();},join(o){calls.push('join');o.success();},
- getBreakoutRooms(o){o.success({rooms:rooms?[{name:'Ingeniería'}]:[]});},getBreakoutRoomStatus(){return status;},
+ getBreakoutRooms(o){o.success({rooms:rooms?[{name:'Ingeniería'}]:[]});},getBreakoutRoomStatus(o){if(!syncOnly)o.success({result:{status}});return status;},
  openBreakoutRooms(o){calls.push('open');if(rejectOpen){o.error();return;}status=openedStatus;o.success();}};
  const append=w.document.head.append.bind(w.document.head);
  w.document.head.append=(el)=>{append(el);if(el.tagName==='SCRIPT')queueMicrotask(()=>el.onload());};
@@ -62,5 +62,25 @@ for(const scenario of [{status:2},{rooms:false},{rejectOpen:true}])test('SDK: ap
  if(scenario.rejectOpen)assert.match(s.w.document.getElementById('sdk-live-status').textContent,/rechazó/);
  if(scenario.rooms===false)await until(()=>/no se pudieron preparar/.test(s.w.document.getElementById('sdk-live-status').textContent));
  if(scenario.rooms===false)assert.match(s.w.document.getElementById('sdk-live-status').textContent,/no se pudieron preparar/);
+ }finally{s.dom.window.close();}
+});
+
+test('SDK: consulta manual indica progreso, evita duplicados y actualiza estado real',async()=>{
+ const s=await setup({status:2});try{
+ s.w.document.querySelector('#sdk-meetings button').click();await wait();await wait();
+ const check=s.w.document.getElementById('sdk-check');assert.equal(check.disabled,false);
+ let resolve,calls=0;s.w.ZoomMtg.getBreakoutRooms=o=>{calls++;resolve=o.success;};
+ s.w.ZoomMtg.getBreakoutRoomStatus=o=>{o.success({result:{status:4}});return 4;};
+ check.click();check.click();assert.equal(calls,1);assert.equal(check.disabled,true);
+ assert.match(check.textContent,/Consultando/);assert.match(s.w.document.getElementById('sdk-live-status').textContent,/Consultando/);
+ resolve({rooms:[{name:'Ingeniería'}]});await wait();
+ assert.match(s.w.document.getElementById('sdk-live-status').textContent,/Cerradas/);
+ assert.equal(check.disabled,false);assert.equal(s.w.document.getElementById('sdk-open').disabled,false);
+ }finally{s.dom.window.close();}
+});
+test('SDK: conserva soporte de retorno numérico sin callback',async()=>{
+ const s=await setup({syncOnly:true,status:2});try{
+ s.w.document.querySelector('#sdk-meetings button').click();await wait();await wait();
+ assert.match(s.w.document.getElementById('sdk-live-status').textContent,/Abiertas/);assert.equal(s.calls.includes('open'),false);
  }finally{s.dom.window.close();}
 });

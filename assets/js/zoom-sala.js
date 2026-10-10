@@ -68,6 +68,8 @@
  }
  async function refreshRooms(){
  if(checking)return;checking=true;
+ $('sdk-check').disabled=true;$('sdk-check').textContent='Consultando…';
+ $('sdk-live-status').textContent='Consultando salas y su estado en Zoom…';
  roomsKnown=false;roomStatus=null;$('sdk-open').disabled=true;$('sdk-rooms').replaceChildren();
  try{
  const raw=await call('getBreakoutRooms');
@@ -76,12 +78,13 @@
  roomsKnown=list.length>0;
  for(const room of list){const li=document.createElement('li');li.textContent=room.name||room.roomName||'Sala sin nombre';$('sdk-rooms').append(li);}
  const status=await call('getBreakoutRoomStatus');
- roomStatus=typeof status==='number'?status:status?.result;
+ const value=typeof status==='number'?status:status?.result?.status??status?.status??status?.result;
+ roomStatus=[1,2,3,4].includes(value)?value:null;
  const names={1:'Todavía sin abrir',2:'Abiertas',3:'Cerrando',4:'Cerradas'};
  $('sdk-live-status').textContent=list.length+' salas · '+(names[roomStatus]||'Estado no confirmado')+'.';
  if(!list.length)$('sdk-live-status').textContent='No hay salas cargadas. Revisa o recupera la preasignación en el panel de Zoom.';
- $('sdk-open').disabled=!roomsKnown||![1,4].includes(roomStatus);
- }catch(error){$('sdk-live-status').textContent=error.message;}finally{checking=false;}
+ $('sdk-open').disabled=working||!roomsKnown||![1,4].includes(roomStatus);
+ }catch(error){$('sdk-live-status').textContent=error.message;}finally{checking=false;$('sdk-check').disabled=working;$('sdk-check').textContent=working?'Preparando salas…':'Consultar salas';}
  }
  async function openRooms(current){
  if(current!==epoch||!connected||!roomsKnown||![1,4].includes(roomStatus))return;
@@ -101,7 +104,7 @@
  if(roomsKnown&&[1,4].includes(roomStatus)){await openRooms(current);return;}
  await new Promise(resolve=>setTimeout(resolve,1500));
  }
- if(current===epoch)$('sdk-live-status').textContent='La reunión está iniciada, pero no se pudieron preparar las salas. Consulta el panel de Zoom para recuperar la preasignación o usa una computadora.';
+ if(current===epoch)$('sdk-live-status').textContent=roomsKnown?'Las salas están cargadas, pero Zoom no confirmó un estado que permita abrirlas. Pulsa Consultar salas o revisa el panel de Zoom.':'La reunión está iniciada, pero no se pudieron preparar las salas. Consulta el panel de Zoom para recuperar la preasignación o usa una computadora.';
  }
  async function startMeeting(row){
  if(working||connected||!row.pilot)return;
@@ -120,15 +123,19 @@
  try{await prepareRooms(current);}catch(error){$('sdk-live-status').textContent=error.message+' La reunión sigue abierta; revisa las salas en Zoom.';}
  refreshTimer=setInterval(()=>{if(!working&&!checking&&!document.hidden)void refreshRooms();},15000);
  }catch(error){message(error.message+' Recarga la página antes de volver a iniciar.');const root=$('zmmtg-root');if(root)root.style.display='none';}
- finally{working=false;if(!connected){$('sdk-grant').querySelector('button').disabled=false;}}
+ finally{working=false;updateRoomButtons();if(!connected){$('sdk-grant').querySelector('button').disabled=false;}}
+ }
+ function updateRoomButtons(){
+ $('sdk-check').disabled=working||checking;$('sdk-check').textContent=working?'Preparando salas…':checking?'Consultando…':'Consultar salas';
+ $('sdk-open').disabled=working||checking||!connected||!roomsKnown||![1,4].includes(roomStatus);
  }
  $('sdk-check').onclick=()=>{if(!working&&!checking)void refreshRooms();};
  $('sdk-open').onclick=async()=>{
  if(working||checking||!connected||!roomsKnown||![1,4].includes(roomStatus))return;
- working=true;$('sdk-open').disabled=true;
+ working=true;updateRoomButtons();
  try{await openRooms(epoch);}
  catch(error){$('sdk-live-status').textContent=error.message;}
- finally{working=false;}
+ finally{working=false;updateRoomButtons();}
  };
  $('sdk-grant').onsubmit=async event=>{
  event.preventDefault();if(working)return;working=true;
