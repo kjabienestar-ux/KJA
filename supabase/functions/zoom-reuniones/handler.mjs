@@ -1,3 +1,4 @@
+import {sdkAction} from './sdk.mjs';
 import {ZoomError,uuid,meetingId,meetingInput,audienceInput,snapshot,safeZoomUrl} from './model.mjs';
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'};
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{...cors,'Content-Type':'application/json','Cache-Control':'no-store'}});
@@ -16,6 +17,10 @@ export function handler({createClient,env,zoom}){
  const identity=await user.auth.getUser();if(identity.error||!identity.data.user)return reply({error:'Vuelve a iniciar sesión.'},401);
  let body;try{const text=await req.text();if(text.length>20000)throw Error();body=JSON.parse(text);if(!body||Array.isArray(body))throw Error();}catch{return reply({error:'Solicitud no válida.'},400);}
  const action=body.action;
+ if(action==='sdk-list'||action==='sdk-start'){
+ const service=createClient(env('SUPABASE_URL'),env('SUPABASE_SERVICE_ROLE_KEY'),{auth:{persistSession:false,autoRefreshToken:false}});
+ return reply(await sdkAction({action,body,user,identity:identity.data.user,admin:service,env,zoom}));
+ }
  if(!['status','hosts','create','import','update','sync','cancel','archive','join','start'].includes(action))throw new ZoomError('Acción no válida.');
  if(action!=='join'){
  const allowed=await user.rpc('dash_zoom_gestiona');

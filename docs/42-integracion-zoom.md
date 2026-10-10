@@ -158,3 +158,9 @@ La vista Zoom restaura el desplazamiento vertical del workspace en escritorio, q
 ## Adaptación móvil
 
 Hasta 900 px, Zoom usa desplazamiento de página, acciones distribuidas en rejilla, inicio/unión a todo el ancho, campos de 16 px y controles de al menos 46 px. Guardar queda en el flujo del formulario para evitar una barra fija junto al teclado. La agenda se apila y los diálogos largos permiten desplazamiento. CSS versión 4; sin cambios SQL ni Edge Functions. Nueve pruebas de interfaz pasan; validación visual en teléfono pendiente.
+
+## Corrección tras prueba móvil real
+
+El usuario confirmó que el responsable que no encuentra controles de salas entra desde celular. Zoom documenta que su app móvil permite participar en grupos, pero no administrarlos: https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0062540. El dashboard no elimina esa limitación ni comprueba si los grupos están abiertos. Probar el enlace de inicio en computadora y verificar el rol de anfitrión; si no carga la configuración, usar Cargar salas preasignadas antes de abrirlas. No se amplían permisos del portal para resolver una limitación del cliente Zoom.
+
+La pantalla prioriza la reunión e inicio: configuración y ayuda, y opciones de cada reunión, son desplegables. Márgenes móviles de 20 px protegidos de la cascada global. Aviso junto al acceso del anfitrión en móvil. La sincronización desde Zoom sigue siendo manual; no hay sincronización de grupos internos en tiempo real. Validación: nueve pruebas de UI pasan, comprobación visual pendiente (browser sin sesión; Computer Use sin pipe).

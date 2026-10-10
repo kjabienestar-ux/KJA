@@ -23,12 +23,19 @@
  const search=$('zoom-search').value.trim().toLocaleLowerCase('es');
  const week=M.weekSessions(state.rows.filter(r=>r.topic.toLocaleLowerCase('es').includes(search)),now(),state.weekOffset);
  const date=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',day:'numeric',month:'long',year:'numeric'});
- const day=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',weekday:'long',day:'numeric',month:'short'});
+ const day=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',weekday:'long'});
+ const fullDay=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ const number=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',day:'2-digit'});
+ const month=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',month:'short'});
  const hour=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',hour:'numeric',minute:'2-digit'});
+ const duration=minutes=>{const h=Math.floor(minutes/60),m=minutes%60;return [h?h+' h':'',m?m+' min':''].filter(Boolean).join(' ')||'0 min';};
  $('zoom-week-range').textContent=date.format(week.start)+' – '+date.format(week.end-1);
- $('zoom-week-list').innerHTML=week.days.map(d=>'<li class="zoom-week-day"><h3>'+escape(day.format(d.time))+(d.key===M.dateKey(now())?' · Hoy':'')+'</h3><div>'+(
- d.sessions.map(s=>'<p class="zoom-week-session"><strong>'+escape(hour.format(s.time))+'</strong><span>'+escape(s.row.topic)+'<small>'+(s.ended?'Horario finalizado':s.time<=now()?'En horario':'Programada')+' · '+s.duration+' min</small></span></p>').join('')||'<p class="zoom-note">Sin sesiones en los datos sincronizados.</p>'
- )+'</div></li>').join('');
+ $('zoom-week-list').innerHTML=week.days.map(d=>{
+ const today=d.key===M.dateKey(now());
+ return '<li class="zoom-week-day'+(today?' is-today':'')+'"><h3 class="zoom-day-date" aria-label="'+escape(fullDay.format(d.time))+(today?' · Hoy':'')+'"><span class="zoom-day-number">'+escape(number.format(d.time))+'</span><span class="zoom-day-label">'+escape(day.format(d.time))+'<small>'+escape(month.format(d.time))+(today?' · Hoy':'')+'</small></span></h3><div class="zoom-day-sessions">'+(
+ d.sessions.map(s=>'<div class="zoom-week-session"><div class="zoom-session-clock"><strong>'+escape(hour.format(s.time))+'</strong><small>'+duration(s.duration)+'</small></div><div class="zoom-session-detail"><span class="zoom-session-title">'+escape(s.row.topic)+'</span><small class="zoom-session-state">'+(s.ended?'Horario finalizado':s.time<=now()?'En horario':'Programada')+'</small></div></div>').join('')||'<p class="zoom-day-empty">Sin sesiones registradas</p>'
+ )+'</div></li>';
+ }).join('');
  }
  function render(){
  $('zoom-week').hidden=!state.loaded;
@@ -39,7 +46,7 @@
  const ready=r.status==='ready',id=escape(r.id);
  const status=ready?s.label:r.status==='pending'?'Operación pendiente':'Necesita revisión';
  const controls=state.admin?'<div class="zoom-row-admin">'+(ready?'<button type="button" data-zoom="edit" data-id="'+id+'">Editar</button>':'')+(r.zoom_id?'<button type="button" data-zoom="sync" data-id="'+id+'">Actualizar desde Zoom</button><button type="button" class="zoom-text-danger" data-zoom="cancel" data-id="'+id+'">Cancelar reunión</button>':'<button type="button" data-zoom="recover" data-id="'+id+'">Vincular ID para recuperar</button><button type="button" data-zoom="archive" data-id="'+id+'">Archivar solicitud</button>')+'</div>':'';
- return '<article class="zoom-row"><div class="zoom-row-main"><span class="zoom-row-icon">'+camera+'</span><div class="zoom-row-copy"><h3>'+escape(r.topic)+'</h3><p class="zoom-time">'+escape(status)+'</p>'+(state.admin?'<p class="zoom-note">'+escape(targetsLabel(r))+'</p><p class="zoom-note">'+escape(r.host_email||'Anfitrión pendiente')+(r.zoom_id?' · ID '+escape(r.zoom_id):'')+'</p>':'')+(!ready&&state.admin?'<p class="zoom-error">'+escape(r.last_error||'Actualiza desde Zoom después de dos minutos si la operación no termina.')+'</p>':'')+'</div>'+(ready?(state.admin?'<button type="button" class="zoom-primary zoom-join" data-zoom="start" data-id="'+id+'">'+camera+'Iniciar reunión</button>':(s.joinable||r.type===8)?'<button type="button" class="zoom-primary zoom-join" data-zoom="join" data-id="'+id+'">'+camera+'Unirme</button>':''):'')+'</div>'+controls+'</article>';
+ return '<article class="zoom-row"><div class="zoom-row-main"><span class="zoom-row-icon">'+camera+'</span><div class="zoom-row-copy"><h3>'+escape(r.topic)+'</h3><p class="zoom-time">'+escape(status)+'</p>'+(state.admin?'<p class="zoom-note">'+escape(targetsLabel(r))+'</p><p class="zoom-note">'+escape(r.host_email||'Anfitrión pendiente')+(r.zoom_id?' · ID '+escape(r.zoom_id):'')+'</p>':'')+(!ready&&state.admin?'<p class="zoom-error">'+escape(r.last_error||'Actualiza desde Zoom después de dos minutos si la operación no termina.')+'</p>':'')+'</div>'+(ready?(state.admin?'<button type="button" class="zoom-primary zoom-join" data-zoom="start" data-id="'+id+'">'+camera+'Iniciar reunión</button>':(s.joinable||r.type===8)?'<button type="button" class="zoom-primary zoom-join" data-zoom="join" data-id="'+id+'">'+camera+'Unirme</button>':''):'')+'</div>'+(state.admin&&ready?'<p class="zoom-note zoom-mobile-host-note">Para abrir y administrar las salas, usa Zoom en una computadora. La app móvil solo permite participar en ellas.</p>':'')+(controls?'<details class="zoom-row-options"><summary>Opciones de la reunión</summary>'+controls+'</details>':'')+'</article>';
  }).join('')||'<div class="zoom-empty"><h3>'+(search?'No hay coincidencias':state.admin?'Todavía no hay reuniones':'No tienes reuniones asignadas')+'</h3><p>'+(search?'Prueba con otro nombre.':state.admin?'Vincula la reunión principal que ya usan en Zoom. Sus salas de grupo se conservan.':'Las reuniones generales y las de tu área aparecerán aquí cuando se publiquen.')+'</p></div>';
  const today=state.rows.filter(r=>r.status==='ready'&&(r.type===3||M.nextSession(r,now()).today)).length;
  $('zoom-home-access').querySelector('small').textContent=state.loaded?(today?today+' reunión'+(today===1?' disponible':'es disponibles')+' hoy':'Consulta tus salas y próximas reuniones'):'Consulta tus salas y horarios';
@@ -57,7 +64,7 @@
  $('zoom-subtitle').textContent=state.admin?'Inicia la reunión habitual y conserva las salas de cada área.':'Entra a la reunión principal y continúa a la sala de tu área.';
  $('zoom-daily-flow').textContent=state.admin?'Uso diario: pulsa Iniciar reunión y, dentro de Zoom, Abrir todas las salas. Vincular e iniciar conserva las salas ya configuradas.':'Pulsa Unirme para entrar a la reunión principal. El anfitrión abrirá las salas; podrás elegir la de tu área si esa opción está habilitada o esperar su asignación.';
  $('zoom-footnote').textContent=state.admin?'Horarios en Lima. Los cambios hechos directamente en Zoom se recuperan con «Actualizar desde Zoom» en cada sala.':'Horarios en Lima. El botón abre Zoom; la admisión depende del anfitrión.';
- message('');render();
+ message('');render();if($('zoom-quick-dialog').open)renderQuick();
  if(state.admin&&!state.hosts.length)$('zoom-connection-text').textContent='Comprueba la conexión para cargar los anfitriones de la cuenta institucional.';
  }catch(error){if(epoch!==state.epoch||request!==state.request)return;state.rows=[];state.loaded=false;render();$('zoom-list').innerHTML='';message(error.message);}
  }
@@ -97,6 +104,7 @@
  catch(error){if(epoch===state.epoch)message(error.message);return;}
  finally{if(epoch===state.epoch)busy(false);}
  }
+ $('zoom-settings').open=false;
  state.editor={mode,id:row?.id||crypto.randomUUID(),revision:row?.revision,row};
  $('zoom-form').reset();$('zoom-form-message').textContent='';
  $('zoom-form-title').textContent=mode==='import'?'Vincular reunión existente':mode==='update'?'Editar reunión':'Crear reunión';
@@ -110,7 +118,7 @@
  if(row?.recurrence?.weekly_days)String(row.recurrence.weekly_days).split(',').forEach(d=>{const input=$('zoom-weekly').querySelector('[value="'+d+'"]');if(input)input.checked=true;});
  $('zoom-form').hidden=false;formVisibility();(mode==='import'?$('zoom-remote-id'):$('zoom-topic')).focus();$('zoom-form').scrollIntoView({block:'start'});
  }
- function closeForm(){if(state.busy)return;$('zoom-form').hidden=true;state.editor=null;$('zoom-import').focus();}
+ function closeForm(){if(state.busy)return;$('zoom-form').hidden=true;state.editor=null;$('zoom-settings').querySelector('summary').focus();}
  async function mutate(body){
  const epoch=state.epoch;++state.request;busy(true);message('Guardando cambios…');
  try{await edge(body);if(epoch!==state.epoch)return false;message('Cambios guardados.');return true;}
@@ -171,8 +179,39 @@
  $('zoom-new').onclick=()=>openForm('create');$('zoom-import').onclick=()=>openForm('import');$('zoom-refresh').onclick=load;
  $('zoom-form-close').onclick=closeForm;$('zoom-form-cancel').onclick=closeForm;
  $('zoom-audience').onchange=()=>renderTargets();$('zoom-schedule').onchange=formVisibility;$('zoom-search').oninput=render;
+
+ function renderQuick(){
+ const rows=state.rows.filter(r=>r.status==='ready').map(row=>({row,session:M.nextSession(row,now())})).sort((a,b)=>(a.session.time??Infinity)-(b.session.time??Infinity));
+ $('zoom-quick-list').innerHTML=rows.map(({row,session})=>'<article class="zoom-quick-meeting"><div><h3>'+escape(row.topic)+'</h3><p>'+escape(session.label)+'</p></div><button type="button" data-quick-id="'+escape(row.id)+'" '+(state.busy||!(session.joinable||row.type===8)?'disabled':'')+'>Unirme'+camera+'</button></article>').join('')||'<div class="zoom-quick-empty"><h3>No hay reuniones disponibles</h3><p>Las reuniones asignadas a tu cuenta aparecerán aquí.</p></div>';
+ }
+ $('zoom-home-access').onclick=async()=>{
+ if(!eligible())return;
+ $('zoom-quick-message').textContent='Consultando tus reuniones…';$('zoom-quick-list').innerHTML='';
+ $('zoom-quick-dialog').showModal();
+ await load();
+ if(!$('zoom-quick-dialog').open)return;
+ renderQuick();$('zoom-quick-message').textContent=state.loaded?'':$('zoom-message').textContent;
+ };
+ $('zoom-quick-close').onclick=()=>$('zoom-quick-dialog').close();
+ $('zoom-quick-dialog').addEventListener('click',event=>{if(event.target===$('zoom-quick-dialog')){const rect=event.target.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)event.target.close();}});
+ $('zoom-quick-list').addEventListener('click',async event=>{
+ const button=event.target.closest('[data-quick-id]');if(!button||state.busy)return;
+ const row=state.rows.find(r=>r.id===button.dataset.quickId);if(!row||row.status!=='ready')return;
+ const epoch=state.epoch;busy(true);renderQuick();$('zoom-quick-message').textContent='Preparando tu acceso…';
+ const popup=window.open('about:blank','_blank');if(popup)popup.opener=null;
+ try{
+ const data=await edge({action:'join',id:row.id});
+ if(epoch!==state.epoch){popup?.close();return;}
+ const url=M.safeUrl(data.url);if(!url)throw Error('El enlace recibido no es válido. Vuelve a consultar tus reuniones.');
+ if(popup)popup.location.replace(url);else window.location.assign(url);
+ $('zoom-quick-message').textContent='Acceso abierto. Continúa en Zoom.';
+ }catch(error){popup?.close();if(epoch===state.epoch)$('zoom-quick-message').textContent=error.message;}
+ finally{if(epoch===state.epoch){busy(false);renderQuick();}}
+ });
+
  function reset(){
- clearInterval(state.timer);state.epoch++;state.request++;state.rows=[];state.areas=[];state.people=[];state.hosts=[];state.admin=false;state.editor=null;state.loaded=false;state.weekOffset=0;state.cancel=null;busy(false);
+ $('zoom-quick-dialog').close();$('zoom-quick-list').innerHTML='';$('zoom-quick-message').textContent='';
+ $('zoom-settings').open=false;clearInterval(state.timer);state.epoch++;state.request++;state.rows=[];state.areas=[];state.people=[];state.hosts=[];state.admin=false;state.editor=null;state.loaded=false;state.weekOffset=0;state.cancel=null;busy(false);
  $('zoom-week').hidden=true;$('zoom-week-list').innerHTML='';$('zoom-list').innerHTML='';$('zoom-form').reset();$('zoom-targets').innerHTML='';fillHosts();$('zoom-form').hidden=true;$('zoom-cancel-dialog').close();$('nav-zoom').hidden=true;$('zoom-home-access').hidden=true;
  $('zoom-new').hidden=true;$('zoom-import').hidden=true;$('zoom-connection').hidden=true;message('');
  }

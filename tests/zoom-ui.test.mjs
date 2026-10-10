@@ -83,3 +83,21 @@ test('semana usa lunes local, excluye eliminadas y no inventa recurrencias',()=>
  assert.equal(m.weekSessions(rows,Date.parse('2026-10-05T04:59:00Z')).days[6].sessions.length,1);
  assert.equal(m.weekSessions([{...sample,type:8,occurrences:[]}]).days.flatMap(d=>d.sessions).length,0);
 });
+
+test('acceso flotante abre modal y usa join incluso para administración',async()=>{
+ const s=setup({admin:true});await s.load();
+ await s.el('zoom-home-access').onclick();
+ assert.equal(s.el('zoom-quick-dialog').open,true);
+ assert.match(s.el('zoom-quick-list').innerHTML,/Unirme/);
+ assert.equal(s.el('zoom-quick-list').innerHTML.includes('<script>'),false);
+ await s.el('zoom-quick-list').listeners.click({target:{closest:()=>({dataset:{quickId:id}})}});
+ assert.equal(s.invocations.at(-1).action,'join');
+ s.el('zoom-quick-close').onclick();assert.equal(s.el('zoom-quick-dialog').open,false);
+});
+test('salir borra reuniones del modal y oculta acceso flotante',async()=>{
+ const s=setup();await s.load();await s.el('zoom-home-access').onclick();
+ s.window.KJAZoom.reset();
+ assert.equal(s.el('zoom-quick-dialog').open,false);
+ assert.equal(s.el('zoom-quick-list').innerHTML,'');
+ assert.equal(s.el('zoom-home-access').hidden,true);
+});
