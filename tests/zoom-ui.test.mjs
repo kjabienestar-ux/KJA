@@ -32,7 +32,7 @@ test('colaborador ve acceso de participante, no gestión, y el texto se escapa',
 });
 test('administrador puede abrir edición preservando programación y cancelar exige diálogo',async()=>{
  const s=setup({admin:true});await s.load();
- assert.equal(s.el('zoom-new').hidden,false);assert.ok(s.el('zoom-list').innerHTML.includes('data-zoom="edit"'));assert.match(s.el('zoom-list').innerHTML,/zoom-primary zoom-join.*data-zoom="start"/);assert.match(s.el('zoom-daily-flow').textContent,/Abrir todas las salas/);
+ assert.equal(s.el('zoom-new').hidden,false);assert.ok(s.el('zoom-list').innerHTML.includes('data-zoom="edit"'));assert.match(s.el('zoom-list').innerHTML,/zoom-primary zoom-join.*data-zoom="start"/);assert.match(s.el('zoom-daily-flow').textContent,/Iniciar y abrir salas/);
  await s.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'edit'}})}});
  assert.equal(s.el('zoom-form').hidden,false);assert.equal(s.el('zoom-schedule').value,'keep');
  await s.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'cancel'}})}});
@@ -121,4 +121,10 @@ test('navegación directa a gestión Zoom rechaza participante y líder antes de
  vm.runInContext(goView+";goView('zoom');",context);
  assert.deepEqual(painted,admin?['zoom']:[]);assert.equal(loads,admin?1:0);assert.equal(messages.length,admin?0:1);
  }
+});
+
+test('iniciar gestión dirige al SDK sin abrir enlace nativo ni pedir token de anfitrión',async()=>{
+ const s=setup({admin:true});await s.load();
+ await s.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'start'}})}});
+ assert.deepEqual(s.opened,['zoom-sala.html?meeting='+id]);assert.equal(s.invocations.length,0);
 });

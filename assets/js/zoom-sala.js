@@ -3,7 +3,7 @@
  const $=id=>document.getElementById(id);
  const db=supabase.createClient('https://xadxmfgdxwplmhijagix.supabase.co','sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'kja-dashboard-auth'}});
  const version='5.1.4';
- let connected=false,working=false,sdkPromise=null,refreshTimer=null,epoch=0,roomsKnown=false,roomStatus=null;
+ let connected=false,working=false,sdkPromise=null,refreshTimer=null,epoch=0,roomsKnown=false,roomStatus=null,checking=false;
  const message=text=>$('sdk-message').textContent=text;
  const mobile=()=>/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
  function button(text,fn){const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b;}
@@ -15,7 +15,9 @@
  async function load(){
  const data=await edge({action:'sdk-list'});
  $('sdk-delegation').hidden=!data.admin;$('sdk-meetings').replaceChildren();$('sdk-meeting').replaceChildren();
- for(const row of data.meetings){
+ const selected=new URL(location.href).searchParams.get('meeting');
+ const meetings=selected?data.meetings.filter(row=>row.id===selected):data.meetings;
+ for(const row of meetings){
  const article=document.createElement('article'),title=document.createElement('h3'),note=document.createElement('p');
  article.className='sdk-meeting';
  const content=document.createElement('div');content.className='sdk-meeting-copy';
@@ -23,11 +25,11 @@
  label.textContent=row.pilot?'Habilitada para el piloto':'Fuera del piloto';
  title.textContent=row.topic;
  note.className='sdk-meeting-note';
- note.textContent=!row.pilot?'Esta reunión aún no está habilitada para iniciar desde aquí.':!data.configured?'Configuración pendiente de Sistemas.':mobile()?'Inicia desde una computadora.':'Se abrirá Zoom en esta misma ventana.';
+ note.textContent=!row.pilot?'Esta reunión aún no está habilitada para iniciar desde aquí.':!data.configured?'Configuración pendiente de Sistemas.':mobile()?'Prueba en iPhone: mantén esta ventana abierta mientras se preparan las salas.':'Se iniciará aquí y se intentarán abrir las salas existentes.';
  content.append(label,title,note);article.append(content);
  const actions=document.createElement('div');actions.className='sdk-meeting-action';
- const start=button('Iniciar reunión',()=>startMeeting(row));
- start.disabled=!row.pilot||!data.configured||mobile();actions.append(start);article.append(actions);
+ const start=button('Iniciar y abrir salas',()=>startMeeting(row));
+ start.disabled=!row.pilot||!data.configured;actions.append(start);article.append(actions);
  if(data.admin){
  const people=document.createElement('div');people.className='sdk-operators';
  const caption=document.createElement('span');caption.className='sdk-operators-label';caption.textContent='Responsables';
@@ -40,7 +42,7 @@
  $('sdk-meetings').append(article);
  const option=document.createElement('option');option.value=row.id;option.textContent=row.topic;$('sdk-meeting').append(option);
  }
- if(!data.meetings.length)$('sdk-meetings').textContent='No tienes reuniones autorizadas. Sistemas debe asignarte el permiso Administrar Zoom.';
+ if(!meetings.length)$('sdk-meetings').textContent='No tienes reuniones autorizadas. Sistemas debe asignarte el permiso Administrar Zoom.';
  message(data.configured?'Piloto listo para probar. La reunión se inicia solo al pulsar el botón.':'Sistemas debe configurar las credenciales Meeting SDK y el ID de una reunión de ensayo.');
  }
  function script(src){return new Promise((resolve,reject)=>{const el=document.createElement('script');el.src=src;el.onload=resolve;el.onerror=()=>reject(Error('No se pudo cargar Zoom. Recarga esta página.'));document.head.append(el);});}
@@ -65,6 +67,7 @@
  });
  }
  async function refreshRooms(){
+ if(checking)return;checking=true;
  roomsKnown=false;roomStatus=null;$('sdk-open').disabled=true;$('sdk-rooms').replaceChildren();
  try{
  const raw=await call('getBreakoutRooms');
@@ -78,10 +81,30 @@
  $('sdk-live-status').textContent=list.length+' salas · '+(names[roomStatus]||'Estado no confirmado')+'.';
  if(!list.length)$('sdk-live-status').textContent='No hay salas cargadas. Revisa o recupera la preasignación en el panel de Zoom.';
  $('sdk-open').disabled=!roomsKnown||![1,4].includes(roomStatus);
- }catch(error){$('sdk-live-status').textContent=error.message;}
+ }catch(error){$('sdk-live-status').textContent=error.message;}finally{checking=false;}
+ }
+ async function openRooms(current){
+ if(current!==epoch||!connected||!roomsKnown||![1,4].includes(roomStatus))return;
+ $('sdk-open').disabled=true;
+ await call('openBreakoutRooms',{options:{isAutoJoinRoom:false,isBackToMainSessionEnabled:true,isTimerEnabled:false,needCountDown:true,waitSeconds:60}});
+ // Success means the request was accepted; only status 2 confirms opening.
+ for(let attempt=0;attempt<10&&current===epoch;attempt++){
+ await refreshRooms();if(current!==epoch)return;if(roomStatus===2)return;
+ await new Promise(resolve=>setTimeout(resolve,1500));
+ }
+ if(current===epoch)$('sdk-live-status').textContent='Apertura solicitada, pero Zoom aún no confirma las salas abiertas. Consulta el estado o revisa el panel de salas de Zoom.';
+ }
+ async function prepareRooms(current){
+ for(let attempt=0;attempt<10&&current===epoch;attempt++){
+ await refreshRooms();if(current!==epoch)return;
+ if(roomStatus===2)return;
+ if(roomsKnown&&[1,4].includes(roomStatus)){await openRooms(current);return;}
+ await new Promise(resolve=>setTimeout(resolve,1500));
+ }
+ if(current===epoch)$('sdk-live-status').textContent='La reunión está iniciada, pero no se pudieron preparar las salas. Consulta el panel de Zoom para recuperar la preasignación o usa una computadora.';
  }
  async function startMeeting(row){
- if(working||connected||mobile()||!row.pilot)return;
+ if(working||connected||!row.pilot)return;
  const current=epoch;working=true;
  $('sdk-lobby').querySelectorAll('button').forEach(b=>b.disabled=true);
  message('Preparando Zoom…');
@@ -93,17 +116,17 @@
  await call('join',{meetingNumber:auth.meetingNumber,signature:auth.signature,zak:auth.zak,passWord:auth.passWord,userName:auth.userName});
  auth.signature='';auth.zak='';auth.passWord='';
  if(current!==epoch){location.replace('dashboard.html');return;}
- connected=true;$('sdk-lobby').hidden=true;$('sdk-controls').hidden=false;$('sdk-controls').querySelector('summary').focus();
- await refreshRooms();
- refreshTimer=setInterval(()=>{if(!working&&!document.hidden)void refreshRooms();},15000);
+ connected=true;$('sdk-lobby').hidden=true;$('sdk-controls').hidden=false;$('sdk-controls').open=true;$('sdk-controls').querySelector('summary').focus();
+ try{await prepareRooms(current);}catch(error){$('sdk-live-status').textContent=error.message+' La reunión sigue abierta; revisa las salas en Zoom.';}
+ refreshTimer=setInterval(()=>{if(!working&&!checking&&!document.hidden)void refreshRooms();},15000);
  }catch(error){message(error.message+' Recarga la página antes de volver a iniciar.');const root=$('zmmtg-root');if(root)root.style.display='none';}
  finally{working=false;if(!connected){$('sdk-grant').querySelector('button').disabled=false;}}
  }
- $('sdk-check').onclick=()=>{if(!working)void refreshRooms();};
+ $('sdk-check').onclick=()=>{if(!working&&!checking)void refreshRooms();};
  $('sdk-open').onclick=async()=>{
- if(working||!connected||!roomsKnown||![1,4].includes(roomStatus))return;
+ if(working||checking||!connected||!roomsKnown||![1,4].includes(roomStatus))return;
  working=true;$('sdk-open').disabled=true;
- try{await call('openBreakoutRooms',{options:{isAutoJoinRoom:false,isBackToMainSessionEnabled:true,isTimerEnabled:false,needCountDown:true,waitSeconds:60}});await refreshRooms();}
+ try{await openRooms(epoch);}
  catch(error){$('sdk-live-status').textContent=error.message;}
  finally{working=false;}
  };
@@ -115,11 +138,11 @@
  if(error)throw Error(error.message);await load();message('Permiso guardado.');$('sdk-email').value='';
  }catch(error){message(error.message);}finally{working=false;submit.disabled=false;}
  };
- db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){epoch++;clearInterval(refreshTimer);location.replace('dashboard.html');}});
+ db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){epoch++;connected=false;clearInterval(refreshTimer);location.replace('dashboard.html');}});
  (async()=>{try{
  const {data,error}=await db.auth.getUser();if(error||!data.user)throw Error('Inicia sesión en el dashboard y vuelve a esta página.');
- if(mobile())$('sdk-device').textContent='Abre esta prueba en una computadora. El inicio de ensayo está deshabilitado en celulares y tabletas.';
+ if(mobile())$('sdk-device').textContent='Prueba móvil: Zoom se abrirá dentro de este navegador. Mantén la página en primer plano; la apertura de salas en iPhone está pendiente de validación.';
  await load();
  }catch(error){message(error.message);}})();
- window.addEventListener('pagehide',()=>clearInterval(refreshTimer));
+ window.addEventListener('pagehide',()=>{epoch++;connected=false;clearInterval(refreshTimer);});
 })();
