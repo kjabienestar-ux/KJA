@@ -56,6 +56,14 @@ test('Zoom SDK: delegación limitada, revocación y perfiles inactivos',async()=
  await identity(2);assert.equal(await can(rid),false);
  const privileges=(await db.query("select has_table_privilege('authenticated','zoom_operadores','insert') wr,has_function_privilege('anon','dash_zoom_opera(uuid)','execute') anon")).rows[0];
  assert.deepEqual(privileges,{wr:false,anon:false});
+ const selector=fs.readFileSync('supabase/dashboard_112_zoom_selector_administradores.sql','utf8');await db.exec(selector);await db.exec(selector);
+ await identity(1);
+ const candidates=async()=>(await db.query('select dash_zoom_operaciones() data')).rows[0].data.candidates;
+ assert.deepEqual(await candidates(),[]);
+ await db.exec('update asis_perfiles set acceso_panel=true where colaborador_id=1');
+ assert.equal((await candidates())[0].email,'ana@example.com');
+ await identity(2);assert.deepEqual(await candidates(),[]);
+ await identity(1);await db.exec('update asis_colaboradores set activo=false where id=1');assert.deepEqual(await candidates(),[]);
  }finally{await db.close();}
 
 });

@@ -22,7 +22,7 @@
 <p class="sdk-access-system">Sistemas conserva el acceso por su rol administrativo.</p>
 <ul id="sdk-access-list" class="sdk-access-list"></ul>
 <p id="sdk-access-message" role="status" aria-live="polite"></p>
-<form id="sdk-grant"><div class="sdk-field"><label for="sdk-email">Añadir responsable</label><input id="sdk-email" type="email" autocomplete="email" required maxlength="254" placeholder="Correo de su cuenta del portal"></div><button type="submit">Dar acceso</button></form></div></details>
+<form id="sdk-grant"><div class="sdk-field"><label for="sdk-email">Añadir usuario con acceso administrativo</label><select id="sdk-email" required><option value="">Selecciona un usuario</option></select><small id="sdk-candidates-note">Usuarios activos con acceso al panel administrativo.</small></div><button type="submit">Dar acceso</button></form></div></details>
 </div>
 </main>
 <details id="sdk-controls" hidden><summary>Control KJA</summary>
@@ -33,5 +33,5 @@
 <p>Para terminar, usa «Finalizar» dentro de Zoom.</p>
 </details>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/zoom-sala.js?v=5"></script>
+<script src="assets/js/zoom-sala.js?v=6"></script>
 </body></html>

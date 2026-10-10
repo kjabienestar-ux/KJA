@@ -29,7 +29,7 @@ async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=t
 
  if(mobile)Object.defineProperty(w.navigator,'userAgent',{value:'iPhone'});
  w.supabase={createClient:()=>({rpc:async(name,args)=>{mutations.push(args);if(rpcError)return {error:{message:'No autorizado'}};operators=args.p_otorgar?[...new Set([...operators,args.p_email])]:operators.filter(email=>email!==args.p_email);return {};},auth:{getUser:async()=>({data:{user:identity?{id:'u'}:null}}),onAuthStateChange:()=>{}},
- functions:{invoke:async(_name,{body})=>{calls.push(body.action);return {data:body.action==='sdk-list'?{ok:true,admin,configured:true,meetings:[{id:'test',topic:'Ensayo',pilot:true,operators}]}:{ok:true,meetingNumber:'12345678901',signature:'jwt',zak:'zak',passWord:'pass',userName:'Test'}};}}})};
+ functions:{invoke:async(_name,{body})=>{calls.push(body.action);return {data:body.action==='sdk-list'?{ok:true,admin,candidates:admin?[{email:"nuevo@example.com",nombre:"Nuevo"}]:[],configured:true,meetings:[{id:'test',topic:'Ensayo',pilot:true,operators}]}:{ok:true,meetingNumber:'12345678901',signature:'jwt',zak:'zak',passWord:'pass',userName:'Test'}};}}})};
  w.ZoomMtg={setZoomJSLib(){},preLoadWasm(){},prepareWebSDK(){},init(o){o.success();},join(o){calls.push('join');o.success();},
  getBreakoutRooms(o){o.success({rooms:rooms?[{name:'Ingeniería'}]:[]});},getBreakoutRoomStatus(o){if(!syncOnly)o.success({result:{status}});return status;},
  openBreakoutRooms(o){calls.push('open');if(rejectOpen){o.error();return;}status=openedStatus;o.success();}};
