@@ -11,36 +11,42 @@ body:has(> .sdk-shell:not([hidden])){margin:0;background:#f5f5f7}
 .sdk-brand{font-size:20px;font-weight:750;letter-spacing:-.025em;white-space:nowrap}
 .sdk-brand span{font-size:14px;font-weight:400;letter-spacing:0;color:var(--sdk-muted);margin-left:8px}
 .sdk-content{max-width:1156px;margin:auto;padding:44px 28px 80px}
-.sdk-header{margin-bottom:24px}
-.sdk-shell h1{font-size:clamp(28px,3vw,36px);line-height:1.2;letter-spacing:-.03em;margin:0 0 10px;font-weight:700}
+.sdk-header{display:flex;align-items:center;gap:24px;margin-bottom:28px;padding:36px;background:var(--sdk-blue);color:#fff;border-radius:16px}
+.sdk-hero-icon{display:grid;place-items:center;flex:none;width:76px;height:76px;background:#fff;border-radius:16px;color:var(--sdk-blue)}
+.sdk-hero-icon svg{width:44px;height:44px;fill:currentColor}
+.sdk-header .sdk-lead{color:#fff;opacity:.9}
+.sdk-notices{margin:0 0 28px;padding:0 4px}
+.sdk-notices .sdk-device{margin:8px 0 0;max-width:90ch}
+.sdk-shell h1{font-size:clamp(28px,3vw,40px);line-height:1.2;letter-spacing:-.03em;margin:0 0 10px;font-weight:700}
 .sdk-lead{color:var(--sdk-muted);margin:0;font-size:16px;max-width:68ch}
 .sdk-shell #sdk-message{margin:0}
-.sdk-shell #sdk-message:not(:empty){padding:12px 16px;background:#e9f1fb;border:1px solid #cfdef1;border-radius:10px;color:#234973}
+.sdk-shell #sdk-message:not(:empty){font-weight:600;color:#234973;font-size:14px}
 .sdk-device{font-size:13px;color:var(--sdk-muted);margin:12px 0 28px;max-width:80ch}
 .sdk-meeting-section{background:#fff;border:1px solid var(--sdk-line);border-radius:16px;overflow:hidden}
-.sdk-section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1px solid var(--sdk-line)}
+.sdk-section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 28px;border-bottom:1px solid var(--sdk-line);background:#e9f1fb}
 .sdk-shell h2{font-size:18px;letter-spacing:-.015em;line-height:1.3;margin:0}
 .sdk-section-head>span{font-size:12px;color:var(--sdk-muted)}
 #sdk-meetings:empty{min-height:110px}
 #sdk-meetings{overflow-wrap:anywhere}
-.sdk-meeting{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:32px;row-gap:20px;padding:26px 24px}
+.sdk-meeting{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:32px;row-gap:20px;padding:32px 28px}
 .sdk-meeting+.sdk-meeting{border-top:1px solid var(--sdk-line)}
 .sdk-meeting-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
-.sdk-shell article h3{font-size:19px;line-height:1.35;letter-spacing:-.02em;margin:0;order:0}
+.sdk-shell article h3{font-size:24px;line-height:1.35;letter-spacing:-.02em;margin:0;order:0}
 .sdk-availability{order:1;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#526176;margin-top:10px}
 .sdk-availability::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
-.sdk-availability.is-enabled{color:#146445}
+.sdk-availability.is-enabled{color:#146445;background:#edf5f0;padding:4px 10px;border-radius:6px}
 .sdk-meeting-note{order:2;margin:8px 0 0;font-size:13px;color:var(--sdk-muted)}
 .sdk-meeting-action{align-self:center}
 .sdk-shell button,#sdk-controls button{font:600 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:44px;padding:12px 20px;border:1px solid #075bb5;border-radius:8px;background:#075bb5;color:#fff;cursor:pointer;transition:background-color .15s,border-color .15s}
 .sdk-shell button:hover,#sdk-controls button:hover{background:#064a94;border-color:#064a94}
 .sdk-shell button:disabled,#sdk-controls button:disabled{background:#eef1f5;border-color:#dfe5ec;color:#637086;cursor:not-allowed}
 .sdk-shell :focus-visible,#sdk-controls :focus-visible{outline:3px solid #1f72d2;outline-offset:4px}
-.sdk-meeting-action button{min-width:162px}
-.sdk-operators{grid-column:1/-1;display:flex;gap:12px;align-items:baseline;border-top:1px solid #edf0f4;padding-top:16px;min-width:0}
+.sdk-meeting-action button{min-width:200px;min-height:50px;display:flex;align-items:center;justify-content:center;gap:16px}
+.sdk-meeting-action button::after{content:"";width:7px;height:7px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg)}
+.sdk-operators{grid-column:1/-1;display:flex;gap:12px;align-items:baseline;border-top:1px solid #edf0f4;padding-top:20px;min-width:0}
 .sdk-operators-label{color:var(--sdk-muted);font-size:12px;flex:none}
 .sdk-operators ul{display:flex;flex-wrap:wrap;gap:6px 18px;list-style:none;margin:0;padding:0;min-width:0}
-.sdk-operators li{font-size:12px;color:#405168;overflow-wrap:anywhere;max-width:100%}
+.sdk-operators li{background:#eef1f5;border-radius:6px;padding:4px 10px;font-size:13px;color:#405168;overflow-wrap:anywhere;max-width:100%}
 #sdk-delegation{margin-top:24px;background:#fff;border:1px solid var(--sdk-line);border-radius:16px}
 .sdk-shell summary{cursor:pointer;font-weight:600;min-height:60px;padding:20px 24px;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .sdk-shell summary::-webkit-details-marker{display:none}
@@ -61,6 +67,8 @@ body:has(> .sdk-shell:not([hidden])){margin:0;background:#f5f5f7}
 #sdk-controls ul{max-height:160px;overflow:auto;padding-left:20px}
 #sdk-controls[hidden],.sdk-shell[hidden],#sdk-delegation[hidden]{display:none!important}
 @media(max-width:640px){
+.sdk-header{padding:24px 20px;gap:16px;align-items:flex-start}.sdk-hero-icon{width:48px;height:48px;border-radius:12px}.sdk-hero-icon svg{width:30px;height:30px}.sdk-header h1{font-size:28px}.sdk-header .sdk-lead{font-size:14px}.sdk-notices{margin-bottom:22px}.sdk-shell article h3{font-size:22px}
+
 .sdk-nav{min-height:64px;padding:10px 20px}.sdk-brand span{display:none}
 .sdk-content{padding:28px 20px max(48px,env(safe-area-inset-bottom))}
 .sdk-lead{font-size:15px}.sdk-device{margin-bottom:24px}
@@ -76,3 +84,6 @@ body:has(> .sdk-shell:not([hidden])){margin:0;background:#f5f5f7}
 #sdk-controls{max-width:calc(100% - 24px)}
 }
 @media(prefers-reduced-motion:reduce){.sdk-shell button,#sdk-controls button{transition:none}}
+
+.sdk-shell{scrollbar-color:#b7c3d2 #f5f5f7}
+@media(max-width:380px){.sdk-header{flex-direction:column}.sdk-content{padding-right:16px;padding-left:16px}}
