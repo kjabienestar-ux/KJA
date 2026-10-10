@@ -87,3 +87,9 @@ body:has(> .sdk-shell:not([hidden])){margin:0;background:#f5f5f7}
 
 .sdk-shell{scrollbar-color:#b7c3d2 #f5f5f7}
 @media(max-width:380px){.sdk-header{flex-direction:column}.sdk-content{padding-right:16px;padding-left:16px}}
+
+#sdk-controls .sdk-dashboard-return{border-top:1px solid #dfe5ec;margin-top:16px;padding-top:16px}
+#sdk-controls .sdk-dashboard-link{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;width:100%;padding:12px 16px;border:1px solid #075bb5;border-radius:8px;background:#fff;color:#075bb5;font-weight:600;text-decoration:none}
+#sdk-controls .sdk-dashboard-link:hover{background:#e9f1fb}
+#sdk-controls .sdk-dashboard-link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;flex:none}
+#sdk-dashboard-help{font-size:12px;line-height:1.5;color:#526176;margin:8px 0 0}
