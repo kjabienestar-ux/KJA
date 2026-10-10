@@ -70,3 +70,8 @@ Pendiente después de confirmar la viabilidad: horario exacto, días y feriados 
 ## Alcance entregado hasta ahora
 
 El código local del portal y la integración REST permiten vincular reuniones, filtrar destinatarios y ofrecer accesos de anfitrión/participante. Sus pruebas locales no validan automatización en la nube. No se han configurado secretos, aplicado SQL, desplegado servicios, contactado a Zoom ni modificado reuniones reales.
+
+
+## Piloto de operación humana dentro del portal
+
+Ver [44-zoom-sdk-piloto.md](44-zoom-sdk-piloto.md). Añade Meeting SDK y un permiso por reunión para responsables. Requiere configurar credenciales nuevas y validar con una reunión de ensayo; no activa la apertura desatendida por horario.

@@ -1,0 +1,78 @@
+/* Lobby styles are scoped: Zoom owns the interface after joining. */
+body:has(> .sdk-shell:not([hidden])){margin:0;background:#f5f5f7}
+.sdk-shell{--sdk-ink:#1d2635;--sdk-muted:#526176;--sdk-line:#dfe5ec;--sdk-blue:#075bb5;box-sizing:border-box;width:100%;min-height:100dvh;color:var(--sdk-ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7}
+.sdk-shell *{box-sizing:border-box}
+.sdk-shell ::selection{background:#dbeaff;color:#132b4b}
+.sdk-nav{min-height:76px;padding:16px max(28px,calc((100% - 1100px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px;background:#fff;border-bottom:1px solid var(--sdk-line)}
+.sdk-shell a{color:var(--sdk-blue);text-underline-offset:4px}
+.sdk-back{display:inline-flex;gap:10px;align-items:center;text-decoration:none;min-height:44px;font-size:14px;font-weight:600}
+.sdk-back:hover{text-decoration:underline}
+.sdk-back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}
+.sdk-brand{font-size:20px;font-weight:750;letter-spacing:-.025em;white-space:nowrap}
+.sdk-brand span{font-size:14px;font-weight:400;letter-spacing:0;color:var(--sdk-muted);margin-left:8px}
+.sdk-content{max-width:1156px;margin:auto;padding:44px 28px 80px}
+.sdk-header{margin-bottom:24px}
+.sdk-shell h1{font-size:clamp(28px,3vw,36px);line-height:1.2;letter-spacing:-.03em;margin:0 0 10px;font-weight:700}
+.sdk-lead{color:var(--sdk-muted);margin:0;font-size:16px;max-width:68ch}
+.sdk-shell #sdk-message{margin:0}
+.sdk-shell #sdk-message:not(:empty){padding:12px 16px;background:#e9f1fb;border:1px solid #cfdef1;border-radius:10px;color:#234973}
+.sdk-device{font-size:13px;color:var(--sdk-muted);margin:12px 0 28px;max-width:80ch}
+.sdk-meeting-section{background:#fff;border:1px solid var(--sdk-line);border-radius:16px;overflow:hidden}
+.sdk-section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1px solid var(--sdk-line)}
+.sdk-shell h2{font-size:18px;letter-spacing:-.015em;line-height:1.3;margin:0}
+.sdk-section-head>span{font-size:12px;color:var(--sdk-muted)}
+#sdk-meetings:empty{min-height:110px}
+#sdk-meetings{overflow-wrap:anywhere}
+.sdk-meeting{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:32px;row-gap:20px;padding:26px 24px}
+.sdk-meeting+.sdk-meeting{border-top:1px solid var(--sdk-line)}
+.sdk-meeting-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.sdk-shell article h3{font-size:19px;line-height:1.35;letter-spacing:-.02em;margin:0;order:0}
+.sdk-availability{order:1;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#526176;margin-top:10px}
+.sdk-availability::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.sdk-availability.is-enabled{color:#146445}
+.sdk-meeting-note{order:2;margin:8px 0 0;font-size:13px;color:var(--sdk-muted)}
+.sdk-meeting-action{align-self:center}
+.sdk-shell button,#sdk-controls button{font:600 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:44px;padding:12px 20px;border:1px solid #075bb5;border-radius:8px;background:#075bb5;color:#fff;cursor:pointer;transition:background-color .15s,border-color .15s}
+.sdk-shell button:hover,#sdk-controls button:hover{background:#064a94;border-color:#064a94}
+.sdk-shell button:disabled,#sdk-controls button:disabled{background:#eef1f5;border-color:#dfe5ec;color:#637086;cursor:not-allowed}
+.sdk-shell :focus-visible,#sdk-controls :focus-visible{outline:3px solid #1f72d2;outline-offset:4px}
+.sdk-meeting-action button{min-width:162px}
+.sdk-operators{grid-column:1/-1;display:flex;gap:12px;align-items:baseline;border-top:1px solid #edf0f4;padding-top:16px;min-width:0}
+.sdk-operators-label{color:var(--sdk-muted);font-size:12px;flex:none}
+.sdk-operators ul{display:flex;flex-wrap:wrap;gap:6px 18px;list-style:none;margin:0;padding:0;min-width:0}
+.sdk-operators li{font-size:12px;color:#405168;overflow-wrap:anywhere;max-width:100%}
+#sdk-delegation{margin-top:24px;background:#fff;border:1px solid var(--sdk-line);border-radius:16px}
+.sdk-shell summary{cursor:pointer;font-weight:600;min-height:60px;padding:20px 24px;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.sdk-shell summary::-webkit-details-marker{display:none}
+.sdk-shell summary::after{content:"";height:8px;width:8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin-right:4px;flex:none}
+.sdk-shell details[open]>summary::after{transform:rotate(225deg)}
+.sdk-shell summary small{display:block;font-size:13px;font-weight:400;color:var(--sdk-muted);margin-top:4px}
+.sdk-delegation-body{border-top:1px solid var(--sdk-line);padding:24px}
+.sdk-delegation-body>p{margin:0 0 24px;color:var(--sdk-muted);font-size:13px;max-width:80ch}
+#sdk-grant{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px 24px}
+.sdk-field{min-width:0}.sdk-field-wide,.sdk-form-footer{grid-column:1/-1}
+.sdk-field label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
+.sdk-shell select,.sdk-shell input{display:block;width:100%;min-height:46px;padding:11px 12px;border:1px solid #b7c3d2;border-radius:8px;font:inherit;background:#fff;color:var(--sdk-ink);caret-color:var(--sdk-blue)}
+.sdk-shell input::placeholder{color:#637086}
+.sdk-form-footer{display:flex;justify-content:flex-end;padding-top:4px}
+#sdk-controls{box-sizing:border-box;position:fixed;top:12px;left:12px;z-index:2147483000;max-width:340px;max-height:calc(100dvh - 24px);overflow:auto;background:#fff;color:#1c2738;border:1px solid #a8b8cc;border-radius:12px;padding:12px 16px;font:14px/1.5 system-ui}
+#sdk-controls summary{cursor:pointer;font-weight:600;min-height:24px}
+#sdk-controls button{margin:4px 0;width:100%}
+#sdk-controls ul{max-height:160px;overflow:auto;padding-left:20px}
+#sdk-controls[hidden],.sdk-shell[hidden],#sdk-delegation[hidden]{display:none!important}
+@media(max-width:640px){
+.sdk-nav{min-height:64px;padding:10px 20px}.sdk-brand span{display:none}
+.sdk-content{padding:28px 20px max(48px,env(safe-area-inset-bottom))}
+.sdk-lead{font-size:15px}.sdk-device{margin-bottom:24px}
+.sdk-section-head{padding:18px}.sdk-section-head>span{display:none}
+.sdk-meeting{grid-template-columns:minmax(0,1fr);padding:22px 18px;gap:16px}
+.sdk-meeting-action{grid-row:3}.sdk-meeting-action button{width:100%;min-height:48px}
+.sdk-operators{grid-row:2;flex-direction:column;gap:6px;padding-top:12px}
+.sdk-operators ul{display:grid;gap:5px}
+.sdk-shell summary{padding:18px}.sdk-delegation-body{padding:20px 18px}
+#sdk-grant{grid-template-columns:minmax(0,1fr);gap:18px}
+.sdk-shell select,.sdk-shell input{font-size:16px;min-height:48px}
+.sdk-form-footer button{width:100%}
+#sdk-controls{max-width:calc(100% - 24px)}
+}
+@media(prefers-reduced-motion:reduce){.sdk-shell button,#sdk-controls button{transition:none}}
