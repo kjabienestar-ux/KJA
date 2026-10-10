@@ -5,6 +5,7 @@
     "test:pausas": "node --test tests/pausa-server.test.mjs tests/pausa-session-lock.test.mjs tests/pausa-sessions-sql.test.mjs tests/pausa-features.test.mjs tests/pausa-carousel.test.mjs tests/pausa-design.test.mjs",
     "test:calendario": "node --test tests/person-calendar.test.mjs tests/person-calendar-contract-sql.test.mjs tests/team-day-detail.test.mjs tests/attendance-calendar.test.mjs tests/justified-personal-close.test.mjs tests/personal-space-history.test.mjs",
     "test:justificacion": "node --test tests/justified-personal-close.test.mjs tests/justified-close.test.mjs tests/attendance-calendar.test.mjs tests/month-progress.test.mjs",
+    "test:contratos": "node --test tests/admin-contracts.test.mjs tests/admin-contract-estimate.test.mjs tests/contract-nonworking-hours.test.mjs",
     "test:cierre": "node --test tests/cierre-null-sql.test.mjs tests/daily-close-loading.test.mjs",
     "dev": "npx serve . -l 3000",
     "start": "npx serve . -l 3000",

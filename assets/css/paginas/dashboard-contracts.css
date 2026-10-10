@@ -497,6 +497,15 @@
   line-height: 1.4;
 }
 
+#portal #admin-contracts-section .contract-nonworking-hours {
+  display: block;
+  margin-top: 3px;
+  color: #72529a;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 #portal #admin-contracts-section .admin-vol-progress {
   display: flex !important;
   gap: 8px;

@@ -6,7 +6,7 @@ const source=fs.readFileSync('assets/js/dashboard-admin-equipo.js','utf8');
 function setup(){
   const nodes=new Map(),get=id=>{if(!nodes.has(id))nodes.set(id,{value:'',checked:false,innerHTML:'',textContent:''});return nodes.get(id);};
   const people=[
-    {id:1,nombre:'Ana <A>',activo:true,area_id:1,area:'Diseño',tipo_vinculo:'practicas',resumen:{meta:100,cumplidas:60,semana_horas:20,alertas:[]}},
+    {id:1,nombre:'Ana <A>',activo:true,area_id:1,area:'Diseño',tipo_vinculo:'practicas',resumen:{meta:100,cumplidas:60,horas_no_laborables:10,semana_horas:20,alertas:[]}},
     {id:2,nombre:'Beto',activo:true,area_id:2,tipo_vinculo:'practicas',contrato_pendiente:true,resumen:{pendiente:true,cumplidas:8,alertas:[]}},
     {id:3,nombre:'Celia',activo:false,area_id:1,tipo_vinculo:'practicas',resumen:{meta:100,cumplidas:120,completado:true}}
   ];
@@ -27,6 +27,7 @@ test('contracts retain filters and edit permissions; missing goals do not imply 
   assert.ok(html.indexOf('UTP - LIMA CENTRO')<html.indexOf('data-team-edit="1"'));
   assert.equal(get('admin-contract-count').textContent,'2');
   assert.match(html,/Ana &lt;A&gt;/);assert.match(html,/40 h por completar/);
+  assert.match(html,/Incluye 10 h por días no laborables/);
   assert.match(html,/aria-valuenow="60"/);assert.match(html,/Sin meta/);assert.doesNotMatch(html,/>0%/);
   assert.match(html,/data-team-edit="1"/);
   get('admin-contract-pending').checked=true;html=render();assert.match(html,/Beto/);assert.doesNotMatch(html,/Ana/);
