@@ -20,3 +20,7 @@ verify_jwt = true
 # Valida auth.getUser() y dash_gestiona_certificados() dentro del manejador.
 [functions.cert-cuentas]
 verify_jwt = false
+
+# Valida auth.getUser y permisos de Zoom en cada solicitud.
+[functions.zoom-reuniones]
+verify_jwt = false

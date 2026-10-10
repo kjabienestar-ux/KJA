@@ -65,3 +65,5 @@ El portal incorpora un chat privado entre cuentas y un filtro para contactar a D
 ## Accessibility & Inclusion
 
 La interfaz debe aspirar a WCAG 2.1 AA, funcionar con teclado, comunicar estados sin depender solo del color y adaptarse desde 360 px hasta escritorio.
+
+Zoom incorpora vinculación e inicio de la reunión recurrente existente, con acceso desde el portal y conservación de las salas de grupo por área. El anfitrión abre las salas dentro de Zoom; la selección de destinatarios del portal no asigna automáticamente grupos internos. La implementación local requiere migración 109, secretos Server-to-Server OAuth y despliegue de la Edge Function; aún no acredita conexión real ni activación. Véase docs/42-integracion-zoom.md. El objetivo solicitado es inicio y apertura de salas automáticos por horario, sin intervención humana y desde la nube; todavía no está implementado. La viabilidad del anfitrión desatendido queda pendiente de confirmar con Zoom por la política vigente del Meeting SDK. Véase docs/43-zoom-automatizacion-nube.md.
