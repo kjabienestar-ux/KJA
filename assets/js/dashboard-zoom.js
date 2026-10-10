@@ -5,6 +5,7 @@
  let state={rows:[],areas:[],people:[],hosts:[],admin:false,busy:false,epoch:0,request:0,offset:0,editor:null,timer:null,loaded:false,weekOffset:0};
  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const now=()=>Date.now()+state.offset;
+ const manages=()=>APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel;
  const eligible=()=>APP.identity.hasPersonal||(APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel);
  function message(text){$('zoom-message').textContent=text||'';}
  function busy(value){state.busy=value;$('view-zoom').setAttribute('aria-busy',String(value));$('view-zoom').querySelectorAll('button,input,select').forEach(el=>el.disabled=value);if(!value)formVisibility();}
@@ -58,7 +59,8 @@
  const {data,error}=await db.rpc('dash_zoom_listar');
  if(epoch!==state.epoch||request!==state.request)return;
  if(error||!data?.ok)throw Error(error?.code==='PGRST202'?'La sección de reuniones está pendiente de activación por Sistemas.':'No se pudieron consultar las reuniones. Actualiza la lista o vuelve a iniciar sesión.');
- state.admin=data.admin===true;state.rows=data.meetings||[];state.areas=data.areas||[];state.people=data.people||[];state.offset=Date.parse(data.now)-Date.now();state.loaded=true;
+ state.admin=manages()&&data.admin===true;state.rows=data.meetings||[];state.areas=data.areas||[];state.people=data.people||[];state.offset=Date.parse(data.now)-Date.now();state.loaded=true;
+ $('nav-zoom').hidden=!state.admin;$('zoom-settings').hidden=!state.admin;
  $('zoom-new').hidden=!state.admin;$('zoom-import').hidden=!state.admin;$('zoom-connection').hidden=!state.admin;
  $('zoom-list-title').textContent=state.admin?'Reuniones vinculadas':'Mis reuniones';
  $('zoom-subtitle').textContent=state.admin?'Inicia la reunión habitual y conserva las salas de cada área.':'Entra a la reunión principal y continúa a la sala de tu área.';
@@ -211,11 +213,11 @@
 
  function reset(){
  $('zoom-quick-dialog').close();$('zoom-quick-list').innerHTML='';$('zoom-quick-message').textContent='';
- $('zoom-settings').open=false;clearInterval(state.timer);state.epoch++;state.request++;state.rows=[];state.areas=[];state.people=[];state.hosts=[];state.admin=false;state.editor=null;state.loaded=false;state.weekOffset=0;state.cancel=null;busy(false);
+ $('zoom-settings').hidden=true;$('zoom-settings').open=false;clearInterval(state.timer);state.epoch++;state.request++;state.rows=[];state.areas=[];state.people=[];state.hosts=[];state.admin=false;state.editor=null;state.loaded=false;state.weekOffset=0;state.cancel=null;busy(false);
  $('zoom-week').hidden=true;$('zoom-week-list').innerHTML='';$('zoom-list').innerHTML='';$('zoom-form').reset();$('zoom-targets').innerHTML='';fillHosts();$('zoom-form').hidden=true;$('zoom-cancel-dialog').close();$('nav-zoom').hidden=true;$('zoom-home-access').hidden=true;
  $('zoom-new').hidden=true;$('zoom-import').hidden=true;$('zoom-connection').hidden=true;message('');
  }
- function init(){reset();const allowed=eligible();$('nav-zoom').hidden=!allowed;$('zoom-home-access').hidden=!APP.identity.hasPersonal;if(!allowed)return;
+ function init(){reset();const allowed=eligible();$('nav-zoom').hidden=true;$('zoom-home-access').hidden=!APP.identity.hasPersonal;if(!allowed)return;
  void load();state.timer=setInterval(()=>{if(!document.hidden&&!state.busy&&!state.editor&&(APP.view==='zoom'||APP.view==='inicio'))void load();},60000);
  }
  window.KJAZoom={init,load,reset};
