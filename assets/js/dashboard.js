@@ -3008,13 +3008,6 @@ async function loadAdminHub(){
     if(control?.entrada_at&&!control?.salida_at)return {person,label:'Cierre pendiente',detail:'Tiene entrada y todavía no registra salida',tone:'info',rank:4};
     return null;
   }).filter(Boolean).sort((a,b)=>a.rank-b.rank||a.person.nombre.localeCompare(b.person.nombre,'es'));
-  const kpis=[
-    ['EQUIPO ACTIVO',people.length,'Personas programadas',''],
-    ['CON ENTRADA',registered,`${people.length?Math.round(registered/people.length*100):0}% del equipo`,'registered'],
-    ['JORNADAS COMPLETAS',complete,`${people.length?Math.round(complete/people.length*100):0}% del equipo`,'complete'],
-    ['REQUIEREN ATENCIÓN',priorities.length,priorities.length?'Revisar antes del cierre':'Sin alertas operativas','pending']
-  ];
-  $('admin-kpis').innerHTML=kpis.map(x=>`<article class="admin-kpi ${x[3]}"><small>${esc(x[0])}</small><b>${esc(x[1])}</b><span>${esc(x[2])}</span></article>`).join('');
   $('admin-overview-date').textContent=cap(new Intl.DateTimeFormat('es-PE',{weekday:'long',day:'numeric',month:'long',timeZone:'America/Lima'}).format(new Date(today+'T12:00:00-05:00')));
   $('admin-overview-headline').textContent=priorities.length?`${priorities.length} ${priorities.length===1?'persona requiere':'personas requieren'} atención; ${complete} ${complete===1?'jornada está completa':'jornadas están completas'}.`:complete?`Las ${complete} jornadas registradas están al día. No hay alertas operativas.`:'La jornada de hoy no presenta alertas operativas.';
 
