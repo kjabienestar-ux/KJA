@@ -295,3 +295,32 @@
  body:has(#portal[data-view="inicio"]) .kja-chat{right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
  body:has(#portal[data-view="inicio"]) .kja-chat .chat-launcher{right:0;bottom:0;width:56px;height:56px;min-height:56px}
 }
+
+/* Unified Zoom canvas: avoid the hard seam against the administrative shell. */
+body:has(#portal[data-view="zoom"]){background:#f5f5f7!important}
+#portal[data-view="zoom"]{background:#f5f5f7!important}
+#portal[data-view="zoom"]>.workspace{background:#f5f5f7!important;border:0;box-shadow:none}
+#portal[data-view="zoom"] #sidebar{background:#fff!important;border:0!important;box-shadow:none!important}
+#portal[data-view="zoom"] #view-zoom{background:transparent;max-width:1240px}
+#portal[data-view="zoom"] #view-zoom .zoom-header{border:0;padding:8px 0 24px;align-items:center}
+#view-zoom .zoom-mark{display:grid;background:#0b5cff;color:#fff}
+#portal[data-view="zoom"] #view-zoom .zoom-settings{border:0;background:#fff;border-radius:12px;padding:4px 20px;margin:0 0 28px}
+#portal[data-view="zoom"] #view-zoom .zoom-list{border:0;border-radius:0;background:transparent;overflow:visible}
+#portal[data-view="zoom"] #view-zoom .zoom-row{padding:26px;margin-bottom:16px;border:1px solid #dce3ed;border-radius:16px;background:#fff}
+#portal[data-view="zoom"] #view-zoom .zoom-row-copy h3{font-size:21px;line-height:1.35;color:#1d2635}
+#portal[data-view="zoom"] #view-zoom .zoom-time{margin-top:10px;color:#34445a}
+#portal[data-view="zoom"] #view-zoom .zoom-row-main{gap:24px}
+#portal[data-view="zoom"] #view-zoom .zoom-row-admin{gap:8px;margin-top:20px}
+#portal[data-view="zoom"] #view-zoom .zoom-row-admin button[data-zoom="copy"]{border:1px solid #d5e4fb;background:#edf4ff;color:#075abc;padding:10px 16px;font-weight:600}
+#portal[data-view="zoom"] #view-zoom .zoom-row-admin button[data-zoom="copy"]:hover{background:#dceaff}
+#portal[data-view="zoom"] #view-zoom .zoom-row-options{border-top:1px solid #edf0f4;margin-top:20px;padding-top:4px}
+#portal[data-view="zoom"] #view-zoom .zoom-row-options .zoom-row-admin{margin-top:0}
+#view-zoom #zoom-footnote{padding:0 4px;border:0}
+@media(max-width:900px){
+ #portal[data-view="zoom"] #view-zoom .zoom-header{align-items:flex-start;padding-top:0}
+ #portal[data-view="zoom"] #view-zoom .zoom-mark{display:none}
+ #portal[data-view="zoom"] #view-zoom .zoom-settings{padding:4px 16px}
+ #portal[data-view="zoom"] #view-zoom .zoom-row{padding:20px 18px}
+ #portal[data-view="zoom"] #view-zoom .zoom-row-main{gap:16px}
+ #portal[data-view="zoom"] #view-zoom .zoom-row-copy h3{font-size:20px}
+}
