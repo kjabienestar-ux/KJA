@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
-<title>Administrar Zoom · KJA</title><link rel="stylesheet" href="assets/css/paginas/zoom-sala.css?v=3"></head>
+<title>Administrar Zoom · KJA</title><link rel="stylesheet" href="assets/css/paginas/zoom-sala.css?v=6"></head>
 <body>
 <main id="sdk-lobby" class="sdk-shell">
 <nav class="sdk-nav" aria-label="Navegación"><a class="sdk-back" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>Volver al dashboard</a><span class="sdk-brand">KJA <span>/ Zoom</span></span></nav>
@@ -14,23 +14,24 @@
 <p class="sdk-device" id="sdk-device">Al iniciar, se intentarán abrir las salas existentes. Mantén esta página abierta. La prueba desde iPhone todavía requiere validación.</p>
 </div>
 <section class="sdk-meeting-section" aria-labelledby="sdk-meetings-title"><div class="sdk-section-head"><h2 id="sdk-meetings-title">Reuniones autorizadas</h2><span>Acceso de anfitrión</span></div><div id="sdk-meetings"></div></section>
-<details id="sdk-delegation" hidden><summary><span>Administrar responsables<small>Asigna o retira el acceso a una reunión</small></span></summary>
+<details id="sdk-delegation" hidden open><summary><span>Administrar responsables<small>Asigna o retira el acceso a una reunión</small></span></summary>
 <div class="sdk-delegation-body">
 <p>Este permiso permite actuar como anfitrión de la reunión indicada. No da acceso al resto de la administración. Retirarlo bloquea nuevos inicios; no expulsa una sesión de Zoom ya abierta.</p>
-<form id="sdk-grant"><div class="sdk-field sdk-field-wide"><label for="sdk-meeting">Reunión</label><select id="sdk-meeting" required></select></div>
-<div class="sdk-field">
-<label for="sdk-email">Correo de su cuenta del portal</label><input id="sdk-email" type="email" autocomplete="email" required maxlength="254" placeholder="nombre@correo.com"></div>
-<div class="sdk-field">
-<label for="sdk-grant-action">Permiso</label><select id="sdk-grant-action"><option value="grant">Permitir administrar Zoom</option><option value="revoke">Retirar permiso</option></select></div>
-<div class="sdk-form-footer"><button type="submit">Guardar permiso</button></div></form></div></details>
+<div class="sdk-field sdk-access-selector"><label for="sdk-meeting">Gestionar accesos de</label><select id="sdk-meeting" required></select></div>
+<div class="sdk-access-heading"><h3>Responsables autorizados</h3><span id="sdk-access-count"></span></div>
+<p class="sdk-access-system">Sistemas conserva el acceso por su rol administrativo.</p>
+<ul id="sdk-access-list" class="sdk-access-list"></ul>
+<p id="sdk-access-message" role="status" aria-live="polite"></p>
+<form id="sdk-grant"><div class="sdk-field"><label for="sdk-email">Añadir usuario con acceso administrativo</label><select id="sdk-email" required><option value="">Selecciona un usuario</option></select><small id="sdk-candidates-note">Usuarios activos con acceso al panel administrativo.</small></div><button type="submit">Dar acceso</button></form></div></details>
 </div>
 </main>
 <details id="sdk-controls" hidden><summary>Control KJA</summary>
 <p id="sdk-live-status" role="status" aria-live="polite">Consultando salas…</p><ul id="sdk-rooms"></ul>
 <button id="sdk-check" type="button">Consultar salas</button><button id="sdk-open" type="button" disabled>Abrir salas existentes</button>
 <p>En «Salas para grupos pequeños» de Zoom, comprueba la opción para que los participantes elijan su sala. Si faltan salas, recupera la preasignación desde ese panel.</p>
+<div class="sdk-dashboard-return"><a class="sdk-dashboard-link" href="dashboard.html" target="_blank" rel="noopener noreferrer" aria-describedby="sdk-dashboard-help"><span>Volver a administración</span> <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3l-11 11M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg></a><p id="sdk-dashboard-help">Se abre en otra pestaña. Mantén esta pestaña de Zoom abierta para conservar tu sesión.</p></div>
 <p>Para terminar, usa «Finalizar» dentro de Zoom.</p>
 </details>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/zoom-sala.js?v=4"></script>
+<script src="assets/js/zoom-sala.js?v=6"></script>
 </body></html>

@@ -4,6 +4,7 @@
  const db=supabase.createClient('https://xadxmfgdxwplmhijagix.supabase.co','sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'kja-dashboard-auth'}});
  const version='5.1.4';
  let connected=false,working=false,sdkPromise=null,refreshTimer=null,epoch=0,roomsKnown=false,roomStatus=null,checking=false;
+ let accessMeetings=[],accessAdmin=false,accessCandidates=null;
  const message=text=>$('sdk-message').textContent=text;
  const mobile=()=>/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
  function button(text,fn){const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b;}
@@ -14,6 +15,7 @@
  }
  async function load(){
  const data=await edge({action:'sdk-list'});
+ const previous=$('sdk-meeting').value;accessAdmin=data.admin===true;accessMeetings=data.meetings||[];accessCandidates=Array.isArray(data.candidates)?data.candidates:null;
  $('sdk-delegation').hidden=!data.admin;$('sdk-meetings').replaceChildren();$('sdk-meeting').replaceChildren();
  const selected=new URL(location.href).searchParams.get('meeting');
  const meetings=selected?data.meetings.filter(row=>row.id===selected):data.meetings;
@@ -42,6 +44,9 @@
  $('sdk-meetings').append(article);
  const option=document.createElement('option');option.value=row.id;option.textContent=row.topic;$('sdk-meeting').append(option);
  }
+ if(meetings.some(row=>row.id===previous))$('sdk-meeting').value=previous;
+ else if(meetings.length)$('sdk-meeting').value=meetings[0].id;
+ renderAccess();
  if(!meetings.length)$('sdk-meetings').textContent='No tienes reuniones autorizadas. Sistemas debe asignarte el permiso Administrar Zoom.';
  message(data.configured?'Piloto listo para probar. La reunión se inicia solo al pulsar el botón.':'Sistemas debe configurar las credenciales Meeting SDK y el ID de una reunión de ensayo.');
  }
@@ -137,14 +142,43 @@
  catch(error){$('sdk-live-status').textContent=error.message;}
  finally{working=false;updateRoomButtons();}
  };
- $('sdk-grant').onsubmit=async event=>{
- event.preventDefault();if(working)return;working=true;
- const submit=$('sdk-grant').querySelector('button');submit.disabled=true;
+ function renderAccess(){
+ const row=accessMeetings.find(item=>item.id===$('sdk-meeting').value);
+ const operators=accessAdmin?(row?.operators||[]):[];
+ $('sdk-access-list').replaceChildren();$('sdk-access-count').textContent=operators.length+' asignado'+(operators.length===1?'':'s');
+ const selected=$('sdk-email').value;
+ const available=accessAdmin?(accessCandidates||[]).filter(person=>!operators.some(email=>email.toLowerCase()===person.email.toLowerCase())):[];
+ $('sdk-email').replaceChildren();const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Selecciona un usuario';$('sdk-email').append(placeholder);
+ for(const person of available){const option=document.createElement('option');option.value=person.email;option.textContent=person.nombre===person.email?person.email:person.nombre+' · '+person.email;$('sdk-email').append(option);}
+ $('sdk-email').value=available.some(person=>person.email===selected)?selected:'';
+ $('sdk-email').disabled=working||!available.length;
+ $('sdk-candidates-note').textContent=accessCandidates===null?'Sistemas debe ejecutar la migración 112 para cargar los usuarios.':available.length?'Usuarios activos con acceso al panel administrativo.':'No hay otros usuarios administrativos disponibles para asignar.';
+ $('sdk-grant').querySelector('button').disabled=working||!accessAdmin||!row||!available.length;
+ if(!operators.length){const empty=document.createElement('li');empty.className='sdk-access-empty';empty.textContent='No hay responsables asignados a esta reunión.';$('sdk-access-list').append(empty);}
+ for(const email of operators){
+ const item=document.createElement('li');item.className='sdk-access-person';
+ const avatar=document.createElement('span');avatar.className='sdk-access-avatar';avatar.textContent=email.slice(0,2).toUpperCase();
+ const copy=document.createElement('div'),name=document.createElement('strong'),role=document.createElement('small');name.textContent=email;role.textContent='Puede iniciar y administrar esta reunión';copy.append(name,role);
+ const remove=button('Quitar acceso',()=>changeAccess(email,false));remove.className='sdk-access-remove';remove.disabled=working;
+ item.append(avatar,copy,remove);$('sdk-access-list').append(item);
+ }
+ }
+ async function changeAccess(email,grant){
+ if(working||!accessAdmin)return;
+ if(grant&&!(accessCandidates||[]).some(person=>person.email===email)){ $('sdk-access-message').textContent='Selecciona un usuario de la lista.';return;}
+ const id=$('sdk-meeting').value,current=epoch;if(!accessMeetings.some(row=>row.id===id))return;
+ working=true;$('sdk-meeting').disabled=true;renderAccess();$('sdk-access-message').textContent=grant?'Guardando acceso…':'Retirando acceso…';
  try{
- const {error}=await db.rpc('dash_zoom_delegar',{p_id:$('sdk-meeting').value,p_email:$('sdk-email').value.trim(),p_otorgar:$('sdk-grant-action').value==='grant'});
- if(error)throw Error(error.message);await load();message('Permiso guardado.');$('sdk-email').value='';
- }catch(error){message(error.message);}finally{working=false;submit.disabled=false;}
- };
+ const {error}=await db.rpc('dash_zoom_delegar',{p_id:id,p_email:email,p_otorgar:grant});
+ if(current!==epoch)return;if(error)throw Error(error.message);
+ await load();if(current!==epoch)return;
+ $('sdk-access-message').textContent=grant?'Acceso concedido.':'Acceso retirado. Las sesiones ya abiertas no se cierran.';
+ if(grant)$('sdk-email').value='';
+ }catch(error){if(current===epoch)$('sdk-access-message').textContent=error.message;}
+ finally{if(current===epoch){working=false;$('sdk-meeting').disabled=false;renderAccess();}}
+ }
+ $('sdk-meeting').onchange=()=>{$('sdk-access-message').textContent='';renderAccess();};
+ $('sdk-grant').onsubmit=event=>{event.preventDefault();return changeAccess($('sdk-email').value.trim(),true);};
  db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){epoch++;connected=false;clearInterval(refreshTimer);location.replace('dashboard.html');}});
  (async()=>{try{
  const {data,error}=await db.auth.getUser();if(error||!data.user)throw Error('Inicia sesión en el dashboard y vuelve a esta página.');
