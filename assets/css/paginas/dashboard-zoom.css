@@ -350,3 +350,21 @@ body:has(#portal[data-view="zoom"]){background:#f5f5f7!important}
  #portal[data-view="zoom"] #view-zoom .zoom-editor :is(input:not([type="checkbox"]),select){font-size:16px;min-height:48px}
  #portal[data-view="zoom"] #view-zoom .zoom-editor>.zoom-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 }
+
+/* Native keyboard semantics with an enhanced picker where supported. */
+#portal[data-view="zoom"] #view-zoom .zoom-editor select{border-radius:12px;padding:12px 16px;background-color:#f8faff;border:1px solid #bdcce0;color:#25354b;cursor:pointer;transition:border-color .16s,background-color .16s}
+#portal[data-view="zoom"] #view-zoom .zoom-editor select:hover:not(:disabled){border-color:#6b96ce;background-color:#f0f6ff}
+#portal[data-view="zoom"] #view-zoom .zoom-editor :is(input,select):focus{outline:2px solid #0b5cff!important;outline-offset:3px!important;border-color:#0b5cff;background-color:#fff}
+@supports (appearance:base-select){
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select,
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select::picker(select){appearance:base-select}
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select::picker(select){margin-top:8px;padding:6px;border:1px solid #d5e0ee;border-radius:12px;background:#fff;color:#25354b;max-height:300px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#bdcce0 #fff}
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select::picker-icon{color:#526174;transition:rotate .16s}
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select:open::picker-icon{rotate:180deg}
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select option{min-height:44px;padding:10px 14px;border-radius:8px;gap:12px;font:inherit;cursor:pointer}
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select option:checked{background:#edf4ff;color:#075abc;font-weight:600}
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select option:hover,
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select option:focus{background:#dceaff;color:#163e76;outline:none}
+ #portal[data-view="zoom"] #view-zoom .zoom-editor select option::checkmark{color:#075abc}
+}
+@media(prefers-reduced-motion:reduce){#portal[data-view="zoom"] #view-zoom .zoom-editor select,#portal[data-view="zoom"] #view-zoom .zoom-editor select::picker-icon{transition:none}}
