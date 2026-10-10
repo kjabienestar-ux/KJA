@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="assets/css/shared.css?v=13">
     <link rel="stylesheet" href="assets/css/accessibility.css?v=2">
     <link rel="stylesheet" href="assets/css/whatsapp-assistant.css?v=6">
-    <link rel="stylesheet" href="assets/css/paginas/videos.css?v=4">
+    <link rel="stylesheet" href="assets/css/paginas/videos.css?v=6">
     <!-- Sin JS, el splash de carga no debe tapar la página -->
     <noscript>
         <style>
@@ -227,7 +227,10 @@
 
     <!-- ===== CARRUSEL DE VIDEOS ===== -->
     <div class="kv-viewer" id="kv-viewer" role="dialog" aria-modal="true" aria-labelledby="kv-viewer-title" hidden>
-        <div class="kv-viewer-backdrop" data-kv-close></div>
+        <div class="kv-viewer-backdrop" data-kv-close>
+            <span class="kv-ambient" aria-hidden="true"></span>
+            <span class="kv-ambient" aria-hidden="true"></span>
+        </div>
         <div class="kv-viewer-top">
             <span class="kv-counter" id="kv-counter">1 / 1</span>
             <div class="kv-viewer-actions">
@@ -242,6 +245,28 @@
 
         <div class="kv-stage-wrap">
             <div class="kv-stage" id="kv-stage"></div>
+            <!-- Controles del video central: no se mueven con el carrusel -->
+            <div class="kv-hud">
+                <button type="button" class="kv-hint" id="kv-hint" data-kv-action="sound" hidden>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m16 9 6 6M22 9l-6 6"/></svg>Activar sonido
+                </button>
+                <span class="kv-hud-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></span>
+                <span class="kv-spinner" aria-hidden="true"></span>
+                <div class="kv-rail">
+                    <button type="button" class="kv-rail-btn" id="kv-sound" data-kv-action="sound" aria-label="Silenciar">
+                        <svg class="kv-i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+                        <svg class="kv-i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m16 9 6 6M22 9l-6 6"/></svg>
+                    </button>
+                    <button type="button" class="kv-rail-btn" id="kv-toggle" data-kv-action="toggle" aria-label="Pausar">
+                        <svg class="kv-i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+                        <svg class="kv-i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
+                    </button>
+                    <button type="button" class="kv-rail-btn" id="kv-share" data-kv-action="share" aria-label="Compartir video">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 12v7h14v-7"/></svg>
+                    </button>
+                </div>
+                <div class="kv-progress" aria-hidden="true"><i id="kv-progress"></i></div>
+            </div>
             <button type="button" class="kv-nav kv-nav--prev" id="kv-prev" aria-label="Video anterior">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
             </button>
@@ -251,22 +276,25 @@
         </div>
 
         <div class="kv-viewer-bar">
-            <span class="kv-viewer-thumb" id="kv-viewer-thumb" aria-hidden="true"></span>
             <div class="kv-viewer-info">
                 <h2 id="kv-viewer-title"></h2>
                 <p class="kv-viewer-meta" id="kv-viewer-meta"></p>
                 <p class="kv-viewer-desc" id="kv-viewer-desc"></p>
             </div>
             <div class="kv-dots" id="kv-dots" role="group" aria-label="Elegir video"></div>
+            <a class="kv-cta" href="terapia.html">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/></svg>Agendar cita
+            </a>
         </div>
         <p class="kv-sr" id="kv-live" aria-live="polite"></p>
+        <p class="kv-toast" id="kv-toast" aria-hidden="true" hidden></p>
     </div>
 
     <script defer src="assets/js/script.js?v=11"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>
-    <script defer src="assets/js/videos-data.js?v=1"></script>
-    <script defer src="assets/js/videos.js?v=4"></script>
+    <script defer src="assets/js/videos-data.js?v=3"></script>
+    <script defer src="assets/js/videos.js?v=6"></script>
 
     </div>
 </body>
