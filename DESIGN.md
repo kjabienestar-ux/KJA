@@ -351,3 +351,7 @@ La agenda Zoom revisada presenta una columna de fechas con numeral de 26 px, dí
 
 
 El acceso personal de Zoom en Inicio reemplaza la franja superior por un botón flotante azul de cámara blanca (58 px, 54 px en móvil), situado encima de Mensajes. Abre un dialog nativo con reuniones autorizadas, hora y acción Unirme; siempre usa el acceso de participante. Escape/cierre nativo y limpieza al cerrar sesión. El modal tiene ancho máximo 520 px, scroll interno y acciones de ancho completo en móvil. La apertura del enlace depende de la asociación de Zoom y del permiso del navegador. Pruebas simuladas de modal y logout; visual pendiente.
+
+
+### Zoom SDK: refinamiento de acceso
+Cabecera azul Zoom con cámara blanca, título y explicación juntos. Reunión con título de 24px, disponibilidad separada del estado en vivo, acción principal de 50px y responsables en etiquetas compactas. Información de prueba fuera de la cabecera para mantenerla legible. En móvil: cabecera compacta, botón de ancho completo y columna única; a 380px la cámara pasa encima del título. Se conservan permisos y lógica SDK. Verificación funcional automatizada; revisión visual en navegador pendiente por falta de navegador disponible en la sesión.

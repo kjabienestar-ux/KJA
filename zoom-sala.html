@@ -1,16 +1,18 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
-<title>Administrar Zoom · KJA</title><link rel="stylesheet" href="assets/css/paginas/zoom-sala.css?v=2"></head>
+<title>Administrar Zoom · KJA</title><link rel="stylesheet" href="assets/css/paginas/zoom-sala.css?v=3"></head>
 <body>
 <main id="sdk-lobby" class="sdk-shell">
 <nav class="sdk-nav" aria-label="Navegación"><a class="sdk-back" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>Volver al dashboard</a><span class="sdk-brand">KJA <span>/ Zoom</span></span></nav>
 <div class="sdk-content">
 <header class="sdk-header">
+<span class="sdk-hero-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="14" height="14" rx="4"/><path d="m17 9 5-3v12l-5-3z"/></svg></span><div>
 <h1>Administrar Zoom</h1>
 <p class="sdk-lead">Inicia tus reuniones y administra las salas desde el portal.</p>
-</header>
-<p id="sdk-message" role="status" aria-live="polite">Comprobando tu acceso…</p>
+</div></header>
+<div class="sdk-notices"><p id="sdk-message" role="status" aria-live="polite">Comprobando tu acceso…</p>
 <p class="sdk-device" id="sdk-device">Al iniciar, se intentarán abrir las salas existentes. Mantén esta página abierta. La prueba desde iPhone todavía requiere validación.</p>
+</div>
 <section class="sdk-meeting-section" aria-labelledby="sdk-meetings-title"><div class="sdk-section-head"><h2 id="sdk-meetings-title">Reuniones autorizadas</h2><span>Acceso de anfitrión</span></div><div id="sdk-meetings"></div></section>
 <details id="sdk-delegation" hidden><summary><span>Administrar responsables<small>Asigna o retira el acceso a una reunión</small></span></summary>
 <div class="sdk-delegation-body">
