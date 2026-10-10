@@ -4,7 +4,7 @@
  const db=supabase.createClient('https://xadxmfgdxwplmhijagix.supabase.co','sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'kja-dashboard-auth'}});
  const version='5.1.4';
  let connected=false,working=false,sdkPromise=null,refreshTimer=null,epoch=0,roomsKnown=false,roomStatus=null,checking=false;
- let accessMeetings=[],accessAdmin=false;
+ let accessMeetings=[],accessAdmin=false,accessCandidates=null;
  const message=text=>$('sdk-message').textContent=text;
  const mobile=()=>/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
  function button(text,fn){const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b;}
@@ -15,7 +15,7 @@
  }
  async function load(){
  const data=await edge({action:'sdk-list'});
- const previous=$('sdk-meeting').value;accessAdmin=data.admin===true;accessMeetings=data.meetings||[];
+ const previous=$('sdk-meeting').value;accessAdmin=data.admin===true;accessMeetings=data.meetings||[];accessCandidates=Array.isArray(data.candidates)?data.candidates:null;
  $('sdk-delegation').hidden=!data.admin;$('sdk-meetings').replaceChildren();$('sdk-meeting').replaceChildren();
  const selected=new URL(location.href).searchParams.get('meeting');
  const meetings=selected?data.meetings.filter(row=>row.id===selected):data.meetings;
@@ -146,7 +146,14 @@
  const row=accessMeetings.find(item=>item.id===$('sdk-meeting').value);
  const operators=accessAdmin?(row?.operators||[]):[];
  $('sdk-access-list').replaceChildren();$('sdk-access-count').textContent=operators.length+' asignado'+(operators.length===1?'':'s');
- $('sdk-grant').querySelector('button').disabled=working||!accessAdmin||!row;
+ const selected=$('sdk-email').value;
+ const available=accessAdmin?(accessCandidates||[]).filter(person=>!operators.some(email=>email.toLowerCase()===person.email.toLowerCase())):[];
+ $('sdk-email').replaceChildren();const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Selecciona un usuario';$('sdk-email').append(placeholder);
+ for(const person of available){const option=document.createElement('option');option.value=person.email;option.textContent=person.nombre===person.email?person.email:person.nombre+' · '+person.email;$('sdk-email').append(option);}
+ $('sdk-email').value=available.some(person=>person.email===selected)?selected:'';
+ $('sdk-email').disabled=working||!available.length;
+ $('sdk-candidates-note').textContent=accessCandidates===null?'Sistemas debe ejecutar la migración 112 para cargar los usuarios.':available.length?'Usuarios activos con acceso al panel administrativo.':'No hay otros usuarios administrativos disponibles para asignar.';
+ $('sdk-grant').querySelector('button').disabled=working||!accessAdmin||!row||!available.length;
  if(!operators.length){const empty=document.createElement('li');empty.className='sdk-access-empty';empty.textContent='No hay responsables asignados a esta reunión.';$('sdk-access-list').append(empty);}
  for(const email of operators){
  const item=document.createElement('li');item.className='sdk-access-person';
@@ -158,6 +165,7 @@
  }
  async function changeAccess(email,grant){
  if(working||!accessAdmin)return;
+ if(grant&&!(accessCandidates||[]).some(person=>person.email===email)){ $('sdk-access-message').textContent='Selecciona un usuario de la lista.';return;}
  const id=$('sdk-meeting').value,current=epoch;if(!accessMeetings.some(row=>row.id===id))return;
  working=true;$('sdk-meeting').disabled=true;renderAccess();$('sdk-access-message').textContent=grant?'Guardando acceso…':'Retirando acceso…';
  try{
