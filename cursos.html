@@ -33,7 +33,8 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="assets/css/paginas/cursos.css?v=5">
-    <link rel="stylesheet" href="assets/css/paginas/cursos-area.css?v=10">
+    <link rel="stylesheet" href="assets/css/paginas/cursos-area.css?v=16">
+    <link rel="stylesheet" href="assets/css/paginas/cursos-biblioteca.css?v=13">
     <!-- Sin JS, el splash de carga no debe tapar la página -->
     <noscript>
         <style>
@@ -160,6 +161,28 @@
         </div>
 
     </section>
+
+    <section class="free-courses-section" id="cursos-gratuitos" aria-labelledby="free-courses-title">
+        <div class="free-courses-shell">
+            <div class="free-courses-intro">
+                <p class="free-courses-eyebrow">Aprende gratis, a tu ritmo</p>
+                <h2 id="free-courses-title">Cursos grabados <span>gratuitos</span></h2>
+                <p>Un espacio para seguir aprendiendo, a tu propio ritmo.</p>
+                <button type="button" class="free-library-link" id="free-library-open" aria-haspopup="dialog">Ver biblioteca <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+            </div>
+            <div class="free-courses-grid" id="free-courses-grid"></div>
+            <p class="free-courses-preview" id="free-courses-preview">Vista previa: los títulos son ejemplos. Los videos estarán disponibles próximamente.</p>
+        </div>
+        <noscript><p class="free-courses-nojs">La biblioteca de cursos grabados estará disponible próximamente.</p></noscript>
+    </section>
+
+    <dialog class="free-library-dialog" id="free-library-dialog" aria-labelledby="free-library-title">
+        <div class="free-library-dialog-heading">
+            <div><p class="free-library-status" id="free-library-status"></p><h2 id="free-library-title">Biblioteca gratuita</h2></div>
+            <button type="button" class="free-library-close" id="free-library-close" aria-label="Cerrar biblioteca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div id="free-library-content"></div>
+    </dialog>
 
     <section class="catalog-section section-padding" id="catalogo">
         <div class="container">
@@ -313,8 +336,10 @@
 
 
 
-    <script defer src="assets/js/cursos-data.js?v=4"></script>
-    <script defer src="assets/js/cursos-catalogo.js?v=8"></script>
+    <script defer src="assets/js/cursos-data.js?v=8"></script>
+    <script defer src="assets/js/cursos-catalogo.js?v=14"></script>
+    <script defer src="assets/js/cursos-gratuitos-data.js?v=1"></script>
+    <script defer src="assets/js/cursos-gratuitos.js?v=3"></script>
     <script defer src="assets/js/script.js?v=11"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>
