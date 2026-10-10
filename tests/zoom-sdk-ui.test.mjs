@@ -5,7 +5,8 @@ import vm from 'node:vm';
 const html=fs.readFileSync('zoom-sala.html','utf8'),source=fs.readFileSync('assets/js/zoom-sala.js','utf8');
 const wait=()=>new Promise(r=>setTimeout(r,20));
 async function until(fn){for(let i=0;i<100&&!fn();i++)await wait();assert.ok(fn(),'La condición no se confirmó');}
-async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=true,rejectOpen=false,syncOnly=false}={}){
+async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=true,rejectOpen=false,syncOnly=false,admin=false,operators=[],rpcError=false}={}){
+ const mutations=[];operators=[...operators];
  const nodes=new Map();
  class Element{
  constructor(tag='div'){this.tagName=tag.toUpperCase();this.children=[];this.hidden=false;this.disabled=false;this._text='';}
@@ -27,14 +28,14 @@ async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=t
  w.window=w;const dom={window:{close(){for(const t of timers)clearTimeout(t);for(const t of intervals)clearInterval(t);}}},calls=[];
 
  if(mobile)Object.defineProperty(w.navigator,'userAgent',{value:'iPhone'});
- w.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:identity?{id:'u'}:null}}),onAuthStateChange:()=>{}},
- functions:{invoke:async(_name,{body})=>{calls.push(body.action);return {data:body.action==='sdk-list'?{ok:true,admin:false,configured:true,meetings:[{id:'test',topic:'Ensayo',pilot:true,operators:[]}]}:{ok:true,meetingNumber:'12345678901',signature:'jwt',zak:'zak',passWord:'pass',userName:'Test'}};}}})};
+ w.supabase={createClient:()=>({rpc:async(name,args)=>{mutations.push(args);if(rpcError)return {error:{message:'No autorizado'}};operators=args.p_otorgar?[...new Set([...operators,args.p_email])]:operators.filter(email=>email!==args.p_email);return {};},auth:{getUser:async()=>({data:{user:identity?{id:'u'}:null}}),onAuthStateChange:()=>{}},
+ functions:{invoke:async(_name,{body})=>{calls.push(body.action);return {data:body.action==='sdk-list'?{ok:true,admin,configured:true,meetings:[{id:'test',topic:'Ensayo',pilot:true,operators}]}:{ok:true,meetingNumber:'12345678901',signature:'jwt',zak:'zak',passWord:'pass',userName:'Test'}};}}})};
  w.ZoomMtg={setZoomJSLib(){},preLoadWasm(){},prepareWebSDK(){},init(o){o.success();},join(o){calls.push('join');o.success();},
  getBreakoutRooms(o){o.success({rooms:rooms?[{name:'Ingeniería'}]:[]});},getBreakoutRoomStatus(o){if(!syncOnly)o.success({result:{status}});return status;},
  openBreakoutRooms(o){calls.push('open');if(rejectOpen){o.error();return;}status=openedStatus;o.success();}};
  const append=w.document.head.append.bind(w.document.head);
  w.document.head.append=(el)=>{append(el);if(el.tagName==='SCRIPT')queueMicrotask(()=>el.onload());};
- vm.runInNewContext(source,w);await wait();return {w,dom,calls};
+ vm.runInNewContext(source,w);await wait();return {w,dom,calls,mutations};
 }
 test('SDK: no session does not request authorization or download SDK',async()=>{
  const s=await setup({identity:false});try{assert.deepEqual(s.calls,[]);assert.match(s.w.document.getElementById('sdk-message').textContent,/Inicia sesión/);}finally{s.dom.window.close();}
@@ -83,4 +84,29 @@ test('SDK: conserva soporte de retorno numérico sin callback',async()=>{
  s.w.document.querySelector('#sdk-meetings button').click();await wait();await wait();
  assert.match(s.w.document.getElementById('sdk-live-status').textContent,/Abiertas/);assert.equal(s.calls.includes('open'),false);
  }finally{s.dom.window.close();}
+});
+
+test('SDK: lista responsables y retira solo el acceso seleccionado',async()=>{
+ const s=await setup({admin:true,operators:['ana@example.com','luis@example.com']});try{
+ const list=s.w.document.getElementById('sdk-access-list');assert.match(list.textContent,/ana@example.com/);
+ list.querySelector('button').click();await wait();await wait();
+ assert.equal(s.mutations[0].p_email,'ana@example.com');assert.equal(s.mutations[0].p_id,'test');assert.equal(s.mutations[0].p_otorgar,false);
+ assert.doesNotMatch(list.textContent,/ana@example.com/);assert.match(list.textContent,/luis@example.com/);
+ }finally{s.dom.window.close();}
+});
+test('SDK: error de revocación conserva al responsable y muestra error',async()=>{
+ const s=await setup({admin:true,operators:['ana@example.com'],rpcError:true});try{
+ s.w.document.getElementById('sdk-access-list').querySelector('button').click();await wait();
+ assert.match(s.w.document.getElementById('sdk-access-list').textContent,/ana@example.com/);
+ assert.match(s.w.document.getElementById('sdk-access-message').textContent,/No autorizado/);
+ }finally{s.dom.window.close();}
+});
+test('SDK: dar acceso actualiza la lista; operador no puede delegar',async()=>{
+ for(const admin of [true,false]){const s=await setup({admin});try{
+ s.w.document.getElementById('sdk-email').value='nuevo@example.com';
+ await s.w.document.getElementById('sdk-grant').onsubmit({preventDefault(){}});
+ assert.equal(s.mutations.length,admin?1:0);
+ if(admin)assert.match(s.w.document.getElementById('sdk-access-list').textContent,/nuevo@example.com/);
+ else assert.equal(s.w.document.getElementById('sdk-delegation').hidden,true);
+ }finally{s.dom.window.close();}}
 });

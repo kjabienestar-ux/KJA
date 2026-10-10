@@ -97,3 +97,20 @@ body:has(> .sdk-shell:not([hidden])){margin:0;background:#f5f5f7}
 
 #sdk-controls .sdk-dashboard-link:hover svg{transform:translate(2px,-2px)}
 @media(prefers-reduced-motion:reduce){#sdk-controls .sdk-dashboard-link,#sdk-controls .sdk-dashboard-link svg{transition:none}#sdk-controls .sdk-dashboard-link:hover,#sdk-controls .sdk-dashboard-link:active,#sdk-controls .sdk-dashboard-link:hover svg{transform:none}}
+
+/* Delegated access: selected meeting, real members and contextual removal. */
+.sdk-access-selector{max-width:100%;margin-bottom:26px}
+.sdk-access-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sdk-access-heading h3{margin:0;font-size:18px;letter-spacing:-.02em}
+#sdk-access-count{padding:4px 10px;border-radius:6px;background:#e9f1fb;color:#234973;font-size:12px;font-weight:600}
+.sdk-access-system{margin:6px 0 18px;color:#526176;font-size:13px}
+.sdk-access-list{list-style:none;margin:0;padding:0}
+.sdk-access-person{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid #edf0f4}
+.sdk-access-avatar{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:12px;background:#e9f1fb;color:#075bb5;font-size:13px;font-weight:700}
+.sdk-access-person>div{flex:1;min-width:0}.sdk-access-person strong{display:block;font-size:14px;overflow-wrap:anywhere}.sdk-access-person small{display:block;margin-top:3px;color:#526176;font-size:12px}
+.sdk-shell .sdk-access-remove{background:#fff;color:#a12335;border-color:#ecd7dc;font-size:13px;white-space:nowrap}.sdk-shell .sdk-access-remove:hover{background:#fff1f3;border-color:#d9a6b1}
+.sdk-access-empty{padding:24px 18px;background:#f5f5f7;border-radius:12px;color:#526176;font-size:14px}
+#sdk-access-message{color:#234973;font-size:14px;margin:16px 0}#sdk-access-message:empty{display:none}
+.sdk-shell #sdk-grant{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:16px;margin-top:24px;padding-top:24px;border-top:1px solid #dfe5ec}
+.sdk-shell #sdk-grant>button{min-height:46px}
+@media(max-width:640px){.sdk-access-person{flex-wrap:wrap}.sdk-access-person>div{flex-basis:calc(100% - 54px)}.sdk-access-person .sdk-access-remove{margin-left:54px}.sdk-shell #sdk-grant{grid-template-columns:minmax(0,1fr)}.sdk-shell #sdk-grant>button{min-height:48px}}
