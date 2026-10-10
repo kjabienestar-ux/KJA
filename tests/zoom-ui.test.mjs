@@ -101,3 +101,24 @@ test('salir borra reuniones del modal y oculta acceso flotante',async()=>{
  assert.equal(s.el('zoom-quick-list').innerHTML,'');
  assert.equal(s.el('zoom-home-access').hidden,true);
 });
+
+test('participante y líder conservan solo acceso flotante, Sistemas ve gestión',async()=>{
+ for(const admin of [false,true]){
+ const s=setup({admin});s.APP.identity.isLeader=!admin;
+ s.window.KJAZoom.init();await s.load();
+ assert.equal(s.el('nav-zoom').hidden,!admin);
+ assert.equal(s.el('zoom-settings').hidden,!admin);
+ if(!admin){assert.equal(s.el('zoom-home-access').hidden,false);await s.el('zoom-home-access').onclick();assert.match(s.el('zoom-quick-list').innerHTML,/Unirme/);}
+ }
+});
+test('navegación directa a gestión Zoom rechaza participante y líder antes de pintar la vista',()=>{
+ const dashboard=fs.readFileSync('assets/js/dashboard.js','utf8');
+ const goView=dashboard.slice(dashboard.indexOf('function goView(view){'),dashboard.indexOf("document.querySelectorAll('[data-view]')",dashboard.indexOf('function goView(view){')));
+ for(const admin of [false,true]){
+ let painted=[],messages=[],loads=0;
+ const APP={identity:{hasPersonal:!admin,isLeader:!admin,isSystem:admin},access:{rol:admin?'direccion':'visor',acceso_panel:admin}};
+ const context=vm.createContext({APP,toast:text=>messages.push(text),paintShell:view=>painted.push(view),closeMenu(){},window:{KJAZoom:{load:()=>loads++}}});
+ vm.runInContext(goView+";goView('zoom');",context);
+ assert.deepEqual(painted,admin?['zoom']:[]);assert.equal(loads,admin?1:0);assert.equal(messages.length,admin?0:1);
+ }
+});
