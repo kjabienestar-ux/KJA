@@ -110,7 +110,7 @@
  state.editor={mode,id:row?.id||crypto.randomUUID(),revision:row?.revision,row};
  $('zoom-form').reset();$('zoom-form-message').textContent='';
  $('zoom-form-title').textContent=mode==='import'?'Vincular reunión existente':mode==='update'?'Editar reunión':'Crear reunión';
- $('zoom-edit-note').textContent=mode==='update'?'Los cambios se aplican a toda la serie. Conserva la programación actual o elige una nueva fecha de inicio.':mode==='import'?'Usa el ID de la reunión principal. No se recrea ni se modifica en Zoom: conserva el enlace, las salas de grupo y su programación.':'Usa un nombre permanente; el portal mostrará el día y la hora de cada sesión.';
+ $('zoom-edit-note').textContent=mode==='update'?'El nombre y la programación se guardan en Zoom para toda la serie. Puedes conservar el horario actual.':mode==='import'?'Usa el ID de la reunión principal. No se recrea ni se modifica en Zoom: conserva el enlace, las salas de grupo y su programación.':'Usa un nombre permanente; el portal mostrará el día y la hora de cada sesión.';
  $('zoom-topic').value=row?.topic||'';
  $('zoom-schedule').querySelector('[value="keep"]').disabled=mode==='create';
  $('zoom-schedule').value=mode==='update'?'keep':'weekly';
