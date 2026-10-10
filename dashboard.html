@@ -68,6 +68,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-holiday.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence-corrections.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-overview-modal.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-zoom.css?v=4">
 </head>
 <body>
 
@@ -200,6 +201,7 @@
       <button class="active" data-view="inicio" id="nav-inicio" data-sidebar-tooltip="Inicio" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="m4 10 8-7 8 7v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3Z"/><path d="m2.5 10.5 8.2-7.2a2 2 0 0 1 2.6 0l8.2 7.2M4.5 9v9a2.5 2.5 0 0 0 2.5 2.5h10a2.5 2.5 0 0 0 2.5-2.5V9M9 20.5v-5a3 3 0 0 1 6 0v5M10 8h4"/></svg><span class="sidebar-label">Inicio</span></button>
       <button data-view="asistencia" id="nav-asistencia" data-sidebar-tooltip="Mi asistencia" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="M3 9V6a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v3Z"/><path d="M10 20H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3v3M7 2v4M16 2v4M3 9h17M7 13h2M7 16h1"/><circle class="icon-tone" cx="17" cy="17" r="5"/><circle cx="17" cy="17" r="5"/><path class="icon-accent" d="m14.5 17 1.7 1.7 3.3-3.5"/></svg><span class="sidebar-label">Mi asistencia</span></button>
       <button data-view="perfil" id="nav-perfil" data-sidebar-tooltip="Mi perfil" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-tone" x="3" y="2.5" width="18" height="19" rx="5"/><rect x="3" y="2.5" width="18" height="19" rx="5"/><circle cx="12" cy="9" r="3"/><path d="M7 18c.4-2.4 2-3.6 5-3.6s4.6 1.2 5 3.6"/></svg><span class="sidebar-label">Mi perfil</span></button>
+      <button data-view="zoom" id="nav-zoom" data-sidebar-tooltip="Reuniones Zoom" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="3"/><path d="m15 10 6-4v12l-6-4"/></svg><span class="sidebar-label">Reuniones Zoom</span></button>
       <span class="side-nav-divider" id="team-nav-divider" hidden>LIDERAZGO</span>
       <button data-view="equipo" id="nav-equipo" data-sidebar-tooltip="Mi equipo" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="M6 20v-2c0-3 2-4.5 6-4.5s6 1.5 6 4.5v2Z"/><circle cx="12" cy="6.5" r="3.2"/><path d="M6 20v-1.5c0-3.2 2-5 6-5s6 1.8 6 5V20M4.5 5.5a2.5 2.5 0 0 0 0 5M19.5 5.5a2.5 2.5 0 0 1 0 5M2 18v-1.5c0-2 1-3.1 3-3.5M22 18v-1.5c0-2-1-3.1-3-3.5"/></svg><span class="sidebar-label">Mi equipo</span></button>
       <span class="side-nav-divider" id="admin-nav-divider" hidden>ADMINISTRACIÓN</span>
@@ -311,6 +313,7 @@
       </div>
     </section>
     <section class="view active" id="view-inicio">
+      <button type="button" class="zoom-home-access" id="zoom-home-access" data-go="zoom" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="3"/><path d="m15 10 6-4v12l-6-4"/></svg><span><b>Mis reuniones Zoom</b><small>Consulta tus salas y horarios</small></span><span aria-hidden="true">→</span></button>
       <section id="evidence-correction-banner" class="evidence-correction-banner" aria-label="Correcciones pendientes" hidden>
         <strong id="evidence-correction-count"></strong>
         <p>La entrega anterior fue anulada. Puedes volver a subir tus capturas.</p>
@@ -894,6 +897,43 @@
       <dialog id="team-mobile-dialog" aria-label="Detalle del equipo"><form method="dialog" class="team-mobile-dialog-head"><b>Mi equipo</b><button type="submit" autofocus aria-label="Cerrar detalle">×</button></form><div id="team-mobile-dialog-body"></div></dialog>
     </section>
 
+    <section class="view zoom-workspace" id="view-zoom" aria-labelledby="zoom-title" hidden>
+      <header class="zoom-header">
+        <div class="zoom-heading"><span class="zoom-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="3"/><path d="m15 10 6-4v12l-6-4"/></svg></span><div><h1 id="zoom-title">Reuniones Zoom</h1><p id="zoom-subtitle">Tus salas y horarios, en un solo lugar.</p></div></div>
+        <div class="zoom-actions"><button type="button" id="zoom-refresh">Actualizar lista</button><button type="button" id="zoom-import" class="zoom-primary" hidden>Vincular reunión existente</button><button type="button" id="zoom-new" hidden>Crear otra reunión</button></div>
+      </header>
+      <p id="zoom-daily-flow" class="zoom-note">Entra a la reunión principal. Dentro de Zoom, el anfitrión abre las salas de grupo y habilita el acceso a cada área.</p>
+      <p id="zoom-message" class="zoom-message" role="status" aria-live="polite"></p>
+      <div id="zoom-connection" class="zoom-connection" hidden><span id="zoom-connection-text"></span><button type="button" id="zoom-connect">Comprobar conexión</button></div>
+      <form id="zoom-form" class="zoom-editor" hidden>
+        <div class="zoom-editor-heading"><h2 id="zoom-form-title">Crear reunión</h2><button type="button" id="zoom-form-close">Cerrar formulario</button></div>
+        <p id="zoom-edit-note" class="zoom-note"></p>
+        <div class="zoom-fields">
+          <label id="zoom-id-field" hidden><span>ID de reunión de Zoom</span><input id="zoom-remote-id" inputmode="numeric" maxlength="20" placeholder="Ej. 123 4567 8901"><small>Vincula la reunión principal una sola vez. Se conservan su enlace y las salas de grupo ya configuradas.</small></label>
+          <label id="zoom-topic-field"><span>Nombre de la reunión</span><input id="zoom-topic" minlength="3" maxlength="200" placeholder="Ej. Reunión de Marketing"></label>
+          <label id="zoom-host-field"><span>Anfitrión de Zoom</span><select id="zoom-host"><option value="">Selecciona un anfitrión</option></select><small>Para salas simultáneas, revisa las licencias de los anfitriones.</small></label>
+          <label id="zoom-schedule-field"><span>Programación</span><select id="zoom-schedule"><option value="keep">Conservar programación de Zoom</option><option value="once">Una sola fecha</option><option value="weekly">Cada semana</option></select></label>
+          <label id="zoom-date-field"><span>Primera fecha y hora · Lima</span><input id="zoom-date" type="datetime-local"></label>
+          <label id="zoom-duration-field"><span>Duración en minutos</span><input id="zoom-duration" type="number" min="1" max="1440" value="60"></label>
+        </div>
+        <fieldset id="zoom-weekly" hidden><legend>Días de reunión</legend><div class="zoom-days">
+          <label><input type="checkbox" name="zoom-day" value="2">Lun</label><label><input type="checkbox" name="zoom-day" value="3">Mar</label><label><input type="checkbox" name="zoom-day" value="4">Mié</label><label><input type="checkbox" name="zoom-day" value="5">Jue</label><label><input type="checkbox" name="zoom-day" value="6">Vie</label><label><input type="checkbox" name="zoom-day" value="7">Sáb</label><label><input type="checkbox" name="zoom-day" value="1">Dom</label>
+        </div><label class="zoom-count-label">Número de sesiones<input id="zoom-count" type="number" min="1" max="50" value="50"></label><p class="zoom-note">Esta serie termina al completar las sesiones. Puedes reprogramarla desde aquí cuando se acerque la última fecha.</p></fieldset>
+        <fieldset><legend>Quiénes verán el acceso a la reunión principal</legend><p class="zoom-note">Estos destinatarios controlan el acceso del portal. La asignación a salas de grupo se mantiene dentro de Zoom.</p><label>Destinatarios<select id="zoom-audience"><option value="areas">Áreas seleccionadas</option><option value="all">Todos los colaboradores</option><option value="people">Personas seleccionadas</option></select></label><div id="zoom-targets" class="zoom-targets"></div></fieldset>
+        <p id="zoom-form-message" role="alert" class="zoom-message"></p>
+        <div class="zoom-actions"><button type="submit" class="zoom-primary" id="zoom-save">Guardar en Zoom</button><button type="button" id="zoom-form-cancel">Cancelar</button></div>
+      </form>
+      <div class="zoom-list-heading" id="zoom-meetings-heading"><h2 id="zoom-list-title">Mis reuniones</h2><label class="zoom-search-label">Buscar reunión<input type="search" id="zoom-search" placeholder="Nombre de la reunión"></label></div>
+      <div id="zoom-list" class="zoom-list" aria-live="polite"><p class="zoom-empty">Cargando reuniones…</p></div>
+      <p class="zoom-note" id="zoom-footnote">Horarios en Lima. El botón abre Zoom; la admisión depende del anfitrión.</p>
+      <section id="zoom-week" aria-labelledby="zoom-week-title" hidden>
+        <div class="zoom-list-heading"><div><h2 id="zoom-week-title">Agenda semanal</h2><p id="zoom-week-range" class="zoom-note" aria-live="polite"></p></div><div class="zoom-actions"><button type="button" id="zoom-week-prev" aria-label="Ver semana anterior">Anterior</button><button type="button" id="zoom-week-today">Esta semana</button><button type="button" id="zoom-week-next" aria-label="Ver semana siguiente">Siguiente</button></div></div>
+        <p class="zoom-note">Fechas de las reuniones vinculadas, en hora de Lima. Cada fecha pertenece a la misma serie; el título en Zoom se conserva.</p>
+        <ul id="zoom-week-list" class="zoom-week-list"></ul>
+        <p class="zoom-note">Si faltan fechas, un administrador debe usar «Actualizar desde Zoom» en la reunión. Las salas sin horario fijo aparecen en la lista de reuniones.</p>
+      </section>
+      <dialog id="zoom-cancel-dialog" class="zoom-confirm" aria-labelledby="zoom-cancel-title"><h2 id="zoom-cancel-title">¿Cancelar esta reunión?</h2><p id="zoom-cancel-copy"></p><p id="zoom-cancel-explanation">Se eliminará de Zoom y dejará de aparecer en los portales. Si es recurrente, se cancelará toda la serie.</p><div class="zoom-actions"><button type="button" id="zoom-cancel-back" autofocus>Conservar reunión</button><button type="button" id="zoom-cancel-confirm" class="zoom-danger">Sí, cancelar en Zoom</button></div><p id="zoom-cancel-error" role="alert"></p></dialog>
+    </section>
     <section class="view cert-accounts" id="view-cert-cuentas" aria-labelledby="cert-accounts-title" hidden>
       <header class="cert-accounts-head">
         <div class="cert-head-brand">
@@ -3279,6 +3319,7 @@
 
 
 
+<script src="assets/js/zoom-model.js?v=2"></script>
 <script src="assets/js/dashboard-close-model.js?v=11"></script>
 <script src="assets/js/facebook-receipt.js?v=7"></script>
 <script src="assets/js/dashboard-announcement-modal.js?v=5"></script>
@@ -3483,9 +3524,10 @@
 </div>
 
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=256"></script>
+<script src="assets/js/dashboard.js?v=257"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
+<script src="assets/js/dashboard-zoom.js?v=3"></script>
 <script src="assets/js/dashboard-cert-accounts.js?v=8"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>

@@ -790,6 +790,7 @@ async function removeProfileCover(){
 }
 
 function showAccess(message){
+  if(typeof window!=='undefined')window.KJAZoom?.reset();
   if(typeof resetEvidenceCorrections==='function')resetEvidenceCorrections();
   localStorage.removeItem(SHELL_KEY);
   $('today-attendance-card')?.classList.remove('daily-close-pending','daily-close-confirmed-hidden');
@@ -1012,7 +1013,7 @@ function paintShell(view){
     b.classList.toggle('active',active);
     if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
-  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas'||(view==='perfil'&&APP.access.acceso_panel));
+  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas'||view==='zoom'||(view==='perfil'&&APP.access.acceso_panel));
   syncSidebarCollapse();
 }
 
@@ -1125,6 +1126,7 @@ async function openPortal(activeSession,bootstrap=null){
   $('admin-facebook-tab').hidden=APP.access.rol!=='direccion';
   const managesRoles=APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel;
   $('nav-cert-cuentas').hidden=!managesRoles;
+  window.KJAZoom?.init();
   $('admin-roles-tab').hidden=!managesRoles; const rolesModule=$('admin-roles-module'); if(rolesModule)rolesModule.hidden=!managesRoles;
   if(c){ renderHome(); renderProfile(); }
   else if(APP.access.acceso_panel){
@@ -3371,6 +3373,7 @@ function goView(view){
   if(view==='perfil')renderProfile();
   paintShell(view);
   if(view==='cert-cuentas'){closeMenu();return loadCertificateAccounts();}
+  if(view==='zoom'){closeMenu();return window.KJAZoom?.load();}
   if(matchMedia('(max-width:900px)').matches)window.scrollTo(0,0);
   closeMenu(); if(view==='asistencia')return Promise.allSettled([loadPersonalRequests(),loadAttendanceTeammates()]); if(view==='equipo')return loadTeam(); if(view==='gestion')return showAdminSection(APP.adminSection);
 }
