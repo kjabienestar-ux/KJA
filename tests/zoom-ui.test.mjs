@@ -6,15 +6,15 @@ import {webcrypto} from 'node:crypto';
 const html=fs.readFileSync('dashboard.html','utf8'),source=fs.readFileSync('assets/js/dashboard-zoom.js','utf8'),model=fs.readFileSync('assets/js/zoom-model.js','utf8');
 const id='11111111-1111-4111-8111-111111111111';
 const sample={id,topic:'Reunión <script>alert(1)</script>',status:'ready',type:3,revision:1,zoom_id:'97271980453',audience:'areas',area_ids:[1]};
-function setup({admin=false,rpc,invoke}={}){
+function setup({admin=false,rpc,invoke,clipboard}={}){
  const elements=new Map();let opened=[],invocations=[];
- function el(id){if(elements.has(id))return elements.get(id);const e={id,hidden:false,value:'',textContent:'',innerHTML:'',disabled:false,open:false,listeners:{},dataset:{},setAttribute(){},focus(){},scrollIntoView(){},reset(){},close(){this.open=false;},showModal(){this.open=true;},querySelector(selector){return el(id+':'+selector);},querySelectorAll(){return [];},addEventListener(name,fn){this.listeners[name]=fn;}};elements.set(id,e);return e;}
+ function el(id){if(elements.has(id))return elements.get(id);const e={id,hidden:false,value:'',textContent:'',innerHTML:'',disabled:false,open:false,listeners:{},dataset:{},setAttribute(){},focus(){},select(){},scrollIntoView(){},reset(){},close(){this.open=false;},showModal(){this.open=true;},querySelector(selector){return el(id+':'+selector);},querySelectorAll(){return [];},addEventListener(name,fn){this.listeners[name]=fn;}};elements.set(id,e);return e;}
  for(const match of html.matchAll(/\bid="([^"]+)"/g))el(match[1]);
  const window={location:{assign:url=>opened.push(url)},open:()=>({opener:{},location:{replace:url=>opened.push(url)},close:()=>opened.push('closed')})};
  const APP={identity:{hasPersonal:!admin,isSystem:admin},access:{rol:admin?'direccion':'visor',acceso_panel:admin},view:'zoom'};
  const data={ok:true,admin,meetings:[sample],areas:admin?[{id:1,nombre:'Marketing'}]:[],people:[],now:'2026-10-09T13:00:00Z'};
  const db={rpc:rpc||(async()=>({data})),functions:{invoke:async(name,{body})=>{invocations.push(body);return invoke?invoke(body):{data:{ok:true,url:'https://zoom.us/j/97271980453',hosts:[{id:'host',name:'Anfitrión',email:'host@example.com',type:2}]}};}}};
- const context=vm.createContext({window,document:{hidden:false,getElementById:id=>elements.get(id)||null},APP,db,URL,Intl,Date,console,crypto:webcrypto,setInterval:()=>1,clearInterval(){}});
+ const context=vm.createContext({window,document:{hidden:false,getElementById:id=>elements.get(id)||null},APP,db,navigator:{clipboard},URL,Intl,Date,console,crypto:webcrypto,setInterval:()=>1,clearInterval(){}});
  vm.runInContext(model,context);vm.runInContext(source,context);
  return {el,window,APP,invocations,opened,load:()=>window.KJAZoom.load()};
 }
@@ -127,4 +127,19 @@ test('iniciar gestión dirige al SDK sin abrir enlace nativo ni pedir token de a
  const s=setup({admin:true});await s.load();
  await s.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'start'}})}});
  assert.deepEqual(s.opened,['zoom-sala.html?meeting='+id]);assert.equal(s.invocations.length,0);
+});
+
+test('copiar comparte solo enlace de participante y confirma tras escribir',async()=>{
+ const copied=[];const s=setup({admin:true,clipboard:{writeText:async url=>copied.push(url)}});await s.load();
+ assert.match(s.el('zoom-list').innerHTML,/Copiar enlace/);
+ await s.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'copy'}})}});
+ assert.deepEqual(copied,['https://zoom.us/j/97271980453']);assert.equal(s.invocations[0].action,'join');assert.deepEqual(s.opened,[]);
+ assert.match(s.el('zoom-message').textContent,/Enlace copiado/);
+});
+test('si Safari bloquea portapapeles ofrece enlace seleccionable',async()=>{
+ const s=setup({admin:true,clipboard:{writeText:async()=>{throw Error('NotAllowed');}}});await s.load();
+ await s.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'copy'}})}});
+ const field=s.el('zoom-list').querySelector('[data-share-id="'+id+'"]');
+ assert.equal(field.hidden,false);assert.equal(field.value,'https://zoom.us/j/97271980453');
+ assert.doesNotMatch(s.el('zoom-message').textContent,/Enlace copiado/);
 });
