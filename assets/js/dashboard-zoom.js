@@ -47,7 +47,7 @@
  const ready=r.status==='ready',id=escape(r.id);
  const status=ready?s.label:r.status==='pending'?'Operación pendiente':'Necesita revisión';
  const controls=state.admin?'<div class="zoom-row-admin">'+(ready?'<button type="button" data-zoom="edit" data-id="'+id+'">Editar</button>':'')+(r.zoom_id?'<button type="button" data-zoom="sync" data-id="'+id+'">Actualizar desde Zoom</button><button type="button" class="zoom-text-danger" data-zoom="cancel" data-id="'+id+'">Cancelar reunión</button>':'<button type="button" data-zoom="recover" data-id="'+id+'">Vincular ID para recuperar</button><button type="button" data-zoom="archive" data-id="'+id+'">Archivar solicitud</button>')+'</div>':'';
- return '<article class="zoom-row"><div class="zoom-row-main"><span class="zoom-row-icon">'+camera+'</span><div class="zoom-row-copy"><h3>'+escape(r.topic)+'</h3><p class="zoom-time">'+escape(status)+'</p>'+(state.admin?'<p class="zoom-note">'+escape(targetsLabel(r))+'</p><p class="zoom-note">'+escape(r.host_email||'Anfitrión pendiente')+(r.zoom_id?' · ID '+escape(r.zoom_id):'')+'</p>':'')+(!ready&&state.admin?'<p class="zoom-error">'+escape(r.last_error||'Actualiza desde Zoom después de dos minutos si la operación no termina.')+'</p>':'')+'</div>'+(ready?(state.admin?'<button type="button" class="zoom-primary zoom-join" data-zoom="start" data-id="'+id+'">'+camera+'Iniciar reunión</button>':(s.joinable||r.type===8)?'<button type="button" class="zoom-primary zoom-join" data-zoom="join" data-id="'+id+'">'+camera+'Unirme</button>':''):'')+'</div>'+(state.admin&&ready?'<p class="zoom-note zoom-mobile-host-note">Inicia dentro del portal para intentar abrir las salas. La prueba desde iPhone requiere mantener el navegador abierto.</p>':'')+(controls?'<details class="zoom-row-options"><summary>Opciones de la reunión</summary>'+controls+'</details>':'')+'</article>';
+ return '<article class="zoom-row"><div class="zoom-row-main"><span class="zoom-row-icon">'+camera+'</span><div class="zoom-row-copy"><h3>'+escape(r.topic)+'</h3><p class="zoom-time">'+escape(status)+'</p>'+(state.admin?'<p class="zoom-note">'+escape(targetsLabel(r))+'</p><p class="zoom-note">'+escape(r.host_email||'Anfitrión pendiente')+(r.zoom_id?' · ID '+escape(r.zoom_id):'')+'</p>':'')+(!ready&&state.admin?'<p class="zoom-error">'+escape(r.last_error||'Actualiza desde Zoom después de dos minutos si la operación no termina.')+'</p>':'')+'</div>'+(ready?(state.admin?'<button type="button" class="zoom-primary zoom-join" data-zoom="start" data-id="'+id+'">'+camera+'Iniciar reunión</button>':(s.joinable||r.type===8)?'<button type="button" class="zoom-primary zoom-join" data-zoom="join" data-id="'+id+'">'+camera+'Unirme</button>':''):'')+'</div>'+(state.admin&&ready?'<div class="zoom-row-admin"><button type="button" data-zoom="copy" data-id="'+id+'">Copiar enlace</button><input type="url" data-share-id="'+id+'" aria-label="Enlace para participantes" readonly hidden></div>':'')+(state.admin&&ready?'<p class="zoom-note zoom-mobile-host-note">Inicia dentro del portal para intentar abrir las salas. La prueba desde iPhone requiere mantener el navegador abierto.</p>':'')+(controls?'<details class="zoom-row-options"><summary>Opciones de la reunión</summary>'+controls+'</details>':'')+'</article>';
  }).join('')||'<div class="zoom-empty"><h3>'+(search?'No hay coincidencias':state.admin?'Todavía no hay reuniones':'No tienes reuniones asignadas')+'</h3><p>'+(search?'Prueba con otro nombre.':state.admin?'Vincula la reunión principal que ya usan en Zoom. Sus salas de grupo se conservan.':'Las reuniones generales y las de tu área aparecerán aquí cuando se publiquen.')+'</p></div>';
  const today=state.rows.filter(r=>r.status==='ready'&&(r.type===3||M.nextSession(r,now()).today)).length;
  $('zoom-home-access').querySelector('small').textContent=state.loaded?(today?today+' reunión'+(today===1?' disponible':'es disponibles')+' hoy':'Consulta tus salas y próximas reuniones'):'Consulta tus salas y horarios';
@@ -140,6 +140,17 @@
  $('zoom-list').addEventListener('click',async event=>{
  const button=event.target.closest('[data-zoom]');if(!button||state.busy)return;
  const row=state.rows.find(r=>r.id===button.dataset.id);if(!row)return;const action=button.dataset.zoom;
+ if(action==='copy'){
+ if(!state.admin||row.status!=='ready')return;
+ const epoch=state.epoch;busy(true);message('Preparando enlace para compartir…');
+ try{
+ const data=await edge({action:'join',id:row.id});if(epoch!==state.epoch)return;
+ const url=M.safeUrl(data.url);if(!url)throw Error('El enlace recibido no es válido. Actualiza la reunión.');
+ try{await navigator.clipboard.writeText(url);if(epoch===state.epoch)message('Enlace copiado. Ya puedes pegarlo en WhatsApp.');}
+ catch{if(epoch!==state.epoch)return;const input=$('zoom-list').querySelector('[data-share-id="'+row.id+'"]');if(input){input.value=url;input.hidden=false;input.focus();input.select();}message('Mantén pulsado el enlace o selecciónalo para copiarlo y pegarlo en WhatsApp.');}
+ }catch(error){if(epoch===state.epoch)message(error.message);}
+ finally{if(epoch===state.epoch)busy(false);}return;
+ }
  if(action==='edit')return openForm('update',row);
  if(action==='recover')return openForm('import',row);
  if(action==='cancel'||action==='archive'){
