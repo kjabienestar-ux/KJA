@@ -42,7 +42,9 @@ function renderAttendanceExport(){
   if($('admin-attendance-excel'))$('admin-attendance-excel').disabled=button.disabled;
   if(options)options.innerHTML=visible.length?visible.map(person=>`<label class="attendance-export-option"><input type="checkbox" value="${esc(String(person.id))}" ${ATTENDANCE_EXPORT_IDS.has(String(person.id))?'checked':''}><span class="attendance-export-avatar" aria-hidden="true">${esc(String(person.nombre||'').split(/\s+/).filter(Boolean).slice(0,2).map(word=>word[0]).join('').toUpperCase())}</span><span class="attendance-export-person"><b>${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')} · DNI ${esc(person.dni||'sin registrar')}${person.activo?'':' · Dado de baja'}</small></span></label>`).join(''):'<p>No encontramos coincidencias. Prueba con otro nombre o DNI.</p>';
   syncAttendanceExportSelection();
-  status.textContent=selected.length?'Un archivo consolidado · Asistencia desde el ingreso.':'Selecciona al menos un interno para descargar.';
+  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  for(const [id,initial] of [['attendance-export-from',today.slice(0,7)+'-01'],['attendance-export-to',today]]){const input=$(id);if(input){input.max=today;if(!input.value)input.value=initial;}}
+  status.textContent=selected.length?'Puntualidad por fecha y archivos subidos en un solo informe.':'Selecciona al menos un interno para descargar.';
 }
 async function collectAttendanceExport(people,today,onProgress=()=>{},includeProfile=false){
   // Reutilizar cada lectura mensual dentro de esta descarga evita consultarla siete veces.
@@ -98,21 +100,23 @@ async function downloadAttendanceExport(format='pdf'){
   const button=$('admin-attendance-export'),status=$('admin-attendance-export-status');
   const selected=attendanceExportPeople();
   if(!selected.length){renderAttendanceExport();return;}
-  const excel=$('admin-attendance-excel'),picker=$('attendance-export-picker');
+  const excel=$('admin-attendance-excel'),picker=$('attendance-export-picker'),period=$('attendance-export-period');
+  if(period)period.disabled=true;
   ATTENDANCE_EXPORT_BUSY=true;button.disabled=true;if(excel)excel.disabled=true;if(picker)picker.disabled=true;
   status.textContent='Preparando el informe…';
   try{
     const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    const range=KJAAttendanceReport.period($('attendance-export-from').value,$('attendance-export-to').value,today);
     if(format==='pdf')await KJAFacebookPDF.load();
-    const reports=await collectAttendanceExport(selected,today,(person,index,count,done,total)=>{status.textContent=`${index} de ${count}: ${person.nombre}${total?` · ${done} de ${total} meses`:''}…`;},true);
+    const bundle=await collectAttendanceReport(selected,range,message=>{status.textContent=message;});
     if(format==='xlsx'){
-      const bytes=KJAInternExcel.build(reports,today),url=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),link=document.createElement('a');
-      link.href=url;link.download=`KJA_Consolidado_${reports.length}_internos_${today}.xlsx`;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-    }else buildAttendanceExportPdf(reports,today).save(`KJA_Informe_${reports.length}_internos_${today}.pdf`);
-    const unavailable=reports.some(report=>report.sections.some(section=>section.note?.includes('No se pudo')));
-    status.textContent=`${format==='xlsx'?'Excel':'PDF'} generado para ${reports.length} internos.${unavailable?' Hay información complementaria no disponible; se indica en el informe.':''}`;
+      const bytes=KJAInternExcel.buildFocused(bundle),url=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),link=document.createElement('a');
+      link.href=url;link.download=`KJA_Asistencia_evidencias_${range.from}_${range.to}.xlsx`;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }else buildFocusedAttendancePdf(bundle).save(`KJA_Asistencia_evidencias_${range.from}_${range.to}.pdf`);
+    const missing=bundle.reports.filter(r=>r.note).length;
+    status.textContent=`${format==='xlsx'?'Excel':'PDF'} generado · ${bundle.files.length} archivos. Enlaces válidos por 1 hora.${bundle.unavailable?` ${bundle.unavailable} archivos sin enlace disponible.`:''}${missing?` ${missing} personas sin historial evaluable; revisa sus notas.`:''}`;
   }catch(error){status.textContent=error.message||'No se pudo generar el informe. Vuelve a exportar para reintentar.';}
-  finally{ATTENDANCE_EXPORT_BUSY=false;button.disabled=!attendanceExportPeople().length;if(excel)excel.disabled=button.disabled;if(picker)picker.disabled=false;}
+  finally{ATTENDANCE_EXPORT_BUSY=false;button.disabled=!attendanceExportPeople().length;if(excel)excel.disabled=button.disabled;if(picker)picker.disabled=false;if(period)period.disabled=false;}
 }
 if($('admin-attendance-export'))$('admin-attendance-export').onclick=()=>downloadAttendanceExport('pdf');
 if($('admin-attendance-excel'))$('admin-attendance-excel').onclick=()=>downloadAttendanceExport('xlsx');
@@ -123,7 +127,7 @@ if($('attendance-export-options'))$('attendance-export-options').onchange=event=
   // Keep the focused checkbox in place for keyboard selection.
   const selected=attendanceExportPeople();$('admin-attendance-export').disabled=!selected.length;$('admin-attendance-excel').disabled=!selected.length;
   syncAttendanceExportSelection();
-  $('admin-attendance-export-status').textContent=selected.length?'Un archivo consolidado · Asistencia desde el ingreso.':'Selecciona al menos un interno para descargar.';
+  $('admin-attendance-export-status').textContent=selected.length?'Puntualidad por fecha y archivos subidos en un solo informe.':'Selecciona al menos un interno para descargar.';
 };
 if($('attendance-export-visible'))$('attendance-export-visible').onclick=()=>{attendanceExportVisible().forEach(person=>ATTENDANCE_EXPORT_IDS.add(String(person.id)));renderAttendanceExport();};
 if($('attendance-export-clear'))$('attendance-export-clear').onclick=()=>{ATTENDANCE_EXPORT_IDS.clear();renderAttendanceExport();};

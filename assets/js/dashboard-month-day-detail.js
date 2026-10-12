@@ -22,7 +22,7 @@
     if(!response.ok||!result?.ok)throw new Error(result?.motivo||'conexion');
     return result;
   }
-  function mount(host,{person,day,future=false,canManageFacebook=false,facebookOnly=false,rpc=(name,args)=>db.rpc(name,args),storage=db.storage,request=facebookRequest,prepare=file=>compressImage(file),managementHtml=''}){
+  function mount(host,{person,day,future=false,canManageFacebook=false,facebookOnly=false,initialFile=null,rpc=(name,args)=>db.rpc(name,args),storage=db.storage,request=facebookRequest,prepare=file=>compressImage(file),managementHtml=''}){
     const session={groups:[],version:0,fileVersion:0,disposed:false,managementHtml};
     host._monthDayDetail=session;
     const live=()=>!session.disposed&&host.isConnected&&host._monthDayDetail===session;
@@ -75,7 +75,9 @@
               '<div data-md-confirm hidden class="md-confirm-box" role="alert"><div class="md-confirm-header"><span class="md-confirm-icon">⚠️</span><strong>¿Quitar esta imagen?</strong></div><p data-md-confirm-copy>¿Deseas quitar esta imagen? Se eliminará permanentemente. Al quitar la última se anula la entrega.</p><div class="md-confirm-actions">'+button('data-md-confirm-delete class="md-confirm-btn"','Sí, quitar imagen')+button('data-md-cancel-delete class="md-cancel-btn"','Cancelar')+'</div></div><p data-md-status role="status"></p></div>');
           }
         }
-        if(first>=0)void showFile(first+':0');
+        const selectedGroup=initialFile?groups.findIndex(g=>g.files.some(f=>f.bucket===initialFile.bucket&&f.path===initialFile.path)):-1;
+        if(selectedGroup>=0)void showFile(selectedGroup+':'+groups[selectedGroup].files.findIndex(f=>f.bucket===initialFile.bucket&&f.path===initialFile.path));
+        else if(first>=0)void showFile(first+':0');
       }catch(error){
         if(!live()||version!==session.version)return;
         host.innerHTML='<div class="md-error" role="alert"><h3>Detalle no disponible</h3><p>'+escape(error.message==='sin_permiso'?'Tu rol no permite consultar estas evidencias.':error.message==='update'?'La consulta de evidencias requiere la migración 81.':'No se pudieron consultar las entregas. No es posible confirmar qué evidencias faltan.')+'</p>'+button('data-md-retry','Reintentar consulta')+(day.evidencia_path&&error.message!=='sin_permiso'?button('data-month-action="evidence"','Ver evidencia de entrada'):'')+'</div>';

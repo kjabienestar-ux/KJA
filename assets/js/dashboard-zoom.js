@@ -159,7 +159,7 @@
  $('zoom-cancel-explanation').textContent=action==='archive'?'Comprueba primero en Zoom si llegó a crearse. Archivar solo retira esta solicitud del portal; no elimina ninguna reunión de Zoom.':'Se eliminará de Zoom y dejará de aparecer en los portales. Si es recurrente, se cancelará toda la serie.';
  $('zoom-cancel-confirm').textContent=action==='archive'?'Archivar solicitud':'Sí, cancelar en Zoom';$('zoom-cancel-copy').textContent=row.topic;$('zoom-cancel-error').textContent='';$('zoom-cancel-dialog').showModal();return;
  }
- if(action==='start'){if(state.admin)window.location.assign('zoom-sala.html?meeting='+encodeURIComponent(row.id));return;}
+ if(action==='start'){if(state.admin)window.KJAZoomEmbed.open(row);return;}
  if(action==='join'){
  const epoch=state.epoch;busy(true);message(action==='join'?'Preparando acceso…':'Preparando acceso de anfitrión…');
  // Open during the gesture to avoid popup blockers; never give Zoom an opener.
@@ -224,6 +224,7 @@
  });
 
  function reset(){
+ window.KJAZoomEmbed?.reset();
  $('zoom-quick-dialog').close();$('zoom-quick-list').innerHTML='';$('zoom-quick-message').textContent='';
  $('zoom-settings').hidden=true;$('zoom-settings').open=false;clearInterval(state.timer);state.epoch++;state.request++;state.rows=[];state.areas=[];state.people=[];state.hosts=[];state.admin=false;state.editor=null;state.loaded=false;state.weekOffset=0;state.cancel=null;busy(false);
  $('zoom-week').hidden=true;$('zoom-week-list').innerHTML='';$('zoom-list').innerHTML='';$('zoom-form').reset();$('zoom-targets').innerHTML='';fillHosts();$('zoom-form').hidden=true;$('zoom-cancel-dialog').close();$('nav-zoom').hidden=true;$('zoom-home-access').hidden=true;

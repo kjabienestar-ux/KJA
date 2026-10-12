@@ -114,3 +114,6 @@ body:has(> .sdk-shell:not([hidden])){margin:0;background:#f5f5f7}
 .sdk-shell #sdk-grant{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:16px;margin-top:24px;padding-top:24px;border-top:1px solid #dfe5ec}
 .sdk-shell #sdk-grant>button{min-height:46px}
 @media(max-width:640px){.sdk-access-person{flex-wrap:wrap}.sdk-access-person>div{flex-basis:calc(100% - 54px)}.sdk-access-person .sdk-access-remove{margin-left:54px}.sdk-shell #sdk-grant{grid-template-columns:minmax(0,1fr)}.sdk-shell #sdk-grant>button{min-height:48px}}
+.sdk-embedded .sdk-nav,.sdk-embedded .sdk-dashboard-return,.sdk-embedded #sdk-delegation{display:none!important}
+.sdk-embedded .sdk-shell{min-height:0}
+.sdk-embedded .sdk-content{padding:24px;max-width:100%}

@@ -5,7 +5,7 @@ import vm from 'node:vm';
 const html=fs.readFileSync('zoom-sala.html','utf8'),source=fs.readFileSync('assets/js/zoom-sala.js','utf8');
 const wait=()=>new Promise(r=>setTimeout(r,20));
 async function until(fn){for(let i=0;i<100&&!fn();i++)await wait();assert.ok(fn(),'La condición no se confirmó');}
-async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=true,rejectOpen=false,syncOnly=false,admin=false,operators=[],rpcError=false}={}){
+async function setup({embedded=false,mobile=false,identity=true,status=1,openedStatus=2,rooms=true,rejectOpen=false,syncOnly=false,admin=false,operators=[],rpcError=false}={}){
  const mutations=[];operators=[...operators];
  const nodes=new Map();
  class Element{
@@ -26,11 +26,12 @@ async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=t
  setTimeout:(fn,ms)=>{const t=setTimeout(fn,ms===1500?1:ms);timers.add(t);return t;},clearTimeout,
  setInterval:(fn,ms)=>{const t=setInterval(fn,ms);intervals.add(t);return t;},clearInterval,addEventListener(){}};
  w.window=w;const dom={window:{close(){for(const t of timers)clearTimeout(t);for(const t of intervals)clearInterval(t);}}},calls=[];
+ if(embedded){w.location.href+='?embedded=1&meeting=test';w.parent={postMessage:(data,origin)=>calls.push({notice:data,origin})};document.documentElement={classList:{add(){}}};}
 
  if(mobile)Object.defineProperty(w.navigator,'userAgent',{value:'iPhone'});
  w.supabase={createClient:()=>({rpc:async(name,args)=>{mutations.push(args);if(rpcError)return {error:{message:'No autorizado'}};operators=args.p_otorgar?[...new Set([...operators,args.p_email])]:operators.filter(email=>email!==args.p_email);return {};},auth:{getUser:async()=>({data:{user:identity?{id:'u'}:null}}),onAuthStateChange:()=>{}},
  functions:{invoke:async(_name,{body})=>{calls.push(body.action);return {data:body.action==='sdk-list'?{ok:true,admin,candidates:admin?[{email:"nuevo@example.com",nombre:"Nuevo"}]:[],configured:true,meetings:[{id:'test',topic:'Ensayo',pilot:true,operators}]}:{ok:true,meetingNumber:'12345678901',signature:'jwt',zak:'zak',passWord:'pass',userName:'Test'}};}}})};
- w.ZoomMtg={setZoomJSLib(){},preLoadWasm(){},prepareWebSDK(){},init(o){o.success();},join(o){calls.push('join');o.success();},
+ w.ZoomMtg={setZoomJSLib(){},preLoadWasm(){},prepareWebSDK(){},init(o){if(embedded)calls.push({leaveUrl:o.leaveUrl});o.success();},join(o){calls.push('join');o.success();},
  getBreakoutRooms(o){o.success({rooms:rooms?[{name:'Ingeniería'}]:[]});},getBreakoutRoomStatus(o){if(!syncOnly)o.success({result:{status}});return status;},
  openBreakoutRooms(o){calls.push('open');if(rejectOpen){o.error();return;}status=openedStatus;o.success();}};
  const append=w.document.head.append.bind(w.document.head);
@@ -39,6 +40,14 @@ async function setup({mobile=false,identity=true,status=1,openedStatus=2,rooms=t
 }
 test('SDK: no session does not request authorization or download SDK',async()=>{
  const s=await setup({identity:false});try{assert.deepEqual(s.calls,[]);assert.match(s.w.document.getElementById('sdk-message').textContent,/Inicia sesión/);}finally{s.dom.window.close();}
+});
+test('SDK embedded keeps its return inside the frame and reports connection without credentials',async()=>{
+ const s=await setup({embedded:true});try{
+ s.w.document.querySelector('#sdk-meetings button').click();await until(()=>s.calls.includes('open'));
+ assert.match(s.calls.find(c=>c.leaveUrl)?.leaveUrl,/zoom-sala.html\?embedded=1&meeting=test$/);
+ const notices=s.calls.filter(c=>c.notice);assert.ok(notices.some(c=>c.notice.state==='connected'));
+ for(const item of notices){assert.equal(item.origin,'https://portal.example');assert.deepEqual(Object.keys(item.notice),['type','state']);}
+ }finally{s.dom.window.close();}
 });
 test('SDK: iPhone inicia integrado y solicita abrir una sola vez',async()=>{
  const s=await setup({mobile:true});try{

@@ -108,6 +108,24 @@
       ]
     },
     {
+      "source": "/dashboard.html",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(self), display-capture=(self), geolocation=(self)"
+        }
+      ]
+    },
+    {
+      "source": "/dashboard",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(self), display-capture=(self), geolocation=(self)"
+        }
+      ]
+    },
+    {
       "source": "/zoom-sala.html",
       "headers": [
         {

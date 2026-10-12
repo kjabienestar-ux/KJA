@@ -252,7 +252,21 @@
 /* --------------------------------------------------------------------------
    2. Tarjeta Informe Consolidado
    -------------------------------------------------------------------------- */
+.attendance-export-period {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  border: 0;
+  margin: 0;
+  padding: 0 24px 20px;
+}
+.attendance-export-period legend { padding: 0 0 10px; color: var(--people-ink); font-size: 14px; font-weight: 600; }
+.attendance-export-period label { display: grid; gap: 6px; flex: 1 1 150px; max-width: 260px; min-width: 0; color: var(--people-ink); font-size: 14px; }
+.attendance-export-period input { width: 100%; min-width: 0; min-height: 44px; padding: 9px 12px; border: 1px solid var(--people-line); border-radius: 8px; color: var(--people-ink); background: var(--people-surface); font: inherit; font-size: 16px; }
+.attendance-export-period input:focus-visible { outline: 2px solid var(--people-primary); outline-offset: 3px; }
 #portal #admin-people-section .admin-attendance-export {
+  /* Conservar el informe completo dentro del panel con scroll y altura limitada. */
+  flex-shrink: 0;
   background: var(--people-card-bg) !important;
   border: 1px solid var(--people-line) !important;
   border-radius: 24px !important;

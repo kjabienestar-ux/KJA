@@ -61,14 +61,15 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-preview.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-operations.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-studio.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-holiday.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence-corrections.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-overview-modal.css?v=2">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-zoom.css?v=11">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-zoom.css?v=15">
 </head>
 <body>
 
@@ -898,13 +899,16 @@
     </section>
 
     <section class="view zoom-workspace" id="view-zoom" aria-labelledby="zoom-title" hidden>
+      <div class="zoom-topbar">
       <header class="zoom-header">
         <div class="zoom-heading"><span class="zoom-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="3"/><path d="m15 10 6-4v12l-6-4"/></svg></span><div><h1 id="zoom-title">Reuniones Zoom</h1><p id="zoom-subtitle">Tus salas y horarios, en un solo lugar.</p></div></div>
         <button type="button" id="zoom-refresh">Actualizar</button>
       </header>
-      <p id="zoom-message" class="zoom-message" role="status" aria-live="polite"></p>
+
       <details id="zoom-settings" class="zoom-settings"><summary>Configuración y ayuda</summary>
       <p><a href="zoom-sala.html">Administrar Zoom dentro del portal · piloto</a></p><div class="zoom-actions"><button type="button" id="zoom-import" hidden>Vincular reunión existente</button><button type="button" id="zoom-new" hidden>Crear otra reunión principal</button></div><div class="zoom-host-help"><p id="zoom-daily-flow"></p><p>Las salas internas se administran dentro de Zoom desde una computadora. La app móvil permite participar, pero no administrarlas.</p><p>Si eres anfitrión y no aparecen los grupos guardados: Salas → Cargar salas preasignadas. Después pulsa Abrir todas las salas. El portal no comprueba si están abiertas.</p></div><div id="zoom-connection" class="zoom-connection" hidden><span id="zoom-connection-text"></span><button type="button" id="zoom-connect">Comprobar conexión</button></div></details>
+      </div>
+      <p id="zoom-message" class="zoom-message" role="status" aria-live="polite"></p>
       <form id="zoom-form" class="zoom-editor" hidden>
         <div class="zoom-editor-heading"><h2 id="zoom-form-title">Crear reunión</h2><button type="button" id="zoom-form-close">Cerrar formulario</button></div>
         <p id="zoom-edit-note" class="zoom-note"></p>
@@ -925,13 +929,28 @@
       </form>
       <div class="zoom-list-heading" id="zoom-meetings-heading"><h2 id="zoom-list-title">Mis reuniones</h2><label class="zoom-search-label">Buscar reunión<input type="search" id="zoom-search" placeholder="Nombre de la reunión"></label></div>
       <div id="zoom-list" class="zoom-list" aria-live="polite"><p class="zoom-empty">Cargando reuniones…</p></div>
+      <dialog id="zoom-disconnect-dialog" aria-labelledby="zoom-disconnect-title" aria-describedby="zoom-disconnect-description">
+        <svg class="zoom-disconnect-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3Z"/><path d="M12 9v5m0 3v1"/></svg>
+        <h2 id="zoom-disconnect-title">¿Cerrar tu conexión con Zoom?</h2>
+        <p id="zoom-disconnect-description">Te desconectarás de la reunión y se cerrará este panel.</p>
+        <p class="zoom-disconnect-note">Para finalizar la reunión para todos, usa <strong>Finalizar</strong> dentro de Zoom.</p>
+        <div class="zoom-actions"><button type="button" id="zoom-disconnect-back" autofocus>Seguir en la reunión</button><button type="button" id="zoom-disconnect-confirm">Cerrar conexión</button></div>
+      </dialog>
+      <div class="zoom-session-layout">
+      <div class="zoom-session-main">
+      <section id="zoom-embedded" class="zoom-embedded" aria-labelledby="zoom-embedded-title" hidden>
+        <header><div><h2 id="zoom-embedded-title">Zoom en el portal</h2><p id="zoom-embedded-status" role="status"></p></div><div class="zoom-actions"><button type="button" id="zoom-embedded-fullscreen">Ampliar Zoom</button><button type="button" id="zoom-embedded-close">Cerrar panel</button></div></header>
+        <iframe id="zoom-embedded-frame" title="Reunión Zoom y control de salas" allow="camera; microphone; display-capture; autoplay; fullscreen" allowfullscreen referrerpolicy="same-origin"></iframe>
+      </section>
       <p class="zoom-note" id="zoom-footnote">Horarios en Lima. El botón abre Zoom; la admisión depende del anfitrión.</p>
+      </div>
       <section id="zoom-week" aria-labelledby="zoom-week-title" hidden>
         <div class="zoom-list-heading"><div><h2 id="zoom-week-title">Agenda semanal</h2><p id="zoom-week-range" class="zoom-note" aria-live="polite"></p></div><div class="zoom-actions"><button type="button" id="zoom-week-prev" aria-label="Ver semana anterior">Anterior</button><button type="button" id="zoom-week-today">Esta semana</button><button type="button" id="zoom-week-next" aria-label="Ver semana siguiente">Siguiente</button></div></div>
         <p class="zoom-note">Hora de Lima · Fechas sincronizadas de tus reuniones.</p>
         <ul id="zoom-week-list" class="zoom-week-list"></ul>
         <details class="zoom-week-help"><summary>¿Falta alguna fecha?</summary><p class="zoom-note">Un administrador puede recuperar las fechas con «Actualizar desde Zoom» en la reunión. Las reuniones sin horario fijo aparecen en la lista superior.</p></details>
       </section>
+      </div>
       <dialog id="zoom-cancel-dialog" class="zoom-confirm" aria-labelledby="zoom-cancel-title"><h2 id="zoom-cancel-title">¿Cancelar esta reunión?</h2><p id="zoom-cancel-copy"></p><p id="zoom-cancel-explanation">Se eliminará de Zoom y dejará de aparecer en los portales. Si es recurrente, se cancelará toda la serie.</p><div class="zoom-actions"><button type="button" id="zoom-cancel-back" autofocus>Conservar reunión</button><button type="button" id="zoom-cancel-confirm" class="zoom-danger">Sí, cancelar en Zoom</button></div><p id="zoom-cancel-error" role="alert"></p></dialog>
     </section>
     <section class="view cert-accounts" id="view-cert-cuentas" aria-labelledby="cert-accounts-title" hidden>
@@ -1822,7 +1841,12 @@
           <div id="admin-areas-list"></div>
         </section>
         <section class="admin-attendance-export" id="admin-attendance-export-card" aria-labelledby="admin-attendance-export-title">
-          <header class="attendance-export-head"><div><h3 id="admin-attendance-export-title">Informe consolidado</h3><p>Todos los internos que elijas, en un solo archivo.</p></div><div class="attendance-export-sheets" aria-label="Hojas del Excel"><span>Resumen</span><span>Horarios</span><span>Asistencia</span></div></header>
+          <header class="attendance-export-head"><div><h3 id="admin-attendance-export-title">Asistencia y evidencias</h3><p>Quién llegó puntual y qué archivos presentó, fecha por fecha.</p></div><div class="attendance-export-sheets" aria-label="Hojas del Excel"><span>Resumen</span><span>Detalle diario</span><span>Evidencias</span></div></header>
+          <fieldset id="attendance-export-period" class="attendance-export-period">
+            <legend>Período del informe</legend>
+            <label>Desde<input type="date" id="attendance-export-from" min="2020-01-01" required></label>
+            <label>Hasta<input type="date" id="attendance-export-to" min="2020-01-01" required></label>
+          </fieldset>
           <details class="attendance-export-selection">
             <summary><span><b>Seleccionar internos</b><small id="attendance-export-preview">Cargando el directorio…</small></span><span class="attendance-export-count" id="attendance-export-count">0 seleccionados</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
           <fieldset id="attendance-export-picker" class="attendance-export-picker">
@@ -1831,8 +1855,9 @@
             <div id="attendance-export-options" class="attendance-export-options"></div>
           </fieldset>
           </details>
-          <footer class="attendance-export-footer"><p id="admin-attendance-export-status" role="status" aria-live="polite">Asistencia desde la fecha de ingreso de cada interno.</p><div class="attendance-export-downloads"><button type="button" class="admin-secondary-action" id="admin-attendance-export" disabled>PDF</button><button type="button" class="admin-primary-action" id="admin-attendance-excel" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></svg>Descargar Excel</button></div></footer>
+          <footer class="attendance-export-footer"><p id="admin-attendance-export-status" role="status" aria-live="polite">Puntualidad por fecha y archivos subidos en un solo informe.</p><div class="attendance-export-downloads"><button type="button" class="admin-primary-action" id="attendance-report-view">Ver informe</button><button type="button" class="admin-secondary-action" id="admin-attendance-export" disabled>PDF</button><button type="button" class="admin-primary-action" id="admin-attendance-excel" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></svg>Descargar Excel</button></div></footer>
         </section>
+        <section id="attendance-report-preview" class="attendance-report-preview" aria-label="Informe de asistencia y evidencias" hidden></section>
         <div class="admin-list-kpis" id="admin-people-kpis"></div>
         <div class="admin-list-message" id="admin-team-message" role="status" aria-live="polite"></div>
         <div class="admin-people-groups" id="admin-people-list"><p class="admin-empty">Ejecuta la migración de la fase 3 para cargar colaboradores.</p></div>
@@ -3531,24 +3556,28 @@
 </dialog>
 
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=259"></script>
+<script src="assets/js/dashboard.js?v=260"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
-<script src="assets/js/dashboard-zoom.js?v=10"></script>
+<script src="assets/js/dashboard-zoom-embed.js?v=2"></script>
+<script src="assets/js/dashboard-zoom.js?v=11"></script>
 <script src="assets/js/dashboard-cert-accounts.js?v=8"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=19"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=20"></script>
 <script src="assets/js/dashboard-person-delete.js?v=1"></script>
 <script src="assets/js/dashboard-areas.js?v=2"></script>
 <script src="assets/js/dashboard-area-picker.js?v=2"></script>
 <script src="assets/js/dashboard-editor-calendar.js?v=1"></script>
 <script src="assets/js/dashboard-editor-time.js?v=2"></script>
-<script src="assets/js/dashboard-person-attendance.js?v=2"></script>
+<script src="assets/js/dashboard-person-attendance.js?v=3"></script>
+<script src="assets/js/attendance-report-model.js?v=2"></script>
+<script src="assets/js/dashboard-attendance-report.js?v=2"></script>
 <script src="assets/js/dashboard-person-profile.js?v=4"></script>
-<script src="assets/js/dashboard-attendance-export.js?v=3"></script>
-<script src="assets/js/dashboard-month-day-detail.js?v=7"></script>
+<script src="assets/js/dashboard-attendance-export.js?v=4"></script>
+<script src="assets/js/dashboard-attendance-preview.js?v=3"></script>
+<script src="assets/js/dashboard-month-day-detail.js?v=8"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=18"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=6"></script>
@@ -3564,8 +3593,8 @@
 <script src="assets/js/dashboard-ranking.js?v=14"></script>
 <script src="assets/js/facebook-report-model.js?v=5"></script>
 <script src="assets/js/facebook-report-excel-layout.js?v=2"></script>
-<script src="assets/js/facebook-report-excel.js?v=3"></script>
-<script src="assets/js/intern-report-excel.js?v=5"></script>
+<script src="assets/js/facebook-report-excel.js?v=4"></script>
+<script src="assets/js/intern-report-excel.js?v=6"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=9"></script>
 <script src="assets/js/dashboard-pausa-activa.js?v=14"></script>
