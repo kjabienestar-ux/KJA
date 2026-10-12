@@ -21,6 +21,7 @@
 #admin-person-modal .admin-editor-label b { color: #2c4c3e; font-size: 14px; font-weight: 650; }
 #admin-person-modal .admin-editor-label span { margin: 0; color: #637168; line-height: 1.45; }
 #admin-person-modal .admin-form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; align-items: start; }
+#admin-person-modal .admin-field-institution { grid-column: 2; grid-row: 2 / span 2; }
 #admin-person-modal .admin-field { min-width: 0; display: flex; flex-direction: column; gap: 6px; color: #465b50; font-weight: 600; }
 #admin-person-modal .admin-field small { color: #68766c; font-weight: 400; }
 #admin-person-modal :is(input:not([type='checkbox']):not([type='hidden']),select,textarea) {
@@ -102,7 +103,7 @@
   #admin-person-modal #admin-person-form { padding: 12px 12px 0; gap: 10px; }
   #admin-person-modal .admin-editor-block { padding: 14px; }
   #admin-person-modal .admin-form-grid { grid-template-columns: minmax(0,1fr); }
-  #admin-person-modal .admin-form-grid > * { grid-column: 1; }
+  #admin-person-modal .admin-form-grid > * { grid-column: 1; grid-row: auto; }
   #admin-person-modal .admin-schedule-head { display: none; }
   #admin-person-modal .admin-schedule-row { grid-template-columns: 34px minmax(0,1fr) minmax(0,1fr); gap: 8px; }
   #admin-person-modal .admin-schedule-row .schedule-mode { grid-column: 2/-1; }

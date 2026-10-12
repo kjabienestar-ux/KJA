@@ -1425,6 +1425,17 @@ test('stored request evidence opens in an accessible in-dashboard modal', () => 
   assert.match(css,/\.stored-evidence-viewer-stage img\{[\s\S]*?object-fit:contain/);
 });
 
+test('collaborator editor has an optional unique contact email under the DNI', () => {
+  const identity=html.match(/<section class="admin-editor-block editor-identity">[\s\S]*?<\/section>/)[0];
+  assert.match(identity,/<input id="admin-person-email" type="email"/);
+  assert.ok(identity.indexOf('admin-person-dni')<identity.indexOf('admin-person-email'));
+  assert.match(adminTeamJs,/payload\.correo=email\.toLowerCase\(\)\|\|null/);
+  assert.match(adminTeamJs,/correo_duplicado:/);
+  const migration=fs.readFileSync(new URL('../supabase/dashboard_113_correo_colaborador.sql', import.meta.url), 'utf8');
+  assert.match(migration,/create unique index[\s\S]*lower\(correo\)/);
+  assert.match(migration,/'correo_duplicado'/);
+});
+
 test('collaborator institution is chosen from the approved campus list and keeps legacy values', () => {
   assert.match(html,/<select id="admin-person-institution" aria-describedby="admin-institution-help">/);
   assert.doesNotMatch(html,/<input id="admin-person-institution"/);

@@ -13,8 +13,10 @@
  *                 TikTok    https://www.tiktok.com/@cuenta/video/NUMERO  (no sirve vm.tiktok.com)
  *                 Facebook  https://www.facebook.com/reel/NUMERO
  *               Instagram no se admite: su reproductor trae el marco de la app.
- *   portada     Opcional. Imagen vertical 9:16 (ej. 'images/videos/evaluacion.webp').
- *               Sin portada se genera una con los colores de KJA.
+ *   portada     Imagen de la tarjeta: vertical 9:16 en .webp (ideal 720x1280), dentro de images/videos/.
+ *               Ej. 'images/videos/aplicar-una-prueba.webp'. Sin portada se genera una con los colores de KJA.
+ *   video       MP4 del video dentro de assets/videos/ (H.264 + AAC, vertical, menos de 8 MB, con "inicio rápido").
+ *               Con él se reproduce en la página, solo y con sonido; sin él se usa el reproductor de la red social.
  *   ejemplo     Solo para contenido de prueba: muestra la insignia "Ejemplo".
  *
  * VIDEOS_DEMO = true muestra el aviso "Contenido de ejemplo" sobre la cuadrícula.
@@ -28,7 +30,9 @@ const VIDEO_DATA = [
         tema: 'Evaluación psicológica',
         fecha: '2026-10-05',
         plataforma: 'facebook',
-        url: 'https://www.facebook.com/reel/1350703886928055'
+        url: 'https://www.facebook.com/reel/1350703886928055',
+        portada: 'images/videos/aplicar-una-prueba.webp',
+        video: 'assets/videos/aplicar-una-prueba.mp4'
     },
     {
         titulo: 'Cursos y talleres especializados: impulsa tu desarrollo profesional',
@@ -36,7 +40,9 @@ const VIDEO_DATA = [
         tema: 'Cursos y talleres',
         fecha: '2026-08-03',
         plataforma: 'facebook',
-        url: 'https://www.facebook.com/reel/2272281236852229'
+        url: 'https://www.facebook.com/reel/2272281236852229',
+        portada: 'images/videos/cursos-y-talleres.webp',
+        video: 'assets/videos/cursos-y-talleres.mp4'
     },
     {
         titulo: 'No capacitarte también tiene un costo',
@@ -44,7 +50,9 @@ const VIDEO_DATA = [
         tema: 'Capacitación',
         fecha: '2026-07-13',
         plataforma: 'facebook',
-        url: 'https://www.facebook.com/reel/4023748227759789'
+        url: 'https://www.facebook.com/reel/4023748227759789',
+        portada: 'images/videos/no-capacitarte.webp',
+        video: 'assets/videos/no-capacitarte.mp4'
     },
     {
         titulo: '¿Tu equipo está dando su máximo potencial?',
@@ -52,7 +60,9 @@ const VIDEO_DATA = [
         tema: 'Psicología organizacional',
         fecha: '2026-07-07',
         plataforma: 'facebook',
-        url: 'https://www.facebook.com/reel/2011000939584354'
+        url: 'https://www.facebook.com/reel/2011000939584354',
+        portada: 'images/videos/equipo-maximo-potencial.webp',
+        video: 'assets/videos/equipo-maximo-potencial.mp4'
     },
     {
         titulo: 'Promoción de cursos de psicología con certificado',
@@ -61,7 +71,9 @@ const VIDEO_DATA = [
         fecha: '2025-12-16',
         duracion: '0:45',
         plataforma: 'tiktok',
-        url: 'https://www.tiktok.com/@kjaformacionpsicologica/video/7584472729005460754'
+        url: 'https://www.tiktok.com/@kjaformacionpsicologica/video/7584472729005460754',
+        portada: 'images/videos/promocion-cursos-certificado.webp',
+        video: 'assets/videos/promocion-cursos-certificado.mp4'
     },
     {
         titulo: 'Capacítate sin gastar de más: pack de cursos grabados',
@@ -70,6 +82,8 @@ const VIDEO_DATA = [
         fecha: '2025-12-16',
         duracion: '0:35',
         plataforma: 'tiktok',
-        url: 'https://www.tiktok.com/@kjaformacionpsicologica/video/7584470813835889938'
+        url: 'https://www.tiktok.com/@kjaformacionpsicologica/video/7584470813835889938',
+        portada: 'images/videos/pack-cursos-grabados.webp',
+        video: 'assets/videos/pack-cursos-grabados.mp4'
     }
 ];

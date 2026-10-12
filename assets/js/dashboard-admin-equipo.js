@@ -48,8 +48,8 @@ async function loadAdminTeam(){
   }
   const balances=new Map((balancesData?.ok?balancesData.saldos||[]:[]).map(item=>[String(item.id),Number(item.saldo)||0]));
   data.instituciones_disponibles=!!institutionResult.data?.ok&&!institutionResult.error;
-  const institutions=new Map((institutionResult.data?.personas||[]).map(item=>[String(item.id),item.institucion]));
-  data.personas=(data.personas||[]).map(person=>({...person,institucion:institutions.get(String(person.id))??person.institucion??null}));
+  const institutions=new Map((institutionResult.data?.personas||[]).map(item=>[String(item.id),item]));
+  data.personas=(data.personas||[]).map(person=>{const extra=institutions.get(String(person.id));return {...person,institucion:extra?.institucion??person.institucion??null,correo:extra?.correo??person.correo??null}});
   data.personas=(data.personas||[]).map(person=>({...person,dias_libres_saldo:balances.has(String(person.id))?balances.get(String(person.id)):null}));
   data.personas=await hydrateProfilePhotos(data.personas);
   if(request!==APP.adminTeamRequest)return;
@@ -140,13 +140,13 @@ function renderAdminContracts(){
   if($('admin-contract-count'))$('admin-contract-count').textContent=`${visible.length}`;
   let html='<div class="admin-contract-head" aria-hidden="true"><span>Colaborador</span><span>Horas y avance</span><span>Jornada</span><span>Término estimado</span><span>Estado</span><span>Institución</span><span></span></div>';
   for(const p of visible){
-    const r=p.resumen||{},meta=Number(r.meta)||0,done=Number(r.cumplidas)||0,pct=meta>0?Math.max(0,Math.min(100,Math.round(done/meta*100))):0,[state,stateClass]=contractState(p);
+    const r=p.resumen||{},meta=Number(r.meta)||0,done=Number(r.cumplidas)||0,credited=Number(r.horas_no_laborables)||0,pct=meta>0?Math.max(0,Math.min(100,Math.round(done/meta*100))):0,[state,stateClass]=contractState(p);
     const projected=r.pendiente?'Por definir':r.completado?'Completado':adminDate(r.fecha_fin_estimada);
     const alerts=(r.alertas||[]).map(x=>`<small>${esc(x)}</small>`).join('');
     const vol=r.voluntariado?`<span class="admin-vol-progress"><span>Voluntariado</span><b>${adminHours(r.voluntariado.cumplidas)} / ${adminHours(r.voluntariado.meta)}</b></span>`:'';
     html+=`<article class="admin-contract-row ${p.activo?'':'inactive'}" data-contract-state="${stateClass}" aria-label="Contrato de ${esc(p.nombre)}">
       <span class="admin-contract-person">${profileAvatarMarkup(p,'i')}<span><b>${esc(p.nombre)}</b><small>${esc(p.area||'Sin área')} · ${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)}</small></span></span>
-      <span class="admin-contract-progress"><span><b>${adminHours(done)} <em>${meta>0?'de '+adminHours(meta):'acumuladas'}</em></b><small>${meta>0?pct+'%':'Sin meta'}</small></span>${meta>0?`<i role="progressbar" aria-label="Avance de ${esc(p.nombre)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-valuetext="${adminHours(done)} de ${adminHours(meta)}"><u style="width:${pct}%"></u></i><small class="contract-remaining">${Math.max(0,meta-done)>0?adminHours(Math.max(0,meta-done))+' por completar':'Meta de horas alcanzada'}</small>`:'<small class="contract-remaining">Define las horas objetivo para calcular el avance.</small>'}${vol}</span>
+      <span class="admin-contract-progress"><span><b>${adminHours(done)} <em>${meta>0?'de '+adminHours(meta):'acumuladas'}</em></b><small>${meta>0?pct+'%':'Sin meta'}</small></span>${meta>0?`<i role="progressbar" aria-label="Avance de ${esc(p.nombre)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-valuetext="${adminHours(done)} de ${adminHours(meta)}"><u style="width:${pct}%"></u></i><small class="contract-remaining">${Math.max(0,meta-done)>0?adminHours(Math.max(0,meta-done))+' por completar':'Meta de horas alcanzada'}</small>`:'<small class="contract-remaining">Define las horas objetivo para calcular el avance.</small>'}${credited>0?`<small class="contract-nonworking-hours">Incluye ${adminHours(credited)} por días no laborables</small>`:''}${vol}</span>
       <span class="admin-contract-week"><span class="contract-mobile-label">Jornada</span><b>${adminHours(r.semana_horas)}</b><small>por semana</small></span>
       <span class="admin-contract-date"><span class="contract-mobile-label">Término estimado</span><b>${esc(projected)}</b><small>${p.contrato_fin_referencia?'Según documento: '+adminDate(p.contrato_fin_referencia):'Sin fecha de referencia'}</small></span>
       <span class="admin-contract-status"><b class="${stateClass}">${state}</b>${alerts}</span>
@@ -220,6 +220,7 @@ async function openAdminPerson(id){
   $('admin-person-id').value=person?.id||'';
   $('admin-person-name').value=person?.nombre||'';
   $('admin-person-dni').value=String(person?.dni||'').replace(/\D/g,'').slice(0,8);
+  $('admin-person-email').value=person?.correo||'';
   if($('admin-person-institution')){
     fillAdminInstitutionOptions(person?.institucion);
     $('admin-institution-create').hidden=true;
@@ -339,17 +340,18 @@ function collectAdminPerson(){
 
 async function saveAdminPerson(event){
   event.preventDefault();editorMsg('');
-  const name=$('admin-person-name').value.trim(),dni=$('admin-person-dni').value.trim();
+  const name=$('admin-person-name').value.trim(),dni=$('admin-person-dni').value.trim(),email=$('admin-person-email').value.trim();
   if(name.length<2)return editorMsg('Escribe el nombre completo.');
   if(dni&&!/^\d{8}$/.test(dni))return editorMsg('El DNI debe tener exactamente 8 dígitos.');
+  if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return editorMsg('Escribe un correo válido.');
   if($('admin-contract-start').value&&$('admin-contract-end').value&&$('admin-contract-end').value<$('admin-contract-start').value)return editorMsg('La fecha final no puede ser anterior al inicio del contrato.');
   let payload,facebookSchedule;try{payload=collectAdminPerson();facebookSchedule=collectFacebookSchedule()}catch(e){return editorMsg(e.message)}
   const button=$('admin-person-save');button.disabled=true;button.textContent='Guardando…';
-  if(APP.adminTeam.instituciones_disponibles)payload.institucion=$('admin-person-institution')?.value.trim()||null;
+  if(APP.adminTeam.instituciones_disponibles){payload.institucion=$('admin-person-institution')?.value.trim()||null;payload.correo=email.toLowerCase()||null;}
   const {data,error}=await db.rpc(APP.adminTeam.instituciones_disponibles?'dash_admin_guardar_ficha':'dash_admin_guardar_colaborador',{p_datos:payload,p_motivo:$('admin-change-reason').value.trim()||null});
   if(error||!data?.ok){
     button.disabled=false;button.textContent='Guardar cambios';
-    const messages={sin_permiso:'Tu rol no permite editar.',nombre:'Revisa el nombre completo.',dni:'El DNI debe tener 8 dígitos.',dni_duplicado:'Ese DNI ya pertenece a otro colaborador.',area:'Selecciona un área activa.',horario:'Hay un día con horario incompleto o incoherente.',horario_general:'La salida general debe ser posterior a la entrada.',fechas:'La fecha final no puede ser anterior al inicio.',horas:'Las horas no pueden ser negativas.',duplicado:'Ya existe un registro con uno de estos datos.',institucion:'La institución no es válida.'};
+    const messages={sin_permiso:'Tu rol no permite editar.',nombre:'Revisa el nombre completo.',dni:'El DNI debe tener 8 dígitos.',dni_duplicado:'Ese DNI ya pertenece a otro colaborador.',area:'Selecciona un área activa.',horario:'Hay un día con horario incompleto o incoherente.',horario_general:'La salida general debe ser posterior a la entrada.',fechas:'La fecha final no puede ser anterior al inicio.',horas:'Las horas no pueden ser negativas.',duplicado:'Ya existe un registro con uno de estos datos.',institucion:'La institución no es válida.',correo:'Escribe un correo válido.',correo_duplicado:'Ese correo ya pertenece a otro colaborador.'};
     return editorMsg(messages[data?.motivo]||error?.message||'No se pudo guardar la ficha.');
   }
   const facebookResult=await db.rpc('dash_admin_guardar_horario_compartir',{p_colab:Number(data.id),p_horario:facebookSchedule});
