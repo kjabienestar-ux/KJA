@@ -743,6 +743,20 @@ function horasEntreFechas(colabLike, desde, hasta, vinc){
 }
 async function cargarHorasCumplidas(){
   if(!MIG3){ HORAS_CUMPLIDAS = {}; HORAS_VOLUNT = {}; return; }
+  // El resumen contractual del servidor también acredita feriados, permisos y
+  // días libres ya transcurridos. Reutilizarlo mantiene este panel anterior
+  // alineado con Contratos del dashboard sin duplicar la regla en el cliente.
+  const { data:resumenes, error:errorResumen } = await db.rpc('dash_admin_equipo', { p_incluir_inactivos:true });
+  if(!errorResumen && resumenes && resumenes.ok){
+    const prac = {}, volunt = {};
+    (resumenes.personas||[]).forEach(p=>{
+      const r = p.resumen||{};
+      prac[p.id] = Math.max(0, Number(r.cumplidas||0) - Number(r.previas||0));
+      if(r.voluntariado) volunt[p.id] = Number(r.voluntariado.cumplidas)||0;
+    });
+    HORAS_CUMPLIDAS = prac; HORAS_VOLUNT = volunt;
+    return;
+  }
   const cols = 'colaborador_id,fecha,horas,estado' + (HAS_VINCULO ? ',vinculo' : '');
   const { data, error } = await db.from('asis_registros').select(cols).in('estado',['P','T','J']);
   if(error) return;
