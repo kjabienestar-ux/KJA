@@ -57,11 +57,11 @@
             return { platform: 'youtube', src: 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&playsinline=1&rel=0&modestbranding=1' };
         }
         if (host === 'tiktok.com' && (match = path.match(/\/video\/(\d{8,25})/))) {
-            return { platform: 'tiktok', src: 'https://www.tiktok.com/player/v1/' + match[1] + '?autoplay=1&rel=0&description=0&music_info=0' };
+            return { platform: 'tiktok', src: 'https://www.tiktok.com/player/v1/' + match[1] + '?autoplay=1&muted=0&rel=0&description=0&music_info=0' };
         }
         /* Instagram no se admite: su reproductor insertado trae el marco de la app y no encaja en el carrusel. */
         if (host === 'facebook.com' || host === 'fb.watch') {
-            return { platform: 'facebook', src: 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(url.href) + '&show_text=false&autoplay=true&width=360' };
+            return { platform: 'facebook', src: 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(url.href) + '&show_text=false&autoplay=true&mute=0&width=360' };
         }
         return null;
     }
@@ -73,24 +73,13 @@
         return PLATFORMS[item && item.plataforma] ? item.plataforma : 'youtube';
     }
 
-    /* Vista previa de la card: el mismo reproductor, pausado y en silencio, para mostrar un fotograma real. */
-    function previewSrc(item) {
-        var embed = videoEmbed(item);
-        if (!embed) return '';
-        var src = embed.src;
-        if (embed.platform === 'youtube') return src.replace('autoplay=1', 'autoplay=0&controls=0&mute=1&disablekb=1');
-        if (embed.platform === 'facebook') return src.replace('autoplay=true', 'autoplay=false').replace('show_text=false', 'show_text=false&mute=1');
-        return src.replace('autoplay=1', 'autoplay=0');
-    }
-
-    /* Portada: imagen propia, vista previa del video (solo en cards) o una portada generada con la identidad de KJA. */
-    function coverHtml(item, live) {
+    /* Portada estática: imagen propia (vertical 9:16) o una generada con la identidad de KJA.
+     * Nunca carga el reproductor: el único iframe de la página es el del video abierto en el carrusel. */
+    function coverHtml(item) {
         if (item.portada) {
             return '<img class="kv-cover-img" src="' + esc(item.portada) + '" alt="" loading="lazy" decoding="async">';
         }
-        var preview = live ? previewSrc(item) : '';
         return '<span class="kv-art">' +
-            (preview ? '<span class="kv-live" data-preview-src="' + esc(preview) + '" aria-hidden="true"></span>' : '') +
             '<span class="kv-art-logo"><img src="images/logo/kja.webp" alt="" width="418" height="121" loading="lazy" decoding="async"></span>' +
             '<span class="kv-art-eyebrow">' + esc(item.tema) + '</span>' +
             '<span class="kv-art-title">' + esc(item.titulo) + '</span>' +
@@ -110,7 +99,7 @@
     function cardHtml(item, index) {
         return '<li class="kv-item">' +
             '<button type="button" class="kv-card" data-video-index="' + index + '" aria-haspopup="dialog" aria-label="Ver video: ' + esc(item.titulo) + '">' +
-                '<span class="kv-cover">' + coverHtml(item, true) + badgesHtml(item) + PLAY_ICON + '</span>' +
+                '<span class="kv-cover">' + coverHtml(item) + badgesHtml(item) + PLAY_ICON + '</span>' +
                 '<span class="kv-card-body">' +
                     '<span class="kv-card-title">' + esc(item.titulo) + '</span>' +
                     '<span class="kv-card-meta"><i></i>' + esc(item.tema) + '<span aria-hidden="true">·</span>' + esc(formatDate(item.fecha)) + '</span>' +
@@ -119,38 +108,11 @@
         '</li>';
     }
 
-    /* Los iframes se crean solo cuando la card entra en pantalla, para no cargar todos los reproductores a la vez. */
-    function mountPreviews(doc) {
-        var slots = doc.querySelectorAll('.kv-live[data-preview-src]');
-        if (!slots.length || typeof IntersectionObserver === 'undefined') return;
-        /* El iframe mide siempre 360x640 y se reduce al tamaño de la portada: así la interfaz del reproductor conserva sus proporciones en cualquier pantalla. */
-        var fit = function (slot) { if (slot.clientWidth) slot.style.setProperty('--kv-s', String(slot.clientWidth / 360)); };
-        var resizer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(function (items) { items.forEach(function (item) { fit(item.target); }); }) : null;
-        var observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (!entry.isIntersecting) return;
-                var slot = entry.target;
-                observer.unobserve(slot);
-                fit(slot);
-                if (resizer) resizer.observe(slot);
-                var frame = doc.createElement('iframe');
-                frame.setAttribute('tabindex', '-1');
-                frame.setAttribute('aria-hidden', 'true');
-                frame.setAttribute('loading', 'lazy');
-                frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-                frame.title = '';
-                frame.addEventListener('load', function () { slot.classList.add('is-ready'); });
-                frame.src = slot.getAttribute('data-preview-src');
-                slot.appendChild(frame);
-            });
-        }, { rootMargin: '200px' });
-        for (var i = 0; i < slots.length; i++) observer.observe(slots[i]);
-    }
-
     function createVideosPage(doc, data, demo) {
         var videos = sortVideos(data);
-        var state = { index: 0, open: false, trigger: null, mountTimer: null, swipeX: null };
+        var state = { index: 0, open: false, trigger: null, mountTimer: null, swipeX: null, video: null, muted: false, failed: {}, ambient: 0, toastTimer: null };
         var $ = function (id) { return doc.getElementById(id); };
+        var setText = function (id, text) { var el = $(id); if (el) el.textContent = text; };
         var viewer = $('kv-viewer'), stage = $('kv-stage');
 
         function renderPage() {
@@ -160,7 +122,6 @@
             if (grid) grid.innerHTML = videos.map(cardHtml).join('');
             if (empty) empty.hidden = videos.length > 0;
             renderFeatured();
-            mountPreviews(doc);
         }
 
         function renderFeatured() {
@@ -171,7 +132,7 @@
             featured.innerHTML = '<div class="kv-feature-stack">' + stack.map(function (item, index) {
                 return '<button type="button" class="kv-feature-card kv-feature-card--' + (index + 1) + '" data-video-index="' + index + '" aria-haspopup="dialog" ' +
                     (index ? 'tabindex="-1" aria-hidden="true"' : 'aria-label="Ver el video más reciente: ' + esc(item.titulo) + '"') + '>' +
-                    '<span class="kv-cover">' + coverHtml(item, index === 0) + badgesHtml(item) + PLAY_ICON + '</span>' +
+                    '<span class="kv-cover">' + coverHtml(item) + badgesHtml(item) + PLAY_ICON + '</span>' +
                 '</button>';
             }).join('') + '</div>' +
             '<p class="kv-feature-label"><b>Más reciente</b>' + esc(videos[0].titulo) + '</p>';
@@ -179,18 +140,19 @@
 
         function slideHtml(item, index) {
             return '<div class="kv-slide" data-slide-index="' + index + '">' +
-                '<div class="kv-slide-media"><span class="kv-cover">' + coverHtml(item, true) + badgesHtml(item) + PLAY_ICON + '</span></div>' +
+                '<div class="kv-slide-media"><span class="kv-cover">' + coverHtml(item) + badgesHtml(item) + PLAY_ICON + '</span></div>' +
                 '<div class="kv-slide-caption"><b>' + esc(item.titulo) + '</b><small>' + esc(item.tema) + '</small></div>' +
             '</div>';
         }
 
         function buildViewer() {
             stage.innerHTML = videos.map(slideHtml).join('');
-            mountPreviews(doc);
             var dots = $('kv-dots');
             if (dots) {
                 dots.innerHTML = videos.map(function (item, index) {
-                    return '<button type="button" class="kv-dot" data-dot-index="' + index + '" aria-label="Ir al video ' + (index + 1) + ': ' + esc(item.titulo) + '"></button>';
+                    return '<button type="button" class="kv-dot" data-dot-index="' + index + '" aria-label="Ir al video ' + (index + 1) + ': ' + esc(item.titulo) + '">' +
+                        (item.portada ? '<img src="' + esc(item.portada) + '" alt="" loading="lazy" decoding="async">' : '') +
+                    '</button>';
                 }).join('');
             }
         }
@@ -209,21 +171,166 @@
             }
         }
 
+        function setBuffering(on) {
+            viewer.classList.toggle('is-buffering', on);
+        }
+
+        function setHint(on) {
+            var hint = $('kv-hint');
+            if (hint) hint.hidden = !on;
+        }
+
+        /* Íconos y etiquetas de los controles según el estado real del video. */
+        function syncControls() {
+            var video = state.video, muted = !video || video.muted, paused = !video || video.paused;
+            var sound = $('kv-sound'), toggle = $('kv-toggle');
+            if (sound) sound.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar');
+            if (toggle) toggle.setAttribute('aria-label', paused ? 'Reproducir' : 'Pausar');
+            viewer.classList.toggle('is-muted', muted);
+            viewer.classList.toggle('is-paused', paused);
+        }
+
+        function showProgress() {
+            var video = state.video, bar = $('kv-progress');
+            var ratio = video && video.duration ? Math.min(video.currentTime / video.duration, 1) : 0;
+            if (bar) bar.style.transform = 'scaleX(' + ratio + ')';
+            var dot = viewer.querySelector('.kv-dot[aria-current="true"]');
+            if (dot) dot.style.setProperty('--p', String(ratio));
+        }
+
+        /* Un solo <video> para todo el carrusel: tras el primer clic el navegador ya lo deja sonar, así también
+         * suena al pasar de video o cuando avanza solo al terminar uno (en iPhone es la única forma). */
+        function nativeVideo() {
+            if (state.video) return state.video;
+            var video = doc.createElement('video');
+            video.setAttribute('playsinline', '');
+            video.setAttribute('webkit-playsinline', '');
+            video.setAttribute('preload', 'auto');
+            video.addEventListener('timeupdate', showProgress);
+            ['play', 'pause', 'volumechange'].forEach(function (type) { video.addEventListener(type, syncControls); });
+            video.addEventListener('waiting', function () { setBuffering(true); });
+            video.addEventListener('playing', function () { setBuffering(false); });
+            video.addEventListener('ended', function () { if (state.open && videos.length > 1) go(state.index + 1); });
+            video.addEventListener('error', function () {
+                /* Si el archivo no carga, ese video vuelve al reproductor de su red social. */
+                if (!state.open || !video.getAttribute('src')) return;
+                state.failed[state.index] = true;
+                mountPlayer(true);
+            });
+            state.video = video;
+            return video;
+        }
+
+        /* Deja de descargar el archivo (al cerrar o al pasar a un video sin MP4 propio). */
+        function releaseVideo() {
+            var video = state.video;
+            if (!video || !video.getAttribute('src')) return;
+            video.removeAttribute('src');
+            video.load();
+        }
+
+        function playNative() {
+            var video = state.video;
+            setHint(false);
+            video.muted = state.muted;
+            var attempt = video.play();
+            if (attempt && attempt.catch) attempt.catch(function (error) {
+                if (!error || error.name !== 'NotAllowedError' || video.muted) return;
+                /* El navegador no dejó sonar: sigue en silencio y se ofrece activar el sonido con un toque. */
+                video.muted = true;
+                setHint(true);
+                var retry = video.play();
+                if (retry && retry.catch) retry.catch(function () {});
+            });
+        }
+
+        function isNative() {
+            return viewer.getAttribute('data-player') === 'native' && state.video && state.video.getAttribute('src');
+        }
+
+        function togglePlay() {
+            if (!isNative()) return;
+            if (state.video.paused) playNative(); else state.video.pause();
+        }
+
+        function toggleSound() {
+            if (!isNative()) return;
+            var video = state.video, hint = $('kv-hint'), blocked = hint && !hint.hidden;
+            state.muted = !video.muted;
+            video.muted = state.muted;
+            setHint(false);
+            if (blocked && video.paused) playNative();
+        }
+
+        function toast(text) {
+            var el = $('kv-toast');
+            setText('kv-live', text);
+            if (!el) return;
+            el.textContent = text;
+            el.hidden = false;
+            clearTimeout(state.toastTimer);
+            state.toastTimer = setTimeout(function () { el.hidden = true; }, 2200);
+        }
+
+        function share() {
+            var item = videos[state.index], url = item.url || doc.location.href, nav = root.navigator || {};
+            if (nav.share) {
+                nav.share({ title: item.titulo, url: url }).catch(function () {});
+            } else if (nav.clipboard && nav.clipboard.writeText) {
+                nav.clipboard.writeText(url).then(function () { toast('Enlace copiado'); }, function () { toast('No se pudo copiar el enlace'); });
+            }
+        }
+
+        /* Fondo ambiental: dos capas que se alternan para cambiar de portada con un fundido. */
+        function setAmbient(src) {
+            var layers = viewer.querySelectorAll('.kv-ambient');
+            if (layers.length < 2) return;
+            state.ambient = 1 - state.ambient;
+            layers[state.ambient].style.backgroundImage = src ? 'url("' + String(src).replace(/["\\\n]/g, '') + '")' : 'none';
+            layers[state.ambient].classList.add('is-on');
+            layers[1 - state.ambient].classList.remove('is-on');
+        }
+
         function unmountPlayer() {
             clearTimeout(state.mountTimer);
+            if (state.video) state.video.pause();
+            setBuffering(false);
+            setHint(false);
             var frames = stage.querySelectorAll('.kv-player');
             for (var i = 0; i < frames.length; i++) frames[i].parentNode.removeChild(frames[i]);
         }
 
-        /* Solo el video central tiene reproductor: al cambiar se destruye y el anterior deja de sonar. */
+        /* Solo el video central tiene reproductor: al cambiar se quita y el anterior deja de sonar.
+         * Con MP4 propio (campo video) se reproduce aquí mismo, dentro del clic y con sonido.
+         * Sin él se usa el reproductor de la red: en el acto al abrir y, al pasar de video, tras la animación
+         * (así no carga los que se saltan rápido); ahí el sonido lo decide la red: Facebook lo bloquea y TikTok arranca en silencio. */
         function mountPlayer(immediate) {
             unmountPlayer();
+            var item = videos[state.index], native = !!item.video && !state.failed[state.index];
+            viewer.setAttribute('data-player', native ? 'native' : 'embed');
+            var sound = $('kv-sound'), toggle = $('kv-toggle');
+            if (sound) sound.hidden = !native;
+            if (toggle) toggle.hidden = !native;
+            if (!native) releaseVideo();
             var mount = function () {
                 if (!state.open) return;
-                var item = videos[state.index], slide = stage.querySelector('[data-slide-index="' + state.index + '"] .kv-slide-media');
+                var slide = stage.querySelector('[data-slide-index="' + state.index + '"] .kv-slide-media');
                 if (!slide) return;
-                var embed = videoEmbed(item), player = doc.createElement('div');
+                var player = doc.createElement('div');
                 player.className = 'kv-player';
+                if (native) {
+                    var video = nativeVideo();
+                    player.classList.add('kv-player--native');
+                    video.setAttribute('aria-label', item.titulo);
+                    if (item.portada) video.setAttribute('poster', item.portada); else video.removeAttribute('poster');
+                    video.setAttribute('src', item.video);
+                    player.appendChild(video);
+                    slide.appendChild(player);
+                    playNative();
+                    syncControls();
+                    return;
+                }
+                var embed = videoEmbed(item);
                 if (embed) {
                     var frame = doc.createElement('iframe');
                     frame.src = embed.src;
@@ -241,19 +348,18 @@
                 }
                 slide.appendChild(player);
             };
-            if (immediate) mount(); else state.mountTimer = setTimeout(mount, 260);
+            if (immediate || native) mount(); else state.mountTimer = setTimeout(mount, 260);
         }
 
         function syncDetails() {
             var item = videos[state.index], platform = PLATFORMS[platformOf(item)];
-            var setText = function (id, text) { var el = $(id); if (el) el.textContent = text; };
             setText('kv-viewer-title', item.titulo);
             setText('kv-viewer-desc', item.descripcion || '');
-            setText('kv-viewer-meta', [item.tema, formatDate(item.fecha), platform.label].filter(Boolean).join(' · '));
+            var meta = $('kv-viewer-meta');
+            if (meta) meta.innerHTML = (item.tema ? '<b>' + esc(item.tema) + '</b>' : '') + esc([formatDate(item.fecha), platform.label].filter(Boolean).join(' · '));
             setText('kv-counter', (state.index + 1) + ' / ' + videos.length);
             setText('kv-live', 'Video ' + (state.index + 1) + ' de ' + videos.length + ': ' + item.titulo);
-            var thumb = $('kv-viewer-thumb');
-            if (thumb) thumb.innerHTML = coverHtml(item);
+            setAmbient(item.portada);
             var external = $('kv-external');
             if (external) {
                 external.hidden = !item.url;
@@ -261,11 +367,18 @@
                 var label = external.querySelector('span');
                 if (label) label.textContent = 'Ver en ' + platform.label;
             }
-            var dots = doc.querySelectorAll('.kv-dot');
+            var dots = viewer.querySelectorAll('.kv-dot'), currentDot = null;
             for (var i = 0; i < dots.length; i++) {
                 var current = Number(dots[i].getAttribute('data-dot-index')) === state.index;
                 dots[i].setAttribute('aria-current', current ? 'true' : 'false');
+                dots[i].style.removeProperty('--p');
+                if (current) currentDot = dots[i];
             }
+            /* La miniatura actual siempre a la vista: con muchos videos la tira se desplaza. */
+            var strip = $('kv-dots');
+            if (strip && currentDot) strip.scrollLeft = Math.max(0, currentDot.offsetLeft - (strip.clientWidth - currentDot.offsetWidth) / 2);
+            var bar = $('kv-progress');
+            if (bar) bar.style.transform = 'scaleX(0)';
             var single = videos.length < 2, prev = $('kv-prev'), next = $('kv-next');
             if (prev) prev.hidden = single;
             if (next) next.hidden = single;
@@ -294,14 +407,17 @@
             doc.documentElement.classList.add('modal-open');
             doc.body.classList.add('modal-open');
             go(index, true);
-            var close = $('kv-close');
-            if (close && close.focus) close.focus();
+            /* Con video propio el foco va a pausar/reproducir (así la barra espaciadora lo controla); si no, a cerrar. */
+            var focus = $('kv-toggle');
+            if (!focus || focus.hidden) focus = $('kv-close');
+            if (focus && focus.focus) focus.focus();
         }
 
         function close() {
             if (!state.open) return;
             state.open = false;
             unmountPlayer();
+            releaseVideo();
             viewer.hidden = true;
             doc.documentElement.classList.remove('modal-open');
             doc.body.classList.remove('modal-open');
@@ -316,6 +432,13 @@
                 if (card && !viewer.contains(card)) { event.preventDefault(); open(Number(card.getAttribute('data-video-index')), card); return; }
                 if (!state.open) return;
                 if (target.closest('[data-kv-close]')) { close(); return; }
+                var action = target.closest('[data-kv-action]');
+                if (action) {
+                    var name = action.getAttribute('data-kv-action');
+                    if (name === 'sound') toggleSound(); else if (name === 'toggle') togglePlay(); else if (name === 'share') share();
+                    return;
+                }
+                if (target.closest('.kv-player--native')) { togglePlay(); return; }
                 var dot = target.closest('[data-dot-index]');
                 if (dot) { go(Number(dot.getAttribute('data-dot-index'))); return; }
                 var slide = target.closest('.kv-slide');
@@ -329,6 +452,11 @@
                 if (event.key === 'Escape') { event.preventDefault(); close(); return; }
                 if (event.key === 'ArrowRight') { event.preventDefault(); go(state.index + 1); return; }
                 if (event.key === 'ArrowLeft') { event.preventDefault(); go(state.index - 1); return; }
+                /* Atajos como en YouTube: K o la barra espaciadora pausan, M silencia. */
+                var plain = !event.ctrlKey && !event.metaKey && !event.altKey;
+                var onControl = doc.activeElement && /^(BUTTON|A)$/.test(doc.activeElement.tagName);
+                if (plain && (event.key === 'k' || event.key === 'K' || (event.key === ' ' && !onControl))) { event.preventDefault(); togglePlay(); return; }
+                if (plain && (event.key === 'm' || event.key === 'M')) { event.preventDefault(); toggleSound(); return; }
                 if (event.key === 'Tab') {
                     var items = focusables();
                     if (!items.length) return;
@@ -360,7 +488,7 @@
         };
     }
 
-    root.KJAVideos = { sortVideos: sortVideos, videoEmbed: videoEmbed, platformOf: platformOf, formatDate: formatDate, previewSrc: previewSrc, coverHtml: coverHtml, createVideosPage: createVideosPage };
+    root.KJAVideos = { sortVideos: sortVideos, videoEmbed: videoEmbed, platformOf: platformOf, formatDate: formatDate, coverHtml: coverHtml, createVideosPage: createVideosPage };
 
     /* VIDEO_DATA y VIDEOS_DEMO son const globales de videos-data.js: no cuelgan de window. */
     if (typeof VIDEO_DATA !== 'undefined' && root.document && root.document.getElementById('kv-grid')) {
