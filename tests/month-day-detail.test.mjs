@@ -18,6 +18,14 @@ function setup(day={fecha:'2026-09-11',laborable:true}){
   return {context,host,preview,rendered,clickFile,queries,files,options,mount:()=>context.KJAMonthDayDetail.mount(host,options)};
 }
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
+
+test('report category shortcut opens the requested RPE file and retains all day categories',async()=>{
+  const x=setup();x.options.initialFile={bucket:'private',path:'rpe.jpg'};
+  const session=x.mount();x.queries[0].resolve({data:{ok:true,entrada_archivos:[{bucket:'private',path:'entrada.jpg',mime:'image/jpeg'}],cierre:{},entregas:[{tipo:'rpe',titulo:'RPE',archivos:[{bucket:'private',path:'rpe.jpg',mime:'image/jpeg'}]}]}});
+  await session.ready;
+  assert.equal(x.files[0].path,'rpe.jpg');assert.match(x.host.innerHTML,/Registro de entrada/);assert.match(x.host.innerHTML,/RPE/);
+  session.dispose();
+});
 test('Facebook report detail signs only Facebook files for the chosen person and date',async()=>{
   const x=setup();x.options.facebookOnly=true;
   const session=x.mount();

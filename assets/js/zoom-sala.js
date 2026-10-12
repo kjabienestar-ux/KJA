@@ -1,6 +1,10 @@
 /* Human-operated pilot. Tokens are held only in memory, never in URLs or logs. */
 (function(){
  const $=id=>document.getElementById(id);
+ const embedded=Boolean(window.parent&&window.parent!==window&&new URL(location.href).searchParams.get('embedded')==='1');
+ const returnUrl=embedded?location.href:new URL('zoom-sala.html',location.href).href;
+ const notify=state=>{if(embedded)window.parent.postMessage({type:'kja-zoom-state',state},new URL(location.href).origin);};
+ if(embedded)document.documentElement.classList.add('sdk-embedded');
  const db=supabase.createClient('https://xadxmfgdxwplmhijagix.supabase.co','sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'kja-dashboard-auth'}});
  const version='5.1.4';
  let connected=false,working=false,sdkPromise=null,refreshTimer=null,epoch=0,roomsKnown=false,roomStatus=null,checking=false;
@@ -113,6 +117,7 @@
  }
  async function startMeeting(row){
  if(working||connected||!row.pilot)return;
+ notify('starting');
  const current=epoch;working=true;
  $('sdk-lobby').querySelectorAll('button').forEach(b=>b.disabled=true);
  message('Preparando Zoom…');
@@ -120,14 +125,15 @@
  await loadSDK();
  const auth=await edge({action:'sdk-start',id:row.id});
  if(current!==epoch)throw Error('La sesión cambió. Vuelve al dashboard.');
- await call('init',{leaveUrl:new URL('zoom-sala.html',location.href).href,patchJsMedia:true});
+ await call('init',{leaveUrl:returnUrl,patchJsMedia:true});
  await call('join',{meetingNumber:auth.meetingNumber,signature:auth.signature,zak:auth.zak,passWord:auth.passWord,userName:auth.userName});
  auth.signature='';auth.zak='';auth.passWord='';
- if(current!==epoch){location.replace('dashboard.html');return;}
+ if(current!==epoch){location.replace(embedded?returnUrl:'dashboard.html');return;}
  connected=true;$('sdk-lobby').hidden=true;$('sdk-controls').hidden=false;$('sdk-controls').open=true;$('sdk-controls').querySelector('summary').focus();
+ notify('connected');
  try{await prepareRooms(current);}catch(error){$('sdk-live-status').textContent=error.message+' La reunión sigue abierta; revisa las salas en Zoom.';}
  refreshTimer=setInterval(()=>{if(!working&&!checking&&!document.hidden)void refreshRooms();},15000);
- }catch(error){message(error.message+' Recarga la página antes de volver a iniciar.');const root=$('zmmtg-root');if(root)root.style.display='none';}
+ }catch(error){notify('error');message(error.message+' Recarga la página antes de volver a iniciar.');const root=$('zmmtg-root');if(root)root.style.display='none';}
  finally{working=false;updateRoomButtons();if(!connected){$('sdk-grant').querySelector('button').disabled=false;}}
  }
  function updateRoomButtons(){
@@ -179,11 +185,12 @@
  }
  $('sdk-meeting').onchange=()=>{$('sdk-access-message').textContent='';renderAccess();};
  $('sdk-grant').onsubmit=event=>{event.preventDefault();return changeAccess($('sdk-email').value.trim(),true);};
- db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){epoch++;connected=false;clearInterval(refreshTimer);location.replace('dashboard.html');}});
+ db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){epoch++;connected=false;clearInterval(refreshTimer);notify('signedout');location.replace(embedded?returnUrl:'dashboard.html');}});
  (async()=>{try{
  const {data,error}=await db.auth.getUser();if(error||!data.user)throw Error('Inicia sesión en el dashboard y vuelve a esta página.');
  if(mobile())$('sdk-device').textContent='Prueba móvil: Zoom se abrirá dentro de este navegador. Mantén la página en primer plano; la apertura de salas en iPhone está pendiente de validación.';
  await load();
+ notify('ready');
  }catch(error){message(error.message);}})();
  window.addEventListener('pagehide',()=>{epoch++;connected=false;clearInterval(refreshTimer);});
 })();

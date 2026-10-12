@@ -16,19 +16,21 @@ async function loadProfileAttendanceMonth(period){
     db.rpc('dash_admin_cierres_mes',{p_anio:period.year,p_mes:period.month})
   ]);
 }
-async function loadProfileAttendance(person,today,isCurrent=()=>true,onProgress=()=>{},loadMonth=loadProfileAttendanceMonth){
-  const start=String(person.contrato_inicio||'').slice(0,10);
-  if(!start)return {ok:true,missingStart:true};
+async function loadProfileAttendance(person,today,isCurrent=()=>true,onProgress=()=>{},loadMonth=loadProfileAttendanceMonth,since=null){
+  const hire=String(person.contrato_inicio||'').slice(0,10);
+  if(!hire)return {ok:true,missingStart:true};
+  const start=since&&since>hire?since:hire;
   if(start>today)return {ok:true,start,end:today,days:[],futureStart:true,missing:[]};
   const months=profileAttendanceMonths(start,today);
   if(!months.length)return {ok:false,message:'La fecha de ingreso no es válida para consultar el historial (desde 2020).'};
-  const days=[],missing=[];let end=today;
+  const days=[],missing=[];let end=today,asOf=null;
   for(let i=0;i<months.length;i+=2){
     if(!isCurrent())return null;
     await Promise.all(months.slice(i,i+2).map(async period=>{
       try{
         const [book,closes]=await loadMonth(period);
         if(book.error||closes.error||!book.data?.ok||!closes.data?.ok)throw new Error('Mes no disponible');
+        if(book.data.hoy&&(!asOf||book.data.hoy<asOf))asOf=book.data.hoy;
         const found=(book.data.personas||[]).find(item=>String(item.id)===String(person.id));
         if(!Array.isArray(found?.dias))throw new Error('Persona no disponible');
         if(book.data.hoy&&book.data.hoy<end)end=book.data.hoy;
@@ -42,7 +44,7 @@ async function loadProfileAttendance(person,today,isCurrent=()=>true,onProgress=
     }));
     if(isCurrent())onProgress(Math.min(i+2,months.length),months.length);
   }
-  return {ok:true,start,end,days:days.filter(day=>day.fecha<=end).sort((a,b)=>b.fecha.localeCompare(a.fecha)),missing:missing.sort()};
+  return {ok:true,start,end,asOf,days:days.filter(day=>day.fecha<=end).sort((a,b)=>b.fecha.localeCompare(a.fecha)),missing:missing.sort()};
 }
 function profileAttendanceState(day,today,person,now=new Date()){
   if(day.estado==='J')return ['justificados','Justificado'];

@@ -1,0 +1,37 @@
+/* Informe de consulta: misma lectura que el PDF, con fechas accesibles por teclado. */
+#attendance-report-preview[hidden] { display:none!important; }
+.attendance-report-preview { flex-shrink:0; width:100%; max-width:1140px; align-self:center; box-sizing:border-box; min-width:0; padding:28px 32px; background:#fff; border:1px solid #e0ddea; border-radius:8px; color:#15243a; scroll-margin-top:20px; }
+.attendance-preview-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; }
+.attendance-preview-heading h3 { margin:0; font-size:20px; }
+.attendance-report-preview p { margin:8px 0 18px; color:#595368; font-size:14px; line-height:1.5; }
+.attendance-preview-heading button,.attendance-report-preview>[data-attendance-retry],#portal .admin-person-attendance { min-height:44px; padding:10px 14px; border:1px solid #beb4cf; border-radius:8px; background:#f1eff7; color:#53406d; font:inherit; font-size:14px; font-weight:600; cursor:pointer; }
+#portal .admin-person-attendance { width:100%; margin:12px 0; }
+.attendance-preview-heading button { flex-shrink:0; }
+.attendance-preview-person { padding-top:24px; min-width:0; }
+.attendance-preview-person h4 { margin:0; font-size:18px; overflow-wrap:anywhere; }
+.attendance-preview-scroll { overflow-x:auto; max-height:none; border:0; border-radius:0; }
+.attendance-preview-scroll table { width:100%; min-width:900px; table-layout:fixed; border-collapse:collapse; text-align:left; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:1.3; font-variant-numeric:tabular-nums; }
+.attendance-preview-scroll th,.attendance-preview-scroll td { padding:7px 10px; vertical-align:top; overflow-wrap:anywhere; }
+.attendance-preview-scroll thead th { background:#09244c; color:#fff; font-size:12px; font-weight:600; padding-block:10px; }
+.attendance-preview-scroll tbody th { font-weight:500; }
+.attendance-preview-scroll tbody tr:nth-child(odd) { background:#f6f8fb; }
+.attendance-preview-scroll td.is-punctual { background:#ddf0e4; color:#145d36; }
+.attendance-preview-scroll td.is-late { background:#fff1cc; color:#754600; }
+.attendance-preview-scroll td.is-incomplete { background:#f9dadb; color:#8c2933; }
+.attendance-preview-scroll button { display:block; width:100%; min-height:28px; padding:0; border:0; background:transparent; color:#09244c; text-align:left; font:inherit; text-decoration:none; cursor:pointer; }
+.attendance-preview-scroll .attendance-evidence-link span { display:block; }
+.attendance-preview-scroll button:hover { text-decoration:underline; text-underline-offset:3px; background:#e8eef6; }
+.attendance-day-navigation { display:flex; justify-content:space-between; gap:12px; margin:0 0 16px; }
+.attendance-day-navigation button { min-height:40px; padding:8px 12px; color:#09244c; background:#fff; border:1px solid #dce3ec; border-radius:8px; font:inherit; cursor:pointer; }
+.attendance-day-navigation button:disabled { opacity:.45; cursor:default; }
+.attendance-report-preview button:hover,#portal .admin-person-attendance:hover { background:#e8dff4; }
+.attendance-report-preview :focus-visible,#portal .admin-person-attendance:focus-visible { outline:2px solid #075abc; outline-offset:3px; }
+@media(max-width:760px) {
+  .attendance-report-preview { padding:16px; }
+  .attendance-preview-heading { flex-direction:column; gap:0; }
+  .attendance-export-downloads { flex-wrap:wrap; }
+  .attendance-export-downloads #attendance-report-view { flex:1 1 100%; }
+  .attendance-preview-scroll { max-height:none; }
+  .attendance-preview-scroll button { min-height:36px; }
+  .attendance-day-navigation { flex-wrap:wrap; }
+}

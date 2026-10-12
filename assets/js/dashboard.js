@@ -790,6 +790,7 @@ async function removeProfileCover(){
 }
 
 function showAccess(message){
+  if(typeof resetAttendancePreview==='function')resetAttendancePreview();
   if(typeof window!=='undefined')window.KJAZoom?.reset();
   if(typeof resetEvidenceCorrections==='function')resetEvidenceCorrections();
   localStorage.removeItem(SHELL_KEY);

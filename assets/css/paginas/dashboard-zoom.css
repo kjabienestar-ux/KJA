@@ -368,3 +368,80 @@ body:has(#portal[data-view="zoom"]){background:#f5f5f7!important}
  #portal[data-view="zoom"] #view-zoom .zoom-editor select option::checkmark{color:#075abc}
 }
 @media(prefers-reduced-motion:reduce){#portal[data-view="zoom"] #view-zoom .zoom-editor select,#portal[data-view="zoom"] #view-zoom .zoom-editor select::picker-icon{transition:none}}
+/* El cliente permanece montado al consultar otras secciones del portal. */
+.zoom-embedded[hidden]{display:none!important}
+.zoom-embedded{margin:24px 0;border:1px solid #d8e3f0;border-radius:16px;overflow:hidden;background:#fff;scroll-margin-top:20px}
+.zoom-embedded>header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 22px}
+.zoom-embedded h2{margin:0;font-size:19px}
+.zoom-embedded p{margin:6px 0 0;font-size:14px;line-height:1.5;color:#465a72;max-width:65ch}
+.zoom-embedded iframe{display:block;width:100%;height:76dvh;min-height:620px;border:0;background:#f5f5f7}
+.zoom-embedded iframe:fullscreen{height:100dvh;min-height:0;background:#fff}
+@media(max-width:760px){.zoom-embedded>header{align-items:stretch;flex-direction:column;padding:16px}.zoom-embedded iframe{height:80dvh;min-height:540px}}
+
+/* Compact management controls leave the meeting and agenda as the main workspace. */
+.zoom-topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 20px;align-items:center;margin-bottom:20px}
+#portal[data-view="zoom"] #view-zoom .zoom-topbar .zoom-header{padding:0;border:0;gap:20px}
+#portal[data-view="zoom"] #view-zoom .zoom-topbar .zoom-settings{margin:0;padding:0 16px;border:1px solid #dce3ed;border-radius:8px;min-width:0}
+#view-zoom .zoom-topbar .zoom-settings>summary{white-space:nowrap}
+#view-zoom .zoom-topbar:has(.zoom-settings[open]){grid-template-columns:minmax(0,1fr)}
+#view-zoom .zoom-topbar .zoom-settings[open]{padding-bottom:16px}
+#view-zoom #zoom-meetings-heading{justify-content:flex-start;gap:24px;margin:16px 0 12px;align-items:center}
+#view-zoom #zoom-meetings-heading .zoom-search-label{flex-direction:row;align-items:center;width:auto;gap:12px;white-space:nowrap;font-weight:400}
+#view-zoom #zoom-meetings-heading input{width:260px}
+#portal[data-view="zoom"] #view-zoom .zoom-row{padding:16px 20px;margin-bottom:12px}
+#portal[data-view="zoom"] #view-zoom .zoom-row-copy h3{font-size:18px}
+#portal[data-view="zoom"] #view-zoom .zoom-row-options{margin-top:12px;padding-top:0}
+#portal[data-view="zoom"] #view-zoom .zoom-row-options>summary{padding:10px 0}
+@media(min-width:1100px){
+ #portal[data-view="zoom"] #view-zoom .zoom-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:0 12px;align-items:center}
+ #view-zoom .zoom-row-main{display:contents}
+ #view-zoom .zoom-row-copy{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,auto);gap:4px 24px;align-items:center;padding-right:16px}
+ #portal[data-view="zoom"] #view-zoom .zoom-row-copy h3{grid-column:1;margin:0}
+ #portal[data-view="zoom"] #view-zoom .zoom-row-copy .zoom-time{grid-column:2;grid-row:1;margin:0;font-size:13px}
+ #view-zoom .zoom-row-copy .zoom-note{margin:0}
+ #view-zoom .zoom-row-copy .zoom-error{grid-column:1 / -1}
+ #portal[data-view="zoom"] #view-zoom .zoom-row>.zoom-row-admin{margin:0;max-width:280px}
+ #view-zoom .zoom-row>.zoom-row-options,#view-zoom .zoom-row>.zoom-mobile-host-note{grid-column:1 / -1}
+ #view-zoom .zoom-row>.zoom-row-admin input{max-width:240px}
+}
+@media(max-width:1099px){
+ .zoom-topbar{grid-template-columns:minmax(0,1fr)}
+ #portal[data-view="zoom"] #view-zoom .zoom-topbar .zoom-settings{justify-self:start;max-width:100%}
+ #portal[data-view="zoom"] #view-zoom .zoom-topbar .zoom-settings[open]{justify-self:stretch}
+ #view-zoom #zoom-meetings-heading{flex-wrap:wrap;gap:12px}
+}
+@media(max-width:700px){
+ #view-zoom #zoom-meetings-heading{align-items:stretch}
+ #view-zoom #zoom-meetings-heading .zoom-search-label{flex-direction:column;align-items:stretch;gap:6px;white-space:normal}
+ #view-zoom #zoom-meetings-heading input{width:100%}
+}
+
+/* Use the available workspace; keep the meeting mounted while the agenda reflows. */
+#zoom-disconnect-dialog{box-sizing:border-box;width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:28px;border:1px solid #efb5ba;border-radius:16px;background:#fff;color:#25354b;box-shadow:none}
+#zoom-disconnect-dialog::backdrop{background:rgb(20 28 40 / 60%)}
+#view-zoom #zoom-disconnect-dialog .zoom-disconnect-icon{width:40px;height:40px;margin-bottom:16px;color:#b42332;stroke:currentColor;fill:none;stroke-width:1.8}
+#view-zoom #zoom-disconnect-title{color:#a12335;font-size:22px;line-height:1.3;margin:0 0 12px}
+#zoom-disconnect-description{margin:0;line-height:1.6}
+#zoom-disconnect-dialog .zoom-disconnect-note{margin:20px 0 24px;padding:12px 16px;border-radius:8px;background:#fff1f2;color:#8e2030;font-size:13px;line-height:1.6}
+#zoom-disconnect-dialog .zoom-actions{justify-content:flex-end;flex-wrap:wrap;gap:12px}
+#view-zoom #zoom-disconnect-confirm{background:#b42332;border-color:#b42332;color:#fff;min-height:44px;font-weight:600}
+#view-zoom #zoom-disconnect-confirm:hover{background:#921c29;border-color:#921c29}
+#view-zoom #zoom-disconnect-dialog button:focus-visible{outline:3px solid #b42332;outline-offset:3px}
+@media(max-width:520px){#zoom-disconnect-dialog{padding:24px}#zoom-disconnect-dialog .zoom-actions{display:grid;grid-template-columns:1fr}#zoom-disconnect-dialog button{width:100%;min-height:44px}}
+#portal[data-view="zoom"] #view-zoom{max-width:none;width:100%;box-sizing:border-box;container-type:inline-size;container-name:zoom-workspace}
+.zoom-session-layout,.zoom-session-main{min-width:0}
+.zoom-session-layout:has(#zoom-embedded:not([hidden])){margin-top:24px}
+.zoom-session-layout .zoom-embedded{margin:0 0 16px}
+.zoom-embedded>header>div{min-width:0}
+.zoom-embedded>header .zoom-actions{flex-shrink:0;flex-wrap:wrap}
+.zoom-embedded h2{overflow-wrap:anywhere}
+@container zoom-workspace (min-width:1180px){
+ .zoom-session-layout:has(#zoom-embedded:not([hidden])):has(#zoom-week:not([hidden])){display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,360px);gap:24px;align-items:start}
+ #view-zoom .zoom-session-layout:has(#zoom-embedded:not([hidden])) #zoom-week{margin-top:0;padding:20px;min-width:0}
+ #view-zoom .zoom-session-layout:has(#zoom-embedded:not([hidden])) #zoom-week .zoom-list-heading{flex-direction:column;align-items:stretch;gap:16px}
+ #view-zoom .zoom-session-layout:has(#zoom-embedded:not([hidden])) #zoom-week .zoom-actions{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:6px}
+ #view-zoom .zoom-session-layout:has(#zoom-embedded:not([hidden])) #zoom-week .zoom-actions button{padding:10px 6px;font-size:12px}
+ #view-zoom .zoom-session-layout:has(#zoom-embedded:not([hidden])) .zoom-week-day{grid-template-columns:minmax(0,1fr);gap:8px;padding:16px 8px}
+ #view-zoom .zoom-session-layout:has(#zoom-embedded:not([hidden])) .zoom-week-session{grid-template-columns:88px minmax(0,1fr);gap:12px}
+ .zoom-session-layout .zoom-embedded>header{flex-wrap:wrap;gap:12px;padding:16px 20px}
+}

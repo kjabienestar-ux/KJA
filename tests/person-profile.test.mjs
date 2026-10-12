@@ -45,6 +45,7 @@ const person={id:1,nombre:'María Peña',dni:'00123456',area:'Salud',activo:true
 const extra={facebook:{ok:true,configurado:true,horario:{}},history:{ok:true,historial:[]}};
 function exportHarness(nodes){
   const c=harness();c.$=nodes?id=>{if(!nodes.has(id))nodes.set(id,{value:'',disabled:false,innerHTML:'',textContent:''});return nodes.get(id)}:()=>null;
+  vm.runInContext(fs.readFileSync(new URL('../assets/js/attendance-report-model.js',import.meta.url),'utf8'),c);
   vm.runInContext(fs.readFileSync(new URL('../assets/js/dashboard-attendance-export.js',import.meta.url),'utf8'),c);
   return c;
 }
@@ -67,13 +68,13 @@ test('Excel button downloads only the selection and restores controls on success
   c.$('attendance-export-clear').onclick();c.$('attendance-export-options').onchange({target:{type:'checkbox',checked:true,value:'2'}});
   c.document.createElement=()=>({click(){},remove(){}});c.document.body={append:link=>links.push(link)};
   c.URL={createObjectURL:blob=>{blobs.push(blob);return 'blob:test'},revokeObjectURL(){}};c.setTimeout=fn=>fn();
-  let finish,selected,full;c.collectAttendanceExport=(people,today,progress,includeProfile)=>{selected=people;full=includeProfile;return new Promise(resolve=>finish=resolve)};
-  c.KJAInternExcel={build:()=>new Uint8Array([80,75])};
+  let finish,selected,range;c.collectAttendanceReport=(people,period)=>{selected=people;range=period;return new Promise(resolve=>finish=resolve)};
+  c.KJAInternExcel={buildFocused:()=>new Uint8Array([80,75])};
   const downloading=c.$('admin-attendance-excel').onclick();assert.equal(c.$('attendance-export-picker').disabled,true);assert.equal(c.$('admin-attendance-export').disabled,true);
-  finish([{person:selected[0],sections:[]}]);await downloading;
-  assert.deepEqual(Array.from(selected,p=>p.id),[2]);assert.equal(full,true);assert.equal(links.length,1);assert.match(links[0].download,/KJA_Consolidado_1_internos_.*\.xlsx$/);
+  finish({reports:[{person:selected[0]}],files:[],unavailable:0,range});await downloading;
+  assert.deepEqual(Array.from(selected,p=>p.id),[2]);assert.equal(range.from,c.$('attendance-export-from').value);assert.equal(links.length,1);assert.match(links[0].download,/KJA_Asistencia_evidencias_.*\.xlsx$/);
   assert.equal(blobs[0].type,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');assert.equal(c.$('attendance-export-picker').disabled,false);
-  c.collectAttendanceExport=async()=>{throw Error('Fallo de lectura')};await c.$('admin-attendance-excel').onclick();assert.equal(links.length,1);assert.match(c.$('admin-attendance-export-status').textContent,/Fallo de lectura/);assert.equal(c.$('admin-attendance-excel').disabled,false);
+  c.collectAttendanceReport=async()=>{throw Error('Fallo de lectura')};await c.$('admin-attendance-excel').onclick();assert.equal(links.length,1);assert.match(c.$('admin-attendance-export-status').textContent,/Fallo de lectura/);assert.equal(c.$('admin-attendance-excel').disabled,false);assert.equal(c.$('attendance-export-period').disabled,false);
 });
 function workbookFixture(){
   const c=exportHarness();

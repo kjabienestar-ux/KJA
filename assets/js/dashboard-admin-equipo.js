@@ -111,6 +111,7 @@ function renderAdminPeople(){
         <div class="admin-identity-line"><span>DNI <b>${esc(p.dni||'Sin registrar')}</b></span><span class="${p.tiene_pin?'ready':'missing'}">${p.tiene_pin?'PIN configurado':'Sin PIN'}</span><span>${p.tiene_cuenta?'Portal activado':'Aún no ingresó'}</span></div>
         <div class="admin-week-ledger">${days}</div>
         <div class="admin-person-contract ${summary.pendiente?'pending':''}"><span><small>SEGUIMIENTO</small><b>${esc(contract)}</b></span><i style="--contract-progress:${pct}%"></i></div>
+        <button type="button" class="admin-person-attendance" data-team-attendance="${p.id}" aria-label="Ver asistencias y evidencias de ${esc(p.nombre)}">Ver asistencias y evidencias</button>
         ${$('admin-person-profile')?`<button type="button" class="admin-person-view-profile" data-team-profile="${p.id}" aria-label="Ver ficha completa de ${esc(p.nombre)}">Ver ficha completa <span>Datos, horario y Facebook</span></button>`:''}
       </article>`;
     }
