@@ -1436,6 +1436,20 @@ test('collaborator editor has an optional unique contact email under the DNI', (
   assert.match(migration,/'correo_duplicado'/);
 });
 
+test('people directory can be filtered by having or missing a contact email', () => {
+  assert.match(html,/<select id="admin-people-email"[^>]*>(?=[\s\S]*value="con")(?=[\s\S]*value="sin")/);
+  const start=adminTeamJs.indexOf('function filteredAdminPeople(');
+  const body=adminTeamJs.slice(start,adminTeamJs.indexOf('function renderAdminPeople(',start));
+  const fields={'admin-people-search':'','admin-people-area':'','admin-people-inactive':{checked:true},'admin-people-email':''};
+  const c={APP:{adminTeam:{personas:[{id:1,nombre:'Ana',activo:true,correo:'a@x.com'},{id:2,nombre:'Beto',activo:true,correo:null},{id:3,nombre:'Cris',activo:false}]}},
+    $:id=>fields[id]&&typeof fields[id]==='object'?fields[id]:{value:fields[id],checked:false}};
+  vm.createContext(c);vm.runInContext(body,c);
+  const names=()=>vm.runInContext("filteredAdminPeople('people').map(p=>p.nombre).join()",c);
+  assert.equal(names(),'Ana,Beto,Cris');
+  fields['admin-people-email']='con';assert.equal(names(),'Ana');
+  fields['admin-people-email']='sin';assert.equal(names(),'Beto,Cris');
+});
+
 test('collaborator institution is chosen from the approved campus list and keeps legacy values', () => {
   assert.match(html,/<select id="admin-person-institution" aria-describedby="admin-institution-help">/);
   assert.doesNotMatch(html,/<input id="admin-person-institution"/);

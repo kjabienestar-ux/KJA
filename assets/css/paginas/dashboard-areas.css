@@ -1,5 +1,5 @@
 /* Gestión de áreas: paleta violeta/pizarra armonizada con el entorno administrativo. */
-:is(#admin-people-area, #admin-contract-area)[hidden]{display:none!important}
+:is(#admin-people-area, #admin-people-email, #admin-contract-area)[hidden]{display:none!important}
 .area-picker{position:relative;min-width:200px;max-width:100%}
 .area-picker .area-picker-trigger{
   display:flex;
