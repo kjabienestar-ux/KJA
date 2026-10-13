@@ -26,7 +26,7 @@
     const waUrl = message => 'https://wa.me/51988918238?text=' + encodeURIComponent(message);
 
     routesGrid.innerHTML = KJA_FORMATION.routes.map(route =>
-        '<article class="formation-route formation-tone-' + escape(route.tone) + '" tabindex="0" aria-labelledby="route-title-' + escape(route.id) + '" aria-describedby="route-description-' + escape(route.id) + '">' +
+        '<article class="formation-route formation-tone-' + escape(route.tone) + '" data-formation-route-card="' + escape(route.id) + '" tabindex="0" aria-labelledby="route-title-' + escape(route.id) + '" aria-describedby="route-description-' + escape(route.id) + '">' +
         '<img src="' + escape(photo(route.image)) + '" width="1200" height="600" alt="" loading="lazy" decoding="async">' +
         '<span class="formation-route-icon">' + icon(route.icon) + '</span><div class="formation-route-copy"><h3 id="route-title-' + escape(route.id) + '">' + escape(route.title) + '</h3><div class="formation-route-summary"><p id="route-description-' + escape(route.id) + '">' + escape(route.description) + '</p></div></div></article>'
     ).join('');

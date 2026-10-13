@@ -16,6 +16,10 @@
 /* Photo first; a complete tinted veil reveals the area description. */
 .formation-route { position: relative; isolation: isolate; min-width: 0; min-height: 340px; overflow: hidden; border-radius: 16px; background: var(--formation-tint); box-shadow: 0 10px 24px #28356812; }
 .formation-route > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 65% center; z-index: -2; }
+.formation-route[data-formation-route-card="clinica"] > img { object-position: 59% center; }
+.formation-route[data-formation-route-card="infantil"] > img { object-position: 81% center; }
+.formation-route[data-formation-route-card="herramientas"] > img { object-position: 56% center; }
+.formation-route[data-formation-route-card="educativa-organizacional"] > img { object-position: 60% center; }
 .formation-route::before { position: absolute; content: ''; inset: 0; background: linear-gradient(180deg, transparent 15%, #13233930 40%, #132339e8 100%); z-index: -1; }
 .formation-route::after { position: absolute; content: ''; inset: 0; z-index: -1; background: var(--formation-tint); opacity: 0; transition: opacity .45s cubic-bezier(.16,1,.3,1); }
 .formation-route-copy { position: absolute; inset: auto 0 0; padding: 24px 18px; color: #fff; display: grid; grid-template-rows: auto 0fr; transition: grid-template-rows .45s cubic-bezier(.16,1,.3,1); }
@@ -265,4 +269,9 @@
     .formation-route:is(:hover,:focus-visible) .formation-route-copy, .formation-route-copy { color: #fff; }
     .formation-route-copy h3, .formation-route-copy p { color: #fff; }
     .formation-route-icon { color: #fff; filter: drop-shadow(0 2px 4px #14213b80); }
+    .formation-route[data-formation-route-card="clinica"] > img { object-position: 59% center; }
+    .formation-route[data-formation-route-card="infantil"] > img { object-position: 72% center; }
+    .formation-route[data-formation-route-card="herramientas"] > img { object-position: 54% center; }
+    .formation-route[data-formation-route-card="educativa-organizacional"] > img { object-position: 60% center; }
+    .formation-route-icon { display: none; }
 }
