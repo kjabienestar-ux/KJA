@@ -12,10 +12,13 @@ function page({ query = '', published = false, driveUrl = '', count = 3, desktop
     const run = code => vm.runInContext(code, dom.getInternalVMContext());
     window.matchMedia = query => ({ matches: desktop && query.includes('min-width: 1051px') });
     window.Element.prototype.getAnimations = () => [];
+    window.Element.prototype.scrollIntoView = () => {};
     window.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
     window.HTMLDialogElement.prototype.close = function () { this.open = false; this.dispatchEvent(new window.Event('close')); };
     run(script('cursos-data.js'));
     run(script('cursos-catalogo.js'));
+    run(script('cursos-formacion-data.js'));
+    run(script('cursos-formacion.js'));
     run(script('cursos-gratuitos-data.js'));
     if (published) run('FREE_COURSE_LIBRARY.preview = false;');
     run('FREE_COURSE_LIBRARY.courses[0].driveUrl = ' + JSON.stringify(driveUrl) + ';');
@@ -25,13 +28,12 @@ function page({ query = '', published = false, driveUrl = '', count = 3, desktop
     return dom;
 }
 
-test('el catálogo conserva las nueve rutas y muestra gratis antes de las áreas', () => {
+test('la biblioteca gratuita precede las cuatro rutas y la selección de cursos', () => {
     const dom = page();
     const { document } = dom.window;
-    const links = [...document.querySelectorAll('.catalog-area-link')];
-    assert.equal(links.length, 9);
-    assert.equal(new Set(links.map(a => a.href)).size, 9);
-    assert.ok(links.every(a => a.href.includes('?area=') && a.querySelector('h3').textContent));
+    assert.equal(document.querySelectorAll('.formation-route').length, 4);
+    assert.equal(document.querySelectorAll('[data-formation-course]').length, 7);
+    assert.equal(document.querySelectorAll('.catalog-area-link').length, 0);
     assert.ok(document.getElementById('cursos-gratuitos').compareDocumentPosition(document.getElementById('catalogo')) & 4);
     dom.window.close();
 });
@@ -44,35 +46,6 @@ test('la vista de un área conserva sus programas y oculta la biblioteca', () =>
     assert.equal(document.getElementById('area-title').textContent, 'TEA / Autismo');
     assert.ok(document.querySelectorAll('.area-program').length > 0);
     assert.equal(document.querySelectorAll('.free-course-card').length, 0);
-    dom.window.close();
-});
-
-test('la expansión con teclado muestra el área activa y se cierra al salir de su fila', () => {
-    const dom = page({ desktop: true });
-    const { document } = dom.window;
-    const cards = [...document.querySelectorAll('.catalog-area-card')];
-    assert.equal(document.querySelectorAll('.catalog-area-row').length, 3);
-    cards[0].querySelector('a').focus();
-    assert.equal(cards[0].classList.contains('is-expanded'), true);
-    assert.match(cards[0].querySelector('.catalog-area-description').textContent, /ADOS-2 y ADI-R/);
-    assert.equal(cards[0].style.getPropertyValue('--catalog-focus'), '100% center');
-    cards[1].querySelector('a').focus();
-    assert.equal(cards[0].classList.contains('is-expanded'), false);
-    assert.equal(cards[1].classList.contains('is-expanded'), true);
-    cards[3].querySelector('a').focus();
-    assert.equal(cards[1].parentElement.classList.contains('has-expanded'), false);
-    assert.equal(cards[3].classList.contains('is-expanded'), true);
-    document.getElementById('free-library-open').focus();
-    assert.equal(document.querySelector('.has-expanded'), null);
-    dom.window.close();
-});
-
-test('en pantallas táctiles las áreas conservan sus rutas sin activar la expansión', () => {
-    const dom = page();
-    const { document } = dom.window;
-    document.querySelector('.catalog-area-link').focus();
-    assert.equal(document.querySelector('.has-expanded'), null);
-    assert.equal(document.querySelectorAll('.catalog-area-description').length, 9);
     dom.window.close();
 });
 
