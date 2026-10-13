@@ -5,6 +5,7 @@ const ADMIN_LINKS={practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Mix
 const ADMIN_INSTITUTIONS=['UTP - LIMA CENTRO','UTP - LIMA NORTE','UTP - ATE','SENATI - INDEPENDENCIA','SENATI - CENTRO DE LIMA','IDAT - SJM','UPEU - LIMA','UPC - SAN MIGUEL','UFV - SEDE CENTRAL','ZEGEL - PURUCHUCO'];
 let ADMIN_DAYS_OFF={person:null,busy:false,trigger:null};
 let ADMIN_FACEBOOK_SCHEDULE={configured:false,horario:{}};
+let ADMIN_CONTRACT_META_EDITED=false;
 
 function teamMsg(text){
   const el=$(APP.adminSection==='contratos'?'admin-contract-message':'admin-team-message');
@@ -240,6 +241,7 @@ async function openAdminPerson(id){
   $('admin-contract-start').value=String(person?.contrato_inicio||'').slice(0,10);
   $('admin-contract-end').value=String(person?.contrato_fin_referencia||'').slice(0,10);
   $('admin-contract-hours').value=person?.contrato_horas??'';
+  ADMIN_CONTRACT_META_EDITED=false;
   $('admin-contract-previous').value=person?.horas_previas??0;
   $('admin-volunteer-hours').value=person?.contrato_horas_voluntariado??'';
   $('admin-general-start').value=fmtTime(person?.hora_inicio)==='—'?'08:00':fmtTime(person?.hora_inicio);
@@ -282,7 +284,9 @@ async function loadAdminPersonHistory(id){
   const {data,error}=await db.rpc('dash_admin_historial_colaborador',{p_colab:Number(id)});
   if(error||!data?.ok){$('admin-history-list').innerHTML='<p>No se pudo cargar el historial.</p>';return}
   const labels={horario:'Horario y modalidad',horas_contrato:'Meta de horas',fechas:'Fechas y datos del contrato',otro:'Identidad o estado'};
-  $('admin-history-list').innerHTML=(data.historial||[]).length?(data.historial||[]).slice(0,12).map(h=>`<article><time>${adminDate(h.fecha)}</time><span><b>${esc(labels[h.tipo]||h.tipo)}</b><small>${esc(h.nota||'Sin motivo registrado')}${h.creado_por?' · '+esc(h.creado_por):''}</small></span></article>`).join(''):'<p>Sin cambios registrados.</p>';
+  const history=data.historial||[];
+  const review=history.some(h=>h.tipo==='horas_contrato'&&history.some(x=>['horario','fechas'].includes(x.tipo)&&x.created_at&&x.created_at===h.created_at));
+  $('admin-history-list').innerHTML=(review?'<p role="status">Revisar meta contractual: hubo cambios de horas junto con fechas u horarios. Compara la meta con el contrato; una simulación anterior pudo haberla reemplazado.</p>':'')+(history.length?history.slice(0,12).map(h=>`<article><time>${adminDate(h.fecha)}</time><span><b>${esc(labels[h.tipo]||h.tipo)}${h.tipo==='horas_contrato'?' · '+esc(h.horas_anterior??'Sin definir')+' → '+esc(h.horas_nueva??'Sin definir')+' h':''}</b><small>${esc(h.nota||'Sin motivo registrado')}${h.creado_por?' · '+esc(h.creado_por):''}</small></span></article>`).join(''):'<p>Sin cambios registrados.</p>');
 }
 
 async function createAdminArea(){
@@ -319,9 +323,7 @@ function calculateAdminContractHours(){
   try{
     const person=collectAdminPerson(),mixed=person.tipo_vinculo==='ambos';
     const result=estimateAdminContractHours(person.contrato_inicio||'',person.contrato_fin_referencia||'',person.horario_semanal,mixed);
-    $('admin-contract-hours').value=result.hours;
-    if(mixed)$('admin-volunteer-hours').value=result.volunteer;
-    note.textContent='Estimación con ambas fechas incluidas y la jornada semanal; no descuenta feriados ni ausencias. Las horas previas no se modifican.';
+    note.textContent=`Simulación: ${result.hours} h${mixed?' principales y '+result.volunteer+' h de voluntariado':''} si el horario actual se aplicara a todo el intervalo. No representa el historial ni las horas cumplidas; no descuenta feriados ni ausencias. La meta contractual no cambia.`;
   }catch(error){note.textContent=error.message;}
 }
 function collectAdminPerson(){
@@ -346,12 +348,14 @@ async function saveAdminPerson(event){
   if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return editorMsg('Escribe un correo válido.');
   if($('admin-contract-start').value&&$('admin-contract-end').value&&$('admin-contract-end').value<$('admin-contract-start').value)return editorMsg('La fecha final no puede ser anterior al inicio del contrato.');
   let payload,facebookSchedule;try{payload=collectAdminPerson();facebookSchedule=collectFacebookSchedule()}catch(e){return editorMsg(e.message)}
+  payload.meta_editada_explicitamente=ADMIN_CONTRACT_META_EDITED;
   const button=$('admin-person-save');button.disabled=true;button.textContent='Guardando…';
   if(APP.adminTeam.instituciones_disponibles){payload.institucion=$('admin-person-institution')?.value.trim()||null;payload.correo=email.toLowerCase()||null;}
   const {data,error}=await db.rpc(APP.adminTeam.instituciones_disponibles?'dash_admin_guardar_ficha':'dash_admin_guardar_colaborador',{p_datos:payload,p_motivo:$('admin-change-reason').value.trim()||null});
   if(error||!data?.ok){
     button.disabled=false;button.textContent='Guardar cambios';
     const messages={sin_permiso:'Tu rol no permite editar.',nombre:'Revisa el nombre completo.',dni:'El DNI debe tener 8 dígitos.',dni_duplicado:'Ese DNI ya pertenece a otro colaborador.',area:'Selecciona un área activa.',horario:'Hay un día con horario incompleto o incoherente.',horario_general:'La salida general debe ser posterior a la entrada.',fechas:'La fecha final no puede ser anterior al inicio.',horas:'Las horas no pueden ser negativas.',duplicado:'Ya existe un registro con uno de estos datos.',institucion:'La institución no es válida.',correo:'Escribe un correo válido.',correo_duplicado:'Ese correo ya pertenece a otro colaborador.'};
+    if(data?.motivo==='meta_requiere_edicion_explicita')return editorMsg('La meta contractual se conserva al cambiar fechas u horarios. Recarga la ficha; para corregir la meta, escribe las horas acordadas directamente en su campo.');
     return editorMsg(messages[data?.motivo]||error?.message||'No se pudo guardar la ficha.');
   }
   const facebookResult=await db.rpc('dash_admin_guardar_horario_compartir',{p_colab:Number(data.id),p_horario:facebookSchedule});
@@ -461,7 +465,8 @@ $('admin-institution-add').onclick=()=>{
   $('admin-institution-reveal').setAttribute('aria-expanded','false');editorMsg('');
 };
 $('admin-contract-calculate').onclick=calculateAdminContractHours;
-['admin-contract-start','admin-contract-end','admin-person-link','admin-schedule-grid'].forEach(id=>$(id).addEventListener('change',calculateAdminContractHours));
+['admin-contract-start','admin-contract-end','admin-person-link','admin-schedule-grid','admin-general-start','admin-general-end'].forEach(id=>$(id).addEventListener('change',()=>{$('admin-contract-estimate').textContent='La meta contractual se mantiene. Si simulas este horario, se aplicará a todo el intervalo, sin reconstruir horarios anteriores.';}));
+['admin-contract-hours','admin-volunteer-hours'].forEach(id=>$(id).addEventListener('input',()=>{ADMIN_CONTRACT_META_EDITED=true;}));
 document.querySelectorAll('[data-close-days-off]').forEach(button=>button.onclick=closeAdminDaysOff);
 document.querySelectorAll('[data-days-off-mode]').forEach(button=>{
   button.onclick=()=>syncDaysOffMode(button.dataset.daysOffMode);
