@@ -44,6 +44,7 @@ function renderAttendanceExport(){
   syncAttendanceExportSelection();
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   for(const [id,initial] of [['attendance-export-from',today.slice(0,7)+'-01'],['attendance-export-to',today]]){const input=$(id);if(input){input.max=today;if(!input.value)input.value=initial;}}
+  if(typeof syncKjaDatePickers==='function')syncKjaDatePickers();
   status.textContent=selected.length?'Puntualidad por fecha y archivos subidos en un solo informe.':'Selecciona al menos un interno para descargar.';
 }
 async function collectAttendanceExport(people,today,onProgress=()=>{},includeProfile=false){
