@@ -1,0 +1,298 @@
+/* Nosotros · Representantes: carrusel en media luna.
+   La posición y el tamaño de cada avatar los calcula
+   assets/js/nosotros-representantes.js; aquí va solo el aspecto. */
+
+/* Con la pestaña Representantes la barra tiene cinco pestañas: en pantallas medianas se
+   compactan para caber sin desplazarse, y si aun así no caben pasan a dos filas centradas. */
+@media (width > 768px) and (width <= 1120px) {
+  #about-tabs { flex-wrap: wrap; justify-content: center; }
+  #about-tabs .nosotros-tab { padding: 10px; gap: 7px; font-size: 12px; }
+  #about-tabs .nosotros-tab-icon { width: 26px; height: 26px; }
+}
+
+.reps { --reps-accent: #e0006f; position: relative; isolation: isolate; padding: 8px 0 12px; text-align: center; font-family: 'Poppins', sans-serif; }
+
+/* ── Encabezado general: el mismo texto para todas las áreas ── */
+.reps-heading { position: relative; max-width: 780px; margin: 0 auto; padding-top: 8px; }
+.reps-heading::before { content: ''; position: absolute; inset: -24px 0 auto; z-index: -1; height: 380px; background: radial-gradient(ellipse at 50% 38%, rgba(241, 0, 117, .08), transparent 64%); pointer-events: none; }
+.reps-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 22px; padding: 8px 20px; border: 1px solid rgba(224, 0, 111, .28); border-radius: 999px; background: #fff; color: #d4006a; font-size: 11px; font-weight: 700; letter-spacing: 2.2px; text-transform: uppercase; box-shadow: 0 6px 18px rgba(224, 0, 111, .08); }
+.reps-eyebrow > span { font-size: 13px; letter-spacing: 0; }
+.reps-heading h2 { margin: 0 0 18px; font-family: 'Fraunces', Georgia, serif; font-size: clamp(34px, 3.9vw, 56px); font-weight: 600; line-height: 1.12; letter-spacing: -.02em; color: #0f1b3d; }
+.reps-heading h2 em { position: relative; display: inline-block; padding: 0 .06em; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 500; color: #e0006f; }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .reps-heading h2 em { background: linear-gradient(90deg, #f10075, #c41a9b); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+}
+/* Subrayado a mano bajo "impulsan": se dibuja al abrir la pestaña */
+.reps-swoosh { position: absolute; left: 0; bottom: -.1em; width: 100%; height: .26em; overflow: visible; fill: none; stroke: #e0006f; stroke-width: 3; stroke-linecap: round; pointer-events: none; }
+/* Patrón 1 2 (no 1 1): antes de dibujarse no queda el puntito de la punta redondeada. */
+.reps-swoosh path { stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+.about-panel.active .reps-swoosh path { animation: repsDraw .9s .35s cubic-bezier(.65, 0, .35, 1) both; }
+.reps-intro { max-width: 560px; margin: 0 auto 22px; color: var(--nos-muted, #5b6b86); font-size: 16px; line-height: 1.75; }
+.reps-summary { display: inline-flex; align-items: center; gap: 14px; margin: 0; padding: 8px 20px 8px 10px; border-radius: 999px; background: #fff; box-shadow: 0 10px 28px rgba(20, 42, 79, .08); color: var(--nos-muted, #5b6b86); font-size: 13.5px; line-height: 1.4; text-align: left; }
+.reps-summary strong { color: #0f1b3d; font-weight: 700; }
+.reps-summary-faces { display: inline-flex; flex-shrink: 0; }
+.reps-summary-face { display: grid; place-items: center; width: 30px; height: 30px; margin-left: -7px; border: 2px solid #fff; border-radius: 50%; background: var(--rep-color, #64748b); color: #fff; font-size: 9.5px; font-weight: 700; letter-spacing: .02em; }
+.reps-summary-face:first-child { margin-left: 0; }
+.about-panel.active .reps-summary-face { animation: repsPopIn .4s calc(.35s + var(--i, 0) * 70ms) cubic-bezier(.34, 1.56, .64, 1) both; }
+/* Flecha que lleva al carrusel */
+.reps-jump { display: grid; place-items: center; width: 52px; height: 52px; margin: 24px auto 0; border: 1px solid rgba(224, 0, 111, .25); border-radius: 50%; background: #fff; color: #e0006f; text-decoration: none; box-shadow: 0 10px 24px rgba(224, 0, 111, .15); animation: repsNudge 1.8s ease-in-out infinite; transition: background-color .2s ease, color .2s ease, box-shadow .2s ease, opacity .25s ease; }
+.reps-jump.is-tucked { opacity: 0; pointer-events: none; }
+.reps-jump svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+/* Solo con mouse: en pantallas táctiles el :hover se queda pegado después de tocar. */
+@media (hover: hover) {
+  .reps-jump:hover { background: #e0006f; color: #fff; box-shadow: 0 14px 30px rgba(224, 0, 111, .32); animation-play-state: paused; }
+}
+.reps-jump:focus-visible { outline: 3px solid #004fb0; outline-offset: 4px; border-radius: 50%; }
+/* Destino de la flecha. El espacio para la barra fija ya lo da shared.css (scroll-padding-top: 90px);
+   el margen deja la flecha escondida tras la barra cuando el carrusel queda arriba. */
+.reps-showcase { margin-top: 34px; }
+
+/* ── Escenario: recorta solo a los lados (nada desborda la pantalla); arriba y abajo
+   deja respirar la banda y los halos para que no tengan bordes duros. ── */
+.reps-stage { position: relative; height: 300px; margin-top: 6px; overflow: hidden; overflow: clip visible; touch-action: pan-y; }
+.reps-band { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; opacity: .95; }
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .reps-band-mid { stop-color: color-mix(in srgb, var(--reps-accent) 22%, #fff); transition: stop-color .6s ease; }
+}
+/* Brillo del color del área detrás del avatar central */
+.reps-glow { position: absolute; left: 50%; top: var(--reps-anchor, 200px); width: calc(var(--reps-size, 140px) * 2.4); height: calc(var(--reps-size, 140px) * 1.5); border-radius: 50%; background: var(--reps-accent); opacity: .2; filter: blur(46px); transform: translate(-50%, -45%); transition: background-color .6s ease; pointer-events: none; }
+.reps-orbit { position: absolute; inset: 0; }
+
+/* ── Avatares ── */
+.reps-avatar {
+  position: absolute;
+  left: 50%;
+  top: var(--reps-anchor, 200px);
+  width: 100px;
+  height: 100px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  opacity: var(--reps-opacity, 1);
+  transform: translate(-50%, -50%);
+  transition:
+    transform var(--reps-ms, 500ms) var(--reps-ease, ease),
+    width var(--reps-ms, 500ms) var(--reps-ease, ease),
+    height var(--reps-ms, 500ms) var(--reps-ease, ease),
+    opacity var(--reps-ms, 500ms) ease,
+    visibility var(--reps-ms, 500ms);
+  -webkit-tap-highlight-color: transparent;
+}
+.reps-avatar-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--rep-color, #64748b);
+  color: #fff;
+  container-type: inline-size;
+  box-shadow: 0 10px 24px rgba(20, 42, 79, .16);
+  transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s ease, border-width .3s ease;
+}
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .reps-avatar-face { background: radial-gradient(circle at 30% 22%, color-mix(in srgb, var(--rep-color, #64748b) 80%, #fff), var(--rep-color, #64748b) 64%); }
+}
+.reps-avatar-initials { font-size: 24px; font-size: 34cqi; font-weight: 700; line-height: 1; letter-spacing: .01em; text-shadow: 0 1px 2px rgba(6, 34, 77, .16); pointer-events: none; }
+.reps-avatar-face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* Con imagen (foto o ilustración del área) las iniciales quedan ocultas, solo de respaldo;
+   la ilustración se apoya sobre el color suave del área. */
+.reps-avatar-face.has-image .reps-avatar-initials { visibility: hidden; }
+.reps-avatar-face.is-art { background: #eef2f7; }
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .reps-avatar-face.is-art { background: color-mix(in srgb, var(--rep-color, #64748b) 16%, #fff); }
+}
+
+/* Aro fucsia que gira alrededor de la persona elegida */
+.reps-avatar::before {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  padding: 4px;
+  border-radius: 50%;
+  background: conic-gradient(#e0006f, #ff6fb1 18%, #e0006f 38%, #ffc2de 58%, #e0006f 78%, #ff6fb1 90%, #e0006f);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transform: scale(.8);
+  transition: opacity .35s ease, transform .5s cubic-bezier(.34, 1.56, .64, 1);
+  pointer-events: none;
+}
+/* Onda que se expande al llegar al centro */
+.reps-avatar::after { content: ''; position: absolute; inset: -9px; border: 2px solid #e0006f; border-radius: 50%; opacity: 0; pointer-events: none; }
+.reps-avatar.is-center .reps-avatar-face { border-width: 4px; box-shadow: 0 18px 42px rgba(20, 42, 79, .2); }
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .reps-avatar.is-center .reps-avatar-face { box-shadow: 0 18px 42px color-mix(in srgb, var(--rep-color) 42%, transparent); }
+}
+.reps-avatar.is-center::before { opacity: 1; transform: scale(1); animation: repsSpin 8s linear infinite; }
+.reps-avatar.is-arriving .reps-avatar-face { animation: repsPop .65s cubic-bezier(.34, 1.56, .64, 1) both; }
+.reps-avatar.is-arriving::after { animation: repsRipple 1s ease-out both; }
+.reps-avatar.is-hidden { visibility: hidden; pointer-events: none; }
+
+/* Rótulo con el área al pasar el mouse por los avatares de los lados */
+.reps-avatar-tip { position: absolute; left: 50%; top: calc(100% + 10px); padding: 4px 11px; border-radius: 999px; background: #fff; color: #334155; font-size: 11px; font-weight: 600; line-height: 1.5; white-space: nowrap; box-shadow: 0 6px 16px rgba(20, 42, 79, .12); opacity: 0; transform: translate(-50%, -4px); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .reps-avatar-tip { color: color-mix(in srgb, var(--rep-color) 72%, #000); }
+}
+@media (hover: hover) {
+  .reps-avatar:not(.is-center):not(.is-hidden):hover { opacity: 1; }
+  .reps-avatar:not(.is-center):not(.is-hidden):hover .reps-avatar-face { transform: translateY(-6px) scale(1.06); box-shadow: 0 16px 30px rgba(20, 42, 79, .22); }
+  .reps-avatar:not(.is-center):not(.is-hidden):hover .reps-avatar-tip { opacity: 1; transform: translate(-50%, 0); }
+}
+/* border-radius repetido: shared.css redondea a 4px todo button:focus-visible. */
+.reps-avatar:focus-visible { outline: 3px solid #004fb0; outline-offset: 14px; border-radius: 50%; }
+
+/* ── Flechas ── */
+.reps-arrow {
+  position: absolute;
+  z-index: 30;
+  bottom: 20px;
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  background: #fff;
+  color: #08172e;
+  box-shadow: 0 10px 24px rgba(20, 42, 79, .1);
+  cursor: pointer;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.reps-arrow--prev { left: calc(50% - var(--reps-arrow-x, 300px) - 25px); }
+.reps-arrow--next { left: calc(50% + var(--reps-arrow-x, 300px) - 25px); }
+.reps-arrow svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+@media (hover: hover) {
+  .reps-arrow:hover { color: #fff; background: #e0006f; border-color: transparent; box-shadow: 0 12px 26px rgba(224, 0, 111, .32); transform: scale(1.06); }
+}
+.reps-arrow:focus-visible { outline: 3px solid #004fb0; outline-offset: 3px; border-radius: 50%; }
+
+/* ── Ficha del representante del centro: cabecera del color del área y cuerpo con su tinte ── */
+.reps-card {
+  --rep-color: #64748b;
+  position: relative;
+  max-width: 680px;
+  margin: 16px auto 0;
+  overflow: hidden;
+  border-radius: 26px;
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 20px 46px rgba(20, 42, 79, .12);
+}
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .reps-card { box-shadow: 0 20px 46px color-mix(in srgb, var(--rep-color) 26%, transparent); }
+}
+/* Cabecera: color del área (con transición al cambiar de persona) que se oscurece hacia el azul
+   marino de KJA. */
+.reps-card-head {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 20px;
+  padding: 22px 28px 26px;
+  color: #fff;
+  background-color: var(--rep-color);
+  background-image: linear-gradient(115deg, rgba(6, 34, 77, 0) 25%, rgba(6, 34, 77, .4));
+  transition: background-color .5s ease;
+}
+.reps-card-name { grid-column: 1; margin: 0 0 10px; font-family: 'Poppins', sans-serif; font-size: clamp(20px, 1.8vw, 25px); font-weight: 700; line-height: 1.25; letter-spacing: -.02em; color: #fff; text-shadow: 0 1px 2px rgba(6, 34, 77, .2); overflow-wrap: anywhere; }
+.reps-card-area {
+  grid-column: 1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 15px;
+  border-radius: 999px;
+  background: #fff;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  box-shadow: 0 6px 16px rgba(6, 34, 77, .18);
+}
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .reps-card-area { color: color-mix(in srgb, var(--rep-color) 72%, #000); }
+}
+/* Ícono del área a la derecha de la cabecera, solo el trazo (sin círculo), del alto del bloque
+   nombre + etiqueta; la sombra lo despega del color de fondo. */
+.reps-card-icon { grid-column: 2; grid-row: 1 / span 2; align-self: center; width: 70px; height: 70px; color: #fff; filter: drop-shadow(0 6px 12px rgba(6, 34, 77, .32)); }
+.reps-card-icon svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+/* Barra del avance automático en el borde inferior de la cabecera: se llena en 6 s. */
+.reps-card-rule { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255, 255, 255, .25); }
+.reps-card-rule::after { content: ''; position: absolute; inset: 0; background: rgba(255, 255, 255, .95); transform: scaleX(0); transform-origin: left; }
+.reps.is-playing .reps-card-rule::after { animation: repsProgress 6s linear infinite; }
+/* Cuerpo con un tinte suave del área */
+.reps-card-body { padding: 20px 28px 24px; background: #f8fafc; }
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .reps-card-body { background: linear-gradient(180deg, color-mix(in srgb, var(--rep-color) 8%, #fff), #fff 75%); }
+}
+/* La descripción de la persona en Fraunces cursiva (la serif de los títulos de Nosotros) para
+   contrastar con la Poppins del nombre, la etiqueta y el recuadro. */
+.reps-card-desc { min-height: calc(1.55em * 2); margin: 0; font-family: 'Fraunces', Georgia, serif; font-size: 17px; font-style: italic; font-weight: 400; line-height: 1.55; color: #22304d; }
+/* Qué hace el área (campo "resumen" de los datos): recuadro con un degradado suave del color del área */
+.reps-card-about { min-height: calc(1.6em * 2 + 44px); margin: 16px 0 0; padding: 14px 18px 15px; border-radius: 18px; background: #f1f5f9; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .85), 0 6px 18px rgba(20, 42, 79, .05); color: #3f4d68; font-size: 13.5px; line-height: 1.6; }
+.reps-card-about[hidden] { display: none; }
+.reps-card-about-label { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: #334155; font-size: 10.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; }
+/* El mismo ✦ fucsia de la etiqueta "Nuestros representantes" del encabezado */
+.reps-card-about-label::before { content: '✦'; color: #e0006f; font-size: 12px; letter-spacing: 0; }
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .reps-card-about { background: linear-gradient(135deg, color-mix(in srgb, var(--rep-color) 13%, #fff), color-mix(in srgb, var(--rep-color) 5%, #fff)); }
+  .reps-card-about-label { color: color-mix(in srgb, var(--rep-color) 72%, #000); }
+}
+
+/* ── Cambio de persona: el texto sale hacia arriba y entra escalonado ── */
+.reps-card-name, .reps-card-area, .reps-card-icon, .reps-card-desc, .reps-card-about { transition: opacity .18s ease, transform .18s ease; }
+.reps.is-leaving :is(.reps-card-name, .reps-card-area, .reps-card-icon, .reps-card-desc, .reps-card-about) { opacity: 0; transform: translateY(-6px); }
+.reps.is-entering .reps-card-name { animation: repsRise .5s .06s cubic-bezier(.22, .61, .36, 1) both; }
+.reps.is-entering .reps-card-area { animation: repsPopIn .5s .14s cubic-bezier(.34, 1.56, .64, 1) both; }
+.reps.is-entering .reps-card-icon { animation: repsPopIn .55s .1s cubic-bezier(.34, 1.56, .64, 1) both; }
+.reps.is-entering .reps-card-desc { animation: repsRise .55s .2s cubic-bezier(.22, .61, .36, 1) both; }
+.reps.is-entering .reps-card-about { animation: repsRise .55s .28s cubic-bezier(.22, .61, .36, 1) both; }
+
+@keyframes repsSpin { to { rotate: 360deg; } }
+@keyframes repsPop { 0% { transform: scale(.86); } 55% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes repsRipple { from { opacity: .7; transform: scale(1); } to { opacity: 0; transform: scale(1.5); } }
+@keyframes repsRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes repsPopIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes repsProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes repsDraw { from { stroke-dashoffset: 1.02; } to { stroke-dashoffset: 0; } }
+@keyframes repsNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
+
+@media (max-width: 768px) {
+  .reps { padding: 4px 0 8px; }
+  .reps-eyebrow { margin-bottom: 16px; padding: 7px 15px; font-size: 10px; letter-spacing: 1.6px; }
+  .reps-heading h2 { font-size: clamp(29px, 8vw, 38px); margin-bottom: 14px; }
+  .reps-intro { font-size: 14px; line-height: 1.7; margin-bottom: 18px; }
+  .reps-summary { gap: 10px; padding: 7px 14px 7px 8px; font-size: 12px; }
+  .reps-summary-face { width: 26px; height: 26px; margin-left: -6px; font-size: 8.5px; }
+  .reps-jump { width: 46px; height: 46px; margin-top: 18px; }
+  /* El escenario ocupa también el margen lateral del contenedor (16 px); los avatares
+     siguen quedando a distancia del borde de la pantalla, pero caben sin montarse. */
+  .reps-stage { margin-inline: -16px; }
+  .reps-avatar::before, .reps-avatar::after { inset: -7px; }
+  .reps-avatar::before { padding: 3px; }
+  .reps-avatar:focus-visible { outline-offset: 11px; }
+  .reps-arrow { width: 40px; height: 40px; bottom: 18px; }
+  .reps-arrow--prev { left: calc(50% - var(--reps-arrow-x, 150px) - 20px); }
+  .reps-arrow--next { left: calc(50% + var(--reps-arrow-x, 150px) - 20px); }
+  .reps-arrow svg { width: 17px; height: 17px; }
+  .reps-card { margin-top: 14px; border-radius: 22px; }
+  .reps-card-head { padding: 18px 18px 22px; column-gap: 12px; }
+  .reps-card-name { font-size: 19px; margin-bottom: 8px; }
+  .reps-card-icon { width: 58px; height: 58px; }
+  .reps-card-body { padding: 16px 18px 18px; }
+  .reps-card-desc { font-size: 15.5px; min-height: calc(1.55em * 3); }
+  .reps-card-about { min-height: calc(1.6em * 3 + 44px); padding: 13px 15px 14px; font-size: 12.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reps *, .reps *::before, .reps *::after { animation: none !important; transition: none !important; }
+}
