@@ -2,13 +2,15 @@
 let syncAdminAreaPicker=()=>{};
 let syncAdminContractAreaPicker=()=>{};
 
-function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCallback){
+const AREA_PICKER_TEXT={icon:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',label:'Todas las áreas',filter:'Filtrar por área',search:'Buscar un área…',searchLabel:'Buscar un área',list:'Áreas',empty:'No se encontraron áreas.'};
+
+function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCallback, text=AREA_PICKER_TEXT){
   if(!select)return;
   const wrap=document.createElement('div');wrap.className='area-picker';
-  wrap.innerHTML=`<button type="button" class="area-picker-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="${popupId}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Todas las áreas</span><svg class="area-picker-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
-    <div id="${popupId}" class="area-picker-popup" popover="manual" role="dialog" aria-label="Filtrar por área" hidden>
-      <label class="area-picker-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input type="text" placeholder="Buscar un área…" aria-label="Buscar un área" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="${optionsId}" autocomplete="off"></label>
-      <div id="${optionsId}" role="listbox" aria-label="Áreas"></div><p class="area-picker-empty" role="status" hidden>No se encontraron áreas.</p>
+  wrap.innerHTML=`<button type="button" class="area-picker-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="${popupId}"><svg viewBox="0 0 24 24" aria-hidden="true">${text.icon}</svg><span>${text.label}</span><svg class="area-picker-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
+    <div id="${popupId}" class="area-picker-popup" popover="manual" role="dialog" aria-label="${text.filter}" hidden>
+      <label class="area-picker-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input type="text" placeholder="${text.search}" aria-label="${text.searchLabel}" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="${optionsId}" autocomplete="off"></label>
+      <div id="${optionsId}" role="listbox" aria-label="${text.list}"></div><p class="area-picker-empty" role="status" hidden>${text.empty}</p>
       <footer>${footerText}</footer>
     </div>`;
   select.before(wrap);select.hidden=true;
@@ -63,7 +65,7 @@ function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCa
     close(true);select.value=value;sync();select.dispatchEvent(new Event('change',{bubbles:true}));
   }
   function sync(){
-    label.textContent=select.selectedOptions[0]?.textContent||'Todas las áreas';trigger.setAttribute('aria-label',`Filtrar por área: ${label.textContent}`);
+    label.textContent=select.selectedOptions[0]?.textContent||text.label;trigger.setAttribute('aria-label',`${text.filter}: ${label.textContent}`);
     trigger.classList.toggle('has-selection',!!select.value);if(opened)render();
   }
   if(setSyncCallback)setSyncCallback(sync);
@@ -96,5 +98,10 @@ function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCa
   const contractSelect=document.getElementById('admin-contract-area');
   if(contractSelect&&contractSelect!==peopleSelect){
     initAreaPickerElement(contractSelect,'contract-area-picker-popup','contract-area-picker-options','Filtra contratos por equipo',fn=>syncAdminContractAreaPicker=fn);
+  }
+  // Filtro temporal por correo: mismo selector visual que el de áreas.
+  const emailSelect=document.getElementById('admin-people-email');
+  if(emailSelect&&emailSelect!==peopleSelect){
+    initAreaPickerElement(emailSelect,'email-picker-popup','email-picker-options','Filtra el directorio por correo',null,{icon:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',label:'Todos los correos',filter:'Filtrar por correo',search:'Buscar…',searchLabel:'Buscar una opción',list:'Correo',empty:'Sin resultados.'});
   }
 })();

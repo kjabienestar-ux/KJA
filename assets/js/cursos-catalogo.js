@@ -1,10 +1,9 @@
-/* Catálogo de áreas y vista especializada. Los programas viven en cursos-data.js. */
+/* Compatibilidad con las URLs de áreas existentes. Los programas viven en cursos-data.js. */
 (function () {
     'use strict';
 
-    const grid = document.getElementById('cursos-grid');
     const areaView = document.getElementById('course-area-view');
-    if (!grid || !areaView || typeof COURSE_DATA === 'undefined') return;
+    if (!areaView || typeof COURSE_DATA === 'undefined') return;
 
     const entries = Object.entries(COURSE_DATA);
     const areaId = new URLSearchParams(window.location.search).get('area');
@@ -22,51 +21,6 @@
     const icon = type => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icons[type] + '</svg>';
     const whatsappIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 11.5a9 9 0 0 1-13.5 8L3 21l1.5-4.5A9 9 0 1 1 21 11.5Z"/><path d="M8 7c0 5 4 9 9 9l1-3-3-1-1 1c-2-1-3-2-4-4l1-1-1-2-2 1Z"/></svg>';
     const waUrl = message => 'https://wa.me/51988918238?text=' + encodeURIComponent(message);
-
-    function renderAreaCard([id, data], index) {
-        return '<article class="catalog-area-card" style="--area-shadow-color:' + (index % 2 ? '#004fb02e' : '#cf00632e') + ';--catalog-focus:' + escape(data.catalogFocus || '76% center') + '">' +
-            '<a href="' + areaUrl(id) + '" class="catalog-area-link" aria-label="Explorar área: ' + escape(data.title) + '">' +
-            '<div class="catalog-area-image"><img src="' + escape(data.catalogImage || data.image) + '" alt="" width="1200" height="600" loading="lazy" decoding="async"></div>' +
-            '<span class="catalog-area-veil" aria-hidden="true"></span><span class="catalog-area-lens" aria-hidden="true">' + arrow + '</span>' +
-            '<div class="catalog-area-copy"><span class="catalog-area-label">Área ' + String(index + 1).padStart(2, '0') + '</span>' +
-            '<h3>' + escape(data.title) + '</h3><p class="catalog-area-description">' + escape(data.catalogSummary || data.description) + '</p>' +
-            '<span class="catalog-area-action">Explorar ' + arrow + '</span></div></a></article>';
-    }
-
-    function initCatalogExpansion() {
-        const wide = window.matchMedia('(min-width: 1051px)');
-        const desktop = window.matchMedia('(min-width: 1051px) and (hover: hover) and (pointer: fine)');
-        grid.querySelectorAll('.catalog-area-row').forEach(row => {
-            let timer;
-            const cards = [...row.querySelectorAll('.catalog-area-card')];
-            function expand(card) {
-                clearTimeout(timer);
-                row.classList.toggle('has-expanded', !!card);
-                cards.forEach(item => item.classList.toggle('is-expanded', item === card));
-            }
-            cards.forEach(card => {
-                card.addEventListener('pointerenter', () => {
-                    if (!desktop.matches) return;
-                    clearTimeout(timer);
-                    timer = setTimeout(() => expand(card), 110);
-                });
-                card.querySelector('a').addEventListener('focus', () => {
-                    if (wide.matches) expand(card);
-                });
-            });
-            row.addEventListener('pointerleave', () => {
-                clearTimeout(timer);
-                timer = setTimeout(() => {
-                    const focused = document.activeElement.closest('.catalog-area-card');
-                    expand(wide.matches && row.contains(focused) ? focused : null);
-                }, 160);
-            });
-            row.addEventListener('focusout', event => {
-                if (!row.contains(event.relatedTarget)) expand(null);
-            });
-            wide.addEventListener?.('change', () => expand(null));
-        });
-    }
 
     function renderProgram(program, index) {
         const typeName = program.type === 'course' ? 'Curso' : 'Taller';
@@ -229,12 +183,5 @@
         document.getElementById('area-consult').href = waUrl('Hola KJA, quisiera orientación sobre los cursos y talleres de ' + area.title);
         initAreaSwitcher();
         initCategoryTabs();
-    } else {
-        grid.innerHTML = entries.reduce((rows, entry, index) => {
-            if (index % 3 === 0) rows.push([]);
-            rows[rows.length - 1].push(renderAreaCard(entry, index));
-            return rows;
-        }, []).map(cards => '<div class="catalog-area-row">' + cards.join('') + '</div>').join('');
-        initCatalogExpansion();
     }
 })();

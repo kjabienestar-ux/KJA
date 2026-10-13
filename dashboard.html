@@ -56,12 +56,13 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=6">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-preview.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-operations.css?v=7">
@@ -1829,6 +1830,8 @@
               <input type="search" id="admin-people-search" placeholder="Buscar por nombre o DNI…" aria-label="Buscar colaborador">
             </div>
             <select id="admin-people-area" aria-label="Filtrar colaboradores por área"><option value="">Todas las áreas</option></select>
+            <!-- Filtro temporal: quitar al terminar de cargar los correos -->
+            <select id="admin-people-email" aria-label="Filtrar colaboradores por correo"><option value="">Todos los correos</option><option value="con">Con correo</option><option value="sin">Sin correo</option></select>
             <button class="admin-secondary-action" id="admin-manage-areas" type="button" aria-expanded="false" aria-controls="admin-areas-panel" hidden>Gestionar áreas</button>
             <label class="admin-toggle"><input type="checkbox" id="admin-people-inactive"><span>Incluir bajas</span></label>
             <button class="admin-primary-action" id="admin-new-person" type="button">+ Nuevo colaborador</button>
@@ -3569,14 +3572,15 @@
 <script src="assets/js/dashboard-admin-equipo.js?v=21"></script>
 <script src="assets/js/dashboard-person-delete.js?v=1"></script>
 <script src="assets/js/dashboard-areas.js?v=2"></script>
-<script src="assets/js/dashboard-area-picker.js?v=2"></script>
+<script src="assets/js/dashboard-area-picker.js?v=3"></script>
+<script src="assets/js/dashboard-date-picker.js?v=1"></script>
 <script src="assets/js/dashboard-editor-calendar.js?v=1"></script>
 <script src="assets/js/dashboard-editor-time.js?v=2"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=3"></script>
 <script src="assets/js/attendance-report-model.js?v=2"></script>
 <script src="assets/js/dashboard-attendance-report.js?v=2"></script>
 <script src="assets/js/dashboard-person-profile.js?v=4"></script>
-<script src="assets/js/dashboard-attendance-export.js?v=4"></script>
+<script src="assets/js/dashboard-attendance-export.js?v=5"></script>
 <script src="assets/js/dashboard-attendance-preview.js?v=3"></script>
 <script src="assets/js/dashboard-month-day-detail.js?v=8"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=18"></script>
