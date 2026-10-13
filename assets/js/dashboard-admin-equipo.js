@@ -77,7 +77,9 @@ function filteredAdminPeople(kind){
   const area=$(contracts?'admin-contract-area':'admin-people-area').value;
   const include=$(contracts?'admin-contract-inactive':'admin-people-inactive').checked;
   const onlyPending=contracts&&$('admin-contract-pending').checked;
+  const mail=contracts?'':$('admin-people-email')?.value||'';
   return (data.personas||[]).filter(p=>(include||p.activo)&&(!area||String(p.area_id)===area)
+    &&(!mail||(mail==='con')===!!p.correo)
     &&(!query||`${p.nombre} ${p.dni||''}`.toLocaleLowerCase('es').includes(query))
     &&(!onlyPending||p.contrato_pendiente));
 }
@@ -439,7 +441,7 @@ async function saveAdminDaysOff(event){
   el.addEventListener('search',handler);
   el.addEventListener('keydown',e=>{if(e.key==='Escape'&&el.value){el.value='';handler();}});
 });
-['admin-people-area','admin-people-inactive'].forEach(id=>$(id).addEventListener('change',renderAdminPeople));
+['admin-people-area','admin-people-email','admin-people-inactive'].forEach(id=>$(id)?.addEventListener('change',renderAdminPeople));
 ['admin-contract-area','admin-contract-inactive','admin-contract-pending'].forEach(id=>$(id).addEventListener('change',renderAdminContracts));
 $('admin-new-person').onclick=()=>openAdminPerson();
 $('admin-people-list').onclick=e=>{const profile=e.target.closest('[data-team-profile]');if(profile)return openAdminProfile(profile.dataset.teamProfile,profile);const days=e.target.closest('[data-team-days-off]'),edit=e.target.closest('[data-team-edit]'),status=e.target.closest('[data-team-status]');if(days)return openAdminDaysOff(days.dataset.teamDaysOff,days);if(edit)return openAdminPerson(edit.dataset.teamEdit);if(status)return changeAdminPersonStatus(status.dataset.teamStatus,status.dataset.nextActive==='true')};
