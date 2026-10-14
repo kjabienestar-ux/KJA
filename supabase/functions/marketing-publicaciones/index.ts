@@ -31,9 +31,9 @@ Deno.serve(async(req)=>{
     const token=env('MARKETING_FACEBOOK_PAGE_TOKEN');
     const version=env('MARKETING_FACEBOOK_GRAPH_VERSION');
     const facebook=!!(page&&token&&/^v\d+\.\d+$/.test(version));
-    const model=env('MARKETING_GEMINI_MODEL').trim()||'gemini-2.5-flash';
+    const model=env('MARKETING_GEMINI_MODEL').trim()||'gemini-3.1-flash-lite';
     const ia=!!env('GEMINI_API_KEY').trim();
-    if(body.accion==='estado')return reply({ia,facebook,puede_publicar:permission.publicar,pagina:env('MARKETING_FACEBOOK_PAGE_NAME')||'Página de KJA'});
+    if(body.accion==='estado')return reply({ia,modelo:/^gemini-[a-z0-9.-]+$/.test(model)?model:'',facebook,puede_publicar:permission.publicar,pagina:env('MARKETING_FACEBOOK_PAGE_NAME')||'Página de KJA'});
     if(body.accion==='listar'){
       const {data,error}=await admin.from('marketing_publicaciones').select('id,datos,extraccion,estado,creado_at,facebook_id').eq('autor',uid).order('creado_at',{ascending:false}).limit(30);
       if(error)fail('No se pudo consultar el historial.');return reply({items:data});
@@ -64,6 +64,24 @@ Deno.serve(async(req)=>{
       if(error)fail('No se pudo abrir el flyer.');return reply({borrador:draft,imagen:data?.signedUrl});
     }
     if(draft.estado!=='borrador')fail(draft.estado==='publicado'?'Este borrador ya está publicado.':'Esta publicación debe verificarse en Facebook antes de volver a enviarla.');
+    if(body.accion==='enlace'){
+      const phone=String(body.telefono||'').replace(/[\s()+-]/g,''),message=String(body.mensaje||'').trim();
+      if(!/^[1-9]\d{7,14}$/.test(phone)||!message||message.length>2000)fail('Completa el WhatsApp y un mensaje de hasta 2000 caracteres.');
+      const firma=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+message)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+      const existing=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).maybeSingle();
+      if(existing.error)fail('No se pudo generar el enlace corto. Aplica marketing_03_whatsapp_enlaces.sql en Supabase.');
+      let key=existing.data?.clave;
+      if(!key){
+        const {count,error:countError}=await admin.from('marketing_whatsapp_enlaces').select('clave',{count:'exact',head:true}).eq('publicacion_id',draft.id);
+        if(countError||(count||0)>=100)fail('No se pueden crear más enlaces para este borrador.');
+        key=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(12)))).replace(/\+/g,'-').replace(/\//g,'_');
+        const {error}=await admin.from('marketing_whatsapp_enlaces').upsert({clave:key,publicacion_id:draft.id,firma,destino:'https://wa.me/'+phone+'?text='+encodeURIComponent(message)},{onConflict:'publicacion_id,firma',ignoreDuplicates:true});
+        if(error)fail('No se pudo guardar el enlace corto.');
+        const {data:stored,error:storedError}=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).single();
+        if(storedError||!stored)fail('No se pudo recuperar el enlace corto.');key=stored.clave;
+      }
+      return reply({enlace:'https://www.kjadmb.com/w.html?k='+key});
+    }
     if(body.accion==='analizar'){
       if(draft.extraccion)return reply({datos:draft.extraccion,cache:true});
       if(!ia)return reply({error:'La lectura automática todavía no está configurada. Puedes completar los datos manualmente.'},503);
@@ -93,11 +111,23 @@ Deno.serve(async(req)=>{
     if(body.accion==='guardar'){
       const data=body.datos;
       if(!data||fields.some(k=>typeof data[k]!=='string'||data[k].length>6000))fail('Revisa los campos del borrador.');
+      const optionKeys=['certificado','material','peru','vacantes'];
+      const options=data.opciones||{};
+      if(typeof options!=='object'||Array.isArray(options)||Object.keys(options).some(k=>!optionKeys.includes(k)||typeof options[k]!=='boolean'))fail('Revisa las opciones de esta campaña.');
       const phone=data.telefono.replace(/[\s()+-]/g,'');
       if(!data.titulo.trim()||!/^[1-9]\d{7,14}$/.test(phone)||!data.mensaje.trim())fail('Completa título, teléfono internacional y mensaje de WhatsApp.');
-      const link='https://wa.me/'+phone+'?text='+encodeURIComponent(data.mensaje.trim());
+      let link='https://wa.me/'+phone+'?text='+encodeURIComponent(data.mensaje.trim());
+      if(body.enlace){
+        const match=/^https:\/\/www[.]kjadmb[.]com\/w[.]html[?]k=([A-Za-z0-9_-]{16})$/.exec(String(body.enlace));
+        if(!match)fail('El enlace corto no es válido. Vuelve a generarlo.');
+        const {data:short,error:shortError}=await admin.from('marketing_whatsapp_enlaces').select('destino').eq('clave',match[1]).eq('publicacion_id',draft.id).maybeSingle();
+        if(shortError||short?.destino!==link)fail('El mensaje cambió. Genera el enlace corto actualizado.');link=body.enlace;
+      }
+      const post=String(data.facebook_url||'').trim();
+      if(post){let url;try{url=new URL(post)}catch{fail('El enlace de Facebook no es válido.')}
+        if(url.protocol!=='https:'||url.username||url.password||!['facebook.com','www.facebook.com','m.facebook.com','web.facebook.com','fb.watch'].includes(url.hostname))fail('El enlace de Facebook no es válido.');}
       if(typeof body.copy!=='string'||!body.copy.trim()||body.copy.length>20000||!body.copy.includes(link))fail('El copy debe incluir el enlace de WhatsApp vigente. Vuelve a generar el borrador.');
-      const {data:saved,error}=await admin.from('marketing_publicaciones').update({datos:Object.fromEntries(fields.map(k=>[k,data[k]])),copy:body.copy,enlace:link,actualizado_at:new Date().toISOString()}).eq('id',draft.id).eq('estado','borrador').select('id').maybeSingle();
+      const {data:saved,error}=await admin.from('marketing_publicaciones').update({datos:{...Object.fromEntries(fields.map(k=>[k,data[k]])),facebook_url:post,opciones:Object.fromEntries(optionKeys.map(k=>[k,options[k]===true]))},copy:body.copy,enlace:link,actualizado_at:new Date().toISOString()}).eq('id',draft.id).eq('estado','borrador').select('id').maybeSingle();
       if(error||!saved)fail('No se pudo guardar; vuelve a cargar el borrador.');return reply({ok:true});
     }
     if(body.accion==='publicar'){

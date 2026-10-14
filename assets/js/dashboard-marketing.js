@@ -1,12 +1,37 @@
 /* Extensión del portal. El servidor valida cada operación y el permiso de publicación. */
 (function(){
   'use strict';
+  // Pausa temporal de Publicaciones. Cambiar a true para volver a habilitarla.
+  const PUBLICACIONES_HABILITADAS=true;
   const el=id=>document.getElementById('marketing-'+id);
-  const keys=['titulo','descripcion','publico','temario','modalidad','beneficios','detalles','telefono','correo','mensaje'];
+  const keys=['titulo','descripcion','publico','temario','modalidad','beneficios','detalles','telefono','correo','mensaje','facebook_url'];
+  const optionKeys=['certificado','material','peru','vacantes'];
   let id=null,imageURL='',busy=false,dirty=false,saved=false,locked=false,extraction=null,config={ia:false,facebook:false,puede_publicar:false},available=false;
+  let shortLink='',shortFor='',automaticMessage='';
+  const signature=d=>d.telefono.replace(/[\s()+-]/g,'')+'\n'+d.mensaje.trim();
+  const chosenLink=d=>shortLink&&shortFor===signature(d)?shortLink:KJAMarketing.link(d.telefono,d.mensaje);
+  function applyLink(d,next){
+    const old=el('link').href;let copy=el('copy').value;
+    if(old)copy=copy.split(old).join(next);
+    const line=KJAMarketing.contactLine(d,next);
+    if(/^📲 (?:Inscríbete directamente aquí|Contáctanos al WhatsApp):.*$/m.test(copy))copy=copy.replace(/^📲 (?:Inscríbete directamente aquí|Contáctanos al WhatsApp):.*$/m,line);
+    else if(/^📩 Solicita información aquí:.*$/m.test(copy))copy=copy.replace(/^📩 Solicita información aquí:.*$/m,line);
+    else copy+='\n\n'+line;
+    el('copy').value=copy;el('link').href=next;el('short-url').value=next;changed();
+  }
+  async function shorten(){
+    if(!id)return;
+    const d=data();KJAMarketing.link(d.telefono,d.mensaje);
+    if(shortLink&&shortFor===signature(d)){applyLink(d,shortLink);return;}
+    const result=await call('enlace',{id,telefono:d.telefono,mensaje:d.mensaje});
+    if(!/^https:\/\/www\.kjadmb\.com\/w\.html\?k=[A-Za-z0-9_-]{16}$/.test(result?.enlace||''))throw new Error('No se recibió un enlace corto válido.');
+    shortLink=result.enlace;shortFor=signature(d);applyLink(d,shortLink);
+  }
   function status(text,error=false){el('status').textContent=text;el('status').dataset.error=String(error);if(busy)el('loading-text').textContent=text}
   function step(n){document.querySelectorAll('.marketing-steps li').forEach((li,i)=>{if(i===n-1)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current')})}
-  function data(){return Object.fromEntries(keys.map(k=>[k,el(k).value.trim()]))}
+  function data(){return {...Object.fromEntries(keys.map(k=>[k,el(k).value.trim()])),opciones:Object.fromEntries(optionKeys.map(k=>[k,el('option-'+k).checked]))}}
+  function restoreOptions(options={}){optionKeys.forEach(k=>el('option-'+k).checked=options[k]===true)}
+  function syncWhatsApp(){el('whatsapp-phone').value=el('telefono').value;el('whatsapp-message').value=el('mensaje').value}
   function sync(){
     el('loading').hidden=!busy;
     el('file').disabled=busy;
@@ -17,6 +42,11 @@
     el('save').disabled=busy||!id||!el('copy').value.trim()||locked;
     el('publish').disabled=busy||!id||!el('copy').value.trim()||!el('checked').checked||!config.facebook||!config.puede_publicar||locked;
     el('copy-button').disabled=busy||!el('copy').value.trim();
+    el('copy-ready').disabled=busy||!el('copy').value.trim();
+    el('download').disabled=busy||!imageURL;
+    ['whatsapp-phone','whatsapp-message','update-link','apply-template','regenerate-message'].forEach(k=>el(k).disabled=busy||locked);
+    optionKeys.forEach(k=>el('option-'+k).disabled=busy||locked);
+    el('facebook-status').textContent=config.facebook?(config.puede_publicar?'Puedes publicar un post nuevo en '+config.pagina+'.':'Tu cuenta puede preparar el texto, pero no publicar directamente.'):'La publicación directa está pendiente de conectar Facebook. Puedes copiar el texto y descargar el flyer para actualizarlo en Facebook.';
     el('new').disabled=busy;
     el('retry').disabled=busy;
     ['tab-prepare','back-prepare','back-data','return-review'].forEach(k=>el(k).disabled=busy);
@@ -49,11 +79,11 @@
     status(extraction?'Recuperando los datos guardados…':'Leyendo la información del flyer…');
     const result=extraction?{datos:extraction,cache:true}:await call('analizar',{id});extraction=result.datos;
     keys.forEach(k=>el(k).value=result.datos[k]||'');changed();el('copy').value='';el('review').hidden=true;
-    generateCopy();
+    generateCopy();await shorten();
     status(result.cache?'Copy generado con la lectura guardada, sin consumir otra lectura. Revisa el texto y el WhatsApp.':'Copy generado. Revisa el texto y el WhatsApp antes de publicar.');
   }
   function setImage(url){if(imageURL.startsWith('blob:'))URL.revokeObjectURL(imageURL);imageURL=url;el('image').src=url;el('image').hidden=!url}
-  function reset(){id=null;locked=false;dirty=false;saved=false;extraction=null;keys.forEach(k=>el(k).value='');el('source-text').value='';el('copy').value='';el('checked').checked=false;el('review').hidden=true;el('post').hidden=true;el('post').removeAttribute('href');el('link').removeAttribute('href');el('file').value='';el('extra').open=false;setImage('');step(1);showPanel('prepare');sync()}
+  function reset(){el('short-url').value='';id=null;shortLink='';shortFor='';automaticMessage='';locked=false;dirty=false;saved=false;extraction=null;keys.forEach(k=>el(k).value='');restoreOptions();syncWhatsApp();el('source-text').value='';el('copy').value='';el('checked').checked=false;el('review').hidden=true;el('post').hidden=true;el('post').removeAttribute('href');el('link').removeAttribute('href');el('file').value='';el('extra').open=false;setImage('');step(1);showPanel('prepare');sync()}
   async function history(){
     const result=await call('listar');el('history').replaceChildren();
     if(!result.items.length){const item=document.createElement('li');item.textContent='Tus borradores aparecerán aquí.';el('history').append(item)}
@@ -67,8 +97,12 @@
         extraction=d.extraccion||null;
         const stored=Object.keys(d.datos||{}).length?d.datos:(extraction||{});
         keys.forEach(k=>el(k).value=stored[k]||'');el('copy').value=d.copy;locked=d.estado!=='borrador';saved=!!d.copy;setImage(result.imagen);el('review').hidden=!d.copy;
+        restoreOptions(stored.opciones);syncWhatsApp();
+        if(stored.titulo&&stored.mensaje===KJAMarketing.whatsappMessage(stored.titulo,stored.facebook_url||''))automaticMessage=stored.mensaje;
+        if(d.enlace?.startsWith('https://www.kjadmb.com/w.html?k=')){shortLink=d.enlace;shortFor=signature(data());}
         if(d.copy)showPanel(locked?'publish':'review');else if(stored.titulo)generateCopy();else showPanel('prepare');
-        if(d.enlace){el('link').href=d.enlace;el('link').textContent='Probar chat de WhatsApp'}
+        if(d.enlace){el('link').href=d.enlace;el('short-url').value=d.enlace;el('link').textContent='Probar WhatsApp ↗'}
+        if(!locked&&d.copy&&stored.telefono&&stored.mensaje&&!shortLink)await shorten();
         if(d.estado==='publicado'&&d.facebook_id){el('post').href='https://www.facebook.com/'+encodeURIComponent(d.facebook_id);el('post').hidden=false}
         status(locked?'Estado: '+meta.textContent+'. Este registro está protegido contra nuevos envíos.':'Borrador recuperado. Revisa el copy antes de publicar.');
         el('destination').textContent='WhatsApp de ventas: '+el('telefono').value;
@@ -76,7 +110,7 @@
     }
   }
   async function open(){
-    if(!available)return;
+    if(!PUBLICACIONES_HABILITADAS||!available)return;
     paintShell('marketing');closeMenu();
     await run(async()=>{
       el('connection').textContent='Comprobando conexiones…';el('retry').hidden=true;
@@ -89,6 +123,7 @@
   }
   window.KJAMarketingPortal={
     async init(){
+      if(!PUBLICACIONES_HABILITADAS){available=false;document.getElementById('nav-marketing').hidden=true;return;}
       const {data:permission,error}=await db.rpc('marketing_permiso');
       available=!error&&!!permission?.acceso;
       document.getElementById('nav-marketing').hidden=!available;
@@ -104,16 +139,16 @@
   el('mode-image').onchange=()=>selectMethod(false);
   el('mode-text').onchange=()=>selectMethod(true);
   el('source-text').oninput=()=>{dirty=true};
-  el('organize').onclick=()=>{
-    if(busy||locked)return;
+  el('organize').onclick=()=>run(async()=>{
+    if(locked)return;
     try{
       const parsed=KJAMarketing.parseText(el('source-text').value);
       if(keys.some(k=>el(k).value)&&!confirm('Organizar el texto reemplazará los campos actuales. ¿Continuar?'))return;
       keys.forEach(k=>el(k).value=parsed[k]||'');el('copy').value='';el('review').hidden=true;changed();step(2);
-      generateCopy();
+      generateCopy();await shorten();
       status('Copy generado sin consumir Gemini. Revisa el texto; los datos ausentes se omiten.');
     }catch(error){status(error.message,true)}
-  };
+  });
   el('new').onclick=()=>{if(dirty&&!confirm('¿Descartar los cambios sin guardar y comenzar otra publicación?'))return;reset();status('Selecciona el flyer de la nueva publicación.')};
   el('file').onchange=()=>{
     const file=el('file').files[0];if(!file)return;
@@ -124,8 +159,8 @@
       const base64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('No se pudo leer el archivo.'));reader.readAsDataURL(file)});
       const carry=!id?{datos:data(),source:el('source-text').value,dirty}:null;
       const created=await call('crear',{imagen:base64});reset();id=created.id;setImage(URL.createObjectURL(file));
-      if(carry){keys.forEach(k=>el(k).value=carry.datos[k]);el('source-text').value=carry.source;dirty=carry.dirty}
-      if(carry?.datos.titulo)generateCopy();
+      if(carry){keys.forEach(k=>el(k).value=carry.datos[k]);restoreOptions(carry.datos.opciones);syncWhatsApp();el('source-text').value=carry.source;dirty=carry.dirty}
+      if(carry?.datos.titulo){generateCopy();await shorten();}
       status('Flyer guardado. Elige analizar la imagen o pegar el texto. La carga no consume lecturas de Gemini.');await history();
     });
   };
@@ -133,29 +168,41 @@
     if(keys.some(k=>el(k).value)&&!confirm(extraction?'Recuperar los datos originales reemplazará tus campos actuales, sin consumir otra lectura. ¿Continuar?':'La lectura reemplazará los campos actuales. ¿Continuar?'))return;
     run(readFlyer);
   };
-  keys.forEach(k=>el(k).addEventListener('input',()=>{changed();if(!el('review').hidden)status('Los datos cambiaron. Vuelve a generar el copy y revísalo antes de guardar.')}));
+  keys.forEach(k=>el(k).addEventListener('input',()=>{changed();if(k==='telefono'||k==='mensaje')syncWhatsApp();if(!el('review').hidden)status('Los datos cambiaron. Vuelve a generar el copy y revísalo antes de guardar.')}));
   el('copy').oninput=changed;
   function generateCopy(){
+        el('short-url').value='';
       const d=data();
       if(!d.titulo){showPanel('data');throw new Error('No se encontró el nombre del curso. Corrige solo ese dato para generar el copy.')}
       if(!d.telefono){d.telefono='51988918238';el('telefono').value=d.telefono}
-      if(!d.mensaje){d.mensaje='Hola, vi la publicación de '+d.titulo+'. Quisiera información sobre el precio, las fechas y la inscripción.';el('mensaje').value=d.mensaje}
+      if(!d.mensaje||d.mensaje===automaticMessage||/^Hola, vi la publicación de .+\. Quisiera información sobre el precio, las fechas y la inscripción\.$/.test(d.mensaje)){
+        d.mensaje=KJAMarketing.whatsappMessage(d.titulo,d.facebook_url);automaticMessage=d.mensaje;el('mensaje').value=d.mensaje;
+      }
       try{KJAMarketing.link(d.telefono,d.mensaje)}catch(error){showPanel('data');throw error}
-      const link=KJAMarketing.link(d.telefono,d.mensaje);el('copy').value=KJAMarketing.compose(d,link);el('link').href=link;el('link').textContent='Probar chat de WhatsApp';el('review').hidden=false;changed();step(3);status('Borrador generado. Puedes editar el copy y probar el enlace antes de guardarlo.');el('copy').focus();
+      const link=chosenLink(d);el('copy').value=KJAMarketing.compose(d,link);el('link').href=link;el('link').textContent='Probar chat de WhatsApp';el('review').hidden=false;changed();step(3);status('Borrador generado. Puedes editar el copy y probar el enlace antes de guardarlo.');el('copy').focus();
+        syncWhatsApp();el('short-url').value=link;
       showPanel('review');el('copy').focus();el('destination').textContent='WhatsApp de ventas: '+d.telefono+' · Puedes cambiarlo en Corregir información.';
   }
-  el('generate').onclick=()=>{try{generateCopy()}catch(error){status(error.message,true)}};
+  el('generate').onclick=()=>run(async()=>{generateCopy();await shorten();});
+  el('apply-template').onclick=()=>{if(el('copy').value.trim()&&!confirm('Aplicar el formato vuelve a generar el texto con los datos y opciones actuales. ¿Continuar?'))return;return run(async()=>{generateCopy();await shorten();});};
+  optionKeys.forEach(k=>el('option-'+k).onchange=()=>{changed();status('Opciones de campaña cambiadas. Pulsa Aplicar formato para incluirlas en el texto.');});
+  ['whatsapp-phone','whatsapp-message'].forEach((k,i)=>el(k).oninput=()=>{el(i?'mensaje':'telefono').value=el(k).value;changed();status('Pulsa Actualizar enlace para incorporar este WhatsApp al texto.');});
+  el('facebook_url').oninput=()=>{
+    try{if(!el('mensaje').value||el('mensaje').value===automaticMessage){automaticMessage=KJAMarketing.whatsappMessage(el('titulo').value,el('facebook_url').value.trim());el('mensaje').value=automaticMessage;syncWhatsApp();}changed();status('Pulsa Generar enlace corto para incluir la publicación en el mensaje.');}catch(error){status(error.message,true)}
+  };
+  el('regenerate-message').onclick=()=>run(async()=>{automaticMessage=KJAMarketing.whatsappMessage(el('titulo').value,el('facebook_url').value.trim());el('mensaje').value=automaticMessage;syncWhatsApp();changed();await shorten();status('Mensaje específico del flyer y enlace corto actualizados.');});
+  el('update-link').onclick=()=>run(async()=>{const d=data();applyLink(d,KJAMarketing.link(d.telefono,d.mensaje));await shorten();el('destination').textContent='WhatsApp de ventas: '+d.telefono;status(id?'Enlace corto actualizado. Tus ediciones del texto se conservan.':'Adjunta un flyer para crear su enlace corto.');});
   el('save').onclick=()=>run(async()=>{
-    const d=data(),link=KJAMarketing.link(d.telefono,d.mensaje);
+    const d=data(),link=chosenLink(d);
     if(!el('copy').value.includes(link))throw new Error('El enlace cambió. Vuelve a generar el copy antes de guardarlo.');
-    await call('guardar',{id,datos:d,copy:el('copy').value});dirty=false;saved=true;el('link').href=link;el('link').textContent='Probar chat de WhatsApp';el('checked').checked=false;status('Borrador guardado. Revisa el flyer, el copy y el destino de WhatsApp para habilitar la publicación.');await history();
+    await call('guardar',{id,datos:d,enlace:shortLink||undefined,copy:el('copy').value});dirty=false;saved=true;el('link').href=link;el('link').textContent='Probar chat de WhatsApp';el('checked').checked=false;status('Borrador guardado. Revisa el flyer, el copy y el destino de WhatsApp para habilitar la publicación.');await history();
   });
   el('checked').onchange=sync;
   el('publish').onclick=()=>run(async()=>{
     if(!id||!el('checked').checked||!config.facebook||!config.puede_publicar||locked)return;
-    const d=data(),link=KJAMarketing.link(d.telefono,d.mensaje);
+    const d=data(),link=chosenLink(d);
     if(!el('copy').value.includes(link))throw new Error('El enlace cambió. Actualiza el copy antes de publicar.');
-    await call('guardar',{id,datos:d,copy:el('copy').value});dirty=false;saved=true;
+    await call('guardar',{id,datos:d,enlace:shortLink||undefined,copy:el('copy').value});dirty=false;saved=true;
     status('Publicando en '+config.pagina+'…');
     // Bloquear localmente incluso ante una respuesta perdida; al recargar se consulta el estado real.
     locked=true;
@@ -163,7 +210,19 @@
     step(3);status('Publicación confirmada por Facebook.');dirty=false;
     el('post').href='https://www.facebook.com/'+encodeURIComponent(result.facebook_id);el('post').hidden=false;await history();
   });
-  el('copy-button').onclick=()=>run(async()=>{await navigator.clipboard.writeText(el('copy').value);status('Copy copiado. Puedes pegarlo junto con el flyer en Facebook.')});
+  el('copy-button').onclick=()=>run(async()=>{
+    if(!locked&&id&&(!shortLink||shortFor!==signature(data())))throw new Error('Pulsa Generar enlace corto para guardar el mensaje actual antes de copiar.');
+    if(!locked&&!el('copy').value.includes(chosenLink(data())))throw new Error('El WhatsApp cambió. Pulsa Generar enlace corto antes de copiar el texto.');
+    await navigator.clipboard.writeText(el('copy').value);status('Copy copiado. Puedes pegarlo junto con el flyer en Facebook.');
+  });
+  el('copy-ready').onclick=()=>el('copy-button').onclick();
+  el('download').onclick=()=>run(async()=>{
+    const response=await fetch(imageURL);if(!response.ok)throw new Error('No se pudo descargar el flyer. Vuelve a abrir el borrador.');
+    const blob=await response.blob(),url=URL.createObjectURL(blob),anchor=document.createElement('a');
+    anchor.href=url;anchor.download='flyer-kja.'+({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[blob.type]||'jpg');
+    document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    status('Flyer descargado. Puedes adjuntarlo en una publicación nueva o actualizar la existente en Facebook.');
+  });
   window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue=''}});
   db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){reset();available=false;config={ia:false,facebook:false,puede_publicar:false};el('history').replaceChildren();document.getElementById('nav-marketing').hidden=true;}});
   if(typeof APP!=='undefined'&&APP.inicio)void window.KJAMarketingPortal.init();
