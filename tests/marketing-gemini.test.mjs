@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import {extractWithGemini,readAndCache,flyerFields} from '../supabase/functions/marketing-publicaciones/gemini.mjs';
 const datos=Object.fromEntries(flyerFields.map(k=>[k,k==='titulo'?'ADOS-2 y ADI-R':'']));
 const image=new Blob([new Uint8Array([255,216,255,0])],{type:'image/jpeg'});
-const input={apiKey:'test-key',model:'gemini-2.5-flash',image};
+const input={apiKey:'test-key',model:'gemini-3.1-flash-lite',image};
 const output=(fields=datos)=>({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(fields)}]}}]});
 
 test('Gemini sends the flyer inline with a server-side key and validates structured output',async()=>{
   let calls=0;
   const actual=await extractWithGemini({...input,fetcher:async(url,options)=>{
-    calls++;assert.equal(url,'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+    calls++;assert.equal(url,'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent');
     assert.equal(options.headers['x-goog-api-key'],'test-key');assert.ok(!url.includes('test-key'));
     const body=JSON.parse(options.body);assert.equal(body.contents[0].parts[1].inlineData.mimeType,'image/jpeg');
     assert.equal(body.contents[0].parts[1].inlineData.data,'/9j/AA==');
@@ -39,8 +39,8 @@ test('provider failures distinguish configuration causes without exposing upstre
   }
 });
 test('configuration ignores surrounding whitespace and rejects an empty key before sending',async()=>{
-  await extractWithGemini({...input,apiKey:' test-key\n',model:' gemini-2.5-flash ',fetcher:async(url,options)=>{
-    assert.equal(options.headers['x-goog-api-key'],'test-key');assert.ok(url.endsWith('/gemini-2.5-flash:generateContent'));return Response.json(output());
+  await extractWithGemini({...input,apiKey:' test-key\n',model:' gemini-3.1-flash-lite ',fetcher:async(url,options)=>{
+    assert.equal(options.headers['x-goog-api-key'],'test-key');assert.ok(url.endsWith('/gemini-3.1-flash-lite:generateContent'));return Response.json(output());
   }});
   await assert.rejects(extractWithGemini({...input,apiKey:' ',fetcher:()=>assert.fail('must not send')}),/no está configurada/);
 });
