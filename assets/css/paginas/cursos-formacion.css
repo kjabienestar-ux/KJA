@@ -121,7 +121,6 @@
 .formation-pagination-arrow:last-child svg { transform: rotate(180deg); }
 .formation-course-soon { display: grid; place-items: center; min-height: 250px; border: 1px dashed #d9cde4; background: #fbfaff; box-shadow: none; }
 .formation-course-soon-copy { max-width: 180px; text-align: center; color: #5f5a83; }
-.formation-course-soon-copy > span { display: grid; place-items: center; width: 42px; height: 42px; margin: 0 auto 12px; border-radius: 50%; background: #f4edf9; color: #a12c67; font-size: 1.5rem; line-height: 1; }
 .formation-course-soon h3 { margin: 0 0 8px; color: #42528d; font-size: .9rem; line-height: 1.35; }
 .formation-course-soon p { margin: 0; font-size: .72rem; line-height: 1.55; }
 
