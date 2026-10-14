@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>WhatsApp · KJA</title></head>
+<body><main><h1>WhatsApp de KJA</h1><p id="status" role="status">Abriendo el mensaje de tu publicación…</p><a id="chat" hidden rel="noopener noreferrer">Abrir WhatsApp</a></main>
+<script>
+(async()=>{
+  const status=document.getElementById('status'),key=new URLSearchParams(location.search).get('k');
+  try{
+    if(!/^[A-Za-z0-9_-]{16}$/.test(key||''))throw Error();
+    const response=await fetch('https://xadxmfgdxwplmhijagix.supabase.co/rest/v1/rpc/marketing_resolver_whatsapp',{method:'POST',headers:{apikey:'sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub','Content-Type':'application/json'},body:JSON.stringify({p_clave:key})});
+    const target=await response.json();
+    if(!response.ok||typeof target!=='string'||!/^https:\/\/wa\.me\/[1-9]\d{7,14}\?text=/.test(target))throw Error();
+    const link=document.getElementById('chat');link.href=target;link.hidden=false;status.textContent='Tu mensaje está listo. Si WhatsApp no se abre, pulsa el enlace.';location.replace(target);
+  }catch{status.textContent='No encontramos este enlace de campaña. Solicita el enlace actualizado a KJA.';}
+})();
+</script></body></html>
