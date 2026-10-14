@@ -11,9 +11,39 @@
     {
       "source": "/asistencia",
       "destination": "/asistencia.html"
+    },
+    {
+      "source": "/opinar",
+      "destination": "/opinar.html"
     }
   ],
   "headers": [
+    {
+      "source": "/opinar",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        }
+      ]
+    },
+    {
+      "source": "/opinar.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        }
+      ]
+    },
     {
       "source": "/dashboard",
       "headers": [
