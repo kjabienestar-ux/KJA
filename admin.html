@@ -486,6 +486,24 @@
             <h2>Comentarios de la web</h2>
             <div class="sub">Los comentarios solo se publican en la página cuando los apruebas aquí.</div>
           </div>
+          <h3 class="com-sec">Enlace de opinión para compartir</h3>
+          <div class="com-card" style="display:flex;flex-direction:column;gap:10px;">
+            <div class="sub" style="margin:0;">Un solo enlace para todos, listo para enviar por WhatsApp. No hay que generar nada: copia el mensaje y pégalo en el chat.</div>
+            <div id="op-fijos" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+          <h3 class="com-sec">Enlace único para un cliente (opcional)</h3>
+          <div class="com-card" style="display:flex;flex-direction:column;gap:10px;">
+            <div class="sub" style="margin:0;">Genera un enlace de un solo uso (vence en 30 días). Al responderlo, la opinión llega aquí como pendiente.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input id="op-cliente" type="text" maxlength="60" placeholder="Nombre del cliente (opcional)" style="flex:1 1 200px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;font:inherit;">
+              <input id="op-servicio" type="text" maxlength="80" placeholder="Servicio (ej. Terapia individual)" style="flex:1 1 200px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;font:inherit;">
+              <button class="btn" id="op-generar" type="button">Generar enlace</button>
+            </div>
+            <div id="op-resultado" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input id="op-url" type="text" readonly style="flex:1 1 280px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;background:#f8fafc;">
+              <button class="btn" id="op-copiar" type="button">Copiar</button>
+            </div>
+          </div>
           <h3 class="com-sec">Pendientes de revisión</h3>
           <div id="com-pendientes"><div class="empty">Cargando…</div></div>
           <h3 class="com-sec">Publicados</h3>
@@ -2292,14 +2310,20 @@ $('filtro').addEventListener('input',e=>{
    Los visitantes escriben desde index.html (entran con aprobado=false);
    aquí se aprueban para que aparezcan en la sección de testimonios. */
 function comFecha(iso){ const d=new Date(iso); return d.toLocaleDateString('es-PE',{day:'numeric',month:'long',year:'numeric'}); }
+let opRespuestas={};
 function comCard(c, pendiente){
   const est='★'.repeat(c.estrellas)+'☆'.repeat(5-c.estrellas);
+  const o=opRespuestas[c.id];
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const priv=o?`<div class="com-priv" style="margin:8px 0;padding:8px 10px;border:1px dashed #cbd5e1;border-radius:10px;font-size:.82rem;color:#475569;">
+      <b>Solo equipo:</b>${o.servicio?` Servicio: ${esc(o.servicio)} ·`:''}${o.recomienda!=null?` Recomendaría: ${o.recomienda}/10`:''}${o.nota_privada?`<br>Nota: ${esc(o.nota_privada)}`:''}
+    </div>`:'';
   return `<div class="com-card" data-id="${c.id}">
     <div class="com-top">
       <span class="com-nombre">${c.nombre.replace(/</g,'&lt;')}</span>
       <span class="com-est">${est}</span>
     </div>
-    <p class="com-msg">${c.mensaje.replace(/</g,'&lt;')}</p>
+    <p class="com-msg">${c.mensaje.replace(/</g,'&lt;')}</p>${priv}
     <div class="com-foot">
       <span class="com-fecha">${comFecha(c.created_at)}</span>
       <div class="com-btns">
@@ -2313,6 +2337,10 @@ function comCard(c, pendiente){
 async function cargarComentarios(){
   const {data,error}=await db.from('comentarios').select('*').order('created_at',{ascending:false});
   if(error){ $('com-pendientes').innerHTML='<div class="empty">Error: '+error.message+'</div>'; return; }
+  // Datos privados de opiniones por enlace (si la migración aún no existe, se ignora)
+  opRespuestas={};
+  const rp=await db.from('opinion_respuestas').select('comentario_id,servicio,recomienda,nota_privada');
+  if(!rp.error) (rp.data||[]).forEach(r=>{ if(r.comentario_id) opRespuestas[r.comentario_id]=r; });
   const pend=(data||[]).filter(c=>!c.aprobado), pub=(data||[]).filter(c=>c.aprobado);
   const badge=$('com-pend');
   badge.textContent=pend.length; badge.style.display=pend.length?'inline-flex':'none';
@@ -2330,6 +2358,41 @@ async function cargarComentarios(){
       const {data,error}=await db.from('comentarios').delete().eq('id',id).select('id').maybeSingle(); if(error||!data){ abrirAlerta('No se pudo eliminar el comentario: '+(error?.message||'sin confirmación'),'Error'); return; } cargarComentarios(); };
   });
 }
+
+/* Enlace general de opinión: kjadmb.com/opinar + mensaje listo para WhatsApp */
+(function(){
+  const url='https://www.kjadmb.com/opinar';
+  const mensaje='Hola 😊 Gracias por participar con KJA. ¿Nos cuentas qué te pareció el curso o taller? Toma menos de un minuto: '+url;
+  const box=$('op-fijos'); if(!box) return;
+  box.innerHTML=`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <input type="text" readonly value="${url}" style="flex:1 1 240px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;background:#f8fafc;">
+      <button class="btn" type="button" data-copy="link">Copiar enlace</button>
+      <button class="btn" type="button" data-copy="wa">Copiar mensaje WhatsApp</button>
+    </div>`;
+  box.addEventListener('click',async e=>{
+    const b=e.target.closest('button[data-copy]'); if(!b) return;
+    const txt=b.dataset.copy==='wa'?mensaje:url, orig=b.textContent;
+    try{ await navigator.clipboard.writeText(txt); }catch(_){ const t=document.createElement('textarea'); t.value=txt; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+    b.textContent='¡Copiado!'; setTimeout(()=>{ b.textContent=orig; },1500);
+  });
+})();
+
+/* Enlace único de opinión: kjadmb.com/opinar?k=… (un solo uso) */
+$('op-generar').onclick=async()=>{
+  const btn=$('op-generar'); btn.disabled=true;
+  const {data,error}=await db.rpc('opinion_crear_enlace',{p_cliente:$('op-cliente').value.trim(),p_servicio:$('op-servicio').value.trim(),p_dias:30});
+  btn.disabled=false;
+  if(error||!data){ abrirAlerta('No se pudo generar el enlace: '+(error?.message||'sin respuesta'),'Error'); return; }
+  $('op-url').value='https://www.kjadmb.com/opinar?k='+data;
+  $('op-resultado').style.display='flex';
+  $('op-url').select();
+};
+$('op-copiar').onclick=async()=>{
+  const u=$('op-url').value; if(!u) return;
+  try{ await navigator.clipboard.writeText(u); $('op-copiar').textContent='¡Copiado!'; }
+  catch(e){ $('op-url').select(); document.execCommand('copy'); $('op-copiar').textContent='¡Copiado!'; }
+  setTimeout(()=>{ $('op-copiar').textContent='Copiar'; },1800);
+};
 
 /* Borrado DEFINITIVO (solo admin): elimina de verdad, sin papelera de por medio */
 function eliminarDefinitivo(id, nombre, codigo, origen){
