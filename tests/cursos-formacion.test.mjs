@@ -43,6 +43,7 @@ test('presenta siete cursos, tres destacados y cuatro rutas sin el bloque antigu
     doc.querySelector('[data-formation-route="educativa-organizacional"]').click();
     assert.equal(doc.querySelectorAll('[data-formation-course]:not([hidden])').length, 3);
     assert.equal(doc.querySelectorAll('.formation-course-soon').length, 3);
+    assert.equal(doc.querySelectorAll('.formation-course-soon-copy > span').length, 0);
     assert.equal(doc.getElementById('formation-filter'), null);
     dom.window.close();
 });
@@ -95,30 +96,38 @@ test('el detalle conserva el nombre completo, dirige la consulta al curso correc
     dom.window.close();
 });
 
-test('los modales se centran y solo se cierran desde la X', () => {
+test('los modales se centran, ignoran Escape y se cierran al hacer clic fuera o desde la X', () => {
     const dom = page();
     const doc = dom.window.document;
     const course = doc.querySelector('[data-formation-detail]');
     course.click();
     const courseDialog = doc.getElementById('formation-course-dialog');
+    courseDialog.getBoundingClientRect = () => ({ left: 100, top: 100, right: 500, bottom: 600 });
     const cancelCourse = new dom.window.Event('cancel', { cancelable: true });
     courseDialog.dispatchEvent(cancelCourse);
     assert.equal(cancelCourse.defaultPrevented, true);
     assert.equal(courseDialog.open, true);
-    courseDialog.click();
+    courseDialog.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, clientX: 200, clientY: 200, detail: 1 }));
     assert.equal(courseDialog.open, true);
+    courseDialog.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, clientX: 50, clientY: 200, detail: 1 }));
+    assert.equal(courseDialog.open, false);
+    course.click();
     doc.getElementById('formation-detail-close').click();
     assert.equal(courseDialog.open, false);
 
     const workshop = doc.querySelector('[data-workshop-detail]');
     workshop.click();
     const workshopDialog = doc.getElementById('formation-workshop-dialog');
+    workshopDialog.getBoundingClientRect = () => ({ left: 100, top: 100, right: 500, bottom: 600 });
     const cancelWorkshop = new dom.window.Event('cancel', { cancelable: true });
     workshopDialog.dispatchEvent(cancelWorkshop);
     assert.equal(cancelWorkshop.defaultPrevented, true);
     assert.equal(workshopDialog.open, true);
-    workshopDialog.click();
+    workshopDialog.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, clientX: 200, clientY: 200, detail: 1 }));
     assert.equal(workshopDialog.open, true);
+    workshopDialog.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, clientX: 50, clientY: 200, detail: 1 }));
+    assert.equal(workshopDialog.open, false);
+    workshop.click();
     doc.getElementById('formation-workshop-close').click();
     assert.equal(workshopDialog.open, false);
     dom.window.close();

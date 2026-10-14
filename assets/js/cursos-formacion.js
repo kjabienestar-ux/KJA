@@ -26,7 +26,7 @@
     const waUrl = message => 'https://wa.me/51988918238?text=' + encodeURIComponent(message);
 
     routesGrid.innerHTML = KJA_FORMATION.routes.map(route =>
-        '<article class="formation-route formation-tone-' + escape(route.tone) + '" tabindex="0" aria-labelledby="route-title-' + escape(route.id) + '" aria-describedby="route-description-' + escape(route.id) + '">' +
+        '<article class="formation-route formation-tone-' + escape(route.tone) + '" data-formation-route-card="' + escape(route.id) + '" tabindex="0" aria-labelledby="route-title-' + escape(route.id) + '" aria-describedby="route-description-' + escape(route.id) + '">' +
         '<img src="' + escape(photo(route.image)) + '" width="1200" height="600" alt="" loading="lazy" decoding="async">' +
         '<span class="formation-route-icon">' + icon(route.icon) + '</span><div class="formation-route-copy"><h3 id="route-title-' + escape(route.id) + '">' + escape(route.title) + '</h3><div class="formation-route-summary"><p id="route-description-' + escape(route.id) + '">' + escape(route.description) + '</p></div></div></article>'
     ).join('');
@@ -61,7 +61,7 @@
     let pageSize = pageSizeForViewport();
     let currentPage = 1;
     let activeRoute = '';
-    const comingSoonCard = () => '<article class="formation-course formation-course-soon" aria-label="Más cursos próximamente"><div class="formation-course-soon-copy"><span aria-hidden="true">+</span><h3>Más cursos próximamente</h3><p>Estamos preparando nueva formación para esta área.</p></div></article>';
+    const comingSoonCard = () => '<article class="formation-course formation-course-soon" aria-label="Más cursos próximamente"><div class="formation-course-soon-copy"><h3>Más cursos próximamente</h3><p>Estamos preparando nueva formación para esta área.</p></div></article>';
     function renderPagination(totalPages) {
         pagination.hidden = totalPages <= 1;
         if (totalPages <= 1) { pagination.innerHTML = ''; return; }
@@ -124,6 +124,15 @@
     applyRoute(initialRoute);
 
     const dialog = document.getElementById('formation-course-dialog');
+    const closeOnBackdrop = modal => {
+        modal.addEventListener('click', event => {
+            if (event.target !== modal || event.detail === 0) return;
+            const bounds = modal.getBoundingClientRect();
+            const clickedOutside = event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
+            if (clickedOutside) modal.close();
+        });
+    };
+    closeOnBackdrop(dialog);
     let detailOpener;
     coursesGrid.addEventListener('click', event => {
         const badge = event.target.closest('.formation-course-demand');
@@ -144,7 +153,7 @@
         dialog.showModal();
     });
     document.getElementById('formation-detail-close').addEventListener('click', () => dialog.close());
-    // Escape se cancela: el detalle solo se cierra desde su control visible.
+    // Escape queda bloqueado; el detalle se cierra con la X o al pulsar fuera.
     dialog.addEventListener('cancel', event => event.preventDefault());
     dialog.addEventListener('close', () => detailOpener?.focus({ preventScroll: true }));
 
@@ -192,6 +201,7 @@
     updateScrollControls();
 
     const workshopDialog = document.getElementById('formation-workshop-dialog');
+    closeOnBackdrop(workshopDialog);
     let workshopOpener;
     workshopsList.addEventListener('click', event => {
         const button = event.target.closest('[data-workshop-detail]');
@@ -206,7 +216,7 @@
         workshopDialog.showModal();
     });
     document.getElementById('formation-workshop-close').addEventListener('click', () => workshopDialog.close());
-    // Escape se cancela: el taller solo se cierra desde su control visible.
+    // Escape queda bloqueado; el taller se cierra con la X o al pulsar fuera.
     workshopDialog.addEventListener('cancel', event => event.preventDefault());
     workshopDialog.addEventListener('close', () => workshopOpener?.focus({ preventScroll: true }));
 })();
