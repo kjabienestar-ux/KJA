@@ -3,7 +3,7 @@
 ## Estado
 
 Implementado localmente, pendiente de configurar y probar con Zoom real. No está desplegado por este cambio.
-El responsable pulsa Iniciar y abrir salas dentro del portal y el servidor autoriza el SDK con la identidad del anfitrión institucional. No necesita recibir su contraseña de Zoom. Esto no es un servicio que abre salas solo por horario.
+El responsable pulsa Iniciar reunión dentro del portal y el servidor autoriza el SDK con la identidad del anfitrión institucional. No necesita recibir su contraseña de Zoom. Esto no es un servicio que abre salas solo por horario.
 
 La prueba admite únicamente el ID configurado en ZOOM_SDK_TEST_MEETING_ID. No usar la reunión habitual 97271980453 para el primer ensayo.
 
@@ -25,7 +25,7 @@ La prueba admite únicamente el ID configurado en ZOOM_SDK_TEST_MEETING_ID. No u
 7. Publicar los archivos del frontend, incluyendo zoom-sala.html, sus JS/CSS y vercel.json, o probar con Live Server en localhost. Usar el mismo origen que el dashboard para compartir su sesión.
 8. Entrar al dashboard → Reuniones Zoom → Configuración y ayuda → Administrar Zoom dentro del portal.
 9. Sistemas usa **Asignar un responsable**, elige la reunión de ensayo y escribe el correo de la cuenta del portal. Ese usuario no necesita el rol general de administrador.
-10. Con la cuenta del responsable, abrir la misma pantalla y pulsar **Iniciar y abrir salas**. En iPhone, mantener Safari en primer plano durante la prueba.
+10. Con la cuenta del responsable, abrir la misma pantalla y pulsar **Iniciar reunión**. En iPhone, mantener Safari en primer plano durante la prueba.
 
 La General App debe pertenecer a la cuenta que aloja la reunión. Este piloto no implementa autorización de reuniones externas, OAuth para cuentas ajenas ni publicación en Marketplace.
 
@@ -64,10 +64,10 @@ El SDK se carga bajo demanda, versión fijada 5.1.4, en una página aislada de l
 - [Estados de salas](https://marketplacefront.zoom.us/sdk/meeting/web/enums/BreakoutRoomControlStatus.html)
 - [Get a user's token](https://developers.zoom.us/docs/api/users/)
 
-## Inicio integrado y apertura automática tras pulsar el botón
+## Inicio integrado y preparación de salas
 
-El botón Iniciar de gestión dirige a zoom-sala.html con el identificador local de la reunión. No abre la app nativa. La pantalla vuelve a comprobar la autorización mediante sdk-list; el parámetro de URL no otorga permisos. El responsable confirma con Iniciar y abrir salas.
+El botón Iniciar de gestión dirige a zoom-sala.html con el identificador local de la reunión. No abre la app nativa. La pantalla vuelve a comprobar la autorización mediante sdk-list; el parámetro de URL no otorga permisos. El responsable confirma con Iniciar reunión.
 
-Tras unirse, se consulta hasta diez veces la disponibilidad de salas. Si ya están abiertas no se vuelven a abrir. Si están listas, se solicita abrirlas una sola vez y se consulta su estado hasta diez veces; solo el estado 2 confirma Abiertas. Los intentos se separan 1,5 segundos y cada llamada tiene un límite de 30 segundos. No se crean ni reemplazan salas, ni se configura automáticamente su autoselección.
+Tras unirse, se consulta hasta diez veces la disponibilidad de salas. Si ya están abiertas no se vuelven a abrir. Si están listas, se dejan cerradas y se indica al anfitrión que marque «Allow participants to choose room» en Opciones y pulse «Open All Rooms». El inicio no solicita abrirlas automáticamente. El botón manual de Control KJA solicita abrirlas una sola vez y consulta su estado hasta diez veces; solo el estado 2 confirma Abiertas. Los intentos se separan 1,5 segundos y cada llamada tiene un límite de 30 segundos. No se crean ni reemplazan salas, ni se configura automáticamente su autoselección.
 
 Validación pendiente en iPhone: usar un origen HTTPS accesible desde el teléfono (127.0.0.1 apunta al propio iPhone), iniciar con un responsable autorizado y comprobar que permanece en Safari. Confirmar Abiertas en Control KJA y entrar con otra cuenta para elegir una sala. Mantener la sesión anfitriona abierta. Probar también sin salas precargadas y con credenciales no configuradas. El ID permitido sigue sujeto a ZOOM_SDK_TEST_MEETING_ID; no se amplía el piloto desde el navegador. No requiere SQL ni nuevos secretos.

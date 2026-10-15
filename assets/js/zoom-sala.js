@@ -31,10 +31,10 @@
  label.textContent=row.pilot?'Habilitada para el piloto':'Fuera del piloto';
  title.textContent=row.topic;
  note.className='sdk-meeting-note';
- note.textContent=!row.pilot?'Esta reunión aún no está habilitada para iniciar desde aquí.':!data.configured?'Configuración pendiente de Sistemas.':mobile()?'Prueba en iPhone: mantén esta ventana abierta mientras se preparan las salas.':'Se iniciará aquí y se intentarán abrir las salas existentes.';
+ note.textContent=!row.pilot?'Esta reunión aún no está habilitada para iniciar desde aquí.':!data.configured?'Configuración pendiente de Sistemas.':mobile()?'Prueba en iPhone: mantén esta ventana abierta mientras se preparan las salas.':'Se iniciará aquí. Antes de abrir las salas, podrás permitir que los participantes elijan su sala.';
  content.append(label,title,note);article.append(content);
  const actions=document.createElement('div');actions.className='sdk-meeting-action';
- const start=button('Iniciar y abrir salas',()=>startMeeting(row));
+ const start=button('Iniciar reunión',()=>startMeeting(row));
  start.disabled=!row.pilot||!data.configured;actions.append(start);article.append(actions);
  if(data.admin){
  const people=document.createElement('div');people.className='sdk-operators';
@@ -91,6 +91,7 @@
  roomStatus=[1,2,3,4].includes(value)?value:null;
  const names={1:'Todavía sin abrir',2:'Abiertas',3:'Cerrando',4:'Cerradas'};
  $('sdk-live-status').textContent=list.length+' salas · '+(names[roomStatus]||'Estado no confirmado')+'.';
+ if(list.length&&[1,4].includes(roomStatus))$('sdk-live-status').textContent+=' Antes de abrirlas, marca «Allow participants to choose room» en Opciones de las salas de Zoom. Después pulsa «Open All Rooms».';
  if(!list.length)$('sdk-live-status').textContent='No hay salas cargadas. Revisa o recupera la preasignación en el panel de Zoom.';
  $('sdk-open').disabled=working||!roomsKnown||![1,4].includes(roomStatus);
  }catch(error){$('sdk-live-status').textContent=error.message;}finally{checking=false;$('sdk-check').disabled=working;$('sdk-check').textContent=working?'Preparando salas…':'Consultar salas';}
@@ -110,7 +111,9 @@
  for(let attempt=0;attempt<10&&current===epoch;attempt++){
  await refreshRooms();if(current!==epoch)return;
  if(roomStatus===2)return;
- if(roomsKnown&&[1,4].includes(roomStatus)){await openRooms(current);return;}
+ // Client View cannot enable participant self-selection through RoomOption.
+ // Keep existing rooms closed so the host can select it before opening them.
+ if(roomsKnown&&[1,4].includes(roomStatus))return;
  await new Promise(resolve=>setTimeout(resolve,1500));
  }
  if(current===epoch)$('sdk-live-status').textContent=roomsKnown?'Las salas están cargadas, pero Zoom no confirmó un estado que permita abrirlas. Pulsa Consultar salas o revisa el panel de Zoom.':'La reunión está iniciada, pero no se pudieron preparar las salas. Consulta el panel de Zoom para recuperar la preasignación o usa una computadora.';
