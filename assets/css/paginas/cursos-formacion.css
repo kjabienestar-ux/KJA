@@ -37,6 +37,7 @@
 
 .formation-section { padding: 12px 0 44px; background: linear-gradient(180deg, #f1f5fc, #f7faff 65%, #fff); scroll-margin-top: 88px; }
 .formation-layout { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(290px, 1fr); gap: 26px; align-items: stretch; }
+.formation-layout.formation-layout--courses { grid-template-columns: minmax(0, 1fr); }
 .formation-catalog { min-width: 0; }
 .formation-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin: 12px 0 24px; }
 .formation-heading > div { min-width: 0; }

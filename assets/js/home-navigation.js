@@ -5,7 +5,7 @@
     const toggle = document.querySelector('.kja-menu-toggle');
     if (!drawer || !page || !toggle) return;
     const root = document.documentElement;
-    const mobile = window.matchMedia('(max-width: 768px)');
+    const mobile = window.matchMedia('(max-width: 968px)');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const closeButton = drawer.querySelector('.kja-drawer-close');
     const shield = document.createElement('button');

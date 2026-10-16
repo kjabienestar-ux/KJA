@@ -1,0 +1,7 @@
+{
+  "id": "oct-09",
+  "prompt": "Use case: photorealistic-natural. Create one standalone wide landscape editorial photograph, 3:2 composition, for a psychology workshop website in Peru. Subject: A clinician conducting a structured developmental history interview with two parents at a laptop, a child's artwork in the background, parents speaking and clinician listening. All people are fictional Latin American people with natural skin tones. Warm natural daylight, credible contemporary clinic/school/office as appropriate, pale cream and light blue environment with understated lavender accents. Candid realistic photography, respectful and welcoming, not staged medical advertising. Keep main faces and action in the central 70% of frame so image can crop to a card. Distinct composition for this specific workshop; no collage or contact sheet. No text, captions, logos, watermark, diagnostic labels, legible test items, copyrighted assessment forms or invented numerical results. No extra fingers or unnatural hands. Professional photography, not illustration.",
+  "asset": "images/talleres/photos/oct-09.webp",
+  "fictional": true,
+  "tool": "image_gen"
+}

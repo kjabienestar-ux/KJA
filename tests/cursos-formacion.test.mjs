@@ -115,78 +115,23 @@ test('los modales se centran, ignoran Escape y se cierran al hacer clic fuera o 
     doc.getElementById('formation-detail-close').click();
     assert.equal(courseDialog.open, false);
 
-    const workshop = doc.querySelector('[data-workshop-detail]');
-    workshop.click();
-    const workshopDialog = doc.getElementById('formation-workshop-dialog');
-    workshopDialog.getBoundingClientRect = () => ({ left: 100, top: 100, right: 500, bottom: 600 });
-    const cancelWorkshop = new dom.window.Event('cancel', { cancelable: true });
-    workshopDialog.dispatchEvent(cancelWorkshop);
-    assert.equal(cancelWorkshop.defaultPrevented, true);
-    assert.equal(workshopDialog.open, true);
-    workshopDialog.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, clientX: 200, clientY: 200, detail: 1 }));
-    assert.equal(workshopDialog.open, true);
-    workshopDialog.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, clientX: 50, clientY: 200, detail: 1 }));
-    assert.equal(workshopDialog.open, false);
-    workshop.click();
-    doc.getElementById('formation-workshop-close').click();
-    assert.equal(workshopDialog.open, false);
-    dom.window.close();
-});
-
-test('la agenda usa scroll sin expandirse, conserva 23 talleres y no contiene fechas vacías', () => {
-    const dom = page();
-    const doc = dom.window.document;
-    const rows = [...doc.querySelectorAll('[data-workshop-id]')];
-    assert.equal(rows.length, 23);
-    assert.equal(rows.filter(row => !row.hidden).length, 23);
-    assert.equal(rows.filter(row => row.textContent.includes('WISC-V')).length, 2);
-    assert.equal(doc.querySelectorAll('#formation-workshops time, .formation-month').length, 0);
-    const list = doc.getElementById('formation-workshops');
-    Object.defineProperties(list, { clientHeight: { value: 500 }, scrollHeight: { value: 4000 } });
-    const more = doc.getElementById('formation-workshops-more');
-    more.click();
-    assert.equal(more.hasAttribute('aria-expanded'), false);
-    assert.equal(rows.filter(row => !row.hidden).length, 23);
-    assert.equal(list.lastScroll.top, 425);
-    assert.equal(list.lastScroll.left, 0);
-    assert.equal(list.lastScroll.behavior, 'smooth');
-    assert.equal(doc.activeElement, list);
-    list.scrollTop = 425;
-    list.dispatchEvent(new dom.window.Event('scroll'));
-    doc.getElementById('formation-workshops-prev').click();
-    assert.equal(list.lastScroll.top, -425);
     dom.window.close();
 });
 
 test('el detalle de taller usa foto temática, Próximamente y WhatsApp contextual; restaura foco', () => {
-    const dom = page();
+    const dom = workshopPage();
     const doc = dom.window.document;
     const opener = doc.querySelector('[data-workshop-detail="oct-23"]');
     opener.click();
     assert.equal(doc.getElementById('formation-workshop-dialog').open, true);
     assert.equal(doc.getElementById('formation-workshop-title').textContent, 'Test de estrés laboral en las organizaciones');
-    assert.ok(doc.getElementById('formation-workshop-image').src.endsWith('salud-ocupacional-bienestar.webp'));
+    assert.ok(doc.getElementById('formation-workshop-image').src.endsWith('images/talleres/photos/oct-23.webp'));
     assert.equal(doc.querySelector('.formation-workshop-status').textContent, 'Próximamente');
     assert.ok(new URL(doc.getElementById('formation-workshop-consult').href).searchParams.get('text').includes('Test de estrés laboral'));
     doc.getElementById('formation-workshop-close').click();
     assert.equal(doc.activeElement, opener);
     doc.querySelector('[data-workshop-detail="oct-07"]').click();
     assert.match(doc.getElementById('formation-workshop-note').textContent, /Denominación por confirmar/);
-    dom.window.close();
-});
-
-test('en móvil los controles avanzan horizontalmente y respetan movimiento reducido', () => {
-    const dom = page('', "window.matchMedia = query => ({ matches: query.includes('max-width') || query.includes('reduced-motion') });");
-    const doc = dom.window.document;
-    const list = doc.getElementById('formation-workshops');
-    Object.defineProperties(list, { clientWidth: { value: 320 }, scrollWidth: { value: 7000 } });
-    list.dispatchEvent(new dom.window.Event('scroll'));
-    doc.getElementById('formation-workshops-next').click();
-    assert.equal(list.lastScroll.left, 272);
-    assert.equal(list.lastScroll.top, 0);
-    assert.equal(list.lastScroll.behavior, 'auto');
-    list.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
-    assert.equal(list.lastScroll.left, -272);
     dom.window.close();
 });
 
@@ -205,10 +150,6 @@ test('el catálogo inicia con seis cursos y la segunda página completa sus espa
 });
 
 test('datos incompletos conservan un estado útil y el contenido se escapa al renderizar', () => {
-    const empty = page('', 'KJA_FORMATION.workshops = [];');
-    assert.ok(empty.window.document.getElementById('formation-workshops').textContent.includes('preparación'));
-    assert.equal(empty.window.document.getElementById('formation-workshops-more').hidden, true);
-    empty.window.close();
     const escaped = page('', 'KJA_FORMATION.courses[0].title = "<img src=x onerror=alert(1)>";');
     assert.equal(escaped.window.document.querySelector('[data-formation-course="rrhh"] h3').textContent, '<img src=x onerror=alert(1)>');
     assert.equal(escaped.window.document.querySelectorAll('[onerror]').length, 0);
@@ -220,7 +161,7 @@ test('la vista por área conserva sus programas y oculta la nueva portada', () =
     const doc = dom.window.document;
     assert.equal(doc.getElementById('catalogo').hidden, true);
     assert.equal(doc.getElementById('rutas-formacion').hidden, true);
-    assert.equal(doc.getElementById('cursos-gratuitos').hidden, true);
+    assert.equal(doc.getElementById('cursos-gratuitos'), null);
     assert.equal(doc.getElementById('course-area-view').hidden, false);
     assert.ok(doc.querySelectorAll('.area-program').length > 0);
     dom.window.close();
@@ -241,5 +182,41 @@ test('los destacados se distribuyen y el distintivo se puede desplegar sin abrir
     badge.click();
     assert.equal(badge.getAttribute('aria-pressed'), 'false');
     assert.equal(doc.querySelectorAll('[data-formation-detail]').length, 7);
+    dom.window.close();
+});
+
+function workshopPage() {
+    const markup = fs.readFileSync(new URL('../talleres.html', import.meta.url), 'utf8');
+    const dom = new JSDOM(markup, { url: 'https://www.kjadmb.com/talleres.html', runScripts: 'outside-only' });
+    dom.window.matchMedia = () => ({ matches: false, addEventListener() {} });
+    dom.window.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+    dom.window.HTMLDialogElement.prototype.close = function () { this.open = false; this.dispatchEvent(new dom.window.Event('close')); };
+    for (const name of ['cursos-formacion-data.js', 'talleres.js']) vm.runInContext(script(name), dom.getInternalVMContext());
+    return dom;
+}
+
+test('la agenda completa permite buscar sin tildes, restablecer y abrir todos los temas', () => {
+    const dom = workshopPage(), doc = dom.window.document;
+    assert.equal(doc.querySelectorAll('[data-workshop-id]').length, 23);
+    assert.equal(doc.querySelectorAll('#formation-workshops time').length, 0);
+    assert.equal(doc.querySelectorAll('.talleres-topic-preview img').length, 23);
+    assert.equal(new Set([...doc.querySelectorAll('.talleres-topic-preview img')].map(image => image.getAttribute('src'))).size, 23);
+    assert.ok([...doc.querySelectorAll('.talleres-topic-preview img')].every(image => image.getAttribute('src').startsWith('images/talleres/photos/')));
+    assert.equal(doc.querySelectorAll('.talleres-topic-description').length, 23);
+    assert.ok([...doc.querySelectorAll('.talleres-topic-description')].every(copy => copy.textContent.length > 30 && copy.textContent.split(/[.!?]+/).filter(sentence => sentence.trim()).length <= 2));
+    const search = doc.getElementById('talleres-search');
+    search.value = 'estres'; search.dispatchEvent(new dom.window.Event('input'));
+    assert.equal(doc.querySelectorAll('[data-workshop-id]:not([hidden])').length, 1);
+    search.value = 'zzzz'; search.dispatchEvent(new dom.window.Event('input'));
+    assert.equal(doc.getElementById('talleres-empty').hidden, false);
+    doc.getElementById('talleres-reset').click();
+    assert.equal(doc.querySelectorAll('[data-workshop-id]:not([hidden])').length, 23);
+    for (const trigger of doc.querySelectorAll('[data-workshop-detail]')) {
+        trigger.click();
+        assert.ok(doc.getElementById('formation-workshop-title').textContent);
+        assert.ok(new URL(doc.getElementById('formation-workshop-consult').href).searchParams.get('text').includes(doc.getElementById('formation-workshop-title').textContent));
+        doc.getElementById('formation-workshop-close').click();
+        assert.equal(doc.activeElement, trigger);
+    }
     dom.window.close();
 });
