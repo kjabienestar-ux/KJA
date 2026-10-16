@@ -274,7 +274,7 @@ body:has(.free-library-dialog[open]) { overflow: hidden; }
 .free-library-notice { padding: 0 0 20px; color: #485672; font-size: .88rem; line-height: 1.7; }
 .free-library-list { display: grid; gap: 10px; }
 .free-library-item { display: flex; align-items: center; gap: 18px; width: 100%; padding: 12px; border: 1px solid #dbe3f2; border-radius: 12px; background: #fff; color: #0b1741; text-align: left; font: inherit; cursor: pointer; }
-.free-library-item > img { display: block; width: 100px; height: 72px; object-fit: cover; border-radius: 8px; }
+.free-library-item > img { display: block; flex-shrink: 0; width: 100px; height: 72px; object-fit: cover; object-position: 75% center; border-radius: 8px; }
 .free-library-item > span:not(.free-library-item-play) { min-width: 0; flex: 1; }
 .free-library-item strong { display: block; font-size: .9rem; }
 .free-library-item small { display: block; color: #485672; font-size: .73rem; margin-top: 4px; }

@@ -4,14 +4,14 @@
     const routesGrid = document.getElementById('formation-routes-grid');
     const coursesGrid = document.getElementById('formation-courses-grid');
     const pagination = document.getElementById('formation-pagination');
-    const workshopsList = document.getElementById('formation-workshops');
-    if (!routesGrid || !coursesGrid || !workshopsList || typeof KJA_FORMATION === 'undefined') return;
+    if (!routesGrid || !coursesGrid || typeof KJA_FORMATION === 'undefined') return;
     if (document.body.classList.contains('course-area-page')) {
         document.getElementById('rutas-formacion').hidden = true;
         return;
     }
 
     const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const photo = name => 'images/cursos/photos/' + name + '.webp';
     const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
     const paths = {
@@ -157,66 +157,4 @@
     dialog.addEventListener('cancel', event => event.preventDefault());
     dialog.addEventListener('close', () => detailOpener?.focus({ preventScroll: true }));
 
-    workshopsList.innerHTML = KJA_FORMATION.workshops.map(workshop =>
-        '<li data-workshop-id="' + escape(workshop.id) + '"><button type="button" class="formation-workshop-title" data-workshop-detail="' + escape(workshop.id) + '" aria-haspopup="dialog" aria-label="Ver taller: ' + escape(workshop.title) + '">' + escape(workshop.title) + '</button></li>'
-    ).join('');
-    const more = document.getElementById('formation-workshops-more');
-    const prev = document.getElementById('formation-workshops-prev');
-    const next = document.getElementById('formation-workshops-next');
-    const horizontal = () => window.matchMedia('(max-width: 1000px)').matches;
-    const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function moveWorkshops(direction) {
-        const sideways = horizontal();
-        const distance = Math.max(1, (sideways ? workshopsList.clientWidth : workshopsList.clientHeight) * .85);
-        workshopsList.scrollBy({ left: sideways ? direction * distance : 0, top: sideways ? 0 : direction * distance, behavior: reducedMotion() ? 'auto' : 'smooth' });
-    }
-    function updateScrollControls() {
-        const sideways = horizontal();
-        const position = sideways ? workshopsList.scrollLeft : workshopsList.scrollTop;
-        const max = sideways ? workshopsList.scrollWidth - workshopsList.clientWidth : workshopsList.scrollHeight - workshopsList.clientHeight;
-        prev.disabled = position <= 1;
-        next.disabled = position >= max - 1;
-    }
-    prev.addEventListener('click', () => moveWorkshops(-1));
-    next.addEventListener('click', () => moveWorkshops(1));
-    workshopsList.addEventListener('scroll', updateScrollControls, { passive: true });
-    window.addEventListener('resize', updateScrollControls);
-    workshopsList.addEventListener('keydown', event => {
-        if (event.target !== workshopsList) return;
-        const forward = horizontal() ? 'ArrowRight' : 'ArrowDown';
-        const back = horizontal() ? 'ArrowLeft' : 'ArrowUp';
-        if (event.key === forward || event.key === back) { event.preventDefault(); moveWorkshops(event.key === forward ? 1 : -1); }
-    });
-    if (!KJA_FORMATION.workshops.length) {
-        workshopsList.innerHTML = '<li class="formation-agenda-empty">La programación está en preparación. Consulta con nuestro equipo.</li>';
-        more.hidden = true;
-        prev.hidden = next.hidden = true;
-    } else {
-        more.innerHTML = 'Ver todos los talleres (' + KJA_FORMATION.workshops.length + ') ' + arrow;
-        more.addEventListener('click', () => {
-            workshopsList.focus({ preventScroll: true });
-            moveWorkshops(1);
-        });
-    }
-    updateScrollControls();
-
-    const workshopDialog = document.getElementById('formation-workshop-dialog');
-    closeOnBackdrop(workshopDialog);
-    let workshopOpener;
-    workshopsList.addEventListener('click', event => {
-        const button = event.target.closest('[data-workshop-detail]');
-        if (!button) return;
-        const workshop = KJA_FORMATION.workshops.find(item => item.id === button.dataset.workshopDetail);
-        if (!workshop) return;
-        workshopOpener = button;
-        document.getElementById('formation-workshop-title').textContent = workshop.title;
-        document.getElementById('formation-workshop-image').src = photo(workshop.image);
-        document.getElementById('formation-workshop-note').textContent = (workshop.note ? workshop.note + '. ' : '') + 'Consulta las próximas fechas y disponibilidad.';
-        document.getElementById('formation-workshop-consult').href = waUrl('Hola KJA, quisiera consultar las próximas fechas y disponibilidad del taller «' + workshop.title + '».');
-        workshopDialog.showModal();
-    });
-    document.getElementById('formation-workshop-close').addEventListener('click', () => workshopDialog.close());
-    // Escape queda bloqueado; el taller se cierra con la X o al pulsar fuera.
-    workshopDialog.addEventListener('cancel', event => event.preventDefault());
-    workshopDialog.addEventListener('close', () => workshopOpener?.focus({ preventScroll: true }));
 })();

@@ -34,8 +34,8 @@
     function renderCard(course, index) {
         const source = !preview && driveSource(course.driveUrl);
         const availability = source ? 'Grabado' : 'Próximamente';
-        const action = source ? 'Ir al curso' : preview ? 'Ver vista previa' : 'Ver disponibilidad';
-        return '<article class="free-course-card"><button type="button" class="free-course-open" data-free-course="' + index + '" aria-haspopup="dialog" aria-label="' + (source ? 'Ver curso: ' : 'Consultar vista previa: ') + escape(course.title) + '">' +
+        const action = source ? 'Ir al taller' : preview ? 'Ver vista previa' : 'Ver disponibilidad';
+        return '<article class="free-course-card"><button type="button" class="free-course-open" data-free-course="' + index + '" aria-haspopup="dialog" aria-label="' + (source ? 'Ver taller: ' : 'Consultar vista previa: ') + escape(course.title) + '">' +
             '<img src="' + escape(course.cover) + '" alt="" width="1200" height="600" loading="lazy" decoding="async">' +
             '<span class="free-course-badges"><span class="free-course-badge">' + book + 'Gratis</span><span class="free-course-badge free-course-badge--status">' + availability + '</span></span>' +
             '<span class="free-course-title">' + escape(course.title) + '</span><span class="free-course-meta">' + clock + 'A tu ritmo</span><span class="free-course-play">' + play + '</span>' + accents +
@@ -57,8 +57,8 @@
     function showLibrary(trigger) {
         title.textContent = 'Biblioteca gratuita';
         status.textContent = preview ? 'Vista previa' : 'Aprende a tu ritmo';
-        content.innerHTML = (preview ? '<p class="free-library-notice">Estamos preparando la biblioteca. Estos títulos son ejemplos de cómo se presentarán los cursos; todavía no hay videos disponibles.</p>' : '') +
-            (courses.length ? '<div class="free-library-list">' + courseButtons() + '</div>' : '<p class="free-library-notice">Estamos preparando nuevos cursos gratuitos. Vuelve pronto para descubrirlos.</p>');
+        content.innerHTML = (preview ? '<p class="free-library-notice">Estamos preparando la biblioteca. Estos títulos son ejemplos de cómo se presentarán los talleres; todavía no hay videos disponibles.</p>' : '') +
+            (courses.length ? '<div class="free-library-list">' + courseButtons() + '</div>' : '<p class="free-library-notice">Estamos preparando nuevos talleres gratuitos. Vuelve pronto para descubrirlos.</p>');
         openDialog(trigger);
     }
 
@@ -70,11 +70,11 @@
         status.textContent = source ? 'Gratis · Grabado' : preview ? 'Vista previa · Título de ejemplo' : 'Próximamente';
         content.innerHTML = source ?
             '<div class="free-course-player"><iframe src="' + source.embed + '" title="' + escape(course.title) + '" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div><p class="free-course-player-help">Si el video no se reproduce, <a href="' + source.open + '" target="_blank" rel="noopener noreferrer">abrir el video en otra pestaña</a>.</p>' :
-            '<div class="free-course-coming"><span class="free-course-coming-play" aria-hidden="true">' + play + '</span><h3>Estamos preparando este espacio</h3><p>' + (preview ? 'El título y la portada son ilustrativos. Publicaremos los cursos reales cuando la biblioteca esté disponible.' : 'Este curso todavía no está disponible. Puedes seguir explorando la formación de KJA.') + '</p><a href="cursos.html#catalogo" class="free-course-catalog-link">Explorar cursos y talleres ' + arrow + '</a></div>';
+            '<div class="free-course-coming"><span class="free-course-coming-play" aria-hidden="true">' + play + '</span><h3>Estamos preparando este espacio</h3><p>' + (preview ? 'El título y la portada son ilustrativos. Publicaremos los talleres reales cuando la biblioteca esté disponible.' : 'Este taller todavía no está disponible. Puedes seguir explorando la formación de KJA.') + '</p><a href="talleres.html#agenda-talleres" class="free-course-catalog-link">Explorar talleres ' + arrow + '</a></div>';
         openDialog(trigger);
     }
 
-    grid.innerHTML = courses.slice(0, 3).map(renderCard).join('') || '<p class="free-library-notice">Nuevos cursos gratuitos, próximamente.</p>';
+    grid.innerHTML = courses.slice(0, 3).map(renderCard).join('') || '<p class="free-library-notice">Nuevos talleres gratuitos, próximamente.</p>';
     const note = document.getElementById('free-courses-preview');
     note.hidden = !preview;
     document.getElementById('free-library-open').addEventListener('click', event => showLibrary(event.currentTarget));
