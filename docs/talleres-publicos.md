@@ -1,8 +1,8 @@
 # Cursos y Talleres: separación de la web pública
 
-Actualización del 16 de octubre de 2026: miniaturas de la biblioteca encuadradas sobre las personas (`object-position: 75% center`), con ancho estable en escritorio y móvil. Preparado para revisión mediante PR sobre la rama principal actualizada; no implica despliegue. Los manifiestos publicados omiten rutas absolutas de la computadora y conservan los prompts. Capturas y recursos históricos citados abajo son evidencia local de las iteraciones y no forman parte de los archivos de producción del PR.
+Implementación de la web pública. Estado vigente: 16 de octubre de 2026. Las verificaciones históricas del 14 de octubre se conservan al final de este documento.
 
-Implementación local del 14 de octubre de 2026. Sin commit, push ni despliegue.
+Se conserva el encuadre de las miniaturas de la biblioteca sobre las personas (`object-position: 75% center`), con ancho estable en escritorio y móvil. Los manifiestos publicados omiten rutas absolutas de la computadora y conservan los prompts. Las capturas históricas citadas son evidencia local y no forman parte de los archivos de producción del PR.
 
 ## Recorrido
 
@@ -10,14 +10,16 @@ Implementación local del 14 de octubre de 2026. Sin commit, push ni despliegue.
 
 `talleres.html` contiene hero para talleres virtuales con escena integrada en el fondo completo, biblioteca de grabaciones, agenda de octubre y franja fucsia con consulta por WhatsApp. El hero conserva libros, lavanda y ondas de la composición pública de Cursos: texto y acciones a la izquierda en escritorio, texto arriba y escena debajo en móvil. El enlace Talleres aparece junto a Cursos en los menús de las diez páginas públicas. La navegación móvil cubre hasta 968 px para evitar un tramo sin menú; la barra de escritorio se compacta entre 969 y 1180 px para acomodar los ocho enlaces.
 
-La agenda muestra los 23 temas existentes: dos listas ordenadas independientes dentro de la línea de tiempo en escritorio, una lista única en móvil que conserva el orden 01–23. Las tarjetas miden 180 px en reposo. Cada tema despliega su descripción y foto al pasar el cursor o recibir foco de teclado y alcanza exactamente 540 px, tres veces la altura cerrada. La cabecera crece según el texto y la fotografía ocupa el espacio restante. Abrir una tarjeta desplaza solo su propia columna; no cambia la posición vertical de la tarjeta vecina en la otra columna.
+La agenda muestra los 23 temas existentes: dos listas ordenadas independientes en escritorio y una lista única en móvil que conserva el orden 01–23. Las tarjetas ajustan su altura al contenido, con la descripción siempre visible y una fotografía que se despliega al pasar el cursor o recibir foco. Abrir una tarjeta desplaza solo su propia columna. Una ola lila difuminada ocupa el borde derecho de las tarjetas y avanza con el scroll: comparte fase y conserva la continuidad visual entre ellas, pero cada tarjeta recorta su tramo para mantener los espacios limpios. Se usa el SVG local images/talleres/ola-lila.svg, opacidad .4 y blur de 7 px. La preferencia de movimiento reducido conserva la ola estática.
 
 La búsqueda admite palabras sin tildes y varios términos; el estado vacío permite restablecer la lista. Cada tema abre su detalle con la misma descripción, fotografía y consulta de WhatsApp; en móvil se accede tocando. Se mantiene la interacción aprobada del modal anterior: cerrar con la X o haciendo clic fuera. Se respeta la preferencia de movimiento reducido.
+
+Los modales de Cursos, Talleres y biblioteca bloquean el scroll de la página mientras están abiertos; el contenido interno sigue accesible. Las fotos de los detalles cubren su zona de borde a borde, con encuadre centrado. Se comprobaron búsqueda, filtros, expansión de tarjetas, continuidad de la ola, móvil y cierre de modales; las 18 pruebas de Cursos y Talleres pasan.
 
 ## Datos y disponibilidad
 
 - Agenda: `assets/js/cursos-formacion-data.js`, misma fuente que el catálogo de Cursos. No se alteraron los títulos ni las aclaraciones pendientes.
-- Descripciones: 23 textos de una o dos oraciones basados en los títulos, definidos en `KJA_WORKSHOP_DETAILS` y asignados a cada taller mediante `description`; orientan sobre el tema y no constituyen temarios oficiales. Se muestran entre título y acción al desplegar la tarjeta y también en el modal.
+- Descripciones: 23 textos de una o dos oraciones basados en los títulos, definidos en `KJA_WORKSHOP_DETAILS` y asignados a cada taller mediante `description`; orientan sobre el tema y no constituyen temarios oficiales. Se muestran siempre entre título y acción y también en el modal.
 - Fechas: **por confirmar**. Octubre identifica la lista original; no se han creado días, horarios ni precios.
 - Grabaciones: `assets/js/cursos-gratuitos-data.js`. Las tres entradas existentes siguen siendo ejemplos, con `preview: true` y aviso visible. No hay videos reales añadidos ni disponibles aún. El reproductor conserva validación de URLs de Google Drive y descarga el iframe al cerrar.
 - Presentación de grabaciones: `assets/js/cursos-gratuitos.js`, ahora con textos de Talleres; nombres internos conservados para compatibilidad.

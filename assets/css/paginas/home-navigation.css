@@ -1,4 +1,11 @@
 /* Home: navegación flotante y panel lateral móvil. */
+/* Bloquea la página, incluso cuando su scroller es html. El modal conserva
+   su propio desplazamiento para que todo el contenido siga siendo accesible. */
+html { scrollbar-gutter: stable; }
+html:has(dialog:modal), body:has(dialog:modal) { overflow: hidden; overscroll-behavior: none; }
+html:has(body.kja-wa-open), body.kja-wa-open,
+html:has(.accessibility-drawer[aria-hidden="false"]), body:has(.accessibility-drawer[aria-hidden="false"]) { overflow: hidden; overscroll-behavior: none; }
+dialog:modal { overscroll-behavior: contain; }
 .kja-mobile-bar { display: none; }
 .kja-mobile-drawer { display: none; border: 0; }
 .kja-page { position: relative; background: #fff; }

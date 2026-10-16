@@ -128,12 +128,11 @@
 /* Workshop detail follows the reference's photograph and colored fade. */
 .formation-workshop-dialog { margin: auto; padding: 0; border: 0; width: min(440px,calc(100% - 32px)); max-height: calc(100dvh - 40px); border-radius: 16px; overflow-y: auto; color: #fff; background: #193e53; font-family: 'Poppins',sans-serif; scrollbar-width: thin; scrollbar-color: #a7c9d7 #193e53; box-shadow: 0 28px 90px #14213b40; }
 .formation-workshop-dialog::backdrop { background: #12224b8c; backdrop-filter: blur(7px); }
-.formation-workshop-poster { position: relative; isolation: isolate; min-height: min(620px,82dvh); display: flex; flex-direction: column; justify-content: end; }
-.formation-workshop-poster > img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: 65% center; }
-.formation-workshop-poster::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg,#193e5300 10%,#193e5340 28%,#193e53ed 52%,#193e53 100%); }
+.formation-workshop-poster { position: relative; isolation: isolate; display: flex; flex-direction: column; }
+.formation-workshop-poster > img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; max-height: 34dvh; object-fit: cover; object-position: center; background: #193e53; mask-image: linear-gradient(#000 86%, transparent); }
 .formation-workshop-close { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff; color: #193e53; cursor: pointer; }
 .formation-workshop-close svg { width: 22px; height: 22px; }
-.formation-workshop-copy { padding: 125px 28px 30px; }
+.formation-workshop-copy { padding: 12px 28px 28px; }
 .formation-workshop-status { display: inline-block; margin: 0 0 14px; font-size: .82rem; font-weight: 600; padding: 5px 10px; border: 1px solid #ffffff70; border-radius: 6px; }
 .formation-workshop-copy h2 { font-size: clamp(1.45rem,4vw,1.9rem); font-weight: 700; line-height: 1.22; letter-spacing: -.025em; text-wrap: balance; margin: 0 0 20px; }
 .formation-workshop-copy > p:last-of-type { font-size: .85rem; line-height: 1.6; margin: 0 0 22px; }
@@ -148,7 +147,7 @@
 .formation-detail-top { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 12px 20px; color: #174cae; font-size: .85rem; font-weight: 600; }
 .formation-detail-top button { display: grid; place-items: center; border: 0; border-radius: 50%; width: 44px; height: 44px; color: #174cae; background: #eef3fd; cursor: pointer; }
 .formation-detail-top svg { width: 20px; height: 20px; }
-.formation-detail > img { display: block; width: 100%; height: auto; aspect-ratio: 2.2; object-fit: cover; }
+.formation-detail > img { display: block; width: 100%; height: auto; max-height: 34dvh; object-fit: cover; object-position: center; background: #f1f5fc; }
 .formation-detail-copy { padding: 26px 30px 32px; }
 .formation-detail h2 { font-size: clamp(1.3rem, 3vw, 1.65rem); line-height: 1.4; font-weight: 700; margin-bottom: 20px; }
 .formation-detail ul { padding-left: 20px; margin-bottom: 22px; color: #475571; font-size: .9rem; line-height: 1.7; }

@@ -85,4 +85,56 @@
     // Se conserva la interacción de cierre aprobada para los detalles de Cursos.
     dialog.addEventListener('cancel', event => event.preventDefault());
     dialog.addEventListener('close', () => opener?.focus({ preventScroll: true }));
+
+    // Una fase compartida por columna evita que la ola empiece de nuevo en
+    // cada tarjeta. Solo se miden posiciones al cambiar la distribución.
+    if (typeof window.requestAnimationFrame !== 'function') return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let waveFrame = 0, measureWave = true, waveVisible = true, listTop = 0;
+    function paintWave() {
+        waveFrame = 0;
+        if (measureWave) {
+            const offsets = [];
+            listTop = list.getBoundingClientRect().top + window.scrollY;
+            (singleColumn.matches ? [columns[0]] : columns).forEach(column => {
+                const top = column.getBoundingClientRect().top;
+                [...column.children].filter(row => !row.hidden).forEach(row => {
+                    const card = row.querySelector('.talleres-topic');
+                    offsets.push([card, card.getBoundingClientRect().top - top]);
+                });
+            });
+            offsets.forEach(([card, offset]) => card.style.setProperty('--workshop-wave-offset', offset + 'px'));
+            measureWave = false;
+        }
+        const shift = reducedMotion.matches ? 0 : -((window.scrollY - listTop) * .2) % 480;
+        list.style.setProperty('--workshop-wave-shift', shift + 'px');
+    }
+    function queueWave(remeasure = false) {
+        measureWave ||= remeasure;
+        if (!waveFrame && !document.hidden) waveFrame = window.requestAnimationFrame(paintWave);
+    }
+    window.addEventListener('scroll', () => {
+        if (waveVisible && !reducedMotion.matches) queueWave();
+    }, { passive: true });
+    window.addEventListener('resize', () => queueWave(true), { passive: true });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) queueWave(true); });
+    reducedMotion.addEventListener?.('change', () => queueWave());
+    if (typeof ResizeObserver === 'function') {
+        const sizes = new ResizeObserver(() => queueWave(true));
+        columns.forEach(column => sizes.observe(column));
+        rows.forEach(row => sizes.observe(row.querySelector('.talleres-topic')));
+    }
+    if (typeof MutationObserver === 'function') {
+        new MutationObserver(() => queueWave(true)).observe(list, {
+            subtree: true, childList: true, attributes: true, attributeFilter: ['hidden']
+        });
+    }
+    if (typeof IntersectionObserver === 'function') {
+        new IntersectionObserver(entries => {
+            waveVisible = entries[0].isIntersecting;
+            if (waveVisible) queueWave(true);
+        }, { rootMargin: '160px' }).observe(list);
+    }
+    document.fonts?.ready.then(() => queueWave(true));
+    queueWave(true);
 })();
