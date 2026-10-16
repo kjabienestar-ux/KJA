@@ -182,15 +182,15 @@
     toast.className='marketing-toast';
     toast.dataset.type=type;
     const icons={
-      success:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
-      info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
-      warning:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+      success:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
+      info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+      warning:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
     };
-    toast.innerHTML=`<div class="marketing-toast-icon">${icons[type]||icons.info}</div><div class="marketing-toast-body"><div class="marketing-toast-title">${title}</div>${message?`<div class="marketing-toast-message">${message}</div>`:''}</div><button type="button" class="marketing-toast-close" aria-label="Cerrar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
+    toast.innerHTML=`<div class="marketing-toast-icon">${icons[type]||icons.info}</div><div class="marketing-toast-body"><div class="marketing-toast-title">${title}</div>${message?`<div class="marketing-toast-message">${message}</div>`:''}</div><button type="button" class="marketing-toast-close" aria-label="Cerrar notificación" title="Cerrar"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="marketing-toast-progress" style="animation-duration:${Math.max(1000,duration)}ms" aria-hidden="true"></div>`;
     const dismiss=()=>{
       if(toast.classList?.contains('dismissing'))return;
       toast.classList?.add('dismissing');
-      setTimeout(()=>toast.remove?.(),260);
+      setTimeout(()=>toast.remove?.(),280);
     };
     const closeBtn=toast.querySelector?.('.marketing-toast-close');
     if(closeBtn)closeBtn.onclick=dismiss;
