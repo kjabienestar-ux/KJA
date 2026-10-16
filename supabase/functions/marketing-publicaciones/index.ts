@@ -58,6 +58,52 @@ Deno.serve(async(req)=>{
     if(body.accion==='listar'){
       const offset=Number(body.offset||0);
       if(!Number.isSafeInteger(offset)||offset<0||offset>100000)fail('La página del historial no es válida.');
+
+      let autoresList:Array<{id:string,nombre:string}>=[];
+      let allowedUids:string[]=[uid];
+
+      if(permission.administrar){
+        try{
+          const {data:colabAccesos}=await admin.from('marketing_colaboradores_acceso').select('colaborador_id,area_id');
+          const permittedColabIds=(colabAccesos||[]).map(c=>c.colaborador_id).filter(Boolean);
+
+          const {data:activeColabs}=permittedColabIds.length?await admin.from('asis_colaboradores').select('id,nombre,area_id').in('id',permittedColabIds).eq('activo',true):{data:[]};
+          const validColabIds=(activeColabs||[]).filter(c=>{
+            const acc=colabAccesos?.find(a=>a.colaborador_id===c.id);
+            return acc&&acc.area_id===c.area_id;
+          }).map(c=>c.id);
+
+          const {data:directAccesos}=await admin.from('marketing_accesos').select('usuario_id');
+          const directUids=(directAccesos||[]).map(d=>d.usuario_id).filter(Boolean);
+
+          const {data:allPerfiles}=await admin.from('asis_perfiles').select('id,nombre,colaborador_id').eq('activo',true);
+          const allColabIds=(allPerfiles||[]).map(p=>p.colaborador_id).filter(Boolean);
+          const allColabMap=new Map<number,string>();
+          if(allColabIds.length){
+            const {data:allColabs}=await admin.from('asis_colaboradores').select('id,nombre').in('id',allColabIds);
+            (allColabs||[]).forEach(c=>allColabMap.set(c.id,c.nombre));
+          }
+
+          const seenUids=new Set<string>();
+          (allPerfiles||[]).forEach(p=>{
+            const isColabPermitted=Boolean(p.colaborador_id&&validColabIds.includes(p.colaborador_id));
+            const isDirectPermitted=directUids.includes(p.id);
+            const isCurrentAdmin=p.id===uid;
+            if((isColabPermitted||isDirectPermitted||isCurrentAdmin)&&!seenUids.has(p.id)){
+              seenUids.add(p.id);
+              const name=(p.colaborador_id?allColabMap.get(p.colaborador_id):null)||p.nombre||'Colaborador';
+              autoresList.push({id:p.id,nombre:isCurrentAdmin?name+' (Tú)':name});
+            }
+          });
+          allowedUids=Array.from(seenUids);
+          autoresList.sort((a,b)=>{
+            if(a.id===uid)return -1;
+            if(b.id===uid)return 1;
+            return a.nombre.localeCompare(b.nombre,'es');
+          });
+        }catch{}
+      }
+
       let query=admin.from('marketing_publicaciones')
         .select('id,autor,datos,extraccion,copy,enlace,estado,creado_at,actualizado_at,facebook_id,imagen_path',{count:'exact'})
         .is('eliminado_at',null)
@@ -70,7 +116,11 @@ Deno.serve(async(req)=>{
         if(targetAutor&&targetAutor!=='todos'&&targetAutor!=='me'){
           if(!/^[0-9a-f-]{36}$/.test(targetAutor))fail('El autor seleccionado no es válido.');
           query=query.eq('autor',targetAutor);
-        }else if(!targetAutor||targetAutor==='me'){
+        }else if(targetAutor==='todos'){
+          if(allowedUids.length){
+            query=query.in('autor',allowedUids);
+          }
+        }else{
           query=query.eq('autor',uid);
         }
       }else{
@@ -83,7 +133,6 @@ Deno.serve(async(req)=>{
       const {data:images}=rows.length?await admin.storage.from(bucket).createSignedUrls(rows.map(row=>row.imagen_path),3600):{data:[]};
 
       let authorMap=new Map<string,string>();
-      let autoresList:Array<{id:string,nombre:string}>=[];
 
       if(permission.administrar){
         const authorUids=[...new Set(rows.map(r=>r.autor).filter(Boolean))];
@@ -100,36 +149,6 @@ Deno.serve(async(req)=>{
             authorMap.set(p.id,name);
           });
         }
-
-        try{
-          const {data:colabAccesos}=await admin.from('marketing_colaboradores_acceso').select('colaborador_id');
-          const permittedColabIds=(colabAccesos||[]).map(c=>c.colaborador_id).filter(Boolean);
-          const {data:pubAuthors}=await admin.from('marketing_publicaciones').select('autor').is('eliminado_at',null);
-          const pubAuthorUids=[...new Set((pubAuthors||[]).map(p=>p.autor).filter(Boolean))];
-
-          const {data:allPerfiles}=await admin.from('asis_perfiles').select('id,nombre,colaborador_id,nivel').eq('activo',true);
-          const allColabIds=(allPerfiles||[]).map(p=>p.colaborador_id).filter(Boolean);
-          const allColabMap=new Map<number,string>();
-          if(allColabIds.length){
-            const {data:allColabs}=await admin.from('asis_colaboradores').select('id,nombre').in('id',allColabIds);
-            (allColabs||[]).forEach(c=>allColabMap.set(c.id,c.nombre));
-          }
-
-          const seenUids=new Set<string>();
-          (allPerfiles||[]).forEach(p=>{
-            const hasPerm=p.nivel==='sistemas'||pubAuthorUids.includes(p.id)||(p.colaborador_id&&permittedColabIds.includes(p.colaborador_id));
-            if(hasPerm&&!seenUids.has(p.id)){
-              seenUids.add(p.id);
-              const name=(p.colaborador_id?allColabMap.get(p.colaborador_id):null)||p.nombre||'Colaborador';
-              autoresList.push({id:p.id,nombre:p.id===uid?name+' (Tú)':name});
-            }
-          });
-          autoresList.sort((a,b)=>{
-            if(a.id===uid)return -1;
-            if(b.id===uid)return 1;
-            return a.nombre.localeCompare(b.nombre,'es');
-          });
-        }catch{}
       }
 
       const items=rows.map((row,i)=>({
