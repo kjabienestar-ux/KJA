@@ -301,7 +301,11 @@ function openMonthCell(personId,date){
   const managementHtml=`<h3>Gestión de la jornada</h3>${canEdit?'':'<p>Tu rol tiene acceso de solo lectura.</p>'}<div class="month-modal-actions">${actions||'<p class="admin-empty">No hay acciones disponibles para esta fecha.</p>'}</div>`;
   openMonthModal('DETALLE DE ASISTENCIA',person.nombre,dateText,
     `<div class="md-day-summary"><div class="md-person-context"><span>${esc(person.area||'Sin área')}</span>${person.dni?`<span>DNI ${esc(person.dni)}</span>`:''}<span>${person.activo?'Colaborador activo':'Dado de baja'}</span></div><div class="month-day-facts"><span><small>Condición del día</small><b>${esc(reason||'No registrada')}</b></span><span><small>Modalidad</small>${canEdit&&!isFuture&&day.estado?`<div class="md-mode-picker" role="group" aria-label="Modalidad de asistencia">${['virtual','presencial'].map(mode=>`<button type="button" data-month-mode="${mode}" aria-pressed="${day.modalidad===mode}">${cap(mode)}</button>`).join('')}</div><small>Solo para este día · guardado automático</small><small id="month-mode-status" role="status" aria-live="polite"></small>`:`<b>${esc(cap(day.modalidad||'No registrada'))}</b>`}</span><span><small>Origen de la marca</small><b>${esc(day.origen||'Sin registro')}</b></span></div>${mark}</div>${[...new Set([day.nota,day.excepcion_nota,day.feriado_nota].filter(Boolean))].map(note=>`<p class="month-day-note"><b>Nota:</b> ${esc(note)}</p>`).join('')}<section id="month-day-detail" aria-label="Registros y evidencias del día" aria-live="polite"></section>`);
-  $('admin-month-modal')._dayDetail=KJAMonthDayDetail.mount($('month-day-detail'),{person,day,future:isFuture,canManageFacebook:APP.access?.rol==='direccion',managementHtml});
+  const detailDialog=ADMIN_MONTH_DIALOG;
+  $('admin-month-modal')._dayDetail=KJAMonthDayDetail.mount($('month-day-detail'),{person,day,future:isFuture,canManageFacebook:APP.access?.rol==='direccion',canManageEvidence:APP.access?.rol==='direccion',managementHtml,onChanged:()=>{
+    APP.adminMonthKey='';void loadAdminMonth(true);
+    if(ADMIN_MONTH_DIALOG===detailDialog&&$('month-incomplete-reasons'))void loadMonthIncompleteReasons(detailDialog);
+  }});
   if(day.cierre_estado==='incompleta'){
     const body=$('admin-month-modal-body'),anchor=body.querySelector('.md-day-summary');
     anchor.insertAdjacentHTML('afterend','<section class="month-incomplete-reasons" id="month-incomplete-reasons" aria-live="polite" aria-busy="true"></section>');

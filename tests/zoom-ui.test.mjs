@@ -143,3 +143,22 @@ test('si Safari bloquea portapapeles ofrece enlace seleccionable',async()=>{
  assert.equal(field.hidden,false);assert.equal(field.value,'https://zoom.us/j/97271980453');
  assert.doesNotMatch(s.el('zoom-message').textContent,/Enlace copiado/);
 });
+
+test('WhatsApp prepares participant link without sending it or opening host access',async()=>{
+ const s=setup({admin:true});await s.load();
+ assert.match(s.el('zoom-list').innerHTML,/Compartir enlace por WhatsApp/);
+ await s.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'whatsapp'}})}});
+ assert.equal(s.invocations.length,1);assert.equal(s.invocations[0].action,'join');
+ const target=new URL(s.opened[0]);assert.equal(target.origin,'https://wa.me');
+ assert.equal(target.searchParams.get('text'),sample.topic+'\nhttps://zoom.us/j/97271980453');
+ assert.match(s.el('zoom-message').textContent,/confirma el envío/);
+});
+
+test('WhatsApp rejects invalid links and clipboard fallback preserves dashboard',async()=>{
+ const bad=setup({admin:true,invoke:async()=>({data:{ok:true,url:'https://evil.test/'}})});await bad.load();
+ await bad.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'whatsapp'}})}});
+ assert.deepEqual(bad.opened,['closed']);
+ const copied=[];const blocked=setup({admin:true,clipboard:{writeText:async x=>copied.push(x)}});await blocked.load();blocked.window.open=()=>null;
+ await blocked.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'whatsapp'}})}});
+ assert.equal(copied.length,1);assert.deepEqual(blocked.opened,[]);
+});

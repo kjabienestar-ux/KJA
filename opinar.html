@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#004fb0">
+  <title>Tu opinión | KJA Centro Psicológico</title>
+  <link rel="icon" type="image/png" href="images/logo/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/paginas/opinar.css?v=6">
+</head>
+<body>
+  <span class="op-blob op-blob--a" aria-hidden="true"></span>
+  <span class="op-blob op-blob--b" aria-hidden="true"></span>
+
+  <main class="op-shell">
+    <aside class="op-aside">
+      <a class="op-logo" href="/" aria-label="KJA Centro Psicológico"><img src="images/logo/logo.webp" alt="KJA Centro Psicológico" width="160" height="56"></a>
+      <div class="op-aside__body">
+        <p class="op-kicker">Tu opinión importa</p>
+        <h1 class="op-aside__title">Tu voz nos ayuda a <em>cuidar mejor</em></h1>
+        <ul class="op-points">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Toma menos de un minuto</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Tus respuestas internas son privadas</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Revisamos cada opinión antes de publicarla</li>
+        </ul>
+      </div>
+      <div class="op-preview" aria-hidden="true">
+        <span class="op-preview__tag">Así se verá en nuestra página</span>
+        <!-- Réplica de .testimonials-marquee__card del inicio (index.html) -->
+        <div class="op-pcard">
+          <span class="op-pcard__src"></span>
+          <div class="op-pcard__top">
+            <span class="op-pcard__av" id="op-p-av">KJ</span>
+            <span><b id="op-p-name">Tu nombre</b><small>hoy</small></span>
+          </div>
+          <div class="op-pcard__meta">
+            <span class="op-pcard__stars" id="op-p-stars">☆☆☆☆☆</span>
+            <span class="op-pcard__tag" id="op-p-tag" hidden></span>
+          </div>
+          <p id="op-p-text">“Tu comentario aparecerá aquí…”</p>
+        </div>
+      </div>
+    </aside>
+
+    <section class="op-card" aria-live="polite">
+      <div id="op-estado" class="op-estado">Verificando tu enlace…</div>
+
+      <form id="op-form" class="op-form" data-step="1" hidden autocomplete="off" novalidate>
+        <header class="op-mhead">
+          <h2 id="op-titulo">¿Qué te pareció <em>el curso o taller</em>?</h2>
+          <div class="op-steps" aria-hidden="true"><i class="on"></i><i></i></div>
+        </header>
+        <span class="op-chip" id="op-serv" hidden></span>
+
+        <div class="op-grid">
+          <div class="op-col op-col--1">
+            <div class="op-svc" id="op-svc" hidden>
+              <span class="op-label" id="op-svc-label">¿En qué participaste? <small>(opcional)</small></span>
+              <div class="op-svc__row" role="radiogroup" aria-labelledby="op-svc-label">
+                <button type="button" data-s="curso" role="radio" aria-checked="false">Curso</button>
+                <button type="button" data-s="taller" role="radio" aria-checked="false">Taller</button>
+                <button type="button" data-s="terapia" role="radio" aria-checked="false">Terapia</button>
+              </div>
+            </div>
+
+            <label class="op-label" for="op-nombre">Tu nombre</label>
+            <input class="op-input" id="op-nombre" type="text" maxlength="60" placeholder="Cómo quieres que aparezca" required>
+
+            <span class="op-label" id="op-est-label">¿Cómo calificas tu experiencia?</span>
+            <div class="op-rate">
+              <div class="op-stars" id="op-stars" role="radiogroup" aria-labelledby="op-est-label"></div>
+              <span class="op-star-txt" id="op-star-txt" aria-live="polite"></span>
+            </div>
+
+            <label class="op-label" for="op-texto">Tu comentario <span class="op-count"><span id="op-cnt">0</span>/500</span></label>
+            <textarea class="op-input op-area" id="op-texto" maxlength="500" placeholder="¿Qué te gustó? ¿Qué aprendiste?" required></textarea>
+          </div>
+
+          <div class="op-col op-col--2">
+            <div class="op-private">
+              <div class="op-private__tag"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Solo lo ve el equipo de KJA</div>
+              <span class="op-label" id="op-rec-label">¿Qué tan probable es que nos recomiendes?</span>
+              <div class="op-nps" id="op-nps" role="radiogroup" aria-labelledby="op-rec-label"></div>
+              <div class="op-nps-legend"><span>Nada probable</span><span>Muy probable</span></div>
+              <label class="op-label" for="op-nota">¿Algo que podamos mejorar? <small>(opcional)</small></label>
+              <textarea class="op-input op-area op-area--sm" id="op-nota" maxlength="1000" placeholder="Esto no se publicará en la web"></textarea>
+            </div>
+            <p class="op-legal">Al enviar aceptas que el nombre que escribas y tu comentario puedan mostrarse en la web de KJA una vez aprobados. Puedes usar tu primer nombre o un alias. Solo mostramos la categoría de cursos y talleres; no publicamos la etiqueta de terapia. Evita incluir diagnósticos u otros datos privados en tu comentario. La nota interna y tu recomendación no se publican.</p>
+          </div>
+        </div>
+
+        <input type="text" class="op-hp" id="op-web" tabindex="-1" aria-hidden="true" autocomplete="off">
+        <div class="op-msg" id="op-msg" role="alert"></div>
+
+        <div class="op-actions">
+          <button class="op-btn op-btn--ghost op-back" id="op-back" type="button">Atrás</button>
+          <button class="op-btn op-next" id="op-next" type="button">Continuar</button>
+          <button class="op-btn op-send" id="op-enviar" type="submit"><span class="op-spin"></span><span id="op-enviar-txt">Enviar mi opinión</span></button>
+        </div>
+      </form>
+
+      <div id="op-exito" class="op-exito" hidden>
+        <div class="op-badge"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="c" cx="50" cy="50" r="46"/><path class="k" d="M30 52l14 14 27-30"/></svg></div>
+        <h2>¡Gracias por tu opinión!</h2>
+        <p>La revisaremos y, una vez aprobada, podrá aparecer en la sección de testimonios de nuestra página de inicio.</p>
+        <a class="op-link" href="/">Volver al inicio</a>
+      </div>
+    </section>
+  </main>
+  <script src="assets/js/opinar.js?v=7" defer></script>
+</body>
+</html>

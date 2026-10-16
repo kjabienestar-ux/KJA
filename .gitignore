@@ -5,6 +5,7 @@ CLAUDE.local.md
 .agents/
 skills-lock.json
 node_modules/
+/.tmp/
 
 # Temporales del sistema
 Thumbs.db

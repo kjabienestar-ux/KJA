@@ -1,17 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {extractWithGemini,readAndCache,flyerFields} from '../supabase/functions/marketing-publicaciones/gemini.mjs';
+import {extractWithGemini,readAndCache,refineWithGemini,flyerFields} from '../supabase/functions/marketing-publicaciones/gemini.mjs';
 const datos=Object.fromEntries(flyerFields.map(k=>[k,k==='titulo'?'ADOS-2 y ADI-R':'']));
 const image=new Blob([new Uint8Array([255,216,255,0])],{type:'image/jpeg'});
-const input={apiKey:'test-key',model:'gemini-2.5-flash',image};
+const input={apiKey:'test-key',model:'gemini-3.1-flash-lite',image,wait:async()=>{}};
 const output=(fields=datos)=>({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(fields)}]}}]});
 
 test('Gemini sends the flyer inline with a server-side key and validates structured output',async()=>{
   let calls=0;
   const actual=await extractWithGemini({...input,fetcher:async(url,options)=>{
-    calls++;assert.equal(url,'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+    calls++;assert.equal(url,'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent');
     assert.equal(options.headers['x-goog-api-key'],'test-key');assert.ok(!url.includes('test-key'));
     const body=JSON.parse(options.body);assert.equal(body.contents[0].parts[1].inlineData.mimeType,'image/jpeg');
+    const instruction=body.systemInstruction.parts[0].text;
+    assert.match(instruction,/bloques pequeños, pie de página/);
+    assert.match(instruction,/de 20 a 35 palabras en total y máximo 40/);
+    assert.match(instruction,/sin prometer dominio/);
+    assert.match(instruction,/No inventes público, modalidad, beneficios, precio, fechas/);
+    assert.match(instruction,/CRITERIO EDITORIAL KJA/);
+    assert.match(instruction,/No deduzcas profesiones/);
+    assert.match(instruction,/Tema: aplicación concreta/);
+    assert.match(instruction,/EJEMPLO DE ESTILO, NO DE DATOS/);
+    assert.match(instruction,/No rellenes para cumplir una longitud/);
+    assert.match(instruction,/no lo conviertas en WhatsApp/);
     assert.equal(body.contents[0].parts[1].inlineData.data,'/9j/AA==');
     assert.equal(body.generationConfig.responseMimeType,'application/json');
     return Response.json(output());
@@ -22,6 +33,35 @@ test('quota errors do not expose upstream bodies or automatically retry',async()
   let calls=0;
   await assert.rejects(extractWithGemini({...input,fetcher:async()=>{calls++;return Response.json({secret:'private'}, {status:429})}}),/cuota de Gemini/);
   assert.equal(calls,1);
+});
+
+test('a transient overload retries once with the same deadline and recovers',async()=>{
+  let calls=0,firstSignal,waits=0;
+  const actual=await extractWithGemini({...input,wait:async ms=>{assert.equal(ms,1200);waits++},fetcher:async(url,options)=>{
+    calls++;
+    if(calls===1){firstSignal=options.signal;return new Response('busy',{status:503})}
+    assert.equal(options.signal,firstSignal);
+    return Response.json(output());
+  }});
+  assert.deepEqual(actual,datos);assert.equal(calls,2);assert.equal(waits,1);
+});
+
+test('temporary HTTP failures include a safe diagnostic and preserve manual retry',async()=>{
+  for(const code of [500,503,504,502]){
+    let calls=0;
+    await assert.rejects(extractWithGemini({...input,fetcher:async()=>{calls++;return new Response('private-secret',{status:code});}}),error=>{
+      assert.ok(error.message.includes(String(code)));assert.match(error.message,/flyer sigue guardado/);assert.doesNotMatch(error.message,/private-secret/);return true;
+    });
+    assert.equal(calls,2);
+  }
+});
+
+test('network and timeout failures do not expose provider details',async()=>{
+  for(const name of ['TimeoutError','AbortError','TypeError']){
+    await assert.rejects(extractWithGemini({...input,fetcher:async()=>{const error=new Error('private-secret');error.name=name;throw error;}}),error=>{
+      assert.match(error.message,name==='TypeError'?/conectar/:/tardó demasiado/);assert.doesNotMatch(error.message,/private-secret/);return true;
+    });
+  }
 });
 test('provider failures distinguish configuration causes without exposing upstream secrets',async()=>{
   for(const [status,reason,message,expected] of [
@@ -39,8 +79,8 @@ test('provider failures distinguish configuration causes without exposing upstre
   }
 });
 test('configuration ignores surrounding whitespace and rejects an empty key before sending',async()=>{
-  await extractWithGemini({...input,apiKey:' test-key\n',model:' gemini-2.5-flash ',fetcher:async(url,options)=>{
-    assert.equal(options.headers['x-goog-api-key'],'test-key');assert.ok(url.endsWith('/gemini-2.5-flash:generateContent'));return Response.json(output());
+  await extractWithGemini({...input,apiKey:' test-key\n',model:' gemini-3.1-flash-lite ',fetcher:async(url,options)=>{
+    assert.equal(options.headers['x-goog-api-key'],'test-key');assert.ok(url.endsWith('/gemini-3.1-flash-lite:generateContent'));return Response.json(output());
   }});
   await assert.rejects(extractWithGemini({...input,apiKey:' ',fetcher:()=>assert.fail('must not send')}),/no está configurada/);
 });
@@ -72,3 +112,26 @@ test('busy/quota reservation refuses extraction; provider and save failures rele
     assert.equal(released,true);
   }
 });
+
+test('refineWithGemini sends user prompt and current copy, returning the molded copy',async()=>{
+  let calls=0;
+  const copy='Texto inicial KJA\n📲 Contáctanos: 51988918238';
+  const prompt='Hazlo más directo';
+  const refined=await refineWithGemini({
+    apiKey:'test-key',
+    model:'gemini-3.1-flash-lite',
+    copy,
+    prompt,
+    fetcher:async(url,options)=>{
+      calls++;
+      const body=JSON.parse(options.body);
+      assert.match(body.contents[0].parts[0].text,/Texto actual de la publicación/);
+      assert.match(body.contents[0].parts[0].text,/Hazlo más directo/);
+      assert.equal(body.generationConfig.responseMimeType,'application/json');
+      return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({copy:'Texto moldeado directo\n📲 Contáctanos: 51988918238'})}]}}]});
+    }
+  });
+  assert.equal(refined,'Texto moldeado directo\n📲 Contáctanos: 51988918238');
+  assert.equal(calls,1);
+});
+

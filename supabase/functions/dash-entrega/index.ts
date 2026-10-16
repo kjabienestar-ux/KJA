@@ -39,20 +39,21 @@ Deno.serve(async (req) => {
     if (identidadError || !identidad?.user) return json({ ok: false, motivo: "sesion" }, 401);
 
     const servicio = createClient(url, serviceKey, { auth: { persistSession: false } });
-    if (body.accion === "eliminar_imagen_facebook" || body.accion === "admin_eliminar_imagen_facebook") {
+    if (body.accion === "eliminar_imagen_facebook" || body.accion === "admin_eliminar_imagen_facebook" || body.accion === "admin_eliminar_evidencia") {
+      const generalEvidence = body.accion === "admin_eliminar_evidencia";
       const id=Number(body.entrega), path=body.path;
       if(!Number.isSafeInteger(id)||id<=0||typeof path!=="string"||!path||path.length>500)
         return json({ok:false,motivo:"datos"},400);
-      const rpc = body.accion === "admin_eliminar_imagen_facebook"
+      const rpc = generalEvidence ? "dash_admin_retirar_evidencia" : body.accion === "admin_eliminar_imagen_facebook"
         ? "dash_admin_retirar_imagen_facebook" : "dash_retirar_imagen_facebook";
       const {data,error}=await usuario.rpc(rpc,{p_entrega:id,p_path:path});
-      if(error)return json({ok:false,motivo:"migracion_eliminar"},400);
+      if(error)return json({ok:false,motivo:generalEvidence?"migracion_evidencias":"migracion_eliminar"},400);
       if(!data?.ok)return json({ok:false,motivo:data?.motivo||"sin_permiso"},403);
       // Paths are authorized and queued by SQL, never accepted directly from the client.
       const paths=data.paths||[];
       const {error:removeError}=await servicio.storage.from(BUCKET).remove(paths);
       if(removeError)return json({ok:false,retirada:true,motivo:"limpieza_pendiente"},503);
-      const {error:queueError}=await servicio.from("asis_facebook_archivos_borrar")
+      const {error:queueError}=await servicio.from(generalEvidence?"asis_evidencias_archivos_borrar":"asis_facebook_archivos_borrar")
         .delete().eq("entrega_id",id).in("path",paths);
       if(queueError)return json({ok:false,retirada:true,motivo:"limpieza_pendiente"},503);
       return json({ok:true,eliminada:true});
@@ -168,6 +169,18 @@ Deno.serve(async (req) => {
     const { data, error } = await usuario.rpc(rpc, args);
     if (error) return json({ ok: false, motivo: "error_validacion" }, 500);
     if (!data?.ok) return json({ ok: false, motivo: data?.motivo || "no_autorizado" }, 403);
+
+    // Retry interrupted administrative removals only after SQL authorizes this
+    // upload for the same collaborator. Queue paths are never client supplied.
+    if (isAdminUpload) {
+      const {data:pending}=await servicio.from("asis_evidencias_archivos_borrar")
+        .select("entrega_id,path").eq("colaborador_id",Number(body.colaborador)).limit(50);
+      for(const item of pending||[]){
+        const {error:pendingError}=await servicio.storage.from(BUCKET).remove([item.path]);
+        if(!pendingError)await servicio.from("asis_evidencias_archivos_borrar").delete()
+          .eq("entrega_id",item.entrega_id).eq("path",item.path).eq("colaborador_id",Number(body.colaborador));
+      }
+    }
 
     const { data: firma, error: firmaError } = await servicio.storage
       .from(BUCKET)

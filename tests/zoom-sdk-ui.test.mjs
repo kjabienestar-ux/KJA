@@ -43,22 +43,26 @@ test('SDK: no session does not request authorization or download SDK',async()=>{
 });
 test('SDK embedded keeps its return inside the frame and reports connection without credentials',async()=>{
  const s=await setup({embedded:true});try{
- s.w.document.querySelector('#sdk-meetings button').click();await until(()=>s.calls.includes('open'));
+ s.w.document.querySelector('#sdk-meetings button').click();await until(()=>s.calls.includes('join'));
  assert.match(s.calls.find(c=>c.leaveUrl)?.leaveUrl,/zoom-sala.html\?embedded=1&meeting=test$/);
  const notices=s.calls.filter(c=>c.notice);assert.ok(notices.some(c=>c.notice.state==='connected'));
  for(const item of notices){assert.equal(item.origin,'https://portal.example');assert.deepEqual(Object.keys(item.notice),['type','state']);}
  }finally{s.dom.window.close();}
 });
-test('SDK: iPhone inicia integrado y solicita abrir una sola vez',async()=>{
+test('SDK: iPhone inicia sin abrir salas para permitir activar la elección de sala',async()=>{
  const s=await setup({mobile:true});try{
  const b=s.w.document.querySelector('#sdk-meetings button');assert.equal(b.disabled,false);b.click();await wait();await wait();
- assert.deepEqual(s.calls,['sdk-list','sdk-start','join','open']);
+ assert.deepEqual(s.calls,['sdk-list','sdk-start','join']);
+ assert.match(s.w.document.getElementById('sdk-live-status').textContent,/Allow participants to choose room/);
+ s.w.document.getElementById('sdk-open').click();await wait();
+ assert.equal(s.calls.filter(c=>c==='open').length,1);
  assert.match(s.w.document.getElementById('sdk-live-status').textContent,/Abiertas/);
  }finally{s.dom.window.close();}
 });
 test('SDK: callback exitoso sin estado abierto no anuncia éxito',async()=>{
  const s=await setup({openedStatus:1});try{
  s.w.document.querySelector('#sdk-meetings button').click();await wait();await wait();await wait();
+ s.w.document.getElementById('sdk-open').click();
  await until(()=>/aún no confirma/.test(s.w.document.getElementById('sdk-live-status').textContent));
  assert.equal(s.calls.filter(c=>c==='open').length,1);
  assert.match(s.w.document.getElementById('sdk-live-status').textContent,/aún no confirma/);
@@ -67,6 +71,7 @@ test('SDK: callback exitoso sin estado abierto no anuncia éxito',async()=>{
 for(const scenario of [{status:2},{rooms:false},{rejectOpen:true}])test('SDK: apertura segura '+JSON.stringify(scenario),async()=>{
  const s=await setup(scenario);try{
  s.w.document.querySelector('#sdk-meetings button').click();await wait();await wait();await wait();
+ if(scenario.rejectOpen){s.w.document.getElementById('sdk-open').click();await wait();}
  assert.equal(s.calls.filter(c=>c==='open').length,scenario.rejectOpen?1:0);
  assert.equal(s.w.document.getElementById('sdk-lobby').hidden,true);
  if(scenario.rejectOpen)assert.match(s.w.document.getElementById('sdk-live-status').textContent,/rechazó/);

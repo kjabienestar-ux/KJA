@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#f4f1ec">
 <title>Mi portal - KJA</title>
 <link rel="icon" href="images/logo/favicon.png">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-marketing.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-marketing.css?v=studio-38">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-chat.css?v=18">
 <link rel="stylesheet" href="assets/css/paginas/chat-images.css?v=5">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=16">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/assignment-hours.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=6">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=9">
@@ -49,7 +50,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-login.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-calendar.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-month-layout.css?v=6">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=12">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-control-refined.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=6">
@@ -70,7 +71,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-holiday.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence-corrections.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-overview-modal.css?v=2">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-zoom.css?v=15">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-zoom.css?v=16">
 </head>
 <body>
 
@@ -198,9 +199,9 @@
       </button>
     </div>
     <nav class="side-nav" aria-label="Navegación principal">
-      <button id="nav-marketing" data-view="marketing" data-sidebar-tooltip="Publicaciones" hidden><svg viewBox="0 0 24 24"><path d="M4 10v5h4l9 4V6l-9 4H4ZM8 15l2 6M20 9v7"/></svg><span class="sidebar-label">Publicaciones</span></button>
-      <span class="side-nav-divider personal" id="personal-nav-divider" hidden>MI ESPACIO</span>
+      <span class="side-nav-divider personal" id="personal-nav-divider" hidden aria-hidden="true"></span>
       <button class="active" data-view="inicio" id="nav-inicio" data-sidebar-tooltip="Inicio" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="m4 10 8-7 8 7v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3Z"/><path d="m2.5 10.5 8.2-7.2a2 2 0 0 1 2.6 0l8.2 7.2M4.5 9v9a2.5 2.5 0 0 0 2.5 2.5h10a2.5 2.5 0 0 0 2.5-2.5V9M9 20.5v-5a3 3 0 0 1 6 0v5M10 8h4"/></svg><span class="sidebar-label">Inicio</span></button>
+      <button id="nav-marketing" data-view="marketing" data-sidebar-tooltip="Publicaciones" hidden><svg viewBox="0 0 24 24"><path d="M4 10v5h4l9 4V6l-9 4H4ZM8 15l2 6M20 9v7"/></svg><span class="sidebar-label">Publicaciones</span></button>
       <button data-view="asistencia" id="nav-asistencia" data-sidebar-tooltip="Mi asistencia" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="icon-tone" d="M3 9V6a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v3Z"/><path d="M10 20H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3v3M7 2v4M16 2v4M3 9h17M7 13h2M7 16h1"/><circle class="icon-tone" cx="17" cy="17" r="5"/><circle cx="17" cy="17" r="5"/><path class="icon-accent" d="m14.5 17 1.7 1.7 3.3-3.5"/></svg><span class="sidebar-label">Mi asistencia</span></button>
       <button data-view="perfil" id="nav-perfil" data-sidebar-tooltip="Mi perfil" hidden><svg class="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect class="icon-tone" x="3" y="2.5" width="18" height="19" rx="5"/><rect x="3" y="2.5" width="18" height="19" rx="5"/><circle cx="12" cy="9" r="3"/><path d="M7 18c.4-2.4 2-3.6 5-3.6s4.6 1.2 5 3.6"/></svg><span class="sidebar-label">Mi perfil</span></button>
       <button data-view="zoom" id="nav-zoom" data-sidebar-tooltip="Reuniones Zoom" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="3"/><path d="m15 10 6-4v12l-6-4"/></svg><span class="sidebar-label">Reuniones Zoom</span></button>
@@ -257,64 +258,338 @@
 
   <main class="workspace" id="workspace" tabindex="-1">
     <section class="view" id="view-marketing" hidden>
-      <header class="marketing-head"><div><h1>Publicaciones</h1><p>Del flyer al post de KJA. Prepara el contenido, revisa los datos y publica desde un mismo lugar.</p></div><button class="marketing-btn" id="marketing-new" type="button">Nueva publicación</button></header>
-      <ol class="marketing-steps" aria-label="Pasos de la publicación"><li aria-current="step">Subir flyer o pegar texto</li><li>Revisar copy</li><li>Publicar</li></ol>
+      <header class="marketing-head">
+        <div class="marketing-title-group">
+          <h1>Publicaciones</h1>
+        </div>
+        <div id="marketing-quota-widget" class="marketing-quota-widget" role="status" aria-label="Cuota de consultas IA">
+          <div class="marketing-quota-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8L12 2z"/></svg>
+          </div>
+          <div class="marketing-quota-content">
+            <div class="marketing-quota-main">
+              <span class="marketing-quota-label">Análisis IA · últimas 24 h</span>
+              <span class="marketing-quota-values"><strong id="marketing-quota-used">0</strong> / <span id="marketing-quota-total">200</span></span>
+              <span id="marketing-quota-pill" class="marketing-quota-pill"><strong id="marketing-quota-remaining">200</strong> restantes</span>
+            </div>
+            <div class="marketing-quota-detail">
+              <div class="marketing-quota-bar-track">
+                <div id="marketing-quota-bar" class="marketing-quota-bar-fill" style="width: 0%;"></div>
+              </div>
+              <span class="marketing-quota-renew-text">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="marketing-quota-timer">Cuota completa (24h)</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <button class="marketing-btn" id="marketing-team-manage" type="button" hidden>Gestionar accesos</button><button class="marketing-btn primary" id="marketing-new" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva publicación</button>
+      </header>
+      <section id="marketing-team-activity" class="marketing-team-activity" aria-label="Tu actividad de publicaciones" hidden>
+        <div><h2 id="marketing-team-greeting"></h2><p><strong id="marketing-team-today">0</strong> copies guardados hoy</p></div>
+        <details><summary>Actividad de los últimos 7 días</summary><ul id="marketing-team-days"></ul><p id="marketing-team-count-note"></p></details>
+      </section>
+      <dialog id="marketing-team-dialog" class="marketing-team-dialog" aria-labelledby="marketing-team-title">
+        <header><div><h2 id="marketing-team-title">Acceso a Publicaciones</h2><p>Elige un área y las personas que usarán esta sección.</p></div><button type="button" id="marketing-team-close" aria-label="Cerrar">×</button></header>
+        <nav class="marketing-team-tabs" aria-label="Vista de permisos"><button type="button" id="marketing-team-edit" aria-pressed="true">Asignar permisos</button><button type="button" id="marketing-team-view" aria-pressed="false">Quiénes tienen acceso</button></nav>
+        <section id="marketing-team-edit-panel">
+        <label for="marketing-team-area" hidden>Área<select id="marketing-team-area"></select></label>
+        <p class="marketing-team-field-title">Selecciona un área</p><div id="marketing-team-areas" class="marketing-team-areas" role="group" aria-label="Área de colaboradores"></div>
+        <div class="marketing-team-selection"><button type="button" id="marketing-team-all">Seleccionar todos</button><button type="button" id="marketing-team-none">Quitar selección</button></div>
+        <div id="marketing-team-people" class="marketing-team-people" role="group" aria-label="Colaboradores con acceso"></div>
+        <p>Este permiso permite preparar y guardar copies. No concede publicación directa en Facebook. Desmarcar a alguien retira su acceso, pero conserva su historial.</p>
+        <footer><button type="button" id="marketing-team-save" class="marketing-btn primary">Guardar permisos del área</button></footer>
+        </section>
+        <section id="marketing-team-view-panel" hidden><p>Colaboradores autorizados según los permisos guardados. Los administradores conservan su acceso.</p><div id="marketing-team-authorized"></div></section>
+        <p id="marketing-team-notice" role="status" aria-live="polite"></p>
+      </dialog>
+
+      <ol class="marketing-steps" aria-label="Pasos de la publicación"><li aria-current="step">Subir flyer</li><li>Revisar texto y WhatsApp</li><li>Copiar o publicar</li></ol>
       <p class="marketing-status" id="marketing-status" role="status" aria-live="polite">Selecciona un flyer para comenzar.</p>
       <div class="marketing-connection-row"><p class="marketing-note" id="marketing-connection">Comprobando conexiones…</p><button type="button" class="marketing-btn" id="marketing-retry" hidden>Reintentar conexión</button></div>
       <div class="marketing-layout">
-        <aside class="marketing-source" aria-label="Flyer y borradores">
-          <div class="marketing-upload"><label for="marketing-file">El flyer de tu campaña</label><p class="marketing-note">Usa la imagen original para que el texto se pueda leer con claridad.</p><input id="marketing-file" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="marketing-file-help"><small id="marketing-file-help" class="marketing-note">JPG, PNG o WebP · Hasta 5 MB</small></div>
-          <img class="marketing-image" id="marketing-image" alt="Flyer de la publicación actual" hidden>
-          <section class="marketing-history"><h2>Mis publicaciones recientes</h2><ul id="marketing-history"><li>Aún no se consultaron tus borradores.</li></ul></section>
+        <aside class="marketing-library" aria-label="Historial de publicaciones">
+          <div class="marketing-library-head"><h2>Mis publicaciones</h2><span id="marketing-history-count">0</span></div>
+          <label class="marketing-search" for="marketing-search">Buscar una publicación<input id="marketing-search" type="search" placeholder="Nombre del curso…" autocomplete="off"></label>
+          <div class="marketing-filters" aria-label="Filtrar publicaciones"><button id="marketing-filter-all" type="button" aria-pressed="true">Todas</button><button id="marketing-filter-drafts" type="button" aria-pressed="false">Borradores</button><button id="marketing-filter-published" type="button" aria-pressed="false">Publicadas</button></div>
+          <p class="marketing-note" id="marketing-history-summary" aria-live="polite">Cargando tus publicaciones…</p>
+          <ul id="marketing-history" class="marketing-history-list"><li class="marketing-empty">Tu historial aparecerá aquí.</li></ul>
+          <button class="marketing-btn" id="marketing-history-more" type="button" hidden>Cargar anteriores</button>
         </aside>
         <div class="marketing-editor" id="marketing-editor">
-          <nav class="marketing-editor-nav" aria-label="Secciones del editor"><button type="button" id="marketing-tab-prepare" aria-current="step">1. Contenido</button><button type="button" id="marketing-tab-review" disabled>2. Revisar copy</button><button type="button" id="marketing-tab-publish" disabled>3. Publicar</button></nav>
-          <div id="marketing-loading" class="marketing-loading" hidden><span class="marketing-spinner" aria-hidden="true"></span><span id="marketing-loading-text">Procesando…</span></div>
+          <nav class="marketing-editor-nav" aria-label="Secciones del editor"><button type="button" id="marketing-tab-prepare" aria-current="step"><span class="marketing-step-num">1</span><span class="marketing-step-info"><small class="marketing-step-tag">Paso 1</small><span class="marketing-step-name">Flyer</span></span></button><button type="button" id="marketing-tab-review" disabled><span class="marketing-step-num">2</span><span class="marketing-step-info"><small class="marketing-step-tag">Paso 2</small><span class="marketing-step-name">Texto y WhatsApp</span></span></button><button type="button" id="marketing-tab-publish" disabled><span class="marketing-step-num">3</span><span class="marketing-step-info"><small class="marketing-step-tag">Paso 3</small><span class="marketing-step-name">Copiar o publicar</span></span></button></nav>
+          <div id="marketing-loading" class="boot marketing-splash" data-mode="action" role="status" aria-live="polite" hidden>
+            <div class="boot-inner">
+              <div class="boot-badge" aria-hidden="true">
+                <span class="marketing-spinner-ring"></span>
+                <img class="boot-logo" src="images/logo/logo-160.webp" alt="">
+              </div>
+              <p class="boot-text" id="marketing-loading-text">Cargando publicación…</p>
+              <div id="marketing-progress" class="marketing-progress" hidden>
+                <div class="marketing-progress-heading">
+                  <span class="marketing-progress-label"><span class="marketing-pulse-dot" aria-hidden="true"></span>Avance estimado</span>
+                  <strong id="marketing-progress-value" class="marketing-progress-badge">0%</strong>
+                </div>
+                <div class="marketing-progress-track">
+                  <progress id="marketing-progress-bar" max="100" value="0" aria-label="Avance estimado del análisis"></progress>
+                </div>
+                <p class="marketing-progress-hint" id="marketing-progress-hint">Conservamos tu flyer. Espera sin recargar mientras preparamos el contenido.</p>
+              </div>
+            </div>
+          </div>
           <section id="marketing-prepare-panel" aria-label="Preparar contenido">
-          <fieldset class="marketing-mode"><legend>¿Cómo quieres preparar el contenido?</legend><label><input type="radio" name="marketing-mode" id="marketing-mode-image" value="imagen" checked> Analizar imagen con Gemini</label><label><input type="radio" name="marketing-mode" id="marketing-mode-text" value="texto"> Pegar texto · sin consumir lecturas</label></fieldset>
-          <div id="marketing-image-method"><p class="marketing-note">Subir el flyer no consume Gemini. Pulsa el botón para analizarlo; si ya fue leído, se recuperarán sus datos guardados.</p><div class="marketing-actions"><button class="marketing-btn" id="marketing-analyze" type="button" disabled>Leer información del flyer</button></div></div>
+<h2>Del flyer a tu próxima publicación</h2><p class="marketing-note">Prepara el contenido, dale tu toque y compártelo.</p><div class="marketing-prepare-grid"><div class="marketing-source"><label class="marketing-upload" for="marketing-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 16 5-5 5 5 3-3 5 5"/></svg><strong id="marketing-file-label">Sube el flyer de tu campaña</strong><span>Elige una imagen o arrástrala aquí</span><input id="marketing-file" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="marketing-file-help"><small id="marketing-file-help">JPG, PNG o WebP · Hasta 5 MB</small></label><img class="marketing-image" id="marketing-image" alt="Flyer de la publicación actual" hidden></div><div class="marketing-methods">
+<fieldset class="marketing-mode"><legend>¿Cómo quieres preparar el contenido?</legend><label><input type="radio" name="marketing-mode" id="marketing-mode-image" value="imagen" checked><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 16 5-5 5 5 3-3 5 5"/></svg><span><strong>Crear desde el flyer</strong><small>Extrae la información y prepara un texto con enfoque de venta.</small></span></label><label><input type="radio" name="marketing-mode" id="marketing-mode-text" value="texto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16M12 5v15M8 20h8M4 5v3m16-3v3"/></svg><span><strong>Ya tengo el texto</strong><small>Pégalo y ordénalo en una publicación. Sin usar lecturas de IA.</small></span></label></fieldset>
+          <div id="marketing-image-method"><p class="marketing-note">Obtendrás una presentación, temario, beneficios y un mensaje de WhatsApp. Revisa los datos antes de compartir.</p><div class="marketing-actions"><button class="marketing-btn primary" id="marketing-analyze" type="button" disabled>Leer información del flyer</button></div></div>
           <div id="marketing-text-method" hidden><div class="marketing-fields"><label for="marketing-source-text">Texto del flyer o información ya analizada<textarea id="marketing-source-text" maxlength="20000" rows="8" placeholder="Título: Nombre del curso&#10;Descripción: Presentación del curso&#10;Temario:&#10;Primer tema&#10;Segundo tema&#10;Modalidad: Online&#10;WhatsApp: 51988918238"></textarea><small>Reconoce encabezados como Título, Temario, Modalidad, Beneficios, Fecha, Precio y WhatsApp. Sin encabezados, conserva la primera línea como título y el resto como descripción. Revisa siempre la distribución.</small></label></div><button class="marketing-btn" type="button" id="marketing-organize">Generar copy con este texto</button><p class="marketing-note">Funciona sin Gemini y con la cuota agotada. Adjunta también el flyer para guardar y publicar la imagen.</p></div>
 
-          </section>
+          </div></div></section>
           <section id="marketing-data-panel" aria-label="Datos de la publicación" hidden>
-          <h2>Información para el copy</h2><p class="marketing-note">Revisa el nombre y el WhatsApp. Abre los detalles para completar el contenido del curso.</p>
-          <div class="marketing-fields">
+          <header class="marketing-correction-heading"><h2>Corrige los detalles de tu publicación</h2><p class="marketing-note">Ajusta la información y actualiza el texto cuando esté listo.</p></header>
+          <div class="marketing-fields marketing-correction-basics">
             <label for="marketing-titulo">Nombre del curso o campaña *<input id="marketing-titulo" maxlength="300" required placeholder="Nombre tal como aparece en el flyer"></label>
-            <label for="marketing-telefono">WhatsApp de ventas *<input id="marketing-telefono" type="tel" maxlength="30" required placeholder="Ejemplo: 51988918238"><small>Incluye el código de país.</small></label>
+            <label for="marketing-telefono">WhatsApp de ventas *<input id="marketing-telefono" type="tel" maxlength="100" required placeholder="Ejemplo: 51988918238" aria-describedby="marketing-phone-help"><small id="marketing-phone-help">Puedes incluir dos contactos separados con /. El primero abre el enlace.</small></label>
+            <div id="marketing-phone-choices" class="marketing-phone-choices" role="group" aria-label="Elegir WhatsApp de ventas" hidden></div>
           </div>
-          <details class="marketing-details" id="marketing-extra"><summary>Temario y detalles del curso <span>Revisar campos opcionales</span></summary>
-          <div class="marketing-fields marketing-fields-grid">
-            <label for="marketing-descripcion">Descripción<textarea id="marketing-descripcion" maxlength="3000" placeholder="Presentación breve del curso"></textarea></label>
+          <details class="marketing-details" id="marketing-extra"><summary>Contenido de la campaña <span>Descripción, público, temario y datos de contacto</span></summary>
+          <div class="marketing-fields marketing-fields-grid marketing-correction-content">
+            <fieldset class="marketing-correction-group"><legend>Presentación</legend><label for="marketing-descripcion">Descripción<textarea id="marketing-descripcion" maxlength="3000" placeholder="Presentación breve del curso"></textarea></label>
             <label for="marketing-publico">A quién va dirigido<textarea id="marketing-publico" maxlength="3000" placeholder="Completar si está confirmado"></textarea></label>
-            <label for="marketing-temario">Temario<textarea id="marketing-temario" rows="5" maxlength="6000" placeholder="Un tema por línea"></textarea></label>
+            </fieldset><fieldset class="marketing-correction-group"><legend>Contenido y modalidad</legend><label for="marketing-temario">Temario<textarea id="marketing-temario" rows="5" maxlength="6000" placeholder="Un tema por línea"></textarea></label>
             <label for="marketing-modalidad">Modalidad<input id="marketing-modalidad" maxlength="300" placeholder="Completar si está confirmada"></label>
-            <label for="marketing-beneficios">Beneficios incluidos<textarea id="marketing-beneficios" maxlength="3000" placeholder="Material, certificación u otros beneficios confirmados"></textarea></label>
+            </fieldset><fieldset class="marketing-correction-group"><legend>Beneficios y condiciones</legend><label for="marketing-beneficios">Beneficios incluidos<textarea id="marketing-beneficios" maxlength="3000" placeholder="Material, certificación u otros beneficios confirmados"></textarea></label>
             <label for="marketing-detalles">Fechas, precio y condiciones<textarea id="marketing-detalles" maxlength="3000" placeholder="Incluye únicamente las condiciones de esta campaña"></textarea></label>
-            <label for="marketing-correo">Correo de contacto<input id="marketing-correo" type="email" maxlength="250" placeholder="Correo confirmado para esta campaña"></label>
+            </fieldset><fieldset class="marketing-correction-group"><legend>Contacto y mensaje</legend><label for="marketing-correo">Correo de contacto<input id="marketing-correo" type="email" maxlength="250" placeholder="Correo confirmado para esta campaña"></label>
             <label for="marketing-mensaje">Mensaje que verá el cliente<textarea id="marketing-mensaje" maxlength="2000" placeholder="Se propone un mensaje al generar el borrador"></textarea><small>Quedará escrito en WhatsApp; el cliente decide enviarlo.</small></label>
-          </div>
+          </fieldset></div>
           </details>
-          <div class="marketing-actions"><button type="button" id="marketing-back-prepare" class="marketing-btn">Volver al copy</button><button class="marketing-btn primary" id="marketing-generate" type="button" disabled>Actualizar copy</button></div>
+          <div class="marketing-actions marketing-correction-actions"><button type="button" id="marketing-back-prepare" class="marketing-btn">Volver al copy</button><button class="marketing-btn primary" id="marketing-generate" type="button" disabled>Actualizar copy</button></div>
           <p class="marketing-note marketing-upload-reminder">Adjunta el flyer para generar y guardar la publicación.</p>
           </section>
           <section class="marketing-review" id="marketing-review" hidden>
-            <h2>Revisa tu publicación</h2><p class="marketing-note">Compara el copy con el flyer. Puedes ajustar el texto antes de guardarlo.</p>
-            <div class="marketing-fields"><label for="marketing-copy">Copy de Facebook<textarea id="marketing-copy" maxlength="20000"></textarea></label></div>
-            <a class="marketing-link" id="marketing-link" target="_blank" rel="noopener noreferrer">Probar enlace de WhatsApp</a>
-            <div class="marketing-actions"><button class="marketing-btn" id="marketing-back-data" type="button">Corregir informaci?n</button><button class="marketing-btn" id="marketing-copy-button" type="button">Copiar texto</button><button class="marketing-btn primary" id="marketing-save" type="button">Guardar para despu?s</button></div>
+            <div class="marketing-review-heading"><h2>Editar publicación</h2><span id="marketing-save-state" class="marketing-save-state">Borrador</span></div><div class="marketing-review-grid"><div class="marketing-facebook-editor">
+            <details class="marketing-details" id="marketing-campaign-format" hidden><summary>Formato y beneficios de esta campaña</summary><p class="marketing-note">Marca únicamente lo que corresponde a este curso. Luego aplica el formato al texto.</p><div class="marketing-campaign-options"><label><input type="checkbox" id="marketing-option-certificado"> Certificado Académico KJA con QR</label><label><input type="checkbox" id="marketing-option-material"> Material académico digital</label><label><input type="checkbox" id="marketing-option-peru"> Solo válido en Perú</label><label><input type="checkbox" id="marketing-option-vacantes"> Vacantes limitadas</label></div><button class="marketing-btn" type="button" id="marketing-apply-template">Aplicar formato</button></details>
+            <div class="marketing-fields">
+              <div class="marketing-copy-header">
+                <div class="marketing-channel-brand">
+                  <div class="marketing-fb-icon-badge" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                  </div>
+                  <label for="marketing-copy" class="marketing-channel-label">
+                    <span class="marketing-channel-title">Facebook</span>
+                    <span id="marketing-copy-count" class="marketing-char-counter">0 caracteres</span>
+                  </label>
+                </div>
+                <div class="marketing-view-modes" role="tablist" aria-label="Modo de vista">
+                  <button type="button" id="marketing-mode-edit" class="marketing-mode-tab active" aria-selected="true"><svg class="marketing-tab-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span>Editar</span></button>
+                  <button type="button" id="marketing-mode-preview" class="marketing-mode-tab" aria-selected="false"><svg class="marketing-tab-fb-logo" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg><span>Vista previa FB</span><span class="marketing-fb-live-indicator" aria-hidden="true"></span></button>
+                </div>
+              </div>
+              <textarea id="marketing-copy" maxlength="20000" rows="18"></textarea>
+              <div id="marketing-fb-preview" class="marketing-fb-card" hidden>
+                <div class="marketing-fb-card-header">
+                  <img src="images/logo/logo-160.webp" class="marketing-fb-avatar" alt="Logo KJA">
+                  <div class="marketing-fb-meta">
+                    <strong id="marketing-fb-author">KJA Bienestar</strong>
+                    <span class="marketing-fb-time">Hace un momento · <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0M1 8a7 7 0 0 1 1.05-3.69l3.15 3.15a1 1 0 0 0 1.42 0l1.17-1.17a1 1 0 0 0 0-1.42L5.85 2.93A7 7 0 0 1 15 8a7 7 0 0 1-1.07 3.73l-2.73-2.73a1 1 0 0 0-1.4 0l-1.4 1.4a1 1 0 0 0 0 1.4l1.6 1.6A7 7 0 0 1 1 8"/></svg></span>
+                  </div>
+                  <span class="marketing-fb-badge-preview">Vista previa</span>
+                </div>
+                <div class="marketing-fb-card-body" id="marketing-fb-copy-render"></div>
+                <div class="marketing-fb-card-media" id="marketing-fb-media" hidden>
+                  <img id="marketing-fb-flyer-img" alt="Flyer en vista previa">
+                </div>
+                <div class="marketing-fb-card-actions">
+                  <span class="marketing-fb-action"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> Me gusta</span>
+                  <span class="marketing-fb-action"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comentar</span>
+                  <span class="marketing-fb-action"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Compartir</span>
+                </div>
+              </div>
+              <div class="marketing-ai-refine" id="marketing-ai-refine">
+                <div class="marketing-ai-refine-header">
+                  <div class="marketing-ai-star-wrap" aria-hidden="true">
+                    <svg class="marketing-ai-star-svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+                      <path d="M12 2L14.6 9.4L22 12L14.6 14.6L12 22L9.4 14.6L2 12L9.4 9.4L12 2Z" fill="url(#mkAiStarGrad)"/>
+                      <defs>
+                        <linearGradient id="mkAiStarGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#38bdf8"/>
+                          <stop offset="1" stop-color="#2563eb"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                  <div class="marketing-ai-refine-intro">
+                    <div class="marketing-ai-refine-title-row">
+                      <h3 class="marketing-ai-refine-title">Mejorar el COPY con tu prompt</h3>
+                      <div class="marketing-ai-header-actions">
+                        <button type="button" id="marketing-emoji-btn" class="marketing-emoji-trigger" aria-label="Abrir selector de emojis estilo iOS" title="Agregar emojis al copy">
+                          <span class="marketing-emoji-trigger-icon" aria-hidden="true">😀</span>
+                          <span class="marketing-emoji-trigger-label">Agregar emoji</span>
+                        </button>
+                        <span class="marketing-ai-refine-badge"><span class="marketing-ai-badge-dot" aria-hidden="true"></span>Gemini IA</span>
+                      </div>
+                    </div>
+                    <p class="marketing-ai-refine-subtitle">Dinos qué enfoque o cambios necesitas y la IA se encarga del resto.</p>
+                  </div>
+                </div>
+                <div class="marketing-ai-cards-grid" aria-label="Sugerencias rápidas para el copy">
+                  <button type="button" class="marketing-ai-card card-direct marketing-ai-chip" data-prompt="Haz el texto más conciso, directo y fácil de leer sin perder datos clave">
+                    <span class="marketing-ai-card-icon-wrap" aria-hidden="true">
+                      <span class="marketing-ai-emoji">⚡</span>
+                    </span>
+                    <div class="marketing-ai-card-text">
+                      <strong class="marketing-ai-card-title">Más directo</strong>
+                      <span class="marketing-ai-card-desc">Conciso y al grano</span>
+                    </div>
+                  </button>
+                  <button type="button" class="marketing-ai-card card-sales marketing-ai-chip" data-prompt="Haz el tono más persuasivo y enfocado en generar urgencia e inscripciones">
+                    <span class="marketing-ai-card-icon-wrap" aria-hidden="true">
+                      <span class="marketing-ai-emoji">🔥</span>
+                    </span>
+                    <div class="marketing-ai-card-text">
+                      <strong class="marketing-ai-card-title">Enfoque ventas</strong>
+                      <span class="marketing-ai-card-desc">Persuasivo y urgente</span>
+                    </div>
+                  </button>
+                  <button type="button" class="marketing-ai-card card-pro marketing-ai-chip" data-prompt="Adapta el texto con un enfoque profesional y clínico especializado del centro KJA">
+                    <span class="marketing-ai-card-icon-wrap" aria-hidden="true">
+                      <span class="marketing-ai-emoji">🎓</span>
+                    </span>
+                    <div class="marketing-ai-card-text">
+                      <strong class="marketing-ai-card-title">Profesional</strong>
+                      <span class="marketing-ai-card-desc">Tono clínico KJA</span>
+                    </div>
+                  </button>
+                  <button type="button" class="marketing-ai-card card-family marketing-ai-chip" data-prompt="Usa un tono cálido, empático y cercano para familias y padres de familia">
+                    <span class="marketing-ai-card-icon-wrap" aria-hidden="true">
+                      <span class="marketing-ai-emoji">❤️</span>
+                    </span>
+                    <div class="marketing-ai-card-text">
+                      <strong class="marketing-ai-card-title">Para familias</strong>
+                      <span class="marketing-ai-card-desc">Cálido y empático</span>
+                    </div>
+                  </button>
+                </div>
+                <div class="marketing-ai-input-floating">
+                  <span class="marketing-ai-floating-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/>
+                    </svg>
+                  </span>
+                  <label for="marketing-refine-prompt" class="marketing-visually-hidden">Indicación para mejorar el copy con tu prompt</label>
+                  <input type="text" id="marketing-refine-prompt" class="marketing-ai-input" placeholder="Escribe aquí tu prompt o selecciona una opción de arriba..." maxlength="500" autocomplete="off">
+                  <button type="button" id="marketing-prompt-emoji-btn" class="marketing-prompt-emoji-trigger" aria-label="Insertar emoji en el prompt" title="Insertar emoji en el prompt">
+                    <span aria-hidden="true">😊</span>
+                  </button>
+                  <button type="button" id="marketing-refine-submit" class="marketing-ai-circle-btn" aria-label="Mejorar copy con tu prompt" title="Mejorar copy con tu prompt (Enter)">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 19V5M5 12l7-7 7 7"/>
+                    </svg>
+                    <span class="marketing-visually-hidden">Mejorar copy con tu prompt</span>
+                  </button>
+                </div>
+                <div id="marketing-refine-status" class="marketing-ai-status" hidden></div>
+
+                <!-- Selector de emojis estilo iOS / WhatsApp -->
+                <div id="marketing-emoji-popover" class="marketing-emoji-popover" hidden aria-label="Selector de emojis estilo iOS">
+                  <div class="marketing-emoji-popover-header">
+                    <div class="marketing-emoji-search-wrap">
+                      <svg class="marketing-emoji-search-svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <input type="text" id="marketing-emoji-search" class="marketing-emoji-search-input" placeholder="Buscar emoji..." autocomplete="off">
+                      <button type="button" id="marketing-emoji-search-clear" class="marketing-emoji-clear-btn" aria-label="Limpiar búsqueda" hidden>×</button>
+                    </div>
+                    <button type="button" id="marketing-emoji-close" class="marketing-emoji-close-btn" aria-label="Cerrar selector de emojis" title="Cerrar (Esc)">✕</button>
+                  </div>
+                  <div class="marketing-emoji-target-indicator" id="marketing-emoji-target-hint">
+                    <span>Insertando en:</span> <strong id="marketing-emoji-target-label">Texto de publicación</strong>
+                  </div>
+                  <div id="marketing-emoji-list" class="marketing-emoji-list" role="region" aria-label="Catálogo de emojis"></div>
+                  <nav class="marketing-emoji-tabs" aria-label="Categorías de emojis">
+                    <button type="button" class="marketing-emoji-tab is-active" data-cat="destacados" title="Destacados y Marketing KJA">
+                      <span aria-hidden="true">⭐</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="caras" title="Caras y Emociones">
+                      <span aria-hidden="true">😀</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="gestos" title="Gestos y Personas">
+                      <span aria-hidden="true">👍</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="simbolos" title="Corazones y Símbolos">
+                      <span aria-hidden="true">💖</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="objetos" title="Educación y Negocios">
+                      <span aria-hidden="true">🎓</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="celebracion" title="Fiesta y Naturaleza">
+                      <span aria-hidden="true">🎉</span>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+            <div class="marketing-link-result"><label for="marketing-short-url">Enlace de esta campaña<input id="marketing-short-url" readonly aria-describedby="marketing-short-help" placeholder="Se genera al preparar el texto"></label><a class="marketing-link" id="marketing-link" target="_blank" rel="noopener noreferrer">Probar WhatsApp ↗</a><small id="marketing-short-help">El mensaje queda guardado en el enlace; no ocupa espacio en tu publicación.</small><button class="marketing-btn" id="marketing-refresh-all" type="button" aria-describedby="marketing-refresh-help">Actualizar texto y enlace</button><small id="marketing-refresh-help">Regenera ambos con los datos actuales del flyer, sin consumir otra lectura de Gemini.</small></div>
+            <div class="marketing-editor-footer"><div class="marketing-actions"><button class="marketing-btn" id="marketing-back-data" type="button">Corregir información</button><button class="marketing-btn" id="marketing-copy-button" type="button">Copiar texto</button><button class="marketing-btn" id="marketing-save" type="button">Guardar para más tarde</button></div>
             <p class="marketing-note" id="marketing-destination"></p>
-            <div class="marketing-actions"><button class="marketing-btn primary" id="marketing-to-publish" type="button">Continuar a publicar</button></div>
+            <div class="marketing-actions"><button class="marketing-btn primary" id="marketing-to-publish" type="button">Listo para compartir →</button></div></div>
+            </div><div class="marketing-conversation"><figure class="marketing-flyer-preview" id="marketing-preview" hidden><figcaption>Flyer de la publicación</figcaption><a id="marketing-preview-link" target="_blank" rel="noopener noreferrer" aria-label="Abrir flyer en tamaño completo"><img id="marketing-preview-image" alt="Flyer de la publicación seleccionada"></a></figure><section class="marketing-whatsapp" aria-labelledby="marketing-chat-title">
+              <header class="marketing-chat-header">
+                <span class="marketing-chat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a9 9 0 0 1-13.3 7.9L3 21l1.6-4.7A9 9 0 1 1 21 11.5Z"/><path d="M8 7.5c.5 4 2.5 6 6.5 7l1.5-2-2.5-1-1 1a7 7 0 0 1-3-3l1-1L9.5 6Z"/></svg></span>
+                <div><h3 id="marketing-chat-title">WhatsApp de tu campaña</h3><p>Una conversación empieza aquí.</p></div>
+              </header>
+              <div class="marketing-fields marketing-chat-settings">
+                <label for="marketing-whatsapp-phone">Contactos<input id="marketing-whatsapp-phone" type="tel" maxlength="100" placeholder="51988918238" aria-describedby="marketing-chat-phone-help"><small id="marketing-chat-phone-help">El primer número abre el chat. Separa dos contactos con /.</small></label>
+                <label for="marketing-facebook_url" hidden>Publicación de Facebook <span class="marketing-chat-optional">Opcional</span><input id="marketing-facebook_url" type="url" maxlength="2000" placeholder="https://www.facebook.com/photo?fbid=..."><small>Incluye el enlace para que sepas qué publicación vio el cliente.</small></label>
+              </div>
+              <div class="marketing-chat-canvas">
+                <span class="marketing-chat-caption">Vista previa · Mensaje del cliente</span>
+                <div class="marketing-chat-bubble">
+                  <label for="marketing-whatsapp-message">Edita el mensaje</label>
+                  <textarea id="marketing-whatsapp-message" maxlength="2000" rows="7" placeholder="Aquí aparecerá el mensaje de tu campaña." spellcheck="true"></textarea>
+                  <span class="marketing-chat-bubble-note">Se abrirá listo para enviar <svg aria-hidden="true" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m2 8 4 4L16 2M11 11l2 2L23 3"/></svg></span>
+                </div>
+              </div>
+              <footer class="marketing-chat-footer">
+                <div class="marketing-chat-actions">
+                  <button class="marketing-btn" id="marketing-update-link" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m10 13 4-4M8 16l-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m0 12a4 4 0 0 0 6 0l5-5a4 4 0 0 0-6-6l-1 1" transform="translate(1 0) scale(.9)"/></svg>Generar enlace corto</button>
+                  <button class="marketing-btn" id="marketing-regenerate-message" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg>Reescribir mensaje</button>
+                </div>
+                <p class="marketing-note">El cliente revisa el mensaje y decide enviarlo.</p>
+              </footer>
+            </section>
+            </div></div>
           </section>
           <section id="marketing-publish-panel" hidden aria-label="Publicar post">
-            <h2>Publicar en Facebook</h2><p class="marketing-note">Se enviar?n el flyer y el copy que acabas de revisar. El borrador se guardar? antes del env?o.</p>
-            <button class="marketing-btn" id="marketing-return-review" type="button">Volver a revisar</button>
+            <header class="marketing-publish-heading"><div><h2>Prepara tu publicación en Facebook</h2><p class="marketing-note">Revisa cómo se verá y elige cómo compartirla.</p></div><button class="marketing-btn" id="marketing-return-review" type="button">Volver a editar</button></header>
+            <div class="marketing-publish-workspace">
+              <div class="marketing-publish-preview"><p class="marketing-publish-preview-label">Vista previa aproximada</p><article class="marketing-publish-post"><header><img src="images/logo/logo-160.webp" alt="" width="42" height="42"><div><strong>KJA</strong><span>Vista previa de tu publicación</span></div></header><div id="marketing-publish-copy" class="marketing-publish-copy"></div><img id="marketing-publish-image" class="marketing-publish-image" alt="Flyer de esta publicación" hidden><footer>El formato final puede variar en Facebook.</footer></article></div>
+              <aside class="marketing-publish-tools" aria-label="Opciones para compartir"><h3>Compartir en Facebook</h3><p class="marketing-note">Copia el texto y descarga el flyer para crear o actualizar tu post.</p>
+            <div class="marketing-actions"><button class="marketing-btn primary" id="marketing-copy-ready" type="button">Copiar texto para Facebook</button><button class="marketing-btn" id="marketing-download" type="button">Descargar flyer</button></div>
+            <div class="marketing-publish-direct"><h3>Publicación directa</h3><p class="marketing-note" id="marketing-facebook-status" role="status"></p>
             <label class="marketing-check"><input id="marketing-checked" type="checkbox"><span>Revisé el flyer, el copy y el número de WhatsApp. Este contenido está listo para publicarse.</span></label>
-            <div class="marketing-actions"><button class="marketing-btn primary" id="marketing-publish" type="button" disabled>Publicar en Facebook</button><a class="marketing-link" id="marketing-post" target="_blank" rel="noopener noreferrer" hidden>Ver publicación en Facebook</a></div>
+            <div class="marketing-actions"><button class="marketing-btn" id="marketing-publish" type="button" disabled>Publicar post nuevo en Facebook</button><a class="marketing-link" id="marketing-post" target="_blank" rel="noopener noreferrer" hidden>Ver publicación en Facebook</a></div></div></aside>
+            </div>
           </section>
+          <div class="marketing-draft-actions" id="marketing-draft-actions" aria-label="Gestionar publicación">
+            <button class="marketing-btn" id="marketing-save-later" type="button" disabled>Guardar para más tarde</button>
+            <p class="marketing-note">Tu avance queda disponible en Mis publicaciones.</p>
+          </div>
         </div>
       </div>
     </section>
     <section class="view active" id="view-inicio">
+      <section id="marketing-team-home" class="marketing-team-home" hidden aria-label="Tus publicaciones">
+        <span class="marketing-home-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="4"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span>
+        <div class="marketing-home-title"><h2>Mis publicaciones</h2><p>Tus ideas, listas para compartir.</p></div>
+        <div class="marketing-home-art" aria-hidden="true">
+          <svg viewBox="0 0 200 64" fill="none"><rect x="16" y="7" width="47" height="52" rx="8" fill="#e7eef9" transform="rotate(-8 16 7)"/><rect x="27" y="5" width="45" height="53" rx="8" fill="white" stroke="#b3c9e2"/><rect x="34" y="12" width="31" height="23" rx="4" fill="#deebf7"/><circle cx="56" cy="19" r="3" fill="#91b5dc"/><path d="m36 31 8-9 7 7 5-4 7 6" stroke="#7aa3ce" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 42h28M35 47h18" stroke="#9db6d1" stroke-width="2" stroke-linecap="round"/><path d="M84 31h16m-4-4 4 4-4 4" stroke="#a8bfd7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="111" y="10" width="72" height="43" rx="12" fill="#f6f9fd" stroke="#c3d3e6"/><path d="M123 23h47M123 31h39M123 39h26" stroke="#8caacb" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>Flyers <span>+</span> Copies</span>
+        </div>
+        <div class="marketing-home-count"><strong id="marketing-team-home-count">0</strong><span>copies guardados<span class="marketing-home-today">Hoy</span></span></div>
+        <button id="marketing-team-home-open" type="button">Abrir publicaciones<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
+      </section>
 
       <section id="evidence-correction-banner" class="evidence-correction-banner" aria-label="Correcciones pendientes" hidden>
         <strong id="evidence-correction-count"></strong>
@@ -363,6 +638,11 @@
             <button class="mobile-guided-tour-trigger" type="button" data-guided-tour-start hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4V8Z"/></svg><span>Tutorial móvil</span></button>
           </div>
           <nav class="mobile-quick-grid" aria-label="Accesos rápidos">
+            <button type="button" id="marketing-team-mobile-open" hidden>
+              <img class="mobile-access-figure" src="images/dashboard/access-publications.svg" width="56" height="56" alt="" aria-hidden="true">
+              <span><b>Publicaciones</b><small>Mis flyers y copies</small></span>
+              <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
             <button type="button" data-mobile-action="asistencia">
               <img class="mobile-access-figure" src="images/dashboard/access-calendar.svg" width="56" height="56" alt="" aria-hidden="true">
 
@@ -1580,6 +1860,23 @@
             </label>
           </div>
         </header>
+
+        <details class="assignment-hours" id="assignment-hours" hidden>
+          <summary>Ampliar horario</summary>
+          <form id="assignment-hours-form">
+            <h3>Plazo general de entrega y cierre</h3>
+            <p>Se aplica a todo el equipo y queda guardado para los próximos días, independientemente de la fecha seleccionada. Amplía también el plazo para registrar la salida. Facebook mantiene su propio horario.</p>
+            <p>Las asignaciones se cargan el mismo día y antes de registrar la salida. Esta opción no reabre jornadas cerradas ni entregas de días anteriores.</p>
+            <label for="assignment-hours-minutes">Minutos de margen después de la hora de salida</label>
+            <div class="assignment-hours-controls">
+              <input id="assignment-hours-minutes" type="number" min="0" max="720" step="1" required disabled aria-describedby="assignment-hours-preview">
+              <button type="submit" id="assignment-hours-save" class="admin-primary-action" disabled>Guardar margen general</button>
+              <button type="button" id="assignment-hours-retry" hidden>Reintentar carga</button>
+            </div>
+            <p id="assignment-hours-preview">Consultando el margen actual…</p>
+            <p id="assignment-hours-status" role="status" aria-live="polite"></p>
+          </form>
+        </details>
 
         <div class="admin-close-grid">
           <!-- PANEL DE CREACIÓN DIRECTA (Visible a simple vista sin tener que pulsar antes el botón) -->
@@ -3560,11 +3857,11 @@
 </dialog>
 
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=260"></script>
+<script src="assets/js/dashboard.js?v=264"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
-<script src="assets/js/dashboard-zoom-embed.js?v=2"></script>
-<script src="assets/js/dashboard-zoom.js?v=11"></script>
+<script src="assets/js/dashboard-zoom-embed.js?v=3"></script>
+<script src="assets/js/dashboard-zoom.js?v=12"></script>
 <script src="assets/js/dashboard-cert-accounts.js?v=8"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
@@ -3582,15 +3879,39 @@
 <script src="assets/js/dashboard-person-profile.js?v=4"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=5"></script>
 <script src="assets/js/dashboard-attendance-preview.js?v=3"></script>
-<script src="assets/js/dashboard-month-day-detail.js?v=8"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=18"></script>
+<script src="assets/js/dashboard-month-day-detail.js?v=11"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=19"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=6"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=49"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=50"></script>
+<script src="assets/js/dashboard-assignment-hours.js?v=1"></script>
 <script src="assets/js/dashboard-assignments.js?v=7"></script>
 <script src="assets/js/dashboard-admin-control.js?v=17"></script>
-<script src="assets/js/marketing-model.js?v=3"></script>
-<script src="assets/js/dashboard-marketing.js?v=6"></script>
+<script src="assets/js/marketing-model.js?v=studio-15"></script>
+<dialog id="marketing-delete-dialog" class="marketing-delete-dialog" aria-labelledby="marketing-delete-title" aria-describedby="marketing-delete-description">
+  <div class="marketing-delete-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6"/></svg></div>
+  <h2 id="marketing-delete-title">¿Eliminar esta publicación?</h2>
+  <p id="marketing-delete-name" class="marketing-delete-name"></p>
+  <p id="marketing-delete-description">Dejará de aparecer en tu historial del portal. El post de Facebook y sus enlaces de WhatsApp se conservarán.</p>
+  <p id="marketing-delete-unsaved" hidden>Los cambios sin guardar de esta publicación se descartarán.</p>
+  <p id="marketing-delete-error" role="alert"></p>
+  <div class="marketing-delete-buttons"><button type="button" id="marketing-delete-cancel">Conservar publicación</button><button type="button" id="marketing-delete-confirm">Eliminar publicación</button></div>
+</dialog>
+<dialog id="marketing-confirm-dialog" class="marketing-confirm-dialog" aria-labelledby="marketing-confirm-title" aria-describedby="marketing-confirm-message">
+  <div class="marketing-confirm-icon-wrap" aria-hidden="true" id="marketing-confirm-icon">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 9v4M12 17h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+    </svg>
+  </div>
+  <h2 id="marketing-confirm-title">¿Descartar cambios?</h2>
+  <p id="marketing-confirm-message">Los cambios sin guardar se perderán al continuar.</p>
+  <div class="marketing-confirm-buttons">
+    <button type="button" id="marketing-confirm-cancel" class="marketing-btn">Seguir editando</button>
+    <button type="button" id="marketing-confirm-accept" class="marketing-btn primary danger">Descartar y continuar</button>
+  </div>
+</dialog>
+<script src="assets/js/dashboard-marketing-team.js?v=3"></script>
+<script src="assets/js/dashboard-marketing.js?v=studio-34"></script>
 <script src="assets/js/chat-images.js?v=4"></script>
 <script src="assets/js/dashboard-chat.js?v=22"></script>
 <script src="assets/js/dashboard-mobile.js?v=5"></script>
@@ -3602,7 +3923,7 @@
 <script src="assets/js/intern-report-excel.js?v=6"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=9"></script>
-<script src="assets/js/dashboard-pausa-activa.js?v=14"></script>
+<script src="assets/js/dashboard-pausa-activa.js?v=login-guard-1"></script>
 <script src="assets/js/dashboard-guided-tour.js?v=8"></script>
 </body>
 </html>

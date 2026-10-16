@@ -2,6 +2,8 @@
 
 Implementación de la web pública. Estado vigente: 16 de octubre de 2026. Las verificaciones históricas del 14 de octubre se conservan al final de este documento.
 
+Se conserva el encuadre de las miniaturas de la biblioteca sobre las personas (`object-position: 75% center`), con ancho estable en escritorio y móvil. Los manifiestos publicados omiten rutas absolutas de la computadora y conservan los prompts. Las capturas históricas citadas son evidencia local y no forman parte de los archivos de producción del PR.
+
 ## Recorrido
 
 `cursos.html` conserva hero, cuatro áreas, catálogo de siete cursos, filtros, paginación y detalle de cada curso. El catálogo ocupa todo el ancho disponible. Las URLs `cursos.html?area=...` conservan sus programas históricos.

@@ -19,6 +19,77 @@ function setup(day={fecha:'2026-09-11',laborable:true}){
 }
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 
+for(const kind of ['rpe','salida']){
+  test('Direction removes '+kind+' from the selected delivery, blocks double submission and refreshes',async()=>{
+    const x=managementSetup(),calls=[];let finish,changed=0;
+    x.options.canManageEvidence=true;x.options.onChanged=()=>changed++;
+    x.options.request=body=>{calls.push(body);return new Promise(resolve=>finish=resolve);};
+    const session=x.mount();
+    x.queries[0].resolve({data:{ok:true,cierre:{requisitos:[{tipo:kind,titulo:kind,completo:true}]},entregas:[{id:88,tipo:kind,archivos:[{path:'saved.jpg',mime:'image/jpeg',bucket:'private'}]}]}});
+    await session.ready;
+    assert.match(x.host.innerHTML,/data-md-remove="1:0"/);
+    x.click('data-md-remove','1:0');x.click('data-md-confirm-delete');x.click('data-md-confirm-delete');
+    assert.equal(calls.length,1);assert.equal(calls[0].accion,'admin_eliminar_evidencia');assert.equal(calls[0].entrega,88);assert.equal(calls[0].path,'saved.jpg');
+    finish({ok:true});await tick();
+    x.queries[1].resolve({data:{ok:true,cierre:{requisitos:[{tipo:kind,completo:false}]},entregas:[]}});await tick();
+    assert.equal(changed,1);assert.match(x.actions.innerHTML,/data-md-upload="1"/);session.dispose();
+  });
+  test('Direction uploads '+kind+' with its own limits, modality and exit time',async()=>{
+    const x=managementSetup(),calls=[];let changed=0;
+    x.options.canManageEvidence=true;x.options.onChanged=()=>changed++;
+    const baseQuery=x.host.querySelector;
+    x.host.querySelector=selector=>selector==='[data-md-exit-time]'?{value:'19:14'}:baseQuery(selector);
+    x.options.prepare=async file=>file;
+    x.options.request=async body=>{calls.push(body);return {ruta:'new.jpg',token:'signed'};};
+    x.options.storage={from:()=>({uploadToSignedUrl:async()=>({})})};
+    const session=x.mount();
+    x.queries[0].resolve({data:{ok:true,salida_at:'2026-09-12T00:14:00Z',cierre:{requisitos:[{tipo:kind,completo:false}]},entregas:[]}});await session.ready;
+    if(kind==='salida')assert.match(x.actions.innerHTML,/data-md-exit-time value="19:14"/);
+    const input={matches:()=>true,dataset:{mdUpload:'1'},files:[{type:'image/jpeg',size:100}]};
+    const pending=x.host.onchange({target:input});await tick();
+    assert.equal(calls[0].requisito,kind);assert.equal(calls[0].modalidad,null);
+    assert.equal(x.queries[1].args.p_requisito,kind);assert.equal(x.queries[1].args.p_modalidad,null);
+    assert.equal(x.queries[1].args.p_hora_salida,kind==='salida'?'19:14':null);
+    x.queries[1].resolve({data:{ok:true}});await tick();
+    x.queries[2].resolve({data:{ok:true,cierre:{requisitos:[{tipo:kind,completo:true}]},entregas:[]}});await pending;
+    assert.equal(changed,1);session.dispose();
+  });
+}
+
+test('read-only viewers and Facebook-only managers cannot remove RPE or exit evidence',async()=>{
+  const x=managementSetup();x.options.request=()=>assert.fail('Unexpected mutation');
+  const session=x.mount();x.queries[0].resolve({data:{ok:true,cierre:{},entregas:[{id:88,tipo:'rpe',archivos:[{path:'saved.jpg'}]},{id:89,tipo:'salida',archivos:[{path:'exit.jpg'}]}]}});await session.ready;
+  assert.doesNotMatch(x.host.innerHTML,/data-md-remove/);
+  x.click('data-md-remove','1:0');x.click('data-md-confirm-delete');assert.equal(x.confirmation.hidden,true);session.dispose();
+});
+
+test('exit upload rejects multiple images and requires a reported time before issuing a permit',async()=>{
+  const x=managementSetup();x.options.canManageEvidence=true;
+  x.options.request=()=>assert.fail('Unexpected upload permit');
+  const baseQuery=x.host.querySelector,exitTime={value:''};
+  x.host.querySelector=selector=>selector==='[data-md-exit-time]'?exitTime:baseQuery(selector);
+  const session=x.mount();x.queries[0].resolve({data:{ok:true,cierre:{requisitos:[{tipo:'salida',completo:false}]},entregas:[]}});await session.ready;
+  const input={matches:()=>true,dataset:{mdUpload:'1'},files:[{type:'image/jpeg',size:100}]};
+  await x.host.onchange({target:input});assert.match(x.message.textContent,/Indica la hora/);
+  exitTime.value='19:14';input.files.push(input.files[0]);
+  await x.host.onchange({target:input});assert.match(x.message.textContent,/entre 1 y 1/);session.dispose();
+});
+
+test('failed exit upload clears its own input when another activity also has an upload input',async()=>{
+  const x=managementSetup();x.options.canManageEvidence=true;
+  const earlierInput={value:'keep'},baseQuery=x.host.querySelector;
+  x.host.querySelector=selector=>selector==='[data-md-upload]'?earlierInput:selector==='[data-md-exit-time]'?{value:'19:14'}:baseQuery(selector);
+  let attempts=0;
+  x.options.prepare=async file=>file;
+  x.options.request=async()=>{attempts++;throw new Error('hora_fuera_horario');};
+  const session=x.mount();
+  x.queries[0].resolve({data:{ok:true,cierre:{requisitos:[{tipo:'rpe',completo:false},{tipo:'salida',completo:false}]},entregas:[]}});await session.ready;
+  const input={matches:()=>true,dataset:{mdUpload:'2'},value:'exit.jpg',files:[{type:'image/jpeg',size:100}]};
+  await x.host.onchange({target:input});
+  assert.equal(input.value,'');assert.equal(earlierInput.value,'keep');assert.match(x.message.textContent,/ventana de salida/);
+  input.value='exit.jpg';await x.host.onchange({target:input});assert.equal(attempts,2);assert.equal(input.value,'');session.dispose();
+});
+
 test('report category shortcut opens the requested RPE file and retains all day categories',async()=>{
   const x=setup();x.options.initialFile={bucket:'private',path:'rpe.jpg'};
   const session=x.mount();x.queries[0].resolve({data:{ok:true,entrada_archivos:[{bucket:'private',path:'entrada.jpg',mime:'image/jpeg'}],cierre:{},entregas:[{tipo:'rpe',titulo:'RPE',archivos:[{bucket:'private',path:'rpe.jpg',mime:'image/jpeg'}]}]}});
@@ -53,6 +124,52 @@ function managementSetup(){
   const click=(key,value='')=>x.host.onclick({target:{closest:()=>({disabled:false,dataset:{mdRemove:value},hasAttribute:attr=>attr===key})}});
   return {...x,actions,confirmation,message,click};
 }
+
+test('entry warning requires an explanation, confirms explicitly and sends only once',async()=>{
+  const x=managementSetup();x.options.canManageEvidence=true;
+  let changed=0;x.options.onChanged=()=>changed++;
+  const reason={value:'',focus(){}},confirm={hidden:true},baseQuery=x.host.querySelector;
+  x.host.querySelector=selector=>selector==='[data-md-entry-reason]'?reason:selector==='[data-md-entry-confirm]'?confirm:selector==='[data-md-warn-entry]'?{focus(){}}:baseQuery(selector);
+  const session=x.mount();x.queries[0].resolve({data:{ok:true,cierre:{},entrada_archivos:[{path:'entry.jpg',bucket:'asis-evidencias',mime:'image/jpeg'}]}});await session.ready;
+  assert.match(x.actions.innerHTML,/Retirar y advertir/);assert.match(x.actions.innerHTML,/carta de advertencia/);
+  x.click('data-md-warn-entry');assert.equal(confirm.hidden,false);assert.equal(x.queries.length,1);
+  x.click('data-md-entry-cancel');assert.equal(confirm.hidden,true);assert.equal(x.queries.length,1);
+  x.click('data-md-warn-entry');x.click('data-md-entry-send');assert.equal(x.queries.length,1);assert.match(x.message.textContent,/motivo/);
+  reason.value='La imagen corresponde a otro día';x.click('data-md-entry-send');x.click('data-md-entry-send');
+  assert.equal(x.queries.length,2);assert.equal(x.queries[1].name,'dash_admin_advertir_entrada');
+  assert.deepEqual({...x.queries[1].args},{p_colaborador:19,p_fecha:'2026-09-11',p_path:'entry.jpg',p_motivo:reason.value});
+  x.queries[1].resolve({data:{ok:true}});await tick();
+  x.queries[2].resolve({data:{ok:true,cierre:{},entrada_archivos:[],entrada_advertencia:{mensaje:'Advertencia enviada'}}});await tick();
+  assert.equal(changed,1);assert.match(x.host.innerHTML,/Evidencia retirada/);session.dispose();
+});
+
+test('entry warning stays unavailable to viewers and explains a missing migration',async()=>{
+  const x=managementSetup();let session=x.mount();
+  const data={ok:true,cierre:{},entrada_archivos:[{path:'entry.jpg',bucket:'asis-evidencias',mime:'image/jpeg'}]};
+  x.queries[0].resolve({data});await session.ready;
+  assert.doesNotMatch(x.actions.innerHTML,/data-md-warn-entry/);x.click('data-md-warn-entry');x.click('data-md-entry-send');assert.equal(x.queries.length,1);session.dispose();
+  x.options.canManageEvidence=true;const baseQuery=x.host.querySelector;
+  x.host.querySelector=selector=>selector==='[data-md-entry-reason]'?{value:'La captura es de otra fecha',focus(){}}:selector==='[data-md-entry-confirm]'?{hidden:true}:baseQuery(selector);
+  session=x.mount();x.queries[1].resolve({data});await session.ready;
+  x.click('data-md-warn-entry');x.click('data-md-entry-send');x.queries[2].resolve({error:{code:'PGRST202'}});await tick();
+  assert.match(x.message.textContent,/migración 116/);session.dispose();
+});
+
+test('entry confirmation remains scoped after selecting invalid files in another activity',async()=>{
+  const x=managementSetup();x.options.canManageEvidence=true;
+  const reason={value:'La imagen corresponde a otra fecha',focus(){}},confirmation={hidden:true},entryStatus={textContent:''},rpeStatus={textContent:''};
+  const entryBody={insertAdjacentHTML(){},querySelector:selector=>({'[data-md-entry-reason]':reason,'[data-md-entry-confirm]':confirmation,'[data-md-status]':entryStatus,'[data-md-warn-entry]':{focus(){}}})[selector]||null};
+  const rpeBody={insertAdjacentHTML(){},querySelector:selector=>selector==='[data-md-status]'?rpeStatus:null};
+  const baseQuery=x.host.querySelector;
+  x.host.querySelector=selector=>selector==='[data-md-group="0"] .md-activity-body'?entryBody:selector==='[data-md-group="1"] .md-activity-body'?rpeBody:baseQuery(selector);
+  const session=x.mount();x.queries[0].resolve({data:{ok:true,cierre:{requisitos:[{tipo:'rpe',completo:false}]},entrada_archivos:[{path:'entry.jpg',bucket:'asis-evidencias',mime:'image/jpeg'}]}});await session.ready;
+  const invalid={matches:()=>true,dataset:{mdUpload:'1'},files:[{type:'application/pdf',size:100}],value:'invalid.pdf'};
+  x.click('data-md-warn-entry');await x.host.onchange({target:invalid});
+  x.click('data-md-entry-cancel');assert.equal(confirmation.hidden,true);assert.equal(x.queries.length,1);
+  x.click('data-md-warn-entry');await x.host.onchange({target:invalid});
+  x.click('data-md-entry-send');assert.equal(x.queries[1].name,'dash_admin_advertir_entrada');assert.equal(x.queries[1].args.p_motivo,reason.value);
+  x.queries[1].resolve({data:{ok:false,motivo:'sin_permiso'}});await tick();assert.match(entryStatus.textContent,/sesión/);session.dispose();
+});
 test('admin removal confirms, preserves retry after storage failure, and reloads after success',async()=>{
   const x=managementSetup(),calls=[];
   x.options.request=async body=>{calls.push(body);if(calls.length===1)throw new Error('limpieza_pendiente');return {ok:true};};

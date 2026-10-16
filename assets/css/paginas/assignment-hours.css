@@ -1,0 +1,14 @@
+.assignment-hours{margin:0 0 18px;border:1px solid #c9e4e1;border-radius:14px;background:#fff;color:#263d58}
+.assignment-hours[hidden]{display:none}
+.assignment-hours summary{padding:16px 20px;cursor:pointer;font-weight:600;color:#0f766e}
+.assignment-hours form{padding:0 20px 20px;max-width:850px}
+.assignment-hours h3{font-size:16px;margin:4px 0 12px}
+.assignment-hours p{font-size:13px;line-height:1.6;margin:8px 0 16px;color:#485c70;max-width:75ch}
+.assignment-hours label{display:block;font-size:13px;font-weight:600;margin:20px 0 8px}
+.assignment-hours-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.assignment-hours input{width:140px;min-height:44px;padding:10px 12px;border:1px solid #a9c3cd;border-radius:8px;font:inherit;font-variant-numeric:tabular-nums;color:#263d58;background:#fff}
+.assignment-hours button{min-height:44px;cursor:pointer}
+.assignment-hours button:disabled{opacity:.55;cursor:default}
+.assignment-hours :focus-visible{outline:2px solid #0f766e;outline-offset:3px}
+.assignment-hours #assignment-hours-status{margin-bottom:0;font-weight:600}
+@media(max-width:600px){.assignment-hours-controls{align-items:stretch;flex-direction:column}.assignment-hours input{width:100%;box-sizing:border-box}}

@@ -888,6 +888,10 @@
             .testimonials-marquee__source--google { color: transparent; background: conic-gradient(from -35deg, #4285f4 0 25%, #34a853 0 45%, #fbbc05 0 64%, #ea4335 0 82%, #4285f4 0); -webkit-background-clip: text; background-clip: text; font: 900 18px/1 Arial, sans-serif; }
             .testimonials-marquee__source--google::after { content: 'G'; color: transparent; background: inherit; -webkit-background-clip: text; background-clip: text; }
             .testimonials-marquee__source--facebook { color: #fff; background: #1877f2; font: 900 20px/1 Arial, sans-serif; }
+            .testimonials-marquee__meta { display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; }
+            .testimonials-marquee__meta .testimonials-marquee__stars { margin: 0; }
+            .testimonials-marquee__tag { display: inline-block; padding: 2px 9px; border-radius: 999px; background: #fde7f1; color: #c4005f; font-size: .66rem; font-weight: 700; letter-spacing: .02em; line-height: 1.6; white-space: nowrap; }
+            .testimonials-marquee__source--kja { background: #fff url("images/logo/favicon.png") center / 16px 16px no-repeat; border: 1px solid #fbd0e3; }
             .testimonials-marquee__person { position: relative; z-index: 1; display: flex; align-items: center; gap: 11px; }
             .testimonials-marquee__avatar { width: 42px; height: 42px; display: grid; flex: 0 0 42px; place-items: center; border: 2px solid #fff; border-radius: 50%; color: #fff; background: linear-gradient(135deg, var(--avatar-start), var(--avatar-end)); box-shadow: 0 4px 12px rgba(0,79,176,.18); font-size: .77rem; font-weight: 800; }
             .testimonials-marquee__name { display: block; color: #17355d; font-size: .89rem; font-weight: 800; line-height: 1.25; }
@@ -998,11 +1002,14 @@
                     const escapeHTML = function (value) { return String(value).replace(/[&<>"']/g, function (char) { return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[char]; }); };
                     const card = function (item, index, duplicate, source) {
                         const color = colors[index % colors.length];
-                        const details = ' data-name="' + escapeHTML(item[0]) + '" data-initials="' + item[1] + '" data-date="' + escapeHTML(item[2]) + '" data-text="' + escapeHTML(item[3]) + '" data-rating="' + item[4] + '" data-source="' + source + '" data-color-start="' + color[0] + '" data-color-end="' + color[1] + '"';
+                        const service = item[6] ? String(item[6]) : '';
+                        const stars = '<span class="testimonials-marquee__stars" aria-label="' + item[4] + ' de 5 estrellas">' + '★★★★★'.slice(0, item[4]) + '☆☆☆☆☆'.slice(item[4]) + '</span>';
+                        const details = ' data-name="' + escapeHTML(item[0]) + '" data-initials="' + item[1] + '" data-date="' + escapeHTML(item[2] + (service ? ' · ' + service : '')) + '" data-text="' + escapeHTML(item[3]) + '" data-rating="' + item[4] + '" data-source="' + source + '" data-color-start="' + color[0] + '" data-color-end="' + color[1] + '"';
                         return '<article class="testimonials-marquee__card"' + details + (duplicate ? ' aria-hidden="true"' : ' role="button" tabindex="0" aria-label="Ver testimonio completo de ' + escapeHTML(item[0]) + '"') + ' style="--avatar-start:' + color[0] + ';--avatar-end:' + color[1] + '">' +
-                            '<span class="testimonials-marquee__source testimonials-marquee__source--' + source + '" aria-label="Reseña de ' + (source === 'google' ? 'Google' : 'Facebook') + '">' + (source === 'facebook' ? 'f' : '') + '</span>' +
+                            '<span class="testimonials-marquee__source testimonials-marquee__source--' + source + '" aria-label="Reseña de ' + (source === 'google' ? 'Google' : source === 'kja' ? 'KJA' : 'Facebook') + '">' + (source === 'facebook' ? 'f' : '') + '</span>' +
                             '<div class="testimonials-marquee__person"><span class="testimonials-marquee__avatar">' + item[1] + '</span><span><b class="testimonials-marquee__name">' + escapeHTML(item[0]) + '</b><small class="testimonials-marquee__date">' + item[2] + '</small></span></div>' +
-                            '<span class="testimonials-marquee__stars" aria-label="' + item[4] + ' de 5 estrellas">' + '★★★★★'.slice(0, item[4]) + '☆☆☆☆☆'.slice(item[4]) + '</span><p class="testimonials-marquee__text">“' + escapeHTML(item[3]) + '”</p></article>';
+                            (service ? '<div class="testimonials-marquee__meta">' + stars + '<span class="testimonials-marquee__tag">' + escapeHTML(service) + '</span></div>' : stars) +
+                            '<p class="testimonials-marquee__text">“' + escapeHTML(item[3]) + '”</p></article>';
                     };
                     const initials = function (name) { return String(name).trim().split(/\s+/).slice(0, 2).map(function (word) { return word.charAt(0); }).join('').toUpperCase() || 'KJ'; };
                     const relativeDate = function (date) {
@@ -1027,7 +1034,7 @@
                         addPrevious: function (comments) {
                             previous = comments.map(function (comment) {
                                 const rating = Math.min(5, Math.max(1, parseInt(comment.estrellas, 10) || 5));
-                                return [comment.nombre || 'Paciente KJA', initials(comment.nombre), relativeDate(comment.created_at), comment.mensaje || '', rating, 'facebook'];
+                                return [comment.nombre || 'Paciente KJA', initials(comment.nombre), relativeDate(comment.created_at), comment.mensaje || '', rating, 'kja', comment.servicio || ''];
                             });
                             render();
                         }
@@ -2725,8 +2732,19 @@
             }
 
 
+            // En qué participó cada testimonio (curso/taller/terapia); si falla, se pintan sin etiqueta.
+            const serviciosWeb = fetch(SB_URL + '/rest/v1/rpc/opinion_servicios_publicos', { method: 'POST', headers: HDR, body: '{}' })
+                .then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; });
             fetch(SB_URL + '/rest/v1/rpc/comentarios_aprobados', { method: 'POST', headers: HDR, body: '{}' })
                 .then(function (r) { return r.ok ? r.json() : []; })
+                .then(function (lista) {
+                    return serviciosWeb.then(function (serv) {
+                        const porId = {};
+                        (Array.isArray(serv) ? serv : []).forEach(function (s) { porId[s.id] = s.servicio; });
+                        if (Array.isArray(lista)) lista.forEach(function (c) { if (porId[c.id]) c.servicio = porId[c.id]; });
+                        return lista;
+                    });
+                })
                 .then(function (lista) {
                     if (Array.isArray(lista) && lista.length && window.__kjaTestimonialMarquee) {
                         window.__kjaTestimonialMarquee.addPrevious(lista);
