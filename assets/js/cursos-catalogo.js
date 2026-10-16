@@ -167,7 +167,8 @@
 
     if (area) {
         document.querySelector('.cursos-hero').hidden = true;
-        document.getElementById('cursos-gratuitos').hidden = true;
+        const library = document.getElementById('cursos-gratuitos');
+        if (library) library.hidden = true;
         document.getElementById('catalogo').hidden = true;
         areaView.hidden = false;
         document.body.classList.add('course-area-page');

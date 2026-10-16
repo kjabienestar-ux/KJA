@@ -4,10 +4,10 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { JSDOM } from 'jsdom';
 
-const html = fs.readFileSync(new URL('../cursos.html', import.meta.url), 'utf8');
+const html = fs.readFileSync(new URL('../talleres.html', import.meta.url), 'utf8');
 const script = name => fs.readFileSync(new URL('../assets/js/' + name, import.meta.url), 'utf8');
 function page({ query = '', published = false, driveUrl = '', count = 3, desktop = false } = {}) {
-    const dom = new JSDOM(html, { url: 'https://www.kjadmb.com/cursos.html' + query, runScripts: 'outside-only' });
+    const dom = new JSDOM(html, { url: 'https://www.kjadmb.com/talleres.html' + query, runScripts: 'outside-only' });
     const { window } = dom;
     const run = code => vm.runInContext(code, dom.getInternalVMContext());
     window.matchMedia = query => ({ matches: desktop && query.includes('min-width: 1051px') });
@@ -15,10 +15,8 @@ function page({ query = '', published = false, driveUrl = '', count = 3, desktop
     window.Element.prototype.scrollIntoView = () => {};
     window.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
     window.HTMLDialogElement.prototype.close = function () { this.open = false; this.dispatchEvent(new window.Event('close')); };
-    run(script('cursos-data.js'));
-    run(script('cursos-catalogo.js'));
     run(script('cursos-formacion-data.js'));
-    run(script('cursos-formacion.js'));
+    run(script('talleres.js'));
     run(script('cursos-gratuitos-data.js'));
     if (published) run('FREE_COURSE_LIBRARY.preview = false;');
     run('FREE_COURSE_LIBRARY.courses[0].driveUrl = ' + JSON.stringify(driveUrl) + ';');
@@ -28,24 +26,16 @@ function page({ query = '', published = false, driveUrl = '', count = 3, desktop
     return dom;
 }
 
-test('la biblioteca gratuita precede las cuatro rutas y la selección de cursos', () => {
+test('Talleres contiene la biblioteca y la agenda, mientras Cursos conserva su catálogo', () => {
     const dom = page();
-    const { document } = dom.window;
-    assert.equal(document.querySelectorAll('.formation-route').length, 4);
-    assert.equal(document.querySelectorAll('[data-formation-course]').length, 7);
-    assert.equal(document.querySelectorAll('.catalog-area-link').length, 0);
-    assert.ok(document.getElementById('cursos-gratuitos').compareDocumentPosition(document.getElementById('catalogo')) & 4);
-    dom.window.close();
-});
-
-test('la vista de un área conserva sus programas y oculta la biblioteca', () => {
-    const dom = page({ query: '?area=tea-autismo' });
-    const { document } = dom.window;
-    assert.equal(document.getElementById('cursos-gratuitos').hidden, true);
-    assert.equal(document.getElementById('catalogo').hidden, true);
-    assert.equal(document.getElementById('area-title').textContent, 'TEA / Autismo');
-    assert.ok(document.querySelectorAll('.area-program').length > 0);
-    assert.equal(document.querySelectorAll('.free-course-card').length, 0);
+    const doc = dom.window.document;
+    assert.equal(doc.querySelectorAll('[data-workshop-id]').length, 23);
+    assert.equal(doc.querySelectorAll('.free-course-card').length, 3);
+    assert.ok(doc.getElementById('cursos-gratuitos').compareDocumentPosition(doc.getElementById('agenda-talleres')) & 4);
+    const courses = fs.readFileSync(new URL('../cursos.html', import.meta.url), 'utf8');
+    assert.equal(courses.includes('id="cursos-gratuitos"'), false);
+    assert.equal(courses.includes('id="formation-workshops"'), false);
+    assert.ok(courses.includes('id="formation-courses-grid"'));
     dom.window.close();
 });
 
@@ -102,6 +92,6 @@ test('una biblioteca vacía muestra un estado útil', () => {
     const { document } = dom.window;
     assert.equal(document.querySelectorAll('.free-course-card').length, 0);
     document.getElementById('free-library-open').click();
-    assert.match(document.getElementById('free-library-content').textContent, /preparando nuevos cursos/);
+    assert.match(document.getElementById('free-library-content').textContent, /preparando nuevos talleres/);
     dom.window.close();
 });

@@ -1,8 +1,15 @@
 /* Home: navegación flotante y panel lateral móvil. */
+/* Bloquea la página, incluso cuando su scroller es html. El modal conserva
+   su propio desplazamiento para que todo el contenido siga siendo accesible. */
+html { scrollbar-gutter: stable; }
+html:has(dialog:modal), body:has(dialog:modal) { overflow: hidden; overscroll-behavior: none; }
+html:has(body.kja-wa-open), body.kja-wa-open,
+html:has(.accessibility-drawer[aria-hidden="false"]), body:has(.accessibility-drawer[aria-hidden="false"]) { overflow: hidden; overscroll-behavior: none; }
+dialog:modal { overscroll-behavior: contain; }
 .kja-mobile-bar { display: none; }
 .kja-mobile-drawer { display: none; border: 0; }
 .kja-page { position: relative; background: #fff; }
-@media (max-width: 768px) {
+@media (max-width: 968px) {
   .kja-page > header, .kja-page > header.scrolled { inset: 0 0 auto; width: 100%; padding: max(12px, env(safe-area-inset-top)) 16px 0; background: transparent; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; pointer-events: none; }
   .kja-page > header::before { display: none; }
   .kja-page > header .nav-desktop-only { display: none !important; }
@@ -29,7 +36,7 @@
 
 /* Clip the entire foreground, including fixed controls and its dimming shield.
    Overflow + border-radius alone can leave composited fixed layers square in Safari. */
-@media (max-width: 768px) {
+@media (max-width: 968px) {
   .kja-mobile-drawer { display: flex; flex-direction: column; z-index: 1; visibility: hidden; }
   /* A full-viewport backing fills the cut-out corners beyond the menu width. */
   html.kja-reveal-active, html.kja-reveal-active body { background: #fff; }
@@ -43,3 +50,11 @@
 }
 .kja-page-shield { display: none; }
 @media (prefers-reduced-motion: reduce) { .kja-reveal-active .kja-page, .kja-reveal-active .kja-page-shield { transition: none; } }
+/* Ocho enlaces: mantener todos los destinos visibles antes del cambio a menú móvil. */
+@media (min-width: 969px) and (max-width: 1180px) {
+  .kja-page header .nav-desktop-only { gap: 16px !important; padding-inline: 10px; }
+  .kja-page header .nav-links-center { gap: 14px; }
+  .kja-page header .nav-links-center li a { font-size: 11px; white-space: nowrap; }
+  .kja-page header .nav-cta-btn { font-size: 12px; padding: 10px 14px; white-space: nowrap; }
+  .kja-page header .logo-img { width: 110px; }
+}
