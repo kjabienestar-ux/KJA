@@ -17,7 +17,7 @@
       $('zoom-embedded-status').textContent='Pulsa Iniciar y abrir salas dentro del panel. Mantén esta página abierta durante la reunión.';
       $('zoom-embedded-frame').src='zoom-sala.html?embedded=1&meeting='+encodeURIComponent(meeting);
     }
-    host.scrollIntoView({block:'start',behavior:'auto'});
+    // Preserve the viewport so the heading, meeting actions and agenda stay visible.
   }
   $('zoom-embedded-close').onclick=()=>{
     if(meeting){$('zoom-disconnect-dialog').showModal();return;}

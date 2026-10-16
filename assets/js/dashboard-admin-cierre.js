@@ -327,6 +327,7 @@ function renderAdminReviewSummary(){
 
 function hydrateAdminCloseControls(){
   const data=APP.adminClose;if(!data)return;
+  if($('assignment-hours'))$('assignment-hours').hidden=APP.access.rol!=='direccion';
   const drawOption=$('admin-close-draw-option');drawOption.hidden=APP.access.rol!=='direccion';drawOption.disabled=APP.access.rol!=='direccion';
   if(APP.access.rol!=='direccion'&&$('admin-close-target-kind').value==='sorteo')$('admin-close-target-kind').value='persona';
   const area=$('admin-close-area'),currentArea=area.value;

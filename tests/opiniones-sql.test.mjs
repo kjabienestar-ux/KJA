@@ -33,7 +33,7 @@ test('SQL: enlace de opinión de un solo uso crea comentario pendiente y guarda 
     assert.match(clave,/^[A-Za-z0-9_-]{16}$/);
 
     const res=async k=>(await db.query(`select public.opinion_resolver($1) as r`,[k])).rows[0].r;
-    assert.deepEqual(await res(clave),{estado:'ok',cliente:'Ana',servicio:'Terapia'});
+    assert.deepEqual(await res(clave),{estado:'ok'});
     assert.equal((await res('x')).estado,'invalido');
     assert.equal((await res('AAAAAAAAAAAAAAAA')).estado,'invalido');
 
@@ -79,21 +79,50 @@ test('SQL: enlace de opinión de un solo uso crea comentario pendiente y guarda 
     assert.deepEqual(fijos.map(f=>f.servicio),['Terapia','Curso','Taller','Taller','']);
     // Solo los aprobados exponen su servicio, y sin datos privados.
     assert.deepEqual((await db.query(`select public.opinion_servicios_publicos() as r`)).rows[0].r,[]);
-    await db.exec(`update public.comentarios set aprobado=true where mensaje in ('Aprendí muchísimo en el curso','Me gustó mucho, sin elegir servicio')`);
+    await db.exec(`update public.comentarios set aprobado=true where mensaje in ('Aprendí muchísimo en el curso','Me gustó mucho, sin elegir servicio','Muy buena atención')`);
     const serv=(await db.query(`select public.opinion_servicios_publicos() as r`)).rows[0].r;
     assert.equal(serv.length,1);
     assert.deepEqual(Object.keys(serv[0]).sort(),['id','servicio']);
     assert.equal(serv[0].servicio,'Curso');
 
+    // El borrado administrativo no elimina silenciosamente las respuestas privadas.
+    await db.exec(`delete from public.opinion_enlaces where clave='${clave}'`);
+    assert.equal((await db.query(`select count(*)::int n from opinion_respuestas where nota_privada='Más horarios'`)).rows[0].n,1);
+    await db.exec(`delete from public.comentarios where mensaje='Muy buena atención'`);
+    assert.equal((await db.query(`select count(*)::int n from opinion_respuestas where nota_privada='Más horarios' and clave is null and comentario_id is null`)).rows[0].n,1);
+    const fingerprints=(await db.query('select huella from opinion_limites')).rows;
+    assert.ok(fingerprints.every(x=>/^[a-f0-9]{64}$/.test(x.huella)));
+
     // Tope global por hora (20): se simula con filas previas.
     await db.exec(`insert into public.opinion_respuestas(clave,servicio,origen) select null,'Terapia','fijo' from generate_series(1,20)`);
     assert.equal((await pub('3.3.3.3','curso','Un comentario nuevo en el curso')).error,'limite');
 
-    // anon no puede leer las tablas, ni crear enlaces.
+    // Simular permisos antiguos demasiado amplios: las restricciones nuevas mandan.
+    await db.exec(`grant select,insert,update,delete on comentarios to anon,authenticated;
+      create policy legacy_abierta on comentarios for all to anon,authenticated using(true) with check(true);`);
+    await db.exec(`select set_config('test.uid','',false)`);
+    // anon no puede leer las tablas privadas ni comentarios pendientes.
     await db.exec(`set role anon`);
     await assert.rejects(db.query(`select * from public.opinion_enlaces`),/permission denied/);
     await assert.rejects(db.query(`select * from public.opinion_respuestas`),/permission denied/);
     await assert.rejects(db.query(`select public.opinion_crear_enlace('x','y')`),/permission denied/);
+    await assert.rejects(db.query(`select * from public.opinion_privacidad_config`),/permission denied/);
+    assert.ok((await db.query('select * from comentarios')).rows.every(c=>c.aprobado===true));
+    await assert.rejects(db.query(`insert into comentarios(nombre,mensaje,estrellas,aprobado) values('Intruso','Texto malicioso',5,true)`),/row-level security/);
+    assert.equal((await db.query(`delete from comentarios returning id`)).rows.length,0);
+    assert.equal((await db.query(`update comentarios set aprobado=true returning id`)).rows.length,0);
     await db.exec(`reset role`);
+    await db.exec(`select set_config('test.uid','00000000-0000-0000-0000-000000000002',false);set role authenticated;`);
+    assert.equal((await db.query('select * from opinion_respuestas')).rows.length,0);
+    assert.equal((await db.query('select * from opinion_enlaces')).rows.length,0);
+    await db.exec(`reset role;select set_config('test.uid','00000000-0000-0000-0000-000000000001',false);set role authenticated;`);
+    assert.ok((await db.query('select * from opinion_respuestas')).rows.length>0);
+    assert.ok((await db.query(`update comentarios set aprobado=true where aprobado=false returning id`)).rows.length>0);
+    await db.exec('reset role');
+    const before=(await db.query('select count(*)::int n from opinion_respuestas')).rows[0].n;
+    const secret=(await db.query('select secreto from opinion_privacidad_config')).rows[0].secreto;
+    await db.exec(migration);
+    assert.equal((await db.query('select count(*)::int n from opinion_respuestas')).rows[0].n,before);
+    assert.equal((await db.query('select secreto from opinion_privacidad_config')).rows[0].secreto,secret);
   }finally{ await db.close(); }
 });

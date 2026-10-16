@@ -1,7 +1,9 @@
 -- Opiniones de clientes por enlace único: kjadmb.com/opinar?k=<clave>
--- Aditiva: no modifica la tabla public.comentarios ni sus policies. Requiere que
+-- Privacidad reforzada. No elimina registros. Requiere que
 -- public.comentarios (id, nombre, mensaje, estrellas, aprobado, created_at) ya exista.
 -- Los datos privados (recomendación 0-10, nota interna) viven en opinion_respuestas, solo admin.
+-- Puede ejecutarse de nuevo. Cambia políticas y claves foráneas, no borra filas.
+-- Los comentarios aprobados conservan su nombre y texto: revisar datos privados antes de aprobar.
 begin;
 
 create table if not exists public.opinion_enlaces (
@@ -20,8 +22,8 @@ grant all on public.opinion_enlaces to service_role;
 
 create table if not exists public.opinion_respuestas (
   id uuid primary key default gen_random_uuid(),
-  clave text unique references public.opinion_enlaces(clave) on delete cascade, -- null = enlace fijo por servicio
-  comentario_id uuid references public.comentarios(id) on delete cascade,
+  clave text unique references public.opinion_enlaces(clave) on delete set null, -- null = enlace fijo o enlace eliminado
+  comentario_id uuid references public.comentarios(id) on delete set null,
   servicio text not null default '',
   recomienda smallint check (recomienda between 0 and 10),
   nota_privada text check (char_length(nota_privada) <= 1000),
@@ -31,13 +33,42 @@ alter table public.opinion_respuestas enable row level security;
 revoke all on public.opinion_respuestas from public, anon, authenticated;
 grant all on public.opinion_respuestas to service_role;
 
+-- También corrige instalaciones previas sin eliminar respuestas existentes.
+alter table public.opinion_respuestas drop constraint if exists opinion_respuestas_clave_fkey;
+alter table public.opinion_respuestas add constraint opinion_respuestas_clave_fkey
+  foreign key (clave) references public.opinion_enlaces(clave) on delete set null;
+alter table public.opinion_respuestas drop constraint if exists opinion_respuestas_comentario_id_fkey;
+alter table public.opinion_respuestas add constraint opinion_respuestas_comentario_id_fkey
+  foreign key (comentario_id) references public.comentarios(id) on delete set null;
+
 create or replace function public.es_admin_activo()
 returns boolean language sql stable security definer set search_path=public,pg_temp as $$
   select auth.uid() is not null
      and exists(select 1 from public.perfiles where id=auth.uid() and rol='admin' and activo);
 $$;
 revoke all on function public.es_admin_activo() from public;
-grant execute on function public.es_admin_activo() to authenticated;
+grant execute on function public.es_admin_activo() to anon, authenticated;
+
+-- Las políticas RESTRICTIVE limitan incluso políticas permisivas anteriores.
+-- El propietario de las RPC y service_role conservan su acceso técnico.
+alter table public.comentarios enable row level security;
+alter table public.comentarios alter column aprobado set default false;
+drop policy if exists opiniones_privacidad_select on public.comentarios;
+create policy opiniones_privacidad_select on public.comentarios as restrictive
+  for select to anon, authenticated using (aprobado is true or public.es_admin_activo());
+drop policy if exists opiniones_privacidad_insert on public.comentarios;
+create policy opiniones_privacidad_insert on public.comentarios as restrictive
+  for insert to anon, authenticated with check (public.es_admin_activo());
+drop policy if exists opiniones_privacidad_update on public.comentarios;
+create policy opiniones_privacidad_update on public.comentarios as restrictive
+  for update to anon, authenticated using (public.es_admin_activo()) with check (public.es_admin_activo());
+drop policy if exists opiniones_privacidad_delete on public.comentarios;
+create policy opiniones_privacidad_delete on public.comentarios as restrictive
+  for delete to anon, authenticated using (public.es_admin_activo());
+drop policy if exists opiniones_admin_gestion on public.comentarios;
+create policy opiniones_admin_gestion on public.comentarios
+  for all to authenticated using (public.es_admin_activo()) with check (public.es_admin_activo());
+-- Se conservan los grants y las políticas de lectura pública preexistentes.
 
 -- Lectura de respuestas e enlaces para el panel (solo admin).
 drop policy if exists opinion_respuestas_admin_select on public.opinion_respuestas;
@@ -65,7 +96,7 @@ end $$;
 revoke all on function public.opinion_crear_enlace(text,text,int) from public, anon;
 grant execute on function public.opinion_crear_enlace(text,text,int) to authenticated;
 
--- Público: valida el enlace sin revelar nada más que lo necesario para precargar el formulario.
+-- Público: devuelve únicamente el estado. Nunca precarga nombre ni servicio.
 create or replace function public.opinion_resolver(p_clave text)
 returns json language sql stable security definer set search_path=public,pg_temp as $$
   select case
@@ -74,7 +105,7 @@ returns json language sql stable security definer set search_path=public,pg_temp
       select case
         when e.usado_at is not null then json_build_object('estado','usado')
         when e.expira_at < now() then json_build_object('estado','expirado')
-        else json_build_object('estado','ok','cliente',e.cliente,'servicio',e.servicio)
+        else json_build_object('estado','ok')
       end from public.opinion_enlaces e where e.clave = p_clave
     ), json_build_object('estado','invalido'))
   end;
@@ -106,10 +137,9 @@ begin
     return json_build_object('ok',false,'error','datos');
   end if;
 
-  insert into public.comentarios(nombre, mensaje, estrellas)
-  values (v_nombre, v_mensaje, p_estrellas)
+  insert into public.comentarios(nombre, mensaje, estrellas, aprobado)
+  values (v_nombre, v_mensaje, p_estrellas, false)
   returning id into v_id;
-  update public.comentarios set aprobado = false where id = v_id;  -- siempre pendiente de moderación
 
   insert into public.opinion_respuestas(clave, comentario_id, servicio, recomienda, nota_privada)
   values (p_clave, v_id, e.servicio, p_recomienda, nullif(btrim(coalesce(p_nota,'')),''));
@@ -135,6 +165,19 @@ alter table public.opinion_limites enable row level security;
 revoke all on public.opinion_limites from public, anon, authenticated;
 grant all on public.opinion_limites to service_role;
 
+-- Secreto de seudonimización: nunca accesible desde el navegador.
+-- No se almacena la IP; la huella cambia cada día. No equivale a anonimización.
+create table if not exists public.opinion_privacidad_config (
+  id boolean primary key default true check (id),
+  secreto text not null
+);
+alter table public.opinion_privacidad_config enable row level security;
+revoke all on public.opinion_privacidad_config from public, anon, authenticated;
+grant all on public.opinion_privacidad_config to service_role;
+insert into public.opinion_privacidad_config(id,secreto)
+values (true,gen_random_uuid()::text || gen_random_uuid()::text)
+on conflict (id) do nothing;
+
 create or replace function public.opinion_enviar_publico(
   p_servicio text, p_nombre text, p_mensaje text, p_estrellas int,
   p_recomienda int default null, p_nota text default null, p_tiempo_ms int default 0)
@@ -159,7 +202,13 @@ begin
   begin
     v_ip := split_part(coalesce(current_setting('request.headers',true)::json->>'x-forwarded-for',''), ',', 1);
   exception when others then v_ip := ''; end;
-  v_huella := md5(coalesce(nullif(btrim(v_ip),''),'sin-ip') || ':kja-opinion');
+  select encode(sha256(convert_to(c.secreto || ':' || current_date::text || ':' ||
+    coalesce(nullif(btrim(v_ip),''),'sin-ip'),'UTF8')),'hex')
+    into v_huella from public.opinion_privacidad_config c where id;
+  if v_huella is null then raise exception 'Configuración de privacidad no disponible'; end if;
+
+  -- Serializa las comprobaciones de cupo y duplicados entre solicitudes paralelas.
+  perform pg_advisory_xact_lock(67423,1);
 
   -- Tope global: máx. 20 opiniones por enlace general en la última hora.
   if (select count(*) from public.opinion_respuestas
@@ -177,10 +226,9 @@ begin
     returning n into v_n;
   if v_n > 3 then return json_build_object('ok',false,'error','limite'); end if;
 
-  insert into public.comentarios(nombre, mensaje, estrellas)
-  values (v_nombre, v_mensaje, p_estrellas)
+  insert into public.comentarios(nombre, mensaje, estrellas, aprobado)
+  values (v_nombre, v_mensaje, p_estrellas, false)
   returning id into v_id;
-  update public.comentarios set aprobado = false where id = v_id;  -- siempre pendiente de moderación
 
   insert into public.opinion_respuestas(clave, comentario_id, servicio, recomienda, nota_privada, origen)
   values (null, v_id, v_serv, p_recomienda, nullif(btrim(coalesce(p_nota,'')),''), 'fijo');
@@ -190,13 +238,13 @@ revoke all on function public.opinion_enviar_publico(text,text,text,int,int,text
 grant execute on function public.opinion_enviar_publico(text,text,text,int,int,text,int) to anon, authenticated;
 
 -- Público: en qué participó cada testimonio YA APROBADO (para la etiqueta del inicio).
--- Solo id + servicio; la recomendación 0-10 y la nota privada nunca salen.
+-- Solo id + Curso/Taller. Nunca expone terapia, servicios personalizados ni notas privadas.
 create or replace function public.opinion_servicios_publicos()
 returns json language sql stable security definer set search_path=public,pg_temp as $$
   select coalesce(json_agg(json_build_object('id', c.id, 'servicio', r.servicio)), '[]'::json)
   from public.opinion_respuestas r
   join public.comentarios c on c.id = r.comentario_id
-  where c.aprobado and r.servicio <> '';
+  where c.aprobado and r.servicio in ('Curso','Taller');
 $$;
 revoke all on function public.opinion_servicios_publicos() from public;
 grant execute on function public.opinion_servicios_publicos() to anon, authenticated;

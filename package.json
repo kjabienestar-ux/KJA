@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test:marketing": "node --test tests/marketing.test.mjs tests/marketing-gemini.test.mjs tests/marketing-compression.test.mjs tests/marketing-quota.test.mjs tests/marketing-layout.test.mjs",
     "test:cursos": "node --test tests/cursos-biblioteca.test.mjs tests/cursos-formacion.test.mjs",
     "test:tutorial": "node --test --test-isolation=none tests/dashboard-guided-tour.test.mjs tests/videos.test.mjs",
     "test:pausas": "node --test tests/pausa-server.test.mjs tests/pausa-session-lock.test.mjs tests/pausa-sessions-sql.test.mjs tests/pausa-features.test.mjs tests/pausa-carousel.test.mjs tests/pausa-design.test.mjs",
