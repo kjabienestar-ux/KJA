@@ -82,6 +82,7 @@ test('restoring a remembered session shows the dashboard without the post-access
   elements['today-attendance-card']={classList:{add:name=>classes.add(name)}};
   elements['mobile-action-mark']={classList:{add:name=>classes.add(name)}};
   const context={
+    accessWithDeadline:request=>request,
     APP:{sessionUid:'',identity:{hasPersonal:false}},DEADLINE_KEY:'deadline',SHELL_KEY:'shell',
     db:{auth:{getSession:async()=>({data:{session:{user:{id:'collaborator-1'}}}})}},
     localStorage:{getItem:key=>key==='deadline'?'2099-01-01T00:00:00.000Z':null},

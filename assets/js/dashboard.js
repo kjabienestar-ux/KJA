@@ -879,6 +879,18 @@ function loginText(data){
   return 'No se pudo ingresar. Revisa tu conexión e inténtalo otra vez.';
 }
 
+async function accessWithDeadline(request,ms=30000){
+  let timer;
+  try{return await Promise.race([request,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(new Error('La verificación tardó demasiado. Revisa tu conexión y vuelve a ingresar.'),{code:'ACCESS_TIMEOUT'})),ms)})])}
+  finally{clearTimeout(timer)}
+}
+function accessFailureMessage(error){
+  if(error?.code==='ACCESS_TIMEOUT'||['TimeoutError','AbortError'].includes(error?.name))return 'La verificación tardó demasiado. Revisa tu conexión y vuelve a ingresar.';
+  if(error?.code==='invalid_credentials')return 'Correo o contraseña incorrectos.';
+  if(error?.status===429)return 'Hay demasiados intentos. Espera un momento antes de volver a ingresar.';
+  return 'No se pudo verificar el acceso. Revisa tu conexión e inténtalo nuevamente.';
+}
+
 $('form-colab').addEventListener('submit',async e=>{
   e.preventDefault(); formMsg('colab-msg','');
   const dni=$('dni').value, pin=$('pin').value, btn=$('btn-colab');
@@ -888,15 +900,15 @@ $('form-colab').addEventListener('submit',async e=>{
   try{
     const r=await fetch(SUPABASE_URL+'/functions/v1/dash-entrar',{
       method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON,'Content-Type':'application/json'},
-      body:JSON.stringify({dni,pin})
+      body:JSON.stringify({dni,pin}),signal:AbortSignal.timeout(30000)
     });
     const data=await r.json().catch(()=>null);
     if(!r.ok||!data?.ok){ hideBoot(); formMsg('colab-msg',loginText(data)); if(data?.motivo==='usa_tu_cuenta') switchLogin(true); return; }
-    const {data:auth,error}=await db.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});
+    const {data:auth,error}=await accessWithDeadline(db.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token}));
     if(error) throw error;
     localStorage.setItem(DEADLINE_KEY,data.vence_at);
     $('pin').value=''; await openPortal(auth?.session,{inicio:data.inicio,acceso:data.acceso});
-  }catch(err){ if(!$('portal').hidden)showAccess();else hideBoot(); formMsg('colab-msg','No se pudo conectar con el portal. Revisa tu señal e inténtalo otra vez.'); }
+  }catch(err){ if(!$('portal').hidden)showAccess();else hideBoot(); formMsg('colab-msg',accessFailureMessage(err)); }
   finally{ setBusy(btn,false,''); }
 });
 
@@ -904,11 +916,11 @@ $('form-admin').addEventListener('submit',async e=>{
   e.preventDefault(); formMsg('admin-msg',''); const btn=$('btn-admin'); setBusy(btn,true,'Ingresando…');
   showBoot('auth');
   try{
-    const {data:auth,error}=await db.auth.signInWithPassword({email:$('admin-email').value.trim().toLowerCase(),password:$('admin-pass').value});
-    if(error){ hideBoot(); formMsg('admin-msg','Correo o contraseña incorrectos.'); return; }
+    const {data:auth,error}=await accessWithDeadline(db.auth.signInWithPassword({email:$('admin-email').value.trim().toLowerCase(),password:$('admin-pass').value}));
+    if(error){ hideBoot(); formMsg('admin-msg',accessFailureMessage(error)); return; }
     localStorage.removeItem(DEADLINE_KEY); $('admin-pass').value=''; await openPortal(auth?.session);
   }catch(err){
-    if(!$('portal').hidden)showAccess();else hideBoot(); formMsg('admin-msg','No se pudo conectar con el portal. Revisa tu señal e inténtalo otra vez.');
+    if(!$('portal').hidden)showAccess();else hideBoot(); formMsg('admin-msg',accessFailureMessage(err));
   }finally{
     setBusy(btn,false,'');
   }
@@ -1041,34 +1053,43 @@ function primeCachedShell(session,fallback){
 }
 
 async function init(){
-  const {data:{session}}=await db.auth.getSession();
+  const {data:{session}}=await accessWithDeadline(db.auth.getSession());
   const deadline=Date.parse(localStorage.getItem(DEADLINE_KEY)||'');
   if(session && (!Number.isFinite(deadline)||deadline>Date.now())){
     primeCachedShell(session,Number.isFinite(deadline)?'inicio':'gestion');
     return openPortal(session);
   }
-  if(session && Number.isFinite(deadline)&&deadline<=Date.now()) await db.auth.signOut({scope:'local'});
+  if(session && Number.isFinite(deadline)&&deadline<=Date.now()) await accessWithDeadline(db.auth.signOut({scope:'local'}));
   showAccess();
 }
 
+async function loadAccessBootstrap(session){
+  const bundled=await accessWithDeadline(db.rpc('dash_arranque'));
+  if(!bundled.error)return {data:bundled.data?.inicio,access:bundled.data?.acceso,error:null};
+  if(!['PGRST202','42883'].includes(bundled.error.code))return {data:null,access:null,error:bundled.error};
+  // Compatibilidad durante el despliegue de dashboard_117, nunca ante un error de permisos.
+  const accessRequest=session?.user?.id
+    ? db.from('asis_perfiles').select('rol,acceso_panel').eq('id',session.user.id).maybeSingle()
+    : Promise.resolve({data:null,error:null});
+  const [inicioRes,accessRes]=await accessWithDeadline(Promise.all([db.rpc('dash_inicio'),accessRequest]));
+  return {data:inicioRes.data,error:inicioRes.error||accessRes.error,access:accessRes.data};
+}
+
 async function openPortal(activeSession,bootstrap=null){
-  const session=activeSession||(await db.auth.getSession()).data.session;
+  const session=activeSession||(await accessWithDeadline(db.auth.getSession())).data.session;
   APP.sessionUid=session?.user?.id||'';
   APP.guidedTourUserMetadata={...(session?.user?.user_metadata||{})};
   APP.guidedTourPending=APP.guidedTourUserMetadata.kja_dashboard_guided_tour_pending===true;
   let data=bootstrap?.inicio?.ok?bootstrap.inicio:null,error=null,access=bootstrap?.acceso||null;
   if(!data){
-    const accessRequest=session?.user?.id
-      ? db.from('asis_perfiles').select('rol,acceso_panel').eq('id',session.user.id).maybeSingle()
-      : Promise.resolve({data:null,error:null});
-    const [inicioRes,accessRes]=await Promise.all([db.rpc('dash_inicio'),accessRequest]);
-    data=inicioRes.data;error=inicioRes.error;access=accessRes.data;
+    ({data,error,access}=await loadAccessBootstrap(session));
   }else if(!access&&session?.user?.id){
-    access=(await db.from('asis_perfiles').select('rol,acceso_panel').eq('id',session.user.id).maybeSingle()).data;
+    access=(await accessWithDeadline(db.from('asis_perfiles').select('rol,acceso_panel').eq('id',session.user.id).maybeSingle())).data;
   }
   if(error||!data?.ok){
-    await db.auth.signOut({scope:'local'}).catch(()=>{});
-    return showAccess(error ? 'El dashboard todavía no está habilitado en la base de datos.' : 'Tu sesión venció. Vuelve a ingresar.');
+    if(error)return showAccess(accessFailureMessage(error));
+    await accessWithDeadline(db.auth.signOut({scope:'local'})).catch(()=>{});
+    return showAccess(data?.motivo==='sin_permiso'?'Tu cuenta no tiene permiso para ingresar a este portal.':'Tu sesión venció. Vuelve a ingresar.');
   }
   APP.inicio=data;
   APP.cierre=null;APP.dailyCloseResolved=false;APP.dailyCloseGeneration++;APP.dailyCloseRequest=null;
@@ -1109,12 +1130,6 @@ async function openPortal(activeSession,bootstrap=null){
     $('nav-gestion').hidden=true;
     $('admin-nav-divider').hidden=true;
   }
-  window.KJAMarketingPortal?.init();
-  const chatUserId=session?.user?.id;
-  if(window.KJAChat)void window.KJAChat.init(chatUserId);
-  else window.addEventListener('kja-chat-ready',()=>{
-    if(APP.sessionUid===chatUserId)void window.KJAChat?.init(chatUserId);
-  },{once:true});
   $('mobile-action-team').hidden=!APP.identity.isLeader;
   $('mobile-action-admin').hidden=!APP.access.acceso_panel;
   syncMobileQuickGrid();
@@ -1127,7 +1142,6 @@ async function openPortal(activeSession,bootstrap=null){
   $('admin-facebook-tab').hidden=APP.access.rol!=='direccion';
   const managesRoles=APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel;
   $('nav-cert-cuentas').hidden=!managesRoles;
-  window.KJAZoom?.init();
   $('admin-roles-tab').hidden=!managesRoles; const rolesModule=$('admin-roles-module'); if(rolesModule)rolesModule.hidden=!managesRoles;
   if(c){ renderHome(); renderProfile(); }
   else if(APP.access.acceso_panel){
@@ -1145,6 +1159,18 @@ async function openPortal(activeSession,bootstrap=null){
   try{localStorage.setItem(SHELL_KEY,JSON.stringify({uid:session?.user?.id||'',view:initialView}))}catch(e){}
   $('portal').hidden=false; $('portal').inert=false; $('portal').removeAttribute('aria-hidden');
   startSessionClock(); hideBoot();
+  // Los módulos secundarios comienzan después de pintar el portal autorizado.
+  const startupUser=session?.user?.id;
+  setTimeout(()=>{
+    if(APP.sessionUid!==startupUser||$('portal').hidden)return;
+    const launch=task=>Promise.resolve().then(task).catch(()=>{});
+    launch(()=>window.KJAMarketingPortal?.init());
+    launch(()=>window.KJAZoom?.init());
+    if(window.KJAChat)launch(()=>window.KJAChat.init(startupUser));
+    else window.addEventListener('kja-chat-ready',()=>{
+      if(APP.sessionUid===startupUser&&!$('portal').hidden)launch(()=>window.KJAChat?.init(startupUser));
+    },{once:true});
+  },250);
   startMarkSync();
   startReviewNotificationSync();
   startDashboardVersionWatch();

@@ -179,6 +179,8 @@
     return data;
   }
   async function loadDailyBreaks() {
+    // Las consultas personales solo comienzan después de resolver la identidad.
+    if (!accountKey()) return false;
     if (reading) return reading;
     const version = requestVersion, owner = accountKey();
     reading = (async () => {

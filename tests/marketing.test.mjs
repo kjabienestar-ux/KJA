@@ -492,3 +492,26 @@ test('quota widget renders used count, remaining pill and renewal countdown time
   assert.match(e.get('quota-timer').textContent,/1ª renueva en 3h \d\dm/);
 });
 
+test('refine submit invokes moldear action, updates copy and decrements quota',async()=>{
+  const e=editor();
+  await e.load();
+  e.get('copy').value='Texto preliminar del curso';
+  const prevInvoke=e.context.db.functions.invoke;
+  e.context.db.functions.invoke=async(name,args)=>{
+    if(args.body.accion==='moldear'){
+      assert.equal(args.body.prompt,'Hazlo más enfocado en ventas');
+      assert.equal(args.body.copy,'Texto preliminar del curso');
+      return {data:{ok:true,copy:'Texto moldeado enfocado en ventas 🔥\n📲 Contacto',cuota:{usadas:16,limite:200,disponibles:184,proxima_renovacion:null}}};
+    }
+    return prevInvoke(name,args);
+  };
+  e.get('refine-prompt').value='Hazlo más enfocado en ventas';
+  await e.get('refine-submit').onclick();
+  assert.equal(e.get('copy').value,'Texto moldeado enfocado en ventas 🔥\n📲 Contacto');
+  assert.equal(e.get('refine-prompt').value,'');
+  assert.equal(e.get('quota-used').textContent,'16');
+  assert.equal(e.get('quota-remaining').textContent,'184');
+  assert.equal(e.get('progress-bar').value,100);
+});
+
+

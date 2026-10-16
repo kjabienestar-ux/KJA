@@ -333,7 +333,7 @@
                 <div class="marketing-progress-track">
                   <progress id="marketing-progress-bar" max="100" value="0" aria-label="Avance estimado del análisis"></progress>
                 </div>
-                <p class="marketing-progress-hint">Conservamos tu flyer. Espera sin recargar mientras preparamos el contenido.</p>
+                <p class="marketing-progress-hint" id="marketing-progress-hint">Conservamos tu flyer. Espera sin recargar mientras preparamos el contenido.</p>
               </div>
             </div>
           </div>
@@ -403,6 +403,130 @@
                   <span class="marketing-fb-action"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> Me gusta</span>
                   <span class="marketing-fb-action"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comentar</span>
                   <span class="marketing-fb-action"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Compartir</span>
+                </div>
+              </div>
+              <div class="marketing-ai-refine" id="marketing-ai-refine">
+                <div class="marketing-ai-refine-header">
+                  <div class="marketing-ai-star-wrap" aria-hidden="true">
+                    <svg class="marketing-ai-star-svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+                      <path d="M12 2L14.6 9.4L22 12L14.6 14.6L12 22L9.4 14.6L2 12L9.4 9.4L12 2Z" fill="url(#mkAiStarGrad)"/>
+                      <defs>
+                        <linearGradient id="mkAiStarGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#38bdf8"/>
+                          <stop offset="1" stop-color="#2563eb"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                  <div class="marketing-ai-refine-intro">
+                    <div class="marketing-ai-refine-title-row">
+                      <h3 class="marketing-ai-refine-title">Mejorar el COPY con tu prompt</h3>
+                      <div class="marketing-ai-header-actions">
+                        <button type="button" id="marketing-emoji-btn" class="marketing-emoji-trigger" aria-label="Abrir selector de emojis estilo iOS" title="Agregar emojis al copy">
+                          <span class="marketing-emoji-trigger-icon" aria-hidden="true">😀</span>
+                          <span class="marketing-emoji-trigger-label">Agregar emoji</span>
+                        </button>
+                        <span class="marketing-ai-refine-badge"><span class="marketing-ai-badge-dot" aria-hidden="true"></span>Gemini IA</span>
+                      </div>
+                    </div>
+                    <p class="marketing-ai-refine-subtitle">Dinos qué enfoque o cambios necesitas y la IA se encarga del resto.</p>
+                  </div>
+                </div>
+                <div class="marketing-ai-cards-grid" aria-label="Sugerencias rápidas para el copy">
+                  <button type="button" class="marketing-ai-card card-direct marketing-ai-chip" data-prompt="Haz el texto más conciso, directo y fácil de leer sin perder datos clave">
+                    <span class="marketing-ai-card-icon-wrap" aria-hidden="true">
+                      <span class="marketing-ai-emoji">⚡</span>
+                    </span>
+                    <div class="marketing-ai-card-text">
+                      <strong class="marketing-ai-card-title">Más directo</strong>
+                      <span class="marketing-ai-card-desc">Conciso y al grano</span>
+                    </div>
+                  </button>
+                  <button type="button" class="marketing-ai-card card-sales marketing-ai-chip" data-prompt="Haz el tono más persuasivo y enfocado en generar urgencia e inscripciones">
+                    <span class="marketing-ai-card-icon-wrap" aria-hidden="true">
+                      <span class="marketing-ai-emoji">🔥</span>
+                    </span>
+                    <div class="marketing-ai-card-text">
+                      <strong class="marketing-ai-card-title">Enfoque ventas</strong>
+                      <span class="marketing-ai-card-desc">Persuasivo y urgente</span>
+                    </div>
+                  </button>
+                  <button type="button" class="marketing-ai-card card-pro marketing-ai-chip" data-prompt="Adapta el texto con un enfoque profesional y clínico especializado del centro KJA">
+                    <span class="marketing-ai-card-icon-wrap" aria-hidden="true">
+                      <span class="marketing-ai-emoji">🎓</span>
+                    </span>
+                    <div class="marketing-ai-card-text">
+                      <strong class="marketing-ai-card-title">Profesional</strong>
+                      <span class="marketing-ai-card-desc">Tono clínico KJA</span>
+                    </div>
+                  </button>
+                  <button type="button" class="marketing-ai-card card-family marketing-ai-chip" data-prompt="Usa un tono cálido, empático y cercano para familias y padres de familia">
+                    <span class="marketing-ai-card-icon-wrap" aria-hidden="true">
+                      <span class="marketing-ai-emoji">❤️</span>
+                    </span>
+                    <div class="marketing-ai-card-text">
+                      <strong class="marketing-ai-card-title">Para familias</strong>
+                      <span class="marketing-ai-card-desc">Cálido y empático</span>
+                    </div>
+                  </button>
+                </div>
+                <div class="marketing-ai-input-floating">
+                  <span class="marketing-ai-floating-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/>
+                    </svg>
+                  </span>
+                  <label for="marketing-refine-prompt" class="marketing-visually-hidden">Indicación para mejorar el copy con tu prompt</label>
+                  <input type="text" id="marketing-refine-prompt" class="marketing-ai-input" placeholder="Escribe aquí tu prompt o selecciona una opción de arriba..." maxlength="500" autocomplete="off">
+                  <button type="button" id="marketing-prompt-emoji-btn" class="marketing-prompt-emoji-trigger" aria-label="Insertar emoji en el prompt" title="Insertar emoji en el prompt">
+                    <span aria-hidden="true">😊</span>
+                  </button>
+                  <button type="button" id="marketing-refine-submit" class="marketing-ai-circle-btn" aria-label="Mejorar copy con tu prompt" title="Mejorar copy con tu prompt (Enter)">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 19V5M5 12l7-7 7 7"/>
+                    </svg>
+                    <span class="marketing-visually-hidden">Mejorar copy con tu prompt</span>
+                  </button>
+                </div>
+                <div id="marketing-refine-status" class="marketing-ai-status" hidden></div>
+
+                <!-- Selector de emojis estilo iOS / WhatsApp -->
+                <div id="marketing-emoji-popover" class="marketing-emoji-popover" hidden aria-label="Selector de emojis estilo iOS">
+                  <div class="marketing-emoji-popover-header">
+                    <div class="marketing-emoji-search-wrap">
+                      <svg class="marketing-emoji-search-svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <input type="text" id="marketing-emoji-search" class="marketing-emoji-search-input" placeholder="Buscar emoji..." autocomplete="off">
+                      <button type="button" id="marketing-emoji-search-clear" class="marketing-emoji-clear-btn" aria-label="Limpiar búsqueda" hidden>×</button>
+                    </div>
+                    <button type="button" id="marketing-emoji-close" class="marketing-emoji-close-btn" aria-label="Cerrar selector de emojis" title="Cerrar (Esc)">✕</button>
+                  </div>
+                  <div class="marketing-emoji-target-indicator" id="marketing-emoji-target-hint">
+                    <span>Insertando en:</span> <strong id="marketing-emoji-target-label">Texto de publicación</strong>
+                  </div>
+                  <div id="marketing-emoji-list" class="marketing-emoji-list" role="region" aria-label="Catálogo de emojis"></div>
+                  <nav class="marketing-emoji-tabs" aria-label="Categorías de emojis">
+                    <button type="button" class="marketing-emoji-tab is-active" data-cat="destacados" title="Destacados y Marketing KJA">
+                      <span aria-hidden="true">⭐</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="caras" title="Caras y Emociones">
+                      <span aria-hidden="true">😀</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="gestos" title="Gestos y Personas">
+                      <span aria-hidden="true">👍</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="simbolos" title="Corazones y Símbolos">
+                      <span aria-hidden="true">💖</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="objetos" title="Educación y Negocios">
+                      <span aria-hidden="true">🎓</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="celebracion" title="Fiesta y Naturaleza">
+                      <span aria-hidden="true">🎉</span>
+                    </button>
+                  </nav>
                 </div>
               </div>
             </div>
@@ -3733,7 +3857,7 @@
 </dialog>
 
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=261"></script>
+<script src="assets/js/dashboard.js?v=264"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
 <script src="assets/js/dashboard-zoom-embed.js?v=3"></script>
@@ -3799,7 +3923,7 @@
 <script src="assets/js/intern-report-excel.js?v=6"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
 <script src="assets/js/dashboard-facebook-report.js?v=9"></script>
-<script src="assets/js/dashboard-pausa-activa.js?v=14"></script>
+<script src="assets/js/dashboard-pausa-activa.js?v=login-guard-1"></script>
 <script src="assets/js/dashboard-guided-tour.js?v=8"></script>
 </body>
 </html>
