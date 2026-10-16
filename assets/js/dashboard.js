@@ -3360,6 +3360,7 @@ async function saveAdminState(personId,state,remove){
 }
 
 function goView(view){
+  if(view==='marketing'&&$('nav-marketing').hidden)return;
   if(view==='zoom'&&!(APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel)){toast('La gestión de Zoom está reservada a Sistemas. Usa el botón flotante para unirte.',true);return;}
   if(view==='cert-cuentas'&&!(APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel)){toast('Esta sección está reservada a Dirección y Sistemas.',true);return;}
   if(view==='gestion'&&!APP.access.acceso_panel){toast('Esta cuenta no tiene acceso administrativo.',true);return;}

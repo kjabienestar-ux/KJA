@@ -1,5 +1,7 @@
 # Publicaciones de marketing
 
+Actualización del flujo, formato de campaña y edición de WhatsApp: ver [47-publicaciones-flujo-facebook-whatsapp.md](47-publicaciones-flujo-facebook-whatsapp.md). Esa actualización amplía la redacción de Gemini y añade la salida manual para posts existentes.
+
 Flujo acordado: subir flyer o pegar texto → revisar el copy generado → publicar.
 
 Implementado en `dashboard.html`, como módulo adicional. Conserva la sesión y la identidad del portal. No cambia la portada pública ni los registros de asistencia.
@@ -23,7 +25,7 @@ La función `marketing-publicaciones` se desplegó en el proyecto `xadxmfgdxwplm
    | Secreto | Uso |
    | --- | --- |
    | `GEMINI_API_KEY` | Clave del proyecto de Google AI Studio de KJA |
-   | `MARKETING_GEMINI_MODEL` | `gemini-2.5-flash` (valor por defecto), según la cuota mostrada en la cuenta de KJA |
+   | `MARKETING_GEMINI_MODEL` | `gemini-3.1-flash-lite` (valor por defecto), según el acceso y la cuota de la cuenta de KJA |
    | `MARKETING_FACEBOOK_PAGE_ID` | Identificador de la página empresarial de destino |
    | `MARKETING_FACEBOOK_PAGE_NAME` | Nombre visible para la revisión de marketing |
    | `MARKETING_FACEBOOK_PAGE_TOKEN` | Token de página con permiso de publicación vigente |

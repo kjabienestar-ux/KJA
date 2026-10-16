@@ -36,6 +36,7 @@
     $('op-p-text').textContent = '“' + (t || 'Tu comentario aparecerá aquí…') + '”';
     // Etiqueta "en qué participó": la elegida en el selector, o la del enlace único.
     var tag = PUBLICO ? (LABELS[servicio] || '') : ($('op-serv').hidden ? '' : $('op-serv').textContent);
+    if (tag !== 'Curso' && tag !== 'Taller') tag = '';
     $('op-p-tag').textContent = tag; $('op-p-tag').hidden = !tag;
   }
 

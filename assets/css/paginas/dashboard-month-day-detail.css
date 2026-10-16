@@ -1027,6 +1027,7 @@
 
 /* Área de carga cuando no hay fotos */
 .md-upload-label {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1048,7 +1049,33 @@
 }
 
 .md-upload-label input {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.md-upload-label:focus-within {
+  outline: 2px solid #075abc;
+  outline-offset: 3px;
+}
+
+.md-exit-time {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-size: 12px;
+}
+
+.md-exit-time input {
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  color: inherit;
+  background: #fff;
 }
 
 .md-upload-help {
@@ -1056,6 +1083,10 @@
   color: #64748b;
   margin: 2px 0 0;
 }
+
+.md-warning-reason { display: grid; gap: 6px; font-size: 12px; color: #334155; }
+.md-warning-reason textarea { box-sizing: border-box; width: 100%; min-height: 90px; resize: vertical; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; color: #0f172a; font: inherit; font-size: 16px; }
+.md-warning-reason textarea:focus-visible { outline: 2px solid #075abc; outline-offset: 2px; }
 
 /* COLUMNA DERECHA (.md-side-pane): Visor y Gestión agrupados verticalmente sin huecos */
 .md-side-pane {
