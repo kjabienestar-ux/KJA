@@ -483,13 +483,29 @@
         extraction=d.extraccion||null;
         const stored=Object.keys(d.datos||{}).length?d.datos:(extraction||{});
         keys.forEach(k=>el(k).value=stored[k]||'');el('copy').value=d.copy||'';locked=d.estado!=='borrador';saved=!!d.copy;setImage(result.imagen);
-        restoreOptions(stored.opciones);syncWhatsApp();
-        if(stored.titulo&&stored.mensaje===KJAMarketing.whatsappMessage(stored.titulo,stored.facebook_url||'',stored))automaticMessage=stored.mensaje;
+        restoreOptions(stored.opciones);
+        if(!el('telefono').value&&stored.telefono)el('telefono').value=stored.telefono;
+        if(!el('telefono').value)el('telefono').value='51988918238';
+        if(!el('mensaje').value&&stored.titulo){
+          el('mensaje').value=KJAMarketing.whatsappMessage(stored.titulo,stored.facebook_url||'',stored);
+          automaticMessage=el('mensaje').value;
+        }else if(stored.titulo&&stored.mensaje===KJAMarketing.whatsappMessage(stored.titulo,stored.facebook_url||'',stored)){
+          automaticMessage=stored.mensaje;
+        }
+        syncWhatsApp();
         if(d.enlace?.startsWith('https://www.kjadmb.com/w.html?k=')){
           shortLink=d.enlace;shortFor=signature(data());
           if(el('copy').value)el('copy').value=el('copy').value.replace(/https:\/\/wa\.me\/[^\s<)]+/g,d.enlace);
         }
-        if(d.copy)showPanel(locked?'publish':'review');else if(d.datos?.guardado_parcial)showPanel('data');else if(stored.titulo)generateCopy();else showPanel('prepare');
+        if(d.copy){
+          showPanel(locked?'publish':'review');
+        }else if(d.datos?.guardado_parcial){
+          showPanel('data');
+        }else if(stored.titulo){
+          generateCopy();
+        }else{
+          showPanel('prepare');
+        }
         if(d.enlace){el('link').href=d.enlace;el('short-url').value=d.enlace;el('link').textContent='Probar WhatsApp ↗'}
         if(d.estado==='publicado'&&d.facebook_id){el('post').href='https://www.facebook.com/'+encodeURIComponent(d.facebook_id);el('post').hidden=false}
         const authorName=result.autor_nombre||row.autor_nombre;

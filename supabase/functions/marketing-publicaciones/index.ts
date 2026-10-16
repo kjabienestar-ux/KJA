@@ -217,6 +217,35 @@ Deno.serve(async(req)=>{
           }
         }catch{}
       }
+      if(!draft.enlace||!/^https:\/\/www\.kjadmb\.com\/w\.html\?k=[A-Za-z0-9_-]{16}$/.test(draft.enlace)){
+        try{
+          const {data:existing}=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).order('creado_at',{ascending:false}).limit(1).maybeSingle();
+          if(existing?.clave){
+            draft.enlace='https://www.kjadmb.com/w.html?k='+existing.clave;
+            await admin.from('marketing_publicaciones').update({enlace:draft.enlace}).eq('id',draft.id);
+          }else{
+            const sourceData=draft.datos||draft.extraccion||{};
+            const title=String(sourceData.titulo||'').trim();
+            if(title){
+              const phone=publicationPhones(sourceData.telefono)[0]||'51988918238';
+              const cleanTitle=title.replace(/^[^\p{L}\p{N}]+/u,'').trim().toUpperCase();
+              const article=/^(TERAPIA|FORMACIÓN|EVALUACIÓN|CAPACITACIÓN)\b/u.test(cleanTitle)?'la ':/^(CURSO|TALLER|DIPLOMADO)\b/u.test(cleanTitle)?'el ':'';
+              const isTherapy=/terapia|atenci[oó]n psicol[oó]gica|consulta psicol[oó]gica/i.test([title,sourceData.descripcion,sourceData.temario,sourceData.modalidad].filter(Boolean).join(' '))&&!/curso|taller|diplomado|formaci[oó]n|capacitaci[oó]n|certificaci[oó]n/i.test(title);
+              const defaultMsg='Hola KJA 👋\nVengo de Facebook, deseo información sobre '+article+cleanTitle+'.\n\n'+(isTherapy?'¿Me pueden orientar sobre la atención, el costo y los horarios disponibles?':'¿Me comparten el precio, las próximas fechas y cómo inscribirme?')+'\n¡Gracias!';
+              const msg=String(sourceData.mensaje||'').trim()||defaultMsg;
+              const firma=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+msg)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+              let key=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(12)))).replace(/\+/g,'-').replace(/\//g,'_');
+              const {error:upsertErr}=await admin.from('marketing_whatsapp_enlaces').upsert({clave:key,publicacion_id:draft.id,firma,destino:'https://wa.me/'+phone+'?text='+encodeURIComponent(msg)},{onConflict:'publicacion_id,firma',ignoreDuplicates:true});
+              if(!upsertErr){
+                const {data:stored}=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).maybeSingle();
+                if(stored?.clave)key=stored.clave;
+                draft.enlace='https://www.kjadmb.com/w.html?k='+key;
+                await admin.from('marketing_publicaciones').update({enlace:draft.enlace}).eq('id',draft.id);
+              }
+            }
+          }
+        }catch{}
+      }
       return reply({borrador:draft,imagen:data?.signedUrl,autor_nombre,es_propio:draft.autor===uid});
     }
     if(draft.estado!=='borrador')fail(draft.estado==='publicado'?'Este borrador ya está publicado.':'Esta publicación debe verificarse en Facebook antes de volver a enviarla.');
@@ -247,6 +276,7 @@ Deno.serve(async(req)=>{
         const {data:stored,error:storedError}=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).single();
         if(storedError||!stored)fail('No se pudo recuperar el enlace corto.');key=stored.clave;
       }
+      try{await admin.from('marketing_publicaciones').update({enlace:'https://www.kjadmb.com/w.html?k='+key}).eq('id',draft.id);}catch{}
       return reply({enlace:'https://www.kjadmb.com/w.html?k='+key});
     }
     if(body.accion==='analizar'){
