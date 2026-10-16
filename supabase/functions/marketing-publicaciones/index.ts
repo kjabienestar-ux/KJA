@@ -53,17 +53,98 @@ Deno.serve(async(req)=>{
           };
         }catch{}
       }
-      return reply({ia,modelo:/^gemini-[a-z0-9.-]+$/.test(model)?model:'',facebook,puede_publicar:permission.publicar,pagina:env('MARKETING_FACEBOOK_PAGE_NAME')||'Página de KJA',cuota});
+      return reply({ia,modelo:/^gemini-[a-z0-9.-]+$/.test(model)?model:'',facebook,puede_publicar:permission.publicar,administrar:Boolean(permission.administrar),pagina:env('MARKETING_FACEBOOK_PAGE_NAME')||'Página de KJA',cuota});
     }
     if(body.accion==='listar'){
       const offset=Number(body.offset||0);
       if(!Number.isSafeInteger(offset)||offset<0||offset>100000)fail('La página del historial no es válida.');
-      const {data,error,count}=await admin.from('marketing_publicaciones').select('id,datos,extraccion,copy,enlace,estado,creado_at,actualizado_at,facebook_id,imagen_path',{count:'exact'}).eq('autor',uid).is('eliminado_at',null).order('creado_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+29);
+      let query=admin.from('marketing_publicaciones')
+        .select('id,autor,datos,extraccion,copy,enlace,estado,creado_at,actualizado_at,facebook_id,imagen_path',{count:'exact'})
+        .is('eliminado_at',null)
+        .order('creado_at',{ascending:false})
+        .order('id',{ascending:false})
+        .range(offset,offset+29);
+
+      const targetAutor=String(body.autor||'').trim();
+      if(permission.administrar){
+        if(targetAutor&&targetAutor!=='todos'&&targetAutor!=='me'){
+          if(!/^[0-9a-f-]{36}$/.test(targetAutor))fail('El autor seleccionado no es válido.');
+          query=query.eq('autor',targetAutor);
+        }else if(!targetAutor||targetAutor==='me'){
+          query=query.eq('autor',uid);
+        }
+      }else{
+        query=query.eq('autor',uid);
+      }
+
+      const {data,error,count}=await query;
       if(error)fail('No se pudo consultar el historial.');
       const rows=data||[];
-      // Un solo lote de firmas privadas: abrir el historial no analiza imágenes ni crea enlaces.
       const {data:images}=rows.length?await admin.storage.from(bucket).createSignedUrls(rows.map(row=>row.imagen_path),3600):{data:[]};
-      return reply({items:rows.map((row,i)=>({...row,imagen:images?.[i]?.signedUrl||''})),total:count||0,has_more:offset+rows.length<(count||0)});
+
+      let authorMap=new Map<string,string>();
+      let autoresList:Array<{id:string,nombre:string}>=[];
+
+      if(permission.administrar){
+        const authorUids=[...new Set(rows.map(r=>r.autor).filter(Boolean))];
+        if(authorUids.length){
+          const {data:perfiles}=await admin.from('asis_perfiles').select('id,nombre,colaborador_id').in('id',authorUids);
+          const colabIds=(perfiles||[]).map(p=>p.colaborador_id).filter(Boolean);
+          const colabMap=new Map<number,string>();
+          if(colabIds.length){
+            const {data:colabs}=await admin.from('asis_colaboradores').select('id,nombre').in('id',colabIds);
+            (colabs||[]).forEach(c=>colabMap.set(c.id,c.nombre));
+          }
+          (perfiles||[]).forEach(p=>{
+            const name=(p.colaborador_id?colabMap.get(p.colaborador_id):null)||p.nombre||'Colaborador';
+            authorMap.set(p.id,name);
+          });
+        }
+
+        try{
+          const {data:colabAccesos}=await admin.from('marketing_colaboradores_acceso').select('colaborador_id');
+          const permittedColabIds=(colabAccesos||[]).map(c=>c.colaborador_id).filter(Boolean);
+          const {data:pubAuthors}=await admin.from('marketing_publicaciones').select('autor').is('eliminado_at',null);
+          const pubAuthorUids=[...new Set((pubAuthors||[]).map(p=>p.autor).filter(Boolean))];
+
+          const {data:allPerfiles}=await admin.from('asis_perfiles').select('id,nombre,colaborador_id,nivel').eq('activo',true);
+          const allColabIds=(allPerfiles||[]).map(p=>p.colaborador_id).filter(Boolean);
+          const allColabMap=new Map<number,string>();
+          if(allColabIds.length){
+            const {data:allColabs}=await admin.from('asis_colaboradores').select('id,nombre').in('id',allColabIds);
+            (allColabs||[]).forEach(c=>allColabMap.set(c.id,c.nombre));
+          }
+
+          const seenUids=new Set<string>();
+          (allPerfiles||[]).forEach(p=>{
+            const hasPerm=p.nivel==='sistemas'||pubAuthorUids.includes(p.id)||(p.colaborador_id&&permittedColabIds.includes(p.colaborador_id));
+            if(hasPerm&&!seenUids.has(p.id)){
+              seenUids.add(p.id);
+              const name=(p.colaborador_id?allColabMap.get(p.colaborador_id):null)||p.nombre||'Colaborador';
+              autoresList.push({id:p.id,nombre:p.id===uid?name+' (Tú)':name});
+            }
+          });
+          autoresList.sort((a,b)=>{
+            if(a.id===uid)return -1;
+            if(b.id===uid)return 1;
+            return a.nombre.localeCompare(b.nombre,'es');
+          });
+        }catch{}
+      }
+
+      const items=rows.map((row,i)=>({
+        ...row,
+        imagen:images?.[i]?.signedUrl||'',
+        autor_nombre:authorMap.get(row.autor)||(row.autor===uid?'Tú':'Colaborador'),
+        es_propio:row.autor===uid
+      }));
+
+      return reply({
+        items,
+        total:count||0,
+        has_more:offset+rows.length<(count||0),
+        autores:permission.administrar?autoresList:undefined
+      });
     }
     if(body.accion==='crear'){
       const match=/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(body.imagen||''));
@@ -84,25 +165,50 @@ Deno.serve(async(req)=>{
       return reply({id});
     }
     if(!/^[0-9a-f-]{36}$/.test(String(body.id||'')))fail('Selecciona un borrador.');
-    const {data:draft,error:draftError}=await admin.from('marketing_publicaciones').select('*').eq('id',body.id).eq('autor',uid).single();
-    if(draftError||!draft)return reply({error:'No se encontró tu borrador.'},404);
+    let draftQuery=admin.from('marketing_publicaciones').select('*').eq('id',body.id);
+    if(!permission.administrar){
+      draftQuery=draftQuery.eq('autor',uid);
+    }
+    const {data:draft,error:draftError}=await draftQuery.maybeSingle();
+    if(draftError||!draft)return reply({error:'No se encontró la publicación.'},404);
     if(draft.eliminado_at)return reply({error:'Esta publicación fue eliminada del portal.'},404);
     if(body.accion==='eliminar'){
       if(!['borrador','publicado'].includes(draft.estado))fail('Verifica primero el envío a Facebook antes de eliminar este registro.');
-      const {data:removed,error}=await admin.from('marketing_publicaciones').update({eliminado_at:new Date().toISOString(),actualizado_at:new Date().toISOString()})
-        .eq('id',draft.id).eq('autor',uid).eq('estado',draft.estado).eq('actualizado_at',draft.actualizado_at).is('eliminado_at',null).select('id').maybeSingle();
+      let delQuery=admin.from('marketing_publicaciones').update({eliminado_at:new Date().toISOString(),actualizado_at:new Date().toISOString()})
+        .eq('id',draft.id).eq('estado',draft.estado).eq('actualizado_at',draft.actualizado_at).is('eliminado_at',null);
+      if(!permission.administrar){
+        delQuery=delQuery.eq('autor',uid);
+      }
+      const {data:removed,error}=await delQuery.select('id').maybeSingle();
       if(error||!removed)fail('No se pudo eliminar. Vuelve a abrir la publicación para consultar su estado actual.');
       return reply({ok:true});
     }
     if(body.accion==='cargar'){
       const {data,error}=await admin.storage.from(bucket).createSignedUrl(draft.imagen_path,3600);
-      if(error)fail('No se pudo abrir el flyer.');return reply({borrador:draft,imagen:data?.signedUrl});
+      if(error)fail('No se pudo abrir el flyer.');
+      let autor_nombre='';
+      if(draft.autor!==uid){
+        try{
+          const {data:perf}=await admin.from('asis_perfiles').select('nombre,colaborador_id').eq('id',draft.autor).maybeSingle();
+          if(perf?.colaborador_id){
+            const {data:colab}=await admin.from('asis_colaboradores').select('nombre').eq('id',perf.colaborador_id).maybeSingle();
+            autor_nombre=colab?.nombre||perf.nombre||'Colaborador';
+          }else{
+            autor_nombre=perf?.nombre||'Colaborador';
+          }
+        }catch{}
+      }
+      return reply({borrador:draft,imagen:data?.signedUrl,autor_nombre,es_propio:draft.autor===uid});
     }
     if(draft.estado!=='borrador')fail(draft.estado==='publicado'?'Este borrador ya está publicado.':'Esta publicación debe verificarse en Facebook antes de volver a enviarla.');
     if(body.accion==='guardar_borrador'){
       const snapshot=partialDraft(body.datos,body.copy);
-      const {data:saved,error}=await admin.from('marketing_publicaciones').update({...snapshot,actualizado_at:new Date().toISOString()})
-        .eq('id',draft.id).eq('autor',uid).eq('estado','borrador').eq('actualizado_at',draft.actualizado_at).is('eliminado_at',null).select('id').maybeSingle();
+      let saveDraftQuery=admin.from('marketing_publicaciones').update({...snapshot,actualizado_at:new Date().toISOString()})
+        .eq('id',draft.id).eq('estado','borrador').eq('actualizado_at',draft.actualizado_at).is('eliminado_at',null);
+      if(!permission.administrar){
+        saveDraftQuery=saveDraftQuery.eq('autor',uid);
+      }
+      const {data:saved,error}=await saveDraftQuery.select('id').maybeSingle();
       if(error||!saved)fail('No se pudo guardar. La publicación pudo cambiar en otra sesión; vuelve a abrirla.');
       return reply({ok:true});
     }

@@ -124,8 +124,9 @@ test('refresh cannot modify a published campaign',async()=>{
 function editor({facebook=true,publicar=true,publicado=false,extracted=false,ia=true,quotaError=false,connectionError=false,analysisWait,legacy=false,fullHistory=false}={}){
   class Element{
     value='';hidden=false;disabled=false;checked=false;dataset={};children=[];attrs={};listeners={};textContent='';files=[];
+    classList={_list:new Set(),toggle(k,v){if(v===undefined)v=!this._list.has(k);if(v)this._list.add(k);else this._list.delete(k);return v},add(k){this._list.add(k)},remove(k){this._list.delete(k)},contains(k){return this._list.has(k)}};
     append(...nodes){this.children.push(...nodes)}replaceChildren(...nodes){this.children=nodes}
-    setAttribute(k,v){this.attrs[k]=v}removeAttribute(k){delete this.attrs[k];if(k==='href')this.href=''}
+    setAttribute(k,v){this.attrs[k]=v}getAttribute(k){return this.attrs[k]}removeAttribute(k){delete this.attrs[k];if(k==='href')this.href=''}
     addEventListener(k,fn){this.listeners[k]=fn}focus(){}
     showModal(){this.open=true}close(){this.open=false;this.onclose?.()}
   }
@@ -512,6 +513,59 @@ test('refine submit invokes moldear action, updates copy and decrements quota',a
   assert.equal(e.get('quota-used').textContent,'16');
   assert.equal(e.get('quota-remaining').textContent,'184');
   assert.equal(e.get('progress-bar').value,100);
+});
+
+test('admin can switch to team scope, filter by collaborator, and view author badge and banner',async()=>{
+  const e=editor();
+  e.context.db.rpc=async()=>({data:{acceso:true,administrar:true,publicar:true}});
+
+  const teamDraft={id:'user-copy-1',autor:'00000000-0000-0000-0000-000000000002',autor_nombre:'Pepito Pérez',es_propio:false,datos:{titulo:'Terapia de Pareja',telefono:'51988918238',mensaje:'Hola'},copy:'Texto creado por Pepito',estado:'borrador',enlace:'',imagen:'https://example.test/pepito.png'};
+
+  const prevInvoke=e.context.db.functions.invoke;
+  e.context.db.functions.invoke=async(name,args)=>{
+    if(args.body.accion==='listar'){
+      if(args.body.autor==='todos'||args.body.autor==='00000000-0000-0000-0000-000000000002'){
+        return {data:{items:[teamDraft],total:1,autores:[{id:'00000000-0000-0000-0000-000000000002',nombre:'Pepito Pérez'}]}};
+      }
+      return {data:{items:[],total:0,autores:[{id:'00000000-0000-0000-0000-000000000002',nombre:'Pepito Pérez'}]}};
+    }
+    if(args.body.accion==='cargar'&&args.body.id==='user-copy-1'){
+      return {data:{borrador:teamDraft,imagen:'https://example.test/pepito.png',autor_nombre:'Pepito Pérez',es_propio:false}};
+    }
+    return prevInvoke(name,args);
+  };
+
+  await e.context.KJAMarketingPortal.init();
+  assert.equal(e.get('scope-container').hidden,false);
+
+  await e.context.KJAMarketingPortal.open();
+  assert.equal(e.get('scope-me').getAttribute('aria-selected'),'true');
+  assert.equal(e.get('author-wrap').hidden,true);
+
+  await e.get('scope-team').onclick();
+  await e.settle();
+  assert.equal(e.get('scope-team').getAttribute('aria-selected'),'true');
+  assert.equal(e.get('author-wrap').hidden,false);
+  assert.equal(e.get('history-title').textContent,'Publicaciones del equipo');
+
+  const list=e.get('history');
+  assert.equal(list.children.length,1);
+  const card=list.children[0].children[0];
+  const authorBadge=card.children.find(c=>c.className==='marketing-history-author-badge');
+  assert.ok(authorBadge);
+  assert.match(authorBadge.textContent,/Pepito Pérez/);
+
+  await card.onclick();
+  await e.settle();
+
+  assert.equal(e.get('author-banner').hidden,false);
+  assert.equal(e.get('author-banner-name').textContent,'Pepito Pérez');
+  assert.equal(e.get('copy').value,'Texto creado por Pepito');
+
+  const select=e.get('author-select');
+  assert.ok(select.children.length>=2);
+  assert.equal(select.children[0].value,'todos');
+  assert.equal(select.children[1].value,'00000000-0000-0000-0000-000000000002');
 });
 
 

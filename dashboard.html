@@ -309,7 +309,26 @@
       <div class="marketing-connection-row"><p class="marketing-note" id="marketing-connection">Comprobando conexiones…</p><button type="button" class="marketing-btn" id="marketing-retry" hidden>Reintentar conexión</button></div>
       <div class="marketing-layout">
         <aside class="marketing-library" aria-label="Historial de publicaciones">
-          <div class="marketing-library-head"><h2>Mis publicaciones</h2><span id="marketing-history-count">0</span></div>
+          <div class="marketing-library-head"><h2 id="marketing-history-title">Mis publicaciones</h2><span id="marketing-history-count">0</span></div>
+          <div class="marketing-scope-nav" id="marketing-scope-container" hidden role="tablist" aria-label="Ámbito de publicaciones">
+            <button type="button" id="marketing-scope-me" class="marketing-scope-btn active" role="tab" aria-selected="true" aria-controls="marketing-history">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Mis copys</span>
+            </button>
+            <button type="button" id="marketing-scope-team" class="marketing-scope-btn" role="tab" aria-selected="false" aria-controls="marketing-history">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Equipo</span>
+            </button>
+          </div>
+          <div class="marketing-author-filter-wrap" id="marketing-author-wrap" hidden>
+            <label for="marketing-author-select" class="marketing-author-filter-label">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              <span>Colaborador:</span>
+            </label>
+            <select id="marketing-author-select" class="marketing-author-select">
+              <option value="todos">Todos los colaboradores</option>
+            </select>
+          </div>
           <label class="marketing-search" for="marketing-search">Buscar una publicación<input id="marketing-search" type="search" placeholder="Nombre del curso…" autocomplete="off"></label>
           <div class="marketing-filters" aria-label="Filtrar publicaciones"><button id="marketing-filter-all" type="button" aria-pressed="true">Todas</button><button id="marketing-filter-drafts" type="button" aria-pressed="false">Borradores</button><button id="marketing-filter-published" type="button" aria-pressed="false">Publicadas</button></div>
           <p class="marketing-note" id="marketing-history-summary" aria-live="polite">Cargando tus publicaciones…</p>
@@ -317,6 +336,11 @@
           <button class="marketing-btn" id="marketing-history-more" type="button" hidden>Cargar anteriores</button>
         </aside>
         <div class="marketing-editor" id="marketing-editor">
+          <div id="marketing-author-banner" class="marketing-author-banner" hidden role="status">
+            <span class="marketing-author-banner-icon" aria-hidden="true">👥</span>
+            <span class="marketing-author-banner-text">Viendo publicación de <strong id="marketing-author-banner-name">Colaborador</strong></span>
+            <span class="marketing-author-banner-badge">Vista de Administrador</span>
+          </div>
           <nav class="marketing-editor-nav" aria-label="Secciones del editor"><button type="button" id="marketing-tab-prepare" aria-current="step"><span class="marketing-step-num">1</span><span class="marketing-step-info"><small class="marketing-step-tag">Paso 1</small><span class="marketing-step-name">Flyer</span></span></button><button type="button" id="marketing-tab-review" disabled><span class="marketing-step-num">2</span><span class="marketing-step-info"><small class="marketing-step-tag">Paso 2</small><span class="marketing-step-name">Texto y WhatsApp</span></span></button><button type="button" id="marketing-tab-publish" disabled><span class="marketing-step-num">3</span><span class="marketing-step-info"><small class="marketing-step-tag">Paso 3</small><span class="marketing-step-name">Copiar o publicar</span></span></button></nav>
           <div id="marketing-loading" class="boot marketing-splash" data-mode="action" role="status" aria-live="polite" hidden>
             <div class="boot-inner">

@@ -7,6 +7,7 @@
   const keys=['titulo','descripcion','publico','temario','modalidad','beneficios','detalles','telefono','correo','mensaje','facebook_url'];
   const optionKeys=['certificado','material','peru','vacantes'];
   let id=null,imageURL='',busy=false,dirty=false,saved=false,locked=false,extraction=null,config={ia:false,facebook:false,puede_publicar:false},available=false;
+  let isAdmin=false,adminScope='me',selectedAuthor='todos',teamAuthors=[];
   let shortLink='',shortFor='',automaticMessage='';
   let deletion=null,deleting=false;
   let historyRows=[],historyFilter='all',historyOffset=0,historyMore=false;
@@ -372,8 +373,32 @@
     el('file-label').textContent=url?'Cambiar flyer':'Sube el flyer de tu campaña';
     if(previewActive)updateFbPreview();
   }
-  function reset(){setPreviewMode(false);el('short-url').value='';id=null;shortLink='';shortFor='';automaticMessage='';locked=false;dirty=false;saved=false;extraction=null;keys.forEach(k=>el(k).value='');restoreOptions();syncWhatsApp();el('source-text').value='';el('copy').value='';el('checked').checked=false;el('review').hidden=true;el('post').hidden=true;el('post').removeAttribute('href');el('link').removeAttribute('href');el('file').value='';el('extra').open=false;setImage('');step(1);showPanel('prepare');sync()}
+  function reset(){setPreviewMode(false);el('short-url').value='';id=null;shortLink='';shortFor='';automaticMessage='';locked=false;dirty=false;saved=false;extraction=null;keys.forEach(k=>el(k).value='');restoreOptions();syncWhatsApp();el('source-text').value='';el('copy').value='';el('checked').checked=false;el('review').hidden=true;el('post').hidden=true;el('post').removeAttribute('href');el('link').removeAttribute('href');el('file').value='';el('extra').open=false;if(el('author-banner'))el('author-banner').hidden=true;setImage('');step(1);showPanel('prepare');sync()}
   const stateLabel=row=>({borrador:row.copy?'Texto preparado':'Por preparar',publicando:'Verificar envío',publicado:'Publicado',verificar:'Por verificar'}[row.estado]||'Borrador');
+  function updateTeamAuthors(autores){
+    teamAuthors=Array.isArray(autores)?autores:[];
+    const select=el('author-select');
+    if(!select)return;
+    const currentVal=select.value||selectedAuthor;
+    select.replaceChildren();
+    const allOpt=document.createElement('option');
+    allOpt.value='todos';
+    allOpt.textContent='Todos los colaboradores ('+teamAuthors.length+')';
+    select.append(allOpt);
+    teamAuthors.forEach(a=>{
+      const opt=document.createElement('option');
+      opt.value=a.id;
+      opt.textContent=a.nombre;
+      select.append(opt);
+    });
+    if(teamAuthors.some(a=>a.id===currentVal)||currentVal==='todos'){
+      select.value=currentVal;
+      selectedAuthor=currentVal;
+    }else{
+      select.value='todos';
+      selectedAuthor='todos';
+    }
+  }
   function renderHistory(){
     const query=el('search').value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
     const rows=historyRows.filter(row=>{
@@ -381,9 +406,10 @@
       return title.includes(query)&&(historyFilter==='all'||(historyFilter==='drafts'?row.estado==='borrador':row.estado==='publicado'));
     });
     el('history').replaceChildren();
-    el('history-summary').textContent=rows.length+' '+(rows.length===1?'publicación':'publicaciones')+(query||historyFilter!=='all'?' en esta vista':' disponibles')+(historyMore?' · Hay anteriores por cargar':'');
+    const scopeLabel=adminScope==='team'?'del equipo':'';
+    el('history-summary').textContent=rows.length+' '+(rows.length===1?'publicación':'publicaciones')+(scopeLabel?' '+scopeLabel:'')+(query||historyFilter!=='all'?' en esta vista':' disponibles')+(historyMore?' · Hay anteriores por cargar':'');
     el('history-more').hidden=!historyMore;
-    if(!rows.length){const empty=document.createElement('li');empty.className='marketing-empty';empty.textContent=historyRows.length?'No hay coincidencias. Prueba otro nombre o filtro.':'Tu próxima campaña empieza aquí. Crea una publicación y quedará guardada en este historial.';el('history').append(empty)}
+    if(!rows.length){const empty=document.createElement('li');empty.className='marketing-empty';empty.textContent=historyRows.length?'No hay coincidencias. Prueba otro nombre o filtro.':(adminScope==='team'?'No hay publicaciones del equipo en esta selección.':'Tu próxima campaña empieza aquí. Crea una publicación y quedará guardada en este historial.');el('history').append(empty)}
     rows.forEach(row=>{
       const item=document.createElement('li'),button=document.createElement('button'),thumb=document.createElement('img'),title=document.createElement('span'),badge=document.createElement('span'),date=document.createElement('small');
       button.type='button';button.dataset.marketingDraft=row.id;button.setAttribute('aria-current',String(row.id===id));button.disabled=busy;item.dataset.active=String(row.id===id);
@@ -392,7 +418,16 @@
       thumb.className='marketing-history-thumb';thumb.src=row.imagen||missingFlyer;thumb.alt=row.imagen?'':'Flyer pendiente de cargar';thumb.loading='lazy';thumb.onerror=()=>{thumb.onerror=null;thumb.src=missingFlyer;thumb.alt='Flyer no disponible';};
       badge.className='marketing-badge';badge.dataset.state=row.estado;badge.textContent=stateLabel(row);
       date.textContent=row.creado_at?new Date(row.creado_at).toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric',timeZone:'America/Lima'}):'Sin fecha';
-      button.append(thumb,title,badge,date);item.append(button);el('history').append(item);
+      button.append(thumb,title,badge);
+      if(row.autor_nombre&&(adminScope==='team'||!row.es_propio)){
+        const authorBadge=document.createElement('span');
+        authorBadge.className='marketing-history-author-badge';
+        authorBadge.textContent=(row.es_propio?'👤 ':'👥 ')+row.autor_nombre;
+        authorBadge.title='Autor: '+row.autor_nombre;
+        button.append(authorBadge);
+      }
+      button.append(date);
+      item.append(button);el('history').append(item);
       button.onclick=()=>openDraft(row);
       const trash=document.createElement('button');trash.type='button';trash.className='marketing-history-delete';
       trash.setAttribute('aria-label','Eliminar '+title.textContent);trash.title='Eliminar del portal';
@@ -404,7 +439,8 @@
   }
   async function history(append=false){
     const generation=++historyGeneration;
-    const result=await call('listar',{offset:append?historyOffset:0});
+    const targetAutor=(isAdmin&&adminScope==='team')?selectedAuthor:'me';
+    const result=await call('listar',{offset:append?historyOffset:0,autor:targetAutor});
     if(generation!==historyGeneration)return;
     if(!append){historyRows=[];historyOffset=0;draftCache.clear()}
     historyOffset+=result.items.length;
@@ -412,7 +448,9 @@
       const index=historyRows.findIndex(item=>item.id===row.id);if(index<0)historyRows.push(row);else historyRows[index]=row;
       if(typeof row.copy==='string'&&row.imagen)draftCache.set(row.id,{borrador:row,imagen:row.imagen,at:Date.now()});
     }
-    historyMore=!!result.has_more;el('history-count').textContent=String(result.total??historyRows.length);renderHistory();
+    historyMore=!!result.has_more;el('history-count').textContent=String(result.total??historyRows.length);
+    if(result.autores&&Array.isArray(result.autores))updateTeamAuthors(result.autores);
+    renderHistory();
     // Compatible con el servicio anterior: cargar ya devuelve una URL privada firmada.
     // Tres lecturas simultáneas como máximo, sin analizar ni modificar publicaciones.
     const pending=historyRows.filter(row=>!row.imagen);let cursor=0,failed=0;
@@ -423,7 +461,7 @@
           const loaded=await call('cargar',{id:row.id});
           if(generation!==historyGeneration)return;
           if(!loaded.imagen){failed++;continue}
-          Object.assign(row,loaded.borrador,{imagen:loaded.imagen});
+          Object.assign(row,loaded.borrador,{imagen:loaded.imagen,autor_nombre:loaded.autor_nombre||row.autor_nombre,es_propio:loaded.es_propio??row.es_propio});
           draftCache.set(row.id,{...loaded,at:Date.now()});
         }catch{failed++}
       }
@@ -454,7 +492,16 @@
         if(d.copy)showPanel(locked?'publish':'review');else if(d.datos?.guardado_parcial)showPanel('data');else if(stored.titulo)generateCopy();else showPanel('prepare');
         if(d.enlace){el('link').href=d.enlace;el('short-url').value=d.enlace;el('link').textContent='Probar WhatsApp ↗'}
         if(d.estado==='publicado'&&d.facebook_id){el('post').href='https://www.facebook.com/'+encodeURIComponent(d.facebook_id);el('post').hidden=false}
-        status(locked?'Registro protegido: '+stateLabel(d)+'. Puedes copiar el texto y descargar el flyer.':'Publicación abierta. Continúa donde la dejaste.');
+        const authorName=result.autor_nombre||row.autor_nombre;
+        const isOtherAuthor=result.es_propio===false||row.es_propio===false;
+        if(isOtherAuthor&&authorName){
+          el('author-banner').hidden=false;
+          el('author-banner-name').textContent=authorName;
+          status('Publicación de '+authorName+' abierta. Puedes revisar el copy, copiarlo o moldearlo.');
+        }else{
+          el('author-banner').hidden=true;
+          status(locked?'Registro protegido: '+stateLabel(d)+'. Puedes copiar el texto y descargar el flyer.':'Publicación abierta. Continúa donde la dejaste.');
+        }
         el('destination').textContent='WhatsApp de ventas: '+el('telefono').value;
       });
     });
@@ -483,9 +530,35 @@
       if(!PUBLICACIONES_HABILITADAS){available=false;document.getElementById('nav-marketing').hidden=true;return;}
       const {data:permission,error}=await db.rpc('marketing_permiso');
       available=!error&&!!permission?.acceso;
+      isAdmin=!error&&Boolean(permission?.administrar);
       document.getElementById('nav-marketing').hidden=!available;
+      if(el('scope-container'))el('scope-container').hidden=!isAdmin;
+      if(el('scope-me'))el('scope-me').setAttribute('aria-selected','true');
+      if(el('scope-team'))el('scope-team').setAttribute('aria-selected','false');
+      if(el('author-wrap'))el('author-wrap').hidden=adminScope!=='team';
+      if(!isAdmin){
+        adminScope='me';
+        if(el('history-title'))el('history-title').textContent='Mis publicaciones';
+      }
       window.KJAMarketingTeam?.init(error?null:permission);
     },open
+  };
+  function setAdminScope(scope){
+    if(adminScope===scope)return;
+    adminScope=scope;
+    if(el('scope-me')){el('scope-me').classList.toggle('active',scope==='me');el('scope-me').setAttribute('aria-selected',String(scope==='me'));}
+    if(el('scope-team')){el('scope-team').classList.toggle('active',scope==='team');el('scope-team').setAttribute('aria-selected',String(scope==='team'));}
+    if(el('author-wrap'))el('author-wrap').hidden=scope!=='team';
+    if(el('history-title'))el('history-title').textContent=scope==='team'?'Publicaciones del equipo':'Mis publicaciones';
+    historyRows=[];historyOffset=0;draftCache.clear();
+    run(()=>history(false));
+  }
+  if(el('scope-me'))el('scope-me').onclick=()=>setAdminScope('me');
+  if(el('scope-team'))el('scope-team').onclick=()=>setAdminScope('team');
+  if(el('author-select'))el('author-select').onchange=()=>{
+    selectedAuthor=el('author-select').value;
+    historyRows=[];historyOffset=0;draftCache.clear();
+    run(()=>history(false));
   };
   document.getElementById('nav-marketing').onclick=open;
   el('retry').onclick=open;
@@ -1007,7 +1080,7 @@
     status('Flyer descargado. Puedes adjuntarlo en una publicación nueva o actualizar la existente en Facebook.');showToast('Flyer descargado','La imagen se guardó en tu dispositivo.','success');
   });
   window.addEventListener('beforeunload',event=>{if(dirty||analysisProgress){event.preventDefault();event.returnValue=''}});
-  db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){historyGeneration++;reset();available=false;config={ia:false,facebook:false,puede_publicar:false};el('history').replaceChildren();historyRows=[];draftCache.clear();historyOffset=0;historyMore=false;el('search').value='';historyFilter='all';el('history-count').textContent='0';document.getElementById('nav-marketing').hidden=true;}});
+  db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){historyGeneration++;reset();available=false;isAdmin=false;adminScope='me';selectedAuthor='todos';teamAuthors=[];if(el('scope-container'))el('scope-container').hidden=true;if(el('author-wrap'))el('author-wrap').hidden=true;if(el('history-title'))el('history-title').textContent='Mis publicaciones';config={ia:false,facebook:false,puede_publicar:false};el('history').replaceChildren();historyRows=[];draftCache.clear();historyOffset=0;historyMore=false;el('search').value='';historyFilter='all';el('history-count').textContent='0';document.getElementById('nav-marketing').hidden=true;}});
   if(typeof APP!=='undefined'&&APP.inicio)void window.KJAMarketingPortal.init();
   const editTabBtn=document.getElementById('marketing-mode-edit');
   const previewTabBtn=document.getElementById('marketing-mode-preview');
