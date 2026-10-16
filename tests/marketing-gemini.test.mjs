@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {extractWithGemini,readAndCache,flyerFields} from '../supabase/functions/marketing-publicaciones/gemini.mjs';
+import {extractWithGemini,readAndCache,refineWithGemini,flyerFields} from '../supabase/functions/marketing-publicaciones/gemini.mjs';
 const datos=Object.fromEntries(flyerFields.map(k=>[k,k==='titulo'?'ADOS-2 y ADI-R':'']));
 const image=new Blob([new Uint8Array([255,216,255,0])],{type:'image/jpeg'});
 const input={apiKey:'test-key',model:'gemini-3.1-flash-lite',image,wait:async()=>{}};
@@ -112,3 +112,26 @@ test('busy/quota reservation refuses extraction; provider and save failures rele
     assert.equal(released,true);
   }
 });
+
+test('refineWithGemini sends user prompt and current copy, returning the molded copy',async()=>{
+  let calls=0;
+  const copy='Texto inicial KJA\n📲 Contáctanos: 51988918238';
+  const prompt='Hazlo más directo';
+  const refined=await refineWithGemini({
+    apiKey:'test-key',
+    model:'gemini-3.1-flash-lite',
+    copy,
+    prompt,
+    fetcher:async(url,options)=>{
+      calls++;
+      const body=JSON.parse(options.body);
+      assert.match(body.contents[0].parts[0].text,/Texto actual de la publicación/);
+      assert.match(body.contents[0].parts[0].text,/Hazlo más directo/);
+      assert.equal(body.generationConfig.responseMimeType,'application/json');
+      return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({copy:'Texto moldeado directo\n📲 Contáctanos: 51988918238'})}]}}]});
+    }
+  });
+  assert.equal(refined,'Texto moldeado directo\n📲 Contáctanos: 51988918238');
+  assert.equal(calls,1);
+});
+

@@ -1,6 +1,6 @@
 // Credenciales exclusivamente en secretos de Supabase. No hay publicación automática al generar.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { extractWithGemini, readAndCache } from './gemini.mjs';
+import { extractWithGemini, readAndCache, refineWithGemini } from './gemini.mjs';
 import { publicationPhones } from './phones.mjs';
 import { partialDraft } from './drafts.mjs';
 import { publicErrorMessage } from './errors.mjs';
@@ -149,6 +149,34 @@ Deno.serve(async(req)=>{
         }
       });
       return reply(result);
+    }
+    if(body.accion==='moldear'){
+      if(!ia)return reply({error:'La IA todavía no está configurada.'},503);
+      const prompt=String(body.prompt||'').trim();
+      const currentCopy=String(body.copy||draft.copy||'').trim();
+      if(!prompt)fail('Escribe una indicación para moldear el texto.');
+      if(!currentCopy)fail('El texto a moldear está vacío.');
+
+      const cutOff=new Date(Date.now()-86400000).toISOString();
+      const {count,error:countError}=await admin.from('marketing_lecturas').select('*',{count:'exact',head:true}).eq('modelo',model).gte('creado_at',cutOff);
+      if(countError||(count||0)>=200)fail('El equipo alcanzó las 200 consultas de IA en las últimas 24 horas.');
+      const cutOffMin=new Date(Date.now()-60000).toISOString();
+      const {count:countMin}=await admin.from('marketing_lecturas').select('*',{count:'exact',head:true}).eq('modelo',model).gte('creado_at',cutOffMin);
+      if((countMin||0)>=5)fail('El equipo alcanzó las 5 consultas por minuto. Espera un momento antes de volver a moldear.');
+
+      const improvedCopy=await refineWithGemini({apiKey:env('GEMINI_API_KEY'),model,copy:currentCopy,prompt});
+      await admin.from('marketing_lecturas').insert({autor:uid,modelo:model});
+      const {data:lecturas}=await admin.from('marketing_lecturas').select('creado_at').eq('modelo',model).gte('creado_at',cutOff).order('creado_at',{ascending:true});
+      const updatedCount=lecturas?.length||0;
+      const oldest=lecturas?.[0]?.creado_at;
+      const cuota={
+        usadas:updatedCount,
+        limite:200,
+        disponibles:Math.max(0,200-updatedCount),
+        proxima_renovacion:oldest?new Date(new Date(oldest).getTime()+86400000).toISOString():null
+      };
+      await admin.from('marketing_publicaciones').update({copy:improvedCopy,actualizado_at:new Date().toISOString()}).eq('id',draft.id);
+      return reply({ok:true,copy:improvedCopy,cuota});
     }
     if(body.accion==='guardar'){
       const data=body.datos;

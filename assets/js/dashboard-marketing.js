@@ -261,7 +261,7 @@
     el('copy-button').disabled=busy||!el('copy').value.trim();
     el('copy-ready').disabled=busy||!el('copy').value.trim();
     el('download').disabled=busy||!imageURL;
-    ['whatsapp-phone','whatsapp-message','update-link','apply-template','regenerate-message'].forEach(k=>el(k).disabled=busy||locked);
+    ['whatsapp-phone','whatsapp-message','update-link','apply-template','regenerate-message','refine-submit','refine-prompt'].forEach(k=>{const node=el(k);if(node)node.disabled=busy||locked||(k.startsWith('refine')&&!id);});
     optionKeys.forEach(k=>el('option-'+k).disabled=busy||locked);
     el('facebook-status').textContent=config.facebook?(config.puede_publicar?'Puedes publicar un post nuevo en '+config.pagina+'.':'Tu cuenta puede preparar el texto, pero no publicar directamente.'):'La publicación directa está pendiente de conectar Facebook. Puedes copiar el texto y descargar el flyer para actualizarlo en Facebook.';
     el('new').disabled=busy;
@@ -327,8 +327,8 @@
     if(['guardar','guardar_borrador','eliminar'].includes(accion))window.KJAMarketingTeam?.refresh();
     return result;
   }
-  async function run(task){
-    if(busy)return;busy=true;analysisProgress=task===readFlyer;
+  async function run(task,withProgress=false){
+    if(busy)return;busy=true;analysisProgress=task===readFlyer||withProgress;
     el('progress').hidden=!analysisProgress;progress(5);
     el('loading-text').textContent='Cargando publicación…';sync();
     const execute=async update=>{splashUpdate=update||null;await task()};
@@ -337,6 +337,8 @@
   }
   async function readFlyer(){
     progress(10);
+    const hintEl=el('progress-hint');
+    if(hintEl)hintEl.textContent='Conservamos tu flyer. Espera sin recargar mientras preparamos el contenido.';
     status(extraction?'Recuperando los datos guardados…':'Leyendo la información del flyer…');
     let estimate=10;
     const timer=typeof setInterval==='function'?setInterval(()=>{
@@ -577,6 +579,364 @@
       });
     });
   };
+  const handleRefine=async customPrompt=>{
+    const promptInput=el('refine-prompt');
+    const promptText=String(customPrompt||promptInput?.value||'').trim();
+    if(!promptText){
+      status('Escribe una indicación o selecciona una sugerencia para moldear el texto.',true);
+      promptInput?.focus();
+      return;
+    }
+    const currentCopy=el('copy').value.trim();
+    if(!currentCopy){
+      status('Genera o escribe un texto primero antes de moldearlo con IA.',true);
+      return;
+    }
+    if(busy||locked||!id)return;
+    const refineTask=async()=>{
+      progress(12);
+      el('loading-text').textContent='Gemini está moldeando el texto con tu indicación…';
+      const hintEl=el('progress-hint');
+      if(hintEl)hintEl.textContent='Interpretando tu indicación y adaptando el texto con IA. Espera sin recargar…';
+      status('Gemini está moldeando el texto con tu indicación…');
+      let estimate=12;
+      const timer=typeof setInterval==='function'?setInterval(()=>{
+        estimate=Math.min(85,estimate+Math.max(1,Math.round((85-estimate)/8)));
+        progress(estimate);
+        if(estimate>=60)el('loading-text').textContent='Gemini sigue perfeccionando el texto. Espera sin recargar…';
+      },650):null;
+      const submitBtn=el('refine-submit');
+      if(submitBtn)submitBtn.disabled=true;
+      if(promptInput)promptInput.disabled=true;
+      const statusBox=el('refine-status');
+      if(statusBox){statusBox.hidden=false;statusBox.textContent='Aplicando cambios con IA…';statusBox.dataset.type='info';}
+      let result;
+      try{
+        result=await call('moldear',{id,copy:currentCopy,prompt:promptText});
+      }catch(err){
+        if(statusBox){
+          statusBox.hidden=false;
+          statusBox.dataset.type='error';
+          statusBox.textContent=err?.message||'No se pudo moldear el texto.';
+        }
+        throw err;
+      }finally{
+        if(timer!==null)clearInterval(timer);
+      }
+      progress(95);
+      el('loading-text').textContent='Aplicando el texto moldeado…';
+      if(!result?.copy)throw new Error('No se recibió el texto moldeado.');
+      el('copy').value=result.copy;
+      changed();
+      if(result.cuota){
+        config.cuota=result.cuota;
+        renderQuota(config.cuota);
+      }
+      if(typeof updateFbPreview==='function'&&previewActive)updateFbPreview();
+      if(promptInput)promptInput.value='';
+      progress(100);
+      el('loading-text').textContent='¡Texto moldeado listo!';
+      if(typeof setTimeout==='function')await new Promise(resolve=>setTimeout(resolve,350));
+      status('Texto moldeado con éxito con tus indicaciones. Revisa los cambios.');
+      showToast('Texto moldeado','Se aplicaron tus indicaciones con IA','success');
+      if(statusBox){
+        statusBox.textContent='✓ Texto actualizado con éxito';
+        statusBox.dataset.type='success';
+        if(typeof setTimeout==='function')setTimeout(()=>{if(statusBox)statusBox.hidden=true;},3500);
+      }
+    };
+    try{
+      await run(refineTask,true);
+    }finally{
+      const submitBtn=el('refine-submit');
+      if(submitBtn)submitBtn.disabled=busy||locked;
+      if(promptInput)promptInput.disabled=busy||locked;
+    }
+  };
+  if(el('refine-submit'))el('refine-submit').onclick=()=>handleRefine();
+  if(el('refine-prompt'))el('refine-prompt').onkeydown=event=>{
+    if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();handleRefine();}
+  };
+  if(typeof document!=='undefined'&&document.querySelectorAll){
+    const chips=document.querySelectorAll('.marketing-ai-chip');
+    if(chips?.length)chips.forEach(chip=>{
+      chip.onclick=()=>{
+        chips.forEach(c=>c.classList?.remove?.('is-active'));
+        chip.classList?.add?.('is-active');
+        const promptInput=el('refine-prompt');
+        if(promptInput){
+          promptInput.value=chip.dataset?.prompt||chip.textContent.trim();
+          promptInput.focus();
+        }
+      };
+    });
+  }
+  if(el('refine-prompt')){
+    const origInput=el('refine-prompt').oninput;
+    el('refine-prompt').oninput=ev=>{
+      if(typeof origInput==='function')origInput(ev);
+      const chips=typeof document!=='undefined'&&document.querySelectorAll?document.querySelectorAll('.marketing-ai-chip'):null;
+      if(chips?.length)chips.forEach(c=>c.classList?.remove?.('is-active'));
+    };
+  }
+
+  // ── Selector de Emojis estilo iOS / WhatsApp Web ───────────────────────
+  const EMOJI_CATEGORIES=[
+    {
+      id:'destacados',name:'Destacados KJA & Marketing',
+      emojis:[
+        {e:'⚡',n:'rayo energia rapido directo'},{e:'🔥',n:'fuego ventas urgente tendencia'},{e:'💡',n:'foco idea tip aprendizaje'},{e:'🎯',n:'diana objetivo meta precision'},
+        {e:'🏆',n:'trofeo premio logro exito'},{e:'🌟',n:'estrella destacada calidad'},{e:'✨',n:'destellos magia nuevo especial'},{e:'🚀',n:'cohete impulso despegue exito'},
+        {e:'📲',n:'celular whatsapp movil contacto'},{e:'📩',n:'mensaje correo sobre inscripcion'},{e:'📞',n:'telefono llamada atencion'},{e:'💬',n:'burbuja chat conversacion consulta'},
+        {e:'📍',n:'ubicacion pin presencial lima peru'},{e:'🗓️',n:'calendario fecha dia horario'},{e:'⏰',n:'reloj alarma hora tiempo'},{e:'⏳',n:'reloj arena cupos limitados'},
+        {e:'🎓',n:'birrete curso diplomado formacion psicologia'},{e:'📚',n:'libros temario lectura estudio'},{e:'📖',n:'libro abierto guia manual'},{e:'📝',n:'lapiz papel informe evaluacion test'},
+        {e:'📋',n:'portapapeles requisitos lista'},{e:'📌',n:'chincheta nota importante pin'},{e:'🧠',n:'cerebro mente psicologia neuro'},{e:'🩺',n:'estetoscopio clinica salud evaluacion'},
+        {e:'🧸',n:'osito peluche terapia infantil ninos'},{e:'🎨',n:'arte paleta colores estimulacion ninos'},{e:'🧩',n:'rompecabezas pieza autismo tea inclusion'},{e:'🤝',n:'apreton manos acuerdo confianza'},
+        {e:'✅',n:'check verificado aprobado correcto si'},{e:'🔔',n:'campana notificacion aviso alerta'},{e:'📣',n:'megafono anuncio comunicado'},{e:'🏷️',n:'etiqueta descuento promocion precio'}
+      ]
+    },
+    {
+      id:'caras',name:'Caras & Emociones',
+      emojis:[
+        {e:'😀',n:'sonrisa alegre cara'},{e:'😃',n:'sonrisa grande feliz'},{e:'😄',n:'sonrisa ojos felices'},{e:'😁',n:'sonrisa radiante'},
+        {e:'😆',n:'risa carcajada divertida'},{e:'😅',n:'alivio risa sudor'},{e:'🤣',n:'carcajada rodar risa'},{e:'😂',n:'llorar de risa alegria'},
+        {e:'🙂',n:'leve sonrisa amable'},{e:'🙃',n:'al reves ironia'},{e:'😉',n:'guiño confianza'},{e:'😊',n:'sonrojo amable calido'},
+        {e:'😇',n:'angel inocente bondad'},{e:'🥰',n:'enamorado corazones carino'},{e:'😍',n:'ojos corazones amor me encanta'},{e:'🤩',n:'ojos estrellas fascinado'},
+        {e:'😘',n:'beso corazon carino'},{e:'😗',n:'beso'},{e:'😚',n:'beso ternura'},{e:'😙',n:'beso sonrisa'},
+        {e:'😋',n:'rico sabroso lengua'},{e:'😛',n:'lengua fuera juego'},{e:'😜',n:'lengua guiño loco'},{e:'🤪',n:'loco broma divertido'},
+        {e:'😝',n:'lengua ojos risa'},{e:'🤑',n:'dinero dolares rico'},{e:'🤗',n:'abrazo acogida afecto'},{e:'🤭',n:'mano en boca risita'},
+        {e:'🤫',n:'silencio secreto callar'},{e:'🤔',n:'pensativo duda analisis'},{e:'🤐',n:'boca cremallera silencio'},{e:'🤨',n:'ceja duda esceptico'},
+        {e:'😐',n:'cara neutra'},{e:'😑',n:'inexpresivo'},{e:'😶',n:'sin boca mudo'},{e:'😏',n:'picaro astuto'},
+        {e:'😒',n:'descontento disgusto'},{e:'🙄',n:'ojos arriba fastidio'},{e:'😬',n:'mueca incomodo'},{e:'😌',n:'alivio paz sereno'},
+        {e:'😔',n:'triste reflexivo desanimo'},{e:'😴',n:'durmiendo zzz descanso'},{e:'😷',n:'mascarilla salud medico'},{e:'🤒',n:'termometro enfermo salud'},
+        {e:'🤕',n:'vendaje herido golpe'},{e:'🥳',n:'fiesta celebracion cumpleanos'},{e:'😎',n:'gafas sol estilo genial'},{e:'🤓',n:'nerd empollon gafas sabio'},
+        {e:'🧐',n:'monoculo detalle examen'},{e:'🥺',n:'suplicante tierno por favor'},{e:'😢',n:'lagrima triste pena'},{e:'😭',n:'llanto desconsolado pena dolor'},
+        {e:'😱',n:'grito susto terror'},{e:'🥱',n:'bostezo sueno cansado'},{e:'😤',n:'humo nariz orgullo triunfo'},{e:'😡',n:'enojado furia rabia'},{e:'😠',n:'enfadado ceño fruncido'}
+      ]
+    },
+    {
+      id:'gestos',name:'Gestos & Personas',
+      emojis:[
+        {e:'👋',n:'hola saludo adios mano'},{e:'🤚',n:'dorso mano alto'},{e:'🖐️',n:'mano abierta cinco'},{e:'✋',n:'mano levantada stop alto'},
+        {e:'👌',n:'ok perfecto genial si'},{e:'🤌',n:'pellizco que dices italia'},{e:'🤏',n:'poquito pellizco corto'},{e:'✌️',n:'paz amor victoria dos'},
+        {e:'🤞',n:'dedos cruzados suerte'},{e:'🤟',n:'te quiero amor rock'},{e:'🤙',n:'llamame shaka relax'},{e:'👈',n:'apuntar izquierda aca'},
+        {e:'👉',n:'apuntar derecha clic aqui enlace'},{e:'👆',n:'apuntar arriba atencion'},{e:'👇',n:'apuntar abajo link boton inscribete'},{e:'☝️',n:'un momento atencion'},
+        {e:'👍',n:'pulgar arriba like me gusta aprobado'},{e:'👎',n:'pulgar abajo dislike no'},{e:'👏',n:'aplausos bravo felicitaciones palmas'},{e:'🙌',n:'manos arriba celebracion exito viva'},
+        {e:'👐',n:'manos abiertas acogida'},{e:'🤝',n:'apreton manos acuerdo trato confianza'},{e:'🙏',n:'gracias por favor rezo respeto'},{e:'✍️',n:'escribir apuntes firma nota'},
+        {e:'💪',n:'musculo fuerza animo motivacion'},{e:'🧠',n:'cerebro mente psicologia'},{e:'👀',n:'ojos mirar atencion ver'},{e:'👶',n:'bebe infantil nino crianza'},
+        {e:'👧',n:'nina nina infancia'},{e:'👦',n:'nino nino infancia'},{e:'👩',n:'mujer adulta femenina'},{e:'👨',n:'hombre adulto masculino'},
+        {e:'👩‍⚕️',n:'doctora psicologa terapeuta salud'},{e:'👨‍⚕️',n:'doctor psicologo terapeuta salud'},{e:'👩‍🏫',n:'profesora docente maestra'},{e:'👨‍🏫',n:'profesor docente maestro'},
+        {e:'👩‍👧‍👦',n:'familia madre hijos padres'},{e:'👨‍👩‍👧‍👦',n:'familia completa padres hijos hogar'},{e:'🫂',n:'abrazo personas carino apoyo'}
+      ]
+    },
+    {
+      id:'simbolos',name:'Corazones & Símbolos',
+      emojis:[
+        {e:'❤️',n:'corazon rojo amor pasion'},{e:'🧡',n:'corazon naranja energia amistad'},{e:'💛',n:'corazon amarillo alegria felicidad'},{e:'💚',n:'corazon verde salud esperanza'},
+        {e:'💙',n:'corazon azul confianza kja calma'},{e:'💜',n:'corazon morado espiritualidad'},{e:'🤍',n:'corazon blanco pureza paz'},{e:'🤎',n:'corazon marron tierra'},
+        {e:'🖤',n:'corazon negro elegancia'},{e:'💔',n:'corazon roto duelo'},{e:'❣️',n:'exclamacion corazon enfasis'},{e:'💕',n:'dos corazones carino ternura'},
+        {e:'💖',n:'corazon destellos brillante'},{e:'💘',n:'flecha cupido enamorado'},{e:'💝',n:'corazon lazo regalo'},{e:'✨',n:'destellos estrellas brillo magico'},
+        {e:'⭐',n:'estrella dorada favorito'},{e:'🌟',n:'estrella brillante calidad'},{e:'⚡',n:'rayo energia electricidad rapido'},{e:'⚠️',n:'advertencia aviso alerta cuidado'},
+        {e:'⛔',n:'prohibido no alto'},{e:'🚫',n:'prohibido denegado'},{e:'✅',n:'check verificado aprobado correcto'},{e:'❌',n:'cruz error falso no'},
+        {e:'❓',n:'pregunta duda interrogacion'},{e:'❗',n:'exclamacion importante atencion'},{e:'💯',n:'cien puntos perfecto excelente'},{e:'🔴',n:'circulo rojo'},
+        {e:'🔵',n:'circulo azul'},{e:'🟢',n:'circulo verde activo online'},{e:'🟡',n:'circulo amarillo aviso'},{e:'🔗',n:'enlace link cadena web'},
+        {e:'➡️',n:'flecha derecha siguiente'},{e:'⬅️',n:'flecha izquierda atras'},{e:'⬆️',n:'flecha arriba'},{e:'⬇️',n:'flecha abajo'},{e:'↗️',n:'flecha diagonal enlace externo'}
+      ]
+    },
+    {
+      id:'objetos',name:'Educación & Objetos',
+      emojis:[
+        {e:'🎓',n:'birrete titulo diploma curso psicologia'},{e:'📚',n:'libros estudio lectura formacion'},{e:'📖',n:'libro abierto manual temario'},{e:'📝',n:'lapiz papel informe evaluacion test'},
+        {e:'📋',n:'portapapeles requisitos lista'},{e:'💼',n:'maletin profesional empleo negocio'},{e:'📊',n:'grafico barras estadistica investigacion'},{e:'📈',n:'grafico subida crecimiento exito'},
+        {e:'💻',n:'laptop pc zoom virtual online'},{e:'🖥️',n:'pantalla escritorio clase grabada'},{e:'📱',n:'movil telefono smartphone whatsapp'},{e:'🎥',n:'camara sesion zoom video'},
+        {e:'🔔',n:'campana aviso notificacion'},{e:'📣',n:'megafono aviso difusion publicidad'},{e:'📢',n:'altavoz anuncio comunicado'},{e:'✉️',n:'carta sobre correo email'},
+        {e:'📧',n:'email correo electronico'},{e:'🏷️',n:'etiqueta oferta descuento promocion'},{e:'💰',n:'bolsa dinero inversion costo precio'},{e:'💳',n:'tarjeta credito debito pago yape'},
+        {e:'🔒',n:'candado seguridad confidencial'},{e:'🔑',n:'llave clave acceso clave'},{e:'🛡️',n:'escudo proteccion bienestar'},{e:'🩺',n:'estetoscopio salud clinica'}
+      ]
+    },
+    {
+      id:'celebracion',name:'Fiesta & Naturaleza',
+      emojis:[
+        {e:'🎉',n:'corneta fiesta celebracion exito felicidades'},{e:'🎊',n:'bola confeti fiesta evento apertura'},{e:'🎈',n:'globo fiesta infantil cumpleanos'},{e:'🎁',n:'regalo sorpresa obsequio bono'},
+        {e:'🎂',n:'torta pastel cumpleanos'},{e:'🥂',n:'copas brindis celebracion exito salud'},{e:'☕',n:'cafe taza pausa relajacion'},{e:'🍎',n:'manzana salud nutricion educacion'},
+        {e:'🌈',n:'arcoiris esperanza inclusion diversidad'},{e:'☀️',n:'sol radiante dia clima'},{e:'🌤️',n:'sol nubes buen dia'},{e:'🌱',n:'brote planta crecimiento desarrollo'},
+        {e:'🌿',n:'hierba hoja naturaleza bienestar verde'},{e:'🌸',n:'flor cerezo primavera belleza'},{e:'🌻',n:'girasol alegria energia sol'},{e:'🍀',n:'trebol suerte cuatro hojas'},
+        {e:'🧸',n:'osito peluche juego ninos terapia'},{e:'🧩',n:'rompecabezas pieza autismo tea'},{e:'🎨',n:'paleta pintura creatividad ninos'},{e:'⚽',n:'pelota futbol juego ninos'},{e:'✈️',n:'avion viaje internacional lima peru'}
+      ]
+    }
+  ];
+
+  let activeEmojiTarget=el('copy');
+  function setEmojiTarget(target){
+    if(!target)return;
+    activeEmojiTarget=target;
+    const label=el('emoji-target-label');
+    if(label){
+      if(target===el('refine-prompt'))label.textContent='Prompt de IA';
+      else if(target===el('whatsapp-message'))label.textContent='WhatsApp de campaña';
+      else label.textContent='Texto de publicación';
+    }
+  }
+
+  ['copy','refine-prompt','whatsapp-message'].forEach(k=>{
+    const node=el(k);
+    if(node){
+      if(typeof node.addEventListener==='function'){
+        node.addEventListener('focus',()=>setEmojiTarget(node));
+        node.addEventListener('click',()=>setEmojiTarget(node));
+      }
+    }
+  });
+
+  function insertEmoji(emoji){
+    const target=activeEmojiTarget||el('copy');
+    if(!target)return;
+    const val=target.value||'';
+    const start=typeof target.selectionStart==='number'?target.selectionStart:val.length;
+    const end=typeof target.selectionEnd==='number'?target.selectionEnd:val.length;
+    target.value=val.slice(0,start)+emoji+val.slice(end);
+    const nextPos=start+emoji.length;
+    if(typeof target.setSelectionRange==='function'){
+      target.setSelectionRange(nextPos,nextPos);
+    }
+    if(typeof target.focus==='function')target.focus();
+    if(target===el('copy')){
+      changed();
+    }else if(target===el('whatsapp-message')){
+      el('mensaje').value=target.value;
+      changed();
+    }
+  }
+
+  function renderEmojis(query=''){
+    const list=el('emoji-list');
+    if(!list)return;
+    list.replaceChildren();
+    const q=String(query||'').trim().toLowerCase();
+    if(q){
+      const matched=[];
+      EMOJI_CATEGORIES.forEach(cat=>{
+        cat.emojis.forEach(item=>{
+          if(item.e.includes(q)||item.n.includes(q)){
+            if(!matched.some(m=>m.e===item.e))matched.push(item);
+          }
+        });
+      });
+      if(!matched.length){
+        const empty=document.createElement('div');
+        empty.className='marketing-emoji-empty';
+        empty.textContent='No se encontraron emojis con "'+query+'"';
+        list.append(empty);
+        return;
+      }
+      const title=document.createElement('div');
+      title.className='marketing-emoji-category-title';
+      title.textContent='RESULTADOS ('+matched.length+')';
+      list.append(title);
+      const grid=document.createElement('div');
+      grid.className='marketing-emoji-grid';
+      matched.forEach(item=>{
+        const btn=document.createElement('button');
+        btn.type='button';btn.className='marketing-emoji-item';
+        btn.textContent=item.e;btn.title=item.e+' · '+item.n.split(' ')[0];
+        btn.onclick=()=>insertEmoji(item.e);
+        grid.append(btn);
+      });
+      list.append(grid);
+      return;
+    }
+    EMOJI_CATEGORIES.forEach(cat=>{
+      const title=document.createElement('div');
+      title.className='marketing-emoji-category-title';
+      title.textContent=cat.name;
+      title.id='mk-cat-'+cat.id;
+      list.append(title);
+      const grid=document.createElement('div');
+      grid.className='marketing-emoji-grid';
+      cat.emojis.forEach(item=>{
+        const btn=document.createElement('button');
+        btn.type='button';btn.className='marketing-emoji-item';
+        btn.textContent=item.e;btn.title=item.e+' · '+item.n.split(' ')[0];
+        btn.onclick=()=>insertEmoji(item.e);
+        grid.append(btn);
+      });
+      list.append(grid);
+    });
+  }
+
+  function toggleEmojiPicker(open,explicitTarget){
+    const popover=el('emoji-popover');
+    if(!popover)return;
+    const nextState=typeof open==='boolean'?open:Boolean(popover.hidden);
+    popover.hidden=!nextState;
+    const triggerBtn=el('emoji-btn');
+    if(triggerBtn)triggerBtn.classList?.toggle?.('is-active',nextState);
+    if(nextState){
+      if(explicitTarget)setEmojiTarget(explicitTarget);
+      else setEmojiTarget(activeEmojiTarget||el('copy'));
+      renderEmojis('');
+      const search=el('emoji-search');
+      if(search){search.value='';if(typeof search.focus==='function')search.focus();}
+      const clearBtn=el('emoji-search-clear');
+      if(clearBtn)clearBtn.hidden=true;
+    }
+  }
+
+  if(el('emoji-btn'))el('emoji-btn').onclick=()=>toggleEmojiPicker();
+  if(el('prompt-emoji-btn'))el('prompt-emoji-btn').onclick=()=>toggleEmojiPicker(true,el('refine-prompt'));
+  if(el('emoji-close'))el('emoji-close').onclick=()=>toggleEmojiPicker(false);
+
+  if(el('emoji-search')){
+    el('emoji-search').oninput=e=>{
+      const q=e.target?.value||'';
+      const clearBtn=el('emoji-search-clear');
+      if(clearBtn)clearBtn.hidden=!q;
+      renderEmojis(q);
+    };
+  }
+  if(el('emoji-search-clear')){
+    el('emoji-search-clear').onclick=()=>{
+      const search=el('emoji-search');
+      if(search){search.value='';if(typeof search.focus==='function')search.focus();}
+      el('emoji-search-clear').hidden=true;
+      renderEmojis('');
+    };
+  }
+
+  if(typeof document!=='undefined'&&document.querySelectorAll){
+    const tabs=document.querySelectorAll('.marketing-emoji-tab');
+    if(tabs?.length){
+      tabs.forEach(tab=>{
+        tab.onclick=()=>{
+          tabs.forEach(t=>t.classList?.remove?.('is-active'));
+          tab.classList?.add?.('is-active');
+          const catId=tab.dataset?.cat;
+          const targetEl=document.getElementById('mk-cat-'+catId);
+          if(targetEl&&typeof targetEl.scrollIntoView==='function'){
+            targetEl.scrollIntoView({behavior:'smooth',block:'start'});
+          }
+        };
+      });
+    }
+
+    if(typeof document.addEventListener==='function'){
+      document.addEventListener('click',event=>{
+        const popover=el('emoji-popover');
+        if(!popover||popover.hidden)return;
+        const btn1=el('emoji-btn');
+        const btn2=el('prompt-emoji-btn');
+        if(popover.contains?.(event.target)||btn1?.contains?.(event.target)||btn2?.contains?.(event.target))return;
+        toggleEmojiPicker(false);
+      });
+      document.addEventListener('keydown',event=>{
+        if(event.key==='Escape'){
+          const popover=el('emoji-popover');
+          if(popover&&!popover.hidden)toggleEmojiPicker(false);
+        }
+      });
+    }
+  }
+
   el('apply-template').onclick=()=>withConfirm(Boolean(el('copy').value.trim()),'Aplicar el formato vuelve a generar el texto con los datos y opciones actuales. ¿Continuar?',{title:'¿Aplicar formato al copy?',confirmText:'Aplicar formato',cancelText:'Cancelar'},()=>run(async()=>{generateCopy();await shorten();}));
   optionKeys.forEach(k=>el('option-'+k).onchange=()=>{changed();status('Opciones de campaña cambiadas. Pulsa Aplicar formato para incluirlas en el texto.');});
   ['whatsapp-phone','whatsapp-message'].forEach((k,i)=>el(k).oninput=()=>{el(i?'mensaje':'telefono').value=el(k).value;changed();status('Pulsa Actualizar enlace para incorporar este WhatsApp al texto.');});

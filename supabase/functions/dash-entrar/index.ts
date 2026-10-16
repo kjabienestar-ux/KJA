@@ -164,13 +164,13 @@ Deno.serve(async (req) => {
     let ePerfil = null;
     let eSesion = null;
     if (perfilSinCambios) {
-      const [, sesionRes] = await Promise.all([limpiarVencidas(), guardarSesion()]);
+      const sesionRes = await guardarSesion();
       eSesion = sesionRes.error;
     } else {
       const perfilRes = await guardarPerfil;
       ePerfil = perfilRes.error;
       if (!ePerfil) {
-        const [, sesionRes] = await Promise.all([limpiarVencidas(), guardarSesion()]);
+        const sesionRes = await guardarSesion();
         eSesion = sesionRes.error;
       }
     }
@@ -185,7 +185,12 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: `Bearer ${sesion.data.session.access_token}` } },
       auth: { persistSession: false, autoRefreshToken: false },
     });
-    const { data: inicio, error: eInicio } = await sbSesion.rpc("dash_inicio");
+    // La limpieza no es requisito para validar la sesión actual: se solapa con
+    // la lectura de inicio y no añade una ronda previa al arranque.
+    const [{ data: inicio, error: eInicio }] = await Promise.all([
+      sbSesion.rpc("dash_inicio"),
+      limpiarVencidas().then(()=>null,()=>null),
+    ]);
     const inicioRapido = !eInicio && inicio?.ok ? inicio : null;
 
     return json({

@@ -97,3 +97,78 @@ export async function readAndCache({reserve,extract,persist,release}){
     return {datos,cache:false};
   }finally{await release(reservation.token)}
 }
+
+export async function refineWithGemini({apiKey,model,copy,prompt,fetcher=fetch,wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}){
+  apiKey=String(apiKey||'').trim();model=String(model||'').replace(/^["']|["']$/g,'').trim();
+  if(/flash.*3\.?8|3\.?8.*flash/i.test(model)||model==='flash'||model==='flash3.8')model='gemini-3.8-flash';
+  if(!apiKey)throw new MarketingPublicError('La clave de Gemini no está configurada. Revisa GEMINI_API_KEY en Supabase.');
+  if(!/^gemini-[a-z0-9.-]+$/.test(model))throw new MarketingPublicError('El modelo de Gemini configurado no es válido.');
+  copy=String(copy||'').trim();
+  prompt=String(prompt||'').trim();
+  if(!copy)throw new MarketingPublicError('El texto actual está vacío.');
+  if(!prompt)throw new MarketingPublicError('Escribe una indicación para moldear el texto.');
+
+  const refineInstructions=`Eres el redactor y editor editorial de marketing de KJA (Centro de Capacitación y Formación Psicológica / Desarrollo de bienestar).
+Tu misión es reescribir y moldear el texto de una publicación de Facebook según la indicación del usuario, manteniendo un estándar visual y comercial atractivo.
+
+REGLAS ESENCIALES:
+1. Mantén la esencia y datos confirmados de la formación o servicio psicológico.
+2. CONSERVA EXACTAMENTE los números de contacto, correos, páginas web, enlaces cortos (por ejemplo https://www.kjadmb.com/w.html?k=... o wa.me) y hashtags que ya existan en el texto original, salvo que el usuario pida explícitamente cambiarlos.
+3. Adapta el tono, estructura, longitud, enfoque persuasivo, ganchos o llamados a la acción según la indicación del usuario.
+4. Usa emojis pertinentes con buen gusto, sin sobrecargar, organizando en párrafos legibles con espacios en blanco.
+5. Devuelve el resultado en JSON con la propiedad "copy" conteniendo el texto completo final listo para publicar.`;
+
+  const signal=AbortSignal.timeout(60000);
+  let response;
+  try{
+    const fallbackMap={
+      'gemini-3.8-flash':'gemini-3.5-flash-lite',
+      'gemini-3.5-flash-lite':'gemini-3.1-flash-lite',
+      'gemini-3.1-flash-lite':'gemini-3.5-flash-lite'
+    };
+    for(let attempt=0;attempt<2;attempt++){
+      signal.throwIfAborted();
+      const activeModel=(attempt===1&&[500,502,503,504].includes(response?.status))
+        ?(fallbackMap[model]||(model==='gemini-3.5-flash-lite'?'gemini-3.8-flash':'gemini-3.5-flash-lite'))
+        :model;
+      response=await fetcher(`https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent`,{
+        method:'POST',headers:{'x-goog-api-key':apiKey,'Content-Type':'application/json'},signal,
+        body:JSON.stringify({
+          systemInstruction:{parts:[{text:refineInstructions}]},
+          contents:[{
+            role:'user',
+            parts:[
+              {text:`Texto actual de la publicación:\n"""\n${copy}\n"""\n\nIndicación para moldear o mejorar el texto:\n"${prompt}"\n\nDevuelve el texto final moldeado.`}
+            ]
+          }],
+          generationConfig:{
+            maxOutputTokens:8192,
+            responseMimeType:'application/json',
+            responseSchema:{
+              type:'OBJECT',
+              properties:{copy:{type:'STRING'}},
+              required:['copy']
+            }
+          }
+        })
+      });
+      if(attempt===1||![500,502,503,504].includes(response.status))break;
+      await response.body?.cancel();
+      await wait(1200);
+    }
+  }catch(error){
+    if(error?.name==='TimeoutError'||error?.name==='AbortError')throw new MarketingPublicError('Gemini tardó demasiado en responder al moldear el texto.');
+    throw new MarketingPublicError('No se pudo conectar con Gemini para moldear el texto.');
+  }
+  if(response.status===429)throw new MarketingPublicError('La cuota de Gemini se agotó. Espera antes de volver a solicitar cambios con IA.');
+  if([502,503,504].includes(response.status))throw new MarketingPublicError('Los servidores de Google Gemini están momentáneamente saturados (HTTP '+response.status+'). Tus indicaciones están guardadas; por favor vuelve a pulsar el botón en unos segundos.');
+  if(!response.ok)throw new MarketingPublicError('Gemini no pudo procesar la solicitud (HTTP '+response.status+'). Intenta nuevamente.');
+  const result=await response.json();
+  const candidate=result.candidates?.[0];
+  const output=candidate?.content?.parts?.filter(p=>!p.thought&&typeof p.text==='string').map(p=>p.text).join('');
+  let parsed;
+  try{parsed=JSON.parse(output)}catch{throw new MarketingPublicError('La respuesta de Gemini no tuvo el formato esperado.');}
+  if(!parsed?.copy||typeof parsed.copy!=='string')throw new MarketingPublicError('No se pudo obtener el texto moldeado.');
+  return parsed.copy.trim();
+}
+

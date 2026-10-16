@@ -749,5 +749,120 @@
 @keyframes mk-modal-pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
 @media(max-width:480px){.marketing-confirm-dialog{padding:22px 20px}.marketing-confirm-buttons{flex-direction:column-reverse;gap:8px}.marketing-confirm-buttons .marketing-btn{width:100%}}
 
+/* ── Accesibilidad: Solo lectores de pantalla ──────────────────────── */
+.marketing-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+/* ── Panel Asistente de IA: Mejorar el COPY con tu prompt (Paso 2) ─── */
+.marketing-ai-refine{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border:1px solid #e1e8f2;border-radius:24px;padding:22px 24px 20px;margin-top:16px;box-shadow:0 10px 32px -4px rgba(9,36,76,.05),0 2px 8px rgba(9,36,76,.02);position:relative;overflow:hidden;transition:border-color .25s ease,box-shadow .25s ease}
+.marketing-ai-refine:hover{border-color:#cbd5e1}
+.marketing-ai-refine-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.marketing-ai-star-wrap{position:relative;width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#e0f2fe 0%,#e0e7ff 100%);display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 14px rgba(56,189,248,.28);border:1px solid rgba(255,255,255,.9);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1)}
+.marketing-ai-refine:hover .marketing-ai-star-wrap{transform:scale(1.06) rotate(4deg)}
+.marketing-ai-star-svg{position:relative;filter:drop-shadow(0 2px 6px rgba(37,99,235,.35))}
+.marketing-ai-refine-intro{flex:1;min-width:0}
+.marketing-ai-refine-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.marketing-ai-refine-title{font-size:15.5px;font-weight:800;color:#0f172a;margin:0;letter-spacing:-.02em;line-height:1.25}
+.marketing-ai-refine-subtitle{font-size:12.5px;color:#64748b;margin:0;line-height:1.45}
+.marketing-ai-refine-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:9999px;background:#e0f2fe;color:#0284c7;font-size:11px;font-weight:700;letter-spacing:.03em;border:1px solid rgba(56,189,248,.25)}
+.marketing-ai-badge-dot{width:6px;height:6px;border-radius:50%;background:#0284c7;box-shadow:0 0 6px #38bdf8}
+
+/* Tarjetas rápidas de estilo / prompts preset */
+.marketing-ai-cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.marketing-ai-card{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;min-height:104px;padding:13px 12px;border-radius:16px;cursor:pointer;text-align:left;transition:all .22s cubic-bezier(0.16,1,0.3,1);border:1px solid transparent;position:relative;overflow:hidden;user-select:none;font-family:inherit;background:#ffffff}
+.marketing-ai-card:hover{transform:translateY(-2.5px)}
+.marketing-ai-card:active{transform:translateY(0) scale(.98)}
+.marketing-ai-card.is-active,.marketing-ai-card:focus-visible{outline:2px solid #0284c7;outline-offset:1px}
+.marketing-ai-card-icon-wrap{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.88);backdrop-filter:blur(4px);box-shadow:0 2px 5px rgba(15,23,42,.06);margin-bottom:10px;font-size:16px;transition:transform .2s ease}
+.marketing-ai-card:hover .marketing-ai-card-icon-wrap{transform:scale(1.12)}
+.marketing-ai-card-text{display:flex;flex-direction:column;gap:2px;width:100%}
+.marketing-ai-card-title{font-size:12.5px;font-weight:750;color:#0f172a;line-height:1.25}
+.marketing-ai-card-desc{font-size:11px;color:#475569;line-height:1.3;font-weight:500}
+
+/* Variantes de color inspiradas en Magic GPT */
+.marketing-ai-card.card-direct{background:linear-gradient(145deg,#ede9fe 0%,#e0e7ff 100%);border-color:rgba(199,210,254,.85)}
+.marketing-ai-card.card-direct:hover{box-shadow:0 8px 18px -2px rgba(99,102,241,.22);border-color:#818cf8}
+.marketing-ai-card.card-sales{background:linear-gradient(145deg,#ffe4e6 0%,#ffedd5 100%);border-color:rgba(254,205,211,.85)}
+.marketing-ai-card.card-sales:hover{box-shadow:0 8px 18px -2px rgba(244,63,94,.22);border-color:#fb7185}
+.marketing-ai-card.card-pro{background:linear-gradient(145deg,#cffafe 0%,#ccfbf1 100%);border-color:rgba(165,243,252,.85)}
+.marketing-ai-card.card-pro:hover{box-shadow:0 8px 18px -2px rgba(6,182,212,.22);border-color:#22d3ee}
+.marketing-ai-card.card-family{background:linear-gradient(145deg,#fef3c7 0%,#fce7f3 100%);border-color:rgba(254,240,138,.85)}
+.marketing-ai-card.card-family:hover{box-shadow:0 8px 18px -2px rgba(234,88,12,.2);border-color:#f59e0b}
+
+/* Barra de input flotante con botón circular ↑ */
+.marketing-ai-input-floating{display:flex;align-items:center;gap:10px;background:#ffffff;border:1.5px solid #dce4ee;border-radius:9999px;padding:5px 6px 5px 16px;box-shadow:0 4px 14px rgba(9,36,76,.04);transition:border-color .2s ease,box-shadow .2s ease}
+.marketing-ai-input-floating:focus-within{border-color:#38bdf8;box-shadow:0 6px 20px rgba(56,189,248,.18)}
+.marketing-ai-floating-icon{display:grid;place-items:center;color:#64748b;flex-shrink:0}
+.marketing-ai-input{flex:1;min-width:0;border:none;background:transparent;color:#0f172a;font-size:13.5px;font-family:inherit;outline:none;padding:7px 0;line-height:1.4}
+.marketing-ai-input::placeholder{color:#94a3b8}
+.marketing-ai-circle-btn{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,#38bdf8 0%,#2563eb 100%);color:#ffffff;display:grid;place-items:center;flex-shrink:0;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.32);transition:all .2s cubic-bezier(0.16,1,0.3,1)}
+.marketing-ai-circle-btn:hover:not(:disabled){transform:scale(1.07);box-shadow:0 6px 18px rgba(37,99,235,.45)}
+.marketing-ai-circle-btn:active:not(:disabled){transform:scale(.95)}
+.marketing-ai-circle-btn:disabled{opacity:.55;cursor:wait;transform:none;box-shadow:none}
+
+/* Mensajes de estado */
+.marketing-ai-status{margin-top:10px;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px;line-height:1.4}
+.marketing-ai-status[data-type="success"]{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.marketing-ai-status[data-type="error"]{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.marketing-ai-status[data-type="info"]{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+
+/* Acciones del encabezado y botón de emojis */
+.marketing-ai-header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.marketing-emoji-trigger{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:9999px;background:#ffffff;border:1px solid #cbd5e1;color:#334155;font-size:11.5px;font-weight:650;cursor:pointer;transition:all .18s cubic-bezier(0.16,1,0.3,1);box-shadow:0 1px 3px rgba(15,23,42,.04);user-select:none;font-family:inherit}
+.marketing-emoji-trigger:hover{background:#f8fafc;border-color:#94a3b8;transform:translateY(-1px);box-shadow:0 3px 8px rgba(15,23,42,.08)}
+.marketing-emoji-trigger.is-active{background:#eff6ff;border-color:#38bdf8;color:#0284c7;box-shadow:0 0 0 2px rgba(56,189,248,.2)}
+.marketing-emoji-trigger-icon{font-size:14px;line-height:1}
+
+/* Botón de emoji en la barra flotante de prompt */
+.marketing-prompt-emoji-trigger{background:transparent;border:none;cursor:pointer;font-size:16px;padding:4px 6px;border-radius:8px;display:grid;place-items:center;color:#64748b;transition:transform .15s ease,background-color .15s ease;margin-right:2px}
+.marketing-prompt-emoji-trigger:hover{transform:scale(1.15);background:#f1f5f9}
+
+/* Popover de emojis estilo iOS / WhatsApp Web */
+.marketing-emoji-popover{position:absolute;right:18px;top:68px;width:360px;max-width:calc(100% - 36px);background:#ffffff;border:1px solid rgba(226,232,240,.95);border-radius:20px;box-shadow:0 20px 48px -10px rgba(15,23,42,.22),0 4px 14px rgba(15,23,42,.08);z-index:100;display:flex;flex-direction:column;overflow:hidden;animation:mk-popover-in .22s cubic-bezier(0.16,1,0.3,1);backdrop-filter:blur(8px)}
+@keyframes mk-popover-in{from{opacity:0;transform:translateY(-8px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.marketing-emoji-popover-header{display:flex;align-items:center;gap:8px;padding:12px 14px 8px;background:#ffffff}
+.marketing-emoji-search-wrap{flex:1;display:flex;align-items:center;gap:8px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;padding:6px 10px;transition:border-color .15s ease,background-color .15s ease}
+.marketing-emoji-search-wrap:focus-within{background:#ffffff;border-color:#38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,.18)}
+.marketing-emoji-search-svg{color:#94a3b8;flex-shrink:0}
+.marketing-emoji-search-input{flex:1;border:none;background:transparent;font-size:13px;color:#0f172a;outline:none;font-family:inherit;padding:0}
+.marketing-emoji-search-input::placeholder{color:#94a3b8}
+.marketing-emoji-clear-btn{border:none;background:#cbd5e1;color:#475569;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;font-size:11px;line-height:1;cursor:pointer;padding:0;transition:background-color .15s ease}
+.marketing-emoji-clear-btn:hover{background:#94a3b8;color:#ffffff}
+.marketing-emoji-close-btn{border:none;background:transparent;color:#94a3b8;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:13px;cursor:pointer;transition:all .15s ease}
+.marketing-emoji-close-btn:hover{background:#f1f5f9;color:#334155}
+.marketing-emoji-target-indicator{padding:4px 14px 6px;font-size:11px;color:#64748b;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:4px;background:#fafbfc}
+.marketing-emoji-target-indicator strong{color:#0284c7;font-weight:650}
+.marketing-emoji-list{height:250px;overflow-y:auto;overflow-x:hidden;padding:8px 12px 12px;scroll-behavior:smooth}
+.marketing-emoji-list::-webkit-scrollbar{width:6px}
+.marketing-emoji-list::-webkit-scrollbar-track{background:transparent}
+.marketing-emoji-list::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+.marketing-emoji-category-title{font-size:10.5px;font-weight:750;color:#64748b;letter-spacing:.05em;text-transform:uppercase;margin:10px 0 6px 2px}
+.marketing-emoji-category-title:first-child{margin-top:2px}
+.marketing-emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.marketing-emoji-item{display:grid;place-items:center;width:36px;height:36px;border:none;background:transparent;border-radius:8px;font-size:22px;line-height:1;cursor:pointer;user-select:none;padding:0;transition:transform .12s cubic-bezier(0.16,1,0.3,1),background-color .12s ease;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.marketing-emoji-item:hover{background:#f1f5f9;transform:scale(1.22);z-index:2}
+.marketing-emoji-item:active{transform:scale(.92)}
+.marketing-emoji-empty{padding:30px 10px;text-align:center;color:#64748b;font-size:12.5px}
+.marketing-emoji-tabs{display:flex;align-items:center;justify-content:space-around;padding:6px 10px;background:#f8fafc;border-top:1px solid #e2e8f0}
+.marketing-emoji-tab{border:none;background:transparent;width:38px;height:32px;border-radius:12px;display:grid;place-items:center;font-size:16px;cursor:pointer;transition:all .15s ease;color:#64748b}
+.marketing-emoji-tab:hover{background:#e2e8f0;transform:scale(1.08)}
+.marketing-emoji-tab.is-active{background:#e2e8f0;box-shadow:inset 0 1px 2px rgba(0,0,0,.06)}
+
+@media(max-width:860px){.marketing-ai-cards-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){
+  .marketing-ai-refine{padding:18px 16px;border-radius:20px}
+  .marketing-ai-cards-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .marketing-ai-card{min-height:92px;padding:10px}
+  .marketing-ai-card-title{font-size:12px}
+  .marketing-ai-card-desc{font-size:10.5px}
+  .marketing-ai-input-floating{padding:4px 5px 4px 12px}
+  .marketing-ai-input{font-size:12.5px}
+  .marketing-ai-circle-btn{width:36px;height:36px}
+  .marketing-emoji-popover{position:fixed;inset:auto 8px 12px 8px;width:auto;max-width:none;top:auto;right:auto;box-shadow:0 10px 40px rgba(0,0,0,.3);border-radius:22px;z-index:10000}
+  .marketing-emoji-list{height:220px}
+  .marketing-emoji-grid{grid-template-columns:repeat(7,1fr)}
+  .marketing-emoji-item{font-size:24px;width:38px;height:38px}
+}
+
+
 
 
