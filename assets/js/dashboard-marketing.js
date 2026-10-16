@@ -769,88 +769,425 @@
     };
   }
 
-  // ── Selector de Emojis estilo iOS / WhatsApp Web ───────────────────────
+  // ── Selector de Emojis estilo iOS 27 / Apple Keyboard ─────────────────
+  function normalizeSearchText(str){
+    return String(str||'')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase();
+  }
+
   const EMOJI_CATEGORIES=[
     {
       id:'destacados',name:'Destacados KJA & Marketing',
       emojis:[
-        {e:'⚡',n:'rayo energia rapido directo'},{e:'🔥',n:'fuego ventas urgente tendencia'},{e:'💡',n:'foco idea tip aprendizaje'},{e:'🎯',n:'diana objetivo meta precision'},
-        {e:'🏆',n:'trofeo premio logro exito'},{e:'🌟',n:'estrella destacada calidad'},{e:'✨',n:'destellos magia nuevo especial'},{e:'🚀',n:'cohete impulso despegue exito'},
-        {e:'📲',n:'celular whatsapp movil contacto'},{e:'📩',n:'mensaje correo sobre inscripcion'},{e:'📞',n:'telefono llamada atencion'},{e:'💬',n:'burbuja chat conversacion consulta'},
-        {e:'📍',n:'ubicacion pin presencial lima peru'},{e:'🗓️',n:'calendario fecha dia horario'},{e:'⏰',n:'reloj alarma hora tiempo'},{e:'⏳',n:'reloj arena cupos limitados'},
-        {e:'🎓',n:'birrete curso diplomado formacion psicologia'},{e:'📚',n:'libros temario lectura estudio'},{e:'📖',n:'libro abierto guia manual'},{e:'📝',n:'lapiz papel informe evaluacion test'},
-        {e:'📋',n:'portapapeles requisitos lista'},{e:'📌',n:'chincheta nota importante pin'},{e:'🧠',n:'cerebro mente psicologia neuro'},{e:'🩺',n:'estetoscopio clinica salud evaluacion'},
-        {e:'🧸',n:'osito peluche terapia infantil ninos'},{e:'🎨',n:'arte paleta colores estimulacion ninos'},{e:'🧩',n:'rompecabezas pieza autismo tea inclusion'},{e:'🤝',n:'apreton manos acuerdo confianza'},
-        {e:'✅',n:'check verificado aprobado correcto si'},{e:'🔔',n:'campana notificacion aviso alerta'},{e:'📣',n:'megafono anuncio comunicado'},{e:'🏷️',n:'etiqueta descuento promocion precio'}
+        {e:'⚡',n:'rayo energia rapido directo potencia'},
+        {e:'🔥',n:'fuego ventas urgente tendencia oferta caliente exito'},
+        {e:'💡',n:'foco idea tip aprendizaje clave consejo solucion'},
+        {e:'🎯',n:'diana objetivo meta precision atencion enfoque'},
+        {e:'🏆',n:'trofeo premio logro exito reconocimiento ganador'},
+        {e:'🌟',n:'estrella destacada calidad brillo premium'},
+        {e:'✨',n:'destellos magia nuevo especial brillo novedad'},
+        {e:'🚀',n:'cohete impulso despegue exito crecer lanzamiento'},
+        {e:'📲',n:'celular whatsapp movil contacto smartphone link'},
+        {e:'📩',n:'mensaje correo sobre inscripcion bandeja entrada'},
+        {e:'📞',n:'telefono llamada atencion contacto hablar asesoria'},
+        {e:'💬',n:'burbuja chat conversacion consulta pregunta mensaje'},
+        {e:'📍',n:'ubicacion pin presencial lima peru direccion sede local'},
+        {e:'🇵🇪',n:'peru perú lima bandera nacional peruana centro kja'},
+        {e:'🗓️',n:'calendario fecha dia horario cronograma agenda'},
+        {e:'⏰',n:'reloj alarma hora tiempo puntual limite'},
+        {e:'⏳',n:'reloj arena cupos limitados tiempo agotandose prisa'},
+        {e:'🎓',n:'birrete curso diplomado formacion psicologia titulo graduacion'},
+        {e:'📚',n:'libros temario lectura estudio material guia biblioteca'},
+        {e:'📖',n:'libro abierto guia manual temario leccion'},
+        {e:'📝',n:'lapiz papel informe evaluacion test redaccion ficha'},
+        {e:'📋',n:'portapapeles requisitos lista checklist tareas temario'},
+        {e:'📌',n:'chincheta nota importante pin fijar destacar'},
+        {e:'🧠',n:'cerebro mente psicologia neuro cognicion salud mental'},
+        {e:'🩺',n:'estetoscopio clinica salud evaluacion medico consulta kja'},
+        {e:'🧸',n:'osito peluche terapia infantil ninos juego estimulacion'},
+        {e:'🎨',n:'arte paleta colores estimulacion ninos creatividad taller'},
+        {e:'🧩',n:'rompecabezas pieza autismo tea inclusion terapia juego logica'},
+        {e:'🤝',n:'apreton manos acuerdo confianza convenio equipo alianza'},
+        {e:'✅',n:'check verificado aprobado correcto si aceptado confirmado'},
+        {e:'🔔',n:'campana notificacion aviso alerta recordatorio suscribete'},
+        {e:'📣',n:'megafono anuncio comunicado difusion aviso llamado'},
+        {e:'🏷️',n:'etiqueta descuento promocion precio rebaja oferta especial'},
+        {e:'💰',n:'bolsa dinero costo inversion soles dolares precio matricula'},
+        {e:'💳',n:'tarjeta credito debito pago yape plin transferencia pos'},
+        {e:'❤️',n:'corazon rojo amor empatia calidez cuidado afecto'},
+        {e:'💖',n:'corazon destellos brillante carino pasion gratitud'},
+        {e:'👍',n:'pulgar arriba me gusta like si aprobado gracias bien'},
+        {e:'🙌',n:'manos arriba celebracion exito felicidades bienvenida bravo'},
+        {e:'🎉',n:'fiesta corneta celebracion inauguracion evento felicitaciones'}
       ]
     },
     {
       id:'caras',name:'Caras & Emociones',
       emojis:[
-        {e:'😀',n:'sonrisa alegre cara'},{e:'😃',n:'sonrisa grande feliz'},{e:'😄',n:'sonrisa ojos felices'},{e:'😁',n:'sonrisa radiante'},
-        {e:'😆',n:'risa carcajada divertida'},{e:'😅',n:'alivio risa sudor'},{e:'🤣',n:'carcajada rodar risa'},{e:'😂',n:'llorar de risa alegria'},
-        {e:'🙂',n:'leve sonrisa amable'},{e:'🙃',n:'al reves ironia'},{e:'😉',n:'guiño confianza'},{e:'😊',n:'sonrojo amable calido'},
-        {e:'😇',n:'angel inocente bondad'},{e:'🥰',n:'enamorado corazones carino'},{e:'😍',n:'ojos corazones amor me encanta'},{e:'🤩',n:'ojos estrellas fascinado'},
-        {e:'😘',n:'beso corazon carino'},{e:'😗',n:'beso'},{e:'😚',n:'beso ternura'},{e:'😙',n:'beso sonrisa'},
-        {e:'😋',n:'rico sabroso lengua'},{e:'😛',n:'lengua fuera juego'},{e:'😜',n:'lengua guiño loco'},{e:'🤪',n:'loco broma divertido'},
-        {e:'😝',n:'lengua ojos risa'},{e:'🤑',n:'dinero dolares rico'},{e:'🤗',n:'abrazo acogida afecto'},{e:'🤭',n:'mano en boca risita'},
-        {e:'🤫',n:'silencio secreto callar'},{e:'🤔',n:'pensativo duda analisis'},{e:'🤐',n:'boca cremallera silencio'},{e:'🤨',n:'ceja duda esceptico'},
-        {e:'😐',n:'cara neutra'},{e:'😑',n:'inexpresivo'},{e:'😶',n:'sin boca mudo'},{e:'😏',n:'picaro astuto'},
-        {e:'😒',n:'descontento disgusto'},{e:'🙄',n:'ojos arriba fastidio'},{e:'😬',n:'mueca incomodo'},{e:'😌',n:'alivio paz sereno'},
-        {e:'😔',n:'triste reflexivo desanimo'},{e:'😴',n:'durmiendo zzz descanso'},{e:'😷',n:'mascarilla salud medico'},{e:'🤒',n:'termometro enfermo salud'},
-        {e:'🤕',n:'vendaje herido golpe'},{e:'🥳',n:'fiesta celebracion cumpleanos'},{e:'😎',n:'gafas sol estilo genial'},{e:'🤓',n:'nerd empollon gafas sabio'},
-        {e:'🧐',n:'monoculo detalle examen'},{e:'🥺',n:'suplicante tierno por favor'},{e:'😢',n:'lagrima triste pena'},{e:'😭',n:'llanto desconsolado pena dolor'},
-        {e:'😱',n:'grito susto terror'},{e:'🥱',n:'bostezo sueno cansado'},{e:'😤',n:'humo nariz orgullo triunfo'},{e:'😡',n:'enojado furia rabia'},{e:'😠',n:'enfadado ceño fruncido'}
+        {e:'😀',n:'sonrisa alegre cara cara feliz'},{e:'😃',n:'sonrisa grande ojos abiertos feliz'},{e:'😄',n:'sonrisa ojos felices contento'},{e:'😁',n:'sonrisa radiante dientes feliz'},
+        {e:'😆',n:'risa carcajada divertida risotada'},{e:'😅',n:'alivio risa sudor nervios gota'},{e:'🤣',n:'carcajada rodar de risa divertido chistoso'},{e:'😂',n:'llorar de risa lagrimas alegria'},
+        {e:'🙂',n:'leve sonrisa amable agradable cordial'},{e:'🙃',n:'al reves ironia sarcasmo broma'},{e:'🫠',n:'derretirse calor timidez pena derretido'},{e:'😉',n:'guino confianza complicidad picaro'},
+        {e:'😊',n:'sonrojo amable calido simpatia agradecido'},{e:'😇',n:'angel inocente bondad halo bendicion'},{e:'🥰',n:'enamorado corazones carino ternura amor'},{e:'😍',n:'ojos corazones amor me encanta fascinado'},
+        {e:'🤩',n:'ojos estrellas fascinado deslumbrado emocionado'},{e:'😘',n:'beso corazon carino amoroso beso'},{e:'😗',n:'beso silbar cara silbido'},{e:'😚',n:'beso ternura ojos cerrados'},
+        {e:'😙',n:'beso sonrisa amigable cordial'},{e:'😋',n:'rico sabroso lengua delicioso antojo'},{e:'😛',n:'lengua fuera juego ninos broma'},{e:'😜',n:'lengua guino loco travieso chiste'},
+        {e:'🤪',n:'loco broma divertido alocado disparatado'},{e:'😝',n:'lengua ojos cerrados risa burla juego'},{e:'🤑',n:'dinero dolares rico plata ganancias soles'},{e:'🤗',n:'abrazo acogida afecto recibimiento calidez'},
+        {e:'🤭',n:'mano en boca risita secreto pena ups'},{e:'🫢',n:'boca tapada asombro sorpresa shock oop'},{e:'🫣',n:'ojo espiando timidez mirar con miedo oculto'},{e:'🤫',n:'silencio secreto callar guardar secreto'},
+        {e:'🤔',n:'pensativo duda analisis pensar reflexion consulta'},{e:'🫡',n:'saludo militar respeto orden cumplimiento entendido'},{e:'🤐',n:'boca cremallera silencio mudo confidencial'},{e:'🤨',n:'ceja levantada duda esceptico sospecha'},
+        {e:'😐',n:'cara neutra sin comentarios serio plomo'},{e:'😑',n:'inexpresivo fastidio resignado cansancio'},{e:'😶',n:'sin boca mudo en silencio reserva'},{e:'🫥',n:'linea de puntos invisible desaparecido fantasma'},
+        {e:'😏',n:'picaro astuto sonrisa ladeada confianza'},{e:'😒',n:'descontento disgusto desagrado fastidio'},{e:'🙄',n:'ojos arriba fastidio desden aburrimiento'},{e:'😬',n:'mueca incomodo verguenza ajena tension'},
+        {e:'🤥',n:'mentira pinocho mentiroso nariz larga'},{e:'😌',n:'alivio paz sereno tranquilo relajado calma'},{e:'😔',n:'triste reflexivo desanimo cabizbajo pesar'},{e:'😪',n:'somnoliento sueno cansado bostezo'},
+        {e:'🤤',n:'babeando antojo apetito sueno delicia'},{e:'😴',n:'durmiendo zzz descanso dormir noche'},{e:'😷',n:'mascarilla salud medico proteccion pandemia'},{e:'🤒',n:'termometro enfermo salud fiebre clinica'},
+        {e:'🤕',n:'vendaje herido golpe accidente salud'},{e:'🤢',n:'nauseas asco disgusto mareo indigestos'},{e:'🤮',n:'vomito enfermo asco intoxicado'},{e:'🤧',n:'estornudo resfriado alergia panuelo'},
+        {e:'🥵',n:'calor sofoco sofocado transpirado verano'},{e:'🥶',n:'frio congelado helado invierno temblando'},{e:'🥴',n:'aturdido mareado confundido achispado'},{e:'😵',n:'ojos espirales mareado noqueado sorpresa'},
+        {e:'🤯',n:'cabeza explotando mente rota shock increible idea'},{e:'🤠',n:'vaquero sombrero vaquera estilo aventura'},{e:'🥳',n:'fiesta celebracion cumpleanos pito gorrito exito'},{e:'🥸',n:'disfraz bigote gafas encubierto comico'},
+        {e:'😎',n:'gafas de sol estilo genial crack cool profesional'},{e:'🤓',n:'nerd empollon gafas sabio intelectual lectura'},{e:'🧐',n:'monoculo detalle examen minucioso peritaje'},{e:'😕',n:'confundido perplejo duda desacuerdo'},
+        {e:'🫤',n:'boca torcida resignado esceptico bueno'},{e:'😟',n:'preocupado inquieto desasosiego ansiedad temores'},{e:'🙁',n:'triste ceno leve pesar amargura'},{e:'😮',n:'boca abierta asombro sorpresa novedad wow'},
+        {e:'😯',n:'sorprendido admirado boca pequena'},{e:'😲',n:'asombrado impactado sorprendido shock'},{e:'😳',n:'sonrojado verguenza pena asombrado ojazos'},{e:'🥺',n:'suplicante tierno por favor ojos tiernos pena'},
+        {e:'🥹',n:'lagrimas de emocion conmovido orgullo gratitud'},{e:'😦',n:'boca abierta preocupacion miedo alerta'},{e:'😧',n:'angustiado preocupado desesperacion susto'},{e:'😨',n:'asustado miedo temor panico alarma'},
+        {e:'😰',n:'sudor frio ansiedad estres apuro temor'},{e:'😥',n:'aliviado pero triste lagrima desanimo'},{e:'😢',n:'lagrima triste pena llanto dolor desahogo'},{e:'😭',n:'llanto desconsolado pena tristeza quebranto'},
+        {e:'😱',n:'grito susto terror espanto grito munich'},{e:'😖',n:'cara frustrada impotencia esfuerzo tension'},{e:'😣',n:'perseverante aguantando dolor sufrimiento'},{e:'😞',n:'decepcionado desilusionado triste desanimo'},
+        {e:'😓',n:'sudor frio cansancio agobio esfuerzo'},{e:'😩',n:'cansado fatigado no puedo mas queja'},{e:'😫',n:'exhausto agotamiento desesperado cansado'},{e:'🥱',n:'bostezo sueno cansado aburrido letargo'},
+        {e:'😤',n:'humo nariz orgullo triunfo resoplido fuerza'},{e:'😡',n:'enojado furia rabia enfado colorado rojo'},{e:'😠',n:'enfadado ceno fruncido molesto enojo'},{e:'🤬',n:'maldicion insulto censurado furioso rabioso'},
+        {e:'😈',n:'diablillo morado travieso picaro sonrisa'},{e:'👿',n:'demonio morado enfado enojado villano'},{e:'💀',n:'calavera muerte susto agotado muerto risa'},{e:'💩',n:'caca popo humor divertido risas'},
+        {e:'🤡',n:'payaso circo comico bromista risa'},{e:'👻',n:'fantasma susto noche halloween divertido'},{e:'👽',n:'alien ovni extraterrestre tecnologia misterio'},{e:'🤖',n:'robot bot ia inteligencia artificial automatizacion'}
       ]
     },
     {
-      id:'gestos',name:'Gestos & Personas',
+      id:'personas',name:'Personas & Gestos',
       emojis:[
-        {e:'👋',n:'hola saludo adios mano'},{e:'🤚',n:'dorso mano alto'},{e:'🖐️',n:'mano abierta cinco'},{e:'✋',n:'mano levantada stop alto'},
-        {e:'👌',n:'ok perfecto genial si'},{e:'🤌',n:'pellizco que dices italia'},{e:'🤏',n:'poquito pellizco corto'},{e:'✌️',n:'paz amor victoria dos'},
-        {e:'🤞',n:'dedos cruzados suerte'},{e:'🤟',n:'te quiero amor rock'},{e:'🤙',n:'llamame shaka relax'},{e:'👈',n:'apuntar izquierda aca'},
-        {e:'👉',n:'apuntar derecha clic aqui enlace'},{e:'👆',n:'apuntar arriba atencion'},{e:'👇',n:'apuntar abajo link boton inscribete'},{e:'☝️',n:'un momento atencion'},
-        {e:'👍',n:'pulgar arriba like me gusta aprobado'},{e:'👎',n:'pulgar abajo dislike no'},{e:'👏',n:'aplausos bravo felicitaciones palmas'},{e:'🙌',n:'manos arriba celebracion exito viva'},
-        {e:'👐',n:'manos abiertas acogida'},{e:'🤝',n:'apreton manos acuerdo trato confianza'},{e:'🙏',n:'gracias por favor rezo respeto'},{e:'✍️',n:'escribir apuntes firma nota'},
-        {e:'💪',n:'musculo fuerza animo motivacion'},{e:'🧠',n:'cerebro mente psicologia'},{e:'👀',n:'ojos mirar atencion ver'},{e:'👶',n:'bebe infantil nino crianza'},
-        {e:'👧',n:'nina nina infancia'},{e:'👦',n:'nino nino infancia'},{e:'👩',n:'mujer adulta femenina'},{e:'👨',n:'hombre adulto masculino'},
-        {e:'👩‍⚕️',n:'doctora psicologa terapeuta salud'},{e:'👨‍⚕️',n:'doctor psicologo terapeuta salud'},{e:'👩‍🏫',n:'profesora docente maestra'},{e:'👨‍🏫',n:'profesor docente maestro'},
-        {e:'👩‍👧‍👦',n:'familia madre hijos padres'},{e:'👨‍👩‍👧‍👦',n:'familia completa padres hijos hogar'},{e:'🫂',n:'abrazo personas carino apoyo'}
+        {e:'👋',n:'hola saludo adios bienvenida mano chao'},{e:'🤚',n:'dorso de la mano alto palma dorso'},{e:'🖐️',n:'mano abierta cinco dedos saludo alto'},{e:'✋',n:'mano levantada stop alto detente pausa'},
+        {e:'🖖',n:'saludo vulcano prosperidad spock paz'},{e:'🫱',n:'mano derecha ofrecer saludar'},{e:'🫲',n:'mano izquierda alcanzar'},{e:'🫳',n:'mano palma abajo soltar dejar caer'},
+        {e:'🫴',n:'mano palma arriba pedir invitar ofrecer'},{e:'👌',n:'ok perfecto genial entendido aprobado si'},{e:'🤌',n:'pellizco que dices dedos juntos atencion'},{e:'🤏',n:'poquito un poco pellizco corto medida'},
+        {e:'✌️',n:'paz amor victoria dos dedos triunfo exito'},{e:'🤞',n:'dedos cruzados suerte ojala bendicion deseo'},{e:'🫰',n:'dedos corazon amor coreano chasquido dinero'},{e:'🤟',n:'te quiero te amo rock lengua senas afecto'},
+        {e:'🤘',n:'cuernos rock metal concierto energia'},{e:'🤙',n:'llamame shaka relax buena vibra surfer'},{e:'👈',n:'apuntar izquierda mira aca hacia la izquierda'},{e:'👉',n:'apuntar derecha clic aqui enlace ir link ver'},
+        {e:'👆',n:'apuntar arriba atencion leer arriba mira arriba'},{e:'👇',n:'apuntar abajo link boton inscribete descarga enlace'},{e:'☝️',n:'un momento atencion dedo indice primero'},{e:'🫵',n:'tu senalarte a ti te buscamos convocatoria'},
+        {e:'👍',n:'pulgar arriba me gusta like si aprobado de acuerdo'},{e:'👎',n:'pulgar abajo dislike no desaprobado malo'},{e:'✊',n:'puno cerrado fuerza lucha resistencia poder'},{e:'👊',n:'puno al frente choque punos saludo amistad fuerza'},
+        {e:'🤛',n:'puno izquierda choque'},{e:'🤜',n:'puno derecha choque acuerdo'},{e:'👏',n:'aplausos bravo felicitaciones palmas ovacion'},{e:'🙌',n:'manos arriba celebracion exito viva aleluya'},
+        {e:'🫶',n:'manos formando corazon amor carino gratitud'},{e:'👐',n:'manos abiertas acogida abrazo apertura libro'},{e:'🤲',n:'palmas arriba rezo ofrenda suplica recibir'},{e:'🤝',n:'apreton de manos acuerdo trato confianza convenio'},
+        {e:'🙏',n:'gracias por favor rezo respeto agradecimiento namaste'},{e:'✍️',n:'escribir apuntes firma nota redactar tareas'},{e:'💅',n:'pintarse unas esmalte estilo belleza arreglarse'},{e:'🤳',n:'selfie autofoto camara foto celular recuerdo'},
+        {e:'💪',n:'musculo fuerza animo motivacion salud fitness'},{e:'🧠',n:'cerebro mente psicologia neuro cognicion pensamiento'},{e:'🫀',n:'corazon organo medicina cardiologia salud anatomia'},{e:'🫁',n:'pulmones respiracion salud neumologia oxigeno aire'},
+        {e:'🦷',n:'diente muela odontologia sonrisa salud higiene'},{e:'🦴',n:'hueso ortopedia esqueleto firmeza anatomia'},{e:'👀',n:'ojos mirar atencion ver observar alerta curiosidad'},{e:'👁️',n:'ojo vista vision atencion mirada evaluacion'},
+        {e:'👶',n:'bebe nene infantil recien nacido estimulacion temprana'},{e:'🧒',n:'infante nino pequeno desarrollo psicomotriz ninos'},{e:'👦',n:'nino varon hijo alumno escolar infancia'},{e:'👧',n:'nina nena hija alumna escolar infancia'},
+        {e:'🧑',n:'persona joven adulto neutral individuo ser'},{e:'👱',n:'persona rubia rubio pelo claro'},{e:'👨',n:'hombre adulto masculino padre varon'},{e:'🧔',n:'hombre con barba barba caballero estilo'},
+        {e:'👩',n:'mujer adulta femenina madre dama profesional'},{e:'🧓',n:'adulto mayor tercera edad vejez sabiduria anciano'},{e:'👴',n:'abuelo anciano viejo tercera edad sabiduria don'},{e:'👵',n:'abuela anciana viejita tercera edad carino dona'},
+        {e:'👩‍⚕️',n:'doctora psicologa terapeuta especialista clinica salud medico'},{e:'👨‍⚕️',n:'doctor psicologo terapeuta especialista clinica salud medico'},{e:'👩‍🏫',n:'profesora docente maestra educadora formadora escuela'},{e:'👨‍🏫',n:'profesor docente maestro educador formador colegio'},
+        {e:'👩‍🎓',n:'graduada licenciada egresada diplomada estudiante exito'},{e:'👨‍🎓',n:'graduado licenciado egresado diplomado estudiante exito'},{e:'👩‍💼',n:'profesional mujer ejecutiva oficina marketing gestion'},{e:'👨‍💼',n:'profesional hombre ejecutivo oficina administracion'},
+        {e:'👩‍💻',n:'programadora informatica virtual zoom tecnologica online'},{e:'👨‍💻',n:'programador informatico virtual zoom tecnologico sistemas'},{e:'👩‍🔬',n:'cientifica investigadora quimica evaluadora laboratorio'},{e:'👨‍🔬',n:'cientifico investigador evaluador laboratorio ciencia'},
+        {e:'👩‍🎨',n:'artista pintora creatividad arte taller expresion'},{e:'👨‍🎨',n:'artista pintor creatividad arte taller dibujo'},{e:'👩‍👧‍👦',n:'madre con hijos familia monoparental crianza hogar'},{e:'👨‍👩‍👧‍👦',n:'familia completa padres hijos hogar amor crianza'},
+        {e:'👨‍👦',n:'padre e hijo papa varones union familia'},{e:'👩‍👦',n:'madre e hijo mama varon afecto crianza'},{e:'👩‍👧',n:'madre e hija mama nina carino hogar'},{e:'👨‍👧',n:'padre e hija papa nina carino proteccion'},
+        {e:'🫂',n:'abrazo contencion soporte emocional psicologia apoyo'}
       ]
     },
     {
-      id:'simbolos',name:'Corazones & Símbolos',
+      id:'animales',name:'Animales & Naturaleza',
       emojis:[
-        {e:'❤️',n:'corazon rojo amor pasion'},{e:'🧡',n:'corazon naranja energia amistad'},{e:'💛',n:'corazon amarillo alegria felicidad'},{e:'💚',n:'corazon verde salud esperanza'},
-        {e:'💙',n:'corazon azul confianza kja calma'},{e:'💜',n:'corazon morado espiritualidad'},{e:'🤍',n:'corazon blanco pureza paz'},{e:'🤎',n:'corazon marron tierra'},
-        {e:'🖤',n:'corazon negro elegancia'},{e:'💔',n:'corazon roto duelo'},{e:'❣️',n:'exclamacion corazon enfasis'},{e:'💕',n:'dos corazones carino ternura'},
-        {e:'💖',n:'corazon destellos brillante'},{e:'💘',n:'flecha cupido enamorado'},{e:'💝',n:'corazon lazo regalo'},{e:'✨',n:'destellos estrellas brillo magico'},
-        {e:'⭐',n:'estrella dorada favorito'},{e:'🌟',n:'estrella brillante calidad'},{e:'⚡',n:'rayo energia electricidad rapido'},{e:'⚠️',n:'advertencia aviso alerta cuidado'},
-        {e:'⛔',n:'prohibido no alto'},{e:'🚫',n:'prohibido denegado'},{e:'✅',n:'check verificado aprobado correcto'},{e:'❌',n:'cruz error falso no'},
-        {e:'❓',n:'pregunta duda interrogacion'},{e:'❗',n:'exclamacion importante atencion'},{e:'💯',n:'cien puntos perfecto excelente'},{e:'🔴',n:'circulo rojo'},
-        {e:'🔵',n:'circulo azul'},{e:'🟢',n:'circulo verde activo online'},{e:'🟡',n:'circulo amarillo aviso'},{e:'🔗',n:'enlace link cadena web'},
-        {e:'➡️',n:'flecha derecha siguiente'},{e:'⬅️',n:'flecha izquierda atras'},{e:'⬆️',n:'flecha arriba'},{e:'⬇️',n:'flecha abajo'},{e:'↗️',n:'flecha diagonal enlace externo'}
+        {e:'🐶',n:'perro perrito cachorro mascota lealtad canino'},{e:'🐱',n:'gato gatito minino mascota felino'},{e:'🐭',n:'raton ratoncito roedor tierno'},{e:'🐹',n:'hamster cobayo roedor mascota'},
+        {e:'🐰',n:'conejo conejito pascua ternura orejas'},{e:'🦊',n:'zorro zorrito astuto bosque fauna'},{e:'🐻',n:'oso osito fuerza abrazo bosque'},{e:'🐼',n:'oso panda ternura china tierno'},
+        {e:'🐨',n:'koala australia calma ternura abrazo'},{e:'🐯',n:'tigre felino fuerza rayas salvaje'},{e:'🦁',n:'leon rey fuerza liderazgo selva fauna'},{e:'🐮',n:'vaca ternero campo granja lechera'},
+        {e:'🐷',n:'cerdito chanchito granja tierno'},{e:'🐸',n:'rana sapo naturaleza anfibio salto'},{e:'🐵',n:'mono monito selva travesura selva'},{e:'🙈',n:'mono tapandose ojos no ver verguenza ciego'},
+        {e:'🙉',n:'mono tapandose orejas no oir sordo musica'},{e:'🙊',n:'mono tapandose boca no hablar silencio secreto'},{e:'🦉',n:'buho lechuza sabiduria inteligencia educacion noche'},{e:'🦅',n:'aguila vision vuelo altura libertad poder'},
+        {e:'🐦',n:'pajaro ave cantar libertad vuelo trinar'},{e:'🐧',n:'pinguino frio polo ternura simpatia'},{e:'🦆',n:'pato patito laguna lago granja'},{e:'🦋',n:'mariposa transformacion cambio evolucion belleza psicologia'},
+        {e:'🐝',n:'abeja laboriosidad miel polen trabajo equipo'},{e:'🐢',n:'tortuga perseverancia calma paciencia lento constante'},{e:'🐬',n:'delfin mar alegria inteligencia terapia marina'},{e:'🐳',n:'ballena gigante mar oceano paz libertad'},
+        {e:'🐠',n:'pez tropical acuario pececito colores'},{e:'🐙',n:'pulpo multitarea inteligencia mar ocho brazos'},{e:'🦮',n:'perro guia soporte lazarillo terapia asistencia'},{e:'🐕',n:'perro canino mascota companero fiel'},
+        {e:'🌱',n:'brote plantita semilla crecimiento desarrollo inicio florecer'},{e:'🌿',n:'hierba rama hojas naturaleza ecologia bienestar verde'},{e:'☘️',n:'trebol verde hoja naturaleza suerte'},{e:'🍀',n:'trebol cuatro hojas suerte bendicion prosperidad'},
+        {e:'🎍',n:'bambu decoracion planta prosperidad'},{e:'🪴',n:'planta en maceta hogar cuidado verde decoracion'},{e:'🎋',n:'arbol de los deseos festival fiesta tanabata'},{e:'🍃',n:'hojas al viento brisa otono naturaleza aire fresco'},
+        {e:'🍂',n:'hojas secas otono cambio estacion clima'},{e:'🍁',n:'hoja de arce maple otono canada hoja'},{e:'🍄',n:'hongo champinon bosque naturaleza mario'},{e:'🌾',n:'espiga trigo cosecha abundancia tierra pan'},
+        {e:'💐',n:'ramo flores regalo detalle felicitaciones agradecimiento amor'},{e:'🌷',n:'tulipan flor primavera elegancia aroma belleza'},{e:'🌹',n:'rosa roja flor amor romance pasion carino'},{e:'🥀',n:'rosa marchita tristeza desamor duelo fin'},
+        {e:'🌺',n:'hibisco flor tropical hawaii belleza selva'},{e:'🌸',n:'flor de cerezo sakura primavera japon delicado'},{e:'🌼',n:'flor margarita floracion pureza alegria'},{e:'🌻',n:'girasol alegria sol luz positividad energia vital'},
+        {e:'🌞',n:'sol con cara calidez brillo buen dia manana sonriente'},{e:'🌝',n:'luna llena cara noche serenidad luz de luna'},{e:'🌛',n:'luna creciente cara cuarto menguante noche'},{e:'🌜',n:'luna cuarto creciente cara descanso sueno'},
+        {e:'🌚',n:'luna nueva cara misterio picardia noche'},{e:'🌕',n:'luna llena brillante noche astronimia cielo'},{e:'🌑',n:'luna nueva oscura noche cielo astros'},{e:'🪐',n:'saturno planeta anillo universo espacio cosmos'},
+        {e:'💫',n:'estrella fugaz vertigo mareo ilusion magia chispas'},{e:'⭐️',n:'estrella dorada favorito calificacion premio 5 estrellas'},{e:'🌟',n:'estrella brillante destello luz exito especial'},{e:'✨',n:'destellos magia resplandor limpio nuevo nuevo'},
+        {e:'⚡',n:'rayo relampago tormenta electricidad energia rapidez'},{e:'💥',n:'colision choque explosion impacto boom impacto'},{e:'🔥',n:'fuego llama ardor calor pasion encendido hoguera'},{e:'🌪️',n:'tornado remolino tormenta viento fuerte huracan'},
+        {e:'🌈',n:'arcoiris esperanza diversidad inclusion colores despues de lluvia'},{e:'☀️',n:'sol radiante despejado dia caluroso verano soleado'},{e:'🌤️',n:'sol entre nubes agradable clima templado manana'},{e:'⛅',n:'sol con nubes nublado suave tiempo cielo'},
+        {e:'🌥️',n:'nublado sol timido gris tiempo clima'},{e:'☁️',n:'nube cielo nublado algodon esponjoso nubosidad'},{e:'🌦️',n:'lluvia con sol arcoiris clima variable'},{e:'🌧️',n:'lluvia paraguas gotas agua chubasco precipitaciones'},
+        {e:'⛈️',n:'tormenta electrica truenos rayos relampagos lluvia fuerte'},{e:'🌨️',n:'nieve copos de nieve frio invierno nevada blanca'},{e:'❄️',n:'copo de nieve frio invierno helada clima congelado'},{e:'☃️',n:'muneco de nieve invierno navidad nieve divertido'},
+        {e:'🌬️',n:'viento soplido brisa aire frescura respiracion'},{e:'💨',n:'rapido humo velocidad escape corriendo veloz'},{e:'💧',n:'gota de agua liquido pureza sudor refresco'},{e:'💦',n:'gotas de agua salpicadura esfuerzo sudor hidrata'},
+        {e:'🌊',n:'ola de mar oceano tsunami agua fuerza marea playa'}
       ]
     },
     {
-      id:'objetos',name:'Educación & Objetos',
+      id:'comida',name:'Comida & Bebidas',
       emojis:[
-        {e:'🎓',n:'birrete titulo diploma curso psicologia'},{e:'📚',n:'libros estudio lectura formacion'},{e:'📖',n:'libro abierto manual temario'},{e:'📝',n:'lapiz papel informe evaluacion test'},
-        {e:'📋',n:'portapapeles requisitos lista'},{e:'💼',n:'maletin profesional empleo negocio'},{e:'📊',n:'grafico barras estadistica investigacion'},{e:'📈',n:'grafico subida crecimiento exito'},
-        {e:'💻',n:'laptop pc zoom virtual online'},{e:'🖥️',n:'pantalla escritorio clase grabada'},{e:'📱',n:'movil telefono smartphone whatsapp'},{e:'🎥',n:'camara sesion zoom video'},
-        {e:'🔔',n:'campana aviso notificacion'},{e:'📣',n:'megafono aviso difusion publicidad'},{e:'📢',n:'altavoz anuncio comunicado'},{e:'✉️',n:'carta sobre correo email'},
-        {e:'📧',n:'email correo electronico'},{e:'🏷️',n:'etiqueta oferta descuento promocion'},{e:'💰',n:'bolsa dinero inversion costo precio'},{e:'💳',n:'tarjeta credito debito pago yape'},
-        {e:'🔒',n:'candado seguridad confidencial'},{e:'🔑',n:'llave clave acceso clave'},{e:'🛡️',n:'escudo proteccion bienestar'},{e:'🩺',n:'estetoscopio salud clinica'}
+        {e:'🍏',n:'manzana verde manzana fruta fresca nutricion salud'},{e:'🍎',n:'manzana roja salud fruta fresca educacion bienestar'},{e:'🍐',n:'pera fruta jugosa dulce verde fibra'},{e:'🍊',n:'mandarina naranja citrico vitamina c fruta'},
+        {e:'🍋',n:'limon limonada citrico acido fresco ceviche'},{e:'🍌',n:'platano banana fruta potasio energia merienda'},{e:'🍉',n:'sandia fruta verano hidratacion fresca dulce'},{e:'🍇',n:'uvas racimo fruta vino vendimia dulzura'},
+        {e:'🍓',n:'fresa frutilla roja dulzura postre fruta'},{e:'🫐',n:'arandanos blueberries antioxidante salud fruta azul'},{e:'🍈',n:'melon fruta fresca dulce verano'},{e:'🍒',n:'cerezas fruta roja dulzura postre'},
+        {e:'🍑',n:'durazno melocoton fruta suave dulce piel'},{e:'🥭',n:'mango fruta dulce tropical selva delicioso'},{e:'🍍',n:'pina anana fruta tropical diuretica fresca'},{e:'🥥',n:'coco agua de coco tropical playa palmera'},
+        {e:'🥝',n:'kiwi fruta verde vitamina salud acido'},{e:'🍅',n:'tomate ensalada verdura salsa cocina fresca'},{e:'🥑',n:'palta aguacate crema ensalada saludable grasa buena'},{e:'🥦',n:'brocoli verdura salud nutricion verde almuerzo'},
+        {e:'🌽',n:'choclo maiz maicena choclo peruano grano alimento'},{e:'🥕',n:'zanahoria verdura vista conejo nutricion ensalada'},{e:'🍞',n:'pan pan blanco desayuno tostada panaderia'},{e:'🥐',n:'medialuna croissant panaderia desayuno cafe'},
+        {e:'🥖',n:'baguette pan frances panaderia cena crujiente'},{e:'🧀',n:'queso trozo de queso lacteo aperitivo piqueo'},{e:'🥚',n:'huevo proteina desayuno cocina alimento'},{e:'🍳',n:'huevo frito sarten desayuno proteina manana'},
+        {e:'🥞',n:'panqueques pancakes desayuno miel jarabe dulce'},{e:'🧇',n:'waffles gofres desayuno dulce merienda'},{e:'🍕',n:'pizza porcion comida rapida cena fin de semana'},{e:'🍔',n:'hamburguesa burger comida rapida queso almuerzo'},
+        {e:'🍟',n:'papas fritas papas crocantes comida rapida combo'},{e:'🥪',n:'sandwich emparedado lonche merienda refrigerio'},{e:'🌮',n:'taco comida mexicana almuerzo sazon antojito'},{e:'🌯',n:'burrito comida almuerzo enrollado'},
+        {e:'🥗',n:'ensalada saludable dieta nutricion fresca almuerzo liviano'},{e:'🍝',n:'espaguetis fideos pasta salsa italiana almuerzo'},{e:'🍜',n:'ramen sopa fideos calientes sopa tallarines chifa'},{e:'🍲',n:'olla sopa guiso comida casera caliente olla'},
+        {e:'🍛',n:'arroz con curry arroz comida caliente almuerzo'},{e:'🍣',n:'sushi maki pescado comida japonesa almuerzo roll'},{e:'🍱',n:'bento caja comida japonesa almuerzo ordenado'},{e:'🥟',n:'empanada dumpling dim sum comida masa bocado'},
+        {e:'🍤',n:'langostino frito camarones tempura mariscos cebiche'},{e:'🍙',n:'onigiri bola de arroz comida merienda snack'},{e:'🍚',n:'arroz blanco tazon de arroz basico comida'},{e:'🍰',n:'torta porcion pastel dulce cumpleanos postre celebracion'},
+        {e:'🎂',n:'torta de cumpleanos velas fiesta celebracion pastel anivesario'},{e:'🧁',n:'cupcake quequito dulce postre glaseado merienda'},{e:'🥧',n:'pie tarta pays manzana dulce postre'},{e:'🍦',n:'helado de cono barquillo vainilla postre frio'},
+        {e:'🍧',n:'raspado helado de nieve postre hielo raspadilla'},{e:'🍨',n:'helado en copa dulce postre heladeria refresco'},{e:'🍩',n:'dona rosquilla dulce glaseado merienda antojo'},{e:'🍪',n:'galleta cookie con chispas de chocolate merienda'},
+        {e:'🍫',n:'chocolate barra de chocolate cacao dulce regalo premio'},{e:'🍬',n:'caramelo dulce golosina ninos fiesta pinata'},{e:'🍭',n:'paleta chupetin chupete dulce ninos fiesta'},{e:'🍮',n:'flan crema volteada postre caramelo dulce'},
+        {e:'🍯',n:'miel tarro de miel dulce natural abeja garganta'},{e:'🍿',n:'popcorn canchita palomitas cine pelicula merienda'},{e:'☕',n:'cafe taza pausa relajacion caliente coffee break manana desayuno'},{e:'🫖',n:'tetera te infusion caliente manzanilla relaxing'},
+        {e:'🍵',n:'te verde infusion te caliente taza relajacion te'},{e:'🧃',n:'cajita de jugo bebida juguito ninos lonchera merienda'},{e:'🥤',n:'vaso con sorbete gaseosa refresco vaso frio bebida'},{e:'🧋',n:'bubble tea te de burbujas boba bebida merienda'},
+        {e:'🥛',n:'vaso de leche calcio desayuno bebida lactea salud'},{e:'🍼',n:'biberon mamadera leche bebe lactancia crianza nene'},{e:'🥂',n:'copas de champan brindis celebracion exito salud chin chin'},{e:'🍷',n:'copa de vino tinto cena brindis celebracion noche'},
+        {e:'🍾',n:'botella champan descorche brindis fiesta ano nuevo triunfo'},{e:'🍻',n:'cervezas brindis chop amigos fiesta encuentro fin de semana'}
       ]
     },
     {
-      id:'celebracion',name:'Fiesta & Naturaleza',
+      id:'actividades',name:'Actividades & Deportes',
       emojis:[
-        {e:'🎉',n:'corneta fiesta celebracion exito felicidades'},{e:'🎊',n:'bola confeti fiesta evento apertura'},{e:'🎈',n:'globo fiesta infantil cumpleanos'},{e:'🎁',n:'regalo sorpresa obsequio bono'},
-        {e:'🎂',n:'torta pastel cumpleanos'},{e:'🥂',n:'copas brindis celebracion exito salud'},{e:'☕',n:'cafe taza pausa relajacion'},{e:'🍎',n:'manzana salud nutricion educacion'},
-        {e:'🌈',n:'arcoiris esperanza inclusion diversidad'},{e:'☀️',n:'sol radiante dia clima'},{e:'🌤️',n:'sol nubes buen dia'},{e:'🌱',n:'brote planta crecimiento desarrollo'},
-        {e:'🌿',n:'hierba hoja naturaleza bienestar verde'},{e:'🌸',n:'flor cerezo primavera belleza'},{e:'🌻',n:'girasol alegria energia sol'},{e:'🍀',n:'trebol suerte cuatro hojas'},
-        {e:'🧸',n:'osito peluche juego ninos terapia'},{e:'🧩',n:'rompecabezas pieza autismo tea'},{e:'🎨',n:'paleta pintura creatividad ninos'},{e:'⚽',n:'pelota futbol juego ninos'},{e:'✈️',n:'avion viaje internacional lima peru'}
+        {e:'⚽',n:'pelota futbol juego ninos partido gol deporte cancha'},{e:'🏀',n:'baloncesto basket pelota encestar deporte partido'},{e:'🏈',n:'futbol americano balon deporte partido touchdown'},{e:'⚾',n:'beisbol pelota bate deporte juego carrera'},
+        {e:'🎾',n:'tenis raqueta pelota match punto cancha deporte'},{e:'🏐',n:'voleibol voley pelota remate bloqueo deporte voley'},{e:'🏉',n:'rugby balon deporte try contacto scrum'},{e:'🥏',n:'frisbee disco volador juego parque mascota diversion'},
+        {e:'🎱',n:'billar bola 8 juego mesa bar taco punteria'},{e:'🏓',n:'ping pong tenis de mesa raqueta juego agilidad mesa'},{e:'🏸',n:'badminton pluma raqueta volante juego parque'},{e:'🥊',n:'guante de box boxeo lucha combate fuerza gimnasio'},
+        {e:'🥋',n:'artes marciales judo karate taekwondo kimono disciplina cinturon'},{e:'🛹',n:'skate patineta tabla deporte urbano jovenes saltos'},{e:'🛼',n:'patines patinaje ruedas diversion deporte parque'},{e:'🏋️‍♂️',n:'levantamiento pesas hombre gimnasio fuerza musculos entrenamiento'},
+        {e:'🏋️‍♀️',n:'levantamiento pesas mujer gimnasio fuerza entrenamiento fitness'},{e:'🤸‍♂️',n:'gimnasia voltereta pirueta elasticidad agilidad acrobacia'},{e:'🤸‍♀️',n:'gimnasia mujer voltereta pirueta agilidad acrobacia taller'},{e:'🧘‍♂️',n:'meditacion hombre yoga mindfulness relajacion calma mente'},
+        {e:'🧘‍♀️',n:'meditacion mujer yoga mindfulness relajacion zen respiracion antiestres'},{e:'🏃‍♂️',n:'correr hombre atletismo maraton deporte velocidad cardio'},{e:'🏃‍♀️',n:'correr mujer atletismo maraton deporte ejercicio activa'},{e:'🚴‍♂️',n:'ciclismo hombre bicicleta pedalear paseo deporte aire libre'},
+        {e:'🚴‍♀️',n:'ciclismo mujer bicicleta paseo deporte ruta salud'},{e:'🏊‍♂️',n:'natacion hombre nadar piscina agua deporte braza'},{e:'🏊‍♀️',n:'natacion mujer nadar piscina deporte agua aqua'},{e:'🧗‍♂️',n:'escalada alpinismo subida esfuerzo meta roca'},
+        {e:'🧗‍♀️',n:'escalada mujer alpinismo montana esfuerzo cumbre'},{e:'🏆',n:'trofeo premio victoria copa campeon ganador reconocimiento'},{e:'🥇',n:'medalla de oro primer lugar primer puesto premio campeon ganadores'},{e:'🥈',n:'medalla de plata segundo puesto premio logro finalista'},
+        {e:'🥉',n:'medalla de bronce tercer puesto podio premio reconocimiento'},{e:'🏅',n:'medalla deportiva honor merito logro participacion distincion'},{e:'🎖️',n:'medalla militar condecoracion merito honor servicio'},{e:'🏵️',n:'roseta premio cucarda flor condecoracion distincion'},
+        {e:'🎫',n:'ticket entrada boleto pase inscripcion cupo evento pase libre'},{e:'🎟️',n:'boletos entradas cine teatro rifa sorteo evento ticket'},{e:'🎪',n:'carpa de circo espectaculo entretenimiento show ninos magia'},{e:'🎭',n:'mascaras de teatro drama comedia arte actuacion representacion psicologia'},
+        {e:'🎨',n:'paleta de pintura arte oleo acuarela dibujo ninos creatividad terapia'},{e:'🎬',n:'claqueta cine pelicula video grabacion accion toma rodaje'},{e:'🎤',n:'microfono cantar voz conferencia discurso charla locucion'},{e:'🎧',n:'audifonos auriculares musica podcast concentracion audio escuchar'},
+        {e:'🎼',n:'pentagrama notas musicales partitura solfeo composicion arte'},{e:'🎹',n:'teclado piano musica instrumento melodia notas clasico'},{e:'🥁',n:'tambor percusion ritmo bateria musica fiesta'},{e:'🎷',n:'saxofon jazz musica viento melodia instrumento'},
+        {e:'🎺',n:'trompeta fanfarria aviso alerta musica sonido'},{e:'🎸',n:'guitarra rock acustica cuerda musica instrumento cancion'},{e:'🎻',n:'violin cuerda clasico orquesta musica elegancia'},{e:'🎲',n:'dado juego de mesa azar ludo probabilidad diversion'},
+        {e:'♟️',n:'ajedrez peon estrategia inteligencia pensamiento tactica logica'},{e:'🎯',n:'diana con dardo punteria objetivo meta acierto precision'},{e:'🎳',n:'bowling bolos chuza juego diversion strikes'},{e:'🎮',n:'videojuegos mando control gamer consola play diversion ninos'},
+        {e:'🧩',n:'rompecabezas pieza autismo puzzle logica encaje inclusion tea'},{e:'🎪',n:'circo espectaculo ilusion magia show'},{e:'🎡',n:'rueda de la fortuna parque atracciones vuelta diversion feria'},{e:'🎢',n:'montana rusa adrenalina emociones sube y baja parque feria'},
+        {e:'🎠',n:'carrusel caballitos juegos mecanicos ninos infancia parque'}
+      ]
+    },
+    {
+      id:'viajes',name:'Viajes, Lugares & Banderas',
+      emojis:[
+        {e:'🇵🇪',n:'peru perú lima bandera nacional peruana centro kja patria peruano cusco arequipa'},
+        {e:'🇲🇽',n:'mexico méxico bandera norteamerica cdmx azteca'},
+        {e:'🇨🇴',n:'colombia bandera bogota sudamerica medellin'},
+        {e:'🇦🇷',n:'argentina bandera buenos aires sudamerica'},
+        {e:'🇨🇱',n:'chile bandera santiago sudamerica'},
+        {e:'🇪🇸',n:'espana españa bandera madrid europa hispano peninsula'},
+        {e:'🇺🇸',n:'usa estados unidos bandera american dolares norteamerica'},
+        {e:'🇧🇷',n:'brasil bandera rio sao paulo sudamerica verdeamarela'},
+        {e:'🏁',n:'bandera a cuadros meta final carrera llegada victoria inicio'},
+        {e:'🚩',n:'bandera roja alerta punto bandera hito senalizar'},
+        {e:'🏳️',n:'bandera blanca paz tregua calma rendicion armonia'},
+        {e:'🏳️‍🌈',n:'bandera arcoiris orgullo lgtb diversidad inclusion respeto'},
+        {e:'✈️',n:'avion vuelo viaje internacional lima peru pasaje aerolinea'},
+        {e:'🛫',n:'despegue avion salida viaje partida inicio vuelo'},
+        {e:'🛬',n:'aterrizaje avion llegada arribo retorno vuelta peru lima'},
+        {e:'🛩️',n:'avioneta avion pequeno vuelo charter selva viaje'},
+        {e:'🚀',n:'cohete despegue impulso lanzamiento velocidad futuro exito'},
+        {e:'🚁',n:'helicoptero vuelo rescate transporte aereo'},
+        {e:'🚂',n:'tren locomotora viaje ferrocarril paseo rieles'},
+        {e:'🚆',n:'tren rapido expreso metro transporte viaje pasajeros'},
+        {e:'🚇',n:'metro subterraneo tren electrico estacion lima transporte linea 1'},
+        {e:'🚌',n:'autobus bus transporte publico colectivo viaje ruta paradero'},
+        {e:'🚐',n:'furgoneta van combi colectivo transporte viaje grupo movilidad'},
+        {e:'🚑',n:'ambulancia emergencia salud clinica urgencia medico auxilio socorro'},
+        {e:'🚒',n:'bomberos camion de bomberos incendio rescate auxilio socorro 116'},
+        {e:'🚓',n:'policia patrullero patrulla seguridad ciudadana auxilio 105'},
+        {e:'🚕',n:'taxi taxi amarillo viaje movilidad traslado aeropuerto'},
+        {e:'🚗',n:'auto carro coche vehiculo particular viaje transporte auto'},
+        {e:'🚙',n:'camioneta suv vehiculo 4x4 viaje paseo familiar'},
+        {e:'🚚',n:'camion transporte entrega delivery carga paquete logistica'},
+        {e:'🏍️',n:'moto motocicleta transporte rapido velocidad delivery'},
+        {e:'🛵',n:'scooter motito delivery pedidos reparto delivery'},
+        {e:'🚲',n:'bicicleta ciclista ecologico dos ruedas paseo transporte salud'},
+        {e:'🚏',n:'parada de bus paradero autobus estacion esperar transporte'},
+        {e:'⛽',n:'gasolinera grifo combustible gasolina energia tanqueo petroleo'},
+        {e:'🚨',n:'sirena policial luz roja giratoria emergencia alarma aviso urgente'},
+        {e:'🚥',n:'semaforo luz verde luz roja transito senal vial cruce'},
+        {e:'🛑',n:'stop senal de pare alto detente parada roja octogono'},
+        {e:'🚧',n:'obras construccion desvio mantenimiento cuidado precaucion cono'},
+        {e:'⚓',n:'ancla puerto barco mar firmeza marina fondeo amarre'},
+        {e:'⛵',n:'velero barco vela mar paseo navegacion viento playa'},
+        {e:'🚤',n:'lancha bote motor agua velocidad paseo laguna'},
+        {e:'🛳️',n:'crucero barco transatlantico viaje oceano vacaciones turismo'},
+        {e:'🚢',n:'barco de carga vapor buque navegacion puerto callao'},
+        {e:'🗺️',n:'mapa mundi territorio guia ubicacion ruta geografia direccion'},
+        {e:'🧭',n:'brujula orientacion norte guia direccion rumbo rumbo seguro'},
+        {e:'🏔️',n:'montana con nieve cumbre nevado cordillera andes cusco huanuco'},
+        {e:'⛰️',n:'montana cerro paisaje naturaleza senderismo trekking sierra'},
+        {e:'🏖️',n:'playa sombrilla arena mar vacaciones sol verano descanso costa'},
+        {e:'🏝️',n:'isla desierta palmera mar tropical escape descanso selva'},
+        {e:'🏕️',n:'campamento carpa fogata naturaleza acampar noche estrellas'},
+        {e:'🏛️',n:'edificio clasico columnas palacio institucion museo universidad corte'},
+        {e:'🏗️',n:'construccion grua edificio en obra proyecto arquitectura base'},
+        {e:'🏠',n:'casa hogar vivienda domicilio familia calor de hogar departamento'},
+        {e:'🏡',n:'casa con jardin hogar calido familia vivienda residencia'},
+        {e:'🏢',n:'oficina edificio rascacielos empresa corporativo trabajo sede'},
+        {e:'🏥',n:'hospital salud clinica consultorio terapia medicina kja emergencias'},
+        {e:'🏦',n:'banco dinero finanzas entidad prestamo deposito ventanilla'},
+        {e:'🏨',n:'hotel hospedaje alojamiento descanso turismo viaje habitacion'},
+        {e:'🏪',n:'tienda 24 horas tambo minimarket abierta comercio bodega'},
+        {e:'🏫',n:'escuela colegio educacion primaria secundaria academia aula clases'},
+        {e:'🏬',n:'centro comercial mall tiendas departamentos compras galeria'},
+        {e:'🏰',n:'castillo fortaleza cuento historia arquitectura clasico'},
+        {e:'💒',n:'iglesia de bodas matrimonio capilla amor celebracion nupcial'},
+        {e:'⛪',n:'iglesia templo capilla fe oracion culto comunidad'},
+        {e:'⛲',n:'fuente de agua parque plaza pileta centro lima chorros'},
+        {e:'🌃',n:'noche estrellada ciudad nocturno rascacielos estrellas luces'},
+        {e:'🏙️',n:'paisaje urbano rascacielos ciudad moderna skyline lima metropolis'},
+        {e:'🌅',n:'amanecer puesta sol atardecer ocaso cielo colores playa litoral'},
+        {e:'🌐',n:'globo terraqueo meridianos internet web mundial internacional online'},
+        {e:'🌎',n:'planeta tierra america peru sudamerica mundo mapa global continente'}
+      ]
+    },
+    {
+      id:'objetos',name:'Objetos & Tecnología',
+      emojis:[
+        {e:'💻',n:'laptop computadora portatil pc zoom online virtual curso remoto'},
+        {e:'🖥️',n:'computadora de escritorio monitor pantalla mac pc aula informatica'},
+        {e:'🖨️',n:'impresora imprimir documentos material fisico guia ficha separata'},
+        {e:'⌨️',n:'teclado escribir tipeo computacion atajos redaccion'},
+        {e:'🖱️',n:'mouse raton clic cursor boton seleccionar puntero'},
+        {e:'💾',n:'disquete guardar salvar datos respaldo archivo backup memoria'},
+        {e:'💿',n:'disco cd software musica instalador material digital'},
+        {e:'📱',n:'celular movil smartphone telefono whatsapp app red social contacto'},
+        {e:'📲',n:'celular llamada flecha mensaje entrante whatsapp contacto link'},
+        {e:'☎️',n:'telefono fijo llamada oficina atencion al cliente recepcion'},
+        {e:'📞',n:'auricular telefono llamada recepcion soporte contactanos informes'},
+        {e:'🔋',n:'bateria energia carga porcentaje pila durabilidad poder'},
+        {e:'🔌',n:'enchufe electrico cable conexion corriente enchufe energia'},
+        {e:'💡',n:'foco bombilla idea iluminacion tip consejo clave ingenio luz'},
+        {e:'🔦',n:'linterna luz iluminar buscar guiar exploracion foco'},
+        {e:'🕯️',n:'vela luz calidez tranquilidad paz meditacion esperanza veladora'},
+        {e:'💵',n:'billete dolar dinero efectivo pago precio costo soles inversion'},
+        {e:'🪙',n:'moneda soles ahorro precio costo inversion cambio vuelto'},
+        {e:'💰',n:'bolsa de dinero costo inversion ganancia sueldo presupuesto precio'},
+        {e:'💳',n:'tarjeta debito credito visa mastercard pago pos yape plin transferencia'},
+        {e:'💎',n:'diamante joya valor valioso exclusivo premium lujo brillo'},
+        {e:'⚖️',n:'balanza justicia equilibrio evaluacion ponderacion equidad derecho'},
+        {e:'🪜',n:'escalera ascenso peldanos subir progreso crecimiento superacion nivel'},
+        {e:'🧰',n:'caja de herramientas recursos utilidades pack kit instrumentos solucion'},
+        {e:'🔧',n:'llave inglesa reparacion ajuste soporte mantenimiento tecnica tuerca'},
+        {e:'🔨',n:'martillo construccion accion golpe trabajo esfuerzo clavo'},
+        {e:'🛠️',n:'herramientas martillo y llave tecnicas habilidades recursos aplicacion'},
+        {e:'⚙️',n:'engranaje configuracion ajustes proceso mecanica sistema soporte'},
+        {e:'🧲',n:'iman atraccion atraer prospectos clientes atencion jalar magnetismo'},
+        {e:'🛡️',n:'escudo proteccion defensa seguridad blindaje amparo bienestar kja'},
+        {e:'🔑',n:'llave clave acceso contrasena contrasena solucion apertura ingreso'},
+        {e:'🗝️',n:'llave antigua secreta historia clave profunda misterio'},
+        {e:'🔒',n:'candado cerrado seguridad privacidad confidencial protegido reserva'},
+        {e:'🔓',n:'candado abierto disponible libre desbloqueado acceso permitido'},
+        {e:'🔔',n:'campana notificacion alerta aviso campana recordatorio aviso'},
+        {e:'🔕',n:'campana tachada silencio no molestar modo silencio pausa concentracion'},
+        {e:'📣',n:'megafono aviso difusion publicidad llamado a la accion altavoz'},
+        {e:'📢',n:'altavoz comunicado voz alta atencion urgente informe aviso publico'},
+        {e:'💬',n:'burbuja chat texto mensaje conversacion comentario testimonio opinion'},
+        {e:'💭',n:'burbuja de pensamiento sueno idea reflexion pensar imaginacion'},
+        {e:'✉️',n:'sobre carta correo mensaje correspondencia email atencion'},
+        {e:'📧',n:'email correo electronico contacto mensaje digital bandeja'},
+        {e:'📨',n:'sobre entrando correo recibido inbox correspondencia recibida'},
+        {e:'📩',n:'sobre con flecha enviar formulario inscripcion correo enviado remite'},
+        {e:'📦',n:'paquete caja envio entrega delivery encomienda empaque producto'},
+        {e:'🏷️',n:'etiqueta descuento rebaja precio promocion especial oferta tag'},
+        {e:'📜',n:'pergamino diploma certificado historia ley acreditacion acta titulo'},
+        {e:'📃',n:'pagina enrollada curriculum reporte carta documento leccion'},
+        {e:'📄',n:'pagina documento hoja oficio archivo informe escrito texto'},
+        {e:'📑',n:'marcadores pestanas separador indice fichas etiquetas temario'},
+        {e:'🧾',n:'recibo factura comprobante pago voucher constancia cancelado'},
+        {e:'📊',n:'grafico barras estadistica investigacion resultados progreso metricas evaluacion'},
+        {e:'📈',n:'grafico subida alza crecimiento exito rentabilidad incremento mejora'},
+        {e:'📉',n:'grafico bajada disminucion reduccion caida descenso'},
+        {e:'🗒️',n:'bloc de notas libreta espiral apuntes notas borrador agenda'},
+        {e:'🗓️',n:'calendario hojas dias agenda cita reunion fecha cronograma'},
+        {e:'📅',n:'calendario fecha dia evento cronograma inicio fecha limite'},
+        {e:'📋',n:'portapapeles planilla tabla checklist requisitos orden lista de cotejo'},
+        {e:'📁',n:'carpeta archivos folder documentos expediente legajo organizacion'},
+        {e:'📂',n:'carpeta abierta archivos seleccionados ver documentos material'},
+        {e:'📰',n:'periodico diario titular prensa noticia novedades comunicado'},
+        {e:'📓',n:'cuaderno libreta apuntes notas diario de campo registro'},
+        {e:'📚',n:'libros estudio educacion psicologia biblioteca material lectura temario'},
+        {e:'📖',n:'libro abierto lectura leccion capitulo manual lectura reflexiva'},
+        {e:'🔖',n:'marcador de pagina libro lectura recordar capitulo'},
+        {e:'🔗',n:'enlace link hipervinculo cadena conexion web url acortador'},
+        {e:'📎',n:'clip sujetapapeles documento adjunto archivo clip oficina papel'},
+        {e:'📐',n:'escuadra regla triangulo precision diseno medicion geometria'},
+        {e:'📏',n:'regla medida tamano medicion exactitud lineal centimetro'},
+        {e:'📌',n:'chincheta fija tachuela pin fijar destacar nota corcho'},
+        {e:'📍',n:'pin rojo ubicacion mapa sede presencial lima direccion'},
+        {e:'🔍',n:'lupa buscar examen investigacion evaluacion rastreo detalle'},
+        {e:'🔎',n:'lupa derecha buscar rastrear analisis detalle hallazgo'},
+        {e:'🔬',n:'microscopio ciencia laboratorio analisis clinico estudio celulas'},
+        {e:'🔭',n:'telescopio vision futuro mirar lejos astronomia horizonte'},
+        {e:'💉',n:'jeringa inyeccion vacuna salud medicina clinica tratamiento dosis'},
+        {e:'💊',n:'pastilla capsula medicina tratamiento farmacia medicamento receta'},
+        {e:'🩹',n:'curita venda bendita herida sanar recuperacion salud botiquin'},
+        {e:'🩺',n:'estetoscopio medico doctor especialista salud consulta auscultacion kja'},
+        {e:'🚪',n:'puerta entrada oportunidad acceso apertura ingreso bienvenida'},
+        {e:'🪟',n:'ventana vista panorama oportunidad claridad luz abrirse'},
+        {e:'🛒',n:'carrito de compras comprar tienda catalogo productos ecommerce adquirir'}
+      ]
+    },
+    {
+      id:'simbolos',name:'Símbolos & Corazones',
+      emojis:[
+        {e:'❤️',n:'corazon rojo amor carino pasion salud afecto empatia'},
+        {e:'🩷',n:'corazon rosa tierno dulce amabilidad afecto calidez'},
+        {e:'🧡',n:'corazon naranja energia vitalidad calor entusiasmo creatividad'},
+        {e:'💛',n:'corazon amarillo amistad alegria felicidad luz gratitud'},
+        {e:'💚',n:'corazon verde salud esperanza naturaleza bienestar vida ecologia'},
+        {e:'💙',n:'corazon azul confianza lealtad kja tranquilidad calma seguridad serenidad'},
+        {e:'🩵',n:'corazon celeste serenidad frescura cielo armonia paz'},
+        {e:'💜',n:'corazon morado creatividad sabiduria espiritual respeto magia'},
+        {e:'🤎',n:'corazon marron tierra cafe calidez naturaleza firmeza'},
+        {e:'🖤',n:'corazon negro elegancia luto noche seriedad estilo'},
+        {e:'🩶',n:'corazon gris neutralidad serenidad equilibrio plata'},
+        {e:'🤍',n:'corazon blanco pureza paz sinceridad luz tranquilidad'},
+        {e:'💔',n:'corazon roto dolor duelo quiebre herida tristeza separacion'},
+        {e:'❤️‍🔥',n:'corazon en fuego pasion motivacion encendido entusiasmo ardor'},
+        {e:'❤️‍🩹',n:'corazon sanando recuperacion superacion terapia resiliencia curar'},
+        {e:'❣️',n:'exclamacion de corazon enfasis amoroso atencion carino vital'},
+        {e:'💕',n:'dos corazones carino ternura romance afecto mutuo complicidad'},
+        {e:'💞',n:'corazones girando emocion amor mutuo conexion sentimiento'},
+        {e:'💓',n:'corazon latiendo emocion vida latido pulso vitalidad'},
+        {e:'💗',n:'corazon creciendo agrandandose afecto amor inmenso ternura'},
+        {e:'💖',n:'corazon brillante destellos magia especial carino deslumbrante'},
+        {e:'💘',n:'flecha de cupido flechazo enamorarse amor sorpresa atraccion'},
+        {e:'💝',n:'corazon con lazo regalo especial obsequio detalle para ti'},
+        {e:'💟',n:'decoracion de corazon adorno marco amoroso violeta'},
+        {e:'✨',n:'destellos magia brillo estrellas nuevo especial calidad'},
+        {e:'⭐',n:'estrella dorada favorito evaluacion distincion calificacion'},
+        {e:'🌟',n:'estrella brillante destello luz resplandor exito meta'},
+        {e:'⚡',n:'rayo energia electricidad rapido poder inmediato'},
+        {e:'☀️',n:'sol radiante dia luz resplandor calidez optimismo'},
+        {e:'💥',n:'explosion choque boom impacto sorpresa fuerza'},
+        {e:'⚠️',n:'advertencia peligro alerta precaucion cuidado aviso atencion'},
+        {e:'⛔',n:'prohibido el paso no entrar cerrado restriccion alto'},
+        {e:'🚫',n:'prohibido cancelado no permitido restringido denegado'},
+        {e:'🛑',n:'stop pare detente alto senal roja freno pausa'},
+        {e:'✅',n:'check verde verificado confirmado correcto si aprobado realizado'},
+        {e:'✔️',n:'check marca visto bueno confirmado listo aprobado comprobado'},
+        {e:'☑️',n:'casilla marcada check lista checklist aprobado completado'},
+        {e:'❌',n:'cruz roja error falso denegado fallo equivocacion no incorrecto'},
+        {e:'❓',n:'signo de interrogacion rojo duda consulta pregunta ayuda que es'},
+        {e:'❔',n:'signo de interrogacion blanco pregunta duda consulta'},
+        {e:'❗',n:'signo de exclamacion rojo alerta importante advertencia atencion'},
+        {e:'❕',n:'signo de exclamacion blanco atencion nota aviso'},
+        {e:'‼️',n:'doble exclamacion urgente atencion maxima imperdible anuncio clave'},
+        {e:'⁉️',n:'interrogacion y exclamacion sorpresa incredulidad que paso duda asombro'},
+        {e:'💯',n:'cien puntos perfecto sobresaliente maxima nota 100 por ciento total'},
+        {e:'🆒',n:'cool genial chevere excelente estilo bacan'},
+        {e:'🆓',n:'free gratis gratuito sin costo beca libre sin pagar'},
+        {e:'🆕',n:'new nuevo novedad estreno recien llegado primicia'},
+        {e:'🔝',n:'top lo mejor arriba destacado numero uno primer puesto excelencia'},
+        {e:'🆙',n:'up arriba subir mejora promocion ascender subir nivel'},
+        {e:'🆗',n:'ok de acuerdo perfecto aprobado si todo bien correcto'},
+        {e:'🆘',n:'sos auxilio emergencia ayuda socorro urgencia pedido'},
+        {e:'🔗',n:'enlace link cadena web url hipervinculo conectar'},
+        {e:'➡️',n:'flecha derecha siguiente continuar adelante enlace ir avanzar'},
+        {e:'⬅️',n:'flecha izquierda atras volver regresar retorno retroceder'},
+        {e:'⬆️',n:'flecha arriba subir ascenso arriba hacia arriba'},
+        {e:'⬇️',n:'flecha abajo descarga link enlace inscribete abajo ver abajo'},
+        {e:'↗️',n:'flecha diagonal arriba derecha enlace externo abrir web whatsapp link'},
+        {e:'⤵️',n:'flecha curva abajo bajar clic aqui descargar registrarte'},
+        {e:'🔄',n:'flechas giratorias actualizar recargar sincronizar refrescar ciclo'},
+        {e:'➕',n:'suma agregar mas anadir nuevo extra beneficio suma'},
+        {e:'➖',n:'resta menos quitar reducir descuento rebaja'},
+        {e:'♾️',n:'infinito ilimitado para siempre continuo permanente sin limite'},
+        {e:'💲',n:'signo de dolar precio costo dinero valor inversion soles'},
+        {e:'🔴',n:'circulo rojo punto advertencia vivo en directo atencion'},
+        {e:'🔵',n:'circulo azul kja confianza punto azul sede color'},
+        {e:'🟢',n:'circulo verde activo online disponible abierto en linea matricula'},
+        {e:'🟡',n:'circulo amarillo aviso precaucion pendiente en espera'},
+        {e:'🟠',n:'circulo naranja energia atencion punto naranja color'},
+        {e:'🟣',n:'circulo morado violeta distincion punto color'}
       ]
     }
   ];
@@ -860,12 +1197,24 @@
     if(!target)return;
     activeEmojiTarget=target;
     const label=el('emoji-target-label');
+    const isPrompt=target===el('refine-prompt');
+    const isWa=target===el('whatsapp-message');
     if(label){
-      if(target===el('refine-prompt'))label.textContent='Prompt de IA';
-      else if(target===el('whatsapp-message'))label.textContent='WhatsApp de campaña';
+      if(isPrompt)label.textContent='Prompt de IA';
+      else if(isWa)label.textContent='WhatsApp de campaña';
       else label.textContent='Texto de publicación';
     }
+    const btnCopy=el('emoji-target-copy');
+    const btnPrompt=el('emoji-target-prompt');
+    const btnWa=el('emoji-target-whatsapp');
+    if(btnCopy)btnCopy.classList?.toggle?.('is-active',!isPrompt&&!isWa);
+    if(btnPrompt)btnPrompt.classList?.toggle?.('is-active',isPrompt);
+    if(btnWa)btnWa.classList?.toggle?.('is-active',isWa);
   }
+
+  if(el('emoji-target-copy'))el('emoji-target-copy').onclick=()=>{setEmojiTarget(el('copy'));el('copy')?.focus?.();};
+  if(el('emoji-target-prompt'))el('emoji-target-prompt').onclick=()=>{setEmojiTarget(el('refine-prompt'));el('refine-prompt')?.focus?.();};
+  if(el('emoji-target-whatsapp'))el('emoji-target-whatsapp').onclick=()=>{setEmojiTarget(el('whatsapp-message'));el('whatsapp-message')?.focus?.();};
 
   ['copy','refine-prompt','whatsapp-message'].forEach(k=>{
     const node=el(k);
@@ -894,6 +1243,9 @@
     }else if(target===el('whatsapp-message')){
       el('mensaje').value=target.value;
       changed();
+    }else if(target===el('refine-prompt')){
+      const chips=typeof document!=='undefined'&&document.querySelectorAll?document.querySelectorAll('.marketing-ai-chip'):null;
+      if(chips?.length)chips.forEach(c=>c.classList?.remove?.('is-active'));
     }
   }
 
@@ -901,12 +1253,14 @@
     const list=el('emoji-list');
     if(!list)return;
     list.replaceChildren();
-    const q=String(query||'').trim().toLowerCase();
+    const rawQ=String(query||'').trim();
+    const q=normalizeSearchText(rawQ);
     if(q){
       const matched=[];
       EMOJI_CATEGORIES.forEach(cat=>{
         cat.emojis.forEach(item=>{
-          if(item.e.includes(q)||item.n.includes(q)){
+          const nameNorm=normalizeSearchText(item.n);
+          if(item.e.includes(rawQ)||nameNorm.includes(q)){
             if(!matched.some(m=>m.e===item.e))matched.push(item);
           }
         });
@@ -914,13 +1268,23 @@
       if(!matched.length){
         const empty=document.createElement('div');
         empty.className='marketing-emoji-empty';
-        empty.textContent='No se encontraron emojis con "'+query+'"';
+        const emptyIcon=document.createElement('span');
+        emptyIcon.className='marketing-emoji-empty-icon';
+        emptyIcon.textContent='🔍';
+        const emptyText=document.createElement('span');
+        emptyText.textContent='No se encontraron emojis con "'+rawQ+'"';
+        empty.append(emptyIcon,emptyText);
         list.append(empty);
         return;
       }
       const title=document.createElement('div');
       title.className='marketing-emoji-category-title';
-      title.textContent='RESULTADOS ('+matched.length+')';
+      const titleText=document.createElement('span');
+      titleText.textContent='RESULTADOS DE BÚSQUEDA';
+      const badge=document.createElement('span');
+      badge.className='marketing-emoji-category-count';
+      badge.textContent=String(matched.length);
+      title.append(titleText,badge);
       list.append(title);
       const grid=document.createElement('div');
       grid.className='marketing-emoji-grid';
@@ -937,8 +1301,13 @@
     EMOJI_CATEGORIES.forEach(cat=>{
       const title=document.createElement('div');
       title.className='marketing-emoji-category-title';
-      title.textContent=cat.name;
       title.id='mk-cat-'+cat.id;
+      const titleText=document.createElement('span');
+      titleText.textContent=cat.name;
+      const badge=document.createElement('span');
+      badge.className='marketing-emoji-category-count';
+      badge.textContent=String(cat.emojis.length);
+      title.append(titleText,badge);
       list.append(title);
       const grid=document.createElement('div');
       grid.className='marketing-emoji-grid';
@@ -999,6 +1368,13 @@
         tab.onclick=()=>{
           tabs.forEach(t=>t.classList?.remove?.('is-active'));
           tab.classList?.add?.('is-active');
+          const search=el('emoji-search');
+          if(search&&search.value){
+            search.value='';
+            const clearBtn=el('emoji-search-clear');
+            if(clearBtn)clearBtn.hidden=true;
+            renderEmojis('');
+          }
           const catId=tab.dataset?.cat;
           const targetEl=document.getElementById('mk-cat-'+catId);
           if(targetEl&&typeof targetEl.scrollIntoView==='function'){
