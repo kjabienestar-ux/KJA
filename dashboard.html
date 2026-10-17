@@ -2173,6 +2173,7 @@
               <input type="search" id="admin-people-search" placeholder="Buscar por nombre o DNI…" aria-label="Buscar colaborador">
             </div>
             <select id="admin-people-area" aria-label="Filtrar colaboradores por área"><option value="">Todas las áreas</option></select>
+            <select id="admin-people-institution" aria-label="Filtrar colaboradores por institución"><option value="">Todas las instituciones</option></select>
             <!-- Filtro temporal: quitar al terminar de cargar los correos -->
             <select id="admin-people-email" aria-label="Filtrar colaboradores por correo"><option value="">Todos los correos</option><option value="con">Con correo</option><option value="sin">Sin correo</option></select>
             <button class="admin-secondary-action" id="admin-manage-areas" type="button" aria-expanded="false" aria-controls="admin-areas-panel" hidden>Gestionar áreas</button>
@@ -2190,14 +2191,23 @@
           <header class="attendance-export-head"><div><h3 id="admin-attendance-export-title">Asistencia y evidencias</h3><p>Quién llegó puntual y qué archivos presentó, fecha por fecha.</p></div><div class="attendance-export-sheets" aria-label="Hojas del Excel"><span>Resumen</span><span>Detalle diario</span><span>Evidencias</span></div></header>
           <fieldset id="attendance-export-period" class="attendance-export-period">
             <legend>Período del informe</legend>
-            <label>Desde<input type="date" id="attendance-export-from" min="2020-01-01" required></label>
-            <label>Hasta<input type="date" id="attendance-export-to" min="2020-01-01" required></label>
+            <div class="attendance-export-field"><span class="attendance-export-label">Desde</span><input type="date" id="attendance-export-from" min="2020-01-01" required></div>
+            <div class="attendance-export-field"><span class="attendance-export-label">Hasta</span><input type="date" id="attendance-export-to" min="2020-01-01" required></div>
           </fieldset>
           <details class="attendance-export-selection">
             <summary><span><b>Seleccionar internos</b><small id="attendance-export-preview">Cargando el directorio…</small></span><span class="attendance-export-count" id="attendance-export-count">0 seleccionados</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
           <fieldset id="attendance-export-picker" class="attendance-export-picker">
             <legend class="sr-only">Internos del informe</legend>
-            <div class="attendance-export-tools"><label class="attendance-export-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input type="search" id="attendance-export-search" placeholder="Buscar nombre, DNI o área" aria-label="Buscar internos para exportar"></label><div><button type="button" id="attendance-export-visible">Seleccionar visibles</button><button type="button" id="attendance-export-clear">Limpiar</button><button type="button" id="attendance-export-original">Mis 7 anteriores</button></div></div>
+            <div class="attendance-export-tools">
+              <label class="attendance-export-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input type="search" id="attendance-export-search" placeholder="Buscar nombre, DNI, área o institución" aria-label="Buscar internos para exportar"></label>
+              <select id="attendance-export-institution" class="attendance-export-institution-select" aria-label="Filtrar internos por institución"><option value="">Todas las instituciones</option></select>
+              <div>
+                <button type="button" id="attendance-export-institution-all" hidden>Seleccionar toda la institución</button>
+                <button type="button" id="attendance-export-visible">Seleccionar visibles</button>
+                <button type="button" id="attendance-export-clear">Limpiar</button>
+                <button type="button" id="attendance-export-original">Mis 7 anteriores</button>
+              </div>
+            </div>
             <div id="attendance-export-options" class="attendance-export-options"></div>
           </fieldset>
           </details>

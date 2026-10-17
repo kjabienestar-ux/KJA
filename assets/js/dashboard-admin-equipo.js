@@ -64,9 +64,34 @@ function fillAdminTeamFilters(){
   if(typeof renderAdminAreas==='function')renderAdminAreas();
   const areas=(APP.adminTeam?.areas||[]).filter(a=>a.activo);
   for(const id of ['admin-people-area','admin-contract-area']){
-    const select=$(id),current=select.value;
+    const select=$(id);if(!select)continue;
+    const current=select.value;
     select.innerHTML='<option value="">Todas las áreas</option>'+areas.map(a=>`<option value="${a.id}">${esc(a.nombre)}</option>`).join('');
     if(areas.some(a=>String(a.id)===current))select.value=current;
+  }
+  fillAdminInstitutionFilters();
+}
+
+function fillAdminInstitutionFilters(){
+  const people=APP.adminTeam?.personas||[];
+  const counts=new Map();
+  let sin=0;
+  for(const p of people){
+    const inst=p.institucion?.trim();
+    if(!inst)sin++;
+    else counts.set(inst,(counts.get(inst)||0)+1);
+  }
+  const list=[...counts.entries()].sort((a,b)=>a[0].localeCompare(b[0],'es'));
+  for(const id of ['admin-people-institution','attendance-export-institution']){
+    const select=$(id);if(!select)continue;
+    const current=select.value;
+    let html='<option value="">Todas las instituciones</option>';
+    for(const [name,qty] of list){
+      html+=`<option value="${esc(name)}">${esc(name)} (${qty})</option>`;
+    }
+    if(sin>0)html+=`<option value="__sin__">Sin institución (${sin})</option>`;
+    select.innerHTML=html;
+    if(current&&select.querySelector(`option[value="${CSS.escape(current)}"]`))select.value=current;
   }
 }
 
@@ -78,14 +103,17 @@ function filteredAdminPeople(kind){
   const include=$(contracts?'admin-contract-inactive':'admin-people-inactive').checked;
   const onlyPending=contracts&&$('admin-contract-pending').checked;
   const mail=contracts?'':$('admin-people-email')?.value||'';
+  const inst=contracts?'':$('admin-people-institution')?.value||'';
   return (data.personas||[]).filter(p=>(include||p.activo)&&(!area||String(p.area_id)===area)
+    &&(!inst||(inst==='__sin__'?(!p.institucion||!p.institucion.trim()):(p.institucion?.trim()===inst)))
     &&(!mail||(mail==='con')===!!p.correo)
-    &&(!query||`${p.nombre} ${p.dni||''}`.toLocaleLowerCase('es').includes(query))
+    &&(!query||`${p.nombre} ${p.dni||''} ${p.institucion||''}`.toLocaleLowerCase('es').includes(query))
     &&(!onlyPending||p.contrato_pendiente));
 }
 
 function renderAdminPeople(){
   if(typeof syncAdminAreaPicker==='function')syncAdminAreaPicker();
+  if(typeof syncAdminInstitutionPicker==='function')syncAdminInstitutionPicker();
   if(!APP.adminTeam)return;
   if(typeof renderAttendanceExport==='function')renderAttendanceExport();
   const all=APP.adminTeam.personas||[],visible=filteredAdminPeople('people'),canEdit=!!APP.adminTeam.puede_editar;
@@ -210,9 +238,10 @@ function collectFacebookSchedule(){
 function fillAdminInstitutionOptions(current){
   const select=$('admin-person-institution');if(!select)return;
   const saved=String(current??'').trim(),key=value=>value.replace(/\s+/g,' ').toUpperCase();
-  const names=[...new Map([...ADMIN_INSTITUTIONS,...(APP.adminTeam?.personas||[]).map(p=>p.institucion),saved].filter(Boolean).map(name=>[key(name),name.trim()])).values()];
-  const match=names.find(name=>key(name)===key(saved));
-  select.innerHTML='<option value="">Sin institución</option>'+names.map(name=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');
+  const match=ADMIN_INSTITUTIONS.find(name=>key(name)===key(saved));
+  const options=ADMIN_INSTITUTIONS.map(name=>`<option value="${esc(name)}">${esc(name)}</option>`);
+  if(saved&&!match)options.push(`<option value="${esc(saved)}">${esc(saved)} (valor anterior)</option>`);
+  select.innerHTML='<option value="">Sin institución</option>'+options.join('');
   select.value=match||saved;
 }
 
@@ -441,7 +470,17 @@ async function saveAdminDaysOff(event){
   el.addEventListener('search',handler);
   el.addEventListener('keydown',e=>{if(e.key==='Escape'&&el.value){el.value='';handler();}});
 });
-['admin-people-area','admin-people-email','admin-people-inactive'].forEach(id=>$(id)?.addEventListener('change',renderAdminPeople));
+['admin-people-area','admin-people-institution','admin-people-email','admin-people-inactive'].forEach(id=>$(id)?.addEventListener('change',()=>{
+  if(id==='admin-people-institution'){
+    const val=$('admin-people-institution')?.value||'';
+    const exp=$('attendance-export-institution');
+    if(exp&&exp.value!==val){
+      exp.value=val;
+      if(typeof renderAttendanceExport==='function')renderAttendanceExport();
+    }
+  }
+  renderAdminPeople();
+}));
 ['admin-contract-area','admin-contract-inactive','admin-contract-pending'].forEach(id=>$(id).addEventListener('change',renderAdminContracts));
 $('admin-new-person').onclick=()=>openAdminPerson();
 $('admin-people-list').onclick=e=>{const profile=e.target.closest('[data-team-profile]');if(profile)return openAdminProfile(profile.dataset.teamProfile,profile);const days=e.target.closest('[data-team-days-off]'),edit=e.target.closest('[data-team-edit]'),status=e.target.closest('[data-team-status]');if(days)return openAdminDaysOff(days.dataset.teamDaysOff,days);if(edit)return openAdminPerson(edit.dataset.teamEdit);if(status)return changeAdminPersonStatus(status.dataset.teamStatus,status.dataset.nextActive==='true')};

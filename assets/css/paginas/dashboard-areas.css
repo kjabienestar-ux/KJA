@@ -1,5 +1,5 @@
 /* Gestión de áreas: paleta violeta/pizarra armonizada con el entorno administrativo. */
-:is(#admin-people-area, #admin-people-email, #admin-contract-area)[hidden]{display:none!important}
+:is(#admin-people-area, #admin-people-institution, #admin-people-email, #admin-contract-area)[hidden]{display:none!important}
 .area-picker{position:relative;min-width:200px;max-width:100%}
 .area-picker .area-picker-trigger{
   display:flex;
@@ -120,7 +120,7 @@
 :is(#area-picker-popup, .area-picker-popup) .area-picker-empty{padding:14px 14px;margin:0;color:#8c839d;font-size:12px}
 :is(#area-picker-popup, .area-picker-popup) ::selection{background:#e8dff4;color:#403955}
 @media(max-width:640px){.area-picker{flex:1;min-width:0}.area-picker-trigger span{max-width:none}:is(#area-picker-popup, .area-picker-popup) .area-picker-option{min-height:42px}}
-#admin-people-area{border-radius:12px;min-height:38px;accent-color:#655083}
+#admin-people-area, #admin-people-institution{border-radius:12px;min-height:38px;accent-color:#655083}
 #admin-manage-areas{
   height:38px;
   min-height:38px;
@@ -196,7 +196,7 @@
 .admin-area-confirm{width:100%}
 .admin-area-confirm p{margin:0 0 12px;overflow-wrap:anywhere}
 #admin-areas-message:not(:empty){padding:12px 14px;margin:12px 0;border-radius:10px;background:#fcf0f2;color:#9b2c3d}
-.admin-areas-panel :is(button,input):focus-visible,#admin-manage-areas:focus-visible,#admin-people-area:focus-visible{outline:none;box-shadow:0 0 0 3px #eee8f7}
+.admin-areas-panel :is(button,input):focus-visible,#admin-manage-areas:focus-visible,#admin-people-area:focus-visible,#admin-people-institution:focus-visible{outline:none;box-shadow:0 0 0 3px #eee8f7}
 .admin-areas-panel ::selection{background:#e8dff4;color:#403955}
 @media(max-width:640px){
   .admin-areas-panel{padding:18px 16px}

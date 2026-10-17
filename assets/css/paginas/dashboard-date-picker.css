@@ -30,14 +30,23 @@
 @keyframes kjaDateFadeIn{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .kja-date-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .kja-date-title{font-size:14.5px;font-weight:700;color:#403955;letter-spacing:-.01em;text-transform:capitalize}
-.kja-date-nav{width:30px;height:30px;border:0;border-radius:9px;background:#f1eff7;color:#655083;font-size:17px;font-weight:700;display:grid;place-items:center;cursor:pointer;transition:all .15s ease;line-height:1;padding:0}
-.kja-date-nav:hover:not(:disabled){background:#e6ddf1;color:#403955;transform:scale(1.06)}
+.kja-date-nav{
+  width:36px;height:36px;min-width:36px;min-height:36px;
+  border:0;border-radius:10px;background:#f1eff7;color:#655083;
+  display:grid;place-items:center;cursor:pointer;
+  transition:all .15s ease;line-height:1;padding:0;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
+}
+.kja-date-nav:hover:not(:disabled){background:#e6ddf1;color:#403955;transform:scale(1.05)}
+.kja-date-nav:active:not(:disabled){transform:scale(.95)}
 .kja-date-nav:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.kja-date-nav svg{width:16px;height:16px;pointer-events:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .kja-date-weekdays,.kja-date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .kja-date-weekdays{text-align:center}
 .kja-date-weekdays span{font-size:10.5px;font-weight:700;color:#8c839d;text-transform:uppercase;letter-spacing:.03em;padding:3px 0}
 .kja-date-empty{height:34px}
-.kja-date-day{height:34px;border:0;border-radius:9px;background:transparent;color:#403955;font-size:12.5px;font-weight:600;cursor:pointer;display:grid;place-items:center;transition:all .15s ease;font-variant-numeric:tabular-nums;padding:0}
+.kja-date-day{height:34px;border:0;border-radius:9px;background:transparent;color:#403955;font-size:12.5px;font-weight:600;cursor:pointer;display:grid;place-items:center;transition:all .15s ease;font-variant-numeric:tabular-nums;padding:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .kja-date-day:hover:not(:disabled):not(.is-selected){background:#f1eff7;color:#655083;transform:translateY(-1px)}
 .kja-date-day.is-today:not(.is-selected){border:1.5px solid #655083;color:#655083;font-weight:700;background:#faf8fd}
 .kja-date-day.is-selected{background:#655083!important;color:#fff!important;font-weight:700;box-shadow:0 4px 12px rgba(101,80,131,.32)}
