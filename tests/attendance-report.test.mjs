@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import {pdfHarness} from './helpers/facebook-pdf-harness.mjs';
 function harness(){
   const c=pdfHarness();
-  for(const name of ['dashboard-person-attendance','attendance-report-model','dashboard-attendance-report','facebook-report-excel','intern-report-excel'])vm.runInContext(fs.readFileSync(new URL(`../assets/js/${name}.js`,import.meta.url),'utf8'),c);
+  for(const name of ['dashboard-person-attendance','attendance-report-model','dashboard-attendance-report','facebook-report-excel','attendance-report-excel-layout','intern-report-excel'])vm.runInContext(fs.readFileSync(new URL(`../assets/js/${name}.js`,import.meta.url),'utf8'),c);
   return c;
 }
 function fixture(c){
@@ -64,14 +64,58 @@ test('date filter avoids loading months before requested period',async()=>{
   const data=await c.loadProfileAttendance({id:1,contrato_inicio:'2026-08-01'},'2026-10-12',()=>true,()=>{},async p=>{called.push(p.key);return [{data:{ok:true,hoy:'2026-10-12',personas:[{id:1,dias:[{fecha:'2026-10-01'},{fecha:'2026-10-12'}]}]}},{data:{ok:true,cierres:[]}}]},'2026-10-05');
   assert.deepEqual(called,['2026-10']);assert.equal(data.days.length,1);assert.equal(data.days[0].fecha,'2026-10-12');
 });
-test('focused workbook contains daily punctuality, references and actual hyperlink relationships',()=>{
+test('focused workbook has identity, weekly schedules and a monthly attendance matrix',()=>{
   const c=harness(),{bundle}=fixture(c),book=c.KJAInternExcel.createFocused(bundle);
-  assert.deepEqual(Array.from(book.sheets,s=>s.name),['Resumen','Detalle','Evidencias']);
-  assert.match(book.sheets[1].xml,/Puntual/);assert.match(book.sheets[1].xml,/Incompleta/);assert.match(book.sheets[1].xml,/#2/);
-  assert.match(book.sheets[2].xml,/<hyperlink ref="G6" r:id="file1"/);assert.match(book.sheets[2].relationships,/token=a&amp;b=c/);assert.doesNotMatch(book.sheets[2].relationships,/file4/);
-  const bytes=Buffer.from(c.KJAInternExcel.buildFocused(bundle));assert.ok(bytes.includes(Buffer.from('xl/worksheets/_rels/sheet3.xml.rels')));
-  assert.match(book.sheets[0].xml,/Ana &amp; &lt;Prueba&gt;/);assert.doesNotMatch(book.sheets[0].xml,/Contrato|PIN|Horario semanal/);
+  assert.deepEqual(Array.from(book.sheets,s=>s.name),['Resumen','Horarios','Asistencia']);
+  const calendar=book.sheets[2].xml;
+  assert.match(calendar,/octubre de 2026/);assert.doesNotMatch(calendar,/Pendientes del día|Mes \/ seguimiento/);
+  assert.match(calendar,/<autoFilter ref="A5:AI6"/);
+  assert.equal((calendar.match(/<row /g)||[]).length,6);
+  assert.match(calendar,/<c r="D6" s="21" t="inlineStr"><is><t xml:space="preserve">P/);
+  assert.match(calendar,/<c r="E6" s="22" t="inlineStr"><is><t xml:space="preserve">T/);
+  assert.match(calendar,/<c r="AH5" s="18"><v>31/);
+  assert.match(calendar,/Horas válidas/);
+  assert.doesNotMatch(calendar,/Jornada|Foto entrada|hyperlink|#2/);
+  assert.match(book.sheets[0].xml,/DNI/);assert.match(book.sheets[0].xml,/Institución/);
+  assert.match(book.sheets[0].xml,/COUNTIF\(&apos;|COUNTIF\('Asistencia'/);
+  assert.match(book.sheets[0].xml,/Ana &amp; &lt;Prueba&gt;/);
+  const bytes=Buffer.from(c.KJAInternExcel.buildFocused(bundle));
+  assert.ok(bytes.includes(Buffer.from('xl/worksheets/sheet3.xml')));
+  assert.ok(!bytes.includes(Buffer.from('xl/worksheets/sheet4.xml')));
 });
+test('institution, leading-zero DNI, daily overrides and leap-month bounds survive export',()=>{
+  const c=harness(),{bundle}=fixture(c),r=bundle.reports[0];
+  Object.assign(r.person,{dni:'00123456',institucion:'UTP - LIMA CENTRO',area:'Salud',hora_inicio:'08:00',hora_fin:'13:00',dias_laborables:[1,2,3,4,5],horario_semanal:{'1':{mod:'presencial',ini:'22:00',fin:'06:00'}}});
+  bundle.range={from:'2024-02-28',to:'2024-03-01'};
+  r.person.contrato_inicio='2024-02-29';
+  r.days=[{date:'2024-02-29',key:'puntuales',sourceDay:{horas:5,cierre_estado:'completa'},tasks:{key:'cumplio'}}];
+  r.totals={puntuales:1,tardanzas:0,faltas:0};
+  const book=c.KJAInternExcel.createFocused(bundle);
+  assert.match(book.sheets[0].xml,/UTP - LIMA CENTRO/);assert.match(book.sheets[0].xml,/00123456/);
+  assert.match(book.sheets[0].xml,/<c r="B10" s="17" t="inlineStr">/);
+  assert.match(book.sheets[1].xml,/Presencial\n22:00 – 06:00 \(\+1 día\)/);
+  assert.match(book.sheets[1].xml,/Virtual\n08:00 – 13:00/);assert.match(book.sheets[1].xml,/No gestiona/);
+  const xml=book.sheets[2].xml;
+  assert.match(xml,/<c r="AF6" s="21" t="inlineStr"><is><t xml:space="preserve">P/);
+  assert.match(xml,/<c r="AG6" s="20" t="inlineStr"><is><t xml:space="preserve"><\/t>/);
+  assert.match(xml,/<c r="AE6" s="20" t="inlineStr"><is><t xml:space="preserve"><\/t>/);
+  assert.match(xml,/<c r="AI6" s="28"><v>5/);
+  assert.match(xml,/marzo de 2024/);
+  assert.match(book.sheets[0].xml,/D6:AH6/);assert.match(book.sheets[0].xml,/D7:AH7/);
+});
+test('task compliance uses applicable requirements, respects today and missing data',()=>{
+  const c=harness(),{person,attendance,details}=fixture(c);
+  const close=(requisitos,asignaciones=[])=>({estado:'incompleta',aplica_jornada:true,requisitos,asignaciones});
+  details.get('2026-10-01').cierre=close([{tipo:'rpe',completo:true}]);
+  details.get('2026-10-02').cierre=close([{tipo:'rpe',completo:false}]);
+  details.get('2026-10-03').cierre={...close([{tipo:'rpe',completo:false}]),requiere_rpe:false};
+  details.get('2026-10-12').cierre=close([],[{estado:'activa',completo:false}]);
+  const r=c.KJAAttendanceReport.build(person,attendance,details);
+  assert.deepEqual(Array.from(r.days,d=>d.tasks.key),['cumplio','no_cumplio','no_aplica','sin_datos','en_curso']);
+  details.get('2026-10-04').cierre={...close([{tipo:'comparticiones',completo:false}]),aplica_jornada:false};
+  assert.equal(c.KJAAttendanceReport.build(person,attendance,details).days[3].tasks.key,'no_cumplio');
+});
+
 test('focused PDF has matching totals, legible page bounds and links for every available file',()=>{
   const c=harness(),{bundle}=fixture(c),doc=c.buildFocusedAttendancePdf(bundle);
   assert.equal(doc.getNumberOfPages(),3);

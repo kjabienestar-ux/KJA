@@ -17,7 +17,7 @@ async function collectAttendanceReport(people,range,onProgress=()=>{},{signFiles
         details.set(day.fecha,data);
       }));
       if(!isCurrent())return null;
-      onProgress(`${index+1} de ${people.length}: ${person.nombre} · ${Math.min(i+4,days.length)} de ${days.length} días`);
+      onProgress(`Colaborador ${index+1} de ${people.length}: ${person.nombre} · ${Math.min(i+4,days.length)} de ${days.length} días`,{done:Math.min(i+4,days.length),total:days.length,unit:'días consultados'});
     }
     reports.push(KJAAttendanceReport.build(person,attendance,details));
   }
@@ -33,7 +33,7 @@ async function collectAttendanceReport(people,range,onProgress=()=>{},{signFiles
       })());
       file.url=await signed.get(key);
     }));
-    onProgress(`Preparando enlaces · ${Math.min(i+6,files.length)} de ${files.length} archivos`);
+    onProgress('Preparando los enlaces de los archivos del PDF',{done:Math.min(i+6,files.length),total:files.length,unit:'archivos'});
   }
   return {reports,range,files,unavailable:files.filter(f=>!f.url).length};
 }
