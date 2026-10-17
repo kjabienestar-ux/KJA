@@ -274,7 +274,7 @@
   border-radius: 24px !important;
   box-shadow: var(--people-card-shadow) !important;
   margin: 0 0 4px !important;
-  overflow: hidden;
+  overflow: visible !important;
   transition: border-color 0.18s ease;
 }
 

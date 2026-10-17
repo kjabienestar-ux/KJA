@@ -26,13 +26,16 @@ function harness({from='2026-10-01',to='2026-10-13',min='2020-01-01',max='2026-1
  inputs['attendance-export-from'].value=from;inputs['attendance-export-to'].value=to;
  for(const i of Object.values(inputs)){i.min=min;i.max=max;}
  const wraps=[];
+ const appended=[];
  const doc=new Node();doc.getElementById=id=>inputs[id];
+ doc.body=new Node('body');doc.body.appendChild=el=>appended.push(el);
+ doc.querySelectorAll=()=>[];
  doc.createElement=()=>{const w=new Node();wraps.push(w);return w;};
  const win=new Node();win.innerWidth=1000;win.innerHeight=800;
  const context=vm.createContext({document:doc,window:win,Event:class{constructor(type){this.type=type;}},Intl,Date});
  vm.runInContext(fs.readFileSync('assets/js/dashboard-date-picker.js','utf8'),context);
  const pick=(i)=>{const w=wraps[i];return {wrap:w,trigger:w.querySelector('.kja-date-trigger'),text:w.querySelector('.kja-date-text'),grid:w.querySelector('.kja-date-grid'),today:w.querySelector('.kja-date-today'),prev:w.querySelector('[data-nav="-1"]'),next:w.querySelector('[data-nav="1"]'),popup:w.querySelector('.kja-date-popup')};};
- return {inputs,changes,context,from:pick(0),to:pick(1)};
+ return {inputs,changes,context,from:pick(0),to:pick(1),appended,doc};
 }
 const disabledDays=html=>[...html.matchAll(/data-date="([\d-]+)" disabled/g)].map(m=>m[1]);
 const clickDay=(p,date)=>p.grid.emit('click',{target:{closest:()=>({dataset:{date},disabled:false})}});
@@ -107,5 +110,14 @@ test('month navigation: prev and next update month title and keep popup open wit
  h.from.next.emit('click');
  assert.equal(title.textContent,'Octubre 2026');
  assert.equal(h.from.popup.visible,true);
+});
+
+test('popups are appended to document.body (portal pattern) to avoid desktop overflow clipping',()=>{
+ const h=harness();
+ assert.equal(h.appended.length,2);
+ h.from.trigger.emit('click');
+ assert.equal(h.from.popup.style.width,'290px');
+ assert.equal(h.from.popup.style.left,'100px');
+ assert.equal(h.from.popup.style.top,'352px');
 });
 
