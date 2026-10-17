@@ -309,7 +309,26 @@
       <div class="marketing-connection-row"><p class="marketing-note" id="marketing-connection">Comprobando conexiones…</p><button type="button" class="marketing-btn" id="marketing-retry" hidden>Reintentar conexión</button></div>
       <div class="marketing-layout">
         <aside class="marketing-library" aria-label="Historial de publicaciones">
-          <div class="marketing-library-head"><h2>Mis publicaciones</h2><span id="marketing-history-count">0</span></div>
+          <div class="marketing-library-head"><h2 id="marketing-history-title">Mis publicaciones</h2><span id="marketing-history-count">0</span></div>
+          <div class="marketing-scope-nav" id="marketing-scope-container" hidden role="tablist" aria-label="Ámbito de publicaciones">
+            <button type="button" id="marketing-scope-me" class="marketing-scope-btn active" role="tab" aria-selected="true" aria-controls="marketing-history">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Mis copys</span>
+            </button>
+            <button type="button" id="marketing-scope-team" class="marketing-scope-btn" role="tab" aria-selected="false" aria-controls="marketing-history">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Equipo</span>
+            </button>
+          </div>
+          <div class="marketing-author-filter-wrap" id="marketing-author-wrap" hidden>
+            <label for="marketing-author-select" class="marketing-author-filter-label">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              <span>Colaborador:</span>
+            </label>
+            <select id="marketing-author-select" class="marketing-author-select">
+              <option value="todos">Todos los colaboradores</option>
+            </select>
+          </div>
           <label class="marketing-search" for="marketing-search">Buscar una publicación<input id="marketing-search" type="search" placeholder="Nombre del curso…" autocomplete="off"></label>
           <div class="marketing-filters" aria-label="Filtrar publicaciones"><button id="marketing-filter-all" type="button" aria-pressed="true">Todas</button><button id="marketing-filter-drafts" type="button" aria-pressed="false">Borradores</button><button id="marketing-filter-published" type="button" aria-pressed="false">Publicadas</button></div>
           <p class="marketing-note" id="marketing-history-summary" aria-live="polite">Cargando tus publicaciones…</p>
@@ -317,6 +336,11 @@
           <button class="marketing-btn" id="marketing-history-more" type="button" hidden>Cargar anteriores</button>
         </aside>
         <div class="marketing-editor" id="marketing-editor">
+          <div id="marketing-author-banner" class="marketing-author-banner" hidden role="status">
+            <span class="marketing-author-banner-icon" aria-hidden="true">👥</span>
+            <span class="marketing-author-banner-text">Viendo publicación de <strong id="marketing-author-banner-name">Colaborador</strong></span>
+            <span class="marketing-author-banner-badge">Vista de Administrador</span>
+          </div>
           <nav class="marketing-editor-nav" aria-label="Secciones del editor"><button type="button" id="marketing-tab-prepare" aria-current="step"><span class="marketing-step-num">1</span><span class="marketing-step-info"><small class="marketing-step-tag">Paso 1</small><span class="marketing-step-name">Flyer</span></span></button><button type="button" id="marketing-tab-review" disabled><span class="marketing-step-num">2</span><span class="marketing-step-info"><small class="marketing-step-tag">Paso 2</small><span class="marketing-step-name">Texto y WhatsApp</span></span></button><button type="button" id="marketing-tab-publish" disabled><span class="marketing-step-num">3</span><span class="marketing-step-info"><small class="marketing-step-tag">Paso 3</small><span class="marketing-step-name">Copiar o publicar</span></span></button></nav>
           <div id="marketing-loading" class="boot marketing-splash" data-mode="action" role="status" aria-live="polite" hidden>
             <div class="boot-inner">
@@ -490,21 +514,34 @@
                 </div>
                 <div id="marketing-refine-status" class="marketing-ai-status" hidden></div>
 
-                <!-- Selector de emojis estilo iOS / WhatsApp -->
+                <!-- Selector de emojis estilo iOS / Apple Keyboard -->
                 <div id="marketing-emoji-popover" class="marketing-emoji-popover" hidden aria-label="Selector de emojis estilo iOS">
+                  <div class="marketing-emoji-grabber" aria-hidden="true"></div>
                   <div class="marketing-emoji-popover-header">
                     <div class="marketing-emoji-search-wrap">
-                      <svg class="marketing-emoji-search-svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <svg class="marketing-emoji-search-svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                       </svg>
-                      <input type="text" id="marketing-emoji-search" class="marketing-emoji-search-input" placeholder="Buscar emoji..." autocomplete="off">
+                      <input type="text" id="marketing-emoji-search" class="marketing-emoji-search-input" placeholder="Buscar emojis (ej: perú, fuego, salud...)" autocomplete="off">
                       <button type="button" id="marketing-emoji-search-clear" class="marketing-emoji-clear-btn" aria-label="Limpiar búsqueda" hidden>×</button>
                     </div>
                     <button type="button" id="marketing-emoji-close" class="marketing-emoji-close-btn" aria-label="Cerrar selector de emojis" title="Cerrar (Esc)">✕</button>
                   </div>
-                  <div class="marketing-emoji-target-indicator" id="marketing-emoji-target-hint">
-                    <span>Insertando en:</span> <strong id="marketing-emoji-target-label">Texto de publicación</strong>
+                  <div class="marketing-emoji-target-bar" id="marketing-emoji-target-hint">
+                    <span class="marketing-emoji-target-label-text">Insertar en:</span>
+                    <div class="marketing-emoji-segmented" role="tablist" aria-label="Destino de inserción del emoji">
+                      <button type="button" id="marketing-emoji-target-copy" class="marketing-emoji-seg-btn is-active" data-target="copy" title="Insertar en el texto de Facebook">
+                        <span>Texto (Copy)</span>
+                      </button>
+                      <button type="button" id="marketing-emoji-target-prompt" class="marketing-emoji-seg-btn" data-target="refine-prompt" title="Insertar en tu prompt de IA">
+                        <span>Prompt IA</span>
+                      </button>
+                      <button type="button" id="marketing-emoji-target-whatsapp" class="marketing-emoji-seg-btn" data-target="whatsapp-message" title="Insertar en mensaje WhatsApp">
+                        <span>WhatsApp</span>
+                      </button>
+                    </div>
+                    <strong id="marketing-emoji-target-label" class="marketing-visually-hidden">Texto de publicación</strong>
                   </div>
                   <div id="marketing-emoji-list" class="marketing-emoji-list" role="region" aria-label="Catálogo de emojis"></div>
                   <nav class="marketing-emoji-tabs" aria-label="Categorías de emojis">
@@ -514,17 +551,26 @@
                     <button type="button" class="marketing-emoji-tab" data-cat="caras" title="Caras y Emociones">
                       <span aria-hidden="true">😀</span>
                     </button>
-                    <button type="button" class="marketing-emoji-tab" data-cat="gestos" title="Gestos y Personas">
+                    <button type="button" class="marketing-emoji-tab" data-cat="personas" title="Personas y Gestos">
                       <span aria-hidden="true">👍</span>
                     </button>
-                    <button type="button" class="marketing-emoji-tab" data-cat="simbolos" title="Corazones y Símbolos">
+                    <button type="button" class="marketing-emoji-tab" data-cat="animales" title="Animales y Naturaleza">
+                      <span aria-hidden="true">🐶</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="comida" title="Comida y Bebidas">
+                      <span aria-hidden="true">🍔</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="actividades" title="Actividades y Deportes">
+                      <span aria-hidden="true">⚽</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="viajes" title="Viajes, Lugares y Banderas">
+                      <span aria-hidden="true">🇵🇪</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="objetos" title="Objetos y Tecnología">
+                      <span aria-hidden="true">💡</span>
+                    </button>
+                    <button type="button" class="marketing-emoji-tab" data-cat="simbolos" title="Símbolos y Corazones">
                       <span aria-hidden="true">💖</span>
-                    </button>
-                    <button type="button" class="marketing-emoji-tab" data-cat="objetos" title="Educación y Negocios">
-                      <span aria-hidden="true">🎓</span>
-                    </button>
-                    <button type="button" class="marketing-emoji-tab" data-cat="celebracion" title="Fiesta y Naturaleza">
-                      <span aria-hidden="true">🎉</span>
                     </button>
                   </nav>
                 </div>
