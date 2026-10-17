@@ -88,8 +88,16 @@ function mergeAdminMonthClosures(data,closeData){
     const summary=person.resumen||{},counts={P:0,T:0,J:0,NG:0,incompletas:0,pendientes:0,horas:0};
     for(const day of person.dias||[]){
       const leave=(data.dias_libres||[]).find(item=>String(item.colaborador_id)===String(person.id)&&item.fecha===day.fecha);
-      day.dia_libre=!!leave;
-      if(leave){day.laborable=false;day.motivo='Día libre asignado';day.excepcion_nota=leave.motivo||'Reconocimiento por asistencia presencial';}
+      const isDay5=day.fecha==='2026-10-05';
+      const isDay13=day.fecha==='2026-10-13';
+      const isSpecialOff=(isDay5||(isDay13&&day.laborable!==false))&&(!day.estado||day.estado==='F');
+      const diaLibre=!!leave||isSpecialOff;
+      day.dia_libre=diaLibre;
+      if(diaLibre){
+        day.laborable=false;
+        day.motivo=leave?.motivo||(isDay5?'Día libre general (05/10)':'Día libre asignado (13/10)');
+        day.excepcion_nota=leave?.motivo||'Reconocimiento por asistencia presencial';
+      }
       const close=by.get(`${person.id}|${day.fecha}`);day.cierre_estado=close?.estado||null;day.salida_at=close?.salida_at||null;
       const valid=!day.cierre_estado||['no_aplica','completa','regularizada'].includes(day.cierre_estado);
       if(day.estado==='P'&&valid)counts.P++;

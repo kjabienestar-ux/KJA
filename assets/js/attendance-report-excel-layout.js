@@ -34,7 +34,7 @@
   const compactStyles=styles.replace('<fonts count="5">','<fonts count="7">').replace('</fonts>','<font><b/><sz val="10"/><color rgb="FF344055"/><name val="Arial"/></font><font><sz val="10"/><color rgb="FF173153"/><name val="Arial"/></font></fonts>')
     .replace('<fills count="9">','<fills count="11">').replace('</fills>','<fill><patternFill patternType="solid"><fgColor rgb="FFE4EAF4"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDCEFEA"/><bgColor indexed="64"/></patternFill></fill></fills>')
     .replace(`<cellXfs count="${specs.length}">`,`<cellXfs count="${specs.length+compactSpecs.length}">`).replace('</cellXfs>',compactSpecs.map(([font,fill],i)=>`<xf numFmtId="${i===10?165:0}" fontId="${font}" fillId="${fill}" borderId="0" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="${(i===1||i>=11)?'left':i===10?'right':'center'}" vertical="center" wrapText="1"/></xf>`).join('')+'</cellXfs>');
-  const compactEntry={puntuales:['P',21],tardanzas:['T',22],justificados:['J',24],faltas:['F',23],pendientes:['PD',25],en_curso:['PD',25],no_gestiona:['NG',20],no_laborables:['—',20],sin_datos:['SD',20]};
+  const compactEntry={puntuales:['P',21],tardanzas:['T',22],justificados:['J',24],dias_libres:['DL',21],faltas:['F',23],pendientes:['PD',25],en_curso:['PD',25],no_gestiona:['NG',20],no_laborables:['—',20],sin_datos:['SD',20]};
   function create(bundle){
     if(!bundle.reports.length)throw Error('Selecciona al menos un colaborador.');
     const M=root.KJAAttendanceReport,period=`${M.date(bundle.range.from)} al ${M.date(bundle.range.to)} · Hora de Lima`;
@@ -44,7 +44,7 @@
     const summaryMerges=['A2:J2','A3:J3','A4:J4','A6:B6','C6:E6','F6:G6','H6:J6','A7:B7','C7:E7','F7:G7','H7:J7'];
     const schedules=opening('KJA · Horarios',`${bundle.reports.length} colaboradores · Horario semanal vigente al descargar`,'Azul: virtual · Verde: presencial · Lila: opcional · Gris: no gestiona. (+1 día): salida al día siguiente.');
     schedules.push(row(['N°','Colaborador','Área','Inicio general','Fin general','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'].map(h=>cell(h,3)),36));
-    const attendance=[row([cell('KJA · Asistencia mensual',1)],32),row([cell(period,2)],22),row([cell('P: ingreso puntual · T: tarde · J: justificado · F: falta · PD: pendiente · NG: no gestiona · SD: sin datos · —: no laborable. Vacío: fuera del período.',2)],24),row([],8)];
+    const attendance=[row([cell('KJA · Asistencia mensual',1)],32),row([cell(period,2)],22),row([cell('P: ingreso puntual · T: tarde · J: justificado · DL: día libre · F: falta · PD: pendiente · NG: no gestiona · SD: sin datos · —: no laborable. Vacío: fuera del período.',2)],24),row([],8)];
     attendance.push(row(['Colaborador','Área','Mes',...Array.from({length:31},(_,i)=>i+1),'Horas válidas'].map(h=>cell(h,18)),28));
     const areaStyles=new Map();
     for(const [personIndex,r] of bundle.reports.entries()){

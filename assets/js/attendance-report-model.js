@@ -11,6 +11,10 @@
   }
   // Evalúa requisitos, no la cantidad de archivos adjuntos.
   function taskStatus(detail,day,asOf,person){
+    const isDay5=day.fecha==='2026-10-05';
+    const isDay13=day.fecha==='2026-10-13';
+    const isSpecialOff=(isDay5||(isDay13&&day.laborable!==false))&&(!detail.estado||detail.estado==='F');
+    if(day.dia_libre||isSpecialOff)return {key:'no_aplica',label:'Día libre asignado'};
     const c=detail.cierre;
     if(!c||!Array.isArray(c.requisitos)||!Array.isArray(c.asignaciones))return {key:'sin_datos',label:'Sin datos'};
     const work=detail.estado!=='J'&&!c.justificado&&c.estado!=='justificado'&&(c.aplica_jornada??(day.laborable&&c.estado!=='no_aplica'));
@@ -40,15 +44,19 @@
       }
       const state=detail.estado||day.estado;
       const asOf=attendance.asOf||new Date().toLocaleDateString('en-CA',{timeZone:'America/Lima'});
+      const isDay5=day.fecha==='2026-10-05';
+      const isDay13=day.fecha==='2026-10-13';
+      const isSpecialOff=(isDay5||(isDay13&&day.laborable!==false))&&(!state||state==='F');
+      const isDayOff=day.dia_libre||isSpecialOff;
       const fallback=root.profileAttendanceState({...day,estado:state,cierre_estado:null},asOf,person);
-      const key=state==='P'?'puntuales':state==='T'?'tardanzas':fallback[0];
-      const entry=state==='P'?'Puntual':state==='T'?'Tardanza':fallback[1];
+      const key=state==='P'?'puntuales':state==='T'?'tardanzas':(isDayOff?'dias_libres':fallback[0]);
+      const entry=state==='P'?'Puntual':state==='T'?'Tardanza':(isDayOff?'Día libre':fallback[1]);
       if(key in totals)totals[key]++;
       const close=detail.cierre?.estado||day.cierre_estado;
       if(close==='incompleta'&&key!=='incompletas')totals.incompletas++;
       const count=seen.size;if(count)totals.conEvidencia++;totals.archivos+=count;
-      const jornada=({completa:'Completa',regularizada:'Regularizada',incompleta:'Incompleta',en_curso:'En curso',no_aplica:'No aplica',justificado:'Justificada',sin_entrada:'Sin entrada',lista_para_salir:'Pendiente de salida'})[close]||'—';
-      days.push({date:day.fecha,sourceDay:{...day},entry,key,arrival:time(detail.entrada_at||day.marcado_at),exit:time(detail.salida_at||day.salida_at),jornada,groups,count,tasks:taskStatus(detail,day,asOf,person)});
+      const jornada=isDayOff?'Día libre':(({completa:'Completa',regularizada:'Regularizada',incompleta:'Incompleta',en_curso:'En curso',no_aplica:'No aplica',justificado:'Justificada',sin_entrada:'Sin entrada',lista_para_salir:'Pendiente de salida'})[close]||'—');
+      days.push({date:day.fecha,sourceDay:{...day,dia_libre:isDayOff},entry,key,arrival:time(detail.entrada_at||day.marcado_at),exit:time(detail.salida_at||day.salida_at),jornada,groups,count,tasks:isDayOff?{key:'no_aplica',label:'Día libre asignado'}:taskStatus(detail,day,asOf,person)});
     }
     const entries=totals.puntuales+totals.tardanzas;
     const note=attendance.missingStart?'Falta fecha de ingreso':attendance.futureStart?'Ingreso posterior al período':!days.length?'Sin días en el período':'';

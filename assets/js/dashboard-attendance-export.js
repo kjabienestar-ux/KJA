@@ -116,7 +116,7 @@ function buildAttendanceExportPdf(reports,today){
   const metric=(report,label)=>report.sections.find(section=>section.title==='Asistencia desde el ingreso')?.rows.find(row=>row[0]===label)?.[1]??'—';
   table({startY:42,head:[['Colaborador','Ingreso','P','T','J','F','INC','Horas']],body:reports.map(report=>[report.person.nombre,report.person.contrato_inicio?adminDate(report.person.contrato_inicio):'Sin fecha',...['Presentes (puntuales)','Tardanzas','Justificados','Faltas (sin registro)','Jornadas incompletas','Horas válidas registradas'].map(label=>metric(report,label))])});
   let y=doc.lastAutoTable.finalY+10;
-  const intro='P: presentes puntuales · T: tardanzas · J: justificados · F: días laborables pasados sin registro · INC: jornadas incompletas. El detalle individual incluye los demás estados. Los valores sin información se indican con un guion.';
+  const intro='P: presentes puntuales · T: tardanzas · J: justificados · DL: días libres asignados · F: días laborables pasados sin registro · INC: jornadas incompletas. El detalle individual incluye los demás estados. Los valores sin información se indican con un guion.';
   text(doc.splitTextToSize(intro,178),16,y,9);
   for(const report of reports){
     doc.addPage();y=22;
