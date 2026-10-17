@@ -19,7 +19,7 @@
 .kja-date-trigger[aria-expanded="true"] .kja-date-chevron{transform:rotate(180deg);color:#655083}
 
 .kja-date-popup{
-  position:fixed;inset:auto;margin:0;box-sizing:border-box;z-index:1500;
+  position:fixed;inset:auto;margin:0;box-sizing:border-box;z-index:9999;
   display:flex;flex-direction:column;gap:12px;padding:16px;
   border:1px solid #e2dde9;border-radius:18px;background:#fff;color:#403955;
   box-shadow:0 16px 42px rgba(64,57,85,.16),0 2px 8px rgba(64,57,85,.05);
@@ -31,17 +31,17 @@
 .kja-date-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .kja-date-title{font-size:14.5px;font-weight:700;color:#403955;letter-spacing:-.01em;text-transform:capitalize}
 .kja-date-nav{
-  width:36px;height:36px;min-width:36px;min-height:36px;
+  width:40px;height:40px;min-width:40px;min-height:40px;
   border:0;border-radius:10px;background:#f1eff7;color:#655083;
   display:grid;place-items:center;cursor:pointer;
-  transition:all .15s ease;line-height:1;padding:0;
+  transition:background-color .15s ease, color .15s ease;line-height:1;padding:0;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;
   user-select:none;-webkit-user-select:none;
 }
-.kja-date-nav:hover:not(:disabled){background:#e6ddf1;color:#403955;transform:scale(1.05)}
-.kja-date-nav:active:not(:disabled){transform:scale(.95)}
-.kja-date-nav:disabled{opacity:.3;cursor:not-allowed;transform:none}
-.kja-date-nav svg{width:16px;height:16px;pointer-events:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.kja-date-nav:hover:not(:disabled){background:#e6ddf1;color:#403955}
+.kja-date-nav:active:not(:disabled){background:#dcd0eb;color:#403955}
+.kja-date-nav:disabled{opacity:.3;cursor:not-allowed}
+.kja-date-nav svg{width:18px;height:18px;pointer-events:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .kja-date-weekdays,.kja-date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .kja-date-weekdays{text-align:center}
 .kja-date-weekdays span{font-size:10.5px;font-weight:700;color:#8c839d;text-transform:uppercase;letter-spacing:.03em;padding:3px 0}

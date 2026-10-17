@@ -93,31 +93,39 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
   function move(delta){
     month+=delta;if(month<1){month=12;year--;}else if(month>12){month=1;year++;}
     render();
+    position();
+  }
+  let lastTouchTime = 0;
+  function bindAction(btn, action){
+    if(!btn)return;
+    btn.addEventListener('touchend', e => {
+      lastTouchTime = Date.now();
+      if(e.cancelable) e.preventDefault();
+      e.stopPropagation();
+      action();
+    }, { passive: false });
+    btn.addEventListener('click', e => {
+      if(Date.now() - lastTouchTime < 450){
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      action();
+    });
   }
   trigger.addEventListener('click',e=>{
     e.preventDefault();e.stopPropagation();
     if(opened)close();else open();
   });
   trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();open();}});
-  prev.addEventListener('click',e=>{
-    e.preventDefault();e.stopPropagation();
-    move(-1);
-  });
-  next.addEventListener('click',e=>{
-    e.preventDefault();e.stopPropagation();
-    move(1);
-  });
-  wrap.querySelector('.kja-date-close').addEventListener('click',e=>{
-    e.preventDefault();e.stopPropagation();
-    close(true);
-  });
-  todayButton.addEventListener('click',e=>{
-    e.preventDefault();e.stopPropagation();
-    choose(kjaDateToday());
-  });
+  bindAction(prev, () => move(-1));
+  bindAction(next, () => move(1));
+  bindAction(wrap.querySelector('.kja-date-close'), () => close(true));
+  bindAction(todayButton, () => choose(kjaDateToday()));
   popup.addEventListener('click',e=>e.stopPropagation());
   popup.addEventListener('pointerdown',e=>e.stopPropagation());
-  popup.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
   const parentLabel=input.closest?.('label');
   if(parentLabel){
     parentLabel.addEventListener('click',e=>{
