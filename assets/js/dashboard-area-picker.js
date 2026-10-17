@@ -1,6 +1,7 @@
 /* Selector visual de áreas (directorio y contratos); conserva el select como fuente del filtro. */
 let syncAdminAreaPicker=()=>{};
 let syncAdminContractAreaPicker=()=>{};
+let syncAdminInstitutionPicker=()=>{};
 
 const AREA_PICKER_TEXT={icon:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',label:'Todas las áreas',filter:'Filtrar por área',search:'Buscar un área…',searchLabel:'Buscar un área',list:'Áreas',empty:'No se encontraron áreas.'};
 
@@ -98,6 +99,10 @@ function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCa
   const contractSelect=document.getElementById('admin-contract-area');
   if(contractSelect&&contractSelect!==peopleSelect){
     initAreaPickerElement(contractSelect,'contract-area-picker-popup','contract-area-picker-options','Filtra contratos por equipo',fn=>syncAdminContractAreaPicker=fn);
+  }
+  const institutionSelect=document.getElementById('admin-people-institution');
+  if(institutionSelect&&institutionSelect!==peopleSelect){
+    initAreaPickerElement(institutionSelect,'institution-picker-popup','institution-picker-options','Filtra el directorio por institución',fn=>syncAdminInstitutionPicker=fn,{icon:'<path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2 2 7h20L12 2z"/>',label:'Todas las instituciones',filter:'Filtrar por institución',search:'Buscar institución…',searchLabel:'Buscar una institución',list:'Instituciones',empty:'No se encontraron instituciones.'});
   }
   // Filtro temporal por correo: mismo selector visual que el de áreas.
   const emailSelect=document.getElementById('admin-people-email');

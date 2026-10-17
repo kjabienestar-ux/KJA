@@ -15,7 +15,18 @@ function attendanceExportPeople(){return (APP.adminTeam?.personas||[]).filter(pe
 function attendanceExportVisible(){
   const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   const query=normalize($('attendance-export-search')?.value||'').trim();
-  return (APP.adminTeam?.personas||[]).filter(person=>normalize(`${person.nombre} ${person.dni||''} ${person.area||''}`).includes(query));
+  const inst=$('attendance-export-institution')?.value||'';
+  return (APP.adminTeam?.personas||[]).filter(person=>{
+    if(inst){
+      const pInst=person.institucion?.trim()||'';
+      if(inst==='__sin__'||inst==='sin'){
+        if(pInst)return false;
+      }else if(pInst!==inst){
+        return false;
+      }
+    }
+    return normalize(`${person.nombre} ${person.dni||''} ${person.area||''} ${person.institucion||''}`).includes(query);
+  });
 }
 function syncAttendanceExportSelection(){
   const selected=attendanceExportPeople(),count=$('attendance-export-count'),preview=$('attendance-export-preview');
@@ -37,10 +48,38 @@ function attendanceExportSelection(people){
 function renderAttendanceExport(){
   const button=$('admin-attendance-export'),status=$('admin-attendance-export-status');if(!button||ATTENDANCE_EXPORT_BUSY)return;
   if(!ATTENDANCE_EXPORT_INITIALIZED&&APP.adminTeam){attendanceExportSelection(APP.adminTeam.personas||[]).selected.forEach(person=>ATTENDANCE_EXPORT_IDS.add(String(person.id)));ATTENDANCE_EXPORT_INITIALIZED=true;}
+  const instSelect=$('attendance-export-institution');
+  if(instSelect&&(!instSelect.options||instSelect.options.length<=1)&&APP.adminTeam?.personas){
+    const current=instSelect.value||$('admin-people-institution')?.value||'';
+    const counts=new Map();let sin=0;
+    for(const p of APP.adminTeam.personas){
+      const inst=p.institucion?.trim();
+      if(!inst)sin++;
+      else counts.set(inst,(counts.get(inst)||0)+1);
+    }
+    const list=[...counts.entries()].sort((a,b)=>a[0].localeCompare(b[0],'es'));
+    let html='<option value="">Todas las instituciones</option>';
+    for(const [name,qty] of list)html+=`<option value="${esc(name)}">${esc(name)} (${qty})</option>`;
+    if(sin>0)html+=`<option value="__sin__">Sin institución (${sin})</option>`;
+    instSelect.innerHTML=html;
+    if(current)instSelect.value=current;
+  }
   const selected=attendanceExportPeople(),visible=attendanceExportVisible(),options=$('attendance-export-options');
+  const btnInstAll=$('attendance-export-institution-all');
+  const currentInst=$('attendance-export-institution')?.value||'';
+  if(btnInstAll){
+    if(currentInst){
+      btnInstAll.hidden=false;
+      const label=currentInst==='__sin__'?'sin institución':currentInst;
+      btnInstAll.textContent=`Seleccionar de ${currentInst==='__sin__'?'sin institución':'esta institución'} (${visible.length})`;
+      btnInstAll.title=`Selecciona los ${visible.length} colaboradores de ${label} para el informe`;
+    }else{
+      btnInstAll.hidden=true;
+    }
+  }
   button.disabled=!APP.access.acceso_panel||!selected.length;
   if($('admin-attendance-excel'))$('admin-attendance-excel').disabled=button.disabled;
-  if(options)options.innerHTML=visible.length?visible.map(person=>`<label class="attendance-export-option"><input type="checkbox" value="${esc(String(person.id))}" ${ATTENDANCE_EXPORT_IDS.has(String(person.id))?'checked':''}><span class="attendance-export-avatar" aria-hidden="true">${esc(String(person.nombre||'').split(/\s+/).filter(Boolean).slice(0,2).map(word=>word[0]).join('').toUpperCase())}</span><span class="attendance-export-person"><b>${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')} · DNI ${esc(person.dni||'sin registrar')}${person.activo?'':' · Dado de baja'}</small></span></label>`).join(''):'<p>No encontramos coincidencias. Prueba con otro nombre o DNI.</p>';
+  if(options)options.innerHTML=visible.length?visible.map(person=>`<label class="attendance-export-option"><input type="checkbox" value="${esc(String(person.id))}" ${ATTENDANCE_EXPORT_IDS.has(String(person.id))?'checked':''}><span class="attendance-export-avatar" aria-hidden="true">${esc(String(person.nombre||'').split(/\s+/).filter(Boolean).slice(0,2).map(word=>word[0]).join('').toUpperCase())}</span><span class="attendance-export-person"><b>${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')}${person.institucion?.trim()?` · <span class="attendance-export-inst-pill">${esc(person.institucion.trim())}</span>`:''} · DNI ${esc(person.dni||'sin registrar')}${person.activo?'':' · Dado de baja'}</small></span></label>`).join(''):'<p>No encontramos coincidencias para esta búsqueda o institución.</p>';
   syncAttendanceExportSelection();
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   for(const [id,initial] of [['attendance-export-from',today.slice(0,7)+'-01'],['attendance-export-to',today]]){const input=$(id);if(input){input.max=today;if(!input.value)input.value=initial;}}
@@ -151,5 +190,23 @@ if($('attendance-export-options'))$('attendance-export-options').onchange=event=
   $('admin-attendance-export-status').textContent=selected.length?'Puntualidad por fecha y archivos subidos en un solo informe.':'Selecciona al menos un interno para descargar.';
 };
 if($('attendance-export-visible'))$('attendance-export-visible').onclick=()=>{attendanceExportVisible().forEach(person=>ATTENDANCE_EXPORT_IDS.add(String(person.id)));renderAttendanceExport();};
+if($('attendance-export-institution-all'))$('attendance-export-institution-all').onclick=()=>{
+  const visible=attendanceExportVisible();
+  const inst=$('attendance-export-institution')?.value||'';
+  const label=inst==='__sin__'?'sin institución':(inst||'esta institución');
+  ATTENDANCE_EXPORT_IDS.clear();
+  visible.forEach(person=>ATTENDANCE_EXPORT_IDS.add(String(person.id)));
+  renderAttendanceExport();
+  if($('admin-attendance-export-status'))$('admin-attendance-export-status').textContent=`Seleccionados los ${visible.length} colaboradores de ${label}. Listo para ver informe o descargar Excel/PDF.`;
+};
+if($('attendance-export-institution'))$('attendance-export-institution').onchange=event=>{
+  const topSelect=$('admin-people-institution');
+  if(topSelect&&topSelect.value!==event.target.value){
+    topSelect.value=event.target.value;
+    if(typeof syncAdminInstitutionPicker==='function')syncAdminInstitutionPicker();
+    if(typeof renderAdminPeople==='function')renderAdminPeople();
+  }
+  renderAttendanceExport();
+};
 if($('attendance-export-clear'))$('attendance-export-clear').onclick=()=>{ATTENDANCE_EXPORT_IDS.clear();renderAttendanceExport();};
 if($('attendance-export-original'))$('attendance-export-original').onclick=()=>{ATTENDANCE_EXPORT_IDS.clear();const match=attendanceExportSelection(APP.adminTeam?.personas||[]);match.selected.forEach(person=>ATTENDANCE_EXPORT_IDS.add(String(person.id)));renderAttendanceExport();if(match.issues.length)$('admin-attendance-export-status').textContent=match.issues.join(' · ');};

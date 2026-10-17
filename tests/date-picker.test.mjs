@@ -83,3 +83,29 @@ test('Today is disabled when it falls outside the allowed range',()=>{
  h.from.trigger.emit('click');
  assert.equal(h.from.today.disabled,true);
 });
+
+test('month navigation: prev and next update month title and keep popup open without closing',()=>{
+ const h=harness({from:'2026-10-01',to:'2026-10-17',min:'2020-01-01',max:'2026-10-17'});
+ h.from.trigger.emit('click');
+ assert.equal(h.from.popup.visible,true);
+ const title=h.from.wrap.querySelector('.kja-date-title');
+ assert.equal(title.textContent,'Octubre 2026');
+ assert.equal(h.from.prev.disabled,false);
+
+ h.from.prev.emit('click');
+ assert.equal(title.textContent,'Septiembre 2026');
+ assert.equal(h.from.popup.visible,true);
+
+ h.from.prev.emit('click');
+ assert.equal(title.textContent,'Agosto 2026');
+ assert.equal(h.from.popup.visible,true);
+
+ h.from.next.emit('click');
+ assert.equal(title.textContent,'Septiembre 2026');
+ assert.equal(h.from.popup.visible,true);
+
+ h.from.next.emit('click');
+ assert.equal(title.textContent,'Octubre 2026');
+ assert.equal(h.from.popup.visible,true);
+});
+

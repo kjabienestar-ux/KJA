@@ -23,13 +23,14 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
   const wrap=document.createElement('div');wrap.className='kja-date-picker';
   wrap.innerHTML=`<button type="button" class="kja-date-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="${popupId}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="kja-date-text">dd/mm/aaaa</span><svg class="kja-date-chevron" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
     <div id="${popupId}" class="kja-date-popup" popover="manual" role="dialog" aria-label="${label}" hidden>
-      <header class="kja-date-head"><button type="button" class="kja-date-nav" data-nav="-1" aria-label="Mes anterior">‹</button><strong class="kja-date-title"></strong><button type="button" class="kja-date-nav" data-nav="1" aria-label="Mes siguiente">›</button></header>
+      <header class="kja-date-head"><button type="button" class="kja-date-nav" data-nav="-1" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><strong class="kja-date-title"></strong><button type="button" class="kja-date-nav" data-nav="1" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></header>
       <div class="kja-date-weekdays" aria-hidden="true"><span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span></div>
       <div class="kja-date-grid"></div>
       <footer class="kja-date-foot"><button type="button" class="kja-date-today">Hoy</button><button type="button" class="kja-date-close">Cerrar</button></footer>
     </div>`;
   input.before(wrap);
   input.classList.add('sr-only');input.tabIndex=-1;input.setAttribute('aria-hidden','true');
+  input.style.pointerEvents='none';
   const trigger=wrap.querySelector('.kja-date-trigger'),text=wrap.querySelector('.kja-date-text'),popup=wrap.querySelector('.kja-date-popup'),
     title=wrap.querySelector('.kja-date-title'),grid=wrap.querySelector('.kja-date-grid'),todayButton=wrap.querySelector('.kja-date-today'),
     prev=wrap.querySelector('[data-nav="-1"]'),next=wrap.querySelector('[data-nav="1"]');
@@ -64,7 +65,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
   }
   function close(focus=false){
     if(!opened)return;opened=false;
-    if(popup.matches(':popover-open'))popup.hidePopover();
+    try{if(popup.hidePopover)popup.hidePopover();}catch(_){}
     popup.hidden=true;trigger.setAttribute('aria-expanded','false');
     if(focus)trigger.focus({preventScroll:true});
   }
@@ -72,7 +73,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     const base=/^\d{4}-\d{2}-\d{2}$/.test(input.value)?input.value:kjaDateToday();
     [year,month]=base.split('-').map(Number);
     opened=true;popup.hidden=false;
-    if(popup.showPopover)popup.showPopover();
+    try{if(popup.showPopover)popup.showPopover();}catch(_){}
     trigger.setAttribute('aria-expanded','true');position();render();
     (grid.querySelector('.is-selected:not(:disabled)')||grid.querySelector('.is-today:not(:disabled)')||grid.querySelector('.kja-date-day:not(:disabled)'))?.focus({preventScroll:true});
   }
@@ -84,15 +85,44 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     month+=delta;if(month<1){month=12;year--;}else if(month>12){month=1;year++;}
     render();
   }
-  trigger.addEventListener('click',()=>opened?close():open());
+  trigger.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    if(opened)close();else open();
+  });
   trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();open();}});
-  prev.addEventListener('click',()=>move(-1));
-  next.addEventListener('click',()=>move(1));
-  wrap.querySelector('.kja-date-close').addEventListener('click',()=>close(true));
-  todayButton.addEventListener('click',()=>choose(kjaDateToday()));
-  // El popup vive dentro del <label>: evita que un clic en texto del calendario reactive el botón.
-  popup.addEventListener('click',e=>{if(!e.target.closest?.('button'))e.preventDefault();});
-  grid.addEventListener('click',e=>{const day=e.target.closest?.('[data-date]');if(day&&!day.disabled)choose(day.dataset.date);});
+  prev.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    move(-1);
+  });
+  next.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    move(1);
+  });
+  wrap.querySelector('.kja-date-close').addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    close(true);
+  });
+  todayButton.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    choose(kjaDateToday());
+  });
+  // Detener propagación para que ningún clic o toque dentro del popup active el input nativo ni cierre el popup.
+  popup.addEventListener('click',e=>e.stopPropagation());
+  popup.addEventListener('pointerdown',e=>e.stopPropagation());
+  popup.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+  const parentLabel=input.closest?.('label');
+  if(parentLabel){
+    parentLabel.addEventListener('click',e=>{
+      if(wrap.contains(e.target)||popup.contains(e.target))e.preventDefault();
+    });
+  }
+  grid.addEventListener('click',e=>{
+    const day=e.target.closest?.('[data-date]');
+    if(day&&!day.disabled){
+      e.preventDefault();e.stopPropagation();
+      choose(day.dataset.date);
+    }
+  });
   grid.addEventListener('keydown',e=>{
     const steps={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7};
     if(!(e.key in steps))return;
@@ -101,10 +131,10 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     if(target&&!target.disabled)target.focus({preventScroll:true});
   });
   wrap.addEventListener('keydown',e=>{if(e.key==='Escape'&&opened){e.preventDefault();e.stopPropagation();close(true);}});
-  document.addEventListener('pointerdown',e=>{if(opened&&!wrap.contains(e.target))close();});
-  document.addEventListener('focusin',e=>{if(opened&&!wrap.contains(e.target))close();});
+  document.addEventListener('pointerdown',e=>{if(opened&&!wrap.contains(e.target)&&!popup.contains(e.target)&&e.target!==input)close();});
+  document.addEventListener('focusin',e=>{if(opened&&!wrap.contains(e.target)&&!popup.contains(e.target)&&e.target!==input)close();});
   window.addEventListener('resize',()=>{if(opened)position();});
-  document.addEventListener('scroll',e=>{if(opened&&!popup.contains(e.target))close();},true);
+  window.addEventListener('scroll',()=>{if(opened)position();},{passive:true});
   input.addEventListener('change',sync);
   KJA_DATE_SYNCS.push(sync);
   sync();

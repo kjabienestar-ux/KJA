@@ -261,7 +261,9 @@
   padding: 0 24px 20px;
 }
 .attendance-export-period legend { padding: 0 0 10px; color: var(--people-ink); font-size: 14px; font-weight: 600; }
-.attendance-export-period label { display: grid; gap: 6px; flex: 1 1 150px; max-width: 260px; min-width: 0; color: var(--people-ink); font-size: 14px; }
+.attendance-export-period label,
+.attendance-export-period .attendance-export-field { display: grid; gap: 6px; flex: 1 1 150px; max-width: 260px; min-width: 0; color: var(--people-ink); font-size: 14px; }
+.attendance-export-period .attendance-export-label { font-weight: 500; color: var(--people-ink); }
 .attendance-export-period input { width: 100%; min-width: 0; min-height: 44px; padding: 9px 12px; border: 1px solid var(--people-line); border-radius: 8px; color: var(--people-ink); background: var(--people-surface); font: inherit; font-size: 16px; }
 .attendance-export-period input:focus-visible { outline: 2px solid var(--people-primary); outline-offset: 3px; }
 #portal #admin-people-section .admin-attendance-export {
@@ -397,6 +399,55 @@
 
 #portal #admin-people-section .attendance-export-tools button:hover {
   background: var(--people-primary-soft);
+}
+
+#portal #admin-people-section .attendance-export-institution-select {
+  height: 38px;
+  min-height: 38px;
+  border: 1px solid var(--people-line);
+  border-radius: 12px;
+  background: var(--people-field-bg);
+  color: var(--people-ink);
+  font: 500 12.5px Inter, system-ui, sans-serif;
+  padding: 0 28px 0 12px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  max-width: 260px;
+}
+
+#portal #admin-people-section .attendance-export-institution-select:focus {
+  border-color: #766498;
+  box-shadow: 0 0 0 3px var(--people-field-focus);
+  background: #ffffff;
+}
+
+#portal #admin-people-section #attendance-export-institution-all {
+  background: var(--people-primary) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba(101, 80, 131, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#portal #admin-people-section #attendance-export-institution-all:hover {
+  background: #53416e !important;
+  transform: translateY(-1px);
+}
+
+#portal #admin-people-section .attendance-export-inst-pill {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--people-primary);
+  background: rgba(101, 80, 131, 0.08);
+  padding: 1px 7px;
+  border-radius: 6px;
+  margin: 0 2px;
+  font-size: 11px;
 }
 
 #portal #admin-people-section .attendance-export-picker {
@@ -909,7 +960,8 @@
 
   #portal #admin-people-section input#admin-people-search,
   #portal #admin-people-section .admin-team-actions select,
-  #portal #admin-people-section .attendance-export-search input {
+  #portal #admin-people-section .attendance-export-search input,
+  #portal #admin-people-section .attendance-export-institution-select {
     font-size: 16px !important;
   }
 
