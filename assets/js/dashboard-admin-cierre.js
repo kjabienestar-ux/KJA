@@ -948,9 +948,30 @@ if($('admin-close-date-trigger')){
   };
 }
 
-if($('admin-close-cal-prev')) $('admin-close-cal-prev').onclick = (e) => { e.stopPropagation(); navAdminCloseCalendarMonth(-1); };
-if($('admin-close-cal-next')) $('admin-close-cal-next').onclick = (e) => { e.stopPropagation(); navAdminCloseCalendarMonth(1); };
-if($('admin-close-cal-close')) $('admin-close-cal-close').onclick = (e) => { e.stopPropagation(); closeAdminCloseCalendar(true); };
+let adminCloseLastTouch = 0;
+function bindAdminCloseNav(id, action){
+  const el = $(id);
+  if(!el) return;
+  el.addEventListener('touchend', e => {
+    adminCloseLastTouch = Date.now();
+    if(e.cancelable) e.preventDefault();
+    e.stopPropagation();
+    action();
+  }, { passive: false });
+  el.addEventListener('click', e => {
+    if(Date.now() - adminCloseLastTouch < 450){
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    action();
+  });
+}
+bindAdminCloseNav('admin-close-cal-prev', () => navAdminCloseCalendarMonth(-1));
+bindAdminCloseNav('admin-close-cal-next', () => navAdminCloseCalendarMonth(1));
+bindAdminCloseNav('admin-close-cal-close', () => closeAdminCloseCalendar(true));
 if($('admin-close-cal-today')) $('admin-close-cal-today').onclick = (e) => {
   e.stopPropagation();
   $('admin-close-date').value = isoLima();
