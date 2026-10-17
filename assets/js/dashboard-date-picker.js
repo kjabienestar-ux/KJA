@@ -22,7 +22,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
   if(!input)return;
   const wrap=document.createElement('div');wrap.className='kja-date-picker';
   wrap.innerHTML=`<button type="button" class="kja-date-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="${popupId}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="kja-date-text">dd/mm/aaaa</span><svg class="kja-date-chevron" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-    <div id="${popupId}" class="kja-date-popup" popover="manual" role="dialog" aria-label="${label}" hidden>
+    <div id="${popupId}" class="kja-date-popup" role="dialog" aria-label="${label}" hidden>
       <header class="kja-date-head"><button type="button" class="kja-date-nav" data-nav="-1" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><strong class="kja-date-title"></strong><button type="button" class="kja-date-nav" data-nav="1" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></header>
       <div class="kja-date-weekdays" aria-hidden="true"><span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span></div>
       <div class="kja-date-grid"></div>
@@ -36,6 +36,15 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     prev=wrap.querySelector('[data-nav="-1"]'),next=wrap.querySelector('[data-nav="1"]');
   let opened=false,year=0,month=0;
 
+  function isInside(target){
+    if(!target)return false;
+    return Boolean(
+      wrap.contains(target)||
+      popup.contains(target)||
+      target===input||
+      target.closest?.('.kja-date-picker, .kja-date-popup, .attendance-export-field')
+    );
+  }
   function sync(){
     text.textContent=kjaDateDisplay(input.value);
     trigger.setAttribute('aria-label',`${label}: ${text.textContent}`);
@@ -46,8 +55,9 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     const {min,max}=kjaDateBounds(input,partner,role),today=kjaDateToday(),selected=input.value;
     title.textContent=`${KJA_DATE_MONTHS[month-1]} ${year}`;
     const lastPrev=new Date(year,month-1,0),prevEnd=kjaDateIso(lastPrev.getFullYear(),lastPrev.getMonth()+1,lastPrev.getDate());
-    prev.disabled=!!min&&prevEnd<min;
-    next.disabled=!!max&&kjaDateIso(month===12?year+1:year,month===12?1:month+1,1)>max;
+    const systemMin=input.min||'2020-01-01',systemMax=input.max||today;
+    prev.disabled=!!systemMin&&prevEnd<systemMin;
+    next.disabled=!!systemMax&&kjaDateIso(month===12?year+1:year,month===12?1:month+1,1)>systemMax;
     const offset=(new Date(year,month-1,1).getDay()+6)%7,count=new Date(year,month,0).getDate();
     let html='<span class="kja-date-empty" aria-hidden="true"></span>'.repeat(offset);
     for(let d=1;d<=count;d++){
@@ -75,7 +85,6 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     opened=true;popup.hidden=false;
     try{if(popup.showPopover)popup.showPopover();}catch(_){}
     trigger.setAttribute('aria-expanded','true');position();render();
-    (grid.querySelector('.is-selected:not(:disabled)')||grid.querySelector('.is-today:not(:disabled)')||grid.querySelector('.kja-date-day:not(:disabled)'))?.focus({preventScroll:true});
   }
   function choose(value){
     close(true);input.value=value;sync();
@@ -106,14 +115,13 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     e.preventDefault();e.stopPropagation();
     choose(kjaDateToday());
   });
-  // Detener propagación para que ningún clic o toque dentro del popup active el input nativo ni cierre el popup.
   popup.addEventListener('click',e=>e.stopPropagation());
   popup.addEventListener('pointerdown',e=>e.stopPropagation());
   popup.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
   const parentLabel=input.closest?.('label');
   if(parentLabel){
     parentLabel.addEventListener('click',e=>{
-      if(wrap.contains(e.target)||popup.contains(e.target))e.preventDefault();
+      if(isInside(e.target))e.preventDefault();
     });
   }
   grid.addEventListener('click',e=>{
@@ -131,8 +139,8 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     if(target&&!target.disabled)target.focus({preventScroll:true});
   });
   wrap.addEventListener('keydown',e=>{if(e.key==='Escape'&&opened){e.preventDefault();e.stopPropagation();close(true);}});
-  document.addEventListener('pointerdown',e=>{if(opened&&!wrap.contains(e.target)&&!popup.contains(e.target)&&e.target!==input)close();});
-  document.addEventListener('focusin',e=>{if(opened&&!wrap.contains(e.target)&&!popup.contains(e.target)&&e.target!==input)close();});
+  document.addEventListener('pointerdown',e=>{if(opened&&!isInside(e.target))close();});
+  document.addEventListener('focusin',e=>{if(opened&&!isInside(e.target))close();});
   window.addEventListener('resize',()=>{if(opened)position();});
   window.addEventListener('scroll',()=>{if(opened)position();},{passive:true});
   input.addEventListener('change',sync);
