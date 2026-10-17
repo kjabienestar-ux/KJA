@@ -9,6 +9,19 @@
     if(!validDate(from)||!validDate(to)||from<'2020-01-01'||from>to||to>today)throw Error('Elige fechas válidas: desde 2020, en orden y hasta hoy.');
     return {from,to};
   }
+  // Evalúa requisitos, no la cantidad de archivos adjuntos.
+  function taskStatus(detail,day,asOf,person){
+    const c=detail.cierre;
+    if(!c||!Array.isArray(c.requisitos)||!Array.isArray(c.asignaciones))return {key:'sin_datos',label:'Sin datos'};
+    const work=detail.estado!=='J'&&!c.justificado&&c.estado!=='justificado'&&(c.aplica_jornada??(day.laborable&&c.estado!=='no_aplica'));
+    const tasks=[...c.requisitos.filter(q=>!(q.tipo==='rpe'&&(c.requiere_rpe===false||c.rpe_exento_presencial))&&(work||q.tipo==='comparticiones')),
+      ...(work?c.asignaciones:[]).filter(q=>q.estado!=='cancelada')];
+    if(!tasks.length)return {key:'no_aplica',label:'Sin pendientes asignados'};
+    const pending=tasks.filter(q=>!q.completo).length;
+    if(!pending)return {key:'cumplio',label:'Cumplió'};
+    const ongoing=day.fecha>=asOf||root.profileAttendanceState({...day,estado:null,cierre_estado:null},asOf,person)[0]==='pendientes';
+    return {key:ongoing?'en_curso':'no_cumplio',label:ongoing?'En curso':'No cumplió',pending};
+  }
   function build(person,attendance,details){
     const files=[],days=[],totals={puntuales:0,tardanzas:0,faltas:0,conEvidencia:0,archivos:0,incompletas:0};
     for(const day of attendance.days||[]){
@@ -35,7 +48,7 @@
       if(close==='incompleta'&&key!=='incompletas')totals.incompletas++;
       const count=seen.size;if(count)totals.conEvidencia++;totals.archivos+=count;
       const jornada=({completa:'Completa',regularizada:'Regularizada',incompleta:'Incompleta',en_curso:'En curso',no_aplica:'No aplica',justificado:'Justificada',sin_entrada:'Sin entrada',lista_para_salir:'Pendiente de salida'})[close]||'—';
-      days.push({date:day.fecha,sourceDay:{...day},entry,key,arrival:time(detail.entrada_at||day.marcado_at),exit:time(detail.salida_at||day.salida_at),jornada,groups,count});
+      days.push({date:day.fecha,sourceDay:{...day},entry,key,arrival:time(detail.entrada_at||day.marcado_at),exit:time(detail.salida_at||day.salida_at),jornada,groups,count,tasks:taskStatus(detail,day,asOf,person)});
     }
     const entries=totals.puntuales+totals.tardanzas;
     const note=attendance.missingStart?'Falta fecha de ingreso':attendance.futureStart?'Ingreso posterior al período':!days.length?'Sin días en el período':'';

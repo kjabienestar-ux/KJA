@@ -91,23 +91,6 @@
     attendanceSheet.xml=attendanceSheet.xml.replace('showGridLines="0"','showGridLines="0" zoomScale="80"');
     return {styles,sheets:[summarySheet,scheduleSheet(schedules,today),attendanceSheet]};
   }
-  function createFocused(bundle){
-    const M=root.KJAAttendanceReport,period=`${M.date(bundle.range.from)} al ${M.date(bundle.range.to)}`;
-    const summary=bundle.reports.map(r=>[...M.summaryRow(r),r.note||'']);
-    const daily=bundle.reports.flatMap(r=>r.days.map(d=>{
-      const cells=M.dailyRow(d);cells[0]=date(d.date);cells[1]=value(d.entry,d.key==='puntuales'?11:d.key==='tardanzas'?10:d.key==='faltas'?12:0);
-      return [r.person.nombre,...cells];
-    }));
-    const files=bundle.files.map(f=>['#'+f.ref,f.person,date(f.date),f.title,f.uploaded?new Date(f.uploaded).toLocaleString('es-PE',{timeZone:'America/Lima',hour12:false}):'—',String(f.mime||'').split('/').pop()||'Archivo',f.url?'Abrir archivo':'Enlace no disponible']);
-    const summarySheet=matrixStyle(sheet('Resumen',[...M.summaryHeaders,'Nota'],[34,13,13,15,12,17,12,20,32],summary,`${period}. Puntualidad: puntuales / (puntuales + tardanzas). Entrada y cierre se evalúan por separado.`));
-    const dailySheet=matrixStyle(sheet('Detalle',['Colaborador',...M.dailyHeaders],[32,14,25,12,12,17,22,30,24,30],daily,`${period}. Cada # corresponde a un archivo en la hoja Evidencias. Sin archivo = no hay un adjunto registrado; no implica incumplimiento.`));
-    const evidenceSheet=sheet('Evidencias',['Ref.','Colaborador','Fecha','Evidencia','Subido (Lima)','Formato','Abrir archivo'],[10,34,14,38,24,20,25],files,'Archivos subidos, no necesariamente aprobados. Los enlaces privados duran 1 hora desde la generación; vuelve a descargar el informe si vencen.');
-    const links=bundle.files.map((f,i)=>f.url?{ref:`G${i+6}`,url:f.url,id:`file${i+1}`}:null).filter(Boolean);
-    if(links.length){
-      evidenceSheet.xml=evidenceSheet.xml.replace('<worksheet xmlns=','<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns=').replace('<printOptions',`<hyperlinks>${links.map(l=>`<hyperlink ref="${l.ref}" r:id="${l.id}"/>`).join('')}</hyperlinks><printOptions`);
-      evidenceSheet.relationships=`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${links.map(l=>`<Relationship Id="${l.id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${x(l.url)}" TargetMode="External"/>`).join('')}</Relationships>`;
-    }
-    return {styles,sheets:[summarySheet,dailySheet,evidenceSheet]};
-  }
+  function createFocused(bundle){return root.KJAAttendanceExcelLayout.create(bundle);}
   root.KJAInternExcel={create,createFocused,buildFocused:bundle=>{const book=createFocused(bundle);return root.KJAFacebookExcel.buildWorkbook(book.sheets,book.styles);},build:(reports,today)=>{const book=create(reports,today);return root.KJAFacebookExcel.buildWorkbook(book.sheets,book.styles);}};
 })(globalThis);

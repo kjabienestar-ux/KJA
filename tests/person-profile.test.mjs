@@ -71,10 +71,17 @@ test('Excel button downloads only the selection and restores controls on success
   let finish,selected,range;c.collectAttendanceReport=(people,period)=>{selected=people;range=period;return new Promise(resolve=>finish=resolve)};
   c.KJAInternExcel={buildFocused:()=>new Uint8Array([80,75])};
   const downloading=c.$('admin-attendance-excel').onclick();assert.equal(c.$('attendance-export-picker').disabled,true);assert.equal(c.$('admin-attendance-export').disabled,true);
+  assert.equal(c.$('attendance-export-loading').hidden,false);
+  assert.equal(c.$('admin-attendance-excel').textContent,'Generando…');
+  c.attendanceExportProgress('Colaborador 1 de 7: Ana · 8 de 25 días',{done:8,total:25,unit:'días consultados'});
+  assert.equal(c.$('attendance-export-loading-bar').value,8);assert.equal(c.$('attendance-export-loading-bar').max,25);
+  assert.equal(c.$('attendance-export-loading-detail').textContent,'Colaborador 1 de 7: Ana');
   finish({reports:[{person:selected[0]}],files:[],unavailable:0,range});await downloading;
-  assert.deepEqual(Array.from(selected,p=>p.id),[2]);assert.equal(range.from,c.$('attendance-export-from').value);assert.equal(links.length,1);assert.match(links[0].download,/KJA_Asistencia_evidencias_.*\.xlsx$/);
+  assert.deepEqual(Array.from(selected,p=>p.id),[2]);assert.equal(range.from,c.$('attendance-export-from').value);assert.equal(links.length,1);assert.match(links[0].download,/KJA_Asistencia_pendientes_.*\.xlsx$/);
   assert.equal(blobs[0].type,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');assert.equal(c.$('attendance-export-picker').disabled,false);
+  assert.equal(c.$('attendance-export-loading').hidden,true);
   c.collectAttendanceReport=async()=>{throw Error('Fallo de lectura')};await c.$('admin-attendance-excel').onclick();assert.equal(links.length,1);assert.match(c.$('admin-attendance-export-status').textContent,/Fallo de lectura/);assert.equal(c.$('admin-attendance-excel').disabled,false);assert.equal(c.$('attendance-export-period').disabled,false);
+  assert.equal(c.$('attendance-export-loading').hidden,true);
 });
 function workbookFixture(){
   const c=exportHarness();

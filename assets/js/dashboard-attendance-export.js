@@ -96,28 +96,48 @@ function buildAttendanceExportPdf(reports,today){
   for(let page=1;page<=pages;page++){doc.setPage(page);text(`KJA · ${generated} (Lima)`,16,286,8);doc.text(`${page} / ${pages}`,194,286,{align:'right'});}
   return doc;
 }
+function attendanceExportProgress(message,progress={}){
+  const detail=$('attendance-export-loading-detail'),bar=$('attendance-export-loading-bar'),count=$('attendance-export-loading-count');
+  if(detail)detail.textContent=progress.total?message.replace(/ · \d+ de \d+ días$/,''):message;
+  if(count)count.textContent=progress.total?`${progress.done} de ${progress.total} ${progress.unit}`:'Preparando…';
+  if(bar){
+    if(progress.total){bar.max=progress.total;bar.value=progress.done;}
+    else bar.removeAttribute?.('value');
+    bar.setAttribute?.('aria-label',progress.total?`Progreso de ${progress.unit}`:'Preparando reporte');
+  }
+}
 async function downloadAttendanceExport(format='pdf'){
   if(ATTENDANCE_EXPORT_BUSY||!APP.access.acceso_panel)return;
   const button=$('admin-attendance-export'),status=$('admin-attendance-export-status');
   const selected=attendanceExportPeople();
   if(!selected.length){renderAttendanceExport();return;}
   const excel=$('admin-attendance-excel'),picker=$('attendance-export-picker'),period=$('attendance-export-period');
+  const loading=$('attendance-export-loading'),heading=$('attendance-export-loading-title'),view=$('attendance-report-view');
+  const activeButton=format==='xlsx'?excel:button,buttonHtml=activeButton?.innerHTML,viewDisabled=view?.disabled;
   if(period)period.disabled=true;
   ATTENDANCE_EXPORT_BUSY=true;button.disabled=true;if(excel)excel.disabled=true;if(picker)picker.disabled=true;
   status.textContent='Preparando el informe…';
+  if(loading)loading.hidden=false;
+  if(heading)heading.textContent=format==='xlsx'?'Preparando tu Excel':'Preparando tu PDF';
+  if(activeButton)activeButton.textContent='Generando…';
+  if(view)view.disabled=true;
+  attendanceExportProgress('Consultando la asistencia de los colaboradores seleccionados.');
   try{
     const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
     const range=KJAAttendanceReport.period($('attendance-export-from').value,$('attendance-export-to').value,today);
     if(format==='pdf')await KJAFacebookPDF.load();
-    const bundle=await collectAttendanceReport(selected,range,message=>{status.textContent=message;});
+    const bundle=await collectAttendanceReport(selected,range,(message,progress)=>{attendanceExportProgress(message,progress);},{signFiles:format!=='xlsx'});
+    attendanceExportProgress('Organizando las hojas y preparando la descarga…');
+    // Permite pintar la fase final antes de construir el archivo en el hilo principal.
+    await new Promise(resolve=>setTimeout(resolve,0));
     if(format==='xlsx'){
       const bytes=KJAInternExcel.buildFocused(bundle),url=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),link=document.createElement('a');
-      link.href=url;link.download=`KJA_Asistencia_evidencias_${range.from}_${range.to}.xlsx`;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+      link.href=url;link.download=`KJA_Asistencia_pendientes_${range.from}_${range.to}.xlsx`;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }else buildFocusedAttendancePdf(bundle).save(`KJA_Asistencia_evidencias_${range.from}_${range.to}.pdf`);
     const missing=bundle.reports.filter(r=>r.note).length;
-    status.textContent=`${format==='xlsx'?'Excel':'PDF'} generado · ${bundle.files.length} archivos. Enlaces válidos por 1 hora.${bundle.unavailable?` ${bundle.unavailable} archivos sin enlace disponible.`:''}${missing?` ${missing} personas sin historial evaluable; revisa sus notas.`:''}`;
+    status.textContent=format==='xlsx'?`Excel generado · Resumen, Horarios y Asistencia · ${bundle.reports.length} colaboradores.${missing?` ${missing} personas sin historial evaluable; revisa sus notas.`:''}`:`PDF generado · ${bundle.files.length} archivos. Enlaces válidos por 1 hora.${bundle.unavailable?` ${bundle.unavailable} archivos sin enlace disponible.`:''}${missing?` ${missing} personas sin historial evaluable; revisa sus notas.`:''}`;
   }catch(error){status.textContent=error.message||'No se pudo generar el informe. Vuelve a exportar para reintentar.';}
-  finally{ATTENDANCE_EXPORT_BUSY=false;button.disabled=!attendanceExportPeople().length;if(excel)excel.disabled=button.disabled;if(picker)picker.disabled=false;if(period)period.disabled=false;}
+  finally{ATTENDANCE_EXPORT_BUSY=false;if(loading)loading.hidden=true;if(activeButton)activeButton.innerHTML=buttonHtml;if(view)view.disabled=viewDisabled;button.disabled=!attendanceExportPeople().length;if(excel)excel.disabled=button.disabled;if(picker)picker.disabled=false;if(period)period.disabled=false;}
 }
 if($('admin-attendance-export'))$('admin-attendance-export').onclick=()=>downloadAttendanceExport('pdf');
 if($('admin-attendance-excel'))$('admin-attendance-excel').onclick=()=>downloadAttendanceExport('xlsx');
