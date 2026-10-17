@@ -31,9 +31,19 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
   input.before(wrap);
   input.classList.add('sr-only');input.tabIndex=-1;input.setAttribute('aria-hidden','true');
   input.style.pointerEvents='none';
-  const trigger=wrap.querySelector('.kja-date-trigger'),text=wrap.querySelector('.kja-date-text'),popup=wrap.querySelector('.kja-date-popup'),
-    title=wrap.querySelector('.kja-date-title'),grid=wrap.querySelector('.kja-date-grid'),todayButton=wrap.querySelector('.kja-date-today'),
-    prev=wrap.querySelector('[data-nav="-1"]'),next=wrap.querySelector('[data-nav="1"]');
+  const trigger=wrap.querySelector('.kja-date-trigger'),
+        text=wrap.querySelector('.kja-date-text'),
+        popup=wrap.querySelector('.kja-date-popup'),
+        title=wrap.querySelector('.kja-date-title')||popup.querySelector('.kja-date-title'),
+        grid=wrap.querySelector('.kja-date-grid')||popup.querySelector('.kja-date-grid'),
+        todayButton=wrap.querySelector('.kja-date-today')||popup.querySelector('.kja-date-today'),
+        prev=wrap.querySelector('[data-nav="-1"]')||popup.querySelector('[data-nav="-1"]'),
+        next=wrap.querySelector('[data-nav="1"]')||popup.querySelector('[data-nav="1"]'),
+        closeBtn=wrap.querySelector('.kja-date-close')||popup.querySelector('.kja-date-close');
+
+  if(typeof document !== 'undefined' && document.body && typeof document.body.appendChild === 'function'){
+    document.body.appendChild(popup);
+  }
   let opened=false,year=0,month=0;
 
   function isInside(target){
@@ -42,7 +52,9 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
       wrap.contains(target)||
       popup.contains(target)||
       target===input||
-      target.closest?.('.kja-date-picker, .kja-date-popup, .attendance-export-field')
+      target===wrap||
+      target===popup||
+      (trigger&&(target===trigger||trigger.contains(target)))
     );
   }
   function sync(){
@@ -68,10 +80,18 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     todayButton.disabled=(min&&today<min)||(max&&today>max)||false;
   }
   function position(){
-    const r=trigger.getBoundingClientRect(),width=Math.min(290,window.innerWidth-24);
-    popup.style.width=`${width}px`;popup.style.left=`${Math.max(12,Math.min(r.left,window.innerWidth-width-12))}px`;
+    const r=trigger.getBoundingClientRect();
+    if(r.bottom<0||r.top>window.innerHeight){
+      close();
+      return;
+    }
+    const width=Math.min(290,window.innerWidth-24);
+    popup.style.width=`${width}px`;
+    popup.style.left=`${Math.max(12,Math.min(r.left,window.innerWidth-width-12))}px`;
+    popup.style.right='auto';
     const below=window.innerHeight-r.bottom,up=below<360&&r.top>below;
-    popup.style.top=up?'auto':`${r.bottom+8}px`;popup.style.bottom=up?`${window.innerHeight-r.top+8}px`:'auto';
+    popup.style.top=up?'auto':`${r.bottom+8}px`;
+    popup.style.bottom=up?`${window.innerHeight-r.top+8}px`:'auto';
   }
   function close(focus=false){
     if(!opened)return;opened=false;
@@ -80,11 +100,21 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     if(focus)trigger.focus({preventScroll:true});
   }
   function open(){
+    try{
+      document.querySelectorAll?.('.kja-date-popup:not([hidden])').forEach(p=>{
+        if(p!==popup)p.hidden=true;
+      });
+      document.querySelectorAll?.('.kja-date-trigger[aria-expanded="true"]').forEach(t=>{
+        if(t!==trigger)t.setAttribute('aria-expanded','false');
+      });
+    }catch(_){}
     const base=/^\d{4}-\d{2}-\d{2}$/.test(input.value)?input.value:kjaDateToday();
     [year,month]=base.split('-').map(Number);
     opened=true;popup.hidden=false;
     try{if(popup.showPopover)popup.showPopover();}catch(_){}
-    trigger.setAttribute('aria-expanded','true');position();render();
+    trigger.setAttribute('aria-expanded','true');
+    render();
+    position();
   }
   function choose(value){
     close(true);input.value=value;sync();
@@ -122,7 +152,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
   trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();open();}});
   bindAction(prev, () => move(-1));
   bindAction(next, () => move(1));
-  bindAction(wrap.querySelector('.kja-date-close'), () => close(true));
+  bindAction(closeBtn, () => close(true));
   bindAction(todayButton, () => choose(kjaDateToday()));
   popup.addEventListener('click',e=>e.stopPropagation());
   popup.addEventListener('pointerdown',e=>e.stopPropagation());
@@ -146,11 +176,20 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     if(index<0)return;e.preventDefault();
     if(target&&!target.disabled)target.focus({preventScroll:true});
   });
-  wrap.addEventListener('keydown',e=>{if(e.key==='Escape'&&opened){e.preventDefault();e.stopPropagation();close(true);}});
+  const onEscape=e=>{
+    if(e.key==='Escape'&&opened){
+      e.preventDefault();
+      e.stopPropagation();
+      close(true);
+    }
+  };
+  wrap.addEventListener('keydown',onEscape);
+  popup.addEventListener('keydown',onEscape);
   document.addEventListener('pointerdown',e=>{if(opened&&!isInside(e.target))close();});
   document.addEventListener('focusin',e=>{if(opened&&!isInside(e.target))close();});
   window.addEventListener('resize',()=>{if(opened)position();});
-  window.addEventListener('scroll',()=>{if(opened)position();},{passive:true});
+  window.addEventListener('scroll',()=>{if(opened)position();},{passive:true,capture:true});
+  document.addEventListener('scroll',()=>{if(opened)position();},{passive:true,capture:true});
   input.addEventListener('change',sync);
   KJA_DATE_SYNCS.push(sync);
   sync();

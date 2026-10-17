@@ -19,7 +19,7 @@
 .kja-date-trigger[aria-expanded="true"] .kja-date-chevron{transform:rotate(180deg);color:#655083}
 
 .kja-date-popup{
-  position:fixed;inset:auto;margin:0;box-sizing:border-box;z-index:9999;
+  position:fixed;inset:auto;margin:0;box-sizing:border-box;z-index:99999;
   display:flex;flex-direction:column;gap:12px;padding:16px;
   border:1px solid #e2dde9;border-radius:18px;background:#fff;color:#403955;
   box-shadow:0 16px 42px rgba(64,57,85,.16),0 2px 8px rgba(64,57,85,.05);
