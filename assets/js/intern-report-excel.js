@@ -39,7 +39,7 @@
   function create(reports,today){
     if(!reports.length)throw new Error('Selecciona al menos un interno.');
     const schedules=[],attendance=[],summary=[];
-    const codes={presentes:['P',11],tardanzas:['T',10],justificados:['J',14],faltas:['F',12],incompletas:['INC',16],en_curso:['EC',13],pendientes:['PD',13],no_gestiona:['NG',0],no_laborables:['—',0],sin_datos:['REV',13]};
+    const codes={presentes:['P',11],tardanzas:['T',10],justificados:['J',14],dias_libres:['DL',11],faltas:['F',12],incompletas:['INC',16],en_curso:['EC',13],pendientes:['PD',13],no_gestiona:['NG',0],no_laborables:['—',0],sin_datos:['REV',13]};
     for(const report of reports){
       const p=report.person,area=p.area||'Sin área',days=report.attendance.days||[],counts=Object.fromEntries(Object.keys(codes).map(key=>[key,0]));
       const week=ADMIN_DAYS.map(([,dow])=>{
@@ -86,7 +86,7 @@
     // Formato compacto de la referencia: título, espacio y encabezado en fila 3.
     summarySheet.xml=summarySheet.xml.replace(/<row r="[23]"[\s\S]*?<\/row>/g,'').replace(/(<row r="1"[^>]*>)([\s\S]*?)(<\/row>)/,(_,a,b,c)=>a+b.replaceAll('s="1"','s="18"')+c).replace(/<row r="(\d+)"/g,(text,n)=>`<row r="${Number(n)>=5?Number(n)-2:n}"`).replace(/<c r="([A-Z]+)(\d+)"/g,(text,column,n)=>`<c r="${column}${Number(n)>=5?Number(n)-2:n}"`).replace(/<mergeCells[\s\S]*?<\/mergeCells>/,'<mergeCells count="1"><mergeCell ref="A1:J1"/></mergeCells>').replace(/<dimension ref="[^"]+"\/>/,`<dimension ref="A1:J${summary.length+3}"/>`).replace(/<autoFilter ref="[^"]+"\/>/,`<autoFilter ref="A3:J${summary.length+3}"/>`).replace('ySplit="5"','ySplit="3"').replaceAll('C6','C4');
     summarySheet.last=`J${summary.length+3}`;summarySheet.repeat=3;
-    const attendanceSheet=matrixStyle(sheet('Asistencia',['Colaborador','Área','Mes',...Array.from({length:31},(_,i)=>String(i+1)),'Horas válidas'],[34,24,22,...Array(31).fill(6),16],attendance,'P: presente · T: tardanza · J: justificado · F: falta · INC: incompleta · EC: en curso · PD: pendiente · NG: no gestiona · REV: revisar · —: no laborable. Vacío: fuera del período o día inexistente.'),3);
+    const attendanceSheet=matrixStyle(sheet('Asistencia',['Colaborador','Área','Mes',...Array.from({length:31},(_,i)=>String(i+1)),'Horas válidas'],[34,24,22,...Array(31).fill(6),16],attendance,'P: presente · T: tardanza · J: justificado · DL: día libre · F: falta · INC: incompleta · EC: en curso · PD: pendiente · NG: no gestiona · REV: revisar · —: no laborable. Vacío: fuera del período o día inexistente.'),3);
     // Una fila por colaborador y mes; espacio suficiente para leer los códigos de tres letras.
     attendanceSheet.xml=attendanceSheet.xml.replace('showGridLines="0"','showGridLines="0" zoomScale="80"');
     return {styles,sheets:[summarySheet,scheduleSheet(schedules,today),attendanceSheet]};

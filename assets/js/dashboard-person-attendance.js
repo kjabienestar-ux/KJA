@@ -35,10 +35,23 @@ async function loadProfileAttendance(person,today,isCurrent=()=>true,onProgress=
         if(!Array.isArray(found?.dias))throw new Error('Persona no disponible');
         if(book.data.hoy&&book.data.hoy<end)end=book.data.hoy;
         const byDate=new Map((closes.data.cierres||[]).filter(item=>String(item.colaborador_id)===String(person.id)).map(item=>[item.fecha,item]));
+        const leaves=new Map((book.data.dias_libres||[]).filter(item=>String(item.colaborador_id)===String(person.id)).map(item=>[item.fecha,item]));
         for(const day of found.dias){
           if(day.fecha<start||day.fecha>today||day.futura)continue;
           const close=byDate.get(day.fecha);
-          days.push({...day,cierre_estado:close?.estado||null,salida_at:close?.salida_at||null});
+          const leave=leaves.get(day.fecha);
+          const isDay5=day.fecha==='2026-10-05';
+          const isDay13=day.fecha==='2026-10-13';
+          const isSpecialOff=(isDay5||(isDay13&&day.laborable!==false))&&(!day.estado||day.estado==='F');
+          const diaLibre=!!leave||isSpecialOff;
+          days.push({
+            ...day,
+            dia_libre:diaLibre,
+            motivo:diaLibre?(leave?.motivo||(isDay5?'Día libre general (05/10)':'Día libre asignado (13/10)')):day.motivo,
+            laborable:diaLibre?false:day.laborable,
+            cierre_estado:close?.estado||null,
+            salida_at:close?.salida_at||null
+          });
         }
       }catch(error){missing.push(period.key);}
     }));
@@ -53,6 +66,10 @@ function profileAttendanceState(day,today,person,now=new Date()){
   if(day.cierre_estado==='en_curso')return ['en_curso','Jornada en curso'];
   if(day.estado==='P')return ['presentes','Presente'];
   if(day.estado==='T')return ['tardanzas','Tardanza'];
+  const isDay5=day.fecha==='2026-10-05';
+  const isDay13=day.fecha==='2026-10-13';
+  const isSpecialOff=(isDay5||(isDay13&&day.laborable!==false))&&(!day.estado||day.estado==='F');
+  if(day.dia_libre||isSpecialOff)return ['dias_libres','Día libre'];
   if(day.estado)return ['sin_datos',`Estado: ${day.estado}`];
   if(!day.laborable)return ['no_laborables',({feriado:'Feriado',permiso:'Permiso / día libre',preinicio:'Antes del ingreso'})[day.motivo]||'No laborable'];
   if(day.fecha===today)return ['pendientes','Pendiente de hoy'];
@@ -74,7 +91,7 @@ function profileAttendanceSections(person,extra){
   if(!report?.ok)return [{title,note:report?.message||'No se pudo cargar la asistencia. Pulsa «Reintentar».',rows:[]}];
   if(report.missingStart)return [{title,note:'Falta registrar la fecha de ingreso en el contrato para consultar la asistencia completa.',rows:[]}];
   if(report.futureStart)return [{title,note:`El ingreso está programado para el ${adminDate(report.start)}. Aún no hay jornadas que evaluar.`,rows:[]}];
-  const totals={presentes:0,tardanzas:0,justificados:0,faltas:0,incompletas:0,en_curso:0,pendientes:0,no_gestiona:0,no_laborables:0,sin_datos:0};
+  const totals={presentes:0,tardanzas:0,justificados:0,dias_libres:0,faltas:0,incompletas:0,en_curso:0,pendientes:0,no_gestiona:0,no_laborables:0,sin_datos:0};
   const time=value=>value?new Date(value).toLocaleTimeString('es-PE',{timeZone:'America/Lima',hour:'2-digit',minute:'2-digit',hour12:false}):'—';
   let hours=0;
   const rows=report.days.map(day=>{
@@ -84,7 +101,7 @@ function profileAttendanceSections(person,extra){
     return [adminDate(day.fecha),label,time(day.marcado_at),time(day.salida_at),valid&&day.horas!=null?adminHours(day.horas):'—',[day.nota,day.excepcion_nota,day.feriado_nota].filter(Boolean).join(' · ')||'—'];
   });
   const partial=report.missing.length?` Lectura parcial: no se pudieron cargar ${report.missing.join(', ')}. Los totales solo incluyen los meses disponibles. Pulsa «Reintentar».`:'';
-  const labels={presentes:'Presentes (puntuales)',tardanzas:'Tardanzas',justificados:'Justificados',faltas:'Faltas (sin registro)',incompletas:'Jornadas incompletas',en_curso:'Jornadas en curso',pendientes:'Pendientes de hoy',no_gestiona:'No gestiona',no_laborables:'Días no laborables / permisos',sin_datos:'Días por revisar'};
+  const labels={presentes:'Presentes (puntuales)',tardanzas:'Tardanzas',justificados:'Justificados',dias_libres:'Días libres asignados',faltas:'Faltas (sin registro)',incompletas:'Jornadas incompletas',en_curso:'Jornadas en curso',pendientes:'Pendientes de hoy',no_gestiona:'No gestiona',no_laborables:'Días no laborables / permisos',sin_datos:'Días por revisar'};
   return [
     {title,note:`Del ${adminDate(report.start)} al ${adminDate(report.end)}.${partial}`,rows:[...Object.entries(labels).map(([key,label])=>[label,String(totals[key])]),['Horas válidas registradas',adminHours(hours)]]},
     {title:'Detalle diario de asistencia',attendanceDetail:true,note:'Hora de Lima. Una falta corresponde a un día laborable pasado sin registro. Hoy y las jornadas en curso quedan pendientes. Se usan el horario y las excepciones del libro mensual vigente; los días sin registro de personas dadas de baja requieren revisión.',head:['Fecha','Asistencia','Entrada','Salida','Horas','Observaciones'],rows}

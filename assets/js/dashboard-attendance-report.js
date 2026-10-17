@@ -41,7 +41,7 @@ function buildFocusedAttendancePdf(bundle){
   const M=KJAAttendanceReport,doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true});
   doc.setProperties({title:'KJA · Asistencia y evidencias',author:'KJA'});
   const text=(s,x,y,size=10,bold=false)=>{doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);doc.setTextColor(21,36,58);doc.text(s,x,y)};
-  const color=value=>value==='Puntual'?[221,240,228]:value==='Tardanza'?[255,241,204]:value==='Incompleta'?[249,218,219]:null;
+  const color=value=>value==='Puntual'||value==='Día libre'?[221,240,228]:value==='Tardanza'?[255,241,204]:value==='Incompleta'?[249,218,219]:null;
   const table=opts=>doc.autoTable({theme:'striped',margin:{top:17,bottom:17,left:14,right:14},rowPageBreak:'avoid',styles:{font:'helvetica',fontSize:9,cellPadding:3,overflow:'linebreak',textColor:[21,36,58]},headStyles:{fillColor:[9,36,76],textColor:255},alternateRowStyles:{fillColor:[246,248,250]},didParseCell:data=>{const fill=color(data.cell.raw);if(data.section==='body'&&fill)data.cell.styles.fillColor=fill},...opts});
   text('Asistencia y evidencias',14,22,22,true);
   text(`${M.date(bundle.range.from)} al ${M.date(bundle.range.to)} · ${bundle.reports.length} personas`,14,31,11);
