@@ -179,16 +179,6 @@
                         </div>
                         Directores
                     </button>
-                    <button class="nosotros-tab" type="button" id="representantes-tab" aria-controls="about-representantes" aria-pressed="false" onclick="switchAboutTab(this, 'representantes')">
-                        <div class="nosotros-tab-icon" style="color: #e2006d; background: #fff0f6;">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <circle cx="12" cy="8" r="3" />
-                                <path d="M6.5 20v-2.5a5.5 5.5 0 0 1 11 0V20" />
-                                <path d="M5 10.5a2.5 2.5 0 1 0 0-5M19 5.5a2.5 2.5 0 1 1 0 5M3 19v-1a4 4 0 0 1 2-3.45M21 19v-1a4 4 0 0 0-2-3.45" />
-                            </svg>
-                        </div>
-                        Representantes
-                    </button>
                     <button class="nosotros-tab" type="button" aria-controls="about-mision" aria-pressed="false" onclick="switchAboutTab(this, 'mision')"
                         style="display: none;">
                         <div class="nosotros-tab-icon" style="color: #8b5cf6; background: #f5f3ff;">
@@ -429,69 +419,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- ════ REPRESENTANTES POR ÁREA ════ -->
-            <div class="about-panel" id="about-representantes" aria-labelledby="representantes-tab">
-                <section class="representatives-section" aria-labelledby="representatives-title">
-                    <div class="representatives-showcase" style="--rep-accent:#f10075; --rep-soft:#ffe1ef;">
-                        <div class="representatives-heading">
-                            <span class="representatives-eyebrow"><span aria-hidden="true">✦</span> EL EQUIPO QUE IMPULSA KJA</span>
-                            <h2 id="representatives-title">Personas que convierten<br><em>propósito en acción</em></h2>
-                            <p>Explora cada área y conoce a la persona que conecta su talento con el bienestar de nuestra comunidad.</p>
-                        </div>
-                        <div class="representatives-backdrop" aria-hidden="true">
-                            <img id="representative-office-photo" src="images/dashboard/fondo-1-1280.webp" alt="" width="1280" height="574">
-                        </div>
-                        <div class="representatives-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
-
-                        <div class="representative-feature" aria-live="polite" aria-atomic="true">
-                            <span class="representative-feature-kicker"><i></i><span id="representative-feature-area">Salud ocupacional</span></span>
-                            <p class="representative-feature-number"><span id="representative-feature-index">01</span> / 09</p>
-                            <h3 id="representative-feature-name">Ángel Raúl<br>Tito Policarpo</h3>
-                            <p id="representative-feature-description">Promueve espacios de trabajo seguros y acciones preventivas para cuidar el bienestar del equipo.</p>
-                            <span class="representative-feature-role">Representante de área <b aria-hidden="true">↗</b></span>
-                        </div>
-
-                        <div class="representatives-slider">
-                            <div class="representatives-rail" id="representatives-rail" role="group" aria-label="Seleccionar representante">
-                                <button class="representative-card is-active" type="button" aria-pressed="true" data-area="Salud ocupacional" data-name="Ángel Raúl Tito Policarpo" data-description="Promueve espacios de trabajo seguros y acciones preventivas para cuidar el bienestar del equipo." data-accent="#f10075" data-soft="#ffe1ef" aria-label="Ver a Ángel Raúl Tito Policarpo, representante de Salud ocupacional">
-                                    <img src="images/nosotros/integrante-placeholder-v.webp" alt="Fotografía pendiente de Ángel Raúl Tito Policarpo" width="720" height="960" loading="lazy" decoding="async"><span>Salud ocupacional</span><strong>Ángel Tito</strong>
-                                </button>
-                                <button class="representative-card" type="button" aria-pressed="false" data-area="Recursos Humanos" data-name="Erika del Socorro Moreno Quilcate" data-description="Acompaña al talento, la cultura interna y el desarrollo humano de quienes forman parte de KJA." data-accent="#48a6ff" data-soft="#dcefff" aria-label="Ver a Erika del Socorro Moreno Quilcate, representante de Recursos Humanos">
-                                    <img src="images/nosotros/integrante-placeholder-v.webp" alt="Fotografía pendiente de Erika del Socorro Moreno Quilcate" width="720" height="960" loading="lazy" decoding="async"><span>Recursos Humanos</span><strong>Erika Moreno</strong>
-                                </button>
-                                <button class="representative-card" type="button" aria-pressed="false" data-area="Reclutamiento" data-name="Jade Alina Cabrera Pérez" data-description="Conecta nuevos talentos con oportunidades de aprendizaje, crecimiento y aporte a la comunidad." data-accent="#a886ff" data-soft="#ede7ff" aria-label="Ver a Jade Alina Cabrera Pérez, representante de Reclutamiento">
-                                    <img src="images/nosotros/integrante-placeholder-v.webp" alt="Fotografía pendiente de Jade Alina Cabrera Pérez" width="720" height="960" loading="lazy" decoding="async"><span>Reclutamiento</span><strong>Jade Cabrera</strong>
-                                </button>
-                                <button class="representative-card" type="button" aria-pressed="false" data-area="Marketing" data-name="Jheferson Junior Quispe" data-description="Impulsa contenidos y campañas que acercan los servicios y valores de KJA a más personas." data-accent="#ff3d91" data-soft="#ffddeb" aria-label="Ver a Jheferson Junior Quispe, representante de Marketing">
-                                    <img src="images/nosotros/integrante-placeholder-v.webp" alt="Fotografía pendiente de Jheferson Junior Quispe" width="720" height="960" loading="lazy" decoding="async"><span>Marketing</span><strong>Jheferson Quispe</strong>
-                                </button>
-                                <button class="representative-card" type="button" aria-pressed="false" data-area="Ingeniería" data-name="Yeiser Jamber Ávila Medina" data-description="Orienta las soluciones tecnológicas y la mejora continua de los procesos digitales del centro." data-accent="#4f8fff" data-soft="#dfeaff" aria-label="Ver a Yeiser Jamber Ávila Medina, representante de Ingeniería">
-                                    <img src="images/nosotros/integrante-placeholder-v.webp" alt="Fotografía pendiente de Yeiser Jamber Ávila Medina" width="720" height="960" loading="lazy" decoding="async"><span>Ingeniería</span><strong>Yeiser Ávila</strong>
-                                </button>
-                                <button class="representative-card" type="button" aria-pressed="false" data-area="Diseño gráfico" data-name="Jian Phol Damian Gregorio" data-description="Convierte ideas y mensajes en piezas visuales claras, cercanas y coherentes con nuestra identidad." data-accent="#ffae3d" data-soft="#ffedcf" aria-label="Ver a Jian Phol Damian Gregorio, representante de Diseño gráfico">
-                                    <img src="images/nosotros/integrante-placeholder-v.webp" alt="Fotografía pendiente de Jian Phol Damian Gregorio" width="720" height="960" loading="lazy" decoding="async"><span>Diseño gráfico</span><strong>Jian Damian</strong>
-                                </button>
-                                <button class="representative-card" type="button" aria-pressed="false" data-area="Clínica" data-name="Daniela Lupa Gonzales" data-description="Articula una atención psicológica cercana, organizada y centrada en las necesidades de cada persona." data-accent="#ff6f86" data-soft="#ffe1e6" aria-label="Ver a Daniela Lupa Gonzales, representante de Clínica">
-                                    <img src="images/nosotros/integrante-placeholder-v.webp" alt="Fotografía pendiente de Daniela Lupa Gonzales" width="720" height="960" loading="lazy" decoding="async"><span>Clínica</span><strong>Daniela Lupa</strong>
-                                </button>
-                                <button class="representative-card" type="button" aria-pressed="false" data-area="Audiovisuales" data-name="Diego Franco Landeo Ramón" data-description="Da vida a historias y recursos audiovisuales que comunican el trabajo y propósito de KJA." data-accent="#3ab8e5" data-soft="#dcf5ff" aria-label="Ver a Diego Franco Landeo Ramón, representante de Audiovisuales">
-                                    <img src="images/nosotros/integrante-placeholder-v.webp" alt="Fotografía pendiente de Diego Franco Landeo Ramón" width="720" height="960" loading="lazy" decoding="async"><span>Audiovisuales</span><strong>Diego Landeo</strong>
-                                </button>
-                                <button class="representative-card" type="button" aria-pressed="false" data-area="Contabilidad" data-name="Merly Stefany Medina Rodas" data-description="Contribuye al orden administrativo y al seguimiento responsable de los recursos de la organización." data-accent="#9cadc7" data-soft="#e8eef6" aria-label="Ver a Merly Stefany Medina Rodas, representante de Contabilidad">
-                                    <img src="images/nosotros/integrante-placeholder-v.webp" alt="Fotografía pendiente de Merly Stefany Medina Rodas" width="720" height="960" loading="lazy" decoding="async"><span>Contabilidad</span><strong>Merly Medina</strong>
-                                </button>
-                            </div>
-                            <div class="representatives-controls">
-                                <button type="button" id="representatives-previous" aria-label="Representante anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-                                <button type="button" id="representatives-next" aria-label="Representante siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-                                <span><b id="representatives-current">01</b><i></i>09</span>
-                            </div>
-                        </div>
-                        <p class="representatives-photo-note"><span aria-hidden="true">○</span> Las fotografías individuales se actualizarán con los retratos oficiales del equipo.</p>
-                    </div>
-                </section>
             </div>
 
             <!-- ════ TAB 3 · MISIÓN Y VISIÓN ════ -->
@@ -784,7 +711,6 @@
          ════════════════════════════════════════════════════════════ -->
     <script defer src="assets/js/nosotros-testimonios.js?v=3"></script>
     <script defer src="assets/js/nosotros-interactions.js?v=3"></script>
-    <script defer src="assets/js/nosotros-representantes.js?v=1"></script>
     <script defer src="assets/js/script.js?v=11"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>
