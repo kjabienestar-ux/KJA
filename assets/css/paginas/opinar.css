@@ -153,4 +153,14 @@ body{font-family:'Poppins',system-ui,sans-serif;background:var(--op-bg);color:va
   .op-aside{display:none}
   .op-shell{min-height:0}
 }
+/* ── Incrustado en el modal de reseñas del inicio (?embed=1): sin fondo ni marco propio, ocupa todo el modal ── */
+.op-embed body{display:block;padding:0;background:#fff;min-height:100vh;min-height:100dvh}
+.op-embed .op-blob{display:none}
+.op-embed .op-shell{max-width:none;min-height:100vh;min-height:100dvh;border:0;border-radius:0;box-shadow:none}
+.op-embed .op-logo{pointer-events:none}
+.op-embed .op-mhead{padding-right:46px}
+@media(max-width:899px){
+  .op-embed .op-shell{max-width:none;margin:0}
+  .op-embed .op-aside{padding-right:60px}
+}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.op-badge .k{stroke-dashoffset:0}}
