@@ -194,61 +194,61 @@
             <div class="particle p-8"></div>
         </div>
         <div class="container">
-            <div class="therapy-tabs-wrapper" id="catalog-tabs">
-                <div class="tab therapy-tab active" id="tab-ninos" onclick="switchTab(this,'ninos')">
-                    <div class="icon-circle" style="color: #f10075; background: #fff0f5;">
-                        <svg fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                            <line x1="9" x2="9.01" y1="9" y2="9"></line>
-                            <line x1="15" x2="15.01" y1="9" y2="9"></line>
-                        </svg>
+            <div class="tabs-center-container">
+                <div class="therapy-tabs-wrapper" id="catalog-tabs" role="tablist" aria-label="Etapas y áreas de terapia">
+                    <div class="tab therapy-tab active" id="tab-ninos" onclick="switchTab(this,'ninos')" role="tab" tabindex="0" aria-selected="true" onkeydown="if(event.key==='Enter'||event.key===' '){switchTab(this,'ninos');event.preventDefault();}">
+                        <div class="icon-circle">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                <line x1="9" x2="9.01" y1="9" y2="9"></line>
+                                <line x1="15" x2="15.01" y1="9" y2="9"></line>
+                            </svg>
+                        </div>
+                        <span>Niños</span>
                     </div>
-                    Niños
-                </div>
-                <div class="tab therapy-tab" id="tab-adolescentes" onclick="switchTab(this,'adolescentes')">
-                    <div class="icon-circle" style="color: #3b82f6; background: #eff6ff;">
-                        <svg fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
+                    <div class="tab therapy-tab" id="tab-adolescentes" onclick="switchTab(this,'adolescentes')" role="tab" tabindex="0" aria-selected="false" onkeydown="if(event.key==='Enter'||event.key===' '){switchTab(this,'adolescentes');event.preventDefault();}">
+                        <div class="icon-circle">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="11" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <span>Adolescentes</span>
                     </div>
-                    Adolescentes
-                </div>
-                <div class="tab therapy-tab" id="tab-adultos" onclick="switchTab(this,'adultos')">
-                    <div class="icon-circle" style="color: #8b5cf6; background: #f5f3ff;">
-                        <svg fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
+                    <div class="tab therapy-tab" id="tab-adultos" onclick="switchTab(this,'adultos')" role="tab" tabindex="0" aria-selected="false" onkeydown="if(event.key==='Enter'||event.key===' '){switchTab(this,'adultos');event.preventDefault();}">
+                        <div class="icon-circle">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <span>Adultos y Pareja</span>
                     </div>
-                    Adultos y Pareja
-                </div>
-                <div class="tab therapy-tab" id="tab-familia" onclick="switchTab(this,'familia')">
-                    <div class="icon-circle" style="color: #10b981; background: #ecfdf5;">
-                        <svg fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                            <path d="M12 21v-2a4 4 0 0 0-4-4H4a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="6" cy="7" r="4"></circle>
-                            <path d="M24 21v-2a4 4 0 0 0-4-4h-2.5"></path>
-                            <path d="M18 3.13a4 4 0 0 1 0 7.75"></path>
-                            <path d="M16 21v-2a4 4 0 0 0-2-3.87"></path>
-                        </svg>
+                    <div class="tab therapy-tab" id="tab-familia" onclick="switchTab(this,'familia')" role="tab" tabindex="0" aria-selected="false" onkeydown="if(event.key==='Enter'||event.key===' '){switchTab(this,'familia');event.preventDefault();}">
+                        <div class="icon-circle">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <span>Familia</span>
                     </div>
-                    Familia
-                </div>
-                <div class="tab therapy-tab" id="tab-areas" onclick="switchTab(this,'areas')">
-                    <div class="icon-circle" style="color: #be185d; background: #fce7f3;">
-                        <svg fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                            <path
-                                d="M3.5 8.5c0-2.76 2.24-5 5-5 1.55 0 2.93.71 3.87 1.82A4.98 4.98 0 0 1 20.5 8.5c0 4.17-8 11-8 11S3.5 12.67 3.5 8.5z">
-                            </path>
-                        </svg>
+                    <div class="tab therapy-tab" id="tab-areas" onclick="switchTab(this,'areas')" role="tab" tabindex="0" aria-selected="false" onkeydown="if(event.key==='Enter'||event.key===' '){switchTab(this,'areas');event.preventDefault();}">
+                        <div class="icon-circle">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                            </svg>
+                        </div>
+                        <span>Áreas</span>
                     </div>
-                    Áreas
                 </div>
             </div>
             <div class="catalog-header-text">
@@ -257,1131 +257,530 @@
                     necesitan.</p>
             </div>
             <!-- NIÑOS -->
+                        <!-- PANEL NINOS -->
             <div class="catalog-grid tab-panel active" id="panel-ninos">
-                <!-- 1 · Evaluación Pedagógica -->
-                <div class="catalog-card-v2" data-category="areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-pedagogica')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-pedagogica');event.preventDefault();}" aria-label="Ver detalles de Evaluación Pedagógica">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-ninos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                                <line x1="9" x2="9.01" y1="9" y2="9" />
-                                <line x1="15" x2="15.01" y1="9" y2="9" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Niños</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Evaluación Pedagógica" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/10_terapia_evaluacion_pedagogica.webp" /></div>
-                        <div class="card-circle-icon icon-ninos">
-                            <svg class="circle-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="16" x2="8" y1="13" y2="13" />
-                                <line x1="16" x2="8" y1="17" y2="17" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Evaluación Pedagógica" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/10_terapia_evaluacion_pedagogica.webp" />
                     </div>
-                    <div class="card-color-bar bar-ninos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-ninos">EVALUACIÓN</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">EVALUACIÓN</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
                         <h4>Evaluación Pedagógica</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 4 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Con padres</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> 4 a 11 años</span>
-                        </div>
-                        <p>Evaluación integral del rendimiento académico para identificar dificultades de aprendizaje y
-                            definir el mejor plan de apoyo para cada estudiante.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-ninos">
-                        <a class="btn-details-v2 text-ninos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-pedagogica')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-ninos" onclick="openTherapyModal('areas-pedagogica')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Evaluación integral del rendimiento académico para identificar dificultades de aprendizaje y definir el mejor plan de apoyo.</p>
                     </div>
                 </div>
-
-
-                <!-- 7 · Terapia de Conducta -->
-                <div class="catalog-card-v2" data-category="areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-conducta-t')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-conducta-t');event.preventDefault();}" aria-label="Ver detalles de Terapia de Conducta">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-ninos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                                <line x1="9" x2="9.01" y1="9" y2="9" />
-                                <line x1="15" x2="15.01" y1="9" y2="9" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Niños</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Terapia de Conducta" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/16_terapia_conducta.webp" /></div>
-                        <div class="card-circle-icon icon-ninos">
-                            <svg class="circle-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path
-                                    d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Terapia de Conducta" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/16_terapia_conducta.webp" />
                     </div>
-                    <div class="card-color-bar bar-ninos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-ninos">INDIVIDUAL</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">INDIVIDUAL</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
                         <h4>Terapia de Conducta</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Con padres</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> 4 a 9 años</span>
-                        </div>
-                        <p>Entendemos el porqué de conductas desafiantes y damos herramientas prácticas para manejarlas
-                            con afecto y límites claros en casa y en el entorno escolar.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-ninos">
-                        <a class="btn-details-v2 text-ninos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-conducta-t')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-ninos" onclick="openTherapyModal('areas-conducta-t')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Entendemos el porqué de conductas desafiantes y damos herramientas prácticas para manejarlas con afecto y límites claros en casa.</p>
                     </div>
                 </div>
-
-
-                <!-- 8 · Integración Sensorial -->
-                <div class="catalog-card-v2" data-category="areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-sensorial')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-sensorial');event.preventDefault();}" aria-label="Ver detalles de Integración Sensorial">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-ninos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                                <line x1="9" x2="9.01" y1="9" y2="9" />
-                                <line x1="15" x2="15.01" y1="9" y2="9" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Niños</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Integración Sensorial" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/17_terapia_integracion_sensorial.webp" /></div>
-                        <div class="card-circle-icon icon-ninos">
-                            <svg class="circle-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path
-                                    d="M10.05 4.575a1.575 1.575 0 10-3.15 0v3m3.15-3v-1.5a1.575 1.575 0 013.15 0v1.5m-3.15 0l.075 5.925m3.075.75V4.575m0 0a1.575 1.575 0 013.15 0V15" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Integración Sensorial" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/17_terapia_integracion_sensorial.webp" />
                     </div>
-                    <div class="card-color-bar bar-ninos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-ninos">ESPECIALIZADA</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">ESPECIALIZADA</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
                         <h4>Integración Sensorial</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 12 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Con padres</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Niños</span>
-                        </div>
-                        <p>Procesamos los estímulos sensoriales para mejorar el confort, desarrollo y juego diario.
-                            Acompañamos a cada niño con terapias especializadas en su entorno.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-ninos">
-                        <a class="btn-details-v2 text-ninos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-sensorial')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-ninos" onclick="openTherapyModal('areas-sensorial')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Procesamos los estímulos sensoriales para mejorar el confort, desarrollo y juego diario. Terapias especializadas que acompañan al niño en su entorno.</p>
                     </div>
                 </div>
-
-
-
-
-                <!-- Tarjetas agregadas dinámicamente al panel de Niños -->
-                <div class="catalog-card-v2" data-category="ninos">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-lenguaje')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-lenguaje');event.preventDefault();}" aria-label="Ver detalles de Tratamiento de Lenguaje">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-ninos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                                <line x1="9" x2="9.01" y1="9" y2="9" />
-                                <line x1="15" x2="15.01" y1="9" y2="9" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Niños</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Tratamiento de Lenguaje" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/02_terapia_lenguaje.webp" /></div>
-                        <div class="card-circle-icon icon-ninos">
-                            <svg class="circle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Tratamiento de Lenguaje" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/02_terapia_lenguaje.webp" />
                     </div>
-                    <div class="card-color-bar bar-ninos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span class="therapy-badge-v2 badge-type-ninos">CON
-                                PADRES</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">ESPECIALIZADA</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
                         <h4>Tratamiento de Lenguaje</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Con padres</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Todas las edades</span>
-                        </div>
-                        <p>Las dificultades en la comunicación pueden generar frustración. Brindamos herramientas para
-                            potenciar el habla, comprensión y confianza.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-ninos">
-                        <a class="btn-details-v2 text-ninos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-lenguaje')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-ninos" onclick="openTherapyModal('areas-lenguaje')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Las dificultades en la comunicación pueden generar frustración. Brindamos herramientas para potenciar el habla, comprensión y confianza.</p>
                     </div>
                 </div>
-
-                <div class="catalog-card-v2" data-category="ninos">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-conducta')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-conducta');event.preventDefault();}" aria-label="Ver detalles de Modificación de Conducta">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-ninos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                                <line x1="9" x2="9.01" y1="9" y2="9" />
-                                <line x1="15" x2="15.01" y1="9" y2="9" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Niños</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Modificación de Conducta" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/03_terapia_modificacion_de_conducta.webp" /></div>
-                        <div class="card-circle-icon icon-ninos">
-                            <svg class="circle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Modificación de Conducta" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/03_terapia_modificacion_de_conducta.webp" />
                     </div>
-                    <div class="card-color-bar bar-ninos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span class="therapy-badge-v2 badge-type-ninos">CON
-                                PADRES</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">CONDUCTUAL</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
                         <h4>Modificación de Conducta</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Con padres</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Niños y jóvenes</span>
-                        </div>
-                        <p>Orientamos conductas complejas con pautas prácticas para establecer límites afectivos y
-                            mejorar la convivencia familiar.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-ninos">
-                        <a class="btn-details-v2 text-ninos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-conducta')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-ninos" onclick="openTherapyModal('areas-conducta')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Orientamos conductas complejas con pautas prácticas para establecer límites afectivos y mejorar la convivencia familiar.</p>
                     </div>
                 </div>
-
-                <div class="catalog-card-v2" data-category="ninos">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-aprendizaje')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-aprendizaje');event.preventDefault();}" aria-label="Ver detalles de Terapia de Aprendizaje">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-ninos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                                <line x1="9" x2="9.01" y1="9" y2="9" />
-                                <line x1="15" x2="15.01" y1="9" y2="9" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Niños</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="942" alt="Terapia de Aprendizaje" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/05_terapia_aprendizaje.webp" /></div>
-                        <div class="card-circle-icon icon-ninos">
-                            <svg class="circle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Terapia de Aprendizaje" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/05_terapia_aprendizaje.webp" />
                     </div>
-                    <div class="card-color-bar bar-ninos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span class="therapy-badge-v2 badge-type-ninos">CON
-                                PADRES</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">APRENDIZAJE</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
                         <h4>Terapia de Aprendizaje</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 12 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Con padres</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Niños y jóvenes</span>
-                        </div>
-                        <p>Apoyamos el proceso de aprendizaje con estrategias personalizadas para superar dificultades
-                            académicas y potenciar el rendimiento escolar.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-ninos">
-                        <a class="btn-details-v2 text-ninos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-aprendizaje')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-ninos" onclick="openTherapyModal('areas-aprendizaje')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Apoyamos el proceso de aprendizaje con estrategias personalizadas para superar dificultades académicas y potenciar el rendimiento escolar.</p>
                     </div>
                 </div>
-
-                <div class="catalog-card-v2" data-category="ninos">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-atencion')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-atencion');event.preventDefault();}" aria-label="Ver detalles de Atención y Concentración">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-ninos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                                <line x1="9" x2="9.01" y1="9" y2="9" />
-                                <line x1="15" x2="15.01" y1="9" y2="9" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Niños</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Atención y Concentración" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/06_terapia_atencion_y_concentracion.webp" /></div>
-                        <div class="card-circle-icon icon-ninos">
-                            <svg class="circle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Atención y Concentración" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/06_terapia_atencion_y_concentracion.webp" />
                     </div>
-                    <div class="card-color-bar bar-ninos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span class="therapy-badge-v2 badge-type-ninos">CON
-                                PADRES</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">NEUROCOGNITIVA</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
                         <h4>Atención y Concentración</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Con padres</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Niños</span>
-                        </div>
-                        <p>Técnicas especializadas para mejorar el foco, la memoria de trabajo y la atención sostenida
-                            en contextos escolares y cotidianos.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-ninos">
-                        <a class="btn-details-v2 text-ninos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-atencion')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-ninos" onclick="openTherapyModal('areas-atencion')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Técnicas especializadas para mejorar el foco, la memoria de trabajo y la atención sostenida en contextos escolares y cotidianos.</p>
                     </div>
                 </div>
-
             </div>
-            <!-- ADOLESCENTES -->
+
+            <!-- PANEL ADOLESCENTES -->
             <div class="catalog-grid tab-panel" id="panel-adolescentes">
-                <div class="catalog-card-v2" data-category="areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-mindfulness')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-mindfulness');event.preventDefault();}" aria-label="Ver detalles de Terapia de Mindfulness">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-adultos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="4" />
-                                <path d="M12 2v2" />
-                                <path d="M12 20v2" />
-                                <path d="M4.93 4.93l1.41 1.41" />
-                                <path d="M17.66 17.66l1.41 1.41" />
-                                <path d="M2 12h2" />
-                                <path d="M20 12h2" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Individual</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Terapia de Mindfulness" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/15_terapia_mindfulness.webp" /></div>
-                        <div class="card-circle-icon icon-adultos">
-                            <svg class="circle-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="4" />
-                                <path d="M12 2v2" />
-                                <path d="M12 20v2" />
-                                <path d="M4.93 4.93l1.41 1.41" />
-                                <path d="M17.66 17.66l1.41 1.41" />
-                                <path d="M2 12h2" />
-                                <path d="M20 12h2" />
-                                <path d="M4.93 19.07l1.41-1.41" />
-                                <path d="M17.66 6.34l1.41-1.41" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Terapia de Mindfulness" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/15_terapia_mindfulness.webp" />
                     </div>
-                    <div class="card-color-bar bar-adultos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-adultos">INDIVIDUAL</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">MINDFULNESS</span>
+                            <span class="therapy-badge-pill pill-audience">ADOLESCENTES</span>
+                        </div>
                         <h4>Terapia de Mindfulness</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 8 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Individual</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Adultos y jóvenes</span>
-                        </div>
-                        <p>Aprende técnicas de atención plena para reducir el estrés, mejorar el bienestar emocional y
-                            vivir con mayor consciencia en el presente.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-adultos">
-                        <a class="btn-details-v2 text-adultos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-mindfulness')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-adultos"
-                            onclick="openTherapyModal('areas-mindfulness')"><svg fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Aprende técnicas de atención plena para reducir el estrés, mejorar el bienestar emocional y vivir con mayor consciencia en el presente.</p>
                     </div>
                 </div>
-
-
-                <!-- 2 · Evaluaciones Integrales -->
-                <div class="catalog-card-v2" data-category="areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-integrales')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-integrales');event.preventDefault();}" aria-label="Ver detalles de Evaluaciones Integrales">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-adultos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Adultos</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Evaluaciones Integrales" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/11_terapia_evaluaciones_integrales.webp" /></div>
-                        <div class="card-circle-icon icon-adultos">
-                            <svg class="circle-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                                <line x1="18" x2="18" y1="20" y2="10" />
-                                <line x1="12" x2="12" y1="20" y2="4" />
-                                <line x1="6" x2="6" y1="20" y2="14" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Evaluaciones Integrales" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/11_terapia_evaluaciones_integrales.webp" />
                     </div>
-                    <div class="card-color-bar bar-adultos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-adultos">EVALUACIÓN</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">EVALUACIÓN</span>
+                            <span class="therapy-badge-pill pill-audience">ADOLESCENTES</span>
+                        </div>
                         <h4>Evaluaciones Integrales</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 3–5 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Individual</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Todas las edades</span>
-                        </div>
-                        <p>Evaluación psicológica completa para obtener un diagnóstico preciso y diseñar un plan de
-                            intervención personalizado a tus necesidades.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-adultos">
-                        <a class="btn-details-v2 text-adultos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-integrales')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-adultos"
-                            onclick="openTherapyModal('areas-integrales')"><svg fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Evaluación psicológica completa para obtener un diagnóstico preciso y diseñar un plan de intervención personalizado a tus necesidades.</p>
                     </div>
                 </div>
-
-
-
-
-                <!-- Tarjeta de Orientación Vocacional agregada dinámicamente -->
-                <div class="catalog-card-v2" data-category="adolescentes">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-orientacion')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-orientacion');event.preventDefault();}" aria-label="Ver detalles de Orientación Vocacional">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-adolescentes">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Adolescentes</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="942" alt="Orientación Vocacional" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/09_terapia_orientacion_vocacional.webp" /></div>
-                        <div class="card-circle-icon icon-adolescentes">
-                            <svg class="circle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Orientación Vocacional" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/09_terapia_orientacion_vocacional.webp" />
                     </div>
-                    <div class="card-color-bar bar-adolescentes"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-adolescentes">INDIVIDUAL</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">VOCACIONAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADOLESCENTES</span>
+                        </div>
                         <h4>Orientación Vocacional</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 8 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Individual</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Jóvenes y adultos</span>
-                        </div>
-                        <p>Elegir un futuro profesional sin claridad puede generar mucha incertidumbre y presión.
-                            Nuestros especialistas te guían a descubrir tus aptitudes e intereses para que tomes una
-                            decisión segura.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-adolescentes">
-                        <a class="btn-details-v2 text-adolescentes" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-orientacion')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-adolescentes"
-                            onclick="openTherapyModal('areas-orientacion')"><svg fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Elegir un futuro profesional sin claridad puede generar mucha incertidumbre y presión. Nuestros especialistas te guían a descubrir tus aptitudes e intereses para que tomes una decisión segura.</p>
                     </div>
                 </div>
             </div>
-            <!-- ADULTOS Y PAREJA -->
+
+            <!-- PANEL ADULTOS -->
             <div class="catalog-grid tab-panel" id="panel-adultos">
-                <div class="catalog-card-v2" data-category="areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-pareja')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-pareja');event.preventDefault();}" aria-label="Ver detalles de Terapia de Pareja">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-familia">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <path
-                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Adultos y Pareja</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Terapia de Pareja" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/13_terapia_pareja.webp" /></div>
-                        <div class="card-circle-icon icon-familia">
-                            <svg class="circle-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path
-                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Terapia de Pareja" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/13_terapia_pareja.webp" />
                     </div>
-                    <div class="card-color-bar bar-familia"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-familia">PAREJA</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">PAREJA</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
                         <h4>Terapia de Pareja</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> En pareja</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Adultos</span>
-                        </div>
-                        <p>Un espacio neutral para reconstruir la comunicación, fortalecer la confianza y encontrar
-                            acuerdos que nutran la relación de pareja.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-familia">
-                        <a class="btn-details-v2 text-familia" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-pareja')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-familia" onclick="openTherapyModal('areas-pareja')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Un espacio neutral para reconstruir la comunicación, fortalecer la confianza y encontrar acuerdos que nutran la relación de pareja.</p>
                     </div>
                 </div>
-
-
-                <!-- 9 · Terapia Emocional -->
-                <div class="catalog-card-v2" data-category="areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-emocional')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-emocional');event.preventDefault();}" aria-label="Ver detalles de Terapia Emocional">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2" style="color:#be185d;">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <path d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Individual</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="1066" alt="Terapia Emocional" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/18_terapia_emocional.webp" />
-                        </div>
-                        <div class="card-circle-icon" style="color:#be185d;">
-                            <svg class="circle-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path
-                                    d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm3.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75z" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Terapia Emocional" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/18_terapia_emocional.webp" />
                     </div>
-                    <div class="card-color-bar" style="background:#be185d;"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span class="therapy-badge-v2"
-                                style="background:#fce7f3;color:#be185d;">INDIVIDUAL</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">EMOCIONAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
                         <h4>Terapia Emocional</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Individual</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Todas las edades</span>
-                        </div>
-                        <p>Aprende a gestionar tus emociones y mejorar tu bienestar. Te acompañamos en el proceso de
-                            autodescubrimiento, fortaleciendo tu amor propio y sanación integral.</p>
-                    </div>
-                    <div class="card-footer-v2" style="background:#fce7f3;">
-                        <a class="btn-details-v2" style="color:#be185d;" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-emocional')">Ver detalles →</a>
-                        <button class="btn-circle-action" style="background:#be185d;"
-                            onclick="openTherapyModal('areas-emocional')"><svg fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Aprende a gestionar tus emociones y mejorar tu bienestar emocional. Te acompañamos en el proceso de autodescubrimiento y sanación integral.</p>
                     </div>
                 </div>
-                <!-- Tarjetas de adultos y parejas agregadas dinámicamente -->
-                <div class="catalog-card-v2" data-category="adultos">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-dependencia')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-dependencia');event.preventDefault();}" aria-label="Ver detalles de Dependencia Emocional">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-adultos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="4" />
-                                <path d="M12 2v2" />
-                                <path d="M12 20v2" />
-                                <path d="M4.93 4.93l1.41 1.41" />
-                                <path d="M17.66 17.66l1.41 1.41" />
-                                <path d="M2 12h2" />
-                                <path d="M20 12h2" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Individual</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="942" alt="Dependencia Emocional" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/01_terapia_dependencia_emocional.webp" /></div>
-                        <div class="card-circle-icon icon-adultos">
-                            <svg class="circle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Dependencia Emocional" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/01_terapia_dependencia_emocional.webp" />
                     </div>
-                    <div class="card-color-bar bar-adultos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-adultos">INDIVIDUAL</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">INDIVIDUAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
                         <h4>Dependencia Emocional</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Individual</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Adultos</span>
-                        </div>
-                        <p>Romper con patrones de relaciones insanas puede ser difícil. Te acompañamos en fortalecer tu
-                            amor propio y construir vínculos desde la libertad emocional.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-adultos">
-                        <a class="btn-details-v2 text-adultos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-dependencia')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-adultos"
-                            onclick="openTherapyModal('areas-dependencia')"><svg fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Romper con patrones de relaciones insanas puede ser difícil. Te acompañamos en fortalecer tu amor propio y construir vínculos desde la libertad emocional.</p>
                     </div>
                 </div>
-
-                <div class="catalog-card-v2" data-category="adultos">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-tcc')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-tcc');event.preventDefault();}" aria-label="Ver detalles de Cognitivo Conductual (TCC)">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-adultos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="4" />
-                                <path d="M12 2v2" />
-                                <path d="M12 20v2" />
-                                <path d="M4.93 4.93l1.41 1.41" />
-                                <path d="M17.66 17.66l1.41 1.41" />
-                                <path d="M2 12h2" />
-                                <path d="M20 12h2" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Individual</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Cognitivo Conductual (TCC)" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/04_terapia_cognitivo_conductual.webp" /></div>
-                        <div class="card-circle-icon icon-adultos">
-                            <svg class="circle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.516 0c.85.493 1.509 1.333 1.509 2.316V18" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Cognitivo Conductual (TCC)" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/04_terapia_cognitivo_conductual.webp" />
                     </div>
-                    <div class="card-color-bar bar-adultos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-adultos">INDIVIDUAL</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">TCC</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
                         <h4>Cognitivo Conductual (TCC)</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Individual</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Todas las edades</span>
-                        </div>
-                        <p>Identificamos y transformamos pensamientos negativos para cambiar cómo te sientes y actúas,
-                            con estrategias basadas en evidencia.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-adultos">
-                        <a class="btn-details-v2 text-adultos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-tcc')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-adultos" onclick="openTherapyModal('areas-tcc')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Identificamos y transformamos pensamientos negativos para cambiar cómo te sientes y actúas, con estrategias basadas en evidencia.</p>
                     </div>
                 </div>
-
-                <div class="catalog-card-v2" data-category="adultos">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-ansiedad')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-ansiedad');event.preventDefault();}" aria-label="Ver detalles de Terapia de Ansiedad">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-adultos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="4" />
-                                <path d="M12 2v2" />
-                                <path d="M12 20v2" />
-                                <path d="M4.93 4.93l1.41 1.41" />
-                                <path d="M17.66 17.66l1.41 1.41" />
-                                <path d="M2 12h2" />
-                                <path d="M20 12h2" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Individual</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Terapia de Ansiedad" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/07_terapia_ansiedad.webp" /></div>
-                        <div class="card-circle-icon icon-adultos">
-                            <svg class="circle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12 7.5a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM7.5 17.25a4.5 4.5 0 019 0H7.5z" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Terapia de Ansiedad" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/07_terapia_ansiedad.webp" />
                     </div>
-                    <div class="card-color-bar bar-adultos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-adultos">INDIVIDUAL</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">INDIVIDUAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
                         <h4>Terapia de Ansiedad</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Individual</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Todas las edades</span>
-                        </div>
-                        <p>Herramientas efectivas para manejar la preocupación, el miedo y los ataques de pánico,
-                            reduciendo síntomas físicos y recuperando la calma.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-adultos">
-                        <a class="btn-details-v2 text-adultos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-ansiedad')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-adultos" onclick="openTherapyModal('areas-ansiedad')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Herramientas efectivas para manejar la preocupación, el miedo y los ataques de pánico, reduciendo síntomas físicos y recuperando la calma.</p>
                     </div>
                 </div>
-
-                <div class="catalog-card-v2" data-category="adultos">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-depresion')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-depresion');event.preventDefault();}" aria-label="Ver detalles de Terapia de Depresión">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-adultos">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <circle cx="12" cy="12" r="4" />
-                                <path d="M12 2v2" />
-                                <path d="M12 20v2" />
-                                <path d="M4.93 4.93l1.41 1.41" />
-                                <path d="M17.66 17.66l1.41 1.41" />
-                                <path d="M2 12h2" />
-                                <path d="M20 12h2" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Individual</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Terapia de Depresión" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/08_terapia_depresion.webp" /></div>
-                        <div class="card-circle-icon icon-adultos">
-                            <svg class="circle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Terapia de Depresión" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/08_terapia_depresion.webp" />
                     </div>
-                    <div class="card-color-bar bar-adultos"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-adultos">INDIVIDUAL</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">INDIVIDUAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
                         <h4>Terapia de Depresión</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 10 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Individual</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Todas las edades</span>
-                        </div>
-                        <p>Navegamos juntos la tristeza y la apatía. Un espacio de apoyo para entender el origen de tu
-                            malestar y recuperar el bienestar.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-adultos">
-                        <a class="btn-details-v2 text-adultos" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-depresion')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-adultos" onclick="openTherapyModal('areas-depresion')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Navegamos juntos la tristeza y la apatía. Un espacio de apoyo para entender el origen de tu malestar y recuperar el bienestar.</p>
                     </div>
                 </div>
-
             </div>
-            <!-- FAMILIA -->
+
+            <!-- PANEL FAMILIA -->
             <div class="catalog-grid tab-panel" id="panel-familia">
-                <div class="catalog-card-v2" data-category="areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-familiar')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-familiar');event.preventDefault();}" aria-label="Ver detalles de Terapia Familiar">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-familia">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Familia</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="942" alt="Terapia Familiar" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/12_terapia_familiar.webp" /></div>
-                        <div class="card-circle-icon icon-familia">
-                            <svg class="circle-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Terapia Familiar" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/12_terapia_familiar.webp" />
                     </div>
-                    <div class="card-color-bar bar-familia"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-familia">FAMILIAR</span></div>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">FAMILIAR</span>
+                            <span class="therapy-badge-pill pill-audience">FAMILIA</span>
+                        </div>
                         <h4>Terapia Familiar</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 12 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Toda la familia</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Todas las edades</span>
-                        </div>
-                        <p>Restauramos la comunicación y los vínculos familiares, trabajando juntos para mejorar la
-                            convivencia y el bienestar de todo el núcleo familiar.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-familia">
-                        <a class="btn-details-v2 text-familia" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-familiar')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-familia" onclick="openTherapyModal('areas-familiar')"><svg
-                                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <p>Restauramos la comunicación y los vínculos familiares, trabajando juntos para mejorar la convivencia y el bienestar de todo el núcleo familiar.</p>
                     </div>
                 </div>
-
-
-                <!-- 5 · Consejería Familiar -->
-                <div class="catalog-card-v2" data-category="areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-consejeria')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-consejeria');event.preventDefault();}" aria-label="Ver detalles de Consejería Familiar">
                     <div class="card-image-wrap-v2">
-                        <span class="card-badge-v2 badge-familia">
-                            <svg class="badge-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                            <span style="font-weight:700;text-transform:uppercase;">Familia</span>
-                        </span>
-                        <div class="img-clipper"><img width="800" height="941" alt="Consejería Familiar" class="img-placeholder" loading="lazy" decoding="async"
-                                src="images/flyer-terapias/14_terapia_consejeria_familiar.webp" /></div>
-                        <div class="card-circle-icon icon-familia">
-                            <svg class="circle-icon" fill="none" stroke="currentColor" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                        </div>
+                        <img width="1856" height="2304" alt="Consejería Familiar" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/14_terapia_consejeria_familiar.webp" />
                     </div>
-                    <div class="card-color-bar bar-familia"></div>
                     <div class="card-body-v2">
-                        <div class="therapy-badges-inline-v2"><span
-                                class="therapy-badge-v2 badge-type-familia">FAMILIAR</span></div>
-                        <h4>Consejería Familiar</h4>
-                        <div class="therapy-meta-row-v2">
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg> 8 sesiones</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg> Toda la familia</span>
-                            <span class="therapy-meta-item-v2"><svg class="meta-icon" fill="none" stroke="currentColor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                </svg> Adultos</span>
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">ORIENTACIÓN</span>
+                            <span class="therapy-badge-pill pill-audience">FAMILIA</span>
                         </div>
-                        <p>Orientación psicológica para familias que buscan mejorar su dinámica, prevenir crisis
-                            relacionales y fortalecer los lazos afectivos entre sus miembros.</p>
-                    </div>
-                    <div class="card-footer-v2 footer-familia">
-                        <a class="btn-details-v2 text-familia" href="javascript:void(0)"
-                            onclick="openTherapyModal('areas-consejeria')">Ver detalles →</a>
-                        <button class="btn-circle-action btn-familia"
-                            onclick="openTherapyModal('areas-consejeria')"><svg fill="none" stroke="currentColor"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
-                                <line x1="5" x2="19" y1="12" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg></button>
+                        <h4>Consejería Familiar</h4>
+                        <p>Orientación psicológica para familias que buscan mejorar su dinámica, prevenir crisis y fortalecer los lazos afectivos.</p>
                     </div>
                 </div>
+            </div>
 
+            <!-- PANEL AREAS -->
+            <div class="catalog-grid tab-panel" id="panel-areas">
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-pedagogica')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-pedagogica');event.preventDefault();}" aria-label="Ver detalles de Evaluación Pedagógica">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Evaluación Pedagógica" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/10_terapia_evaluacion_pedagogica.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">EVALUACIÓN</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
+                        <h4>Evaluación Pedagógica</h4>
+                        <p>Evaluación integral del rendimiento académico para identificar dificultades de aprendizaje y definir el mejor plan de apoyo.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-conducta-t')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-conducta-t');event.preventDefault();}" aria-label="Ver detalles de Terapia de Conducta">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Terapia de Conducta" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/16_terapia_conducta.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">INDIVIDUAL</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
+                        <h4>Terapia de Conducta</h4>
+                        <p>Entendemos el porqué de conductas desafiantes y damos herramientas prácticas para manejarlas con afecto y límites claros en casa.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-sensorial')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-sensorial');event.preventDefault();}" aria-label="Ver detalles de Integración Sensorial">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Integración Sensorial" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/17_terapia_integracion_sensorial.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">ESPECIALIZADA</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
+                        <h4>Integración Sensorial</h4>
+                        <p>Procesamos los estímulos sensoriales para mejorar el confort, desarrollo y juego diario. Terapias especializadas que acompañan al niño en su entorno.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-lenguaje')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-lenguaje');event.preventDefault();}" aria-label="Ver detalles de Tratamiento de Lenguaje">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Tratamiento de Lenguaje" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/02_terapia_lenguaje.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">ESPECIALIZADA</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
+                        <h4>Tratamiento de Lenguaje</h4>
+                        <p>Las dificultades en la comunicación pueden generar frustración. Brindamos herramientas para potenciar el habla, comprensión y confianza.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-conducta')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-conducta');event.preventDefault();}" aria-label="Ver detalles de Modificación de Conducta">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Modificación de Conducta" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/03_terapia_modificacion_de_conducta.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">CONDUCTUAL</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
+                        <h4>Modificación de Conducta</h4>
+                        <p>Orientamos conductas complejas con pautas prácticas para establecer límites afectivos y mejorar la convivencia familiar.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-aprendizaje')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-aprendizaje');event.preventDefault();}" aria-label="Ver detalles de Terapia de Aprendizaje">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Terapia de Aprendizaje" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/05_terapia_aprendizaje.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">APRENDIZAJE</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
+                        <h4>Terapia de Aprendizaje</h4>
+                        <p>Apoyamos el proceso de aprendizaje con estrategias personalizadas para superar dificultades académicas y potenciar el rendimiento escolar.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-atencion')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-atencion');event.preventDefault();}" aria-label="Ver detalles de Atención y Concentración">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Atención y Concentración" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/06_terapia_atencion_y_concentracion.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">NEUROCOGNITIVA</span>
+                            <span class="therapy-badge-pill pill-audience">NIÑOS</span>
+                        </div>
+                        <h4>Atención y Concentración</h4>
+                        <p>Técnicas especializadas para mejorar el foco, la memoria de trabajo y la atención sostenida en contextos escolares y cotidianos.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-mindfulness')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-mindfulness');event.preventDefault();}" aria-label="Ver detalles de Terapia de Mindfulness">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Terapia de Mindfulness" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/15_terapia_mindfulness.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">MINDFULNESS</span>
+                            <span class="therapy-badge-pill pill-audience">ADOLESCENTES</span>
+                        </div>
+                        <h4>Terapia de Mindfulness</h4>
+                        <p>Aprende técnicas de atención plena para reducir el estrés, mejorar el bienestar emocional y vivir con mayor consciencia en el presente.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-integrales')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-integrales');event.preventDefault();}" aria-label="Ver detalles de Evaluaciones Integrales">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Evaluaciones Integrales" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/11_terapia_evaluaciones_integrales.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">EVALUACIÓN</span>
+                            <span class="therapy-badge-pill pill-audience">ADOLESCENTES</span>
+                        </div>
+                        <h4>Evaluaciones Integrales</h4>
+                        <p>Evaluación psicológica completa para obtener un diagnóstico preciso y diseñar un plan de intervención personalizado a tus necesidades.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-orientacion')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-orientacion');event.preventDefault();}" aria-label="Ver detalles de Orientación Vocacional">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Orientación Vocacional" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/09_terapia_orientacion_vocacional.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">VOCACIONAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADOLESCENTES</span>
+                        </div>
+                        <h4>Orientación Vocacional</h4>
+                        <p>Elegir un futuro profesional sin claridad puede generar mucha incertidumbre y presión. Nuestros especialistas te guían a descubrir tus aptitudes e intereses para que tomes una decisión segura.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-pareja')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-pareja');event.preventDefault();}" aria-label="Ver detalles de Terapia de Pareja">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Terapia de Pareja" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/13_terapia_pareja.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">PAREJA</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
+                        <h4>Terapia de Pareja</h4>
+                        <p>Un espacio neutral para reconstruir la comunicación, fortalecer la confianza y encontrar acuerdos que nutran la relación de pareja.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-emocional')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-emocional');event.preventDefault();}" aria-label="Ver detalles de Terapia Emocional">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Terapia Emocional" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/18_terapia_emocional.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">EMOCIONAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
+                        <h4>Terapia Emocional</h4>
+                        <p>Aprende a gestionar tus emociones y mejorar tu bienestar emocional. Te acompañamos en el proceso de autodescubrimiento y sanación integral.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-dependencia')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-dependencia');event.preventDefault();}" aria-label="Ver detalles de Dependencia Emocional">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Dependencia Emocional" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/01_terapia_dependencia_emocional.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">INDIVIDUAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
+                        <h4>Dependencia Emocional</h4>
+                        <p>Romper con patrones de relaciones insanas puede ser difícil. Te acompañamos en fortalecer tu amor propio y construir vínculos desde la libertad emocional.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-tcc')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-tcc');event.preventDefault();}" aria-label="Ver detalles de Cognitivo Conductual (TCC)">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Cognitivo Conductual (TCC)" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/04_terapia_cognitivo_conductual.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">TCC</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
+                        <h4>Cognitivo Conductual (TCC)</h4>
+                        <p>Identificamos y transformamos pensamientos negativos para cambiar cómo te sientes y actúas, con estrategias basadas en evidencia.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-ansiedad')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-ansiedad');event.preventDefault();}" aria-label="Ver detalles de Terapia de Ansiedad">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Terapia de Ansiedad" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/07_terapia_ansiedad.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">INDIVIDUAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
+                        <h4>Terapia de Ansiedad</h4>
+                        <p>Herramientas efectivas para manejar la preocupación, el miedo y los ataques de pánico, reduciendo síntomas físicos y recuperando la calma.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-depresion')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-depresion');event.preventDefault();}" aria-label="Ver detalles de Terapia de Depresión">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Terapia de Depresión" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/08_terapia_depresion.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">INDIVIDUAL</span>
+                            <span class="therapy-badge-pill pill-audience">ADULTOS</span>
+                        </div>
+                        <h4>Terapia de Depresión</h4>
+                        <p>Navegamos juntos la tristeza y la apatía. Un espacio de apoyo para entender el origen de tu malestar y recuperar el bienestar.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-familiar')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-familiar');event.preventDefault();}" aria-label="Ver detalles de Terapia Familiar">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Terapia Familiar" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/12_terapia_familiar.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">FAMILIAR</span>
+                            <span class="therapy-badge-pill pill-audience">FAMILIA</span>
+                        </div>
+                        <h4>Terapia Familiar</h4>
+                        <p>Restauramos la comunicación y los vínculos familiares, trabajando juntos para mejorar la convivencia y el bienestar de todo el núcleo familiar.</p>
+                    </div>
+                </div>
+                <div class="catalog-card-v2" onclick="openTherapyModal('areas-consejeria')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){openTherapyModal('areas-consejeria');event.preventDefault();}" aria-label="Ver detalles de Consejería Familiar">
+                    <div class="card-image-wrap-v2">
+                        <img width="1856" height="2304" alt="Consejería Familiar" class="card-therapy-img" loading="lazy" decoding="async"
+                            src="images/flyer-terapias-new/14_terapia_consejeria_familiar.webp" />
+                    </div>
+                    <div class="card-body-v2">
+                        <div class="therapy-badges-row-v2">
+                            <span class="therapy-badge-pill pill-type">ORIENTACIÓN</span>
+                            <span class="therapy-badge-pill pill-audience">FAMILIA</span>
+                        </div>
+                        <h4>Consejería Familiar</h4>
+                        <p>Orientación psicológica para familias que buscan mejorar su dinámica, prevenir crisis y fortalecer los lazos afectivos.</p>
+                    </div>
+                </div>
+            </div>
 
-
-                <!-- ÁREAS DE ATENCIÓN —— 9 tarjetas con imágenes propias -->
-                <div class="catalog-grid tab-panel" id="panel-areas">
-
-
-
-
-                </div><!-- end panel-areas -->
 
             </div>
     </section>
@@ -2004,73 +1403,73 @@
                 waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n%20sobre%20la%20Terapia%20Cognitivo%20Conductual%20Familiar'
             },
             'areas-dependencia': {
-                title: 'Dependencia Emocional', category: 'Áreas', sessions: '10', modality: 'Individual', ageRange: 'Adultos', price: 'S/ 59.90', description: 'Romper con patrones de relaciones insanas puede ser difícil. Te acompañamos en fortalecer tu amor propio y construir vínculos desde la libertad emocional.', related: 'Terapia Emocional, Cognitivo Conductual, Depresión', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Dependencia%20Emocional', flyer: 'images/flyer-terapias/01_terapia_dependencia_emocional.webp',
+                title: 'Dependencia Emocional', category: 'Áreas', sessions: '10', modality: 'Individual', ageRange: 'Adultos', price: 'S/ 59.90', description: 'Romper con patrones de relaciones insanas puede ser difícil. Te acompañamos en fortalecer tu amor propio y construir vínculos desde la libertad emocional.', related: 'Terapia Emocional, Cognitivo Conductual, Depresión', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Dependencia%20Emocional', flyer: 'images/flyer-terapias-new/01_terapia_dependencia_emocional.webp',
                 modalTitle: 'DEPENDENCIA EMOCIONAL',
-                modalPhoto: 'images/flyer-terapias/01_terapia_dependencia_emocional.webp',
+                modalPhoto: 'images/flyer-terapias-new/01_terapia_dependencia_emocional.webp',
                 modalDesc: 'Te acompañamos a fortalecer tu autoestima, romper con patrones de relaciones insanas y construir vínculos afectivos libres, autónomos y saludables.',
                 signals: ['Necesidad constante de aprobación y miedo al abandono.', 'Priorizar las necesidades de la pareja por encima de las propias.', 'Dificultad extrema para poner límites o terminar una relación dañina.', 'Sensación de vacío o ansiedad cuando la pareja no está presente.'],
                 benefits: ['Fortalece el amor propio y la autovaloración.', 'Desarrolla la independencia emocional y la autonomía.', 'Enseña a establecer límites claros y saludables.', 'Promueve relaciones de pareja basadas en la equidad y el respeto.']
             },
             'areas-lenguaje': {
-                title: 'Tratamiento de Lenguaje', category: 'Áreas', sessions: '10', modality: 'Con padres', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Las dificultades en la comunicación pueden generar frustración. Brindamos herramientas para potenciar el habla, comprensión y confianza.', related: 'Aprendizaje, Atención y Concentración, Evaluación Pedagógica', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Tratamiento%20de%20Lenguaje', flyer: 'images/flyer-terapias/02_terapia_lenguaje.webp',
+                title: 'Tratamiento de Lenguaje', category: 'Áreas', sessions: '10', modality: 'Con padres', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Las dificultades en la comunicación pueden generar frustración. Brindamos herramientas para potenciar el habla, comprensión y confianza.', related: 'Aprendizaje, Atención y Concentración, Evaluación Pedagógica', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Tratamiento%20de%20Lenguaje', flyer: 'images/flyer-terapias-new/02_terapia_lenguaje.webp',
                 modalTitle: 'TRATAMIENTO DE LENGUAJE',
-                modalPhoto: 'images/flyer-terapias/02_terapia_lenguaje.webp',
+                modalPhoto: 'images/flyer-terapias-new/02_terapia_lenguaje.webp',
                 modalDesc: 'Brindamos terapia especializada para diagnosticar y superar dificultades en el habla, la pronunciación y la comprensión, potenciando la comunicación y seguridad de tu hijo.',
                 signals: ['Dificultad para pronunciar ciertos fonemas o palabras.', 'Retraso en la adquisición del habla en comparación con su edad.', 'Problemas para comprender instrucciones sencillas.', 'Frustración al no poder expresarse de forma clara.'],
                 benefits: ['Mejora la claridad del habla y la fluidez verbal.', 'Potencia la comprensión del lenguaje oral y escrito.', 'Eleva la confianza del niño en sus interacciones sociales.', 'Facilita el aprendizaje y el rendimiento escolar.']
             },
             'areas-conducta': {
-                title: 'Modificación de Conducta', category: 'Áreas', sessions: '10', modality: 'Con padres', ageRange: 'Niños y jóvenes', price: 'S/ 59.90', description: 'Orientamos conductas complejas con pautas prácticas para establecer límites afectivos y mejorar la convivencia familiar.', related: 'Terapia de Conducta, Cognitivo Conductual, Atención y Concentración', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Modificación%20de%20Conducta', flyer: 'images/flyer-terapias/03_terapia_modificacion_de_conducta.webp',
+                title: 'Modificación de Conducta', category: 'Áreas', sessions: '10', modality: 'Con padres', ageRange: 'Niños y jóvenes', price: 'S/ 59.90', description: 'Orientamos conductas complejas con pautas prácticas para establecer límites afectivos y mejorar la convivencia familiar.', related: 'Terapia de Conducta, Cognitivo Conductual, Atención y Concentración', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Modificación%20de%20Conducta', flyer: 'images/flyer-terapias-new/03_terapia_modificacion_de_conducta.webp',
                 modalTitle: 'MODIFICACIÓN DE CONDUCTA',
-                modalPhoto: 'images/flyer-terapias/03_terapia_modificacion_de_conducta.webp',
+                modalPhoto: 'images/flyer-terapias-new/03_terapia_modificacion_de_conducta.webp',
                 modalDesc: 'Orientación y estrategias conductuales prácticas para que padres e hijos logren una mejor convivencia, estableciendo límites firmes con afecto.',
                 signals: ['Desobediencia constante ante las reglas del hogar o colegio.', 'Rabietas o berrinches frecuentes y difíciles de calmar.', 'Comportamientos desafiantes o agresivos con hermanos o compañeros.', 'Dificultad para adaptarse a las rutinas diarias.'],
                 benefits: ['Promueve conductas positivas y adaptativas.', 'Dota a los padres de herramientas prácticas de crianza.', 'Reduce las tensiones y discusiones en la dinámica familiar.', 'Fomenta el autocontrol y la autorregulación emocional.']
             },
             'areas-tcc': {
-                title: 'Cognitivo Conductual (TCC)', category: 'Áreas', sessions: '10', modality: 'Individual', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Identificamos y transformamos pensamientos negativos para cambiar cómo te sientes y actúas, con estrategias basadas en evidencia.', related: 'Ansiedad, Depresión, Dependencia Emocional', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20TCC', flyer: 'images/flyer-terapias/04_terapia_cognitivo_conductual.webp',
+                title: 'Cognitivo Conductual (TCC)', category: 'Áreas', sessions: '10', modality: 'Individual', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Identificamos y transformamos pensamientos negativos para cambiar cómo te sientes y actúas, con estrategias basadas en evidencia.', related: 'Ansiedad, Depresión, Dependencia Emocional', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20TCC', flyer: 'images/flyer-terapias-new/04_terapia_cognitivo_conductual.webp',
                 modalTitle: 'COGNITIVO CONDUCTUAL (TCC)',
-                modalPhoto: 'images/flyer-terapias/04_terapia_cognitivo_conductual.webp',
+                modalPhoto: 'images/flyer-terapias-new/04_terapia_cognitivo_conductual.webp',
                 modalDesc: 'Terapia basada en evidencia científica que ayuda a identificar y transformar pensamientos desadaptativos para mejorar la regulación emocional y la conducta diaria.',
                 signals: ['Pensamientos negativos o catastrofistas recurrentes.', 'Dificultad para manejar emociones intensas como ira o tristeza.', 'Evitación de situaciones que generan incomodidad o temor.', 'Reacciones impulsivas ante situaciones estresantes.'],
                 benefits: ['Proporciona herramientas prácticas para la resolución de problemas.', 'Modifica patrones de pensamiento destructivos por unos más realistas.', 'Mejora la autogestión emocional y la toma de decisiones.', 'Resultados duraderos y aplicables a la vida cotidiana.']
             },
             'areas-aprendizaje': {
-                title: 'Terapia de Aprendizaje', category: 'Áreas', sessions: '12', modality: 'Con padres', ageRange: 'Niños y jóvenes', price: 'S/ 59.90', description: 'Apoyamos el proceso de aprendizaje con estrategias personalizadas para superar dificultades académicas y potenciar el rendimiento escolar.', related: 'Evaluación Pedagógica, Lenguaje, Atención y Concentración', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20de%20Aprendizaje', flyer: 'images/flyer-terapias/05_terapia_aprendizaje.webp',
+                title: 'Terapia de Aprendizaje', category: 'Áreas', sessions: '12', modality: 'Con padres', ageRange: 'Niños y jóvenes', price: 'S/ 59.90', description: 'Apoyamos el proceso de aprendizaje con estrategias personalizadas para superar dificultades académicas y potenciar el rendimiento escolar.', related: 'Evaluación Pedagógica, Lenguaje, Atención y Concentración', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20de%20Aprendizaje', flyer: 'images/flyer-terapias-new/05_terapia_aprendizaje.webp',
                 modalTitle: 'TERAPIA DE APRENDIZAJE',
-                modalPhoto: 'images/flyer-terapias/05_terapia_aprendizaje.webp',
+                modalPhoto: 'images/flyer-terapias-new/05_terapia_aprendizaje.webp',
                 modalDesc: 'Estrategias personalizadas para superar dificultades en la lectoescritura, razonamiento lógico y hábitos de estudio, potenciando el éxito académico.',
                 signals: ['Retraso en el aprendizaje de la lectura o la escritura.', 'Dificultades persistentes para resolver operaciones matemáticas.', 'Falta de hábitos de estudio u organización escolar.', 'Bajo rendimiento académico a pesar de esforzarse.'],
                 benefits: ['Desarrolla habilidades clave de lectura, escritura y cálculo.', 'Enseña técnicas de estudio y organización efectivas.', 'Incrementa la motivación y el interés por aprender.', 'Fortalece la confianza y autoestima académica.']
             },
             'areas-atencion': {
-                title: 'Atención y Concentración', category: 'Áreas', sessions: '10', modality: 'Con padres', ageRange: 'Niños', price: 'S/ 59.90', description: 'Técnicas especializadas para mejorar el foco, la memoria de trabajo y la atención sostenida en contextos escolares y cotidianos.', related: 'Aprendizaje, Modificación de Conducta, Evaluación Pedagógica', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Atención%20y%20Concentración', flyer: 'images/flyer-terapias/06_terapia_atencion_y_concentracion.webp',
+                title: 'Atención y Concentración', category: 'Áreas', sessions: '10', modality: 'Con padres', ageRange: 'Niños', price: 'S/ 59.90', description: 'Técnicas especializadas para mejorar el foco, la memoria de trabajo y la atención sostenida en contextos escolares y cotidianos.', related: 'Aprendizaje, Modificación de Conducta, Evaluación Pedagógica', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Atención%20y%20Concentración', flyer: 'images/flyer-terapias-new/06_terapia_atencion_y_concentracion.webp',
                 modalTitle: 'ATENCIÓN Y CONCENTRACIÓN',
-                modalPhoto: 'images/flyer-terapias/06_terapia_atencion_y_concentracion.webp',
+                modalPhoto: 'images/flyer-terapias-new/06_terapia_atencion_y_concentracion.webp',
                 modalDesc: 'Ejercicios prácticos y dinámicas neuropsicológicas para mejorar el foco de atención, la memoria de trabajo y la planificación en la escuela y el hogar.',
                 signals: ['Se distrae fácilmente ante mínimos estímulos.', 'Dificultad para terminar las tareas iniciadas.', 'Pérdida frecuente de objetos o útiles escolares.', 'Problemas para seguir instrucciones secuenciales.'],
                 benefits: ['Amplía los periodos de concentración sostenida.', 'Mejora la memoria de trabajo y la organización mental.', 'Incrementa la productividad y reduce el tiempo en tareas.', 'Ayuda a canalizar mejor la energía física y mental.']
             },
             'areas-ansiedad': {
-                title: 'Terapia de Ansiedad', category: 'Áreas', sessions: '10', modality: 'Individual', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Herramientas efectivas para manejar la preocupación, el miedo y los ataques de pánico, reduciendo síntomas físicos y recuperando la calma.', related: 'Depresión, Cognitivo Conductual, Mindfulness', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20de%20Ansiedad', flyer: 'images/flyer-terapias/07_terapia_ansiedad.webp',
+                title: 'Terapia de Ansiedad', category: 'Áreas', sessions: '10', modality: 'Individual', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Herramientas efectivas para manejar la preocupación, el miedo y los ataques de pánico, reduciendo síntomas físicos y recuperando la calma.', related: 'Depresión, Cognitivo Conductual, Mindfulness', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20de%20Ansiedad', flyer: 'images/flyer-terapias-new/07_terapia_ansiedad.webp',
                 modalTitle: 'TERAPIA DE ANSIEDAD',
-                modalPhoto: 'images/flyer-terapias/07_terapia_ansiedad.webp',
+                modalPhoto: 'images/flyer-terapias-new/07_terapia_ansiedad.webp',
                 modalDesc: 'Acompañamiento especializado para dotarte de técnicas corporales y cognitivas que te permitan regular la preocupación constante, el miedo y la tensión.',
                 signals: ['Preocupación excesiva o pensamientos intrusivos constantes.', 'Síntomas físicos como opresión en el pecho, taquicardia o insomnio.', 'Evitar situaciones sociales, académicas o laborales por miedo.', 'Sensación constante de alerta o de que algo malo va a pasar.'],
                 benefits: ['Reduce significativamente el malestar emocional y físico.', 'Enseña técnicas de relajación, respiración y regulación.', 'Permite afrontar situaciones temidas de forma segura.', 'Devuelve el control de tu vida cotidiana y tu paz mental.']
             },
             'areas-depresion': {
-                title: 'Terapia de Depresión', category: 'Áreas', sessions: '10', modality: 'Individual', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Navegamos juntos la tristeza y la apatía. Un espacio de apoyo para entender el origen de tu malestar y recuperar el bienestar.', related: 'Ansiedad, Cognitivo Conductual, Terapia Emocional', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20de%20Depresión', flyer: 'images/flyer-terapias/08_terapia_depresion.webp',
+                title: 'Terapia de Depresión', category: 'Áreas', sessions: '10', modality: 'Individual', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Navegamos juntos la tristeza y la apatía. Un espacio de apoyo para entender el origen de tu malestar y recuperar el bienestar.', related: 'Ansiedad, Cognitivo Conductual, Terapia Emocional', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20de%20Depresión', flyer: 'images/flyer-terapias-new/08_terapia_depresion.webp',
                 modalTitle: 'TERAPIA DE DEPRESIÓN',
-                modalPhoto: 'images/flyer-terapias/08_terapia_depresion.webp',
+                modalPhoto: 'images/flyer-terapias-new/08_terapia_depresion.webp',
                 modalDesc: 'Un espacio cálido de escucha y apoyo profesional para ayudarte a superar la apatía, la falta de energía y recuperar el sentido de bienestar en tu día a día.',
                 signals: ['Sentimiento constante de tristeza, vacío o ganas de llorar.', 'Pérdida de interés en actividades que antes se disfrutaban.', 'Cansancio extremo, falta de energía y alteración del sueño.', 'Aislamiento social y pensamientos recurrentes de desesperanza.'],
                 benefits: ['Ayuda a procesar y canalizar el dolor emocional.', 'Fomenta la reactivación conductual y la reconexión social.', 'Reestructura creencias negativas sobre uno mismo y el futuro.', 'Restablece la vitalidad y el propósito de vida.']
             },
             'areas-orientacion': {
-                title: 'Orientación Vocacional', category: 'Áreas', sessions: '8', modality: 'Individual', ageRange: 'Jóvenes y adultos', price: 'S/ 59.90', description: 'Elegir un futuro profesional sin claridad puede generar mucha incertidumbre y presión. Nuestros especialistas te guían a descubrir tus aptitudes e intereses para que tomes una decisión segura.', related: 'Aprendizaje, Evaluaciones Integrales, Autoestima y Confianza Personal', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Orientación%20Vocacional', flyer: 'images/flyer-terapias/09_terapia_orientacion_vocacional.webp',
+                title: 'Orientación Vocacional', category: 'Áreas', sessions: '8', modality: 'Individual', ageRange: 'Jóvenes y adultos', price: 'S/ 59.90', description: 'Elegir un futuro profesional sin claridad puede generar mucha incertidumbre y presión. Nuestros especialistas te guían a descubrir tus aptitudes e intereses para que tomes una decisión segura.', related: 'Aprendizaje, Evaluaciones Integrales, Autoestima y Confianza Personal', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Orientación%20Vocacional', flyer: 'images/flyer-terapias-new/09_terapia_orientacion_vocacional.webp',
                 modalTitle: 'ORIENTACIÓN VOCACIONAL',
-                modalPhoto: 'images/flyer-terapias/09_terapia_orientacion_vocacional.webp',
+                modalPhoto: 'images/flyer-terapias-new/09_terapia_orientacion_vocacional.webp',
                 modalDesc: 'Proceso de acompañamiento y aplicación de pruebas psicométricas para ayudar a jóvenes y adultos a elegir con seguridad su carrera o futuro profesional.',
                 signals: ['Indecisión y confusión entre múltiples opciones de carrera.', 'Presión familiar o social respecto al futuro profesional.', 'Falta de conocimiento sobre el mercado laboral y las carreras.', 'Temor a equivocarse y perder tiempo o inversión económica.'],
                 benefits: ['Brinda autoconocimiento de aptitudes, intereses y valores.', 'Proporciona un informe detallado con sugerencias concretas.', 'Reduce la ansiedad asociada a la toma de decisiones.', 'Asegura una elección vocacional consciente y motivada.']
@@ -2078,7 +1477,7 @@
             'areas-pedagogica': {
                 title: 'Evaluación Pedagógica', category: 'Áreas', sessions: '4', modality: 'Con padres', ageRange: 'Niños y jóvenes', price: 'S/ 59.90', description: 'Evaluación integral del rendimiento académico para identificar dificultades de aprendizaje y definir el mejor plan de apoyo.', related: 'Aprendizaje, Lenguaje, Evaluaciones Integrales', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Evaluación%20Pedagógica',
                 modalTitle: 'EVALUACIÓN PEDAGÓGICA',
-                modalPhoto: 'images/flyer-terapias/10_terapia_evaluacion_pedagogica.webp',
+                modalPhoto: 'images/flyer-terapias-new/10_terapia_evaluacion_pedagogica.webp',
                 modalDesc: 'Brindamos una evaluación detallada para entender las fortalezas y desafíos en el aprendizaje de su hijo, diseñando estrategias efectivas para su éxito escolar.',
                 signals: ['Bajo rendimiento escolar constante.', 'Dificultad para concentrarse en clase.', 'Desmotivación o rechazo hacia el estudio.', 'Retraso en la lectura, escritura o matemáticas.'],
                 benefits: ['Identifica la causa real de las dificultades.', 'Permite crear un plan de estudio personalizado.', 'Mejora la autoestima académica del estudiante.', 'Orienta a padres y maestros sobre cómo ayudar.']
@@ -2086,7 +1485,7 @@
             'areas-integrales': {
                 title: 'Evaluaciones Integrales', category: 'Áreas', sessions: '3-5', modality: 'Individual', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Evaluación psicológica completa para obtener un diagnóstico preciso y diseñar un plan de intervención personalizado.', related: 'Evaluación Pedagógica, Cognitivo Conductual, Terapia Familiar', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Evaluaciones%20Integrales',
                 modalTitle: 'EVALUACIONES INTEGRALES',
-                modalPhoto: 'images/flyer-terapias/11_terapia_evaluaciones_integrales.webp',
+                modalPhoto: 'images/flyer-terapias-new/11_terapia_evaluaciones_integrales.webp',
                 modalDesc: 'Realizamos un análisis profundo a nivel cognitivo, emocional y conductual para brindarle un diagnóstico claro y un plan de acción efectivo.',
                 signals: ['Dudas sobre el desarrollo cognitivo o emocional.', 'Cambios drásticos de comportamiento.', 'Sospecha de TEA, TDAH u otros neurodesarrollos.', 'Necesidad de un diagnóstico formal o certificado.'],
                 benefits: ['Diagnóstico preciso y confiable.', 'Comprensión profunda del perfil psicológico.', 'Guía clara para el tratamiento adecuado.', 'Tranquilidad y dirección para la familia.']
@@ -2094,7 +1493,7 @@
             'areas-familiar': {
                 title: 'Terapia Familiar', category: 'Áreas', sessions: '12', modality: 'Toda la familia', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Restauramos la comunicación y los vínculos familiares, trabajando juntos para mejorar la convivencia y el bienestar de todo el núcleo familiar.', related: 'Consejería Familiar, Pareja, Conflictos Padres e Hijos', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20Familiar',
                 modalTitle: 'TERAPIA FAMILIAR',
-                modalPhoto: 'images/flyer-terapias/12_terapia_familiar.webp',
+                modalPhoto: 'images/flyer-terapias-new/12_terapia_familiar.webp',
                 modalDesc: 'Creamos un espacio seguro donde todos los miembros de la familia pueden expresarse, sanar heridas y reconstruir vínculos basados en el respeto y el amor.',
                 signals: ['Peleas y discusiones constantes en casa.', 'Dificultad para comunicarse sin gritar.', 'Distanciamiento emocional entre miembros.', 'Crisis familiares (divorcio, duelo, mudanzas).'],
                 benefits: ['Mejora la comunicación y el entendimiento mutuo.', 'Resuelve conflictos enquistados.', 'Fortalece la unión y la empatía familiar.', 'Crea un ambiente hogareño de paz y apoyo.']
@@ -2102,7 +1501,7 @@
             'areas-pareja': {
                 title: 'Terapia de Pareja', category: 'Áreas', sessions: '10', modality: 'En pareja', ageRange: 'Adultos', price: 'S/ 59.90', description: 'Un espacio neutral para reconstruir la comunicación, fortalecer la confianza y encontrar acuerdos que nutran la relación de pareja.', related: 'Consejería Familiar, Terapia Familiar, Terapia Emocional', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20de%20Pareja',
                 modalTitle: 'TERAPIA DE PAREJA',
-                modalPhoto: 'images/flyer-terapias/13_terapia_pareja.webp',
+                modalPhoto: 'images/flyer-terapias-new/13_terapia_pareja.webp',
                 modalDesc: 'Les acompañamos a superar la crisis, restaurar la confianza y reencontrarse, aprendiendo herramientas para una relación más sana y duradera.',
                 signals: ['Problemas constantes de comunicación.', 'Pérdida de confianza (infidelidad, mentiras).', 'Distanciamiento afectivo o sexual.', 'Desacuerdos crónicos sobre finanzas o crianza.'],
                 benefits: ['Restaura la confianza y la intimidad.', 'Enseña a discutir de forma constructiva.', 'Alinea los proyectos de vida en común.', 'Previene rupturas innecesarias.']
@@ -2110,7 +1509,7 @@
             'areas-consejeria': {
                 title: 'Consejería Familiar', category: 'Áreas', sessions: '8', modality: 'Toda la familia', ageRange: 'Adultos', price: 'S/ 59.90', description: 'Orientación psicológica para familias que buscan mejorar su dinámica, prevenir crisis y fortalecer los lazos afectivos.', related: 'Terapia Familiar, Pareja, Evaluaciones Integrales', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Consejería%20Familiar',
                 modalTitle: 'CONSEJERÍA FAMILIAR',
-                modalPhoto: 'images/flyer-terapias/14_terapia_consejeria_familiar.webp',
+                modalPhoto: 'images/flyer-terapias-new/14_terapia_consejeria_familiar.webp',
                 modalDesc: 'Orientación práctica y directa para resolver dudas de crianza y dinámicas diarias, fortaleciendo el liderazgo positivo en el hogar.',
                 signals: ['Dudas sobre cómo poner límites a los hijos.', 'Falta de autoridad parental.', 'Desacuerdos en los estilos de crianza.', 'Problemas leves de convivencia diaria.'],
                 benefits: ['Herramientas prácticas para la crianza.', 'Unifica los criterios de los padres.', 'Mejora el clima y orden en el hogar.', 'Previene problemas mayores de conducta.']
@@ -2118,7 +1517,7 @@
             'areas-mindfulness': {
                 title: 'Terapia de Mindfulness', category: 'Áreas', sessions: '8', modality: 'Individual', ageRange: 'Adultos y jóvenes', price: 'S/ 59.90', description: 'Aprende técnicas de atención plena para reducir el estrés, mejorar el bienestar emocional y vivir con mayor consciencia en el presente.', related: 'Ansiedad, Depresión, Terapia Emocional', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Mindfulness',
                 modalTitle: 'MINDFULNESS',
-                modalPhoto: 'images/flyer-terapias/15_terapia_mindfulness.webp',
+                modalPhoto: 'images/flyer-terapias-new/15_terapia_mindfulness.webp',
                 modalDesc: 'Entrena tu mente para estar en el momento presente, reduciendo el ruido mental y conectando con un estado de calma profunda.',
                 signals: ['Estrés crónico y agotamiento mental.', 'Dificultad para desconectar del trabajo.', 'Pensamientos ansiosos recurrentes.', 'Sensación de vivir en "piloto automático".'],
                 benefits: ['Reduce los niveles de estrés y ansiedad.', 'Mejora la concentración y claridad mental.', 'Aumenta el bienestar emocional diario.', 'Favorece un sueño más reparador.']
@@ -2126,7 +1525,7 @@
             'areas-conducta-t': {
                 title: 'Terapia de Conducta', category: 'Áreas', sessions: '10', modality: 'Con padres', ageRange: 'Niños y jóvenes', price: 'S/ 59.90', description: 'Entendemos el porqué de conductas desafiantes y damos herramientas prácticas para manejarlas con afecto y límites claros en casa.', related: 'Modificación de Conducta, Cognitivo Conductual, Atención y Concentración', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20de%20Conducta',
                 modalTitle: 'TERAPIA DE CONDUCTA',
-                modalPhoto: 'images/flyer-terapias/16_terapia_conducta.webp',
+                modalPhoto: 'images/flyer-terapias-new/16_terapia_conducta.webp',
                 modalDesc: 'Un enfoque estructurado para transformar comportamientos problemáticos en conductas positivas, trabajando en equipo con la familia.',
                 signals: ['Rabietas intensas e incontrolables.', 'Desobediencia constante a las reglas.', 'Conductas agresivas hacia sí o los demás.', 'Dificultad para adaptarse a los límites.'],
                 benefits: ['Reduce berrinches y conductas disruptivas.', 'Fomenta el autocontrol en el niño.', 'Dota a los padres de estrategias de manejo.', 'Mejora el clima escolar y familiar.']
@@ -2134,7 +1533,7 @@
             'areas-sensorial': {
                 title: 'Integración Sensorial', category: 'Áreas', sessions: '12', modality: 'Con padres', ageRange: 'Niños', price: 'S/ 59.90', description: 'Procesamos los estímulos sensoriales para mejorar el confort, desarrollo y juego diario. Terapias especializadas que acompañan al niño en su entorno.', related: 'Aprendizaje, Atención y Concentración, Modificación de Conducta', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Integración%20Sensorial',
                 modalTitle: 'INTEGRACIÓN SENSORIAL',
-                modalPhoto: 'images/flyer-terapias/17_terapia_integracion_sensorial.webp',
+                modalPhoto: 'images/flyer-terapias-new/17_terapia_integracion_sensorial.webp',
                 modalDesc: 'Ayudamos a los niños a organizar y procesar la información de sus sentidos, facilitando su participación en las actividades diarias.',
                 signals: ['Hipersensibilidad a ruidos, luces o texturas.', 'Dificultad con el equilibrio o la coordinación.', 'Búsqueda constante de estímulos intensos (chocar, saltar).', 'Problemas con la alimentación o el vestido.'],
                 benefits: ['Mejora el procesamiento de estímulos.', 'Favorece la motricidad fina y gruesa.', 'Aumenta el confort y la autonomía diaria.', 'Facilita la atención y el aprendizaje escolar.']
@@ -2142,7 +1541,7 @@
             'areas-emocional': {
                 title: 'Terapia Emocional', category: 'Áreas', sessions: '10', modality: 'Individual', ageRange: 'Todas las edades', price: 'S/ 59.90', description: 'Aprende a gestionar tus emociones y mejorar tu bienestar emocional. Te acompañamos en el proceso de autodescubrimiento y sanación integral.', related: 'Dependencia Emocional, Ansiedad, Mindfulness', waLink: 'https://wa.me/51988918238?text=Hola%20KJA%2C%20quisiera%20información%20sobre%20Terapia%20Emocional',
                 modalTitle: 'TERAPIA EMOCIONAL',
-                modalPhoto: 'https://images.unsplash.com/photo-1614018857492-4e2eca4f7b70?w=600&q=85&auto=format',
+                modalPhoto: 'images/flyer-terapias-new/18_terapia_emocional.webp',
                 modalDesc: 'Un acompañamiento empático para validar lo que sientes, sanar heridas del pasado y reconectar con tu fuerza interior.',
                 signals: ['Dificultad para gestionar la ira o la tristeza.', 'Baja autoestima e inseguridad.', 'Sentimiento constante de vacío o soledad.', 'Dependencia emocional en las relaciones.'],
                 benefits: ['Mejora el autoconocimiento y la autoestima.', 'Otorga herramientas de regulación emocional.', 'Promueve relaciones interpersonales sanas.', 'Impulsa la resiliencia y el crecimiento personal.']
@@ -2167,12 +1566,18 @@
         }
 
         function switchTab(btn, panel) {
-            document.querySelectorAll('#catalog-tabs .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#catalog-tabs .tab').forEach(t => {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
 
             const targetPanel = document.getElementById('panel-' + panel);
-            targetPanel.classList.add('active');
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
 
             // Stagger animation with GSAP
             const cards = targetPanel.querySelectorAll('.catalog-card-v2');
