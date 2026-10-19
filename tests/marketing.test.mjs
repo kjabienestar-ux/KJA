@@ -77,10 +77,11 @@ test('WhatsApp preserves accents, punctuation and campaign text without query in
 });
 test('course default uses approved benefits and campaign contacts in order',()=>{
   const copy=compose({titulo:'Curso online de: Orientacion',descripcion:'Aprende a orientar.',publico:'Docentes',telefono:'51999111222',correo:'curso@example.com',temario:'Tema interno'},'https://example.test/chat');
-  const sections=['CURSO ONLINE DE: ORIENTACION','Aprende a orientar.','Docentes','TE BRINDAMOS:','300 horas','incluye QR','digital completo','50% de descuento','6 H.A','INSCR','WhatsApp: https://example.test/chat','(51) 999 111 222','curso@example.com','https://www.kjadmb.com/','KJA - Centro','POTENCIA TU PERFIL'];
+  const sections=['CURSO ONLINE DE: ORIENTACION','Aprende a orientar.','¿A QUIÉN VA DIRIGIDO?','Docentes','¿QUÉ APRENDERÁS EN ESTA FORMACIÓN?','Tema interno','TE BRINDAMOS:','Descuento de 50%','1 curso gratis','300 horas','incluye QR','digital completo','INSCR','WhatsApp: https://example.test/chat','(51) 999 111 222','curso@example.com','https://www.kjadmb.com/','KJA - Centro','POTENCIA TU PERFIL'];
   let previous=-1;
   for(const section of sections){const index=copy.indexOf(section);assert.ok(index>previous,section);previous=index;}
-  assert.doesNotMatch(copy,/Tema interno|APRENDER/);
+  assert.match(copy,/👩‍⚕️ ¿A QUIÉN VA DIRIGIDO\?/);
+  assert.match(copy,/📋 ¿QUÉ APRENDERÁS EN ESTA FORMACIÓN\?/);
   assert.match(compose({titulo:'Curso de Orientacion',modalidad:'Presencial'},'url'),/CURSO PRESENCIAL DE: ORIENTACION/);
 });
 

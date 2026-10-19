@@ -131,8 +131,17 @@
     const heading=/presencial/i.test(modality)?'CURSO '+modality.toUpperCase()+' DE:':'CURSO ONLINE DE:';
     const parts=['🎒 '+heading+' '+courseTitle.toUpperCase()];
     if(data.descripcion)parts.push(data.descripcion.trim().replace(/\s*💡✨$/u,'')+' 💡✨');
-    if(data.publico)parts.push('👥 ¿A QUIÉN VA DIRIGIDO?\n'+data.publico.trim());
-    parts.push('🎁 TE BRINDAMOS:\n⏱️ 300 horas académicas\n📜 Certificado académico (incluye QR)\n📖 Material académico digital completo\n🏷️ 50% de descuento disponible\n🎁 ¡GRATIS! 1 Curso grabado (6 H.A)\n🇵🇪 Solo válido en Perú');
+    if(data.publico)parts.push('👩‍⚕️ ¿A QUIÉN VA DIRIGIDO?\n'+data.publico.trim());
+    if(data.temario){
+      const clean=x=>x.replace(/^[^\p{L}\p{N}]+/u,'').replace(/^\d+[.)-]\s*/,'').trim();
+      const lines=String(data.temario).split(/\n|;\s*/).map(clean).filter(Boolean);
+      const icons=['🔍','🧠','💡','📌','🎯','🧩','📝','📊','🔬','✨'];
+      const formatted=lines.map((line,i)=>icons[i%icons.length]+' '+line).join('\n');
+      if(formatted)parts.push('📋 ¿QUÉ APRENDERÁS EN ESTA FORMACIÓN?\n'+formatted);
+    }
+    const isPresencial=/presencial/i.test(modality);
+    const zoomLine=isPresencial?'':'💻 Clases en vivo vía Zoom\n';
+    parts.push('🎁 TE BRINDAMOS:\n🏷️ Descuento de 50% disponible\n🎁 ¡GRATIS! 1 curso gratis grabado (6 H.A)\n⏱️ 300 horas académicas\n📜 Certificado académico (incluye QR)\n'+zoomLine+'📖 Material académico digital completo\n🇵🇪 Solo válido en Perú');
     const phones=contactNumbers(data.telefono||'51988918238');
     const visible=phones.map(number=>/^51\d{9}$/.test(number)?'(51) '+number.slice(2).replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3'):number).join(' / ');
     parts.push('📩 INSCRÍBETE DIRECTAMENTE AQUÍ:\n📲 WhatsApp: '+url+'\n📞 Teléfono de contacto: '+visible+'\n📧 Correo: '+(data.correo||'kjabienestar@escuelakja.net')+'\n🌐 Página Web: https://www.kjadmb.com/');
