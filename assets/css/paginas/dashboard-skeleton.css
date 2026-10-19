@@ -10,7 +10,16 @@
 .kja-skeleton-host.is-skeleton-visible>:not(.kja-skeleton-layer){visibility:hidden}
 .kja-skeleton-layer{position:absolute;z-index:20;inset:0 0 auto;min-height:100%;padding:0;background:var(--surface-page,#f6f8fb);opacity:1;transition:opacity 200ms ease}
 .kja-skeleton{display:grid;gap:18px;min-height:520px;color:transparent;pointer-events:none}
-.kja-skeleton-mirror{width:100%;min-height:520px;color:transparent!important;pointer-events:none!important;user-select:none!important}
+.kja-skeleton-mirror{width:100%;min-height:520px;color:transparent!important;background:var(--surface-page,#f6f8fb)!important;pointer-events:none!important;user-select:none!important}
+/* El espejo conserva la geometria real, pero no su decoracion. Asi una cabecera
+   oscura, un gradiente o una imagen nunca cubren la pantalla durante la carga. */
+.kja-skeleton-mirror :is(header,section,article,aside,nav,[class*="-head"],[class*="-toolbar"],[class*="-workbench"],[class*="-panel"],[class*="-card"]){background-color:var(--kja-sk-card)!important;background-image:none!important;text-shadow:none!important;box-shadow:none!important}
+.kja-skeleton-mirror :is(header,section,article,aside,nav,[class*="-head"],[class*="-toolbar"],[class*="-workbench"],[class*="-panel"],[class*="-card"])::before,
+.kja-skeleton-mirror :is(header,section,article,aside,nav,[class*="-head"],[class*="-toolbar"],[class*="-workbench"],[class*="-panel"],[class*="-card"])::after{background-image:none!important;box-shadow:none!important}
+/* La vista mensual usa selectores con dos IDs y !important en movil. Esta regla
+   deliberadamente mas especifica mantiene tambien ese encabezado claro. */
+#portal #admin-month-section .kja-skeleton-mirror.kja-skeleton-mes .admin-month-workbench-head{background:var(--kja-sk-card)!important;color:transparent!important;border-color:var(--kja-sk-line)!important}
+#portal #admin-month-section .kja-skeleton-mirror.kja-skeleton-mes .admin-month-workbench-head .admin-list-kpi{background:var(--kja-sk-card)!important;border-color:var(--kja-sk-line)!important;box-shadow:none!important}
 .kja-skeleton-mirror .kja-sk-native-line{display:inline-block;width:min(var(--kja-sk-text-width,12ch),100%);height:.72em;min-height:8px;vertical-align:middle;border-radius:999px}
 .kja-skeleton-mirror .kja-sk-native-control{overflow:hidden!important;color:transparent!important;text-shadow:none!important;caret-color:transparent!important;border-color:var(--kja-sk-line)!important;background:var(--kja-sk-base)!important;box-shadow:none!important}
 .kja-skeleton-mirror .kja-sk-native-control::placeholder{color:transparent!important}.kja-skeleton-mirror .kja-sk-native-media{min-height:46px;object-fit:cover;opacity:1!important}.kja-skeleton-mirror .kja-sk-native-icon{min-width:16px;min-height:16px;color:transparent!important;border-radius:6px}.kja-skeleton-mirror :is(.kja-sk-native-control,.kja-sk-native-media,.kja-sk-native-icon){cursor:default!important}
@@ -21,6 +30,7 @@
 .kja-sk-heading>span{display:grid;gap:10px;flex:1}.kja-sk-title{width:min(360px,72%);height:27px}.kja-sk-button{width:132px;height:42px;border-radius:12px}
 .kja-sk-lines{display:grid;align-content:center;gap:9px;min-width:0}.kja-sk-line{height:10px}.w-32{width:32%}.w-42{width:42%}.w-58{width:58%}.w-68{width:68%}.w-80{width:80%}
 .kja-sk-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.kja-sk-native-metric{align-content:center;min-width:0}.kja-sk-native-metric :is(small,b){display:block;width:100%}.kja-sk-native-metric .kja-sk-number{width:42%;height:28px;margin-top:8px}
 .kja-sk-card{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:14px;min-height:134px;padding:20px;border:1px solid var(--kja-sk-line);border-radius:18px;background:var(--kja-sk-card);box-shadow:0 8px 24px rgba(24,43,79,.035)}
 .kja-sk-metric{display:grid;grid-template-columns:1fr;align-content:center;gap:14px;min-height:104px}.kja-sk-number{width:42%;height:28px}
 .kja-sk-circle{width:46px;height:46px;flex:0 0 46px;border-radius:50%}.kja-sk-card>.kja-sk-button{grid-column:1/-1;width:100%;height:36px}

@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import {JSDOM} from 'jsdom';
 
 const source=fs.readFileSync(new URL('../assets/js/dashboard-skeleton.js',import.meta.url),'utf8');
+const styles=fs.readFileSync(new URL('../assets/css/paginas/dashboard-skeleton.css',import.meta.url),'utf8');
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
 function setup(){
@@ -59,6 +60,21 @@ test('copia la estructura y las clases reales sin duplicar ids interactivos',asy
   assert.equal(mirror.querySelector('[id]'),null);
   assert.ok(mirror.querySelector('.kja-sk-native-line'));
   assert.equal(mirror.querySelector('button').disabled,true);
+  resolve(true);await loading;
+});
+
+test('neutraliza fondos decorativos y conserva los KPI como hijos directos',async t=>{
+  const dom=new JSDOM('<section id="admin-month-section"><div class="admin-month-workbench"><header class="admin-month-workbench-head"><div id="admin-month-kpis" class="admin-list-kpis"></div></header><div id="admin-month-ledger"></div></div></section>',{runScripts:'outside-only'});
+  dom.window.eval(source);t.after(()=>dom.window.close());
+  const host=dom.window.document.getElementById('admin-month-section');
+  let resolve;const request=new Promise(done=>{resolve=done});
+  const loading=dom.window.DashboardSkeleton.withSkeleton(host,'mes',()=>request,{delay:0,minVisible:0,fade:0});
+  await wait(5);
+  const kpis=host.querySelector('.kja-skeleton-mirror .admin-list-kpis');
+  assert.equal(kpis.children.length,5);
+  assert.ok([...kpis.children].every(card=>card.matches('.admin-list-kpi.kja-sk-native-metric')));
+  assert.match(styles,/admin-month-workbench-head\{background:var\(--kja-sk-card\)!important/);
+  assert.match(styles,/background-image:none!important/);
   resolve(true);await loading;
 });
 
