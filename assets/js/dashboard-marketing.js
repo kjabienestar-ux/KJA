@@ -1484,6 +1484,33 @@
   const previewTabBtn=document.getElementById('marketing-mode-preview');
   if(editTabBtn)editTabBtn.onclick=()=>setPreviewMode(false);
   if(previewTabBtn)previewTabBtn.onclick=()=>setPreviewMode(true);
+  const fbPreviewCard=document.getElementById('marketing-fb-preview');
+  const copyHeaderEl=document.getElementById('marketing-copy-header')||(typeof document.querySelector==='function'?document.querySelector('.marketing-copy-header'):null);
+  function handlePreviewWheel(event){
+    if(!previewActive)return;
+    const renderEl=document.getElementById('marketing-fb-copy-render');
+    if(!renderEl)return;
+    const delta=event.deltaY||0;
+    const canScroll=renderEl.scrollHeight>renderEl.clientHeight;
+    if(!canScroll){
+      // Evitar que el scroll del contenedor o cabecera desplace la página superior en la vista previa
+      event.preventDefault();
+      return;
+    }
+    const isTargetRender=event.target===renderEl||Boolean(renderEl.contains?.(event.target));
+    if(!isTargetRender){
+      renderEl.scrollTop+=delta;
+      event.preventDefault();
+      return;
+    }
+    const atTop=renderEl.scrollTop<=0&&delta<0;
+    const atBottom=(renderEl.scrollTop+renderEl.clientHeight>=renderEl.scrollHeight-1)&&delta>0;
+    if(atTop||atBottom){
+      event.preventDefault();
+    }
+  }
+  if(fbPreviewCard)fbPreviewCard.addEventListener('wheel',handlePreviewWheel,{passive:false});
+  if(copyHeaderEl)copyHeaderEl.addEventListener('wheel',handlePreviewWheel,{passive:false});
   window.addEventListener('keydown',event=>{
     const marketingView=document.getElementById('view-marketing');
     if(!marketingView||marketingView.hidden)return;

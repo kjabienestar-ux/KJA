@@ -615,3 +615,50 @@ test('six-character keys retry collisions, generate alphanumeric codes and prese
   query.upsert=async()=>({error:{code:'23505'}});
   await assert.rejects(storeCampaignLink({from:()=>query},{},()=> 'x28bca'));
 });
+
+test('facebook preview scroll containment redirects wheel and prevents page scroll leakage',async()=>{
+  const e=editor();
+  await e.load();
+  const previewTab=e.get('mode-preview');
+  const previewCard=e.get('fb-preview');
+  const copyHeader=e.get('copy-header');
+  const renderEl=e.get('fb-copy-render');
+
+  assert.ok(previewCard.listeners['wheel']);
+  assert.ok(copyHeader.listeners['wheel']);
+
+  let prevented=false;
+  const dummyEvent1={deltaY:50,target:previewCard,preventDefault:()=>{prevented=true;}};
+  previewCard.listeners['wheel'](dummyEvent1);
+  assert.equal(prevented,false);
+
+  await previewTab.onclick();
+
+  renderEl.scrollHeight=800;
+  renderEl.clientHeight=400;
+  renderEl.scrollTop=100;
+
+  prevented=false;
+  const dummyEvent2={deltaY:40,target:previewCard,preventDefault:()=>{prevented=true;}};
+  previewCard.listeners['wheel'](dummyEvent2);
+  assert.equal(prevented,true);
+  assert.equal(renderEl.scrollTop,140);
+
+  prevented=false;
+  const dummyEvent3={deltaY:-20,target:copyHeader,preventDefault:()=>{prevented=true;}};
+  copyHeader.listeners['wheel'](dummyEvent3);
+  assert.equal(prevented,true);
+  assert.equal(renderEl.scrollTop,120);
+
+  renderEl.scrollTop=0;
+  prevented=false;
+  const dummyEventTop={deltaY:-50,target:renderEl,preventDefault:()=>{prevented=true;}};
+  previewCard.listeners['wheel'](dummyEventTop);
+  assert.equal(prevented,true);
+
+  renderEl.scrollTop=400;
+  prevented=false;
+  const dummyEventBottom={deltaY:50,target:renderEl,preventDefault:()=>{prevented=true;}};
+  previewCard.listeners['wheel'](dummyEventBottom);
+  assert.equal(prevented,true);
+});
