@@ -35,7 +35,8 @@
     <link rel="stylesheet" href="assets/css/paginas/cursos.css?v=5">
     <link rel="stylesheet" href="assets/css/paginas/cursos-area.css?v=16">
     <link rel="stylesheet" href="assets/css/paginas/cursos-biblioteca.css?v=14">
-    <link rel="stylesheet" href="assets/css/paginas/cursos-formacion.css?v=15">
+    <link rel="stylesheet" href="assets/css/paginas/cursos-formacion.css?v=17">
+    <link rel="stylesheet" href="assets/css/paginas/cursos-grabados.css?v=4">
     <!-- Sin JS, el splash de carga no debe tapar la página -->
     <noscript>
         <style>
@@ -165,15 +166,21 @@
 
     </section>
 
-    <section class="formation-routes" id="rutas-formacion" aria-labelledby="formation-routes-title">
-        <div class="formation-wrap formation-routes-shell">
-            <div class="formation-routes-intro">
-                <p class="formation-label">Elige tu camino</p>
-                <h2 id="formation-routes-title">¿Qué área de la <span>psicología te interesa explorar o fortalecer?</span></h2>
-                <p>Conoce nuestras cuatro áreas de formación. Encuentra tu interés y explora los cursos más abajo.</p>
+    <section class="free-courses-section recorded-library" data-library-kind="course" id="cursos-gratuitos" aria-labelledby="free-courses-title">
+        <div class="free-courses-shell">
+            <div class="recorded-heading">
+                <div class="recorded-heading-title">
+                    <p class="recorded-eyebrow"><span aria-hidden="true"></span>Tu espacio de formación gratuita</p>
+                    <h2 id="free-courses-title">Cursos grabados, <span>a tu ritmo.</span></h2>
+                    <p>Explora herramientas para tu práctica y sigue aprendiendo cuando tú elijas.</p>
+                </div>
+                <div class="recorded-heading-actions">
+                    <button type="button" class="recorded-library-button" id="free-library-open" aria-haspopup="dialog">Explorar biblioteca <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></button>
+                </div>
             </div>
-            <div class="formation-routes-grid" id="formation-routes-grid"></div>
+            <div class="free-courses-grid" id="free-courses-grid"></div>
         </div>
+        <noscript><p class="free-courses-nojs">La biblioteca de cursos grabados estará disponible próximamente.</p></noscript>
     </section>
 
     <section class="formation-section" id="catalogo" aria-labelledby="formation-courses-title">
@@ -193,6 +200,14 @@
         </div>
         <noscript><p class="formation-nojs">Activa JavaScript para explorar las rutas y los cursos. También puedes <a href="https://wa.me/51988918238">consultar a KJA por WhatsApp</a>.</p></noscript>
     </section>
+
+    <dialog class="free-library-dialog" id="free-library-dialog" aria-labelledby="free-library-title">
+        <div class="free-library-dialog-heading">
+            <div><p class="free-library-status" id="free-library-status"></p><h2 id="free-library-title">Biblioteca gratuita</h2></div>
+            <button type="button" class="free-library-close" id="free-library-close" aria-label="Cerrar biblioteca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div id="free-library-content"></div>
+    </dialog>
 
     <dialog class="formation-detail" id="formation-course-dialog" aria-labelledby="formation-detail-title">
         <div class="formation-detail-top"><span>Formación KJA</span><button type="button" id="formation-detail-close" aria-label="Cerrar detalle del curso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
@@ -332,8 +347,10 @@
 
     <script defer src="assets/js/cursos-data.js?v=8"></script>
     <script defer src="assets/js/cursos-catalogo.js?v=14"></script>
-    <script defer src="assets/js/cursos-formacion-data.js?v=3"></script>
-    <script defer src="assets/js/cursos-formacion.js?v=9"></script>
+    <script defer src="assets/js/cursos-formacion-data.js?v=4"></script>
+    <script defer src="assets/js/cursos-formacion.js?v=11"></script>
+    <script defer src="assets/js/cursos-gratuitos-data.js?v=1"></script>
+    <script defer src="assets/js/cursos-gratuitos.js?v=7"></script>
     <script defer src="assets/js/script.js?v=11"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>

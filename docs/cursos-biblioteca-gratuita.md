@@ -1,5 +1,7 @@
 # Cursos: biblioteca gratuita y tarjetas con velo glass
 
+> Estado vigente del 2026-10-19: la biblioteca está disponible tanto en Cursos (después del hero) como en Talleres (antes de la agenda). Comparte tres ejemplos y adapta textos/enlaces según la página. El bloque de nueve áreas y la ubicación descritos abajo corresponden a una entrega anterior; la portada vigente se describe en [formación pública](cursos-formacion-publica.md).
+
 La página `cursos.html` conserva el hero, las nueve áreas y sus rutas, el contacto y el footer. La biblioteca gratuita aparece antes del catálogo. Las tarjetas oficiales combinan fotografía completa con texto sobre un velo lateral, una acción circular y sombras alternadas rosa/azul. En escritorio, hover o foco ensancha la tarjeta y muestra su descripción; las compañeras de la fila se contraen. La tarjeta activa pierde la sombra.
 
 El catálogo se adapta a tres columnas en escritorio, dos en tablet y una en móvil. En tablet y móvil se muestran únicamente el título y la fotografía, en formato 16:9 con velo inferior suave; la tarjeta completa mantiene el enlace al área. Las tarjetas usan resúmenes de 23–25 palabras (`catalogSummary`) y conservan la descripción completa en la vista del área. La fuente de las descripciones es .85rem en escritorio; en tablet y móvil las descripciones se ocultan. En escritorio la tarjeta expandida reserva el 60% para texto y el 40% para fotografía. El velo se limita al bloque de texto, sin cubrir ni desenfocar la foto, y la tarjeta activa se resalta con borde rosa.

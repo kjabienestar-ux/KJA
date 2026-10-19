@@ -29,9 +29,7 @@ test('presenta siete cursos, tres destacados y cuatro rutas sin el bloque antigu
     assert.equal(courses.length, 7);
     assert.equal(new Set(courses.map(card => card.dataset.formationCourse)).size, 7);
     assert.deepEqual([...doc.querySelectorAll('.formation-course-featured')].map(card => card.dataset.formationCourse).sort(), ['neuropsicologia-tea-tdah', 'rrhh', 'tcc-infantil']);
-    assert.equal(doc.querySelectorAll('.formation-route').length, 4);
-    assert.equal(doc.querySelectorAll('.formation-route a, .formation-route button').length, 0);
-    assert.equal(doc.querySelectorAll('.formation-route-icon svg').length, 4);
+    assert.equal(doc.getElementById('rutas-formacion'), null);
     assert.equal(doc.querySelectorAll('[data-formation-course] ul, [data-formation-course] .formation-course-title svg').length, 0);
     assert.equal(doc.querySelectorAll('#formation-workshops img').length, 0);
     assert.equal(doc.querySelectorAll('[data-formation-course]:not([hidden])').length, 6);
@@ -160,8 +158,8 @@ test('la vista por área conserva sus programas y oculta la nueva portada', () =
     const dom = page('?area=tea-autismo');
     const doc = dom.window.document;
     assert.equal(doc.getElementById('catalogo').hidden, true);
-    assert.equal(doc.getElementById('rutas-formacion').hidden, true);
-    assert.equal(doc.getElementById('cursos-gratuitos'), null);
+    assert.equal(doc.getElementById('rutas-formacion'), null);
+    assert.equal(doc.getElementById('cursos-gratuitos').hidden, true);
     assert.equal(doc.getElementById('course-area-view').hidden, false);
     assert.ok(doc.querySelectorAll('.area-program').length > 0);
     dom.window.close();
@@ -181,7 +179,7 @@ test('los destacados se distribuyen y el distintivo se puede desplegar sin abrir
     assert.equal(doc.getElementById('formation-course-dialog').open, false);
     badge.click();
     assert.equal(badge.getAttribute('aria-pressed'), 'false');
-    assert.equal(doc.querySelectorAll('[data-formation-detail]').length, 7);
+    assert.equal(doc.querySelectorAll('#formation-courses-grid [data-formation-detail]').length, 7);
     dom.window.close();
 });
 
@@ -218,5 +216,17 @@ test('la agenda completa permite buscar sin tildes, restablecer y abrir todos lo
         doc.getElementById('formation-workshop-close').click();
         assert.equal(doc.activeElement, trigger);
     }
+    dom.window.close();
+});
+
+
+test('la portada sigue hero, grabados, catálogo, CTA y footer', () => {
+    const dom = page();
+    const doc = dom.window.document;
+    const blocks = ['.cursos-hero', '#cursos-gratuitos', '#catalogo', '.cta-banner', 'footer'].map(selector => doc.querySelector(selector));
+    for (let index = 1; index < blocks.length; index++) {
+        assert.ok(blocks[index - 1].compareDocumentPosition(blocks[index]) & 4);
+    }
+    assert.equal(doc.querySelector('.formation-pick'), null);
     dom.window.close();
 });
