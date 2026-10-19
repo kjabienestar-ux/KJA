@@ -71,6 +71,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-holiday.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence-corrections.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-overview-modal.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-skeleton.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-zoom.css?v=16">
 </head>
 <body>
@@ -1502,7 +1503,7 @@
         <button type="button" data-admin-section="contratos">Contratos</button>
         <button type="button" data-admin-section="roles" id="admin-roles-tab" hidden>Roles y equipos</button>
         <button type="button" data-admin-section="marcado" id="admin-access-tab">Marcado propio</button>
-        <a href="asistencia.html?modo=lista" title="Abrir la versión anterior como respaldo">Panel anterior ↗</a>
+        <a href="asistencia.html?modo=lista" data-admin-legacy title="Abrir la versión anterior como respaldo">Panel anterior ↗</a>
         <button class="admin-refresh" id="admin-refresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualizar</button>
         <span id="admin-role-chip" hidden>Acceso administrativo</span>
       </nav>
@@ -3922,7 +3923,8 @@
 </dialog>
 
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=265"></script>
+<script src="assets/js/dashboard-skeleton.js?v=3"></script>
+<script src="assets/js/dashboard.js?v=266"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
 <script src="assets/js/dashboard-zoom-embed.js?v=3"></script>
@@ -3931,7 +3933,7 @@
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=22"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=23"></script>
 <script src="assets/js/dashboard-person-delete.js?v=1"></script>
 <script src="assets/js/dashboard-areas.js?v=2"></script>
 <script src="assets/js/dashboard-area-picker.js?v=4"></script>
@@ -3945,13 +3947,13 @@
 <script src="assets/js/dashboard-attendance-export.js?v=10"></script>
 <script src="assets/js/dashboard-attendance-preview.js?v=3"></script>
 <script src="assets/js/dashboard-month-day-detail.js?v=11"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=20"></script>
-<script src="assets/js/dashboard-admin-acceso.js?v=6"></script>
-<script src="assets/js/dashboard-admin-roles.js?v=6"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=51"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=21"></script>
+<script src="assets/js/dashboard-admin-acceso.js?v=7"></script>
+<script src="assets/js/dashboard-admin-roles.js?v=7"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=52"></script>
 <script src="assets/js/dashboard-assignment-hours.js?v=1"></script>
-<script src="assets/js/dashboard-assignments.js?v=7"></script>
-<script src="assets/js/dashboard-admin-control.js?v=17"></script>
+<script src="assets/js/dashboard-assignments.js?v=8"></script>
+<script src="assets/js/dashboard-admin-control.js?v=18"></script>
 <script src="assets/js/marketing-model.js?v=studio-15"></script>
 <dialog id="marketing-delete-dialog" class="marketing-delete-dialog" aria-labelledby="marketing-delete-title" aria-describedby="marketing-delete-description">
   <div class="marketing-delete-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6"/></svg></div>
@@ -3981,14 +3983,14 @@
 <script src="assets/js/dashboard-chat.js?v=22"></script>
 <script src="assets/js/dashboard-mobile.js?v=5"></script>
 <script src="assets/js/ranking-model.js?v=6"></script>
-<script src="assets/js/dashboard-ranking.js?v=14"></script>
+<script src="assets/js/dashboard-ranking.js?v=15"></script>
 <script src="assets/js/facebook-report-model.js?v=5"></script>
 <script src="assets/js/facebook-report-excel-layout.js?v=2"></script>
 <script src="assets/js/facebook-report-excel.js?v=4"></script>
 <script src="assets/js/attendance-report-excel-layout.js?v=5"></script>
 <script src="assets/js/intern-report-excel.js?v=8"></script>
 <script src="assets/js/facebook-report-pdf.js?v=1"></script>
-<script src="assets/js/dashboard-facebook-report.js?v=9"></script>
+<script src="assets/js/dashboard-facebook-report.js?v=10"></script>
 <script src="assets/js/dashboard-pausa-activa.js?v=login-guard-1"></script>
 <script src="assets/js/dashboard-guided-tour.js?v=8"></script>
 </body>

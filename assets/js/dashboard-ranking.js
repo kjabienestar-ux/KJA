@@ -55,7 +55,7 @@
     monthLabels.forEach((label,index)=>{
       const target=`${pickerYear}-${String(index+1).padStart(2,'0')}`,button=el('button',label);
       button.type='button';button.disabled=target>now;button.setAttribute('aria-pressed',String(target===value));
-      button.onclick=()=>{get('ranking-month').value=target;get('ranking-month-picker').open=false;get('ranking-month-label').focus();window.loadAdminRanking()};options.append(button);
+      button.onclick=()=>{get('ranking-month').value=target;get('ranking-month-picker').open=false;get('ranking-month-label').focus();withAdminSkeleton('ranking',()=>window.loadAdminRanking())};options.append(button);
     });
   }
   get('ranking-year-prev').onclick=()=>{pickerYear--;updateMonthPicker()};
@@ -96,11 +96,11 @@
     const[ry,rm]=next.split('-').map(Number);
     if(ry>ny||(ry===ny&&rm>nm))return;
     get('ranking-month').value=next;
-    window.loadAdminRanking();
+    withAdminSkeleton('ranking',()=>window.loadAdminRanking());
   }
   get('ranking-month-prev').addEventListener('click',()=>shiftMonth(-1));
   get('ranking-month-next').addEventListener('click',()=>shiftMonth(+1));
-  get('ranking-month-today').addEventListener('click',()=>{if(!isCurrentMonth()){get('ranking-month').value=now;window.loadAdminRanking();}});
+  get('ranking-month-today').addEventListener('click',()=>{if(!isCurrentMonth()){get('ranking-month').value=now;withAdminSkeleton('ranking',()=>window.loadAdminRanking());}});
 
   /* ── MODAL DETAIL ─────────────────────────────────────── */
   function openRankingDetail(row){
@@ -345,11 +345,13 @@
       const closedNote=isCurrent?' Las franjas aún abiertas quedan pendientes de evaluación.':'';
       get('ranking-status').textContent=`${prefix} ${data.hasta}. Entrada según estado puntual del sistema. Salida: ventana permitida desde ${data.salida_anticipacion_min} min antes hasta ${data.salida_gracia_min} min después del horario.${closedNote}`;
       render();
+      return true;
     }catch(error){
       if(token!==request)return;
       get('ranking-status').textContent=error.code==='PGRST202'
         ?'Falta ejecutar dashboard_70_rpe_presencial.sql en Supabase.'
         :'No se pudo calcular el ranking. '+(error.message||'Intenta actualizar.');
+      return false;
     }
   };
 
@@ -363,7 +365,7 @@
       get('ranking-status').textContent='Simulación recalculada. Los pesos no se han aprobado ni guardado.';
     }catch(error){get('ranking-status').textContent=error.message;}
   };
-  get('ranking-month').onchange=window.loadAdminRanking;
-  get('ranking-refresh').onclick=window.loadAdminRanking;
+  get('ranking-month').onchange=()=>withAdminSkeleton('ranking',()=>window.loadAdminRanking());
+  get('ranking-refresh').onclick=()=>withAdminSkeleton('ranking',()=>window.loadAdminRanking());
   get('ranking-area').onchange=render;
 })();

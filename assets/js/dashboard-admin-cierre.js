@@ -359,7 +359,7 @@ async function loadAdminCloses({quiet=false}={}){
     APP.adminClose=null;
     const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_cierres'));
     adminCloseMsg(missing?'Ejecuta dashboard_19_cierre_jornada.sql para habilitar esta vista.':'No pudimos cargar los cierres. Actualiza e inténtalo nuevamente.','error');
-    $('admin-close-status').innerHTML='<p class="admin-empty">La información no está disponible.</p>';return;
+    $('admin-close-status').innerHTML='<p class="admin-empty">La información no está disponible.</p>';return false;
   }
   APP.adminClose=data;
   APP.adminReview=APP.access.rol==='direccion'&&!reviewError&&reviewData?.ok?reviewData:{ok:false,entregas:[]};
@@ -377,6 +377,7 @@ async function loadAdminCloses({quiet=false}={}){
   }catch(error){
     // Si las fotos no estan disponibles, se conservan las iniciales.
   }
+  return true;
 }
 
 function adminReviewStateLabel(item){
@@ -735,7 +736,7 @@ async function cancelAdminCloseAssignment(id){
 $('admin-close-date').value=isoLima();
 $('admin-close-date').min=addIsoDays(isoLima(),-90);
 $('admin-close-date').max=addIsoDays(isoLima(),90);
-$('admin-close-date').onchange=()=>{clearAdminDrawPreview();loadAdminCloses()};
+$('admin-close-date').onchange=()=>{clearAdminDrawPreview();withAdminSkeleton(APP.adminSection,()=>loadAdminCloses())};
 $('admin-close-target-kind').onchange=()=>{syncAdminCloseTargets();clearAdminDrawPreview()};
 $('admin-close-target').onchange=clearAdminDrawPreview;
 $('admin-close-draw-count').oninput=clearAdminDrawPreview;
@@ -745,7 +746,7 @@ $('admin-close-instructions').oninput=clearAdminDrawPreview;
 $('admin-close-search').oninput=renderAdminCloseStatus;
 $('admin-close-area').onchange=renderAdminCloseStatus;
 $('admin-close-assignment-form').onsubmit=submitAdminCloseAssignment;
-$('admin-close-assignments-refresh').onclick=()=>loadAdminCloses({quiet:true});
+$('admin-close-assignments-refresh').onclick=()=>withAdminSkeleton(APP.adminSection,()=>loadAdminCloses({quiet:true}));
 $('admin-close-assignment-list').onclick=event=>{const button=event.target.closest('[data-cancel-admin-close]');if(button)cancelAdminCloseAssignment(button.dataset.cancelAdminClose)};
 $('admin-close-status').onclick=event=>{const recovery=event.target.closest('[data-admin-recover-exit]');if(recovery){void recoverAdminCloseExit(recovery.dataset.adminRecoverExit,recovery);return;}const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]'),message=event.target.closest('[data-admin-message-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminMissingEvidence(upload.dataset.adminUploadPerson,upload);if(message)openAdminMessage(message.dataset.adminMessagePerson,message)};
 $('admin-review-tabs').onclick=event=>{const button=event.target.closest('[data-admin-review-delivery]');if(button)renderAdminReviewDelivery(button.dataset.adminReviewDelivery)};

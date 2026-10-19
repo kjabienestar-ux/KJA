@@ -36,10 +36,10 @@ async function loadAdminAccess(){
     APP.adminAccess=null;
     const missing=(error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_marcado')))||(geoError&&(geoError.code==='PGRST202'||String(geoError.message||'').includes('dash_admin_geocerca')));
     accessMessage(missing?'La modalidad y geocerca todavía no están instaladas en Supabase. Ejecuta dashboard_13_modalidad_y_geocerca.sql.':'No se pudo cargar el centro de acceso. Actualiza e inténtalo nuevamente.',true);
-    $('admin-access-list').innerHTML='<p class="admin-empty">La información de acceso no está disponible.</p>';return;
+    $('admin-access-list').innerHTML='<p class="admin-empty">La información de acceso no está disponible.</p>';return false;
   }
   data.config={...(data.config||{}),...(geoData.config||{})};
-  APP.adminAccess=data;renderAdminAccess();
+  APP.adminAccess=data;renderAdminAccess();return true;
 }
 
 function renderAdminAccess(){

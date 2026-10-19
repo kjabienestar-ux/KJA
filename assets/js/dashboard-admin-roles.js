@@ -25,11 +25,12 @@ async function loadAdminRoles(){
     APP.adminRoles=null;
     const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_roles'));
     rolesMessage(missing?'La administración de co-líderes todavía no está instalada en Supabase. Ejecuta dashboard_51_colideres_tecnicos.sql.':'No se pudo cargar la administración de roles. Actualiza e inténtalo nuevamente.',true);
-    $('admin-role-map').innerHTML='<p class="admin-empty">La estructura de roles no está disponible.</p>';return;
+    $('admin-role-map').innerHTML='<p class="admin-empty">La estructura de roles no está disponible.</p>';return false;
   }
   APP.adminRoles=data;
   if(Number(data.co_lideres_max)!==2)rolesMessage('Ejecuta dashboard_51_colideres_tecnicos.sql en Supabase para activar los dos cupos de co-líder.',true);
   renderAdminRoles();
+  return true;
 }
 
 function roleAreaIcon(name){

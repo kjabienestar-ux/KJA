@@ -45,7 +45,7 @@ async function loadAdminTeam(){
     const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_equipo'));
     teamMsg(missing?'La fase 3 todavía no está instalada en Supabase. Ejecuta dashboard_06_admin_equipo.sql.':'No se pudo cargar colaboradores y contratos. Actualiza nuevamente.');
     $(target).innerHTML='<p class="admin-empty">La información del equipo no está disponible.</p>';
-    return;
+    return false;
   }
   const balances=new Map((balancesData?.ok?balancesData.saldos||[]:[]).map(item=>[String(item.id),Number(item.saldo)||0]));
   data.instituciones_disponibles=!!institutionResult.data?.ok&&!institutionResult.error;
@@ -58,6 +58,7 @@ async function loadAdminTeam(){
   fillAdminTeamFilters();
   $('admin-new-person').hidden=!data.puede_editar;
   renderAdminPeople();renderAdminContracts();
+  return true;
 }
 
 function fillAdminTeamFilters(){
