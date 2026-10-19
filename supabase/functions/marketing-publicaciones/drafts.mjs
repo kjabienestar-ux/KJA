@@ -1,3 +1,5 @@
+import { shortenerData, validateWalink } from './shortener.mjs';
+import { publicationPhones } from './phones.mjs';
 const fields=['titulo','descripcion','publico','temario','modalidad','beneficios','detalles','telefono','correo','mensaje','facebook_url'];
 const options=['certificado','material','peru','vacantes'];
 export function partialDraft(data,copy){
@@ -5,5 +7,7 @@ export function partialDraft(data,copy){
   if(typeof copy!=='string'||copy.length>20000)throw new Error('El texto admite hasta 20 000 caracteres.');
   const flags=data.opciones||{};
   if(typeof flags!=='object'||Array.isArray(flags)||Object.keys(flags).some(key=>!options.includes(key)||typeof flags[key]!=='boolean'))throw new Error('Revisa las opciones de la campaña.');
-  return {datos:{...Object.fromEntries(fields.map(key=>[key,data[key]])),guardado_parcial:true,opciones:Object.fromEntries(options.map(key=>[key,flags[key]===true]))},copy,enlace:''};
+  let enlace='';
+  if(data.acortador==='walink'){try{enlace=validateWalink(data,data.walink,publicationPhones(data.telefono)[0]||'');}catch{}}
+  return {datos:{...shortenerData(data),...Object.fromEntries(fields.map(key=>[key,data[key]])),guardado_parcial:true,opciones:Object.fromEntries(options.map(key=>[key,flags[key]===true]))},copy,enlace};
 }

@@ -9,6 +9,7 @@
   let id=null,imageURL='',busy=false,dirty=false,saved=false,locked=false,extraction=null,config={ia:false,facebook:false,puede_publicar:false},available=false;
   let isAdmin=false,adminScope='me',selectedAuthor='todos',teamAuthors=[];
   let shortLink='',shortFor='',automaticMessage='';
+  const isKjaLink=url=>/^(?:https:\/\/www\.kjadmb\.com\/w\.html\?k=|https:\/\/wa\.kjadmb\.com\/)[A-Za-z0-9_-]{16}$/.test(url||'');
   let deletion=null,deleting=false;
   let historyRows=[],historyFilter='all',historyOffset=0,historyMore=false;
   const draftCache=new Map();
@@ -129,7 +130,12 @@
     if(old)copy=copy.split(old).join(next);
     if(copy)copy=copy.replace(/https:\/\/wa\.me\/[^\s<)]+/g,next);
     const line=KJAMarketing.contactLine(d,next);
-    if(/^📲 (?:Inscríbete directamente aquí|Contáctanos al WhatsApp):.*$/m.test(copy))copy=copy.replace(/^📲 (?:Inscríbete directamente aquí|Contáctanos al WhatsApp):.*$/m,line);
+    if(/^📲 WhatsApp:.*$/m.test(copy)){
+      copy=copy.replace(/^📲 WhatsApp:.*$/m,'📲 WhatsApp: '+next);
+      const phones=KJAMarketing.contactNumbers(d.telefono).map(number=>/^51\d{9}$/.test(number)?'(51) '+number.slice(2).replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3'):number).join(' / ');
+      copy=copy.replace(/^📞 Teléfono de contacto:.*$/m,'📞 Teléfono de contacto: '+phones);
+    }
+    else if(/^📲 (?:Inscríbete directamente aquí|Contáctanos al WhatsApp):.*$/m.test(copy))copy=copy.replace(/^📲 (?:Inscríbete directamente aquí|Contáctanos al WhatsApp):.*$/m,line);
     else if(/^📩 Solicita información aquí:.*$/m.test(copy))copy=copy.replace(/^📩 Solicita información aquí:.*$/m,line);
     else if(!copy.includes(next))copy+='\n\n'+line;
     el('copy').value=copy;el('link').href=next;el('short-url').value=next;changed();
@@ -139,7 +145,7 @@
     const d=data();KJAMarketing.link(d.telefono,d.mensaje);
     if(shortLink&&shortFor===signature(d)){applyLink(d,shortLink);return;}
     const result=await call('enlace',{id,telefono:KJAMarketing.phoneCandidates(d.telefono)[0],mensaje:d.mensaje});
-    if(!/^https:\/\/www\.kjadmb\.com\/w\.html\?k=[A-Za-z0-9_-]{16}$/.test(result?.enlace||''))throw new Error('No se recibió un enlace corto válido.');
+    if(!isKjaLink(result?.enlace))throw new Error('No se recibió un enlace corto válido.');
     shortLink=result.enlace;shortFor=signature(d);applyLink(d,shortLink);
   }
   let errorDismissTimer=null;
@@ -243,7 +249,7 @@
     }
   }
   function step(n){document.querySelectorAll('.marketing-steps li').forEach((li,i)=>{if(i===n-1)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current')})}
-  function data(){return {...Object.fromEntries(keys.map(k=>[k,el(k).value.trim()])),opciones:Object.fromEntries(optionKeys.map(k=>[k,el('option-'+k).checked]))}}
+  function data(){return {...Object.fromEntries(keys.map(k=>[k,el(k).value.trim()])),acortador:'kja',opciones:Object.fromEntries(optionKeys.map(k=>[k,el('option-'+k).checked]))}}
   function restoreOptions(options={}){optionKeys.forEach(k=>el('option-'+k).checked=options[k]===true)}
   function syncWhatsApp(){el('whatsapp-phone').value=el('telefono').value;el('whatsapp-message').value=el('mensaje').value}
   function sync(){
@@ -493,7 +499,7 @@
           automaticMessage=stored.mensaje;
         }
         syncWhatsApp();
-        if(d.enlace?.startsWith('https://www.kjadmb.com/w.html?k=')){
+        if(isKjaLink(d.enlace)){
           shortLink=d.enlace;shortFor=signature(data());
           if(el('copy').value)el('copy').value=el('copy').value.replace(/https:\/\/wa\.me\/[^\s<)]+/g,d.enlace);
         }
@@ -659,7 +665,7 @@
         KJAMarketing.link(d.telefono,d.mensaje);
         status('Actualizando el texto y el enlace corto de KJA…');
         const result=await call('enlace',{id,telefono:KJAMarketing.phoneCandidates(d.telefono)[0],mensaje:d.mensaje});
-        if(!/^https:\/\/www\.kjadmb\.com\/w\.html\?k=[A-Za-z0-9_-]{16}$/.test(result?.enlace||''))throw new Error('No se pudo actualizar el enlace corto. Tu texto anterior se conserva; vuelve a intentarlo.');
+        if(!isKjaLink(result?.enlace))throw new Error('No se pudo actualizar el enlace corto. Tu texto anterior se conserva; vuelve a intentarlo.');
         // Solo reemplazar las ediciones después de obtener el enlace válido.
         shortLink=result.enlace;shortFor=signature(d);automaticMessage=d.mensaje;
         el('telefono').value=d.telefono;el('mensaje').value=d.mensaje;
@@ -1409,7 +1415,7 @@
     try{if(!el('mensaje').value||el('mensaje').value===automaticMessage){automaticMessage=KJAMarketing.whatsappMessage(el('titulo').value,el('facebook_url').value.trim(),data());el('mensaje').value=automaticMessage;syncWhatsApp();}changed();status('Pulsa Generar enlace corto para incluir la publicación en el mensaje.');}catch(error){status(error.message,true)}
   };
   el('regenerate-message').onclick=()=>run(async()=>{automaticMessage=KJAMarketing.whatsappMessage(el('titulo').value,el('facebook_url').value.trim(),data());el('mensaje').value=automaticMessage;syncWhatsApp();changed();await shorten();status('Mensaje específico del flyer y enlace corto actualizados.');});
-  el('update-link').onclick=()=>run(async()=>{const d=data();applyLink(d,KJAMarketing.link(d.telefono,d.mensaje));await shorten();el('destination').textContent='WhatsApp de ventas: '+d.telefono;status(id?'Enlace corto actualizado. Tus ediciones del texto se conservan.':'Adjunta un flyer para crear su enlace corto.');});
+  el('update-link').onclick=()=>run(async()=>{const d=data();KJAMarketing.link(d.telefono,d.mensaje);await shorten();el('destination').textContent='WhatsApp de ventas: '+d.telefono;status(id?'Enlace corto actualizado. Tus ediciones del texto se conservan.':'Adjunta un flyer para crear su enlace corto.');});
   el('save').onclick=()=>run(async()=>{
     const d=data(),link=chosenLink(d);
     if(!el('copy').value.includes(link))throw new Error('El enlace cambió. Vuelve a generar el copy antes de guardarlo.');

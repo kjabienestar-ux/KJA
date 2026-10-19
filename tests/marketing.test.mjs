@@ -5,6 +5,46 @@ import vm from 'node:vm';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const {link,compose,parseText,whatsappMessage}=require('../assets/js/marketing-model.js');
+import {isWalink,validateWalink} from '../supabase/functions/marketing-publicaciones/shortener.mjs';
+import {kjaLink,kjaLinkKey} from '../supabase/functions/marketing-publicaciones/kja-links.mjs';
+
+test('KJA branded domain is opt-in and both URL formats keep the same key',()=>{
+  const key='abcdefghijklmnop';
+  assert.equal(kjaLink(key),'https://www.kjadmb.com/w.html?k='+key);
+  assert.equal(kjaLink(key,'https://wa.kjadmb.com'),'https://wa.kjadmb.com/'+key);
+  for(const url of [kjaLink(key),kjaLink(key,'https://wa.kjadmb.com')])assert.equal(kjaLinkKey(url),key);
+  for(const url of ['https://wa.kjadmb.com.evil.test/'+key,'https://wa.kjadmb.com/'+key+'?other=1','http://wa.kjadmb.com/'+key,'https://wa.kjadmb.com/short'])assert.equal(kjaLinkKey(url),'');
+});
+
+test('campaign generation, copying and saving accept the branded KJA link',async()=>{
+  const e=editor();await e.load();const invoke=e.context.db.functions.invoke;
+  e.context.db.functions.invoke=(name,args)=>args.body.accion==='enlace'?Promise.resolve({data:{enlace:'https://wa.kjadmb.com/abcdefghijklmnop'}}):invoke(name,args);
+  await e.get('generate').onclick();
+  assert.equal(e.get('short-url').value,'https://wa.kjadmb.com/abcdefghijklmnop');
+  assert.match(e.get('copy').value,/https:\/\/wa.kjadmb.com\/abcdefghijklmnop/);
+  await e.get('save').onclick();assert.equal(e.calls.findLast(c=>c.accion==='guardar').enlace,'https://wa.kjadmb.com/abcdefghijklmnop');
+  await e.get('copy-ready').onclick();assert.match(e.get('status').textContent,/copiado/);
+});
+
+test('branded path resolves the campaign and legacy query links still work',async()=>{
+  const script=fs.readFileSync(new URL('../w.html',import.meta.url),'utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
+  for(const location of [{hostname:'wa.kjadmb.com',pathname:'/abcdefghijklmnop',search:'?k=wrong'},{hostname:'www.kjadmb.com',pathname:'/w.html',search:'?k=abcdefghijklmnop'}]){
+    let requested,redirect;const nodes={status:{},chat:{}};
+    await vm.runInNewContext(script,{URLSearchParams,document:{getElementById:id=>nodes[id]},location:{...location,replace:url=>redirect=url},fetch:async(url,options)=>{requested=JSON.parse(options.body).p_clave;return {ok:true,json:async()=>'https://wa.me/51988918238?text=Hola'};}});
+    assert.equal(requested,'abcdefghijklmnop');assert.equal(redirect,'https://wa.me/51988918238?text=Hola');
+  }
+  const config=JSON.parse(fs.readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
+  const route=config.rewrites.find(r=>r.has?.some(h=>h.value==='wa.kjadmb.com'));
+  assert.equal(route.destination,'/w.html');
+});
+
+test('Walink accepts only direct HTTPS links and a confirmed campaign signature',()=>{
+  const data={acortador:'walink',walink:'https://wa.link/abc123',mensaje:'Hola',walink_firma:'51988918238\nHola'};
+  assert.equal(validateWalink(data,data.walink,'51988918238'),data.walink);
+  for(const url of ['http://wa.link/abc123','https://wa.link.evil.test/abc123','https://wa.link@evil.test/abc123','https://wa.link/abc123?redirect=evil','javascript:alert(1)'])assert.equal(isWalink(url),false);
+  assert.throws(()=>validateWalink({...data,mensaje:'Otro mensaje'},data.walink,'51988918238'));
+  assert.throws(()=>validateWalink(data,data.walink,'51999111222'));
+});
 
 test('every generated course and therapy copy includes institutional contact details once',()=>{
   for(const titulo of ['Curso de evaluación','Terapia familiar']){
@@ -35,21 +75,13 @@ test('WhatsApp preserves accents, punctuation and campaign text without query in
   assert.throws(()=>link('988','Hola'));
   assert.throws(()=>link('51988918238',' '));
 });
-test('template omits facts not present in the supplied flyer',()=>{
-  const copy=compose({titulo:'ADOS-2 y ADI-R',temario:'Entrevista ADI-R.\nTécnicas del test de ADOS II.'},'https://wa.me/51988918238?text=Hola');
-  assert.match(copy,/🧩 Entrevista ADI-R/);
-  assert.match(copy,/💡 Técnicas/);
-  assert.doesNotMatch(copy,/online|VACANTES|beneficios|certifica|PSICÓLOGOS/i);
-});
-
-test('campaign format includes only confirmed benefits and the current WhatsApp',()=>{
-  const d={titulo:'Pruebas neuropsicológicas',modalidad:'Online',descripcion:'Descripción confirmada',publico:'Psicólogos',temario:'Fundamentos\nAplicación\nInforme',telefono:'51988918238',opciones:{certificado:true,material:true,peru:true,vacantes:true}};
-  const copy=compose(d,link(d.telefono,'Hola, quiero inscribirme'));
-  assert.match(copy,/🧠 PRUEBAS NEUROPSICOLÓGICAS/);assert.match(copy,/💻 Online/);
-  assert.match(copy,/¿QUÉ APRENDERÁS EN ESTA FORMACIÓN/);assert.match(copy,/Certificado Académico \(con QR\)/);assert.match(copy,/Material académico digital/);
-  assert.match(copy,/Solo válido en Perú/);assert.match(copy,/Contáctanos al WhatsApp: https:\/\/wa.me\//);assert.match(copy,/988 918 238/);assert.match(copy,/VACANTES LIMITADAS/);
-  const plain=compose({...d,opciones:{}},link(d.telefono,'Hola'));
-  assert.doesNotMatch(plain,/Certificado|Material académico|Solo válido|VACANTES LIMITADAS/);
+test('course default uses approved benefits and campaign contacts in order',()=>{
+  const copy=compose({titulo:'Curso online de: Orientacion',descripcion:'Aprende a orientar.',publico:'Docentes',telefono:'51999111222',correo:'curso@example.com',temario:'Tema interno'},'https://example.test/chat');
+  const sections=['CURSO ONLINE DE: ORIENTACION','Aprende a orientar.','Docentes','TE BRINDAMOS:','300 horas','incluye QR','digital completo','50% de descuento','6 H.A','INSCR','WhatsApp: https://example.test/chat','(51) 999 111 222','curso@example.com','https://www.kjadmb.com/','KJA - Centro','POTENCIA TU PERFIL'];
+  let previous=-1;
+  for(const section of sections){const index=copy.indexOf(section);assert.ok(index>previous,section);previous=index;}
+  assert.doesNotMatch(copy,/Tema interno|APRENDER/);
+  assert.match(compose({titulo:'Curso de Orientacion',modalidad:'Presencial'},'url'),/CURSO PRESENCIAL DE: ORIENTACION/);
 });
 
 test('therapy follows the example order without course language or fabricated facts',()=>{
@@ -79,11 +111,11 @@ test('therapy flyer for autoestima in children and adolescents outputs the exact
   assert.match(copy,/🚨 ¡VACANTES LIMITADAS! Asegura tu cupo hoy mismo\. 🚨/);
 });
 
-test('cached comma-separated flyer benefits become emoji lines without duplication',()=>{
-  const copy=compose({titulo:'Gestión y convivencia escolar',modalidad:'Curso online',beneficios:'300 horas académico, Material académico, Incluye certificado (con QR), Válido concursos públicos y privados',detalles:'Solo válido en Perú, Vacantes limitadas',opciones:{material:true,certificado:true}},'https://example.test/chat');
-  assert.match(copy,/🏫 GESTIÓN/);assert.match(copy,/⏱️ 300 horas académico\n📚 Material académico\n📜 Incluye certificado \(con QR\)\n✅ Válido concursos/);
-  assert.equal((copy.match(/certificado/gi)||[]).length,1);assert.equal((copy.match(/Material académico/gi)||[]).length,1);
-  assert.match(copy,/🇵🇪 Solo válido en Perú/);assert.match(copy,/🚨 ¡VACANTES LIMITADAS!/);
+test('cached course benefits do not duplicate the approved default benefits',()=>{
+  const copy=compose({titulo:'Gestion escolar',beneficios:'300 horas, Material, Certificado'},'https://example.test/chat');
+  assert.equal((copy.match(/300 horas/g)||[]).length,1);
+  assert.equal((copy.match(/Certificado/g)||[]).length,1);
+  assert.equal((copy.match(/Material/g)||[]).length,1);
 });
 
 // Harness de eventos, sin navegador ni servicios externos; no valida layout.
@@ -447,7 +479,7 @@ test('updating WhatsApp preserves edited copy and does not make another Gemini r
 test('manual Facebook route works without Facebook credentials and saves confirmed campaign options',async()=>{
   const e=editor({facebook:false});await e.load();await e.get('generate').onclick();
   e.get('option-certificado').checked=true;e.get('option-certificado').onchange();await e.get('apply-template').onclick();
-  assert.match(e.get('copy').value,/con QR/);e.get('to-publish').onclick();
+  assert.match(e.get('copy').value,/incluye QR/);e.get('to-publish').onclick();
   assert.equal(e.get('copy-ready').disabled,false);assert.equal(e.get('publish').disabled,true);assert.match(e.get('facebook-status').textContent,/pendiente de conectar/);
   await e.get('save').onclick();const saved=e.calls.find(c=>c.accion==='guardar');assert.equal(saved.datos.opciones.certificado,true);assert.equal(saved.datos.opciones.vacantes,false);
 });
