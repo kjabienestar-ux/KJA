@@ -6,7 +6,7 @@ import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const {link,compose,parseText,whatsappMessage}=require('../assets/js/marketing-model.js');
 import {isWalink,validateWalink} from '../supabase/functions/marketing-publicaciones/shortener.mjs';
-import {kjaLink,kjaLinkKey} from '../supabase/functions/marketing-publicaciones/kja-links.mjs';
+import {newCampaignKey,storeCampaignLink,kjaLink,kjaLinkKey} from '../supabase/functions/marketing-publicaciones/kja-links.mjs';
 
 test('KJA branded domain is opt-in and both URL formats keep the same key',()=>{
   const key='abcdefghijklmnop';
@@ -601,3 +601,13 @@ test('admin can switch to team scope, filter by collaborator, and view author ba
 });
 
 
+
+test('eight-character keys retry collisions and reuse the concurrent winner',async()=>{
+  assert.match(newCampaignKey(),/^[A-Za-z0-9_-]{8}$/);
+  assert.equal(kjaLinkKey('https://wa.kjadmb.com/Abcd1234'),'Abcd1234');
+  let attempts=0;const query={select(){return this},eq(){return this},async single(){return {data:{clave:'Winner12'}}},async upsert(){attempts++;return attempts===1?{error:{code:'23505'}}:{error:null}}};
+  const result=await storeCampaignLink({from:()=>query},{publicacion_id:'id',firma:'signature',destino:'url'},()=> 'Abcd1234');
+  assert.equal(result,'Winner12');assert.equal(attempts,2);
+  query.upsert=async()=>({error:{code:'23505'}});
+  await assert.rejects(storeCampaignLink({from:()=>query},{},()=> 'Abcd1234'));
+});

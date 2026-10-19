@@ -9,7 +9,7 @@
   let id=null,imageURL='',busy=false,dirty=false,saved=false,locked=false,extraction=null,config={ia:false,facebook:false,puede_publicar:false},available=false;
   let isAdmin=false,adminScope='me',selectedAuthor='todos',teamAuthors=[];
   let shortLink='',shortFor='',automaticMessage='';
-  const isKjaLink=url=>/^(?:https:\/\/www\.kjadmb\.com\/w\.html\?k=|https:\/\/wa\.kjadmb\.com\/)[A-Za-z0-9_-]{16}$/.test(url||'');
+  const isKjaLink=url=>/^(?:https:\/\/www\.kjadmb\.com\/w\.html\?k=|https:\/\/wa\.kjadmb\.com\/)(?:[A-Za-z0-9_-]{8}|[A-Za-z0-9_-]{16})$/.test(url||'');
   let deletion=null,deleting=false;
   let historyRows=[],historyFilter='all',historyOffset=0,historyMore=false;
   const draftCache=new Map();

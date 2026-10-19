@@ -14,3 +14,4 @@ Thumbs.db
 # Intermedios y vistas de revisión del Gantt (se conserva el XLSX final)
 /outputs/gantt-kja-20260922/gantt-datos.json
 /outputs/gantt-kja-20260922/revision/
+/outputs/walink-preview/
