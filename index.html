@@ -11611,149 +11611,6 @@
                     align-items: stretch;
                 }
 
-                /* Panel de invitación: blanco humo con degradado y textura fina de papel */
-                .tst-cta {
-                    position: relative;
-                    overflow: hidden;
-                    display: flex;
-                    flex-direction: column;
-                    padding: 22px 24px;
-                    border-radius: 18px;
-                    color: #0d264c;
-                    border: 1px solid #e7edf6;
-                    background:
-                        repeating-linear-gradient(115deg, rgba(13, 38, 76, .022) 0 2px, transparent 2px 7px),
-                        linear-gradient(160deg, #ffffff 0%, #f7f9fc 45%, #eceff6 100%);
-                    box-shadow: 0 10px 30px rgba(13, 38, 76, .07);
-                }
-
-                .tst-cta::after {
-                    content: '';
-                    position: absolute;
-                    inset: auto 0 0 0;
-                    height: 3px;
-                    background: linear-gradient(90deg, #f10075, #ff4da6 40%, #0a63d4);
-                }
-
-                .tst-cta__tag {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 7px;
-                    align-self: flex-start;
-                    padding: 5px 11px;
-                    border-radius: 999px;
-                    background: #eef4ff;
-                    border: 1px solid #dce8fb;
-                    font-size: .6rem;
-                    font-weight: 700;
-                    letter-spacing: .1em;
-                    text-transform: uppercase;
-                    color: #0a63d4;
-                }
-
-                .tst-cta__tag svg {
-                    width: 12px;
-                    height: 12px;
-                }
-
-                .tst-cta__title {
-                    margin-top: 14px;
-                    font-size: 1.3rem;
-                    font-weight: 800;
-                    letter-spacing: -.02em;
-                    line-height: 1.2;
-                }
-
-                .tst-cta__desc {
-                    margin-top: 6px;
-                    font-size: .82rem;
-                    line-height: 1.55;
-                    color: #5b6b84;
-                }
-
-                .tst-cta__stars {
-                    display: flex;
-                    gap: 5px;
-                    margin: 16px 0 4px;
-                }
-
-                .tst-cta__stars svg {
-                    width: 22px;
-                    height: 22px;
-                    fill: none;
-                    stroke: #aebbcf;
-                    stroke-width: 1.7;
-                    cursor: pointer;
-                    transition: fill .18s ease, stroke .18s ease, transform .18s ease;
-                }
-
-                .tst-cta__stars svg.hover-active {
-                    fill: #f5a524;
-                    stroke: #f5a524;
-                    transform: scale(1.12);
-                }
-
-                .tst-cta__btn {
-                    margin-top: auto;
-                    width: 100%;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    padding: 12px 16px;
-                    border: 0;
-                    border-radius: 12px;
-                    background: #f10075;
-                    color: #fff;
-                    font-family: inherit;
-                    font-size: .85rem;
-                    font-weight: 700;
-                    cursor: pointer;
-                    box-shadow: 0 8px 20px rgba(241, 0, 117, .35);
-                    transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
-                }
-
-                .tst-cta__btn:hover {
-                    background: #ff1a86;
-                    transform: translateY(-2px);
-                    box-shadow: 0 12px 26px rgba(241, 0, 117, .45);
-                }
-
-                .tst-cta__btn svg {
-                    width: 15px;
-                    height: 15px;
-                }
-
-                .tst-cta__nota {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    margin-top: 10px;
-                    font-size: .65rem;
-                    color: #8d9cb4;
-                }
-
-                .tst-cta__nota svg {
-                    width: 11px;
-                    height: 11px;
-                    flex-shrink: 0;
-                }
-
-                @media (max-width: 900px) {
-                    .tst-row {
-                        grid-template-columns: 1fr;
-                        gap: 16px;
-                    }
-
-                    .tst-cta {
-                        padding: 18px 20px;
-                    }
-
-                    .tst-cta__btn {
-                        margin-top: 14px;
-                    }
-                }
-
                 /* ===== Tarjeta de opinión ===== */
                 .tst-carrusel {
                     mask-image: linear-gradient(to right, transparent 0, #000 2.5%, #000 92%, transparent);
@@ -12055,10 +11912,6 @@
                 .testimonials-marquee__rating strong {
                     color: #e6a900;
                     letter-spacing: .08em;
-                }
-
-                .testimonials-marquee__action {
-                    margin: 16px auto 0;
                 }
 
                 .testimonials-marquee__rows {
@@ -12577,8 +12430,16 @@
                         <p class="testimonials-marquee__subtitle">Opiniones reales de personas que confiaron en nosotros
                         </p>
                         <p class="testimonials-marquee__rating"><strong>★★★★★</strong> 5.0 · Reseñas de Google</p>
-                        <button type="button" class="tst-cta__btn testimonials-marquee__action"
-                            id="kja-com-abrir">Comparte tu experiencia</button>
+                        <div class="kja-resena-cta">
+                            <button type="button" class="kja-resena-fab" id="kja-resena-abrir" aria-haspopup="dialog">
+                                <span class="kja-resena-fab__icono" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                                    <i>★</i><i>★</i><i>★</i>
+                                </span>
+                                ¡Déjanos tu reseña!
+                            </button>
+                            <p class="kja-resena-cta__nota"><b>¿Ya nos visitaste?</b> Cuéntanos cómo te fue: toma menos de un minuto y ayuda a otras familias a elegir con confianza.</p>
+                        </div>
                     </div>
                     <div class="testimonials-marquee__rows" aria-label="Opiniones de pacientes">
                         <div class="testimonials-marquee__row testimonials-marquee__row--right">
@@ -12761,57 +12622,6 @@
                 </script>
                 <!-- Toda la sección en una fila: invitación a comentar + carrusel de opiniones -->
                 <div class="tst-row">
-                    <aside class="tst-cta">
-                        <span class="tst-cta__tag">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                <path d="m9 12 2 2 4-4" />
-                            </svg>
-                            Opiniones verificadas
-                        </span>
-                        <h2 class="tst-cta__title">Comparte tu experiencia</h2>
-                        <p class="tst-cta__desc">Tu opinión ayuda a otras familias a elegir con confianza.</p>
-                        <div class="tst-cta__stars" id="kja-com-abrir-stars" role="group"
-                            aria-label="Calificar con estrellas">
-                            <svg viewBox="0 0 24 24">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                            </svg>
-                            <svg viewBox="0 0 24 24">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                            </svg>
-                            <svg viewBox="0 0 24 24">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                            </svg>
-                            <svg viewBox="0 0 24 24">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                            </svg>
-                            <svg viewBox="0 0 24 24">
-                                <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                            </svg>
-                        </div>
-                        <button type="button" class="tst-cta__btn" id="kja-com-abrir">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
-                            Escribir un comentario
-                        </button>
-                        <p class="tst-cta__nota">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                aria-hidden="true">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                            </svg>
-                            Se publica tras revisión del equipo
-                        </p>
-                    </aside>
 
                     <div class="commitment-marquee-container tst-carrusel">
                         <div class="commitment-track" id="commitmentTrack"></div>
@@ -12925,467 +12735,6 @@
                             if (movido) { e.preventDefault(); e.stopPropagation(); }
                         }, true);
                     })();
-                </script>
-
-                <!-- ── Modal para dejar un comentario (entra a moderación antes de publicarse) ── -->
-                <style>
-                    /* CSS del Modal de Comentarios */
-                    .kja-com-overlay {
-                        position: fixed;
-                        inset: 0;
-                        z-index: 3000;
-                        background: rgba(15, 23, 42, 0.6);
-                        backdrop-filter: blur(8px);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        padding: 20px;
-                        opacity: 0;
-                        visibility: hidden;
-                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                        overflow-y: auto;
-                        overscroll-behavior: contain;
-                    }
-
-                    .kja-com-overlay.open {
-                        opacity: 1;
-                        visibility: visible;
-                    }
-
-                    .kja-com-modal {
-                        background: #ffffff;
-                        border-radius: 24px;
-                        width: 100%;
-                        max-width: 520px;
-                        padding: 32px;
-                        position: relative;
-                        transform: scale(0.95) translateY(10px);
-                        opacity: 0;
-                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                        border: 1px solid #f1f5f9;
-                    }
-
-                    .kja-com-overlay.open .kja-com-modal {
-                        transform: scale(1) translateY(0);
-                        opacity: 1;
-                    }
-
-                    .kja-com-x {
-                        position: absolute;
-                        top: 20px;
-                        right: 20px;
-                        width: 36px;
-                        height: 36px;
-                        border-radius: 50%;
-                        border: none;
-                        background: #f8fafc;
-                        color: #64748b;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        transition: all 0.2s;
-                    }
-
-                    .kja-com-x:hover {
-                        background: #fee2e2;
-                        color: #ef4444;
-                        transform: rotate(90deg);
-                    }
-
-                    .kja-modal-modern-user {
-                        display: flex;
-                        align-items: center;
-                        gap: 14px;
-                        margin-bottom: 20px;
-                    }
-
-                    .kja-modal-modern-avatar {
-                        width: 52px;
-                        height: 52px;
-                        border-radius: 50%;
-                        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: #3b82f6;
-                        flex-shrink: 0;
-                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-                        border: 2px solid #fff;
-                    }
-
-                    .kja-modal-modern-avatar svg {
-                        width: 26px;
-                        height: 26px;
-                    }
-
-                    .kja-modal-modern-name-wrap {
-                        flex: 1;
-                    }
-
-                    .kja-modal-modern-name-label {
-                        display: block;
-                        font-size: 0.72rem;
-                        font-weight: 700;
-                        color: #64748b;
-                        text-transform: uppercase;
-                        letter-spacing: 0.04em;
-                        margin-bottom: 6px;
-                    }
-
-                    .kja-modal-modern-name {
-                        width: 100%;
-                        border: 1.5px solid #e2e8f0;
-                        background: #f8fafc;
-                        border-radius: 12px;
-                        padding: 11px 14px;
-                        font-size: 0.98rem;
-                        font-weight: 600;
-                        color: #0f172a;
-                        outline: none;
-                        font-family: inherit;
-                        transition: all 0.2s;
-                        box-sizing: border-box;
-                    }
-
-                    .kja-modal-modern-name:focus {
-                        border-color: #3b82f6;
-                        background: #fff;
-                        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-                    }
-
-                    .kja-modal-modern-name::placeholder {
-                        color: #94a3b8;
-                        font-weight: 500;
-                    }
-
-                    .kja-modal-modern-subtitle {
-                        display: none;
-                    }
-
-                    .kja-modal-modern-textarea {
-                        width: 100%;
-                        height: 120px;
-                        padding: 16px;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 16px;
-                        font-size: 0.95rem;
-                        color: #334155;
-                        resize: none;
-                        outline: none;
-                        transition: all 0.2s;
-                        background: #f8fafc;
-                        font-family: inherit;
-                        margin-bottom: 24px;
-                    }
-
-                    .kja-modal-modern-textarea:focus {
-                        border-color: #3b82f6;
-                        background: #fff;
-                        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-                    }
-
-                    .kja-modal-modern-footer {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        gap: 16px;
-                        flex-wrap: wrap;
-                    }
-
-                    .kja-modal-modern-stars-wrap {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 4px;
-                    }
-
-                    .kja-est-new {
-                        display: flex;
-                        gap: 6px;
-                    }
-
-                    .kja-est-new button {
-                        background: none;
-                        border: none;
-                        padding: 0;
-                        cursor: pointer;
-                        width: 28px;
-                        height: 28px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        transition: transform 0.2s;
-                    }
-
-                    .kja-est-new button svg {
-                        width: 100%;
-                        height: 100%;
-                        fill: #e2e8f0;
-                        stroke: #cbd5e1;
-                        stroke-width: 1;
-                        transition: all 0.2s;
-                    }
-
-                    .kja-est-new button:hover {
-                        transform: scale(1.15);
-                    }
-
-                    .kja-est-new button.on svg,
-                    .kja-est-new button.hover-on svg {
-                        fill: #fbbf24;
-                        stroke: #f59e0b;
-                    }
-
-                    .kja-com-rating-txt {
-                        font-size: 0.85rem;
-                        font-weight: 600;
-                        color: #f59e0b;
-                        height: 18px;
-                    }
-
-                    .kja-modal-modern-publish {
-                        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-                        color: white;
-                        border: none;
-                        padding: 12px 32px;
-                        border-radius: 12px;
-                        font-weight: 700;
-                        font-size: 1rem;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 8px;
-                        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.2);
-                        font-family: inherit;
-                    }
-
-                    .kja-modal-modern-publish:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.3);
-                    }
-
-                    .kja-modal-modern-publish:disabled {
-                        opacity: 0.7;
-                        cursor: not-allowed;
-                        transform: none;
-                        box-shadow: none;
-                    }
-
-                    .kp-spin {
-                        display: none;
-                        width: 18px;
-                        height: 18px;
-                        border: 2px solid rgba(255, 255, 255, 0.3);
-                        border-top-color: #fff;
-                        border-radius: 50%;
-                        animation: ksp 0.8s linear infinite;
-                    }
-
-                    @keyframes ksp {
-                        to {
-                            transform: rotate(360deg);
-                        }
-                    }
-
-                    .kja-modal-modern-publish.sending .kp-spin {
-                        display: block;
-                    }
-
-                    .kja-hp {
-                        position: absolute;
-                        left: -9999px;
-                    }
-
-                    .kja-com-msg {
-                        font-size: 0.9rem;
-                        font-weight: 600;
-                        padding: 12px;
-                        border-radius: 8px;
-                        margin-top: 16px;
-                        text-align: center;
-                        display: none;
-                    }
-
-                    .kja-com-msg.error {
-                        display: block;
-                        background: #fee2e2;
-                        color: #dc2626;
-                        border: 1px solid #fecaca;
-                    }
-
-                    .kja-com-msg.ok {
-                        display: block;
-                        background: #dcfce3;
-                        color: #16a34a;
-                        border: 1px solid #bbf7d0;
-                    }
-
-                    .kja-com-exito {
-                        display: none;
-                        text-align: center;
-                        padding: 30px 10px 16px;
-                    }
-
-                    .kja-com-exito.show {
-                        display: block;
-                    }
-
-                    .kex-badge {
-                        position: relative;
-                        width: 92px;
-                        height: 92px;
-                        margin: 0 auto 22px;
-                    }
-
-                    /* onda que se expande detrás del check */
-                    .kex-badge::before,
-                    .kex-badge::after {
-                        content: '';
-                        position: absolute;
-                        inset: 0;
-                        border-radius: 50%;
-                        background: rgba(16, 185, 129, .18);
-                    }
-
-                    .kja-com-exito.show .kex-badge::before {
-                        animation: kexRing .9s ease-out .15s both;
-                    }
-
-                    .kja-com-exito.show .kex-badge::after {
-                        animation: kexRing 1.1s ease-out .35s both;
-                    }
-
-                    @keyframes kexRing {
-                        0% {
-                            transform: scale(.5);
-                            opacity: .7;
-                        }
-
-                        100% {
-                            transform: scale(1.6);
-                            opacity: 0;
-                        }
-                    }
-
-                    .kja-com-exito svg {
-                        position: relative;
-                        width: 92px;
-                        height: 92px;
-                        display: block;
-                    }
-
-                    .kja-com-exito.show svg {
-                        animation: kexPop .55s cubic-bezier(.17, .89, .32, 1.28) both;
-                    }
-
-                    @keyframes kexPop {
-                        0% {
-                            transform: scale(0);
-                        }
-
-                        60% {
-                            transform: scale(1.12);
-                        }
-
-                        100% {
-                            transform: scale(1);
-                        }
-                    }
-
-                    .kja-com-exito .kex-circ {
-                        fill: #10b981;
-                    }
-
-                    .kja-com-exito .kex-check {
-                        fill: none;
-                        stroke: #fff;
-                        stroke-width: 4;
-                        stroke-linecap: round;
-                        stroke-linejoin: round;
-                        stroke-dasharray: 40;
-                        stroke-dashoffset: 40;
-                    }
-
-                    .kja-com-exito.show .kex-check {
-                        animation: kexD .4s .4s forwards;
-                    }
-
-                    @keyframes kexD {
-                        to {
-                            stroke-dashoffset: 0;
-                        }
-                    }
-
-                    .kja-com-exito h4 {
-                        font-size: 1.5rem;
-                        font-weight: 800;
-                        color: #0f172a;
-                        margin-bottom: 8px;
-                    }
-
-                    .kja-com-exito p {
-                        color: #64748b;
-                        line-height: 1.5;
-                        max-width: 320px;
-                        margin: 0 auto;
-                    }
-
-                    .kja-com-exito.show h4 {
-                        animation: kexUp .5s .3s both;
-                    }
-
-                    .kja-com-exito.show p {
-                        animation: kexUp .5s .42s both;
-                    }
-
-                    @keyframes kexUp {
-                        from {
-                            opacity: 0;
-                            transform: translateY(12px);
-                        }
-
-                        to {
-                            opacity: 1;
-                            transform: translateY(0);
-                        }
-                    }
-                </style>
-
-
-                <script>
-                    // Lógica de estrellas interactivas en el CTA
-                    const ctaStarsContainer = document.getElementById('kja-com-abrir-stars');
-                    if (ctaStarsContainer) {
-                        const ctaStars = ctaStarsContainer.querySelectorAll('svg');
-
-                        ctaStars.forEach((star, index) => {
-                            // Hover in: activar todas las estrellas hasta la seleccionada
-                            star.addEventListener('mouseenter', () => {
-                                ctaStars.forEach((s, i) => {
-                                    if (i <= index) {
-                                        s.classList.add('hover-active');
-                                    } else {
-                                        s.classList.remove('hover-active');
-                                    }
-                                });
-                            });
-
-                            // Clic: fijar la calificación elegida y abrir el modal de comentarios
-                            star.addEventListener('click', () => {
-                                if (window.__kjaSetRating) window.__kjaSetRating(index + 1);
-                                const btn = document.getElementById('kja-com-abrir');
-                                if (btn) btn.click();
-                            });
-                        });
-
-                        // Hover out del contenedor completo: limpiar todas
-                        ctaStarsContainer.addEventListener('mouseleave', () => {
-                            ctaStars.forEach(s => s.classList.remove('hover-active'));
-                        });
-                    }
                 </script>
             </div>
         </section>
@@ -14739,148 +14088,326 @@
                 initScrollDots('plansScrollTrack', 'plansScrollDots', '.plans-card');
             })();
         </script>
-        <!-- Modal de comentarios: vive al final de <body> a proposito, fuera de cualquier contenedor con z-index propio (evita que otras secciones lo tapen o generen conflictos con pointer-events/overflow-hidden). -->
-        <div class="kja-com-overlay" id="kja-com-overlay">
-            <div class="kja-com-modal">
-                <button type="button" class="kja-com-x" id="kja-com-cerrar" aria-label="Cerrar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                        <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                </button>
+        <!-- Reseñas: botón bajo el sello de Google (Testimonios) que abre opinar.html incrustado en un modal. -->
+        <style>
+            .kja-resena-cta {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 18px;
+                max-width: 620px;
+                margin: 18px auto 0;
+            }
 
-                <div id="kja-com-form-wrap">
-                    <form id="kja-com-form" autocomplete="off">
-                        <div class="kja-modal-modern-user">
-                            <div class="kja-modal-modern-avatar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="8" r="4" />
-                                    <path d="M20 21a8 8 0 00-16 0" />
-                                </svg>
-                            </div>
-                            <div class="kja-modal-modern-name-wrap">
-                                <label class="kja-modal-modern-name-label" for="kja-com-nombre">Tu nombre</label>
-                                <input type="text" id="kja-com-nombre" class="kja-modal-modern-name" maxlength="60"
-                                    placeholder="Escribe tu nombre completo" required>
-                            </div>
-                        </div>
+            .kja-resena-cta__nota {
+                margin: 0;
+                padding-left: 16px;
+                border-left: 2px solid #fbd0e3;
+                color: #5b6b84;
+                font-size: .85rem;
+                line-height: 1.5;
+                text-align: left;
+            }
 
-                        <textarea id="kja-com-texto" class="kja-modal-modern-textarea" maxlength="500"
-                            placeholder="Cuéntanos tu experiencia con KJA…" required></textarea>
+            .kja-resena-cta__nota b {
+                color: #0d264c;
+            }
 
-                        <div class="kja-modal-modern-footer">
-                            <div class="kja-modal-modern-stars-wrap">
-                                <div class="kja-est-new" id="kja-est" role="radiogroup" aria-label="Calificación">
-                                    <button type="button" data-v="1" aria-label="1 estrella"><svg viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z" />
-                                        </svg></button>
-                                    <button type="button" data-v="2" aria-label="2 estrellas"><svg viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z" />
-                                        </svg></button>
-                                    <button type="button" data-v="3" aria-label="3 estrellas"><svg viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z" />
-                                        </svg></button>
-                                    <button type="button" data-v="4" aria-label="4 estrellas"><svg viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z" />
-                                        </svg></button>
-                                    <button type="button" data-v="5" aria-label="5 estrellas"><svg viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 .9l3.2 6.9 7.4 1-5.4 5.4 1.3 7.5L12 17.9l-6.5 3.8 1.3-7.5L1.4 8.8l7.4-1z" />
-                                        </svg></button>
-                                </div>
-                                <div class="kja-com-rating-txt" id="kja-com-rating-txt">Excelente</div>
-                            </div>
+            .kja-resena-fab {
+                position: relative;
+                flex: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 22px 12px 14px;
+                border: 0;
+                border-radius: 999px;
+                background: linear-gradient(135deg, #f10075 0%, #c4176f 100%);
+                color: #fff;
+                font: 700 .9rem/1.2 'Poppins', sans-serif;
+                cursor: pointer;
+                box-shadow: 0 14px 32px rgba(241, 0, 117, .35);
+                animation: kja-resena-flota 3s ease-in-out infinite;
+                transition: box-shadow .25s ease;
+            }
 
-                            <button type="submit" class="kja-modal-modern-publish" id="kja-com-send">
-                                <span class="kp-spin"></span>
-                                <span id="kja-com-send-txt">Publicar</span>
-                            </button>
-                        </div>
+            /* Levita suavemente; al pasar el mouse sube un poco más y crece la sombra */
+            @keyframes kja-resena-flota {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-4px); }
+            }
 
-                        <input type="text" class="kja-hp" id="kja-com-web" tabindex="-1" aria-hidden="true">
-                        <div class="kja-com-msg" id="kja-com-msg"></div>
-                    </form>
-                </div>
+            .kja-resena-fab:hover {
+                animation-play-state: paused;
+                transform: translateY(-3px);
+                box-shadow: 0 20px 40px rgba(241, 0, 117, .5);
+            }
 
-                <!-- Éxito -->
-                <div class="kja-com-exito" id="kja-com-exito">
-                    <div class="kex-badge">
-                        <svg viewBox="0 0 52 52" aria-hidden="true">
-                            <circle class="kex-circ" cx="26" cy="26" r="24" />
-                            <path class="kex-check" d="M14 27l8 8 16-17" />
-                        </svg>
-                    </div>
-                    <h4>¡Comentario enviado!</h4>
-                    <p>Nuestro equipo técnico revisará tu comentario. Una vez aprobado se mostrará publicado en la web;
-                        por favor espera unos momentos. ¡Gracias por compartir tu experiencia!</p>
-                </div>
-            </div>
-        </div>
+            .kja-resena-fab:focus-visible {
+                outline: 3px solid #ffd1e6;
+                outline-offset: 3px;
+            }
 
+            /* Brillo que cruza el botón al pasar el mouse (queda dentro de la cápsula, sin recortar el pulso) */
+            .kja-resena-fab::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: inherit;
+                background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .45) 50%, transparent 65%) no-repeat;
+                background-size: 250% 100%;
+                background-position: 150% 0;
+                transition: background-position .7s ease;
+                pointer-events: none;
+            }
+
+            .kja-resena-fab:hover::after {
+                background-position: -50% 0;
+            }
+
+            /* Pulso suave cada pocos segundos para llamar la atención */
+            .kja-resena-fab::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: inherit;
+                box-shadow: 0 0 0 0 rgba(241, 0, 117, .55);
+                animation: kja-resena-pulso 6s ease-out infinite 1.2s;
+            }
+
+            @keyframes kja-resena-pulso {
+                0%, 70% { box-shadow: 0 0 0 0 rgba(241, 0, 117, .55); }
+                85% { box-shadow: 0 0 0 14px rgba(241, 0, 117, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(241, 0, 117, 0); }
+            }
+
+            .kja-resena-fab__icono {
+                position: relative;
+                display: grid;
+                place-items: center;
+                flex: none;
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, .2);
+            }
+
+            .kja-resena-fab__icono svg {
+                width: 18px;
+                height: 18px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            /* Estrellitas que titilan por turnos alrededor del lápiz */
+            .kja-resena-fab__icono i {
+                position: absolute;
+                font-style: normal;
+                font-size: 9px;
+                line-height: 1;
+                color: #ffe08a;
+                animation: kja-resena-titila 2.4s ease-in-out infinite;
+            }
+
+            .kja-resena-fab__icono i:nth-of-type(1) { top: -4px; right: -3px; }
+            .kja-resena-fab__icono i:nth-of-type(2) { bottom: -3px; right: -6px; animation-delay: .8s; }
+            .kja-resena-fab__icono i:nth-of-type(3) { top: 2px; left: -6px; animation-delay: 1.6s; }
+
+            @keyframes kja-resena-titila {
+                0%, 100% { opacity: .25; transform: scale(.7); }
+                50% { opacity: 1; transform: scale(1.15); }
+            }
+
+            @media (max-width: 639px) {
+                .kja-resena-cta {
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                .kja-resena-cta__nota {
+                    padding-left: 0;
+                    border-left: 0;
+                    text-align: center;
+                }
+            }
+
+            .kja-resena-modal {
+                width: min(1040px, calc(100vw - 32px));
+                height: min(640px, 92dvh);
+                max-width: none;
+                max-height: none;
+                margin: auto;
+                padding: 0;
+                border: 0;
+                border-radius: 28px;
+                background: #fff;
+                overflow: hidden;
+                box-shadow: 0 30px 70px -20px rgba(13, 38, 76, .45);
+            }
+
+            .kja-resena-modal::backdrop {
+                background: rgba(13, 38, 76, .55);
+                backdrop-filter: blur(4px);
+            }
+
+            .kja-resena-modal[open] {
+                animation: kja-resena-entra .35s cubic-bezier(.2, .9, .3, 1.1);
+            }
+
+            @keyframes kja-resena-entra {
+                from { opacity: 0; transform: translateY(18px) scale(.97); }
+                to { opacity: 1; transform: none; }
+            }
+
+            .kja-resena-modal iframe {
+                display: block;
+                width: 100%;
+                height: 100%;
+                border: 0;
+            }
+
+            .kja-resena-modal__cerrar {
+                position: absolute;
+                top: 14px;
+                right: 14px;
+                z-index: 2;
+                display: grid;
+                place-items: center;
+                width: 40px;
+                height: 40px;
+                border: 0;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, .92);
+                color: #0d264c;
+                cursor: pointer;
+                box-shadow: 0 6px 18px rgba(13, 38, 76, .18);
+                transition: transform .2s ease, background-color .2s ease;
+            }
+
+            .kja-resena-modal__cerrar:hover {
+                background: #fff;
+                transform: rotate(90deg);
+            }
+
+            .kja-resena-modal__cerrar svg {
+                width: 18px;
+                height: 18px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2.4;
+                stroke-linecap: round;
+            }
+
+            .kja-resena-modal__carga {
+                position: absolute;
+                inset: 0;
+                display: grid;
+                place-items: center;
+                background: #fff;
+                transition: opacity .3s ease;
+            }
+
+            .kja-resena-modal__carga::after {
+                content: '';
+                width: 38px;
+                height: 38px;
+                border: 3px solid #fbd0e3;
+                border-top-color: #f10075;
+                border-radius: 50%;
+                animation: kja-resena-gira .8s linear infinite;
+            }
+
+            .kja-resena-modal.is-listo .kja-resena-modal__carga {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            @keyframes kja-resena-gira {
+                to { transform: rotate(360deg); }
+            }
+
+            @media (max-width: 767px) {
+                .kja-resena-modal {
+                    width: 100vw;
+                    height: 100dvh;
+                    border-radius: 0;
+                }
+
+                .kja-resena-modal__cerrar {
+                    top: 10px;
+                    right: 10px;
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .kja-resena-fab,
+                .kja-resena-fab::after {
+                    transition: none;
+                }
+
+                .kja-resena-fab,
+                .kja-resena-fab::before,
+                .kja-resena-fab__icono i,
+                .kja-resena-modal[open] {
+                    animation: none;
+                }
+            }
+        </style>
+        <dialog class="kja-resena-modal" id="kja-resena-modal" aria-label="Déjanos tu reseña">
+            <button type="button" class="kja-resena-modal__cerrar" id="kja-resena-cerrar" aria-label="Cerrar">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            </button>
+            <div class="kja-resena-modal__carga" aria-hidden="true"></div>
+            <iframe id="kja-resena-frame" title="Formulario de reseña"></iframe>
+        </dialog>
         <script>
-            // Comentarios de la web: guardar (con moderación) y mostrar los aprobados en el carrusel.
+            (function () {
+                const fab = document.getElementById('kja-resena-abrir');
+                const modal = document.getElementById('kja-resena-modal');
+                const frame = document.getElementById('kja-resena-frame');
+                const SRC = 'opinar.html?embed=1';
+                let enviado = false;
+
+                function abrir() {
+                    // El formulario se carga la primera vez y se recarga vacío si ya se envió una reseña.
+                    if (!frame.getAttribute('src') || enviado) {
+                        modal.classList.remove('is-listo');
+                        frame.src = SRC;
+                        enviado = false;
+                    }
+                    modal.showModal();
+                    document.documentElement.style.overflow = 'hidden';
+                    document.body.style.overflow = 'hidden';
+                }
+                function cerrar() { if (modal.open) modal.close(); }
+
+                frame.addEventListener('load', function () { modal.classList.add('is-listo'); });
+                fab.addEventListener('click', abrir);
+                document.getElementById('kja-resena-cerrar').addEventListener('click', cerrar);
+                modal.addEventListener('click', function (e) { if (e.target === modal) cerrar(); });
+                modal.addEventListener('close', function () {
+                    document.documentElement.style.overflow = '';
+                    document.body.style.overflow = '';
+                    fab.focus({ preventScroll: true });
+                });
+                // opinar.html avisa cuando se envió la reseña y cuando el usuario pulsa "Cerrar".
+                window.addEventListener('message', function (e) {
+                    if (e.origin !== location.origin || !e.data) return;
+                    if (e.data.type === 'kja-opinar-enviado') enviado = true;
+                    if (e.data.type === 'kja-opinar-cerrar') cerrar();
+                });
+            })();
+        </script>
+        <script>
+            // Comentarios de la web: mostrar los aprobados en el carrusel.
             (function () {
                 const SB_URL = 'https://xadxmfgdxwplmhijagix.supabase.co';
                 const SB_KEY = 'sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub';
                 const HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
                 const ICON_CHECK_MINI = '<svg viewBox="0 0 24 24" fill="none" stroke="#0a63d4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-
-                // Lógica de CTA y Modal interactivo
-                const overlay = document.getElementById('kja-com-overlay');
-                const btnAbrir = document.getElementById('kja-com-abrir');
-                const btnCerrar = document.getElementById('kja-com-cerrar');
-
-                // Bloquea el scroll del fondo mientras el modal está abierto (html + body, para que el fondo no se mueva)
-                function abrirModal() {
-                    overlay.classList.add('open');
-                    document.documentElement.style.overflow = 'hidden';
-                    document.body.style.overflow = 'hidden';
-                }
-                function cerrarModal() {
-                    overlay.classList.remove('open');
-                    document.documentElement.style.overflow = '';
-                    document.body.style.overflow = '';
-                }
-
-                if (btnAbrir) btnAbrir.addEventListener('click', abrirModal);
-                if (btnCerrar) btnCerrar.addEventListener('click', cerrarModal);
-                if (overlay) overlay.addEventListener('click', function (e) { if (e.target === overlay) cerrarModal(); });
-
-                // Lógica de estrellas del Modal (1 a 5)
-                let estrellas = 5;
-                const botones = Array.from(document.querySelectorAll('#kja-est button'));
-                const txtEst = document.getElementById('kja-com-rating-txt');
-                const textMap = { 1: 'Malo', 2: 'Regular', 3: 'Bueno', 4: 'Muy bueno', 5: 'Excelente' };
-
-                function pintarEstrellas(val, hover = false) {
-                    botones.forEach(function (b) {
-                        const v = parseInt(b.dataset.v);
-                        if (hover) {
-                            b.classList.toggle('hover-on', v <= val);
-                        } else {
-                            b.classList.toggle('on', v <= val);
-                            b.classList.remove('hover-on');
-                        }
-                    });
-                    if (!hover) txtEst.textContent = textMap[val] || '';
-                }
-
-                botones.forEach(function (b) {
-                    b.addEventListener('mouseenter', function () { pintarEstrellas(+b.dataset.v, true); });
-                    b.addEventListener('mouseleave', function () { pintarEstrellas(estrellas, false); });
-                    b.addEventListener('click', function () { estrellas = +b.dataset.v; pintarEstrellas(estrellas); });
-                });
-                pintarEstrellas(estrellas);
-
-                // Permite que las estrellas del CTA fijen la calificación del modal al abrirlo
-                window.__kjaSetRating = function (n) {
-                    n = Math.min(5, Math.max(1, parseInt(n, 10) || 5));
-                    estrellas = n;
-                    pintarEstrellas(estrellas);
-                };
 
                 function avatarDe(nombre) {
                     const ini = (nombre.trim()[0] || 'K').toUpperCase();
@@ -15164,38 +14691,6 @@
                     });
                 }
 
-                const form = document.getElementById('kja-com-form');
-                const msg = document.getElementById('kja-com-msg');
-                const btn = document.getElementById('kja-com-send');
-                const wrapForm = document.getElementById('kja-com-form-wrap');
-                const exito = document.getElementById('kja-com-exito');
-
-                function aviso(t, tipo) { msg.textContent = t; msg.className = 'kja-com-msg ' + tipo; }
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    const nombre = document.getElementById('kja-com-nombre').value.trim();
-                    const mensaje = document.getElementById('kja-com-texto').value.trim();
-                    if (document.getElementById('kja-com-web').value) { wrapForm.style.display = 'none'; exito.classList.add('show'); return; } // honeypot
-                    if (nombre.length < 2) { aviso('Escribe tu nombre.', 'error'); return; }
-                    if (mensaje.length < 10) { aviso('Tu comentario debe tener al menos 10 caracteres.', 'error'); return; }
-                    if (localStorage.getItem('kjaComEnviado') === new Date().toDateString()) {
-                        aviso('Ya nos dejaste un comentario hoy. ¡Gracias!', 'ok'); return;
-                    }
-                    btn.disabled = true; btn.classList.add('sending'); document.getElementById('kja-com-send-txt').textContent = 'Publicando...';
-                    fetch(SB_URL + '/rest/v1/comentarios', {
-                        method: 'POST', headers: Object.assign({ 'Prefer': 'return=minimal' }, HDR),
-                        body: JSON.stringify({ nombre: nombre, mensaje: mensaje, estrellas: estrellas })
-                    }).then(function (r) {
-                        if (!r.ok) throw new Error('No se pudo enviar');
-                        localStorage.setItem('kjaComEnviado', new Date().toDateString());
-                        wrapForm.style.display = 'none'; exito.classList.add('show');
-                        form.reset(); estrellas = 5; pintarEstrellas(estrellas);
-                    }).catch(function () {
-                        aviso('No se pudo publicar. Inténtalo de nuevo.', 'error');
-                    }).finally(function () {
-                        btn.disabled = false; btn.classList.remove('sending'); document.getElementById('kja-com-send-txt').textContent = 'Publicar';
-                    });
-                });
             })();
         </script>
     </div>
