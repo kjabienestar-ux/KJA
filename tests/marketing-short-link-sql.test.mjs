@@ -22,7 +22,7 @@ test('public short-link resolver exposes only a valid campaign destination, not 
   }finally{await db.close();}
 });
 
-test('marketing_07 migration allows 8-character keys while preserving 16-character keys',async()=>{
+test('marketing_07 migration allows 6-character and 8-character keys while preserving 16-character keys',async()=>{
   const db=new PGlite();
   try{
     await db.exec(`create role anon;create role authenticated;create role service_role;
@@ -34,16 +34,20 @@ test('marketing_07 migration allows 8-character keys while preserving 16-charact
     await db.exec(migration); // re-runnable
 
     const destination='https://wa.me/51988918238?text=Hola';
+    // 6-char key (walink style)
+    await db.query("insert into marketing_whatsapp_enlaces(clave,publicacion_id,firma,destino) values('x28bca','00000000-0000-0000-0000-000000000001','sig6',$1)",[destination]);
     // 8-char key
     await db.query("insert into marketing_whatsapp_enlaces(clave,publicacion_id,firma,destino) values('a7Km9x2B','00000000-0000-0000-0000-000000000001','sig8',$1)",[destination]);
     // 16-char key
     await db.query("insert into marketing_whatsapp_enlaces(clave,publicacion_id,firma,destino) values('1234567890abcdef','00000000-0000-0000-0000-000000000001','sig16',$1)",[destination]);
 
-    // Invalid lengths
+    // Invalid lengths (e.g. 5, 7, 9)
+    await assert.rejects(db.query("insert into marketing_whatsapp_enlaces(clave,publicacion_id,firma,destino) values('12345','00000000-0000-0000-0000-000000000001','bad5',$1)",[destination]),/check constraint/);
     await assert.rejects(db.query("insert into marketing_whatsapp_enlaces(clave,publicacion_id,firma,destino) values('1234567','00000000-0000-0000-0000-000000000001','bad7',$1)",[destination]),/check constraint/);
     await assert.rejects(db.query("insert into marketing_whatsapp_enlaces(clave,publicacion_id,firma,destino) values('123456789','00000000-0000-0000-0000-000000000001','bad9',$1)",[destination]),/check constraint/);
 
     await db.exec('set role anon');
+    assert.equal((await db.query("select marketing_resolver_whatsapp('x28bca') target")).rows[0].target,destination);
     assert.equal((await db.query("select marketing_resolver_whatsapp('a7Km9x2B') target")).rows[0].target,destination);
     assert.equal((await db.query("select marketing_resolver_whatsapp('1234567890abcdef') target")).rows[0].target,destination);
     assert.equal((await db.query("select marketing_resolver_whatsapp('no-such-key') target")).rows[0].target,null);

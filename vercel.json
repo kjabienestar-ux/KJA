@@ -1,6 +1,16 @@
 {
   "rewrites": [
     {
+      "source": "/:key([A-Za-z0-9_-]{6})",
+      "has": [
+        {
+          "type": "host",
+          "value": "wa.kjadmb.com"
+        }
+      ],
+      "destination": "/w.html"
+    },
+    {
       "source": "/:key([A-Za-z0-9_-]{8})",
       "has": [
         {
