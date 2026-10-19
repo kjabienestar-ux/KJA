@@ -3011,7 +3011,7 @@ async function loadAdminHub(){
   if(peopleRes.error||marksRes.error||closesRes.error||!closesRes.data?.ok){
     if($('admin-overview-charts'))$('admin-overview-charts').innerHTML='<p class="admin-empty">No se pudieron cargar los gráficos. Pulsa Actualizar para reintentar.</p>';
     $('admin-status-list').innerHTML='<p class="admin-empty">No se pudo cargar el estado operativo. Actualiza nuevamente.</p>';
-    toast('No se pudo actualizar la administración.',true); return;
+    toast('No se pudo actualizar la administración.',true); return false;
   }
   const people=await hydrateProfilePhotos(peopleRes.data||[]),marks=marksRes.data||[],legacyRequests=legacyRequestsRes.data||[],personalRequests=personalRequestsRes.data?.ok?personalRequestsRes.data.solicitudes||[]:[];
   const teamData=!teamRes.error&&teamRes.data?.ok?teamRes.data:null,monthData=!monthRes.error&&monthRes.data?.ok?monthRes.data:null,controlData=!controlRes.error&&controlRes.data?.ok?controlRes.data:null,rolesData=!rolesRes.error&&rolesRes.data?.ok?rolesRes.data:null;
@@ -3083,10 +3083,24 @@ async function loadAdminHub(){
   setOverview('admin-overview-access-value',teamData?`${activeTeam.filter(person=>!person.tiene_pin).length} sin PIN`:`${registered} marcas`);
   setOverview('admin-overview-access-copy',teamData?'Portal, PIN y geocerca':'Accesos y marcado del equipo');
   $('admin-refreshed').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'});
+  return true;
 }
 
 function adminListMsg(text){const el=$('admin-list-message');el.textContent=text||'';el.classList.toggle('show',!!text);}
 function addIsoDays(iso,amount){const d=new Date((iso||isoLima())+'T12:00:00');d.setDate(d.getDate()+amount);return new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit'}).format(d);}
+
+const ADMIN_SECTION_CONTAINERS={overview:'admin-overview-section',control:'admin-control-section',ranking:'admin-ranking-section',facebook:'admin-facebook-section',lista:'admin-list-section',mes:'admin-month-section',cierres:'admin-close-section',asignaciones:'admin-assignments-section',colaboradores:'admin-people-section',contratos:'admin-contracts-section',roles:'admin-roles-section',marcado:'admin-access-section'};
+
+/* Punto único para cualquier carga administrativa, también disponible para los
+   selectores de fecha y filtros definidos en los módulos especializados. */
+function withAdminSkeleton(section,fetchFn,options={}){
+  const container=$(ADMIN_SECTION_CONTAINERS[section]);
+  if(!container||typeof DashboardSkeleton==='undefined')return fetchFn();
+  return DashboardSkeleton.withSkeleton(container,section,fetchFn,{
+    errorMessage:'No pudimos cargar esta sección. Comprueba tu conexión e inténtalo nuevamente.',
+    ...options
+  });
+}
 
 async function showAdminSection(section){
   if(!APP.access.acceso_panel)return;
@@ -3123,27 +3137,29 @@ async function showAdminSection(section){
       }
     }
   });
+  let loader=null;
   if(APP.adminSection==='facebook'){
-    if(typeof loadAdminFacebookReport==='function')await loadAdminFacebookReport();
+    if(typeof loadAdminFacebookReport==='function')loader=()=>loadAdminFacebookReport();
   }else if(APP.adminSection==='ranking'){
-    if(typeof loadAdminRanking==='function')await loadAdminRanking();
+    if(typeof loadAdminRanking==='function')loader=()=>loadAdminRanking();
   }else if(APP.adminSection==='control'){
-    if(typeof loadAdminControl==='function')await loadAdminControl();
+    if(typeof loadAdminControl==='function')loader=()=>loadAdminControl();
   }else if(APP.adminSection==='lista'){
     if(!$('admin-list-date').value)$('admin-list-date').value=isoLima();
     $('admin-list-date').max=isoLima();
-    await loadAdminAttendance();
+    loader=()=>loadAdminAttendance();
   }else if(APP.adminSection==='mes'||APP.adminSection==='resumen'){
-    if(typeof loadAdminMonth==='function')await loadAdminMonth();
+    if(typeof loadAdminMonth==='function')loader=()=>loadAdminMonth();
   }else if(APP.adminSection==='marcado'){
-    if(typeof loadAdminAccess==='function')await loadAdminAccess();
+    if(typeof loadAdminAccess==='function')loader=()=>loadAdminAccess();
   }else if(['cierres','asignaciones'].includes(APP.adminSection)){
-    if(typeof loadAdminCloses==='function')await loadAdminCloses();
+    if(typeof loadAdminCloses==='function')loader=()=>loadAdminCloses();
   }else if(APP.adminSection==='roles'){
-    if(typeof loadAdminRoles==='function')await loadAdminRoles();
+    if(typeof loadAdminRoles==='function')loader=()=>loadAdminRoles();
   }else if(APP.adminSection==='colaboradores'||APP.adminSection==='contratos'){
-    if(typeof loadAdminTeam==='function')await loadAdminTeam();
-  }else await loadAdminHub();
+    if(typeof loadAdminTeam==='function')loader=()=>loadAdminTeam();
+  }else loader=()=>loadAdminHub();
+  if(loader)await withAdminSkeleton(APP.adminSection,loader);
 }
 
 const ADMIN_CALENDAR={year:0,month:0,open:false};
@@ -3255,7 +3271,7 @@ async function loadAdminAttendance(){
     APP.adminList=null;
     const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_lista'));
     adminListMsg(missing?'La fase 2 todavía no está instalada en Supabase. Ejecuta dashboard_05_admin_lista.sql.':'No se pudo cargar la lista completa ni verificar sus cierres. Actualiza e inténtalo nuevamente.');
-    $('admin-roster').innerHTML='<p class="admin-empty">La lista no está disponible.</p>';return;
+    $('admin-roster').innerHTML='<p class="admin-empty">La lista no está disponible.</p>';return false;
   }
   const byClose=new Map((closeData?.personas||[]).map(x=>[String(x.id),x.cierre||{}]));
   data.personas=await hydrateProfilePhotos((data.personas||[]).map(person=>({...person,cierre:byClose.get(String(person.id))||null})));
@@ -3268,6 +3284,7 @@ async function loadAdminAttendance(){
   syncAdminAreaCustomSelect();
   $('admin-date-next').disabled=date>=isoLima();
   renderAdminAttendance();
+  return true;
 }
 
 function renderAdminAttendance(){
@@ -3704,20 +3721,32 @@ renderAnnouncementGallery();
 renderAnnouncementDots('rail-announcement-dots','rail-announcement-image','rail-announcement-dot');
 renderAnnouncementDots('announcement-viewer-dots','announcement-viewer-image','announcement-viewer-dot');
 showAnnouncement(0);
-$('admin-refresh').onclick=()=>APP.adminSection==='ranking'&&typeof loadAdminRanking==='function'?loadAdminRanking():APP.adminSection==='control'&&typeof loadAdminControl==='function'?loadAdminControl():APP.adminSection==='lista'?loadAdminAttendance():(APP.adminSection==='mes'||APP.adminSection==='resumen')&&typeof loadAdminMonth==='function'?loadAdminMonth(true):['cierres','asignaciones'].includes(APP.adminSection)&&typeof loadAdminCloses==='function'?loadAdminCloses():APP.adminSection==='marcado'&&typeof loadAdminAccess==='function'?loadAdminAccess():APP.adminSection==='roles'&&typeof loadAdminRoles==='function'?loadAdminRoles():(APP.adminSection==='colaboradores'||APP.adminSection==='contratos')&&typeof loadAdminTeam==='function'?loadAdminTeam():loadAdminHub();
-$('admin-request-refresh').onclick=loadAdminHub;
+function refreshActiveAdminSection(){
+  const section=APP.adminSection;
+  const loader=section==='ranking'&&typeof loadAdminRanking==='function'?()=>loadAdminRanking():section==='control'&&typeof loadAdminControl==='function'?()=>loadAdminControl():section==='lista'?()=>loadAdminAttendance():(section==='mes'||section==='resumen')&&typeof loadAdminMonth==='function'?()=>loadAdminMonth(true):['cierres','asignaciones'].includes(section)&&typeof loadAdminCloses==='function'?()=>loadAdminCloses():section==='marcado'&&typeof loadAdminAccess==='function'?()=>loadAdminAccess():section==='roles'&&typeof loadAdminRoles==='function'?()=>loadAdminRoles():(section==='colaboradores'||section==='contratos')&&typeof loadAdminTeam==='function'?()=>loadAdminTeam():()=>loadAdminHub();
+  return withAdminSkeleton(section,loader);
+}
+$('admin-refresh').onclick=refreshActiveAdminSection;
+$('admin-request-refresh').onclick=()=>withAdminSkeleton('overview',()=>loadAdminHub());
 document.querySelectorAll('[data-admin-section]').forEach(b=>b.onclick=()=>showAdminSection(b.dataset.adminSection));
-$('admin-date-prev').onclick=()=>{$('admin-list-date').value=addIsoDays($('admin-list-date').value,-1);syncAdminDateDisplay();loadAdminAttendance()};
-$('admin-date-next').onclick=()=>{const next=addIsoDays($('admin-list-date').value,1);if(next<=isoLima()){$('admin-list-date').value=next;syncAdminDateDisplay();loadAdminAttendance()}};
-$('admin-date-today').onclick=()=>{$('admin-list-date').value=isoLima();syncAdminDateDisplay();loadAdminAttendance()};
-$('admin-list-date').onchange=()=>{syncAdminDateDisplay();loadAdminAttendance()};
-if($('admin-date-strip'))$('admin-date-strip').onclick=e=>{const btn=e.target.closest('[data-date]');if(btn&&btn.dataset.date){$('admin-list-date').value=btn.dataset.date;syncAdminDateDisplay();loadAdminAttendance()}};
+const adminLegacyLink=document.querySelector('[data-admin-legacy]');
+if(adminLegacyLink)adminLegacyLink.addEventListener('click',event=>{
+  if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+  // El documento actual permanece visible durante una navegación lenta; el mismo
+  // umbral evita mostrar el wireframe cuando el panel anterior abre enseguida.
+  void withAdminSkeleton(APP.adminSection,()=>new Promise(()=>{}));
+});
+$('admin-date-prev').onclick=()=>{$('admin-list-date').value=addIsoDays($('admin-list-date').value,-1);syncAdminDateDisplay();withAdminSkeleton('lista',()=>loadAdminAttendance())};
+$('admin-date-next').onclick=()=>{const next=addIsoDays($('admin-list-date').value,1);if(next<=isoLima()){$('admin-list-date').value=next;syncAdminDateDisplay();withAdminSkeleton('lista',()=>loadAdminAttendance())}};
+$('admin-date-today').onclick=()=>{$('admin-list-date').value=isoLima();syncAdminDateDisplay();withAdminSkeleton('lista',()=>loadAdminAttendance())};
+$('admin-list-date').onchange=()=>{syncAdminDateDisplay();withAdminSkeleton('lista',()=>loadAdminAttendance())};
+if($('admin-date-strip'))$('admin-date-strip').onclick=e=>{const btn=e.target.closest('[data-date]');if(btn&&btn.dataset.date){$('admin-list-date').value=btn.dataset.date;syncAdminDateDisplay();withAdminSkeleton('lista',()=>loadAdminAttendance())}};
 if($('admin-date-picker-trigger'))$('admin-date-picker-trigger').onclick=e=>{e.stopPropagation();toggleAdminAreaMenu(false);if($('admin-calendar-popover')?.hidden)openAdminCalendarPopover();else closeAdminCalendarPopover();};
 if($('admin-cal-pop-prev'))$('admin-cal-pop-prev').onclick=e=>{e.stopPropagation();navAdminCalendarMonth(-1)};
 if($('admin-cal-pop-next'))$('admin-cal-pop-next').onclick=e=>{e.stopPropagation();navAdminCalendarMonth(1)};
-if($('admin-cal-pop-today'))$('admin-cal-pop-today').onclick=()=>{closeAdminCalendarPopover();$('admin-list-date').value=isoLima();syncAdminDateDisplay();loadAdminAttendance();};
+if($('admin-cal-pop-today'))$('admin-cal-pop-today').onclick=()=>{closeAdminCalendarPopover();$('admin-list-date').value=isoLima();syncAdminDateDisplay();withAdminSkeleton('lista',()=>loadAdminAttendance());};
 if($('admin-cal-pop-close'))$('admin-cal-pop-close').onclick=()=>closeAdminCalendarPopover();
-if($('admin-cal-pop-grid'))$('admin-cal-pop-grid').onclick=e=>{const btn=e.target.closest('[data-cal-date]');if(btn&&!btn.disabled&&btn.dataset.calDate){$('admin-list-date').value=btn.dataset.calDate;closeAdminCalendarPopover();syncAdminDateDisplay();loadAdminAttendance();}};
+if($('admin-cal-pop-grid'))$('admin-cal-pop-grid').onclick=e=>{const btn=e.target.closest('[data-cal-date]');if(btn&&!btn.disabled&&btn.dataset.calDate){$('admin-list-date').value=btn.dataset.calDate;closeAdminCalendarPopover();syncAdminDateDisplay();withAdminSkeleton('lista',()=>loadAdminAttendance());}};
 if($('admin-area-trigger'))$('admin-area-trigger').onclick=e=>{e.stopPropagation();closeAdminCalendarPopover();toggleAdminAreaMenu();};
 if($('admin-area-menu'))$('admin-area-menu').onclick=e=>{const btn=e.target.closest('[data-area-val]');if(!btn)return;const select=$('admin-list-area');if(select){select.value=btn.dataset.areaVal;select.dispatchEvent(new Event('change',{bubbles:true}));}toggleAdminAreaMenu(false);};
 document.addEventListener('click',e=>{

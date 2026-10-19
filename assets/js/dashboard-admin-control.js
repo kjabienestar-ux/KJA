@@ -462,6 +462,7 @@ async function loadAdminControl(){
     if(data.partial){ADMIN_CONTROL_CHART='';ADMIN_CONTROL_QUEUE='all';$('admin-control-state').value='';}
     APP.adminControl=data;APP.adminControlLoading=false;fillAdminControlAreas();renderAdminControl();
     if(issueError||!issueData?.ok||closeError||!closeData?.ok)adminControlMessage('Vista parcial: no pudimos comprobar todos los avisos o requisitos. Actualiza antes de tomar una decisión.','error');
+    return true;
   }catch(error){
     if(request!==APP.adminControlRequest)return;
     APP.adminControl=null;
@@ -469,6 +470,7 @@ async function loadAdminControl(){
     adminControlMessage('No pudimos cargar el control diario. Comprueba tu conexión y vuelve a intentarlo.','error');
     $('admin-control-summary').textContent='Datos no disponibles';$('admin-control-result-count').textContent='Sin datos';
     $('admin-control-table').innerHTML='<div class="control-empty"><h3>No se pudo consultar esta fecha</h3><p>Tus registros se conservan. Intenta cargar la vista nuevamente.</p><button type="button" data-control-retry>Reintentar</button></div>';
+    return false;
   }finally{
     if(request===APP.adminControlRequest){APP.adminControlLoading=false;$('admin-control-table').setAttribute('aria-busy','false');}
   }
@@ -516,11 +518,11 @@ function clearAdminControlFilters(all=false){
 }
 $('admin-control-date').value=isoLima();$('admin-control-date').min=addIsoDays(isoLima(),-365);$('admin-control-date').max=isoLima();
 adminControlDateButtons();
-$('admin-control-date').onchange=loadAdminControl;
-$('admin-control-today').onclick=()=>{$('admin-control-date').value=isoLima();loadAdminControl()};
+$('admin-control-date').onchange=()=>withAdminSkeleton('control',()=>loadAdminControl());
+$('admin-control-today').onclick=()=>{$('admin-control-date').value=isoLima();withAdminSkeleton('control',()=>loadAdminControl())};
 for(const [id,delta] of [['admin-control-prev',-1],['admin-control-next',1]])$(id).onclick=()=>{
   const input=$('admin-control-date'),next=addIsoDays(input.value,delta);
-  if(next>=input.min&&next<=isoLima()){input.value=next;loadAdminControl();}
+  if(next>=input.min&&next<=isoLima()){input.value=next;withAdminSkeleton('control',()=>loadAdminControl());}
 };
 $('admin-control-export').onclick=exportAdminControl;
 $('admin-control-clear').onclick=()=>clearAdminControlFilters();
@@ -541,7 +543,7 @@ $('admin-control-table').onclick=event=>{
     $('admin-control-table').querySelector('[data-control-detail="'+id+'"]')?.focus({preventScroll:true});return;
   }
   if(event.target.closest('[data-control-clear]'))clearAdminControlFilters(true);
-  if(event.target.closest('[data-control-retry]'))void loadAdminControl();
+  if(event.target.closest('[data-control-retry]'))void withAdminSkeleton('control',()=>loadAdminControl());
 };
 
 $('admin-control-areas').onclick=event=>{const button=event.target.closest('[data-control-chart-area]');if(button)selectAdminControlArea(button.dataset.controlChartArea,button.dataset.controlChartState||'');};

@@ -501,11 +501,12 @@
       get('fb-report-area').replaceChildren(new Option('Todas las áreas',''),...[...new Set(data.filas.map(r=>r.area))].sort((a,b)=>a.localeCompare(b,'es')).map(area=>new Option(area,area)));
       get('fb-report-area').value=[...get('fb-report-area').options].some(o=>o.value===selected)?selected:'';
       render();status.textContent=`Actualizado ${new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',dateStyle:'short',timeStyle:'short'}).format(new Date(data.generado_at))} · hora de Lima.`;
-    }catch(error){if(token!==request)return;status.dataset.error='true';status.textContent=error.message||'No se pudo cargar el reporte. Vuelve a intentarlo.';}
+      return true;
+    }catch(error){if(token!==request)return;status.dataset.error='true';status.textContent=error.message||'No se pudo cargar el reporte. Vuelve a intentarlo.';return false;}
     finally{if(token===request)get('fb-report-results').setAttribute('aria-busy','false');}
   };
 
-  get('fb-report-form').addEventListener('submit',event=>{event.preventDefault();window.loadAdminFacebookReport();});
+  get('fb-report-form').addEventListener('submit',event=>{event.preventDefault();withAdminSkeleton('facebook',()=>window.loadAdminFacebookReport());});
   get('fb-report-kind').onchange=()=>{get('fb-report-reference').value=get('fb-report-kind').value==='general'?today():m.shift(today(),1);period();};
   get('fb-report-reference').onchange=period;
   for(const id of ['fb-report-from','fb-report-to'])get(id).onchange=clear;
@@ -783,7 +784,7 @@
   }
 
   const refresh=get('admin-refresh'),previousRefresh=refresh.onclick;
-  refresh.onclick=event=>APP.adminSection==='facebook'?window.loadAdminFacebookReport():previousRefresh?.call(refresh,event);
+  refresh.onclick=event=>APP.adminSection==='facebook'?withAdminSkeleton('facebook',()=>window.loadAdminFacebookReport()):previousRefresh?.call(refresh,event);
   const limit=m.shift(today(),1),monday=m.cutoff(limit,'lunes'),thursday=m.cutoff(limit,'jueves');
   get('fb-report-kind').value=monday.report>thursday.report?'lunes':'jueves';
   get('fb-report-reference').value=limit;period();setViewMode('area');
@@ -791,6 +792,6 @@
   initCalendar();
   const ctaBtn=get('fb-placeholder-cta');
   if(ctaBtn){
-    ctaBtn.onclick=()=>window.loadAdminFacebookReport();
+    ctaBtn.onclick=()=>withAdminSkeleton('facebook',()=>window.loadAdminFacebookReport());
   }
 })();

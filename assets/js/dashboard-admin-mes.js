@@ -121,7 +121,7 @@ async function loadAdminMonth(force=false){
   closeAdminPersonCalendar();
   const prefix=activeMonthPrefix(),value=currentMonthValue();syncMonthInputs(value);
   const include=$(`${prefix}-inactive`).checked,key=`${value}|${include}`;
-  if(!force&&APP.adminMonth&&APP.adminMonthKey===key){renderAdminMonthViews();return}
+  if(!force&&APP.adminMonth&&APP.adminMonthKey===key){renderAdminMonthViews();return true}
   const [year,month]=value.split('-').map(Number),request=++APP.adminMonthRequest,button=$('admin-refresh');
   button.disabled=true;monthMessage('');
   const target=APP.adminSection==='resumen'?'admin-summary-table':'admin-month-ledger';
@@ -136,12 +136,13 @@ async function loadAdminMonth(force=false){
     APP.adminMonth=null;APP.adminMonthKey='';
     const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_mes'));
     monthMessage(missing?'La fase 4 todavía no está instalada en Supabase. Ejecuta dashboard_07_admin_mes.sql.':'No se pudo cargar el mes completo ni verificar sus cierres. Actualiza e inténtalo nuevamente.');
-    $(target).innerHTML='<p class="admin-empty">La información mensual no está disponible.</p>';return;
+    $(target).innerHTML='<p class="admin-empty">La información mensual no está disponible.</p>';return false;
   }
   mergeAdminMonthClosures(data,closeData);
   data.personas=await hydrateProfilePhotos(data.personas||[]);
   if(request!==APP.adminMonthRequest)return;
   APP.adminMonth=data;APP.adminMonthKey=key;fillMonthFilters();renderAdminMonthViews();
+  return true;
 }
 
 function renderAdminMonthViews(){
@@ -498,7 +499,7 @@ function downloadMonthCsv(kind){
   link.href=url;link.download=`KJA_${summary?'resumen':'asistencia'}_${currentMonthValue()}.csv`;document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);toast('Archivo CSV preparado.');
 }
 
-function setMonthFrom(prefix,value){syncMonthInputs(value);APP.adminMonthKey='';loadAdminMonth()}
+function setMonthFrom(prefix,value){syncMonthInputs(value);APP.adminMonthKey='';withAdminSkeleton('mes',()=>loadAdminMonth())}
 const initialAdminMonth=isoLima().slice(0,7);syncMonthInputs(initialAdminMonth);
 ['admin-month','admin-summary'].forEach(prefix=>{
   if(!$(`${prefix}-value`))return;
@@ -506,7 +507,7 @@ const initialAdminMonth=isoLima().slice(0,7);syncMonthInputs(initialAdminMonth);
   $(`${prefix}-next`).onclick=()=>setMonthFrom(prefix,shiftMonth($(`${prefix}-value`).value,1));
   $(`${prefix}-today`).onclick=()=>setMonthFrom(prefix,isoLima().slice(0,7));
   $(`${prefix}-value`).onchange=e=>setMonthFrom(prefix,e.target.value||isoLima().slice(0,7));
-  $(`${prefix}-inactive`).onchange=()=>{APP.adminMonthKey='';loadAdminMonth()};
+  $(`${prefix}-inactive`).onchange=()=>{APP.adminMonthKey='';withAdminSkeleton('mes',()=>loadAdminMonth())};
 });
 $('admin-month-search').oninput=renderAdminMonthLedger;$('admin-month-area').onchange=renderAdminMonthLedger;
 if($('admin-summary-search'))$('admin-summary-search').oninput=renderAdminMonthSummary;if($('admin-summary-area'))$('admin-summary-area').onchange=renderAdminMonthSummary;

@@ -62,7 +62,7 @@ $('assignment-create-toggle').onclick=()=>{
 $('assignment-work-date').onchange=()=>{
   if(!$('assignment-work-date').value)return;
   $('admin-close-date').value=$('assignment-work-date').value;
-  clearAdminDrawPreview();void loadAdminCloses();
+  clearAdminDrawPreview();void (typeof withAdminSkeleton==='function'?withAdminSkeleton('asignaciones',()=>loadAdminCloses()):loadAdminCloses());
 };
 $('assignment-calendar-month').onchange=loadAssignmentCalendar;
 function moveAssignmentMonth(offset){
@@ -77,13 +77,13 @@ $('assignment-month-next').onclick=()=>moveAssignmentMonth(1);
 $('assignment-calendar-today').onclick=()=>{
   $('admin-close-date').value=isoLima();
   $('assignment-calendar-month').value=isoLima().slice(0,7);
-  clearAdminDrawPreview();void loadAdminCloses();
+  clearAdminDrawPreview();void (typeof withAdminSkeleton==='function'?withAdminSkeleton('asignaciones',()=>loadAdminCloses()):loadAdminCloses());
 };
 $('assignment-calendar-days').onclick=event=>{
   const button=event.target.closest('[data-assignment-date]');if(!button)return;
   $('admin-close-date').value=button.dataset.assignmentDate;
   $('admin-close-assignment-list').innerHTML='<p class="admin-empty">Cargando asignaciones de la fecha seleccionada…</p>';
-  clearAdminDrawPreview();void loadAdminCloses();
+  clearAdminDrawPreview();void (typeof withAdminSkeleton==='function'?withAdminSkeleton('asignaciones',()=>loadAdminCloses()):loadAdminCloses());
 };
 $('admin-close-assignment-list').addEventListener('click',event=>{
   const button=event.target.closest('[data-assignment-review]');if(button)openAdminReviewPerson(button.dataset.assignmentPerson,button,button.dataset.assignmentReview);
