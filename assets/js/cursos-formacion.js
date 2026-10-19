@@ -1,35 +1,16 @@
 /* Rutas de exploración, selección de cursos y agenda de octubre. */
 (function () {
     'use strict';
-    const routesGrid = document.getElementById('formation-routes-grid');
     const coursesGrid = document.getElementById('formation-courses-grid');
     const pagination = document.getElementById('formation-pagination');
-    if (!routesGrid || !coursesGrid || typeof KJA_FORMATION === 'undefined') return;
-    if (document.body.classList.contains('course-area-page')) {
-        document.getElementById('rutas-formacion').hidden = true;
-        return;
-    }
+    if (!coursesGrid || typeof KJA_FORMATION === 'undefined') return;
+    if (document.body.classList.contains('course-area-page')) return;
 
     const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
     const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const photo = name => 'images/cursos/photos/' + name + '.webp';
     const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
-    const paths = {
-        brain: '<path d="M12 4v16M12 5C9 1 5 3 5 6c-4 0-4 6-1 7-2 3 0 6 3 6 0 3 5 3 5 0M12 5c3-4 7-2 7 1 4 0 4 6 1 7 2 3 0 6-3 6 0 3-5 3-5 0M5 6c0 2 1 3 3 3M4 13c2 0 3 1 3 3M19 6c0 2-1 3-3 3M20 13c-2 0-3 1-3 3"/>',
-        child: '<circle cx="12" cy="12" r="8"/><path d="M9 4c0-3 5-3 5 0M4 11c-4-2-4 5 0 4M20 11c4-2 4 5 0 4M8 11h1M15 11h1M9 15c2 2 4 2 6 0"/>',
-        report: '<path d="M13 2H5v20h14V8l-6-6Zm0 0v6h6M8 12h8M8 16h5"/><circle cx="17" cy="18" r="3"/><path d="m15 21-1 2M19 21l1 2"/>',
-        people: '<circle cx="9" cy="7" r="3"/><circle cx="18" cy="9" r="2"/><path d="M2 21v-4a6 6 0 0 1 12 0v4H2ZM16 15c4-2 7 1 7 4v2h-6"/>',
-        chat: '<path d="M21 11a8 8 0 0 1-8 8H8l-5 3 1-6a8 8 0 1 1 17-5ZM8 10h8M8 14h5"/>',
-        chart: '<path d="M3 3v18h18M7 17v-5M12 17V8M17 17V4"/>'
-    };
-    const icon = name => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (paths[name] || paths.report) + '</svg>';
     const waUrl = message => 'https://wa.me/51988918238?text=' + encodeURIComponent(message);
-
-    routesGrid.innerHTML = KJA_FORMATION.routes.map(route =>
-        '<article class="formation-route formation-tone-' + escape(route.tone) + '" data-formation-route-card="' + escape(route.id) + '" tabindex="0" aria-labelledby="route-title-' + escape(route.id) + '" aria-describedby="route-description-' + escape(route.id) + '">' +
-        '<img src="' + escape(photo(route.image)) + '" width="1200" height="600" alt="" loading="lazy" decoding="async">' +
-        '<span class="formation-route-icon">' + icon(route.icon) + '</span><div class="formation-route-copy"><h3 id="route-title-' + escape(route.id) + '">' + escape(route.title) + '</h3><div class="formation-route-summary"><p id="route-description-' + escape(route.id) + '">' + escape(route.description) + '</p></div></div></article>'
-    ).join('');
 
     const featuredStar = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 3 2.2 5.8L21 11l-5.8 2.2L13 19l-2.2-5.8L5 11l5.8-2.2L13 3ZM5 2v4M3 4h4M4 16v5M1.5 18.5h5"/></svg>';
     const shuffled = [...KJA_FORMATION.courses];
@@ -134,7 +115,7 @@
     };
     closeOnBackdrop(dialog);
     let detailOpener;
-    coursesGrid.addEventListener('click', event => {
+    function openCourseDetail(event) {
         const badge = event.target.closest('.formation-course-demand');
         if (badge) {
             const expanded = badge.classList.toggle('is-expanded');
@@ -151,7 +132,8 @@
         document.getElementById('formation-detail-topics').innerHTML = course.topics.map(topic => '<li>' + escape(topic) + '</li>').join('');
         document.getElementById('formation-detail-consult').href = waUrl('Hola KJA, quisiera información sobre el curso «' + (course.fullTitle || course.title) + '». ¿Cuáles son las próximas fechas, modalidad, horarios y precios?');
         dialog.showModal();
-    });
+    }
+    coursesGrid.addEventListener('click', openCourseDetail);
     document.getElementById('formation-detail-close').addEventListener('click', () => dialog.close());
     // Escape queda bloqueado; el detalle se cierra con la X o al pulsar fuera.
     dialog.addEventListener('cancel', event => event.preventDefault());

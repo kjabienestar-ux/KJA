@@ -33,7 +33,7 @@ test('Talleres contiene la biblioteca y la agenda, mientras Cursos conserva su c
     assert.equal(doc.querySelectorAll('.free-course-card').length, 3);
     assert.ok(doc.getElementById('cursos-gratuitos').compareDocumentPosition(doc.getElementById('agenda-talleres')) & 4);
     const courses = fs.readFileSync(new URL('../cursos.html', import.meta.url), 'utf8');
-    assert.equal(courses.includes('id="cursos-gratuitos"'), false);
+    assert.equal(courses.includes('id="cursos-gratuitos"'), true);
     assert.equal(courses.includes('id="formation-workshops"'), false);
     assert.ok(courses.includes('id="formation-courses-grid"'));
     dom.window.close();
@@ -94,4 +94,35 @@ test('una biblioteca vacía muestra un estado útil', () => {
     document.getElementById('free-library-open').click();
     assert.match(document.getElementById('free-library-content').textContent, /preparando nuevos talleres/);
     dom.window.close();
+});
+
+
+test('Cursos integra la biblioteca con textos y enlaces propios y oculta grabados en áreas históricas', () => {
+    for (const query of ['', '?area=tea-autismo']) {
+        const source = fs.readFileSync(new URL('../cursos.html', import.meta.url), 'utf8');
+        const dom = new JSDOM(source, { url: 'https://www.kjadmb.com/cursos.html' + query, runScripts: 'outside-only' });
+        const { window } = dom;
+        window.matchMedia = () => ({ matches: false });
+        window.Element.prototype.getAnimations = () => [];
+        window.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+        window.HTMLDialogElement.prototype.close = function () { this.open = false; this.dispatchEvent(new window.Event('close')); };
+        const run = name => vm.runInContext(script(name), dom.getInternalVMContext());
+        ['cursos-data.js', 'cursos-catalogo.js', 'cursos-formacion-data.js', 'cursos-formacion.js', 'cursos-gratuitos-data.js', 'cursos-gratuitos.js'].forEach(run);
+        const doc = window.document;
+        if (query) {
+            assert.equal(doc.getElementById('cursos-gratuitos').hidden, true);
+            assert.equal(doc.querySelectorAll('.free-course-card').length, 0);
+        } else {
+            assert.equal(doc.querySelectorAll('.free-course-card').length, 3);
+            doc.getElementById('free-library-open').click();
+            assert.equal(doc.getElementById('free-library-dialog').open, true);
+            assert.match(doc.getElementById('free-library-content').textContent, /se presentarán los cursos/);
+            doc.querySelector('[data-free-course="0"]').click();
+            assert.equal(doc.querySelector('iframe'), null);
+            assert.equal(doc.querySelector('.free-course-catalog-link').getAttribute('href'), 'cursos.html#catalogo');
+            doc.getElementById('free-library-close').click();
+            assert.equal(doc.activeElement.id, 'free-library-open');
+        }
+        dom.window.close();
+    }
 });

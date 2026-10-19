@@ -1,0 +1,85 @@
+/* Biblioteca de Cursos: lenguaje editorial de Terapia y superficies de la web pública.
+   Talleres conserva su composición; las acciones comparten el reproductor existente. */
+.recorded-library { color: #14213b; font-family: 'Poppins', sans-serif; }
+.recorded-library .free-courses-shell { display: block; padding: 32px; border-radius: 32px; background: radial-gradient(ellipse at 100% 0, #e6def8a3, transparent 55%), linear-gradient(125deg, #f9faff, #eef1ff 65%, #f6eef7); border: 1px solid transparent; box-shadow: inset 0 1px 0 #fff, 0 4px 8px #2f3b6f03, 0 22px 60px #2f3b6f08; }
+.recorded-library .free-courses-shell::before { width: 130px; height: 130px; left: auto; right: -20px; bottom: 45px; opacity: .6; }
+.recorded-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 24px; margin-bottom: 24px; }
+.recorded-eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; color: #3457a8; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.recorded-eyebrow > span { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #ca0062; box-shadow: 0 0 0 5px #ca00620a; }
+.recorded-heading h2 { margin: 0; color: #14213b; font-size: clamp(1.8rem, 2.6vw, 2.25rem); font-weight: 800; line-height: 1.35; letter-spacing: -.035em; }
+.recorded-heading h2 > span { display: inline-block; font-family: 'Fraunces', Georgia, serif; font-size: 1.15em; font-style: italic; font-weight: 500; line-height: 1.2; letter-spacing: -.035em; color: #ba246c; }
+.recorded-heading-actions { justify-self: end; }
+.recorded-heading-title > p:last-child { max-width: 760px; margin: 12px 0 0; color: #485672; font-size: .87rem; line-height: 1.75; }
+.recorded-library-button { display: inline-flex; align-items: center; gap: 24px; min-height: 48px; border: 1px solid transparent; border-radius: 999px; padding: 5px 6px 5px 22px; background: #bd2165; box-shadow: 0 3px 6px #9b215216, 0 8px 20px #9b21521a; color: #fff; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.recorded-library-button > span { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #ffffff24; }
+.recorded-library-button svg { width: 19px; height: 19px; }
+.recorded-library .free-courses-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.recorded-item { min-width: 0; --recorded-glow: 202 0 98; }
+.recorded-item:nth-child(3n + 2) { --recorded-glow: 45 98 204; }
+.recorded-item:nth-child(3n) { --recorded-glow: 126 78 190; }
+.recorded-card { position: relative; isolation: isolate; display: flex; flex-direction: column; width: 100%; height: 100%; padding: 0; overflow: hidden; border: 1px solid transparent; border-radius: 22px; background: #fff; color: #14213b; box-shadow: 0 2px 4px #20396708, 0 8px 22px #2039670a; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.recorded-image { position: relative; display: block; min-width: 0; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; flex-shrink: 0; }
+.recorded-image > img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; object-position: 70% center; outline: 1px solid oklch(0 0 0 / .1); outline-offset: -1px; }
+.recorded-free { position: absolute; top: 14px; left: 14px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #fffffff2; color: #344fa0; font-size: .75rem; font-weight: 700; line-height: 1.4; box-shadow: 0 2px 8px #14213b0a; }
+.recorded-free > svg { width: 16px; height: 16px; }
+.recorded-copy { position: relative; isolation: isolate; display: flex; flex-direction: column; min-width: 0; padding: 22px; flex: 1; }
+.recorded-copy::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 100% 100%, rgb(var(--recorded-glow) / .14), transparent 72%); opacity: .4; transition: opacity 150ms ease-out; }
+.recorded-card:focus-visible { box-shadow: 0 3px 6px #2039670c, 0 14px 30px rgb(var(--recorded-glow) / .15); }
+.recorded-card:focus-visible .recorded-copy::before { opacity: 1; }
+.recorded-status { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: .75rem; line-height: 1.4; font-weight: 600; color: #66527f; }
+.recorded-status > span { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.recorded-title { display: block; font-size: clamp(1.1rem, 1.4vw, 1.25rem); font-weight: 700; line-height: 1.35; letter-spacing: -.025em; }
+.recorded-description { display: block; margin-top: 10px; font-size: .82rem; line-height: 1.7; color: #485672; }
+.recorded-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 18px; }
+.recorded-meta { display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; color: #52617c; }
+.recorded-meta svg { width: 16px; height: 16px; }
+.recorded-play { display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; border: 1px solid #ddd8f3; border-radius: 50%; background: #bd2165; color: #fff; }
+.recorded-play svg { width: 22px; height: 22px; translate: 1px 0; }
+.recorded-library .free-courses-preview { margin: 24px 0 0; padding: 14px 0 0; border-top: 1px solid #d6dced; color: #52617c; font-size: .75rem; line-height: 1.65; }
+.recorded-card:focus-visible, .recorded-library-button:focus-visible { outline: 3px solid #b9005a; outline-offset: 4px; }
+@media (hover: hover) {
+    .recorded-card:hover { box-shadow: 0 3px 6px #2039670c, 0 14px 30px rgb(var(--recorded-glow) / .15); }
+    .recorded-card:hover .recorded-copy::before { opacity: 1; }
+    .recorded-card:hover .recorded-play { background: #bd2165; color: #fff; border-color: transparent; }
+    .recorded-library-button:hover { background: #a91658; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .recorded-card { transition: box-shadow 250ms ease-out, transform 250ms cubic-bezier(.2,0,0,1), scale 150ms ease-out; }
+    .recorded-image > img { transition: transform 400ms cubic-bezier(.2,0,0,1); }
+    .recorded-play { transition: background-color 150ms ease-out, color 150ms ease-out; }
+    .recorded-library-button { transition: background-color 150ms ease-out, scale 150ms ease-out; }
+    .recorded-card:active:not(:disabled), .recorded-library-button:active:not(:disabled) { scale: .96; }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .recorded-card:hover { transform: translateY(-3px); }
+    .recorded-card:hover .recorded-image > img { transform: scale(1.035); }
+}
+@media (max-width: 1050px) {
+    .recorded-library .free-courses-shell { padding: 26px; }
+    .recorded-heading { gap: 28px; }
+    .recorded-library .free-courses-grid { gap: 14px; }
+    .recorded-copy { padding: 18px; }
+    .recorded-title { font-size: 1.05rem; }
+    .recorded-description { font-size: .8rem; }
+}
+@media (max-width: 850px) {
+    .recorded-library .free-courses-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .recorded-card { display: grid; grid-template-columns: 44% minmax(0, 1fr); }
+    .recorded-image { aspect-ratio: auto; height: 100%; min-height: 225px; }
+    .recorded-copy { padding: 22px; }
+    .recorded-title { font-size: 1.2rem; }
+    .recorded-description { font-size: .85rem; }
+}
+@media (max-width: 600px) {
+    .recorded-library .free-courses-shell { padding: 22px 18px; border-radius: 26px; }
+    .recorded-heading { grid-template-columns: 1fr; gap: 18px; margin-bottom: 24px; }
+    .recorded-eyebrow { font-size: .75rem; line-height: 1.7; letter-spacing: .035em; margin-bottom: 14px; }
+    .recorded-heading h2 { font-size: clamp(1.7rem, 7.5vw, 2.1rem); }
+    .recorded-heading-actions { justify-self: start; }
+    .recorded-heading-title > p:last-child { font-size: .85rem; }
+    .recorded-card { display: flex; border-radius: 24px; }
+    .recorded-image { min-height: 0; height: auto; aspect-ratio: 16 / 9; }
+    .recorded-copy { padding: 20px; }
+    .recorded-title { font-size: 1.15rem; }
+    .recorded-library .free-courses-shell::before { display: none; }
+}

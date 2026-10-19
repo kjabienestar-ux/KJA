@@ -274,3 +274,4 @@
     .formation-route[data-formation-route-card="educativa-organizacional"] > img { object-position: 60% center; }
     .formation-route-icon { display: none; }
 }
+.free-courses-section[data-library-kind="course"] { padding-bottom: 36px; scroll-margin-top: 90px; }
