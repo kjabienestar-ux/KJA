@@ -2951,7 +2951,7 @@
 #mark-receipt .receipt-details { background: transparent; padding: 16px 18px; gap: 14px; }
 #mark-receipt .receipt-details span { min-width: 0; }
 #mark-receipt .receipt-details small { color: #647580; font-size: 10px; letter-spacing: .02em; font-weight: 500; }
-#mark-receipt .receipt-details b { color: #344f60; font-size: 11px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+#mark-receipt .receipt-details b { color: #344f60; font-size: 11px; line-height: 1.5; white-space: normal !important; overflow-wrap: anywhere; }
 #mark-receipt .receipt-close { min-height: 46px; border-radius: 12px; background: #174d68; color: #fff; box-shadow: none; font-size: 13px; font-weight: 500; }
 #mark-receipt .receipt-close:hover { background: #103c53; transform: none; }
 #mark-receipt .receipt-note { color: #647580; font-size: 10px; line-height: 1.5; margin: 14px 0 0; }
@@ -3992,4 +3992,68 @@
   #portal:not(.admin-wide) #view-perfil .profile-session-copy-support small { display:block; }
   #portal:not(.admin-wide) #view-perfil .profile-session-copy-support b { color:#365368; font-size:12px; }
   #portal:not(.admin-wide) #view-perfil .profile-session-copy-support small { margin-top:3px; color:#607786; font-size:10px; line-height:1.4; }
+}
+
+/* El modo compacto depende de la tarjeta, también en columnas de escritorio. */
+#view-asistencia .attendance-calendar { container: attendance-calendar / inline-size; min-width: 0; }
+#view-asistencia .calendar-grid, #view-asistencia .calendar-week { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+#view-asistencia .cal-day { min-width: 0; }
+#view-asistencia .cal-status-short { display: none; }
+#portal:not(.admin-wide) #view-asistencia .calendar-legend { flex-wrap: wrap !important; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)) !important; gap: 12px 16px; min-width: 0; }
+#portal:not(.admin-wide) #view-asistencia .calendar-legend > span { min-width: 0; max-width: 100%; white-space: normal !important; overflow-wrap: anywhere; }
+#view-asistencia .calendar-legend i { flex-shrink: 0; }
+@container attendance-calendar (max-width: 620px) {
+  #view-asistencia .cal-status-full { display: none; }
+  #view-asistencia .cal-status-short { display: inline; }
+  #portal:not(.admin-wide) #view-asistencia .cal-day small { white-space: nowrap; overflow-wrap: normal; word-break: normal; text-align: center; padding: 6px 4px; }
+  #view-asistencia .cal-day-action { display: none; }
+  #view-asistencia .attendance-calendar-head { flex-wrap: wrap; gap: 12px; }
+  #view-asistencia .attendance-calendar-heading { flex: 1 1 100%; }
+  #view-asistencia .month-toolbar { flex: 1 1 180px; min-width: 0; }
+  #view-asistencia .month-toolbar b { min-width: 0; }
+}
+@container attendance-calendar (max-width: 380px) {
+  #view-asistencia .calendar-grid, #view-asistencia .calendar-week { gap: 4px; }
+  #view-asistencia .cal-day { padding: 8px 4px; }
+  #view-asistencia .cal-day-top { gap: 2px; }
+  #view-asistencia .cal-day-top em { display: none; }
+  #view-asistencia .calendar-week span { padding-inline: 0; }
+}
+@container attendance-calendar (max-width: 620px) {
+  #portal:not(.admin-wide) #view-asistencia .attendance-calendar-head { grid-template-columns: minmax(0, 1fr) auto !important; }
+  #portal:not(.admin-wide) #view-asistencia .attendance-calendar-heading { grid-column: 1 / -1 !important; }
+  #portal:not(.admin-wide) #view-asistencia .attendance-calendar-head .month-toolbar { width: 100% !important; min-width: 0 !important; }
+  #portal:not(.admin-wide) #view-asistencia .attendance-calendar-head .month-toolbar b { min-width: 0 !important; }
+  #portal:not(.admin-wide) #view-asistencia .cal-day small { white-space: nowrap !important; overflow-wrap: normal !important; word-break: normal !important; padding: 6px 2px !important; max-width: 100%; box-sizing: border-box; }
+}
+@container attendance-calendar (max-width: 380px) {
+  #portal:not(.admin-wide) #view-asistencia .cal-day { padding: 8px 3px !important; }
+  #portal:not(.admin-wide) #view-asistencia .cal-day-top { justify-content: center !important; gap: 0 !important; }
+  #portal:not(.admin-wide) #view-asistencia .cal-day-top > span { position: absolute; top: 5px; right: 3px; }
+  #portal:not(.admin-wide) #view-asistencia .cal-day-top i { width: 4px !important; height: 4px !important; }
+  #portal:not(.admin-wide) #view-asistencia .cal-day-top em { display: none !important; }
+}
+
+/* Cada celda decide si cabe Hoy; el borde y el nombre accesible siguen indicando la fecha. */
+#portal:not(.admin-wide) #view-asistencia .cal-day:not(.empty) { container: attendance-day / inline-size; }
+@container attendance-day (max-width: 64px) {
+  #portal:not(.admin-wide) #view-asistencia .cal-day-top em { display: none !important; }
+}
+@container attendance-calendar (max-width: 620px) {
+  #portal:not(.admin-wide) #view-asistencia .cal-day small {
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    width: 100% !important; min-width: 0 !important; margin-inline: 0 !important;
+    text-align: center !important;
+  }
+  #portal:not(.admin-wide) #view-asistencia .cal-status-short {
+    display: block !important; width: auto !important; flex: 0 0 auto !important;
+    margin: 0 !important; padding: 0 !important; text-align: center !important;
+    white-space: nowrap !important; line-height: 1.2 !important;
+  }
+  #portal:not(.admin-wide) #view-asistencia .cal-day .cal-day-top {
+    justify-content: center !important;
+  }
+  #portal:not(.admin-wide) #view-asistencia .cal-day .cal-day-top > span {
+    position: absolute !important; top: 6px !important; right: 5px !important;
+  }
 }
