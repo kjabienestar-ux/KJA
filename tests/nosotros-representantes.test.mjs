@@ -100,7 +100,7 @@ test('avatars show the area illustration: the photo comes first and initials are
     const { window, document } = page({ edit: data => { data[1].foto = 'images/nosotros/representantes/erika.webp'; } });
     const list = avatars(document);
     const art = list[0].querySelector('.reps-avatar-face img');
-    assert.equal(art.getAttribute('src'), 'images/nosotros/representantes/areas/salud-ocupacional.webp');
+    assert.equal(art.getAttribute('src'), 'images/nosotros/representantes/personas/salud-ocupacional.webp');
     assert.equal(art.getAttribute('alt'), '');
     assert.equal(art.getAttribute('loading'), 'lazy');
     assert.equal(art.getAttribute('decoding'), 'async');
@@ -112,7 +112,7 @@ test('avatars show the area illustration: the photo comes first and initials are
     assert.equal(photo.getAttribute('src'), 'images/nosotros/representantes/erika.webp');
     assert.equal(face.classList.contains('is-art'), false);
     photo.dispatchEvent(new window.Event('error'));
-    assert.equal(photo.getAttribute('src'), 'images/nosotros/representantes/areas/recursos-humanos.webp');
+    assert.equal(photo.getAttribute('src'), 'images/nosotros/representantes/personas/recursos-humanos.webp');
     photo.dispatchEvent(new window.Event('error'));
     assert.equal(face.querySelector('img'), null);
     assert.equal(face.classList.contains('has-image'), false, 'las iniciales vuelven a verse');
