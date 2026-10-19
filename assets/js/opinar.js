@@ -12,6 +12,17 @@
   var estrellas = 0, recomienda = null;
   var TXT = ['', 'Muy malo', 'Podría mejorar', 'Bien', 'Muy bueno', 'Excelente'];
   var form = $('op-form');
+  // ?embed=1 → la página vive dentro del modal de reseñas del inicio (index.html).
+  var EMBED = params.get('embed') === '1' && window.parent !== window;
+  function avisarPadre(type) { if (EMBED) window.parent.postMessage({ type: type }, location.origin); }
+  if (EMBED) {
+    document.documentElement.classList.add('op-embed');
+    var volver = document.querySelector('.op-link');
+    volver.textContent = 'Cerrar';
+    volver.addEventListener('click', function (ev) { ev.preventDefault(); avisarPadre('kja-opinar-cerrar'); });
+    // Esc dentro del iframe no llega al modal del inicio.
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') avisarPadre('kja-opinar-cerrar'); });
+  }
 
   function rpc(fn, body) {
     return fetch(SB + '/rest/v1/rpc/' + fn, { method: 'POST', headers: HDR, body: JSON.stringify(body) })
@@ -123,11 +134,11 @@
     }).catch(function () { estado('No pudimos verificar tu enlace', 'Revisa tu conexión e inténtalo nuevamente.'); });
   }
 
-  function exito() { form.hidden = true; $('op-exito').hidden = false; }
+  function exito() { form.hidden = true; $('op-exito').hidden = false; avisarPadre('kja-opinar-enviado'); }
   form.addEventListener('submit', function (ev) {
     ev.preventDefault();
     if ($('op-web').value) { exito(); return; } // honeypot
-    if (!validar1()) { paso(1); return; }
+    if (!validar1()) { var m = $('op-msg').textContent; paso(1); aviso(m); return; } // paso() limpia el aviso
     var nombre = $('op-nombre').value.trim(), texto = $('op-texto').value.trim();
     aviso('');
     var btn = $('op-enviar'); btn.disabled = true; btn.classList.add('sending'); $('op-enviar-txt').textContent = 'Enviando…';
