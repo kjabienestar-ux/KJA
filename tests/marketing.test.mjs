@@ -77,10 +77,11 @@ test('WhatsApp preserves accents, punctuation and campaign text without query in
 });
 test('course default uses approved benefits and campaign contacts in order',()=>{
   const copy=compose({titulo:'Curso online de: Orientacion',descripcion:'Aprende a orientar.',publico:'Docentes',telefono:'51999111222',correo:'curso@example.com',temario:'Tema interno'},'https://example.test/chat');
-  const sections=['CURSO ONLINE DE: ORIENTACION','Aprende a orientar.','Docentes','TE BRINDAMOS:','300 horas','incluye QR','digital completo','50% de descuento','6 H.A','INSCR','WhatsApp: https://example.test/chat','(51) 999 111 222','curso@example.com','https://www.kjadmb.com/','KJA - Centro','POTENCIA TU PERFIL'];
+  const sections=['CURSO ONLINE DE: ORIENTACION','Aprende a orientar.','¿A QUIÉN VA DIRIGIDO?','Docentes','¿QUÉ APRENDERÁS EN ESTA FORMACIÓN?','Tema interno','TE BRINDAMOS:','Descuento de 50%','1 curso gratis','300 horas','incluye QR','digital completo','INSCR','WhatsApp: https://example.test/chat','(51) 999 111 222','curso@example.com','https://www.kjadmb.com/','KJA - Centro','POTENCIA TU PERFIL'];
   let previous=-1;
   for(const section of sections){const index=copy.indexOf(section);assert.ok(index>previous,section);previous=index;}
-  assert.doesNotMatch(copy,/Tema interno|APRENDER/);
+  assert.match(copy,/👩‍⚕️ ¿A QUIÉN VA DIRIGIDO\?/);
+  assert.match(copy,/📋 ¿QUÉ APRENDERÁS EN ESTA FORMACIÓN\?/);
   assert.match(compose({titulo:'Curso de Orientacion',modalidad:'Presencial'},'url'),/CURSO PRESENCIAL DE: ORIENTACION/);
 });
 
@@ -613,4 +614,51 @@ test('six-character keys retry collisions, generate alphanumeric codes and prese
   assert.equal(result,'Winner');assert.equal(attempts,2);
   query.upsert=async()=>({error:{code:'23505'}});
   await assert.rejects(storeCampaignLink({from:()=>query},{},()=> 'x28bca'));
+});
+
+test('facebook preview scroll containment redirects wheel and prevents page scroll leakage',async()=>{
+  const e=editor();
+  await e.load();
+  const previewTab=e.get('mode-preview');
+  const previewCard=e.get('fb-preview');
+  const copyHeader=e.get('copy-header');
+  const renderEl=e.get('fb-copy-render');
+
+  assert.ok(previewCard.listeners['wheel']);
+  assert.ok(copyHeader.listeners['wheel']);
+
+  let prevented=false;
+  const dummyEvent1={deltaY:50,target:previewCard,preventDefault:()=>{prevented=true;}};
+  previewCard.listeners['wheel'](dummyEvent1);
+  assert.equal(prevented,false);
+
+  await previewTab.onclick();
+
+  renderEl.scrollHeight=800;
+  renderEl.clientHeight=400;
+  renderEl.scrollTop=100;
+
+  prevented=false;
+  const dummyEvent2={deltaY:40,target:previewCard,preventDefault:()=>{prevented=true;}};
+  previewCard.listeners['wheel'](dummyEvent2);
+  assert.equal(prevented,true);
+  assert.equal(renderEl.scrollTop,140);
+
+  prevented=false;
+  const dummyEvent3={deltaY:-20,target:copyHeader,preventDefault:()=>{prevented=true;}};
+  copyHeader.listeners['wheel'](dummyEvent3);
+  assert.equal(prevented,true);
+  assert.equal(renderEl.scrollTop,120);
+
+  renderEl.scrollTop=0;
+  prevented=false;
+  const dummyEventTop={deltaY:-50,target:renderEl,preventDefault:()=>{prevented=true;}};
+  previewCard.listeners['wheel'](dummyEventTop);
+  assert.equal(prevented,true);
+
+  renderEl.scrollTop=400;
+  prevented=false;
+  const dummyEventBottom={deltaY:50,target:renderEl,preventDefault:()=>{prevented=true;}};
+  previewCard.listeners['wheel'](dummyEventBottom);
+  assert.equal(prevented,true);
 });

@@ -25,6 +25,61 @@ const VIDEOS_DEMO = false;
 
 const VIDEO_DATA = [
     {
+        titulo: 'Capacitaciones para docentes',
+        descripcion: 'Estrategias prácticas para acompañar en el aula a alumnos con TEA, TDAH o conductas desafiantes, sin agotarte en el intento.',
+        tema: 'Educación',
+        fecha: '2026-10-17',
+        duracion: '0:57',
+        plataforma: 'facebook',
+        url: 'https://www.facebook.com/reel/1623317679170394',
+        portada: 'images/videos/capacitaciones-docentes.webp',
+        video: 'assets/videos/capacitaciones-docentes.mp4'
+    },
+    {
+        titulo: '¿Cómo funciona un curso de KJA?',
+        descripcion: 'Capacitarse no es solo ver videos: así está pensado cada programa para que fortalezcas tus habilidades prácticas.',
+        tema: 'Capacitación',
+        fecha: '2026-10-14',
+        duracion: '0:42',
+        plataforma: 'facebook',
+        url: 'https://www.facebook.com/reel/2184086092534913',
+        portada: 'images/videos/como-funciona-un-curso.webp',
+        video: 'assets/videos/como-funciona-un-curso.mp4'
+    },
+    {
+        titulo: 'Convivencia escolar y familiar',
+        descripcion: 'Herramientas para fortalecer los vínculos en casa y en la escuela, comunicarse de forma asertiva y resolver conflictos.',
+        tema: 'Talleres',
+        fecha: '2026-10-13',
+        duracion: '1:00',
+        plataforma: 'facebook',
+        url: 'https://www.facebook.com/reel/1581916403165180',
+        portada: 'images/videos/convivencia-escolar-familiar.webp',
+        video: 'assets/videos/convivencia-escolar-familiar.mp4'
+    },
+    {
+        titulo: 'Curso de Terapia de Lenguaje y del Habla en la Infancia',
+        descripcion: 'Formación para fortalecer tus competencias en la intervención del desarrollo del lenguaje y el habla en niños.',
+        tema: 'Cursos y talleres',
+        fecha: '2026-10-12',
+        duracion: '0:34',
+        plataforma: 'facebook',
+        url: 'https://www.facebook.com/reel/1081412201371119',
+        portada: 'images/videos/curso-terapia-lenguaje.webp',
+        video: 'assets/videos/curso-terapia-lenguaje.mp4'
+    },
+    {
+        titulo: 'Talleres de capacitación para psicólogos',
+        descripcion: 'Estrategias prácticas para trabajar con niños, adolescentes y familias, en modalidad presencial u online y con certificado.',
+        tema: 'Cursos y talleres',
+        fecha: '2026-10-12',
+        duracion: '1:19',
+        plataforma: 'facebook',
+        url: 'https://www.facebook.com/reel/1720775393385745',
+        portada: 'images/videos/talleres-esta-semana.webp',
+        video: 'assets/videos/talleres-esta-semana.mp4'
+    },
+    {
         titulo: '¿Aplicar una prueba es suficiente para hacer una buena evaluación?',
         descripcion: 'Una evaluación psicológica va más allá de aplicar un instrumento: requiere saber administrarlo, analizar sus resultados e interpretarlos según cada caso.',
         tema: 'Evaluación psicológica',

@@ -29,7 +29,7 @@
 .kv-hero {
     position: relative;
     overflow: hidden;
-    padding: 150px 24px 70px;
+    padding: 150px 24px 120px;
     font-family: 'Poppins', sans-serif;
     background:
         radial-gradient(720px 420px at 85% 30%, rgba(241, 0, 117, 0.08) 0%, transparent 65%),
@@ -67,7 +67,7 @@
     width: 80px;
     height: 80px;
     left: 46%;
-    bottom: 30px;
+    bottom: 110px;
     background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95) 0%, rgba(214, 230, 255, 0.55) 45%, rgba(160, 195, 245, 0.35) 100%);
     border: 1px solid rgba(255, 255, 255, 0.8);
     box-shadow: 0 18px 36px rgba(0, 47, 112, 0.12);
@@ -77,6 +77,28 @@
 @keyframes kvFloat {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-14px); }
+}
+
+/* Olas que se desplazan despacio al pie de la portada; la de adelante tiene el color del catálogo. */
+.kv-hero-olas {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    z-index: 1;
+    width: 100%;
+    height: 90px;
+    pointer-events: none;
+}
+
+.kv-hero-olas use { animation: kvOla 26s cubic-bezier(.55, .5, .45, .5) infinite; }
+.kv-hero-olas use:nth-of-type(1) { fill: #f100751a; animation-delay: -2s; animation-duration: 12s; }
+.kv-hero-olas use:nth-of-type(2) { fill: #8e6bbf26; animation-delay: -3s; animation-duration: 16s; }
+.kv-hero-olas use:nth-of-type(3) { fill: #004fb01a; animation-delay: -4s; animation-duration: 20s; }
+.kv-hero-olas use:nth-of-type(4) { fill: #f1f5fc; animation-delay: -5s; }
+
+@keyframes kvOla {
+    from { transform: translate3d(-90px, 0, 0); }
+    to { transform: translate3d(85px, 0, 0); }
 }
 
 .kv-hero-inner {
@@ -641,15 +663,37 @@
 }
 
 .kv-disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
     max-width: 760px;
     margin: 46px auto 0;
-    color: #7a8494;
-    font-size: 0.8rem;
+    padding: 16px 20px;
+    border: 1px solid #e3e9f5;
+    border-radius: 16px;
+    background: #f6f8fd;
+    color: #5b6472;
+    font-size: 0.85rem;
     line-height: 1.6;
-    text-align: center;
 }
 
-.kv-cta h2 em {
+.kv-disclaimer svg {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    fill: none;
+    stroke: #004fb0;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.kv-cta-banner h2 em {
+    display: block;
+    margin-top: 4px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
     color: #ffd1e6;
 }
 
@@ -1437,7 +1481,7 @@
 
 @media (max-width: 900px) {
     .kv-hero {
-        padding: 120px 20px 50px;
+        padding: 120px 20px 100px;
     }
 
     /* El orbe rosa quedaría detrás del título en rosa: se pasa al lado derecho. */
@@ -1462,7 +1506,15 @@
 
 @media (max-width: 767px) {
     .kv-hero {
-        padding: 104px 18px 44px;
+        padding: 104px 18px 80px;
+    }
+
+    .kv-hero-olas {
+        height: 56px;
+    }
+
+    .kv-orb--glass {
+        bottom: 70px;
     }
 
     .kv-featured {
@@ -1619,6 +1671,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .kv-orb,
+    .kv-hero-olas use,
     .kv-viewer-backdrop,
     .kv-hint,
     .kv-toast {

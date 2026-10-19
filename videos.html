@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="assets/css/shared.css?v=13">
     <link rel="stylesheet" href="assets/css/accessibility.css?v=2">
     <link rel="stylesheet" href="assets/css/whatsapp-assistant.css?v=6">
-    <link rel="stylesheet" href="assets/css/paginas/videos.css?v=6">
+    <link rel="stylesheet" href="assets/css/paginas/videos.css?v=7">
     <!-- Sin JS, el splash de carga no debe tapar la página -->
     <noscript>
         <style>
@@ -112,6 +112,13 @@
         <div class="kv-orb kv-orb--pink" aria-hidden="true"></div>
         <div class="kv-orb kv-orb--blue" aria-hidden="true"></div>
         <div class="kv-orb kv-orb--glass" aria-hidden="true"></div>
+        <svg class="kv-hero-olas" viewBox="0 24 150 28" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <defs><path id="kv-ola" d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"/></defs>
+            <use href="#kv-ola" x="48" y="0"/>
+            <use href="#kv-ola" x="48" y="3"/>
+            <use href="#kv-ola" x="48" y="5"/>
+            <use href="#kv-ola" x="48" y="7"/>
+        </svg>
 
         <div class="kv-hero-inner">
             <div class="kv-hero-copy">
@@ -152,15 +159,18 @@
                 <p>Estamos preparando contenido para ti. Síguenos en nuestras redes para no perderte ninguno.</p>
             </div>
 
-            <p class="kv-disclaimer">Contenido educativo e informativo: no reemplaza una evaluación ni un tratamiento psicológico profesional. Si necesitas ayuda, agenda una cita con nuestro equipo.</p>
+            <p class="kv-disclaimer">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                <span>Contenido educativo e informativo: no reemplaza una evaluación ni un tratamiento psicológico profesional. Si necesitas ayuda, agenda una cita con nuestro equipo.</span>
+            </p>
         </div>
     </section>
 
-    <div class="cta-banner kv-cta">
-        <h2>¿Te identificaste con algún video? <em>No estás solo.</em></h2>
+    <section class="cta-banner kv-cta-banner" aria-labelledby="kv-cta-title">
+        <h2 id="kv-cta-title">¿Te identificaste con algún video? <em>No estás solo.</em></h2>
         <p>Nuestro equipo de psicólogos puede acompañarte a ti y a tu familia.</p>
         <a href="terapia.html" class="btn-white">Agendar cita</a>
-    </div>
+    </section>
     </main>
 
     <footer>
@@ -295,7 +305,7 @@
     <script defer src="assets/js/script.js?v=11"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>
-    <script defer src="assets/js/videos-data.js?v=3"></script>
+    <script defer src="assets/js/videos-data.js?v=4"></script>
     <script defer src="assets/js/videos.js?v=6"></script>
 
     </div>
