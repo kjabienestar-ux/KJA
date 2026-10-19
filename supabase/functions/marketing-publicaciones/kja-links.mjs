@@ -1,13 +1,21 @@
 export function kjaLinkKey(url){
-  return /^(?:https:\/\/www\.kjadmb\.com\/w\.html\?k=|https:\/\/wa\.kjadmb\.com\/)((?:[A-Za-z0-9_-]{8}|[A-Za-z0-9_-]{16}))$/.exec(String(url||''))?.[1]||'';
+  return /^(?:https:\/\/www\.kjadmb\.com\/w\.html\?k=|https:\/\/wa\.kjadmb\.com\/)((?:[A-Za-z0-9_-]{6}|[A-Za-z0-9_-]{8}|[A-Za-z0-9_-]{16}))$/.exec(String(url||''))?.[1]||'';
 }
 export function kjaLink(key,domain=''){
-  if(!/^(?:[A-Za-z0-9_-]{8}|[A-Za-z0-9_-]{16})$/.test(key))throw new Error('El código del enlace no es válido.');
+  if(!/^(?:[A-Za-z0-9_-]{6}|[A-Za-z0-9_-]{8}|[A-Za-z0-9_-]{16})$/.test(key))throw new Error('El código del enlace no es válido.');
   // Activar únicamente después de configurar y verificar DNS y HTTPS.
   return domain==='https://wa.kjadmb.com'?'https://wa.kjadmb.com/'+key:'https://www.kjadmb.com/w.html?k='+key;
 }
+const KEY_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 export function newCampaignKey(){
-  return btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(6)))).replace(/\+/g,'-').replace(/\//g,'_');
+  let key = '';
+  while(key.length < 6){
+    const bytes = crypto.getRandomValues(new Uint8Array(8));
+    for(let i = 0; i < bytes.length && key.length < 6; i++){
+      if(bytes[i] < 248) key += KEY_ALPHABET[bytes[i] % 62];
+    }
+  }
+  return key;
 }
 export async function storeCampaignLink(admin,record,generate=newCampaignKey){
   for(let attempt=0;attempt<5;attempt++){

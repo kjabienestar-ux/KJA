@@ -602,12 +602,15 @@ test('admin can switch to team scope, filter by collaborator, and view author ba
 
 
 
-test('eight-character keys retry collisions and reuse the concurrent winner',async()=>{
-  assert.match(newCampaignKey(),/^[A-Za-z0-9_-]{8}$/);
+test('six-character keys retry collisions, generate alphanumeric codes and preserve previous lengths',async()=>{
+  assert.match(newCampaignKey(),/^[A-Za-z0-9]{6}$/);
+  assert.equal(kjaLinkKey('https://wa.kjadmb.com/x28bca'),'x28bca');
   assert.equal(kjaLinkKey('https://wa.kjadmb.com/Abcd1234'),'Abcd1234');
-  let attempts=0;const query={select(){return this},eq(){return this},async single(){return {data:{clave:'Winner12'}}},async upsert(){attempts++;return attempts===1?{error:{code:'23505'}}:{error:null}}};
-  const result=await storeCampaignLink({from:()=>query},{publicacion_id:'id',firma:'signature',destino:'url'},()=> 'Abcd1234');
-  assert.equal(result,'Winner12');assert.equal(attempts,2);
+  assert.equal(kjaLinkKey('https://wa.kjadmb.com/abcdefghijklmnop'),'abcdefghijklmnop');
+  assert.equal(kjaLink('x28bca','https://wa.kjadmb.com'),'https://wa.kjadmb.com/x28bca');
+  let attempts=0;const query={select(){return this},eq(){return this},async single(){return {data:{clave:'Winner'}}},async upsert(){attempts++;return attempts===1?{error:{code:'23505'}}:{error:null}}};
+  const result=await storeCampaignLink({from:()=>query},{publicacion_id:'id',firma:'signature',destino:'url'},()=> 'x28bca');
+  assert.equal(result,'Winner');assert.equal(attempts,2);
   query.upsert=async()=>({error:{code:'23505'}});
-  await assert.rejects(storeCampaignLink({from:()=>query},{},()=> 'Abcd1234'));
+  await assert.rejects(storeCampaignLink({from:()=>query},{},()=> 'x28bca'));
 });

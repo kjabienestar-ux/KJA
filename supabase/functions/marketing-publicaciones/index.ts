@@ -236,7 +236,7 @@ Deno.serve(async(req)=>{
               const isTherapy=/terapia|atenci[oó]n psicol[oó]gica|consulta psicol[oó]gica/i.test([title,sourceData.descripcion,sourceData.temario,sourceData.modalidad].filter(Boolean).join(' '))&&!/curso|taller|diplomado|formaci[oó]n|capacitaci[oó]n|certificaci[oó]n/i.test(title);
               const defaultMsg='Hola KJA 👋\nVengo de Facebook, deseo información sobre '+article+cleanTitle+'.\n\n'+(isTherapy?'¿Me pueden orientar sobre la atención, el costo y los horarios disponibles?':'¿Me comparten el precio, las próximas fechas y cómo inscribirme?')+'\n¡Gracias!';
               const msg=String(sourceData.mensaje||'').trim()||defaultMsg;
-              const firma='short8:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+msg)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+              const firma='short6:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+msg)))).map(x=>x.toString(16).padStart(2,'0')).join('');
               const key=await storeCampaignLink(admin,{publicacion_id:draft.id,firma,destino:'https://wa.me/'+phone+'?text='+encodeURIComponent(msg)});
               draft.enlace=campaignLink(key);
               await admin.from('marketing_publicaciones').update({enlace:draft.enlace}).eq('id',draft.id);
@@ -261,7 +261,7 @@ Deno.serve(async(req)=>{
     if(body.accion==='enlace'){
       const phone=String(body.telefono||'').replace(/[\s()+-]/g,''),message=String(body.mensaje||'').trim();
       if(!/^[1-9]\d{7,14}$/.test(phone)||!message||message.length>2000)fail('Completa el WhatsApp y un mensaje de hasta 2000 caracteres.');
-      const firma='short8:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+message)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+      const firma='short6:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+message)))).map(x=>x.toString(16).padStart(2,'0')).join('');
       const existing=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).maybeSingle();
       if(existing.error)fail('No se pudo generar el enlace corto. Aplica marketing_03_whatsapp_enlaces.sql en Supabase.');
       let key=existing.data?.clave;
