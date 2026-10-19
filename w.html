@@ -3,7 +3,8 @@
 <body><main><h1>WhatsApp de KJA</h1><p id="status" role="status">Abriendo el mensaje de tu publicación…</p><a id="chat" hidden rel="noopener noreferrer">Abrir WhatsApp</a></main>
 <script>
 (async()=>{
-  const status=document.getElementById('status'),key=new URLSearchParams(location.search).get('k');
+  const status=document.getElementById('status');
+  const key=location.hostname==='wa.kjadmb.com'?location.pathname.slice(1):new URLSearchParams(location.search).get('k');
   try{
     if(!/^[A-Za-z0-9_-]{16}$/.test(key||''))throw Error();
     const response=await fetch('https://xadxmfgdxwplmhijagix.supabase.co/rest/v1/rpc/marketing_resolver_whatsapp',{method:'POST',headers:{apikey:'sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub','Content-Type':'application/json'},body:JSON.stringify({p_clave:key})});

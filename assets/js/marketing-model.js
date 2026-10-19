@@ -123,36 +123,22 @@
       parts.push('🚨 ¡VACANTES LIMITADAS! Asegura tu cupo hoy mismo. 🚨');
       return parts.join('\n\n');
     }
-    if(data.modalidad)parts.push((/online|virtual|en l[ií]nea/i.test(data.modalidad)?'💻 ':'🏫 ')+data.modalidad);
-    if(data.descripcion)parts.push(data.descripcion);
-    else if(data.temario)parts.push(therapy?'¿Buscas un espacio para conversar sobre lo que estás viviendo? Conoce nuestra propuesta de atención.':'¿Quieres seguir aprendiendo sobre '+title.replace(/^(curso|taller|diplomado|formación)\s*(de|en|sobre|:)\s*/i,'')+'? Conoce los temas de esta formación y consulta cómo participar.');
-    if(data.publico)parts.push('🧑‍🦲 ¿A QUIÉN VA DIRIGIDO?\n'+data.publico);
-    const clean=x=>x.replace(/^[^\p{L}\p{N}]+/u,'').replace(/^\d+[.)]\s*/,'').trim();
-    const lines=value=>String(value||'').split(/\n|;\s*|,\s*(?=(?:material|incluye|certificado|válido|solo válido|vacantes|\d+\s*horas)\b)/i).map(clean).filter(Boolean);
-    if(data.temario)parts.push((therapy?'📋 ¿QUÉ ABORDAMOS EN LAS SESIONES?':'📋 ¿QUÉ APRENDERÁS EN ESTA FORMACIÓN?')+'\n'+lines(data.temario).map((x,i)=>(therapy?['🗣️','🤝','❤️']:['🧩','💡','🤝'])[i%3]+' '+x).join('\n'));
-    const benefits=lines(data.beneficios);
-    if(options.certificado&&!benefits.some(x=>/certificad/i.test(x)))benefits.push('Certificado Académico (con QR) respaldado por el Centro de Capacitación y Formación Psicológica (KJA).');
-    if(options.material&&!benefits.some(x=>/material/i.test(x)))benefits.push('Material académico digital para apoyar tu aprendizaje.');
-    const detailLines=lines(data.detalles),closing=[...benefits,...detailLines];
-    const offers=detailLines.filter(x=>/descuento|\bgratis\b/i.test(x));
-    const normalize=x=>x.toLowerCase().replace(/[.]+$/,'').trim();
-    const offerBenefits=[...offers,...benefits].filter((x,i,all)=>all.findIndex(y=>normalize(y)===normalize(x))===i);
-    const isClosing=x=>/^(?:solo )?válido en perú\.?$|^¡?vacantes limitadas[!.]?$/i.test(x);
-    const emoji=x=>/descuento|%/i.test(x)?'💥':/gratis/i.test(x)?'🎁':/horas|duración/i.test(x)?'⏱️':/certificad|diploma/i.test(x)?'📜':/material/i.test(x)?'📚':/zoom|clases/i.test(x)?'💻':/fecha|inicio|sesión|sesiones/i.test(x)?'📅':/horario/i.test(x)?'🕒':/docente|ponente|facilitador/i.test(x)?'👩‍🏫':/concursos/i.test(x)?'✅':/inversión|precio|S\//i.test(x)?'💰':'✨';
-    const modality=normalize(data.modalidad||'').replace(/^online\s*\(|\)$/g,'');
-    const displayed=offerBenefits.filter(x=>!isClosing(x)&&normalize(x)!==modality);
-    const priority=x=>/descuento|%/i.test(x)?0:/gratis/i.test(x)?1:2;
-    displayed.sort((a,b)=>priority(a)-priority(b));
-    if(displayed.length)parts.push('🎁 BENEFICIOS DE ESTA FORMACIÓN\n'+displayed.map(x=>emoji(x)+' '+x).join('\n'));
-    if(detailLines.filter(x=>!isClosing(x)&&!offers.includes(x)).length)parts.push(detailLines.filter(x=>!isClosing(x)&&!offers.includes(x)).map(x=>emoji(x)+' '+x).join('\n'));
-    if(options.peru||closing.some(x=>/^(?:solo )?válido en perú\.?$/i.test(x)))parts.push('🇵🇪 Solo válido en Perú.');
-    parts.push('💬 Da el siguiente paso en tu formación. Consulta fechas, inversión e inscripción por WhatsApp.');
-    parts.push(contactLine(data,url));
-    parts.push('📧 Correo: kjabienestar@escuelakja.net');
-      parts.push('🌐 Página Web: https://www.kjadmb.com/');
-    parts.push('💙 KJA: Centro de Capacitación y Formación Psicológica (Desarrollando mi bienestar).');
-    if(options.vacantes||closing.some(x=>/^¡?vacantes limitadas[!.]?$/i.test(x)))parts.push('🚨 ¡VACANTES LIMITADAS! Asegura tu '+(therapy?'espacio':'cupo')+' hoy mismo. 🚨');
-    return parts.filter(Boolean).join('\n\n');
+    return composeCourse(data,url,title);
+  }
+  function composeCourse(data,url,title){
+    const courseTitle=title.replace(/^curso\s*(?:(?:online|virtual|en línea)\s*)?(?:(?:de|en|sobre)\s*:?|:)\s*/i,'');
+    const modality=String(data.modalidad||'').trim();
+    const heading=/presencial/i.test(modality)?'CURSO '+modality.toUpperCase()+' DE:':'CURSO ONLINE DE:';
+    const parts=['🎒 '+heading+' '+courseTitle.toUpperCase()];
+    if(data.descripcion)parts.push(data.descripcion.trim().replace(/\s*💡✨$/u,'')+' 💡✨');
+    if(data.publico)parts.push('👥 ¿A QUIÉN VA DIRIGIDO?\n'+data.publico.trim());
+    parts.push('🎁 TE BRINDAMOS:\n⏱️ 300 horas académicas\n📜 Certificado académico (incluye QR)\n📖 Material académico digital completo\n🏷️ 50% de descuento disponible\n🎁 ¡GRATIS! 1 Curso grabado (6 H.A)\n🇵🇪 Solo válido en Perú');
+    const phones=contactNumbers(data.telefono||'51988918238');
+    const visible=phones.map(number=>/^51\d{9}$/.test(number)?'(51) '+number.slice(2).replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3'):number).join(' / ');
+    parts.push('📩 INSCRÍBETE DIRECTAMENTE AQUÍ:\n📲 WhatsApp: '+url+'\n📞 Teléfono de contacto: '+visible+'\n📧 Correo: '+(data.correo||'kjabienestar@escuelakja.net')+'\n🌐 Página Web: https://www.kjadmb.com/');
+    parts.push('💙 KJA - Centro de Capacitación y Formación Psicológica');
+    parts.push('🚨 ¡APROVECHA EL 50% DE DESCUENTO Y POTENCIA TU PERFIL HOY MISMO! 🚨');
+    return parts.join('\n\n');
   }
   function parseText(text){
     if(!String(text||'').trim())throw new Error('Pega el texto del flyer para organizarlo.');

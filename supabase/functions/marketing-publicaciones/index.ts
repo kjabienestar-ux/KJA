@@ -3,11 +3,14 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { extractWithGemini, readAndCache, refineWithGemini } from './gemini.mjs';
 import { publicationPhones } from './phones.mjs';
 import { partialDraft } from './drafts.mjs';
+import { shortenerData, validateWalink } from './shortener.mjs';
+import { kjaLinkKey, kjaLink } from './kja-links.mjs';
 import { publicErrorMessage } from './errors.mjs';
 
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS'};
 const reply=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{...cors,'Content-Type':'application/json'}});
 const env=(key:string)=>Deno.env.get(key)||'';
+const campaignLink=(key:string)=>kjaLink(key,env('MARKETING_WHATSAPP_ORIGIN').trim());
 const bucket='marketing-flyers';
 const fields=['titulo','descripcion','publico','temario','modalidad','beneficios','detalles','telefono','correo','mensaje'];
 const fail=(message:string)=>{throw new Error(message)};
@@ -217,11 +220,11 @@ Deno.serve(async(req)=>{
           }
         }catch{}
       }
-      if(!draft.enlace||!/^https:\/\/www\.kjadmb\.com\/w\.html\?k=[A-Za-z0-9_-]{16}$/.test(draft.enlace)){
+      if(draft.datos?.acortador!=='walink'&&!kjaLinkKey(draft.enlace)){
         try{
           const {data:existing}=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).order('creado_at',{ascending:false}).limit(1).maybeSingle();
           if(existing?.clave){
-            draft.enlace='https://www.kjadmb.com/w.html?k='+existing.clave;
+            draft.enlace=campaignLink(existing.clave);
             await admin.from('marketing_publicaciones').update({enlace:draft.enlace}).eq('id',draft.id);
           }else{
             const sourceData=draft.datos||draft.extraccion||{};
@@ -239,7 +242,7 @@ Deno.serve(async(req)=>{
               if(!upsertErr){
                 const {data:stored}=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).maybeSingle();
                 if(stored?.clave)key=stored.clave;
-                draft.enlace='https://www.kjadmb.com/w.html?k='+key;
+                draft.enlace=campaignLink(key);
                 await admin.from('marketing_publicaciones').update({enlace:draft.enlace}).eq('id',draft.id);
               }
             }
@@ -276,8 +279,8 @@ Deno.serve(async(req)=>{
         const {data:stored,error:storedError}=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).single();
         if(storedError||!stored)fail('No se pudo recuperar el enlace corto.');key=stored.clave;
       }
-      try{await admin.from('marketing_publicaciones').update({enlace:'https://www.kjadmb.com/w.html?k='+key}).eq('id',draft.id);}catch{}
-      return reply({enlace:'https://www.kjadmb.com/w.html?k='+key});
+      try{await admin.from('marketing_publicaciones').update({enlace:campaignLink(key)}).eq('id',draft.id);}catch{}
+      return reply({enlace:campaignLink(key)});
     }
     if(body.accion==='analizar'){
       if(draft.extraccion)return reply({datos:draft.extraccion,cache:true});
@@ -342,17 +345,19 @@ Deno.serve(async(req)=>{
       const phone=publicationPhones(data.telefono)[0]||'';
       if(!data.titulo.trim()||!/^[1-9]\d{7,14}$/.test(phone)||!data.mensaje.trim())fail('Completa título, teléfono internacional y mensaje de WhatsApp.');
       let link='https://wa.me/'+phone+'?text='+encodeURIComponent(data.mensaje.trim());
-      if(body.enlace){
-        const match=/^https:\/\/www[.]kjadmb[.]com\/w[.]html[?]k=([A-Za-z0-9_-]{16})$/.exec(String(body.enlace));
-        if(!match)fail('El enlace corto no es válido. Vuelve a generarlo.');
-        const {data:short,error:shortError}=await admin.from('marketing_whatsapp_enlaces').select('destino').eq('clave',match[1]).eq('publicacion_id',draft.id).maybeSingle();
+      if(data.acortador==='walink'){
+        try{link=validateWalink(data,body.enlace,phone);}catch(error){fail(error.message);}
+      }else if(body.enlace){
+        const key=kjaLinkKey(body.enlace);
+        if(!key)fail('El enlace corto no es válido. Vuelve a generarlo.');
+        const {data:short,error:shortError}=await admin.from('marketing_whatsapp_enlaces').select('destino').eq('clave',key).eq('publicacion_id',draft.id).maybeSingle();
         if(shortError||short?.destino!==link)fail('El mensaje cambió. Genera el enlace corto actualizado.');link=body.enlace;
       }
       const post=String(data.facebook_url||'').trim();
       if(post){let url;try{url=new URL(post)}catch{fail('El enlace de Facebook no es válido.')}
         if(url.protocol!=='https:'||url.username||url.password||!['facebook.com','www.facebook.com','m.facebook.com','web.facebook.com','fb.watch'].includes(url.hostname))fail('El enlace de Facebook no es válido.');}
       if(typeof body.copy!=='string'||!body.copy.trim()||body.copy.length>20000||!body.copy.includes(link))fail('El copy debe incluir el enlace de WhatsApp vigente. Vuelve a generar el borrador.');
-      const {data:saved,error}=await admin.from('marketing_publicaciones').update({datos:{...Object.fromEntries(fields.map(k=>[k,data[k]])),facebook_url:post,opciones:Object.fromEntries(optionKeys.map(k=>[k,options[k]===true]))},copy:body.copy,enlace:link,actualizado_at:new Date().toISOString()}).eq('id',draft.id).eq('estado','borrador').is('eliminado_at',null).select('id').maybeSingle();
+      const {data:saved,error}=await admin.from('marketing_publicaciones').update({datos:{...shortenerData(data),...Object.fromEntries(fields.map(k=>[k,data[k]])),facebook_url:post,opciones:Object.fromEntries(optionKeys.map(k=>[k,options[k]===true]))},copy:body.copy,enlace:link,actualizado_at:new Date().toISOString()}).eq('id',draft.id).eq('estado','borrador').is('eliminado_at',null).select('id').maybeSingle();
       if(error||!saved)fail('No se pudo guardar; vuelve a cargar el borrador.');return reply({ok:true});
     }
     if(body.accion==='publicar'){
