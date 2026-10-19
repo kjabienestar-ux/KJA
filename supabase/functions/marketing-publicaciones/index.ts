@@ -4,7 +4,7 @@ import { extractWithGemini, readAndCache, refineWithGemini } from './gemini.mjs'
 import { publicationPhones } from './phones.mjs';
 import { partialDraft } from './drafts.mjs';
 import { shortenerData, validateWalink } from './shortener.mjs';
-import { kjaLinkKey, kjaLink } from './kja-links.mjs';
+import { storeCampaignLink, kjaLinkKey, kjaLink } from './kja-links.mjs';
 import { publicErrorMessage } from './errors.mjs';
 
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS'};
@@ -236,15 +236,10 @@ Deno.serve(async(req)=>{
               const isTherapy=/terapia|atenci[oó]n psicol[oó]gica|consulta psicol[oó]gica/i.test([title,sourceData.descripcion,sourceData.temario,sourceData.modalidad].filter(Boolean).join(' '))&&!/curso|taller|diplomado|formaci[oó]n|capacitaci[oó]n|certificaci[oó]n/i.test(title);
               const defaultMsg='Hola KJA 👋\nVengo de Facebook, deseo información sobre '+article+cleanTitle+'.\n\n'+(isTherapy?'¿Me pueden orientar sobre la atención, el costo y los horarios disponibles?':'¿Me comparten el precio, las próximas fechas y cómo inscribirme?')+'\n¡Gracias!';
               const msg=String(sourceData.mensaje||'').trim()||defaultMsg;
-              const firma=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+msg)))).map(x=>x.toString(16).padStart(2,'0')).join('');
-              let key=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(12)))).replace(/\+/g,'-').replace(/\//g,'_');
-              const {error:upsertErr}=await admin.from('marketing_whatsapp_enlaces').upsert({clave:key,publicacion_id:draft.id,firma,destino:'https://wa.me/'+phone+'?text='+encodeURIComponent(msg)},{onConflict:'publicacion_id,firma',ignoreDuplicates:true});
-              if(!upsertErr){
-                const {data:stored}=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).maybeSingle();
-                if(stored?.clave)key=stored.clave;
-                draft.enlace=campaignLink(key);
-                await admin.from('marketing_publicaciones').update({enlace:draft.enlace}).eq('id',draft.id);
-              }
+              const firma='short8:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+msg)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+              const key=await storeCampaignLink(admin,{publicacion_id:draft.id,firma,destino:'https://wa.me/'+phone+'?text='+encodeURIComponent(msg)});
+              draft.enlace=campaignLink(key);
+              await admin.from('marketing_publicaciones').update({enlace:draft.enlace}).eq('id',draft.id);
             }
           }
         }catch{}
@@ -266,18 +261,14 @@ Deno.serve(async(req)=>{
     if(body.accion==='enlace'){
       const phone=String(body.telefono||'').replace(/[\s()+-]/g,''),message=String(body.mensaje||'').trim();
       if(!/^[1-9]\d{7,14}$/.test(phone)||!message||message.length>2000)fail('Completa el WhatsApp y un mensaje de hasta 2000 caracteres.');
-      const firma=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+message)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+      const firma='short8:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(phone+'\n'+message)))).map(x=>x.toString(16).padStart(2,'0')).join('');
       const existing=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).maybeSingle();
       if(existing.error)fail('No se pudo generar el enlace corto. Aplica marketing_03_whatsapp_enlaces.sql en Supabase.');
       let key=existing.data?.clave;
       if(!key){
         const {count,error:countError}=await admin.from('marketing_whatsapp_enlaces').select('clave',{count:'exact',head:true}).eq('publicacion_id',draft.id);
         if(countError||(count||0)>=100)fail('No se pueden crear más enlaces para este borrador.');
-        key=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(12)))).replace(/\+/g,'-').replace(/\//g,'_');
-        const {error}=await admin.from('marketing_whatsapp_enlaces').upsert({clave:key,publicacion_id:draft.id,firma,destino:'https://wa.me/'+phone+'?text='+encodeURIComponent(message)},{onConflict:'publicacion_id,firma',ignoreDuplicates:true});
-        if(error)fail('No se pudo guardar el enlace corto.');
-        const {data:stored,error:storedError}=await admin.from('marketing_whatsapp_enlaces').select('clave').eq('publicacion_id',draft.id).eq('firma',firma).single();
-        if(storedError||!stored)fail('No se pudo recuperar el enlace corto.');key=stored.clave;
+        key=await storeCampaignLink(admin,{publicacion_id:draft.id,firma,destino:'https://wa.me/'+phone+'?text='+encodeURIComponent(message)});
       }
       try{await admin.from('marketing_publicaciones').update({enlace:campaignLink(key)}).eq('id',draft.id);}catch{}
       return reply({enlace:campaignLink(key)});
