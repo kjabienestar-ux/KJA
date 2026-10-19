@@ -17,6 +17,9 @@
   const lines=(count=2)=>`<span class="kja-sk-lines">${Array.from({length:count},(_,index)=>block(`kja-sk-line w-${[80,58,68,42][index%4]}`)).join('')}</span>`;
   const metric=()=>`<article class="kja-sk-card kja-sk-metric">${block('kja-sk-line w-58')}${block('kja-sk-number')}</article>`;
   const metrics=(count=4)=>`<div class="kja-sk-metrics">${Array.from({length:count},metric).join('')}</div>`;
+  /* Los contenedores KPI reales esperan tarjetas como hijos directos. Mantener
+     esa jerarquia evita que sus grids responsive se conviertan en una columna. */
+  const nativeMetrics=(count=4)=>Array.from({length:count},()=>`<article class="admin-list-kpi kja-sk-native-metric"><small>${block('kja-sk-line w-68')}</small><b>${block('kja-sk-number')}</b></article>`).join('');
   const filters=(count=3)=>`<div class="kja-sk-filters">${Array.from({length:count},()=>block('kja-sk-input')).join('')}</div>`;
   const row=(cells=4,avatar=false)=>`<div class="kja-sk-row">${avatar?block('kja-sk-circle'):''}${Array.from({length:cells},(_,index)=>index===0?lines(2):block(`kja-sk-line w-${[58,68,42][index%3]}`)).join('')}</div>`;
   const table=(rows=6,cells=4,avatar=true)=>`<section class="kja-sk-table"><div class="kja-sk-table-head">${Array.from({length:cells},()=>block('kja-sk-line w-58')).join('')}</div>${Array.from({length:rows},()=>row(cells,avatar)).join('')}</section>`;
@@ -91,10 +94,10 @@
       fillMirrorSlot(clone,'fb-report-matrix',table(7,6,true),{reveal:true});
     }else if(kind==='lista'){
       fillMirrorSlot(clone,'admin-date-strip',dayStrip());
-      fillMirrorSlot(clone,'admin-list-kpis',metrics(5));
+      fillMirrorSlot(clone,'admin-list-kpis',nativeMetrics(5));
       fillMirrorSlot(clone,'admin-roster',roster(2,4));
     }else if(kind==='mes'){
-      fillMirrorSlot(clone,'admin-month-kpis',metrics(5));
+      fillMirrorSlot(clone,'admin-month-kpis',nativeMetrics(5));
       fillMirrorSlot(clone,'admin-month-ledger',ledger());
     }else if(kind==='cierres'){
       fillMirrorSlot(clone,'admin-review-summary',metrics(3),{reveal:true});
@@ -102,17 +105,17 @@
     }else if(kind==='asignaciones'){
       fillMirrorSlot(clone,'admin-close-assignment-list',Array.from({length:5},()=>`<article class="kja-sk-assignment-item">${block('kja-sk-icon')}${lines(3)}${block('kja-sk-pill')}</article>`).join(''));
     }else if(kind==='colaboradores'){
-      fillMirrorSlot(clone,'admin-people-kpis',metrics(5));
+      fillMirrorSlot(clone,'admin-people-kpis',nativeMetrics(5));
       fillMirrorSlot(clone,'admin-people-list',cards(6));
     }else if(kind==='contratos'){
-      fillMirrorSlot(clone,'admin-contract-kpis',metrics(4));
+      fillMirrorSlot(clone,'admin-contract-kpis',nativeMetrics(4));
       fillMirrorSlot(clone,'admin-contract-list',table(8,6,true));
     }else if(kind==='roles'){
-      fillMirrorSlot(clone,'admin-roles-kpis',metrics(5));
+      fillMirrorSlot(clone,'admin-roles-kpis',nativeMetrics(5));
       fillMirrorSlot(clone,'admin-role-map',roleCards(5));
       fillMirrorSlot(clone,'admin-role-audit',Array.from({length:4},()=>row(2,true)).join(''));
     }else if(kind==='marcado'){
-      fillMirrorSlot(clone,'admin-access-kpis',metrics(5));
+      fillMirrorSlot(clone,'admin-access-kpis',nativeMetrics(5));
       fillMirrorSlot(clone,'admin-access-requests',Array.from({length:3},()=>row(3,true)).join(''));
       fillMirrorSlot(clone,'admin-access-list',table(7,4,true));
       fillMirrorSlot(clone,'admin-access-audit',Array.from({length:4},()=>row(2,false)).join(''));
