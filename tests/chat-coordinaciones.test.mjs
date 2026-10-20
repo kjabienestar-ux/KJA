@@ -9,7 +9,7 @@ async function setup({capable=true,active=true,waitSend,waitMic,groupsList=[]}={
  const rows=[{id:1,remitente:'peer',destinatario:'me',autor:'Ana',contenido:'Reunión de equipo',creado_at:new Date().toISOString(),reacciones:[]}];
  w.matchMedia=()=>({matches:false});w.confirm=()=>true;w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=()=>{};
  if(waitMic){Object.defineProperty(w.navigator,'mediaDevices',{value:{getUserMedia:()=>waitMic}});w.MediaRecorder=class{static isTypeSupported(){return true}}}
- w.db={auth:{onAuthStateChange(){}},storage:{from:()=>({upload:async()=>({}),createSignedUrls:async()=>({data:[]})})},rpc:async(name,args={})=>{
+ w.db={auth:{onAuthStateChange(){}},storage:{from:()=>({upload:async()=>({}),createSignedUrls:async()=>({data:[]}),createSignedUrl:async()=>({data:{signedUrl:'https://kja.test/thumb.jpg'}})})},rpc:async(name,args={})=>{
   calls.push({name,args});
   if(name==='chat_capacidades')return capable?{data:{version:2,administrar_grupos:true}}:{error:{code:'PGRST202'}};
   if(name==='chat_contactos')return {data:contacts};
@@ -19,8 +19,9 @@ async function setup({capable=true,active=true,waitSend,waitMic,groupsList=[]}={
   if(name==='chat_v2_historial'||name==='chat_historial')return {data:rows.filter(m=>!args.p_buscar||m.contenido.includes(args.p_buscar)).map(m=>({...m}))};
   if(name==='chat_v2_enviar'){
    if(waitSend)await waitSend;
+   const cited=rows.find(r=>r.id===args.p_respuesta)||rows[0];
    const m={id:rows.length+1,remitente:'me',destinatario:'peer',autor:'Yo',contenido:args.p_contenido,creado_at:new Date().toISOString(),reacciones:[],
-     respuesta:args.p_respuesta?{id:1,autor:'Ana',contenido:rows[0].contenido}:null};
+     respuesta:args.p_respuesta?{id:cited.id,autor:cited.autor,contenido:cited.contenido,imagen_path:cited.imagen_path,archivo_path:cited.archivo_path,archivo_mime:cited.archivo_mime}:null};
    rows.push(m);return {data:m};
   }
   if(name==='chat_v2_accion'){
@@ -245,5 +246,122 @@ test('viñeta hacia abajo de opciones es visible con chevron svg y checks delgad
   assert.ok(check);
   assert.equal(check.getAttribute('width'),'10');
   assert.equal(check.getAttribute('height'),'9');
+ }finally{h.close()}
+});
+test('reproducción de nota de voz avanza barra de progreso, scrubber e indicador de tiempo',async()=>{
+ const h=await setup();
+ try{
+  const voiceMsg={id:3,remitente:'peer',destinatario:'me',autor:'Carlos',contenido:'',creado_at:new Date().toISOString(),reacciones:[],archivo_path:'audios/nota3.webm',archivo_mime:'audio/webm',archivo_nombre:'nota3.webm'};
+  h.rows.push(voiceMsg);
+  await h.w.KJAChat.init('me');
+  h.q('.chat-contact').click();
+  await h.tick();
+
+  const bubble=h.q('.chat-voice-bubble');
+  assert.ok(bubble);
+  const track=bubble.querySelector('.chat-voice-track');
+  assert.ok(track);
+  const scrubber=track.querySelector('.chat-voice-scrubber');
+  assert.ok(scrubber);
+  const audio=bubble.querySelector('audio');
+  assert.ok(audio);
+  const time=bubble.querySelector('.chat-voice-time');
+  assert.ok(time);
+
+  // Simular metadata cargada (duración 10 segundos)
+  Object.defineProperty(audio,'duration',{value:10,configurable:true,writable:true});
+  audio.onloadedmetadata?.();
+  assert.equal(time.textContent,'0:10');
+
+  // Simular reproducción al 50% (5s)
+  Object.defineProperty(audio,'currentTime',{value:5,configurable:true,writable:true});
+  audio.ontimeupdate?.();
+  assert.equal(time.textContent,'0:05');
+  assert.equal(scrubber.style.left,'50%');
+  const playedBars=track.querySelectorAll('.chat-voice-bar.is-played');
+  assert.ok(playedBars.length >= 10);
+
+  // Simular culminación del audio: vuelve a duración total y limpia scrubber
+  audio.onended?.();
+  assert.equal(scrubber.style.left,'0%');
+  assert.equal(track.querySelectorAll('.chat-voice-bar.is-played').length,0);
+  assert.equal(time.textContent,'0:10');
+ }finally{h.close()}
+});
+test('menú desplegable se adecúa al entorno con opens-up y clic exterior lo cierra',async()=>{
+ const h=await setup();
+ try{
+  const msg=h.q('.chat-message');
+  assert.ok(msg);
+  const menu=msg.querySelector('.chat-message-menu');
+  assert.ok(menu);
+  const actions=menu.querySelector('.chat-message-actions');
+  assert.ok(actions);
+
+  // Simular que el mensaje está en el fondo del chat (espacio inferior < 235px)
+  menu.getBoundingClientRect=()=>({top:500,bottom:524,left:100,right:300,width:200,height:24});
+  menu.open=true;
+  menu.dispatchEvent(new h.w.Event('toggle'));
+  assert.equal(menu.classList.contains('opens-up'),true);
+  assert.equal(actions.classList.contains('opens-up'),true);
+
+  // Clic exterior en el contenedor de chat debe cerrar el menú
+  const container = h.q('.chat-window') || h.w.document.body;
+  container.dispatchEvent(new h.w.Event('pointerdown',{bubbles:true}));
+  assert.equal(menu.open,false);
+ }finally{h.close()}
+});
+test('responder a una imagen muestra 📷 Foto en compositor y cita con thumbnail sin Archivo adjunto',async()=>{
+ const h=await setup();
+ try{
+  const imgMsg={id:2,remitente:'peer',destinatario:'me',autor:'David Salazar',contenido:'Archivo adjunto',imagen_path:'peer/foto.jpg',creado_at:new Date().toISOString(),reacciones:[]};
+  h.rows.push(imgMsg);
+  await h.w.KJAChat.init('me');
+  h.q('.chat-contact').click();
+  await h.tick();
+
+  const msgEls=[...h.w.document.querySelectorAll('.chat-message')];
+  const targetImgMsg=msgEls.find(el=>el.dataset.messageId==='2');
+  assert.ok(targetImgMsg);
+
+  // Simular swipe hacia la derecha sobre la imagen
+  const PE=h.w.PointerEvent||h.w.MouseEvent||h.w.Event;
+  const down=new PE('pointerdown',{bubbles:true,clientX:50,clientY:50,button:0});
+  Object.defineProperty(down,'clientX',{value:50});Object.defineProperty(down,'clientY',{value:50});Object.defineProperty(down,'button',{value:0});
+  targetImgMsg.dispatchEvent(down);
+  const move=new PE('pointermove',{bubbles:true,clientX:110,clientY:52});
+  Object.defineProperty(move,'clientX',{value:110});Object.defineProperty(move,'clientY',{value:52});
+  targetImgMsg.dispatchEvent(move);
+  const up=new PE('pointerup',{bubbles:true,clientX:110,clientY:52});
+  Object.defineProperty(up,'clientX',{value:110});Object.defineProperty(up,'clientY',{value:52});
+  targetImgMsg.dispatchEvent(up);
+  await h.tick();
+
+  // El modo responder debe mostrar "📷 Foto" y no "Archivo adjunto"
+  const composeContext=h.q('.chat-compose-context');
+  assert.equal(composeContext.hidden,false);
+  assert.match(composeContext.textContent,/📷 Foto/);
+  assert.doesNotMatch(composeContext.textContent,/Archivo adjunto/);
+
+  // Enviar respuesta a la imagen
+  await h.send('Qué gran foto!');
+  await h.tick();
+
+  const lastMsg=[...h.w.document.querySelectorAll('.chat-message')].at(-1);
+  const quote=lastMsg.querySelector('.chat-quote');
+  assert.ok(quote);
+  assert.match(quote.textContent,/David Salazar/);
+  assert.match(quote.textContent,/📷 Foto/);
+  assert.doesNotMatch(quote.textContent,/Archivo adjunto/);
+
+  // Debe tener el contenedor de miniatura de foto
+  const thumbWrap=quote.querySelector('.chat-quote-thumb-wrap');
+  assert.ok(thumbWrap);
+  const thumbImg=thumbWrap.querySelector('.chat-quote-thumb');
+  assert.ok(thumbImg);
+
+  // Al pulsar la cita, resalta el mensaje original
+  quote.click();
+  assert.ok(targetImgMsg.classList.contains('chat-msg-highlight'));
  }finally{h.close()}
 });
