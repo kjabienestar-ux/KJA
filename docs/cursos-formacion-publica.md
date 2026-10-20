@@ -58,3 +58,7 @@ Hover limitado a punteros compatibles; zoom/elevación solo sin preferencia de m
 Better UI: sin hallazgos accionables en los estados revisados; aprobado para entrega local. La animación al 10 % en el panel Animations, otros navegadores y contraste instrumentado no se verificaron. Sin commit ni despliegue.
 
 Pulido de color: halo radial suave en el fondo del texto, alternando rosa, azul y lavanda; aumenta con hover y foco junto con la sombra del mismo tono. La fotografía y el texto permanecen nítidos. Fundido de opacidad de 150 ms; hover solo en punteros compatibles.
+
+### Selección del pack desde el catálogo
+
+`assets/js/cursos-pack-controller.js` conecta las tarjetas de «Explora nuestros cursos» con la vista del pack: botón «Agregar al pack», vuelo hacia la pestaña OFERTA, mascota decorativa y salida a WhatsApp con los cuatro nombres. El estado vive en `sessionStorage` durante la visita. Ver [KJA-006](tasks/KJA-006.md).
