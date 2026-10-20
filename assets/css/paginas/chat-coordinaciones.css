@@ -1222,6 +1222,396 @@
   cursor: pointer;
 }
 
+/* --- Previsualización de Documento en el Compositor (antes de enviar) --- */
+.chat-doc-composer-preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 320px;
+  margin: 6px 0 10px;
+  animation: iosSheetSlideUp 0.18s ease-out;
+}
+.chat-doc-composer-cover {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: #f8fafc;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.chat-doc-composer-cover img,
+.chat-doc-cover-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+.chat-doc-composer-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+}
+.chat-doc-badge-pdf {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+}
+.chat-doc-badge-doc {
+  background: #2563eb !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+}
+.chat-doc-meta-wrap,
+.chat-doc-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.chat-doc-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111b21;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-doc-sub {
+  font-size: 11.5px;
+  color: #667781;
+}
+.chat-doc-discard {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e9edef;
+  color: #54656f;
+  border: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.chat-doc-discard:hover {
+  background: #ff3b30;
+  color: #ffffff;
+}
+
+/* Mockup vectorial para documentos mientras carga o sin PDF.js */
+.chat-doc-mockup {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-sizing: border-box;
+}
+.chat-doc-mockup-ribbon {
+  align-self: flex-start;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ef4444;
+  background: #fee2e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.chat-doc-mockup-logo {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #004fb0;
+}
+.chat-doc-mockup-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-doc-mockup-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+.chat-doc-mockup-lines span {
+  display: block;
+  height: 4.5px;
+  border-radius: 2px;
+  background: #e2e8f0;
+}
+.chat-doc-mockup-lines span:nth-child(1) { width: 95%; }
+.chat-doc-mockup-lines span:nth-child(2) { width: 85%; }
+.chat-doc-mockup-lines span:nth-child(3) { width: 90%; }
+.chat-doc-mockup-lines span:nth-child(4) { width: 60%; }
+.chat-doc-mockup-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9.5px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* --- Documento en la Burbuja de Mensajes del Chat (Image 5) --- */
+.chat-doc-bubble-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+}
+.chat-doc-forward-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: #54656f;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.12s, color 0.12s;
+}
+.chat-doc-forward-btn:hover {
+  color: #007aff;
+  transform: scale(1.08);
+}
+.chat-doc-card-v2 {
+  flex: 1;
+  min-width: 240px;
+  max-width: 310px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.chat-message[data-mine=true] .chat-doc-card-v2 {
+  background: #f7fff5;
+}
+.chat-doc-card-v2:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.chat-doc-cover-wrap {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: #f8fafc;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.chat-doc-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px 8px;
+}
+
+/* --- Barra de Grabación de Audio en Vivo (Live Recording Capsule) --- */
+.chat-recording-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 8px;
+  animation: iosSheetSlideUp 0.15s ease-out;
+}
+.chat-rec-discard {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #ff3b30;
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+}
+.chat-rec-discard:hover {
+  background: #ffebe9;
+  transform: scale(1.08);
+}
+.chat-rec-capsule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 14px;
+  background: #ffffff;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.chat-rec-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff3b30;
+  flex-shrink: 0;
+  animation: recBlink 1s infinite alternate;
+}
+@keyframes recBlink {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.3; transform: scale(1.3); }
+}
+.chat-rec-timer {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ff3b30;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.chat-rec-waveform {
+  display: flex;
+  align-items: center;
+  gap: 2.5px;
+  flex: 1;
+  height: 26px;
+  overflow: hidden;
+}
+.chat-rec-bar {
+  flex: 1;
+  min-width: 2.2px;
+  max-width: 3.5px;
+  height: 6px;
+  background: #ff3b30;
+  border-radius: 2px;
+  animation: recWaveMotion 0.75s ease-in-out infinite alternate;
+}
+@keyframes recWaveMotion {
+  0% { height: 4px; }
+  50% { height: 22px; }
+  100% { height: 8px; }
+}
+.chat-rec-stop {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ff3b30;
+  color: #ffffff;
+  border: 0;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(255, 59, 48, 0.4);
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+}
+.chat-rec-stop:hover {
+  background: #e0281e;
+  transform: scale(1.06);
+}
+.chat-compose.is-recording textarea,
+.chat-compose.is-recording .chat-attach-plus,
+.chat-compose.is-recording .chat-emoji-btn,
+.chat-compose.is-recording .chat-composer-mic {
+  display: none !important;
+}
+
+/* --- Animación de Envío estilo iOS (Image 3 Modernizado) --- */
+.chat-ios-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2.2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: iosSpin 0.7s linear infinite;
+}
+.chat-ios-spinner-sm {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: iosSpin 0.7s linear infinite;
+}
+@keyframes iosSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.chat-sending-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: inherit;
+  z-index: 20;
+  color: #007aff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.chat-sending-overlay .chat-ios-spinner {
+  border-color: rgba(0, 122, 255, 0.25);
+  border-top-color: #007aff;
+}
+
+/* --- Nota de Voz en Historial con Avatar y Mic Badge (Image 5) --- */
+.chat-voice-avatar-wrap {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+}
+.chat-voice-avatar-wrap .chat-avatar {
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+}
+.chat-voice-mic-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #00a884;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+}
+
 /* Responsividad móvil */
 @media (max-width: 760px) {
   .chat-heading .chat-expand {
@@ -1248,3 +1638,4 @@
     transition: none !important;
   }
 }
+
