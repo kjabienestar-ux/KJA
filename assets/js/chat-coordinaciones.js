@@ -202,21 +202,150 @@
     w.editing=null;w.reply=null;w.savedDraft=null;w.pending=null;
     w.modeBar.hidden=true;w.modeBar.replaceChildren();w.input.oninput();
   }
+  function statusCheckSvg(mine, read, isGroup){
+    if(!mine || isGroup) return '';
+    if(read){
+      return '<span class="chat-status-check is-read" title="Leído"><svg viewBox="0 0 16 11" width="15" height="11" fill="none"><path d="M11.05.5a.75.75 0 0 0-1.1.06L5.7 6.03 3.65 3.98a.75.75 0 1 0-1.06 1.06l2.6 2.6a.75.75 0 0 0 1.08-.03l4.8-5.75a.75.75 0 0 0-.02-.96z" fill="#53bdeb"/><path d="M15.05.5a.75.75 0 0 0-1.1.06L9.7 6.03l-.78-.79a.75.75 0 1 0-1.06 1.06l1.33 1.33a.75.75 0 0 0 1.08-.03l4.8-5.75a.75.75 0 0 0-.02-.96z" fill="#53bdeb"/></svg></span>';
+    }
+    return '<span class="chat-status-check" title="Enviado"><svg viewBox="0 0 12 11" width="12" height="11" fill="none"><path d="M11.05.5a.75.75 0 0 0-1.1.06L4.7 7.03 2.15 4.48a.75.75 0 1 0-1.06 1.06l3.1 3.1a.75.75 0 0 0 1.08-.03l5.8-7.25a.75.75 0 0 0-.02-.96z" fill="#8696a0"/></svg></span>';
+  }
+  function clockIconSvg(){
+    return '<span class="chat-clock-icon" title="Enviando…"><svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor"><path d="M8 3.5a.5.5 0 0 0-1 0V8a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 7.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg></span>';
+  }
+  function createPendingBubble(w, a, content){
+    const entry = el('div', 'chat-message is-pending');
+    entry.dataset.mine = 'true';
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('es-PE', { hour: 'numeric', minute: '2-digit' });
+    const clockSvg = clockIconSvg();
+    const hasCaption = !!content;
+
+    if (a) {
+      entry.classList.add('chat-msg-media');
+      if (!hasCaption) entry.classList.add('has-media-only');
+      else entry.classList.add('has-media-caption');
+
+      const attachment = el('div', 'chat-file');
+
+      if (a.mime?.startsWith('audio/')) {
+        entry.classList.add('is-voice-message');
+        const voiceBubble = el('div', 'chat-voice-bubble is-uploading');
+        const avWrap = el('div', 'chat-voice-avatar-wrap');
+        const av = el('span', 'chat-avatar', 'YO');
+        av.dataset.tone = '1';
+        const micBadge = el('span', 'chat-voice-mic-badge');
+        micBadge.innerHTML = '<svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>';
+        avWrap.append(av, micBadge);
+
+        const uploadRing = el('div', 'chat-upload-ring is-audio');
+        uploadRing.innerHTML = '<svg viewBox="0 0 36 36" width="34" height="34"><circle class="chat-upload-track" cx="18" cy="18" r="14" fill="none" stroke="rgba(0,168,132,0.25)" stroke-width="3"/><circle class="chat-upload-spin" cx="18" cy="18" r="14" fill="none" stroke="#00a884" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="20" stroke-linecap="round"/></svg><span class="chat-upload-center-icon"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#00a884" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>';
+
+        const body = el('div', 'chat-voice-body');
+        const track = el('div', 'chat-voice-track');
+        const heights = [6,12,18,8,22,14,10,20,16,24,12,18,8,14,20,10,22,16,8,12,18,14,10,6];
+        heights.forEach(h => { const b = el('span', 'chat-voice-bar'); b.style.height = h + 'px'; track.append(b); });
+
+        const meta = el('div', 'chat-voice-meta');
+        const time = el('span', 'chat-voice-time', '0:00');
+        const speed = el('span', 'chat-voice-speed', '1x');
+        const status = el('span', 'chat-voice-status');
+        status.innerHTML = `${timeStr} ${clockSvg}`;
+        meta.append(time, speed, status);
+
+        body.append(track, meta);
+        voiceBubble.append(avWrap, uploadRing, body);
+        attachment.append(voiceBubble);
+        entry.append(attachment);
+      } else if (a.mime?.startsWith('image/')) {
+        entry.classList.add('is-image-message');
+        const imgWrap = el('div', 'chat-img-wrap is-uploading');
+        const img = el('img');
+        img.src = a.url || (a.blob ? URL.createObjectURL(a.blob) : '');
+        img.alt = a.name || 'Imagen';
+
+        const centerRing = el('div', 'chat-upload-center-ring');
+        centerRing.innerHTML = '<div class="chat-upload-ring"><svg viewBox="0 0 36 36" width="40" height="40"><circle class="chat-upload-track" cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="3"/><circle class="chat-upload-spin" cx="18" cy="18" r="14" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="20" stroke-linecap="round"/></svg><span class="chat-upload-center-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ffffff" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></div>';
+
+        const badge = el('div', 'chat-img-time-badge');
+        badge.innerHTML = `${timeStr} ${clockSvg}`;
+
+        imgWrap.append(img, centerRing, badge);
+        attachment.append(imgWrap);
+        entry.append(attachment);
+      } else {
+        entry.classList.add('is-doc-message');
+        const isPdf = a.mime === 'application/pdf' || a.name?.toLowerCase().endsWith('.pdf');
+        const docWrap = el('div', 'chat-doc-bubble-wrap is-uploading');
+        const docCard = el('div', 'chat-doc-card-v2');
+        const coverWrap = el('div', 'chat-doc-cover-wrap');
+        const mockup = createDocMockupCover(a.name, a.mime, 1, ((a.blob?.size || 0) / 1024 / 1024).toFixed(1));
+        const centerRing = el('div', 'chat-upload-center-ring');
+        centerRing.innerHTML = '<div class="chat-upload-ring"><svg viewBox="0 0 36 36" width="38" height="38"><circle class="chat-upload-track" cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3"/><circle class="chat-upload-spin" cx="18" cy="18" r="14" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="20" stroke-linecap="round"/></svg><span class="chat-upload-center-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ffffff" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span></div>';
+        coverWrap.append(mockup, centerRing);
+
+        const infoBar = el('div', 'chat-doc-info-bar');
+        const badge = el('span', isPdf ? 'chat-doc-badge-pdf' : 'chat-doc-badge-pdf chat-doc-badge-doc', isPdf ? 'PDF' : 'DOC');
+        const details = el('div', 'chat-doc-details');
+        const title = el('strong', 'chat-doc-title', a.name);
+        const sub = el('span', 'chat-doc-sub', `1 pág · ${((a.blob?.size || 0) / 1024 / 1024).toFixed(1)} MB · ${isPdf ? 'pdf' : 'doc'}`);
+        details.append(title, sub);
+        const status = el('span', 'chat-doc-status');
+        status.innerHTML = `${timeStr} ${clockSvg}`;
+        infoBar.append(badge, details, status);
+
+        docCard.append(coverWrap, infoBar);
+        docWrap.append(docCard);
+        attachment.append(docWrap);
+        entry.append(attachment);
+      }
+
+      if (hasCaption) {
+        const bubble = el('p', 'chat-bubble chat-media-caption', content);
+        formatBubble(bubble, content);
+        const time = el('time', 'chat-time-pill');
+        time.innerHTML = `${timeStr} ${clockSvg}`;
+        entry.append(bubble, time);
+      }
+    } else {
+      const bubble = el('p', 'chat-bubble', content);
+      formatBubble(bubble, content);
+      const time = el('time', 'chat-time-pill');
+      time.innerHTML = `${timeStr} ${clockSvg}`;
+      entry.append(bubble, time);
+    }
+
+    return entry;
+  }
   async function send(w,db,user,current){
     if(w.editing){
       const {data,error}=await db.rpc('chat_v2_accion',{p_grupo:w.group,p_id:w.editing.id,p_accion:'editar',p_texto:w.input.value.trim()});
       if(error)throw error;return data;
     }
     const a=w.attachment,pending=w.pending;
-    if(a&&!pending.uploaded){
-      const path=user+'/'+pending.id;
-      const {error}=await db.storage.from('chat-archivos').upload(path,a.blob,{contentType:a.mime,upsert:false});
-      if(error&&String(error.statusCode)!=='409'&&error.error!=='Duplicate')throw error;
-      if(!current(w))return null;pending.uploaded=true;
+    let pendingEl=null;
+    if(w.history&&typeof w.history.append==='function'){
+      pendingEl=createPendingBubble(w,a,w.input.value.trim());
+      if(pendingEl){
+        w.history.append(pendingEl);
+        w.history.scrollTop=w.history.scrollHeight;
+      }
     }
-    const {data,error}=await db.rpc('chat_v2_enviar',{...args(w),p_cliente_id:pending.id,p_contenido:w.input.value.trim(),
-      p_respuesta:w.reply?.id||null,p_archivo:a?user+'/'+pending.id:null,p_nombre:a?.name||null});
-    if(error)throw error;return data;
+    try{
+      if(a&&!pending.uploaded){
+        const path=user+'/'+pending.id;
+        const {error}=await db.storage.from('chat-archivos').upload(path,a.blob,{contentType:a.mime,upsert:false});
+        if(error&&String(error.statusCode)!=='409'&&error.error!=='Duplicate')throw error;
+        if(!current(w)){pendingEl?.remove();return null}
+        pending.uploaded=true;
+      }
+      const {data,error}=await db.rpc('chat_v2_enviar',{...args(w),p_cliente_id:pending.id,p_contenido:w.input.value.trim(),
+        p_respuesta:w.reply?.id||null,p_archivo:a?user+'/'+pending.id:null,p_nombre:a?.name||null});
+      if(error)throw error;
+      return data;
+    }catch(err){
+      pendingEl?.remove();
+      throw err;
+    }
   }
   function mount(w,form,head,api){
     w.modeBar=el('div','chat-compose-context');w.modeBar.hidden=true;form.before(w.modeBar);
@@ -277,6 +406,15 @@
               }
             });
           }
+        } else if(mime.startsWith('image/')){
+          const previewWrap=el('div','chat-image-preview-tile');
+          const img=el('img');img.src=w.attachment.url;img.alt='Imagen adjunta';
+          const removeBtn=btn('Quitar',()=>{if(w.sending)return;clear(w);w.pending=null;w.input.oninput()},'chat-image-preview-remove');
+          removeBtn.innerHTML='<span class="sr-only">Quitar</span><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+          removeBtn.title='Quitar imagen adjunta';removeBtn.setAttribute('aria-label','Quitar imagen adjunta');
+          const badge=el('span','chat-image-preview-badge',`${f.name} · ${(f.size/1024/1024).toFixed(1)} MB`);
+          previewWrap.append(img,removeBtn,badge);
+          w.filePreview.replaceChildren(previewWrap);
         } else {
           const chip=el('div','chat-file-chip');
           const icon=el('span','chat-file-chip-icon');
@@ -537,9 +675,32 @@
     if(m.respuesta){
       const quote=el('blockquote','chat-quote');quote.append(el('strong','',m.respuesta.autor||'Mensaje'),el('span','',m.respuesta.contenido));entry.prepend(quote);
     }
+    const isMine=m.remitente===api.user();
+    const date=new Date(m.creado_at);
+    const timeStr=date.toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'});
+    const statusSvg=statusCheckSvg(isMine,!!m.leido_at,!!w.group);
+    const rootTime=entry.querySelector(':scope > time');
+    if(rootTime&&!m.archivo_path){
+      rootTime.innerHTML=`${timeStr} ${statusSvg}`;
+      rootTime.classList.add('chat-time-pill');
+    }
     if(m.archivo_path){
+      const hasCaption=m.contenido&&m.contenido!=='Archivo adjunto'&&m.contenido.trim().length>0;
+      if(!hasCaption){
+        bubble?.remove();
+        rootTime?.remove();
+        entry.classList.add('chat-msg-media','has-media-only');
+      }else{
+        entry.classList.add('chat-msg-media','has-media-caption');
+        bubble?.classList.add('chat-media-caption');
+        if(rootTime){
+          rootTime.innerHTML=`${timeStr} ${statusSvg}`;
+          rootTime.classList.add('chat-time-pill');
+        }
+      }
       const attachment=el('div','chat-file');
       if(m.archivo_mime?.startsWith('audio/')){
+        entry.classList.add('is-voice-message');
         const voiceBubble=el('div','chat-voice-bubble');
         
         const avWrap=el('div','chat-voice-avatar-wrap');
@@ -561,7 +722,9 @@
         const meta=el('div','chat-voice-meta');
         const time=el('span','chat-voice-time','0:00');
         const speedBtn=el('button','chat-voice-speed','1x');speedBtn.type='button';speedBtn.title='Velocidad de reproducción';
-        meta.append(time,speedBtn);
+        const vStatus=el('span','chat-voice-status');
+        vStatus.innerHTML=`${timeStr} ${statusSvg}`;
+        meta.append(time,speedBtn,vStatus);
 
         const body=el('div','chat-voice-body');body.append(track,meta);
         const audio=el('audio');audio.preload='metadata';
@@ -599,9 +762,11 @@
 
         voiceBubble.append(playBtn,body,audio);
         attachment.append(voiceBubble);
-        entry.append(attachment);
       }else if(m.archivo_mime?.startsWith('image/')){
+        entry.classList.add('is-image-message');
         const imgWrap=el('div','chat-img-wrap');
+        const badge=el('div','chat-img-time-badge');
+        badge.innerHTML=`${timeStr} ${statusSvg}`;
         const load=btn('Ver imagen '+m.archivo_nombre,async()=>{
           load.disabled=true;
           try{
@@ -610,17 +775,18 @@
             const link=el('a','chat-img-link');link.href=data.signedUrl;link.target='_blank';link.rel='noopener noreferrer';
             link.setAttribute('aria-label','Abrir imagen en tamaño completo');
             const image=el('img');image.src=data.signedUrl;image.alt=m.archivo_nombre;image.loading='lazy';
-            image.onerror=()=>{imgWrap.replaceChildren(load);load.disabled=false;load.textContent='Reintentar imagen'};
-            link.append(image);imgWrap.replaceChildren(link);
+            image.onerror=()=>{imgWrap.replaceChildren(load,badge);load.disabled=false;load.textContent='Reintentar imagen'};
+            link.append(image);imgWrap.replaceChildren(link,badge);
           }catch{if(api.current(w))api.note(w,'No se pudo abrir la imagen.',true)}finally{load.disabled=false}
         },'chat-img-btn');
-        imgWrap.append(load);attachment.append(imgWrap);entry.append(attachment);load.click();
+        imgWrap.append(load,badge);attachment.append(imgWrap);load.click();
       }else{
+        entry.classList.add('is-doc-message');
         const isPdf=m.archivo_mime==='application/pdf'||m.archivo_nombre?.toLowerCase().endsWith('.pdf');
         const docWrap=el('div','chat-doc-bubble-wrap');
         
         const fwdBtn=el('button','chat-doc-forward-btn');fwdBtn.type='button';fwdBtn.title='Reenviar documento';
-        fwdBtn.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12v-2a4 4 0 014-4h8.5M13 3l5 3-5 3"/><path d="M20 12v2a4 4 0 01-4 4H7.5M11 21l-5-3 5-3"/></svg>';
+        fwdBtn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12v-2a4 4 0 014-4h8.5M13 3l5 3-5 3"/><path d="M20 12v2a4 4 0 01-4 4H7.5M11 21l-5-3 5-3"/></svg>';
         fwdBtn.onclick=(e)=>{e.stopPropagation();forward(m,w,api,{open:false})};
 
         const docCard=el('div','chat-doc-card-v2');
@@ -634,7 +800,9 @@
         const title=el('strong','chat-doc-title',m.archivo_nombre);
         const sub=el('span','chat-doc-sub',`1 pág · ${(Number(m.archivo_bytes||0)/1024/1024).toFixed(1)} MB · ${isPdf?'pdf':'doc'}`);
         details.append(title,sub);
-        infoBar.append(badge,details);
+        const dStatus=el('span','chat-doc-status');
+        dStatus.innerHTML=`${timeStr} ${statusSvg}`;
+        infoBar.append(badge,details,dStatus);
         docCard.append(coverWrap,infoBar);
 
         docCard.onclick=async()=>{
@@ -667,7 +835,11 @@
 
         docWrap.append(fwdBtn,docCard);
         attachment.append(docWrap);
-        entry.append(attachment);
+      }
+      if(bubble && bubble.isConnected){
+        entry.insertBefore(attachment, bubble);
+      } else {
+        entry.prepend(attachment);
       }
     }
     const reactions=el('div','chat-reactions');
