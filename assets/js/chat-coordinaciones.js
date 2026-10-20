@@ -205,9 +205,9 @@
   function statusCheckSvg(mine, read, isGroup){
     if(!mine || isGroup) return '';
     if(read){
-      return '<span class="chat-status-check is-read" title="Leído"><svg viewBox="0 0 16 11" width="15" height="11" fill="none"><path d="M11.05.5a.75.75 0 0 0-1.1.06L5.7 6.03 3.65 3.98a.75.75 0 1 0-1.06 1.06l2.6 2.6a.75.75 0 0 0 1.08-.03l4.8-5.75a.75.75 0 0 0-.02-.96z" fill="#53bdeb"/><path d="M15.05.5a.75.75 0 0 0-1.1.06L9.7 6.03l-.78-.79a.75.75 0 1 0-1.06 1.06l1.33 1.33a.75.75 0 0 0 1.08-.03l4.8-5.75a.75.75 0 0 0-.02-.96z" fill="#53bdeb"/></svg></span>';
+      return '<span class="chat-status-check is-read" title="Leído"><svg viewBox="0 0 16 11" width="15" height="11" fill="none" stroke="#53bdeb" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 1.5L5 8.5 2 5.5"/><path d="M15 1.5L9 8.5 7.5 7"/></svg></span>';
     }
-    return '<span class="chat-status-check" title="Enviado"><svg viewBox="0 0 12 11" width="12" height="11" fill="none"><path d="M11.05.5a.75.75 0 0 0-1.1.06L4.7 7.03 2.15 4.48a.75.75 0 1 0-1.06 1.06l3.1 3.1a.75.75 0 0 0 1.08-.03l5.8-7.25a.75.75 0 0 0-.02-.96z" fill="#8696a0"/></svg></span>';
+    return '<span class="chat-status-check" title="Enviado"><svg viewBox="0 0 12 11" width="12" height="11" fill="none" stroke="#8696a0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 1.5L5 8.5 2 5.5"/></svg></span>';
   }
   function clockIconSvg(){
     return '<span class="chat-clock-icon" title="Enviando…"><svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor"><path d="M8 3.5a.5.5 0 0 0-1 0V8a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 7.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg></span>';

@@ -62,15 +62,33 @@
   color: #000000;
 }
 .chat-heading .chat-peer-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap !important;
   font-size: 15px !important;
   font-weight: 600 !important;
   color: #111b21;
+}
+.chat-heading .chat-peer-title span:first-child,
+.chat-heading .chat-peer-title strong,
+.chat-heading .chat-peer-title span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
 }
 .chat-peer-state {
   display: block;
   margin-top: 1px;
   font-size: 12px;
   color: #8696a0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
 }
 .chat-peer-state[data-online=true] {
   color: #00a884;
@@ -428,12 +446,20 @@
   align-items: center;
   vertical-align: middle;
   line-height: 1;
+  margin-left: 2px;
+}
+.chat-status-check svg {
+  display: block;
+  flex-shrink: 0;
 }
 .chat-status-check svg path {
-  fill: #8696a0;
+  stroke: #8696a0;
+  stroke-width: 1.3px;
+  fill: none !important;
 }
 .chat-status-check.is-read svg path {
-  fill: #53bdeb;
+  stroke: #53bdeb !important;
+  fill: none !important;
 }
 .chat-clock-icon {
   display: inline-flex;
@@ -855,10 +881,14 @@
   pointer-events: none;
 }
 .chat-img-time-badge .chat-status-check svg path {
-  fill: #ffffff !important;
+  stroke: rgba(255, 255, 255, 0.95) !important;
+  stroke-width: 1.3px !important;
+  fill: none !important;
 }
 .chat-img-time-badge .chat-status-check.is-read svg path {
-  fill: #53bdeb !important;
+  stroke: #53bdeb !important;
+  stroke-width: 1.3px !important;
+  fill: none !important;
 }
 .chat-img-time-badge .chat-clock-icon {
   color: #ffffff;
@@ -1011,26 +1041,44 @@
 /* Entrada de texto tipo cápsula iOS */
 .kja-chat .chat-compose textarea {
   order: 2;
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
-  border-radius: 20px;
-  background: #ffffff;
-  border: 1px solid #d1d1d6;
-  padding: 9px 14px;
-  font-size: 14.5px;
-  line-height: 1.35;
-  color: #000000;
-  caret-color: #007aff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  border-radius: 20px !important;
+  background: #ffffff !important;
+  border: 1px solid #d1d1d6 !important;
+  padding: 9px 14px !important;
+  font-size: 14.5px !important;
+  line-height: 1.35 !important;
+  color: #000000 !important;
+  caret-color: #007aff !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
   transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box !important;
+  min-height: 38px !important;
+  max-height: 100px !important;
+  resize: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.kja-chat .chat-compose textarea::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 .kja-chat .chat-compose textarea:focus {
-  border-color: #007aff;
-  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.18);
-  outline: 0;
+  border-color: #007aff !important;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.18) !important;
+  outline: 0 !important;
 }
 .kja-chat .chat-compose textarea::placeholder {
   color: #8e8e93;
+}
+.kja-chat .chat-compose [hidden],
+.kja-chat .chat-compose .chat-send[hidden],
+.kja-chat .chat-compose .chat-composer-mic[hidden] {
+  display: none !important;
 }
 
 /* Botón de emojis / stickers */
@@ -1904,17 +1952,96 @@
   .chat-heading .chat-expand {
     display: none;
   }
-  .chat-window .chat-heading {
-    gap: 6px;
-    padding-left: 10px;
-    padding-right: 10px;
-  }
   .chat-message-actions .chat-action,
   .chat-reaction-choices .chat-action {
     min-height: 42px;
   }
   .chat-attach-sheet {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  /* Cabecera compacta que nunca descuadra el título */
+  .chat-window .chat-heading {
+    gap: 6px !important;
+    padding: 6px 10px !important;
+    min-height: 56px !important;
+    max-height: 60px !important;
+    flex-wrap: nowrap !important;
+  }
+  .chat-heading .chat-peer-title {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  .chat-heading .chat-peer-title span:first-child,
+  .chat-heading .chat-peer-title strong,
+  .chat-heading .chat-peer-title span {
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    font-size: 14px !important;
+    line-height: 1.25 !important;
+  }
+  .chat-heading .chat-peer-state {
+    font-size: 11px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  /* Ocultar en móvil botones de ventana innecesarios que saturan el ancho */
+  .chat-window .chat-heading > .chat-icon[title*="Minimizar"],
+  .chat-window .chat-heading > button[title*="Minimizar"],
+  .chat-window .chat-heading > .chat-icon[title*="Cerrar"],
+  .chat-window .chat-heading > button[title*="Cerrar"] {
+    display: none !important;
+  }
+  /* Botón Fijar en móvil: icono compacto de 32px para no restar espacio */
+  .chat-heading .chat-pin-btn {
+    font-size: 0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+  .chat-heading .chat-pin-btn::before {
+    content: '📌';
+    font-size: 13px;
+  }
+  .chat-heading .chat-refresh,
+  .chat-heading .chat-head-search {
+    width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+
+  /* Compositor en móvil sin barras extrañas ni scroll vertical */
+  .kja-chat .chat-compose {
+    padding: 6px 8px !important;
+    gap: 6px !important;
+  }
+  .kja-chat .chat-compose textarea {
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    line-height: 20px !important;
+    border-radius: 20px !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+  }
+  .kja-chat .chat-compose textarea::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 }
 
