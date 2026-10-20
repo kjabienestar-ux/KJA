@@ -61,4 +61,11 @@
  .chat-message-search{padding:8px}
  .chat-search-results{max-height:180px}
 }
+.chat-link{color:var(--chat-azul);text-decoration:underline;text-underline-offset:2px;word-break:break-all}
+.chat-link:hover{color:var(--chat-fucsia)}
+.chat-message[data-mine=true] .chat-link{color:#fff;text-decoration:underline}
+.chat-message[data-mine=true] .chat-link:hover{color:#ffe4ef}
+.chat-pin-badge{display:inline-block;font-size:12px;margin-right:4px;vertical-align:middle}
+.chat-heading .chat-pin-btn{font-size:11px;padding:4px;min-height:36px;background:transparent;color:var(--chat-muted)}
+.chat-heading .chat-pin-btn[aria-pressed=true]{color:var(--chat-fucsia);font-weight:700}
 @media(prefers-reduced-motion:reduce){.kja-chat *{scroll-behavior:auto!important}}

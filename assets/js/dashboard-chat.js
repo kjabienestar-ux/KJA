@@ -301,11 +301,15 @@
       .subscribe(status=>{if(stamp===epoch)groupRealtimeReady=status==='SUBSCRIBED'});
   }
   function toggleDirectory(show){panel.hidden=!show;directory.hidden=false;launcher.setAttribute('aria-expanded',String(show));syncMobileLock();if(show){syncPanel();renderContacts();const w=windows.get(activeId);focusChat(massOpen?massSearch:joinTarget!==null?joinBtn:newChatOpen?ncSearch:w?w.input:search)}else launcher.focus()}
+  function getPinned(){if(!user)return new Set();try{return new Set(JSON.parse(localStorage.getItem('kja-chat-pinned:'+user)||'[]'))}catch{return new Set()}}
+  function isPinned(id){return getPinned().has(id)}
+  function togglePin(id){if(!user)return;const p=getPinned();if(p.has(id))p.delete(id);else p.add(id);try{localStorage.setItem('kja-chat-pinned:'+user,JSON.stringify([...p]))}catch{}renderContacts()}
   launcher.onclick=()=>toggleDirectory(panel.hidden);closeDirectory.onclick=()=>toggleDirectory(false);
   function contactRow(c){
     const b=button('Abrir chat con '+c.nombre,null,'chat-contact'),avatar=avatarFor(c),person=node('span','chat-person'),side=node('span','chat-side');
     b.dataset.contact=c.id;
     b.setAttribute('aria-current',String(c.id===activeId));
+    if(isPinned(c.id)){b.dataset.pinned='true';side.prepend(node('span','chat-pin-badge','📌'))}
     person.append(node('strong','',c.nombre),node('small','',(!c.activo?'Cuenta desactivada · ':c.direccion?'Dirección · ':'')+(c.ultimo||'Iniciar conversación')));b.replaceChildren(avatar,person,side);
     if(c.ultimo_at)side.append(node('time','chat-when',shortWhen(c.ultimo_at)));
     if(Number(c.no_leidos)){b.dataset.unread='true';const badge=node('span','chat-count',String(c.no_leidos));badge.setAttribute('aria-label',c.no_leidos+' sin leer');side.append(badge)}
@@ -315,6 +319,7 @@
   function groupRow(g){
     const key='g:'+g.id,b=button((g.unido?'Abrir grupo ':'Ver grupo ')+g.nombre,null,'chat-contact chat-group-row'),person=node('span','chat-person'),side=node('span','chat-side');
     b.dataset.contact=key;b.setAttribute('aria-current',String(key===activeId||Number(g.id)===joinTarget));
+    if(isPinned(key)){b.dataset.pinned='true';side.prepend(node('span','chat-pin-badge','📌'))}
     const detail=!g.unido?members(g):g.ultimo?(g.ultimo_remitente===user?'Tú':firstName(g.ultimo_autor))+': '+g.ultimo:members(g)+' · Escribe el primer mensaje';
     person.append(node('strong','',g.nombre),node('small','',detail));b.replaceChildren(groupAvatar(g),person,side);
     if(!g.unido)side.append(node('span','chat-join-pill','Unirme'));
@@ -330,8 +335,10 @@
     const groupUnread=groups.reduce((n,g)=>n+(g.unido?Number(g.no_leidos)||0:0),0);groupTab.dataset.unread=String(groupUnread>0);
     const term=search.value.trim().toLocaleLowerCase('es');
     list.replaceChildren();
-    const rows=tab==='grupos'?groups.filter(g=>g.nombre.toLocaleLowerCase('es').includes(term)).map(groupRow)
-      :contacts.filter(c=>(tab!=='direccion'||c.direccion)&&(tab!=='recientes'||c.ultimo_at||c.ultimo||conversationCache.get(c.id)?.messages.size||windows.get(c.id)?.messages.size)&&c.nombre.toLocaleLowerCase('es').includes(term)).map(contactRow);
+    const pinned=getPinned();
+    const sortPinned=(a,b)=>{const ap=pinned.has(a.dataset.contact),bp=pinned.has(b.dataset.contact);return ap===bp?0:ap?-1:1};
+    const rows=tab==='grupos'?groups.filter(g=>g.nombre.toLocaleLowerCase('es').includes(term)).map(groupRow).sort(sortPinned)
+      :contacts.filter(c=>(tab!=='direccion'||c.direccion)&&(tab!=='recientes'||c.ultimo_at||c.ultimo||conversationCache.get(c.id)?.messages.size||windows.get(c.id)?.messages.size)&&c.nombre.toLocaleLowerCase('es').includes(term)).map(contactRow).sort(sortPinned);
     if(GROUPS_PREVIEW&&tab==='grupos')list.append(node('p','chat-preview-note','Vista previa local: los grupos aún no están activos. Nada de lo que hagas aquí se guarda.'));
     for(const b of rows){list.append(b);if(focusedContact===b.dataset.contact)b.focus()}
     if(!rows.length)list.append(node('p','chat-status chat-empty',tab==='grupos'?(groupsError?'Los grupos todavía no están habilitados. Solicita su activación a Sistemas.':groups.length?'No hay grupos con esta búsqueda.':'Cargando grupos…'):tab==='recientes'?'Aquí aparecerán tus conversaciones. Busca a una persona en Equipo o Dirección.':tab==='direccion'?'No hay personas de Dirección disponibles con esta búsqueda.':'No hay personas con esta búsqueda.'));
@@ -387,7 +394,7 @@
   const incomingFor=(w,m)=>w.group?m.remitente!==user:m.destinatario===user;
   function messageError(error){return missingFeature(error)?'El chat todavía no está habilitado. Solicita su activación a Sistemas.':'No se pudo conectar con el chat. Vuelve a intentar.'}
   function windowNote(w,text,error=false){w.status.textContent=text;w.status.dataset.error=String(error)}
-  const plusApi={db,current,note:windowNote,render:renderMessages,user:()=>user,session:()=>epoch,contacts:()=>contacts,capabilities:()=>capabilities,refresh};
+  const plusApi={db,current,note:windowNote,render:renderMessages,user:()=>user,session:()=>epoch,contacts:()=>contacts,capabilities:()=>capabilities,refresh,groups:()=>groups,isPinned,togglePin};
   function renderMessages(w,older=false){
     const rows=[...w.messages.values()].sort((a,b)=>Number(a.id)-Number(b.id));
     const signature=JSON.stringify(rows.map(m=>[m.id,m.contenido,m.imagen_path,m.leido_at,m.creado_at,m.autor,m.respuesta,m.editado_at,m.eliminado_at,m.archivo_path,m.reacciones]));

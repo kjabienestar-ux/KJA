@@ -12,7 +12,9 @@ administrativo del portal no permite leer conversaciones ajenas.
   se retiran las reacciones y se revoca la posibilidad de firmar nuevos enlaces a
   sus adjuntos. Las respuestas muestran el estado actualizado del original.
 - Seis reacciones, una por persona y mensaje; se puede cambiar o retirar la propia.
-- Copiar texto y reenviar **texto** a una persona seleccionada, con envío explícito.
+- Copiar texto y reenviar a personas o grupos seleccionados (organizados en el selector), con envío explícito.
+- Formato de texto estilo WhatsApp: negrita (*texto*), cursiva (_texto_), tachado (~texto~) y enlaces web (URLs) convertidos automáticamente en hipervínculos seguros con apertura en nueva pestaña (`rel="noopener noreferrer"`).
+- Fijar conversaciones (Pin): botón «Fijar» en la cabecera del chat para fijar conversaciones prioritarias arriba en la lista, con icono 📌 y persistencia local por usuario.
 - Buscar todo el historial de la conversación en el servidor, de 50 en 50.
 - Adjuntar documentos PDF, Word, Excel, PowerPoint, TXT/CSV, imágenes, audio y
   videos MP4/WebM, hasta 20 MB por archivo. Se conserva el archivo si falla el envío.
@@ -107,11 +109,12 @@ El proyecto ya depende de jsdom 29, que no funciona con el Node 20.10.0 instalad
 en este entorno. Se utilizó Node 22 para las nuevas pruebas de DOM, sin cambiar
 la instalación global.
 
-45 pruebas aprobadas. Las pruebas SQL incluyen aislamiento entre terceros,
+48 pruebas aprobadas. Las pruebas SQL incluyen aislamiento entre terceros,
 idempotencia, referencias cruzadas inválidas, autoría de ediciones, búsqueda
 literal, acceso a archivos, grupos privados y transferencia de administración.
 Las pruebas DOM incluyen compatibilidad sin migración, operaciones pendientes al
-salir, respuestas, edición, eliminación, búsqueda, reacciones y micrófono.
+salir, respuestas, edición, eliminación, búsqueda, reacciones, micrófono,
+formato estilo WhatsApp (enlaces y negrita), fijación de chats y reenvío a grupos.
 También verifican que un formulario de grupo no sobreviva al cambio de cuenta
 y que un contacto inactivo conserve su historial sin acciones de envío.
 

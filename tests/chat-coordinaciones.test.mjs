@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {JSDOM} from 'jsdom';
 
-async function setup({capable=true,active=true,waitSend,waitMic}={}){
+async function setup({capable=true,active=true,waitSend,waitMic,groupsList=[]}={}){
  const dom=new JSDOM('<!doctype html><html><body></body></html>',{url:'https://kja.test',runScripts:'outside-only',pretendToBeVisual:true});
  const w=dom.window,calls=[],contacts=[{id:'peer',nombre:'Ana',activo:active,no_leidos:0}];
  const rows=[{id:1,remitente:'peer',destinatario:'me',autor:'Ana',contenido:'Reunión de equipo',creado_at:new Date().toISOString(),reacciones:[]}];
@@ -13,7 +13,8 @@ async function setup({capable=true,active=true,waitSend,waitMic}={}){
   calls.push({name,args});
   if(name==='chat_capacidades')return capable?{data:{version:2,administrar_grupos:true}}:{error:{code:'PGRST202'}};
   if(name==='chat_contactos')return {data:contacts};
-  if(name==='chat_grupos'||name==='chat_fotos'||name==='chat_presencia')return {data:[]};
+  if(name==='chat_grupos')return {data:groupsList};
+  if(name==='chat_fotos'||name==='chat_presencia')return {data:[]};
   if(name==='chat_leer')return {data:null};
   if(name==='chat_v2_historial'||name==='chat_historial')return {data:rows.filter(m=>!args.p_buscar||m.contenido.includes(args.p_buscar)).map(m=>({...m}))};
   if(name==='chat_v2_enviar'){
@@ -117,5 +118,49 @@ test('editor de grupo se elimina al salir y sus acciones antiguas no sirven en o
   await h.w.KJAChat.init('otra-cuenta');save.click();await h.tick();
   assert.equal(h.calls.filter(c=>c.name==='chat_grupo_crear').length,0);
   assert.equal(h.w.document.body.textContent.includes('Grupo anterior'),false);
+ }finally{h.close()}
+});
+test('formato estilo WhatsApp convierte enlaces en etiquetas seguras y texto en negrita',async()=>{
+ const h=await setup();try{
+  await h.send('Enlace https://zoom.us/j/12345 y aviso *urgente*');
+  const bubble=[...h.w.document.querySelectorAll('.chat-bubble')].at(-1);
+  assert.ok(bubble);
+  const link=bubble.querySelector('a.chat-link');
+  assert.ok(link);
+  assert.equal(link.href,'https://zoom.us/j/12345');
+  assert.equal(link.target,'_blank');
+  assert.equal(link.rel,'noopener noreferrer');
+  const strong=bubble.querySelector('strong');
+  assert.ok(strong);
+  assert.equal(strong.textContent,'urgente');
+ }finally{h.close()}
+});
+test('fijar conversación actualiza el botón, persiste y posiciona arriba',async()=>{
+ const h=await setup();try{
+  const pin=h.button('Fijar');
+  assert.ok(pin);
+  pin.click();await h.tick();
+  assert.equal(h.button('Desfijar').getAttribute('aria-pressed'),'true');
+  assert.ok(h.w.localStorage.getItem('kja-chat-pinned:me').includes('peer'));
+  assert.ok(h.q('.chat-contact .chat-pin-badge'));
+  h.button('Desfijar').click();await h.tick();
+  assert.equal(h.button('Fijar').getAttribute('aria-pressed'),'false');
+  assert.equal(h.q('.chat-contact .chat-pin-badge'),null);
+ }finally{h.close()}
+});
+test('reenviar incluye grupos y personas y envía con el identificador correspondiente',async()=>{
+ const h=await setup({groupsList:[{id:7,nombre:'Coordinación KJA',unido:true,activo:true,miembros:2}]});try{
+  const forwardBtn=h.button('Reenviar');
+  assert.ok(forwardBtn);
+  forwardBtn.click();await h.tick();
+  const select=h.q('.chat-forward select');
+  assert.ok(select);
+  const groupOpt=select.querySelector('optgroup[label=Grupos] option[value="g:7"]');
+  assert.ok(groupOpt);
+  select.value='g:7';
+  h.button('Enviar',h.q('.chat-forward')).click();await h.tick();
+  const forwardCall=h.calls.find(c=>c.name==='chat_v2_enviar'&&c.args.p_grupo===7);
+  assert.ok(forwardCall);
+  assert.equal(forwardCall.args.p_contenido,'Reunión de equipo');
  }finally{h.close()}
 });

@@ -155,6 +155,18 @@
     searchBox.onsubmit=e=>{e.preventDefault();void searchMore()};
     w.modernApi=api;
     if(w.group&&api.capabilities().administrar_grupos)toolbar.append(btn('Integrantes',()=>void groupInfo(w,api),'chat-action'));
+    if(api.togglePin){
+      const isPinned=api.isPinned?.(w.id);
+      const pinBtn=btn(isPinned?'Desfijar':'Fijar',()=>{
+        api.togglePin(w.id);
+        const p=api.isPinned?.(w.id);
+        pinBtn.textContent=p?'Desfijar':'Fijar';
+        pinBtn.setAttribute('aria-pressed',String(p));
+      },'chat-action chat-pin-btn');
+      pinBtn.setAttribute('aria-pressed',String(isPinned));
+      pinBtn.title='Fijar conversación arriba en la lista';
+      head.append(pinBtn);
+    }
   }
   function groupPanel(parent,title){
     parent.querySelector('.chat-group-editor')?.remove();
@@ -221,10 +233,51 @@
       }
     }catch(e){if(api.current(w)&&box.isConnected)status.textContent=errorText(e)}
   }
+  function formatBubble(bubble,text){
+    if(!text||bubble.dataset.formatted)return;
+    if(!/(https?:\/\/|\*|_|~)/i.test(text))return;
+    const walker=document.createTreeWalker(bubble,4,null,false);
+    const textNodes=[];let current;
+    while((current=walker.nextNode()))textNodes.push(current);
+    for(const node of textNodes){
+      const val=node.nodeValue;
+      if(!val||!/(https?:\/\/|\*|_|~)/i.test(val))continue;
+      const frag=document.createDocumentFragment();
+      const urlRegex=/(https?:\/\/[^\s<>"']+)/i;
+      const urlParts=val.split(urlRegex);
+      for(const part of urlParts){
+        if(!part)continue;
+        if(urlRegex.test(part)){
+          const a=el('a','chat-link',part);
+          a.href=part;a.target='_blank';a.rel='noopener noreferrer';
+          frag.append(a);
+        }else{
+          const fmtRegex=/(\*[^*\n\r]+\*|_[^_\n\r]+_|~[^~\n\r]+~)/;
+          const fmtParts=part.split(fmtRegex);
+          for(const f of fmtParts){
+            if(!f)continue;
+            if(f.startsWith('*')&&f.endsWith('*')&&f.length>2){
+              frag.append(el('strong','',f.slice(1,-1)));
+            }else if(f.startsWith('_')&&f.endsWith('_')&&f.length>2){
+              frag.append(el('em','',f.slice(1,-1)));
+            }else if(f.startsWith('~')&&f.endsWith('~')&&f.length>2){
+              frag.append(el('del','',f.slice(1,-1)));
+            }else{
+              frag.append(document.createTextNode(f));
+            }
+          }
+        }
+      }
+      if(node.parentNode)node.parentNode.replaceChild(frag,node);
+    }
+    bubble.dataset.formatted='true';
+  }
   function render(entry,m,w,api){
     entry.dataset.messageId=m.id;
     if(m.editado_at)entry.append(el('small','chat-edited','Editado'));
     if(m.eliminado_at){entry.dataset.deleted='true';return}
+    const bubble=entry.querySelector('.chat-bubble');
+    if(bubble)formatBubble(bubble,m.contenido);
     if(m.respuesta){
       const quote=el('blockquote','chat-quote');quote.append(el('strong','',m.respuesta.autor||'Mensaje'),el('span','',m.respuesta.contenido));entry.prepend(quote);
     }
@@ -265,7 +318,7 @@
     const actions=el('div','chat-message-actions');
     actions.append(btn('Responder',()=>{menu.open=false;mode(w,'responder',m)}));
     if(navigator.clipboard)actions.append(btn('Copiar texto',async()=>{try{await navigator.clipboard.writeText(m.contenido);api.note(w,'Texto copiado.');menu.open=false}catch{api.note(w,'El navegador no permitió copiar el texto.',true)}}));
-    actions.append(btn('Reenviar texto',()=>forward(m,w,api,menu)));
+    actions.append(btn('Reenviar',()=>forward(m,w,api,menu)));
     if(m.remitente===api.user()){
       if(Date.now()-Date.parse(m.creado_at)<15*60000)actions.append(btn('Editar',()=>{menu.open=false;mode(w,'editar',m)}));
       actions.append(btn('Eliminar para todos',()=>{if(confirm('¿Eliminar este mensaje para todos los participantes?'))void action('eliminar')}));
@@ -276,15 +329,30 @@
   }
   function forward(m,w,api,menu){
     menu.open=false;
-    const box=el('div','chat-forward'),label=el('label','','Reenviar texto a'),select=el('select');
-    select.setAttribute('aria-label','Destinatario del texto reenviado');
-    for(const c of api.contacts().filter(c=>c.activo)){const o=el('option','',c.nombre);o.value=c.id;select.append(o)}
+    const box=el('div','chat-forward'),label=el('label','','Reenviar a:'),select=el('select');
+    select.setAttribute('aria-label','Destinatario del reenvío');
+    const myGroups=(api.groups?.()||[]).filter(g=>g.unido);
+    if(myGroups.length){
+      const gOpt=el('optgroup');gOpt.label='Grupos';
+      for(const g of myGroups){const o=el('option','',g.nombre);o.value='g:'+g.id;gOpt.append(o)}
+      select.append(gOpt);
+    }
+    const people=api.contacts().filter(c=>c.activo);
+    if(people.length){
+      const pOpt=el('optgroup');pOpt.label='Personas';
+      for(const c of people){const o=el('option','',c.nombre);o.value=c.id;pOpt.append(o)}
+      select.append(pOpt);
+    }
     const key=crypto.randomUUID();
     const sendButton=btn('Enviar',async()=>{
       if(!select.value)return;sendButton.disabled=true;select.disabled=true;
       try{
-        const {error}=await api.db.rpc('chat_v2_enviar',{p_contacto:select.value,p_cliente_id:key,p_contenido:m.contenido});
-        if(!api.current(w))return;if(error)throw error;box.remove();api.note(w,'Texto reenviado.');
+        const isGroup=select.value.startsWith('g:');
+        const payload=isGroup
+          ? {p_grupo:Number(select.value.slice(2)),p_cliente_id:key,p_contenido:m.contenido}
+          : {p_contacto:select.value,p_cliente_id:key,p_contenido:m.contenido};
+        const {error}=await api.db.rpc('chat_v2_enviar',payload);
+        if(!api.current(w))return;if(error)throw error;box.remove();api.note(w,'Reenviado.');
       }catch(e){if(api.current(w))api.note(w,errorText(e),true)}finally{sendButton.disabled=false;select.disabled=false}
     });
     label.append(select);box.append(label,sendButton,btn('Cancelar',()=>box.remove()));w.el.querySelector('.chat-forward')?.remove();w.modeBar.before(box);select.focus();
