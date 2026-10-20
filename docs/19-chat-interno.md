@@ -1,5 +1,9 @@
 # Chat interno del portal
 
+La ampliación para coordinaciones (respuestas, edición, reacciones, documentos,
+audio y grupos privados) está descrita en [chat-coordinaciones.md](chat-coordinaciones.md).
+Ese documento detalla las migraciones 10–12 y los límites actuales de la entrega.
+
 Implementación local en `dashboard.html`. Para habilitarla en el sistema desplegado es necesario ejecutar la migración y publicar los archivos actualizados. No se ha aplicado a Supabase desde esta sesión.
 
 ## Funciones
