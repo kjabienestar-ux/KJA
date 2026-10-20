@@ -35,6 +35,14 @@ Los identificadores `oct-01` a `oct-23` son claves internas, no días del mes. F
 
 Las rutas de imagen reutilizan archivos existentes en `images/cursos/photos/`; las asignaciones están en los datos. No se generaron imágenes nuevas. Ejecutar `npm run test:cursos` para validar la biblioteca y la sección pública.
 
+## Vista del pack de cuatro cursos (KJA-006)
+
+`cursos.html` monta la pestaña y el panel de `assets/css/paginas/cursos-oferta.css` y `assets/js/cursos-oferta.js`. La oferta del pack sí fue confirmada por el usuario: tres cursos por S/99 en total y un cuarto gratis, para todos los cursos del catálogo. Esto no completa precios individuales, fechas, certificación o modalidad de los datos.
+
+El panel es una vista controlada mediante `window.KJA_COURSE_OFFER.setSelection(courseIds)`: presenta de cero a cuatro cursos conocidos y distintos, sus fotos, progreso y total. La acción de continuar solo se muestra con cuatro. Quitar y continuar emiten eventos para el controlador del carrito; no modifican el store externo ni abren WhatsApp. «Elegir mis cursos» cierra el panel y enfoca el catálogo. En `?area=…` no se activa la oferta.
+
+La selección desde las tarjetas, sus animaciones y la navegación final son un trabajo de integración separado. Véase el [relevo con prompt y contrato de eventos](INTEGRACION-CARRITO-CURSOS.md). Las pruebas de ese contrato se incluyen en `npm run test:cursos`.
+
 ## Diseño de grabados (2026-10-19)
 
 Better UI aplicado a la biblioteca de Cursos: encabezado editorial con Poppins y Fraunces en cursiva, botón fucsia con flecha circular, fondo lavanda y superficies claras. Referencias locales: acentos editoriales de Terapia y superficies suaves de Talleres. La revisión solicitada por el usuario sustituye la composición asimétrica por **tres tarjetas equivalentes**, con fotografía 16:9 arriba y texto debajo, sin superponer la leyenda sobre la escena. Todas muestran título, descripción breve, disponibilidad y reproducción. La fotografía usa encuadre al 70 % horizontal para conservar las personas. Entre 601 y 850 px se apilan tarjetas horizontales; en móvil vuelven a fotografía arriba/texto debajo, con altura natural. No se fijan alturas de texto. La cabecera se compactó a una columna flexible de título/descripción y un botón a la derecha: se eliminó el salto forzado del título, se acortó el texto de apoyo y se redujeron separaciones. En móvil se apila. El orden de la página se conserva.
