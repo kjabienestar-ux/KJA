@@ -1026,7 +1026,7 @@ function paintShell(view){
     b.classList.toggle('active',active);
     if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
-  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas'||view==='zoom'||(view==='perfil'&&APP.access.acceso_panel));
+  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas'||view==='zoom'||view==='reclutamiento'||(view==='perfil'&&APP.access.acceso_panel));
   syncSidebarCollapse();
 }
 
@@ -1120,6 +1120,7 @@ async function openPortal(activeSession,bootstrap=null){
     $('nav-perfil').hidden=false;
     $('nav-gestion').hidden=false;
     $('admin-nav-divider').hidden=false;
+    if($('nav-reclutamiento')) $('nav-reclutamiento').hidden=APP.access.rol!=='direccion';
   }else{
     ['personal-nav-divider','nav-inicio','nav-asistencia'].forEach(id=>{
       const el=$(id); if(el) el.hidden=!APP.identity.hasPersonal;
@@ -1129,7 +1130,11 @@ async function openPortal(activeSession,bootstrap=null){
     $('nav-equipo').hidden=!APP.identity.isLeader;
     $('nav-gestion').hidden=true;
     $('admin-nav-divider').hidden=true;
+    if($('nav-reclutamiento')) $('nav-reclutamiento').hidden=true;
   }
+  const canRecruit=APP.access.acceso_panel&&APP.access.rol==='direccion';
+  ['mobile-action-reclutamiento','admin-recruitment-tab','admin-recruitment-module'].forEach(id=>{if($(id))$(id).hidden=!canRecruit;});
+  if(canRecruit)void window.kjaRecruitment?.refresh?.();
   $('mobile-action-team').hidden=!APP.identity.isLeader;
   $('mobile-action-admin').hidden=!APP.access.acceso_panel;
   syncMobileQuickGrid();
@@ -3403,6 +3408,7 @@ async function saveAdminState(personId,state,remove){
 }
 
 function goView(view){
+  if(view==='reclutamiento'&&!(APP.access.acceso_panel&&APP.access.rol==='direccion')){toast('Reclutamiento está reservado a Dirección.',true);return;}
   if(view==='marketing'&&$('nav-marketing').hidden)return;
   if(view==='zoom'&&!(APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel)){toast('La gestión de Zoom está reservada a Sistemas. Usa el botón flotante para unirte.',true);return;}
   if(view==='cert-cuentas'&&!(APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel)){toast('Esta sección está reservada a Dirección y Sistemas.',true);return;}
@@ -3412,6 +3418,7 @@ function goView(view){
   if(view==='perfil')renderProfile();
   paintShell(view);
   if(view==='cert-cuentas'){closeMenu();return loadCertificateAccounts();}
+  if(view==='reclutamiento'){closeMenu();return window.kjaRecruitment?.refresh?.();}
   if(view==='zoom'){closeMenu();return window.KJAZoom?.load();}
   if(matchMedia('(max-width:900px)').matches)window.scrollTo(0,0);
   closeMenu(); if(view==='asistencia')return Promise.allSettled([loadPersonalRequests(),loadAttendanceTeammates()]); if(view==='equipo')return loadTeam(); if(view==='gestion')return showAdminSection(APP.adminSection);
@@ -3419,7 +3426,7 @@ function goView(view){
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>goView(b.dataset.view)); document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>goView(b.dataset.go));
 document.querySelectorAll('[data-mobile-action]').forEach(button=>button.onclick=()=>{
   const action=button.dataset.mobileAction;
-  if(['asistencia','perfil','equipo','gestion'].includes(action))return goView(action);
+  if(['asistencia','perfil','equipo','gestion','reclutamiento'].includes(action))return goView(action);
   if(action==='marcar')return handleMarkAction();
   if(action==='jornada'){
     const target=!$('mobile-close-panel').hidden?$('mobile-close-panel'):$('mobile-today-summary');
