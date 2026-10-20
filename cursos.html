@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="assets/css/paginas/cursos-biblioteca.css?v=14">
     <link rel="stylesheet" href="assets/css/paginas/cursos-formacion.css?v=17">
     <link rel="stylesheet" href="assets/css/paginas/cursos-grabados.css?v=4">
+    <link rel="stylesheet" href="assets/css/paginas/cursos-oferta.css?v=1">
     <!-- Sin JS, el splash de carga no debe tapar la página -->
     <noscript>
         <style>
@@ -349,6 +350,7 @@
     <script defer src="assets/js/cursos-catalogo.js?v=14"></script>
     <script defer src="assets/js/cursos-formacion-data.js?v=4"></script>
     <script defer src="assets/js/cursos-formacion.js?v=11"></script>
+    <script defer src="assets/js/cursos-oferta.js?v=1"></script>
     <script defer src="assets/js/cursos-gratuitos-data.js?v=1"></script>
     <script defer src="assets/js/cursos-gratuitos.js?v=7"></script>
     <script defer src="assets/js/script.js?v=11"></script>
@@ -356,6 +358,40 @@
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>
 
     </div>
+    <!-- Vista del pack: la selección del catálogo se conectará mediante KJA_COURSE_OFFER. -->
+    <aside class="offer-dock" data-open="false" data-stage="gift" data-count="0" aria-label="Tu pack de cursos">
+        <button class="offer-tab" data-offer-target type="button" aria-label="Abrir oferta de cursos: 0 de 4 seleccionados" aria-expanded="false" aria-controls="offer-popover">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18v4H3zM5 13v8h14v-8M12 9v12M12 9H8a3 3 0 1 1 3-3zm0 0h4a3 3 0 1 0-3-3z"/></svg>
+            <span class="offer-tab-copy" aria-hidden="true">OFERTA <svg class="offer-tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></span>
+            <span class="offer-tab-count" data-offer-count aria-hidden="true">0/4</span>
+        </button>
+        <div class="offer-popover" id="offer-popover" inert aria-hidden="true">
+            <section class="offer-card" aria-labelledby="offer-heading">
+                <div class="offer-header">
+                    <button class="offer-close" type="button" aria-label="Cerrar tu pack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+                    <span class="offer-eyebrow">UN EXTRA PARA TU FORMACIÓN</span>
+                    <h2 id="offer-heading">Elige tus 4 cursos.<em>El cuarto va gratis.</em></h2>
+                    <p class="offer-description">Combina los cursos del catálogo y arma tu pack.</p>
+                </div>
+                <div class="offer-body">
+                    <div class="offer-progress-label"><h3>Tu selección</h3><span data-offer-progress>0 de 4</span></div>
+                    <div class="offer-progress" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                    <ol class="offer-slots" data-offer-slots aria-label="Cursos de tu pack"></ol>
+                </div>
+                <div class="offer-footer">
+                    <div class="offer-summary"><div><span>3 cursos + 1 gratis</span><small>Precio total del pack</small></div><strong>S/99</strong></div>
+                    <button class="offer-checkout" data-offer-checkout type="button" hidden>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7a8.5 8.5 0 1 1 16.3-3.8Z"/><path d="M8 8q1 6 7 7l1-2-2-1-1 1-2-2 1-1-1-2H8Z"/></svg>
+                        Continuar por WhatsApp <span aria-hidden="true">↗</span>
+                    </button>
+                    <button class="offer-browse" data-offer-browse type="button">Elegir mis cursos</button>
+                    <p class="offer-note" data-offer-help>Elige 4 cursos para completar tu oferta.</p>
+                </div>
+                <p class="offer-sr-only" data-offer-status role="status" aria-live="polite" aria-atomic="true"></p>
+            </section>
+        </div>
+        <dialog class="offer-mobile-dialog" id="offer-mobile-dialog" aria-labelledby="offer-heading"></dialog>
+    </aside>
 </body>
 
 </html>
