@@ -198,3 +198,52 @@ test('renderizado de nota de voz incluye cápsula estructurada e icono de micró
   assert.ok(micBadge.querySelector('svg path[d*="M8 11a3 3 0"]'));
  }finally{h.close()}
 });
+test('gestos de mensaje: long-press abre menú de opciones y reacciones; swipe activa responder',async()=>{
+ const h=await setup();
+ try{
+  const msg=h.q('.chat-message');
+  assert.ok(msg);
+  const menu=msg.querySelector('.chat-message-menu');
+  assert.ok(menu);
+  assert.equal(menu.open,false);
+
+  const PE=h.w.PointerEvent||h.w.MouseEvent||h.w.Event;
+  // Simular long press (pointerdown + esperar 450ms)
+  const down=new PE('pointerdown',{bubbles:true,clientX:50,clientY:50,button:0});
+  Object.defineProperty(down,'clientX',{value:50});Object.defineProperty(down,'clientY',{value:50});Object.defineProperty(down,'button',{value:0});
+  msg.dispatchEvent(down);
+  await new Promise(r=>setTimeout(r,460));
+  assert.equal(menu.open,true);
+  assert.ok(menu.querySelector('.chat-reaction-choices'));
+  const up1=new PE('pointerup',{bubbles:true,clientX:50,clientY:50,button:0});
+  msg.dispatchEvent(up1);
+  menu.open=false;
+
+  // Simular swipe hacia la derecha para responder
+  const down2=new PE('pointerdown',{bubbles:true,clientX:50,clientY:50,button:0});
+  Object.defineProperty(down2,'clientX',{value:50});Object.defineProperty(down2,'clientY',{value:50});Object.defineProperty(down2,'button',{value:0});
+  msg.dispatchEvent(down2);
+  const move=new PE('pointermove',{bubbles:true,clientX:110,clientY:52});
+  Object.defineProperty(move,'clientX',{value:110});Object.defineProperty(move,'clientY',{value:52});
+  msg.dispatchEvent(move);
+  const up=new PE('pointerup',{bubbles:true,clientX:110,clientY:52});
+  Object.defineProperty(up,'clientX',{value:110});Object.defineProperty(up,'clientY',{value:52});
+  msg.dispatchEvent(up);
+  await h.tick();
+  assert.equal(h.q('.chat-compose-context').hidden,false);
+ }finally{h.close()}
+});
+test('viñeta hacia abajo de opciones es visible con chevron svg y checks delgados',async()=>{
+ const h=await setup();
+ try{
+  const summary=h.q('.chat-message-menu summary');
+  assert.ok(summary);
+  assert.ok(summary.querySelector('svg path[d="M6 9l6 6 6-6"]'));
+  await h.send('Mensaje propio');
+  const lastMsg=[...h.w.document.querySelectorAll('.chat-message')].at(-1);
+  const check=lastMsg.querySelector('.chat-status-check svg');
+  assert.ok(check);
+  assert.equal(check.getAttribute('width'),'10');
+  assert.equal(check.getAttribute('height'),'9');
+ }finally{h.close()}
+});

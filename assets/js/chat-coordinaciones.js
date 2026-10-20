@@ -205,9 +205,9 @@
   function statusCheckSvg(mine, read, isGroup){
     if(!mine || isGroup) return '';
     if(read){
-      return '<span class="chat-status-check is-read" title="Leído"><svg viewBox="0 0 16 11" width="15" height="11" fill="none" stroke="#53bdeb" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 1.5L5 8.5 2 5.5"/><path d="M15 1.5L9 8.5 7.5 7"/></svg></span>';
+      return '<span class="chat-status-check is-read" title="Leído"><svg viewBox="0 0 16 11" width="13" height="9" fill="none" stroke="#53bdeb" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 1.5L5 8.5 2 5.5"/><path d="M15 1.5L9 8.5 7.5 7"/></svg></span>';
     }
-    return '<span class="chat-status-check" title="Enviado"><svg viewBox="0 0 12 11" width="12" height="11" fill="none" stroke="#8696a0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 1.5L5 8.5 2 5.5"/></svg></span>';
+    return '<span class="chat-status-check" title="Enviado"><svg viewBox="0 0 12 11" width="10" height="9" fill="none" stroke="#8696a0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 1.5L5 8.5 2 5.5"/></svg></span>';
   }
   function clockIconSvg(){
     return '<span class="chat-clock-icon" title="Enviando…"><svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor"><path d="M8 3.5a.5.5 0 0 0-1 0V8a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 7.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg></span>';
@@ -672,6 +672,88 @@
     }
     bubble.dataset.formatted='true';
   }
+  function attachGestures(entry, m, w, menu){
+    let startX = 0, startY = 0, swiping = false, longTimer = null, thresholdReached = false;
+    let replyIcon = null;
+
+    function cleanup(){
+      if(longTimer){clearTimeout(longTimer);longTimer=null}
+      swiping = false;
+      thresholdReached = false;
+      if(replyIcon){replyIcon.remove();replyIcon=null}
+      entry.style.transform = '';
+      entry.style.transition = '';
+      entry.classList.remove('is-swiping','is-long-pressed');
+    }
+
+    entry.onpointerdown = e => {
+      if(e.button !== undefined && e.button !== 0) return;
+      if(e.target.closest('button, a, summary, input, select, textarea, .chat-reaction, audio, .chat-doc-card-v2, .chat-img-thumb')) return;
+      cleanup();
+      startX = typeof e.clientX === 'number' ? e.clientX : 0;
+      startY = typeof e.clientY === 'number' ? e.clientY : 0;
+      swiping = false;
+      thresholdReached = false;
+      longTimer = setTimeout(()=>{
+        entry.classList.add('is-long-pressed');
+        navigator.vibrate?.(40);
+        menu.open = true;
+        menu.scrollIntoView?.({block:'nearest',behavior:'smooth'});
+      }, 420);
+    };
+
+    entry.onpointermove = e => {
+      if(!longTimer && !swiping) return;
+      const clientX = typeof e.clientX === 'number' ? e.clientX : 0;
+      const clientY = typeof e.clientY === 'number' ? e.clientY : 0;
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+      if(Math.hypot(dx, dy) > 8){
+        if(longTimer){clearTimeout(longTimer);longTimer=null}
+      }
+      if(!entry.classList.contains('is-long-pressed') && Math.abs(dx) > Math.abs(dy) + 5 && Math.abs(dx) > 12){
+        swiping = true;
+        entry.classList.add('is-swiping');
+        const drag = Math.sign(dx) * Math.min(54, Math.pow(Math.abs(dx), 0.82));
+        entry.style.transform = `translateX(${drag}px)`;
+
+        if(!replyIcon){
+          replyIcon = el('div','chat-swipe-reply-icon');
+          replyIcon.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 015 5v5"/></svg>';
+          entry.parentNode?.insertBefore(replyIcon, entry);
+        }
+        thresholdReached = Math.abs(dx) >= 40;
+        replyIcon.classList.toggle('is-ready', thresholdReached);
+        const isRight = dx > 0;
+        if(isRight){
+          replyIcon.style.left = Math.max(8, (entry.offsetLeft || 0) - 36) + 'px';
+          replyIcon.style.right = 'auto';
+        } else {
+          replyIcon.style.left = 'auto';
+          replyIcon.style.right = Math.max(8, ((entry.parentNode?.clientWidth || 300) - ((entry.offsetLeft || 0) + (entry.offsetWidth || 0)) - 36)) + 'px';
+        }
+        replyIcon.style.top = ((entry.offsetTop || 0) + ((entry.offsetHeight || 0) / 2) - 16) + 'px';
+      }
+    };
+
+    function finish(){
+      if(longTimer){clearTimeout(longTimer);longTimer=null}
+      if(swiping){
+        entry.style.transition = 'transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+        entry.style.transform = '';
+        if(thresholdReached){
+          navigator.vibrate?.(30);
+          mode(w, 'responder', m);
+        }
+        setTimeout(cleanup, 220);
+      } else {
+        cleanup();
+      }
+    }
+
+    entry.onpointerup = finish;
+    entry.onpointercancel = finish;
+  }
   function render(entry,m,w,api){
     entry.dataset.messageId=m.id;
     if(m.editado_at)entry.append(el('small','chat-edited','Editado'));
@@ -686,12 +768,16 @@
     const timeStr=date.toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'});
     const statusSvg=statusCheckSvg(isMine,!!m.leido_at,!!w.group);
     const rootTime=entry.querySelector(':scope > time');
-    if(rootTime&&!m.archivo_path){
+    const hasMedia=m.archivo_path||m.imagen_path;
+    if(rootTime&&!hasMedia){
       rootTime.innerHTML=`${timeStr} ${statusSvg}`;
       rootTime.classList.add('chat-time-pill');
     }
-    if(m.archivo_path){
-      const hasCaption=m.contenido&&m.contenido!=='Archivo adjunto'&&m.contenido.trim().length>0;
+    if(hasMedia){
+      entry.querySelector('.chat-image-open')?.remove();
+      const isAudio=m.archivo_mime?.startsWith('audio/');
+      const isImage=m.archivo_mime?.startsWith('image/')||(!isAudio&&(m.imagen_path||/\.(jpg|jpeg|png|webp|gif)$/i.test(m.archivo_nombre||'')));
+      const hasCaption=m.contenido&&m.contenido!=='Archivo adjunto'&&m.contenido!=='Imagen'&&m.contenido.trim().length>0;
       if(!hasCaption){
         bubble?.remove();
         rootTime?.remove();
@@ -705,7 +791,7 @@
         }
       }
       const attachment=el('div','chat-file');
-      if(m.archivo_mime?.startsWith('audio/')){
+      if(isAudio){
         entry.classList.add('is-voice-message');
         const voiceBubble=el('div','chat-voice-bubble');
         
@@ -768,24 +854,49 @@
 
         voiceBubble.append(playBtn,body,audio);
         attachment.append(voiceBubble);
-      }else if(m.archivo_mime?.startsWith('image/')){
+      }else if(isImage){
         entry.classList.add('is-image-message');
-        const imgWrap=el('div','chat-img-wrap');
+        const imgWrap=el('div','chat-img-wrap is-loading');
         const badge=el('div','chat-img-time-badge');
         badge.innerHTML=`${timeStr} ${statusSvg}`;
-        const load=btn('Ver imagen '+m.archivo_nombre,async()=>{
-          load.disabled=true;
+
+        const storageBucket=m.archivo_path?'chat-archivos':'chat-imagenes';
+        const storagePath=m.archivo_path||m.imagen_path;
+
+        const img=el('img','chat-img-thumb');
+        img.alt=m.archivo_nombre||'Imagen';
+        img.loading='lazy';
+
+        const spinner=el('div','chat-img-spinner');
+        spinner.innerHTML='<svg viewBox="0 0 24 24" width="22" height="22" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" fill="none"><circle cx="12" cy="12" r="9" stroke-opacity="0.3"/><path d="M12 3a9 9 0 019 9"/></svg>';
+
+        imgWrap.append(img,spinner,badge);
+        attachment.append(imgWrap);
+
+        async function loadImage(){
           try{
-            const {data,error}=await api.db.storage.from('chat-archivos').createSignedUrl(m.archivo_path,300);
-            if(!api.current(w)||!imgWrap.isConnected)return;if(error||!data?.signedUrl)throw error||Error();
-            const link=el('a','chat-img-link');link.href=data.signedUrl;link.target='_blank';link.rel='noopener noreferrer';
-            link.setAttribute('aria-label','Abrir imagen en tamaño completo');
-            const image=el('img');image.src=data.signedUrl;image.alt=m.archivo_nombre;image.loading='lazy';
-            image.onerror=()=>{imgWrap.replaceChildren(load,badge);load.disabled=false;load.textContent='Reintentar imagen'};
-            link.append(image);imgWrap.replaceChildren(link,badge);
-          }catch{if(api.current(w))api.note(w,'No se pudo abrir la imagen.',true)}finally{load.disabled=false}
-        },'chat-img-btn');
-        imgWrap.append(load,badge);attachment.append(imgWrap);load.click();
+            const {data,error}=await api.db.storage.from(storageBucket).createSignedUrl(storagePath,300);
+            if(!api.current(w)||!imgWrap.isConnected)return;
+            if(error||!data?.signedUrl)throw error||Error();
+            img.src=data.signedUrl;
+            img.onload=()=>{
+              imgWrap.classList.remove('is-loading');
+              spinner.remove();
+            };
+            img.onclick=()=>{
+              const link=el('a');link.href=data.signedUrl;link.target='_blank';link.rel='noopener noreferrer';link.click();
+            };
+            img.style.cursor='pointer';
+          }catch(err){
+            spinner.remove();
+            imgWrap.classList.remove('is-loading');
+            imgWrap.classList.add('is-failed');
+            const retry=btn('Reintentar',loadImage,'chat-img-retry-btn');
+            retry.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg><span>Reintentar</span>';
+            imgWrap.append(retry);
+          }
+        }
+        void loadImage();
       }else{
         entry.classList.add('is-doc-message');
         const isPdf=m.archivo_mime==='application/pdf'||m.archivo_nombre?.toLowerCase().endsWith('.pdf');
@@ -859,7 +970,10 @@
     for(const r of m.reacciones||[]){const b=btn(r.emoji+' '+r.total,()=>void action('reaccionar',r.propia?null:r.emoji),'chat-reaction');b.setAttribute('aria-pressed',String(r.propia));b.setAttribute('aria-label',`${r.emoji}: ${r.total} reacciones${r.propia?', incluida la tuya':''}`);reactions.append(b)}
     if(reactions.children.length)entry.append(reactions);
     if(!w.modeBar)return; // Una cuenta desactivada conserva únicamente la consulta del historial.
-    const menu=el('details','chat-message-menu'),summary=el('summary','','Opciones');summary.setAttribute('aria-label','Opciones del mensaje');
+    const menu=el('details','chat-message-menu'),summary=el('summary','chat-message-menu-btn');
+    summary.setAttribute('aria-label','Opciones del mensaje');
+    summary.title='Opciones';
+    summary.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
     const actions=el('div','chat-message-actions');
     actions.append(btn('Responder',()=>{menu.open=false;mode(w,'responder',m)}));
     if(navigator.clipboard)actions.append(btn('Copiar texto',async()=>{try{await navigator.clipboard.writeText(m.contenido);api.note(w,'Texto copiado.');menu.open=false}catch{api.note(w,'El navegador no permitió copiar el texto.',true)}}));
@@ -873,6 +987,8 @@
     const choices=el('div','chat-reaction-choices');
     for(const emoji of ['👍','❤️','😂','😮','😢','🙏']){const b=btn(emoji,()=>{menu.open=false;void action('reaccionar',(m.reacciones||[]).some(r=>r.emoji===emoji&&r.propia)?null:emoji)});b.setAttribute('aria-label','Reaccionar con '+emoji);choices.append(b)}
     actions.append(choices);menu.append(summary,actions);entry.append(menu);
+
+    attachGestures(entry, m, w, menu);
   }
   function forward(m,w,api,menu){
     menu.open=false;
