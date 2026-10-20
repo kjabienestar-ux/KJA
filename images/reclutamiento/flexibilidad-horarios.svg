@@ -1,0 +1,241 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 928 980" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgHorarios" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#061a38"/>
+      <stop offset="50%" stop-color="#0a2540"/>
+      <stop offset="100%" stop-color="#141a3c"/>
+    </linearGradient>
+    <linearGradient id="mananaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="100%" stop-color="#fef3c7"/>
+    </linearGradient>
+    <linearGradient id="tardeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#2e1065"/>
+    </linearGradient>
+    <linearGradient id="pinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff2a8d"/>
+      <stop offset="100%" stop-color="#fe037c"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="shadowCard" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="928" height="980" fill="url(#bgHorarios)"/>
+
+  <!-- Top Header Banner -->
+  <g transform="translate(60, 40)">
+    <rect width="808" height="74" rx="20" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.2"/>
+    <rect x="20" y="18" width="38" height="38" rx="12" fill="url(#amberGrad)"/>
+    <!-- Clock icon -->
+    <circle cx="39" cy="37" r="11" stroke="#ffffff" stroke-width="2.2" fill="none"/>
+    <polyline points="39,31 39,37 44,39" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+
+    <text x="70" y="44" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="900" fill="#ffffff" letter-spacing="0.5">FLEXIBILIDAD DE HORARIOS</text>
+
+    <rect x="618" y="18" width="170" height="38" rx="19" fill="url(#pinkGrad)"/>
+    <text x="638" y="42" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#ffffff">4 A 6 HORAS/DÍA</text>
+  </g>
+
+  <!-- Turnos Container Grid (Mañana & Tarde) -->
+  <g transform="translate(60, 136)">
+    <!-- TARJETA 1: TURNO MAÑANA -->
+    <g transform="translate(0, 0)">
+      <rect width="392" height="390" rx="24" fill="url(#mananaGrad)" filter="url(#shadowCard)"/>
+
+      <!-- Top badge -->
+      <g transform="translate(24, 24)">
+        <rect width="140" height="32" rx="16" fill="#f59e0b" fill-opacity="0.2"/>
+        <text x="14" y="21" font-size="14">☀️</text>
+        <text x="36" y="21" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#b45309">TURNO MAÑANA</text>
+      </g>
+
+      <!-- Time Display -->
+      <text x="24" y="98" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="30" font-weight="900" fill="#78350f">
+        08:30 am
+      </text>
+      <text x="24" y="124" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#92400e">
+        a 01:30 pm
+      </text>
+
+      <text x="24" y="156" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#b45309">
+        ⏱️ Jornada: 5 horas diarias
+      </text>
+
+      <!-- Line separator -->
+      <line x1="24" y1="174" x2="368" y2="174" stroke="#fcd34d" stroke-width="1.5"/>
+
+      <!-- Description & target -->
+      <text x="24" y="202" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#1f2937">
+        Ideal si estudias en la tarde o noche:
+      </text>
+
+      <!-- Bullets -->
+      <g transform="translate(24, 222)">
+        <circle cx="8" cy="8" r="7" fill="#10b981"/>
+        <path d="M5 8 L7 10 L11 6" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <text x="24" y="12" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="600" fill="#4b5563">
+          Evaluaciones diagnósticas matutinas
+        </text>
+
+        <circle cx="8" cy="38" r="7" fill="#10b981"/>
+        <path d="M5 38 L7 40 L11 36" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <text x="24" y="42" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="600" fill="#4b5563">
+          Atención en consultorio y teleconsulta
+        </text>
+
+        <circle cx="8" cy="68" r="7" fill="#10b981"/>
+        <path d="M5 68 L7 70 L11 66" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <text x="24" y="72" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="600" fill="#4b5563">
+          Tardes libres para tus clases en facultad
+        </text>
+      </g>
+
+      <!-- Pill button -->
+      <g transform="translate(24, 328)">
+        <rect width="344" height="40" rx="20" fill="#d97706"/>
+        <text x="172" y="25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#ffffff" letter-spacing="0.5">
+          DISPONIBLE LUNES A SÁBADO
+        </text>
+      </g>
+    </g>
+
+    <!-- TARJETA 2: TURNO TARDE -->
+    <g transform="translate(416, 0)">
+      <rect width="392" height="390" rx="24" fill="url(#tardeGrad)" stroke="#a855f7" stroke-opacity="0.3" stroke-width="1.5" filter="url(#shadowCard)"/>
+
+      <!-- Top badge -->
+      <g transform="translate(24, 24)">
+        <rect width="130" height="32" rx="16" fill="#a855f7" fill-opacity="0.25"/>
+        <text x="14" y="21" font-size="14">🌙</text>
+        <text x="36" y="21" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#d8b4fe">TURNO TARDE</text>
+      </g>
+
+      <!-- Time Display -->
+      <text x="24" y="98" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="30" font-weight="900" fill="#ffffff">
+        02:00 pm
+      </text>
+      <text x="24" y="124" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#c084fc">
+        a 07:00 pm
+      </text>
+
+      <text x="24" y="156" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#e9d5ff">
+        ⏱️ Jornada: 5 horas diarias
+      </text>
+
+      <!-- Line separator -->
+      <line x1="24" y1="174" x2="368" y2="174" stroke="#7e22ce" stroke-width="1.5"/>
+
+      <!-- Description & target -->
+      <text x="24" y="202" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#ffffff">
+        Ideal si tienes clases en las mañanas:
+      </text>
+
+      <!-- Bullets -->
+      <g transform="translate(24, 222)">
+        <circle cx="8" cy="8" r="7" fill="#a855f7"/>
+        <path d="M5 8 L7 10 L11 6" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <text x="24" y="12" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="600" fill="#cbd5e1">
+          Atención de casos infantojuveniles y parejas
+        </text>
+
+        <circle cx="8" cy="38" r="7" fill="#a855f7"/>
+        <path d="M5 38 L7 40 L11 36" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <text x="24" y="42" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="600" fill="#cbd5e1">
+          Ateneos y supervisión clínica de cierre
+        </text>
+
+        <circle cx="8" cy="68" r="7" fill="#a855f7"/>
+        <path d="M5 68 L7 70 L11 66" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <text x="24" y="72" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="600" fill="#cbd5e1">
+          Mañanas libres para cursos universitarios
+        </text>
+      </g>
+
+      <!-- Pill button -->
+      <g transform="translate(24, 328)">
+        <rect width="344" height="40" rx="20" fill="url(#pinkGrad)"/>
+        <text x="172" y="25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#ffffff" letter-spacing="0.5">
+          DISPONIBLE LUNES A SÁBADO
+        </text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Banner Inferior: COMPATIBILIDAD UNIVERSITARIA & PERMISOS -->
+  <g transform="translate(60, 550)">
+    <rect width="808" height="370" rx="24" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.14" stroke-width="1.5" filter="url(#shadowCard)"/>
+
+    <!-- Header Banner -->
+    <g transform="translate(32, 28)">
+      <rect width="250" height="34" rx="17" fill="#0284c7" fill-opacity="0.2" stroke="#38bdf8" stroke-width="1.2"/>
+      <text x="16" y="22" font-size="16">🎓</text>
+      <text x="42" y="22" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#38bdf8">COMPROMISO UNIVERSITARIO</text>
+    </g>
+
+    <text x="32" y="104" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="900" fill="#ffffff">
+      Total Respaldo a tu Formación Académica
+    </text>
+    <text x="32" y="132" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14.5" font-weight="500" fill="#cbd5e1">
+      En KJA entendemos que tu prioridad son tus estudios. Por eso ofrecemos facilidades reales:
+    </text>
+
+    <!-- 3 Advantage Cards -->
+    <g transform="translate(32, 154)">
+      <!-- Box 1 -->
+      <g transform="translate(0, 0)">
+        <rect width="234" height="136" rx="16" fill="#0c234a" stroke="#1d4ed8" stroke-width="1.2"/>
+        <text x="16" y="34" font-size="20">📅</text>
+        <text x="46" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#ffffff">Permisos Exámenes</text>
+        <text x="16" y="66" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">Flexibilidad justificada</text>
+        <text x="16" y="86" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">en semanas de parciales</text>
+        <text x="16" y="106" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">y exámenes finales.</text>
+      </g>
+
+      <!-- Box 2 -->
+      <g transform="translate(254, 0)">
+        <rect width="234" height="136" rx="16" fill="#0c234a" stroke="#1d4ed8" stroke-width="1.2"/>
+        <text x="16" y="34" font-size="20">🔄</text>
+        <text x="46" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#ffffff">Ajuste de Horario</text>
+        <text x="16" y="66" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">Si tu universidad cambia</text>
+        <text x="16" y="86" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">tus horarios de clase,</text>
+        <text x="16" y="106" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">readecuamos tu turno.</text>
+      </g>
+
+      <!-- Box 3 -->
+      <g transform="translate(508, 0)">
+        <rect width="234" height="136" rx="16" fill="#0c234a" stroke="#1d4ed8" stroke-width="1.2"/>
+        <text x="16" y="34" font-size="20">📜</text>
+        <text x="46" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#ffffff">Horas Validadas</text>
+        <text x="16" y="66" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">Sellos y firmas oficiales</text>
+        <text x="16" y="86" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">para presentar tus fichas</text>
+        <text x="16" y="106" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">en tu universidad.</text>
+      </g>
+    </g>
+
+    <!-- Bottom summary line -->
+    <g transform="translate(32, 310)">
+      <rect width="744" height="38" rx="12" fill="#10b981" fill-opacity="0.12" stroke="#10b981" stroke-opacity="0.3" stroke-width="1"/>
+      <text x="20" y="24" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="700" fill="#34d399">
+        ✓ Podrás detallar tus horas y turno disponible en el Paso 2 de tu postulación.
+      </text>
+    </g>
+  </g>
+
+  <!-- Global Footer -->
+  <g transform="translate(60, 936)">
+    <text x="404" y="20" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#94a3b8">
+      Centro Psicológico KJA · Turnos Mañana (08:30 - 13:30) y Tarde (14:00 - 19:00)
+    </text>
+  </g>
+</svg>
