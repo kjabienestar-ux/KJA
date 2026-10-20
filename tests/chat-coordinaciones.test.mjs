@@ -164,3 +164,37 @@ test('reenviar incluye grupos y personas y envía con el identificador correspon
   assert.equal(forwardCall.args.p_contenido,'Reunión de equipo');
  }finally{h.close()}
 });
+test('envío de archivo limpia la previsualización del compositor inmediatamente',async()=>{
+ let resolveSend;
+ const waitSend=new Promise(r=>resolveSend=r);
+ const h=await setup({waitSend});
+ try{
+  const file=new h.w.File(['test-content'],'documento.pdf',{type:'application/pdf'});
+  const fileInput=h.q('input[type=file]');
+  Object.defineProperty(fileInput,'files',{value:[file],writable:true});
+  fileInput.dispatchEvent(new h.w.Event('change'));
+  await h.tick();
+  assert.ok(h.q('.chat-file-preview .chat-doc-composer-preview'));
+  h.q('.chat-compose').dispatchEvent(new h.w.Event('submit',{cancelable:true}));
+  await h.tick();
+  assert.equal(h.q('.chat-file-preview').childNodes.length,0);
+  assert.ok(h.q('.chat-history .chat-doc-bubble-wrap.is-uploading'));
+  resolveSend();
+  await h.tick();
+ }finally{h.close()}
+});
+test('renderizado de nota de voz incluye cápsula estructurada e icono de micrófono relleno',async()=>{
+ const h=await setup();
+ try{
+  const voiceMsg={id:2,remitente:'peer',destinatario:'me',autor:'Ana',contenido:'',creado_at:new Date().toISOString(),reacciones:[],archivo_path:'audios/nota.webm',archivo_mime:'audio/webm',archivo_nombre:'nota.webm'};
+  h.rows.push(voiceMsg);
+  await h.w.KJAChat.init('me');
+  h.q('.chat-contact').click();
+  await h.tick();
+  const bubble=h.q('.chat-voice-bubble');
+  assert.ok(bubble);
+  const micBadge=bubble.querySelector('.chat-voice-mic-badge');
+  assert.ok(micBadge);
+  assert.ok(micBadge.querySelector('svg path[d*="M8 11a3 3 0"]'));
+ }finally{h.close()}
+});

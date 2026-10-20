@@ -684,105 +684,155 @@
 }
 
 /* --- Reproductor de Notas de Voz en Burbuja --- */
+.kja-chat .chat-voice-bubble :is(button, .chat-voice-play, .chat-voice-speed) {
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+}
 .chat-voice-bubble {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 270px;
-  max-width: 100%;
-  height: 50px;
-  padding: 6px 10px;
-  border-radius: 16px 16px 16px 4px;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgba(11, 20, 26, 0.08);
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  width: 270px !important;
+  max-width: 100% !important;
+  min-height: 52px !important;
+  height: 52px !important;
+  padding: 6px 10px !important;
+  border-radius: 16px 16px 16px 4px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(11, 20, 26, 0.08) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 .chat-message[data-mine=true] .chat-voice-bubble {
-  background: #d9fdd3;
-  border-radius: 16px 16px 4px 16px;
+  background: #d9fdd3 !important;
+  border-radius: 16px 16px 4px 16px !important;
 }
 .chat-voice-play {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #00a884;
-  color: #ffffff;
-  border: 0;
-  flex-shrink: 0;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 168, 132, 0.35);
-  transition: transform 0.12s, background 0.12s;
+  display: grid !important;
+  place-items: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  border-radius: 50% !important;
+  background: #00a884 !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 6px rgba(0, 168, 132, 0.35) !important;
+  transition: transform 0.12s, background 0.12s !important;
 }
 .chat-voice-play:hover {
-  background: #008f70;
-  transform: scale(1.06);
+  background: #008f70 !important;
+  transform: scale(1.06) !important;
 }
 .chat-voice-play:active {
-  transform: scale(0.94);
+  transform: scale(0.94) !important;
+}
+.chat-voice-play svg {
+  display: block !important;
+  width: 15px !important;
+  height: 15px !important;
+  fill: #ffffff !important;
+  margin-left: 1px !important;
 }
 .chat-voice-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 3px;
-  min-width: 0;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  overflow: hidden !important;
 }
 .chat-voice-track {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  height: 20px;
-  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  flex-wrap: nowrap !important;
+  padding: 1px 0 !important;
 }
 .chat-voice-bar {
-  flex: 1;
-  min-width: 2px;
-  max-width: 3.5px;
-  background: #aebac1;
-  border-radius: 2px;
-  transition: background 0.1s;
+  flex: 1 1 auto !important;
+  min-width: 1.5px !important;
+  max-width: 3px !important;
+  max-height: 18px !important;
+  background: #aebac1 !important;
+  border-radius: 2px !important;
+  transition: background 0.1s, height 0.1s !important;
+}
+.chat-message[data-mine=true] .chat-voice-bar {
+  background: #9bb797 !important;
 }
 .chat-voice-bar.is-played {
-  background: #00a884;
+  background: #00a884 !important;
 }
 .chat-voice-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #667781;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  color: #667781 !important;
+  line-height: 1 !important;
+  width: 100% !important;
+  min-height: 14px !important;
+  flex-wrap: nowrap !important;
 }
 .chat-voice-time {
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-  font-size: 10.5px;
+  font-variant-numeric: tabular-nums !important;
+  font-weight: 500 !important;
+  font-size: 10.5px !important;
+  white-space: nowrap !important;
+  color: #667781 !important;
+}
+.chat-message[data-mine=true] .chat-voice-time {
+  color: #517551 !important;
 }
 .chat-voice-speed {
-  background: rgba(0, 0, 0, 0.06);
-  border: 0;
-  border-radius: 8px;
-  padding: 1px 6px;
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #111b21;
-  cursor: pointer;
-  transition: background 0.12s;
+  background: rgba(0, 0, 0, 0.06) !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  padding: 0 5px !important;
+  min-height: 0 !important;
+  height: 16px !important;
+  line-height: 16px !important;
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  color: #111b21 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  transition: background 0.12s !important;
 }
 .chat-voice-speed:hover {
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.12) !important;
 }
 .chat-voice-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 10px;
-  color: #667781;
-  margin-left: auto;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  font-size: 10px !important;
+  color: #667781 !important;
+  margin-left: auto !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 .chat-message[data-mine=true] .chat-voice-status {
-  color: #517551;
+  color: #517551 !important;
 }
 
 /* Tarjeta de Documentos */
@@ -905,8 +955,12 @@
   flex-shrink: 0;
 }
 .chat-upload-ring.is-audio {
-  width: 34px;
-  height: 34px;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
 }
 .chat-upload-track {
   stroke: rgba(0, 168, 132, 0.2);
@@ -1923,28 +1977,54 @@
 
 /* --- Nota de Voz en Historial con Avatar y Mic Badge (Image 5) --- */
 .chat-voice-avatar-wrap {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
+  position: relative !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  max-width: 38px !important;
+  max-height: 38px !important;
+  flex-shrink: 0 !important;
+  border-radius: 50% !important;
 }
 .chat-voice-avatar-wrap .chat-avatar {
-  width: 100%;
-  height: 100%;
-  font-size: 12px;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  max-width: 38px !important;
+  max-height: 38px !important;
+  border-radius: 50% !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
 }
 .chat-voice-mic-badge {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  display: grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #00a884;
-  color: #ffffff;
-  border: 1.5px solid #ffffff;
+  position: absolute !important;
+  bottom: -1px !important;
+  right: -1px !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  border-radius: 50% !important;
+  background: #00a884 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  z-index: 2 !important;
+  box-sizing: border-box !important;
+}
+.chat-message[data-mine=true] .chat-voice-mic-badge {
+  border-color: #d9fdd3 !important;
+}
+
+/* Ocultar avisos de estado informativos (Enviando, Mensaje enviado, etc.) sobre el compositor; solo mostrar errores reales */
+.chat-window .chat-status:not([data-error="true"]) {
+  display: none !important;
 }
 
 /* Responsividad móvil */
@@ -2042,6 +2122,12 @@
     display: none !important;
     width: 0 !important;
     height: 0 !important;
+  }
+
+  /* Nota de voz en pantalla pequeña: ancho adaptable sin desborde */
+  .chat-voice-bubble {
+    width: min(270px, calc(100vw - 76px)) !important;
+    max-width: 100% !important;
   }
 }
 

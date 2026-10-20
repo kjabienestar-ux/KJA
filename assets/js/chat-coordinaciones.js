@@ -234,7 +234,7 @@
         const av = el('span', 'chat-avatar', 'YO');
         av.dataset.tone = '1';
         const micBadge = el('span', 'chat-voice-mic-badge');
-        micBadge.innerHTML = '<svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>';
+        micBadge.innerHTML = '<svg viewBox="0 0 16 16" width="10" height="10" fill="currentColor"><path d="M8 11a3 3 0 0 0 3-3V4a3 3 0 0 0-6 0v4a3 3 0 0 0 3 3z"/><path d="M12.5 7.5a.5.5 0 0 0-1 0 3.5 3.5 0 0 1-7 0 .5.5 0 0 0-1 0 4.5 4.5 0 0 0 4 4.473V13.5H6a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H8.5v-1.527A4.5 4.5 0 0 0 12.5 7.5z"/></svg>';
         avWrap.append(av, micBadge);
 
         const uploadRing = el('div', 'chat-upload-ring is-audio');
@@ -330,6 +330,9 @@
         w.history.scrollTop=w.history.scrollHeight;
       }
     }
+    const savedPreview=w.filePreview?Array.from(w.filePreview.childNodes):[];
+    if(w.filePreview)w.filePreview.replaceChildren();
+    if(w.status&&a)w.status.textContent='';
     try{
       if(a&&!pending.uploaded){
         const path=user+'/'+pending.id;
@@ -344,6 +347,9 @@
       return data;
     }catch(err){
       pendingEl?.remove();
+      if(savedPreview.length&&w.filePreview&&!w.filePreview.childNodes.length){
+        w.filePreview.append(...savedPreview);
+      }
       throw err;
     }
   }
@@ -707,7 +713,7 @@
         const av=el('span','chat-avatar',m.autor?.slice(0,2)?.toUpperCase()||'YO');
         av.dataset.tone=String((m.autor||'').charCodeAt(0)%6);
         const micBadge=el('span','chat-voice-mic-badge');
-        micBadge.innerHTML='<svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>';
+        micBadge.innerHTML='<svg viewBox="0 0 16 16" width="10" height="10" fill="currentColor"><path d="M8 11a3 3 0 0 0 3-3V4a3 3 0 0 0-6 0v4a3 3 0 0 0 3 3z"/><path d="M12.5 7.5a.5.5 0 0 0-1 0 3.5 3.5 0 0 1-7 0 .5.5 0 0 0-1 0 4.5 4.5 0 0 0 4 4.473V13.5H6a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H8.5v-1.527A4.5 4.5 0 0 0 12.5 7.5z"/></svg>';
         avWrap.append(av,micBadge);
         voiceBubble.append(avWrap);
 
