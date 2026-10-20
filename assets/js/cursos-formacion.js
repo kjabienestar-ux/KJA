@@ -12,7 +12,8 @@
     const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
     const waUrl = message => 'https://wa.me/51988918238?text=' + encodeURIComponent(message);
 
-    const featuredStar = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 3 2.2 5.8L21 11l-5.8 2.2L13 19l-2.2-5.8L5 11l5.8-2.2L13 3ZM5 2v4M3 4h4M4 16v5M1.5 18.5h5"/></svg>';
+    const packIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path class="formation-pack-plus" d="M12 5v14M5 12h14"/><path class="formation-pack-check" d="m5 12 5 5 9-10"/></svg>';
+    const featuredStar ='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 3 2.2 5.8L21 11l-5.8 2.2L13 19l-2.2-5.8L5 11l5.8-2.2L13 3ZM5 2v4M3 4h4M4 16v5M1.5 18.5h5"/></svg>';
     const shuffled = [...KJA_FORMATION.courses];
     for (let index = shuffled.length - 1; index > 0; index--) {
         const other = Math.floor(Math.random() * (index + 1));
@@ -33,7 +34,9 @@
         '<div class="formation-course-media"><img src="' + escape(photo(course.image)) + '" width="1200" height="600" alt="" loading="lazy" decoding="async">' +
         (course.featured ? '<button type="button" class="formation-course-demand" aria-label="Curso destacado" aria-pressed="false"><span class="formation-featured-surface">' + featuredStar + '<span class="formation-featured-label">Curso destacado</span></span></button>' : '') + '</div>' +
         '<div class="formation-course-title"><h3>' + escape(course.title) + '</h3></div>' +
-        '<button type="button" class="formation-action" data-formation-detail="' + escape(course.id) + '" aria-haspopup="dialog" aria-label="Ver curso: ' + escape(course.fullTitle || course.title) + '">Ver curso ' + arrow + '</button></article>'
+        '<button type="button" class="formation-action" data-formation-detail="' + escape(course.id) + '" aria-haspopup="dialog" aria-label="Ver curso: ' + escape(course.fullTitle || course.title) + '">Ver curso ' + arrow + '</button>' +
+        // Oculto hasta que cursos-pack-controller.js conecte el pack.
+        '<button type="button" class="formation-pack-add" data-offer-add="' + escape(course.id) + '" aria-pressed="false" hidden>' + packIcon + '<span class="formation-pack-label">Agregar al pack</span><span class="formation-pack-sr"> · ' + escape(course.fullTitle || course.title) + '</span></button></article>'
     ).join('');
 
     const filterButtons = document.getElementById('formation-course-filters');
