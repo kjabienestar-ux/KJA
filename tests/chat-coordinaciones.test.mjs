@@ -247,3 +247,66 @@ test('viñeta hacia abajo de opciones es visible con chevron svg y checks delgad
   assert.equal(check.getAttribute('height'),'9');
  }finally{h.close()}
 });
+test('reproducción de nota de voz avanza barra de progreso, scrubber e indicador de tiempo',async()=>{
+ const h=await setup();
+ try{
+  const voiceMsg={id:3,remitente:'peer',destinatario:'me',autor:'Carlos',contenido:'',creado_at:new Date().toISOString(),reacciones:[],archivo_path:'audios/nota3.webm',archivo_mime:'audio/webm',archivo_nombre:'nota3.webm'};
+  h.rows.push(voiceMsg);
+  await h.w.KJAChat.init('me');
+  h.q('.chat-contact').click();
+  await h.tick();
+
+  const bubble=h.q('.chat-voice-bubble');
+  assert.ok(bubble);
+  const track=bubble.querySelector('.chat-voice-track');
+  assert.ok(track);
+  const scrubber=track.querySelector('.chat-voice-scrubber');
+  assert.ok(scrubber);
+  const audio=bubble.querySelector('audio');
+  assert.ok(audio);
+  const time=bubble.querySelector('.chat-voice-time');
+  assert.ok(time);
+
+  // Simular metadata cargada (duración 10 segundos)
+  Object.defineProperty(audio,'duration',{value:10,configurable:true,writable:true});
+  audio.onloadedmetadata?.();
+  assert.equal(time.textContent,'0:10');
+
+  // Simular reproducción al 50% (5s)
+  Object.defineProperty(audio,'currentTime',{value:5,configurable:true,writable:true});
+  audio.ontimeupdate?.();
+  assert.equal(time.textContent,'0:05');
+  assert.equal(scrubber.style.left,'50%');
+  const playedBars=track.querySelectorAll('.chat-voice-bar.is-played');
+  assert.ok(playedBars.length >= 10);
+
+  // Simular culminación del audio: vuelve a duración total y limpia scrubber
+  audio.onended?.();
+  assert.equal(scrubber.style.left,'0%');
+  assert.equal(track.querySelectorAll('.chat-voice-bar.is-played').length,0);
+  assert.equal(time.textContent,'0:10');
+ }finally{h.close()}
+});
+test('menú desplegable se adecúa al entorno con opens-up y clic exterior lo cierra',async()=>{
+ const h=await setup();
+ try{
+  const msg=h.q('.chat-message');
+  assert.ok(msg);
+  const menu=msg.querySelector('.chat-message-menu');
+  assert.ok(menu);
+  const actions=menu.querySelector('.chat-message-actions');
+  assert.ok(actions);
+
+  // Simular que el mensaje está en el fondo del chat (espacio inferior < 235px)
+  menu.getBoundingClientRect=()=>({top:500,bottom:524,left:100,right:300,width:200,height:24});
+  menu.open=true;
+  menu.dispatchEvent(new h.w.Event('toggle'));
+  assert.equal(menu.classList.contains('opens-up'),true);
+  assert.equal(actions.classList.contains('opens-up'),true);
+
+  // Clic exterior en el contenedor de chat debe cerrar el menú
+  const container = h.q('.chat-window') || h.w.document.body;
+  container.dispatchEvent(new h.w.Event('pointerdown',{bubbles:true}));
+  assert.equal(menu.open,false);
+ }finally{h.close()}
+});

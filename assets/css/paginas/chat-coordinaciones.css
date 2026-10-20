@@ -647,6 +647,24 @@
   right: auto;
   transform-origin: top left;
 }
+/* Popover hacia arriba cuando el mensaje está abajo (evita bug de corte inferior) */
+.chat-message-actions.opens-up,
+.chat-message-menu.opens-up .chat-message-actions {
+  top: auto !important;
+  bottom: calc(100% + 6px) !important;
+  transform-origin: bottom right !important;
+  animation: iosPopUp 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.chat-message:not([data-mine=true]) .chat-message-actions.opens-up,
+.chat-message:not([data-mine=true]) .chat-message-menu.opens-up .chat-message-actions {
+  left: 0 !important;
+  right: auto !important;
+  transform-origin: bottom left !important;
+}
+@keyframes iosPopUp {
+  from { opacity: 0; transform: scale(0.92) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 @keyframes iosPop {
   from { opacity: 0; transform: scale(0.92); }
   to { opacity: 1; transform: scale(1); }
@@ -680,7 +698,7 @@
   background: transparent !important;
 }
 
-/* Botones de acción del mensaje */
+/* Botones de acción del mensaje con iconos iOS */
 .chat-message-actions .chat-action {
   font-size: 13.5px;
   font-weight: 500;
@@ -690,14 +708,23 @@
   border-radius: 8px;
   text-align: left;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
   background: transparent;
   transition: background 0.12s;
 }
+.chat-message-actions .chat-action svg {
+  opacity: 0.6;
+  flex-shrink: 0;
+  pointer-events: none;
+}
 .chat-message-actions .chat-action:hover {
   background: #f2f2f7;
+}
+.chat-message-actions .chat-action:hover svg {
+  opacity: 0.95;
 }
 .chat-message-actions .chat-action[data-danger=true] {
   color: #ff3b30;
@@ -705,14 +732,25 @@
 .chat-message-actions .chat-action[data-danger=true]:hover {
   background: #ffebe9;
 }
+.chat-message-actions .chat-action[data-danger=true] svg {
+  opacity: 0.85;
+}
 
-/* Reacciones en el mensaje */
+/* Reacciones en el mensaje alineadas en la base del globo */
 .chat-reactions {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
-  padding: 0 8px 6px;
-  margin-top: 2px;
+  padding: 0 4px;
+  margin-top: -6px;
+  margin-bottom: 3px;
+  z-index: 4;
+}
+.chat-message[data-mine=true] .chat-reactions {
+  justify-content: flex-end;
+}
+.chat-message:not([data-mine=true]) .chat-reactions {
+  justify-content: flex-start;
 }
 .kja-chat .chat-reaction {
   background: #ffffff;
@@ -829,6 +867,7 @@
   overflow: hidden !important;
 }
 .chat-voice-track {
+  position: relative !important;
   display: flex !important;
   align-items: center !important;
   gap: 2px !important;
@@ -837,7 +876,7 @@
   max-height: 20px !important;
   cursor: pointer !important;
   width: 100% !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   flex-wrap: nowrap !important;
   padding: 1px 0 !important;
 }
@@ -853,8 +892,26 @@
 .chat-message[data-mine=true] .chat-voice-bar {
   background: #9bb797 !important;
 }
-.chat-voice-bar.is-played {
+.chat-voice-bar.is-played,
+.chat-message[data-mine=true] .chat-voice-bar.is-played {
   background: #00a884 !important;
+}
+.chat-voice-scrubber {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #00a884;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.32);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+  transition: transform 0.08s ease;
+}
+.chat-voice-track:hover .chat-voice-scrubber {
+  transform: translate(-50%, -50%) scale(1.25);
 }
 .chat-voice-meta {
   display: flex !important;
@@ -980,6 +1037,9 @@
 }
 .chat-message.has-media-caption .chat-img-wrap {
   border-radius: 13px 13px 4px 4px !important;
+}
+.chat-message.has-media-caption .chat-img-time-badge {
+  display: none !important;
 }
 .chat-img-thumb,
 .chat-img-link,
@@ -1453,12 +1513,14 @@
   transform: scale(1.08);
 }
 .chat-audio-waveform {
-  display: flex;
-  align-items: center;
-  gap: 2.5px;
-  flex: 1;
-  height: 26px;
-  overflow: hidden;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 2.5px !important;
+  flex: 1 !important;
+  height: 26px !important;
+  overflow: visible !important;
+  cursor: pointer !important;
 }
 .chat-waveform-bar {
   flex: 1;
@@ -1469,7 +1531,20 @@
   transition: background 0.12s;
 }
 .chat-waveform-bar.is-played {
-  background: #25d366;
+  background: #00a884 !important;
+}
+.chat-audio-scrubber {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #00a884;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
 }
 .chat-audio-timer {
   font-size: 13px;
