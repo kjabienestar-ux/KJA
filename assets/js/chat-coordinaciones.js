@@ -194,7 +194,24 @@
     if(kind==='editar'){clear(w);w.savedDraft=w.input.value;w.editing=message;w.reply=null;w.input.value=message.contenido}
     else {if(w.editing)w.input.value=w.savedDraft||'';w.editing=null;w.reply=message}
     w.pending=null;
-    w.modeBar.replaceChildren(el('span','',`${kind==='editar'?'Editando':'Responder a '+(message.autor||'mensaje')}: ${message.contenido.slice(0,120)}`),
+
+    let summaryText = message.contenido || '';
+    const isVoice = message.archivo_mime?.startsWith('audio/') || (!message.archivo_mime && message.archivo_path && /\.(webm|ogg|m4a|mp3|wav)$/i.test(message.archivo_path));
+    const isImg = message.archivo_mime?.startsWith('image/') || message.imagen_path || (!isVoice && message.archivo_path && (message.contenido === 'Archivo adjunto' || /\.(jpg|jpeg|png|webp|gif)$/i.test(message.archivo_path || message.archivo_nombre || '')));
+    const isDoc = message.archivo_path && !isImg && !isVoice;
+
+    if (isImg) {
+      const caption = (message.contenido && message.contenido !== 'Archivo adjunto' && message.contenido !== 'Imagen') ? String(message.contenido).trim() : '';
+      summaryText = caption ? `📷 Foto · ${caption}` : '📷 Foto';
+    } else if (isVoice) {
+      summaryText = '🎤 Nota de voz';
+    } else if (isDoc) {
+      summaryText = `📄 ${message.archivo_nombre || 'Documento'}`;
+    } else if (summaryText === 'Archivo adjunto') {
+      summaryText = '📷 Foto';
+    }
+
+    w.modeBar.replaceChildren(el('span','',`${kind==='editar'?'Editando':'Responder a '+(message.autor||'mensaje')}: ${summaryText.slice(0,120)}`),
       btn('Cancelar',()=>resetMode(w,true)));
     w.modeBar.hidden=false;w.input.oninput();w.input.focus();
   }
@@ -757,7 +774,7 @@
 
     entry.onpointerdown = e => {
       if(e.button !== undefined && e.button !== 0) return;
-      if(e.target.closest('button, a, summary, input, select, textarea, .chat-reaction, audio, .chat-doc-card-v2, .chat-img-thumb')) return;
+      if(e.target.closest('button, a, summary, input, select, textarea, .chat-reaction, audio, .chat-voice-play, .chat-voice-speed, .chat-voice-scrubber, .chat-img-retry-btn')) return;
       cleanup();
       startX = typeof e.clientX === 'number' ? e.clientX : 0;
       startY = typeof e.clientY === 'number' ? e.clientY : 0;
@@ -767,7 +784,7 @@
         entry.classList.add('is-long-pressed');
         navigator.vibrate?.(40);
         menu.open = true;
-        positionMenu?.();
+        positionMenu?.(true);
       }, 380);
     };
 
@@ -808,6 +825,8 @@
     function finish(){
       if(longTimer){clearTimeout(longTimer);longTimer=null}
       if(swiping){
+        entry.dataset.didGesture = 'true';
+        setTimeout(() => { delete entry.dataset.didGesture; }, 320);
         entry.style.transition = 'transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
         entry.style.transform = '';
         if(thresholdReached){
@@ -816,12 +835,82 @@
         }
         setTimeout(cleanup, 220);
       } else {
+        if(entry.classList.contains('is-long-pressed')){
+          entry.dataset.didGesture = 'true';
+          setTimeout(() => { delete entry.dataset.didGesture; }, 400);
+        }
         cleanup();
       }
     }
 
     entry.onpointerup = finish;
     entry.onpointercancel = finish;
+  }
+  function renderQuoteBlock(m, w, api){
+    if(!m.respuesta) return null;
+    const resp = m.respuesta;
+    const cited = (resp.id && w.messages?.get(Number(resp.id))) || resp;
+    const quote = el('blockquote', 'chat-quote');
+
+    const isAudio = cited.archivo_mime?.startsWith('audio/') || (!cited.archivo_mime && cited.archivo_path && /\.(webm|ogg|m4a|mp3|wav)$/i.test(cited.archivo_path));
+    const isImage = cited.archivo_mime?.startsWith('image/') || cited.imagen_path || (!isAudio && cited.archivo_path && (cited.contenido === 'Archivo adjunto' || /\.(jpg|jpeg|png|webp|gif)$/i.test(cited.archivo_path || cited.archivo_nombre || '')));
+    const isDoc = cited.archivo_path && !isAudio && !isImage;
+
+    const authorText = resp.autor || (cited.remitente === api.user() ? 'Tú' : (cited.autor || 'Mensaje'));
+
+    let contentLabel = cited.contenido || resp.contenido || '';
+    if (isImage) {
+      const caption = (cited.contenido && cited.contenido !== 'Archivo adjunto' && cited.contenido !== 'Imagen') ? String(cited.contenido).trim() : '';
+      contentLabel = caption ? `📷 Foto · ${caption}` : '📷 Foto';
+    } else if (isAudio) {
+      contentLabel = '🎤 Nota de voz';
+    } else if (isDoc) {
+      contentLabel = `📄 ${cited.archivo_nombre || 'Documento'}`;
+    } else if (contentLabel === 'Archivo adjunto') {
+      contentLabel = '📷 Foto';
+    }
+
+    const bodyWrap = el('div', 'chat-quote-body');
+    const authorEl = el('strong', 'chat-quote-author', authorText);
+    const textEl = el('span', 'chat-quote-text', contentLabel);
+    bodyWrap.append(authorEl, textEl);
+    quote.append(bodyWrap);
+
+    const imgPath = cited.imagen_path || (isImage ? cited.archivo_path : null);
+    if (imgPath && api.db?.storage) {
+      const bucket = cited.imagen_path ? 'chat-imagenes' : 'chat-archivos';
+      const thumbWrap = el('div', 'chat-quote-thumb-wrap');
+      const thumbImg = el('img', 'chat-quote-thumb');
+      thumbImg.alt = 'Foto';
+      thumbWrap.append(thumbImg);
+      quote.append(thumbWrap);
+
+      void (async () => {
+        try {
+          const res = await api.db?.storage?.from?.(bucket)?.createSignedUrl?.(imgPath, 300);
+          if (res?.data?.signedUrl && quote.isConnected) {
+            thumbImg.src = res.data.signedUrl;
+          }
+        } catch (_) {}
+      })();
+    }
+
+    quote.title = 'Ir al mensaje original';
+    quote.onclick = (e) => {
+      e.stopPropagation();
+      const targetId = resp.id;
+      if (!targetId || !w.history) return;
+      const targetMsg = w.history.querySelector(`[data-message-id="${targetId}"]`);
+      if (targetMsg) {
+        targetMsg.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+        targetMsg.classList.remove('chat-msg-highlight');
+        void targetMsg.offsetWidth;
+        targetMsg.classList.add('chat-msg-highlight');
+        setTimeout(() => targetMsg.classList.remove('chat-msg-highlight'), 1800);
+      }
+    };
+
+    return quote;
   }
   function render(entry,m,w,api){
     entry.dataset.messageId=m.id;
@@ -830,7 +919,8 @@
     const bubble=entry.querySelector('.chat-bubble');
     if(bubble)formatBubble(bubble,m.contenido);
     if(m.respuesta){
-      const quote=el('blockquote','chat-quote');quote.append(el('strong','',m.respuesta.autor||'Mensaje'),el('span','',m.respuesta.contenido));entry.prepend(quote);
+      const quote=renderQuoteBlock(m,w,api);
+      if(quote)entry.prepend(quote);
     }
     const isMine=m.remitente===api.user();
     const date=new Date(m.creado_at);
@@ -1006,8 +1096,10 @@
               spinner.remove();
             };
             img.onclick=()=>{
+              if(entry.dataset.didGesture || entry.classList.contains('is-long-pressed')) return;
               const link=el('a');link.href=data.signedUrl;link.target='_blank';link.rel='noopener noreferrer';link.click();
             };
+            img.ondragstart = (e) => e.preventDefault();
             img.style.cursor='pointer';
           }catch(err){
             spinner.remove();
@@ -1078,7 +1170,12 @@
       if(bubble && bubble.isConnected){
         entry.insertBefore(attachment, bubble);
       } else {
-        entry.prepend(attachment);
+        const quote = entry.querySelector('.chat-quote');
+        if(quote) {
+          quote.insertAdjacentElement('afterend', attachment);
+        } else {
+          entry.prepend(attachment);
+        }
       }
     }
     const reactions=el('div','chat-reactions');
@@ -1098,8 +1195,8 @@
     summary.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
     const actions=el('div','chat-message-actions');
 
-    function positionMenu(){
-      if(!menu.open) return;
+    function positionMenu(force){
+      if(!menu.open && !force) return;
       w.history?.querySelectorAll('.chat-message-menu[open]').forEach(other => {
         if(other !== menu) other.open = false;
       });
@@ -1110,10 +1207,13 @@
       const spaceBelow = bottomLimit - rect.bottom;
       const spaceAbove = rect.top - Math.max(historyRect.top, 40);
 
-      const opensUp = spaceBelow < 235 || (spaceAbove > 235 && spaceBelow < spaceAbove);
+      const opensUp = spaceBelow < 250 || (spaceAbove > 235 && spaceBelow < spaceAbove);
       menu.classList.toggle('opens-up', opensUp);
       actions.classList.toggle('opens-up', opensUp);
     }
+
+    summary.onpointerdown = () => positionMenu(true);
+    summary.onclick = () => positionMenu(true);
 
     menu.addEventListener('toggle', () => {
       if(menu.open){

@@ -49,7 +49,11 @@ begin
  if m->>'respuesta_id' is not null then
   r:=public.chat_v2_mensaje(p_grupo,(m->>'respuesta_id')::bigint);
   m:=m||jsonb_build_object('respuesta',jsonb_build_object('id',r->'id','contenido',r->>'contenido',
-    'autor',(select nombre from public.asis_perfiles where id=(r->>'remitente')::uuid)));
+    'autor',(select nombre from public.asis_perfiles where id=(r->>'remitente')::uuid),
+    'archivo_path',r->>'archivo_path',
+    'archivo_nombre',r->>'archivo_nombre',
+    'archivo_mime',r->>'archivo_mime',
+    'imagen_path',r->>'imagen_path'));
  end if;
  return m||jsonb_build_object(
   'autor',(select nombre from public.asis_perfiles where id=(m->>'remitente')::uuid),
