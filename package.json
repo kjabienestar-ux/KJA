@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test:chat": "node --test tests/chat.test.mjs tests/chat-images.test.mjs tests/chat-coordinaciones.test.mjs tests/chat-coordinaciones-sql.test.mjs",
     "test:marketing": "node --test tests/marketing.test.mjs tests/marketing-gemini.test.mjs tests/marketing-compression.test.mjs tests/marketing-quota.test.mjs tests/marketing-layout.test.mjs",
     "test:cursos": "node --test tests/cursos-biblioteca.test.mjs tests/cursos-formacion.test.mjs tests/cursos-oferta.test.mjs tests/cursos-pack.test.mjs",
     "test:tutorial": "node --test --test-isolation=none tests/dashboard-guided-tour.test.mjs tests/videos.test.mjs",
