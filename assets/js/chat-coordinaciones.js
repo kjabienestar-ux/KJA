@@ -180,6 +180,10 @@
   }
   function clear(w){
     w.mediaGeneration=(w.mediaGeneration||0)+1;
+    if(w.currentPlayingAudio){
+      try{w.currentPlayingAudio.pause()}catch{}
+      w.currentPlayingAudio=null;
+    }
     if(w.recording){w.recording.cancel=true;try{if(w.recording.recorder.state!=='inactive')w.recording.recorder.stop()}catch{}w.recording.stream.getTracks().forEach(t=>t.stop());clearTimeout(w.recording.timeout);w.recording.cleanUi?.();w.recording=null}
     if(w.attachment?.url)URL.revokeObjectURL(w.attachment.url);
     w.attachment=null;w.recordingPending=false;
@@ -845,6 +849,11 @@
 
     entry.onpointerup = finish;
     entry.onpointercancel = finish;
+    entry.oncontextmenu = e => {
+      if(entry.classList.contains('is-long-pressed') || entry.classList.contains('is-swiping') || entry.dataset.didGesture){
+        e.preventDefault();
+      }
+    };
   }
   function renderQuoteBlock(m, w, api){
     if(!m.respuesta) return null;
@@ -907,6 +916,8 @@
         void targetMsg.offsetWidth;
         targetMsg.classList.add('chat-msg-highlight');
         setTimeout(() => targetMsg.classList.remove('chat-msg-highlight'), 1800);
+      } else {
+        api.note(w, 'El mensaje citado está más arriba en el historial.');
       }
     };
 
@@ -1052,6 +1063,12 @@
           }
         };
         audio.ontimeupdate=updateProgress;
+        audio.onpause=()=>{
+          playBtn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+        };
+        audio.onplay=()=>{
+          playBtn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+        };
         audio.onended=()=>{
           playBtn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
           try{audio.currentTime=0}catch{}
@@ -1238,7 +1255,10 @@
     const deleteSvg = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ff3b30" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>';
 
     actions.append(actionItem('Responder', replySvg, () => { menu.open = false; mode(w, 'responder', m); }));
-    if(navigator.clipboard) {
+    const msgIsAudio = m.archivo_mime?.startsWith('audio/') || (!m.archivo_mime && m.archivo_path && /\.(webm|ogg|m4a|mp3|wav)$/i.test(m.archivo_path));
+    const msgIsImage = m.archivo_mime?.startsWith('image/') || m.imagen_path || (!msgIsAudio && m.archivo_path && (m.contenido === 'Archivo adjunto' || /\.(jpg|jpeg|png|webp|gif)$/i.test(m.archivo_path || m.archivo_nombre || '')));
+    const hasTextToCopy = m.contenido && m.contenido !== 'Archivo adjunto' && m.contenido !== 'Imagen' && m.contenido.trim().length > 0;
+    if(hasTextToCopy && navigator.clipboard) {
       actions.append(actionItem('Copiar texto', copySvg, async () => {
         try {
           await navigator.clipboard.writeText(m.contenido);
@@ -1249,9 +1269,30 @@
         }
       }));
     }
+    const downloadSvg = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+    if(m.archivo_path || m.imagen_path){
+      actions.append(actionItem('Descargar', downloadSvg, async () => {
+        menu.open = false;
+        try {
+          const bucket = m.archivo_path ? 'chat-archivos' : 'chat-imagenes';
+          const path = m.archivo_path || m.imagen_path;
+          const name = m.archivo_nombre || (msgIsImage ? 'foto.jpg' : 'archivo');
+          const { data, error } = await api.db.storage.from(bucket).createSignedUrl(path, 300, { download: name });
+          if(error || !data?.signedUrl) throw error || Error();
+          const a = el('a');
+          a.href = data.signedUrl;
+          a.download = name;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.click();
+        } catch {
+          api.note(w, 'No se pudo descargar el archivo.', true);
+        }
+      }));
+    }
     actions.append(actionItem('Reenviar', forwardSvg, () => forward(m, w, api, menu)));
     if(m.remitente === api.user()){
-      if(Date.now() - Date.parse(m.creado_at) < 15 * 60000) {
+      if(!msgIsAudio && hasTextToCopy && Date.now() - Date.parse(m.creado_at) < 15 * 60000) {
         actions.append(actionItem('Editar', editSvg, () => { menu.open = false; mode(w, 'editar', m); }));
       }
       actions.append(actionItem('Eliminar para todos', deleteSvg, () => {
