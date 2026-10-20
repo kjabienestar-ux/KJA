@@ -32,14 +32,15 @@ Para integrar ramas, incorpora primero `codex/oferta-cursos` a tu rama (merge o 
 Existe en las páginas normales de Cursos, después de ejecutar sus scripts. En `?area=…` y cuando falta el catálogo la oferta permanece oculta y la API no se crea. Comprueba su existencia.
 
 ```js
-const view = window.KJA_COURSE_OFFER;
-if (!view) return;
-
-view.setSelection(['rrhh', 'wisc-v']); // Sincroniza una copia del estado del controlador.
-view.getSelection();                 // Devuelve otra copia de los IDs renderizados.
-view.getTarget();                    // Botón HTMLElement estable para el destino de la animación.
-view.open();                         // Abre y enfoca; no lo invoques automáticamente en cada alta.
-view.close();                        // Cierra, libera el fondo y restaura el foco.
+(() => {
+  const view = window.KJA_COURSE_OFFER;
+  if (!view) return;
+  view.setSelection(['rrhh', 'wisc-v']); // Sincroniza una copia del estado del controlador.
+  view.getSelection();                 // Devuelve otra copia de los IDs renderizados.
+  view.getTarget();                    // Botón HTMLElement estable para el destino de la animación.
+  view.open();                         // Abre y enfoca; no lo invoques automáticamente en cada alta.
+  view.close();                        // Cierra, libera el fondo y restaura el foco.
+})();
 ```
 
 `setSelection(courseIds)` exige un array de 0–4 IDs únicos existentes en `KJA_FORMATION.courses`. Lanza `TypeError` ante duplicados, IDs desconocidos o más de cuatro; la selección anterior no cambia. Valida en tu controlador antes de llamar para dar un mensaje útil al visitante. No uses títulos como identificador ni el orden aleatorio de tarjetas.
