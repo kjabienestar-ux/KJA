@@ -81,10 +81,47 @@
         }
         clear(w);w.pending=null;
         w.attachment={blob:f,mime,name:f.name,key:crypto.randomUUID(),url:URL.createObjectURL(f)};
-        const label=el('span','',f.name+' · '+(f.size/1024/1024).toFixed(1)+' MB');
-        const remove=btn('Quitar',()=>{if(w.sending)return;clear(w);w.pending=null;w.input.oninput()});
-        w.filePreview.append(label,remove);
-        if(mime.startsWith('audio/')){const player=el('audio');player.controls=true;player.src=w.attachment.url;w.filePreview.append(player)}
+        if(mime.startsWith('audio/')){
+          const audioBar=el('div','chat-audio-bar');
+          const discardBtn=btn('Quitar',()=>{if(w.sending)return;clear(w);w.pending=null;w.input.oninput()},'chat-audio-discard');
+          discardBtn.innerHTML='<span class="sr-only">Quitar</span><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+          discardBtn.title='Descartar audio';discardBtn.setAttribute('aria-label','Descartar audio');
+
+          const capsule=el('div','chat-audio-capsule');
+          const playBtn=el('button','chat-audio-play');playBtn.type='button';
+          playBtn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+
+          const player=el('audio');player.src=w.attachment.url;player.preload='metadata';
+          const waveform=el('div','chat-audio-waveform');
+          const heights=[6,12,18,8,22,14,10,20,16,24,12,18,8,14,20,10,22,16,8,12,18,14,10,6];
+          const bars=heights.map(h=>{const b=el('span','chat-waveform-bar');b.style.height=h+'px';waveform.append(b);return b});
+
+          const timer=el('span','chat-audio-timer','+ 0:00');
+          player.onloadedmetadata=()=>{if(player.duration&&isFinite(player.duration)){const s=Math.round(player.duration);timer.textContent='+ '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}};
+          player.ontimeupdate=()=>{const cur=player.currentTime||0,dur=player.duration||1,s=Math.round(cur);timer.textContent='+ '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');const pct=cur/dur;bars.forEach((b,i)=>b.classList.toggle('is-played',(i/bars.length)<=pct))};
+          player.onended=()=>{playBtn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';bars.forEach(b=>b.classList.remove('is-played'))};
+          playBtn.onclick=()=>{
+            if(player.paused){player.play().then(()=>{playBtn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'}).catch(()=>{})}
+            else{player.pause();playBtn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>'}
+          };
+          capsule.append(playBtn,waveform,timer,player);
+
+          const sendVoiceBtn=el('button','chat-audio-send');sendVoiceBtn.type='button';sendVoiceBtn.title='Enviar audio';
+          sendVoiceBtn.innerHTML='<span class="sr-only">Enviar audio</span><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+          sendVoiceBtn.onclick=()=>form.requestSubmit();
+
+          audioBar.append(discardBtn,capsule,sendVoiceBtn);
+          w.filePreview.replaceChildren(audioBar);
+        } else {
+          const chip=el('div','chat-file-chip');
+          const icon=el('span','chat-file-chip-icon');
+          icon.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+          const info=el('span','chat-file-chip-info',f.name+' · '+(f.size/1024/1024).toFixed(1)+' MB');
+          const remove=btn('Quitar',()=>{if(w.sending)return;clear(w);w.pending=null;w.input.oninput()},'chat-file-chip-remove');
+          remove.innerHTML='<span class="sr-only">Quitar</span><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+          chip.append(icon,info,remove);
+          w.filePreview.replaceChildren(chip);
+        }
         w.input.oninput();api.note(w,'');
       }catch(e){if(api.current(w))api.note(w,e.message,true)}
       finally{w.compressing=false;if(api.current(w))w.input.oninput()}
@@ -167,6 +204,58 @@
       pinBtn.title='Fijar conversación arriba en la lista';
       head.append(pinBtn);
     }
+    const headSearch=el('button','chat-icon chat-head-search');headSearch.type='button';headSearch.title='Buscar en el chat';
+    headSearch.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+    headSearch.onclick=()=>{searchBox.hidden=!searchBox.hidden;if(!searchBox.hidden)query.focus()};
+    head.append(headSearch);
+
+    const attachBtn=el('button','chat-icon chat-attach-plus');attachBtn.type='button';
+    attachBtn.innerHTML='<svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.2" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+    attachBtn.title='Adjuntar';
+
+    const sheet=el('div','chat-attach-sheet');sheet.hidden=true;
+    function opt(label,color,iconSvg,action){
+      const b=el('button','chat-sheet-item');b.type='button';
+      const ic=el('span','chat-sheet-icon');ic.style.color=color;ic.innerHTML=iconSvg;
+      b.append(ic,el('span','chat-sheet-label',label));
+      b.onclick=(e)=>{e.stopPropagation();sheet.hidden=true;action()};return b;
+    }
+    sheet.append(
+      opt('Fotos y videos','#007aff','<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',()=>{file.accept='image/*,video/*';file.click()}),
+      opt('Documento','#0ea5e9','<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',()=>{file.accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv';file.click()}),
+      opt('Audio','#8b5cf6','<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M10 9v6l5-3-5-3z"/></svg>',()=>{file.accept='audio/*';file.click()}),
+      opt('Nota de voz','#10b981','<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',()=>w.mic.click()),
+      opt('Buscar','#64748b','<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',()=>searchToggle.click())
+    );
+    if(w.group&&api.capabilities().administrar_grupos){
+      sheet.append(opt('Integrantes','#f59e0b','<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',()=>void groupInfo(w,api)));
+    }
+    attachBtn.onclick=(e)=>{e.stopPropagation();sheet.hidden=!sheet.hidden};
+    w.el.addEventListener('click',(e)=>{if(!sheet.contains(e.target)&&e.target!==attachBtn)sheet.hidden=true});
+
+    const composerMic=el('button','chat-send chat-composer-mic');composerMic.type='button';
+    composerMic.title='Grabar nota de voz';composerMic.setAttribute('aria-label','Grabar nota de voz');
+    composerMic.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+    composerMic.onclick=()=>{if(!w.sending&&!w.compressing)w.mic.click()};
+
+    function updateComposerUi(){
+      const hasContent=Boolean(w.input.value.trim()||w.attachment);
+      composerMic.hidden=hasContent;
+      w.send.hidden=!hasContent;
+      if(w.recording){
+        composerMic.classList.add('is-recording');
+        composerMic.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+      }else{
+        composerMic.classList.remove('is-recording');
+        composerMic.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+      }
+    }
+    const origInput=w.input.oninput;
+    w.input.oninput=()=>{if(origInput)origInput();updateComposerUi()};
+    w.updateComposerUi=updateComposerUi;
+    updateComposerUi();
+
+    form.append(attachBtn,composerMic,sheet);
   }
   function groupPanel(parent,title){
     parent.querySelector('.chat-group-editor')?.remove();
@@ -283,25 +372,91 @@
     }
     if(m.archivo_path){
       const attachment=el('div','chat-file');
-      const load=btn((m.archivo_mime?.startsWith('audio/')?'Escuchar: ':'Abrir: ')+m.archivo_nombre,async()=>{
-        load.disabled=true;
-        try{
-          const preview=/^(audio|image)\//.test(m.archivo_mime||'');
-          const {data,error}=await api.db.storage.from('chat-archivos').createSignedUrl(m.archivo_path,300,preview?{}:{download:m.archivo_nombre});
-          if(!api.current(w)||!load.isConnected)return;if(error||!data?.signedUrl)throw error||Error();
-          if(m.archivo_mime?.startsWith('audio/')){
-            const audio=el('audio');audio.controls=true;audio.src=data.signedUrl;attachment.replaceChildren(audio);
-            audio.onerror=()=>{attachment.replaceChildren(load);load.disabled=false;load.textContent='Reintentar audio'};void audio.play().catch(()=>{});
-          }else if(m.archivo_mime?.startsWith('image/')){
-            const link=el('a');link.href=data.signedUrl;link.target='_blank';link.rel='noopener noreferrer';link.setAttribute('aria-label','Abrir imagen en tamaño completo');
-            const image=el('img');image.src=data.signedUrl;image.alt=m.archivo_nombre;image.loading='lazy';image.onerror=()=>{attachment.replaceChildren(load);load.disabled=false;load.textContent='Reintentar imagen'};
-            link.append(image);attachment.replaceChildren(link);
-          }else{
-            const link=el('a','chat-action','Descargar '+m.archivo_nombre);link.href=data.signedUrl;link.target='_blank';link.rel='noopener noreferrer';link.download=m.archivo_nombre;attachment.append(link);link.click();
+      if(m.archivo_mime?.startsWith('audio/')){
+        const voiceBubble=el('div','chat-voice-bubble');
+        const playBtn=el('button','chat-voice-play');playBtn.type='button';
+        playBtn.title='Reproducir nota de voz';playBtn.setAttribute('aria-label','Reproducir nota de voz');
+        playBtn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+
+        const track=el('div','chat-voice-track');
+        const heights=[6,12,18,8,22,14,10,20,16,24,12,18,8,14,20,10,22,16,8,12,18,14,10,6];
+        const bars=heights.map(h=>{const b=el('span','chat-voice-bar');b.style.height=h+'px';track.append(b);return b});
+
+        const meta=el('div','chat-voice-meta');
+        const time=el('span','chat-voice-time','0:00');
+        const speedBtn=el('button','chat-voice-speed','1x');speedBtn.type='button';speedBtn.title='Velocidad de reproducción';
+        meta.append(time,speedBtn);
+
+        const body=el('div','chat-voice-body');body.append(track,meta);
+        const audio=el('audio');audio.preload='metadata';
+        let signed=null,loading=false;const speeds=[1,1.5,2];let sIdx=0;
+        speedBtn.onclick=(e)=>{e.stopPropagation();sIdx=(sIdx+1)%speeds.length;audio.playbackRate=speeds[sIdx];speedBtn.textContent=speeds[sIdx]+'x'};
+
+        async function loadAndPlay(){
+          if(loading)return;
+          if(!signed){
+            loading=true;playBtn.disabled=true;
+            try{
+              const {data,error}=await api.db.storage.from('chat-archivos').createSignedUrl(m.archivo_path,300);
+              if(!api.current(w)||!voiceBubble.isConnected)return;
+              if(error||!data?.signedUrl)throw error||Error();
+              signed=data.signedUrl;audio.src=signed;
+            }catch{if(api.current(w))api.note(w,'No se pudo cargar el audio. Vuelve a intentar.',true);return}
+            finally{loading=false;playBtn.disabled=false}
           }
-        }catch{if(api.current(w))api.note(w,'No se pudo abrir el archivo. Vuelve a intentar.',true)}finally{load.disabled=false}
-      });attachment.append(load,el('small','',`${(Number(m.archivo_bytes||0)/1024/1024).toFixed(1)} MB`));entry.append(attachment);
-      if(m.archivo_mime?.startsWith('image/'))load.click();
+          if(audio.paused){
+            audio.play().then(()=>{playBtn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'}).catch(()=>{});
+          }else{
+            audio.pause();playBtn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+          }
+        }
+        playBtn.onclick=e=>{e.stopPropagation();void loadAndPlay()};
+        track.onclick=e=>{
+          e.stopPropagation();if(!audio.duration||!isFinite(audio.duration))return;
+          const rect=track.getBoundingClientRect();
+          const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+          audio.currentTime=pct*audio.duration;
+        };
+        audio.onloadedmetadata=()=>{if(audio.duration&&isFinite(audio.duration)){const s=Math.round(audio.duration);time.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}};
+        audio.ontimeupdate=()=>{const cur=audio.currentTime||0,dur=audio.duration||1,s=Math.round(cur);time.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');const pct=cur/dur;bars.forEach((b,i)=>b.classList.toggle('is-played',(i/bars.length)<=pct))};
+        audio.onended=()=>{playBtn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';bars.forEach(b=>b.classList.remove('is-played'))};
+
+        voiceBubble.append(playBtn,body,audio);
+        attachment.append(voiceBubble);
+        entry.append(attachment);
+      }else if(m.archivo_mime?.startsWith('image/')){
+        const imgWrap=el('div','chat-img-wrap');
+        const load=btn('Ver imagen '+m.archivo_nombre,async()=>{
+          load.disabled=true;
+          try{
+            const {data,error}=await api.db.storage.from('chat-archivos').createSignedUrl(m.archivo_path,300);
+            if(!api.current(w)||!imgWrap.isConnected)return;if(error||!data?.signedUrl)throw error||Error();
+            const link=el('a','chat-img-link');link.href=data.signedUrl;link.target='_blank';link.rel='noopener noreferrer';
+            link.setAttribute('aria-label','Abrir imagen en tamaño completo');
+            const image=el('img');image.src=data.signedUrl;image.alt=m.archivo_nombre;image.loading='lazy';
+            image.onerror=()=>{imgWrap.replaceChildren(load);load.disabled=false;load.textContent='Reintentar imagen'};
+            link.append(image);imgWrap.replaceChildren(link);
+          }catch{if(api.current(w))api.note(w,'No se pudo abrir la imagen.',true)}finally{load.disabled=false}
+        },'chat-img-btn');
+        imgWrap.append(load);attachment.append(imgWrap);entry.append(attachment);load.click();
+      }else{
+        const docCard=el('div','chat-doc-card');
+        const icon=el('div','chat-doc-icon');
+        icon.innerHTML='<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+        const docInfo=el('div','chat-doc-info');
+        const name=el('strong','chat-doc-name',m.archivo_nombre);
+        const meta=el('span','chat-doc-meta',`${(Number(m.archivo_bytes||0)/1024/1024).toFixed(1)} MB · Documento`);
+        docInfo.append(name,meta);
+        const dlBtn=btn('Descargar',async()=>{
+          dlBtn.disabled=true;
+          try{
+            const {data,error}=await api.db.storage.from('chat-archivos').createSignedUrl(m.archivo_path,300,{download:m.archivo_nombre});
+            if(!api.current(w))return;if(error||!data?.signedUrl)throw error||Error();
+            const a=el('a');a.href=data.signedUrl;a.download=m.archivo_nombre;a.click();
+          }catch{if(api.current(w))api.note(w,'No se pudo descargar el archivo.',true)}finally{dlBtn.disabled=false}
+        },'chat-action chat-doc-dl');
+        docCard.append(icon,docInfo,dlBtn);attachment.append(docCard);entry.append(attachment);
+      }
     }
     const reactions=el('div','chat-reactions');
     async function action(kind,text){
@@ -321,7 +476,9 @@
     actions.append(btn('Reenviar',()=>forward(m,w,api,menu)));
     if(m.remitente===api.user()){
       if(Date.now()-Date.parse(m.creado_at)<15*60000)actions.append(btn('Editar',()=>{menu.open=false;mode(w,'editar',m)}));
-      actions.append(btn('Eliminar para todos',()=>{if(confirm('¿Eliminar este mensaje para todos los participantes?'))void action('eliminar')}));
+      const delBtn=btn('Eliminar para todos',()=>{if(confirm('¿Eliminar este mensaje para todos los participantes?'))void action('eliminar')});
+      delBtn.dataset.danger='true';
+      actions.append(delBtn);
     }
     const choices=el('div','chat-reaction-choices');
     for(const emoji of ['👍','❤️','😂','😮','😢','🙏']){const b=btn(emoji,()=>{menu.open=false;void action('reaccionar',(m.reacciones||[]).some(r=>r.emoji===emoji&&r.propia)?null:emoji)});b.setAttribute('aria-label','Reaccionar con '+emoji);choices.append(b)}
