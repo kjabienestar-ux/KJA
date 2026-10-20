@@ -2,7 +2,7 @@
 
 ## Prompt para el modelo del compañero
 
-> Continúa KJA-006 sobre la rama `codex/oferta-cursos` o sobre una rama que ya contenga su PR. Lee este documento, `PRODUCT.md`, `docs/cursos-formacion-publica.md` y las instrucciones AGENTS aplicables. La pestaña y el panel de oferta ya están preparados. Tu trabajo es conectar la selección de «Explora nuestros cursos», implementar las animaciones de añadir cursos y completar el carrito y su salida a WhatsApp. Conserva el diseño y la API de la pestaña; no construyas otro panel ni otro estado paralelo dentro de ella. Implementa, verifica y entrega los cambios con evidencia.
+> Continúa KJA-006 desde la rama principal actualizada (`master` en este repositorio), que debe contener el PR #131. Crea tu rama de trabajo desde esa base. Lee este documento, `PRODUCT.md`, `docs/cursos-formacion-publica.md` y las instrucciones AGENTS aplicables. La pestaña y el panel de oferta ya están preparados. Tu trabajo es conectar la selección de «Explora nuestros cursos», implementar las animaciones de añadir cursos y completar el carrito y su salida a WhatsApp. Conserva el diseño y la API de la pestaña; no construyas otro panel ni otro estado paralelo dentro de ella. Implementa, verifica y entrega los cambios con evidencia.
 
 ## Acuerdo de producto y alcance de este PR
 
@@ -10,7 +10,7 @@
 - Antes de tener cuatro cursos, el panel muestra «Elegir mis cursos» o «Seguir eligiendo». Esa acción cierra el panel y lleva al catálogo. Al tener exactamente cuatro, aparece «Continuar por WhatsApp». Volver a tres lo oculta.
 - La pestaña es mayor en escritorio: 72×68 px cerrada, 184×68 px extendida. En móvil: 56×54 px cerrada. Conserva regalo → OFERTA → panel en dos tiempos al hover; en táctil abre con un toque.
 - El panel muestra cuatro espacios, títulos/fotos del catálogo, progreso, beneficio del cuarto curso y total. En móvil usa `dialog` nativo, blur, fondo no interactivo y bloqueo de scroll. Al cerrar conserva la posición de lectura. Cabecera y acciones permanecen visibles; la lista tiene scroll interno cuando hace falta.
-- Este PR entrega una **vista controlada**, no el carrito completo. No añade botones de selección al catálogo, animaciones de vuelo, persistencia ni navegación final a WhatsApp. Quitar y continuar emiten intenciones para que tu módulo las resuelva. No fusionar como flujo comercial terminado hasta conectar esas acciones.
+- Este PR entrega una **vista controlada**, no el carrito completo. No añade botones de selección al catálogo, animaciones de vuelo, persistencia ni navegación final a WhatsApp. Quitar y continuar emiten intenciones para que tu módulo las resuelva. El usuario solicitó integrar esta base en la principal para que el compañero la descargue y termine el flujo; esa integración no acredita un carrito comercial terminado.
 
 ## Archivos y fronteras para combinar trabajo
 
@@ -25,7 +25,7 @@
 
 Crea tu controlador, por ejemplo `assets/js/cursos-pack-controller.js`, y sus estilos de selección en un archivo aparte. Cárgalo con `defer` **después** de `cursos-formacion.js` y `cursos-oferta.js`. No copies los mockups de `output/` a producción. No cambies Supabase ni otros módulos.
 
-Para integrar ramas, incorpora primero `codex/oferta-cursos` a tu rama (merge o rebase según el acuerdo del equipo), resuelve solo las cargas/markup de `cursos.html` cuando corresponda y revisa que CSS/JS no queden cargados dos veces. Este PR parte de `origin/master` `03998e64926c4101b707f1626a0eee666be2d73e`. Un commit o PR no acredita despliegue.
+Actualiza tu checkout de `master` con `git pull --ff-only origin master` antes de crear tu rama. Si ya tienes cambios locales, consérvalos antes de cambiar de rama. Si trabajabas en otra rama, incorpora la principal siguiendo el acuerdo del equipo; resuelve las cargas/markup de `cursos.html` cuando corresponda y revisa que CSS/JS no queden cargados dos veces. La base original del PR #131 es `origin/master` `03998e64926c4101b707f1626a0eee666be2d73e`. Un commit o PR no acredita despliegue.
 
 ## API pública, versión 1
 
@@ -107,4 +107,4 @@ Ejecuta `npm ci` y `npm run test:cursos` (incluye las pruebas de la vista). Agre
 
 Recorre 0, 1, 2, 3 y 4 seleccionados. Asegura que WhatsApp no aparezca hasta cuatro; prueba volver de cuatro a tres. En móvil comprueba fondo bloqueado, foco encerrado, CTA visible, scroll de la lista y posición restaurada al cerrar. En escritorio conserva la apertura en dos tiempos y la cancelación si el puntero sale. Prueba Escape, toque fuera, botón de cierre, teclado y movimiento reducido. No rompas las consultas individuales existentes por WhatsApp, los modales del catálogo ni `?area=…`.
 
-Actualiza la ficha KJA-006, documenta rama/SHA, evidencia y lo pendiente. No declares terminado el carrito por tener solo este panel. No fusionar ni desplegar sin el flujo integrado revisado por el equipo.
+Actualiza la ficha KJA-006, documenta rama/SHA, evidencia y lo pendiente. No declares terminado el carrito por tener solo este panel. Verifica el flujo integrado antes de presentarlo como compra funcional.
