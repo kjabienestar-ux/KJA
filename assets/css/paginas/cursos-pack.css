@@ -1,0 +1,47 @@
+/* KJA-006 · Selección del pack en el catálogo, vuelo hacia la pestaña y mascota. */
+.formation-pack-add[hidden] { display: none !important; }
+.formation-pack-add { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; margin-top: 8px; padding: 9px 12px; border: 1.5px solid #f3b6d2; border-radius: 999px; background: #fff; color: #b40057; font: 700 .7rem/1.3 Poppins, sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.formation-pack-add > svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.formation-pack-add .formation-pack-check { display: none; }
+.formation-pack-add[aria-pressed="true"] { border-color: #e0006d; background: #e0006d; color: #fff; }
+.formation-pack-add[aria-pressed="true"] .formation-pack-plus { display: none; }
+.formation-pack-add[aria-pressed="true"] .formation-pack-check { display: inline; }
+.formation-pack-add[data-pack-full="true"] { border-style: dashed; color: #8a5a73; }
+.formation-pack-add:focus-visible { outline: 3px solid #075abc; outline-offset: 3px; }
+.formation-course.formation-course-featured .formation-action { margin-bottom: 0; }
+.formation-course.formation-course-featured .formation-pack-add { width: calc(100% - 32px); margin: 8px 16px 16px; }
+.formation-course[data-in-pack="true"] { box-shadow: 0 0 0 2px #e0006d, 0 12px 26px #e0006d1f; }
+.formation-pack-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.formation-pack-note { margin: 8px 4px 0; padding: 8px 10px; border-radius: 10px; background: #fff0f6; color: #8f0047; font-size: .68rem; line-height: 1.45; }
+.formation-course-featured .formation-pack-note { margin: -8px 16px 16px; }
+
+.pack-flight-layer { position: fixed; inset: 0; z-index: 2400; pointer-events: none; overflow: hidden; }
+.pack-flight { position: fixed; object-fit: cover; box-shadow: 0 14px 30px #09244c40; will-change: transform, opacity; }
+
+.pack-mascot { position: fixed; z-index: 2350; display: flex; align-items: center; gap: 6px; pointer-events: none; opacity: 0; visibility: hidden; transform: translate(14px, -50%); }
+.pack-mascot[data-visible="true"] { opacity: 1; visibility: visible; transform: translate(0, -50%); }
+.pack-mascot-heart { width: 58px; height: 58px; flex: 0 0 58px; filter: drop-shadow(0 8px 10px #e0006d40); }
+.pack-mascot-bubble { max-width: 170px; margin: 0; padding: 8px 12px; border: 1px solid #f0d4e2; border-radius: 14px; background: #fff; color: #09244c; font: 600 .72rem/1.4 Poppins, sans-serif; box-shadow: 0 10px 24px #09244c1f; }
+@media (prefers-reduced-motion: no-preference) {
+  .formation-pack-add { transition: background-color 180ms ease-out, color 180ms ease-out, border-color 180ms ease-out, scale 150ms ease-out; }
+  .formation-pack-add:active { scale: .97; }
+  .formation-course { transition: box-shadow 220ms ease-out; }
+  .pack-mascot { transition: opacity 220ms ease-out, transform 380ms cubic-bezier(.3, 1.5, .5, 1), visibility 220ms; }
+  .pack-mascot[data-visible="true"] .pack-mascot-heart { animation: pack-mascot-float 1.6s ease-in-out infinite; }
+  .pack-mascot-eye { transform-box: fill-box; transform-origin: center; animation: pack-mascot-blink 3.2s infinite; }
+}
+@keyframes pack-mascot-float { 0%, 100% { translate: 0 0; rotate: -3deg; } 50% { translate: 0 -6px; rotate: 3deg; } }
+@keyframes pack-mascot-blink { 0%, 90%, 100% { scale: 1 1; } 94% { scale: 1 .1; } }
+@media (hover: hover) {
+  .formation-pack-add:hover { background: #fff0f6; }
+  .formation-pack-add[aria-pressed="true"]:hover { background: #c4005f; }
+}
+@media (max-width: 600px) {
+  .pack-mascot-heart { width: 44px; height: 44px; flex-basis: 44px; }
+  .pack-mascot-bubble { max-width: 140px; font-size: .68rem; }
+}
+@media (forced-colors: active) {
+  .formation-pack-add { border-color: ButtonText; }
+  .formation-pack-add[aria-pressed="true"] { background: Highlight; color: HighlightText; }
+  .formation-course[data-in-pack="true"] { outline: 2px solid Highlight; }
+}
