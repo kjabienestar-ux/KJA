@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
-<title>Administrar Zoom · KJA</title><link rel="stylesheet" href="assets/css/paginas/zoom-sala.css?v=7"></head>
+<title>Administrar Zoom · KJA</title><link rel="stylesheet" href="assets/css/paginas/zoom-sala.css?v=7"><link rel="stylesheet" href="assets/css/paginas/zoom-camera.css?v=1"></head>
 <body>
 <main id="sdk-lobby" class="sdk-shell">
 <nav class="sdk-nav" aria-label="Navegación"><a class="sdk-back" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>Volver al dashboard</a><span class="sdk-brand">KJA <span>/ Zoom</span></span></nav>
@@ -14,6 +14,8 @@
 <p class="sdk-device" id="sdk-device">Al iniciar, las salas permanecerán cerradas para que puedas activar la elección de sala. Mantén esta página abierta. La prueba desde iPhone todavía requiere validación.</p>
 </div>
 <section class="sdk-meeting-section" aria-labelledby="sdk-meetings-title"><div class="sdk-section-head"><h2 id="sdk-meetings-title">Reuniones autorizadas</h2><span>Acceso de anfitrión</span></div><div id="sdk-meetings"></div></section>
+<section id="sdk-camera-report" aria-label="Reporte de cámaras" hidden></section>
+<p class="sdk-device">Al iniciar desde el portal se registra el estado de cámara visible para el responsable, sin guardar imágenes ni audio. Las salas separadas y los tramos sin conexión quedan sin información. El estado de cámara no acredita atención.</p>
 <details id="sdk-delegation" hidden open><summary><span>Administrar responsables<small>Asigna o retira el acceso a una reunión</small></span></summary>
 <div class="sdk-delegation-body">
 <p>Este permiso permite actuar como anfitrión de la reunión indicada. No da acceso al resto de la administración. Retirarlo bloquea nuevos inicios; no expulsa una sesión de Zoom ya abierta.</p>
@@ -29,9 +31,20 @@
 <p id="sdk-live-status" role="status" aria-live="polite">Consultando salas…</p><ul id="sdk-rooms"></ul>
 <button id="sdk-check" type="button">Consultar salas</button><button id="sdk-open" type="button" disabled>Abrir salas existentes</button>
 <p>En «Salas para grupos pequeños» de Zoom, marca «Allow participants to choose room» en Opciones antes de pulsar «Open All Rooms». Si faltan salas, recupera la preasignación desde ese panel.</p>
+<section id="sdk-camera" data-camera-host aria-labelledby="sdk-camera-title" hidden>
+<h2 id="sdk-camera-title">Cámaras de participantes</h2>
+<p data-camera-status role="status" aria-live="polite">Preparando la observación…</p>
+<ul data-camera-list aria-label="Estado de cámara observado"></ul>
+<button type="button" data-camera-refresh>Consultar cámaras</button>
+<button type="button" data-camera-report>Ver reporte guardado</button>
+<p>El reporte se abre en otra pestaña. Mantén esta conexión abierta. Se guardan estados, sin imágenes ni audio.</p>
+</section>
 <div class="sdk-dashboard-return"><a class="sdk-dashboard-link" href="dashboard.html" target="_blank" rel="noopener noreferrer" aria-describedby="sdk-dashboard-help"><span>Volver a administración</span> <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3l-11 11M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg></a><p id="sdk-dashboard-help">Se abre en otra pestaña. Mantén esta pestaña de Zoom abierta para conservar tu sesión.</p></div>
 <p>Para terminar, usa «Finalizar» dentro de Zoom.</p>
 </details>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/zoom-sala.js?v=8"></script>
+<script src="assets/js/zoom-camera-model.js?v=1"></script>
+<script src="assets/js/zoom-camera-tracker.js?v=1"></script>
+<script src="assets/js/zoom-camera-report.js?v=1"></script>
+<script src="assets/js/zoom-sala.js?v=9"></script>
 </body></html>
