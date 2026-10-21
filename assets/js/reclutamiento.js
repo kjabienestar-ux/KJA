@@ -154,6 +154,7 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    initValidation();
     initCheckboxes();
     initCustomSelects();
     initCvUpload();
@@ -181,6 +182,124 @@
       }
     }
   });
+
+  // Mensajes persistentes junto al campo y resumen del paso al continuar.
+  const fieldErrors = new Map();
+  const attemptedSteps = new Set();
+  const stepFields = {
+    1: ['chk-rec-fb', 'chk-rec-horario', 'chk-rec-entrevista'],
+    2: ['rec-nombres', 'rec-dni', 'rec-telefono', 'rec-email', 'rec-cv-input'],
+    3: ['rec-fecha-entrevista', 'rec-correo-notificacion', 'rec-telefono-notificacion']
+  };
+  const fieldLabels = {
+    'chk-rec-fb': 'Comparticiones diarias', 'chk-rec-horario': 'Disponibilidad de horario',
+    'chk-rec-entrevista': 'CV y entrevista', 'rec-nombres': 'Nombres y apellidos',
+    'rec-dni': 'DNI', 'rec-telefono': 'Teléfono / WhatsApp', 'rec-email': 'Correo electrónico',
+    'rec-cv-input': 'Currículum Vitae', 'rec-fecha-entrevista': 'Fecha de entrevista',
+    'rec-correo-notificacion': 'Correo de notificación', 'rec-telefono-notificacion': 'Teléfono de contacto'
+  };
+  function fieldControl(id) {
+    const target = id === 'rec-cv-input' ? 'rec-cv-dropzone' : id === 'rec-fecha-entrevista' ? 'kja-date-trigger' : id;
+    return document.getElementById(target);
+  }
+  function fieldMessage(id) {
+    const field = document.getElementById(id);
+    const value = field?.value.trim() || '';
+    if (id.startsWith('chk-')) return field?.checked ? '' : 'Confirma este requisito para continuar.';
+    if (id === 'rec-cv-input') return state.cvFile ? '' : 'Adjunta tu CV en PDF, DOC o DOCX, de hasta 10 MB.';
+    if (id === 'rec-fecha-entrevista') return value ? '' : 'Elige una fecha disponible para tu entrevista.';
+    if (!value) return {
+      'rec-nombres': 'Escribe tus nombres y apellidos.', 'rec-dni': 'Ingresa los 8 dígitos de tu DNI.',
+      'rec-telefono': 'Ingresa tu número de teléfono o WhatsApp.', 'rec-email': 'Ingresa tu correo electrónico.',
+      'rec-correo-notificacion': 'Ingresa el correo donde recibirás la respuesta.',
+      'rec-telefono-notificacion': 'Ingresa un teléfono para coordinar tu entrevista.'
+    }[id];
+    if (id === 'rec-dni' && !/^\d{8}$/.test(value)) return 'El DNI debe tener exactamente 8 dígitos, sin letras ni espacios.';
+    if (field?.type === 'email' && (field.validity.typeMismatch || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) return 'Revisa el correo. Usa el formato nombre@correo.com.';
+    if (field?.type === 'tel' && !/^\+?[\d\s().-]+$/.test(value)) return 'Usa solo números; puedes incluir +, espacios, guiones o paréntesis.';
+    if (field?.type === 'tel' && !/^\d{9,15}$/.test(value.replace(/\D/g, ''))) return 'Ingresa entre 9 y 15 dígitos. Puedes incluir el código de país, por ejemplo: +51 987 654 321.';
+    return '';
+  }
+  function setFieldError(id, message) {
+    const control = fieldControl(id);
+    const note = document.getElementById(`${id}-error`);
+    if (!control || !note) return;
+    if (message) fieldErrors.set(id, message); else fieldErrors.delete(id);
+    control.setAttribute('aria-invalid', String(Boolean(message)));
+    control.closest('.rec-field, .rec-check-label')?.classList.toggle('rec-has-error', Boolean(message));
+    if (note.textContent !== (message || '')) note.textContent = message || '';
+    note.hidden = !message;
+    const step = Number(control.closest('.rec-slide-panel')?.id.replace('rec-panel-', ''));
+    updateValidationSummary(step);
+    adjustViewportHeight(state.currentStep);
+  }
+  function focusField(id) {
+    const control = fieldControl(id);
+    control?.focus({ preventScroll: true });
+    control?.scrollIntoView({ behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+  }
+  function updateValidationSummary(step) {
+    const summary = document.getElementById(`rec-validation-${step}`);
+    if (!summary) return;
+    const errors = (stepFields[step] || []).filter(id => fieldErrors.has(id));
+    summary.hidden = !attemptedSteps.has(step) || !errors.length;
+    summary.replaceChildren();
+    if (summary.hidden) return;
+    const title = document.createElement('strong');
+    title.textContent = errors.length === 1 ? 'Revisa este campo para continuar' : `Revisa estos ${errors.length} campos para continuar`;
+    const list = document.createElement('ul');
+    errors.forEach(id => {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = fieldLabels[id];
+      button.addEventListener('click', () => focusField(id));
+      item.append(button); list.append(item);
+    });
+    summary.append(title, list);
+  }
+  function validateFields(step) {
+    attemptedSteps.add(step);
+    stepFields[step].forEach(id => setFieldError(id, fieldMessage(id)));
+    const first = stepFields[step].find(id => fieldErrors.has(id));
+    if (first) focusField(first);
+    return !first;
+  }
+  function initValidation() {
+    Object.entries(stepFields).forEach(([step, ids]) => {
+      const panel = document.getElementById(`rec-panel-${step}`);
+      if (!panel) return;
+      const summary = document.createElement('div');
+      summary.id = `rec-validation-${step}`;
+      summary.className = 'rec-validation-summary';
+      summary.setAttribute('role', 'status');
+      summary.setAttribute('aria-atomic', 'true');
+      summary.hidden = true;
+      const heading = panel.querySelector('.rec-form-heading');
+      if (heading) heading.after(summary); else panel.querySelector('.rec-flow-actions')?.before(summary);
+      ids.forEach(id => {
+        const field = document.getElementById(id);
+        const control = fieldControl(id);
+        if (!field || !control) return;
+        const note = document.createElement('span');
+        note.id = `${id}-error`;
+        note.className = 'rec-field-error';
+        note.setAttribute('aria-live', 'polite');
+        note.hidden = true;
+        if (id.startsWith('chk-')) control.parentElement.querySelector('span')?.append(note);
+        else control.closest('.rec-field')?.append(note);
+        control.setAttribute('aria-describedby', [control.getAttribute('aria-describedby'), note.id].filter(Boolean).join(' '));
+        if (field.type !== 'file' && field.type !== 'hidden' && field.type !== 'checkbox') {
+          field.addEventListener('blur', () => setFieldError(id, fieldMessage(id)));
+          field.addEventListener('input', () => {
+            if (fieldErrors.has(id) || attemptedSteps.has(Number(step))) setFieldError(id, fieldMessage(id));
+          });
+        } else if (field.type !== 'file') field.addEventListener('change', () => {
+          if (fieldErrors.has(id) || attemptedSteps.has(Number(step))) setFieldError(id, fieldMessage(id));
+        });
+      });
+    });
+  }
 
   // =========================================================================
   // CONTROL DE VENTANAS HORIZONTALES (SLIDER CON ALTURA ADAPTATIVA)
@@ -327,6 +446,13 @@
       fileInput.click();
     });
 
+    dropzone.addEventListener('keydown', (event) => {
+      if (event.target === dropzone && ['Enter', ' '].includes(event.key)) {
+        event.preventDefault();
+        fileInput.click();
+      }
+    });
+
     // Drag and Drop
     ['dragenter', 'dragover'].forEach(eventName => {
       dropzone.addEventListener(eventName, (e) => {
@@ -367,14 +493,22 @@
     const isValidFormat = validExtensions.some(ext => fileName.endsWith(ext));
 
     if (!isValidFormat) {
-      alert('Formato no admitido. Por favor sube tu Currículum Vitae en formato PDF, DOC o DOCX.');
+      setFieldError('rec-cv-input', 'Este formato no está admitido. Elige un archivo PDF, DOC o DOCX.');
+      document.getElementById('rec-cv-input').value = '';
       return;
     }
 
     // Validación de tamaño (máximo 10 MB)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert('El archivo es demasiado grande. El peso máximo permitido es de 10 MB.');
+      setFieldError('rec-cv-input', 'El archivo supera los 10 MB. Comprime el documento o elige uno más pequeño.');
+      document.getElementById('rec-cv-input').value = '';
+      return;
+    }
+
+    if (!file.size) {
+      setFieldError('rec-cv-input', 'El archivo está vacío. Elige un documento que contenga tu CV.');
+      document.getElementById('rec-cv-input').value = '';
       return;
     }
 
@@ -388,6 +522,7 @@
 
     // El archivo permanece en memoria hasta el envío confirmado por el servidor.
     state.cvFile = file;
+    setFieldError('rec-cv-input', '');
 
     // Actualizar vista previa
     const emptyView = document.getElementById('rec-cv-empty');
@@ -413,6 +548,7 @@
     state.candidate.cvType = '';
     state.candidate.cvDataUrl = '';
     state.cvFile = null;
+    setFieldError('rec-cv-input', fieldMessage('rec-cv-input'));
 
     const fileInput = document.getElementById('rec-cv-input');
     if (fileInput) fileInput.value = '';
@@ -450,7 +586,7 @@
     const chk3 = document.getElementById('chk-rec-entrevista') || document.getElementById('chk-rec-disc');
 
     if (!chk1?.checked || !chk2?.checked || !chk3?.checked) {
-      alert('Por favor marca las 3 casillas de verificación para confirmar que estás de acuerdo con los requisitos del flyer.');
+      validateFields(1);
       return;
     }
     window.switchRecStep(2);
@@ -465,27 +601,7 @@
     const telefono = document.getElementById('rec-telefono')?.value.trim();
     const email = document.getElementById('rec-email')?.value.trim();
 
-    if (!nombres || !dni || !telefono || !email) {
-      alert('Por favor completa todos tus datos personales de contacto (Nombres, DNI, WhatsApp y Correo).');
-      return;
-    }
-
-    if (dni.length < 8) {
-      alert('Por favor ingresa un número de DNI o documento válido (mínimo 8 dígitos).');
-      return;
-    }
-
-    // Validar CV obligatorio
-    if (!state.candidate.cvName) {
-      alert('Por favor adjunta tu Currículum Vitae (CV en PDF, DOC o DOCX) para que Dirección pueda evaluar tu postulación.');
-      const dropzone = document.getElementById('rec-cv-dropzone');
-      if (dropzone) {
-        dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        dropzone.classList.add('dragover');
-        setTimeout(() => dropzone.classList.remove('dragover'), 1200);
-      }
-      return;
-    }
+    if (!validateFields(2)) return;
 
     // Asignar datos del postulante
     state.candidate.nombres = nombres;
@@ -1026,10 +1142,7 @@
       state.candidate.fechaEntrevista = document.getElementById('kja-date-text')?.textContent || fechaInput;
     }
 
-    if (!state.candidate.fechaEntrevista) {
-      alert('Por favor selecciona una fecha para tu entrevista preliminar.');
-      return;
-    }
+    if (!validateFields(3)) return;
 
     // Tomar hora seleccionada en las pastillas de horario
     const activeSlot = document.querySelector('.rec-slot-btn.active');
@@ -1042,17 +1155,6 @@
 
     // Validar correo de notificación de aprobación
     const notifEmail = document.getElementById('rec-correo-notificacion')?.value.trim();
-    if (!notifEmail) {
-      alert('Por favor ingresa el correo electrónico donde recibirás la notificación de aprobación de tu postulación.');
-      document.getElementById('rec-correo-notificacion')?.focus();
-      return;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(notifEmail)) {
-      alert('Por favor ingresa una dirección de correo electrónico válida (ejemplo: usuario@correo.com).');
-      document.getElementById('rec-correo-notificacion')?.focus();
-      return;
-    }
     state.candidate.emailNotificacion = notifEmail;
 
     // Teléfono de contacto para coordinación
@@ -1061,6 +1163,20 @@
 
     // Notas o requerimientos especiales
     state.candidate.notasEntrevista = document.getElementById('rec-notas-entrevista')?.value.trim() || '';
+
+    for (const step of [1, 2]) {
+      if (stepFields[step].some(id => fieldMessage(id))) {
+        window.switchRecStep(step);
+        validateFields(step);
+        return;
+      }
+    }
+    // Actualizar también los datos cuando se accedió directamente desde las pestañas.
+    for (const key of ['nombres', 'dni', 'telefono', 'email', 'carrera', 'nivel', 'motivacion']) {
+      state.candidate[key] = document.getElementById(`rec-${key}`)?.value.trim() || '';
+    }
+    state.candidate.modalidad = document.getElementById('rec-modalidad-sel')?.value || '';
+    state.candidate.turno = document.getElementById('rec-turno-sel')?.value || '';
 
     const errorEl = document.getElementById('rec-submit-error');
     const button = document.getElementById('rec-btn-p3-next');
@@ -1097,13 +1213,17 @@
       heading?.setAttribute('tabindex','-1');
       heading?.focus({ preventScroll: true });
     } catch (error) {
-      if (errorEl) { errorEl.textContent = window.KJARecruitmentAPI?.message(error) || error.message; errorEl.hidden = false; }
+      if (errorEl) { errorEl.textContent = window.KJARecruitmentAPI?.message(error) || error.message; errorEl.hidden = false; errorEl.setAttribute('tabindex', '-1'); }
     } finally {
       state.submitting = false;
       if (button) { button.disabled = state.submitted; button.innerHTML = labels; }
       document.getElementById('rec-panel-3')?.removeAttribute('aria-busy');
       if (document.getElementById('rec-panel-3')) document.getElementById('rec-panel-3').inert = state.currentStep !== 3;
       adjustViewportHeight(state.currentStep);
+      if (errorEl && !errorEl.hidden) {
+        errorEl.focus({ preventScroll: true });
+        errorEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+      }
     }
   };
 

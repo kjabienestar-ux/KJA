@@ -73,7 +73,9 @@ test('Bandeja real: lectura remota, contenido escapado, revisión y cierre de se
     d.getElementById('ri-detail-notes').value='Entrevistar';
     d.getElementById('ri-review-form').dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
     assert.equal(saved.p_revision,0);assert.equal(saved.p_estado,'En revisión');assert.equal(saved.p_notas,'Entrevistar');
-    assert.match(d.getElementById('ri-detail-message').textContent,/No se ha enviado/);
+    assert.match(d.getElementById('ri-detail-message').textContent,/Revisión guardada/);
+    assert.match(d.querySelector('.ri-contact-action p').textContent,/no envía mensajes/);
+    assert.equal(d.getElementById('ri-current-status').textContent,'En revisión');
     onAuth('SIGNED_OUT');
     assert.equal(d.getElementById('rec-inbox-rows').textContent,'');
     assert.equal(d.getElementById('rec-inbox-detail').open,false);

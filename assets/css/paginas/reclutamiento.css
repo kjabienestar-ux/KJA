@@ -388,6 +388,7 @@ body.rec-page {
 
 .rec-field {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: 7px;
   position: relative;
@@ -1528,4 +1529,68 @@ body.rec-page {
   .rec-veracidad-tag {
     font-size: 0.6rem;
   }
+}
+
+/* Validación de formularios: mensajes locales y resumen navegable. */
+.rec-field-error {
+  display: block;
+  margin-top: 6px;
+  color: #a12640;
+  font-size: 0.84rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+.rec-slide-panel [hidden] { display: none !important; }
+.rec-slide-panel [aria-invalid="true"] {
+  border-color: #b52e49 !important;
+  background-color: #fff6f7 !important;
+}
+.rec-slide-panel [aria-invalid="true"]:focus {
+  outline: 2px solid #b52e49;
+  outline-offset: 3px;
+  box-shadow: none;
+}
+.rec-check-label.rec-has-error { color: #a12640; }
+.rec-validation-summary {
+  margin: 16px 0 24px;
+  padding: 16px 20px;
+  border: 1px solid #e9b4c0;
+  border-radius: 12px;
+  background: #fff6f7;
+  color: #852038;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.rec-validation-summary strong { display: block; font-weight: 700; }
+.rec-validation-summary ul { margin: 8px 0 0; padding-left: 20px; }
+.rec-validation-summary li + li { margin-top: 6px; }
+.rec-validation-summary button {
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.rec-validation-summary button:hover { color: #5f1427; }
+.rec-validation-summary button:focus-visible,
+.rec-cv-dropzone:focus-visible {
+  outline: 2px solid #a50052;
+  outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+  .rec-input-grid { grid-template-columns: minmax(0, 1fr); }
+  .rec-form-card { padding: 24px 20px; }
+  .rec-field input, .rec-field textarea { min-width: 0; font-size: 16px !important; }
+  .kja-select-trigger { min-width: 0; }
+  .kja-select-value { white-space: normal; overflow-wrap: anywhere; text-align: left; }
+  .rec-validation-summary { padding: 14px 16px; }
 }
