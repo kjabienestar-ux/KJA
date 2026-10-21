@@ -69,7 +69,7 @@ test('Bandeja real: lectura remota, contenido escapado, revisión y cierre de se
     d.querySelector('[data-id]').click();
     assert.equal(d.getElementById('rec-inbox-detail').open,true);
     assert.match(d.getElementById('ri-detail-data').textContent,/cv.pdf/);
-    d.getElementById('ri-detail-status').value='En revisión';
+    d.querySelector('#ri-detail-status [role="option"][data-value="En revisión"]').click();
     d.getElementById('ri-detail-notes').value='Entrevistar';
     d.getElementById('ri-review-form').dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
     assert.equal(saved.p_revision,0);assert.equal(saved.p_estado,'En revisión');assert.equal(saved.p_notas,'Entrevistar');
