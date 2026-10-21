@@ -279,6 +279,8 @@ function renderAdminMonthSummary(){
 }
 
 function closeMonthModal(){
+  $('admin-month-modal')._leavePlanner?.dispose();
+  $('admin-month-modal')._leavePlanner=null;
   $('admin-month-modal')._dayDetail?.dispose();
   $('admin-month-modal')._dayDetail=null;
   $('admin-month-modal').hidden=true;document.body.style.overflow='';ADMIN_MONTH_DIALOG=null;
@@ -289,6 +291,8 @@ function modalMonthMessage(text){const el=$('admin-month-modal-message');el.text
 function openMonthModal(eyebrow,title,copy,body){
   const modal=$('admin-month-modal');
   modal._dayDetail?.dispose();modal._dayDetail=null;
+  modal._leavePlanner?.dispose();modal._leavePlanner=null;
+  modal.classList.toggle('leave-planner-modal',ADMIN_MONTH_DIALOG?.kind==='days-off');
   if(modal.hidden)modal._returnFocus=document.activeElement;
   modal.classList.toggle('month-detail-modal',ADMIN_MONTH_DIALOG?.kind==='cell');
   modal.querySelector('.admin-editor-head').dataset.initials=String(title).trim().split(/\s+/).slice(0,2).map(word=>word[0]).join('').toUpperCase();
@@ -462,45 +466,13 @@ async function openHolidayManager(){
 
 function openDaysOffManager(personId='',date=''){
   if(!APP.adminMonth)return;
-  const canEdit=!!APP.adminMonth.puede_editar;
-  const people=APP.adminMonth.personas||[];
-  ADMIN_MONTH_DIALOG={kind:'days-off'};
-  const options=people.filter(p=>p.activo).map(p=>`<option value="${p.id}" ${String(p.id)===String(personId)?'selected':''}>${esc(p.nombre)} · ${esc(p.area||'Sin área')}</option>`).join('');
-  const rows=(APP.adminMonth.dias_libres||[]).map(item=>{
-    const person=people.find(p=>String(p.id)===String(item.colaborador_id));
-    return `<li><span><b>${esc(person?.nombre||'Colaborador')} · ${esc(item.fecha)}</b><small>${esc(item.motivo||'Reconocimiento por asistencia presencial')}</small></span>${canEdit&&item.manual?`<button type="button" data-remove-day-off="${item.colaborador_id}" data-date="${item.fecha}">Quitar día libre</button>`:''}</li>`;
-  }).join('');
-  const form=canEdit?`<form id="month-day-off-form" class="month-day-off-form">
-    <label>Trabajador<select id="month-day-off-person" required><option value="">Selecciona un trabajador</option>${options}</select></label>
-    <label>Fecha del descanso<input type="date" id="month-day-off-date" value="${esc(date||APP.adminMonth.hoy)}" required min="2020-01-01" max="2100-12-31"></label>
-    <label class="day-off-reason">Motivo del premio<input id="month-day-off-reason" minlength="3" maxlength="180" placeholder="Ej. Meta cumplida o reconocimiento del equipo" required></label>
-    <p>Ese día no tendrá que marcar entrada ni salida ni entregar RPE. Facebook mantiene su horario. No se descuenta del saldo de días libres.</p>
-    <button type="submit" class="admin-primary-action">Asignar día libre</button>
-  </form>`:'<p>Tu rol permite consultar los días libres, pero no asignarlos.</p>';
-  openMonthModal('CALENDARIO LABORAL','Días libres',`Asigna descansos por persona. La lista muestra los asignados en ${monthTitle(currentMonthValue())}.`,`${form}<ul class="month-holiday-list">${rows||'<li class="empty">No hay días libres asignados este mes.</li>'}</ul>`);
-  $('month-day-off-form')?.addEventListener('submit',event=>{
-    event.preventDefault();saveManualDayOff(Number($('month-day-off-person').value),$('month-day-off-date').value,$('month-day-off-reason').value.trim());
+  const dialog=ADMIN_MONTH_DIALOG={kind:'days-off'};
+  openMonthModal('','Días libres','Busca un trabajador, selecciona sus fechas y revisa los descansos del equipo.','<div id="month-days-off-planner"></div>');
+  $('admin-month-modal')._leavePlanner=KJADaysOffPlanner.mount($('month-days-off-planner'),{
+    data:APP.adminMonth,month:currentMonthValue(),personId,date,
+    rpc:(name,args)=>db.rpc(name,args),isCurrent:()=>ADMIN_MONTH_DIALOG===dialog,
+    onChanged:()=>{APP.adminMonthKey='';return loadAdminMonth(true)}
   });
-}
-
-async function saveManualDayOff(personId,date,reason='',remove=false){
-  const dialog=ADMIN_MONTH_DIALOG;
-  if(!APP.adminMonth?.puede_editar||dialog?.kind!=='days-off'||dialog.saving)return;
-  dialog.saving=true;
-  const controls=[...$('admin-month-modal-body').querySelectorAll('button,input,select')];
-  controls.forEach(control=>control.disabled=true);
-  modalMonthMessage(remove?'Quitando día libre…':'Asignando día libre…');
-  try{
-    const {data,error}=await db.rpc('dash_admin_dia_libre',{p_colab:personId,p_fecha:date,p_motivo:reason||null,p_quitar:remove});
-    if(error||!data?.ok){
-      const messages={sin_permiso:'No tienes permiso para asignar días libres.',detalle:'Escribe un motivo de entre 3 y 180 caracteres.',ya_asignado:'Esta persona ya tiene libre esa fecha.',colaborador:'Selecciona un trabajador activo y una fecha desde el inicio de su contrato.',beneficio_presencial:'Este descanso forma parte del beneficio presencial y no se puede quitar desde aquí.',fecha:'Selecciona una fecha válida.'};
-      throw new Error(error?.code==='PGRST202'?'Falta activar la migración 88 de días libres manuales.':messages[data?.motivo]||'No se pudo guardar el cambio. Inténtalo nuevamente.');
-    }
-    if(ADMIN_MONTH_DIALOG===dialog)closeMonthModal();
-    syncMonthInputs(date.slice(0,7));await loadAdminMonth(true);
-    toast(remove?'Día libre retirado.':'Día libre asignado.');
-  }catch(error){if(ADMIN_MONTH_DIALOG===dialog)modalMonthMessage(error.message||'No se pudo guardar el cambio.');}
-  finally{dialog.saving=false;controls.forEach(control=>control.disabled=false);}
 }
 async function saveHoliday(event){
   event.preventDefault();
@@ -620,8 +592,6 @@ $('admin-month-ledger').onclick=event=>{
 };
 $('admin-month-modal-body').onclick=event=>{
   if(event.target.closest('[data-retry-holidays]'))return openHolidayManager();
-  const removeDayOff=event.target.closest('[data-remove-day-off]');
-  if(removeDayOff)return saveManualDayOff(Number(removeDayOff.dataset.removeDayOff),removeDayOff.dataset.date,'',true);
   const mode=event.target.closest('[data-month-mode]');if(mode&&!mode.disabled)return changeMonthMode(mode.dataset.monthMode);
   if(ADMIN_MONTH_DIALOG?.savingMode)return;
   const state=event.target.closest('[data-month-state]');if(state)return changeMonthState(state.dataset.monthState);

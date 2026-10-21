@@ -6,6 +6,7 @@ CLAUDE.local.md
 skills-lock.json
 node_modules/
 /.tmp/
+/.impeccable/review/
 
 # Temporales del sistema
 Thumbs.db
