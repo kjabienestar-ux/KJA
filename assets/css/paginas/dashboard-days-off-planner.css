@@ -1,0 +1,95 @@
+/* Planificación de descansos: búsqueda, calendario y asignación en un solo espacio. */
+#admin-month-modal.leave-planner-modal .admin-month-sheet{width:min(1180px,100%);background:#fff;max-height:94dvh}
+.leave-planner-modal #admin-month-modal-eyebrow{display:none}
+.leave-planner-modal .admin-month-modal-body{padding:0;display:block}
+.leave-planner-modal .admin-editor-head{padding:24px;border-bottom:1px solid #e3e8ee}
+.leave-planner{display:grid;grid-template-columns:270px minmax(0,1fr);color:#15243a;background:#fff;font-family:Inter,system-ui,sans-serif}
+.leave-planner *{box-sizing:border-box}
+.leave-planner button,.leave-planner input,.leave-planner select{font:inherit;color:inherit}
+.leave-planner button{border:1px solid #d8e0e8;border-radius:8px;background:#fff;cursor:pointer;min-height:40px;padding:8px 12px;text-align:center}
+.leave-planner button:hover{background:#edf4fc;border-color:#9fb6d1}
+.leave-planner button:focus-visible,.leave-planner input:focus-visible,.leave-planner select:focus-visible{outline:3px solid #075abc;outline-offset:2px}
+.leave-planner button:disabled{cursor:default;opacity:.5}
+.leave-planner input,.leave-planner select{width:100%;border:1px solid #c6d1dc;border-radius:8px;background:#fff;padding:10px 12px;min-width:0;min-height:44px}
+.leave-planner input::placeholder{color:#5e6c7e}
+.leave-planner label{display:block;font-weight:650;margin-bottom:7px}
+.leave-planner h3{font-size:16px;line-height:1.4;margin:0;color:#09244c}
+.leave-planner small{display:block;color:#526174}
+.lp-muted,.lp-legend{color:#526174;font-size:12px;line-height:1.6}
+.lp-people{padding:22px 16px;background:#f6f8fa;border-right:1px solid #e3e8ee;min-width:0}
+.lp-people select{margin:10px 0 14px}
+.lp-people-list{display:grid;align-content:start;gap:3px;max-height:590px;overflow:auto;margin-top:10px;scrollbar-color:#a6b4c4 #f6f8fa;scrollbar-width:thin}
+.lp-people-list button{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid transparent;background:transparent;padding:10px 8px;width:100%}
+.lp-people-list button>span:last-child{min-width:0}
+.lp-people-list b{display:block;line-height:1.45;font-weight:650;overflow-wrap:anywhere}
+.lp-people-list button[aria-pressed=true]{background:#e7eff9;border-color:#a7bed9;color:#09244c}
+.lp-avatar{display:grid;place-items:center;flex:0 0 32px;height:32px;background:#e4e9ee;color:#39516a;border-radius:9px;font-size:11px}
+.lp-main{padding:22px 24px;min-width:0}
+.lp-toolbar,.lp-navigation,.lp-views{display:flex;align-items:center;gap:6px}
+.lp-toolbar{justify-content:space-between;flex-wrap:wrap;gap:12px}
+.lp-navigation h3{text-transform:capitalize;min-width:155px;text-align:center}
+.lp-navigation button{padding:8px;flex-shrink:0}
+.lp-navigation svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;display:block}
+.lp-views{padding:3px;background:#f0f3f7;border-radius:9px;gap:2px}
+.lp-views button{border-color:transparent;background:transparent;min-height:34px}
+.lp-views button[aria-pressed=true]{background:#fff;border-color:#d1dae4;color:#075abc;font-weight:700}
+.lp-context{font-size:12px;color:#526174;margin:16px 0;line-height:1.6}
+.lp-weekdays,.lp-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.lp-weekdays{color:#526174;text-align:center;font-size:11px;font-weight:600;margin-bottom:8px}
+.leave-planner .lp-day{min-height:66px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:9px;border-color:#e3e8ee;border-radius:7px;gap:6px;font-variant-numeric:tabular-nums}
+.lp-day-number{font-weight:650}
+.leave-planner .lp-day[aria-current=date] .lp-day-number{text-decoration:underline;text-underline-offset:4px;color:#075abc}
+.leave-planner .lp-day.has-leave{background:#e8f5f0;border-color:#badfce;color:#145b48}
+.leave-planner .lp-day.is-selected{background:#09244c;border-color:#09244c;color:#fff}
+.lp-day-state{font-size:10px;font-weight:650;line-height:1.3}
+.lp-legend{display:flex;flex-wrap:wrap;gap:16px;margin:10px 0 0}
+.lp-assignment{margin-top:22px;padding-top:18px;border-top:1px solid #e3e8ee}
+.lp-assignment[hidden]{display:none}
+.lp-selection,.lp-assignment footer{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px}
+.lp-selection button{border:0;background:transparent;text-decoration:underline;text-underline-offset:3px;color:#075abc}
+.lp-selected-dates{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.lp-selected-dates:empty{display:none}
+.lp-selected-dates button{min-height:32px;padding:4px 9px;background:#edf3fb;color:#09244c}
+.lp-range{display:grid;grid-template-columns:1fr 1fr auto;align-items:end;gap:10px;margin:14px 0 18px}
+.lp-range label{margin:0}
+.lp-range input{margin-top:6px}
+.lp-range button{min-height:44px}
+.lp-assignment footer{margin-top:16px;line-height:1.5}
+.leave-planner .admin-primary-action{background:#09244c;color:#fff;border-color:#09244c;min-height:44px;padding:10px 18px}
+.leave-planner .admin-primary-action:hover{background:#075abc}
+#lp-status{font-size:13px;line-height:1.6;color:#145b48;margin-top:16px;overflow-wrap:anywhere}
+#lp-status:empty{display:none}
+#lp-status.is-error{color:#a02e40}
+.lp-agenda{margin-top:24px;padding-top:18px;border-top:1px solid #e3e8ee}
+.lp-agenda h3{margin-bottom:10px}
+.lp-entry{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #edf0f4;font-size:12px}
+.lp-entry time{color:#145b48;min-width:65px;font-weight:700;font-variant-numeric:tabular-nums}
+.lp-entry>div{flex:1;min-width:0;overflow-wrap:anywhere}
+.lp-entry button{color:#9d3444;min-height:36px}
+.lp-entry small{margin-top:3px}
+.lp-empty,.lp-loading{padding:20px 0;color:#526174;font-size:13px;line-height:1.6}
+.lp-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.leave-planner ::selection{background:#cee3fa;color:#09244c}
+@media(min-width:801px){.lp-people{position:sticky;top:0;align-self:start}.lp-calendar-grid.is-week .lp-day{min-height:110px}}
+@media(max-width:800px){
+  #admin-month-modal.leave-planner-modal{padding:0;align-items:end}
+  #admin-month-modal.leave-planner-modal .admin-month-sheet{width:100%;border-radius:16px 16px 0 0;max-height:95dvh}
+  .leave-planner{grid-template-columns:1fr}
+  .lp-people{border-right:0;border-bottom:1px solid #e3e8ee;padding:16px}
+  .lp-people-list{max-height:160px;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+  .lp-people-list button{padding:7px 5px;gap:7px}
+  .lp-avatar{display:none}
+  .lp-people select{margin:8px 0}
+  .lp-main{padding:18px 14px}
+  .lp-toolbar{gap:10px}
+  .lp-navigation{width:100%;justify-content:space-between;gap:3px}
+  .lp-navigation h3{min-width:0;font-size:14px;flex:1}
+  .leave-planner .lp-day{min-height:58px;padding:6px 4px}
+  .lp-day-state{font-size:9px}
+  .lp-range{grid-template-columns:1fr 1fr}
+  .lp-range button{grid-column:1/-1}
+  .lp-assignment footer{align-items:stretch;flex-direction:column}
+  .lp-entry{gap:8px}
+  .lp-entry time{min-width:54px}
+  .lp-entry>span{max-width:80px}
+}

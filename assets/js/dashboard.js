@@ -2993,28 +2993,72 @@ function adminPersonalRequestMarkup(req,modal=false){
 
 async function loadAdminHub(){
   if(!APP.access.acceso_panel)return;
-  const btn=$('admin-refresh'); btn.disabled=true;
-  if($('admin-overview-charts'))$('admin-overview-charts').innerHTML='<p class="admin-empty">Cargando gráficos de hoy…</p>';
-  const today=isoLima();
-  const [year,month]=today.slice(0,7).split('-').map(Number),canDirect=APP.access.rol==='direccion',canManageRoles=APP.identity.isSystem&&canDirect;
-  const [peopleRes,marksRes,legacyRequestsRes,personalRequestsRes,closesRes,teamRes,monthRes,controlRes,rolesRes]=await Promise.all([
-    db.from('asis_colaboradores').select('id,nombre,area_id,foto_path,foto_actualizada_at,asis_areas(nombre)').eq('activo',true).order('nombre'),
-    db.from('asis_registros').select('colaborador_id,estado,marcado_at,origen').eq('fecha',today),
-    db.from('asis_solicitudes_horario').select('id,colaborador_id,horario_nuevo,creado_at').eq('estado','pendiente').order('creado_at',{ascending:false}),
-    canDirect?db.rpc('dash_admin_solicitudes_agrupadas'):Promise.resolve({data:{ok:true,solicitudes:[]},error:null}),
-    db.rpc('dash_admin_cierres',{p_fecha:today}),
-    db.rpc('dash_admin_equipo',{p_incluir_inactivos:true}),
-    db.rpc('dash_admin_mes',{p_anio:year,p_mes:month,p_incluir_inactivos:false}),
-    canDirect?db.rpc('dash_admin_control_diario',{p_fecha:today}):Promise.resolve({data:null,error:null}),
-    canManageRoles?db.rpc('dash_admin_roles'):Promise.resolve({data:null,error:null})
-  ]);
-  btn.disabled=false;
-  if(peopleRes.error||marksRes.error||closesRes.error||!closesRes.data?.ok){
-    if($('admin-overview-charts'))$('admin-overview-charts').innerHTML='<p class="admin-empty">No se pudieron cargar los gráficos. Pulsa Actualizar para reintentar.</p>';
-    $('admin-status-list').innerHTML='<p class="admin-empty">No se pudo cargar el estado operativo. Actualiza nuevamente.</p>';
-    toast('No se pudo actualizar la administración.',true); return false;
-  }
-  const people=await hydrateProfilePhotos(peopleRes.data||[]),marks=marksRes.data||[],legacyRequests=legacyRequestsRes.data||[],personalRequests=personalRequestsRes.data?.ok?personalRequestsRes.data.solicitudes||[]:[];
+  const today=isoLima(),uid=APP.sessionUid,role=APP.access.rol;
+  const key=uid+'|'+role+'|'+today;
+  if(APP.adminHubLoad?.key===key)return APP.adminHubLoad.promise;
+  const version=(APP.adminHubVersion||0)+1;APP.adminHubVersion=version;
+  const current=()=>APP.adminHubVersion===version&&APP.sessionUid===uid&&APP.access.acceso_panel&&APP.access.rol===role;
+  const btn=$('admin-refresh');btn.disabled=true;
+  const deadline=async query=>{
+    let timer;
+    try{return await Promise.race([
+      Promise.resolve(query).catch(error=>({data:null,error})),
+      new Promise(resolve=>{timer=setTimeout(()=>resolve({data:null,error:{message:'La consulta tardó demasiado.'}}),12000)})
+    ])}finally{clearTimeout(timer)}
+  };
+  const request={key,promise:null};APP.adminHubLoad=request;
+  const task=(async()=>{
+    try{
+      const [peopleRes,marksRes,closesRes]=await Promise.all([
+        deadline(db.from('asis_colaboradores').select('id,nombre,area_id,foto_path,foto_actualizada_at,asis_areas(nombre)').eq('activo',true).order('nombre')),
+        deadline(db.from('asis_registros').select('colaborador_id,estado,marcado_at,origen').eq('fecha',today)),
+        deadline(db.rpc('dash_admin_cierres',{p_fecha:today}))
+      ]);
+      if(!current())return false;
+      if(peopleRes.error||marksRes.error||closesRes.error||!closesRes.data?.ok){
+        $('admin-overview-charts').innerHTML='<p class="admin-empty">No se pudieron cargar los datos de hoy. Pulsa Actualizar para reintentar.</p>';
+        $('admin-status-list').innerHTML='<p class="admin-empty">El estado operativo no está disponible.</p>';
+        toast('No se pudo actualizar la administración.',true);return false;
+      }
+      const unavailable=()=>({data:null,error:null});
+      const snapshot={today,peopleRes,marksRes,closesRes,legacyRequestsRes:{data:[],pending:true},personalRequestsRes:{data:null,pending:true},controlRes:{data:null,pending:role==='direccion'},teamRes:unavailable(),monthRes:unavailable(),rolesRes:unavailable()};
+      if(role!=='direccion')snapshot.personalRequestsRes={data:{ok:true,solicitudes:[]},error:null};
+      renderAdminHubSnapshot(snapshot);
+      const secondary=[
+        ['legacyRequestsRes',()=>db.from('asis_solicitudes_horario').select('id,colaborador_id,horario_nuevo,creado_at').eq('estado','pendiente').order('creado_at',{ascending:false})]
+      ];
+      if(role==='direccion')secondary.push(
+        ['personalRequestsRes',()=>db.rpc('dash_admin_solicitudes_agrupadas')],
+        ['controlRes',()=>db.rpc('dash_admin_control_diario',{p_fecha:today})]
+      );
+      // Section loaders fetch month, contracts and roles when the user opens them.
+      // Secondary failures must not keep the whole overview behind a skeleton.
+      for(const [name,query] of secondary){
+        void deadline(Promise.resolve().then(query)).then(response=>{
+          if(!current())return;
+          snapshot[name]=response;renderAdminHubSnapshot(snapshot);
+        });
+      }
+      void Promise.resolve().then(()=>hydrateProfilePhotos(peopleRes.data||[])).then(people=>{
+        if(!current())return;
+        snapshot.peopleRes={...peopleRes,data:people};renderAdminHubSnapshot(snapshot);
+      }).catch(()=>{});
+      return true;
+    }catch(error){
+      if(current())toast('No se pudo actualizar la administración. Vuelve a intentarlo.',true);
+      return false;
+    }finally{
+      if(current())btn.disabled=false;
+      if(APP.adminHubLoad===request)APP.adminHubLoad=null;
+    }
+  })();
+  request.promise=task;
+  return task;
+}
+
+function renderAdminHubSnapshot(snapshot){
+  const {today,peopleRes,marksRes,closesRes,legacyRequestsRes,personalRequestsRes,teamRes,monthRes,controlRes,rolesRes}=snapshot;
+  const people=peopleRes.data||[],marks=marksRes.data||[],legacyRequests=legacyRequestsRes.data||[],personalRequests=personalRequestsRes.data?.ok?personalRequestsRes.data.solicitudes||[]:[];
   const teamData=!teamRes.error&&teamRes.data?.ok?teamRes.data:null,monthData=!monthRes.error&&monthRes.data?.ok?monthRes.data:null,controlData=!controlRes.error&&controlRes.data?.ok?controlRes.data:null,rolesData=!rolesRes.error&&rolesRes.data?.ok?rolesRes.data:null;
   const byMark=new Map(marks.map(x=>[String(x.colaborador_id),x]));
   const closePeople=closesRes.data?.personas||[],byClose=new Map(closePeople.map(x=>[String(x.id),x.cierre||{}])),byClosePerson=new Map(closePeople.map(x=>[String(x.id),x]));
@@ -3043,12 +3087,12 @@ async function loadAdminHub(){
     return `<div class="admin-status-row">${profileAvatarMarkup(item.person)}<span><strong>${esc(item.person.nombre)}</strong><small>${esc(item.person.asis_areas?.nombre||'Sin área')}</small></span><span class="admin-status-time">${esc(item.detail)}</span><span class="admin-status-pill ${item.tone}">${esc(item.label)}</span></div>`;
   }).join('');
   if(priorities.length>6)statusHtml+=`<p class="admin-empty compact">Hay ${priorities.length-6} ${priorities.length-6===1?'caso adicional':'casos adicionales'} en la lista completa.</p>`;
-  $('admin-attention-count').textContent=priorities.length;$('admin-attention-count').classList.toggle('is-alert',priorities.length>0);
-  $('admin-status-list').innerHTML=statusHtml||'<div class="admin-overview-clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg><span><b>Todo bajo control</b><small>No hay personas que requieran atención inmediata.</small></span></div>';
+  $('admin-attention-count').textContent=controlRes.pending?'…':priorities.length;$('admin-attention-count').classList.toggle('is-alert',priorities.length>0);
+  $('admin-status-list').innerHTML=statusHtml||(controlRes.pending?'<p class="admin-empty">Asistencia disponible. La revisión de evidencias sigue cargando…</p>':!controlData?'<p class="admin-empty">Consulta el control diario para completar la revisión de evidencias.</p>':'<div class="admin-overview-clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg><span><b>Todo bajo control</b><small>No hay personas que requieran atención inmediata.</small></span></div>');
 
   const groups=groupAdminLeaveRequests(personalRequests);
   APP.adminRequestGroups=groups;
-  $('admin-request-count').textContent=groups.length+legacyRequests.length;
+  $('admin-request-count').textContent=personalRequestsRes.pending||legacyRequestsRes.pending?'…':groups.length+legacyRequests.length;
   const personalHtml=groups.map(renderAdminRequestGroup).join('');
 
   const remaining=Math.max(0,3-personalRequests.length),legacyHtml=legacyRequests.slice(0,remaining).map(req=>{
@@ -3056,7 +3100,8 @@ async function loadAdminHub(){
     return `<div class="admin-request"><b>${esc(person?.nombre||'Colaborador')}</b><small>${esc(created)}</small><p>Cambio de horario · ${esc(req.horario_nuevo||'Sin detalle')}</p></div>`;
   }).join('');
   $('admin-request-list').innerHTML=personalHtml+legacyHtml||'<p class="admin-empty">No hay solicitudes pendientes.</p>';
-  if(personalRequestsRes.error||!personalRequestsRes.data?.ok)$('admin-request-list').innerHTML='<p class="admin-empty">No se pudieron cargar las solicitudes agrupadas. Verifica la migración 96 y pulsa Actualizar solicitudes.</p>';
+  if(personalRequestsRes.pending)$('admin-request-list').innerHTML='<p class="admin-empty">Cargando solicitudes pendientes…</p>';
+  else if(personalRequestsRes.error||!personalRequestsRes.data?.ok)$('admin-request-list').innerHTML='<p class="admin-empty">No se pudieron cargar las solicitudes agrupadas. Verifica la migración 96 y pulsa Actualizar solicitudes.</p>';
   syncAdminLeaveReview(groups);
 
   const setOverview=(id,value)=>{const element=$(id);if(element)element.textContent=value};
@@ -3065,24 +3110,26 @@ async function loadAdminHub(){
   const teamPeople=teamData?.personas||[],activeTeam=teamPeople.length?teamPeople.filter(person=>person.activo):people,areaCount=new Set(activeTeam.map(person=>String(person.area_id)).filter(Boolean)).size,profileIssues=activeTeam.filter(person=>!person.dni||!person.tiene_pin).length;
   const contractPending=activeTeam.filter(person=>person.resumen?.pendiente).length,contractAlerts=activeTeam.filter(person=>(person.resumen?.alertas||[]).length&&!person.resumen?.pendiente).length,contractAttention=contractPending+contractAlerts;
   const roleSummary=rolesData?.resumen||{};
-  setOverview('admin-overview-control-value',`${priorities.length} ${priorities.length===1?'caso':'casos'}`);
-  setOverview('admin-overview-control-copy',evidencePending||reviewPending?`${evidencePending} evidencias · ${reviewPending} revisiones`:'Entradas, evidencias y salidas al día');
+  setOverview('admin-overview-control-value',controlRes.pending?'Cargando…':`${priorities.length} ${priorities.length===1?'caso':'casos'}`);
+  setOverview('admin-overview-control-copy',controlRes.pending?'Cargando revisión de evidencias…':!controlData?'Consultar revisión de evidencias':evidencePending||reviewPending?`${evidencePending} evidencias · ${reviewPending} revisiones`:'Entradas, evidencias y salidas al día');
   setOverview('admin-overview-close-value',`${complete}/${people.length}`);
   setOverview('admin-overview-close-copy',incomplete?`${incomplete} incompleta${incomplete===1?'':'s'} · ${Math.max(0,people.length-complete-incomplete)} en curso`:'Jornadas completas de hoy');
   setOverview('admin-overview-list-value',`${registered}/${people.length}`);
   setOverview('admin-overview-list-copy',pending?`${pending} ${pending===1?'persona sin entrada':'personas sin entrada'}`:'Todo el equipo registró entrada');
   setOverview('admin-overview-month-value',monthData?`${monthRecorded} registros`:'Consultar');
   setOverview('admin-overview-month-copy',monthData?`${Number(monthSummary.pendientes||0)} pendientes · ${Number(monthSummary.horas||0).toFixed(1)} h`:'Registros y pendientes del mes');
-  setOverview('admin-overview-summary-value',monthRate==null?'Sin datos':`${monthRate}%`);
+  setOverview('admin-overview-summary-value',monthRate==null?'Consultar':`${monthRate}%`);
   setOverview('admin-overview-summary-copy',monthData?`${Number(monthSummary.T||0)} tardanzas · ${Number(monthSummary.J||0)} justificados`:'Asistencia consolidada');
   setOverview('admin-overview-people-value',`${activeTeam.length} activas`);
-  setOverview('admin-overview-people-copy',profileIssues?`${areaCount} áreas · ${profileIssues} con datos pendientes`:`${areaCount} áreas · identidades completas`);
-  setOverview('admin-overview-contract-value',contractAttention?`${contractAttention} por revisar`:'Al día');
+  setOverview('admin-overview-people-copy',!teamData?`${areaCount} áreas · consultar datos del equipo`:profileIssues?`${areaCount} áreas · ${profileIssues} con datos pendientes`:`${areaCount} áreas · identidades completas`);
+  setOverview('admin-overview-contract-value',!teamData?'Consultar':contractAttention?`${contractAttention} por revisar`:'Al día');
   setOverview('admin-overview-contract-copy',teamData?`${contractPending} pendientes · ${contractAlerts} con alertas`:'Metas, avance y alertas');
   setOverview('admin-overview-roles-value',rolesData?`${Number(roleSummary.con_lider||0)}/${Number(roleSummary.areas||0)} con líder`:'Consultar');
   setOverview('admin-overview-roles-copy',rolesData?`${Number(roleSummary.colideres||0)} co-líderes · ${Number(roleSummary.sin_lider||0)} sin líder`:'Líderes y co-líderes técnicos');
   setOverview('admin-overview-access-value',teamData?`${activeTeam.filter(person=>!person.tiene_pin).length} sin PIN`:`${registered} marcas`);
   setOverview('admin-overview-access-copy',teamData?'Portal, PIN y geocerca':'Accesos y marcado del equipo');
+  if(controlRes.pending)$('admin-overview-headline').textContent='Datos de hoy disponibles. Cargando revisión de evidencias…';
+  else if(!controlData)$('admin-overview-headline').textContent='Datos de asistencia disponibles. Consulta el control diario para revisar las evidencias.';
   $('admin-refreshed').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'});
   return true;
 }
@@ -3355,17 +3402,35 @@ function closeStoredEvidenceViewer({restoreFocus=true}={}){
   return true;
 }
 
+function adminPersonalRequestErrorMessage(error){
+  const detail=String(error?.message||''),code=String(error?.code||'');
+  if(detail.includes('dia_libre_fecha_vencida')||detail==='dia_no_permitido')return 'El servidor todavía aplica una restricción de fecha. Falta actualizar la configuración de aprobaciones de Dirección.';
+  if(detail==='contraoferta_pendiente')return 'La persona todavía debe responder a la fecha alternativa propuesta.';
+  if(detail==='duplicada')return 'La persona ya tiene otra solicitud o fecha alternativa pendiente o aprobada para ese día.';
+  if(detail==='no_laborable')return 'El servidor todavía bloquea la aprobación por el horario. Falta actualizar la configuración de aprobaciones de Dirección.';
+  if(detail.includes('saldo_dias_libres_insuficiente'))return 'No se puede aprobar: la persona no tiene suficientes días libres disponibles.';
+  if(detail.includes('dia_libre_sin_dias_laborables'))return 'La fecha ya no está disponible como jornada laboral.';
+  if(detail==='sin_permiso'||code==='42501')return 'El servidor no reconoce permiso de Dirección para resolver esta solicitud. Verifica el acceso de la cuenta.';
+  if(detail==='sesion'||['PGRST301','PGRST303'].includes(code))return 'Tu sesión ya no es válida. Vuelve a iniciar sesión antes de resolver la solicitud.';
+  if(detail==='no_existe')return 'La solicitud ya fue resuelta o ya no está disponible. Actualiza la bandeja para comprobar su estado.';
+  if(detail==='estado')return 'No se pudo identificar la decisión. Actualiza la página y vuelve a intentarlo.';
+  if(['PGRST202','42883','42P01'].includes(code))return `Falta una función o tabla necesaria en Supabase (${code}). Revisa las migraciones de solicitudes y días libres.`;
+  if(detail&&detail!=='resolver')return `El servidor no pudo resolver la solicitud${code?` (${code})`:''}: ${detail.slice(0,300)}`;
+  return 'No se pudo resolver la solicitud. Comprueba tu conexión y vuelve a intentarlo.';
+}
+
 async function resolveAdminPersonalRequest(id,approved){
   if(APP.access.rol!=='direccion')return toast('Solo Dirección puede resolver solicitudes.',true);
   const row=document.querySelector(`[data-admin-personal-request="${CSS.escape(String(id))}"]`),response=row?.querySelector(`[data-request-response="${CSS.escape(String(id))}"]`)?.value.trim()||'';
   row?.querySelectorAll('button,input').forEach(control=>control.disabled=true);
   try{
     const {data,error}=await db.rpc('dash_admin_resolver_solicitud',{p_id:Number(id),p_aprobada:approved,p_respuesta:response||null});
-    if(error||!data?.ok)throw new Error(data?.motivo||error?.message||'resolver');
+    if(error)throw error;
+    if(!data?.ok)throw new Error(data?.motivo||'resolver');
     updateAdminLeaveDecision(id,approved,response);
     toast(approved?'Día aprobado.':'Solicitud rechazada.');await loadAdminHub();
   }catch(error){
-    const detail=String(error?.message||''),message=detail.includes('dia_libre_fecha_vencida')?'La fecha solicitada ya pasó o es hoy. Rechaza la solicitud para liberar el saldo y que la persona elija otra fecha.':detail.includes('saldo_dias_libres_insuficiente')?'No se puede aprobar: la persona no tiene suficientes días libres disponibles.':detail.includes('dia_libre_sin_dias_laborables')?'La fecha ya no está disponible como jornada laboral.':'No se pudo resolver la solicitud. Actualiza e inténtalo otra vez.';
+    const message=adminPersonalRequestErrorMessage(error);
     toast(message,true);row?.querySelectorAll('button,input').forEach(control=>control.disabled=false)
   }
 }
