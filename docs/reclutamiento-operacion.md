@@ -27,6 +27,18 @@ La bandeja tiene filtros, búsqueda, páginas de 25 expedientes, notas internas 
 
 Esta entrega **no envía correos automáticamente**. «Preparar correo» abre el cliente de correo del administrador. Cambiar un estado no marca ningún correo como enviado. El enlace de WhatsApp requiere que el postulante envíe el mensaje.
 
+## Consulta pública por DNI (KJA-007)
+
+El botón **Ver estado de postulación** del hero de `reclutamiento.html` abre un modal nativo (`dialog`) con campo DNI y resultado en la misma ventana. Admite cierre por X, Escape y fondo; mantiene el foco dentro del modal, vuelve al botón al cerrar y limpia los datos consultados. Las respuestas de consultas cerradas se descartan para no interferir con una nueva. `estado-postulacion.html` conserva los enlaces anteriores redirigiendo a `reclutamiento.html#estado-postulacion`, que abre el modal. La consulta acepta un DNI de ocho dígitos y muestra el estado de la postulación más reciente, con fechas del servidor presentadas en America/Lima. No reserva entrevistas ni envía notificaciones.
+
+Para habilitarla, aplicar [reclutamiento_03_consulta_estado.sql](../supabase/reclutamiento_03_consulta_estado.sql) después del esquema de solicitudes. Publicar la página, `reclutamiento-estado.js`, `reclutamiento-estado.css`, la portada y el transporte actualizado. La migración está probada localmente; **no se aplicó ni se comprobó su disponibilidad en Supabase remoto** en esta tarea. La página informa de servicio no habilitado si la función no existe.
+
+`rec_consultar_estado(text)` admite visitantes y cuentas autenticadas; valida el DNI en el servidor y devuelve exclusivamente `estado`, `created_at` y `updated_at`, o `null` si no hay coincidencia. Conserva RLS y la prohibición de lectura directa de expedientes/CV. No revela nombre, código, teléfono, correo, agenda ni notas internas. La consulta por DNI permite conocer estos tres campos a quien conozca ese documento; el DNI no autentica al postulante. No se guarda en URL, localStorage ni sessionStorage. Consultar `tests/reclutamiento-estado.test.mjs` para la verificación funcional y de permisos.
+
+Comprobación remota del 21 de octubre de 2026: una llamada de lectura a `rec_consultar_estado` con DNI vacío devolvió HTTP 404 / `PGRST202` (función no encontrada en la caché de esquema). Esto confirma la falta de disponibilidad de la función para el cliente público; aplicar la migración 03 y comprobar su exposición. No se consultaron expedientes ni se aplicaron migraciones en esa comprobación.
+
+Durante la consulta, el modal muestra un círculo de carga indeterminado y texto de espera accesible. A los 12 segundos avisa que está tardando más, sin reenviar la petición ni inventar un porcentaje. El cierre y la respuesta del servidor retiran el indicador y limpian el temporizador. La rotación respeta movimiento reducido.
+
 ## Datos y permisos
 
 `rec_postulaciones` guarda datos declarados, código, estado, notas y versión. `rec_curriculos` conserva el CV binario en privado; no se descarga en los listados. Ambos se guardan en una sola transacción.

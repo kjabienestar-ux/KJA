@@ -26,6 +26,9 @@
     });
   }
   window.KJARecruitmentAPI = {
+    async status(dni) {
+      return publicRpc('rec_consultar_estado', { p_dni: dni });
+    },
     async submit(id, datos, file) {
       if (!file || !file.size || file.size > 10 * 1024 * 1024) throw new Error('Adjunta un CV válido de hasta 10 MB.');
       return publicRpc('rec_enviar_postulacion', { p_id: id, p_datos: datos, p_cv_base64: await readFile(file) });
