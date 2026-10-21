@@ -38,6 +38,7 @@ test('Consulta por DNI: validación, carga, cinco estados, vacío, fallo y reint
       assert.equal(button.disabled, true);
       assert.equal(input.readOnly, true);
       assert.equal(form.getAttribute('aria-busy'), 'true');
+      assert.equal(d.getElementById('rec-status-loading').hidden, false);
       resolve({ estado, created_at: '2026-10-21T02:00:00Z', updated_at: '2026-10-21T15:00:00Z' });
       await tick();
       assert.equal(d.getElementById('rec-status-label').textContent, estado);
@@ -46,6 +47,7 @@ test('Consulta por DNI: validación, carga, cinco estados, vacío, fallo y reint
       assert.match(d.getElementById('rec-status-created').textContent, /20 de octubre/);
       assert.equal(button.disabled, false);
       assert.equal(form.hasAttribute('aria-busy'), false);
+      assert.equal(d.getElementById('rec-status-loading').hidden, true);
     }
     input.dispatchEvent(new w.Event('input'));
     assert.equal(d.getElementById('rec-status-result').hidden, true);
@@ -54,6 +56,7 @@ test('Consulta por DNI: validación, carga, cinco estados, vacío, fallo y reint
     assert.equal(d.getElementById('rec-status-result').hidden, true);
     submit(); reject(Object.assign(new Error('missing'), { code: 'PGRST202' })); await tick();
     assert.match(d.getElementById('rec-status-error').textContent, /aún no está habilitada/);
+    assert.equal(d.getElementById('rec-status-loading').hidden, true);
     assert.equal(button.disabled, false);
     submit(); reject(new Error('Sin conexión')); await tick();
     assert.match(d.getElementById('rec-status-error').textContent, /Sin conexión/);
@@ -64,6 +67,38 @@ test('Consulta por DNI: validación, carga, cinco estados, vacío, fallo y reint
     assert.equal(w.sessionStorage.length, 0);
     assert.equal(w.location.search, '');
     assert.equal(d.querySelector('.rec-reference-hero .status-link').tagName, 'BUTTON');
+  } finally { w.close(); }
+});
+
+test('Espera prolongada: aviso accesible sin otra petición y limpieza del temporizador al cerrar', async () => {
+  const dom = new JSDOM(read('reclutamiento.html'), { url:'https://kja.example/reclutamiento.html', runScripts:'outside-only' });
+  const w = dom.window, d = w.document;
+  try {
+    const dialog = d.getElementById('rec-status-dialog');
+    dialog.showModal = () => { dialog.open = true; };
+    dialog.close = () => { dialog.open = false; dialog.dispatchEvent(new w.Event('close')); };
+    let calls = 0, slow, settle, cleared = 0;
+    w.setTimeout = (callback, ms) => { assert.equal(ms, 12000); slow = callback; return 42; };
+    w.clearTimeout = id => { if (id === 42) cleared++; };
+    w.KJARecruitmentAPI = { status: () => { calls++; return new Promise(resolve => { settle = resolve; }); }, message:e => e.message };
+    w.eval(read('assets/js/reclutamiento-estado.js'));
+    const trigger = d.querySelector('[data-rec-status-open]');
+    trigger.click();
+    const input = d.getElementById('rec-status-dni'), form = d.getElementById('rec-status-form');
+    input.value = '12345678'; form.requestSubmit();
+    const loading = d.getElementById('rec-status-loading');
+    assert.equal(loading.hidden, false);
+    assert.equal(loading.getAttribute('role'), 'status');
+    slow();
+    assert.match(d.getElementById('rec-status-wait-message').textContent, /tardando un poco más/);
+    assert.equal(calls, 1);
+    dialog.close();
+    assert.equal(loading.hidden, true);
+    assert.equal(cleared, 1);
+    trigger.click();
+    settle({estado:'Entrevista'}); await tick();
+    assert.equal(loading.hidden, true);
+    assert.equal(d.getElementById('rec-status-result').hidden, true);
   } finally { w.close(); }
 });
 

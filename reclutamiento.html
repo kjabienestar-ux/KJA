@@ -30,12 +30,12 @@
   <script defer src="assets/js/home-navigation.js?v=20261020-6"></script>
   <script defer src="assets/js/reclutamiento-api.js?v=2"></script>
   <script defer src="assets/js/reclutamiento.js?v=20261022"></script>
-  <script defer src="assets/js/reclutamiento-estado.js?v=3"></script>
+  <script defer src="assets/js/reclutamiento-estado.js?v=4"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@1&display=swap" rel="stylesheet" />
   <link rel="preload" as="image" href="images/reclutamiento/entrevista.webp" />
   <link rel="stylesheet" href="assets/css/paginas/reclutamiento-portada.css?v=20261021-4" />
     <link rel="stylesheet" href="assets/css/site-navigation.css?v=20261021-published">
-  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-estado.css?v=3" />
+  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-estado.css?v=4" />
 </head>
 <body class="rec-page">
 
@@ -904,6 +904,10 @@
       <p class="rec-status-error" id="rec-status-error" role="alert"></p>
       <button class="rec-status-submit" type="submit">Consultar estado</button>
     </form>
+    <div class="rec-status-loading" id="rec-status-loading" role="status" aria-live="polite" aria-atomic="true" hidden>
+      <span class="rec-status-spinner" aria-hidden="true"></span>
+      <div><strong>Consultando tu postulación…</strong><p id="rec-status-wait-message">Espera un momento, estamos buscando tu estado.</p></div>
+    </div>
     <p class="rec-status-feedback" id="rec-status-feedback" role="status" aria-live="polite"></p>
     <section class="rec-status-result" id="rec-status-result" tabindex="-1" aria-labelledby="rec-status-result-title" hidden>
       <h3 id="rec-status-result-title">Tu postulación más reciente</h3>
