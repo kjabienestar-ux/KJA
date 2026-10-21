@@ -19,6 +19,8 @@ async function fixture(){
  ('00000000-0000-4000-8000-000000000003',true,true,'visor','miembro',null);`);
  for(const file of ['109_zoom','110_zoom_operadores','118_zoom_camaras'])await db.exec(fs.readFileSync(`supabase/dashboard_${file}.sql`,'utf8'));
  await db.exec(fs.readFileSync('supabase/dashboard_118_zoom_camaras.sql','utf8'));
+ await db.exec(fs.readFileSync('supabase/dashboard_119_zoom_camaras_sala.sql','utf8'));
+ await db.exec(fs.readFileSync('supabase/dashboard_119_zoom_camaras_sala.sql','utf8'));
  await db.query("insert into zoom_reuniones(id,topic,status) values($1,'Diaria','ready'),($2,'Otra','ready')",[meeting,other]);
  await db.query("insert into zoom_operadores(reunion_id,perfil_id) values($1,'00000000-0000-4000-8000-000000000002')",[meeting]);
  const identity=n=>db.query("select set_config('request.uid',$1,false)",['00000000-0000-4000-8000-'+String(n).padStart(12,'0')]);
@@ -75,5 +77,16 @@ test('breakout observations stay unknown; stale observers cannot imply indefinit
   await h.db.exec("update zoom_camera_samples set received_at=now()-interval '1 hour';update zoom_camera_sessions set last_seen_at=now()-interval '1 hour'");
   const person=(await h.report()).people[0];
   assert.equal(person.on_seconds,0);assert.equal(person.off_seconds,0);assert.equal(person.percentage,null);assert.equal(person.unknown_seconds,40);assert.equal(person.state,'unknown');
+ }finally{await h.db.close();}
+});
+
+test('local room observations preserve explicit camera states without rewriting legacy unknown samples',async()=>{
+ const h=await fixture();try{
+  await h.start();await h.sample(1,[{id:'a',name:'Local',state:'on'}],'breakout');
+  await h.sample(2,[{id:'a',name:'Local',state:'on'},{id:'b',name:'Remoto',state:'unknown'}],'local');
+  const samples=(await h.db.query('select participants from zoom_camera_samples order by seq')).rows;
+  assert.equal(samples[0].participants.a.state,'unknown');assert.equal(samples[1].participants.a.state,'on');assert.equal(samples[1].participants.b.state,'unknown');
+  const report=await h.report();assert.equal(report.scope,'local');
+  assert.equal(report.people.find(p=>p.id==='a').state,'on');assert.equal(report.people.find(p=>p.id==='b').state,'unknown');
  }finally{await h.db.close();}
 });

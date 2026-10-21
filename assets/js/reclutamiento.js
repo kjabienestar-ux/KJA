@@ -1290,7 +1290,22 @@
     // Botón oficial de WhatsApp a Dirección / Administración
     const waBtn = document.getElementById('rec-btn-whatsapp-confirm');
     if (waBtn) {
-      const msg = `Hola, registré mi postulación en KJA.\nCódigo: ${c.codigo}\nPostulante: ${c.nombres}\nEntrevista solicitada: ${c.fechaEntrevista}, ${c.horaEntrevista}.\nQuisiera coordinar la confirmación de la entrevista.`;
+      const msg = [
+        'Hola, equipo de KJA. Registré mi postulación y quisiera confirmar mi entrevista.',
+        '',
+        '*Postulante:*',
+        c.nombres,
+        '',
+        '*Entrevista solicitada*',
+        `Fecha: ${c.fechaEntrevista}`,
+        `Hora: ${c.horaEntrevista}`,
+        `Canal: ${c.canalEntrevista || 'Virtual'}`,
+        '',
+        '*Código de postulación:*',
+        c.codigo,
+        '',
+        '¿Podrían confirmarme la disponibilidad? Gracias.'
+      ].join('\n');
       waBtn.href = `https://wa.me/51922996170?text=${encodeURIComponent(msg)}`;
     }
 

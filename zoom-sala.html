@@ -15,7 +15,7 @@
 </div>
 <section class="sdk-meeting-section" aria-labelledby="sdk-meetings-title"><div class="sdk-section-head"><h2 id="sdk-meetings-title">Reuniones autorizadas</h2><span>Acceso de anfitrión</span></div><div id="sdk-meetings"></div></section>
 <section id="sdk-camera-report" aria-label="Reporte de cámaras" hidden></section>
-<p class="sdk-device">Al iniciar desde el portal se registra el estado de cámara visible para el responsable, sin guardar imágenes ni audio. Las salas separadas y los tramos sin conexión quedan sin información. El estado de cámara no acredita atención.</p>
+<p class="sdk-device">Al iniciar desde el portal se registra el estado de cámara visible para el responsable, sin guardar imágenes ni audio. Las personas en otras salas y los tramos sin conexión quedan sin información. El estado de cámara no acredita atención.</p>
 <details id="sdk-delegation" hidden open><summary><span>Administrar responsables<small>Asigna o retira el acceso a una reunión</small></span></summary>
 <div class="sdk-delegation-body">
 <p>Este permiso permite actuar como anfitrión de la reunión indicada. No da acceso al resto de la administración. Retirarlo bloquea nuevos inicios; no expulsa una sesión de Zoom ya abierta.</p>
@@ -27,7 +27,7 @@
 <form id="sdk-grant"><div class="sdk-field"><label for="sdk-email">Añadir usuario con acceso administrativo</label><select id="sdk-email" required><option value="">Selecciona un usuario</option></select><small id="sdk-candidates-note">Usuarios activos con acceso al panel administrativo.</small></div><button type="submit">Dar acceso</button></form></div></details>
 </div>
 </main>
-<details id="sdk-controls" hidden><summary>Control KJA</summary>
+<details id="sdk-controls" hidden><summary>Control KJA · cámaras y salas</summary>
 <p id="sdk-live-status" role="status" aria-live="polite">Consultando salas…</p><ul id="sdk-rooms"></ul>
 <button id="sdk-check" type="button">Consultar salas</button><button id="sdk-open" type="button" disabled>Abrir salas existentes</button>
 <p>En «Salas para grupos pequeños» de Zoom, marca «Allow participants to choose room» en Opciones antes de pulsar «Open All Rooms». Si faltan salas, recupera la preasignación desde ese panel.</p>
@@ -37,14 +37,14 @@
 <ul data-camera-list aria-label="Estado de cámara observado"></ul>
 <button type="button" data-camera-refresh>Consultar cámaras</button>
 <button type="button" data-camera-report>Ver reporte guardado</button>
-<p>El reporte se abre en otra pestaña. Mantén esta conexión abierta. Se guardan estados, sin imágenes ni audio.</p>
+<p>Dentro del dashboard, el reporte se abre aquí sin desconectar Zoom. Mantén la pestaña del observador en primer plano. Se guardan estados, sin imágenes ni audio.</p>
 </section>
 <div class="sdk-dashboard-return"><a class="sdk-dashboard-link" href="dashboard.html" target="_blank" rel="noopener noreferrer" aria-describedby="sdk-dashboard-help"><span>Volver a administración</span> <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3l-11 11M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg></a><p id="sdk-dashboard-help">Se abre en otra pestaña. Mantén esta pestaña de Zoom abierta para conservar tu sesión.</p></div>
 <p>Para terminar, usa «Finalizar» dentro de Zoom.</p>
 </details>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/zoom-camera-model.js?v=1"></script>
-<script src="assets/js/zoom-camera-tracker.js?v=1"></script>
-<script src="assets/js/zoom-camera-report.js?v=1"></script>
-<script src="assets/js/zoom-sala.js?v=9"></script>
+<script src="assets/js/zoom-camera-model.js?v=2"></script>
+<script src="assets/js/zoom-camera-tracker.js?v=2"></script>
+<script src="assets/js/zoom-camera-report.js?v=2"></script>
+<script src="assets/js/zoom-sala.js?v=10"></script>
 </body></html>

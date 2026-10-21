@@ -45,6 +45,22 @@ test('disconnects, hidden tabs and offline observers cannot keep reporting stale
  h.w.dispatchEvent(new h.w.Event('online'));await h.flush(350);assert.ok(h.calls.length>hiddenCount);
 });
 
+test('actual SDK meetingStatus payload resumes sampling after reconnect and stops on leave',async t=>{
+ const h=setup();t.after(()=>h.dom.window.close());h.tracker.bind();h.tracker.start('meeting');await tick();
+ h.callbacks.onMeetingStatus({meetingStatus:4});await h.flush(350);
+ const disconnected=h.calls.length;for(const interval of h.intervals.values())interval.fn();await tick();assert.equal(h.calls.length,disconnected);
+ h.callbacks.onMeetingStatus({meetingStatus:2});await h.flush(350);assert.ok(h.calls.length>disconnected);
+ const connected=h.calls.length;h.callbacks.onMeetingStatus({unrelated:true});
+ for(const interval of h.intervals.values())interval.fn();await tick();assert.ok(h.calls.length>connected);
+ h.callbacks.onMeetingStatus({meetingStatus:3});await tick();assert.equal(h.intervals.size,0);assert.equal(h.calls.at(-1).name,'dash_zoom_camera_stop');
+});
+
+test('tracker persists only confirmed local cameras while breakout rooms are open',async t=>{
+ const h=setup();t.after(()=>h.dom.window.close());h.setRoster([{userId:1,userName:'Local',video:true},{userId:2,userName:'Otra sala',video:true}]);
+ h.setScope({scope:'local',visibleIds:['user:1']});h.tracker.start('meeting');await tick();
+ assert.equal(h.calls.at(-1).args.p_scope,'local');assert.deepEqual(Array.from(h.calls.at(-1).args.p_participants,p=>p.state),['on','unknown']);
+});
+
 test('late SDK responses after stop cannot create observations, failed persistence is visible',async t=>{
  const h=setup();t.after(()=>h.dom.window.close());let resolve;
  h.setRosterRead(()=>new Promise(done=>{resolve=done;}));h.tracker.start('meeting');await tick();
@@ -84,4 +100,14 @@ test('report timeout exposes retry and missing migration never looks like a succ
  assert.match(host.textContent,/tardó demasiado/);assert.equal(host.getAttribute('aria-busy'),'false');
  h.setRespond(()=>({error:{code:'PGRST202'}}));host.querySelector('[data-report-refresh]').click();await tick();
  assert.match(host.textContent,/pendiente de activación/);assert.equal(host.querySelector('[data-report-export]').disabled,true);
+});
+
+test('report refreshes live data without leaving its page and stops refreshing after close',async t=>{
+ const h=setup();t.after(()=>h.dom.window.close());let count=0;
+ h.setRespond(()=>({data:{ok:true,sessions:[],session:null,people:[],count:++count}}));
+ const report=h.w.KJAZoomCameraReport.mount(h.w.document.getElementById('report'),h.db);
+ await report.open({id:'meeting',topic:'Actual'});assert.equal(count,1);
+ for(const interval of h.intervals.values())interval.fn();await tick();assert.equal(count,2);
+ Object.defineProperty(h.w.document,'hidden',{configurable:true,value:true});for(const interval of h.intervals.values())interval.fn();await tick();assert.equal(count,2);
+ report.close();assert.equal(h.intervals.size,0);
 });
