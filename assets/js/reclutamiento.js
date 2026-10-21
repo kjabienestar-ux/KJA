@@ -1232,3 +1232,13 @@
   });
 
 })();
+
+// Keep the published light header readable over the application and employer sections.
+(() => {
+  const header = document.querySelector('.kja-page > header');
+  if (!header) return;
+  const updateHeader = () => header.classList.toggle('scrolled', window.scrollY > 60);
+  window.addEventListener('scroll', updateHeader, { passive: true });
+  window.addEventListener('pageshow', updateHeader);
+  updateHeader();
+})();
