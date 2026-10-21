@@ -14302,6 +14302,62 @@
                 stroke-linecap: round;
             }
 
+            .kja-resena-modal__copiar {
+                position: absolute;
+                top: 14px;
+                right: 62px;
+                z-index: 2;
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                height: 40px;
+                padding: 0 14px;
+                border: 0;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, .92);
+                color: #0d264c;
+                font: 600 .78rem/1 'Poppins', sans-serif;
+                cursor: pointer;
+                box-shadow: 0 6px 18px rgba(13, 38, 76, .18);
+                transition: background-color .2s ease, color .2s ease;
+            }
+
+            .kja-resena-modal__copiar:hover {
+                background: #fff;
+            }
+
+            .kja-resena-modal__copiar.is-copiado {
+                background: #f10075;
+                color: #fff;
+            }
+
+            .kja-resena-modal__copiar svg {
+                width: 16px;
+                height: 16px;
+                flex: none;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2.2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            .kja-resena-modal__copiar:focus-visible,
+            .kja-resena-modal__cerrar:focus-visible {
+                outline: 3px solid #004fb0;
+                outline-offset: 2px;
+            }
+
+            .kja-resena-modal__sr {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                margin: -1px;
+                overflow: hidden;
+                clip-path: inset(50%);
+                white-space: nowrap;
+            }
+
             .kja-resena-modal__carga {
                 position: absolute;
                 inset: 0;
@@ -14341,6 +14397,36 @@
                     top: 10px;
                     right: 10px;
                 }
+
+                /* En móvil solo el ícono, bajo la X para no tapar el título; el aviso sale a su izquierda. */
+                .kja-resena-modal__copiar {
+                    top: 56px;
+                    right: 12px;
+                    width: 36px;
+                    height: 36px;
+                    padding: 0;
+                    justify-content: center;
+                }
+
+                .kja-resena-modal__copiar-txt {
+                    position: absolute;
+                    top: 50%;
+                    right: calc(100% + 6px);
+                    transform: translateY(-50%);
+                    padding: 5px 9px;
+                    border-radius: 8px;
+                    background: #0d264c;
+                    color: #fff;
+                    font-size: .7rem;
+                    white-space: nowrap;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity .2s ease;
+                }
+
+                .kja-resena-modal__copiar.is-copiado .kja-resena-modal__copiar-txt {
+                    opacity: 1;
+                }
             }
 
             @media (prefers-reduced-motion: reduce) {
@@ -14358,6 +14444,11 @@
             }
         </style>
         <dialog class="kja-resena-modal" id="kja-resena-modal" aria-label="Déjanos tu reseña">
+            <button type="button" class="kja-resena-modal__copiar" id="kja-resena-copiar" aria-label="Copiar enlace para dejar una reseña">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5" /><path d="M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" /></svg>
+                <span class="kja-resena-modal__copiar-txt" aria-hidden="true">Copiar enlace</span>
+            </button>
+            <span class="kja-resena-modal__sr" id="kja-resena-copiar-estado" role="status" aria-live="polite"></span>
             <button type="button" class="kja-resena-modal__cerrar" id="kja-resena-cerrar" aria-label="Cerrar">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
             </button>
@@ -14370,9 +14461,16 @@
                 const modal = document.getElementById('kja-resena-modal');
                 const frame = document.getElementById('kja-resena-frame');
                 const SRC = 'opinar.html?embed=1';
+                // Enlace para compartir con clientes: siempre el dominio oficial, abre este modal.
+                const LINK = 'https://www.kjadmb.com/#resena';
+                const copiarBtn = document.getElementById('kja-resena-copiar');
+                const copiarTxt = copiarBtn.querySelector('.kja-resena-modal__copiar-txt');
+                const copiarEstado = document.getElementById('kja-resena-copiar-estado');
                 let enviado = false;
+                let copiadoTimer;
 
                 function abrir() {
+                    if (modal.open) return;
                     // El formulario se carga la primera vez y se recarga vacío si ya se envió una reseña.
                     if (!frame.getAttribute('src') || enviado) {
                         modal.classList.remove('is-listo');
@@ -14385,15 +14483,62 @@
                 }
                 function cerrar() { if (modal.open) modal.close(); }
 
+                function copiarConRespaldo() {
+                    const campo = document.createElement('textarea');
+                    campo.value = LINK;
+                    campo.setAttribute('readonly', '');
+                    campo.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+                    modal.appendChild(campo);
+                    campo.select();
+                    let ok = false;
+                    try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+                    campo.remove();
+                    return ok;
+                }
+                function marcarCopiado() {
+                    clearTimeout(copiadoTimer);
+                    copiarBtn.classList.add('is-copiado');
+                    copiarTxt.textContent = '¡Copiado!';
+                    copiarEstado.textContent = 'Enlace copiado';
+                    copiadoTimer = setTimeout(function () {
+                        copiarBtn.classList.remove('is-copiado');
+                        copiarTxt.textContent = 'Copiar enlace';
+                        copiarEstado.textContent = '';
+                    }, 2000);
+                }
+                function copiar() {
+                    const respaldo = function () {
+                        if (copiarConRespaldo()) marcarCopiado();
+                        else window.prompt('Copia este enlace:', LINK);
+                    };
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(LINK).then(marcarCopiado, respaldo);
+                    } else {
+                        respaldo();
+                    }
+                }
+                // https://www.kjadmb.com/#resena lleva a Testimonios con el modal abierto.
+                function abrirDesdeHash() {
+                    if (location.hash !== '#resena') return;
+                    const testimonios = document.getElementById('testimonios');
+                    if (testimonios) testimonios.scrollIntoView({ block: 'start', behavior: 'instant' });
+                    abrir();
+                }
+
                 frame.addEventListener('load', function () { modal.classList.add('is-listo'); });
                 fab.addEventListener('click', abrir);
+                copiarBtn.addEventListener('click', copiar);
                 document.getElementById('kja-resena-cerrar').addEventListener('click', cerrar);
                 modal.addEventListener('click', function (e) { if (e.target === modal) cerrar(); });
                 modal.addEventListener('close', function () {
                     document.documentElement.style.overflow = '';
                     document.body.style.overflow = '';
                     fab.focus({ preventScroll: true });
+                    // Quitar #resena para que recargar no vuelva a abrir el modal.
+                    if (location.hash === '#resena') history.replaceState(null, '', location.pathname + location.search);
                 });
+                window.addEventListener('hashchange', abrirDesdeHash);
+                abrirDesdeHash();
                 // opinar.html avisa cuando se envió la reseña y cuando el usuario pulsa "Cerrar".
                 window.addEventListener('message', function (e) {
                     if (e.origin !== location.origin || !e.data) return;
