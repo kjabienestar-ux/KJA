@@ -83,9 +83,10 @@
  async function cameraScope(){
  try{
   let raw;
-  try{raw=await call('getBreakoutRoomStatus');}catch{raw=null;}
+  try{raw=await call('getBreakoutRoomStatus');}catch{return 'unknown';}
   const value=typeof raw==='number'?raw:raw?.result?.status??raw?.status??raw?.result;
-  if(![2,3].includes(value))return 'main';
+  if([1,4].includes(value))return 'main';
+  if(![2,3].includes(value))return 'unknown';
   let local=null,rooms=null;
   try{[local,rooms]=await Promise.all([call('getUserStatus'),call('getBreakoutRooms')]);}catch{return {scope:'unknown',visibleIds:[]};}
   const status=typeof local==='string'?local:local?.result?.status??local?.status;

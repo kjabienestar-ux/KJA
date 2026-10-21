@@ -15,19 +15,27 @@ async function setup(t) {
   let item = { id: 'candidate', codigo: 'KJA-TEST', created_at: '2026-10-21T15:00:00Z', revision: 1, estado: 'Pendiente', notas_revision: '', datos: { nombres: '<img src=x onerror=alert(1)>', dni: '01234567', email: 'ana@example.com', emailNotificacion: 'ana@example.com', telefono: '987654321', carrera: 'Psicología Clínica', nivel: 'Egresada', entrevistaFecha: '2026-10-23', entrevistaHora: '03:00 PM', cvName: 'Mi CV.pdf', motivacion: '<script>alert(1)</script>', requisitosAceptados: true } };
   const calls = [];
   let update = async args => ({ ...item, estado: args.p_estado, notas_revision: args.p_notas, revision: item.revision + 1 });
+  let downloadCv = async () => { throw new Error('Descarga no disponible. Reintenta.'); };
+  w.URL.createObjectURL = () => 'blob:https://example.test/cv';
+  w.URL.revokeObjectURL = () => {};
   w.KJARecruitmentAPI = { message: e => e.message, rpc: async (_client, name, args) => {
     calls.push({ name, args });
     if (name === 'rec_es_admin') return true;
     if (name === 'rec_listar') return { items: [item], total: 1, counts: { pendientes: 1 } };
     if (name === 'rec_actualizar') { item = await update(args); return item; }
-    if (name === 'rec_descargar_cv') throw new Error('Descarga no disponible. Reintenta.');
+    if (name === 'rec_descargar_cv') return downloadCv(args);
     throw new Error(name);
   } };
   w.eval(source); await w.kjaRecruitment.refresh(); w.kjaRecruitment.openDetail('candidate');
   const el = id => w.document.getElementById(id);
-  const edit = (id, value) => { el(id).value = value; el(id).dispatchEvent(new w.Event(id === 'ri-detail-status' ? 'change' : 'input')); };
-  return { w, el, edit, calls, setUpdate: fn => { update = fn; } };
+  const edit = (id, value) => {
+    if (id === 'ri-detail-status') { el('ri-detail-status-trigger').click(); el(id).querySelector(`[role="option"][data-value="${value}"]`).click(); return; }
+    el(id).value = value; el(id).dispatchEvent(new w.Event('input'));
+  };
+  return { w, el, edit, calls, setUpdate: fn => { update = fn; }, setCv: fn => { downloadCv = fn; } };
 }
+const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+const pdf = { nombre: 'Mi CV.pdf', mime: 'application/pdf', base64: Buffer.from('%PDF-1.4').toString('base64') };
 
 test('detail groups candidate information safely and handles unavailable file size', async t => {
   const { w, el } = await setup(t);
@@ -80,4 +88,72 @@ test('saving prevents duplicate requests and closing until the response arrives'
   assert.equal(calls.filter(c => c.name === 'rec_actualizar').length, 1);
   finish(); await pending;
   assert.equal(el('ri-close').disabled, false);
+});
+
+test('status dropdown reflects the saved state, opens with the keyboard and closes after choosing', async t => {
+  const { w, el, edit } = await setup(t);
+  const selected = () => [...el('ri-detail-status').querySelectorAll('[aria-selected="true"]')].map(o => o.dataset.value);
+  const menu = el('ri-detail-status').querySelector('[role="listbox"]');
+  assert.deepEqual(selected(), ['Pendiente']);
+  assert.equal(el('ri-detail-status-trigger').textContent.trim(), 'Pendiente');
+  el('ri-detail-status-trigger').dispatchEvent(new w.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+  assert.equal(menu.hidden, false);
+  assert.equal(el('ri-detail-status-trigger').getAttribute('aria-expanded'), 'true');
+  menu.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+  menu.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  assert.equal(menu.hidden, true);
+  assert.deepEqual(selected(), ['En revisión']);
+  edit('ri-detail-status', 'Aprobado');
+  assert.deepEqual(selected(), ['Aprobado']);
+  assert.equal(el('ri-detail-status-trigger').dataset.state, 'approved');
+  assert.match(el('ri-status-help').textContent, /aprobada/);
+  assert.equal(w.document.querySelectorAll('select').length, 0);
+});
+
+test('a record without a stored CV explains it instead of offering a retry', async t => {
+  const { el, setCv } = await setup(t);
+  setCv(async () => { throw new Error('CV no disponible'); });
+  el('ri-preview').click(); await flush();
+  assert.match(el('ri-viewer-empty-text').textContent, /no tiene un CV guardado/);
+  assert.equal(el('ri-viewer-retry').hidden, true);
+});
+
+test('PDF preview opens inside the dialog, reuses the file for download and returns to the record', async t => {
+  const { el, calls, setCv } = await setup(t);
+  setCv(async () => pdf);
+  el('ri-preview').click(); await flush();
+  assert.equal(el('rec-inbox-detail').classList.contains('is-previewing'), true);
+  assert.equal(el('ri-detail-data').hidden, true);
+  assert.equal(el('ri-viewer-frame').hidden, false);
+  assert.match(el('ri-viewer-frame').src, /^blob:.*#navpanes=0&view=FitH$/);
+  assert.equal(el('ri-viewer-open').hasAttribute('aria-disabled'), false);
+  el('ri-viewer-download').click(); await flush();
+  assert.equal(calls.filter(c => c.name === 'rec_descargar_cv').length, 1);
+  el('ri-viewer-back').click();
+  assert.equal(el('rec-inbox-detail').classList.contains('is-previewing'), false);
+  assert.equal(el('ri-detail-data').hidden, false);
+  assert.equal(el('ri-viewer-frame').hasAttribute('src'), false);
+});
+
+test('preview explains unsupported formats and recovers from errors with a retry', async t => {
+  const { el, setCv } = await setup(t);
+  el('ri-preview').click(); await flush();
+  assert.equal(el('ri-viewer-empty').hidden, false);
+  assert.match(el('ri-viewer-empty-text').textContent, /Reintenta/);
+  assert.equal(el('ri-viewer-retry').hidden, false);
+  setCv(async () => ({ ...pdf, nombre: 'Mi CV.docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
+  el('ri-viewer-retry').click(); await flush();
+  assert.equal(el('ri-viewer-frame').hidden, true);
+  assert.match(el('ri-viewer-empty-text').textContent, /no se puede previsualizar/);
+  assert.equal(el('ri-viewer-retry').hidden, true);
+});
+
+test('closing the dialog leaves the preview mode', async t => {
+  const { el, setCv } = await setup(t);
+  setCv(async () => pdf);
+  el('ri-preview').click(); await flush();
+  el('ri-close').click();
+  assert.equal(el('rec-inbox-detail').open, false);
+  assert.equal(el('rec-inbox-detail').classList.contains('is-previewing'), false);
+  assert.equal(el('ri-cv-viewer').hidden, true);
 });

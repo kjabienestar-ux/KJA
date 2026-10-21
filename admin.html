@@ -22,6 +22,7 @@
 
 <link rel="stylesheet" href="assets/css/accessibility.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/admin.css?v=45">
+<link rel="stylesheet" href="assets/css/paginas/reclutamiento-bandeja.css?v=6">
 </head>
 <body>
 
@@ -158,6 +159,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span class="side-lbl">Certificados emitidos</span></button>
       <div class="side-sect solo-admin" style="display:none;">Administración</div>
+      <button data-view="reclutamiento" class="solo-admin" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="side-lbl">Reclutamiento <span data-rec-pending-count hidden></span></span></button>
       <button data-view="com" class="solo-admin" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         <span class="side-lbl">Comentarios</span> <span class="com-pend" id="com-pend" style="display:none;">0</span></button>
@@ -193,6 +195,8 @@
         </div>
       </header>
       <div class="views-area">
+
+      <div class="view" id="view-reclutamiento"><div id="rec-inbox-root"></div></div>
 
       <!-- VIEW: GENERAR -->
       <div class="view gen active" id="view-gen">
@@ -721,6 +725,7 @@ async function cargarPerfil(){
     PERFILES_MAP={}; ADMIN_UID=null;
     (todos||[]).forEach(p=>{ PERFILES_MAP[p.id]=p.nombre; if(p.rol==='admin' && !ADMIN_UID) ADMIN_UID=p.id; });
     aplicarRolUI();
+    if(esAdmin())setTimeout(()=>window.kjaRecruitment?.refresh?.(),0);
     return true;
   }catch(e){
     PERFIL={ id:null, rol:'colaborador', serie:null, nombre:'' };
@@ -883,6 +888,8 @@ document.querySelectorAll('.side button[data-view]').forEach(b=>{
     document.querySelectorAll('.side button[data-view]').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
     const v=b.dataset.view;
+    $('view-reclutamiento').classList.toggle('active',v==='reclutamiento');
+    if(v==='reclutamiento'&&esAdmin())void window.kjaRecruitment?.refresh?.();
     $('view-gen').classList.toggle('active', v==='gen');
     $('view-emit').classList.toggle('active', v==='emit');
     $('view-com').classList.toggle('active', v==='com');
@@ -2580,5 +2587,7 @@ $('side-toggle').addEventListener('click', () => {
   };
 </script>
 <script defer src="assets/js/accessibility.js?v=1"></script>
+<script src="assets/js/reclutamiento-api.js?v=1"></script>
+<script src="assets/js/dashboard-reclutamiento.js?v=8"></script>
 </body>
 </html>

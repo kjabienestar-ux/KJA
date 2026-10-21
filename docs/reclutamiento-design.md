@@ -36,23 +36,19 @@ En móvil se evita el recorte de controles y se usan inputs de 16 px. Verificaci
 
 ## Alcance
 
-La página 
-eclutamiento.html incorpora la portada de referencia y el proceso existente de cuatro pasos. Ambas copias locales (Live Server en 5505 y servidor en 3000) contienen la misma página y sus dependencias de reclutamiento.
+La página `reclutamiento.html` incorpora la portada de referencia y el proceso existente de cuatro pasos. Ambas copias locales (Live Server en 5505 y servidor en 3000) contienen la misma página y sus dependencias de reclutamiento.
 
 ## Diseño
 
 La fotografía images/reclutamiento/entrevista.webp comienza en el borde superior y continúa detrás de la navegación. No hay un velo blanco horizontal sobre la cabecera. Se conserva el degradado lateral para la lectura, el fondo crema, el titular negro Poppins y el énfasis rosa en DM Serif Display cursiva. La onda blanca solo remata el borde inferior.
 
-Los estilos de portada están aislados en ssets/css/paginas/reclutamiento-portada.css, con prefijo .rec-reference-hero. Los formularios conservan 
-eclutamiento.css y 
-eclutamiento-confirmacion.css. El rosa de display es #ed007a, el de los botones #d00068 y el de navegación #a50052.
+Los estilos de portada están aislados en assets/css/paginas/reclutamiento-portada.css, con prefijo .rec-reference-hero. Los formularios conservan `reclutamiento.css` y `reclutamiento-confirmacion.css`. El rosa de display es #ed007a, el de los botones #d00068 y el de navegación #a50052.
 
 La fotografía ilustrativa se generó con la herramienta integrada. Su procedencia y el prompt exacto están en images/reclutamiento/entrevista.webp.json; no representa al personal real de KJA.
 
 ## Navegación y flujo
 
-La cabecera conserva el menú compartido del sitio. El botón principal y las modalidades enlazan a #rec-tabs-wrapper. Debajo de la portada están los requisitos, los datos y CV, la agenda y la confirmación. El cliente existente usa 
-eclutamiento-api.js; esta modificación no despliega ni verifica el servicio remoto de envío.
+La cabecera conserva el menú compartido del sitio. El botón principal y las modalidades enlazan a #rec-tabs-wrapper. Debajo de la portada están los requisitos, los datos y CV, la agenda y la confirmación. El cliente existente usa `reclutamiento-api.js`; esta modificación no despliega ni verifica el servicio remoto de envío.
 
 El documento admite desplazamiento vertical. Los bloqueos específicos del menú móvil y los modales conservan sus reglas de interacción.
 

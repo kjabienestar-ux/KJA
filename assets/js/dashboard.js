@@ -3405,7 +3405,7 @@ async function saveAdminState(personId,state,remove){
 
 function syncRecruitmentNavigation(){
   const canRecruit=APP.access.acceso_panel&&APP.access.rol==='direccion';
-  ['nav-reclutamiento','mobile-action-reclutamiento','admin-recruitment-tab'].forEach(id=>{if($(id))$(id).hidden=!canRecruit;});
+  ['nav-reclutamiento','mobile-action-reclutamiento','admin-recruitment-tab','admin-recruitment-module'].forEach(id=>{if($(id))$(id).hidden=!canRecruit;});
   if(canRecruit)void window.kjaRecruitment?.refresh?.();
   else window.kjaRecruitment?.clear?.();
 }
