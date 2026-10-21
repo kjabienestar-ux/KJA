@@ -8,7 +8,7 @@ Mientras llegan las solicitudes, la bandeja muestra un esqueleto animado (contad
 
 «Ver CV» muestra el PDF en un visor dentro del mismo diálogo, sin cambiar su tamaño (hasta 1060 × 880 px), y la revisión interna sigue a la derecha (debajo en móvil). El archivo se pide una sola vez y se reutiliza para descargar o abrir en otra pestaña. DOC y DOCX solo se descargan. Al volver, cerrar o cerrar sesión se libera el archivo. Si `rec_descargar_cv` responde «CV no disponible» (no hay fila en `rec_curriculos` para ese expediente), se explica que el expediente no tiene CV guardado, sin ofrecer reintento.
 
-Los números de En revisión, Entrevista y No seleccionado requieren `supabase/reclutamiento_03_conteo_por_estado.sql` (opcional, misma firma de `rec_listar`). Sin esa migración esos chips no muestran número.
+**Migración opcional:** `supabase/reclutamiento_04_conteo_por_estado.sql` hace que el filtro muestre también el número de En revisión, Entrevista y No seleccionado. No es necesaria: sin ella la bandeja, el embudo y el expediente funcionan igual, y esos tres estados solo aparecen sin número. Mantiene la firma y los permisos de `rec_listar` y no modifica datos.
 
 ## Expediente administrativo: revisión visual e interacción
 

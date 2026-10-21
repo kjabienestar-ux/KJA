@@ -1,6 +1,8 @@
--- Opcional: añade a rec_listar el conteo por cada estado (counts.por_estado)
--- para mostrar los números en todos los filtros de la bandeja.
--- Misma firma y permisos; no modifica postulaciones ni CV. Ejecutar completo en SQL Editor.
+-- OPCIONAL. No es necesaria para que la bandeja funcione.
+-- Añade a rec_listar el conteo por cada estado (counts.por_estado) para que el filtro
+-- muestre también los números de En revisión, Entrevista y No seleccionado.
+-- Aplicar después de reclutamiento_01_solicitudes.sql. Misma firma y permisos;
+-- no modifica postulaciones ni CV. Ejecutar completo en SQL Editor.
 begin;
 
 create or replace function public.rec_listar(p_estado text default '',p_busqueda text default '',p_pagina integer default 0)
