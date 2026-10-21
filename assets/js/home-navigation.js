@@ -74,6 +74,11 @@
     closeButton.addEventListener('click', () => settle(false));
     shield.addEventListener('click', () => settle(false));
     drawer.addEventListener('click', event => { if (event.target.closest('a')) settle(false, true); });
+    // A history-restored page must not retain a fixed foreground or inert content.
+    window.addEventListener('pagehide', () => { if (active) settle(false, true); });
+    window.addEventListener('pageshow', event => {
+        if (event.persisted && active) settle(false, true);
+    });
     document.addEventListener('keydown', event => {
         if (!open) return;
         if (event.key === 'Escape') { event.preventDefault(); settle(false); }

@@ -1,0 +1,11 @@
+/* Published header: light blur, original layout and original scroll state. */
+@media(min-width:969px){
+html body .kja-page>header:not(.scrolled){background:transparent!important;box-shadow:none!important;border-bottom:1px solid transparent;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html body .kja-page>header:not(.scrolled)::before{content:''!important;display:block!important;position:absolute;top:0;left:0;width:100%;height:160%;z-index:-1;opacity:1;background:rgba(0,0,0,.05)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;mask-image:linear-gradient(to bottom,#000 40%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 40%,transparent 100%);pointer-events:none}
+html body .kja-page>header .nav-desktop-only .nav-links-center li>a{color:#fff!important;text-decoration:none}
+html body .kja-page>header.scrolled{background:rgba(255,255,255,.95)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;box-shadow:0 4px 30px rgba(0,0,0,.05)!important;border-bottom:1px solid rgba(0,0,0,.05)}
+html body .kja-page>header.scrolled::before{opacity:0!important}
+html body .kja-page>header.scrolled .nav-desktop-only .nav-links-center li>a{color:var(--primary-blue,#004fb0)!important}
+html body .kja-page>header .nav-desktop-only .nav-links-center li>a:hover,
+html body .kja-page>header.scrolled .nav-desktop-only .nav-links-center li>a.active{color:var(--primary-pink,#f10075)!important}
+}

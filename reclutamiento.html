@@ -27,9 +27,13 @@
   <link rel="stylesheet" href="assets/css/paginas/reclutamiento.css?v=7" />
   <link rel="stylesheet" href="assets/css/paginas/reclutamiento-confirmacion.css?v=1" />
 
-  <script defer src="assets/js/home-navigation.js?v=5"></script>
+  <script defer src="assets/js/home-navigation.js?v=20261020-6"></script>
   <script defer src="assets/js/reclutamiento-api.js?v=1"></script>
-  <script defer src="assets/js/reclutamiento.js?v=4"></script>
+  <script defer src="assets/js/reclutamiento.js?v=20261021-5"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@1&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="images/reclutamiento/entrevista.webp" />
+  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-portada.css?v=20261021-4" />
+    <link rel="stylesheet" href="assets/css/site-navigation.css?v=20261021-published">
 </head>
 <body class="rec-page">
 
@@ -47,15 +51,36 @@
     </div>
     <nav aria-label="Secciones">
       <ul class="kja-drawer-links">
-        <li><a href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>Inicio</a></li>
-        <li><a href="terapia.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" /></svg>Terapia</a></li>
-        <li><a href="cursos.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 9 10-5 10 5-10 5L2 9Zm4 2v6c4 3 8 3 12 0v-6M22 9v8" /></svg>Cursos</a></li>
-        <li><a href="talleres.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H4zM8 20h8M12 16v4M8 8h8M8 12h5" /></svg>Talleres</a></li>
-        <li><a href="reclutamiento.html" class="active" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M20 8v6M23 11h-6" /></svg>Reclutamiento</a></li>
-        <li><a href="videos.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="13" height="14" rx="3" /><path d="m16 10 5-3v10l-5-3" /></svg>Videos</a></li>
-        <li><a href="certificado.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v13H6zM9 16v6l3-2 3 2v-6M9 7h6M9 11h6" /></svg>Certificados</a></li>
-        <li><a href="nosotros.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 4a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.9" /></svg>Nosotros</a></li>
-      </ul>
+                <li><a href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7" />
+                        </svg>Inicio</a></li>
+                <li><a href="terapia.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+                        </svg>Terapia</a></li>
+                <li><a href="cursos.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m2 9 10-5 10 5-10 5L2 9Zm4 2v6c4 3 8 3 12 0v-6M22 9v8" />
+                        </svg>Cursos</a></li>
+                <li><a href="talleres.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 4h16v12H4zM8 20h8M12 16v4M8 8h8M8 12h5" />
+                        </svg>Talleres</a></li>
+                <li><a href="reclutamiento.html" class="active" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M19 7v6M16 10h6"/></svg>Reclutamiento</a></li>
+                <li><a href="videos.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <rect x="3" y="5" width="13" height="14" rx="3" />
+                            <path d="m16 10 5-3v10l-5-3" />
+                        </svg>Videos</a></li>
+                <li><a href="certificado.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6 3h12v13H6zM9 16v6l3-2 3 2v-6M9 7h6M9 11h6" />
+                        </svg>Certificados</a></li>
+                <li><a href="nosotros.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 4a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.9" />
+                        </svg>Nosotros</a></li>
+                <li><a href="index.html#ubicanos"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0ZM15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+                        </svg>Ubícanos</a></li>
+            </ul>
     </nav>
     <div class="kja-drawer-bottom">
       <a href="dashboard.html" class="kja-drawer-cta">Acceso Portal KJA <span aria-hidden="true">→</span></a>
@@ -72,16 +97,16 @@
           </a>
         </div>
         <ul class="nav-center nav-links-center">
-          <li><a href="index.html">Inicio</a></li>
-          <li><a href="terapia.html">Terapia</a></li>
-          <li><a href="cursos.html">Cursos</a></li>
-          <li><a href="talleres.html">Talleres</a></li>
-          <li><a href="reclutamiento.html" class="active">Reclutamiento</a></li>
-          <li><a href="videos.html">Videos</a></li>
-          <li><a href="certificado.html">Certificados</a></li>
-          <li><a href="nosotros.html">Nosotros</a></li>
-          <li><a href="https://maps.google.com/?q=Jr.+Río+Amazonas+214,+San+Luis,+Lima" target="_blank" rel="noopener noreferrer">Ubícanos</a></li>
-        </ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="terapia.html">Terapia</a></li>
+                    <li><a href="cursos.html">Cursos</a></li>
+                    <li><a href="talleres.html">Talleres</a></li>
+                    <li><a href="reclutamiento.html" class="active" aria-current="page">Reclutamiento</a></li>
+                    <li><a href="videos.html">Videos</a></li>
+                    <li><a href="certificado.html">Certificados</a></li>
+                    <li><a href="nosotros.html">Nosotros</a></li>
+                    <li><a href="index.html#ubicanos">Ubícanos</a></li>
+                </ul>
         <div class="nav-right">
           <a class="nav-cta-btn" href="#rec-tabs-wrapper">
             <svg fill="none" height="18" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="18">
@@ -104,58 +129,29 @@
       </nav>
     </header>
 
-    <!-- ===== HERO SECTION (V2 EXACTO DE TERAPIA Y CURSOS) ===== -->
-    <div class="hero-v2">
-      <div class="hero-v2-bg-circle"></div>
-      <div class="hero-v2-bg-lines"></div>
-      <div class="hero-v2-container">
-        <div class="hero-v2-content">
-          <div class="hero-eyebrow-badge">
-            <span class="hero-eyebrow-dot"></span>
-            CONVOCATORIA KJA 2026 · TALENTO CLÍNICO
-          </div>
-          <h1 class="hero-v2-title" style="line-height: 1.2;">
-            Construye tu carrera en un centro <span class="hero-v2-title-highlight" style="font-size: 1.05em; padding: 0 2px;">humano</span> y profesional
-          </h1>
-          <p class="hero-v2-desc">
-            Prácticas pre-profesionales, internado y plazas para egresados. Completa tu postulación, adjunta tu CV y solicita una entrevista con nuestro equipo.
-          </p>
-
-          <!-- Pastillas de beneficios destacados en Hero (Box 1 Mejorado) -->
-          <div class="rec-hero-highlights">
-            <div class="rec-hero-pill">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FE037C" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>Presencial & Virtual</span>
-            </div>
-            <div class="rec-hero-pill">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FE037C" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>Horarios Flexibles</span>
-            </div>
-            <div class="rec-hero-pill">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FE037C" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              <span>Certificación Oficial</span>
-            </div>
-          </div>
-
-          <a class="hero-v2-btn" href="#rec-tabs-wrapper">
-            <svg fill="currentColor" height="20" viewBox="0 0 24 24" width="20">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-            Iniciar mi postulación
-          </a>
-          <div class="hero-v2-trust">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 12 15 16 10"/></svg>
-            <span>Centro psicológico formal en San Luis · Convocatoria 2026</span>
-          </div>
+    <!-- Recruitment hero: user reference; existing application flow preserved below. -->
+    <section class="rec-reference-hero" aria-labelledby="recruitment-title">
+        <img class="recruitment-photo" src="images/reclutamiento/entrevista.webp" alt="" width="1817" height="866" fetchpriority="high">
+    <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-person" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M19 7v6M16 10h6"/></symbol>
+        <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-7-7 7 7-7 7"/></symbol>
+        <symbol id="icon-cap" viewBox="0 0 24 24"><path d="m2 8 10-5 10 5-10 5L2 8Zm4 2v7c4 3 8 3 12 0v-7M22 8v7"/></symbol>
+        <symbol id="icon-book" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12 7h4M12 11h4M12 15h3"/></symbol>
+        <symbol id="icon-team" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3H3ZM16 4a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v2h-3"/></symbol>
+    </svg>
+        <div class="hero-content" aria-labelledby="recruitment-title">
+            <p class="recruitment-label"><span aria-hidden="true"></span>Reclutamiento · KJA</p>
+            <h1 id="recruitment-title">Crece con<br>nosotros.<em>Transforma vidas.</em></h1>
+            <p class="hero-description">Da el siguiente paso en tu formación profesional.<br class="desktop-break"> Postula a nuestras oportunidades de prácticas,<br class="desktop-break"> internado y plazas para egresados.</p>
+            <ul class="modalities" aria-label="Oportunidades de formación">
+                <li><a href="#rec-tabs-wrapper"><svg aria-hidden="true"><use href="#icon-cap"/></svg>Prácticas</a></li>
+                <li><a href="#rec-tabs-wrapper"><svg aria-hidden="true"><use href="#icon-book"/></svg>Internado</a></li>
+                <li><a href="#rec-tabs-wrapper"><svg aria-hidden="true"><use href="#icon-team"/></svg>Egresados</a></li>
+            </ul>
+            <a class="button primary-apply" href="#rec-tabs-wrapper">Iniciar mi postulación<svg aria-hidden="true"><use href="#icon-arrow"/></svg></a>
         </div>
-        <div class="hero-v2-image-wrapper">
-          <div class="hero-v2-image"></div>
-        </div>
-      </div>
-      <svg class="hero-v2-wave" fill="none" preserveAspectRatio="none" viewBox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z" fill="#ffffff"></path>
-      </svg>
-    </div>
+        <svg class="hero-wave" viewBox="0 0 1818 64" preserveAspectRatio="none" aria-hidden="true"><path d="M0 27C310 53 566 59 861 35S1310-13 1818 27V64H0Z" fill="white"/></svg>
+    </section>
 
     <!-- ===== SECCIÓN PRINCIPAL: FLUJO POR PASOS HORIZONTALES (SIN SCROLL EXCESIVO) ===== -->
     <section class="catalog-section section-padding">
@@ -762,11 +758,11 @@
                  ============================================================= -->
             <div class="rec-slide-panel" id="rec-panel-4">
               <section class="rec-receipt" aria-labelledby="rec-receipt-title">
-                <header class="rec-receipt-head">
+                <div class="rec-receipt-head">
                   <span class="rec-receipt-check" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg></span>
                   <div><h2 id="rec-receipt-title">Tu postulación está en buenas manos</h2>
                     <p><span id="rec-res-nombre"></span>, recibimos tu solicitud y tu CV. Administración revisará tu expediente y coordinará contigo los siguientes pasos.</p></div>
-                </header>
+                </div>
                 <div class="rec-receipt-reference"><div><span>Código de postulación</span><strong id="rec-res-codigo"></strong></div><span class="rec-receipt-status">Pendiente de revisión</span></div>
                 <div class="rec-receipt-layout">
                   <section class="rec-receipt-main" aria-labelledby="rec-receipt-appointment">

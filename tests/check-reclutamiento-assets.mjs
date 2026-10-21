@@ -7,7 +7,7 @@ const missing = [];
 while ((match = regex.exec(html)) !== null) {
   const p = match[1];
   if (!p.startsWith('http') && !p.startsWith('#') && !p.startsWith('mailto:') && !p.startsWith('tel:')) {
-    const clean = p.split('?')[0];
+    const clean = p.split(/[?#]/)[0];
     if (!fs.existsSync(clean)) {
       missing.push(p);
     }
