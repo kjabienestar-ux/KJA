@@ -1,0 +1,41 @@
+/* Shared with the existing Zoom workspace and host controls. */
+.zoom-camera-report{margin-top:24px;padding:24px;background:#fff;border:1px solid #dce1e7;border-radius:14px;color:#1d2635;font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+.zoom-camera-report[hidden],[data-camera-host][hidden]{display:none!important}
+.zoom-camera-report-head,.zoom-camera-report-tools{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.zoom-camera-report h2{margin:0;font-size:20px;line-height:1.3;letter-spacing:-.02em;color:inherit}
+.zoom-camera-report-head p{margin:4px 0 0;color:#526176;overflow-wrap:anywhere}
+.zoom-camera-explainer{max-width:72ch;margin:20px 0;color:#526176}
+.zoom-camera-report-tools{justify-content:flex-start;padding:16px 0;border-block:1px solid #e3e8ee}
+.zoom-camera-report-tools label{display:grid;gap:6px;flex:1 1 270px;font-weight:600}
+.zoom-camera-report select{box-sizing:border-box;min-width:0;max-width:100%;width:100%;min-height:44px;padding:9px 12px;border:1px solid #a8b8cc;border-radius:8px;background:#fff;color:#1d2635;font:inherit}
+.zoom-camera-report button{min-height:44px;padding:10px 15px;border:1px solid #a8b8cc;border-radius:8px;background:#fff;color:#26405c;font:600 14px/1.4 system-ui;cursor:pointer}
+.zoom-camera-report button:hover{background:#edf4fc}
+.zoom-camera-report button:disabled{opacity:.6;cursor:not-allowed}
+.zoom-camera-report button[data-report-export]{background:#075bb5;border-color:#075bb5;color:#fff}
+.zoom-camera-report button[data-report-export]:hover{background:#064a94}
+.zoom-camera-report :focus-visible,[data-camera-host] :focus-visible{outline:3px solid #1f72d2;outline-offset:3px}
+.zoom-camera-report [data-report-status]{min-height:22px;margin:16px 0}
+.zoom-camera-table-scroll{overflow:auto;border:1px solid #e3e8ee;border-radius:10px;scrollbar-color:#9bacbf #f5f7fa}
+.zoom-camera-report table{border-collapse:collapse;width:100%;min-width:920px;text-align:left;font-variant-numeric:tabular-nums}
+.zoom-camera-report caption{text-align:left;padding:14px 16px;background:#f5f8fc;font-weight:600}
+.zoom-camera-report th,.zoom-camera-report td{padding:12px 16px;border-bottom:1px solid #e3e8ee;white-space:nowrap;font-weight:400;vertical-align:middle}
+.zoom-camera-report thead th{color:#526176;font-size:13px;font-weight:600;background:#f5f8fc}
+.zoom-camera-report tbody th{white-space:normal;min-width:180px;max-width:240px;overflow-wrap:anywhere}
+.zoom-camera-report tr>:first-child{position:sticky;left:0;z-index:1;background:#fff}
+.zoom-camera-report thead th:first-child{background:#f5f8fc}
+.zoom-camera-report th strong{font-weight:600}
+.zoom-camera-report th small{display:block;margin-top:3px;color:#526176;font-size:11px}
+.zoom-camera-report tbody tr:last-child :is(th,td){border-bottom:0}
+.zoom-camera-state{display:inline-block;white-space:nowrap;font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;background:#edf1f5;color:#46566b}
+.zoom-camera-state.is-on{background:#e4f5ef;color:#17634f}
+.zoom-camera-state.is-off{background:#fff0de;color:#80520d}
+.zoom-camera-footnote{max-width:75ch;margin:16px 0 0;color:#526176;font-size:13px}
+[data-camera-host]{border-top:1px solid #dfe5ec;margin-top:16px;padding-top:16px}
+[data-camera-host] h2{font-size:16px;margin:0 0 8px}
+[data-camera-host] p{font-size:13px;color:#526176}
+#sdk-controls [data-camera-list]{padding:0;margin:12px 0;max-height:240px;list-style:none}
+[data-camera-list] li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #e3e8ee;overflow-wrap:anywhere}
+[data-camera-list] li>span{min-width:0}
+.zoom-camera-report ::selection{background:#dbeaff;color:#132b4b}
+.sdk-meeting-action{gap:8px}
+@media(max-width:600px){.zoom-camera-report{padding:16px}.zoom-camera-report-head{align-items:flex-start}.zoom-camera-report-tools{gap:12px}.zoom-camera-report-tools button{flex:1 1 100%;width:100%}.zoom-camera-report-head button{font-size:13px}.zoom-camera-report-tools label{flex-basis:100%}.zoom-camera-report tbody th{min-width:140px}}

@@ -74,6 +74,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-overview-modal.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-skeleton.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-zoom.css?v=16">
+<link rel="stylesheet" href="assets/css/paginas/zoom-camera.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/reclutamiento-bandeja.css?v=1">
 </head>
 <body>
@@ -1266,6 +1267,8 @@
       </form>
       <div class="zoom-list-heading" id="zoom-meetings-heading"><h2 id="zoom-list-title">Mis reuniones</h2><label class="zoom-search-label">Buscar reunión<input type="search" id="zoom-search" placeholder="Nombre de la reunión"></label></div>
       <div id="zoom-list" class="zoom-list" aria-live="polite"><p class="zoom-empty">Cargando reuniones…</p></div>
+      <p class="zoom-note">Si el responsable inicia Zoom desde el portal, se registra el estado de cámara observado, sin imágenes ni audio. Los tramos sin señal y las salas separadas quedan sin información.</p>
+      <section id="zoom-camera-report" aria-label="Reporte de cámaras" hidden></section>
       <dialog id="zoom-disconnect-dialog" aria-labelledby="zoom-disconnect-title" aria-describedby="zoom-disconnect-description">
         <svg class="zoom-disconnect-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3Z"/><path d="M12 9v5m0 3v1"/></svg>
         <h2 id="zoom-disconnect-title">¿Cerrar tu conexión con Zoom?</h2>
@@ -3942,7 +3945,9 @@
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
 <script src="assets/js/dashboard-zoom-embed.js?v=3"></script>
-<script src="assets/js/dashboard-zoom.js?v=12"></script>
+<script src="assets/js/zoom-camera-model.js?v=1"></script>
+<script src="assets/js/zoom-camera-report.js?v=1"></script>
+<script src="assets/js/dashboard-zoom.js?v=13"></script>
 <script src="assets/js/dashboard-cert-accounts.js?v=8"></script>
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
