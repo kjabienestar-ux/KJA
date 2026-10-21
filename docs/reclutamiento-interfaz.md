@@ -1,5 +1,15 @@
 # Reclutamiento: formularios y revision de expedientes
 
+## Rediseño de la bandeja y vista previa del CV (octubre de 2026)
+
+Aplica a `dashboard.html` (Dirección) y `admin.html` (administración), que comparten `dashboard-reclutamiento.js` y `reclutamiento-bandeja.css`. El resumen es un embudo: total recibido, etapas Pendientes → En proceso → Aprobadas con su porcentaje y una barra apilada por estado (el resto corresponde a No seleccionado). Una barra de títulos guía las columnas (Postulante, Entrevista solicitada, Estado, Acción). Cada postulante se muestra como una tarjeta con un tinte muy suave del color de su estado, avatar con color estable, especialidad, modalidad y turno abreviados, un mini calendario de la entrevista, la recepción relativa («hace 3 d», con la fecha completa al pasar el cursor) y un botón que indica la siguiente acción: Revisar (Pendiente, destacado), Continuar (En revisión), Coordinar (Entrevista) o Ver expediente (Aprobado y No seleccionado). En móvil el botón ocupa todo el ancho al pie de la tarjeta. Correo, DNI y código quedan en el expediente. El filtro de la bandeja y el estado del expediente usan un desplegable propio (botón + `listbox`, manejable con teclado) con un punto del color de cada fase y una marca en la opción elegida, en lugar del `<select>` nativo; el filtro muestra además el número por estado.
+
+Mientras llegan las solicitudes, la bandeja muestra un esqueleto animado (contadores y filas con la forma del contenido). Los refrescos automáticos y el que sigue a guardar una revisión no vacían la tabla.
+
+«Ver CV» muestra el PDF en un visor dentro del mismo diálogo, sin cambiar su tamaño (hasta 1060 × 880 px), y la revisión interna sigue a la derecha (debajo en móvil). El archivo se pide una sola vez y se reutiliza para descargar o abrir en otra pestaña. DOC y DOCX solo se descargan. Al volver, cerrar o cerrar sesión se libera el archivo. Si `rec_descargar_cv` responde «CV no disponible» (no hay fila en `rec_curriculos` para ese expediente), se explica que el expediente no tiene CV guardado, sin ofrecer reintento.
+
+Los números de En revisión, Entrevista y No seleccionado requieren `supabase/reclutamiento_03_conteo_por_estado.sql` (opcional, misma firma de `rec_listar`). Sin esa migración esos chips no muestran número.
+
 ## Expediente administrativo: revisión visual e interacción
 
 El detalle de la postulación presenta la identidad, especialidad, estado guardado y fecha de recepción en una cabecera fija. El cuerpo separa contacto, disponibilidad, entrevista solicitada, CV y comentarios del candidato de la revisión interna. Los datos técnicos del registro permanecen en un desplegable. El CV tiene su descarga junto al nombre; un tamaño ausente se muestra como «Documento adjunto».
