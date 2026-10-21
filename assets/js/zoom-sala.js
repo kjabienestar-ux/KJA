@@ -76,7 +76,7 @@
  const fail=()=>{clearTimeout(timer);reject(Error('Zoom rechazó la operación. Comprueba tu rol de anfitrión y el panel de salas.'));};
  try{const result=ZoomMtg[method]({...args,success:done,error:fail});
  if(result&&typeof result.then==='function')result.then(done,fail);
- else if(method==='getBreakoutRoomStatus'&&typeof result==='number')done(result);
+ else if(['getBreakoutRoomStatus','getUserStatus'].includes(method)&&['number','string'].includes(typeof result))done(result);
  }catch{fail();}
  });
  }
@@ -84,7 +84,13 @@
  try{
  const raw=await call('getBreakoutRoomStatus');
  const value=typeof raw==='number'?raw:raw?.result?.status??raw?.status??raw?.result;
- return [2,3].includes(value)?'breakout':[1,4].includes(value)?'main':'unknown';
+ if([1,4].includes(value))return 'main';
+ if(![2,3].includes(value))return 'unknown';
+ const local=await call('getUserStatus');
+ const status=typeof local==='string'?local:local?.result?.status??local?.status;
+ const rooms=await call('getBreakoutRooms');
+ const current=status==='in room'?await call('getCurrentBreakoutRoom'):null;
+ return window.KJAZoomCameraModel.roomVisibility(status,rooms,current);
  }catch{return 'unknown';}
  }
  async function refreshRooms(){

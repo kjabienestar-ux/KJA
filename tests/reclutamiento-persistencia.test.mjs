@@ -18,6 +18,8 @@ test('Reclutamiento: registro atómico, reintentos, permisos y revisión concurr
       insert into perfiles values ('00000000-0000-4000-8000-000000000004','admin');`);
     const migration=fs.readFileSync('supabase/reclutamiento_01_solicitudes.sql','utf8');
     await db.exec(migration);await db.exec(migration);
+    const interviewColumns=fs.readFileSync('supabase/reclutamiento_02_columnas_entrevista.sql','utf8');
+    await db.exec(interviewColumns);await db.exec(interviewColumns);
     const id='10000000-0000-4000-8000-000000000001';
     const day=new Date();day.setUTCDate(day.getUTCDate()+4);if(day.getUTCDay()===0)day.setUTCDate(day.getUTCDate()+1);
     const datos={nombres:'Postulante de prueba',dni:'12345678',telefono:'987654321',email:'test@example.com',emailNotificacion:'test@example.com',carrera:'Psicología',nivel:'Egresado',modalidad:'Remoto',turno:'Mañana',entrevistaFecha:day.toISOString().slice(0,10),entrevistaHora:'09:30 AM',entrevistaCanal:'Virtual',cvName:'curriculum.pdf',requisitosAceptados:true};

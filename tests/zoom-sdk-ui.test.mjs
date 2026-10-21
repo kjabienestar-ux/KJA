@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import cameraModel from '../assets/js/zoom-camera-model.js';
 const html=fs.readFileSync('zoom-sala.html','utf8'),source=fs.readFileSync('assets/js/zoom-sala.js','utf8');
 const wait=()=>new Promise(r=>setTimeout(r,20));
 async function until(fn){for(let i=0;i<100&&!fn();i++)await wait();assert.ok(fn(),'La condición no se confirmó');}
-async function setup({embedded=false,mobile=false,identity=true,status=1,openedStatus=2,rooms=true,rejectOpen=false,syncOnly=false,admin=false,operators=[],rpcError=false}={}){
+async function setup({embedded=false,mobile=false,identity=true,status=1,openedStatus=2,rooms=true,rejectOpen=false,syncOnly=false,admin=false,operators=[],rpcError=false,roomResponse=null,userStatus='initial',currentRoom=null}={}){
  const mutations=[];operators=[...operators];
  const nodes=new Map();
  class Element{
@@ -32,12 +33,27 @@ async function setup({embedded=false,mobile=false,identity=true,status=1,openedS
  w.supabase={createClient:()=>({rpc:async(name,args)=>{mutations.push(args);if(rpcError)return {error:{message:'No autorizado'}};operators=args.p_otorgar?[...new Set([...operators,args.p_email])]:operators.filter(email=>email!==args.p_email);return {};},auth:{getUser:async()=>({data:{user:identity?{id:'u'}:null}}),onAuthStateChange:()=>{}},
  functions:{invoke:async(_name,{body})=>{calls.push(body.action);return {data:body.action==='sdk-list'?{ok:true,admin,candidates:admin?[{email:"nuevo@example.com",nombre:"Nuevo"}]:[],configured:true,meetings:[{id:'test',topic:'Ensayo',pilot:true,operators}]}:{ok:true,meetingNumber:'12345678901',signature:'jwt',zak:'zak',passWord:'pass',userName:'Test'}};}}})};
  w.ZoomMtg={setZoomJSLib(){},preLoadWasm(){},prepareWebSDK(){},init(o){if(embedded)calls.push({leaveUrl:o.leaveUrl});o.success();},join(o){calls.push('join');o.success();},
- getBreakoutRooms(o){o.success({rooms:rooms?[{name:'Ingeniería'}]:[]});},getBreakoutRoomStatus(o){if(!syncOnly)o.success({result:{status}});return status;},
+ getBreakoutRooms(o){o.success(roomResponse||{rooms:rooms?[{name:'Ingeniería'}]:[]});},getBreakoutRoomStatus(o){if(!syncOnly)o.success({result:{status}});return status;},
+ getUserStatus(o){if(!syncOnly)o.success({result:{status:userStatus}});return userStatus;},
+ getCurrentBreakoutRoom(o){o.success({result:currentRoom});},
  openBreakoutRooms(o){calls.push('open');if(rejectOpen){o.error();return;}status=openedStatus;o.success();}};
  const append=w.document.head.append.bind(w.document.head);
  w.document.head.append=(el)=>{append(el);if(el.tagName==='SCRIPT')queueMicrotask(()=>el.onload());};
- vm.runInNewContext(source,w);await wait();return {w,dom,calls,mutations};
+ let trackerOptions;w.KJAZoomCameraModel=cameraModel;w.KJAZoomCameraTracker={create(options){trackerOptions=options;return {bind(){},start(){},stop(){}};}};
+ vm.runInNewContext(source,w);await wait();return {w,dom,calls,mutations,cameraScope:()=>trackerOptions.scope()};
 }
+
+test('SDK room visibility reads local attendee status rather than treating every open room as unobservable',async()=>{
+ const roomResponse={result:{rooms:[{boId:'area',participants:[{participantUUID:'remote',participantStatus:'joined'},{participantUUID:'invited',participantStatus:'assigned'}]}],unassigned:[{participantUUID:'main'}]}};
+ for(const syncOnly of [true,false]){
+  const main=await setup({status:2,syncOnly,roomResponse});
+  try{const visibility=await main.cameraScope();assert.equal(visibility.scope,'local');assert.deepEqual(visibility.visibleIds,['uuid:main','uuid:invited']);}finally{main.dom.window.close();}
+ }
+ const breakout=await setup({status:2,roomResponse,userStatus:'in room',currentRoom:{roomId:'area'}});
+ try{assert.deepEqual((await breakout.cameraScope()).visibleIds,['uuid:remote']);}finally{breakout.dom.window.close();}
+ const transition=await setup({status:2,roomResponse,userStatus:'joining'});
+ try{assert.equal((await transition.cameraScope()).scope,'unknown');}finally{transition.dom.window.close();}
+});
 test('SDK: no session does not request authorization or download SDK',async()=>{
  const s=await setup({identity:false});try{assert.deepEqual(s.calls,[]);assert.match(s.w.document.getElementById('sdk-message').textContent,/Inicia sesión/);}finally{s.dom.window.close();}
 });

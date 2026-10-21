@@ -243,7 +243,11 @@
  function init(){reset();const allowed=eligible();$('nav-zoom').hidden=true;$('zoom-home-access').hidden=!APP.identity.hasPersonal;if(!allowed)return;
  void load();state.timer=setInterval(()=>{if(!document.hidden&&!state.busy&&!state.editor&&(APP.view==='zoom'||APP.view==='inicio'))void load();},60000);
  }
- window.KJAZoom={init,load,reset};
+ function openCameraReport(row){
+ if(!APP.access?.acceso_panel||!row?.id)return;
+ return cameraReport?.open(row);
+ }
+ window.KJAZoom={init,load,reset,openCameraReport};
  // Also initialize when a fast restored session finished before this script loaded.
  if(APP.inicio&&APP.sessionUid&&eligible())init();
 })();

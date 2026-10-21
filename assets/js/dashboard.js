@@ -1120,7 +1120,6 @@ async function openPortal(activeSession,bootstrap=null){
     $('nav-perfil').hidden=false;
     $('nav-gestion').hidden=false;
     $('admin-nav-divider').hidden=false;
-    if($('nav-reclutamiento')) $('nav-reclutamiento').hidden=APP.access.rol!=='direccion';
   }else{
     ['personal-nav-divider','nav-inicio','nav-asistencia'].forEach(id=>{
       const el=$(id); if(el) el.hidden=!APP.identity.hasPersonal;
@@ -1130,7 +1129,6 @@ async function openPortal(activeSession,bootstrap=null){
     $('nav-equipo').hidden=!APP.identity.isLeader;
     $('nav-gestion').hidden=true;
     $('admin-nav-divider').hidden=true;
-    if($('nav-reclutamiento')) $('nav-reclutamiento').hidden=true;
   }
   syncRecruitmentNavigation();
   $('mobile-action-team').hidden=!APP.identity.isLeader;

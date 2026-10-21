@@ -39,10 +39,12 @@
     const roomScope=await scope();
     if(current!==generation||!running||!joined||!visible||!online)return;
     people=M.roster(raw,roomScope);
-    paint(roomScope==='main'?'Observando cámaras de la reunión principal. Guardando…':'Fuera de la reunión principal o salas abiertas: cámaras sin información.');
-    const saved=await rpc(db,'dash_zoom_camera_sample',{p_session:sessionId,p_seq:++sequence,p_scope:roomScope,p_participants:people});
+    const coverage=typeof roomScope==='string'?roomScope:roomScope.scope;
+    const known=people.filter(p=>p.state!=='unknown').length;
+    paint(coverage==='main'||coverage==='local'?'Observando '+known+' de '+people.length+' cámaras desde esta sala. Guardando…':'Zoom no confirmó la sala del observador. Cámaras sin información.');
+    const saved=await rpc(db,'dash_zoom_camera_sample',{p_session:sessionId,p_seq:++sequence,p_scope:coverage,p_participants:people});
     if(current!==generation||!running||!joined||!visible||!online)return;
-    paint(roomScope==='main'?'Observación guardada · '+M.time(saved.received_at):'Observación guardada. Las cámaras de salas separadas figuran sin información.');
+    paint('Observación guardada · '+M.time(saved.received_at)+'. '+known+' de '+people.length+' cámaras confirmadas. Las personas en otras salas quedan sin información.');
    }catch(error){
     if(current===generation&&running)invalidate(error.message+' Mantén el panel abierto; vuelve a consultar para reintentar.');
    }finally{
@@ -58,9 +60,11 @@
    });
    root.ZoomMtg.inMeetingServiceListener('onMeetingStatus',data=>{
     if(!running)return;
-    if(data?.status===3){void stop();return;}
+    const meetingStatus=data?.meetingStatus??data?.status;
+    if(![1,2,3,4].includes(meetingStatus))return;
+    if(meetingStatus===3){void stop();return;}
     generation++;
-    joined=data?.status===2;
+    joined=meetingStatus===2;
     if(joined)schedule();else invalidate('Conexión con Zoom interrumpida. Cámaras sin información.');
    });
   }
@@ -76,7 +80,9 @@
   }
   host.querySelector('[data-camera-refresh]').onclick=()=>void sample();
   host.querySelector('[data-camera-report]').onclick=()=>{
-   if(meetingId)root.open('zoom-sala.html?report='+encodeURIComponent(meetingId),'_blank','noopener,noreferrer');
+   if(!meetingId)return;
+   if(root.parent&&root.parent!==root&&new URL(root.location.href).searchParams.get('embedded')==='1')root.parent.postMessage({type:'kja-zoom-camera-report'},root.location.origin);
+   else root.open('zoom-sala.html?report='+encodeURIComponent(meetingId),'_blank','noopener,noreferrer');
   };
   document.addEventListener('visibilitychange',()=>{
    generation++;

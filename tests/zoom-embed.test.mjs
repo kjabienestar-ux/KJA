@@ -28,6 +28,27 @@ test('close cancellation retains the meeting; logout reset removes its frame sou
  x.root.KJAZoomEmbed.reset();assert.equal(x.get('zoom-embedded-frame').src,undefined);assert.equal(x.get('zoom-embedded').hidden,true);
  x.context.APP.access.acceso_panel=false;x.root.KJAZoomEmbed.open({id:'two'});assert.equal(x.get('zoom-embedded-frame').src,undefined);
 });
+
+test('camera report uses the connected meeting and keeps its SDK frame intact',()=>{
+ const x=setup(),reports=[];
+ x.root.KJAZoom={openCameraReport:row=>reports.push(row)};
+ x.root.KJAZoomEmbed.open({id:'one',topic:'Reunión activa'});
+ const frame=x.get('zoom-embedded-frame'),src=frame.src;
+ x.root.KJAZoomEmbed.open({id:'two',topic:'Otra reunión'});
+ x.get('zoom-embedded-report').onclick();
+ assert.equal(reports.length,1);assert.equal(reports[0].id,'one');assert.equal(reports[0].topic,'Reunión activa');
+ assert.equal(frame.src,src);assert.equal(x.get('zoom-embedded').hidden,false);
+ x.context.APP.access.acceso_panel=false;x.get('zoom-embedded-report').onclick();assert.equal(reports.length,1);
+ x.root.KJAZoomEmbed.reset();x.get('zoom-embedded-report').onclick();assert.equal(reports.length,1);
+});
+
+test('embedded report request stays in dashboard and rejects messages from other windows',()=>{
+ const x=setup(),reports=[];x.root.KJAZoom={openCameraReport:row=>reports.push(row)};
+ x.root.KJAZoomEmbed.open({id:'one',topic:'Activa'});const frame=x.get('zoom-embedded-frame'),src=frame.src;
+ const event={origin:x.root.location.origin,source:frame.contentWindow,data:{type:'kja-zoom-camera-report'}};
+ x.events.message({...event,origin:'https://bad.test'});x.events.message({...event,source:{}});assert.equal(reports.length,0);
+ x.events.message(event);assert.equal(reports.length,1);assert.equal(reports[0].id,'one');assert.equal(frame.src,src);
+});
 test('only dashboard gets microphone policy needed by its same-origin SDK frame',()=>{
  const config=JSON.parse(fs.readFileSync('vercel.json','utf8'));
  const header=route=>config.headers.filter(h=>h.source===route).flatMap(h=>h.headers).find(h=>h.key==='Permissions-Policy').value;

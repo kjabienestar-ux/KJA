@@ -47,17 +47,29 @@
   .rec-receipt-home { margin:8px 0 0; text-align:center; }
 }
 @media print {
-  body.rec-page .kja-page { padding:0!important; }
-  body.rec-page .kja-page>header,body.rec-page .kja-page>.hero-v2,body.rec-page .kja-page>.hero-v2-container,body.rec-page .kja-page>footer { display:none!important; }
+  html { background:#fff; }
+  /* Remove everything outside the receipt from the printed layout, including
+     the current hero and widgets injected directly into body. */
+  body.rec-page>:not(.kja-page),
+  body.rec-page .kja-page>:not(.catalog-section),
+  body.rec-page .catalog-section>:not(.container),
+  body.rec-page .catalog-section>.container>:not(.rec-slider-viewport) { display:none!important; }
+  body.rec-page,body.rec-page .kja-page { margin:0!important; padding:0!important; }
   body.rec-page .catalog-section { padding:0!important; margin:0!important; }
-  body.rec-page .catalog-section>.container { max-width:none; padding:0!important; }
-  body.rec-page .catalog-header-text,body.rec-page #rec-tabs-wrapper { display:none!important; }
+  body.rec-page .catalog-section>.container { width:100%; max-width:none; padding:0!important; margin:0!important; }
   body.rec-page .rec-slide-panel:not(#rec-panel-4) { display:none!important; }
-  body.rec-page * { visibility:hidden; }
-  body.rec-page #rec-panel-4,body.rec-page #rec-panel-4 * { visibility:visible; }
-  body.rec-page #rec-panel-4 { position:absolute; inset:0; width:100%; opacity:1; transform:none; }
-  body.rec-page .rec-slider-track { transform:none!important; }
-  body.rec-page .rec-slider-viewport { overflow:visible; height:auto!important; }
-  body.rec-page .rec-receipt-actions { display:none; }
-  body.rec-page .rec-receipt { border:0; }
+  /* Keep the receipt in normal flow: absolute positioning inside the slider
+     collapsed its height and moved the content off the first sheet. */
+  body.rec-page .rec-slider-track { display:block; transform:none!important; will-change:auto; transition:none; }
+  body.rec-page .rec-slider-viewport { overflow:visible; height:auto!important; padding:0; border-radius:0; transition:none; }
+  body.rec-page #rec-panel-4 { position:static; width:100%; padding:0; opacity:1; transform:none; transition:none; }
+  body.rec-page .rec-receipt-actions { display:none!important; }
+  body.rec-page .rec-receipt { border:0; border-radius:0; overflow:visible; }
+  body.rec-page .rec-receipt :focus-visible { outline:none; }
+  body.rec-page .rec-receipt-layout { grid-template-columns:1fr 1fr; }
+  body.rec-page .rec-receipt-head { padding:16px 20px; }
+  body.rec-page .rec-receipt-reference { margin:0 20px; padding:12px 0; }
+  body.rec-page .rec-receipt-main,body.rec-page .rec-receipt-summary { padding:16px 20px; }
+  body.rec-page .rec-receipt-data>div { padding:8px 0; break-inside:avoid; }
+  body.rec-page .rec-receipt-appointment,body.rec-page .rec-receipt-contact,body.rec-page .rec-receipt-timeline li { break-inside:avoid; }
 }
