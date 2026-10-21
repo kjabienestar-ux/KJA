@@ -7,6 +7,8 @@
  if(embedded)document.documentElement.classList.add('sdk-embedded');
  const db=supabase.createClient('https://xadxmfgdxwplmhijagix.supabase.co','sb_publishable_0j8mktN5G8BXS9r8tl9ETw_-GSBMkub',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'kja-dashboard-auth'}});
  const version='5.1.4';
+ const cameraTracker=window.KJAZoomCameraTracker?.create({db,call,scope:cameraScope,host:$('sdk-camera')});
+ const cameraReport=window.KJAZoomCameraReport?.mount($('sdk-camera-report'),db);
  let connected=false,working=false,sdkPromise=null,refreshTimer=null,epoch=0,roomsKnown=false,roomStatus=null,checking=false;
  let accessMeetings=[],accessAdmin=false,accessCandidates=null;
  const message=text=>$('sdk-message').textContent=text;
@@ -36,6 +38,7 @@
  const actions=document.createElement('div');actions.className='sdk-meeting-action';
  const start=button('Iniciar reunión',()=>startMeeting(row));
  start.disabled=!row.pilot||!data.configured;actions.append(start);article.append(actions);
+ if(cameraReport)actions.append(button('Reporte de cámaras',()=>cameraReport.open(row)));
  if(data.admin){
  const people=document.createElement('div');people.className='sdk-operators';
  const caption=document.createElement('span');caption.className='sdk-operators-label';caption.textContent='Responsables';
@@ -51,6 +54,8 @@
  if(meetings.some(row=>row.id===previous))$('sdk-meeting').value=previous;
  else if(meetings.length)$('sdk-meeting').value=meetings[0].id;
  renderAccess();
+ const reportId=new URL(location.href).searchParams.get('report');
+ if(reportId){const row=meetings.find(item=>item.id===reportId);if(row)void cameraReport?.open(row);}
  if(!meetings.length)$('sdk-meetings').textContent='No tienes reuniones autorizadas. Sistemas debe asignarte el permiso Administrar Zoom.';
  message(data.configured?'Piloto listo para probar. La reunión se inicia solo al pulsar el botón.':'Sistemas debe configurar las credenciales Meeting SDK y el ID de una reunión de ensayo.');
  }
@@ -74,6 +79,13 @@
  else if(method==='getBreakoutRoomStatus'&&typeof result==='number')done(result);
  }catch{fail();}
  });
+ }
+ async function cameraScope(){
+ try{
+ const raw=await call('getBreakoutRoomStatus');
+ const value=typeof raw==='number'?raw:raw?.result?.status??raw?.status??raw?.result;
+ return [2,3].includes(value)?'breakout':[1,4].includes(value)?'main':'unknown';
+ }catch{return 'unknown';}
  }
  async function refreshRooms(){
  if(checking)return;checking=true;
@@ -129,11 +141,13 @@
  const auth=await edge({action:'sdk-start',id:row.id});
  if(current!==epoch)throw Error('La sesión cambió. Vuelve al dashboard.');
  await call('init',{leaveUrl:returnUrl,patchJsMedia:true});
+ cameraTracker?.bind();
  await call('join',{meetingNumber:auth.meetingNumber,signature:auth.signature,zak:auth.zak,passWord:auth.passWord,userName:auth.userName});
  auth.signature='';auth.zak='';auth.passWord='';
  if(current!==epoch){location.replace(embedded?returnUrl:'dashboard.html');return;}
  connected=true;$('sdk-lobby').hidden=true;$('sdk-controls').hidden=false;$('sdk-controls').open=true;$('sdk-controls').querySelector('summary').focus();
  notify('connected');
+ cameraTracker?.start(row.id);
  try{await prepareRooms(current);}catch(error){$('sdk-live-status').textContent=error.message+' La reunión sigue abierta; revisa las salas en Zoom.';}
  refreshTimer=setInterval(()=>{if(!working&&!checking&&!document.hidden)void refreshRooms();},15000);
  }catch(error){notify('error');message(error.message+' Recarga la página antes de volver a iniciar.');const root=$('zmmtg-root');if(root)root.style.display='none';}
@@ -188,7 +202,7 @@
  }
  $('sdk-meeting').onchange=()=>{$('sdk-access-message').textContent='';renderAccess();};
  $('sdk-grant').onsubmit=event=>{event.preventDefault();return changeAccess($('sdk-email').value.trim(),true);};
- db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){epoch++;connected=false;clearInterval(refreshTimer);notify('signedout');location.replace(embedded?returnUrl:'dashboard.html');}});
+ db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){void cameraTracker?.stop();cameraReport?.close();epoch++;connected=false;clearInterval(refreshTimer);notify('signedout');location.replace(embedded?returnUrl:'dashboard.html');}});
  (async()=>{try{
  const {data,error}=await db.auth.getUser();if(error||!data.user)throw Error('Inicia sesión en el dashboard y vuelve a esta página.');
  if(mobile())$('sdk-device').textContent='Prueba móvil: Zoom se abrirá dentro de este navegador. Mantén la página en primer plano; la apertura de salas en iPhone está pendiente de validación.';
