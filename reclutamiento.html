@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Reclutamiento y Selección de Talento | Centro Psicológico KJA</title>
+  <meta name="description" content="Convocatoria abierta para practicantes y profesionales de Psicología y áreas afines en KJA. Envía tu CV y solicita una entrevista con nuestro equipo." />
+  <meta name="theme-color" content="#004fb0" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="KJA Centro Psicológico" />
+  <meta property="og:title" content="Reclutamiento y Selección de Talento | Centro Psicológico KJA" />
+  <meta property="og:description" content="Postula en 4 pasos: conoce los requisitos, completa tus datos, adjunta tu CV y solicita una entrevista con KJA." />
+  <meta property="og:image" content="images/dashboard/equipo-kja-2026-1280.webp" />
+  <link rel="icon" type="image/png" href="images/logo/favicon.png" />
+
+  <!-- Tipografías institucionales -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Hojas de estilo del ecosistema KJA -->
+  <link rel="stylesheet" href="assets/css/shared.css?v=13" />
+  <link rel="stylesheet" href="assets/css/accessibility.css?v=2" />
+  <link rel="stylesheet" href="assets/css/whatsapp-assistant.css?v=6" />
+  <link rel="stylesheet" href="assets/css/paginas/terapia.css?v=5" />
+  <link rel="stylesheet" href="assets/css/paginas/home-navigation.css?v=6" />
+  <link rel="stylesheet" href="assets/css/paginas/reclutamiento.css?v=8" />
+  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-confirmacion.css?v=2" />
+
+  <script defer src="assets/js/home-navigation.js?v=20261020-6"></script>
+  <script defer src="assets/js/page-splash.js?v=1"></script>
+  <script defer src="assets/js/reclutamiento-api.js?v=2"></script>
+  <script defer src="assets/js/reclutamiento-estado.js?v=6"></script>
+  <script defer src="assets/js/reclutamiento.js?v=20261021-7"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@1&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="images/reclutamiento/entrevista.webp" />
+  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-portada.css?v=20261021-compact" />
+  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-estado.css?v=6" />
+    <link rel="stylesheet" href="assets/css/site-navigation.css?v=20261021-published">
+  <noscript><style>.kja-splash{display:none!important}</style></noscript>
+</head>
+<body class="rec-page">
+
+  <div id="kjaSplash" class="kja-splash" role="status" aria-live="polite" aria-label="Cargando, por favor espera">
+    <div class="kja-splash-inner">
+      <div class="kja-splash-badge">
+        <img src="images/logo/logo-160.webp" alt="KJA" class="kja-splash-logo" width="80" height="80" />
+      </div>
+      <p class="kja-splash-text">Cargando<span class="kja-splash-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></p>
+    </div>
+  </div>
+
+  <!-- ===== DRAWER DE NAVEGACIÓN MÓVIL (IDÉNTICO A TERAPIA) ===== -->
+  <aside id="kja-mobile-drawer" class="kja-mobile-drawer" aria-hidden="true" inert aria-label="Menú principal">
+    <div class="kja-drawer-top">
+      <a href="index.html" aria-label="KJA, inicio">
+        <img src="images/logo/kja.webp" width="418" height="121" alt="KJA" />
+      </a>
+      <button type="button" class="kja-drawer-close" aria-label="Cerrar menú">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18" />
+        </svg>
+      </button>
+    </div>
+    <nav aria-label="Secciones">
+      <ul class="kja-drawer-links">
+                <li><a href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 10 12 3l9 7M5 9v12h14V9M9 21v-7h6v7" />
+                        </svg>Inicio</a></li>
+                <li><a href="terapia.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+                        </svg>Terapia</a></li>
+                <li><a href="cursos.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m2 9 10-5 10 5-10 5L2 9Zm4 2v6c4 3 8 3 12 0v-6M22 9v8" />
+                        </svg>Cursos</a></li>
+                <li><a href="talleres.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 4h16v12H4zM8 20h8M12 16v4M8 8h8M8 12h5" />
+                        </svg>Talleres</a></li>
+                <li><a href="reclutamiento.html" class="active" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M19 7v6M16 10h6"/></svg>Reclutamiento</a></li>
+                <li><a href="videos.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <rect x="3" y="5" width="13" height="14" rx="3" />
+                            <path d="m16 10 5-3v10l-5-3" />
+                        </svg>Videos</a></li>
+                <li><a href="certificado.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6 3h12v13H6zM9 16v6l3-2 3 2v-6M9 7h6M9 11h6" />
+                        </svg>Certificados</a></li>
+                <li><a href="nosotros.html"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 4a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.9" />
+                        </svg>Nosotros</a></li>
+                <li><a href="index.html#ubicanos"><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0ZM15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+                        </svg>Ubícanos</a></li>
+            </ul>
+    </nav>
+    <div class="kja-drawer-bottom">
+      <a href="dashboard.html" class="kja-drawer-cta">Acceso Portal KJA <span aria-hidden="true">→</span></a>
+    </div>
+  </aside>
+
+  <div class="kja-page" id="kja-page">
+    <!-- ===== HEADER SUPERIOR (ESTILO EXACTO DE TERAPIA Y CURSOS) ===== -->
+    <header>
+      <nav class="nav-desktop-only">
+        <div class="nav-left logo-container">
+          <a href="index.html">
+            <img width="418" height="121" alt="KJA Logo" class="logo-img" src="images/logo/kja.webp" />
+          </a>
+        </div>
+        <ul class="nav-center nav-links-center">
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="terapia.html">Terapia</a></li>
+                    <li><a href="cursos.html">Cursos</a></li>
+                    <li><a href="talleres.html">Talleres</a></li>
+                    <li><a href="reclutamiento.html" class="active" aria-current="page">Reclutamiento</a></li>
+                    <li><a href="videos.html">Videos</a></li>
+                    <li><a href="certificado.html">Certificados</a></li>
+                    <li><a href="nosotros.html">Nosotros</a></li>
+                    <li><a href="index.html#ubicanos">Ubícanos</a></li>
+                </ul>
+        <div class="nav-right">
+          <a class="nav-cta-btn" href="#rec-tabs-wrapper">
+            <svg fill="none" height="18" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="18">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M20 8v6M23 11h-6" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            Postular ahora
+          </a>
+        </div>
+      </nav>
+
+      <nav class="kja-mobile-bar" aria-label="Navegación móvil">
+        <button type="button" class="kja-menu-toggle" aria-label="Abrir menú" aria-controls="kja-mobile-drawer" aria-expanded="false">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 8h16M4 16h10" />
+          </svg>
+        </button>
+        <a class="kja-mobile-brand" href="index.html" aria-label="KJA, inicio">
+          <img src="images/logo/kja.webp" width="418" height="121" alt="KJA" />
+        </a>
+      </nav>
+    </header>
+
+    <!-- Recruitment hero: user reference; existing application flow preserved below. -->
+    <section class="rec-reference-hero" aria-labelledby="recruitment-title">
+        <img class="recruitment-photo" src="images/reclutamiento/entrevista.webp" alt="" width="1817" height="866" fetchpriority="high">
+    <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-person" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M19 7v6M16 10h6"/></symbol>
+        <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-7-7 7 7-7 7"/></symbol>
+        <symbol id="icon-cap" viewBox="0 0 24 24"><path d="m2 8 10-5 10 5-10 5L2 8Zm4 2v7c4 3 8 3 12 0v-7M22 8v7"/></symbol>
+        <symbol id="icon-book" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12 7h4M12 11h4M12 15h3"/></symbol>
+        <symbol id="icon-team" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3H3ZM16 4a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v2h-3"/></symbol>
+    </svg>
+        <div class="hero-content" aria-labelledby="recruitment-title">
+            <h1 id="recruitment-title">Crece con nosotros.<em>Transforma vidas.</em></h1>
+            <p class="hero-description">Da el siguiente paso en tu formación profesional. Postula a nuestras oportunidades de prácticas, internado y plazas para egresados.</p>
+            <ul class="modalities" aria-label="Oportunidades de formación">
+                <li><a href="#rec-tabs-wrapper"><svg aria-hidden="true"><use href="#icon-cap"/></svg>Prácticas</a></li>
+                <li><a href="#rec-tabs-wrapper"><svg aria-hidden="true"><use href="#icon-book"/></svg>Internado</a></li>
+                <li><a href="#rec-tabs-wrapper"><svg aria-hidden="true"><use href="#icon-team"/></svg>Egresados</a></li>
+            </ul>
+            <div class="hero-actions">
+              <a class="button primary-apply" href="#rec-tabs-wrapper">Iniciar mi postulación<svg aria-hidden="true"><use href="#icon-arrow"/></svg></a>
+              <button class="status-link" type="button" data-rec-status-open aria-haspopup="dialog" aria-controls="rec-status-dialog"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>Ver estado de postulación</button>
+            </div>
+        </div>
+        <svg class="hero-wave" viewBox="0 0 1818 64" preserveAspectRatio="none" aria-hidden="true"><path d="M0 27C310 53 566 59 861 35S1310-13 1818 27V64H0Z" fill="white"/></svg>
+    </section>
+
+    <!-- ===== SECCIÓN PRINCIPAL: FLUJO POR PASOS HORIZONTALES (SIN SCROLL EXCESIVO) ===== -->
+    <section class="catalog-section section-padding">
+      <div class="ambient-orbs">
+        <div class="orb orb-pink"></div>
+        <div class="orb orb-blue"></div>
+      </div>
+      <div class="container">
+
+        <!-- Título de sección y Subtítulo con espaciado limpio (Box 2 Mejorado) -->
+        <div class="catalog-header-text rec-header-text">
+          <div class="rec-section-tag">
+            <span class="rec-tag-dot"></span>
+            PROCESO DE POSTULACIÓN
+          </div>
+          <h2 class="section-title-v2">Proceso de <span>Reclutamiento</span></h2>
+          <p class="section-subtitle-v2">
+            Flujo guiado en 4 pasos: revisa los requisitos, adjunta tu CV, agenda tu entrevista y confirma tu postulación.
+          </p>
+        </div>
+
+        <!-- Barra de Pasos / Stepper de Lujo KJA -->
+        <div class="tabs-center-container" id="rec-tabs-wrapper">
+          <div class="rec-stepper-track-wrap" role="tablist" aria-label="Etapas de reclutamiento">
+            <button type="button" class="rec-step-btn active" id="rec-tab-1" onclick="switchRecStep(1)" role="tab" tabindex="0" aria-selected="true">
+              <span class="rec-step-circle">1</span>
+              <span class="rec-step-text">Requisitos</span>
+            </button>
+            <span class="rec-step-connector" aria-hidden="true"></span>
+            <button type="button" class="rec-step-btn" id="rec-tab-2" onclick="switchRecStep(2)" role="tab" tabindex="0" aria-selected="false">
+              <span class="rec-step-circle">2</span>
+              <span class="rec-step-text">Datos & CV</span>
+            </button>
+            <span class="rec-step-connector" aria-hidden="true"></span>
+            <button type="button" class="rec-step-btn" id="rec-tab-3" onclick="switchRecStep(3)" role="tab" tabindex="0" aria-selected="false">
+              <span class="rec-step-circle">3</span>
+              <span class="rec-step-text">Agendar Entrevista</span>
+            </button>
+            <span class="rec-step-connector" aria-hidden="true"></span>
+            <button type="button" class="rec-step-btn" id="rec-tab-4" onclick="switchRecStep(4)" role="tab" tabindex="0" aria-selected="false">
+              <span class="rec-step-circle">4</span>
+              <span class="rec-step-text">Confirmación</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- =================================================================
+             VIEWPORT DE VENTANAS HORIZONTALES (SLIDER)
+             ================================================================= -->
+        <div class="rec-slider-viewport">
+          <div class="rec-slider-track" id="rec-slider-track">
+
+            <!-- =============================================================
+                 VENTANA 1: CONTACTO & REQUISITOS DEL FLYER (TARJETAS KJA)
+                 ============================================================= -->
+            <div class="rec-slide-panel active" id="rec-panel-1">
+              <div class="rec-catalog-grid">
+
+                <!-- Tarjeta 1: Flyer Oficial de Convocatoria -->
+                <div class="catalog-card-v2" onclick="openPreviewModal('images/reclutamiento/card-flyer-convocatoria-alineado.png', 'Flyer Oficial de Convocatoria KJA 2026', 'Convocatoria abierta para practicantes pre-profesionales, internado y egresados de Psicología en Centro Psicológico KJA.')" role="button" tabindex="0" aria-label="Ver flyer oficial de convocatoria">
+                  <div class="card-image-wrap-v2 rec-flyer-image-wrap">
+                    <img width="1219" height="1290" alt="Flyer Oficial Convocatoria KJA 2026" class="card-therapy-img" loading="lazy" decoding="async" src="images/reclutamiento/card-flyer-convocatoria-alineado.png" />
+                  </div>
+                  <div class="card-body-v2">
+                    <div class="therapy-badges-row-v2">
+                      <span class="therapy-badge-pill pill-type">CONVOCATORIA 2026</span>
+                      <span class="therapy-badge-pill pill-audience">PSICOLOGÍA & AFINES</span>
+                    </div>
+                    <h4>Flyer Oficial de Convocatoria</h4>
+                    <p>Plazas para practicantes pre-profesionales, internado y egresados. Certificación oficial al culminar y formación continua semanal.</p>
+                  </div>
+                </div>
+
+                <!-- Tarjeta 2: Comparticiones en Facebook -->
+                <div class="catalog-card-v2" onclick="openPreviewModal('images/reclutamiento/card-facebook-sharing.jpg', 'Difusión Comunitaria y Comparticiones en Facebook', 'Difusión en redes: publicación e interacción activa en grupos de Facebook para conectar la salud mental con la comunidad.')" role="button" tabindex="0" aria-label="Ver comunicado de comparticiones en Facebook">
+                  <div class="card-image-wrap-v2">
+                    <img width="1024" height="768" alt="Difusión de afiches en Facebook KJA" class="card-therapy-img" loading="lazy" decoding="async" src="images/reclutamiento/card-facebook-sharing.jpg" />
+                  </div>
+                  <div class="card-body-v2">
+                    <div class="therapy-badges-row-v2">
+                      <span class="therapy-badge-pill pill-type">OBLIGATORIO</span>
+                      <span class="therapy-badge-pill pill-audience">DIFUSIÓN EN REDES</span>
+                    </div>
+                    <h4>Comparticiones en Facebook</h4>
+                    <p>Difusión diaria de afiches institucionales y talleres en grupos de Facebook para conectar la salud mental con nuestra comunidad.</p>
+                  </div>
+                </div>
+
+                <!-- Tarjeta 3: Modalidad Presencial y Virtual -->
+                <div class="catalog-card-v2" onclick="openPreviewModal('images/reclutamiento/card-modalidad-3d.png', 'Modalidad Presencial y Remota KJA', 'Elige según tu ubicación: Consultorios presenciales en Sede San Luis (Lima) o Teleterapia y sesiones online desde tu hogar en todo el Perú.')" role="button" tabindex="0" aria-label="Ver detalles de modalidades">
+                  <div class="card-image-wrap-v2">
+                    <img width="1254" height="1254" alt="Ilustración 3D de atención presencial y remota KJA" class="card-therapy-img" loading="lazy" decoding="async" src="images/reclutamiento/card-modalidad-3d.png" />
+                  </div>
+                  <div class="card-body-v2">
+                    <div class="therapy-badges-row-v2">
+                      <span class="therapy-badge-pill pill-type">SAN LUIS / ONLINE</span>
+                      <span class="therapy-badge-pill pill-audience">FLEXIBLE</span>
+                    </div>
+                    <h4>Modalidad Presencial y Remota</h4>
+                    <p>Elige según tu disponibilidad y ciudad: Presencial en Sede San Luis (Jr. Río Amazonas 214) o Remoto desde casa con soporte continuo.</p>
+                  </div>
+                </div>
+
+                <!-- Tarjeta 4: Flexibilidad Horaria -->
+                <div class="catalog-card-v2" onclick="openPreviewModal('images/reclutamiento/card-horarios-flexibles.jpg', 'Flexibilidad de Horarios y Compatibilidad Universitaria', 'Turnos adaptados: Mañana (08:30 a 13:30) y Tarde (14:00 a 19:00). 100% compatible con tus clases universitarias y exámenes.')" role="button" tabindex="0" aria-label="Ver detalles de horarios compatibles">
+                  <div class="card-image-wrap-v2">
+                    <img width="1024" height="768" alt="Flexibilidad de Horarios KJA" class="card-therapy-img" loading="lazy" decoding="async" src="images/reclutamiento/card-horarios-flexibles.jpg" />
+                  </div>
+                  <div class="card-body-v2">
+                    <div class="therapy-badges-row-v2">
+                      <span class="therapy-badge-pill pill-type">4 A 6 HORAS</span>
+                      <span class="therapy-badge-pill pill-audience">COMPATIBLE</span>
+                    </div>
+                    <h4>Flexibilidad de Horarios</h4>
+                    <p>Turnos adaptados (mañana o tarde) que se coordinan directamente con tus clases universitarias y compromisos personales.</p>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Centro Multimedia de Veracidad Institucional -->
+              <div class="rec-form-card" style="margin-bottom:16px;">
+                <div class="rec-form-heading">
+                  <h3>Veracidad Institucional: Conoce la Sede y Nuestro Equipo</h3>
+                  <p>Revisa imágenes y videos reales de nuestra sede en San Luis, consultorios terapéuticos y testimonios del equipo.</p>
+                </div>
+
+                <div class="rec-multimedia-split">
+                  <div class="catalog-card-v2 rec-video-card" onclick="openVideoModal()" role="button" tabindex="0" style="margin:0;cursor:pointer;" aria-label="Ver video institucional KJA">
+                    <div class="rec-video-thumb-wrap">
+                      <img src="images/dashboard/equipo-kja-2026-1280.webp" alt="Equipo KJA" />
+                      <div class="rec-video-overlay">
+                        <div style="width:64px;height:64px;border-radius:50%;background:#FE037C;display:grid;place-items:center;margin-bottom:12px;box-shadow:0 0 0 10px rgba(254,3,124,0.35);">
+                          <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                        <strong style="font-size:1.15rem;letter-spacing:0.2px;">Ver video institucional KJA</strong>
+                        <span style="font-size:0.88rem;opacity:0.92;margin-top:4px;">Conoce nuestras instalaciones y la dinámica de trabajo</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="rec-veracidad-grid">
+                    <!-- Foto 1: Alianzas Universitarias UTP / KJA (de nosotros.html) -->
+                    <div class="rec-veracidad-card" onclick="openPreviewModal('images/nosotros/nosotros.webp', 'Equipo Clínico KJA · Alianzas Universitarias', 'Fotografía institucional oficial: Equipo KJA en feria institucional de convenios y alianzas universitarias (UTP / Sede Lima).')" role="button" tabindex="0" aria-label="Ver foto de alianzas universitarias">
+                      <img src="images/nosotros/nosotros.webp" alt="Equipo KJA en alianzas universitarias" loading="lazy" decoding="async" />
+                      <div class="rec-veracidad-overlay">
+                        <div class="rec-veracidad-info">
+                          <span class="rec-veracidad-tag">Convenio Institucional</span>
+                          <span class="rec-veracidad-title">Alianzas Académicas UTP · Sede Lima</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Foto 2: Certificación y Reconocimiento Oficial (de nosotros.html) -->
+                    <div class="rec-veracidad-card" onclick="openPreviewModal('images/nosotros/team/001-960.webp', 'Entrega de Certificados Oficiales KJA', 'Fotografía institucional oficial: Ceremonia de entrega de diploma y certificación de prácticas frente al mural KJA EQUIPO.')" role="button" tabindex="0" aria-label="Ver foto de entrega de certificados">
+                      <img src="images/nosotros/team/001-960.webp" alt="Entrega de certificado oficial a practicante KJA" loading="lazy" decoding="async" />
+                      <div class="rec-veracidad-overlay">
+                        <div class="rec-veracidad-info">
+                          <span class="rec-veracidad-tag">Certificación Oficial</span>
+                          <span class="rec-veracidad-title">Entrega de Diplomas de Prácticas</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Foto 3: Culminación de Internado Clínico (de nosotros.html) -->
+                    <div class="rec-veracidad-card" onclick="openPreviewModal('images/nosotros/team/002-960.webp', 'Culminación de Internado Clínico', 'Fotografía institucional oficial: Interno de Psicología recibiendo su Certificado de Reconocimiento otorgado por Dirección KJA.')" role="button" tabindex="0" aria-label="Ver foto de culminación de internado">
+                      <img src="images/nosotros/team/002-960.webp" alt="Reconocimiento a interno de Psicología KJA" loading="lazy" decoding="async" />
+                      <div class="rec-veracidad-overlay">
+                        <div class="rec-veracidad-info">
+                          <span class="rec-veracidad-tag">Culminación de Internado</span>
+                          <span class="rec-veracidad-title">Reconocimiento Profesional KJA</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Foto 4: Clima Laboral y Formación en Sede San Luis (de nosotros.html) -->
+                    <div class="rec-veracidad-card" onclick="openPreviewModal('images/nosotros/team/003-960.webp', 'Formación y Desempeño en Sede San Luis', 'Fotografía institucional oficial: Entrega de diploma por desempeño profesional y clima laboral positivo en consultorios KJA.')" role="button" tabindex="0" aria-label="Ver foto de formación en sede San Luis">
+                      <img src="images/nosotros/team/003-960.webp" alt="Ceremonia de reconocimiento en consultorios KJA" loading="lazy" decoding="async" />
+                      <div class="rec-veracidad-overlay">
+                        <div class="rec-veracidad-info">
+                          <span class="rec-veracidad-tag">Sede Central San Luis</span>
+                          <span class="rec-veracidad-title">Consultorios y Clima Laboral</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Checklist de Verificación y Consentimiento -->
+                <div class="rec-checklist-box">
+                  <h4 style="font-size:1.05rem;font-weight:800;color:#111827;margin-bottom:12px;">
+                    Checklist de Confirmación de Requisitos
+                  </h4>
+                  <label class="rec-check-label">
+                    <input type="checkbox" id="chk-rec-fb" required />
+                    <span>Confirmo que realizaré las <strong>comparticiones diarias en Facebook</strong> para difusión comunitaria de talleres y servicios de KJA.</span>
+                  </label>
+                  <label class="rec-check-label">
+                    <input type="checkbox" id="chk-rec-horario" required />
+                    <span>Cuento con <strong>disponibilidad de horario</strong> (4 a 6 horas diarias) y compromiso de asistencia puntual.</span>
+                  </label>
+                  <label class="rec-check-label">
+                    <input type="checkbox" id="chk-rec-entrevista" required />
+                    <span>Estoy listo(a) para adjuntar mi CV actualizado y <strong>agendar mi entrevista preliminar</strong> con Dirección.</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="rec-flow-actions" style="justify-content: flex-end;">
+                <button type="button" class="rec-btn-pill primary" id="rec-btn-p1-next" onclick="validateStep1AndNext()" disabled>
+                  Continuar a Postulación y CV
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- =============================================================
+                 VENTANA 2: DATOS DEL POSTULANTE & ADJUNTAR CV
+                 Custom Dropdowns acomodados directo en el input
+                 ============================================================= -->
+            <div class="rec-slide-panel" id="rec-panel-2">
+              <div class="rec-form-card">
+                <div class="rec-form-heading">
+                  <h3>1. Datos Personales, Formación & CV</h3>
+                  <p>Completa tus datos oficiales y adjunta tu Currículum Vitae para que la Dirección evalúe tu perfil.</p>
+                </div>
+
+                <form id="rec-datos-form" novalidate class="rec-input-grid" onsubmit="return false;">
+                  <!-- Nombres -->
+                  <div class="rec-field">
+                    <label for="rec-nombres">Nombres y Apellidos *</label>
+                    <input type="text" id="rec-nombres" autocomplete="name" placeholder="Ej. Andrea Morales Silva" required />
+                  </div>
+
+                  <!-- DNI -->
+                  <div class="rec-field">
+                    <label for="rec-dni">DNI (8 dígitos) *</label>
+                    <input type="text" id="rec-dni" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" placeholder="Ej. 74819203" required />
+                  </div>
+
+                  <!-- Teléfono / WhatsApp -->
+                  <div class="rec-field">
+                    <label for="rec-telefono">Teléfono / WhatsApp *</label>
+                    <input type="tel" id="rec-telefono" autocomplete="tel" placeholder="Ej. 987654321" required />
+                  </div>
+
+                  <!-- Email -->
+                  <div class="rec-field">
+                    <label for="rec-email">Correo Electrónico *</label>
+                    <input type="email" id="rec-email" autocomplete="email" placeholder="Ej. andrea.morales@gmail.com" required />
+                  </div>
+
+                  <!-- Especialidad / Carrera (Custom Select) -->
+                  <div class="rec-field">
+                    <label>Especialidad / Carrera *</label>
+                    <div class="kja-custom-select" data-field="carrera">
+                      <input type="hidden" id="rec-carrera" value="Psicología Clínica" />
+                      <button type="button" class="kja-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="kja-select-value">Psicología Clínica</span>
+                        <svg class="kja-select-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                      <div class="kja-select-menu" role="listbox">
+                        <div class="kja-select-option selected" data-value="Psicología Clínica" role="option">
+                          <span>Psicología Clínica</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Psicología Educativa" role="option">
+                          <span>Psicología Educativa</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Psicología Organizacional" role="option">
+                          <span>Psicología Organizacional</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Terapia de Lenguaje" role="option">
+                          <span>Terapia de Lenguaje</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Terapia Ocupacional" role="option">
+                          <span>Terapia Ocupacional</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Administración / Recursos Humanos" role="option">
+                          <span>Administración / Recursos Humanos</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Marketing Digital & Medios" role="option">
+                          <span>Marketing Digital & Medios</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Nivel Académico (Custom Select) -->
+                  <div class="rec-field">
+                    <label>Nivel Académico *</label>
+                    <div class="kja-custom-select" data-field="nivel">
+                      <input type="hidden" id="rec-nivel" value="Estudiante (Ciclos 7 a 10)" />
+                      <button type="button" class="kja-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="kja-select-value">Estudiante (Ciclos 7 a 10)</span>
+                        <svg class="kja-select-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                      <div class="kja-select-menu" role="listbox">
+                        <div class="kja-select-option selected" data-value="Estudiante (Ciclos 7 a 10)" role="option">
+                          <span>Estudiante (Ciclos 7 a 10)</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Internado Pre-Profesional" role="option">
+                          <span>Internado Pre-Profesional</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Bachiller / Egresado" role="option">
+                          <span>Bachiller / Egresado</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Titulado / Colegiado" role="option">
+                          <span>Titulado / Colegiado</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Modalidad Preferida (Custom Select) -->
+                  <div class="rec-field">
+                    <label>Modalidad Preferida *</label>
+                    <div class="kja-custom-select" data-field="modalidad">
+                      <input type="hidden" id="rec-modalidad-sel" value="Presencial (Sede San Luis)" />
+                      <button type="button" class="kja-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="kja-select-value">Presencial (Sede San Luis, Lima)</span>
+                        <svg class="kja-select-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                      <div class="kja-select-menu" role="listbox">
+                        <div class="kja-select-option selected" data-value="Presencial (Sede San Luis)" role="option">
+                          <span>Presencial (Sede San Luis, Lima)</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Remoto (Desde casa)" role="option">
+                          <span>Remoto (Desde casa / Provincias)</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Híbrido (Mixto)" role="option">
+                          <span>Híbrido (Mixto)</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Turno (Custom Select) -->
+                  <div class="rec-field">
+                    <label>Disponibilidad de Turno *</label>
+                    <div class="kja-custom-select" data-field="turno">
+                      <input type="hidden" id="rec-turno-sel" value="Mañana (08:30 - 13:30)" />
+                      <button type="button" class="kja-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="kja-select-value">Mañana (08:30 - 13:30)</span>
+                        <svg class="kja-select-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                      <div class="kja-select-menu" role="listbox">
+                        <div class="kja-select-option selected" data-value="Mañana (08:30 - 13:30)" role="option">
+                          <span>Mañana (08:30 - 13:30)</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Tarde (14:00 - 19:00)" role="option">
+                          <span>Tarde (14:00 - 19:00)</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Flexible / Horas coordinadas" role="option">
+                          <span>Flexible / Horas coordinadas</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Motivación -->
+                  <div class="rec-field full-width">
+                    <label for="rec-motivacion">¿Por qué deseas unirte al Centro Psicológico KJA?</label>
+                    <textarea id="rec-motivacion" rows="2" placeholder="Cuéntanos brevemente sobre tus expectativas, metas y experiencia de aprendizaje en KJA."></textarea>
+                  </div>
+
+                  <!-- SECCIÓN DE ADJUNTAR CV (NUEVA REQUERIDA) -->
+                  <div class="rec-field full-width" style="margin-top: 10px;">
+                    <label>Currículum Vitae (CV) * <span style="font-size:0.75rem;font-weight:600;text-transform:none;color:#db2777;">(Adjunto obligatorio para evaluación de Dirección)</span></label>
+
+                    <div class="rec-cv-dropzone" id="rec-cv-dropzone" role="button" tabindex="0" aria-label="Adjuntar archivo CV en PDF o Word">
+                      <input type="file" id="rec-cv-input" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;" />
+
+                      <!-- Vista de zona vacía -->
+                      <div class="rec-cv-empty" id="rec-cv-empty">
+                        <div class="rec-cv-icon-wrap">
+                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FE037C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                          </svg>
+                        </div>
+                        <div class="rec-cv-texts">
+                          <strong>Haz clic para adjuntar o arrastra tu archivo CV aquí</strong>
+                          <span>Formatos admitidos: <b>PDF, DOC o DOCX</b> (tamaño máximo: 10 MB)</span>
+                        </div>
+                        <button type="button" class="rec-cv-browse-btn" onclick="document.getElementById('rec-cv-input').click(); event.stopPropagation();">
+                          Seleccionar archivo
+                        </button>
+                      </div>
+
+                      <!-- Vista de archivo cargado -->
+                      <div class="rec-cv-loaded" id="rec-cv-loaded" style="display:none;">
+                        <div class="rec-cv-file-info">
+                          <div class="rec-cv-file-icon">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FE037C" stroke-width="2">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                              <polyline points="14 2 14 8 20 8"/>
+                              <line x1="16" y1="13" x2="8" y2="13"/>
+                              <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                          </div>
+                          <div class="rec-cv-file-details">
+                            <strong id="rec-cv-filename" class="rec-cv-filename">CV_Postulante.pdf</strong>
+                            <span id="rec-cv-filesize" class="rec-cv-filesize">0 KB</span>
+                            <span class="rec-cv-status-tag">✓ Archivo validado y listo para evaluación de Dirección</span>
+                          </div>
+                        </div>
+                        <div class="rec-cv-actions">
+                          <button type="button" class="rec-cv-btn-change" onclick="document.getElementById('rec-cv-input').click(); event.stopPropagation();">
+                            Cambiar
+                          </button>
+                          <button type="button" class="rec-cv-btn-remove" onclick="removeCvFile(event)">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            Quitar
+                          </button>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </form>
+
+                <div class="rec-flow-actions">
+                  <button type="button" class="rec-btn-pill secondary" onclick="switchRecStep(1)">
+                    ← Volver a Requisitos
+                  </button>
+                  <button type="button" class="rec-btn-pill primary" id="rec-btn-p2-next" onclick="validateStep2AndNext()">
+                    Continuar a Agendar Entrevista
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- =============================================================
+                 VENTANA 3: AGENDAMIENTO DE ENTREVISTA & NOTIFICACIÓN
+                 ============================================================= -->
+            <div class="rec-slide-panel" id="rec-panel-3">
+
+              <div class="rec-form-card">
+                <div class="rec-form-heading">
+                  <span class="therapy-badge-pill pill-type" style="margin-bottom:8px;display:inline-block;">PASO 3 DE 4 · COORDINACIÓN DE ENTREVISTA</span>
+                  <h3>Agendamiento de tu Entrevista Preliminar</h3>
+                  <p>Selecciona la fecha, el horario y la modalidad para tu reunión con Dirección. Ingresa el correo electrónico donde se te notificará si tu postulación fue aprobada.</p>
+                </div>
+
+                <div class="rec-input-grid">
+                  <!-- Selector de Fecha KJA -->
+                  <div class="rec-field" id="rec-datepicker-container">
+                    <label for="kja-date-trigger">Fecha de la Entrevista *</label>
+                    <div class="kja-custom-datepicker" id="kja-datepicker-wrap">
+                      <input type="hidden" id="rec-fecha-entrevista" value="" />
+
+                      <button type="button" class="kja-date-trigger" id="kja-date-trigger" aria-haspopup="dialog" aria-expanded="false">
+                        <div class="kja-date-display">
+                          <svg class="kja-date-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <rect x="3" y="4" width="18" height="18" rx="3" ry="3"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                          </svg>
+                          <span class="kja-date-value" id="kja-date-text">Cargando fecha...</span>
+                        </div>
+                        <span class="kja-date-badge" id="kja-date-badge">Próxima fecha</span>
+                      </button>
+
+                      <div class="kja-date-quick-pills" id="kja-quick-dates"></div>
+
+                      <div class="kja-datepicker-popover" id="kja-datepicker-popover" role="dialog" aria-label="Selector de fecha de entrevista">
+                        <div class="kja-cal-header">
+                          <button type="button" class="kja-cal-nav-btn" id="kja-cal-prev-month" aria-label="Mes anterior">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                          </button>
+                          <div class="kja-cal-month-year" id="kja-cal-month-title">Octubre 2026</div>
+                          <button type="button" class="kja-cal-nav-btn" id="kja-cal-next-month" aria-label="Mes siguiente">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                          </button>
+                        </div>
+                        <div class="kja-cal-weekdays">
+                          <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
+                        </div>
+                        <div class="kja-cal-days-grid" id="kja-cal-days-grid"></div>
+                        <div class="kja-cal-footer">
+                          <button type="button" class="kja-cal-action-btn primary" id="kja-cal-btn-tomorrow">Elegir Mañana</button>
+                          <button type="button" class="kja-cal-action-btn secondary" id="kja-cal-btn-close">Cerrar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Canal de la Cita -->
+                  <div class="rec-field">
+                    <label>Modalidad de la Entrevista *</label>
+                    <div class="kja-custom-select" data-field="canal">
+                      <input type="hidden" id="rec-canal-entrevista" value="Google Meet / Zoom (Reunión Virtual)" />
+                      <button type="button" class="kja-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="kja-select-value">Google Meet / Zoom (Reunión Virtual)</span>
+                        <svg class="kja-select-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                      <div class="kja-select-menu" role="listbox">
+                        <div class="kja-select-option selected" data-value="Google Meet / Zoom (Reunión Virtual)" role="option">
+                          <span>Google Meet / Zoom (Reunión Virtual)</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Presencial (Sede San Luis, Jr. Río Amazonas 214)" role="option">
+                          <span>Presencial (Sede San Luis, Jr. Río Amazonas 214)</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="kja-select-option" data-value="Llamada Directa WhatsApp" role="option">
+                          <span>Llamada Directa WhatsApp</span>
+                          <svg class="kja-select-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Horarios Disponibles -->
+                <div style="margin-top:20px;">
+                  <label style="font-size:0.78rem;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:#374151;">
+                    Horarios Disponibles para la Fecha Seleccionada *
+                  </label>
+                  <div class="rec-slots-wrap" id="rec-slot-container">
+                    <button type="button" class="rec-slot-btn active" data-time="09:30 AM">09:30 AM</button>
+                    <button type="button" class="rec-slot-btn" data-time="11:00 AM">11:00 AM</button>
+                    <button type="button" class="rec-slot-btn" data-time="03:30 PM">03:30 PM</button>
+                    <button type="button" class="rec-slot-btn" data-time="05:00 PM">05:00 PM</button>
+                    <button type="button" class="rec-slot-btn" data-time="06:30 PM">06:30 PM</button>
+                  </div>
+                </div>
+
+                <!-- Correo y Teléfono para Notificación de Aprobación -->
+                <div class="rec-input-grid" style="margin-top:24px;border-top:1px solid #f1f5f9;padding-top:20px;">
+                  <div class="rec-field">
+                    <label for="rec-correo-notificacion">Correo Electrónico para Notificación de Aprobación *</label>
+                    <input type="email" id="rec-correo-notificacion" autocomplete="email" placeholder="ejemplo@gmail.com" required style="width:100%;padding:13px 16px;border-radius:14px;border:1.5px solid #e5e7eb;background:#fafafa;font-family:inherit;font-size:0.92rem;" />
+                    <span style="display:block;margin-top:6px;font-size:0.8rem;color:#64748b;line-height:1.4;">
+                      Te enviaremos el enlace de la reunión y la resolución formal de aprobación o resultado a esta dirección.
+                    </span>
+                  </div>
+
+                  <div class="rec-field">
+                    <label for="rec-telefono-notificacion">WhatsApp / Teléfono de Contacto *</label>
+                    <input type="tel" id="rec-telefono-notificacion" autocomplete="tel" placeholder="999 999 999" required style="width:100%;padding:13px 16px;border-radius:14px;border:1.5px solid #e5e7eb;background:#fafafa;font-family:inherit;font-size:0.92rem;" />
+                    <span style="display:block;margin-top:6px;font-size:0.8rem;color:#64748b;line-height:1.4;">
+                      Coordinación se comunicará contigo vía WhatsApp en caso de requerir confirmación inmediata.
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Notas Adicionales -->
+                <div class="rec-field" style="margin-top:16px;">
+                  <label for="rec-notas-entrevista">Notas o Consultas para tu Entrevista (Opcional)</label>
+                  <textarea id="rec-notas-entrevista" rows="2" placeholder="Indica si requieres alguna coordinación especial de horario o consulta previa para Dirección..." style="width:100%;padding:12px 16px;border-radius:14px;border:1.5px solid #e5e7eb;background:#fafafa;font-family:inherit;font-size:0.9rem;resize:vertical;"></textarea>
+                </div>
+
+                <!-- Aviso Formal de Revisión -->
+                <div style="margin-top:20px;padding:16px 20px;background:#f8fafc;border-radius:16px;border:1px solid #e2e8f0;display:flex;align-items:flex-start;gap:14px;">
+                  <div style="width:36px;height:36px;border-radius:10px;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  </div>
+                  <div>
+                    <strong style="display:block;font-size:0.9rem;color:#0f172a;margin-bottom:2px;">Proceso de Evaluación Institucional</strong>
+                    <p style="margin:0;font-size:0.85rem;color:#64748b;line-height:1.5;">
+                      El equipo de KJA revisará tu CV y tu disponibilidad. La entrevista solicitada queda sujeta a coordinación; recibirás la respuesta a través del correo de contacto que registraste.
+                    </p>
+                  </div>
+                </div>
+
+                <p id="rec-submit-error" class="rec-submit-error" role="alert" hidden></p>
+                <div class="rec-flow-actions" style="margin-top:28px;">
+                  <button type="button" class="rec-btn-pill secondary" onclick="switchRecStep(2)">
+                    ← Volver a Datos & CV
+                  </button>
+                  <button type="button" class="rec-btn-pill primary" id="rec-btn-p3-next" onclick="validateStep3AndNext()">
+                    Enviar postulación
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- =============================================================
+                 VENTANA 4: CONFIRMACIÓN Y RESUMEN COMPLETO DE POSTULACIÓN
+                 ============================================================= -->
+            <div class="rec-slide-panel" id="rec-panel-4">
+              <section class="rec-receipt" aria-labelledby="rec-receipt-title">
+                <div class="rec-receipt-head">
+                  <span class="rec-receipt-check" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg></span>
+                  <div><h2 id="rec-receipt-title">Tu postulación está en buenas manos</h2>
+                    <p><span id="rec-res-nombre"></span>, recibimos tu solicitud y tu CV. Administración revisará tu expediente y coordinará contigo los siguientes pasos.</p></div>
+                </div>
+                <div class="rec-receipt-reference"><div><span>Código de postulación</span><strong id="rec-res-codigo"></strong></div><span class="rec-receipt-status">Pendiente de revisión</span></div>
+                <div class="rec-receipt-layout">
+                  <section class="rec-receipt-main" aria-labelledby="rec-receipt-appointment">
+                    <h3 id="rec-receipt-appointment">Tu entrevista solicitada</h3>
+                    <p class="rec-receipt-note">La fecha y el horario están sujetos a confirmación de KJA.</p>
+                    <dl class="rec-receipt-appointment">
+                      <div><dt>Fecha</dt><dd id="rec-res-cita-fecha"></dd></div>
+                      <div><dt>Hora</dt><dd id="rec-res-cita-hora"></dd></div>
+                      <div><dt>Modalidad de entrevista</dt><dd id="rec-res-cita-canal"></dd></div>
+                    </dl>
+                    <div class="rec-receipt-contact"><h3>Mantente atento a tu correo</h3><strong id="rec-res-correo-notif"></strong><p>El equipo usará este correo para comunicarse contigo. Revisa también la carpeta de correo no deseado.</p></div>
+                    <h3>Cómo continúa el proceso</h3>
+                    <ol class="rec-receipt-timeline"><li><strong>Solicitud recibida</strong><span>Tus datos y el CV están disponibles para Administración.</span></li><li><strong>Revisión del expediente</strong><span>El equipo revisará tu perfil y disponibilidad.</span></li><li><strong>Coordinación y respuesta</strong><span>KJA se comunicará contigo para confirmar la entrevista o informarte el resultado.</span></li></ol>
+                  </section>
+                  <section class="rec-receipt-summary" aria-labelledby="rec-receipt-summary-title"><h3 id="rec-receipt-summary-title">Resumen de tu postulación</h3>
+                    <dl class="rec-receipt-data">
+                      <div><dt>Postulante</dt><dd id="rec-res-postulante-full"></dd></div>
+                      <div><dt>Documento de identidad</dt><dd id="rec-res-dni"></dd></div>
+                      <div><dt>Contacto</dt><dd id="rec-res-contacto"></dd></div>
+                      <div><dt>Especialidad y nivel</dt><dd id="rec-res-carrera"></dd></div>
+                      <div><dt>Modalidad de trabajo</dt><dd id="rec-res-modalidad"></dd></div>
+                      <div><dt>Turno preferido</dt><dd id="rec-res-turno"></dd></div>
+                      <div><dt>CV recibido</dt><dd id="rec-res-cv"></dd></div>
+                      <div><dt>Fecha de registro</dt><dd id="rec-res-fecha-envio"></dd></div>
+                      <div><dt>Requisitos y difusión</dt><dd>Aceptados por el postulante</dd></div>
+                    </dl>
+                    <p class="rec-receipt-privacy">Tu expediente es de acceso restringido al equipo administrativo autorizado de KJA.</p>
+                  </section>
+                </div>
+                <footer class="rec-receipt-actions"><button type="button" class="rec-btn-pill primary" id="rec-btn-print">Guardar comprobante</button><a class="rec-btn-pill secondary" id="rec-btn-whatsapp-confirm" target="_blank" rel="noopener">Coordinar por WhatsApp</a><a href="index.html" class="rec-receipt-home">Volver al inicio</a></footer>
+              </section>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+<!-- ===== MODAL: FLYER OFICIAL AMPLIADO ===== -->
+    <div class="therapy-modal" id="flyer-modal" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,26,56,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;">
+      <div style="background:#fff;border-radius:24px;max-width:720px;width:100%;overflow:hidden;position:relative;box-shadow:0 25px 60px rgba(0,0,0,0.4);">
+        <button type="button" onclick="closeFlyerModal()" aria-label="Cerrar modal" style="position:absolute;top:16px;right:16px;background:#f3f4f6;border:none;width:38px;height:38px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:10;display:grid;place-items:center;">&times;</button>
+        <div style="padding:28px;text-align:center;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#111827;margin-bottom:8px;">Flyer Oficial de Convocatoria 2026</h3>
+          <p style="font-size:0.92rem;color:#6b7280;margin-bottom:14px;">Centro Psicológico KJA · Programa de Prácticas e Internado Clínico</p>
+          <div style="max-height:68vh;overflow-y:auto;border-radius:16px;background:#061a38;display:flex;align-items:center;justify-content:center;padding:10px;">
+            <img src="images/reclutamiento/card-flyer-convocatoria-alineado.png" alt="Flyer Ampliado KJA" style="max-width:100%;max-height:65vh;object-fit:contain;border-radius:12px;" />
+          </div>
+          <p style="font-size:0.88rem;color:#6b7280;margin-top:14px;">Jr. Río Amazonas 214, San Luis, Lima · Modalidad Presencial y Remota</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MODAL: PREVIEW DE IMÁGENES & VERACIDAD ===== -->
+    <div class="therapy-modal" id="preview-modal" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,26,56,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;">
+      <div style="background:#fff;border-radius:24px;max-width:760px;width:100%;overflow:hidden;position:relative;box-shadow:0 25px 60px rgba(0,0,0,0.4);">
+        <button type="button" onclick="closePreviewModal()" aria-label="Cerrar modal" style="position:absolute;top:16px;right:16px;background:#f3f4f6;border:none;width:38px;height:38px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:10;display:grid;place-items:center;">&times;</button>
+        <div style="padding:28px;text-align:center;">
+          <h3 id="preview-modal-title" style="font-size:1.3rem;font-weight:800;color:#111827;margin-bottom:8px;">Veracidad Institucional KJA</h3>
+          <p id="preview-modal-subtitle" style="font-size:0.92rem;color:#6b7280;margin-bottom:14px;">Centro Psicológico KJA · Registros y ceremonias oficiales</p>
+          <div style="max-height:68vh;overflow-y:auto;border-radius:16px;background:#061a38;display:flex;align-items:center;justify-content:center;padding:10px;">
+            <img id="preview-modal-img" src="images/nosotros/nosotros.webp" alt="Foto Institucional KJA" style="max-width:100%;max-height:65vh;object-fit:contain;border-radius:12px;" />
+          </div>
+          <div style="margin-top:16px;">
+            <button type="button" class="rec-btn-pill primary" onclick="closePreviewModal()" style="padding:10px 26px;font-size:0.9rem;">
+              Cerrar visualización
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MODAL: VIDEO INSTITUCIONAL KJA ===== -->
+    <div class="therapy-modal" id="video-modal" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+      <div style="background:#fff;border-radius:24px;max-width:760px;width:100%;overflow:hidden;position:relative;box-shadow:0 25px 60px rgba(0,0,0,0.3);">
+        <button type="button" onclick="closeVideoModal()" aria-label="Cerrar modal" style="position:absolute;top:16px;right:16px;background:#f3f4f6;border:none;width:36px;height:36px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:10;display:grid;place-items:center;">&times;</button>
+        <div style="padding:28px;">
+          <h3 style="font-size:1.35rem;font-weight:800;color:#111827;margin-bottom:8px;">La Experiencia de Trabajo en el Centro KJA</h3>
+          <p style="font-size:0.95rem;color:#6b7280;margin-bottom:16px;">Testimonios de nuestro equipo, psicólogos colegiados y recorrido por los consultorios de la Sede San Luis.</p>
+          <div style="position:relative;width:100%;aspect-ratio:16/9;background:#061a38;border-radius:16px;overflow:hidden;">
+            <img src="images/dashboard/equipo-kja-2026-1280.webp" alt="Video KJA" style="width:100%;height:100%;object-fit:cover;opacity:0.92;" />
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(9,36,76,0.65);color:#fff;text-align:center;padding:20px;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="#FE037C" style="margin-bottom:8px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <h4 style="margin:0 0 6px;font-size:1.2rem;color:#fff;">Compromiso, Calidez y Crecimiento Clínico</h4>
+              <p style="margin:0;font-size:0.9rem;color:#cbd5e1;">Testimonios y bienvenida de Dirección KJA</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FOOTER (IDÉNTICO A TERAPIA Y CURSOS) ===== -->
+    <footer style="margin-top:24px;background:#061a38;color:#94a3b8;padding:36px 20px;font-size:13px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);">
+      <div style="max-width:900px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:14px;">
+        <img src="images/logo/kja.webp" width="160" height="46" alt="KJA" style="filter:brightness(0) invert(1);opacity:0.9;" />
+        <p style="margin:0;color:#cbd5e1;">Centro Psicológico KJA — Jr. Río Amazonas 214, San Luis, Lima, Perú</p>
+        <p style="margin:0;color:#64748b;">© 2026 KJA Centro Psicológico. Todos los derechos reservados. Portal oficial de Reclutamiento y Selección.</p>
+      </div>
+    </footer>
+  </div>
+
+<dialog class="rec-status-dialog" id="rec-status-dialog" aria-labelledby="rec-status-form-title" aria-describedby="rec-status-intro">
+  <div class="rec-status-card">
+    <button type="button" class="rec-status-close" aria-label="Cerrar consulta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <div class="rec-status-heading" data-companion-state="idle">
+      <div class="rec-status-mascot" aria-hidden="true">
+        <svg viewBox="0 0 100 100" fill="none">
+          <ellipse class="rec-mascot-shadow" cx="47" cy="88" rx="25" ry="5" fill="currentColor"/>
+          <g class="rec-mascot-character">
+            <path class="rec-mascot-hand" d="M22 55Q9 55 11 44M72 55q13-4 13-13" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+            <path d="M47 78C40 73 17 56 17 37c0-19 23-25 30-9 9-16 32-10 32 9 0 19-25 37-32 41Z" fill="currentColor"/>
+            <path d="M25 36q1-9 10-9" stroke="white" stroke-opacity=".5" stroke-width="4" stroke-linecap="round"/>
+            <g class="rec-mascot-eyes" fill="#09244c"><ellipse cx="37" cy="46" rx="3" ry="4"/><ellipse cx="57" cy="46" rx="3" ry="4"/></g>
+            <ellipse cx="29" cy="53" rx="5" ry="2.5" fill="white" fill-opacity=".3"/>
+            <ellipse cx="65" cy="53" rx="5" ry="2.5" fill="white" fill-opacity=".3"/>
+            <path class="rec-mascot-smile" d="M41 56q6 6 12 0" stroke="#09244c" stroke-width="2.5" stroke-linecap="round"/>
+          </g>
+          <g class="rec-mascot-loupe" stroke="#09244c" stroke-width="3.5" stroke-linecap="round"><circle cx="76" cy="67" r="11" fill="#fffdf9" fill-opacity=".95"/><path d="m84 76 9 9"/><path d="M72 63q3-3 6-1" stroke="#43c5d1" stroke-width="2.5"/></g>
+          <g class="rec-mascot-check"><circle cx="79" cy="25" r="12" fill="#e4f7f0"/><path d="m73 25 4 4 8-8" stroke="#08735a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+        </svg>
+      </div>
+      <div class="rec-status-heading-copy">
+        <h2 id="rec-status-form-title">Estado de mi postulación</h2>
+        <p class="rec-mascot-message" id="rec-mascot-message" aria-hidden="true">Vamos paso a paso.</p>
+      </div>
+    </div>
+    <p id="rec-status-intro">Ingresa tu DNI para consultar tu postulación más reciente.</p>
+    <form id="rec-status-form" novalidate>
+      <label for="rec-status-dni">Número de DNI</label>
+      <input id="rec-status-dni" name="dni" type="text" inputmode="numeric" maxlength="8" pattern="[0-9]{8}" autocomplete="off" spellcheck="false" required aria-describedby="rec-status-hint rec-status-error" placeholder="8 dígitos" autofocus />
+      <p class="rec-status-hint" id="rec-status-hint">Solo números, sin espacios ni guiones.</p>
+      <p class="rec-status-error" id="rec-status-error" role="alert"></p>
+      <button class="rec-status-submit" type="submit">Consultar estado</button>
+    </form>
+    <div class="rec-status-loading" id="rec-status-loading" role="status" aria-live="polite" aria-atomic="true" hidden>
+      <span class="rec-status-spinner" aria-hidden="true"></span>
+      <div><strong>Consultando tu postulación…</strong><p id="rec-status-wait-message">Espera un momento, estamos buscando tu estado.</p></div>
+    </div>
+    <p class="rec-status-feedback" id="rec-status-feedback" role="status" aria-live="polite"></p>
+    <section class="rec-status-result" id="rec-status-result" tabindex="-1" aria-labelledby="rec-status-result-title" aria-describedby="rec-status-label rec-status-description" hidden>
+      <h3 id="rec-status-result-title">Seguimiento de tu postulación</h3>
+      <div class="rec-status-overview">
+        <span class="rec-status-state-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <g data-state-icon="pending"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></g>
+            <g data-state-icon="review"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5M8 10.5h5M10.5 8v5"/></g>
+            <g data-state-icon="interview"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 11h18m-11 5 2 2 4-4"/></g>
+            <g data-state-icon="approved"><circle cx="12" cy="12" r="8.5"/><path d="m8 12 3 3 5-6"/></g>
+            <g data-state-icon="closed"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h4"/></g>
+          </svg>
+        </span>
+        <div class="rec-status-state-copy"><span class="rec-status-current-caption">Estado actual</span><strong class="rec-status-label" id="rec-status-label"></strong></div>
+      </div>
+      <p id="rec-status-description"></p>
+      <dl class="rec-status-dates">
+        <div><dt>Postulación recibida</dt><dd id="rec-status-created"></dd></div>
+        <div><dt>Última actualización</dt><dd id="rec-status-updated"></dd></div>
+      </dl>
+      <div class="rec-status-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v.1"/></svg><div><h4 id="rec-status-next-title"></h4><p id="rec-status-next-description"></p></div></div>
+    </section>
+    <p class="rec-status-privacy">Solo mostramos el estado y las fechas. Tu expediente y CV son privados.</p>
+  </div>
+</dialog>
+</body>
+</html>

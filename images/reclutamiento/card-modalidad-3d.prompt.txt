@@ -1,0 +1,7 @@
+Herramienta: image_gen integrada
+Archivo: card-modalidad-3d.png
+Referencias de estilo: card-facebook-sharing.jpg, card-horarios-flexibles.jpg
+Referencia de tema: card-modalidad-dual.jpg
+
+Prompt:
+Use case: style-transfer. Create a replacement illustration for the third card of a psychology recruitment website: in-person and remote work modalities. Images 1 and 2 are style references ONLY: match their polished soft 3D clay-like objects, pastel light blue background, navy, hot pink and mint accents, soft studio shadows, floating composition. Image 3 is the subject reference to transform completely from photography into 3D illustration. Show two balanced miniature scenes: on the left a friendly 3D psychologist and visitor seated in two cozy chairs with a small plant, on the right a navy laptop displaying a friendly 3D psychologist on a video call with a headset beside it. Connect the scenes with subtle pink curved arrows. No realistic photos, no interior photograph, no text, no logos, no watermark. Square canvas, all important subjects within central 80 percent, generous clear margins, clean legibility at small card size. Render one finished image.

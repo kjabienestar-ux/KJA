@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 928 980" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgDualGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#061a38"/>
+      <stop offset="100%" stop-color="#0a2540"/>
+    </linearGradient>
+    <linearGradient id="presGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+    <linearGradient id="remotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1b36"/>
+      <stop offset="100%" stop-color="#112d56"/>
+    </linearGradient>
+    <linearGradient id="pinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff2a8d"/>
+      <stop offset="100%" stop-color="#fe037c"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <filter id="shadowPres" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+    <filter id="shadowRemot" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="928" height="980" fill="url(#bgDualGrad)"/>
+
+  <!-- Top Header Banner -->
+  <g transform="translate(60, 40)">
+    <rect width="808" height="74" rx="20" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.2"/>
+    <rect x="20" y="18" width="38" height="38" rx="12" fill="url(#pinkGrad)"/>
+    <!-- Dual arrows icon -->
+    <path d="M33 37 L39 31 L45 37 M45 37 L39 43 L33 37" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="70" y="44" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="900" fill="#ffffff" letter-spacing="0.5">MODALIDAD DE TRABAJO KJA</text>
+    <rect x="588" y="18" width="200" height="38" rx="19" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-width="1.2"/>
+    <text x="616" y="42" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#34d399">100% COMPATIBLE</text>
+  </g>
+
+  <!-- SECCIÓN 1: MODALIDAD PRESENCIAL (Sede San Luis) -->
+  <g transform="translate(60, 136)">
+    <rect width="808" height="364" rx="24" fill="url(#presGrad)" filter="url(#shadowPres)"/>
+
+    <!-- Top badge bar -->
+    <g transform="translate(28, 24)">
+      <rect width="180" height="32" rx="16" fill="#0284c7" fill-opacity="0.12"/>
+      <circle cx="16" cy="16" r="5" fill="#0284c7"/>
+      <text x="28" y="21" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#0284c7">SEDE FÍSICA LIMA</text>
+
+      <rect x="192" y="0" width="130" height="32" rx="16" fill="#fe037c" fill-opacity="0.12"/>
+      <text x="208" y="21" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#fe037c">PRESENCIAL</text>
+    </g>
+
+    <!-- Title & Location -->
+    <text x="28" y="100" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="900" fill="#0f172a">
+      Sede Central San Luis
+    </text>
+    <text x="28" y="128" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#475569">
+      📍 Jr. Río Amazonas 214, Urb. San Luis — Lima, Perú
+    </text>
+
+    <!-- 3 Feature Chips -->
+    <g transform="translate(28, 154)">
+      <!-- Chip 1 -->
+      <g transform="translate(0, 0)">
+        <rect width="236" height="110" rx="16" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1.2"/>
+        <text x="16" y="32" font-size="20">🏢</text>
+        <text x="44" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#0f172a">Consultorios KJA</text>
+        <text x="16" y="60" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#64748b">Ambientes acondicionados</text>
+        <text x="16" y="78" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#64748b">para terapia de niños,</text>
+        <text x="16" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#64748b">adolescentes y familias.</text>
+      </g>
+
+      <!-- Chip 2 -->
+      <g transform="translate(254, 0)">
+        <rect width="236" height="110" rx="16" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1.2"/>
+        <text x="16" y="32" font-size="20">📋</text>
+        <text x="44" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#0f172a">Test Psicológicos</text>
+        <text x="16" y="60" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#64748b">Acceso a baterías WISC-V,</text>
+        <text x="16" y="78" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#64748b">ADOS-2, ADI-R, pruebas</text>
+        <text x="16" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#64748b">gráficas y proyectivas.</text>
+      </g>
+
+      <!-- Chip 3 -->
+      <g transform="translate(508, 0)">
+        <rect width="236" height="110" rx="16" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1.2"/>
+        <text x="16" y="32" font-size="20">👥</text>
+        <text x="44" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#0f172a">Supervisión Clínica</text>
+        <text x="16" y="60" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#64748b">Acompañamiento directo</text>
+        <text x="16" y="78" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#64748b">por psicólogos colegiados</text>
+        <text x="16" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#64748b">y directores en sede.</text>
+      </g>
+    </g>
+
+    <!-- Bottom verification pill -->
+    <g transform="translate(28, 290)">
+      <rect width="752" height="48" rx="14" fill="#0284c7" fill-opacity="0.08" stroke="#0284c7" stroke-opacity="0.2" stroke-width="1"/>
+      <text x="24" y="30" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#0369a1">
+        ✓ Recomendado si vives en Lima Metropolitana y buscas experiencia clínica presencial.
+      </text>
+    </g>
+  </g>
+
+  <!-- Central Switch Indicator -->
+  <g transform="translate(364, 508)">
+    <rect width="200" height="38" rx="19" fill="url(#pinkGrad)" filter="url(#shadowRemot)"/>
+    <text x="34" y="24" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#ffffff" letter-spacing="0.8">O ELIGE MODALIDAD</text>
+  </g>
+
+  <!-- SECCIÓN 2: MODALIDAD REMOTA / VIRTUAL -->
+  <g transform="translate(60, 554)">
+    <rect width="808" height="364" rx="24" fill="url(#remotGrad)" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="1.5" filter="url(#shadowRemot)"/>
+
+    <!-- Top badge bar -->
+    <g transform="translate(28, 24)">
+      <rect width="210" height="32" rx="16" fill="#10b981" fill-opacity="0.18"/>
+      <circle cx="16" cy="16" r="5" fill="#34d399"/>
+      <text x="28" y="21" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#34d399">TODO EL PERÚ & LIMA</text>
+
+      <rect x="222" y="0" width="130" height="32" rx="16" fill="#38bdf8" fill-opacity="0.18"/>
+      <text x="240" y="21" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#38bdf8">REMOTO / VIRTUAL</text>
+    </g>
+
+    <!-- Title & Platform -->
+    <text x="28" y="100" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="900" fill="#ffffff">
+      Teleterapia & Plataforma Virtual
+    </text>
+    <text x="28" y="128" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#94a3b8">
+      💻 Desde tu hogar con laptop o PC mediante Zoom, Google Meet y Aula KJA
+    </text>
+
+    <!-- 3 Feature Chips -->
+    <g transform="translate(28, 154)">
+      <!-- Chip 1 -->
+      <g transform="translate(0, 0)">
+        <rect width="236" height="110" rx="16" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1.2"/>
+        <text x="16" y="32" font-size="20">🌐</text>
+        <text x="44" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#ffffff">Acceso Nacional</text>
+        <text x="16" y="60" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">Postula desde cualquier</text>
+        <text x="16" y="78" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">departamento del Perú</text>
+        <text x="16" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">con total validez.</text>
+      </g>
+
+      <!-- Chip 2 -->
+      <g transform="translate(254, 0)">
+        <rect width="236" height="110" rx="16" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1.2"/>
+        <text x="16" y="32" font-size="20">📊</text>
+        <text x="44" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#ffffff">Sesiones & Talleres</text>
+        <text x="16" y="60" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">Atenciones virtuales,</text>
+        <text x="16" y="78" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">talleres comunitarios</text>
+        <text x="16" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">y orientación online.</text>
+      </g>
+
+      <!-- Chip 3 -->
+      <g transform="translate(508, 0)">
+        <rect width="236" height="110" rx="16" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1.2"/>
+        <text x="16" y="32" font-size="20">🎯</text>
+        <text x="44" y="32" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#ffffff">Ateneos por Zoom</text>
+        <text x="16" y="60" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">Reuniones de caso clínico</text>
+        <text x="16" y="78" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">y capacitaciones semanales</text>
+        <text x="16" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#94a3b8">en vivo con el equipo.</text>
+      </g>
+    </g>
+
+    <!-- Bottom verification pill -->
+    <g transform="translate(28, 290)">
+      <rect width="752" height="48" rx="14" fill="#38bdf8" fill-opacity="0.1" stroke="#38bdf8" stroke-opacity="0.25" stroke-width="1"/>
+      <text x="24" y="30" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#38bdf8">
+        ✓ Cero tiempo en traslados y máximo aprendizaje con seguimiento continuo en tiempo real.
+      </text>
+    </g>
+  </g>
+
+  <!-- Bottom Global Indicator -->
+  <g transform="translate(60, 930)">
+    <text x="404" y="24" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#94a3b8">
+      Podrás seleccionar tu modalidad preferida en el Paso 2 del formulario.
+    </text>
+  </g>
+</svg>
