@@ -1132,9 +1132,7 @@ async function openPortal(activeSession,bootstrap=null){
     $('admin-nav-divider').hidden=true;
     if($('nav-reclutamiento')) $('nav-reclutamiento').hidden=true;
   }
-  const canRecruit=APP.access.acceso_panel&&APP.access.rol==='direccion';
-  ['mobile-action-reclutamiento','admin-recruitment-tab','admin-recruitment-module'].forEach(id=>{if($(id))$(id).hidden=!canRecruit;});
-  if(canRecruit)void window.kjaRecruitment?.refresh?.();
+  syncRecruitmentNavigation();
   $('mobile-action-team').hidden=!APP.identity.isLeader;
   $('mobile-action-admin').hidden=!APP.access.acceso_panel;
   syncMobileQuickGrid();
@@ -3405,6 +3403,13 @@ async function saveAdminState(personId,state,remove){
   }finally{
     if(APP.adminList?.puede_editar)document.querySelectorAll('.admin-state-btn').forEach(b=>b.disabled=false);
   }
+}
+
+function syncRecruitmentNavigation(){
+  const canRecruit=APP.access.acceso_panel&&APP.access.rol==='direccion';
+  ['nav-reclutamiento','mobile-action-reclutamiento','admin-recruitment-tab','admin-recruitment-module'].forEach(id=>{if($(id))$(id).hidden=!canRecruit;});
+  if(canRecruit)void window.kjaRecruitment?.refresh?.();
+  else window.kjaRecruitment?.clear?.();
 }
 
 function goView(view){
