@@ -41,6 +41,11 @@ html.rec-status-open{overflow:hidden!important}
 .rec-status-submit{width:100%;min-height:52px;margin-top:16px;padding:12px 20px;border:1px solid transparent;border-radius:50px;background:#d00068;color:#fff;font:600 15px 'Poppins',sans-serif;cursor:pointer}
 .rec-status-submit:disabled{opacity:.65;cursor:wait}
 .rec-status-feedback{margin:16px 0 0;color:#50555c}
+.rec-status-loading{display:flex;align-items:center;gap:14px;margin-top:20px;padding:16px;border:1px solid #f3d9e5;border-radius:16px;background:#fff6fa;color:#89234e}
+.rec-status-loading[hidden]{display:none}
+.rec-status-loading strong{display:block;font-size:13px;line-height:1.5;font-weight:600}
+.rec-status-loading p{margin:4px 0 0;color:#6c5861;font-size:12px;line-height:1.6}
+.rec-status-spinner{display:block;flex:0 0 28px;width:28px;height:28px;border:3px solid #efd2e0;border-top-color:#d00068;border-right-color:#d00068;border-radius:50%;box-sizing:border-box}
 .rec-status-feedback:empty,.rec-status-error:empty{display:none}
 .rec-status-result{margin-top:24px;padding-top:24px;border-top:1px solid #e3e8ee}
 .rec-status-result[hidden]{display:none}
@@ -54,6 +59,7 @@ html.rec-status-open{overflow:hidden!important}
 .rec-status-dialog :is(button,input,select):focus-visible,.rec-status-result:focus-visible,.rec-reference-hero .status-link:focus-visible{outline:3px solid #075abc;outline-offset:4px}
 @media(hover:hover){.rec-reference-hero .status-link:hover{background:#fff0f7}.rec-status-submit:not(:disabled):hover{background:#b60058}.rec-status-close:hover{background:#e3e8ee;color:#15243a}}
 @media(prefers-reduced-motion:no-preference){
+  .rec-status-spinner{animation:rec-status-spin 900ms linear infinite}
   .rec-status-submit,.rec-reference-hero .status-link,.rec-status-close{transition:transform 150ms ease-out,background-color 150ms ease-out}
   .rec-status-submit:not(:disabled):active,.rec-reference-hero .status-link:active,.rec-status-close:active{transform:scale(.96)}
   .rec-mascot-character,.rec-mascot-loupe,.rec-mascot-check{transition:transform 300ms cubic-bezier(.2,0,0,1),opacity 300ms cubic-bezier(.2,0,0,1)}
@@ -64,6 +70,7 @@ html.rec-status-open{overflow:hidden!important}
   @starting-style{.rec-status-dialog[open]{opacity:0;transform:translateY(12px)}.rec-status-dialog[open]::backdrop{background:transparent;backdrop-filter:blur(0)}}
   @media(hover:hover){.rec-status-mascot:hover .rec-mascot-character{transform:translateY(-4px) rotate(-8deg)}}
 }
+@keyframes rec-status-spin{to{transform:rotate(360deg)}}
 .rec-status-card input:focus-visible{border-color:#d00068;box-shadow:0 0 0 4px #ef0b7210}
 @media(prefers-reduced-motion:reduce){.rec-mascot-character,.rec-mascot-eyes,.rec-mascot-loupe,.rec-mascot-check{transform:none!important;transition:opacity 150ms ease-out}}
 @media(max-width:480px){.rec-status-dialog{max-height:calc(100svh - 24px);border-radius:20px}.rec-status-card{padding:24px}.rec-status-card h2{font-size:21px}.rec-reference-hero .hero-actions{align-items:stretch}.rec-reference-hero .status-link{font-size:14px}.rec-status-dates{grid-template-columns:1fr;gap:12px}}

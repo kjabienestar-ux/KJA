@@ -8,6 +8,14 @@
   const error = document.getElementById('rec-status-error');
   const feedback = document.getElementById('rec-status-feedback');
   const result = document.getElementById('rec-status-result');
+  const loading = document.getElementById('rec-status-loading');
+  const waitMessage = document.getElementById('rec-status-wait-message');
+  let waitTimer;
+  const stopWaiting = () => {
+    clearTimeout(waitTimer);
+    waitTimer = undefined;
+    loading.hidden = true;
+  };
   const companion = dialog.querySelector('[data-companion-state]');
   const companionMessage = document.getElementById('rec-mascot-message');
   const companionState = (state, message) => {
@@ -18,6 +26,7 @@
   let opener;
   const reset = () => {
     requestVersion++;
+    stopWaiting();
     form.reset();
     input.readOnly = false;
     input.removeAttribute('aria-invalid');
@@ -99,9 +108,15 @@
     input.readOnly = true;
     form.setAttribute('aria-busy', 'true');
     button.textContent = 'Consultando…';
-    feedback.textContent = 'Buscando tu postulación…';
+    feedback.textContent = '';
     companionState('searching', 'Buscando tu postulación…');
     const version = ++requestVersion;
+    loading.hidden = false;
+    waitMessage.textContent = 'Espera un momento, estamos buscando tu estado.';
+    waitTimer = setTimeout(() => {
+      if (version !== requestVersion || !dialog.open) return;
+      waitMessage.textContent = 'Está tardando un poco más de lo habitual. Puedes esperar o cerrar esta ventana y volver a intentarlo.';
+    }, 12000);
     try {
       const data = await window.KJARecruitmentAPI.status(dni);
       if (version !== requestVersion || !dialog.open) return;
@@ -129,6 +144,7 @@
         : window.KJARecruitmentAPI.message(err);
     } finally {
       if (version !== requestVersion) return;
+      stopWaiting();
       button.disabled = false;
       input.readOnly = false;
       form.removeAttribute('aria-busy');

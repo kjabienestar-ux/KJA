@@ -35,6 +35,10 @@ Para habilitarla, aplicar [reclutamiento_03_consulta_estado.sql](../supabase/rec
 
 `rec_consultar_estado(text)` admite visitantes y cuentas autenticadas; valida el DNI en el servidor y devuelve exclusivamente `estado`, `created_at` y `updated_at`, o `null` si no hay coincidencia. Conserva RLS y la prohibición de lectura directa de expedientes/CV. No revela nombre, código, teléfono, correo, agenda ni notas internas. La consulta por DNI permite conocer estos tres campos a quien conozca ese documento; el DNI no autentica al postulante. No se guarda en URL, localStorage ni sessionStorage. Consultar `tests/reclutamiento-estado.test.mjs` para la verificación funcional y de permisos.
 
+Comprobación remota del 21 de octubre de 2026: una llamada de lectura a `rec_consultar_estado` con DNI vacío devolvió HTTP 404 / `PGRST202` (función no encontrada en la caché de esquema). Esto confirma la falta de disponibilidad de la función para el cliente público; aplicar la migración 03 y comprobar su exposición. No se consultaron expedientes ni se aplicaron migraciones en esa comprobación.
+
+Durante la consulta, el modal muestra un círculo de carga indeterminado y texto de espera accesible. A los 12 segundos avisa que está tardando más, sin reenviar la petición ni inventar un porcentaje. El cierre y la respuesta del servidor retiran el indicador y limpian el temporizador. La rotación respeta movimiento reducido.
+
 ## Datos y permisos
 
 `rec_postulaciones` guarda datos declarados, código, estado, notas y versión. `rec_curriculos` conserva el CV binario en privado; no se descarga en los listados. Ambos se guardan en una sola transacción.
