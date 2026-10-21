@@ -1,5 +1,7 @@
 /* KJA · Fase 4 — Libro mensual y resumen administrativo. */
 let ADMIN_MONTH_DIALOG=null;
+let ADMIN_MONTH_LOAD=null;
+const ADMIN_MONTH_TIMEOUT_MS=20000;
 let ADMIN_MONTH_AREA_TYPEAHEAD='';
 let ADMIN_MONTH_AREA_TYPEAHEAD_TIMER=null;
 
@@ -118,31 +120,70 @@ function mergeAdminMonthClosures(data,closeData){
 
 async function loadAdminMonth(force=false){
   if(!APP.access.acceso_panel)return;
-  closeAdminPersonCalendar();
   const prefix=activeMonthPrefix(),value=currentMonthValue();syncMonthInputs(value);
   const include=$(`${prefix}-inactive`).checked,key=`${value}|${include}`;
-  if(!force&&APP.adminMonth&&APP.adminMonthKey===key){renderAdminMonthViews();return true}
+  if(!force&&ADMIN_MONTH_LOAD?.key===key)return ADMIN_MONTH_LOAD.promise;
+  if(!force&&!ADMIN_MONTH_LOAD&&APP.adminMonth&&APP.adminMonthKey===key){renderAdminMonthViews();return true}
+  ADMIN_MONTH_LOAD?.controller.abort();
+  const state={key,controller:new AbortController(),promise:null};
+  ADMIN_MONTH_LOAD=state;
+  state.promise=fetchAdminMonth(value,include,key,state.controller).finally(()=>{
+    if(ADMIN_MONTH_LOAD===state)ADMIN_MONTH_LOAD=null;
+  });
+  return state.promise;
+}
+
+async function fetchAdminMonth(value,include,key,controller){
+  closeAdminPersonCalendar();
   const [year,month]=value.split('-').map(Number),request=++APP.adminMonthRequest,button=$('admin-refresh');
-  button.disabled=true;monthMessage('');
   const target=APP.adminSection==='resumen'?'admin-summary-table':'admin-month-ledger';
+  button.disabled=true;monthMessage('');
   $(target).innerHTML='<p class="admin-empty">Preparando el mes completo…</p>';
-  const [{data,error},{data:closeData,error:closeError}]=await Promise.all([
-    db.rpc('dash_admin_mes',{p_anio:year,p_mes:month,p_incluir_inactivos:include}),
-    db.rpc('dash_admin_cierres_mes',{p_anio:year,p_mes:month})
-  ]);
-  if(request!==APP.adminMonthRequest)return;
-  button.disabled=false;
-  if(error||!data?.ok||closeError||!closeData?.ok){
+  let timer;
+  const cancelled=new Promise((resolve,reject)=>{
+    controller.signal.addEventListener('abort',()=>reject(new Error('La consulta del mes tardó demasiado. Vuelve a intentarlo.')),{once:true});
+    timer=setTimeout(()=>controller.abort(),ADMIN_MONTH_TIMEOUT_MS);
+  });
+  try{
+    const [{data,error},{data:closeData,error:closeError}]=await Promise.race([
+      Promise.all([
+        db.rpc('dash_admin_mes',{p_anio:year,p_mes:month,p_incluir_inactivos:include}).abortSignal(controller.signal),
+        db.rpc('dash_admin_cierres_mes',{p_anio:year,p_mes:month}).abortSignal(controller.signal)
+      ]),cancelled
+    ]);
+    if(request!==APP.adminMonthRequest)return;
+    if(error||!data?.ok||closeError||!closeData?.ok){
+      const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_mes'));
+      throw new Error(missing?'La fase 4 todavía no está instalada en Supabase. Ejecuta dashboard_07_admin_mes.sql.':'No se pudo cargar el mes completo ni verificar sus cierres. Actualiza e inténtalo nuevamente.');
+    }
+    mergeAdminMonthClosures(data,closeData);
+    APP.adminMonth=data;APP.adminMonthKey=key;fillMonthFilters();renderAdminMonthViews();
+    // Las fotos son opcionales: nunca bloquean la tabla ni sus estados de cierre.
+    void hydrateAdminMonthPhotos(data,request);
+    return true;
+  }catch(error){
+    if(request!==APP.adminMonthRequest)return;
     APP.adminMonth=null;APP.adminMonthKey='';
-    const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_mes'));
-    monthMessage(missing?'La fase 4 todavía no está instalada en Supabase. Ejecuta dashboard_07_admin_mes.sql.':'No se pudo cargar el mes completo ni verificar sus cierres. Actualiza e inténtalo nuevamente.');
-    $(target).innerHTML='<p class="admin-empty">La información mensual no está disponible.</p>';return false;
+    monthMessage(error?.message||'No se pudo cargar el mes completo. Vuelve a intentarlo.');
+    $(target).innerHTML='<p class="admin-empty">La información mensual no está disponible.</p>';
+    return false;
+  }finally{
+    clearTimeout(timer);
+    if(request===APP.adminMonthRequest)button.disabled=false;
   }
-  mergeAdminMonthClosures(data,closeData);
-  data.personas=await hydrateProfilePhotos(data.personas||[]);
-  if(request!==APP.adminMonthRequest)return;
-  APP.adminMonth=data;APP.adminMonthKey=key;fillMonthFilters();renderAdminMonthViews();
-  return true;
+}
+
+async function hydrateAdminMonthPhotos(data,request){
+  try{
+    const people=await hydrateProfilePhotos(data.personas||[]);
+    if(request!==APP.adminMonthRequest||APP.adminMonth!==data)return;
+    data.personas=people;
+    const byId=new Map(people.map(person=>[String(person.id),person]));
+    document.querySelectorAll('[data-month-photo-person]').forEach(node=>{
+      const person=byId.get(node.dataset.monthPhotoPerson),avatar=node.querySelector('.avatar');
+      if(person&&avatar)avatar.outerHTML=profileAvatarMarkup(person,avatar.tagName.toLowerCase());
+    });
+  }catch{}
 }
 
 function renderAdminMonthViews(){
@@ -190,7 +231,7 @@ function renderAdminMonthLedger(){
   let currentArea='';
   for(const person of people){
     if(person.area!==currentArea){currentArea=person.area;html+=`<tr class="admin-month-area-row"><td colspan="${sample.length+1}"><span class="admin-month-area-sticky"><i></i><b>${esc(currentArea||'Sin área')}</b><span>${people.filter(x=>x.area===currentArea).length}</span></span></td></tr>`}
-    html+=`<tr><th class="person-col" scope="row"><div class="admin-month-person">${profileAvatarMarkup(person)}<div class="admin-month-person-info"><b>${esc(person.nombre)}</b><small class="admin-month-person-status ${person.activo?'is-active':'is-inactive'}">${person.activo?'Activo':'Dado de baja'}</small></div><button type="button" class="admin-month-person-calendar" data-person-calendar="${person.id}" aria-label="Ver calendario y evidencias de ${esc(person.nombre)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 11h18M8 15h2M14 15h2"/></svg><span>Ver calendario y evidencias</span><svg class="admin-month-person-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div></th>`;
+    html+=`<tr><th class="person-col" scope="row"><div class="admin-month-person" data-month-photo-person="${person.id}">${profileAvatarMarkup(person)}<div class="admin-month-person-info"><b>${esc(person.nombre)}</b><small class="admin-month-person-status ${person.activo?'is-active':'is-inactive'}">${person.activo?'Activo':'Dado de baja'}</small></div><button type="button" class="admin-month-person-calendar" data-person-calendar="${person.id}" aria-label="Ver calendario y evidencias de ${esc(person.nombre)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 11h18M8 15h2M14 15h2"/></svg><span>Ver calendario y evidencias</span><svg class="admin-month-person-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div></th>`;
     for(const day of person.dias||[]){
       const content=day.dia_libre?'DL':day.cierre_estado==='incompleta'?'INC':day.cierre_estado==='en_curso'?'…':day.estado||(!day.laborable?'—':'·'),detail=`${person.nombre} · ${day.fecha} · ${day.dia_libre?'Día libre asignado':day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada, cierre pendiente':day.estado?statusText(day.estado):day.laborable?'Sin registro':day.motivo}`;
       html+=`<td><button type="button" class="${monthCellClass(day)}" data-month-person="${person.id}" data-month-date="${day.fecha}" aria-label="${esc(detail)}"><b>${content}</b>${day.nota?'<i class="note"></i>':''}${day.evidencia?'<i class="camera"></i>':''}</button></td>`;
@@ -226,7 +267,7 @@ function renderAdminMonthSummary(){
   for(const person of people){
     const r=person.resumen||{},pct=r.porcentaje==null?null:Number(r.porcentaje),bar=pct==null?0:pct;
     html+=`<article class="admin-summary-row ${person.activo?'':'inactive'}">
-      <span class="admin-summary-person">${profileAvatarMarkup(person,'i')}<span><b>${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')} · ${person.activo?'Activo':'Dado de baja'}</small></span></span>
+      <span class="admin-summary-person" data-month-photo-person="${person.id}">${profileAvatarMarkup(person,'i')}<span><b>${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')} · ${person.activo?'Activo':'Dado de baja'}</small></span></span>
       <span class="admin-summary-states"><i class="p">P <b>${r.P||0}</b></i><i class="t">T <b>${r.T||0}</b></i><i class="j">J <b>${r.J||0}</b></i><i class="ng">NG <b>${r.NG||0}</b></i><i class="incomplete">INC <b>${r.incompletas||0}</b></i></span>
       <span><b>${r.programados||0}</b><small>${r.programados_transcurridos||0} transcurridos</small></span>
       <span class="${Number(r.pendientes)>0?'needs-review':''}"><b>${r.pendientes||0}</b><small>a la fecha</small></span>
