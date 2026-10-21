@@ -6,15 +6,20 @@
  const labels={on:'Encendida',off:'Apagada',unknown:'Sin información'};
  function identity(p){const key=p.participantUUID||p.persistentID;const id=p.userId??p.participantId;return key?'uuid:'+key:id!==undefined&&id!==null?'user:'+id:'';}
  function roomVisibility(status,raw,currentRoom){
-  const rooms=raw?.result??raw;
-  if(!rooms||!Array.isArray(rooms.rooms)||!Array.isArray(rooms.unassigned))return {scope:'unknown',visibleIds:[]};
+  const data=raw?.result??raw;
+  if(!data)return {scope:'unknown',visibleIds:[]};
+  const rooms=Array.isArray(data)?data:Array.isArray(data.rooms)?data.rooms:Array.isArray(data.result)?data.result:[];
+  const unassigned=Array.isArray(data.unassigned)?data.unassigned:[];
+  if(!rooms.length&&!unassigned.length)return {scope:'unknown',visibleIds:[]};
   if(status==='in room'){
-   const room=rooms.rooms.find(r=>r.boId===(currentRoom?.result??currentRoom)?.roomId);
-   return {scope:'local',visibleIds:(room?.participants||[]).filter(p=>p.participantStatus==='joined').map(identity).filter(Boolean)};
+   const currentId=(currentRoom?.result??currentRoom)?.roomId??(currentRoom?.result??currentRoom)?.boId;
+   const room=rooms.find(r=>(r.boId||r.roomId||r.id)===currentId);
+   if(!room)return {scope:'unknown',visibleIds:[]};
+   return {scope:'local',visibleIds:(room.participants||[]).filter(p=>p.participantStatus==='joined').map(identity).filter(Boolean)};
   }
   if(!['initial','be invited','not joined','return main session'].includes(status))return {scope:'unknown',visibleIds:[]};
-  const visible=[...rooms.unassigned,...rooms.rooms.flatMap(r=>(r.participants||[]).filter(p=>p.participantStatus==='assigned'))];
-  const remote=new Set(rooms.rooms.flatMap(r=>(r.participants||[]).filter(p=>p.participantStatus==='joined').map(identity)));
+  const visible=[...unassigned,...rooms.flatMap(r=>(r.participants||[]).filter(p=>p.participantStatus==='assigned'))];
+  const remote=new Set(rooms.flatMap(r=>(r.participants||[]).filter(p=>p.participantStatus==='joined').map(identity)));
   return {scope:'local',visibleIds:visible.map(identity).filter(id=>id&&!remote.has(id))};
  }
  function roster(raw,scope='main'){
@@ -25,7 +30,9 @@
    // Persistent IDs survive renames. Never merge people by their display name.
    const id=identity(p);
    const observable=scope==='main'||scope?.scope==='local'&&scope.visibleIds?.includes(id);
-   const video=p.video===true||p.video===1?'on':p.video===false||p.video===0?'off':'unknown';
+   const isVideoOn=p.video===true||p.video===1||p.bVideoOn===true||p.bVideoOn===1;
+   const isVideoOff=p.video===false||p.video===0||p.bVideoOn===false||p.bVideoOn===0;
+   const video=isVideoOn?'on':isVideoOff?'off':'unknown';
    const state=observable?video:'unknown';
    return {id:id.slice(0,160),name:String(p.userName||'Participante sin nombre').slice(0,256),state};
   }).filter(p=>{if(!p.id||seen.has(p.id))return false;seen.add(p.id);return true;});

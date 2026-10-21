@@ -82,16 +82,18 @@
  }
  async function cameraScope(){
  try{
- const raw=await call('getBreakoutRoomStatus');
- const value=typeof raw==='number'?raw:raw?.result?.status??raw?.status??raw?.result;
- if([1,4].includes(value))return 'main';
- if(![2,3].includes(value))return 'unknown';
- const local=await call('getUserStatus');
- const status=typeof local==='string'?local:local?.result?.status??local?.status;
- const rooms=await call('getBreakoutRooms');
- const current=status==='in room'?await call('getCurrentBreakoutRoom'):null;
- return window.KJAZoomCameraModel.roomVisibility(status,rooms,current);
- }catch{return 'unknown';}
+  let raw;
+  try{raw=await call('getBreakoutRoomStatus');}catch{return 'unknown';}
+  const value=typeof raw==='number'?raw:raw?.result?.status??raw?.status??raw?.result;
+  if([1,4].includes(value))return 'main';
+  if(![2,3].includes(value))return 'unknown';
+  let local=null,rooms=null;
+  try{[local,rooms]=await Promise.all([call('getUserStatus'),call('getBreakoutRooms')]);}catch{return {scope:'unknown',visibleIds:[]};}
+  const status=typeof local==='string'?local:local?.result?.status??local?.status;
+  let current=null;
+  if(status==='in room'){try{current=await call('getCurrentBreakoutRoom');}catch{current=null;}}
+  return window.KJAZoomCameraModel.roomVisibility(status,rooms,current);
+ }catch{return {scope:'unknown',visibleIds:[]};}
  }
  async function refreshRooms(){
  if(checking)return;checking=true;

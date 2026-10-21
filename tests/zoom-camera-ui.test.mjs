@@ -111,3 +111,111 @@ test('report refreshes live data without leaving its page and stops refreshing a
  Object.defineProperty(h.w.document,'hidden',{configurable:true,value:true});for(const interval of h.intervals.values())interval.fn();await tick();assert.equal(count,2);
  report.close();assert.equal(h.intervals.size,0);
 });
+
+test('report supports searching by name/ID, filtering by compliance/state, and resetting filters',async t=>{
+ const h=setup();t.after(()=>h.dom.window.close());
+ const samplePeople=[
+  {id:'user:1',name:'Ana Lopez',first_seen:'2026-10-21T12:00:00Z',last_seen:'2026-10-21T12:05:00Z',state:'on',on_seconds:240,off_seconds:60,unknown_seconds:0,percentage:80.0},
+  {id:'uuid:xyz-2',name:'Carlos Perez',first_seen:'2026-10-21T12:00:00Z',last_seen:'2026-10-21T12:05:00Z',state:'off',on_seconds:30,off_seconds:270,unknown_seconds:0,percentage:10.0},
+  {id:'user:3',name:'Beatriz Diaz',first_seen:'2026-10-21T12:00:00Z',last_seen:'2026-10-21T12:05:00Z',state:'unknown',on_seconds:0,off_seconds:0,unknown_seconds:300,percentage:null}
+ ];
+ h.setRespond(()=>({data:{ok:true,sessions:[{id:'s1',started_at:'2026-10-21T12:00:00Z'}],session:{id:'s1',started_at:'2026-10-21T12:00:00Z',last_seen_at:'2026-10-21T12:05:00Z'},now:'2026-10-21T12:05:00Z',people:samplePeople}}));
+ const host=h.w.document.getElementById('report'),report=h.w.KJAZoomCameraReport.mount(host,h.db);
+ await report.open({id:'m1',topic:'Reunión de prueba'});
+ assert.equal(host.querySelectorAll('tbody tr').length,3);
+ assert.match(host.querySelector('[data-report-count]').textContent,/3 participantes en esta sesión/);
+
+ const search=host.querySelector('[data-report-search]');
+ search.value='carlos';search.oninput();
+ assert.equal(host.querySelectorAll('tbody tr').length,1);
+ assert.match(host.querySelector('tbody').textContent,/Carlos Perez/);
+ assert.match(host.querySelector('[data-report-count]').textContent,/Mostrando 1 de 3/);
+
+ search.value='xyz-2';search.oninput();
+ assert.equal(host.querySelectorAll('tbody tr').length,1);
+
+ search.value='';search.oninput();
+ assert.equal(host.querySelectorAll('tbody tr').length,3);
+
+ const filter=host.querySelector('[data-report-filter]');
+ filter.value='high';filter.onchange();
+ assert.equal(host.querySelectorAll('tbody tr').length,1);
+ assert.match(host.querySelector('tbody').textContent,/Ana Lopez/);
+
+ filter.value='low';filter.onchange();
+ assert.equal(host.querySelectorAll('tbody tr').length,1);
+ assert.match(host.querySelector('tbody').textContent,/Carlos Perez/);
+
+ filter.value='on';filter.onchange();
+ assert.equal(host.querySelectorAll('tbody tr').length,1);
+ assert.match(host.querySelector('tbody').textContent,/Ana Lopez/);
+
+ filter.value='unknown';filter.onchange();
+ assert.equal(host.querySelectorAll('tbody tr').length,1);
+ assert.match(host.querySelector('tbody').textContent,/Beatriz Diaz/);
+
+ search.value='NoExiste';search.oninput();
+ assert.equal(host.querySelectorAll('tbody tr').length,0);
+ assert.match(host.textContent,/Ningún participante coincide/);
+ host.querySelector('[data-report-clear-filter]').click();
+ assert.equal(host.querySelectorAll('tbody tr').length,3);
+ assert.equal(search.value,'');
+ assert.equal(filter.value,'all');
+ report.close();
+});
+
+test('report sorts columns dynamically in ascending and descending orders with correct aria-sort',async t=>{
+ const h=setup();t.after(()=>h.dom.window.close());
+ const samplePeople=[
+  {id:'user:1',name:'Zoe Ramos',first_seen:'2026-10-21T12:00:00Z',last_seen:'2026-10-21T12:05:00Z',state:'off',on_seconds:10,off_seconds:100,unknown_seconds:0,percentage:9.1},
+  {id:'user:2',name:'Alberto Soto',first_seen:'2026-10-21T12:01:00Z',last_seen:'2026-10-21T12:04:00Z',state:'on',on_seconds:200,off_seconds:20,unknown_seconds:0,percentage:90.9}
+ ];
+ h.setRespond(()=>({data:{ok:true,sessions:[{id:'s1',started_at:'2026-10-21T12:00:00Z'}],session:{id:'s1',started_at:'2026-10-21T12:00:00Z',last_seen_at:'2026-10-21T12:05:00Z'},now:'2026-10-21T12:05:00Z',people:samplePeople}}));
+ const host=h.w.document.getElementById('report'),report=h.w.KJAZoomCameraReport.mount(host,h.db);
+ await report.open({id:'m1',topic:'Reunión de prueba'});
+
+ const getNames=()=>Array.from(host.querySelectorAll('tbody tr th strong')).map(el=>el.textContent);
+ assert.deepEqual(getNames(),['Alberto Soto','Zoe Ramos']);
+
+ const nameHeader=host.querySelector('th[aria-sort]');
+ assert.equal(nameHeader.getAttribute('aria-sort'),'ascending');
+
+ const nameBtn=host.querySelector('button[data-sort="name"]');
+ nameBtn.click();
+ assert.deepEqual(getNames(),['Zoe Ramos','Alberto Soto']);
+ assert.equal(host.querySelector('button[data-sort="name"]').closest('th').getAttribute('aria-sort'),'descending');
+
+ const pctBtn=host.querySelector('button[data-sort="percentage"]');
+ pctBtn.click();
+ assert.deepEqual(getNames(),['Alberto Soto','Zoe Ramos']);
+ assert.equal(host.querySelector('button[data-sort="percentage"]').closest('th').getAttribute('aria-sort'),'descending');
+
+ host.querySelector('button[data-sort="percentage"]').click();
+ assert.deepEqual(getNames(),['Zoe Ramos','Alberto Soto']);
+ assert.equal(host.querySelector('button[data-sort="percentage"]').closest('th').getAttribute('aria-sort'),'ascending');
+
+ report.close();
+});
+
+test('search query and filter preferences are preserved on silent auto-refresh',async t=>{
+ const h=setup();t.after(()=>h.dom.window.close());let callCount=0;
+ const samplePeople=[
+  {id:'user:1',name:'Ana Lopez',first_seen:'2026-10-21T12:00:00Z',last_seen:'2026-10-21T12:05:00Z',state:'on',on_seconds:240,off_seconds:60,unknown_seconds:0,percentage:80.0},
+  {id:'user:2',name:'Carlos Perez',first_seen:'2026-10-21T12:00:00Z',last_seen:'2026-10-21T12:05:00Z',state:'off',on_seconds:30,off_seconds:270,unknown_seconds:0,percentage:10.0}
+ ];
+ h.setRespond(()=>({data:{ok:true,sessions:[{id:'s1',started_at:'2026-10-21T12:00:00Z'}],session:{id:'s1',started_at:'2026-10-21T12:00:00Z',last_seen_at:'2026-10-21T12:05:00Z'},now:'2026-10-21T12:05:00Z',people:samplePeople,count:++callCount}}));
+ const host=h.w.document.getElementById('report'),report=h.w.KJAZoomCameraReport.mount(host,h.db);
+ await report.open({id:'m1',topic:'Reunión de prueba'});
+
+ const search=host.querySelector('[data-report-search]');
+ search.value='carlos';search.oninput();
+ assert.equal(host.querySelectorAll('tbody tr').length,1);
+
+ for(const interval of h.intervals.values())interval.fn();await tick();
+ assert.equal(callCount,2);
+ assert.equal(host.querySelectorAll('tbody tr').length,1);
+ assert.match(host.querySelector('tbody').textContent,/Carlos Perez/);
+ assert.equal(search.value,'carlos');
+
+ report.close();
+});

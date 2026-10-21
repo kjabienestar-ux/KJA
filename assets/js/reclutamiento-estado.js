@@ -36,6 +36,8 @@
     error.textContent = '';
     feedback.textContent = '';
     result.hidden = true;
+    delete dialog.dataset.view;
+    delete result.dataset.status;
     companionState('idle', 'Vamos paso a paso.');
     companion.style.removeProperty('--rec-eye-x');
     result.querySelectorAll('strong,dd,#rec-status-description').forEach(node => { node.textContent = ''; });
@@ -75,11 +77,23 @@
       ? new Intl.DateTimeFormat('es-PE', { dateStyle: 'long', timeZone: 'America/Lima' }).format(parsed)
       : 'No disponible';
   };
+  const followUp = {
+    'Pendiente': ['pending', '¿Qué sigue?', 'Nuestro equipo debe revisar tu postulación. Puedes volver a consultar aquí para conocer cualquier cambio.'],
+    'En revisión': ['review', 'Tu postulación está siendo evaluada', 'Por ahora, mantente atento a los canales de contacto que registraste. El estado se actualizará cuando haya novedades.'],
+    'Entrevista': ['interview', 'Revisa la coordinación de tu entrevista', 'Consulta el correo y teléfono que registraste para conocer los detalles. Este estado no confirma una fecha ni una reserva.'],
+    'Aprobado': ['approved', 'Prepárate para los siguientes pasos', 'El equipo coordinará contigo a través de los canales de contacto que registraste.'],
+    'No seleccionado': ['closed', 'Esta postulación ha finalizado', 'Gracias por tu interés en KJA. Puedes revisar la convocatoria para conocer las oportunidades disponibles.']
+  };
+  const clearResult = () => {
+    result.hidden = true;
+    delete dialog.dataset.view;
+    delete result.dataset.status;
+  };
   input.addEventListener('input', () => {
     input.removeAttribute('aria-invalid');
     error.textContent = '';
     feedback.textContent = '';
-    result.hidden = true;
+    clearResult();
     companionState('typing', 'Cuando quieras, consultamos.');
     companion.style.setProperty('--rec-eye-x', `${Math.min(input.value.length, 8) * .5 - 2}px`);
   });
@@ -92,7 +106,7 @@
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (button.disabled || !dialog.open) return;
-    result.hidden = true;
+    clearResult();
     error.textContent = '';
     feedback.textContent = '';
     const dni = input.value.trim();
@@ -130,6 +144,11 @@
       document.getElementById('rec-status-description').textContent = descriptions[data.estado];
       document.getElementById('rec-status-created').textContent = date(data.created_at);
       document.getElementById('rec-status-updated').textContent = date(data.updated_at);
+      const [theme, title, next] = followUp[data.estado];
+      result.dataset.status = theme;
+      document.getElementById('rec-status-next-title').textContent = title;
+      document.getElementById('rec-status-next-description').textContent = next;
+      dialog.dataset.view = 'result';
       result.hidden = false;
       companionState('ready', 'Tu consulta está lista.');
       feedback.textContent = 'Consulta completada.';

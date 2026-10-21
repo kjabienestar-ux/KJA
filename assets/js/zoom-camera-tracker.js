@@ -93,6 +93,7 @@
   root.addEventListener('offline',()=>{generation++;online=false;if(running)invalidate('Sin conexión. Cámaras sin información.');});
   root.addEventListener('online',()=>{online=true;if(running)schedule();});
   root.addEventListener('pagehide',()=>{void stop();});
+  root.addEventListener('beforeunload',()=>{void stop();});
   return {bind,start,stop,refresh:schedule};
  }
  root.KJAZoomCameraTracker={create,rpc};

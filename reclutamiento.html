@@ -30,14 +30,26 @@
   <script defer src="assets/js/home-navigation.js?v=20261020-6"></script>
   <script defer src="assets/js/reclutamiento-api.js?v=2"></script>
   <script defer src="assets/js/reclutamiento.js?v=20261022"></script>
-  <script defer src="assets/js/reclutamiento-estado.js?v=4"></script>
+  <script defer src="assets/js/reclutamiento-estado.js?v=6"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@1&display=swap" rel="stylesheet" />
   <link rel="preload" as="image" href="images/reclutamiento/entrevista.webp" />
-  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-portada.css?v=20261021-4" />
+  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-portada.css?v=20261021-compact" />
     <link rel="stylesheet" href="assets/css/site-navigation.css?v=20261021-published">
-  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-estado.css?v=4" />
+  <link rel="stylesheet" href="assets/css/paginas/reclutamiento-estado.css?v=6" />
+  <script defer src="assets/js/page-splash.js?v=1"></script>
+  <noscript><style>.kja-splash{display:none!important}</style></noscript>
 </head>
 <body class="rec-page">
+  <div id="kjaSplash" class="kja-splash" role="status" aria-live="polite" aria-label="Cargando, por favor espera">
+    <div class="kja-splash-inner">
+      <div class="kja-splash-badge">
+        <img src="images/logo/logo-160.webp" alt="KJA" class="kja-splash-logo" width="80" height="80" />
+      </div>
+      <p class="kja-splash-text">Cargando<span class="kja-splash-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></p>
+    </div>
+  </div>
+
+
 
   <!-- ===== DRAWER DE NAVEGACIÓN MÓVIL (IDÉNTICO A TERAPIA) ===== -->
   <aside id="kja-mobile-drawer" class="kja-mobile-drawer" aria-hidden="true" inert aria-label="Menú principal">
@@ -142,9 +154,8 @@
         <symbol id="icon-team" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3H3ZM16 4a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v2h-3"/></symbol>
     </svg>
         <div class="hero-content" aria-labelledby="recruitment-title">
-            <p class="recruitment-label"><span aria-hidden="true"></span>Reclutamiento · KJA</p>
-            <h1 id="recruitment-title">Crece con<br>nosotros.<em>Transforma vidas.</em></h1>
-            <p class="hero-description">Da el siguiente paso en tu formación profesional.<br class="desktop-break"> Postula a nuestras oportunidades de prácticas,<br class="desktop-break"> internado y plazas para egresados.</p>
+            <h1 id="recruitment-title">Crece con nosotros.<em>Transforma vidas.</em></h1>
+            <p class="hero-description">Da el siguiente paso en tu formación profesional. Postula a nuestras oportunidades de prácticas, internado y plazas para egresados.</p>
             <ul class="modalities" aria-label="Oportunidades de formación">
                 <li><a href="#rec-tabs-wrapper"><svg aria-hidden="true"><use href="#icon-cap"/></svg>Prácticas</a></li>
                 <li><a href="#rec-tabs-wrapper"><svg aria-hidden="true"><use href="#icon-book"/></svg>Internado</a></li>
@@ -891,7 +902,6 @@
         </svg>
       </div>
       <div class="rec-status-heading-copy">
-        <p class="rec-status-eyebrow">Reclutamiento · KJA</p>
         <h2 id="rec-status-form-title">Estado de mi postulación</h2>
         <p class="rec-mascot-message" id="rec-mascot-message" aria-hidden="true">Vamos paso a paso.</p>
       </div>
@@ -909,14 +919,26 @@
       <div><strong>Consultando tu postulación…</strong><p id="rec-status-wait-message">Espera un momento, estamos buscando tu estado.</p></div>
     </div>
     <p class="rec-status-feedback" id="rec-status-feedback" role="status" aria-live="polite"></p>
-    <section class="rec-status-result" id="rec-status-result" tabindex="-1" aria-labelledby="rec-status-result-title" hidden>
-      <h3 id="rec-status-result-title">Tu postulación más reciente</h3>
-      <strong class="rec-status-label" id="rec-status-label"></strong>
+    <section class="rec-status-result" id="rec-status-result" tabindex="-1" aria-labelledby="rec-status-result-title" aria-describedby="rec-status-label rec-status-description" hidden>
+      <h3 id="rec-status-result-title">Seguimiento de tu postulación</h3>
+      <div class="rec-status-overview">
+        <span class="rec-status-state-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <g data-state-icon="pending"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></g>
+            <g data-state-icon="review"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5M8 10.5h5M10.5 8v5"/></g>
+            <g data-state-icon="interview"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 11h18m-11 5 2 2 4-4"/></g>
+            <g data-state-icon="approved"><circle cx="12" cy="12" r="8.5"/><path d="m8 12 3 3 5-6"/></g>
+            <g data-state-icon="closed"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h4"/></g>
+          </svg>
+        </span>
+        <div class="rec-status-state-copy"><span class="rec-status-current-caption">Estado actual</span><strong class="rec-status-label" id="rec-status-label"></strong></div>
+      </div>
       <p id="rec-status-description"></p>
       <dl class="rec-status-dates">
-        <div><dt>Fecha de postulación</dt><dd id="rec-status-created"></dd></div>
+        <div><dt>Postulación recibida</dt><dd id="rec-status-created"></dd></div>
         <div><dt>Última actualización</dt><dd id="rec-status-updated"></dd></div>
       </dl>
+      <div class="rec-status-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v.1"/></svg><div><h4 id="rec-status-next-title"></h4><p id="rec-status-next-description"></p></div></div>
     </section>
     <p class="rec-status-privacy">Solo mostramos el estado y las fechas. Tu expediente y CV son privados.</p>
   </div>

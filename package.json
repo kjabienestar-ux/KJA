@@ -16,7 +16,7 @@
     "test:zoom": "node --test tests/zoom.test.mjs tests/zoom-sql.test.mjs tests/zoom-operations.test.mjs tests/zoom-ui.test.mjs tests/zoom-sdk.test.mjs tests/zoom-sdk-sql.test.mjs tests/zoom-sdk-ui.test.mjs tests/zoom-camera.test.mjs tests/zoom-camera-sql.test.mjs tests/zoom-camera-ui.test.mjs"
   },
   "dependencies": {
-    "jsdom": "^29.1.1"
+    "jsdom": "^26.0.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8"

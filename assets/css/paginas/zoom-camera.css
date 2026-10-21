@@ -1,6 +1,6 @@
 /* Shared with the existing Zoom workspace and host controls. */
 .zoom-camera-report{margin-top:24px;padding:24px;background:#fff;border:1px solid #dce1e7;border-radius:14px;color:#1d2635;font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
-.zoom-camera-report[hidden],[data-camera-host][hidden]{display:none!important}
+.zoom-camera-report[hidden],[data-camera-host][hidden],.zoom-camera-report-filter-bar[hidden]{display:none!important}
 .zoom-camera-report-head,.zoom-camera-report-tools{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .zoom-camera-report h2{margin:0;font-size:20px;line-height:1.3;letter-spacing:-.02em;color:inherit}
 .zoom-camera-report-head p{margin:4px 0 0;color:#526176;overflow-wrap:anywhere}
@@ -15,6 +15,20 @@
 .zoom-camera-report button[data-report-export]:hover{background:#064a94}
 .zoom-camera-report :focus-visible,[data-camera-host] :focus-visible{outline:3px solid #1f72d2;outline-offset:3px}
 .zoom-camera-report [data-report-status]{min-height:22px;margin:16px 0}
+
+/* Filter & Search bar */
+.zoom-camera-report-filter-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:18px 0;padding:12px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.zoom-camera-filter-group{display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1 1 500px}
+.zoom-camera-search-box,.zoom-camera-select-box{position:relative;display:flex;align-items:center;flex:1 1 230px;min-width:200px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 1px 2px rgba(15,23,42,.03);transition:border-color .15s ease,box-shadow .15s ease}
+.zoom-camera-search-box:focus-within,.zoom-camera-select-box:focus-within{border-color:#075bb5;box-shadow:0 0 0 3px rgba(7,91,181,.14)}
+.zoom-camera-field-icon{display:flex;align-items:center;justify-content:center;padding-left:12px;color:#64748b;pointer-events:none}
+.zoom-camera-chevron{display:flex;align-items:center;justify-content:center;padding-right:12px;color:#64748b;pointer-events:none}
+.zoom-camera-search-box input[type="search"]{box-sizing:border-box;flex:1;min-height:42px;padding:8px 12px 8px 8px;border:none;background:transparent;color:#1e293b;font:inherit;outline:none!important}
+.zoom-camera-search-box input[type="search"]::placeholder{color:#94a3b8}
+.zoom-camera-select-box select{box-sizing:border-box;flex:1;min-height:42px;padding:8px 8px 8px 8px;border:none;background:transparent;color:#1e293b;font:inherit;outline:none!important;appearance:none;-webkit-appearance:none;cursor:pointer}
+.zoom-camera-count-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:#eef4fb;border:1px solid #d9e6f5;color:#1e3a5f;font-size:12.5px;font-weight:600;white-space:nowrap}
+
+/* Table sorting and content */
 .zoom-camera-table-scroll{overflow:auto;border:1px solid #e3e8ee;border-radius:10px;scrollbar-color:#9bacbf #f5f7fa}
 .zoom-camera-report table{border-collapse:collapse;width:100%;min-width:920px;text-align:left;font-variant-numeric:tabular-nums}
 .zoom-camera-report caption{text-align:left;padding:14px 16px;background:#f5f8fc;font-weight:600}
@@ -26,6 +40,27 @@
 .zoom-camera-report th strong{font-weight:600}
 .zoom-camera-report th small{display:block;margin-top:3px;color:#526176;font-size:11px}
 .zoom-camera-report tbody tr:last-child :is(th,td){border-bottom:0}
+
+/* Header sort buttons */
+.zoom-camera-sort-btn{background:transparent!important;border:0!important;padding:0!important;min-height:0!important;font:inherit;color:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;text-align:left;width:100%;font-weight:600}
+.zoom-camera-sort-btn:hover{color:#075bb5}
+.zoom-camera-sort-icon{font-size:11px;opacity:.55}
+th[aria-sort="ascending"] .zoom-camera-sort-icon,th[aria-sort="descending"] .zoom-camera-sort-icon{opacity:1;color:#075bb5;font-weight:700}
+
+/* Visual percentage progress meter */
+.zoom-camera-pct{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.zoom-camera-pct-bar{display:inline-block;width:42px;height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden;vertical-align:middle;flex-shrink:0}
+.zoom-camera-pct-fill{display:block;height:100%;border-radius:999px}
+.zoom-camera-pct-fill.is-high{background:#10b981}
+.zoom-camera-pct-fill.is-mid{background:#2563eb}
+.zoom-camera-pct-fill.is-low{background:#f59e0b}
+.zoom-camera-pct-empty{color:#94a3b8}
+
+/* Empty filter state */
+.zoom-camera-empty-state{padding:28px 16px;text-align:center;background:#f8fafc;border-radius:10px;border:1px dashed #cbd5e1;margin:16px 0}
+.zoom-camera-empty-state p{margin:0 0 10px;color:#526176;font-size:14px}
+.zoom-camera-empty-state button{min-height:36px;padding:6px 14px;font-size:13px}
+
 .zoom-camera-state{display:inline-block;white-space:nowrap;font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;background:#edf1f5;color:#46566b}
 .zoom-camera-state.is-on{background:#e4f5ef;color:#17634f}
 .zoom-camera-state.is-off{background:#fff0de;color:#80520d}
@@ -38,4 +73,17 @@
 [data-camera-list] li>span{min-width:0}
 .zoom-camera-report ::selection{background:#dbeaff;color:#132b4b}
 .sdk-meeting-action{gap:8px}
-@media(max-width:600px){.zoom-camera-report{padding:16px}.zoom-camera-report-head{align-items:flex-start}.zoom-camera-report-tools{gap:12px}.zoom-camera-report-tools button{flex:1 1 100%;width:100%}.zoom-camera-report-head button{font-size:13px}.zoom-camera-report-tools label{flex-basis:100%}.zoom-camera-report tbody th{min-width:140px}}
+
+@media(max-width:600px){
+ .zoom-camera-report{padding:16px}
+ .zoom-camera-report-head{align-items:flex-start}
+ .zoom-camera-report-tools{gap:12px}
+ .zoom-camera-report-tools button{flex:1 1 100%;width:100%}
+ .zoom-camera-report-head button{font-size:13px}
+ .zoom-camera-report-tools label{flex-basis:100%}
+ .zoom-camera-report-filter-bar{flex-direction:column;align-items:stretch;gap:10px;padding:12px}
+ .zoom-camera-filter-group{flex-direction:column;width:100%}
+ .zoom-camera-search-box,.zoom-camera-select-box{width:100%;flex-basis:100%}
+ .zoom-camera-count-badge{align-self:flex-start}
+ .zoom-camera-report tbody th{min-width:140px}
+}

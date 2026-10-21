@@ -1,5 +1,21 @@
 # Reclutamiento: portada y desplazamiento
 
+## Seguimiento público de postulación
+
+El resultado del modal presenta estado e icono propios para Pendiente, En revisión, Entrevista, Aprobado y No seleccionado. Las fechas del servidor se separan de una orientación contextual sobre el siguiente paso. No se infieren etapas anteriores, porcentajes ni plazos. Cuando hay un resultado, el formulario pasa a una fila compacta y la explicación inicial se retira visualmente para priorizar el seguimiento. Se conserva el aviso accesible de consulta completada.
+
+El resultado recibe foco programático y anuncia estado y descripción sin dibujar un marco azul alrededor de todo el panel; los controles mantienen sus indicadores de foco. Se conservan cierre, limpieza, respuesta tardía y mensaje de espera. El modal se amplía a 560 px en escritorio y mantiene desplazamiento interno en pantallas pequeñas.
+
+Verificación local: 11 pruebas de interfaz y formulario aprobadas. Chromium comprobó los cinco estados en 1440 × 900, 390 × 844 y 360 × 740, con respuesta simulada, sin errores JavaScript ni desbordamiento horizontal. También comprobó icono, orientación, estados vacío/error, limpieza y devolución del foco. Evidencia: `.impeccable/review/recruitment-status/`. No se consultaron documentos personales, no se modificó SQL y no se publicó esta revisión.
+
+## Portada compacta y acciones (21 de octubre de 2026)
+
+Se retiró la etiqueta «Reclutamiento · KJA» de la portada. El titular se presenta en dos líneas con menor escala, conservando fotografía y acento editorial rosa. En escritorio, la altura se define con `clamp(520px, 68svh, 720px)`; se midieron 612 px para 1440 × 900 y 522 px para 1366 × 768. Los accesos a postulación y consulta se agrupan en una fila: acción rosa y alternativa clara, ambos de 52 px y radio de 12 px. Las modalidades pasan a enlaces con iconos y el menú usa tinta oscura para mantener contraste sobre la imagen.
+
+En móvil se conserva una franja fotográfica corta, los botones se apilan y la altura crece según el contenido. La consulta pública de master se integró en la copia local anterior conservando el formulario existente: diálogo, indicador de carga, transporte y redirección de enlaces antiguos.
+
+Comprobación en Chromium a 1440 × 900, 1366 × 768, 768 × 1024, 390 × 844 y 360 × 740: sin desbordamiento horizontal ni errores JavaScript; acciones dentro de portada, apertura y cierre del modal, limpieza del DNI, retorno de foco y navegación al formulario correctos. La consulta se simuló con una respuesta ficticia; no se enviaron ni modificaron expedientes. Evidencia: `.impeccable/review/recruitment-compact/`. Detector de layout sin hallazgos y recursos locales sin faltantes. Estos cambios son locales; esta revisión no publica ni corrige el SQL remoto.
+
 ## Expediente administrativo: revisión visual e interacción
 
 El detalle de la postulación presenta la identidad, especialidad, estado guardado y fecha de recepción en una cabecera fija. El cuerpo separa contacto, disponibilidad, entrevista solicitada, CV y comentarios del candidato de la revisión interna. Los datos técnicos del registro permanecen en un desplegable. El CV tiene su descarga junto al nombre; un tamaño ausente se muestra como «Documento adjunto».
