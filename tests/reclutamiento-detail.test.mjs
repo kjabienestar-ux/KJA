@@ -16,12 +16,15 @@ async function setup(t) {
   const calls = [];
   let update = async args => ({ ...item, estado: args.p_estado, notas_revision: args.p_notas, revision: item.revision + 1 });
   let downloadCv = async () => { throw new Error('Descarga no disponible. Reintenta.'); };
+  let remove = async () => ({ eliminado: true });
+  let deleted=false;
   w.URL.createObjectURL = () => 'blob:https://example.test/cv';
   w.URL.revokeObjectURL = () => {};
   w.KJARecruitmentAPI = { message: e => e.message, rpc: async (_client, name, args) => {
     calls.push({ name, args });
     if (name === 'rec_es_admin') return true;
-    if (name === 'rec_listar') return { items: [item], total: 1, counts: { pendientes: 1 } };
+    if (name === 'rec_listar') return { items: deleted?[]:[item], total: deleted?0:1, counts: { pendientes: deleted?0:1 } };
+    if (name === 'rec_eliminar') { const result=await remove(args);deleted=true;return result; }
     if (name === 'rec_actualizar') { item = await update(args); return item; }
     if (name === 'rec_descargar_cv') return downloadCv(args);
     throw new Error(name);
@@ -32,7 +35,7 @@ async function setup(t) {
     if (id === 'ri-detail-status') { el('ri-detail-status-trigger').click(); el(id).querySelector(`[role="option"][data-value="${value}"]`).click(); return; }
     el(id).value = value; el(id).dispatchEvent(new w.Event('input'));
   };
-  return { w, el, edit, calls, setUpdate: fn => { update = fn; }, setCv: fn => { downloadCv = fn; } };
+  return { w, el, edit, calls, setUpdate: fn => { update = fn; }, setCv: fn => { downloadCv = fn; }, setDelete: fn => { remove=fn; } };
 }
 const flush = () => new Promise(resolve => setTimeout(resolve, 0));
 const pdf = { nombre: 'Mi CV.pdf', mime: 'application/pdf', base64: Buffer.from('%PDF-1.4').toString('base64') };
@@ -48,17 +51,24 @@ test('detail groups candidate information safely and handles unavailable file si
   assert.equal(el('ri-save').disabled, true);
   assert.equal(w.document.activeElement, el('ri-detail-title'));
   assert.match(el('ri-email').href, /^mailto:/);
+  assert.equal(el('ri-record-code').textContent,'Expediente KJA-TEST');
+  assert.equal(el('ri-record-requirements').textContent,'Requisitos aceptados');
+  assert.equal(el('ri-detail-data').querySelector('.ri-record'),null);
+  assert.ok(el('ri-detail-data').querySelector('.ri-contact-section'));
+  assert.ok(el('ri-detail-data').querySelector('.ri-availability-section'));
+  assert.ok(el('ri-detail-data').querySelector('.ri-cv-section #ri-preview'));
 });
 
 test('editing, saving, and resetting to saved values keeps state and notes consistent', async t => {
-  const { el, edit, calls } = await setup(t);
+  const { w, el, edit, calls } = await setup(t);
   edit('ri-detail-status', 'Entrevista'); edit('ri-detail-notes', 'Confirmar disponibilidad.');
   assert.equal(el('ri-save').disabled, false);
   assert.match(el('ri-save-state').textContent, /sin guardar/);
   await el('ri-review-form').onsubmit({ preventDefault() {} });
   assert.equal(el('ri-current-status').textContent, 'Entrevista');
   assert.equal(el('ri-save').disabled, true);
-  assert.equal(el('ri-detail-message').hidden, false);
+  assert.equal(el('rec-inbox-detail').open, false);
+  w.kjaRecruitment.openDetail('candidate');
   assert.equal(calls.find(c => c.name === 'rec_actualizar').args.p_revision, 1);
   edit('ri-detail-notes', 'Otra nota'); assert.equal(el('ri-save').disabled, false);
   edit('ri-detail-notes', 'Confirmar disponibilidad.'); assert.equal(el('ri-save').disabled, true);
@@ -73,6 +83,8 @@ test('failed save preserves edits, announces recovery, and permits retry', async
   assert.equal(el('ri-save').disabled, false);
   assert.equal(el('ri-detail-message').getAttribute('role'), 'alert');
   assert.match(el('ri-detail-message').textContent, /Reintenta/);
+  assert.equal(el('rec-inbox-detail').open,true);
+  assert.equal(el('ri-operation').hidden,true);
 });
 
 test('saving prevents duplicate requests and closing until the response arrives', async t => {
@@ -81,6 +93,8 @@ test('saving prevents duplicate requests and closing until the response arrives'
   setUpdate(args => new Promise(resolve => { finish = () => resolve({ id: 'candidate', estado: args.p_estado, notas_revision: args.p_notas, revision: 2, datos: {} }); }));
   edit('ri-detail-status', 'En revisión');
   const pending = el('ri-review-form').onsubmit({ preventDefault() {} });
+  assert.equal(el('ri-operation').hidden,false);
+  assert.match(el('ri-operation-title').textContent,/Guardando/);
   assert.equal(el('ri-close').disabled, true);
   const cancel = new w.Event('cancel', { cancelable: true }); el('rec-inbox-detail').dispatchEvent(cancel);
   assert.equal(cancel.defaultPrevented, true);
@@ -88,6 +102,43 @@ test('saving prevents duplicate requests and closing until the response arrives'
   assert.equal(calls.filter(c => c.name === 'rec_actualizar').length, 1);
   finish(); await pending;
   assert.equal(el('ri-close').disabled, false);
+  assert.equal(el('ri-operation').hidden,true);
+  assert.equal(el('rec-inbox-detail').open,false);
+});
+
+test('delete requires confirmation, blocks duplicates and removes the application after the server response',async t=>{
+  const {el,calls,setDelete}=await setup(t);
+  el('ri-delete').click();
+  assert.equal(el('ri-delete-confirm').open,true);
+  assert.equal(el('ri-delete-name').querySelector('img'),null);
+  el('ri-delete-cancel').click();
+  assert.equal(calls.some(c=>c.name==='rec_eliminar'),false);
+  let finish;
+  setDelete(()=>new Promise(resolve=>{finish=resolve;}));
+  el('ri-delete').click();
+  const pending=el('ri-delete-confirm-button').onclick();
+  assert.equal(el('ri-delete-confirm').open,false);
+  assert.equal(el('ri-operation').hidden,false);
+  assert.match(el('ri-operation-title').textContent,/Eliminando/);
+  await el('ri-delete-confirm-button').onclick();
+  assert.equal(calls.filter(c=>c.name==='rec_eliminar').length,1);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls.find(c=>c.name==='rec_eliminar').args)),{p_id:'candidate',p_revision:1});
+  finish({eliminado:true});await pending;
+  assert.equal(el('rec-inbox-detail').open,false);
+  assert.equal(el('ri-operation').hidden,true);
+  assert.equal(el('rec-inbox-rows').querySelector('[data-id]'),null);
+});
+
+test('failed deletion keeps the record and edits available for retry',async t=>{
+  const {el,edit,setDelete}=await setup(t);
+  edit('ri-detail-notes','Nota sin guardar');
+  setDelete(async()=>{throw Error('El expediente cambió. Actualiza la bandeja.');});
+  el('ri-delete').click();await el('ri-delete-confirm-button').onclick();
+  assert.equal(el('rec-inbox-detail').open,true);
+  assert.equal(el('ri-detail-notes').value,'Nota sin guardar');
+  assert.equal(el('ri-operation').hidden,true);
+  assert.match(el('ri-detail-message').textContent,/expediente cambió/);
+  assert.equal(el('ri-delete').disabled,false);
 });
 
 test('status dropdown reflects the saved state, opens with the keyboard and closes after choosing', async t => {

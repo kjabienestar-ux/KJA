@@ -160,7 +160,7 @@
   #attendance-day-modal .attendance-evidence-close{border:0;border-radius:50%;background:#E11D5F;color:#fff;font-size:24px}
   #attendance-day-modal .attendance-evidence-stage img{width:100%!important;height:100%!important;object-fit:contain!important}
   #portal #view-asistencia .attendance-selected-day.is-mobile-open .selected-day-reason{display:flex;align-items:center;gap:12px;min-height:88px;padding:6px 12px 0 0!important;background:#eff6f2;color:#426753!important;line-height:1.5!important}
-  #portal #view-asistencia .attendance-selected-day.is-mobile-open .selected-day-reason::before{content:"";display:block;flex:0 0 76px;align-self:stretch;min-height:88px;background:url('../../../images/dashboard/attendance-history.png') center bottom/contain no-repeat}
+  #portal #view-asistencia .attendance-selected-day.is-mobile-open .selected-day-reason::before{content:"";display:block;flex:0 0 76px;align-self:stretch;min-height:88px;background:var(--dashboard-history-character,url('../../../images/dashboard/attendance-history.png')) center bottom/contain no-repeat}
   #portal #view-asistencia .attendance-selected-day.is-mobile-open .selected-day-record,
   #portal #view-asistencia .attendance-selected-day.is-mobile-open .selected-day-record:focus-visible{background:#E11D5F!important;color:#fff!important;border:0!important;box-shadow:none!important;opacity:1!important;transition:background-color 150ms ease}
   #portal #view-asistencia .attendance-selected-day.is-mobile-open .selected-day-record:hover{background:#c61752!important;color:#fff!important}

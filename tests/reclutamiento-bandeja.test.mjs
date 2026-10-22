@@ -136,3 +136,25 @@ test('el botón de cada tarjeta indica la acción según el estado',async()=>{
   assert.match(buttons[1].getAttribute("aria-label"),/^Continuar expediente de Persona 1$/);
   dom.window.close();
 });
+
+test('las tarjetas separan fecha, hora y canal sin ejecutar contenido del postulante',async()=>{
+  const {dom,doc}=await inbox(true);
+  dom.window.KJARecruitmentAPI.rpc=async(_client,name)=>name==='rec_es_admin'?true:{items:[{
+    id:'ficha-segura',created_at:'2026-10-21T15:00:00Z',estado:'Entrevista',datos:{
+      nombres:'María del Carmen <Vega>',carrera:'Psicología Clínica',nivel:'Egresada',modalidad:'Remoto',turno:'Mañana',
+      entrevistaFecha:'2026-10-23',entrevistaHora:'11:00 AM',entrevistaCanal:'<img src=x onerror=alert(1)>'}
+  }],total:1,counts:{total:1,revision:1}};
+  await dom.window.kjaRecruitment.refresh();
+  const card=doc.querySelector('.ri-row');
+  assert.equal(card.querySelectorAll('.ri-card-facts dt').length,3);
+  assert.match(card.querySelector('.ri-card-facts').textContent,/23 oct\.? 2026.*11:00 AM.*<img/);
+  assert.equal(card.querySelector('img'),null);
+  assert.match(card.querySelector('.ri-person').textContent,/María del Carmen <Vega>/);
+  assert.match(card.querySelector('.ri-tags').textContent,/Remoto.*Mañana/);
+  assert.equal(card.querySelector('.ri-status').textContent,'Entrevista');
+  card.querySelector('.ri-go').click();
+  assert.equal(doc.querySelector('#ri-detail-title').textContent,'María del Carmen <Vega>');
+  assert.equal(doc.querySelector('#ri-detail-data .ri-candidate-notes'),null,'no se añaden secciones de comentarios vacías');
+  assert.equal(doc.querySelector('#ri-detail-data details.ri-record'),null,'el registro se integra en la cabecera');
+  dom.window.close();
+});

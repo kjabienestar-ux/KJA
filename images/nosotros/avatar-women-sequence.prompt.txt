@@ -1,0 +1,10 @@
+Tool: built-in image_gen, transparent_background=true.
+Identity reference: images/nosotros/avatar-women.png.
+Pose references: images/dashboard/evidence-worker.png and images/dashboard/attendance-exit.png.
+Outputs converted to WebP at 560 x 560, quality 86, preserving alpha.
+
+EVIDENCE PROMPT
+Edit target image 1 is the female character, identity to preserve exactly (face, mole, ponytail, brown eyes, sage green open shirt, white T-shirt, 3D style). Image 2 is pose/action/composition reference ONLY, do not copy the male face. Create the female version of image 2: waist-up centered woman holding a dark tablet in her left hand and lifting a small photo card with her right hand, pink upload arrow floating directly above tablet. Friendly slight smile looking toward viewer. Same female identity as image 1, professional polished stylized 3D render, soft studio lighting. Match image 2 framing and scale, complete head and arms visible, torso ends flat at waist, minimal transparent margins. Single isolated character. Remove original phone. Genuine transparent background. No lettering, no watermark.
+
+EXIT PROMPT
+Edit target image 1 is the female character, identity to preserve exactly (face, mole, ponytail, brown eyes, sage green open shirt, white T-shirt, 3D style). Image 2 is pose/action/composition reference ONLY, do not copy the male face. Create the female version of image 2: waist-up centered woman departing work, navy shoulder messenger bag across one shoulder, one hand gripping the bag strap at chest, other hand raised open palm in goodbye wave with five anatomically correct fingers. Friendly smile toward viewer. Same female identity as image 1, professional polished stylized 3D render, soft studio lighting. Match image 2 framing and scale, complete head and waving hand visible, torso ends flat at waist, minimal transparent margins. Single isolated character. No phone or tablet. Genuine transparent background. No lettering, no watermark.

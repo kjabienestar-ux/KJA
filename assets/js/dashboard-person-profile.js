@@ -34,6 +34,12 @@ function adminProfileSections(person,extra={}){
     })},
     {title:'Contrato y avance',rows:[['Estado del contrato',person.contrato_pendiente?'Pendiente de confirmar':contractState(person)[0]],['Fecha de inicio',date(person.contrato_inicio)],['Fecha de fin del documento',date(person.contrato_fin_referencia)],['Término estimado',r.pendiente?'Por definir':date(r.fecha_fin_estimada)],['Meta del contrato',hours(person.contrato_horas)],['Horas previas reconocidas',hours(person.horas_previas)],['Horas registradas',hours(r.marcadas)],['Horas cumplidas',hours(r.cumplidas)],['Horas pendientes',hours(r.faltantes)],['Horas por semana',hours(r.semana_horas)],['Observaciones',profileValue(person.contrato_nota)]]}
   ];
+  const temporary=Array.isArray(person.horarios_temporales)?person.horarios_temporales:[];
+  if(temporary.length){
+    sections[1].note='Horario habitual de referencia. Los ajustes temporales se aplican únicamente a las fechas indicadas.';
+    sections.splice(1,0,{title:'Horario temporal por fecha',note:`Horas de Lima. Desde el ${adminDate(adminScheduleResumeDate(person))} vuelve automáticamente al horario habitual.`,head:['Fecha','Jornada','Horario'],
+      rows:[...temporary].sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(day=>[adminDate(day.fecha),day.laborable?'Jornada programada':'Sin gestión',day.laborable?profileTime(day.entrada,day.salida):'Día libre'])});
+  }
   sections.splice(1,0,...profileAttendanceSections(person,extra),profileFacebookActivity(person,extra));
   if(r.voluntariado){const v=r.voluntariado;sections.push({title:'Voluntariado',rows:[['Meta',hours(v.meta)],['Horas cumplidas',hours(v.cumplidas)],['Horas pendientes',hours(v.faltantes)],['Horas por semana',hours(v.semana_horas)],['Término estimado',date(v.fecha_fin_estimada)]]})}
   if(APP.access.rol==='direccion')sections.push({title:'Días libres',rows:[['Saldo disponible',person.dias_libres_saldo==null?'No disponible':String(person.dias_libres_saldo)]]});
