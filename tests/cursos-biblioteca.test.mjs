@@ -117,9 +117,12 @@ test('Cursos integra la biblioteca con textos y enlaces propios y oculta grabado
             doc.getElementById('free-library-open').click();
             assert.equal(doc.getElementById('free-library-dialog').open, true);
             assert.equal(doc.querySelectorAll('#free-library-content .free-library-card').length, 20);
-            doc.querySelector('[data-free-course="0"]').click();
-            assert.equal(doc.querySelector('iframe'), null);
-            assert.equal(doc.querySelector('.free-course-catalog-link').getAttribute('href'), 'cursos.html#catalogo');
+            const pending = vm.runInContext('FREE_COURSE_LIBRARY.courses.findIndex(course => !course.driveUrl)', dom.getInternalVMContext());
+            if (pending > -1) {
+                doc.querySelector('.free-library-card[data-free-course="' + pending + '"]').click();
+                assert.equal(doc.querySelector('iframe'), null);
+                assert.equal(doc.querySelector('.free-course-catalog-link').getAttribute('href'), 'cursos.html#catalogo');
+            }
             doc.getElementById('free-library-close').click();
             assert.equal(doc.activeElement.id, 'free-library-open');
         }

@@ -48,6 +48,9 @@ test('los 20 cursos de la carpeta de Drive tienen título, descripción y portad
         assert.ok(fs.existsSync(new URL(`../${course.cover}`, import.meta.url)), course.cover);
         assert.ok(course.driveUrl === '' || /^https:\/\/drive\.google\.com\/(file\/d\/[\w-]+|open\?id=[\w-]+)/.test(course.driveUrl), course.title + ': enlace de video de Drive');
     }
+    const linked = library.courses.map(course => course.driveUrl).filter(Boolean);
+    assert.equal(new Set(linked).size, linked.length, 'cada curso tiene un video distinto (sin enlaces repetidos por error)');
+    assert.ok(library.courses.filter(course => course.destacado).every(course => course.driveUrl), 'los 3 destacados ya tienen video');
     dom.window.close();
 });
 
@@ -55,7 +58,7 @@ test('la página muestra 3 cursos destacados y una flecha que abre los 20 con su
     const dom = cursos();
     const { document } = dom.window;
     const cards = [...document.querySelectorAll('#free-courses-grid .recorded-title')].map(title => title.textContent);
-    assert.deepEqual(cards, ['ADOS y ADI-R', 'Introducción a la estimulación temprana', 'Pautas de crianza']);
+    assert.deepEqual(cards, ['ADOS y ADI-R', 'Estimulación psicomotriz', 'Praxias de lenguaje']);
     const more = document.getElementById('free-library-more');
     assert.equal(more.hidden, false);
     assert.equal(more.getAttribute('aria-label'), 'Ver los 20 cursos gratuitos');
@@ -74,13 +77,13 @@ test('la página muestra 3 cursos destacados y una flecha que abre los 20 con su
 });
 
 test('desde el modal se abre un curso y se vuelve a la lista sin cerrar la ventana', () => {
-    const dom = cursos();
+    const dom = cursos({ setup: 'FREE_COURSE_LIBRARY.courses[14].driveUrl = "";' });
     const { document } = dom.window;
     const more = document.getElementById('free-library-more');
     more.click();
     document.querySelector('.free-library-card[data-free-course="14"]').click();
     assert.equal(document.getElementById('free-library-title').textContent, 'Praxias de lenguaje');
-    assert.equal(document.getElementById('free-library-status').textContent, 'Próximamente', 'sin video todavía');
+    assert.equal(document.getElementById('free-library-status').textContent, 'Próximamente', 'un curso sin video muestra Próximamente');
     document.querySelector('[data-free-back]').click();
     assert.equal(document.getElementById('free-library-dialog').open, true);
     assert.equal(document.querySelectorAll('.free-library-card').length, 20);
