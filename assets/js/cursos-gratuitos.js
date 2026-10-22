@@ -19,6 +19,7 @@
     const back = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>';
     const book = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v15M3 4c3-1 6-1 9 1 3-2 6-2 9-1v15c-3-1-6-1-9 1-3-2-6-2-9-1V4Z"/></svg>';
     const clock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    const external = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6m0-6-9 9M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>';
     const accents = '<svg class="free-course-accent free-course-accent--play" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m13 15-2-9m10 11 3-12m3 19 9-6"/></svg>' +
         '<svg class="free-course-accent free-course-accent--photo" viewBox="0 0 32 40" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m18 9-6-5M16 20H6m12 10-7 5"/></svg>';
     const preview = FREE_COURSE_LIBRARY.preview !== false;
@@ -75,6 +76,21 @@
         }).join('') + '</div>';
     }
 
+    // Materiales del curso (PDF, PPT, video extra): enlaces de Drive que se abren en otra pestaña.
+    function courseMaterials(course) {
+        const items = (Array.isArray(course.materiales) ? course.materiales : [])
+            .map(item => ({ item, source: item && item.titulo ? driveSource(item.url) : null }))
+            .filter(entry => entry.source);
+        if (!items.length) return '';
+        return '<section class="free-course-materials" aria-labelledby="free-course-materials-title"><h3 id="free-course-materials-title">Materiales del ' + singular + ' <span>' + items.length + '</span></h3><ul>' +
+            items.map(({ item, source }) => {
+                const type = String(item.tipo || 'Archivo');
+                return '<li><a class="free-course-material" href="' + source.open + '" target="_blank" rel="noopener noreferrer" aria-label="' + escape(item.titulo) + ' (' + escape(type) + ', se abre en otra pestaña)">' +
+                    '<span class="free-course-material-type free-course-material-type--' + type.toLowerCase().replace(/[^a-z]/g, '') + '" aria-hidden="true">' + escape(type.toUpperCase()) + '</span>' +
+                    '<span class="free-course-material-name">' + escape(item.titulo) + '</span><span class="free-course-material-action" aria-hidden="true"><span>Abrir</span>' + external + '</span></a></li>';
+            }).join('') + '</ul></section>';
+    }
+
     function openDialog(trigger) {
         if (!dialog.open) {
             returnFocus = trigger;
@@ -96,11 +112,12 @@
         const course = courses[index];
         if (!course) return;
         const source = !preview && driveSource(course.driveUrl);
+        const materials = preview ? '' : courseMaterials(course);
         title.textContent = course.title;
         status.textContent = source ? 'Gratis · Grabado' : preview ? 'Vista previa · Título de ejemplo' : 'Próximamente';
         content.innerHTML = (cardLibrary && courses.length > 1 ? '<button type="button" class="free-library-back" data-free-back>' + back + 'Todos los ' + plural + '</button>' : '') + (source ?
             '<div class="free-course-player"><iframe src="' + source.embed + '" title="' + escape(course.title) + '" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div><p class="free-course-player-help">Si el video no se reproduce, <a href="' + source.open + '" target="_blank" rel="noopener noreferrer">abrir el video en otra pestaña</a>.</p>' :
-            '<div class="free-course-coming"><span class="free-course-coming-play" aria-hidden="true">' + play + '</span><h3>Estamos preparando este espacio</h3><p>' + (preview ? 'El título y la portada son ilustrativos. Publicaremos los ' + plural + ' reales cuando la biblioteca esté disponible.' : 'Este ' + singular + ' todavía no está disponible. Puedes seguir explorando la formación de KJA.') + '</p><a href="' + catalogUrl + '" class="free-course-catalog-link">Explorar ' + plural + ' ' + arrow + '</a></div>');
+            '<div class="free-course-coming"><span class="free-course-coming-play" aria-hidden="true">' + play + '</span><h3>Estamos preparando este espacio</h3><p>' + (preview ? 'El título y la portada son ilustrativos. Publicaremos los ' + plural + ' reales cuando la biblioteca esté disponible.' : materials ? 'El video de este ' + singular + ' todavía no está disponible. Mientras tanto, puedes revisar sus materiales.' : 'Este ' + singular + ' todavía no está disponible. Puedes seguir explorando la formación de KJA.') + '</p><a href="' + catalogUrl + '" class="free-course-catalog-link">Explorar ' + plural + ' ' + arrow + '</a></div>') + materials;
         dialog.scrollTop = 0;
         openDialog(trigger);
     }

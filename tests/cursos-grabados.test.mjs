@@ -102,3 +102,67 @@ test('un curso con su video de Drive se reproduce dentro del modal', () => {
     assert.equal(document.querySelector('iframe'), null);
     dom.window.close();
 });
+
+test('cada curso lista solo materiales propios de KJA con enlaces de Drive válidos', () => {
+    const dom = cursos();
+    const library = JSON.parse(vm.runInContext('JSON.stringify(FREE_COURSE_LIBRARY)', dom.getInternalVMContext()));
+    const all = library.courses.flatMap(course => course.materiales || []);
+    assert.equal(all.length, 37);
+    for (const course of library.courses) {
+        assert.ok(Array.isArray(course.materiales), course.title + ': tiene la lista de materiales');
+        for (const item of course.materiales) {
+            assert.ok(item.titulo.trim(), course.title);
+            assert.ok(['PDF', 'PPT', 'Video'].includes(item.tipo), course.title + ': ' + item.tipo);
+            assert.match(item.url, /^https:\/\/drive\.google\.com\/file\/d\/[\w-]+\/view$/, item.titulo);
+            assert.notEqual(item.url, course.driveUrl, item.titulo + ': no repite el video principal');
+            assert.doesNotMatch(item.titulo, /\.rar|l[aá]mina|manual|hoja de respuestas|informe|copia de/i, item.titulo);
+        }
+    }
+    const urls = all.map(item => item.url);
+    assert.equal(new Set(urls).size, urls.length, 'ningún archivo se enlaza dos veces');
+    assert.equal(library.courses.find(course => course.id === 'rabietas-berrinches').materiales.length, 0, 'la carpeta 19 aún está vacía');
+    dom.window.close();
+});
+
+test('el detalle del curso muestra sus materiales y los abre en otra pestaña', () => {
+    const dom = cursos();
+    const { document } = dom.window;
+    document.querySelector('#free-courses-grid [data-free-course="0"]').click();
+    const links = [...document.querySelectorAll('.free-course-materials a')];
+    assert.equal(links.length, 2);
+    assert.match(document.querySelector('.free-course-materials h3').textContent, /Materiales del curso\s*2/);
+    assert.equal(links[0].href, 'https://drive.google.com/file/d/1paW6-MSkkKXNR3K3LGP_8vLluhx-MreX/view');
+    for (const link of links) {
+        assert.equal(link.target, '_blank');
+        assert.match(link.rel, /noopener/);
+        assert.match(link.getAttribute('aria-label'), /se abre en otra pestaña/);
+    }
+    assert.equal(links[1].querySelector('.free-course-material-type').textContent, 'PPT');
+    assert.ok(document.querySelector('iframe'), 'el video sigue arriba de los materiales');
+    dom.window.close();
+});
+
+test('un curso sin video muestra sus materiales y uno sin archivos no muestra la sección', () => {
+    const dom = cursos();
+    const { document } = dom.window;
+    document.getElementById('free-library-more').click();
+    document.querySelector('.free-library-card[data-free-course="9"]').click();
+    assert.equal(document.getElementById('free-library-status').textContent, 'Próximamente');
+    assert.match(document.querySelector('.free-course-coming p').textContent, /revisar sus materiales/);
+    assert.equal(document.querySelectorAll('.free-course-materials a').length, 2);
+    document.querySelector('[data-free-back]').click();
+    document.querySelector('.free-library-card[data-free-course="18"]').click();
+    assert.equal(document.querySelector('.free-course-materials'), null);
+    assert.match(document.querySelector('.free-course-coming p').textContent, /todavía no está disponible/);
+    dom.window.close();
+});
+
+test('los materiales con enlaces que no son de un archivo de Drive no se muestran', () => {
+    const dom = cursos({ setup: 'FREE_COURSE_LIBRARY.courses[0].materiales = [{ titulo: "Carpeta", tipo: "PDF", url: "https://drive.google.com/drive/folders/abc" }, { titulo: "Externo", tipo: "PDF", url: "https://ejemplo.com/file/d/abc/view" }, { titulo: "Bueno <b>", tipo: "PDF", url: "https://drive.google.com/file/d/abc/view" }];' });
+    const { document } = dom.window;
+    document.querySelector('#free-courses-grid [data-free-course="0"]').click();
+    const links = [...document.querySelectorAll('.free-course-materials a')];
+    assert.equal(links.length, 1);
+    assert.equal(links[0].querySelector('.free-course-material-name').textContent, 'Bueno <b>', 'el título se escapa');
+    dom.window.close();
+});

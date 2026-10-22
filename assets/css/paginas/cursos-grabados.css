@@ -138,3 +138,30 @@
     .free-library-card strong { font-size: .88rem; }
     .free-library-card-desc { display: none; }
 }
+
+/* Materiales del curso: PDF, PPT y videos extra bajo el reproductor del modal. */
+.free-course-materials { margin-top: 28px; padding-top: 24px; border-top: 1px solid #e3e9f5; }
+.free-course-materials h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; color: #14213b; font-size: 1rem; letter-spacing: -.01em; }
+.free-course-materials h3 span { display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 999px; background: #e9effb; color: #004fb0; font-size: .72rem; font-weight: 700; }
+.free-course-materials ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.free-course-material { display: flex; align-items: center; gap: 14px; height: 100%; min-height: 68px; padding: 12px 14px; border: 1px solid #dbe3f2; border-radius: 14px; background: #fff; color: #14213b; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.free-course-material-type { flex-shrink: 0; display: grid; place-items: center; width: 48px; height: 44px; border-radius: 10px; background: #fde8f1; color: #bd2165; font-size: .66rem; font-weight: 800; letter-spacing: .04em; }
+.free-course-material-type--ppt { background: #fff1e5; color: #b4470b; }
+.free-course-material-type--video { background: #e4ebfb; color: #004fb0; }
+.free-course-material-name { flex: 1; min-width: 0; font-size: .85rem; font-weight: 600; line-height: 1.4; }
+.free-course-material-action { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; color: #004fb0; font-size: .75rem; font-weight: 600; }
+.free-course-material-action svg { width: 16px; height: 16px; }
+.free-course-material:focus-visible { outline: 3px solid #b9005a; outline-offset: 3px; }
+.free-course-coming + .free-course-materials { margin-top: 4px; }
+@media (hover: hover) {
+    .free-course-material:hover { border-color: #c9d4ee; background: #f6f8fd; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .free-course-material { transition: background-color 150ms ease-out, border-color 150ms ease-out; }
+}
+@media (max-width: 640px) {
+    .free-course-materials ul { grid-template-columns: minmax(0, 1fr); }
+    .free-course-material { gap: 12px; padding: 10px 12px; }
+    .free-course-material-type { width: 44px; height: 40px; }
+    .free-course-material-action > span { display: none; }
+}
