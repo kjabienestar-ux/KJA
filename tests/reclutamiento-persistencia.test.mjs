@@ -18,6 +18,8 @@ test('Reclutamiento: registro atómico, reintentos, permisos y revisión concurr
       insert into perfiles values ('00000000-0000-4000-8000-000000000004','admin');`);
     const migration=fs.readFileSync('supabase/reclutamiento_01_solicitudes.sql','utf8');
     await db.exec(migration);await db.exec(migration);
+    const deletion=fs.readFileSync('supabase/reclutamiento_05_eliminar_solicitudes.sql','utf8');
+    await db.exec(deletion);await db.exec(deletion);
     const interviewColumns=fs.readFileSync('supabase/reclutamiento_02_columnas_entrevista.sql','utf8');
     await db.exec(interviewColumns);await db.exec(interviewColumns);
     const id='10000000-0000-4000-8000-000000000001';
@@ -36,12 +38,14 @@ test('Reclutamiento: registro atómico, reintentos, permisos y revisión concurr
     await assert.rejects(()=>submit(id,{...datos,nombres:'Otro nombre'}),/otros datos/);
     await assert.rejects(()=>db.query('select * from rec_postulaciones'),/permission denied/);
     await assert.rejects(()=>db.query('select rec_listar()'),/permission denied/);
+    await assert.rejects(()=>db.query('select rec_eliminar($1,0)',[id]),/permission denied/);
     await assert.rejects(()=>submit('10000000-0000-4000-8000-000000000002',datos,Buffer.from('not-a-pdf').toString('base64')),/PDF, DOC o DOCX/);
     await assert.rejects(()=>submit('10000000-0000-4000-8000-000000000002',{...datos,requisitosAceptados:false}),/acepta los requisitos/);
     await assert.rejects(()=>submit('10000000-0000-4000-8000-000000000002',{...datos,entrevistaHora:'12:00 PM'}),/Horario/);
     for(const n of [2,3]){
       await asUser(n);
       await assert.rejects(()=>db.query('select rec_listar()'),/reservado/);
+      await assert.rejects(()=>db.query('select rec_eliminar($1,0)',[id]),/reservado/);
       await assert.rejects(()=>db.query('select rec_descargar_cv($1)',[id]),/reservado/);
       await assert.rejects(()=>db.query('select rec_actualizar($1,$2,$3,0)',[id,'Aprobado','']),/reservado/);
     }
@@ -61,5 +65,14 @@ test('Reclutamiento: registro atómico, reintentos, permisos y revisión concurr
     await db.exec('reset role');
     assert.equal((await db.query('select count(*)::int n from rec_postulaciones')).rows[0].n,3);
     assert.equal((await db.query('select count(*)::int n from rec_curriculos')).rows[0].n,3);
+    await asUser(1);
+    await assert.rejects(()=>db.query('select rec_eliminar($1,0)',[id]),/expediente cambió/);
+    assert.equal((await db.query('select rec_descargar_cv($1) data',[id])).rows.length,1);
+    assert.equal((await db.query('select rec_eliminar($1,1) data',[id])).rows[0].data.eliminado,true);
+    await assert.rejects(()=>db.query('select rec_eliminar($1,1)',[id]),/ya fue eliminado/);
+    await assert.rejects(()=>db.query('select rec_descargar_cv($1)',[id]),/CV no disponible/);
+    assert.equal((await db.query('select rec_listar() data')).rows[0].data.total,2);
+    await db.exec('reset role');
+    assert.equal((await db.query('select count(*)::int n from rec_curriculos')).rows[0].n,2);
   } finally {await db.close();}
 });

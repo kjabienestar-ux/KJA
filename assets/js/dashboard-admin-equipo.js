@@ -26,6 +26,61 @@ function adminMode(person,dow){
   return day.mod||((person.dias_laborables||[]).map(Number).includes(dow)?'virtual':'no_gestiona');
 }
 
+function adminScheduleWeek(person){
+  const week=Array.isArray(person.semana_vigente)?person.semana_vigente:[];
+  const dates=(person.horarios_temporales||[]).map(day=>day.fecha).sort();
+  if(dates.length&&APP.adminTeam?.hoy>dates[dates.length-1])return null;
+  return week.length===7&&week.some(day=>day.temporal)?week:null;
+}
+function adminScheduleResumeDate(person){
+  const dates=(person.horarios_temporales||[]).map(day=>day.fecha).sort();
+  if(!dates.length)return '';
+  const date=new Date(dates[dates.length-1]+'T12:00:00Z');
+  date.setUTCDate(date.getUTCDate()+1);
+  return date.toISOString().slice(0,10);
+}
+function adminScheduleDatesLabel(days){
+  const months=new Map();
+  for(const day of days){const key=day.fecha.slice(0,7);if(!months.has(key))months.set(key,[]);months.get(key).push(Number(day.fecha.slice(8,10)));}
+  return [...months].map(([month,numbers])=>`${numbers.join(', ')} de ${new Date(month+'-01T12:00:00Z').toLocaleDateString('es-PE',{month:'long',timeZone:'America/Lima'}).toLocaleLowerCase('es')}`).join(' · ');
+}
+function adminScheduleDatesMarkup(days){
+  const months=new Map();
+  for(const day of days){const key=day.fecha.slice(0,7);if(!months.has(key))months.set(key,[]);months.get(key).push(day);}
+  return [...months].map(([month,dates])=>`<div class="admin-temporary-month"><span>${esc(new Date(month+'-01T12:00:00Z').toLocaleDateString('es-PE',{month:'short',timeZone:'America/Lima'}).toLocaleLowerCase('es'))}</span><div>${dates.map(day=>`<time datetime="${esc(day.fecha)}" aria-label="${esc(adminDate(day.fecha))}">${Number(day.fecha.slice(8,10))}</time>`).join('')}</div></div>`).join('');
+}
+function adminTemporaryScheduleMarkup(person){
+  const changes=[...(person.horarios_temporales||[])].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  if(!changes.length||APP.adminTeam?.hoy>changes[changes.length-1].fecha)return '';
+  const groups=new Map();
+  for(const day of changes){
+    const key=day.laborable?`${fmtTime(day.entrada)}–${fmtTime(day.salida)}`:'Sin gestión';
+    if(!groups.has(key))groups.set(key,{working:day.laborable,days:[]});
+    groups.get(key).days.push(day);
+  }
+  const resume=adminScheduleResumeDate(person);
+  const returnDate=new Date(resume+'T12:00:00Z').toLocaleDateString('es-PE',{day:'numeric',month:'long',timeZone:'America/Lima'});
+  const groupMarkup=([,group])=>{
+    const limits=group.days.map(day=>day.puntual_hasta&&fmtTime(day.puntual_hasta));
+    const limit=limits.every(value=>value&&value===limits[0])?limits[0]:null;
+    const hours=group.working?`<dl class="admin-temporary-times"><div><dt>Entrada</dt><dd>${esc(fmtTime(group.days[0].entrada))}</dd></div><span aria-hidden="true">—</span><div><dt>Salida</dt><dd>${esc(fmtTime(group.days[0].salida))}</dd></div></dl>${limit?`<p class="admin-punctual-limit">Puntual hasta las <strong>${esc(limit)} a. m.</strong></p>`:''}`:'<p class="admin-temporary-off">Sin gestión</p>';
+    return `<div class="admin-temporary-group${group.working?' is-working':' is-off'}"><span class="admin-temporary-kind">${group.working?'Jornada reducida':'Días libres'}</span>${hours}<div class="admin-temporary-dates" aria-label="${esc(adminScheduleDatesLabel(group.days))}">${adminScheduleDatesMarkup(group.days)}</div></div>`;
+  };
+  return `<section class="admin-temporary-schedule" aria-label="Horario temporal autorizado"><div class="admin-temporary-heading"><strong>Horario temporal</strong><span>Hasta el ${esc(adminDate(changes[changes.length-1].fecha))}</span></div><div class="admin-temporary-groups">${[...groups].sort((a,b)=>Number(b[1].working)-Number(a[1].working)).map(groupMarkup).join('')}</div><p class="admin-temporary-return">Desde el <time datetime="${resume}">${esc(returnDate)}</time> vuelve automáticamente a su horario habitual.</p></section>`;
+}
+function adminScheduleMarkup(person){
+  const week=adminScheduleWeek(person);
+  const days=ADMIN_DAYS.map(([label,dow],index)=>{
+    const dated=week?.[index],usual=(person.horario_semanal||{})[String(dow)]||{};
+    const mode=dated?(dated.laborable?dated.modalidad:'no_gestiona'):adminMode(person,dow);
+    const changed=!!dated?.temporal,off=mode==='no_gestiona';
+    const time=off?(changed?'Sin gestión':'—'):`${fmtTime(dated?dated.entrada:usual.ini||person.hora_inicio)}–${fmtTime(dated?dated.salida:usual.fin||person.hora_fin)}`;
+    const date=dated?` ${Number(dated.fecha.slice(8,10))}`:'';
+    return `<span class="admin-day-chip ${esc(mode)}${changed?' is-temporary':''}"${changed?' title="Ajuste de horario para esta fecha"':''}><b>${label}${date}</b><i>${off?(changed?'Libre':'—'):ADMIN_MODES[mode]?.[1]||'—'}</i><small>${esc(time)}</small></span>`;
+  }).join('');
+  return `${adminTemporaryScheduleMarkup(person)}<p class="admin-schedule-label">${week?`Esta semana · ${esc(adminDate(week[0].fecha))} – ${esc(adminDate(week[6].fecha))}`:'Horario habitual'}</p><div class="admin-week-ledger">${days}</div>`;
+}
+
 async function loadAdminTeam(){
   if(typeof closeAdminProfile==='function')closeAdminProfile(false);
   if(!APP.access.acceso_panel)return;
@@ -134,14 +189,13 @@ function renderAdminPeople(){
   for(const group of groups.values()){
     html+=`<section class="admin-people-group"><header><span><i></i><b>${esc(group.name)}</b></span><small>${group.items.length} persona${group.items.length===1?'':'s'}</small></header><div class="admin-person-card-grid">`;
     for(const p of group.items){
-      const days=ADMIN_DAYS.map(([label,dow])=>{const mode=adminMode(p,dow),day=(p.horario_semanal||{})[String(dow)]||{},time=mode==='no_gestiona'?'':`${fmtTime(day.ini||p.hora_inicio)}–${fmtTime(day.fin||p.hora_fin)}`;return `<span class="admin-day-chip ${mode}"><b>${label}</b><i>${ADMIN_MODES[mode]?.[1]||'—'}</i><small>${esc(time)}</small></span>`}).join('');
       const summary=p.resumen||{},pct=summary.meta>0?Math.min(100,Math.round(Number(summary.cumplidas||0)/Number(summary.meta)*100)):0;
       const contract=summary.pendiente?'Contrato por confirmar':summary.meta>0?`${adminHours(summary.cumplidas)} de ${adminHours(summary.meta)} · ${pct}%`:'Contrato sin meta';
       const daysOff=APP.access.rol==='direccion'?`<button type="button" class="days-off" data-team-days-off="${p.id}" aria-label="Gestionar días libres de ${esc(p.nombre)}">Días libres${p.dias_libres_saldo==null?'':` · ${p.dias_libres_saldo}`}</button>`:'';
       html+=`<article class="admin-person-card ${p.activo?'':'inactive'}">
         <div class="admin-person-card-head">${profileAvatarMarkup(p)}<span><b>${esc(p.nombre)}</b><small>${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)} · ${p.activo?'Activo':'Dado de baja'}</small></span><div>${daysOff}${canEdit?`<button type="button" data-team-edit="${p.id}" aria-label="Editar ${esc(p.nombre)}">Editar</button><button type="button" class="${p.activo?'danger':''}" data-team-status="${p.id}" data-next-active="${!p.activo}">${p.activo?'Dar de baja':'Reactivar'}</button>${p.activo===false?`<button type="button" class="danger" data-team-delete="${p.id}" aria-label="Eliminar definitivamente a ${esc(p.nombre)}">Eliminar definitivamente</button>`:''}`:''}</div></div>
         <div class="admin-identity-line"><span>DNI <b>${esc(p.dni||'Sin registrar')}</b></span><span class="${p.tiene_pin?'ready':'missing'}">${p.tiene_pin?'PIN configurado':'Sin PIN'}</span><span>${p.tiene_cuenta?'Portal activado':'Aún no ingresó'}</span></div>
-        <div class="admin-week-ledger">${days}</div>
+        ${adminScheduleMarkup(p)}
         <div class="admin-person-contract ${summary.pendiente?'pending':''}"><span><small>SEGUIMIENTO</small><b>${esc(contract)}</b></span><i style="--contract-progress:${pct}%"></i></div>
         <button type="button" class="admin-person-attendance" data-team-attendance="${p.id}" aria-label="Ver asistencias y evidencias de ${esc(p.nombre)}">Ver asistencias y evidencias</button>
         ${$('admin-person-profile')?`<button type="button" class="admin-person-view-profile" data-team-profile="${p.id}" aria-label="Ver ficha completa de ${esc(p.nombre)}">Ver ficha completa <span>Datos, horario y Facebook</span></button>`:''}

@@ -58,6 +58,7 @@ function harness() {
     ADMIN_LINKS: { practicas: 'Prácticas' }
   };
   vm.createContext(context);
+  vm.runInContext(teamJs.slice(teamJs.indexOf('function adminScheduleWeek('),teamJs.indexOf('async function loadAdminTeam(')),context);
   vm.runInContext(teamJs.slice(teamJs.indexOf('function filteredAdminPeople('), teamJs.indexOf('function scheduleRows(')), context);
   return context;
 }

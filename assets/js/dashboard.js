@@ -1100,6 +1100,7 @@ async function openPortal(activeSession,bootstrap=null){
   $('access').hidden=true;
   const p=data.perfil||{}, c=data.colaborador;
   const name=(APP.access.acceso_panel&&APP.guidedTourUserMetadata.kja_nombre_visible)||c?.nombre||p.nombre||'Equipo KJA', ini=initials(name), role=APP.access.acceso_panel?'Administrador':{sistemas:'Administrador de sistemas',lider:'Líder técnico',colider:'Co-líder técnico',miembro:'Colaborador'}[p.nivel]||'Colaborador';
+  window.KJADashboardAvatar?.sync(document,{...(c||p),nombre:name});
   APP.identity={nivel:p.nivel||'miembro',hasPersonal:!!c,isLeader:['lider','colider'].includes(p.nivel)&&!!c,isSystem:p.nivel==='sistemas'};
   $('portal').dataset.role=APP.identity.nivel;
   $('portal').dataset.access=APP.access.rol;
@@ -1235,6 +1236,7 @@ function syncMarkedAttendanceAction(){
 
 function renderHome(){
   const c=APP.inicio.colaborador,d=APP.inicio.dia||{}; if(!c) return;
+  window.KJADashboardAvatar?.sync(document,c);
   syncMarkedAttendanceAction();
   const hour=Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',hour:'2-digit',hour12:false}).format(new Date()));
   const greeting=hour<12?'Buenos días':hour<19?'Buenas tardes':'Buenas noches';
@@ -1909,7 +1911,7 @@ function renderAttendanceCompact(data,evidences){
   content._activities=groups;content._activity=0;content._file=0;
   content.innerHTML=`<div class="attendance-compact">
     <header class="attendance-compact-head"><h2 id="attendance-day-title">${esc(formatAttendanceDayDate(data.fecha))}</h2><p>${esc(data.futuro?'Próximo':statusLabel(data.estado,data.labora))} · ${esc(attendanceModeLabel(data.modalidad))}</p></header>
-    <div class="attendance-record-overview"><img src="images/dashboard/attendance-history.png" width="100" height="132" alt="" aria-hidden="true"><dl class="attendance-compact-facts"><div><dt>Entrada</dt><dd>${esc(formatAttendanceClock(data.marcado_at))}</dd></div><div><dt>Salida</dt><dd>${esc(formatAttendanceClock(data.salida_at))}</dd></div><div><dt>Horario</dt><dd>${esc(fmtTime(data.hora_entrada))}–${esc(fmtTime(data.hora_salida))}</dd></div><div><dt>Horas del día</dt><dd>${data.horas==null?'—':esc(Number(data.horas).toFixed(1))+' h'}</dd></div></dl></div>
+    <div class="attendance-record-overview"><img src="${esc(window.KJADashboardAvatar?.source(APP.inicio?.colaborador,'images/dashboard/attendance-history.png')||'images/dashboard/attendance-history.png')}" width="100" height="132" alt="" aria-hidden="true"><dl class="attendance-compact-facts"><div><dt>Entrada</dt><dd>${esc(formatAttendanceClock(data.marcado_at))}</dd></div><div><dt>Salida</dt><dd>${esc(formatAttendanceClock(data.salida_at))}</dd></div><div><dt>Horario</dt><dd>${esc(fmtTime(data.hora_entrada))}–${esc(fmtTime(data.hora_salida))}</dd></div><div><dt>Horas del día</dt><dd>${data.horas==null?'—':esc(Number(data.horas).toFixed(1))+' h'}</dd></div></dl></div>
     ${data.actividades_version? '':'<p class="attendance-history-warning">El servidor aún no incluye las entregas del día. Solo se muestran las evidencias disponibles.</p>'}
     <div class="attendance-activity-heading"><b>Evidencias del día</b><small>${evidences.length} ${evidences.length===1?'archivo':'archivos'}</small></div>
     <div class="attendance-activity-tabs" role="group" aria-label="Seleccionar actividad">${groups.map((group,index)=>`<button type="button" class="${group.missing?'is-missing':''}" aria-label="${esc(group.titulo)}${group.missing?': falta evidencia':''}" data-attendance-activity="${index}" aria-pressed="${index===0}" aria-controls="attendance-compact-stage">${esc(group.titulo)}${group.missing?'<span>Falta</span>':group.files.length?`<span>${group.files.length}</span>`:''}</button>`).join('')}</div>
@@ -4924,7 +4926,9 @@ function showMarkReceipt(data,hadEvidence,context='new'){
   const onTime=data.estado==='P';
   $('mark-receipt-title').textContent=late?'Entrada con tardanza':onTime?'¡Llegaste a tiempo!':context==='detail'?'Detalle de tu asistencia':'Entrada registrada';
   $('receipt-summary').textContent=late?'Tu entrada quedó registrada después de tu horario.':onTime?'Gracias por tu puntualidad. Que tengas una buena jornada.':'Consulta los datos de tu registro de asistencia.';
-  $('receipt-person').src=onTime?'images/dashboard/attendance-on-time.png':'images/dashboard/attendance-late.png';
+  const receiptFigure=onTime?'images/dashboard/attendance-on-time.png':'images/dashboard/attendance-late.png';
+  $('receipt-person').dataset.dashboardCharacter=receiptFigure;
+  $('receipt-person').src=window.KJADashboardAvatar?.source(APP.inicio?.colaborador,receiptFigure)||receiptFigure;
   $('receipt-time').textContent=fmtTime(data.hora);
   $('receipt-date').textContent=new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'long',year:'numeric'}).format(date);
   $('receipt-mode').textContent=({virtual:'Virtual',presencial:'Presencial',opcional:'Opcional'}[mode]||cap(mode||'No indicada'));

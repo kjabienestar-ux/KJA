@@ -1,0 +1,15 @@
+Tool: built-in image_gen; transparent_background=true.
+Outputs: avatar-women-transparent.webp, avatar-women-on-time.webp, avatar-women-late.webp.
+WebP quality 82, maximum dimensions 560x800, alpha preserved.
+
+PHONE_CLEAR
+References: images/nosotros/avatar-women.png
+Use case: background-extraction. Edit this image: remove ALL pale blue/white background to genuine transparent alpha. Preserve exactly the same woman, face, ponytail, clothing, hands, smartphone with green checkmark, pose and lighting. No other changes. Clean silhouette edges, no blue halo, no floor, no background rectangle, no shadow plane. Single waist-up isolated 3D character, complete head and arms, tight balanced framing.
+
+ON_TIME
+References: images/nosotros/avatar-women.png, images/dashboard/attendance-on-time.png
+Image 1 is the female identity reference: preserve her face, small cheek mole, dark brown ponytail, brown eyes, sage green open overshirt with rolled sleeves over a white T-shirt, and polished stylized 3D render. Image 2 is ONLY pose and composition reference. Create the female equivalent of the on-time arrival pose in image 2: smiling confidently, right hand giving a clear thumbs up, left arm holding a light cream clipboard with grey metal clip against torso. No phone. Match the reference waist-up centered crop, full head, full hands and complete arms, torso ending near waist, minimal balanced margins. Clean soft studio lighting, same 3D character style and proportions. True transparent background, absolutely no solid blue/white background, no ground, no text, no watermark.
+
+LATE
+References: images/nosotros/avatar-women.png, images/dashboard/attendance-late.png
+Image 1 is the female identity reference: preserve her face, small cheek mole, dark brown ponytail, brown eyes, sage green open overshirt with rolled sleeves over a white T-shirt, and polished stylized 3D render. Image 2 is ONLY pose and composition reference. Create the female equivalent of the late arrival pose in image 2: mildly concerned apologetic expression with closed mouth, slightly raised inner eyebrows, both hands holding a light cream clipboard with grey metal clip in front of torso. No thumbs up, no phone. Match the reference waist-up centered crop, full head, full hands and complete arms, torso ending near waist, minimal balanced margins. Clean soft studio lighting, same 3D character style and proportions. True transparent background, absolutely no solid blue/white background, no ground, no text, no watermark.

@@ -1,5 +1,19 @@
 # Reclutamiento: portada y desplazamiento
 
+## Bandeja administrativa en tarjetas · octubre de 2026
+
+Modo de uso: operación interna de selección. La referencia aportada por el usuario define tarjetas blancas, estados suaves y acciones oscuras compactas. Se aplica únicamente a la bandeja y al expediente administrativo; conserva la identidad del resto del portal.
+
+Las solicitudes se organizan en una cuadrícula de una, dos o tres columnas según el espacio disponible. Cada tarjeta presenta nombre y perfil, disponibilidad, estado, fecha/hora/canal de entrevista y acción de revisión. Se retira el fondo teñido de toda la fila y el encabezado visual de tabla. La estructura de tabla y sus encabezados accesibles se conservan, junto con filtros, búsqueda, contadores y paginación existentes.
+
+La ficha comparte tipografía, superficies claras, verde tenue y botones oscuros. Conserva contactos, CV, estados, notas privadas, validaciones de guardado, errores y cierre con protección de cambios. Guardar la revisión sigue sin enviar mensajes al postulante.
+
+Los estilos nuevos están aislados en `assets/css/paginas/reclutamiento-profesional.css` bajo `#rec-inbox-root.ri-cards-mode`. Se actualizaron las versiones del módulo y la hoja de estilo en `dashboard.html`.
+
+Corrección de estructura: la regla de hover ya no cambia el footer de la tarjeta de `flex` a `block`, por lo que el botón conserva posición y tamaño. El expediente utiliza altura según contenido y una cuadrícula con Contacto/Disponibilidad y Entrevista/CV; la revisión permanece a la derecha. Código y aceptación de requisitos se muestran en la cabecera, sin el antiguo desplegable de registro al final. Los comentarios vacíos no añaden secciones. En 1365×768 el caso de prueba ocupa 718 px de alto y todas sus secciones principales son visibles sin desplazamiento; en 390×844 se usa desplazamiento interno y acceso directo a revisión, con el pie visible. Guardado y reapertura verificados con notas ficticias. Evidencia de esta corrección: `C:/Users/yeise/AppData/Roaming/Deska/browser-recordings/2026-10-22T01-58-01-51-2/player.html`.
+
+Verificación visual con candidatos ficticios en 1365×960 y 390×844: sin desbordamiento horizontal, buscador y filtro con el mismo ancho en móvil, botones uniformes en los cuatro estados mostrados, apertura de expediente y guardado de notas confirmado, notas conservadas al reabrir y pie de acciones visible. Evidencia local: `C:/Users/yeise/AppData/Roaming/Deska/browser-recordings/2026-10-22T01-10-40-51-1/player.html`. No se consultaron ni modificaron postulaciones reales durante esta comprobación.
+
 ## Seguimiento público de postulación
 
 El resultado del modal presenta estado e icono propios para Pendiente, En revisión, Entrevista, Aprobado y No seleccionado. Las fechas del servidor se separan de una orientación contextual sobre el siguiente paso. No se infieren etapas anteriores, porcentajes ni plazos. Cuando hay un resultado, el formulario pasa a una fila compacta y la explicación inicial se retira visualmente para priorizar el seguimiento. Se conserva el aviso accesible de consulta completada.
@@ -18,7 +32,7 @@ Comprobación en Chromium a 1440 × 900, 1366 × 768, 768 × 1024, 390 × 844 y 
 
 ## Expediente administrativo: revisión visual e interacción
 
-El detalle de la postulación presenta la identidad, especialidad, estado guardado y fecha de recepción en una cabecera fija. El cuerpo separa contacto, disponibilidad, entrevista solicitada, CV y comentarios del candidato de la revisión interna. Los datos técnicos del registro permanecen en un desplegable. El CV tiene su descarga junto al nombre; un tamaño ausente se muestra como «Documento adjunto».
+El detalle de la postulación presenta identidad, especialidad, estado guardado, fecha de recepción, código del expediente y aceptación de requisitos en la cabecera. El cuerpo agrupa contacto y disponibilidad, entrevista solicitada y CV, junto a la revisión interna. Los comentarios del candidato aparecen únicamente cuando fueron proporcionados. El CV tiene su descarga junto al nombre; un tamaño ausente se muestra como «Documento adjunto».
 
 En escritorio se usa una ventana de hasta 1060 px con columna lateral de revisión. En pantallas de hasta 820 px se apilan las secciones y se incorporan accesos para saltar entre datos y revisión. Cabecera y acciones permanecen visibles mientras el contenido se desplaza. Los correos y el teléfono permiten iniciar el contacto desde la aplicación correspondiente.
 
@@ -57,3 +71,12 @@ El documento admite desplazamiento vertical. Los bloqueos específicos del menú
 La comprobación de render en escritorio y móvil confirmó fotografía con coordenada superior 0, ausencia de velo superior, formulario presente y desplazamiento efectivo hasta 700 px, sin desbordamiento horizontal. Las capturas están en .impeccable/review/recruitment-scroll/. Los recursos locales existen y los scripts pasan la comprobación de sintaxis. No se enviaron postulaciones reales.
 
 El bloque para empresas y su enlace se retiraron por solicitud del usuario. La portada conserva el velo reducido, la navegación publicada y el proceso de postulación existente.
+
+
+## Guardado y eliminaci?n de expedientes
+
+Guardar revisi?n muestra una capa de carga dentro del modal y bloquea las acciones repetidas. Al confirmar el servidor, actualiza la bandeja y cierra el expediente. Un error mantiene los cambios y permite reintentar.
+
+Eliminar solicitud est? al pie del expediente y abre una confirmaci?n con el nombre del postulante. La nueva RPC `rec_eliminar` requiere administraci?n y la revisi?n vigente del expediente; elimina tambi?n el CV en la misma transacci?n. Activaci?n: ejecutar `supabase/reclutamiento_05_eliminar_solicitudes.sql` en Supabase. Hasta aplicarla, el intento devuelve un error y conserva el expediente.
+
+Validaci?n: 47 pruebas de reclutamiento, incluida la eliminaci?n en PostgreSQL embebido (permisos, revisi?n obsoleta, eliminaci?n del CV y recuento). Vista local con postulantes ficticios comprobada a 390 y 1365 px: carga cubre el modal, confirmaci?n enfoca Cancelar, cierre tras respuesta y ausencia de desbordamiento horizontal. No se eliminaron postulaciones reales.

@@ -43,6 +43,22 @@ function harness(){
 }
 const person={id:1,nombre:'María Peña',dni:'00123456',area:'Salud',activo:true,tipo_vinculo:'ambos',dias_laborables:[1,2],hora_inicio:'08:00',hora_fin:'13:00',horario_semanal:{'1':{mod:'presencial',ini:'22:00',fin:'06:00',vinc:'voluntariado'}},contrato_horas:300,horas_previas:0,resumen:{meta:300,cumplidas:25,faltantes:275,marcadas:25,semana_horas:13},dias_libres_saldo:0};
 const extra={facebook:{ok:true,configurado:true,horario:{}},history:{ok:true,historial:[]}};
+
+test('profile and PDF sections distinguish dated temporary shifts from the usual weekly schedule',()=>{
+  const c=harness();
+  const before=JSON.stringify(person);
+  const temporary={...person,horarios_temporales:[
+    {fecha:'2026-10-22',laborable:false},
+    {fecha:'2026-10-21',laborable:true,entrada:'10:30',salida:'13:00'}]};
+  const sections=c.adminProfileSections(temporary,extra);
+  const dated=sections.find(s=>s.title==='Horario temporal por fecha');
+  assert.equal(dated.rows.length,2);
+  assert.match(dated.rows[0][2],/10:30.*13:00/);
+  assert.equal(dated.rows[1][1],'Sin gestión');
+  assert.equal(dated.rows[1][2],'Día libre');
+  assert.match(sections.find(s=>s.title==='Horario semanal').note,/habitual de referencia/);
+  assert.equal(JSON.stringify(person),before);
+});
 function exportHarness(nodes){
   const c=harness();c.$=nodes?id=>{if(!nodes.has(id))nodes.set(id,{value:'',disabled:false,innerHTML:'',textContent:''});return nodes.get(id)}:()=>null;
   vm.runInContext(fs.readFileSync(new URL('../assets/js/attendance-report-model.js',import.meta.url),'utf8'),c);

@@ -27,10 +27,8 @@
     const avatar=Array.from(String(d.nombres || '')).reduce((sum,ch)=>sum+ch.codePointAt(0),0)%6;
     const profile=[d.carrera,d.nivel].filter(Boolean).join(' · ') || 'Sin especialidad registrada';
     const tags=[d.modalidad,d.turno].filter(Boolean).map(t=>`<span class="ri-tag" title="${esc(t)}">${esc(shortLabel(t))}</span>`).join('');
-    const day=/^\d{4}-\d{2}-\d{2}$/.test(d.entrevistaFecha || '') ? new Date(`${d.entrevistaFecha}T12:00:00Z`) : null;
     const action=actionLabel[c.estado] || 'Revisar';
-    const month=day ? day.toLocaleDateString('es-PE',{month:'short',timeZone:'UTC'}).replace('.','') : 'Fecha';
-    return `<tr class="ri-row" data-id="${esc(c.id)}" data-state="${stateKey[c.estado] || 'all'}"><td><div class="ri-person"><span class="ri-avatar" data-avatar="${avatar}" aria-hidden="true">${esc(initials)}</span><div><strong>${esc(d.nombres)}</strong><span class="ri-meta" title="${esc(profile)}">${esc(profile)}</span>${tags ? `<div class="ri-tags">${tags}</div>` : ''}</div></div></td><td><div class="ri-when"><span class="ri-cal"${day ? '' : ' data-empty'} aria-hidden="true"><span>${esc(month)}</span><b>${day ? day.getUTCDate() : '—'}</b></span><div><span class="ri-sr">Entrevista solicitada: ${esc(interviewDate(d.entrevistaFecha))}</span><strong>${esc(d.entrevistaHora || (day ? 'Hora por coordinar' : 'Por coordinar'))}</strong><span class="ri-meta" title="${esc(d.entrevistaCanal)}">${esc(d.entrevistaCanal || 'Canal por definir')}</span></div></div></td><td><span class="ri-status" data-status="${esc(c.estado)}">${esc(c.estado)}</span><small class="ri-received" title="Recibida el ${esc(date(c.created_at))}">Recibida ${esc(relativeTime(c.created_at))}</small></td><td class="ri-row-action"><button type="button" class="ri-go" data-id="${esc(c.id)}" aria-label="${action.includes('expediente') ? action : `${action} expediente`} de ${esc(d.nombres)}"><span>${action}</span>${detailIcon('arrow')}</button></td></tr>`;
+    return `<tr class="ri-row" data-id="${esc(c.id)}" data-state="${stateKey[c.estado] || 'all'}"><td><div class="ri-person"><span class="ri-avatar" data-avatar="${avatar}" aria-hidden="true">${esc(initials)}</span><div><strong>${esc(d.nombres || 'Postulante')}</strong><span class="ri-meta" title="${esc(profile)}">${esc(profile)}</span></div></div>${tags?`<div class="ri-tags">${tags}</div>`:''}</td><td><div class="ri-card-interview-label">${detailIcon('calendar')}<span>Entrevista solicitada</span></div><dl class="ri-card-facts"><div><dt>Fecha</dt><dd>${esc(interviewDate(d.entrevistaFecha))}</dd></div><div><dt>Hora</dt><dd>${esc(d.entrevistaHora || 'Por coordinar')}</dd></div><div><dt>Canal</dt><dd>${esc(d.entrevistaCanal || 'Por definir')}</dd></div></dl></td><td><span class="ri-status" data-status="${esc(c.estado)}">${esc(c.estado)}</span></td><td class="ri-row-action"><small class="ri-received" title="Recibida el ${esc(date(c.created_at))}">Recibida ${esc(relativeTime(c.created_at))}</small><button type="button" class="ri-go" data-id="${esc(c.id)}" aria-label="${action.includes('expediente') ? action : `${action} expediente`} de ${esc(d.nombres)}"><span>${action}</span>${detailIcon('arrow')}</button></td></tr>`;
   }
   const skeletonRows = count => Array.from({length:count},()=>'<tr class="ri-skeleton" aria-hidden="true"><td><div class="ri-person"><span class="ri-sk ri-sk-avatar"></span><div><span class="ri-sk"></span><span class="ri-sk ri-sk-b"></span><span class="ri-sk ri-sk-c"></span></div></div></td><td><div class="ri-when"><span class="ri-sk ri-sk-cal"></span><div><span class="ri-sk ri-sk-b"></span><span class="ri-sk"></span></div></div></td><td><span class="ri-sk ri-sk-pill"></span><span class="ri-sk ri-sk-c"></span></td><td><span class="ri-sk ri-sk-go"></span></td></tr>').join('');
   const api = () => window.KJARecruitmentAPI;
@@ -218,10 +216,10 @@
     root = document.getElementById('rec-inbox-root');
     if (!root || root.dataset.mounted) return;
     root.dataset.mounted = 'true';
-    root.classList.add('is-first-load');
+    root.classList.add('is-first-load','ri-cards-mode');
     client = typeof db !== 'undefined' ? db : null;
     root.innerHTML = `
-      <header class="ri-header"><div><span class="ri-eyebrow">Dirección · Reclutamiento</span><h1>Solicitudes de reclutamiento</h1><p>Revisa los expedientes y coordina las entrevistas del próximo equipo KJA.</p></div><div class="ri-header-actions"><a href="reclutamiento.html" target="_blank" rel="noopener" class="ri-button">Ver convocatoria ${detailIcon('external')}</a><button type="button" class="ri-button primary" id="rec-inbox-refresh">${detailIcon('refresh')} Actualizar bandeja</button></div></header>
+      <header class="ri-header"><div><h1>Solicitudes de reclutamiento</h1><p>Revisa los expedientes y coordina las entrevistas del próximo equipo KJA.</p></div><div class="ri-header-actions"><a href="reclutamiento.html" target="_blank" rel="noopener" class="ri-button">Ver convocatoria ${detailIcon('external')}</a><button type="button" class="ri-button primary" id="rec-inbox-refresh">${detailIcon('refresh')} Actualizar bandeja</button></div></header>
       <section class="ri-funnel" aria-label="Resumen del proceso"><div class="ri-funnel-total"><strong id="ri-total">—</strong><span>solicitudes recibidas</span></div><ol class="ri-funnel-stages">${[['pending','ri-pending','pendientes','Pendientes'],['review','ri-review','revision','En proceso'],['approved','ri-approved','aprobados','Aprobadas']].map(([state,id,key,label])=>`<li data-state="${state}"><span class="ri-stage-dot" aria-hidden="true"></span><strong id="${id}">—</strong><small data-share-label="${key}"></small><span>${label}</span></li>`).join('')}</ol><div class="ri-funnel-bar" aria-hidden="true">${[['pending','pendientes'],['review','revision'],['approved','aprobados'],['rejected','resto']].map(([state,key])=>`<span data-state="${state}" data-share-for="${key}"></span>`).join('')}</div></section>
       <section class="ri-inbox" aria-labelledby="ri-inbox-title"><div class="ri-inbox-heading"><h2 id="ri-inbox-title">Bandeja de postulantes</h2><span>Revisión de expedientes</span></div><div class="ri-toolbar"><div class="ri-field ri-filter-field"><span class="ri-field-label" id="rec-inbox-filter-label">Estado</span>${selectMarkup('rec-inbox-filter',[{value:'',label:'Todos los estados'},...states.map(s=>({value:s,label:s}))],filter,true)}</div><label class="ri-search">Buscar postulante<span class="ri-search-field">${detailIcon('search')}<input type="search" id="rec-inbox-search" maxlength="100" placeholder="Nombre, documento, carrera o código"></span></label><button type="button" class="ri-button ri-reset" id="rec-inbox-reset">Limpiar filtros</button></div>
       <p id="rec-inbox-message" class="ri-message" role="status" aria-live="polite">Cargando solicitudes…</p>
@@ -230,7 +228,7 @@
       <dialog class="ri-detail" id="rec-inbox-detail" aria-labelledby="ri-detail-title">
         <header class="ri-detail-head">
           <div class="ri-candidate-avatar" id="ri-initials" aria-hidden="true"></div>
-          <div class="ri-candidate-heading"><h2 id="ri-detail-title" tabindex="-1">Expediente</h2><p id="ri-detail-subtitle"></p><div class="ri-candidate-meta"><span class="ri-status" id="ri-current-status"></span><span id="ri-received"></span></div></div>
+          <div class="ri-candidate-heading"><div class="ri-title-line"><h2 id="ri-detail-title" tabindex="-1">Expediente</h2><span class="ri-record-code" id="ri-record-code"></span></div><p id="ri-detail-subtitle"></p><div class="ri-candidate-meta"><span class="ri-status" id="ri-current-status"></span><span id="ri-received"></span><span class="ri-requirements" id="ri-record-requirements"></span></div></div>
           <button type="button" class="ri-close" id="ri-close" aria-label="Cerrar expediente">${detailIcon('close')}</button>
         </header>
         <nav class="ri-detail-nav" aria-label="Secciones del expediente"><button type="button" data-detail-section="ri-detail-data" aria-controls="ri-detail-data" aria-current="location">Datos del postulante</button><button type="button" data-detail-section="ri-review-panel" aria-controls="ri-review-panel">Revisión interna</button></nav>
@@ -244,13 +242,21 @@
             <h3 id="ri-review-title">Revisión interna</h3><p class="ri-section-description">Registra el avance de esta postulación.</p>
             <form id="ri-review-form">
               <div class="ri-field ri-status-field"><span class="ri-field-label" id="ri-detail-status-label">Estado de la postulación</span>${selectMarkup('ri-detail-status',states.map(s=>({value:s,label:s})),states[0])}</div><p id="ri-status-help" class="ri-field-help"></p>
-              <label for="ri-detail-notes">Notas del equipo <span class="ri-optional">Opcional</span></label><textarea id="ri-detail-notes" rows="6" maxlength="4000" placeholder="Ej. Experiencia relevante, puntos por consultar o acuerdos de la entrevista." aria-describedby="ri-notes-help"></textarea><p class="ri-field-help" id="ri-notes-help">Solo para el equipo de selección.</p>
+              <label for="ri-detail-notes">Notas del equipo <span class="ri-optional">Opcional</span></label><textarea id="ri-detail-notes" rows="4" maxlength="4000" placeholder="Experiencia, dudas o acuerdos de la entrevista." aria-describedby="ri-notes-help"></textarea><p class="ri-field-help" id="ri-notes-help">Solo para el equipo de selección.</p>
             </form>
             <div class="ri-contact-action"><a id="ri-email" class="ri-button">${detailIcon('mail')}Redactar correo</a><p>Abre tu aplicación de correo. Guardar la revisión no envía mensajes al postulante.</p></div>
           </aside>
         </div>
         <footer class="ri-detail-footer"><div class="ri-save-feedback"><span id="ri-save-state">Sin cambios pendientes</span><p id="ri-detail-message" role="status" aria-live="polite" hidden></p></div><div class="ri-footer-buttons"><button type="button" class="ri-button" id="ri-close-bottom">Cerrar</button><button class="ri-button primary" id="ri-save" type="submit" form="ri-review-form" disabled>Guardar revisión</button></div></footer>
-      </dialog>`;
+        <div id="ri-operation" class="ri-operation" role="status" aria-live="polite" tabindex="-1" hidden><span class="ri-operation-spinner" aria-hidden="true"></span><strong id="ri-operation-title">Guardando revisión…</strong><span>Espera un momento, estamos actualizando la solicitud.</span></div>
+      </dialog>
+      <dialog id="ri-delete-confirm" class="ri-delete-dialog" aria-labelledby="ri-delete-title" aria-describedby="ri-delete-description"><h2 id="ri-delete-title">¿Eliminar esta solicitud?</h2><p id="ri-delete-name"></p><p id="ri-delete-description">Se eliminarán la postulación y su currículum. Esta acción no se puede deshacer.</p><div class="ri-footer-buttons"><button type="button" class="ri-button" id="ri-delete-cancel" autofocus>Cancelar</button><button type="button" class="ri-button ri-danger" id="ri-delete-confirm-button">Eliminar solicitud</button></div></dialog>`;
+    const deleteButton=document.createElement('button');
+    deleteButton.id='ri-delete';deleteButton.type='button';deleteButton.className='ri-button ri-delete-link';deleteButton.textContent='Eliminar solicitud';
+    root.querySelector('.ri-save-feedback').prepend(deleteButton);
+    deleteButton.onclick=()=>{if(!selected||busy)return;$('ri-delete-name').textContent=selected.datos.nombres;$('ri-delete-confirm').showModal();};
+    $('ri-delete-cancel').onclick=()=>$('ri-delete-confirm').close();
+    $('ri-delete-confirm-button').onclick=deleteRequest;
     $('rec-inbox-refresh').onclick = () => refresh();
     root.querySelectorAll('.ri-select').forEach(wireSelect);
     $('ri-detail-status-trigger').setAttribute('aria-describedby','ri-status-help');
@@ -291,12 +297,14 @@
   }
   function clear() {
     generation++; authVersion++; active=false;items=[];total=0;selected=null;
+    $('ri-delete-confirm')?.close();
     $('rec-inbox-detail')?.close();
     hideCv(); releaseCv();
     root?.removeAttribute('aria-busy'); root?.classList.remove('is-first-load');
     if($('rec-inbox-refresh'))$('rec-inbox-refresh').disabled=false;
     if($('ri-detail-data'))$('ri-detail-data').innerHTML='';
     if($('ri-detail-title'))$('ri-detail-title').textContent='Expediente';
+    for(const id of ['ri-record-code','ri-record-requirements','ri-detail-subtitle','ri-received'])if($(id))$(id).textContent='';
     if($('ri-detail-notes'))$('ri-detail-notes').value='';
     if($('ri-detail-message'))$('ri-detail-message').textContent='';
     $('ri-email')?.removeAttribute('href');
@@ -363,6 +371,8 @@
     $('ri-current-status').textContent = c.estado;
     $('ri-current-status').dataset.status = c.estado;
     $('ri-received').textContent = `Recibida el ${date(c.created_at)}`;
+    $('ri-record-code').textContent=c.codigo?`Expediente ${c.codigo}`:'';
+    $('ri-record-requirements').textContent=d.requisitosAceptados?'Requisitos aceptados':'Requisitos no aceptados';
     const rows = values => `<dl class="ri-info-grid">${values.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${value || '<span class="ri-missing">No indicado</span>'}</dd></div>`).join('')}</dl>`;
     const email = value => value ? `<a href="mailto:${esc(encodeURIComponent(value))}">${esc(value)}</a>` : '';
     const phone = d.telefonoNotificacion || d.telefono;
@@ -373,15 +383,14 @@
     const extension = (String(d.cvName || '').match(/\.([a-z0-9]{1,5})$/i)?.[1] || '').toUpperCase();
     const isPdf = extension === 'PDF';
     $('ri-detail-data').innerHTML = `
-      <section class="ri-detail-section">${sectionTitle('user','Contacto')}${rows([
+      <section class="ri-detail-section ri-contact-section">${sectionTitle('user','Contacto')}${rows([
         ['DNI / Documento',esc(d.dni)],['Teléfono / WhatsApp',phoneHref ? `<a href="tel:${esc(phoneHref)}">${esc(phone)}</a>` : ''],
         ['Correo de contacto',email(d.email)],['Correo para notificaciones',email(d.emailNotificacion)]
       ])}</section>
-      <section class="ri-detail-section">${sectionTitle('briefcase','Perfil y disponibilidad')}${rows([['Modalidad',esc(d.modalidad)],['Turno',esc(d.turno)]])}</section>
-      <section class="ri-detail-section">${sectionTitle('calendar','Entrevista solicitada')}<div class="ri-interview"><p class="ri-interview-date">${esc(interviewDate || 'Fecha por definir')}<span>${esc(d.entrevistaHora || 'Hora por definir')}</span></p><p class="ri-interview-channel">${esc(d.entrevistaCanal || 'Canal por definir')}</p><p class="ri-field-help">Fecha propuesta por el postulante, sujeta a coordinación.</p></div></section>
-      <section class="ri-detail-section">${sectionTitle('file','Currículum vitae')}<div class="ri-cv-file" data-type="${isPdf ? 'pdf' : 'doc'}"><span class="ri-file-icon">${detailIcon('file')}<b>${esc(extension || 'CV')}</b></span><div class="ri-file-info"><strong>${esc(d.cvName || 'CV adjunto')}</strong><span>${esc(size || 'Documento adjunto')}</span></div><div class="ri-cv-actions">${isPdf ? `<button class="ri-button primary" type="button" id="ri-preview">${detailIcon('eye')}Ver CV</button>` : ''}<button class="ri-button" type="button" id="ri-download">${detailIcon('download')}Descargar</button></div></div>${isPdf ? '' : '<p class="ri-field-help">La vista previa está disponible solo para archivos PDF.</p>'}</section>
-      <section class="ri-detail-section ri-candidate-notes">${sectionTitle('chat','Sobre la postulación')}<h4>Motivación</h4><p>${esc(d.motivacion || 'El postulante no añadió una motivación.')}</p><h4>Notas para la entrevista</h4><p>${esc(d.notasEntrevista || 'Sin indicaciones adicionales.')}</p></section>
-      <details class="ri-record"><summary>Datos del registro</summary>${rows([['Código del expediente',esc(c.codigo)],['Requisitos de postulación',d.requisitosAceptados ? 'Aceptados por el postulante' : 'No aceptados']])}</details>`;
+      <section class="ri-detail-section ri-availability-section">${sectionTitle('briefcase','Perfil y disponibilidad')}${rows([['Modalidad',esc(d.modalidad)],['Turno',esc(d.turno)]])}</section>
+      <section class="ri-detail-section ri-interview-section">${sectionTitle('calendar','Entrevista solicitada')}<div class="ri-interview"><p class="ri-interview-date">${esc(interviewDate || 'Fecha por definir')}<span>${esc(d.entrevistaHora || 'Hora por definir')}</span></p><p class="ri-interview-channel">${esc(d.entrevistaCanal || 'Canal por definir')}</p><p class="ri-field-help">Fecha propuesta por el postulante, sujeta a coordinación.</p></div></section>
+      <section class="ri-detail-section ri-cv-section">${sectionTitle('file','Currículum vitae')}<div class="ri-cv-file" data-type="${isPdf ? 'pdf' : 'doc'}"><span class="ri-file-icon">${detailIcon('file')}<b>${esc(extension || 'CV')}</b></span><div class="ri-file-info"><strong>${esc(d.cvName || 'CV adjunto')}</strong><span>${esc(size || 'Documento adjunto')}</span></div><div class="ri-cv-actions">${isPdf ? `<button class="ri-button primary" type="button" id="ri-preview">${detailIcon('eye')}Ver CV</button>` : ''}<button class="ri-button" type="button" id="ri-download">${detailIcon('download')}Descargar</button></div></div>${isPdf ? '' : '<p class="ri-field-help">La vista previa está disponible solo para archivos PDF.</p>'}</section>
+      ${d.motivacion||d.notasEntrevista?`<section class="ri-detail-section ri-candidate-notes">${sectionTitle('chat','Sobre la postulación')}${d.motivacion?`<div class="ri-candidate-note"><h4>Motivación</h4><p>${esc(d.motivacion)}</p></div>`:''}${d.notasEntrevista?`<div class="ri-candidate-note"><h4>Notas para la entrevista</h4><p>${esc(d.notasEntrevista)}</p></div>`:''}</section>`:''}`;
     setStatus(c.estado);$('ri-detail-notes').value=c.notas_revision||'';$('ri-detail-message').textContent='';
     const recipient = d.emailNotificacion || d.email;
     if (recipient) { $('ri-email').href=`mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(`Postulación KJA · ${c.codigo}`)}`; $('ri-email').removeAttribute('aria-disabled'); }
@@ -394,7 +403,7 @@
   async function saveReview(e) {
     e.preventDefault();if(!selected||busy)return;
     const sessionVersion=authVersion;
-    busy=true;$('ri-save').disabled=true;$('ri-save').textContent='Guardando…';
+    busy=true;operation(true,'Guardando revisión…');$('ri-save').disabled=true;$('ri-save').textContent='Guardando…';
     for (const id of ['ri-close','ri-close-bottom','ri-detail-status-trigger','ri-detail-notes']) $(id).disabled=true;
     $('ri-review-form').setAttribute('aria-busy','true');
     detailMessage('');
@@ -406,12 +415,38 @@
       $('ri-save-state').textContent='Todos los cambios guardados';
       detailMessage('Revisión guardada correctamente.');
       await load(true);
+      if(sessionVersion===authVersion)$('rec-inbox-detail').close();
     } catch(error) { if(sessionVersion===authVersion)detailMessage(api().message(error),true); }
     finally {
-      busy=false;$('ri-save').textContent='Guardar revisión';
+      busy=false;operation(false);$('ri-save').textContent='Guardar revisión';
       for (const id of ['ri-close','ri-close-bottom','ri-detail-status-trigger','ri-detail-notes']) $(id).disabled=false;
       $('ri-review-form').removeAttribute('aria-busy');
       $('ri-save').disabled=!selected || (statusValue()===selected.estado && $('ri-detail-notes').value===(selected.notas_revision||''));
+      if(selected)$('ri-save').focus();
+    }
+  }
+  function operation(show,title='') {
+    $('ri-operation').hidden=!show;
+    if(title)$('ri-operation-title').textContent=title;
+    root.querySelectorAll('.ri-detail-head,.ri-detail-body,.ri-detail-footer,.ri-detail-nav').forEach(node=>{node.inert=show;});
+    $('ri-delete').disabled=show;
+    if(show)$('ri-operation').focus();
+  }
+  async function deleteRequest() {
+    if(!selected||busy)return;
+    const sessionVersion=authVersion;
+    const record=selected;
+    busy=true;$('ri-delete-confirm').close();operation(true,'Eliminando solicitud…');detailMessage('');
+    try {
+      await rpc('rec_eliminar',{p_id:record.id,p_revision:record.revision});
+      if(sessionVersion!==authVersion)return;
+      await load(true);
+      if(sessionVersion===authVersion)$('rec-inbox-detail').close();
+    } catch(error) {
+      if(sessionVersion===authVersion)detailMessage(api().message(error),true);
+    } finally {
+      busy=false;operation(false);
+      if(selected)$('ri-delete').focus();
     }
   }
   async function download(button) {

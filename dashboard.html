@@ -47,7 +47,7 @@
   <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=26">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=16">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-loading.css?v=3">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-mobile.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-mobile.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-team-mobile.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-login.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-calendar.css?v=5">
@@ -64,7 +64,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=4">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=6">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=20261017_1311">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-preview.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
@@ -78,6 +78,7 @@
 <link rel="stylesheet" href="assets/css/paginas/zoom-camera.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-shell-layout.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/reclutamiento-bandeja.css?v=6">
+<link rel="stylesheet" href="assets/css/paginas/reclutamiento-profesional.css?v=3">
 </head>
 <body>
 
@@ -679,7 +680,7 @@
           <div id="mobile-month-progress-slot"></div>
           <section class="mobile-primary-attendance" id="mobile-primary-attendance" aria-label="Acción principal de asistencia" hidden>
             <button type="button" data-mobile-action="marcar" id="mobile-action-mark" aria-describedby="mobile-entry-action-error">
-              <img class="mobile-access-figure" src="images/dashboard/attendance-phone.png" width="104" height="128" alt="" aria-hidden="true">
+              <img data-dashboard-character="images/dashboard/attendance-phone.png" class="mobile-access-figure" src="images/dashboard/attendance-phone.png" width="104" height="128" alt="" aria-hidden="true">
               <span><b id="mobile-action-mark-title">Consultando asistencia…</b><small id="mobile-action-mark-note">Espera un momento</small></span>
               <svg class="mobile-action-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
@@ -768,7 +769,7 @@
                 <h3 id="mobile-close-banner-title">Tu jornada empieza aquí</h3>
                 <p id="mobile-close-banner-copy">Registra tu entrada para habilitar las evidencias del día.</p>
               </div>
-              <img class="mcv2-banner-figure" src="images/dashboard/asistencia-3d.webp" width="128" height="128" alt="" aria-hidden="true">
+              <img data-dashboard-character="images/dashboard/asistencia-3d.webp" class="mcv2-banner-figure" src="images/dashboard/asistencia-3d.webp" width="128" height="128" alt="" aria-hidden="true">
               <div class="mcv2-banner-progress" aria-hidden="true"><i id="mobile-close-banner-progress"></i></div>
               <small class="mcv2-banner-meta" id="mobile-close-banner-meta">0 de 0 completados</small>
             </div>
@@ -843,7 +844,7 @@
             <section class="day-schedule" aria-labelledby="day-schedule-title">
               <section class="holiday-announcement" data-holiday-announcement aria-label="Feriado nacional" hidden></section>
               <div class="schedule-welcome">
-                <img class="schedule-figure" src="images/dashboard/attendance-phone.png" width="240" height="240" alt="" aria-hidden="true">
+                <img data-dashboard-character="images/dashboard/attendance-phone.png" class="schedule-figure" src="images/dashboard/attendance-phone.png" width="240" height="240" alt="" aria-hidden="true">
                 <div class="schedule-details">
               <div class="day-section-heading">
                 <span class="day-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 1.5"/></svg></span>
@@ -939,12 +940,12 @@
               <div class="day-close-checklist" id="day-close-checklist" aria-live="polite"></div>
 
               <div class="day-close-guide" id="day-close-guide" data-stage="evidence">
-                <img class="holiday-guide-figure" src="images/dashboard/evidence-worker.png" width="240" height="240" alt="" aria-hidden="true" loading="lazy" decoding="async">
-                <img class="day-off-illustration" src="images/dashboard/day-off-rest.png" width="1254" height="1254" alt="" aria-hidden="true" loading="lazy" decoding="async">
+                <img data-dashboard-character="images/dashboard/evidence-worker.png" class="holiday-guide-figure" src="images/dashboard/evidence-worker.png" width="240" height="240" alt="" aria-hidden="true" loading="lazy" decoding="async">
+                <img data-dashboard-character="images/dashboard/day-off-rest.png" class="day-off-illustration" src="images/dashboard/day-off-rest.png" width="1254" height="1254" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 <div class="day-close-journey" aria-label="Progreso del cierre de jornada">
-                  <span class="day-close-journey-step" data-journey-step="entry"><img class="journey-figure" src="images/dashboard/attendance-phone.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></i><b>Entrada</b></span>
-                  <span class="day-close-journey-step" data-journey-step="evidence"><img class="journey-figure" src="images/dashboard/evidence-worker.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></i><b>Evidencias</b></span>
-                  <span class="day-close-journey-step" data-journey-step="exit"><img class="journey-figure" src="images/dashboard/attendance-exit.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i><b>Salida</b></span>
+                  <span class="day-close-journey-step" data-journey-step="entry"><img data-dashboard-character="images/dashboard/attendance-phone.png" class="journey-figure" src="images/dashboard/attendance-phone.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></i><b>Entrada</b></span>
+                  <span class="day-close-journey-step" data-journey-step="evidence"><img data-dashboard-character="images/dashboard/evidence-worker.png" class="journey-figure" src="images/dashboard/evidence-worker.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></i><b>Evidencias</b></span>
+                  <span class="day-close-journey-step" data-journey-step="exit"><img data-dashboard-character="images/dashboard/attendance-exit.png" class="journey-figure" src="images/dashboard/attendance-exit.png" width="140" height="150" alt="" aria-hidden="true" loading="lazy" decoding="async"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i><b>Salida</b></span>
                 </div>
                 <strong id="day-close-guide-title">Completa tus evidencias</strong>
                 <p id="day-close-guide-copy">Selecciona cada requisito pendiente para adjuntar las imágenes.</p>
@@ -1001,7 +1002,7 @@
 
                   <input id="daily-evidence-file" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
                   <button class="daily-evidence-picker" id="daily-evidence-picker" type="button">
-                    <img class="daily-evidence-figure" src="images/dashboard/evidence-worker.png" width="144" height="160" alt="" decoding="async">
+                    <img data-dashboard-character="images/dashboard/evidence-worker.png" class="daily-evidence-figure" src="images/dashboard/evidence-worker.png" width="144" height="160" alt="" decoding="async">
                     <span><b>Elegir imágenes</b><small id="daily-evidence-picker-help">JPG, PNG o WebP · hasta 50 capturas de Facebook</small></span>
                   </button>
                   <div class="daily-evidence-previews" id="daily-evidence-previews" hidden></div>
@@ -1069,7 +1070,7 @@
         <article class="calendar-card attendance-calendar">
           <div class="attendance-calendar-head">
             <div class="attendance-calendar-heading">
-              <img class="attendance-history-figure" src="images/dashboard/attendance-phone.png" width="88" height="104" alt="" aria-hidden="true">
+              <img data-dashboard-character="images/dashboard/attendance-phone.png" class="attendance-history-figure" src="images/dashboard/attendance-phone.png" width="88" height="104" alt="" aria-hidden="true">
               <div class="attendance-calendar-title-wrap">
                 <b>Historial del mes</b>
                 <small class="attendance-history-hint">Toca un día para ver su detalle.</small>
@@ -3505,7 +3506,7 @@
         </div>
       </div>
       <div class="day-off-hero-art">
-        <img src="images/dashboard/day-off-rest.png" alt="Descanso merecido" class="day-off-hero-img" width="220" height="220" loading="eager" decoding="async">
+        <img data-dashboard-character="images/dashboard/day-off-rest.png" src="images/dashboard/day-off-rest.png" alt="Descanso merecido" class="day-off-hero-img" width="220" height="220" loading="eager" decoding="async">
       </div>
     </div>
     <form id="personal-request-form">
@@ -3643,7 +3644,7 @@
 
     <div class="mark-processing" id="mark-processing" role="status" aria-live="polite" tabindex="-1" hidden>
       <div class="mark-processing-hero">
-        <img src="images/dashboard/attendance-phone.png" width="180" height="180" alt="" aria-hidden="true">
+        <img data-dashboard-character="images/dashboard/attendance-phone.png" src="images/dashboard/attendance-phone.png" width="180" height="180" alt="" aria-hidden="true">
         <div><p class="eyebrow">TU ASISTENCIA</p><h2 id="mark-processing-title">Registrando tu entrada</h2><span class="mark-processing-activity"><i class="pending-spinner" aria-hidden="true"></i>Un momento, por favor</span></div>
       </div>
       <p id="mark-processing-copy">Preparando la validación…</p>
@@ -3658,7 +3659,7 @@
 
     <div class="mark-receipt" id="mark-receipt" role="status" aria-live="polite" tabindex="-1" hidden>
       <div class="receipt-welcome">
-        <img class="receipt-person" id="receipt-person" src="images/dashboard/attendance-late.png" width="128" height="128" alt="" decoding="async">
+        <img data-dashboard-character="images/dashboard/attendance-late.png" class="receipt-person" id="receipt-person" src="images/dashboard/attendance-late.png" width="128" height="128" alt="" decoding="async">
         <div class="receipt-welcome-copy">
           <h2 id="mark-receipt-title">Entrada registrada</h2><p id="receipt-summary">Tu registro de asistencia está confirmado.</p>
           <div class="receipt-main"><span><small>ESTADO</small><b id="receipt-state">Presente</b></span><strong id="receipt-time">—</strong></div>
@@ -3805,7 +3806,7 @@
       <p id="admin-leave-review-copy" class="day-off-hero-text" role="status">Cargando fechas solicitadas…</p>
     </div>
     <div class="day-off-hero-art">
-      <img src="images/dashboard/day-off-rest.png" alt="Revisión de días libres" class="day-off-hero-img" width="140" height="130" loading="eager" decoding="async">
+      <img data-dashboard-character="images/dashboard/day-off-rest.png" src="images/dashboard/day-off-rest.png" alt="Revisión de días libres" class="day-off-hero-img" width="140" height="130" loading="eager" decoding="async">
     </div>
   </div>
   <div class="admin-leave-support-bar">
@@ -3944,8 +3945,9 @@
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
 <script src="assets/js/dashboard-skeleton.js?v=4"></script>
 <script src="assets/js/reclutamiento-api.js?v=1"></script>
-<script src="assets/js/dashboard.js?v=273"></script>
-<script src="assets/js/dashboard-reclutamiento.js?v=8"></script>
+<script src="assets/js/dashboard-avatar.js?v=3"></script>
+<script src="assets/js/dashboard.js?v=274"></script>
+<script src="assets/js/dashboard-reclutamiento.js?v=11"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
 <script src="assets/js/dashboard-zoom-embed.js?v=5"></script>
@@ -3956,7 +3958,7 @@
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=23"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=26"></script>
 <script src="assets/js/dashboard-person-delete.js?v=1"></script>
 <script src="assets/js/dashboard-areas.js?v=2"></script>
 <script src="assets/js/dashboard-area-picker.js?v=4"></script>
@@ -3966,7 +3968,7 @@
 <script src="assets/js/dashboard-person-attendance.js?v=4"></script>
 <script src="assets/js/attendance-report-model.js?v=4"></script>
 <script src="assets/js/dashboard-attendance-report.js?v=4"></script>
-<script src="assets/js/dashboard-person-profile.js?v=4"></script>
+<script src="assets/js/dashboard-person-profile.js?v=6"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=10"></script>
 <script src="assets/js/dashboard-attendance-preview.js?v=3"></script>
 <script src="assets/js/dashboard-month-day-detail.js?v=11"></script>
