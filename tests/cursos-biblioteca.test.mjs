@@ -114,7 +114,7 @@ test('Cursos integra la biblioteca con textos y enlaces propios y oculta grabado
             assert.equal(doc.querySelectorAll('.free-course-card').length, 0);
         } else {
             assert.equal(doc.querySelectorAll('.free-course-card').length, 3);
-            doc.getElementById('free-library-open').click();
+            doc.getElementById('free-library-more').click();
             assert.equal(doc.getElementById('free-library-dialog').open, true);
             assert.equal(doc.querySelectorAll('#free-library-content .free-library-card').length, 20);
             const pending = vm.runInContext('FREE_COURSE_LIBRARY.courses.findIndex(course => !course.driveUrl)', dom.getInternalVMContext());
@@ -124,7 +124,7 @@ test('Cursos integra la biblioteca con textos y enlaces propios y oculta grabado
                 assert.equal(doc.querySelector('.free-course-catalog-link').getAttribute('href'), 'cursos.html#catalogo');
             }
             doc.getElementById('free-library-close').click();
-            assert.equal(doc.activeElement.id, 'free-library-open');
+            assert.equal(doc.activeElement.id, 'free-library-more');
         }
         dom.window.close();
     }
