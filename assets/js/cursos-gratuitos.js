@@ -88,7 +88,7 @@
     }
 
     // Buscador de Cursos: vive en el encabezado fijo del modal y filtra por título y descripción, sin tildes.
-    const fold = value => String(value).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const fold = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     let search;
     if (cardLibrary) {
         search = document.createElement('label');

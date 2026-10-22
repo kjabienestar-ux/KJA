@@ -167,7 +167,7 @@
 .free-library-search[hidden] { display: none; }
 .free-library-search svg { flex-shrink: 0; }
 .free-library-search input { flex: 1; min-width: 0; padding: 0; border: 0; outline: 0; background: none; color: var(--rl-navy); font: inherit; font-family: var(--rl-read); font-size: .9rem; }
-.free-library-search input::placeholder { color: #8a93a3; }
+.free-library-search input::placeholder { color: #6b7380; }
 .free-library-search:focus-within { border-color: var(--rl-blue); box-shadow: 0 0 0 3px #004fb026; }
 /* Barra de desplazamiento delgada y redondeada: no entra en las esquinas y, en la lista, empieza bajo el encabezado fijo.
    Chrome y Safari usan ::-webkit-scrollbar; Firefox, las propiedades estándar (en Chrome anularían las anteriores). */
@@ -313,13 +313,14 @@
         .free-course-side .free-course-materials-icon { width: 34px; height: 34px; border-radius: 12px; }
     }
 }
-/* Video con materiales en pantalla angosta: todo en una columna; el video usa el ancho y los materiales siguen debajo. */
+/* Video con materiales en pantalla angosta: todo en una columna; el video usa el ancho y los materiales siguen debajo.
+   En celular horizontal el video se limita al alto de la pantalla, para que se vea entero. */
 @media (max-width: 900px) {
     .free-library-dialog--cursos[open]:has(.free-course-player):has(.free-course-materials) { display: block; height: fit-content; overflow-y: auto; }
     .free-library-dialog--cursos:has(.free-course-player):has(.free-course-materials) #free-library-content { display: block; }
     .free-library-dialog--cursos:has(.free-course-materials) .free-library-back { margin-bottom: 16px; }
     .free-library-dialog--cursos:has(.free-course-materials) .free-course-stage { container-type: normal; }
-    .free-library-dialog--cursos:has(.free-course-materials) .free-course-stage .free-course-player { width: 100%; }
+    .free-library-dialog--cursos:has(.free-course-materials) .free-course-stage .free-course-player { width: min(100%, calc((100dvh - 120px) * 16 / 9)); }
     .free-library-dialog--cursos:has(.free-course-materials) .free-course-player-help { justify-self: normal; margin-top: 14px; text-align: left; }
 }
 @media (max-width: 640px) {
