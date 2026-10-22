@@ -107,7 +107,7 @@ test('Cursos integra la biblioteca con textos y enlaces propios y oculta grabado
         window.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
         window.HTMLDialogElement.prototype.close = function () { this.open = false; this.dispatchEvent(new window.Event('close')); };
         const run = name => vm.runInContext(script(name), dom.getInternalVMContext());
-        ['cursos-data.js', 'cursos-catalogo.js', 'cursos-formacion-data.js', 'cursos-formacion.js', 'cursos-gratuitos-data.js', 'cursos-gratuitos.js'].forEach(run);
+        ['cursos-data.js', 'cursos-catalogo.js', 'cursos-formacion-data.js', 'cursos-formacion.js', 'cursos-grabados-data.js', 'cursos-gratuitos.js'].forEach(run);
         const doc = window.document;
         if (query) {
             assert.equal(doc.getElementById('cursos-gratuitos').hidden, true);
@@ -116,7 +116,7 @@ test('Cursos integra la biblioteca con textos y enlaces propios y oculta grabado
             assert.equal(doc.querySelectorAll('.free-course-card').length, 3);
             doc.getElementById('free-library-open').click();
             assert.equal(doc.getElementById('free-library-dialog').open, true);
-            assert.match(doc.getElementById('free-library-content').textContent, /se presentarán los cursos/);
+            assert.equal(doc.querySelectorAll('#free-library-content .free-library-card').length, 20);
             doc.querySelector('[data-free-course="0"]').click();
             assert.equal(doc.querySelector('iframe'), null);
             assert.equal(doc.querySelector('.free-course-catalog-link').getAttribute('href'), 'cursos.html#catalogo');

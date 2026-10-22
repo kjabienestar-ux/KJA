@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="assets/css/paginas/cursos-area.css?v=16">
     <link rel="stylesheet" href="assets/css/paginas/cursos-biblioteca.css?v=14">
     <link rel="stylesheet" href="assets/css/paginas/cursos-formacion.css?v=17">
-    <link rel="stylesheet" href="assets/css/paginas/cursos-grabados.css?v=4">
+    <link rel="stylesheet" href="assets/css/paginas/cursos-grabados.css?v=5">
     <link rel="stylesheet" href="assets/css/paginas/cursos-oferta.css?v=1">
     <link rel="stylesheet" href="assets/css/paginas/cursos-pack.css?v=1">
     <!-- Sin JS, el splash de carga no debe tapar la página -->
@@ -205,7 +205,10 @@
                     <button type="button" class="recorded-library-button" id="free-library-open" aria-haspopup="dialog">Explorar biblioteca <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></button>
                 </div>
             </div>
-            <div class="free-courses-grid" id="free-courses-grid"></div>
+            <div class="recorded-row">
+                <div class="free-courses-grid" id="free-courses-grid"></div>
+                <button type="button" class="recorded-more" id="free-library-more" aria-haspopup="dialog" hidden><span class="recorded-more-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span><span class="recorded-more-text">Ver todos</span></button>
+            </div>
         </div>
         <noscript><p class="free-courses-nojs">La biblioteca de cursos grabados estará disponible próximamente.</p></noscript>
     </section>
@@ -378,8 +381,8 @@
     <script defer src="assets/js/cursos-formacion.js?v=12"></script>
     <script defer src="assets/js/cursos-oferta.js?v=1"></script>
     <script defer src="assets/js/cursos-pack-controller.js?v=1"></script>
-    <script defer src="assets/js/cursos-gratuitos-data.js?v=1"></script>
-    <script defer src="assets/js/cursos-gratuitos.js?v=7"></script>
+    <script defer src="assets/js/cursos-grabados-data.js?v=1"></script>
+    <script defer src="assets/js/cursos-gratuitos.js?v=8"></script>
     <script defer src="assets/js/script.js?v=11"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>

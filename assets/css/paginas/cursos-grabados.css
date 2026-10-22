@@ -83,3 +83,58 @@
     .recorded-title { font-size: 1.15rem; }
     .recorded-library .free-courses-shell::before { display: none; }
 }
+
+/* Fila de la página: tres cursos destacados y una flecha que abre todos los cursos. */
+.recorded-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 18px; }
+.recorded-more { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 4px; border: 0; border-radius: 16px; background: none; color: #bd2165; font: inherit; font-size: .75rem; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.recorded-more[hidden] { display: none; }
+.recorded-more-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: #bd2165; color: #fff; box-shadow: 0 3px 6px #9b215216, 0 8px 20px #9b21521a; }
+.recorded-more-icon svg { width: 24px; height: 24px; }
+.recorded-more-text { max-width: 72px; line-height: 1.3; text-align: center; }
+.recorded-more:focus-visible { outline: 3px solid #b9005a; outline-offset: 4px; }
+
+/* Modal de Cursos: todos los cursos como tarjetas con portada. */
+.free-library-dialog--cursos { width: min(1080px, calc(100% - 40px)); }
+.free-library-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.free-library-card { display: flex; flex-direction: column; min-width: 0; overflow: hidden; padding: 0; border: 1px solid #dbe3f2; border-radius: 18px; background: #fff; color: #14213b; box-shadow: 0 2px 4px #20396708; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.free-library-card-image { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; flex-shrink: 0; }
+.free-library-card-image > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.free-library-card .recorded-free { top: 10px; left: 10px; padding: 4px 9px; font-size: .7rem; }
+.free-library-card-copy { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 14px 16px 16px; }
+.free-library-card .recorded-status { margin: 0; }
+.free-library-card strong { font-size: .95rem; line-height: 1.35; letter-spacing: -.01em; }
+.free-library-card-desc { color: #485672; font-size: .78rem; line-height: 1.55; }
+.free-library-card:focus-visible { outline: 3px solid #b9005a; outline-offset: 3px; }
+.free-library-back { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px; padding: 8px 16px 8px 12px; border: 1px solid #cbd5ef; border-radius: 999px; background: #fff; color: #004fb0; font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; }
+.free-library-back svg { width: 16px; height: 16px; }
+.free-library-back:focus-visible { outline: 3px solid #b9005a; outline-offset: 3px; }
+
+@media (hover: hover) {
+    .recorded-more:hover .recorded-more-icon { background: #a91658; }
+    .free-library-card:hover { border-color: #c9d4ee; box-shadow: 0 10px 24px #2039671a; }
+    .free-library-back:hover { background: #e9effb; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .recorded-more-icon { transition: background-color 150ms ease-out, transform 200ms cubic-bezier(.2,0,0,1); }
+    .free-library-card { transition: box-shadow 200ms ease-out, transform 200ms cubic-bezier(.2,0,0,1); }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .recorded-more:hover .recorded-more-icon { transform: translateX(3px); }
+    .free-library-card:hover { transform: translateY(-2px); }
+}
+@media (max-width: 850px) {
+    .recorded-row { grid-template-columns: minmax(0, 1fr); }
+    .recorded-more { flex-direction: row; justify-content: center; gap: 14px; width: 100%; min-height: 52px; padding: 6px 6px 6px 22px; border-radius: 999px; background: #bd2165; color: #fff; font-size: .85rem; }
+    .recorded-more-icon { order: 2; width: 40px; height: 40px; background: #ffffff24; box-shadow: none; }
+    .recorded-more-text { max-width: none; }
+    .free-library-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+    .free-library-cards { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .free-library-card { flex-direction: row; }
+    .free-library-card-image { flex: 0 0 38%; aspect-ratio: auto; min-height: 104px; }
+    .free-library-card .recorded-free { display: none; }
+    .free-library-card-copy { padding: 12px 14px; }
+    .free-library-card strong { font-size: .88rem; }
+    .free-library-card-desc { display: none; }
+}
