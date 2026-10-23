@@ -10,31 +10,41 @@
   if(!data)return {scope:'unknown',visibleIds:[]};
   const rooms=Array.isArray(data)?data:Array.isArray(data.rooms)?data.rooms:Array.isArray(data.result)?data.result:[];
   const unassigned=Array.isArray(data.unassigned)?data.unassigned:[];
+  // The SDK exposes explicit video states in its breakout-room roster too.
+  // Do not infer remote cameras from the main-session attendee list.
+  const reportedParticipants=rooms.flatMap(r=>(r.participants||[]).filter(p=>p.participantStatus==='joined'));
   if(!rooms.length&&!unassigned.length)return {scope:'unknown',visibleIds:[]};
   if(status==='in room'){
    const currentId=(currentRoom?.result??currentRoom)?.roomId??(currentRoom?.result??currentRoom)?.boId;
    const room=rooms.find(r=>(r.boId||r.roomId||r.id)===currentId);
    if(!room)return {scope:'unknown',visibleIds:[]};
-   return {scope:'local',visibleIds:(room.participants||[]).filter(p=>p.participantStatus==='joined').map(identity).filter(Boolean)};
+   return {scope:'local',reportedParticipants,visibleIds:(room.participants||[]).filter(p=>p.participantStatus==='joined').map(identity).filter(Boolean)};
   }
   if(!['initial','be invited','not joined','return main session'].includes(status))return {scope:'unknown',visibleIds:[]};
   const visible=[...unassigned,...rooms.flatMap(r=>(r.participants||[]).filter(p=>p.participantStatus==='assigned'))];
   const remote=new Set(rooms.flatMap(r=>(r.participants||[]).filter(p=>p.participantStatus==='joined').map(identity)));
-  return {scope:'local',visibleIds:visible.map(identity).filter(id=>id&&!remote.has(id))};
+  return {scope:'local',reportedParticipants,visibleIds:visible.map(identity).filter(id=>id&&!remote.has(id))};
  }
  function roster(raw,scope='main'){
   const list=Array.isArray(raw)?raw:raw?.result?.attendeesList??raw?.attendeesList;
   if(!Array.isArray(list))throw Error('Zoom no confirmó la lista de participantes.');
+  const reported=scope?.scope==='local'?scope.reportedParticipants||[]:[];
+  const roomPeople=new Map(reported.map(p=>[identity(p),p]));
+  const listed=new Set(list.filter(Boolean).map(identity));
+  const combined=[...list,...reported.filter(p=>!listed.has(identity(p)))];
   const seen=new Set();
-  return list.filter(p=>p&&!p.self&&!p.isHold&&!p.isBotUser).map(p=>{
+  return combined.filter(p=>p&&!p.self&&!p.isHold&&!p.isBotUser).map(p=>{
    // Persistent IDs survive renames. Never merge people by their display name.
    const id=identity(p);
-   const observable=scope==='main'||scope?.scope==='local'&&scope.visibleIds?.includes(id);
-   const isVideoOn=p.video===true||p.video===1||p.bVideoOn===true||p.bVideoOn===1;
-   const isVideoOff=p.video===false||p.video===0||p.bVideoOn===false||p.bVideoOn===0;
+   const roomPerson=roomPeople.get(id);
+   const localObservable=scope==='main'||scope?.scope==='local'&&scope.visibleIds?.includes(id);
+   const observable=Boolean(roomPerson)||localObservable;
+   const media=localObservable?p:roomPerson||p;
+   const isVideoOn=media.video===true||media.video===1||media.bVideoOn===true||media.bVideoOn===1;
+   const isVideoOff=media.video===false||media.video===0||media.bVideoOn===false||media.bVideoOn===0;
    const video=isVideoOn?'on':isVideoOff?'off':'unknown';
    const state=observable?video:'unknown';
-   return {id:id.slice(0,160),name:String(p.userName||'Participante sin nombre').slice(0,256),state};
+   return {id:id.slice(0,160),name:String(p.userName||p.displayName||'Participante sin nombre').slice(0,256),state};
   }).filter(p=>{if(!p.id||seen.has(p.id))return false;seen.add(p.id);return true;});
  }
  const duration=value=>{const seconds=Math.max(0,Math.round(Number(value)||0));return Math.floor(seconds/60)+' min '+String(seconds%60).padStart(2,'0')+' s';};

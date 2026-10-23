@@ -1,5 +1,11 @@
 # Cámaras y reporte de observación Zoom
 
+## Corrección del 23 de octubre de 2026 (pendiente de publicar)
+
+El SDK 5.1.4 entrega `video` también en `getBreakoutRooms().result.rooms[].participants[]`, junto con `participantUUID`, `participantId`, `displayName` y `participantStatus`. Se verificó en el bundle oficial: `ZoomMtg.getBreakoutRooms` usa el conversor `A7` del módulo 18877. El código anterior descartaba estos estados por estar fuera de la sala del observador. Ahora se incorporan participantes con estado `joined` y su cámara explícita, incluso si no aparecen en `getAttendeeslist`. Un dato ausente no se sustituye por el estado potencialmente obsoleto de la lista principal. Los participantes de la sala local siguen usando la lista local.
+
+Esto reemplaza la limitación de misma sala descrita más abajo: no hace falta entrar en cada sala si Zoom entrega sus estados. No garantiza que Zoom entregue todos los estados ni su actualización en todas las configuraciones. Falta validar el resultado con una reunión real. El alcance de almacenamiento `local` se conserva por compatibilidad con la migración 119; ahora incluye estados explícitos del listado de salas. No se modifica el historial ni se requiere una nueva migración. Publicar los módulos de cámaras y ambos HTML con versión de caché 4.
+
 Integrado en localhost. Migraciones 118 y 119 aplicadas a la base conectada el 21 de octubre de 2026. Las correcciones se verificaron con SDK simulado y PostgreSQL; falta confirmar los nuevos estados con Zoom real después de recargar el cliente.
 
 ## Uso
