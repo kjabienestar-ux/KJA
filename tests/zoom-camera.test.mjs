@@ -42,3 +42,24 @@ test('CSV escapes display names, spreadsheet formulas and preserves unknown perc
  assert.ok(csv.startsWith('\ufeff'));assert.match(csv,/'=HYPERLINK\(""url""\)/);assert.ok(csv.endsWith(',""'));
  assert.equal(model.duration(125),'2 min 05 s');
 });
+
+test('breakout video states override stale main roster and include room-only participants',()=>{
+ const rooms={result:{rooms:[{boId:'design',participants:[
+  {participantId:2,participantUUID:'a',displayName:'Ana',participantStatus:'joined',video:true},
+  {participantId:3,participantUUID:'b',displayName:'Luis',participantStatus:'joined',video:false},
+  {participantId:4,participantUUID:'c',displayName:'Sin dato',participantStatus:'joined'},
+  {participantId:5,participantUUID:'d',displayName:'Texto',participantStatus:'joined',video:'true'}
+ ]}],unassigned:[]}};
+ const main=[{userId:2,participantUUID:'a',userName:'Ana',video:false},{userId:4,participantUUID:'c',video:true}];
+ const context=model.roomVisibility('initial',rooms);
+ const people=model.roster(main,context);
+ assert.equal(people.length,4);
+ assert.equal(people.find(p=>p.id==='uuid:a').state,'on');
+ assert.equal(people.find(p=>p.id==='uuid:b').state,'off');
+ assert.equal(people.find(p=>p.id==='uuid:b').name,'Luis');
+ assert.equal(people.find(p=>p.id==='uuid:c').state,'unknown');
+ assert.equal(people.find(p=>p.id==='uuid:d').state,'unknown');
+ rooms.result.rooms[0].participants[0].video=false;
+ assert.equal(model.roster(main,model.roomVisibility('initial',rooms))[0].state,'off');
+ assert.ok(model.roster(main,model.roomVisibility('joining',rooms)).every(p=>p.state==='unknown'));
+});

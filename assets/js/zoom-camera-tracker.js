@@ -41,10 +41,10 @@
     people=M.roster(raw,roomScope);
     const coverage=typeof roomScope==='string'?roomScope:roomScope.scope;
     const known=people.filter(p=>p.state!=='unknown').length;
-    paint(coverage==='main'||coverage==='local'?'Observando '+known+' de '+people.length+' cámaras desde esta sala. Guardando…':'Zoom no confirmó la sala del observador. Cámaras sin información.');
+    paint(coverage==='main'||coverage==='local'?'Observando '+known+' de '+people.length+' cámaras informadas por Zoom. Guardando…':'Zoom no confirmó la sala del observador. Cámaras sin información.');
     const saved=await rpc(db,'dash_zoom_camera_sample',{p_session:sessionId,p_seq:++sequence,p_scope:coverage,p_participants:people});
     if(current!==generation||!running||!joined||!visible||!online)return;
-    paint('Observación guardada · '+M.time(saved.received_at)+'. '+known+' de '+people.length+' cámaras confirmadas. Las personas en otras salas quedan sin información.');
+    paint('Observación guardada · '+M.time(saved.received_at)+'. '+known+' de '+people.length+' cámaras confirmadas. Sin información indica que Zoom no confirmó el estado de cámara.');
    }catch(error){
     if(current===generation&&running)invalidate(error.message+' Mantén el panel abierto; vuelve a consultar para reintentar.');
    }finally{

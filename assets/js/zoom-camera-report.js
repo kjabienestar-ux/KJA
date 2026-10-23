@@ -127,7 +127,7 @@
    }
    const stale=Date.parse(data.now)-Date.parse(data.session.last_seen_at)>40000;
    status.textContent=(data.session.ended_at?'Observación finalizada.':stale?'Observación interrumpida: vuelve al panel de Zoom y comprueba la conexión del observador.':'Observación en curso. El reporte se actualiza cada 15 segundos.')+' Última señal: '+M.time(data.session.last_seen_at)+'. No incluye períodos anteriores a su inicio.';
-   $('[data-report-coverage]').textContent=data.scope==='breakout'?'Estas muestras fueron registradas por la versión anterior, que no confirmaba cámaras al abrir las salas. Los tiempos anteriores no se pueden reconstruir.':data.scope==='unknown'?'Zoom no confirmó la sala del observador. Comprueba su conexión y rol en Control KJA.':data.scope==='local'?'Cobertura parcial: se confirman las cámaras de esta sala. Para observar otra sala, el responsable debe entrar a ella.':'';
+   $('[data-report-coverage]').textContent=data.scope==='breakout'?'Estas muestras fueron registradas por la versión anterior, que no confirmaba cámaras al abrir las salas. Los tiempos anteriores no se pueden reconstruir.':data.scope==='unknown'?'Zoom no confirmó la sala del observador. Comprueba su conexión y rol en Control KJA.':data.scope==='local'?'Salas abiertas: se registran los estados de cámara que Zoom informa para cada participante. Sin información indica que no se recibió un estado confirmado; no significa cámara apagada.':'';
    if(!data.people.length){
     if(filterBar)filterBar.hidden=true;
     results.innerHTML='<p>No se han observado participantes en esta sesión.</p>';
