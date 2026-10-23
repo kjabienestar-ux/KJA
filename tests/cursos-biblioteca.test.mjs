@@ -107,21 +107,24 @@ test('Cursos integra la biblioteca con textos y enlaces propios y oculta grabado
         window.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
         window.HTMLDialogElement.prototype.close = function () { this.open = false; this.dispatchEvent(new window.Event('close')); };
         const run = name => vm.runInContext(script(name), dom.getInternalVMContext());
-        ['cursos-data.js', 'cursos-catalogo.js', 'cursos-formacion-data.js', 'cursos-formacion.js', 'cursos-gratuitos-data.js', 'cursos-gratuitos.js'].forEach(run);
+        ['cursos-data.js', 'cursos-catalogo.js', 'cursos-formacion-data.js', 'cursos-formacion.js', 'cursos-grabados-data.js', 'cursos-gratuitos.js'].forEach(run);
         const doc = window.document;
         if (query) {
             assert.equal(doc.getElementById('cursos-gratuitos').hidden, true);
             assert.equal(doc.querySelectorAll('.free-course-card').length, 0);
         } else {
             assert.equal(doc.querySelectorAll('.free-course-card').length, 3);
-            doc.getElementById('free-library-open').click();
+            doc.getElementById('free-library-more').click();
             assert.equal(doc.getElementById('free-library-dialog').open, true);
-            assert.match(doc.getElementById('free-library-content').textContent, /se presentarán los cursos/);
-            doc.querySelector('[data-free-course="0"]').click();
-            assert.equal(doc.querySelector('iframe'), null);
-            assert.equal(doc.querySelector('.free-course-catalog-link').getAttribute('href'), 'cursos.html#catalogo');
+            assert.equal(doc.querySelectorAll('#free-library-content .free-library-card').length, 20);
+            const pending = vm.runInContext('FREE_COURSE_LIBRARY.courses.findIndex(course => !course.driveUrl)', dom.getInternalVMContext());
+            if (pending > -1) {
+                doc.querySelector('.free-library-card[data-free-course="' + pending + '"]').click();
+                assert.equal(doc.querySelector('iframe'), null);
+                assert.equal(doc.querySelector('.free-course-catalog-link').getAttribute('href'), 'cursos.html#catalogo');
+            }
             doc.getElementById('free-library-close').click();
-            assert.equal(doc.activeElement.id, 'free-library-open');
+            assert.equal(doc.activeElement.id, 'free-library-more');
         }
         dom.window.close();
     }
