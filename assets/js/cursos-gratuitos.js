@@ -20,6 +20,16 @@
     const book = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v15M3 4c3-1 6-1 9 1 3-2 6-2 9-1v15c-3-1-6-1-9 1-3-2-6-2-9-1V4Z"/></svg>';
     const external = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 4h6v6m0-6-9 9m7 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
     const folder = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M3 10h18"/></svg>';
+    // Dossier y documentos comparten geometría y trazos; el color vive en CSS.
+    const dossier = '<svg class="resource-dossier" width="52" height="52" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<path class="resource-dossier-back" d="M6 38V18a4 4 0 0 1 4-4h12l5 5h19a4 4 0 0 1 4 4v15"/>' +
+        '<g class="resource-dossier-sheet-back"><path d="M15 27V8a2 2 0 0 1 2-2h17l8 8v16"/><path d="M34 6v8h8"/></g>' +
+        '<path class="resource-dossier-paper" fill="currentColor" stroke="none" d="M20 12h16l8 8v23H20Z"/>' +
+        '<g class="resource-dossier-sheet"><path d="M20 30V14a2 2 0 0 1 2-2h14l8 8v10"/><path d="M36 12v8h8m-18 2h7m-7 5h12"/></g>' +
+        '<path class="resource-dossier-front" fill="currentColor" stroke="none" d="M5 28h46l-4 17a4 4 0 0 1-4 3H13a4 4 0 0 1-4-3Z"/>' +
+        '<path d="M8 28h40a3 3 0 0 1 3 4l-4 13a4 4 0 0 1-4 3H13a4 4 0 0 1-4-3L5 32a3 3 0 0 1 3-4Z"/>' +
+        '<path class="resource-dossier-tab" d="M13 34h10"/></svg>';
+    const documentGlyph = '<svg width="30" height="38" viewBox="0 0 32 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h14l8 8v26a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M20 2v8h8M10 17h12m-12 5h8"/></svg>';
     const magnifier = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
     const clock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
     const accents = '<svg class="free-course-accent free-course-accent--play" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m13 15-2-9m10 11 3-12m3 19 9-6"/></svg>' +
@@ -122,13 +132,15 @@
             .map(item => ({ item, source: item && item.titulo ? driveSource(item.url) : null }))
             .filter(entry => entry.source);
         if (!items.length) return '';
-        return '<section class="free-course-materials" aria-labelledby="free-course-materials-title"><div class="free-course-materials-head"><span class="free-course-materials-icon" aria-hidden="true">' + folder + '</span>' +
-            '<div><h3 id="free-course-materials-title">Materiales del ' + singular + ' <span>' + items.length + '</span></h3><p>Material de apoyo de KJA para este ' + singular + '.</p></div></div><ul>' +
+        return '<section class="free-course-materials" aria-labelledby="free-course-materials-title"><div class="free-course-materials-head"><span class="free-course-materials-icon" aria-hidden="true">' + (cardLibrary ? dossier : folder) + '</span>' +
+            '<div><h3 id="free-course-materials-title">Materiales del ' + singular + ' <span>' + items.length + (cardLibrary ? (items.length === 1 ? ' archivo de apoyo' : ' archivos de apoyo') : '') + '</span></h3>' + (cardLibrary ? '' : '<p>Material de apoyo de KJA para este ' + singular + '.</p>') + '</div></div><ul>' +
             items.map(({ item, source }) => {
                 const type = String(item.tipo || 'Archivo');
+                const typeLabel = '<span class="free-course-material-type free-course-material-type--' + type.toLowerCase().replace(/[^a-z]/g, '') + '" aria-hidden="true">' + escape(type.toUpperCase()) + '</span>';
+                const kind = { PDF: 'Documento PDF', PPT: 'Presentación', Video: 'Video complementario' }[type] || 'Archivo';
                 return '<li><a class="free-course-material" href="' + source.open + '" target="_blank" rel="noopener noreferrer" aria-label="' + escape(item.titulo) + ' (' + escape(type) + ', se abre en otra pestaña)">' +
-                    '<span class="free-course-material-type free-course-material-type--' + type.toLowerCase().replace(/[^a-z]/g, '') + '" aria-hidden="true">' + escape(type.toUpperCase()) + '</span>' +
-                    '<span class="free-course-material-name">' + escape(item.titulo) + '</span><span class="free-course-material-action" aria-hidden="true"><span>Abrir</span>' + external + '</span></a></li>';
+                    (cardLibrary ? '<span class="free-course-material-file" aria-hidden="true">' + documentGlyph + typeLabel + '</span><span class="free-course-material-copy"><span class="free-course-material-name">' + escape(item.titulo) + '</span><span class="free-course-material-kind">' + kind + '</span></span>' : typeLabel + '<span class="free-course-material-name">' + escape(item.titulo) + '</span>') +
+                    '<span class="free-course-material-action" aria-hidden="true"><span>Abrir</span>' + external + '</span></a></li>';
             }).join('') + '</ul><p class="free-course-materials-note">' + external + 'Se abren en Google Drive, en otra pestaña.</p></section>';
     }
 
@@ -168,7 +180,7 @@
         status.textContent = source ? 'Gratis · Grabado' : preview ? 'Vista previa · Título de ejemplo' : 'Próximamente';
         if (search) search.hidden = true;
         content.innerHTML = (cardLibrary && courses.length > 1 ? '<button type="button" class="free-library-back" data-free-back>' + back + 'Todos los ' + plural + '</button>' : '') + (source ?
-            '<div class="free-course-stage"><div class="free-course-player"><iframe src="' + source.embed + '" title="' + escape(course.title) + '" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div></div><p class="free-course-player-help">¿No se reproduce? <a href="' + source.open + '" target="_blank" rel="noopener noreferrer">Abrir en otra pestaña' + external + '</a></p>' :
+            '<div class="free-course-stage"><div class="free-course-player"><iframe src="' + source.embed + '" title="' + escape(course.title) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div></div><div class="free-course-player-help"><span>¿No se reproduce?</span> <button type="button" data-free-retry>Recargar video</button><a href="' + source.open + '" target="_blank" rel="noopener noreferrer">Abrir en otra pestaña' + external + '</a></div>' :
             '<div class="free-course-coming"><span class="free-course-coming-play" aria-hidden="true">' + play + '</span><h3>Estamos preparando este espacio</h3><p>' + (preview ? 'El título y la portada son ilustrativos. Publicaremos los ' + plural + ' reales cuando la biblioteca esté disponible.' : materials ? 'El video de este ' + singular + ' todavía no está disponible. Mientras tanto, puedes revisar sus materiales.' : 'Este ' + singular + ' todavía no está disponible. Puedes seguir explorando la formación de KJA.') + '</p><a href="' + catalogUrl + '" class="free-course-catalog-link">Explorar ' + plural + ' ' + arrow + '</a></div>') + (source && materials ? courseSide(materials) : materials);
         dialog.scrollTop = 0;
         openDialog(trigger);
@@ -193,6 +205,13 @@
     document.getElementById('free-library-open')?.addEventListener('click', event => showLibrary(event.currentTarget));
     document.getElementById('free-library-close').addEventListener('click', () => dialog.close());
     document.addEventListener('click', event => {
+        const retry = event.target.closest('[data-free-retry]');
+        if (retry && content.contains(retry)) {
+            // Recrear únicamente el iframe descarta la sesión fallida de Drive.
+            // No consultar su DOM: el proveedor es de otro origen.
+            const frame = content.querySelector('.free-course-player iframe');
+            if (frame) frame.replaceWith(frame.cloneNode());
+        }
         const button = event.target.closest('[data-free-course]');
         if (button && (grid.contains(button) || content.contains(button))) showCourse(Number(button.dataset.freeCourse), button);
         if (event.target.closest('.free-course-catalog-link')) dialog.close();

@@ -34,9 +34,9 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="assets/css/paginas/cursos.css?v=5">
     <link rel="stylesheet" href="assets/css/paginas/cursos-area.css?v=16">
-    <link rel="stylesheet" href="assets/css/paginas/cursos-biblioteca.css?v=14">
+    <link rel="stylesheet" href="assets/css/paginas/cursos-biblioteca.css?v=15">
     <link rel="stylesheet" href="assets/css/paginas/cursos-formacion.css?v=17">
-    <link rel="stylesheet" href="assets/css/paginas/cursos-grabados.css?v=14">
+    <link rel="stylesheet" href="assets/css/paginas/cursos-grabados.css?v=32">
     <link rel="stylesheet" href="assets/css/paginas/cursos-oferta.css?v=1">
     <link rel="stylesheet" href="assets/css/paginas/cursos-pack.css?v=1">
     <!-- Sin JS, el splash de carga no debe tapar la página -->
@@ -204,7 +204,11 @@
             </div>
             <div class="recorded-row">
                 <div class="free-courses-grid" id="free-courses-grid"></div>
-                <button type="button" class="recorded-more" id="free-library-more" aria-haspopup="dialog" hidden><span class="recorded-more-label">Biblioteca completa</span><span class="recorded-more-covers" aria-hidden="true"></span><span class="recorded-more-copy"><strong class="recorded-more-count"></strong><span class="recorded-more-text">cursos gratuitos</span></span><span class="recorded-more-action"><span class="recorded-more-action-text">Ver todos</span><span class="recorded-more-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span></button>
+                <button type="button" class="recorded-more recorded-more--browse" id="free-library-more" aria-haspopup="dialog" hidden>
+                    <span class="recorded-more-symbol" aria-hidden="true"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path class="library-book-back" d="M7 16c7-3 14-2 21 2 7-4 14-5 21-2v29c-7-2-14-2-21 2-7-4-14-4-21-2Z"/><path class="library-book-paper" fill="currentColor" stroke="none" d="M4 10c8-2 16-1 24 3 8-4 16-5 24-3v30c-8-2-16-1-24 3-8-4-16-5-24-3Z"/><path d="M4 10c8-2 16-1 24 3 8-4 16-5 24-3v30c-8-2-16-1-24 3-8-4-16-5-24-3Zm24 3v30"/><path class="library-book-lines" d="M10 19c4 0 8 1 12 3m-12 4c4 0 8 1 12 3m12 2 11-3"/><path class="library-book-bookmark" fill="currentColor" stroke="none" d="M38 10.4c2.7-.6 5.3-.8 8-.8V25l-4-2.5-4 2.5Z"/></svg></span>
+                    <span class="recorded-more-summary"><strong class="recorded-more-title">Más cursos para ti</strong><span class="recorded-more-description">Descubre los <span class="recorded-more-count"></span> cursos de nuestra biblioteca gratuita.</span></span>
+                    <span class="recorded-more-action"><span class="recorded-more-action-text">Ver todos los cursos</span><span class="recorded-more-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span></span>
+                </button>
             </div>
         </div>
         <noscript><p class="free-courses-nojs">La biblioteca de cursos grabados estará disponible próximamente.</p></noscript>
@@ -379,7 +383,7 @@
     <script defer src="assets/js/cursos-oferta.js?v=1"></script>
     <script defer src="assets/js/cursos-pack-controller.js?v=1"></script>
     <script defer src="assets/js/cursos-grabados-data.js?v=2"></script>
-    <script defer src="assets/js/cursos-gratuitos.js?v=16"></script>
+    <script defer src="assets/js/cursos-gratuitos.js?v=18"></script>
     <script defer src="assets/js/script.js?v=11"></script>
     <script defer src="assets/js/accessibility.js?v=1"></script>
     <script defer src="assets/js/whatsapp-assistant.js?v=5"></script>

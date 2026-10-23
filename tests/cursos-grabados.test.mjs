@@ -166,3 +166,23 @@ test('los materiales con enlaces que no son de un archivo de Drive no se muestra
     assert.equal(links[0].querySelector('.free-course-material-name').textContent, 'Bueno <b>', 'el título se escapa');
     dom.window.close();
 });
+
+
+test('recargar un video recrea solo el iframe y conserva los materiales y su destino', () => {
+    const dom = cursos();
+    const { document } = dom.window;
+    document.querySelector('.recorded-card').click();
+    const original = document.querySelector('.free-course-player iframe');
+    const materials = document.querySelector('.free-course-materials');
+    document.querySelector('[data-free-retry]').click();
+    const replacement = document.querySelector('.free-course-player iframe');
+    assert.notEqual(replacement, original);
+    assert.equal(original.isConnected, false);
+    assert.equal(replacement.src, original.src);
+    assert.equal(replacement.getAttribute('allow'), original.getAttribute('allow'));
+    assert.equal(document.querySelector('.free-course-materials'), materials);
+    assert.equal(document.querySelectorAll('.free-course-player iframe').length, 1);
+    document.getElementById('free-library-close').click();
+    assert.equal(document.querySelector('.free-course-player iframe'), null);
+    dom.window.close();
+});
