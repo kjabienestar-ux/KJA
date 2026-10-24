@@ -45,56 +45,27 @@
 .recorded-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 14px; border-top: 1px solid #edf0f6; }
 .recorded-meta { display: inline-flex; align-items: center; gap: 6px; color: var(--rl-blue); font-size: .74rem; font-weight: 600; }
 .recorded-meta svg { width: 16px; height: 16px; }
-.recorded-play { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--rl-pink), var(--rl-pink-deep)); color: #fff; box-shadow: 0 8px 16px -8px #f10075b3; }
+.recorded-play { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; background: var(--rl-pink-ink); color: #fff; box-shadow: 0 8px 16px -8px #f10075b3; }
 .recorded-play svg { width: 20px; height: 20px; translate: 1px 0; }
 .recorded-library .free-courses-preview { margin: 24px 0 0; padding: 14px 0 0; border-top: 1px solid var(--rl-line); color: var(--rl-text); font-size: .75rem; line-height: 1.65; }
 
-.recorded-more { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; min-width: 0; padding: 22px 20px 20px; border: 0; border-radius: 20px; background: linear-gradient(165deg, #0a62d0, var(--rl-blue) 45%, var(--rl-blue-deep)); color: #fff; box-shadow: 0 22px 40px -22px #004fb0b3; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.recorded-more[hidden] { display: none; }
-.recorded-more::before { content: ''; position: absolute; z-index: -1; width: 200px; height: 200px; right: -80px; bottom: -70px; border-radius: 50%; background: radial-gradient(circle, #f1007559, transparent 68%); pointer-events: none; }
-.recorded-more-label { color: #ffffffb8; font-size: .66rem; font-weight: 700; line-height: 1.4; letter-spacing: .12em; text-transform: uppercase; }
-.recorded-more-covers { display: flex; margin-top: auto; }
-.recorded-more-covers img { width: 44px; height: 44px; border: 2px solid #fff; border-radius: 50%; object-fit: cover; background: #dbe6fb; }
-.recorded-more-covers img + img { margin-left: -14px; }
-.recorded-more-copy { display: flex; flex-direction: column; }
-.recorded-more-count { font-family: var(--rl-serif); font-size: 3.25rem; font-weight: 600; line-height: 1; letter-spacing: -.03em; }
-.recorded-more-text { margin-top: 4px; color: #ffffffd9; font-size: .82rem; font-weight: 600; line-height: 1.35; }
-.recorded-more-action { display: flex; align-items: center; justify-content: space-between; gap: 10px; align-self: stretch; padding-top: 14px; border-top: 1px solid #ffffff2e; font-size: .8rem; font-weight: 700; }
-.recorded-more-icon { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: #fff; color: var(--rl-blue); }
-.recorded-more-icon svg { width: 18px; height: 18px; }
 .recorded-card:focus-visible, .recorded-more:focus-visible { outline: 3px solid var(--rl-blue); outline-offset: 4px; }
 .recorded-card:focus-visible { border-color: rgb(var(--recorded-glow) / .3); box-shadow: 0 1px 2px #1018280a, 0 22px 40px -18px rgb(var(--recorded-glow) / .38); }
 .recorded-card:focus-visible .recorded-copy::before { opacity: 1; }
 @media (hover: hover) {
     .recorded-card:hover { border-color: rgb(var(--recorded-glow) / .3); box-shadow: 0 1px 2px #1018280a, 0 22px 40px -18px rgb(var(--recorded-glow) / .38); }
     .recorded-card:hover .recorded-copy::before { opacity: 1; }
-    .recorded-more:hover { box-shadow: 0 26px 44px -20px #004fb0cc; }
 }
 @media (prefers-reduced-motion: no-preference) {
     .recorded-card { transition: box-shadow 250ms ease-out, border-color 250ms ease-out, transform 250ms cubic-bezier(.2,0,0,1), scale 150ms ease-out; }
     .recorded-image > img { transition: transform 400ms cubic-bezier(.2,0,0,1); }
     .recorded-play { transition: transform 200ms cubic-bezier(.2,0,0,1); }
-    .recorded-more { transition: box-shadow 200ms ease-out, transform 200ms cubic-bezier(.2,0,0,1), scale 150ms ease-out; }
-    .recorded-more-icon { transition: transform 200ms cubic-bezier(.2,0,0,1); }
-    .recorded-card:active:not(:disabled), .recorded-more:active:not(:disabled) { scale: .97; }
+    .recorded-card:active:not(:disabled) { scale: .96; }
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .recorded-card:hover, .recorded-more:hover { transform: translateY(-4px); }
+    .recorded-card:hover { transform: translateY(-4px); }
     .recorded-card:hover .recorded-image > img { transform: scale(1.04); }
     .recorded-card:hover .recorded-play { transform: scale(1.08); }
-    .recorded-more:hover .recorded-more-icon { transform: translateX(3px); }
-}
-/* Hasta 1100px el mosaico pasa a una barra debajo de las tarjetas. */
-@media (max-width: 1100px) {
-    .recorded-row { grid-template-columns: minmax(0, 1fr); }
-    .recorded-more { flex-direction: row; align-items: center; gap: 16px; padding: 14px 14px 14px 18px; border-radius: 18px; }
-    .recorded-more::before { right: 18%; bottom: -150px; width: 280px; height: 280px; }
-    .recorded-more-label { display: none; }
-    .recorded-more-covers { margin: 0; }
-    .recorded-more-copy { flex-direction: row; align-items: baseline; gap: 8px; }
-    .recorded-more-count { font-size: 2rem; }
-    .recorded-more-text { margin: 0; font-size: .9rem; }
-    .recorded-more-action { align-self: auto; margin-left: auto; padding: 0; border: 0; }
 }
 @media (max-width: 1050px) {
     .recorded-library .free-courses-shell { padding: 30px; }
@@ -119,17 +90,10 @@
     .recorded-image { min-height: 0; height: auto; aspect-ratio: 16 / 9; }
     .recorded-copy { padding: 18px 18px 16px; }
     .recorded-title { font-size: 1.2rem; }
-    .recorded-more { gap: 12px; padding: 12px 12px 12px 14px; }
-    .recorded-more-covers img { width: 36px; height: 36px; }
-    .recorded-more-covers img + img { margin-left: -12px; }
-    .recorded-more-covers img:nth-child(3) { display: none; }
-    .recorded-more-count { font-size: 1.7rem; }
-    .recorded-more-text { font-size: .82rem; }
-    .recorded-more-action-text { display: none; }
 }
 
 /* Modal de Cursos: todos los cursos como tarjetas con portada, con la misma paleta y tipografía. */
-.free-library-dialog--cursos { width: min(1080px, calc(100% - 40px)); border-radius: 24px; background: radial-gradient(ellipse 50% 40% at 0 0, #f100750a, transparent 70%), radial-gradient(ellipse 50% 50% at 100% 100%, #004fb00d, transparent 70%), #fff; color: var(--rl-navy); }
+.free-library-dialog--cursos { width: min(1080px, calc(100% - 40px)); border-radius: 24px; background: #f8fafceF; -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); color: var(--rl-navy); }
 .free-library-dialog--cursos .free-library-dialog-heading { align-items: center; margin-bottom: 20px; }
 .free-library-dialog--cursos h2 { color: var(--rl-navy); font-weight: 800; letter-spacing: -.03em; }
 /* Dentro de un curso, su título usa la misma voz editorial que las tarjetas. */
@@ -145,7 +109,7 @@
 .free-library-dialog--cursos .free-course-coming-play { background: #fff0f7; color: var(--rl-pink-ink); box-shadow: 0 0 0 8px #f100750d; }
 .free-library-dialog--cursos .free-course-coming h3 { color: var(--rl-navy); font-family: var(--rl-serif); font-size: 1.35rem; font-weight: 600; letter-spacing: -.015em; }
 .free-library-dialog--cursos .free-course-coming p { color: var(--rl-text); font-family: var(--rl-read); line-height: 1.65; }
-.free-library-dialog--cursos .free-course-catalog-link { gap: 12px; min-height: 46px; padding: 0 22px; border-radius: 999px; background: linear-gradient(135deg, var(--rl-pink), var(--rl-pink-deep)); box-shadow: 0 12px 24px -10px #f100758c; color: #fff; font-weight: 700; text-decoration: none; }
+.free-library-dialog--cursos .free-course-catalog-link { gap: 12px; min-height: 46px; padding: 0 22px; border-radius: 999px; background: var(--rl-pink-ink); box-shadow: 0 12px 24px -10px #f100758c; color: #fff; font-weight: 700; text-decoration: none; }
 .free-library-dialog--cursos .free-course-catalog-link:focus-visible { outline: 3px solid var(--rl-blue); outline-offset: 3px; }
 
 /* Curso con video: el modal se ajusta a la pantalla y el video ocupa el espacio libre en 16:9, sin scroll.
@@ -187,7 +151,7 @@
 .free-library-card[hidden] { display: none; }
 .free-library-card-image { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; flex-shrink: 0; }
 .free-library-card-image > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.free-library-card-play { position: absolute; right: 10px; bottom: 10px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--rl-pink), var(--rl-pink-deep)); color: #fff; box-shadow: 0 6px 14px -6px #f10075b3; }
+.free-library-card-play { position: absolute; right: 10px; bottom: 10px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--rl-pink-ink); color: #fff; box-shadow: 0 6px 14px -6px #f10075b3; }
 .free-library-card-play svg { width: 16px; height: 16px; translate: 1px 0; }
 .free-library-card-soon { position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 999px; background: #fff7eb; color: var(--rl-soon); font-size: .62rem; font-weight: 700; line-height: 1.4; letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 2px 8px #10182814; }
 .free-library-card-copy { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 14px 16px 16px; }
@@ -255,40 +219,89 @@
     .free-library-card-desc { display: none; }
 }
 
-/* Materiales del curso: un panel con tinte de marca; cada archivo es una tarjeta con su tipo en color
-   (PDF rosa, PPT naranja como PowerPoint, video azul) y el nombre completo debajo, para que no se corte en columnas angostas.
-   En pantallas anchas el panel va junto al video; en las angostas, debajo. */
-.free-course-materials { display: flex; flex-direction: column; gap: 14px; margin-top: 24px; padding: 18px; border: 1px solid var(--rl-line); border-radius: 20px; background: radial-gradient(ellipse 80% 55% at 100% 0, #f1007512, transparent 70%), radial-gradient(ellipse 80% 55% at 0 100%, #004fb012, transparent 70%), #f8faff; }
-.free-course-materials-head { display: flex; align-items: center; gap: 12px; }
-.free-course-materials-icon { flex-shrink: 0; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(135deg, var(--rl-pink), var(--rl-blue)); color: #fff; box-shadow: 0 8px 18px -8px #004fb080; }
-.free-course-materials h3 { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--rl-navy); font-family: 'Poppins', sans-serif; font-size: .98rem; font-weight: 700; line-height: 1.3; letter-spacing: -.01em; }
-.free-course-materials h3 span { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--rl-pink-ink); color: #fff; font-size: .7rem; font-weight: 700; }
-.free-course-materials-head p { margin: 2px 0 0; color: var(--rl-text); font-family: var(--rl-read); font-size: .78rem; line-height: 1.45; }
-.free-course-materials ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
-.free-course-material { --material: var(--rl-pink-ink); --material-tint: #fff3f8; --material-line: #f7d3e3; display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "type . action" "name name name"; align-items: center; gap: 10px 8px; height: 100%; padding: 12px 14px 14px; border: 1px solid var(--material-line); border-radius: 16px; background: linear-gradient(160deg, var(--material-tint), #fff 70%); color: var(--rl-navy); box-shadow: 0 1px 2px #1018280a; text-decoration: none; -webkit-tap-highlight-color: transparent; }
-.free-course-material:has(.free-course-material-type--ppt) { --material: #c2410c; --material-tint: #fff5ec; --material-line: #fadcc5; }
-.free-course-material:has(.free-course-material-type--video) { --material: var(--rl-blue); --material-tint: #f0f5ff; --material-line: #d3e1fa; }
-.free-course-material-type { grid-area: type; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--material); color: #fff; font-family: 'Poppins', sans-serif; font-size: .64rem; font-weight: 800; letter-spacing: .08em; box-shadow: 0 4px 10px -4px color-mix(in srgb, var(--material) 70%, transparent); }
-.free-course-material-name { grid-area: name; min-width: 0; font-family: var(--rl-read); font-size: .88rem; font-weight: 500; line-height: 1.45; }
-.free-course-material-action { grid-area: action; display: inline-flex; align-items: center; gap: 5px; color: var(--rl-blue); font-family: 'Poppins', sans-serif; font-size: .74rem; font-weight: 600; }
-.free-course-material-action svg { width: 15px; height: 15px; }
-.free-course-material:focus-visible { outline: 3px solid var(--rl-blue); outline-offset: 3px; }
-.free-course-materials-note { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--rl-text); font-family: var(--rl-read); font-size: .74rem; line-height: 1.45; }
-.free-course-materials-note svg { flex-shrink: 0; color: var(--rl-blue); }
+/* Materiales: un dossier y archivos con una sola acción, sin decoraciones laterales.
+   Bordes uniformes, radios concéntricos y tintes suaves según el formato. */
+.free-library-dialog--cursos .free-course-materials {
+    display: flex; flex-direction: column; flex: 0 1 auto; gap: 20px;
+    margin: 24px 0 0; padding: 16px; border: 1px solid transparent; border-radius: 29px;
+    background: #ffffffb8; color: var(--rl-navy);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: 0 0 0 1px #15243a08, 0 1px 2px -1px #15243a0a, 0 8px 24px -16px #15243a1a;
+    overscroll-behavior: contain;
+}
+.free-library-dialog--cursos .free-course-materials-head { display: flex; align-items: center; gap: 12px; padding: 4px 2px 0; }
+.free-library-dialog--cursos .free-course-materials-head > div { flex: 1; min-width: 0; }
+.free-library-dialog--cursos .free-course-materials-icon { display: block; flex-shrink: 0; width: 48px; height: 48px; color: #52647d; }
+.resource-dossier { display: block; width: 48px; height: 48px; }
+.resource-dossier-back { opacity: .6; }
+.resource-dossier-sheet-back { color: #aeb9c8; }
+.resource-dossier-paper { color: #fff; }
+.resource-dossier-sheet { color: #7f90a7; }
+.resource-dossier-front { color: #f7f9fc; }
+.resource-dossier-tab { color: var(--rl-pink-ink); stroke-width: 2.5px; }
+.free-library-dialog--cursos .free-course-materials h3 {
+    display: block; margin: 0; color: var(--rl-navy); font-family: 'Poppins', sans-serif;
+    font-size: .95rem; font-weight: 600; line-height: 1.4; letter-spacing: -.025em;
+}
+.free-library-dialog--cursos .free-course-materials h3 span {
+    display: block; margin-top: 5px; color: #687487; font-family: var(--rl-read);
+    font-size: .75rem; font-weight: 400; line-height: 1.4; letter-spacing: normal;
+}
+.free-library-dialog--cursos .free-course-materials ul { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.free-library-dialog--cursos .free-course-materials li { min-width: 0; }
+.free-library-dialog--cursos .free-course-material {
+    --material: #52647d; --material-tint: #edf1f6;
+    --material-surface: #f9fafc; --material-hover: #f0f3f7;
+    display: grid; grid-template-columns: 40px minmax(0, 1fr) 16px;
+    align-items: center; gap: 12px; min-height: 90px; height: 100%;
+    padding: 14px 12px; border: 1px solid transparent; border-radius: 12px;
+    background: var(--material-surface); color: var(--rl-navy); text-decoration: none;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--material) 10%, transparent), 0 2px 3px -1px #15243a08, 0 6px 12px -5px color-mix(in srgb, var(--material) 13%, transparent);
+    transition: background-color 150ms ease-out; -webkit-tap-highlight-color: transparent;
+}
+.free-library-dialog--cursos .free-course-material:has(.free-course-material-type--pdf) {
+    --material: #b52260; --material-tint: #fbe5ee;
+    --material-surface: #fff8fb; --material-hover: #fff0f6;
+}
+.free-library-dialog--cursos .free-course-material:has(.free-course-material-type--ppt) {
+    --material: #a94b25; --material-tint: #f9e9dc;
+    --material-surface: #fffaf6; --material-hover: #fff3e9;
+}
+.free-library-dialog--cursos .free-course-material:has(.free-course-material-type--video) {
+    --material: #075abc; --material-tint: #e4edfc;
+    --material-surface: #f7faff; --material-hover: #edf4ff;
+}
+.free-course-material-file { position: relative; width: 40px; height: 48px; color: color-mix(in srgb, var(--material) 65%, #fff); }
+.free-course-material-file > svg { position: absolute; top: 1px; left: 6px; }
+.free-course-material-file > svg path { vector-effect: non-scaling-stroke; }
+.free-library-dialog--cursos .free-course-material-type {
+    position: absolute; bottom: 3px; left: 0; display: grid; place-items: center;
+    min-width: 32px; height: 18px; padding: 0 4px; border: 1px solid transparent; border-radius: 4px;
+    background: var(--material-tint); color: var(--material); font: 700 .6rem/1 'Inter', sans-serif; letter-spacing: .025em;
+}
+.free-course-material-copy { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.free-library-dialog--cursos .free-course-material-name { color: #263449; font-family: var(--rl-read); font-size: .85rem; font-weight: 500; line-height: 1.45; overflow-wrap: anywhere; }
+.free-course-material-kind { color: #687487; font-family: var(--rl-read); font-size: .7rem; line-height: 1.4; }
+.free-library-dialog--cursos .free-course-material-action { display: inline-flex; align-items: center; justify-content: center; color: var(--material); }
+.free-library-dialog--cursos .free-course-material-action > span { display: none; }
+.free-library-dialog--cursos .free-course-material-action svg { width: 16px; height: 16px; }
+.free-library-dialog--cursos .free-course-material-action svg path { vector-effect: non-scaling-stroke; stroke-width: 1.5px; }
+.free-library-dialog--cursos .free-course-material:focus-visible { outline: 3px solid var(--rl-blue); outline-offset: 3px; background: #f5f8fc; }
+.free-library-dialog--cursos .free-course-material:focus-visible .free-course-material-action { color: var(--rl-blue); }
+.free-library-dialog--cursos .free-course-materials-note { display: flex; align-items: flex-start; gap: 7px; margin: 0; padding: 0 3px 2px; color: #687487; font: 400 .7rem/1.6 var(--rl-read); }
+.free-library-dialog--cursos .free-course-materials-note svg { flex-shrink: 0; width: 13px; height: 13px; margin-top: 2px; }
 .free-course-coming + .free-course-materials { margin-top: 20px; }
+@media (hover: hover) {
+    .free-library-dialog--cursos .free-course-material:hover { background: var(--material-hover); box-shadow: 0 0 0 1px color-mix(in srgb, var(--material) 20%, transparent), 0 2px 4px -1px #15243a0a, 0 8px 16px -6px color-mix(in srgb, var(--material) 18%, transparent); }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .free-library-dialog--cursos .free-course-material { transition: background-color 150ms ease-out, scale 150ms ease-out; }
+    .free-library-dialog--cursos .free-course-material:active { scale: .96; }
+}
 /* Curso sin video pero con materiales: el aviso se compacta para que los materiales entren en pantalla. */
 .free-library-dialog--cursos .free-course-coming:has(+ .free-course-materials) { padding: 22px 20px 24px; }
 .free-library-dialog--cursos .free-course-coming:has(+ .free-course-materials) .free-course-coming-play { width: 52px; height: 52px; margin-bottom: 14px; }
 .free-library-dialog--cursos .free-course-coming:has(+ .free-course-materials) .free-course-catalog-link { margin-top: 16px; }
-@media (hover: hover) {
-    .free-course-material:hover { border-color: color-mix(in srgb, var(--material) 45%, transparent); box-shadow: 0 14px 24px -16px var(--material); }
-}
-@media (prefers-reduced-motion: no-preference) {
-    .free-course-material { transition: border-color 150ms ease-out, box-shadow 150ms ease-out, transform 200ms cubic-bezier(.2,0,0,1); }
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .free-course-material:hover { transform: translateY(-2px); }
-}
 /* Video con materiales en pantalla ancha: el modal se ensancha y los materiales forman una columna, así el video
    mantiene el tamaño que tenía sin materiales y nada necesita scroll. La columna toma el ancho que el video no usa
    (alto disponible × 16/9), entre 296 y 400px, para que video y panel queden juntos sin hueco. */
@@ -299,18 +312,10 @@
         .free-library-dialog--cursos:has(.free-course-materials) #free-library-content { grid-template-columns: auto minmax(0, 1fr) min(400px, max(296px, calc(100% - 16px - (100dvh - 248px) * 16 / 9))); }
         .free-library-dialog--cursos:has(.free-course-materials) .free-course-stage { grid-column: 1 / 3; justify-items: start; }
         .free-library-dialog--cursos:has(.free-course-materials) .free-course-player-help { grid-column: 2 / 4; }
-        /* Columna lateral: el panel de archivos ocupa el alto del video, con la nota al pie. Es más compacto:
-           cuatro archivos con nombres de dos líneas caben junto a un video de 1366×768. */
+        /* Columna lateral con altura limitada por el video y scroll propio para listas largas. */
         .free-course-stage ~ .free-course-side { grid-column: 3; grid-row: 2; align-self: stretch; display: flex; flex-direction: column; min-height: 0; }
-        .free-course-side .free-course-materials { flex: 1 1 auto; gap: 12px; min-height: 0; overflow-y: auto; margin: 0; padding: 16px; }
-        .free-course-side .free-course-materials ul { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-        .free-course-side .free-course-material { gap: 6px 8px; padding: 10px 12px 12px; }
-        .free-course-side .free-course-materials-note { margin-top: auto; }
-    }
-    /* Pantallas bajas: el panel lateral deja solo lo esencial (título y archivos). */
-    @media (min-width: 901px) and (max-height: 760px) {
-        .free-course-side .free-course-materials-head p, .free-course-side .free-course-materials-note { display: none; }
-        .free-course-side .free-course-materials-icon { width: 34px; height: 34px; border-radius: 12px; }
+        .free-course-side .free-course-materials { min-height: 0; overflow-y: auto; margin: 0; }
+        .free-course-side .free-course-materials ul { grid-template-columns: minmax(0, 1fr); }
     }
 }
 /* Video con materiales en pantalla angosta: todo en una columna; el video usa el ancho y los materiales siguen debajo.
@@ -326,4 +331,114 @@
 @media (max-width: 640px) {
     .free-course-materials { padding: 16px 14px; }
     .free-course-materials ul { grid-template-columns: minmax(0, 1fr); }
+}
+
+
+/* Superficies glass: fucsia institucional difuso y archivos de lectura neutra. */
+.recorded-row { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.recorded-more--browse {
+    position: relative; isolation: isolate; overflow: hidden; display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: 20px;
+    min-width: 0; padding: 22px 26px; border: 1px solid transparent; border-radius: 24px;
+    background: #fffbfddd; color: var(--rl-navy); font: inherit; text-align: left;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: 0 0 0 1px #d1006a0d, 0 2px 4px -2px #15243a0a, 0 12px 24px -20px #b4005933;
+    transition: background-color 150ms ease-out;
+}
+.recorded-more--browse[hidden] { display: none; }
+.recorded-more--browse::before {
+    content: ''; position: absolute; z-index: -1; pointer-events: none;
+    inset: -170px -40px auto auto; width: 440px; height: 360px;
+    background: radial-gradient(ellipse, #f100750d, transparent 70%);
+}
+.recorded-more-symbol { display: block; width: 56px; height: 56px; color: #65758d; }
+.recorded-more-symbol svg { display: block; width: 56px; height: 56px; }
+.library-book-back { color: #c5ccd7; }
+.library-book-paper { color: #fff; }
+.library-book-lines { color: #a8b4c5; }
+.library-book-bookmark { color: var(--rl-pink-ink); }
+.recorded-more-summary { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.recorded-more-title { color: var(--rl-navy); font-family: var(--rl-serif); font-size: 1.3rem; font-weight: 600; line-height: 1.25; letter-spacing: -.02em; }
+.recorded-more-description { color: var(--rl-text); font-family: var(--rl-read); font-size: .86rem; line-height: 1.5; text-wrap: pretty; }
+.recorded-more-count { color: var(--rl-pink-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.recorded-more-action {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    min-height: 48px; padding: 8px 9px 8px 22px; border: 1px solid transparent;
+    border-radius: 999px; background: var(--rl-pink-ink); color: #fff;
+    box-shadow: 0 1px 2px #b4005924, 0 6px 12px -6px #b4005966;
+    font-size: .8rem; font-weight: 700; white-space: nowrap;
+    transition: background-color 150ms ease-out;
+}
+.recorded-more-arrow { display: grid; place-items: center; width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; background: #ffffff1f; transition: background-color 150ms ease-out; }
+.recorded-more-arrow svg { width: 17px; height: 17px; }
+.recorded-more-arrow path { vector-effect: non-scaling-stroke; stroke-width: 2px; }
+.recorded-more--browse:focus-visible { outline: 3px solid var(--rl-pink-ink); outline-offset: 4px; }
+.recorded-more--browse:focus-visible .recorded-more-action { background: #b40059; }
+@media (hover: hover) {
+    .recorded-more--browse:hover { background-color: #fff7fb; }
+    .recorded-more--browse:hover .recorded-more-action { background: #b40059; box-shadow: 0 1px 3px #b4005924, 0 8px 16px -6px #b4005952; }
+    .recorded-more--browse:hover .recorded-more-arrow { background: #ffffff30; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .recorded-more-action { transition: background-color 150ms ease-out, scale 150ms ease-out; }
+    .recorded-more--browse:active:not(:disabled) .recorded-more-action { scale: .96; }
+}
+@media (max-width: 900px) {
+    .recorded-more--browse { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 16px; padding: 20px; }
+    .recorded-more-symbol, .recorded-more-symbol svg { width: 48px; height: 48px; }
+    .recorded-more-title { font-size: 1.2rem; }
+    .recorded-more-description { font-size: .8rem; }
+}
+@media (max-width: 600px) {
+    .recorded-more--browse { grid-template-columns: 44px minmax(0, 1fr); gap: 18px 12px; padding: 20px; border-radius: 22px; }
+    .recorded-more-symbol, .recorded-more-symbol svg { width: 44px; height: 44px; }
+    .recorded-more-symbol { align-self: start; }
+    .recorded-more-title { font-size: 1.15rem; }
+    .recorded-more-action { grid-column: 1 / -1; justify-content: space-between; white-space: normal; }
+}
+.recorded-image > img, .free-library-card-image > img { outline: 1px solid oklch(0 0 0 / .1); outline-offset: -1px; }
+.free-library-dialog--cursos { border: 1px solid #ffffffd9; box-shadow: 0 8px 24px #09244c12, 0 32px 80px #09244c26; }
+.free-library-dialog--cursos::backdrop { background: #09244c66; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.free-library-dialog--cursos .free-library-close { background: #ffffffa8; border-color: #09244c14; border-radius: 14px; }
+.free-library-dialog--cursos .free-library-status { background: #eaf0f8; color: #385878; letter-spacing: .08em; }
+.free-library-dialog--cursos .free-library-status::before { box-shadow: none; }
+.free-library-dialog--cursos .free-course-player { position: relative; background: #101828; border-radius: 14px; box-shadow: 0 2px 8px #09244c12; }
+/* El iframe ocupa el marco completo: su altura no depende de un porcentaje sobre altura automática. */
+.free-library-dialog--cursos .free-course-player iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
+.free-library-back { min-height: 44px; background: #ffffffb3; border-color: #09244c1c; }
+@media (hover: hover) {
+    .free-library-dialog--cursos .free-library-close:hover { background: #eaf0f8; color: var(--rl-blue); border-color: #09244c24; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .free-library-dialog--cursos :is(.free-library-back, .free-library-close, .free-library-card) { transition: background-color 150ms ease-out, scale 150ms ease-out; }
+    .free-library-dialog--cursos :is(.free-library-back, .free-library-close, .free-library-card):active:not(:disabled) { scale: .96; }
+}
+@media (max-width: 900px) {
+    .free-library-dialog--cursos[open]:has(.free-course-player) { display: block; height: auto; overflow-y: auto; }
+    .free-library-dialog--cursos:has(.free-course-player):has(#free-library-content) #free-library-content { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
+    .free-library-dialog--cursos:has(.free-course-player):has(#free-library-content) .free-library-back { align-self: flex-start; margin: 0; }
+    .free-library-dialog--cursos .free-course-stage { container-type: normal; width: 100%; }
+    .free-library-dialog--cursos:has(.free-course-player):has(#free-library-content) .free-course-stage .free-course-player { width: 100%; aspect-ratio: 16 / 9; }
+    .free-library-dialog--cursos .free-course-player-help { margin: 0; text-align: left; font-size: .78rem; line-height: 1.8; }
+    .free-library-dialog--cursos .free-course-side { width: 100%; }
+    .free-library-dialog--cursos .free-course-materials { margin: 0; }
+}
+@media (max-width: 600px) {
+    .free-library-dialog--cursos { width: calc(100% - 16px); max-height: calc(100dvh - 16px); padding: 18px 14px; border-radius: 24px; }
+    .free-library-dialog--cursos .free-library-dialog-heading { gap: 12px; margin-bottom: 16px; }
+    .free-library-dialog--cursos h2 { font-size: 1.35rem; }
+    .free-library-dialog--cursos .free-course-materials { padding: 16px; }
+    .free-library-dialog--cursos:has(.free-library-cards) .free-library-dialog-heading { top: -18px; margin: -18px -14px 16px; padding: 18px 14px 14px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+    .recorded-more--browse { background: #fff7fb; -webkit-backdrop-filter: none; backdrop-filter: none; }
+    .free-library-dialog--cursos { background: #f8fafc; }
+    .free-library-dialog--cursos .free-course-materials { background: #fff; }
+}
+
+/* Drive impone un viewport interno mínimo de 300px. Respetarlo evita recortar
+   el video y sus controles al usar el marco 16:9 en pantallas angostas. */
+@media (max-width: 900px) {
+    .free-library-dialog--cursos .free-course-stage .free-course-player { min-height: 300px; }
 }
