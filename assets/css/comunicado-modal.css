@@ -16,15 +16,16 @@ body.kja-comunicado-open { overflow: hidden !important; }
   transform: translateY(12px); transition: transform .24s ease;
 }
 .is-visible .kja-comunicado-card { transform: translateY(0); }
-.kja-comunicado-header { display: flex; align-items: center; justify-content: space-between; padding: 24px 28px 0; flex-shrink: 0; }
-.kja-comunicado-logo { width: 124px; height: auto; display: block; }
-.kja-comunicado-close-btn { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #f6f8fb; color: #526078; cursor: pointer; }
+.kja-comunicado-header { display: flex; align-items: center; justify-content: center; position: relative; padding: 26px 36px 0; flex-shrink: 0; min-height: 70px; }
+.kja-comunicado-logo { width: 142px; height: auto; display: block; }
+.kja-comunicado-close-btn { position: absolute; top: 18px; right: 20px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #f6f8fb; color: #526078; cursor: pointer; }
 .kja-comunicado-close-btn:hover { background: #e9eef5; color: #09244c; }
 .kja-comunicado-body { padding: 26px 36px 24px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #bac5d3 #f6f8fb; }
-.kja-comunicado-body h2 { margin: 0 0 18px; font-family: inherit; font-size: clamp(26px, 5vw, 32px); font-weight: 700; line-height: 1.16; letter-spacing: -.03em; color: #09244c; text-align: left; }
+.kja-comunicado-body h2 { margin: 0 0 10px; font-family: inherit; font-size: clamp(26px, 5vw, 32px); font-weight: 700; line-height: 1.16; letter-spacing: -.03em; color: #09244c; text-align: center; text-transform: uppercase; }
 .kja-comunicado-body p { margin: 0; font-size: 15px; line-height: 1.65; color: #526078; }
+.kja-comunicado-body .kja-comunicado-subtitle { margin: 0 0 26px; text-align: center; font-size: 15px; font-weight: 600; color: #15243a; }
 .kja-comunicado-body p strong { color: #15243a; font-weight: 600; }
-.kja-comunicado-number { margin: 24px 0; padding: 20px 0; border-top: 1px solid #efd8e2; border-bottom: 1px solid #efd8e2; display: flex; flex-direction: column; gap: 8px; }
+.kja-comunicado-number { margin: 24px 0; padding: 20px 16px; background: #fff0f6; border-radius: 12px; text-align: center; align-items: center; display: flex; flex-direction: column; gap: 8px; }
 .kja-comunicado-status { display: flex; align-items: center; gap: 7px; color: #b30954; font-size: 13px; font-weight: 600; }
 .kja-comunicado-number > strong { font-size: clamp(30px, 7vw, 40px); font-weight: 700; line-height: 1.2; letter-spacing: -.025em; color: #09244c; font-variant-numeric: tabular-nums; }
 .kja-comunicado-number > span:last-child { font-size: 14px; color: #b30954; line-height: 1.5; }
@@ -44,7 +45,7 @@ body.kja-comunicado-open { overflow: hidden !important; }
 @media (max-width: 480px) {
   .kja-comunicado-overlay { padding: 12px; }
   .kja-comunicado-card { max-height: calc(100dvh - 24px); }
-  .kja-comunicado-header { padding: 16px 16px 0 24px; }
+  .kja-comunicado-header { padding: 22px 24px 0; }
   .kja-comunicado-body { padding: 22px 24px; }
   .kja-comunicado-footer { padding: 16px 24px; }
   .kja-comunicado-caption { max-width: 110px; }

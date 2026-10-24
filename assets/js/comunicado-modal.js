@@ -16,7 +16,7 @@
     if (!document.querySelector('link[href*="comunicado-modal.css"]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = 'assets/css/comunicado-modal.css?v=20261024-2';
+      link.href = 'assets/css/comunicado-modal.css?v=20261024-3';
       document.head.appendChild(link);
     }
   }
@@ -36,24 +36,25 @@
 
     overlay.innerHTML = `
       <div class="kja-comunicado-card" role="document">
-        <header class="kja-comunicado-header">
+        <div class="kja-comunicado-header">
           <img class="kja-comunicado-logo" src="images/logo/kja.webp" width="418" height="121" alt="KJA · Desarrollando mi bienestar">
           <button type="button" class="kja-comunicado-close-btn" id="kja-comunicado-x" aria-label="Cerrar comunicado" title="Cerrar ventana">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="m6 6 12 12M18 6 6 18"/>
             </svg>
           </button>
-        </header>
+        </div>
 
         <div class="kja-comunicado-body">
-<h2 id="kja-comunicado-title">Actualización de<br>número de contacto</h2>
+<h2 id="kja-comunicado-title">Comunicado oficial</h2>
+<p class="kja-comunicado-subtitle">Actualización de número de contacto</p>
 <p id="kja-comunicado-desc">Estimados colaboradores: el número del director <strong>Jean Pierre</strong> ha sido dado de baja y ya no se encuentra habilitado.</p>
 <div class="kja-comunicado-number"><span class="kja-comunicado-status"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg>Número deshabilitado</span><strong>937 471 659</strong><span>Por favor, no escribir a este número.</span></div>
 <p class="kja-comunicado-next">Próximamente se habilitará un nuevo número de contacto, el cual será comunicado oportunamente.</p>
 <p class="kja-comunicado-thanks">Agradecemos su comprensión.<br><strong>Equipo KJA</strong></p>
         </div>
 
-        <footer class="kja-comunicado-footer">
+        <div class="kja-comunicado-footer">
           <button type="button" class="kja-comunicado-btn-primary" id="kja-comunicado-btn-ok">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M20 6 9 17l-5-5"/>
@@ -61,7 +62,7 @@
             <span>Entendido</span>
           </button>
           <span class="kja-comunicado-caption">Comunicado oficial · KJA</span>
-        </footer>
+        </div>
       </div>
     `;
 
