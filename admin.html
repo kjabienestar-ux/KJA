@@ -1201,11 +1201,10 @@ function validarCertificado(d){
   if(!d.titulo) return 'Completa el título del ' + (TIPO_LBL[d.tipo]||'certificado').toLowerCase() + '.';
   /* Las horas son obligatorias en un certificado, pero no en un documento:
      una constancia de evaluación psicológica no se mide en horas. Si se
-     ponen, igual tienen que ser un número creíble. */
+     ponen, tienen que ser positivas; el total puede superar las 1000 horas. */
   const horas = parseInt(d.duracion, 10);
   if(!esDocumento(d.tipo) || d.duracion){
     if(!d.duracion || isNaN(horas) || horas <= 0) return 'Ingresa la duración (horas académicas).';
-    if(horas > 1000) return 'La duración (' + horas + ' horas académicas) parece un error de tipeo. Revísala.';
   }
   if(!$('f-numero').value.trim()) return 'Ingresa el número del certificado.';
   if(!d.fechaInicio) return 'Selecciona la fecha del periodo.';
