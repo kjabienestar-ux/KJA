@@ -7,7 +7,7 @@ body.kja-comunicado-open { overflow: hidden !important; }
   opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease;
   font-family: Inter, system-ui, sans-serif; color: #15243a;
 }
-.kja-comunicado-overlay *, .kja-comunicado-trigger { box-sizing: border-box; }
+.kja-comunicado-overlay * { box-sizing: border-box; }
 .kja-comunicado-overlay.is-visible { opacity: 1; visibility: visible; }
 .kja-comunicado-card {
   width: 100%; max-width: 520px; max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px);
@@ -34,14 +34,8 @@ body.kja-comunicado-open { overflow: hidden !important; }
 .kja-comunicado-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 12px 20px; border: 0; border-radius: 10px; background: #09244c; color: #fff; font: 600 14px Inter, system-ui, sans-serif; cursor: pointer; transition: background .15s; }
 .kja-comunicado-btn-primary:hover { background: #075abc; }
 .kja-comunicado-caption { font-size: 12px; line-height: 1.5; color: #526078; }
-.kja-comunicado-overlay button:focus-visible, .kja-comunicado-trigger:focus-visible { outline: 3px solid #075abc; outline-offset: 4px; }
+.kja-comunicado-overlay button:focus-visible { outline: 3px solid #075abc; outline-offset: 4px; }
 .kja-comunicado-overlay ::selection { background: #fce0ed; color: #09244c; }
-.kja-comunicado-trigger { position: fixed; bottom: max(20px, env(safe-area-inset-bottom)); left: 20px; z-index: 99998; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid #e3e8ee; border-radius: 999px; background: #fff; color: #09244c; font: 600 13px Inter, system-ui, sans-serif; cursor: pointer; visibility: hidden; }
-.kja-comunicado-trigger.is-ready { visibility: visible; }
-.kja-comunicado-open .kja-comunicado-trigger { visibility: hidden; }
-.kja-comunicado-trigger:hover { background: #f6f8fb; border-color: #bac5d3; }
-.kja-comunicado-trigger-icon { display: inline-flex; color: #b30954; }
-.kja-comunicado-trigger-dot { display: none; }
 @media (max-width: 480px) {
   .kja-comunicado-overlay { padding: 12px; }
   .kja-comunicado-card { max-height: calc(100dvh - 24px); }
@@ -49,7 +43,6 @@ body.kja-comunicado-open { overflow: hidden !important; }
   .kja-comunicado-body { padding: 22px 24px; }
   .kja-comunicado-footer { padding: 16px 24px; }
   .kja-comunicado-caption { max-width: 110px; }
-  .kja-comunicado-trigger { left: 12px; bottom: max(12px, env(safe-area-inset-bottom)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .kja-comunicado-overlay, .kja-comunicado-card, .kja-comunicado-btn-primary { transition: none; }
