@@ -15,8 +15,7 @@ test('Comunicado oficial: estilos CSS responsivos y accesibles', () => {
   assert.match(css, /overscroll-behavior:\s*contain/, 'Debe prevenir scroll accidental de fondo en móviles');
   assert.match(css, /overflow-y:\s*auto/, 'El modal debe ser scrollable si la pantalla es pequeña');
 
-  // Disparador flotante
-  assert.match(css, /\.kja-comunicado-trigger/, 'Debe existir botón flotante para reabrir el comunicado');
+  assert.doesNotMatch(css, /\.kja-comunicado-trigger/, 'No debe reservar espacio para el botón flotante');
 });
 
 test('Comunicado oficial: lógica JS, atributos ARIA y contenido legible', () => {
@@ -36,6 +35,7 @@ test('Comunicado oficial: lógica JS, atributos ARIA y contenido legible', () =>
   assert.match(js, /Escape/, 'Debe permitir cerrar con tecla Escape');
   assert.match(js, /sessionStorage/, 'Debe usar sessionStorage para no saturar al usuario');
   assert.match(js, /window\.kjaComunicado/, 'Debe exponer API pública window.kjaComunicado');
+  assert.doesNotMatch(js, /kja-comunicado-trigger/, 'No debe crear el botón flotante que tapa Cerrar sesión');
 });
 
 test('Comunicado oficial: integración en index.html y páginas principales', () => {

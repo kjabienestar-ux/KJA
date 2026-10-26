@@ -7,7 +7,6 @@
 
   const STORAGE_KEY = 'kja_comunicado_contacto_v1';
   let overlayEl = null;
-  let triggerBtn = null;
   let lastActiveElement = null;
   let autoOpenHandled = false;
 
@@ -16,12 +15,12 @@
     if (!document.querySelector('link[href*="comunicado-modal.css"]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = 'assets/css/comunicado-modal.css?v=20261024-3';
+      link.href = 'assets/css/comunicado-modal.css?v=20261026-1';
       document.head.appendChild(link);
     }
   }
 
-  // Generar el marcado HTML del modal y el disparador flotante
+  // Generar el marcado HTML del modal
   function createModalDOM() {
     if (document.getElementById('kja-comunicado-modal')) return;
 
@@ -66,28 +65,9 @@
       </div>
     `;
 
-    // Botón disparador flotante para reabrir
-    const trigger = document.createElement('button');
-    trigger.type = 'button';
-    trigger.id = 'kja-comunicado-trigger';
-    trigger.className = 'kja-comunicado-trigger';
-    trigger.setAttribute('aria-label', 'Ver comunicado oficial sobre número de contacto');
-    trigger.setAttribute('title', 'Ver comunicado oficial');
-    trigger.innerHTML = `
-      <span class="kja-comunicado-trigger-icon" aria-hidden="true">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-      </span>
-      <span>Comunicado</span>
-      <span class="kja-comunicado-trigger-dot" aria-hidden="true"></span>
-    `;
-
     document.body.appendChild(overlay);
-    document.body.appendChild(trigger);
 
     overlayEl = overlay;
-    triggerBtn = trigger;
 
     // Escuchadores de eventos
     overlay.addEventListener('click', function (e) {
@@ -101,10 +81,6 @@
 
     const closeBtnOk = document.getElementById('kja-comunicado-btn-ok');
     if (closeBtnOk) closeBtnOk.addEventListener('click', closeModal);
-
-    trigger.addEventListener('click', function () {
-      openModal(true);
-    });
 
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Tab' && overlayEl.classList.contains('is-visible')) {
@@ -144,11 +120,6 @@
     try {
       sessionStorage.setItem(STORAGE_KEY, '1');
     } catch (_) {}
-
-    // Revelar el disparador flotante para que el usuario pueda consultarlo cuando desee
-    if (triggerBtn) {
-      triggerBtn.classList.add('is-ready');
-    }
 
     if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
       lastActiveElement.focus();
@@ -199,11 +170,6 @@
         setTimeout(function () {
           openModal(false);
         }, 400);
-      }
-    } else {
-      // Si ya fue visto en esta sesión, dejar el botón flotante listo
-      if (triggerBtn) {
-        triggerBtn.classList.add('is-ready');
       }
     }
   }
