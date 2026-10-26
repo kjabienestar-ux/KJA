@@ -799,12 +799,13 @@
       });
       observer.observe(sub, { childList: true, subtree: true, characterData: true });
     }
-    // Fallback: verificar cada 5 s en caso de que el elemento no exista aún
+    // Respaldo cada 60 s; con la pestaña oculta no se consulta (se actualiza en el siguiente ciclo visible).
     const poll = setInterval(() => {
+      if (document.hidden) return;
       loadDailyBreaks();
       updateRailButton();
       
-    }, 30000);
+    }, 60000);
   }
 
   if (document.readyState === "loading") {
