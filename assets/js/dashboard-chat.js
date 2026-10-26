@@ -160,7 +160,7 @@
   const massSend=node('button','chat-send chat-send-wide'),massSendText=node('span','','Enviar');massSend.type='submit';massSend.disabled=true;massSend.append(svgIcon('send'),massSendText);massForm.append(massInput,massSend);mountEmoji(massForm,massInput);
   mass.append(massHead,massPick,massList,massProgress,massStatus,massForm,node('p','chat-hint','Las respuestas llegarán a tus chats privados. Las listas se guardan en este navegador.'));
   dock.append(empty);if(GROUPS_ENABLED)dock.append(join);dock.append(mass);panel.append(directory,dock);root.append(launcher,panel,announcer);document.body.append(root);
-  let user=null,epoch=0,contacts=[],tab='equipo',timer=null,refreshBusy=false;
+  let user=null,epoch=0,contacts=[],tab='equipo',timer=null,refreshBusy=false,refreshAt=0;
   const windows=new Map();
   const expand=button('Ampliar',null,'chat-expand');
   expand.setAttribute('aria-pressed','false');
@@ -663,9 +663,15 @@
   };
   massStop.onclick=()=>{if(massJob){massJob.cancel=true;massProgressText.textContent='Deteniendo…'}};
 
+  // Realtime avisa al instante de mensajes nuevos; el sondeo trae "Leído", reacciones y ediciones.
+  // Sin realtime o con una conversación abierta se consulta cada 15 s; en reposo, cada 60 s.
+  function pollDelay(){
+    const live=realtimeReady&&(!groupChannel||groupRealtimeReady);
+    return !live||[...windows.values()].some(w=>!w.minimized)?15000:60000;
+  }
   async function refresh(){
     if(!user)return;renderContacts();if(!document.hidden)void presence();
-    if(refreshBusy||document.hidden)return;refreshBusy=true;const stamp=epoch;
+    if(refreshBusy||document.hidden)return;refreshBusy=true;refreshAt=Date.now();const stamp=epoch;
     try{
       const data=await rpc('chat_contactos');if(stamp!==epoch)return;
       await loadGroups(stamp);if(stamp!==epoch)return;
@@ -681,7 +687,7 @@
     groups=[];groupsError=false;joinTarget=null;joinBusy=false;joinStatus.textContent='';lastTotal=0;delete count.dataset.bump;
     if(massJob)massJob.cancel=true;massJob=null;massOpen=false;massSelected.clear();massKeys.clear();massVisible=[];massInput.value='';massSearch.value='';massStatus.textContent='';massProgress.hidden=true;massSave.hidden=true;massList.replaceChildren();massQuick.replaceChildren();
     newChatOpen=false;newChat.hidden=true;delete directory.dataset.view;ncSearch.value='';ncBody.replaceChildren();
-    dock.replaceChildren(empty);if(GROUPS_ENABLED)dock.append(join);dock.append(mass);empty.hidden=false;join.hidden=true;mass.hidden=true;panel.hidden=true;syncMobileLock();list.replaceChildren();announcer.textContent='';root.hidden=true;directory.hidden=true;search.value='';count.hidden=true;refreshBusy=false;launcher.setAttribute('aria-expanded','false')}
+    dock.replaceChildren(empty);if(GROUPS_ENABLED)dock.append(join);dock.append(mass);empty.hidden=false;join.hidden=true;mass.hidden=true;panel.hidden=true;syncMobileLock();list.replaceChildren();announcer.textContent='';root.hidden=true;directory.hidden=true;search.value='';count.hidden=true;refreshBusy=false;refreshAt=0;launcher.setAttribute('aria-expanded','false')}
   retry.onclick=()=>void refresh();
   document.addEventListener('visibilitychange',()=>{presenceAt=0;void presence(!document.hidden);if(!document.hidden)void refresh()});
   window.addEventListener('pagehide',()=>void presence(false));
@@ -712,7 +718,7 @@
     }
     await refresh();if(stamp!==epoch)return;startRealtime(stamp);
     try{const saved=JSON.parse(sessionStorage.getItem('kja-chat-windows:'+id)||'[]');if(Array.isArray(saved))saved.slice(-2).forEach(w=>open(w.id,{restore:true,minimized:!!w.minimized}))}catch{}
-    timer=setInterval(()=>void refresh(),5000);
+    timer=setInterval(()=>{if(Date.now()-refreshAt>=pollDelay())void refresh();else if(!document.hidden)void presence()},5000);
   },destroy};
   // Avisa a dashboard.js si inició sesión antes de que cargara este script. Protegido para entornos sin Event (pruebas).
   try{window.dispatchEvent(new Event('kja-chat-ready'))}catch{}

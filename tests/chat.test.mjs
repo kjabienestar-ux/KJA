@@ -77,11 +77,11 @@ function harness({mobile=false,realtime=false,sound=()=>{},waitMapping=null,fail
     requestSubmit(){return this.onsubmit({preventDefault(){}})}
   }
   document={hidden:false,activeElement:null,hasFocus:()=>true,createElement:()=>new Element(),createElementNS:(ns)=>{const e=new Element();e.namespaceURI=ns;return e},addEventListener:(event,fn)=>documentEvents[event]=fn,body:new Element()};
-  const calls=[],timers=new Map(),storage=new Map(),realtimeState={channel:null,callback:null,removed:0};let authHandler,uuid=0;
+  const calls=[],timers=new Map(),storage=new Map(),realtimeState={channel:null,callback:null,removed:0};let authHandler,uuid=0,pollFn=null;
   const contacts=[{id:'peer',nombre:'Ana <img src=x>',direccion:false,activo:true,no_leidos:1},{id:'director',nombre:'Dirección de prueba',direccion:true,activo:true,no_leidos:0}];
   const incoming={id:1,remitente:'peer',destinatario:'me',contenido:'Hola <script>bad()</script>',creado_at:'2026-09-12T12:00:00Z',leido_at:null};
   const messages=[incoming];
-  const context=vm.createContext({document,console,crypto:{randomUUID:()=>`uuid-${++uuid}`},getComputedStyle:()=>({visibility:'visible'}),sessionStorage:{setItem:(k,v)=>storage.set(k,v),getItem:k=>storage.get(k)},setInterval:fn=>{timers.set(1,fn);return 1},clearInterval:id=>timers.delete(id),addEventListener(){},confirm:()=>true,db:{storage:{from:bucket=>({createSignedUrls:async paths=>{calls.push({name:'signPhotos',args:{bucket,paths}});return photoError?{error:{message:'denied'}}:{data:paths.map(path=>({signedUrl:'https://example.test/'+path+'?token=test'}))}}})},auth:{onAuthStateChange:fn=>authHandler=fn},rpc:async(name,args)=>{
+  const context=vm.createContext({document,console,crypto:{randomUUID:()=>`uuid-${++uuid}`},getComputedStyle:()=>({visibility:'visible'}),sessionStorage:{setItem:(k,v)=>storage.set(k,v),getItem:k=>storage.get(k)},setInterval:fn=>{pollFn=fn;timers.set(1,()=>{clock+=60000;return fn()});return 1},clearInterval:id=>timers.delete(id),addEventListener(){},confirm:()=>true,db:{storage:{from:bucket=>({createSignedUrls:async paths=>{calls.push({name:'signPhotos',args:{bucket,paths}});return photoError?{error:{message:'denied'}}:{data:paths.map(path=>({signedUrl:'https://example.test/'+path+'?token=test'}))}}})},auth:{onAuthStateChange:fn=>authHandler=fn},rpc:async(name,args)=>{
     calls.push({name,args});
     if(name==='chat_cuenta_colaborador'){if(waitMapping)await waitMapping;if(String(args.p_colaborador)==='12')return {data:'peer'};if(String(args.p_colaborador)==='13')return {data:'director'};return {error:{code:'P0001',message:'Este colaborador todavía no tiene una cuenta activa vinculada al chat.'}}}
     if(name==='chat_presencia')return connection.error?{error:{message:'presence unavailable'}}:{data:connection.rows};
@@ -110,7 +110,7 @@ function harness({mobile=false,realtime=false,sound=()=>{},waitMapping=null,fail
   vm.runInContext(fs.readFileSync(new URL('../assets/js/dashboard-chat.js',import.meta.url),'utf8'),context);
   function find(cls,root=document.body){return [root,...root.children.flatMap(c=>find('*',c))].filter(e=>cls==='*'||e.className.split(' ').includes(cls))}
   const settle=async()=>{for(let i=0;i<8;i++)await new Promise(r=>setImmediate(r))};
-  return {context,document,calls,timers,storage,find,settle,messages,incoming,connection,documentEvents,realtime:realtimeState,emitRealtime:payload=>realtimeState.callback?.(payload),advance:ms=>clock+=ms,logout:()=>authHandler('SIGNED_OUT'),async start(){await context.KJAChat.init('me')},async open(){find('chat-contact')[0].onclick();await settle()},async send(text){const input=find('chat-compose')[0].children[0];input.value=text;input.oninput();return find('chat-compose')[0].requestSubmit()}};
+  return {context,document,calls,timers,storage,find,settle,messages,incoming,connection,documentEvents,realtime:realtimeState,emitRealtime:payload=>realtimeState.callback?.(payload),advance:ms=>clock+=ms,pollNow:()=>pollFn(),logout:()=>authHandler('SIGNED_OUT'),async start(){await context.KJAChat.init('me')},async open(){find('chat-contact')[0].onclick();await settle()},async send(text){const input=find('chat-compose')[0].children[0];input.value=text;input.oninput();return find('chat-compose')[0].requestSubmit()}};
 }
 
 test('polling and read receipts reuse loaded image elements without signing again',async()=>{
@@ -255,4 +255,19 @@ test('contacts response arriving after tab hides cannot republish visible presen
   let resolve;const h=harness({waitContacts:new Promise(r=>resolve=r)});const start=h.start();await h.settle();
   h.document.hidden=true;h.documentEvents.visibilitychange();await h.settle();const before=h.calls.filter(c=>c.name==='chat_presencia').length;
   resolve();await start;await h.settle();const requests=h.calls.filter(c=>c.name==='chat_presencia');assert.equal(requests.length,before);assert.equal(requests.at(-1).args.p_visible,false);
+});
+
+test('polling waits 60 s with realtime and no open conversation',async()=>{
+  const h=harness({realtime:true});await h.start();await h.settle();
+  const contactsCalls=()=>h.calls.filter(c=>c.name==='chat_contactos').length,before=contactsCalls();
+  h.advance(30000);h.pollNow();await h.settle();assert.equal(contactsCalls(),before);
+  h.advance(30000);h.pollNow();await h.settle();assert.equal(contactsCalls(),before+1);
+});
+test('polling every 15 s with an open conversation or without realtime',async()=>{
+  for(const realtime of [true,false]){
+    const h=harness({realtime});await h.start();if(realtime)await h.open();await h.settle();
+    const contactsCalls=()=>h.calls.filter(c=>c.name==='chat_contactos').length,before=contactsCalls();
+    h.advance(10000);h.pollNow();await h.settle();assert.equal(contactsCalls(),before);
+    h.advance(5000);h.pollNow();await h.settle();assert.equal(contactsCalls(),before+1);
+  }
 });

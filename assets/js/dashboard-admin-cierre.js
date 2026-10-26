@@ -761,7 +761,8 @@ $('admin-evidence-picker').onkeydown=event=>{if(event.key==='Enter'||event.key==
 $('admin-evidence-previews').onclick=event=>{const button=event.target.closest('[data-remove-admin-evidence]');if(!button||ADMIN_EVIDENCE.busy)return;const index=Number(button.dataset.removeAdminEvidence),file=ADMIN_EVIDENCE.files[index];if(file?.url)URL.revokeObjectURL(file.url);ADMIN_EVIDENCE.files.splice(index,1);renderAdminEvidenceComposer()};
 document.querySelectorAll('input[name="admin-evidence-mode"]').forEach(input=>input.onchange=()=>{clearAdminEvidenceFiles();adminEvidenceMessage('Selecciona las imágenes correspondientes al nuevo formato.');renderAdminEvidenceComposer()});
 $('admin-evidence-form').onsubmit=submitAdminEvidence;
-setInterval(()=>{if(['cierres','asignaciones'].includes(APP.adminSection)&&!document.hidden&&$('admin-review-modal').hidden&&$('admin-evidence-modal').hidden)void loadAdminCloses({quiet:true})},30000);
+// Solo mientras Gestión está en pantalla: la sub-sección se conserva al cambiar de vista.
+setInterval(()=>{if(APP.view==='gestion'&&['cierres','asignaciones'].includes(APP.adminSection)&&!document.hidden&&$('admin-review-modal').hidden&&$('admin-evidence-modal').hidden)void loadAdminCloses({quiet:true})},60000);
 document.querySelectorAll('[data-close-admin-evidence]').forEach(button=>button.onclick=()=>closeAdminEvidence());
 $('admin-review-modal').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeAdminReview();return}
