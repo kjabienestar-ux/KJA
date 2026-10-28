@@ -16,6 +16,8 @@
   const block=(className='')=>`<span class="kja-sk-block ${className}" aria-hidden="true"></span>`;
   const lines=(count=2)=>`<span class="kja-sk-lines">${Array.from({length:count},(_,index)=>block(`kja-sk-line w-${[80,58,68,42][index%4]}`)).join('')}</span>`;
   const metric=()=>`<article class="kja-sk-card kja-sk-metric">${block('kja-sk-line w-58')}${block('kja-sk-number')}</article>`;
+  /* Tarjetas con la jerarquía real de los indicadores del resumen: anillo y tres líneas. */
+  const overviewCharts=(count=4)=>Array.from({length:count},()=>`<article class="admin-chart kja-sk-native-chart"><header>${block('kja-sk-line w-58')}${block('kja-sk-line w-80')}${block('kja-sk-line w-68')}</header>${block('admin-chart-ring kja-sk-circle')}</article>`).join('');
   const metrics=(count=4)=>`<div class="kja-sk-metrics">${Array.from({length:count},metric).join('')}</div>`;
   /* Los contenedores KPI reales esperan tarjetas como hijos directos. Mantener
      esa jerarquia evita que sus grids responsive se conviertan en una columna. */
@@ -36,7 +38,7 @@
   const roleCards=(count=5)=>`<div class="kja-sk-role-grid">${Array.from({length:count},()=>`<article class="kja-sk-role-card">${block('kja-sk-icon')}${lines(2)}<div class="kja-sk-role-people">${row(1,true)}${row(1,true)}${row(1,true)}</div></article>`).join('')}</div>`;
 
   const layouts={
-    overview:()=>`<div class="kja-sk-scene overview">${heading()}${metrics(4)}<div class="kja-sk-overview-panels">${panel(5,true)}${panel(4,false)}</div><section class="kja-sk-module-map">${lines(2)}${cards(8)}</section></div>`,
+    overview:()=>`<div class="kja-sk-scene overview">${heading()}${metrics(4)}<div class="kja-sk-overview-panels">${panel(5,true)}${panel(4,false)}</div></div>`,
     control:()=>`<div class="kja-sk-scene control">${heading()}${metrics(4)}<div class="kja-sk-control-workbench">${areaBars(7)}${cases(6)}</div></div>`,
     ranking:()=>`<div class="kja-sk-scene ranking">${heading()}${filters(3)}<div class="kja-sk-formula-bar">${lines(2)}${block('kja-sk-button')}</div><div class="kja-sk-ranking-analytics">${chart()}<aside>${chart()}${panel(3,false)}</aside></div><details open class="kja-sk-directory">${block('kja-sk-line w-32')}${table(6,5,true)}</details></div>`,
     facebook:()=>`<div class="kja-sk-scene facebook">${heading()}${filters(5)}${metrics(4)}<div class="kja-sk-report-toolbar">${block('kja-sk-pill')}${block('kja-sk-pill')}${block('kja-sk-input')}</div><div class="kja-sk-facebook-results">${panel(4,false)}${table(7,6,true)}</div></div>`,
@@ -74,7 +76,7 @@
      resto conserva el árbol y las clases reales de la vista. */
   function hydrateMirror(clone,kind){
     if(kind==='overview'){
-      fillMirrorSlot(clone,'admin-overview-charts',metrics(4));
+      fillMirrorSlot(clone,'admin-overview-charts',overviewCharts(4));
       fillMirrorSlot(clone,'admin-status-list',Array.from({length:5},()=>row(2,true)).join(''));
       fillMirrorSlot(clone,'admin-request-list',Array.from({length:4},()=>row(2,false)).join(''));
     }else if(kind==='control'){
