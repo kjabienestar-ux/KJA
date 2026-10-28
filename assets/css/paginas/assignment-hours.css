@@ -1,14 +1,58 @@
-.assignment-hours{margin:0 0 18px;border:1px solid #c9e4e1;border-radius:14px;background:#fff;color:#263d58}
-.assignment-hours[hidden]{display:none}
-.assignment-hours summary{padding:16px 20px;cursor:pointer;font-weight:600;color:#0f766e}
-.assignment-hours form{padding:0 20px 20px;max-width:850px}
-.assignment-hours h3{font-size:16px;margin:4px 0 12px}
-.assignment-hours p{font-size:13px;line-height:1.6;margin:8px 0 16px;color:#485c70;max-width:75ch}
-.assignment-hours label{display:block;font-size:13px;font-weight:600;margin:20px 0 8px}
-.assignment-hours-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.assignment-hours input{width:140px;min-height:44px;padding:10px 12px;border:1px solid #a9c3cd;border-radius:8px;font:inherit;font-variant-numeric:tabular-nums;color:#263d58;background:#fff}
-.assignment-hours button{min-height:44px;cursor:pointer}
-.assignment-hours button:disabled{opacity:.55;cursor:default}
-.assignment-hours :focus-visible{outline:2px solid #0f766e;outline-offset:3px}
-.assignment-hours #assignment-hours-status{margin-bottom:0;font-weight:600}
-@media(max-width:600px){.assignment-hours-controls{align-items:stretch;flex-direction:column}.assignment-hours input{width:100%;box-sizing:border-box}}
+/* Plazo de cierre: botón en la cabecera de Asignaciones y ventana con atajos. */
+#portal #admin-assignments-section .assignment-hours-open[hidden]{display:none !important}
+#portal #admin-assignments-section .assignment-hours-open b{font-weight:700}
+
+.assignment-hours-dialog{box-sizing:border-box;background:#faf9f5 !important;width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:0;border:1px solid #e6dfd8;border-radius:20px;background:#fff;color:#252523;font-family:Inter,system-ui,sans-serif;box-shadow:0 25px 60px -15px rgba(88,71,53,.22);overflow-y:auto}
+.assignment-hours-dialog::backdrop{background:rgba(37,37,35,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.assignment-hours-dialog form{display:grid;gap:16px;padding:20px 22px}
+.assignment-hours-dialog :focus-visible{outline:2px solid #a9583e;outline-offset:2px}
+.assignment-hours-dialog button{font:inherit;cursor:pointer}
+.assignment-hours-dialog button:disabled{opacity:.55;cursor:default}
+
+.assignment-hours-head{display:grid;grid-template-columns:40px minmax(0,1fr) 32px;align-items:center;gap:12px}
+.assignment-hours-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;color:#a9583e;background:#efe9de}
+.assignment-hours-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.assignment-hours-head h3{margin:0;font:400 21px/1.2 var(--claude-display,Georgia,serif);letter-spacing:-.02em}
+.assignment-hours-head p{margin:2px 0 0;color:#6c6a64;font-size:12.5px;line-height:1.45}
+.assignment-hours-close{width:32px;height:32px;align-self:start;display:grid;place-items:center;border:1px solid #e6dfd8;border-radius:50%;color:#3d3d3a;background:#fff;font-size:18px !important;line-height:1}
+.assignment-hours-close:hover{color:#252523;background:#f5f0e8}
+
+.assignment-hours-timeline{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:14px 16px;border:1px solid #e6dfd8;border-radius:14px;background:#f5f0e8}
+.assignment-hours-timeline > span:not(.assignment-hours-track){display:grid;gap:2px}
+.assignment-hours-timeline > span:last-child{text-align:right}
+.assignment-hours-timeline small{color:#6c6a64;font-size:11px;font-weight:600}
+.assignment-hours-timeline b{color:#252523;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.assignment-hours-timeline > span:last-child b{color:#a9583e}
+.assignment-hours-track{position:relative;height:8px;border-radius:999px;background:#efe9de;overflow:hidden}
+.assignment-hours-track i{position:absolute;inset:0 auto 0 0;border-radius:inherit;background:#a9583e;transition:width .2s ease}
+
+.assignment-hours-presets{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.assignment-hours-presets button{min-height:40px;padding:8px 6px;border:1.5px solid #e6dfd8;border-radius:11px;color:#a9583e;background:#fff;font-size:12.5px !important;font-weight:600;white-space:nowrap}
+.assignment-hours-presets button:not(:disabled):hover{background:#f5f0e8;border-color:#d9c3b3}
+.assignment-hours-presets button[aria-checked="true"]{color:#fff;background:#a9583e;border-color:#a9583e}
+
+.assignment-hours-custom[hidden]{display:none}
+.assignment-hours-custom{display:grid;grid-template-columns:auto 120px auto;align-items:center;gap:6px 12px;font-size:12.5px;font-weight:600;color:#3d3d3a}
+.assignment-hours-custom input{min-height:40px;padding:8px 10px;border:1px solid #d9c3b3;border-radius:9px;font:inherit;font-variant-numeric:tabular-nums;color:#252523;background:#fff}
+.assignment-hours-custom small{color:#6c6a64;font-weight:500}
+
+.assignment-hours-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0;padding:0;list-style:none}
+.assignment-hours-facts li{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:start;gap:8px;padding:10px;border:1px solid #e6dfd8;border-radius:12px;background:#faf9f5}
+.assignment-hours-facts svg{width:28px;height:28px;padding:6px;border-radius:8px;color:#a9583e;background:#efe9de;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;box-sizing:border-box}
+.assignment-hours-facts span{display:grid;gap:2px;color:#6c6a64;font-size:11.5px;line-height:1.35}
+.assignment-hours-facts b{color:#252523;font-size:12px}
+
+.assignment-hours-foot{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid #e6dfd8}
+.assignment-hours-foot p{flex:1;min-width:0;margin:0;color:#3d3d3a;font-size:12.5px;font-weight:600}
+.assignment-hours-foot button{min-height:40px;padding:8px 18px;border-radius:11px}
+#portal .assignment-hours-dialog #assignment-hours-save{border:0 !important;color:#fff !important;background:linear-gradient(160deg,#b66448,#94492f) !important;border-radius:22px !important;font-weight:700;box-shadow:none !important}
+#portal .assignment-hours-dialog #assignment-hours-save:not(:disabled):hover{background:#7d3d27 !important}
+#assignment-hours-retry{border:1.5px solid #a9583e;color:#a9583e;background:#fff;font-weight:600}
+#assignment-hours-retry[hidden]{display:none}
+
+@media(max-width:600px){
+  .assignment-hours-presets{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .assignment-hours-facts{grid-template-columns:minmax(0,1fr)}
+  .assignment-hours-custom{grid-template-columns:minmax(0,1fr)}
+  .assignment-hours-custom input{font-size:16px}
+}

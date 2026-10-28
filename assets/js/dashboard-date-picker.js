@@ -18,7 +18,7 @@ function kjaDateBounds(input,partner,role){
   return {min,max};
 }
 
-function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
+function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',openEnded=false}){
   if(!input)return;
   const wrap=document.createElement('div');wrap.className='kja-date-picker';
   wrap.innerHTML=`<button type="button" class="kja-date-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="${popupId}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="kja-date-text">dd/mm/aaaa</span><svg class="kja-date-chevron" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
@@ -28,6 +28,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
       <div class="kja-date-grid"></div>
       <footer class="kja-date-foot"><button type="button" class="kja-date-today">Hoy</button><button type="button" class="kja-date-close">Cerrar</button></footer>
     </div>`;
+  if(theme)wrap.classList.add(`kja-date-${theme}`);
   input.before(wrap);
   input.classList.add('sr-only');input.tabIndex=-1;input.setAttribute('aria-hidden','true');
   input.style.pointerEvents='none';
@@ -44,6 +45,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
   if(typeof document !== 'undefined' && document.body && typeof document.body.appendChild === 'function'){
     document.body.appendChild(popup);
   }
+  if(theme)popup.classList.add(`kja-date-${theme}`);
   let opened=false,year=0,month=0;
 
   function isInside(target){
@@ -67,7 +69,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
     const {min,max}=kjaDateBounds(input,partner,role),today=kjaDateToday(),selected=input.value;
     title.textContent=`${KJA_DATE_MONTHS[month-1]} ${year}`;
     const lastPrev=new Date(year,month-1,0),prevEnd=kjaDateIso(lastPrev.getFullYear(),lastPrev.getMonth()+1,lastPrev.getDate());
-    const systemMin=input.min||'2020-01-01',systemMax=input.max||today;
+    const systemMin=input.min||'2020-01-01',systemMax=input.max||(openEnded?'':today);
     prev.disabled=!!systemMin&&prevEnd<systemMin;
     next.disabled=!!systemMax&&kjaDateIso(month===12?year+1:year,month===12?1:month+1,1)>systemMax;
     const offset=(new Date(year,month-1,1).getDay()+6)%7,count=new Date(year,month,0).getDate();
@@ -189,6 +191,57 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId}){
   document.addEventListener('focusin',e=>{if(opened&&!isInside(e.target))close();});
   window.addEventListener('resize',()=>{if(opened)position();});
   window.addEventListener('scroll',()=>{if(opened)position();},{passive:true,capture:true});
+  document.addEventListener('scroll',()=>{if(opened)position();},{passive:true,capture:true});
+  input.addEventListener('change',sync);
+  KJA_DATE_SYNCS.push(sync);
+  sync();
+}
+
+// Selector de mes con el mismo lenguaje visual; el input month sigue siendo la fuente del valor.
+function initKjaMonthPicker(input,{label,popupId,theme=''}){
+  if(!input)return;
+  const wrap=document.createElement('div');wrap.className='kja-date-picker kja-month-picker'+(theme?` kja-date-${theme}`:'');
+  wrap.innerHTML=`<button type="button" class="kja-date-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="${popupId}"><span class="kja-date-text"></span><svg class="kja-date-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>`;
+  const popup=document.createElement('div');popup.id=popupId;popup.className='kja-date-popup kja-month-popup'+(theme?` kja-date-${theme}`:'');
+  popup.setAttribute('role','dialog');popup.setAttribute('aria-label',label);popup.hidden=true;
+  popup.innerHTML=`<header class="kja-date-head"><button type="button" class="kja-date-nav" data-nav="-1" aria-label="Año anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><strong class="kja-date-title"></strong><button type="button" class="kja-date-nav" data-nav="1" aria-label="Año siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></header><div class="kja-month-grid"></div><footer class="kja-date-foot"><button type="button" class="kja-date-today">Este mes</button><button type="button" class="kja-date-close">Cerrar</button></footer>`;
+  input.before(wrap);document.body.appendChild(popup);
+  input.classList.add('sr-only');input.tabIndex=-1;input.setAttribute('aria-hidden','true');input.style.pointerEvents='none';
+  const trigger=wrap.querySelector('.kja-date-trigger'),text=wrap.querySelector('.kja-date-text'),title=popup.querySelector('.kja-date-title'),grid=popup.querySelector('.kja-month-grid');
+  const thisMonth=()=>kjaDateToday().slice(0,7);
+  let opened=false,year=0;
+  function sync(){
+    const [y,m]=(input.value||thisMonth()).split('-').map(Number);
+    text.textContent=`${KJA_DATE_MONTHS[m-1]} de ${y}`;trigger.setAttribute('aria-label',`${label}: ${text.textContent}`);
+    if(opened)render();
+  }
+  function render(){
+    title.textContent=String(year);
+    const current=input.value,now=thisMonth();
+    grid.innerHTML=KJA_DATE_MONTHS.map((name,index)=>{const value=`${year}-${kjaDatePad(index+1)}`;return `<button type="button" class="kja-month-cell${value===current?' is-selected':''}${value===now?' is-today':''}" data-month="${value}" aria-pressed="${value===current}">${name.slice(0,3)}</button>`}).join('');
+  }
+  function position(){
+    const r=trigger.getBoundingClientRect(),width=Math.min(260,window.innerWidth-24);
+    popup.style.width=`${width}px`;popup.style.left=`${Math.max(12,Math.min(r.left+r.width/2-width/2,window.innerWidth-width-12))}px`;
+    const below=window.innerHeight-r.bottom,up=below<260&&r.top>below;
+    popup.style.top=up?'auto':`${r.bottom+8}px`;popup.style.bottom=up?`${window.innerHeight-r.top+8}px`:'auto';
+  }
+  function close(focus=false){if(!opened)return;opened=false;popup.hidden=true;trigger.setAttribute('aria-expanded','false');if(focus)trigger.focus({preventScroll:true});}
+  function open(){year=Number((input.value||thisMonth()).slice(0,4));opened=true;popup.hidden=false;trigger.setAttribute('aria-expanded','true');render();position();}
+  function choose(value){close(true);input.value=value;sync();input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));}
+  trigger.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(opened)close();else open();});
+  popup.addEventListener('click',e=>{
+    e.stopPropagation();
+    const nav=e.target.closest('[data-nav]'),cell=e.target.closest('[data-month]');
+    if(nav){year+=Number(nav.dataset.nav);render();}
+    else if(cell)choose(cell.dataset.month);
+    else if(e.target.closest('.kja-date-today'))choose(thisMonth());
+    else if(e.target.closest('.kja-date-close'))close(true);
+  });
+  popup.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close(true);}});
+  wrap.addEventListener('keydown',e=>{if(e.key==='Escape'&&opened){e.preventDefault();close(true);}});
+  document.addEventListener('pointerdown',e=>{if(opened&&!wrap.contains(e.target)&&!popup.contains(e.target))close();});
+  window.addEventListener('resize',()=>{if(opened)position();});
   document.addEventListener('scroll',()=>{if(opened)position();},{passive:true,capture:true});
   input.addEventListener('change',sync);
   KJA_DATE_SYNCS.push(sync);

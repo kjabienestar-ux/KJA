@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-mobile.css?v=16">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=2">
-<link rel="stylesheet" href="assets/css/paginas/assignment-hours.css?v=1">
+<link rel="stylesheet" href="assets/css/paginas/assignment-hours.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=6">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=9">
@@ -43,7 +43,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-guided-tour.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-receipt.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence.css?v=3">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-review.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-review.css?v=5">
   <link rel="stylesheet" href="assets/css/paginas/attendance-layout.css?v=26">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-desktop-jornada.css?v=16">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-loading.css?v=3">
@@ -57,7 +57,8 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-control-refined.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=6">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=6">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=7">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-asignaciones.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
@@ -65,7 +66,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=20261017_1311">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=20261028_1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-preview.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-operations.css?v=7">
@@ -1956,6 +1957,10 @@
             </div>
           </div>
           <div class="assignment-head-actions">
+            <button type="button" class="assignment-toggle-btn assignment-hours-open" id="assignment-hours-open" aria-haspopup="dialog" aria-controls="assignment-hours-dialog" hidden>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+              <span>Cierre: <b id="assignment-hours-label">…</b></span>
+            </button>
             <button type="button" class="admin-primary-action assignment-toggle-btn" id="assignment-create-toggle" aria-expanded="true" aria-controls="assignment-create-panel">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="5"></line><line x1="12" y1="12" x2="12" y2="12"></line><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               <span>Nueva asignación</span>
@@ -1970,22 +1975,44 @@
           </div>
         </header>
 
-        <details class="assignment-hours" id="assignment-hours" hidden>
-          <summary>Ampliar horario</summary>
+        <dialog class="assignment-hours-dialog" id="assignment-hours-dialog" aria-labelledby="assignment-hours-title" aria-describedby="assignment-hours-copy">
           <form id="assignment-hours-form">
-            <h3>Plazo general de entrega y cierre</h3>
-            <p>Se aplica a todo el equipo y queda guardado para los próximos días, independientemente de la fecha seleccionada. Amplía también el plazo para registrar la salida. Facebook mantiene su propio horario.</p>
-            <p>Las asignaciones se cargan el mismo día y antes de registrar la salida. Esta opción no reabre jornadas cerradas ni entregas de días anteriores.</p>
-            <label for="assignment-hours-minutes">Minutos de margen después de la hora de salida</label>
-            <div class="assignment-hours-controls">
-              <input id="assignment-hours-minutes" type="number" min="0" max="720" step="1" required disabled aria-describedby="assignment-hours-preview">
-              <button type="submit" id="assignment-hours-save" class="admin-primary-action" disabled>Guardar margen general</button>
-              <button type="button" id="assignment-hours-retry" hidden>Reintentar carga</button>
+            <header class="assignment-hours-head">
+              <span class="assignment-hours-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></span>
+              <span><h3 id="assignment-hours-title">Plazo de cierre</h3><p id="assignment-hours-copy">Minutos extra para entregar y registrar la salida después del horario.</p></span>
+              <button type="button" class="assignment-hours-close" data-close-assignment-hours aria-label="Cerrar plazo de cierre">×</button>
+            </header>
+            <div class="assignment-hours-timeline" aria-hidden="true">
+              <span><small>Salida</small><b>18:00</b></span>
+              <span class="assignment-hours-track"><i id="assignment-hours-bar"></i></span>
+              <span><small>Cierre</small><b id="assignment-hours-close">—</b></span>
             </div>
-            <p id="assignment-hours-preview">Consultando el margen actual…</p>
-            <p id="assignment-hours-status" role="status" aria-live="polite"></p>
+            <p class="sr-only" id="assignment-hours-preview" aria-live="polite">Consultando el margen actual…</p>
+            <div class="assignment-hours-presets" role="radiogroup" aria-label="Margen después de la salida" id="assignment-hours-presets">
+              <button type="button" role="radio" aria-checked="false" data-hours-preset="0" disabled>Sin margen</button>
+              <button type="button" role="radio" aria-checked="false" data-hours-preset="30" disabled>30 min</button>
+              <button type="button" role="radio" aria-checked="false" data-hours-preset="60" disabled>1 h</button>
+              <button type="button" role="radio" aria-checked="false" data-hours-preset="120" disabled>2 h</button>
+              <button type="button" role="radio" aria-checked="false" data-hours-preset="180" disabled>3 h</button>
+              <button type="button" role="radio" aria-checked="false" data-hours-preset="otro" disabled>Otro</button>
+            </div>
+            <label class="assignment-hours-custom" id="assignment-hours-custom" hidden>
+              <span>Minutos después de la salida</span>
+              <input id="assignment-hours-minutes" type="number" min="0" max="720" step="1" required disabled aria-describedby="assignment-hours-preview">
+              <small>De 0 a 720 (12 h).</small>
+            </label>
+            <ul class="assignment-hours-facts">
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg><span><b>Todo el equipo</b>También los próximos días</span></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg><span><b>Incluye la salida</b>Se puede marcar hasta el cierre</span></li>
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span><b>No reabre días cerrados</b>Facebook tiene su propio horario</span></li>
+            </ul>
+            <footer class="assignment-hours-foot">
+              <p id="assignment-hours-status" role="status" aria-live="polite"></p>
+              <button type="button" id="assignment-hours-retry" hidden>Reintentar</button>
+              <button type="submit" id="assignment-hours-save" class="admin-primary-action" disabled>Guardar</button>
+            </footer>
           </form>
-        </details>
+        </dialog>
 
         <div class="admin-close-grid">
           <!-- PANEL DE CREACIÓN DIRECTA (Visible a simple vista sin tener que pulsar antes el botón) -->
@@ -2114,6 +2141,10 @@
                 <span><i class="legend-dot is-selected" aria-hidden="true"></i>Día seleccionado</span>
               </div>
             </aside>
+            <section class="assignment-day-summary" id="assignment-day-summary" aria-labelledby="assignment-day-summary-title">
+              <header><h3 id="assignment-day-summary-title">Resumen del día</h3><small id="assignment-day-summary-date"></small></header>
+              <dl id="assignment-day-summary-stats" aria-live="polite"></dl>
+            </section>
           </div>
 
           <!-- PANEL DE ASIGNACIONES DEL DÍA (Estilo Tarjetas de Doctores / Profesionales) -->
@@ -2143,6 +2174,7 @@
             <div id="admin-close-assignment-list">
               <p class="admin-empty">Cargando asignaciones…</p>
             </div>
+            <div class="assignment-list-hint" aria-hidden="true"><span><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M12 11v6M9 14h6"/></svg><b>Aquí aparecerán las demás asignaciones de este día</b><small>Usa el formulario para agregar otra.</small></span></div>
           </article>
         </div>
 
@@ -4004,7 +4036,7 @@
 <script src="assets/js/dashboard-person-delete.js?v=1"></script>
 <script src="assets/js/dashboard-areas.js?v=2"></script>
 <script src="assets/js/dashboard-area-picker.js?v=4"></script>
-<script src="assets/js/dashboard-date-picker.js?v=20261017_1311"></script>
+<script src="assets/js/dashboard-date-picker.js?v=20261028_1"></script>
 <script src="assets/js/dashboard-editor-calendar.js?v=1"></script>
 <script src="assets/js/dashboard-editor-time.js?v=2"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=4"></script>
@@ -4018,9 +4050,9 @@
 <script src="assets/js/dashboard-admin-mes.js?v=23"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=7"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=7"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=53"></script>
-<script src="assets/js/dashboard-assignment-hours.js?v=1"></script>
-<script src="assets/js/dashboard-assignments.js?v=8"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=57"></script>
+<script src="assets/js/dashboard-assignment-hours.js?v=3"></script>
+<script src="assets/js/dashboard-assignments.js?v=10"></script>
 <script src="assets/js/dashboard-admin-control.js?v=18"></script>
 <script src="assets/js/dashboard-admin-lateral.js?v=3"></script>
 <script src="assets/js/marketing-model.js?v=studio-16"></script>

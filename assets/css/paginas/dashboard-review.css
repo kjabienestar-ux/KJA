@@ -1,28 +1,28 @@
 /* Revision y carga de evidencias: superficies suaves inspiradas en la referencia. */
 #admin-review-modal{
-  --review-ink:#403955;
-  --review-muted:#706981;
-  --review-canvas:#eeedf5;
-  --review-line:#e0ddea;
-  --review-accent:#766498;
+  --review-ink:#252523;
+  --review-muted:#6c6a64;
+  --review-canvas:#f4f1ec;
+  --review-line:#e6dfd8;
+  --review-accent:#a9583e;
   color:var(--review-ink);
 }
-#admin-review-modal .modal-backdrop{background:rgba(49,45,66,.46)}
+#admin-review-modal .modal-backdrop{background:rgba(37,37,35,.42)}
 #admin-review-modal .admin-review-sheet{
   border:6px solid #fff;
   border-radius:28px;
   background:var(--review-canvas);
-  box-shadow:0 24px 80px rgba(42,34,65,.22);
+  box-shadow:0 24px 80px rgba(88,71,53,.2);
 }
 #admin-review-modal .admin-review-head{
   padding:20px 22px;
-  background:#faf9fd;
+  background:#faf9f5;
 }
 #admin-review-modal .admin-review-person-mark{
-  color:#655083;
-  background:#e8dff4;
+  color:#a9583e;
+  background:#efe9de;
   border-radius:16px;
-  box-shadow:0 4px 10px rgba(77,56,108,.08);
+  box-shadow:0 4px 10px rgba(88,71,53,.08);
 }
 #admin-review-modal .admin-review-head h2{
   color:var(--review-ink);
@@ -35,33 +35,33 @@
 #admin-review-modal .modal-close{
   width:36px;
   height:36px;
-  color:#756884;
-  background:#eeebf4;
+  color:#6c6a64;
+  background:#f3eee6;
   border:0;
   border-radius:50%;
 }
-#admin-review-modal .modal-close:hover{color:#4d3f63;background:#e3dcee}
+#admin-review-modal .modal-close:hover{color:#252523;background:#e9e1d6}
 #admin-review-modal .admin-review-tabs{
   padding:12px 20px;
   gap:10px;
   border:0;
   background:var(--review-canvas);
-  scrollbar-color:#c7bfd6 transparent;
+  scrollbar-color:#d6cdc2 transparent;
 }
 #admin-review-modal .admin-review-tabs button{
   padding:11px 14px;
   border:1px solid transparent;
   border-radius:15px;
   color:var(--review-muted);
-  background:#f8f7fb;
+  background:#faf9f5;
   transition:background-color .15s ease,border-color .15s ease;
 }
-#admin-review-modal .admin-review-tabs button:hover{background:#e8e8f5}
+#admin-review-modal .admin-review-tabs button:hover{background:#f3eee6}
 #admin-review-modal .admin-review-tabs button.active{
-  color:#444c78;
-  background:#e1eafb;
-  border-color:#a8bcdf;
-  box-shadow:0 3px 8px rgba(68,76,120,.06);
+  color:#653c2d;
+  background:#f3e3da;
+  border-color:#d9b9a6;
+  box-shadow:0 3px 8px rgba(110,72,55,.1);
 }
 #admin-review-modal .admin-review-tabs button span{font-weight:600;font-size:12px}
 #admin-review-modal .admin-review-tabs button small{font-size:10px}
@@ -69,17 +69,17 @@
 #admin-review-modal .admin-review-gallery-wrap{
   padding:18px;
   border-radius:22px;
-  background:#f8f7fc;
+  background:#faf9f5;
 }
 #admin-review-modal .admin-review-gallery-head{align-items:center;gap:10px}
 #admin-review-modal .admin-review-gallery-head b{color:var(--review-ink);font-weight:600}
 #admin-review-modal .admin-review-gallery-head small{color:var(--review-muted);line-height:1.5}
-#admin-review-modal .admin-review-state{color:#805a19;background:#fff0cc;font-weight:600}
-#admin-review-modal .admin-review-state[data-state="aprobada"]{color:#35654f;background:#e1f0e6}
-#admin-review-modal .admin-review-state[data-state="observada"]{color:#934459;background:#f8e5eb}
-#admin-review-modal .admin-review-gallery{gap:12px;scrollbar-color:#c7bfd6 transparent}
+#admin-review-modal .admin-review-state{color:#9a7430;background:#f3ead6;font-weight:600}
+#admin-review-modal .admin-review-state[data-state="aprobada"]{color:#5f7a5a;background:#e6ece0}
+#admin-review-modal .admin-review-state[data-state="observada"]{color:#993e35;background:#f7e6e0}
+#admin-review-modal .admin-review-gallery{gap:12px;scrollbar-color:#d6cdc2 transparent}
 #admin-review-modal .admin-review-media{
-  border:1px solid #e6e2ed;
+  border:1px solid #e6dfd8;
   border-radius:16px;
   color:var(--review-ink);
   background:#fff;
@@ -87,19 +87,19 @@
 }
 #admin-review-modal .admin-review-media img{object-fit:contain}
 #admin-review-modal .admin-review-media>span{
-  color:#504460;
-  background:#f2edf9;
-  border:1px solid #e1d8eb;
+  color:#3d3d3a;
+  background:#f3eee6;
+  border:1px solid #e6dfd8;
   border-radius:8px;
   font-weight:600;
 }
 #admin-review-modal .admin-review-media>a{
-  color:#55456e;
-  background:#f2edf9;
-  border:1px solid #e1d8eb;
+  color:#653c2d;
+  background:#f3eee6;
+  border:1px solid #e6dfd8;
   border-radius:10px;
 }
-#admin-review-modal .admin-review-media>a:hover{background:#e4d9f2}
+#admin-review-modal .admin-review-media>a:hover{background:#efe9de}
 #admin-review-modal .admin-review-decision{
   padding:20px;
   border:0;
@@ -116,41 +116,41 @@
   min-height:130px;
   padding:13px;
   color:var(--review-ink);
-  background:#f7f6fb;
+  background:#faf9f5;
   border-color:var(--review-line);
   border-radius:14px;
   caret-color:var(--review-accent);
 }
-#admin-review-modal .admin-review-observation textarea::placeholder{color:#7a7287;opacity:1}
+#admin-review-modal .admin-review-observation textarea::placeholder{color:#8a857d;opacity:1}
 #admin-review-modal .admin-review-observation textarea:focus{
   border-color:var(--review-accent);
-  box-shadow:0 0 0 3px #eee8f7;
+  box-shadow:0 0 0 3px #f3e3da;
 }
 #admin-review-modal .admin-review-observation>small{color:var(--review-muted);line-height:1.6;font-size:10px}
 #admin-review-modal .admin-review-message,
 #admin-review-modal .admin-review-loading{color:var(--review-muted)}
 #admin-review-modal .admin-review-message.is-error,
-#admin-review-modal .admin-review-error{color:#934459}
+#admin-review-modal .admin-review-error{color:#993e35}
 #admin-review-modal .admin-review-decision footer{bottom:-20px;padding-bottom:20px;border-color:var(--review-line);gap:10px}
 #admin-review-modal .admin-review-decision footer button{border-radius:14px;font-size:12px;font-weight:600}
-#admin-review-modal .admin-review-observe{color:#934459;border-color:#ecc9d3;background:#fcf2f5}
-#admin-review-modal .admin-review-observe:hover:not(:disabled){background:#f8e4eb}
+#admin-review-modal .admin-review-observe{color:#993e35;border-color:#e3cfc2;background:#faf3ef}
+#admin-review-modal .admin-review-observe:hover:not(:disabled){background:#f3e3da}
 #admin-review-modal .admin-review-approve{
   color:#fff;
-  background:#487461;
-  box-shadow:0 5px 12px rgba(55,97,77,.13);
+  background:#5f7a5a;
+  box-shadow:0 5px 12px rgba(95,122,90,.18);
 }
-#admin-review-modal .admin-review-approve:hover:not(:disabled){background:#365d4c}
+#admin-review-modal .admin-review-approve:hover:not(:disabled){background:#4d6449}
 #admin-review-modal .admin-review-decision footer button:disabled{
-  color:#777180;
-  background:#eeecf1;
-  border-color:#dedbe4;
+  color:#8a857d;
+  background:#f3eee6;
+  border-color:#e6dfd8;
   box-shadow:none;
   cursor:not-allowed;
 }
 #admin-review-modal :is(button,a,textarea):focus-visible{outline:2px solid var(--review-accent);outline-offset:3px}
-#admin-review-modal ::selection{color:#403955;background:#e1d5f2}
-#admin-review-modal .admin-review-decision{scrollbar-width:thin;scrollbar-color:#c7bfd6 transparent}
+#admin-review-modal ::selection{color:#252523;background:#efe9de}
+#admin-review-modal .admin-review-decision{scrollbar-width:thin;scrollbar-color:#d6cdc2 transparent}
 @media(max-width:860px){
   #admin-review-modal .admin-review-workspace{padding:4px 12px 12px}
   #admin-review-modal .admin-review-decision{margin-top:12px}
@@ -169,6 +169,42 @@
   #admin-review-modal .admin-review-sheet{animation:none}
   #admin-review-modal .admin-review-tabs button{transition:none}
 }
+
+/* Vista previa de archivos: PDF integrado, imágenes grandes y tarjeta para documentos de Office. */
+#admin-review-modal .admin-review-gallery{align-content:start}
+#admin-review-modal .admin-review-gallery:is([data-count="1"]){grid-template-columns:minmax(0,1fr)}
+#admin-review-modal .admin-review-gallery[data-single="image"] .admin-review-media{min-height:min(60dvh,520px)}
+#admin-review-modal .admin-review-gallery[data-single="pdf"]{grid-template-rows:minmax(0,1fr);overflow:hidden}
+#admin-review-modal .admin-review-media.is-pdf{position:relative;grid-column:1/-1;min-height:420px;height:100%;display:flex;flex-direction:column;place-items:stretch;padding:0;overflow:hidden}
+/* El aviso queda detrás del visor y se ve solo mientras el PDF termina de cargar. */
+#admin-review-modal .admin-review-media.is-pdf::before{content:"Cargando PDF…";position:absolute;inset:0 0 61px;display:grid;place-items:center;color:var(--review-muted);font-size:12px;background:#f4f1ec}
+#admin-review-modal .admin-review-media.is-pdf iframe{position:relative;flex:1;width:100%;min-height:0;border:0;background:transparent}
+#admin-review-modal .admin-review-media.is-pdf footer{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--review-line);background:#faf9f5}
+#admin-review-modal .admin-review-media.is-pdf footer > span:not(.admin-review-file-badge){flex:1;min-width:0;display:grid;gap:1px}
+#admin-review-modal :is(.admin-review-media,.admin-review-file) b{color:var(--review-ink);font-size:12.5px;font-weight:600}
+#admin-review-modal :is(.admin-review-media,.admin-review-file) small{color:var(--review-muted);font-size:11px;line-height:1.45}
+#admin-review-modal .admin-review-file{grid-column:1/-1;display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:16px;padding:20px;border:1px solid var(--review-line);border-radius:16px;background:#fff}
+#admin-review-modal .admin-review-file-copy{display:grid;gap:4px}
+/* Un solo documento: la tarjeta ocupa el panel y centra su contenido, sin huecos debajo. */
+#admin-review-modal .admin-review-gallery:is([data-single="ppt"],[data-single="doc"],[data-single="file"]){grid-template-rows:minmax(0,1fr)}
+#admin-review-modal .admin-review-gallery:is([data-single="ppt"],[data-single="doc"],[data-single="file"]) .admin-review-file{height:100%;grid-template-columns:minmax(0,1fr);justify-items:center;align-content:center;gap:14px;text-align:center;background:linear-gradient(160deg,#fffdf9,#f5f0e8)}
+#admin-review-modal .admin-review-gallery:is([data-single="ppt"],[data-single="doc"],[data-single="file"]) .admin-review-file-badge{width:84px;height:100px;font-size:14px;padding-bottom:16px}
+#admin-review-modal .admin-review-gallery:is([data-single="ppt"],[data-single="doc"],[data-single="file"]) .admin-review-file-copy{max-width:36ch}
+#admin-review-modal .admin-review-gallery:is([data-single="ppt"],[data-single="doc"],[data-single="file"]) .admin-review-file-copy b{font:400 20px/1.25 'Fraunces',Georgia,serif}
+#admin-review-modal .admin-review-gallery:is([data-single="ppt"],[data-single="doc"],[data-single="file"]) .admin-review-file-actions{grid-column:auto;justify-content:center}
+#admin-review-modal .admin-review-file-actions{grid-column:2;display:flex;flex-wrap:wrap;gap:8px}
+#admin-review-modal .admin-review-file-badge{width:64px;height:76px;display:grid;place-items:end center;padding-bottom:12px;border-radius:10px 22px 10px 10px;color:#fff;background:#a9583e;font:700 12px/1 Inter,system-ui,sans-serif;letter-spacing:.04em;box-sizing:border-box}
+#admin-review-modal .admin-review-media.is-pdf .admin-review-file-badge{width:34px;height:40px;padding-bottom:7px;border-radius:6px 12px 6px 6px;font-size:9px}
+#admin-review-modal .admin-review-file-badge.is-pdf{background:#993e35}
+#admin-review-modal .admin-review-file-badge.is-ppt{background:#a9583e}
+#admin-review-modal .admin-review-file-badge.is-doc{background:#5b6b7a}
+#admin-review-modal .admin-review-file-badge.is-file{background:#8a857d}
+#admin-review-modal .admin-review-file-action{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:7px 14px;border:1px solid var(--review-line);border-radius:12px;color:#653c2d;background:#faf9f5;font-size:12px;font-weight:600;text-decoration:none}
+#admin-review-modal .admin-review-file-action:hover{background:#f3eee6;border-color:#d9c3b3}
+#admin-review-modal .admin-review-file-action.is-primary{color:#fff;border-color:transparent;background:linear-gradient(160deg,#b66448,#94492f)}
+#admin-review-modal .admin-review-file-action.is-primary:hover{background:linear-gradient(160deg,#a9583e,#7d3d27)}
+#admin-review-modal .admin-review-file-action svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:600px){#admin-review-modal .admin-review-media.is-pdf iframe{min-height:50dvh}#admin-review-modal .admin-review-file{grid-template-columns:48px minmax(0,1fr);padding:14px}#admin-review-modal .admin-review-file-badge{width:48px;height:58px}}
 
 /* Carga delegada: mismo lenguaje visual, conservando el formulario. */
 #admin-evidence-modal{
