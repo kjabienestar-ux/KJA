@@ -210,6 +210,7 @@ function renderAdminCloseAssignments(){
     ${data.puede_editar?`<button type="button" data-cancel-admin-close="${esc(item.id)}">Quitar</button>`:''}
     <div class="assignment-deliveries">${adminAssignmentEvidence(item.id)}</div>
   </div>`}).join(''):'<p class="admin-empty">No hay entregables asignados para esta fecha.</p>';
+  if(typeof renderAssignmentDaySummary==='function')renderAssignmentDaySummary();
 }
 
 function adminCloseAssignmentPresentation(item){
@@ -327,7 +328,7 @@ function renderAdminReviewSummary(){
 
 function hydrateAdminCloseControls(){
   const data=APP.adminClose;if(!data)return;
-  if($('assignment-hours'))$('assignment-hours').hidden=APP.access.rol!=='direccion';
+  if(typeof syncAssignmentHoursAccess==='function')syncAssignmentHoursAccess();
   const drawOption=$('admin-close-draw-option');drawOption.hidden=APP.access.rol!=='direccion';drawOption.disabled=APP.access.rol!=='direccion';
   if(APP.access.rol!=='direccion'&&$('admin-close-target-kind').value==='sorteo')$('admin-close-target-kind').value='persona';
   const area=$('admin-close-area'),currentArea=area.value;
@@ -424,16 +425,42 @@ async function renderAdminReviewDelivery(id){
   $('admin-review-observe').hidden=reviewed||!canDecide;$('admin-review-approve').hidden=reviewed||!canDecide;
   $('admin-review-observe').disabled=closed&&delivery.requisito!=='comparticiones';
   adminReviewMessage(!canDecide?'Consulta privada de tu área. Solo Dirección puede aprobar o solicitar correcciones.':closed&&!reviewed&&delivery.requisito!=='comparticiones'?'La jornada ya fue cerrada: puedes aprobar y guardar una observación, pero el colaborador ya no puede reemplazar archivos.':'');
-  const gallery=$('admin-review-gallery');gallery.innerHTML='<p class="admin-review-loading">Generando vistas privadas…</p>';
+  const gallery=$('admin-review-gallery');gallery.dataset.single='';gallery.dataset.count='0';gallery.innerHTML='<p class="admin-review-loading">Generando vistas privadas…</p>';
   const files=delivery.archivos||[];
   try{
     const signed=await Promise.all(files.map(async file=>{
       const {data,error}=await db.storage.from('asis-cierre-evidencias').createSignedUrl(file.path,900);
-      if(error||!data?.signedUrl)throw error||new Error('url');return {...file,url:data.signedUrl};
+      if(error||!data?.signedUrl)throw error||new Error('url');
+      // Los documentos de Office no se pueden mostrar en el navegador: se ofrece también la descarga.
+      const kind=adminReviewFileKind(file);let download='';
+      if(kind.office){const res=await db.storage.from('asis-cierre-evidencias').createSignedUrl(file.path,900,{download:true});download=res.data?.signedUrl||''}
+      return {...file,url:data.signedUrl,download,kind};
     }));
     if(request!==ADMIN_REVIEW.request)return;
-    gallery.innerHTML=signed.length?signed.map((file,index)=>{const video=String(file.mime||'').startsWith('video/'),documentFile=String(file.mime||'').startsWith('application/');return `<article class="admin-review-media${video?' is-video':''}">${video?`<video src="${esc(file.url)}" controls preload="metadata" playsinline aria-label="Video de ${esc(adminReviewTitle(delivery))}"></video>`:documentFile?`<a href="${esc(file.url)}" target="_blank" rel="noopener" style="display:grid;place-content:center;min-height:140px;padding:20px">Abrir documento · ${esc(file.path.split('.').pop().toUpperCase())}</a>`:`<img src="${esc(file.url)}" alt="${esc(adminReviewTitle(delivery))}, imagen ${index+1}" loading="lazy" decoding="async">`}<span>${documentFile?'DOCUMENTO':video?'VIDEO':`${index+1} de ${signed.length}`}</span><a href="${esc(file.url)}" target="_blank" rel="noopener" aria-label="Abrir ${documentFile?'documento':video?'video':'imagen'} en una pestaña nueva"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M19 5l-7 7M18 13v6H5V6h6"/></svg></a></article>`}).join(''):'<p class="admin-review-loading">Esta entrega no contiene archivos.</p>';
+    gallery.dataset.count=String(signed.length);
+    gallery.dataset.single=signed.length===1?signed[0].kind.key:'';
+    gallery.innerHTML=signed.length?signed.map((file,index)=>adminReviewFileMarkup(file,index,signed.length,delivery)).join(''):'<p class="admin-review-loading">Esta entrega no contiene archivos.</p>';
   }catch(error){if(request===ADMIN_REVIEW.request)gallery.innerHTML='<p class="admin-review-error">No pudimos abrir las imágenes privadas. Comprueba que tu sesión y el área asignada sigan vigentes.</p>'}
+}
+
+const ADMIN_REVIEW_OPEN_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M19 5l-7 7M18 13v6H5V6h6"/></svg>';
+const ADMIN_REVIEW_DOWNLOAD_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg>';
+function adminReviewFileKind(file){
+  const mime=String(file.mime||''),ext=String(file.path||'').split('.').pop().toLowerCase();
+  if(mime.startsWith('video/'))return {key:'video',label:'Video',ext:ext.toUpperCase()};
+  if(mime==='application/pdf'||ext==='pdf')return {key:'pdf',label:'Documento PDF',ext:'PDF'};
+  if(/presentation|powerpoint/.test(mime)||['ppt','pptx'].includes(ext))return {key:'ppt',label:'Presentación',ext:ext.toUpperCase(),office:true};
+  if(/word|msword/.test(mime)||['doc','docx'].includes(ext))return {key:'doc',label:'Documento de Word',ext:ext.toUpperCase(),office:true};
+  if(mime.startsWith('application/'))return {key:'file',label:'Documento',ext:ext.toUpperCase(),office:true};
+  return {key:'image',label:'Imagen',ext:ext.toUpperCase()};
+}
+function adminReviewFileMarkup(file,index,total,delivery){
+  const kind=file.kind,title=adminReviewTitle(delivery),counter=total>1?`Archivo ${index+1} de ${total}`:'Archivo único';
+  const open=`<a class="admin-review-file-action" href="${esc(file.url)}" target="_blank" rel="noopener">${ADMIN_REVIEW_OPEN_ICON}<span>Abrir</span></a>`;
+  if(kind.key==='pdf')return `<article class="admin-review-media is-pdf"><iframe src="${esc(file.url)}#navpanes=0&view=FitH" title="${esc(title)}, PDF ${index+1}" loading="lazy"></iframe><footer><span class="admin-review-file-badge is-pdf">PDF</span><span><b>${esc(kind.label)}</b><small>${esc(counter)}</small></span>${open}</footer></article>`;
+  if(kind.office)return `<article class="admin-review-file is-${kind.key}"><span class="admin-review-file-badge is-${kind.key}">${esc(kind.ext||'DOC')}</span><span class="admin-review-file-copy"><b>${esc(kind.label)}</b><small>${esc(counter)} · El navegador no puede mostrar este formato; ábrelo o descárgalo para revisarlo.</small></span><span class="admin-review-file-actions">${open}${file.download?`<a class="admin-review-file-action is-primary" href="${esc(file.download)}" rel="noopener">${ADMIN_REVIEW_DOWNLOAD_ICON}<span>Descargar</span></a>`:''}</span></article>`;
+  if(kind.key==='video')return `<article class="admin-review-media is-video"><video src="${esc(file.url)}" controls preload="metadata" playsinline aria-label="Video de ${esc(title)}"></video><span>VIDEO</span><a href="${esc(file.url)}" target="_blank" rel="noopener" aria-label="Abrir video en una pestaña nueva">${ADMIN_REVIEW_OPEN_ICON}</a></article>`;
+  return `<article class="admin-review-media"><img src="${esc(file.url)}" alt="${esc(title)}, imagen ${index+1}" loading="lazy" decoding="async"><span>${index+1} de ${total}</span><a href="${esc(file.url)}" target="_blank" rel="noopener" aria-label="Abrir imagen en una pestaña nueva">${ADMIN_REVIEW_OPEN_ICON}</a></article>`;
 }
 
 function openAdminReviewPerson(personId,trigger=null,assignmentId=null){
