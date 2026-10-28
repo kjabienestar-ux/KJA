@@ -953,7 +953,7 @@ function scheduleSidebarHover(collapsed){
 function sidebarStorageKey(){return APP.sessionUid?`${SIDEBAR_COLLAPSED_KEY}:${APP.sessionUid}`:''}
 function sidebarCanCollapse(){
   const portal=$('portal');
-  return !!portal&&window.matchMedia('(min-width:1281px)').matches&&APP.identity.hasPersonal&&APP.view!=='gestion'&&APP.view!=='marketing';
+  return !!portal&&window.matchMedia('(min-width:1281px)').matches&&APP.identity.hasPersonal&&APP.view!=='gestion'&&APP.view!=='marketing'&&portal.dataset.adminLateral!=='true';
 }
 function sidebarUsesHover(){
   return window.matchMedia('(min-width:1281px) and (hover:hover) and (pointer:fine)').matches;
@@ -968,7 +968,9 @@ function hideSidebarTooltip(){
 }
 function showSidebarTooltip(target){
   const tooltip=$('sidebar-tooltip');
-  if(!tooltip||!sidebarCanCollapse()||sidebarUsesHover()||$('portal').dataset.sidebarCollapsed!=='true'||!target?.dataset.sidebarTooltip)return hideSidebarTooltip();
+  // En Gestión la barra principal queda en iconos y siempre necesita el nombre al pasar o enfocar.
+  const adminRail=$('portal').dataset.adminRail==='icons';
+  if(!tooltip||!target?.dataset.sidebarTooltip||(!adminRail&&(!sidebarCanCollapse()||sidebarUsesHover()||$('portal').dataset.sidebarCollapsed!=='true')))return hideSidebarTooltip();
   tooltip.textContent=target.dataset.sidebarTooltip;
   tooltip.hidden=false;
   const rect=target.getBoundingClientRect(),width=tooltip.offsetWidth,height=tooltip.offsetHeight;
@@ -1026,7 +1028,8 @@ function paintShell(view){
     b.classList.toggle('active',active);
     if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
-  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas'||view==='zoom'||view==='reclutamiento'||(view==='perfil'&&APP.access.acceso_panel));
+  // Publicaciones usa el mismo sidebar administrativo cuando la cuenta tiene acceso al panel.
+  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas'||view==='zoom'||view==='reclutamiento'||((view==='perfil'||view==='marketing')&&APP.access.acceso_panel));
   syncSidebarCollapse();
 }
 
@@ -1046,8 +1049,7 @@ function primeCachedShell(session,fallback){
   paintShell(view);
   if(view==='gestion'){$('nav-gestion').hidden=false;$('admin-nav-divider').hidden=false}
   else if(view==='equipo'){$('nav-equipo').hidden=false;$('team-nav-divider').hidden=false}
-  else if(view==='inicio'){$('personal-nav-divider').hidden=false;$('nav-inicio').hidden=false;$('nav-asistencia').hidden=false;$('nav-perfil').hidden=false;}
-  else if(view==='perfil'){$('nav-perfil').hidden=false;}
+  else if(view==='inicio'){$('personal-nav-divider').hidden=false;$('nav-inicio').hidden=false;$('nav-asistencia').hidden=false;}
   $('access').hidden=true; $('portal').hidden=false;
   hideBoot();
 }
@@ -1118,14 +1120,12 @@ async function openPortal(activeSession,bootstrap=null){
     ['personal-nav-divider','nav-inicio','nav-asistencia','team-nav-divider','nav-equipo'].forEach(id=>{
       const el=$(id); if(el) el.hidden=true;
     });
-    $('nav-perfil').hidden=false;
     $('nav-gestion').hidden=false;
     $('admin-nav-divider').hidden=false;
   }else{
     ['personal-nav-divider','nav-inicio','nav-asistencia'].forEach(id=>{
       const el=$(id); if(el) el.hidden=!APP.identity.hasPersonal;
     });
-    $('nav-perfil').hidden=!(APP.identity.hasPersonal||APP.access.acceso_panel);
     $('team-nav-divider').hidden=!APP.identity.isLeader;
     $('nav-equipo').hidden=!APP.identity.isLeader;
     $('nav-gestion').hidden=true;

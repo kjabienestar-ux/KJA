@@ -2,9 +2,9 @@
    Su espacio de trabajo comienza después del borde derecho del sidebar. */
 @media (min-width:901px) {
   #portal[data-view="reclutamiento"] {
-    --rec-sidebar-width:236px;
-    --rec-sidebar-inset:12px;
-    --rec-workspace-left:calc(var(--rec-sidebar-width) + 2 * var(--rec-sidebar-inset));
+    --rec-sidebar-width:204px;
+    --rec-sidebar-inset:16px;
+    --rec-workspace-left:calc(var(--rec-sidebar-width) + var(--rec-sidebar-inset));
     display:block;
     height:100dvh;
     overflow:hidden;
@@ -43,7 +43,6 @@
   #portal[data-view="reclutamiento"] > .portal-rail { display:none !important; }
 }
 @media (min-width:901px) and (max-width:1200px) {
-  #portal[data-view="reclutamiento"] { --rec-sidebar-width:210px; }
   #portal[data-view="reclutamiento"] > #workspace.workspace { padding-inline:20px !important; }
   #rec-inbox-root .ri-header { flex-wrap:wrap; gap:16px; }
 }

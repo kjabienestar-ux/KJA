@@ -1,10 +1,11 @@
 /* Una sola medida para el menú y el espacio que reserva en administración.
+   Replica la medida de Publicaciones: 204px de ancho, 16px de margen y el contenido justo al lado.
    Las vistas nuevas no deben depender del posicionamiento fijo de Gestión. */
 @media (min-width: 901px) {
   #portal:is(.admin-wide, [data-view="reclutamiento"], [data-view="recruitment"]) {
-    --admin-sidebar-width: 236px;
-    --admin-sidebar-inset: 12px;
-    --admin-workspace-start: calc(var(--admin-sidebar-width) + 2 * var(--admin-sidebar-inset));
+    --admin-sidebar-width: 204px;
+    --admin-sidebar-inset: 16px;
+    --admin-workspace-start: calc(var(--admin-sidebar-width) + var(--admin-sidebar-inset));
     display: block;
   }
 
@@ -14,6 +15,7 @@
     box-sizing: border-box;
     width: var(--admin-sidebar-width) !important;
     height: calc(100dvh - 2 * var(--admin-sidebar-inset));
+    padding-top: 24px !important;
     overflow-x: hidden;
     overflow-y: auto;
   }
@@ -51,10 +53,6 @@
 }
 
 @media (min-width: 901px) and (max-width: 1200px) {
-  #portal:is(.admin-wide, [data-view="reclutamiento"], [data-view="recruitment"]) {
-    --admin-sidebar-width: 210px;
-  }
-
   #portal:is(.admin-wide, [data-view="reclutamiento"], [data-view="recruitment"]) > .workspace {
     padding-inline: 16px !important;
   }
