@@ -1,0 +1,144 @@
+/* Lateral de Gestión en escritorio: barra principal en iconos + familias de secciones.
+   Móvil conserva la barra de pestañas; aquí no se toca nada por debajo de 901px. */
+.admin-lateral,.admin-rail-toggle{display:none}
+
+/* Separador sin título antes de Publicaciones y Mi perfil (solo escritorio). */
+@media (min-width:901px){
+  #portal #sidebar .side-nav-divider.tools:not([hidden]){height:1px;margin:14px 14px 8px;padding:0;overflow:hidden;font-size:0;background:#ddd5c9}
+}
+@media (max-width:900px){
+  #portal #sidebar .side-nav-divider.tools{display:none !important}
+}
+
+@media (min-width:901px){
+  #portal.admin-wide[data-admin-lateral="true"]{
+    --admin-lateral-width:224px;
+    --admin-workspace-start:calc(var(--admin-sidebar-inset) + var(--admin-sidebar-width) + var(--admin-lateral-width) + 12px);
+  }
+  #portal.admin-wide[data-admin-lateral="true"][data-admin-rail="icons"]{--admin-sidebar-width:64px}
+  #portal.admin-wide[data-admin-lateral="true"] > #sidebar{border-radius:25px 0 0 25px !important}
+  /* La bandeja de Reclutamiento calcula su propio espacio; dentro de Gestión usa el del lateral. */
+  #portal[data-view="reclutamiento"][data-admin-lateral="true"]{
+    --rec-sidebar-width:var(--admin-sidebar-width);
+    --rec-workspace-left:var(--admin-workspace-start);
+  }
+
+  /* Barra principal en iconos */
+  #portal[data-admin-rail="icons"] > #sidebar{align-items:center;padding:22px 10px 14px !important}
+  #portal[data-admin-rail="icons"] > #sidebar .side-brand{justify-content:center;width:100%;padding:0}
+  #portal[data-admin-rail="icons"] > #sidebar .side-brand .sidebar-label,
+  #portal[data-admin-rail="icons"] > #sidebar #sidebar-collapse-toggle,
+  #portal[data-admin-rail="icons"] > #sidebar .side-help,
+  #portal[data-admin-rail="icons"] > #sidebar .side-user-copy{display:none !important}
+  #portal[data-admin-rail="icons"] > #sidebar .side-nav{width:100%;justify-items:center;gap:6px;margin-top:30px}
+  #portal[data-admin-rail="icons"] > #sidebar :is(.side-nav button,.guided-tour-trigger){
+    position:relative;width:44px !important;min-width:0;height:44px !important;min-height:44px !important;
+    justify-content:center;gap:0;padding:0 !important;
+  }
+  #portal[data-admin-rail="icons"] > #sidebar .guided-tour-trigger{align-self:center;margin-inline:0}
+  #portal[data-admin-rail="icons"] > #sidebar :is(.side-nav button,.guided-tour-trigger) .sidebar-label{position:absolute;top:2px;right:0;font-size:0;line-height:0}
+  #portal[data-admin-rail="icons"] > #sidebar .side-nav [data-rec-pending-count]:not([hidden]){
+    min-width:17px;height:17px;margin:0;padding:0 4px;box-sizing:border-box;border:2px solid #f0eee6;
+    border-radius:9px;color:#fff;background:#b4532f;font-size:9px;font-weight:700;line-height:1;
+  }
+  #portal[data-admin-rail="icons"] > #sidebar .side-nav-divider:not([hidden]){
+    width:32px;height:1px;margin:10px auto;overflow:hidden;font-size:0;background:#ddd5c9;
+  }
+  #portal[data-admin-rail="icons"] > .sidebar-tooltip:not([hidden]){display:block !important;border-color:#3d3d3a;background:#252523;font-family:Inter,system-ui,sans-serif;font-size:12px}
+  #portal[data-admin-rail="icons"] > #sidebar .side-user{grid-template-columns:1fr;justify-items:center;gap:10px;width:100%;margin-top:10px !important}
+  /* Sin nombres a la vista, la foto es el acceso a Mi perfil. */
+  #portal[data-admin-rail="icons"] > #sidebar .side-user > :is(.avatar,.side-user-copy){grid-area:1/1}
+  #portal[data-admin-rail="icons"] > #sidebar .side-user > #logout{grid-area:2/1}
+  #portal[data-admin-rail="icons"] > #sidebar .side-user .side-user-copy{display:block !important;position:relative;z-index:1;width:38px;height:38px;margin:0;padding:0;border:0;border-radius:12px;background:transparent;font-size:0;cursor:pointer}
+  #portal[data-admin-rail="icons"] > #sidebar .side-user .side-user-copy :is(b,small){display:none}
+
+  #portal[data-admin-lateral="true"] > #sidebar .admin-rail-toggle:not([hidden]){
+    display:flex;align-items:center;justify-content:center;gap:10px;width:44px;height:36px;margin:auto auto 0;
+    padding:0;border:0;border-radius:8px;color:#6c6a64;background:transparent;font:inherit;font-size:13px;
+  }
+  #portal[data-admin-lateral="true"] > #sidebar .admin-rail-toggle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+  #portal[data-admin-lateral="true"] > #sidebar .admin-rail-toggle:hover{color:#252523;background:#e8e0d2}
+  #portal[data-admin-rail="icons"] > #sidebar .admin-rail-toggle .sidebar-label{display:none}
+  #portal[data-admin-rail="open"] > #sidebar .admin-rail-toggle:not([hidden]){justify-content:flex-start;width:100%;padding:0 14px}
+  #portal[data-admin-rail="open"] > #sidebar .admin-rail-toggle svg{transform:rotate(180deg)}
+  #portal[data-admin-rail="open"] > #sidebar .side-user{margin-top:10px !important}
+
+  /* Lateral de familias */
+  #portal[data-admin-lateral="true"] > .admin-lateral:not([hidden]){
+    position:fixed;z-index:49;top:var(--admin-sidebar-inset);bottom:var(--admin-sidebar-inset);
+    left:calc(var(--admin-sidebar-inset) + var(--admin-sidebar-width));width:var(--admin-lateral-width);
+    display:block;box-sizing:border-box;overflow-x:hidden;overflow-y:auto;padding:24px 10px 18px;
+    border:1px solid #e6dfd8;border-radius:0 25px 25px 0;background:#faf7f2;
+    color:#3d3d3a;font-family:Inter,system-ui,sans-serif;scrollbar-width:thin;scrollbar-color:#c6bbae transparent;
+  }
+  .admin-lateral-title{margin:0 8px 12px;color:#141413;font:400 18px/1.25 'Fraunces',Georgia,serif;letter-spacing:-.03em}
+  .admin-lateral-family{margin-bottom:6px}
+  .admin-lateral-family-head{
+    display:flex;align-items:center;gap:6px;width:100%;min-height:28px;padding:4px 10px;border:0;border-radius:8px;
+    color:#6c6a64;background:transparent;font:500 11.5px/1.3 Inter,system-ui,sans-serif;text-align:left;cursor:pointer;
+  }
+  .admin-lateral-family-head:hover{color:#252523;background:#f1ebe1}
+  .admin-lateral-family-name{flex:1 1 auto;min-width:0}
+  .admin-lateral-family.is-current .admin-lateral-family-name{color:#a9583e}
+  .admin-lateral-family.is-current .admin-lateral-family-name::before{content:"";display:inline-block;width:5px;height:5px;margin:0 7px 2px 0;border-radius:50%;background:#a9583e;vertical-align:middle}
+  .admin-lateral-family-meta{display:inline-flex;align-items:center;gap:6px;color:#8a857c;font-size:11px;font-variant-numeric:tabular-nums}
+  .admin-lateral-family-meta b{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;color:#fff;background:#b4532f;font-size:10px;font-weight:700}
+  .admin-lateral-family-head svg{flex:none;width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+  .admin-lateral-family.is-folded .admin-lateral-family-head svg{transform:rotate(-90deg)}
+  .admin-lateral ul{margin:2px 0 0;padding:0;list-style:none}
+  .admin-lateral li.is-tucked{display:none}
+  .admin-lateral [data-lateral-section]{
+    position:relative;display:flex;align-items:center;gap:9px;
+    width:100%;min-height:32px;padding:5px 8px 5px 10px;border:0;border-radius:8px;color:#3d3d3a;background:transparent;
+    font:500 13px/1.3 Inter,system-ui,sans-serif;text-align:left;cursor:pointer;
+  }
+  .admin-lateral [data-lateral-section] > svg{flex:none;width:18px;height:18px;fill:none;stroke:#8b6d5e;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .admin-lateral [data-lateral-section]:hover{color:#252523;background:#f1ebe1}
+  .admin-lateral [data-lateral-section].active{color:#252523;background:#f2e2d5;font-weight:650}
+  .admin-lateral [data-lateral-section].active > svg{stroke:#a9583e}
+  .admin-lateral [data-lateral-section].active::before{content:"";position:absolute;top:6px;bottom:6px;left:-10px;width:3px;border-radius:0 3px 3px 0;background:#a9583e}
+  .admin-lateral [data-lateral-section] > span:nth-of-type(1){flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+  .admin-lateral .admin-lateral-count:not([hidden]){
+    flex:none;display:inline-grid;place-items:center;align-self:start;min-width:20px;height:20px;margin:0;padding:0 6px;box-sizing:border-box;
+    border-radius:10px;color:#fff;background:#b4532f;font-size:11px;font-weight:700;
+  }
+  .admin-lateral-beta{flex:none;padding:2px 7px;border-radius:10px;color:#8a6516;background:#f3e6c4;font-size:10px;font-style:italic;font-weight:600}
+  .admin-lateral :is(button):focus-visible{outline:2px solid #a9583e;outline-offset:1px}
+
+  /* Cabecera del contenido: ruta a la izquierda; rol, Panel anterior y Actualizar a la derecha. */
+  #portal[data-admin-lateral="true"] #view-gestion > .admin-section-nav > :is([data-admin-section],#admin-recruitment-tab,.mobile-inline-home){display:none !important}
+  #portal[data-admin-lateral="true"] #view-gestion > .admin-section-nav,
+  #portal[data-admin-lateral="true"] .admin-context-bar:not([hidden]){
+    display:flex;align-items:center;gap:12px;min-width:0;overflow:visible !important;
+    padding:0 !important;border:0 !important;background:transparent !important;box-shadow:none !important;
+  }
+  #portal[data-admin-lateral="true"] .admin-context-bar:not([hidden]){min-height:44px;margin-bottom:16px}
+  #portal[data-admin-lateral="true"] .admin-breadcrumb:not([hidden]){
+    order:-2;display:flex;flex:1 1 auto;align-items:center;min-width:0;margin:0 auto 0 0;padding:0;list-style:none;
+    color:#6c6a64;font:500 13px/1.3 Inter,system-ui,sans-serif;
+  }
+  .admin-breadcrumb li{min-width:2.5em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .admin-breadcrumb li:first-child{flex-shrink:20}
+  .admin-breadcrumb li[aria-current]{flex-shrink:0;min-width:auto;color:#141413;font-weight:650}
+  .admin-breadcrumb li + li::before{content:"›";margin:0 9px;color:#b3aa9e}
+  #portal[data-admin-lateral="true"] :is(#admin-role-chip:not([hidden]),.admin-context-role){
+    order:-1;flex:none;padding:6px 12px;border-radius:999px;color:#8f4a30;background:#f6e3d6;font-size:12px;font-weight:600;white-space:nowrap;
+  }
+  #portal[data-admin-lateral="true"] :is(#view-gestion > .admin-section-nav,.admin-context-bar) > a{flex:none;color:#6c6a64 !important;font-size:12.5px !important;white-space:nowrap;text-decoration:none}
+  #portal[data-admin-lateral="true"] :is(#view-gestion > .admin-section-nav,.admin-context-bar) > a:hover{color:#252523 !important;background:transparent !important}
+  #portal[data-admin-lateral="true"] :is(#view-gestion > .admin-section-nav,.admin-context-bar) .admin-refresh{flex:none;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+  #portal[data-admin-lateral="true"] #rec-context-bar .admin-refresh{
+    height:32px;padding:0 12px;border:1px solid #176b60 !important;border-radius:9px !important;color:#fff !important;background:#176b60 !important;
+    box-shadow:none !important;font:500 11px/1 Inter,system-ui,sans-serif;cursor:pointer;
+  }
+  #portal[data-admin-lateral="true"] #rec-context-bar .admin-refresh:hover{background:#125a51 !important}
+  #portal[data-admin-lateral="true"] .admin-context-bar .admin-refresh svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+}
+
+@media (min-width:901px) and (max-width:1200px){
+  #portal.admin-wide[data-admin-lateral="true"]{--admin-lateral-width:210px}
+}
+
+@media (max-width:900px){
+  .admin-lateral,.admin-rail-toggle,.admin-context-bar,.admin-breadcrumb{display:none !important}
+}

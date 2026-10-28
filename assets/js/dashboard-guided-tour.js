@@ -14,14 +14,14 @@
   ];
   const step = (id, group, title, copy, targets, figure = 'attendance-on-time.png', closeStage = null) => ({ id, group, title, copy, targets, figure, closeStage });
   const webSteps = [
-    step('navigation', 0, 'Todo empieza en el sidebar', 'Inicio reúne tu día; Mi asistencia muestra tu historial y Mi perfil tus datos. Abajo tienes ayuda y cerrar sesión. Tutorial guiado permite repetir esta guía; los accesos adicionales dependen de tus permisos.', ['#sidebar']),
+    step('navigation', 0, 'Todo empieza en el sidebar', 'Inicio reúne tu día y Mi asistencia muestra tu historial; tu nombre, abajo, abre Mi perfil con tus datos. Abajo tienes ayuda y cerrar sesión. Tutorial guiado permite repetir esta guía; los accesos adicionales dependen de tus permisos.', ['#sidebar']),
     step('schedule', 1, 'Horario, modalidad y contador', 'Revisa tu entrada y salida programadas. Elige Virtual o Presencial antes de marcar. La cuenta regresiva indica cuánto falta: llegar a cero no registra tu salida.', ['.day-schedule'], 'attendance-phone.png'),
     step('month', 2, 'Tus horas del mes', 'Aquí ves tus horas acreditadas y el avance hacia la meta mensual. Si Dirección aún no configuró una meta, seguirás viendo las horas acumuladas.', ['.day-summary .progress-card']),
     step('entry', 3, '1. Marca tu entrada', 'Confirma tu modalidad y adjunta la evidencia solicitada: Zoom en Virtual; foto y ubicación en Presencial. La entrada guarda tu hora oficial y habilita las evidencias laborales.', ['#day-close-checklist .type-entrada', '#open-mark'], 'attendance-phone.png', 0),
     step('facebook', 3, '2. Comparticiones de Facebook', 'Sube las capturas o el collage que comprueban tus comparticiones. Revisa el horario y confirma el envío: Facebook tiene su propio plazo, incluso si ya registraste tu salida.', ['#day-close-checklist .type-comparticiones'], 'evidence-worker.png', 1),
     step('rpe', 3, '3. Sube tu RPE', 'Adjunta el reporte y las evidencias de tus actividades del día. Comprueba que sean legibles y queden enviadas; corrige cualquier observación. Este requisito aparece cuando corresponde a tu jornada.', ['#day-close-checklist .type-rpe'], 'evidence-worker.png', 2),
     step('exit', 3, '4. Registra tu salida', 'Completa los requisitos laborales y adjunta la foto de salida cuando se solicite, o usa Marcar mi salida. Verifica la confirmación: cerrar sesión no marca salida. Facebook conserva su propio plazo.', ['#day-close-checklist .type-salida', '#day-close-action'], 'attendance-exit.png', 3),
-    step('space', 4, 'Tu perfil y listo', 'En Mi perfil encuentras tus datos laborales, pausas activas y comunicados; Mensajes abre tus conversaciones. Ya puedes repetir el recorrido desde Tutorial guiado cuando lo necesites.', ['#nav-perfil'], 'attendance-on-time.png')
+    step('space', 4, 'Tu perfil y listo', 'Desde tu nombre, al pie del sidebar, abres Mi perfil: ahí encuentras tus datos laborales, pausas activas y comunicados; Mensajes abre tus conversaciones. Ya puedes repetir el recorrido desde Tutorial guiado cuando lo necesites.', ['#side-profile-link'], 'attendance-on-time.png')
   ];
   const mobileSteps = [
     step('navigation', 0, 'Tus accesos rápidos', 'Mi asistencia: historial. Mi perfil: datos personales. Jornada de hoy: horario.', ['.mobile-quick-grid']),
