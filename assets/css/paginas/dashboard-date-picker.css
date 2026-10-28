@@ -59,3 +59,39 @@
 .kja-date-today:disabled{opacity:.4;cursor:not-allowed}
 .kja-date-close{padding:0 10px;background:transparent;color:#8c839d}
 .kja-date-close:hover{color:#403955;background:#f1eff7}
+
+/* Variante cálida (paleta del dashboard administrativo) y selector de mes. */
+.kja-date-picker.kja-date-warm .kja-date-trigger{height:auto;padding:5px 2px;gap:6px;border:0;border-radius:8px;background:transparent;color:#653c2d;font:600 12.5px/1.2 Inter,system-ui,sans-serif}
+.kja-date-picker.kja-date-warm .kja-date-trigger:hover:not(:disabled){background:#f3eee6;border-color:transparent}
+.kja-date-picker.kja-date-warm .kja-date-trigger:is([aria-expanded="true"],:focus-visible){background:#f3eee6;border-color:transparent;box-shadow:0 0 0 2px #e6dfd8}
+.kja-date-picker.kja-date-warm .kja-date-trigger>svg:first-child{display:none}
+.kja-date-picker.kja-date-warm .kja-date-chevron,.kja-date-picker.kja-date-warm .kja-date-trigger[aria-expanded="true"] .kja-date-chevron{color:#a9583e}
+.kja-month-picker.kja-date-warm .kja-date-trigger{justify-content:center;color:#252523;font-size:13px;font-weight:700}
+.kja-month-picker.kja-date-warm .kja-date-text{flex:0 1 auto}
+
+.kja-date-popup.kja-date-warm{border-color:#e6dfd8;background:#faf9f5;color:#252523;box-shadow:0 18px 44px rgba(88,71,53,.18),0 2px 8px rgba(88,71,53,.06)}
+.kja-date-warm .kja-date-title{color:#252523;font:400 17px/1.2 'Fraunces',Georgia,serif;letter-spacing:-.01em}
+.kja-date-warm .kja-date-nav{background:#f3eee6;color:#a9583e}
+.kja-date-warm .kja-date-nav:hover:not(:disabled),.kja-date-warm .kja-date-nav:active:not(:disabled){background:#efe9de;color:#7d3d27}
+.kja-date-warm .kja-date-weekdays span{color:#a39e96}
+.kja-date-warm .kja-date-day{color:#3d3d3a}
+.kja-date-warm .kja-date-day:hover:not(:disabled):not(.is-selected){background:#f3eee6;color:#7d3d27}
+.kja-date-warm .kja-date-day.is-today:not(.is-selected){border-color:#a9583e;color:#a9583e;background:#fffdf9}
+.kja-date-warm .kja-date-day.is-selected{background:linear-gradient(160deg,#b66448,#94492f)!important;box-shadow:0 4px 12px rgba(145,73,48,.28)}
+.kja-date-warm .kja-date-day:disabled{color:#d6cdc2}
+.kja-date-warm .kja-date-foot{border-top-color:#e6dfd8}
+.kja-date-warm .kja-date-today{background:#f3eee6;color:#a9583e}
+.kja-date-warm .kja-date-today:hover:not(:disabled){background:#efe9de;color:#7d3d27}
+.kja-date-warm .kja-date-close{color:#6c6a64}
+.kja-date-warm .kja-date-close:hover{color:#252523;background:#f3eee6}
+.kja-date-warm :is(button):focus-visible{outline-color:#a9583e}
+
+.kja-month-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.kja-month-cell{height:38px;border:1px solid transparent;border-radius:10px;background:transparent;color:#403955;font:600 12.5px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:background-color .15s ease}
+.kja-month-cell:hover:not(.is-selected){background:#f1eff7}
+.kja-month-cell.is-today:not(.is-selected){border-color:#655083}
+.kja-month-cell.is-selected{color:#fff;background:#655083}
+.kja-date-warm .kja-month-cell{color:#3d3d3a}
+.kja-date-warm .kja-month-cell:hover:not(.is-selected){background:#f3eee6;color:#7d3d27}
+.kja-date-warm .kja-month-cell.is-today:not(.is-selected){border-color:#a9583e;color:#a9583e}
+.kja-date-warm .kja-month-cell.is-selected{background:linear-gradient(160deg,#b66448,#94492f);box-shadow:0 4px 12px rgba(145,73,48,.24)}

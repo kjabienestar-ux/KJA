@@ -28,6 +28,7 @@ function assignmentCalendarMarkup(month,days,selected){
 }
 async function loadAssignmentCalendar(){
   const month=$('assignment-calendar-month').value;if(!/^\d{4}-\d{2}$/.test(month))return;
+  if(typeof syncKjaDatePickers==='function')syncKjaDatePickers();
   const request=++ASSIGNMENT_CALENDAR_REQUEST;
   $('assignment-calendar-message').textContent='Consultando fechas…';
   $('assignment-calendar-days').innerHTML='';
@@ -46,7 +47,7 @@ function syncAssignmentCalendar(){
   const date=$('admin-close-date').value||isoLima();
   if(ASSIGNMENT_SELECTED_DATE!==date||!$('assignment-calendar-month').value)$('assignment-calendar-month').value=date.slice(0,7);
   ASSIGNMENT_SELECTED_DATE=date;
-  $('assignment-work-date').value=date;
+  $('assignment-work-date').value=date;if(typeof syncKjaDatePickers==='function')syncKjaDatePickers();
   $('admin-assignment-date-note').textContent=`Fecha seleccionada: ${adminReviewDate(date)}.${date<isoLima()?' Solo consulta: no puedes crear asignaciones en fechas pasadas.':''}`;
   void loadAssignmentCalendar();
 }
@@ -68,6 +69,9 @@ $('assignment-create-toggle').onclick=()=>{
   button.textContent=panel.hidden?'Nueva asignación':'Cerrar formulario';
   if(!panel.hidden)$('admin-close-target-kind').focus({preventScroll:true});
 };
+// Selector propio con la paleta del dashboard: el input date sigue siendo la fuente del valor.
+if(typeof initKjaDatePicker==='function')initKjaDatePicker($('assignment-work-date'),{label:'Fecha de trabajo',popupId:'assignment-work-date-popup',theme:'warm',openEnded:true});
+if(typeof initKjaMonthPicker==='function')initKjaMonthPicker($('assignment-calendar-month'),{label:'Mes del calendario',popupId:'assignment-calendar-month-popup',theme:'warm'});
 $('assignment-work-date').onchange=()=>{
   if(!$('assignment-work-date').value)return;
   $('admin-close-date').value=$('assignment-work-date').value;

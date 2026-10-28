@@ -160,3 +160,30 @@
     #portal #admin-assignments-section #admin-close-assignment-list:has(> .admin-empty){flex:1 1 auto;display:grid !important;place-items:center}
   }
 }
+
+/* El selector de mes vive dentro de la barra de navegación del calendario, cuyos botones miden 30 px. */
+#portal #admin-assignments-section .assignment-month-nav label{min-width:0;display:block}
+#portal #admin-assignments-section .assignment-month-nav .kja-date-trigger{width:100% !important;height:32px !important;min-height:32px !important;padding:0 6px !important;display:flex !important;align-items:center;justify-content:center;gap:6px;border:0 !important;border-radius:9px !important;background:transparent !important;color:var(--asg-ink,#252523) !important;white-space:nowrap}
+#portal #admin-assignments-section .assignment-month-nav .kja-date-trigger:hover{background:var(--asg-soft,#f3eee6) !important}
+
+/* Selector de destino: desplegable cálido y avatares por área en tonos tierra.
+   El desplegable se monta fuera de #portal, por eso se ancla al tema con :has(). */
+body:has(#portal.admin-wide) .asg-picker-popup{border:1px solid #e6dfd8 !important;background:#faf9f5 !important;box-shadow:0 18px 44px rgba(88,71,53,.18),0 2px 8px rgba(88,71,53,.06) !important}
+body:has(#portal.admin-wide) .asg-picker-search{background:#f3eee6 !important;border-bottom-color:#e6dfd8 !important}
+body:has(#portal.admin-wide) .asg-picker-search-icon{color:#a39e96 !important}
+body:has(#portal.admin-wide) .asg-picker-search input{color:#252523 !important;caret-color:#a9583e}
+body:has(#portal.admin-wide) .asg-picker-opt:hover{background:#f3eee6 !important}
+body:has(#portal.admin-wide) .asg-picker-opt.is-selected{background:#efe9de !important}
+body:has(#portal.admin-wide) .asg-opt-name{color:#252523 !important}
+body:has(#portal.admin-wide) .asg-opt-area{color:#6c6a64 !important}
+body:has(#portal.admin-wide) .asg-opt-check{color:#a9583e !important}
+body:has(#portal.admin-wide) .asg-picker-options{scrollbar-color:#d6cdc2 transparent}
+body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-salud{color:#5f7a5a;background:#e6ece0}
+body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-diseno{color:#7a5a6e;background:#efe5ea}
+body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-marketing{color:#a9583e;background:#f3e3da}
+body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-ingenieria{color:#5b6b7a;background:#e5e9ec}
+body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-rrhh{color:#806155;background:#efe6e1}
+body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-reclutamiento{color:#9a7430;background:#f3ead6}
+body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-finanzas{color:#6b7444;background:#ebecdc}
+body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-operaciones{color:#8a6a46;background:#f1e8dc}
+body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-general{color:#6c6a64;background:#f3eee6}
