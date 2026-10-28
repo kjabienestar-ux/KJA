@@ -1,0 +1,57 @@
+/* Resumen operativo en escritorio: indicadores en una franja compacta para que las
+   prioridades y las solicitudes queden a la vista al entrar. El móvil conserva su diseño. */
+.admin-chart-ratio,#admin-refreshed{display:none}
+.admin-overview-notice[hidden],.admin-attention-chips[hidden]{display:none !important}
+
+.admin-overview-notice{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;padding:12px 16px;border:1px solid #ead6a6;border-radius:12px;color:#7a5410;background:#fbf3df;font-size:13px;line-height:1.5}
+.admin-overview-notice[data-tone="error"]{border-color:#ecc7bc;color:#993e35;background:#f7e6e0}
+.admin-overview-notice p{margin:0}
+.admin-overview-notice button{flex:none;padding:7px 14px;border:1px solid currentColor;border-radius:8px;color:inherit;background:#faf9f5;font:inherit;font-weight:600;cursor:pointer}
+.admin-overview-notice button:hover{background:#fff}
+
+.admin-attention-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0 22px 14px;border-bottom:1px solid var(--claude-line,#edf0f3)}
+.admin-attention-chips small{color:#6c6a64;font-size:11px}
+.admin-panel-head:has(+ .admin-attention-chips:not([hidden])){border-bottom:0 !important;padding-bottom:10px !important}
+
+@media(min-width:901px){
+  #portal[data-admin-lateral="true"][data-admin-section="overview"] #admin-refreshed{display:inline;flex:none;color:#6c6a64;font-size:12px;white-space:nowrap}
+
+  #portal.admin-wide .admin-overview-charts{position:relative;z-index:3;gap:14px;margin-top:20px}
+  #portal.admin-wide .admin-overview-charts > .admin-empty{grid-column:1/-1;padding:16px 18px;border:1px solid var(--claude-line);border-radius:14px;text-align:left}
+  #portal.admin-wide .admin-chart{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;column-gap:14px;padding:14px 16px;border-radius:14px}
+  #portal.admin-wide .admin-chart:hover{transform:translateY(-2px)}
+  #portal.admin-wide .admin-chart header{grid-area:1/2;min-width:0}
+  #portal.admin-wide .admin-chart h3{font-size:18px;line-height:1.2}
+  #portal.admin-wide .admin-chart header p{margin-top:2px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #portal.admin-wide .admin-chart header .admin-chart-ratio{display:block;margin-top:5px;color:#3d3d3a;font-size:12px}
+  #portal.admin-wide .admin-chart-ring{grid-area:1/1;width:52px;margin:0}
+  #portal.admin-wide .admin-chart-ring > span{width:40px}
+  #portal.admin-wide .admin-chart-ring b{font-size:15px}
+  #portal.admin-wide .admin-chart-ring small,#portal.admin-wide .admin-chart-footer{display:none}
+
+  /* El desglose aparece al pasar el cursor o con el foco; la tarjeta sigue abriendo el detalle. */
+  #portal.admin-wide .admin-chart ul{position:absolute;top:calc(100% + 6px);left:10px;right:10px;z-index:6;padding:12px 14px;border:1px solid var(--claude-line);border-radius:12px;background:#faf9f5;box-shadow:0 14px 30px -12px rgba(37,37,35,.22);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .15s ease,transform .15s ease,visibility .15s;pointer-events:none}
+  #portal.admin-wide .admin-chart:is(:hover,:focus-visible) ul{opacity:1;visibility:visible;transform:none}
+
+  #portal.admin-wide .admin-overview-grid{margin-top:20px}
+  #portal.admin-wide .kja-skeleton-overview .admin-chart-ring{width:52px;height:52px}
+  #portal.admin-wide .kja-skeleton-overview .admin-overview-charts{border:0 !important;background:transparent !important}
+  #portal.admin-wide .kja-skeleton-overview .admin-chart{border:1px solid var(--kja-sk-line) !important;border-radius:14px}
+  #portal.admin-wide .kja-skeleton-overview .admin-chart header{display:grid;gap:7px;background:transparent !important}
+}
+
+/* Con dos columnas ya no hay nada debajo de las tarjetas: ocupan el alto disponible y solo sus
+   listas se desplazan. El espejo del esqueleto (sin id) recibe la misma geometría. Entre 901 y
+   1200 px los paneles van apilados y la sección conserva su desplazamiento. */
+@media(min-width:1201px){
+  #portal.admin-wide #view-gestion > #admin-overview-section,
+  #portal.admin-wide .kja-skeleton-mirror.kja-skeleton-overview{display:flex;flex-direction:column;padding-bottom:16px;scrollbar-gutter:auto}
+  #portal.admin-wide #admin-overview-section > .kja-skeleton-layer{inset:0;overflow:hidden}
+  #portal.admin-wide .kja-skeleton-mirror.kja-skeleton-overview{height:100%;min-height:0;padding-top:10px}
+  #portal.admin-wide :is(#admin-overview-section,.kja-skeleton-overview) > .admin-overview-grid{flex:1 1 320px;min-height:320px;grid-template-rows:minmax(0,1fr)}
+  #portal.admin-wide .admin-overview-grid > .admin-panel{display:flex;flex-direction:column;min-height:0}
+  #portal.admin-wide .admin-overview-grid :is(.admin-status-list,.admin-request-list){flex:1 1 0;min-height:0;max-height:none;overflow-x:hidden;overflow-y:auto}
+  #portal.admin-wide .kja-skeleton-overview :is(.admin-status-list,.admin-request-list){overflow:hidden}
+  #portal.admin-wide .admin-overview-grid .admin-panel-foot{flex:none;margin-top:auto}
+  #portal.admin-wide :is(#admin-overview-section,.kja-skeleton-overview) > *{flex-shrink:0}
+}

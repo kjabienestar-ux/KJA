@@ -80,6 +80,7 @@
 <link rel="stylesheet" href="assets/css/paginas/reclutamiento-bandeja.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/reclutamiento-profesional.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-lateral.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-resumen.css?v=3">
 </head>
 <body>
 
@@ -1577,6 +1578,7 @@
         <button type="button" data-admin-section="roles" id="admin-roles-tab" hidden>Roles y equipos</button>
         <button type="button" data-admin-section="marcado" id="admin-access-tab">Marcado propio</button>
         <a href="asistencia.html?modo=lista" data-admin-legacy title="Abrir la versión anterior como respaldo">Panel anterior ↗</a>
+        <small class="admin-refreshed" id="admin-refreshed" aria-live="polite">Actualizando…</small>
         <button class="admin-refresh" id="admin-refresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualizar</button>
         <span id="admin-role-chip" hidden>Acceso administrativo</span>
       </nav>
@@ -1585,14 +1587,16 @@
         <section class="admin-overview-today" aria-labelledby="admin-overview-title">
           <header>
             <span><small id="admin-overview-date">Operación de hoy</small><h2 id="admin-overview-title">Estado general del equipo</h2><p id="admin-overview-headline">Comprobando entradas, cierres y pendientes…</p></span>
-            <button type="button" data-admin-section="lista">Gestionar lista<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg></button>
           </header>
         </section>
+
+        <div class="admin-overview-notice" id="admin-overview-notice" role="status" hidden><p></p><button type="button" data-admin-overview-retry>Reintentar</button></div>
 
         <section class="admin-overview-charts" aria-label="Gráficos de hoy" id="admin-overview-charts" aria-live="polite"><p class="admin-empty">Cargando gráficos de hoy…</p></section>
         <div class="admin-overview-grid">
           <article class="admin-panel admin-live-panel">
             <div class="admin-panel-head"><span><small>PRIORIDAD OPERATIVA</small><h2>Requieren atención</h2></span><span class="admin-count is-alert" id="admin-attention-count">0</span></div>
+            <div class="admin-attention-chips" id="admin-attention-chips" hidden></div>
             <div class="admin-status-list" id="admin-status-list"><p class="admin-empty">Cargando prioridades…</p></div>
             <button class="admin-panel-foot" type="button" data-admin-section="lista">Abrir lista completa <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg></button>
           </article>
@@ -1602,22 +1606,6 @@
             <button class="admin-panel-foot" id="admin-request-refresh" type="button">Actualizar solicitudes <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
           </article>
         </div>
-
-        <section class="admin-overview-map" aria-labelledby="admin-overview-map-title">
-          <header><span><h2 id="admin-overview-map-title">Panorama de gestión</h2><p>Lo más importante de cada herramienta, sin salir del resumen.</p></span><small id="admin-refreshed">Actualizando…</small></header>
-          <div class="admin-overview-module-grid">
-            <button type="button" data-go="reclutamiento" id="admin-recruitment-module" hidden><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 11 2 2 4-4"/></svg></span><span class="admin-overview-module-copy"><b>Reclutamiento</b><small>Solicitudes, currículums y entrevistas</small></span><span data-rec-pending-count hidden></span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" data-admin-section="control" id="admin-control-module" hidden><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM8 9h8M8 13h5M8 17h3"/></svg></span><span class="admin-overview-module-copy"><b>Control diario</b><small id="admin-overview-control-copy">Entradas, evidencias y salidas</small></span><span class="admin-overview-module-value" id="admin-overview-control-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" data-admin-section="cierres"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM9 8h6M9 12h6M9 16h4"/></svg></span><span class="admin-overview-module-copy"><b>Cierres y entregables</b><small id="admin-overview-close-copy">Estado de la jornada actual</small></span><span class="admin-overview-module-value" id="admin-overview-close-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" data-admin-section="lista"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span class="admin-overview-module-copy"><b>Pasar lista</b><small id="admin-overview-list-copy">Asistencia registrada hoy</small></span><span class="admin-overview-module-value" id="admin-overview-list-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" data-admin-section="mes"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v15H4zM8 3v4M16 3v4M4 9h16M8 13h2M14 13h2M8 17h2"/></svg></span><span class="admin-overview-module-copy"><b>Mes completo</b><small id="admin-overview-month-copy">Registros y pendientes del mes</small></span><span class="admin-overview-module-value" id="admin-overview-month-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" data-admin-section="colaboradores"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2.5 20c.4-4 2.4-6 6-6s5.6 2 6 6M16 10a3 3 0 0 0 0-6M16 14c3 0 4.8 1.7 5 5"/></svg></span><span class="admin-overview-module-copy"><b>Colaboradores</b><small id="admin-overview-people-copy">Identidad y cuentas del equipo</small></span><span class="admin-overview-module-value" id="admin-overview-people-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" data-admin-section="contratos"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg></span><span class="admin-overview-module-copy"><b>Contratos</b><small id="admin-overview-contract-copy">Metas, avance y alertas</small></span><span class="admin-overview-module-value" id="admin-overview-contract-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" data-admin-section="roles" id="admin-roles-module" hidden><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v5M6 21v-4a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v4M5 8h14v4H5z"/></svg></span><span class="admin-overview-module-copy"><b>Roles y equipos</b><small id="admin-overview-roles-copy">Líderes y co-líderes técnicos</small></span><span class="admin-overview-module-value" id="admin-overview-roles-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" data-admin-section="marcado" id="admin-device-module"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2"/></svg></span><span class="admin-overview-module-copy"><b>Marcado propio</b><small id="admin-overview-access-copy">Portal, PIN y geocerca</small></span><span class="admin-overview-module-value" id="admin-overview-access-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-            <button type="button" id="admin-pausas-module"><span class="admin-overview-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M9 17h6"/></svg></span><span class="admin-overview-module-copy"><b>Pausas activas</b><small id="admin-overview-pausas-copy">Monitoreo y bienestar del equipo</small></span><span class="admin-overview-module-value" id="admin-overview-pausas-value">—</span><svg class="admin-overview-module-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-          </div>
-        </section>
       </div>
 
       <section class="admin-control-section" id="admin-control-section" aria-labelledby="admin-control-title" hidden>
@@ -3997,10 +3985,10 @@
 </dialog>
 
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard-skeleton.js?v=4"></script>
+<script src="assets/js/dashboard-skeleton.js?v=5"></script>
 <script src="assets/js/reclutamiento-api.js?v=1"></script>
 <script src="assets/js/dashboard-avatar.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=276"></script>
+<script src="assets/js/dashboard.js?v=277"></script>
 <script src="assets/js/dashboard-reclutamiento.js?v=11"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>

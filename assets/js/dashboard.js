@@ -2886,7 +2886,7 @@ function renderAdminOverviewCharts(people,marks,closePeople){
     const total=chart.parts.reduce((n,p)=>n+p[1],0);let offset=0;
     const segments=chart.parts.map(([label,value],i)=>{const start=offset;offset+=total?value/total*100:0;return `${palette[i]} ${start}% ${offset}%`}).join(',');
     const description=chart.parts.map(([label,value])=>`${label}: ${value}`).join(', ');
-    return `<article class="admin-chart" data-overview-chart="${chart.key}" role="button" tabindex="0" title="Ver detalle de ${esc(chart.title)}"><header><h3>${chart.title}</h3><p>${chart.note}</p></header><div class="admin-chart-ring" role="img" aria-label="${esc(chart.title+': '+(total?description:'Sin datos para hoy'))}" style="background:${total?`conic-gradient(${segments})`:'#e5e2dd'}"><span><b>${total?chart.center:'—'}</b><small>${total?chart.label:'Sin datos'}</small></span></div><ul>${chart.parts.map(([label,value],i)=>`<li><i style="background:${palette[i]}" aria-hidden="true"></i><span>${label}</span><b>${value}</b></li>`).join('')}</ul><div class="admin-chart-footer"><span class="admin-chart-cta">Ver detalle <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div></article>`;
+    return `<article class="admin-chart" data-overview-chart="${chart.key}" role="button" tabindex="0" title="Ver detalle de ${esc(chart.title)}"><header><h3>${chart.title}</h3><p>${chart.note}</p><p class="admin-chart-ratio">${total?`${chart.center} de ${total} ${chart.label}`:'Sin datos para hoy'}</p></header><div class="admin-chart-ring" role="img" aria-label="${esc(chart.title+': '+(total?description:'Sin datos para hoy'))}" style="background:${total?`conic-gradient(${segments})`:'#e5e2dd'}"><span><b>${total?chart.center:'—'}</b><small>${total?chart.label:'Sin datos'}</small></span></div><ul>${chart.parts.map(([label,value],i)=>`<li><i style="background:${palette[i]}" aria-hidden="true"></i><span>${label}</span><b>${value}</b></li>`).join('')}</ul><div class="admin-chart-footer"><span class="admin-chart-cta">Ver detalle <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div></article>`;
   }).join('');
 }
 
@@ -3018,12 +3018,10 @@ async function loadAdminHub(){
       ]);
       if(!current())return false;
       if(peopleRes.error||marksRes.error||closesRes.error||!closesRes.data?.ok){
-        $('admin-overview-charts').innerHTML='<p class="admin-empty">No se pudieron cargar los datos de hoy. Pulsa Actualizar para reintentar.</p>';
-        $('admin-status-list').innerHTML='<p class="admin-empty">El estado operativo no está disponible.</p>';
+        renderAdminHubError();
         toast('No se pudo actualizar la administración.',true);return false;
       }
-      const unavailable=()=>({data:null,error:null});
-      const snapshot={today,peopleRes,marksRes,closesRes,legacyRequestsRes:{data:[],pending:true},personalRequestsRes:{data:null,pending:true},controlRes:{data:null,pending:role==='direccion'},teamRes:unavailable(),monthRes:unavailable(),rolesRes:unavailable()};
+      const snapshot={today,peopleRes,marksRes,closesRes,legacyRequestsRes:{data:[],pending:true},personalRequestsRes:{data:null,pending:true},controlRes:{data:null,pending:role==='direccion'}};
       if(role!=='direccion')snapshot.personalRequestsRes={data:{ok:true,solicitudes:[]},error:null};
       renderAdminHubSnapshot(snapshot);
       const secondary=[
@@ -3047,7 +3045,7 @@ async function loadAdminHub(){
       }).catch(()=>{});
       return true;
     }catch(error){
-      if(current())toast('No se pudo actualizar la administración. Vuelve a intentarlo.',true);
+      if(current()){renderAdminHubError();toast('No se pudo actualizar la administración. Vuelve a intentarlo.',true);}
       return false;
     }finally{
       if(current())btn.disabled=false;
@@ -3058,10 +3056,27 @@ async function loadAdminHub(){
   return task;
 }
 
+function setAdminOverviewNotice(tone,text){
+  const notice=$('admin-overview-notice');if(!notice)return;
+  notice.hidden=!text;notice.dataset.tone=tone||'';notice.querySelector('p').textContent=text||'';
+}
+
+// Sin los datos base no se muestran cifras: un cero se leería como «nadie requiere atención».
+function renderAdminHubError(){
+  setAdminOverviewNotice('error','No se pudo consultar el estado de hoy. No mostramos cifras para no dar datos incompletos.');
+  $('admin-overview-headline').textContent='No se pudo cargar el resumen de hoy.';
+  $('admin-overview-charts').innerHTML='<p class="admin-empty">No se pudieron cargar los indicadores de hoy.</p>';
+  $('admin-status-list').innerHTML='<p class="admin-empty">No se pudieron cargar las prioridades de hoy.</p>';
+  $('admin-request-list').innerHTML='<p class="admin-empty">No se pudieron cargar las solicitudes.</p>';
+  ['admin-attention-count','admin-request-count'].forEach(id=>{$(id).textContent='—';$(id).classList.remove('is-alert')});
+  $('admin-attention-chips').hidden=true;
+  $('admin-refreshed').textContent='Sin actualizar';
+}
+
 function renderAdminHubSnapshot(snapshot){
-  const {today,peopleRes,marksRes,closesRes,legacyRequestsRes,personalRequestsRes,teamRes,monthRes,controlRes,rolesRes}=snapshot;
+  const {today,peopleRes,marksRes,closesRes,legacyRequestsRes,personalRequestsRes,controlRes}=snapshot;
   const people=peopleRes.data||[],marks=marksRes.data||[],legacyRequests=legacyRequestsRes.data||[],personalRequests=personalRequestsRes.data?.ok?personalRequestsRes.data.solicitudes||[]:[];
-  const teamData=!teamRes.error&&teamRes.data?.ok?teamRes.data:null,monthData=!monthRes.error&&monthRes.data?.ok?monthRes.data:null,controlData=!controlRes.error&&controlRes.data?.ok?controlRes.data:null,rolesData=!rolesRes.error&&rolesRes.data?.ok?rolesRes.data:null;
+  const controlData=!controlRes.error&&controlRes.data?.ok?controlRes.data:null;
   const byMark=new Map(marks.map(x=>[String(x.colaborador_id),x]));
   const closePeople=closesRes.data?.personas||[],byClose=new Map(closePeople.map(x=>[String(x.id),x.cierre||{}])),byClosePerson=new Map(closePeople.map(x=>[String(x.id),x]));
   const byControl=new Map((controlData?.filas||[]).map(row=>[String(row.colaborador_id),row]));
@@ -3089,9 +3104,16 @@ function renderAdminHubSnapshot(snapshot){
     return `<div class="admin-status-row">${profileAvatarMarkup(item.person)}<span><strong>${esc(item.person.nombre)}</strong><small>${esc(item.person.asis_areas?.nombre||'Sin área')}</small></span><span class="admin-status-time">${esc(item.detail)}</span><span class="admin-status-pill ${item.tone}">${esc(item.label)}</span></div>`;
   }).join('');
   if(priorities.length>6)statusHtml+=`<p class="admin-empty compact">Hay ${priorities.length-6} ${priorities.length-6===1?'caso adicional':'casos adicionales'} en la lista completa.</p>`;
+  const chips=[['danger','crítico','críticos'],['warning','por revisar','por revisar'],['neutral','sin entrada','sin entrada'],['info','cierre pendiente','cierres pendientes']].map(([tone,one,many])=>{
+    const total=priorities.filter(item=>item.tone===tone).length;
+    return total?`<span class="admin-status-pill ${tone}">${total} ${total===1?one:many}</span>`:'';
+  }).filter(Boolean);
+  if(chips.length&&priorities.length>6)chips.push(`<small>+${priorities.length-6} en la lista</small>`);
+  $('admin-attention-chips').innerHTML=chips.join('');$('admin-attention-chips').hidden=!chips.length;
   $('admin-attention-count').textContent=controlRes.pending?'…':priorities.length;$('admin-attention-count').classList.toggle('is-alert',priorities.length>0);
   $('admin-status-list').innerHTML=statusHtml||(controlRes.pending?'<p class="admin-empty">Asistencia disponible. La revisión de evidencias sigue cargando…</p>':!controlData?'<p class="admin-empty">Consulta el control diario para completar la revisión de evidencias.</p>':'<div class="admin-overview-clear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg><span><b>Todo bajo control</b><small>No hay personas que requieran atención inmediata.</small></span></div>');
 
+  const requestsFailed=!personalRequestsRes.pending&&(!!personalRequestsRes.error||!personalRequestsRes.data?.ok);
   const groups=groupAdminLeaveRequests(personalRequests);
   APP.adminRequestGroups=groups;
   $('admin-request-count').textContent=personalRequestsRes.pending||legacyRequestsRes.pending?'…':groups.length+legacyRequests.length;
@@ -3103,33 +3125,12 @@ function renderAdminHubSnapshot(snapshot){
   }).join('');
   $('admin-request-list').innerHTML=personalHtml+legacyHtml||'<p class="admin-empty">No hay solicitudes pendientes.</p>';
   if(personalRequestsRes.pending)$('admin-request-list').innerHTML='<p class="admin-empty">Cargando solicitudes pendientes…</p>';
-  else if(personalRequestsRes.error||!personalRequestsRes.data?.ok)$('admin-request-list').innerHTML='<p class="admin-empty">No se pudieron cargar las solicitudes agrupadas. Verifica la migración 96 y pulsa Actualizar solicitudes.</p>';
+  else if(requestsFailed){$('admin-request-list').innerHTML='<p class="admin-empty">No se pudieron cargar las solicitudes. Pulsa Actualizar solicitudes para reintentar.</p>';$('admin-request-count').textContent='—';}
   syncAdminLeaveReview(groups);
 
-  const setOverview=(id,value)=>{const element=$(id);if(element)element.textContent=value};
-  const controlRows=controlData?.filas||[],evidencePending=controlRows.reduce((total,row)=>total+Number(row.evidencias_pendientes||0),0),reviewPending=controlRows.reduce((total,row)=>total+Number(row.revision_pendiente||0)+Number(row.revision_observada||0),0);
-  const monthSummary=monthData?.resumen||{},monthRecorded=Number(monthSummary.P||0)+Number(monthSummary.T||0)+Number(monthSummary.J||0)+Number(monthSummary.NG||0),monthBase=Number(monthSummary.P||0)+Number(monthSummary.T||0)+Number(monthSummary.J||0),monthRate=monthBase?Math.round((Number(monthSummary.P||0)+Number(monthSummary.T||0))*100/monthBase):null;
-  const teamPeople=teamData?.personas||[],activeTeam=teamPeople.length?teamPeople.filter(person=>person.activo):people,areaCount=new Set(activeTeam.map(person=>String(person.area_id)).filter(Boolean)).size,profileIssues=activeTeam.filter(person=>!person.dni||!person.tiene_pin).length;
-  const contractPending=activeTeam.filter(person=>person.resumen?.pendiente).length,contractAlerts=activeTeam.filter(person=>(person.resumen?.alertas||[]).length&&!person.resumen?.pendiente).length,contractAttention=contractPending+contractAlerts;
-  const roleSummary=rolesData?.resumen||{};
-  setOverview('admin-overview-control-value',controlRes.pending?'Cargando…':`${priorities.length} ${priorities.length===1?'caso':'casos'}`);
-  setOverview('admin-overview-control-copy',controlRes.pending?'Cargando revisión de evidencias…':!controlData?'Consultar revisión de evidencias':evidencePending||reviewPending?`${evidencePending} evidencias · ${reviewPending} revisiones`:'Entradas, evidencias y salidas al día');
-  setOverview('admin-overview-close-value',`${complete}/${people.length}`);
-  setOverview('admin-overview-close-copy',incomplete?`${incomplete} incompleta${incomplete===1?'':'s'} · ${Math.max(0,people.length-complete-incomplete)} en curso`:'Jornadas completas de hoy');
-  setOverview('admin-overview-list-value',`${registered}/${people.length}`);
-  setOverview('admin-overview-list-copy',pending?`${pending} ${pending===1?'persona sin entrada':'personas sin entrada'}`:'Todo el equipo registró entrada');
-  setOverview('admin-overview-month-value',monthData?`${monthRecorded} registros`:'Consultar');
-  setOverview('admin-overview-month-copy',monthData?`${Number(monthSummary.pendientes||0)} pendientes · ${Number(monthSummary.horas||0).toFixed(1)} h`:'Registros y pendientes del mes');
-  setOverview('admin-overview-summary-value',monthRate==null?'Consultar':`${monthRate}%`);
-  setOverview('admin-overview-summary-copy',monthData?`${Number(monthSummary.T||0)} tardanzas · ${Number(monthSummary.J||0)} justificados`:'Asistencia consolidada');
-  setOverview('admin-overview-people-value',`${activeTeam.length} activas`);
-  setOverview('admin-overview-people-copy',!teamData?`${areaCount} áreas · consultar datos del equipo`:profileIssues?`${areaCount} áreas · ${profileIssues} con datos pendientes`:`${areaCount} áreas · identidades completas`);
-  setOverview('admin-overview-contract-value',!teamData?'Consultar':contractAttention?`${contractAttention} por revisar`:'Al día');
-  setOverview('admin-overview-contract-copy',teamData?`${contractPending} pendientes · ${contractAlerts} con alertas`:'Metas, avance y alertas');
-  setOverview('admin-overview-roles-value',rolesData?`${Number(roleSummary.con_lider||0)}/${Number(roleSummary.areas||0)} con líder`:'Consultar');
-  setOverview('admin-overview-roles-copy',rolesData?`${Number(roleSummary.colideres||0)} co-líderes · ${Number(roleSummary.sin_lider||0)} sin líder`:'Líderes y co-líderes técnicos');
-  setOverview('admin-overview-access-value',teamData?`${activeTeam.filter(person=>!person.tiene_pin).length} sin PIN`:`${registered} marcas`);
-  setOverview('admin-overview-access-copy',teamData?'Portal, PIN y geocerca':'Accesos y marcado del equipo');
+  const controlFailed=!controlRes.pending&&(!!controlRes.error||(!!controlRes.data&&!controlRes.data.ok));
+  const missing=[requestsFailed||legacyRequestsRes.error?'las solicitudes del personal':'',controlFailed?'la revisión de evidencias':''].filter(Boolean);
+  setAdminOverviewNotice('partial',missing.length?`Datos parcialmente cargados: faltan ${missing.join(' y ')}. Lo demás está al día.`:'');
   if(controlRes.pending)$('admin-overview-headline').textContent='Datos de hoy disponibles. Cargando revisión de evidencias…';
   else if(!controlData)$('admin-overview-headline').textContent='Datos de asistencia disponibles. Consulta el control diario para revisar las evidencias.';
   $('admin-refreshed').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'});
@@ -3805,6 +3806,7 @@ function refreshActiveAdminSection(){
 }
 $('admin-refresh').onclick=refreshActiveAdminSection;
 $('admin-request-refresh').onclick=()=>withAdminSkeleton('overview',()=>loadAdminHub());
+document.querySelector('[data-admin-overview-retry]').onclick=()=>withAdminSkeleton('overview',()=>loadAdminHub());
 document.querySelectorAll('[data-admin-section]').forEach(b=>b.onclick=()=>showAdminSection(b.dataset.adminSection));
 const adminLegacyLink=document.querySelector('[data-admin-legacy]');
 if(adminLegacyLink)adminLegacyLink.addEventListener('click',event=>{
