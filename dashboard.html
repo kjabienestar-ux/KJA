@@ -55,11 +55,11 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-month-day-detail.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-control.css?v=14">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-control-refined.css?v=5">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=6">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=6">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=7">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-asignaciones.css?v=13">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=6">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=3">
@@ -74,7 +74,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-holiday.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence-corrections.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-overview-modal.css?v=2">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-skeleton.css?v=4">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-skeleton.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-zoom.css?v=16">
 <link rel="stylesheet" href="assets/css/paginas/zoom-camera.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-shell-layout.css?v=2">
@@ -261,7 +261,6 @@
     <section class="admin-lateral-family" data-family="incorporacion">
       <button class="admin-lateral-family-head" type="button" aria-expanded="true" aria-controls="admin-lateral-incorporacion"><span class="admin-lateral-family-name">Incorporación y organización</span><span class="admin-lateral-family-meta" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <ul id="admin-lateral-incorporacion">
-        <li><button type="button" data-lateral-section="solicitudes"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3m2-10 2 2 4-4"/></svg><span>Solicitudes de reclutamiento</span><span class="admin-lateral-count" data-rec-pending-count hidden></span></button></li>
         <li><button type="button" data-lateral-section="contratos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6.5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8.5Z"/><path d="M14 3v5.5h5.5M8.5 13h7M8.5 17h4.5"/></svg><span>Contratos</span></button></li>
         <li><button type="button" data-lateral-section="roles"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-2.5h12V16"/></svg><span>Roles y equipos</span></button></li>
       </ul>
@@ -2830,7 +2829,8 @@
           <div class="admin-list-kpis" id="admin-roles-kpis"></div>
         </div>
         <div class="admin-roles-message" id="admin-roles-message" role="status" aria-live="polite"></div>
-        <div class="admin-roles-lock-wrap">
+        <div class="admin-role-list-bar">
+          <div class="admin-role-filters" id="admin-role-filters" role="group" aria-label="Filtrar áreas por estado"></div>
           <span class="admin-roles-lock"><i></i>Solo administradores de sistemas</span>
         </div>
         <div class="admin-role-map" id="admin-role-map"><p class="admin-empty">Ejecuta la migración de la fase 6 para administrar líderes.</p></div>
@@ -3286,6 +3286,20 @@
   </section>
 </div>
 
+<!-- Modal de Roles y equipos: líder y co-líderes de un área. Lo llena dashboard-admin-roles.js. -->
+<div class="modal admin-role-dialog" id="admin-role-dialog" hidden>
+  <div class="modal-backdrop" data-close-role-dialog></div>
+  <section class="admin-role-dialog-sheet" role="dialog" aria-modal="true" aria-labelledby="admin-role-dialog-title">
+    <header class="admin-role-dialog-head">
+      <span class="admin-role-dialog-icon" id="admin-role-dialog-icon" aria-hidden="true"></span>
+      <span class="admin-role-dialog-heading"><small>Área</small><h2 id="admin-role-dialog-title">Área</h2><p id="admin-role-dialog-meta"></p></span>
+      <button class="admin-role-dialog-close" id="admin-role-dialog-close" type="button" data-close-role-dialog aria-label="Cerrar">×</button>
+    </header>
+    <p class="admin-role-dialog-message" id="admin-role-dialog-message" role="status" aria-live="polite"></p>
+    <div class="admin-role-dialog-body" id="admin-role-dialog-body"></div>
+  </section>
+</div>
+
 <div class="modal admin-review-modal" id="admin-review-modal" hidden>
   <div class="modal-backdrop" data-close-admin-review></div>
   <section class="admin-review-sheet" role="dialog" aria-modal="true" aria-labelledby="admin-review-title" aria-describedby="admin-review-copy">
@@ -3433,6 +3447,22 @@
           <div class="admin-field"><label for="admin-contract-hours">Meta principal (h)</label><input type="number" min="0" step="0.01" id="admin-contract-hours"><button type="button" id="admin-contract-calculate" class="admin-editor-inline-action">Simular horario actual</button><small id="admin-contract-estimate" role="status">Horas acordadas en el contrato. Cambiar fechas o jornada no modifica esta meta. La simulación no reconstruye horarios anteriores.</small></div>
           <label class="admin-field">Horas previas<input type="number" min="0" step="0.5" id="admin-contract-previous" value="0"></label>
           <label class="admin-field span-2" id="admin-volunteer-hours-wrap" hidden>Meta de voluntariado (h)<input type="number" min="0" step="1" id="admin-volunteer-hours"></label>
+        </div>
+        <!-- Documento del contrato (dashboard_128): se muestra con window.KJA_CONTRATO_DOCUMENTO. -->
+        <div class="contract-document" id="admin-contract-document" hidden>
+          <div class="contract-document-head"><b>Documento del contrato</b><small>PDF o imagen escaneada, hasta 10 MB. Solo lo ven editores y Dirección.</small></div>
+          <input type="file" id="admin-contract-document-input" accept="application/pdf,image/jpeg,image/png,image/webp" hidden>
+          <div class="contract-document-drop" id="admin-contract-document-drop">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6.5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8.5Z"/><path d="M14 3v5.5h5.5M12 17.5v-6m-2.5 2.5 2.5-2.5 2.5 2.5"/></svg>
+            <span><b>Arrastra el contrato aquí</b><small>o elígelo desde tu equipo</small></span>
+            <button type="button" class="admin-editor-inline-action" id="admin-contract-document-pick">Adjuntar archivo</button>
+          </div>
+          <div class="contract-document-file" id="admin-contract-document-file" hidden>
+            <span class="contract-document-kind" id="admin-contract-document-kind" aria-hidden="true">PDF</span>
+            <span class="contract-document-meta"><b id="admin-contract-document-name"></b><small id="admin-contract-document-detail"></small></span>
+            <span class="contract-document-actions"><button type="button" id="admin-contract-document-view">Ver</button><button type="button" id="admin-contract-document-replace">Reemplazar</button><button type="button" class="danger" id="admin-contract-document-remove">Quitar</button></span>
+          </div>
+          <p class="contract-document-status" id="admin-contract-document-status" role="status" hidden><span></span><button type="button" id="admin-contract-document-undo" hidden>Deshacer</button></p>
         </div>
       </section>
 
@@ -4017,7 +4047,7 @@
 </dialog>
 
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard-skeleton.js?v=5"></script>
+<script src="assets/js/dashboard-skeleton.js?v=6"></script>
 <script src="assets/js/reclutamiento-api.js?v=1"></script>
 <script src="assets/js/dashboard-avatar.js?v=3"></script>
 <script src="assets/js/dashboard.js?v=277"></script>
@@ -4032,7 +4062,10 @@
 <script src="assets/js/dashboard-leave-review.js?v=2"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=26"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=28"></script>
+<!-- Documento del contrato: cambiar a true después de ejecutar supabase/dashboard_128_documento_contrato.sql. -->
+<script>window.KJA_CONTRATO_DOCUMENTO=false;</script>
+<script src="assets/js/dashboard-contract-document.js?v=2"></script>
 <script src="assets/js/dashboard-person-delete.js?v=1"></script>
 <script src="assets/js/dashboard-areas.js?v=2"></script>
 <script src="assets/js/dashboard-area-picker.js?v=4"></script>
@@ -4049,7 +4082,7 @@
 <script src="assets/js/dashboard-days-off-planner.js?v=1"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=23"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=7"></script>
-<script src="assets/js/dashboard-admin-roles.js?v=7"></script>
+<script src="assets/js/dashboard-admin-roles.js?v=13"></script>
 <script src="assets/js/dashboard-admin-cierre.js?v=57"></script>
 <script src="assets/js/dashboard-assignment-hours.js?v=3"></script>
 <script src="assets/js/dashboard-assignments.js?v=10"></script>

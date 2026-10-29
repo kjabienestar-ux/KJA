@@ -88,10 +88,11 @@ async function loadAdminTeam(){
   btn.disabled=true;teamMsg('');
   const target=APP.adminSection==='contratos'?'admin-contract-list':'admin-people-list';
   $(target).innerHTML='<p class="admin-empty">Cargando información del equipo…</p>';
-  const [{data,error},{data:balancesData},institutionResult]=await Promise.all([
+  const [{data,error},{data:balancesData},institutionResult,contractDocuments]=await Promise.all([
     db.rpc('dash_admin_equipo',{p_incluir_inactivos:true}),
     APP.access.rol==='direccion'?db.rpc('dash_admin_saldos_dias_libres'):Promise.resolve({data:null,error:null}),
-    Promise.resolve().then(()=>db.rpc('dash_admin_instituciones')).catch(()=>({data:null}))
+    Promise.resolve().then(()=>db.rpc('dash_admin_instituciones')).catch(()=>({data:null})),
+    typeof loadContractDocuments==='function'?loadContractDocuments().catch(()=>null):null
   ]);
   if(request!==APP.adminTeamRequest)return;
   btn.disabled=false;
@@ -107,6 +108,8 @@ async function loadAdminTeam(){
   const institutions=new Map((institutionResult.data?.personas||[]).map(item=>[String(item.id),item]));
   data.personas=(data.personas||[]).map(person=>{const extra=institutions.get(String(person.id));return {...person,institucion:extra?.institucion??person.institucion??null,correo:extra?.correo??person.correo??null}});
   data.personas=(data.personas||[]).map(person=>({...person,dias_libres_saldo:balances.has(String(person.id))?balances.get(String(person.id)):null}));
+  data.documentos_contrato=!!contractDocuments;
+  data.personas=data.personas.map(person=>({...person,contrato_documento:contractDocuments?.get(String(person.id))||null}));
   data.personas=await hydrateProfilePhotos(data.personas);
   if(request!==APP.adminTeamRequest)return;
   APP.adminTeam=data;
@@ -234,7 +237,7 @@ function renderAdminContracts(){
       <span class="admin-contract-person">${profileAvatarMarkup(p,'i')}<span><b>${esc(p.nombre)}</b><small>${esc(p.area||'Sin área')} · ${esc(ADMIN_LINKS[p.tipo_vinculo]||p.tipo_vinculo)}</small></span></span>
       <span class="admin-contract-progress"><span><b>${adminHours(done)} <em>${meta>0?'de '+adminHours(meta):'acumuladas'}</em></b><small>${meta>0?pct+'%':'Sin meta'}</small></span>${meta>0?`<i role="progressbar" aria-label="Avance de ${esc(p.nombre)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-valuetext="${adminHours(done)} de ${adminHours(meta)}"><u style="width:${pct}%"></u></i><small class="contract-remaining">${Math.max(0,meta-done)>0?adminHours(Math.max(0,meta-done))+' por completar':'Meta de horas alcanzada'}</small>`:'<small class="contract-remaining">Define las horas objetivo para calcular el avance.</small>'}${credited>0?`<small class="contract-nonworking-hours">Incluye ${adminHours(credited)} por días no laborables</small>`:''}${vol}</span>
       <span class="admin-contract-week"><span class="contract-mobile-label">Jornada</span><b>${adminHours(r.semana_horas)}</b><small>por semana</small></span>
-      <span class="admin-contract-date"><span class="contract-mobile-label">Término estimado</span><b>${esc(projected)}</b><small>${p.contrato_fin_referencia?'Según documento: '+adminDate(p.contrato_fin_referencia):'Sin fecha de referencia'}</small></span>
+      <span class="admin-contract-date"><span class="contract-mobile-label">Término estimado</span><b>${esc(projected)}</b><small>${p.contrato_fin_referencia?'Según documento: '+adminDate(p.contrato_fin_referencia):'Sin fecha de referencia'}</small>${typeof contractDocumentLink==='function'?contractDocumentLink(p):''}</span>
       <span class="admin-contract-status"><b class="${stateClass}">${state}</b>${alerts}</span>
       <span class="admin-contract-institution"><span class="contract-mobile-label">Institución</span><span${p.institucion?.trim()?'':' class="contract-institution-empty"'}>${esc(p.institucion?.trim()||'Sin institución')}</span></span>
       <span class="admin-contract-action">${canEdit?`<button type="button" data-team-edit="${p.id}" aria-label="Editar contrato de ${esc(p.nombre)}">Editar <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14z"/></svg></button>`:''}</span>
@@ -330,6 +333,7 @@ async function openAdminPerson(id){
   ADMIN_CONTRACT_META_EDITED=false;
   $('admin-contract-previous').value=person?.horas_previas??0;
   $('admin-volunteer-hours').value=person?.contrato_horas_voluntariado??'';
+  if(typeof openContractDocument==='function')openContractDocument(person);
   $('admin-general-start').value=fmtTime(person?.hora_inicio)==='—'?'08:00':fmtTime(person?.hora_inicio);
   $('admin-general-end').value=fmtTime(person?.hora_fin)==='—'?'13:00':fmtTime(person?.hora_fin);
   $('admin-schedule-grid').innerHTML=scheduleRows(person);
@@ -450,7 +454,16 @@ async function saveAdminPerson(event){
     const messages={sin_permiso:'Tu rol no permite editar este horario.',horario:'Hay una franja de Facebook incompleta.',dia:'Revisa los días seleccionados.'};
     return editorMsg(`La ficha se guardó, pero el horario de Facebook no: ${messages[facebookResult.data?.motivo]||'ejecuta dashboard 32 e inténtalo nuevamente.'}`);
   }
-  closeAdminPerson();await loadAdminTeam();toast(data.nuevo?'Colaborador creado.':'Cambios guardados en el historial.');
+  // El documento va al final: si falla, la ficha ya quedó guardada y se avisa sin perderla.
+  let documentProblem='';
+  if(typeof contractDocumentPending==='function'&&contractDocumentPending()){
+    button.disabled=true;button.textContent='Subiendo contrato…';
+    documentProblem=await saveContractDocument(data.id,$('admin-change-reason').value.trim());
+    button.disabled=false;button.textContent='Guardar cambios';
+  }
+  closeAdminPerson();await loadAdminTeam();
+  if(documentProblem)return toast(`La ficha se guardó, pero el contrato no: ${documentProblem}`,true);
+  toast(data.nuevo?'Colaborador creado.':'Cambios guardados en el historial.');
 }
 
 async function changeAdminPersonStatus(id,next){
@@ -539,7 +552,7 @@ async function saveAdminDaysOff(event){
 ['admin-contract-area','admin-contract-inactive','admin-contract-pending'].forEach(id=>$(id).addEventListener('change',renderAdminContracts));
 $('admin-new-person').onclick=()=>openAdminPerson();
 $('admin-people-list').onclick=e=>{const profile=e.target.closest('[data-team-profile]');if(profile)return openAdminProfile(profile.dataset.teamProfile,profile);const days=e.target.closest('[data-team-days-off]'),edit=e.target.closest('[data-team-edit]'),status=e.target.closest('[data-team-status]');if(days)return openAdminDaysOff(days.dataset.teamDaysOff,days);if(edit)return openAdminPerson(edit.dataset.teamEdit);if(status)return changeAdminPersonStatus(status.dataset.teamStatus,status.dataset.nextActive==='true')};
-$('admin-contract-list').onclick=e=>{const edit=e.target.closest('[data-team-edit]');if(edit)openAdminPerson(edit.dataset.teamEdit)};
+$('admin-contract-list').onclick=e=>{const doc=e.target.closest('[data-contract-document]');if(doc&&typeof viewContractDocumentOf==='function')return viewContractDocumentOf(doc.dataset.contractDocument);const edit=e.target.closest('[data-team-edit]');if(edit)openAdminPerson(edit.dataset.teamEdit)};
 document.querySelectorAll('[data-close-person]').forEach(x=>x.onclick=closeAdminPerson);
 $('admin-person-form').addEventListener('submit',saveAdminPerson);
 $('admin-person-dni').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,8));

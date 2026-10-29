@@ -745,3 +745,35 @@
     font-size: 16px !important;
   }
 }
+
+/* Enlace al documento del contrato (dashboard_128) bajo la fecha según documento. */
+#portal #admin-contracts-section .admin-contract-doc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  margin-top: 5px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--contract-accent);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#portal #admin-contracts-section .admin-contract-doc:hover {
+  color: var(--contract-accent-hover);
+  text-decoration: underline;
+}
+
+#portal #admin-contracts-section .admin-contract-doc svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

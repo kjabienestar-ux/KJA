@@ -169,3 +169,30 @@
 #admin-institution-create:not([hidden]) { display: grid; gap: 8px; margin-top: 8px; }
 #admin-institution-create[hidden] { display: none; }
 #admin-contract-estimate { line-height: 1.5; }
+
+/* Documento del contrato (dashboard_128): zona para soltar el archivo y tarjeta del documento. */
+#admin-person-modal .contract-document { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid #e7ebe3; }
+#admin-person-modal .contract-document-head { display: grid; gap: 2px; }
+#admin-person-modal .contract-document-head b { color: #465b50; font-weight: 600; }
+#admin-person-modal .contract-document-head small { color: #68766c; }
+#admin-person-modal .contract-document-drop { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 14px; border: 1px dashed #b9cbb9; border-radius: 10px; background: #f7f9f4; cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease; }
+#admin-person-modal .contract-document-drop:is(:hover,.is-dragging) { border-color: #197467; background: #eef5ec; }
+#admin-person-modal .contract-document-drop svg { width: 26px; height: 26px; fill: none; stroke: #4f7d66; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+#admin-person-modal .contract-document-drop span { display: grid; gap: 2px; min-width: 0; }
+#admin-person-modal .contract-document-drop b { color: #2c4c3e; font-weight: 600; }
+#admin-person-modal .contract-document-drop small { color: #68766c; }
+#admin-person-modal .contract-document-drop .admin-editor-inline-action { align-self: center; }
+#admin-person-modal .contract-document-file { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #dfe5db; border-radius: 10px; background: #fff; }
+#admin-person-modal .contract-document-kind { display: grid; place-items: center; width: 38px; height: 44px; border-radius: 7px; color: #a5492f; background: #fbeee9; font: 700 11px/1 Inter,sans-serif; letter-spacing: .04em; }
+#admin-person-modal .contract-document-kind[data-kind='IMG'] { color: #226b56; background: #eaf1ef; }
+#admin-person-modal .contract-document-meta { display: grid; gap: 2px; min-width: 0; }
+#admin-person-modal .contract-document-meta b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #293c39; font-weight: 600; }
+#admin-person-modal .contract-document-meta small { color: #68766c; }
+#admin-person-modal .contract-document-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+#admin-person-modal :is(.contract-document-actions,.contract-document-status) button { min-height: 32px; padding: 5px 10px; border: 1px solid #d4dfd2; border-radius: 7px; color: #20674f; background: #eef5ed; font: 600 12px/1.4 Inter,sans-serif; cursor: pointer; }
+#admin-person-modal :is(.contract-document-actions,.contract-document-status) button:hover { background: #e2edde; }
+#admin-person-modal .contract-document-actions .danger { border-color: #ecd3ca; color: #a5492f; background: #fdf3ef; }
+#admin-person-modal .contract-document-actions .danger:hover { background: #f9e6df; }
+#admin-person-modal .contract-document-status { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0; color: #735627; font-size: 12px; line-height: 1.45; }
+#admin-person-modal .contract-document-status.bad { color: #a5492f; }
+@media(prefers-reduced-motion:reduce) { #admin-person-modal .contract-document-drop { transition: none; } }
