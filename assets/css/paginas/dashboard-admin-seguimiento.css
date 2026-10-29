@@ -1,0 +1,288 @@
+/* Seguimiento diario · marfil editorial, acento cobre, estados con texto.
+   Alcance exclusivo del piloto; el lateral y los módulos anteriores se conservan. */
+#portal.admin-wide[data-view="gestion"][data-admin-section="seguimiento"]{
+  background:#f0ece5!important;
+}
+#portal #admin-seguimiento-section{
+  --seg-paper:#faf9f5;--seg-canvas:#f0ece5;--seg-line:#ded6cb;--seg-ink:#24241f;
+  --seg-muted:#6a665f;--seg-accent:#98492e;--seg-soft:#f0e2d5;--seg-green:#35735f;
+  min-width:0;min-height:0;box-sizing:border-box;display:flex;flex-direction:column;gap:18px;
+  padding:24px;background:var(--seg-canvas);color:var(--seg-ink);font:400 14px/1.5 Inter,system-ui,sans-serif;
+  border-radius:22px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#c6bbae transparent;
+}
+#portal #admin-seguimiento-section[hidden]{display:none}
+#admin-seguimiento-section *{box-sizing:border-box}
+#admin-seguimiento-section :is(h2,h3,h4,p){margin:0}
+#admin-seguimiento-section svg{width:20px;height:20px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#admin-seguimiento-section :is(button,input,select,textarea){font-family:Inter,system-ui,sans-serif;font-size:13px}
+#admin-seguimiento-section button{cursor:pointer}
+#admin-seguimiento-section button:disabled{cursor:default;opacity:.45}
+#admin-seguimiento-section :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid #985234;outline-offset:3px}
+#admin-seguimiento-section :is(h2,h3){font-family:var(--claude-display,'Fraunces',Georgia,serif);font-weight:400;letter-spacing:-.035em;line-height:1.2}
+#admin-seguimiento-section h2{font-size:clamp(29px,2.6vw,42px)}
+#admin-seguimiento-section h3{font-size:24px}
+#admin-seguimiento-section .seg-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:4px 0 8px}
+#admin-seguimiento-section .seg-brand{display:flex;align-items:center;gap:16px;min-width:0}
+#admin-seguimiento-section .seg-mark{display:grid;place-items:center;width:62px;height:62px;flex-shrink:0;border:1px solid #dfcfbf;border-radius:19px;color:var(--seg-accent);background:#e9dfd1}
+#admin-seguimiento-section .seg-mark svg{width:29px;height:29px}
+#admin-seguimiento-section .seg-eyebrow{display:flex;align-items:center;gap:10px;color:var(--seg-muted);font:600 10px/1.5 Inter,system-ui,sans-serif;letter-spacing:.13em}
+#admin-seguimiento-section .seg-pilot{color:#895132;border:1px solid #d9c4af;border-radius:5px;padding:1px 6px;font-size:9px;letter-spacing:.04em;text-transform:none}
+#admin-seguimiento-section #seg-subtitle{margin-top:6px;color:var(--seg-muted);font-size:12px}
+#admin-seguimiento-section .seg-head-actions{display:flex;align-items:center;gap:8px}
+#admin-seguimiento-section #seg-updated{font-size:10px;color:var(--seg-muted);margin-right:5px;white-space:nowrap}
+#admin-seguimiento-section .seg-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 14px;border:1px solid var(--seg-line);border-radius:10px;background:var(--seg-paper);color:var(--seg-ink);text-decoration:none;font-weight:500;line-height:1.25;box-shadow:none}
+#admin-seguimiento-section .seg-icon{width:44px;padding:10px;flex-shrink:0;font-size:22px}
+#admin-seguimiento-section #seg-export{color:var(--seg-accent);border-color:#c7aa95}
+#admin-seguimiento-section .seg-options{position:relative}
+#admin-seguimiento-section .seg-options>summary{list-style:none;display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--seg-line);border-radius:10px;cursor:pointer;letter-spacing:2px}
+#admin-seguimiento-section .seg-options>div{position:absolute;right:0;top:50px;z-index:5;min-width:170px;padding:6px;background:var(--seg-paper);border:1px solid var(--seg-line);border-radius:14px;box-shadow:0 8px 28px #34241418}
+#admin-seguimiento-section .seg-options button{width:100%;border:0}
+#admin-seguimiento-section .seg-toolbar{display:flex;align-items:center;gap:12px;padding:12px;background:var(--seg-paper);border:1px solid #e7e0d6;border-radius:16px}
+#admin-seguimiento-section .seg-date{display:flex;align-items:center;gap:2px;flex-shrink:0}
+#admin-seguimiento-section .seg-date .seg-button{border-color:transparent;background:transparent}
+#admin-seguimiento-section .seg-date [data-seg="today"]{color:var(--seg-accent);background:#eee7dc;margin-left:4px}
+#admin-seguimiento-section input[type=date]{max-width:151px;min-height:44px;border:0;background:transparent;padding:8px;color:var(--seg-ink);font-variant-numeric:tabular-nums}
+#admin-seguimiento-section .seg-search{display:flex;align-items:center;gap:10px;flex:1;min-width:150px;padding:0 12px;border-left:1px solid var(--seg-line);color:var(--seg-muted)}
+#admin-seguimiento-section input[type=search]{width:100%;height:44px;min-width:0;border:0;background:transparent;color:var(--seg-ink)}
+#admin-seguimiento-section .seg-area select{height:44px;min-width:170px;max-width:220px;border:1px solid var(--seg-line);border-radius:10px;padding:0 32px 0 12px;background:var(--seg-paper);color:var(--seg-ink)}
+#admin-seguimiento-section .seg-clear{border:0;color:var(--seg-accent);background:transparent}
+#admin-seguimiento-section .seg-notice{padding:12px 16px;border:1px solid #cdbb9a;background:#f9f0d9;color:#71551d;border-radius:12px;font-size:12px}
+#admin-seguimiento-section .seg-notice[data-tone=success]{background:#e8f0e8;color:#275b45;border-color:#b8cbbc}
+#admin-seguimiento-section .seg-summary{display:grid;grid-template-columns:minmax(340px,1.4fr) minmax(285px,1fr) minmax(155px,.5fr);gap:12px}
+#admin-seguimiento-section .seg-summary>section{min-width:0;padding:16px 18px;background:var(--seg-paper);border:1px solid #e7e0d6;border-radius:18px}
+#admin-seguimiento-section .seg-summary h3{font-size:17px;margin-bottom:12px}
+#admin-seguimiento-section .seg-summary h3 small{font:400 10px Inter,system-ui,sans-serif;color:var(--seg-muted);letter-spacing:0;margin-left:4px}
+#admin-seguimiento-section .seg-queues{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+#admin-seguimiento-section .seg-queues button{border:0;border-radius:7px;min-height:40px;padding:8px 6px;background:transparent;color:var(--seg-muted);font-size:10px;gap:4px;white-space:nowrap}
+#admin-seguimiento-section .seg-queues button b{padding:3px 4px;background:#eeeae3;border-radius:5px;font-size:11px;font-weight:600}
+#admin-seguimiento-section .seg-queues button.is-active{background:#f0e2d5;color:#883e27;box-shadow:inset 0 -2px #a65c3f}
+#admin-seguimiento-section .seg-queues button.is-active b{background:#a35c3e;color:white}
+#admin-seguimiento-section .seg-evidence-metrics>div{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px}
+#admin-seguimiento-section .seg-evidence-metrics>div>span{display:grid;grid-template-columns:8px 1fr;align-items:center;gap:3px 5px;font-size:9px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-evidence-metrics b{grid-column:2;color:var(--seg-ink);font:500 22px/1 Inter,system-ui,sans-serif;letter-spacing:-.04em}
+#admin-seguimiento-section .seg-dot{width:6px;height:6px;border-radius:50%;background:#b9b2a8}
+#admin-seguimiento-section .seg-dot.pending{background:#ae8a35}
+#admin-seguimiento-section .seg-dot.success{background:#4a806c}
+#admin-seguimiento-section .seg-dot.danger{background:#af6954}
+#admin-seguimiento-section .seg-hours{display:flex;flex-direction:column;justify-content:space-between;gap:5px}
+#admin-seguimiento-section .seg-hours>span{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-hours strong{font-size:29px;letter-spacing:-.05em;font-weight:500;line-height:1.1;font-variant-numeric:tabular-nums}
+#admin-seguimiento-section .seg-hours strong small{font-size:16px}
+#admin-seguimiento-section .seg-hours>small{font-size:9px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-workspace{min-width:0}
+#admin-seguimiento-section .seg-list-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 4px 20px}
+#admin-seguimiento-section .seg-list-heading h3{font-size:27px;margin-top:6px}
+#admin-seguimiento-section .seg-list-heading h3 span,#admin-seguimiento-section .seg-case-nav h3 span{font:500 12px Inter,system-ui,sans-serif;letter-spacing:0;color:var(--seg-muted);margin-left:8px}
+#admin-seguimiento-section .seg-list-heading>span{font-size:11px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-table-labels{display:grid;grid-template-columns:1.15fr 1.4fr .65fr 110px;gap:16px;padding:0 24px 9px 77px;color:var(--seg-muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+#admin-seguimiento-section .seg-person-list{background:var(--seg-paper);border:1px solid #e2d9cd;border-radius:19px;overflow:hidden}
+#admin-seguimiento-section .seg-person{display:grid;grid-template-columns:40px minmax(130px,1.15fr) minmax(130px,1.4fr) minmax(110px,.65fr) 110px;gap:14px;align-items:center;padding:20px 22px;position:relative}
+#admin-seguimiento-section .seg-person+.seg-person{border-top:1px solid #e9e2d9}
+#admin-seguimiento-section .seg-avatar{position:relative;overflow:hidden;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#e7dfd3;color:#75503a;font-size:12px;font-weight:500}
+#admin-seguimiento-section .seg-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#admin-seguimiento-section .seg-person-name{display:flex;flex-direction:column;gap:3px;min-width:0}
+#admin-seguimiento-section .seg-person-name>b{font-weight:600;font-size:13px;overflow-wrap:anywhere}
+#admin-seguimiento-section .seg-person-name>small{color:var(--seg-muted);font-size:11px}
+#admin-seguimiento-section .seg-person-state{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
+#admin-seguimiento-section .seg-person-state>small{font-size:10px;color:var(--seg-muted);overflow-wrap:anywhere}
+#admin-seguimiento-section .seg-pill{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:4px 8px;border-radius:6px;font:500 10px/1.4 Inter,system-ui,sans-serif;color:#625e57;background:#eeebe4}
+#admin-seguimiento-section .seg-pill:before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+#admin-seguimiento-section .seg-pill.success{background:#e2eee5;color:#27664c}
+#admin-seguimiento-section .seg-pill:is(.warning,.pending){background:#f4ebd4;color:#7a5b15}
+#admin-seguimiento-section .seg-pill.danger{background:#f3e2dc;color:#9b4131}
+#admin-seguimiento-section .seg-pill.info{background:#e5eaf0;color:#40566f}
+#admin-seguimiento-section .seg-times{display:flex;gap:20px}
+#admin-seguimiento-section .seg-times span{display:flex;flex-direction:column;gap:4px}
+#admin-seguimiento-section .seg-times small{font-size:9px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-times b{font-size:12px;font-weight:500;font-variant-numeric:tabular-nums}
+#admin-seguimiento-section .seg-row-action{padding:9px 10px;min-height:40px;background:transparent;font-size:11px;color:var(--seg-accent);border-color:#d9bca6}
+#admin-seguimiento-section .seg-row-action svg{width:15px}
+#admin-seguimiento-section .seg-empty{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;min-height:230px;text-align:center;padding:36px 24px;background:var(--seg-paper);border:1px solid var(--seg-line);border-radius:18px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-empty>svg{width:32px;height:32px;color:#a18468}
+#admin-seguimiento-section .seg-empty h3{font-size:25px;color:var(--seg-ink)}
+#admin-seguimiento-section .seg-empty p{font-size:12px;max-width:360px}
+#admin-seguimiento-section .seg-panorama{border:1px solid #e5ddd2;background:var(--seg-paper);border-radius:16px}
+#admin-seguimiento-section .seg-panorama>summary{display:flex;align-items:center;gap:12px;list-style:none;cursor:pointer;padding:18px 20px}
+#admin-seguimiento-section .seg-panorama>summary>span{flex:1;font:400 18px var(--claude-display,Georgia,serif);letter-spacing:-.02em}
+#admin-seguimiento-section .seg-panorama>summary svg:last-child{width:16px}
+#admin-seguimiento-section .seg-area-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;padding:0 18px 18px}
+#admin-seguimiento-section .seg-area-card{padding:14px;border:1px solid var(--seg-line);border-radius:12px;background:#f6f3ec}
+#admin-seguimiento-section .seg-area-card>[data-seg=area]{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0;border:0;min-height:44px;background:transparent;text-align:left}
+#admin-seguimiento-section .seg-area-card>[data-seg=area] b{font-size:12px;font-weight:600}
+#admin-seguimiento-section .seg-area-card>[data-seg=area] span{font-size:10px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-area-track{height:5px;border-radius:3px;overflow:hidden;background:#e5dfd6;margin:8px 0 12px}
+#admin-seguimiento-section .seg-area-track i{height:100%;display:block;background:#4a7c69}
+#admin-seguimiento-section .seg-segments{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+#admin-seguimiento-section .seg-segments button{font-size:9px;min-height:36px;padding:5px;border:1px solid transparent;background:transparent;justify-content:space-between}
+#admin-seguimiento-section .seg-segments .is-active{border-color:#b58766;background:#f0e2d5}
+#admin-seguimiento-section .seg-review-layout{display:grid;grid-template-columns:minmax(190px,.75fr) minmax(320px,1.5fr) minmax(255px,1fr);gap:14px;align-items:start}
+#admin-seguimiento-section :is(.seg-case-nav,.seg-viewer,.seg-decision){min-width:0;border:1px solid #e2d9cd;background:var(--seg-paper);border-radius:20px}
+#admin-seguimiento-section .seg-case-nav{padding:18px 12px;position:sticky;top:0}
+#admin-seguimiento-section .seg-case-nav header{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:0 4px 14px}
+#admin-seguimiento-section .seg-case-nav h3{font-size:19px}
+#admin-seguimiento-section .seg-text{border:0;background:transparent;padding:6px 0;min-height:38px;color:var(--seg-accent);font-size:10px}
+#admin-seguimiento-section .seg-text svg{width:15px}
+#admin-seguimiento-section .seg-mini-list{max-height:65vh;overflow:auto;overscroll-behavior:contain}
+#admin-seguimiento-section .seg-mini-list .seg-person{grid-template-columns:30px 1fr 24px;gap:9px;padding:14px 9px;border:1px solid transparent;border-radius:11px;margin-bottom:6px}
+#admin-seguimiento-section .seg-mini-list .seg-person.is-selected{background:#f0e2d5;border-color:#dcc2ac;box-shadow:inset 3px 0 #a35c3e}
+#admin-seguimiento-section .seg-mini-list .seg-avatar{width:30px;height:30px;font-size:9px}
+#admin-seguimiento-section .seg-mini-list .seg-person-name>b{font-size:11px}
+#admin-seguimiento-section .seg-mini-list .seg-person-name small{font-size:9px}
+#admin-seguimiento-section .seg-mini-list .seg-person-state{grid-column:2;grid-row:2}
+#admin-seguimiento-section .seg-person-pending{font-size:9px;color:var(--seg-accent)}
+#admin-seguimiento-section .seg-mini-list .seg-person>.seg-icon{grid-column:3;grid-row:1 / span 2;min-width:24px;width:24px;border:0;background:transparent;padding:2px;color:var(--seg-accent)}
+#admin-seguimiento-section .seg-viewer{padding:20px}
+#admin-seguimiento-section .seg-case-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:18px}
+#admin-seguimiento-section .seg-case-heading h3{font-size:27px;margin-top:4px;overflow-wrap:anywhere}
+#admin-seguimiento-section .seg-tabs{display:flex;overflow-x:auto;gap:4px;border-bottom:1px solid var(--seg-line);margin-bottom:14px;padding-bottom:4px}
+#admin-seguimiento-section .seg-tabs button{min-width:88px;max-width:170px;flex-shrink:0;border:0;border-bottom:2px solid transparent;background:transparent;padding:10px 8px;text-align:left;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-tabs b{display:block;font-size:11px;font-weight:500;overflow-wrap:anywhere}
+#admin-seguimiento-section .seg-tabs small{display:block;font-size:9px;margin-top:5px}
+#admin-seguimiento-section .seg-tabs [aria-selected=true]{color:var(--seg-accent);border-bottom-color:var(--seg-accent);background:#f5ede3}
+#admin-seguimiento-section .seg-file-heading{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:11px}
+#admin-seguimiento-section .seg-file-heading>span:not(.seg-pill){flex:1;overflow-wrap:anywhere}
+#admin-seguimiento-section .seg-file-heading>svg{width:17px;color:var(--seg-accent)}
+#admin-seguimiento-section .seg-gallery{min-height:370px;display:flex;align-items:center;justify-content:center;border:1px solid var(--seg-line);border-radius:12px;background:repeating-conic-gradient(#f0ede6 0% 25%,#f4f1eb 0% 50%) 50% / 18px 18px;overflow:hidden}
+#admin-seguimiento-section .seg-gallery>img{display:block;max-width:100%;max-height:640px;object-fit:contain;outline:1px solid #0000001a;outline-offset:-1px}
+#admin-seguimiento-section .seg-gallery>video{width:100%;max-height:600px}
+#admin-seguimiento-section .seg-gallery .seg-empty{border:0;background:transparent;border-radius:0}
+#admin-seguimiento-section .seg-document{display:flex;align-items:center;flex-direction:column;gap:14px;text-align:center;padding:36px 20px;overflow-wrap:anywhere}
+#admin-seguimiento-section .seg-document>svg{width:50px;height:50px;color:var(--seg-accent)}
+#admin-seguimiento-section .seg-document p{font-size:11px}
+#admin-seguimiento-section .seg-file-controls{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+#admin-seguimiento-section .seg-file-controls>.seg-icon{width:32px;min-height:40px;padding:4px}
+#admin-seguimiento-section .seg-thumbnails{display:flex;gap:6px;flex:1;overflow-x:auto;min-width:50px}
+#admin-seguimiento-section .seg-thumb{position:relative;width:50px;min-width:50px;height:56px;padding:3px;border-radius:7px;font-size:12px;background:#ede7dd;color:var(--seg-muted);overflow:hidden}
+#admin-seguimiento-section .seg-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+#admin-seguimiento-section .seg-thumb small{position:absolute;right:2px;bottom:2px;padding:1px 4px;border-radius:3px;background:#faf9f5;color:#5f4939;font-size:8px}
+#admin-seguimiento-section .seg-thumb.is-active{border-color:var(--seg-accent);box-shadow:inset 0 -2px var(--seg-accent);color:var(--seg-accent)}
+#admin-seguimiento-section .seg-file-index{display:flex;flex-direction:column;gap:5px;align-items:flex-end;font-size:9px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-file-index a{font-size:10px;min-height:38px;padding:8px}
+#admin-seguimiento-section .seg-file-index svg{width:14px}
+#admin-seguimiento-section .seg-versions{margin-top:14px;font-size:11px}
+#admin-seguimiento-section .seg-versions button{display:flex;width:100%;margin-top:5px;font-size:10px}
+#admin-seguimiento-section .seg-decision{padding:20px;display:flex;flex-direction:column;gap:14px}
+#admin-seguimiento-section .seg-decision h3{font-size:23px;margin-top:4px}
+#admin-seguimiento-section .seg-state-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#admin-seguimiento-section .seg-state-pair>div{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:10px;background:#f2eee7;border-radius:10px}
+#admin-seguimiento-section .seg-state-pair small{font-size:10px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:0;border:1px solid var(--seg-line);border-radius:10px;overflow:hidden;background:var(--seg-line)}
+#admin-seguimiento-section .seg-facts>div{padding:10px 8px;background:var(--seg-paper)}
+#admin-seguimiento-section .seg-facts dt{font-size:9px;color:var(--seg-muted)}
+#admin-seguimiento-section .seg-facts dd{font-size:11px;margin:4px 0 0;font-weight:500;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#admin-seguimiento-section .seg-facts .seg-fact-wide{grid-column:span 2}
+#admin-seguimiento-section .seg-comment h4{font-size:11px;font-weight:500;margin-bottom:7px}
+#admin-seguimiento-section .seg-comment p{font-size:11px;color:var(--seg-muted);background:#f1eee9;padding:12px;border-radius:9px;white-space:pre-wrap;overflow-wrap:anywhere}
+#admin-seguimiento-section :is(.seg-origin,.seg-operational){font-size:10px;color:var(--seg-muted)}
+#admin-seguimiento-section :is(.seg-history,.seg-manage,.seg-issues){border:1px solid var(--seg-line);border-radius:10px;font-size:11px}
+#admin-seguimiento-section :is(.seg-history,.seg-manage)>summary{list-style:none;display:flex;align-items:center;gap:9px;cursor:pointer;padding:12px}
+#admin-seguimiento-section :is(.seg-history,.seg-manage)>summary svg{width:16px}
+#admin-seguimiento-section :is(.seg-history,.seg-manage)>summary svg:last-child{margin-left:auto}
+#admin-seguimiento-section :is(.seg-history,.seg-issues) p{padding:12px;color:var(--seg-muted);white-space:pre-wrap;overflow-wrap:anywhere;border-top:1px solid var(--seg-line)}
+#admin-seguimiento-section .seg-manage>div{display:flex;flex-direction:column;gap:5px;padding:6px}
+#admin-seguimiento-section .seg-manage button{justify-content:flex-start;border:0;font-size:11px}
+#admin-seguimiento-section .seg-issues>summary{padding:12px;cursor:pointer}
+#admin-seguimiento-section .seg-note-label{font-size:11px;font-weight:500}
+#admin-seguimiento-section .seg-note-label span{color:var(--seg-muted);font-weight:400;font-size:10px}
+#admin-seguimiento-section #seg-note{width:100%;min-height:90px;resize:vertical;border:1px solid #bdb3a6;border-radius:10px;padding:12px;background:#fffefb;color:var(--seg-ink);font-size:12px;line-height:1.5;margin-top:-6px}
+#admin-seguimiento-section .seg-decision-buttons{display:flex;gap:8px}
+#admin-seguimiento-section .seg-decision-buttons button{flex:1;font-size:10px;padding:10px 8px;min-height:44px}
+#admin-seguimiento-section .seg-primary{background:#a25538;border-color:#a25538;color:#fff}
+#admin-seguimiento-section .seg-outline{color:var(--seg-accent);border-color:#b87e60;background:transparent}
+#admin-seguimiento-section .seg-next{font-size:11px;justify-content:space-between;background:#f5ede3}
+#admin-seguimiento-section .seg-action-status{font-size:11px;color:var(--seg-accent)}
+#admin-seguimiento-section .seg-action-status:empty{display:none}
+#admin-seguimiento-section .seg-skeleton{height:110px;border-radius:18px;background:linear-gradient(110deg,#e5dfd5,#faf9f5,#e5dfd5);background-size:220% 100%}
+@media(min-width:901px){
+  #portal.admin-wide #view-gestion>#admin-seguimiento-section{grid-column:1/-1;grid-row:3;min-height:0;overflow-y:auto}
+  #portal.admin-wide[data-admin-lateral="true"] #view-gestion>#admin-seguimiento-section{grid-row:2}
+}
+#portal[data-admin-section="seguimiento"] #admin-facebook-section[hidden]{display:none!important}
+@media(hover:hover){
+  #admin-seguimiento-section .seg-button:not(:disabled):hover{background:#eee6da;border-color:#c0a58d;color:#783b27}
+  #admin-seguimiento-section .seg-primary:not(:disabled):hover{background:#854026;color:white;border-color:#854026}
+  #admin-seguimiento-section .seg-person:hover{background:#f6f2eb}
+  #admin-seguimiento-section .seg-mini-list .is-selected:hover{background:#f0e2d5}
+}
+@media(prefers-reduced-motion:no-preference){
+  #admin-seguimiento-section .seg-button{transition:background-color 130ms,color 130ms,border-color 130ms}
+  #admin-seguimiento-section .seg-skeleton{animation:seg-shimmer 1.5s linear infinite}
+  @keyframes seg-shimmer{to{background-position:-220% 0}}
+}
+@media(max-width:1500px) and (min-width:901px){
+  #portal #admin-seguimiento-section{padding:18px;gap:14px}
+  #admin-seguimiento-section .seg-evidence-metrics>div>span{display:flex;gap:7px;font-size:10px}
+  #admin-seguimiento-section .seg-evidence-metrics b{font-size:16px;margin-left:4px}
+  #admin-seguimiento-section .seg-summary>section{padding:12px 15px}
+  #admin-seguimiento-section .seg-summary h3{margin-bottom:7px}
+  #admin-seguimiento-section .seg-case-heading{flex-wrap:wrap}
+  #admin-seguimiento-section .seg-gallery{min-height:300px}
+  #admin-seguimiento-section .seg-toolbar{flex-wrap:wrap}
+  #admin-seguimiento-section .seg-search{min-width:190px}
+}
+@media(min-width:1241px){
+  #portal #admin-seguimiento-section[data-review="true"]{gap:12px}
+  #admin-seguimiento-section[data-review="true"] h2{font-size:32px}
+  #admin-seguimiento-section[data-review="true"] .seg-mark{width:48px;height:48px;border-radius:15px}
+  #admin-seguimiento-section[data-review="true"] .seg-heading{padding:0}
+  #admin-seguimiento-section[data-review="true"] .seg-summary>section{padding:12px 16px}
+  #admin-seguimiento-section[data-review="true"] .seg-summary h3{margin-bottom:8px}
+  #admin-seguimiento-section .seg-gallery>img{max-height:max(280px,calc(100dvh - 490px))}
+}
+@media(max-width:1240px) and (min-width:901px){
+  #admin-seguimiento-section .seg-review-layout{grid-template-columns:minmax(300px,1.35fr) minmax(250px,1fr)}
+  #admin-seguimiento-section .seg-case-nav{grid-column:1/-1;position:static;padding:10px 14px}
+  #admin-seguimiento-section .seg-case-nav header{padding:0;display:none}
+  #admin-seguimiento-section .seg-mini-list{display:flex;gap:8px;max-height:130px;overflow:auto}
+  #admin-seguimiento-section .seg-mini-list .seg-person{min-width:220px;flex:0 0 220px;margin-bottom:0}
+}
+@media(max-width:1360px) and (min-width:901px){
+  #admin-seguimiento-section .seg-summary{grid-template-columns:1fr 155px}
+  #admin-seguimiento-section .seg-people-metrics{grid-column:1/-1}
+  #admin-seguimiento-section .seg-evidence-metrics{grid-column:1;grid-row:2}
+  #admin-seguimiento-section .seg-hours{grid-column:2;grid-row:2;gap:8px}
+}
+@media(max-width:1100px){
+  #admin-seguimiento-section .seg-table-labels{display:none}
+  #admin-seguimiento-section .seg-person-list>.seg-person{grid-template-columns:36px 1fr 105px;gap:10px;padding:16px}
+  #admin-seguimiento-section .seg-person-list .seg-person-state{grid-column:2;grid-row:2}
+  #admin-seguimiento-section .seg-person-list .seg-times{grid-column:2;grid-row:3}
+  #admin-seguimiento-section .seg-person-list .seg-row-action{grid-column:3;grid-row:1/span 3}
+  #admin-seguimiento-section #seg-updated{display:none}
+}
+@media(max-width:900px){
+  #portal #admin-seguimiento-section{padding:18px 14px;border-radius:16px;overflow:visible}
+  #admin-seguimiento-section .seg-heading{align-items:flex-start}
+  #admin-seguimiento-section .seg-mark{width:45px;height:45px;border-radius:14px}
+  #admin-seguimiento-section .seg-mark svg{width:24px;height:24px}
+  #admin-seguimiento-section h2{font-size:29px}
+  #admin-seguimiento-section .seg-eyebrow{font-size:8px}
+  #admin-seguimiento-section .seg-brand{gap:10px}
+  #admin-seguimiento-section .seg-pilot{display:none}
+  #admin-seguimiento-section .seg-head-actions{gap:4px}
+  #admin-seguimiento-section .seg-toolbar{flex-wrap:wrap;gap:8px}
+  #admin-seguimiento-section .seg-date{width:100%;justify-content:space-between}
+  #admin-seguimiento-section input[type=date]{max-width:none;flex:1}
+  #admin-seguimiento-section .seg-date label{flex:1}
+  #admin-seguimiento-section .seg-search{padding-left:2px;border-left:0;min-width:100%}
+  #admin-seguimiento-section .seg-area{flex:1}
+  #admin-seguimiento-section .seg-area select{width:100%;max-width:none}
+  #admin-seguimiento-section :is(input,select,textarea){font-size:16px}
+  #admin-seguimiento-section .seg-summary{grid-template-columns:1fr}
+  #admin-seguimiento-section .seg-queues{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #admin-seguimiento-section .seg-hours{flex-direction:row;flex-wrap:wrap;align-items:center}
+  #admin-seguimiento-section .seg-hours>small{width:100%}
+  #admin-seguimiento-section .seg-evidence-metrics>div>span{display:flex;font-size:10px;gap:6px}
+  #admin-seguimiento-section .seg-evidence-metrics b{font-size:17px}
+  #admin-seguimiento-section .seg-review-layout{display:flex;flex-direction:column}
+  #admin-seguimiento-section :is(.seg-case-nav,.seg-viewer,.seg-decision){width:100%}
+  #admin-seguimiento-section .seg-case-nav{position:static;padding:10px}
+  #admin-seguimiento-section .seg-case-nav header{padding:0 4px 8px}
+  #admin-seguimiento-section .seg-mini-list{display:flex;gap:8px;max-height:130px}
+  #admin-seguimiento-section .seg-mini-list .seg-person{flex:0 0 225px;margin-bottom:0}
+  #admin-seguimiento-section .seg-viewer{padding:15px}
+  #admin-seguimiento-section .seg-case-heading{flex-wrap:wrap}
+  #admin-seguimiento-section .seg-gallery{min-height:260px}
+  #admin-seguimiento-section .seg-file-heading{flex-wrap:wrap}
+  #admin-seguimiento-section .seg-list-heading>span{display:none}
+}

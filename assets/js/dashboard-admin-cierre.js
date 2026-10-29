@@ -12,6 +12,8 @@ function adminEvidenceIcon(kind){
 }
 
 function adminEvidencePerson(personId){
+  const context=typeof ADMIN_EVIDENCE!=='undefined'?ADMIN_EVIDENCE.context:null;
+  if(context&&String(context.person?.id)===String(personId))return context.isCurrent()?context.person:null;
   return (APP.adminClose?.personas||[]).find(person=>String(person.id)===String(personId));
 }
 
@@ -27,6 +29,7 @@ function adminEvidenceMissing(person,reviews=null){
 
 // Las evidencias opcionales se ofrecen para carga, sin contarlas como pendientes.
 function adminEvidenceAvailable(person,reviews=null){
+  if(reviews===null&&typeof ADMIN_EVIDENCE!=='undefined'&&ADMIN_EVIDENCE.context&&String(ADMIN_EVIDENCE.context.person?.id)===String(person?.id))reviews=ADMIN_EVIDENCE.context.reviews;
   const items=adminEvidenceMissing(person,reviews),close=person?.cierre||{};
   const personReviews=reviews||(APP.adminReview?.entregas||[]).filter(item=>String(item.colaborador_id)===String(person?.id));
   const exitDelivered=(close.requisitos||[]).some(item=>item.tipo==='salida'&&item.completo)
@@ -111,15 +114,17 @@ function adminCloseExitRecovery(person,reviews=[]){
     ||reviews.some(item=>item.requisito==='salida'&&item.estado==='completo');
 }
 
-async function recoverAdminCloseExit(personId,button){
+async function recoverAdminCloseExit(personId,button,context=null){
   if(APP.access.rol!=='direccion'||button.disabled)return;
-  const date=$('admin-close-date').value||isoLima();
+  if(context&&!context.isCurrent())return;
+  const date=context?.date||$('admin-close-date').value||isoLima();
   button.disabled=true;button.textContent='Comprobando salida…';
   try{
     const {data,error}=await db.rpc('dash_admin_regularizar_cierre',{p_colaborador:Number(personId),p_fecha:date});
+    if(context&&!context.isCurrent())return;
     if(error)throw error;
     if(data?.ok&&(data.regularizada||data.motivo==='ya_cerrada')){
-      await loadAdminCloses({quiet:true});
+      if(context)await context.refresh().catch(()=>false);else await loadAdminCloses({quiet:true});
       toast('Salida registrada. El estado de la jornada se volvió a comprobar.');
     }else{
       const reasons={requisitos_pendientes:'Aún faltan evidencias laborales. Completa los pendientes antes de recuperar la salida.',
@@ -601,11 +606,12 @@ function selectAdminEvidenceRequirement(kind,assignment=null){
   adminEvidenceMessage('');renderAdminEvidenceComposer();
 }
 
-function openAdminMissingEvidence(personId,trigger=null){
+function openAdminMissingEvidence(personId,trigger=null,context=null){
   if(APP.access.rol!=='direccion')return;
-  const person=adminEvidencePerson(personId),items=adminEvidenceAvailable(person);if(!person||!items.length)return toast('Esta persona no tiene evidencias disponibles para cargar.',true);
-  ADMIN_EVIDENCE={personId:Number(personId),requirement:items[0].kind,assignment:items[0].assignment,files:[],trigger:trigger||document.activeElement,busy:false};
-  $('admin-evidence-person-mark').textContent=initials(person.nombre);$('admin-evidence-title').textContent=`Cargar evidencia de ${person.nombre}`;$('admin-evidence-copy').textContent=`${person.area} · ${adminReviewDate($('admin-close-date').value)} · carga por Dirección`;
+  if(context&&!context.isCurrent())return;
+  const person=context?.person||adminEvidencePerson(personId),items=adminEvidenceAvailable(person,context?.reviews||null);if(!person||!items.length)return toast('Esta persona no tiene evidencias disponibles para cargar.',true);
+  ADMIN_EVIDENCE={personId:Number(personId),requirement:items[0].kind,assignment:items[0].assignment,files:[],trigger:trigger||document.activeElement,busy:false,context};
+  $('admin-evidence-person-mark').textContent=initials(person.nombre);$('admin-evidence-title').textContent=`Cargar evidencia de ${person.nombre}`;$('admin-evidence-copy').textContent=`${person.area} · ${adminReviewDate(context?.date||$('admin-close-date').value)} · carga por Dirección`;
   $('admin-evidence-note').value='Evidencia recibida por interno y registrada por Dirección.';
   document.querySelector('input[name="admin-evidence-mode"][value="individuales"]').checked=true;
   $('admin-evidence-exit-time').value='';
@@ -655,7 +661,9 @@ async function uploadAdminEvidenceFile(file,selected,person,date){
 
 async function submitAdminEvidence(event){
   event.preventDefault();if(ADMIN_EVIDENCE.busy)return;
-  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId),selected=currentAdminEvidenceRequirement(),date=$('admin-close-date').value,files=ADMIN_EVIDENCE.files;
+  const context=ADMIN_EVIDENCE.context;
+  if(context&&!context.isCurrent())return adminEvidenceMessage('La sesión cambió. Cierra esta ventana y vuelve a abrir el caso.','is-error');
+  const person=adminEvidencePerson(ADMIN_EVIDENCE.personId),selected=currentAdminEvidenceRequirement(),date=context?.date||$('admin-close-date').value,files=ADMIN_EVIDENCE.files;
   if(!person||!selected)return adminEvidenceMessage('La evidencia cambió. Cierra esta ventana y vuelve a intentarlo.','is-error');
   const mode=adminEvidenceMode(),min=Number(person.cierre?.comparticiones_min||1),count=files.length;
   if(selected.kind==='comparticiones'&&mode==='individuales'&&count<min)return adminEvidenceMessage(`Adjunta al menos ${min} capturas para completar Comparticiones de Facebook.`,'is-error');
@@ -664,6 +672,7 @@ async function submitAdminEvidence(event){
   const button=$('admin-evidence-submit'),paths=[];ADMIN_EVIDENCE.busy=true;button.disabled=true;button.querySelector('span').textContent='Preparando carga…';
   try{await withActionLoader('Preparando carga',async setLabel=>{
     for(let index=0;index<files.length;index++){
+      if(context&&!context.isCurrent())throw Object.assign(new Error('sesion'),{motivo:'sesion'});
       adminEvidenceMessage(`Subiendo ${index+1} de ${files.length}. Mantén esta ventana abierta.`,'is-progress');button.querySelector('span').textContent=`Subiendo ${index+1} de ${files.length}`;setLabel(`Subiendo evidencia ${index+1} de ${files.length}`);
       paths.push(await uploadAdminEvidenceFile(files[index],selected,person,date));
     }
@@ -673,13 +682,18 @@ async function submitAdminEvidence(event){
     const params=isLateExit
       ?{p_colaborador:Number(person.id),p_fecha:date,p_paths:paths,p_detalle:note,p_hora_salida:exitTime}
       :{p_colaborador:Number(person.id),p_fecha:date,p_requisito:selected.kind,p_asignacion:selected.assignment,p_modalidad:selected.kind==='comparticiones'?mode:null,p_paths:paths,p_detalle:note,p_hora_salida:selected.kind==='salida'?exitTime:null};
+    if(context&&!context.isCurrent())throw Object.assign(new Error('sesion'),{motivo:'sesion'});
     let {data,error}=await db.rpc(rpc,params);
     if(error||!data?.ok){const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes(rpc));throw Object.assign(new Error(data?.motivo||error?.message||'confirmar'),{motivo:missing&&isLateExit?'migracion_salida':data?.motivo||'confirmar'})}
     if(!isLateExit&&!person.cierre?.justificado){
       const {data:regularization,error:regularizationError}=await db.rpc('dash_admin_regularizar_cierre',{p_colaborador:Number(person.id),p_fecha:date});
       if(!regularizationError&&regularization?.ok&&regularization.regularizada)data={...data,cierre_regularizado:true};
     }
-    ADMIN_EVIDENCE.busy=false;closeAdminEvidence({restoreFocus:false});setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});const status=$('admin-close-status');status.setAttribute('tabindex','-1');status.focus({preventScroll:true});toast(data.cierre_regularizado?'Evidencia registrada. La jornada quedó completa.':'Evidencia registrada por Dirección.');
+    ADMIN_EVIDENCE.busy=false;closeAdminEvidence({restoreFocus:false});setLabel('Actualizando cierres');
+    if(context)await context.refresh().catch(()=>false);else{
+      await loadAdminCloses({quiet:true});const status=$('admin-close-status');status.setAttribute('tabindex','-1');status.focus({preventScroll:true});
+    }
+    toast(data.cierre_regularizado?'Evidencia registrada. La jornada quedó completa.':'Evidencia registrada por Dirección.');
   })}catch(error){
     const messages={sin_permiso:'Solo Dirección puede realizar esta carga.',datos:'Revisa la persona, la fecha y la hora de salida.',no_programado:'Este requisito no corresponde al horario de la persona en esa fecha.',rpe_no_requerido_presencial:'La jornada es presencial y no requiere evidencia RPE.',asignacion:'La asignación ya no está activa o no corresponde a esta persona.',no_habilitado:'Este tipo de evidencia no estaba habilitado en la fecha seleccionada.',collage_no_permitido:'El formato collage no está habilitado.',permiso:'La autorización privada de carga venció. Vuelve a seleccionar las imágenes.',detalle_salida:'Añade una nota que indique cómo recibiste esta foto de salida.',ya_completo:'La evidencia ya fue registrada desde otra sesión.',ya_cerrada:'La salida de esta jornada ya está registrada.',hora_salida:'Indica la hora visible en la foto.',hora_salida_invalida:'La hora indicada no puede ser anterior a la entrada ni posterior a la hora actual.',sin_entrada:'No existe una entrada para asociar esta evidencia.',migracion_salida:'Ejecuta dashboard_42_entrada_y_salida_tardia.sql en Supabase para habilitar esta regularización.',cantidad_comparticiones:`Adjunta al menos ${min} capturas o un collage.`,archivo_no_verificado:'Una imagen no llegó correctamente. Inténtalo otra vez.',cuota_diaria:'Se alcanzó el límite de cargas pendientes. Espera unos minutos e inténtalo nuevamente.',subida:'No pudimos subir una imagen. Revisa tu conexión.'};
     messages.jornada_justificada='La jornada está justificada. Solo corresponde subir comparticiones de Facebook.';
