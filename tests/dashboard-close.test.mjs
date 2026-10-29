@@ -1406,7 +1406,7 @@ test('desktop header replaces date chrome with live monthly attendance progress'
 test('request evidence viewer does not collide with Direction missing-evidence uploader', () => {
   assert.match(js,/async function openAdminStoredEvidence\(path,bucket='asis-evidencias'\)/);
   assert.match(js,/openAdminStoredEvidence\(evidence\.dataset\.requestEvidence,REQUEST_BUCKET\)/);
-  assert.match(adminJs,/function openAdminMissingEvidence\(personId,trigger=null\)/);
+  assert.match(adminJs,/function openAdminMissingEvidence\(personId,trigger=null,context=null\)/);
   assert.match(adminJs,/openAdminMissingEvidence\(upload\.dataset\.adminUploadPerson,upload\)/);
   assert.doesNotMatch(js,/function openAdminEvidence\(/);
   assert.doesNotMatch(adminJs,/function openAdminEvidence\(/);

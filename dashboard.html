@@ -82,6 +82,7 @@
 <link rel="stylesheet" href="assets/css/paginas/reclutamiento-profesional.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-lateral.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-resumen.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-seguimiento.css?v=3">
 </head>
 <body>
 
@@ -240,6 +241,7 @@
       <button class="admin-lateral-family-head" type="button" aria-expanded="true" aria-controls="admin-lateral-operacion"><span class="admin-lateral-family-name">Operación del día</span><span class="admin-lateral-family-meta" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <ul id="admin-lateral-operacion">
         <li><button type="button" data-lateral-section="overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Resumen operativo</span></button></li>
+        <li><button type="button" data-lateral-section="seguimiento"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M8 2.5v4M16 2.5v4M3.5 9.5h17m-10 6 2 2 4-4"/></svg><span>Seguimiento diario</span></button></li>
         <li><button type="button" data-lateral-section="control"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4m-6.5 8 2 2 4-4"/></svg><span>Control diario</span></button></li>
         <li><button type="button" data-lateral-section="lista"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>Pasar lista</span></button></li>
       </ul>
@@ -1567,6 +1569,7 @@
         <ol class="admin-breadcrumb" data-admin-breadcrumb aria-label="Ruta de navegación" hidden></ol>
         <button class="active" type="button" data-admin-section="overview">Resumen operativo</button>
         <button type="button" data-go="reclutamiento" id="admin-recruitment-tab" hidden>Solicitudes <span data-rec-pending-count hidden></span></button>
+        <button type="button" data-admin-section="seguimiento">Seguimiento diario</button>
         <button type="button" data-admin-section="control" id="admin-control-tab" hidden>Control diario</button>
         <button type="button" data-admin-section="ranking" id="admin-ranking-tab" hidden>Ranking mensual · Beta</button>
         <button type="button" data-admin-section="facebook" id="admin-facebook-tab" hidden>Reportes Facebook</button>
@@ -1609,6 +1612,7 @@
         </div>
       </div>
 
+      <section class="seg-section" id="admin-seguimiento-section" aria-labelledby="seg-title" hidden></section>
       <section class="admin-control-section" id="admin-control-section" aria-labelledby="admin-control-title" hidden>
         <header class="control-heading">
           <div class="control-head-brand">
@@ -4020,7 +4024,7 @@
 <script src="assets/js/dashboard-skeleton.js?v=5"></script>
 <script src="assets/js/reclutamiento-api.js?v=1"></script>
 <script src="assets/js/dashboard-avatar.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=277"></script>
+<script src="assets/js/dashboard.js?v=278"></script>
 <script src="assets/js/dashboard-reclutamiento.js?v=11"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
@@ -4050,10 +4054,11 @@
 <script src="assets/js/dashboard-admin-mes.js?v=23"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=7"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=7"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=57"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=58"></script>
 <script src="assets/js/dashboard-assignment-hours.js?v=3"></script>
 <script src="assets/js/dashboard-assignments.js?v=10"></script>
 <script src="assets/js/dashboard-admin-control.js?v=18"></script>
+<script src="assets/js/dashboard-admin-seguimiento.js?v=2"></script>
 <script src="assets/js/dashboard-admin-lateral.js?v=3"></script>
 <script src="assets/js/marketing-model.js?v=studio-16"></script>
 <dialog id="marketing-delete-dialog" class="marketing-delete-dialog" aria-labelledby="marketing-delete-title" aria-describedby="marketing-delete-description">

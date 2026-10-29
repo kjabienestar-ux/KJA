@@ -927,6 +927,7 @@ $('form-admin').addEventListener('submit',async e=>{
 });
 
 async function logout(message){
+  window.KJASeguimiento?.reset();
   clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(APP.notificationTimer);clearInterval(DASH_VERSION_TIMER);if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}document.title=BASE_DOCUMENT_TITLE;localStorage.removeItem(DEADLINE_KEY);localStorage.removeItem(SHELL_KEY);
   try{ await db.auth.signOut({scope:'local'}); }catch(e){}
   location.reload();
@@ -3155,15 +3156,17 @@ function withAdminSkeleton(section,fetchFn,options={}){
 
 async function showAdminSection(section){
   if(!APP.access.acceso_panel)return;
+  if(APP.adminSection==='seguimiento'&&section!=='seguimiento'&&window.KJASeguimiento?.canLeave()===false)return;
   if(section==='marcado'&&APP.access.rol!=='direccion'){toast('Marcado propio está reservado a Dirección.',true);section='overview'}
   if(section==='control'&&APP.access.rol!=='direccion'){toast('El control diario está reservado a Dirección.',true);section='overview'}
   if(section==='roles'&&!(APP.identity.isSystem&&APP.access.rol==='direccion')){toast('Los roles están reservados al administrador de sistemas.',true);section='overview'}
   if(section==='ranking'&&APP.access.rol!=='direccion')section='overview';
   if(section==='facebook'&&APP.access.rol!=='direccion')section='overview';
-  const allowed=['overview','control','ranking','facebook','lista','mes','cierres','asignaciones','colaboradores','contratos','roles','marcado'];
+  const allowed=['overview','seguimiento','control','ranking','facebook','lista','mes','cierres','asignaciones','colaboradores','contratos','roles','marcado'];
   APP.adminSection=allowed.includes(section)?section:'overview';
   $('admin-overview-section').hidden=APP.adminSection!=='overview';
   $('admin-control-section').hidden=APP.adminSection!=='control';
+  $('admin-seguimiento-section').hidden=APP.adminSection!=='seguimiento';
   $('admin-ranking-section').hidden=APP.adminSection!=='ranking';
   $('admin-facebook-section').hidden=APP.adminSection!=='facebook';
   $('admin-list-section').hidden=APP.adminSection!=='lista';
@@ -3189,7 +3192,9 @@ async function showAdminSection(section){
     }
   });
   let loader=null;
-  if(APP.adminSection==='facebook'){
+  if(APP.adminSection==='seguimiento'){
+    loader=()=>window.KJASeguimiento.load();
+  }else if(APP.adminSection==='facebook'){
     if(typeof loadAdminFacebookReport==='function')loader=()=>loadAdminFacebookReport();
   }else if(APP.adminSection==='ranking'){
     if(typeof loadAdminRanking==='function')loader=()=>loadAdminRanking();
@@ -3801,6 +3806,7 @@ renderAnnouncementDots('announcement-viewer-dots','announcement-viewer-image','a
 showAnnouncement(0);
 function refreshActiveAdminSection(){
   const section=APP.adminSection;
+  if(section==='seguimiento')return window.KJASeguimiento?.load();
   const loader=section==='ranking'&&typeof loadAdminRanking==='function'?()=>loadAdminRanking():section==='control'&&typeof loadAdminControl==='function'?()=>loadAdminControl():section==='lista'?()=>loadAdminAttendance():(section==='mes'||section==='resumen')&&typeof loadAdminMonth==='function'?()=>loadAdminMonth(true):['cierres','asignaciones'].includes(section)&&typeof loadAdminCloses==='function'?()=>loadAdminCloses():section==='marcado'&&typeof loadAdminAccess==='function'?()=>loadAdminAccess():section==='roles'&&typeof loadAdminRoles==='function'?()=>loadAdminRoles():(section==='colaboradores'||section==='contratos')&&typeof loadAdminTeam==='function'?()=>loadAdminTeam():()=>loadAdminHub();
   return withAdminSkeleton(section,loader);
 }
