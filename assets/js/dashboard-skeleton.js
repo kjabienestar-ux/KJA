@@ -34,8 +34,9 @@
   const cases=(count=6)=>`<article class="kja-sk-case-panel"><div class="kja-sk-queue-pills">${Array.from({length:4},()=>block('kja-sk-pill')).join('')}</div>${filters(3)}${Array.from({length:count},()=>`<div class="kja-sk-case">${block('kja-sk-circle')}${lines(3)}<span class="kja-sk-case-meta">${block('kja-sk-pill')}${block('kja-sk-button')}</span></div>`).join('')}</article>`;
   const roster=(groups=2,perGroup=3)=>`<section class="kja-sk-roster">${Array.from({length:groups},()=>`<div class="kja-sk-roster-group">${block('kja-sk-group-title')}${Array.from({length:perGroup},()=>row(4,true)).join('')}</div>`).join('')}</section>`;
   const ledger=()=>`<section class="kja-sk-ledger"><div class="kja-sk-ledger-head">${block('kja-sk-line w-68')}${Array.from({length:31},()=>block('kja-sk-ledger-day-label')).join('')}</div>${Array.from({length:6},()=>`<div class="kja-sk-ledger-row"><span class="kja-sk-ledger-person">${block('kja-sk-circle')}${lines(2)}</span>${Array.from({length:31},()=>block('kja-sk-ledger-cell')).join('')}</div>`).join('')}</section>`;
+  // Roles y equipos es una lista; kja-sk-role-grid se conserva como firma de la sección.
+  const roleList=()=>`<div class="kja-sk-role-grid">${table(8,6,true)}</div>`;
   const closeCards=(count=6)=>`<div class="kja-sk-close-grid">${Array.from({length:count},()=>`<article class="kja-sk-close-card"><span>${block('kja-sk-circle')}${lines(2)}</span><div class="kja-sk-checks">${Array.from({length:4},()=>block('kja-sk-check')).join('')}</div>${block('kja-sk-button')}</article>`).join('')}</div>`;
-  const roleCards=(count=5)=>`<div class="kja-sk-role-grid">${Array.from({length:count},()=>`<article class="kja-sk-role-card">${block('kja-sk-icon')}${lines(2)}<div class="kja-sk-role-people">${row(1,true)}${row(1,true)}${row(1,true)}</div></article>`).join('')}</div>`;
 
   const layouts={
     overview:()=>`<div class="kja-sk-scene overview">${heading()}${metrics(4)}<div class="kja-sk-overview-panels">${panel(5,true)}${panel(4,false)}</div></div>`,
@@ -48,7 +49,7 @@
     asignaciones:()=>`<div class="kja-sk-scene asignaciones">${heading()}<div class="kja-sk-assignment-columns"><article class="kja-sk-form kja-sk-assignment-form">${lines(2)}${filters(2)}${Array.from({length:4},()=>block('kja-sk-input')).join('')}${block('kja-sk-upload')}${block('kja-sk-button')}</article><section class="kja-sk-assignment-list">${lines(2)}${Array.from({length:5},()=>`<article>${block('kja-sk-icon')}${lines(3)}${block('kja-sk-pill')}</article>`).join('')}</section></div></div>`,
     colaboradores:()=>`<div class="kja-sk-scene colaboradores">${heading()}${filters(4)}<article class="kja-sk-export-card">${lines(3)}${filters(2)}<div>${block('kja-sk-button')}${block('kja-sk-button')}</div></article>${metrics(5)}${cards(6)}</div>`,
     contratos:()=>`<div class="kja-sk-scene contratos">${heading()}${metrics(4)}${filters(4)}<div class="kja-sk-contract-caption">${lines(2)}</div>${table(8,6,true)}</div>`,
-    roles:()=>`<div class="kja-sk-scene roles">${heading()}${metrics(5)}${block('kja-sk-security-pill')}${roleCards(5)}${panel(4,true)}</div>`,
+    roles:()=>`<div class="kja-sk-scene roles">${heading()}${metrics(5)}${block('kja-sk-security-pill')}${roleList()}${panel(4,true)}</div>`,
     marcado:()=>`<div class="kja-sk-scene marcado">${heading()}<div class="kja-sk-access-layout"><article class="kja-sk-route-card">${lines(2)}${Array.from({length:2},()=>`<section>${block('kja-sk-icon')}${lines(3)}${block('kja-sk-input')}</section>`).join('')}${block('kja-sk-qr')}</article><article class="kja-sk-policy-card">${lines(2)}${filters(2)}${block('kja-sk-map')}${block('kja-sk-button')}</article></div>${metrics(5)}${panel(2,true)}${filters(2)}${table(7,4,true)}${panel(3,false)}</div>`,
     tabla:()=>`${heading()}${filters(3)}${metrics(4)}${table()}`,
     tarjetas:()=>`${heading()}${metrics(4)}${cards(6)}`,
@@ -114,7 +115,7 @@
       fillMirrorSlot(clone,'admin-contract-list',table(8,6,true));
     }else if(kind==='roles'){
       fillMirrorSlot(clone,'admin-roles-kpis',nativeMetrics(5));
-      fillMirrorSlot(clone,'admin-role-map',roleCards(5));
+      fillMirrorSlot(clone,'admin-role-map',roleList());
       fillMirrorSlot(clone,'admin-role-audit',Array.from({length:4},()=>row(2,true)).join(''));
     }else if(kind==='marcado'){
       fillMirrorSlot(clone,'admin-access-kpis',nativeMetrics(5));

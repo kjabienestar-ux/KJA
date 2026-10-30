@@ -1,9 +1,17 @@
 /* KJA · Fase 6 — Roles visibles y liderazgo seguro por área. */
 let ROLE_CONFIRM={resolve:null,trigger:null};
-const ROLE_COLEADER_OPEN=new Set();
+// Lista compacta por área; la edición vive en un modal central (#admin-role-dialog).
+const ROLE_FILTERS=[['todas','Todas'],['vacante','Sin líder'],['revisar','Por revisar'],['activo','Con líder']];
+const ROLE_KIND_ORDER={revisar:0,activo:1,vacante:2};
+let ROLE_FILTER='todas';
+let ROLE_DIALOG={area:null,editing:''};
 
 function rolesMessage(text,bad=false){
-  const el=$('admin-roles-message');el.textContent=text||'';el.classList.toggle('show',!!text);el.classList.toggle('bad',!!text&&bad);
+  // El modal tapa el aviso de la sección, así que el mensaje se repite dentro del modal.
+  ['admin-roles-message','admin-role-dialog-message'].forEach(id=>{
+    const el=$(id);if(!el)return;
+    el.textContent=text||'';el.classList.toggle('show',!!text);el.classList.toggle('bad',!!text&&bad);
+  });
 }
 function roleDate(value){
   return value?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short',year:'numeric',timeZone:'America/Lima'}).format(new Date(value+'T12:00:00-05:00')):'Sin fecha de término';
@@ -62,96 +70,117 @@ function roleAreaIcon(name){
   return '<svg viewBox="0 0 24 24" class="role-area-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
 }
 
+// Estado del área para filtrar y ordenar: primero lo que requiere acción.
+function roleAreaKind(area){
+  const people=[area.lider,...(area.co_lideres||[]).slice(0,2)].filter(Boolean);
+  if(people.some(person=>roleContractStatus(person).kind==='warning'))return 'revisar';
+  return area.lider?'activo':'vacante';
+}
+function roleReviewReason(area){
+  const person=[area.lider,...(area.co_lideres||[]).slice(0,2)].find(item=>item&&roleContractStatus(item).kind==='warning');
+  return person?`${person.nombre}: ${roleContractStatus(person).label}`:'';
+}
+
 function renderAdminRoles(){
-  const data=APP.adminRoles;if(!data)return;const summary=data.resumen||{},coLeadersEnabled=Number(data.co_lideres_max)===2;
+  const data=APP.adminRoles;if(!data)return;const summary=data.resumen||{};
   const kpis=[['Áreas activas',summary.areas||0],['Con líder',summary.con_lider||0],['Sin líder',summary.sin_lider||0],['Co-líderes',summary.colideres||0],['Por revisar',summary.roles_por_revisar??summary.lideres_por_revisar??0]];
   $('admin-roles-kpis').innerHTML=kpis.map((item,i)=>`<article class="admin-list-kpi kpi-${i}"><small>${item[0]}</small><b>${item[1]}</b></article>`).join('');
-  const areas=data.areas||[];
-  $('admin-role-map').innerHTML=areas.length?areas.map(area=>{
-    const leader=area.lider,status=roleContractStatus(leader),coLeaders=(area.co_lideres||[]).slice(0,2),people=area.personas||[],assignable=people.filter(person=>person.asignable);
-    const areaKey=String(area.id),coOpen=ROLE_COLEADER_OPEN.has(areaKey);
-    const waiting=people.filter(person=>person.activo&&!person.tiene_cuenta).length;
-    const selected=leader&&assignable.some(person=>String(person.id)===String(leader.id))?String(leader.id):'';
-    const options=assignable.map(person=>`<option value="${person.id}" ${String(person.id)===selected?'selected':''}>${esc(person.nombre)}</option>`).join('');
-    const coLeaderSlots=[0,1].map(slot=>{
-      const coLeader=coLeaders[slot]||null;
-      const coStatus=roleContractStatus(coLeader,{vacantLabel:'Cupo disponible',vacantDetail:'Puedes asignar a una persona con su cuenta activada.'});
-      const coAssignable=assignable.filter(person=>String(person.id)!==String(leader?.id)&&(
-        person.nivel!=='colider'||String(person.id)===String(coLeader?.id)
-      ));
-      const coOptions=coAssignable.map(person=>`<option value="${person.id}" ${String(person.id)===String(coLeader?.id)?'selected':''}>${esc(person.nombre)}</option>`).join('');
-      return `<section class="admin-role-colider-slot ${coStatus.kind}" data-colider-slot="${slot}">
-        <div class="admin-role-seat is-colider ${coLeader?'':'is-vacant'}">
-          <span class="admin-role-seat-mark">${coLeader?initials(coLeader.nombre):'—'}</span>
-          <span class="admin-role-seat-copy">
-            <small class="role-seat-pill ${coLeader?'assigned':'vacant'}">CO-LÍDER TÉCNICO ${slot+1}</small>
-            <b>${coLeader?esc(coLeader.nombre):'Sin co-líder asignado'}</b>
-            <em class="${coStatus.kind}"><i class="role-status-dot"></i>${esc(coStatus.label)} · ${esc(coStatus.detail)}</em>
-          </span>
-          ${coLeader?`<button type="button" data-colider-remove="${area.id}" data-colider-index="${slot}" class="admin-role-remove-btn">Quitar acceso</button>`:''}
-        </div>
-        <div class="admin-role-assignment is-colider">
-          <label>
-            <span>${coLeader?'Reemplazar co-líder':'Asignar co-líder'}</span>
-            <select data-colider-select="${area.id}" data-colider-index="${slot}" ${coLeadersEnabled&&coAssignable.length?'':'disabled'}><option value="">Selecciona una persona</option>${coOptions}</select>
-          </label>
-          <button class="admin-primary-action" type="button" data-colider-save="${area.id}" data-colider-index="${slot}" ${coLeadersEnabled&&coAssignable.length?'':'disabled'}>${coLeader?'Guardar reemplazo':'Asignar co-líder'}</button>
-        </div>
-      </section>`;
-    }).join('');
-    return `<article class="admin-role-area ${status.kind}" data-role-area="${area.id}" data-area-tone="${Math.abs(Number(area.id)||0)%6}">
-      <header class="admin-role-area-head">
-        <div class="admin-role-area-heading">
-          <span class="admin-role-area-icon">${roleAreaIcon(area.nombre)}</span>
-          <span><small>ÁREA</small><h3>${esc(area.nombre)}</h3></span>
-        </div>
-        <span class="admin-role-area-count">${area.personas_activas||0} persona${Number(area.personas_activas)===1?'':'s'}</span>
-      </header>
-      <div class="admin-role-seat ${leader?'':'is-vacant'}">
-        <span class="admin-role-seat-mark">${leader?initials(leader.nombre):'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}</span>
-        <span class="admin-role-seat-copy">
-          <small class="role-seat-pill ${leader?'assigned':'vacant'}">${leader?'LÍDER TÉCNICO ACTUAL':'LIDERAZGO VACANTE'}</small>
-          <b>${leader?esc(leader.nombre):'Sin líder asignado'}</b>
-          <em class="${status.kind}"><i class="role-status-dot"></i>${esc(status.label)} · ${esc(status.detail)}</em>
-        </span>
-        ${leader?`<button type="button" data-role-remove="${area.id}" class="admin-role-remove-btn">Quitar acceso</button>`:''}
-      </div>
-      <div class="admin-role-assignment">
-        <label>
-          <span>Asignar o reemplazar</span>
-          <select data-role-select="${area.id}" ${assignable.length?'':'disabled'}><option value="">Selecciona una persona</option>${options}</select>
-        </label>
-        <button class="admin-primary-action" type="button" data-role-save="${area.id}" ${assignable.length?'':'disabled'}>${leader?'Guardar reemplazo':'Asignar liderazgo'}</button>
-      </div>
-      <div class="admin-role-colider-group ${coOpen?'is-open':''}">
-        <button class="admin-role-colider-toggle" type="button" data-colider-toggle="${area.id}" aria-expanded="${coOpen}" aria-controls="admin-role-colider-panel-${area.id}">
-          <span class="admin-role-colider-summary">
-            <b>Co-líderes técnicos</b>
-            <small>${coLeaders.length?coLeaders.map(person=>esc(person.nombre)).join(' · '):'Dos cupos disponibles'}</small>
-          </span>
-          <span class="admin-role-colider-toggle-meta">
-            <strong>${coLeaders.length} / 2</strong>
-            <em data-colider-toggle-label>${coOpen?'Cerrar':coLeaders.length?'Gestionar':'Asignar'}</em>
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg>
-          </span>
-        </button>
-        <div class="admin-role-colider-panel" id="admin-role-colider-panel-${area.id}" ${coOpen?'':'hidden'}>
-          ${coLeaderSlots}
-        </div>
-      </div>
-      <footer class="admin-role-area-foot">
-        <span class="role-foot-accounts"><i class="role-dot-pulse"></i>${area.cuentas_activadas||0} cuentas activadas</span>
-        <span class="${waiting?'waiting':'ready'}">${waiting?`${waiting} pendiente${waiting===1?'':'s'} de primer ingreso`:'Todo el equipo activo ya ingresó'}</span>
-      </footer>
+  const areas=(data.areas||[]).map(area=>({area,kind:roleAreaKind(area)}));
+  const counts={todas:areas.length};areas.forEach(({kind})=>{counts[kind]=(counts[kind]||0)+1});
+  $('admin-role-filters').innerHTML=ROLE_FILTERS.map(([key,label])=>`<button type="button" data-role-filter="${key}" aria-pressed="${ROLE_FILTER===key}">${label}<b>${counts[key]||0}</b></button>`).join('');
+  // Por revisar, activas, sin líder y al final las áreas sin personas, que no pueden recibir líder.
+  // sort es estable: dentro de cada grupo se conserva el orden de las áreas.
+  const rank=({area,kind})=>ROLE_KIND_ORDER[kind]*2+(Number(area.personas_activas)?0:1);
+  const visible=areas.filter(item=>ROLE_FILTER==='todas'||item.kind===ROLE_FILTER).sort((a,b)=>rank(a)-rank(b));
+  const states={activo:['Activo','ready'],vacante:['Sin líder','vacant'],revisar:['Por revisar','warning']};
+  const rows=visible.map(({area,kind})=>{
+    const leader=area.lider,coLeaders=(area.co_lideres||[]).slice(0,2),people=area.personas||[];
+    const count=Number(area.personas_activas)||0,waiting=people.filter(person=>person.activo&&!person.tiene_cuenta).length,assignable=people.some(person=>person.asignable);
+    const [stateLabel,stateClass]=states[kind],reason=roleReviewReason(area),action=leader?'Gestionar':'Asignar';
+    // Una persona por línea, con su contrato debajo, para que el nombre se lea completo.
+    const personLine=(person,co)=>{
+      const status=roleContractStatus(person),detail=status.kind==='ready'?(person.contrato_fin_referencia?`Hasta ${roleDate(person.contrato_fin_referencia)}`:'Sin fecha de término'):status.label;
+      return `<span class="admin-role-person"><span class="admin-role-mark${co?' is-co':''}" aria-hidden="true">${esc(initials(person.nombre))}</span><span><b title="${esc(person.nombre)}">${esc(person.nombre)}</b><small class="${status.kind}">${esc(detail)}</small></span></span>`;
+    };
+    const vacantLine=(title,detail)=>`<span class="admin-role-person"><span class="admin-role-mark is-vacant" aria-hidden="true">—</span><span><b class="is-vacant">${title}</b>${detail?`<small>${detail}</small>`:''}</span></span>`;
+    return `<article class="admin-role-row" data-role-area="${area.id}" data-role-kind="${kind}" aria-label="Liderazgo de ${esc(area.nombre)}">
+      <span class="admin-role-cell-area"><span class="admin-role-area-icon">${roleAreaIcon(area.nombre)}</span><b>${esc(area.nombre)}</b></span>
+      <span class="admin-role-cell-team"><b>${count}</b><small class="${waiting?'waiting':''}">${waiting?`${waiting} sin primer ingreso`:count?'Todos ingresaron':'Sin personas'}</small></span>
+      <span class="admin-role-cell-leader">${leader?personLine(leader,false):vacantLine('Sin asignar','')}</span>
+      <span class="admin-role-cell-co">${coLeaders.length?coLeaders.map(person=>personLine(person,true)).join(''):vacantLine('Sin co-líderes','2 cupos libres')}</span>
+      <span class="admin-role-cell-state"><span class="admin-role-state ${stateClass}"${reason?` title="${esc(reason)}"`:''}>${stateLabel}</span></span>
+      <span class="admin-role-cell-action"><button type="button" class="admin-role-manage${!leader&&assignable?' is-primary':''}" data-role-manage="${area.id}" aria-label="${action} liderazgo de ${esc(area.nombre)}">${action}</button></span>
     </article>`;
-  }).join(''):'<p class="admin-empty">No hay áreas activas para administrar.</p>';
-  initRoleSelectPickers();
+  }).join('');
+  const empty={vacante:'No hay áreas sin líder.',revisar:'No hay roles por revisar.',activo:'Todavía no hay áreas con líder.'};
+  const head='<div class="admin-role-row is-head" aria-hidden="true"><span>Área</span><span>Equipo</span><span>Líder técnico</span><span>Co-líderes</span><span>Estado</span><span></span></div>';
+  $('admin-role-map').innerHTML=!areas.length?'<p class="admin-empty">No hay áreas activas para administrar.</p>':visible.length?head+rows:`<p class="admin-empty">${empty[ROLE_FILTER]}</p>`;
+  renderRoleDialog();
   renderRoleAudit();
 }
 
-function initRoleSelectPickers(){
-  const map=$('admin-role-map');if(!map)return;
-  map.querySelectorAll('select[data-role-select], select[data-colider-select]').forEach(initRoleCustomSelect);
+function roleSeatMarkup(area,person,{key,slot=null,title,vacantTitle,vacantLabel,vacantDetail,options}){
+  const status=roleContractStatus(person,vacantLabel?{vacantLabel,vacantDetail}:undefined),id=area.id,co=slot!==null;
+  const target=co?`data-colider-select="${id}" data-colider-index="${slot}"`:`data-role-select="${id}"`;
+  const save=co?`data-colider-save="${id}" data-colider-index="${slot}"`:`data-role-save="${id}"`;
+  const remove=co?`data-colider-remove="${id}" data-colider-index="${slot}"`:`data-role-remove="${id}"`;
+  return `<div class="admin-role-seat-row ${status.kind}">
+      <span class="admin-role-mark ${person?'':'is-vacant'}" aria-hidden="true">${person?esc(initials(person.nombre)):'—'}</span>
+      <span class="admin-role-seat-text"><small>${title}</small><b>${person?esc(person.nombre):vacantTitle}</b><em class="${status.kind}">${esc(status.label)} · ${esc(status.detail)}</em></span>
+      <span class="admin-role-seat-actions"><button type="button" data-role-edit="${key}" aria-expanded="false" aria-controls="admin-role-editor-${key}">${person?'Cambiar':'Asignar'}</button>${person?`<button type="button" class="is-danger" ${remove}>Quitar</button>`:''}</span>
+    </div>
+    <div class="admin-role-seat-editor" id="admin-role-editor-${key}" hidden>
+      ${options?`<label><span>${person?`Reemplazar a ${esc(person.nombre)} por`:'Elige a la persona'}</span><select ${target}><option value="">Selecciona una persona</option>${options}</select></label>
+      <div class="admin-role-seat-editor-actions"><button type="button" data-role-edit-cancel>Cancelar</button><button type="button" class="admin-role-save" ${save}>${person?'Guardar cambio':co?'Asignar co-líder':'Asignar líder'}</button></div>`:'<p>No hay otras personas del área con su cuenta activada.</p>'}
+    </div>`;
+}
+
+function renderRoleDialog(){
+  const dialog=$('admin-role-dialog');if(!dialog||dialog.hidden)return;
+  const area=(APP.adminRoles?.areas||[]).find(item=>String(item.id)===ROLE_DIALOG.area);
+  if(!area)return closeRoleDialog();
+  ROLE_DIALOG.editing='';
+  const leader=area.lider,coLeaders=(area.co_lideres||[]).slice(0,2),people=area.personas||[],assignable=people.filter(person=>person.asignable);
+  const coLeadersEnabled=Number(APP.adminRoles.co_lideres_max)===2,count=Number(area.personas_activas)||0,waiting=people.filter(person=>person.activo&&!person.tiene_cuenta).length;
+  const option=person=>`<option value="${person.id}">${esc(person.nombre)}</option>`;
+  // Quien ya ocupa el puesto no aparece como opción: elegirlo no cambiaría nada.
+  const leaderOptions=assignable.filter(person=>String(person.id)!==String(leader?.id)).map(option).join('');
+  const coOptions=assignable.filter(person=>String(person.id)!==String(leader?.id)&&person.nivel!=='colider').map(option).join('');
+  const coLeaderSlots=[0,1].map(slot=>roleSeatMarkup(area,coLeaders[slot]||null,{key:`co-${slot}`,slot,title:`Co-líder ${slot+1}`,vacantTitle:'Cupo libre',vacantLabel:'Cupo disponible',vacantDetail:'Puedes asignar a una persona con su cuenta activada.',options:coLeadersEnabled?coOptions:''})).join('');
+  $('admin-role-dialog-icon').innerHTML=roleAreaIcon(area.nombre);
+  $('admin-role-dialog-title').textContent=area.nombre;
+  $('admin-role-dialog-meta').textContent=`${count} persona${count===1?'':'s'} · ${area.cuentas_activadas||0} cuentas activadas${waiting?` · ${waiting} sin primer ingreso`:''}`;
+  const body=$('admin-role-dialog-body');
+  body.innerHTML=`<section class="admin-role-dialog-group">${roleSeatMarkup(area,leader,{key:'lider',title:'Líder técnico',vacantTitle:'Sin líder asignado',options:leaderOptions})}</section>
+    <section class="admin-role-dialog-group"><header><b>Co-líderes técnicos</b><small>${coLeaders.length} de 2 · mismo alcance de consulta que el líder</small></header>${coLeaderSlots}</section>`;
+  body.querySelectorAll('select[data-role-select],select[data-colider-select]').forEach(initRoleCustomSelect);
+}
+
+function openRoleDialog(areaId){
+  ROLE_DIALOG={area:String(areaId),editing:''};
+  $('admin-role-dialog').hidden=false;document.body.classList.add('admin-role-dialog-open');
+  rolesMessage('');renderRoleDialog();
+  setTimeout(()=>$('admin-role-dialog-close')?.focus(),0);
+}
+
+function closeRoleDialog(){
+  const dialog=$('admin-role-dialog');if(!dialog||dialog.hidden)return;
+  const areaId=ROLE_DIALOG.area;ROLE_DIALOG={area:null,editing:''};
+  dialog.hidden=true;document.body.classList.remove('admin-role-dialog-open');
+  document.querySelectorAll('.role-picker-popup').forEach(popup=>popup.remove());
+  rolesMessage('');
+  document.querySelector(`[data-role-manage="${CSS.escape(String(areaId))}"]`)?.focus();
+}
+
+// Un solo editor abierto a la vez dentro del modal.
+function toggleRoleEditor(key){
+  const next=ROLE_DIALOG.editing===key?'':key;ROLE_DIALOG.editing=next;
+  $('admin-role-dialog-body').querySelectorAll('[data-role-edit]').forEach(button=>{
+    const open=button.dataset.roleEdit===next;
+    button.setAttribute('aria-expanded',String(open));
+    const editor=$(`admin-role-editor-${button.dataset.roleEdit}`);if(editor)editor.hidden=!open;
+  });
+  if(next)$(`admin-role-editor-${next}`)?.querySelector('.role-picker-trigger')?.focus();
 }
 
 function initRoleCustomSelect(select){
@@ -281,18 +310,6 @@ function setRoleControlsBusy(busy){
   document.querySelectorAll('[data-role-save],[data-role-remove],[data-colider-save],[data-colider-remove]').forEach(button=>button.disabled=busy);
 }
 
-function toggleAreaCoLeaders(areaId){
-  const areaKey=String(areaId),toggle=document.querySelector(`[data-colider-toggle="${CSS.escape(areaKey)}"]`),panel=$(`admin-role-colider-panel-${areaKey}`);
-  if(!toggle||!panel)return;
-  const open=toggle.getAttribute('aria-expanded')!=='true';
-  if(open)ROLE_COLEADER_OPEN.add(areaKey);else ROLE_COLEADER_OPEN.delete(areaKey);
-  toggle.setAttribute('aria-expanded',String(open));
-  panel.hidden=!open;
-  toggle.closest('.admin-role-colider-group')?.classList.toggle('is-open',open);
-  const label=toggle.querySelector('[data-colider-toggle-label]');
-  if(label)label.textContent=open?'Cerrar':Number(toggle.querySelector('strong')?.textContent?.split('/')[0])?'Gestionar':'Asignar';
-}
-
 function closeRoleConfirm(confirmed=false){
   const modal=$('admin-role-confirm-modal');if(modal.hidden)return false;
   const resolve=ROLE_CONFIRM.resolve,trigger=ROLE_CONFIRM.trigger;
@@ -374,14 +391,35 @@ async function removeAreaCoLeader(areaId,slot){
   await loadAdminRoles();toast('Co-liderazgo retirado; la cuenta personal se conserva.');
 }
 
+// Toda la fila abre el modal; el botón Gestionar es la entrada por teclado.
 $('admin-role-map').onclick=event=>{
-  const toggle=event.target.closest('[data-colider-toggle]'),save=event.target.closest('[data-role-save]'),remove=event.target.closest('[data-role-remove]'),coSave=event.target.closest('[data-colider-save]'),coRemove=event.target.closest('[data-colider-remove]');
-  if(toggle)return toggleAreaCoLeaders(toggle.dataset.coliderToggle);
+  const row=event.target.closest('[data-role-area]');
+  if(row)openRoleDialog(row.dataset.roleArea);
+};
+$('admin-role-filters').onclick=event=>{
+  const button=event.target.closest('[data-role-filter]');if(!button)return;
+  ROLE_FILTER=button.dataset.roleFilter;renderAdminRoles();
+};
+$('admin-role-dialog').onclick=event=>{
+  const close=event.target.closest('[data-close-role-dialog]'),edit=event.target.closest('[data-role-edit]'),cancel=event.target.closest('[data-role-edit-cancel]');
+  const save=event.target.closest('[data-role-save]'),remove=event.target.closest('[data-role-remove]'),coSave=event.target.closest('[data-colider-save]'),coRemove=event.target.closest('[data-colider-remove]');
+  if(close)return closeRoleDialog();
+  if(edit)return toggleRoleEditor(edit.dataset.roleEdit);
+  if(cancel)return toggleRoleEditor('');
   if(save)return saveAreaLeader(save.dataset.roleSave);
   if(remove)return removeAreaLeader(remove.dataset.roleRemove);
   if(coSave)return saveAreaCoLeader(coSave.dataset.coliderSave,coSave.dataset.coliderIndex);
   if(coRemove)return removeAreaCoLeader(coRemove.dataset.coliderRemove,coRemove.dataset.coliderIndex);
 };
+// El modal de confirmación y el buscador consumen su propio Escape con preventDefault.
+$('admin-role-dialog').addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();closeRoleDialog();return}
+  if(event.key!=='Tab')return;
+  const focusable=[...$('admin-role-dialog').querySelectorAll('button:not(:disabled),select:not([hidden])')].filter(element=>element.offsetParent!==null);if(!focusable.length)return;
+  const first=focusable[0],last=focusable.at(-1);
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+});
 
 document.querySelectorAll('[data-close-role-confirm]').forEach(button=>button.onclick=()=>closeRoleConfirm(false));
 $('admin-role-confirm-submit').onclick=()=>closeRoleConfirm(true);
