@@ -82,6 +82,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-resumen.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-seguimiento.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=10">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-month-tramos.css?v=8">
 </head>
 <body>
 
@@ -2187,7 +2188,7 @@
           <header class="admin-month-workbench-head">
             <span class="admin-month-heading"><h2>Mes completo</h2><p>Revisa asistencia, cierres, feriados y excepciones del equipo en un solo libro.</p></span>
             <div class="admin-list-kpis admin-month-kpis" id="admin-month-kpis" aria-live="polite"></div>
-            <button class="admin-primary-action admin-month-export" id="admin-month-export" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Exportar CSV</span></button>
+            <button class="admin-primary-action admin-month-export" id="admin-month-export" type="button" title="Exporta todo el mes de los colaboradores filtrados, sin limitarse al tramo o página visible."><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Exportar mes filtrado (CSV)</span></button>
           </header>
           <div class="admin-month-workbench-controls">
             <div class="admin-month-period-actions" aria-label="Período y calendario">
@@ -2197,8 +2198,8 @@
                 <button type="button" id="admin-month-next" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
             </div>
               <button class="admin-month-today" type="button" id="admin-month-today">Ir al mes actual</button>
-              <button class="admin-secondary-action admin-month-holidays" id="admin-month-holidays" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 10h16M8 14h2M14 14h2"/></svg><span>Gestionar feriados</span></button>
-              <button class="admin-secondary-action" id="admin-month-days-off" type="button">Días libres</button>
+<details class="month-calendar-menu"><summary>Calendario</summary><div>              <button class="admin-secondary-action admin-month-holidays" id="admin-month-holidays" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM8 3v6M16 3v6M4 10h16M8 14h2M14 14h2"/></svg><span>Gestionar feriados</span></button>
+              <button class="admin-secondary-action" id="admin-month-days-off" type="button">Días libres</button></div></details>
             </div>
             <div class="admin-month-filters">
               <label><span>Buscar</span><input type="search" id="admin-month-search" placeholder="Nombre del colaborador" autocomplete="off"></label>
@@ -2243,7 +2244,7 @@
         <div class="admin-list-message" id="admin-month-message" role="status" aria-live="polite"></div>
         <section id="admin-person-calendar" aria-label="Calendario del colaborador seleccionado" hidden></section>
         <div class="admin-month-ledger" id="admin-month-ledger"><p class="admin-empty">Ejecuta la migración de la fase 4 para cargar el mes.</p></div>
-        <div class="admin-month-legend"><span><i class="p">P</i>Presente</span><span><i class="t">T</i>Tardanza</span><span><i class="j">J</i>Justificado</span><span><i class="ng">NG</i>No gestiona</span><span><i class="p">DL</i>Día libre</span><span><i class="off"></i>No laborable</span><span><i class="holiday"></i>Feriado</span><small>Selecciona una celda para consultar o gestionar el día.</small></div>
+        <div class="admin-month-legend"><span><i class="p">P</i>Presente</span><span><i class="t">T</i>Tardanza</span><span><i class="j">J</i>Justificado</span><span><i class="ng">NG</i>No gestiona</span><span><i class="incomplete">INC</i>Incompleta</span><span><i>·</i>Sin registro</span><span><i>…</i>En curso</span><span><i class="p">DL</i>Día libre</span><span><i class="off"></i>No laborable</span><span><i class="holiday"></i>Feriado</span><span><i class="month-legend-note" aria-hidden="true"><em></em></i>Con nota</span><span><i class="month-legend-evidence" aria-hidden="true"><em></em></i>Con evidencia</span><small>Selecciona una celda para consultar o gestionar el día.</small></div>
         <a class="admin-legacy-link" href="asistencia.html?modo=grilla">Abrir Mes completo en el panel anterior ↗</a>
       </section>
 
@@ -3902,9 +3903,9 @@
 <script src="assets/js/dashboard-person-profile.js?v=6"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=10"></script>
 <script src="assets/js/dashboard-attendance-preview.js?v=3"></script>
-<script src="assets/js/dashboard-month-day-detail.js?v=11"></script>
+<script src="assets/js/dashboard-month-day-detail.js?v=13"></script>
 <script src="assets/js/dashboard-days-off-planner.js?v=1"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=24"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=28"></script>
 <script src="assets/js/dashboard-admin-acceso.js?v=7"></script>
 <script src="assets/js/dashboard-admin-roles.js?v=13"></script>
 <script src="assets/js/dashboard-admin-cierre.js?v=58"></script>

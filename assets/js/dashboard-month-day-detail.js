@@ -38,8 +38,37 @@
       return result;
     }
   }
-  function mount(host,{person,day,future=false,canManageFacebook=false,canManageEvidence=false,facebookOnly=false,initialFile=null,rpc=(name,args)=>db.rpc(name,args),storage=db.storage,request=facebookRequest,prepare=file=>compressImage(file),onChanged=()=>{},managementHtml=''}){
-    const session={groups:[],version:0,fileVersion:0,disposed:false,managementHtml};
+  let viewSequence=0;
+  function mount(host,{person,day,compact=false,future=false,canManageFacebook=false,canManageEvidence=false,facebookOnly=false,initialFile=null,rpc=(name,args)=>db.rpc(name,args),storage=db.storage,request=facebookRequest,prepare=file=>compressImage(file),onChanged=()=>{},managementHtml=''}){
+    const session={groups:[],version:0,fileVersion:0,disposed:false,managementHtml,activeKey:null};
+    const viewId='md-view-'+(++viewSequence);
+    if(compact)host.classList.add('md-compact');
+    function selectActivity(index){
+      const group=session.groups[index];if(!group)return;
+      session.activeKey=group.key;
+      host.querySelectorAll('[data-md-tab]').forEach(tab=>{
+        const selected=Number(tab.dataset.mdTab)===index;
+        tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;
+      });
+      host.querySelectorAll('[data-md-group]').forEach(panel=>{panel.hidden=Number(panel.dataset.mdGroup)!==index;panel.open=true;});
+      const heading=host.querySelector('.md-deliveries>header h3');if(heading)heading.textContent=group.titulo;
+    }
+    function showEmptyActivity(group){session.fileVersion++;const preview=host.querySelector('[data-md-preview]');preview.removeAttribute('aria-busy');preview.innerHTML='<div class="md-empty-activity">'+activityIcon(group.key)+'<h3>'+escape(group.titulo)+'</h3><p>'+escape(group.waived?'Esta actividad no es exigible para la jornada.':group.completo?'Registro sin archivos adjuntos.':'Todavía no hay evidencia registrada para esta actividad.')+'</p></div>';}
+    function mountActivityTabs(groups){
+      const workspace=host.querySelector('.md-workspace');
+      const nav=host.ownerDocument.createElement('nav');nav.className='md-activity-tabs';nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Actividades de la jornada');
+      nav.innerHTML=groups.map((g,i)=>'<button type="button" role="tab" id="'+viewId+'-tab-'+i+'" data-md-tab="'+i+'" aria-controls="'+viewId+'-panel-'+i+'" aria-selected="false" tabindex="-1"><span>'+escape(g.titulo)+'</span><small class="'+(g.completo?'done':g.waived?'waived':'pending')+'">'+escape(g.completo?'Registrado':g.waived?'No exigible':'Sin entrega')+' · '+g.files.length+'</small></button>').join('');
+      workspace.before(nav);
+      host.querySelectorAll('[data-md-group]').forEach((panel,i)=>{panel.id=viewId+'-panel-'+i;panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',viewId+'-tab-'+i);});
+      const management=host.querySelector('.md-management');
+      if(management){const drawer=host.ownerDocument.createElement('details');drawer.className='md-journal-management';drawer.innerHTML='<summary>Gestionar jornada <span>Estado, calendario y acciones administrativas</span></summary>';workspace.after(drawer);drawer.append(management);}
+      nav.onkeydown=event=>{
+        if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)||session.busy)return;
+        event.preventDefault();const tabs=[...nav.querySelectorAll('[data-md-tab]')],current=tabs.indexOf(event.target.closest('[data-md-tab]'));
+        const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(current+(event.key==='ArrowLeft'?-1:1)+tabs.length)%tabs.length;
+        tabs[next].click();tabs[next].focus();
+      };
+    }
     host._monthDayDetail=session;
     const live=()=>!session.disposed&&host.isConnected&&host._monthDayDetail===session;
     const manageable=group=>group&&(group.key==='comparticiones'?canManageFacebook:canManageEvidence&&['rpe','salida'].includes(group.key));
@@ -78,7 +107,7 @@
             (g.files.length?'<div class="md-files">'+g.files.map((file,f)=>{
               const canRemove=manageable(g);
               const fileBtn=button('class="md-file '+(canRemove?'has-remove':'')+'" data-md-file="'+i+':'+f+'" aria-pressed="false"',icon+'<span>Archivo '+(f+1)+'<small>'+escape(file.mime?.startsWith('image/')?'Imagen':file.mime?.startsWith('video/')?'Video':file.mime==='application/pdf'?'PDF':'Documento')+'</small></span>');
-              if(!canRemove)return fileBtn;
+              if(!canRemove)return compact?'<div class="md-file-chip">'+fileBtn+'</div>':fileBtn;
               return '<div class="md-file-chip">'+fileBtn+button('class="md-file-remove-btn md-remove-facebook" data-md-remove="'+i+':'+f+'" title="Quitar archivo '+(f+1)+'" aria-label="Quitar archivo '+(f+1)+' de '+escape(g.titulo)+'"',glyph('M18 6 6 18M6 6l12 12'))+'</div>';
             }).join('')+'</div>':'<p class="md-help">'+(g.completo?'Registro sin archivos adjuntos.':g.waived?'Este requisito no se exige para esta jornada.':'No hay evidencia registrada para esta actividad.')+'</p>')+'</div></details>').join('')+'</section>'+
           '<div class="md-side-pane"><section class="md-preview" data-md-preview aria-label="Visor de evidencia"><p class="md-empty">'+(fileCount?'Selecciona un archivo para ver su evidencia.':'No hay archivos adjuntos en esta fecha.')+'</p></section>'+
@@ -101,8 +130,11 @@
               '<div data-md-confirm hidden class="md-confirm-box" role="alert"><div class="md-confirm-header"><strong>¿Quitar este archivo?</strong></div><p data-md-confirm-copy>¿Deseas quitar esta imagen? Se eliminará permanentemente. Al quitar la última se anula la entrega.</p><div class="md-confirm-actions">'+button('data-md-confirm-delete class="md-confirm-btn"','Sí, quitar imagen')+button('data-md-cancel-delete class="md-cancel-btn"','Cancelar')+'</div></div><p data-md-status role="status"></p></div>');
           }
         });
+        if(compact)mountActivityTabs(groups);
+        const retained=compact?groups.findIndex(g=>g.key===session.activeKey):-1;
         const selectedGroup=initialFile?groups.findIndex(g=>g.files.some(f=>f.bucket===initialFile.bucket&&f.path===initialFile.path)):-1;
         if(selectedGroup>=0)void showFile(selectedGroup+':'+groups[selectedGroup].files.findIndex(f=>f.bucket===initialFile.bucket&&f.path===initialFile.path));
+        else if(compact){const chosen=retained>=0?retained:first>=0?first:0;selectActivity(chosen);if(groups[chosen]?.files.length)void showFile(chosen+':0');else if(groups[chosen])showEmptyActivity(groups[chosen]);}
         else if(first>=0)void showFile(first+':0');
       }catch(error){
         if(!live()||version!==session.version)return;
@@ -112,6 +144,7 @@
     async function showFile(value){
       const [gi,fi]=value.split(':').map(Number),group=session.groups[gi],file=group?.files[fi];
       if(!file||!live())return;
+      if(compact)selectActivity(gi);
       const version=++session.fileVersion,preview=host.querySelector('[data-md-preview]');
       host.querySelectorAll('[data-md-file]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mdFile===value)));
       host.querySelectorAll('[data-md-group]').forEach(item=>item.dataset.active=String(Number(item.dataset.mdGroup)===gi));
@@ -198,6 +231,13 @@
     }
     host.onclick=event=>{
       const b=event.target.closest('button');if(!b||b.disabled||session.busy&&!b.hasAttribute('data-md-file'))return;
+      if(compact&&b.hasAttribute('data-md-tab')){
+        const index=Number(b.dataset.mdTab),group=session.groups[index];if(!group)return;
+        selectActivity(index);
+        if(group.files.length)void showFile(index+':0');
+        else showEmptyActivity(group);
+        return;
+      }
       if(b.hasAttribute('data-md-warn-entry')&&canManageEvidence){
         const gi=session.groups.findIndex(g=>g.key==='entrada'),file=session.groups[gi]?.files[0];
         if(!file)return;

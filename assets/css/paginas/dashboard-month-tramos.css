@@ -1,0 +1,290 @@
+/* Mes completo · matriz por tramos. Alcance local, paleta de Seguimiento diario. */
+#portal #admin-month-section{--month-paper:#faf9f5;--month-line:#ded6cb;--month-ink:#24241f;--month-muted:#6a665f;--month-accent:#98492e;background:#f0ece5!important;color:var(--month-ink);padding:24px!important;gap:18px!important;overflow-y:auto!important;min-width:0}
+#portal #admin-month-section:has(#admin-person-calendar[hidden]){display:flex;flex-direction:column;overflow-y:auto!important}
+#portal #admin-month-section .admin-month-workbench{flex:none;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important}
+#portal #admin-month-section .admin-month-workbench-head{display:grid!important;grid-template-columns:1fr auto!important;gap:20px!important;background:transparent!important;padding:0 0 20px!important;color:var(--month-ink)!important}
+#portal #admin-month-section .admin-month-heading h2{font:400 36px/1.2 var(--claude-display,Georgia,serif)!important;color:var(--month-ink)!important;letter-spacing:-.035em}
+#portal #admin-month-section .admin-month-heading p{display:block!important;color:var(--month-muted)!important;font-size:13px!important;margin-top:8px}
+#portal #admin-month-section .admin-month-export{grid-column:2;grid-row:1;color:var(--month-accent)!important;background:var(--month-paper)!important;border:1px solid #c7aa95!important;box-shadow:none!important;height:44px!important;font-size:13px!important}
+#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis{grid-column:1/-1!important;grid-row:2!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0!important;padding:16px 0!important;background:var(--month-paper)!important;border:1px solid var(--month-line)!important;border-radius:16px}
+#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis .admin-list-kpi{grid-column:auto!important;min-height:48px!important;padding:0 18px!important;background:transparent!important;border:0!important;border-left:1px solid var(--month-line)!important;box-shadow:none!important;align-items:flex-start!important;transform:none!important}
+#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis .admin-list-kpi:first-child{border-left:0!important}
+#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis small{color:var(--month-muted)!important;font-size:10px!important;white-space:normal!important}
+#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis b{color:var(--month-ink)!important;font-size:26px!important}
+#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis .ready b{color:#35735f!important}#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis .danger b{color:#a23d32!important}#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis .warning b{color:#886316!important}
+#portal #admin-month-section .admin-month-workbench-controls{display:flex!important;flex-wrap:wrap;gap:16px!important;padding:16px!important;background:var(--month-paper)!important;border:1px solid var(--month-line)!important;border-radius:16px}
+#portal #admin-month-section .admin-month-period-actions{display:flex!important;flex-wrap:wrap;gap:8px!important}
+#portal #admin-month-section .admin-month-filters{display:flex!important;align-items:end;flex-wrap:wrap;flex:1;gap:12px!important;min-width:0}
+#portal #admin-month-section .admin-month-filters>label:first-child{flex:1;min-width:160px}
+#portal #admin-month-section :is(input,select,.admin-month-picker,.admin-month-area-trigger,.admin-toggle,.admin-month-today,.admin-secondary-action){background:var(--month-paper)!important;color:var(--month-ink)!important;border-color:var(--month-line)!important;box-shadow:none!important}
+#portal #admin-month-section :is(input[type=search],.admin-month-area-trigger,.admin-month-inactive){min-height:42px!important;height:auto!important;font-size:13px!important}
+#portal #admin-month-section .admin-month-ledger{flex:none!important;overflow:visible!important;max-height:none!important;min-height:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+#portal #admin-month-section .month-range-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+#portal #admin-month-section .month-range-heading h3{margin:0;font:400 25px/1.3 var(--claude-display,Georgia,serif)}
+#portal #admin-month-section .month-range-heading p{margin:6px 0 0;font-size:12px;color:var(--month-muted)}
+#portal #admin-month-section .month-range-heading nav{display:flex;flex-wrap:wrap;gap:6px}
+#portal #admin-month-section :is(.month-range-heading,.month-range-footer) button{min-height:40px;min-width:40px;padding:8px 14px;border:1px solid var(--month-line);border-radius:10px;background:var(--month-paper);color:var(--month-muted);font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
+#portal #admin-month-section .month-range-heading button[aria-pressed=true]{border-color:var(--month-accent);background:#f0e2d5;color:var(--month-accent)}
+#portal #admin-month-section .admin-month-table{width:100%!important;min-width:0!important;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid var(--month-line);border-radius:14px;overflow:hidden;background:var(--month-paper)}
+#portal #admin-month-section .admin-month-table :is(.day-col,td){width:auto!important;min-width:0!important;max-width:none!important;height:52px!important;text-align:center}
+#portal #admin-month-section .admin-month-table .person-col{position:static!important;width:30%!important;min-width:0!important;max-width:none!important;background:var(--month-paper)!important;box-shadow:none!important;padding:10px 14px!important;height:auto!important}
+#portal #admin-month-section .admin-month-table thead th{background:#eee8de!important;color:var(--month-muted);padding:10px 2px!important;position:static!important}
+#portal #admin-month-section .admin-month-table .day-col span{font-size:10px!important}#portal #admin-month-section .admin-month-table .day-col b{font-size:14px!important}
+#portal #admin-month-section .admin-month-person{display:grid!important;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:10px}
+#portal #admin-month-section .admin-month-person .avatar{width:32px!important;height:32px!important}
+#portal #admin-month-section .admin-month-person-info{min-width:0}
+#portal #admin-month-section .admin-month-person-info b{font-size:12px!important;white-space:normal!important;overflow-wrap:anywhere}
+#portal #admin-month-section .admin-month-person-status{font-size:10px!important;color:var(--month-muted)!important;white-space:normal}
+#portal #admin-month-section .admin-month-person-calendar{width:auto!important;min-height:32px!important;padding:5px!important;background:transparent!important;color:var(--month-accent)!important;border:0!important;box-shadow:none!important}
+#portal #admin-month-section .admin-month-person-calendar span{display:inline!important;font-size:11px!important}#portal #admin-month-section .admin-month-person-calendar svg{display:none!important}
+#portal #admin-month-section .admin-month-area-row td{height:30px!important;text-align:left;background:#eee8de!important;padding:4px 14px!important;color:var(--month-muted)}
+#portal #admin-month-section .admin-month-cell{height:44px!important;width:100%!important;background:transparent!important;transform:none!important;border-radius:8px}
+#portal #admin-month-section .admin-month-cell b{font-size:11px!important;min-width:32px!important;height:30px!important}
+#portal #admin-month-section .admin-month-cell.p b{background:#e6ede5;color:#35735f}#portal #admin-month-section .admin-month-cell.t b{background:#f3ead6;color:#886316}#portal #admin-month-section .admin-month-cell.incomplete b{background:#f4e1dc;color:#a23d32}
+#portal #admin-month-section .month-range-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;font-size:12px;color:var(--month-muted);flex-wrap:wrap}
+#portal #admin-month-section .month-range-footer nav{display:flex;align-items:center;gap:12px}#portal #admin-month-section .month-range-footer button:disabled{opacity:.4;cursor:default}
+#portal #admin-month-section .admin-month-legend{background:var(--month-paper)!important;border-color:var(--month-line)!important;color:var(--month-muted);padding:14px!important;flex-wrap:wrap}
+#portal #admin-month-section :is(button,input,summary):focus-visible{outline:3px solid var(--month-accent);outline-offset:3px}
+/* Todos los modales del módulo, incluidos feriados y días libres. */
+#admin-month-modal .modal-backdrop{background:#302a2359!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+#admin-month-modal .admin-month-sheet{background:#faf9f5!important;border:1px solid #ded6cb!important;border-radius:20px!important;overscroll-behavior:contain;animation:none!important;color:#24241f;max-height:calc(100dvh - 40px)}
+#admin-month-modal .admin-editor-head{background:#faf9f5!important;border-color:#ded6cb!important}
+#admin-month-modal #admin-month-modal-title{font:400 28px/1.2 var(--claude-display,Georgia,serif)!important;color:#24241f!important}
+#admin-month-modal :is(.eyebrow,h3){color:#98492e!important}
+#admin-month-modal .admin-month-modal-body{background:#faf9f5!important}
+#admin-month-modal :is(.md-day-summary,.md-record-summary,.md-activity,.md-preview,.md-management){background:#f3eee6!important;border-color:#ded6cb!important;box-shadow:none!important}
+#admin-month-modal .md-workspace{display:grid;grid-template-columns:minmax(200px,.8fr) minmax(0,1.2fr);gap:20px;align-items:start}
+#admin-month-modal :is(.md-deliveries,.md-side-pane){max-height:none!important;overflow:visible!important;min-width:0}
+#admin-month-modal .md-management{padding:18px!important;border-radius:12px}
+#admin-month-modal .month-modal-actions{display:flex;flex-direction:column;align-items:stretch;gap:14px}
+#admin-month-modal .month-action-group{width:100%;border:1px solid #ded6cb;border-radius:10px;background:#faf9f5}
+#admin-month-modal .month-action-group summary{padding:14px;cursor:pointer;font-size:13px;font-weight:600;color:#98492e}
+#admin-month-modal .month-action-group>div{padding:12px;display:flex;flex-wrap:wrap;gap:8px}
+#admin-month-modal .month-state-picker{grid-template-columns:repeat(2,minmax(0,1fr));margin:0;background:#faf9f5;border:0}
+#admin-month-modal .month-state-picker p{font-size:12px}#admin-month-modal .month-state-picker button{font-size:14px;height:52px}#admin-month-modal .month-state-picker button small{font-size:11px}
+#admin-month-modal .month-sensitive-actions{width:100%;border-top:1px solid #ded6cb;padding-top:12px}#admin-month-modal .month-sensitive-actions p{font-size:11px;text-transform:uppercase;color:#6a665f}
+#admin-month-modal .admin-danger-action{font-size:13px;min-height:40px}
+#admin-month-modal :is(button,a,summary):focus-visible{outline:3px solid #98492e!important;outline-offset:3px}
+@media(min-width:1200px){#admin-month-modal.month-detail-modal .admin-month-sheet{width:min(1280px,calc(100vw - 48px))}#admin-month-modal .md-workspace{grid-template-columns:minmax(200px,.8fr) minmax(0,1.2fr) minmax(240px,.85fr)}#admin-month-modal .md-side-pane{display:contents}#admin-month-modal .md-preview{grid-column:2;grid-row:1}#admin-month-modal .md-management{grid-column:3;grid-row:1}}
+@media(max-width:900px){#portal #admin-month-section{padding:16px 12px 80px!important}#portal #admin-month-section .admin-month-table .person-col{width:36%!important}#portal #admin-month-section .admin-month-person{grid-template-columns:minmax(0,1fr)}#portal #admin-month-section .admin-month-person .avatar{display:none}#portal #admin-month-section .admin-month-workbench-head{grid-template-columns:1fr!important}#portal #admin-month-section .admin-month-export{grid-column:1;grid-row:3;justify-self:start}#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important;row-gap:18px!important}#portal #admin-month-section .admin-month-filters input{font-size:16px!important}#portal #admin-month-section .admin-month-person-calendar{justify-self:start}#admin-month-modal .md-workspace{grid-template-columns:1fr}}
+@media(hover:hover){#portal #admin-month-section .month-range-heading button:hover{background:#f0e2d5}#portal #admin-month-section .admin-month-cell:hover{outline:1px solid #98492e}}
+
+#portal.admin-wide #view-gestion>#admin-month-section{grid-column:1/-1!important;min-width:0;width:auto}
+
+#portal #admin-month-section .admin-month-person-calendar{position:static!important;inset:auto!important;transform:none!important;grid-column:3;max-width:none!important}
+#portal #admin-month-section .month-calendar-menu{position:relative;align-self:center;font-size:13px;color:#98492e}
+#portal #admin-month-section .month-calendar-menu summary{padding:12px 16px;border:1px solid #ded6cb;border-radius:10px;background:#faf9f5;cursor:pointer}
+#portal #admin-month-section .month-calendar-menu>div{position:absolute;z-index:20;top:48px;left:0;width:220px;display:grid;gap:8px;padding:12px;background:#faf9f5;border:1px solid #ded6cb;border-radius:14px;box-shadow:0 12px 32px #34241420}
+#admin-month-modal .admin-editor-head:before{background:#e9dfd1!important;color:#98492e!important;box-shadow:none!important}
+#admin-month-modal :is(#admin-month-modal-copy,.md-help,.md-private,.md-person-context,.month-day-facts small,.md-upload-help){color:#6a665f!important}
+#admin-month-modal :is(.md-mode-picker,.md-activity-icon,.md-upload-label,.md-file,.md-timeline>div){background:#faf9f5!important;border-color:#ded6cb!important;color:#6a665f!important}
+#admin-month-modal .md-mode-picker [aria-pressed=true]{background:#f0e2d5!important;color:#98492e!important}
+#admin-month-modal :is(.md-activity-label b,.md-timeline dd,.month-day-facts b){color:#24241f!important}
+#admin-month-modal .md-timeline dt{color:#6a665f!important}
+#admin-month-modal .md-person-context span{color:#6a665f!important;background:#eee8de!important;border-color:#ded6cb!important}
+#admin-month-modal :is(.md-media,.md-preview){min-height:180px;background:#eee8de!important}
+#admin-month-modal .month-action-group button{font-size:13px!important;min-height:40px}
+
+@media(max-width:900px){#portal.admin-wide[data-admin-section="mes"] .workspace{margin-left:0!important;width:100%!important;padding:12px!important}#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis{width:100%!important}#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis .admin-list-kpi b{font-size:22px!important;color:#24241f!important}#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis .admin-list-kpi small{font-size:9px!important;color:#6a665f!important}}
+@media(max-width:650px){#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis .admin-list-kpi small{max-width:none!important;overflow:visible!important;text-overflow:clip!important;white-space:normal!important}#portal #admin-month-section .admin-month-workbench-head .admin-month-kpis .admin-list-kpi:nth-child(odd){border-left:0!important}}
+/* Detalle de Mes completo: una actividad por vez y gestión progresiva. */
+#admin-month-modal:has(.md-compact) .admin-month-sheet{width:min(1180px,calc(100vw - 40px));max-height:calc(100dvh - 40px)}
+#admin-month-modal:has(.md-compact) .admin-editor-head{padding:16px 24px}
+#admin-month-modal:has(.md-compact) .admin-month-modal-body{padding:16px 24px 24px;gap:14px}
+#admin-month-modal:has(.md-compact) .md-day-summary{padding:10px 14px;background:transparent!important;gap:12px}
+#admin-month-modal:has(.md-compact) .month-day-facts{gap:16px}
+#admin-month-modal:has(.md-compact) .month-day-facts small{font-size:10px}
+#admin-month-modal:has(.md-compact) .md-record-summary{background:transparent!important;border:0!important;padding:0;gap:10px}
+#admin-month-modal:has(#month-incomplete-reasons) .md-compact .md-compliance{display:none}
+#admin-month-modal .md-compact .md-timeline{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#admin-month-modal .md-compact .md-timeline>div{padding:12px 16px;border-radius:12px}
+#admin-month-modal .md-compact .md-timeline dd{font-size:17px}
+#admin-month-modal .md-compact .md-activity-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+#admin-month-modal .md-compact .md-activity-tabs button{flex:1 1 140px;min-width:0;min-height:62px;text-align:left;padding:11px 14px;border:1px solid #ded6cb;border-radius:12px;background:#faf9f5;color:#6a665f;font:500 13px/1.4 Inter,system-ui,sans-serif;cursor:pointer}
+#admin-month-modal .md-compact .md-activity-tabs button span{display:block;font-weight:600}
+#admin-month-modal .md-compact .md-activity-tabs button small{display:block;font-size:11px;margin-top:4px;color:#6a665f}
+#admin-month-modal .md-compact .md-activity-tabs button[aria-selected=true]{background:#f0e2d5;border-color:#98492e;color:#783b27;box-shadow:inset 0 -2px #98492e}
+#admin-month-modal .md-compact .md-activity-tabs .pending{color:#886316}
+#admin-month-modal .md-compact .md-activity-tabs .done{color:#35735f}
+#admin-month-modal .md-compact .md-workspace{display:grid;grid-template-columns:minmax(0,1fr) 300px;align-items:start;gap:18px}
+#admin-month-modal .md-compact .md-side-pane{display:contents}
+#admin-month-modal .md-compact .md-preview{grid-column:1;grid-row:1;min-width:0;min-height:320px;border:1px solid #ded6cb;border-radius:14px;overflow:hidden;background:#eee8de!important}
+#admin-month-modal .md-compact .md-preview>header{padding:12px 16px;background:#faf9f5;border-bottom:1px solid #ded6cb}
+#admin-month-modal .md-compact .md-preview h3{font-size:16px;font-weight:600}
+#admin-month-modal .md-compact .md-media{height:clamp(220px,36dvh,380px);min-height:0;padding:12px}
+#admin-month-modal .md-compact .md-media :is(img,video){width:100%;height:100%;max-height:100%;object-fit:contain}
+#admin-month-modal .md-compact .md-preview-footer{background:#faf9f5;padding:10px 14px;border-top:1px solid #ded6cb;gap:8px;flex-wrap:wrap}
+#admin-month-modal .md-compact :is(.md-file-nav button,.md-open-file){font:500 12px Inter,system-ui,sans-serif;min-height:36px;border:1px solid #ded6cb;border-radius:9px;background:#faf9f5;color:#98492e;padding:8px 12px}
+#admin-month-modal .md-compact .md-private{margin:0;padding:10px 14px;background:#faf9f5;border-top:1px solid #ded6cb;font-size:10px}
+#admin-month-modal .md-compact .md-deliveries{grid-column:2;grid-row:1;padding:16px;background:#f3eee6;border:1px solid #ded6cb;border-radius:14px}
+#admin-month-modal .md-compact .md-deliveries>header{padding:0 0 12px;gap:8px;align-items:start}
+#admin-month-modal .md-compact .md-deliveries>header h3{font:400 21px/1.25 var(--claude-display,Georgia,serif);text-transform:none;letter-spacing:-.02em}
+#admin-month-modal .md-compact .md-deliveries>header>span{display:none}
+#admin-month-modal .md-compact .md-deliveries>.md-help{display:none}
+#admin-month-modal .md-compact .md-activity{margin:0;border:0;border-radius:0;background:transparent!important}
+#admin-month-modal .md-compact .md-activity[hidden]{display:none!important}
+#admin-month-modal .md-compact .md-activity>summary{display:none}
+#admin-month-modal .md-compact .md-activity-body{padding:0;border:0}
+#admin-month-modal .md-compact .md-activity-body p{font-size:12px;line-height:1.55}
+#admin-month-modal .md-compact .md-files{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:152px;overflow-y:auto;padding:4px 3px;margin:12px 0;overscroll-behavior:contain}
+#admin-month-modal .md-compact .md-file-chip{min-width:0;width:auto;display:flex;align-items:center;border:1px solid #ded6cb;border-radius:9px;background:#faf9f5}
+#admin-month-modal .md-compact .md-file{min-width:0;width:auto;flex:1;padding:8px;border:0;border-radius:9px;box-shadow:none;font-size:11px}
+#admin-month-modal .md-compact .md-file svg{width:14px;height:14px}
+#admin-month-modal .md-compact .md-file small{font-size:9px}
+#admin-month-modal .md-compact .md-file[aria-pressed=true]{color:#98492e!important;background:#f0e2d5!important}
+#admin-month-modal .md-compact .md-file-remove-btn{position:static;transform:none;width:26px;height:30px;min-width:26px;margin:0 2px 0 0;padding:5px;border:0;box-shadow:none;border-radius:6px;background:transparent;color:#a23d32}
+#admin-month-modal .md-compact .md-file-remove-btn svg{width:13px;height:13px}
+#admin-month-modal .md-compact .md-facebook-actions{margin-top:14px;padding-top:12px;border-top:1px solid #ded6cb}
+#admin-month-modal .md-compact :is(.md-facebook-actions button,.md-upload-label){min-height:38px;padding:9px 12px;border:1px solid #c7aa95;border-radius:9px;font:500 12px/1.4 Inter,system-ui,sans-serif;color:#98492e;background:#faf9f5}
+#admin-month-modal .md-compact .md-upload-label{display:block;text-align:center;cursor:pointer}
+#admin-month-modal .md-compact .md-exit-time{display:flex;flex-direction:column;align-items:start;gap:8px;font-size:12px;margin-bottom:12px}
+#admin-month-modal .md-compact .md-exit-time input{min-height:40px;border:1px solid #c7aa95;background:#faf9f5;color:#24241f;border-radius:8px;padding:8px;font:inherit}
+#admin-month-modal .md-compact .md-empty-activity{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;text-align:center;padding:30px;gap:12px}
+#admin-month-modal .md-compact .md-empty-activity>svg{width:36px;height:36px;color:#98492e}
+#admin-month-modal .md-compact .md-empty-activity p{color:#6a665f;font-size:13px;max-width:340px;margin:0}
+#admin-month-modal .md-compact .md-journal-management{border:1px solid #ded6cb;border-radius:12px;background:#faf9f5;margin-top:16px}
+#admin-month-modal .md-compact .md-journal-management>summary{cursor:pointer;padding:14px 16px;color:#98492e;font-size:14px;font-weight:600}
+#admin-month-modal .md-compact .md-journal-management>summary span{font-size:11px;color:#6a665f;font-weight:400;margin-left:12px}
+#admin-month-modal .md-compact .md-management{grid-column:auto;grid-row:auto;background:#faf9f5!important;border:0;border-top:1px solid #ded6cb;border-radius:0;padding:16px!important}
+#admin-month-modal .md-compact .md-management>h3{display:none}
+#admin-month-modal .md-compact .month-modal-actions{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:start}
+#admin-month-modal .md-compact .month-sensitive-actions{border:0;padding:0}
+@media(max-width:760px){#admin-month-modal:has(.md-compact){padding:8px}#admin-month-modal:has(.md-compact) .admin-month-sheet{width:100%;max-height:calc(100dvh - 16px)}#admin-month-modal:has(.md-compact) .admin-month-modal-body{padding:12px}#admin-month-modal .md-compact .md-workspace{grid-template-columns:1fr}#admin-month-modal .md-compact .md-preview{grid-column:1;grid-row:1}#admin-month-modal .md-compact .md-deliveries{grid-column:1;grid-row:2}#admin-month-modal .md-compact .md-activity-tabs{gap:6px}#admin-month-modal .md-compact .md-activity-tabs button{flex-basis:calc(50% - 6px);font-size:12px}#admin-month-modal .md-compact .month-modal-actions{grid-template-columns:1fr}#admin-month-modal .md-compact .md-journal-management>summary span{display:block;margin:6px 0 0}#admin-month-modal .md-compact .md-timeline>div{padding:10px}#admin-month-modal .md-compact .md-timeline dd{font-size:14px}}
+#admin-month-modal .md-compact .md-record-summary{display:block;width:100%}
+#admin-month-modal .md-compact .md-timeline{display:grid;width:100%;margin:0}
+#admin-month-modal .md-compact .md-media{height:clamp(200px,27dvh,290px)}
+#admin-month-modal:has(.md-compact) .month-incomplete-reasons{padding:12px 14px}
+#admin-month-modal:has(.md-compact) .month-incomplete-reasons ul{display:flex;flex-wrap:wrap;gap:6px 20px;margin-bottom:0}
+#admin-month-modal:has(.md-compact) .month-incomplete-reasons header h3{font-size:12px}
+#admin-month-modal .md-compact .md-file-remove-btn{position:static!important;inset:auto!important;transform:none!important;width:30px!important;height:34px!important;min-width:30px!important;max-width:30px!important;min-height:34px!important;max-height:34px!important;margin:0 2px!important;padding:8px!important;background:transparent!important;color:#a23d32!important;border:0!important;box-shadow:none!important;border-radius:7px!important;transition:none!important}
+#admin-month-modal .md-compact .md-file-remove-btn::before{display:none}
+#admin-month-modal .md-compact .md-file-remove-btn svg{stroke:currentColor!important;width:13px!important;height:13px!important}
+#admin-month-modal .md-compact .md-activity-tabs button[aria-selected=false]{background:#faf9f5!important;border-color:#ded6cb!important;color:#6a665f!important;box-shadow:none!important}
+#admin-month-modal .md-compact .md-activity-tabs button[aria-selected=true]{background:#f0e2d5!important;border-color:#98492e!important;color:#783b27!important;box-shadow:inset 0 -2px #98492e!important}
+@media(max-width:760px){#admin-month-modal:has(.md-compact) .md-day-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}#admin-month-modal:has(.md-compact) .md-person-context{grid-column:1/-1}#admin-month-modal:has(.md-compact) .month-day-facts{display:contents}#admin-month-modal:has(.md-compact) .month-day-facts>span{padding:0;border:0}#admin-month-modal:has(.md-compact) .month-day-facts>span:nth-child(1){grid-column:1;grid-row:2}#admin-month-modal:has(.md-compact) .month-day-facts>span:nth-child(3){grid-column:2;grid-row:2}#admin-month-modal:has(.md-compact) .month-day-facts>span:nth-child(2){grid-column:1/-1;grid-row:3}#admin-month-modal:has(.md-compact) .month-day-current{grid-column:1/-1;justify-self:start}}
+
+/* Legibilidad y ritmo vertical del modal administrativo (ajuste de escritorio). */
+#admin-month-modal .md-compact{display:flex;flex-direction:column;gap:16px}
+#admin-month-modal .md-compact .md-record-summary{display:flex;flex-direction:column;gap:12px}
+#admin-month-modal .md-compact .md-activity-tabs{margin:0}
+#admin-month-modal .md-compact .md-journal-management{margin-top:0}
+#admin-month-modal .md-compact .md-compliance{margin:0;padding:12px 16px}
+#admin-month-modal .md-compact .md-compliance strong{color:#744b16;font-size:11px;line-height:1.5;margin-bottom:4px}
+#admin-month-modal .md-compact .md-compliance p{color:#624217;font-size:12px;line-height:1.55;margin:0}
+#admin-month-modal .md-compact .md-files{max-height:204px;padding:4px;margin:12px 0;gap:10px}
+#admin-month-modal .md-compact .md-file span{font-size:12px;line-height:1.4}
+#admin-month-modal .md-compact .md-file small{display:block;margin:3px 0 0;font-size:11px;line-height:1.4;color:#625e56!important;opacity:1}
+#admin-month-modal .md-compact .md-file[aria-pressed=true] small{color:#5c5146!important}
+#admin-month-modal .md-compact .md-file[aria-pressed=true] span{color:#783b27}
+#admin-month-modal .md-compact .md-delivery-note small{color:#625e56;font-size:12px;line-height:1.55}
+#admin-month-modal .md-compact .md-files{max-height:252px}
+#admin-month-modal .md-compact .md-file.has-remove{padding-right:8px!important}
+#admin-month-modal .md-compact .md-file span{white-space:nowrap;font-size:11px}
+/* El estado seleccionado ocupa el chip completo; el texto conserva su margen interior. */
+#admin-month-modal .md-compact .md-workspace{grid-template-columns:minmax(0,1fr) 360px}
+#admin-month-modal .md-compact .md-file-chip{box-sizing:border-box;overflow:hidden}
+#admin-month-modal .md-compact .md-file-chip:has(.md-file[aria-pressed=true]){background:#f0e2d5;border-color:#98492e}
+#admin-month-modal .md-compact .md-file,
+#admin-month-modal .md-compact .md-file.has-remove{display:flex;align-items:center;gap:8px;padding:10px 12px!important;box-sizing:border-box;min-width:0;background:transparent!important}
+#admin-month-modal .md-compact .md-file[aria-pressed=true]{background:transparent!important}
+#admin-month-modal .md-compact .md-file span{display:block;min-width:0}
+#admin-month-modal .md-compact .md-file small{margin-top:4px}
+/* Marcadores explicados en la leyenda, también rotulados en cada celda. */
+#portal #admin-month-section .admin-month-cell .note{display:block;position:absolute;top:5px;right:5px;width:0;height:0;border-top:7px solid #98492e;border-left:7px solid transparent}
+#portal #admin-month-section .admin-month-legend .month-legend-note em{display:block;width:0;height:0;border-top:7px solid #98492e;border-left:7px solid transparent}
+#portal #admin-month-section .admin-month-legend .month-legend-evidence em{display:block;width:5px;height:5px;border-radius:50%;background:var(--blue)}
+/* Cierre de auditoría A01–A05: estilos de escritorio de Mes completo. */
+#portal #admin-month-section .admin-month-table .day-col span{color:#625e56!important;font-size:11px!important;font-weight:600}
+#admin-month-modal .month-state-picker .month-state-help{font-size:12px!important;font-weight:400;line-height:1.55;color:#625e56;margin:0 0 8px}
+#admin-month-modal .month-state-picker[aria-busy=true]{opacity:.75}
+#admin-month-modal .month-state-picker button:disabled{cursor:wait}
+@media(min-width:901px){
+#portal #admin-month-section #admin-person-calendar{background:#faf9f5;border-color:#ded6cb;color:#24241f;border-radius:16px;padding:24px}
+#portal #admin-month-section #admin-person-calendar :is(h3,h4){font-family:var(--claude-display,Georgia,serif);font-weight:400;color:#24241f;letter-spacing:-.025em}
+#portal #admin-month-section #admin-person-calendar h3{font-size:28px}
+#portal #admin-month-section #admin-person-calendar :is(p,dt,.pc-summary span,.pc-toolbar label,.pc-week,.pc-legend){color:#625e56}
+#portal #admin-month-section #admin-person-calendar :is(dd,.pc-summary b){color:#24241f}
+#portal #admin-month-section #admin-person-calendar :is(button,input){background:#faf9f5;color:#625e56;border-color:#b5a797;border-radius:10px;box-shadow:none}
+#portal #admin-month-section #admin-person-calendar :is(button,input,a,summary):focus-visible{outline:3px solid #98492e;outline-offset:3px}
+#portal #admin-month-section #admin-person-calendar :is(.pc-toolbar,.pc-detail,.pc-times,.pc-legend,.pc-activities details){border-color:#ded6cb}
+#portal #admin-month-section #admin-person-calendar .pc-day{background:#f0ece5;color:#625e56}
+#portal #admin-month-section #admin-person-calendar .pc-day:is(.p,.shared){background:#e6ede5;color:#35735f}
+#portal #admin-month-section #admin-person-calendar .pc-day:is(.t,.sharing-pending){background:#f3ead6;color:#79520e}
+#portal #admin-month-section #admin-person-calendar .pc-day:is(.missing,.incomplete){background:#f4e1dc;color:#a23d32}
+#portal #admin-month-section #admin-person-calendar .pc-day.j{background:#e7ebf0;color:#526a83}
+#portal #admin-month-section #admin-person-calendar .pc-day[aria-pressed=true]{outline:2px solid #98492e;outline-offset:2px;border-color:#98492e}
+#portal #admin-month-section #admin-person-calendar ::selection{background:#f0e2d5;color:#24241f}
+#admin-month-modal :is(.holiday-scheduler,.holiday-agenda li){background:#faf9f5;border-color:#ded6cb;box-shadow:none}
+#admin-month-modal .holiday-scheduler :is(label,p),#admin-month-modal .holiday-agenda :is(b,small){color:#625e56}
+#admin-month-modal .holiday-scheduler :is(input,select){background:#faf9f5;border-color:#9a8c7b;color:#24241f;font:400 14px Inter,system-ui,sans-serif;min-height:44px}
+#admin-month-modal .holiday-scheduler ::placeholder{color:#6a665f}
+#admin-month-modal .holiday-scheduler .admin-primary-action{background:#98492e;border-color:#98492e;color:#fff;box-shadow:none;min-height:44px;font-size:13px}
+#admin-month-modal .holiday-agenda button{color:#a23d32;font-size:13px}
+#admin-month-modal.leave-planner-modal .leave-planner{background:#faf9f5;color:#24241f}
+#admin-month-modal.leave-planner-modal .lp-people{background:#f0ece5;border-color:#ded6cb}
+#admin-month-modal.leave-planner-modal .lp-main{background:#faf9f5}
+#admin-month-modal.leave-planner-modal .leave-planner :is(h3,label,b){color:#24241f}
+#admin-month-modal.leave-planner-modal .leave-planner h3{font:400 22px/1.3 var(--claude-display,Georgia,serif);color:#98492e}
+#admin-month-modal.leave-planner-modal .leave-planner :is(p,small,.lp-muted,.lp-legend,.lp-context,.lp-weekdays){color:#625e56}
+#admin-month-modal.leave-planner-modal .leave-planner :is(button,input,select){background:#faf9f5;color:#625e56;border-color:#b5a797;box-shadow:none;border-radius:10px}
+#admin-month-modal.leave-planner-modal .leave-planner :is(input,select){color:#24241f;border-color:#9a8c7b}
+#admin-month-modal.leave-planner-modal .leave-planner ::placeholder{color:#6a665f}
+#admin-month-modal.leave-planner-modal .lp-people-list{scrollbar-color:#b5a797 #f0ece5}
+#admin-month-modal.leave-planner-modal .lp-people-list button{background:transparent;border-color:transparent}
+#admin-month-modal.leave-planner-modal .lp-people-list button[aria-pressed=true]{background:#f0e2d5;border-color:#98492e;color:#783b27}
+#admin-month-modal.leave-planner-modal .lp-avatar{background:#e9dfd1;color:#79583e}
+#admin-month-modal.leave-planner-modal .lp-views{background:#f0ece5}
+#admin-month-modal.leave-planner-modal .lp-views button[aria-pressed=true]{background:#f0e2d5;border-color:#98492e;color:#783b27}
+#admin-month-modal.leave-planner-modal .lp-day[aria-current=date] .lp-day-number{color:#98492e}
+#admin-month-modal.leave-planner-modal .lp-day.has-leave{background:#e6ede5;border-color:#b9cabb;color:#35735f}
+#admin-month-modal.leave-planner-modal .lp-day.is-selected{background:#f0e2d5;border-color:#98492e;color:#783b27}
+#admin-month-modal.leave-planner-modal .lp-selected-dates button{background:#f0e2d5;color:#783b27}
+#admin-month-modal.leave-planner-modal :is(.lp-assignment,.lp-agenda,.lp-entry){border-color:#ded6cb}
+#admin-month-modal.leave-planner-modal .lp-selection button{color:#98492e}
+#admin-month-modal.leave-planner-modal .leave-planner .admin-primary-action{background:#98492e;border-color:#98492e;color:#fff}
+#admin-month-modal.leave-planner-modal .lp-entry button{color:#a23d32}
+#admin-month-modal.leave-planner-modal .leave-planner :is(button,input,select):focus-visible{outline:3px solid #98492e;outline-offset:3px}
+#admin-month-modal.leave-planner-modal .leave-planner ::selection{background:#f0e2d5;color:#24241f}
+}
+@media(min-width:901px) and (hover:hover){
+#portal #admin-month-section #admin-person-calendar button:hover:not(:disabled),#admin-month-modal.leave-planner-modal .leave-planner button:hover:not(:disabled){background:#f0e2d5;border-color:#98492e;color:#783b27}
+#admin-month-modal .holiday-scheduler .admin-primary-action:hover:not(:disabled),#admin-month-modal.leave-planner-modal .leave-planner .admin-primary-action:hover:not(:disabled){background:#783b27;border-color:#783b27;color:#fff}
+}
+#admin-month-modal .month-state-picker p.month-state-help{text-transform:none!important;letter-spacing:normal!important;font-weight:400!important;color:#625e56!important}
+@media(min-width:901px){#admin-month-modal #admin-month-modal-copy{color:#625e56!important}#admin-month-modal .holiday-agenda li{border-color:#ded6cb!important}#admin-month-modal.leave-planner-modal #lp-context{color:#625e56}}
+/* La corrección de estado conserva espacio para sus etiquetas y aviso de aplicación. */
+#admin-month-modal.month-detail-modal .md-compact .month-state-picker{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:12px!important;border:0!important;background:#faf9f5!important}
+#admin-month-modal.month-detail-modal .md-compact .month-state-picker>p{grid-column:1/-1;line-height:1.55;color:#625e56!important}
+#admin-month-modal.month-detail-modal .md-compact .month-state-picker button{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-width:0;min-height:58px!important;height:auto!important;padding:10px 12px!important;text-align:left;line-height:1.3;text-transform:none;font-size:14px!important}
+#admin-month-modal.month-detail-modal .md-compact .month-state-picker button small{font-size:11px!important;line-height:1.4;text-transform:none;white-space:normal;margin:0}
+/* Lienzo uniforme de Mes completo, incluida cabecera y márgenes del espacio de trabajo. */
+#portal.admin-wide[data-view="gestion"][data-admin-section="mes"],
+#portal.admin-wide[data-view="gestion"][data-admin-section="mes"] :is(.workspace,#view-gestion,.admin-section-nav,.admin-context-bar){background:#f0ece5!important;background-image:none!important}
+#portal.admin-wide[data-view="gestion"][data-admin-section="mes"] .time-ambience{display:none!important}
+/* Barra mensual de escritorio: alturas, etiquetas e iconos homogéneos. */
+@media(min-width:901px){
+#portal #admin-month-section .admin-month-workbench-controls{align-items:end!important;gap:12px!important;padding:16px!important}
+#portal #admin-month-section .admin-month-period-actions{align-items:center!important;flex:none;gap:10px!important}
+#portal #admin-month-section .admin-month-filters{align-items:end!important;gap:12px!important;min-width:440px;flex:1}
+#portal #admin-month-section .admin-month-filters>label:first-child{min-width:150px;flex:1}
+#portal #admin-month-section .admin-month-area-field{width:150px;min-width:150px}
+#portal #admin-month-section .admin-month-picker{display:flex!important;align-items:center!important;width:224px!important;min-width:224px!important;height:44px!important;min-height:44px!important;padding:0 4px!important;border:1px solid #b5a797!important;border-radius:10px!important;box-sizing:border-box}
+#portal #admin-month-section .admin-month-picker button{width:28px!important;min-width:28px!important;height:40px!important;padding:5px!important;color:#625e56!important}
+#portal #admin-month-section .admin-month-picker input{width:158px!important;min-width:158px!important;max-width:none!important;height:40px!important;padding:0 3px!important;font:600 13px Inter,system-ui,sans-serif!important;color:#24241f!important;letter-spacing:normal;border:0!important;text-align:left!important}
+#portal #admin-month-section :is(.admin-month-today,.month-calendar-menu>summary,.admin-month-area-trigger,.admin-month-inactive,input[type=search]){height:44px!important;min-height:44px!important;padding:10px 12px!important;box-sizing:border-box!important;border:1px solid #b5a797!important;border-radius:10px!important;background:#faf9f5!important;color:#24241f!important;font:500 12px/1.4 Inter,system-ui,sans-serif!important;box-shadow:none!important;white-space:nowrap}
+#portal #admin-month-section .admin-month-today{width:118px!important;padding-inline:8px!important}
+#portal #admin-month-section .month-calendar-menu{align-self:center!important;color:#625e56}
+#portal #admin-month-section .month-calendar-menu>summary{display:flex;align-items:center;gap:7px;list-style:none;cursor:pointer}
+#portal #admin-month-section .month-calendar-menu>summary:after{content:'▾';color:#625e56}
+#portal #admin-month-section .admin-month-filters>label:not(.admin-toggle),#portal #admin-month-section .admin-month-area-field{display:grid!important;gap:6px!important;margin:0!important}
+#portal #admin-month-section .admin-month-filters>label:not(.admin-toggle)>span,#portal #admin-month-section .admin-month-area-field>span{font:600 12px/1.4 Inter,system-ui,sans-serif!important;color:#625e56!important;text-transform:none!important;letter-spacing:normal!important}
+#portal #admin-month-section .admin-month-area-trigger :is(svg,.admin-month-area-icon,.admin-month-area-chevron){color:#625e56!important;stroke:currentColor!important}
+#portal #admin-month-section .admin-month-inactive{display:flex!important;align-items:center;align-self:end;gap:8px!important;margin:0!important;flex:none}
+#portal #admin-month-section .admin-month-inactive input{accent-color:#98492e;width:15px;height:15px}
+#portal #admin-month-section input[type=search]::placeholder{color:#6a665f!important;font-weight:400!important}
+}
+@media(min-width:901px){
+#portal #admin-month-section .admin-month-filters{min-width:470px}
+#portal #admin-month-section .admin-month-area-field{width:180px;min-width:180px}
+#portal #admin-month-section #admin-month-area-selected{overflow:visible!important;text-overflow:clip!important;white-space:normal!important;line-height:1.35;min-width:0}
+}
