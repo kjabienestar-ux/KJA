@@ -213,43 +213,60 @@ function closeAdminPersonCalendar(returnToLedger=false){
     ledger.scrollIntoView({block:'start',behavior:'instant'});
   }
 }
+// Tramos de lunes a domingo. En pantallas estrechas se dividen en bloques de tres días.
+let ADMIN_MONTH_RANGE={month:'',date:'',page:0,narrow:false};
+function monthDayRanges(days,narrow=false){
+  const weeks=[];
+  for(const day of days){
+    const dow=new Date(day.fecha+'T12:00:00').getDay();
+    if(!weeks.length||dow===1)weeks.push([]);
+    weeks.at(-1).push(day);
+  }
+  return narrow?weeks.flatMap(week=>Array.from({length:Math.ceil(week.length/3)},(_,i)=>week.slice(i*3,i*3+3))):weeks;
+}
+function monthRangeView(days,today,narrow){
+  const month=days[0]?.fecha.slice(0,7)||'';
+  if(ADMIN_MONTH_RANGE.month!==month){ADMIN_MONTH_RANGE={month,date:days.find(d=>d.fecha===today)?.fecha||days[0]?.fecha||'',page:0,narrow};}
+  ADMIN_MONTH_RANGE.narrow=narrow;
+  const ranges=monthDayRanges(days,narrow);
+  const index=Math.max(0,ranges.findIndex(range=>range.some(d=>d.fecha===ADMIN_MONTH_RANGE.date)));
+  return {ranges,index,visible:ranges[index]||[]};
+}
 function renderAdminMonthLedger(){
   closeAdminPersonCalendar();
   const data=APP.adminMonth,people=monthPeople('month');
   const p=sumMonth(people,'P'),t=sumMonth(people,'T'),j=sumMonth(people,'J'),pending=sumMonth(people,'pendientes'),incomplete=sumMonth(people,'incompletas');
   const kpis=[['PERSONAS',people.length,''],['JORNADAS VÁLIDAS',p+t+j+sumMonth(people,'NG'),'ready'],['ASISTENCIA',monthRate(people)==null?'—':`${monthRate(people)}%`,'ready'],['INCOMPLETAS',incomplete,incomplete?'danger':''],['SIN ENTRADA',pending,pending?'warning':'']];
   $('admin-month-kpis').innerHTML=kpis.map(item=>`<article class="admin-list-kpi ${item[2]}"><small>${item[0]}</small><b>${item[1]}</b></article>`).join('');
-  const sample=people[0]?.dias||APP.adminMonth.personas?.[0]?.dias||[];
+  const allDays=APP.adminMonth.personas?.[0]?.dias||[];
+  const {ranges,index,visible:sample}=monthRangeView(allDays,data.hoy,window.innerWidth<=650);
+  const pageSize=8,pageCount=Math.max(1,Math.ceil(people.length/pageSize));
+  ADMIN_MONTH_RANGE.page=Math.min(ADMIN_MONTH_RANGE.page,pageCount-1);
+  const pagePeople=people.slice(ADMIN_MONTH_RANGE.page*pageSize,(ADMIN_MONTH_RANGE.page+1)*pageSize);
+  const rangeLabel=range=>range.map(d=>d.fecha.slice(-2)).filter((_,i)=>i===0||i===range.length-1).join('–');
+  const nav=`<header class="month-range-heading"><div><h3>Libro del equipo</h3><p>${people.length} colaboradores · ${monthTitle(ADMIN_MONTH_RANGE.month||currentMonthValue())}</p></div><nav aria-label="Tramos de días del mes">${ranges.map((range,i)=>`<button type="button" data-month-range="${i}" aria-pressed="${i===index}">${rangeLabel(range)}</button>`).join('')}</nav></header>`;
   const holidays=new Map((data.feriados||[]).map(item=>[item.fecha,item.nota||'Feriado']));
   let html='<table class="admin-month-table"><thead><tr><th class="person-col">Colaborador</th>';
   for(const day of sample){
-    const date=new Date(day.fecha+'T12:00:00'),dow=['D','L','M','M','J','V','S'][date.getDay()],number=date.getDate(),holiday=holidays.get(day.fecha);
+    const date=new Date(day.fecha+'T12:00:00'),dow=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][date.getDay()],number=date.getDate(),holiday=holidays.get(day.fecha);
     html+=`<th class="day-col ${holiday?'holiday':''} ${day.fecha===data.hoy?'today':''}" title="${holiday?esc(holiday):''}"><span>${dow}</span><b>${number}</b>${holiday?'<i></i>':''}</th>`;
   }
   html+='</tr></thead><tbody>';
   if(!people.length)html+=`<tr><td class="admin-month-empty" colspan="${sample.length+1}">No hay colaboradores para los filtros seleccionados.</td></tr>`;
   let currentArea='';
-  for(const person of people){
+  for(const person of pagePeople){
     if(person.area!==currentArea){currentArea=person.area;html+=`<tr class="admin-month-area-row"><td colspan="${sample.length+1}"><span class="admin-month-area-sticky"><i></i><b>${esc(currentArea||'Sin área')}</b><span>${people.filter(x=>x.area===currentArea).length}</span></span></td></tr>`}
-    html+=`<tr><th class="person-col" scope="row"><div class="admin-month-person" data-month-photo-person="${person.id}">${profileAvatarMarkup(person)}<div class="admin-month-person-info"><b>${esc(person.nombre)}</b><small class="admin-month-person-status ${person.activo?'is-active':'is-inactive'}">${person.activo?'Activo':'Dado de baja'}</small></div><button type="button" class="admin-month-person-calendar" data-person-calendar="${person.id}" aria-label="Ver calendario y evidencias de ${esc(person.nombre)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 11h18M8 15h2M14 15h2"/></svg><span>Ver calendario y evidencias</span><svg class="admin-month-person-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div></th>`;
-    for(const day of person.dias||[]){
+    html+=`<tr><th class="person-col" scope="row"><div class="admin-month-person" data-month-photo-person="${person.id}">${profileAvatarMarkup(person)}<div class="admin-month-person-info"><b>${esc(person.nombre)}</b><small class="admin-month-person-status ${person.activo?'is-active':'is-inactive'}">${esc(person.area||'Sin área')} · ${person.activo?'Activo':'Dado de baja'}</small></div><button type="button" class="admin-month-person-calendar" data-person-calendar="${person.id}" aria-label="Ver calendario y evidencias de ${esc(person.nombre)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 11h18M8 15h2M14 15h2"/></svg><span>Ver mes</span><svg class="admin-month-person-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div></th>`;
+    for(const date of sample){
+      const day=(person.dias||[]).find(item=>item.fecha===date.fecha);
+      if(!day){html+='<td><span aria-label="Información no disponible">—</span></td>';continue;}
       const content=day.dia_libre?'DL':day.cierre_estado==='incompleta'?'INC':day.cierre_estado==='en_curso'?'…':day.estado||(!day.laborable?'—':'·'),detail=`${person.nombre} · ${day.fecha} · ${day.dia_libre?'Día libre asignado':day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada, cierre pendiente':day.estado?statusText(day.estado):day.laborable?'Sin registro':day.motivo}`;
-      html+=`<td><button type="button" class="${monthCellClass(day)}" data-month-person="${person.id}" data-month-date="${day.fecha}" aria-label="${esc(detail)}"><b>${content}</b>${day.nota?'<i class="note"></i>':''}${day.evidencia?'<i class="camera"></i>':''}</button></td>`;
+      html+=`<td><button type="button" class="${monthCellClass(day)}" data-month-person="${person.id}" data-month-date="${day.fecha}" aria-label="${esc(detail+(day.nota?' · Con nota':'')+(day.evidencia?' · Con evidencia':''))}"><b>${content}</b>${day.nota?'<i class="note"></i>':''}${day.evidencia?'<i class="camera"></i>':''}</button></td>`;
     }
     html+='</tr>';
   }
-  html+='</tbody></table>';$('admin-month-ledger').innerHTML=html;
-  if(window.innerWidth<=768){
-    requestAnimationFrame(()=>{
-      const todayCol=$('admin-month-ledger')?.querySelector('.day-col.today');
-      if(todayCol){
-        const personCol=$('admin-month-ledger')?.querySelector('.person-col');
-        const offset=(personCol?.offsetWidth||168);
-        const targetLeft=Math.max(0,todayCol.offsetLeft-offset-8);
-        $('admin-month-ledger').scrollTo({left:targetLeft,behavior:'auto'});
-      }
-    });
-  }
+  html+='</tbody></table>';
+  $('admin-month-ledger').innerHTML=nav+html+(people.length?`<footer class="month-range-footer"><span>${people.length?ADMIN_MONTH_RANGE.page*pageSize+1:0}–${Math.min((ADMIN_MONTH_RANGE.page+1)*pageSize,people.length)} de ${people.length} colaboradores · Tramo ${index+1} de ${ranges.length}</span><nav aria-label="Páginas de colaboradores"><button type="button" data-month-page="-1" ${ADMIN_MONTH_RANGE.page===0?'disabled':''} aria-label="Página anterior">‹</button><span>${ADMIN_MONTH_RANGE.page+1} / ${pageCount}</span><button type="button" data-month-page="1" ${ADMIN_MONTH_RANGE.page===pageCount-1?'disabled':''} aria-label="Página siguiente">›</button></nav></footer>`:'');
   if(!data.puede_editar)monthMessage('Tu rol es de solo lectura. Puedes consultar celdas y exportar, pero no modificar el mes.');
 }
 
@@ -278,6 +295,22 @@ function renderAdminMonthSummary(){
   $('admin-summary-table').innerHTML=people.length?html:'<p class="admin-empty">No hay colaboradores para los filtros seleccionados.</p>';
 }
 
+// Resuelve la celda nueva si una recarga sustituyó el botón que abrió el modal.
+function restoreMonthModalFocus(){
+  const modal=$('admin-month-modal'),origin=modal._returnCell;
+  const cell=origin?[...document.querySelectorAll('[data-month-person]')].find(el=>el.dataset.monthPerson===origin.personId&&el.dataset.monthDate===origin.date):null;
+  const previous=modal._returnFocus;
+  const target=cell||((previous?.isConnected&&previous.matches?.('button,a[href],input,select,textarea,summary,[tabindex]')&&!previous.closest?.('[hidden]'))?previous:null)||$('admin-month-ledger');
+  if(!target)return;
+  if(target===$('admin-month-ledger'))target.setAttribute('tabindex','-1');
+  target.focus({preventScroll:true});
+}
+async function refreshMonthAfterModalClose(){
+  const modal=$('admin-month-modal'),origin=modal._returnCell;
+  closeMonthModal();
+  await loadAdminMonth(true);
+  if(modal.hidden&&modal._returnCell===origin)restoreMonthModalFocus();
+}
 function closeMonthModal(){
   $('admin-month-modal')._leavePlanner?.dispose();
   $('admin-month-modal')._leavePlanner=null;
@@ -285,7 +318,7 @@ function closeMonthModal(){
   $('admin-month-modal')._dayDetail=null;
   $('admin-month-modal').hidden=true;document.body.style.overflow='';ADMIN_MONTH_DIALOG=null;
   $('admin-month-modal-message').textContent='';$('admin-month-modal-message').classList.remove('show');
-  $('admin-month-modal')._returnFocus?.focus({preventScroll:true});
+  restoreMonthModalFocus();
 }
 function modalMonthMessage(text){const el=$('admin-month-modal-message');el.textContent=text||'';el.classList.toggle('show',!!text)}
 function openMonthModal(eyebrow,title,copy,body){
@@ -293,7 +326,11 @@ function openMonthModal(eyebrow,title,copy,body){
   modal._dayDetail?.dispose();modal._dayDetail=null;
   modal._leavePlanner?.dispose();modal._leavePlanner=null;
   modal.classList.toggle('leave-planner-modal',ADMIN_MONTH_DIALOG?.kind==='days-off');
-  if(modal.hidden)modal._returnFocus=document.activeElement;
+  if(modal.hidden){
+    modal._returnFocus=document.activeElement;
+    const cell=document.activeElement?.closest?.('[data-month-person]');
+    modal._returnCell=cell?{personId:cell.dataset.monthPerson,date:cell.dataset.monthDate}:ADMIN_MONTH_DIALOG?.kind==='cell'?{personId:String(ADMIN_MONTH_DIALOG.personId),date:ADMIN_MONTH_DIALOG.date}:null;
+  }
   modal.classList.toggle('month-detail-modal',ADMIN_MONTH_DIALOG?.kind==='cell');
   modal.querySelector('.admin-editor-head').dataset.initials=String(title).trim().split(/\s+/).slice(0,2).map(word=>word[0]).join('').toUpperCase();
   $('admin-month-modal-eyebrow').textContent=eyebrow;$('admin-month-modal-title').textContent=title;$('admin-month-modal-copy').textContent=copy||'';$('admin-month-modal-body').innerHTML=body;modalMonthMessage('');
@@ -334,21 +371,21 @@ function openMonthCell(personId,date){
   const visualState=day.cierre_estado==='incompleta'?'incomplete':day.cierre_estado==='en_curso'?'close-pending':day.estado?.toLowerCase(),visualLabel=day.cierre_estado==='incompleta'?'Jornada incompleta':day.cierre_estado==='en_curso'?'Entrada registrada · cierre pendiente':statusText(day.estado);
   const mark=day.estado?`<div class="month-day-current ${visualState}"><b>${esc(visualLabel)}</b></div>`:'';
   const canEdit=!!APP.adminMonth.puede_editar,isFuture=day.fecha>APP.adminMonth.hoy;
-  let actions='';
+  let actions='',stateActions='',dangerActions='';
   if(canEdit&&person.activo&&day.motivo!=='preinicio')actions+='<button type="button" class="admin-secondary-action" data-month-action="day-off">Gestionar día libre</button>';
-  if(canEdit&&!isFuture&&day.laborable){actions+=`<div class="month-state-picker"><p>Registrar o corregir estado</p>${['P','T','J','NG'].map(state=>`<button type="button" class="${state.toLowerCase()} ${day.estado===state?'on':''}" data-month-state="${state}">${state}<small>${statusText(state)}</small></button>`).join('')}</div>`}
-  if(canEdit&&day.estado)actions+='<button type="button" class="admin-danger-action" data-month-action="remove-mark">Quitar marca</button>';
+  if(canEdit&&!isFuture&&day.laborable){stateActions+=`<div class="month-state-picker"><p>Registrar o corregir estado</p><p class="month-state-help">Al elegir un estado, se guarda inmediatamente y se cierra este detalle.</p>${['P','T','J','NG'].map(state=>`<button type="button" class="${state.toLowerCase()} ${day.estado===state?'on':''}" data-month-state="${state}" aria-label="Aplicar ${statusText(state)} inmediatamente" aria-pressed="${day.estado===state}">${state}<small>${statusText(state)}</small></button>`).join('')}</div>`}
+  if(canEdit&&day.estado)dangerActions+='<button type="button" class="admin-danger-action" data-month-action="remove-mark">Quitar marca</button>';
   if(canEdit&&!isFuture&&day.motivo!=='preinicio'&&!day.dia_libre){
     if(day.excepcion_tipo)actions+=`<button type="button" class="admin-secondary-action" data-month-action="clear-exception">Restablecer horario normal</button>`;
     else if(!day.laborable)actions+=`<button type="button" class="admin-primary-action" data-month-action="extra">Habilitar como día trabajado</button>`;
     else actions+=`<button type="button" class="admin-secondary-action" data-month-action="off">Registrar permiso / no laborable</button>`;
   }
   const reason={preinicio:'Fecha anterior al inicio del contrato',extra:'Día adicional habilitado',feriado:`Feriado${day.feriado_nota?' · '+day.feriado_nota:''}`,permiso:`Permiso${day.excepcion_nota?' · '+day.excepcion_nota:''}`,horario:day.laborable?'Día programado por horario':'Día no programado'}[day.motivo]||day.motivo;
-  const managementHtml=`<h3>Gestión de la jornada</h3>${canEdit?'':'<p>Tu rol tiene acceso de solo lectura.</p>'}<div class="month-modal-actions">${actions||'<p class="admin-empty">No hay acciones disponibles para esta fecha.</p>'}</div>`;
+  const managementHtml=`<h3>Gestión de la jornada</h3>${canEdit?'':'<p>Tu rol tiene acceso de solo lectura.</p>'}<div class="month-modal-actions">${stateActions?'<details class="month-action-group"><summary>Corregir estado</summary>'+stateActions+'</details>':''}${actions?'<details class="month-action-group"><summary>Calendario y excepciones</summary><div>'+actions+'</div></details>':''}${dangerActions?'<div class="month-sensitive-actions"><p>Acciones sensibles</p>'+dangerActions+'</div>':''}${!actions&&!stateActions&&!dangerActions?'<p class="admin-empty">No hay acciones disponibles para esta fecha.</p>':''}</div>`;
   openMonthModal('DETALLE DE ASISTENCIA',person.nombre,dateText,
     `<div class="md-day-summary"><div class="md-person-context"><span>${esc(person.area||'Sin área')}</span>${person.dni?`<span>DNI ${esc(person.dni)}</span>`:''}<span>${person.activo?'Colaborador activo':'Dado de baja'}</span></div><div class="month-day-facts"><span><small>Condición del día</small><b>${esc(reason||'No registrada')}</b></span><span><small>Modalidad</small>${canEdit&&!isFuture&&day.estado?`<div class="md-mode-picker" role="group" aria-label="Modalidad de asistencia">${['virtual','presencial'].map(mode=>`<button type="button" data-month-mode="${mode}" aria-pressed="${day.modalidad===mode}">${cap(mode)}</button>`).join('')}</div><small>Solo para este día · guardado automático</small><small id="month-mode-status" role="status" aria-live="polite"></small>`:`<b>${esc(cap(day.modalidad||'No registrada'))}</b>`}</span><span><small>Origen de la marca</small><b>${esc(day.origen||'Sin registro')}</b></span></div>${mark}</div>${[...new Set([day.nota,day.excepcion_nota,day.feriado_nota].filter(Boolean))].map(note=>`<p class="month-day-note"><b>Nota:</b> ${esc(note)}</p>`).join('')}<section id="month-day-detail" aria-label="Registros y evidencias del día" aria-live="polite"></section>`);
   const detailDialog=ADMIN_MONTH_DIALOG;
-  $('admin-month-modal')._dayDetail=KJAMonthDayDetail.mount($('month-day-detail'),{person,day,future:isFuture,canManageFacebook:APP.access?.rol==='direccion',canManageEvidence:APP.access?.rol==='direccion',managementHtml,onChanged:()=>{
+  $('admin-month-modal')._dayDetail=KJAMonthDayDetail.mount($('month-day-detail'),{person,day,compact:true,future:isFuture,canManageFacebook:APP.access?.rol==='direccion',canManageEvidence:APP.access?.rol==='direccion',managementHtml,onChanged:()=>{
     APP.adminMonthKey='';void loadAdminMonth(true);
     if(ADMIN_MONTH_DIALOG===detailDialog&&$('month-incomplete-reasons'))void loadMonthIncompleteReasons(detailDialog);
   }});
@@ -410,12 +447,25 @@ async function openPrivateMonthEvidence(path){
   catch(error){if(popup)popup.close();modalMonthMessage('No se pudo abrir la evidencia. Inténtalo nuevamente.')}
 }
 async function changeMonthState(state){
-  const dialog=ADMIN_MONTH_DIALOG,{person,day}=findMonthCell(dialog.personId,dialog.date);if(!person||!day)return;
-  modalMonthMessage('Guardando…');
-  const {data,error}=await db.rpc('dash_admin_guardar_estado',{p_colab:Number(person.id),p_fecha:day.fecha,p_estado:state});
-  if(error||!data?.ok){const reason=data?.motivo||error?.message;return modalMonthMessage(({no_labora:'Primero habilita este día como laborable.',fecha:'No se puede marcar una fecha futura.',antes_contrato:'La fecha es anterior al contrato.',sin_permiso:'Tu rol no permite editar.'})[reason]||'No se pudo guardar el estado.')}
-  closeMonthModal();await loadAdminMonth(true);toast('Estado mensual actualizado.');
+  const dialog=ADMIN_MONTH_DIALOG;
+  if(dialog?.kind!=='cell'||dialog.savingState||!APP.adminMonth?.puede_editar)return;
+  const {person,day}=findMonthCell(dialog.personId,dialog.date);if(!person||!day)return;
+  const picker=$('admin-month-modal-body').querySelector('.month-state-picker');
+  dialog.savingState=true;
+  picker?.setAttribute('aria-busy','true');
+  picker?.querySelectorAll('button').forEach(button=>button.disabled=true);
+  modalMonthMessage('Aplicando '+statusText(state).toLowerCase()+'…');
+  try{
+    const {data,error}=await db.rpc('dash_admin_guardar_estado',{p_colab:Number(person.id),p_fecha:day.fecha,p_estado:state});
+    if(error||!data?.ok){const reason=data?.motivo||error?.message;throw new Error(({no_labora:'Primero habilita este día como laborable.',fecha:'No se puede marcar una fecha futura.',antes_contrato:'La fecha es anterior al contrato.',sin_permiso:'Tu rol no permite editar.'})[reason]||'No se pudo guardar el estado.');}
+    await refreshMonthAfterModalClose();toast('Estado mensual actualizado.');
+  }catch(error){if(ADMIN_MONTH_DIALOG===dialog)modalMonthMessage(error.message||'No se pudo guardar el estado.');}
+  finally{
+    dialog.savingState=false;
+    if(ADMIN_MONTH_DIALOG===dialog){picker?.removeAttribute('aria-busy');picker?.querySelectorAll('button').forEach(button=>button.disabled=false);}
+  }
 }
+
 async function removeMonthMark(){
   const dialog=ADMIN_MONTH_DIALOG,{person,day}=findMonthCell(dialog.personId,dialog.date);if(!person||!day)return;
   modalMonthMessage('Quitando marca…');
@@ -427,7 +477,7 @@ async function removeMonthMark(){
     ({data,error}=await db.rpc('dash_admin_quitar_estado',{p_colab:Number(person.id),p_fecha:day.fecha,p_evidencia_eliminada:true}));
   }
   if(error||!data?.ok)return modalMonthMessage('No se pudo quitar la marca.');
-  closeMonthModal();await loadAdminMonth(true);toast('Marca eliminada.');
+  await refreshMonthAfterModalClose();toast('Marca eliminada.');
 }
 async function changeMonthException(type){
   const dialog=ADMIN_MONTH_DIALOG,{person,day}=findMonthCell(dialog.personId,dialog.date);if(!person||!day)return;
@@ -435,7 +485,7 @@ async function changeMonthException(type){
   const call=type?db.rpc('dash_admin_guardar_excepcion',{p_colab:Number(person.id),p_fecha:day.fecha,p_tipo:type,p_nota:null}):db.rpc('dash_admin_quitar_excepcion',{p_colab:Number(person.id),p_fecha:day.fecha});
   const {data,error}=await call;
   if(error||!data?.ok)return modalMonthMessage('No se pudo actualizar la condición del día.');
-  closeMonthModal();await loadAdminMonth(true);toast(type==='laborable_extra'?'Día habilitado.':type==='no_laborable'?'Permiso registrado.':'Horario restablecido.');
+  await refreshMonthAfterModalClose();toast(type==='laborable_extra'?'Día habilitado.':type==='no_laborable'?'Permiso registrado.':'Horario restablecido.');
 }
 
 async function openHolidayManager(){
@@ -514,7 +564,9 @@ const initialAdminMonth=isoLima().slice(0,7);syncMonthInputs(initialAdminMonth);
   $(`${prefix}-value`).onchange=e=>setMonthFrom(prefix,e.target.value||isoLima().slice(0,7));
   $(`${prefix}-inactive`).onchange=()=>{APP.adminMonthKey='';withAdminSkeleton('mes',()=>loadAdminMonth())};
 });
-$('admin-month-search').oninput=renderAdminMonthLedger;$('admin-month-area').onchange=renderAdminMonthLedger;
+const resetMonthPeople=()=>{ADMIN_MONTH_RANGE.page=0;renderAdminMonthLedger()};
+$('admin-month-search').oninput=resetMonthPeople;$('admin-month-area').onchange=resetMonthPeople;
+window.addEventListener('resize',()=>{if(APP.adminMonth&&APP.adminSection==='mes'&&ADMIN_MONTH_RANGE.narrow!==(window.innerWidth<=650))renderAdminMonthLedger()});
 if($('admin-summary-search'))$('admin-summary-search').oninput=renderAdminMonthSummary;if($('admin-summary-area'))$('admin-summary-area').onchange=renderAdminMonthSummary;
 $('admin-month-area-trigger').onclick=()=>{
   const open=$('admin-month-area-trigger').getAttribute('aria-expanded')!=='true';
@@ -563,6 +615,16 @@ $('admin-month-export').onclick=()=>downloadMonthCsv('month');if($('admin-summar
 $('admin-month-holidays').onclick=openHolidayManager;
 $('admin-month-days-off').onclick=()=>openDaysOffManager();
 $('admin-month-ledger').onclick=event=>{
+  const range=event.target.closest('[data-month-range]');
+  if(range){
+    const ranges=monthDayRanges(APP.adminMonth?.personas?.[0]?.dias||[],window.innerWidth<=650);
+    const selected=ranges[Number(range.dataset.monthRange)];
+    if(selected){ADMIN_MONTH_RANGE.date=selected[0].fecha;renderAdminMonthLedger();$('admin-month-ledger').querySelector(`[data-month-range="${range.dataset.monthRange}"]`)?.focus({preventScroll:true});}
+    return;
+  }
+  const page=event.target.closest('[data-month-page]');
+  if(page&&!page.disabled){ADMIN_MONTH_RANGE.page=Math.max(0,ADMIN_MONTH_RANGE.page+Number(page.dataset.monthPage));renderAdminMonthLedger();$('admin-month-ledger').querySelector(`[data-month-page="${page.dataset.monthPage}"]`)?.focus({preventScroll:true});return;}
+
   const calendar=event.target.closest('[data-person-calendar]');
   if(calendar){
     const person=APP.adminMonth?.personas?.find(p=>String(p.id)===calendar.dataset.personCalendar);
@@ -584,6 +646,7 @@ $('admin-month-ledger').onclick=event=>{
 };
 $('admin-month-modal-body').onclick=event=>{
   if(event.target.closest('[data-retry-holidays]'))return openHolidayManager();
+  if(ADMIN_MONTH_DIALOG?.savingState)return;
   const mode=event.target.closest('[data-month-mode]');if(mode&&!mode.disabled)return changeMonthMode(mode.dataset.monthMode);
   if(ADMIN_MONTH_DIALOG?.savingMode)return;
   const state=event.target.closest('[data-month-state]');if(state)return changeMonthState(state.dataset.monthState);
