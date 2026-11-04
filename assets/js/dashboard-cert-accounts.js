@@ -228,7 +228,7 @@ $('cert-password-form').addEventListener('submit',async event=>{
  event.preventDefault();if(CERT_ACCOUNTS.busy||!certAccountsAllowed())return;
  const id=$('cert-password-id').value,password=$('cert-password-new').value;
  const message=$('cert-password-message');
- if(password.length<12||password.length>128){message.textContent='Usa entre 12 y 128 caracteres.';return;}
+ if(password.length<6||password.length>128){message.textContent='Usa entre 6 y 128 caracteres.';return;}
  if(password!==$('cert-password-repeat').value){message.textContent='Las contraseñas no coinciden.';return;}
  certAccountsBusy(true);message.textContent='Guardando nueva contraseña…';
  try{

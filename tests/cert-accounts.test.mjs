@@ -82,7 +82,7 @@ test('edge verifies identity and manager permission before Auth administration; 
  let handler,allowed=false,valid=true,creates=0,saves=0,recoveries=0,lookup=null,profile=null,passwordChanges=0,passwordFailure=false;
  const user={auth:{getUser:async()=>({data:{user:valid?{id:'actor'}:null},error:null}),resetPasswordForEmail:async()=>{recoveries++;return {error:null};}},
  rpc:async(name)=>name==='dash_gestiona_certificados'?{data:allowed}:name==='dash_cert_buscar_email'?{data:lookup}:(saves++,{data:{ok:true}})};
- const admin={auth:{admin:{updateUserById:async(id,attrs)=>{assert.equal(id,'existing');assert.equal(attrs.password,'new-password-123');passwordChanges++;return {error:passwordFailure?{message:'rejected'}:null};},createUser:async()=>{creates++;return {data:{user:{id:'new'}}};},getUserById:async()=>({data:{user:{email:'a@test.com'}}})}},
+ const admin={auth:{admin:{updateUserById:async(id,attrs)=>{assert.equal(id,'existing');assert.equal(attrs.password,'123456');passwordChanges++;return {error:passwordFailure?{message:'rejected'}:null};},createUser:async()=>{creates++;return {data:{user:{id:'new'}}};},getUserById:async()=>({data:{user:{email:'a@test.com'}}})}},
  from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:profile})})})})};
  const source=fs.readFileSync('supabase/functions/cert-cuentas/index.ts','utf8').replace(/^import .*\n/,'').replace('body:unknown','body').replace('req:Request','req').replace('(p:any)','(p)').replaceAll(/(get\('[^']+'\))!/g,'$1');
  const context=vm.createContext({Request,Response,createClient:(_url,key)=>key==='service'?admin:user,
@@ -98,7 +98,7 @@ test('edge verifies identity and manager permission before Auth administration; 
  profile={id:'existing',activo:true};assert.equal((await call(input)).status,409);
  assert.equal((await call({action:'recovery',id:'existing'})).status,200);assert.equal(recoveries,1);
  profile.activo=false;assert.equal((await call({action:'recovery',id:'existing'})).status,400);assert.equal(recoveries,1);
- const change={action:'password',id:'existing',password:'new-password-123'};
+ const change={action:'password',id:'existing',password:'123456'};
  allowed=false;assert.equal((await call(change)).status,403);assert.equal(passwordChanges,0);
  allowed=true;valid=false;assert.equal((await call(change)).status,401);valid=true;
  assert.equal((await call({...change,password:'short'})).status,400);assert.equal(passwordChanges,0);
@@ -115,10 +115,10 @@ test('password form blocks mismatch, submits once and clears password fields on 
  let calls=0;
  const context=vm.createContext({$:node,APP:{identity:{isSystem:true},access:{rol:'direccion',acceso_panel:true}},toast(){},db:{functions:{invoke:async(name,{body})=>{calls++;assert.equal(name,'cert-cuentas');assert.equal(body.action,'password');assert.equal(body.id,'user');return {data:{ok:true}};}}}});
  vm.runInContext(fs.readFileSync('assets/js/dashboard-cert-accounts.js','utf8'),context);
- node('cert-password-id').value='user';node('cert-password-new').value='new-password-123';node('cert-password-repeat').value='different-password';
+ node('cert-password-id').value='user';node('cert-password-new').value='123456';node('cert-password-repeat').value='different-password';
  const submit=()=>node('cert-password-form').handlers.submit({preventDefault(){}});
  await submit();assert.equal(calls,0);assert.match(node('cert-password-message').textContent,/no coinciden/);
- node('cert-password-repeat').value='new-password-123';await submit();
+ node('cert-password-repeat').value='123456';await submit();
  assert.equal(calls,1);assert.equal(node('cert-password-form').hidden,true);assert.equal(node('cert-password-new').value,'');
  assert.equal(vm.runInContext('CERT_ACCOUNTS.busy',context),false);
 });

@@ -36,7 +36,7 @@ Los pasos 3 y 4 siguientes son opcionales, únicamente para la recuperación ant
 por correo, que ya no aparece como acción del panel.
 
 Para cambiarla, abre la tarjeta de la cuenta, pulsa **Cambiar contraseña**, escribe
-la nueva clave dos veces (12–128 caracteres) y guarda. También puede cambiarse en
+la nueva clave dos veces (6–128 caracteres, incluidos solo números) y guarda. También puede cambiarse en
 cuentas suspendidas; el acceso permanece suspendido. La clave afecta a todos los
 módulos que compartan la misma cuenta Auth. No se registra la contraseña en la
 bitácora ni se muestra la anterior.
