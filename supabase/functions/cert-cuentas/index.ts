@@ -14,8 +14,8 @@ Deno.serve(async(req:Request)=>{
   const body=await req.json();
   const admin=createClient(url,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false,autoRefreshToken:false}});
   if(body.action==='password'){
-   if(typeof body.id!=='string'||typeof body.password!=='string'||body.password.length<12||body.password.length>128)
-    return reply({error:'Usa una contraseña de 12 a 128 caracteres.'},400);
+   if(typeof body.id!=='string'||typeof body.password!=='string'||body.password.length<6||body.password.length>128)
+    return reply({error:'Usa una contraseña de 6 a 128 caracteres.'},400);
    const {data:profile,error:pe}=await admin.from('perfiles').select('id,activo').eq('id',body.id).maybeSingle();
    if(pe||!profile)return reply({error:'No se encontró la cuenta de certificados.'},400);
    const {error}=await admin.auth.admin.updateUserById(profile.id,{password:body.password});
