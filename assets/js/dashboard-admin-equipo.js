@@ -5,7 +5,9 @@ const ADMIN_LINKS={practicas:'Prácticas',voluntariado:'Voluntariado',ambos:'Mix
 const ADMIN_INSTITUTIONS=['UTP - LIMA CENTRO','UTP - LIMA NORTE','UTP - ATE','SENATI - INDEPENDENCIA','SENATI - CENTRO DE LIMA','IDAT - SJM','UPEU - LIMA','UPC - SAN MIGUEL','UFV - SEDE CENTRAL','ZEGEL - PURUCHUCO'];
 let ADMIN_DAYS_OFF={person:null,busy:false,trigger:null};
 let ADMIN_FACEBOOK_SCHEDULE={configured:false,horario:{}};
+let ADMIN_FACEBOOK_DIRTY=false;
 let ADMIN_CONTRACT_META_EDITED=false;
+let ADMIN_EDITOR_REQUEST=0;
 
 function teamMsg(text){
   const el=$(APP.adminSection==='contratos'?'admin-contract-message':'admin-team-message');
@@ -174,6 +176,7 @@ function renderAdminPeople(){
   if(typeof syncAdminAreaPicker==='function')syncAdminAreaPicker();
   if(typeof syncAdminInstitutionPicker==='function')syncAdminInstitutionPicker();
   if(!APP.adminTeam)return;
+  if(typeof renderPeopleWorkbench==='function'&&renderPeopleWorkbench())return;
   if(typeof renderAttendanceExport==='function')renderAttendanceExport();
   const all=APP.adminTeam.personas||[],visible=filteredAdminPeople('people'),canEdit=!!APP.adminTeam.puede_editar;
   const active=all.filter(p=>p.activo),inactive=all.length-active.length,noDni=active.filter(p=>!p.dni).length,noPin=active.filter(p=>!p.tiene_pin).length,pending=active.filter(p=>p.contrato_pendiente).length;
@@ -305,6 +308,7 @@ function fillAdminInstitutionOptions(current){
 
 async function openAdminPerson(id){
   if(!APP.adminTeam?.puede_editar)return teamMsg('Tu rol permite consultar, pero no editar colaboradores.');
+  const request=++ADMIN_EDITOR_REQUEST;
   const person=id?(APP.adminTeam.personas||[]).find(x=>String(x.id)===String(id)):null;
   $('admin-person-title').textContent=person?'Editar colaborador':'Nuevo colaborador';
   $('admin-person-id').value=person?.id||'';
@@ -317,7 +321,7 @@ async function openAdminPerson(id){
     $('admin-institution-name').value='';
     $('admin-institution-reveal').setAttribute('aria-expanded','false');
     $('admin-institution-reveal').disabled=!APP.adminTeam.instituciones_disponibles;
-    $('admin-contract-estimate').textContent='Se calcula al cambiar las fechas o la jornada. Puedes ajustar la meta manualmente.';
+    $('admin-contract-estimate').textContent='La meta se conserva. Simular aplica el horario de referencia a todo el intervalo; no reconstruye vigencias anteriores ni cambia las horas acordadas.';
     $('admin-person-institution').disabled=!APP.adminTeam.instituciones_disponibles;
     $('admin-institution-help').textContent=APP.adminTeam.instituciones_disponibles?'Elige la sede. Si no se registra, quedará vacía en el informe.':'Institución pendiente de habilitar en la base de datos (migración 66).';
   }
@@ -338,15 +342,19 @@ async function openAdminPerson(id){
   $('admin-general-end').value=fmtTime(person?.hora_fin)==='—'?'13:00':fmtTime(person?.hora_fin);
   $('admin-schedule-grid').innerHTML=scheduleRows(person);
   ADMIN_FACEBOOK_SCHEDULE={configured:false,horario:fallbackFacebookSchedule(person)};
+  ADMIN_FACEBOOK_DIRTY=!person;
   $('admin-facebook-schedule-grid').innerHTML=facebookScheduleRows(ADMIN_FACEBOOK_SCHEDULE,person);
   $('admin-history-block').hidden=!person;
   $('admin-change-reason').value='';
   $('admin-history-list').innerHTML=person?'<p>Cargando historial…</p>':'';
   editorMsg('');updateAdminEditorConditions();
+  if(typeof configurePeopleEditor==='function')configurePeopleEditor(person);
   $('admin-person-modal').hidden=false;document.body.style.overflow='hidden';
   setTimeout(()=>$('admin-person-name').focus(),30);
   if(person){
-    const [{data,error}]=await Promise.all([db.rpc('dash_admin_horario_compartir',{p_colab:Number(person.id)}),loadAdminPersonHistory(person.id)]);
+    const results=await Promise.allSettled([db.rpc('dash_admin_horario_compartir',{p_colab:Number(person.id)}),loadAdminPersonHistory(person.id,request)]);
+    if(request!==ADMIN_EDITOR_REQUEST||$('admin-person-modal').hidden)return;
+    const {data,error}=results[0].status==='fulfilled'?results[0].value:{error:true};
     if(data?.ok){ADMIN_FACEBOOK_SCHEDULE=data;$('admin-facebook-schedule-grid').innerHTML=facebookScheduleRows(data,person);}
     else if(error)editorMsg('No se pudo cargar el horario de Facebook. Ejecuta dashboard 32 en Supabase.');
   }
@@ -354,7 +362,11 @@ async function openAdminPerson(id){
 
 function closeAdminPerson(){
   if($('admin-person-save').disabled)return;
+  ADMIN_EDITOR_REQUEST++;
   $('admin-person-modal').hidden=true;document.body.style.overflow='';
+  if(typeof peopleDesktop==='function'&&peopleDesktop()){
+    if(PEOPLE_WORKBENCH.editorOrigin?.isConnected)PEOPLE_WORKBENCH.editorOrigin.focus();else restorePeopleFocus();
+  }
 }
 function updateAdminEditorConditions(){
   const mixed=$('admin-person-link').value==='ambos',pending=$('admin-contract-is-pending').checked;
@@ -368,10 +380,13 @@ function updateAdminEditorConditions(){
     row.querySelector('.schedule-end').disabled=off;
     row.querySelector('.schedule-link').disabled=off||!mixed;
   });
+  if(typeof configurePeopleEditor==='function')configurePeopleEditor((APP.adminTeam?.personas||[]).find(p=>String(p.id)===$('admin-person-id').value)||null);
 }
 
-async function loadAdminPersonHistory(id){
-  const {data,error}=await db.rpc('dash_admin_historial_colaborador',{p_colab:Number(id)});
+async function loadAdminPersonHistory(id,request=ADMIN_EDITOR_REQUEST){
+  let result;try{result=await db.rpc('dash_admin_historial_colaborador',{p_colab:Number(id)});}catch(_error){result={error:true};}
+  if(request!==ADMIN_EDITOR_REQUEST||$('admin-person-modal').hidden)return;
+  const {data,error}=result;
   if(error||!data?.ok){$('admin-history-list').innerHTML='<p>No se pudo cargar el historial.</p>';return}
   const labels={horario:'Horario y modalidad',horas_contrato:'Meta de horas',fechas:'Fechas y datos del contrato',otro:'Identidad o estado'};
   const history=data.historial||[];
@@ -437,7 +452,7 @@ async function saveAdminPerson(event){
   if(dni&&!/^\d{8}$/.test(dni))return editorMsg('El DNI debe tener exactamente 8 dígitos.');
   if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return editorMsg('Escribe un correo válido.');
   if($('admin-contract-start').value&&$('admin-contract-end').value&&$('admin-contract-end').value<$('admin-contract-start').value)return editorMsg('La fecha final no puede ser anterior al inicio del contrato.');
-  let payload,facebookSchedule;try{payload=collectAdminPerson();facebookSchedule=collectFacebookSchedule()}catch(e){return editorMsg(e.message)}
+  let payload,facebookSchedule;try{payload=collectAdminPerson();facebookSchedule=ADMIN_FACEBOOK_DIRTY?collectFacebookSchedule():null}catch(e){return editorMsg(e.message)}
   payload.meta_editada_explicitamente=ADMIN_CONTRACT_META_EDITED;
   const button=$('admin-person-save');button.disabled=true;button.textContent='Guardando…';
   if(APP.adminTeam.instituciones_disponibles){payload.institucion=$('admin-person-institution')?.value.trim()||null;payload.correo=email.toLowerCase()||null;}
@@ -446,9 +461,10 @@ async function saveAdminPerson(event){
     button.disabled=false;button.textContent='Guardar cambios';
     const messages={sin_permiso:'Tu rol no permite editar.',nombre:'Revisa el nombre completo.',dni:'El DNI debe tener 8 dígitos.',dni_duplicado:'Ese DNI ya pertenece a otro colaborador.',area:'Selecciona un área activa.',horario:'Hay un día con horario incompleto o incoherente.',horario_general:'La salida general debe ser posterior a la entrada.',fechas:'La fecha final no puede ser anterior al inicio.',horas:'Las horas no pueden ser negativas.',duplicado:'Ya existe un registro con uno de estos datos.',institucion:'La institución no es válida.',correo:'Escribe un correo válido.',correo_duplicado:'Ese correo ya pertenece a otro colaborador.'};
     if(data?.motivo==='meta_requiere_edicion_explicita')return editorMsg('La meta contractual se conserva al cambiar fechas u horarios. Recarga la ficha; para corregir la meta, escribe las horas acordadas directamente en su campo.');
-    return editorMsg(messages[data?.motivo]||error?.message||'No se pudo guardar la ficha.');
+    if(error?.message?.includes('jornada_requiere_vigencia'))return editorMsg('El horario y el inicio histórico se conservan. Usa la pestaña Jornada de la ficha para programar un cambio con vigencia.');
+    return editorMsg(messages[data?.motivo]||'No se pudo guardar la ficha. Conservamos los datos para reintentar.');
   }
-  const facebookResult=await db.rpc('dash_admin_guardar_horario_compartir',{p_colab:Number(data.id),p_horario:facebookSchedule});
+  const facebookResult=ADMIN_FACEBOOK_DIRTY?await db.rpc('dash_admin_guardar_horario_compartir',{p_colab:Number(data.id),p_horario:facebookSchedule}):{data:{ok:true}};
   button.disabled=false;button.textContent='Guardar cambios';
   if(facebookResult.error||!facebookResult.data?.ok){
     const messages={sin_permiso:'Tu rol no permite editar este horario.',horario:'Hay una franja de Facebook incompleta.',dia:'Revisa los días seleccionados.'};
@@ -539,7 +555,7 @@ async function saveAdminDaysOff(event){
   el.addEventListener('keydown',e=>{if(e.key==='Escape'&&el.value){el.value='';handler();}});
 });
 ['admin-people-area','admin-people-institution','admin-people-email','admin-people-inactive'].forEach(id=>$(id)?.addEventListener('change',()=>{
-  if(id==='admin-people-institution'){
+  if(id==='admin-people-institution'&&typeof renderPeopleWorkbench!=='function'){
     const val=$('admin-people-institution')?.value||'';
     const exp=$('attendance-export-institution');
     if(exp&&exp.value!==val){
@@ -559,7 +575,7 @@ $('admin-person-dni').addEventListener('input',e=>e.target.value=e.target.value.
 $('admin-person-link').addEventListener('change',updateAdminEditorConditions);
 $('admin-contract-is-pending').addEventListener('change',updateAdminEditorConditions);
 $('admin-schedule-grid').addEventListener('change',e=>{if(e.target.classList.contains('schedule-mode'))updateAdminEditorConditions()});
-$('admin-facebook-schedule-grid').addEventListener('change',e=>{if(e.target.classList.contains('facebook-day-enabled'))syncFacebookScheduleRows()});
+$('admin-facebook-schedule-grid').addEventListener('change',e=>{ADMIN_FACEBOOK_DIRTY=true;if(e.target.classList.contains('facebook-day-enabled'))syncFacebookScheduleRows()});
 $('admin-area-reveal').onclick=()=>{$('admin-area-create').hidden=!$('admin-area-create').hidden;if(!$('admin-area-create').hidden)$('admin-area-name').focus()};
 $('admin-area-save').onclick=createAdminArea;
 $('admin-institution-reveal').onclick=()=>{

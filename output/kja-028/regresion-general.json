@@ -1,0 +1,26 @@
+{
+  "total": 353,
+  "pass": 337,
+  "fail": 16,
+  "same_failures": true,
+  "introduced": [],
+  "failures": [
+    "each area supports two co-leaders with the same server-side scope as its leader",
+    "operational overview prioritizes alerts and summarizes every admin section",
+    "monthly summary prioritizes metrics and table inside a compact workbench",
+    "dashboard has unique ids and the complete close workflow",
+    "exit photo is a server-enforced requirement limited to the exit window",
+    "phase 7 adds one private, size-limited optional video to RPE or assigned work",
+    "phase 2 review is private, auditable and reopens observed evidence safely",
+    "direction messages, review notes and assignments share one private notification inbox",
+    "admin close evidence progress survives an incomplete close summary",
+    "Facebook accepts large evidence sets without weakening other upload limits",
+    "daily pending panel is visible before entry and evidence opens without inline page growth",
+    "first visit waits for the loaded personal dashboard and starts automatically",
+    "chapters follow sidebar, jornada, hours, closing requirements and personal space",
+    "first-visit preference belongs to each signed-in user and replay bypasses it",
+    "finishing the web guide does not suppress the first mobile visit",
+    "the seventh nav link does not overflow the desktop bar and carousel arrows avoid transform centering"
+  ],
+  "method": "Unchanged npm test suite with six edited application files read from HEAD through a preload, preserving the same local environment. Baseline and current logs: tmp/kja-028/pruebas-base.log and pruebas-generales.log."
+}

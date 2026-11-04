@@ -1,0 +1,127 @@
+{
+  "errors": [],
+  "layouts": [
+    {
+      "viewport": 1440,
+      "host": {
+        "width": 1050,
+        "height": 820,
+        "scrollWidth": 1050,
+        "scrollHeight": 1324
+      },
+      "kpis": {
+        "html": "<button type=\"button\" data-pw-metric=\"all\" aria-pressed=\"true\"><small>Directorio</small><span><b>6</b><small>5 activos · 1 bajas</small></span></butto",
+        "height": 94,
+        "children": [
+          {
+            "display": "flex",
+            "h": 94
+          },
+          {
+            "display": "flex",
+            "h": 94
+          },
+          {
+            "display": "flex",
+            "h": 94
+          },
+          {
+            "display": "flex",
+            "h": 94
+          }
+        ]
+      },
+      "cardWidth": 313,
+      "grid": "314.656px 314.672px 314.656px",
+      "overflow": [],
+      "colors": {
+        "background": "rgb(240, 236, 229)",
+        "text": "rgb(40, 38, 34)"
+      },
+      "bottom": 900
+    },
+    {
+      "viewport": 1280,
+      "host": {
+        "width": 890,
+        "height": 720,
+        "scrollWidth": 890,
+        "scrollHeight": 1653
+      },
+      "kpis": {
+        "html": "<button type=\"button\" data-pw-metric=\"all\" aria-pressed=\"true\"><small>Directorio</small><span><b>6</b><small>5 activos · 1 bajas</small></span></butto",
+        "height": 94,
+        "children": [
+          {
+            "display": "flex",
+            "h": 94
+          },
+          {
+            "display": "flex",
+            "h": 94
+          },
+          {
+            "display": "flex",
+            "h": 94
+          },
+          {
+            "display": "flex",
+            "h": 94
+          }
+        ]
+      },
+      "cardWidth": 397,
+      "grid": "399px 399px",
+      "overflow": [],
+      "colors": {
+        "background": "rgb(240, 236, 229)",
+        "text": "rgb(40, 38, 34)"
+      },
+      "bottom": 800
+    }
+  ],
+  "contrast": [
+    {
+      "label": "Nombre",
+      "foreground": "rgb(40, 38, 34)",
+      "background": "rgb(255, 255, 255)",
+      "ratio": 15.1
+    },
+    {
+      "label": "Texto secundario",
+      "foreground": "rgb(105, 99, 93)",
+      "background": "rgb(255, 255, 255)",
+      "ratio": 5.93
+    },
+    {
+      "label": "Acción",
+      "foreground": "rgb(255, 255, 255)",
+      "background": "rgb(169, 88, 62)",
+      "ratio": 5.06
+    },
+    {
+      "label": "Borde del buscador",
+      "foreground": "rgb(153, 139, 127)",
+      "background": "rgb(252, 250, 247)",
+      "ratio": 3.17
+    }
+  ],
+  "formRetained": {
+    "reason": "Acuerdo temporal con Dirección",
+    "buttonEnabled": true,
+    "calls": 1
+  },
+  "saved": {
+    "toasts": [
+      [
+        "Jornada programada. El historial y los registros se conservaron."
+      ]
+    ],
+    "focus": "<button type=\"button\" class=\"pw-button\" data-team-profile=\"1\" aria-label=\"Ver ficha de Ana Victoria Torres Salazar\">Ver ficha <span aria-hidden=\"true\">↗</span></button>",
+    "dialogs": 0
+  },
+  "indefinite": true,
+  "editorFocusTrapped": true,
+  "editorFocusRestored": true,
+  "readOnly": 0
+}

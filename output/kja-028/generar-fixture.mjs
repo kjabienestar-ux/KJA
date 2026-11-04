@@ -1,0 +1,18 @@
+import fs from 'node:fs';import {JSDOM} from 'jsdom';
+import {peopleFixtureData,peopleBootstrap,peopleSources} from '../../tests/helpers/people-workbench-fixture.mjs';
+const root=new URL('../../',import.meta.url),html=fs.readFileSync(new URL('dashboard.html',root),'utf8');
+const dom=new JSDOM(html),d=dom.window.document;
+d.querySelectorAll('script').forEach(s=>s.remove());d.querySelectorAll('link[href^="http"]').forEach(s=>s.remove());
+const base=d.createElement('base');base.href='../../';d.head.prepend(base);
+const portal=d.getElementById('portal');portal.hidden=false;portal.removeAttribute('inert');portal.removeAttribute('aria-hidden');portal.classList.add('admin-wide');
+portal.dataset.view='gestion';portal.dataset.adminSection='colaboradores';portal.dataset.adminLateral='true';portal.dataset.adminRail='icons';
+for(const id of ['view-gestion','admin-lateral','admin-people-section'])d.getElementById(id).hidden=false;
+d.querySelectorAll('#view-gestion > section').forEach(el=>{if(el.id!=='admin-people-section')el.hidden=true;});
+d.getElementById('admin-overview-section').hidden=true;
+d.querySelectorAll('[id^="view-"]').forEach(el=>{if(el.id!=='view-gestion')el.hidden=true;});
+d.querySelectorAll('.boot-screen,.boot-overlay,#boot,#access').forEach(el=>el.hidden=true);
+const lateral=d.querySelector('[data-lateral-section="colaboradores"]');lateral?.classList.add('active');
+d.getElementById('side-name').textContent='Piero';d.getElementById('side-role').textContent='Dirección';
+const script=d.createElement('script');script.textContent='window.FIXTURE_TEAM='+JSON.stringify(peopleFixtureData())+';\n'+peopleBootstrap+'\n'+peopleSources.join('\n')+'\nrenderAdminPeople();';d.body.append(script);
+const style=d.createElement('style');style.textContent='html,body{margin:0!important}.boot-overlay,.boot-screen,#boot{display:none!important}#portal[hidden]{display:none!important}';d.head.append(style);
+fs.mkdirSync(new URL('./',import.meta.url),{recursive:true});fs.writeFileSync(new URL('fixture.html',import.meta.url),'<!doctype html>\n'+d.documentElement.outerHTML);console.log('Fixture de escritorio generada con componentes reales y RPC simuladas.');
