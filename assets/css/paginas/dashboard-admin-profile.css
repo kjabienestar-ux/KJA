@@ -91,6 +91,25 @@
 
 
 /* Composition administrative: accueil horizontal et panneau lateral. */
+.admin-password-form[hidden] { display: none; }
+#portal.admin-wide #view-perfil .admin-password-form { margin-top: 28px; padding-top: 28px; border-top: 1px solid #e4dac9; min-width: 0; }
+#portal.admin-wide #view-perfil .admin-password-form p { color: #706b62; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+#portal.admin-wide #view-perfil .admin-password-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+#portal.admin-wide #view-perfil .admin-password-fields label { display: grid; gap: 8px; min-width: 0; font-size: 13px; color: #35332e; }
+#portal.admin-wide #view-perfil .admin-password-fields input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid #d9cdbd; border-radius: 8px; background: #fcfbf8; color: #35332e; font: inherit; font-size: 16px; }
+#portal.admin-wide #view-perfil .admin-password-show { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 8px 0; font-size: 13px; cursor: pointer; }
+#portal.admin-wide #view-perfil .admin-password-show input { width: 18px; height: 18px; margin: 0; accent-color: #8a6831; }
+#portal.admin-wide #view-perfil #admin-password-save { min-height: 44px; padding: 10px 16px; border: 0; border-radius: 9px; background: #8a6831; color: #fff; font: 600 13px/1.5 Inter,sans-serif; cursor: pointer; }
+#portal.admin-wide #view-perfil #admin-password-save:hover { background: #735526; }
+#portal.admin-wide #view-perfil #admin-password-save:disabled { opacity: .65; cursor: wait; }
+#portal.admin-wide #view-perfil .admin-password-form :is(input,button):focus-visible { outline: 2px solid #8a6831; outline-offset: 3px; }
+#portal.admin-wide #view-perfil #admin-password-message:empty { display: none; }
+#portal.admin-wide #view-perfil #admin-password-message[data-state="error"] { color: #a12c2c; }
+#portal.admin-wide #view-perfil #admin-password-message[data-state="success"] { color: #196f63; }
+@media(max-width:600px) {
+  #portal.admin-wide #view-perfil .admin-password-fields { grid-template-columns: minmax(0, 1fr); }
+  #portal.admin-wide #view-perfil #admin-password-save { width: 100%; }
+}
 .admin-profile-aside { display: none; }
 #portal.admin-wide #view-perfil.is-admin-profile { max-width: 1380px; padding: 0; margin: 20px auto; background: #fff; border-radius: 24px; min-height: 640px; overflow: hidden; position: relative; }
 #portal.admin-wide #view-perfil .view-head { display: flex; align-items: center; justify-content: space-between; padding: 30px 32px 22px; margin: 0; width: calc(100% - 320px); box-sizing: border-box; background: none !important; border: 0; box-shadow: none; border-radius: 0; }
