@@ -1,0 +1,43 @@
+const {chromium}=require('playwright');
+const fs=require('node:fs'),path=require('node:path');const {pathToFileURL}=require('node:url');
+(async()=>{
+ const browser=await chromium.launch({headless:true,channel:'msedge'}),p=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];
+ p.on('pageerror',e=>errors.push(e.message));await p.route(/^https?:/,r=>r.abort());
+ await p.goto(pathToFileURL(path.join(__dirname,'fixture.html')).href);await p.locator('.pw-card').first().waitFor();await p.evaluate(()=>document.fonts.ready);
+ const evidence={errors,layouts:[]};
+ const snap=async(name)=>p.screenshot({path:path.join(__dirname,name+'.png')});
+ const layout=async()=>p.evaluate(()=>{
+  const host=document.getElementById('admin-people-section'),cards=[...document.querySelectorAll('.pw-card')];
+  return {viewport:innerWidth,host:{width:host.clientWidth,height:host.clientHeight,scrollWidth:host.scrollWidth,scrollHeight:host.scrollHeight},kpis:{html:document.getElementById('admin-people-kpis').innerHTML.slice(0,150),height:document.getElementById('admin-people-kpis').clientHeight,children:[...document.getElementById('admin-people-kpis').children].map(x=>({display:getComputedStyle(x).display,h:x.clientHeight}))},cardWidth:cards[0]?.clientWidth,grid:getComputedStyle(document.querySelector('.pw-card-grid')).gridTemplateColumns,overflow:[...document.querySelectorAll('.pw-workbench,.pw-area,.pw-card,.pw-modal[open],.pw-modal[open] .pw-week')].filter(e=>e.scrollWidth>e.clientWidth+2).map(e=>e.className),colors:{background:getComputedStyle(host).backgroundColor,text:getComputedStyle(cards[0]).color},bottom:host.getBoundingClientRect().bottom};
+ });
+ await snap('01-directorio-1440');evidence.layouts.push(await layout());
+ evidence.contrast=await p.evaluate(()=>{
+  const rgba=s=>(s.match(/[\d.]+/g)||[]).slice(0,3).map(Number),lum=a=>a.map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
+  const pairs=[['Nombre','.pw-card-identity h3','color','.pw-card'],['Texto secundario','.pw-card-identity p','color','.pw-card'],['Acción','#admin-new-person','color','#admin-new-person'],['Borde del buscador','#admin-people-search','borderTopColor','#admin-people-search']];
+  return pairs.map(([label,selector,prop,bgSelector])=>{const f=getComputedStyle(document.querySelector(selector))[prop],b=getComputedStyle(document.querySelector(bgSelector)).backgroundColor,a=lum(rgba(f)),c=lum(rgba(b));return {label,foreground:f,background:b,ratio:Math.round((Math.max(a,c)+.05)/(Math.min(a,c)+.05)*100)/100};});
+ });
+ await p.setViewportSize({width:1280,height:800});await snap('02-directorio-1280');evidence.layouts.push(await layout());
+ await p.getByRole('button',{name:/Ver ficha de Ana/}).click();await p.locator('#pw-profile-dialog[open]').waitFor();await snap('03-ficha-resumen');
+ await p.getByRole('tab',{name:'Jornada',exact:true}).click();await snap('04-ficha-jornada');
+ await p.getByRole('button',{name:'Crear horario temporal',exact:true}).click();await snap('05-temporal-configurar');
+ await p.locator('#pw-shift-from').fill('2026-11-09');await p.locator('#pw-shift-until').fill('2026-11-21');await p.locator('#pw-shift-reason').fill('Acuerdo temporal con Dirección');
+ await p.locator('#pw-shift-save').click();await snap('06-temporal-revision');
+ await p.evaluate(()=>window.fixtureSaveError=true);await p.locator('#pw-shift-save').click();await p.locator('#pw-shift-message').filter({hasText:'Conservamos'}).waitFor();await snap('07-temporal-error');
+ evidence.formRetained=await p.evaluate(()=>({reason:PEOPLE_WORKBENCH.shift.payload.p_motivo,buttonEnabled:!document.getElementById('pw-shift-save').disabled,calls:fixtureCalls.filter(c=>c.name==='dash_admin_guardar_jornada').length}));
+ await p.evaluate(()=>window.fixtureSaveError=false);await p.locator('#pw-shift-save').click();await p.locator('#pw-shift-dialog').waitFor({state:'hidden'});
+ evidence.saved=await p.evaluate(()=>({toasts:fixtureToasts,focus:document.activeElement.outerHTML,dialogs:[...document.querySelectorAll('dialog[open]')].length}));
+ await p.setViewportSize({width:1440,height:900});await p.getByRole('button',{name:/Ver ficha de Ana/}).click();await p.getByRole('tab',{name:'Jornada',exact:true}).click();await p.getByRole('button',{name:'Actualizar jornada',exact:true}).click();
+ await p.locator('#pw-shift-indefinite').check();await p.locator('#pw-shift-reason').fill('Continuidad por contrato');await p.locator('#pw-shift-save').click();await snap('08-principal-indeterminado');
+ evidence.indefinite=await p.evaluate(()=>PEOPLE_WORKBENCH.shift.payload.p_hasta===null);
+ await p.keyboard.press('Escape');await p.keyboard.press('Escape');await p.getByRole('button',{name:'Informes',exact:true}).click();await snap('09-informes');
+ await p.getByRole('button',{name:'Áreas',exact:true}).click();await snap('10-areas');
+ await p.getByRole('button',{name:'Equipo',exact:true}).click();await p.locator('#admin-people-search').fill('zzzz sin resultados');await snap('11-vacio');
+ await p.getByRole('button',{name:'Limpiar filtros',exact:true}).click();
+ await p.locator('.pw-more-filters>summary').click();await snap('13-mas-filtros');await p.locator('.pw-more-filters>summary').click();
+ await p.getByRole('button',{name:/Ver ficha de Ana/}).click();await p.locator('.pw-actions>summary').click();await p.getByRole('button',{name:'Editar datos y contrato',exact:true}).click();await p.locator('#admin-person-modal').waitFor({state:'visible'});await snap('14-editor');await p.locator('#admin-person-save').focus();await p.keyboard.press('Tab');evidence.editorFocusTrapped=await p.evaluate(()=>!!document.activeElement.closest('#admin-person-modal'));await p.keyboard.press('Escape');evidence.editorFocusRestored=await p.evaluate(()=>document.activeElement.hasAttribute('data-team-profile'));
+ await p.getByRole('button',{name:/Ver ficha de Ana/}).click();await p.getByRole('button',{name:/Días libres/}).click();await p.locator('#admin-days-off-modal').waitFor({state:'visible'});await snap('15-dias-libres');await p.keyboard.press('Escape');
+ await p.evaluate(()=>{APP.adminTeam.puede_editar=false;APP.access.rol='visor';renderAdminPeople();});
+ await p.getByRole('button',{name:/Ver ficha de Ana/}).click();await p.getByRole('tab',{name:'Jornada',exact:true}).click();await snap('12-solo-lectura');
+ evidence.readOnly=await p.locator('#pw-profile-dialog [data-pw-shift]').count();evidence.errors=errors;
+ fs.writeFileSync(path.join(__dirname,'auditoria.json'),JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence,null,2));await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});

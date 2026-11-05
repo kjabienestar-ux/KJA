@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test:colaboradores": "node --test tests/people-workbench.test.mjs tests/jornadas-vigencias-sql.test.mjs tests/admin-people-search.test.mjs tests/admin-contracts.test.mjs tests/admin-contract-estimate.test.mjs tests/contract-nonworking-hours.test.mjs tests/contract-meta-protection.test.mjs tests/person-profile.test.mjs tests/temporary-schedule-directory.test.mjs tests/ronny-temporary-schedule-sql.test.mjs tests/person-calendar-contract-sql.test.mjs tests/attendance-calendar.test.mjs tests/person-delete.test.mjs",
     "test:seguimiento": "node --test tests/seguimiento-diario.test.mjs tests/admin-control-workbench.test.mjs tests/admin-close-desktop-filters.test.mjs tests/daily-close-loading.test.mjs tests/admin-exit-recovery-ui.test.mjs tests/admin-optional-exit.test.mjs tests/admin-evidence-edge.test.mjs tests/evidence-corrections.test.mjs",
     "test:chat": "node --test tests/chat.test.mjs tests/chat-images.test.mjs tests/chat-coordinaciones.test.mjs tests/chat-coordinaciones-sql.test.mjs",
     "test:marketing": "node --test tests/marketing.test.mjs tests/marketing-gemini.test.mjs tests/marketing-compression.test.mjs tests/marketing-quota.test.mjs tests/marketing-layout.test.mjs",

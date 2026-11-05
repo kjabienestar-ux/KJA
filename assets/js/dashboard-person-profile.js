@@ -29,12 +29,13 @@ function adminProfileSections(person,extra={}){
   const sections=[
     {title:'Identidad y vínculo',rows:[['Nombre completo',profileValue(person.nombre)],['DNI',profileValue(person.dni)],['Institución',profileValue(person.institucion)],['Área',profileValue(person.area)],['Vínculo',ADMIN_LINKS[person.tipo_vinculo]||profileValue(person.tipo_vinculo)],['Estado',person.activo?'Activo':'Dado de baja'],['Acceso al portal',person.tiene_cuenta?'Activado':'Aún no ingresó'],['PIN de acceso',person.tiene_pin?'Configurado':'Sin configurar']]},
     {title:'Horario semanal',note:'Horas de Lima (Perú). Se muestra el horario vigente.',head:['Día','Modalidad','Horario','Vínculo'],rows:ADMIN_DAYS.map(([,dow],index)=>{
-      const day=(person.horario_semanal||{})[String(dow)]||{},mode=adminMode(person,dow),off=mode==='no_gestiona';
+      const day=(person.horario_vigente||person.horario_semanal||{})[String(dow)]||{},mode=day.mod||adminMode(person,dow),off=mode==='no_gestiona';
       return [PROFILE_DAY_NAMES[index],ADMIN_MODES[mode]?.[0]||profileValue(mode),off?'No laborable':profileTime(day.ini||person.hora_inicio,day.fin||person.hora_fin),off?'—':ADMIN_LINKS[person.tipo_vinculo==='ambos'?(day.vinc||'practicas'):person.tipo_vinculo]||'Sin registrar'];
     })},
     {title:'Contrato y avance',rows:[['Estado del contrato',person.contrato_pendiente?'Pendiente de confirmar':contractState(person)[0]],['Fecha de inicio',date(person.contrato_inicio)],['Fecha de fin del documento',date(person.contrato_fin_referencia)],['Término estimado',r.pendiente?'Por definir':date(r.fecha_fin_estimada)],['Meta del contrato',hours(person.contrato_horas)],['Horas previas reconocidas',hours(person.horas_previas)],['Horas registradas',hours(r.marcadas)],['Horas cumplidas',hours(r.cumplidas)],['Horas pendientes',hours(r.faltantes)],['Horas por semana',hours(r.semana_horas)],['Observaciones',profileValue(person.contrato_nota)]]}
   ];
   const temporary=Array.isArray(person.horarios_temporales)?person.horarios_temporales:[];
+  if(person.jornadas?.length)sections.push({title:'Vigencias de jornada',note:'Principal y temporal se aplican por fecha. El fin del principal no reactiva una jornada anterior.',head:['Tipo','Desde','Hasta','Motivo'],rows:[...person.jornadas].sort((a,b)=>b.desde.localeCompare(a.desde)).map(j=>[j.tipo==='temporal'?'Horario temporal':'Jornada principal',date(j.desde),j.hasta?date(j.hasta):'Fin indeterminado',profileValue(j.motivo)])});
   if(temporary.length){
     sections[1].note='Horario habitual de referencia. Los ajustes temporales se aplican únicamente a las fechas indicadas.';
     sections.splice(1,0,{title:'Horario temporal por fecha',note:`Horas de Lima. Desde el ${adminDate(adminScheduleResumeDate(person))} vuelve automáticamente al horario habitual.`,head:['Fecha','Jornada','Horario'],

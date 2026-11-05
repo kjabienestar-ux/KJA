@@ -110,6 +110,7 @@ test('each collaborator uses server working days, including Saturdays, holidays 
   assert.match(values[4].view.reason,/anterior/);
   assert.match(values[5].view.reason,/posterior/);
   assert.equal(model.daysView([rows[2]],'2026-10-01',{...person,contrato_fin_referencia:null})[0].view.tone,'missing');
+  assert.equal(model.daysView([{...rows[5],jornada_versionada:true}],'2026-10-01',person)[0].view.tone,'missing','a server-versioned day is not clipped by an old reference end date');
 });
 test('rest day keeps delivered files but suppresses missing work and Facebook from the incident list',async()=>{
   const x=setup(),pending=x.context.KJAPersonCalendar.mount(x.options);

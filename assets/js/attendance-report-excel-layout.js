@@ -21,7 +21,7 @@
   const opening=(title,period,note)=>[row([],12),row([cell(title,1)],38),row([cell(period,2)]),row([cell(note,2)],32),row([],12)];
   const modes={virtual:['Virtual',14],presencial:['Presencial',5],opcional:['Opcional',15],no_gestiona:['No gestiona',8]};
   function schedule(p,dow){
-    const day=p.horario_semanal?.[String(dow)]||{},mode=day.mod||((p.dias_laborables||[]).map(Number).includes(dow)?'virtual':'no_gestiona');
+    const day=(p.horario_vigente||p.horario_semanal)?.[String(dow)]||{},mode=day.mod||((p.dias_laborables||[]).map(Number).includes(dow)?'virtual':'no_gestiona');
     const [label,style]=modes[mode]||['Sin configurar',8];
     if(mode==='no_gestiona')return cell(label,style);
     const start=day.ini||p.hora_inicio,end=day.fin||p.hora_fin;

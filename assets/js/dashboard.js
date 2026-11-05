@@ -790,6 +790,7 @@ async function removeProfileCover(){
 }
 
 function showAccess(message){
+  if(typeof resetPeopleWorkbench==='function')resetPeopleWorkbench();
   if(typeof resetAttendancePreview==='function')resetAttendancePreview();
   if(typeof window!=='undefined')window.KJAZoom?.reset();
   if(typeof resetEvidenceCorrections==='function')resetEvidenceCorrections();
@@ -1243,6 +1244,8 @@ function renderHome(){
   const greeting=hour<12?'Buenos días':hour<19?'Buenas tardes':'Buenas noches';
   $('welcome').textContent=`${greeting}, ${c.nombre.split(' ')[0]}`;
   $('welcome-sub').textContent=d.marcado?'Tu entrada de hoy ya quedó registrada.':'Aquí tienes lo importante de tu jornada.';
+  if(c.jornada_vigencia?.tipo==='temporal')$('welcome-sub').textContent+=` Horario temporal hasta el ${new Date(c.jornada_vigencia.hasta+'T12:00:00-05:00').toLocaleDateString('es-PE',{day:'numeric',month:'long'})}; después vuelve tu jornada principal vigente.`;
+  else if(c.jornada_vigencia?.finalizada)$('welcome-sub').textContent='Tu jornada principal ha finalizado. No tienes nuevas jornadas programadas.';
   $('welcome-area').textContent=c.area||'Equipo KJA';
   const date=new Date((d.fecha||isoLima())+'T12:00:00');
   if($('today-label'))$('today-label').textContent=dayNames[date.getDay()].toUpperCase();
@@ -1728,7 +1731,13 @@ function attendancePreviewTeammates(){
 function teammateSchedule(person,dow,date=null){
   // Sin primera entrada confirmada no se proyectan jornadas en el calendario.
   if(date&&(!person.primera_asistencia||date<person.primera_asistencia))return null;
-  const day=person.horario_semanal?.[String(dow)]||{};
+  let week=date?person.horario_semanal:person.horario_vigente||person.horario_semanal;
+  if(date&&person.jornadas?.length){
+    const list=[...person.jornadas].sort((a,b)=>a.desde.localeCompare(b.desde));
+    const period=list.find(j=>j.tipo==='temporal'&&j.desde<=date&&j.hasta>=date)||list.filter(j=>j.tipo==='principal'&&j.desde<=date).at(-1);
+    if(period){if(period.hasta&&date>period.hasta)return null;week=period.semana;}
+  }
+  const day=week?.[String(dow)]||{};
   const works=day.mod?day.mod!=='no_gestiona':(person.dias_laborables||[]).map(Number).includes(dow);
   return works?{start:day.ini||person.hora_inicio,end:day.fin||person.hora_fin,mode:day.mod||'virtual'}:null;
 }
@@ -2467,7 +2476,10 @@ async function loadTeam(){
     return;
   }
   APP.adminReview=!reviewError&&reviewData?.ok?reviewData:{ok:false,entregas:[]};
-  const by=new Map((marks||[]).map(x=>[String(x.colaborador_id),x])),byClose=new Map((closeData?.personas||[]).map(x=>[String(x.id),x.cierre||{}])),p=await hydrateProfilePhotos(people||[]);
+  const schedules=new Map((closeData.fecha===today?closeData.personas||[]:[]).map(x=>[String(x.id),x]));
+  const by=new Map((marks||[]).map(x=>[String(x.colaborador_id),x])),byClose=new Map((closeData?.personas||[]).map(x=>[String(x.id),x.cierre||{}])),p=await hydrateProfilePhotos((people||[]).map(person=>{
+    const dated=schedules.get(String(person.id));return dated?.horario_semanal?{...person,horario_semanal:dated.horario_semanal,dias_laborables:dated.dias_laborables}:person;
+  }));
   APP.teamPeople=p;
   const reviews=APP.adminReview.entregas||[],byReview=new Map(),byIssue=new Map();
   reviews.forEach(item=>{const key=String(item.colaborador_id);if(!byReview.has(key))byReview.set(key,[]);byReview.get(key).push(item)});

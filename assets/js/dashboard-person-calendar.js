@@ -11,7 +11,7 @@
     return days.map(day=>{
       const future=day.futuro||day.fecha>today;
       const before=!!person.contrato_inicio&&day.fecha<person.contrato_inicio;
-      const after=!!person.contrato_fin_referencia&&day.fecha>person.contrato_fin_referencia;
+      const after=!day.jornada_versionada&&!!person.contrato_fin_referencia&&day.fecha>person.contrato_fin_referencia;
       // lab comes from the server: weekly schedule, holidays and individual exceptions.
       const scheduled=day.lab===true&&!before&&!after;
       const worked=!before&&!after&&Boolean(
