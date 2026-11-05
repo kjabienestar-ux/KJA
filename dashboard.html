@@ -27,7 +27,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=20">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=21">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=12">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=57">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
@@ -69,7 +69,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=20261028_1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-preview.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-operations.css?v=7">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-operations.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-holiday.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-evidence-corrections.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-overview-modal.css?v=2">
@@ -83,6 +83,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-resumen.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-seguimiento.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=10">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-pasar-lista.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-month-tramos.css?v=8">
 </head>
 <body>
@@ -1810,60 +1811,65 @@
         </div>
       </section>
 
-      <section class="admin-list-section" id="admin-list-section" hidden>
-        <div class="admin-list-toolbar">
-          <div class="admin-list-toolbar-top">
-            <div class="admin-date-control-wrap">
-              <div class="admin-date-control">
-                <button type="button" id="admin-date-prev" aria-label="Día anterior">‹</button>
-                <button type="button" class="admin-date-picker-trigger" id="admin-date-picker-trigger" aria-haspopup="dialog" aria-expanded="false" aria-label="Elegir fecha en el calendario">
-                  <svg viewBox="0 0 24 24" class="admin-cal-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                  <span id="admin-date-display-text">Hoy</span>
-                </button>
-                <input type="date" id="admin-list-date" class="sr-only" aria-hidden="true" tabindex="-1">
-                <button type="button" id="admin-date-next" aria-label="Día siguiente">›</button>
-                <button type="button" id="admin-date-today">Hoy</button>
+      <section class="admin-list-section apl" id="admin-list-section" hidden>
+        <div class="apl-toolbar">
+          <div class="apl-date">
+            <button type="button" class="apl-nav" id="admin-date-prev" aria-label="Día anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="apl-week" id="admin-date-strip" role="group" aria-label="Selección rápida de fecha"></div>
+            <button type="button" class="apl-nav" id="admin-date-next" aria-label="Día siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button type="button" class="apl-cal" id="admin-date-picker-trigger" aria-haspopup="dialog" aria-expanded="false" aria-label="Elegir fecha en el calendario" title="Elegir fecha en el calendario">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <span class="sr-only" id="admin-date-display-text">Hoy</span>
+            </button>
+            <input type="date" id="admin-list-date" class="sr-only" aria-hidden="true" tabindex="-1">
+            <button type="button" class="apl-today" id="admin-date-today" hidden>Hoy</button>
+            <div class="admin-calendar-popover" id="admin-calendar-popover" role="dialog" aria-label="Calendario de asistencia" hidden>
+              <header class="admin-cal-pop-head">
+                <button type="button" class="admin-cal-nav-btn" id="admin-cal-pop-prev" aria-label="Mes anterior">‹</button>
+                <strong class="admin-cal-pop-title" id="admin-cal-pop-title">Octubre 2026</strong>
+                <button type="button" class="admin-cal-nav-btn" id="admin-cal-pop-next" aria-label="Mes siguiente">›</button>
+              </header>
+              <div class="admin-cal-pop-weekdays" aria-hidden="true">
+                <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
               </div>
-              <div class="admin-calendar-popover" id="admin-calendar-popover" role="dialog" aria-label="Calendario de asistencia" hidden>
-                <header class="admin-cal-pop-head">
-                  <button type="button" class="admin-cal-nav-btn" id="admin-cal-pop-prev" aria-label="Mes anterior">‹</button>
-                  <strong class="admin-cal-pop-title" id="admin-cal-pop-title">Octubre 2026</strong>
-                  <button type="button" class="admin-cal-nav-btn" id="admin-cal-pop-next" aria-label="Mes siguiente">›</button>
-                </header>
-                <div class="admin-cal-pop-weekdays" aria-hidden="true">
-                  <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
-                </div>
-                <div class="admin-cal-pop-grid" id="admin-cal-pop-grid"></div>
-                <footer class="admin-cal-pop-foot">
-                  <button type="button" class="admin-cal-foot-today" id="admin-cal-pop-today">Ir a hoy</button>
-                  <button type="button" class="admin-cal-foot-close" id="admin-cal-pop-close">Cerrar</button>
-                </footer>
-              </div>
-            </div>
-            <div class="admin-list-filters">
-              <button type="button" class="admin-refresh" id="admin-entry-open" hidden>Registrar entrada por colaborador</button>
-              <label class="admin-search-label">
-                <span class="sr-only">Buscar colaborador</span>
-                <svg viewBox="0 0 24 24" class="admin-field-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="search" id="admin-list-search" placeholder="Buscar colaborador…">
-              </label>
-              <div class="admin-custom-select" id="admin-area-custom-select">
-                <button type="button" class="admin-custom-select-trigger" id="admin-area-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Filtrar por área">
-                  <span class="admin-custom-select-label" id="admin-area-label">Todas las áreas</span>
-                  <svg viewBox="0 0 24 24" class="admin-chevron-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
-                <div class="admin-custom-select-menu" id="admin-area-menu" role="listbox" hidden></div>
-                <select id="admin-list-area" class="sr-only" tabindex="-1" aria-hidden="true"><option value="">Todas las áreas</option></select>
-              </div>
+              <div class="admin-cal-pop-grid" id="admin-cal-pop-grid"></div>
+              <footer class="admin-cal-pop-foot">
+                <button type="button" class="admin-cal-foot-today" id="admin-cal-pop-today">Ir a hoy</button>
+                <button type="button" class="admin-cal-foot-close" id="admin-cal-pop-close">Cerrar</button>
+              </footer>
             </div>
           </div>
-          <div class="admin-date-strip" id="admin-date-strip" role="group" aria-label="Selección rápida de fecha"></div>
-          <div class="admin-list-kpis" id="admin-list-kpis" aria-live="polite"></div>
+          <div class="apl-filters">
+            <label class="apl-search">
+              <span class="sr-only">Buscar colaborador</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="search" id="admin-list-search" placeholder="Buscar colaborador…">
+            </label>
+            <div class="admin-custom-select apl-area-select" id="admin-area-custom-select">
+              <button type="button" class="admin-custom-select-trigger" id="admin-area-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Filtrar por área">
+                <small>Área:</small>
+                <span class="admin-custom-select-label" id="admin-area-label">Todas las áreas</span>
+                <svg viewBox="0 0 24 24" class="admin-chevron-icon" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="admin-custom-select-menu" id="admin-area-menu" role="listbox" hidden></div>
+              <select id="admin-list-area" class="sr-only" tabindex="-1" aria-hidden="true"><option value="">Todas las áreas</option></select>
+            </div>
+            <button type="button" class="apl-entry" id="admin-entry-open" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Registrar entrada</button>
+          </div>
+        </div>
+
+        <div class="apl-kpis" id="admin-list-kpis" role="group" aria-label="Filtrar la lista por estado" aria-live="polite"></div>
+
+        <div class="apl-legend">
+          <span class="apl-legend-title">Asistencia:</span>
+          <span><b class="p">P</b>Presente</span><span><b class="t">T</b>Tardanza</span><span><b class="j">J</b>Justificado</span><span><b class="ng">NG</b>No gestiona</span>
+          <small>Pulsa de nuevo para quitar la marca</small>
+          <span class="apl-grow"></span>
+          <span id="admin-list-summary"></span>
         </div>
 
         <div class="admin-list-message" id="admin-list-message" role="status" aria-live="polite"></div>
-        <div class="admin-roster" id="admin-roster"><p class="admin-empty">Ejecuta la migración de la fase 2 para cargar la lista.</p></div>
-        <div class="admin-list-legend"><span><i class="p"></i>Presente</span><span><i class="t"></i>Tardanza</span><span><i class="j"></i>Justificado</span><span><i class="ng"></i>No gestiona</span><small>Selecciona nuevamente el estado activo para quitar la marca.</small></div>
+        <div class="apl-roster" id="admin-roster"><p class="admin-empty">Ejecuta la migración de la fase 2 para cargar la lista.</p></div>
       </section>
 
       <section class="admin-close-section" id="admin-close-section" hidden>
@@ -3876,7 +3882,7 @@
 <script src="assets/js/dashboard-skeleton.js?v=7"></script>
 <script src="assets/js/reclutamiento-api.js?v=1"></script>
 <script src="assets/js/dashboard-avatar.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=279"></script>
+<script src="assets/js/dashboard.js?v=280"></script>
 <script src="assets/js/dashboard-reclutamiento.js?v=11"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
