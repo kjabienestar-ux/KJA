@@ -19,6 +19,12 @@ test('changes only the signed-in account and clears password fields on success',
   assert.equal(h.nodes.new.value,'');assert.equal(h.nodes.repeat.value,'');
   assert.equal(h.nodes.new.type,'password');assert.equal(h.nodes.message.dataset.state,'success');
 });
+test('accepts exactly six characters in the form and auth request',async()=>{
+  const html=fs.readFileSync('dashboard.html','utf8');
+  for(const id of ['new','repeat'])assert.match(html,new RegExp('id="admin-password-'+id+'"[^>]*minlength="6"'));
+  const h=setup();h.nodes.new.value=h.nodes.repeat.value='Abc123';await h.save();
+  assert.equal(h.calls[0].password,'Abc123');assert.equal(h.nodes.message.dataset.state,'success');
+});
 test('rejects mismatched and short passwords without calling auth',async()=>{
   for(const values of [['short','short'],['A secure password 123!','different password']]){
     const h=setup();[h.nodes.new.value,h.nodes.repeat.value]=values;await h.save();

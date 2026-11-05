@@ -2439,7 +2439,7 @@ async function saveAdminPassword(event){
   if(!APP.access.acceso_panel||button.disabled)return;
   const password=$('admin-password-new'),repeat=$('admin-password-repeat');
   message.dataset.state='error';
-  if(password.value.length<12||password.value.length>128){message.textContent='Usa entre 12 y 128 caracteres.';password.focus();return;}
+  if(password.value.length<6||password.value.length>128){message.textContent='Usa entre 6 y 128 caracteres.';password.focus();return;}
   if(password.value!==repeat.value){message.textContent='Las contraseñas no coinciden. Revisa la confirmación.';repeat.focus();return;}
   button.disabled=true;button.textContent='Guardando…';form.setAttribute('aria-busy','true');
   message.dataset.state='';message.textContent='';
