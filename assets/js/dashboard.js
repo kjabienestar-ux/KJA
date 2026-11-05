@@ -2414,6 +2414,7 @@ function renderAdminProfileSettings(){
   const coverNames=admin?['Arena','Oliva','Grafito']:['Cielo','Jardín','Noche'];
   document.querySelectorAll('[data-profile-cover]').forEach((button,index)=>{button.textContent=coverNames[index];});
   $('admin-profile-settings').hidden=!admin;
+  $('admin-password-form').hidden=!admin;
   $('profile-description').textContent=admin?'Personaliza tu nombre visible, foto y portada.':'Puedes actualizar tu foto y tu portada. Dirección gestiona los demás datos laborales.';
   $('profile-work-notice').hidden=!APP.identity.hasPersonal;
   if(admin)$('admin-profile-name').value=APP.guidedTourUserMetadata.kja_nombre_visible||APP.inicio?.colaborador?.nombre||APP.inicio?.perfil?.nombre||'';
@@ -2431,6 +2432,34 @@ async function saveAdminProfile(event){
     PROFILE_AVATAR_IDS.forEach(id=>{const el=$(id);if(el){el.dataset.avatarInitials=initials(name);el.textContent=initials(name);}});
     paintProfilePhoto(APP.avatar.url);message.textContent='Nombre actualizado.';
   }catch{message.textContent='No se pudo guardar. Inténtalo de nuevo.';}finally{button.disabled=false;}
+}
+async function saveAdminPassword(event){
+  event.preventDefault();
+  const form=$('admin-password-form'),button=$('admin-password-save'),message=$('admin-password-message');
+  if(!APP.access.acceso_panel||button.disabled)return;
+  const password=$('admin-password-new'),repeat=$('admin-password-repeat');
+  message.dataset.state='error';
+  if(password.value.length<12||password.value.length>128){message.textContent='Usa entre 12 y 128 caracteres.';password.focus();return;}
+  if(password.value!==repeat.value){message.textContent='Las contraseñas no coinciden. Revisa la confirmación.';repeat.focus();return;}
+  button.disabled=true;button.textContent='Guardando…';form.setAttribute('aria-busy','true');
+  message.dataset.state='';message.textContent='';
+  try{
+    // updateUser only changes the authenticated account; never accept a target user ID.
+    const {error}=await db.auth.updateUser({password:password.value});
+    if(error)throw error;
+    form.reset();password.type=repeat.type='password';
+    message.dataset.state='success';message.textContent='Contraseña actualizada. Úsala la próxima vez que ingreses.';
+  }catch(error){
+    const messages={
+      same_password:'Elige una contraseña diferente a la actual.',
+      weak_password:'Elige una contraseña más segura: combina mayúsculas, minúsculas, números y símbolos.',
+      reauthentication_needed:'Por seguridad, cierra sesión y vuelve a ingresar antes de cambiar tu contraseña.',
+      session_not_found:'Tu sesión venció. Vuelve a ingresar para cambiar tu contraseña.',
+      refresh_token_not_found:'Tu sesión venció. Vuelve a ingresar para cambiar tu contraseña.',
+      over_request_rate_limit:'Has realizado varios intentos. Espera un momento y vuelve a intentar.'
+    };
+    message.dataset.state='error';message.textContent=messages[error?.code]||'No se pudo cambiar la contraseña. Revisa tu conexión e inténtalo de nuevo.';
+  }finally{button.disabled=false;button.textContent='Guardar contraseña';form.removeAttribute('aria-busy');}
 }
 function renderProfileQuick(c){
   const box=$('profile-quick');if(!box)return;
@@ -3591,6 +3620,10 @@ $('mobile-profile-link').onclick=()=>goView('perfil');
 $('profile-logout').onclick=()=>logout();
 $('profile-mobile-logout').onclick=()=>logout();
 $('admin-profile-settings').onsubmit=saveAdminProfile;
+$('admin-password-form').onsubmit=saveAdminPassword;
+$('admin-password-show').onchange=event=>{
+  ['admin-password-new','admin-password-repeat'].forEach(id=>{$(id).type=event.target.checked?'text':'password';});
+};
 $('admin-edit-photo').onclick=openProfilePhotoDialog;
 $('admin-edit-cover').onclick=()=>{const picker=document.querySelector('.profile-theme-picker');picker.open=true;picker.querySelector('button')?.focus();};
 $('side-profile-link').onclick=()=>goView('perfil');
