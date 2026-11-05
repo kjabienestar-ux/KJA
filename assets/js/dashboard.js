@@ -3315,12 +3315,13 @@ function renderAdminDateStrip(selectedDate){
   const fullNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   host.innerHTML=days.map(dIso=>{
     const d=new Date(dIso+'T12:00:00');
-    const dayNum=d.getDate(),dayIdx=d.getDay(),isSel=dIso===sel,isToday=dIso===today;
-    return `<button type="button" class="admin-date-pill${isSel?' is-active':''}${isToday?' is-today':''}" data-date="${dIso}" aria-pressed="${isSel}" aria-label="${fullNames[dayIdx]} ${dayNum}${isToday?' (Hoy)':''}">`+
-      `<span class="pill-day-num">${dayNum}</span>`+
-      `<span class="pill-day-name">${isToday?'Hoy':dayNames[dayIdx]}</span>`+
+    const dayNum=d.getDate(),dayIdx=d.getDay(),isSel=dIso===sel,isToday=dIso===today,weekend=dayIdx===0||dayIdx===6;
+    return `<button type="button" class="apl-day${isSel?' is-active':''}${isToday?' is-today':''}${weekend?' is-weekend':''}" data-date="${dIso}" aria-pressed="${isSel}" aria-label="${fullNames[dayIdx]} ${dayNum}${isToday?' (Hoy)':''}">`+
+      `<b>${dayNum}</b><small>${isToday?'Hoy':dayNames[dayIdx]}</small>`+
     `</button>`;
   }).join('');
+  // «Hoy» solo hace falta cuando la semana visible ya no lo incluye.
+  if($('admin-date-today'))$('admin-date-today').hidden=days.includes(today);
 }
 
 async function loadAdminAttendance(){
@@ -3355,37 +3356,100 @@ async function loadAdminAttendance(){
   return true;
 }
 
+/* Filtros de los indicadores de Pasar lista: se combinan con la búsqueda y el área. */
+const ADMIN_LIST_FILTERS={
+  entries:{label:'Con entrada',test:x=>!!x.estado},
+  complete:{label:'Jornadas completas',test:x=>['completa','regularizada'].includes(x.cierre?.estado)},
+  incomplete:{label:'Incompletas',test:x=>x.cierre?.estado==='incompleta'},
+  pending:{label:'Sin entrada',test:x=>!x.estado}
+};
+const ADMIN_LIST_TONES={en_curso:'info',lista_para_salir:'ready',completa:'ok',regularizada:'ok',incompleta:'bad',justificado:'just',J:'just',P:'ok',T:'warn'};
+const ADMIN_LIST_ICONS={
+  chevron:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+  open:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+};
+
+function adminListCard(person,{canEdit,today,now}){
+  const rawState=person.estado||'',view=CLOSE_MODEL.attendancePresentation(rawState?{estado:rawState}:null,person.cierre);
+  let state=view.state,label=view.label,tone=ADMIN_LIST_TONES[state]||'idle';
+  // Antes de su horario, «Sin entrada» se lee como un turno que todavía no empieza.
+  const start=person.hora_entrada?String(person.hora_entrada).slice(0,5):'';
+  if(today&&!rawState&&['sin_entrada',''].includes(state)&&start&&start>now){label=`Inicia ${fmtTime(person.hora_entrada)}`;tone='wait';}
+  const mode={virtual:'Virtual',presencial:'Presencial',opcional:'Opcional',no_gestiona:'No gestiona'}[person.modalidad]||cap(person.modalidad||'Sin modalidad');
+  const hours=person.horas!=null?`${Number(person.horas).toFixed(1).replace('.',',')} h`:'Horario del día';
+  const name=esc(person.nombre),entryAt=person.marcado_at||person.cierre?.entrada_at;
+  const entry=entryAt?`<dd class="${rawState==='T'?'is-late':''}">${esc(fmtTime(entryAt))}</dd>`:'<dd class="is-empty">—</dd>';
+  const exit=person.cierre?.salida_at?`<dd>${esc(fmtTime(person.cierre.salida_at))}</dd>`
+    :['completa','regularizada'].includes(state)?'<dd class="is-ok">Registrada</dd>'
+    :state==='lista_para_salir'?'<dd class="is-soft">Pendiente</dd>':'<dd class="is-empty">—</dd>';
+  const evidence=person.evidencia_path?`<dd><button type="button" class="apl-link" data-admin-evidence="${esc(person.evidencia_path)}" aria-label="Ver evidencia de entrada de ${name}">Ver${ADMIN_LIST_ICONS.open}</button></dd>`
+    :APP.access?.rol==='direccion'&&!rawState?`<dd><button type="button" class="apl-link" data-admin-entry="${esc(person.id)}" aria-label="Registrar entrada con evidencia de ${name}">Registrar${ADMIN_LIST_ICONS.plus}</button></dd>`
+    :'<dd class="is-empty">—</dd>';
+  const missing=view.incomplete?CLOSE_MODEL.incompleteReasons(rawState?{estado:rawState}:null,person.cierre):[];
+  const alert=view.incomplete?`<p class="apl-alert">${missing.length?`<b>Faltó:</b> ${missing.map(esc).join(' · ')}`:'No se dispone del detalle del cierre. Consulta Cierres y entregables.'}</p>`:'';
+  const note=person.nota?`<p class="apl-note">${esc(person.nota)}</p>`:'';
+  const marks=['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn apl-mark ${s.toLowerCase()}${rawState===s?' on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" title="${statusLabel(s,true)}" aria-pressed="${rawState===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('');
+  return `<article class="apl-card" data-admin-person="${person.id}">`+
+    `<header class="apl-card-head">${profileAvatarMarkup(person)}<b class="apl-name" title="${name}">${name}</b><span class="apl-state ${tone}"><i aria-hidden="true"></i>${esc(label)}</span>`+
+      `<small class="apl-meta"><span class="apl-mode ${esc(person.modalidad||'virtual')}">${esc(mode)}</span>${esc(fmtTime(person.hora_entrada))}–${esc(fmtTime(person.hora_salida))} · ${esc(hours)}</small></header>`+
+    `<dl class="apl-facts"><div><dt>Entrada</dt>${entry}</div><div><dt>Salida</dt>${exit}</div><div><dt>Evidencia</dt>${evidence}</div></dl>`+
+    alert+note+
+    `<footer class="apl-card-foot"><span class="admin-state-actions apl-marks" role="group" aria-label="Asistencia de ${name}">${marks}</span>${canEdit?'':`<span class="apl-lock">${ADMIN_LIST_ICONS.lock}Solo lectura</span>`}</footer>`+
+  `</article>`;
+}
+
 function renderAdminAttendance(){
   const data=APP.adminList;if(!data)return;
-  const people=data.personas||[],counts={P:0,T:0,J:0,NG:0,pending:0,complete:0,incomplete:0};
-  people.forEach(x=>x.estado?counts[x.estado]++:counts.pending++);
-  const marked=people.length-counts.pending;
-  people.forEach(x=>{if(['completa','regularizada'].includes(x.cierre?.estado))counts.complete++;if(x.cierre?.estado==='incompleta')counts.incomplete++});
-  const kpis=[['PERSONAS DEL DÍA',people.length,'total'],['ENTRADAS',marked,'entries'],['JORNADAS COMPLETAS',counts.complete,'complete'],['INCOMPLETAS',counts.incomplete,'incomplete'],['SIN ENTRADA',counts.pending,'pending']];
-  $('admin-list-kpis').innerHTML=kpis.map(x=>`<article class="admin-list-kpi ${x[2]}"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
+  const people=data.personas||[],date=$('admin-list-date').value||isoLima(),filter=ADMIN_LIST_FILTERS[APP.adminListFilter]?APP.adminListFilter:'';
+  const areaCount=new Set(people.map(x=>String(x.area_id))).size;
+  const count=key=>people.filter(ADMIN_LIST_FILTERS[key].test).length;
+  const kpis=[['all','Personas del día',people.length,'base'],['entries','Con entrada',count('entries'),'yes'],['complete','Jornadas completas',count('complete'),'yes'],['incomplete','Incompletas',count('incomplete'),'no'],['pending','Sin entrada',count('pending'),'base']];
+  $('admin-list-kpis').innerHTML=kpis.map(([key,label,value,tone])=>{
+    const on=(filter||'all')===key,share=key==='all'?100:people.length?Math.round(value/people.length*100):0;
+    return `<button type="button" class="apl-kpi ${key}${on?' is-on':''}" data-list-filter="${key}" aria-pressed="${on}">`+
+      `<small><i class="apl-dot ${tone}" aria-hidden="true"></i><span>${label}</span></small><b>${value}</b><em>${key==='all'?`en ${areaCount} ${areaCount===1?'área':'áreas'}`:`de ${people.length}`}</em>`+
+      `<span class="apl-kpi-bar" aria-hidden="true"><i class="${tone}" style="width:${share}%"></i></span></button>`;
+  }).join('');
+  const day=new Date(date+'T12:00:00').toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'}).replace(',','');
+  if($('admin-list-summary'))$('admin-list-summary').innerHTML=`<b>${esc(cap(day))}</b> · ${date===isoLima()?'día en curso':'día cerrado'} · ${people.length} ${people.length===1?'persona':'personas'} en ${areaCount} ${areaCount===1?'área':'áreas'}`;
+
   const query=$('admin-list-search').value.trim().toLocaleLowerCase('es'),area=$('admin-list-area').value;
-  const visible=people.filter(x=>(!area||String(x.area_id)===area)&&(!query||String(x.nombre).toLocaleLowerCase('es').includes(query)));
-  const groups=new Map();visible.forEach(x=>{const key=String(x.area_id);if(!groups.has(key))groups.set(key,{name:x.area||'Sin área',items:[]});groups.get(key).items.push(x)});
-  const canEdit=!!data.puede_editar;
-  let html='';
+  const visible=people.filter(x=>(!area||String(x.area_id)===area)&&(!query||String(x.nombre).toLocaleLowerCase('es').includes(query))&&(!filter||ADMIN_LIST_FILTERS[filter].test(x)));
+  const groups=new Map();visible.forEach(x=>{const key=String(x.area_id);if(!groups.has(key))groups.set(key,{key,name:x.area||'Sin área',items:[]});groups.get(key).items.push(x)});
+  const canEdit=!!data.puede_editar,today=date===isoLima(),collapsed=APP.adminListCollapsed||(APP.adminListCollapsed=new Set());
+  const now=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Lima',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
+  let html='',index=0;
   for(const group of groups.values()){
-    const done=group.items.filter(x=>['completa','regularizada'].includes(x.cierre?.estado)).length,entries=group.items.filter(x=>x.estado).length;
-    html+=`<section class="admin-area-group"><header class="admin-area-head"><span><i></i><b>${esc(group.name)}</b></span><small>${entries} con entrada · ${done} jornadas completas</small></header>`;
-    for(const person of group.items){
-      const rawState=person.estado||'',view=CLOSE_MODEL.attendancePresentation(rawState?{estado:rawState}:null,person.cierre),state=view.state,label=view.label;
-      const mode={virtual:'Virtual',presencial:'Presencial',opcional:'Opcional',no_gestiona:'No gestiona'}[person.modalidad]||cap(person.modalidad||'Sin modalidad');
-      const shift=`${fmtTime(person.hora_entrada)} — ${fmtTime(person.hora_salida)}`;
-      const time=person.marcado_at?new Date(person.marcado_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}):mode;
-      const missing=CLOSE_MODEL.incompleteReasons(rawState?{estado:rawState}:null,person.cierre);
-      const missingDetail=view.incomplete?`<small class="admin-missing-detail">${missing.length?'Faltó: '+missing.map(esc).join('; '):'No se dispone del detalle del cierre. Consulta Cierres y entregables.'}</small>`:'';
-      const evidence=person.evidencia_path?`<button class="admin-evidence-button" type="button" data-admin-evidence="${esc(person.evidencia_path)}">Ver evidencia</button>`:'';
-      const entryAction=APP.access?.rol==='direccion'&&!rawState?`<button class="admin-evidence-button" type="button" data-admin-entry="${esc(person.id)}">Registrar entrada con evidencia</button>`:'';
-      html+=`<div class="admin-roster-row" data-admin-person="${person.id}">${profileAvatarMarkup(person)}<span class="admin-person"><b>${esc(person.nombre)}</b><small class="admin-mode-pill ${esc(person.modalidad||'virtual')}">${esc(mode)}${person.nota?' · '+esc(person.nota):''}</small>${evidence}${entryAction}</span><span class="admin-shift"><b>${esc(shift)}</b><small>${person.horas!=null?Number(person.horas).toFixed(1)+' h':'Horario del día'}</small></span><span class="admin-current-state ${state.toLowerCase()}"><i class="state-dot" aria-hidden="true"></i><span>${esc(label)}${person.marcado_at?' · '+esc(time):''}</span></span>${missingDetail}<span class="admin-state-actions">${['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn ${s.toLowerCase()} ${rawState===s?'on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" aria-pressed="${rawState===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('')}</span></div>`;
-    }
-    html+='</section>';
+    // El avance del encabezado es del área completa, aunque haya filtros activos.
+    const members=people.filter(x=>String(x.area_id)===group.key),entries=members.filter(x=>x.estado).length,done=members.filter(ADMIN_LIST_FILTERS.complete.test).length;
+    const closed=collapsed.has(group.key),id=`apl-area-${index++}`,share=members.length?Math.round(entries/members.length*100):0;
+    html+=`<section class="apl-area${closed?' is-collapsed':''}" data-area="${esc(group.key)}">`+
+      `<header class="apl-area-head"><button type="button" class="apl-area-toggle" data-area-toggle="${esc(group.key)}" aria-expanded="${!closed}" aria-controls="${id}">${ADMIN_LIST_ICONS.chevron}<b>${esc(group.name)}</b><small>${members.length} ${members.length===1?'persona':'personas'}</small></button>`+
+        `<span class="apl-progress"><span class="apl-track" aria-hidden="true"><i style="width:${share}%"></i></span><b>${entries} de ${members.length}</b> con entrada</span>`+
+        `<span class="apl-done${done&&done===members.length?' is-all':''}">${done} ${done===1?'jornada completa':'jornadas completas'}</span>`+
+        `<button type="button" class="apl-collapse" data-area-toggle="${esc(group.key)}" tabindex="-1">${closed?'Mostrar':'Contraer'}</button></header>`+
+      `<div class="apl-cards" id="${id}"${closed?' hidden':''}>${group.items.map(person=>adminListCard(person,{canEdit,today,now})).join('')}</div></section>`;
   }
-  $('admin-roster').innerHTML=html||'<p class="admin-empty">No hay colaboradores para los filtros seleccionados.</p>';
+  if(!html){
+    const active=[query&&`«${esc($('admin-list-search').value.trim())}»`,area&&`«${esc($('admin-list-area').selectedOptions?.[0]?.textContent||'')}»`,filter&&`«${ADMIN_LIST_FILTERS[filter].label}»`].filter(Boolean).join(' + ');
+    html=people.length?`<div class="apl-empty"><b>Nadie coincide con ${active||'los filtros'}</b><p>Cambia la búsqueda, el área o el indicador elegido.</p><button type="button" class="apl-reset" data-list-reset>Quitar filtros</button></div>`
+      :'<div class="apl-empty"><b>No hay colaboradores para esta fecha.</b></div>';
+  }
+  $('admin-roster').innerHTML=html;
   if(!canEdit)adminListMsg('Tu rol es de solo lectura. Puedes consultar la lista, pero no cambiar estados.');
+}
+
+function toggleAdminListArea(key){
+  const collapsed=APP.adminListCollapsed||(APP.adminListCollapsed=new Set());
+  if(collapsed.has(key))collapsed.delete(key);else collapsed.add(key);
+  const section=[...$('admin-roster').querySelectorAll('[data-area]')].find(item=>item.dataset.area===key);if(!section)return;
+  const closed=collapsed.has(key);
+  section.classList.toggle('is-collapsed',closed);
+  section.querySelector('.apl-cards').hidden=closed;
+  section.querySelector('.apl-area-toggle').setAttribute('aria-expanded',String(!closed));
+  section.querySelector('.apl-collapse').textContent=closed?'Mostrar':'Contraer';
 }
 
 async function openAdminStoredEvidence(path,bucket='asis-evidencias'){
@@ -3853,7 +3917,14 @@ document.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAdminCalendarPopover();toggleAdminAreaMenu(false);}});
 $('admin-list-search').oninput=renderAdminAttendance;
 $('admin-list-area').onchange=()=>{syncAdminAreaCustomSelect();renderAdminAttendance()};
+$('admin-list-kpis').onclick=e=>{
+  const button=e.target.closest('[data-list-filter]');if(!button)return;
+  const key=button.dataset.listFilter;APP.adminListFilter=key==='all'||APP.adminListFilter===key?'':key;renderAdminAttendance();
+};
 $('admin-roster').onclick=e=>{
+  const area=e.target.closest('[data-area-toggle]');
+  if(area)return toggleAdminListArea(area.dataset.areaToggle);
+  if(e.target.closest('[data-list-reset]')){$('admin-list-search').value='';$('admin-list-area').value='';APP.adminListFilter='';syncAdminAreaCustomSelect();return renderAdminAttendance();}
   const entry=e.target.closest('[data-admin-entry]');
   if(entry&&typeof openAdminEntry==='function')return openAdminEntry(entry.dataset.adminEntry);
   const evidence=e.target.closest('[data-admin-evidence]');
