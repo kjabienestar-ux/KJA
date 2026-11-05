@@ -72,21 +72,11 @@
     color:#3d3d3a;font-family:Inter,system-ui,sans-serif;scrollbar-width:thin;scrollbar-color:#c6bbae transparent;
   }
   .admin-lateral-title{margin:0 8px 12px;color:#141413;font:400 18px/1.25 'Fraunces',Georgia,serif;letter-spacing:-.03em}
-  .admin-lateral-family{margin-bottom:6px}
-  .admin-lateral-family-head{
-    display:flex;align-items:center;gap:6px;width:100%;min-height:28px;padding:4px 10px;border:0;border-radius:8px;
-    color:#6c6a64;background:transparent;font:500 11.5px/1.3 Inter,system-ui,sans-serif;text-align:left;cursor:pointer;
-  }
-  .admin-lateral-family-head:hover{color:#252523;background:#f1ebe1}
-  .admin-lateral-family-name{flex:1 1 auto;min-width:0}
-  .admin-lateral-family.is-current .admin-lateral-family-name{color:#a9583e}
-  .admin-lateral-family.is-current .admin-lateral-family-name::before{content:"";display:inline-block;width:5px;height:5px;margin:0 7px 2px 0;border-radius:50%;background:#a9583e;vertical-align:middle}
-  .admin-lateral-family-meta{display:inline-flex;align-items:center;gap:6px;color:#8a857c;font-size:11px;font-variant-numeric:tabular-nums}
-  .admin-lateral-family-meta b{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;color:#fff;background:#b4532f;font-size:10px;font-weight:700}
-  .admin-lateral-family-head svg{flex:none;width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
-  .admin-lateral-family.is-folded .admin-lateral-family-head svg{transform:rotate(-90deg)}
-  .admin-lateral ul{margin:2px 0 0;padding:0;list-style:none}
-  .admin-lateral li.is-tucked{display:none}
+  .admin-lateral-family{margin:0}
+  .admin-lateral-family+.admin-lateral-family{margin-top:18px}
+  .admin-lateral-family-head{margin:0 0 6px;padding:0 10px;color:#6c6a64;font:600 10px/1.5 Inter,system-ui,sans-serif;letter-spacing:.06em}
+  .admin-lateral-family-name{display:block}
+  .admin-lateral ul{margin:0;padding:0;list-style:none}
   .admin-lateral [data-lateral-section]{
     position:relative;display:flex;align-items:center;gap:9px;
     width:100%;min-height:32px;padding:5px 8px 5px 10px;border:0;border-radius:8px;color:#3d3d3a;background:transparent;

@@ -247,6 +247,7 @@ function renderAdminContracts(){
     </article>`;
   }
   $('admin-contract-list').innerHTML=visible.length?html:'<p class="admin-empty">No hay contratos para los filtros seleccionados.</p>';
+  if(typeof organizeContractAreas==='function')organizeContractAreas(visible);
 }
 
 function scheduleRows(person){

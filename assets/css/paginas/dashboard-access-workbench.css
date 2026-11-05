@@ -1,0 +1,216 @@
+/* KJA-029 · Acceso y marcado. Solo escritorio, paleta de Colaboradores. */
+@media(min-width:901px){
+  #portal.admin-wide[data-admin-section="marcado"]{background:#f0ece5!important}
+  #portal.admin-wide[data-admin-section="marcado"] #view-gestion #admin-refresh{background:#a9583e!important;border-color:#a9583e!important;color:#fff!important;box-shadow:none;min-height:44px}
+  #portal #view-gestion>#admin-access-section.aw-workbench{display:block;grid-column:1/-1;padding:16px!important;background:#f0ece5;color:#282622;border-radius:20px;overflow-y:auto;overscroll-behavior:contain}
+  #portal #admin-access-section.aw-workbench[hidden],#portal .aw-workbench [hidden]{display:none!important}
+  #portal .aw-workbench{--navy:#282622;--blue:#a9583e;--admin-caption:12px;--admin-small:13px;--admin-body:14px}
+  #portal .aw-workbench .admin-access-toolbar{min-height:0;padding:0;background:transparent!important;border:0;box-shadow:none;align-items:center;margin-bottom:10px}
+  #portal .aw-workbench .admin-access-toolbar h2{font:400 30px/1.1 Georgia,serif;letter-spacing:-.03em;color:#282622}
+  #portal .aw-workbench .eyebrow{font-size:10px;color:#69635d;letter-spacing:.11em}
+  #portal .aw-workbench .admin-access-toolbar>div>p:last-child{font-size:13px;color:#69635d;margin-top:8px}
+  #portal .aw-workbench .admin-access-health{flex-shrink:0;font-size:12px!important}
+  #portal .aw-workbench .admin-access-layout{display:none}
+  #portal .aw-workbench .aw-tabs{position:static;display:flex;gap:24px;border-bottom:1px solid #cfc2b5;margin-bottom:10px;background:#f0ece5}
+  #portal .aw-workbench .aw-tabs button{display:flex;align-items:center;gap:8px;min-height:40px;padding:7px 2px;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:#69635d;font-weight:600}
+  #portal .aw-workbench .aw-tabs button[aria-selected=true]{color:#93472f;border-bottom-color:#a9583e}
+  #portal .aw-workbench :is(.aw-tabs,.admin-office-heading,.admin-office-search,#admin-office-detect,.admin-office-pin) svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  #portal .aw-workbench .aw-panel{display:grid;gap:10px;min-width:0}
+  #portal .aw-workbench :is(button,input,select,summary){font-family:Inter,system-ui,sans-serif;font-size:13px;box-sizing:border-box}
+  #portal .aw-workbench button{min-height:40px;cursor:pointer;transition:background-color 150ms,color 150ms}
+  #portal .aw-workbench button:disabled{cursor:default}
+  #portal .aw-workbench :is(button,input,select,summary,a):focus-visible{outline:3px solid #93472f;outline-offset:3px}
+  #portal .aw-workbench :is(input,select){min-height:44px;border-color:#998b7f!important;background:#fcfaf7;color:#282622;border-radius:8px;font-size:13px!important}
+  #portal .aw-workbench input::placeholder{color:#69635d}
+  #portal .aw-workbench :is(.admin-access-requests,.admin-access-directory,.admin-access-audit,.admin-route-card,.admin-policy-card){background:#fcfaf7!important;border:1px solid #ded6cb;border-radius:14px;box-shadow:none;min-width:0;overflow:hidden}
+  #portal .aw-workbench #admin-access-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border:1px solid #ded6cb;border-radius:14px;overflow:hidden;background:#fcfaf7}
+  #portal .aw-workbench .admin-list-kpi{padding:16px 20px;border:0;border-right:1px solid #ded6cb;border-radius:0;box-shadow:none;background:transparent;min-height:86px}
+  #portal .aw-workbench .admin-list-kpi:last-child{border:0}
+  #portal .aw-workbench .admin-list-kpi small{font-size:11px!important;color:#69635d;letter-spacing:.04em}
+  #portal .aw-workbench .admin-list-kpi b{font-size:28px;color:#282622;margin-top:6px}
+  #portal .aw-workbench .admin-access-section-head{padding:16px 20px;min-height:70px;border-color:#ded6cb;flex-direction:row;align-items:center}
+  #portal .aw-workbench .admin-access-section-head h3{font-size:17px;color:#282622}
+  #portal .aw-workbench .admin-access-section-head p{margin-bottom:4px}
+  #portal .aw-workbench #admin-access-request-count{background:#f2e2d5;color:#93472f}
+  #portal .aw-workbench .admin-access-filters{display:flex;gap:8px}
+  #portal .aw-workbench .admin-access-filters input{width:220px;padding:0 12px}
+  #portal .aw-workbench .admin-access-filters select{min-width:160px}
+  #portal .aw-workbench .admin-access-person{grid-template-columns:40px minmax(150px,1.2fr) minmax(155px,1fr) minmax(140px,1fr) 120px;gap:12px;padding:14px 20px;min-height:80px;border-color:#e6ded4;background:transparent}
+  #portal .aw-workbench .admin-access-person .avatar,#portal .aw-workbench .admin-access-request .avatar{background:#f2e2d5;color:#93472f;border-radius:10px}
+  #portal .aw-workbench :is(.access-person-name b,.access-pin-state b,.access-account-state b){font-size:13px;color:#282622}
+  #portal .aw-workbench :is(.access-person-name small,.access-pin-state small,.access-account-state small,.access-person-action em){font-size:12px;line-height:1.5;color:#69635d;white-space:normal}
+  #portal .aw-workbench .access-person-name b{white-space:normal;line-height:1.5}
+  #portal .aw-workbench .access-person-action button{width:100%;border:1px solid #aa9786;border-radius:8px;color:#93472f;background:#fff;font-size:12px!important}
+  #portal .aw-workbench .admin-access-request{grid-template-columns:40px minmax(130px,1fr) minmax(180px,1fr) auto;gap:12px;padding:14px 20px;background:#fcfaf7;border-color:#ded6cb}
+  #portal .aw-workbench .admin-access-request small,#portal .aw-workbench .access-request-change em{font-size:12px;color:#69635d}
+  #portal .aw-workbench .admin-access-request b{font-size:13px;color:#282622}
+  #portal .aw-workbench .access-request-actions{flex-wrap:wrap;max-width:250px}
+  #portal .aw-workbench .access-request-actions button{border-color:#aa9786;color:#51483f;background:#fff;font-size:12px!important}
+  #portal .aw-workbench .access-request-actions button:nth-child(2){background:#a9583e;color:#fff;border-color:#a9583e}
+  #portal .aw-workbench .admin-empty{font-size:13px;color:#69635d;padding:20px;margin:0}
+  #portal .aw-workbench .admin-access-requests.empty{opacity:1}
+  #portal .aw-workbench .aw-history{border:1px solid #ded6cb;border-radius:14px;background:#fcfaf7}
+  #portal .aw-workbench summary{cursor:pointer;padding:16px 20px;color:#282622;font-weight:600;min-height:48px}
+  #portal .aw-workbench .aw-history summary span{display:inline-block;vertical-align:middle}
+  #portal .aw-workbench .aw-history summary small{display:block;color:#69635d;font-size:12px;font-weight:400;margin-top:4px}
+  #portal .aw-workbench .aw-history .admin-access-audit{border:0;border-top:1px solid #ded6cb;border-radius:0 0 14px 14px}
+  #portal .aw-workbench .admin-audit-list article{padding:14px 20px;border-color:#ded6cb;background:transparent}
+  #portal .aw-workbench .admin-audit-list :is(small,time){color:#69635d;font-size:12px!important}
+  #portal .aw-workbench .admin-audit-list b{font-size:13px!important;color:#282622}
+  #portal .aw-workbench .admin-route-card{padding:20px}
+  #portal .aw-workbench .admin-route-card>header{margin-bottom:16px}
+  #portal .aw-workbench .admin-route-card>header :is(small,h3){color:#282622}
+  #portal .aw-workbench .admin-route-card>header small{font-size:10px;color:#69635d}
+  #portal .aw-workbench .admin-route-flow{grid-template-columns:minmax(0,1fr) 100px minmax(0,1fr);gap:12px}
+  #portal .aw-workbench .admin-route-step{padding:20px;min-height:190px;background:#f2e9df;border-radius:12px}
+  #portal .aw-workbench .primary-route{background:#a9583e}
+  #portal .aw-workbench .admin-route-step small{font-size:10px;color:#69635d}
+  #portal .aw-workbench .admin-route-step p{font-size:13px!important;min-height:40px;line-height:1.6;color:#69635d}
+  #portal .aw-workbench .primary-route :is(small,p,h4){color:#fff}
+  #portal .aw-workbench .admin-route-step h4{font-size:20px;margin:8px 0}
+  #portal .aw-workbench .admin-route-step.disabled{opacity:1;border:1px dashed #998b7f}
+  #portal .aw-workbench .admin-route-link{height:44px;border:1px solid #998b7f;border-radius:8px}
+  #portal .aw-workbench .admin-route-link input{border:0!important;border-radius:0;background:#fff;font-size:12px!important}
+  #portal .aw-workbench .admin-route-link button{background:#763c29;color:#fff;font-size:12px!important}
+  #portal .aw-workbench .admin-route-connector b{font-size:11px;color:#69635d}
+  #portal .aw-workbench .admin-qr-block{grid-template-columns:120px 1fr;padding:16px;border-color:#ded6cb;border-radius:12px;background:#fff}
+  #portal .aw-workbench .admin-qr-block :is(small,p),#portal .aw-workbench .admin-qr-canvas span{font-size:12px;color:#69635d}
+  #portal .aw-workbench .admin-qr-block b{font-size:15px;color:#282622}
+  #portal .aw-workbench .admin-qr-block button{font-size:13px!important;color:#93472f}
+  #portal .aw-workbench .admin-policy-card{display:block}
+  #portal .aw-workbench .admin-policy-card>header{padding:20px;border:0}
+  #portal .aw-workbench .admin-policy-card>header small{font-size:10px;color:#69635d}
+  #portal .aw-workbench .admin-policy-card>header h3{font-size:20px;margin:6px 0}
+  #portal .aw-workbench .admin-policy-card>header p{font-size:13px;color:#69635d}
+  #portal .aw-workbench #admin-access-settings{display:grid;grid-template-columns:1fr 1fr;border-color:#ded6cb}
+  #portal .aw-workbench :is(.admin-policy-number,.admin-policy-toggle){min-height:80px;padding:16px 20px;background:transparent;border-color:#ded6cb}
+  #portal .aw-workbench :is(.admin-policy-number,.admin-policy-toggle,.admin-link-security) b{font-size:14px;color:#282622}
+  #portal .aw-workbench :is(.admin-policy-number,.admin-policy-toggle,.admin-link-security) small{font-size:12px;color:#69635d;line-height:1.5}
+  #portal .aw-workbench .admin-policy-toggle input:checked+i{background:#a9583e}
+  #portal .aw-workbench .admin-policy-toggle.fixed{cursor:default}
+  #portal .aw-workbench .admin-policy-toggle.fixed small::after{content:' · siempre requerida';color:#69635d}
+  #portal .aw-workbench .admin-office-rule{grid-column:1/-1;margin:16px 20px;padding:20px;border:1px solid #ded6cb;border-radius:14px;background:#fff}
+  #portal .aw-workbench .admin-office-rule p{font-size:13px;color:#69635d;line-height:1.6}
+  #portal .aw-workbench .admin-office-heading b{color:#282622;font-size:15px}
+  #portal .aw-workbench .admin-office-heading small{font-size:12px;color:#69635d}
+  #portal .aw-workbench .admin-office-icon{background:#f2e2d5;color:#93472f}
+  #portal .aw-workbench .admin-office-radius{background:#f2e2d5;color:#93472f;font-size:12px}
+  #portal .aw-workbench :is(.admin-office-search button,#admin-office-detect){background:#fcfaf7;color:#93472f;border:1px solid #998b7f;border-radius:8px}
+  #portal .aw-workbench .admin-office-map{height:280px}
+  #portal .aw-workbench .admin-office-map-shell{border-color:#ded6cb;background:#f5eee6}
+  #portal .aw-workbench .admin-office-map-state{background:#f5eee6;color:#51483f}
+  #portal .aw-workbench .admin-office-map-state :is(b,small){color:#51483f;font-size:13px}
+  #portal .aw-workbench #admin-office-map-retry{background:#fff;border:1px solid #998b7f;color:#93472f}
+  #portal .aw-workbench .admin-office-search>span{border-color:#998b7f}
+  #portal .aw-workbench .admin-office-results{overscroll-behavior:contain}
+  #portal .aw-workbench .admin-office-selection{margin:12px 0}
+  #portal .aw-workbench .admin-office-selection :is(small,b,span),#portal .aw-workbench .admin-office-actions small{font-size:12px;color:#69635d}
+  #portal .aw-workbench .admin-office-coordinates summary{padding:12px 0;font-size:13px;color:#93472f}
+  #portal .aw-workbench .admin-policy-toggle.legacy{grid-column:1}
+  #portal .aw-workbench #admin-access-save{align-self:center;justify-self:end;margin:16px 20px;min-height:44px;padding:0 24px;border:1px solid #a9583e;border-radius:9px;background:#a9583e!important;color:#fff;font-size:13px}
+  #portal .aw-workbench .admin-link-security{padding:16px 20px;background:transparent}
+  #portal .aw-workbench .admin-link-security button{font-size:12px;color:#9c3548;border:1px solid #af6875;background:#fff}
+  #portal .aw-workbench .admin-policy-updated{padding:0 20px 16px;font-size:12px!important;color:#69635d}
+  #portal .aw-workbench .admin-access-message{font-size:13px;margin-bottom:16px;color:#51483f;background:#f2e2d5}
+  #portal .aw-workbench .admin-access-message.bad{color:#9c3548;background:#fff0f3}
+  #portal .aw-workbench .admin-legacy-link{font-size:12px;color:#69635d;justify-self:start;margin:0}
+}
+@media(min-width:901px) and (hover:hover){
+  #portal .aw-workbench button:not(:disabled):hover{filter:brightness(.95)}
+  #portal .aw-workbench .admin-access-person:hover{background:#f5eee6}
+}
+@media(min-width:901px) and (prefers-reduced-motion:no-preference){
+  #portal .aw-workbench button:not(:disabled):not([role=tab]):active{scale:.96}
+  #portal .aw-workbench button{transition:background-color 150ms,color 150ms,scale 150ms ease-out}
+}
+@media(min-width:901px) and (prefers-reduced-motion:reduce){
+  #portal .aw-workbench .admin-policy-toggle>i:after{transition:opacity 150ms}
+}
+
+/* Revisión de Piero: contenido principal a la vista y detalles bajo demanda. */
+@media(min-width:901px){
+  #portal #view-gestion>#admin-access-section.aw-workbench{background:rgba(244,239,231,.72);border:1px solid rgba(255,255,255,.7);box-shadow:inset 0 1px 0 #ffffffb3,0 8px 28px #60473009;backdrop-filter:blur(16px)}
+  #portal .aw-workbench .admin-access-toolbar{margin-bottom:10px}
+  #portal .aw-workbench .admin-access-toolbar>div>p:last-child{margin-top:4px;font-size:12px}
+  #portal .aw-workbench :is(.admin-access-toolbar,.aw-panel) .eyebrow{font-size:9px;letter-spacing:.1em}
+  #portal .aw-workbench :is(.admin-access-directory,.admin-route-card,.admin-policy-card){background:rgba(255,253,249,.8)!important;border-color:#fff;box-shadow:inset 0 1px 0 #fff,0 4px 16px #60473008;backdrop-filter:blur(12px)}
+  #portal .aw-workbench .admin-list-kpi{display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 16px;background:transparent}
+  #portal .aw-workbench .admin-list-kpi small{font-size:10px!important;line-height:1.4;font-weight:600}
+  #portal .aw-workbench .admin-list-kpi b{font-size:25px;line-height:1;margin:0;color:#93472f;order:-1}
+  #portal .aw-workbench .admin-access-section-head{min-height:54px;padding:9px 14px}
+  #portal .aw-workbench .admin-access-section-head h3{font-size:15px}
+  #portal .aw-workbench .admin-access-filters :is(input,select){height:36px;min-height:36px;font-size:12px!important}
+  #portal .aw-workbench .admin-access-person{min-height:52px;grid-template-columns:30px minmax(155px,1.2fr) minmax(155px,1fr) minmax(140px,1fr) 112px;gap:10px;padding:7px 14px}
+  #portal .aw-workbench .admin-access-person .avatar{width:30px;height:30px;font-size:10px;border-radius:9px}
+  #portal .aw-workbench :is(.access-person-name b,.access-pin-state b,.access-account-state b){font-size:12px;line-height:1.35;font-weight:600}
+  #portal .aw-workbench .access-person-name b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #portal .aw-workbench :is(.access-person-name small,.access-pin-state small,.access-account-state small,.access-person-action em){font-size:11px;line-height:1.4;margin-top:1px}
+  #portal .aw-workbench .access-person-action button{min-height:32px;height:32px;font-size:11px!important;font-weight:600}
+  #portal .aw-workbench .aw-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 14px;border-top:1px solid #ded6cb;color:#69635d;font-size:12px}
+  #portal .aw-workbench .aw-pagination>div{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+  #portal .aw-workbench .aw-pagination button{min-width:30px;min-height:30px;padding:0 7px;border:1px solid #c7b9ab;border-radius:7px;background:#fff;color:#69635d;font-size:12px}
+  #portal .aw-workbench .aw-pagination button[aria-current]{background:#a9583e;color:#fff;border-color:#a9583e;font-weight:600}
+  #portal .aw-workbench .aw-pagination button:disabled{opacity:.4}
+  #portal .aw-workbench .aw-secondary{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+  #portal .aw-workbench :is(.aw-history,.aw-notices){background:rgba(255,253,249,.7);border:1px solid #ded6cb;border-radius:10px;overflow:hidden;min-width:0}
+  #portal .aw-workbench :is(.aw-history,.aw-notices)>summary{padding:9px 14px;min-height:38px;font-size:12px;color:#51483f}
+  #portal .aw-workbench #aw-notice-count{display:inline-grid;place-items:center;min-width:21px;height:21px;margin-left:5px;border-radius:20px;background:#f2e2d5;color:#93472f;font-size:11px}
+  #portal .aw-workbench :is(.aw-history,.aw-notices)[open]{grid-column:1/-1}
+  #portal .aw-workbench .aw-notices .admin-access-requests{border:0;border-top:1px solid #ded6cb;border-radius:0;background:transparent}
+  #portal .aw-workbench .aw-history .admin-access-section-head{display:none}
+  #portal .aw-workbench .admin-policy-card>header{padding:12px 16px;border-bottom:1px solid #ded6cb}
+  #portal .aw-workbench .admin-policy-card>header>small{display:none}
+  #portal .aw-workbench .admin-policy-card>header h3{font-size:17px;line-height:1.2;margin:0 0 4px}
+  #portal .aw-workbench .admin-policy-card>header p{font-size:12px;margin:0}
+  #portal .aw-workbench #admin-access-settings{grid-template-columns:minmax(245px,.72fr) minmax(0,1.28fr);gap:16px;padding:14px 16px;border:0;align-items:start}
+  #portal .aw-workbench .aw-rule-options{min-width:0;display:grid;gap:0;background:rgba(245,236,225,.6);border:1px solid #ded6cb;border-radius:12px;padding:0 12px 12px}
+  #portal .aw-workbench .aw-rule-options :is(.admin-policy-number,.admin-policy-toggle){min-height:66px;padding:10px 0;gap:8px}
+  #portal .aw-workbench .aw-rule-options :is(.admin-policy-number,.admin-policy-toggle,.admin-link-security) b{font-size:13px;font-weight:600}
+  #portal .aw-workbench .aw-rule-options :is(.admin-policy-number,.admin-policy-toggle,.admin-link-security) small{font-size:11px;line-height:1.45}
+  #portal .aw-workbench .admin-policy-number>span:last-child{flex-shrink:0;border-color:#998b7f}
+  #portal .aw-workbench .admin-policy-number input{width:44px;min-height:36px;height:36px;border-radius:0}
+  #portal .aw-workbench .admin-policy-number i{font-size:11px}
+  #portal .aw-workbench .admin-link-security{display:block;padding:12px 0 8px}
+  #portal .aw-workbench .admin-link-security button{min-height:32px;height:32px;margin-top:8px;font-size:11px}
+  #portal .aw-workbench .admin-policy-updated{padding:0;color:#69635d;font-size:10px!important;line-height:1.5}
+  #portal .aw-workbench #admin-access-save{width:100%;min-height:38px;height:38px;justify-self:stretch;margin:12px 0 0;padding:0 12px;box-shadow:none}
+  #portal .aw-workbench .admin-office-rule{grid-column:2;grid-row:1;margin:0;padding:12px;border-radius:12px;min-width:0}
+  #portal .aw-workbench .admin-office-heading{grid-template-columns:32px minmax(0,1fr) auto;gap:8px}
+  #portal .aw-workbench .admin-office-icon{height:32px;width:32px;border-radius:9px}
+  #portal .aw-workbench .admin-office-heading b{font-size:13px;line-height:1.4}
+  #portal .aw-workbench .admin-office-heading small{font-size:11px;margin-top:1px}
+  #portal .aw-workbench .admin-office-radius{font-size:10px;padding:5px 7px}
+  #portal .aw-workbench .admin-office-rule>p{font-size:11px;line-height:1.45;margin:8px 0}
+  #portal .aw-workbench .admin-office-search{gap:6px;margin-bottom:8px}
+  #portal .aw-workbench .admin-office-search>span{display:flex;gap:8px;min-height:36px;height:36px;padding:0 10px;border:1px solid #998b7f;background:#fcfaf7;box-shadow:none;border-radius:8px}
+  #portal .aw-workbench .admin-office-search>span:focus-within{border-color:#93472f;outline:2px solid #93472f;outline-offset:2px;box-shadow:none}
+  #portal .aw-workbench #admin-office-search{flex:1;width:0;min-width:0;min-height:0!important;height:32px!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;font-size:12px!important;font-weight:400;line-height:1.4}
+  #portal .aw-workbench .admin-office-search>button{min-height:36px;height:36px;padding:0 10px;font-size:12px}
+  #portal .aw-workbench .admin-office-map-shell{height:200px;border-radius:9px}
+  #portal .aw-workbench .admin-office-map{height:100%}
+  #portal .aw-workbench .admin-office-selection{padding:8px 0;margin:0;border-bottom:1px solid #ded6cb;gap:8px}
+  #portal .aw-workbench .admin-office-selection :is(small,b,span){font-size:10px}
+  #portal .aw-workbench .admin-office-coordinates summary{padding:7px 0;min-height:30px;font-size:11px}
+  #portal .aw-workbench .admin-office-coordinates>div{gap:8px;padding:0 0 6px}
+  #portal .aw-workbench .admin-office-coordinates input{min-height:32px;height:32px;font-size:12px!important}
+  #portal .aw-workbench .admin-office-actions{margin-top:3px;gap:8px}
+  #portal .aw-workbench #admin-office-detect{min-height:32px;height:32px;padding:0 8px;font-size:11px}
+  #portal .aw-workbench .admin-office-actions>small{font-size:10px;max-width:125px}
+  #portal .aw-workbench .admin-route-card{padding:16px}
+  #portal .aw-workbench .admin-route-card>header{margin-bottom:12px}
+  #portal .aw-workbench .admin-route-step{padding:16px;min-height:170px}
+  #portal .aw-workbench .admin-qr-block{grid-template-columns:90px 1fr;gap:12px;padding:12px;margin-top:12px}
+  #portal .aw-workbench .admin-qr-canvas{height:86px;width:86px}
+  #portal .aw-workbench .admin-qr-canvas canvas{height:80px!important;width:80px!important}
+}
+@media(min-width:901px) and (prefers-reduced-transparency:reduce){
+  #portal #view-gestion>#admin-access-section.aw-workbench,#portal .aw-workbench :is(.admin-access-directory,.admin-route-card,.admin-policy-card){background:#fcfaf7!important;backdrop-filter:none}
+}
+@media(min-width:901px) and (max-height:850px){
+  #portal .aw-workbench .admin-office-map-shell{height:160px}
+}
+@media(min-width:901px) and (max-height:780px){
+  #portal .aw-workbench .admin-office-map-shell{height:128px}
+  #portal .aw-workbench .admin-access-person{min-height:48px;padding-top:5px;padding-bottom:5px}
+  #portal .aw-workbench .admin-list-kpi{min-height:52px;padding-top:8px;padding-bottom:8px}
+}

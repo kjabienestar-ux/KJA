@@ -1,0 +1,194 @@
+{
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "host": {
+        "width": 1048,
+        "scrollWidth": 1048,
+        "height": 818,
+        "scrollHeight": 818
+      },
+      "panel": "aw-panel-equipo",
+      "overflows": []
+    },
+    {
+      "width": 1440,
+      "host": {
+        "width": 1048,
+        "scrollWidth": 1048,
+        "height": 818,
+        "scrollHeight": 818
+      },
+      "panel": "aw-panel-equipo",
+      "overflows": []
+    },
+    {
+      "width": 1440,
+      "host": {
+        "width": 1048,
+        "scrollWidth": 1048,
+        "height": 818,
+        "scrollHeight": 818
+      },
+      "panel": "aw-panel-enlaces",
+      "overflows": []
+    },
+    {
+      "width": 1440,
+      "host": {
+        "width": 1048,
+        "scrollWidth": 1048,
+        "height": 818,
+        "scrollHeight": 818
+      },
+      "panel": "aw-panel-reglas",
+      "overflows": []
+    },
+    {
+      "width": 1440,
+      "host": {
+        "width": 1048,
+        "scrollWidth": 1048,
+        "height": 818,
+        "scrollHeight": 818
+      },
+      "panel": "aw-panel-reglas",
+      "overflows": []
+    },
+    {
+      "width": 1280,
+      "host": {
+        "width": 888,
+        "scrollWidth": 888,
+        "height": 718,
+        "scrollHeight": 718
+      },
+      "panel": "aw-panel-equipo",
+      "overflows": []
+    },
+    {
+      "width": 1280,
+      "host": {
+        "width": 888,
+        "scrollWidth": 888,
+        "height": 718,
+        "scrollHeight": 718
+      },
+      "panel": "aw-panel-equipo",
+      "overflows": []
+    },
+    {
+      "width": 1280,
+      "host": {
+        "width": 888,
+        "scrollWidth": 888,
+        "height": 718,
+        "scrollHeight": 833
+      },
+      "panel": "aw-panel-equipo",
+      "overflows": []
+    },
+    {
+      "width": 1280,
+      "host": {
+        "width": 888,
+        "scrollWidth": 888,
+        "height": 718,
+        "scrollHeight": 718
+      },
+      "panel": "aw-panel-enlaces",
+      "overflows": []
+    },
+    {
+      "width": 1280,
+      "host": {
+        "width": 888,
+        "scrollWidth": 888,
+        "height": 718,
+        "scrollHeight": 718
+      },
+      "panel": "aw-panel-reglas",
+      "overflows": []
+    },
+    {
+      "width": 1366,
+      "host": {
+        "width": 974,
+        "scrollWidth": 974,
+        "height": 686,
+        "scrollHeight": 686
+      },
+      "panel": "aw-panel-equipo",
+      "overflows": []
+    },
+    {
+      "width": 1366,
+      "host": {
+        "width": 974,
+        "scrollWidth": 974,
+        "height": 686,
+        "scrollHeight": 686
+      },
+      "panel": "aw-panel-enlaces",
+      "overflows": []
+    },
+    {
+      "width": 1366,
+      "host": {
+        "width": 974,
+        "scrollWidth": 974,
+        "height": 686,
+        "scrollHeight": 686
+      },
+      "panel": "aw-panel-reglas",
+      "overflows": []
+    }
+  ],
+  "firstPageRows": 6,
+  "secondPageRows": 6,
+  "map": {
+    "radius": 1000,
+    "svgWidth": 708.0000610351562,
+    "circleWidth": 108,
+    "point": [
+      -12.046374,
+      -77.042793
+    ]
+  },
+  "search": {
+    "height": 32,
+    "border": "0px",
+    "outline": "none",
+    "parentFocus": true
+  },
+  "blockedRows": 1,
+  "rules": {
+    "min": "0",
+    "max": "120",
+    "evidenceDisabled": true
+  },
+  "contrast": [
+    {
+      "selector": "#admin-access-save",
+      "color": "rgb(255, 255, 255)",
+      "background": "rgb(169, 88, 62)",
+      "backgroundImage": "none",
+      "ratio": 5.06
+    },
+    {
+      "selector": ".admin-policy-card>header p",
+      "color": "rgb(105, 99, 93)",
+      "background": "rgb(252,250,247)",
+      "backgroundImage": "none",
+      "ratio": 5.69
+    },
+    {
+      "selector": ".aw-tabs [aria-selected=true]",
+      "color": "rgb(147, 71, 47)",
+      "background": "rgb(240,236,229)",
+      "backgroundImage": "none",
+      "ratio": 5.6
+    }
+  ]
+}

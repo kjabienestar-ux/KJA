@@ -303,6 +303,7 @@ function initRoleCustomSelect(select){
 
 function renderRoleAudit(){
   const events=APP.adminRoles?.eventos||[],labels={asignar_lider:'Asignó un líder técnico',reemplazar_lider:'Reemplazó al líder técnico',retirar_lider:'Retiró el liderazgo',asignar_colider:'Asignó un co-líder técnico',reemplazar_colider:'Reemplazó a un co-líder técnico',retirar_colider:'Retiró un co-liderazgo'};
+  if(typeof renderRoleAuditHistory==='function'&&renderRoleAuditHistory(events,labels))return;
   $('admin-role-audit').innerHTML=events.length?events.map(event=>`<article><i class="${event.accion}"></i><span><b>${esc(labels[event.accion]||event.accion)}</b><small>${esc(event.area||'Área')} · ${esc(event.actor||'Administrador')}</small></span><span class="admin-role-audit-change">${event.lider_anterior?esc(event.lider_anterior)+' → ':''}${event.lider_nuevo?esc(event.lider_nuevo):'Sin líder'}</span><time>${new Date(event.created_at).toLocaleString('es-PE',{dateStyle:'medium',timeStyle:'short',timeZone:'America/Lima'})}</time></article>`).join(''):'<p class="admin-empty">Las próximas asignaciones quedarán registradas aquí.</p>';
 }
 

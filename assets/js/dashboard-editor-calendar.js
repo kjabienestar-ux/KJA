@@ -1,16 +1,16 @@
 /* Local date picker; original ISO date inputs remain the source for saving. */
 (()=>{
   const modal=document.getElementById('admin-person-modal');
-  if(!modal)return;
+  const enhanced=new WeakMap();
   const iso=date=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
   const parse=value=>{const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(value||'');return match?new Date(+match[1],+match[2]-1,+match[3],12):new Date();};
   const longDate=date=>new Intl.DateTimeFormat('es-PE',{dateStyle:'long'}).format(date);
   let active=null;
   const pickers=[];
-  function close(restore=false){if(!active)return;const current=active;active=null;current.panel.hidden=true;current.trigger.setAttribute('aria-expanded','false');if(restore)current.trigger.focus();}
-  for(const id of ['admin-contract-start','admin-contract-end']){
-    const input=document.getElementById(id);if(!input)continue;
-    const field=input.closest('label'),name=id.endsWith('start')?'Inicio del contrato':'Fin según documento';
+  function close(restore=false){if(!active)return;const current=active;active=null;try{current.panel.hidePopover?.();}catch(_){}current.panel.hidden=true;current.trigger.setAttribute('aria-expanded','false');if(restore)current.trigger.focus();}
+  function enhance(inputs){for(let i=pickers.length-1;i>=0;i--)if(!pickers[i].input.isConnected)pickers.splice(i,1);for(const input of inputs){
+    if(!input||enhanced.has(input))continue;const id=input.id;
+    const field=input.closest('label'),name=input.getAttribute('aria-label')||({'admin-contract-start':'Inicio del contrato','admin-contract-end':'Fin según documento','pw-shift-from':'Desde','pw-shift-until':'Hasta'}[id])||'Fecha';
     const wrap=document.createElement('span');wrap.className='editor-date-control';
     input.after(wrap);input.hidden=true;
     // Keep the field label associated with the visible trigger.
@@ -20,7 +20,8 @@
     const panel=document.createElement('span');panel.id=id+'-calendar';panel.className='editor-calendar';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label',name);
     trigger.setAttribute('aria-controls',panel.id);
     wrap.append(trigger,panel);
-    const picker={input,trigger,panel,wrap,month:parse(input.value)};pickers.push(picker);
+    const picker={input,trigger,panel,wrap,month:parse(input.value)};pickers.push(picker);enhanced.set(input,picker);
+    if(input.closest('dialog')){panel.setAttribute('popover','manual');panel.classList.add('editor-calendar-floating');}
     const sync=()=>{trigger.textContent=input.value?longDate(parse(input.value)):'Seleccionar fecha';trigger.setAttribute('aria-label',`${name}: ${trigger.textContent}`);trigger.disabled=input.disabled;};
     picker.sync=sync;
     function choose(value){input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));sync();close(true);}
@@ -54,12 +55,15 @@
       foot.append(button('Borrar fecha','Sin fecha',()=>choose('')),todayButton,button('Cerrar calendario','Cerrar',()=>close(true)));panel.append(foot);
       if(focusDate)panel.querySelector(`[data-date="${focusDate}"]:not(:disabled)`)?.focus();
     }
-    trigger.onclick=()=>{if(active===picker){close();return;}close();active=picker;picker.month=parse(input.value);render();panel.hidden=false;trigger.setAttribute('aria-expanded','true');(panel.querySelector('[aria-pressed="true"]:not(:disabled)')||panel.querySelector('[data-date]:not(:disabled)'))?.focus();};
+    trigger.onclick=()=>{if(active===picker){close();return;}close();active=picker;picker.month=parse(input.value);render();panel.hidden=false;if(panel.hasAttribute('popover')){panel.showPopover?.();const r=trigger.getBoundingClientRect();const width=Math.min(320,innerWidth-24);panel.style.width=width+'px';panel.style.left=Math.max(12,Math.min(r.left,innerWidth-width-12))+'px';const height=panel.getBoundingClientRect().height;panel.style.top=Math.max(12,Math.min(r.bottom+6,innerHeight-height-12))+'px';}trigger.setAttribute('aria-expanded','true');(panel.querySelector('[aria-pressed="true"]:not(:disabled)')||panel.querySelector('[data-date]:not(:disabled)'))?.focus();};
     panel.addEventListener('click',event=>event.stopPropagation());
-    input.addEventListener('change',sync);sync();
-  }
-  modal.addEventListener('keydown',event=>{if(active&&event.key==='Escape'){event.preventDefault();event.stopPropagation();close(true);}},true);
+    input.addEventListener('change',sync);new MutationObserver(()=>{sync();if(active===picker&&input.disabled)close();}).observe(input,{attributes:true,attributeFilter:['disabled','min','max']});input.addEventListener('invalid',event=>{event.preventDefault();trigger.focus();trigger.click();});sync();
+  }}
+  globalThis.KJAEditorCalendar={enhance,close};
+  enhance(['admin-contract-start','admin-contract-end'].map(id=>document.getElementById(id)));
+  document.addEventListener('keydown',event=>{if(active&&event.key==='Escape'){event.preventDefault();event.stopPropagation();close(true);}},true);
   document.addEventListener('pointerdown',event=>{if(active&&!active.wrap.contains(event.target))close();});
   document.addEventListener('focusin',event=>{if(active&&!active.wrap.contains(event.target))close();});
-  new MutationObserver(()=>{close();pickers.forEach(p=>p.sync());}).observe(modal,{attributes:true,attributeFilter:['hidden']});
+  if(modal)new MutationObserver(()=>{close();pickers.filter(p=>p.input.isConnected).forEach(p=>p.sync());}).observe(modal,{attributes:true,attributeFilter:['hidden']});
+  document.addEventListener('close',event=>{if(active&&event.target.contains(active.wrap))close();},true);
 })();

@@ -1,0 +1,367 @@
+{
+  "errors": [],
+  "layouts": [
+    {
+      "section": "admin-contracts-section",
+      "width": 1440,
+      "client": 1048,
+      "scroll": 1048,
+      "grid": "repeat(2, minmax(0px, 1fr))",
+      "overflows": []
+    },
+    {
+      "section": "admin-roles-section",
+      "width": 1440,
+      "client": 1048,
+      "scroll": 1048,
+      "grid": "497px 497px",
+      "overflows": []
+    },
+    {
+      "section": "admin-month-section",
+      "width": 1440,
+      "client": 1060,
+      "scroll": 1060,
+      "grid": "none",
+      "overflows": []
+    },
+    {
+      "section": "admin-contracts-section",
+      "width": 1280,
+      "client": 888,
+      "scroll": 888,
+      "grid": "repeat(2, minmax(0px, 1fr))",
+      "overflows": []
+    },
+    {
+      "section": "admin-roles-section",
+      "width": 1280,
+      "client": 888,
+      "scroll": 888,
+      "grid": "417px 417px",
+      "overflows": []
+    },
+    {
+      "section": "admin-month-section",
+      "width": 1280,
+      "client": 900,
+      "scroll": 900,
+      "grid": "none",
+      "overflows": []
+    },
+    {
+      "section": "admin-contracts-section",
+      "width": 1366,
+      "client": 974,
+      "scroll": 974,
+      "grid": "repeat(2, minmax(0px, 1fr))",
+      "overflows": []
+    },
+    {
+      "section": "admin-roles-section",
+      "width": 1366,
+      "client": 974,
+      "scroll": 974,
+      "grid": "460px 460px",
+      "overflows": []
+    },
+    {
+      "section": "admin-month-section",
+      "width": 1366,
+      "client": 986,
+      "scroll": 986,
+      "grid": "none",
+      "overflows": []
+    }
+  ],
+  "month": [
+    {
+      "month": 1,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 2,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 3,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 4,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 5,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 6,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 7,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 8,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 9,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 10,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 11,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 12,
+      "viewport": 1440,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 1,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 2,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 3,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 4,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 5,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 6,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 7,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 8,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 9,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 10,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 11,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 12,
+      "viewport": 1280,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 1,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 2,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 3,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 4,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 5,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 6,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 7,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 8,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 9,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 10,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 11,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    },
+    {
+      "month": 12,
+      "viewport": 1366,
+      "width": 280,
+      "overflow": false,
+      "outside": false
+    }
+  ],
+  "collapsed": 0,
+  "lastAreaVisible": "Marketing",
+  "separateTabs": 0,
+  "vacantAreas": 1,
+  "readOnlyEdits": 0,
+  "empty": "No hay contratos para los filtros seleccionados.",
+  "contrast": [
+    {
+      "selector": "#admin-refresh",
+      "color": "rgb(255, 255, 255)",
+      "background": "rgb(169, 88, 62)",
+      "ratio": 5.06
+    },
+    {
+      "selector": ".contracts-sub",
+      "color": "rgb(105, 99, 93)",
+      "background": "rgb(244,239,231)",
+      "ratio": 5.18
+    },
+    {
+      "selector": ".admin-contract-person b",
+      "color": "rgb(40, 38, 34)",
+      "background": "rgb(255,253,249)",
+      "ratio": 14.86
+    },
+    {
+      "selector": ".admin-contract-progress>span>b",
+      "color": "rgb(56, 49, 43)",
+      "background": "rgb(248,241,232)",
+      "ratio": 11.41
+    }
+  ],
+  "historyRows": 6,
+  "historyPage2": "7–12 de 30 cambios",
+  "historyToday": 1,
+  "historyEmpty": "No hay cambios con estos filtros.Prueba otro período o limpia la búsqueda.Limpiar filtros"
+}
