@@ -2,6 +2,7 @@
 const OFFICE_RADIUS_M=1000;
 const OFFICE_MAP_DEFAULT=[-12.046374,-77.042793];
 let OFFICE_MAP=null,OFFICE_MARKER=null,OFFICE_RADIUS=null,OFFICE_MAP_INITIALIZING=false,OFFICE_ORIGINAL=null,OFFICE_SELECTED_LABEL='',OFFICE_SEARCH_AT=0;
+let ACCESS_PEOPLE_PAGE=1;
 function setOfficeDetectLabel(text){const button=$('admin-office-detect'),label=button.querySelector('span');if(label)label.textContent=text;else button.textContent=text}
 
 function accessMessage(text,bad=false){
@@ -29,13 +30,14 @@ function accessFuture(value){
 async function loadAdminAccess(){
   if(APP.access.rol!=='direccion')return;
   const request=++APP.adminAccessRequest,button=$('admin-refresh');button.disabled=true;accessMessage('');
+  const pager=$('admin-access-pagination');if(pager)pager.hidden=true;
   $('admin-access-list').innerHTML='<p class="admin-empty">Revisando accesos del equipo…</p>';
   const [{data,error},{data:geoData,error:geoError}]=await Promise.all([db.rpc('dash_admin_marcado'),db.rpc('dash_admin_geocerca')]);
   if(request!==APP.adminAccessRequest)return;button.disabled=false;
   if(error||!data?.ok||geoError||!geoData?.ok){
     APP.adminAccess=null;
     const missing=(error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_marcado')))||(geoError&&(geoError.code==='PGRST202'||String(geoError.message||'').includes('dash_admin_geocerca')));
-    accessMessage(missing?'La modalidad y geocerca todavía no están instaladas en Supabase. Ejecuta dashboard_13_modalidad_y_geocerca.sql.':'No se pudo cargar el centro de acceso. Actualiza e inténtalo nuevamente.',true);
+    accessMessage(missing?'La configuración de acceso aún no está disponible. Contacta a Sistemas.':'No se pudo cargar el centro de acceso. Actualiza e inténtalo nuevamente.',true);
     $('admin-access-list').innerHTML='<p class="admin-empty">La información de acceso no está disponible.</p>';return false;
   }
   data.config={...(data.config||{}),...(geoData.config||{})};
@@ -77,13 +79,20 @@ function filteredAccessPeople(){
   ));
 }
 function renderAccessPeople(){
-  if(!APP.adminAccess)return;const people=filteredAccessPeople();
+  if(!APP.adminAccess)return;const all=filteredAccessPeople(),pager=$('admin-access-pagination'),pages=Math.max(1,Math.ceil(all.length/6));
+  ACCESS_PEOPLE_PAGE=Math.max(1,Math.min(ACCESS_PEOPLE_PAGE,pages));
+  const people=pager?all.slice((ACCESS_PEOPLE_PAGE-1)*6,ACCESS_PEOPLE_PAGE*6):all;
   $('admin-access-list').innerHTML=people.length?people.map(person=>{
     const state=person.bloqueado?'blocked':person.tiene_pin?'ready':'missing';
     const label=person.bloqueado?'Bloqueado':person.tiene_pin?'PIN configurado':'Sin PIN';
     const detail=person.bloqueado?accessFuture(person.bloqueado_hasta):person.tiene_pin?accessRelative(person.ultimo_ingreso):person.dni_configurado?'Pendiente de activación':'Registra primero su DNI';
-    return `<article class="admin-access-person ${state}"><span class="avatar">${initials(person.nombre)}</span><span class="access-person-name"><b>${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')} · ${person.dni_configurado?'DNI listo':'Sin DNI'}</small></span><span class="access-pin-state"><i></i><span><b>${label}</b><small>${esc(detail)}</small></span></span><span class="access-account-state"><b>${person.tiene_cuenta?'Dashboard activado':'Sin primer ingreso'}</b><small>${person.fallidos_total?person.fallidos_total+' intentos fallidos históricos':'Sin alertas de acceso'}</small></span><span class="access-person-action">${person.tiene_pin?`<button type="button" data-access-reset="${person.id}">Reiniciar PIN</button>`:'<em>—</em>'}</span></article>`;
+    return `<article class="admin-access-person ${state}"><span class="avatar">${initials(person.nombre)}</span><span class="access-person-name"><b title="${esc(person.nombre)}">${esc(person.nombre)}</b><small>${esc(person.area||'Sin área')} · ${person.dni_configurado?'DNI listo':'Sin DNI'}</small></span><span class="access-pin-state"><i></i><span><b>${label}</b><small>${esc(detail)}</small></span></span><span class="access-account-state"><b>${person.tiene_cuenta?'Portal activado':'Sin primer ingreso'}</b><small>${person.fallidos_total?person.fallidos_total+' intentos fallidos históricos':'Sin alertas de acceso'}</small></span><span class="access-person-action">${person.tiene_pin?`<button type="button" data-access-reset="${person.id}">Reiniciar PIN</button>`:'<em>Crear PIN desde activación</em>'}</span></article>`;
   }).join(''):'<p class="admin-empty">No hay personas para los filtros seleccionados.</p>';
+  if(pager){
+    pager.hidden=false;
+    pager.innerHTML=`<span>${all.length?`${(ACCESS_PEOPLE_PAGE-1)*6+1}–${Math.min(ACCESS_PEOPLE_PAGE*6,all.length)} de ${all.length} personas`:'0 personas'}</span><div><button type="button" data-access-page="${ACCESS_PEOPLE_PAGE-1}" ${ACCESS_PEOPLE_PAGE===1?'disabled':''} aria-label="Página anterior">‹</button>${Array.from({length:pages},(_,i)=>`<button type="button" data-access-page="${i+1}" aria-label="Página ${i+1}" ${ACCESS_PEOPLE_PAGE===i+1?'aria-current="page"':''}>${i+1}</button>`).join('')}<button type="button" data-access-page="${ACCESS_PEOPLE_PAGE+1}" ${ACCESS_PEOPLE_PAGE===pages?'disabled':''} aria-label="Página siguiente">›</button></div>`;
+    pager.onclick=event=>{const button=event.target.closest('[data-access-page]');if(!button||button.disabled)return;ACCESS_PEOPLE_PAGE=Number(button.dataset.accessPage);renderAccessPeople();pager.querySelector(`[data-access-page="${ACCESS_PEOPLE_PAGE}"][aria-current]`)?.focus({preventScroll:true});};
+  }
 }
 function renderAccessAudit(){
   const events=APP.adminAccess?.eventos||[],labels={config_portal:'Actualizó las reglas de marcado',config_oficina:'Cambió la ubicación de la oficina',regenerar_enlace:'Regeneró el enlace de activación',reiniciar_pin:'Reinició un PIN',resolver_horario:'Cerró un aviso de horario',resolver_solicitud:'Resolvió una solicitud personal'};
@@ -150,8 +159,8 @@ function setOfficePoint(lat,lon,{source='map',accuracy=null,focus=false,label=''
   paintOfficeMapPoint({lat,lon},{focus});syncOfficeSelection({source,accuracy});
 }
 async function prepareOfficeMap(){
-  const shell=$('admin-office-map-shell');if(!shell||APP.adminSection!=='marcado')return;
-  if(OFFICE_MAP){const point=readOfficePoint();point?paintOfficeMapPoint(point):clearOfficeMapPoint();requestAnimationFrame(()=>OFFICE_MAP.invalidateSize(false));return;}
+  const shell=$('admin-office-map-shell');if(!shell||APP.adminSection!=='marcado'||shell.closest('[hidden]'))return;
+  if(OFFICE_MAP){const point=readOfficePoint();requestAnimationFrame(()=>{OFFICE_MAP.invalidateSize(false);point?paintOfficeMapPoint(point,{focus:true}):clearOfficeMapPoint();});return;}
   if(OFFICE_MAP_INITIALIZING)return;OFFICE_MAP_INITIALIZING=true;
   shell.dataset.state='loading';$('admin-office-map-state').querySelector('b').textContent='Cargando mapa…';$('admin-office-map-state').querySelector('small').textContent='También puedes usar las coordenadas exactas.';$('admin-office-map-retry').hidden=true;
   try{
@@ -211,7 +220,7 @@ async function saveAccessSettings(event){
   if(locationChanged&&OFFICE_ORIGINAL&&!confirm(`¿Cambiar la ubicación oficial de la oficina?\n\nEl radio de 1 km se calculará inmediatamente desde el nuevo punto (${officeLat.toFixed(6)}, ${officeLon.toFixed(6)}).`))return;
   if(!point&&!OFFICE_ORIGINAL&&!confirm('La oficina todavía no tiene una ubicación. El marcado presencial permanecerá bloqueado hasta configurarla. ¿Guardar las demás reglas?'))return;
   const missing=Number(APP.adminAccess?.resumen?.sin_pin||0);
-  if(!active&&missing&&!confirm(`Hay ${missing} persona${missing===1?'':'s'} sin PIN. Si cierras la activación anterior no podrá${missing===1?'':'n'} crear uno hasta que vuelvas a habilitarla. ¿Continuar?`))return;
+  if(!active&&missing&&!confirm(`Hay ${missing} persona${missing===1?'':'s'} sin PIN. Si cierras la activación de PIN no podrá${missing===1?'':'n'} crear uno hasta que vuelvas a habilitarla. ¿Continuar?`))return;
   const button=$('admin-access-save');button.disabled=true;button.textContent='Guardando…';
   try{
     const {data,error}=await db.rpc('dash_admin_guardar_reglas',{p_tolerancia:tolerance,p_activo:active,p_exigir_evidencia:evidence,p_oficina_lat:officeReady?officeLat:null,p_oficina_lon:officeReady?officeLon:null,p_radio_presencial_m:OFFICE_RADIUS_M});
@@ -258,6 +267,6 @@ document.querySelectorAll('[data-copy-access]').forEach(button=>button.onclick=(
 $('admin-download-qr').onclick=downloadAccessQr;$('admin-access-settings').onsubmit=saveAccessSettings;$('admin-access-rotate').onclick=rotateAccessLink;$('admin-office-detect').onclick=detectOfficeLocation;
 $('admin-office-search-button').onclick=searchOfficeAddress;$('admin-office-search').onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();searchOfficeAddress()}else if(event.key==='Escape'){$('admin-office-results').hidden=true;event.currentTarget.setAttribute('aria-expanded','false')}};
 $('admin-office-results').onclick=event=>{const button=event.target.closest('[data-office-result]');if(button)chooseOfficeSearchResult(button)};$('admin-office-lat').onchange=applyOfficeCoordinates;$('admin-office-lon').onchange=applyOfficeCoordinates;$('admin-office-map-retry').onclick=retryOfficeMap;
-$('admin-access-search').oninput=renderAccessPeople;$('admin-access-filter').onchange=renderAccessPeople;
+$('admin-access-search').oninput=()=>{ACCESS_PEOPLE_PAGE=1;renderAccessPeople()};$('admin-access-filter').onchange=()=>{ACCESS_PEOPLE_PAGE=1;renderAccessPeople()};
 $('admin-access-list').onclick=event=>{const button=event.target.closest('[data-access-reset]');if(button)resetAccessPin(button.dataset.accessReset)};
 $('admin-access-requests').onclick=event=>{const edit=event.target.closest('[data-access-edit-person]'),resolve=event.target.closest('[data-access-resolve]');if(edit)return editAccessPerson(edit.dataset.accessEditPerson);if(resolve)return resolveAccessRequest(resolve.dataset.accessResolve,resolve.dataset.applied==='true')};

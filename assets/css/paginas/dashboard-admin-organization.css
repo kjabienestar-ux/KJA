@@ -1,0 +1,238 @@
+/* KJA-030 · Contratos y equipos. Escritorio, identidad cálida de Administración. */
+@media(min-width:901px){
+  #portal.admin-wide[data-admin-section="contratos"],#portal.admin-wide[data-admin-section="roles"]{background:#f0ece5!important}
+  #portal.admin-wide:is([data-admin-section="contratos"],[data-admin-section="roles"]) #view-gestion #admin-refresh{background:#a9583e!important;border-color:#a9583e!important;color:#fff!important;box-shadow:none;min-height:44px}
+  #portal.admin-wide:is([data-admin-section="contratos"],[data-admin-section="roles"]) #view-gestion .admin-section-nav #admin-refresh{background:#a9583e!important;border-color:#a9583e!important;color:#fff!important}
+  #portal #view-gestion>:is(#admin-contracts-section,#admin-roles-section){display:block;grid-column:1/-1;padding:20px!important;border:1px solid #ffffffbd;border-radius:20px;background:rgba(244,239,231,.75)!important;color:#282622;box-shadow:inset 0 1px 0 #fff,0 8px 28px #60473009;backdrop-filter:blur(16px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+  #portal :is(#admin-contracts-section,#admin-roles-section)[hidden]{display:none!important}
+  #portal #admin-contracts-section{--contract-ink:#282622;--contract-muted:#69635d;--contract-line:#ded6cb;--contract-line-hover:#aa9786;--contract-accent:#a9583e;--contract-accent-hover:#8e432b;--contract-primary-soft:#f2e2d5;--contract-field-bg:#fcfaf7;--contract-field-focus:#f2e2d5;--contract-surface:#fcfaf7;--contract-card-bg:#fffdf9;--contract-card-shadow:none}
+  #portal #admin-roles-section,.admin-role-dialog{--role-ink:#282622;--role-muted:#69635d;--role-line:#ded6cb;--role-line-hover:#aa9786;--role-accent:#a9583e;--role-accent-hover:#8e432b;--role-surface:#fcfaf7;--role-card-bg:#fffdf9;--role-tint:#f5ece1;--role-edge:#ded6cb}
+  #portal :is(#admin-contracts-section,#admin-roles-section)>:is(.admin-team-toolbar,.admin-roles-toolbar){display:grid;grid-template-columns:minmax(0,1fr)!important;padding:0!important;gap:16px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;margin-bottom:16px}
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(.contracts-heading h2,.roles-heading h2){font:400 34px/1.15 Georgia,serif!important;letter-spacing:-.03em!important;color:#282622!important}
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(.contracts-heading-icon,.roles-heading-icon){width:44px;height:44px;border-radius:13px;background:#f2e2d5;color:#93472f;box-shadow:none}
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(.contracts-heading .eyebrow,.roles-heading .eyebrow){color:#69635d!important;font-size:10px!important;font-weight:600!important;letter-spacing:.11em!important}
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(.contracts-sub,.roles-sub){color:#69635d!important;font-size:13px!important;margin-top:5px!important;line-height:1.5!important}
+  #portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0;background:rgba(255,253,249,.8);border:1px solid #ded6cb;border-radius:13px;overflow:hidden;min-width:0}
+  #portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpi{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:6px;padding:14px 16px!important;border:0!important;border-right:1px solid #ded6cb!important;background:transparent!important;box-shadow:none!important;min-height:82px;border-radius:0!important}
+  #portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpi:last-child{border-right:0!important}
+  #portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpi small{color:#69635d;font-size:11px!important;font-weight:600;letter-spacing:.02em}
+  #portal :is(#admin-contracts-section,#admin-roles-section) .admin-list-kpi b{color:#93472f;font-size:27px;line-height:1;margin:0}
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(button,input,select){transition:background-color 150ms,border-color 150ms,color 150ms;box-sizing:border-box}
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(button,input,select):focus-visible{outline:3px solid #93472f;outline-offset:3px}
+  #portal #admin-contracts-section .admin-team-actions{display:grid;grid-template-columns:minmax(210px,1.3fr) minmax(180px,1fr) auto auto;gap:12px;padding:14px;background:rgba(255,253,249,.7);border:1px solid #ded6cb;border-radius:13px;align-items:end;margin:0}
+  #portal #admin-contracts-section .contracts-filter{min-width:0;gap:6px}
+  #portal #admin-contracts-section .contracts-filter>span{font-size:10px;font-weight:600;letter-spacing:.04em}
+  #portal #admin-contracts-section input#admin-contract-search{height:42px;min-height:42px;border-color:#998b7f!important;border-radius:9px!important;font-weight:400!important;background:#fcfaf7!important;color:#282622!important}
+  #portal #admin-contracts-section input#admin-contract-search:focus{border-color:#93472f!important;box-shadow:0 0 0 2px #f2e2d5!important}
+  #portal #admin-contracts-section input#admin-contract-search::placeholder{color:#69635d!important}
+  #portal #admin-contracts-section .contracts-search-wrap svg{color:#69635d}
+  #portal #admin-contracts-section :is(.area-picker-trigger,.admin-toggle,#admin-contract-area){min-height:42px;height:42px;border:1px solid #998b7f!important;border-radius:9px!important;background:#fcfaf7!important;color:#51483f;font-size:12px}
+  #portal #admin-contracts-section .area-picker-trigger{width:100%;font-weight:400;box-shadow:none}
+  #portal #admin-contracts-section .admin-toggle{margin:0;padding:0 12px;white-space:nowrap}
+  #portal #admin-contracts-section .admin-toggle:has(input:checked){background:#f2e2d5!important;color:#93472f;border-color:#a9583e!important}
+  #portal #admin-contracts-section .contracts-list-caption{padding:0 2px;background:transparent;border:0;box-shadow:none;gap:10px;margin:0 0 12px;flex-wrap:wrap}
+  #portal #admin-contracts-section .contracts-list-caption h3{font-size:15px;font-weight:600}
+  #portal #admin-contract-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;border:0;border-radius:0;background:transparent;overflow:visible;box-shadow:none}
+  #portal #admin-contract-list:has(.contract-area-accordion){display:block}
+  #portal #admin-contracts-section .contract-area-accordion{display:grid;gap:10px}
+  #portal #admin-contracts-section .contract-area-group{border:1px solid #ded6cb;border-radius:12px;overflow:hidden;background:#fcfaf7}
+  #portal #admin-contracts-section .contract-area-toggle{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:12px 16px;border:0;border-radius:0;background:#f6eee4;color:#51483f;font:600 13px/1.4 Inter,system-ui,sans-serif;text-align:left;cursor:pointer}
+  #portal #admin-contracts-section .contract-area-toggle>b{padding:2px 8px;border-radius:20px;background:#f2e2d5;color:#93472f;font-size:11px}
+  #portal #admin-contracts-section .contract-area-toggle svg{margin-left:auto;flex-shrink:0;width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  #portal #admin-contracts-section .contract-area-toggle[aria-expanded=true]{color:#79452f;border-bottom:1px solid #ded6cb}
+  #portal #admin-contracts-section .contract-area-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
+  #portal #admin-contracts-section .contract-area-toggle:focus-visible{outline-offset:-3px}
+  #portal #admin-contracts-section .contract-area-rows[hidden]{display:none!important}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-row{display:grid;grid-template-columns:minmax(175px,1.3fr) minmax(150px,1.1fr) minmax(120px,1fr) minmax(100px,.75fr) 66px;grid-template-rows:auto auto;align-items:center;gap:5px 14px;padding:12px 16px;min-height:86px;border:0!important;border-bottom:1px solid #e5dbce!important;border-radius:0;background:#fcfaf7!important;box-shadow:none;overflow:visible}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-row:last-child{border-bottom:0!important}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-person{grid-column:1;grid-row:1;padding:0;grid-template-columns:30px minmax(0,1fr);gap:8px}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-person .avatar{width:30px;height:30px;font-size:10px;border-radius:9px}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-person b{font-size:12px;line-height:1.4}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-person small{font-size:11px;margin-top:2px}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-institution{grid-column:1;grid-row:2;padding:0 0 0 38px;border:0;font-size:10px;color:#69635d}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-institution>.contract-mobile-label{display:none}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-progress{grid-column:2;grid-row:1/3;padding:0;border:0;border-radius:0;background:transparent}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-progress>span>b{font-size:14px!important}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-progress>span>b em{font-size:11px}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-progress>i{height:5px;margin:5px 0}
+  #portal #admin-contracts-section .contract-area-rows .admin-vol-progress b{font-size:11px!important}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-date{grid-column:3;grid-row:1/3;padding:0}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-date b{font-size:12px}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-date small{font-size:10px}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-status{position:static;grid-column:4;grid-row:1;max-width:none;text-align:left;padding:0}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-row:has(.admin-contract-status>small) .admin-contract-status{grid-column:4;grid-row:1}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-status small{font-size:10px;line-height:1.4}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-week{grid-column:4;grid-row:2;padding:0;display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-week>.contract-mobile-label{display:none}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-week>b{font-size:12px}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-week>small{font-size:10px;margin:0}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-action{grid-column:5;grid-row:1/3;padding:0;border:0;align-self:center}
+  #portal #admin-contracts-section .contract-area-rows .admin-contract-action button{min-height:34px;height:34px;padding:0 8px;font-size:11px}
+  #portal #admin-contracts-section .admin-contract-head{display:none}
+  #portal #admin-contracts-section .admin-contract-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:14px 18px;padding:18px;min-width:0;min-height:0;margin:0;border:1px solid #ded6cb!important;border-radius:15px;background:rgba(255,253,249,.9)!important;box-shadow:inset 0 1px 0 #fff,0 4px 16px #60473008;position:relative;overflow:hidden}
+  #portal #admin-contracts-section .admin-contract-row.inactive{opacity:1;background:#ece7df!important}
+  #portal #admin-contracts-section :is(.admin-contract-person,.admin-contract-progress,.admin-contract-institution){grid-column:1/-1;grid-row:auto;min-width:0}
+  #portal #admin-contracts-section .admin-contract-person{padding-right:112px;gap:10px}
+  #portal #admin-contracts-section .admin-contract-person .avatar{background:#f2e2d5;color:#93472f;border-radius:11px;box-shadow:none}
+  #portal #admin-contracts-section .admin-contract-person b{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+  #portal #admin-contracts-section .admin-contract-person small{font-size:12px}
+  #portal #admin-contracts-section .admin-contract-progress{padding:12px;border:1px solid #e8ded2;border-radius:10px;background:#f8f1e8}
+  #portal #admin-contracts-section .admin-contract-progress>i{height:6px;background:#e2d5c7}
+  #portal #admin-contracts-section .admin-contract-progress>i u{background:#a9583e;border-radius:10px}
+  #portal #admin-contracts-section .admin-contract-progress>span>b{font-size:18px;color:#38312b;font-weight:600}
+  #portal #admin-contracts-section .admin-contract-progress>span>b{font-size:17px!important}
+  #portal #admin-contracts-section .admin-contract-progress em{font-size:12px;color:#69635d}
+  #portal #admin-contracts-section :is(.contract-remaining,.contract-nonworking-hours){font-size:11px;color:#69635d}
+  #portal #admin-contracts-section :is(.admin-contract-week,.admin-contract-date){grid-column:auto;grid-row:auto;padding:0;border:0}
+  #portal #admin-contracts-section .contract-mobile-label{display:block;color:#69635d;font-size:10px;letter-spacing:.04em;font-weight:600;text-transform:uppercase;margin-bottom:5px}
+  #portal #admin-contracts-section :is(.admin-contract-week,.admin-contract-date)>b{font-size:14px;color:#38312b}
+  #portal #admin-contracts-section .admin-contract-institution{display:block;border-top:1px solid #e8ded2;padding-top:10px;color:#51483f;font-size:12px;overflow-wrap:anywhere}
+  #portal #admin-contracts-section .admin-contract-status{position:absolute;top:20px;right:18px;max-width:108px;text-align:right}
+  #portal #admin-contracts-section .admin-contract-status{grid-column:auto;grid-row:auto}
+  #portal #admin-contracts-section .admin-contract-status small{white-space:normal;overflow:visible;text-overflow:clip;max-width:none}
+  #portal #admin-contracts-section .admin-contract-status>b{font-size:10px;white-space:normal;padding:5px 8px;line-height:1.4}
+  #portal #admin-contracts-section .admin-contract-status>b.active{background:#f2e2d5;color:#79452f}
+  #portal #admin-contracts-section .admin-contract-status>small{font-size:10px;line-height:1.4}
+  #portal #admin-contracts-section .admin-contract-row:has(.admin-contract-status>small) .admin-contract-status{position:static;grid-column:1/-1;max-width:none;text-align:left}
+  #portal #admin-contracts-section .admin-contract-row:has(.admin-contract-status>small) .admin-contract-person{padding-right:0}
+  #portal #admin-contracts-section .admin-contract-action{grid-column:1/-1;grid-row:auto;justify-self:stretch;border-top:1px solid #e8ded2;padding-top:10px}
+  #portal #admin-contracts-section .admin-contract-action button{width:100%;min-height:38px;justify-content:center;background:#fffdf9;color:#93472f;border:1px solid #aa9786;border-radius:8px;font-size:12px}
+  #portal #admin-contracts-section .admin-contract-doc{background:#fffdf9;color:#93472f;border-color:#c5b19c}
+  #portal #admin-contracts-section .admin-legacy-link{color:#69635d;font-size:12px;margin:16px 0 0}
+  #portal :is(#admin-contract-list,#admin-role-map)>.admin-empty{grid-column:1/-1;padding:30px;border:1px dashed #b8a694;border-radius:14px;background:#fcfaf7;color:#69635d;font-size:13px}
+  #portal #admin-roles-section .admin-role-list-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+  #portal #admin-roles-section .admin-role-filters{display:flex;gap:6px;flex-wrap:wrap}
+  #portal #admin-roles-section .admin-role-filters button{border-color:#aa9786;border-radius:9px;background:#fcfaf7;color:#69635d;min-height:40px;font-size:12px;padding:8px 12px}
+  #portal #admin-roles-section .admin-role-filters button b{background:#f2e2d5;color:#93472f}
+  #portal #admin-roles-section .admin-role-filters button[aria-pressed=true]{background:#a9583e;color:#fff;border-color:#a9583e}
+  #portal #admin-roles-section .admin-role-filters button[aria-pressed=true] b{background:#ffffff24;color:#fff}
+  #portal #admin-roles-section .admin-roles-lock{color:#69635d;border-color:#ded6cb;background:#fcfaf7;font-size:11px}
+  #portal #admin-roles-section #admin-role-map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto;align-items:stretch;gap:14px;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
+  #portal #admin-roles-section .admin-role-row.is-head{display:none}
+  #portal #admin-roles-section .admin-role-row:not(.is-head){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 14px;padding:14px;border:1px solid #ded6cb;border-radius:13px;background:rgba(255,253,249,.9);min-width:0;align-items:start;position:relative;box-shadow:inset 0 1px 0 #fff,0 4px 16px #60473008;cursor:default}
+  #portal #admin-roles-section .admin-role-cell-area{grid-column:1/-1;grid-row:1;display:flex;gap:8px;align-items:center;min-height:30px;padding-right:82px}
+  #portal #admin-roles-section .admin-role-cell-area>b{color:#282622;font-size:14px;font-weight:600;white-space:normal}
+  #portal #admin-roles-section .admin-role-area-icon{width:30px;height:30px;border-radius:9px;background:#f2e2d5;color:#93472f;flex-shrink:0}
+  #portal #admin-roles-section .admin-role-cell-team{position:absolute;top:16px;right:14px;display:flex;align-items:baseline;gap:4px;padding:3px 6px;border-radius:7px;background:#f8f1e8}
+  #portal #admin-roles-section .admin-role-row:not(.is-head) .admin-role-cell-team{display:flex}
+  #portal #admin-roles-section .admin-role-cell-team>b{font-size:13px;color:#93472f}
+  #portal #admin-roles-section .admin-role-cell-team>b:after{content:' personas';font-size:12px;font-weight:400;color:#69635d}
+  #portal #admin-roles-section :is(.admin-role-cell-leader,.admin-role-cell-co){grid-column:auto;grid-row:2;display:flex;flex-direction:column;gap:6px;min-width:0}
+  #portal #admin-roles-section .admin-role-cell-leader:before{content:'LÍDER TÉCNICO';font-size:10px;color:#69635d;letter-spacing:.05em;font-weight:600}
+  #portal #admin-roles-section .admin-role-cell-co:before{content:'CO-LÍDERES';font-size:10px;color:#69635d;letter-spacing:.05em;font-weight:600}
+  #portal #admin-roles-section .admin-role-person{align-items:flex-start;min-width:0}
+  #portal #admin-roles-section .admin-role-person b{white-space:normal;overflow-wrap:anywhere;font-size:12px;font-weight:600;color:#38312b}
+  #portal #admin-roles-section .admin-role-person small{font-size:11px;color:#69635d;white-space:normal}
+  #portal #admin-roles-section .admin-role-person small:is(.waiting,.warning){color:#9c5c00}
+  #portal #admin-roles-section .admin-role-mark{background:#f2e2d5;color:#93472f;box-shadow:none}
+  #portal #admin-roles-section .admin-role-mark.is-co{background:#e8eee2;color:#47644c}
+  #portal #admin-roles-section .admin-role-mark.is-vacant{background:#f3eee7;color:#8b7f72;border-color:#b6a999}
+  #portal #admin-roles-section .admin-role-person{gap:7px}
+  #portal #admin-roles-section .admin-role-person .admin-role-mark{width:24px;height:24px;font-size:9px}
+  #portal #admin-roles-section .admin-role-person small.ready{display:none}
+  #portal #admin-roles-section .admin-role-row .admin-role-cell-team>small:not(.waiting){display:none}
+  #portal #admin-roles-section .admin-role-row .admin-role-cell-team>small.waiting{position:absolute;right:0;top:24px;max-width:110px;font-size:10px;white-space:normal;text-align:right}
+  #portal #admin-roles-section .admin-role-row:has(.admin-role-cell-team>small.waiting) .admin-role-cell-area{padding-right:112px;min-height:42px}
+  #portal #admin-roles-section .admin-role-cell-team>b:after{font-size:10px}
+  #portal #admin-roles-section .admin-role-state{font-size:10px;padding:3px 8px}
+  #portal #admin-roles-section .admin-role-manage{min-height:32px;height:32px;padding:0 12px;font-size:11px}
+  #portal #admin-roles-section .admin-role-cell-state{grid-column:1;grid-row:3;align-self:center;padding-top:8px;border-top:1px solid #e8ded2}
+  #portal #admin-roles-section .admin-role-cell-action{grid-column:2;grid-row:3;justify-self:stretch;padding-top:8px;border-top:1px solid #e8ded2;text-align:right}
+  #portal #admin-roles-section .admin-role-row:not(.is-head){grid-template-rows:auto minmax(48px,1fr) auto;height:auto}
+  #portal #admin-roles-section .admin-role-cell-state,#portal #admin-roles-section .admin-role-cell-action{align-self:end}
+  #portal #admin-roles-section .admin-role-cell-state,#portal #admin-roles-section .admin-role-cell-action{min-height:40px;align-self:stretch;display:flex;align-items:center}
+  #portal #admin-roles-section .admin-role-cell-action{justify-content:flex-end}
+  #portal #admin-roles-section .admin-list-kpi.kpi-3 b{color:#93472f!important}
+  #portal #admin-roles-section .admin-roles-lock i{background:#a9583e}
+  #portal #admin-roles-section .admin-role-manage{min-height:36px;border:1px solid #aa9786;border-radius:8px;background:#fffdf9;color:#93472f;font-size:12px;padding:0 16px}
+  #portal #admin-roles-section .admin-role-manage.is-primary{background:#a9583e;border-color:#a9583e;color:#fff}
+  #portal #admin-roles-section .admin-roles-audit{margin-top:16px;border:1px solid #ded6cb;border-radius:14px;background:#fcfaf7;overflow:hidden;box-shadow:none}
+  #portal #admin-roles-section .admin-access-section-head{background:transparent;border-color:#ded6cb;padding:14px 18px;min-height:64px}
+  #portal #admin-roles-section .admin-audit-heading-icon{color:#93472f;background:#f2e2d5}
+  #portal #admin-roles-section .admin-role-audit-list article{border-color:#e8ded2;background:transparent;grid-template-columns:8px minmax(0,1fr) minmax(0,1fr) auto}
+  #portal #admin-roles-section .admin-role-audit-change{color:#51483f}
+  #portal #admin-roles-section .admin-role-audit-list i{background:#a9583e}
+  #portal #admin-roles-section .rh-workbench{padding:12px 16px}
+  #portal #admin-roles-section .rh-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  #portal #admin-roles-section .rh-periods{display:flex;gap:4px}
+  #portal #admin-roles-section .rh-workbench button{min-height:34px;padding:6px 10px;border:1px solid #aa9786;border-radius:7px;background:#fcfaf7;color:#69635d;font:500 12px/1.4 Inter,system-ui,sans-serif;cursor:pointer}
+  #portal #admin-roles-section .rh-periods button[aria-pressed=true]{background:#a9583e;border-color:#a9583e;color:#fff}
+  #portal #admin-roles-section .rh-search{flex:1;min-width:190px}
+  #portal #admin-roles-section .rh-search input{box-sizing:border-box;width:100%;min-height:36px;height:36px;padding:0 10px;border:1px solid #998b7f;border-radius:8px;background:#fffdf9;color:#38312b;font:12px Inter,system-ui,sans-serif}
+  #portal #admin-roles-section .rh-scope,#portal #admin-roles-section .rh-results{margin:9px 0;color:#69635d;font-size:11px;line-height:1.5}
+  #portal #admin-roles-section .rh-results{font-weight:600}
+  #portal #admin-roles-section .rh-rows article{min-height:54px;padding:10px 0;grid-template-columns:8px minmax(170px,1fr) minmax(140px,1fr) auto}
+  #portal #admin-roles-section .rh-rows b{font-size:12px;font-weight:600}
+  #portal #admin-roles-section .rh-rows :is(small,time){font-size:11px;line-height:1.5;white-space:normal}
+  #portal #admin-roles-section .rh-rows .admin-role-audit-change{font-size:12px;overflow-wrap:anywhere}
+  #portal #admin-roles-section .rh-pagination{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding-top:10px;border-top:1px solid #ded6cb;color:#69635d;font-size:12px}
+  #portal #admin-roles-section .rh-pagination[hidden]{display:none}
+  #portal #admin-roles-section .rh-workbench button:disabled{opacity:.4;cursor:default}
+  #portal #admin-roles-section .rh-empty{padding:22px 12px;border:1px dashed #b8a694;border-radius:10px;background:#fffdf9;color:#51483f;text-align:center}
+  #portal #admin-roles-section .rh-empty b{font-size:13px}
+  #portal #admin-roles-section .rh-empty p{font-size:12px;color:#69635d;margin:6px 0 12px}
+  .admin-role-dialog-sheet{border-color:#ded6cb;border-radius:18px;background:#fcfaf7;box-shadow:0 20px 70px #35282035;animation:none}
+  .admin-role-dialog>.modal-backdrop,.admin-role-confirm-modal>.modal-backdrop{background:#332b2452;backdrop-filter:blur(4px)}
+  .admin-role-dialog-head{background:#fffdf9;border-color:#ded6cb}
+  .admin-role-dialog-heading h2{font:400 28px/1.2 Georgia,serif;color:#282622}
+  .admin-role-dialog-icon,.admin-role-dialog .admin-role-mark{background:#f2e2d5;color:#93472f}
+  .admin-role-dialog-body{overscroll-behavior:contain;background:#fcfaf7}
+  .admin-role-seat-row{border-color:#ded6cb;background:#fffdf9;border-radius:12px}
+  .admin-role-dialog .admin-role-mark.is-vacant{background:#f3eee7;color:#8b7f72;border-color:#b6a999}
+  .admin-role-seat-editor{border-color:#ded6cb;background:#f8f1e8}
+  .admin-role-dialog :is(.admin-role-seat-actions,.admin-role-seat-editor-actions) button{border-color:#aa9786;border-radius:8px;color:#51483f;background:#fffdf9;font-size:12px;min-height:38px}
+  .admin-role-dialog .admin-role-seat-editor-actions .admin-role-save{background:#a9583e;color:#fff;border-color:#a9583e}
+  .admin-role-dialog-message{color:#51483f;border-color:#ded6cb;background:#f5ece1}
+  .role-picker-trigger{background:#fffdf9;border-color:#998b7f;color:#38312b}
+  .role-picker-trigger,.role-picker-option{transition:background-color 150ms,border-color 150ms,color 150ms}
+  .role-trigger-chevron{transition:color 150ms}
+  .role-picker-trigger:is([aria-expanded=true],:focus-visible){border-color:#a9583e;background:#fffdf9;box-shadow:0 0 0 2px #f2e2d5}
+  .role-picker-trigger:hover:not(:disabled){border-color:#aa9786;background:#fcfaf7}
+  .role-trigger-mark,.role-opt-avatar.has-val{background:#f2e2d5;color:#93472f}
+  .role-trigger-text.empty{color:#69635d}
+  .role-trigger-chevron,.role-picker-trigger[aria-expanded=true] .role-trigger-chevron{color:#69635d;transform:none}
+  .role-picker-popup{border-color:#cbb9a6;border-radius:13px;background:#fffefa;color:#38312b;box-shadow:0 16px 38px #60473024;animation:none;overscroll-behavior:contain}
+  .role-picker-search{border-color:#ded6cb;background:#fcfaf7}
+  .role-picker-option.is-selected{background:#f2e2d5;color:#79452f}
+  .role-opt-check{color:#93472f}
+  .role-picker-popup .role-opt-name{color:#38312b}
+  .role-picker-popup .role-opt-name.empty,.role-trigger-mark.empty{color:#69635d}
+  .role-picker-options{overscroll-behavior:contain}
+  .admin-role-confirm-sheet{background:#fcfaf7;color:#38312b;border:1px solid #ded6cb;border-radius:16px;box-shadow:0 20px 70px #35282035;animation:none}
+  .admin-role-confirm-head{background:#fffdf9;border-color:#ded6cb}
+  .admin-role-confirm-head h2{color:#282622;font:400 25px/1.2 Georgia,serif}
+  .admin-role-confirm-head p,.admin-role-confirm-facts dt{color:#69635d}
+  .admin-role-confirm-icon{background:#f2e2d5;color:#93472f}
+  .admin-role-confirm-facts>div{background:#f5ece1}
+  .admin-role-confirm-facts dd{color:#38312b;white-space:normal}
+  .admin-role-confirm-facts dd{font-size:13px;font-weight:600}
+  .admin-role-confirm-actions{border-color:#ded6cb;background:#fffdf9}
+  .admin-role-confirm-submit{background:#a9583e;border-color:#a9583e;color:#fff}
+  #contract-area-picker-popup{border-color:#cbb9a6;background:#fffefa;color:#38312b;box-shadow:0 16px 38px #60473024}
+  #contract-area-picker-popup .area-picker-search{border-color:#998b7f;background:#fcfaf7}
+  #contract-area-picker-popup .area-picker-search:focus-within{border-color:#a9583e;background:#fffdf9;box-shadow:0 0 0 2px #f2e2d5}
+  #contract-area-picker-popup .area-picker-option{color:#51483f}
+  #contract-area-picker-popup .area-picker-option:is([aria-selected=true],.is-focused){background:#f2e2d5;color:#79452f}
+  #contract-area-picker-popup .area-picker-option svg{color:#93472f}
+  #contract-area-picker-popup footer{background:#f8f1e8;color:#69635d;border-color:#ded6cb}
+  /* El mes nativo ocupa solo la columna central; su ancho intrínseco no empuja las flechas. */
+  #portal #admin-month-section .admin-month-picker{display:grid!important;grid-template-columns:32px minmax(0,1fr) 32px!important;align-items:center;gap:0!important;box-sizing:border-box!important;min-width:0!important;width:280px!important;flex:0 1 280px;max-width:100%!important;min-height:44px!important;height:44px!important;padding:4px!important;overflow:hidden;border-radius:10px!important}
+  #portal #admin-month-section .admin-month-picker>button{box-sizing:border-box!important;min-width:0!important;width:32px!important;max-width:32px!important;min-height:34px!important;height:34px!important;padding:0!important;border-radius:7px!important;transform:none!important}
+  #portal #admin-month-section .admin-month-picker>input{box-sizing:border-box!important;display:block!important;min-width:0!important;width:100%!important;max-width:100%!important;min-height:34px!important;height:34px!important;padding:0 4px!important;margin:0!important;border:0!important;border-radius:0!important;outline-offset:-3px;font-size:14px!important;font-weight:600!important;line-height:1.3!important}
+  #portal #admin-month-section .admin-month-picker>input::-webkit-datetime-edit{min-width:0;padding:0}
+  #portal #admin-month-section .admin-month-picker>input::-webkit-calendar-picker-indicator{margin:0 2px;padding:2px;flex-shrink:0}
+  #portal #admin-month-section .admin-month-picker>button:focus-visible{outline-offset:-3px}
+  #portal #admin-contracts-section :is(input#admin-contract-search,select#admin-contract-area,.admin-toggle){transition:background-color 150ms,border-color 150ms,color 150ms,box-shadow 150ms}
+}
+@media(min-width:901px) and (hover:hover){
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(.admin-contract-row,.admin-role-row:not(.is-head)):hover{border-color:#c4aa92!important;background:#fffdf9!important}
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(.admin-contract-action button,.admin-role-manage):hover{background:#f2e2d5;color:#79452f;border-color:#a9583e}
+  .role-picker-option:hover{background:#f8f1e8}
+}
+@media(min-width:901px) and (prefers-reduced-motion:no-preference){
+  #portal :is(#admin-contracts-section,#admin-roles-section) button:not(:disabled):active{scale:.96}
+  #portal :is(#admin-contracts-section,#admin-roles-section) button{transition:background-color 150ms,border-color 150ms,color 150ms,scale 150ms ease-out}
+}
+@media(min-width:901px) and (prefers-reduced-transparency:reduce){
+  #portal #view-gestion>:is(#admin-contracts-section,#admin-roles-section){background:#f0ece5!important;backdrop-filter:none}
+}

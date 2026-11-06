@@ -3198,7 +3198,7 @@ function withAdminSkeleton(section,fetchFn,options={}){
 async function showAdminSection(section){
   if(!APP.access.acceso_panel)return;
   if(APP.adminSection==='seguimiento'&&section!=='seguimiento'&&window.KJASeguimiento?.canLeave()===false)return;
-  if(section==='marcado'&&APP.access.rol!=='direccion'){toast('Marcado propio está reservado a Dirección.',true);section='overview'}
+  if(section==='marcado'&&APP.access.rol!=='direccion'){toast('Acceso y marcado está reservado a Dirección.',true);section='overview'}
   if(section==='control'&&APP.access.rol!=='direccion'){toast('El control diario está reservado a Dirección.',true);section='overview'}
   if(section==='roles'&&!(APP.identity.isSystem&&APP.access.rol==='direccion')){toast('Los roles están reservados al administrador de sistemas.',true);section='overview'}
   if(section==='ranking'&&APP.access.rol!=='direccion')section='overview';
