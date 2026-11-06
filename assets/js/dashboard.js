@@ -311,14 +311,49 @@ function renderReviewNotifications(){
   list.innerHTML=state.items.length?reviewNotificationListMarkup(state.items):'<div class="review-notification-empty"><b>Aún no tienes notificaciones</b><p>Los mensajes, revisiones y nuevas asignaciones aparecerán aquí.</p></div>';
 }
 
-async function loadReviewNotifications({quiet=false}={}){
+function reviewNotificationScope(){
+  return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.inicio?.colaborador?.area_id,APP.access.rol,APP.identity.hasPersonal]);
+}
+
+function loadReviewNotifications({quiet=false,refresh=false}={}){
+  if(!APP.identity.hasPersonal)return Promise.resolve(null);
+  const scope=reviewNotificationScope(),pending=APP.notificationReadRequest;
+  if(pending?.scope===scope){
+    // A server event arriving during a read requires one subsequent read.
+    if(refresh)pending.refresh=true;
+    return pending.promise;
+  }
+  if(APP.notifications.deletingId!==null||(!pending&&APP.notifications.loading))return Promise.resolve(null);
+  const flight={scope,refresh:false,promise:null};
+  const current=()=>APP.notificationReadRequest===flight&&APP.identity.hasPersonal&&reviewNotificationScope()===scope;
+  APP.notificationReadRequest=flight;
+  flight.promise=Promise.resolve().then(async()=>{
+    let result=null;
+    do{
+      flight.refresh=false;
+      if(!current())return null;
+      result=await fetchReviewNotifications({quiet,current});
+    }while(current()&&flight.refresh);
+    return current()?result:null;
+  }).catch(error=>{
+    if(current()){
+      APP.notifications={...APP.notifications,loading:false,error:error?.message||'carga'};
+      renderReviewNotifications();
+      if(!quiet)toast('No pudimos actualizar tus notificaciones.',true);
+    }
+    return null;
+  }).finally(()=>{if(APP.notificationReadRequest===flight)APP.notificationReadRequest=null});
+  return flight.promise;
+}
+
+async function fetchReviewNotifications({quiet=false,current}={}){
   if(typeof loadEvidenceCorrections==='function')void loadEvidenceCorrections();
   if(!APP.identity.hasPersonal)return null;
   if(APP.notifications.deletingId!==null)return APP.notifications;
   const request=(APP.notifications.request||0)+1;
   APP.notifications={...APP.notifications,loading:true,error:'',request};renderReviewNotifications();
   const {data,error}=await db.rpc('dash_mis_notificaciones_revision',{p_limite:24});
-  if(request!==APP.notifications.request)return null;
+  if(!current()||request!==APP.notifications.request)return null;
   if(error||!data?.ok){
     const missing=error?.code==='PGRST202'||String(error?.message||'').includes('dash_mis_notificaciones_revision');
     APP.notifications={...APP.notifications,available:!missing,loading:false,error:missing?'':(error?.message||data?.motivo||'carga')};renderReviewNotifications();
@@ -372,7 +407,8 @@ async function deleteReviewNotification(id){
   const numericId=Number(id),index=APP.notifications.items.findIndex(item=>Number(item.id)===numericId);
   if(!Number.isFinite(numericId)||index<0)return;
   const removed=APP.notifications.items[index];
-  APP.notifications={...APP.notifications,deletingId:numericId};renderReviewNotifications();
+  APP.notificationReadRequest=null;
+  APP.notifications={...APP.notifications,loading:false,request:(APP.notifications.request||0)+1,deletingId:numericId};renderReviewNotifications();
   $('review-notification-panel').focus({preventScroll:true});
   const {data,error}=await db.rpc('dash_eliminar_notificacion_revision',{p_id:numericId});
   if(error||!data?.ok){
@@ -395,11 +431,13 @@ async function startReviewNotificationSync(){
   clearInterval(APP.notificationTimer);APP.notificationTimer=null;
   if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}
   if(!APP.identity.hasPersonal)return;
+  const scope=reviewNotificationScope();
   await loadReviewNotifications({quiet:true});
+  if(!APP.identity.hasPersonal||reviewNotificationScope()!==scope)return;
   const collaboratorId=Number(APP.inicio?.colaborador?.id);
   if(Number.isFinite(collaboratorId)&&typeof db.channel==='function'){
     APP.notificationChannel=db.channel(`kja-notificaciones-${collaboratorId}`)
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'asis_notificaciones',filter:`colaborador_id=eq.${collaboratorId}`},()=>void loadReviewNotifications({quiet:true}))
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'asis_notificaciones',filter:`colaborador_id=eq.${collaboratorId}`},()=>void loadReviewNotifications({quiet:true,refresh:true}))
       .subscribe();
   }
   APP.notificationTimer=setInterval(()=>{if(!document.hidden)void loadReviewNotifications({quiet:true})},30000);
@@ -928,6 +966,7 @@ $('form-admin').addEventListener('submit',async e=>{
 });
 
 async function logout(message){
+  APP.notificationReadRequest=null;
   window.KJASeguimiento?.reset();
   clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(APP.notificationTimer);clearInterval(DASH_VERSION_TIMER);if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}document.title=BASE_DOCUMENT_TITLE;localStorage.removeItem(DEADLINE_KEY);localStorage.removeItem(SHELL_KEY);
   try{ await db.auth.signOut({scope:'local'}); }catch(e){}

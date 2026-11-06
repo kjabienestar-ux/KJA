@@ -18,6 +18,45 @@ function setup({admin=false,rpc,invoke,clipboard}={}){
  vm.runInContext(model,context);vm.runInContext(source,context);
  return {el,window,APP,invocations,opened,load:()=>window.KJAZoom.load()};
 }
+
+const tick=()=>new Promise(resolve=>setImmediate(resolve));
+const listed=(topic='Aviso ficticio')=>({data:{ok:true,admin:true,meetings:[{...sample,topic}],areas:[],people:[],now:'2026-11-06T15:00:00Z'}});
+
+test('doce lecturas coincidentes comparten una consulta sin activar Zoom',async()=>{
+ let done,calls=0;const s=setup({rpc:()=>{calls++;return new Promise(r=>done=r)}});
+ const reads=Array.from({length:12},()=>s.load());assert.equal(calls,1);assert.ok(reads.every(p=>p===reads[0]));
+ done(listed());await Promise.all(reads);assert.match(s.el('zoom-list').innerHTML,/Aviso ficticio/);assert.equal(s.invocations.length,0);
+});
+test('cambio de cuenta o permisos descarta respuestas del ambito anterior',async()=>{
+ for(const change of [s=>s.APP.sessionUid='B',s=>s.APP.access.rol='otro',s=>s.APP.inicio={colaborador:{id:2,area_id:3}}]){
+ const pending=[];const s=setup({rpc:()=>new Promise(r=>pending.push(r))});s.APP.sessionUid='A';const a=s.load();change(s);const b=s.load();
+ assert.equal(pending.length,2);pending[1](listed('Actual'));await b;pending[0](listed('Obsoleto'));await a;
+ assert.match(s.el('zoom-list').innerHTML,/Actual/);assert.doesNotMatch(s.el('zoom-list').innerHTML,/Obsoleto/);
+ }
+});
+test('reset invalida lectura pendiente incluso al volver con la misma cuenta',async()=>{
+ const pending=[];const s=setup({rpc:()=>new Promise(r=>pending.push(r))});const a=s.load();s.window.KJAZoom.reset();const b=s.load();
+ pending[1](listed('Nueva sesion'));await b;pending[0](listed('Anterior'));await a;
+ assert.match(s.el('zoom-list').innerHTML,/Nueva sesion/);assert.doesNotMatch(s.el('zoom-list').innerHTML,/Anterior/);
+});
+test('fallo de transporte libera la lectura para reintentar',async()=>{
+ let reject,done,calls=0;const s=setup({rpc:()=>{calls++;return new Promise((r,j)=>{done=r;reject=j})}});
+ const a=s.load();reject(Error('Sin conexion ficticia'));assert.equal(await a,false);assert.match(s.el('zoom-message').textContent,/Sin conexion/);
+ const b=s.load();done(listed('Recuperada'));assert.equal(await b,true);assert.equal(calls,2);
+});
+test('perder elegibilidad durante una lectura evita pintar reuniones',async()=>{
+ let done;const s=setup({rpc:()=>new Promise(r=>done=r)});const a=s.load();s.APP.identity.hasPersonal=false;
+ done(listed('Privada'));assert.equal(await a,false);assert.doesNotMatch(s.el('zoom-list').innerHTML,/Privada/);
+ assert.equal(await s.load(),false);
+});
+test('sincronizacion guardada inicia una lectura posterior sin compartir la anterior',async()=>{
+ const pending=[];let calls=0;const s=setup({admin:true,rpc:()=>{calls++;return calls===1?Promise.resolve(listed('Inicial')):new Promise(r=>pending.push(r))}});
+ await s.load();const before=s.load();
+ const action=s.el('zoom-list').listeners.click({target:{closest:()=>({dataset:{id,zoom:'sync'}})}});
+ await tick();assert.equal(calls,3);assert.equal(s.invocations.length,1);assert.equal(s.invocations[0].action,'sync');
+ pending[1](listed('Posterior'));await action;pending[0](listed('Obsoleta'));await before;
+ assert.match(s.el('zoom-list').innerHTML,/Posterior/);assert.doesNotMatch(s.el('zoom-list').innerHTML,/Obsoleta/);
+});
 test('todos los elementos requeridos existen en el HTML real',()=>{
  const ids=[...source.matchAll(/\$\('([^']+)'\)/g)].map(m=>m[1]);
  for(const id of ids)assert.ok(html.includes('id="'+id+'"'),id);
