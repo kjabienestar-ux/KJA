@@ -124,7 +124,7 @@ async function recoverAdminCloseExit(personId,button,context=null){
     if(context&&!context.isCurrent())return;
     if(error)throw error;
     if(data?.ok&&(data.regularizada||data.motivo==='ya_cerrada')){
-      if(context)await context.refresh().catch(()=>false);else await loadAdminCloses({quiet:true});
+      if(context)await context.refresh().catch(()=>false);else await loadAdminCloses({quiet:true,refresh:true});
       toast('Salida registrada. El estado de la jornada se volvió a comprobar.');
     }else{
       const reasons={requisitos_pendientes:'Aún faltan evidencias laborales. Completa los pendientes antes de recuperar la salida.',
@@ -348,18 +348,57 @@ function hydrateAdminCloseControls(){
 }
 
 let ADMIN_CLOSE_REQUEST=0;
-async function loadAdminCloses({quiet=false}={}){
-  if(!APP.access.acceso_panel)return;
+let ADMIN_CLOSE_FLIGHT=null;
+function adminCloseReadScope(date){
+  return JSON.stringify([APP.sessionUid,APP.access.acceso_panel,APP.access.rol,APP.inicio?.colaborador?.id,APP.inicio?.colaborador?.area_id,date]);
+}
+function loadAdminCloses({quiet=false,refresh=false}={}){
+  if(!APP.access.acceso_panel)return Promise.resolve(false);
+  const date=$('admin-close-date').value||isoLima(),scope=adminCloseReadScope(date);
+  if(ADMIN_CLOSE_FLIGHT?.scope===scope){
+    if(refresh)ADMIN_CLOSE_FLIGHT.refresh=true;
+    return ADMIN_CLOSE_FLIGHT.promise;
+  }
+  const flight={scope,refresh:false,promise:null};
+  const current=()=>ADMIN_CLOSE_FLIGHT===flight&&APP.access.acceso_panel&&adminCloseReadScope($('admin-close-date').value||isoLima())===scope;
+  ADMIN_CLOSE_FLIGHT=flight;
+  flight.promise=Promise.resolve().then(async()=>{
+    let result=false;
+    do{
+      flight.refresh=false;
+      if(!current())return false;
+      result=await fetchAdminCloses({quiet,date,current:()=>current()&&!flight.refresh});
+    }while(current()&&flight.refresh);
+    return current()?result:false;
+  }).catch(()=>{
+    if(current()){
+      adminCloseMsg('No pudimos cargar los cierres. Actualiza e inténtalo nuevamente.','error');
+    }
+    return false;
+  }).finally(()=>{
+    if(ADMIN_CLOSE_FLIGHT===flight){
+      const button=$('admin-close-assignments-refresh');
+      if(button){button.disabled=false;button.removeAttribute('aria-busy');button.querySelector('span').textContent='Actualizar';}
+    }
+    if(ADMIN_CLOSE_FLIGHT===flight)ADMIN_CLOSE_FLIGHT=null;
+  });
+  return flight.promise;
+}
+async function fetchAdminCloses({quiet,date,current}){
   const request=++ADMIN_CLOSE_REQUEST,refresh=$('admin-close-assignments-refresh');
-  const date=$('admin-close-date').value||isoLima();$('admin-close-date').value=date;
+  $('admin-close-date').value=date;
   if(typeof syncAdminCloseDatePicker==='function')syncAdminCloseDatePicker();
   if(refresh){refresh.disabled=true;refresh.setAttribute('aria-busy','true');refresh.querySelector('span').textContent='Actualizando';}
   adminCloseMsg('');if(!quiet)$('admin-close-status').innerHTML='<p class="admin-empty">Cargando cierres…</p>';
-  const [{data,error},{data:reviewData,error:reviewError}]=await Promise.all([
+  // Keep the flight until both reads settle, even if transport rejects one.
+  const reads=await Promise.allSettled([
     db.rpc('dash_admin_cierres',{p_fecha:date}),
     APP.access.rol==='direccion'?db.rpc('dash_admin_revision_entregas',{p_fecha:date}):Promise.resolve({data:null,error:null})
   ]);
-  if(request!==ADMIN_CLOSE_REQUEST)return;
+  if(!current()||request!==ADMIN_CLOSE_REQUEST)return false;
+  if(reads[0].status==='rejected')throw reads[0].reason;
+  const {data,error}=reads[0].value;
+  const {data:reviewData,error:reviewError}=reads[1].status==='fulfilled'?reads[1].value:{data:null,error:reads[1].reason||true};
   if(refresh){refresh.disabled=false;refresh.removeAttribute('aria-busy');refresh.querySelector('span').textContent='Actualizar';}
   if(error||!data?.ok){
     APP.adminClose=null;
@@ -377,7 +416,7 @@ async function loadAdminCloses({quiet=false}={}){
   // Las fotos privadas se resuelven en lote sin retrasar la lista de cierres.
   try{
     const people=await hydrateProfilePhotos(data.personas||[]);
-    if(request!==ADMIN_CLOSE_REQUEST||APP.adminClose!==data)return;
+    if(!current()||request!==ADMIN_CLOSE_REQUEST||APP.adminClose!==data)return false;
     data.personas=people;
     renderAdminCloseStatus();
   }catch(error){
@@ -493,14 +532,14 @@ async function submitAdminReview(state){
       const {data,error}=await db.rpc('dash_admin_revisar_entrega',{p_entrega:Number(delivery.id),p_estado:state,p_nota:note||null});
       if(!error&&data?.motivo==='ya_revisada'){
         // La entrega cambió desde otra pestaña o sesión: se sincroniza la vista en lugar de pedir recargar.
-        alreadyReviewed=true;setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});return false;
+        alreadyReviewed=true;setLabel('Actualizando cierres');await loadAdminCloses({quiet:true,refresh:true});return false;
       }
       if(error||!data?.ok){
         const messages={nota:'Escribe una observación clara.',jornada_cerrada:'La jornada ya fue cerrada y no puede reabrirse. Solo puedes aprobar.',sin_permiso:'Solo Dirección puede revisar evidencias.'};
         adminReviewMessage(messages[data?.motivo]||'No pudimos guardar la revisión. Revisa tu conexión e inténtalo nuevamente.','is-error');return false;
       }
       // closeAdminReview ignora el cierre mientras la revisión está ocupada.
-      ADMIN_REVIEW.busy=false;closeAdminReview({restoreFocus:false});setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});return true;
+      ADMIN_REVIEW.busy=false;closeAdminReview({restoreFocus:false});setLabel('Actualizando cierres');await loadAdminCloses({quiet:true,refresh:true});return true;
     });
   }catch{adminReviewMessage('No pudimos guardar la revisión. Revisa tu conexión e inténtalo nuevamente.','is-error')}
   finally{ADMIN_REVIEW.busy=false;approve.disabled=false;observe.disabled=false}
@@ -691,7 +730,7 @@ async function submitAdminEvidence(event){
     }
     ADMIN_EVIDENCE.busy=false;closeAdminEvidence({restoreFocus:false});setLabel('Actualizando cierres');
     if(context)await context.refresh().catch(()=>false);else{
-      await loadAdminCloses({quiet:true});const status=$('admin-close-status');status.setAttribute('tabindex','-1');status.focus({preventScroll:true});
+      await loadAdminCloses({quiet:true,refresh:true});const status=$('admin-close-status');status.setAttribute('tabindex','-1');status.focus({preventScroll:true});
     }
     toast(data.cierre_regularizado?'Evidencia registrada. La jornada quedó completa.':'Evidencia registrada por Dirección.');
   })}catch(error){
@@ -727,7 +766,7 @@ async function submitAdminCloseAssignment(event){
     const confirmed=await withActionLoader('Creando asignaciones',async setLabel=>{
       const {data:result,error}=await db.rpc('dash_admin_confirmar_sorteo',{p_fecha:$('admin-close-date').value,p_area:target,p_colaboradores:ADMIN_DRAW.selection.map(person=>Number(person.id)),p_tipo:$('admin-close-type').value,p_titulo:title,p_instrucciones:$('admin-close-instructions').value.trim()||null});
       if(error||!result?.ok)return {result};
-      button.disabled=false;$('admin-close-title').value='';$('admin-close-instructions').value='';clearAdminDrawPreview();setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});return {result,ok:true};
+      button.disabled=false;$('admin-close-title').value='';$('admin-close-instructions').value='';clearAdminDrawPreview();setLabel('Actualizando cierres');await loadAdminCloses({quiet:true,refresh:true});return {result,ok:true};
     }).catch(()=>({}));
     if(!confirmed.ok){button.disabled=false;clearAdminDrawPreview();return adminCloseMsg(confirmed.result?.motivo==='ya_asignado'?'Una de las personas ya recibió esta asignación. Previsualiza nuevamente.':'No pudimos confirmar el sorteo. Revisa los datos e inténtalo nuevamente.','error')}
     toast(`${confirmed.result.cantidad} ${confirmed.result.cantidad===1?'persona seleccionada':'personas seleccionadas'} por rotación justa.`);return;
@@ -739,7 +778,7 @@ async function submitAdminCloseAssignment(event){
       p_tipo:$('admin-close-type').value,p_titulo:title,p_instrucciones:$('admin-close-instructions').value.trim()||null
     });
     if(error||!result?.ok)return {result};
-    button.disabled=false;button.textContent='Asignar entregable';$('admin-close-title').value='';$('admin-close-instructions').value='';setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});return {ok:true};
+    button.disabled=false;button.textContent='Asignar entregable';$('admin-close-title').value='';$('admin-close-instructions').value='';setLabel('Actualizando cierres');await loadAdminCloses({quiet:true,refresh:true});return {ok:true};
   }).catch(()=>({}));
   if(!assigned.ok){button.disabled=false;button.textContent='Asignar entregable';return adminCloseMsg(assigned.result?.motivo==='datos'?'Revisa la fecha y los datos de la asignación.':'No pudimos crear la asignación.','error')}
   toast('Entregable asignado correctamente.');
@@ -752,7 +791,7 @@ async function cancelAdminCloseAssignment(id){
   dialog.innerHTML='<h2 id="assignment-delete-title">¿Eliminar asignación y evidencias?</h2><p>La asignación dejará de exigirse. Se borrarán definitivamente sus archivos, incluidas las versiones anteriores, aunque estén aprobados. Esta acción no se puede deshacer.</p><p>En una asignación de área, afecta a todos sus destinatarios.</p><p role="status"></p><div class="assignment-delete-actions"><button type="button" data-back>Conservar asignación</button><button type="button" data-remove>Eliminar y liberar espacio</button></div>';
   const back=dialog.querySelector('[data-back]'),remove=dialog.querySelector('[data-remove]'),status=dialog.querySelector('[role=status]');let busy=false,retired=false;
   let reloaded=false;
-  back.onclick=()=>dialog.close();dialog.oncancel=e=>{if(busy)e.preventDefault()};dialog.onclose=()=>{dialog.remove();if(retired&&!reloaded)void loadAdminCloses()};
+  back.onclick=()=>dialog.close();dialog.oncancel=e=>{if(busy)e.preventDefault()};dialog.onclose=()=>{dialog.remove();if(retired&&!reloaded)void loadAdminCloses({refresh:true})};
   remove.onclick=async()=>{
     if(busy)return;busy=true;back.disabled=true;remove.disabled=true;status.textContent='Eliminando asignación y archivos…';dialog.classList.add('is-busy');
     try{
@@ -765,7 +804,7 @@ async function cancelAdminCloseAssignment(id){
           if(data?.motivo==='sin_permiso')throw Error('Tu cuenta no tiene permiso para eliminar esta asignación.');
           throw Error('No se confirmó la eliminación. Reintenta; si persiste, Sistemas debe comprobar dashboard_58 y actualizar dash-entrega.');
         }
-        retired=true;busy=false;reloaded=true;dialog.close();setLabel('Actualizando cierres');await loadAdminCloses({quiet:true});
+        retired=true;busy=false;reloaded=true;dialog.close();setLabel('Actualizando cierres');await loadAdminCloses({quiet:true,refresh:true});
       });
       toast('Asignación eliminada y archivos borrados.');
     }catch(error){status.textContent=error.message;remove.textContent='Reintentar eliminación';back.textContent='Cerrar';}
@@ -787,7 +826,7 @@ $('admin-close-instructions').oninput=clearAdminDrawPreview;
 $('admin-close-search').oninput=renderAdminCloseStatus;
 $('admin-close-area').onchange=renderAdminCloseStatus;
 $('admin-close-assignment-form').onsubmit=submitAdminCloseAssignment;
-$('admin-close-assignments-refresh').onclick=()=>withAdminSkeleton(APP.adminSection,()=>loadAdminCloses({quiet:true}));
+$('admin-close-assignments-refresh').onclick=()=>withAdminSkeleton(APP.adminSection,()=>loadAdminCloses({quiet:true,refresh:true}));
 $('admin-close-assignment-list').onclick=event=>{const button=event.target.closest('[data-cancel-admin-close]');if(button)cancelAdminCloseAssignment(button.dataset.cancelAdminClose)};
 $('admin-close-status').onclick=event=>{const recovery=event.target.closest('[data-admin-recover-exit]');if(recovery){void recoverAdminCloseExit(recovery.dataset.adminRecoverExit,recovery);return;}const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]'),message=event.target.closest('[data-admin-message-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminMissingEvidence(upload.dataset.adminUploadPerson,upload);if(message)openAdminMessage(message.dataset.adminMessagePerson,message)};
 $('admin-review-tabs').onclick=event=>{const button=event.target.closest('[data-admin-review-delivery]');if(button)renderAdminReviewDelivery(button.dataset.adminReviewDelivery)};
