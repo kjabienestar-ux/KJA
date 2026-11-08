@@ -123,8 +123,9 @@
       const version=++session.fileVersion,preview=host.querySelector('[data-pc-preview]');
       preview.hidden=false;preview.innerHTML='<p role="status">Abriendo evidencia…</p>';
       try{
-        const {data,error}=await storage.from(file.bucket).createSignedUrl(file.path,900);
+        const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(storage,file.bucket,file.path,900)||storage.from(file.bucket).createSignedUrl(file.path,900));
         if(!live()||version!==session.fileVersion)return;
+        if(archived){preview.innerHTML=globalThis.KJAEvidenceArchive.markup()+'<nav aria-label="Archivos de la entrega">'+button('data-pc-file="'+gi+':'+(fi-1)+'"','Anterior',fi===0)+button('data-pc-file="'+gi+':'+(fi+1)+'"','Siguiente',fi===group.files.length-1)+'</nav>';return;}
         if(error||!data?.signedUrl)throw new Error('file');
         const url=escape(data.signedUrl),label=escape(group.titulo+' · archivo '+(fi+1));
         preview.innerHTML='<h5>'+label+'</h5>'+(file.mime?.startsWith('image/')?'<img src="'+url+'" alt="'+label+'">':file.mime?.startsWith('video/')?'<video controls playsinline src="'+url+'"></video>':'<p>Documento disponible para abrir o descargar.</p>')+

@@ -1977,6 +1977,7 @@ function renderAttendanceActivity(){
   content.querySelectorAll('[data-attendance-activity]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.attendanceActivity)===content._activity)));
   const file=group.files[content._file],stage=$('attendance-compact-stage');
   if(!file){stage.innerHTML=`<div class="attendance-activity-empty"><b>${esc(group.titulo)}</b><p>${esc(group.detalle||'No hay archivos adjuntos en esta actividad.')}</p></div>`;}
+  else if(file.archived){stage.innerHTML=globalThis.KJAEvidenceArchive.markup();}
   else if(!file.url){stage.innerHTML='<div class="attendance-activity-empty"><b>No se pudo abrir este archivo</b><p>Revisa tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-attendance-day>Reintentar</button></div>';}
   else if((file.mime||'').startsWith('video/')){stage.innerHTML=`<video controls playsinline preload="metadata" src="${esc(file.url)}" aria-label="${esc(file.label)}"></video>`;}
   else if((file.mime||'image/').startsWith('image/')){stage.innerHTML=`<button class="attendance-compact-photo" type="button" data-attendance-evidence="${file.index}" aria-label="Ampliar ${esc(file.label||'evidencia')}"><img src="${esc(file.url)}" alt="${esc(file.label||'Evidencia')}" decoding="async"><span>Ampliar imagen</span></button>`;}
@@ -2024,8 +2025,8 @@ async function openAttendanceDay(date){
   }
   const evidences=await Promise.all((data.evidencias||[]).map(async item=>{
     try{
-      const {data:signed}=await db.storage.from(item.bucket).createSignedUrl(item.path,3600);
-      return {...item,url:signed?.signedUrl||''};
+      const {data:signed,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,item.bucket,item.path,3600)||db.storage.from(item.bucket).createSignedUrl(item.path,3600));
+      return {...item,archived:!!archived,url:signed?.signedUrl||''};
     }catch(error){return {...item,url:''};}
   }));
   if(request!==APP.attendanceDayRequest)return;
@@ -2911,8 +2912,9 @@ async function openTeamDayFile(value){
   const request=Symbol();preview._request=request;preview.hidden=false;
   preview.innerHTML='<p role="status">Cargando archivo…</p>';
   try{
-    const {data,error}=await db.storage.from(file.bucket).createSignedUrl(file.path,900);
+    const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,file.bucket,file.path,900)||db.storage.from(file.bucket).createSignedUrl(file.path,900));
     if(!preview.isConnected||preview._request!==request)return;
+    if(archived){preview.innerHTML=globalThis.KJAEvidenceArchive.markup();return;}
     if(error||!data?.signedUrl)throw new Error('archivo');
     const url=esc(data.signedUrl),label=esc(`${group.titulo} · archivo ${fileIndex+1}`);
     preview.innerHTML=`<b>${label}</b>${file.mime?.startsWith('image/')?`<img src="${url}" alt="${label}">`:file.mime?.startsWith('video/')?`<video controls playsinline src="${url}"></video>`:''}<a href="${url}" target="_blank" rel="noopener noreferrer">Abrir archivo completo ↗</a>
@@ -3526,13 +3528,16 @@ async function openAdminStoredEvidence(path,bucket='asis-evidencias'){
   const firstOpen=modal.hidden;
   STORED_EVIDENCE_VIEWER.path=path;STORED_EVIDENCE_VIEWER.bucket=bucket;if(firstOpen)STORED_EVIDENCE_VIEWER.trigger=document.activeElement;
   const request=++STORED_EVIDENCE_VIEWER.request;
+  modal.querySelector('.evidence-archived')?.remove();
   image.onload=null;image.onerror=null;image.removeAttribute('src');image.hidden=true;errorBox.hidden=true;loading.hidden=false;
   $('stored-evidence-viewer-title').textContent=bucket===REQUEST_BUCKET?'Evidencia de solicitud':'Evidencia de asistencia';
   image.alt=bucket===REQUEST_BUCKET?'Evidencia adjunta a la solicitud':'Evidencia adjunta al registro de asistencia';
   modal.hidden=false;document.body.classList.add('stored-evidence-viewer-open');
   if(firstOpen)requestAnimationFrame(()=>modal.querySelector('[data-close-stored-evidence]:not(.modal-backdrop)').focus({preventScroll:true}));
   try{
-    const {data,error}=await db.storage.from(bucket).createSignedUrl(path,3600);
+    const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,bucket,path,3600)||db.storage.from(bucket).createSignedUrl(path,3600));
+    if(request!==STORED_EVIDENCE_VIEWER.request)return;
+    if(archived){loading.hidden=true;errorBox.hidden=true;image.insertAdjacentHTML('afterend',globalThis.KJAEvidenceArchive.markup());return;}
     if(error||!data?.signedUrl)throw error||new Error('url');
     if(request!==STORED_EVIDENCE_VIEWER.request)return;
     image.onload=()=>{if(request!==STORED_EVIDENCE_VIEWER.request)return;loading.hidden=true;errorBox.hidden=true;image.hidden=false};

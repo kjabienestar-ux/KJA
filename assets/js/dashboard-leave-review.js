@@ -121,8 +121,9 @@ async function openLeaveEvidence(path){
   message.textContent='Cargando comprobante…';
   if(!dialog.open)dialog.showModal();
   try{
-    const {data,error}=await db.storage.from(REQUEST_BUCKET).createSignedUrl(path,3600);
+    const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,REQUEST_BUCKET,path,3600)||db.storage.from(REQUEST_BUCKET).createSignedUrl(path,3600));
     if(generation!==LEAVE_EVIDENCE_GENERATION||!dialog.open)return;
+    if(archived){if(loader)loader.hidden=true;message.textContent=globalThis.KJAEvidenceArchive.title+'. '+globalThis.KJAEvidenceArchive.description;return;}
     if(error||!data?.signedUrl)throw new Error('evidencia');
     if(link){link.href=data.signedUrl;link.hidden=false;}
     img.onload=()=>{
