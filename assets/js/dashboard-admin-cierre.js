@@ -473,7 +473,8 @@ async function renderAdminReviewDelivery(id){
   const files=delivery.archivos||[];
   try{
     const signed=await Promise.all(files.map(async file=>{
-      const {data,error}=await db.storage.from('asis-cierre-evidencias').createSignedUrl(file.path,900);
+      const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,'asis-cierre-evidencias',file.path,900)||db.storage.from('asis-cierre-evidencias').createSignedUrl(file.path,900));
+      if(archived)return {...file,archived:true,kind:{key:'archived'}};
       if(error||!data?.signedUrl)throw error||new Error('url');
       // Los documentos de Office no se pueden mostrar en el navegador: se ofrece también la descarga.
       const kind=adminReviewFileKind(file);let download='';
@@ -499,6 +500,7 @@ function adminReviewFileKind(file){
   return {key:'image',label:'Imagen',ext:ext.toUpperCase()};
 }
 function adminReviewFileMarkup(file,index,total,delivery){
+  if(file.archived)return globalThis.KJAEvidenceArchive.markup();
   const kind=file.kind,title=adminReviewTitle(delivery),counter=total>1?`Archivo ${index+1} de ${total}`:'Archivo único';
   const open=`<a class="admin-review-file-action" href="${esc(file.url)}" target="_blank" rel="noopener">${ADMIN_REVIEW_OPEN_ICON}<span>Abrir</span></a>`;
   if(kind.key==='pdf')return `<article class="admin-review-media is-pdf"><iframe src="${esc(file.url)}#navpanes=0&view=FitH" title="${esc(title)}, PDF ${index+1}" loading="lazy"></iframe><footer><span class="admin-review-file-badge is-pdf">PDF</span><span><b>${esc(kind.label)}</b><small>${esc(counter)}</small></span>${open}</footer></article>`;

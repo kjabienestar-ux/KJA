@@ -443,7 +443,7 @@ async function changeMonthMode(mode){
 
 async function openPrivateMonthEvidence(path){
   const popup=window.open('about:blank','_blank');
-  try{const {data,error}=await db.storage.from('asis-evidencias').createSignedUrl(path,3600);if(error||!data?.signedUrl)throw error||new Error('url');if(popup){popup.opener=null;popup.location.replace(data.signedUrl)}else window.open(data.signedUrl,'_blank','noopener')}
+  try{const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,'asis-evidencias',path,3600)||db.storage.from('asis-evidencias').createSignedUrl(path,3600));if(archived){if(popup)popup.close();modalMonthMessage(globalThis.KJAEvidenceArchive.title);return;}if(error||!data?.signedUrl)throw error||new Error('url');if(popup){popup.opener=null;popup.location.replace(data.signedUrl)}else window.open(data.signedUrl,'_blank','noopener')}
   catch(error){if(popup)popup.close();modalMonthMessage('No se pudo abrir la evidencia. Inténtalo nuevamente.')}
 }
 async function changeMonthState(state){

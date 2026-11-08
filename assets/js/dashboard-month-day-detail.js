@@ -150,8 +150,9 @@
       host.querySelectorAll('[data-md-group]').forEach(item=>item.dataset.active=String(Number(item.dataset.mdGroup)===gi));
       preview.setAttribute('aria-busy','true');preview.innerHTML='<p class="md-loading" role="status">Abriendo evidencia privada…</p>';
       try{
-        const {data,error}=await storage.from(file.bucket).createSignedUrl(file.path,900);
+        const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(storage,file.bucket,file.path,900)||storage.from(file.bucket).createSignedUrl(file.path,900));
         if(!live()||version!==session.fileVersion)return;
+        if(archived){preview.innerHTML=globalThis.KJAEvidenceArchive.markup()+'<nav aria-label="Archivos de la entrega">'+button('data-md-file="'+gi+':'+(fi-1)+'" '+(fi===0?'disabled':''),'Anterior')+button('data-md-file="'+gi+':'+(fi+1)+'" '+(fi===group.files.length-1?'disabled':''),'Siguiente')+'</nav>';return;}
         if(error||!data?.signedUrl)throw new Error('file');
         const url=escape(data.signedUrl),label=escape(group.titulo+' · archivo '+(fi+1));
         const gallery=session.groups.flatMap((g,i)=>g.files.map((f,j)=>i+':'+j)),position=gallery.indexOf(value);

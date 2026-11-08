@@ -1,0 +1,4 @@
+.evidence-archived{box-sizing:border-box;width:100%;padding:24px;color:#23364d;background:#f4f7fa;border:1px solid #d6dfe8;border-radius:12px;text-align:left;line-height:1.6}
+.evidence-archived strong{display:block;font-size:16px;color:#153457}
+.evidence-archived p{margin:8px 0 0;max-width:65ch;font-size:14px}
+@media(max-width:480px){.evidence-archived{padding:16px}}

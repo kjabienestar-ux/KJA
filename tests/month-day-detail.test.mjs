@@ -19,6 +19,22 @@ function setup(day={fecha:'2026-09-11',laborable:true}){
 }
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 
+test('archived file preserves submitted records and original review without a broken preview',async()=>{
+ const x=setup();
+ vm.runInContext(fs.readFileSync('assets/js/evidence-archive.js','utf8'),x.context);
+ x.context.KJAEvidenceArchive.resolve=async()=>({data:null,error:null,archived:true});
+ const session=x.mount();
+ x.queries[0].resolve({data:{ok:true,estado:'P',horas:5,entrada_at:'2026-09-11T13:00:00Z',
+  cierre:{requisitos:[{tipo:'rpe',titulo:'RPE',completo:true,revision_estado:'pendiente'}]},
+  entrada_archivos:[{bucket:'asis-evidencias',path:'private/entry',mime:'image/jpeg'}],entregas:[]}});
+ await session.ready;await tick();
+ assert.match(x.preview.innerHTML,/Presentado · Archivo retirado por el sistema/);
+ assert.match(x.preview.innerHTML,/revisión original/);
+ assert.doesNotMatch(x.preview.innerHTML,/<img|Abrir original|Reintentar archivo/);
+ assert.match(x.host.innerHTML,/5.0 h/);
+ assert.equal(x.files.length,0);session.dispose();
+});
+
 for(const kind of ['rpe','salida']){
   test('Direction removes '+kind+' from the selected delivery, blocks double submission and refreshes',async()=>{
     const x=managementSetup(),calls=[];let finish,changed=0;
