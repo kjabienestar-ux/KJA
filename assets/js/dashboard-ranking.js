@@ -47,7 +47,6 @@
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const icon=(key,cls='')=>`<svg class="rk-ic${cls?' '+cls:''}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[key]||''}</svg>`;
   const point=n=>n===null?'Sin evaluar':n.toFixed(2);
-  const short=n=>n===null?'—':Number.isInteger(n)?String(n):n.toFixed(1);
   const scoreTone=s=>s===null||s===undefined?'na':s>=85?'hi':s>=65?'mid':'lo';
   const rateTone=r=>r===null||r===undefined?'na':r>=75?'hi':r>=50?'mid':'lo';
   const pct=(value,max)=>value===null||!max?0:Math.min(100,Math.max(0,value/max*100));
@@ -261,12 +260,6 @@
       <article class="rk-card rk-kpi${summary.pending?' rk-kpi-warn':''}"><small>${icon('alert')}Revisiones pendientes</small><b>${summary.pending}</b><span>${summary.pending?'Revísalas antes de reconocer':'No hay evidencias por revisar'}</span></article>
       <article class="rk-card rk-kpi"><small>${icon('minus')}Descuentos</small><b>${point(summary.penalty)}<em>pts</em></b><span><strong>${unmet}</strong> ${unmet===1?'asignación incumplida':'asignaciones incumplidas'}</span></article>`;
   }
-  function critChips(row){
-    return CRITERION_KEYS.map(key=>{
-      const value=row.parts[key],max=weights[key],neutral=neutralRpe(row,key);
-      return `<span class="rk-cc" title="${esc(labels[key])}">${icon(key)}<b>${neutral?'Exento':value===null?'—':`${short(value)}<em>/${max}</em>`}</b><span class="rk-bar rk-tone-${neutral?'na':value===null?'na':rateTone(pct(value,max))}"><i style="width:${neutral?100:pct(value,max)}%"></i></span><small>${SHORT_LABELS[key]}</small></span>`;
-    }).join('');
-  }
   function renderPodium(list){
     const host=get('ranking-podium'),scored=list.filter(r=>r.score!==null);
     if(!scored.length){
@@ -282,7 +275,7 @@
       const lead=group[0],tone=scoreTone(lead.score);
       if(group.length===1){
         const index=indexOfPerson(lead);
-        return `<div class="rk-pd rk-pd-${medal}"><button type="button" class="rk-pd-card" data-person="${index}" aria-label="Ver desglose de ${esc(lead.nombre)}">${rank===1?`<span class="rk-crown">${icon('crown')}</span>`:''}${avatar(lead,'xl',rank)}<b class="rk-pd-name">${esc(lead.nombre)}</b><small class="rk-pd-area">${esc(lead.area||'Sin área')}</small><span class="rk-pd-score rk-tone-${tone}">${point(lead.score)}<em>/ 100</em></span><span class="rk-pd-crit">${critChips(lead)}</span><span class="rk-pd-link">Ver desglose${icon('chev')}</span></button><div class="rk-pd-base">${rank}</div></div>`;
+        return `<div class="rk-pd rk-pd-${medal}"><button type="button" class="rk-pd-card" data-person="${index}" aria-label="Ver desglose de ${esc(lead.nombre)}">${rank===1?`<span class="rk-crown">${icon('crown')}</span>`:''}${avatar(lead,'xl',rank)}<b class="rk-pd-name">${esc(lead.nombre)}</b><small class="rk-pd-area">${esc(lead.area||'Sin área')}</small><span class="rk-pd-score rk-tone-${tone}">${point(lead.score)}<em>/ 100</em></span><span class="rk-pd-link">Ver desglose${icon('chev')}</span></button><div class="rk-pd-base">${rank}</div></div>`;
       }
       const shown=group.slice(0,3);
       return `<div class="rk-pd rk-pd-${medal}"><div class="rk-pd-card rk-pd-tie">${rank===1?`<span class="rk-crown">${icon('crown')}</span>`:''}<span class="rk-tag rk-tag-medal">Empate · ${group.length} personas</span><span class="rk-pd-people">${shown.map(r=>`<button type="button" data-person="${indexOfPerson(r)}" aria-label="Ver desglose de ${esc(r.nombre)}">${avatar(r,'md',rank)}<span><b>${esc(r.nombre)}</b><small>${esc(r.area||'Sin área')}</small></span>${icon('chev')}</button>`).join('')}</span>${group.length>3?`<small class="rk-pd-more">y ${group.length-3} más en la clasificación</small>`:''}<span class="rk-pd-score rk-tone-${tone}">${point(lead.score)}<em>/ 100</em></span></div><div class="rk-pd-base">${rank}</div></div>`;

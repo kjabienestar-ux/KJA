@@ -365,17 +365,7 @@
 #portal #admin-ranking-section.rk .rk-pd-area { margin-top: 3px; font-size: 12.5px; color: var(--rk-muted); }
 #portal #admin-ranking-section.rk .rk-pd-score { margin-top: 10px; font-size: 32px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
 #portal #admin-ranking-section.rk .rk-pd-score em { margin-left: 3px; font-style: normal; font-size: 13px; font-weight: 600; letter-spacing: 0; color: var(--rk-faint); }
-#portal #admin-ranking-section.rk .rk-pd-crit { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; width: 100%; margin-top: 14px; }
-#portal #admin-ranking-section.rk .rk-cc {
-  display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; padding: 7px 2px 6px;
-  border: 1px solid var(--rk-line-2); border-radius: 10px; background: var(--rk-cream);
-}
-#portal #admin-ranking-section.rk .rk-cc .rk-ic { width: 14px; height: 14px; color: var(--rk-rust); }
-#portal #admin-ranking-section.rk .rk-cc b { font-size: 12px; font-weight: 700; white-space: nowrap; }
-#portal #admin-ranking-section.rk .rk-cc b em { font-style: normal; font-weight: 500; color: var(--rk-faint); }
-#portal #admin-ranking-section.rk .rk-cc .rk-bar { width: 78%; height: 4px; }
-#portal #admin-ranking-section.rk .rk-cc small { font-size: 10px; font-weight: 600; color: var(--rk-muted); }
-#portal #admin-ranking-section.rk .rk-pd-link { display: inline-flex; align-items: center; gap: 3px; margin-top: 12px; font-size: 12.5px; font-weight: 600; color: var(--rk-rust); }
+#portal #admin-ranking-section.rk .rk-pd-link { display: inline-flex; align-items: center; gap: 3px; margin-top: 14px; font-size: 12.5px; font-weight: 600; color: var(--rk-rust); }
 #portal #admin-ranking-section.rk .rk-pd-link .rk-ic { width: 14px; height: 14px; }
 #portal #admin-ranking-section.rk .rk-pd-base {
   display: grid; place-items: center; border-radius: 0 0 4px 4px; font: 700 30px/1 var(--rk-display);
@@ -575,15 +565,20 @@
 #portal #admin-ranking-section.rk .rk-ad-person > small { font-size: 11.5px; color: var(--rk-muted); }
 
 /* ── Panel «Cómo se calcula» ──────────────────────────────────────────────── */
-#portal #ranking-help.rk-drawer { position: fixed; inset: 0; z-index: 1200; display: flex; justify-content: flex-end; }
+/* Ventana centrada sobre un fondo oscurecido, igual que el detalle de una persona. */
+#portal #ranking-help.rk-drawer { position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; padding: 24px; }
 #portal #ranking-help.rk-drawer[hidden] { display: none; }
-#portal #ranking-help .rk-drawer-backdrop { position: absolute; inset: 0; background: rgba(37, 37, 35, .32); animation: rkFade .2s ease; }
+/* Las ventanas viven dentro de #workspace (z-index 1), así que el botón de Mensajes (z-index 90)
+   quedaría encima del fondo oscurecido: se oculta mientras alguna está abierta. */
+body:has(#ranking-help:not([hidden]), #ranking-detail-modal:not([hidden])) .kja-chat { visibility: hidden; }
+#portal #ranking-help .rk-drawer-backdrop { position: absolute; inset: 0; background: rgba(37, 37, 35, .42); animation: rkFade .2s ease; }
 #portal #ranking-help .rk-drawer-panel {
-  position: relative; display: flex; flex-direction: column; width: min(600px, 100vw); height: 100%;
-  background: #fff; box-shadow: -20px 0 60px rgba(37, 37, 35, .25); overflow-y: auto; outline: none;
-  animation: rkSlideIn .28s cubic-bezier(.16, 1, .3, 1);
+  position: relative; z-index: 1; display: flex; flex-direction: column; width: min(720px, 100%); max-height: calc(100dvh - 48px);
+  border-radius: 20px; background: #fff; box-shadow: 0 30px 80px rgba(37, 37, 35, .35); overflow-y: auto; outline: none;
+  animation: rkRise .28s cubic-bezier(.16, 1, .3, 1);
 }
-#portal #ranking-help .rk-drawer-head { position: relative; padding: 24px 72px 18px 28px; border-bottom: 1px solid var(--rk-line-2); background: linear-gradient(180deg, var(--rk-cream), #fff); }
+/* El encabezado queda fijo al desplazar, para tener siempre a mano el botón de cerrar. */
+#portal #ranking-help .rk-drawer-head { position: sticky; top: 0; z-index: 1; padding: 24px 72px 18px 28px; border-bottom: 1px solid var(--rk-line-2); background: linear-gradient(180deg, var(--rk-cream), #fff); }
 #portal #ranking-help .rk-drawer-head h3 { margin: 6px 0 0; font-size: 26px; }
 #portal #ranking-help .rk-drawer-head > p:last-child { margin: 6px 0 0; font-size: 13px; line-height: 1.5; color: var(--rk-muted); }
 #portal #ranking-help .rk-drawer-body { display: flex; flex-direction: column; gap: 18px; padding: 20px 28px 28px; }
@@ -704,7 +699,6 @@
 #portal #ranking-detail-modal .rk-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
 
 @keyframes rkFade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes rkSlideIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes rkRise { from { transform: translateY(18px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   #portal :is(#ranking-help, #ranking-detail-modal) :is(.rk-drawer-backdrop, .rk-drawer-panel, .rk-modal-backdrop, .rk-modal-sheet) { animation: none; }
