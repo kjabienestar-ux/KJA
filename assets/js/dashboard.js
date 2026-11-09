@@ -1594,10 +1594,19 @@ function renderRailSchedule(d){
     </article>`;
 }
 
-async function loadHistory(){
-  const {data,error}=await db.rpc('dash_historial',{p_anio:APP.year,p_mes:APP.month});
-  if(error||!data?.ok){ toast('No se pudo cargar el historial.',true); return; }
-  APP.historial=data; renderHistory(); renderProgress(); renderProfile();
+const HISTORY_FLIGHTS=new Map();let HISTORY_READ=0;
+function historyReadKey(){return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.access?.rol,APP.access?.acceso_panel,APP.year,APP.month]);}
+async function loadHistory({refresh=false}={}){
+ const request=++HISTORY_READ,key=historyReadKey(),args={p_anio:APP.year,p_mes:APP.month};
+ const current=()=>request===HISTORY_READ&&key===historyReadKey();
+ let flight=HISTORY_FLIGHTS.get(key);
+ if(!flight||refresh){flight=Promise.resolve().then(()=>db.rpc('dash_historial',args));HISTORY_FLIGHTS.set(key,flight);}
+ try{
+  const {data,error}=await flight;if(!current())return false;
+  if(error||!data?.ok){toast('No se pudo cargar el historial.',true);return false;}
+  APP.historial=data;renderHistory();renderProgress();renderProfile();return true;
+ }catch(error){if(current())toast('No se pudo cargar el historial.',true);return false;}
+ finally{if(HISTORY_FLIGHTS.get(key)===flight)HISTORY_FLIGHTS.delete(key);}
 }
 
 function renderProgress(){
@@ -1972,19 +1981,32 @@ function renderAttendanceCompact(data,evidences){
   renderAttendanceActivity();
 }
 
-function renderAttendanceActivity(){
+function attendanceEvidenceScope(){return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.access?.rol,APP.access?.acceso_panel,APP.attendanceDayDate]);}
+async function renderAttendanceActivity(){
   const content=$('attendance-day-content'),group=content._activities?.[content._activity];if(!group)return;
   content.querySelectorAll('[data-attendance-activity]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.attendanceActivity)===content._activity)));
-  const file=group.files[content._file],stage=$('attendance-compact-stage');
+  let file=group.files[content._file];const stage=$('attendance-compact-stage');
+  const request=content._fileRequest=Symbol(),scope=attendanceEvidenceScope(),dayRequest=APP.attendanceDayRequest;
+  const current=()=>content._fileRequest===request&&scope===attendanceEvidenceScope()&&dayRequest===APP.attendanceDayRequest;
+  $('attendance-file-count').textContent=file?`${content._file+1} de ${group.files.length} archivos`:'Sin archivos';
+  content.querySelector('[data-attendance-page="-1"]').disabled=content._file<=0;
+  content.querySelector('[data-attendance-page="1"]').disabled=content._file>=group.files.length-1;
+  if(file?.path&&file.bucket){
+    stage.innerHTML='<div class="attendance-activity-empty" role="status">Preparando el archivo privado…</div>';
+    try{
+      const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,file.bucket,file.path,3600)||db.storage.from(file.bucket).createSignedUrl(file.path,3600));
+      if(!current())return;
+      file={...file,archived:!!archived,url:!error?data?.signedUrl||'':''};
+    }catch(error){if(!current())return;file={...file,url:'',archived:false};}
+    ATTENDANCE_DAY_EVIDENCES[file.index]=file;
+  }
   if(!file){stage.innerHTML=`<div class="attendance-activity-empty"><b>${esc(group.titulo)}</b><p>${esc(group.detalle||'No hay archivos adjuntos en esta actividad.')}</p></div>`;}
   else if(file.archived){stage.innerHTML=globalThis.KJAEvidenceArchive.markup();}
   else if(!file.url){stage.innerHTML='<div class="attendance-activity-empty"><b>No se pudo abrir este archivo</b><p>Revisa tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-attendance-day>Reintentar</button></div>';}
   else if((file.mime||'').startsWith('video/')){stage.innerHTML=`<video controls playsinline preload="metadata" src="${esc(file.url)}" aria-label="${esc(file.label)}"></video>`;}
   else if((file.mime||'image/').startsWith('image/')){stage.innerHTML=`<button class="attendance-compact-photo" type="button" data-attendance-evidence="${file.index}" aria-label="Ampliar ${esc(file.label||'evidencia')}"><img src="${esc(file.url)}" alt="${esc(file.label||'Evidencia')}" decoding="async"><span>Ampliar imagen</span></button>`;}
   else{stage.innerHTML=`<div class="attendance-activity-empty"><b>${esc(file.label||'Documento')}</b><p>${esc(group.detalle||'Documento adjunto a esta actividad.')}</p><a href="${esc(file.url)}" target="_blank" rel="noopener noreferrer">Abrir documento ↗</a></div>`;}
-  $('attendance-file-count').textContent=file?`${content._file+1} de ${group.files.length} archivos`:'Sin archivos';
-  content.querySelector('[data-attendance-page="-1"]').disabled=content._file<=0;
-  content.querySelector('[data-attendance-page="1"]').disabled=content._file>=group.files.length-1;
+
 }
 
 function openAttendanceEvidence(index,trigger){
@@ -2012,24 +2034,18 @@ async function openAttendanceDay(date){
   const firstOpen=$('attendance-day-modal').hidden;
   if(firstOpen)ATTENDANCE_DAY_TRIGGER=document.activeElement;
   APP.attendanceDayDate=date;
-  const request=++APP.attendanceDayRequest;
+  const request=++APP.attendanceDayRequest,scope=attendanceEvidenceScope();
   $('attendance-day-modal').hidden=false;
   attendanceDayLoading();
   if(firstOpen)requestAnimationFrame(()=>$('attendance-day-modal').querySelector('.modal-close').focus({preventScroll:true}));
   let data,error;
   try{({data,error}=await db.rpc('dash_dia_detalle',{p_fecha:date}));}catch(failure){error=failure;}
-  if(request!==APP.attendanceDayRequest)return;
+  if(request!==APP.attendanceDayRequest||scope!==attendanceEvidenceScope())return;
   if(error||!data?.ok){
     $('attendance-day-content').innerHTML=`<div class="attendance-day-error"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/></svg></span><h2 id="attendance-day-title">No pudimos abrir este día</h2><p>${error?.message?.includes('dash_dia_detalle')?'Instala o vuelve a ejecutar la migración 11 para habilitar el detalle y las evidencias.':'Inténtalo nuevamente en unos segundos.'}</p><button type="button" data-retry-attendance-day>Reintentar</button></div>`;
     return;
   }
-  const evidences=await Promise.all((data.evidencias||[]).map(async item=>{
-    try{
-      const {data:signed,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,item.bucket,item.path,3600)||db.storage.from(item.bucket).createSignedUrl(item.path,3600));
-      return {...item,archived:!!archived,url:signed?.signedUrl||''};
-    }catch(error){return {...item,url:''};}
-  }));
-  if(request!==APP.attendanceDayRequest)return;
+  const evidences=(data.evidencias||[]).map(item=>({...item,url:''}));
   renderAttendanceDay(data,evidences);
 }
 
@@ -4786,7 +4802,7 @@ async function submitDailyEvidence(event){
     await new Promise(resolve=>setTimeout(resolve,matchMedia('(prefers-reduced-motion: reduce)').matches?320:760));
     DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast(editing?'Cambios guardados. La evidencia volvió a revisión.':facebookStillScheduled?'Jornada laboral completa. Facebook continúa programado.':autoExit?'Salida registrada. Tu jornada está completa.':exitRecorded?'Salida registrada. Aún tienes evidencias laborales pendientes.':'Evidencia guardada correctamente.');
     if(correction&&typeof finishEvidenceCorrection==='function')await finishEvidenceCorrection(correction.id);
-    if(autoExit){const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory()]);if(inicioRes.data?.ok){APP.inicio=inicioRes.data;renderHome()}}
+    if(autoExit){const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory({refresh:true})]);if(inicioRes.data?.ok){APP.inicio=inicioRes.data;renderHome()}}
   }catch(error){
     if(paths.length||error.path)cleanupDailyEvidence([...paths,...(error.path?[error.path]:[])]);
     DAILY_EVIDENCE.busy=false;setDailyEvidenceProcess('idle');dailyEvidenceMessage(dailyEvidenceFailure(error.motivo),'is-error');
@@ -4826,7 +4842,7 @@ async function markDailyExit(){
     const {data,error}=await db.rpc('dash_marcar_salida',{p_dispositivo:(navigator.userAgent||'').slice(0,120)});
     if(error||!data?.ok){const reason=data?.motivo||'registro';const messages={salida_aun_no_disponible:`La salida se habilita desde las ${fmtTime(data?.desde)}.`,salida_fuera_de_plazo:'El plazo de salida terminó. La jornada quedará incompleta.',requisitos_pendientes:'Todavía existen evidencias pendientes.',ya_registrada:'La salida ya estaba registrada.',sesion:'Tu sesión venció. Vuelve a ingresar.'};throw Object.assign(new Error(messages[reason]||'No pudimos registrar la salida.'),{motivo:reason})}
     APP.cierre=data.resumen;DAILY_EXIT_BUSY=false;$('daily-exit-modal').hidden=true;document.body.classList.remove('daily-evidence-open');renderDailyClose();toast('Salida registrada. Tu jornada está completa.');
-    const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory()]);
+    const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory({refresh:true})]);
     if(inicioRes.data?.ok){APP.inicio=inicioRes.data;renderHome()}
   }catch(error){dailyExitMessage(error.message||'No pudimos registrar la salida.','is-error');await loadDailyClose({quiet:true})}
   finally{DAILY_EXIT_BUSY=false;confirmButton.disabled=false;confirmButton.querySelector('span').textContent='Registrar mi salida';button.disabled=!APP.cierre?.puede_marcar_salida}
@@ -5412,7 +5428,7 @@ $('confirm-mark').onclick=async()=>{
     if(data.dia)APP.inicio.dia=data.dia;
     APP.cierre=null;APP.dailyCloseResolved=false;APP.dailyCloseGeneration++;APP.dailyCloseRequest=null;resetDailyCloseUi();syncMarkedAttendanceAction();
     clearEvidence();showMarkReceipt(data,hadEvidence);
-    (async()=>{try{const {data:fresh}=await db.rpc('dash_inicio');if(fresh?.ok){APP.inicio=fresh;renderHome();renderProfile();await Promise.all([loadHistory(),loadDailyClose({quiet:true})]);}}catch(refreshError){console.warn('No se pudo refrescar el panel tras marcar.',refreshError);}})();
+    (async()=>{try{const {data:fresh}=await db.rpc('dash_inicio');if(fresh?.ok){APP.inicio=fresh;renderHome();renderProfile();await Promise.all([loadHistory({refresh:true}),loadDailyClose({quiet:true})]);}}catch(refreshError){console.warn('No se pudo refrescar el panel tras marcar.',refreshError);}})();
   }catch(e){
     setMarkFlow('confirm');
     markMsg(markFailureMessage(e.motivo,e.ventana));
