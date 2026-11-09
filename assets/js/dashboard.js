@@ -4545,25 +4545,42 @@ function mountDailyEvidencePortal(){
   return editor;
 }
 
+function dailyEditorScope(){return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.access?.rol,APP.access?.acceso_panel]);}
 async function loadDailyEditableEvidence(request){
-  const picker=$('daily-evidence-picker'),submit=$('daily-evidence-submit');
-  DAILY_EVIDENCE.loading=true;picker.disabled=true;submit.disabled=true;dailyEvidenceMessage('Cargando los archivos que ya enviaste…','is-info');
-  const {data,error}=await db.rpc('dash_mi_entrega_editable',{p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment});
-  if(request!==DAILY_EVIDENCE_LOAD)return;
-  if(error||!data?.ok){DAILY_EVIDENCE.loading=false;dailyEvidenceMessage(dailyEvidenceFailure(data?.motivo||'cargar_actuales'),'is-error');return}
+  const state=DAILY_EVIDENCE,scope=dailyEditorScope(),picker=$('daily-evidence-picker'),submit=$('daily-evidence-submit');
+  const current=()=>DAILY_EVIDENCE===state&&request===DAILY_EVIDENCE_LOAD&&scope===dailyEditorScope()&&!$('daily-evidence-editor').hidden;
+  state.loading=true;picker.disabled=true;submit.disabled=true;dailyEvidenceMessage('Cargando los archivos que ya enviaste…','is-info');
+  let data,error;try{({data,error}=await db.rpc('dash_mi_entrega_editable',{p_requisito:state.requirement,p_asignacion:state.assignment}));}catch(failure){error=failure;}
+  if(!current())return;
+  if(error||!data?.ok){state.loading=false;dailyEvidenceMessage(dailyEvidenceFailure(data?.motivo||'cargar_actuales'),'is-error');return;}
+  const images=(data.archivos||[]).filter(file=>!String(file.mime||'').startsWith('video/'));
+  state.existingFiles=images.map(file=>({...file,url:''}));
+  state.entregaId=data.entrega;
+  state.existingVideoPath=(data.archivos||[]).find(file=>String(file.mime||'').startsWith('video/'))?.path||null;
+  $('daily-evidence-detail').value=data.detalle||'';
+  if($('daily-evidence-comment'))$('daily-evidence-comment').open=!!data.detalle;
+  renderDailyEvidencePreviews();
+  dailyEvidenceMessage(state.requirement==='comparticiones'?`${images.length} imágenes guardadas. Pulsa Ver archivo para consultar una; la × elimina después de confirmar.`:`${images.length} ${images.length===1?'archivo actual':'archivos actuales'}. Pulsa Ver archivo para consultar; quita con × sólo los que deseas cambiar.${state.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
+  state.loading=false;picker.disabled=false;submit.disabled=false;
+}
+async function previewDailySavedFile(index){
+  const state=DAILY_EVIDENCE,file=state.existingFiles?.[index],scope=dailyEditorScope(),generation=DAILY_EVIDENCE_LOAD;
+  if(!file||state.loading||state.busy||$('daily-evidence-editor').hidden)return;
+  const card=$('daily-evidence-previews').querySelector(`[data-daily-saved-index="${index}"]`),stage=card?.querySelector('[data-saved-preview]');if(!stage)return;
+  const request=card._previewRequest=Symbol();
+  const current=()=>DAILY_EVIDENCE===state&&generation===DAILY_EVIDENCE_LOAD&&scope===dailyEditorScope()&&state.existingFiles.includes(file)&&card.isConnected&&card._previewRequest===request&&!$('daily-evidence-editor').hidden;
+  const restoreFocus=stage.contains(document.activeElement);
+  stage.innerHTML='<span class="daily-saved-preview-status" role="status">Preparando archivo…</span>';
   try{
-    const images=(data.archivos||[]).filter(file=>!String(file.mime||'').startsWith('video/'));
-    const signed=await Promise.all(images.map(async file=>{const result=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);if(result.error||!result.data?.signedUrl)throw new Error('firma');return {...file,url:result.data.signedUrl}}));
-    if(request!==DAILY_EVIDENCE_LOAD)return;
-    DAILY_EVIDENCE.existingFiles=signed;
-    DAILY_EVIDENCE.entregaId=data.entrega;
-    DAILY_EVIDENCE.existingVideoPath=(data.archivos||[]).find(file=>String(file.mime||'').startsWith('video/'))?.path||null;
-    $('daily-evidence-detail').value=data.detalle||'';
-    if($('daily-evidence-comment'))$('daily-evidence-comment').open=!!data.detalle;
-    renderDailyEvidencePreviews();
-    dailyEvidenceMessage(DAILY_EVIDENCE.requirement==='comparticiones'?`${signed.length} imágenes guardadas. La × permite eliminar una imagen después de confirmar.`:`${signed.length} ${signed.length===1?'archivo actual':'archivos actuales'}. Quita con × sólo las que deseas cambiar.${DAILY_EVIDENCE.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
-    DAILY_EVIDENCE.loading=false;picker.disabled=false;submit.disabled=false;
-  }catch{DAILY_EVIDENCE.loading=false;dailyEvidenceMessage('No pudimos mostrar tus archivos actuales. Cierra el editor e inténtalo nuevamente.','is-error')}
+    const {data,error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);
+    if(!current())return;
+    if(error||!data?.signedUrl)throw new Error('firma');
+    stage.innerHTML=dailyFilePreview({...file,url:data.signedUrl},index)+`<button type="button" class="daily-saved-preview-refresh" data-preview-existing-file="${index}" aria-label="Actualizar vista del archivo ${index+1}">Actualizar vista</button>`;
+  }catch(error){
+    if(!current())return;
+    stage.innerHTML=`<button type="button" class="daily-saved-preview-button" data-preview-existing-file="${index}"><span>No se pudo abrir</span><b>Reintentar archivo ${index+1}</b></button>`;
+  }
+  if(current()&&restoreFocus)stage.querySelector('button')?.focus({preventScroll:true});
 }
 
 function openDailyEvidenceEditor(requirement,assignment=null,correction=null){
@@ -4625,7 +4642,7 @@ function renderDailyEvidencePreviews(){
   const total=existing.length+fresh.length;
   box.hidden=!total;box.classList.toggle('is-many',total>10);
   box.setAttribute('aria-label',`${total} ${total===1?'imagen seleccionada':'imágenes seleccionadas'}`);
-  box.innerHTML=existing.map((item,index)=>`<div class="daily-evidence-preview is-existing" style="--preview-index:${Math.min(index,7)}"><em>Actual</em>${dailyFilePreview(item,index)}<button type="button" data-remove-existing-file="${index}" aria-label="Quitar archivo actual ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('')+fresh.map((item,index)=>`<div class="daily-evidence-preview is-new" style="--preview-index:${Math.min(existing.length+index,7)}"><em>Nueva</em>${dailyFilePreview(item,index)}<button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen nueva ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
+  box.innerHTML=existing.map((item,index)=>`<div class="daily-evidence-preview is-existing" data-daily-saved-index="${index}" style="--preview-index:${Math.min(index,7)}"><em>Actual</em><div data-saved-preview class="daily-saved-preview"><button type="button" class="daily-saved-preview-button" data-preview-existing-file="${index}"><span>${esc(item.name||'Archivo actual '+(index+1))}</span><b>Ver archivo ${index+1}</b></button></div><button type="button" data-remove-existing-file="${index}" aria-label="Quitar archivo actual ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('')+fresh.map((item,index)=>`<div class="daily-evidence-preview is-new" style="--preview-index:${Math.min(existing.length+index,7)}"><em>Nueva</em>${dailyFilePreview(item,index)}<button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen nueva ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
 }
 
 function dailyDocumentType(file){
@@ -5063,6 +5080,7 @@ function requestFacebookDeleteConfirmation({retry=false,last=false}={}){
   });
 }
 $('daily-evidence-previews').addEventListener('click',event=>{
+  const preview=event.target.closest('[data-preview-existing-file]');if(preview)return previewDailySavedFile(Number(preview.dataset.previewExistingFile));
   const button=event.target.closest('[data-remove-daily-file],[data-remove-existing-file]');if(!button||DAILY_EVIDENCE.busy||DAILY_EVIDENCE.loading)return;
   if(button.dataset.removeExistingFile!=null&&DAILY_EVIDENCE.requirement==='comparticiones')return deleteFacebookEvidenceImage(Number(button.dataset.removeExistingFile));
   if(button.dataset.removeExistingFile!=null){DAILY_EVIDENCE.existingFiles.splice(Number(button.dataset.removeExistingFile),1)}
