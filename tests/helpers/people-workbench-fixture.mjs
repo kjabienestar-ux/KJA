@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-export const peopleScriptFiles=['dashboard-admin-equipo.js','dashboard-areas.js','dashboard-person-delete.js','dashboard-person-attendance.js','dashboard-person-profile.js','dashboard-people-workbench.js'];
+export const peopleScriptFiles=['history-pages.js','dashboard-admin-equipo.js','dashboard-areas.js','dashboard-person-delete.js','dashboard-person-attendance.js','dashboard-person-profile.js','dashboard-people-workbench.js'];
 export const peopleSources=peopleScriptFiles.map(file=>fs.readFileSync('assets/js/'+file,'utf8'));
 export function peopleFixtureData(){
  const week={'1':{mod:'virtual',ini:'08:00',fin:'13:00'},'2':{mod:'presencial',ini:'08:00',fin:'13:00'},'3':{mod:'virtual',ini:'08:00',fin:'13:00'},'4':{mod:'no_gestiona'},'5':{mod:'no_gestiona'},'6':{mod:'no_gestiona'},'7':{mod:'no_gestiona'}};

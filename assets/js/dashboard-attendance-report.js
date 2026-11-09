@@ -29,13 +29,13 @@ async function collectAttendanceReport(people,range,onProgress=()=>{},{signFiles
     await Promise.all(files.slice(i,i+6).map(async file=>{
       const key=file.bucket+'/'+file.path;
       if(!signed.has(key))signed.set(key,(async()=>{
-        try{const {data,error}=await db.storage.from(file.bucket).createSignedUrl(file.path,3600);return !error&&/^https:\/\//.test(data?.signedUrl||'')?data.signedUrl:null;}catch{return null;}
+        try{const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,file.bucket,file.path,3600)||db.storage.from(file.bucket).createSignedUrl(file.path,3600));return archived?{archived:true}:!error&&/^https:\/\//.test(data?.signedUrl||'')?data.signedUrl:null;}catch{return null;}
       })());
-      file.url=await signed.get(key);
+      const resolved=await signed.get(key);file.archived=resolved?.archived===true;file.url=file.archived?null:resolved;
     }));
     onProgress('Preparando los enlaces de los archivos del PDF',{done:Math.min(i+6,files.length),total:files.length,unit:'archivos'});
   }
-  return {reports,range,files,unavailable:files.filter(f=>!f.url).length};
+  return {reports,range,files,unavailable:files.filter(f=>!f.url&&!f.archived).length};
 }
 function buildFocusedAttendancePdf(bundle){
   const M=KJAAttendanceReport,doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true});
@@ -63,7 +63,7 @@ function buildFocusedAttendancePdf(bundle){
       const rows=new Map();for(const file of r.files){const key=JSON.stringify([file.date,file.type,file.title,file.uploaded]);if(!rows.has(key))rows.set(key,[]);rows.get(key).push(file);}return [...rows.values()];
     });
     // Una entrega con muchas capturas ocupa una fila; cada referencia abre su archivo.
-    table({startY:38,head:[['Colaborador','Fecha','Evidencia','Subido (Lima)','Abrir archivo (#)']],body:groups.map(files=>{const f=files[0];return [f.person,M.date(f.date),f.title,f.uploaded?M.date(new Date(f.uploaded).toLocaleDateString('en-CA',{timeZone:'America/Lima'}))+' '+M.time(f.uploaded):'—',files.map(item=>'#'+item.ref+(item.url?'':' (sin enlace)')).join(' ')];}),columnStyles:{0:{cellWidth:59},1:{cellWidth:24},2:{cellWidth:53},3:{cellWidth:37},4:{cellWidth:96}},didDrawCell:data=>{
+    table({startY:38,head:[['Colaborador','Fecha','Evidencia','Subido (Lima)','Abrir archivo (#)']],body:groups.map(files=>{const f=files[0];return [f.person,M.date(f.date),f.title,f.uploaded?M.date(new Date(f.uploaded).toLocaleDateString('en-CA',{timeZone:'America/Lima'}))+' '+M.time(f.uploaded):'—',files.map(item=>'#'+item.ref+(item.archived?' (retirado por el sistema)':item.url?'':' (sin enlace)')).join(' ')];}),columnStyles:{0:{cellWidth:59},1:{cellWidth:24},2:{cellWidth:53},3:{cellWidth:37},4:{cellWidth:96}},didDrawCell:data=>{
       if(data.section!=='body'||data.column.index!==4)return;
       const files=groups[data.row.index],lineHeight=data.cell.styles.fontSize/doc.internal.scaleFactor*doc.getLineHeightFactor();
       for(const [lineIndex,line] of data.cell.text.entries())for(const match of line.matchAll(/#(\d+)/g)){

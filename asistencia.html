@@ -11,6 +11,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="assets/css/paginas/asistencia.css?v=25">
+<link rel="stylesheet" href="assets/css/paginas/evidence-archive.css?v=1">
+<script src="assets/js/evidence-archive.js?v=1"></script>
 </head>
 <body>
 
@@ -2642,7 +2644,8 @@ async function verEvidencia(colabId, fecha){
 
   abrirModal('Evidencia · ' + nombre, `<div class="evi-visor"><p class="empty">Abriendo la foto…</p></div>`);
 
-  const { data, error } = await db.storage.from(EVI_BUCKET).createSignedUrl(rg.evidencia_path, 3600);
+  const { data, error, archived } = await (globalThis.KJAEvidenceArchive?.resolve(db.storage,EVI_BUCKET,rg.evidencia_path,3600)||db.storage.from(EVI_BUCKET).createSignedUrl(rg.evidencia_path, 3600));
+  if(archived){$('modal-body').innerHTML=globalThis.KJAEvidenceArchive.markup();return;}
   if(error || !data){
     $('modal-body').innerHTML = `<div class="evi-visor">
       <p class="empty">No se pudo abrir la foto.${error ? '<br><small>'+esc(error.message)+'</small>' : ''}</p></div>`;

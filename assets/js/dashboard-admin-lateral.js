@@ -6,9 +6,9 @@
   const portal=$('portal'),lateral=$('admin-lateral'),tabs=document.querySelector('#view-gestion .admin-section-nav');
   if(!portal||!lateral||!tabs)return;
   const desktop=window.matchMedia('(min-width:901px)');
-  const FOLD_KEY='kja-admin-lateral-plegadas',RAIL_KEY='kja-admin-rail-abierta';
+  const RAIL_KEY='kja-admin-rail-abierta';
   const SLUGS={overview:'resumen',solicitudes:'solicitudes'};
-  const FAMILY_NAMES={operacion:'Operación del día',asignaciones:'Asignaciones y entregas',personas:'Personas y acceso',incorporacion:'Incorporación y organización',resultados:'Resultados por período'};
+  const FAMILY_NAMES={operacion:'Operación diaria',personas:'Gestión del equipo',resultados:'Reportes y resultados',configuracion:'Configuración de asistencia'};
   const items=[...lateral.querySelectorAll('[data-lateral-section]')];
   const families=[...lateral.querySelectorAll('.admin-lateral-family')];
   // Solicitudes navega a la vista de Reclutamiento; se recuerda si se abrió desde aquí.
@@ -42,20 +42,12 @@
   }
 
   function syncFamilies(active){
-    const folded=readStore(FOLD_KEY,[]);
     families.forEach(family=>{
       const own=[...family.querySelectorAll('[data-lateral-section]')],shown=own.filter(item=>!item.closest('li').hidden);
       setHidden(family,!shown.length);
-      const isOpen=!folded.includes(family.dataset.family),head=family.querySelector('.admin-lateral-family-head'),meta=family.querySelector('.admin-lateral-family-meta');
-      const containsActive=shown.includes(active);
-      family.classList.toggle('is-current',containsActive);
-      family.classList.toggle('is-folded',!isOpen);
-      head.setAttribute('aria-expanded',String(isOpen));
-      // Plegada, la familia conserva a la vista su destino activo.
-      own.forEach(item=>item.closest('li').classList.toggle('is-tucked',!isOpen&&item!==active));
-      const total=shown.reduce((sum,item)=>sum+pending(item),0);
-      setHidden(meta,isOpen);
-      meta.innerHTML=isOpen?'':`${shown.length}${total?` <b aria-label="${total} pendientes">${total}</b>`:''}`;
+      family.classList.toggle('is-current',shown.includes(active));
+      family.classList.remove('is-folded');
+      own.forEach(item=>item.closest('li').classList.remove('is-tucked'));
     });
   }
 
@@ -137,11 +129,6 @@
   }
 
   items.forEach(item=>item.addEventListener('click',()=>open(item.dataset.lateralSection)));
-  families.forEach(family=>family.querySelector('.admin-lateral-family-head').addEventListener('click',()=>{
-    const id=family.dataset.family,folded=readStore(FOLD_KEY,[]);
-    writeStore(FOLD_KEY,folded.includes(id)?folded.filter(value=>value!==id):[...folded,id]);
-    sync();
-  }));
   $('admin-rail-toggle')?.addEventListener('click',()=>{writeStore(RAIL_KEY,readStore(RAIL_KEY,false)!==true);sync();});
   // Reclutamiento abierto desde la barra principal se ve como hoy; desde Gestión conserva el lateral.
   document.addEventListener('click',event=>{
@@ -150,19 +137,7 @@
   },true);
   $('rec-context-refresh')?.addEventListener('click',()=>window.kjaRecruitment?.refresh?.());
 
-  // Al entrar a una sección de una familia plegada, esa familia se abre sola.
-  function unfoldFor(section){
-    const family=items.find(item=>item.dataset.lateralSection===section)?.closest('.admin-lateral-family')?.dataset.family;
-    const folded=readStore(FOLD_KEY,[]);
-    if(family&&folded.includes(family))writeStore(FOLD_KEY,folded.filter(value=>value!==family));
-  }
-  let lastSection='';
-  function onShellChange(){
-    const section=lateralActive()?currentSection():'';
-    if(section&&section!==lastSection)unfoldFor(section);
-    lastSection=section;
-    sync();
-  }
+  function onShellChange(){sync();}
 
   function fromHash(){
     const match=/^#gestion\/([a-z]+)$/.exec(location.hash);

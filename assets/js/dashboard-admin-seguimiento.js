@@ -288,7 +288,8 @@
       const signed=await Promise.all(files.map(async file=>{
         const key=owner+':'+d.id+':'+file.path,cached=signedCache.get(key);
         if(cached?.expires>Date.now())return cached.file;
-        const {data,error}=await db.storage.from('asis-cierre-evidencias').createSignedUrl(file.path,900);
+        const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,'asis-cierre-evidencias',file.path,900)||db.storage.from('asis-cierre-evidencias').createSignedUrl(file.path,900));
+        if(archived)return {...file,archived:true};
         if(error||!data?.signedUrl)throw new Error('signed');
         const result={...file,url:data.signedUrl};
         if(sessionKey()===owner)signedCache.set(key,{file:result,expires:Date.now()+14*60000});
@@ -305,10 +306,10 @@
     const file=S.signed[S.file],gallery=$s('gallery'),controls=$s('file-controls');if(!gallery)return;
     if(!file){gallery.innerHTML='<div class="seg-empty">'+icon('file')+'<p>Esta entrega no contiene archivos disponibles.</p></div>';controls.innerHTML='';return}
     const mime=String(file.mime||''),isVideo=mime.startsWith('video/'),isDoc=mime.startsWith('application/')||/\.(pdf|docx?|pptx?)$/i.test(file.path||'');
-    gallery.innerHTML=isVideo?'<video controls playsinline preload="metadata" src="'+esc(file.url)+'" aria-label="Video de evidencia"></video>':isDoc?'<div class="seg-document">'+icon('file')+'<h4>Documento adjunto</h4><p>'+esc((file.path||'').split('/').pop())+'</p><a class="seg-button" href="'+esc(file.url)+'" target="_blank" rel="noopener">Abrir documento '+icon('expand')+'</a></div>':'<img src="'+esc(file.url)+'" alt="Evidencia '+(S.file+1)+' de '+S.signed.length+' de '+esc(selected()?.colaborador)+'">';
+    gallery.innerHTML=file.archived?globalThis.KJAEvidenceArchive.markup():isVideo?'<video controls playsinline preload="metadata" src="'+esc(file.url)+'" aria-label="Video de evidencia"></video>':isDoc?'<div class="seg-document">'+icon('file')+'<h4>Documento adjunto</h4><p>'+esc((file.path||'').split('/').pop())+'</p><a class="seg-button" href="'+esc(file.url)+'" target="_blank" rel="noopener">Abrir documento '+icon('expand')+'</a></div>':'<img src="'+esc(file.url)+'" alt="Evidencia '+(S.file+1)+' de '+S.signed.length+' de '+esc(selected()?.colaborador)+'">';
     const media=gallery.querySelector('img,video');
     if(media)media.onerror=()=>{gallery.innerHTML='<div class="seg-empty"><p>No se pudo cargar el archivo.</p>'+button('media-retry','Renovar acceso')+'</div>'};
-    controls.innerHTML=button('file-prev','‹','seg-icon','aria-label="Archivo anterior" '+(!S.file?'disabled':''))+'<div class="seg-thumbnails">'+S.signed.map((f,index)=>button('file',((String(f.mime||'').startsWith('image/')||/\\.(jpe?g|png|webp)$/i.test(f.path||''))?'<img src="'+esc(f.url)+'" alt="" loading="lazy">':icon('file'))+'<small>'+(index+1)+'</small>','seg-thumb '+(index===S.file?'is-active':''),'data-index="'+index+'" aria-label="Ver archivo '+(index+1)+'" aria-pressed="'+String(index===S.file)+'"')).join('')+'</div>'+button('file-next','›','seg-icon','aria-label="Archivo siguiente" '+(S.file===S.signed.length-1?'disabled':''))+'<div class="seg-file-index"><span>Archivo '+(S.file+1)+' de '+S.signed.length+'</span><a href="'+esc(file.url)+'" target="_blank" rel="noopener" class="seg-button">'+icon('expand')+' Ampliar archivo</a></div>';
+    controls.innerHTML=button('file-prev','‹','seg-icon','aria-label="Archivo anterior" '+(!S.file?'disabled':''))+'<div class="seg-thumbnails">'+S.signed.map((f,index)=>button('file',((!f.archived&&(String(f.mime||'').startsWith('image/')||/\\.(jpe?g|png|webp)$/i.test(f.path||'')))?'<img src="'+esc(f.url)+'" alt="" loading="lazy">':icon('file'))+'<small>'+(index+1)+'</small>','seg-thumb '+(index===S.file?'is-active':''),'data-index="'+index+'" aria-label="Ver archivo '+(index+1)+'" aria-pressed="'+String(index===S.file)+'"')).join('')+'</div>'+button('file-next','›','seg-icon','aria-label="Archivo siguiente" '+(S.file===S.signed.length-1?'disabled':''))+'<div class="seg-file-index"><span>Archivo '+(S.file+1)+' de '+S.signed.length+'</span>'+(file.archived?'':'<a href="'+esc(file.url)+'" target="_blank" rel="noopener" class="seg-button">'+icon('expand')+' Ampliar archivo</a>')+'</div>';
   }
   async function decide(value){
     const d=activeDelivery(),person=selected(),owner=sessionKey();

@@ -1,0 +1,12 @@
+{
+  "errors": [],
+  "table": {
+    "background": "rgb(240, 225, 210)",
+    "color": "rgb(121, 69, 47)"
+  },
+  "selected": "presencial",
+  "time": "09:07",
+  "dateEscapeKeepsDialog": true,
+  "timesDisabled": true,
+  "overflow": false
+}

@@ -78,13 +78,19 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-shell-layout.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/reclutamiento-bandeja.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/reclutamiento-profesional.css?v=3">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-lateral.css?v=3">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-lateral.css?v=estatico-3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-resumen.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-seguimiento.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=10">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pasar-lista.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-month-tramos.css?v=8">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-access-workbench.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-field-controls.css?v=1">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-organization.css?v=5">
+<link rel="stylesheet" href="assets/css/paginas/evidence-archive.css?v=1">
+<script src="assets/js/evidence-archive.js?v=1"></script>
+<link rel="stylesheet" href="assets/css/paginas/dashboard-history-pages.css?v=1">
 </head>
 <body>
 
@@ -240,41 +246,34 @@
   <aside class="admin-lateral" id="admin-lateral" aria-label="Secciones de Gestión de asistencia" hidden>
     <p class="admin-lateral-title">Gestión de asistencia</p>
     <section class="admin-lateral-family" data-family="operacion">
-      <button class="admin-lateral-family-head" type="button" aria-expanded="true" aria-controls="admin-lateral-operacion"><span class="admin-lateral-family-name">Operación del día</span><span class="admin-lateral-family-meta" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <h2 class="admin-lateral-family-head"><span class="admin-lateral-family-name">Operación diaria</span></h2>
       <ul id="admin-lateral-operacion">
         <li><button type="button" data-lateral-section="overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Resumen operativo</span></button></li>
         <li><button type="button" data-lateral-section="seguimiento"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M8 2.5v4M16 2.5v4M3.5 9.5h17m-10 6 2 2 4-4"/></svg><span>Seguimiento diario</span></button></li>
-        <li><button type="button" data-lateral-section="control"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4m-6.5 8 2 2 4-4"/></svg><span>Control diario</span></button></li>
         <li><button type="button" data-lateral-section="lista"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>Pasar lista</span></button></li>
-      </ul>
-    </section>
-    <section class="admin-lateral-family" data-family="asignaciones">
-      <button class="admin-lateral-family-head" type="button" aria-expanded="true" aria-controls="admin-lateral-asignaciones"><span class="admin-lateral-family-name">Asignaciones y entregas</span><span class="admin-lateral-family-meta" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      <ul id="admin-lateral-asignaciones">
         <li><button type="button" data-lateral-section="asignaciones"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6h12M3.5 12h12M3.5 18h7M18 14.5v6M15 17.5h6"/></svg><span>Asignaciones</span></button></li>
-        <li><button type="button" data-lateral-section="cierres"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.5h6V4m-5.5 9 2 2 4-4"/></svg><span>Cierres y entregables</span></button></li>
       </ul>
     </section>
     <section class="admin-lateral-family" data-family="personas">
-      <button class="admin-lateral-family-head" type="button" aria-expanded="true" aria-controls="admin-lateral-personas"><span class="admin-lateral-family-name">Personas y acceso</span><span class="admin-lateral-family-meta" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <h2 class="admin-lateral-family-head"><span class="admin-lateral-family-name">Gestión del equipo</span></h2>
       <ul id="admin-lateral-personas">
         <li><button type="button" data-lateral-section="colaboradores"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c.5-3.5 2.6-5.5 6-5.5s5.5 2 6 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5c1.8.6 2.7 2.4 3 5.5"/></svg><span>Colaboradores</span></button></li>
-        <li><button type="button" data-lateral-section="marcado"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>Marcado propio</span></button></li>
-      </ul>
-    </section>
-    <section class="admin-lateral-family" data-family="incorporacion">
-      <button class="admin-lateral-family-head" type="button" aria-expanded="true" aria-controls="admin-lateral-incorporacion"><span class="admin-lateral-family-name">Incorporación y organización</span><span class="admin-lateral-family-meta" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      <ul id="admin-lateral-incorporacion">
         <li><button type="button" data-lateral-section="contratos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6.5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8.5Z"/><path d="M14 3v5.5h5.5M8.5 13h7M8.5 17h4.5"/></svg><span>Contratos</span></button></li>
         <li><button type="button" data-lateral-section="roles"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-2.5h12V16"/></svg><span>Roles y equipos</span></button></li>
       </ul>
     </section>
     <section class="admin-lateral-family" data-family="resultados">
-      <button class="admin-lateral-family-head" type="button" aria-expanded="true" aria-controls="admin-lateral-resultados"><span class="admin-lateral-family-name">Resultados por período</span><span class="admin-lateral-family-meta" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <h2 class="admin-lateral-family-head"><span class="admin-lateral-family-name">Reportes y resultados</span></h2>
       <ul id="admin-lateral-resultados">
         <li><button type="button" data-lateral-section="mes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2"/></svg><span>Mes completo</span></button></li>
-        <li><button type="button" data-lateral-section="ranking"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3.5h8V9a4 4 0 0 1-8 0Z"/><path d="M8 5.5H5a3 3 0 0 0 3 4M16 5.5h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9.5 17h5"/></svg><span>Ranking mensual</span><span class="admin-lateral-beta">Beta</span></button></li>
         <li><button type="button" data-lateral-section="facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 21v-8h3l.5-3.5H14V7.5c0-1 .4-1.6 1.7-1.6H18V2.8a20 20 0 0 0-2.7-.2C12.7 2.6 11 4.2 11 7v2.5H8V13h3v8"/></svg><span>Reportes Facebook</span></button></li>
+        <li><button type="button" data-lateral-section="ranking"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3.5h8V9a4 4 0 0 1-8 0Z"/><path d="M8 5.5H5a3 3 0 0 0 3 4M16 5.5h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9.5 17h5"/></svg><span>Ranking mensual</span><span class="admin-lateral-beta">Beta</span></button></li>
+      </ul>
+    </section>
+    <section class="admin-lateral-family" data-family="configuracion">
+      <h2 class="admin-lateral-family-head"><span class="admin-lateral-family-name">Configuración de asistencia</span></h2>
+      <ul id="admin-lateral-configuracion">
+        <li><button type="button" data-lateral-section="marcado"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>Acceso y marcado</span></button></li>
       </ul>
     </section>
   </aside>
@@ -1592,7 +1591,7 @@
         <button type="button" data-admin-section="colaboradores">Colaboradores</button>
         <button type="button" data-admin-section="contratos">Contratos</button>
         <button type="button" data-admin-section="roles" id="admin-roles-tab" hidden>Roles y equipos</button>
-        <button type="button" data-admin-section="marcado" id="admin-access-tab">Marcado propio</button>
+        <button type="button" data-admin-section="marcado" id="admin-access-tab">Acceso y marcado</button>
         <a href="asistencia.html?modo=lista" data-admin-legacy title="Abrir la versión anterior como respaldo">Panel anterior ↗</a>
         <small class="admin-refreshed" id="admin-refreshed" aria-live="polite">Actualizando…</small>
         <button class="admin-refresh" id="admin-refresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Actualizar</button>
@@ -2736,7 +2735,7 @@
 
       <section class="admin-access-section" id="admin-access-section" hidden>
         <div class="admin-access-toolbar">
-          <div><p class="eyebrow">CONTROL DE ACCESO</p><h2>Marcado propio</h2><p>Administra la ruta oficial, la activación de PIN y las reglas comunes de marcado.</p></div>
+          <div><p class="eyebrow">CONTROL DE ACCESO</p><h2>Acceso y marcado</h2><p>Gestiona el acceso del equipo y las reglas de asistencia.</p></div>
           <span class="admin-access-health" id="admin-access-health"><i></i>Verificando configuración</span>
         </div>
 
@@ -2754,7 +2753,7 @@
               <span class="admin-route-connector"><i></i><b>solo si aún no tiene PIN</b></span>
               <section class="admin-route-step activation-route">
                 <span class="route-number">02</span>
-                <div><small>ACTIVACIÓN INICIAL</small><h4>Crear PIN</h4><p>Este enlace anterior se usa una sola vez. Después, la persona entra por Portal KJA.</p></div>
+                <div><small>ACTIVACIÓN INICIAL</small><h4>Crear PIN</h4><p>Solo para personas sin PIN. Después de crearlo, ingresan por Portal KJA.</p></div>
                 <div class="admin-route-link"><input id="admin-activation-url" readonly aria-label="Enlace de activación de PIN"><button type="button" data-copy-access="activation">Copiar</button></div>
               </section>
             </div>
@@ -2771,7 +2770,7 @@
               <label class="admin-policy-toggle fixed"><span><b>Evidencia obligatoria</b><small>Regla fija para todas las personas</small></span><input type="checkbox" id="admin-access-evidence" checked disabled aria-disabled="true"><i></i></label>
               <div class="admin-office-rule" id="admin-office-rule">
                 <div class="admin-office-heading"><span class="admin-office-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg></span><span><b>Ubicación de la oficina</b><small id="admin-office-status">Aún no configurada</small></span><span class="admin-office-radius">Radio 1 km</span></div>
-                <p>Busca una dirección, toca el mapa o arrastra el marcador. El círculo muestra el área donde se habilitará el marcado presencial.</p>
+                <p>Busca la oficina o selecciona un punto en el mapa. El marcado presencial se permite dentro del radio de 1 km.</p>
                 <div class="admin-office-search">
                   <label class="sr-only" for="admin-office-search">Buscar dirección de la oficina</label>
                   <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg><input type="search" id="admin-office-search" autocomplete="off" aria-controls="admin-office-results" aria-expanded="false" placeholder="Buscar calle, distrito o referencia"></span>
@@ -2790,7 +2789,7 @@
                 </details>
                 <div class="admin-office-actions"><button type="button" id="admin-office-detect"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2V5M12 19v3M2 12h3M19 12h3"/></svg><span>Usar mi ubicación actual</span></button><small>Solo Dirección puede cambiar este punto.</small></div>
               </div>
-              <label class="admin-policy-toggle legacy"><span><b>Activación anterior disponible</b><small>No afecta el ingreso por dashboard</small></span><input type="checkbox" id="admin-access-legacy"><i></i></label>
+              <label class="admin-policy-toggle legacy"><span><b>Permitir crear PIN</b><small>Habilita el enlace de activación para personas sin PIN</small></span><input type="checkbox" id="admin-access-legacy"><i></i></label>
               <button class="admin-primary-action" id="admin-access-save" type="submit">Guardar reglas</button>
             </form>
             <div class="admin-link-security"><span><b>Seguridad del enlace de activación</b><small>Regenerarlo invalida únicamente la dirección anterior.</small></span><button type="button" id="admin-access-rotate">Regenerar enlace</button></div>
@@ -2810,7 +2809,7 @@
             <span><p class="eyebrow">ESTADO DE ACCESO</p><h3>PIN y sesiones del equipo</h3></span>
             <div class="admin-access-filters"><input type="search" id="admin-access-search" placeholder="Buscar persona…" aria-label="Buscar persona"><select id="admin-access-filter" aria-label="Filtrar estado de PIN"><option value="">Todo el equipo</option><option value="ready">PIN configurado</option><option value="missing">Sin PIN</option><option value="blocked">Bloqueados</option><option value="no-dni">Sin DNI</option></select></div>
           </div>
-          <div class="admin-access-list" id="admin-access-list"><p class="admin-empty">Ejecuta la migración de la fase 5 para cargar accesos.</p></div>
+          <div class="admin-access-list" id="admin-access-list"><p class="admin-empty">Los accesos del equipo aparecerán aquí.</p></div>
         </section>
 
         <section class="admin-access-audit">
@@ -2818,7 +2817,7 @@
           <div class="admin-audit-list" id="admin-access-audit"><p class="admin-empty">Las acciones sensibles aparecerán aquí.</p></div>
         </section>
 
-        <a class="admin-legacy-link" href="asistencia.html?modo=dispositivos">Abrir Marcado propio en el panel anterior ↗</a>
+        <a class="admin-legacy-link" href="asistencia.html?modo=dispositivos">Abrir Acceso y marcado en el panel anterior ↗</a>
       </section>
     </section>
   </main>
@@ -3726,7 +3725,7 @@
 <script src="assets/js/dashboard-announcement-modal.js?v=5"></script>
 <script src="assets/js/dashboard-month-progress.js?v=4"></script>
 <script src="assets/js/attendance-calendar-model.js?v=3"></script>
-<script src="assets/js/dashboard-person-calendar.js?v=4"></script>
+<script src="assets/js/dashboard-person-calendar.js?v=4-archive1"></script>
 <dialog id="personal-leave-history" class="admin-leave-review" aria-labelledby="personal-leave-history-title">
   <header><div><h2 id="personal-leave-history-title">Mis solicitudes de días libres</h2><p>Consulta las fechas y las respuestas de Dirección.</p></div><button type="button" data-close-personal-leave-history aria-label="Cerrar solicitudes">×</button></header>
   <p id="personal-leave-history-message" role="status" hidden></p>
@@ -3936,19 +3935,20 @@
 <script src="assets/js/dashboard-skeleton.js?v=8"></script>
 <script src="assets/js/reclutamiento-api.js?v=1"></script>
 <script src="assets/js/dashboard-avatar.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=282"></script>
+<script src="assets/js/dashboard.js?v=283-free-1-archive1"></script>
 <script src="assets/js/dashboard-reclutamiento.js?v=11"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
 <script src="assets/js/dashboard-zoom-embed.js?v=5"></script>
 <script src="assets/js/zoom-camera-model.js?v=4"></script>
 <script src="assets/js/zoom-camera-report.js?v=4"></script>
-<script src="assets/js/dashboard-zoom.js?v=14"></script>
+<script src="assets/js/dashboard-zoom.js?v=14-free-1"></script>
 <script src="assets/js/dashboard-cert-accounts.js?v=9"></script>
-<script src="assets/js/dashboard-leave-review.js?v=2"></script>
+<script src="assets/js/dashboard-leave-review.js?v=2-archive1"></script>
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=29"></script>
+<script src="assets/js/history-pages.js?v=1"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=areas-29-free-pages-1"></script>
 <!-- Documento del contrato: activo desde que se ejecutó supabase/dashboard_128_documento_contrato.sql (2026-10-29). -->
 <script>window.KJA_CONTRATO_DOCUMENTO=true;</script>
 <script src="assets/js/dashboard-contract-document.js?v=2"></script>
@@ -3956,26 +3956,26 @@
 <script src="assets/js/dashboard-areas.js?v=2"></script>
 <script src="assets/js/dashboard-area-picker.js?v=4"></script>
 <script src="assets/js/dashboard-date-picker.js?v=20261028_1"></script>
-<script src="assets/js/dashboard-editor-calendar.js?v=1"></script>
+<script src="assets/js/dashboard-editor-calendar.js?v=2"></script>
 <script src="assets/js/dashboard-editor-time.js?v=2"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=4"></script>
 <script src="assets/js/attendance-report-model.js?v=4"></script>
-<script src="assets/js/dashboard-attendance-report.js?v=4"></script>
+<script src="assets/js/dashboard-attendance-report.js?v=4-archive1"></script>
 <script src="assets/js/dashboard-person-profile.js?v=7"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=10"></script>
 <script src="assets/js/dashboard-attendance-preview.js?v=3"></script>
-<script src="assets/js/dashboard-people-workbench.js?v=2"></script>
-<script src="assets/js/dashboard-month-day-detail.js?v=13"></script>
+<script src="assets/js/dashboard-people-workbench.js?v=2-free-pages-1"></script>
+<script src="assets/js/dashboard-month-day-detail.js?v=13-archive1"></script>
 <script src="assets/js/dashboard-days-off-planner.js?v=1"></script>
-<script src="assets/js/dashboard-admin-mes.js?v=28"></script>
-<script src="assets/js/dashboard-admin-acceso.js?v=7"></script>
-<script src="assets/js/dashboard-admin-roles.js?v=13"></script>
-<script src="assets/js/dashboard-admin-cierre.js?v=58"></script>
-<script src="assets/js/dashboard-assignment-hours.js?v=3"></script>
+<script src="assets/js/dashboard-admin-mes.js?v=28-archive1"></script>
+<script src="assets/js/dashboard-admin-acceso.js?v=9"></script>
+<script src="assets/js/dashboard-admin-roles.js?v=history-13"></script>
+<script src="assets/js/dashboard-admin-cierre.js?v=58-free-3-archive1"></script>
+<script src="assets/js/dashboard-assignment-hours.js?v=3-free-1"></script>
 <script src="assets/js/dashboard-assignments.js?v=10"></script>
 <script src="assets/js/dashboard-admin-control.js?v=18"></script>
-<script src="assets/js/dashboard-admin-seguimiento.js?v=2"></script>
-<script src="assets/js/dashboard-admin-lateral.js?v=3"></script>
+<script src="assets/js/dashboard-admin-seguimiento.js?v=2-archive1"></script>
+<script src="assets/js/dashboard-admin-lateral.js?v=estatico-3"></script>
 <script src="assets/js/marketing-model.js?v=studio-16"></script>
 <dialog id="marketing-delete-dialog" class="marketing-delete-dialog" aria-labelledby="marketing-delete-title" aria-describedby="marketing-delete-description">
   <div class="marketing-delete-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6"/></svg></div>
@@ -4016,5 +4016,9 @@
 <script src="assets/js/dashboard-facebook-report.js?v=11"></script>
 <script src="assets/js/dashboard-pausa-activa.js?v=sondeo-60-1"></script>
 <script src="assets/js/dashboard-guided-tour.js?v=9"></script>
+<script src="assets/js/dashboard-access-workbench.js?v=2"></script>
+<script src="assets/js/dashboard-admin-field-controls.js?v=1"></script>
+<script src="assets/js/dashboard-contract-areas.js?v=2"></script>
+<script src="assets/js/dashboard-role-history.js?v=1"></script>
 </body>
 </html>

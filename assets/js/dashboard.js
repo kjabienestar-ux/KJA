@@ -311,14 +311,49 @@ function renderReviewNotifications(){
   list.innerHTML=state.items.length?reviewNotificationListMarkup(state.items):'<div class="review-notification-empty"><b>Aún no tienes notificaciones</b><p>Los mensajes, revisiones y nuevas asignaciones aparecerán aquí.</p></div>';
 }
 
-async function loadReviewNotifications({quiet=false}={}){
+function reviewNotificationScope(){
+  return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.inicio?.colaborador?.area_id,APP.access.rol,APP.identity.hasPersonal]);
+}
+
+function loadReviewNotifications({quiet=false,refresh=false}={}){
+  if(!APP.identity.hasPersonal)return Promise.resolve(null);
+  const scope=reviewNotificationScope(),pending=APP.notificationReadRequest;
+  if(pending?.scope===scope){
+    // A server event arriving during a read requires one subsequent read.
+    if(refresh)pending.refresh=true;
+    return pending.promise;
+  }
+  if(APP.notifications.deletingId!==null||(!pending&&APP.notifications.loading))return Promise.resolve(null);
+  const flight={scope,refresh:false,promise:null};
+  const current=()=>APP.notificationReadRequest===flight&&APP.identity.hasPersonal&&reviewNotificationScope()===scope;
+  APP.notificationReadRequest=flight;
+  flight.promise=Promise.resolve().then(async()=>{
+    let result=null;
+    do{
+      flight.refresh=false;
+      if(!current())return null;
+      result=await fetchReviewNotifications({quiet,current});
+    }while(current()&&flight.refresh);
+    return current()?result:null;
+  }).catch(error=>{
+    if(current()){
+      APP.notifications={...APP.notifications,loading:false,error:error?.message||'carga'};
+      renderReviewNotifications();
+      if(!quiet)toast('No pudimos actualizar tus notificaciones.',true);
+    }
+    return null;
+  }).finally(()=>{if(APP.notificationReadRequest===flight)APP.notificationReadRequest=null});
+  return flight.promise;
+}
+
+async function fetchReviewNotifications({quiet=false,current}={}){
   if(typeof loadEvidenceCorrections==='function')void loadEvidenceCorrections();
   if(!APP.identity.hasPersonal)return null;
   if(APP.notifications.deletingId!==null)return APP.notifications;
   const request=(APP.notifications.request||0)+1;
   APP.notifications={...APP.notifications,loading:true,error:'',request};renderReviewNotifications();
   const {data,error}=await db.rpc('dash_mis_notificaciones_revision',{p_limite:24});
-  if(request!==APP.notifications.request)return null;
+  if(!current()||request!==APP.notifications.request)return null;
   if(error||!data?.ok){
     const missing=error?.code==='PGRST202'||String(error?.message||'').includes('dash_mis_notificaciones_revision');
     APP.notifications={...APP.notifications,available:!missing,loading:false,error:missing?'':(error?.message||data?.motivo||'carga')};renderReviewNotifications();
@@ -372,7 +407,8 @@ async function deleteReviewNotification(id){
   const numericId=Number(id),index=APP.notifications.items.findIndex(item=>Number(item.id)===numericId);
   if(!Number.isFinite(numericId)||index<0)return;
   const removed=APP.notifications.items[index];
-  APP.notifications={...APP.notifications,deletingId:numericId};renderReviewNotifications();
+  APP.notificationReadRequest=null;
+  APP.notifications={...APP.notifications,loading:false,request:(APP.notifications.request||0)+1,deletingId:numericId};renderReviewNotifications();
   $('review-notification-panel').focus({preventScroll:true});
   const {data,error}=await db.rpc('dash_eliminar_notificacion_revision',{p_id:numericId});
   if(error||!data?.ok){
@@ -395,11 +431,13 @@ async function startReviewNotificationSync(){
   clearInterval(APP.notificationTimer);APP.notificationTimer=null;
   if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}
   if(!APP.identity.hasPersonal)return;
+  const scope=reviewNotificationScope();
   await loadReviewNotifications({quiet:true});
+  if(!APP.identity.hasPersonal||reviewNotificationScope()!==scope)return;
   const collaboratorId=Number(APP.inicio?.colaborador?.id);
   if(Number.isFinite(collaboratorId)&&typeof db.channel==='function'){
     APP.notificationChannel=db.channel(`kja-notificaciones-${collaboratorId}`)
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'asis_notificaciones',filter:`colaborador_id=eq.${collaboratorId}`},()=>void loadReviewNotifications({quiet:true}))
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'asis_notificaciones',filter:`colaborador_id=eq.${collaboratorId}`},()=>void loadReviewNotifications({quiet:true,refresh:true}))
       .subscribe();
   }
   APP.notificationTimer=setInterval(()=>{if(!document.hidden)void loadReviewNotifications({quiet:true})},30000);
@@ -928,6 +966,7 @@ $('form-admin').addEventListener('submit',async e=>{
 });
 
 async function logout(message){
+  APP.notificationReadRequest=null;
   window.KJASeguimiento?.reset();
   clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(APP.notificationTimer);clearInterval(DASH_VERSION_TIMER);if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}document.title=BASE_DOCUMENT_TITLE;localStorage.removeItem(DEADLINE_KEY);localStorage.removeItem(SHELL_KEY);
   try{ await db.auth.signOut({scope:'local'}); }catch(e){}
@@ -1938,6 +1977,7 @@ function renderAttendanceActivity(){
   content.querySelectorAll('[data-attendance-activity]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.attendanceActivity)===content._activity)));
   const file=group.files[content._file],stage=$('attendance-compact-stage');
   if(!file){stage.innerHTML=`<div class="attendance-activity-empty"><b>${esc(group.titulo)}</b><p>${esc(group.detalle||'No hay archivos adjuntos en esta actividad.')}</p></div>`;}
+  else if(file.archived){stage.innerHTML=globalThis.KJAEvidenceArchive.markup();}
   else if(!file.url){stage.innerHTML='<div class="attendance-activity-empty"><b>No se pudo abrir este archivo</b><p>Revisa tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-attendance-day>Reintentar</button></div>';}
   else if((file.mime||'').startsWith('video/')){stage.innerHTML=`<video controls playsinline preload="metadata" src="${esc(file.url)}" aria-label="${esc(file.label)}"></video>`;}
   else if((file.mime||'image/').startsWith('image/')){stage.innerHTML=`<button class="attendance-compact-photo" type="button" data-attendance-evidence="${file.index}" aria-label="Ampliar ${esc(file.label||'evidencia')}"><img src="${esc(file.url)}" alt="${esc(file.label||'Evidencia')}" decoding="async"><span>Ampliar imagen</span></button>`;}
@@ -1985,8 +2025,8 @@ async function openAttendanceDay(date){
   }
   const evidences=await Promise.all((data.evidencias||[]).map(async item=>{
     try{
-      const {data:signed}=await db.storage.from(item.bucket).createSignedUrl(item.path,3600);
-      return {...item,url:signed?.signedUrl||''};
+      const {data:signed,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,item.bucket,item.path,3600)||db.storage.from(item.bucket).createSignedUrl(item.path,3600));
+      return {...item,archived:!!archived,url:signed?.signedUrl||''};
     }catch(error){return {...item,url:''};}
   }));
   if(request!==APP.attendanceDayRequest)return;
@@ -2872,8 +2912,9 @@ async function openTeamDayFile(value){
   const request=Symbol();preview._request=request;preview.hidden=false;
   preview.innerHTML='<p role="status">Cargando archivo…</p>';
   try{
-    const {data,error}=await db.storage.from(file.bucket).createSignedUrl(file.path,900);
+    const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,file.bucket,file.path,900)||db.storage.from(file.bucket).createSignedUrl(file.path,900));
     if(!preview.isConnected||preview._request!==request)return;
+    if(archived){preview.innerHTML=globalThis.KJAEvidenceArchive.markup();return;}
     if(error||!data?.signedUrl)throw new Error('archivo');
     const url=esc(data.signedUrl),label=esc(`${group.titulo} · archivo ${fileIndex+1}`);
     preview.innerHTML=`<b>${label}</b>${file.mime?.startsWith('image/')?`<img src="${url}" alt="${label}">`:file.mime?.startsWith('video/')?`<video controls playsinline src="${url}"></video>`:''}<a href="${url}" target="_blank" rel="noopener noreferrer">Abrir archivo completo ↗</a>
@@ -3198,7 +3239,7 @@ function withAdminSkeleton(section,fetchFn,options={}){
 async function showAdminSection(section){
   if(!APP.access.acceso_panel)return;
   if(APP.adminSection==='seguimiento'&&section!=='seguimiento'&&window.KJASeguimiento?.canLeave()===false)return;
-  if(section==='marcado'&&APP.access.rol!=='direccion'){toast('Marcado propio está reservado a Dirección.',true);section='overview'}
+  if(section==='marcado'&&APP.access.rol!=='direccion'){toast('Acceso y marcado está reservado a Dirección.',true);section='overview'}
   if(section==='control'&&APP.access.rol!=='direccion'){toast('El control diario está reservado a Dirección.',true);section='overview'}
   if(section==='roles'&&!(APP.identity.isSystem&&APP.access.rol==='direccion')){toast('Los roles están reservados al administrador de sistemas.',true);section='overview'}
   if(section==='ranking'&&APP.access.rol!=='direccion')section='overview';
@@ -3487,13 +3528,16 @@ async function openAdminStoredEvidence(path,bucket='asis-evidencias'){
   const firstOpen=modal.hidden;
   STORED_EVIDENCE_VIEWER.path=path;STORED_EVIDENCE_VIEWER.bucket=bucket;if(firstOpen)STORED_EVIDENCE_VIEWER.trigger=document.activeElement;
   const request=++STORED_EVIDENCE_VIEWER.request;
+  modal.querySelector('.evidence-archived')?.remove();
   image.onload=null;image.onerror=null;image.removeAttribute('src');image.hidden=true;errorBox.hidden=true;loading.hidden=false;
   $('stored-evidence-viewer-title').textContent=bucket===REQUEST_BUCKET?'Evidencia de solicitud':'Evidencia de asistencia';
   image.alt=bucket===REQUEST_BUCKET?'Evidencia adjunta a la solicitud':'Evidencia adjunta al registro de asistencia';
   modal.hidden=false;document.body.classList.add('stored-evidence-viewer-open');
   if(firstOpen)requestAnimationFrame(()=>modal.querySelector('[data-close-stored-evidence]:not(.modal-backdrop)').focus({preventScroll:true}));
   try{
-    const {data,error}=await db.storage.from(bucket).createSignedUrl(path,3600);
+    const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,bucket,path,3600)||db.storage.from(bucket).createSignedUrl(path,3600));
+    if(request!==STORED_EVIDENCE_VIEWER.request)return;
+    if(archived){loading.hidden=true;errorBox.hidden=true;image.insertAdjacentHTML('afterend',globalThis.KJAEvidenceArchive.markup());return;}
     if(error||!data?.signedUrl)throw error||new Error('url');
     if(request!==STORED_EVIDENCE_VIEWER.request)return;
     image.onload=()=>{if(request!==STORED_EVIDENCE_VIEWER.request)return;loading.hidden=true;errorBox.hidden=true;image.hidden=false};

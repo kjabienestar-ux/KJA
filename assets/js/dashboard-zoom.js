@@ -54,12 +54,24 @@
  const today=state.rows.filter(r=>r.status==='ready'&&(r.type===3||M.nextSession(r,now()).today)).length;
  $('zoom-home-access').querySelector('small').textContent=state.loaded?(today?today+' reunión'+(today===1?' disponible':'es disponibles')+' hoy':'Consulta tus salas y próximas reuniones'):'Consulta tus salas y horarios';
  }
- async function load(){
- if(!eligible()||state.busy)return;
- const request=++state.request,epoch=state.epoch;message('Consultando reuniones…');
+ function readScope(){
+ return JSON.stringify([APP.sessionUid,APP.identity.hasPersonal,APP.identity.isSystem,APP.access.rol,APP.access.acceso_panel,APP.inicio?.colaborador?.id,APP.inicio?.colaborador?.area_id]);
+ }
+ function load(){
+ if(!eligible()||state.busy)return Promise.resolve(false);
+ const scope=readScope(),pending=state.readFlight;
+ if(pending?.scope===scope&&pending.current())return pending.promise;
+ const request=++state.request,epoch=state.epoch,flight={scope,promise:null,current:null};
+ const current=()=>epoch===state.epoch&&request===state.request&&eligible()&&scope===readScope();
+ flight.current=current;state.readFlight=flight;
+ flight.promise=readMeetings(current).finally(()=>{if(state.readFlight===flight)state.readFlight=null});
+ return flight.promise;
+ }
+ async function readMeetings(current){
+ message('Consultando reuniones…');
  try{
  const {data,error}=await db.rpc('dash_zoom_listar');
- if(epoch!==state.epoch||request!==state.request)return;
+ if(!current())return false;
  if(error||!data?.ok)throw Error(error?.code==='PGRST202'?'La sección de reuniones está pendiente de activación por Sistemas.':'No se pudieron consultar las reuniones. Actualiza la lista o vuelve a iniciar sesión.');
  state.admin=manages()&&data.admin===true;state.rows=data.meetings||[];state.areas=data.areas||[];state.people=data.people||[];state.offset=Date.parse(data.now)-Date.now();state.loaded=true;
  $('nav-zoom').hidden=!state.admin;$('zoom-settings').hidden=!state.admin;
@@ -70,7 +82,8 @@
  $('zoom-footnote').textContent=state.admin?'Horarios en Lima. Los cambios hechos directamente en Zoom se recuperan con «Actualizar desde Zoom» en cada sala.':'Horarios en Lima. El botón abre Zoom; la admisión depende del anfitrión.';
  message('');render();if($('zoom-quick-dialog').open)renderQuick();
  if(state.admin&&!state.hosts.length)$('zoom-connection-text').textContent='Comprueba la conexión para cargar los anfitriones de la cuenta institucional.';
- }catch(error){if(epoch!==state.epoch||request!==state.request)return;state.rows=[];state.loaded=false;render();$('zoom-list').innerHTML='';message(error.message);}
+ return true;
+ }catch(error){if(!current())return false;state.rows=[];state.loaded=false;render();$('zoom-list').innerHTML='';message(error.message);return false;}
  }
  async function hosts(){
  const list=[];let next='';
@@ -233,6 +246,7 @@
  });
 
  function reset(){
+ state.readFlight=null;
  cameraReport?.close();
  window.KJAZoomEmbed?.reset();
  $('zoom-quick-dialog').close();$('zoom-quick-list').innerHTML='';$('zoom-quick-message').textContent='';

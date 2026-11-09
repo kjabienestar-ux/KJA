@@ -76,7 +76,7 @@ async function saveAssignmentHours(event){
     $('assignment-hours-save').textContent='Guardar';paintAssignmentHoursLabel();previewAssignmentHours();
   }
   if(ASSIGNMENT_HOURS.current!==null){
-    try{await loadAdminCloses({quiet:true})}catch{/* El margen ya está guardado. */}
+    try{await loadAdminCloses({quiet:true,refresh:true})}catch{/* El margen ya está guardado. */}
   }
 }
 // Se consulta al entrar a la sección para que el botón de la cabecera muestre el plazo vigente.
