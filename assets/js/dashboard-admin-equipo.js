@@ -384,15 +384,18 @@ function updateAdminEditorConditions(){
   if(typeof configurePeopleEditor==='function')configurePeopleEditor((APP.adminTeam?.personas||[]).find(p=>String(p.id)===$('admin-person-id').value)||null);
 }
 
+function adminHistoryScope(){return JSON.stringify([APP.sessionUid,APP.access.rol,APP.access.acceso_panel,APP.inicio?.colaborador?.area_id]);}
 async function loadAdminPersonHistory(id,request=ADMIN_EDITOR_REQUEST){
-  let result;try{result=await db.rpc('dash_admin_historial_colaborador',{p_colab:Number(id)});}catch(_error){result={error:true};}
-  if(request!==ADMIN_EDITOR_REQUEST||$('admin-person-modal').hidden)return;
-  const {data,error}=result;
-  if(error||!data?.ok){$('admin-history-list').innerHTML='<p>No se pudo cargar el historial.</p>';return}
+ return KJAHistoryPages.open({container:$('admin-history-list'),rpc:(name,args)=>db.rpc(name,args),
+  name:'dash_admin_historial_colaborador_pagina',legacy:'dash_admin_historial_colaborador',id,key:'historial',
+  scope:adminHistoryScope,isCurrent:()=>request===ADMIN_EDITOR_REQUEST&&!$('admin-person-modal').hidden,
+  render:(items,data)=>{
   const labels={horario:'Horario y modalidad',horas_contrato:'Meta de horas',fechas:'Fechas y datos del contrato',otro:'Identidad o estado'};
-  const history=data.historial||[];
-  const review=history.some(h=>h.tipo==='horas_contrato'&&history.some(x=>['horario','fechas'].includes(x.tipo)&&x.created_at&&x.created_at===h.created_at));
-  $('admin-history-list').innerHTML=(review?'<p role="status">Revisar meta contractual: hubo cambios de horas junto con fechas u horarios. Compara la meta con el contrato; una simulación anterior pudo haberla reemplazado.</p>':'')+(history.length?history.slice(0,12).map(h=>`<article><time>${adminDate(h.fecha)}</time><span><b>${esc(labels[h.tipo]||h.tipo)}${h.tipo==='horas_contrato'?' · '+esc(h.horas_anterior??'Sin definir')+' → '+esc(h.horas_nueva??'Sin definir')+' h':''}</b><small>${esc(h.nota||'Sin motivo registrado')}${h.creado_por?' · '+esc(h.creado_por):''}</small></span></article>`).join(''):'<p>Sin cambios registrados.</p>');
+  const history=items;
+  const reviewHistory=data.historial||history;
+  const review=data.revisar_meta===true||reviewHistory.some(h=>h.tipo==='horas_contrato'&&reviewHistory.some(x=>['horario','fechas'].includes(x.tipo)&&x.created_at&&x.created_at===h.created_at));
+  $('admin-history-list').innerHTML=(review?'<p role="status">Revisar meta contractual: hubo cambios de horas junto con fechas u horarios. Compara la meta con el contrato; una simulación anterior pudo haberla reemplazado.</p>':'')+(history.length?history.map(h=>`<article><time>${adminDate(h.fecha)}</time><span><b>${esc(labels[h.tipo]||h.tipo)}${h.tipo==='horas_contrato'?' · '+esc(h.horas_anterior??'Sin definir')+' → '+esc(h.horas_nueva??'Sin definir')+' h':''}</b><small>${esc(h.nota||'Sin motivo registrado')}${h.creado_por?' · '+esc(h.creado_por):''}</small></span></article>`).join(''):'<p>Sin cambios registrados.</p>');
+  }});
 }
 
 async function createAdminArea(){
@@ -502,7 +505,7 @@ function syncDaysOffMode(mode='add'){
   $('admin-days-off-save').textContent=value==='add'?'Agregar días':'Descontar días';
 }
 function renderDaysOffHistory(items=[]){
-  $('admin-days-off-history').innerHTML=items.length?items.slice(0,12).map(item=>{
+  $('admin-days-off-history').innerHTML=items.length?items.map(item=>{
     const amount=Number(item.cantidad)||0,date=new Date(item.creado_at).toLocaleString('es-PE',{dateStyle:'medium',timeStyle:'short',timeZone:'America/Lima'});
     return `<article><b class="${amount>0?'plus':'minus'}">${amount>0?'+':''}${amount}</b><span><strong>${esc(item.motivo)}</strong><small>${esc(item.actor||'Dirección')} · ${esc(date)}</small></span><em>${item.saldo_anterior} → ${item.saldo_resultante}</em></article>`;
   }).join(''):'<p class="empty">Todavía no hay movimientos para esta persona.</p>';
@@ -515,15 +518,18 @@ async function openAdminDaysOff(id,trigger=null){
   $('admin-days-off-balance').textContent=person.dias_libres_saldo??'—';$('admin-days-off-amount').value='1';$('admin-days-off-reason').value='';
   paintPersonAvatar($('admin-days-off-avatar'),person);syncDaysOffMode('add');daysOffMessage('');
   $('admin-days-off-history').innerHTML='<p class="empty">Cargando movimientos…</p>';$('admin-days-off-modal').hidden=false;document.body.style.overflow='hidden';
-  const {data,error}=await db.rpc('dash_admin_dias_libres',{p_colab:Number(person.id)});
-  if(ADMIN_DAYS_OFF.person!==person)return;
-  if(error||!data?.ok){
-    const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_dias_libres'));
-    daysOffMessage(missing?'Falta instalar la migración de días libres en Supabase.':'No se pudo cargar el saldo. Actualiza e inténtalo nuevamente.',true);
-    $('admin-days-off-save').disabled=true;renderDaysOffHistory([]);return;
-  }
-  person.dias_libres_saldo=Number(data.persona?.saldo)||0;$('admin-days-off-balance').textContent=person.dias_libres_saldo;
-  $('admin-days-off-save').disabled=false;renderDaysOffHistory(data.movimientos||[]);setTimeout(()=>$('admin-days-off-amount').focus(),20);
+  $('admin-days-off-save').disabled=true;await loadAdminDaysOffHistory(person);setTimeout(()=>{if(ADMIN_DAYS_OFF.person===person&&!$('admin-days-off-modal').hidden)$('admin-days-off-amount').focus();},20);
+}
+async function loadAdminDaysOffHistory(person){
+ const loaded=await KJAHistoryPages.open({container:$('admin-days-off-history'),rpc:(name,args)=>db.rpc(name,args),
+  name:'dash_admin_dias_libres_pagina',legacy:'dash_admin_dias_libres',id:person.id,key:'movimientos',scope:adminHistoryScope,
+  isCurrent:()=>ADMIN_DAYS_OFF.person===person&&!$('admin-days-off-modal').hidden,
+  render:items=>renderDaysOffHistory(items),onData:data=>{
+   person.dias_libres_saldo=Number(data.persona?.saldo)||0;$('admin-days-off-balance').textContent=person.dias_libres_saldo;
+   $('admin-days-off-save').disabled=false;
+  }});
+ if(!loaded&&ADMIN_DAYS_OFF.person===person&&!$('admin-days-off-modal').hidden)$('admin-days-off-save').disabled=true;
+ return loaded;
 }
 function closeAdminDaysOff(){
   if(ADMIN_DAYS_OFF.busy)return;
@@ -544,7 +550,7 @@ async function saveAdminDaysOff(event){
   }
   ADMIN_DAYS_OFF.person.dias_libres_saldo=Number(data.saldo)||0;$('admin-days-off-balance').textContent=ADMIN_DAYS_OFF.person.dias_libres_saldo;
   $('admin-days-off-amount').value='1';$('admin-days-off-reason').value='';renderAdminPeople();toast(mode==='add'?'Días libres agregados.':'Saldo de días libres corregido.');
-  const refreshed=await db.rpc('dash_admin_dias_libres',{p_colab:Number(ADMIN_DAYS_OFF.person.id)});if(refreshed.data?.ok)renderDaysOffHistory(refreshed.data.movimientos||[]);
+  await loadAdminDaysOffHistory(ADMIN_DAYS_OFF.person);
   daysOffMessage('Movimiento guardado.');
 }
 
