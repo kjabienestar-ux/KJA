@@ -145,9 +145,15 @@
   .pw-card-identity p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pw-card>header .pw-tag{margin:0;grid-column:2;justify-self:start}
   .pw-card>header .avatar{grid-row:1/span 2}
+  /* Lápiz en la esquina superior derecha: acceso directo a «Editar colaborador». */
+  .pw-card{position:relative}
+  .pw-card>header:has(.pw-card-edit){padding-right:38px}
+  #portal #admin-people-section.pw-workbench .pw-card-edit{position:absolute;top:12px;right:12px;display:grid;place-items:center;width:34px;height:34px;min-width:34px;min-height:34px;margin:0;padding:0;border:1px solid #e6dfd8;border-radius:10px;background:#fff;color:#93472f;box-shadow:none;cursor:pointer;transition:background .15s,border-color .15s}
+  #portal #admin-people-section.pw-workbench .pw-card-edit svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  #portal #admin-people-section.pw-workbench .pw-card-edit:focus-visible{outline:3px solid #93472f;outline-offset:2px}
   .pw-modal .pw-check input{width:18px;height:18px;min-height:18px;padding:0}
   .pw-shift-head{display:grid;grid-template-columns:60px 1.3fr 1fr 1fr;gap:12px;padding:10px 14px;background:#f2ece5;color:#69635d;font-size:11px;font-weight:650}.pw-shift-head.pw-mixed{grid-template-columns:60px 1.2fr .8fr .8fr 1.1fr}
   .pw-more-filters{position:relative;flex-shrink:0}.pw-more-filters>summary{display:flex;align-items:center;min-height:44px;padding:10px 14px;border:1px solid #998b7f;border-radius:9px;background:#fcfaf7;color:#282622;font-size:13px;cursor:pointer;list-style:none}.pw-more-filters>summary::-webkit-details-marker{display:none}.pw-more-filters>div{position:absolute;right:0;top:calc(100% + 8px);z-index:5;min-width:240px;padding:14px;display:flex;flex-direction:column;gap:12px;background:#fcfaf7;border:1px solid #cbb9a6;border-radius:12px;box-shadow:0 8px 25px #30201520}
   #portal #admin-people-section.pw-workbench .pw-more-filters input[type=checkbox]{min-height:18px!important;width:18px;height:18px;padding:0}
-  @media (hover:hover){.pw-button:not(:disabled):hover,.pw-actions>summary:hover{background:#f5e8db}.pw-button.pw-primary:not(:disabled):hover{background:#8e432b}.pw-profile-tabs button:hover{color:#93472f}}
+  @media (hover:hover){#portal #admin-people-section.pw-workbench .pw-card-edit:hover{background:#f5e8db;border-color:#dcbfa9}.pw-button:not(:disabled):hover,.pw-actions>summary:hover{background:#f5e8db}.pw-button.pw-primary:not(:disabled):hover{background:#8e432b}.pw-profile-tabs button:hover{color:#93472f}}
 }

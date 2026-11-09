@@ -23,12 +23,11 @@
 <link rel="stylesheet" href="assets/css/paginas/assignment-delete.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/assignment-hours.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-layout.css?v=1">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=6">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js" defer></script>
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pending.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-claude.css?v=21">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=12">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-glass.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-user-glass.css?v=57">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-announcement.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pausa-activa.css?v=13">
@@ -65,7 +64,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workbench.css?v=1">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workbench.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=20261028_1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-preview.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
@@ -84,6 +83,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-seguimiento.css?v=3">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-facebook-report.css?v=10">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-pasar-lista.css?v=1">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-ranking.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-month-tramos.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-access-workbench.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-field-controls.css?v=1">
@@ -2521,93 +2521,136 @@
         </aside>
       </section>
 
-      <section id="admin-ranking-section" hidden aria-labelledby="ranking-title">
-        <header class="ranking-header">
-          <div>
-            <p class="eyebrow">RECONOCIMIENTO DEL EQUIPO <span class="ranking-beta-badge" id="ranking-month-badge">BETA</span></p>
-            <h2 id="ranking-title">Colaborador del mes</h2>
-            <p id="ranking-header-desc">Resultados provisionales · <strong>En desarrollo</strong>, los criterios pueden cambiar.</p>
+      <section id="admin-ranking-section" class="rk" hidden aria-labelledby="ranking-title" data-state="loading">
+        <header class="rk-card rk-head">
+          <div class="rk-top">
+            <div class="rk-title">
+              <p class="rk-eyebrow">Reconocimiento del equipo <span class="rk-badge" id="ranking-month-badge">BETA</span></p>
+              <h2 id="ranking-title">Colaborador del mes</h2>
+              <p id="ranking-header-desc">Resultados provisionales · <strong>en desarrollo</strong></p>
+            </div>
+            <div class="rk-ctrl">
+              <div class="rk-mnav">
+                <button type="button" id="ranking-month-prev" class="rk-mnav-btn" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg></button>
+                <input type="month" id="ranking-month" hidden aria-label="Mes del ranking">
+                <details class="rk-month-picker" id="ranking-month-picker"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg><span id="ranking-month-label">Seleccionar mes</span><svg class="rk-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9.5 6 6 6-6"/></svg></summary><div class="rk-month-popover"><div class="rk-year-nav"><button type="button" id="ranking-year-prev" aria-label="Año anterior">‹</button><b id="ranking-picker-year"></b><button type="button" id="ranking-year-next" aria-label="Año siguiente">›</button></div><div id="ranking-month-options"></div></div></details>
+                <button type="button" id="ranking-month-next" class="rk-mnav-btn" aria-label="Mes siguiente" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
+              </div>
+              <button type="button" id="ranking-month-today" class="rk-btn">Mes actual</button>
+              <div class="rk-select" id="ranking-area-select">
+                <button type="button" class="rk-select-trigger" id="ranking-area-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="ranking-area-menu" aria-label="Filtrar por área: Todas las áreas"><small>Área:</small><span id="ranking-area-label">Todas las áreas</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9.5 6 6 6-6"/></svg></button>
+                <div class="rk-select-menu" id="ranking-area-menu" role="listbox" aria-label="Áreas" hidden></div>
+                <select id="ranking-area" class="sr-only" tabindex="-1" aria-hidden="true"><option value="">Todas las áreas</option></select>
+              </div>
+              <button type="button" id="ranking-help-open" class="rk-btn rk-btn-soft" aria-haspopup="dialog" aria-controls="ranking-help"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.01"/></svg>Cómo se calcula</button>
+            </div>
           </div>
-          <div class="ranking-month-nav">
-            <button type="button" id="ranking-month-prev" class="ranking-month-nav-btn" aria-label="Mes anterior">&#8249;</button>
-            <input type="month" id="ranking-month" hidden aria-label="Mes del ranking">
-            <details class="ranking-month-picker" id="ranking-month-picker"><summary id="ranking-month-label">Seleccionar mes</summary><div class="ranking-month-popover"><div class="ranking-year-nav"><button type="button" id="ranking-year-prev" aria-label="Año anterior">‹</button><b id="ranking-picker-year"></b><button type="button" id="ranking-year-next" aria-label="Año siguiente">›</button></div><div id="ranking-month-options"></div></div></details>
-            <button type="button" id="ranking-month-next" class="ranking-month-nav-btn" aria-label="Mes siguiente" disabled>&#8250;</button>
-            <button type="button" id="ranking-month-today" class="ranking-month-today-btn">Mes actual</button>
-          </div>
-        <div class="ranking-tools"><label>Área<select id="ranking-area"><option value="">Todas las áreas</option></select></label><button type="button" id="ranking-refresh">Actualizar datos</button></div>
-        <p id="ranking-status" role="status" aria-live="polite"></p>
+          <div class="rk-infos" id="ranking-infos"></div>
         </header>
-        <p class="ranking-notice"><strong>ⓘ</strong> Facebook cuenta en tus días asignados aunque no trabajes. Las asignaciones incumplidas solo descuentan puntos. Dirección debe revisar evidencias pendientes antes de otorgar el reconocimiento.</p>
-        <details class="ranking-explanation">
-          <summary>¿Cómo se ganan los puntos?</summary>
-          <p id="ranking-guide">Entrada puntual, RPE válido en jornadas virtuales, comparticiones de Facebook y salida en horario.</p>
-          <p><b>El mes empieza el día 1.</b> Cada criterio compara tus días cumplidos con sus días programados desde el inicio del mes. Los nuevos participan desde su ingreso: cumplir 5 de 10 días programados da la mitad de los puntos de ese criterio. Los días previos al ingreso no se registran como faltas.</p>
-          <p><b>RPE:</b> se evalúa solo en jornadas virtuales. Debe estar aprobado, tener archivo y haberse subido dentro de la jornada; también cuenta si Administración lo cargó para esa fecha. Un periodo completamente presencial recibe crédito neutral.</p>
-          <p><b>Facebook:</b> debe tener sus evidencias completas y aprobadas para el día asignado. Se usa la agenda de comparticiones, independiente de la jornada. Los archivos pendientes de revisión u observados no suman aún.</p>
-        </details>
-        <details class="ranking-formula"><summary>Opcional: cambiar cuánto vale cada criterio</summary><p>Los cuatro máximos deben sumar 100. Por ejemplo, cumplir todos los días de Facebook suma sus 30 puntos; cumplir la mitad suma 15. Los descuentos se configuran aparte. Estos ajustes solo simulan otra fórmula en esta página.</p><form id="ranking-form"><div id="ranking-weights"></div><button type="submit">Ver resultado con estos valores</button></form></details>
-
-
-        <details class="ranking-extra ranking-area-leaders"><summary>Líderes por área</summary><div id="ranking-leaders" class="ranking-leaders"></div></details>
-        <div class="ranking-analytics"><section id="ranking-chart" class="ranking-chart" aria-label="Comparación de puntajes"></section><div class="ranking-analytics-side"><div id="ranking-sticky-bar" class="ranking-summary-strip" aria-label="Resumen global de métricas" hidden>
-          <div class="ranking-summary-inner">
-            <div class="ranking-summary-indicators" id="ranking-sticky-indicators"></div>
-            <button class="ranking-summary-leader" id="ranking-sticky-leader" type="button" hidden aria-label="Ver detalle del líder"></button>
+        <div class="rk-banner" id="ranking-status" role="status" aria-live="polite"></div>
+        <div class="rk-banner rk-banner-mid" id="ranking-sim-banner" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 3 19.5h18Z"/><path d="M12 10v4.5M12 17v.01"/></svg>
+          <div><b>Estás viendo una simulación.</b> <span id="ranking-sim-text"></span> No se guarda ni cambia registros.</div>
+          <button type="button" id="ranking-sim-reset" class="rk-btn rk-btn-sm">Volver a la fórmula oficial</button>
+        </div>
+        <div class="rk-body">
+          <div class="rk-kpis" id="ranking-kpis" role="group" aria-label="Resumen del mes"></div>
+          <div class="rk-main">
+            <section class="rk-card rk-podium-card" aria-labelledby="ranking-podium-title">
+              <header class="rk-card-head"><div><h3 id="ranking-podium-title">Podio provisional</h3><p>Tres primeras posiciones · pulsa una tarjeta para ver el desglose</p></div><span class="rk-tag rk-tag-rust" id="ranking-podium-tag">Se confirma al cerrar el mes</span></header>
+              <div class="rk-podium" id="ranking-podium"></div>
+            </section>
+            <section class="rk-card" aria-labelledby="ranking-criteria-title">
+              <header class="rk-card-head"><div><h3 id="ranking-criteria-title">Cumplimiento por criterio</h3><p>Días cumplidos sobre días programados</p></div></header>
+              <div class="rk-crit" id="ranking-criteria"></div>
+            </section>
           </div>
-          <span class="ranking-summary-area-label" id="ranking-sticky-area-label" hidden></span>
-        </div><section id="ranking-area-analytics" class="ranking-chart" aria-label="Cumplimiento por área"></section>        <section id="ranking-insights" aria-label="Explicación de los resultados"></section></div></div>
-
-
-
-        <details class="ranking-extra ranking-directory"><summary>Ver todos los participantes y sus puntajes</summary><div id="ranking-results"></div>
-        <nav id="ranking-pagination" aria-label="Páginas del ranking"></nav>
-        </details>
-        <details class="ranking-footnote-wrap">
-          <summary>Notas y limitaciones del ranking</summary>
-          <p class="ranking-footnote">Se evalúan fechas hasta ayer y solo franjas ya terminadas. Las justificaciones excluyen la jornada, pero Facebook conserva su agenda propia. Se usan el área y los horarios actuales: los cambios pueden modificar meses anteriores. No incluye cuentas inactivas. Los empates conservan la posición. Este ranking mide los cuatro requisitos indicados; no otorga puntos por horas extra ni evalúa reuniones.</p>
-        </details>
+          <section class="rk-card rk-table-card" aria-labelledby="ranking-table-title">
+            <header class="rk-card-head">
+              <div><h3 id="ranking-table-title">Clasificación del equipo</h3><p id="ranking-table-sub">Pulsa una fila para ver el desglose</p></div>
+              <div class="rk-tools">
+                <label class="rk-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input type="search" id="ranking-search" placeholder="Buscar colaborador…" aria-label="Buscar colaborador" autocomplete="off"></label>
+                <div class="rk-seg" id="ranking-filters" role="group" aria-label="Filtrar la clasificación"></div>
+              </div>
+            </header>
+            <div class="rk-table-wrap" id="ranking-table-wrap"><table class="rk-table" id="ranking-results"></table></div>
+            <footer class="rk-table-foot">
+              <div class="rk-legend"><span><i class="hi"></i>85 o más</span><span><i class="mid"></i>65 a 84</span><span><i class="lo"></i>Menos de 65</span><span>Los empates comparten posición</span></div>
+              <nav id="ranking-pagination" class="rk-pager" aria-label="Páginas del ranking"></nav>
+            </footer>
+          </section>
+          <div class="rk-insights" id="ranking-insights" aria-label="Lectura del mes"></div>
+          <div class="rk-areas">
+            <section class="rk-card" aria-labelledby="ranking-areas-title">
+              <header class="rk-card-head rk-card-head-line"><div><h3 id="ranking-areas-title">Áreas</h3><p>Promedio de puntajes evaluables y líder de cada área</p></div><span class="rk-tag" id="ranking-areas-count"></span></header>
+              <div id="ranking-area-analytics" class="rk-area-list"></div>
+            </section>
+            <section class="rk-card rk-area-detail" id="ranking-area-detail" aria-live="polite"></section>
+          </div>
+        </div>
       </section>
 
-      <!-- ── Modal de detalle de participante (Ranking) ──────── -->
-      <div id="ranking-detail-modal" class="ranking-detail-modal" hidden aria-modal="true" role="dialog" aria-labelledby="ranking-detail-name">
-        <div class="modal-backdrop" data-close-ranking-detail tabindex="-1" aria-label="Cerrar detalle"></div>
-        <div class="ranking-detail-sheet" tabindex="-1">
-          <button class="modal-close" type="button" data-close-ranking-detail aria-label="Cerrar">✕</button>
-          <div class="ranking-detail-head">
-            <div class="ranking-detail-avatar" id="ranking-detail-avatar">KJ</div>
-            <div class="ranking-detail-identity">
-              <div class="ranking-detail-eyebrow-row">
-                <p class="eyebrow">RECONOCIMIENTO DEL EQUIPO</p>
-                <span class="ranking-detail-rank" id="ranking-detail-rank">#—</span>
-              </div>
+      <!-- ── Cómo se calcula el ranking ──────── -->
+      <div id="ranking-help" class="rk-drawer" hidden role="dialog" aria-modal="true" aria-labelledby="ranking-help-title">
+        <div class="rk-drawer-backdrop" data-close-ranking-help></div>
+        <aside class="rk-drawer-panel" tabindex="-1">
+          <header class="rk-drawer-head">
+            <button type="button" class="rk-x" data-close-ranking-help aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+            <p class="rk-eyebrow">Ranking mensual</p>
+            <h3 id="ranking-help-title">Cómo se calcula el puntaje</h3>
+            <p>Cuatro criterios suman 100 puntos. Cada uno compara los días cumplidos con los días programados desde el día 1. Quien ingresa a mitad de mes participa desde su ingreso: cumplir 5 de 10 días da la mitad de los puntos del criterio.</p>
+          </header>
+          <div class="rk-drawer-body">
+            <div class="rk-wbar" id="ranking-weight-bar"></div>
+            <div class="rk-rules" id="ranking-guide"></div>
+            <div>
+              <p class="rk-sec">Reglas del mes</p>
+              <ul class="rk-bul">
+                <li>Se evalúan fechas hasta ayer y solo franjas ya terminadas.</li>
+                <li>Facebook cuenta en tus días asignados aunque no trabajes. Las justificaciones excluyen la jornada, pero Facebook conserva su agenda.</li>
+                <li>Dirección debe revisar las evidencias pendientes antes de otorgar el reconocimiento.</li>
+                <li>Los empates conservan la posición. No otorga puntos por horas extra ni evalúa reuniones.</li>
+              </ul>
+            </div>
+            <form id="ranking-form" class="rk-sim" novalidate>
+              <div class="rk-sim-head"><b>Simular otra fórmula</b><span class="rk-tag" id="ranking-weight-total"></span></div>
+              <div class="rk-sim-grid" id="ranking-weights"></div>
+              <p class="rk-sim-error" id="ranking-form-error" role="alert"></p>
+              <div class="rk-sim-foot"><span>Solo cambia esta vista. No se guarda ni otorga premios.</span><button type="submit" class="rk-btn rk-btn-primary rk-btn-sm">Ver resultado</button></div>
+            </form>
+            <p class="rk-foot-note">Se usan el área y los horarios actuales: los cambios pueden modificar meses anteriores. No incluye cuentas inactivas.</p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- ── Detalle de participante (Ranking) ──────── -->
+      <div id="ranking-detail-modal" class="rk-modal" hidden aria-modal="true" role="dialog" aria-labelledby="ranking-detail-name">
+        <div class="rk-modal-backdrop" data-close-ranking-detail></div>
+        <div class="rk-modal-sheet" tabindex="-1">
+          <button class="rk-x" type="button" data-close-ranking-detail aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+          <header class="rk-m-head">
+            <div class="rk-av rk-av-xl" id="ranking-detail-avatar">KJ</div>
+            <div class="rk-m-identity">
+              <p class="rk-eyebrow">Reconocimiento del equipo <span class="rk-tag" id="ranking-detail-rank">—</span></p>
               <h2 id="ranking-detail-name">Colaborador</h2>
               <p id="ranking-detail-area">Área</p>
             </div>
-            <div class="ranking-detail-score-block">
-              <strong class="ranking-detail-score" id="ranking-detail-score">—</strong>
-              <small>/ 100 puntos</small>
-            </div>
+            <div class="rk-m-score"><strong id="ranking-detail-score">—</strong><small>de 100 puntos <span class="rk-tag" id="ranking-detail-level"></span></small></div>
+          </header>
+          <div class="rk-facts">
+            <div><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg><span><small>Ingreso</small><b id="ranking-detail-start">—</b></span></div>
+            <div><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg><span><small>Participación</small><b id="ranking-detail-participation">—</b></span></div>
+            <div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span><small>Asistencia</small><b id="ranking-detail-days">—</b></span></div>
           </div>
-          <div class="ranking-detail-body">
-            <div class="ranking-detail-criteria">
-              <h3>Desglose por criterio</h3>
-              <div class="ranking-detail-criteria-grid" id="ranking-detail-criteria-grid"></div>
+          <div class="rk-m-body">
+            <div>
+              <h3 class="rk-sec">Desglose por criterio</h3>
+              <div class="rk-m-criteria" id="ranking-detail-criteria-grid"></div>
             </div>
-            <div class="ranking-detail-meta">
-              <div class="ranking-detail-evidence">
-                <h3>Evidencias</h3>
-                <dl class="ranking-detail-dl" id="ranking-detail-evidence-dl"></dl>
-              </div>
-              <div class="ranking-detail-penalties">
-                <h3>Descuentos</h3>
-                <dl class="ranking-detail-dl" id="ranking-detail-penalties-dl"></dl>
-              </div>
-            </div>
-            <div class="ranking-detail-footer">
-              <span><small>Ingreso</small><b id="ranking-detail-start">—</b></span>
-              <span><small>Participación</small><b id="ranking-detail-participation">—</b></span>
-              <span><small>Asistencia</small><b id="ranking-detail-days">—</b></span>
+            <p class="rk-equation" id="ranking-detail-equation"></p>
+            <div class="rk-m-two">
+              <div><h3 class="rk-sec">Evidencias</h3><dl class="rk-stats" id="ranking-detail-evidence-dl"></dl></div>
+              <div><h3 class="rk-sec">Descuentos</h3><dl class="rk-stats" id="ranking-detail-penalties-dl"></dl></div>
             </div>
           </div>
         </div>
@@ -3889,7 +3932,7 @@
 </dialog>
 
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard-skeleton.js?v=7"></script>
+<script src="assets/js/dashboard-skeleton.js?v=8"></script>
 <script src="assets/js/reclutamiento-api.js?v=1"></script>
 <script src="assets/js/dashboard-avatar.js?v=3"></script>
 <script src="assets/js/dashboard.js?v=283-free-1-archive1-personal-free-1"></script>
@@ -3963,7 +4006,7 @@
 <script src="assets/js/dashboard-chat.js?v=25"></script>
 <script src="assets/js/dashboard-mobile.js?v=5"></script>
 <script src="assets/js/ranking-model.js?v=6"></script>
-<script src="assets/js/dashboard-ranking.js?v=15"></script>
+<script src="assets/js/dashboard-ranking.js?v=17"></script>
 <script src="assets/js/facebook-report-model.js?v=5"></script>
 <script src="assets/js/facebook-report-excel-layout.js?v=2"></script>
 <script src="assets/js/facebook-report-excel.js?v=4"></script>
