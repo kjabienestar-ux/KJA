@@ -1,6 +1,16 @@
 /* KJA · Administración de cierres y entregables diarios. */
 
 let ADMIN_REVIEW={personId:null,deliveryId:null,trigger:null,busy:false,request:0};
+function adminReviewScope(){return JSON.stringify([APP.sessionUid,APP.access.acceso_panel,APP.access.rol,APP.identity.isLeader,APP.inicio?.colaborador?.id,APP.inicio?.colaborador?.area_id]);}
+async function adminReviewSignedBatch(files){
+  const paths=[...new Set(files.map(file=>file.path))];
+  if(!paths.length)return new Map();
+  const {data,error}=await db.storage.from('asis-cierre-evidencias').createSignedUrls(paths,900);
+  if(error)throw error;
+  const signed=new Map((data||[]).map(item=>[item.path,item]));
+  for(const path of paths){const item=signed.get(path);if(!item?.signedUrl||item.error)throw Error('url');}
+  return signed;
+}
 let ADMIN_DRAW={key:'',selection:[]};
 let ADMIN_EVIDENCE={personId:null,requirement:'',assignment:null,files:[],trigger:null,busy:false};
 let ADMIN_MESSAGE={personId:null,trigger:null,busy:false};
@@ -452,7 +462,7 @@ function closeAdminReview({restoreFocus=true}={}){
 
 async function renderAdminReviewDelivery(id){
   const delivery=adminReviewDeliveries().find(item=>String(item.id)===String(id));if(!delivery)return;
-  ADMIN_REVIEW.deliveryId=delivery.id;const request=++ADMIN_REVIEW.request;
+  ADMIN_REVIEW.deliveryId=delivery.id;const request=++ADMIN_REVIEW.request,scope=adminReviewScope();
   [...$('admin-review-tabs').querySelectorAll('button')].forEach(button=>{const selected=String(button.dataset.adminReviewDelivery)===String(id);button.classList.toggle('active',selected);button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1});
   $('admin-review-evidence-title').textContent=adminReviewTitle(delivery);
   $('admin-review-evidence-meta').textContent=`${(delivery.archivos||[]).length} ${(delivery.archivos||[]).length===1?'archivo':'archivos'} · ${delivery.modalidad==='collage'?'Collage':delivery.requisito==='comparticiones'?'Capturas individuales':delivery.requisito==='salida'?'Foto de cierre':'Evidencia del día'}`;
@@ -472,16 +482,18 @@ async function renderAdminReviewDelivery(id){
   const gallery=$('admin-review-gallery');gallery.dataset.single='';gallery.dataset.count='0';gallery.innerHTML='<p class="admin-review-loading">Generando vistas privadas…</p>';
   const files=delivery.archivos||[];
   try{
+    const urls=await adminReviewSignedBatch(files);
+    if(request!==ADMIN_REVIEW.request||scope!==adminReviewScope()||!adminReviewDeliveries().includes(delivery))return;
     const signed=await Promise.all(files.map(async file=>{
-      const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,'asis-cierre-evidencias',file.path,900)||db.storage.from('asis-cierre-evidencias').createSignedUrl(file.path,900));
-      if(archived)return {...file,archived:true,kind:{key:'archived'}};
-      if(error||!data?.signedUrl)throw error||new Error('url');
+      const item=urls.get(file.path);
+      if(item.archived)return {...file,archived:true,kind:{key:'archived'}};
+      const url=item.signedUrl;
       // Los documentos de Office no se pueden mostrar en el navegador: se ofrece también la descarga.
       const kind=adminReviewFileKind(file);let download='';
       if(kind.office){const res=await db.storage.from('asis-cierre-evidencias').createSignedUrl(file.path,900,{download:true});download=res.data?.signedUrl||''}
-      return {...file,url:data.signedUrl,download,kind};
+      return {...file,url,download,kind};
     }));
-    if(request!==ADMIN_REVIEW.request)return;
+    if(request!==ADMIN_REVIEW.request||scope!==adminReviewScope()||!adminReviewDeliveries().includes(delivery))return;
     gallery.dataset.count=String(signed.length);
     gallery.dataset.single=signed.length===1?signed[0].kind.key:'';
     gallery.innerHTML=signed.length?signed.map((file,index)=>adminReviewFileMarkup(file,index,signed.length,delivery)).join(''):'<p class="admin-review-loading">Esta entrega no contiene archivos.</p>';
