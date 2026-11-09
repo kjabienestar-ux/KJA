@@ -468,7 +468,7 @@ function closeAdminReview({restoreFocus=true}={}){
   ADMIN_REVIEW={personId:null,deliveryId:null,trigger:null,busy:false,request:ADMIN_REVIEW.request+1};
 }
 
-async function renderAdminReviewDelivery(id){
+async function renderAdminReviewDelivery(id,fileIndex=0){
   const delivery=adminReviewDeliveries().find(item=>String(item.id)===String(id));if(!delivery)return;
   ADMIN_REVIEW.deliveryId=delivery.id;const request=++ADMIN_REVIEW.request,scope=adminReviewScope();
   [...$('admin-review-tabs').querySelectorAll('button')].forEach(button=>{const selected=String(button.dataset.adminReviewDelivery)===String(id);button.classList.toggle('active',selected);button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1});
@@ -488,7 +488,9 @@ async function renderAdminReviewDelivery(id){
   $('admin-review-observe').disabled=closed&&delivery.requisito!=='comparticiones';
   adminReviewMessage(!canDecide?'Consulta privada de tu área. Solo Dirección puede aprobar o solicitar correcciones.':closed&&!reviewed&&delivery.requisito!=='comparticiones'?'La jornada ya fue cerrada: puedes aprobar y guardar una observación, pero el colaborador ya no puede reemplazar archivos.':'');
   const gallery=$('admin-review-gallery');gallery.dataset.single='';gallery.dataset.count='0';gallery.innerHTML='<p class="admin-review-loading">Generando vistas privadas…</p>';
-  const files=delivery.archivos||[];
+  const allFiles=delivery.archivos||[];
+  const selectedIndex=Number.isInteger(fileIndex)&&fileIndex>=0&&fileIndex<allFiles.length?fileIndex:0;
+  const files=allFiles.length?[allFiles[selectedIndex]]:[];
   try{
     const urls=await adminReviewSignedBatch(files);
     if(request!==ADMIN_REVIEW.request||scope!==adminReviewScope()||!adminReviewDeliveries().includes(delivery))return;
@@ -503,8 +505,9 @@ async function renderAdminReviewDelivery(id){
     }));
     if(request!==ADMIN_REVIEW.request||scope!==adminReviewScope()||!adminReviewDeliveries().includes(delivery))return;
     gallery.dataset.count=String(signed.length);
+    const navigation=allFiles.length>1?`<nav aria-label="Archivos de la entrega">${allFiles.map((file,index)=>`<button type="button" class="admin-review-file-action" data-admin-review-file="${index}" aria-pressed="${index===selectedIndex}">Archivo ${index+1} de ${allFiles.length}</button>`).join('')}</nav>`:'';
     gallery.dataset.single=signed.length===1?signed[0].kind.key:'';
-    gallery.innerHTML=signed.length?signed.map((file,index)=>adminReviewFileMarkup(file,index,signed.length,delivery)).join(''):'<p class="admin-review-loading">Esta entrega no contiene archivos.</p>';
+    gallery.innerHTML=signed.length?navigation+signed.map(file=>adminReviewFileMarkup(file,selectedIndex,allFiles.length,delivery)).join(''):'<p class="admin-review-loading">Esta entrega no contiene archivos.</p>';
   }catch(error){if(request===ADMIN_REVIEW.request&&scope===adminReviewScope()&&adminReviewDeliveries().includes(delivery))gallery.innerHTML='<p class="admin-review-error">No pudimos abrir las imágenes privadas. Comprueba que tu sesión y el área asignada sigan vigentes.</p>'}
 }
 
@@ -851,6 +854,7 @@ $('admin-close-assignment-form').onsubmit=submitAdminCloseAssignment;
 $('admin-close-assignments-refresh').onclick=()=>withAdminSkeleton(APP.adminSection,()=>loadAdminCloses({quiet:true,refresh:true}));
 $('admin-close-assignment-list').onclick=event=>{const button=event.target.closest('[data-cancel-admin-close]');if(button)cancelAdminCloseAssignment(button.dataset.cancelAdminClose)};
 $('admin-close-status').onclick=event=>{const recovery=event.target.closest('[data-admin-recover-exit]');if(recovery){void recoverAdminCloseExit(recovery.dataset.adminRecoverExit,recovery);return;}const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]'),message=event.target.closest('[data-admin-message-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminMissingEvidence(upload.dataset.adminUploadPerson,upload);if(message)openAdminMessage(message.dataset.adminMessagePerson,message)};
+$('admin-review-gallery').onclick=event=>{const button=event.target.closest('[data-admin-review-file]');if(button)renderAdminReviewDelivery(ADMIN_REVIEW.deliveryId,Number(button.dataset.adminReviewFile));};
 $('admin-review-tabs').onclick=event=>{const button=event.target.closest('[data-admin-review-delivery]');if(button)renderAdminReviewDelivery(button.dataset.adminReviewDelivery)};
 $('admin-review-approve').onclick=()=>submitAdminReview('aprobada');
 $('admin-review-observe').onclick=()=>submitAdminReview('observada');
