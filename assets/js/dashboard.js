@@ -4864,6 +4864,7 @@ function facebookShareReviewLabel(value){
 
 function resetFacebookShareModal(){
   globalThis.FacebookReceipt?.reset();
+  delete $('facebook-share-gallery').dataset.selected;
   $('facebook-share-gallery').setAttribute('aria-busy','true');
   $('facebook-share-gallery').innerHTML='<span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span>';
   $('facebook-share-gallery-meta').textContent='Preparando imágenes privadas…';
@@ -4892,39 +4893,72 @@ function populateFacebookShareDetails(data){
   $('facebook-share-comment').textContent=data.detalle||'Sin comentario adicional.';
 }
 
+function facebookShareScope(){return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.access?.rol,APP.access?.acceso_panel]);}
+function facebookShareCurrent(state){return FACEBOOK_SHARE===state&&state.scope===facebookShareScope()&&!$('facebook-share-modal').hidden;}
+async function facebookShareReceiptFiles(state){
+  if(!facebookShareCurrent(state))throw new Error('Comprobante cerrado.');
+  const files=state.data?.archivos||[],paths=[...new Set(files.map(file=>file.path))];
+  if(!paths.length)throw new Error('La entrega no tiene imágenes.');
+  const {data,error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrls(paths,900);
+  if(!facebookShareCurrent(state))throw new Error('Comprobante cerrado.');
+  if(error)throw new Error('No pudimos autorizar las capturas. Reintenta preparar el comprobante.');
+  const signed=new Map((data||[]).map(file=>[file.path,file]));
+  return files.map(file=>{
+    const item=signed.get(file.path);
+    if(!item?.signedUrl||item.error)throw new Error('No pudimos abrir todas las capturas. Reintenta preparar el comprobante.');
+    return {...file,url:item.signedUrl};
+  });
+}
+async function renderFacebookShareFile(index=0){
+  const state=FACEBOOK_SHARE,files=state.data?.archivos||[];
+  if(!facebookShareCurrent(state)||!Number.isInteger(index)||index<0||index>=files.length)return;
+  const request=state.fileRequest=(state.fileRequest||0)+1;
+  const current=()=>facebookShareCurrent(state)&&state.fileRequest===request;
+  const gallery=$('facebook-share-gallery'),focusLabel=gallery.contains(document.activeElement)?document.activeElement.textContent.trim():'';state.index=index;
+  const nav=`<nav class="facebook-share-navigation" aria-label="Capturas del comprobante"><button type="button" data-facebook-file="${index-1}" ${index===0?'disabled':''}>Anterior</button><span>Captura ${index+1} de ${files.length}</span><button type="button" data-facebook-file="${index+1}" ${index===files.length-1?'disabled':''}>Siguiente</button></nav>`;
+  gallery.dataset.selected='true';gallery.setAttribute('aria-busy','true');gallery.innerHTML=nav+'<p class="facebook-share-error" role="status">Preparando la captura seleccionada…</p>';
+  $('facebook-share-gallery-meta').textContent=`${files.length} ${files.length===1?'captura disponible':'capturas disponibles'} · selecciona para consultar`;
+  $('facebook-share-ready').textContent='Preparando';$('facebook-share-ready').dataset.state='loading';
+  try{
+    const file=files[index],{data,error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);
+    if(!current())return;
+    if(error||!data?.signedUrl)throw new Error('firma');
+    state.signed=[{...file,url:data.signedUrl}];
+    gallery.innerHTML=nav+`<figure><a href="${esc(data.signedUrl)}" target="_blank" rel="noopener" aria-label="Abrir captura ${index+1} en tamaño completo"><img src="${esc(data.signedUrl)}" alt="Captura ${index+1} de las comparticiones de Facebook" decoding="async"></a><figcaption><span><b>Captura ${String(index+1).padStart(2,'0')}</b><small>${Math.max(1,Math.round(Number(file.bytes||0)/1024))} KB</small></span><em>${index+1} de ${files.length}</em></figcaption></figure>`;
+    $('facebook-share-ready').textContent='Disponible';$('facebook-share-ready').dataset.state='ready';
+    if(!state.receiptReady&&globalThis.FacebookReceipt){
+      state.receiptReady=true;
+      void globalThis.FacebookReceipt.open(db,state.data,files,{resolveFiles:()=>facebookShareReceiptFiles(state),isCurrent:()=>facebookShareCurrent(state)});
+    }
+  }catch(error){
+    if(!current())return;
+    gallery.innerHTML=nav+`<p class="facebook-share-error">No pudimos abrir esta captura. Comprueba tu conexión e inténtalo nuevamente. <button type="button" data-facebook-file="${index}">Reintentar captura</button></p>`;
+    $('facebook-share-ready').textContent='Reintentar';$('facebook-share-ready').dataset.state='error';
+  }finally{if(current()){
+    gallery.setAttribute('aria-busy','false');
+    if(['Anterior','Siguiente'].includes(focusLabel)){const buttons=[...gallery.querySelectorAll('nav button:not(:disabled)')];(buttons.find(button=>button.textContent.trim()===focusLabel)||buttons[0])?.focus({preventScroll:true});}
+  }}
+}
 async function openFacebookShare(trigger){
   const modal=$('facebook-share-modal'),request=FACEBOOK_SHARE.request+1;
-  FACEBOOK_SHARE={trigger:trigger||document.activeElement,data:null,signed:[],request};
+  const state={trigger:trigger||document.activeElement,data:null,signed:[],request,scope:facebookShareScope(),fileRequest:0,receiptReady:false};FACEBOOK_SHARE=state;
   resetFacebookShareModal();modal.hidden=false;document.body.classList.add('facebook-share-open');
-  requestAnimationFrame(()=>$('facebook-share-modal').querySelector('.facebook-share-close').focus({preventScroll:true}));
-  const {data,error}=await db.rpc('dash_mi_comprobante_comparticiones');
-  if(request!==FACEBOOK_SHARE.request)return;
+  requestAnimationFrame(()=>{if(facebookShareCurrent(state))modal.querySelector('.facebook-share-close').focus({preventScroll:true});});
+  let data,error;try{({data,error}=await db.rpc('dash_mi_comprobante_comparticiones'));}catch(failure){error=failure;}
+  if(!facebookShareCurrent(state))return;
   if(error||!data?.ok){
-    const missing=error?.code==='PGRST202'||String(error?.message||'').includes('dash_mi_comprobante_comparticiones');
     $('facebook-share-gallery').setAttribute('aria-busy','false');
-    $('facebook-share-gallery').innerHTML=`<p class="facebook-share-error">${missing?'Ejecuta dashboard_30_compartir_evidencia_whatsapp.sql para preparar este comprobante.':'No pudimos cargar la evidencia privada. Actualiza e inténtalo nuevamente.'}</p>`;
+    $('facebook-share-gallery').innerHTML='<p class="facebook-share-error">No pudimos cargar la evidencia privada. Actualiza e inténtalo nuevamente.</p>';
     $('facebook-share-gallery-meta').textContent='Comprobante no disponible';$('facebook-share-ready').textContent='Sin cargar';$('facebook-share-ready').dataset.state='error';return;
   }
-  FACEBOOK_SHARE.data=data;populateFacebookShareDetails(data);
-  try{
-    const signed=await Promise.all((data.archivos||[]).map(async file=>{
-      const result=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);
-      if(result.error||!result.data?.signedUrl)throw result.error||new Error('firma');
-      return {...file,url:result.data.signedUrl};
-    }));
-    if(request!==FACEBOOK_SHARE.request)return;
-    FACEBOOK_SHARE.signed=signed;
-    if(signed.length)globalThis.FacebookReceipt?.open(db,data,signed);
-    const gallery=$('facebook-share-gallery');gallery.setAttribute('aria-busy','false');
-    gallery.innerHTML=signed.length?signed.map((file,index)=>`<figure><a href="${esc(file.url)}" target="_blank" rel="noopener" aria-label="Abrir captura ${index+1} en tamaño completo"><img src="${esc(file.url)}" alt="Captura ${index+1} de las comparticiones de Facebook" loading="${index<3?'eager':'lazy'}" decoding="async"></a><figcaption><span><b>Captura ${String(index+1).padStart(2,'0')}</b><small>${Math.max(1,Math.round(Number(file.bytes||0)/1024))} KB</small></span><em>${index+1} de ${signed.length}</em></figcaption></figure>`).join(''):'<p class="facebook-share-error">Esta entrega no contiene imágenes.</p>';
-    $('facebook-share-gallery-meta').textContent=`${signed.length} ${signed.length===1?'imagen completa':'imágenes completas'} · toca para ampliar`;
-    $('facebook-share-ready').textContent=signed.length?'Listas':'Sin imágenes';$('facebook-share-ready').dataset.state=signed.length?'ready':'error';
-  }catch{
-    if(request!==FACEBOOK_SHARE.request)return;
-    $('facebook-share-gallery').setAttribute('aria-busy','false');$('facebook-share-gallery').innerHTML='<p class="facebook-share-error">No pudimos abrir las imágenes privadas. Comprueba tu conexión e inténtalo nuevamente.</p>';
-    $('facebook-share-gallery-meta').textContent='Error al preparar archivos';$('facebook-share-ready').textContent='Reintentar';$('facebook-share-ready').dataset.state='error';
+  state.data=data;populateFacebookShareDetails(data);
+  if(!(data.archivos||[]).length){
+    $('facebook-share-gallery').setAttribute('aria-busy','false');$('facebook-share-gallery').innerHTML='<p class="facebook-share-error">Esta entrega no contiene imágenes.</p>';
+    $('facebook-share-gallery-meta').textContent='Sin capturas';$('facebook-share-ready').textContent='Sin imágenes';$('facebook-share-ready').dataset.state='error';return;
   }
+  await renderFacebookShareFile(0);
 }
+$('facebook-share-gallery').onclick=event=>{const button=event.target.closest('[data-facebook-file]');if(button&&!button.disabled)void renderFacebookShareFile(Number(button.dataset.facebookFile));};
 
 function closeFacebookShare({restoreFocus=true}={}){
   globalThis.FacebookReceipt?.reset();
