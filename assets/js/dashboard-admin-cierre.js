@@ -5,10 +5,18 @@ function adminReviewScope(){return JSON.stringify([APP.sessionUid,APP.access.acc
 async function adminReviewSignedBatch(files){
   const paths=[...new Set(files.map(file=>file.path))];
   if(!paths.length)return new Map();
-  const {data,error}=await db.storage.from('asis-cierre-evidencias').createSignedUrls(paths,900);
-  if(error)throw error;
-  const signed=new Map((data||[]).map(item=>[item.path,item]));
-  for(const path of paths){const item=signed.get(path);if(!item?.signedUrl||item.error)throw Error('url');}
+  let response;
+  try{response=await db.storage.from('asis-cierre-evidencias').createSignedUrls(paths,900)}catch(error){response={error}}
+  const signed=new Map((response.data||[]).map(item=>[item.path,item]));
+  await Promise.all(paths.map(async path=>{
+    const item=signed.get(path);
+    if(!response.error&&item?.signedUrl&&!item.error)return;
+    if(globalThis.KJAEvidenceArchive){
+      const status=await db.rpc('dash_archivo_archivado',{p_bucket:'asis-cierre-evidencias',p_path:path});
+      if(!status.error&&status.data?.archivado===true){signed.set(path,{path,archived:true});return;}
+    }
+    throw response.error||Error('url');
+  }));
   return signed;
 }
 let ADMIN_DRAW={key:'',selection:[]};
@@ -497,7 +505,7 @@ async function renderAdminReviewDelivery(id){
     gallery.dataset.count=String(signed.length);
     gallery.dataset.single=signed.length===1?signed[0].kind.key:'';
     gallery.innerHTML=signed.length?signed.map((file,index)=>adminReviewFileMarkup(file,index,signed.length,delivery)).join(''):'<p class="admin-review-loading">Esta entrega no contiene archivos.</p>';
-  }catch(error){if(request===ADMIN_REVIEW.request)gallery.innerHTML='<p class="admin-review-error">No pudimos abrir las imágenes privadas. Comprueba que tu sesión y el área asignada sigan vigentes.</p>'}
+  }catch(error){if(request===ADMIN_REVIEW.request&&scope===adminReviewScope()&&adminReviewDeliveries().includes(delivery))gallery.innerHTML='<p class="admin-review-error">No pudimos abrir las imágenes privadas. Comprueba que tu sesión y el área asignada sigan vigentes.</p>'}
 }
 
 const ADMIN_REVIEW_OPEN_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M19 5l-7 7M18 13v6H5V6h6"/></svg>';
