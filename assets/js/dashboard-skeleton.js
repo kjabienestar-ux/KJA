@@ -85,11 +85,12 @@
       fillMirrorSlot(clone,'admin-control-kpis',Array.from({length:4},()=>block('kja-sk-pill')).join(''));
       fillMirrorSlot(clone,'admin-control-table',cases(6));
     }else if(kind==='ranking'){
-      fillMirrorSlot(clone,'ranking-leaders',cards(3));
-      fillMirrorSlot(clone,'ranking-chart',chart());
-      fillMirrorSlot(clone,'ranking-area-analytics',chart());
-      fillMirrorSlot(clone,'ranking-insights',panel(3,false));
-      fillMirrorSlot(clone,'ranking-results',table(7,5,true));
+      fillMirrorSlot(clone,'ranking-kpis',Array.from({length:5},()=>`<article class="rk-card rk-kpi kja-sk-native-metric">${block('kja-sk-line w-68')}${block('kja-sk-number')}${block('kja-sk-line w-58')}</article>`).join(''));
+      fillMirrorSlot(clone,'ranking-podium',[120,150,104].map(height=>`<span class="kja-sk-block kja-sk-podium" style="height:${height}px"></span>`).join(''));
+      fillMirrorSlot(clone,'ranking-criteria',areaBars(4));
+      fillMirrorSlot(clone,'ranking-table-wrap',table(8,6,true));
+      fillMirrorSlot(clone,'ranking-insights',Array.from({length:3},()=>panel(1,false)).join(''));
+      fillMirrorSlot(clone,'ranking-area-analytics',areaBars(6));
     }else if(kind==='facebook'){
       const results=clone.querySelector('#fb-report-results');if(results)results.hidden=false;
       fillMirrorSlot(clone,'fb-report-kpis',`${panel(1,false)}${metrics(4)}${chart()}`,{reveal:true});
