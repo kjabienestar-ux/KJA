@@ -100,3 +100,26 @@ test('late legacy-editor responses cannot replace a newer person or their Facebo
   await first;assert.equal(w.$('admin-person-id').value,'2');assert.equal(vm.runInContext("ADMIN_FACEBOOK_SCHEDULE.horario['1'].ini",context),'10:00');
  }finally{dom.window.close();}
 });
+
+test('profile history is loaded only on its tab and pages retain every row',async()=>{
+ const {dom,w}=setup();try{
+  const calls=[];w.db.rpc=async(name,args)=>{calls.push({name,args});if(name==='dash_admin_horario_compartir')return {data:{ok:true,configurado:true,horario:{}}};if(name==='dash_admin_historial_colaborador_pagina'){const next=!!args.p_antes;return {data:{ok:true,historial:Array.from({length:next?2:12},(_,i)=>({id:(next?12:0)+i,fecha:'2026-11-01',tipo:'otro',nota:'Prueba'})),siguiente:next?null:{fecha:'2026-11-01',id:'1'}}};}throw Error('unexpected RPC '+name);};
+  await w.openPeopleProfile(1);assert.equal(calls.length,1);
+  w.$('pw-tab-historial').click();await new Promise(r=>setTimeout(r,0));
+  assert.equal(w.$('pw-history-page').querySelectorAll('tbody tr').length,12);assert.equal(calls[1].name,'dash_admin_historial_colaborador_pagina');assert.equal(calls[1].args.p_limite,12);
+  w.$('pw-history-page').querySelector('[data-history-page="next"]').click();await new Promise(r=>setTimeout(r,0));assert.equal(w.$('pw-history-page').querySelectorAll('tbody tr').length,2);
+  w.$('pw-history-page').querySelector('[data-history-page="previous"]').click();await new Promise(r=>setTimeout(r,0));assert.equal(w.$('pw-history-page').querySelectorAll('tbody tr').length,12);
+  assert.equal(calls.some(x=>x.name==='dash_admin_historial_colaborador'),false);
+ }finally{dom.window.close();}
+});
+
+test('PDF explicitly fetches the complete history instead of exporting the current page',async()=>{
+ const {dom,w}=setup();try{
+  await w.openPeopleProfile(1);let captured;
+  w.loadProfileAttendance=async()=>({ok:true});w.adminProfileSections=(person,extra)=>{captured=extra;return [];};
+  w.buildAdminProfilePdf=()=>({save:()=>{}});const original=w.db.rpc;
+  w.db.rpc=async(name,args)=>name==='dash_admin_historial_colaborador'?{data:{ok:true,historial:Array.from({length:29},(_,id)=>({id}))}}:original(name,args);
+  await w.handlePeopleProfileClick({target:w.$('pw-profile-dialog').querySelector('[data-pw-profile-pdf]')});
+  assert.equal(captured.history.historial.length,29);
+ }finally{dom.window.close();}
+});

@@ -139,7 +139,7 @@ async function openPeopleProfile(id,trigger){
   const state=PEOPLE_WORKBENCH,person=APP.adminTeam?.personas.find(p=>String(p.id)===String(id));if(!person)return;
   createPeopleDialogs();state.profile=person;state.profileTab='resumen';state.extra={loading:true};state.origin=trigger||document.activeElement;
   const request=++state.request;renderPeopleProfile();const dialog=$('pw-profile-dialog');if(!dialog.open)dialog.showModal();
-  const results=await Promise.allSettled([db.rpc('dash_admin_horario_compartir',{p_colab:Number(id)}),db.rpc('dash_admin_historial_colaborador',{p_colab:Number(id)})]);
+  const results=await Promise.allSettled([db.rpc('dash_admin_horario_compartir',{p_colab:Number(id)}),Promise.resolve({data:null})]);
   if(request!==state.request||!dialog.open)return;
   const value=result=>result.status==='fulfilled'&&!result.value.error&&result.value.data?.ok?result.value.data:null;
   state.extra={facebook:value(results[0]),history:value(results[1]),loading:false};renderPeopleProfile();
@@ -151,7 +151,7 @@ function peopleProfileBody(person,tab){
     return `<div class="pw-profile-columns"><section class="pw-panel"><header><h3>Jornada vigente</h3>${peopleTag(...peopleKind(person))}</header>${next?`<p class="pw-notice" data-pw-current-note>Este horario corresponde a hoy. Tienes ${next.tipo==='temporal'?'un horario temporal':'una nueva jornada principal'} desde el <b>${esc(adminDate(next.desde))}</b>; ${next.desde===peopleNextDate(peopleToday())?'empieza mañana.':'puedes consultarla más abajo.'}</p>`:''}${peopleWeekTable(person)}<p class="pw-period">${current?`${adminDate(current.desde)} → ${current.hasta?adminDate(current.hasta):'Fin indeterminado'}`:'Horario habitual de referencia'}</p>${person.jornada_finalizada?'<p class="pw-notice">Terminó la vigencia principal. No hay nuevas jornadas exigibles hasta programar otra.</p>':''}</section><aside>${canEdit?`<section class="pw-panel"><h3>Actualizar jornada principal</h3><p>Define un horario por contrato y desde cuándo aplica. La meta de horas se conserva.</p>${peopleButton('Actualizar jornada',`data-pw-shift="principal" ${enabled?'':'disabled'}`,true)}</section><section class="pw-panel"><h3>Horario temporal</h3><p>Una excepción con inicio y fin. Al vencer vuelve al principal vigente.</p>${peopleButton('Crear horario temporal',`data-pw-shift="temporal" ${enabled?'':'disabled'}`)}</section>${enabled?'':'<p class="pw-notice">La programación de jornadas aún no está habilitada para este equipo.</p>'}`:''}</aside></div>${peopleUpcomingMarkup(person)}<section class="pw-panel"><h3>Períodos registrados</h3>${periods.length?`<details class="pw-baseline"><summary>Horario habitual anterior a las vigencias</summary><p>Referencia conservada; no reconstruye cambios antiguos que no se registraron por fecha.</p>${peopleWeekTable(person,person.horario_semanal||{})}</details>`:''}${periods.length?periods.map(j=>`<article class="pw-timeline"><div>${peopleTag(j.tipo==='temporal'?'Temporal':'Principal',j.tipo==='temporal'?'warn':'neutral')}${j.desde>peopleToday()?peopleTag('Programada','warn'):''}<b>${esc(adminDate(j.desde))} → ${j.hasta?esc(adminDate(j.hasta)):'Fin indeterminado'}</b></div><p>${esc(j.motivo)}</p><details><summary>Ver semana de este período</summary>${peopleWeekTable(person,j.semana)}</details></article>`).join(''):'<p>No hay períodos creados desde esta función. Se conservan el horario habitual y los ajustes autorizados anteriores.</p>'}${(person.horarios_temporales||[]).length?`<details><summary>Ajustes por fecha anteriores</summary>${adminTemporaryScheduleMarkup(person)}</details>`:''}</section><section class="pw-panel"><h3>Comparticiones</h3><p>Conserva su agenda independiente de la nueva jornada.</p>${profileSectionsMarkup(adminProfileSections(person,state.extra).filter(s=>s.title==='Horario de Facebook'))}</section>`;
   }
   const sections=adminProfileSections(person,state.extra);
-  if(tab==='historial')return profileSectionsMarkup(sections.filter(s=>s.title==='Historial de cambios'))+(state.extra.loading?'<p class="pw-notice">Cargando historial…</p>':!state.extra.history?peopleButton('Reintentar consulta','data-pw-profile-retry'):'' );
+  if(tab==='historial')return '<div id="pw-history-page"><p class="pw-notice">Cargando historial…</p></div>';
   if(tab==='contrato')return profileSectionsMarkup(sections.filter(s=>['Contrato y avance','Voluntariado','Observaciones de seguimiento'].includes(s.title)))+`<section class="pw-panel"><h3>Documento contractual</h3>${typeof viewContractDocumentOf==='function'&&person.contrato_documento?peopleButton('Ver documento','data-pw-contract-document'):'<p>No hay documento disponible para consultar.</p>'}</section>`;
   return profileSectionsMarkup(sections.filter(s=>s.title==='Identidad y vínculo'))+`<section class="pw-panel"><header><h3>Jornada vigente</h3>${peopleTag(...peopleKind(person))}</header>${peopleWeekTable(person)}</section>`;
 }
@@ -160,6 +160,17 @@ function renderPeopleProfile(){
   const dialog=$('pw-profile-dialog'),oldTab=document.activeElement?.dataset.pwProfileTab;
   dialog.innerHTML=`<header class="pw-modal-head">${profileAvatarMarkup(p)}<div><p>FICHA DEL COLABORADOR</p><h2>${esc(p.nombre)}</h2><small>${esc(p.area||'Sin área')} · ${esc(ADMIN_LINKS[p.tipo_vinculo])} · DNI ${esc(p.dni||'sin registrar')}</small></div>${peopleButton('×','data-pw-profile-close aria-label="Cerrar ficha"')}</header><nav class="pw-profile-tabs" role="tablist" aria-label="Información de la persona">${[['resumen','Resumen'],['jornada','Jornada'],['contrato','Contrato'],['historial','Historial']].map(([id,label])=>`<button type="button" id="pw-tab-${id}" data-pw-profile-tab="${id}" role="tab" aria-selected="${state.profileTab===id}" aria-controls="pw-profile-content" tabindex="${state.profileTab===id?0:-1}">${label}</button>`).join('')}</nav><div class="pw-modal-body" id="pw-profile-content" role="tabpanel" aria-labelledby="pw-tab-${state.profileTab}" tabindex="0">${peopleProfileBody(p,state.profileTab)}</div><footer class="pw-modal-foot"><div>${peopleButton('Ver asistencias','data-pw-attendance')}${APP.access.rol==='direccion'?peopleButton(`Días libres${p.dias_libres_saldo==null?'':` · ${p.dias_libres_saldo}`}`,'data-pw-days-off'):''}</div><div>${peopleButton('Ficha PDF','data-pw-profile-pdf')}${APP.adminTeam.puede_editar?`<details class="pw-actions"><summary>Gestionar persona</summary><div>${peopleButton('Editar datos y contrato','data-pw-edit')}${peopleButton(p.activo?'Dar de baja':'Reactivar','data-pw-status')}${!p.activo?peopleButton('Eliminar definitivamente','data-pw-delete'):''}</div></details>`:''}</div></footer>`;
   if(oldTab)dialog.querySelector(`[data-pw-profile-tab="${CSS.escape(oldTab)}"]`)?.focus();
+  if(state.profileTab==='historial')loadPeopleHistoryPage(p,dialog);
+}
+function loadPeopleHistoryPage(person,dialog){
+ const container=$('pw-history-page'),request=PEOPLE_WORKBENCH.request;
+ return KJAHistoryPages.open({container,rpc:(name,args)=>db.rpc(name,args),name:'dash_admin_historial_colaborador_pagina',
+  legacy:'dash_admin_historial_colaborador',id:person.id,key:'historial',scope:adminHistoryScope,
+  isCurrent:()=>container.isConnected&&dialog.open&&PEOPLE_WORKBENCH.request===request&&PEOPLE_WORKBENCH.profile===person&&PEOPLE_WORKBENCH.profileTab==='historial',
+  render:(items,data)=>{
+   const extra={...PEOPLE_WORKBENCH.extra,history:{...data,historial:items}};
+   container.innerHTML=(data.revisar_meta===true?'<p class="pw-notice">Revisar meta contractual: hubo cambios de horas junto con fechas u horarios. Compara la meta con el contrato.</p>':'')+profileSectionsMarkup(adminProfileSections(person,extra).filter(section=>section.title==='Historial de cambios'));
+  }});
 }
 async function handlePeopleProfileClick(e){
   const b=e.target.closest('button');if(!b)return;
@@ -173,10 +184,11 @@ async function handlePeopleProfileClick(e){
     b.disabled=true;b.textContent='Preparando…';
     const request=state.request,live=()=>request===state.request&&APP.access.acceso_panel;
     try{
-      const [attendance,activity]=await Promise.all([loadProfileAttendance(p,peopleToday(),live),APP.access.rol==='direccion'?db.rpc('dash_reporte_facebook',{p_desde:peopleToday().slice(0,7)+'-01',p_hasta:peopleToday()}):Promise.resolve({data:null})]);
+      const [attendance,activity,history]=await Promise.all([loadProfileAttendance(p,peopleToday(),live),APP.access.rol==='direccion'?db.rpc('dash_reporte_facebook',{p_desde:peopleToday().slice(0,7)+'-01',p_hasta:peopleToday()}):Promise.resolve({data:null}),db.rpc('dash_admin_historial_colaborador',{p_colab:Number(p.id)})]);
       if(!live())return;
       if(!attendance?.ok)throw Error('No se pudo cargar el historial de asistencia. Reintenta la descarga.');
-      buildAdminProfilePdf(p,adminProfileSections(p,{...state.extra,attendance,activity:activity.data})).save(`KJA_Ficha_${String(p.id)}.pdf`);
+      if(history.error||!history.data?.ok)throw Error('No se pudo cargar el historial de cambios. Reintenta la descarga.');
+      buildAdminProfilePdf(p,adminProfileSections(p,{...state.extra,history:history.data,attendance,activity:activity.data})).save(`KJA_Ficha_${String(p.id)}.pdf`);
     }catch(error){toast(error.message||'No se pudo generar la ficha.',true);}finally{b.disabled=false;b.textContent='Ficha PDF';}return;
   }
   if(b.hasAttribute('data-pw-attendance')){
