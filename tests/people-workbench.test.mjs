@@ -115,11 +115,19 @@ test('profile history is loaded only on its tab and pages retain every row',asyn
 
 test('PDF explicitly fetches the complete history instead of exporting the current page',async()=>{
  const {dom,w}=setup();try{
-  await w.openPeopleProfile(1);let captured;
+  await w.openPeopleProfile(1);let captured,loaded=false;w.KJAFacebookPDF={load:async()=>{loaded=true}};
   w.loadProfileAttendance=async()=>({ok:true});w.adminProfileSections=(person,extra)=>{captured=extra;return [];};
-  w.buildAdminProfilePdf=()=>({save:()=>{}});const original=w.db.rpc;
+  w.buildAdminProfilePdf=()=>{assert.equal(loaded,true);return {save:()=>{}}};const original=w.db.rpc;
   w.db.rpc=async(name,args)=>name==='dash_admin_historial_colaborador'?{data:{ok:true,historial:Array.from({length:29},(_,id)=>({id}))}}:original(name,args);
   await w.handlePeopleProfileClick({target:w.$('pw-profile-dialog').querySelector('[data-pw-profile-pdf]')});
   assert.equal(captured.history.historial.length,29);
+ }finally{dom.window.close();}
+});
+
+test('PDF loader failure reports the problem before querying full history and restores the button',async()=>{
+ const {dom,w}=setup();try{await w.openPeopleProfile(1);let queried=false;
+ w.KJAFacebookPDF={load:async()=>{throw Error('No se pudo cargar el generador PDF.')}};w.db.rpc=async()=>{queried=true;throw Error('must not read')};
+ const button=w.$('pw-profile-dialog').querySelector('[data-pw-profile-pdf]');await w.handlePeopleProfileClick({target:button});
+ assert.equal(queried,false);assert.equal(button.disabled,false);assert.match(w.fixtureToasts.at(-1)[0],/generador PDF/);
  }finally{dom.window.close();}
 });
