@@ -568,9 +568,6 @@
 /* Ventana centrada sobre un fondo oscurecido, igual que el detalle de una persona. */
 #portal #ranking-help.rk-drawer { position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; padding: 24px; }
 #portal #ranking-help.rk-drawer[hidden] { display: none; }
-/* Las ventanas viven dentro de #workspace (z-index 1), así que el botón de Mensajes (z-index 90)
-   quedaría encima del fondo oscurecido: se oculta mientras alguna está abierta. */
-body:has(#ranking-help:not([hidden]), #ranking-detail-modal:not([hidden])) .kja-chat { visibility: hidden; }
 #portal #ranking-help .rk-drawer-backdrop { position: absolute; inset: 0; background: rgba(37, 37, 35, .42); animation: rkFade .2s ease; }
 #portal #ranking-help .rk-drawer-panel {
   position: relative; z-index: 1; display: flex; flex-direction: column; width: min(720px, 100%); max-height: calc(100dvh - 48px);

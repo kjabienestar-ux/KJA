@@ -85,7 +85,7 @@
     hint.append(jump);
     ledger.before(hint);
   }
-  const layers=[...document.querySelectorAll('.modal,.review-notification-layer')];
+  const layers=[...document.querySelectorAll('.modal')];
   function dialogs(){document.body.dataset.mobileDialogOpen=String(layers.some(el=>!el.hidden&&getComputedStyle(el).display!=='none'))}
   const observer=new MutationObserver(dialogs);layers.forEach(el=>observer.observe(el,{attributes:true,attributeFilter:['hidden','class','style']}));dialogs();
   const sidebar=document.getElementById('sidebar');

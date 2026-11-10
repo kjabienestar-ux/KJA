@@ -290,12 +290,6 @@
  .zoom-quick-footer{padding:16px 20px}
 }
 
-/* Shared mobile dock: 16px inset + 56px Messages + 12px gap. */
-@media(max-width:700px){
- body:has(#portal[data-view="inicio"]) .kja-chat{right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
- body:has(#portal[data-view="inicio"]) .kja-chat .chat-launcher{right:0;bottom:0;width:56px;height:56px;min-height:56px}
-}
-
 /* Unified Zoom canvas: avoid the hard seam against the administrative shell. */
 body:has(#portal[data-view="zoom"]){background:#f5f5f7!important}
 #portal[data-view="zoom"]{background:#f5f5f7!important}

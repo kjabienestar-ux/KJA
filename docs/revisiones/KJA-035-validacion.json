@@ -1,0 +1,53 @@
+{
+  "base": "06b937a",
+  "implementation": "90552ad",
+  "new_tests": {
+    "passed": 14,
+    "total": 14
+  },
+  "core_base": {
+    "passed": 303,
+    "total": 320
+  },
+  "core_new": {
+    "passed": 301,
+    "total": 317,
+    "new_failures": 0
+  },
+  "targeted": {
+    "passed": 71,
+    "total": 72,
+    "inherited_failures": 1
+  },
+  "browser": [
+    {
+      "version": "base",
+      "width": 1440,
+      "javascript_errors": [],
+      "retired_idle_calls": 63,
+      "channels": [
+        "kja-notificaciones-42",
+        "kja-chat-eventos-00000000-0000-0000-0000-000000000042"
+      ],
+      "horizontal_overflow": null
+    },
+    {
+      "version": "new",
+      "width": 1440,
+      "javascript_errors": [],
+      "retired_idle_calls": 0,
+      "channels": [],
+      "horizontal_overflow": null
+    },
+    {
+      "version": "mobile",
+      "width": 390,
+      "javascript_errors": [],
+      "retired_idle_calls": 0,
+      "channels": [],
+      "horizontal_overflow": false
+    }
+  ],
+  "backend_applied": false,
+  "production_verified": false
+}

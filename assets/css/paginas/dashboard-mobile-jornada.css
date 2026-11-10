@@ -42,7 +42,7 @@
   #portal:not(.admin-wide) .mobile-portal-hero {
     position: relative;
     isolation: isolate;
-    grid-template-columns: 52px minmax(0,1fr) repeat(2,44px);
+    grid-template-columns: 52px minmax(0,1fr) 44px;
     column-gap: 8px;
     height: auto;
     min-height:88px;
@@ -83,9 +83,8 @@
     background-position: center;
     overflow: hidden;
   }
-  #portal:not(.admin-wide) .mobile-review-notification-trigger { grid-column: 3; }
   #portal:not(.admin-wide) #mobile-home-logout {
-    grid-column: 4;
+    grid-column: 3;
     display: grid !important;
     visibility: visible;
     opacity: 1;
@@ -100,10 +99,8 @@
     background: rgba(255,255,255,.75);
     box-shadow: 0 3px 10px rgba(35,55,68,.06);
     cursor: pointer;
-  }
-  #portal:not(.admin-wide) .mobile-profile-photo,
-  #portal:not(.admin-wide) .mobile-review-notification-trigger,
-  #portal:not(.admin-wide) #mobile-home-logout {
+  }#portal:not(.admin-wide) .mobile-profile-photo,
+  #portal:not(.admin-wide) #mobile-home-logout{
     position: relative;
     inset: auto;
     transform: none;
