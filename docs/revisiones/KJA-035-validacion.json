@@ -48,6 +48,31 @@
       "horizontal_overflow": false
     }
   ],
-  "backend_applied": false,
-  "production_verified": false
+  "backend_applied": true,
+  "production_verified": true,
+  "production_merge": "03e9c9ffc8acd6b4926dec3e8f0cac7ead25f17c",
+  "production_assets_verified": 17,
+  "migration_version": "20261110213110",
+  "migration_name": "retirar_chat_notificaciones_pausas_kja035",
+  "backend_verification": {
+    "remaining_functions": 0,
+    "remaining_triggers": 0,
+    "remaining_policies": 0,
+    "remaining_publication_entries": 0,
+    "historical_tables_preserved": 11,
+    "client_sequence_permissions_revoked": 4,
+    "private_objects_preserved": 42,
+    "rls_preserved": true,
+    "new_security_findings": 0
+  },
+  "real_authenticated_pilot_verified": false,
+  "peak_hour_verified": false,
+  "original_ui_restoration": {
+    "reference": "06b937a",
+    "unit_tests_passed": 12,
+    "unit_tests_total": 12,
+    "browser_javascript_errors": 0,
+    "backend_calls": 0,
+    "published": false
+  }
 }

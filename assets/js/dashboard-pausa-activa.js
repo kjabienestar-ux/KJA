@@ -172,7 +172,9 @@
     button.querySelector('.rail-pausa-info > span').textContent = 'Muévete. Respira. Continúa.';
     button.querySelector('.rail-pausa-footer > span:first-child').textContent = session ? 'Volver a mi pausa' : 'Tomar una pausa';
     const figure = button.querySelector('.rail-pausa-figure');
-    if (figure && !figure.firstChild) figure.innerHTML = '<span class="rail-pausa-character">'+getActivityFigure('movilidad',0,true)+'</span>';
+    if (figure && !figure.firstChild) figure.innerHTML = '<span class="rail-pausa-character">'+getActivityFigure('movilidad',0,true)+'</span>'+
+      '<span class="rail-pausa-character rail-pausa-extra">'+getActivityFigure('movilidad',3,true)+'</span>'+
+      '<span class="rail-pausa-character rail-pausa-extra">'+getActivityFigure('visual',3,true)+'</span>';
   }
   function setAccount(id) {
     const next = String(id || '');
@@ -187,28 +189,122 @@
   }
   function close() {
     stop();
+    overlay()?.classList.remove("pausa-session-running");
     if (overlay()) overlay().hidden = true;
     document.body.classList.remove('kja-announcement-open');
     trigger?.focus();
   }
-  function shell(markup, className, focus = true) {
-    const node = container(); if (!node) return;
-    node.className = 'pausa-modal-dialog ' + className;
-    node.innerHTML = markup;
-    node.querySelectorAll('[data-pausa-close]').forEach(b => b.onclick = close);
-    if (focus) node.querySelector('button')?.focus();
-  }
-  const closeButton = '<button type="button" class="pausa-close-btn" data-pausa-close aria-label="Cerrar pausas">×</button>';
   function selection() {
-    stop(); view = 'selection';
-    shell(`<div class="pausa-header"><div class="pausa-header-left"><h2 id="pausa-activa-title">Pausas activas</h2></div>${closeButton}</div>
-      <p class="pausa-local-note">Un momento para ti. Puedes repetir estas pausas cuando quieras. No se registra tu actividad.</p>
-      <div class="pausa-cards-grid">${BREAKS.map(b => `<div class="pausa-flip-container"><div class="pausa-card-front">
-        <span class="pausa-card-tag">${b.duration / 60} minutos</span><div class="pausa-card-figure">${getActivityFigure(b.id,0,true)}</div>
-        <h3 class="pausa-card-title">${b.title}</h3><p class="pausa-card-hint">${b.zones}</p>
-        <button type="button" class="pausa-btn-start" data-start-break="${b.id}">Comenzar</button></div></div>`).join('')}</div>
-      <p class="pausa-local-note" role="status">${storageNote()}</p>`, 'pausa-modal-selection');
-    container().querySelectorAll('[data-start-break]').forEach(b => b.onclick = () => start(b.dataset.startBreak));
+    if (session) { running(); return; }
+    view = 'selection';
+    stop();
+    overlay()?.classList.remove("pausa-session-running");
+    const node = container();
+    if (!node) return;
+
+    node.className = "pausa-modal-dialog pausa-modal-selection";
+    node.innerHTML = `
+      <div class="pausa-header">
+        <div class="pausa-header-left">
+          <img src="assets/pausa-activa/d7974.svg" alt="Pausas Activas">
+          <h2 id="pausa-activa-title">Pausas activas</h2>
+        </div>
+        <button type="button" class="pausa-close-btn" id="pausa-btn-close-modal" data-pausa-close aria-label="Cerrar modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="pausa-daily-status" role="status">
+        <strong>Dos tipos de pausa</strong>
+        <span>${persistent ? 'Úsalas cuando quieras' : 'Solo en esta página'}</span>
+        <div class="pausa-daily-track" aria-hidden="true"><i></i><i></i></div>
+      </div>
+
+      <div class="pausa-cards-grid">
+        ${BREAKS.map((b, idx) => {
+          const mins = Math.floor(b.duration / 60);
+          const hint = idx === 0
+            ? "Movimientos articulares para despertar el cuerpo."
+            : "Regla 20-20-20, cuello y postura.";
+
+
+          return `
+            <div class="pausa-flip-container" data-break-id="${b.id}" id="pausa-card-${b.id}">
+              <div class="pausa-flip-inner">
+                <!-- Front -->
+                <div class="pausa-card-front">
+                  <div class="pausa-card-tag-row">
+                    <span class="pausa-card-tag">Pausa activa</span>
+                    <span class="pausa-card-action-text ">ver más →</span>
+                  </div>
+                  <div class="pausa-card-time">
+                    <b>${mins}</b>
+                    <span>min</span>
+                    <div class="pausa-card-figure" aria-hidden="true">${getActivityFigure(b.id, 0, true)}</div>
+                  </div>
+                  <div class="pausa-card-title">${b.title}</div>
+                  <div class="pausa-card-hint">${hint}</div>
+                </div>
+                <!-- Back -->
+                <div class="pausa-card-back">
+                  <div class="pausa-card-tag-row">
+                    <span class="pausa-card-tag">${mins} min</span>
+                    <span class="pausa-card-action-text">← volver</span>
+                  </div>
+                  <div class="pausa-card-title">${b.title}</div>
+                  <div class="pausa-card-zones">${b.zones}</div>
+                  <button type="button" class="pausa-btn-start" data-start-break="${b.id}" >
+                    Comenzar
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <details class="pausa-usage-note">
+        <summary>Cómo funcionan tus pausas</summary>
+        <p>Puedes repetirlas cuando quieras, sin registro de actividad. ${storageNote()}</p>
+      </details>
+    `;
+
+    // Eventos
+    node.querySelector("#pausa-btn-close-modal").onclick = close;
+
+    BREAKS.forEach(b => {
+
+      const cardEl = node.querySelector(`#pausa-card-${b.id}`);
+      if (cardEl) {
+        const front = cardEl.querySelector('.pausa-card-front');
+        const back = cardEl.querySelector('.pausa-card-back');
+        const flip = () => {
+          const expanded = cardEl.classList.toggle('is-flipped');
+          if (front) { front.inert = expanded; front.tabIndex = expanded ? -1 : 0; front.setAttribute('aria-expanded', String(expanded)); }
+          if (back) back.inert = !expanded;
+          if (expanded) back?.querySelector('.pausa-btn-start')?.focus();
+          else front?.focus();
+        };
+        if (front) {
+          front.tabIndex = 0; front.setAttribute('role', 'button');
+          front.setAttribute('aria-expanded', 'false');
+          front.setAttribute('aria-label', b.title + '. Pulsa Enter para ver los detalles.');
+          front.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } };
+        }
+        if (back) back.inert = true;
+        cardEl.onclick = (e) => {
+          if (e.target.closest(".pausa-btn-start")) return;
+          flip();
+        };
+
+        const startBtn = cardEl.querySelector(`[data-start-break="${b.id}"]`);
+        if (startBtn) {
+          startBtn.onclick = (e) => {
+            e.stopPropagation();
+            start(b.id);
+          };
+        }
+      }
+    });
+    node.querySelector("#pausa-btn-close-modal").focus();
   }
   function start(type) {
     if (!owner || !BREAKS.some(b => b.id === type)) return;
@@ -220,30 +316,125 @@
     session = {version:1,type,start:now,end:now+b.duration*1000}; activity = 0; suggestion = 0;
     save(); rail(); running();
   }
-  function updateActivity() {
+  function updateActivity(animate = false) {
     const b = item(); if (!b) return;
     const a = b.activities[activity];
     el('pausa-act-title').textContent = a.title;
     el('pausa-suggestion-display').textContent = a.suggestions[suggestion % a.suggestions.length];
     el('pausa-act-figure').innerHTML = getActivityFigure(b.id,activity);
+    const label = container().querySelector('.pausa-act-tag');
+    if (label) label.textContent = `Actividad ${activity+1} de ${b.activities.length}`;
+    const content = container().querySelector('.pausa-act-content');
+    if (animate && content?.animate && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      content.getAnimations?.().forEach(animation => animation.cancel());
+      content.animate([{opacity:0,transform:'translateX(12px)'},{opacity:1,transform:'translateX(0)'}],{duration:280,easing:'cubic-bezier(.16,1,.3,1)'});
+    }
     container().querySelectorAll('[data-act-idx]').forEach(button => button.classList.toggle('active',Number(button.dataset.actIdx) === activity));
   }
   function running() {
     if (!session) { selection(); return; }
-    stop(); view = 'running';
+    stop();
     if (!remaining()) { complete(); return; }
-    const b = item();
-    shell(`<div class="pausa-session-header"><div><h2 id="pausa-activa-title">${b.title}</h2><p>${b.subtitle}</p></div>${closeButton}</div>
-      <div class="pausa-timer-box"><span class="pausa-timer-label">Tiempo restante</span><div class="pausa-timer-digit" id="pausa-timer-display">${format(remaining())}</div>
-      <p class="pausa-local-note" role="status">${storageNote()}</p><div class="pausa-progress-track"><div id="pausa-progress-bar" class="pausa-progress-bar"></div></div></div>
-      <div class="pausa-activity-box"><div class="pausa-act-content"><div id="pausa-act-figure" class="pausa-act-figure-wrap"></div><div class="pausa-act-details"><h3 id="pausa-act-title" class="pausa-act-title"></h3><p id="pausa-suggestion-display" class="pausa-act-suggestion"></p></div></div>
-      <div class="pausa-dots">${b.activities.map((_,i) => `<button type="button" class="pausa-dot" data-act-idx="${i}" aria-label="Ejercicio ${i+1}"></button>`).join('')}</div></div>
-      <div class="pausa-action-group"><button type="button" class="pausa-btn-secondary" id="pausa-cancel">Cancelar pausa</button></div>`, 'pausa-modal-session');
-    container().querySelectorAll('[data-act-idx]').forEach(button => button.onclick = () => {activity = Number(button.dataset.actIdx); updateActivity();});
-    el('pausa-cancel').onclick = cancel;
-    updateActivity(); tick();
+    const currentBreak = item(), currentActivityIdx = activity, suggestionIdx = suggestion % currentBreak.activities[activity].suggestions.length;
+    const totalSeconds = currentBreak.duration, secondsLeft = remaining();
+    overlay()?.classList.add('pausa-session-running');
+    const node = container();
+    if (!node || !currentBreak) return;
+    view = 'running';
+
+    const activeGuide = currentBreak.activities[currentActivityIdx];
+    const progress = ((totalSeconds - secondsLeft) / totalSeconds) * 100;
+
+    node.className = "pausa-modal-dialog pausa-modal-session";
+    node.innerHTML = `
+      <div class="pausa-session-header">
+        <div>
+          <h2 class="pausa-session-title" id="pausa-activa-title">${currentBreak.title}</h2>
+          <p class="pausa-session-subtitle">${currentBreak.subtitle}</p>
+        </div>
+        <button type="button" class="pausa-close-btn" id="pausa-btn-confirm-exit" aria-label="Cerrar pausa">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="pausa-timer-box">
+        <span class="pausa-timer-label">Tiempo restante</span>
+        <div class="pausa-timer-digit" id="pausa-timer-display">${format(secondsLeft)}</div>
+        <p id="pausa-sync-status" role="status">${storageNote()}</p>
+        <div class="pausa-progress-track">
+          <div class="pausa-progress-bar" id="pausa-progress-bar" style="width: ${progress}%"></div>
+        </div>
+      </div>
+
+      <div class="pausa-activity-box">
+        <span class="pausa-act-tag">Actividad ${currentActivityIdx + 1} de ${currentBreak.activities.length}</span>
+        <div class="pausa-act-content">
+          <div class="pausa-act-figure-wrap" id="pausa-act-figure" aria-hidden="true">${getActivityFigure(currentBreak.id, currentActivityIdx)}</div>
+          <div class="pausa-act-details">
+            <div class="pausa-act-title" id="pausa-act-title">${activeGuide.title}</div>
+            <div class="pausa-act-suggestion" id="pausa-suggestion-display">${activeGuide.suggestions[suggestionIdx]}</div>
+          </div>
+        </div>
+
+        <div class="pausa-dots-row">
+          <div class="pausa-dots" id="pausa-dots-container">
+            ${currentBreak.activities.map((_, i) => `
+              <button type="button" class="pausa-dot ${i === currentActivityIdx ? 'active' : ''}" data-act-idx="${i}" aria-label="Actividad ${i+1}"></button>
+            `).join('')}
+          </div>
+          <span class="pausa-rot-hint">Ejercicios que rotan cada 10 s · avanza a tu ritmo</span>
+        </div>
+      </div>
+    `;
+
+    node.querySelector("#pausa-btn-confirm-exit").onclick = confirmExit;
+
+    node.querySelectorAll(".pausa-dot").forEach(btn => {
+      btn.onclick = () => {
+        activity = parseInt(btn.dataset.actIdx, 10);
+        suggestion = 0;
+        updateActivity();
+
+      };
+    });
+    node.querySelector('#pausa-btn-confirm-exit').focus();
+    tick();
     timer = setInterval(tick,1000);
-    rotation = setInterval(() => {activity = (activity+1) % item().activities.length; if (activity === 0) suggestion++; updateActivity();},10000);
+    rotation = setInterval(() => {activity = (activity+1) % item().activities.length; if (activity === 0) suggestion++; updateActivity(true);},10000);
+  }
+  function confirmExit() {
+    if (!session) return;
+    view = 'confirm';
+    if (rotation !== null) clearInterval(rotation); rotation = null;
+
+    const node = container();
+    if (!node) return;
+
+    node.className = "pausa-modal-dialog pausa-modal-confirm";
+    node.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <h2 id="pausa-activa-title" style="font-size:24px; font-weight:700; color:#1e293b; margin:0; font-family:'Fraunces', Georgia, serif;">¿Seguro que quieres salir?</h2>
+        <p style="font-size:14px; color:#475569; line-height:1.5; margin:0;">
+          Salir de todas formas cancela esta pausa en las pestañas de este navegador. Puedes volver a iniciarla cuando quieras. Cerrar la ventana con Escape o pulsar fuera conserva el contador.
+        </p>
+      </div>
+
+      <div class="pausa-action-group">
+        <button type="button" class="pausa-btn-primary" id="pausa-btn-resume">Continuar la pausa</button>
+        <button type="button" class="pausa-btn-secondary" id="pausa-btn-exit-anyway">Salir de todas formas</button>
+      </div>
+
+      <p style="text-align:center; font-size:12px; color:#94a3b8; margin:16px 0 0;">
+        Solo toma unos minutos más. ¡Vale la pena!
+      </p>
+    `;
+
+    node.querySelector("#pausa-btn-resume").onclick = () => {
+      running();
+    };
+
+    node.querySelector("#pausa-btn-exit-anyway").onclick = () => cancel();
+    node.querySelector('#pausa-btn-resume').focus();
   }
   function tick() {
     if (!session) return;
@@ -257,10 +448,31 @@
   }
   function complete() {
     stop(); session = null; save(); rail(); view = 'complete';
-    shell(`<div class="pausa-header"><h2 id="pausa-activa-title">Tiempo de pausa terminado</h2>${closeButton}</div>
-      <p class="pausa-local-note">Puedes volver a tus tareas cuando estés listo. Esta herramienta no registra cumplimiento laboral.</p>
-      <div class="pausa-action-group"><button type="button" class="pausa-btn-primary" id="pausa-again">Volver a pausas</button></div>`, 'pausa-modal-complete');
-    el('pausa-again').onclick = selection;
+    overlay()?.classList.remove("pausa-session-running");
+    const node = container();
+    if (!node) return;
+
+    node.className = "pausa-modal-dialog pausa-modal-complete";
+    node.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="width:48px; height:48px; border-radius:14px; background:#f0fdf4; color:#16a34a; display:flex; align-items:center; justify-content:center; margin-bottom:4px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h2 id="pausa-activa-title" style="font-size:24px; font-weight:700; color:#1e293b; margin:0; font-family:'Fraunces', Georgia, serif;">Pausa completada</h2>
+        <p style="font-size:14px; color:#475569; line-height:1.5; margin:0;">
+          Cumpliste el tiempo de la pausa. Puedes volver a tus tareas cuando estés listo.
+        </p>
+      </div>
+
+      <div class="pausa-action-group">
+        <button type="button" class="pausa-btn-primary" id="pausa-btn-back-selection">Volver a pausas</button>
+      </div>
+    `;
+
+    node.querySelector("#pausa-btn-back-selection").onclick = () => {
+      selection();
+    };
+    node.querySelector('#pausa-btn-back-selection').focus();
   }
   function sync() {
     if (!owner) return;
@@ -286,7 +498,7 @@
       if (overlay()?.hidden) return;
       if (event.key === 'Escape') {event.preventDefault(); close();}
       if (event.key !== 'Tab') return;
-      const buttons = [...container().querySelectorAll('button:not(:disabled)')], first = buttons[0], last = buttons.at(-1);
+      const buttons = [...container().querySelectorAll('button:not(:disabled),[tabindex="0"]')].filter(button => !button.closest('[inert]')), first = buttons[0], last = buttons.at(-1);
       if (event.shiftKey && document.activeElement === first) {event.preventDefault(); last?.focus();}
       else if (!event.shiftKey && document.activeElement === last) {event.preventDefault(); first?.focus();}
     });

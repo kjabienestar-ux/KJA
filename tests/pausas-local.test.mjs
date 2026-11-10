@@ -5,7 +5,8 @@ import {JSDOM} from 'jsdom';
 const src=fs.readFileSync('assets/js/dashboard-pausa-activa.js','utf8');
 function tab({saved,blocked=false,owner='A',now=1000000}={}){
   const dom=new JSDOM(`<button id="rail-pausa-open"><span class="rail-pausa-duration"></span><span class="rail-pausa-info"><span></span></span><span class="rail-pausa-footer"><span></span></span><span class="rail-pausa-figure"></span></button><div id="pausa-activa-overlay" hidden><button id="pausa-activa-backdrop"></button><section id="pausa-activa-container" role="dialog" aria-labelledby="pausa-activa-title"></section></div>`,{url:'https://fixture.test',runScripts:'outside-only'});
-  const w=dom.window, intervals=new Map();let clock=now,id=0,requests=0;
+  const w=dom.window, intervals=new Map(), errors=[];let clock=now,id=0,requests=0;
+  w.addEventListener('error',event=>{errors.push(event.error);event.preventDefault();});
   Object.defineProperty(w.document,'hidden',{value:false,configurable:true});
   w.Date.now=()=>clock;
   w.setInterval=(fn,ms)=>{intervals.set(++id,{fn,ms});return id;};w.clearInterval=id=>intervals.delete(id);
@@ -14,8 +15,8 @@ function tab({saved,blocked=false,owner='A',now=1000000}={}){
   if(saved)w.localStorage.setItem('kja-pausa-local-v1:'+owner,saved);
   if(blocked)Object.defineProperty(w,'localStorage',{get(){throw Error('blocked');}});
   w.eval(src);w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
-  const click=s=>w.document.querySelector(s).click();
-  return {w,intervals,click,dom,open:()=>click('#rail-pausa-open'),start:(type='visual')=>click(`[data-start-break="${type}"]`),text:()=>w.document.body.textContent,advance(ms){clock+=ms;for(const {fn,ms} of [...intervals.values()])if(ms===1000)fn();},requests:()=>requests};
+  const click=s=>{w.document.querySelector(s).click();if(errors.length)throw errors[0];};
+  return {w,intervals,click,dom,open:()=>click('#rail-pausa-open'),cancel:()=>{click('#pausa-btn-confirm-exit');click('#pausa-btn-exit-anyway');},start:(type='visual')=>{const card=w.document.querySelector(`[data-break-id="${type}"]`);if(!card.classList.contains('is-flipped'))card.querySelector('.pausa-card-front').click();click(`[data-start-break="${type}"]`);},text:()=>w.document.body.textContent,advance(ms){clock+=ms;for(const {fn,ms} of [...intervals.values()])if(ms===1000)fn();},requests:()=>requests};
 }
 test('no network on startup, five idle minutes, resume or reconnect',()=>{
   const t=tab();assert.equal(t.intervals.size,0);t.advance(300000);t.open();t.start();
@@ -24,11 +25,21 @@ test('no network on startup, five idle minutes, resume or reconnect',()=>{
 });
 test('free use without attendance, both durations and repeat after cancellation',()=>{
   const t=tab();t.open();t.start('movilidad');assert.match(t.text(),/20:00/);
-  t.click('#pausa-cancel');t.start('visual');assert.match(t.text(),/10:00/);
-  t.click('#pausa-cancel');t.start('visual');assert.match(t.text(),/10:00/);
+  t.cancel();t.start('visual');assert.match(t.text(),/10:00/);
+  t.cancel();t.start('visual');assert.match(t.text(),/10:00/);
+});
+test('original flip cards work by keyboard and cancellation can be dismissed',()=>{
+  const t=tab();t.open();
+  const card=t.w.document.querySelector('.pausa-flip-container[data-break-id="visual"]'),front=card.querySelector('.pausa-card-front'),back=card.querySelector('.pausa-card-back');
+  assert.equal(back.inert,true);
+  front.dispatchEvent(new t.w.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+  assert.equal(front.inert,true);assert.equal(back.inert,false);assert.equal(card.classList.contains('is-flipped'),true);
+  t.click('[data-start-break="visual"]');t.click('#pausa-btn-confirm-exit');
+  assert.match(t.text(),/¿Seguro que quieres salir/);t.advance(60000);t.click('#pausa-btn-resume');
+  assert.match(t.text(),/09:00/);assert.equal(t.intervals.size,2);assert.ok(t.w.document.querySelector('.pausa-dots-row'));
 });
 test('closing dialog stops all intervals but preserves deadline and resumes',()=>{
-  const t=tab();t.open();t.start();t.click('[data-pausa-close]');assert.equal(t.intervals.size,0);
+  const t=tab();t.open();t.start();t.w.document.dispatchEvent(new t.w.KeyboardEvent('keydown',{key:'Escape'}));assert.equal(t.intervals.size,0);
   t.advance(90000);t.open();assert.match(t.text(),/08:30/);assert.equal(t.intervals.size,2);
   t.w.document.dispatchEvent(new t.w.Event('visibilitychange'));assert.equal(t.intervals.size,2);
 });
@@ -39,9 +50,9 @@ test('reload restores only four fields, no history, silently',()=>{
   restored.open();assert.match(restored.text(),/08:00/);
 });
 test('delayed callback finishes by deadline, clears storage and allows another pause',()=>{
-  const t=tab();t.open();t.start();t.advance(900000);assert.match(t.text(),/Tiempo de pausa terminado/);
+  const t=tab();t.open();t.start();t.advance(900000);assert.match(t.text(),/Pausa completada/);
   assert.equal(t.intervals.size,0);assert.equal(t.w.localStorage.length,0);
-  t.click('#pausa-again');t.start();assert.match(t.text(),/10:00/);
+  t.click('#pausa-btn-back-selection');t.start();assert.match(t.text(),/10:00/);
 });
 test('suspension and returning to tab recompute elapsed time',()=>{
   const t=tab();t.open();t.start();Object.defineProperty(t.w.document,'hidden',{value:true,configurable:true});
