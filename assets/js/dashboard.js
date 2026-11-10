@@ -159,7 +159,7 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', guidedTourPending:false, guidedTourUserMetadata:{}, sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, cover:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', guidedTourPending:false, guidedTourUserMetadata:{}, sessionTimer:null, markTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, cover:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
@@ -177,291 +177,10 @@ let DASH_ETAG = null;
 let DASH_UPDATE_PENDING = false;
 let DASH_VERSION_CHECKED_AT = 0;
 let DASH_VERSION_TIMER = null;
-let REVIEW_NOTIFICATION_TRIGGER = null;
-let NOTIFICATION_AUDIO_CONTEXT = null;
-let NOTIFICATION_AUDIO_READY = false;
-let NOTIFICATION_BASELINED = false;
-const NOTIFICATION_KNOWN_IDS = new Set();
-
 function formMsg(id,text){ const el=$(id); el.textContent=text||''; el.classList.toggle('show',!!text); }
 function markMsg(text){ $('mark-msg').textContent=text||''; $('mark-msg').classList.toggle('show',!!text); }
 function toast(text,bad=false){ if($('personal-leave-history')?.open){const notice=$('personal-leave-history-message');notice.hidden=false;notice.textContent=text;notice.classList.toggle('bad',bad);} if($('admin-leave-review')?.open){const message=$('admin-leave-review-message');message.hidden=false;message.textContent=text;message.classList.toggle('bad',bad);} const el=$('toast'); el.textContent=text; el.classList.toggle('bad',bad); el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),3500); }
 function setBusy(button,on,label){ button.disabled=on; if(!button.dataset.label) button.dataset.label=button.querySelector('span')?.textContent||button.textContent; const span=button.querySelector('span'); if(span) span.textContent=on?label:button.dataset.label; }
-
-async function primeNotificationSound(){
-  if(NOTIFICATION_AUDIO_READY)return;
-  const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;
-  try{
-    NOTIFICATION_AUDIO_CONTEXT=NOTIFICATION_AUDIO_CONTEXT||new AudioContextClass();
-    if(NOTIFICATION_AUDIO_CONTEXT.state==='suspended')await NOTIFICATION_AUDIO_CONTEXT.resume();
-    NOTIFICATION_AUDIO_READY=NOTIFICATION_AUDIO_CONTEXT.state==='running';
-  }catch{/* El aviso visual sigue disponible cuando el navegador bloquea audio. */}
-}
-
-function playNotificationSound(){
-  const context=NOTIFICATION_AUDIO_CONTEXT;if(!NOTIFICATION_AUDIO_READY||!context||context.state!=='running')return;
-  try{
-    const master=context.createGain(),now=context.currentTime;
-    const compressor=typeof context.createDynamicsCompressor==='function'?context.createDynamicsCompressor():null;
-    master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(.18,now+.015);master.gain.exponentialRampToValueAtTime(.0001,now+.52);
-    if(compressor){
-      compressor.threshold.setValueAtTime(-24,now);compressor.knee.setValueAtTime(18,now);compressor.ratio.setValueAtTime(6,now);compressor.attack.setValueAtTime(.003,now);compressor.release.setValueAtTime(.18,now);
-      master.connect(compressor);compressor.connect(context.destination);
-    }else master.connect(context.destination);
-    [{frequency:784,start:0,duration:.18,level:.78,type:'sine'},{frequency:1174,start:.14,duration:.28,level:.9,type:'triangle'}].forEach(note=>{
-      const oscillator=context.createOscillator(),gain=context.createGain();
-      oscillator.type=note.type;oscillator.frequency.setValueAtTime(note.frequency,now+note.start);
-      gain.gain.setValueAtTime(.0001,now+note.start);gain.gain.exponentialRampToValueAtTime(note.level,now+note.start+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+note.start+note.duration);
-      oscillator.connect(gain);gain.connect(master);oscillator.start(now+note.start);oscillator.stop(now+note.start+note.duration+.02);
-    });
-  }catch{/* Nunca se bloquea la sincronización por un problema de audio. */}
-}
-
-// Interfaz compartida para módulos independientes del dashboard, como el chat.
-window.KJANotificationSound={prime:primeNotificationSound,play:playNotificationSound};
-
-function announceFreshNotifications(items){
-  const unread=(items||[]).filter(item=>!item.leida),fresh=unread.filter(item=>!NOTIFICATION_KNOWN_IDS.has(String(item.id)));
-  (items||[]).forEach(item=>NOTIFICATION_KNOWN_IDS.add(String(item.id)));
-  if(!NOTIFICATION_BASELINED){NOTIFICATION_BASELINED=true;return}
-  if(!fresh.length)return;
-  playNotificationSound();
-  const first=fresh[0],label=first.tipo==='asignacion'?'Nueva asignación':first.tipo==='mensaje_direccion'?'Nuevo mensaje de Dirección':'Nueva respuesta de Dirección';
-  toast(fresh.length===1?`${label}: ${first.titulo||'Revisa tu campana'}`:`Tienes ${fresh.length} notificaciones nuevas.`);
-}
-
-document.addEventListener('pointerdown',primeNotificationSound,{once:true,capture:true});
-document.addEventListener('keydown',primeNotificationSound,{once:true,capture:true});
-
-function reviewNotificationDate(value){
-  if(!value)return 'Fecha no disponible';
-  const date=new Date(value);if(Number.isNaN(date.getTime()))return 'Fecha no disponible';
-  return new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(date);
-}
-
-function reviewNotificationDayKey(value){
-  const date=new Date(value);if(Number.isNaN(date.getTime()))return 'sin-fecha';
-  const parts={};
-  new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date).forEach(part=>{if(part.type!=='literal')parts[part.type]=part.value});
-  return `${parts.year}-${parts.month}-${parts.day}`;
-}
-
-function reviewNotificationDayLabel(key,value){
-  if(key==='sin-fecha')return 'Sin fecha';
-  if(key===isoLima())return 'Hoy';
-  if(key===addIsoDays(isoLima(),-1))return 'Ayer';
-  const date=new Date(value);if(Number.isNaN(date.getTime()))return 'Sin fecha';
-  const label=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',weekday:'long',day:'numeric',month:'long'}).format(date);
-  return label.charAt(0).toUpperCase()+label.slice(1);
-}
-
-function reviewNotificationListMarkup(items){
-  const groups=new Map();
-  items.forEach(item=>{
-    const key=reviewNotificationDayKey(item.creado_at);
-    if(!groups.has(key))groups.set(key,{key,value:item.creado_at,items:[]});
-    groups.get(key).items.push(item);
-  });
-  return [...groups.values()].map((group,index)=>{
-    const count=group.items.length,label=reviewNotificationDayLabel(group.key,group.value),headingId=`review-notification-day-${index}`;
-    return `<section class="review-notification-day" aria-labelledby="${headingId}"><h3 id="${headingId}"><span>${esc(label)}</span><small>${count} ${count===1?'aviso':'avisos'}</small></h3><div class="review-notification-day-items" role="list">${group.items.map(reviewNotificationMarkup).join('')}</div></section>`;
-  }).join('');
-}
-
-function reviewNotificationMarkup(item){
-  const type=item.tipo||(item.estado==='observada'?'revision_observada':'revision_aprobada');
-  const observed=type==='revision_observada',assignment=type==='asignacion',direct=type==='mensaje_direccion',unread=!item.leida,hasMessage=!!String(item.nota||'').trim();
-  const deleting=String(APP.notifications?.deletingId||'')===String(item.id);
-  const assignmentKind=assignment&&item.meta?.tipo_entregable?` · ${String(item.meta.tipo_entregable).toUpperCase()}`:'';
-  const title=assignment?`Nueva asignación${assignmentKind}`:direct?'Mensaje de Dirección':observed?'Necesitas corregir una evidencia':'Evidencia aprobada';
-  const copy=item.nota||(assignment?'Dirección te asignó un nuevo entregable. Revisa los requisitos de tu jornada.':observed?'Dirección indicó que debes revisar esta entrega.':'Dirección aprobó la entrega sin observaciones adicionales.');
-  const sender=String(item.remitente||'').trim();
-  const messageLabel=assignment?'Indicaciones de Dirección':observed?'Observación de Dirección':'Mensaje de Dirección';
-  const messageHeading=sender?`${messageLabel} · ${sender}`:messageLabel;
-  const icon=assignment
-    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg>'
-    : direct
-      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 4zM8 9h8M8 13h5"/></svg>'
-      : observed
-        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'
-        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg>';
-  const trash='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>';
-  const state=assignment?'assignment':direct?'message':observed?'observed':'approved';
-  return `<article class="review-notification-item${unread?' is-unread':''}${deleting?' is-deleting':''}" data-state="${state}" role="listitem"><button class="review-notification-content" type="button" data-review-notification-id="${esc(item.id)}" aria-label="${esc(`${title}: ${item.titulo}. ${messageHeading}: ${copy}`)}"><span class="review-notification-state">${icon}</span><span class="review-notification-copy"><span><b>${esc(title)}</b>${unread?'<em>Nueva</em>':''}</span><strong>${esc(item.titulo||'Aviso de Dirección')}</strong><p class="has-direction-message${hasMessage?'':' is-system-message'}"><span>${esc(messageHeading)}</span>${esc(copy)}</p><small>${esc(reviewNotificationDate(item.creado_at))}</small></span></button><button class="review-notification-delete" type="button" data-delete-review-notification="${esc(item.id)}" aria-label="${esc(`Eliminar notificación: ${title}, ${item.titulo||'Aviso de Dirección'}`)}" title="Eliminar notificación" ${deleting?'disabled':''}>${trash}</button></article>`;
-}
-
-function renderReviewNotifications(){
-  const state=APP.notifications||{},available=APP.identity.hasPersonal&&state.available,unread=Math.max(0,Number(state.unread)||0);
-  document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>{
-    button.hidden=!available&&!button.classList.contains('mobile-review-notification-trigger');
-    button.classList.toggle('has-unread',unread>0);
-    button.setAttribute('aria-label',unread?`Abrir notificaciones, ${unread} ${unread===1?'notificación sin leer':'notificaciones sin leer'}`:'Abrir notificaciones');
-    const badge=button.querySelector('[data-review-notification-badge]');if(!badge)return;
-    badge.hidden=unread<1;badge.textContent=unread>99?'99+':String(unread);
-  });
-  const summary=$('review-notification-summary'),summaryCopy=$('review-notification-summary-copy'),readAll=$('review-notification-read-all'),list=$('review-notification-list');
-  if(!summary||!list)return;
-  list.setAttribute('aria-busy',String(state.loading||state.deletingId!==null));
-  document.title=unread?`(${unread>99?'99+':unread}) ${BASE_DOCUMENT_TITLE}`:BASE_DOCUMENT_TITLE;
-  summary.textContent=unread?`${unread} ${unread===1?'mensaje nuevo':'mensajes nuevos'}`:'Todo al día';
-  summaryCopy.textContent=unread?'Tienes actividad nueva de Dirección.':'No tienes mensajes nuevos.';
-  readAll.hidden=unread<1;readAll.disabled=state.loading;
-  if(state.loading&&!state.items.length){list.innerHTML='<div class="review-notification-loading" role="status">Consultando tus notificaciones…</div>';return}
-  if(state.error&&!state.items.length){list.innerHTML='<div class="review-notification-empty is-error"><b>No pudimos actualizar los mensajes</b><p>Comprueba tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-review-notifications>Reintentar</button></div>';return}
-  list.innerHTML=state.items.length?reviewNotificationListMarkup(state.items):'<div class="review-notification-empty"><b>Aún no tienes notificaciones</b><p>Los mensajes, revisiones y nuevas asignaciones aparecerán aquí.</p></div>';
-}
-
-function reviewNotificationScope(){
-  return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.inicio?.colaborador?.area_id,APP.access.rol,APP.identity.hasPersonal]);
-}
-
-function loadReviewNotifications({quiet=false,refresh=false}={}){
-  if(!APP.identity.hasPersonal)return Promise.resolve(null);
-  const scope=reviewNotificationScope(),pending=APP.notificationReadRequest;
-  if(pending?.scope===scope){
-    // A server event arriving during a read requires one subsequent read.
-    if(refresh)pending.refresh=true;
-    return pending.promise;
-  }
-  if(APP.notifications.deletingId!==null||(!pending&&APP.notifications.loading))return Promise.resolve(null);
-  const flight={scope,refresh:false,promise:null};
-  const current=()=>APP.notificationReadRequest===flight&&APP.identity.hasPersonal&&reviewNotificationScope()===scope;
-  APP.notificationReadRequest=flight;
-  flight.promise=Promise.resolve().then(async()=>{
-    let result=null;
-    do{
-      flight.refresh=false;
-      if(!current())return null;
-      result=await fetchReviewNotifications({quiet,current});
-    }while(current()&&flight.refresh);
-    return current()?result:null;
-  }).catch(error=>{
-    if(current()){
-      APP.notifications={...APP.notifications,loading:false,error:error?.message||'carga'};
-      renderReviewNotifications();
-      if(!quiet)toast('No pudimos actualizar tus notificaciones.',true);
-    }
-    return null;
-  }).finally(()=>{if(APP.notificationReadRequest===flight)APP.notificationReadRequest=null});
-  return flight.promise;
-}
-
-async function fetchReviewNotifications({quiet=false,current}={}){
-  if(typeof loadEvidenceCorrections==='function')void loadEvidenceCorrections();
-  if(!APP.identity.hasPersonal)return null;
-  if(APP.notifications.deletingId!==null)return APP.notifications;
-  const request=(APP.notifications.request||0)+1;
-  APP.notifications={...APP.notifications,loading:true,error:'',request};renderReviewNotifications();
-  const {data,error}=await db.rpc('dash_mis_notificaciones_revision',{p_limite:24});
-  if(!current()||request!==APP.notifications.request)return null;
-  if(error||!data?.ok){
-    const missing=error?.code==='PGRST202'||String(error?.message||'').includes('dash_mis_notificaciones_revision');
-    APP.notifications={...APP.notifications,available:!missing,loading:false,error:missing?'':(error?.message||data?.motivo||'carga')};renderReviewNotifications();
-    if(!quiet&&!missing)toast('No pudimos actualizar tus notificaciones.',true);
-    return null;
-  }
-  const items=Array.isArray(data.notificaciones)?data.notificaciones:[];announceFreshNotifications(items);
-  APP.notifications={...APP.notifications,available:true,loading:false,error:'',unread:Number(data.no_leidas)||0,items,request,deletingId:null};
-  renderReviewNotifications();return APP.notifications;
-}
-
-function closeReviewNotifications({restoreFocus=true}={}){
-  const layer=$('review-notification-layer');if(!layer||layer.hidden)return;
-  layer.hidden=true;document.body.classList.remove('review-notification-open');
-  document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.setAttribute('aria-expanded','false'));
-  if(restoreFocus&&REVIEW_NOTIFICATION_TRIGGER)REVIEW_NOTIFICATION_TRIGGER.focus();
-  REVIEW_NOTIFICATION_TRIGGER=null;
-}
-
-function mountReviewNotificationPortal(){
-  const layer=$('review-notification-layer');
-  if(layer&&layer.parentElement!==document.body)document.body.appendChild(layer);
-  return layer;
-}
-
-async function openReviewNotifications(trigger){
-  if(!APP.notifications.available)return;
-  const layer=mountReviewNotificationPortal();if(!layer)return;
-  REVIEW_NOTIFICATION_TRIGGER=trigger||document.activeElement;
-  layer.hidden=false;document.body.classList.add('review-notification-open');
-  document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.setAttribute('aria-expanded','true'));
-  renderReviewNotifications();$('review-notification-panel').focus({preventScroll:true});
-  const fresh=await loadReviewNotifications({quiet:true});
-  if(!layer.hidden&&fresh?.unread>0)await markReviewNotificationsRead(null);
-}
-
-async function markReviewNotificationsRead(ids=null){
-  if(APP.notifications.loading||APP.notifications.deletingId!==null)return;
-  APP.notifications.loading=true;renderReviewNotifications();
-  const {data,error}=await db.rpc('dash_marcar_notificaciones_revision',{p_ids:ids});
-  if(error||!data?.ok){APP.notifications.loading=false;renderReviewNotifications();toast('No pudimos marcar el mensaje como leído.',true);return}
-  const selected=ids?new Set(ids.map(String)):null;
-  const items=APP.notifications.items.map(item=>!item.leida&&(!selected||selected.has(String(item.id)))?{...item,leida:true}:item);
-  const unread=selected?Math.max(0,APP.notifications.unread-(Number(data.marcadas)||0)):0;
-  APP.notifications={...APP.notifications,loading:false,unread,items};renderReviewNotifications();
-  if(!$('review-notification-layer').hidden)$('review-notification-panel').focus({preventScroll:true});
-}
-
-async function deleteReviewNotification(id){
-  if(APP.notifications.deletingId!==null)return;
-  const numericId=Number(id),index=APP.notifications.items.findIndex(item=>Number(item.id)===numericId);
-  if(!Number.isFinite(numericId)||index<0)return;
-  const removed=APP.notifications.items[index];
-  APP.notificationReadRequest=null;
-  APP.notifications={...APP.notifications,loading:false,request:(APP.notifications.request||0)+1,deletingId:numericId};renderReviewNotifications();
-  $('review-notification-panel').focus({preventScroll:true});
-  const {data,error}=await db.rpc('dash_eliminar_notificacion_revision',{p_id:numericId});
-  if(error||!data?.ok){
-    APP.notifications={...APP.notifications,deletingId:null};renderReviewNotifications();
-    const retryDelete=$('review-notification-list').querySelector(`[data-delete-review-notification="${numericId}"]`);
-    (retryDelete||$('review-notification-panel')).focus({preventScroll:true});
-    const missing=error?.code==='PGRST202'||Number(error?.status)===404||String(error?.message||'').includes('dash_eliminar_notificacion_revision');
-    toast(missing?'Falta activar la eliminación de notificaciones en Supabase.':'No pudimos eliminar la notificación. Actualiza e inténtalo nuevamente.',true);return;
-  }
-  const items=APP.notifications.items.filter(item=>Number(item.id)!==numericId);
-  const unread=Math.max(0,Number(APP.notifications.unread||0)-(removed.leida?0:1));
-  APP.notifications={...APP.notifications,deletingId:null,unread,items};renderReviewNotifications();
-  const buttons=$('review-notification-list').querySelectorAll('[data-delete-review-notification]');
-  const nextDelete=buttons[Math.min(index,Math.max(0,items.length-1))];
-  (nextDelete||$('review-notification-panel')).focus({preventScroll:true});
-  toast('Notificación eliminada.');
-}
-
-async function startReviewNotificationSync(){
-  clearInterval(APP.notificationTimer);APP.notificationTimer=null;
-  if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}
-  if(!APP.identity.hasPersonal)return;
-  const scope=reviewNotificationScope();
-  await loadReviewNotifications({quiet:true});
-  if(!APP.identity.hasPersonal||reviewNotificationScope()!==scope)return;
-  const collaboratorId=Number(APP.inicio?.colaborador?.id);
-  if(Number.isFinite(collaboratorId)&&typeof db.channel==='function'){
-    APP.notificationChannel=db.channel(`kja-notificaciones-${collaboratorId}`)
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'asis_notificaciones',filter:`colaborador_id=eq.${collaboratorId}`},()=>void loadReviewNotifications({quiet:true,refresh:true}))
-      .subscribe();
-  }
-  APP.notificationTimer=setInterval(()=>{if(!document.hidden)void loadReviewNotifications({quiet:true})},30000);
-}
-
-document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.onclick=()=>openReviewNotifications(button));
-document.querySelectorAll('[data-close-review-notifications]').forEach(button=>button.onclick=()=>closeReviewNotifications());
-$('review-notification-read-all').onclick=()=>markReviewNotificationsRead(null);
-$('review-notification-list').onclick=event=>{
-  const retry=event.target.closest('[data-retry-review-notifications]');if(retry){void loadReviewNotifications();return}
-  const remove=event.target.closest('[data-delete-review-notification]');if(remove){void deleteReviewNotification(remove.dataset.deleteReviewNotification);return}
-  const button=event.target.closest('[data-review-notification-id]');if(!button)return;
-  const item=APP.notifications.items.find(notification=>String(notification.id)===String(button.dataset.reviewNotificationId));
-  if(item&&!item.leida)void markReviewNotificationsRead([Number(item.id)]);
-};
-$('review-notification-layer').addEventListener('keydown',event=>{
-  if(event.key==='Escape'){event.preventDefault();closeReviewNotifications();return}
-  if(event.key!=='Tab')return;
-  const focusable=[...$('review-notification-panel').querySelectorAll('button:not(:disabled):not([hidden])')].filter(element=>element.offsetParent!==null);
-  if(!focusable.length){event.preventDefault();$('review-notification-panel').focus();return}
-  const first=focusable[0],last=focusable.at(-1);
-  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
-  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
-});
 
 const PROFILE_PHOTO_DIALOG_STATE={trigger:null,restoreFocus:true};
 function syncProfilePhotoDialogPreview(){
@@ -828,6 +547,7 @@ async function removeProfileCover(){
 }
 
 function showAccess(message){
+  if(typeof window!=='undefined')window.KJAPausasLocal?.signOut();
   if(typeof resetPeopleWorkbench==='function')resetPeopleWorkbench();
   if(typeof resetAttendancePreview==='function')resetAttendancePreview();
   if(typeof window!=='undefined')window.KJAZoom?.reset();
@@ -966,9 +686,9 @@ $('form-admin').addEventListener('submit',async e=>{
 });
 
 async function logout(message){
-  APP.notificationReadRequest=null;
+  window.KJAPausasLocal?.signOut();
   window.KJASeguimiento?.reset();
-  clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(APP.notificationTimer);clearInterval(DASH_VERSION_TIMER);if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}document.title=BASE_DOCUMENT_TITLE;localStorage.removeItem(DEADLINE_KEY);localStorage.removeItem(SHELL_KEY);
+  clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(DASH_VERSION_TIMER);document.title=BASE_DOCUMENT_TITLE;localStorage.removeItem(DEADLINE_KEY);localStorage.removeItem(SHELL_KEY);
   try{ await db.auth.signOut({scope:'local'}); }catch(e){}
   location.reload();
 }
@@ -1204,18 +924,17 @@ async function openPortal(activeSession,bootstrap=null){
   startSessionClock(); hideBoot();
   // Los módulos secundarios comienzan después de pintar el portal autorizado.
   const startupUser=session?.user?.id;
+  for(const storageName of ['localStorage','sessionStorage']){
+    try{const storage=window[storageName];for(const key of Object.keys(storage))if(key.startsWith('kja-chat-'))storage.removeItem(key);}catch{}
+  }
   setTimeout(()=>{
     if(APP.sessionUid!==startupUser||$('portal').hidden)return;
     const launch=task=>Promise.resolve().then(task).catch(()=>{});
     launch(()=>window.KJAMarketingPortal?.init());
     launch(()=>window.KJAZoom?.init());
-    if(window.KJAChat)launch(()=>window.KJAChat.init(startupUser));
-    else window.addEventListener('kja-chat-ready',()=>{
-      if(APP.sessionUid===startupUser&&!$('portal').hidden)launch(()=>window.KJAChat?.init(startupUser));
-    },{once:true});
   },250);
   startMarkSync();
-  startReviewNotificationSync();
+  window.KJAPausasLocal?.setAccount(APP.sessionUid);
   startDashboardVersionWatch();
   const backgroundLoads=[];
   if(c)backgroundLoads.push(loadHistory(),loadProfilePhoto(),loadProfileCover(),loadPersonalRequests());
@@ -5287,7 +5006,6 @@ document.addEventListener('visibilitychange',()=>{
   void checkDashboardVersion();
   if(APP.identity.hasPersonal&&!MARK_BUSY)void refreshMarkEligibility({quiet:true});
   if(APP.identity.hasPersonal&&!DAILY_EVIDENCE.busy)void loadDailyClose({quiet:true});
-  if(APP.identity.hasPersonal)void loadReviewNotifications({quiet:true});
 });
 window.addEventListener('pageshow',()=>void checkDashboardVersion());
 
@@ -5488,6 +5206,6 @@ $('confirm-mark').onclick=async()=>{
   finally{MARK_BUSY=false;setBusy(btn,false,'');syncMarkConfirm();syncMobileEntryAction();reloadDashboardIfSafe();}
 };
 
-db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'&&!$('portal').hidden&&$('portal').dataset.loading!=='true')location.reload()});
+db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')window.KJAPausasLocal?.signOut();if(event==='SIGNED_OUT'&&!$('portal').hidden&&$('portal').dataset.loading!=='true')location.reload()});
 startTimeAmbience();
 init().catch(()=>showAccess('No se pudo iniciar el portal. Recarga la página.'));

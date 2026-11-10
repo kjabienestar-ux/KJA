@@ -30,7 +30,7 @@
   const requests=new Map(),signedCache=new Map();
   let currentLoad=null;
   function mount(){
-    root.innerHTML='<header class="seg-heading"><div class="seg-brand"><span class="seg-mark">'+icon('calendar')+'</span><div><div class="seg-eyebrow">OPERACIÓN DEL DÍA <span class="seg-pilot">En prueba</span></div><h2 id="seg-title">Seguimiento diario</h2><p id="seg-subtitle">El equipo, sus jornadas y sus entregas.</p></div></div><div class="seg-head-actions"><span id="seg-updated"></span>'+button('export',icon('download'),'seg-icon','id="seg-export" aria-label="Descargar CSV del día completo" title="Descargar CSV del día completo" disabled')+'<details class="seg-options"><summary aria-label="Más opciones">•••</summary><div>'+button('pause','Pausas activas')+'</div></details></div></header>'+
+    root.innerHTML='<header class="seg-heading"><div class="seg-brand"><span class="seg-mark">'+icon('calendar')+'</span><div><div class="seg-eyebrow">OPERACIÓN DEL DÍA <span class="seg-pilot">En prueba</span></div><h2 id="seg-title">Seguimiento diario</h2><p id="seg-subtitle">El equipo, sus jornadas y sus entregas.</p></div></div><div class="seg-head-actions"><span id="seg-updated"></span>'+button('export',icon('download'),'seg-icon','id="seg-export" aria-label="Descargar CSV del día completo" title="Descargar CSV del día completo" disabled')+'</div></header>'+
       '<div class="seg-toolbar"><div class="seg-date">'+button('prev','‹','seg-icon','aria-label="Día anterior"')+'<label><span class="sr-only">Fecha de seguimiento</span><input id="seg-date" type="date" min="2020-01-01"></label>'+button('next','›','seg-icon','aria-label="Día siguiente"')+button('today','Hoy')+'</div><label class="seg-search">'+icon('search')+'<span class="sr-only">Buscar persona o área</span><input id="seg-search" type="search" placeholder="Buscar persona o área" autocomplete="off"></label><label class="seg-area"><span class="sr-only">Filtrar por área</span><select id="seg-area"><option value="">Todas las áreas</option></select></label>'+button('clear','Limpiar','seg-clear','id="seg-clear" hidden')+'</div>'+
       '<p id="seg-message" class="seg-notice" role="status" aria-live="polite" hidden></p><div id="seg-summary" class="seg-summary"></div>'+
       '<div id="seg-workspace" class="seg-workspace" aria-busy="false"><div class="seg-empty">Selecciona una fecha para consultar.</div></div>'+
@@ -364,7 +364,6 @@
     if(action==='person')return openPerson(b.dataset.person);
     if(action==='reload')return load();
     if(action==='approve'||action==='observe')return decide(action==='approve'?'aprobada':'observada');
-    if(action==='pause'){global.KJA_PAUSAS?.openAdmin();return}
     if(action==='file-prev'||action==='file-next'){S.file+=action==='file-prev'?-1:1;return paintFile()}
     if(action==='file'){S.file=Number(b.dataset.index);return paintFile()}
     if(action==='media-retry'){signedCache.clear();return renderMedia()}

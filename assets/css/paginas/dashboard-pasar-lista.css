@@ -284,13 +284,6 @@
   border-color: #8e4630 !important;
   background: #8e4630 !important;
 }
-body:has(#view-gestion:not([hidden]) > #admin-list-section:not([hidden])) .kja-chat .chat-launcher {
-  justify-content: center; gap: 0; width: 54px; height: 54px; min-height: 54px; padding: 0; border-radius: 50%;
-}
-body:has(#view-gestion:not([hidden]) > #admin-list-section:not([hidden])) .kja-chat .chat-launcher > span:not(.chat-count) {
-  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
-}
-body:has(#view-gestion:not([hidden]) > #admin-list-section:not([hidden])) .kja-chat .chat-launcher > .chat-count { top: -4px; right: -4px; left: auto; }
 
 /* ── Pantallas más angostas ────────────────────────────────────────────── */
 @media (max-width: 1200px) {

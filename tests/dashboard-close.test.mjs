@@ -26,14 +26,11 @@ const facebookReceiptSql = fs.readFileSync(new URL('../supabase/dashboard_29_com
 const whatsappShareSql = fs.readFileSync(new URL('../supabase/dashboard_30_compartir_evidencia_whatsapp.sql', import.meta.url), 'utf8');
 const reviewNotesSql = fs.readFileSync(new URL('../supabase/dashboard_31_observaciones_revision.sql', import.meta.url), 'utf8');
 const facebookScheduleSql = fs.readFileSync(new URL('../supabase/dashboard_32_horario_comparticiones.sql', import.meta.url), 'utf8');
-const reviewNotificationsSql = fs.readFileSync(new URL('../supabase/dashboard_34_notificaciones_revision.sql', import.meta.url), 'utf8');
 const expandedFacebookEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_35_comparticiones_hasta_50.sql', import.meta.url), 'utf8');
 const automaticCloseSql = fs.readFileSync(new URL('../supabase/dashboard_36_cierre_automatico_por_evidencia.sql', import.meta.url), 'utf8');
 const directionEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_37_carga_evidencias_direccion.sql', import.meta.url), 'utf8');
 const oneFacebookEvidenceSql = fs.readFileSync(new URL('../supabase/dashboard_38_comparticiones_desde_una_imagen.sql', import.meta.url), 'utf8');
 const directionAccountsSql = fs.readFileSync(new URL('../supabase/dashboard_39_alta_direccion_fabrizio_erika.sql', import.meta.url), 'utf8');
-const deletableReviewNotificationsSql = fs.readFileSync(new URL('../supabase/dashboard_40_eliminar_notificaciones_revision.sql', import.meta.url), 'utf8');
-const unifiedNotificationsSql = fs.readFileSync(new URL('../supabase/dashboard_41_centro_notificaciones.sql', import.meta.url), 'utf8');
 const lateExitSql = fs.readFileSync(new URL('../supabase/dashboard_42_entrada_y_salida_tardia.sql', import.meta.url), 'utf8');
 const repairedExitSql = fs.readFileSync(new URL('../supabase/dashboard_43_reparar_regularizacion_salida.sql', import.meta.url), 'utf8');
 const closeSchedulesSql = fs.readFileSync(new URL('../supabase/dashboard_44_horarios_en_cierres.sql', import.meta.url), 'utf8');
@@ -42,7 +39,6 @@ const pendingExitSql = fs.readFileSync(new URL('../supabase/dashboard_46_conserv
 const assignmentStatusSql = fs.readFileSync(new URL('../supabase/dashboard_47_estado_asignaciones.sql', import.meta.url), 'utf8');
 const separatedFacebookSql = fs.readFileSync(new URL('../supabase/dashboard_48_separar_jornada_y_comparticiones.sql', import.meta.url), 'utf8');
 const expiredFacebookSql = fs.readFileSync(new URL('../supabase/dashboard_49_vencimiento_comparticiones.sql', import.meta.url), 'utf8');
-const visibleDirectionMessagesSql = fs.readFileSync(new URL('../supabase/dashboard_50_mensajes_direccion_visibles.sql', import.meta.url), 'utf8');
 const coLeadersSql = fs.readFileSync(new URL('../supabase/dashboard_51_colideres_tecnicos.sql', import.meta.url), 'utf8');
 const edge = fs.readFileSync(new URL('../supabase/functions/dash-entrega/index.ts', import.meta.url), 'utf8');
 const markedAttendanceStateJs=js.slice(js.indexOf('function markedAttendanceActionState('),js.indexOf('\nfunction syncMarkedAttendanceAction()',js.indexOf('function markedAttendanceActionState(')));
@@ -658,112 +654,10 @@ test('technical leaders get read-only evidence access limited to their own area'
   assert.match(html,/id="admin-review-access"[^>]*hidden/);
 });
 
-test('review decisions create private, readable notifications for the evidence owner', () => {
-  for (const fragment of [
-    'add column leida_at timestamptz',
-    'create or replace function public.dash_mis_notificaciones_revision',
-    'create or replace function public.dash_marcar_notificaciones_revision',
-    'entrega.colaborador_id = v_colab',
-    'revision.leida_at is null',
-    "'no_leidas', v_no_leidas",
-  ]) assert.ok(reviewNotificationsSql.includes(fragment), `notification migration missing: ${fragment}`);
-  assert.match(reviewNotificationsSql,/update public\.asis_entrega_revisiones[\s\S]*?set leida_at = creado_at/);
-  assert.match(reviewNotificationsSql,/revoke all on function public\.dash_mis_notificaciones_revision/);
-  assert.match(reviewNotificationsSql,/grant execute on function public\.dash_marcar_notificaciones_revision\(bigint\[\]\) to authenticated/);
+test('review audit remains while inbox and messaging entrypoints are retired', () => {
   assert.match(reviewNotesSql,/revision_nota = v_nota/);
-  assert.match(html,/data-review-notification-trigger/);
-  assert.match(html,/id="review-notification-panel"[^>]*role="dialog"[^>]*aria-modal="true"/);
-  assert.match(js,/dash_mis_notificaciones_revision/);
-  assert.match(js,/dash_marcar_notificaciones_revision/);
-  assert.match(js,/dash_eliminar_notificacion_revision/);
-  assert.match(js,/data-delete-review-notification/);
-  assert.match(js,/has-direction-message/);
-  assert.match(js,/function reviewNotificationDayKey\(value\)/);
-  assert.match(js,/function reviewNotificationDayLabel\(key,value\)/);
-  assert.match(js,/function reviewNotificationListMarkup\(items\)/);
-  assert.match(js,/class="review-notification-day"/);
-  assert.match(js,/Falta activar la eliminación de notificaciones en Supabase/);
-  assert.match(js,/function startReviewNotificationSync\(\)/);
-  assert.match(js,/function mountReviewNotificationPortal\(\)[\s\S]*?document\.body\.appendChild\(layer\)/);
-  assert.match(js,/const layer=mountReviewNotificationPortal\(\)/);
-  assert.match(js,/const fresh=await loadReviewNotifications\(\{quiet:true\}\)/);
-  assert.match(js,/fresh\?\.unread>0\)await markReviewNotificationsRead\(null\)/);
-  assert.match(css,/\.review-notification-badge\{/);
-  assert.match(css,/\.review-notification-layer\{position:fixed;z-index:1250/);
-  assert.match(css,/@media\(max-width:900px\)\{[\s\S]*?\.review-notification-panel\{width:100%/);
-  assert.match(css,/\.review-notification-item>\.review-notification-delete\{/);
-  assert.match(css,/\.review-notification-day>h3\{/);
-  assert.match(css,/\.review-notification-copy p\.has-direction-message\{[\s\S]*?background:/);
-  assert.match(html,/id="review-notification-list" role="region" aria-label="Historial de notificaciones"/);
-  assert.doesNotMatch(html,/id="time-preview-switch"|id="weather-chip"|class="session-chip"/);
-  for (const fragment of [
-    'add column if not exists ocultada_por_colaborador_at timestamptz',
-    'create or replace function public.dash_eliminar_notificacion_revision',
-    'revision.ocultada_por_colaborador_at is null',
-    'entrega.colaborador_id = v_colab',
-    'grant execute on function public.dash_eliminar_notificacion_revision(bigint) to authenticated',
-  ]) assert.ok(deletableReviewNotificationsSql.includes(fragment), `deletable notification migration missing: ${fragment}`);
-});
-
-test('direction messages, review notes and assignments share one private notification inbox', () => {
-  for (const fragment of [
-    'create table if not exists public.asis_notificaciones',
-    "'revision_aprobada','revision_observada','mensaje_direccion','asignacion'",
-    'create or replace function public.dash_admin_enviar_mensaje',
-    'create or replace function public.dash_notificar_revision_trg()',
-    'create or replace function public.dash_notificar_asignacion_trg()',
-    'new.nota',
-    "'asignacion:' || new.id::text || ':colaborador:' || colaborador.id::text",
-    'from public.asis_notificaciones notificacion',
-    'colaborador_id = public.dash_colab()',
-    'alter publication supabase_realtime add table public.asis_notificaciones',
-  ]) assert.ok(unifiedNotificationsSql.includes(fragment), `unified notification migration missing: ${fragment}`);
-  assert.match(unifiedNotificationsSql,/public\.asis_rol\(\) is distinct from 'direccion'/);
-  assert.match(unifiedNotificationsSql,/grant execute on function public\.dash_admin_enviar_mensaje\(bigint, text, text\) to authenticated/);
-
-  assert.match(html,/id="admin-message-modal"[^>]*hidden/);
-  assert.match(html,/id="admin-message-form"/);
-  assert.match(html,/id="admin-message-body"[^>]*minlength="3"[^>]*maxlength="700"/);
-  assert.match(adminJs,/data-admin-message-person/);
-  assert.match(adminJs,/db\.rpc\('dash_admin_enviar_mensaje'/);
-  assert.match(adminJs,/function openAdminMessage\(personId,trigger=null\)/);
-  assert.match(adminJs,/function submitAdminMessage\(event\)/);
-
-  assert.match(js,/function playNotificationSound\(\)/);
-  assert.match(js,/function announceFreshNotifications\(items\)/);
-  assert.match(js,/table:'asis_notificaciones'/);
-  assert.match(js,/first\.tipo==='asignacion'\?'Nueva asignación'/);
-  assert.match(js,/document\.title=unread/);
-  assert.match(css,/\.review-notification-item\[data-state="message"\]/);
-  assert.match(css,/\.review-notification-item\[data-state="assignment"\]/);
-  assert.match(css,/\.admin-close-message-trigger\{/);
-  assert.match(adminJs,/<span>Jornada<\/span><span>Mensaje<\/span>/);
-  assert.match(adminJs,/data-label="Mensaje" class="admin-close-message-cell"/);
-  assert.match(css,/\.admin-close-message-cell\{/);
-  assert.match(css,/\.admin-message-sheet\{/);
-});
-
-test('notification sound is reinforced and protected from clipping', () => {
-  assert.match(js,/exponentialRampToValueAtTime\(\.18,now\+\.015\)/);
-  assert.match(js,/createDynamicsCompressor/);
-  assert.match(js,/duration:\.28,level:\.9,type:'triangle'/);
-  assert.ok(Number(html.match(/dashboard\.js\?v=(\d+)/)?.[1])>=173);
-});
-
-test('every user notification visibly identifies the Direction message and sender', () => {
-  for (const fragment of [
-    'update public.asis_notificaciones notificacion',
-    "notificacion.dedupe_key='revision:'||revision.id::text",
-    'create or replace function public.dash_notificar_revision_trg',
-    'nullif(btrim(v_entrega.revision_nota)',
-    'create or replace function public.dash_mis_notificaciones_revision',
-    "'remitente',item.remitente",
-    'left join public.asis_perfiles perfil on perfil.id=notificacion.actor_id',
-  ]) assert.ok(visibleDirectionMessagesSql.includes(fragment), `visible Direction message migration missing: ${fragment}`);
-  assert.match(js,/const messageLabel=assignment\?'Indicaciones de Dirección':observed\?'Observación de Dirección':'Mensaje de Dirección'/);
-  assert.match(js,/const messageHeading=sender\?`\$\{messageLabel\} · \$\{sender\}`:messageLabel/);
-  assert.match(js,/class="has-direction-message\$\{hasMessage\?'':' is-system-message'\}"/);
-  assert.match(js,/\$\{esc\(messageHeading\)\}<\/span>\$\{esc\(copy\)\}/);
+  assert.match(reviewSql,/asis_entrega_revisiones/);
+  assert.doesNotMatch(html+js+adminJs,/review-notification|admin-message-|KJAChat|dash_admin_enviar_mensaje/);
 });
 
 test('admin close evidence progress survives an incomplete close summary', () => {
@@ -1499,7 +1393,7 @@ test('approving an evidence closes the busy review modal and syncs already revie
       openAdminReviewPerson:(...args)=>calls.reopened.push(args)
     };
     vm.createContext(c);
-    vm.runInContext(slice('function adminReviewMessage(','async function renderAdminReviewDelivery(')+slice('async function submitAdminReview(','function openAdminMessage(')+"var ADMIN_REVIEW={personId:3,assignmentId:null,deliveryId:7,trigger:null,busy:false,request:0};",c);
+    vm.runInContext(slice('function adminReviewMessage(','async function renderAdminReviewDelivery(')+slice('async function submitAdminReview(','function adminEvidenceMessage(')+"var ADMIN_REVIEW={personId:3,assignmentId:null,deliveryId:7,trigger:null,busy:false,request:0};",c);
     el('admin-review-modal').hidden=false;
     return {c,el,calls};
   };

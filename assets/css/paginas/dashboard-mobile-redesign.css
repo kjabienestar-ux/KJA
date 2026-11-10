@@ -110,37 +110,6 @@
     display: none !important;
   }
 
-  #portal:not(.admin-wide) .mobile-review-notification-trigger {
-    position: absolute;
-    top: 24px;
-    right: 76px;
-    z-index: 2;
-    width: 44px;
-    height: 44px;
-    display: grid;
-    place-items: center;
-    margin: 0;
-    border: 1px solid #e4ebf3;
-    border-radius: 50%;
-    color: #17294c;
-    background: #fff;
-    box-shadow: 0 5px 16px rgba(23, 41, 76, .08);
-  }
-
-  #portal:not(.admin-wide) .mobile-review-notification-trigger[hidden] {
-    display: grid !important;
-  }
-
-  #portal:not(.admin-wide) .mobile-review-notification-trigger svg {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
   #portal:not(.admin-wide) .mobile-portal-sheet {
     display: flex;
     flex-direction: column;
@@ -467,22 +436,6 @@
   #portal:not(.admin-wide) .mobile-quick-grid button small { font-size: 11px; }
   #portal:not(.admin-wide) .mobile-quick-grid button .mobile-action-arrow { top: 15px; right: 13px; }
 
-  #portal:not(.admin-wide) .kja-chat .chat-launcher {
-    width: 56px;
-    height: 56px;
-    min-height: 56px;
-    right: 16px;
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    padding: 0;
-    border-radius: 50%;
-    color: #fff;
-    background: #e0006f;
-    box-shadow: 0 10px 22px rgba(224, 0, 111, .28);
-  }
-
-  #portal:not(.admin-wide) .kja-chat .chat-launcher > span:not(.chat-count) { display: none; }
-  #portal:not(.admin-wide) .kja-chat .chat-launcher svg { width: 24px; height: 24px; }
-
   #portal:not(.admin-wide) #mobile-close-panel {
     margin: 4px 0 22px;
     padding: 14px 12px 16px;
@@ -555,21 +508,6 @@
     line-height: 1.35;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-  }
-
-  .kja-chat .chat-launcher {
-    font-size: 0 !important;
-  }
-
-  .kja-chat .chat-launcher > span:not(.chat-count) {
-    display: none !important;
-  }
-
-  .kja-chat .chat-launcher {
-    background: #e0006f !important;
-    border-radius: 50% !important;
-    color: #fff !important;
-    box-shadow: 0 10px 22px rgba(224, 0, 111, .28) !important;
   }
 }
 
@@ -796,24 +734,6 @@
   #portal:not(.admin-wide) #mobile-close-panel .mcv2-state-pill[data-progress-state]::before {
     display: none !important;
   }
-
-  .kja-chat {
-    position: fixed !important;
-    right: 16px !important;
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
-    margin: 0 !important;
-  }
-
-  .kja-chat .chat-launcher {
-    position: relative;
-    display: grid !important;
-    place-items: center;
-    width: 56px !important;
-    height: 56px !important;
-    min-height: 56px !important;
-    padding: 0 !important;
-    border-radius: 50% !important;
-  }
 }
 
 @media (max-width: 900px) {
@@ -858,7 +778,6 @@
 @media (max-width: 400px) {
   #portal:not(.admin-wide) .mobile-portal-person h1 { font-size: 20px; }
   #portal:not(.admin-wide) .mobile-profile-photo { width: 46px; height: 46px; }
-  #portal:not(.admin-wide) .mobile-review-notification-trigger { top: 23px; right: 68px; }
 }
 
 /* Reference-inspired mobile surface: one calm canvas and light routine cards. */
@@ -890,13 +809,6 @@
   #portal:not(.admin-wide) .mobile-profile-photo {
     background: #efe8df;
     box-shadow: 0 3px 10px rgba(47, 39, 38, .1);
-  }
-
-  #portal:not(.admin-wide) .mobile-review-notification-trigger {
-    color: #263044;
-    border-color: #ece6e4;
-    background: #fff;
-    box-shadow: 0 3px 10px rgba(47, 39, 38, .08);
   }
 
   #portal:not(.admin-wide) .mobile-portal-sheet {
@@ -1121,12 +1033,6 @@
   #portal:not(.admin-wide) .mobile-profile-photo {
     align-self: center;
     justify-self: end;
-  }
-
-  #portal:not(.admin-wide) .mobile-review-notification-trigger {
-    top: 50%;
-    right: 76px;
-    transform: translateY(-50%);
   }
 
   #portal:not(.admin-wide) #mobile-close-panel .mcv2-head {
