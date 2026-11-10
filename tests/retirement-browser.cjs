@@ -39,7 +39,8 @@ const server=http.createServer((req,res)=>{
         await page.evaluate(()=>goView('perfil'));await page.locator('#rail-pausa-open').click();
         await page.waitForTimeout(350);await page.screenshot({path:path.join(out,version+'-selection.png'),animations:'disabled'});
         await page.locator('[data-start-break="visual"]').click();await page.screenshot({path:path.join(out,version+'-pausa.png')});
-        assert.match(await page.locator('#pausa-timer-display').innerText(),/^(10:00|09:59)$/);
+        const shown=(await page.locator('#pausa-timer-display').innerText()).split(':').map(Number);
+        assert.ok(shown[0]*60+shown[1]<=600&&shown[0]*60+shown[1]>=570,'El contador avanza durante la captura');
         await page.locator('[data-pausa-close]').click();await page.reload();await page.waitForFunction(()=>typeof APP!=='undefined'&&APP.inicio&&document.querySelector('#portal').hidden===false);
         await page.evaluate(()=>goView('perfil'));await page.locator('#rail-pausa-open').click();assert.equal(await page.locator('#pausa-timer-display').count(),1);
         await context.setOffline(true);await page.locator('#pausa-cancel').click();await page.locator('[data-start-break="movilidad"]').click();assert.match(await page.locator('#pausa-timer-display').innerText(),/^20:00$/);
