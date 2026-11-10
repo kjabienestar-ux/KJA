@@ -20,3 +20,5 @@ supabase/.temp/
 output/kja-035/
 /.tmp-archive-*.log
 /output/evidence-archive/
+
+output/kja-035-ui/
