@@ -37,7 +37,7 @@ const server=http.createServer((req,res)=>{
         assert.equal(await page.locator('[data-review-notification-trigger],#admin-message-modal,#admin-pausas-modal,.kja-chat').count(),0);
         // Pauses live in the profile rail, which the normal profile action exposes.
         await page.evaluate(()=>goView('perfil'));await page.locator('#rail-pausa-open').click();
-        await page.screenshot({path:path.join(out,version+'-selection.png')});
+        await page.waitForTimeout(350);await page.screenshot({path:path.join(out,version+'-selection.png'),animations:'disabled'});
         await page.locator('[data-start-break="visual"]').click();await page.screenshot({path:path.join(out,version+'-pausa.png')});
         assert.match(await page.locator('#pausa-timer-display').innerText(),/^(10:00|09:59)$/);
         await page.locator('[data-pausa-close]').click();await page.reload();await page.waitForFunction(()=>typeof APP!=='undefined'&&APP.inicio&&document.querySelector('#portal').hidden===false);
