@@ -579,7 +579,7 @@ test('completed Facebook evidence keeps identity details inside its private rece
   assert.match(css,/\.day-close-check-badge\{/);
 });
 
-test('Facebook receipt previews compact, ordered private images', () => {
+test('Facebook receipt preserves private metadata and accessible preview controls', () => {
   for (const fragment of [
     'create or replace function public.dash_mi_comprobante_comparticiones()',
     'public.dash_sesion_vigente()',
@@ -597,7 +597,7 @@ test('Facebook receipt previews compact, ordered private images', () => {
   assert.match(js,/data-facebook-share-open/);
   assert.match(js,/db\.rpc\('dash_mi_comprobante_comparticiones'\)/);
   assert.match(js,/createSignedUrl\(file\.path,900\)/);
-  assert.match(js,/toca para ampliar/);
+  assert.match(js,/aria-label="Abrir captura/);
   assert.doesNotMatch(js,/navigator\.share|wa\.me|submitFacebookShare|downloadFacebookShareFiles/);
   assert.match(css,/\.facebook-share-workspace\{[\s\S]*?grid-template-columns:/);
   assert.match(css,/\.facebook-share-modal \.modal-backdrop\{[\s\S]*?background:transparent!important[\s\S]*?backdrop-filter:blur\(5px\)/);

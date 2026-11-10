@@ -1,0 +1,8 @@
+.facebook-share-gallery[data-selected="true"]{grid-template-columns:minmax(0,1fr);align-content:start}
+.facebook-share-gallery[data-selected="true"] figure{width:100%;min-width:0}
+.facebook-share-gallery[data-selected="true"] img{max-height:520px;object-fit:contain}
+.facebook-share-navigation{display:flex;align-items:center;justify-content:space-between;gap:10px;grid-column:1/-1;color:#26415b;font-size:12px}
+.facebook-share-navigation button,.facebook-share-error button{padding:8px 12px;border:1px solid #bdcbd8;border-radius:9px;background:#fff;color:#26415b;font:inherit;cursor:pointer}
+.facebook-share-navigation button:disabled{color:#657487;background:#eef2f6;cursor:default}
+.facebook-share-navigation button:focus-visible,.facebook-share-error button:focus-visible{outline:2px solid #176a84;outline-offset:2px}
+@media(max-width:700px){.facebook-share-gallery[data-selected="true"] img{max-height:380px}}
