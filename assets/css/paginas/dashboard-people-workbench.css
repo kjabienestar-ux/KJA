@@ -115,7 +115,13 @@
   #portal #admin-people-section.pw-workbench :is(button,input,select,summary,a):focus-visible,.pw-modal :is(button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid #93472f!important;outline-offset:3px}
   #admin-person-modal.pw-legacy-editor .admin-editor-sheet{background:#fcfaf7;color:#282622;border-radius:18px;max-width:1060px}
   #admin-person-modal.pw-legacy-editor :is(.admin-editor-head,.admin-editor-foot){background:#fff;color:#282622;border-color:#ded6cb}
-  #admin-person-modal.pw-legacy-editor .admin-editor-block{background:#fff;border:1px solid #e6dfd8;border-radius:13px;margin:14px 0;padding:18px}
+  /* «Ver ficha» en la cabecera del editor, junto al botón de cerrar. */
+  #admin-person-modal.pw-legacy-editor #pw-editor-profile{display:inline-flex;align-items:center;gap:7px;flex:none;min-height:44px;height:44px;margin-left:auto;padding:0 14px;border:1px solid #dfc5b1;border-radius:10px;background:#fff;color:#93472f;font-size:13px;font-weight:600;cursor:pointer}
+  #admin-person-modal.pw-legacy-editor #pw-editor-profile:hover{background:#fbf4ed;border-color:#cfa98d}
+  #admin-person-modal.pw-legacy-editor #pw-editor-profile[hidden]{display:none}
+  #admin-person-modal.pw-legacy-editor #pw-editor-profile svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  #admin-person-modal.pw-legacy-editor #pw-editor-profile:not([hidden])+.modal-close{margin-left:-10px}
+  #admin-person-modal.pw-legacy-editor .admin-editor-block{background:#fff;border:1px solid #e6dfd8;border-radius:13px;margin:0;padding:20px 22px;gap:16px}
   #admin-person-modal.pw-legacy-editor :is(input,select,button){min-height:44px;font-size:13px}
   #admin-person-modal.pw-legacy-editor :is(input,select,textarea){background:#fff;color:#282622;border-color:#998b7f}
   #admin-person-modal.pw-legacy-editor :is(input,select,textarea){border-color:#998b7f!important}
@@ -126,6 +132,107 @@
   #admin-person-modal.pw-legacy-editor :is(p,small,.admin-field>label){color:#69635d}
   #admin-person-modal.pw-legacy-editor .admin-schedule-row{background:#faf7f2;border-color:#ded6cb}
   #admin-person-modal.pw-legacy-editor :is(button,input,select,textarea):focus-visible{outline:3px solid #93472f;outline-offset:3px}
+  /* Editor del colaborador por pantallas: una sección visible a la vez, altura fija y sin desplazamiento. */
+  #admin-person-modal.pw-legacy-editor .admin-editor-sheet{max-width:1000px}
+  #admin-person-modal.pw-legacy-editor #admin-person-form{height:min(720px,calc(100dvh - 136px));grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);align-content:start;gap:18px;padding:0 24px}
+  #admin-person-modal.pw-legacy-editor :is(.editor-identity,.editor-contract,.schedule-block,.facebook-schedule-block){grid-column:1/-1}
+  #admin-person-modal.pw-legacy-editor .admin-editor-block.editor-tab-off{display:none!important}
+  #admin-person-modal.pw-legacy-editor .admin-editor-block{align-self:stretch;align-content:start}
+  #admin-person-modal.pw-legacy-editor .admin-editor-foot{margin:auto -24px 0;padding:12px 24px}
+  #admin-person-modal.pw-legacy-editor .admin-editor-message:empty{display:none}
+  /* Pestañas sin numeración con flechas a los lados, como en la ficha. */
+  #admin-person-modal.pw-legacy-editor .admin-editor-nav{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:center;gap:18px;margin:0 -24px;padding:4px 24px;background:#fff;border-bottom:1px solid #e6dfd8}
+  #admin-person-modal.pw-legacy-editor .admin-editor-tabs{display:flex;gap:26px}
+  #admin-person-modal.pw-legacy-editor .admin-editor-tabs button{min-height:47px;height:47px;margin:0;padding:10px 2px;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:#69635d;font:600 13px Inter,system-ui,sans-serif;box-shadow:none;cursor:pointer}
+  #admin-person-modal.pw-legacy-editor .admin-editor-tabs button[aria-selected=true]{border-color:#a9583e;color:#93472f}
+  #admin-person-modal.pw-legacy-editor .admin-editor-step{display:grid;place-items:center;width:36px;height:36px;min-height:36px;margin:0;padding:0;border:1px solid #e6dfd8;border-radius:50%;background:#fff;color:#93472f;box-shadow:none;cursor:pointer;flex-shrink:0}
+  #admin-person-modal.pw-legacy-editor .admin-editor-step svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  #admin-person-modal.pw-legacy-editor .admin-editor-step:disabled{color:#cfc6bc;border-color:#eee7de;background:#fff;cursor:default}
+  /* Jornada y Facebook en una columna: título, horario general y encabezados fijos; solo la lista de días se desplaza
+     dentro de su recuadro cuando la pantalla es baja, y el recuadro llega justo al borde inferior de la tarjeta. */
+  #admin-person-modal.pw-legacy-editor :is(.schedule-block,.facebook-schedule-block){overflow:hidden;align-content:stretch;row-gap:12px}
+  #admin-person-modal.pw-legacy-editor .schedule-block{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto auto minmax(0,1fr);column-gap:16px}
+  #admin-person-modal.pw-legacy-editor .facebook-schedule-block{grid-template-rows:auto auto auto minmax(0,1fr)}
+  #admin-person-modal.pw-legacy-editor .schedule-block>*{grid-column:1/-1}
+  #admin-person-modal.pw-legacy-editor .schedule-block>.admin-general-hours{grid-column:1;grid-row:2;width:auto;max-width:none}
+  #admin-person-modal.pw-legacy-editor .schedule-block>#pw-editor-schedule-note{grid-column:2;grid-row:2;align-self:end;margin:0;padding:9px 12px;font-size:12px;line-height:1.5}
+  #admin-person-modal.pw-legacy-editor .schedule-block:not(:has(#pw-editor-schedule-note:not([hidden])))>.admin-general-hours{grid-column:1/-1}
+  #admin-person-modal.pw-legacy-editor .schedule-block>.admin-schedule-head{grid-row:3}
+  #admin-person-modal.pw-legacy-editor .schedule-block>.admin-schedule-grid{grid-row:4}
+  #admin-person-modal.pw-legacy-editor .facebook-schedule-block>.facebook-schedule-grid{grid-row:4}
+  #admin-person-modal.pw-legacy-editor :is(.admin-schedule-grid,.facebook-schedule-grid){display:grid;grid-template-columns:minmax(0,1fr);align-content:start;align-self:start;max-height:100%;min-height:0;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y proximity;scrollbar-width:thin;scrollbar-color:#cdbfb1 transparent}
+  #admin-person-modal.pw-legacy-editor :is(.admin-schedule-grid,.facebook-schedule-grid)>*{min-width:0;grid-column:1/-1}
+  #admin-person-modal.pw-legacy-editor :is(.admin-schedule-grid,.facebook-schedule-grid) :is(input,select,button,.af-trigger){min-height:38px;height:38px}
+  #admin-person-modal.pw-legacy-editor :is(.admin-schedule-row,.facebook-schedule-row){padding-block:4px;scroll-snap-align:start}
+  #admin-person-modal.pw-legacy-editor :is(.admin-schedule-grid,.facebook-schedule-grid) .af-trigger{gap:4px;padding-inline:10px;font-size:12.5px}
+  /* Con prácticas + voluntariado, «Cuenta como» es una quinta columna en la misma fila del día. */
+  #admin-person-modal.pw-legacy-editor .schedule-block:has(.admin-schedule-grid.mixed) .admin-schedule-head,#admin-person-modal.pw-legacy-editor .admin-schedule-grid.mixed .admin-schedule-row{grid-template-columns:30px minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr)}
+  #admin-person-modal.pw-legacy-editor .schedule-block:has(.admin-schedule-grid.mixed) .admin-schedule-head>:last-child{display:block}
+  #admin-person-modal.pw-legacy-editor .admin-schedule-grid.mixed .schedule-link+.af-control{grid-column:auto}
+  /* Facebook: el aviso se integra bajo el título para ganar alto. */
+  #admin-person-modal.pw-legacy-editor .facebook-schedule-block .facebook-schedule-note{padding:8px 12px;font-size:12px}
+  /* Contrato: «Qué falta confirmar» junto a la casilla y voluntariado en la misma fila de fechas y metas. */
+  #admin-person-modal.pw-legacy-editor .editor-contract{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;row-gap:14px}
+  #admin-person-modal.pw-legacy-editor .editor-contract>*{grid-column:1/-1}
+  #admin-person-modal.pw-legacy-editor .editor-contract:has(#admin-contract-note-wrap:not([hidden]))>.admin-pending-check{grid-column:1}
+  #admin-person-modal.pw-legacy-editor .editor-contract>#admin-contract-note-wrap{grid-column:2;align-self:end}
+  #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields:has(#admin-volunteer-hours-wrap:not([hidden])){grid-template-columns:repeat(5,minmax(0,1fr))}
+  #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields>#admin-volunteer-hours-wrap{grid-column:auto}
+  #admin-person-modal.pw-legacy-editor .contract-document-drop{padding:10px 14px}
+  /* Si una pantalla muy baja no alcanza, la tarjeta se desplaza por dentro en lugar de cortar su contenido. */
+  #admin-person-modal.pw-legacy-editor .admin-editor-block:not(.editor-tab-off,.schedule-block,.facebook-schedule-block){overflow-y:auto;scrollbar-width:thin}
+  /* Semana editable de una persona registrada: se cambia en la tabla y, si cambia, se piden fecha y motivo. */
+  #admin-person-modal.pw-legacy-editor .schedule-block.pw-schedule-editable>#pw-editor-schedule-note{display:none}
+  #admin-person-modal.pw-legacy-editor .pw-inline-week{flex:none;margin:0}
+  #admin-person-modal.pw-legacy-editor .pw-inline-week :is(.pw-shift-head,.pw-shift-day){grid-template-columns:44px minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:8px;padding:3px 12px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-week :is(.pw-shift-head.pw-mixed,.pw-shift-day:has([data-pw-day-link])){grid-template-columns:44px minmax(0,1.2fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.1fr)}
+  #admin-person-modal.pw-legacy-editor .pw-inline-week .pw-shift-head{padding-block:6px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-week :is(input,select,button,.af-trigger){min-height:30px;height:30px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-week .af-trigger{gap:4px;padding-inline:10px;font-size:12.5px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-change{flex:none;display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) minmax(0,2fr);gap:10px 12px;align-items:end;padding:12px 14px;border:1px solid #dfc5b1;border-radius:10px;background:#fbf4ed}
+  #admin-person-modal.pw-legacy-editor .pw-inline-change[hidden]{display:none}
+  #admin-person-modal.pw-legacy-editor .pw-inline-type{position:relative;display:flex;margin:0;padding:3px;border:1px solid #dcbfa9;border-radius:9px;background:#fff}
+  #admin-person-modal.pw-legacy-editor .pw-inline-type legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  #admin-person-modal.pw-legacy-editor .pw-inline-type label{position:relative;display:flex;align-items:center;margin:0;cursor:pointer}
+  #admin-person-modal.pw-legacy-editor .pw-inline-type input{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+  #admin-person-modal.pw-legacy-editor .pw-inline-type span{padding:7px 12px;border-radius:7px;font-size:12.5px;font-weight:600;color:#69635d}
+  #admin-person-modal.pw-legacy-editor .pw-inline-type input:checked+span{background:#a9583e;color:#fff}
+  #admin-person-modal.pw-legacy-editor .pw-inline-type input:focus-visible+span{outline:3px solid #93472f;outline-offset:2px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-field{display:flex;flex-direction:column;gap:5px;margin:0;font-size:12px;font-weight:600;color:#69635d}
+  #admin-person-modal.pw-legacy-editor .pw-inline-field small{font-weight:400}
+  #admin-person-modal.pw-legacy-editor .pw-inline-field input{min-height:36px;height:36px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-summary{grid-column:1/-2;align-self:center;margin:0;font-size:12.5px;line-height:1.5;color:#79432b}
+  #admin-person-modal.pw-legacy-editor .pw-inline-change [data-pw-inline-reset]{grid-column:-2/-1;justify-self:end;min-height:34px;height:34px;padding:0 12px;font-size:12.5px}
+  /* Persona registrada: resumen de la jornada en lugar de la tabla bloqueada (que sigue oculta en el formulario). */
+  #admin-person-modal.pw-legacy-editor .schedule-block.pw-schedule-readonly{grid-template-rows:auto auto minmax(0,1fr)}
+  #admin-person-modal.pw-legacy-editor .schedule-block.pw-schedule-readonly>:is(.admin-general-hours,.admin-schedule-head,.admin-schedule-grid){display:none!important}
+  #admin-person-modal.pw-legacy-editor .schedule-block.pw-schedule-readonly>#pw-editor-schedule-note{grid-column:1/-1;grid-row:auto;align-self:start}
+  #admin-person-modal.pw-legacy-editor .schedule-block:not(.pw-schedule-readonly)>.pw-editor-schedule-view{display:none}
+  #admin-person-modal.pw-legacy-editor .pw-editor-schedule-view{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;min-height:0;overflow-y:auto;scrollbar-width:thin}
+  #admin-person-modal.pw-legacy-editor .pw-editor-schedule-view>header{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  #admin-person-modal.pw-legacy-editor .pw-editor-schedule-view>header b{font-size:13.5px;font-weight:650;color:#282622}
+  #admin-person-modal.pw-legacy-editor .pw-editor-schedule-view>header .pw-editor-period{margin-left:auto;font-size:12px;color:#69635d}
+  #admin-person-modal.pw-legacy-editor .pw-editor-schedule-view .pw-week{flex:none;font-size:12.5px}
+  #admin-person-modal.pw-legacy-editor .pw-editor-schedule-view .pw-week :is(th,td){padding:5px 12px;line-height:1.45}
+  #admin-person-modal.pw-legacy-editor .pw-editor-next{padding:1px 10px;border:1px solid #dfc5b1;border-radius:20px;background:#f8eee4;color:#79432b;font-size:11.5px;font-weight:600;line-height:1.5}
+  /* Tarjeta del directorio: aviso del próximo cambio y resaltado al volver del editor. */
+  .pw-card-next{font-weight:650;color:#93472f}
+  .pw-card.pw-card-updated{animation:pwCardUpdated 2.6s ease}
+  @keyframes pwCardUpdated{0%,35%{box-shadow:0 0 0 3px #a9583e,0 10px 26px #a9583e33;border-color:#a9583e}100%{box-shadow:0 2px 4px #33251a06}}
+  @media (prefers-reduced-motion:reduce){.pw-card.pw-card-updated{animation:none;box-shadow:0 0 0 3px #a9583e}}
+  /* Identidad en cuatro columnas: nombre, DNI y correo arriba; institución, vínculo y área abajo. */
+  #admin-person-modal.pw-legacy-editor .editor-identity .admin-form-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 16px}
+  #admin-person-modal.pw-legacy-editor .editor-identity .admin-form-grid>.span-2{grid-column:span 2}
+  #admin-person-modal.pw-legacy-editor .editor-identity .admin-field-institution{grid-column:span 2;grid-row:auto}
+  #admin-person-modal.pw-legacy-editor .editor-identity .admin-area-create{grid-column:1/-1}
+  #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 16px}
+  #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields>.span-2{grid-column:span 2}
+  #admin-person-modal.pw-legacy-editor .admin-contract-estimate{grid-column:1/-1;margin:-4px 0 0;font-size:12px;font-weight:400;line-height:1.5}
+  /* «+ Nueva» y «Simular» pasan a la línea de la etiqueta como acciones discretas. */
+  #admin-person-modal.pw-legacy-editor .admin-field-head{display:flex;align-items:center;justify-content:space-between;gap:8px;line-height:inherit}
+  #admin-person-modal.pw-legacy-editor .admin-field-head label{color:#69635d;font-weight:600}
+  #admin-person-modal.pw-legacy-editor .admin-field-add{min-height:0;height:auto;margin:-3px -6px -3px 0;padding:3px 6px;border:0;border-radius:6px;background:transparent;color:#93472f;font:600 12px/1 Inter,system-ui,sans-serif;box-shadow:none;cursor:pointer;white-space:nowrap}
+  #admin-person-modal.pw-legacy-editor .admin-field-add:disabled{color:#b3a99f;background:transparent;cursor:not-allowed}
   #admin-days-off-modal.pw-days-off .admin-days-off-sheet{background:#fcfaf7;color:#282622;border:1px solid #ded6cb;overscroll-behavior:contain}
   #admin-days-off-modal.pw-days-off .admin-days-off-head h2{font:400 26px Georgia,serif;color:#282622}
   #admin-days-off-modal.pw-days-off .admin-days-off-head p{color:#69635d;font-size:12px}
@@ -151,9 +258,29 @@
   #portal #admin-people-section.pw-workbench .pw-card-edit{position:absolute;top:12px;right:12px;display:grid;place-items:center;width:34px;height:34px;min-width:34px;min-height:34px;margin:0;padding:0;border:1px solid #e6dfd8;border-radius:10px;background:#fff;color:#93472f;box-shadow:none;cursor:pointer;transition:background .15s,border-color .15s}
   #portal #admin-people-section.pw-workbench .pw-card-edit svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   #portal #admin-people-section.pw-workbench .pw-card-edit:focus-visible{outline:3px solid #93472f;outline-offset:2px}
+  /* Ficha del colaborador: ventana ajustada al contenido y una tarjeta por pestaña, con flechas para recorrerlas. */
+  #pw-profile-dialog.pw-modal{width:min(980px,calc(100vw - 48px));height:fit-content}
+  /* Altura mínima igual a la pestaña más alta (Jornada), para que la ventana y las flechas no salten al cambiar de pestaña. */
+  #pw-profile-dialog .pw-modal-body{min-height:min(550px,calc(100vh - 290px));padding:22px 26px}
+  #pw-profile-dialog .pw-modal-body>:last-child{margin-bottom:0}
+  .pw-profile-nav{display:flex;align-items:center;justify-content:center;gap:18px;background:#fff;border-bottom:1px solid #e6dfd8;padding:4px 22px;flex-shrink:0}
+  .pw-profile-nav .pw-profile-tabs{border-bottom:0;padding:0;background:transparent;gap:26px}
+  .pw-step{display:grid;place-items:center;width:36px;height:36px;min-height:36px;margin:0;padding:0;border:1px solid #e6dfd8;border-radius:50%;background:#fff;color:#93472f;cursor:pointer;flex-shrink:0}
+  .pw-step svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .pw-step:disabled{color:#cfc6bc;border-color:#eee7de;cursor:default}
+  .pw-modal-head .pw-head-icon{color:#93472f}
+  .pw-modal-head .pw-head-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .pw-button.pw-soft{background:#f2e2d5;border-color:#dcbfa9;color:#5f2f1e}
+  .pw-panel-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+  .pw-panel-actions .pw-button{min-height:36px;padding:7px 12px;font-size:12.5px}
+  .pw-periods{margin-top:14px;padding-top:10px;border-top:1px solid #eee7de}
+  .pw-periods>summary{display:flex;align-items:center;min-height:34px;cursor:pointer;color:#93472f;font-size:13px;font-weight:600}
+  .pw-doc-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#fff;border:1px solid #e6dfd8;border-radius:13px}
+  .pw-doc-row span{display:flex;flex-direction:column;gap:2px}.pw-doc-row b{font-size:13.5px}.pw-doc-row small{font-size:12px;color:#69635d}
+  .pw-more>summary{width:44px;padding:0;font-size:11px;letter-spacing:1px}
   .pw-modal .pw-check input{width:18px;height:18px;min-height:18px;padding:0}
   .pw-shift-head{display:grid;grid-template-columns:60px 1.3fr 1fr 1fr;gap:12px;padding:10px 14px;background:#f2ece5;color:#69635d;font-size:11px;font-weight:650}.pw-shift-head.pw-mixed{grid-template-columns:60px 1.2fr .8fr .8fr 1.1fr}
   .pw-more-filters{position:relative;flex-shrink:0}.pw-more-filters>summary{display:flex;align-items:center;min-height:44px;padding:10px 14px;border:1px solid #998b7f;border-radius:9px;background:#fcfaf7;color:#282622;font-size:13px;cursor:pointer;list-style:none}.pw-more-filters>summary::-webkit-details-marker{display:none}.pw-more-filters>div{position:absolute;right:0;top:calc(100% + 8px);z-index:5;min-width:240px;padding:14px;display:flex;flex-direction:column;gap:12px;background:#fcfaf7;border:1px solid #cbb9a6;border-radius:12px;box-shadow:0 8px 25px #30201520}
   #portal #admin-people-section.pw-workbench .pw-more-filters input[type=checkbox]{min-height:18px!important;width:18px;height:18px;padding:0}
-  @media (hover:hover){#portal #admin-people-section.pw-workbench .pw-card-edit:hover{background:#f5e8db;border-color:#dcbfa9}.pw-button:not(:disabled):hover,.pw-actions>summary:hover{background:#f5e8db}.pw-button.pw-primary:not(:disabled):hover{background:#8e432b}.pw-profile-tabs button:hover{color:#93472f}}
+  @media (hover:hover){#admin-person-modal.pw-legacy-editor .admin-field-add:not(:disabled):hover,#admin-person-modal.pw-legacy-editor .admin-editor-nav button:hover{background:#f5e8db}#portal #admin-people-section.pw-workbench .pw-card-edit:hover,.pw-step:not(:disabled):hover{background:#f5e8db;border-color:#dcbfa9}.pw-button.pw-soft:not(:disabled):hover{background:#ecd5c4}.pw-button:not(:disabled):hover,.pw-actions>summary:hover{background:#f5e8db}.pw-button.pw-primary:not(:disabled):hover{background:#8e432b}.pw-profile-tabs button:hover{color:#93472f}}
 }

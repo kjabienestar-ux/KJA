@@ -40,8 +40,9 @@ function peopleCard(person){
   const working=Object.values(week).filter(d=>d.mod!=='no_gestiona'),times=[...new Set(working.map(d=>`${fmtTime(d.ini||person.hora_inicio)}–${fmtTime(d.fin||person.hora_fin)}`))];
   const hours=times.length===1?times[0]:times.length?'Horario por día':'—';
   const pct=r.meta>0?Math.min(100,Math.round(Number(r.cumplidas||0)/Number(r.meta)*100)):null;
+  const upcoming=peoplePeriods(person).find(j=>j.desde>peopleToday());
   const range=period?(period.hasta?`Hasta ${adminDate(period.hasta)}`:'Fin indeterminado'):'Horario habitual';
-  return `<article class="pw-card${person.activo?'':' pw-inactive'}"><header>${profileAvatarMarkup(person)}<div class="pw-card-identity"><h3>${esc(person.nombre)}</h3><p>${esc(person.institucion||'Sin institución')} · ${esc(ADMIN_LINKS[person.tipo_vinculo]||person.tipo_vinculo)}</p></div>${peopleTag(kind,tone)}${APP.adminTeam?.puede_editar?`<button type="button" class="pw-card-edit" data-team-edit="${esc(person.id)}" aria-label="Editar datos y contrato de ${esc(person.nombre)}" title="Editar colaborador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14z"/></svg></button>`:''}</header><div class="pw-card-days">${esc(days)}<small>${esc(hours)}</small></div><dl class="pw-card-data"><div><dt>Vigencia</dt><dd>${esc(range)}</dd></div><div><dt>Avance principal</dt><dd>${r.pendiente?'Por confirmar':r.meta>0?`${esc(adminHours(r.cumplidas||0))} / ${esc(adminHours(r.meta))}`:'Sin meta'}</dd></div><div><dt>Acceso</dt><dd>${!person.activo?'Inactivo':person.tiene_pin?'PIN listo':'Sin PIN'}</dd></div></dl>${pct==null?'<p class="pw-no-meta">Meta pendiente de definir</p>':`<div class="pw-progress" role="progressbar" aria-label="Avance principal de ${esc(person.nombre)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><span style="width:${pct}%"></span></div>`}<footer><small>${person.jornada_finalizada?'No se exigen nuevas jornadas':period?.tipo==='temporal'?`Retorno: ${esc(adminDate(peopleNextDate(period.hasta)))}`:person.activo?'Colaborador activo':'Historial conservado'}</small>${peopleButton('Ver ficha <span aria-hidden="true">↗</span>',`data-team-profile="${person.id}" aria-label="Ver ficha de ${esc(person.nombre)}"`)}</footer></article>`;
+  return `<article class="pw-card${person.activo?'':' pw-inactive'}"><header>${profileAvatarMarkup(person)}<div class="pw-card-identity"><h3>${esc(person.nombre)}</h3><p>${esc(person.institucion||'Sin institución')} · ${esc(ADMIN_LINKS[person.tipo_vinculo]||person.tipo_vinculo)}</p></div>${peopleTag(kind,tone)}${APP.adminTeam?.puede_editar?`<button type="button" class="pw-card-edit" data-team-edit="${esc(person.id)}" aria-label="Editar datos y contrato de ${esc(person.nombre)}" title="Editar colaborador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14z"/></svg></button>`:''}</header><div class="pw-card-days">${esc(days)}<small>${esc(hours)}</small></div><dl class="pw-card-data"><div><dt>Vigencia</dt><dd>${esc(range)}</dd></div><div><dt>Avance principal</dt><dd>${r.pendiente?'Por confirmar':r.meta>0?`${esc(adminHours(r.cumplidas||0))} / ${esc(adminHours(r.meta))}`:'Sin meta'}</dd></div><div><dt>Acceso</dt><dd>${!person.activo?'Inactivo':person.tiene_pin?'PIN listo':'Sin PIN'}</dd></div></dl>${pct==null?'<p class="pw-no-meta">Meta pendiente de definir</p>':`<div class="pw-progress" role="progressbar" aria-label="Avance principal de ${esc(person.nombre)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><span style="width:${pct}%"></span></div>`}<footer><small>${upcoming?`<b class="pw-card-next">Nuevo ${upcoming.tipo==='temporal'?'horario temporal':'horario'} desde ${esc(adminDate(upcoming.desde))}</b>`:person.jornada_finalizada?'No se exigen nuevas jornadas':period?.tipo==='temporal'?`Retorno: ${esc(adminDate(peopleNextDate(period.hasta)))}`:person.activo?'Colaborador activo':'Historial conservado'}</small>${peopleButton('Ver ficha <span aria-hidden="true">↗</span>',`data-team-profile="${person.id}" aria-label="Ver ficha de ${esc(person.nombre)}"`)}</footer></article>`;
 }
 function initPeopleWorkbench(){
   const section=$('admin-people-section');if(!section||section.hasAttribute('data-workbench'))return;
@@ -114,7 +115,7 @@ function createPeopleDialogs(){
   });
   $('pw-shift-dialog').addEventListener('click',e=>{if(e.target.closest('[data-pw-shift-close]')&&!PEOPLE_WORKBENCH.shift?.busy)$('pw-shift-dialog').close();if(e.target.closest('[data-pw-shift-back]')){PEOPLE_WORKBENCH.shift.review=false;showPeopleShiftStep();}});
   document.addEventListener('keydown',e=>{
-    if(e.key==='Tab'){
+    if(e.key==='Tab'&&!$('pw-shift-dialog')?.open){
       const legacy=[$('admin-person-modal'),$('admin-days-off-modal')].find(el=>el&&!el.hidden&&(el.classList.contains('pw-legacy-editor')||el.classList.contains('pw-days-off')));
       if(legacy){const nodes=[...legacy.querySelectorAll('button,input:not([type=hidden]),select,textarea,summary,[tabindex="0"]')].filter(el=>!el.disabled&&el.getClientRects().length);const first=nodes[0],last=nodes.at(-1);if(first&&((e.shiftKey&&document.activeElement===first)||(!e.shiftKey&&document.activeElement===last)||!legacy.contains(document.activeElement))){e.preventDefault();(e.shiftKey?last:first).focus();}}
     }
@@ -134,32 +135,48 @@ function restorePeopleFocus(){
   const state=PEOPLE_WORKBENCH;if(state.origin?.isConnected)return state.origin.focus();
   ($('admin-people-list')?.querySelector('[data-team-profile]')||$('admin-people-search'))?.focus();
 }
-async function openPeopleProfile(id,trigger){
+async function openPeopleProfile(id,trigger,tab){
   if(!APP.access.acceso_panel)return;
   const state=PEOPLE_WORKBENCH,person=APP.adminTeam?.personas.find(p=>String(p.id)===String(id));if(!person)return;
-  createPeopleDialogs();state.profile=person;state.profileTab='resumen';state.extra={loading:true};state.origin=trigger||document.activeElement;
+  createPeopleDialogs();state.profile=person;state.profileTab=PEOPLE_PROFILE_TABS.some(([t])=>t===tab)?tab:'resumen';state.extra={loading:true};state.origin=trigger||document.activeElement;
   const request=++state.request;renderPeopleProfile();const dialog=$('pw-profile-dialog');if(!dialog.open)dialog.showModal();
   const results=await Promise.allSettled([db.rpc('dash_admin_horario_compartir',{p_colab:Number(id)}),Promise.resolve({data:null})]);
   if(request!==state.request||!dialog.open)return;
   const value=result=>result.status==='fulfilled'&&!result.value.error&&result.value.data?.ok?result.value.data:null;
   state.extra={facebook:value(results[0]),history:value(results[1]),loading:false};renderPeopleProfile();
 }
+// Ficha del colaborador: una tarjeta por pestaña y flechas para recorrerlas en orden.
+const PEOPLE_PROFILE_TABS=[['resumen','Resumen'],['jornada','Jornada'],['facebook','Facebook'],['contrato','Contrato'],['historial','Historial']];
 function peopleProfileBody(person,tab){
   const state=PEOPLE_WORKBENCH;
+  if(tab==='historial')return '<div id="pw-history-page"><p class="pw-notice">Cargando historial…</p></div>';
   if(tab==='jornada'){
     const current=peopleCurrentPeriod(person),periods=peoplePeriods(person),next=periods.find(j=>j.desde>peopleToday()),canEdit=APP.adminTeam.puede_editar&&person.activo,enabled=APP.adminTeam.jornadas_disponibles;
-    return `<div class="pw-profile-columns"><section class="pw-panel"><header><h3>Jornada vigente</h3>${peopleTag(...peopleKind(person))}</header>${next?`<p class="pw-notice" data-pw-current-note>Este horario corresponde a hoy. Tienes ${next.tipo==='temporal'?'un horario temporal':'una nueva jornada principal'} desde el <b>${esc(adminDate(next.desde))}</b>; ${next.desde===peopleNextDate(peopleToday())?'empieza mañana.':'puedes consultarla más abajo.'}</p>`:''}${peopleWeekTable(person)}<p class="pw-period">${current?`${adminDate(current.desde)} → ${current.hasta?adminDate(current.hasta):'Fin indeterminado'}`:'Horario habitual de referencia'}</p>${person.jornada_finalizada?'<p class="pw-notice">Terminó la vigencia principal. No hay nuevas jornadas exigibles hasta programar otra.</p>':''}</section><aside>${canEdit?`<section class="pw-panel"><h3>Actualizar jornada principal</h3><p>Define un horario por contrato y desde cuándo aplica. La meta de horas se conserva.</p>${peopleButton('Actualizar jornada',`data-pw-shift="principal" ${enabled?'':'disabled'}`,true)}</section><section class="pw-panel"><h3>Horario temporal</h3><p>Una excepción con inicio y fin. Al vencer vuelve al principal vigente.</p>${peopleButton('Crear horario temporal',`data-pw-shift="temporal" ${enabled?'':'disabled'}`)}</section>${enabled?'':'<p class="pw-notice">La programación de jornadas aún no está habilitada para este equipo.</p>'}`:''}</aside></div>${peopleUpcomingMarkup(person)}<section class="pw-panel"><h3>Períodos registrados</h3>${periods.length?`<details class="pw-baseline"><summary>Horario habitual anterior a las vigencias</summary><p>Referencia conservada; no reconstruye cambios antiguos que no se registraron por fecha.</p>${peopleWeekTable(person,person.horario_semanal||{})}</details>`:''}${periods.length?periods.map(j=>`<article class="pw-timeline"><div>${peopleTag(j.tipo==='temporal'?'Temporal':'Principal',j.tipo==='temporal'?'warn':'neutral')}${j.desde>peopleToday()?peopleTag('Programada','warn'):''}<b>${esc(adminDate(j.desde))} → ${j.hasta?esc(adminDate(j.hasta)):'Fin indeterminado'}</b></div><p>${esc(j.motivo)}</p><details><summary>Ver semana de este período</summary>${peopleWeekTable(person,j.semana)}</details></article>`).join(''):'<p>No hay períodos creados desde esta función. Se conservan el horario habitual y los ajustes autorizados anteriores.</p>'}${(person.horarios_temporales||[]).length?`<details><summary>Ajustes por fecha anteriores</summary>${adminTemporaryScheduleMarkup(person)}</details>`:''}</section><section class="pw-panel"><h3>Comparticiones</h3><p>Conserva su agenda independiente de la nueva jornada.</p>${profileSectionsMarkup(adminProfileSections(person,state.extra).filter(s=>s.title==='Horario de Facebook'))}</section>`;
+    // Los cambios de horario se programan desde el editor (pantalla Jornada); aquí queda el acceso directo.
+    const actions=canEdit?`<div class="pw-panel-actions">${peopleButton('Cambiar jornada','data-pw-edit-jornada title="Abre el editor en la pantalla Jornada para cambiar el horario"')}</div>`:'';
+    const timeline=periods.length?`<details class="pw-periods"><summary>Períodos registrados · ${periods.length}</summary><details class="pw-baseline"><summary>Horario habitual anterior a las vigencias</summary><p>Referencia conservada; no reconstruye cambios antiguos que no se registraron por fecha.</p>${peopleWeekTable(person,person.horario_semanal||{})}</details>${periods.map(j=>`<article class="pw-timeline"><div>${peopleTag(j.tipo==='temporal'?'Temporal':'Principal',j.tipo==='temporal'?'warn':'neutral')}${j.desde>peopleToday()?peopleTag('Programada','warn'):''}<b>${esc(adminDate(j.desde))} → ${j.hasta?esc(adminDate(j.hasta)):'Fin indeterminado'}</b></div><p>${esc(j.motivo)}</p><details><summary>Ver semana de este período</summary>${peopleWeekTable(person,j.semana)}</details></article>`).join('')}</details>`:'';
+    const adjustments=(person.horarios_temporales||[]).length?`<details class="pw-periods"><summary>Ajustes por fecha anteriores</summary>${adminTemporaryScheduleMarkup(person)}</details>`:'';
+    return `<section class="pw-panel"><header><h3>Jornada vigente</h3>${peopleTag(...peopleKind(person))}${actions}</header>${next?`<p class="pw-notice" data-pw-current-note>Este horario corresponde a hoy. Tienes ${next.tipo==='temporal'?'un horario temporal':'una nueva jornada principal'} desde el <b>${esc(adminDate(next.desde))}</b>; ${next.desde===peopleNextDate(peopleToday())?'empieza mañana.':'puedes consultarla más abajo.'}</p>`:''}${peopleWeekTable(person)}<p class="pw-period">${current?`${adminDate(current.desde)} → ${current.hasta?adminDate(current.hasta):'Fin indeterminado'}`:'Horario habitual de referencia'}</p>${person.jornada_finalizada?'<p class="pw-notice">Terminó la vigencia principal. No hay nuevas jornadas exigibles hasta programar otra.</p>':''}${timeline}${adjustments}</section>${peopleUpcomingMarkup(person)}`;
   }
   const sections=adminProfileSections(person,state.extra);
-  if(tab==='historial')return '<div id="pw-history-page"><p class="pw-notice">Cargando historial…</p></div>';
-  if(tab==='contrato')return profileSectionsMarkup(sections.filter(s=>['Contrato y avance','Voluntariado','Observaciones de seguimiento'].includes(s.title)))+`<section class="pw-panel"><h3>Documento contractual</h3>${typeof viewContractDocumentOf==='function'&&person.contrato_documento?peopleButton('Ver documento','data-pw-contract-document'):'<p>No hay documento disponible para consultar.</p>'}</section>`;
-  return profileSectionsMarkup(sections.filter(s=>s.title==='Identidad y vínculo'))+`<section class="pw-panel"><header><h3>Jornada vigente</h3>${peopleTag(...peopleKind(person))}</header>${peopleWeekTable(person)}</section>`;
+  if(tab==='facebook')return profileSectionsMarkup(sections.filter(s=>s.title==='Horario de Facebook'));
+  if(tab==='contrato'){
+    // El documento solo aparece cuando existe; ya no se ocupa un bloque para decir que falta.
+    const doc=typeof viewContractDocumentOf==='function'&&person.contrato_documento?`<div class="pw-doc-row"><span><b>Documento del contrato</b><small>Archivo registrado para esta persona.</small></span>${peopleButton('Ver documento','data-pw-contract-document')}</div>`:'';
+    return profileSectionsMarkup(sections.filter(s=>['Contrato y avance','Voluntariado','Observaciones de seguimiento'].includes(s.title)))+doc;
+  }
+  return profileSectionsMarkup(sections.filter(s=>s.title==='Identidad y vínculo'));
 }
 function renderPeopleProfile(){
   const state=PEOPLE_WORKBENCH,p=state.profile;if(!p)return;
-  const dialog=$('pw-profile-dialog'),oldTab=document.activeElement?.dataset.pwProfileTab;
-  dialog.innerHTML=`<header class="pw-modal-head">${profileAvatarMarkup(p)}<div><p>FICHA DEL COLABORADOR</p><h2>${esc(p.nombre)}</h2><small>${esc(p.area||'Sin área')} · ${esc(ADMIN_LINKS[p.tipo_vinculo])} · DNI ${esc(p.dni||'sin registrar')}</small></div>${peopleButton('×','data-pw-profile-close aria-label="Cerrar ficha"')}</header><nav class="pw-profile-tabs" role="tablist" aria-label="Información de la persona">${[['resumen','Resumen'],['jornada','Jornada'],['contrato','Contrato'],['historial','Historial']].map(([id,label])=>`<button type="button" id="pw-tab-${id}" data-pw-profile-tab="${id}" role="tab" aria-selected="${state.profileTab===id}" aria-controls="pw-profile-content" tabindex="${state.profileTab===id?0:-1}">${label}</button>`).join('')}</nav><div class="pw-modal-body" id="pw-profile-content" role="tabpanel" aria-labelledby="pw-tab-${state.profileTab}" tabindex="0">${peopleProfileBody(p,state.profileTab)}</div><footer class="pw-modal-foot"><div>${peopleButton('Ver asistencias','data-pw-attendance')}${APP.access.rol==='direccion'?peopleButton(`Días libres${p.dias_libres_saldo==null?'':` · ${p.dias_libres_saldo}`}`,'data-pw-days-off'):''}</div><div>${peopleButton('Ficha PDF','data-pw-profile-pdf')}${APP.adminTeam.puede_editar?`<details class="pw-actions"><summary>Gestionar persona</summary><div>${peopleButton('Editar datos y contrato','data-pw-edit')}${peopleButton(p.activo?'Dar de baja':'Reactivar','data-pw-status')}${!p.activo?peopleButton('Eliminar definitivamente','data-pw-delete'):''}</div></details>`:''}</div></footer>`;
+  const dialog=$('pw-profile-dialog'),focused=document.activeElement,oldTab=focused?.dataset?.pwProfileTab,oldStep=focused?.dataset?.pwProfileStep;
+  const index=Math.max(0,PEOPLE_PROFILE_TABS.findIndex(([id])=>id===state.profileTab)),canEdit=APP.adminTeam.puede_editar;
+  const step=dir=>`<button type="button" class="pw-step" data-pw-profile-step="${dir}" aria-label="${dir<0?'Sección anterior':'Sección siguiente'}" title="${dir<0?'Sección anterior':'Sección siguiente'}" ${(dir<0?index===0:index===PEOPLE_PROFILE_TABS.length-1)?'disabled':''}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${dir<0?'m15 5-7 7 7 7':'m9 5 7 7-7 7'}"/></svg></button>`;
+  const edit=canEdit?`<button type="button" class="pw-button pw-head-icon" data-pw-edit aria-label="Editar datos y contrato de ${esc(p.nombre)}" title="Editar datos y contrato"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14z"/></svg></button>`:'';
+  const more=canEdit?`<details class="pw-actions pw-more"><summary aria-label="Más acciones" title="Más acciones">•••</summary><div>${peopleButton(p.activo?'Dar de baja':'Reactivar','data-pw-status')}${!p.activo?peopleButton('Eliminar definitivamente','data-pw-delete'):''}</div></details>`:'';
+  dialog.innerHTML=`<header class="pw-modal-head">${profileAvatarMarkup(p)}<div><p>FICHA DEL COLABORADOR</p><h2>${esc(p.nombre)}</h2><small>${esc(p.area||'Sin área')} · ${esc(ADMIN_LINKS[p.tipo_vinculo])} · DNI ${esc(p.dni||'sin registrar')}</small></div>${edit}${peopleButton('×','data-pw-profile-close aria-label="Cerrar ficha"')}</header><div class="pw-profile-nav">${step(-1)}<nav class="pw-profile-tabs" role="tablist" aria-label="Información de la persona">${PEOPLE_PROFILE_TABS.map(([id,label])=>`<button type="button" id="pw-tab-${id}" data-pw-profile-tab="${id}" role="tab" aria-selected="${state.profileTab===id}" aria-controls="pw-profile-content" tabindex="${state.profileTab===id?0:-1}">${label}</button>`).join('')}</nav>${step(1)}</div><div class="pw-modal-body" id="pw-profile-content" role="tabpanel" aria-labelledby="pw-tab-${state.profileTab}" tabindex="0">${peopleProfileBody(p,state.profileTab)}</div><footer class="pw-modal-foot"><div><button type="button" class="pw-button pw-soft" data-pw-attendance>Ver asistencias</button>${APP.access.rol==='direccion'?peopleButton(`Días libres${p.dias_libres_saldo==null?'':` · ${p.dias_libres_saldo}`}`,'data-pw-days-off'):''}</div><div>${peopleButton('Ficha PDF','data-pw-profile-pdf')}${more}</div></footer>`;
   if(oldTab)dialog.querySelector(`[data-pw-profile-tab="${CSS.escape(oldTab)}"]`)?.focus();
+  else if(oldStep){const same=dialog.querySelector(`[data-pw-profile-step="${CSS.escape(oldStep)}"]`);(same&&!same.disabled?same:dialog.querySelector(`[data-pw-profile-tab="${CSS.escape(state.profileTab)}"]`))?.focus();}
   if(state.profileTab==='historial')loadPeopleHistoryPage(p,dialog);
 }
 function loadPeopleHistoryPage(person,dialog){
@@ -177,6 +194,7 @@ async function handlePeopleProfileClick(e){
   const state=PEOPLE_WORKBENCH,p=state.profile;if(!p)return;
   if(b.hasAttribute('data-pw-profile-close'))return $('pw-profile-dialog').close();
   if(b.dataset.pwProfileTab){state.profileTab=b.dataset.pwProfileTab;renderPeopleProfile();$('pw-profile-dialog').querySelector(`[data-pw-profile-tab="${CSS.escape(state.profileTab)}"]`).focus();return;}
+  if(b.dataset.pwProfileStep){const i=PEOPLE_PROFILE_TABS.findIndex(([id])=>id===state.profileTab)+Number(b.dataset.pwProfileStep);if(i<0||i>=PEOPLE_PROFILE_TABS.length)return;state.profileTab=PEOPLE_PROFILE_TABS[i][0];b.focus();renderPeopleProfile();return;}
   if(b.hasAttribute('data-pw-profile-retry'))return openPeopleProfile(p.id,state.origin);
   if(b.dataset.pwShift)return openPeopleShift(p,b.dataset.pwShift);
   if(b.hasAttribute('data-pw-contract-document'))return viewContractDocumentOf(p.id);
@@ -197,6 +215,7 @@ async function handlePeopleProfileClick(e){
   }
   $('pw-profile-dialog').close();
   if(b.hasAttribute('data-pw-edit'))return openAdminPerson(p.id);
+  if(b.hasAttribute('data-pw-edit-jornada')){const opened=openAdminPerson(p.id);window.showAdminEditorSection?.('.schedule-block');return opened;}
   if(b.hasAttribute('data-pw-days-off')){$('admin-days-off-modal').classList.add('pw-days-off');return openAdminDaysOff(p.id,state.origin);}
   if(b.hasAttribute('data-pw-status'))return changeAdminPersonStatus(p.id,!p.activo);
   if(b.hasAttribute('data-pw-delete')&&typeof deleteAdminInactivePerson==='function')return deleteAdminInactivePerson(p.id,b);
@@ -205,10 +224,7 @@ function openPeopleShift(person,type){
   if(!APP.adminTeam?.puede_editar||!APP.adminTeam.jornadas_disponibles||!person.activo)return;
   const state=PEOPLE_WORKBENCH;state.shift={person,type,busy:false,review:false,version:person.jornadas_version||0,payload:null};
   const tomorrow=peopleNextDate(peopleToday()),week=peopleEffectiveWeek(person),dialog=$('pw-shift-dialog');
-  dialog.innerHTML=`<form id="pw-shift-form"><header class="pw-modal-head"><div><p>${type==='temporal'?'EXCEPCIÓN TEMPORAL':'JORNADA PRINCIPAL POR CONTRATO'}</p><h2>${type==='temporal'?'Crear horario temporal':'Actualizar jornada'}</h2><small>${esc(person.nombre)} · Hora de Lima</small></div>${peopleButton('×','data-pw-shift-close aria-label="Cerrar programación"')}</header><div class="pw-modal-body"><section id="pw-shift-config"><p class="pw-notice">Se programa desde mañana para conservar la jornada de hoy y las fechas anteriores. No se modifican metas, saldos, registros ni evidencias.</p><div class="pw-dates"><label>Desde<input type="date" id="pw-shift-from" required min="${tomorrow}" value="${tomorrow}"></label><label>Hasta<input type="date" id="pw-shift-until" required min="${tomorrow}"></label>${type==='principal'?'<label class="pw-check"><input type="checkbox" id="pw-shift-indefinite">Fin indeterminado</label>':''}</div><h3>¿Cuál será el nuevo horario?</h3><div class="pw-shift-week"><div class="pw-shift-head${person.tipo_vinculo==='ambos'?' pw-mixed':''}" aria-hidden="true"><span>Día</span><span>Modalidad</span><span>Entrada</span><span>Salida</span>${person.tipo_vinculo==='ambos'?'<span>Vínculo</span>':''}</div>${ADMIN_DAYS.map(([label,d])=>{
-    const day=week[d]||{},mode=day.mod||adminMode(person,d),off=mode==='no_gestiona';
-    return `<div class="pw-shift-day" data-pw-day="${d}"><b>${esc(label)}</b><label><span class="sr-only">Modalidad de ${label}</span><select data-pw-day-mode>${Object.entries(ADMIN_MODES).map(([val,[name]])=>`<option value="${val}" ${mode===val?'selected':''}>${esc(name)}</option>`).join('')}</select></label><label><span class="sr-only">Entrada de ${label}</span><input type="time" data-pw-day-start value="${esc(String(day.ini||person.hora_inicio||'08:00').slice(0,5))}" ${off?'disabled':''}></label><label><span class="sr-only">Salida de ${label}</span><input type="time" data-pw-day-end value="${esc(String(day.fin||person.hora_fin||'13:00').slice(0,5))}" ${off?'disabled':''}></label>${person.tipo_vinculo==='ambos'?`<select data-pw-day-link aria-label="Vínculo de ${label}"><option value="practicas" ${day.vinc!=='voluntariado'?'selected':''}>Prácticas</option><option value="voluntariado" ${day.vinc==='voluntariado'?'selected':''}>Voluntariado</option></select>`:''}</div>`;
-  }).join('')}</div><label class="pw-reason">Motivo<textarea id="pw-shift-reason" required minlength="3" maxlength="180" rows="2"></textarea></label></section><section id="pw-shift-review" hidden></section><p id="pw-shift-message" class="pw-form-message" role="alert"></p></div><footer class="pw-modal-foot"><p id="pw-shift-step">1. Configurar · 2. Revisar y confirmar</p><div>${peopleButton('Cancelar','data-pw-shift-close')}${peopleButton('Volver y editar','data-pw-shift-back hidden')}<button type="submit" class="pw-button pw-primary" id="pw-shift-save">Revisar cambio</button></div></footer></form>`;
+  dialog.innerHTML=`<form id="pw-shift-form"><header class="pw-modal-head"><div><p>${type==='temporal'?'EXCEPCIÓN TEMPORAL':'JORNADA PRINCIPAL POR CONTRATO'}</p><h2>${type==='temporal'?'Crear horario temporal':'Actualizar jornada'}</h2><small>${esc(person.nombre)} · Hora de Lima</small></div>${peopleButton('×','data-pw-shift-close aria-label="Cerrar programación"')}</header><div class="pw-modal-body"><section id="pw-shift-config"><p class="pw-notice">Se programa desde mañana para conservar la jornada de hoy y las fechas anteriores. No se modifican metas, saldos, registros ni evidencias.</p><div class="pw-dates"><label>Desde<input type="date" id="pw-shift-from" required min="${tomorrow}" value="${tomorrow}"></label><label>Hasta<input type="date" id="pw-shift-until" required min="${tomorrow}"></label>${type==='principal'?'<label class="pw-check"><input type="checkbox" id="pw-shift-indefinite">Fin indeterminado</label>':''}</div><h3>¿Cuál será el nuevo horario?</h3><div class="pw-shift-week"><div class="pw-shift-head${person.tipo_vinculo==='ambos'?' pw-mixed':''}" aria-hidden="true"><span>Día</span><span>Modalidad</span><span>Entrada</span><span>Salida</span>${person.tipo_vinculo==='ambos'?'<span>Vínculo</span>':''}</div>${peopleShiftDayRows(person,week)}</div><label class="pw-reason">Motivo<textarea id="pw-shift-reason" required minlength="3" maxlength="180" rows="2"></textarea></label></section><section id="pw-shift-review" hidden></section><p id="pw-shift-message" class="pw-form-message" role="alert"></p></div><footer class="pw-modal-foot"><p id="pw-shift-step">1. Configurar · 2. Revisar y confirmar</p><div>${peopleButton('Cancelar','data-pw-shift-close')}${peopleButton('Volver y editar','data-pw-shift-back hidden')}<button type="submit" class="pw-button pw-primary" id="pw-shift-save">Revisar cambio</button></div></footer></form>`;
   $('pw-shift-form').onsubmit=submitPeopleShift;dialog.showModal();
 }
 function showPeopleShiftStep(){
@@ -218,6 +234,9 @@ function showPeopleShiftStep(){
   $('pw-shift-dialog').querySelector('[data-pw-shift-back]').hidden=!s.review;$('pw-shift-save').textContent=s.review?'Confirmar y programar':'Revisar cambio';$('pw-shift-message').textContent='';
   $('pw-shift-dialog').querySelector('.pw-modal-body').scrollTop=0;
 }
+// Motivos con los que el servidor rechaza una jornada; se usan en la ventana de programar y en el editor.
+const PEOPLE_SHIFT_MESSAGES={sin_permiso:'Tu sesión no permite programar jornadas.',fechas:'Revisa las fechas; el temporal admite hasta un año y el principal hasta diez.',conflicto:'Se cruza con otro período programado. Revisa las fechas.',desactualizado:'Otra persona actualizó esta ficha. Cierra y vuelve a abrirla para revisar la versión vigente.',registros_existentes:'Ya existen registros posteriores al inicio que el cambio podría afectar. Se conservaron; la jornada no se programó.',ajuste_puntual:'Hay un ajuste por fecha autorizado que el cambio podría afectar. Debe revisarse antes de programar otra jornada.',principal_finalizada:'El temporal abarca fechas sin un principal vigente. Actualiza primero la jornada principal.',temporal_fuera_contrato:'Un temporal existente termina después del nuevo principal. Revisa ambos períodos.',horario:'Hay un horario incompleto o inválido.',sin_dias:'Selecciona al menos un día de gestión.',motivo:'Escribe un motivo de 3 a 180 caracteres.',no_existe:'Esta persona ya no está activa.'};
+function peopleShiftErrorText(result){return PEOPLE_SHIFT_MESSAGES[result?.data?.motivo]||(result?.error?.code==='PGRST202'?'La programación de jornadas todavía no está habilitada.':'No se pudo programar la jornada. Conservamos los datos para reintentar.');}
 async function submitPeopleShift(event){
   event.preventDefault();const s=PEOPLE_WORKBENCH.shift;if(!s||s.busy)return;
   const msg=$('pw-shift-message');msg.textContent='';
@@ -237,21 +256,138 @@ async function submitPeopleShift(event){
     s.review=true;showPeopleShiftStep();$('pw-shift-review').setAttribute('tabindex','-1');$('pw-shift-review').focus({preventScroll:true});return;
   }
   s.busy=true;$('pw-shift-save').disabled=true;$('pw-shift-save').textContent='Programando…';
-  const messages={sin_permiso:'Tu sesión no permite programar jornadas.',fechas:'Revisa las fechas; el temporal admite hasta un año y el principal hasta diez.',conflicto:'Se cruza con otro período programado. Revisa las fechas.',desactualizado:'Otra persona actualizó esta ficha. Cierra y vuelve a abrirla para revisar la versión vigente.',registros_existentes:'Ya existen registros posteriores al inicio que el cambio podría afectar. Se conservaron; la jornada no se programó.',ajuste_puntual:'Hay un ajuste por fecha autorizado que el cambio podría afectar. Debe revisarse antes de programar otra jornada.',principal_finalizada:'El temporal abarca fechas sin un principal vigente. Actualiza primero la jornada principal.',temporal_fuera_contrato:'Un temporal existente termina después del nuevo principal. Revisa ambos períodos.',horario:'Hay un horario incompleto o inválido.',sin_dias:'Selecciona al menos un día de gestión.',motivo:'Escribe un motivo de 3 a 180 caracteres.',no_existe:'Esta persona ya no está activa.'};
+  const messages=PEOPLE_SHIFT_MESSAGES;
   try{
     const {data,error}=await db.rpc('dash_admin_guardar_jornada',s.payload);
     if(error||!data?.ok)throw Error(messages[data?.motivo]||(error?.code==='PGRST202'?'La programación de jornadas todavía no está habilitada.':'No se pudo programar. Conservamos los datos para reintentar.'));
-    $('pw-shift-dialog').close();$('pw-profile-dialog').close();await loadAdminTeam();restorePeopleFocus();toast('Jornada programada. El historial y los registros se conservaron.');
+    // Se cierra el editor, se actualiza el directorio y se resalta la tarjeta, que muestra el cambio programado.
+    const id=s.person.id,from=s.payload.p_desde,kind=s.type;
+    $('pw-shift-dialog').close();$('pw-profile-dialog').close();
+    if(!$('admin-person-modal').hidden)closeAdminPerson();
+    await loadAdminTeam();restorePeopleFocus();peopleHighlightCard(id);
+    toast(`${kind==='temporal'?'Horario temporal programado':'Nueva jornada programada'} desde el ${adminDate(from)}. Su tarjeta lo indica; el historial y los registros se conservaron.`);
   }catch(error){msg.textContent=error.message;msg.scrollIntoView?.({block:'nearest'});}finally{s.busy=false;if($('pw-shift-save')){$('pw-shift-save').disabled=false;$('pw-shift-save').textContent='Confirmar y programar';}}
+}
+// Jornada editable en el editor: la semana se cambia en su tabla y, al guardar, se programa desde una fecha futura.
+function peopleShiftDayRows(person,week){
+  return ADMIN_DAYS.map(([label,d])=>{
+    const day=week[d]||{},mode=day.mod||adminMode(person,d),off=mode==='no_gestiona';
+    return `<div class="pw-shift-day" data-pw-day="${d}"><b>${esc(label)}</b><label><span class="sr-only">Modalidad de ${esc(label)}</span><select data-pw-day-mode>${Object.entries(ADMIN_MODES).map(([val,[name]])=>`<option value="${val}" ${mode===val?'selected':''}>${esc(name)}</option>`).join('')}</select></label><label><span class="sr-only">Entrada de ${esc(label)}</span><input type="time" data-pw-day-start value="${esc(String(day.ini||person.hora_inicio||'08:00').slice(0,5))}" ${off?'disabled':''}></label><label><span class="sr-only">Salida de ${esc(label)}</span><input type="time" data-pw-day-end value="${esc(String(day.fin||person.hora_fin||'13:00').slice(0,5))}" ${off?'disabled':''}></label>${person.tipo_vinculo==='ambos'?`<select data-pw-day-link aria-label="Vínculo de ${esc(label)}"><option value="practicas" ${day.vinc!=='voluntariado'?'selected':''}>Prácticas</option><option value="voluntariado" ${day.vinc==='voluntariado'?'selected':''}>Voluntariado</option></select>`:''}</div>`;
+  }).join('');
+}
+function peopleInlineRender(person,editable){
+  const view=$('pw-editor-schedule-view');PEOPLE_WORKBENCH.inline=null;if(!view)return;
+  if(!person){view.innerHTML='';return;}
+  const current=peopleCurrentPeriod(person),next=peoplePeriods(person).find(j=>j.desde>peopleToday()),mixed=person.tipo_vinculo==='ambos';
+  const head=`<header><b>Jornada vigente</b>${peopleTag(...peopleKind(person))}${next?`<span class="pw-editor-next" title="${next.tipo==='temporal'?'Horario temporal':'Nueva jornada principal'} programada${next.hasta?` hasta el ${esc(adminDate(next.hasta))}`:''}. Se ve en la ficha y en su tarjeta.">Próximo cambio: ${next.tipo==='temporal'?'horario temporal':'nueva jornada'} desde el ${esc(adminDate(next.desde))}</span>`:''}<span class="pw-editor-period">${current?`Desde ${esc(adminDate(current.desde))} · ${current.hasta?`hasta ${esc(adminDate(current.hasta))}`:'fin indeterminado'}`:'Horario habitual de referencia'}</span></header>`;
+  if(!editable){view.innerHTML=head+peopleWeekTable(person);return;}
+  const tomorrow=peopleNextDate(peopleToday());
+  view.innerHTML=head+`<div class="pw-shift-week pw-inline-week"><div class="pw-shift-head${mixed?' pw-mixed':''}" aria-hidden="true"><span>Día</span><span>Modalidad</span><span>Entrada</span><span>Salida</span>${mixed?'<span>Vínculo</span>':''}</div>${peopleShiftDayRows(person,peopleEffectiveWeek(person))}</div>
+    <section class="pw-inline-change" id="pw-inline-change" hidden aria-label="Desde cuándo aplica el nuevo horario">
+      <fieldset class="pw-inline-type"><legend>Tipo de cambio</legend><label><input type="radio" name="pw-inline-type" value="principal" checked><span>Permanente</span></label><label><input type="radio" name="pw-inline-type" value="temporal"><span>Temporal</span></label></fieldset>
+      <label class="pw-inline-field">Aplica desde<input type="date" id="pw-inline-from" min="${tomorrow}" value="${tomorrow}"></label>
+      <label class="pw-inline-field">Hasta <small id="pw-inline-until-hint">(opcional)</small><input type="date" id="pw-inline-until" min="${tomorrow}"></label>
+      <label class="pw-inline-field pw-inline-reason">Motivo<input id="pw-inline-reason" maxlength="180" autocomplete="off" placeholder="Ej. nuevo horario acordado con la universidad"></label>
+      <p class="pw-inline-summary" id="pw-inline-summary" role="status"></p>
+      <button type="button" class="pw-button" data-pw-inline-reset>Deshacer cambios</button>
+    </section>`;
+  PEOPLE_WORKBENCH.inline={person,baseline:''};PEOPLE_WORKBENCH.inline.baseline=peopleInlineKey();
+  globalThis.KJAEditorCalendar?.enhance?.([$('pw-inline-from'),$('pw-inline-until')]);
+  peopleInlineSync();
+}
+function peopleInlineRead(){
+  const week={};let count=0,error='';
+  for(const row of document.querySelectorAll('#pw-editor-schedule-view [data-pw-day]')){
+    const mode=row.querySelector('[data-pw-day-mode]').value;if(mode==='no_gestiona'){week[row.dataset.pwDay]={mod:mode};continue;}
+    const ini=row.querySelector('[data-pw-day-start]').value,fin=row.querySelector('[data-pw-day-end]').value;
+    if(!error&&(!ini||!fin||fin<=ini))error=`Revisa entrada y salida de ${row.querySelector('b').textContent}: la salida debe ser posterior a la entrada.`;
+    week[row.dataset.pwDay]={mod:mode,ini,fin,vinc:row.querySelector('[data-pw-day-link]')?.value||PEOPLE_WORKBENCH.inline?.person.tipo_vinculo};count++;
+  }
+  return {week,count,error};
+}
+function peopleInlineKey(){return JSON.stringify(peopleInlineRead().week);}
+function peopleInlineSync(){
+  const s=PEOPLE_WORKBENCH.inline,panel=$('pw-inline-change');if(!s||!panel)return;
+  const changed=peopleInlineKey()!==s.baseline,appears=panel.hidden&&changed;panel.hidden=!changed;$('pw-editor-schedule-view').classList.toggle('is-changed',changed);
+  const type=panel.querySelector('[name="pw-inline-type"]:checked')?.value||'principal',from=$('pw-inline-from').value,until=$('pw-inline-until').value;
+  $('pw-inline-until-hint').textContent=type==='temporal'?'(obligatorio)':'(opcional)';
+  // Al aparecer (ya con su resumen escrito), se muestra el recuadro de fecha y motivo aunque quede debajo de la semana.
+  queueMicrotask(()=>{if(appears)panel.scrollIntoView({block:'nearest'});});
+  $('pw-inline-summary').textContent=!changed?'':!from?'Elige desde qué fecha aplica el nuevo horario.':`Al guardar se programará ${type==='temporal'?'un horario temporal':'una nueva jornada'} desde el ${adminDate(from)}${until?` hasta el ${adminDate(until)}`:type==='temporal'?' (falta la fecha de fin)':', sin fecha de fin'}. Hasta entonces sigue el horario actual.`;
+}
+// Lo usa «Guardar cambios»: null si la semana no cambió, {error} si falta algo, o los datos para programar la jornada.
+function peopleEditorJornadaChange(){
+  const s=PEOPLE_WORKBENCH.inline;if(!s||!$('pw-inline-change')||$('admin-person-modal').hidden||peopleInlineKey()===s.baseline)return null;
+  const {week,count,error}=peopleInlineRead();if(error)return {error};if(!count)return {error:'Deja al menos un día de gestión en la jornada.'};
+  const type=document.querySelector('[name="pw-inline-type"]:checked')?.value||'principal',from=$('pw-inline-from').value,until=$('pw-inline-until').value||null,reason=$('pw-inline-reason').value.trim();
+  if(!from||from<=peopleToday())return {error:'El nuevo horario debe empezar desde mañana. Elige la fecha en «Aplica desde».'};
+  if(type==='temporal'&&!until)return {error:'Un horario temporal necesita fecha de fin en «Hasta».'};
+  if(until&&until<from)return {error:'La fecha «Hasta» no puede ser anterior a «Aplica desde».'};
+  if(reason.length<3)return {error:'Escribe el motivo del cambio de horario (al menos 3 caracteres).'};
+  return {payload:{p_colab:Number(s.person.id),p_tipo:type,p_desde:from,p_hasta:until,p_semana:week,p_motivo:reason,p_version:s.person.jornadas_version||0},label:`${type==='temporal'?'Horario temporal':'Nueva jornada'} desde el ${adminDate(from)}${until?` hasta el ${adminDate(until)}`:''}`};
+}
+// Tras programar la jornada, la semana editada pasa a ser el punto de partida (evita programarla dos veces al reintentar).
+function peopleEditorJornadaSaved(){const s=PEOPLE_WORKBENCH.inline;if(s){s.baseline=peopleInlineKey();peopleInlineSync();}}
+// «Ver ficha» del editor: pasa a la ficha de la misma persona, en la sección equivalente a la pantalla abierta.
+const PEOPLE_EDITOR_TO_PROFILE={'.editor-identity':'resumen','.editor-contract':'contrato','.schedule-block':'jornada','.facebook-schedule-block':'facebook','#admin-history-block':'historial'};
+function peopleEditorValues(){
+  const skip='#admin-facebook-schedule-grid,#admin-schedule-grid,#pw-editor-schedule-view,#admin-history-list';
+  return JSON.stringify([...$('admin-person-form').querySelectorAll('input,select,textarea')].filter(el=>(el.id||el.name)&&el.type!=='hidden'&&!el.closest(skip)).map(el=>[el.id||el.name,el.type==='checkbox'||el.type==='radio'?el.checked:el.value]));
+}
+function peopleEditorHasChanges(){
+  const s=PEOPLE_WORKBENCH.inline,facebook=typeof ADMIN_FACEBOOK_DIRTY!=='undefined'&&ADMIN_FACEBOOK_DIRTY;
+  return facebook||peopleEditorValues()!==PEOPLE_WORKBENCH.editorBaseline||!!(s&&$('pw-inline-change')&&peopleInlineKey()!==s.baseline);
+}
+function peopleEditorToProfile(){
+  const id=$('admin-person-id').value;if(!id||$('admin-person-save').disabled)return;
+  if(peopleEditorHasChanges()&&!confirm('Tienes cambios sin guardar en el editor. ¿Ir a la ficha sin guardarlos?'))return;
+  const jump=$('admin-editor-nav')?.querySelector('[data-editor-jump][aria-selected="true"]')?.dataset.editorJump,origin=PEOPLE_WORKBENCH.editorOrigin;
+  closeAdminPerson();
+  return openPeopleProfile(id,origin?.isConnected?origin:null,PEOPLE_EDITOR_TO_PROFILE[jump]);
+}
+// Lleva la vista a la tarjeta de la persona y la resalta un momento.
+function peopleHighlightCard(id){
+  const card=$('admin-people-list')?.querySelector(`[data-team-profile="${CSS.escape(String(id))}"]`)?.closest('.pw-card');if(!card)return;
+  card.scrollIntoView({block:'center',behavior:'smooth'});card.classList.remove('pw-card-updated');void card.offsetWidth;card.classList.add('pw-card-updated');
+  setTimeout(()=>card.classList.remove('pw-card-updated'),2600);
 }
 // Condiciones del editor existente: el principal se cambia únicamente mediante vigencias.
 function configurePeopleEditor(person){
   if(!peopleDesktop())return;
   const sheet=$('admin-person-modal');sheet.classList.add('pw-legacy-editor');
-  if(sheet.hidden)PEOPLE_WORKBENCH.editorOrigin=document.activeElement;
+  const opening=sheet.hidden;if(opening)PEOPLE_WORKBENCH.editorOrigin=document.activeElement;
   const protectedIds=['admin-person-link','admin-contract-start','admin-general-start','admin-general-end'];
   for(const id of protectedIds)$(id).disabled=!!person;
   $('admin-schedule-grid').querySelectorAll('input,select').forEach(el=>{if(person)el.disabled=true;});
-  let note=$('pw-editor-schedule-note');if(!note){note=document.createElement('p');note.id='pw-editor-schedule-note';note.className='pw-notice';$('admin-schedule-grid').before(note);}
-  note.hidden=!person;note.textContent='El horario principal, el vínculo y el inicio histórico se conservan. Para otro horario, abre Ficha → Jornada → Actualizar jornada o Crear horario temporal.';
+  let note=$('pw-editor-schedule-note');if(!note){note=document.createElement('p');note.id='pw-editor-schedule-note';note.className='pw-notice';($('admin-person-modal').querySelector('.admin-general-hours')||$('admin-schedule-grid')).before(note);}
+  note.hidden=!person;
+  const canShift=!!person&&person.activo&&APP.adminTeam?.puede_editar,enabled=!!APP.adminTeam?.jornadas_disponibles;
+  note.textContent=!person?'':!person.activo?'El horario principal, el vínculo y el inicio histórico se conservan. Reactiva a la persona para cambiar su horario.':!(canShift&&enabled)?'El horario principal, el vínculo y el inicio histórico se conservan. La programación de jornadas aún no está habilitada para este equipo.':'Cambia los días directamente en la tabla. Al guardar, el nuevo horario empieza en la fecha que elijas y el actual queda en el historial.';
+  // Con una persona registrada, la semana se edita aquí; la tabla original sigue oculta y se guarda sin cambios.
+  const block=sheet.querySelector('.schedule-block');block.classList.toggle('pw-schedule-readonly',!!person);
+  let view=$('pw-editor-schedule-view');
+  if(!view){
+    view=document.createElement('div');view.id='pw-editor-schedule-view';view.className='pw-editor-schedule-view';block.append(view);
+    view.addEventListener('change',e=>{
+      if(e.target.matches('[data-pw-day-mode]'))e.target.closest('[data-pw-day]').querySelectorAll('input').forEach(x=>{x.disabled=e.target.value==='no_gestiona';});
+      peopleInlineSync();
+    });
+    view.addEventListener('input',()=>peopleInlineSync());
+    view.addEventListener('click',e=>{if(e.target.closest('[data-pw-inline-reset]'))peopleInlineRender(PEOPLE_WORKBENCH.inline?.person||null,true);});
+  }
+  // Solo se dibuja al abrir: las demás llamadas (al cambiar otros campos) no deben borrar lo que se está editando.
+  if(opening||!person)peopleInlineRender(person,canShift&&enabled);
+  // Acceso directo a la ficha desde la cabecera del editor (solo con una persona registrada).
+  let toProfile=$('pw-editor-profile');const head=sheet.querySelector('.admin-editor-head');
+  if(!toProfile&&head){
+    toProfile=document.createElement('button');toProfile.type='button';toProfile.id='pw-editor-profile';toProfile.className='pw-editor-profile';
+    toProfile.title='Abre la ficha de esta persona sin cerrar y volver a entrar';
+    toProfile.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><circle cx="9" cy="11" r="2"/><path d="M6.5 16c.6-1.3 1.4-2 2.5-2s1.9.7 2.5 2M14 10h4M14 14h3"/></svg><span>Ver ficha</span>';
+    toProfile.addEventListener('click',peopleEditorToProfile);const close=head.querySelector('.modal-close');if(close)close.before(toProfile);else head.append(toProfile);
+  }
+  if(toProfile)toProfile.hidden=!person||!APP.access?.acceso_panel;
+  if(opening)PEOPLE_WORKBENCH.editorBaseline=peopleEditorValues();
+  // En modo editable, el aviso largo se reemplaza por una frase junto al título para dejarle el alto a la semana.
+  const editable=!!person&&canShift&&enabled;block.classList.toggle('pw-schedule-editable',editable);
+  const desc=block.querySelector('.admin-editor-label>span');if(desc){if(desc.dataset.base===undefined)desc.dataset.base=desc.textContent;desc.textContent=editable?'Edita la semana aquí; al guardar eliges desde qué fecha aplica el cambio.':desc.dataset.base;}
 }

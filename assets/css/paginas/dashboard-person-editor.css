@@ -196,3 +196,8 @@
 #admin-person-modal .contract-document-status { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0; color: #735627; font-size: 12px; line-height: 1.45; }
 #admin-person-modal .contract-document-status.bad { color: #a5492f; }
 @media(prefers-reduced-motion:reduce) { #admin-person-modal .contract-document-drop { transition: none; } }
+/* La navegación por secciones solo se usa en escritorio (ver dashboard-people-workbench.css). */
+#admin-person-modal .admin-editor-nav { display: none; }
+/* «Cuenta como» se oculta con un solo vínculo; su selector personalizado (af-control) debe ocultarse con él y ocupar la misma fila cuando se muestra. */
+#admin-person-modal .admin-schedule-grid:not(.mixed) .schedule-link + .af-control { display: none; }
+#admin-person-modal .admin-schedule-row .schedule-link + .af-control { grid-column: 2/-1; }
