@@ -17,5 +17,8 @@ Thumbs.db
 /outputs/gantt-kja-20260922/revision/
 /outputs/walink-preview/
 supabase/.temp/
+output/kja-035/
 /.tmp-archive-*.log
 /output/evidence-archive/
+
+output/kja-035-ui/

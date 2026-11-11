@@ -159,7 +159,7 @@ function startTimeAmbience(){
   });
 }
 
-let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', guidedTourPending:false, guidedTourUserMetadata:{}, sessionTimer:null, markTimer:null, notificationTimer:null, notificationChannel:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, cover:{path:'',url:'',busy:false}, notifications:{available:false,loading:false,error:'',unread:0,items:[],request:0,deletingId:null}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
+let APP = { inicio:null, historial:null, cierre:null, dailyCloseResolved:false, dailyCloseGeneration:0, dailyCloseRequest:null, personalRequests:[], daysOffBalance:null, teamPeople:[], year:0, month:0, view:'inicio', sessionUid:'', guidedTourPending:false, guidedTourUserMetadata:{}, sessionTimer:null, markTimer:null, attendanceDayRequest:0, attendanceDayDate:'', avatar:{path:'',url:'',busy:false}, cover:{path:'',url:'',busy:false}, identity:{nivel:'miembro',hasPersonal:false,isLeader:false,isSystem:false}, access:{rol:'visor',acceso_panel:false}, adminSection:'overview', adminList:null, adminListRequest:0, adminTeam:null, adminTeamRequest:0, adminAccess:null, adminAccessRequest:0, adminMonth:null, adminMonthKey:'', adminMonthRequest:0, adminRoles:null, adminRolesRequest:0, adminReview:null, adminControl:null, adminControlRequest:0 };
 let EVIDENCE = null;
 let DAILY_EVIDENCE = {requirement:'',assignment:null,title:'',files:[],existingFiles:[],existingVideoPath:null,video:null,busy:false,loading:false,editing:false};
 let DAILY_EVIDENCE_TRIGGER=null;
@@ -177,291 +177,10 @@ let DASH_ETAG = null;
 let DASH_UPDATE_PENDING = false;
 let DASH_VERSION_CHECKED_AT = 0;
 let DASH_VERSION_TIMER = null;
-let REVIEW_NOTIFICATION_TRIGGER = null;
-let NOTIFICATION_AUDIO_CONTEXT = null;
-let NOTIFICATION_AUDIO_READY = false;
-let NOTIFICATION_BASELINED = false;
-const NOTIFICATION_KNOWN_IDS = new Set();
-
 function formMsg(id,text){ const el=$(id); el.textContent=text||''; el.classList.toggle('show',!!text); }
 function markMsg(text){ $('mark-msg').textContent=text||''; $('mark-msg').classList.toggle('show',!!text); }
 function toast(text,bad=false){ if($('personal-leave-history')?.open){const notice=$('personal-leave-history-message');notice.hidden=false;notice.textContent=text;notice.classList.toggle('bad',bad);} if($('admin-leave-review')?.open){const message=$('admin-leave-review-message');message.hidden=false;message.textContent=text;message.classList.toggle('bad',bad);} const el=$('toast'); el.textContent=text; el.classList.toggle('bad',bad); el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),3500); }
 function setBusy(button,on,label){ button.disabled=on; if(!button.dataset.label) button.dataset.label=button.querySelector('span')?.textContent||button.textContent; const span=button.querySelector('span'); if(span) span.textContent=on?label:button.dataset.label; }
-
-async function primeNotificationSound(){
-  if(NOTIFICATION_AUDIO_READY)return;
-  const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;
-  try{
-    NOTIFICATION_AUDIO_CONTEXT=NOTIFICATION_AUDIO_CONTEXT||new AudioContextClass();
-    if(NOTIFICATION_AUDIO_CONTEXT.state==='suspended')await NOTIFICATION_AUDIO_CONTEXT.resume();
-    NOTIFICATION_AUDIO_READY=NOTIFICATION_AUDIO_CONTEXT.state==='running';
-  }catch{/* El aviso visual sigue disponible cuando el navegador bloquea audio. */}
-}
-
-function playNotificationSound(){
-  const context=NOTIFICATION_AUDIO_CONTEXT;if(!NOTIFICATION_AUDIO_READY||!context||context.state!=='running')return;
-  try{
-    const master=context.createGain(),now=context.currentTime;
-    const compressor=typeof context.createDynamicsCompressor==='function'?context.createDynamicsCompressor():null;
-    master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(.18,now+.015);master.gain.exponentialRampToValueAtTime(.0001,now+.52);
-    if(compressor){
-      compressor.threshold.setValueAtTime(-24,now);compressor.knee.setValueAtTime(18,now);compressor.ratio.setValueAtTime(6,now);compressor.attack.setValueAtTime(.003,now);compressor.release.setValueAtTime(.18,now);
-      master.connect(compressor);compressor.connect(context.destination);
-    }else master.connect(context.destination);
-    [{frequency:784,start:0,duration:.18,level:.78,type:'sine'},{frequency:1174,start:.14,duration:.28,level:.9,type:'triangle'}].forEach(note=>{
-      const oscillator=context.createOscillator(),gain=context.createGain();
-      oscillator.type=note.type;oscillator.frequency.setValueAtTime(note.frequency,now+note.start);
-      gain.gain.setValueAtTime(.0001,now+note.start);gain.gain.exponentialRampToValueAtTime(note.level,now+note.start+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+note.start+note.duration);
-      oscillator.connect(gain);gain.connect(master);oscillator.start(now+note.start);oscillator.stop(now+note.start+note.duration+.02);
-    });
-  }catch{/* Nunca se bloquea la sincronización por un problema de audio. */}
-}
-
-// Interfaz compartida para módulos independientes del dashboard, como el chat.
-window.KJANotificationSound={prime:primeNotificationSound,play:playNotificationSound};
-
-function announceFreshNotifications(items){
-  const unread=(items||[]).filter(item=>!item.leida),fresh=unread.filter(item=>!NOTIFICATION_KNOWN_IDS.has(String(item.id)));
-  (items||[]).forEach(item=>NOTIFICATION_KNOWN_IDS.add(String(item.id)));
-  if(!NOTIFICATION_BASELINED){NOTIFICATION_BASELINED=true;return}
-  if(!fresh.length)return;
-  playNotificationSound();
-  const first=fresh[0],label=first.tipo==='asignacion'?'Nueva asignación':first.tipo==='mensaje_direccion'?'Nuevo mensaje de Dirección':'Nueva respuesta de Dirección';
-  toast(fresh.length===1?`${label}: ${first.titulo||'Revisa tu campana'}`:`Tienes ${fresh.length} notificaciones nuevas.`);
-}
-
-document.addEventListener('pointerdown',primeNotificationSound,{once:true,capture:true});
-document.addEventListener('keydown',primeNotificationSound,{once:true,capture:true});
-
-function reviewNotificationDate(value){
-  if(!value)return 'Fecha no disponible';
-  const date=new Date(value);if(Number.isNaN(date.getTime()))return 'Fecha no disponible';
-  return new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(date);
-}
-
-function reviewNotificationDayKey(value){
-  const date=new Date(value);if(Number.isNaN(date.getTime()))return 'sin-fecha';
-  const parts={};
-  new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date).forEach(part=>{if(part.type!=='literal')parts[part.type]=part.value});
-  return `${parts.year}-${parts.month}-${parts.day}`;
-}
-
-function reviewNotificationDayLabel(key,value){
-  if(key==='sin-fecha')return 'Sin fecha';
-  if(key===isoLima())return 'Hoy';
-  if(key===addIsoDays(isoLima(),-1))return 'Ayer';
-  const date=new Date(value);if(Number.isNaN(date.getTime()))return 'Sin fecha';
-  const label=new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',weekday:'long',day:'numeric',month:'long'}).format(date);
-  return label.charAt(0).toUpperCase()+label.slice(1);
-}
-
-function reviewNotificationListMarkup(items){
-  const groups=new Map();
-  items.forEach(item=>{
-    const key=reviewNotificationDayKey(item.creado_at);
-    if(!groups.has(key))groups.set(key,{key,value:item.creado_at,items:[]});
-    groups.get(key).items.push(item);
-  });
-  return [...groups.values()].map((group,index)=>{
-    const count=group.items.length,label=reviewNotificationDayLabel(group.key,group.value),headingId=`review-notification-day-${index}`;
-    return `<section class="review-notification-day" aria-labelledby="${headingId}"><h3 id="${headingId}"><span>${esc(label)}</span><small>${count} ${count===1?'aviso':'avisos'}</small></h3><div class="review-notification-day-items" role="list">${group.items.map(reviewNotificationMarkup).join('')}</div></section>`;
-  }).join('');
-}
-
-function reviewNotificationMarkup(item){
-  const type=item.tipo||(item.estado==='observada'?'revision_observada':'revision_aprobada');
-  const observed=type==='revision_observada',assignment=type==='asignacion',direct=type==='mensaje_direccion',unread=!item.leida,hasMessage=!!String(item.nota||'').trim();
-  const deleting=String(APP.notifications?.deletingId||'')===String(item.id);
-  const assignmentKind=assignment&&item.meta?.tipo_entregable?` · ${String(item.meta.tipo_entregable).toUpperCase()}`:'';
-  const title=assignment?`Nueva asignación${assignmentKind}`:direct?'Mensaje de Dirección':observed?'Necesitas corregir una evidencia':'Evidencia aprobada';
-  const copy=item.nota||(assignment?'Dirección te asignó un nuevo entregable. Revisa los requisitos de tu jornada.':observed?'Dirección indicó que debes revisar esta entrega.':'Dirección aprobó la entrega sin observaciones adicionales.');
-  const sender=String(item.remitente||'').trim();
-  const messageLabel=assignment?'Indicaciones de Dirección':observed?'Observación de Dirección':'Mensaje de Dirección';
-  const messageHeading=sender?`${messageLabel} · ${sender}`:messageLabel;
-  const icon=assignment
-    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v5h5M10 13h6M10 17h4"/></svg>'
-    : direct
-      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 4zM8 9h8M8 13h5"/></svg>'
-      : observed
-        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'
-        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/><circle cx="12" cy="12" r="9"/></svg>';
-  const trash='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>';
-  const state=assignment?'assignment':direct?'message':observed?'observed':'approved';
-  return `<article class="review-notification-item${unread?' is-unread':''}${deleting?' is-deleting':''}" data-state="${state}" role="listitem"><button class="review-notification-content" type="button" data-review-notification-id="${esc(item.id)}" aria-label="${esc(`${title}: ${item.titulo}. ${messageHeading}: ${copy}`)}"><span class="review-notification-state">${icon}</span><span class="review-notification-copy"><span><b>${esc(title)}</b>${unread?'<em>Nueva</em>':''}</span><strong>${esc(item.titulo||'Aviso de Dirección')}</strong><p class="has-direction-message${hasMessage?'':' is-system-message'}"><span>${esc(messageHeading)}</span>${esc(copy)}</p><small>${esc(reviewNotificationDate(item.creado_at))}</small></span></button><button class="review-notification-delete" type="button" data-delete-review-notification="${esc(item.id)}" aria-label="${esc(`Eliminar notificación: ${title}, ${item.titulo||'Aviso de Dirección'}`)}" title="Eliminar notificación" ${deleting?'disabled':''}>${trash}</button></article>`;
-}
-
-function renderReviewNotifications(){
-  const state=APP.notifications||{},available=APP.identity.hasPersonal&&state.available,unread=Math.max(0,Number(state.unread)||0);
-  document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>{
-    button.hidden=!available&&!button.classList.contains('mobile-review-notification-trigger');
-    button.classList.toggle('has-unread',unread>0);
-    button.setAttribute('aria-label',unread?`Abrir notificaciones, ${unread} ${unread===1?'notificación sin leer':'notificaciones sin leer'}`:'Abrir notificaciones');
-    const badge=button.querySelector('[data-review-notification-badge]');if(!badge)return;
-    badge.hidden=unread<1;badge.textContent=unread>99?'99+':String(unread);
-  });
-  const summary=$('review-notification-summary'),summaryCopy=$('review-notification-summary-copy'),readAll=$('review-notification-read-all'),list=$('review-notification-list');
-  if(!summary||!list)return;
-  list.setAttribute('aria-busy',String(state.loading||state.deletingId!==null));
-  document.title=unread?`(${unread>99?'99+':unread}) ${BASE_DOCUMENT_TITLE}`:BASE_DOCUMENT_TITLE;
-  summary.textContent=unread?`${unread} ${unread===1?'mensaje nuevo':'mensajes nuevos'}`:'Todo al día';
-  summaryCopy.textContent=unread?'Tienes actividad nueva de Dirección.':'No tienes mensajes nuevos.';
-  readAll.hidden=unread<1;readAll.disabled=state.loading;
-  if(state.loading&&!state.items.length){list.innerHTML='<div class="review-notification-loading" role="status">Consultando tus notificaciones…</div>';return}
-  if(state.error&&!state.items.length){list.innerHTML='<div class="review-notification-empty is-error"><b>No pudimos actualizar los mensajes</b><p>Comprueba tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-review-notifications>Reintentar</button></div>';return}
-  list.innerHTML=state.items.length?reviewNotificationListMarkup(state.items):'<div class="review-notification-empty"><b>Aún no tienes notificaciones</b><p>Los mensajes, revisiones y nuevas asignaciones aparecerán aquí.</p></div>';
-}
-
-function reviewNotificationScope(){
-  return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.inicio?.colaborador?.area_id,APP.access.rol,APP.identity.hasPersonal]);
-}
-
-function loadReviewNotifications({quiet=false,refresh=false}={}){
-  if(!APP.identity.hasPersonal)return Promise.resolve(null);
-  const scope=reviewNotificationScope(),pending=APP.notificationReadRequest;
-  if(pending?.scope===scope){
-    // A server event arriving during a read requires one subsequent read.
-    if(refresh)pending.refresh=true;
-    return pending.promise;
-  }
-  if(APP.notifications.deletingId!==null||(!pending&&APP.notifications.loading))return Promise.resolve(null);
-  const flight={scope,refresh:false,promise:null};
-  const current=()=>APP.notificationReadRequest===flight&&APP.identity.hasPersonal&&reviewNotificationScope()===scope;
-  APP.notificationReadRequest=flight;
-  flight.promise=Promise.resolve().then(async()=>{
-    let result=null;
-    do{
-      flight.refresh=false;
-      if(!current())return null;
-      result=await fetchReviewNotifications({quiet,current});
-    }while(current()&&flight.refresh);
-    return current()?result:null;
-  }).catch(error=>{
-    if(current()){
-      APP.notifications={...APP.notifications,loading:false,error:error?.message||'carga'};
-      renderReviewNotifications();
-      if(!quiet)toast('No pudimos actualizar tus notificaciones.',true);
-    }
-    return null;
-  }).finally(()=>{if(APP.notificationReadRequest===flight)APP.notificationReadRequest=null});
-  return flight.promise;
-}
-
-async function fetchReviewNotifications({quiet=false,current}={}){
-  if(typeof loadEvidenceCorrections==='function')void loadEvidenceCorrections();
-  if(!APP.identity.hasPersonal)return null;
-  if(APP.notifications.deletingId!==null)return APP.notifications;
-  const request=(APP.notifications.request||0)+1;
-  APP.notifications={...APP.notifications,loading:true,error:'',request};renderReviewNotifications();
-  const {data,error}=await db.rpc('dash_mis_notificaciones_revision',{p_limite:24});
-  if(!current()||request!==APP.notifications.request)return null;
-  if(error||!data?.ok){
-    const missing=error?.code==='PGRST202'||String(error?.message||'').includes('dash_mis_notificaciones_revision');
-    APP.notifications={...APP.notifications,available:!missing,loading:false,error:missing?'':(error?.message||data?.motivo||'carga')};renderReviewNotifications();
-    if(!quiet&&!missing)toast('No pudimos actualizar tus notificaciones.',true);
-    return null;
-  }
-  const items=Array.isArray(data.notificaciones)?data.notificaciones:[];announceFreshNotifications(items);
-  APP.notifications={...APP.notifications,available:true,loading:false,error:'',unread:Number(data.no_leidas)||0,items,request,deletingId:null};
-  renderReviewNotifications();return APP.notifications;
-}
-
-function closeReviewNotifications({restoreFocus=true}={}){
-  const layer=$('review-notification-layer');if(!layer||layer.hidden)return;
-  layer.hidden=true;document.body.classList.remove('review-notification-open');
-  document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.setAttribute('aria-expanded','false'));
-  if(restoreFocus&&REVIEW_NOTIFICATION_TRIGGER)REVIEW_NOTIFICATION_TRIGGER.focus();
-  REVIEW_NOTIFICATION_TRIGGER=null;
-}
-
-function mountReviewNotificationPortal(){
-  const layer=$('review-notification-layer');
-  if(layer&&layer.parentElement!==document.body)document.body.appendChild(layer);
-  return layer;
-}
-
-async function openReviewNotifications(trigger){
-  if(!APP.notifications.available)return;
-  const layer=mountReviewNotificationPortal();if(!layer)return;
-  REVIEW_NOTIFICATION_TRIGGER=trigger||document.activeElement;
-  layer.hidden=false;document.body.classList.add('review-notification-open');
-  document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.setAttribute('aria-expanded','true'));
-  renderReviewNotifications();$('review-notification-panel').focus({preventScroll:true});
-  const fresh=await loadReviewNotifications({quiet:true});
-  if(!layer.hidden&&fresh?.unread>0)await markReviewNotificationsRead(null);
-}
-
-async function markReviewNotificationsRead(ids=null){
-  if(APP.notifications.loading||APP.notifications.deletingId!==null)return;
-  APP.notifications.loading=true;renderReviewNotifications();
-  const {data,error}=await db.rpc('dash_marcar_notificaciones_revision',{p_ids:ids});
-  if(error||!data?.ok){APP.notifications.loading=false;renderReviewNotifications();toast('No pudimos marcar el mensaje como leído.',true);return}
-  const selected=ids?new Set(ids.map(String)):null;
-  const items=APP.notifications.items.map(item=>!item.leida&&(!selected||selected.has(String(item.id)))?{...item,leida:true}:item);
-  const unread=selected?Math.max(0,APP.notifications.unread-(Number(data.marcadas)||0)):0;
-  APP.notifications={...APP.notifications,loading:false,unread,items};renderReviewNotifications();
-  if(!$('review-notification-layer').hidden)$('review-notification-panel').focus({preventScroll:true});
-}
-
-async function deleteReviewNotification(id){
-  if(APP.notifications.deletingId!==null)return;
-  const numericId=Number(id),index=APP.notifications.items.findIndex(item=>Number(item.id)===numericId);
-  if(!Number.isFinite(numericId)||index<0)return;
-  const removed=APP.notifications.items[index];
-  APP.notificationReadRequest=null;
-  APP.notifications={...APP.notifications,loading:false,request:(APP.notifications.request||0)+1,deletingId:numericId};renderReviewNotifications();
-  $('review-notification-panel').focus({preventScroll:true});
-  const {data,error}=await db.rpc('dash_eliminar_notificacion_revision',{p_id:numericId});
-  if(error||!data?.ok){
-    APP.notifications={...APP.notifications,deletingId:null};renderReviewNotifications();
-    const retryDelete=$('review-notification-list').querySelector(`[data-delete-review-notification="${numericId}"]`);
-    (retryDelete||$('review-notification-panel')).focus({preventScroll:true});
-    const missing=error?.code==='PGRST202'||Number(error?.status)===404||String(error?.message||'').includes('dash_eliminar_notificacion_revision');
-    toast(missing?'Falta activar la eliminación de notificaciones en Supabase.':'No pudimos eliminar la notificación. Actualiza e inténtalo nuevamente.',true);return;
-  }
-  const items=APP.notifications.items.filter(item=>Number(item.id)!==numericId);
-  const unread=Math.max(0,Number(APP.notifications.unread||0)-(removed.leida?0:1));
-  APP.notifications={...APP.notifications,deletingId:null,unread,items};renderReviewNotifications();
-  const buttons=$('review-notification-list').querySelectorAll('[data-delete-review-notification]');
-  const nextDelete=buttons[Math.min(index,Math.max(0,items.length-1))];
-  (nextDelete||$('review-notification-panel')).focus({preventScroll:true});
-  toast('Notificación eliminada.');
-}
-
-async function startReviewNotificationSync(){
-  clearInterval(APP.notificationTimer);APP.notificationTimer=null;
-  if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}
-  if(!APP.identity.hasPersonal)return;
-  const scope=reviewNotificationScope();
-  await loadReviewNotifications({quiet:true});
-  if(!APP.identity.hasPersonal||reviewNotificationScope()!==scope)return;
-  const collaboratorId=Number(APP.inicio?.colaborador?.id);
-  if(Number.isFinite(collaboratorId)&&typeof db.channel==='function'){
-    APP.notificationChannel=db.channel(`kja-notificaciones-${collaboratorId}`)
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'asis_notificaciones',filter:`colaborador_id=eq.${collaboratorId}`},()=>void loadReviewNotifications({quiet:true,refresh:true}))
-      .subscribe();
-  }
-  APP.notificationTimer=setInterval(()=>{if(!document.hidden)void loadReviewNotifications({quiet:true})},30000);
-}
-
-document.querySelectorAll('[data-review-notification-trigger]').forEach(button=>button.onclick=()=>openReviewNotifications(button));
-document.querySelectorAll('[data-close-review-notifications]').forEach(button=>button.onclick=()=>closeReviewNotifications());
-$('review-notification-read-all').onclick=()=>markReviewNotificationsRead(null);
-$('review-notification-list').onclick=event=>{
-  const retry=event.target.closest('[data-retry-review-notifications]');if(retry){void loadReviewNotifications();return}
-  const remove=event.target.closest('[data-delete-review-notification]');if(remove){void deleteReviewNotification(remove.dataset.deleteReviewNotification);return}
-  const button=event.target.closest('[data-review-notification-id]');if(!button)return;
-  const item=APP.notifications.items.find(notification=>String(notification.id)===String(button.dataset.reviewNotificationId));
-  if(item&&!item.leida)void markReviewNotificationsRead([Number(item.id)]);
-};
-$('review-notification-layer').addEventListener('keydown',event=>{
-  if(event.key==='Escape'){event.preventDefault();closeReviewNotifications();return}
-  if(event.key!=='Tab')return;
-  const focusable=[...$('review-notification-panel').querySelectorAll('button:not(:disabled):not([hidden])')].filter(element=>element.offsetParent!==null);
-  if(!focusable.length){event.preventDefault();$('review-notification-panel').focus();return}
-  const first=focusable[0],last=focusable.at(-1);
-  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
-  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
-});
 
 const PROFILE_PHOTO_DIALOG_STATE={trigger:null,restoreFocus:true};
 function syncProfilePhotoDialogPreview(){
@@ -828,6 +547,7 @@ async function removeProfileCover(){
 }
 
 function showAccess(message){
+  if(typeof window!=='undefined')window.KJAPausasLocal?.signOut();
   if(typeof resetPeopleWorkbench==='function')resetPeopleWorkbench();
   if(typeof resetAttendancePreview==='function')resetAttendancePreview();
   if(typeof window!=='undefined')window.KJAZoom?.reset();
@@ -966,9 +686,9 @@ $('form-admin').addEventListener('submit',async e=>{
 });
 
 async function logout(message){
-  APP.notificationReadRequest=null;
+  window.KJAPausasLocal?.signOut();
   window.KJASeguimiento?.reset();
-  clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(APP.notificationTimer);clearInterval(DASH_VERSION_TIMER);if(APP.notificationChannel){void db.removeChannel(APP.notificationChannel);APP.notificationChannel=null}document.title=BASE_DOCUMENT_TITLE;localStorage.removeItem(DEADLINE_KEY);localStorage.removeItem(SHELL_KEY);
+  clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(DASH_VERSION_TIMER);document.title=BASE_DOCUMENT_TITLE;localStorage.removeItem(DEADLINE_KEY);localStorage.removeItem(SHELL_KEY);
   try{ await db.auth.signOut({scope:'local'}); }catch(e){}
   location.reload();
 }
@@ -1204,18 +924,17 @@ async function openPortal(activeSession,bootstrap=null){
   startSessionClock(); hideBoot();
   // Los módulos secundarios comienzan después de pintar el portal autorizado.
   const startupUser=session?.user?.id;
+  for(const storageName of ['localStorage','sessionStorage']){
+    try{const storage=window[storageName];for(const key of Object.keys(storage))if(key.startsWith('kja-chat-'))storage.removeItem(key);}catch{}
+  }
   setTimeout(()=>{
     if(APP.sessionUid!==startupUser||$('portal').hidden)return;
     const launch=task=>Promise.resolve().then(task).catch(()=>{});
     launch(()=>window.KJAMarketingPortal?.init());
     launch(()=>window.KJAZoom?.init());
-    if(window.KJAChat)launch(()=>window.KJAChat.init(startupUser));
-    else window.addEventListener('kja-chat-ready',()=>{
-      if(APP.sessionUid===startupUser&&!$('portal').hidden)launch(()=>window.KJAChat?.init(startupUser));
-    },{once:true});
   },250);
   startMarkSync();
-  startReviewNotificationSync();
+  window.KJAPausasLocal?.setAccount(APP.sessionUid);
   startDashboardVersionWatch();
   const backgroundLoads=[];
   if(c)backgroundLoads.push(loadHistory(),loadProfilePhoto(),loadProfileCover(),loadPersonalRequests());
@@ -1594,10 +1313,19 @@ function renderRailSchedule(d){
     </article>`;
 }
 
-async function loadHistory(){
-  const {data,error}=await db.rpc('dash_historial',{p_anio:APP.year,p_mes:APP.month});
-  if(error||!data?.ok){ toast('No se pudo cargar el historial.',true); return; }
-  APP.historial=data; renderHistory(); renderProgress(); renderProfile();
+const HISTORY_FLIGHTS=new Map();let HISTORY_READ=0;
+function historyReadKey(){return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.access?.rol,APP.access?.acceso_panel,APP.year,APP.month]);}
+async function loadHistory({refresh=false}={}){
+ const request=++HISTORY_READ,key=historyReadKey(),args={p_anio:APP.year,p_mes:APP.month};
+ const current=()=>request===HISTORY_READ&&key===historyReadKey();
+ let flight=HISTORY_FLIGHTS.get(key);
+ if(!flight||refresh){flight=Promise.resolve().then(()=>db.rpc('dash_historial',args));HISTORY_FLIGHTS.set(key,flight);}
+ try{
+  const {data,error}=await flight;if(!current())return false;
+  if(error||!data?.ok){toast('No se pudo cargar el historial.',true);return false;}
+  APP.historial=data;renderHistory();renderProgress();renderProfile();return true;
+ }catch(error){if(current())toast('No se pudo cargar el historial.',true);return false;}
+ finally{if(HISTORY_FLIGHTS.get(key)===flight)HISTORY_FLIGHTS.delete(key);}
 }
 
 function renderProgress(){
@@ -1972,19 +1700,32 @@ function renderAttendanceCompact(data,evidences){
   renderAttendanceActivity();
 }
 
-function renderAttendanceActivity(){
+function attendanceEvidenceScope(){return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.access?.rol,APP.access?.acceso_panel,APP.attendanceDayDate]);}
+async function renderAttendanceActivity(){
   const content=$('attendance-day-content'),group=content._activities?.[content._activity];if(!group)return;
   content.querySelectorAll('[data-attendance-activity]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.attendanceActivity)===content._activity)));
-  const file=group.files[content._file],stage=$('attendance-compact-stage');
+  let file=group.files[content._file];const stage=$('attendance-compact-stage');
+  const request=content._fileRequest=Symbol(),scope=attendanceEvidenceScope(),dayRequest=APP.attendanceDayRequest;
+  const current=()=>content._fileRequest===request&&scope===attendanceEvidenceScope()&&dayRequest===APP.attendanceDayRequest;
+  $('attendance-file-count').textContent=file?`${content._file+1} de ${group.files.length} archivos`:'Sin archivos';
+  content.querySelector('[data-attendance-page="-1"]').disabled=content._file<=0;
+  content.querySelector('[data-attendance-page="1"]').disabled=content._file>=group.files.length-1;
+  if(file?.path&&file.bucket){
+    stage.innerHTML='<div class="attendance-activity-empty" role="status">Preparando el archivo privado…</div>';
+    try{
+      const {data,error,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,file.bucket,file.path,3600)||db.storage.from(file.bucket).createSignedUrl(file.path,3600));
+      if(!current())return;
+      file={...file,archived:!!archived,url:!error?data?.signedUrl||'':''};
+    }catch(error){if(!current())return;file={...file,url:'',archived:false};}
+    ATTENDANCE_DAY_EVIDENCES[file.index]=file;
+  }
   if(!file){stage.innerHTML=`<div class="attendance-activity-empty"><b>${esc(group.titulo)}</b><p>${esc(group.detalle||'No hay archivos adjuntos en esta actividad.')}</p></div>`;}
   else if(file.archived){stage.innerHTML=globalThis.KJAEvidenceArchive.markup();}
   else if(!file.url){stage.innerHTML='<div class="attendance-activity-empty"><b>No se pudo abrir este archivo</b><p>Revisa tu conexión y vuelve a intentarlo.</p><button type="button" data-retry-attendance-day>Reintentar</button></div>';}
   else if((file.mime||'').startsWith('video/')){stage.innerHTML=`<video controls playsinline preload="metadata" src="${esc(file.url)}" aria-label="${esc(file.label)}"></video>`;}
   else if((file.mime||'image/').startsWith('image/')){stage.innerHTML=`<button class="attendance-compact-photo" type="button" data-attendance-evidence="${file.index}" aria-label="Ampliar ${esc(file.label||'evidencia')}"><img src="${esc(file.url)}" alt="${esc(file.label||'Evidencia')}" decoding="async"><span>Ampliar imagen</span></button>`;}
   else{stage.innerHTML=`<div class="attendance-activity-empty"><b>${esc(file.label||'Documento')}</b><p>${esc(group.detalle||'Documento adjunto a esta actividad.')}</p><a href="${esc(file.url)}" target="_blank" rel="noopener noreferrer">Abrir documento ↗</a></div>`;}
-  $('attendance-file-count').textContent=file?`${content._file+1} de ${group.files.length} archivos`:'Sin archivos';
-  content.querySelector('[data-attendance-page="-1"]').disabled=content._file<=0;
-  content.querySelector('[data-attendance-page="1"]').disabled=content._file>=group.files.length-1;
+
 }
 
 function openAttendanceEvidence(index,trigger){
@@ -2012,24 +1753,18 @@ async function openAttendanceDay(date){
   const firstOpen=$('attendance-day-modal').hidden;
   if(firstOpen)ATTENDANCE_DAY_TRIGGER=document.activeElement;
   APP.attendanceDayDate=date;
-  const request=++APP.attendanceDayRequest;
+  const request=++APP.attendanceDayRequest,scope=attendanceEvidenceScope();
   $('attendance-day-modal').hidden=false;
   attendanceDayLoading();
   if(firstOpen)requestAnimationFrame(()=>$('attendance-day-modal').querySelector('.modal-close').focus({preventScroll:true}));
   let data,error;
   try{({data,error}=await db.rpc('dash_dia_detalle',{p_fecha:date}));}catch(failure){error=failure;}
-  if(request!==APP.attendanceDayRequest)return;
+  if(request!==APP.attendanceDayRequest||scope!==attendanceEvidenceScope())return;
   if(error||!data?.ok){
     $('attendance-day-content').innerHTML=`<div class="attendance-day-error"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/></svg></span><h2 id="attendance-day-title">No pudimos abrir este día</h2><p>${error?.message?.includes('dash_dia_detalle')?'Instala o vuelve a ejecutar la migración 11 para habilitar el detalle y las evidencias.':'Inténtalo nuevamente en unos segundos.'}</p><button type="button" data-retry-attendance-day>Reintentar</button></div>`;
     return;
   }
-  const evidences=await Promise.all((data.evidencias||[]).map(async item=>{
-    try{
-      const {data:signed,archived}=await (globalThis.KJAEvidenceArchive?.resolve(db.storage,item.bucket,item.path,3600)||db.storage.from(item.bucket).createSignedUrl(item.path,3600));
-      return {...item,archived:!!archived,url:signed?.signedUrl||''};
-    }catch(error){return {...item,url:''};}
-  }));
-  if(request!==APP.attendanceDayRequest)return;
+  const evidences=(data.evidencias||[]).map(item=>({...item,url:''}));
   renderAttendanceDay(data,evidences);
 }
 
@@ -4529,25 +4264,42 @@ function mountDailyEvidencePortal(){
   return editor;
 }
 
+function dailyEditorScope(){return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.access?.rol,APP.access?.acceso_panel]);}
 async function loadDailyEditableEvidence(request){
-  const picker=$('daily-evidence-picker'),submit=$('daily-evidence-submit');
-  DAILY_EVIDENCE.loading=true;picker.disabled=true;submit.disabled=true;dailyEvidenceMessage('Cargando los archivos que ya enviaste…','is-info');
-  const {data,error}=await db.rpc('dash_mi_entrega_editable',{p_requisito:DAILY_EVIDENCE.requirement,p_asignacion:DAILY_EVIDENCE.assignment});
-  if(request!==DAILY_EVIDENCE_LOAD)return;
-  if(error||!data?.ok){DAILY_EVIDENCE.loading=false;dailyEvidenceMessage(dailyEvidenceFailure(data?.motivo||'cargar_actuales'),'is-error');return}
+  const state=DAILY_EVIDENCE,scope=dailyEditorScope(),picker=$('daily-evidence-picker'),submit=$('daily-evidence-submit');
+  const current=()=>DAILY_EVIDENCE===state&&request===DAILY_EVIDENCE_LOAD&&scope===dailyEditorScope()&&!$('daily-evidence-editor').hidden;
+  state.loading=true;picker.disabled=true;submit.disabled=true;dailyEvidenceMessage('Cargando los archivos que ya enviaste…','is-info');
+  let data,error;try{({data,error}=await db.rpc('dash_mi_entrega_editable',{p_requisito:state.requirement,p_asignacion:state.assignment}));}catch(failure){error=failure;}
+  if(!current())return;
+  if(error||!data?.ok){state.loading=false;dailyEvidenceMessage(dailyEvidenceFailure(data?.motivo||'cargar_actuales'),'is-error');return;}
+  const images=(data.archivos||[]).filter(file=>!String(file.mime||'').startsWith('video/'));
+  state.existingFiles=images.map(file=>({...file,url:''}));
+  state.entregaId=data.entrega;
+  state.existingVideoPath=(data.archivos||[]).find(file=>String(file.mime||'').startsWith('video/'))?.path||null;
+  $('daily-evidence-detail').value=data.detalle||'';
+  if($('daily-evidence-comment'))$('daily-evidence-comment').open=!!data.detalle;
+  renderDailyEvidencePreviews();
+  dailyEvidenceMessage(state.requirement==='comparticiones'?`${images.length} imágenes guardadas. Pulsa Ver archivo para consultar una; la × elimina después de confirmar.`:`${images.length} ${images.length===1?'archivo actual':'archivos actuales'}. Pulsa Ver archivo para consultar; quita con × sólo los que deseas cambiar.${state.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
+  state.loading=false;picker.disabled=false;submit.disabled=false;
+}
+async function previewDailySavedFile(index){
+  const state=DAILY_EVIDENCE,file=state.existingFiles?.[index],scope=dailyEditorScope(),generation=DAILY_EVIDENCE_LOAD;
+  if(!file||state.loading||state.busy||$('daily-evidence-editor').hidden)return;
+  const card=$('daily-evidence-previews').querySelector(`[data-daily-saved-index="${index}"]`),stage=card?.querySelector('[data-saved-preview]');if(!stage)return;
+  const request=card._previewRequest=Symbol();
+  const current=()=>DAILY_EVIDENCE===state&&generation===DAILY_EVIDENCE_LOAD&&scope===dailyEditorScope()&&state.existingFiles.includes(file)&&card.isConnected&&card._previewRequest===request&&!$('daily-evidence-editor').hidden;
+  const restoreFocus=stage.contains(document.activeElement);
+  stage.innerHTML='<span class="daily-saved-preview-status" role="status">Preparando archivo…</span>';
   try{
-    const images=(data.archivos||[]).filter(file=>!String(file.mime||'').startsWith('video/'));
-    const signed=await Promise.all(images.map(async file=>{const result=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);if(result.error||!result.data?.signedUrl)throw new Error('firma');return {...file,url:result.data.signedUrl}}));
-    if(request!==DAILY_EVIDENCE_LOAD)return;
-    DAILY_EVIDENCE.existingFiles=signed;
-    DAILY_EVIDENCE.entregaId=data.entrega;
-    DAILY_EVIDENCE.existingVideoPath=(data.archivos||[]).find(file=>String(file.mime||'').startsWith('video/'))?.path||null;
-    $('daily-evidence-detail').value=data.detalle||'';
-    if($('daily-evidence-comment'))$('daily-evidence-comment').open=!!data.detalle;
-    renderDailyEvidencePreviews();
-    dailyEvidenceMessage(DAILY_EVIDENCE.requirement==='comparticiones'?`${signed.length} imágenes guardadas. La × permite eliminar una imagen después de confirmar.`:`${signed.length} ${signed.length===1?'archivo actual':'archivos actuales'}. Quita con × sólo las que deseas cambiar.${DAILY_EVIDENCE.existingVideoPath?' El video actual se conservará.':''}`,'is-ready');
-    DAILY_EVIDENCE.loading=false;picker.disabled=false;submit.disabled=false;
-  }catch{DAILY_EVIDENCE.loading=false;dailyEvidenceMessage('No pudimos mostrar tus archivos actuales. Cierra el editor e inténtalo nuevamente.','is-error')}
+    const {data,error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);
+    if(!current())return;
+    if(error||!data?.signedUrl)throw new Error('firma');
+    stage.innerHTML=dailyFilePreview({...file,url:data.signedUrl},index)+`<button type="button" class="daily-saved-preview-refresh" data-preview-existing-file="${index}" aria-label="Actualizar vista del archivo ${index+1}">Actualizar vista</button>`;
+  }catch(error){
+    if(!current())return;
+    stage.innerHTML=`<button type="button" class="daily-saved-preview-button" data-preview-existing-file="${index}"><span>No se pudo abrir</span><b>Reintentar archivo ${index+1}</b></button>`;
+  }
+  if(current()&&restoreFocus)stage.querySelector('button')?.focus({preventScroll:true});
 }
 
 function openDailyEvidenceEditor(requirement,assignment=null,correction=null){
@@ -4609,7 +4361,7 @@ function renderDailyEvidencePreviews(){
   const total=existing.length+fresh.length;
   box.hidden=!total;box.classList.toggle('is-many',total>10);
   box.setAttribute('aria-label',`${total} ${total===1?'imagen seleccionada':'imágenes seleccionadas'}`);
-  box.innerHTML=existing.map((item,index)=>`<div class="daily-evidence-preview is-existing" style="--preview-index:${Math.min(index,7)}"><em>Actual</em>${dailyFilePreview(item,index)}<button type="button" data-remove-existing-file="${index}" aria-label="Quitar archivo actual ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('')+fresh.map((item,index)=>`<div class="daily-evidence-preview is-new" style="--preview-index:${Math.min(existing.length+index,7)}"><em>Nueva</em>${dailyFilePreview(item,index)}<button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen nueva ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
+  box.innerHTML=existing.map((item,index)=>`<div class="daily-evidence-preview is-existing" data-daily-saved-index="${index}" style="--preview-index:${Math.min(index,7)}"><em>Actual</em><div data-saved-preview class="daily-saved-preview"><button type="button" class="daily-saved-preview-button" data-preview-existing-file="${index}"><span>${esc(item.name||'Archivo actual '+(index+1))}</span><b>Ver archivo ${index+1}</b></button></div><button type="button" data-remove-existing-file="${index}" aria-label="Quitar archivo actual ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('')+fresh.map((item,index)=>`<div class="daily-evidence-preview is-new" style="--preview-index:${Math.min(existing.length+index,7)}"><em>Nueva</em>${dailyFilePreview(item,index)}<button type="button" data-remove-daily-file="${index}" aria-label="Quitar imagen nueva ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>`).join('');
 }
 
 function dailyDocumentType(file){
@@ -4786,7 +4538,7 @@ async function submitDailyEvidence(event){
     await new Promise(resolve=>setTimeout(resolve,matchMedia('(prefers-reduced-motion: reduce)').matches?320:760));
     DAILY_EVIDENCE.busy=false;closeDailyEvidenceEditor({restoreFocus:false});renderDailyClose();$('day-close-state').focus();DAILY_EVIDENCE_TRIGGER=null;toast(editing?'Cambios guardados. La evidencia volvió a revisión.':facebookStillScheduled?'Jornada laboral completa. Facebook continúa programado.':autoExit?'Salida registrada. Tu jornada está completa.':exitRecorded?'Salida registrada. Aún tienes evidencias laborales pendientes.':'Evidencia guardada correctamente.');
     if(correction&&typeof finishEvidenceCorrection==='function')await finishEvidenceCorrection(correction.id);
-    if(autoExit){const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory()]);if(inicioRes.data?.ok){APP.inicio=inicioRes.data;renderHome()}}
+    if(autoExit){const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory({refresh:true})]);if(inicioRes.data?.ok){APP.inicio=inicioRes.data;renderHome()}}
   }catch(error){
     if(paths.length||error.path)cleanupDailyEvidence([...paths,...(error.path?[error.path]:[])]);
     DAILY_EVIDENCE.busy=false;setDailyEvidenceProcess('idle');dailyEvidenceMessage(dailyEvidenceFailure(error.motivo),'is-error');
@@ -4826,7 +4578,7 @@ async function markDailyExit(){
     const {data,error}=await db.rpc('dash_marcar_salida',{p_dispositivo:(navigator.userAgent||'').slice(0,120)});
     if(error||!data?.ok){const reason=data?.motivo||'registro';const messages={salida_aun_no_disponible:`La salida se habilita desde las ${fmtTime(data?.desde)}.`,salida_fuera_de_plazo:'El plazo de salida terminó. La jornada quedará incompleta.',requisitos_pendientes:'Todavía existen evidencias pendientes.',ya_registrada:'La salida ya estaba registrada.',sesion:'Tu sesión venció. Vuelve a ingresar.'};throw Object.assign(new Error(messages[reason]||'No pudimos registrar la salida.'),{motivo:reason})}
     APP.cierre=data.resumen;DAILY_EXIT_BUSY=false;$('daily-exit-modal').hidden=true;document.body.classList.remove('daily-evidence-open');renderDailyClose();toast('Salida registrada. Tu jornada está completa.');
-    const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory()]);
+    const [inicioRes]=await Promise.all([db.rpc('dash_inicio'),loadHistory({refresh:true})]);
     if(inicioRes.data?.ok){APP.inicio=inicioRes.data;renderHome()}
   }catch(error){dailyExitMessage(error.message||'No pudimos registrar la salida.','is-error');await loadDailyClose({quiet:true})}
   finally{DAILY_EXIT_BUSY=false;confirmButton.disabled=false;confirmButton.querySelector('span').textContent='Registrar mi salida';button.disabled=!APP.cierre?.puede_marcar_salida}
@@ -4848,6 +4600,7 @@ function facebookShareReviewLabel(value){
 
 function resetFacebookShareModal(){
   globalThis.FacebookReceipt?.reset();
+  delete $('facebook-share-gallery').dataset.selected;
   $('facebook-share-gallery').setAttribute('aria-busy','true');
   $('facebook-share-gallery').innerHTML='<span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span><span class="facebook-share-skeleton"></span>';
   $('facebook-share-gallery-meta').textContent='Preparando imágenes privadas…';
@@ -4876,39 +4629,72 @@ function populateFacebookShareDetails(data){
   $('facebook-share-comment').textContent=data.detalle||'Sin comentario adicional.';
 }
 
+function facebookShareScope(){return JSON.stringify([APP.sessionUid,APP.inicio?.colaborador?.id,APP.access?.rol,APP.access?.acceso_panel]);}
+function facebookShareCurrent(state){return FACEBOOK_SHARE===state&&state.scope===facebookShareScope()&&!$('facebook-share-modal').hidden;}
+async function facebookShareReceiptFiles(state){
+  if(!facebookShareCurrent(state))throw new Error('Comprobante cerrado.');
+  const files=state.data?.archivos||[],paths=[...new Set(files.map(file=>file.path))];
+  if(!paths.length)throw new Error('La entrega no tiene imágenes.');
+  const {data,error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrls(paths,900);
+  if(!facebookShareCurrent(state))throw new Error('Comprobante cerrado.');
+  if(error)throw new Error('No pudimos autorizar las capturas. Reintenta preparar el comprobante.');
+  const signed=new Map((data||[]).map(file=>[file.path,file]));
+  return files.map(file=>{
+    const item=signed.get(file.path);
+    if(!item?.signedUrl||item.error)throw new Error('No pudimos abrir todas las capturas. Reintenta preparar el comprobante.');
+    return {...file,url:item.signedUrl};
+  });
+}
+async function renderFacebookShareFile(index=0){
+  const state=FACEBOOK_SHARE,files=state.data?.archivos||[];
+  if(!facebookShareCurrent(state)||!Number.isInteger(index)||index<0||index>=files.length)return;
+  const request=state.fileRequest=(state.fileRequest||0)+1;
+  const current=()=>facebookShareCurrent(state)&&state.fileRequest===request;
+  const gallery=$('facebook-share-gallery'),focusLabel=gallery.contains(document.activeElement)?document.activeElement.textContent.trim():'';state.index=index;
+  const nav=`<nav class="facebook-share-navigation" aria-label="Capturas del comprobante"><button type="button" data-facebook-file="${index-1}" ${index===0?'disabled':''}>Anterior</button><span>Captura ${index+1} de ${files.length}</span><button type="button" data-facebook-file="${index+1}" ${index===files.length-1?'disabled':''}>Siguiente</button></nav>`;
+  gallery.dataset.selected='true';gallery.setAttribute('aria-busy','true');gallery.innerHTML=nav+'<p class="facebook-share-error" role="status">Preparando la captura seleccionada…</p>';
+  $('facebook-share-gallery-meta').textContent=`${files.length} ${files.length===1?'captura disponible':'capturas disponibles'} · selecciona para consultar`;
+  $('facebook-share-ready').textContent='Preparando';$('facebook-share-ready').dataset.state='loading';
+  try{
+    const file=files[index],{data,error}=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);
+    if(!current())return;
+    if(error||!data?.signedUrl)throw new Error('firma');
+    state.signed=[{...file,url:data.signedUrl}];
+    gallery.innerHTML=nav+`<figure><a href="${esc(data.signedUrl)}" target="_blank" rel="noopener" aria-label="Abrir captura ${index+1} en tamaño completo"><img src="${esc(data.signedUrl)}" alt="Captura ${index+1} de las comparticiones de Facebook" decoding="async"></a><figcaption><span><b>Captura ${String(index+1).padStart(2,'0')}</b><small>${Math.max(1,Math.round(Number(file.bytes||0)/1024))} KB</small></span><em>${index+1} de ${files.length}</em></figcaption></figure>`;
+    $('facebook-share-ready').textContent='Disponible';$('facebook-share-ready').dataset.state='ready';
+    if(!state.receiptReady&&globalThis.FacebookReceipt){
+      state.receiptReady=true;
+      void globalThis.FacebookReceipt.open(db,state.data,files,{resolveFiles:()=>facebookShareReceiptFiles(state),isCurrent:()=>facebookShareCurrent(state)});
+    }
+  }catch(error){
+    if(!current())return;
+    gallery.innerHTML=nav+`<p class="facebook-share-error">No pudimos abrir esta captura. Comprueba tu conexión e inténtalo nuevamente. <button type="button" data-facebook-file="${index}">Reintentar captura</button></p>`;
+    $('facebook-share-ready').textContent='Reintentar';$('facebook-share-ready').dataset.state='error';
+  }finally{if(current()){
+    gallery.setAttribute('aria-busy','false');
+    if(['Anterior','Siguiente'].includes(focusLabel)){const buttons=[...gallery.querySelectorAll('nav button:not(:disabled)')];(buttons.find(button=>button.textContent.trim()===focusLabel)||buttons[0])?.focus({preventScroll:true});}
+  }}
+}
 async function openFacebookShare(trigger){
   const modal=$('facebook-share-modal'),request=FACEBOOK_SHARE.request+1;
-  FACEBOOK_SHARE={trigger:trigger||document.activeElement,data:null,signed:[],request};
+  const state={trigger:trigger||document.activeElement,data:null,signed:[],request,scope:facebookShareScope(),fileRequest:0,receiptReady:false};FACEBOOK_SHARE=state;
   resetFacebookShareModal();modal.hidden=false;document.body.classList.add('facebook-share-open');
-  requestAnimationFrame(()=>$('facebook-share-modal').querySelector('.facebook-share-close').focus({preventScroll:true}));
-  const {data,error}=await db.rpc('dash_mi_comprobante_comparticiones');
-  if(request!==FACEBOOK_SHARE.request)return;
+  requestAnimationFrame(()=>{if(facebookShareCurrent(state))modal.querySelector('.facebook-share-close').focus({preventScroll:true});});
+  let data,error;try{({data,error}=await db.rpc('dash_mi_comprobante_comparticiones'));}catch(failure){error=failure;}
+  if(!facebookShareCurrent(state))return;
   if(error||!data?.ok){
-    const missing=error?.code==='PGRST202'||String(error?.message||'').includes('dash_mi_comprobante_comparticiones');
     $('facebook-share-gallery').setAttribute('aria-busy','false');
-    $('facebook-share-gallery').innerHTML=`<p class="facebook-share-error">${missing?'Ejecuta dashboard_30_compartir_evidencia_whatsapp.sql para preparar este comprobante.':'No pudimos cargar la evidencia privada. Actualiza e inténtalo nuevamente.'}</p>`;
+    $('facebook-share-gallery').innerHTML='<p class="facebook-share-error">No pudimos cargar la evidencia privada. Actualiza e inténtalo nuevamente.</p>';
     $('facebook-share-gallery-meta').textContent='Comprobante no disponible';$('facebook-share-ready').textContent='Sin cargar';$('facebook-share-ready').dataset.state='error';return;
   }
-  FACEBOOK_SHARE.data=data;populateFacebookShareDetails(data);
-  try{
-    const signed=await Promise.all((data.archivos||[]).map(async file=>{
-      const result=await db.storage.from(DAILY_EVIDENCE_BUCKET).createSignedUrl(file.path,900);
-      if(result.error||!result.data?.signedUrl)throw result.error||new Error('firma');
-      return {...file,url:result.data.signedUrl};
-    }));
-    if(request!==FACEBOOK_SHARE.request)return;
-    FACEBOOK_SHARE.signed=signed;
-    if(signed.length)globalThis.FacebookReceipt?.open(db,data,signed);
-    const gallery=$('facebook-share-gallery');gallery.setAttribute('aria-busy','false');
-    gallery.innerHTML=signed.length?signed.map((file,index)=>`<figure><a href="${esc(file.url)}" target="_blank" rel="noopener" aria-label="Abrir captura ${index+1} en tamaño completo"><img src="${esc(file.url)}" alt="Captura ${index+1} de las comparticiones de Facebook" loading="${index<3?'eager':'lazy'}" decoding="async"></a><figcaption><span><b>Captura ${String(index+1).padStart(2,'0')}</b><small>${Math.max(1,Math.round(Number(file.bytes||0)/1024))} KB</small></span><em>${index+1} de ${signed.length}</em></figcaption></figure>`).join(''):'<p class="facebook-share-error">Esta entrega no contiene imágenes.</p>';
-    $('facebook-share-gallery-meta').textContent=`${signed.length} ${signed.length===1?'imagen completa':'imágenes completas'} · toca para ampliar`;
-    $('facebook-share-ready').textContent=signed.length?'Listas':'Sin imágenes';$('facebook-share-ready').dataset.state=signed.length?'ready':'error';
-  }catch{
-    if(request!==FACEBOOK_SHARE.request)return;
-    $('facebook-share-gallery').setAttribute('aria-busy','false');$('facebook-share-gallery').innerHTML='<p class="facebook-share-error">No pudimos abrir las imágenes privadas. Comprueba tu conexión e inténtalo nuevamente.</p>';
-    $('facebook-share-gallery-meta').textContent='Error al preparar archivos';$('facebook-share-ready').textContent='Reintentar';$('facebook-share-ready').dataset.state='error';
+  state.data=data;populateFacebookShareDetails(data);
+  if(!(data.archivos||[]).length){
+    $('facebook-share-gallery').setAttribute('aria-busy','false');$('facebook-share-gallery').innerHTML='<p class="facebook-share-error">Esta entrega no contiene imágenes.</p>';
+    $('facebook-share-gallery-meta').textContent='Sin capturas';$('facebook-share-ready').textContent='Sin imágenes';$('facebook-share-ready').dataset.state='error';return;
   }
+  await renderFacebookShareFile(0);
 }
+$('facebook-share-gallery').onclick=event=>{const button=event.target.closest('[data-facebook-file]');if(button&&!button.disabled)void renderFacebookShareFile(Number(button.dataset.facebookFile));};
 
 function closeFacebookShare({restoreFocus=true}={}){
   globalThis.FacebookReceipt?.reset();
@@ -5013,6 +4799,7 @@ function requestFacebookDeleteConfirmation({retry=false,last=false}={}){
   });
 }
 $('daily-evidence-previews').addEventListener('click',event=>{
+  const preview=event.target.closest('[data-preview-existing-file]');if(preview)return previewDailySavedFile(Number(preview.dataset.previewExistingFile));
   const button=event.target.closest('[data-remove-daily-file],[data-remove-existing-file]');if(!button||DAILY_EVIDENCE.busy||DAILY_EVIDENCE.loading)return;
   if(button.dataset.removeExistingFile!=null&&DAILY_EVIDENCE.requirement==='comparticiones')return deleteFacebookEvidenceImage(Number(button.dataset.removeExistingFile));
   if(button.dataset.removeExistingFile!=null){DAILY_EVIDENCE.existingFiles.splice(Number(button.dataset.removeExistingFile),1)}
@@ -5219,7 +5006,6 @@ document.addEventListener('visibilitychange',()=>{
   void checkDashboardVersion();
   if(APP.identity.hasPersonal&&!MARK_BUSY)void refreshMarkEligibility({quiet:true});
   if(APP.identity.hasPersonal&&!DAILY_EVIDENCE.busy)void loadDailyClose({quiet:true});
-  if(APP.identity.hasPersonal)void loadReviewNotifications({quiet:true});
 });
 window.addEventListener('pageshow',()=>void checkDashboardVersion());
 
@@ -5412,7 +5198,7 @@ $('confirm-mark').onclick=async()=>{
     if(data.dia)APP.inicio.dia=data.dia;
     APP.cierre=null;APP.dailyCloseResolved=false;APP.dailyCloseGeneration++;APP.dailyCloseRequest=null;resetDailyCloseUi();syncMarkedAttendanceAction();
     clearEvidence();showMarkReceipt(data,hadEvidence);
-    (async()=>{try{const {data:fresh}=await db.rpc('dash_inicio');if(fresh?.ok){APP.inicio=fresh;renderHome();renderProfile();await Promise.all([loadHistory(),loadDailyClose({quiet:true})]);}}catch(refreshError){console.warn('No se pudo refrescar el panel tras marcar.',refreshError);}})();
+    (async()=>{try{const {data:fresh}=await db.rpc('dash_inicio');if(fresh?.ok){APP.inicio=fresh;renderHome();renderProfile();await Promise.all([loadHistory({refresh:true}),loadDailyClose({quiet:true})]);}}catch(refreshError){console.warn('No se pudo refrescar el panel tras marcar.',refreshError);}})();
   }catch(e){
     setMarkFlow('confirm');
     markMsg(markFailureMessage(e.motivo,e.ventana));
@@ -5420,6 +5206,6 @@ $('confirm-mark').onclick=async()=>{
   finally{MARK_BUSY=false;setBusy(btn,false,'');syncMarkConfirm();syncMobileEntryAction();reloadDashboardIfSafe();}
 };
 
-db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'&&!$('portal').hidden&&$('portal').dataset.loading!=='true')location.reload()});
+db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')window.KJAPausasLocal?.signOut();if(event==='SIGNED_OUT'&&!$('portal').hidden&&$('portal').dataset.loading!=='true')location.reload()});
 startTimeAmbience();
 init().catch(()=>showAccess('No se pudo iniciar el portal. Recarga la página.'));

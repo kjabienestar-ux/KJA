@@ -202,6 +202,8 @@ async function handlePeopleProfileClick(e){
     b.disabled=true;b.textContent='Preparando…';
     const request=state.request,live=()=>request===state.request&&APP.access.acceso_panel;
     try{
+      await KJAFacebookPDF.load();
+      if(!live())return;
       const [attendance,activity,history]=await Promise.all([loadProfileAttendance(p,peopleToday(),live),APP.access.rol==='direccion'?db.rpc('dash_reporte_facebook',{p_desde:peopleToday().slice(0,7)+'-01',p_hasta:peopleToday()}):Promise.resolve({data:null}),db.rpc('dash_admin_historial_colaborador',{p_colab:Number(p.id)})]);
       if(!live())return;
       if(!attendance?.ok)throw Error('No se pudo cargar el historial de asistencia. Reintenta la descarga.');

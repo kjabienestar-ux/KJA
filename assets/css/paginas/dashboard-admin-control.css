@@ -233,28 +233,6 @@
   cursor: not-allowed;
 }
 
-#portal #admin-control-section #admin-pausas-open-btn {
-  min-height: 42px;
-  padding: 9px 18px;
-  border-radius: 10px;
-  background: var(--control-primary);
-  border: 1px solid var(--control-primary);
-  color: #fff;
-  font: 600 13px/1.4 'Inter', system-ui, sans-serif;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 2px 6px rgba(25, 109, 97, .25);
-  transition: background-color .12s ease, border-color .12s ease;
-  white-space: nowrap;
-}
-
-#portal #admin-control-section #admin-pausas-open-btn:hover {
-  background: var(--control-primary-hover);
-  border-color: var(--control-primary-hover);
-}
-
 /* --------------------------------------------------------------------------
    2. KPI Metric Stat Cards (Estilo idéntico a Cuentas de Certificados)
    -------------------------------------------------------------------------- */

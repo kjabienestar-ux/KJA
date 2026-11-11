@@ -21,7 +21,6 @@ async function adminReviewSignedBatch(files){
 }
 let ADMIN_DRAW={key:'',selection:[]};
 let ADMIN_EVIDENCE={personId:null,requirement:'',assignment:null,files:[],trigger:null,busy:false};
-let ADMIN_MESSAGE={personId:null,trigger:null,busy:false};
 
 function adminEvidenceIcon(kind){
   if(kind==='comparticiones')return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V3h-3a5 5 0 0 0-5 5v3H6v5h3v5h5v-5h3l1-5h-4z"/></svg>';
@@ -304,7 +303,7 @@ function renderAdminCloseStatus(){
     const total=group.items.length;
     const pct=total?Math.round((complete*100)/total):0;
     const areaBadgeClass=adminCloseAreaSlug(group.name);
-    let areaHtml=`<section class="admin-close-area area-tone-${adminCloseAreaTone(group.id)}"><header><div class="admin-close-area-title-group"><span class="admin-close-area-badge ${areaBadgeClass}" aria-hidden="true">${adminCloseAreaIcon(group.name)}</span><span><b>${esc(group.name)}</b><small>${complete} completas${justified?` · ${justified} justificadas`:''} de ${total} jornadas</small></span></div><div class="admin-close-progress" data-progress-tone="${pct<50?'low':'good'}"><div class="admin-close-progress-bar"><div class="admin-close-progress-fill" style="width:${pct}%"></div></div><span class="admin-close-progress-pct">${pct}%</span></div><div class="admin-close-area-count"><b>${total}</b><small>colaboradores</small></div></header><div class="admin-close-table"><div class="admin-close-table-head"><span>COLABORADOR</span><span>ENTRADA</span><span>MODALIDAD</span><span>EVIDENCIAS</span><span>SALIDA</span><span>JORNADA</span><span>MENSAJE</span></div>`;
+    let areaHtml=`<section class="admin-close-area area-tone-${adminCloseAreaTone(group.id)}"><header><div class="admin-close-area-title-group"><span class="admin-close-area-badge ${areaBadgeClass}" aria-hidden="true">${adminCloseAreaIcon(group.name)}</span><span><b>${esc(group.name)}</b><small>${complete} completas${justified?` · ${justified} justificadas`:''} de ${total} jornadas</small></span></div><div class="admin-close-progress" data-progress-tone="${pct<50?'low':'good'}"><div class="admin-close-progress-bar"><div class="admin-close-progress-fill" style="width:${pct}%"></div></div><span class="admin-close-progress-pct">${pct}%</span></div><div class="admin-close-area-count"><b>${total}</b><small>colaboradores</small></div></header><div class="admin-close-table"><div class="admin-close-table-head"><span>COLABORADOR</span><span>ENTRADA</span><span>MODALIDAD</span><span>EVIDENCIAS</span><span>SALIDA</span><span>JORNADA</span></div>`;
     for(const person of group.items){
       const close=person.cierre||{},personReviews=reviews.filter(item=>String(item.colaborador_id)===String(person.id)),progress=adminCloseEvidenceProgress(person,personReviews);
       const mode=adminCloseMode(close);
@@ -315,8 +314,7 @@ function renderAdminCloseStatus(){
       const recoveryAction=canUpload&&recoverExit?`<button type="button" class="admin-close-upload-trigger is-recover" data-admin-recover-exit="${esc(person.id)}"><svg viewBox="0 0 16 16" class="admin-action-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 1 1 1.8 4.2L2 14v-4h4"/></svg><span>Recuperar salida</span></button>`:'';
       const exitNote=!close.salida_at&&close.entrada_at&&close.requiere_salida!==false&&close.aplica_jornada!==false&&!close.justificado
         ?`<small class="admin-close-exit-note" title="${recoverExit?'Foto recibida; falta registrar la salida.':'Falta registrar la salida.'}"><svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5v2.5l1.5 1"/></svg><span>${recoverExit?'Foto lista · Falta salida':'Falta salida'}</span></small>`:'';
-      const messageAction=canReview?`<button type="button" class="admin-close-message-trigger" data-admin-message-person="${esc(person.id)}" aria-label="Enviar mensaje a ${esc(person.nombre)}" title="Enviar mensaje a ${esc(person.nombre)}"><svg viewBox="0 0 24 24" class="admin-action-icon" aria-hidden="true"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.5-4.8a8.5 8.5 0 1 1 16-4.2Z"/><path class="admin-message-phone" d="M8.1 6.9c-.4 0-1.3.8-1.3 1.9 0 2.8 4.1 6.9 6.9 6.9 1.1 0 1.9-.9 1.9-1.3v-1c0-.2-.1-.4-.3-.5l-2-1c-.2-.1-.4-.1-.6.1l-.8 1c-1.3-.6-2.5-1.8-3.1-3.1l1-.8c.2-.2.2-.4.1-.6l-1-2c-.1-.2-.3-.3-.5-.3Z"/></svg></button>`:'';
-      areaHtml+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador" class="admin-close-person-cell"><i class="admin-close-avatar" aria-hidden="true">${esc(initials(person.nombre))}${person.foto_url?`<img data-profile-photo src="${esc(person.foto_url)}" alt="" loading="lazy" decoding="async">`:''}</i><span class="admin-close-person-meta"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span></span><span data-label="Entrada" class="admin-close-time-cell">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Modalidad" class="admin-close-mode-cell"><span class="admin-close-mode ${mode.state}">${mode.label}</span></span><span data-label="Evidencias" class="admin-close-evidence-cell"><span class="admin-close-evidence-fraction"><b>${esc(evidence)}</b> evidencias</span>${exitNote}<span class="admin-close-evidence-actions">${reviewAction}${uploadAction}${recoveryAction}</span></span><span data-label="Salida" class="admin-close-time-cell">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-cell"><span class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span></span><span data-label="Mensaje" class="admin-close-message-cell">${messageAction||'—'}</span></div>`;
+      areaHtml+=`<div class="admin-close-person${person.labora?'':' is-off'}"><span data-label="Colaborador" class="admin-close-person-cell"><i class="admin-close-avatar" aria-hidden="true">${esc(initials(person.nombre))}${person.foto_url?`<img data-profile-photo src="${esc(person.foto_url)}" alt="" loading="lazy" decoding="async">`:''}</i><span class="admin-close-person-meta"><b>${esc(person.nombre)}</b><small class="admin-close-person-schedule">${esc(person.labora?adminCloseSchedule(person):'No labora')}</small></span></span><span data-label="Entrada" class="admin-close-time-cell">${esc(adminCloseTime(close.entrada_at))}</span><span data-label="Modalidad" class="admin-close-mode-cell"><span class="admin-close-mode ${mode.state}">${mode.label}</span></span><span data-label="Evidencias" class="admin-close-evidence-cell"><span class="admin-close-evidence-fraction"><b>${esc(evidence)}</b> evidencias</span>${exitNote}<span class="admin-close-evidence-actions">${reviewAction}${uploadAction}${recoveryAction}</span></span><span data-label="Salida" class="admin-close-time-cell">${esc(adminCloseTime(close.salida_at))}</span><span data-label="Jornada" class="admin-close-status-cell"><span class="admin-close-status-pill ${esc(state)}">${esc(adminCloseStateLabel(state))}</span></span></div>`;
     }
     areaHtml+='</div></section>';
 
@@ -581,44 +579,6 @@ async function submitAdminReview(state){
   if(next)openAdminReviewPerson(personId,null,assignmentId);
 }
 
-function adminMessageStatus(text,type=''){
-  const element=$('admin-message-status');if(!element)return;
-  element.textContent=text||'';element.className='admin-message-status'+(type?' '+type:'');
-}
-
-function openAdminMessage(personId,trigger=null){
-  if(APP.access.rol!=='direccion')return;
-  if(!window.KJAChat?.openCollaborator){toast('El chat aún no está disponible. Recarga la página.',true);return}
-  if(trigger)trigger.disabled=true;
-  return window.KJAChat.openCollaborator(personId).catch(error=>{
-    const missing=error?.code==='PGRST202';
-    toast(missing?'Falta ejecutar chat_05_abrir_colaborador.sql en Supabase.':error?.message||'No se pudo abrir el chat. Intenta nuevamente.',true);
-  }).finally(()=>{if(trigger)trigger.disabled=false});
-}
-
-function closeAdminMessage({restoreFocus=true}={}){
-  if(ADMIN_MESSAGE.busy)return;
-  $('admin-message-modal').hidden=true;document.body.classList.remove('admin-message-open');
-  if(restoreFocus&&ADMIN_MESSAGE.trigger)ADMIN_MESSAGE.trigger.focus();
-  ADMIN_MESSAGE={personId:null,trigger:null,busy:false};
-}
-
-async function submitAdminMessage(event){
-  event.preventDefault();
-  if(APP.access.rol!=='direccion'||ADMIN_MESSAGE.busy)return;
-  const message=$('admin-message-body').value.trim(),subject=$('admin-message-subject').value.trim();
-  if(message.length<3)return adminMessageStatus('Escribe un mensaje de al menos 3 caracteres.','is-error');
-  const button=$('admin-message-submit');ADMIN_MESSAGE.busy=true;button.disabled=true;button.querySelector('span').textContent='Enviando…';adminMessageStatus('Enviando el mensaje privado…');
-  const {data,error}=await db.rpc('dash_admin_enviar_mensaje',{p_colaborador:Number(ADMIN_MESSAGE.personId),p_mensaje:message,p_asunto:subject||null});
-  ADMIN_MESSAGE.busy=false;button.disabled=false;button.querySelector('span').textContent='Enviar mensaje';
-  if(error||!data?.ok){
-    const missing=error?.code==='PGRST202'||String(error?.message||'').includes('dash_admin_enviar_mensaje');
-    const messages={sin_permiso:'Solo Dirección puede enviar mensajes.',datos:'Revisa el contenido del mensaje.',colaborador:'El colaborador ya no está activo.',limite:'Alcanzaste el límite temporal de mensajes. Espera una hora antes de continuar.'};
-    return adminMessageStatus(missing?'Falta activar dashboard_41_centro_notificaciones.sql en Supabase.':messages[data?.motivo]||'No pudimos enviar el mensaje. Revisa tu conexión e inténtalo nuevamente.','is-error');
-  }
-  closeAdminMessage();toast('Mensaje enviado al colaborador.');
-}
-
 function adminEvidenceMessage(text,type=''){
   const element=$('admin-evidence-message');if(!element)return;
   element.textContent=text||'';element.className='admin-evidence-message'+(type?' '+type:'');
@@ -855,14 +815,12 @@ $('admin-close-area').onchange=renderAdminCloseStatus;
 $('admin-close-assignment-form').onsubmit=submitAdminCloseAssignment;
 $('admin-close-assignments-refresh').onclick=()=>withAdminSkeleton(APP.adminSection,()=>loadAdminCloses({quiet:true,refresh:true}));
 $('admin-close-assignment-list').onclick=event=>{const button=event.target.closest('[data-cancel-admin-close]');if(button)cancelAdminCloseAssignment(button.dataset.cancelAdminClose)};
-$('admin-close-status').onclick=event=>{const recovery=event.target.closest('[data-admin-recover-exit]');if(recovery){void recoverAdminCloseExit(recovery.dataset.adminRecoverExit,recovery);return;}const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]'),message=event.target.closest('[data-admin-message-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminMissingEvidence(upload.dataset.adminUploadPerson,upload);if(message)openAdminMessage(message.dataset.adminMessagePerson,message)};
+$('admin-close-status').onclick=event=>{const recovery=event.target.closest('[data-admin-recover-exit]');if(recovery){void recoverAdminCloseExit(recovery.dataset.adminRecoverExit,recovery);return;}const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminMissingEvidence(upload.dataset.adminUploadPerson,upload)};
 $('admin-review-gallery').onclick=event=>{const button=event.target.closest('[data-admin-review-file]');if(button)renderAdminReviewDelivery(ADMIN_REVIEW.deliveryId,Number(button.dataset.adminReviewFile));};
 $('admin-review-tabs').onclick=event=>{const button=event.target.closest('[data-admin-review-delivery]');if(button)renderAdminReviewDelivery(button.dataset.adminReviewDelivery)};
 $('admin-review-approve').onclick=()=>submitAdminReview('aprobada');
 $('admin-review-observe').onclick=()=>submitAdminReview('observada');
 document.querySelectorAll('[data-close-admin-review]').forEach(button=>button.onclick=()=>closeAdminReview());
-$('admin-message-form').onsubmit=submitAdminMessage;
-document.querySelectorAll('[data-close-admin-message]').forEach(button=>button.onclick=()=>closeAdminMessage());
 $('admin-evidence-requirement-list').onclick=event=>{const button=event.target.closest('[data-admin-evidence-kind]');if(button)selectAdminEvidenceRequirement(button.dataset.adminEvidenceKind,button.dataset.adminEvidenceAssignment||null)};
 $('admin-evidence-files').onchange=event=>chooseAdminEvidenceFiles(event.target.files||[]);
 $('admin-evidence-picker').onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();$('admin-evidence-files').click()}};
@@ -876,12 +834,6 @@ $('admin-review-modal').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeAdminReview();return}
   if(event.key!=='Tab')return;
   const focusable=[...$('admin-review-modal').querySelectorAll('button:not(:disabled):not([hidden]),a[href],textarea:not(:disabled):not([hidden])')].filter(element=>element.offsetParent!==null);if(!focusable.length)return;
-  const first=focusable[0],last=focusable.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
-});
-$('admin-message-modal').addEventListener('keydown',event=>{
-  if(event.key==='Escape'){event.preventDefault();closeAdminMessage();return}
-  if(event.key!=='Tab')return;
-  const focusable=[...$('admin-message-modal').querySelectorAll('button:not(:disabled):not([hidden]),input:not(:disabled),textarea:not(:disabled)')].filter(element=>element.offsetParent!==null);if(!focusable.length)return;
   const first=focusable[0],last=focusable.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 });
 $('admin-evidence-modal').addEventListener('keydown',event=>{
