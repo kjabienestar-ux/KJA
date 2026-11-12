@@ -52,10 +52,10 @@
   }
 
   function syncRailToggle(active){
-    const toggle=$('admin-rail-toggle'),open=active&&readStore(RAIL_KEY,false)===true;
-    if(active&&desktop.matches)portal.dataset.adminRail=open?'open':'icons';else delete portal.dataset.adminRail;
+    const toggle=$('admin-rail-toggle'),open=readStore(RAIL_KEY,false)===true;
+    if(desktop.matches)portal.dataset.adminRail=open?'open':'icons';else delete portal.dataset.adminRail;
     if(!toggle)return;
-    setHidden(toggle,!(active&&desktop.matches));
+    setHidden(toggle,!desktop.matches);
     const text=open?'Ocultar nombres':'Mostrar nombres';
     toggle.setAttribute('aria-expanded',String(open));
     toggle.setAttribute('aria-label',`${text} de la navegación`);

@@ -282,6 +282,10 @@
 .marketing-flyer-preview a{display:block;background:#f2f5f9;border-radius:10px;padding:10px;text-align:center}
 #marketing-preview-image{display:block;width:100%;height:300px;object-fit:contain;border-radius:5px}
 #view-marketing .marketing-history-thumb{width:60px;height:82px;object-fit:cover}
+#view-marketing .marketing-history-number{position:relative;display:flex!important;align-items:center;justify-content:center;box-sizing:border-box;background:#f3ece3;color:#614333;border:1px solid #e8d9c9;box-shadow:none;overflow:hidden}
+#view-marketing .marketing-history-number-value{font-family:Fraunces,Georgia,serif;font-size:34px;font-weight:400;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+#view-marketing .marketing-history-number:has(.marketing-history-author-badge){flex-direction:column;gap:5px;padding:4px}
+#view-marketing .marketing-history-number .marketing-history-author-badge{display:block;box-sizing:border-box;max-width:100%;margin:0;padding:2px 4px;background:#fffaf5;border-color:#e8d9c9;color:#614333;font-size:10px;line-height:1.2;text-align:center}
 #view-marketing .marketing-history-list .marketing-history-entry > button:first-child{grid-template-columns:60px minmax(0,1fr)}
 #view-marketing .marketing-whatsapp{padding:18px}
 #view-marketing .marketing-whatsapp .marketing-fields{margin-top:16px}
@@ -921,3 +925,50 @@
 
 
 
+
+/* Publicaciones: paleta cálida compartida con Gestión, solo escritorio. */
+@media (min-width:901px){
+  #view-marketing .marketing-layout{grid-template-columns:minmax(290px,360px) minmax(0,1fr);gap:20px}
+  #view-marketing{--mk-ink:#292621;--mk-muted:#655c54;--mk-line:#e6ddd2;--mk-blue:#a9583e;color:#292621}
+  #view-marketing :is(.marketing-head h1,.marketing-library h2,.marketing-editor h2,.marketing-team-activity h2){color:#292621}
+  #view-marketing :is(.marketing-note,.marketing-search,.marketing-team-activity,.marketing-quota-label,.marketing-quota-renew-text,.marketing-quota-values){color:#655c54}
+  #view-marketing .marketing-team-activity summary,#view-marketing .marketing-quota-values strong{color:#85452f}
+  #view-marketing .marketing-quota-widget{background:#fbf9f6;border-color:#e8ded3;box-shadow:0 4px 18px #5847350c}
+  #view-marketing .marketing-quota-icon{background:#f2e4d8;color:#a9583e;box-shadow:none}
+  #view-marketing .marketing-quota-bar-track{background:#e7dfd5}
+  #view-marketing .marketing-btn.primary,#view-marketing #marketing-prepare-panel :is(#marketing-analyze,#marketing-organize):not(:disabled){background:#a9583e;border-color:#a9583e;color:#fff;box-shadow:0 4px 12px #70412b24}
+  #view-marketing .marketing-btn.primary:hover:not(:disabled),#view-marketing #marketing-prepare-panel :is(#marketing-analyze,#marketing-organize):hover:not(:disabled){background:#84442f;border-color:#84442f}
+  #view-marketing .marketing-btn:not(.primary){border-color:#d7c8b9;color:#653c2d}
+  #view-marketing .marketing-library,#view-marketing .marketing-editor{border-color:#e6ddd2}
+  #view-marketing #marketing-history-count{background:#f1e8df;color:#784b37}
+  #view-marketing .marketing-scope-nav{background:#f2ede7}
+  #view-marketing .marketing-scope-btn{color:#655c54}
+  #view-marketing .marketing-scope-btn[aria-selected=true],#view-marketing .marketing-scope-btn.active{background:#fff;color:#8d482f}
+  #view-marketing .marketing-filters button[aria-pressed=true]{background:#f2e5d9;color:#803f2a}
+  #view-marketing .marketing-search input{border-color:#c8b9aa;color:#292621}
+  #view-marketing .marketing-editor-nav{background:#f7f3ee;border-color:#e8dfd5;box-shadow:none}
+  #view-marketing .marketing-editor-nav::after{background:#e5dbd0}
+  #view-marketing .marketing-editor-nav button{border-color:#e8dfd5;color:#655c54}
+  #view-marketing .marketing-step-num{background:#f5efe8;border-color:#d9ccbf;color:#655c54}
+  #view-marketing .marketing-step-tag,#view-marketing .marketing-step-name{color:#655c54}
+  #view-marketing .marketing-editor-nav button[aria-current]{background:#fff;border-color:#a9583e;color:#803f2a;box-shadow:0 0 0 1.5px #a9583e,0 4px 14px #70412b18}
+  #view-marketing .marketing-editor-nav button[aria-current] .marketing-step-num{background:#a9583e;border-color:#a9583e;color:#fff;box-shadow:0 0 0 3px #e9d5c8}
+  #view-marketing .marketing-editor-nav button[aria-current] .marketing-step-tag{color:#85452f}
+  #view-marketing .marketing-editor-nav button[aria-current] .marketing-step-name{color:#292621}
+  #view-marketing .marketing-editor-nav button:disabled{background:#f8f5f1;border-color:#e8dfd5}
+  #view-marketing .marketing-editor-nav button:disabled .marketing-step-num{background:#fff;border-color:#e5dbd0;color:#796d62}
+  #view-marketing .marketing-editor-nav button:disabled :is(.marketing-step-tag,.marketing-step-name){color:#796d62}
+  #view-marketing #marketing-prepare-panel{background:#f5f0e9}
+  #view-marketing #marketing-prepare-panel :is(h2,.marketing-mode legend,.marketing-mode label strong,.marketing-upload strong){color:#302821}
+  #view-marketing #marketing-prepare-panel :is(.marketing-note,.marketing-mode label small,.marketing-upload span){color:#655c54}
+  #view-marketing #marketing-prepare-panel .marketing-upload>svg{background:#f2e5d9;color:#a9583e}
+  #view-marketing #marketing-prepare-panel .marketing-upload small{background:#f1e9e1;color:#655c54}
+  #view-marketing #marketing-prepare-panel .marketing-mode label{border-color:#e6ddd2}
+  #view-marketing #marketing-prepare-panel .marketing-mode label:has(input:checked){border-color:#ad654a;box-shadow:0 4px 14px #70412b12}
+  #view-marketing #marketing-prepare-panel .marketing-mode input{accent-color:#a9583e}
+  #view-marketing #marketing-prepare-panel .marketing-mode svg{color:#a9583e}
+  #view-marketing #marketing-prepare-panel .marketing-upload:hover,#view-marketing #marketing-prepare-panel .marketing-upload[data-drag=true]{border-color:#ad654a}
+  #view-marketing :is(button,input,textarea,select):focus-visible{outline:3px solid #a9583e;outline-offset:3px}
+  #view-marketing .marketing-history-list .marketing-history-entry:is([data-active=true],:has(> button[aria-current=true])){background:#fbf4ed;border-color:#a9583e;box-shadow:0 0 0 1px #a9583e}
+  #view-marketing .marketing-history-list .marketing-history-entry:is([data-active=true],:has(> button[aria-current=true]))::before{background:#a9583e}
+}

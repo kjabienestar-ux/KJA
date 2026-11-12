@@ -713,8 +713,7 @@ function scheduleSidebarHover(collapsed){
 }
 function sidebarStorageKey(){return APP.sessionUid?`${SIDEBAR_COLLAPSED_KEY}:${APP.sessionUid}`:''}
 function sidebarCanCollapse(){
-  const portal=$('portal');
-  return !!portal&&window.matchMedia('(min-width:1281px)').matches&&APP.identity.hasPersonal&&APP.view!=='gestion'&&APP.view!=='marketing'&&portal.dataset.adminLateral!=='true';
+  return false;
 }
 function sidebarUsesHover(){
   return window.matchMedia('(min-width:1281px) and (hover:hover) and (pointer:fine)').matches;
@@ -728,17 +727,7 @@ function hideSidebarTooltip(){
   if(tooltip)tooltip.hidden=true;
 }
 function showSidebarTooltip(target){
-  const tooltip=$('sidebar-tooltip');
-  // En Gestión la barra principal queda en iconos y siempre necesita el nombre al pasar o enfocar.
-  const adminRail=$('portal').dataset.adminRail==='icons';
-  if(!tooltip||!target?.dataset.sidebarTooltip||(!adminRail&&(!sidebarCanCollapse()||sidebarUsesHover()||$('portal').dataset.sidebarCollapsed!=='true')))return hideSidebarTooltip();
-  tooltip.textContent=target.dataset.sidebarTooltip;
-  tooltip.hidden=false;
-  const rect=target.getBoundingClientRect(),width=tooltip.offsetWidth,height=tooltip.offsetHeight;
-  const left=Math.min(rect.right+10,window.innerWidth-width-10);
-  const top=Math.min(Math.max(10,rect.top+(rect.height-height)/2),window.innerHeight-height-10);
-  tooltip.style.left=`${Math.max(10,left)}px`;
-  tooltip.style.top=`${Math.max(10,top)}px`;
+  hideSidebarTooltip();
 }
 function setSidebarCollapsed(collapsed,{persist=true,focus=false}={}){
   clearSidebarHoverTimer();

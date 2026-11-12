@@ -13,6 +13,9 @@
   let deletion=null,deleting=false;
   let historyRows=[],historyFilter='all',historyOffset=0,historyMore=false;
   const draftCache=new Map();
+  const flyerImages=KJAMarketingImageCache();
+  let flyerScope='';
+  db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){flyerImages.clear();flyerScope=''}});
   let historyGeneration=0,splashUpdate=null;
   let analysisProgress=false;
   let quotaTimerInterval=null;
@@ -122,7 +125,6 @@
     }
     askConfirm(message,options).then(ok=>{if(ok)action()});
   }
-  const missingFlyer='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="8" fill="#e4eaf3"/><g fill="none" stroke="#526277" stroke-width="2"><rect x="16" y="13" width="32" height="38" rx="3"/><circle cx="25" cy="24" r="3"/><path d="m17 42 10-11 8 8 5-5 8 9"/></g></svg>');
   const signature=d=>KJAMarketing.phoneCandidates(d.telefono)[0]+'\n'+d.mensaje.trim();
   const chosenLink=d=>shortLink&&shortFor===signature(d)?shortLink:KJAMarketing.link(d.telefono,d.mensaje);
   function applyLink(d,next){
@@ -372,7 +374,7 @@
     }
   }
   function setImage(url){
-    url=url||'';if(imageURL.startsWith('blob:'))URL.revokeObjectURL(imageURL);imageURL=url;
+    url=url||'';if(imageURL.startsWith('blob:')&&!flyerImages.owns(imageURL))URL.revokeObjectURL(imageURL);flyerImages.setActive(url.startsWith('blob:')?url:'');imageURL=url;
     ['image','preview-image'].forEach(key=>{if(url)el(key).src=url;else el(key).removeAttribute('src');el(key).hidden=!url});
     el('preview').hidden=!url;
     if(url)el('preview-link').href=url;else el('preview-link').removeAttribute('href');
@@ -417,20 +419,23 @@
     el('history-more').hidden=!historyMore;
     if(!rows.length){const empty=document.createElement('li');empty.className='marketing-empty';empty.textContent=historyRows.length?'No hay coincidencias. Prueba otro nombre o filtro.':(adminScope==='team'?'No hay publicaciones del equipo en esta selección.':'Tu próxima campaña empieza aquí. Crea una publicación y quedará guardada en este historial.');el('history').append(empty)}
     rows.forEach(row=>{
-      const item=document.createElement('li'),button=document.createElement('button'),thumb=document.createElement('img'),title=document.createElement('span'),badge=document.createElement('span'),date=document.createElement('small');
+      const item=document.createElement('li'),button=document.createElement('button'),thumb=document.createElement('span'),title=document.createElement('span'),badge=document.createElement('span'),date=document.createElement('small');
       button.type='button';button.dataset.marketingDraft=row.id;button.setAttribute('aria-current',String(row.id===id));button.disabled=busy;item.dataset.active=String(row.id===id);
       title.className='marketing-history-title';title.textContent=row.datos?.titulo||row.extraccion?.titulo||'Flyer sin título';
       title.title=title.textContent;
-      thumb.className='marketing-history-thumb';thumb.src=row.imagen||missingFlyer;thumb.alt=row.imagen?'':'Flyer pendiente de cargar';thumb.loading='lazy';thumb.onerror=()=>{thumb.onerror=null;thumb.src=missingFlyer;thumb.alt='Flyer no disponible';};
+      thumb.className='marketing-history-thumb marketing-history-number';
+      const number=document.createElement('span');number.className='marketing-history-number-value';number.setAttribute('aria-hidden','true');number.textContent=String(historyRows.indexOf(row)+1).padStart(2,'0');
+      thumb.append(number);
       badge.className='marketing-badge';badge.dataset.state=row.estado;badge.textContent=stateLabel(row);
       date.textContent=row.creado_at?new Date(row.creado_at).toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric',timeZone:'America/Lima'}):'Sin fecha';
       button.append(thumb,title,badge);
       if(row.autor_nombre&&(adminScope==='team'||!row.es_propio)){
         const authorBadge=document.createElement('span');
         authorBadge.className='marketing-history-author-badge';
-        authorBadge.textContent=(row.es_propio?'👤 ':'👥 ')+row.autor_nombre;
+        authorBadge.textContent=row.autor_nombre.trim().split(/\s+/)[0];
+        authorBadge.setAttribute('aria-label','Autor: '+row.autor_nombre);
         authorBadge.title='Autor: '+row.autor_nombre;
-        button.append(authorBadge);
+        thumb.append(authorBadge);
       }
       button.append(date);
       item.append(button);el('history').append(item);
@@ -457,38 +462,22 @@
     historyMore=!!result.has_more;el('history-count').textContent=String(result.total??historyRows.length);
     if(result.autores&&Array.isArray(result.autores))updateTeamAuthors(result.autores);
     renderHistory();
-    // Compatible con el servicio anterior: cargar ya devuelve una URL privada firmada.
-    // Tres lecturas simultáneas como máximo, sin analizar ni modificar publicaciones.
-    const pending=historyRows.filter(row=>!row.imagen);let cursor=0,failed=0;
-    const worker=async()=>{
-      while(cursor<pending.length&&generation===historyGeneration){
-        const row=pending[cursor++];
-        try{
-          const loaded=await call('cargar',{id:row.id});
-          if(generation!==historyGeneration)return;
-          if(!loaded.imagen){failed++;continue}
-          Object.assign(row,loaded.borrador,{imagen:loaded.imagen,autor_nombre:loaded.autor_nombre||row.autor_nombre,es_propio:loaded.es_propio??row.es_propio});
-          draftCache.set(row.id,{...loaded,at:Date.now()});
-        }catch{failed++}
-      }
-    };
-    await Promise.all(Array.from({length:Math.min(3,pending.length)},worker));
-    if(generation!==historyGeneration)return;
-    if(pending.length)renderHistory();
-    if(failed){el('history-summary').textContent='Algunos flyers no se pudieron cargar. Reintenta la conexión.';el('retry').hidden=false}
   }
   function openDraft(row){
     if(busy)return;
     return withConfirm(dirty,'Hay cambios sin guardar. ¿Quieres descartarlos y abrir otro borrador?',{title:'¿Abrir otro borrador?',confirmText:'Descartar cambios',cancelText:'Seguir editando',danger:true},()=>{
       return run(async()=>{
         status('Abriendo publicación…');
-        const cached=draftCache.get(row.id);
-        const result=cached&&row.id!==id&&Date.now()-cached.at<60000?cached:await call('cargar',{id:row.id});
+        const scope=String(APP.sessionUid)+'|'+String(APP.access.rol);
+        if(scope!==flyerScope){flyerImages.clear();flyerScope=scope}
+        const result=await call('cargar',{id:row.id});
+        const image=await flyerImages.get(scope+'|'+row.id+'|'+result.borrador.imagen_path+'|'+result.borrador.actualizado_at,result.imagen);
+        if(scope!==String(APP.sessionUid)+'|'+String(APP.access.rol)){flyerImages.clear();throw new Error('La sesión cambió. Vuelve a abrir la publicación.')}
         draftCache.set(row.id,{...result,at:Date.now()});
         reset();id=row.id;const d=result.borrador;
         extraction=d.extraccion||null;
         const stored=Object.keys(d.datos||{}).length?d.datos:(extraction||{});
-        keys.forEach(k=>el(k).value=stored[k]||'');el('copy').value=d.copy||'';locked=d.estado!=='borrador';saved=!!d.copy;setImage(result.imagen);
+        keys.forEach(k=>el(k).value=stored[k]||'');el('copy').value=d.copy||'';locked=d.estado!=='borrador';saved=!!d.copy;setImage(image);
         restoreOptions(stored.opciones);
         if(!el('telefono').value&&stored.telefono)el('telefono').value=stored.telefono;
         if(!el('telefono').value)el('telefono').value='51988918238';

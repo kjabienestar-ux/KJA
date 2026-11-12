@@ -15,7 +15,9 @@
     --admin-lateral-width:224px;
     --admin-workspace-start:calc(var(--admin-sidebar-inset) + var(--admin-sidebar-width) + var(--admin-lateral-width) + 12px);
   }
-  #portal.admin-wide[data-admin-lateral="true"][data-admin-rail="icons"]{--admin-sidebar-width:64px}
+  #portal.admin-wide[data-admin-rail="icons"]{--admin-sidebar-width:64px}
+  #portal[data-view="reclutamiento"][data-admin-rail="icons"]{--rec-sidebar-width:64px}
+  #portal[data-admin-rail] > #sidebar #sidebar-collapse-toggle{display:none!important}
   #portal.admin-wide[data-admin-lateral="true"] > #sidebar{border-radius:25px 0 0 25px !important}
   /* La bandeja de Reclutamiento calcula su propio espacio; dentro de Gestión usa el del lateral. */
   #portal[data-view="reclutamiento"][data-admin-lateral="true"]{
@@ -52,12 +54,12 @@
   #portal[data-admin-rail="icons"] > #sidebar .side-user .side-user-copy{display:block !important;position:relative;z-index:1;width:38px;height:38px;margin:0;padding:0;border:0;border-radius:12px;background:transparent;font-size:0;cursor:pointer}
   #portal[data-admin-rail="icons"] > #sidebar .side-user .side-user-copy :is(b,small){display:none}
 
-  #portal[data-admin-lateral="true"] > #sidebar .admin-rail-toggle:not([hidden]){
+  #portal[data-admin-rail] > #sidebar .admin-rail-toggle:not([hidden]){
     display:flex;align-items:center;justify-content:center;gap:10px;width:44px;height:36px;margin:auto auto 0;
     padding:0;border:0;border-radius:8px;color:#6c6a64;background:transparent;font:inherit;font-size:13px;
   }
-  #portal[data-admin-lateral="true"] > #sidebar .admin-rail-toggle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
-  #portal[data-admin-lateral="true"] > #sidebar .admin-rail-toggle:hover{color:#252523;background:#e8e0d2}
+  #portal[data-admin-rail] > #sidebar .admin-rail-toggle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+  #portal[data-admin-rail] > #sidebar .admin-rail-toggle:hover{color:#252523;background:#e8e0d2}
   #portal[data-admin-rail="icons"] > #sidebar .admin-rail-toggle .sidebar-label{display:none}
   #portal[data-admin-rail="open"] > #sidebar .admin-rail-toggle:not([hidden]){justify-content:flex-start;width:100%;padding:0 14px}
   #portal[data-admin-rail="open"] > #sidebar .admin-rail-toggle svg{transform:rotate(180deg)}
@@ -131,4 +133,20 @@
 
 @media (max-width:900px){
   .admin-lateral,.admin-rail-toggle,.admin-context-bar,.admin-breadcrumb{display:none !important}
+}
+
+@media (min-width:1281px){
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"]{--sidebar-width:64px;grid-template-columns:80px minmax(0,1fr) 394px}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-brand{width:100%;flex-basis:68px}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-brand img{left:50%;transform:translateX(-50%)}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-user{position:relative;display:grid;height:auto;flex:0 0 auto;grid-template-columns:1fr;align-items:center}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-user .side-user-copy{position:relative;left:auto;top:auto;opacity:1;transform:none;padding:0}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-user #logout{position:relative;left:auto;top:auto}
+}
+
+/* Fondo común del área de trabajo en escritorio. */
+@media (min-width:901px){
+  #portal,#portal.admin-wide{background:#f0ece5!important}
+  #portal > #workspace.workspace,
+  #portal > #workspace.workspace > .view{background:transparent!important}
 }
