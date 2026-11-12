@@ -350,7 +350,7 @@ async function openAdminPerson(id){
   $('admin-history-list').innerHTML=person?'<p>Cargando historial…</p>':'';
   editorMsg('');updateAdminEditorConditions();
   if(typeof configurePeopleEditor==='function')configurePeopleEditor(person);
-  $('admin-person-modal').hidden=false;document.body.style.overflow='hidden';
+  $('admin-person-modal').hidden=false;document.body.style.overflow='hidden';$('admin-person-form').scrollTop=0;if(typeof syncAdminEditorNav==='function')syncAdminEditorNav(true);
   setTimeout(()=>$('admin-person-name').focus(),30);
   if(person){
     const results=await Promise.allSettled([db.rpc('dash_admin_horario_compartir',{p_colab:Number(person.id)}),loadAdminPersonHistory(person.id,request)]);
@@ -452,21 +452,33 @@ function collectAdminPerson(){
 async function saveAdminPerson(event){
   event.preventDefault();editorMsg('');
   const name=$('admin-person-name').value.trim(),dni=$('admin-person-dni').value.trim(),email=$('admin-person-email').value.trim();
-  if(name.length<2)return editorMsg('Escribe el nombre completo.');
-  if(dni&&!/^\d{8}$/.test(dni))return editorMsg('El DNI debe tener exactamente 8 dígitos.');
-  if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return editorMsg('Escribe un correo válido.');
-  if($('admin-contract-start').value&&$('admin-contract-end').value&&$('admin-contract-end').value<$('admin-contract-start').value)return editorMsg('La fecha final no puede ser anterior al inicio del contrato.');
+  if(name.length<2){window.showAdminEditorSection?.('.editor-identity');return editorMsg('Escribe el nombre completo.');}
+  if(dni&&!/^\d{8}$/.test(dni)){window.showAdminEditorSection?.('.editor-identity');return editorMsg('El DNI debe tener exactamente 8 dígitos.');}
+  if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){window.showAdminEditorSection?.('.editor-identity');return editorMsg('Escribe un correo válido.');}
+  if($('admin-contract-start').value&&$('admin-contract-end').value&&$('admin-contract-end').value<$('admin-contract-start').value){window.showAdminEditorSection?.('.editor-contract');return editorMsg('La fecha final no puede ser anterior al inicio del contrato.');}
+  // Si se cambió la semana en la pantalla Jornada, se valida aquí y se programa antes de guardar la ficha.
+  const jornada=typeof peopleEditorJornadaChange==='function'?peopleEditorJornadaChange():null;
+  if(jornada?.error){window.showAdminEditorSection?.('.schedule-block');return editorMsg(jornada.error);}
   let payload,facebookSchedule;try{payload=collectAdminPerson();facebookSchedule=ADMIN_FACEBOOK_DIRTY?collectFacebookSchedule():null}catch(e){return editorMsg(e.message)}
   payload.meta_editada_explicitamente=ADMIN_CONTRACT_META_EDITED;
   const button=$('admin-person-save');button.disabled=true;button.textContent='Guardando…';
   if(APP.adminTeam.instituciones_disponibles){payload.institucion=$('admin-person-institution')?.value.trim()||null;payload.correo=email.toLowerCase()||null;}
+  // La jornada va primero: si el servidor la rechaza (fechas, cruces), no se guarda nada y se puede corregir.
+  if(jornada?.payload){
+    button.textContent='Programando jornada…';
+    const result=await db.rpc('dash_admin_guardar_jornada',jornada.payload);
+    if(result.error||!result.data?.ok){button.disabled=false;button.textContent='Guardar cambios';window.showAdminEditorSection?.('.schedule-block');return editorMsg(`No se guardó ningún cambio: ${peopleShiftErrorText(result)}`);}
+    if(typeof peopleEditorJornadaSaved==='function')peopleEditorJornadaSaved();
+    button.textContent='Guardando…';
+  }
+  const pendingFicha=jornada?.payload?'La nueva jornada quedó programada, pero la ficha no se guardó: ':'';
   const {data,error}=await db.rpc(APP.adminTeam.instituciones_disponibles?'dash_admin_guardar_ficha':'dash_admin_guardar_colaborador',{p_datos:payload,p_motivo:$('admin-change-reason').value.trim()||null});
   if(error||!data?.ok){
     button.disabled=false;button.textContent='Guardar cambios';
     const messages={sin_permiso:'Tu rol no permite editar.',nombre:'Revisa el nombre completo.',dni:'El DNI debe tener 8 dígitos.',dni_duplicado:'Ese DNI ya pertenece a otro colaborador.',area:'Selecciona un área activa.',horario:'Hay un día con horario incompleto o incoherente.',horario_general:'La salida general debe ser posterior a la entrada.',fechas:'La fecha final no puede ser anterior al inicio.',horas:'Las horas no pueden ser negativas.',duplicado:'Ya existe un registro con uno de estos datos.',institucion:'La institución no es válida.',correo:'Escribe un correo válido.',correo_duplicado:'Ese correo ya pertenece a otro colaborador.'};
-    if(data?.motivo==='meta_requiere_edicion_explicita')return editorMsg('La meta contractual se conserva al cambiar fechas u horarios. Recarga la ficha; para corregir la meta, escribe las horas acordadas directamente en su campo.');
-    if(error?.message?.includes('jornada_requiere_vigencia'))return editorMsg('El horario y el inicio histórico se conservan. Usa la pestaña Jornada de la ficha para programar un cambio con vigencia.');
-    return editorMsg(messages[data?.motivo]||'No se pudo guardar la ficha. Conservamos los datos para reintentar.');
+    if(data?.motivo==='meta_requiere_edicion_explicita')return editorMsg(pendingFicha+'La meta contractual se conserva al cambiar fechas u horarios. Recarga la ficha; para corregir la meta, escribe las horas acordadas directamente en su campo.');
+    if(error?.message?.includes('jornada_requiere_vigencia'))return editorMsg(pendingFicha+'El horario y el inicio histórico se conservan. Cambia la semana en la pantalla Jornada y elige desde qué fecha aplica.');
+    return editorMsg(pendingFicha+(messages[data?.motivo]||'No se pudo guardar la ficha. Conservamos los datos para reintentar.'));
   }
   const facebookResult=ADMIN_FACEBOOK_DIRTY?await db.rpc('dash_admin_guardar_horario_compartir',{p_colab:Number(data.id),p_horario:facebookSchedule}):{data:{ok:true}};
   button.disabled=false;button.textContent='Guardar cambios';
@@ -482,8 +494,9 @@ async function saveAdminPerson(event){
     button.disabled=false;button.textContent='Guardar cambios';
   }
   closeAdminPerson();await loadAdminTeam();
+  if(jornada?.payload&&typeof peopleHighlightCard==='function')peopleHighlightCard(data.id);
   if(documentProblem)return toast(`La ficha se guardó, pero el contrato no: ${documentProblem}`,true);
-  toast(data.nuevo?'Colaborador creado.':'Cambios guardados en el historial.');
+  toast(data.nuevo?'Colaborador creado.':jornada?.payload?`Cambios guardados. ${jornada.label}; su tarjeta lo indica.`:'Cambios guardados en el historial.');
 }
 
 async function changeAdminPersonStatus(id,next){
@@ -596,6 +609,30 @@ $('admin-institution-add').onclick=()=>{
   fillAdminInstitutionOptions(name);$('admin-institution-create').hidden=true;
   $('admin-institution-reveal').setAttribute('aria-expanded','false');editorMsg('');
 };
+// Navegación del editor por pantallas: se muestra una sección a la vez; las flechas y las pestañas cambian de sección.
+(function(){
+  const form=$('admin-person-form'),nav=$('admin-editor-nav');if(!form||!nav)return;
+  const tabs=[...nav.querySelectorAll('[data-editor-jump]')],panel=b=>form.querySelector(b.dataset.editorJump);
+  let current=0;
+  const available=()=>tabs.filter(b=>panel(b)&&!panel(b).hidden);
+  tabs.forEach(b=>{const p=panel(b);if(p){p.setAttribute('role','tabpanel');p.setAttribute('aria-label',b.textContent);}});
+  function show(index,focusTab){
+    const list=available();if(!list.length)return;
+    current=Math.max(0,Math.min(list.length-1,index));
+    tabs.forEach(b=>{const on=b===list[current];b.hidden=!list.includes(b);b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;panel(b)?.classList.toggle('editor-tab-off',!on);});
+    nav.querySelector('[data-editor-step="-1"]').disabled=current===0;
+    nav.querySelector('[data-editor-step="1"]').disabled=current===list.length-1;
+    form.scrollTop=0;if(focusTab)list[current].focus();
+  }
+  function showSection(target){const block=typeof target==='string'?form.querySelector(target):target;const index=available().findIndex(b=>panel(b)===block);if(index>=0&&index!==current)show(index);}
+  nav.addEventListener('click',e=>{const t=e.target.closest('[data-editor-jump]');if(t)return show(available().indexOf(t));const step=e.target.closest('[data-editor-step]');if(step&&!step.disabled)show(current+Number(step.dataset.editorStep));});
+  nav.addEventListener('keydown',e=>{if(!e.target.closest('[data-editor-jump]')||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const n=available().length;show(e.key==='Home'?0:e.key==='End'?n-1:(current+(e.key==='ArrowLeft'?-1:1)+n)%n,true);});
+  // Si el navegador encuentra un campo obligatorio vacío en otra pantalla, se abre esa pantalla para mostrar el aviso.
+  form.addEventListener('invalid',e=>{const block=e.target.closest('.admin-editor-block');if(block?.classList.contains('editor-tab-off'))showSection(block);},true);
+  window.showAdminEditorSection=showSection;
+  window.syncAdminEditorNav=()=>show(0);
+  show(0);
+})();
 $('admin-contract-calculate').onclick=calculateAdminContractHours;
 ['admin-contract-start','admin-contract-end','admin-person-link','admin-schedule-grid','admin-general-start','admin-general-end'].forEach(id=>$(id).addEventListener('change',()=>{$('admin-contract-estimate').textContent='La meta contractual se mantiene. Si simulas este horario, se aplicará a todo el intervalo, sin reconstruir horarios anteriores.';}));
 ['admin-contract-hours','admin-volunteer-hours'].forEach(id=>$(id).addEventListener('input',()=>{ADMIN_CONTRACT_META_EDITED=true;}));
@@ -608,4 +645,4 @@ document.querySelectorAll('[data-days-off-mode]').forEach(button=>{
   };
 });
 $('admin-days-off-form').addEventListener('submit',saveAdminDaysOff);
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('admin-days-off-modal').hidden)return closeAdminDaysOff();if(!$('admin-person-modal').hidden)closeAdminPerson()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('pw-shift-dialog')?.open)return;if(!$('admin-days-off-modal').hidden)return closeAdminDaysOff();if(!$('admin-person-modal').hidden)closeAdminPerson()});

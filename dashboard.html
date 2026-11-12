@@ -57,14 +57,14 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-asignaciones.css?v=13">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=6">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=retirada-35-1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workbench.css?v=2">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workbench.css?v=43">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=20261028_1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-preview.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
@@ -3176,15 +3176,17 @@
     </header>
     <form id="admin-person-form">
       <input type="hidden" id="admin-person-id">
+      <!-- El formulario se recorre por pantallas: una sección visible a la vez, con pestañas y flechas. -->
+      <div class="admin-editor-nav" id="admin-editor-nav"><button type="button" class="admin-editor-step" data-editor-step="-1" aria-label="Sección anterior" title="Sección anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><div class="admin-editor-tabs" role="tablist" aria-label="Secciones del formulario"><button type="button" role="tab" data-editor-jump=".editor-identity" aria-selected="true" tabindex="0">Identidad</button><button type="button" role="tab" data-editor-jump=".editor-contract" aria-selected="false" tabindex="-1">Contrato</button><button type="button" role="tab" data-editor-jump=".schedule-block" aria-selected="false" tabindex="-1">Jornada</button><button type="button" role="tab" data-editor-jump=".facebook-schedule-block" aria-selected="false" tabindex="-1">Facebook</button><button type="button" role="tab" data-editor-jump="#admin-history-block" aria-selected="false" tabindex="-1">Historial</button></div><button type="button" class="admin-editor-step" data-editor-step="1" aria-label="Sección siguiente" title="Sección siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
       <section class="admin-editor-block editor-identity">
         <div class="admin-editor-label"><b>Identidad laboral</b><span>Datos para reconocer a la persona y permitir su acceso.</span></div>
         <div class="admin-form-grid">
           <label class="admin-field span-2">Nombre completo<input id="admin-person-name" maxlength="80" required placeholder="Nombres y apellidos"></label>
           <label class="admin-field">DNI<input id="admin-person-dni" inputmode="numeric" maxlength="8" placeholder="8 dígitos"></label>
           <label class="admin-field admin-field-email">Correo electrónico (opcional)<input id="admin-person-email" type="email" maxlength="120" autocomplete="off" inputmode="email" placeholder="nombre@correo.com"></label>
-          <div class="admin-field admin-field-institution"><label for="admin-person-institution">Institución (opcional)</label><select id="admin-person-institution" aria-describedby="admin-institution-help"><option value="">Sin institución</option></select><small id="admin-institution-help">Elige la sede. Si no se registra, quedará vacía en el informe.</small><button type="button" id="admin-institution-reveal" class="admin-editor-inline-action" aria-expanded="false">+ Nueva institución</button><div id="admin-institution-create" hidden><label for="admin-institution-name">Universidad o institución</label><input id="admin-institution-name" maxlength="160" placeholder="Nombre de la universidad o sede"><button type="button" id="admin-institution-add" class="admin-editor-inline-action">Usar institución</button><small>Se guardará junto con los cambios del colaborador.</small></div></div>
+          <div class="admin-field admin-field-institution"><div class="admin-field-head"><label for="admin-person-institution">Institución (opcional)</label><button type="button" id="admin-institution-reveal" class="admin-field-add" aria-expanded="false" aria-label="Agregar una nueva institución">+ Nueva</button></div><select id="admin-person-institution" aria-describedby="admin-institution-help"><option value="">Sin institución</option></select><small id="admin-institution-help">Elige la sede. Si no se registra, quedará vacía en el informe.</small><div id="admin-institution-create" hidden><label for="admin-institution-name">Universidad o institución</label><input id="admin-institution-name" maxlength="160" placeholder="Nombre de la universidad o sede"><button type="button" id="admin-institution-add" class="admin-editor-inline-action">Usar institución</button><small>Se guardará junto con los cambios del colaborador.</small></div></div>
           <label class="admin-field">Tipo de vínculo<select id="admin-person-link"><option value="practicas">Prácticas</option><option value="voluntariado">Voluntariado</option><option value="ambos">Prácticas + voluntariado</option></select></label>
-          <div class="admin-field"><label for="admin-person-area">Área</label><div class="admin-area-field"><select id="admin-person-area" required></select><button type="button" id="admin-area-reveal">+ Nueva área</button></div></div>
+          <div class="admin-field"><div class="admin-field-head"><label for="admin-person-area">Área</label><button type="button" id="admin-area-reveal" class="admin-field-add" aria-label="Crear una nueva área">+ Nueva</button></div><div class="admin-area-field"><select id="admin-person-area" required></select></div></div>
           <div class="admin-area-create span-2" id="admin-area-create" hidden><input id="admin-area-name" maxlength="60" placeholder="Nombre de la nueva área"><button type="button" id="admin-area-save">Crear área</button></div>
         </div>
       </section>
@@ -3196,9 +3198,10 @@
         <div class="admin-form-grid contract-fields">
           <label class="admin-field">Inicio<input type="date" id="admin-contract-start"></label>
           <label class="admin-field">Fin según documento<input type="date" id="admin-contract-end"></label>
-          <div class="admin-field"><label for="admin-contract-hours">Meta principal (h)</label><input type="number" min="0" step="0.01" id="admin-contract-hours"><button type="button" id="admin-contract-calculate" class="admin-editor-inline-action">Simular horario actual</button><small id="admin-contract-estimate" role="status">Horas acordadas en el contrato. Cambiar fechas o jornada no modifica esta meta. La simulación no reconstruye horarios anteriores.</small></div>
+          <div class="admin-field"><div class="admin-field-head"><label for="admin-contract-hours">Meta principal (h)</label><button type="button" id="admin-contract-calculate" class="admin-field-add" title="Calcula las horas con el horario actual, sin cambiar la meta">Simular</button></div><input type="number" min="0" step="0.01" id="admin-contract-hours"></div>
           <label class="admin-field">Horas previas<input type="number" min="0" step="0.5" id="admin-contract-previous" value="0"></label>
           <label class="admin-field span-2" id="admin-volunteer-hours-wrap" hidden>Meta de voluntariado (h)<input type="number" min="0" step="1" id="admin-volunteer-hours"></label>
+          <small class="admin-contract-estimate" id="admin-contract-estimate" role="status">Horas acordadas en el contrato. Cambiar fechas o jornada no modifica esta meta. La simulación no reconstruye horarios anteriores.</small>
         </div>
         <!-- Documento del contrato (dashboard_128): se muestra con window.KJA_CONTRATO_DOCUMENTO. -->
         <div class="contract-document" id="admin-contract-document" hidden>
@@ -3815,7 +3818,7 @@
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/history-pages.js?v=1"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=areas-29-free-pages-1"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=areas-29-free-pages-5"></script>
 <!-- Documento del contrato: activo desde que se ejecutó supabase/dashboard_128_documento_contrato.sql (2026-10-29). -->
 <script>window.KJA_CONTRATO_DOCUMENTO=true;</script>
 <script src="assets/js/dashboard-contract-document.js?v=2"></script>
@@ -3823,7 +3826,7 @@
 <script src="assets/js/dashboard-areas.js?v=2"></script>
 <script src="assets/js/dashboard-area-picker.js?v=4"></script>
 <script src="assets/js/dashboard-date-picker.js?v=20261028_1"></script>
-<script src="assets/js/dashboard-editor-calendar.js?v=2"></script>
+<script src="assets/js/dashboard-editor-calendar.js?v=4"></script>
 <script src="assets/js/dashboard-editor-time.js?v=2"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=4"></script>
 <script src="assets/js/attendance-report-model.js?v=4"></script>
@@ -3831,7 +3834,7 @@
 <script src="assets/js/dashboard-person-profile.js?v=7"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=10"></script>
 <script src="assets/js/dashboard-attendance-preview.js?v=3"></script>
-<script src="assets/js/dashboard-people-workbench.js?v=2-free-pages-2"></script>
+<script src="assets/js/dashboard-people-workbench.js?v=2-free-pages-27"></script>
 <script src="assets/js/dashboard-month-day-detail.js?v=13-archive1"></script>
 <script src="assets/js/dashboard-days-off-planner.js?v=1"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=28-archive1"></script>
