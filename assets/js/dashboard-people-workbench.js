@@ -274,28 +274,48 @@ async function submitPeopleShift(event){
 function peopleShiftDayRows(person,week){
   return ADMIN_DAYS.map(([label,d])=>{
     const day=week[d]||{},mode=day.mod||adminMode(person,d),off=mode==='no_gestiona';
-    return `<div class="pw-shift-day" data-pw-day="${d}"><b>${esc(label)}</b><label><span class="sr-only">Modalidad de ${esc(label)}</span><select data-pw-day-mode>${Object.entries(ADMIN_MODES).map(([val,[name]])=>`<option value="${val}" ${mode===val?'selected':''}>${esc(name)}</option>`).join('')}</select></label><label><span class="sr-only">Entrada de ${esc(label)}</span><input type="time" data-pw-day-start value="${esc(String(day.ini||person.hora_inicio||'08:00').slice(0,5))}" ${off?'disabled':''}></label><label><span class="sr-only">Salida de ${esc(label)}</span><input type="time" data-pw-day-end value="${esc(String(day.fin||person.hora_fin||'13:00').slice(0,5))}" ${off?'disabled':''}></label>${person.tipo_vinculo==='ambos'?`<select data-pw-day-link aria-label="Vínculo de ${esc(label)}"><option value="practicas" ${day.vinc!=='voluntariado'?'selected':''}>Prácticas</option><option value="voluntariado" ${day.vinc==='voluntariado'?'selected':''}>Voluntariado</option></select>`:''}</div>`;
+    return `<div class="pw-shift-day" data-pw-day="${d}"><b>${esc(label)}</b><label><span class="sr-only">Modalidad de ${esc(label)}</span><select data-pw-day-mode>${Object.entries(ADMIN_MODES).map(([val,[name]])=>`<option value="${val}" ${mode===val?'selected':''}>${esc(name)}</option>`).join('')}</select></label><label><span class="sr-only">Entrada de ${esc(label)}</span><input type="time" data-pw-day-start aria-label="Entrada de ${esc(label)}" value="${esc(String(day.ini||person.hora_inicio||'08:00').slice(0,5))}" ${off?'disabled':''}></label><label><span class="sr-only">Salida de ${esc(label)}</span><input type="time" data-pw-day-end aria-label="Salida de ${esc(label)}" value="${esc(String(day.fin||person.hora_fin||'13:00').slice(0,5))}" ${off?'disabled':''}></label>${person.tipo_vinculo==='ambos'?`<select data-pw-day-link aria-label="Vínculo de ${esc(label)}"><option value="practicas" ${day.vinc!=='voluntariado'?'selected':''}>Prácticas</option><option value="voluntariado" ${day.vinc==='voluntariado'?'selected':''}>Voluntariado</option></select>`:''}</div>`;
   }).join('');
 }
-function peopleInlineRender(person,editable){
+// Las dos opciones para cambiar el horario, con los nombres que tenían en la ficha; se eligen con un selector de dos posiciones.
+const PEOPLE_INLINE_MODES={
+  principal:{title:'Actualizar jornada principal',text:'Define un horario por contrato y desde cuándo aplica. La meta de horas se conserva.'},
+  temporal:{title:'Horario temporal',text:'Una excepción con inicio y fin. Al vencer vuelve al principal vigente.'}
+};
+function peopleInlineRender(person,editable,mode='principal'){
   const view=$('pw-editor-schedule-view');PEOPLE_WORKBENCH.inline=null;if(!view)return;
+  view.classList.remove('pw-inline-editing');view.closest('.schedule-block')?.classList.remove('pw-schedule-scrolled');view.scrollTop=0;
   if(!person){view.innerHTML='';return;}
   const current=peopleCurrentPeriod(person),next=peoplePeriods(person).find(j=>j.desde>peopleToday()),mixed=person.tipo_vinculo==='ambos';
   const head=`<header><b>Jornada vigente</b>${peopleTag(...peopleKind(person))}${next?`<span class="pw-editor-next" title="${next.tipo==='temporal'?'Horario temporal':'Nueva jornada principal'} programada${next.hasta?` hasta el ${esc(adminDate(next.hasta))}`:''}. Se ve en la ficha y en su tarjeta.">Próximo cambio: ${next.tipo==='temporal'?'horario temporal':'nueva jornada'} desde el ${esc(adminDate(next.desde))}</span>`:''}<span class="pw-editor-period">${current?`Desde ${esc(adminDate(current.desde))} · ${current.hasta?`hasta ${esc(adminDate(current.hasta))}`:'fin indeterminado'}`:'Horario habitual de referencia'}</span></header>`;
   if(!editable){view.innerHTML=head+peopleWeekTable(person);return;}
+  if(!PEOPLE_INLINE_MODES[mode])mode='principal';
   const tomorrow=peopleNextDate(peopleToday());
-  view.innerHTML=head+`<div class="pw-shift-week pw-inline-week"><div class="pw-shift-head${mixed?' pw-mixed':''}" aria-hidden="true"><span>Día</span><span>Modalidad</span><span>Entrada</span><span>Salida</span>${mixed?'<span>Vínculo</span>':''}</div>${peopleShiftDayRows(person,peopleEffectiveWeek(person))}</div>
-    <section class="pw-inline-change" id="pw-inline-change" hidden aria-label="Desde cuándo aplica el nuevo horario">
-      <fieldset class="pw-inline-type"><legend>Tipo de cambio</legend><label><input type="radio" name="pw-inline-type" value="principal" checked><span>Permanente</span></label><label><input type="radio" name="pw-inline-type" value="temporal"><span>Temporal</span></label></fieldset>
-      <label class="pw-inline-field">Aplica desde<input type="date" id="pw-inline-from" min="${tomorrow}" value="${tomorrow}"></label>
-      <label class="pw-inline-field">Hasta <small id="pw-inline-until-hint">(opcional)</small><input type="date" id="pw-inline-until" min="${tomorrow}"></label>
-      <label class="pw-inline-field pw-inline-reason">Motivo<input id="pw-inline-reason" maxlength="180" autocomplete="off" placeholder="Ej. nuevo horario acordado con la universidad"></label>
-      <p class="pw-inline-summary" id="pw-inline-summary" role="status"></p>
-      <button type="button" class="pw-button" data-pw-inline-reset>Deshacer cambios</button>
+  // Sin la línea de «Jornada vigente»: solo se avisa cuando hay algo que tener en cuenta antes de programar.
+  const notices=[];
+  if(current?.tipo==='temporal')notices.push(`Hoy rige un horario temporal${current.hasta?` hasta el ${esc(adminDate(current.hasta))}`:''}; la tabla parte de él.`);
+  if(next)notices.push(`Ya hay ${next.tipo==='temporal'?'un horario temporal programado':'una nueva jornada principal programada'} desde el ${esc(adminDate(next.desde))}${next.hasta?` hasta el ${esc(adminDate(next.hasta))}`:''}.`);
+  // Mismo formato que «Programar jornada»: fechas arriba, la semana fila por fila y el motivo al final.
+  view.classList.add('pw-inline-editing');view.setAttribute('data-calendar-floating','');
+  view.innerHTML=`<div class="pw-inline-switch"><div class="pw-segmented" role="radiogroup" aria-label="Tipo de cambio de jornada">${Object.entries(PEOPLE_INLINE_MODES).map(([key,m])=>`<button type="button" role="radio" data-pw-inline-mode="${key}" aria-checked="${key===mode}" tabindex="${key===mode?0:-1}" title="${m.text}">${m.title}</button>`).join('')}</div></div>
+    <section class="pw-inline-form" id="pw-inline-change" aria-label="Nuevo horario">
+      <p class="pw-inline-mode-text" id="pw-inline-mode-text"></p>${notices.length?`<p class="pw-inline-notice" role="note">${notices.join(' ')}</p>`:''}
+      <div class="pw-dates"><label>Desde<input type="date" id="pw-inline-from" aria-label="Desde" min="${tomorrow}" value="${tomorrow}"></label><label>Hasta<input type="date" id="pw-inline-until" aria-label="Hasta" min="${tomorrow}"></label><label class="pw-check" id="pw-inline-indefinite-wrap"><input type="checkbox" id="pw-inline-indefinite">Fin indeterminado</label></div>
+      <h3 class="pw-inline-title">¿Cuál será el nuevo horario?</h3>
+      <div class="pw-shift-week pw-inline-week"><div class="pw-shift-head${mixed?' pw-mixed':''}" aria-hidden="true"><span>Día</span><span>Modalidad</span><span>Entrada</span><span>Salida</span>${mixed?'<span>Vínculo</span>':''}</div>${peopleShiftDayRows(person,peopleEffectiveWeek(person))}</div>
+      <label class="pw-reason">Motivo<textarea id="pw-inline-reason" maxlength="180" rows="2" placeholder="Ej. nuevo horario acordado con la universidad"></textarea></label>
+      <div class="pw-inline-foot"><p class="pw-inline-summary" id="pw-inline-summary" role="status"></p><button type="button" class="pw-button" data-pw-inline-reset>Deshacer cambios</button></div>
     </section>`;
-  PEOPLE_WORKBENCH.inline={person,baseline:''};PEOPLE_WORKBENCH.inline.baseline=peopleInlineKey();
+  // Punto de partida: la semana completa (para saber si cambió) y cada día (para marcar los días modificados).
+  const state=PEOPLE_WORKBENCH.inline={person,mode,baseline:'',base:{}};state.base=peopleInlineRead().week;state.baseline=JSON.stringify(state.base);
   globalThis.KJAEditorCalendar?.enhance?.([$('pw-inline-from'),$('pw-inline-until')]);
   peopleInlineSync();
+}
+// Pasar de principal a temporal (o al revés) conserva lo ya editado en la tabla y en las fechas.
+function peopleInlineSetMode(mode,focus=false){
+  const s=PEOPLE_WORKBENCH.inline;if(!s?.mode||!PEOPLE_INLINE_MODES[mode])return;
+  s.mode=mode;peopleInlineSync();
+  if(focus)$('pw-editor-schedule-view').querySelector(`[data-pw-inline-mode="${mode}"]`)?.focus();
 }
 function peopleInlineRead(){
   const week={};let count=0,error='';
@@ -308,28 +328,40 @@ function peopleInlineRead(){
   return {week,count,error};
 }
 function peopleInlineKey(){return JSON.stringify(peopleInlineRead().week);}
+// Fin de la vigencia elegida: null con «Fin indeterminado» (solo en la jornada principal).
+function peopleInlineUntil(){const s=PEOPLE_WORKBENCH.inline;return s?.mode==='principal'&&$('pw-inline-indefinite')?.checked?null:($('pw-inline-until')?.value||null);}
+// Algo escrito en fechas o motivo (además de la semana), para no ignorarlo en silencio.
+function peopleInlineTouched(){return !!($('pw-inline-until')?.value||$('pw-inline-indefinite')?.checked||$('pw-inline-reason')?.value.trim()||($('pw-inline-from')&&$('pw-inline-from').value!==peopleNextDate(peopleToday())));}
 function peopleInlineSync(){
-  const s=PEOPLE_WORKBENCH.inline,panel=$('pw-inline-change');if(!s||!panel)return;
-  const changed=peopleInlineKey()!==s.baseline,appears=panel.hidden&&changed;panel.hidden=!changed;$('pw-editor-schedule-view').classList.toggle('is-changed',changed);
-  const type=panel.querySelector('[name="pw-inline-type"]:checked')?.value||'principal',from=$('pw-inline-from').value,until=$('pw-inline-until').value;
-  $('pw-inline-until-hint').textContent=type==='temporal'?'(obligatorio)':'(opcional)';
-  // Al aparecer (ya con su resumen escrito), se muestra el recuadro de fecha y motivo aunque quede debajo de la semana.
-  queueMicrotask(()=>{if(appears)panel.scrollIntoView({block:'nearest'});});
-  $('pw-inline-summary').textContent=!changed?'':!from?'Elige desde qué fecha aplica el nuevo horario.':`Al guardar se programará ${type==='temporal'?'un horario temporal':'una nueva jornada'} desde el ${adminDate(from)}${until?` hasta el ${adminDate(until)}`:type==='temporal'?' (falta la fecha de fin)':', sin fecha de fin'}. Hasta entonces sigue el horario actual.`;
+  const s=PEOPLE_WORKBENCH.inline,panel=$('pw-inline-change'),view=$('pw-editor-schedule-view');if(!s?.mode||!panel||!view)return;
+  const now=peopleInlineRead().week,temporal=s.mode==='temporal',changed=JSON.stringify(now)!==s.baseline,from=$('pw-inline-from').value;
+  for(const b of view.querySelectorAll('[data-pw-inline-mode]')){const on=b.dataset.pwInlineMode===s.mode;b.setAttribute('aria-checked',String(on));b.tabIndex=on?0:-1;}
+  for(const day of view.querySelectorAll('[data-pw-day]')){const d=day.dataset.pwDay;day.classList.toggle('is-edited',JSON.stringify(now[d])!==JSON.stringify(s.base?.[d]));}
+  $('pw-inline-mode-text').textContent=PEOPLE_INLINE_MODES[s.mode].text;
+  // «Fin indeterminado» solo existe para la jornada principal; el temporal siempre tiene fecha de fin.
+  const indefinite=$('pw-inline-indefinite');$('pw-inline-indefinite-wrap').hidden=temporal;if(temporal)indefinite.checked=false;
+  const untilInput=$('pw-inline-until');untilInput.disabled=!temporal&&indefinite.checked;
+  const until=peopleInlineUntil();
+  view.classList.toggle('is-changed',changed);
+  panel.querySelector('[data-pw-inline-reset]').disabled=!changed&&!peopleInlineTouched();
+  $('pw-inline-summary').textContent=!changed?'Cambia en la tabla los días u horas que serán distintos; parte del horario vigente.':!from?'Elige desde qué fecha aplica el nuevo horario.':`Al guardar se programará ${temporal?'un horario temporal':'una nueva jornada principal'} desde el ${adminDate(from)}${until?` hasta el ${adminDate(until)}`:temporal?' (falta la fecha «Hasta»)':indefinite.checked?', con fin indeterminado':' (elige «Hasta» o marca «Fin indeterminado»)'}. Hasta entonces sigue el horario actual.`;
 }
 // Lo usa «Guardar cambios»: null si la semana no cambió, {error} si falta algo, o los datos para programar la jornada.
 function peopleEditorJornadaChange(){
-  const s=PEOPLE_WORKBENCH.inline;if(!s||!$('pw-inline-change')||$('admin-person-modal').hidden||peopleInlineKey()===s.baseline)return null;
+  const s=PEOPLE_WORKBENCH.inline;if(!s?.mode||!$('pw-inline-change')||$('admin-person-modal').hidden)return null;
+  // Sin cambios en la semana no se programa nada; si ya escribió fechas o motivo, se avisa en vez de ignorarlo.
+  if(peopleInlineKey()===s.baseline)return peopleInlineTouched()?{error:'Cambia en la tabla los días u horas del nuevo horario, o pulsa «Deshacer cambios» si no quieres programar un cambio.'}:null;
   const {week,count,error}=peopleInlineRead();if(error)return {error};if(!count)return {error:'Deja al menos un día de gestión en la jornada.'};
-  const type=document.querySelector('[name="pw-inline-type"]:checked')?.value||'principal',from=$('pw-inline-from').value,until=$('pw-inline-until').value||null,reason=$('pw-inline-reason').value.trim();
-  if(!from||from<=peopleToday())return {error:'El nuevo horario debe empezar desde mañana. Elige la fecha en «Aplica desde».'};
+  const type=s.mode,from=$('pw-inline-from').value,until=peopleInlineUntil(),reason=$('pw-inline-reason').value.trim();
+  if(!from||from<=peopleToday())return {error:'El nuevo horario debe empezar desde mañana. Elige la fecha en «Desde».'};
   if(type==='temporal'&&!until)return {error:'Un horario temporal necesita fecha de fin en «Hasta».'};
-  if(until&&until<from)return {error:'La fecha «Hasta» no puede ser anterior a «Aplica desde».'};
+  if(type==='principal'&&!until&&!$('pw-inline-indefinite').checked)return {error:'Elige la fecha «Hasta» o marca «Fin indeterminado».'};
+  if(until&&until<from)return {error:'La fecha «Hasta» no puede ser anterior a «Desde».'};
   if(reason.length<3)return {error:'Escribe el motivo del cambio de horario (al menos 3 caracteres).'};
   return {payload:{p_colab:Number(s.person.id),p_tipo:type,p_desde:from,p_hasta:until,p_semana:week,p_motivo:reason,p_version:s.person.jornadas_version||0},label:`${type==='temporal'?'Horario temporal':'Nueva jornada'} desde el ${adminDate(from)}${until?` hasta el ${adminDate(until)}`:''}`};
 }
-// Tras programar la jornada, la semana editada pasa a ser el punto de partida (evita programarla dos veces al reintentar).
-function peopleEditorJornadaSaved(){const s=PEOPLE_WORKBENCH.inline;if(s){s.baseline=peopleInlineKey();peopleInlineSync();}}
+// Tras programar la jornada, la tabla vuelve a su punto de partida: si la ficha falla, reintentar no la programa dos veces.
+function peopleEditorJornadaSaved(){const s=PEOPLE_WORKBENCH.inline;if(s)peopleInlineRender(s.person,true,s.mode);}
 // «Ver ficha» del editor: pasa a la ficha de la misma persona, en la sección equivalente a la pantalla abierta.
 const PEOPLE_EDITOR_TO_PROFILE={'.editor-identity':'resumen','.editor-contract':'contrato','.schedule-block':'jornada','.facebook-schedule-block':'facebook','#admin-history-block':'historial'};
 function peopleEditorValues(){
@@ -338,7 +370,7 @@ function peopleEditorValues(){
 }
 function peopleEditorHasChanges(){
   const s=PEOPLE_WORKBENCH.inline,facebook=typeof ADMIN_FACEBOOK_DIRTY!=='undefined'&&ADMIN_FACEBOOK_DIRTY;
-  return facebook||peopleEditorValues()!==PEOPLE_WORKBENCH.editorBaseline||!!(s&&$('pw-inline-change')&&peopleInlineKey()!==s.baseline);
+  return facebook||peopleEditorValues()!==PEOPLE_WORKBENCH.editorBaseline||!!(s?.mode&&$('pw-inline-change')&&peopleInlineKey()!==s.baseline);
 }
 function peopleEditorToProfile(){
   const id=$('admin-person-id').value;if(!id||$('admin-person-save').disabled)return;
@@ -371,11 +403,27 @@ function configurePeopleEditor(person){
   if(!view){
     view=document.createElement('div');view.id='pw-editor-schedule-view';view.className='pw-editor-schedule-view';block.append(view);
     view.addEventListener('change',e=>{
-      if(e.target.matches('[data-pw-day-mode]'))e.target.closest('[data-pw-day]').querySelectorAll('input').forEach(x=>{x.disabled=e.target.value==='no_gestiona';});
+      if(e.target.matches('[data-pw-day-mode]')){const day=e.target.closest('[data-pw-day]'),off=e.target.value==='no_gestiona';day.querySelectorAll('input').forEach(x=>{x.disabled=off;});day.classList.toggle('is-off',off);day.dataset.mode=e.target.value;}
       peopleInlineSync();
     });
     view.addEventListener('input',()=>peopleInlineSync());
-    view.addEventListener('click',e=>{if(e.target.closest('[data-pw-inline-reset]'))peopleInlineRender(PEOPLE_WORKBENCH.inline?.person||null,true);});
+    // Al bajar, el título de la pantalla se oculta para dejarle el alto a la edición; vuelve al regresar arriba.
+    // Solo si sobra bastante contenido, para que ocultarlo no cambie el alto y lo vuelva a mostrar en bucle.
+    view.addEventListener('scroll',()=>{
+      const block=view.closest('.schedule-block');if(!block||!view.classList.contains('pw-inline-editing'))return;
+      const top=view.scrollTop,hidden=block.classList.contains('pw-schedule-scrolled');
+      if(!hidden&&top>40&&view.scrollHeight-view.clientHeight>160)block.classList.add('pw-schedule-scrolled');
+      else if(hidden&&top<8)block.classList.remove('pw-schedule-scrolled');
+    },{passive:true});
+    view.addEventListener('click',e=>{
+      const pick=e.target.closest('[data-pw-inline-mode]');if(pick)return peopleInlineSetMode(pick.dataset.pwInlineMode);
+      if(e.target.closest('[data-pw-inline-reset]')){const s=PEOPLE_WORKBENCH.inline;peopleInlineRender(s?.person||null,true,s?.mode);$('pw-editor-schedule-view').querySelector('[data-pw-inline-mode][aria-checked="true"]')?.focus();}
+    });
+    // Flechas en el selector de dos posiciones, como en un grupo de opciones.
+    view.addEventListener('keydown',e=>{
+      const b=e.target.closest('[data-pw-inline-mode]');if(!b||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;
+      e.preventDefault();peopleInlineSetMode(b.dataset.pwInlineMode==='principal'?'temporal':'principal',true);
+    });
   }
   // Solo se dibuja al abrir: las demás llamadas (al cambiar otros campos) no deben borrar lo que se está editando.
   if(opening||!person)peopleInlineRender(person,canShift&&enabled);
@@ -391,5 +439,5 @@ function configurePeopleEditor(person){
   if(opening)PEOPLE_WORKBENCH.editorBaseline=peopleEditorValues();
   // En modo editable, el aviso largo se reemplaza por una frase junto al título para dejarle el alto a la semana.
   const editable=!!person&&canShift&&enabled;block.classList.toggle('pw-schedule-editable',editable);
-  const desc=block.querySelector('.admin-editor-label>span');if(desc){if(desc.dataset.base===undefined)desc.dataset.base=desc.textContent;desc.textContent=editable?'Edita la semana aquí; al guardar eliges desde qué fecha aplica el cambio.':desc.dataset.base;}
+  const desc=block.querySelector('.admin-editor-label>span');if(desc){if(desc.dataset.base===undefined)desc.dataset.base=desc.textContent;desc.textContent=editable?'Elige qué cambio hacer; se programa desde la fecha que indiques al guardar.':desc.dataset.base;}
 }

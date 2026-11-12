@@ -183,26 +183,50 @@
   #admin-person-modal.pw-legacy-editor .admin-editor-block:not(.editor-tab-off,.schedule-block,.facebook-schedule-block){overflow-y:auto;scrollbar-width:thin}
   /* Semana editable de una persona registrada: se cambia en la tabla y, si cambia, se piden fecha y motivo. */
   #admin-person-modal.pw-legacy-editor .schedule-block.pw-schedule-editable>#pw-editor-schedule-note{display:none}
+  /* Formato de «Programar jornada» dentro del editor: selector fijo arriba y el resto en una columna que se desplaza. */
   #admin-person-modal.pw-legacy-editor .pw-inline-week{flex:none;margin:0}
-  #admin-person-modal.pw-legacy-editor .pw-inline-week :is(.pw-shift-head,.pw-shift-day){grid-template-columns:44px minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:8px;padding:3px 12px}
-  #admin-person-modal.pw-legacy-editor .pw-inline-week :is(.pw-shift-head.pw-mixed,.pw-shift-day:has([data-pw-day-link])){grid-template-columns:44px minmax(0,1.2fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.1fr)}
-  #admin-person-modal.pw-legacy-editor .pw-inline-week .pw-shift-head{padding-block:6px}
-  #admin-person-modal.pw-legacy-editor .pw-inline-week :is(input,select,button,.af-trigger){min-height:30px;height:30px}
-  #admin-person-modal.pw-legacy-editor .pw-inline-week .af-trigger{gap:4px;padding-inline:10px;font-size:12.5px}
-  #admin-person-modal.pw-legacy-editor .pw-inline-change{flex:none;display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) minmax(0,2fr);gap:10px 12px;align-items:end;padding:12px 14px;border:1px solid #dfc5b1;border-radius:10px;background:#fbf4ed}
-  #admin-person-modal.pw-legacy-editor .pw-inline-change[hidden]{display:none}
-  #admin-person-modal.pw-legacy-editor .pw-inline-type{position:relative;display:flex;margin:0;padding:3px;border:1px solid #dcbfa9;border-radius:9px;background:#fff}
-  #admin-person-modal.pw-legacy-editor .pw-inline-type legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  #admin-person-modal.pw-legacy-editor .pw-inline-type label{position:relative;display:flex;align-items:center;margin:0;cursor:pointer}
-  #admin-person-modal.pw-legacy-editor .pw-inline-type input{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;padding:0;border:0;opacity:0;cursor:pointer}
-  #admin-person-modal.pw-legacy-editor .pw-inline-type span{padding:7px 12px;border-radius:7px;font-size:12.5px;font-weight:600;color:#69635d}
-  #admin-person-modal.pw-legacy-editor .pw-inline-type input:checked+span{background:#a9583e;color:#fff}
-  #admin-person-modal.pw-legacy-editor .pw-inline-type input:focus-visible+span{outline:3px solid #93472f;outline-offset:2px}
-  #admin-person-modal.pw-legacy-editor .pw-inline-field{display:flex;flex-direction:column;gap:5px;margin:0;font-size:12px;font-weight:600;color:#69635d}
-  #admin-person-modal.pw-legacy-editor .pw-inline-field small{font-weight:400}
-  #admin-person-modal.pw-legacy-editor .pw-inline-field input{min-height:36px;height:36px}
-  #admin-person-modal.pw-legacy-editor .pw-inline-summary{grid-column:1/-2;align-self:center;margin:0;font-size:12.5px;line-height:1.5;color:#79432b}
-  #admin-person-modal.pw-legacy-editor .pw-inline-change [data-pw-inline-reset]{grid-column:-2/-1;justify-self:end;min-height:34px;height:34px;padding:0 12px;font-size:12.5px}
+  #admin-person-modal.pw-legacy-editor .pw-editor-schedule-view.pw-inline-editing{gap:0;padding:0 6px 6px 4px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-editing>.pw-inline-switch{padding-bottom:12px;border-bottom:1px solid #efe8e0}
+  /* Al bajar en la pantalla Jornada se oculta su título; el selector se desplaza con el contenido. */
+  #admin-person-modal.pw-legacy-editor .schedule-block.pw-schedule-scrolled>.admin-editor-label{display:none}
+  /* Pantalla Historial: la lista ocupa todo el alto disponible y el motivo queda abajo. */
+  #admin-person-modal.pw-legacy-editor #admin-history-block{grid-template-rows:auto minmax(0,1fr) auto;align-content:stretch;overflow:hidden}
+  #admin-person-modal.pw-legacy-editor #admin-history-block>.admin-history-list{max-height:none;height:auto;min-height:0;align-content:start;overflow-y:auto}
+  /* Selector de dos posiciones (como Colaborador | Dirección) para elegir el tipo de cambio de jornada. */
+  #admin-person-modal.pw-legacy-editor .pw-inline-switch{flex:none;display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap}
+  #admin-person-modal.pw-legacy-editor .pw-inline-notice{margin:8px 0 0;padding:8px 12px;border:1px solid #dfc5b1;border-radius:8px;background:#f8eee4;font-size:12px;line-height:1.5;color:#79432b}
+  #admin-person-modal.pw-legacy-editor .pw-segmented{flex:1 1 100%;display:flex;width:100%;padding:4px;border-radius:12px;background:#f0ebe5}
+  #admin-person-modal.pw-legacy-editor .pw-segmented button{flex:1 1 0;min-height:40px;height:40px;padding:0 12px;border:0;border-radius:9px;background:transparent;color:#69635d;font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer;transition:background-color .14s,color .14s}
+  #admin-person-modal.pw-legacy-editor .pw-segmented button[aria-checked="true"]{background:#fff;color:#93472f;box-shadow:0 2px 6px rgba(35,58,70,.08)}
+  @media (hover:hover){#admin-person-modal.pw-legacy-editor .pw-segmented button[aria-checked="false"]:hover{color:#282622}}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form{flex:none;padding-top:12px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-mode-text{margin:0;font-size:12px;line-height:1.5;color:#69635d}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-dates{margin:12px 0 18px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-dates>label:not(.pw-check){font-size:13px;font-weight:600;color:#3d3a36}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-dates .editor-date-control{display:block;margin-top:6px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-check{flex:none;min-width:max-content;font-size:13px;color:#3d3a36;cursor:pointer}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-check[hidden]{display:none}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-check input{width:18px;height:18px;min-height:18px;margin:0;padding:0;accent-color:#a9583e}
+  #admin-person-modal.pw-legacy-editor .pw-inline-title{margin:0 0 10px;font-size:14.5px;font-weight:700;color:#282622}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-shift-week{margin:0 0 16px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-shift-day :is(.editor-time-control,.af-control,.af-trigger,select,input){width:100%}
+  /* Mismo tamaño que las filas del horario de Facebook: filas de 50 px, controles de 38 px y 6 px de separación. */
+  #admin-person-modal.pw-legacy-editor .pw-inline-form :is(.pw-shift-head,.pw-shift-day){grid-template-columns:44px minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:6px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form :is(.pw-shift-head.pw-mixed,.pw-shift-day:has([data-pw-day-link])){grid-template-columns:44px minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr) minmax(0,1.1fr)}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-shift-head{padding:8px 12px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-shift-day{min-height:50px;padding:4px 12px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-shift-day>b{font-size:12px;font-weight:700}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-shift-day :is(input,select,button,.af-trigger){min-height:38px;height:38px}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-shift-day .af-trigger{padding:8px 10px}
+  /* Día modificado respecto del horario vigente. */
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-shift-day.is-edited{background:#fffaf5}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-shift-day.is-edited>b::after{content:'';display:inline-block;width:6px;height:6px;margin-left:6px;border-radius:50%;background:#a9583e;vertical-align:middle}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-reason{display:block;font-size:13px;font-weight:600;color:#3d3a36}
+  #admin-person-modal.pw-legacy-editor .pw-inline-form .pw-reason textarea{display:block;width:100%;min-height:0;height:68px;margin-top:6px;padding:10px 12px;font-family:inherit;font-size:12px;line-height:1.45;resize:none}#admin-person-modal.pw-legacy-editor .pw-inline-form .pw-reason textarea::placeholder{color:#9a928a}
+  #admin-person-modal.pw-legacy-editor .pw-inline-foot{display:flex;align-items:center;gap:12px;margin-top:14px;padding:8px 8px 8px 14px;border:1px solid #dfc5b1;border-radius:10px;background:#fbf4ed}
+  #admin-person-modal.pw-legacy-editor .pw-inline-summary{flex:1;margin:0;font-size:12px;line-height:1.5;color:#79432b}
+  #admin-person-modal.pw-legacy-editor .pw-inline-foot [data-pw-inline-reset]{flex:none;min-height:34px;height:34px;padding:0 12px;font-size:12.5px;white-space:nowrap}
+  #admin-person-modal.pw-legacy-editor .pw-inline-foot [data-pw-inline-reset]:disabled{opacity:.5;cursor:default}
   /* Persona registrada: resumen de la jornada en lugar de la tabla bloqueada (que sigue oculta en el formulario). */
   #admin-person-modal.pw-legacy-editor .schedule-block.pw-schedule-readonly{grid-template-rows:auto auto minmax(0,1fr)}
   #admin-person-modal.pw-legacy-editor .schedule-block.pw-schedule-readonly>:is(.admin-general-hours,.admin-schedule-head,.admin-schedule-grid){display:none!important}
@@ -284,3 +308,6 @@
   #portal #admin-people-section.pw-workbench .pw-more-filters input[type=checkbox]{min-height:18px!important;width:18px;height:18px;padding:0}
   @media (hover:hover){#admin-person-modal.pw-legacy-editor .admin-field-add:not(:disabled):hover,#admin-person-modal.pw-legacy-editor .admin-editor-nav button:hover{background:#f5e8db}#portal #admin-people-section.pw-workbench .pw-card-edit:hover,.pw-step:not(:disabled):hover{background:#f5e8db;border-color:#dcbfa9}.pw-button.pw-soft:not(:disabled):hover{background:#ecd5c4}.pw-button:not(:disabled):hover,.pw-actions>summary:hover{background:#f5e8db}.pw-button.pw-primary:not(:disabled):hover{background:#8e432b}.pw-profile-tabs button:hover{color:#93472f}}
 }
+/* Calendario flotante del panel de fechas de la jornada: queda fijo en pantalla, por encima del editor. */
+#admin-person-modal .editor-calendar.editor-calendar-floating{position:fixed;inset:auto;right:auto;margin:0;z-index:12000;box-sizing:border-box;overflow:visible}
+#admin-person-modal .editor-calendar.editor-calendar-floating[hidden]{display:none!important}

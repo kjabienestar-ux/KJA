@@ -21,7 +21,8 @@
     trigger.setAttribute('aria-controls',panel.id);
     wrap.append(trigger,panel);
     const picker={input,trigger,panel,wrap,month:parse(input.value)};pickers.push(picker);enhanced.set(input,picker);
-    if(input.closest('dialog')){panel.setAttribute('popover','manual');panel.classList.add('editor-calendar-floating');}
+    // Dentro de un dialog o de un contenedor con desplazamiento propio, el calendario flota por encima y fijo en pantalla para no recortarse.
+    if(input.closest('dialog,[data-calendar-floating]')){panel.setAttribute('popover','manual');panel.classList.add('editor-calendar-floating');}
     const sync=()=>{trigger.textContent=input.value?longDate(parse(input.value)):'Seleccionar fecha';trigger.setAttribute('aria-label',`${name}: ${trigger.textContent}`);trigger.disabled=input.disabled;};
     picker.sync=sync;
     function choose(value){input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));sync();close(true);}
@@ -55,7 +56,7 @@
       foot.append(button('Borrar fecha','Sin fecha',()=>choose('')),todayButton,button('Cerrar calendario','Cerrar',()=>close(true)));panel.append(foot);
       if(focusDate)panel.querySelector(`[data-date="${focusDate}"]:not(:disabled)`)?.focus();
     }
-    trigger.onclick=()=>{if(active===picker){close();return;}close();active=picker;picker.month=parse(input.value);render();panel.hidden=false;if(panel.hasAttribute('popover')){panel.showPopover?.();const r=trigger.getBoundingClientRect();const width=Math.min(320,innerWidth-24);panel.style.width=width+'px';panel.style.left=Math.max(12,Math.min(r.left,innerWidth-width-12))+'px';const height=panel.getBoundingClientRect().height;panel.style.top=Math.max(12,Math.min(r.bottom+6,innerHeight-height-12))+'px';}trigger.setAttribute('aria-expanded','true');(panel.querySelector('[aria-pressed="true"]:not(:disabled)')||panel.querySelector('[data-date]:not(:disabled)'))?.focus();};
+    trigger.onclick=()=>{if(active===picker){close();return;}close();active=picker;picker.month=parse(input.value);render();panel.hidden=false;if(panel.hasAttribute('popover')){panel.showPopover?.();const r=trigger.getBoundingClientRect();const width=Math.min(320,innerWidth-24);panel.style.width=width+'px';panel.style.left=Math.max(12,Math.min(r.left,innerWidth-width-12))+'px';const height=panel.getBoundingClientRect().height,below=r.bottom+6,above=r.top-6-height;panel.style.top=(below+height<=innerHeight-12?below:above>=12?above:Math.max(12,innerHeight-height-12))+'px';}trigger.setAttribute('aria-expanded','true');(panel.querySelector('[aria-pressed="true"]:not(:disabled)')||panel.querySelector('[data-date]:not(:disabled)'))?.focus();};
     panel.addEventListener('click',event=>event.stopPropagation());
     input.addEventListener('change',sync);new MutationObserver(()=>{sync();if(active===picker&&input.disabled)close();}).observe(input,{attributes:true,attributeFilter:['disabled','min','max']});input.addEventListener('invalid',event=>{event.preventDefault();trigger.focus();trigger.click();});sync();
   }}
