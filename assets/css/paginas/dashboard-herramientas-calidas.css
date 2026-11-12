@@ -1,0 +1,32 @@
+/* Colores de Gestión para herramientas administrativas en escritorio. */
+@media (min-width:901px){
+  #portal #view-zoom,#portal #view-cert-cuentas,#portal #rec-inbox-root{--warm-ink:#292621;--warm-muted:#655c54;--warm-line:#e6ddd2;--warm-accent:#a9583e;color:var(--warm-ink)}
+  #portal :is(#view-zoom,#view-cert-cuentas) :is(h1,h2,h3){color:#292621}
+  #portal :is(#view-zoom,#view-cert-cuentas) :is(input,select){border-color:#cfbfb0;color:#292621;accent-color:#a9583e}
+  #portal :is(#view-zoom,#view-cert-cuentas) :is(input,select,button,summary):focus-visible,#portal #rec-inbox-root :focus-visible{outline:3px solid #a9583e;outline-offset:3px}
+  #portal #view-zoom :is(.zoom-note,.zoom-heading p,.zoom-time,.zoom-week-session small,.zoom-week-help){color:#655c54}
+  #portal #view-zoom .zoom-mark{background:#f2e5d9;color:#a9583e}
+  #portal #view-zoom button.zoom-primary,#portal #view-cert-cuentas button.cert-primary,#portal #view-cert-cuentas #cert-accounts-new{background:#a9583e;border-color:#a9583e;color:#fff;box-shadow:0 4px 12px #70412b24}
+  #portal #view-zoom button.zoom-primary:hover,#portal #view-cert-cuentas button.cert-primary:hover,#portal #view-cert-cuentas #cert-accounts-new:hover{background:#84442f;border-color:#84442f}
+  #portal #view-zoom :is(.zoom-row-options>summary,.zoom-settings>summary,.zoom-week-help summary,.zoom-row-admin button:not(.zoom-text-danger):not(.zoom-whatsapp),.zoom-editor-heading button){color:#85452f}
+  #portal[data-view="zoom"] #view-zoom .zoom-row-admin button[data-zoom="copy"],#portal #view-zoom #zoom-week-today{background:#f5e9de;border-color:#e3cfc1;color:#803f2a}
+  #portal #view-zoom .zoom-week-day.is-today{background:#f8f0e8}
+  #portal #view-zoom .is-today .zoom-day-number{color:#a9583e}
+  #portal #view-zoom :is(.zoom-row,#zoom-week,.zoom-editor,.zoom-list){border-color:#e6ddd2}
+  #portal #view-zoom :is(.zoom-host-help,.zoom-days label){background:#f7f1eb;color:#655c54}
+  #portal #view-cert-cuentas :is(.cert-accounts-head p,.cert-account-note,.cert-stat-label,.cert-stat-sub){color:#655c54}
+  #portal #view-cert-cuentas :is(.cert-stat-card,.cert-accounts-head){border-color:#e6ddd2}
+  #portal #view-cert-cuentas .cert-stat-icon-wrap.is-teal{background:#f2e5d9;color:#a9583e}
+  #portal #view-cert-cuentas .cert-chart-curve.is-teal{color:#a9583e}
+  #portal #view-cert-cuentas .cert-account-row:nth-child(3n) .cert-account-avatar{background:#f2e5d9;color:#85452f}
+  #portal #view-cert-cuentas :is(button:not(.cert-primary):not(.cert-danger),#cert-accounts-refresh){border-color:#e0d4c7;color:#59473b}
+  #portal #rec-inbox-root.ri-cards-mode{--ri-ink:#292621;--ri-muted:#655c54;--ri-line:#e6ddd2}
+  #portal #rec-inbox-root.ri-cards-mode .ri-button.primary{background:#a9583e;border-color:#a9583e;color:#fff}
+  #portal #rec-inbox-root.ri-cards-mode .ri-button.primary:hover:not(:disabled){background:#84442f;border-color:#84442f}
+  #portal #rec-inbox-root.ri-cards-mode .ri-row[data-state] .ri-go{background:#a9583e;color:#fff}
+  #portal #rec-inbox-root.ri-cards-mode .ri-row[data-state] .ri-go:hover{background:#84442f}
+  #portal #rec-inbox-root :is(input,select,textarea){border-color:#cfbfb0;accent-color:#a9583e}
+  #portal #rec-inbox-root .ri-avatar,#portal #rec-inbox-root .ri-avatar[data-avatar]{background:#f2e5d9;color:#85452f}
+  #portal #rec-inbox-root .ri-candidate-avatar{background:#a9583e;color:#fff;box-shadow:none}
+  #portal #rec-inbox-root :is(.ri-detail h3,.ri-funnel-total strong){color:#292621}
+}
