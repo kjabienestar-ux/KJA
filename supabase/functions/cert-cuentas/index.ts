@@ -13,6 +13,12 @@ Deno.serve(async(req:Request)=>{
   if(permissionError||allowed!==true)return reply({error:'Solo Dirección con nivel Sistemas puede gestionar estas cuentas.'},403);
   const body=await req.json();
   const admin=createClient(url,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false,autoRefreshToken:false}});
+  if(body.action==='password'||body.action==='recovery'){
+   const target=await admin.from('asis_perfiles').select('acceso_panel').eq('id',body.id).maybeSingle();
+   if(target.error)return reply({error:'No se pudo comprobar el acceso administrativo de la cuenta.'},503);
+   // Una sola ruta auditada para credenciales administrativas, incluso con UUID compartido.
+   if(target.data?.acceso_panel)return reply({error:'Esta identidad también tiene acceso administrativo. Restablece su contraseña desde Cuentas administrativas con un superadministrador.'},403);
+  }
   if(body.action==='password'){
    if(typeof body.id!=='string'||typeof body.password!=='string'||body.password.length<6||body.password.length>128)
     return reply({error:'Usa una contraseña de 6 a 128 caracteres.'},400);

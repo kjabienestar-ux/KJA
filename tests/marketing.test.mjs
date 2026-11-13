@@ -182,6 +182,11 @@ function editor({facebook=true,publicar=true,publicado=false,extracted=false,ia=
     return {data:results[body.accion]};
   }}},addEventListener:()=>{}});
   context.window=context;
+  context.APP={sessionUid:'00000000-0000-0000-0000-000000000001',access:{rol:'direccion'}};
+  context.fetch=async()=>({ok:true,blob:async()=>new Blob(['flyer de ensayo'],{type:'image/png'})});
+  context.setTimeout=(fn,ms)=>ms===350?queueMicrotask(fn):setTimeout(fn,ms).unref();
+  context.clearTimeout=clearTimeout;
+  vm.runInContext(fs.readFileSync(new URL('../assets/js/marketing-image-cache.js',import.meta.url),'utf8'),context);
   context.FileReader=class {readAsDataURL(){this.result='data:image/png;base64,AA==';this.onload()}};
   vm.runInContext(fs.readFileSync(new URL('../assets/js/marketing-model.js',import.meta.url),'utf8'),context);
   context.KJAMarketing.compressFlyer=async file=>file;
@@ -250,15 +255,16 @@ test('opening a legacy draft is read-only; shortening happens only on request',a
   assert.equal(e.get('short-url').value,'https://www.kjadmb.com/w.html?k=abcdefghijklmnop');
 });
 
-test('complete history opens instantly without a load or analysis request',async()=>{
+test('opening history checks authorization without analysis or shortening',async()=>{
   const e=editor({fullHistory:true});await e.load();
   assert.equal(e.get('copy').value,'Texto guardado');
-  assert.equal(e.calls.filter(c=>['cargar','analizar','enlace'].includes(c.accion)).length,0);
+  assert.equal(e.calls.filter(c=>c.accion==='cargar').length,1);
+  assert.equal(e.calls.filter(c=>['analizar','enlace'].includes(c.accion)).length,0);
   assert.equal(e.get('review').hidden,false);
   e.onSignOut();assert.equal(e.get('history').children.length,0);
 });
 
-test('legacy history recovers six real flyer thumbnails with bounded concurrent reads',async()=>{
+test('history listing avoids downloading unselected flyers',async()=>{
   const e=editor();let active=0,peak=0,loads=0;
   const rows=Array.from({length:6},(_,i)=>({id:String(i+1),datos:{titulo:'Flyer '+i},estado:'borrador',copy:''}));
   e.context.db.functions.invoke=async(name,{body})=>{
@@ -269,14 +275,14 @@ test('legacy history recovers six real flyer thumbnails with bounded concurrent 
     return {data:{borrador:rows.find(row=>row.id===body.id),imagen:'https://example.test/'+body.id+'.png'}};
   };
   await e.context.KJAMarketingPortal.init();await e.context.KJAMarketingPortal.open();
-  assert.equal(loads,6);assert.equal(peak,3);
-  assert.deepEqual(e.get('history').children.map(li=>li.children[0].children[0].src),rows.map(row=>'https://example.test/'+row.id+'.png'));
+  assert.equal(loads,0);assert.equal(peak,0);
+  assert.equal(e.get('history').children.length,6);
 });
 
 test('selected flyer appears beside the editor and clears for a new campaign',async()=>{
   const e=editor();await e.load();
   assert.equal(e.get('preview').hidden,false);
-  assert.equal(e.get('preview-image').src,'https://example.test/flyer.png');
+  assert.match(e.get('preview-image').src,/^blob:/);
   assert.equal(e.get('preview-link').href,e.get('preview-image').src);
   e.get('new').onclick();assert.equal(e.get('preview').hidden,true);assert.equal(e.get('preview-link').href,'');
 });
@@ -488,7 +494,7 @@ test('manual Facebook route works without Facebook credentials and saves confirm
 test('manual route downloads the original flyer without posting or calling Gemini',async()=>{
   const e=editor({facebook:false});await e.load();
   const clicked=[],revoked=[];
-  e.context.fetch=async url=>{assert.equal(url,'https://example.test/flyer.png');return {ok:true,blob:async()=>({type:'image/png'})}};
+  e.context.fetch=async url=>{assert.match(url,/^blob:/);return {ok:true,blob:async()=>({type:'image/png'})}};
   e.context.URL={createObjectURL:()=> 'blob:download',revokeObjectURL:url=>revoked.push(url)};
   e.context.setTimeout=fn=>fn();
   e.context.document.body={append:anchor=>clicked.push(anchor)};
@@ -584,9 +590,10 @@ test('admin can switch to team scope, filter by collaborator, and view author ba
   const list=e.get('history');
   assert.equal(list.children.length,1);
   const card=list.children[0].children[0];
-  const authorBadge=card.children.find(c=>c.className==='marketing-history-author-badge');
+  const authorBadge=card.children.flatMap(c=>[c,...(c.children||[])]).find(c=>c.className==='marketing-history-author-badge');
   assert.ok(authorBadge);
-  assert.match(authorBadge.textContent,/Pepito Pérez/);
+  assert.equal(authorBadge.textContent,'Pepito');
+  assert.equal(authorBadge.getAttribute('aria-label'),'Autor: Pepito Pérez');
 
   await card.onclick();
   await e.settle();

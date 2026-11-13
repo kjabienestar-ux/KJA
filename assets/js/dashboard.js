@@ -547,6 +547,7 @@ async function removeProfileCover(){
 }
 
 function showAccess(message){
+  window.KJAAdminAccounts?.reset();
   if(typeof window!=='undefined')window.KJAPausasLocal?.signOut();
   if(typeof resetPeopleWorkbench==='function')resetPeopleWorkbench();
   if(typeof resetAttendancePreview==='function')resetAttendancePreview();
@@ -779,7 +780,7 @@ function paintShell(view){
     if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
   });
   // Publicaciones usa el mismo sidebar administrativo cuando la cuenta tiene acceso al panel.
-  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='cert-cuentas'||view==='zoom'||view==='reclutamiento'||((view==='perfil'||view==='marketing')&&APP.access.acceso_panel));
+  $('portal').classList.toggle('admin-wide',view==='gestion'||view==='admin-cuentas'||view==='cert-cuentas'||view==='zoom'||view==='reclutamiento'||((view==='perfil'||view==='marketing')&&APP.access.acceso_panel));
   syncSidebarCollapse();
 }
 
@@ -847,6 +848,9 @@ async function openPortal(activeSession,bootstrap=null){
   APP.cierre=null;APP.dailyCloseResolved=false;APP.dailyCloseGeneration++;APP.dailyCloseRequest=null;
   resetDailyCloseUi();
   APP.access={rol:access?.rol||'visor',acceso_panel:!!access?.acceso_panel};
+  // El permiso es independiente de Sistemas; el servidor lo resuelve en cada arranque.
+  APP.access.superadmin=access?.superadmin===true;
+  window.KJAAdminAccounts?.bootstrap(APP.access.superadmin);
   const now=new Date(), lima=new Date(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'numeric',day:'numeric'}).format(now));
   APP.year=lima.getFullYear(); APP.month=lima.getMonth()+1;
   $('access').hidden=true;
@@ -3357,6 +3361,7 @@ function syncRecruitmentNavigation(){
 }
 
 function goView(view){
+  if(view==='admin-cuentas'&&!APP.access.superadmin){toast('Esta sección está reservada a los dos superadministradores.',true);return;}
   if(view==='reclutamiento'&&!(APP.access.acceso_panel&&APP.access.rol==='direccion')){toast('Reclutamiento está reservado a Dirección.',true);return;}
   if(view==='marketing'&&$('nav-marketing').hidden)return;
   if(view==='zoom'&&!(APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel)){toast('La gestión de Zoom está reservada a Sistemas. Usa el botón flotante para unirte.',true);return;}
@@ -3366,6 +3371,7 @@ function goView(view){
   if(view==='equipo'&&!APP.identity.isLeader){toast('Mi equipo está reservado al líder y a los co-líderes técnicos del área.',true);return;}
   if(view==='perfil')renderProfile();
   paintShell(view);
+  if(view==='admin-cuentas'){closeMenu();return window.KJAAdminAccounts?.load();}
   if(view==='cert-cuentas'){closeMenu();return loadCertificateAccounts();}
   if(view==='reclutamiento'){closeMenu();return window.kjaRecruitment?.refresh?.();}
   if(view==='zoom'){closeMenu();return window.KJAZoom?.load();}
