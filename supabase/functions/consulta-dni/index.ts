@@ -24,6 +24,7 @@ function json(obj: unknown, status = 200) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method !== "POST") return json({ error: "Método no permitido" }, 405);
 
   try {
     // El dashboard de asistencia comparte Auth con este proyecto. Validamos la
@@ -43,7 +44,15 @@ Deno.serve(async (req) => {
     if (ePermiso) return json({ error: "No se pudo validar el acceso" }, 500);
     if (!esMiembro) return json({ error: "No tienes acceso al módulo de certificados" }, 403);
 
-    const { dni } = await req.json();
+    const { dni, accion } = await req.json();
+    const servicio = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
+      auth: { persistSession: false },
+    });
+    async function consumo(incrementar = false) {
+      const { data, error } = await servicio.rpc("cert_dni_consumo", { p_incrementar: incrementar });
+      return error ? null : data;
+    }
+    if (accion === "cuota") return json({ cuota: await consumo() });
     if (!dni || !/^\d{8,15}$/.test(String(dni))) {
       return json({ error: "DNI inválido" }, 400);
     }
@@ -51,18 +60,19 @@ Deno.serve(async (req) => {
     const token = Deno.env.get("DECOLECTA_TOKEN");
     if (!token) return json({ error: "Falta configurar DECOLECTA_TOKEN en el servidor" }, 500);
 
+    const cuota = await consumo(true);
     const r = await fetch(`https://api.decolecta.com/v1/reniec/dni?numero=${dni}`, {
       headers: { Authorization: `Bearer ${token}`, Referer: "https://decolecta.com" },
     });
 
-    if (!r.ok) return json({ error: "No se encontró ese DNI en RENIEC", status: r.status }, 404);
+    if (!r.ok) return json({ error: "No se pudo consultar ese DNI", status: r.status, cuota }, 404);
 
     const d = await r.json();
     const nombre = [d.first_name, d.first_last_name, d.second_last_name]
       .filter(Boolean).join(" ").trim();
 
-    if (!nombre) return json({ error: "Sin datos para ese DNI" }, 404);
-    return json({ nombre, dni: String(dni) });
+    if (!nombre) return json({ error: "Sin datos para ese DNI", cuota }, 404);
+    return json({ nombre, dni: String(dni), cuota });
   } catch (e) {
     return json({ error: String(e) }, 500);
   }
