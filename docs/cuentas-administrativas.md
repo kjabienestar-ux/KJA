@@ -14,7 +14,7 @@ Restablecimiento directo sin correo, sin anunciar contraseña temporal ni cambio
 
 ## Implementación y seguridad
 
-- Migración `supabase/migrations/20261113150435_cuentas_administrativas_kja037.sql`: esquema privado con RLS, dos puestos, estados y operaciones; instala el módulo deshabilitado y sin titulares.
+- Migración `supabase/migrations/20261113162057_cuentas_administrativas_kja037.sql`: esquema privado con RLS, dos puestos, estados y operaciones; instala el módulo deshabilitado y sin titulares.
 - `dash_es_superadmin()` es la capacidad del cliente. `dash_arranque()` también la incluye; `dash_admin_cuentas()` entrega directorio e historial solo a los dos designados.
 - `admin-cuentas` verifica `auth.getUser()` y la capacidad antes de usar la clave de servicio. Las RPC de mutación/búsqueda/auditoría solo son ejecutables por `service_role`; actor y sesión proceden del token verificado, nunca del cuerpo. Todas las mutaciones serializan mediante el bloqueo de configuración y comprueban nuevamente la designación y la sesión real.
 - Una restricción diferida mantiene exactamente dos titulares activos y distintos al finalizar cada transacción. Protege puestos, configuración, estados, perfiles y Auth. Solo un custodio externo puede intervenir fuera de la delegación ordinaria.

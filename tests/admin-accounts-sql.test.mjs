@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {PGlite} from '@electric-sql/pglite';
 export const uid=n=>`00000000-0000-0000-0000-${String(n).padStart(12,'0')}`;
-const migration=fs.readFileSync('supabase/migrations/20261113150435_cuentas_administrativas_kja037.sql','utf8');
+const migration=fs.readFileSync('supabase/migrations/20261113162057_cuentas_administrativas_kja037.sql','utf8');
 export async function fixture(){
  const db=new PGlite();
  await db.exec(`create role anon;create role authenticated;create role service_role;
