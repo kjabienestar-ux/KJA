@@ -242,18 +242,19 @@
               <div class="dni-head">
                 <span class="dni-label">
                   <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                  Buscar por DNI <span class="opt">(opcional)</span>
+                  DNI <span class="opt">(obligatorio)</span>
                 </span>
                 <label class="chk-extranjero"><input type="checkbox" id="f-extranjero"> Extranjero</label>
               </div>
               <div class="dni-row">
-                <input id="f-dni" type="text" inputmode="numeric" placeholder="8 dígitos" maxlength="8">
+                <input id="f-dni" type="text" inputmode="numeric" placeholder="8 dígitos" maxlength="8" required aria-label="DNI del participante" aria-describedby="dni-hint">
                 <button type="button" class="btn-dni" id="btn-dni">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
                   <span class="btn-dni-txt">Buscar</span>
                 </button>
               </div>
               <div class="hint" id="dni-hint">Escribe el DNI y autocompletamos el nombre desde RENIEC.</div>
+              <div class="hint" id="dni-cuota" role="status" aria-live="polite">Consultas Decolecta: cargando saldo…</div>
             </div>
 
             <!-- 2) Nombre del cliente (se autocompleta) -->
@@ -758,6 +759,7 @@ async function mostrarDash(email){
     return;
   }
   $('dash').style.display='block';
+  cargarCuotaDni();
   prefillNumero(); if(esAdmin()){ cargarComentarios(); contarPapelera(); } cargarClientes(); dibujar();
 }
 function mostrarLogin(){ $('dash').style.display='none'; $('login-wrap').style.display='flex'; }
@@ -782,6 +784,7 @@ async function entrarConBienvenida(email){
   }
   prefillNumero();
   if(esAdmin()){ cargarComentarios(); contarPapelera(); }
+  cargarCuotaDni();
   cargarClientes(); dibujar();
 
   // Tarjeta de bienvenida (entra ya con el nombre correcto, sin parpadeo)
@@ -1263,6 +1266,14 @@ function advertenciasDe(d){
 
 async function guardarYGenerar(){
   const d=leerDatos();
+  if(!d.dni){
+    $('f-dni').classList.add('invalid');
+    $('f-dni').setAttribute('aria-invalid','true');
+    $('dni-hint').textContent='Ingresa el DNI del participante para emitir el certificado.';
+    $('f-dni').focus();
+    status('El DNI es obligatorio para emitir el certificado.','error');
+    return;
+  }
   const err = validarCertificado(d);
   if(err){ status(err,'error'); abrirAlerta(err, 'No se puede generar'); return; }
   if(!dniValido()){ actualizarDniUI();
@@ -1438,7 +1449,7 @@ document.querySelectorAll('input[name="dirigido"]').forEach(r=>
 function dniMax(){ return $('f-extranjero').checked ? 15 : 8; }
 function dniValido(){
   const v=$('f-dni').value.trim();
-  if(!v) return true;                          // el DNI es opcional
+  if(!v) return false;
   return $('f-extranjero').checked ? /^\d{8,15}$/.test(v) : /^\d{8}$/.test(v);
 }
 function actualizarDniUI(){
@@ -1451,6 +1462,7 @@ function actualizarDniUI(){
   }
   const v=$('f-dni').value.trim();
   $('f-dni').classList.toggle('invalid', v.length>0 && !dniValido());
+  $('f-dni').setAttribute('aria-invalid', String(v.length>0 && !dniValido()));
 }
 let ultimoDniConsultado='';
 /* El proveedor de RENIEC (decolecta) tiene un tope de consultas al mes. Cuando se
@@ -1485,18 +1497,39 @@ function nombreTitulo(s){
   }).join(' ');
 }
 
+function mostrarCuotaDni(cuota){
+  const el=$('dni-cuota');
+  if(!cuota){ el.textContent='Consultas Decolecta: saldo no disponible.'; return; }
+  if(cuota.restantes==null){
+    el.textContent=`Decolecta: ${cuota.registradas} consultas registradas. Falta sincronizar el saldo de las ${cuota.limite} del mes.`;
+  }else{
+    el.textContent=`Decolecta: quedan aproximadamente ${cuota.restantes} de ${cuota.limite} consultas este mes.`;
+  }
+  el.title='Contador compartido del portal. Incluye intentos de consulta; el consumo facturado y las consultas externas se verifican en Decolecta.';
+}
+async function cargarCuotaDni(){
+  try{
+    const {data,error}=await db.functions.invoke('consulta-dni',{body:{accion:'cuota'}});
+    mostrarCuotaDni(error ? null : data?.cuota);
+  }catch(_){ mostrarCuotaDni(null); }
+}
 async function consultarDni(dni){
   $('dni-loading').classList.add('show');                       // overlay con logo girando
   $('btn-dni').disabled=true; $('btn-dni').querySelector('.btn-dni-txt').textContent='Buscando…';
   $('dni-hint').textContent='Consultando RENIEC…';
   try{
     const { data, error } = await db.functions.invoke('consulta-dni', { body: { dni } });
+    if(!error) mostrarCuotaDni(data?.cuota);
     if(error){
       // La función devuelve el código real del proveedor en el cuerpo (campo status)
       let st=0;
-      try{ st=(await error.context.json()).status||0; }catch(_){}
-      if(st===401 || st===403 || st===429){
-        apagarReniec('Se agotaron las consultas del mes a RENIEC. Escribe el DNI y el nombre a mano: el certificado sale igual. El autocompletado vuelve el próximo mes.');
+      try{ const detalle=await error.context.json(); st=detalle.status||0; mostrarCuotaDni(detalle.cuota); }catch(_){ mostrarCuotaDni(null); }
+      if(st===429){
+        apagarReniec('Decolecta alcanzó un límite de consultas. Escribe el DNI y el nombre a mano para emitir el certificado. Revisa el saldo en Decolecta antes de volver a consultar.');
+        return;
+      }
+      if(st===401 || st===403){
+        apagarReniec('Decolecta rechazó el acceso. Escribe el DNI y el nombre a mano; un administrador debe revisar la conexión.');
         return;
       }
       if(st===404){ $('dni-hint').textContent='Ese DNI no aparece en RENIEC. Escribe el nombre a mano.'; return; }
@@ -1639,11 +1672,30 @@ let emitidos=[], grupos=[];
 let dashChartsInit = false;
 let dayIntensityMap = {};
 
+async function consultarCertificadosEmitidos(){
+  const registros=[];
+  const tamano=500;
+  while(true){
+    const {data,error}=await db.from('certificados').select('*')
+      .eq('oculto',false)
+      .order('created_at',{ascending:false}).order('id',{ascending:false})
+      .range(registros.length,registros.length+tamano-1);
+    if(error) throw error;
+    if(!data?.length) return registros;
+    registros.push(...data);
+  }
+}
+
 async function cargarEmitidos(){
   $('tabla-wrap').innerHTML='<div class="empty">Cargando…</div>';
-  const {data,error}=await db.from('certificados').select('*').eq('oculto',false).order('created_at',{ascending:false});
-  if(error){ $('tabla-wrap').innerHTML='<div class="empty">Error: '+error.message+'</div>'; return; }
-  emitidos=data||[];
+  $('count').textContent='Contando certificados…';
+  try{
+    emitidos=await consultarCertificadosEmitidos();
+  }catch(error){
+    $('tabla-wrap').textContent='No se pudieron cargar los certificados. Vuelve a intentarlo.';
+    $('count').textContent='Total no disponible';
+    return;
+  }
   
   dayIntensityMap = {};
   emitidos.forEach(c => {
@@ -1857,8 +1909,10 @@ function ultimaFechaCliente(g){
   return m;
 }
 function pintarClientes(list, totalCerts){
+  totalCerts ??= list.reduce((total,g)=>total+g.certs.length,0);
   $('count').textContent=`${list.length===1?'1 cliente':list.length+' clientes'} · `
-    +`${totalCerts===1?'1 certificado':totalCerts+' certificados'}`;
+    +`${totalCerts===1?'1 certificado':totalCerts+' certificados'}`
+    +(totalCerts!==emitidos.length ? ` de ${emitidos.length} en total` : ' en total');
   if(!list.length){
     $('tabla-wrap').innerHTML=`<div class="empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="12" cy="14" r="3"/></svg>

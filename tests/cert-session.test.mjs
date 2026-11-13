@@ -12,6 +12,7 @@ function harness({session=null,error=null,profile=true,reject=false}={}){
     initFlatpickr(){calls.push('calendar')},resetForm(){calls.push('reset')},
     db:{auth:{getSession:async()=>{calls.push('session');if(reject)throw Error('offline');return {data:{session},error}}}},
     cargarPerfil:async()=>{calls.push('profile');assert.equal($('dash').style.display,'none');return profile},
+    cargarCuotaDni(){calls.push('quota')},
     esAdmin:()=>false,prefillNumero(){calls.push('number')},cargarClientes(){calls.push('clients')},dibujar(){calls.push('draw')},
     loginMsg(text){$('login-msg').textContent=text}};
   vm.createContext(context);vm.runInContext(dash,context);
@@ -20,7 +21,7 @@ function harness({session=null,error=null,profile=true,reject=false}={}){
 test('reload restores saved session after form initialization and validates profile',async()=>{
   const h=harness({session:{user:{email:'equipo@example.test'}}});await h.run();
   assert.equal(h.$('dash').style.display,'block');assert.equal(h.$('login-wrap').style.display,'none');
-  assert.deepEqual(h.calls,['calendar','reset','session','profile','number','clients','draw']);
+  assert.deepEqual(h.calls,['calendar','reset','session','profile','quota','number','clients','draw']);
 });
 test('without a session, including after logout, shows login without loading certificates',async()=>{
   const h=harness();await h.run();assert.equal(h.$('login-wrap').style.display,'flex');
