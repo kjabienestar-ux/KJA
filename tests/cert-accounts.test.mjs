@@ -84,7 +84,7 @@ test('edge verifies identity and manager permission before Auth administration; 
  rpc:async(name)=>name==='dash_gestiona_certificados'?{data:allowed}:name==='dash_cert_buscar_email'?{data:lookup}:(saves++,{data:{ok:true}})};
  const admin={auth:{admin:{updateUserById:async(id,attrs)=>{assert.equal(id,'existing');assert.equal(attrs.password,'123456');passwordChanges++;return {error:passwordFailure?{message:'rejected'}:null};},createUser:async()=>{creates++;return {data:{user:{id:'new'}}};},getUserById:async()=>({data:{user:{email:'a@test.com'}}})}},
  from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:profile})})})})};
- const source=fs.readFileSync('supabase/functions/cert-cuentas/index.ts','utf8').replace(/^import .*\n/,'').replace('body:unknown','body').replace('req:Request','req').replace('(p:any)','(p)').replaceAll(/(get\('[^']+'\))!/g,'$1');
+ const source=fs.readFileSync('supabase/functions/cert-cuentas/index.ts','utf8').replace(/\r\n/g,'\n').replace(/^import .*\n/,'').replace('body:unknown','body').replace('req:Request','req').replace('(p:any)','(p)').replaceAll(/(get\('[^']+'\))!/g,'$1');
  const context=vm.createContext({Request,Response,createClient:(_url,key)=>key==='service'?admin:user,
  Deno:{env:{get:k=>({SUPABASE_URL:'https://example.test',SUPABASE_ANON_KEY:'anon',SUPABASE_SERVICE_ROLE_KEY:'service',CERT_RECOVERY_URL:'https://example.test/recuperar-certificados.html'})[k]},serve:fn=>handler=fn}});
  vm.runInContext(source,context);
@@ -105,6 +105,9 @@ test('edge verifies identity and manager permission before Auth administration; 
  assert.equal((await call(change)).status,200);assert.equal(passwordChanges,1);assert.equal(profile.activo,false);
  passwordFailure=true;assert.equal((await call(change)).status,400);
  profile=null;assert.equal((await call(change)).status,400);assert.equal(passwordChanges,2);
+ profile={id:'existing',activo:true,acceso_panel:true};passwordFailure=false;
+ assert.equal((await call(change)).status,403);assert.equal(passwordChanges,2);
+ assert.equal((await call({action:'recovery',id:'existing'})).status,403);assert.equal(recoveries,1);
 });
 
 test('password form blocks mismatch, submits once and clears password fields on success',async()=>{

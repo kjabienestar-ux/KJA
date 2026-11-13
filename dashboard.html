@@ -60,6 +60,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-accounts.css?v=1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-admin-profile.css?v=4">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=retirada-35-1">
@@ -229,6 +230,7 @@
       <span class="side-nav-divider" id="admin-nav-divider" hidden>ADMINISTRACIÓN</span>
       <button data-view="gestion" id="nav-gestion" data-sidebar-tooltip="Gestión de asistencia" hidden><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5M8 14h3M14 14h2M8 17h8"/></svg><span class="sidebar-label">Gestión de asistencia</span></button>
       <button data-view="reclutamiento" id="nav-reclutamiento" data-sidebar-tooltip="Reclutamiento" hidden><svg viewBox="0 0 24 24" class="sidebar-icon" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3m2-10 2 2 4-4"/></svg><span class="sidebar-label">Reclutamiento <span data-rec-pending-count hidden></span></span></button>
+      <button data-view="admin-cuentas" id="nav-admin-cuentas" data-sidebar-tooltip="Cuentas administrativas" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7Z"/><circle cx="12" cy="10" r="2"/><path d="M8 16c0-3 8-3 8 0"/></svg><span class="sidebar-label">Cuentas administrativas</span></button>
       <span class="side-nav-divider" id="sys-nav-divider" hidden>SISTEMAS</span>
       <button data-view="cert-cuentas" id="nav-cert-cuentas" data-sidebar-tooltip="Cuentas de certificados" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M7 7h10M7 11h6"/><circle cx="17" cy="17" r="3"/><path d="m15 19-1 4 3-1 3 1-1-4"/></svg><span class="sidebar-label">Cuentas de certificados</span></button>
       <button data-view="zoom" id="nav-zoom" data-sidebar-tooltip="Reuniones Zoom" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="3"/><path d="m15 10 6-4v12l-6-4"/></svg><span class="sidebar-label">Reuniones Zoom</span></button>
@@ -1340,6 +1342,16 @@
       <div id="rec-inbox-root"></div>
     </section>
 
+    <section class="view admin-accounts" id="view-admin-cuentas" aria-labelledby="aa-title" hidden>
+      <header class="aa-head"><div><p class="aa-eyebrow">DIRECCIÓN · ACCESOS</p><h1 id="aa-title">Cuentas administrativas</h1><p>Administra los accesos del equipo y conserva su historial.</p></div><div class="aa-head-actions"><button type="button" id="aa-refresh">Actualizar</button><button type="button" class="aa-primary" id="aa-new">Crear administrador</button></div></header>
+      <div id="aa-message" class="aa-message" role="status" aria-live="polite"></div>
+      <section class="aa-guardians" aria-labelledby="aa-guardians-title"><header><div><h2 id="aa-guardians-title">Superadministradores</h2><p>Dos responsables. Para salir, primero delega tu lugar.</p></div><span class="aa-tag">2 puestos protegidos</span></header><div id="aa-guardians" class="aa-guardians-grid"></div></section>
+      <div class="aa-toolbar"><div class="aa-tabs" role="group" aria-label="Estado de las cuentas"><button type="button" id="aa-tab-active" aria-pressed="true">Activas <span id="aa-count-active">0</span></button><button type="button" id="aa-tab-other" aria-pressed="false">Suspendidas y archivadas <span id="aa-count-other">0</span></button></div><label class="aa-search">Buscar cuenta<input id="aa-search" type="search" placeholder="Nombre o correo" autocomplete="off"></label></div>
+      <div class="aa-list-meta"><p id="aa-count"></p><label id="aa-state-wrap" hidden>Mostrar <select id="aa-state"><option value="">Todas</option><option value="suspendida">Suspendidas</option><option value="archivada">Archivadas</option></select></label></div>
+      <div id="aa-list" class="aa-grid" aria-busy="false"></div>
+      <details class="aa-history"><summary>Historial de operaciones <span>Últimas 50</span></summary><div id="aa-history"></div></details>
+      <dialog id="aa-dialog" class="aa-dialog" aria-labelledby="aa-dialog-title" aria-describedby="aa-dialog-help"><form id="aa-form"><header><h2 id="aa-dialog-title"></h2><button type="button" id="aa-dialog-close" aria-label="Cerrar formulario">×</button></header><p id="aa-dialog-help"></p><div id="aa-fields" class="aa-fields"></div><p id="aa-dialog-message" class="aa-message" role="status" aria-live="polite"></p><footer><button type="button" id="aa-cancel">Cancelar</button><button type="submit" id="aa-save" class="aa-primary">Guardar</button></footer></form></dialog>
+    </section>
     <section class="view cert-accounts" id="view-cert-cuentas" aria-labelledby="cert-accounts-title" hidden>
       <header class="cert-accounts-head">
         <div class="cert-head-brand">
@@ -3806,7 +3818,8 @@
 <script src="assets/js/dashboard-skeleton.js?v=8"></script>
 <script src="assets/js/reclutamiento-api.js?v=1"></script>
 <script src="assets/js/dashboard-avatar.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=retirada-35-3"></script>
+<script src="assets/js/dashboard-admin-accounts.js?v=1"></script>
+<script src="assets/js/dashboard.js?v=admin-accounts-37-1"></script>
 <script src="assets/js/dashboard-reclutamiento.js?v=11"></script>
 <script src="assets/js/dashboard-overview-modal.js?v=1"></script>
 <script src="assets/js/dashboard-evidence-corrections.js?v=1"></script>
