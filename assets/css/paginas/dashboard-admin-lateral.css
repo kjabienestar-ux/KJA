@@ -135,13 +135,27 @@
   .admin-lateral,.admin-rail-toggle,.admin-context-bar,.admin-breadcrumb{display:none !important}
 }
 
+/* Colaborador con la barra en iconos: una sola columna de 44px con todo centrado.
+   Su perfil vive en Mi espacio, así que el pie conserva solo Cerrar sesión. */
+@media (min-width:901px){
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"]{--sidebar-width:64px}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] > #sidebar{padding-inline:9px !important}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-nav button{justify-content:center;margin-inline:0}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-nav-divider:not([hidden]){margin:10px auto}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .guided-tour-trigger svg{position:static}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-user{display:flex;justify-content:center;height:auto;flex:0 0 auto}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-user .side-user-copy{display:none !important}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar #logout{margin:0}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #logout::after{display:none}
+}
+@media (min-width:901px) and (max-width:1280px){
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"]{grid-template-columns:80px minmax(0,1fr) clamp(220px,28vw,330px)}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-view="inicio"][data-admin-rail="icons"]{grid-template-columns:80px minmax(0,1fr)}
+}
 @media (min-width:1281px){
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"]{--sidebar-width:64px;grid-template-columns:80px minmax(0,1fr) 394px}
+  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"]{grid-template-columns:80px minmax(0,1fr) 394px}
   #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-brand{width:100%;flex-basis:68px}
   #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-brand img{left:50%;transform:translateX(-50%)}
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-user{position:relative;display:grid;height:auto;flex:0 0 auto;grid-template-columns:1fr;align-items:center}
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-user .side-user-copy{position:relative;left:auto;top:auto;opacity:1;transform:none;padding:0}
-  #portal[data-personal="true"]:not(.admin-wide):not([data-view="marketing"])[data-admin-rail="icons"] #sidebar .side-user #logout{position:relative;left:auto;top:auto}
 }
 
 /* Fondo común del área de trabajo en escritorio. */
