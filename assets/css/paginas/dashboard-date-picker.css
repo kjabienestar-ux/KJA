@@ -27,6 +27,14 @@
   animation:kjaDateFadeIn .18s cubic-bezier(.16,1,.3,1);
 }
 .kja-date-popup[hidden]{display:none!important}
+.kja-date-range-enabled .kja-date-range-summary{font-size:11px;line-height:1.5;flex:1;color:#51483f;font-weight:600}
+.kja-date-range-enabled .kja-date-apply{border:0;border-radius:10px;padding:11px 14px;background:#9b5b40;color:#fff;font-weight:700;cursor:pointer}
+.kja-date-range-enabled .kja-date-apply:disabled{opacity:.45;cursor:default}
+.kja-date-range-enabled .kja-date-grid{gap:3px 0}
+.kja-date-range-enabled.is-range-mode .kja-date-day.is-in-range:not(.is-selected){border-radius:0;background:#eee3d7;color:#9b5b40;box-shadow:none;transform:none}
+.kja-date-range-enabled.is-range-mode .kja-date-day.is-selected{background:#9b5b40!important;box-shadow:none;border-radius:9px}
+.kja-date-range-enabled.is-range-mode .kja-date-day:disabled{text-decoration:line-through}
+.kja-date-range-enabled.is-range-mode .kja-date-day.is-today:not(.is-selected){text-decoration:underline;border:0}
 @keyframes kjaDateFadeIn{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .kja-date-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .kja-date-title{font-size:14.5px;font-weight:700;color:#403955;letter-spacing:-.01em;text-transform:capitalize}

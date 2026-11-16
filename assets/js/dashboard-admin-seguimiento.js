@@ -29,6 +29,7 @@
   const S={date:'',query:'',area:'',queue:'attention',segment:'',person:null,delivery:null,requirement:'',file:0,note:'',busy:false,loading:false,snapshot:null,generation:0,mediaGeneration:0,owner:'',signed:[],message:'',tone:'',scroll:0};
   const requests=new Map(),signedCache=new Map();
   let currentLoad=null;
+  let syncAreaFilter=()=>{};
   function mount(){
     root.innerHTML='<header class="seg-heading"><div class="seg-brand"><span class="seg-mark">'+icon('calendar')+'</span><div><div class="seg-eyebrow">OPERACIÓN DEL DÍA <span class="seg-pilot">En prueba</span></div><h2 id="seg-title">Seguimiento diario</h2><p id="seg-subtitle">El equipo, sus jornadas y sus entregas.</p></div></div><div class="seg-head-actions"><span id="seg-updated"></span>'+button('export',icon('download'),'seg-icon','id="seg-export" aria-label="Descargar CSV del día completo" title="Descargar CSV del día completo" disabled')+'</div></header>'+
       '<div class="seg-toolbar"><div class="seg-date">'+button('prev','‹','seg-icon','aria-label="Día anterior"')+'<label><span class="sr-only">Fecha de seguimiento</span><input id="seg-date" type="date" min="2020-01-01"></label>'+button('next','›','seg-icon','aria-label="Día siguiente"')+button('today','Hoy')+'</div><label class="seg-search">'+icon('search')+'<span class="sr-only">Buscar persona o área</span><input id="seg-search" type="search" placeholder="Buscar persona o área" autocomplete="off"></label><label class="seg-area"><span class="sr-only">Filtrar por área</span><select id="seg-area"><option value="">Todas las áreas</option></select></label>'+button('clear','Limpiar','seg-clear','id="seg-clear" hidden')+'</div>'+
@@ -36,6 +37,8 @@
       '<div id="seg-workspace" class="seg-workspace" aria-busy="false"><div class="seg-empty">Selecciona una fecha para consultar.</div></div>'+
       '<details class="seg-panorama" id="seg-panorama"><summary>'+icon('chart')+'<span>Panorama del día por áreas</span>'+icon('down')+'</summary><div id="seg-areas" class="seg-area-grid"></div></details>';
     S.date=isoLima();$s('date').value=S.date;$s('date').max=isoLima();
+    if(typeof initAreaPickerElement==='function')initAreaPickerElement($s('area'),'seg-area-popup','seg-area-options','Filtra el seguimiento por equipo',fn=>syncAreaFilter=fn);
+    if(typeof initKjaDatePicker==='function')initKjaDatePicker($s('date'),{label:'Fecha de seguimiento',popupId:'seg-date-popup',theme:'warm'});
   }
   function message(text='',tone=''){
     S.message=text;S.tone=tone;$s('message').hidden=!text;$s('message').textContent=text;$s('message').dataset.tone=tone;
@@ -197,6 +200,7 @@
     $s('export').disabled=!data||data.partial||S.loading||!data.exportIds.size;
     $s('clear').hidden=!(S.query||S.area||S.segment);
     $s('date').disabled=S.busy;$s('date').max=isoLima();
+    syncAreaFilter();if(typeof syncKjaDatePickers==='function')syncKjaDatePickers();
     root.querySelector('[data-seg="next"]').disabled=S.date>=isoLima()||S.busy;
     root.querySelector('[data-seg="prev"]').disabled=S.date<='2020-01-01'||S.busy;
     const dateText=new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'long',timeZone:'America/Lima'}).format(new Date(S.date+'T12:00:00-05:00'));
@@ -392,6 +396,7 @@
     }
   }
   mount();
+  global.KJASeguimientoExcel?.mount(root,()=>({date:S.date,area:S.area,query:S.query,owner:sessionKey(),allowed:isDirection()&&!!APP.access?.acceso_panel}),read);
   root.addEventListener('click',event=>{void handle(event).catch(()=>message('No se pudo completar la acción. Actualiza e inténtalo nuevamente.','error'))});
   $s('search').addEventListener('input',()=>{
     if((S.person||S.busy)&&!canLeave()){$s('search').value=S.query;return}

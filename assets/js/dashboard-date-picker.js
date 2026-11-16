@@ -18,7 +18,7 @@ function kjaDateBounds(input,partner,role){
   return {min,max};
 }
 
-function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',openEnded=false}){
+function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',openEnded=false,rangeMode=null}){
   if(!input)return;
   const wrap=document.createElement('div');wrap.className='kja-date-picker';
   wrap.innerHTML=`<button type="button" class="kja-date-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="${popupId}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="kja-date-text">dd/mm/aaaa</span><svg class="kja-date-chevron" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
@@ -47,6 +47,17 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
   }
   if(theme)popup.classList.add(`kja-date-${theme}`);
   let opened=false,year=0,month=0;
+  let draftStart='',draftEnd='';
+  const range=()=>rangeMode&&rangeMode()!=='day';
+  const shift=(d,n)=>{const date=new Date(d+'T12:00:00Z');date.setUTCDate(date.getUTCDate()+n);return date.toISOString().slice(0,10)};
+  const shortDate=d=>new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'short',timeZone:'America/Lima'}).format(new Date(d+'T12:00:00Z'));
+  const summary=rangeMode?document.createElement('span'):null,apply=rangeMode?document.createElement('button'):null;
+  if(rangeMode){
+    summary.className='kja-date-range-summary';summary.setAttribute('aria-live','polite');
+    apply.type='button';apply.className='kja-date-apply';apply.textContent='Aplicar';
+    popup.querySelector('footer').prepend(summary);popup.querySelector('footer').append(apply);
+    popup.classList.add('kja-date-range-enabled');
+  }
 
   function isInside(target){
     if(!target)return false;
@@ -60,13 +71,21 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
     );
   }
   function sync(){
-    text.textContent=kjaDateDisplay(input.value);
+    text.textContent=range()?`${kjaDateDisplay(input.value)} → ${kjaDateDisplay(partner?.value)}`:kjaDateDisplay(input.value);
     trigger.setAttribute('aria-label',`${label}: ${text.textContent}`);
     trigger.disabled=input.disabled;
     if(opened)render();
   }
   function render(){
-    const {min,max}=kjaDateBounds(input,partner,role),today=kjaDateToday(),selected=input.value;
+    const {min,max}=kjaDateBounds(input,rangeMode?null:partner,role),today=kjaDateToday(),selected=range()?draftStart:input.value;
+    if(rangeMode){
+      popup.classList.toggle('is-range-mode',!!range());
+      summary.hidden=apply.hidden=!range();todayButton.hidden=!!range();closeBtn.hidden=!!range();
+      const count=draftStart&&draftEnd?Math.round((Date.parse(draftEnd)-Date.parse(draftStart))/864e5)+1:0;
+      summary.textContent=count?`${shortDate(draftStart)} → ${shortDate(draftEnd)} · ${count} día${count===1?'':'s'}`:'Elige la fecha final.';
+      apply.disabled=count<=0||count>93;
+      if(count>93)summary.textContent+=' · Máximo 93 días';
+    }
     title.textContent=`${KJA_DATE_MONTHS[month-1]} ${year}`;
     const lastPrev=new Date(year,month-1,0),prevEnd=kjaDateIso(lastPrev.getFullYear(),lastPrev.getMonth()+1,lastPrev.getDate());
     const systemMin=input.min||'2020-01-01',systemMax=input.max||(openEnded?'':today);
@@ -76,7 +95,8 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
     let html='<span class="kja-date-empty" aria-hidden="true"></span>'.repeat(offset);
     for(let d=1;d<=count;d++){
       const value=kjaDateIso(year,month,d),off=(min&&value<min)||(max&&value>max);
-      html+=`<button type="button" class="kja-date-day${value===selected?' is-selected':''}${value===today?' is-today':''}" data-date="${value}" ${off?'disabled':''} aria-pressed="${value===selected}" aria-label="${d} de ${KJA_DATE_MONTHS[month-1]} de ${year}${value===today?' (Hoy)':''}">${d}</button>`;
+      const inside=range()&&draftStart&&draftEnd&&value>=draftStart&&value<=draftEnd;
+      html+=`<button type="button" class="kja-date-day${value===selected||range()&&value===draftEnd?' is-selected':''}${inside?' is-in-range':''}${range()&&value===draftStart?' is-start':''}${range()&&value===draftEnd?' is-end':''}${value===today?' is-today':''}" data-date="${value}" ${off?'disabled':''} aria-pressed="${!!inside||value===selected}" aria-label="${d} de ${KJA_DATE_MONTHS[month-1]} de ${year}${value===today?' (Hoy)':''}">${d}</button>`;
     }
     grid.innerHTML=html;
     todayButton.disabled=(min&&today<min)||(max&&today>max)||false;
@@ -87,7 +107,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
       close();
       return;
     }
-    const width=Math.min(290,window.innerWidth-24);
+    const width=Math.min(rangeMode?330:290,window.innerWidth-24);
     popup.style.width=`${width}px`;
     popup.style.left=`${Math.max(12,Math.min(r.left,window.innerWidth-width-12))}px`;
     popup.style.right='auto';
@@ -110,8 +130,11 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
         if(t!==trigger)t.setAttribute('aria-expanded','false');
       });
     }catch(_){}
-    const base=/^\d{4}-\d{2}-\d{2}$/.test(input.value)?input.value:kjaDateToday();
+    let base=/^\d{4}-\d{2}-\d{2}$/.test(input.value)?input.value:partner?.value||kjaDateToday();
+    if(input.max&&base>input.max)base=input.max;
+    if(input.min&&base<input.min)base=input.min;
     [year,month]=base.split('-').map(Number);
+    draftStart=input.value;draftEnd=partner?.value||'';
     opened=true;popup.hidden=false;
     try{if(popup.showPopover)popup.showPopover();}catch(_){}
     trigger.setAttribute('aria-expanded','true');
@@ -119,6 +142,15 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
     position();
   }
   function choose(value){
+    if(range()){
+      if(rangeMode()==='week'){
+        const dow=new Date(value+'T12:00:00Z').getUTCDay();draftStart=shift(value,-((dow+6)%7));draftEnd=shift(draftStart,6);
+        if(input.min&&draftStart<input.min)draftStart=input.min;
+        if(input.max&&draftEnd>input.max)draftEnd=input.max;
+      }else if(!draftStart||draftEnd){draftStart=value;draftEnd='';}
+      else {draftEnd=value;if(draftEnd<draftStart)[draftStart,draftEnd]=[draftEnd,draftStart];}
+      render();return;
+    }
     close(true);input.value=value;sync();
     input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));
   }
@@ -156,6 +188,11 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
   bindAction(next, () => move(1));
   bindAction(closeBtn, () => close(true));
   bindAction(todayButton, () => choose(kjaDateToday()));
+  if(rangeMode)bindAction(apply,()=>{
+    if(apply.disabled)return;
+    input.value=draftStart;partner.value=draftEnd;close(true);sync();
+    input.dispatchEvent(new Event('change',{bubbles:true}));partner.dispatchEvent(new Event('change',{bubbles:true}));
+  });
   popup.addEventListener('click',e=>e.stopPropagation());
   popup.addEventListener('pointerdown',e=>e.stopPropagation());
   const parentLabel=input.closest?.('label');
