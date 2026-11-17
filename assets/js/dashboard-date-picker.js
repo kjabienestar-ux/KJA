@@ -18,8 +18,9 @@ function kjaDateBounds(input,partner,role){
   return {min,max};
 }
 
-function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',openEnded=false,rangeMode=null}){
+function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',openEnded=false,rangeMode=null,embedded=false,confirmSelection=false,persistent=false,onToggle=null,onPendingChange=null}){
   if(!input)return;
+  persistent=!!(persistent&&embedded&&confirmSelection);
   const wrap=document.createElement('div');wrap.className='kja-date-picker';
   wrap.innerHTML=`<button type="button" class="kja-date-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="${popupId}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="kja-date-text">dd/mm/aaaa</span><svg class="kja-date-chevron" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
     <div id="${popupId}" class="kja-date-popup" role="dialog" aria-label="${label}" hidden>
@@ -42,17 +43,22 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
         next=wrap.querySelector('[data-nav="1"]')||popup.querySelector('[data-nav="1"]'),
         closeBtn=wrap.querySelector('.kja-date-close')||popup.querySelector('.kja-date-close');
 
-  if(typeof document !== 'undefined' && document.body && typeof document.body.appendChild === 'function'){
+  if(embedded)popup.classList.add('kja-date-embedded');
+  if(persistent){trigger.hidden=true;popup.setAttribute('role','group');}
+  if(!embedded&&typeof document !== 'undefined' && document.body && typeof document.body.appendChild === 'function'){
     document.body.appendChild(popup);
   }
   if(theme)popup.classList.add(`kja-date-${theme}`);
   let opened=false,year=0,month=0;
-  let draftStart='',draftEnd='';
+  let draftStart='',draftEnd='',pending=false;
+  function markPending(value){pending=value;if(onPendingChange)onPendingChange(value);}
+  function resetSelection(){draftStart=draftEnd='';markPending(true);if(opened)render();}
+  function focusCalendar(){(grid.querySelector('[aria-pressed="true"]')||grid.querySelector('[data-date]:not(:disabled)'))?.focus({preventScroll:true});}
   const range=()=>rangeMode&&rangeMode()!=='day';
   const shift=(d,n)=>{const date=new Date(d+'T12:00:00Z');date.setUTCDate(date.getUTCDate()+n);return date.toISOString().slice(0,10)};
   const shortDate=d=>new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'short',timeZone:'America/Lima'}).format(new Date(d+'T12:00:00Z'));
-  const summary=rangeMode?document.createElement('span'):null,apply=rangeMode?document.createElement('button'):null;
-  if(rangeMode){
+  const summary=rangeMode||confirmSelection?document.createElement('span'):null,apply=rangeMode||confirmSelection?document.createElement('button'):null;
+  if(summary){
     summary.className='kja-date-range-summary';summary.setAttribute('aria-live','polite');
     apply.type='button';apply.className='kja-date-apply';apply.textContent='Aplicar';
     popup.querySelector('footer').prepend(summary);popup.querySelector('footer').append(apply);
@@ -77,13 +83,14 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
     if(opened)render();
   }
   function render(){
-    const {min,max}=kjaDateBounds(input,rangeMode?null:partner,role),today=kjaDateToday(),selected=range()?draftStart:input.value;
-    if(rangeMode){
+    const {min,max}=kjaDateBounds(input,rangeMode?null:partner,role),today=kjaDateToday(),selected=range()||confirmSelection?draftStart:input.value;
+    if(summary){
       popup.classList.toggle('is-range-mode',!!range());
-      summary.hidden=apply.hidden=!range();todayButton.hidden=!!range();closeBtn.hidden=!!range();
+      summary.hidden=apply.hidden=!range()&&!confirmSelection;todayButton.hidden=!!range()||confirmSelection;closeBtn.hidden=!!range()&&!confirmSelection;
+      if(confirmSelection)closeBtn.textContent=persistent?'Limpiar':'Cancelar';
       const count=draftStart&&draftEnd?Math.round((Date.parse(draftEnd)-Date.parse(draftStart))/864e5)+1:0;
-      summary.textContent=count?`${shortDate(draftStart)} → ${shortDate(draftEnd)} · ${count} día${count===1?'':'s'}`:'Elige la fecha final.';
-      apply.disabled=count<=0||count>93;
+      summary.textContent=count?`${shortDate(draftStart)}${draftEnd!==draftStart?' → '+shortDate(draftEnd):''} · ${count} día${count===1?'':'s'}${persistent&&pending?' · Pendiente de aplicar':''}`:draftStart?'Elige la fecha final.':rangeMode?.()==='week'?'Elige una semana.':range()?'Elige la fecha inicial y final.':'Elige un día.';
+      apply.disabled=count<=0||count>93||persistent&&!pending;
       if(count>93)summary.textContent+=' · Máximo 93 días';
     }
     title.textContent=`${KJA_DATE_MONTHS[month-1]} ${year}`;
@@ -102,6 +109,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
     todayButton.disabled=(min&&today<min)||(max&&today>max)||false;
   }
   function position(){
+    if(embedded)return;
     const r=trigger.getBoundingClientRect();
     if(r.bottom<0||r.top>window.innerHeight){
       close();
@@ -117,11 +125,13 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
   }
   function close(focus=false){
     if(!opened)return;opened=false;
-    try{if(popup.hidePopover)popup.hidePopover();}catch(_){}
+    try{if(!embedded&&popup.hidePopover)popup.hidePopover();}catch(_){}
     popup.hidden=true;trigger.setAttribute('aria-expanded','false');
+    if(onToggle)onToggle(false);
     if(focus)trigger.focus({preventScroll:true});
   }
   function open(){
+    if(persistent&&opened)return;
     try{
       document.querySelectorAll?.('.kja-date-popup:not([hidden])').forEach(p=>{
         if(p!==popup)p.hidden=true;
@@ -134,12 +144,14 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
     if(input.max&&base>input.max)base=input.max;
     if(input.min&&base<input.min)base=input.min;
     [year,month]=base.split('-').map(Number);
-    draftStart=input.value;draftEnd=partner?.value||'';
+    draftStart=input.value;draftEnd=confirmSelection&&!range()?input.value:partner?.value||'';
+    if(persistent){draftStart=draftEnd='';markPending(true);}
     opened=true;popup.hidden=false;
-    try{if(popup.showPopover)popup.showPopover();}catch(_){}
+    try{if(!embedded&&popup.showPopover)popup.showPopover();}catch(_){}
     trigger.setAttribute('aria-expanded','true');
     render();
     position();
+    if(onToggle)onToggle(true);
   }
   function choose(value){
     if(range()){
@@ -149,8 +161,10 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
         if(input.max&&draftEnd>input.max)draftEnd=input.max;
       }else if(!draftStart||draftEnd){draftStart=value;draftEnd='';}
       else {draftEnd=value;if(draftEnd<draftStart)[draftStart,draftEnd]=[draftEnd,draftStart];}
-      render();return;
+      if(persistent)markPending(true);
+      render();grid.querySelector(`[data-date="${value}"]`)?.focus({preventScroll:true});return;
     }
+    if(confirmSelection){draftStart=draftEnd=value;if(persistent)markPending(true);render();grid.querySelector(`[data-date="${value}"]`)?.focus({preventScroll:true});return;}
     close(true);input.value=value;sync();
     input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));
   }
@@ -186,12 +200,13 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
   trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();open();}});
   bindAction(prev, () => move(-1));
   bindAction(next, () => move(1));
-  bindAction(closeBtn, () => close(true));
+  bindAction(closeBtn, () => {if(persistent){resetSelection();focusCalendar();}else close(true);});
   bindAction(todayButton, () => choose(kjaDateToday()));
-  if(rangeMode)bindAction(apply,()=>{
+  if(apply)bindAction(apply,()=>{
     if(apply.disabled)return;
-    input.value=draftStart;partner.value=draftEnd;close(true);sync();
-    input.dispatchEvent(new Event('change',{bubbles:true}));partner.dispatchEvent(new Event('change',{bubbles:true}));
+    input.value=draftStart;if(partner)partner.value=draftEnd;if(persistent)pending=false;else close(true);sync();
+    input.dispatchEvent(new Event('change',{bubbles:true}));if(partner)partner.dispatchEvent(new Event('change',{bubbles:true}));
+    if(persistent)markPending(false);
   });
   popup.addEventListener('click',e=>e.stopPropagation());
   popup.addEventListener('pointerdown',e=>e.stopPropagation());
@@ -216,7 +231,7 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
     if(target&&!target.disabled)target.focus({preventScroll:true});
   });
   const onEscape=e=>{
-    if(e.key==='Escape'&&opened){
+    if(e.key==='Escape'&&opened&&!persistent){
       e.preventDefault();
       e.stopPropagation();
       close(true);
@@ -224,14 +239,15 @@ function initKjaDatePicker(input,{label,partner=null,role='',popupId,theme='',op
   };
   wrap.addEventListener('keydown',onEscape);
   popup.addEventListener('keydown',onEscape);
-  document.addEventListener('pointerdown',e=>{if(opened&&!isInside(e.target))close();});
-  document.addEventListener('focusin',e=>{if(opened&&!isInside(e.target))close();});
+  document.addEventListener('pointerdown',e=>{if(opened&&!embedded&&!isInside(e.target))close();});
+  document.addEventListener('focusin',e=>{if(opened&&!embedded&&!isInside(e.target))close();});
   window.addEventListener('resize',()=>{if(opened)position();});
   window.addEventListener('scroll',()=>{if(opened)position();},{passive:true,capture:true});
   document.addEventListener('scroll',()=>{if(opened)position();},{passive:true,capture:true});
   input.addEventListener('change',sync);
   KJA_DATE_SYNCS.push(sync);
   sync();
+  return {open,close,sync,resetSelection,focus:focusCalendar,isPending:()=>pending,isOpen:()=>opened};
 }
 
 // Selector de mes con el mismo lenguaje visual; el input month sigue siendo la fuente del valor.

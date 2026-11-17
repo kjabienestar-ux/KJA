@@ -15,8 +15,25 @@
   #portal #admin-people-section.pw-workbench .admin-team-heading-icon{color:#a9583e;background:#f2e2d5;box-shadow:none}
   #portal #admin-people-section.pw-workbench .admin-team-actions{grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   #portal #admin-people-section.pw-workbench .admin-team-search-wrap{flex:1;min-width:230px}
-  #portal #admin-people-section.pw-workbench :is(input,select,button,.admin-toggle,.admin-area-picker-trigger,.admin-institution-picker-trigger){font-family:Inter,system-ui,sans-serif;font-size:13px;min-height:44px;box-shadow:none;transition:background-color .15s,color .15s}
-  #portal #admin-people-section.pw-workbench :is(input[type=search],select,.admin-toggle,.admin-area-picker-trigger,.admin-institution-picker-trigger){border:1px solid #998b7f!important;background:#fcfaf7!important;color:#282622!important;border-radius:9px}
+  #portal #admin-people-section.pw-workbench :is(input,select,button,.admin-toggle,.admin-area-picker-trigger,.admin-institution-picker-trigger,.area-picker-trigger){font-family:Inter,system-ui,sans-serif;font-size:13px;min-height:44px;box-shadow:none;transition:background-color .15s,color .15s}
+  #portal #admin-people-section.pw-workbench :is(input[type=search],select,.admin-toggle,.admin-area-picker-trigger,.admin-institution-picker-trigger,.area-picker-trigger){border:1px solid #998b7f!important;background:#fcfaf7!important;color:#282622!important;border-radius:9px}
+  /* Misma paleta de los filtros de Contratos, incluidos los selectores compartidos. */
+  #portal #admin-people-section.pw-workbench button.area-picker-trigger{color:#51483f!important;transition-property:background-color,border-color,color,box-shadow}
+  #portal #admin-people-section.pw-workbench .area-picker-trigger svg{color:#a9583e}
+  #portal #admin-people-section.pw-workbench .area-picker-trigger.has-selection{background:#f2e2d5!important;border-color:#a9583e!important;color:#79452f!important}
+  #portal #admin-people-section.pw-workbench .area-picker-trigger:is([aria-expanded=true],:focus-visible){border-color:#a9583e!important;outline:2px solid #a9583e;outline-offset:2px;box-shadow:none}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup){border-color:#cbb9a6;background:#fffefa;color:#38312b;box-shadow:0 16px 38px #60473024}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) .area-picker-search{border-color:#998b7f;background:#fcfaf7;color:#93472f;transition-property:background-color,border-color,box-shadow}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) .area-picker-search:focus-within{border-color:#a9583e;background:#fffdf9;box-shadow:0 0 0 2px #f2e2d5}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) input{color:#51483f;caret-color:#a9583e}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) input::placeholder{color:#69635d}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) [role=listbox]{scrollbar-color:#c6bbae transparent}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) .area-picker-option{color:#51483f;transition-property:background-color,color}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) .area-picker-option:is([aria-selected=true],.is-focused){background:#f2e2d5;color:#79452f}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) .area-picker-option svg{color:#93472f}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) footer{background:#f8f1e8;color:#69635d;border-color:#ded6cb}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) .area-picker-empty{color:#69635d}
+  :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) ::selection{background:#f2e2d5;color:#79452f}
   #portal #admin-people-section.pw-workbench input#admin-people-search{border-color:#998b7f!important;color:#282622!important;font-size:13px!important}
   #portal #admin-people-section.pw-workbench input#admin-people-search::placeholder{color:#69635d!important}
   #portal #admin-people-section.pw-workbench #admin-new-person{background:#a9583e!important;border-color:#a9583e!important;color:#fff!important;margin-left:auto}
@@ -306,7 +323,11 @@
   .pw-shift-head{display:grid;grid-template-columns:60px 1.3fr 1fr 1fr;gap:12px;padding:10px 14px;background:#f2ece5;color:#69635d;font-size:11px;font-weight:650}.pw-shift-head.pw-mixed{grid-template-columns:60px 1.2fr .8fr .8fr 1.1fr}
   .pw-more-filters{position:relative;flex-shrink:0}.pw-more-filters>summary{display:flex;align-items:center;min-height:44px;padding:10px 14px;border:1px solid #998b7f;border-radius:9px;background:#fcfaf7;color:#282622;font-size:13px;cursor:pointer;list-style:none}.pw-more-filters>summary::-webkit-details-marker{display:none}.pw-more-filters>div{position:absolute;right:0;top:calc(100% + 8px);z-index:5;min-width:240px;padding:14px;display:flex;flex-direction:column;gap:12px;background:#fcfaf7;border:1px solid #cbb9a6;border-radius:12px;box-shadow:0 8px 25px #30201520}
   #portal #admin-people-section.pw-workbench .pw-more-filters input[type=checkbox]{min-height:18px!important;width:18px;height:18px;padding:0}
-  @media (hover:hover){#admin-person-modal.pw-legacy-editor .admin-field-add:not(:disabled):hover,#admin-person-modal.pw-legacy-editor .admin-editor-nav button:hover{background:#f5e8db}#portal #admin-people-section.pw-workbench .pw-card-edit:hover,.pw-step:not(:disabled):hover{background:#f5e8db;border-color:#dcbfa9}.pw-button.pw-soft:not(:disabled):hover{background:#ecd5c4}.pw-button:not(:disabled):hover,.pw-actions>summary:hover{background:#f5e8db}.pw-button.pw-primary:not(:disabled):hover{background:#8e432b}.pw-profile-tabs button:hover{color:#93472f}}
+  @media (hover:hover){
+    #portal #admin-people-section.pw-workbench .area-picker-trigger:hover{background:#f3eee6!important;border-color:#aa9786!important}
+    :is(#area-picker-popup,#institution-picker-popup,#email-picker-popup) .area-picker-option:hover{background:#f2e2d5;color:#79452f}
+    #admin-person-modal.pw-legacy-editor .admin-field-add:not(:disabled):hover,#admin-person-modal.pw-legacy-editor .admin-editor-nav button:hover{background:#f5e8db}#portal #admin-people-section.pw-workbench .pw-card-edit:hover,.pw-step:not(:disabled):hover{background:#f5e8db;border-color:#dcbfa9}.pw-button.pw-soft:not(:disabled):hover{background:#ecd5c4}.pw-button:not(:disabled):hover,.pw-actions>summary:hover{background:#f5e8db}.pw-button.pw-primary:not(:disabled):hover{background:#8e432b}.pw-profile-tabs button:hover{color:#93472f}
+  }
 }
 /* Calendario flotante del panel de fechas de la jornada: queda fijo en pantalla, por encima del editor. */
 #admin-person-modal .editor-calendar.editor-calendar-floating{position:fixed;inset:auto;right:auto;margin:0;z-index:12000;box-sizing:border-box;overflow:visible}

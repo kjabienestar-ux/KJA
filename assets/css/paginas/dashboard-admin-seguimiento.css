@@ -1,23 +1,106 @@
 /* Seguimiento diario · marfil editorial, acento cobre, estados con texto.
    Alcance exclusivo del piloto; el lateral y los módulos anteriores se conservan. */
-#admin-seguimiento-section .seg-excel{background:var(--seg-paper);border:1px solid var(--seg-line);border-radius:12px;padding:16px}
-#admin-seguimiento-section .seg-excel summary{cursor:pointer;font-weight:700;color:var(--seg-accent)}
-#admin-seguimiento-section .seg-excel-controls{display:flex;align-items:end;gap:16px;margin:16px 0}
-#admin-seguimiento-section .seg-excel label{display:grid;gap:5px;font-weight:600}
-#admin-seguimiento-section .seg-excel :is(input,select){min-height:40px;padding:8px;border:1px solid #8c8173;border-radius:7px;background:white;color:#302c26}
-#admin-seguimiento-section .seg-excel p{font-size:12px;color:var(--seg-muted);margin-top:8px}
+/* Descargas unificadas · propuesta de escritorio aprobada en KJA-039. */
+#seg-download-dialog{width:568px;max-width:calc(100vw - 48px);max-height:none;margin:auto;padding:0;overflow:visible;border:1px solid #e0d7cc;border-radius:20px;background:#faf9f5;color:#24241f;box-shadow:0 6px 18px #32251c12,0 30px 70px #32251c30;font:400 12px/1.5 Inter,system-ui,sans-serif;color-scheme:light}
+#seg-download-dialog::backdrop{background:#28231e55;backdrop-filter:blur(3px)}
+#seg-download-dialog *,#seg-download-dialog *::before,#seg-download-dialog *::after{box-sizing:border-box}
+#seg-download-dialog [hidden]{display:none!important}
+#seg-download-dialog :is(h3,h4,p){margin:0}
+#seg-download-dialog :is(h3,h4){font-family:var(--claude-display,'Fraunces',Georgia,serif);font-weight:400;letter-spacing:-.035em}
+#seg-download-dialog svg{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#seg-download-dialog :is(button,input,select){font:500 12px/1.4 Inter,system-ui,sans-serif}
+#seg-download-dialog button{cursor:pointer}
+#seg-download-dialog button:disabled{opacity:.45;cursor:default}
+#seg-download-dialog :is(button,input):focus-visible{outline:3px solid #98492e;outline-offset:3px}
+#seg-download-dialog .seg-d-head{padding:18px 24px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+#seg-download-dialog h3{font-size:28px;line-height:1.2}
+#seg-download-dialog #seg-download-intro{font-size:12px;line-height:1.6;color:#6a665f;margin-top:6px}
+#seg-download-dialog .seg-d-close{display:grid;place-items:center;width:30px;height:30px;flex-shrink:0;padding:4px;border:0;background:transparent;color:#6a665f;border-radius:7px}
+#seg-download-dialog .seg-d-body{padding:16px 24px 18px}
+#seg-download-dialog .seg-d-option{display:flex;align-items:center;width:100%;padding:18px 16px;border:1px solid #d9cdc0;border-radius:12px;background:#fcfaf7;color:#24241f;text-align:left;gap:14px}
+#seg-download-dialog .seg-d-option+.seg-d-option{margin-top:12px}
+#seg-download-dialog .seg-d-file-icon{width:42px;height:46px;display:grid;place-items:center;background:#eee3d7;border-radius:9px;color:#98492e;flex-shrink:0}
+#seg-download-dialog .seg-d-file-icon svg{width:22px;height:22px}
+#seg-download-dialog .seg-d-file-text{flex:1;min-width:0}
+#seg-download-dialog .seg-d-file-text b{display:block;font-size:14px;font-weight:600;letter-spacing:-.01em}
+#seg-download-dialog .seg-d-file-text small{display:block;font-size:11px;line-height:1.5;color:#6a665f;margin:5px 0}
+#seg-download-dialog .seg-d-file-text>span{font-size:10px;color:#98492e}
+#seg-download-dialog .seg-d-file-text em{font:600 9px Inter,system-ui,sans-serif;color:#765f4d;background:#eee7dc;border-radius:4px;padding:3px 5px;margin-left:5px;vertical-align:middle;letter-spacing:.04em}
+#seg-download-dialog .seg-d-option>svg{width:17px;height:17px;color:#927156}
+#seg-download-dialog .seg-d-note{display:flex;align-items:flex-start;gap:8px;font-size:10px;line-height:1.6;color:#6a665f;margin-top:18px}
+#seg-download-dialog .seg-d-note svg{width:14px;height:14px;margin-top:1px}
+#seg-download-dialog .seg-d-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-top:1px solid #e2d9cd;border-radius:0 0 20px 20px;background:#f5f1ea;gap:12px}
+#seg-download-dialog .seg-d-actions{display:flex;align-items:center;gap:12px;margin-left:auto}
+#seg-download-dialog :is(.seg-d-back,.seg-d-dismiss){display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;color:#6a665f;padding:8px 0;min-height:36px;font-size:11px}
+#seg-download-dialog .seg-d-back svg{width:15px;height:15px}
+#seg-download-dialog .seg-d-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:8px 14px;border:1px solid #98492e;border-radius:9px;background:#98492e;color:#fffaf5;font-weight:600;white-space:nowrap}
+#seg-download-dialog .seg-d-context{display:flex;align-items:center;gap:7px;font-size:11px;color:#6a665f}
+#seg-download-dialog .seg-d-context svg{width:14px;height:14px;color:#98492e}
+#seg-download-dialog .seg-d-periods{display:flex;gap:4px;padding:3px;border:1px solid #e0d6ca;background:#eee8de;border-radius:10px;margin-bottom:12px}
+#seg-download-dialog .seg-d-periods button{flex:1;border:1px solid transparent;border-radius:6px;background:transparent;padding:6px 8px;color:#71665b;display:flex;align-items:center;justify-content:center;gap:7px;font-size:11px;white-space:nowrap}
+#seg-download-dialog .seg-d-periods button svg{width:14px;height:14px}
+#seg-download-dialog .seg-d-periods button[aria-pressed="true"]{background:#fcfaf7;color:#8c442c;border-color:#d8c7b6;box-shadow:0 1px 3px #3c2c1a0a}
+#seg-download-dialog .seg-d-date{display:block}
+#seg-download-dialog .seg-d-date>input:not(.sr-only){width:100%;min-height:44px;border:1px solid #998b7f;border-radius:9px;background:#fcfaf7;color:#51483f;padding:10px 13px}
+#seg-download-dialog .kja-date-picker .kja-date-trigger{display:flex;align-items:center;width:100%;min-height:44px;padding:11px 13px;gap:10px;border:1px solid #998b7f;border-radius:9px;background:#fcfaf7;color:#51483f;text-align:left;font-size:12px;font-weight:500;box-shadow:none;transition-property:background-color,border-color}
+#seg-download-dialog .kja-date-picker .kja-date-trigger>svg:first-child{display:block;color:#98492e}
+#seg-download-dialog .kja-date-trigger[aria-expanded="true"]{border-color:#a9583e;box-shadow:0 0 0 2px #f2e2d5}
+#seg-download-dialog .seg-d-scope{display:flex;align-items:flex-start;gap:10px;border-top:1px solid #ded6cb;padding-top:10px;margin-top:12px;color:#6a665f;font-size:10px;line-height:1.5}
+#seg-download-dialog .seg-d-scope>div{min-width:0;flex:1}
+#seg-download-dialog .seg-d-scope svg{width:16px;height:16px;margin-top:1px;color:#8b6c51}
+#seg-download-dialog .seg-d-scope b{font-weight:500;color:#51483f;display:block;font-size:11px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#seg-download-dialog .seg-d-alert{font-size:11px;line-height:1.6;background:#f5e6df;color:#893e29;border:1px solid #d9b9a7;border-radius:8px;padding:10px 12px;margin-top:10px}
+#seg-download-dialog .kja-date-embedded{position:static;inset:auto;width:100%;margin:0;padding:10px 12px;gap:6px;border:1px solid #d6c8b9;border-radius:12px;background:#fcfaf7;box-shadow:none;animation:none}
+#seg-download-dialog .kja-date-embedded .kja-date-title{font:600 12px Inter,system-ui,sans-serif;color:#51483f;letter-spacing:0}
+#seg-download-dialog .kja-date-nav{width:24px;height:24px;min-width:24px;min-height:24px;border-radius:6px;background:transparent;color:#8b6d53}
+#seg-download-dialog .kja-date-nav svg{width:15px;height:15px;stroke-width:1.7}
+#seg-download-dialog .kja-date-weekdays span{color:#746b60;font-size:10px;font-weight:500;padding:0}
+#seg-download-dialog .kja-date-grid{gap:2px 0}
+#seg-download-dialog .kja-date-day{height:26px;font-size:12px;font-weight:400;color:#51483f;transition:none}
+#seg-download-dialog .kja-date-empty{height:26px}
+#seg-download-dialog .kja-date-day.is-selected{background:#98492e!important;border-radius:6px;box-shadow:none;font-weight:600}
+#seg-download-dialog .kja-date-day.is-in-range:not(.is-selected){background:#efe0d0;color:#78422a}
+#seg-download-dialog .kja-date-day.is-today:not(.is-selected){border:1px solid #a57352;color:#78422a;background:transparent;text-decoration:none}
+#seg-download-dialog .kja-date-day:disabled{color:#8e867c;opacity:.45;text-decoration:none}
+#seg-download-dialog .kja-date-foot{border-top-color:#e7ddd1;padding-top:8px;gap:8px}
+#seg-download-dialog .kja-date-range-summary{font-size:10px;color:#6a665f;font-weight:400}
+#seg-download-dialog .kja-date-apply{min-height:28px;padding:4px 12px;border:1px solid #98492e;border-radius:9px;background:#98492e;color:#fffaf5;font-size:10px;font-weight:600}
+#seg-download-dialog .kja-date-close{font-size:10px;color:#6a665f;padding:0 2px}
+#seg-download-dialog .seg-d-state{text-align:center;padding:5px 0 1px}
+#seg-download-dialog .seg-d-state-icon{display:grid;place-items:center;width:54px;height:54px;background:#eee3d7;border:1px solid #dccbb8;border-radius:17px;color:#98492e;margin:0 auto 17px}
+#seg-download-dialog .seg-d-state-icon svg{width:25px;height:25px}
+#seg-download-dialog[data-stage="success"] .seg-d-state-icon{background:#e7eee4;border-color:#cbd8c5;color:#35664d}
+#seg-download-dialog[data-stage="error"] .seg-d-state-icon{background:#f5e6df;border-color:#ddc4b7;color:#93462f}
+#seg-download-dialog h4{font-size:25px;margin-bottom:10px}
+#seg-download-dialog #seg-download-description{font-size:12px;line-height:1.7;color:#6a665f;max-width:360px;margin:auto}
+#seg-download-dialog .seg-d-result{margin-top:22px;padding:14px;border:1px solid #ded2c4;border-radius:10px;text-align:left;background:#fcfaf7;display:flex;align-items:center;gap:11px;font-size:11px;overflow-wrap:anywhere}
+#seg-download-dialog .seg-d-result>svg{color:#98492e;width:19px;height:19px}
+#seg-download-dialog .seg-d-result small{display:block;color:#6a665f;font-size:10px;margin-top:4px}
+#seg-download-dialog .seg-d-progress{height:4px;border-radius:5px;background:#e6dbcd;margin:22px 0 10px;overflow:hidden}
+#seg-download-dialog .seg-d-progress>span{display:block;height:100%;width:0;background:#a85d3c;border-radius:5px}
+#seg-download-dialog #seg-download-progress-label{color:#6a665f;font-size:10px;text-align:left}
+@media(hover:hover){
+  #admin-seguimiento-section #seg-export:not(:disabled):hover{background:#eee3d7;border-color:#a86a4b}
+  #seg-download-dialog .seg-d-primary:not(:disabled):hover,#seg-download-dialog .kja-date-apply:not(:disabled):hover{background:#854027}
+  #seg-download-dialog .seg-d-option:hover{border-color:#b67b58;background:#f5eee5}
+  #seg-download-dialog :is(.seg-d-back,.seg-d-dismiss):hover{color:#98492e}
+  #seg-download-dialog .seg-d-close:hover{background:#eee7dc}
+  #seg-download-dialog .kja-date-day:not(:disabled):not(.is-selected):hover{background:#ead7c2;transform:none}
+}
+@media(prefers-reduced-motion:no-preference){
+  #admin-seguimiento-section #seg-export,#seg-download-dialog :is(.seg-d-primary,.seg-d-option,.kja-date-apply){transition:background-color 150ms,border-color 150ms,scale 150ms ease-out}
+  #admin-seguimiento-section #seg-export:active:not(:disabled),#seg-download-dialog :is(.seg-d-primary,.seg-d-option,.kja-date-apply):active:not(:disabled){scale:.96}
+}
 #admin-seguimiento-section .area-picker{min-width:180px}
 #admin-seguimiento-section :is(.area-picker-trigger,.kja-date-trigger){min-height:40px;padding:10px 12px!important;border:1px solid #998b7f!important;border-radius:9px!important;background:#fcfaf7!important;color:#51483f!important;box-shadow:none!important}
 #admin-seguimiento-section :is(.area-picker-trigger,.kja-date-trigger):is([aria-expanded="true"],:focus-visible){outline:2px solid #a9583e;outline-offset:2px}
 #admin-seguimiento-section .area-picker-trigger svg{color:#a9583e}
-#admin-seguimiento-section .seg-excel label .area-picker{display:block}
-#admin-seguimiento-section .seg-excel label[hidden]{display:none!important}
-:is(#seg-area-popup,#seg-period-popup){background:#faf9f5;border-color:#d6c8b9;color:#51483f}
-:is(#seg-area-popup,#seg-period-popup) .area-picker-search{border-color:#998b7f;background:#fcfaf7}
-:is(#seg-area-popup,#seg-period-popup) .area-picker-search:focus-within{border-color:#a9583e;box-shadow:0 0 0 2px #f2e2d5}
-:is(#seg-area-popup,#seg-period-popup) .area-picker-option{color:#51483f}
-:is(#seg-area-popup,#seg-period-popup) .area-picker-option:is(:hover,[aria-selected="true"],.is-focused){background:#eee3d7;color:#79452f}
-:is(#seg-area-popup,#seg-period-popup) .area-picker-option svg{color:#93472f}
+#seg-area-popup{background:#faf9f5;border-color:#d6c8b9;color:#51483f}
+#seg-area-popup .area-picker-search{border-color:#998b7f;background:#fcfaf7}
+#seg-area-popup .area-picker-search:focus-within{border-color:#a9583e;box-shadow:0 0 0 2px #f2e2d5}
+#seg-area-popup .area-picker-option{color:#51483f}
+#seg-area-popup .area-picker-option:is(:hover,[aria-selected="true"],.is-focused){background:#eee3d7;color:#79452f}
+#seg-area-popup .area-picker-option svg{color:#93472f}
 #portal.admin-wide[data-view="gestion"][data-admin-section="seguimiento"]{
   background:#f0ece5!important;
 }
