@@ -56,32 +56,125 @@
     }
     return g.KJAFacebookExcel.buildWorkbook(sheets,styles);
   }
-  function mount(root,context,read){
-    const box=document.createElement('details');box.className='seg-excel';box.innerHTML='<summary>Exportar marcaciones a Excel</summary><div class="seg-excel-controls"><label>Período<select id="seg-x-mode"><option value="day">Un día</option><option value="week">Semana</option><option value="range">Rango personalizado</option></select></label><label>Fecha / período<input id="seg-x-from" type="date"></label><label>Hasta<input id="seg-x-to" type="date"></label><button type="button" class="seg-button" id="seg-x-download">Descargar Excel</button></div><p>Respeta el área y la búsqueda por nombre de Seguimiento diario. Incluye todas las personas coincidentes, cualquiera sea su bandeja. Máximo 93 días.</p><p id="seg-x-status" role="status" aria-live="polite"></p>';
-    root.querySelector('.seg-toolbar').after(box);
-    const mode=box.querySelector('select'),from=box.querySelector('#seg-x-from'),to=box.querySelector('#seg-x-to'),button=box.querySelector('button'),notice=box.querySelector('#seg-x-status');
-    if(typeof initAreaPickerElement==='function')initAreaPickerElement(mode,'seg-period-popup','seg-period-options','Elige el período del reporte',null,{icon:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/>',label:'Un día',filter:'Período del reporte',search:'Buscar período…',searchLabel:'Buscar período',list:'Períodos',empty:'Sin resultados.'});
-    from.min=to.min='2020-01-01';
-    if(typeof initKjaDatePicker==='function'){
-      initKjaDatePicker(from,{label:'Fecha o período',partner:to,popupId:'seg-from-popup',theme:'warm',rangeMode:()=>mode.value});
-      to.closest('label').hidden=true;
+  function mount(root,context,read,{csv=null}={}){
+    const paths={download:'<path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',back:'<path d="M19 12H5m5-5-5 5 5 5"/>',next:'<path d="m9 5 7 7-7 7"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/>',sheet:'<path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6M9 16h6M12 10v8"/>',file:'<path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6M9 16h6"/>',filter:'<path d="M4 5h16M7 12h10M10 19h4"/>',people:'<circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M17 5a3 3 0 0 1 0 6m1 4a5 5 0 0 1 3 5"/>',check:'<path d="m5 12 4 4L19 6"/>',error:'<path d="m12 3 10 18H2zM12 9v5m0 3v1"/>',refresh:'<path d="M20 10a8 8 0 1 0-2 8M20 3v7h-7"/>'};
+    const icon=name=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+paths[name]+'</svg>';
+    const dialog=document.createElement('dialog');dialog.id='seg-download-dialog';dialog.className='seg-download-dialog';dialog.setAttribute('aria-labelledby','seg-download-title');dialog.setAttribute('aria-describedby','seg-download-intro');
+    dialog.innerHTML='<header class="seg-d-head"><div><h3 id="seg-download-title"></h3><p id="seg-download-intro"></p></div><button type="button" class="seg-d-close" data-download="close" aria-label="Cerrar descargas">'+icon('close')+'</button></header>'+
+      '<div class="seg-d-body"><section id="seg-download-choose"><button type="button" class="seg-d-option" data-download="xlsx"><span class="seg-d-file-icon">'+icon('sheet')+'</span><span class="seg-d-file-text"><b>Marcaciones en Excel <em>XLSX</em></b><small>Entradas, salidas y estados con colores.</small><span>Un día, una semana o fechas exactas</span></span>'+icon('next')+'</button><button type="button" class="seg-d-option" data-download="csv"><span class="seg-d-file-icon">'+icon('file')+'</span><span class="seg-d-file-text"><b>Registro diario en CSV <em>CSV</em></b><small>Detalle completo del día para procesar.</small><span>Todo el equipo autorizado del día</span></span>'+icon('next')+'</button><p class="seg-d-note">'+icon('calendar')+'Las fechas se eligen en el siguiente paso.</p></section>'+
+      '<section id="seg-download-config" hidden><div id="seg-download-period"><div class="seg-d-periods" role="group" aria-label="Período del Excel">'+[['day','Un día'],['week','Una semana'],['range','Fechas exactas']].map(([value,label])=>'<button type="button" data-period="'+value+'" aria-pressed="false">'+icon('calendar')+label+'</button>').join('')+'</div><select id="seg-x-mode" aria-label="Período del Excel" hidden><option value="day">Un día</option><option value="week">Una semana</option><option value="range">Fechas exactas</option></select></div><label class="seg-d-date"><span class="sr-only" id="seg-download-date-label">Fecha</span><input id="seg-x-from" type="date" min="2020-01-01"></label><label id="seg-download-to" hidden>Hasta<input id="seg-x-to" type="date" min="2020-01-01"></label><p class="seg-d-alert" id="seg-download-validation" role="alert" hidden></p><div class="seg-d-scope" id="seg-download-scope"><span id="seg-download-scope-icon"></span><div><b id="seg-download-scope-title"></b><p id="seg-download-scope-note"></p></div></div></section>'+
+      '<section class="seg-d-state" id="seg-download-state" hidden><span class="seg-d-state-icon" id="seg-download-state-icon"></span><h4 id="seg-download-state-title"></h4><p id="seg-download-description"></p><div class="seg-d-progress-wrap" id="seg-download-progress-wrap" hidden><div class="seg-d-progress" id="seg-download-progress" role="progressbar" aria-label="Consulta de marcaciones" aria-valuemin="0" aria-valuemax="100"><span></span></div><p id="seg-download-progress-label"></p></div><div class="seg-d-result" id="seg-download-result" hidden>'+icon('file')+'<div><span id="seg-download-filename"></span><small id="seg-download-filedetail"></small></div></div></section><p class="sr-only" id="seg-x-status" role="status" aria-live="polite" aria-atomic="true"></p></div>'+
+      '<footer class="seg-d-foot"><span class="seg-d-context" id="seg-download-context">'+icon('file')+'Seguimiento diario</span><button type="button" class="seg-d-back" id="seg-download-back" data-download="back" hidden></button><div class="seg-d-actions"><button type="button" class="seg-d-dismiss" id="seg-download-dismiss" data-download="close">Cancelar</button><button type="button" class="seg-d-primary" id="seg-x-download" data-download="primary" hidden></button></div></footer>';
+    document.body.append(dialog);
+    const el=id=>dialog.querySelector('#'+id),mode=el('seg-x-mode'),from=el('seg-x-from'),to=el('seg-x-to'),button=el('seg-x-download'),notice=el('seg-x-status');
+    let stage='choose',file='xlsx',generation=0,busy=false,owner='',picker=null;
+    const today=()=>context().today||(typeof g.isoLima==='function'?g.isoLima():new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));
+    const display=d=>d?d.split('-').reverse().join('/'):'—';
+    const dateText=()=>display(from.value)+(from.value===to.value?'':' → '+display(to.value));
+    const permitted=ctx=>ctx.allowed&&ctx.active!==false;
+    const emptyError=()=>Object.assign(Error('No hay registros para el período y los filtros seleccionados.'),{code:'EMPTY'});
+    const requestKey=()=>[file,mode.value,from.value,to.value].join(':');
+    function validate(){
+      try{dates(from.value,to.value);if(from.value<'2020-01-01'||to.value>today())throw Error('Selecciona fechas desde 2020 hasta hoy en Lima.');return ''}catch(error){return error.message}
     }
-    const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-    function sync(){const d=from.value||context().date||today();from.max=to.max=today();if(mode.value==='day')to.value=d;if(mode.value==='week'){const dow=new Date(d+'T12:00:00Z').getUTCDay();from.value=add(d,-((dow+6)%7));to.value=[add(from.value,6),today()].sort()[0]}to.disabled=mode.value!=='range';if(typeof syncKjaDatePickers==='function')syncKjaDatePickers()}
-    box.addEventListener('toggle',()=>{if(box.open&&!from.value){from.value=context().date;sync()}button.disabled=!context().allowed});mode.onchange=sync;from.onchange=sync;
-    button.onclick=async()=>{
-      const ctx=context(),signature=JSON.stringify(ctx);if(!ctx.allowed){notice.textContent='Solo Dirección puede exportar este reporte.';return}
-      button.disabled=true;
-      try{sync();const ds=dates(from.value,to.value);if(from.value<'2020-01-01'||to.value>today())throw Error('Selecciona fechas desde 2020 hasta hoy en Lima.');const records={};
-        for(let i=0;i<ds.length;i+=3){notice.textContent='Consultando '+Math.min(i+3,ds.length)+' de '+ds.length+' días…';await Promise.all(ds.slice(i,i+3).map(async d=>{
-          const [a,b]=await Promise.all([read('dash_admin_control_diario',d,ctx.owner),read('dash_admin_cierres',d,ctx.owner)]);
-          if(a.error||b.error||!a.data?.ok||!b.data?.ok||!Array.isArray(a.data.filas)||!Array.isArray(b.data.personas)||(a.data.fecha&&a.data.fecha!==d)||(b.data.fecha&&b.data.fecha!==d))throw Error('No se pudo consultar el día '+d+'. Reintenta; no se descargó un reporte parcial.');
-          const people=new Map(b.data.personas.map(p=>[String(p.id),p]));records[d]=a.data.filas.filter(r=>(!ctx.area||String(r.area_id??'__none')===ctx.area)&&(!ctx.query||norm(r.colaborador+' '+r.area).includes(norm(ctx.query)))).map(r=>{const p=people.get(String(r.colaborador_id));return {...r,cierre:p?.cierre,schedule:p?.hora_inicio_programada&&p?.hora_salida_programada?p.hora_inicio_programada+' – '+p.hora_salida_programada:null}});
-        }));if(JSON.stringify(context())!==signature)throw Error('Cambió la sesión o los filtros. Vuelve a descargar.');}
-        const bytes=build(ds,records,{scope:(ctx.area?'Área filtrada':'Todas las áreas')+(ctx.query?' · Búsqueda: '+ctx.query:''),updated:new Date().toLocaleString('es-PE',{timeZone:'America/Lima'}),today:ds.includes(today())});
-        const url=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');a.href=url;a.download='asistencia-'+ds[0]+'_'+ds.at(-1)+'.xlsx';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notice.textContent='Excel descargado: '+ds.length+' día(s).';
-      }catch(e){notice.textContent=e.message||'No se pudo generar el Excel.'}finally{button.disabled=!context().allowed}
-    };
+    function controls(){
+      button.disabled=busy||!permitted(context())||stage==='config'&&(picker?.isPending()||!!validate());
+    }
+    if(typeof initKjaDatePicker==='function')picker=initKjaDatePicker(from,{label:'Fecha o período',partner:to,popupId:'seg-from-popup',theme:'warm',rangeMode:()=>mode.value,embedded:true,confirmSelection:true,persistent:true,onPendingChange:controls});
+    else el('seg-download-to').hidden=false;
+    function sync(){
+      const d=from.value||context().date||today();from.max=to.max=today();
+      if(file==='csv')mode.value='day';
+      if(mode.value==='day')to.value=d;
+      if(mode.value==='week'){const dow=new Date(d+'T12:00:00Z').getUTCDay();from.value=add(d,-((dow+6)%7));if(from.value<from.min)from.value=from.min;to.value=[add(d,-((dow+6)%7)+6),today()].sort()[0];}
+      to.disabled=mode.value!=='range';
+      dialog.querySelectorAll('[data-period]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.period===mode.value)));
+      el('seg-download-period').hidden=file==='csv';
+      el('seg-download-date-label').textContent=mode.value==='day'?'Fecha':mode.value==='week'?'Semana':'Desde / hasta';
+      const error=validate();el('seg-download-validation').textContent=error;el('seg-download-validation').hidden=!error;from.setAttribute('aria-invalid',String(!!error));
+      const ctx=context();el('seg-download-scope-icon').innerHTML=icon(file==='csv'?'people':'filter');
+      el('seg-download-scope-title').textContent=file==='csv'?'Día completo · Todo el equipo autorizado':(ctx.area?ctx.areaLabel||'Área filtrada':'Todas las áreas')+(ctx.query?' · Nombre: '+ctx.query:'');
+      el('seg-download-scope-title').title=el('seg-download-scope-title').textContent;
+      el('seg-download-scope-note').textContent=file==='csv'?'Sin filtros de área o nombre':mode.value==='range'?'Todas las bandejas · Máximo 93 días':mode.value==='week'?'Todas las bandejas · Lunes a domingo, hasta hoy':'Todas las bandejas';
+      picker?.sync();controls();
+    }
+    function render(){
+      el('seg-download-choose').hidden=stage!=='choose';el('seg-download-config').hidden=stage!=='config';el('seg-download-state').hidden=['choose','config'].includes(stage);
+      el('seg-download-title').textContent=stage==='choose'?'¿Qué deseas descargar?':stage==='config'?(file==='csv'?'Registro diario en CSV':'Marcaciones en Excel'):'Descargas de asistencia';
+      el('seg-download-intro').textContent=stage==='choose'?'Elige el archivo y luego configura el período.':stage==='config'?(file==='csv'?'Descarga el detalle completo de una fecha.':'Elige el período que necesitas consultar.'):(file==='csv'?'Registro diario en CSV':'Marcaciones en Excel');
+      el('seg-download-intro').hidden=stage==='config';
+      dialog.setAttribute('aria-describedby',stage==='config'?'seg-download-scope-note':'seg-download-intro');
+      el('seg-download-context').hidden=stage!=='choose';el('seg-download-back').hidden=stage==='choose'||stage==='loading';
+      el('seg-download-back').innerHTML=icon('back')+(stage==='config'?'Cambiar archivo':stage==='success'?'Otra descarga':'Volver');
+      el('seg-download-dismiss').hidden=!['choose','loading'].includes(stage);button.hidden=['choose','loading'].includes(stage);
+      button.innerHTML=icon(stage==='error'?'refresh':stage==='success'?'check':'download')+(stage==='config'?'Descargar '+(file==='csv'?'CSV':'Excel'):stage==='success'?'Listo':stage==='error'?'Reintentar':'Cambiar fechas');
+      el('seg-download-progress-wrap').hidden=stage!=='loading';el('seg-download-result').hidden=stage!=='success';
+      dialog.dataset.stage=stage;
+      if(stage==='config'){sync();picker?.open();}else controls();
+    }
+    function state(next,title,description){
+      stage=next;el('seg-download-state-title').textContent=title;el('seg-download-description').textContent=description;
+      el('seg-download-state-icon').innerHTML=icon(next==='loading'?'refresh':next==='success'?'check':next==='empty'?'file':'error');
+      notice.textContent=title+'. '+description;render();
+    }
+    function close({restoreFocus=true}={}){
+      generation++;busy=false;picker?.close();
+      if(dialog.open){if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');}
+      if(restoreFocus){const launch=root.querySelector('#seg-export');if(launch&&!launch.hidden&&!launch.disabled)launch.focus({preventScroll:true});}
+    }
+    function open(){
+      const ctx=context();if(!permitted(ctx))return false;
+      generation++;busy=false;owner=ctx.owner;file='xlsx';mode.value='day';from.value=to.value=ctx.date||today();stage='choose';notice.textContent='';picker?.close();sync();render();
+      if(!dialog.open){if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');}
+      dialog.querySelector('[data-download="xlsx"]').focus();return true;
+    }
+    function refresh(){if(!dialog.open)return;if(!permitted(context())||context().owner!==owner){close({restoreFocus:false});return}if(stage==='config')sync();}
+    function progress(done,total){const percent=Math.round(done/total*100);el('seg-download-progress').setAttribute('aria-valuenow',String(percent));el('seg-download-progress').firstElementChild.style.width=percent+'%';el('seg-download-progress-label').textContent=done+' de '+total+' días consultados';notice.textContent='Consultando '+done+' de '+total+' días.';}
+    async function download(){
+      if(busy||!dialog.open||!permitted(context())||picker?.isPending())return;
+      sync();if(validate()){stage='config';render();return;}
+      const ctx=context(),signature=JSON.stringify(ctx),key=requestKey(),run=++generation;
+      const guard=()=>{if(run!==generation||!dialog.open)return false;if(!permitted(context())||JSON.stringify(context())!==signature||requestKey()!==key)throw Error('Cambió la sesión o los filtros. Vuelve a descargar.');return true};
+      busy=true;state('loading','Preparando archivo','Estamos reuniendo las marcaciones del período seleccionado.');
+      try{
+        const ds=dates(from.value,to.value);progress(0,ds.length);let result;
+        if(file==='csv'){
+          if(!csv)throw Error('La descarga CSV no está disponible. Recarga el panel.');
+          result=await csv(ds[0]);if(!guard())return;if(result.empty)throw emptyError();progress(1,1);
+        }else{
+          const records={};
+          for(let i=0;i<ds.length;i+=3){
+            if(!guard())return;
+            await Promise.all(ds.slice(i,i+3).map(async d=>{
+              const [a,b]=await Promise.all([read('dash_admin_control_diario',d,ctx.owner),read('dash_admin_cierres',d,ctx.owner)]);
+              if(a.error||b.error||!a.data?.ok||!b.data?.ok||!Array.isArray(a.data.filas)||!Array.isArray(b.data.personas)||(a.data.fecha&&a.data.fecha!==d)||(b.data.fecha&&b.data.fecha!==d))throw Error('No se pudo consultar el día '+d+'. Reintenta; no se descargó un reporte parcial.');
+              const people=new Map(b.data.personas.map(p=>[String(p.id),p]));records[d]=a.data.filas.filter(r=>(!ctx.area||String(r.area_id??'__none')===ctx.area)&&(!ctx.query||norm(r.colaborador+' '+r.area).includes(norm(ctx.query)))).map(r=>{const p=people.get(String(r.colaborador_id));return {...r,cierre:p?.cierre,schedule:p?.hora_inicio_programada&&p?.hora_salida_programada?p.hora_inicio_programada+' – '+p.hora_salida_programada:null}});
+            }));
+            if(!guard())return;progress(Math.min(i+3,ds.length),ds.length);
+          }
+          if(!ds.some(d=>records[d].length))throw emptyError();
+          result={content:build(ds,records,{scope:(ctx.area?ctx.areaLabel||'Área filtrada':'Todas las áreas')+(ctx.query?' · Búsqueda: '+ctx.query:''),updated:new Date().toLocaleString('es-PE',{timeZone:'America/Lima'}),today:ds.includes(today())}),type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',name:'asistencia-'+ds[0]+'_'+ds.at(-1)+'.xlsx'};
+        }
+        if(!guard())return;
+        const url=URL.createObjectURL(new Blob([result.content],{type:result.type})),a=document.createElement('a');a.href=url;a.download=result.name;dialog.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+        busy=false;el('seg-download-filename').textContent=result.name;el('seg-download-filedetail').textContent=dateText()+' · '+(file==='csv'?'CSV · día completo':'XLSX · una sola hoja');
+        state('success','Tu archivo está listo','La descarga se ha iniciado. Puedes volver al seguimiento o preparar otro archivo.');
+      }catch(error){if(run!==generation||!dialog.open)return;busy=false;state(error.code==='EMPTY'?'empty':'error',error.code==='EMPTY'?'No hay registros para exportar':'No se pudo preparar el archivo',error.message||'Intenta descargar de nuevo.');}
+      finally{if(run===generation){busy=false;controls();}}
+    }
+    mode.onchange=()=>{sync();picker?.resetSelection();};from.onchange=sync;to.onchange=sync;
+    dialog.addEventListener('click',event=>{
+      const b=event.target.closest('[data-download],[data-period]');if(!b||b.disabled)return;
+      if(b.dataset.period){if(mode.value!==b.dataset.period){mode.value=b.dataset.period;mode.onchange();}return;}
+      const action=b.dataset.download;
+      if(action==='close'){close();return;}
+      if(action==='xlsx'||action==='csv'){file=action;mode.value='day';to.value=from.value;stage='config';render();if(picker)picker.focus();else from.focus();return;}
+      if(action==='back'){picker?.close();stage=stage==='config'||stage==='success'?'choose':'config';notice.textContent='';render();if(stage==='choose')dialog.querySelector('[data-download="xlsx"]').focus();else if(picker)picker.focus();else from.focus();return;}
+      if(action==='primary'){if(stage==='success')close();else if(stage==='empty'){stage='config';render();}else void download();}
+    });
+    dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
+    dialog.addEventListener('close',()=>{generation++;busy=false;picker?.close();});
+    return {open,close,refresh,isOpen:()=>dialog.open};
   }
   g.KJASeguimientoExcel={mount,build,status,dates};
 })(window);

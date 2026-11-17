@@ -29,9 +29,10 @@
   const S={date:'',query:'',area:'',queue:'attention',segment:'',person:null,delivery:null,requirement:'',file:0,note:'',busy:false,loading:false,snapshot:null,generation:0,mediaGeneration:0,owner:'',signed:[],message:'',tone:'',scroll:0};
   const requests=new Map(),signedCache=new Map();
   let currentLoad=null;
+  let downloads=null;
   let syncAreaFilter=()=>{};
   function mount(){
-    root.innerHTML='<header class="seg-heading"><div class="seg-brand"><span class="seg-mark">'+icon('calendar')+'</span><div><div class="seg-eyebrow">OPERACIÓN DEL DÍA <span class="seg-pilot">En prueba</span></div><h2 id="seg-title">Seguimiento diario</h2><p id="seg-subtitle">El equipo, sus jornadas y sus entregas.</p></div></div><div class="seg-head-actions"><span id="seg-updated"></span>'+button('export',icon('download'),'seg-icon','id="seg-export" aria-label="Descargar CSV del día completo" title="Descargar CSV del día completo" disabled')+'</div></header>'+
+    root.innerHTML='<header class="seg-heading"><div class="seg-brand"><span class="seg-mark">'+icon('calendar')+'</span><div><div class="seg-eyebrow">OPERACIÓN DEL DÍA <span class="seg-pilot">En prueba</span></div><h2 id="seg-title">Seguimiento diario</h2><p id="seg-subtitle">El equipo, sus jornadas y sus entregas.</p></div></div><div class="seg-head-actions"><span id="seg-updated"></span>'+button('export',icon('download')+'<span>Descargar</span>','','id="seg-export" aria-haspopup="dialog" aria-controls="seg-download-dialog" disabled')+'</div></header>'+
       '<div class="seg-toolbar"><div class="seg-date">'+button('prev','‹','seg-icon','aria-label="Día anterior"')+'<label><span class="sr-only">Fecha de seguimiento</span><input id="seg-date" type="date" min="2020-01-01"></label>'+button('next','›','seg-icon','aria-label="Día siguiente"')+button('today','Hoy')+'</div><label class="seg-search">'+icon('search')+'<span class="sr-only">Buscar persona o área</span><input id="seg-search" type="search" placeholder="Buscar persona o área" autocomplete="off"></label><label class="seg-area"><span class="sr-only">Filtrar por área</span><select id="seg-area"><option value="">Todas las áreas</option></select></label>'+button('clear','Limpiar','seg-clear','id="seg-clear" hidden')+'</div>'+
       '<p id="seg-message" class="seg-notice" role="status" aria-live="polite" hidden></p><div id="seg-summary" class="seg-summary"></div>'+
       '<div id="seg-workspace" class="seg-workspace" aria-busy="false"><div class="seg-empty">Selecciona una fecha para consultar.</div></div>'+
@@ -50,6 +51,7 @@
   function canLeave(){
     if(S.busy||operationOpen()){toast('Termina o cierra la operación antes de cambiar de vista.',true);return false}
     if(S.note.trim()&&!global.confirm('Tienes una observación sin guardar. ¿Descartarla y continuar?'))return false;
+    downloads?.close({restoreFocus:false});
     S.note='';return true;
   }
   async function read(name,date,owner){
@@ -197,7 +199,8 @@
     root.dataset.review=String(!!S.person);
     $s('workspace').setAttribute('aria-busy',String(S.loading));
     $s('export').hidden=!isDirection();
-    $s('export').disabled=!data||data.partial||S.loading||!data.exportIds.size;
+    $s('export').disabled=!data||data.partial||S.loading;
+    downloads?.refresh();
     $s('clear').hidden=!(S.query||S.area||S.segment);
     $s('date').disabled=S.busy;$s('date').max=isoLima();
     syncAreaFilter();if(typeof syncKjaDatePickers==='function')syncKjaDatePickers();
@@ -345,16 +348,29 @@
       if(!saved&&!already&&own()){root.querySelectorAll('[data-seg="approve"],[data-seg="observe"]').forEach(b=>b.disabled=true);$s('export').disabled=true}
     }
   }
-  function exportDay(){
-    if(!current()||S.loading||S.snapshot.partial||!isDirection())return;
-    const daily=S.snapshot.rows.filter(r=>S.snapshot.exportIds.has(String(r.colaborador_id)));
-    if(!daily.length)return toast('No hay registros del día para exportar.',true);
+  async function exportDay(date){
+    const owner=sessionKey();
+    if(!isDirection()||!APP.access?.acceso_panel)throw Error('Solo Dirección puede descargar el CSV.');
+    let daily;
+    if(date===S.date){
+      if(!current()||S.loading||S.snapshot.partial)throw Error('Los datos del día están incompletos. Actualiza Seguimiento antes de descargar.');
+      daily=S.snapshot.rows.filter(r=>S.snapshot.exportIds.has(String(r.colaborador_id)));
+    }else{
+      const names=['dash_admin_cierres','dash_admin_control_diario','dash_supervision_impedimentos','dash_admin_revision_entregas'];
+      const responses=await Promise.all(names.map(name=>read(name,date,owner)));
+      if(owner!==sessionKey()||!isDirection()||!APP.access?.acceso_panel)throw Error('Cambió la sesión. Vuelve a descargar.');
+      if(responses.some(r=>r.error||!r.data?.ok||r.data.fecha&&r.data.fecha!==date))throw Error('No se pudo consultar el día completo. Reintenta; no se descargó un CSV parcial.');
+      const [close,control,issues,review]=responses.map(r=>r.data);
+      if(!Array.isArray(close.personas)||!Array.isArray(control.filas)||!Array.isArray(issues.impedimentos)||!Array.isArray(review.entregas))throw Error('Los datos del día están incompletos. No se descargó un CSV parcial.');
+      const people=new Map(close.personas.map(p=>[String(p.id),p]));
+      const byIssue=new Map();for(const issue of issues.impedimentos){const id=String(issue.colaborador_id);if(!byIssue.has(id))byIssue.set(id,[]);byIssue.get(id).push(issue);}
+      daily=control.filas.map(row=>{const id=String(row.colaborador_id),person=people.get(id),cierre=person?.cierre||null;return {...row,person,cierre,cierre_estado:cierre?.estado||row.cierre_estado,impedimentos:byIssue.get(id)||[],impedimentos_disponibles:true};});
+    }
+    if(!daily.length)return {empty:true};
     const header=['Fecha','Colaborador','Área','Programado','Entrada','Estado entrada','Evidencias pendientes','Impedimento informado','Detalle del impedimento','Por revisar','Observadas','Salida','Horas válidas','Estado jornada','Siguiente paso'];
-    const csv=[header,...daily.map(r=>[S.date,r.colaborador,r.area,r.labora?'Sí':'No',adminControlTime(r.entrada_at),r.entrada_estado||'',adminControlPending(r),r.impedimentos.length?'Sí':'No',r.impedimentos.map(i=>i.detalle).join(' | '),r.revision_pendiente||0,r.revision_observada||0,adminControlTime(r.salida_at),Number(r.horas_validas||0).toFixed(2),adminControlState(r).label,adminControlNextStep(r).title])];
+    const csv=[header,...daily.map(r=>[date,r.colaborador,r.area,r.labora?'Sí':'No',adminControlTime(r.entrada_at),r.entrada_estado||'',adminControlPending(r),r.impedimentos.length?'Sí':'No',r.impedimentos.map(i=>i.detalle).join(' | '),r.revision_pendiente||0,r.revision_observada||0,adminControlTime(r.salida_at),Number(r.horas_validas||0).toFixed(2),adminControlState(r).label,adminControlNextStep(r).title])];
     const quote=v=>'"'+String(v??'').replace(/^[=+\-@\t\r]/,"'$&").replaceAll('"','""')+'"';
-    const blob=new Blob(['\ufeff'+csv.map(row=>row.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
-    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='control-diario-'+S.date+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),0);
-    toast('CSV del día completo preparado · '+daily.length+' personas.');
+    return {content:'\ufeff'+csv.map(row=>row.map(quote).join(',')).join('\r\n'),type:'text/csv;charset=utf-8',name:'control-diario-'+date+'.csv'};
   }
   function context(){
     const row=selected(),owner=S.owner,date=S.date;
@@ -364,7 +380,7 @@
     const b=event.target.closest('[data-seg]');if(!b||b.disabled)return;
     if(S.owner&&!own()){reset();render();return}
     const action=b.dataset.seg;
-    if(action==='export')return exportDay();
+    if(action==='export'){if(!downloads?.open())toast('No se pudo abrir Descargas. Recarga el panel.',true);return;}
     if(action==='person')return openPerson(b.dataset.person);
     if(action==='reload')return load();
     if(action==='approve'||action==='observe')return decide(action==='approve'?'aprobada':'observada');
@@ -396,7 +412,7 @@
     }
   }
   mount();
-  global.KJASeguimientoExcel?.mount(root,()=>({date:S.date,area:S.area,query:S.query,owner:sessionKey(),allowed:isDirection()&&!!APP.access?.acceso_panel}),read);
+  downloads=global.KJASeguimientoExcel?.mount(root,()=>({date:S.date,today:isoLima(),area:S.area,areaLabel:$s('area').selectedOptions[0]?.textContent||'',query:S.query,owner:sessionKey(),allowed:isDirection()&&!!APP.access?.acceso_panel,active:APP.view==='gestion'&&APP.adminSection==='seguimiento'&&!root.hidden}),read,{csv:exportDay});
   root.addEventListener('click',event=>{void handle(event).catch(()=>message('No se pudo completar la acción. Actualiza e inténtalo nuevamente.','error'))});
   $s('search').addEventListener('input',()=>{
     if((S.person||S.busy)&&!canLeave()){$s('search').value=S.query;return}
@@ -422,9 +438,10 @@
   });
   global.addEventListener('beforeunload',event=>{if(S.busy||S.note.trim()){event.preventDefault();event.returnValue=''}});
   const timer=setInterval(()=>{
-    if(APP.view==='gestion'&&APP.adminSection==='seguimiento'&&!document.hidden&&!S.loading&&!S.busy&&!S.person&&!S.note.trim()&&!operationOpen())void load({quiet:true});
+    if(APP.view==='gestion'&&APP.adminSection==='seguimiento'&&!document.hidden&&!S.loading&&!S.busy&&!S.person&&!S.note.trim()&&!operationOpen()&&!downloads?.isOpen())void load({quiet:true});
   },60000);
   function reset(){
+    downloads?.close({restoreFocus:false});
     S.generation++;S.mediaGeneration++;S.owner='';S.snapshot=null;S.person=null;S.note='';S.signed=[];S.loading=false;
     signedCache.clear();requests.clear();currentLoad=null;
     $s('workspace').innerHTML='';$s('summary').innerHTML='';$s('areas').innerHTML='';$s('export').disabled=true;
