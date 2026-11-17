@@ -23,11 +23,13 @@ function setup({role='direccion',data=fixtureData(),rpc=null,photos=null}={}){
     }
     return {data:structuredClone(data[name])};
   },storage:{from:()=>({createSignedUrl:async(path,seconds)=>{signed.push({path,seconds});return {data:{signedUrl:'https://fixture.test/'+path}}}})}};
-  vm.runInContext(helperSource,ctx);vm.runInContext(moduleSource,ctx);
+  vm.runInContext(helperSource,ctx);
+  vm.runInContext(fs.readFileSync('assets/js/seguimiento-excel.js','utf8'),ctx);vm.runInContext(moduleSource,ctx);
   const click=async selector=>{assert.ok(w.document.querySelector(selector),selector);w.document.querySelector(selector).click();await tick()};
   const input=async(value)=>{const el=w.document.getElementById('seg-search');el.value=value;el.dispatchEvent(new w.Event('input'));await tick()};
   const tick=()=>new Promise(resolve=>setTimeout(resolve,10));
-  return {w,dom,ctx,calls,signed,blobs,data,click,input,tick,load:()=>w.KJASeguimiento.load(),root:w.document.getElementById('admin-seguimiento-section')};
+  const downloadCsv=async()=>{await click('[data-seg="export"]');await click('[data-download="csv"]');await click('#seg-x-download');await click('[data-download="close"]');};
+  return {w,dom,ctx,calls,signed,blobs,data,click,input,tick,downloadCsv,load:()=>w.KJASeguimiento.load(),root:w.document.getElementById('admin-seguimiento-section')};
 }
 test('sidebar adds a third destination and preserves original tabs, hashes and unique IDs',()=>{
   const html=fs.readFileSync('dashboard.html','utf8'),dom=new JSDOM(html),doc=dom.window.document;
@@ -53,24 +55,24 @@ test('one request per resource, local filters and independent old screen state',
 });
 test('CSV uses the complete authorized date even with no visible results; formula escaping retained',async()=>{
   const data=fixtureData();data.dash_admin_control_diario.filas[0].colaborador='=FORMULA';
-  const h=setup({data});await h.load();await h.click('[data-seg="export"]');
+  const h=setup({data});await h.load();await h.downloadCsv();
   const first=await h.blobs[0].text();
   await h.input('sin coincidencias');assert.equal(h.root.querySelectorAll('.seg-person').length,0);
   assert.equal(h.w.document.getElementById('seg-export').disabled,false);
-  await h.click('[data-seg="export"]');
+  await h.downloadCsv();
   assert.equal(await h.blobs[1].text(),first);assert.match(first,/'=FORMULA/);
   assert.equal(first.split('\r\n').length,5);assert.doesNotMatch(first,/signedUrl|https:/);
 });
 
 test('area, search and queue combine locally while the panorama and daily CSV keep their scope',async()=>{
-  const h=setup();await h.load();await h.click('[data-seg="export"]');const daily=await h.blobs[0].text();
+  const h=setup();await h.load();await h.downloadCsv();const daily=await h.blobs[0].text();
   const panorama=h.w.document.getElementById('seg-areas').textContent;
   const area=h.w.document.getElementById('seg-area');area.value='1';area.dispatchEvent(new h.w.Event('change'));await h.tick();
   await h.click('[data-seg="queue"][data-queue="all"]');await h.input('MARIA');
   assert.equal(h.root.querySelectorAll('.seg-person').length,1);
   assert.match(h.root.querySelector('.seg-person-name').textContent,/María Díaz/);
   assert.equal(h.w.document.getElementById('seg-areas').textContent,panorama);
-  await h.click('[data-seg="export"]');assert.equal(await h.blobs[1].text(),daily);
+  await h.downloadCsv();assert.equal(await h.blobs[1].text(),daily);
   assert.equal(h.calls.length,4);
   await h.click('[data-seg="clear"]');assert.equal(h.root.querySelectorAll('.seg-person').length,4);
 });
@@ -82,6 +84,36 @@ test('editor/visor only requests Cierres and cannot request private files or exp
     await h.click('[data-seg="person"][data-person="1"]');
     assert.equal(h.signed.length,0);assert.equal(h.root.querySelector('[data-seg="approve"]'),null);
   }
+});
+
+test('CSV de otra fecha consulta el conjunto completo sin cambiar fecha, área ni búsqueda del panel',async()=>{
+  let fail=false;
+  const h=setup({rpc:async(name,args)=>{
+    if(fail&&args.p_fecha!==date&&name==='dash_admin_revision_entregas')return {error:{message:'offline'}};
+    const data=structuredClone(fixtureData()[name]);data.fecha=args.p_fecha;
+    if(args.p_fecha!==date&&data.filas)data.filas[0].colaborador='Persona de otra fecha';
+    return {data};
+  }});
+  await h.load();await h.input('sin coincidencias');
+  const area=h.w.document.getElementById('seg-area');area.value='1';area.dispatchEvent(new h.w.Event('change'));
+  await h.click('[data-seg="export"]');await h.click('[data-download="csv"]');
+  const from=h.w.document.getElementById('seg-x-from');from.value='2026-10-27';from.dispatchEvent(new h.w.Event('change'));
+  await h.click('#seg-x-download');
+  const csv=await h.blobs[0].text();assert.match(csv,/2026-10-27/);assert.match(csv,/Persona de otra fecha/);assert.match(csv,/Jorge Ruiz/);assert.equal(csv.split('\r\n').length,5);
+  assert.equal(h.w.document.getElementById('seg-date').value,date);assert.equal(area.value,'1');assert.equal(h.w.document.getElementById('seg-search').value,'sin coincidencias');
+  assert.equal(h.calls.filter(c=>c.args.p_fecha==='2026-10-27').length,4);
+  fail=true;await h.click('#seg-download-back');await h.click('[data-download="csv"]');await h.click('#seg-x-download');
+  assert.equal(h.blobs.length,1);assert.equal(h.w.document.getElementById('seg-download-dialog').dataset.stage,'error');
+  assert.match(h.w.document.getElementById('seg-x-status').textContent,/CSV parcial/);
+});
+
+test('reset de sesión cierra Descargas y descarta el CSV pendiente',async()=>{
+  const jobs=[],h=setup({rpc:async(name,args)=>args.p_fecha===date?{data:fixtureData()[name]}:new Promise(resolve=>jobs.push({name,resolve}))});
+  await h.load();await h.click('[data-seg="export"]');await h.click('[data-download="csv"]');
+  const from=h.w.document.getElementById('seg-x-from');from.value='2026-10-27';from.dispatchEvent(new h.w.Event('change'));
+  await h.click('#seg-x-download');assert.equal(jobs.length,4);h.w.KJASeguimiento.reset();
+  for(const job of jobs){const data=fixtureData()[job.name];data.fecha='2026-10-27';job.resolve({data});}await h.tick();
+  assert.equal(h.w.document.getElementById('seg-download-dialog').open,false);assert.equal(h.blobs.length,0);
 });
 test('partial failures show unavailable review counts, disable daily export and preserve people',async()=>{
   const data=fixtureData(),h=setup({rpc:async name=>name==='dash_admin_revision_entregas'?{error:{message:'offline'}}:{data:structuredClone(data[name])}});
@@ -204,7 +236,7 @@ test('private photos load in one batch without replacing the active evidence or 
   const avatar=h.root.querySelector('.seg-person[data-person="1"] .seg-avatar');
   assert.equal(avatar.querySelector('img').getAttribute('data-profile-photo'),'');
   assert.equal(avatar.textContent,'MD');assert.match(avatar.querySelector('img').src,/private-avatar/);
-  await h.click('[data-seg="export"]');assert.doesNotMatch(await h.blobs[0].text(),/private-avatar|temporary/);
+  await h.downloadCsv();assert.doesNotMatch(await h.blobs[0].text(),/private-avatar|temporary/);
 });
 
 test('late photos from a previous date or account cannot replace the current avatars',async()=>{
