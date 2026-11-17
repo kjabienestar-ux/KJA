@@ -56,7 +56,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-contracts.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-roles.css?v=13">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-assignments-workspace.css?v=7">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-asignaciones.css?v=13">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-admin-asignaciones.css?v=25">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-person-editor.css?v=8">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-areas.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-cert-accounts.css?v=10">
@@ -66,7 +66,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=retirada-35-1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=9">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-people-workbench.css?v=43">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=range-39-1">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=range-39-2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-preview.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-operations.css?v=8">
@@ -1970,7 +1970,8 @@
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="5"></line><line x1="12" y1="12" x2="12" y2="12"></line><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               <span>Nueva asignación</span>
             </button>
-            <label class="assignment-work-date-label">
+            <!-- La fecha se elige en el calendario de abajo; este campo queda oculto porque el JS lo sigue sincronizando. -->
+            <label class="assignment-work-date-label" hidden>
               <span class="assignment-work-date-tag">
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 Fecha de trabajo
@@ -2034,6 +2035,8 @@
                   </div>
                 </div>
               </header>
+              <!-- Fecha de la asignación: la elige el calendario y se muestra arriba, antes de completar los campos. -->
+              <div class="assignment-date-chip" id="admin-assignment-date-note" aria-live="polite"></div>
 
               <!-- Categorías visuales de Entregable (Inspiradas en las categorías médicas de la referencia) -->
               <div class="assignment-categories-wrap">
@@ -2105,7 +2108,6 @@
               </div>
 
               <p class="assignment-guide" id="admin-close-draw-help" hidden>El sorteo prioriza a quienes tienen menos asignaciones del mismo tipo en los últimos 30 días. Solo participan personas activas que trabajan en la fecha elegida y no tienen ese tipo asignado ese día. Los empates se resuelven de forma estable: repetir la consulta no cambia el orden. Primero verás la selección; las asignaciones se crean al confirmar.</p>
-              <p class="assignment-guide" id="admin-assignment-date-note"></p>
               <div class="admin-close-draw-preview" id="admin-close-draw-preview" hidden></div>
 
               <button class="admin-primary-action assignment-cta-btn" id="admin-close-assign" type="submit">
@@ -2117,16 +2119,9 @@
 
           <!-- PANEL DEL CALENDARIO (Estilo Seleccionar Fecha con Círculo Sólido e Indicadores) -->
           <div class="assignment-sidebar">
+            <!-- «‹ Mes ›» con el mes centrado (al pulsarlo abre el selector de mes); «Ir a hoy» va en la fila de la leyenda. -->
             <aside class="assignment-calendar" id="assignment-calendar-panel" aria-labelledby="assignment-calendar-title">
-              <header class="assignment-card-header">
-                <div class="assignment-card-heading">
-                  <span class="assignment-icon-bubble" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                  </span>
-                  <h3 id="assignment-calendar-title">Calendario</h3>
-                </div>
-                <button type="button" id="assignment-calendar-today" class="assignment-today-pill">Hoy</button>
-              </header>
+              <h3 id="assignment-calendar-title" class="sr-only">Calendario</h3>
               <div class="assignment-month-nav">
                 <button type="button" id="assignment-month-prev" aria-label="Mes anterior">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
@@ -2143,7 +2138,8 @@
               <div class="assignment-calendar-days" id="assignment-calendar-days"></div>
               <div class="assignment-calendar-legend">
                 <span><i class="legend-dot has-data" aria-hidden="true"></i>Con entregables</span>
-                <span><i class="legend-dot is-selected" aria-hidden="true"></i>Día seleccionado</span>
+                <span><i class="legend-dot is-today" aria-hidden="true"></i>Hoy</span>
+                <button type="button" id="assignment-calendar-today" class="assignment-today-pill">Ir a hoy</button>
               </div>
             </aside>
             <section class="assignment-day-summary" id="assignment-day-summary" aria-labelledby="assignment-day-summary-title">
@@ -3815,7 +3811,7 @@
 </dialog>
 
 <script src="assets/js/dashboard-holiday.js?v=1"></script>
-<script src="assets/js/dashboard-skeleton.js?v=8"></script>
+<script src="assets/js/dashboard-skeleton.js?v=9"></script>
 <script src="assets/js/reclutamiento-api.js?v=1"></script>
 <script src="assets/js/dashboard-avatar.js?v=3"></script>
 <script src="assets/js/dashboard-admin-accounts.js?v=1"></script>
@@ -3856,7 +3852,7 @@
 <script src="assets/js/dashboard-admin-roles.js?v=history-13"></script>
 <script src="assets/js/dashboard-admin-cierre.js?v=retirada-35-1"></script>
 <script src="assets/js/dashboard-assignment-hours.js?v=3-free-1"></script>
-<script src="assets/js/dashboard-assignments.js?v=10"></script>
+<script src="assets/js/dashboard-assignments.js?v=13"></script>
 <script src="assets/js/dashboard-admin-control.js?v=18"></script>
 <script src="assets/js/seguimiento-excel.js?v=7"></script>
 <script src="assets/js/dashboard-admin-seguimiento.js?v=excel-39-2"></script>

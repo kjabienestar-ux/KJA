@@ -108,6 +108,7 @@
       fillMirrorSlot(clone,'admin-close-status',closeCards(6));
     }else if(kind==='asignaciones'){
       fillMirrorSlot(clone,'admin-close-assignment-list',Array.from({length:5},()=>`<article class="kja-sk-assignment-item">${block('kja-sk-icon')}${lines(3)}${block('kja-sk-pill')}</article>`).join(''));
+      hydrateAssignmentsFirstLoad(clone);
     }else if(kind==='colaboradores'){
       fillMirrorSlot(clone,'admin-people-kpis',nativeMetrics(5));
       fillMirrorSlot(clone,'admin-people-list',cards(6));
@@ -124,6 +125,26 @@
       fillMirrorSlot(clone,'admin-access-list',table(7,4,true));
       fillMirrorSlot(clone,'admin-access-audit',Array.from({length:4},()=>row(2,false)).join(''));
     }
+  }
+
+  /* Asignaciones, primera entrada: el calendario, la fecha del formulario y el resumen del día todavía
+     no se han pintado. Se rellenan con la geometría que tendrán al cargar (mismo mes, mismas filas) para
+     que la pantalla no cambie de tamaño cuando llegan los datos. Si ya están pintados, se copian tal cual. */
+  function hydrateAssignmentsFirstLoad(clone){
+    const days=clone.querySelector('#assignment-calendar-days');
+    if(days&&!days.querySelector('button')){
+      const today=typeof global.kjaDateToday==='function'?global.kjaDateToday():new Date().toISOString().slice(0,10);
+      const value=global.document?.getElementById?.('assignment-calendar-month')?.value||'';
+      const [year,month]=(/^\d{4}-\d{2}$/.test(value)?value:today.slice(0,7)).split('-').map(Number);
+      const offset=(new Date(Date.UTC(year,month-1,1)).getUTCDay()+6)%7,length=new Date(Date.UTC(year,month,0)).getUTCDate();
+      fillMirrorSlot(clone,'assignment-calendar-days',
+        Array.from({length:7},()=>`<span aria-hidden="true">${block('kja-sk-line kja-sk-weekday')}</span>`).join('')+
+        '<span></span>'.repeat(offset)+'<button type="button" aria-pressed="false"></button>'.repeat(length));
+    }
+    const note=clone.querySelector('#admin-assignment-date-note');
+    if(note&&!note.children.length)fillMirrorSlot(clone,'admin-assignment-date-note',`<span class="assignment-date-chip-icon" aria-hidden="true">${block('kja-sk-chip-icon')}</span><span class="assignment-date-chip-copy">${block('kja-sk-line kja-sk-chip-text')}</span>`);
+    const stats=clone.querySelector('#assignment-day-summary-stats');
+    if(stats&&!stats.children.length)fillMirrorSlot(clone,'assignment-day-summary-stats',Array.from({length:4},()=>`<div><dt>${block('kja-sk-line w-58')}</dt><dd>${block('kja-sk-number')}</dd></div>`).join(''));
   }
 
   function mirrorSection(host,kind){

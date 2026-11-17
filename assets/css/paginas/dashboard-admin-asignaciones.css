@@ -26,6 +26,19 @@
 #portal.admin-wide #admin-assignments-section :is(.assignment-toggle-btn,.assignment-work-date-label,.assignment-refresh-btn,.assignment-today-pill){background:linear-gradient(150deg,#fff,#ffffff70) !important;border:1px solid #fff !important;box-shadow:inset 0 1px 0 #fff,0 3px 10px #58473512 !important}
 #portal.admin-wide #admin-assignments-section :is(.assignment-toggle-btn,.assignment-today-pill,#assignment-work-date){color:#653c2d !important}
 
+/* La fecha se elige en el calendario de la sección. El campo de la cabecera sigue en el HTML, oculto,
+   porque dashboard-assignments.js lo mantiene sincronizado con la fecha seleccionada. */
+#portal #admin-assignments-section .assignment-work-date-label[hidden]{display:none !important}
+
+/* Acciones de la cabecera (Cierre y Nueva asignación): botones iguales, del ancho del más largo y de 40 px de alto. */
+@media(min-width:901px){
+  /* 166 px = «Nueva asignación», el más largo: así la pantalla de carga (que copia esta cabecera) ya tiene el ancho final. */
+  #portal #admin-assignments-section .assignment-head-actions{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(166px,1fr);align-items:stretch;gap:10px}
+  #portal #admin-assignments-section .assignment-head-actions > .assignment-toggle-btn{
+    box-sizing:border-box;height:40px;min-height:40px;margin:0;padding:0 16px !important;justify-content:center !important;gap:8px !important;border-radius:12px !important;white-space:nowrap;
+  }
+}
+
 /* Tonos tierra apagados: cada tipo y estado conserva su color, pero en la gama cálida del dashboard. */
 #portal.admin-wide #admin-assignments-section{
   --asg-clay:#a9583e;--asg-clay-bg:#f3e3da;
@@ -110,12 +123,7 @@
 
     /* Calendario a su alto natural y, debajo, el resumen de la fecha ocupando el resto. */
     #portal #admin-assignments-section .assignment-sidebar{display:flex;flex-direction:column;gap:16px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
-    #portal #admin-assignments-section .assignment-calendar{flex:none;padding:16px !important}
-    #portal #admin-assignments-section .assignment-calendar .assignment-card-header{padding-bottom:10px;margin-bottom:6px}
-    #portal #admin-assignments-section .assignment-month-nav{margin:6px 0 4px !important}
-    #portal #admin-assignments-section #assignment-calendar-message{margin:2px 0 !important;min-height:0}
-    #portal #admin-assignments-section .assignment-calendar-days{gap:2px !important;margin:6px 0 10px !important}
-    #portal #admin-assignments-section .assignment-calendar-days button{min-height:30px !important}
+    #portal #admin-assignments-section .assignment-calendar{flex:none}
 
     #portal #admin-assignments-section .assignment-day-summary{flex:1 0 150px;display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid var(--asg-teal-border);border-radius:20px;background:var(--asg-surface);box-shadow:var(--asg-shadow)}
     #portal #admin-assignments-section .assignment-day-summary header{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
@@ -161,10 +169,121 @@
   }
 }
 
-/* El selector de mes vive dentro de la barra de navegación del calendario, cuyos botones miden 30 px. */
-#portal #admin-assignments-section .assignment-month-nav label{min-width:0;display:block}
-#portal #admin-assignments-section .assignment-month-nav .kja-date-trigger{width:100% !important;height:32px !important;min-height:32px !important;padding:0 6px !important;display:flex !important;align-items:center;justify-content:center;gap:6px;border:0 !important;border-radius:9px !important;background:transparent !important;color:var(--asg-ink,#252523) !important;white-space:nowrap}
-#portal #admin-assignments-section .assignment-month-nav .kja-date-trigger:hover{background:var(--asg-soft,#f3eee6) !important}
+/* Fecha de la asignación: píldora compacta de una línea arriba del formulario (antes era una nota gris al pie).
+   Terracota de la paleta (el del día seleccionado en el calendario) con texto blanco, sin sombra;
+   ocre oscuro en fechas pasadas, que son solo consulta. */
+#portal #admin-assignments-section #admin-assignment-date-note{
+  display:inline-flex;align-items:center;gap:7px;max-width:100%;margin:0 0 14px;padding:6px 13px 6px 10px;border:0;border-radius:999px;
+  background:linear-gradient(150deg,#a9583e,#94492f);color:#fff;font-size:inherit;line-height:1.2;box-shadow:none;
+}
+#portal #admin-assignments-section #admin-assignment-date-note:empty{display:none}
+#portal #admin-assignments-section .assignment-date-chip-icon{display:grid;place-items:center;flex:none;color:#fff}
+#portal #admin-assignments-section .assignment-date-chip-icon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#portal #admin-assignments-section .assignment-date-chip-copy{display:flex;align-items:baseline;gap:6px;min-width:0;white-space:nowrap}
+#portal #admin-assignments-section .assignment-date-chip-copy b{color:#fff;font:600 13px/1.2 Inter,system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis}
+#portal #admin-assignments-section .assignment-date-chip-copy small{color:#fff7f2;font:500 12px/1.2 Inter,system-ui,sans-serif}
+#portal #admin-assignments-section .assignment-date-chip-copy small::before{content:"·";margin-right:6px}
+#portal #admin-assignments-section #admin-assignment-date-note.is-past{background:linear-gradient(150deg,#7d5f26,#654c1b)}
+#portal #admin-assignments-section #admin-assignment-date-note.is-past .assignment-date-chip-copy small{color:#f3ead6}
+
+/* Calendario compacto con los colores del panel: tarjeta crema #faf7f2 (la de la barra lateral de Gestión) y banda
+   terracota (--asg-teal → --asg-teal-hover, el mismo de la fecha del formulario) con «‹ Mes ›» en blanco y flechas
+   mínimas; celdas de 32 px: seleccionado = círculo terracota; hoy = anillo; con entregables = círculo «activo»
+   #f2e2d5 + punto; días pasados en --asg-muted (≈5:1 sobre crema). */
+#portal.admin-wide #admin-assignments-section .assignment-sidebar .assignment-calendar{
+  --cal-pad-y:14px;--cal-pad-x:16px;--cal-cream:#faf7f2;--cal-active:#f2e2d5;
+  padding:var(--cal-pad-y) var(--cal-pad-x) 12px !important;background:var(--cal-cream) !important;border-color:var(--asg-line-strong,#d6cdc2) !important;
+  box-shadow:0 8px 22px rgba(88,71,53,.09) !important;-webkit-backdrop-filter:none;backdrop-filter:none;
+}
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav{
+  grid-template-columns:30px minmax(0,1fr) 30px !important;gap:4px !important;
+  margin:calc(-1 * var(--cal-pad-y,14px)) calc(-1 * var(--cal-pad-x,16px)) 8px !important;
+  padding:10px calc(var(--cal-pad-x,16px) - 4px) !important;border-bottom:0;border-radius:19px 19px 0 0;
+  background:linear-gradient(150deg,var(--asg-teal,#a9583e),var(--asg-teal-hover,#94492f));
+}
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav label{min-width:0;display:block;margin:0}
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav .kja-date-trigger{
+  width:100% !important;height:32px !important;min-height:32px !important;padding:0 2px !important;display:flex !important;align-items:center;
+  justify-content:center !important;gap:4px;border:0 !important;border-radius:9px !important;background:transparent !important;
+  color:#fff !important;font:400 17px/1.2 var(--claude-display,'Fraunces',Georgia,serif) !important;letter-spacing:-.01em;white-space:nowrap;
+}
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav .kja-date-trigger .kja-date-text{flex:0 1 auto}
+/* Como en la referencia, el mes va sin flecha; al pulsarlo sigue abriendo su selector. */
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav .kja-date-trigger .kja-date-chevron{display:none}
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav .kja-date-trigger:hover{background:rgba(255,255,255,.14) !important}
+/* Flechas mínimas: solo el ícono blanco; un círculo translúcido aparece al pasar el mouse o con el teclado. */
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav > button{
+  width:30px !important;height:30px !important;border-radius:50% !important;background:transparent !important;
+  border-color:transparent !important;box-shadow:none !important;color:#fff !important;
+}
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav > button:hover{background:rgba(255,255,255,.16) !important;color:#fff !important}
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav :is(button,.kja-date-trigger):focus-visible{outline:2px solid #fff !important;outline-offset:1px}
+#portal #admin-assignments-section .assignment-calendar .assignment-month-nav > button svg{width:14px;height:14px}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-legend span{white-space:nowrap}
+/* «Ir a hoy» con el mismo estilo que «Hoy» / «Este mes» de los selectores cálidos. */
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-legend .assignment-today-pill{
+  margin-left:auto;height:26px;padding:0 9px !important;border-radius:8px !important;border:1px solid var(--asg-line,#e6dfd8) !important;
+  background:var(--asg-soft,#f3eee6) !important;box-shadow:none !important;color:var(--asg-teal,#a9583e) !important;
+  font:600 11px Inter,system-ui,sans-serif !important;white-space:nowrap;
+}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-legend .assignment-today-pill:hover{background:var(--asg-teal-tint,#efe9de) !important;color:var(--asg-teal-dark,#7d3d27) !important}
+#portal #admin-assignments-section .assignment-calendar #assignment-calendar-message{margin:0 0 6px !important;min-height:0;text-align:left}
+#portal #admin-assignments-section .assignment-calendar #assignment-calendar-message:empty{display:none}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days{gap:2px 0 !important;margin:0 0 8px !important}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days > span{padding:2px 0 4px;color:var(--asg-muted,#6c6a64);font-size:10.5px}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button{
+  justify-self:center;width:32px;height:32px;min-height:32px !important;aspect-ratio:auto !important;padding:0 !important;
+  border-radius:50% !important;background:transparent !important;color:var(--asg-ink,#252523) !important;font-weight:700 !important;box-shadow:none !important;
+}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button.is-past{color:var(--asg-muted,#6c6a64) !important;font-weight:500 !important}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button.has-assignments{background:var(--cal-active,#f2e2d5) !important}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button.has-assignments.is-past{background:var(--asg-soft,#f3eee6) !important}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button:hover{background:var(--asg-soft,#f3eee6) !important;border-color:transparent !important}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button.has-assignments:hover{background:var(--asg-teal-strong,#d9c3b3) !important}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button small{position:absolute;bottom:3px;left:50%;width:5px;height:5px;margin:0 0 0 -2.5px}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button.is-past small{opacity:.75}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button[aria-current='date']{border-color:var(--asg-teal) !important}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button[aria-pressed='true']{
+  background:var(--asg-teal) !important;color:#fff !important;border-color:var(--asg-teal) !important;box-shadow:0 3px 8px rgba(var(--asg-rgb,145,73,48),.3) !important;
+}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-days button[aria-pressed='true'] small{opacity:1}
+#portal #admin-assignments-section .assignment-calendar .assignment-calendar-legend{justify-content:flex-start !important;gap:10px !important;padding-top:8px !important;border-top-color:var(--asg-line,#e6dfd8) !important;color:var(--asg-muted,#6c6a64) !important;font-size:10.5px !important}
+#portal #admin-assignments-section .assignment-calendar .legend-dot.has-data{width:12px;height:12px;background:radial-gradient(circle,var(--asg-teal,#a9583e) 0 2px,var(--cal-active,#f2e2d5) 2.6px)}
+#portal #admin-assignments-section .assignment-calendar .legend-dot.is-today{width:12px;height:12px;border:1.5px solid var(--asg-teal);box-sizing:border-box}
+/* Entre 880 y 940 px el calendario baja a 250 px: menos relleno lateral y el mes un poco más chico para que no se corte. */
+@container assignments (min-width:880px) and (max-width:940px){
+  #portal.admin-wide #admin-assignments-section .assignment-sidebar .assignment-calendar{--cal-pad-x:12px}
+  #portal #admin-assignments-section .assignment-calendar .assignment-month-nav .kja-date-trigger{font-size:15.5px !important}
+}
+
+/* Pantalla de carga de Asignaciones. dashboard-skeleton.js copia la vista real (misma geometría); aquí toma la gama
+   cálida del panel y se le quita la decoración (terracota, círculos de color, puntos) para que se lea como «cargando». */
+#portal.admin-wide #admin-assignments-section{--kja-sk-base:#ebe4da;--kja-sk-card:#faf7f2;--kja-sk-line:#e6dfd8;--kja-sk-glow:rgba(255,255,255,.6)}
+#portal.admin-wide #admin-assignments-section > .kja-skeleton-layer,
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror{background:#f0ece5 !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-calendar .assignment-month-nav{background:var(--kja-sk-base) !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-calendar .assignment-month-nav :is(.kja-sk-native-line,.kja-sk-native-icon){background:#f7f2ec !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-calendar .assignment-calendar-days button[aria-pressed]{
+  background:var(--kja-sk-base) !important;border-color:transparent !important;box-shadow:none !important;
+}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-calendar .assignment-calendar-days button[aria-pressed] > *{display:none !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-calendar-days .kja-sk-weekday{display:inline-block;width:12px;height:8px}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-calendar .legend-dot{background:var(--kja-sk-base) !important;border-color:transparent !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-date-chip{
+  display:inline-flex;align-items:center;gap:7px;max-width:100%;height:28px;margin:0 0 14px;padding:6px 13px 6px 10px;border-radius:999px;background:var(--kja-sk-base) !important;
+}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-date-chip :is(.kja-sk-block,.kja-sk-native-icon){background:#f7f2ec !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-date-chip .kja-sk-chip-icon{width:15px;height:15px;border-radius:4px}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-date-chip .kja-sk-chip-text{width:150px;height:9px}
+/* Dentro de la píldora (ancho automático) las líneas copiadas no pueden medir en %: se fijan al ancho del texto real. */
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-date-chip b .kja-sk-native-line{width:150px}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-date-chip small .kja-sk-native-line{width:28px}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-calendar > p:empty{display:none}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-cta-btn{background:var(--kja-sk-base) !important;box-shadow:none !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-cta-btn .kja-sk-block{background:#f7f2ec !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .chip-avatar{background:var(--kja-sk-base) !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-day-summary dl > div{background:var(--asg-soft,#f3eee6) !important}
+#portal.admin-wide #admin-assignments-section .kja-skeleton-mirror .assignment-day-summary dl > div :is(dt,dd){color:transparent !important}
 
 /* Selector de destino: desplegable cálido y avatares por área en tonos tierra.
    El desplegable se monta fuera de #portal, por eso se ancla al tema con :has(). */

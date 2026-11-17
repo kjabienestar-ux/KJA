@@ -102,4 +102,5 @@
 .kja-date-warm .kja-month-cell{color:#3d3d3a}
 .kja-date-warm .kja-month-cell:hover:not(.is-selected){background:#f3eee6;color:#7d3d27}
 .kja-date-warm .kja-month-cell.is-today:not(.is-selected){border-color:#a9583e;color:#a9583e}
-.kja-date-warm .kja-month-cell.is-selected{background:linear-gradient(160deg,#b66448,#94492f);box-shadow:0 4px 12px rgba(145,73,48,.24)}
+/* Texto blanco sobre el terracota: la regla cálida de arriba ponía gris oscuro también en el mes seleccionado. */
+.kja-date-warm .kja-month-cell.is-selected{color:#fff;font-weight:700;background:linear-gradient(160deg,#a9583e,#8a4329);box-shadow:0 4px 12px rgba(145,73,48,.24)}

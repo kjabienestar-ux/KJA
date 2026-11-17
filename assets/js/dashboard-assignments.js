@@ -22,7 +22,9 @@ function assignmentCalendarMarkup(month,days,selected){
   for(let i=0;i<(first.getUTCDay()+6)%7;i++)html+='<span></span>';
   for(let day=1;day<=length;day++){
     const date=`${month}-${String(day).padStart(2,'0')}`,count=counts.get(date)||0;
-    html+=`<button type="button" data-assignment-date="${date}" aria-pressed="${date===selected}" ${date===isoLima()?'aria-current="date"':''} aria-label="${date}: ${count} asignaciones" class="${count?'has-assignments':''}"><span>${day}</span>${count?`<small aria-hidden="true">${count}</small>`:''}</button>`;
+    // Los días pasados se ven atenuados (solo consulta); el número exacto aparece al pasar el mouse.
+    const classes=[count?'has-assignments':'',date<isoLima()?'is-past':''].filter(Boolean).join(' ');
+    html+=`<button type="button" data-assignment-date="${date}" aria-pressed="${date===selected}" ${date===isoLima()?'aria-current="date"':''} aria-label="${date}: ${count} asignaciones" class="${classes}"${count?` title="${count} ${count===1?'asignación':'asignaciones'}"`:''}><span>${day}</span>${count?`<small aria-hidden="true">${count}</small>`:''}</button>`;
   }
   return html;
 }
@@ -37,7 +39,7 @@ async function loadAssignmentCalendar(){
     if(request!==ASSIGNMENT_CALENDAR_REQUEST)return;
     if(error||!data?.ok)throw new Error('consulta');
     $('assignment-calendar-days').innerHTML=assignmentCalendarMarkup(month,data.dias||[],$('admin-close-date').value);
-    $('assignment-calendar-message').textContent=(data.dias||[]).length?'Selecciona una fecha para ver sus asignaciones.':'No hay asignaciones registradas en este mes.';
+    $('assignment-calendar-message').textContent=(data.dias||[]).length?'':'No hay asignaciones registradas en este mes.';
   }catch{
     if(request!==ASSIGNMENT_CALENDAR_REQUEST)return;
     $('assignment-calendar-message').textContent='No se pudo cargar el calendario. Pulsa Actualizar para reintentar.';
@@ -48,8 +50,27 @@ function syncAssignmentCalendar(){
   if(ASSIGNMENT_SELECTED_DATE!==date||!$('assignment-calendar-month').value)$('assignment-calendar-month').value=date.slice(0,7);
   ASSIGNMENT_SELECTED_DATE=date;
   $('assignment-work-date').value=date;if(typeof syncKjaDatePickers==='function')syncKjaDatePickers();
-  $('admin-assignment-date-note').textContent=`Fecha seleccionada: ${adminReviewDate(date)}.${date<isoLima()?' Solo consulta: no puedes crear asignaciones en fechas pasadas.':''}`;
+  paintAssignmentDateNote(date);
   void loadAssignmentCalendar();
+}
+// «Miércoles 19 de noviembre»; el año solo aparece si no es el actual.
+function assignmentDateLabel(date){
+  const parsed=new Date(`${date}T12:00:00-05:00`);
+  if(Number.isNaN(parsed.getTime()))return 'Fecha no disponible';
+  const options={weekday:'long',day:'numeric',month:'long',timeZone:'America/Lima'};
+  if(date.slice(0,4)!==isoLima().slice(0,4))options.year='numeric';
+  const text=new Intl.DateTimeFormat('es-PE',options).format(parsed).replace(',','');
+  return text.charAt(0).toUpperCase()+text.slice(1);
+}
+// Etiqueta compacta de una línea arriba del formulario: «Martes 17 de noviembre · Hoy».
+// En fechas pasadas avisa que es solo consulta; el lector de pantalla oye «Fecha de la asignación».
+function paintAssignmentDateNote(date){
+  const note=$('admin-assignment-date-note'),today=isoLima(),past=date<today;
+  const extra=past?'Solo consulta':date===today?'Hoy':'';
+  const icon=past?'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>':'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>';
+  note.classList?.toggle('is-past',past);
+  note.title=past?'Fecha pasada: no puedes crear asignaciones en fechas pasadas.':'Fecha de la asignación. Se cambia en el calendario.';
+  note.innerHTML=`<span class="assignment-date-chip-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${icon}</svg></span><span class="assignment-date-chip-copy"><span class="sr-only">Fecha de la asignación: </span><b>${esc(assignmentDateLabel(date))}</b>${extra?`<small>${extra}</small>`:''}</span>`;
 }
 $('admin-close-target-search').oninput=()=>{syncAdminCloseTargets();clearAdminDrawPreview()};
 $('assignment-target-matches').onclick=event=>{
