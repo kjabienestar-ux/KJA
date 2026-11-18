@@ -7,7 +7,7 @@
   const longDate=date=>new Intl.DateTimeFormat('es-PE',{dateStyle:'long'}).format(date);
   let active=null;
   const pickers=[];
-  function close(restore=false){if(!active)return;const current=active;active=null;try{current.panel.hidePopover?.();}catch(_){}current.panel.hidden=true;current.trigger.setAttribute('aria-expanded','false');if(restore)current.trigger.focus();}
+  function close(restore=false){if(!active)return;const current=active;active=null;try{current.panel.hidePopover?.();}catch(_){}current.panel.hidden=true;current.trigger.setAttribute('aria-expanded','false');if(restore)current.trigger.focus({preventScroll:true});}
   function enhance(inputs){for(let i=pickers.length-1;i>=0;i--)if(!pickers[i].input.isConnected)pickers.splice(i,1);for(const input of inputs){
     if(!input||enhanced.has(input))continue;const id=input.id;
     const field=input.closest('label'),name=input.getAttribute('aria-label')||({'admin-contract-start':'Inicio del contrato','admin-contract-end':'Fin según documento','pw-shift-from':'Desde','pw-shift-until':'Hasta'}[id])||'Fecha';
@@ -21,8 +21,27 @@
     trigger.setAttribute('aria-controls',panel.id);
     wrap.append(trigger,panel);
     const picker={input,trigger,panel,wrap,month:parse(input.value)};pickers.push(picker);enhanced.set(input,picker);
-    // Dentro de un dialog o de un contenedor con desplazamiento propio, el calendario flota por encima y fijo en pantalla para no recortarse.
-    if(input.closest('dialog,[data-calendar-floating]')){panel.setAttribute('popover','manual');panel.classList.add('editor-calendar-floating');}
+    function position(){
+      if(!panel.classList.contains('editor-calendar-floating')||panel.hidden)return;
+      const edge=12,gap=6,r=trigger.getBoundingClientRect();
+      const width=Math.min(320,innerWidth-edge*2);
+      panel.style.width=width+'px';
+      const height=panel.getBoundingClientRect().height;
+      const right=r.right+gap;
+      const left=r.left-gap-width;
+      if(input.closest('.pw-legacy-editor,.admin-create-wizard')){
+        const side=right+width<=innerWidth-edge?right:left>=edge?left:null;
+        if(side!==null){
+          panel.style.left=side+'px';
+          panel.style.top=Math.max(edge,Math.min(r.top,innerHeight-height-edge))+'px';
+          return;
+        }
+      }
+      panel.style.left=Math.max(edge,Math.min(r.left,innerWidth-width-edge))+'px';
+      const below=r.bottom+gap,above=r.top-gap-height;
+      const top=below+height<=innerHeight-edge?below:above>=edge?above:innerHeight-height-edge;
+      panel.style.top=Math.max(edge,top)+'px';
+    }
     const sync=()=>{trigger.textContent=input.value?longDate(parse(input.value)):'Seleccionar fecha';trigger.setAttribute('aria-label',`${name}: ${trigger.textContent}`);trigger.disabled=input.disabled;};
     picker.sync=sync;
     function choose(value){input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));sync();close(true);}
@@ -30,12 +49,12 @@
       panel.replaceChildren();
       const head=document.createElement('span');head.className='editor-calendar-head';
       const button=(label,text,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=text;b.setAttribute('aria-label',label);b.addEventListener('click',fn);return b;};
-      const move=n=>{picker.month=new Date(picker.month.getFullYear(),picker.month.getMonth()+n,1,12);render();panel.querySelector(n<0?'[aria-label="Mes anterior"]':'[aria-label="Mes siguiente"]').focus();};
+      const move=n=>{picker.month=new Date(picker.month.getFullYear(),picker.month.getMonth()+n,1,12);render();panel.querySelector(n<0?'[aria-label="Mes anterior"]':'[aria-label="Mes siguiente"]').focus({preventScroll:true});};
       const month=document.createElement('select');month.setAttribute('aria-label','Mes');
       for(let m=0;m<12;m++){const o=document.createElement('option');o.value=m;o.textContent=new Intl.DateTimeFormat('es-PE',{month:'long'}).format(new Date(2026,m,1));month.append(o);}month.value=picker.month.getMonth();
       const year=document.createElement('input');year.type='number';year.min='1900';year.max='9999';year.value=picker.month.getFullYear();year.setAttribute('aria-label','Año');
-      month.onchange=()=>{picker.month=new Date(picker.month.getFullYear(),+month.value,1,12);render();panel.querySelector('select').focus();};
-      year.onchange=()=>{if(!year.checkValidity()||!year.value)return;picker.month=new Date(+year.value,picker.month.getMonth(),1,12);render();panel.querySelector('input').focus();};
+      month.onchange=()=>{picker.month=new Date(picker.month.getFullYear(),+month.value,1,12);render();panel.querySelector('select').focus({preventScroll:true});};
+      year.onchange=()=>{if(!year.checkValidity()||!year.value)return;picker.month=new Date(+year.value,picker.month.getMonth(),1,12);render();panel.querySelector('input').focus({preventScroll:true});};
       year.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();year.onchange();}};
       head.append(button('Mes anterior','‹',()=>move(-1)),month,year,button('Mes siguiente','›',()=>move(1)));panel.append(head);
       const grid=document.createElement('span');grid.className='editor-calendar-days';grid.setAttribute('role','group');grid.setAttribute('aria-label',new Intl.DateTimeFormat('es-PE',{month:'long',year:'numeric'}).format(picker.month));
@@ -54,9 +73,29 @@
       const foot=document.createElement('span');foot.className='editor-calendar-foot';
       const today=iso(new Date()),todayButton=button('Seleccionar hoy','Hoy',()=>choose(today));todayButton.disabled=!!((input.min&&today<input.min)||(input.max&&today>input.max));
       foot.append(button('Borrar fecha','Sin fecha',()=>choose('')),todayButton,button('Cerrar calendario','Cerrar',()=>close(true)));panel.append(foot);
-      if(focusDate)panel.querySelector(`[data-date="${focusDate}"]:not(:disabled)`)?.focus();
+      position();
+      if(focusDate)panel.querySelector(`[data-date="${focusDate}"]:not(:disabled)`)?.focus({preventScroll:true});
     }
-    trigger.onclick=()=>{if(active===picker){close();return;}close();active=picker;picker.month=parse(input.value);render();panel.hidden=false;if(panel.hasAttribute('popover')){panel.showPopover?.();const r=trigger.getBoundingClientRect();const width=Math.min(320,innerWidth-24);panel.style.width=width+'px';panel.style.left=Math.max(12,Math.min(r.left,innerWidth-width-12))+'px';const height=panel.getBoundingClientRect().height,below=r.bottom+6,above=r.top-6-height;panel.style.top=(below+height<=innerHeight-12?below:above>=12?above:Math.max(12,innerHeight-height-12))+'px';}trigger.setAttribute('aria-expanded','true');(panel.querySelector('[aria-pressed="true"]:not(:disabled)')||panel.querySelector('[data-date]:not(:disabled)'))?.focus();};
+    trigger.onclick=()=>{
+      if(active===picker){close();return;}
+      close();
+      active=picker;
+      picker.month=parse(input.value);
+      const floating=!!input.closest('dialog,[data-calendar-floating],.pw-legacy-editor,.admin-create-wizard');
+      panel.classList.toggle('editor-calendar-floating',floating);
+      if(floating){
+        panel.setAttribute('popover','manual');
+        panel.style.maxHeight='calc(100dvh - 24px)';
+      }else{
+        panel.removeAttribute('popover');
+        panel.removeAttribute('style');
+      }
+      render();
+      panel.hidden=false;
+      if(floating){panel.showPopover?.();position();}
+      trigger.setAttribute('aria-expanded','true');
+      (panel.querySelector('[aria-pressed="true"]:not(:disabled)')||panel.querySelector('[data-date]:not(:disabled)'))?.focus({preventScroll:true});
+    };
     panel.addEventListener('click',event=>event.stopPropagation());
     input.addEventListener('change',sync);new MutationObserver(()=>{sync();if(active===picker&&input.disabled)close();}).observe(input,{attributes:true,attributeFilter:['disabled','min','max']});input.addEventListener('invalid',event=>{event.preventDefault();trigger.focus();trigger.click();});sync();
   }}
@@ -66,5 +105,9 @@
   document.addEventListener('pointerdown',event=>{if(active&&!active.wrap.contains(event.target))close();});
   document.addEventListener('focusin',event=>{if(active&&!active.wrap.contains(event.target))close();});
   if(modal)new MutationObserver(()=>{close();pickers.filter(p=>p.input.isConnected).forEach(p=>p.sync());}).observe(modal,{attributes:true,attributeFilter:['hidden']});
+  document.addEventListener('scroll',event=>{
+    if(active?.panel.classList.contains('editor-calendar-floating')&&event.target.contains?.(active.trigger))close();
+  },true);
+  window.addEventListener('resize',()=>close());
   document.addEventListener('close',event=>{if(active&&event.target.contains(active.wrap))close();},true);
 })();

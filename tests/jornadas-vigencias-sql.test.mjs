@@ -148,3 +148,27 @@ test('mixed links and legacy punctual hours remain dated; temporal cannot outliv
   assert.equal((await save('temporal',49,55,[4],finite.version)).motivo,'principal_finalizada');
  }finally{await db.close();}
 });
+
+test('pending contract start can be completed without reopening protected history',async()=>{
+ const {db,date,save}=await fixture();
+ try{
+  await db.exec(sql);
+  await db.exec(fs.readFileSync('supabase/dashboard_139_inicio_contrato_pendiente.sql','utf8'));
+  await db.exec(`insert into asis_colaboradores(id,nombre,contrato_inicio,contrato_pendiente)
+    values(2,'Sin inicio',null,false),(3,'Pendiente',current_date,true),(4,'Con marcas',null,true)`);
+  await db.exec(`insert into asis_registros(colaborador_id,fecha) values(4,current_date)`);
+  const start=await date(2);
+  for(const id of [2,3]){
+   const result=await db.query('update asis_colaboradores set contrato_inicio=$1, contrato_pendiente=false where id=$2 returning contrato_inicio::text as inicio,horas_previas',[start,id]);
+   assert.equal(result.rows[0].inicio,start);
+   assert.equal(Number(result.rows[0].horas_previas),10);
+  }
+  for(const id of [1,2,4])await assert.rejects(db.query('update asis_colaboradores set contrato_inicio=$1 where id=$2',[await date(3),id]),/inicio_contrato_protegido/);
+  assert.equal((await save('principal',5,12)).ok,true);
+  await db.exec('update asis_colaboradores set contrato_pendiente=true where id=1');
+  const before=(await db.query('select to_jsonb(j) as j from asis_jornadas_vigencias j where colaborador_id=1')).rows;
+  await db.query('update asis_colaboradores set contrato_inicio=$1 where id=1',[await date(3)]);
+  assert.deepEqual((await db.query('select to_jsonb(j) as j from asis_jornadas_vigencias j where colaborador_id=1')).rows,before);
+  await assert.rejects(db.query('update asis_colaboradores set contrato_inicio=$1 where id=1',[await date(6)]),/inicio_contrato_protegido/);
+ }finally{await db.close();}
+});
