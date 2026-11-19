@@ -390,8 +390,9 @@ function configurePeopleEditor(person){
   if(!peopleDesktop())return;
   const sheet=$('admin-person-modal');sheet.classList.add('pw-legacy-editor');
   const opening=sheet.hidden;if(opening)PEOPLE_WORKBENCH.editorOrigin=document.activeElement;
-  const protectedIds=['admin-person-link','admin-contract-start','admin-general-start','admin-general-end'];
+  const protectedIds=['admin-person-link','admin-general-start','admin-general-end'];
   for(const id of protectedIds)$(id).disabled=!!person;
+  $('admin-contract-start').disabled=!!(person?.contrato_inicio&&!person.contrato_pendiente);
   $('admin-schedule-grid').querySelectorAll('input,select').forEach(el=>{if(person)el.disabled=true;});
   let note=$('pw-editor-schedule-note');if(!note){note=document.createElement('p');note.id='pw-editor-schedule-note';note.className='pw-notice';($('admin-person-modal').querySelector('.admin-general-hours')||$('admin-schedule-grid')).before(note);}
   note.hidden=!person;

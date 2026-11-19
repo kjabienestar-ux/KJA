@@ -65,7 +65,7 @@
 <link rel="stylesheet" href="assets/css/paginas/dashboard-profile-cover.css?v=5">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-close-workspace.css?v=retirada-35-1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-people-workspace.css?v=9">
-<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workbench.css?v=44">
+<link rel="stylesheet" href="assets/css/paginas/dashboard-people-workbench.css?v=49">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-date-picker.css?v=downloads-39-1">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-attendance-preview.css?v=2">
 <link rel="stylesheet" href="assets/css/paginas/dashboard-sidebar-mobile.css?v=7">
@@ -3189,8 +3189,9 @@
     </header>
     <form id="admin-person-form">
       <input type="hidden" id="admin-person-id">
-      <!-- El formulario se recorre por pantallas: una sección visible a la vez, con pestañas y flechas. -->
+      <!-- Alta progresiva; la edición conserva sus secciones y protecciones. -->
       <div class="admin-editor-nav" id="admin-editor-nav"><button type="button" class="admin-editor-step" data-editor-step="-1" aria-label="Sección anterior" title="Sección anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><div class="admin-editor-tabs" role="tablist" aria-label="Secciones del formulario"><button type="button" role="tab" data-editor-jump=".editor-identity" aria-selected="true" tabindex="0">Identidad</button><button type="button" role="tab" data-editor-jump=".editor-contract" aria-selected="false" tabindex="-1">Contrato</button><button type="button" role="tab" data-editor-jump=".schedule-block" aria-selected="false" tabindex="-1">Jornada</button><button type="button" role="tab" data-editor-jump=".facebook-schedule-block" aria-selected="false" tabindex="-1">Facebook</button><button type="button" role="tab" data-editor-jump="#admin-history-block" aria-selected="false" tabindex="-1">Historial</button></div><button type="button" class="admin-editor-step" data-editor-step="1" aria-label="Sección siguiente" title="Sección siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
+      <p id="admin-create-progress" class="admin-create-progress" role="status" hidden></p>
       <section class="admin-editor-block editor-identity">
         <div class="admin-editor-label"><b>Identidad laboral</b><span>Datos para reconocer a la persona y permitir su acceso.</span></div>
         <div class="admin-form-grid">
@@ -3205,14 +3206,13 @@
       </section>
 
       <section class="admin-editor-block editor-contract">
-        <div class="admin-editor-label"><b>Contrato</b><span>Registra lo que figura en el documento y las horas anteriores al sistema.</span></div>
+        <div class="admin-editor-label"><b>Contrato</b><span>Registra las fechas y la meta de horas que figuran en el documento.</span></div>
         <label class="admin-pending-check"><input type="checkbox" id="admin-contract-is-pending"><span><b>Datos pendientes de actualizar</b><small>La fecha proyectada se mostrará como provisional.</small></span></label>
         <label class="admin-field" id="admin-contract-note-wrap" hidden>Qué falta confirmar<input id="admin-contract-note" maxlength="200" placeholder="Ej. confirmar horas con la universidad"></label>
         <div class="admin-form-grid contract-fields">
           <label class="admin-field">Inicio<input type="date" id="admin-contract-start"></label>
           <label class="admin-field">Fin según documento<input type="date" id="admin-contract-end"></label>
           <div class="admin-field"><div class="admin-field-head"><label for="admin-contract-hours">Meta principal (h)</label><button type="button" id="admin-contract-calculate" class="admin-field-add" title="Calcula las horas con el horario actual, sin cambiar la meta">Simular</button></div><input type="number" min="0" step="0.01" id="admin-contract-hours"></div>
-          <label class="admin-field">Horas previas<input type="number" min="0" step="0.5" id="admin-contract-previous" value="0"></label>
           <label class="admin-field span-2" id="admin-volunteer-hours-wrap" hidden>Meta de voluntariado (h)<input type="number" min="0" step="1" id="admin-volunteer-hours"></label>
           <small class="admin-contract-estimate" id="admin-contract-estimate" role="status">Horas acordadas en el contrato. Cambiar fechas o jornada no modifica esta meta. La simulación no reconstruye horarios anteriores.</small>
         </div>
@@ -3257,9 +3257,25 @@
         <label class="admin-field">Motivo de esta actualización<input id="admin-change-reason" maxlength="140" placeholder="Ej. nuevo horario aprobado por Dirección"></label>
       </section>
 
+      <section class="admin-editor-block editor-review" hidden aria-label="Revisión del nuevo colaborador">
+        <div class="admin-editor-label"><b>Revisa antes de crear</b><span>Comprueba los datos. Puedes volver a cualquier paso para corregirlos.</span></div>
+        <div id="admin-create-summary"></div>
+      </section>
       <div class="admin-editor-message" id="admin-editor-message" role="status" aria-live="polite"></div>
-      <footer class="admin-editor-foot"><button type="button" class="admin-secondary-action" data-close-person>Cancelar</button><button type="submit" class="admin-primary-action" id="admin-person-save">Guardar cambios</button></footer>
+      <footer class="admin-editor-foot"><button type="button" class="admin-secondary-action" data-close-person>Cancelar</button><button type="button" class="admin-secondary-action" id="admin-create-back" hidden>Anterior</button><button type="button" class="admin-primary-action" id="admin-create-next" hidden>Continuar →</button><button type="submit" class="admin-primary-action" id="admin-person-save">Guardar cambios</button></footer>
     </form>
+    <section id="admin-create-success" class="admin-create-success" hidden>
+      <div class="create-success-confetti" aria-hidden="true">
+        <i style="--x:-154px;--y:-48px;--r:42deg"></i><i style="--x:-108px;--y:34px;--r:-62deg"></i>
+        <i style="--x:-84px;--y:-68px;--r:76deg"></i><i style="--x:-158px;--y:24px;--r:108deg"></i>
+        <i style="--x:148px;--y:-54px;--r:-48deg"></i><i style="--x:112px;--y:34px;--r:60deg"></i>
+        <i style="--x:84px;--y:-68px;--r:-74deg"></i><i style="--x:160px;--y:20px;--r:-110deg"></i>
+      </div>
+      <span class="create-success-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></svg></span>
+      <h3 id="admin-create-success-title" tabindex="-1">Colaborador creado</h3>
+      <p id="admin-create-success-copy"></p>
+      <button type="button" class="admin-primary-action" data-close-person>Volver a colaboradores</button>
+    </section>
   </section>
 </div>
 
@@ -3832,7 +3848,7 @@
 <script src="assets/js/dashboard-admin-entrada.js?v=3"></script>
 <script src="assets/js/dashboard-maps.js?v=2"></script>
 <script src="assets/js/history-pages.js?v=1"></script>
-<script src="assets/js/dashboard-admin-equipo.js?v=areas-29-free-pages-5"></script>
+<script src="assets/js/dashboard-admin-equipo.js?v=areas-29-create-10"></script>
 <!-- Documento del contrato: activo desde que se ejecutó supabase/dashboard_128_documento_contrato.sql (2026-10-29). -->
 <script>window.KJA_CONTRATO_DOCUMENTO=true;</script>
 <script src="assets/js/dashboard-contract-document.js?v=2"></script>
@@ -3840,7 +3856,7 @@
 <script src="assets/js/dashboard-areas.js?v=2"></script>
 <script src="assets/js/dashboard-area-picker.js?v=4"></script>
 <script src="assets/js/dashboard-date-picker.js?v=downloads-39-2"></script>
-<script src="assets/js/dashboard-editor-calendar.js?v=4"></script>
+<script src="assets/js/dashboard-editor-calendar.js?v=7"></script>
 <script src="assets/js/dashboard-editor-time.js?v=2"></script>
 <script src="assets/js/dashboard-person-attendance.js?v=4"></script>
 <script src="assets/js/attendance-report-model.js?v=4"></script>
@@ -3848,7 +3864,7 @@
 <script src="assets/js/dashboard-person-profile.js?v=7"></script>
 <script src="assets/js/dashboard-attendance-export.js?v=10"></script>
 <script src="assets/js/dashboard-attendance-preview.js?v=3"></script>
-<script src="assets/js/dashboard-people-workbench.js?v=2-free-pages-27"></script>
+<script src="assets/js/dashboard-people-workbench.js?v=2-free-pages-28"></script>
 <script src="assets/js/dashboard-month-day-detail.js?v=13-archive1"></script>
 <script src="assets/js/dashboard-days-off-planner.js?v=1"></script>
 <script src="assets/js/dashboard-admin-mes.js?v=28-archive1"></script>

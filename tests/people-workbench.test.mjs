@@ -131,3 +131,37 @@ test('PDF loader failure reports the problem before querying full history and re
  assert.equal(queried,false);assert.equal(button.disabled,false);assert.match(w.fixtureToasts.at(-1)[0],/generador PDF/);
  }finally{dom.window.close();}
 });
+
+test('new collaborator validates each step, retains values, reviews safely and blocks premature submit',async()=>{
+ const {dom,w}=setup();try{
+  await w.openAdminPerson();
+  const next=()=>w.$('admin-create-next').click();
+  assert.equal(w.$('admin-person-save').hidden,true);
+  next();assert.match(w.$('admin-editor-message').textContent,/nombre completo/);assert.equal(w.document.activeElement.id,'admin-person-name');
+  w.$('admin-person-name').value='<Ana Test>';w.$('admin-person-dni').value='123';next();assert.match(w.$('admin-editor-message').textContent,/8 dígitos/);
+  w.$('admin-person-dni').value='12345678';next();assert.match(w.$('admin-create-progress').textContent,/Paso 2/);
+  w.$('admin-contract-hours').value='-1';next();assert.equal(w.$('admin-contract-hours').getAttribute('aria-invalid'),'true');
+  w.$('admin-contract-hours').value='100';w.$('admin-contract-start').value='2026-11-19';w.$('admin-contract-end').value='2026-11-18';next();assert.match(w.$('admin-editor-message').textContent,/anterior/);
+  w.$('admin-contract-end').value='2026-12-31';next();assert.match(w.$('admin-create-progress').textContent,/Paso 3/);
+  const end=w.document.querySelector('[data-schedule-day="1"] .schedule-end');end.value='07:00';next();assert.match(w.$('admin-editor-message').textContent,/posterior/);
+  end.value='13:00';next();assert.match(w.$('admin-create-progress').textContent,/Paso 4/);
+  const fb=w.document.querySelector('[data-facebook-day="1"] .facebook-day-end');fb.value='08:00';next();assert.match(w.$('admin-editor-message').textContent,/distintos/);
+  fb.value='13:00';next();assert.match(w.$('admin-create-progress').textContent,/Paso 5/);assert.equal(w.$('admin-person-save').hidden,false);
+  assert.match(w.$('admin-create-summary').textContent,/<Ana Test>/);assert.equal(w.$('admin-create-summary').querySelector('ana'),null);
+  w.$('admin-create-summary').querySelector('[data-create-edit="0"]').click();assert.equal(w.$('admin-person-name').value,'<Ana Test>');
+  await w.saveAdminPerson({preventDefault(){}});assert.equal(w.fixtureCalls.some(c=>c.name==='dash_admin_guardar_colaborador'),false);
+  w.closeAdminPerson();await w.openAdminPerson();assert.match(w.$('admin-create-progress').textContent,/Paso 1/);assert.equal(w.$('admin-person-name').value,'');
+  w.closeAdminPerson();await w.openAdminPerson(1);assert.equal(w.$('admin-create-next').hidden,true);assert.equal(w.$('admin-person-save').hidden,false);
+ }finally{dom.window.close();}
+});
+
+test('creation retry after Facebook failure updates the created identity instead of inserting twice',async()=>{
+ const {dom,w}=setup();try{
+  await w.openAdminPerson();w.$('admin-person-name').value='Ana Test';
+  for(let i=0;i<4;i++)w.$('admin-create-next').click();
+  const payloads=[];let fail=true;
+  w.db.rpc=async(name,args)=>{if(name==='dash_admin_guardar_colaborador'){payloads.push(args.p_datos);return {data:{ok:true,id:77,nuevo:args.p_datos.id===null}};}if(name==='dash_admin_guardar_horario_compartir')return fail?{error:{message:'test'}}:{data:{ok:true}};return {data:w.APP.adminTeam};};
+  await w.saveAdminPerson({preventDefault(){}});assert.equal(w.$('admin-person-id').value,'77');assert.equal(w.$('admin-person-modal').hidden,false);assert.match(w.$('admin-editor-message').textContent,/ficha se guardó/);
+  fail=false;await w.saveAdminPerson({preventDefault(){}});assert.equal(payloads[0].id,null);assert.equal(payloads[1].id,77);assert.equal(w.$('admin-create-success').hidden,false);assert.equal(w.$('admin-person-form').hidden,true);w.$('admin-create-success').querySelector('button').click();assert.equal(w.$('admin-person-modal').hidden,true);
+ }finally{dom.window.close();}
+});

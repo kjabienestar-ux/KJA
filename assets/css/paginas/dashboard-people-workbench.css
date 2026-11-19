@@ -193,7 +193,7 @@
   #admin-person-modal.pw-legacy-editor .editor-contract>*{grid-column:1/-1}
   #admin-person-modal.pw-legacy-editor .editor-contract:has(#admin-contract-note-wrap:not([hidden]))>.admin-pending-check{grid-column:1}
   #admin-person-modal.pw-legacy-editor .editor-contract>#admin-contract-note-wrap{grid-column:2;align-self:end}
-  #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields:has(#admin-volunteer-hours-wrap:not([hidden])){grid-template-columns:repeat(5,minmax(0,1fr))}
+  #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields:has(#admin-volunteer-hours-wrap:not([hidden])){grid-template-columns:repeat(4,minmax(0,1fr))}
   #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields>#admin-volunteer-hours-wrap{grid-column:auto}
   #admin-person-modal.pw-legacy-editor .contract-document-drop{padding:10px 14px}
   /* Si una pantalla muy baja no alcanza, la tarjeta se desplaza por dentro en lugar de cortar su contenido. */
@@ -266,7 +266,7 @@
   #admin-person-modal.pw-legacy-editor .editor-identity .admin-form-grid>.span-2{grid-column:span 2}
   #admin-person-modal.pw-legacy-editor .editor-identity .admin-field-institution{grid-column:span 2;grid-row:auto}
   #admin-person-modal.pw-legacy-editor .editor-identity .admin-area-create{grid-column:1/-1}
-  #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 16px}
+  #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px}
   #admin-person-modal.pw-legacy-editor .editor-contract .contract-fields>.span-2{grid-column:span 2}
   #admin-person-modal.pw-legacy-editor .admin-contract-estimate{grid-column:1/-1;margin:-4px 0 0;font-size:12px;font-weight:400;line-height:1.5}
   /* «+ Nueva» y «Simular» pasan a la línea de la etiqueta como acciones discretas. */
@@ -301,8 +301,8 @@
   #portal #admin-people-section.pw-workbench .pw-card-edit:focus-visible{outline:3px solid #93472f;outline-offset:2px}
   /* Ficha del colaborador: ventana ajustada al contenido y una tarjeta por pestaña, con flechas para recorrerlas. */
   #pw-profile-dialog.pw-modal{width:min(980px,calc(100vw - 48px));height:fit-content}
-  /* Altura mínima igual a la pestaña más alta (Jornada), para que la ventana y las flechas no salten al cambiar de pestaña. */
-  #pw-profile-dialog .pw-modal-body{min-height:min(550px,calc(100vh - 290px));padding:22px 26px}
+  /* La ficha toma la altura de su contenido y desplaza solo el panel si hace falta. */
+  #pw-profile-dialog .pw-modal-body{min-height:0;padding:22px 26px}
   #pw-profile-dialog .pw-modal-body>:last-child{margin-bottom:0}
   .pw-profile-nav{display:flex;align-items:center;justify-content:center;gap:18px;background:#fff;border-bottom:1px solid #e6dfd8;padding:4px 22px;flex-shrink:0}
   .pw-profile-nav .pw-profile-tabs{border-bottom:0;padding:0;background:transparent;gap:26px}
@@ -332,3 +332,304 @@
 /* Calendario flotante del panel de fechas de la jornada: queda fijo en pantalla, por encima del editor. */
 #admin-person-modal .editor-calendar.editor-calendar-floating{position:fixed;inset:auto;right:auto;margin:0;z-index:12000;box-sizing:border-box;overflow:visible}
 #admin-person-modal .editor-calendar.editor-calendar-floating[hidden]{display:none!important}
+/* KJA-042 · Alta progresiva, solo escritorio. */
+@media(min-width:901px){
+  #admin-person-modal.admin-create-wizard #admin-person-form{display:flex;flex-direction:column;gap:14px;height:auto;overflow:hidden;padding:0 24px}
+  #admin-person-modal.admin-create-wizard .admin-editor-nav{position:static;flex:none;padding:16px 24px 10px;background:#fffefa;border-bottom:1px solid #e6dfd8}
+  #admin-person-modal.admin-create-wizard .admin-editor-step{display:none}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;width:100%}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;height:auto;min-height:60px;padding:0 8px;border:0;color:#69635d;font-size:12px;isolation:isolate}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button::before{content:'';position:absolute;z-index:-1;top:17px;left:-50%;width:100%;height:2px;background:#ddd3c8}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button:first-child::before{display:none}
+  #admin-person-modal.admin-create-wizard .create-step-number{display:grid;place-items:center;width:36px;height:36px;box-sizing:border-box;border:2px solid #998b7f;border-radius:50%;background:#fffefa;color:#69635d;font-size:14px;font-weight:700}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button[aria-current] {color:#79452f}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button[aria-current] .create-step-number{border-color:#a9583e;color:#79452f;box-shadow:0 0 0 4px #f2e2d5}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button.is-complete .create-step-number{color:white;background:#a9583e;border-color:#a9583e}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button:is(.is-complete,[aria-current])::before{background:#a9583e}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button:disabled{cursor:default;opacity:1}
+  #admin-person-modal.admin-create-wizard .admin-create-progress{flex:none;margin:0;color:#79452f;font-size:12px;font-weight:650}
+  #admin-person-modal.admin-create-wizard .admin-editor-block{flex:0 1 auto;min-height:0;overflow-y:auto;align-content:start;overscroll-behavior:contain;align-self:stretch}
+  #admin-person-modal.admin-create-wizard .admin-editor-foot{flex:none;position:static;display:flex;gap:10px;margin:0 -24px;padding:14px 24px;background:#fffefa;border-top:1px solid #e6dfd8}
+  #admin-person-modal.admin-create-wizard .admin-editor-foot>[data-close-person]{margin-right:auto}
+  #admin-person-modal.admin-create-wizard .admin-editor-message:not(:empty){flex:none;margin:0;padding:10px 14px;border-radius:8px;background:#fbeee9;color:#8a3228;font-size:13px}
+  #admin-person-modal.admin-create-wizard [aria-invalid=true]{border-color:#a43d30!important;outline:2px solid #a43d30;outline-offset:1px}
+  #admin-person-modal.admin-create-wizard #admin-create-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  #admin-person-modal.admin-create-wizard #admin-create-summary article{padding:16px;border:1px solid #ded6cb;border-radius:10px;background:#fcfaf7;min-width:0}
+  #admin-person-modal.admin-create-wizard #admin-create-summary header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;color:#51483f}
+  #admin-person-modal.admin-create-wizard #admin-create-summary p{margin:5px 0;overflow-wrap:anywhere;font-size:12px;line-height:1.55}
+}
+@media(min-width:901px){
+  #admin-person-modal.admin-create-wizard :is(.admin-editor-nav,.admin-editor-foot){align-self:stretch;width:auto;max-width:none}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button::before{left:calc(-50% + 18px);width:calc(100% - 36px)}
+}
+@media(min-width:901px){
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor){
+    --create-ink:#38312b;
+    --create-muted:#655950;
+    --create-border:#998b7f;
+    --create-accent:#93472f;
+    --create-tint:#f2e2d5;
+    --create-paper:#fffefa;
+  }
+  #admin-person-modal.admin-create-wizard .admin-editor-nav .admin-editor-tabs button{
+    background:transparent;
+    border-color:transparent;
+    box-shadow:none;
+  }
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button:focus-visible{
+    outline:none;
+  }
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button:focus-visible .create-step-number{
+    outline:2px solid var(--create-accent);
+    outline-offset:3px;
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.schedule-block,.facebook-schedule-block){
+    grid-template-rows:auto auto auto auto;
+    align-content:start;
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.admin-schedule-grid,.facebook-schedule-grid){
+    overflow:visible;
+    max-height:none;
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.admin-field,.admin-editor-label span,.admin-editor-head p,.admin-schedule-head,.facebook-schedule-head,.admin-schedule-row>b,.facebook-schedule-row>b){
+    color:var(--create-muted);
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) input::placeholder{color:var(--create-muted)}
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) input{accent-color:var(--create-accent);caret-color:var(--create-accent)}
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-trigger,.editor-date-trigger,.modal-close,.admin-secondary-action,.admin-editor-inline-action,#admin-area-save){
+    color:var(--create-ink);
+    background:var(--create-paper);
+    border-color:var(--create-border);
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-trigger svg,.editor-date-trigger::after,.af-options>button>span,.facebook-schedule-icon){
+    color:var(--create-accent);
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-trigger,.editor-date-trigger)[aria-expanded=true]{
+    border-color:var(--create-accent);
+    background:var(--create-tint);
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-trigger,.editor-date-trigger):disabled{
+    background:#f0eae3;
+    color:var(--create-muted);
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-popup,.editor-calendar){
+    border-color:#d9c2ae;
+    color:var(--create-ink);
+    background:var(--create-paper);
+    box-shadow:0 16px 38px #30201524,0 3px 8px #3020150a;
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-options>button,.af-clock-list button,.af-popup footer button,.editor-calendar button){
+    color:var(--create-ink);
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-options>button[aria-selected=true],.facebook-schedule-row.is-active .facebook-day-toggle){
+    background:var(--create-tint);
+    color:#79452f;
+    border-color:#d9c2ae;
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-clock-list button[aria-pressed=true],.af-popup footer button:last-child,.editor-calendar-days button[aria-pressed=true],.facebook-schedule-row.is-active .facebook-day-toggle::before){
+    color:#fff;
+    background:var(--create-accent);
+    border-color:var(--create-accent);
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-clock-list,.af-time-popup header,.af-time-popup footer,.editor-calendar-foot,.contract-document){
+    border-color:#e6dfd8;
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-time-popup header,.af-clock-columns section>b,.editor-calendar-days>span,.contract-document-head b,.contract-document-drop b,.facebook-schedule-note span){
+    color:var(--create-muted)!important;
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.facebook-schedule-note,.facebook-schedule-icon,.contract-document-drop,.contract-document-file){
+    background:#f8f3ec;
+    border-color:#ded6cb;
+  }
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) .contract-document-drop svg{stroke:var(--create-accent)}
+  #admin-person-modal.admin-create-wizard .admin-create-success{
+    display:grid;
+    justify-items:center;
+    gap:14px;
+    padding:clamp(28px,6vh,56px) 24px;
+    text-align:center;
+  }
+  #admin-person-modal.admin-create-wizard .admin-create-success :is(h3,p){margin:0}
+  #admin-person-modal.admin-create-wizard .admin-create-success h3{font-size:24px}
+  #admin-person-modal.admin-create-wizard .admin-create-success button{margin-top:8px}
+  #admin-person-modal.admin-create-wizard .create-success-icon{
+    display:grid;
+    place-items:center;
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    background:var(--create-tint);
+    color:var(--create-accent);
+  }
+  #admin-person-modal.admin-create-wizard .create-success-icon svg{
+    width:32px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  @media(hover:hover){
+    #admin-person-modal.admin-create-wizard .admin-editor-tabs button:not(:disabled):hover .create-step-number{
+      border-color:var(--create-accent);
+      box-shadow:0 0 0 4px var(--create-tint);
+    }
+    #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-trigger,.editor-date-trigger,.admin-secondary-action,.editor-calendar button):not(:disabled):hover,
+    #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(.af-options>button,.af-clock-list button):not(:disabled):not([aria-pressed=true]):hover{
+      background:var(--create-tint);
+    }
+  }
+  @media(prefers-reduced-motion:no-preference){
+    #admin-person-modal.admin-create-wizard .create-success-icon path{stroke-dasharray:24;animation:create-success-check 340ms 100ms ease-out both}
+  }
+}
+@keyframes create-success-check{
+  from{stroke-dashoffset:24}
+  to{stroke-dashoffset:0}
+}
+@media(min-width:901px){
+  #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) :is(input:not([type=checkbox]),select,textarea){
+    color:var(--create-ink);
+  }
+  @supports (appearance:base-select){
+    #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) select::picker-icon{color:var(--create-accent)}
+    #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) select:open{
+      border-color:var(--create-accent);
+      background:var(--create-tint);
+    }
+    #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) select::picker(select){
+      color:var(--create-ink);
+      border-color:#d9c2ae;
+      box-shadow:0 12px 30px #30201526;
+    }
+    #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) select option:is(:checked,:focus-visible){
+      background:var(--create-tint);
+      color:#79452f;
+    }
+    @media(hover:hover){
+      #admin-person-modal:is(.admin-create-wizard,.pw-legacy-editor) select option:hover{background:var(--create-tint);color:#79452f}
+    }
+  }
+}
+@media(min-width:901px){
+  #admin-person-modal.admin-create-wizard .schedule-block{
+    grid-template-rows:auto auto auto;
+  }
+  #admin-person-modal.admin-create-wizard .schedule-block>.admin-general-hours{display:none}
+  #admin-person-modal.admin-create-wizard .schedule-block>.admin-schedule-head{grid-row:2}
+  #admin-person-modal.admin-create-wizard .schedule-block>.admin-schedule-grid{grid-row:3}
+  #admin-person-modal.admin-create-wizard .editor-calendar-floating{
+    max-width:calc(100vw - 24px);
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    padding:12px;
+  }
+  #admin-person-modal.admin-create-wizard .editor-calendar :is(button,input,select){
+    min-height:34px;
+    font-size:13px!important;
+  }
+  #admin-person-modal.admin-create-wizard .editor-calendar-days{
+    grid-auto-rows:36px;
+  }
+  #admin-person-modal.admin-create-wizard .editor-calendar-days button[aria-current=date]{
+    box-shadow:inset 0 0 0 1px var(--create-border);
+  }
+  #admin-person-modal.admin-create-wizard .admin-create-success{
+    position:relative;
+    isolation:isolate;
+    overflow:hidden;
+    padding:48px 24px;
+    background:radial-gradient(ellipse at 50% 8%,#f2e2d5 0,transparent 62%),#fcfaf7;
+  }
+  #admin-person-modal.admin-create-wizard .create-success-icon{
+    width:74px;
+    height:74px;
+    border:1px solid #d9c2ae;
+    background:#fffefa;
+  }
+  #admin-person-modal.admin-create-wizard .create-success-confetti{
+    position:absolute;
+    z-index:-1;
+    inset:0;
+    pointer-events:none;
+  }
+  #admin-person-modal.admin-create-wizard .create-success-confetti i{
+    position:absolute;
+    top:85px;
+    left:50%;
+    width:7px;
+    height:11px;
+    border-radius:2px;
+    background:#ad644b;
+    opacity:0;
+  }
+  #admin-person-modal.admin-create-wizard .create-success-confetti i:nth-child(2n){
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#bc8a54;
+  }
+  #admin-person-modal.admin-create-wizard .create-success-icon::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    border:2px solid #c88d73;
+    border-radius:inherit;
+    opacity:0;
+  }
+  @media(prefers-reduced-motion:no-preference){
+    #admin-person-modal.admin-create-wizard .create-success-icon{
+      position:relative;
+      animation:create-success-pop 480ms cubic-bezier(.2,0,0,1) both;
+    }
+    #admin-person-modal.admin-create-wizard .create-success-icon::before{
+      animation:create-success-ring 580ms 110ms ease-out both;
+    }
+    #admin-person-modal.admin-create-wizard .create-success-confetti i{
+      animation:create-success-confetti 900ms 120ms cubic-bezier(.2,0,.25,1) both;
+    }
+  }
+}
+@keyframes create-success-pop{
+  0%{opacity:0;transform:scale(.58)}
+  58%{opacity:1;transform:scale(1.09)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes create-success-ring{
+  0%{opacity:.65;transform:scale(.9)}
+  100%{opacity:0;transform:scale(1.52)}
+}
+@keyframes create-success-confetti{
+  0%{opacity:0;transform:translate(0,0) rotate(0)}
+  42%{opacity:.72;transform:translate(var(--x),var(--y)) rotate(var(--r))}
+  100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 24px)) rotate(var(--r))}
+}
+@media(min-width:901px){
+  #admin-person-modal.pw-legacy-editor:not(.admin-create-wizard) #admin-person-form{
+    display:flex;
+    flex-direction:column;
+    height:auto;
+    gap:14px;
+    overflow:hidden;
+  }
+  #admin-person-modal.pw-legacy-editor:not(.admin-create-wizard) :is(.admin-editor-nav,.admin-editor-foot){
+    flex:none;
+    align-self:stretch;
+    max-width:none;
+    width:auto;
+  }
+  #admin-person-modal.pw-legacy-editor:not(.admin-create-wizard) .admin-editor-block{
+    flex:0 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+  }
+  #admin-person-modal.pw-legacy-editor:not(.admin-create-wizard) .admin-editor-foot{margin-top:0}
+  #admin-person-modal.pw-legacy-editor:not(.admin-create-wizard) .admin-editor-message:not(:empty){flex:none}
+  #admin-person-modal.pw-legacy-editor:not(.admin-create-wizard) .admin-editor-tabs button:hover{background:transparent;color:#93472f}
+  #admin-person-modal.pw-legacy-editor .editor-calendar-floating{overflow:auto;overscroll-behavior:contain}
+  #admin-person-modal.pw-legacy-editor .editor-calendar :is(button,input,select){min-height:34px;font-size:13px!important}
+  #admin-person-modal.pw-legacy-editor .editor-calendar-days{grid-auto-rows:36px}
+  #pw-profile-dialog :is(.pw-profile-nav,.pw-modal-head,.pw-modal-foot){background:#fffefa}
+  #pw-profile-dialog .pw-profile-tabs button{white-space:nowrap}
+}
