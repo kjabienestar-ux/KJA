@@ -207,6 +207,9 @@ function closeAdminPersonCalendar(returnToLedger=false){
   if(!host)return;
   host._personCalendar=null;host.hidden=true;host.innerHTML='';
   host.onclick=null;host.onchange=null;
+  // «Ver mes» vive en un modal: si el libro se vuelve a pintar o se cierra el calendario, el modal también se cierra.
+  const dialog=$('admin-person-calendar-dialog');
+  if(dialog?.open)dialog.close();
   if(returnToLedger){
     const ledger=$('admin-month-ledger');
     ledger.setAttribute('tabindex','-1');ledger.focus({preventScroll:true});
@@ -232,6 +235,22 @@ function monthRangeView(days,today,narrow){
   const index=Math.max(0,ranges.findIndex(range=>range.some(d=>d.fecha===ADMIN_MONTH_RANGE.date)));
   return {ranges,index,visible:ranges[index]||[]};
 }
+// Páginas de hasta 8 personas que nunca parten un área. Cada área, entera, va a la página con más espacio libre
+// donde quepa (así se llenan los huecos); si no cabe en ninguna, abre una página nueva. Un área de más de 8 personas
+// ocupa sola su página. Dentro de cada página las áreas conservan el orden en que llegan.
+const MONTH_PAGE_SIZE=8;
+function monthLedgerPages(people,size=MONTH_PAGE_SIZE){
+  const groups=new Map();
+  for(const person of people){const key=String(person.area_id??person.area??'');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(person);}
+  const pages=[];
+  [...groups.values()].forEach((members,order)=>{
+    let target=null;
+    for(const page of pages){const free=size-page.count;if(free>=members.length&&(!target||free>size-target.count))target=page;}
+    if(!target){target={count:0,areas:[]};pages.push(target);}
+    target.areas.push({order,members});target.count+=members.length;
+  });
+  return pages.map(page=>page.areas.sort((a,b)=>a.order-b.order).flatMap(area=>area.members));
+}
 function renderAdminMonthLedger(){
   closeAdminPersonCalendar();
   const data=APP.adminMonth,people=monthPeople('month');
@@ -240,9 +259,10 @@ function renderAdminMonthLedger(){
   $('admin-month-kpis').innerHTML=kpis.map(item=>`<article class="admin-list-kpi ${item[2]}"><small>${item[0]}</small><b>${item[1]}</b></article>`).join('');
   const allDays=APP.adminMonth.personas?.[0]?.dias||[];
   const {ranges,index,visible:sample}=monthRangeView(allDays,data.hoy,window.innerWidth<=650);
-  const pageSize=8,pageCount=Math.max(1,Math.ceil(people.length/pageSize));
+  const pages=monthLedgerPages(people),pageCount=Math.max(1,pages.length);
   ADMIN_MONTH_RANGE.page=Math.min(ADMIN_MONTH_RANGE.page,pageCount-1);
-  const pagePeople=people.slice(ADMIN_MONTH_RANGE.page*pageSize,(ADMIN_MONTH_RANGE.page+1)*pageSize);
+  const pagePeople=pages[ADMIN_MONTH_RANGE.page]||[];
+  const pageStart=pages.slice(0,ADMIN_MONTH_RANGE.page).reduce((total,page)=>total+page.length,0);
   const rangeLabel=range=>range.map(d=>d.fecha.slice(-2)).filter((_,i)=>i===0||i===range.length-1).join('–');
   const nav=`<header class="month-range-heading"><div><h3>Libro del equipo</h3><p>${people.length} colaboradores · ${monthTitle(ADMIN_MONTH_RANGE.month||currentMonthValue())}</p></div><nav aria-label="Tramos de días del mes">${ranges.map((range,i)=>`<button type="button" data-month-range="${i}" aria-pressed="${i===index}">${rangeLabel(range)}</button>`).join('')}</nav></header>`;
   const holidays=new Map((data.feriados||[]).map(item=>[item.fecha,item.nota||'Feriado']));
@@ -266,7 +286,7 @@ function renderAdminMonthLedger(){
     html+='</tr>';
   }
   html+='</tbody></table>';
-  $('admin-month-ledger').innerHTML=nav+html+(people.length?`<footer class="month-range-footer"><span>${people.length?ADMIN_MONTH_RANGE.page*pageSize+1:0}–${Math.min((ADMIN_MONTH_RANGE.page+1)*pageSize,people.length)} de ${people.length} colaboradores · Tramo ${index+1} de ${ranges.length}</span><nav aria-label="Páginas de colaboradores"><button type="button" data-month-page="-1" ${ADMIN_MONTH_RANGE.page===0?'disabled':''} aria-label="Página anterior">‹</button><span>${ADMIN_MONTH_RANGE.page+1} / ${pageCount}</span><button type="button" data-month-page="1" ${ADMIN_MONTH_RANGE.page===pageCount-1?'disabled':''} aria-label="Página siguiente">›</button></nav></footer>`:'');
+  $('admin-month-ledger').innerHTML=nav+html+(people.length?`<footer class="month-range-footer"><span>${people.length?pageStart+1:0}–${pageStart+pagePeople.length} de ${people.length} colaboradores · Tramo ${index+1} de ${ranges.length}</span><nav aria-label="Páginas de colaboradores"><button type="button" data-month-page="-1" ${ADMIN_MONTH_RANGE.page===0?'disabled':''} aria-label="Página anterior">‹</button><span>${ADMIN_MONTH_RANGE.page+1} / ${pageCount}</span><button type="button" data-month-page="1" ${ADMIN_MONTH_RANGE.page===pageCount-1?'disabled':''} aria-label="Página siguiente">›</button></nav></footer>`:'');
   if(!data.puede_editar)monthMessage('Tu rol es de solo lectura. Puedes consultar celdas y exportar, pero no modificar el mes.');
 }
 
@@ -614,6 +634,22 @@ document.addEventListener('pointerdown',event=>{
 $('admin-month-export').onclick=()=>downloadMonthCsv('month');if($('admin-summary-export'))$('admin-summary-export').onclick=()=>downloadMonthCsv('summary');
 $('admin-month-holidays').onclick=openHolidayManager;
 $('admin-month-days-off').onclick=()=>openDaysOffManager();
+// Modal de «Ver mes»: se cierra con la X, Esc o un clic fuera. Al cerrarse se descarta el calendario (y sus cargas
+// pendientes) y el foco vuelve al botón «Ver mes» de la persona, sin mover el libro.
+let ADMIN_PERSON_CALENDAR_OPENER='';
+const adminPersonCalendarDialog=$('admin-person-calendar-dialog');
+if(adminPersonCalendarDialog){
+  $('admin-person-calendar-close').onclick=()=>adminPersonCalendarDialog.close();
+  adminPersonCalendarDialog.addEventListener('click',event=>{
+    const box=adminPersonCalendarDialog.getBoundingClientRect();
+    if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)adminPersonCalendarDialog.close();
+  });
+  adminPersonCalendarDialog.addEventListener('close',()=>{
+    closeAdminPersonCalendar();
+    const id=ADMIN_PERSON_CALENDAR_OPENER;ADMIN_PERSON_CALENDAR_OPENER='';
+    if(id)$('admin-month-ledger').querySelector(`[data-person-calendar="${CSS.escape(id)}"]`)?.focus({preventScroll:true});
+  });
+}
 $('admin-month-ledger').onclick=event=>{
   const range=event.target.closest('[data-month-range]');
   if(range){
@@ -629,10 +665,12 @@ $('admin-month-ledger').onclick=event=>{
   if(calendar){
     const person=APP.adminMonth?.personas?.find(p=>String(p.id)===calendar.dataset.personCalendar);
     if(person){
-      const host=$('admin-person-calendar');
+      const host=$('admin-person-calendar'),dialog=$('admin-person-calendar-dialog');
+      ADMIN_PERSON_CALENDAR_OPENER=calendar.dataset.personCalendar;
       KJAPersonCalendar.mount({host,person,month:currentMonthValue(),onBack:()=>closeAdminPersonCalendar(true)});
+      if(dialog&&!dialog.open)dialog.showModal();
+      if(dialog)dialog.scrollTop=0;
       host.querySelector('h3')?.focus({preventScroll:true});
-      host.scrollIntoView({block:'start',behavior:'instant'});
     }
     return;
   }

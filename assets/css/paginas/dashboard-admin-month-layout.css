@@ -21,7 +21,8 @@
   #portal.admin-wide #view-gestion>.admin-section-nav :is(button,a){flex:0 0 auto;min-height:32px;padding:6px 8px;font-size:11px!important;white-space:nowrap}
   #portal.admin-wide #view-gestion>[id$="-section"]{grid-row:2}
   #portal.admin-wide #view-gestion>#admin-month-section:not([hidden]){padding:0;gap:8px;scrollbar-gutter:auto}
-  #portal.admin-wide #admin-month-section:not([hidden]):has(#admin-person-calendar[hidden]){display:flex;flex-direction:column;overflow:hidden}
+  /* «Ver mes» ya no reemplaza al libro (se abre en un modal): el diseño del libro se mantiene siempre. */
+  #portal.admin-wide #admin-month-section:not([hidden]){display:flex;flex-direction:column;overflow:hidden}
   #portal.admin-wide #admin-month-section>.admin-month-workbench{flex:none}
   #portal.admin-wide #admin-month-section .admin-month-workbench-head{grid-template-columns:minmax(230px,.85fr) minmax(390px,1.25fr) auto;min-height:64px;padding:10px 16px;gap:14px}
   #portal.admin-wide #admin-month-section .admin-month-heading h2{font-size:18px;line-height:1.2}
@@ -41,7 +42,7 @@
   #portal.admin-wide #admin-month-section .admin-month-filters input[type="search"]{height:36px;font-size:11px!important}
   #portal.admin-wide #admin-month-section .admin-month-filters>label:not(.admin-toggle){gap:3px}
   #portal.admin-wide #admin-month-section .admin-month-area-field{gap:3px}
-  #portal.admin-wide #admin-month-section:has(#admin-person-calendar[hidden])>.admin-month-ledger{flex:1;min-height:0;max-height:none;overflow:auto}
+  #portal.admin-wide #admin-month-section>.admin-month-ledger{flex:1;min-height:0;max-height:none;overflow:auto}
   #portal.admin-wide #admin-month-section .admin-month-table :is(.day-col,td){width:40px;min-width:40px}
   #portal.admin-wide #admin-month-section .admin-month-table thead th{height:42px}
   #portal.admin-wide #admin-month-section .admin-month-area-row td{height:28px;padding:0 12px;font-size:11px;text-align:left;background:#f5f3ef}
