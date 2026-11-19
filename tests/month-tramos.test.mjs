@@ -7,7 +7,7 @@ const source=fs.readFileSync('assets/js/dashboard-admin-mes.js','utf8');
 const days=(month,n)=>Array.from({length:n},(_,i)=>({fecha:`${month}-${String(i+1).padStart(2,'0')}`,estado:'P',laborable:true}));
 function setup(){
  const dom=new JSDOM('<div id="admin-month-kpis"></div><div id="admin-month-ledger"></div>');
- const people=Array.from({length:18},(_,i)=>({id:i+1,nombre:'Persona '+i,area:'Área',activo:true,dias:days('2026-10',31),resumen:{}}));
+ const people=Array.from({length:18},(_,i)=>({id:i+1,nombre:'Persona '+i,area:'Área '+Math.floor(i/4),activo:true,dias:days('2026-10',31),resumen:{}}));
  const env={Date,Math,window:{innerWidth:1440},APP:{adminMonth:{personas:people,hoy:'2026-10-22',puede_editar:true}},$:id=>dom.window.document.getElementById(id),monthPeople:()=>people,closeAdminPersonCalendar(){},sumMonth:()=>0,monthRate:()=>null,monthTitle:x=>x,currentMonthValue:()=> '2026-10',esc:x=>String(x),profileAvatarMarkup:()=>'',monthCellClass:()=>'',statusText:x=>x,monthMessage(){}};
  vm.createContext(env);vm.runInContext(source.slice(source.indexOf('let ADMIN_MONTH_RANGE='),source.indexOf('function renderAdminMonthSummary()')),env);
  return {env,dom,people};
@@ -27,4 +27,16 @@ test('empty filtered list keeps date controls and explicit empty state',()=>{con
 
 test('zero search results preserve available date ranges without a fictitious person paginator',()=>{
  const {env,dom}=setup();env.monthPeople=()=>[];env.renderAdminMonthLedger();assert.ok(dom.window.document.querySelector('[data-month-range]'));assert.equal(dom.window.document.querySelector('[data-month-page]'),null);assert.match(dom.window.document.body.textContent,/No hay colaboradores/);
+});
+
+test('pages keep each area together, fill free space and give oversized areas their own page',()=>{
+ const {env}=setup();const make=(area,n)=>Array.from({length:n},(_,i)=>({id:area+i,area}));
+ const ids=people=>JSON.parse(JSON.stringify(env.monthLedgerPages(people).map(page=>page.map(p=>p.id))));
+ assert.deepEqual(ids([...make('A',5),...make('B',3),...make('C',6),...make('D',2)]),[['A0','A1','A2','A3','A4','B0','B1','B2'],['C0','C1','C2','C3','C4','C5','D0','D1']]);
+ assert.deepEqual(ids([...make('A',6),...make('B',4),...make('C',2)]),[['A0','A1','A2','A3','A4','A5'],['B0','B1','B2','B3','C0','C1']]);
+ assert.deepEqual(JSON.parse(JSON.stringify(env.monthLedgerPages([...make('A',3),...make('B',11)]).map(page=>page.length))),[3,11]);
+});
+test('an area with more than eight people is shown whole on a single page',()=>{
+ const {env,dom,people}=setup();people.forEach(p=>{p.area='Área única'});env.renderAdminMonthLedger();
+ assert.equal(dom.window.document.querySelectorAll('[data-person-calendar]').length,18);assert.equal(dom.window.document.querySelector('.month-range-footer nav span').textContent,'1 / 1');
 });
