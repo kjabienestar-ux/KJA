@@ -1,6 +1,6 @@
 /* Mes completo · matriz por tramos. Alcance local, paleta de Seguimiento diario. */
 #portal #admin-month-section{--month-paper:#faf9f5;--month-line:#ded6cb;--month-ink:#24241f;--month-muted:#6a665f;--month-accent:#98492e;background:#f0ece5!important;color:var(--month-ink);padding:24px!important;gap:18px!important;overflow-y:auto!important;min-width:0}
-#portal #admin-month-section:has(#admin-person-calendar[hidden]){display:flex;flex-direction:column;overflow-y:auto!important}
+#portal #admin-month-section{display:flex;flex-direction:column;overflow-y:auto!important}
 #portal #admin-month-section .admin-month-workbench{flex:none;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important}
 #portal #admin-month-section .admin-month-workbench-head{display:grid!important;grid-template-columns:1fr auto!important;gap:20px!important;background:transparent!important;padding:0 0 20px!important;color:var(--month-ink)!important}
 #portal #admin-month-section .admin-month-heading h2{font:400 36px/1.2 var(--claude-display,Georgia,serif)!important;color:var(--month-ink)!important;letter-spacing:-.035em}
@@ -288,3 +288,16 @@
 #portal #admin-month-section .admin-month-area-field{width:180px;min-width:180px}
 #portal #admin-month-section #admin-month-area-selected{overflow:visible!important;text-overflow:clip!important;white-space:normal!important;line-height:1.35;min-width:0}
 }
+
+/* «Ver mes» en un modal central (capa superior del navegador). El calendario conserva los estilos de
+   #admin-person-calendar; el modal aporta el marco, el fondo oscurecido y el botón de cerrar. */
+#admin-person-calendar-dialog{box-sizing:border-box;width:min(1200px,calc(100vw - 48px));max-width:none;max-height:calc(100dvh - 48px);margin:auto;padding:0;border:1px solid #ded6cb;border-radius:22px;background:#faf9f5;color:#24241f;box-shadow:0 30px 80px rgba(37,30,22,.28);overflow:auto;overscroll-behavior:contain}
+#admin-person-calendar-dialog::backdrop{background:rgba(37,37,35,.38);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+#portal #admin-month-section #admin-person-calendar-dialog>#admin-person-calendar{margin:0;border:0;border-radius:0;padding:28px 32px}
+/* El modal se cierra con la X, Esc o un clic fuera; el botón «Volver a Mes completo» del calendario sobra aquí. */
+#admin-person-calendar-dialog .pc-back{display:none}
+#admin-person-calendar-dialog .admin-person-calendar-close{position:absolute;z-index:2;top:18px;right:18px;display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid #ded6cb;border-radius:12px;background:#fff;color:#625e56;cursor:pointer}
+#admin-person-calendar-dialog .admin-person-calendar-close:hover{background:#f0e2d5;color:#24241f}
+#admin-person-calendar-dialog .admin-person-calendar-close:focus-visible{outline:3px solid #98492e;outline-offset:3px}
+#admin-person-calendar-dialog .admin-person-calendar-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+#admin-person-calendar-dialog .pc-header{padding-right:56px}
