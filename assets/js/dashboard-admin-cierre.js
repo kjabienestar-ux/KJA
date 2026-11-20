@@ -223,6 +223,7 @@ function renderAdminDrawPreview(data){
 }
 
 function renderAdminCloseAssignments(){
+  if(globalThis.KJAAssignmentLoading?.isPending())return KJAAssignmentLoading.pending();
   const data=APP.adminClose,query=adminCloseSearchText($('admin-assignment-search')?.value||''),rows=(data?.asignaciones||[]).filter(item=>adminCloseSearchText(`${item.titulo} ${item.destino}`).includes(query));
   const presentations=rows.map(adminCloseAssignmentPresentation),concluded=presentations.filter(item=>['entregada','aprobada'].includes(item.state)).length;
   $('admin-close-assignment-count').textContent=rows.length?`${rows.length} ${rows.length===1?'asignación':'asignaciones'} · ${concluded} ${concluded===1?'concluida':'concluidas'}`:'Sin asignaciones';
@@ -378,7 +379,7 @@ function loadAdminCloses({quiet=false,refresh=false}={}){
   const flight={scope,refresh:false,promise:null};
   const current=()=>ADMIN_CLOSE_FLIGHT===flight&&APP.access.acceso_panel&&adminCloseReadScope($('admin-close-date').value||isoLima())===scope;
   ADMIN_CLOSE_FLIGHT=flight;
-  flight.promise=Promise.resolve().then(async()=>{
+  const perform=()=>Promise.resolve().then(async()=>{
     let result=false;
     do{
       flight.refresh=false;
@@ -391,7 +392,8 @@ function loadAdminCloses({quiet=false,refresh=false}={}){
       adminCloseMsg('No pudimos cargar los cierres. Actualiza e inténtalo nuevamente.','error');
     }
     return false;
-  }).finally(()=>{
+  });
+  flight.promise=(globalThis.KJAAssignmentLoading?.enabled()?KJAAssignmentLoading.run(scope,perform,current):perform()).finally(()=>{
     if(ADMIN_CLOSE_FLIGHT===flight){
       const button=$('admin-close-assignments-refresh');
       if(button){button.disabled=false;button.removeAttribute('aria-busy');button.querySelector('span').textContent='Actualizar';}
@@ -417,18 +419,21 @@ async function fetchAdminCloses({quiet,date,current}){
   const {data:reviewData,error:reviewError}=reads[1].status==='fulfilled'?reads[1].value:{data:null,error:reads[1].reason||true};
   if(refresh){refresh.disabled=false;refresh.removeAttribute('aria-busy');refresh.querySelector('span').textContent='Actualizar';}
   if(error||!data?.ok){
+    if(globalThis.KJAAssignmentLoading?.enabled())return false;
     APP.adminClose=null;
     const missing=error&&(error.code==='PGRST202'||String(error.message||'').includes('dash_admin_cierres'));
     adminCloseMsg(missing?'Ejecuta dashboard_19_cierre_jornada.sql para habilitar esta vista.':'No pudimos cargar los cierres. Actualiza e inténtalo nuevamente.','error');
     $('admin-close-status').innerHTML='<p class="admin-empty">La información no está disponible.</p>';return false;
   }
+  if(globalThis.KJAAssignmentLoading?.enabled()&&data.fecha&&data.fecha!==date)return false;
   APP.adminClose=data;
-  APP.adminReview=APP.access.rol==='direccion'&&!reviewError&&reviewData?.ok?reviewData:{ok:false,entregas:[]};
+  APP.adminReview=APP.access.rol==='direccion'&&!reviewError&&reviewData?.ok&&(!reviewData.fecha||reviewData.fecha===date)?reviewData:{ok:false,entregas:[]};
   // El historial de una asignación retirada no vuelve a convertirla en requisito.
   const activeAssignments=new Set((APP.adminClose?.asignaciones||[]).map(item=>String(item.id)));
   APP.adminReview.entregas=(APP.adminReview.entregas||[]).filter(item=>item.requisito!=='asignado'||activeAssignments.has(String(item.asignacion_id)));
   hydrateAdminCloseControls();renderAdminCloseAssignments();renderAdminReviewSummary();renderAdminCloseStatus();
-  if(typeof syncAssignmentCalendar==='function')syncAssignmentCalendar();
+  if(globalThis.KJAAssignmentLoading?.enabled())KJAAssignmentLoading.controls();
+  if(typeof syncAssignmentCalendar==='function'&&!globalThis.KJAAssignmentLoading?.enabled())syncAssignmentCalendar();
   // Las fotos privadas se resuelven en lote sin retrasar la lista de cierres.
   try{
     const people=await hydrateProfilePhotos(data.personas||[]);
@@ -732,6 +737,7 @@ async function submitAdminEvidence(event){
 }
 
 async function submitAdminCloseAssignment(event){
+  if(globalThis.KJAAssignmentLoading?.enabled()&&!KJAAssignmentLoading.canWrite()){event.preventDefault();return;}
   if($('admin-close-assign').disabled){event.preventDefault();return;}
   event.preventDefault();const data=APP.adminClose;if(!data?.puede_editar)return;
   const kind=$('admin-close-target-kind').value,target=Number($('admin-close-target').value),title=$('admin-close-title').value.trim();
@@ -772,6 +778,7 @@ async function submitAdminCloseAssignment(event){
 }
 
 async function cancelAdminCloseAssignment(id){
+  if(globalThis.KJAAssignmentLoading?.enabled()&&!KJAAssignmentLoading.canWrite())return;
   if(!APP.adminClose?.puede_editar||document.getElementById('assignment-delete-dialog'))return;
   const dialog=document.createElement('dialog');dialog.id='assignment-delete-dialog';dialog.className='assignment-delete-dialog';
   dialog.setAttribute('aria-labelledby','assignment-delete-title');

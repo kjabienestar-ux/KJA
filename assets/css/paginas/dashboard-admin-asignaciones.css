@@ -60,7 +60,7 @@
 #portal #admin-assignments-section :is(.assignment-day-summary,.assignment-list-hint){display:none}
 
 @media(min-width:1201px){
-  #portal.admin-wide #view-gestion > #admin-assignments-section{display:flex;flex-direction:column;gap:16px;padding-bottom:16px;scrollbar-gutter:auto}
+  #portal.admin-wide #view-gestion > #admin-assignments-section{display:flex;flex-direction:column;gap:12px;padding-bottom:8px;scrollbar-gutter:auto}
   #portal.admin-wide #admin-assignments-section > *{flex-shrink:0}
   /* El espejo de la pantalla de carga vive dentro de la sección y repite su geometría. */
   #portal.admin-wide #admin-assignments-section > .kja-skeleton-layer{inset:0;overflow:hidden}
@@ -102,11 +102,12 @@
     }
     #portal #admin-assignments-section :is(.assignment-create-panel,.assignment-sidebar,.admin-close-assignments){min-height:0}
 
-    /* El formulario se desplaza por dentro y «Asignar entregable» queda siempre a la vista. */
-    #portal #admin-assignments-section .assignment-create-panel{display:flex;flex-direction:column;overflow:hidden;padding:0 !important}
-    #portal #admin-assignments-section .assignment-create-panel > form{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 18px 0 !important}
-    #portal #admin-assignments-section .assignment-cta-btn{position:sticky;bottom:0;z-index:2;margin:12px 0 0 !important;box-shadow:0 -12px 0 6px #fbf8f4,0 4px 12px #91493024 !important}
-    #portal #admin-assignments-section .assignment-create-panel > form::after{content:"";display:block;height:16px}
+    /* Cabecera y acción fuera del área desplazable, sin máscaras sobre los campos. */
+    #portal #admin-assignments-section .admin-close-grid{flex:none;grid-template-rows:auto;align-items:stretch !important}
+    #portal #admin-assignments-section .assignment-create-panel{display:flex;flex-direction:column;overflow:visible;padding:0 !important}
+    #portal #admin-assignments-section .assignment-create-panel > form{flex:none;min-height:0;overflow:visible;padding:24px !important}
+    #portal #admin-assignments-section .assignment-form-body{flex:none;overflow:visible;padding:4px 4px 16px;margin:0 -4px}
+    #portal #admin-assignments-section .assignment-form-actions{flex:none;padding-top:16px;border-top:1px solid var(--asg-line)}
 
     /* Calendario a su alto natural y, debajo, el resumen de la fecha ocupando el resto. */
     #portal #admin-assignments-section .assignment-sidebar{display:flex;flex-direction:column;gap:16px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
@@ -187,3 +188,73 @@ body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-reclu
 body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-finanzas{color:#6b7444;background:#ebecdc}
 body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-operaciones{color:#8a6a46;background:#f1e8dc}
 body:has(#portal.admin-wide) :is(.asg-opt-avatar,.asg-trigger-avatar).tone-general{color:#6c6a64;background:#f3eee6}
+
+@media(min-width:901px){
+  #portal #admin-assignments-section :is(.assignment-work-date-label,.assignment-month-nav label){position:relative}
+  #portal #admin-assignments-section[data-asg-destinations-pending="true"] .asg-trigger-avatar{display:none}
+  #portal #admin-assignments-section.kja-context-view .kja-sk-block{background:var(--kja-sk-base,#e7e7e7)!important;border-radius:4px;box-shadow:none!important}
+  #portal #admin-assignments-section .asg-loading-space{display:block}
+  #portal #admin-assignments-section .asg-loading-count{width:150px;height:10px;margin:5px 0}
+  #portal #admin-assignments-section .asg-loading-number{width:30px;height:24px}
+  #portal #admin-assignments-section .asg-loading-row{min-height:135px;background:#fff!important;box-shadow:none!important;border-color:#e6dfd8!important;pointer-events:none}
+  #portal #admin-assignments-section .asg-loading-row :is(.admin-close-assignment-copy,.admin-close-assignment-progress){display:grid;align-content:center;gap:9px;min-width:0}
+  #portal #admin-assignments-section .asg-loading-type{width:38px;height:10px}
+  #portal #admin-assignments-section .asg-loading-title{width:85%;height:16px}
+  #portal #admin-assignments-section .asg-loading-destination{width:65%;height:10px}
+  #portal #admin-assignments-section .asg-loading-state{width:90px;height:20px}
+  #portal #admin-assignments-section .asg-loading-detail{width:110px;max-width:100%;height:10px}
+  #portal #admin-assignments-section .asg-loading-evidence{width:65%;height:10px}
+  #portal #admin-assignments-section .asg-loading-calendar-count{position:absolute;bottom:2px;left:calc(50% - 6px);width:12px;height:5px}
+  #portal #admin-assignments-section .assignment-calendar-days button:has(.asg-loading-calendar-count){position:relative}
+  #portal #admin-assignments-section.is-context-loading .assignment-list-hint{display:none!important}
+  #portal #admin-assignments-section.is-context-loading #assignment-day-summary-stats>div{background:#f3eee6}
+  #portal #admin-assignments-section .asg-loading-retry{margin-left:8px}
+  #portal #admin-assignments-section .asg-form-pending{position:relative}
+  #portal #admin-assignments-section .asg-form-pending>:not(header):not(.asg-form-skeleton){visibility:hidden!important}
+  #portal #admin-assignments-section .asg-form-skeleton{position:absolute;left:24px;right:24px;bottom:24px;display:flex;flex-direction:column;gap:16px;overflow:hidden;pointer-events:none}
+  #portal #admin-assignments-section .asg-form-skeleton-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:24px;overflow:hidden}
+  #portal #admin-assignments-section .asg-form-skeleton-body>*{flex-shrink:0}
+  #portal #admin-assignments-section .asg-form-skeleton-fields{display:grid;gap:16px}
+  #portal #admin-assignments-section .asg-form-skeleton-types{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  #portal #admin-assignments-section .asg-form-skeleton-type{height:44px}
+  #portal #admin-assignments-section .asg-form-skeleton-tabs{height:40px}
+  #portal #admin-assignments-section .asg-form-skeleton-label{width:42%;height:10px;margin-bottom:8px}
+  #portal #admin-assignments-section .asg-form-skeleton-input{height:44px}
+  #portal #admin-assignments-section .asg-form-skeleton-textarea{height:80px}
+  #portal #admin-assignments-section .asg-form-skeleton-guide{height:44px}
+  #portal #admin-assignments-section .asg-form-skeleton-submit{flex:none;height:46px}
+  #portal #admin-assignments-section .asg-calendar-skeleton-day{display:grid;place-items:center;min-height:30px}
+  #portal #admin-assignments-section .asg-calendar-skeleton-date{width:22px;height:20px}
+  #portal #admin-assignments-section .asg-calendar-skeleton-weekday{width:10px;height:6px;margin:5px auto}
+  @container assignments (min-width:880px){
+    #portal #admin-assignments-section.kja-context-view .admin-close-grid:not(:has(.assignment-create-panel[hidden])){grid-template-columns:minmax(320px,1.15fr) minmax(240px,280px) minmax(280px,1fr)!important}
+  }
+}
+
+/* KJA-045: ritmo de formulario contenido, según Carbon (16/24 px).
+   La acción ocupa su propia fila: nunca cubre ayuda, fecha o previsualización. */
+@media(min-width:901px){
+  #portal #admin-assignments-section .assignment-create-panel{padding:24px !important}
+  #portal #admin-assignments-section .assignment-create-panel > form:not([hidden]){display:flex;flex-direction:column;gap:0}
+  #portal #admin-assignments-section .assignment-form-head{flex:none;padding-bottom:12px;margin:0 0 16px}
+  #portal #admin-assignments-section .assignment-form-title-group{align-items:center;gap:12px}
+  #portal #admin-assignments-section .assignment-form-head p{margin-top:4px !important;line-height:1.5}
+  #portal #admin-assignments-section .assignment-form-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+  #portal #admin-assignments-section .assignment-form-body > *{flex-shrink:0}
+  #portal #admin-assignments-section :is(.assignment-categories-wrap,.assignment-target-kind-tabs,.assignment-guide){margin:0}
+  #portal #admin-assignments-section .assignment-categories-wrap .assignment-field-title{margin-bottom:8px}
+  #portal #admin-assignments-section .type-chip{min-height:44px}
+  #portal #admin-assignments-section .admin-close-fields{gap:16px !important;margin:0 !important}
+  #portal #admin-assignments-section .admin-close-fields label{gap:8px;line-height:1.4;min-width:0}
+  #portal #admin-assignments-section :is(.admin-close-fields input,.asg-picker-trigger){min-height:44px !important}
+  #portal #admin-assignments-section .admin-close-fields textarea{height:80px !important;min-height:80px !important}
+  #portal #admin-assignments-section #admin-close-target-results{margin:0;line-height:1.4}
+  #portal #admin-assignments-section .assignment-guide{padding:12px;line-height:1.5;overflow-wrap:anywhere}
+  #portal #admin-assignments-section .assignment-form-actions{display:block;margin-top:24px}
+  #portal #admin-assignments-section .assignment-cta-btn{position:static;margin:0 !important;box-shadow:0 2px 6px #91493024 !important;transition:background-color 150ms,box-shadow 150ms !important}
+  #portal #admin-assignments-section .assignment-cta-btn:hover{transform:none !important}
+  @container assignments (min-width:880px){
+    #portal #admin-assignments-section .assignment-create-panel{padding:0 !important}
+    #portal #admin-assignments-section .assignment-form-actions{margin-top:0}
+  }
+}

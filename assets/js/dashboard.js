@@ -547,6 +547,7 @@ async function removeProfileCover(){
 }
 
 function showAccess(message){
+  resetAdminAttendanceView();
   window.KJAAdminAccounts?.reset();
   if(typeof window!=='undefined')window.KJAPausasLocal?.signOut();
   if(typeof resetPeopleWorkbench==='function')resetPeopleWorkbench();
@@ -687,6 +688,7 @@ $('form-admin').addEventListener('submit',async e=>{
 });
 
 async function logout(message){
+  resetAdminAttendanceView();
   window.KJAPausasLocal?.signOut();
   window.KJASeguimiento?.reset();
   clearInterval(APP.sessionTimer);clearInterval(APP.markTimer);clearInterval(DASH_VERSION_TIMER);document.title=BASE_DOCUMENT_TITLE;localStorage.removeItem(DEADLINE_KEY);localStorage.removeItem(SHELL_KEY);
@@ -830,6 +832,7 @@ async function loadAccessBootstrap(session){
 
 async function openPortal(activeSession,bootstrap=null){
   const session=activeSession||(await accessWithDeadline(db.auth.getSession())).data.session;
+  resetAdminAttendanceView();
   APP.sessionUid=session?.user?.id||'';
   APP.guidedTourUserMetadata={...(session?.user?.user_metadata||{})};
   APP.guidedTourPending=APP.guidedTourUserMetadata.kja_dashboard_guided_tour_pending===true;
@@ -2829,12 +2832,19 @@ async function loadAdminHub(){
       ]);
       if(!current())return false;
       if(peopleRes.error||marksRes.error||closesRes.error||!closesRes.data?.ok){
-        renderAdminHubError();
+        renderAdminHubError(APP.adminHubSnapshotKey===key);
         toast('No se pudo actualizar la administración.',true);return false;
       }
-      const snapshot={today,peopleRes,marksRes,closesRes,legacyRequestsRes:{data:[],pending:true},personalRequestsRes:{data:null,pending:true},controlRes:{data:null,pending:role==='direccion'}};
+      const previous=APP.adminHubSnapshot?.key===key?APP.adminHubSnapshot.snapshot:null;
+      const refreshing=(response,fallback)=>response&&!response.pending&&!response.error&&response.data!=null&&response.data.ok!==false?{...response,refreshing:true}:fallback;
+      const snapshot={today,peopleRes,marksRes,closesRes,
+        legacyRequestsRes:refreshing(previous?.legacyRequestsRes,{data:[],pending:true}),
+        personalRequestsRes:refreshing(previous?.personalRequestsRes,{data:null,pending:true}),
+        controlRes:refreshing(previous?.controlRes,{data:null,pending:role==='direccion'})};
       if(role!=='direccion')snapshot.personalRequestsRes={data:{ok:true,solicitudes:[]},error:null};
       renderAdminHubSnapshot(snapshot);
+      APP.adminHubSnapshotKey=key;
+      APP.adminHubSnapshot={key,snapshot};
       const secondary=[
         ['legacyRequestsRes',()=>db.from('asis_solicitudes_horario').select('id,colaborador_id,horario_nuevo,creado_at').eq('estado','pendiente').order('creado_at',{ascending:false})]
       ];
@@ -2856,7 +2866,7 @@ async function loadAdminHub(){
       }).catch(()=>{});
       return true;
     }catch(error){
-      if(current()){renderAdminHubError();toast('No se pudo actualizar la administración. Vuelve a intentarlo.',true);}
+      if(current()){renderAdminHubError(APP.adminHubSnapshotKey===key);toast('No se pudo actualizar la administración. Vuelve a intentarlo.',true);}
       return false;
     }finally{
       if(current())btn.disabled=false;
@@ -2873,7 +2883,12 @@ function setAdminOverviewNotice(tone,text){
 }
 
 // Sin los datos base no se muestran cifras: un cero se leería como «nadie requiere atención».
-function renderAdminHubError(){
+function renderAdminHubError(preserveContent=false){
+  if(preserveContent){
+    setAdminOverviewNotice('error','No se pudo actualizar. Se conservan los últimos datos recibidos; pulsa Reintentar para consultar de nuevo.');
+    $('admin-refreshed').textContent='Sin actualizar · datos anteriores';
+    return;
+  }
   setAdminOverviewNotice('error','No se pudo consultar el estado de hoy. No mostramos cifras para no dar datos incompletos.');
   $('admin-overview-headline').textContent='No se pudo cargar el resumen de hoy.';
   $('admin-overview-charts').innerHTML='<p class="admin-empty">No se pudieron cargar los indicadores de hoy.</p>';
@@ -2935,16 +2950,20 @@ function renderAdminHubSnapshot(snapshot){
     return `<div class="admin-request"><b>${esc(person?.nombre||'Colaborador')}</b><small>${esc(created)}</small><p>Cambio de horario · ${esc(req.horario_nuevo||'Sin detalle')}</p></div>`;
   }).join('');
   $('admin-request-list').innerHTML=personalHtml+legacyHtml||'<p class="admin-empty">No hay solicitudes pendientes.</p>';
-  if(personalRequestsRes.pending)$('admin-request-list').innerHTML='<p class="admin-empty">Cargando solicitudes pendientes…</p>';
+  const requestsPending=(personalRequestsRes.pending||legacyRequestsRes.pending)&&!personalHtml&&!legacyHtml;
+  if(requestsPending)$('admin-request-list').innerHTML='<p class="admin-empty">Cargando solicitudes pendientes…</p>';
   else if(requestsFailed){$('admin-request-list').innerHTML='<p class="admin-empty">No se pudieron cargar las solicitudes. Pulsa Actualizar solicitudes para reintentar.</p>';$('admin-request-count').textContent='—';}
   syncAdminLeaveReview(groups);
 
   const controlFailed=!controlRes.pending&&(!!controlRes.error||(!!controlRes.data&&!controlRes.data.ok));
   const missing=[requestsFailed||legacyRequestsRes.error?'las solicitudes del personal':'',controlFailed?'la revisión de evidencias':''].filter(Boolean);
-  setAdminOverviewNotice('partial',missing.length?`Datos parcialmente cargados: faltan ${missing.join(' y ')}. Lo demás está al día.`:'');
+  const refreshingRequests=legacyRequestsRes.refreshing||personalRequestsRes.refreshing;
+  const updating=[refreshingRequests?'solicitudes del personal':'',controlRes.refreshing?'revisión de evidencias':''].filter(Boolean);
+  setAdminOverviewNotice('partial',missing.length?`Datos parcialmente cargados: faltan ${missing.join(' y ')}. Lo demás está al día.`:updating.length?`Actualizando ${updating.join(' y ')}; se conservan los datos anteriores.`:'');
   if(controlRes.pending)$('admin-overview-headline').textContent='Datos de hoy disponibles. Cargando revisión de evidencias…';
   else if(!controlData)$('admin-overview-headline').textContent='Datos de asistencia disponibles. Consulta el control diario para revisar las evidencias.';
   $('admin-refreshed').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'});
+  if(typeof DashboardSkeleton!=='undefined')DashboardSkeleton.setOverviewRequestsPending($('admin-overview-section'),{list:!!requestsPending,count:!!(personalRequestsRes.pending||legacyRequestsRes.pending),busy:!!(personalRequestsRes.pending||legacyRequestsRes.pending||refreshingRequests)});
   return true;
 }
 
@@ -2958,8 +2977,23 @@ const ADMIN_SECTION_CONTAINERS={overview:'admin-overview-section',control:'admin
 function withAdminSkeleton(section,fetchFn,options={}){
   const container=$(ADMIN_SECTION_CONTAINERS[section]);
   if(!container||typeof DashboardSkeleton==='undefined')return fetchFn();
+  // Pasar lista coordina sus dos fuentes y la carga por regiones en su lector.
+  if(section==='lista'&&adminListContextual())return fetchFn();
+  if(section==='asignaciones'&&globalThis.KJAAssignmentLoading?.enabled())return fetchFn();
+  const contextual=section==='overview'&&window.matchMedia('(min-width:901px)').matches;
+  const key=APP.sessionUid+'|'+APP.access.rol+'|'+isoLima();
+  if(contextual&&APP.adminHubSnapshotKey!==key){
+    ['admin-attention-count','admin-request-count'].forEach(id=>{$(id).textContent='—'});
+  }
+  if(contextual&&APP.adminHubSnapshotKey&&APP.adminHubSnapshotKey!==key){
+    ['admin-overview-headline','admin-overview-charts','admin-status-list','admin-request-list'].forEach(id=>{$(id).replaceChildren()});
+    ['admin-attention-count','admin-request-count'].forEach(id=>{$(id).textContent='—'});
+    $('admin-overview-date').textContent='Operación de hoy';
+    $('admin-attention-chips').hidden=true;setAdminOverviewNotice('','');
+  }
   return DashboardSkeleton.withSkeleton(container,section,fetchFn,{
     errorMessage:'No pudimos cargar esta sección. Comprueba tu conexión e inténtalo nuevamente.',
+    ...(contextual?{presentation:'overview-context',preserveContent:APP.adminHubSnapshotKey===key}:{}),
     ...options
   });
 }
@@ -3100,6 +3134,7 @@ function toggleAdminAreaMenu(force){
 
 function renderAdminDateStrip(selectedDate){
   const host=$('admin-date-strip');if(!host)return;
+  const focusedDate=host.contains(document.activeElement)?document.activeElement.closest('[data-date]')?.dataset.date:null;
   const today=isoLima(),sel=selectedDate||today;
   let endIso=addIsoDays(sel,2);
   if(endIso>today)endIso=today;
@@ -3120,9 +3155,123 @@ function renderAdminDateStrip(selectedDate){
   }).join('');
   // «Hoy» solo hace falta cuando la semana visible ya no lo incluye.
   if($('admin-date-today'))$('admin-date-today').hidden=days.includes(today);
+  if(focusedDate)[...host.querySelectorAll('[data-date]')].find(button=>button.dataset.date===focusedDate)?.focus({preventScroll:true});
 }
 
-async function loadAdminAttendance(){
+const ADMIN_LIST_VIEW={snapshotKey:'',load:null,loading:false,shown:false,stale:false,error:''};
+const ADMIN_LIST_KPI_LABELS=[['all','Personas del día'],['entries','Con entrada'],['complete','Jornadas completas'],['incomplete','Incompletas'],['pending','Sin entrada']];
+const adminListContextual=()=>typeof DashboardSkeleton!=='undefined'&&window.matchMedia('(min-width:901px)').matches;
+const adminListContextKey=date=>JSON.stringify([APP.sessionUid,APP.access.rol,!!APP.access.acceso_panel,date]);
+const readAdminAttendance=date=>Promise.all([db.rpc('dash_admin_lista',{p_fecha:date}),db.rpc('dash_admin_cierres',{p_fecha:date})]);
+
+function resetAdminAttendanceView(){
+  globalThis.KJAAssignmentLoading?.reset();
+  APP.adminListRequest++;
+  ADMIN_LIST_VIEW.load=null;ADMIN_LIST_VIEW.loading=false;ADMIN_LIST_VIEW.shown=false;
+  ADMIN_LIST_VIEW.snapshotKey='';ADMIN_LIST_VIEW.stale=false;ADMIN_LIST_VIEW.error='';APP.adminList=null;
+  if(typeof DashboardSkeleton!=='undefined')DashboardSkeleton.cancel($('admin-list-section'));
+  ['admin-list-kpis','admin-list-summary','admin-roster'].forEach(id=>$(id)?.replaceChildren());
+  if($('admin-list-load-status'))$('admin-list-load-status').hidden=true;
+}
+
+function adminListDayLabel(){
+  const date=$('admin-list-date').value||isoLima();
+  return esc(cap(new Date(date+'T12:00:00').toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'}).replace(',','')));
+}
+
+function renderAdminListPending({unavailable=false}={}){
+  const shape=className=>ADMIN_LIST_VIEW.shown&&!unavailable?DashboardSkeleton.block(className):`<span class="apl-loading-space ${className}" aria-hidden="true"></span>`;
+  $('admin-list-kpis').innerHTML=ADMIN_LIST_KPI_LABELS.map(([key,label])=>
+    `<button type="button" class="apl-kpi" data-list-filter="${key}" disabled><small><span>${label}</span></small>`+
+    `<b>${unavailable?'—':shape('apl-loading-value')+'&nbsp;'}</b><em>${unavailable?'Sin datos':shape('apl-loading-caption')+'&nbsp;'}</em>`+
+    `<span class="apl-kpi-bar" aria-hidden="true">${unavailable?'':shape('apl-loading-meter')}</span></button>`).join('');
+  $('admin-list-summary').innerHTML=`<b>${adminListDayLabel()}</b> · ${unavailable?'Sin consultar':shape('apl-loading-summary')}`;
+  if(unavailable){
+    $('admin-roster').innerHTML='<div class="apl-empty" role="alert"><b>Información no disponible</b><p>No se pudo cargar la lista ni comprobar sus cierres.</p><button type="button" class="apl-reset" data-list-retry>Reintentar</button></div>';
+    return;
+  }
+  const available=window.innerHeight-$('admin-roster').getBoundingClientRect().top-54;
+  const rows=Math.max(1,Math.min(6,Math.floor(available/(window.innerWidth<1200?120:94))));
+  const row=()=>`<article class="apl-card apl-loading-row"><header class="apl-card-head">${shape('avatar apl-loading-avatar')}${shape('apl-name apl-loading-name')}${shape('apl-state apl-loading-state')}${shape('apl-meta apl-loading-meta')}</header>`+
+    `<dl class="apl-facts">${['Entrada','Salida','Evidencia'].map(label=>`<div><dt>${label}</dt><dd>${shape('apl-loading-fact')}</dd></div>`).join('')}</dl><footer class="apl-card-foot">${shape('apl-loading-actions')}</footer></article>`;
+  $('admin-roster').innerHTML='<section class="apl-area" aria-hidden="true" inert><header class="apl-area-head">'+
+    `<span class="apl-loading-area">${shape('apl-loading-area-name')}${shape('apl-loading-caption')}</span>${shape('apl-loading-area-summary')}</header>`+
+    `<div class="apl-cards">${Array.from({length:rows},row).join('')}</div></section>`;
+}
+
+function syncAdminListReadiness(){
+  const busy=ADMIN_LIST_VIEW.loading,valid=!!APP.adminList&&ADMIN_LIST_VIEW.snapshotKey===adminListContextKey($('admin-list-date').value||isoLima());
+  const readOnly=!valid||busy||ADMIN_LIST_VIEW.stale||!APP.adminList?.puede_editar;
+  $('admin-roster').querySelectorAll('.apl-mark,[data-admin-entry]').forEach(button=>button.disabled=readOnly);
+  $('admin-area-trigger').disabled=!valid;
+  if(!valid){$('admin-area-label').textContent=busy?'Cargando áreas…':'Áreas no disponibles';}
+  $('admin-entry-open').hidden=APP.access.rol!=='direccion';
+  $('admin-entry-open').disabled=!valid||busy||ADMIN_LIST_VIEW.stale;
+  if(APP.adminSection==='lista')$('admin-refresh').disabled=busy;
+  const status=$('admin-list-load-status');
+  status.hidden=!busy;status.textContent=valid?'Actualizando…':'Cargando colaboradores…';
+}
+
+function renderAdminListContext(){
+  if(APP.adminList)renderAdminAttendance();
+  else renderAdminListPending({unavailable:!ADMIN_LIST_VIEW.loading});
+  syncAdminListReadiness();
+  renderAdminListNotice();
+}
+
+function renderAdminListNotice(){
+  if(ADMIN_LIST_VIEW.error){
+    adminListMsg(ADMIN_LIST_VIEW.error);
+    if(APP.adminList){
+      const retry=document.createElement('button');retry.type='button';retry.className='apl-reset';retry.dataset.listRetry='';retry.textContent='Reintentar';
+      $('admin-list-message').append(' ',retry);
+    }
+  }
+}
+
+function loadAdminAttendance(){
+  if(!adminListContextual())return loadAdminAttendanceLegacy();
+  if(!APP.access.acceso_panel)return Promise.resolve(false);
+  const date=$('admin-list-date').value||isoLima(),key=adminListContextKey(date);
+  if(ADMIN_LIST_VIEW.load?.key===key)return ADMIN_LIST_VIEW.load.promise;
+  const request=++APP.adminListRequest,previous=ADMIN_LIST_VIEW.snapshotKey===key?APP.adminList:null;
+  const current=()=>request===APP.adminListRequest&&APP.access.acceso_panel&&adminListContextKey($('admin-list-date').value||isoLima())===key;
+  if(!previous){APP.adminList=null;ADMIN_LIST_VIEW.snapshotKey='';$('admin-list-area').innerHTML='<option value="">Todas las áreas</option>';toggleAdminAreaMenu(false);}
+  ADMIN_LIST_VIEW.loading=true;ADMIN_LIST_VIEW.shown=false;ADMIN_LIST_VIEW.stale=false;ADMIN_LIST_VIEW.error='';
+  const fetch=async()=>{
+    adminListMsg('');syncAdminDateDisplay(date);renderAdminDateStrip(date);
+    if(!previous)renderAdminListPending();syncAdminListReadiness();
+    try{
+      const [{data,error},{data:closeData,error:closeError}]=await readAdminAttendance(date);
+      if(!current())return false;
+      if(error||!data?.ok||closeError||!closeData?.ok)throw new Error('lectura');
+      if((data.fecha&&data.fecha!==date)||(closeData.fecha&&closeData.fecha!==date))throw new Error('fecha');
+      const byClose=new Map((closeData.personas||[]).map(x=>[String(x.id),x.cierre||{}]));
+      data.personas=await hydrateProfilePhotos((data.personas||[]).map(person=>({...person,cierre:byClose.get(String(person.id))||null})));
+      if(!current())return false;
+      APP.adminList=data;ADMIN_LIST_VIEW.snapshotKey=key;
+      const areas=[...new Map(data.personas.map(x=>[String(x.area_id),x.area||'Sin área'])).entries()].sort((a,b)=>a[1].localeCompare(b[1],'es'));
+      const area=$('admin-list-area').value;
+      $('admin-list-area').innerHTML='<option value="">Todas las áreas</option>'+areas.map(([id,name])=>`<option value="${esc(id)}">${esc(name)}</option>`).join('');
+      if(areas.some(([id])=>id===area))$('admin-list-area').value=area;
+      syncAdminAreaCustomSelect();$('admin-date-next').disabled=date>=isoLima();
+      return true;
+    }catch(error){
+      if(!current())return false;
+      ADMIN_LIST_VIEW.stale=!!previous;
+      ADMIN_LIST_VIEW.error=previous?'No se pudo actualizar. Se conservan los datos anteriores de esta fecha.':error.message==='fecha'?'La respuesta no corresponde a la fecha seleccionada. Vuelve a intentarlo.':'No se pudo consultar esta fecha. Vuelve a intentarlo.';
+      return false;
+    }
+  };
+  const promise=DashboardSkeleton.withSkeleton($('admin-list-section'),'lista',fetch,{
+    presentation:'regions-context',contextLabel:'Pasar lista',handlesErrors:true,preserveContent:!!previous,
+    onShow:()=>{if(current()){ADMIN_LIST_VIEW.shown=true;renderAdminListPending();}},
+    onCleanup:()=>{if(current()){ADMIN_LIST_VIEW.loading=false;ADMIN_LIST_VIEW.shown=false;renderAdminListContext();}}
+  }).finally(()=>{if(ADMIN_LIST_VIEW.load?.promise===promise)ADMIN_LIST_VIEW.load=null;});
+  ADMIN_LIST_VIEW.load={key,promise};return promise;
+}
+
+async function loadAdminAttendanceLegacy(){
   if($('admin-entry-open'))$('admin-entry-open').hidden=APP.access?.rol!=='direccion';
   const date=$('admin-list-date').value||isoLima(),btn=$('admin-refresh');
   const request=++APP.adminListRequest;
@@ -3131,7 +3280,7 @@ async function loadAdminAttendance(){
   syncAdminDateDisplay(date);
   syncAdminAreaCustomSelect();
   renderAdminDateStrip(date);
-  const [{data,error},{data:closeData,error:closeError}]=await Promise.all([db.rpc('dash_admin_lista',{p_fecha:date}),db.rpc('dash_admin_cierres',{p_fecha:date})]);
+  const [{data,error},{data:closeData,error:closeError}]=await readAdminAttendance(date);
   if(request!==APP.adminListRequest)return;
   btn.disabled=false;
   if(error||!data?.ok||closeError||!closeData?.ok){
@@ -3199,7 +3348,10 @@ function adminListCard(person,{canEdit,today,now}){
 }
 
 function renderAdminAttendance(){
+  if(adminListContextual()&&ADMIN_LIST_VIEW.shown){renderAdminListPending();syncAdminListReadiness();return;}
+  if(adminListContextual()&&(!APP.adminList||ADMIN_LIST_VIEW.snapshotKey!==adminListContextKey($('admin-list-date').value||isoLima()))){renderAdminListPending({unavailable:!ADMIN_LIST_VIEW.loading});syncAdminListReadiness();return;}
   const data=APP.adminList;if(!data)return;
+  const activeFilter=document.activeElement?.closest('#admin-list-kpis [data-list-filter]')?.dataset.listFilter;
   const people=data.personas||[],date=$('admin-list-date').value||isoLima(),filter=ADMIN_LIST_FILTERS[APP.adminListFilter]?APP.adminListFilter:'';
   const areaCount=new Set(people.map(x=>String(x.area_id))).size;
   const count=key=>people.filter(ADMIN_LIST_FILTERS[key].test).length;
@@ -3216,7 +3368,7 @@ function renderAdminAttendance(){
   const query=$('admin-list-search').value.trim().toLocaleLowerCase('es'),area=$('admin-list-area').value;
   const visible=people.filter(x=>(!area||String(x.area_id)===area)&&(!query||String(x.nombre).toLocaleLowerCase('es').includes(query))&&(!filter||ADMIN_LIST_FILTERS[filter].test(x)));
   const groups=new Map();visible.forEach(x=>{const key=String(x.area_id);if(!groups.has(key))groups.set(key,{key,name:x.area||'Sin área',items:[]});groups.get(key).items.push(x)});
-  const canEdit=!!data.puede_editar,today=date===isoLima(),collapsed=APP.adminListCollapsed||(APP.adminListCollapsed=new Set());
+  const canEdit=!!data.puede_editar&&(!adminListContextual()||(!ADMIN_LIST_VIEW.loading&&!ADMIN_LIST_VIEW.stale)),today=date===isoLima(),collapsed=APP.adminListCollapsed||(APP.adminListCollapsed=new Set());
   const now=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Lima',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
   let html='',index=0;
   for(const group of groups.values()){
@@ -3236,7 +3388,9 @@ function renderAdminAttendance(){
       :'<div class="apl-empty"><b>No hay colaboradores para esta fecha.</b></div>';
   }
   $('admin-roster').innerHTML=html;
-  if(!canEdit)adminListMsg('Tu rol es de solo lectura. Puedes consultar la lista, pero no cambiar estados.');
+  if(!data.puede_editar)adminListMsg('Tu rol es de solo lectura. Puedes consultar la lista, pero no cambiar estados.');
+  if(adminListContextual()){syncAdminListReadiness();renderAdminListNotice();}
+  if(activeFilter)[...$('admin-list-kpis').querySelectorAll('[data-list-filter]')].find(button=>button.dataset.listFilter===activeFilter)?.focus({preventScroll:true});
 }
 
 function toggleAdminListArea(key){
@@ -3321,6 +3475,7 @@ async function resolveAdminPersonalRequest(id,approved){
 }
 
 async function saveAdminState(personId,state,remove){
+  if(adminListContextual()&&(ADMIN_LIST_VIEW.loading||ADMIN_LIST_VIEW.stale||ADMIN_LIST_VIEW.snapshotKey!==adminListContextKey($('admin-list-date').value||isoLima())))return;
   if(!APP.adminList?.puede_editar)return adminListMsg('Tu rol no permite modificar asistencia.');
   const date=$('admin-list-date').value,person=(APP.adminList.personas||[]).find(x=>String(x.id)===String(personId));
   if(!person)return;
@@ -3729,6 +3884,7 @@ $('admin-list-kpis').onclick=e=>{
   const key=button.dataset.listFilter;APP.adminListFilter=key==='all'||APP.adminListFilter===key?'':key;renderAdminAttendance();
 };
 $('admin-roster').onclick=e=>{
+  if(e.target.closest('[data-list-retry]'))return loadAdminAttendance();
   const area=e.target.closest('[data-area-toggle]');
   if(area)return toggleAdminListArea(area.dataset.areaToggle);
   if(e.target.closest('[data-list-reset]')){$('admin-list-search').value='';$('admin-list-area').value='';APP.adminListFilter='';syncAdminAreaCustomSelect();return renderAdminAttendance();}
@@ -3739,6 +3895,7 @@ $('admin-roster').onclick=e=>{
   const button=e.target.closest('[data-admin-state]');if(!button)return;
   const row=button.closest('[data-admin-person]');saveAdminState(row.dataset.adminPerson,button.dataset.adminState,button.classList.contains('on'));
 };
+$('admin-list-message').onclick=e=>{if(e.target.closest('[data-list-retry]'))void loadAdminAttendance();};
 $('admin-request-list').onclick=event=>{
   const proposal=event.target.closest('[data-leave-propose]');if(proposal&&!proposal.disabled)return proposeLeaveCounteroffer(proposal);
   const evidence=event.target.closest('[data-request-evidence]');

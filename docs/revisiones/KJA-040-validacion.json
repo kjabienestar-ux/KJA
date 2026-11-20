@@ -1,0 +1,341 @@
+{
+  "task": "KJA-040",
+  "date": "2026-11-19",
+  "timezone": "America/Lima",
+  "status": "REVISAR",
+  "branch": "feat/pierokja",
+  "base_sha": "254ecddb97f569ff2a02d20e990633cb03f1def3",
+  "merged_pr": 195,
+  "remote_branch_updated": true,
+  "conflicts": false,
+  "local_changes_preserved": true,
+  "specific_tests": {
+    "passed": 29,
+    "total": 29
+  },
+  "historical_seguimiento_suite": {
+    "base_passed": 53,
+    "changed_passed": 53,
+    "total": 54,
+    "preexisting_failures": 1
+  },
+  "browser": [
+    {
+      "width": 1024,
+      "height": 768,
+      "loading": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "pageOverflow": false,
+        "headings": [
+          {
+            "text": "Seguimiento diario",
+            "visibility": "visible"
+          },
+          {
+            "text": "Personas",
+            "visibility": "visible"
+          },
+          {
+            "text": "Evidencias del día",
+            "visibility": "visible"
+          },
+          {
+            "text": "Por atender ",
+            "visibility": "visible"
+          }
+        ],
+        "summaryHeight": 114.390625
+      },
+      "loadedSummaryHeight": 103.390625,
+      "errors": [],
+      "realSupabaseRequests": 0,
+      "states": [
+        "slow",
+        "data",
+        "refresh",
+        "refresh-error",
+        "initial-error",
+        "retry",
+        "empty",
+        "reduced-motion"
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "loading": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "pageOverflow": false,
+        "headings": [
+          {
+            "text": "Seguimiento diario",
+            "visibility": "visible"
+          },
+          {
+            "text": "Personas",
+            "visibility": "visible"
+          },
+          {
+            "text": "Evidencias del día",
+            "visibility": "visible"
+          },
+          {
+            "text": "Por atender ",
+            "visibility": "visible"
+          }
+        ],
+        "summaryHeight": 100.390625
+      },
+      "loadedSummaryHeight": 93.390625,
+      "errors": [],
+      "realSupabaseRequests": 0,
+      "states": [
+        "slow",
+        "data",
+        "refresh",
+        "refresh-error",
+        "initial-error",
+        "retry",
+        "empty",
+        "reduced-motion"
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "loading": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "pageOverflow": false,
+        "headings": [
+          {
+            "text": "Seguimiento diario",
+            "visibility": "visible"
+          },
+          {
+            "text": "Personas",
+            "visibility": "visible"
+          },
+          {
+            "text": "Evidencias del día",
+            "visibility": "visible"
+          },
+          {
+            "text": "Por atender ",
+            "visibility": "visible"
+          }
+        ],
+        "summaryHeight": 93.390625
+      },
+      "loadedSummaryHeight": 93.390625,
+      "errors": [],
+      "realSupabaseRequests": 0,
+      "states": [
+        "slow",
+        "data",
+        "refresh",
+        "refresh-error",
+        "initial-error",
+        "retry",
+        "empty",
+        "reduced-motion"
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "loading": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "pageOverflow": false,
+        "headings": [
+          {
+            "text": "Seguimiento diario",
+            "visibility": "visible"
+          },
+          {
+            "text": "Personas",
+            "visibility": "visible"
+          },
+          {
+            "text": "Evidencias del día",
+            "visibility": "visible"
+          },
+          {
+            "text": "Por atender ",
+            "visibility": "visible"
+          }
+        ],
+        "summaryHeight": 106.390625
+      },
+      "loadedSummaryHeight": 106.390625,
+      "errors": [],
+      "realSupabaseRequests": 0,
+      "states": [
+        "slow",
+        "data",
+        "refresh",
+        "refresh-error",
+        "initial-error",
+        "retry",
+        "empty",
+        "reduced-motion"
+      ]
+    }
+  ],
+  "overview_regression": [
+    {
+      "width": 1280,
+      "height": 720,
+      "initial": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animated": false,
+        "gradients": [
+          "none",
+          "none",
+          "none"
+        ],
+        "overflow": false,
+        "height": 640,
+        "scrollHeight": 640,
+        "headings": [
+          "visible",
+          "visible",
+          "visible"
+        ],
+        "contexts": 6
+      },
+      "errors": [],
+      "supabaseRequests": 0,
+      "states": [
+        "loading",
+        "data",
+        "refresh",
+        "error",
+        "retry",
+        "partial",
+        "empty",
+        "reduced-motion"
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "initial": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animated": false,
+        "gradients": [
+          "none",
+          "none",
+          "none"
+        ],
+        "overflow": false,
+        "height": 820,
+        "scrollHeight": 820,
+        "headings": [
+          "visible",
+          "visible",
+          "visible"
+        ],
+        "contexts": 6
+      },
+      "errors": [],
+      "supabaseRequests": 0,
+      "states": [
+        "loading",
+        "data",
+        "refresh",
+        "error",
+        "retry",
+        "partial",
+        "empty",
+        "reduced-motion"
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "initial": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animated": false,
+        "gradients": [
+          "none",
+          "none",
+          "none"
+        ],
+        "overflow": false,
+        "height": 1000,
+        "scrollHeight": 1000,
+        "headings": [
+          "visible",
+          "visible",
+          "visible"
+        ],
+        "contexts": 6
+      },
+      "errors": [],
+      "supabaseRequests": 0,
+      "states": [
+        "loading",
+        "data",
+        "refresh",
+        "error",
+        "retry",
+        "partial",
+        "empty",
+        "reduced-motion"
+      ]
+    }
+  ],
+  "localhost": "http://localhost:3000/dashboard",
+  "localhost_uses_original_application": true,
+  "production_deployed": false,
+  "real_authenticated_session_verified": true,
+  "real_session_scope": "Sesion existente: listado visible y nueva carga tras recargar. Solo lectura; sin escrituras operativas. Fallos y reintentos probados con backend simulado.",
+  "visual_adjustment": {
+    "removed_card": "Horas validas (escritorio)",
+    "summary": [
+      "Personas",
+      "Evidencias"
+    ],
+    "desktop_ratio": "60/40",
+    "loading_and_loaded_same_row": true,
+    "specific_tests_passed": 8,
+    "specific_tests_total": 8,
+    "desktop_widths": [
+      1024,
+      1280,
+      1440,
+      1920
+    ],
+    "hours_data_and_mobile_preserved": true
+  }
+}

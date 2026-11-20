@@ -299,6 +299,78 @@
   #portal #admin-list-section.apl .apl-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #portal #admin-list-section.apl .apl-cards { grid-template-columns: minmax(0, 1fr); }
 }
+/* Filas operativas por área en escritorio. Se reutilizan los mismos elementos
+   y acciones; el diseño de tarjetas de móvil conserva sus reglas anteriores. */
+@media (min-width: 901px) {
+  #portal #admin-list-section.apl .apl-cards {
+    display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden; background: #fff;
+  }
+  #portal #admin-list-section.apl .apl-card {
+    display: grid; grid-template-columns: minmax(320px, 1.2fr) minmax(240px, 1fr) 154px;
+    grid-template-areas: "identity facts actions" "alert alert alert" "note note note";
+    align-items: center; gap: 0 18px; min-height: 94px; padding: 14px 18px;
+    border: 0; border-radius: 0; box-shadow: none;
+  }
+  #portal #admin-list-section.apl .apl-card + .apl-card { border-top: 1px solid var(--apl-line-2); }
+  #portal #admin-list-section.apl .apl-card-head {
+    grid-area: identity; grid-template-columns: 40px minmax(0, 1fr) 112px;
+    grid-template-areas: "avatar name state" "avatar meta state"; column-gap: 12px; padding: 0;
+  }
+  #portal #admin-list-section.apl .apl-card-head > .avatar { align-self: start; margin-top: 2px; }
+  #portal #admin-list-section.apl .apl-name { overflow: visible; white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
+  #portal #admin-list-section.apl .apl-meta { flex-wrap: wrap; overflow: visible; white-space: normal; }
+  #portal #admin-list-section.apl .apl-state { align-self: center; justify-self: start; max-width: 100%; height: auto; min-height: 22px; margin: 0; padding-block: 3px; white-space: normal; }
+  #portal #admin-list-section.apl .apl-state i { flex: none; }
+  #portal #admin-list-section.apl .apl-facts {
+    grid-area: facts; grid-template-columns: minmax(56px, .8fr) minmax(76px, 1fr) minmax(88px, 1.2fr);
+    gap: 10px; margin: 0; border: 0; border-radius: 0; background: transparent;
+  }
+  #portal #admin-list-section.apl .apl-facts > div { padding: 0; border: 0; }
+  #portal #admin-list-section.apl .apl-card-foot { grid-area: actions; flex-direction: column; align-items: stretch; gap: 6px; margin: 0; padding: 0; }
+  #portal #admin-list-section.apl .apl-marks { flex: none; width: 100%; }
+  #portal #admin-list-section.apl .apl-lock { justify-content: center; }
+  #portal #admin-list-section.apl .apl-alert { grid-area: alert; margin: 10px 0 0; }
+  #portal #admin-list-section.apl .apl-note { grid-area: note; margin: 10px 0 0; }
+  #portal #admin-list-section.apl .kja-sk-roster-group { grid-template-columns: minmax(0, 1fr); }
+  /* Solo los campos pendientes usan el token neutro del controlador común. */
+  #portal #admin-list-section.apl.kja-context-view .kja-sk-block { border-radius: 4px; background: var(--kja-sk-base) !important; box-shadow: none !important; }
+  #portal #admin-list-section.apl .apl-loading-space { display: block; }
+  #portal #admin-list-section.apl .apl-loading-value { width: 36px; height: 26px; }
+  #portal #admin-list-section.apl .apl-loading-caption { width: 60px; height: 10px; }
+  #portal #admin-list-section.apl .apl-loading-meter { width: 100%; height: 5px; }
+  #portal #admin-list-section.apl .apl-kpi b { min-width: 36px; }
+  #portal #admin-list-section.apl .apl-kpi:has(.apl-loading-value) :is(b, em) { position: relative; }
+  #portal #admin-list-section.apl .apl-kpi b > .apl-loading-value { position: absolute; inset: 0 auto auto 0; }
+  #portal #admin-list-section.apl .apl-kpi em > .apl-loading-caption { position: absolute; top: 50%; transform: translateY(-50%); }
+  #portal #admin-list-section.apl .apl-loading-summary { display: inline-block; width: 150px; height: 10px; vertical-align: middle; }
+  #portal #admin-list-section.apl .apl-loading-area { display: flex; flex: 1; align-items: center; gap: 12px; }
+  #portal #admin-list-section.apl .apl-loading-area-name { width: 160px; height: 16px; }
+  #portal #admin-list-section.apl .apl-loading-area-summary { width: 200px; height: 10px; }
+  #portal #admin-list-section.apl .apl-area[aria-hidden="true"] > .apl-area-head { min-height: 52px; }
+  #portal #admin-list-section.apl .apl-loading-row .apl-card-head { min-height: 40px; }
+  #portal #admin-list-section.apl.kja-context-view .apl-loading-avatar { border-radius: 12px; }
+  #portal #admin-list-section.apl .apl-loading-name { width: min(168px, 100%); height: 16px; }
+  #portal #admin-list-section.apl .apl-loading-meta { width: min(176px, 100%); height: 10px; }
+  #portal #admin-list-section.apl .apl-loading-state { width: 96px; height: 22px; padding: 0; }
+  #portal #admin-list-section.apl .apl-loading-fact { width: 40px; height: 10px; margin-block: 6px; }
+  #portal #admin-list-section.apl .apl-loading-actions { width: 100%; height: 28px; }
+  #portal #admin-list-section.apl .apl-kpi:disabled { cursor: default; }
+  #portal #admin-list-section.apl .apl-kpi:disabled:hover { background: none; }
+  #portal #admin-list-section.apl .apl-legend { position: relative; }
+  #portal #admin-list-section.apl #admin-list-load-status { position: absolute; right: 4px; bottom: -13px; color: var(--apl-muted); font-size: 11px; line-height: 12px; }
+  #portal #admin-list-section.apl .admin-list-message .apl-reset { margin-left: 8px; }
+}
+/* En ventanas de escritorio estrechas, los datos bajan a otra línea para
+   conservar legibles la identidad y su columna de estado. */
+@media (min-width: 901px) and (max-width: 1199px) {
+  #portal #admin-list-section.apl .apl-area-head,
+  #portal #admin-list-section.apl .apl-area[aria-hidden="true"] > .apl-area-head { min-height: 76px; }
+  #portal #admin-list-section.apl .apl-card {
+    grid-template-columns: minmax(0, 1fr) 154px;
+    grid-template-areas: "identity actions" "facts facts" "alert alert" "note note";
+  }
+  #portal #admin-list-section.apl .apl-facts { margin: 14px 0 0 52px; }
+}
 @media (prefers-reduced-motion: reduce) {
   #portal #admin-list-section.apl * { transition: none !important; }
 }

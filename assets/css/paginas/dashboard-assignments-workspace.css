@@ -213,6 +213,9 @@
   background: transparent !important;
 }
 
+/* Wrappers sin efecto visual fuera del ajuste de escritorio. */
+.assignment-form-body, .assignment-form-actions { display: contents; }
+
 #portal #admin-assignments-section .assignment-form-head {
   padding-bottom: 14px;
   border-bottom: 1px solid var(--asg-soft, #f1f5f9);

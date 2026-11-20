@@ -12,6 +12,7 @@
 
   const DEFAULTS={delay:180,minVisible:300,fade:200};
   const active=new WeakMap();
+  const contextAria=new WeakMap();
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const block=(className='')=>`<span class="kja-sk-block ${className}" aria-hidden="true"></span>`;
   const lines=(count=2)=>`<span class="kja-sk-lines">${Array.from({length:count},(_,index)=>block(`kja-sk-line w-${[80,58,68,42][index%4]}`)).join('')}</span>`;
@@ -184,6 +185,64 @@
     return error;
   }
 
+  /* Presentación por regiones: el contexto y las acciones reales permanecen en
+     el DOM. Se activa explícitamente por vista; las demás conservan su espejo. */
+  const overviewContextCharts=()=>[
+    ['General','Jornadas · hoy'],['Asistencias','Registros · hoy'],
+    ['Evidencias','Requisitos · hoy'],['Tareas','Entregas por colaborador · hoy']
+  ].map(([title,note])=>`<article class="admin-chart"><header><h3>${title}</h3><p>${note}</p>${block('kja-sk-line w-68')}</header>${block('admin-chart-ring kja-sk-circle')}</article>`).join('');
+  const overviewContextRows=(avatar=true)=>Array.from({length:3},()=>`<div class="kja-context-row">${avatar?block('kja-sk-circle'):''}${lines(2)}${avatar?block('kja-sk-line kja-context-tail'):''}</div>`).join('');
+  function setContextRegion(node,markup){
+    if(!node)return;
+    node.querySelector(':scope > .kja-context-layer')?.remove();
+    if(markup==null){
+      node.removeAttribute('data-kja-context-loading');
+      if(contextAria.has(node)){
+        const original=contextAria.get(node);
+        if(original==null)node.removeAttribute('aria-hidden');else node.setAttribute('aria-hidden',original);
+        contextAria.delete(node);
+      }
+      return;
+    }
+    if(!contextAria.has(node))contextAria.set(node,node.getAttribute('aria-hidden'));
+    node.setAttribute('aria-hidden','true');
+    node.setAttribute('data-kja-context-loading','');
+    const layer=document.createElement('div');layer.className='kja-context-layer';
+    layer.setAttribute('aria-hidden','true');layer.setAttribute('inert','');
+    layer.innerHTML=markup;node.append(layer);
+  }
+  function clearContextRegions(host){
+    host.querySelectorAll('[data-kja-context-loading]').forEach(node=>setContextRegion(node,null));
+  }
+  function showOverviewContext(host){
+    const regions={
+      'admin-overview-headline':block('kja-sk-line w-58'),
+      'admin-overview-charts':overviewContextCharts(),
+      'admin-attention-count':block('kja-context-count'),
+      'admin-request-count':block('kja-context-count'),
+      'admin-status-list':overviewContextRows(true),
+      'admin-request-list':overviewContextRows(false)
+    };
+    for(const [id,markup] of Object.entries(regions))setContextRegion(host.querySelector(`#${id}`),markup);
+    host.classList.add('is-context-loading');
+  }
+  function syncOverviewRequests(host){
+    if(!host?.classList.contains('kja-context-overview')||active.has(host))return;
+    const pending=host.dataset.kjaRequestsPending==='true',countPending=host.dataset.kjaRequestCountPending==='true';
+    const list=host.querySelector('#admin-request-list');
+    setContextRegion(list,pending?overviewContextRows(false):null);
+    list?.setAttribute('aria-busy',String(pending));
+    setContextRegion(host.querySelector('#admin-request-count'),countPending?block('kja-context-count'):null);
+    const button=host.querySelector('#admin-request-refresh');
+    if(button)button.disabled=host.dataset.kjaRequestBusy==='true';
+  }
+  function setOverviewRequestsPending(host,{list=false,count=false,busy=count}={}){
+    if(!host?.classList.contains('kja-context-overview'))return;
+    host.dataset.kjaRequestsPending=String(list);host.dataset.kjaRequestCountPending=String(count);
+    host.dataset.kjaRequestBusy=String(busy);
+    syncOverviewRequests(host);
+  }
+
   /**
    * Envuelve una promesa de datos con demora anti-parpadeo, permanencia minima,
    * transicion de contenido y recuperacion accesible ante errores.
@@ -196,24 +255,49 @@
     const previous=active.get(host);
     if(previous){
       previous.cancelled=true;clearTimeout(previous.timer);previous.layer?.remove();
+      previous.cleanup?.();
       host.classList.remove('is-skeleton-visible','kja-skeleton-error-visible');
     }
 
-    const state={cancelled:false,shownAt:0,layer:null,timer:null};
+    const overviewContext=settings.presentation==='overview-context';
+    const contextual=overviewContext||settings.presentation==='regions-context';
+    const state={cancelled:false,shownAt:0,layer:null,timer:null,cleanup:null};
     active.set(host,state);
     host.classList.add('kja-skeleton-host');
+    host.classList.toggle('kja-context-view',contextual);
+    host.classList.toggle('kja-context-overview',overviewContext);
+    if(contextual)host.querySelector('.kja-context-error')?.remove();
     host.classList.remove('kja-skeleton-error-visible','kja-content-fade');
     host.setAttribute('aria-busy','true');
     const measured=Math.ceil(host.getBoundingClientRect?.().height||host.scrollHeight||0);
     if(measured>0)host.style.setProperty('--kja-skeleton-height',`${measured}px`);
-    const mirror=mirrorSection(host,kind);
+    const mirror=contextual?null:mirrorSection(host,kind);
+    const requestButton=overviewContext?host.querySelector('#admin-request-refresh'):null;
+    const wasDisabled=requestButton?.disabled;
+    if(requestButton)requestButton.disabled=true;
+    state.cleanup=()=>{
+      if(!contextual)return;
+      clearContextRegions(host);
+      host.classList.remove('is-context-loading','is-context-refreshing');
+      if(requestButton)requestButton.disabled=wasDisabled;
+      settings.onCleanup?.();
+    };
 
     const show=()=>{
       if(state.cancelled||active.get(host)!==state)return;
-      state.layer=makeLayer(kind,mirror);
+      if(contextual){
+        state.layer=document.createElement('div');state.layer.className='sr-only';
+        state.layer.setAttribute('role','status');state.layer.setAttribute('aria-live','polite');
+        state.layer.textContent=(settings.preserveContent?'Actualizando ':'Cargando ')+(settings.contextLabel||'resumen operativo')+'.';
+        host.before(state.layer);
+        if(settings.preserveContent)host.classList.add('is-context-refreshing');
+        else if(overviewContext)showOverviewContext(host);
+        else{host.classList.add('is-context-loading');settings.onShow?.();}
+      }else{
+        state.layer=makeLayer(kind,mirror);host.append(state.layer);
+        host.classList.add('is-skeleton-visible');
+      }
       state.shownAt=Date.now();
-      host.append(state.layer);
-      host.classList.add('is-skeleton-visible');
     };
     state.timer=setTimeout(show,settings.delay);
 
@@ -230,15 +314,28 @@
       }
       if(state.cancelled||active.get(host)!==state)return result;
       state.layer?.remove();
+      state.cleanup();
       host.classList.remove('is-skeleton-visible');
-      host.classList.add('kja-content-fade');
+      if(!contextual||!settings.preserveContent)host.classList.add('kja-content-fade');
       host.setAttribute('aria-busy','false');
       setTimeout(()=>host.classList.remove('kja-content-fade'),settings.fade);
       active.delete(host);
+      if(contextual)syncOverviewRequests(host);
       return result;
     }catch(error){
       if(state.cancelled||active.get(host)!==state)return false;
       clearTimeout(state.timer);
+      if(contextual){
+        state.layer?.remove();state.cleanup();
+        host.dataset.kjaRequestsPending='false';host.dataset.kjaRequestCountPending='false';host.dataset.kjaRequestBusy='false';
+        host.querySelector('#admin-request-list')?.setAttribute('aria-busy','false');
+        host.querySelector('.kja-context-error')?.remove();
+        if(!settings.handlesErrors&&!host.querySelector('#admin-overview-notice:not([hidden])')){
+          const errorNode=makeError(error?.message,retry);errorNode.classList.add('kja-context-error');host.prepend(errorNode);
+        }
+        host.setAttribute('aria-busy','false');active.delete(host);syncOverviewRequests(host);
+        return false;
+      }
       if(!state.layer)show();
       state.layer.replaceChildren(makeError(error?.message, retry));
       host.classList.add('kja-skeleton-error-visible');
@@ -247,6 +344,14 @@
     }
   }
 
-  global.DashboardSkeleton={withSkeleton,layouts,block,lines};
+  function cancel(container){
+    const host=resolveContainer(container),state=host&&active.get(host);
+    if(!state)return;
+    state.cancelled=true;clearTimeout(state.timer);state.layer?.remove();state.cleanup?.();
+    host.classList.remove('is-skeleton-visible','kja-skeleton-error-visible');
+    host.setAttribute('aria-busy','false');active.delete(host);
+  }
+
+  global.DashboardSkeleton={withSkeleton,cancel,layouts,block,lines,setOverviewRequestsPending};
   global.withSkeleton=withSkeleton;
 })(globalThis);

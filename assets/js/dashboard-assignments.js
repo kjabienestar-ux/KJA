@@ -15,18 +15,19 @@ function renderAssignmentDaySummary(){
   const stats=[['Asignadas',rows.length,''],['Pendientes',count(['pendiente','parcial','observada']),'is-pending'],['Por revisar',count(['entregada']),'is-review'],['Concluidas',count(['aprobada']),'is-done']];
   host.innerHTML=APP.adminClose?stats.map(([label,value,tone])=>`<div class="${tone}"><dt>${label}</dt><dd>${value}</dd></div>`).join(''):'';
 }
-function assignmentCalendarMarkup(month,days,selected){
+function assignmentCalendarMarkup(month,days,selected,pending=false){
   const [year,number]=month.split('-').map(Number),first=new Date(Date.UTC(year,number-1,1)),length=new Date(Date.UTC(year,number,0)).getUTCDate();
   const counts=new Map(days.map(item=>[item.fecha,Number(item.total)||0]));
   let html=['L','M','M','J','V','S','D'].map(day=>`<span aria-hidden="true">${day}</span>`).join('');
   for(let i=0;i<(first.getUTCDay()+6)%7;i++)html+='<span></span>';
   for(let day=1;day<=length;day++){
     const date=`${month}-${String(day).padStart(2,'0')}`,count=counts.get(date)||0;
-    html+=`<button type="button" data-assignment-date="${date}" aria-pressed="${date===selected}" ${date===isoLima()?'aria-current="date"':''} aria-label="${date}: ${count} asignaciones" class="${count?'has-assignments':''}"><span>${day}</span>${count?`<small aria-hidden="true">${count}</small>`:''}</button>`;
+    html+=`<button type="button" data-assignment-date="${date}" aria-pressed="${date===selected}" ${date===isoLima()?'aria-current="date"':''} aria-label="${pending?date:date+': '+count+' asignaciones'}" class="${!pending&&count?'has-assignments':''}"><span>${day}</span>${pending?DashboardSkeleton.block('asg-loading-calendar-count'):count?`<small aria-hidden="true">${count}</small>`:''}</button>`;
   }
   return html;
 }
 async function loadAssignmentCalendar(){
+  if(globalThis.KJAAssignmentLoading?.enabled())return loadAssignmentCalendarContext();
   const month=$('assignment-calendar-month').value;if(!/^\d{4}-\d{2}$/.test(month))return;
   if(typeof syncKjaDatePickers==='function')syncKjaDatePickers();
   const request=++ASSIGNMENT_CALENDAR_REQUEST;
@@ -43,12 +44,49 @@ async function loadAssignmentCalendar(){
     $('assignment-calendar-message').textContent='No se pudo cargar el calendario. Pulsa Actualizar para reintentar.';
   }
 }
+const ASSIGNMENT_CALENDAR_CONTEXT={key:'',data:null,flight:null};
+function resetAssignmentCalendar(){
+  ASSIGNMENT_CALENDAR_REQUEST++;ASSIGNMENT_CALENDAR_CONTEXT.key='';ASSIGNMENT_CALENDAR_CONTEXT.data=null;ASSIGNMENT_CALENDAR_CONTEXT.flight=null;
+  if(typeof DashboardSkeleton!=='undefined')DashboardSkeleton.cancel($('assignment-calendar-panel'));
+  $('assignment-calendar-days')?.replaceChildren();
+}
+function loadAssignmentCalendarContext(){
+  const month=$('assignment-calendar-month').value;if(!/^\d{4}-\d{2}$/.test(month))return;
+  const key=adminCloseReadScope(month),C=ASSIGNMENT_CALENDAR_CONTEXT;
+  if(C.flight?.key===key)return C.flight.promise;
+  const request=++ASSIGNMENT_CALENDAR_REQUEST,previous=C.key===key?C.data:null;
+  const current=()=>request===ASSIGNMENT_CALENDAR_REQUEST&&APP.access.acceso_panel&&adminCloseReadScope($('assignment-calendar-month').value)===key;
+  const draw=(data,pending=false)=>{
+    const active=document.activeElement?.dataset.assignmentDate;
+    const host=$('assignment-calendar-days');
+    host.removeAttribute('aria-hidden');host.removeAttribute('inert');
+    if(pending){
+      host.setAttribute('aria-hidden','true');host.setAttribute('inert','');
+      const [year,number]=month.split('-').map(Number),length=new Date(Date.UTC(year,number,0)).getUTCDate(),offset=(new Date(Date.UTC(year,number-1,1)).getUTCDay()+6)%7;
+      host.innerHTML=Array.from({length:7},()=>`<span>${DashboardSkeleton.block('asg-calendar-skeleton-weekday')}</span>`).join('')+Array.from({length:offset},()=>'<span></span>').join('')+Array.from({length},()=>`<span class="asg-calendar-skeleton-day">${DashboardSkeleton.block('asg-calendar-skeleton-date')}</span>`).join('');
+    }else host.innerHTML=assignmentCalendarMarkup(month,data?.dias||[],$('admin-close-date').value);
+    if(active)[...$('assignment-calendar-days').querySelectorAll('[data-assignment-date]')].find(button=>button.dataset.assignmentDate===active)?.focus({preventScroll:true});
+  };
+  if(!previous){C.data=null;C.key=key;draw(null);for(const button of $('assignment-calendar-days').querySelectorAll('button'))button.setAttribute('aria-label',button.dataset.assignmentDate);}
+  $('assignment-calendar-message').setAttribute('aria-live','off');$('assignment-calendar-message').textContent=previous?'Actualizando fechas…':'Consultando fechas…';
+  let result=null;
+  const promise=DashboardSkeleton.withSkeleton($('assignment-calendar-panel'),'asignaciones',async()=>{
+    try{const {data,error}=await db.rpc('dash_admin_asignaciones_calendario',{p_mes:month+'-01'});if(!current())return false;if(error||!data?.ok)throw Error('lectura');result=data;return true;}catch{return false;}
+  },{presentation:'regions-context',contextLabel:'calendario de asignaciones',preserveContent:!!previous,handlesErrors:true,
+    onShow:()=>{if(current())draw(null,true);},
+    onCleanup:()=>{
+      if(!current())return;
+      if(result){C.key=key;C.data=result;draw(result);$('assignment-calendar-message').textContent=result.dias?.length?'Selecciona una fecha para ver sus asignaciones.':'No hay asignaciones registradas en este mes.';}
+      else{draw(previous);if(!previous)for(const button of $('assignment-calendar-days').querySelectorAll('button'))button.setAttribute('aria-label',button.dataset.assignmentDate);$('assignment-calendar-message').textContent=previous?'No se pudo actualizar el calendario. Se conservan los datos anteriores.':'No se pudo cargar el calendario.';const retry=document.createElement('button');retry.type='button';retry.textContent='Reintentar';retry.onclick=loadAssignmentCalendarContext;$('assignment-calendar-message').append(' ',retry);}
+    }
+  }).finally(()=>{if(C.flight?.promise===promise)C.flight=null;});C.flight={key,promise};return promise;
+}
+
 function syncAssignmentCalendar(){
   const date=$('admin-close-date').value||isoLima();
   if(ASSIGNMENT_SELECTED_DATE!==date||!$('assignment-calendar-month').value)$('assignment-calendar-month').value=date.slice(0,7);
   ASSIGNMENT_SELECTED_DATE=date;
   $('assignment-work-date').value=date;if(typeof syncKjaDatePickers==='function')syncKjaDatePickers();
-  $('admin-assignment-date-note').textContent=`Fecha seleccionada: ${adminReviewDate(date)}.${date<isoLima()?' Solo consulta: no puedes crear asignaciones en fechas pasadas.':''}`;
   void loadAssignmentCalendar();
 }
 $('admin-close-target-search').oninput=()=>{syncAdminCloseTargets();clearAdminDrawPreview()};
