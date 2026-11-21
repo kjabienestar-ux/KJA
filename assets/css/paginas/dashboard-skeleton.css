@@ -7,6 +7,13 @@
   position:relative;isolation:isolate
 }
 .kja-skeleton-host[aria-busy="true"],.kja-skeleton-host.is-skeleton-visible{min-height:max(var(--kja-skeleton-height,0px),520px)}
+/* Criterio optativo de escritorio para las vistas ya convertidas. */
+@media(min-width:901px){
+  .kja-skeleton-host.kja-context-view{--kja-sk-base:#e7e7e7;min-height:0}
+  .kja-context-view .kja-sk-block{background:var(--kja-sk-base)!important;border-radius:4px;box-shadow:none!important}
+  .kja-context-view .kja-sk-block::after{content:none;animation:none}
+  .kja-context-view .kja-sk-circle{border-radius:50%}
+}
 .kja-skeleton-host.is-skeleton-visible>:not(.kja-skeleton-layer){visibility:hidden}
 .kja-skeleton-layer{position:absolute;z-index:20;inset:0 0 auto;min-height:100%;padding:0;background:var(--surface-page,#f6f8fb);opacity:1;transition:opacity 200ms ease}
 .kja-skeleton{display:grid;gap:18px;min-height:520px;color:transparent;pointer-events:none}

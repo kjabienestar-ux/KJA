@@ -41,7 +41,7 @@
   const LEVEL={hi:'Alto',mid:'Medio',lo:'Bajo',na:'Sin evaluar'};
   const PAGE_SIZE=10;
 
-  let rows=[],weights={...model.defaults},request=0,exitPolicy=null,view=[],page=0,listFilter='all',search='',selectedArea=null,lastFocus=null;
+  let rows=[],weights={...model.defaults},request=0,exitPolicy=null,view=[],page=0,listFilter='all',search='',selectedArea=null,lastFocus=null,lastPayload=null;
 
   /* ── HELPERS ──────────────────────────────────────────── */
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -442,19 +442,23 @@
 
   /* ── LOAD DATA ────────────────────────────────────────── */
   window.loadAdminRanking=async()=>{
+    if(globalThis.AdminDataLoading?.shouldWrap('ranking'))return withAdminSkeleton('ranking',()=>window.loadAdminRanking());
     const token=++request,month=get('ranking-month').value,section=get('admin-ranking-section');
     updateMonthStatus();
-    section.dataset.state='loading';
-    setStatus('Calculando los días terminados del mes…');
-    get('ranking-infos').replaceChildren();
-    for(const id of ['ranking-kpis','ranking-podium','ranking-criteria','ranking-results','ranking-pagination','ranking-insights','ranking-area-analytics','ranking-area-detail','ranking-filters'])get(id).replaceChildren();
-    rows=[];view=[];page=0;
+    section.dataset.state=globalThis.AdminDataLoading?.refreshing('ranking')?'ready':'loading';
+    setStatus('');
+    if(!globalThis.AdminDataLoading?.refreshing('ranking')){
+      get('ranking-infos').replaceChildren();
+      for(const id of ['ranking-kpis','ranking-podium','ranking-criteria','ranking-results','ranking-pagination','ranking-insights','ranking-area-analytics','ranking-area-detail','ranking-filters'])get(id).replaceChildren();
+      rows=[];view=[];page=0;
+    }
     try{
       if(!/^\d{4}-\d{2}$/.test(month))throw Error('Selecciona un mes.');
       const{data,error}=await db.rpc('dash_ranking_mes',{p_mes:month+'-01'});if(token!==request)return;
       if(error)throw error;
       if(data.version!==4)throw Error('Actualiza la función ejecutando dashboard_70_rpe_presencial.sql.');
       rows=data.filas||[];
+      lastPayload=data;
       exitPolicy={before:Number(data.salida_anticipacion_min),after:Number(data.salida_gracia_min)};
       if(typeof hydrateProfilePhotos==='function'){
         try{rows=await hydrateProfilePhotos(rows)}catch{}
@@ -513,5 +517,19 @@
     const areaButton=target.closest('[data-area-key]');if(areaButton){selectedArea=areaButton.dataset.areaKey;renderAreas(areaGroups(view));return;}
     const person=target.closest('[data-person]');
     if(person&&Number(person.dataset.person)>=0)openRankingDetail(view[Number(person.dataset.person)]);
+  });
+  globalThis.AdminDataLoading?.register('ranking',{
+    label:'ranking mensual',capture:()=>lastPayload?({rows,exitPolicy,payload:lastPayload}):null,
+    invalidate:()=>{request++;},
+    restore:snapshot=>{rows=snapshot?.rows||[];exitPolicy=snapshot?.exitPolicy||null;lastPayload=snapshot?.payload||null;if(!snapshot){view=[];page=0;}},
+    render:()=>{get('admin-ranking-section').dataset.state='ready';if(lastPayload)renderInfos(lastPayload,get('ranking-month').value===now);render();},
+    regions:[
+      {id:'ranking-kpis',markup:()=>AdminDataLoading.metrics(['Promedio del mes','Participantes','Mejor área','Revisiones pendientes','Descuentos'])},
+      {id:'ranking-podium',markup:()=>`<div class="adc-podium">${Array.from({length:3},()=>`<div>${DashboardSkeleton.block('adc-avatar')}${DashboardSkeleton.lines(2)}</div>`).join('')}</div>`},
+      {id:'ranking-criteria',markup:()=>AdminDataLoading.rows(2)},
+      {id:'ranking-table-wrap',clear:()=>get('ranking-results').replaceChildren(),markup:()=>AdminDataLoading.rows(5,true)},
+      {id:'ranking-insights',markup:()=>AdminDataLoading.rows(3)},
+      {id:'ranking-area-analytics',markup:()=>AdminDataLoading.rows(3)}
+    ]
   });
 })();

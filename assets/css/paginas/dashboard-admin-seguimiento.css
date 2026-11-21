@@ -295,6 +295,29 @@
 #admin-seguimiento-section .seg-action-status:empty{display:none}
 #admin-seguimiento-section .seg-skeleton{height:110px;border-radius:18px;background:linear-gradient(110deg,#e5dfd5,#faf9f5,#e5dfd5);background-size:220% 100%}
 @media(min-width:901px){
+  #admin-seguimiento-section .seg-summary{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}
+  #admin-seguimiento-section .seg-summary>.seg-people-metrics:only-child{grid-column:1/-1}
+  #admin-seguimiento-section .seg-queues button{white-space:normal}
+  #portal #admin-seguimiento-section.kja-context-view{min-height:0}
+  #admin-seguimiento-section .seg-pending-space{display:block;visibility:hidden}
+  #admin-seguimiento-section.seg-context-pending .seg-summary .seg-queues button:disabled{opacity:1;color:var(--seg-muted)}
+  #admin-seguimiento-section.seg-context-pending .seg-queues button b{background:transparent}
+  #admin-seguimiento-section .seg-loading-line{height:10px;width:80%;border-radius:4px}
+  #admin-seguimiento-section .seg-loading-name{width:72%}
+  #admin-seguimiento-section .seg-loading-short{width:46%}
+  #admin-seguimiento-section .seg-loading-count{display:inline-block;width:22px;height:12px;border-radius:4px}
+  #admin-seguimiento-section .seg-loading-number{width:42px;height:24px;border-radius:4px}
+  #admin-seguimiento-section.seg-context-pending .seg-evidence-metrics>div>span{display:flex;flex-wrap:wrap;gap:8px}
+  #admin-seguimiento-section.seg-context-pending .seg-evidence-metrics b{margin:0}
+  #admin-seguimiento-section .seg-loading-person{min-height:94px}
+  #admin-seguimiento-section .seg-loading-avatar{width:40px;height:40px;border-radius:50%}
+  #admin-seguimiento-section .seg-loading-person .seg-person-name{gap:8px}
+  #admin-seguimiento-section .seg-loading-person .seg-person-state{display:grid;gap:8px}
+  #admin-seguimiento-section .seg-loading-state{width:100px;height:22px;border-radius:4px}
+  #admin-seguimiento-section .seg-loading-person .seg-times .seg-loading-line{width:42px;margin-top:6px}
+  #admin-seguimiento-section .seg-list-heading>span>.seg-loading-line{width:110px}
+  #admin-seguimiento-section.seg-context-pending .seg-area-card{display:grid;gap:12px;padding:18px}
+  #admin-seguimiento-section .seg-loading-track{height:10px;width:100%;border-radius:4px}
   #portal.admin-wide #view-gestion>#admin-seguimiento-section{grid-column:1/-1;grid-row:3;min-height:0;overflow-y:auto}
   #portal.admin-wide[data-admin-lateral="true"] #view-gestion>#admin-seguimiento-section{grid-row:2}
 }
@@ -321,6 +344,12 @@
   #admin-seguimiento-section .seg-toolbar{flex-wrap:wrap}
   #admin-seguimiento-section .seg-search{min-width:190px}
 }
+@media(min-width:901px) and (max-width:1100px){
+  #admin-seguimiento-section .seg-evidence-metrics>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:start}
+  #admin-seguimiento-section .seg-evidence-metrics>div>span{display:grid;grid-template-columns:6px minmax(0,1fr);gap:4px}
+  #admin-seguimiento-section .seg-evidence-metrics b{grid-column:2;margin:0}
+  #admin-seguimiento-section.seg-context-pending .seg-evidence-metrics>div>span{display:flex;flex-direction:column;align-items:flex-start}
+}
 @media(min-width:1241px){
   #portal #admin-seguimiento-section[data-review="true"]{gap:12px}
   #admin-seguimiento-section[data-review="true"] h2{font-size:32px}
@@ -336,12 +365,6 @@
   #admin-seguimiento-section .seg-case-nav header{padding:0;display:none}
   #admin-seguimiento-section .seg-mini-list{display:flex;gap:8px;max-height:130px;overflow:auto}
   #admin-seguimiento-section .seg-mini-list .seg-person{min-width:220px;flex:0 0 220px;margin-bottom:0}
-}
-@media(max-width:1360px) and (min-width:901px){
-  #admin-seguimiento-section .seg-summary{grid-template-columns:1fr 155px}
-  #admin-seguimiento-section .seg-people-metrics{grid-column:1/-1}
-  #admin-seguimiento-section .seg-evidence-metrics{grid-column:1;grid-row:2}
-  #admin-seguimiento-section .seg-hours{grid-column:2;grid-row:2;gap:8px}
 }
 @media(max-width:1100px){
   #admin-seguimiento-section .seg-table-labels{display:none}

@@ -1,0 +1,27 @@
+/* KJA-049: reflejo común y ausencia de avisos visuales de carga, escritorio. */
+@media(min-width:901px){
+  #portal #view-gestion .kja-skeleton-host{--kja-sk-base:#e7e7e7}
+  #portal #view-gestion .kja-context-overview.is-context-refreshing .admin-overview-today>header::after{content:none}
+  #portal #view-gestion #assignment-calendar-panel[aria-busy="true"] #assignment-calendar-message{display:none}
+  #portal #view-gestion [data-asg-destinations-pending="true"] #admin-close-target-results{visibility:hidden}
+  #portal #view-gestion .adc-notice:empty{display:none}
+  #portal #view-gestion #admin-control-section[aria-busy="true"] :is(#admin-control-result-count,#admin-control-summary,#admin-control-areas>.control-area-empty),
+  #portal #view-gestion #admin-control-table[aria-busy="true"]>.admin-control-loading,
+  #portal #view-gestion #admin-close-section[aria-busy="true"] #admin-close-status>.admin-empty{visibility:hidden}
+  #portal #view-gestion .kja-sk-block{position:relative;overflow:hidden;isolation:isolate}
+  /* Revelado local, sin transformar posiciones ni atenuar toda la vista. */
+  #portal #view-gestion .kja-content-fade{animation:kja-region-reveal var(--kja-reveal-duration,200ms) ease-out both}
+}
+@keyframes kja-region-reveal{from{opacity:.65}to{opacity:1}}
+@media(min-width:901px) and (prefers-reduced-motion:no-preference){
+  #portal.admin-wide #view-gestion .kja-sk-block::after{
+    content:""!important;display:block!important;position:absolute;inset:0;
+    border-radius:inherit;pointer-events:none;box-shadow:none!important;
+    background:linear-gradient(100deg,transparent 15%,rgba(255,255,255,.65) 50%,transparent 85%)!important;
+    transform:translateX(-110%);animation:kja-loading-wave 1.65s ease-in-out infinite!important;
+  }
+}
+@keyframes kja-loading-wave{to{transform:translateX(110%)}}
+@media(min-width:901px) and (prefers-reduced-motion:reduce){
+  #portal.admin-wide #view-gestion .kja-sk-block::after{content:none!important;display:none!important;animation:none!important}
+}

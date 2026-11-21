@@ -1,0 +1,65 @@
+{
+  "branch": "feat/pierokja",
+  "browser": {
+    "permission_group_sizes": [
+      1,
+      5,
+      6
+    ],
+    "local_full_results": [
+      ".tmp/kja-050/results.json",
+      ".tmp/kja-048/browser-results.json",
+      ".tmp/kja-048/permissions-results.json"
+    ],
+    "permission_combinations": 6,
+    "regional_loading_combinations": 28,
+    "desktop_sizes": [
+      "1024x768",
+      "1280x720",
+      "1440x900",
+      "1920x1080"
+    ],
+    "permission_roles": [
+      "direccion",
+      "visor"
+    ],
+    "scripts": [
+      "tests/admin-flow-motion-browser.mjs",
+      "tests/admin-data-context-browser.mjs",
+      "tests/admin-data-permissions-browser.mjs",
+      "tests/overview-context-browser.cjs",
+      "tests/seguimiento-context-browser.mjs",
+      "tests/lista-context-browser.mjs",
+      "tests/asignaciones-context-browser.mjs"
+    ],
+    "single_visible_section": true,
+    "engine": "Edge headless",
+    "view_size_combinations": 44,
+    "javascript_errors": 0,
+    "clean_after_load": true,
+    "sampled_frames": 1752.0,
+    "rapid_navigation_sizes": 4,
+    "previous_view_suites": {
+      "seguimiento": "4 tamaños, 8 estados",
+      "lista": "4 tamaños, 10 estados",
+      "asignaciones": "4 tamaños, 9 estados",
+      "overview": "3 tamaños, 8 estados"
+    },
+    "opaque_frame": true,
+    "stable_header_max_delta_px": 2,
+    "normal_wave_reduced_motion_error_retry_empty": "PASS",
+    "real_backend_writes": 0,
+    "views": 11
+  },
+  "task": "KJA-050",
+  "unit_tests": {
+    "passed": 110,
+    "failed": 0,
+    "scope": "Selección de módulos, no suite histórica completa"
+  },
+  "resources": "50-1",
+  "deployment": "No desplegado; entrega mediante PR #196",
+  "date": "2026-11-21",
+  "design_system": "KJA-051 pendiente para otro chat",
+  "base": "6f54c2c97b5f89d2175699840871e62858f994d2"
+}

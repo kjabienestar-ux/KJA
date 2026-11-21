@@ -1,0 +1,246 @@
+{
+  "task": "KJA-041",
+  "date": "2026-11-19",
+  "timezone": "America/Lima",
+  "status": "REVISAR",
+  "branch": "feat/pierokja",
+  "base_sha": "254ecddb97f569ff2a02d20e990633cb03f1def3",
+  "scope": "Filas operativas y esqueleto Neutro con contexto de Pasar lista, solo escritorio",
+  "browser": [
+    {
+      "width": 1024,
+      "height": 768,
+      "people": [
+        1,
+        5,
+        6
+      ],
+      "full_width_rows": true,
+      "no_horizontal_overflow": true,
+      "no_column_overlap": true,
+      "names_verified": true,
+      "four_actions_per_person": true,
+      "readonly": true,
+      "filter_reset": true,
+      "collapse": true,
+      "javascript_errors": [],
+      "real_backend_writes": 0,
+      "status_column_separate": true,
+      "status_column_aligned": true,
+      "status_text_not_clipped": true
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "people": [
+        1,
+        5,
+        6
+      ],
+      "full_width_rows": true,
+      "no_horizontal_overflow": true,
+      "no_column_overlap": true,
+      "names_verified": true,
+      "four_actions_per_person": true,
+      "readonly": true,
+      "filter_reset": true,
+      "collapse": true,
+      "javascript_errors": [],
+      "real_backend_writes": 0,
+      "status_column_separate": true,
+      "status_column_aligned": true,
+      "status_text_not_clipped": true
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "people": [
+        1,
+        5,
+        6
+      ],
+      "full_width_rows": true,
+      "no_horizontal_overflow": true,
+      "no_column_overlap": true,
+      "names_verified": true,
+      "four_actions_per_person": true,
+      "readonly": true,
+      "filter_reset": true,
+      "collapse": true,
+      "javascript_errors": [],
+      "real_backend_writes": 0,
+      "status_column_separate": true,
+      "status_column_aligned": true,
+      "status_text_not_clipped": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "people": [
+        1,
+        5,
+        6
+      ],
+      "full_width_rows": true,
+      "no_horizontal_overflow": true,
+      "no_column_overlap": true,
+      "names_verified": true,
+      "four_actions_per_person": true,
+      "readonly": true,
+      "filter_reset": true,
+      "collapse": true,
+      "javascript_errors": [],
+      "real_backend_writes": 0,
+      "status_column_separate": true,
+      "status_column_aligned": true,
+      "status_text_not_clipped": true
+    }
+  ],
+  "live_portal_check": {
+    "url": "http://localhost:3000/dashboard#gestion/lista",
+    "desktop_width": 1440,
+    "all_area_rows_full_width": true,
+    "authenticated_session_existing": true,
+    "writes": 0,
+    "temporary_viewport_reset": true,
+    "status_column_separate": true,
+    "contextual_loading_integrated": true
+  },
+  "desktop_only": true,
+  "production_deployed": false,
+  "css_version": "contexto-41-1",
+  "loading_javascript_changed": true,
+  "business_rules_changed": false,
+  "skeleton": {
+    "state": "Implementado localmente; pendiente revision visual",
+    "specific_tests_passed": 43,
+    "specific_tests_failed": 0,
+    "lista_tests": 11,
+    "controller": "DashboardSkeleton, regions-context",
+    "timings_ms": [
+      180,
+      300,
+      200
+    ],
+    "placeholders": "#e7e7e7",
+    "animation": "none",
+    "browser": [
+      {
+        "width": 1024,
+        "height": 768,
+        "states": [
+          "slow",
+          "partial-dependent",
+          "data",
+          "refresh",
+          "refresh-error",
+          "initial-error",
+          "retry",
+          "empty",
+          "reduced-motion",
+          "one-person"
+        ],
+        "rows": 1,
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "first_row_shift_px": 0.0,
+        "kpi_height_shift_px": 0.0,
+        "state_separate": true,
+        "javascript_errors": [],
+        "real_backend_writes": 0
+      },
+      {
+        "width": 1280,
+        "height": 720,
+        "states": [
+          "slow",
+          "partial-dependent",
+          "data",
+          "refresh",
+          "refresh-error",
+          "initial-error",
+          "retry",
+          "empty",
+          "reduced-motion",
+          "one-person"
+        ],
+        "rows": 2,
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "first_row_shift_px": 0.19,
+        "kpi_height_shift_px": 0.0,
+        "state_separate": true,
+        "javascript_errors": [],
+        "real_backend_writes": 0
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "states": [
+          "slow",
+          "partial-dependent",
+          "data",
+          "refresh",
+          "refresh-error",
+          "initial-error",
+          "retry",
+          "empty",
+          "reduced-motion",
+          "one-person"
+        ],
+        "rows": 5,
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "first_row_shift_px": 0.19,
+        "kpi_height_shift_px": 0.0,
+        "state_separate": true,
+        "javascript_errors": [],
+        "real_backend_writes": 0
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "states": [
+          "slow",
+          "partial-dependent",
+          "data",
+          "refresh",
+          "refresh-error",
+          "initial-error",
+          "retry",
+          "empty",
+          "reduced-motion",
+          "one-person"
+        ],
+        "rows": 6,
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "first_row_shift_px": 0.19,
+        "kpi_height_shift_px": 0.0,
+        "state_separate": true,
+        "javascript_errors": [],
+        "real_backend_writes": 0
+      }
+    ]
+  }
+}

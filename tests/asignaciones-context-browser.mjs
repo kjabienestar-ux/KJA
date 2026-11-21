@@ -1,0 +1,41 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {createRequire} from 'node:module';
+import {fixtureData,date} from './helpers/seguimiento-fixture.mjs';
+const {chromium}=createRequire(import.meta.url)('playwright'),origin='http://localhost:3000',out=path.resolve('.tmp/kja-044');fs.mkdirSync(out,{recursive:true});
+const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const data=JSON.parse(JSON.stringify(fixtureData()).replaceAll(date,today));
+data.dash_admin_cierres.puede_editar=true;data.dash_admin_cierres.asignaciones=[{id:100,titulo:'Informe de ensayo',tipo:'ppt',destino:'Área de ensayo',destinatarios:3,entregados:0,estado_asignacion:'pendiente'}];
+data.dash_admin_asignaciones_calendario={ok:true,dias:[{fecha:today,total:1}]};
+const fake=fs.readFileSync('tests/fixtures/seguimiento-app.js','utf8'),results=[],browser=await chromium.launch({channel:'msedge',headless:true});
+try{for(const [width,height] of [[1024,768],[1280,720],[1440,900],[1920,1080]]){
+ const page=await browser.newPage({viewport:{width,height}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',route=>{const req=route.request(),url=req.url();if(url.includes('supabase-js'))return route.fulfill({contentType:'text/javascript',body:'window.__SEGUIMIENTO_FIXTURE__='+JSON.stringify({data,date:today})+';\n'+fake});if(url.startsWith(origin+'/'))return route.continue();return route.fulfill({contentType:req.resourceType()==='script'?'text/javascript':req.resourceType()==='stylesheet'?'text/css':'application/json',body:['script','stylesheet'].includes(req.resourceType())?'':'{}'});});
+ await page.goto(origin+'/dashboard',{waitUntil:'domcontentloaded'});await page.locator('#admin-overview-section[aria-busy="false"]').waitFor();
+ await page.evaluate(()=>{document.getElementById('admin-close-title').value='Borrador conservado';seguimientoLab.mode='hold';seguimientoLab.calls=[]});await page.locator('[data-lateral-section="asignaciones"]').click();
+ await page.locator('#admin-close-assignment-list .kja-sk-block').first().waitFor();
+ const loading=await page.locator('#admin-assignments-section').evaluate(root=>({fills:[...new Set([...root.querySelectorAll('.kja-sk-block')].map(n=>getComputedStyle(n).backgroundColor))],animations:[...new Set([...root.querySelectorAll('.kja-sk-block')].map(n=>getComputedStyle(n,'::after').animationName))],overflow:document.documentElement.scrollWidth>innerWidth||root.scrollWidth>root.clientWidth+1,mirror:!!root.querySelector('.kja-skeleton-mirror')}));
+ if(loading.overflow){console.log({width,loading});console.log(await page.locator('#admin-assignments-section').evaluate(root=>({root:{scroll:root.scrollWidth,client:root.clientWidth,rect:root.getBoundingClientRect().toJSON()},page:document.documentElement.scrollWidth,nodes:[...root.querySelectorAll('*')].filter(n=>n.getBoundingClientRect().right>root.getBoundingClientRect().right).slice(0,12).map(n=>({cls:n.className,id:n.id,right:n.getBoundingClientRect().right}))})));await page.screenshot({path:path.join(out,'overflow.png')});}
+ assert.deepEqual(loading.fills,['rgb(231, 231, 231)']);assert.deepEqual(loading.animations,['kja-loading-wave']);assert.equal(loading.mirror,false);assert.equal(loading.overflow,false);
+ assert.equal(await page.locator('#admin-close-assignment-form').evaluate(form=>form.inert),true);assert.equal(await page.locator('#admin-close-assign').isEnabled(),false);
+ assert.ok(await page.locator('.asg-form-skeleton .kja-sk-block').count()>0);assert.equal(await page.locator('#assignment-calendar-days button').count(),0);
+ assert.equal(await page.locator('.asg-form-skeleton-submit').evaluate(n=>{const button=n.getBoundingClientRect(),form=n.closest('form').getBoundingClientRect();return button.height>=45&&button.bottom<=form.bottom-23&&button.top>=form.top;}),true,'la acción del esqueleto queda dentro del formulario incluso con poca altura');
+ await page.locator('#admin-assignment-search').fill('Informe');
+ await page.screenshot({path:path.join(out,`loading-${width}.png`)});
+ assert.equal(await page.evaluate(()=>seguimientoLab.calls.filter(c=>['dash_admin_cierres','dash_admin_revision_entregas','dash_admin_asignaciones_calendario'].includes(c.name)).length),3);
+ await page.evaluate(()=>seguimientoLab.waiting.shift()());await page.locator('#assignment-calendar-panel[aria-busy="false"]').waitFor();
+ assert.ok(await page.locator('#admin-close-assignment-list .kja-sk-block').count()>0,'calendario independiente');
+ await page.evaluate(()=>seguimientoLab.release());await page.locator('#admin-assignments-section[aria-busy="false"] .admin-close-assignment-copy b').waitFor();
+ assert.equal(await page.locator('#admin-close-title').inputValue(),'Borrador conservado');assert.equal(await page.locator('#admin-assignments-section .kja-sk-block').count(),0);assert.equal(await page.locator('#admin-close-assignment-form').evaluate(form=>form.inert),false);
+ await page.screenshot({path:path.join(out,`data-${width}.png`)});
+ await page.evaluate(()=>{seguimientoLab.mode='hold';void loadAdminCloses()});await page.locator('#admin-assignments-section.is-context-refreshing').waitFor();
+ assert.equal(await page.locator('.admin-close-assignment-copy b').innerText(),'Informe de ensayo');assert.equal(await page.locator('#admin-close-title').inputValue(),'Borrador conservado');
+ assert.equal(await page.locator('[data-cancel-admin-close]').isEnabled(),false);await page.evaluate(()=>seguimientoLab.release());await page.locator('#admin-assignments-section[aria-busy="false"]').waitFor();
+ await page.evaluate(()=>{seguimientoLab.mode='error';void loadAdminCloses()});await page.locator('#admin-assignment-message .asg-loading-retry').waitFor();
+ assert.equal(await page.locator('.admin-close-assignment-copy b').innerText(),'Informe de ensayo');assert.equal(await page.locator('[data-cancel-admin-close]').isEnabled(),false);
+ await page.evaluate(()=>seguimientoLab.mode='data');await page.locator('#admin-assignment-message .asg-loading-retry').click();await page.locator('#admin-assignments-section[aria-busy="false"]').waitFor();
+ await page.evaluate(()=>{KJAAssignmentLoading.reset();seguimientoLab.mode='error';void loadAdminCloses()});await page.getByText('Información no disponible.',{exact:true}).waitFor();assert.equal(await page.locator('#admin-close-assignment-list .kja-sk-block').count(),0);
+ await page.evaluate(()=>seguimientoLab.mode='data');await page.locator('#admin-assignment-message .asg-loading-retry').click();await page.locator('#admin-assignments-section[aria-busy="false"]').waitFor();
+ await page.evaluate(()=>{seguimientoLab.data.dash_admin_cierres.asignaciones=[];void loadAdminCloses()});await page.getByText('No hay entregables asignados para esta fecha.',{exact:true}).waitFor();
+ await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{KJAAssignmentLoading.reset();seguimientoLab.mode='hold';void loadAdminCloses()});await page.locator('#admin-close-assignment-list .kja-sk-block').first().waitFor();
+ assert.equal(await page.locator('#admin-close-assignment-list .kja-sk-block').first().evaluate(n=>getComputedStyle(n,'::after').animationName),'none');
+ assert.deepEqual(errors,[]);results.push({width,height,loading,errors,states:['slow','independent-calendar','data','refresh','refresh-error','initial-error','retry','empty','reduced-motion'],realWrites:0});await page.close();
+}fs.writeFileSync(path.join(out,'browser-results.json'),JSON.stringify(results,null,2));console.log('Asignaciones: cuatro tamaños, nueve estados, calendario independiente, borrador conservado y cero escrituras reales.');}finally{await browser.close();}

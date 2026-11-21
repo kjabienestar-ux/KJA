@@ -1,0 +1,13 @@
+.engineering-contact-dialog{box-sizing:border-box;width:min(460px,calc(100% - 32px));max-height:calc(100dvh - 48px);overflow:auto;overscroll-behavior:contain;padding:28px;border:1px solid #e6dfd8;border-radius:24px;background:var(--glass-surface,#faf9f5);color:#252523;box-shadow:0 24px 80px #29251f30;font-family:Inter,system-ui,sans-serif}
+.engineering-contact-dialog::backdrop{background:#25252366;backdrop-filter:blur(5px)}
+.engineering-contact-dialog form{margin:0;padding:0;border:0;background:transparent}
+.engineering-contact-dialog h2{margin:0;font:400 26px/1.2 var(--claude-display,Georgia,serif);letter-spacing:-.02em}
+.engineering-contact-dialog p{margin:12px 0 24px;color:#595750;font-size:13px;line-height:1.6}
+.engineering-contact-hours{display:grid;gap:8px;padding:20px;border:1px solid #e6dfd8;border-radius:16px;background:#f3eee6;margin-bottom:20px}
+.engineering-contact-hours small{color:#6c6a64;font-size:12px}
+.engineering-contact-hours strong{font-size:16px;font-weight:600}
+.engineering-contact-hours b{font-size:22px;font-weight:600}
+.engineering-contact-dialog footer{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:12px}
+.engineering-contact-dialog footer :is(button,a){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid #d6cdc2;border-radius:14px;background:transparent;color:#595750;font:600 13px Inter,system-ui,sans-serif;text-decoration:none;cursor:pointer}
+.engineering-contact-dialog footer a{background:#a9583e;border-color:#a9583e;color:#fff}
+.engineering-contact-dialog :is(button,a):focus-visible{outline:3px solid #a9583e;outline-offset:3px}

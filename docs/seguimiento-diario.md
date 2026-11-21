@@ -1,5 +1,9 @@
 # Seguimiento diario — piloto y publicación
 
+## Esqueleto Neutro con contexto — KJA-040
+
+Seguimiento diario adopta localmente en escritorio el [criterio común](140-esqueletos-neutros-con-contexto.md): títulos/filtros y etiquetas visibles, un gris para los datos pendientes, sin shimmer. Reutiliza el controlador del panel y conserva resultados al actualizar; vacío y error tienen estados propios. La implementación y la actualización de la rama con PR #195 se documentan en [KJA-040](tasks/KJA-040.md). No acredita publicación ni modifica contratos de backend. El resto de esta guía conserva sus fechas y límites históricos.
+
 Seguimiento diario reúne la consulta de Control diario y la revisión de Cierres y entregables. Se añade como tercera opción de Gestión de asistencia; las dos anteriores conservan sus accesos y comportamiento. El piloto no modifica reglas de jornada, asignaciones, permisos, horas ni registros históricos.
 
 ## Ejecución y configuración

@@ -119,6 +119,7 @@ function mergeAdminMonthClosures(data,closeData){
 }
 
 async function loadAdminMonth(force=false){
+  if(globalThis.AdminDataLoading?.shouldWrap('mes'))return withAdminSkeleton('mes',()=>loadAdminMonth(force));
   if(!APP.access.acceso_panel)return;
   const prefix=activeMonthPrefix(),value=currentMonthValue();syncMonthInputs(value);
   const include=$(`${prefix}-inactive`).checked,key=`${value}|${include}`;
@@ -138,7 +139,7 @@ async function fetchAdminMonth(value,include,key,controller){
   const [year,month]=value.split('-').map(Number),request=++APP.adminMonthRequest,button=$('admin-refresh');
   const target=APP.adminSection==='resumen'?'admin-summary-table':'admin-month-ledger';
   button.disabled=true;monthMessage('');
-  $(target).innerHTML='<p class="admin-empty">Preparando el mes completo…</p>';
+  if(!APP.adminMonth)$(target).innerHTML='<p class="admin-empty">Preparando el mes completo…</p>';
   let timer;
   const cancelled=new Promise((resolve,reject)=>{
     controller.signal.addEventListener('abort',()=>reject(new Error('La consulta del mes tardó demasiado. Vuelve a intentarlo.')),{once:true});

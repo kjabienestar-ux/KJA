@@ -1,0 +1,119 @@
+{
+  "task": "KJA-048",
+  "date": "2026-11-21",
+  "status": "REVISAR",
+  "branch": "feat/pierokja",
+  "base_sha": "6f54c2c97b5f89d2175699840871e62858f994d2",
+  "resources": "48-5",
+  "unit_tests": {
+    "passed": 109,
+    "failed": 0,
+    "scope": "Selección de controlador, once presentaciones y módulos afectados; no toda la suite histórica"
+  },
+  "browser": {
+    "engine": "Edge/Chromium",
+    "views": [
+      "colaboradores",
+      "contratos",
+      "facebook",
+      "marcado",
+      "mes",
+      "ranking",
+      "roles"
+    ],
+    "view_size_combinations": 28,
+    "sizes": [
+      "1024x768",
+      "1280x720",
+      "1440x900",
+      "1920x1080"
+    ],
+    "states_each": [
+      "slow",
+      "data",
+      "refresh",
+      "refresh-error",
+      "retry"
+    ],
+    "extra_states_at_1440": {
+      "contratos": [
+        "initial-error",
+        "initial-retry",
+        "fast",
+        "empty",
+        "reduced-motion"
+      ],
+      "roles": [
+        "initial-error",
+        "initial-retry",
+        "fast",
+        "empty",
+        "reduced-motion"
+      ],
+      "mes": [
+        "initial-error",
+        "initial-retry",
+        "fast",
+        "empty",
+        "reduced-motion"
+      ],
+      "facebook": [
+        "initial-error",
+        "initial-retry",
+        "fast",
+        "empty",
+        "reduced-motion"
+      ],
+      "ranking": [
+        "initial-error",
+        "initial-retry",
+        "fast",
+        "empty",
+        "reduced-motion"
+      ],
+      "marcado": [
+        "initial-error",
+        "initial-retry",
+        "fast",
+        "settings-draft",
+        "empty",
+        "reduced-motion"
+      ],
+      "colaboradores": [
+        "initial-error",
+        "initial-retry",
+        "fast",
+        "empty",
+        "reduced-motion"
+      ]
+    },
+    "javascript_errors": 0,
+    "placeholder_fills": [
+      "rgb(231, 231, 231)"
+    ],
+    "overflow_failures": 0,
+    "screenshots": ".tmp/kja-048/{vista}-{loading,data}-{ancho}.png"
+  },
+  "permissions": {
+    "cases": 6,
+    "roles": [
+      "direccion",
+      "visor"
+    ],
+    "group_sizes": [
+      1,
+      5,
+      6
+    ],
+    "passed": true
+  },
+  "real_backend_writes": 0,
+  "backend": "Simulado solo en navegadores de ensayo; QR externo simulado",
+  "deployment": false,
+  "commit_or_push": false,
+  "limits": [
+    "Solo escritorio",
+    "Aprobación visual pendiente",
+    "Sin cambios en RPC, migraciones ni reglas de negocio"
+  ]
+}

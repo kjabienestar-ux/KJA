@@ -28,10 +28,11 @@ function accessFuture(value){
 }
 
 async function loadAdminAccess(){
+  if(globalThis.AdminDataLoading?.shouldWrap('marcado'))return withAdminSkeleton('marcado',()=>loadAdminAccess());
   if(APP.access.rol!=='direccion')return;
   const request=++APP.adminAccessRequest,button=$('admin-refresh');button.disabled=true;accessMessage('');
-  const pager=$('admin-access-pagination');if(pager)pager.hidden=true;
-  $('admin-access-list').innerHTML='<p class="admin-empty">Revisando accesos del equipo…</p>';
+  const pager=$('admin-access-pagination');if(pager&&!APP.adminAccess)pager.hidden=true;
+  if(!APP.adminAccess)$('admin-access-list').innerHTML='<p class="admin-empty">Revisando accesos del equipo…</p>';
   const [{data,error},{data:geoData,error:geoError}]=await Promise.all([db.rpc('dash_admin_marcado'),db.rpc('dash_admin_geocerca')]);
   if(request!==APP.adminAccessRequest)return;button.disabled=false;
   if(error||!data?.ok||geoError||!geoData?.ok){

@@ -1,0 +1,132 @@
+{
+  "task": "KJA-038",
+  "date": "2026-11-19",
+  "timezone": "America/Lima",
+  "branch": "feat/pierokja",
+  "base_sha": "40d66af61eb5d424ba57e3a5843728e4b19587eb",
+  "status": "REVISAR",
+  "scope": "Resumen operativo, escritorio, local",
+  "unit_tests": {
+    "passed": 14,
+    "total": 14,
+    "command": "node --test tests/overview-context-skeleton.test.mjs tests/dashboard-skeleton.test.mjs"
+  },
+  "browser": [
+    {
+      "width": 1280,
+      "height": 720,
+      "initial": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animated": false,
+        "gradients": [
+          "none",
+          "none",
+          "none"
+        ],
+        "overflow": false,
+        "height": 640,
+        "scrollHeight": 640,
+        "headings": [
+          "visible",
+          "visible",
+          "visible"
+        ],
+        "contexts": 6
+      },
+      "errors": [],
+      "supabaseRequests": 0,
+      "states": [
+        "loading",
+        "data",
+        "refresh",
+        "error",
+        "retry",
+        "partial",
+        "empty",
+        "reduced-motion"
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "initial": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animated": false,
+        "gradients": [
+          "none",
+          "none",
+          "none"
+        ],
+        "overflow": false,
+        "height": 820,
+        "scrollHeight": 820,
+        "headings": [
+          "visible",
+          "visible",
+          "visible"
+        ],
+        "contexts": 6
+      },
+      "errors": [],
+      "supabaseRequests": 0,
+      "states": [
+        "loading",
+        "data",
+        "refresh",
+        "error",
+        "retry",
+        "partial",
+        "empty",
+        "reduced-motion"
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "initial": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animated": false,
+        "gradients": [
+          "none",
+          "none",
+          "none"
+        ],
+        "overflow": false,
+        "height": 1000,
+        "scrollHeight": 1000,
+        "headings": [
+          "visible",
+          "visible",
+          "visible"
+        ],
+        "contexts": 6
+      },
+      "errors": [],
+      "supabaseRequests": 0,
+      "states": [
+        "loading",
+        "data",
+        "refresh",
+        "error",
+        "retry",
+        "partial",
+        "empty",
+        "reduced-motion"
+      ]
+    }
+  ],
+  "historical_selection": {
+    "base_passed": 10,
+    "changed_passed": 10,
+    "total": 15,
+    "preexisting_failures": 5
+  },
+  "production_deployed": false,
+  "real_authenticated_session_verified": false
+}

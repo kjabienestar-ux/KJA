@@ -31,6 +31,8 @@
   let currentLoad=null;
   let downloads=null;
   let syncAreaFilter=()=>{};
+  const desktop=()=>typeof global.matchMedia==='function'&&global.matchMedia('(min-width:901px)').matches;
+  const desktopContext=()=>typeof DashboardSkeleton!=='undefined'&&desktop();
   function mount(){
     root.innerHTML='<header class="seg-heading"><div class="seg-brand"><span class="seg-mark">'+icon('calendar')+'</span><div><div class="seg-eyebrow">OPERACIÓN DEL DÍA <span class="seg-pilot">En prueba</span></div><h2 id="seg-title">Seguimiento diario</h2><p id="seg-subtitle">El equipo, sus jornadas y sus entregas.</p></div></div><div class="seg-head-actions"><span id="seg-updated"></span>'+button('export',icon('download')+'<span>Descargar</span>','','id="seg-export" aria-haspopup="dialog" aria-controls="seg-download-dialog" disabled')+'</div></header>'+
       '<div class="seg-toolbar"><div class="seg-date">'+button('prev','‹','seg-icon','aria-label="Día anterior"')+'<label><span class="sr-only">Fecha de seguimiento</span><input id="seg-date" type="date" min="2020-01-01"></label>'+button('next','›','seg-icon','aria-label="Día siguiente"')+button('today','Hoy')+'</div><label class="seg-search">'+icon('search')+'<span class="sr-only">Buscar persona o área</span><input id="seg-search" type="search" placeholder="Buscar persona o área" autocomplete="off"></label><label class="seg-area"><span class="sr-only">Filtrar por área</span><select id="seg-area"><option value="">Todas las áreas</option></select></label>'+button('clear','Limpiar','seg-clear','id="seg-clear" hidden')+'</div>'+
@@ -125,21 +127,40 @@
     if(!afterSave&&S.note.trim()&&(quiet||!canLeave()))return false;
     const owner=sessionKey(),date=S.date||isoLima(),key=owner+':'+date;
     if(currentLoad?.key===key)return currentLoad.promise;
-    const promise=performLoad({quiet,owner,date});
+    const contextual=desktopContext();
+    const fetch=()=>performLoad({quiet,owner,date,contextual});
+    const promise=contextual?DashboardSkeleton.withSkeleton(root,'seguimiento',fetch,{
+      presentation:'regions-context',contextLabel:'seguimiento diario',handlesErrors:true,
+      revealTargets:'#seg-summary,#seg-workspace,#seg-areas',
+      preserveContent:!!(current()&&S.snapshot.closeOk),
+      onShow:()=>{S.skeletonVisible=true;render()},
+      onCleanup:()=>{const shown=S.skeletonVisible;S.skeletonVisible=false;if(shown)render()}
+    }):fetch();
     currentLoad={key,promise};
     try{return await promise}finally{if(currentLoad?.promise===promise)currentLoad=null}
   }
-  async function performLoad({quiet,owner,date}){
+  async function performLoad({quiet,owner,date,contextual=false}){
     const generation=++S.generation;
     if(S.owner!==owner){S.snapshot=null;S.person=null;S.delivery=null;S.note='';signedCache.clear();S.signed=[]}
     S.owner=owner;S.loading=true;S.mediaGeneration++;S.signed=[];
-    message();render();
+    const previous=current()?S.snapshot:null;
+    message();render({preserve:contextual&&!!previous?.closeOk});
     const dir=isDirection();
     const names=dir?['dash_admin_cierres','dash_admin_control_diario','dash_supervision_impedimentos','dash_admin_revision_entregas']:['dash_admin_cierres'];
     const responses=await Promise.all(names.map(name=>read(name,date,owner)));
     if(generation!==S.generation||sessionKey()!==owner||!APP.access?.acceso_panel)return false;
     const ok=index=>!!responses[index]?.data?.ok&&!responses[index]?.error;
     const close=ok(0)?responses[0].data:null,control=ok(1)?responses[1].data:null,issues=ok(2)?responses[2].data:null,review=ok(3)?responses[3].data:null;
+    if(contextual&&!close&&previous?.closeOk){
+      S.loading=false;S.snapshot={...previous,partial:true,stale:true};
+      message('No se pudo actualizar. Se conservan los datos anteriores de esta fecha. Actualiza para reintentar.','error');
+      $s('updated').textContent='Sin actualizar · datos anteriores';render();return false;
+    }
+    if(contextual&&!close&&!control){
+      S.loading=false;S.snapshot=null;
+      message('No se pudo consultar esta fecha. Pulsa Reintentar para volver a cargar.','error');
+      $s('updated').textContent='Sin consultar';render();return false;
+    }
     const datesMatch=responses.every(response=>!response?.data?.ok||!response.data.fecha||response.data.fecha===date);
     if(!datesMatch){S.loading=false;S.snapshot=null;message('La respuesta no corresponde a esta fecha. Vuelve a actualizar.','error');render();return false}
     const assignments=new Set((close?.asignaciones||[]).map(a=>String(a.id)));
@@ -164,7 +185,7 @@
     if(dir&&!review)warnings.push('Las revisiones no están disponibles.');
     if(warnings.length)message('Vista parcial. '+warnings.join(' ')+' Actualiza para comprobar el día completo.','error');
     $s('updated').textContent='Actualizado '+new Intl.DateTimeFormat('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'}).format(new Date());
-    fillAreas();render();
+    fillAreas();if(!contextual||!S.skeletonVisible)render();
     void hydratePhotos(S.snapshot,generation,owner);
     if(S.person&&selected())await renderDetail();
     return !!close;
@@ -194,12 +215,28 @@
     $s('area').innerHTML='<option value="">Todas las áreas</option>'+[...areas].sort((a,b)=>a[1].localeCompare(b[1],'es')).map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('');
     if(S.area&&!areas.has(S.area))S.area='';$s('area').value=S.area;
   }
-  function render(){
+  function renderPendingContext(){
+    const b=className=>S.skeletonVisible?DashboardSkeleton.block(className):'<span class="seg-pending-space '+className+'" aria-hidden="true"></span>';
+    const line=(width='')=>b('seg-loading-line '+width);
+    const queues=isDirection()?[['attention','Por atender'],['review','Por revisar'],['done','Concluidas'],['all','Todo el equipo']]:[['all','Todo el equipo']];
+    $s('summary').innerHTML='<section class="seg-people-metrics"><h3>Personas</h3><div class="seg-queues" role="group" aria-label="Bandejas de personas">'+queues.map(([key,label])=>button('queue',esc(label)+'<b>'+b('seg-loading-count')+'</b>','','data-queue="'+key+'" disabled')).join('')+'</div></section>'+
+      (isDirection()?'<section class="seg-evidence-metrics"><h3>Evidencias <small>del día</small></h3><div>'+['Por revisar','Aprobadas','Con corrección'].map(label=>'<span>'+esc(label)+'<b>'+b('seg-loading-number')+'</b></span>').join('')+'</div></section>':'');
+    const queueTitle={attention:'Por atender',review:'Personas por revisar',done:'Jornadas concluidas',all:'Todo el equipo'}[isDirection()?S.queue:'all'];
+    $s('workspace').innerHTML='<div class="seg-list-heading"><div><span class="seg-eyebrow">EL EQUIPO, DE UN VISTAZO</span><h3>'+esc(queueTitle)+' <span>'+b('seg-loading-count')+'</span></h3></div><span>'+line()+'</span></div>'+
+      '<div class="seg-table-labels"><span>Colaborador / área</span><span>Jornada y pendientes</span><span>Entrada / salida</span><span>Acción</span></div><div class="seg-person-list">'+Array.from({length:3},()=>'<div class="seg-person seg-loading-person" aria-hidden="true">'+b('kja-sk-circle seg-loading-avatar')+'<div class="seg-person-name">'+line('seg-loading-name')+line('seg-loading-short')+'</div><div class="seg-person-state">'+b('seg-loading-state')+line()+'</div><div class="seg-times"><span><small>Entrada</small>'+line()+'</span><span><small>Salida</small>'+line()+'</span></div><span></span></div>').join('')+'</div>';
+    $s('areas').innerHTML=Array.from({length:2},()=>'<article class="seg-area-card" aria-hidden="true">'+line('seg-loading-name')+line('seg-loading-short')+b('seg-loading-track')+'</article>').join('');
+  }
+  function render({preserve=false}={}){
     const has=current(),data=has?S.snapshot:null,base=baseRows();
     root.dataset.review=String(!!S.person);
     $s('workspace').setAttribute('aria-busy',String(S.loading));
     $s('export').hidden=!isDirection();
     $s('export').disabled=!data||data.partial||S.loading;
+    if(desktopContext()){
+      $s('area').disabled=!data||S.loading;
+      if(S.loading)$s('updated').textContent='';
+      root.classList.toggle('seg-context-pending',S.loading&&!has);
+    }
     downloads?.refresh();
     $s('clear').hidden=!(S.query||S.area||S.segment);
     $s('date').disabled=S.busy;$s('date').max=isoLima();
@@ -208,9 +245,16 @@
     root.querySelector('[data-seg="prev"]').disabled=S.date<='2020-01-01'||S.busy;
     const dateText=new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'long',timeZone:'America/Lima'}).format(new Date(S.date+'T12:00:00-05:00'));
     $s('subtitle').textContent=dateText+(data?' · '+base.length+' personas'+(S.area||S.query?' en esta consulta':' en el equipo'):'');
-    if(!has||(!data.rows.length&&S.loading)){
+    if(desktopContext()&&preserve&&data?.closeOk)return;
+    if(desktopContext()&&!has&&S.loading){renderPendingContext();return;}
+    if(desktopContext()&&!has&&!S.loading){
+      $s('summary').innerHTML='';$s('areas').innerHTML='';
+      $s('workspace').innerHTML='<div class="seg-empty">'+icon('calendar')+'<h3>Información no disponible</h3><p>Actualiza para volver a consultar esta fecha.</p>'+button('reload',icon('refresh')+' Reintentar')+'</div>';return;
+    }
+    if(!has||(!data.rows.length&&S.loading&&!desktopContext())){
       $s('summary').innerHTML=Array.from({length:4},()=>'<div class="seg-skeleton" aria-hidden="true"></div>').join('');
       $s('workspace').innerHTML='<div class="seg-empty">'+icon(S.loading?'refresh':'calendar')+'<h3>'+(S.loading?'Consultando el día…':'Información no disponible')+'</h3><p>'+(S.loading?'Entradas, entregas y jornadas.':'Actualiza para volver a consultar esta fecha.')+'</p>'+(!S.loading?button('reload',icon('refresh')+' Reintentar'):'')+'</div>';
+      if(S.loading&&desktopContext())$s('workspace').replaceChildren();
       $s('areas').innerHTML='';return;
     }
     const group=new Set(base.map(row=>String(row.colaborador_id))),evidences=reviewRows().filter(d=>group.has(String(d.colaborador_id)));
@@ -218,7 +262,7 @@
     const queues=[['attention','Por atender'],['review','Por revisar'],['done','Concluidas'],['all','Todo el equipo']];
     $s('summary').innerHTML='<section class="seg-people-metrics"><h3>Personas</h3><div class="seg-queues" role="group" aria-label="Bandejas de personas">'+(data.controlOk?queues:[['all','Todo el equipo']]).map(([key,label])=>button('queue',esc(label)+'<b>'+(data.controlOk?base.filter(r=>queueMatches(r,key)).length:base.length)+'</b>',S.queue===key||!data.controlOk?'is-active':'','data-queue="'+key+'" aria-pressed="'+String(S.queue===key||!data.controlOk)+'"')).join('')+'</div></section>'+
       (isDirection()?'<section class="seg-evidence-metrics"><h3>Evidencias <small>'+((S.query||S.area)?'de esta consulta':'del día')+'</small></h3><div>'+metrics.map(([label,num,tone])=>'<span><i class="seg-dot '+tone+'"></i>'+label+'<b>'+(data.reviewOk?num:'—')+'</b></span>').join('')+'</div></section>':'')+
-      '<section class="seg-hours"><span>'+icon('clock')+'Horas válidas</span><strong>'+(data.controlOk?base.reduce((sum,r)=>sum+Number(r.horas_validas||0),0).toLocaleString('es-PE',{maximumFractionDigits:1})+'<small> h</small>':'—')+'</strong><small>'+(data.controlOk?base.filter(adminControlWork).length+' jornadas programadas':'Resumen de Control no disponible')+'</small></section>';
+      (desktop()?'':'<section class="seg-hours"><span>'+icon('clock')+'Horas válidas</span><strong>'+(data.controlOk?base.reduce((sum,r)=>sum+Number(r.horas_validas||0),0).toLocaleString('es-PE',{maximumFractionDigits:1})+'<small> h</small>':'—')+'</strong><small>'+(data.controlOk?base.filter(adminControlWork).length+' jornadas programadas':'Resumen de Control no disponible')+'</small></section>');
     if(!S.person)renderList();else if(!selected())$s('workspace').innerHTML='<div class="seg-empty"><h3>El caso ya no está disponible en esta fecha</h3>'+button('back','Volver al listado')+'</div>';
     renderAreas();
   }
@@ -443,6 +487,7 @@
   function reset(){
     downloads?.close({restoreFocus:false});
     S.generation++;S.mediaGeneration++;S.owner='';S.snapshot=null;S.person=null;S.note='';S.signed=[];S.loading=false;
+    if(typeof DashboardSkeleton!=='undefined')DashboardSkeleton.cancel(root);
     signedCache.clear();requests.clear();currentLoad=null;
     $s('workspace').innerHTML='';$s('summary').innerHTML='';$s('areas').innerHTML='';$s('export').disabled=true;
   }

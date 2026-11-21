@@ -1,0 +1,148 @@
+{
+  "task": "KJA-044",
+  "date": "2026-11-20",
+  "status": "REVISAR",
+  "branch": "feat/pierokja",
+  "sha": "254ecddb97f569ff2a02d20e990633cb03f1def3",
+  "specific_tests_passed": 61,
+  "last_affected_checks_passed": 20,
+  "browser": [
+    {
+      "width": 1024,
+      "height": 768,
+      "loading": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "mirror": false
+      },
+      "errors": [],
+      "states": [
+        "slow",
+        "independent-calendar",
+        "data",
+        "refresh",
+        "refresh-error",
+        "initial-error",
+        "retry",
+        "empty",
+        "reduced-motion"
+      ],
+      "realWrites": 0
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "loading": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "mirror": false
+      },
+      "errors": [],
+      "states": [
+        "slow",
+        "independent-calendar",
+        "data",
+        "refresh",
+        "refresh-error",
+        "initial-error",
+        "retry",
+        "empty",
+        "reduced-motion"
+      ],
+      "realWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "loading": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "mirror": false
+      },
+      "errors": [],
+      "states": [
+        "slow",
+        "independent-calendar",
+        "data",
+        "refresh",
+        "refresh-error",
+        "initial-error",
+        "retry",
+        "empty",
+        "reduced-motion"
+      ],
+      "realWrites": 0
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "loading": {
+        "fills": [
+          "rgb(231, 231, 231)"
+        ],
+        "animations": [
+          "none"
+        ],
+        "overflow": false,
+        "mirror": false
+      },
+      "errors": [],
+      "states": [
+        "slow",
+        "independent-calendar",
+        "data",
+        "refresh",
+        "refresh-error",
+        "initial-error",
+        "retry",
+        "empty",
+        "reduced-motion"
+      ],
+      "realWrites": 0
+    }
+  ],
+  "baseline_failures": {
+    "test": "assignment-hours.test.mjs",
+    "count": 5,
+    "cause": "MutationObserver no definido en harness",
+    "test_and_source_identical_to_HEAD": true
+  },
+  "desktop_only": true,
+  "deployed": false,
+  "real_writes": 0,
+  "localhost": {
+    "url": "http://localhost:3000/dashboard#gestion/asignaciones",
+    "server_available": true,
+    "tab_preserved": true,
+    "real_session_validation": "comprobado a 1440px tras reiniciar servidor: contexto activo, busy=false, sin placeholders, respuesta vacia real",
+    "isolated_full_portal_passed": true,
+    "server_restarted": true
+  },
+  "presentation_revision": {
+    "resource_version": "contexto-44-2",
+    "reason": "Piero solicitó una primera carga más completa",
+    "initial_regions": [
+      "cuerpo del formulario",
+      "cuadrícula del calendario",
+      "lista y contadores"
+    ],
+    "tests_passed": 24,
+    "refresh_preserves_draft": true,
+    "preview": ".tmp/kja-044/loading-completo-1440.png"
+  }
+}

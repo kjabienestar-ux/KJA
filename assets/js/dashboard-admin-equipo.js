@@ -84,12 +84,14 @@ function adminScheduleMarkup(person){
 }
 
 async function loadAdminTeam(){
+  const section=APP.adminSection==='contratos'?'contratos':'colaboradores';
+  if(globalThis.AdminDataLoading?.shouldWrap(section))return withAdminSkeleton(section,()=>loadAdminTeam());
   if(typeof closeAdminProfile==='function')closeAdminProfile(false);
   if(!APP.access.acceso_panel)return;
   const request=++APP.adminTeamRequest,btn=$('admin-refresh');
   btn.disabled=true;teamMsg('');
   const target=APP.adminSection==='contratos'?'admin-contract-list':'admin-people-list';
-  $(target).innerHTML='<p class="admin-empty">Cargando información del equipo…</p>';
+  if(!APP.adminTeam)$(target).innerHTML='<p class="admin-empty">Cargando información del equipo…</p>';
   const [{data,error},{data:balancesData},institutionResult,contractDocuments]=await Promise.all([
     db.rpc('dash_admin_equipo',{p_incluir_inactivos:true}),
     APP.access.rol==='direccion'?db.rpc('dash_admin_saldos_dias_libres'):Promise.resolve({data:null,error:null}),

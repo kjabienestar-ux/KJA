@@ -40,6 +40,46 @@
   #portal.admin-wide .kja-skeleton-overview .admin-chart header{display:grid;gap:7px;background:transparent !important}
 }
 
+/* Neutro con contexto: solo Resumen operativo de escritorio. Los elementos
+   pendientes comparten relleno; títulos y acciones siguen siendo los reales. */
+@media(min-width:901px){
+  #portal.admin-wide #admin-overview-section.kja-context-overview{
+    --kja-sk-card:var(--surface-card,#fff);
+    min-height:0;
+  }
+  #portal.admin-wide .kja-context-overview [data-kja-context-loading]{position:relative;color:transparent!important}
+  #portal.admin-wide .kja-context-overview [data-kja-context-loading]>:not(.kja-context-layer){visibility:hidden}
+  #portal.admin-wide .kja-context-overview .kja-context-layer{position:absolute;inset:0;pointer-events:none;user-select:none;color:var(--text-body,#3d3d3a)}
+  #portal.admin-wide .kja-context-overview.is-context-loading :is(.admin-overview-today,.admin-panel),
+  #portal.admin-wide .kja-context-overview .admin-request-panel:has([data-kja-context-loading]){background:var(--kja-sk-card)!important;box-shadow:none!important;backdrop-filter:none!important}
+  #portal.admin-wide .kja-context-overview.is-context-loading :is(.admin-overview-today>header,.admin-panel-head){background:transparent!important;background-image:none!important;box-shadow:none!important}
+  #portal.admin-wide .kja-context-overview #admin-overview-date{display:block;min-height:18px}
+  #portal.admin-wide .kja-context-overview #admin-overview-headline .kja-context-layer{display:flex;align-items:center}
+  #portal.admin-wide .kja-context-overview #admin-overview-charts[data-kja-context-loading]{min-height:88px}
+  #portal.admin-wide .kja-context-overview #admin-overview-charts>.kja-context-layer{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+  #portal.admin-wide .kja-context-overview .kja-context-layer .admin-chart{background:var(--kja-sk-card)!important;border:1px solid var(--claude-line,#e3e1dd);box-shadow:none!important;transform:none}
+  #portal.admin-wide .kja-context-overview .kja-context-layer .admin-chart header{background:transparent!important}
+  #portal.admin-wide .kja-context-overview .kja-context-layer .admin-chart header>.kja-sk-line{margin-top:5px}
+  #portal.admin-wide .kja-context-overview .kja-context-layer .admin-chart-ring{height:52px;aspect-ratio:1}
+  #portal.admin-wide .kja-context-overview .admin-count[data-kja-context-loading]{background:transparent!important}
+  #portal.admin-wide .kja-context-overview .kja-context-count{width:100%;height:100%}
+  #portal.admin-wide .kja-context-overview .admin-attention-chips:has(~ [data-kja-context-loading]){display:none}
+  #portal.admin-wide .kja-context-overview :is(#admin-status-list,#admin-request-list)[data-kja-context-loading]{min-height:198px;overflow:hidden}
+  #portal.admin-wide .kja-context-overview .kja-context-row{display:flex;align-items:center;gap:12px;min-height:66px;padding:14px 20px;border-bottom:1px solid var(--claude-line,#e3e1dd)}
+  #portal.admin-wide .kja-context-overview .kja-context-row:last-child{border-bottom:0}
+  #portal.admin-wide .kja-context-overview .kja-context-row>.kja-sk-circle{width:34px;height:34px;flex-basis:34px}
+  #portal.admin-wide .kja-context-overview .kja-context-row>.kja-sk-lines{flex:1}
+  #portal.admin-wide .kja-context-overview .kja-context-tail{width:54px}
+  #portal.admin-wide .kja-context-overview.is-context-refreshing .admin-overview-today>header{position:relative}
+  #portal.admin-wide .kja-context-overview.is-context-refreshing .admin-overview-today>header::after{content:'Actualizando…';position:absolute;right:24px;top:24px;color:#6c6a64;font-size:12px}
+  #portal.admin-wide .kja-context-overview .kja-context-error{margin-bottom:16px;width:100%;box-shadow:none}
+  #portal.admin-wide .kja-context-overview #admin-request-refresh:disabled{cursor:wait;opacity:.65}
+}
+@media(min-width:901px) and (max-width:1200px){
+  #portal.admin-wide .kja-context-overview #admin-overview-charts[data-kja-context-loading]{min-height:190px}
+  #portal.admin-wide .kja-context-overview #admin-overview-charts>.kja-context-layer{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
 /* Con dos columnas ya no hay nada debajo de las tarjetas: ocupan el alto disponible y solo sus
    listas se desplazan. El espejo del esqueleto (sin id) recibe la misma geometría. Entre 901 y
    1200 px los paneles van apilados y la sección conserva su desplazamiento. */
