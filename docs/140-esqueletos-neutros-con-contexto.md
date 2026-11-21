@@ -6,6 +6,8 @@ Criterio elegido por Piero el 19/11/2026, a partir de la comparación del Resume
 
 **Actualización de criterio, 21/11/2026:** Piero solicita retirar los avisos visibles de carga y activar reflejo tipo ola. [KJA-049](tasks/KJA-049.md) sustituye el modelo estático por un barrido blanco neutro sobre el gris único en escritorio; con reducir movimiento permanece estático. Los mensajes de error y reintento se conservan. Las evidencias anteriores de ausencia de animación describen sus versiones históricas.
 
+**Entrega vigente:** KJA-048, KJA-049 y el cierre [KJA-050](tasks/KJA-050.md) se publicaron en `2204843`, rama `feat/pierokja`, PR #196 abierto a `master`. Las menciones anteriores de cambios locales corresponden a sus etapas de implementación. No se acredita merge ni despliegue.
+
 ## 1. Principio y alcance
 
 Mantener el contexto que ya se conoce y representar con formas grises simples únicamente el contenido que espera datos. El esqueleto anticipa dónde aparecerá la información, sin simular resultados, estados del negocio ni porcentajes de avance.
