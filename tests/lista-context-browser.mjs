@@ -39,7 +39,7 @@ try{
       stateSeparate:[...root.querySelectorAll('.apl-loading-row')].every(row=>row.querySelector('.apl-name').getBoundingClientRect().right<row.querySelector('.apl-state').getBoundingClientRect().left)
       ,regions:[...root.querySelectorAll(':scope > div')].map(n=>({class:n.className,top:n.getBoundingClientRect().top,height:n.getBoundingClientRect().height,width:n.getBoundingClientRect().width}))
     }));
-    assert.deepEqual(loading.fills,['rgb(231, 231, 231)']);assert.deepEqual(loading.animations,['none']);
+    assert.deepEqual(loading.fills,['rgb(231, 231, 231)']);assert.deepEqual(loading.animations,['kja-loading-wave']);
     assert.equal(loading.overflow,false);assert.equal(loading.mirror,false);assert.equal(loading.stateSeparate,true);assert.ok(loading.lastBottom<=height+1);
     assert.equal(await page.locator('#admin-list-search').isEnabled(),true);assert.equal(await page.locator('#admin-area-trigger').isEnabled(),false);
     assert.equal(await page.locator('#admin-entry-open').isEnabled(),false);assert.equal(await page.locator('#admin-date-prev').isEnabled(),true);
@@ -89,5 +89,5 @@ try{
     await page.close();
   }
   fs.writeFileSync(path.join(out,'skeleton-browser-results.json'),JSON.stringify(results,null,2));
-  console.log('Pasar lista: cuatro tamaños de escritorio, gris único estático, geometría estable, diez estados y cero errores JavaScript.');
+  console.log('Pasar lista: cuatro tamaños de escritorio, gris único con reflejo, geometría estable, diez estados y cero errores JavaScript.');
 }finally{await browser.close()}

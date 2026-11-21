@@ -29,6 +29,25 @@ test('omite el skeleton en cargas mas rapidas que el umbral',async t=>{
   assert.equal(result,true);
   assert.equal(host.querySelector('.kja-skeleton-layer'),null);
   assert.equal(host.getAttribute('aria-busy'),'false');
+  assert.equal(host.classList.contains('kja-content-fade'),false,'una respuesta rápida no parpadea');
+});
+
+test('revela solo las regiones pendientes y conserva el marco sin atenuar',async t=>{
+  const {dom,host,api}=setup();t.after(()=>dom.window.close());
+  host.innerHTML='<header>Título fijo</header><div id="region">Datos</div>';
+  const region=host.querySelector('#region');let resolve;
+  const pending=api.withSkeleton(host,'tabla',()=>new Promise(done=>resolve=done),{
+    presentation:'regions-context',delay:0,minVisible:0,fade:200,
+    onShow:()=>api.setContextRegion(region,api.block())
+  });
+  await wait(10);resolve(true);await pending;
+  assert.equal(host.classList.contains('kja-content-fade'),false);
+  assert.equal(host.querySelector('header').classList.contains('kja-content-fade'),false);
+  assert.equal(region.classList.contains('kja-content-fade'),true);
+  assert.equal(region.querySelector('.kja-context-layer'),null);
+  const next=api.withSkeleton(host,'tabla',async()=>true,{presentation:'regions-context',delay:30});
+  assert.equal(region.classList.contains('kja-content-fade'),false,'otra consulta limpia el revelado anterior');
+  await next;assert.equal(region.classList.contains('kja-content-fade'),false);
 });
 
 test('mantiene el skeleton visible y lo reemplaza por el contenido',async t=>{

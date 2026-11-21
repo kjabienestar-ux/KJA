@@ -13,6 +13,10 @@
   const DEFAULTS={delay:180,minVisible:300,fade:200};
   const active=new WeakMap();
   const contextAria=new WeakMap();
+  const reveals=new WeakMap();
+  function clearReveal(node){
+    clearTimeout(reveals.get(node));reveals.delete(node);node.classList.remove('kja-content-fade');node.style.removeProperty('--kja-reveal-duration');
+  }
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const block=(className='')=>`<span class="kja-sk-block ${className}" aria-hidden="true"></span>`;
   const lines=(count=2)=>`<span class="kja-sk-lines">${Array.from({length:count},(_,index)=>block(`kja-sk-line w-${[80,58,68,42][index%4]}`)).join('')}</span>`;
@@ -267,7 +271,8 @@
     host.classList.toggle('kja-context-view',contextual);
     host.classList.toggle('kja-context-overview',overviewContext);
     if(contextual)host.querySelector('.kja-context-error')?.remove();
-    host.classList.remove('kja-skeleton-error-visible','kja-content-fade');
+    host.classList.remove('kja-skeleton-error-visible');
+    clearReveal(host);host.querySelectorAll('.kja-content-fade').forEach(clearReveal);
     host.setAttribute('aria-busy','true');
     const measured=Math.ceil(host.getBoundingClientRect?.().height||host.scrollHeight||0);
     if(measured>0)host.style.setProperty('--kja-skeleton-height',`${measured}px`);
@@ -313,12 +318,20 @@
         if(remaining)await sleep(remaining);
       }
       if(state.cancelled||active.get(host)!==state)return result;
+      // Solo lo que estuvo pendiente se revela. El marco y los filtros nunca
+      // se atenúan, ni hay un destello para respuestas que no mostraron espera.
+      const reveal=state.shownAt&&!settings.preserveContent&&settings.fade>0
+        ?(contextual?[...host.querySelectorAll(settings.revealTargets||'[data-kja-context-loading]')]:[host]):[];
       state.layer?.remove();
       state.cleanup();
       host.classList.remove('is-skeleton-visible');
-      if(!contextual||!settings.preserveContent)host.classList.add('kja-content-fade');
+      for(const node of reveal){
+        if(!node.isConnected)continue;
+        clearReveal(node);node.style.setProperty('--kja-reveal-duration',`${settings.fade}ms`);
+        node.classList.add('kja-content-fade');
+        reveals.set(node,setTimeout(()=>clearReveal(node),settings.fade));
+      }
       host.setAttribute('aria-busy','false');
-      setTimeout(()=>host.classList.remove('kja-content-fade'),settings.fade);
       active.delete(host);
       if(contextual)syncOverviewRequests(host);
       return result;
@@ -348,10 +361,11 @@
     const host=resolveContainer(container),state=host&&active.get(host);
     if(!state)return;
     state.cancelled=true;clearTimeout(state.timer);state.layer?.remove();state.cleanup?.();
+    clearReveal(host);host.querySelectorAll('.kja-content-fade').forEach(clearReveal);
     host.classList.remove('is-skeleton-visible','kja-skeleton-error-visible');
     host.setAttribute('aria-busy','false');active.delete(host);
   }
 
-  global.DashboardSkeleton={withSkeleton,cancel,layouts,block,lines,setOverviewRequestsPending};
+  global.DashboardSkeleton={withSkeleton,cancel,layouts,block,lines,setOverviewRequestsPending,setContextRegion};
   global.withSkeleton=withSkeleton;
 })(globalThis);

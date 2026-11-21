@@ -406,7 +406,7 @@ async function fetchAdminCloses({quiet,date,current}){
   const request=++ADMIN_CLOSE_REQUEST,refresh=$('admin-close-assignments-refresh');
   $('admin-close-date').value=date;
   if(typeof syncAdminCloseDatePicker==='function')syncAdminCloseDatePicker();
-  if(refresh){refresh.disabled=true;refresh.setAttribute('aria-busy','true');refresh.querySelector('span').textContent='Actualizando';}
+  if(refresh){refresh.disabled=true;refresh.setAttribute('aria-busy','true');refresh.querySelector('span').textContent='Actualizar';}
   adminCloseMsg('');if(!quiet)$('admin-close-status').innerHTML='<p class="admin-empty">Cargando cierres…</p>';
   // Keep the flight until both reads settle, even if transport rejects one.
   const reads=await Promise.allSettled([

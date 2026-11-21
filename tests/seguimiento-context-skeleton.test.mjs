@@ -44,7 +44,7 @@ test('actualizar conserva filas, filtros y foco durante la espera',async t=>{
   const loading=h.load();await wait(12);
   assert.equal(h.w.document.getElementById('seg-workspace').innerHTML,content);
   assert.equal(h.root.querySelector('.kja-sk-block'),null);assert.equal(h.w.document.activeElement,search);
-  assert.match(h.w.document.getElementById('seg-updated').textContent,/Actualizando/);
+  assert.equal(h.w.document.getElementById('seg-updated').textContent,'');
   gate.resolve();await loading;assert.equal(search.value,'maria');assert.equal(h.w.document.activeElement,search);
 });
 test('fallo inicial termina el esqueleto y permite reintentar sin resultados falsos',async t=>{

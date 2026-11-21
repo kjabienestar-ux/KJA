@@ -2951,16 +2951,15 @@ function renderAdminHubSnapshot(snapshot){
   }).join('');
   $('admin-request-list').innerHTML=personalHtml+legacyHtml||'<p class="admin-empty">No hay solicitudes pendientes.</p>';
   const requestsPending=(personalRequestsRes.pending||legacyRequestsRes.pending)&&!personalHtml&&!legacyHtml;
-  if(requestsPending)$('admin-request-list').innerHTML='<p class="admin-empty">Cargando solicitudes pendientes…</p>';
+  if(requestsPending)$('admin-request-list').innerHTML='';
   else if(requestsFailed){$('admin-request-list').innerHTML='<p class="admin-empty">No se pudieron cargar las solicitudes. Pulsa Actualizar solicitudes para reintentar.</p>';$('admin-request-count').textContent='—';}
   syncAdminLeaveReview(groups);
 
   const controlFailed=!controlRes.pending&&(!!controlRes.error||(!!controlRes.data&&!controlRes.data.ok));
   const missing=[requestsFailed||legacyRequestsRes.error?'las solicitudes del personal':'',controlFailed?'la revisión de evidencias':''].filter(Boolean);
   const refreshingRequests=legacyRequestsRes.refreshing||personalRequestsRes.refreshing;
-  const updating=[refreshingRequests?'solicitudes del personal':'',controlRes.refreshing?'revisión de evidencias':''].filter(Boolean);
-  setAdminOverviewNotice('partial',missing.length?`Datos parcialmente cargados: faltan ${missing.join(' y ')}. Lo demás está al día.`:updating.length?`Actualizando ${updating.join(' y ')}; se conservan los datos anteriores.`:'');
-  if(controlRes.pending)$('admin-overview-headline').textContent='Datos de hoy disponibles. Cargando revisión de evidencias…';
+  setAdminOverviewNotice(missing.length?'error':'',missing.length?`No se pudieron cargar ${missing.join(' y ')}. Los demás datos están disponibles.`:'');
+  if(controlRes.pending)$('admin-overview-headline').textContent='Estado general del equipo';
   else if(!controlData)$('admin-overview-headline').textContent='Datos de asistencia disponibles. Consulta el control diario para revisar las evidencias.';
   $('admin-refreshed').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',timeZone:'America/Lima'});
   if(typeof DashboardSkeleton!=='undefined')DashboardSkeleton.setOverviewRequestsPending($('admin-overview-section'),{list:!!requestsPending,count:!!(personalRequestsRes.pending||legacyRequestsRes.pending),busy:!!(personalRequestsRes.pending||legacyRequestsRes.pending||refreshingRequests)});
@@ -2980,6 +2979,7 @@ function withAdminSkeleton(section,fetchFn,options={}){
   // Pasar lista coordina sus dos fuentes y la carga por regiones en su lector.
   if(section==='lista'&&adminListContextual())return fetchFn();
   if(section==='asignaciones'&&globalThis.KJAAssignmentLoading?.enabled())return fetchFn();
+  if(globalThis.AdminDataLoading?.enabled(section))return AdminDataLoading.run(section,container,fetchFn,options);
   const contextual=section==='overview'&&window.matchMedia('(min-width:901px)').matches;
   const key=APP.sessionUid+'|'+APP.access.rol+'|'+isoLima();
   if(contextual&&APP.adminHubSnapshotKey!==key){
@@ -3165,6 +3165,7 @@ const adminListContextKey=date=>JSON.stringify([APP.sessionUid,APP.access.rol,!!
 const readAdminAttendance=date=>Promise.all([db.rpc('dash_admin_lista',{p_fecha:date}),db.rpc('dash_admin_cierres',{p_fecha:date})]);
 
 function resetAdminAttendanceView(){
+  globalThis.AdminDataLoading?.reset();
   globalThis.KJAAssignmentLoading?.reset();
   APP.adminListRequest++;
   ADMIN_LIST_VIEW.load=null;ADMIN_LIST_VIEW.loading=false;ADMIN_LIST_VIEW.shown=false;
@@ -3204,12 +3205,12 @@ function syncAdminListReadiness(){
   const readOnly=!valid||busy||ADMIN_LIST_VIEW.stale||!APP.adminList?.puede_editar;
   $('admin-roster').querySelectorAll('.apl-mark,[data-admin-entry]').forEach(button=>button.disabled=readOnly);
   $('admin-area-trigger').disabled=!valid;
-  if(!valid){$('admin-area-label').textContent=busy?'Cargando áreas…':'Áreas no disponibles';}
+  if(!valid){$('admin-area-label').textContent=busy?'Todas las áreas':'Áreas no disponibles';}
   $('admin-entry-open').hidden=APP.access.rol!=='direccion';
   $('admin-entry-open').disabled=!valid||busy||ADMIN_LIST_VIEW.stale;
   if(APP.adminSection==='lista')$('admin-refresh').disabled=busy;
   const status=$('admin-list-load-status');
-  status.hidden=!busy;status.textContent=valid?'Actualizando…':'Cargando colaboradores…';
+  status.hidden=true;status.textContent='';
 }
 
 function renderAdminListContext(){
@@ -3265,6 +3266,7 @@ function loadAdminAttendance(){
   };
   const promise=DashboardSkeleton.withSkeleton($('admin-list-section'),'lista',fetch,{
     presentation:'regions-context',contextLabel:'Pasar lista',handlesErrors:true,preserveContent:!!previous,
+    revealTargets:'#admin-list-kpis,#admin-list-summary,#admin-roster',
     onShow:()=>{if(current()){ADMIN_LIST_VIEW.shown=true;renderAdminListPending();}},
     onCleanup:()=>{if(current()){ADMIN_LIST_VIEW.loading=false;ADMIN_LIST_VIEW.shown=false;renderAdminListContext();}}
   }).finally(()=>{if(ADMIN_LIST_VIEW.load?.promise===promise)ADMIN_LIST_VIEW.load=null;});

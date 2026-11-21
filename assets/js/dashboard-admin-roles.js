@@ -24,9 +24,10 @@ function roleContractStatus(person,{vacantLabel='Liderazgo vacante',vacantDetail
 }
 
 async function loadAdminRoles(){
+  if(globalThis.AdminDataLoading?.shouldWrap('roles'))return withAdminSkeleton('roles',()=>loadAdminRoles());
   if(!(APP.identity.isSystem&&APP.access.rol==='direccion'&&APP.access.acceso_panel))return;
   const request=++APP.adminRolesRequest,button=$('admin-refresh');button.disabled=true;rolesMessage('');
-  $('admin-role-map').innerHTML='<p class="admin-empty">Cargando la estructura del equipo…</p>';
+  if(!APP.adminRoles)$('admin-role-map').innerHTML='<p class="admin-empty">Cargando la estructura del equipo…</p>';
   const {data,error}=await db.rpc('dash_admin_roles');
   if(request!==APP.adminRolesRequest)return;button.disabled=false;
   if(error||!data?.ok){
@@ -87,7 +88,9 @@ function renderAdminRoles(){
   $('admin-roles-kpis').innerHTML=kpis.map((item,i)=>`<article class="admin-list-kpi kpi-${i}"><small>${item[0]}</small><b>${item[1]}</b></article>`).join('');
   const areas=(data.areas||[]).map(area=>({area,kind:roleAreaKind(area)}));
   const counts={todas:areas.length};areas.forEach(({kind})=>{counts[kind]=(counts[kind]||0)+1});
+  const focusedFilter=document.activeElement?.dataset?.roleFilter;
   $('admin-role-filters').innerHTML=ROLE_FILTERS.map(([key,label])=>`<button type="button" data-role-filter="${key}" aria-pressed="${ROLE_FILTER===key}">${label}<b>${counts[key]||0}</b></button>`).join('');
+  if(focusedFilter)$('admin-role-filters').querySelector(`[data-role-filter="${focusedFilter}"]`)?.focus({preventScroll:true});
   // Por revisar, activas, sin líder y al final las áreas sin personas, que no pueden recibir líder.
   // sort es estable: dentro de cada grupo se conserva el orden de las áreas.
   const rank=({area,kind})=>ROLE_KIND_ORDER[kind]*2+(Number(area.personas_activas)?0:1);

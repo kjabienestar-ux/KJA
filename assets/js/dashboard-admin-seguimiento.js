@@ -131,6 +131,7 @@
     const fetch=()=>performLoad({quiet,owner,date,contextual});
     const promise=contextual?DashboardSkeleton.withSkeleton(root,'seguimiento',fetch,{
       presentation:'regions-context',contextLabel:'seguimiento diario',handlesErrors:true,
+      revealTargets:'#seg-summary,#seg-workspace,#seg-areas',
       preserveContent:!!(current()&&S.snapshot.closeOk),
       onShow:()=>{S.skeletonVisible=true;render()},
       onCleanup:()=>{const shown=S.skeletonVisible;S.skeletonVisible=false;if(shown)render()}
@@ -233,7 +234,7 @@
     $s('export').disabled=!data||data.partial||S.loading;
     if(desktopContext()){
       $s('area').disabled=!data||S.loading;
-      if(S.loading)$s('updated').textContent=data?'Actualizando…':'Consultando el día…';
+      if(S.loading)$s('updated').textContent='';
       root.classList.toggle('seg-context-pending',S.loading&&!has);
     }
     downloads?.refresh();
@@ -253,6 +254,7 @@
     if(!has||(!data.rows.length&&S.loading&&!desktopContext())){
       $s('summary').innerHTML=Array.from({length:4},()=>'<div class="seg-skeleton" aria-hidden="true"></div>').join('');
       $s('workspace').innerHTML='<div class="seg-empty">'+icon(S.loading?'refresh':'calendar')+'<h3>'+(S.loading?'Consultando el día…':'Información no disponible')+'</h3><p>'+(S.loading?'Entradas, entregas y jornadas.':'Actualiza para volver a consultar esta fecha.')+'</p>'+(!S.loading?button('reload',icon('refresh')+' Reintentar'):'')+'</div>';
+      if(S.loading&&desktopContext())$s('workspace').replaceChildren();
       $s('areas').innerHTML='';return;
     }
     const group=new Set(base.map(row=>String(row.colaborador_id))),evidences=reviewRows().filter(d=>group.has(String(d.colaborador_id)));

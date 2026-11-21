@@ -37,7 +37,7 @@ try{
       headings:[...root.querySelectorAll('h2,h3')].map(node=>({text:node.textContent,visibility:getComputedStyle(node).visibility})),
       summaryHeight:root.querySelector('#seg-summary').getBoundingClientRect().height
     }));
-    assert.deepEqual(loading.fills,['rgb(231, 231, 231)']);assert.deepEqual(loading.animations,['none']);
+    assert.deepEqual(loading.fills,['rgb(231, 231, 231)']);assert.deepEqual(loading.animations,['kja-loading-wave']);
     assert.equal(loading.overflow,false);assert.equal(loading.pageOverflow,false);
     assert.ok(loading.headings.every(heading=>heading.visibility==='visible'));
     const checkSummary=async()=>{

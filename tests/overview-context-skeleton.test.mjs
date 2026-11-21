@@ -120,7 +120,7 @@ test('actualizar conserva solicitudes recibidas hasta completar su consulta inde
   const second=queries(w),refresh=run(()=>w.loadAdminHub());second.core();await refresh;
   assert.match(w.$('admin-request-list').textContent,/Horario de ensayo/);
   assert.equal(w.$('admin-request-list').hasAttribute('data-kja-context-loading'),false);
-  assert.match(w.$('admin-overview-notice').textContent,/se conservan los datos anteriores/);
+  assert.equal(w.$('admin-overview-notice').hidden,true);
   second.secondary();await wait(10);
   assert.match(w.$('admin-request-list').textContent,/No hay solicitudes pendientes/);
   assert.equal(w.$('admin-overview-notice').hidden,true);

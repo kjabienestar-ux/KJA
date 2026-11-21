@@ -1,0 +1,42 @@
+{
+  "task": "KJA-049",
+  "date": "2026-11-21",
+  "status": "REVISAR",
+  "resources": "49-2",
+  "visible_loading_notices": false,
+  "real_errors_and_retry": true,
+  "wave": {
+    "base": "#e7e7e7",
+    "highlight": "white, opacity .65",
+    "duration_seconds": 1.65,
+    "reduced_motion": "no pseudo-element, no animation"
+  },
+  "unit_tests": {
+    "selected_passed": 109,
+    "selected_failed": 0,
+    "additional_focused_passed": 22,
+    "note": "La selección adicional se solapa con parte de la principal; no sumar como casos únicos."
+  },
+  "browser": {
+    "new_views": 7,
+    "view_size_combinations": 28,
+    "all_wave_checks_passed": true,
+    "normal_motion_transform_changes": true,
+    "visible_loading_text_checks_passed": true,
+    "earlier_views": [
+      "Resumen operativo",
+      "Seguimiento diario",
+      "Pasar lista",
+      "Asignaciones"
+    ],
+    "earlier_view_desktop_sizes": {
+      "Resumen operativo": 3,
+      "Seguimiento diario": 4,
+      "Pasar lista": 4,
+      "Asignaciones": 4
+    },
+    "reduced_motion_verified": true,
+    "real_backend_writes": 0
+  },
+  "published": false
+}

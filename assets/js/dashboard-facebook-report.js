@@ -725,12 +725,15 @@
   }
 
   window.loadAdminFacebookReport=async()=>{
+    if(globalThis.AdminDataLoading?.shouldWrap('facebook'))return withAdminSkeleton('facebook',()=>window.loadAdminFacebookReport());
     if(APP.access?.rol!=='direccion')return;
-    clear();const token=request,from=get('fb-report-from').value,to=get('fb-report-to').value,status=get('fb-report-status');
+    if(globalThis.AdminDataLoading?.refreshing('facebook')){request++;comparison=null;closeDrawer();}
+    else clear();
+    const token=request,from=get('fb-report-from').value,to=get('fb-report-to').value,status=get('fb-report-status');
     status.dataset.error='false';
     try{
       m.days(from,to);if(from<'2020-01-01'||to>today())throw new Error('Selecciona fechas desde 2020 y como máximo hasta hoy.');
-      status.textContent='Consultando Facebook…';setStateChip('loading');get('fb-report-results').setAttribute('aria-busy','true');
+      status.textContent='';setStateChip(null);get('fb-report-results').setAttribute('aria-busy','true');
       const result=await db.rpc('dash_reporte_facebook',{p_desde:from,p_hasta:to});
       if(token!==request)return;
       if(result.error){
@@ -965,4 +968,19 @@
   const limit=m.shift(today(),1),monday=m.cutoff(limit,'lunes'),thursday=m.cutoff(limit,'jueves');
   get('fb-report-kind').value=monday.report>thursday.report?'lunes':'jueves';
   get('fb-report-reference').value=limit;period();setViewMode('area');
+  globalThis.AdminDataLoading?.register('facebook',{
+    label:'reporte de Facebook',capture:()=>data?({data,comparison}):null,
+    currentSnapshot:snapshot=>data===snapshot.data?{data,comparison}:snapshot,
+    invalidate:()=>clear(),
+    restore:snapshot=>{data=snapshot?.data||null;comparison=snapshot?.comparison||null;if(!snapshot)cachedGroups=[];},
+    render:()=>{render();get('fb-report-status').dataset.error='true';},
+    reveal:()=>{get('fb-report-results').hidden=false;},
+    onError:previous=>{showEmpty(null);if(!previous)get('fb-report-results').hidden=true;},
+    regions:[
+      {id:'fb-report-kpis',markup:()=>`<div class="adc-report-kpis">${AdminDataLoading.metrics(['Cumplimiento','Con evidencia','Sin evidencia','Colaboradores','No aplica'])}<div class="adc-chart-space"><h3>Cumplimiento por día</h3>${DashboardSkeleton.block('adc-chart-plane')}</div></div>`},
+      {id:'fb-report-matrix',markup:()=>AdminDataLoading.rows(6,true)},
+      {id:'fb-report-person-view',markup:()=>AdminDataLoading.rows(5,true)},
+      {id:'fb-report-attention',markup:()=>AdminDataLoading.rows(2,true)}
+    ]
+  });
 })();

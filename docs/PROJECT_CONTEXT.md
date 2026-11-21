@@ -1,10 +1,16 @@
 # KJA — contexto vigente
 
-Actualizado: 20/11/2026. Este contexto recoge lo comprobado en esta copia; no reconstruye el estado global de producción.
+Tarea activa: [KJA-050](tasks/KJA-050.md), cierre de fluidez y entrega en PR #196. Corregido el parpadeo de toda la sección: solo se revelan las regiones que mostraron espera, sin atenuar el marco ni animar respuestas rápidas. 110 pruebas seleccionadas aprobadas y once vistas en cuatro tamaños con muestreo de fotogramas, encabezados estables, navegación rápida y limpieza de capas. Validación aislada, sin escrituras reales. Recursos `50-1`. Próximo trabajo: [KJA-051](tasks/KJA-051.md), PENDIENTE para otro chat; inventariar y validar componentes/comportamientos compartidos antes de abordar un sistema de diseño.
+
+[KJA-048](tasks/KJA-048.md) convierte Colaboradores, Contratos, Roles, Mes, Facebook, Ranking y Acceso, con correcciones de filas y desbordamientos. [KJA-049](tasks/KJA-049.md) sustituye el criterio estático por reflejo neutro común y retira avisos visibles de carga. Con reducir movimiento el esqueleto queda estático; los errores/reintentos y anuncios accesibles se conservan. Sus evidencias anteriores son históricas; KJA-050 reúne la validación final y la entrega. Sin merge ni despliegue.
+
+Última tarea: [KJA-047](tasks/KJA-047.md), SQL preparado para Arellis (62) solo el 20/11/2026, 14:00–19:00 Lima. Viernes figura no laborable: el script habilita únicamente esa fecha. Lectura real y prueba PostgreSQL local 1/1; no ejecutado en producción ni incluido en PR #196. Siguiente acción: Piero ejecuta el archivo y comprueba la consulta final.
+
+Actualizado: 21/11/2026. Este contexto recoge lo comprobado en esta copia; no reconstruye el estado global de producción.
 
 ## Base y restricciones
 
-- Rama autorizada: `feat/pierokja`. Base actual: `254ecddb97f569ff2a02d20e990633cb03f1def3`, merge del PR #195. La rama local y `origin/feat/pierokja` apuntan a esa base. Los cambios de esqueletos/documentación siguen locales, sin commit ni publicación.
+- Rama autorizada: `feat/pierokja`. Base de KJA-048/049/050: `6f54c2c97b5f89d2175699840871e62858f994d2`, con el PR #195 incorporado. La entrega del panel continúa en el PR #196 a `master`. SQL, Excel y formulario son entregables separados; no se ejecutan ni se publican por esta tarea.
 - Copia autorizada en este equipo: `KJA-trabajo-limpio`. La copia original `KJA` conserva cambios ajenos y no se debe intervenir. Usar la raíz real de la copia autorizada, sin convertir esta ubicación local en una dependencia portable.
 - Aplicación estática con Supabase. Leer [PRODUCT](../PRODUCT.md) y la documentación del módulo. Conservar asistencia, permisos, historial, activaciones y hora oficial del servidor en America/Lima.
 - Administración: diseño y validación solo de escritorio por instrucción de Piero; no ampliar ni eliminar adaptaciones móviles existentes. Sin migraciones ni despliegue de funciones para tareas documentales.

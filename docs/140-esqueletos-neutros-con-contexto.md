@@ -2,7 +2,9 @@
 
 Criterio elegido por Piero el 19/11/2026, a partir de la comparación del Resumen operativo con una referencia visual de LinkedIn. Tarea documental: [KJA-036](tasks/KJA-036.md).
 
-**Estado:** Resumen operativo aprobado visualmente por Piero en [KJA-038](tasks/KJA-038.md). Seguimiento diario implementado y verificado localmente en escritorio en [KJA-040](tasks/KJA-040.md), pendiente de revisión. Pasar lista adopta el criterio en [KJA-041](tasks/KJA-041.md), sobre las filas operativas aprobadas por Piero; pendiente de revisión de su esqueleto. Asignaciones lo incorpora en [KJA-044](tasks/KJA-044.md), pendiente de aprobación visual. Las cuatro aplicaciones siguen sin publicar; las demás vistas no están convertidas. La referencia orienta el aspecto, no demuestra cómo LinkedIn implementa o anima su carga. Esta decisión no incorpora una biblioteca.
+**Estado:** Resumen operativo aprobado visualmente por Piero en [KJA-038](tasks/KJA-038.md). Seguimiento diario implementado y verificado localmente en escritorio en [KJA-040](tasks/KJA-040.md), pendiente de revisión. Pasar lista adopta el criterio en [KJA-041](tasks/KJA-041.md), sobre las filas operativas aprobadas por Piero; pendiente de revisión de su esqueleto. Asignaciones lo incorpora en [KJA-044](tasks/KJA-044.md), pendiente de aprobación visual. Las cuatro aplicaciones están incluidas en el PR #196, aún abierto. [KJA-048](tasks/KJA-048.md) convierte localmente Colaboradores, Contratos, Roles y equipos, Mes completo, Reportes Facebook, Ranking mensual y Acceso y marcado. Las siete están verificadas, pendientes de revisión visual y sin publicar. Control diario y Cierres conservan el mecanismo heredado. La referencia orienta el aspecto, no demuestra cómo LinkedIn implementa o anima su carga. Esta decisión no incorpora una biblioteca.
+
+**Actualización de criterio, 21/11/2026:** Piero solicita retirar los avisos visibles de carga y activar reflejo tipo ola. [KJA-049](tasks/KJA-049.md) sustituye el modelo estático por un barrido blanco neutro sobre el gris único en escritorio; con reducir movimiento permanece estático. Los mensajes de error y reintento se conservan. Las evidencias anteriores de ausencia de animación describen sus versiones históricas.
 
 ## 1. Principio y alcance
 
@@ -33,7 +35,7 @@ Conservar contexto no autoriza a mostrar secciones o acciones sin permiso. La pl
 
 - Un solo relleno común para todos los placeholders: `--kja-sk-base: #e7e7e7` en tema claro. Es un valor elegido para KJA, no una medición del color de LinkedIn.
 - No derivarlo de los colores de texto, área, marca o estado. No usar variantes amarillas, verdes, terracota ni azules para distinguir bloques pendientes.
-- Fondos de página, tarjetas y separadores son superficies, no placeholders: conservan los tokens del panel. No añadir capas, bandas coloreadas, sombras o degradados para indicar carga.
+- Fondos de página, tarjetas y separadores son superficies, no placeholders: conservan los tokens del panel. No añadir bandas coloreadas ni sombras para indicar carga. El único degradado admitido es el reflejo blanco neutro solicitado en KJA-049.
 - Las tarjetas mantienen su borde y radio normales. Las barras usan radio de 4 px. Base orientativa: 10 px de alto para texto, 16 px para una línea de título dinámico y 24 px para un valor destacado; ajustar a la tipografía real sin alterar su caja de línea.
 - Los círculos se reservan para contenido circular real, como avatares o el espacio de un anillo. No añadir avatares a listas que no los tienen.
 - Usar anchos consistentes por función; no variar barras al azar ni depender de la longitud de datos personales anteriores.
@@ -57,7 +59,7 @@ La altura reservada se libera al terminar. Evitar mínimos globales que introduz
 | Primera carga sin datos válidos para ese contexto | Contexto fijo visible y esqueletos en las regiones pendientes. |
 | Respuesta rápida | Conservar el retraso de 180 ms para no mostrar un parpadeo. |
 | Esqueleto que llegó a mostrarse | Conservar los 300 ms mínimos de visibilidad existentes; no añadir otras esperas artificiales ni retrasar el inicio de las consultas. |
-| Actualización con datos válidos de la misma cuenta, permisos y filtros | Mantenerlos visibles e indicar “Actualizando…”. Evitar sustituir toda la pantalla por esqueletos. |
+| Actualización con datos válidos de la misma cuenta, permisos y filtros | Mantenerlos visibles, sin aviso visual de carga; conservar el anuncio accesible y bloquear acciones dependientes. Evitar sustituir toda la pantalla por esqueletos. |
 | Cambio de cuenta, permisos o filtros que vuelve inválidos los datos visibles | Retirar el contenido que ya no corresponde y mostrar espera en la región afectada. No reutilizarlo como resultado actual. |
 | Consultas independientes | Revelar cada bloque cuando esté listo, siempre que el flujo real permita separarlas sin mezclar contextos o resultados. No retener todo por un dato secundario. |
 | Error | Terminar la espera en el bloque afectado, mostrar mensaje y reintento. Conservar los bloques válidos y distinguir información anterior de datos actualizados. |
@@ -67,9 +69,11 @@ No actualizar “Actualizado…” hasta confirmar la respuesta correspondiente.
 
 ## 6. Movimiento y accesibilidad
 
-El modelo base es **estático**, sin shimmer ni barrido de brillo. La transición de aparición del contenido puede conservar los 200 ms existentes. No escalonar filas ni animar cada barra por separado.
+El modelo vigente tiene **reflejo tipo ola** por solicitud de Piero: barrido blanco neutro sobre el relleno gris, 1,65 s, con transform y recorte dentro de cada placeholder. Se comparte una sola definición entre vistas, sin variantes de color por estado. La transición de aparición conserva los 200 ms existentes. No escalonar filas ni añadir avisos visibles de espera.
 
-Un pulso suave sería una variante futura que requiere una decisión explícita y verificación común; no introducirlo como interpretación automática de este criterio. Respetar `prefers-reduced-motion` en cualquier transición o variante animada.
+El revelado de KJA-050 afecta únicamente a las regiones que mostraron espera: opacidad de 0,65 a 1 en 200 ms, sin mover ni atenuar títulos, filtros o el marco. Si la respuesta llega antes del umbral, o es una actualización con datos válidos, no se aplica ese revelado. No animar alturas para compensar una estructura incorrecta.
+
+Con `prefers-reduced-motion: reduce`, el reflejo se retira y queda el gris estático. Los lectores de pantalla conservan el anuncio común de carga y `aria-busy`; los usuarios visuales reciben el esqueleto sin banners de Actualizando/Consultando ni botones Reintentar mientras una consulta sigue pendiente.
 
 - Marcar ocupada la región cuyos datos se están cargando con `aria-busy` y limpiar ese estado tanto al completar como al fallar.
 - Ocultar las formas decorativas a lectores de pantalla. Anunciar la carga una vez por operación, no una vez por barra. Evitar ubicar el anuncio en un subárbol cuya condición de ocupado impida comunicarlo.
@@ -122,10 +126,16 @@ Por corrección explícita de Piero, Asignaciones amplía la primera carga a sus
 
 El calendario conserva título y navegación. Durante la primera espera, su cuadrícula usa formas decorativas sin fechas ni cantidades provisionales. Revelarlo al resolver su consulta independiente, sin esperar la lista. Mantener datos válidos y borradores al actualizar; distinguir error inicial, actualización fallida con datos anteriores y vacío confirmado. No habilitar escrituras con datos anteriores de un fallo. Invalidar por cuenta/rol/área/fecha o mes y descartar respuestas tardías. Usar el mismo controlador por regiones, sin otros temporizadores. Aplicación local en [KJA-044](tasks/KJA-044.md), pendiente de aprobación visual.
 
+### Aplicación a Gestión del equipo, Reportes y Acceso
+
+[KJA-048](tasks/KJA-048.md) utiliza un adaptador común para las siete vistas restantes de la navegación. Mantiene encabezados, navegación, etiquetas y filtros locales y cubre únicamente sus regiones de datos. Las capas necesitan reserva, posición, recorte y ocultación efectivos: crear bloques sin esos estilos no constituye una conversión terminada. Montar primero la estructura real de escritorio cuando esta antes dependía de la respuesta.
+
+Conservar nodos estructurales que usan los renderizadores (por ejemplo, la tabla de Ranking dentro de su contenedor). Las respuestas rápidas no montan capas; el vacío confirmado libera la reserva. Compartir lectura por contexto, conservar datos válidos al actualizar y recuperar operabilidad al reintentar. La cancelación por una consulta más reciente no es un error y no borra datos compartidos. Invalidar instantáneas y limpiar campos al reiniciar sesión. La ficha contiene la matriz de regiones, ajustes y evidencia.
+
 ## 9. Criterios de aceptación por vista
 
 - [ ] Texto fijo, navegación autorizada y acciones independientes permanecen visibles.
-- [ ] Todos los placeholders comparten el mismo relleno; no quedan degradados, brillos, etiquetas coloreadas ni decoraciones heredadas dentro de las regiones pendientes.
+- [ ] Todos los placeholders comparten el mismo relleno; no quedan etiquetas coloreadas ni decoraciones heredadas en las regiones pendientes; solo se permite el reflejo blanco común de KJA-049.
 - [ ] El contenido final conserva columnas, alineación y posición; no hay salto evitable, corte ni altura mínima sobrante al resolver.
 - [ ] Se revisan primera carga lenta, respuesta menor a 180 ms, carga parcial, actualización, cambio de filtro/contexto, vacío, fallo y reintento con datos ficticios.
 - [ ] La actualización no oculta datos aún válidos ni presenta datos del contexto anterior como actuales; no se duplican consultas por añadir el esqueleto.

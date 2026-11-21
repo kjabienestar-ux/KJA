@@ -1,5 +1,12 @@
 # Tareas de KJA
 
+- [KJA-050 — Cierre de fluidez y entrega](KJA-050.md).
+- [KJA-051 — Sistema de diseño, pendiente para otro chat](KJA-051.md).
+
+- [KJA-049 — Reflejo y carga sin avisos](KJA-049.md).
+
+- [KJA-048 — Conversión progresiva de las demás vistas](KJA-048.md).
+
 Índice mínimo de las fichas presentes en esta base. Consultar estado, evidencia y siguiente acción en cada ficha; este índice no declara cerradas tareas anteriores.
 
 ## Criterio de carga
@@ -24,3 +31,4 @@
 - [KJA-035 — Retirada de chat/notificaciones y pausas locales](KJA-035.md).
 
 - [KJA-046 — Contacto de Ingeniería](KJA-046.md).
+- [KJA-047 — SQL temporal de Arellis, 20/11/2026](KJA-047.md).

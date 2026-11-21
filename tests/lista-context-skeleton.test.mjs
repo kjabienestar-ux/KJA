@@ -65,7 +65,7 @@ test('asistencia y cierre se revelan juntos aunque una fuente llegue antes',asyn
 });
 
 test('buscar no revela datos antes de cumplir la permanencia mínima del esqueleto',async t=>{
-  const h=setup(t);const run=h.w.DashboardSkeleton.withSkeleton;h.w.DashboardSkeleton.withSkeleton=(host,kind,fetch,options)=>run(host,kind,fetch,{...options,minVisible:500});h.mode('hold');const pending=h.load();await wait(12);h.mode('data');h.release();await wait(1);
+  const h=setup(t,{fastTimers:false});const run=h.w.DashboardSkeleton.withSkeleton;h.w.DashboardSkeleton.withSkeleton=(host,kind,fetch,options)=>run(host,kind,fetch,{...options,delay:5,minVisible:500,fade:0});h.mode('hold');const pending=h.load();for(let i=0;i<100&&!h.root.querySelector('.kja-sk-block');i++)await wait(5);assert.ok(h.root.querySelector('.kja-sk-block'));h.mode('data');h.release();await wait(1);
   h.w.$('admin-list-search').value='Ana';h.w.renderAdminAttendance();
   assert.ok(h.root.querySelector('.kja-sk-block'));assert.equal(h.root.querySelector('[data-admin-person]'),null);
   assert.equal(h.w.$('admin-entry-open').disabled,true);
@@ -84,7 +84,7 @@ test('actualizar conserva filas válidas, búsqueda y foco; bloquea escrituras d
   const row=h.root.querySelector('[data-admin-person]');h.mode('hold');const pending=h.load();await wait(12);
   assert.equal(h.root.querySelector('[data-admin-person]'),row);assert.equal(h.root.querySelector('.kja-sk-block'),null);
   assert.equal(h.w.document.activeElement,search);assert.equal(search.value,'Ana');assert.equal(h.root.querySelector('.apl-mark').disabled,true);
-  assert.match(h.w.$('admin-list-load-status').textContent,/Actualizando/);
+  assert.equal(h.w.$('admin-list-load-status').textContent,'');assert.equal(h.w.$('admin-list-load-status').hidden,true);
   h.mode('data');h.release();await pending;assert.equal(h.w.document.activeElement,search);assert.equal(h.root.querySelector('.apl-mark').disabled,false);
 });
 

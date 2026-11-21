@@ -73,6 +73,7 @@ function loadAssignmentCalendarContext(){
   const promise=DashboardSkeleton.withSkeleton($('assignment-calendar-panel'),'asignaciones',async()=>{
     try{const {data,error}=await db.rpc('dash_admin_asignaciones_calendario',{p_mes:month+'-01'});if(!current())return false;if(error||!data?.ok)throw Error('lectura');result=data;return true;}catch{return false;}
   },{presentation:'regions-context',contextLabel:'calendario de asignaciones',preserveContent:!!previous,handlesErrors:true,
+    revealTargets:'#assignment-calendar-days',
     onShow:()=>{if(current())draw(null,true);},
     onCleanup:()=>{
       if(!current())return;

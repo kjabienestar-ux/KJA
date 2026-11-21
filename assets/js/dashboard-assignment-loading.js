@@ -63,6 +63,7 @@
       if(!previous)pending();controls();
       try{ok=await fetch();return ok;}catch{return false;}
     },{presentation:'regions-context',contextLabel:'asignaciones',preserveContent:!!previous,handlesErrors:true,
+    revealTargets:'#admin-close-assignment-form,#admin-close-assignment-list,#admin-close-assignment-count,#assignment-day-summary-stats',
     onShow:()=>{if(current()){S.shown=true;pending();showFormSkeleton();}},
       onCleanup:()=>{
         if(!current())return;clearFormSkeleton();S.busy=false;S.shown=false;
