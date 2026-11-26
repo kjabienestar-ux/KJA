@@ -117,3 +117,39 @@ test('sin permiso no abre ni consulta; vacío y rango inválido no generan archi
   const from=w.document.querySelector('#seg-x-from');from.value='2026-01-01';from.dispatchEvent(new w.Event('change'));
   assert.equal(w.document.querySelector('#seg-x-download').disabled,true);assert.match(w.document.querySelector('#seg-download-validation').textContent,/93/);assert.equal(calls,2);
 });
+
+test('pendientes: solo filas recibidas, estado en rojo, fecha por fila y celda de identidad combinada',()=>{
+  const {api}=setup();
+  const red=(fecha,extra={})=>({colaborador_id:1,colaborador:'Ana <Díaz>',area:'Marketing',area_id:1,estado:'Incompleta',codigo:'incompleta',pendientes:['Entrada sin registrar','RPE','Facebook'],horario:'08:00 – 13:00',...extra});
+  const one=new TextDecoder().decode(api.buildPending(['2026-11-02'],{'2026-11-02':[red('2026-11-02')]},{scope:'Todas las áreas',updated:'prueba'}));
+  assert.ok(one.includes('KJA · Reporte de pendientes'));assert.ok(one.includes('Ana &lt;Díaz&gt;'));
+  assert.ok(one.includes('Entrada sin registrar · RPE · Facebook'));assert.ok(one.includes('08:00 – 13:00'));
+  assert.ok(one.includes('FAE0DF'));assert.ok(one.includes('FF9B2C2C'));assert.ok(!one.includes('>Fecha</t>'));
+  assert.match(one,/<c r="A9"[^>]*>.*?Colaborador \/ Área<\/t>/);assert.ok(!one.includes('<f>'));assert.ok(!one.includes('sheet2.xml'));
+  const days=api.dates('2026-11-02','2026-11-04');
+  const many=new TextDecoder().decode(api.buildPending(days,{'2026-11-02':[red()],'2026-11-03':[],'2026-11-04':[red(null,{estado:'Sin entrada',codigo:'sin_entrada',pendientes:[]}),{...red(),colaborador_id:2,colaborador:'Luis',area:'Psicología',area_id:2}]},{scope:'Todas las áreas',updated:'prueba',today:true}));
+  assert.ok(many.includes('>Fecha</t>'));assert.ok(many.includes('02/11/2026\nLU'));assert.ok(many.includes('04/11/2026\nMI'));assert.ok(!many.includes('03/11/2026'));
+  assert.ok(many.includes('Jornadas en rojo: 3 · Incompletas: 2 · Sin entrada: 1'));assert.ok(many.includes('Sin pendientes identificados'));
+  assert.ok(many.includes('<mergeCell ref="A10:A11"/>'));assert.ok(many.includes('PROVISIONAL: incluye hoy'));
+  assert.throws(()=>api.buildPending(days,{'2026-11-02':[],'2026-11-03':[],'2026-11-04':[]},{scope:'x',updated:'y'}),/estado en rojo/);
+});
+test('pendientes: opción propia con rango, filtros de área y nombre, vacío y error sin archivo',async()=>{
+  const {w,api}=setup();let ctx={date:'2026-11-02',today:'2026-11-17',area:'2',areaLabel:'Psicología',query:'jose',owner:'a',allowed:true},mode='ok',blobs=[];const asked=[];
+  w.URL.createObjectURL=b=>{blobs.push(b);return 'blob:test'};w.URL.revokeObjectURL=()=>{};w.HTMLAnchorElement.prototype.click=()=>{};
+  const controller=api.mount(w.document.getElementById('root'),()=>ctx,async()=>{throw Error('no debe leer marcaciones')},{pending:async d=>{asked.push(d);if(mode==='fail')throw Error('No se pudo consultar el día '+d+'.');if(mode==='empty')return [];return [{colaborador_id:1,colaborador:'José',area_id:2,area:'Psicología',estado:'Sin entrada',codigo:'sin_entrada',pendientes:['Entrada sin registrar']},{colaborador_id:2,colaborador:'Otra',area_id:1,area:'Marketing',estado:'Incompleta',codigo:'incompleta',pendientes:['RPE']}]}});
+  const box=w.document.querySelector('dialog'),click=s=>w.document.querySelector(s).click(),tick=()=>new Promise(r=>setTimeout(r,10));
+  controller.open();assert.equal(box.querySelectorAll('.seg-d-option').length,3);
+  click('[data-download="pending"]');assert.equal(w.document.getElementById('seg-download-title').textContent,'Pendientes en Excel');
+  assert.equal(w.document.getElementById('seg-download-period').hidden,false);assert.match(w.document.getElementById('seg-x-download').textContent,/Descargar Excel/);
+  click('[data-period="range"]');const from=w.document.getElementById('seg-x-from'),to=w.document.getElementById('seg-x-to');
+  from.value='2026-11-02';to.value='2026-11-05';to.dispatchEvent(new w.Event('change'));
+  click('#seg-x-download');await tick();
+  assert.deepEqual(asked,['2026-11-02','2026-11-03','2026-11-04','2026-11-05']);assert.equal(blobs.length,1);assert.equal(box.dataset.stage,'success');
+  assert.equal(w.document.getElementById('seg-download-filename').textContent,'pendientes-2026-11-02_2026-11-05.xlsx');
+  assert.match(w.document.getElementById('seg-download-filedetail').textContent,/solo estados en rojo/);
+  const text=new TextDecoder().decode(new Uint8Array(await blobs[0].arrayBuffer()));assert.ok(text.includes('José'));assert.ok(!text.includes('Otra'));
+  mode='empty';controller.open();click('[data-download="pending"]');click('#seg-x-download');await tick();
+  assert.equal(box.dataset.stage,'empty');assert.equal(w.document.getElementById('seg-download-state-title').textContent,'No hay pendientes en rojo');assert.equal(blobs.length,1);
+  mode='fail';controller.open();click('[data-download="pending"]');click('#seg-x-download');await tick();
+  assert.equal(box.dataset.stage,'error');assert.equal(blobs.length,1);
+});
