@@ -220,6 +220,15 @@
       "candidateFailed": 5,
       "newFailures": 0,
       "remainingFailures": ["dashboard-guided-tour.test.mjs (4 preexistentes)", "videos.test.mjs (1 preexistente)"]
+    },
+    "generalSuiteAfterCorrection": {
+      "command": "npm test",
+      "passed": 327,
+      "failed": 0,
+      "focusedSuitePassed": 23,
+      "newRegressionTests": 2,
+      "remainingFailures": [],
+      "scope": "Pruebas del contrato vigente de inicio del tutorial por cuenta, perfil y navegación pública; sin cambios de ejecución ni diseño móvil."
     }
   }
 }
