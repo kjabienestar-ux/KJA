@@ -4,19 +4,19 @@
    ========================================================================== */
 
 #portal #admin-people-section {
-  --people-ink: #403955;
-  --people-muted: #706981;
-  --people-line: #e0ddea;
-  --people-line-hover: #beb4cf;
-  --people-primary: #655083;
-  --people-primary-hover: #53406d;
-  --people-primary-soft: #e8dff4;
-  --people-field-bg: #f1eff7;
-  --people-field-focus: #eee8f7;
-  --people-surface: #faf9fd;
-  --people-card-bg: #ffffff;
-  --people-card-shadow: 0 4px 16px rgba(64, 57, 85, 0.04);
-  --people-card-hover-shadow: 0 12px 28px rgba(64, 57, 85, 0.08);
+  --people-ink: var(--kja-text-primary, #403955);
+  --people-muted: var(--kja-text-secondary, #706981);
+  --people-line: var(--kja-divider-subtle, #e0ddea);
+  --people-line-hover: var(--kja-field-border, #beb4cf);
+  --people-primary: var(--kja-action-primary, #655083);
+  --people-primary-hover: var(--kja-action-primary-hover, #53406d);
+  --people-primary-soft: var(--kja-surface-accent-tint, #e8dff4);
+  --people-field-bg: var(--kja-surface-opaque, #f1eff7);
+  --people-field-focus: var(--kja-surface-opaque, #eee8f7);
+  --people-surface: var(--kja-surface-opaque, #faf9fd);
+  --people-card-bg: var(--kja-surface-opaque, #ffffff);
+  --people-card-shadow: var(--kja-surface-card-shadow, 0 4px 16px rgba(64, 57, 85, 0.04));
+  --people-card-hover-shadow: var(--kja-surface-card-shadow, 0 12px 28px rgba(64, 57, 85, 0.08));
 
   background: transparent !important;
   border-radius: 24px;
@@ -89,7 +89,7 @@
   color: var(--people-primary);
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 10px rgba(77, 56, 108, 0.08);
+  box-shadow: var(--kja-action-shadow, 0 4px 10px rgba(77, 56, 108, 0.08));
   flex-shrink: 0;
 }
 
@@ -135,7 +135,7 @@
   left: 12px;
   width: 15px;
   height: 15px;
-  color: #807391;
+  color: var(--kja-text-secondary, #807391);
   pointer-events: none;
 }
 
@@ -155,12 +155,12 @@
 }
 
 #portal #admin-people-section input#admin-people-search::placeholder {
-  color: #7a7287 !important;
+  color: var(--kja-text-secondary, #7a7287) !important;
 }
 
 #portal #admin-people-section input#admin-people-search:focus {
-  background: #ffffff !important;
-  border-color: #766498 !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
+  border-color: var(--kja-field-border, #766498) !important;
   box-shadow: 0 0 0 3px var(--people-field-focus) !important;
 }
 
@@ -180,16 +180,16 @@
 }
 
 #portal #admin-people-section #admin-manage-areas:hover {
-  background: #eae5f4;
+  background: var(--kja-surface-hover, #eae5f4);
   border-color: var(--people-line-hover);
   color: var(--people-primary);
 }
 
 #portal #admin-people-section #admin-manage-areas[aria-expanded="true"] {
   background: var(--people-primary);
-  color: #ffffff;
+  color: var(--kja-on-action, #ffffff);
   border-color: var(--people-primary);
-  box-shadow: 0 3px 10px rgba(101, 80, 131, 0.28);
+  box-shadow: var(--kja-action-shadow, 0 3px 10px rgba(101, 80, 131, 0.28));
 }
 
 /* Toggle Incluir Bajas */
@@ -203,12 +203,12 @@
   border-radius: 10px;
   transition: background 0.15s ease;
   font: 500 12.5px Inter, system-ui, sans-serif;
-  color: #554d66;
+  color: var(--kja-text-primary, #554d66);
   white-space: nowrap;
 }
 
 #portal #admin-people-section .admin-toggle:hover {
-  background: rgba(101, 80, 131, 0.05);
+  background: var(--kja-surface-hover, rgba(101, 80, 131, 0.05));
 }
 
 #portal #admin-people-section .admin-toggle input[type="checkbox"] {
@@ -227,13 +227,13 @@
   border: 0;
   border-radius: 12px;
   background: var(--people-primary) !important;
-  color: #ffffff !important;
+  color: var(--kja-on-action, #ffffff) !important;
   font: 600 12.5px Inter, system-ui, sans-serif !important;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 3px 10px rgba(101, 80, 131, 0.28) !important;
+  box-shadow: var(--kja-action-shadow, 0 3px 10px rgba(101, 80, 131, 0.28)) !important;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
 }
@@ -241,12 +241,12 @@
 #portal #admin-people-section #admin-new-person:hover {
   background: var(--people-primary-hover) !important;
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(101, 80, 131, 0.36) !important;
+  box-shadow: var(--kja-action-shadow, 0 5px 14px rgba(101, 80, 131, 0.36)) !important;
 }
 
 #portal #admin-people-section #admin-new-person:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(101, 80, 131, 0.24) !important;
+  box-shadow: var(--kja-action-shadow, 0 2px 6px rgba(101, 80, 131, 0.24)) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -337,7 +337,7 @@
 }
 
 #portal #admin-people-section .attendance-export-selection > summary:hover {
-  background: #f4effa;
+  background: var(--kja-surface-hover, #f4effa);
 }
 
 #portal #admin-people-section .attendance-export-selection > summary b {
@@ -381,9 +381,9 @@
 
 #portal #admin-people-section .attendance-export-search:focus-within {
   outline: none;
-  border-color: #766498;
+  border-color: var(--kja-field-border, #766498);
   box-shadow: 0 0 0 3px var(--people-field-focus);
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
 }
 
 #portal #admin-people-section .attendance-export-tools button {
@@ -417,25 +417,25 @@
 }
 
 #portal #admin-people-section .attendance-export-institution-select:focus {
-  border-color: #766498;
+  border-color: var(--kja-field-border, #766498);
   box-shadow: 0 0 0 3px var(--people-field-focus);
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
 }
 
 #portal #admin-people-section #attendance-export-institution-all {
   background: var(--people-primary) !important;
-  color: #ffffff !important;
+  color: var(--kja-on-action, #ffffff) !important;
   font-weight: 600;
   padding: 6px 14px;
   border-radius: 9px;
-  box-shadow: 0 2px 8px rgba(101, 80, 131, 0.25);
+  box-shadow: var(--kja-action-shadow, 0 2px 8px rgba(101, 80, 131, 0.25));
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
 #portal #admin-people-section #attendance-export-institution-all:hover {
-  background: #53416e !important;
+  background: var(--kja-action-primary-hover, #53416e) !important;
   transform: translateY(-1px);
 }
 
@@ -443,7 +443,7 @@
   display: inline-block;
   font-weight: 600;
   color: var(--people-primary);
-  background: rgba(101, 80, 131, 0.08);
+  background: var(--kja-surface-accent-tint, rgba(101, 80, 131, 0.08));
   padding: 1px 7px;
   border-radius: 6px;
   margin: 0 2px;
@@ -465,11 +465,11 @@
 }
 
 #portal #admin-people-section .attendance-export-option:hover {
-  background: #faf8fd;
+  background: var(--kja-surface-hover, #faf8fd);
 }
 
 #portal #admin-people-section .attendance-export-option:has(input:checked) {
-  background: #f4eef9;
+  background: var(--kja-surface-accent-tint, #f4eef9);
 }
 
 #portal #admin-people-section .attendance-export-option input {
@@ -478,7 +478,7 @@
 
 #portal #admin-people-section .attendance-export-footer {
   padding: 16px 24px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
 }
 
 #portal #admin-people-section #admin-attendance-export-status {
@@ -500,7 +500,7 @@
 }
 
 #portal #admin-people-section #admin-attendance-export:hover:not(:disabled) {
-  background: #eae5f4;
+  background: var(--kja-action-disabled-bg, #eae5f4);
   border-color: var(--people-line-hover);
   color: var(--people-primary);
 }
@@ -512,9 +512,9 @@
   border-radius: 12px;
   border: 0;
   background: var(--people-primary) !important;
-  color: #ffffff !important;
+  color: var(--kja-on-action, #ffffff) !important;
   font: 600 12.5px Inter, system-ui, sans-serif;
-  box-shadow: 0 3px 10px rgba(101, 80, 131, 0.28);
+  box-shadow: var(--kja-action-shadow, 0 3px 10px rgba(101, 80, 131, 0.28));
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -522,7 +522,7 @@
 #portal #admin-people-section #admin-attendance-excel:hover:not(:disabled) {
   background: var(--people-primary-hover) !important;
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(101, 80, 131, 0.36);
+  box-shadow: var(--kja-action-shadow, 0 5px 14px rgba(101, 80, 131, 0.36));
 }
 
 /* --------------------------------------------------------------------------
@@ -540,14 +540,14 @@
   border: 1px solid var(--people-line) !important;
   border-radius: 18px !important;
   padding: 18px 20px !important;
-  box-shadow: 0 2px 8px rgba(64, 57, 85, 0.03) !important;
+  box-shadow: var(--kja-surface-card-shadow, 0 2px 8px rgba(64, 57, 85, 0.03)) !important;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #portal #admin-people-section #admin-people-kpis .admin-list-kpi:hover {
   transform: translateY(-2px);
   border-color: var(--people-line-hover) !important;
-  box-shadow: 0 6px 18px rgba(64, 57, 85, 0.06) !important;
+  box-shadow: var(--kja-surface-card-shadow, 0 6px 18px rgba(64, 57, 85, 0.06)) !important;
 }
 
 #portal #admin-people-section #admin-people-kpis .admin-list-kpi small {
@@ -657,7 +657,7 @@
 }
 
 #portal #admin-people-section .admin-person-card.inactive {
-  background: #fbfafd !important;
+  background: var(--kja-surface-opaque, #fbfafd) !important;
   opacity: 0.76;
 }
 
@@ -680,7 +680,7 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(101, 80, 131, 0.1);
+  box-shadow: var(--kja-action-shadow, 0 2px 6px rgba(101, 80, 131, 0.1));
 }
 
 #portal #admin-people-section .admin-person-card-head > span:nth-child(2) b {
@@ -710,7 +710,7 @@
   border: 1px solid var(--people-line);
   border-radius: 10px;
   background: var(--people-field-bg);
-  color: #554d66;
+  color: var(--kja-text-primary, #554d66);
   font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
@@ -722,27 +722,27 @@
 }
 
 #portal #admin-people-section .admin-person-card-head button:hover {
-  background: #eee8f7;
+  background: var(--kja-surface-hover, #eee8f7);
   color: var(--people-ink);
   border-color: var(--people-line-hover);
 }
 
 #portal #admin-people-section .admin-person-card-head button.days-off {
-  color: #4f3b6c;
-  background: #f2eef9;
-  border-color: #ded6ec;
+  color: var(--kja-action-secondary, #4f3b6c);
+  background: var(--kja-surface-opaque, #f2eef9);
+  border-color: var(--kja-field-border, #ded6ec);
   font-weight: 600;
 }
 
 #portal #admin-people-section .admin-person-card-head button.days-off:hover {
-  background: #e8e0f5;
-  color: #3b2857;
+  background: var(--kja-surface-hover, #e8e0f5);
+  color: var(--kja-action-secondary, #3b2857);
 }
 
 #portal #admin-people-section .admin-person-card-head button.danger:hover {
-  color: #a9384c;
-  border-color: #efc5cd;
-  background: #fff4f6;
+  color: var(--kja-status-error-text, #a9384c);
+  border-color: var(--kja-surface-border, #efc5cd);
+  background: var(--kja-status-error-bg, #fff4f6);
 }
 
 /* Línea de Identidad (DNI, PIN, Portal) */
@@ -758,8 +758,8 @@
 #portal #admin-people-section .admin-identity-line span {
   padding: 5px 10px;
   border-radius: 8px;
-  background: #f4f1f8;
-  color: #5c5470;
+  background: var(--kja-status-neutral-bg, #f4f1f8);
+  color: var(--kja-status-neutral-text, #5c5470);
   font-size: 11.5px;
   font-weight: 500;
 }
@@ -770,14 +770,14 @@
 }
 
 #portal #admin-people-section .admin-identity-line .ready {
-  color: #1e7046;
-  background: #e8f5ec;
+  color: var(--kja-status-text, #1e7046);
+  background: var(--kja-status-bg, #e8f5ec);
   font-weight: 600;
 }
 
 #portal #admin-people-section .admin-identity-line .missing {
-  color: #9c5c00;
-  background: #fff3e6;
+  color: var(--kja-status-warning-text, #9c5c00);
+  background: var(--kja-status-warning-bg, #fff3e6);
   font-weight: 600;
 }
 
@@ -785,9 +785,9 @@
 #portal #admin-people-section .admin-week-ledger {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  border: 1px solid #e7e3ef;
+  border: 1px solid var(--kja-surface-border, #e7e3ef);
   border-radius: 14px;
-  background: #faf9fc;
+  background: var(--kja-surface-opaque, #faf9fc);
   overflow: hidden;
 }
 
@@ -799,7 +799,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid #eae5f2;
+  border-right: 1px solid var(--kja-divider-subtle, #eae5f2);
   background: transparent;
 }
 
@@ -820,7 +820,7 @@
   font-size: 11px;
   font-weight: 700;
   font-style: normal;
-  color: #196d61;
+  color: var(--kja-status-text, #196d61);
 }
 
 #portal #admin-people-section .admin-day-chip.presencial i {
@@ -828,16 +828,16 @@
 }
 
 #portal #admin-people-section .admin-day-chip.opcional i {
-  color: #b56c00;
+  color: var(--kja-status-warning-text, #b56c00);
 }
 
 #portal #admin-people-section .admin-day-chip.no_gestiona {
-  background: #f4f2f7;
-  color: #a49bb5;
+  background: var(--kja-status-neutral-bg, #f4f2f7);
+  color: var(--kja-status-neutral-text, #a49bb5);
 }
 
 #portal #admin-people-section .admin-day-chip.no_gestiona i {
-  color: #a49bb5;
+  color: var(--kja-status-neutral-text, #a49bb5);
 }
 
 #portal #admin-people-section .admin-day-chip small {
@@ -849,28 +849,28 @@
 
 /* Barra de Seguimiento / Progreso */
 #portal #admin-people-section .admin-schedule-label{margin:0 0 8px;color:var(--people-muted);font-size:12px;line-height:1.5}
-#portal #admin-people-section .admin-day-chip.is-temporary{background:#edf5f2}
-#portal #admin-people-section .admin-day-chip.is-temporary.no_gestiona{background:#f2edf8}
-#portal #admin-people-section .admin-day-chip.is-temporary i{color:#205e50}
-#portal #admin-people-section .admin-day-chip.is-temporary.no_gestiona i{color:#625077}
+#portal #admin-people-section .admin-day-chip.is-temporary{background:var(--kja-status-bg, #edf5f2)}
+#portal #admin-people-section .admin-day-chip.is-temporary.no_gestiona{background:var(--kja-status-neutral-bg, #f2edf8)}
+#portal #admin-people-section .admin-day-chip.is-temporary i{color:var(--kja-status-text, #205e50)}
+#portal #admin-people-section .admin-day-chip.is-temporary.no_gestiona i{color:var(--kja-status-neutral-text, #625077)}
 #portal #admin-people-section .admin-temporary-schedule{margin:2px 0 18px;padding:16px 0;border-top:1px solid var(--people-line);border-bottom:1px solid var(--people-line);font-size:12px;line-height:1.6;color:var(--people-ink)}
 #portal #admin-people-section .admin-temporary-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin-bottom:14px}
-#portal #admin-people-section .admin-temporary-heading strong{font-size:14px;color:#4e3a6d}
-#portal #admin-people-section .admin-temporary-heading strong:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#796095;margin-right:8px;vertical-align:middle}
+#portal #admin-people-section .admin-temporary-heading strong{font-size:14px;color:var(--kja-text-primary, #4e3a6d)}
+#portal #admin-people-section .admin-temporary-heading strong:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--kja-action-primary, #796095);margin-right:8px;vertical-align:middle}
 #portal #admin-people-section .admin-temporary-heading>span{color:var(--people-muted);font-size:11px}
 #portal #admin-people-section .admin-temporary-groups{display:grid;grid-template-columns:minmax(0,2fr) minmax(140px,1fr);gap:20px 28px;align-items:start}
 #portal #admin-people-section .admin-temporary-kind{display:block;font-size:12px;color:var(--people-muted);margin-bottom:10px}
 #portal #admin-people-section .admin-temporary-times{display:flex;align-items:center;gap:20px;margin:0}
 #portal #admin-people-section .admin-temporary-times dt{font-size:11px;line-height:1.4;color:var(--people-muted)}
 #portal #admin-people-section .admin-temporary-times dd{margin:3px 0 0;font-size:26px;font-weight:650;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.025em;color:var(--people-ink)}
-#portal #admin-people-section .admin-temporary-times>span{color:#aaa1b8;padding-top:12px}
-#portal #admin-people-section .admin-punctual-limit{display:inline-block;margin:12px 0 0;padding:4px 8px;background:#e8f4ee;color:#245b44;font-size:11px;line-height:1.6;border-radius:5px}
+#portal #admin-people-section .admin-temporary-times>span{color:var(--kja-text-secondary, #aaa1b8);padding-top:12px}
+#portal #admin-people-section .admin-punctual-limit{display:inline-block;margin:12px 0 0;padding:4px 8px;background:var(--kja-status-bg, #e8f4ee);color:var(--kja-status-text, #245b44);font-size:11px;line-height:1.6;border-radius:5px}
 #portal #admin-people-section .admin-temporary-off{font-size:16px;font-weight:600;color:var(--people-ink);line-height:1.5;margin:0 0 14px}
 #portal #admin-people-section .admin-temporary-dates{display:grid;gap:7px;margin-top:14px}
 #portal #admin-people-section .admin-temporary-month{display:flex;align-items:center;gap:10px;min-width:0}
 #portal #admin-people-section .admin-temporary-month>span{flex:0 0 30px;font-size:11px;color:var(--people-muted)}
 #portal #admin-people-section .admin-temporary-month>div{display:flex;gap:5px;flex-wrap:wrap}
-#portal #admin-people-section .admin-temporary-month time{display:grid;place-items:center;min-width:26px;height:26px;padding:0 5px;background:#f1eef6;color:#57456d;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;border-radius:5px}
+#portal #admin-people-section .admin-temporary-month time{display:grid;place-items:center;min-width:26px;height:26px;padding:0 5px;background:var(--kja-surface-canvas, #f1eef6);color:var(--kja-text-secondary, #57456d);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;border-radius:5px}
 #portal #admin-people-section .admin-temporary-return{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--people-line);font-size:12px;color:var(--people-ink);line-height:1.7}
 #portal #admin-people-section .admin-temporary-return time{font-weight:650}
 @media(max-width:480px){#portal #admin-people-section .admin-temporary-groups{grid-template-columns:minmax(0,1fr);gap:20px}#portal #admin-people-section .admin-temporary-group.is-off{padding-top:16px;border-top:1px solid var(--people-line)}#portal #admin-people-section .admin-temporary-times dd{font-size:24px}}
@@ -882,7 +882,7 @@
   gap: 14px;
   margin-top: 2px;
   padding-top: 12px;
-  border-top: 1px solid #eeebf3;
+  border-top: 1px solid var(--kja-divider-subtle, #eeebf3);
 }
 
 #portal #admin-people-section .admin-person-contract small {
@@ -903,12 +903,12 @@
 #portal #admin-people-section .admin-person-contract > i {
   height: 6px;
   border-radius: 6px;
-  background: #eae5f2;
+  background: var(--kja-surface-border, #eae5f2);
   overflow: hidden;
 }
 
 #portal #admin-people-section .admin-person-contract > i:after {
-  background: linear-gradient(90deg, var(--people-primary), #9d7dbf);
+  background: var(--kja-action-primary, linear-gradient(90deg, var(--people-primary), #9d7dbf));
 }
 
 /* Botón Ver Ficha Completa */
@@ -917,8 +917,8 @@
   min-height: 44px;
   padding: 12px 18px;
   border-radius: 12px;
-  background: #262133;
-  color: #ffffff;
+  background: var(--kja-action-primary, #262133);
+  color: var(--kja-on-action, #ffffff);
   font-size: 13px;
   font-weight: 600;
   border: 0;
@@ -932,19 +932,19 @@
 }
 
 #portal #admin-people-section .admin-person-card .admin-person-view-profile:hover {
-  background: #171320;
+  background: var(--kja-action-primary-hover, #171320);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(23, 19, 32, 0.22);
+  box-shadow: var(--kja-action-shadow, 0 4px 14px rgba(23, 19, 32, 0.22));
 }
 
 #portal #admin-people-section .admin-person-card .admin-person-view-profile span {
-  color: #c4bcdc;
+  color: var(--kja-on-action, #c4bcdc);
   font-size: 12px;
   font-weight: 400;
 }
 
 #portal #admin-people-section .admin-legacy-link {
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
   font-size: 12px;
   font-weight: 500;
   text-decoration: none;

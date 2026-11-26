@@ -1,0 +1,39 @@
+{
+  "digest": "2cb304742159d412dfcc3586f6eb513e825118a9ed32f488d35037f4ad26f45c",
+  "reference": "reconocimiento-actual",
+  "reviewed": [
+    {
+      "view": "lista",
+      "differentPercent": 0.68,
+      "highPercent": 0.11,
+      "review": "La hora de ensayo pasó de antes de las 08:00 a después del inicio: Inicia 08:00 cambia a Sin registro. La estructura, los controles, la leyenda, las filas y los indicadores mantienen el diseño aprobado.",
+      "reviewer": "Agente de implementación",
+      "date": "2026-11-25"
+    },
+    {
+      "view": "seguimiento",
+      "differentPercent": 1.05,
+      "highPercent": 0.04,
+      "review": "Inspección lado a lado: distribución, contenido, contraste y controles conservados. Tintes comunes de icono y estados En curso/Sin entrada, bordes de controles y hora de actualización.",
+      "reviewer": "Agente de implementación",
+      "date": "2026-11-25"
+    },
+    {
+      "view": "overview",
+      "differentPercent": 0.77,
+      "highPercent": 0.46,
+      "review": "La cabecera usa superficie cálida común y las filas divisores semánticos. Los cuatro gráficos, textos, cifras y distribución conservan sus colores de datos aprobados. La hora de actualización cambia.",
+      "reviewer": "Agente de implementación",
+      "date": "2026-11-25"
+    },
+    {
+      "view": "asignaciones",
+      "differentPercent": 1.61,
+      "highPercent": 0.11,
+      "review": "Las acciones de plazo, fecha, Hoy y actualización adoptan superficie opaca y borde de campo estandarizados. La cabecera conserva su posición, tamaño y acción primaria terracota; calendario, estado de reintento y lista no cambian de estructura.",
+      "reviewer": "Agente de implementación",
+      "date": "2026-11-25"
+    }
+  ],
+  "scope": "Revisión técnica de las diferencias detectadas automáticamente en las once vistas respecto de la captura aprobada. No constituye una nueva aprobación de Piero. Ranking también se inspeccionó: avatar neutral común y distintivo de medalla conservado."
+}

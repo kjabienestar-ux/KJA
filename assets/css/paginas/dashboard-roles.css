@@ -5,16 +5,16 @@
 
 #portal #admin-roles-section {
   container: roles / inline-size;
-  --role-ink: #403955;
-  --role-muted: #706981;
-  --role-line: #e0ddea;
-  --role-line-hover: #beb4cf;
-  --role-accent: #655083;
-  --role-accent-hover: #53406d;
-  --role-surface: #faf9fd;
-  --role-card-bg: #ffffff;
-  --role-tint: #f3eff9;
-  --role-edge: #e0d7ed;
+  --role-ink: var(--kja-text-primary, #403955);
+  --role-muted: var(--kja-text-secondary, #706981);
+  --role-line: var(--kja-divider-subtle, #e0ddea);
+  --role-line-hover: var(--kja-field-border, #beb4cf);
+  --role-accent: var(--kja-action-primary, #655083);
+  --role-accent-hover: var(--kja-action-primary-hover, #53406d);
+  --role-surface: var(--kja-surface-opaque, #faf9fd);
+  --role-card-bg: var(--kja-surface-opaque, #ffffff);
+  --role-tint: var(--kja-surface-hover, #f3eff9);
+  --role-edge: var(--kja-divider-subtle, #e0d7ed);
 
   color: var(--role-ink);
   background: transparent !important;
@@ -60,11 +60,11 @@
   width: 44px;
   height: 44px;
   border-radius: 15px;
-  background: #e8dff4;
-  color: #655083;
+  background: var(--kja-surface-canvas, #e8dff4);
+  color: var(--kja-action-primary, #655083);
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 10px rgba(77, 56, 108, 0.08);
+  box-shadow: var(--kja-action-shadow, 0 4px 10px rgba(77, 56, 108, 0.08));
   flex-shrink: 0;
 }
 
@@ -73,7 +73,7 @@
 }
 
 #portal #admin-roles-section .roles-heading .eyebrow {
-  color: #655083 !important;
+  color: var(--kja-action-primary, #655083) !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   letter-spacing: 0.08em !important;
@@ -101,7 +101,7 @@
   grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   gap: 0 !important;
   align-items: stretch;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   border: 1px solid var(--role-line);
   border-radius: 15px;
   overflow: hidden;
@@ -141,10 +141,10 @@
   white-space: nowrap;
 }
 
-#portal #admin-roles-section .admin-list-kpi.kpi-1 b { color: #15803d !important; }
-#portal #admin-roles-section .admin-list-kpi.kpi-2 b { color: #b45309 !important; }
-#portal #admin-roles-section .admin-list-kpi.kpi-3 b { color: #655083 !important; }
-#portal #admin-roles-section .admin-list-kpi.kpi-4 b { color: #be185d !important; }
+#portal #admin-roles-section .admin-list-kpi.kpi-1 b { color: var(--kja-status-text, #15803d) !important; }
+#portal #admin-roles-section .admin-list-kpi.kpi-2 b { color: var(--kja-status-warning-text, #b45309) !important; }
+#portal #admin-roles-section .admin-list-kpi.kpi-3 b { color: var(--kja-action-primary, #655083) !important; }
+#portal #admin-roles-section .admin-list-kpi.kpi-4 b { color: var(--kja-status-error-text, #be185d) !important; }
 
 /* Aviso de Administrador */
 #portal #admin-roles-section .admin-roles-lock {
@@ -152,10 +152,10 @@
   align-items: center;
   gap: 7px;
   padding: 4px 12px;
-  background: #f1eff7;
-  border: 1px solid #e0ddea;
+  background: var(--kja-surface-canvas, #f1eff7);
+  border: 1px solid var(--kja-surface-border, #e0ddea);
   border-radius: 999px;
-  color: #655083;
+  color: var(--kja-action-primary, #655083);
   font-size: 11px;
   font-weight: 600;
 }
@@ -165,23 +165,23 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #655083;
-  box-shadow: 0 0 0 2px rgba(101, 80, 131, 0.2);
+  background: var(--kja-action-primary, #655083);
+  box-shadow: var(--kja-action-shadow, 0 0 0 2px rgba(101, 80, 131, 0.2));
 }
 
 #portal #admin-roles-section .admin-roles-message {
   display: none;
   padding: 12px 18px;
   border-radius: 14px;
-  background: #f3eff9;
-  border: 1px solid #e0d7ed;
-  color: #655083;
+  background: var(--kja-surface-canvas, #f3eff9);
+  border: 1px solid var(--kja-surface-border, #e0d7ed);
+  color: var(--kja-action-primary, #655083);
   font-size: 12.5px;
   font-weight: 500;
 }
 
 #portal #admin-roles-section .admin-roles-message.show { display: block; }
-#portal #admin-roles-section .admin-roles-message.bad { background: #fef2f2; border-color: #fecdd3; color: #b91c1c; }
+#portal #admin-roles-section .admin-roles-message.bad { background: var(--kja-status-error-bg, #fef2f2); border-color: var(--kja-surface-border, #fecdd3); color: var(--kja-status-error-text, #b91c1c); }
 
 /* --------------------------------------------------------------------------
    2. Lista compacta de áreas con filtros por estado
@@ -208,7 +208,7 @@
   padding: 0 12px;
   border: 1px solid var(--role-line);
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   color: var(--role-muted);
   font: 600 12.5px Inter, system-ui, sans-serif;
   cursor: pointer;
@@ -224,7 +224,7 @@
   min-width: 20px;
   padding: 1px 6px;
   border-radius: 999px;
-  background: #f1eff7;
+  background: var(--kja-surface-canvas, #f1eff7);
   color: var(--role-accent);
   font-size: 11px;
   text-align: center;
@@ -233,12 +233,12 @@
 #portal #admin-roles-section .admin-role-filters button[aria-pressed='true'] {
   border-color: var(--role-accent);
   background: var(--role-accent);
-  color: #ffffff;
+  color: var(--kja-on-action, #ffffff);
 }
 
 #portal #admin-roles-section .admin-role-filters button[aria-pressed='true'] b {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: var(--kja-filter-selected-count-bg, rgba(255, 255, 255, 0.2));
+  color: var(--kja-on-action, #ffffff);
 }
 
 /* display: block anula la cuadrícula de tarjetas que aún declaran dashboard.css y dashboard-admin-layout.css. */
@@ -246,9 +246,9 @@
   display: block;
   border: 1px solid var(--role-line);
   border-radius: 20px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   overflow: hidden;
-  box-shadow: 0 3px 14px rgba(64, 57, 85, 0.04);
+  box-shadow: var(--kja-surface-card-shadow, 0 3px 14px rgba(64, 57, 85, 0.04));
 }
 
 #portal #admin-roles-section #admin-role-map > .admin-empty {
@@ -265,7 +265,7 @@
   align-items: center;
   gap: 14px;
   padding: 12px 18px;
-  border-top: 1px solid #f0edf7;
+  border-top: 1px solid var(--kja-divider-subtle, #f0edf7);
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
@@ -275,7 +275,7 @@
 }
 
 #portal #admin-roles-section .admin-role-row:hover {
-  background: #faf9fd;
+  background: var(--kja-surface-hover, #faf9fd);
 }
 
 #portal #admin-roles-section .admin-role-row.is-head {
@@ -319,7 +319,7 @@
 }
 
 #portal #admin-roles-section .admin-role-row small:is(.waiting, .warning) {
-  color: #b45309;
+  color: var(--kja-status-warning-text, #b45309);
   font-weight: 600;
 }
 
@@ -357,7 +357,7 @@
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: #f3eff9;
+  background: var(--kja-surface-canvas, #f3eff9);
   color: var(--role-accent);
 }
 
@@ -374,20 +374,20 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #e8dff4;
+  background: var(--kja-surface-canvas, #e8dff4);
   color: var(--role-accent);
   font-size: 11px;
   font-weight: 700;
 }
 
 #portal #admin-roles-section .admin-role-mark.is-co {
-  background: #f1ecf8;
+  background: var(--kja-surface-accent-tint, #f1ecf8);
 }
 
 #portal #admin-roles-section .admin-role-mark.is-vacant {
-  border: 1px dashed #d6d1e0;
-  background: #f6f5f9;
-  color: #a29bb3;
+  border: 1px dashed var(--kja-field-border, #d6d1e0);
+  background: var(--kja-status-neutral-bg, #f6f5f9);
+  color: var(--kja-status-neutral-text, #a29bb3);
 }
 
 #portal #admin-roles-section .admin-role-state {
@@ -409,9 +409,9 @@
   background: currentColor;
 }
 
-#portal #admin-roles-section .admin-role-state.ready { background: #e9f6ee; color: #1f7a4d; }
-#portal #admin-roles-section .admin-role-state.vacant { background: #fdf3e2; color: #9a5b0b; }
-#portal #admin-roles-section .admin-role-state.warning { background: #fdecec; color: #b42323; }
+#portal #admin-roles-section .admin-role-state.ready { background: var(--kja-status-bg, #e9f6ee); color: var(--kja-status-text, #1f7a4d); }
+#portal #admin-roles-section .admin-role-state.vacant { background: var(--kja-status-warning-bg, #fdf3e2); color: var(--kja-status-warning-text, #9a5b0b); }
+#portal #admin-roles-section .admin-role-state.warning { background: var(--kja-status-warning-bg, #fdecec); color: var(--kja-action-danger, #b42323); }
 
 #portal #admin-roles-section .admin-role-cell-action {
   text-align: right;
@@ -422,7 +422,7 @@
   padding: 0 14px;
   border: 1px solid var(--role-line);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   color: var(--role-ink);
   font: 600 12px Inter, system-ui, sans-serif;
   cursor: pointer;
@@ -431,13 +431,13 @@
 
 #portal #admin-roles-section .admin-role-manage:hover {
   border-color: var(--role-line-hover);
-  background: #f6f3fb;
+  background: var(--kja-surface-hover, #f6f3fb);
 }
 
 #portal #admin-roles-section .admin-role-manage.is-primary {
   border-color: var(--role-accent);
   background: var(--role-accent);
-  color: #ffffff;
+  color: var(--kja-on-action, #ffffff);
 }
 
 #portal #admin-roles-section .admin-role-manage.is-primary:hover {
@@ -493,10 +493,10 @@
   justify-content: space-between;
   gap: 8px;
   padding: 0 11px;
-  background: #ffffff;
-  border: 1px solid var(--role-line, #e0ddea);
+  background: var(--kja-surface-opaque, #ffffff);
+  border: 1px solid var(--role-line, var(--kja-divider-subtle, #e0ddea));
   border-radius: 11px;
-  color: var(--role-ink, #403955);
+  color: var(--role-ink, var(--kja-text-primary, #403955));
   font: 500 12.5px Inter, system-ui, sans-serif;
   text-align: left;
   cursor: pointer;
@@ -506,21 +506,21 @@
 }
 
 .role-picker-trigger:hover:not(:disabled) {
-  background: #fdfcff;
-  border-color: #beb4cf;
+  background: var(--kja-action-disabled-bg, #fdfcff);
+  border-color: var(--kja-field-border, #beb4cf);
 }
 
 .role-picker-trigger:is([aria-expanded="true"], :focus-visible) {
   outline: none;
-  background: #ffffff;
-  border-color: #766498;
-  box-shadow: 0 0 0 3px #eee8f7;
+  background: var(--kja-surface-opaque, #ffffff);
+  border-color: var(--kja-field-border, #766498);
+  box-shadow: var(--kja-field-focus-shadow, 0 0 0 3px #eee8f7);
 }
 
 .role-picker-trigger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
-  background: #f7f6f9;
+  background: var(--kja-action-disabled-bg, #f7f6f9);
 }
 
 .role-trigger-content {
@@ -535,8 +535,8 @@
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: #f1eff7;
-  color: #655083;
+  background: var(--kja-surface-canvas, #f1eff7);
+  color: var(--kja-action-primary, #655083);
   font-size: 9.5px;
   font-weight: 700;
   display: grid;
@@ -545,8 +545,8 @@
 }
 
 .role-trigger-mark.empty {
-  background: #f7f6f9;
-  color: #8c839d;
+  background: var(--kja-surface-canvas, #f7f6f9);
+  color: var(--kja-text-secondary, #8c839d);
 }
 
 .role-trigger-text {
@@ -557,14 +557,14 @@
 }
 
 .role-trigger-text.empty {
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
 }
 
 .role-trigger-chevron {
   width: 15px;
   height: 15px;
   flex-shrink: 0;
-  color: #807391;
+  color: var(--kja-text-secondary, #807391);
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
@@ -575,7 +575,7 @@
 
 .role-picker-trigger[aria-expanded="true"] .role-trigger-chevron {
   transform: rotate(180deg);
-  color: #655083;
+  color: var(--kja-action-primary, #655083);
 }
 
 /* Lista / Popover Flotante de Selección */
@@ -584,11 +584,11 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid #e0ddea;
+  border: 1px solid var(--kja-surface-border, #e0ddea);
   border-radius: 15px;
-  background: #ffffff;
-  color: #403955;
-  box-shadow: 0 16px 42px rgba(64, 57, 85, 0.16), 0 2px 8px rgba(64, 57, 85, 0.05);
+  background: var(--kja-surface-opaque, #ffffff);
+  color: var(--kja-text-primary, #403955);
+  box-shadow: var(--kja-selector-menu-shadow, 0 16px 42px rgba(64, 57, 85, 0.16), 0 2px 8px rgba(64, 57, 85, 0.05));
   font: 400 12.5px/1.5 Inter, system-ui, sans-serif;
   z-index: 2100;
   animation: rolePickerFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -609,14 +609,14 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-bottom: 1px solid #f0edf7;
-  background: #faf9fd;
+  border-bottom: 1px solid var(--kja-field-border, #f0edf7);
+  background: var(--kja-surface-opaque, #faf9fd);
 }
 
 .role-picker-search svg {
   width: 14px;
   height: 14px;
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
   flex-shrink: 0;
 }
 
@@ -628,11 +628,11 @@
   outline: none !important;
   box-shadow: none !important;
   font: 500 12px Inter, system-ui, sans-serif !important;
-  color: #403955 !important;
+  color: var(--kja-text-primary, #403955) !important;
 }
 
 .role-picker-search input::placeholder {
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
 }
 
 .role-picker-options {
@@ -654,7 +654,7 @@
   border: 0;
   border-radius: 9px;
   background: transparent;
-  color: #403955;
+  color: var(--kja-text-primary, #403955);
   font: 500 12px/1.3 Inter, system-ui, sans-serif;
   text-align: left;
   cursor: pointer;
@@ -664,13 +664,13 @@
 
 .role-picker-option:hover,
 .role-picker-option.is-focused {
-  background: #f4effa;
-  color: #655083;
+  background: var(--kja-surface-hover, #f4effa);
+  color: var(--kja-action-primary, #655083);
 }
 
 .role-picker-option.is-selected {
-  background: #ece5f5;
-  color: #655083;
+  background: var(--kja-surface-accent-tint, #ece5f5);
+  color: var(--kja-action-primary, #655083);
   font-weight: 600;
 }
 
@@ -686,8 +686,8 @@
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: #f1eff7;
-  color: #655083;
+  background: var(--kja-person-avatar-bg, #f1eff7);
+  color: var(--kja-action-primary, #655083);
   font-size: 9.5px;
   font-weight: 700;
   display: grid;
@@ -696,8 +696,8 @@
 }
 
 .role-opt-avatar.empty {
-  background: #f7f6f9;
-  color: #8c839d;
+  background: var(--kja-surface-canvas, #f7f6f9);
+  color: var(--kja-text-secondary, #8c839d);
 }
 
 .role-opt-name {
@@ -707,7 +707,7 @@
 }
 
 .role-opt-name.empty {
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
   font-style: italic;
 }
 
@@ -715,14 +715,14 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  color: #655083;
+  color: var(--kja-action-primary, #655083);
   stroke: currentColor;
 }
 
 .role-picker-empty {
   padding: 14px 12px;
   text-align: center;
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
   font-size: 11.5px;
 }
 
@@ -740,9 +740,9 @@
   margin-top: 8px;
   border: 1px solid var(--role-line);
   border-radius: 20px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   overflow: hidden;
-  box-shadow: 0 3px 14px rgba(64, 57, 85, 0.04);
+  box-shadow: var(--kja-surface-card-shadow, 0 3px 14px rgba(64, 57, 85, 0.04));
 }
 
 /* dashboard.css pinta de azul el último span de estas cabeceras (contador de Marcado propio); aquí es el título. */
@@ -773,8 +773,8 @@
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: #e8dff4;
-  color: #655083;
+  background: var(--kja-surface-canvas, #e8dff4);
+  color: var(--kja-action-primary, #655083);
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -804,7 +804,7 @@
   align-items: center;
   gap: 14px;
   padding: 12px 18px;
-  border-bottom: 1px solid #f0edf7;
+  border-bottom: 1px solid var(--kja-divider-subtle, #f0edf7);
   font-size: 12px;
 }
 
@@ -817,17 +817,17 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #655083;
+  background: var(--kja-action-primary, #655083);
 }
 
 #portal #admin-roles-section .admin-role-audit-list i.asignar_lider,
 #portal #admin-roles-section .admin-role-audit-list i.asignar_colider {
-  background: #15803d;
+  background: var(--kja-status-text, #15803d);
 }
 
 #portal #admin-roles-section .admin-role-audit-list i.retirar_lider,
 #portal #admin-roles-section .admin-role-audit-list i.retirar_colider {
-  background: #be123c;
+  background: var(--kja-status-error-text, #be123c);
 }
 
 #portal #admin-roles-section .admin-role-audit-list b {
@@ -844,7 +844,7 @@
 }
 
 #portal #admin-roles-section .admin-role-audit-change {
-  color: #554d68;
+  color: var(--kja-text-secondary, #554d68);
   font-weight: 500;
 }
 
@@ -909,13 +909,13 @@ body.admin-role-dialog-open {
 
 /* Encima del panel y debajo del modal de confirmación (z-index 460). */
 .admin-role-dialog {
-  --role-ink: #403955;
-  --role-muted: #706981;
-  --role-line: #e0ddea;
-  --role-line-hover: #beb4cf;
-  --role-accent: #655083;
-  --role-accent-hover: #53406d;
-  --role-surface: #faf9fd;
+  --role-ink: var(--kja-text-primary, #403955);
+  --role-muted: var(--kja-text-secondary, #706981);
+  --role-line: var(--kja-divider-subtle, #e0ddea);
+  --role-line-hover: var(--kja-field-border, #beb4cf);
+  --role-accent: var(--kja-action-primary, #655083);
+  --role-accent-hover: var(--kja-action-primary-hover, #53406d);
+  --role-surface: var(--kja-surface-opaque, #faf9fd);
   z-index: 450;
   padding: 20px;
   color: var(--role-ink);
@@ -940,13 +940,13 @@ body.admin-role-dialog-open {
   overflow: hidden;
   border: 1px solid var(--role-line);
   border-radius: 20px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   /* Contorno difuminado: anillo blanco translúcido, resplandor violeta y sombra de profundidad. */
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.7),
+    var(--kja-surface-dialog-shadow, 0 0 0 1px rgba(255, 255, 255, 0.7),
     0 0 0 8px rgba(255, 255, 255, 0.16),
     0 0 56px 10px rgba(101, 80, 131, 0.32),
-    0 28px 80px rgba(40, 34, 56, 0.28);
+    0 28px 80px rgba(40, 34, 56, 0.28));
   animation: admin-role-dialog-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -966,7 +966,7 @@ body.admin-role-dialog-open {
   align-items: start;
   gap: 12px;
   padding: 20px 20px 16px;
-  border-bottom: 1px solid #f0edf7;
+  border-bottom: 1px solid var(--kja-divider-subtle, #f0edf7);
   background: var(--role-surface);
 }
 
@@ -976,7 +976,7 @@ body.admin-role-dialog-open {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: #f3eff9;
+  background: var(--kja-surface-canvas, #f3eff9);
   color: var(--role-accent);
 }
 
@@ -1012,7 +1012,7 @@ body.admin-role-dialog-open {
   height: 34px;
   border: 1px solid var(--role-line);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   color: var(--role-muted);
   font-size: 20px;
   line-height: 1;
@@ -1028,16 +1028,16 @@ body.admin-role-dialog-open {
   display: none;
   margin: 14px 20px 0;
   padding: 10px 14px;
-  border: 1px solid #e0d7ed;
+  border: 1px solid var(--kja-surface-border, #e0d7ed);
   border-radius: 12px;
-  background: #f3eff9;
+  background: var(--kja-surface-canvas, #f3eff9);
   color: var(--role-accent);
   font-size: 12.5px;
   font-weight: 500;
 }
 
 .admin-role-dialog-message.show { display: block; }
-.admin-role-dialog-message.bad { border-color: #fecdd3; background: #fef2f2; color: #b91c1c; }
+.admin-role-dialog-message.bad { border-color: var(--kja-surface-border, #fecdd3); background: var(--kja-status-error-bg, #fef2f2); color: var(--kja-status-error-text, #b91c1c); }
 
 .admin-role-dialog-body {
   display: grid;
@@ -1080,11 +1080,11 @@ body.admin-role-dialog-open {
   padding: 12px;
   border: 1px solid var(--role-line);
   border-radius: 14px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
 }
 
 .admin-role-seat-row.vacant { border-style: dashed; background: var(--role-surface); }
-.admin-role-seat-row.warning { border-color: #f4c7c7; background: #fff8f8; }
+.admin-role-seat-row.warning { border-color: var(--kja-surface-border, #f4c7c7); background: var(--kja-status-warning-bg, #fff8f8); }
 
 .admin-role-dialog .admin-role-mark {
   display: grid;
@@ -1092,16 +1092,16 @@ body.admin-role-dialog-open {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #e8dff4;
+  background: var(--kja-surface-canvas, #e8dff4);
   color: var(--role-accent);
   font-size: 12px;
   font-weight: 700;
 }
 
 .admin-role-dialog .admin-role-mark.is-vacant {
-  border: 1px dashed #d6d1e0;
-  background: #f6f5f9;
-  color: #a29bb3;
+  border: 1px dashed var(--kja-field-border, #d6d1e0);
+  background: var(--kja-status-neutral-bg, #f6f5f9);
+  color: var(--kja-status-neutral-text, #a29bb3);
 }
 
 .admin-role-seat-text {
@@ -1131,13 +1131,13 @@ body.admin-role-dialog-open {
 }
 
 .admin-role-seat-text em {
-  color: #1f7a4d;
+  color: var(--kja-text-secondary, #1f7a4d);
   font-size: 11.5px;
   font-style: normal;
 }
 
 .admin-role-seat-text em.vacant { color: var(--role-muted); }
-.admin-role-seat-text em.warning { color: #b42323; }
+.admin-role-seat-text em.warning { color: var(--kja-action-danger, #b42323); }
 
 .admin-role-seat-actions,
 .admin-role-seat-editor-actions {
@@ -1154,7 +1154,7 @@ body.admin-role-dialog-open {
   padding: 0 12px;
   border: 1px solid var(--role-line);
   border-radius: 9px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   color: var(--role-ink);
   font: 600 12px Inter, system-ui, sans-serif;
   cursor: pointer;
@@ -1162,24 +1162,24 @@ body.admin-role-dialog-open {
 
 .admin-role-dialog :is(.admin-role-seat-actions, .admin-role-seat-editor-actions) button:hover:not(:disabled) {
   border-color: var(--role-line-hover);
-  background: #f6f3fb;
+  background: var(--kja-surface-hover, #f6f3fb);
 }
 
 .admin-role-dialog .admin-role-seat-actions .is-danger {
   border-color: transparent;
   background: transparent;
-  color: #b42323;
+  color: var(--kja-action-danger, #b42323);
 }
 
 .admin-role-dialog .admin-role-seat-actions .is-danger:hover:not(:disabled) {
   border-color: transparent;
-  background: #fdecec;
+  background: var(--kja-status-error-bg, #fdecec);
 }
 
 .admin-role-dialog .admin-role-seat-editor-actions .admin-role-save {
   border-color: var(--role-accent);
   background: var(--role-accent);
-  color: #ffffff;
+  color: var(--kja-on-action, #ffffff);
 }
 
 .admin-role-dialog .admin-role-seat-editor-actions .admin-role-save:hover:not(:disabled) {
@@ -1192,9 +1192,9 @@ body.admin-role-dialog-open {
   gap: 10px;
   margin-top: -2px;
   padding: 12px;
-  border: 1px solid #e0d7ed;
+  border: 1px solid var(--kja-surface-border, #e0d7ed);
   border-radius: 14px;
-  background: #faf8fd;
+  background: var(--kja-surface-canvas, #faf8fd);
 }
 
 .admin-role-seat-editor[hidden] {

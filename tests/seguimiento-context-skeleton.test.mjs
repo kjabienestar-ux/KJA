@@ -73,7 +73,7 @@ test('cambiar fecha no presenta filas del día anterior y descarta respuestas ta
 });
 test('una respuesta vacía termina la espera sin confundirla con error',async t=>{
   const h=setup(t),data=fixtureData();data.dash_admin_cierres.personas=[];data.dash_admin_control_diario.filas=[];data.dash_admin_revision_entregas.entregas=[];h.data(data);
-  assert.equal(await h.load(),true);assert.match(h.root.textContent,/No hay personas/);
+  assert.equal(await h.load(),true);assert.match(h.root.textContent,/No hay colaboradores para esta fecha/);
   assert.equal(h.root.querySelector('.kja-sk-block'),null);assert.equal(h.root.getAttribute('aria-busy'),'false');
 });
 test('editor ve solo sus regiones y consulta únicamente Cierres',async t=>{

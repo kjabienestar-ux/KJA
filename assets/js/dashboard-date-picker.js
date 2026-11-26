@@ -307,3 +307,34 @@ function initKjaMonthPicker(input,{label,popupId,theme=''}){
   initKjaDatePicker(from,{label:'Desde',partner:to,role:'from',popupId:'attendance-export-from-popup'});
   initKjaDatePicker(to,{label:'Hasta',partner:from,role:'to',popupId:'attendance-export-to-popup'});
 })();
+
+
+// Pasar lista conserva la tira semanal; el botón compacto abre el selector de día compartido.
+(() => {
+  const input = document.getElementById('admin-list-date');
+  const section = document.getElementById('admin-list-section');
+  if (!input || !section || !window.matchMedia) return;
+  const desktop = window.matchMedia('(min-width:901px)');
+  let picker;
+  function configure() {
+    if (!desktop.matches) {
+      picker?.close();
+      return;
+    }
+    if (picker) return;
+    picker = initKjaDatePicker(input, {
+      label: 'Fecha de asistencia', popupId: 'kja-list-date-popup', theme: 'warm',
+      onToggle(open) {
+        if (open) {
+          toggleAdminAreaMenu(false);
+          picker.focus();
+        }
+      }
+    });
+    input.previousElementSibling.classList.add('kja-list-date');
+    section.classList.add('kja-list-date-ready');
+    window.kjaListDatePicker = picker;
+  }
+  configure();
+  desktop.addEventListener?.('change',configure);
+})();

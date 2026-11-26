@@ -214,6 +214,29 @@ function renderAdminPeople(){
   $('admin-people-list').innerHTML=html||'<p class="admin-empty">No hay colaboradores para los filtros seleccionados.</p>';
 }
 
+function renderDirectoryEmpty(contracts){
+  const prefix=contracts?'admin-contract':'admin-people';
+  const container=$(prefix+'-list'), search=$(prefix+'-search');
+  const people=APP.adminTeam.personas||[];
+  const onlyInactive=people.length>0 && !people.some(person=>person.activo);
+  const title=!people.length?'No hay colaboradores registrados.':onlyInactive&&!$(prefix+'-inactive').checked?'Solo hay colaboradores de baja.':'Sin coincidencias';
+  const detail=!people.length?(contracts?'Los contratos aparecerán aquí cuando haya colaboradores registrados.':'El directorio está vacío.'):
+    onlyInactive?'Incluye las bajas para consultar el directorio completo.':'Prueba con otro nombre o quita los filtros de esta vista.';
+  const action=onlyInactive?'Ver todas las bajas':'Quitar filtros';
+  container.innerHTML='<div class="pw-empty"><div role="status"><h3>'+title+'</h3><p>'+detail+'</p></div>'+
+    (people.length?'<button type="button" class="kja-button" data-kind="secondary">'+action+'</button>':'')+'</div>';
+  container.querySelector('button')?.addEventListener('click',()=>{
+    search.value='';$(prefix+'-area').value='';$(prefix+'-inactive').checked=onlyInactive;
+    if(contracts){
+      $('admin-contract-pending').checked=false;
+      renderAdminContracts();
+    }else{
+      $('admin-people-institution').value='';$('admin-people-email').value='';
+      PEOPLE_WORKBENCH.metric='all';renderAdminPeople();
+    }
+    search.focus();
+  });
+}
 function contractState(person){
   const r=person.resumen||{};
   if(r.pendiente)return ['Pendiente','pending'];
@@ -228,7 +251,7 @@ function renderAdminContracts(){
   const pending=all.filter(p=>p.resumen?.pendiente).length,complete=all.filter(p=>p.resumen?.completado).length,alerts=all.filter(p=>(p.resumen?.alertas||[]).length&&!p.resumen?.pendiente).length,noMeta=all.filter(p=>!(Number(p.resumen?.meta)>0)).length;
   const kpis=[['Activos',all.length],['Pendientes',pending],['Completados',complete],['Con alertas',alerts],['Sin meta',noMeta]];
   const contractKpis=$('admin-contract-kpis');
-  if(contractKpis)contractKpis.innerHTML=kpis.map(x=>`<article class="admin-list-kpi"><small>${x[0]}</small><b>${x[1]}</b></article>`).join('');
+  if(contractKpis)contractKpis.innerHTML=kpis.map(x=>`<article class="admin-list-kpi kja-metric"><small class="kja-metric-label">${x[0]}</small><b class="kja-metric-value">${x[1]}</b></article>`).join('');
   const contractSearchQuery=$('admin-contract-search')?.value?.trim().toLocaleLowerCase('es')||'';
   if(contractKpis)contractKpis.hidden=Boolean(contractSearchQuery);
   if($('admin-contract-count'))$('admin-contract-count').textContent=`${visible.length}`;
@@ -248,7 +271,8 @@ function renderAdminContracts(){
       <span class="admin-contract-action">${canEdit?`<button type="button" data-team-edit="${p.id}" aria-label="Editar contrato de ${esc(p.nombre)}">Editar <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14z"/></svg></button>`:''}</span>
     </article>`;
   }
-  $('admin-contract-list').innerHTML=visible.length?html:'<p class="admin-empty">No hay contratos para los filtros seleccionados.</p>';
+  if(!visible.length && globalThis.matchMedia?.('(min-width:901px)').matches)renderDirectoryEmpty(true);
+  else $('admin-contract-list').innerHTML=visible.length?html:'<p class="admin-empty">No hay contratos para los filtros seleccionados.</p>';
   if(typeof organizeContractAreas==='function')organizeContractAreas(visible);
 }
 

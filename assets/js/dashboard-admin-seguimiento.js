@@ -38,7 +38,7 @@
       '<div class="seg-toolbar"><div class="seg-date">'+button('prev','‹','seg-icon','aria-label="Día anterior"')+'<label><span class="sr-only">Fecha de seguimiento</span><input id="seg-date" type="date" min="2020-01-01"></label>'+button('next','›','seg-icon','aria-label="Día siguiente"')+button('today','Hoy')+'</div><label class="seg-search">'+icon('search')+'<span class="sr-only">Buscar persona o área</span><input id="seg-search" type="search" placeholder="Buscar persona o área" autocomplete="off"></label><label class="seg-area"><span class="sr-only">Filtrar por área</span><select id="seg-area"><option value="">Todas las áreas</option></select></label>'+button('clear','Limpiar','seg-clear','id="seg-clear" hidden')+'</div>'+
       '<p id="seg-message" class="seg-notice" role="status" aria-live="polite" hidden></p><div id="seg-summary" class="seg-summary"></div>'+
       '<div id="seg-workspace" class="seg-workspace" aria-busy="false"><div class="seg-empty">Selecciona una fecha para consultar.</div></div>'+
-      '<details class="seg-panorama" id="seg-panorama"><summary>'+icon('chart')+'<span>Panorama del día por áreas</span>'+icon('down')+'</summary><div id="seg-areas" class="seg-area-grid"></div></details>';
+      '<details class="seg-panorama kja-area-group" id="seg-panorama"><summary class="kja-area-trigger">'+icon('chart')+'<span>Panorama del día por áreas</span>'+icon('down')+'</summary><div id="seg-areas" class="seg-area-grid"></div></details>';
     S.date=isoLima();$s('date').value=S.date;$s('date').max=isoLima();
     if(typeof initAreaPickerElement==='function')initAreaPickerElement($s('area'),'seg-area-popup','seg-area-options','Filtra el seguimiento por equipo',fn=>syncAreaFilter=fn);
     if(typeof initKjaDatePicker==='function')initKjaDatePicker($s('date'),{label:'Fecha de seguimiento',popupId:'seg-date-popup',theme:'warm'});
@@ -260,8 +260,8 @@
     const group=new Set(base.map(row=>String(row.colaborador_id))),evidences=reviewRows().filter(d=>group.has(String(d.colaborador_id)));
     const metrics=[['Por revisar',evidences.filter(d=>d.revision_estado==='pendiente'&&d.estado==='completo').length,'pending'],['Aprobadas',evidences.filter(d=>d.revision_estado==='aprobada').length,'success'],['Con corrección',evidences.filter(d=>d.revision_estado==='observada').length,'danger']];
     const queues=[['attention','Por atender'],['review','Por revisar'],['done','Concluidas'],['all','Todo el equipo']];
-    $s('summary').innerHTML='<section class="seg-people-metrics"><h3>Personas</h3><div class="seg-queues" role="group" aria-label="Bandejas de personas">'+(data.controlOk?queues:[['all','Todo el equipo']]).map(([key,label])=>button('queue',esc(label)+'<b>'+(data.controlOk?base.filter(r=>queueMatches(r,key)).length:base.length)+'</b>',S.queue===key||!data.controlOk?'is-active':'','data-queue="'+key+'" aria-pressed="'+String(S.queue===key||!data.controlOk)+'"')).join('')+'</div></section>'+
-      (isDirection()?'<section class="seg-evidence-metrics"><h3>Evidencias <small>'+((S.query||S.area)?'de esta consulta':'del día')+'</small></h3><div>'+metrics.map(([label,num,tone])=>'<span><i class="seg-dot '+tone+'"></i>'+label+'<b>'+(data.reviewOk?num:'—')+'</b></span>').join('')+'</div></section>':'')+
+    $s('summary').innerHTML='<section class="seg-people-metrics"><h3>Personas</h3><div class="seg-queues" role="group" aria-label="Bandejas de personas">'+(data.controlOk?queues:[['all','Todo el equipo']]).map(([key,label])=>button('queue','<span class="kja-metric-label">'+esc(label)+'</span><b class="kja-metric-value">'+(data.controlOk?base.filter(r=>queueMatches(r,key)).length:base.length)+'</b>',S.queue===key||!data.controlOk?'kja-metric is-active':'kja-metric','data-queue="'+key+'" aria-pressed="'+String(S.queue===key||!data.controlOk)+'"')).join('')+'</div></section>'+
+      (isDirection()?'<section class="seg-evidence-metrics"><h3>Evidencias <small>'+((S.query||S.area)?'de esta consulta':'del día')+'</small></h3><div>'+metrics.map(([label,num,tone])=>'<span class="kja-metric"><i class="seg-dot '+tone+'"></i><span class="kja-metric-label">'+label+'</span><b class="kja-metric-value">'+(data.reviewOk?num:'—')+'</b></span>').join('')+'</div></section>':'')+
       (desktop()?'':'<section class="seg-hours"><span>'+icon('clock')+'Horas válidas</span><strong>'+(data.controlOk?base.reduce((sum,r)=>sum+Number(r.horas_validas||0),0).toLocaleString('es-PE',{maximumFractionDigits:1})+'<small> h</small>':'—')+'</strong><small>'+(data.controlOk?base.filter(adminControlWork).length+' jornadas programadas':'Resumen de Control no disponible')+'</small></section>');
     if(!S.person)renderList();else if(!selected())$s('workspace').innerHTML='<div class="seg-empty"><h3>El caso ya no está disponible en esta fecha</h3>'+button('back','Volver al listado')+'</div>';
     renderAreas();
@@ -271,13 +271,21 @@
     const count=Number(row.revision_pendiente||0),issues=row.impedimentos||[];
     const details=[...(count?[count+' por revisar']:[]),...items,...(Number(row.revision_observada)?[row.revision_observada+' con corrección']:[]),...(issues.length?['Impedimento informado']:[])];
     const canOpen=dataClosePerson(row);
-    return '<article class="seg-person '+(String(S.person)===id?'is-selected':'')+'" data-person="'+esc(id)+'"><span class="seg-avatar" aria-hidden="true">'+avatarContent(row)+'</span><div class="seg-person-name"><b>'+esc(row.colaborador)+'</b><small>'+esc(row.area||'Sin área')+'</small>'+(compact?'<span class="seg-person-pending">'+(count?count+' por revisar':esc(details.join(' · ')||'Sin pendientes identificados'))+'</span>':'')+'</div><div class="seg-person-state">'+pill(status.label,status.tone)+(compact?'':'<small>'+esc(details.join(' · ')||'Sin pendientes identificados')+'</small>')+'</div>'+(!compact?'<div class="seg-times"><span><small>Entrada</small><b>'+esc(adminControlTime(row.entrada_at))+'</b></span><span><small>Salida</small><b>'+esc(adminControlTime(row.salida_at))+'</b></span></div>':'')+button('person',compact?icon('arrow'):(count?'Revisar':'Ver caso')+icon('arrow'),compact?'seg-icon':'seg-row-action','data-person="'+esc(id)+'" aria-label="Abrir caso de '+esc(row.colaborador)+'" '+(!canOpen?'disabled':''))+'</article>';
+    return '<article class="seg-person '+(String(S.person)===id?'is-selected':'')+'" data-person="'+esc(id)+'"><span class="seg-avatar kja-person-avatar" aria-hidden="true">'+avatarContent(row)+'</span><div class="seg-person-name"><b class="kja-person-name">'+esc(row.colaborador)+'</b><small>'+esc(row.area||'Sin área')+'</small>'+(compact?'<span class="seg-person-pending">'+(count?count+' por revisar':esc(details.join(' · ')||'Sin pendientes identificados'))+'</span>':'')+'</div><div class="seg-person-state">'+pill(status.label,status.tone)+(compact?'':'<small>'+esc(details.join(' · ')||'Sin pendientes identificados')+'</small>')+'</div>'+(!compact?'<div class="seg-times"><span><small>Entrada</small><b>'+esc(adminControlTime(row.entrada_at))+'</b></span><span><small>Salida</small><b>'+esc(adminControlTime(row.salida_at))+'</b></span></div>':'')+button('person',compact?icon('arrow'):(count?'Revisar':'Ver caso')+icon('arrow'),compact?'seg-icon':'seg-row-action','data-person="'+esc(id)+'" aria-label="Abrir caso de '+esc(row.colaborador)+'" '+(!canOpen?'disabled':''))+'</article>';
   }
   function dataClosePerson(row){return !!row.person&&S.snapshot.closeOk}
+  function emptyTeamList(){
+    if(!desktop())return '<div class="seg-empty">'+icon('check')+'<h3>No hay personas en esta consulta</h3><p>Consulta todo el equipo o cambia la búsqueda y el área.</p>'+button('all','Ver todo el equipo')+'</div>';
+    const filtered=S.snapshot.rows.length>0;
+    const title=filtered?'Sin coincidencias':S.snapshot.partial?'Información incompleta':'No hay colaboradores para esta fecha.';
+    const detail=filtered?'Consulta todo el equipo o cambia los filtros.':S.snapshot.partial?'Actualiza para volver a consultar los datos del día.':'Selecciona otra fecha para consultar el equipo.';
+    return '<div class="seg-empty">'+icon('calendar')+'<div role="status"><h3>'+title+'</h3><p>'+detail+'</p></div>'+
+      (filtered?button('all','Ver todo el equipo'):S.snapshot.partial?button('reload','Reintentar'):'')+'</div>';
+  }
   function renderList(){
     const list=rows();
     $s('workspace').innerHTML='<div class="seg-list-heading"><div><span class="seg-eyebrow">EL EQUIPO, DE UN VISTAZO</span><h3>'+({attention:'Por atender',review:'Personas por revisar',done:'Jornadas concluidas',all:'Todo el equipo'}[S.snapshot.controlOk?S.queue:'all'])+' <span>'+list.length+'</span></h3></div><span>'+list.length+' de '+baseRows().length+' personas</span></div>'+
-      (list.length?'<div class="seg-table-labels"><span>Colaborador / área</span><span>Jornada y pendientes</span><span>Entrada / salida</span><span>Acción</span></div><div class="seg-person-list">'+list.map(r=>rowHTML(r)).join('')+'</div>':'<div class="seg-empty">'+icon('check')+'<h3>No hay personas en esta consulta</h3><p>Consulta todo el equipo o cambia la búsqueda y el área.</p>'+button('all','Ver todo el equipo')+'</div>');
+      (list.length?'<div class="seg-table-labels"><span>Colaborador / área</span><span>Jornada y pendientes</span><span>Entrada / salida</span><span>Acción</span></div><div class="seg-person-list">'+list.map(r=>rowHTML(r)).join('')+'</div>':emptyTeamList());
   }
   function renderAreas(){
     if(!S.snapshot.controlOk||S.snapshot.partial){$s('areas').innerHTML='<p>El panorama requiere los datos completos del día.</p>';return}
@@ -317,7 +325,7 @@
       '<div class="seg-comment"><h4>Comentario del colaborador</h4><p>'+esc(d?.detalle||'Sin comentario adicional.')+'</p></div>'+
       (d?.cargada_por_direccion?'<p class="seg-origin">Cargada por '+esc(d.cargada_por||'Dirección')+' en nombre del colaborador'+(d.salida_reportada_at?' · hora reportada '+esc(adminReviewTime(d.salida_reportada_at)):'')+'.</p>':'')+
       '<details class="seg-history"><summary>'+icon('clock')+'Última revisión'+icon('down')+'</summary><p>'+esc(d?.revision_estado==='observada'?d.revision_nota||'Corrección solicitada.':d?.revision_estado==='aprobada'?'Aprobada'+(d.revisor?' por '+d.revisor:'')+'. '+(d.revision_nota||''):'Sin revisión registrada.')+'</p></details>'+
-      (canDecide?'<label class="seg-note-label" for="seg-note">Observación <span>(obligatoria al corregir)</span></label><textarea id="seg-note" rows="3" maxlength="700" placeholder="Escribe tu observación…" '+(S.busy?'disabled':'')+'>'+esc(S.note)+'</textarea><div class="seg-decision-buttons">'+button('observe','Solicitar corrección','seg-outline',(closed&&d.requisito!=='comparticiones'||S.busy?'disabled':'') )+button('approve',icon('check')+' Aprobar evidencia','seg-primary',S.busy?'disabled':'')+'</div>':'')+
+      (canDecide?'<label class="seg-note-label" for="seg-note">Observación <span>(obligatoria al corregir)</span></label><textarea id="seg-note" aria-describedby="seg-action-status" rows="3" maxlength="700" placeholder="Escribe tu observación…" '+(S.busy?'disabled':'')+'>'+esc(S.note)+'</textarea><div class="seg-decision-buttons">'+button('observe','Solicitar corrección','seg-outline kja-button','data-kind="secondary" '+(closed&&d.requisito!=='comparticiones'||S.busy?'disabled':'') )+button('approve',icon('check')+' Aprobar evidencia','seg-primary kja-button','data-kind="primary" '+(S.busy?'disabled':''))+'</div>':'')+
       (closed&&canDecide&&d.requisito!=='comparticiones'?'<p class="seg-operational">Jornada cerrada: puedes aprobar; la evidencia ya no puede reemplazarse.</p>':'')+
       '<p id="seg-action-status" class="seg-action-status" role="status" aria-live="polite"></p>'+
       button('next-evidence','Siguiente evidencia pendiente '+icon('arrow'),'seg-next',nextDelivery()?'':'disabled')+
@@ -368,6 +376,7 @@
     const entry=activeEntry(person);if(String(entry?.delivery?.id)!==String(d.id))return;
     const note=S.note.trim();
     if(value==='observada'&&(d.jornada_cerrada&&d.requisito!=='comparticiones'||note.length<3)){
+      if(note.length<3)$s('note')?.setAttribute('aria-invalid','true');
       $s('action-status').textContent=note.length<3?'Explica qué debe corregir (al menos 3 caracteres).':'La jornada ya está cerrada.';$s('note')?.focus();return;
     }
     S.busy=true;root.querySelectorAll('[data-seg="approve"],[data-seg="observe"]').forEach(b=>b.disabled=true);
@@ -447,7 +456,7 @@
     }
     if(action==='message')return openAdminMessage(S.person,b);
     if(action==='queue'){S.queue=b.dataset.queue;S.segment='';S.person=null;S.mediaGeneration++;render();return}
-    if(action==='clear'||action==='all'){S.query='';S.area='';S.segment='';$s('search').value='';$s('area').value='';if(action==='all')S.queue='all';S.person=null;render();return}
+    if(action==='clear'||action==='all'){S.query='';S.area='';S.segment='';$s('search').value='';$s('area').value='';if(action==='all')S.queue='all';S.person=null;render();if(action==='all'&&desktop())$s('search').focus();return}
     if(action==='area'||action==='segment'){S.area=b.dataset.area;S.segment=action==='segment'?b.dataset.segment:'';S.queue='all';S.person=null;$s('area').value=S.area;render();return}
     if(['prev','next','today'].includes(action)){
       const date=action==='today'?isoLima():addIsoDays(S.date,action==='prev'?-1:1);
@@ -471,7 +480,14 @@
     if(!date||date<'2020-01-01'||date>isoLima()||!canLeave()){$s('date').value=S.date;return}
     S.date=date;S.person=null;S.snapshot=null;void load();
   });
-  root.addEventListener('input',event=>{if(event.target.id==='seg-note')S.note=event.target.value});
+  root.addEventListener('input',event=>{
+    if(event.target.id!=='seg-note')return;
+    S.note=event.target.value;
+    if(event.target.hasAttribute('aria-invalid')&&S.note.trim().length>=3){
+      event.target.removeAttribute('aria-invalid');
+      $s('action-status').textContent='';
+    }
+  });
   root.addEventListener('keydown',event=>{
     const tab=event.target.closest('[role="tab"]');
     if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;

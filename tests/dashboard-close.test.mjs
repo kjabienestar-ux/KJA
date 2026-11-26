@@ -2,9 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import {JSDOM} from 'jsdom';
 
 const html = fs.readFileSync(new URL('../dashboard.html', import.meta.url), 'utf8');
 const js = fs.readFileSync(new URL('../assets/js/dashboard.js', import.meta.url), 'utf8');
+const document=new JSDOM(html).window.document;
 const modelJs = fs.readFileSync(new URL('../assets/js/dashboard-close-model.js', import.meta.url), 'utf8');
 const adminJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-cierre.js', import.meta.url), 'utf8');
 const adminControlJs = fs.readFileSync(new URL('../assets/js/dashboard-admin-control.js', import.meta.url), 'utf8');
@@ -113,13 +115,14 @@ test('a failed initial dashboard request returns to access and clears pending at
   const portal={hidden:false,inert:false,classList:{remove:name=>classes.delete(name)},setAttribute:(name,value)=>attrs[name]=value};
   const elements={'portal':portal,'access':{hidden:true},'today-attendance-card':{classList:{remove(...names){names.forEach(name=>classes.delete(name))}}},'mobile-action-mark':{classList:{remove(...names){names.forEach(name=>classes.delete(name))}}}};
   const context={
-    $:id=>elements[id],
+    window:{},resetAdminAttendanceView:()=>events.push('reset-attendance'),$:id=>elements[id],
     localStorage:{removeItem:key=>events.push(`remove-storage:${key}`)},SHELL_KEY:'shell',
     hideBoot:()=>events.push('hide-boot'),formMsg:(id,message)=>events.push(`message:${id}:${message}`)
   };
   classes.add('daily-close-pending');
   vm.runInNewContext(showAccessJs,context);
   context.showAccess('No se pudo cargar el dashboard.');
+  assert.ok(events.includes('reset-attendance'));
   assert.equal(portal.hidden,true);
   assert.equal(portal.inert,true);
   assert.equal(attrs['aria-hidden'],'true');
@@ -282,15 +285,10 @@ test('each area supports two co-leaders with the same server-side scope as its l
   assert.match(adminRolesJs,/const coLeaderSlots=\[0,1\]/);
   assert.match(adminRolesJs,/dash_admin_asignar_colider/);
   assert.match(adminRolesJs,/data-colider-save/);
-  assert.match(html,/un líder y hasta dos co-líderes técnicos por área/);
-  assert.match(html,/dashboard-admin-roles\.js\?v=4/);
-  assert.match(css,/\.admin-role-colider-group\{/);
-  assert.match(css,/\.admin-role-seat\.is-colider\{/);
-  assert.match(adminRolesJs,/const ROLE_COLEADER_OPEN=new Set\(\)/);
-  assert.match(adminRolesJs,/data-colider-toggle=/);
-  assert.match(adminRolesJs,/aria-expanded=/);
-  assert.match(adminRolesJs,/class="admin-role-colider-panel"/);
-  assert.match(css,/\.admin-role-colider-panel\[hidden\]\{display:none\}/);
+  assert.match(document.querySelector('#admin-roles-section').textContent,/un líder y hasta dos co-líderes técnicos por área/i);
+  assert.ok(document.querySelector('script[src^="assets/js/dashboard-admin-roles.js"]'));
+  assert.match(adminRolesJs,/data-role-edit=.*aria-expanded="false" aria-controls=/);
+  assert.match(adminRolesJs,/class="admin-role-seat-editor"[^>]*hidden/);
   assert.match(html,/id="admin-role-confirm-modal"[^>]*data-tone="assign"[^>]*hidden/);
   assert.match(html,/class="admin-role-confirm-sheet"[^>]*role="dialog"[^>]*aria-modal="true"/);
   assert.match(adminRolesJs,/function confirmRoleAction/);
@@ -300,23 +298,16 @@ test('each area supports two co-leaders with the same server-side scope as its l
   assert.match(css,/@media\(max-width:900px\)\{\.admin-role-confirm-modal\{align-items:flex-end/);
 });
 
-test('operational overview prioritizes alerts and summarizes every admin section', () => {
-  assert.match(html,/class="admin-overview-today"/);
-  assert.match(html,/id="admin-attention-count"/);
-  assert.match(html,/id="admin-overview-map-title">Panorama de gestión/);
-  for (const section of ['control','cierres','lista','mes','resumen','colaboradores','contratos','roles','marcado']) {
-    assert.match(html,new RegExp(`class="admin-overview-module-grid"[\\s\\S]*?data-admin-section="${section}"`));
-  }
-  assert.match(js,/db\.rpc\('dash_admin_equipo'/);
-  assert.match(js,/db\.rpc\('dash_admin_mes'/);
-  assert.match(js,/db\.rpc\('dash_admin_control_diario'/);
+test('operational overview offers priorities, live charts and the route to the attendance list', () => {
+  const overview=document.querySelector('#admin-overview-section');
+  assert.ok(overview.querySelector('#admin-overview-charts[aria-live="polite"]'));
+  assert.ok(overview.querySelector('#admin-attention-count'));
+  assert.ok(overview.querySelector('#admin-status-list'));
+  assert.ok(overview.querySelector('button[data-admin-section="lista"]'));
+  assert.ok(overview.querySelector('#admin-request-list'));
+  assert.ok(overview.querySelector('button[data-admin-overview-retry]'));
   assert.match(js,/priorities\.slice\(0,6\)/);
-  assert.match(js,/admin-overview-contract-value/);
-  assert.match(js,/admin-overview-roles-value/);
-  assert.match(css,/\.admin-overview-module-grid\{/);
-  assert.match(css,/\.admin-overview-module-grid>button\[hidden\]\{display:none\}/);
-  assert.ok(Number(html.match(/dashboard\.js\?v=(\d+)/)?.[1])>=159,'dashboard script must include the operational overview revision or a newer cache version');
-  assert.match(html,/dashboard\.css\?v=\d+/);
+  assert.match(js,/renderAdminOverviewCharts\(people,marks,closePeople\)/);
 });
 
 test('month ledger controls and metrics share one responsive workbench', () => {
@@ -331,7 +322,7 @@ test('month ledger controls and metrics share one responsive workbench', () => {
   assert.match(css,/\.admin-month-workbench-head \.admin-month-kpis\{/);
   assert.match(css,/\.admin-month-workbench-head \.admin-list-kpi\.danger b\{/);
   assert.match(css,/\.portal\[data-time-phase\] \.admin-month-workbench \.admin-month-workbench-head \.admin-list-kpi\{/);
-  assert.match(css,/background:#173d69/);
+  assert.match(css,/\.portal\[data-time-phase\] \.admin-month-workbench \.admin-month-workbench-head \.admin-list-kpi\{[^}]*background:var\(--kja-surface-opaque,\s*#173d69\)/);
   assert.match(css,/@media\(max-width:760px\)\{\.admin-month-workbench-head/);
   assert.match(html,/id="admin-month-area-trigger"[\s\S]*?role="combobox"[\s\S]*?aria-controls="admin-month-area-options"/);
   assert.match(html,/id="admin-month-area-options"[\s\S]*?role="listbox"[\s\S]*?hidden/);
@@ -341,18 +332,20 @@ test('month ledger controls and metrics share one responsive workbench', () => {
   for (const key of ['ArrowDown','ArrowUp','Home','End','Escape']) assert.ok(adminMonthJs.includes(key));
   assert.match(css,/\.admin-month-area-options\[hidden\]\{display:none\}/);
   assert.match(css,/\.admin-month-area-options button\[aria-selected="true"\]/);
-  assert.match(html,/dashboard-admin-mes\.js\?v=\d+/);
+  assert.match(html,/dashboard-admin-mes\.js\?v=[\w.-]+"/);
 });
 
-test('monthly summary prioritizes metrics and table inside a compact workbench', () => {
-  assert.match(html,/id="admin-summary-section"[\s\S]*?class="admin-summary-workbench"/);
-  assert.match(html,/class="admin-summary-workbench-head"[\s\S]*?id="admin-summary-kpis" aria-live="polite"[\s\S]*?id="admin-summary-export"/);
-  assert.match(html,/class="admin-summary-workbench-controls"[\s\S]*?id="admin-summary-value"[\s\S]*?class="admin-month-filters admin-summary-filters"/);
-  assert.match(html,/id="admin-summary-prev"[^>]*>[\s\S]*?<svg/);
-  assert.doesNotMatch(html,/LECTURA EJECUTIVA/);
-  assert.match(css,/\.admin-summary-workbench-head\{/);
-  assert.match(css,/\.admin-summary-workbench-head \.admin-summary-hero\{/);
-  assert.match(css,/max-height:clamp\(360px,calc\(100dvh - 330px\),680px\)/);
+test('Mes completo groups summary metrics, month selection and filtered export with the ledger', () => {
+  const month=document.querySelector('#admin-month-section');
+  assert.ok(month.querySelector('#admin-month-kpis[aria-live="polite"]'));
+  assert.ok(month.querySelector('input[type="month"]#admin-month-value'));
+  for(const id of ['admin-month-prev','admin-month-next','admin-month-export']){
+    assert.ok(month.querySelector('button#'+id));
+  }
+  assert.ok(month.querySelector('#admin-month-search[type="search"]'));
+  assert.ok(month.querySelector('select#admin-month-area'));
+  assert.ok(month.querySelector('#admin-month-ledger'));
+  assert.match(adminMonthJs,/\$\('admin-month-export'\)\.onclick=\(\)=>downloadMonthCsv\('month'\)/);
 });
 
 test('phase 14 separates Facebook schedule from the workday', () => {
@@ -398,7 +391,7 @@ test('dashboard has unique ids and the complete close workflow', () => {
     'daily-exit-confirm',
     'admin-close-section',
     'admin-close-assignment-form',
-    'daily-evidence-collage-option',
+    'daily-evidence-picker-help',
     'admin-review-modal',
     'admin-review-gallery',
     'admin-review-observe',
@@ -423,6 +416,11 @@ test('dashboard has unique ids and the complete close workflow', () => {
     'facebook-share-gallery',
   ]) assert.ok(ids.includes(id), `missing #${id}`);
 
+  const ctx=vm.createContext({DAILY_EVIDENCE:{requirement:'comparticiones',files:[{}]},APP:{cierre:{collage_permitido:true}}});
+  vm.runInContext(js.slice(js.indexOf('function dailyEvidenceMode('),js.indexOf('async function submitDailyIssue(')),ctx);
+  assert.equal(ctx.dailyEvidenceMode(),'collage');
+  ctx.DAILY_EVIDENCE.files.push({});
+  assert.equal(ctx.dailyEvidenceMode(),'individuales');
   assert.match(html, /id="daily-evidence-file"[^>]*\bmultiple\b/);
   assert.match(html, /id="daily-evidence-editor"[^>]*role="dialog"[^>]*aria-modal="true"/);
   assert.match(html, /class="daily-evidence-sheet"/);
@@ -501,7 +499,11 @@ test('exit photo is a server-enforced requirement limited to the exit window', (
   ]) assert.ok(exitPhotoSql.includes(fragment), `exit photo migration missing: ${fragment}`);
   assert.match(js,/salida:'<svg/);
   assert.match(js,/requirement==='salida'\?'JPG, PNG o WebP/);
-  assert.match(js,/DAILY_EVIDENCE\.requirement==='salida'\|\|/);
+  const ctx={};vm.runInNewContext(modelJs,ctx);
+  const policy=count=>ctx.KJACloseModel.evidenceSelectionPolicy({requirement:'salida',count});
+  assert.equal(policy(0).ok,false);
+  assert.equal(policy(1).ok,true);
+  assert.equal(policy(2).ok,false);
   assert.match(js,/daily-evidence-file'\)\.multiple=requirement!=='salida'/);
   assert.match(adminJs,/function adminReviewTitle\(item\)/);
   assert.match(css,/\.day-card\.has-daily-close \.day-close-item\.type-comparticiones/);
@@ -509,7 +511,7 @@ test('exit photo is a server-enforced requirement limited to the exit window', (
   assert.match(css,/\.day-card\.has-daily-close \.day-close-item\.type-salida/);
 });
 
-test('phase 7 adds one private, size-limited optional video to RPE or assigned work', () => {
+test('legacy RPE and assigned videos remain private, size-limited and preserved on replacement', () => {
   for (const fragment of [
     "p_requisito not in ('rpe','asignado')",
     'create or replace function public.dash_video_permiso',
@@ -519,9 +521,8 @@ test('phase 7 adds one private, size-limited optional video to RPE or assigned w
     'asis_entrega_un_video_idx',
     "public.dash_nivel()='lider'",
   ]) assert.ok(shortVideoSql.includes(fragment), `short video migration missing: ${fragment}`);
-  assert.match(html,/id="daily-video-file"[^>]*accept="video\/mp4,video\/webm"/);
-  assert.match(js,/duration>30/);
-  assert.match(js,/file\.size>8\*1024\*1024/);
+  assert.ok(document.querySelector('#daily-evidence-file').accept.split(',').every(type=>type.startsWith('image/')));
+  assert.match(js,/p_conservar_paths:[^\n]*DAILY_EVIDENCE\.existingVideoPath/);
   assert.match(js,/db\.rpc\('dash_adjuntar_video'/);
   assert.match(edge,/body\.tipo === "video"/);
   assert.match(edge,/dash_video_permiso/);
@@ -602,7 +603,7 @@ test('Facebook receipt preserves private metadata and accessible preview control
   assert.match(css,/@media\(max-width:700px\)\{[\s\S]*?\.facebook-share-gallery\{[\s\S]*?grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
 
-test('phase 2 review is private, auditable and reopens observed evidence safely', () => {
+test('phase 2 review is private, auditable and reopens observed evidence safely', async () => {
   for (const fragment of [
     'add column if not exists revision_estado',
     'create table if not exists public.asis_entrega_revisiones',
@@ -615,14 +616,20 @@ test('phase 2 review is private, auditable and reopens observed evidence safely'
     "public.dash_colab() = split_part(name, '/', 4)::bigint",
   ]) assert.ok(reviewSql.includes(fragment), `phase 2 migration missing: ${fragment}`);
   assert.match(adminJs,/dash_admin_revision_entregas/);
-  assert.match(adminJs,/createSignedUrl\(file\.path,900\)/);
+  const ctx={db:{storage:{from(bucket){assert.equal(bucket,'asis-cierre-evidencias');return {
+    async createSignedUrls(paths,ttl){assert.deepEqual(Array.from(paths),['a','b']);assert.equal(ttl,900);
+      return {data:paths.map(path=>({path,signedUrl:'private/'+path}))};}
+  };}}}};
+  vm.runInNewContext(adminJs.slice(adminJs.indexOf('async function adminReviewSignedBatch('),adminJs.indexOf('let ADMIN_DRAW=')),ctx);
+  const signed=await ctx.adminReviewSignedBatch([{path:'a'},{path:'b'},{path:'a'}]);
+  assert.equal(signed.get('b').signedUrl,'private/b');
   assert.match(adminJs,/dash_admin_revisar_entrega/);
   assert.match(js,/dash_mis_revisiones_cierre/);
   assert.ok(html.indexOf('id="admin-close-status"') < html.indexOf('class="admin-close-grid"'), 'evidence review must appear before assignment management');
   assert.match(html,/Evidencias y cierre del equipo/);
   assert.match(html,/Selecciona “por revisar” o “Ver evidencias”/);
-  assert.match(adminJs,/'Ver evidencias'/);
-  assert.match(css,/\.admin-close-review-trigger\{[^}]*background:#eff6ff/);
+  assert.match(adminJs,/Ver evidencias/);
+  assert.match(css,/\.admin-close-review-trigger\{[^}]*background:var\(--kja-status-info-bg,\s*#eff6ff\)/);
   assert.match(css,/\.portal\.admin-wide #view-gestion>#admin-close-section,[\s\S]*?overflow-y:auto/);
   assert.match(css,/\.admin-review-decision footer\{[^}]*position:sticky[^}]*bottom:-22px/);
   assert.match(adminJs,/function adminReviewTime\(value\)/);
@@ -701,7 +708,7 @@ test('admin close evidence progress survives an incomplete close summary', () =>
   assert.equal(awaitingExit.done,2);
   assert.equal(awaitingExit.total,3);
   assert.match(adminJs,/globals\.push\(\{kind:'salida',assignment:null,title:'Evidencia de hora de salida'/);
-  assert.match(adminJs,/adminEvidenceMissing\(person,personReviews\)/);
+  assert.match(adminJs,/adminEvidenceAvailable\(person,personReviews\)/);
 });
 
 test('migration enforces evidence before exit and preserves history', () => {
@@ -846,7 +853,7 @@ test('close rows show each scheduled range and tint non-working days', () => {
   assert.match(adminJs,/function adminCloseSchedule\(person\)/);
   assert.match(adminJs,/admin-close-person\$\{person\.labora\?'':' is-off'\}/);
   assert.match(adminJs,/class="admin-close-person-schedule"/);
-  assert.match(css,/\.admin-close-person\.is-off\{background:#fff2f4/);
+  assert.match(css,/\.admin-close-person\.is-off\{background:var\(--kja-status-neutral-bg,\s*#fff2f4\)/);
   assert.match(css,/\.admin-close-person-schedule\{font-variant-numeric:tabular-nums/);
 });
 
@@ -973,7 +980,7 @@ test('Facebook accepts large evidence sets without weakening other upload limits
   assert.match(js,/const FACEBOOK_EVIDENCE_MAX = 50/);
   assert.match(js,/for\(let index=0;index<selected\.length;index\+\+\)/);
   assert.match(js,/sourceBytes>300\*1024\*1024/);
-  assert.match(html,/Desde 1 y hasta 50 imágenes/);
+  assert.match(document.querySelector('#daily-evidence-picker-help').textContent,/hasta 50 capturas de Facebook/i);
   assert.match(edge,/slice\(0, 50\)/);
 });
 
@@ -1029,7 +1036,14 @@ test('daily pending panel is visible before entry and evidence opens without inl
   assert.match(js,/document\.body\.append\(editor\)/);
   assert.match(js,/aria-controls="daily-evidence-editor"/);
   assert.doesNotMatch(js,/daily-evidence-editor'\)\.scrollIntoView/);
-  assert.match(js,/\$\('day-close-button'\)\.onclick=\(\)=>APP\.cierre\?\.entrada_at\?openDailyExitModal\(\):handleMarkAction\(\)/);
+  const calls=[],button={},ctx={APP:{cierre:{}},$:()=>button,
+    openDailyExitModal:()=>calls.push('exit'),handleMarkAction:()=>calls.push('entry')};
+  const start=js.indexOf("$('day-close-button').onclick=");
+  vm.runInNewContext(js.slice(start,js.indexOf("$('day-close-retry').onclick=",start)),ctx);
+  for(const state of [{},{entrada_at:'08:00'},{dia_libre_presencial:true},{solo_comparticiones:true}]){
+    ctx.APP.cierre=state;button.onclick();
+  }
+  assert.deepEqual(calls,['entry','exit']);
   assert.doesNotMatch(js,/confirm\('Se registrará tu hora de salida/);
   assert.doesNotMatch(html,/asistencia-capybara\.png/);
   assert.match(css,/\.day-card\.has-daily-close \.day-action\{display:none!important\}/);

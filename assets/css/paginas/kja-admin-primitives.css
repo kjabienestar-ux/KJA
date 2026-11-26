@@ -1,0 +1,727 @@
+@media(min-width:901px){
+  :is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button{min-height:var(--kja-action-min-height);height:auto;box-sizing:border-box;padding:var(--kja-action-padding-block) var(--kja-action-padding-inline);border:var(--kja-action-border-width) solid var(--kja-surface-border);border-radius:var(--kja-action-radius);font:600 var(--kja-type-body-size)/var(--kja-type-ui-line-height) var(--kja-font-ui);cursor:pointer;background:var(--kja-surface-opaque);color:var(--kja-text-primary)}
+  :is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button[data-kind=primary]{background:var(--kja-action-primary);color:var(--kja-on-action)}
+  :is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button[data-kind=secondary]{color:var(--kja-action-secondary)}
+  :is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button[data-kind=tertiary]{background:transparent;border-color:transparent}
+  :is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button[data-kind=destructive]{background:var(--kja-action-danger);color:var(--kja-on-action)}
+  :is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button:focus-visible{outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:var(--kja-focus-ring-offset)}
+  .kja-status{background:var(--kja-status-bg);color:var(--kja-status-text);border-radius:var(--kja-radius-pill);padding:3px 8px;font:500 var(--kja-type-small-size)/var(--kja-type-ui-line-height) var(--kja-font-ui)}
+  :is(#portal #view-gestion #admin-list-section, .kja-catalog) .kja-status[data-tone] {
+    background: var(--badge-bg); color: var(--badge-text); padding: 3px 9px; border-radius: var(--kja-radius-pill);
+    font: 600 var(--kja-type-small-size)/var(--kja-type-ui-line-height) var(--kja-font-ui);
+  }
+  .kja-status[data-tone="ok"] { --badge-bg: var(--kja-status-bg); --badge-text: var(--kja-status-text); }
+  .kja-status[data-tone="info"] { --badge-bg: var(--kja-status-info-bg); --badge-text: var(--kja-status-info-text); }
+  .kja-status[data-tone="ready"] { --badge-bg: var(--kja-surface-opaque); --badge-text: var(--kja-status-text); }
+  .kja-status[data-tone="bad"] { --badge-bg: var(--kja-status-error-bg); --badge-text: var(--kja-status-error-text); }
+  .kja-status[data-tone="warn"] { --badge-bg: var(--kja-status-warning-bg); --badge-text: var(--kja-status-warning-text); }
+  .kja-status[data-tone="just"] { --badge-bg: var(--kja-status-justified-bg); --badge-text: var(--kja-status-justified-text); }
+  .kja-status[data-tone="idle"] { --badge-bg: var(--kja-status-neutral-bg); --badge-text: var(--kja-status-neutral-text); }
+  .kja-status[data-tone="wait"] { --badge-bg: var(--kja-surface-opaque); --badge-text: var(--kja-status-neutral-text); }
+  #portal #admin-list-section.apl .apl-card-head > .avatar,
+  #portal #admin-seguimiento-section .seg-person-list .kja-person-avatar {
+    --profile-avatar-bg: var(--kja-person-avatar-bg);
+    --profile-avatar-text: var(--kja-person-avatar-text);
+    width: var(--kja-person-avatar-size);
+    height: var(--kja-person-avatar-size);
+    background: var(--kja-person-avatar-bg);
+    color: var(--kja-person-avatar-text);
+    border-radius: var(--kja-person-avatar-radius);
+    font: 700 13px/1 Inter, system-ui, sans-serif;
+  }
+  #admin-entry-dialog .admin-entry-details :is(input,select,textarea) {
+    border:1px solid var(--kja-field-border); background:var(--kja-surface-opaque);
+    color:var(--kja-text-primary); caret-color:var(--kja-text-primary);
+  }
+  #admin-entry-dialog .admin-entry-details :is(input,select,textarea):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset);
+    box-shadow:var(--kja-field-focus-shadow);
+  }
+  #admin-entry-dialog .admin-entry-details textarea::placeholder { color:var(--kja-status-neutral-text); }
+  #admin-entry-dialog .admin-entry-picker {
+    background:var(--kja-surface-opaque); border-color:var(--kja-field-border);
+  }
+  #admin-entry-dialog .admin-entry-picker:hover { background:var(--kja-surface-hover); }
+  #admin-entry-dialog .admin-entry-picker:focus-within { outline:none; }
+  #admin-entry-dialog .admin-entry-picker:has(input:focus-visible) {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow);
+  }
+  #admin-entry-dialog .admin-entry-picker[data-ready=true] { border-style:solid; }
+  #admin-entry-dialog .admin-entry-empty { color:var(--kja-action-secondary); }
+  #admin-entry-dialog .admin-entry-empty > span { color:var(--kja-status-neutral-text); }
+  #admin-entry-dialog #admin-entry-preview { background:var(--kja-status-neutral-bg); }
+  #admin-entry-dialog .admin-entry-image-action { color:var(--kja-text-primary); background:var(--kja-surface-opaque); border-color:var(--kja-field-border); }
+  #admin-entry-dialog { background:var(--kja-surface-opaque); color:var(--kja-text-primary); }
+  #admin-entry-dialog :is(h2,h3) { color:var(--kja-text-primary); }
+  #admin-entry-dialog :is(header,footer,.admin-entry-evidence,.admin-entry-audit) { border-color:var(--kja-surface-border); }
+  #admin-entry-dialog .admin-entry-evidence { background:var(--kja-surface-hover); }
+  #admin-entry-dialog footer { background:var(--kja-surface-opaque); }
+  #admin-entry-dialog :is(#admin-entry-copy,.admin-entry-help,small,.admin-entry-audit,.admin-entry-footer-note) { color:var(--kja-status-neutral-text); }
+  #admin-entry-dialog .modal-close { background:var(--kja-status-neutral-bg); color:var(--kja-text-primary); }
+  #admin-entry-dialog .modal-close:focus-visible { outline-color:var(--kja-focus); }
+  #admin-entry-dialog #admin-entry-message { background:var(--kja-status-warning-bg); color:var(--kja-status-warning-text); }
+  #admin-entry-dialog #admin-entry-submit:hover:enabled { background:var(--kja-action-primary); }
+  #admin-entry-dialog footer .kja-button { min-height:var(--kja-action-form-height); box-shadow:none; }
+  #admin-evidence-modal {
+    --upload-ink:var(--kja-text-primary); --upload-muted:var(--kja-status-neutral-text);
+    --upload-line:var(--kja-surface-border); --upload-accent:var(--kja-focus);
+  }
+  #admin-evidence-modal .admin-evidence-sheet {
+    border:1px solid var(--upload-line); border-radius:var(--kja-radius-dialog); background:var(--kja-surface-opaque);
+  }
+  #admin-evidence-modal :is(.admin-evidence-head,.admin-evidence-actions,.admin-evidence-compose) { background:var(--kja-surface-opaque); }
+  #admin-evidence-modal .admin-evidence-requirements { background:var(--kja-surface-hover); }
+  #admin-evidence-modal .admin-evidence-person-mark { color:var(--kja-person-avatar-text); background:var(--kja-person-avatar-bg); box-shadow:none; border-radius:var(--kja-person-avatar-radius); }
+  #admin-evidence-modal :is(.admin-evidence-kind-icon,.admin-evidence-requirement > i,.admin-evidence-picker > span,.modal-close) { background:var(--kja-status-neutral-bg); color:var(--upload-ink); }
+  #admin-evidence-modal :is(.admin-evidence-requirement,.admin-evidence-format label > span) { background:var(--kja-surface-opaque); border-radius:var(--kja-radius-control); }
+  #admin-evidence-modal :is(.admin-evidence-requirement.active,.admin-evidence-format input:checked + span) { color:var(--kja-action-secondary); background:var(--kja-status-bg); border-color:var(--kja-selection-border); box-shadow:none; }
+  #admin-evidence-modal .admin-evidence-requirement svg, #admin-evidence-modal .admin-evidence-requirement small { color:var(--upload-muted); }
+  #admin-evidence-modal .admin-evidence-picker[data-full] { display:none; }
+  #admin-evidence-modal .admin-evidence-picker { background:var(--kja-surface-opaque); border-color:var(--kja-field-border); color:var(--kja-action-secondary); border-radius:12px; }
+  #admin-evidence-modal :is(.admin-evidence-picker,.admin-evidence-requirement:not(.active),.modal-close):hover { background:var(--kja-surface-hover); color:var(--upload-ink); border-color:var(--kja-field-border); }
+  #admin-evidence-modal .admin-evidence-field :is(input,textarea) { background:var(--kja-surface-opaque); border-color:var(--kja-field-border); border-radius:var(--kja-radius-control); }
+  #admin-evidence-modal .admin-evidence-field :is(input,textarea):focus { box-shadow:none; }
+  #admin-evidence-modal :is(.admin-evidence-field input,.admin-evidence-field textarea,.admin-evidence-picker):focus-visible { box-shadow:var(--kja-field-focus-shadow); outline-offset:var(--kja-focus-ring-offset); }
+  #admin-evidence-modal .admin-evidence-preview { background:var(--kja-status-neutral-bg); }
+  #admin-evidence-modal .admin-evidence-preview img { object-fit:contain; }
+  #admin-evidence-modal .admin-evidence-previews:has(.admin-evidence-preview:only-child) { grid-template-columns:minmax(0,220px); }
+  #admin-evidence-modal .admin-evidence-preview:only-child { aspect-ratio:2/1; }
+  #admin-evidence-modal .admin-evidence-preview button { background:var(--kja-surface-opaque); color:var(--kja-text-primary); border-color:var(--upload-line); }
+  #admin-evidence-modal .admin-evidence-preview button:hover { color:var(--kja-action-danger); background:var(--kja-status-error-bg); }
+  #admin-evidence-modal .admin-evidence-message.is-error { color:var(--kja-status-error-text); }
+  #admin-evidence-modal .admin-evidence-message.is-progress { color:var(--upload-muted); }
+  #admin-evidence-modal .admin-evidence-actions .kja-button { min-height:var(--kja-action-form-height); border-radius:var(--kja-action-radius); box-shadow:none; }
+  #admin-evidence-modal .admin-evidence-actions .kja-button:disabled { color:var(--upload-muted); background:var(--kja-status-neutral-bg); border-color:var(--upload-line); opacity:1; }
+  #admin-evidence-modal .admin-evidence-submit:hover:enabled { background:var(--kja-action-primary); }
+  #admin-evidence-modal .admin-evidence-cancel:hover:enabled { background:var(--kja-surface-hover); border-color:transparent; }
+  #admin-seguimiento-section .seg-decision {
+    --admin-control-focus:var(--kja-focus);
+    background:var(--kja-surface-opaque); color:var(--kja-text-primary); border-color:var(--kja-surface-border);
+  }
+  #admin-seguimiento-section #seg-note {
+    color:var(--kja-text-primary); background:var(--kja-surface-opaque); border-color:var(--kja-field-border);
+  }
+  #admin-seguimiento-section #seg-note:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow);
+  }
+  #portal #admin-seguimiento-section .seg-decision-buttons .kja-button {
+    min-height:var(--kja-action-form-height); padding:var(--kja-space-8) 10px; font-size:12px; line-height:1.35; white-space:normal; box-shadow:none;
+  }
+  #admin-days-off-modal .admin-days-off-sheet { background:var(--kja-surface-opaque); color:var(--kja-text-primary); border:1px solid var(--kja-surface-border); }
+  #admin-days-off-modal .admin-days-off-head h2 { color:var(--kja-text-primary); }
+  #admin-days-off-modal .admin-days-off-balance { background:var(--kja-surface-hover); }
+  #admin-days-off-modal .admin-days-off-balance :is(small,strong,p) { color:var(--kja-text-primary); }
+  #admin-days-off-modal .admin-days-off-fields input {
+    background:var(--kja-surface-opaque); color:var(--kja-text-primary); border-color:var(--kja-field-border);
+  }
+  #admin-days-off-modal .admin-days-off-fields input:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow);
+  }
+  #admin-days-off-modal #admin-days-off-form footer .kja-button { min-height:var(--kja-action-form-height); box-shadow:none; }
+  #admin-days-off-modal #admin-days-off-form #admin-days-off-save { background:var(--kja-action-primary); border-color:var(--kja-action-primary); }
+  #admin-review-modal {
+    --review-ink:var(--kja-text-primary); --review-muted:var(--kja-status-neutral-text);
+    --review-canvas:var(--kja-surface-hover); --review-line:var(--kja-surface-border); --review-accent:var(--kja-focus);
+  }
+  #admin-review-modal .admin-review-sheet { border:1px solid var(--review-line); border-radius:var(--kja-radius-dialog); }
+  #admin-review-modal :is(.admin-review-head,.admin-review-decision,.admin-review-gallery-wrap) { background:var(--kja-surface-opaque); }
+  #admin-review-modal .admin-review-person-mark { background:var(--kja-person-avatar-bg); color:var(--kja-person-avatar-text); box-shadow:none; border-radius:var(--kja-person-avatar-radius); }
+  #admin-review-modal .admin-review-observation textarea { background:var(--kja-surface-opaque); border-color:var(--kja-field-border); border-radius:var(--kja-radius-control); }
+  #admin-review-modal .admin-review-observation textarea:focus-visible { box-shadow:var(--kja-field-focus-shadow); outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); }
+  #admin-review-modal .admin-review-decision footer .kja-button { min-height:var(--kja-action-form-height); border-radius:var(--kja-action-radius); box-shadow:none; }
+  #admin-review-modal .admin-review-approve:hover:enabled { background:var(--kja-action-primary); }
+  #admin-review-modal .admin-review-observe:hover:enabled { background:var(--kja-surface-hover); }
+  #admin-review-modal .admin-review-tabs button[aria-selected=true] { color:var(--kja-action-secondary); border-color:var(--kja-selection-border); background:var(--kja-status-bg); }
+  #admin-review-modal .admin-review-gallery:is([data-single="image"],[data-single="pdf"]) {
+    min-height:0; height:min(60dvh,520px); max-height:100%; box-sizing:border-box;
+    grid-template-rows:minmax(0,1fr);
+  }
+  #admin-review-modal .admin-review-gallery:is([data-single="image"],[data-single="pdf"]):has(.admin-review-file-picker) {
+    grid-template-rows:auto minmax(0,1fr);
+  }
+  #admin-review-modal .admin-review-gallery:is([data-single="image"],[data-single="pdf"]) .admin-review-media {
+    min-height:0; min-width:0; box-sizing:border-box;
+  }
+  #admin-review-modal .admin-review-gallery[data-single="image"] .admin-review-media img { min-height:0; }
+  #admin-review-modal .admin-review-state { background:var(--kja-status-warning-bg); color:var(--kja-status-warning-text); }
+  #admin-review-modal .admin-review-state[data-state=aprobada] { background:var(--kja-status-bg); color:var(--kja-status-text); }
+  #admin-review-modal .admin-review-state[data-state=observada] { background:var(--kja-status-error-bg); color:var(--kja-status-error-text); }
+  #portal #admin-assignments-section #admin-close-assignment-form [role=radio][aria-checked=true] {
+    background:var(--kja-surface-hover); border:1px solid var(--kja-action-primary);
+    color:var(--kja-text-primary); box-shadow:none;
+  }
+  #portal #admin-assignments-section #admin-close-assignment-form [role=radio]:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset); box-shadow:none;
+  }
+  #portal #admin-close-assignment-form .admin-close-fields :is(input:not([type=hidden]),textarea,.asg-picker-trigger) {
+    background-color:var(--kja-surface-opaque) !important; border-color:var(--kja-field-border) !important; color:var(--kja-text-primary);
+  }
+  #portal #admin-close-assignment-form .admin-close-fields :is(input,textarea,.asg-picker-trigger):focus-visible,
+  #assignment-destination-picker input:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow) !important;
+  }
+  #assignment-destination-picker [role=option]:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset); box-shadow:none!important;
+  }
+  #portal #admin-close-draw-preview {
+    margin:0; padding:16px; border:1px solid var(--kja-surface-border); border-radius:var(--kja-radius-card); background:var(--kja-surface-opaque);
+  }
+  #portal #admin-close-draw-preview:focus-visible { outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); }
+  #portal #admin-close-draw-preview header { flex-wrap:wrap; align-items:center; border-color:var(--kja-surface-border); }
+  #portal #admin-close-draw-preview header b { font-size:15px; color:var(--kja-text-primary); }
+  #portal #admin-close-draw-preview header em { font-size:11px; background:var(--kja-status-neutral-bg); color:var(--kja-status-neutral-text); }
+  #portal #admin-close-draw-preview :is(small,p) { font-size:12px; color:var(--kja-status-neutral-text); line-height:1.45; }
+  #portal #admin-close-draw-preview [role=listitem] { padding:8px 0; background:transparent; }
+  #portal #admin-close-draw-preview [role=listitem] i { width:36px; height:36px; flex-basis:36px; border-radius:var(--kja-person-avatar-radius); color:var(--kja-person-avatar-text); background:var(--kja-person-avatar-bg); font-size:12px; }
+  #portal #admin-close-draw-preview [role=listitem] b { font-size:14px; color:var(--kja-text-primary); white-space:normal; overflow-wrap:anywhere; }
+  #portal #admin-close-assignment-form:has([data-kind=sorteo][aria-checked=true]) #admin-close-assign {
+    background:var(--kja-action-primary) !important; color:var(--kja-on-action); border-radius:var(--kja-action-radius) !important; box-shadow:none !important;
+  }
+  #portal #admin-assignments-section #admin-close-assignment-list .kja-status[data-tone] {
+    background:var(--badge-bg) !important; color:var(--badge-text) !important;
+    padding:3px 9px; border-radius:var(--kja-radius-pill); font:600 12px/1.4 Inter,system-ui,sans-serif;
+  }
+  #portal #admin-close-assignment-list .kja-status i { background:currentColor; }
+  #portal #admin-assignments-section #admin-assignment-search:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow) !important;
+  }
+  #portal #assignment-calendar-panel .assignment-calendar-days button.has-assignments {
+    background:var(--kja-surface-hover) !important; color:var(--kja-action-primary) !important;
+  }
+  #portal #assignment-calendar-panel .assignment-calendar-days button[aria-pressed=true] {
+    background:var(--kja-action-primary) !important; border-color:var(--kja-action-primary) !important;
+    color:var(--kja-on-action) !important; box-shadow:none !important;
+  }
+  #portal #assignment-calendar-panel .assignment-calendar-days button:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset);
+  }
+  #portal #assignment-calendar-panel .legend-dot.is-selected { background:var(--kja-action-primary) !important; }
+  #portal #assignment-calendar-panel .legend-dot.has-data { background:var(--kja-surface-hover); border:1px solid var(--kja-action-primary); }
+  #portal #admin-assignments-section #assignment-day-summary { flex:0 0 auto; }
+  #portal #admin-assignments-section #assignment-day-summary dl > div { background:var(--kja-status-neutral-bg); }
+  #portal #admin-assignments-section #assignment-day-summary dl > .is-pending { background:var(--kja-status-warning-bg); }
+  #portal #admin-assignments-section #assignment-day-summary .is-pending dd { color:var(--kja-status-warning-text); }
+  #portal #admin-assignments-section #assignment-day-summary dl > .is-review { background:var(--kja-status-info-bg); }
+  #portal #admin-assignments-section #assignment-day-summary .is-review dd { color:var(--kja-status-info-text); }
+  #portal #admin-assignments-section #assignment-day-summary dl > .is-done { background:var(--kja-status-bg); }
+  #portal #admin-assignments-section #assignment-day-summary .is-done dd { color:var(--kja-status-text); }
+
+  #admin-role-dialog .admin-role-dialog-sheet,
+  #admin-role-confirm-modal .admin-role-confirm-sheet {
+    background:var(--kja-surface-opaque);color:var(--kja-text-primary);
+    border:1px solid var(--kja-surface-border);border-radius:var(--kja-radius-dialog);
+    box-shadow:var(--kja-surface-dialog-shadow);
+  }
+  #admin-role-dialog .admin-role-dialog-head,
+  #admin-role-confirm-modal .admin-role-confirm-head,
+  #admin-role-confirm-modal .admin-role-confirm-actions {background:var(--kja-surface-opaque);border-color:var(--kja-surface-border)}
+  #admin-role-dialog .admin-role-seat-row.vacant {background:var(--kja-surface-cream);border-color:var(--kja-surface-border)}
+  #admin-role-dialog .admin-role-seat-row .kja-button,
+  #admin-role-confirm-modal .kja-button {box-shadow:none}
+  #admin-role-dialog .is-danger.kja-button {color:var(--kja-action-danger)}
+  #admin-role-dialog :focus-visible,
+  #admin-role-confirm-modal :focus-visible {outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:var(--kja-focus-ring-offset)}
+
+  /* Diálogos auxiliares: geometría propia, superficie, campos y foco comunes. */
+  #admin-person-modal .admin-editor-sheet,
+  #admin-month-modal .admin-month-sheet,
+  #admin-person-calendar-dialog,
+  #admin-overview-modal .moonrow-sheet,
+  #admin-leave-review,
+  #portal #ranking-help .rk-drawer-panel,
+  #portal #ranking-detail-modal .rk-modal-sheet,
+  #portal #admin-facebook-section.fbr :is(.fbr-help,.fbr-drawer) {
+    background:var(--kja-surface-opaque)!important;
+    border-color:var(--kja-surface-border)!important;
+    color:var(--kja-text-primary);
+  }
+  :is(#view-admin-cuentas,#aa-dialog) {
+    --aa-ink:var(--kja-text-primary);
+    --aa-muted:var(--kja-status-neutral-text);
+    --aa-accent:var(--kja-action-primary);
+    --aa-line:var(--kja-surface-border);
+    --aa-paper:var(--kja-surface-opaque);
+  }
+  #portal :is(#view-admin-cuentas,#aa-dialog) :is(button,input,select,textarea,summary):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+  }
+  :is(#admin-person-modal,#aa-dialog,#view-admin-cuentas,#admin-month-modal,#admin-person-calendar-dialog,#admin-leave-review,#admin-overview-modal) :is(input:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=file]),select,textarea):not(:disabled) {
+    border-color:var(--kja-field-border)!important;
+  }
+  :is(#admin-person-modal,#aa-dialog,#view-admin-cuentas,#admin-month-modal,#admin-person-calendar-dialog,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#fb-report-help,#fb-evidence-drawer) :is(button,input,select,textarea,a,summary):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+  }
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button:focus-visible {
+    outline:none!important;
+  }
+  #admin-overview-modal .moonrow-search-input {
+    width:210px;
+    transition:background-color .15s,border-color .15s;
+  }
+  #admin-overview-modal .moonrow-search-input:focus {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset);
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+  #admin-overview-modal .moonrow-btn-primary {
+    background:var(--kja-action-primary);
+    color:var(--kja-on-action);
+    border-color:var(--kja-action-primary);
+  }
+  #admin-overview-modal .moonrow-btn-secondary {
+    background:var(--kja-surface-opaque);
+    color:var(--kja-text-primary);
+    border-color:var(--kja-surface-border);
+  }
+  #admin-overview-modal :is(.moonrow-header,.moonrow-footer,.moonrow-kpi-card,.moonrow-table-card,.moonrow-search-input,.moonrow-area-select) {
+    background:var(--kja-surface-opaque);
+    border-color:var(--kja-surface-border);
+  }
+  #admin-overview-modal :is(.moonrow-body,.moonrow-nav-tabs,.moonrow-dark-card,.moonrow-table th) {
+    background:var(--kja-status-neutral-bg);
+    color:var(--kja-text-primary);
+  }
+  #admin-overview-modal .moonrow-dark-card {box-shadow:none;border:1px solid var(--kja-surface-border)}
+  #admin-overview-modal .moonrow-dark-card::after {display:none}
+  #admin-overview-modal :is(.moonrow-brand-icon,.moonrow-tab-btn.is-active,.moonrow-filter-btn.is-active) {
+    background:var(--kja-action-primary);
+    color:var(--kja-on-action);
+    box-shadow:none;
+  }
+  #admin-overview-modal :is(.moonrow-title,.moonrow-kpi-val,.moonrow-dark-number,.moonrow-table td) {color:var(--kja-text-primary)}
+  #admin-overview-modal :is(.moonrow-subtitle,.moonrow-tab-btn:not(.is-active),.moonrow-kpi-label,.moonrow-kpi-total,.moonrow-kpi-sub,.moonrow-dark-date,.moonrow-dark-label,.moonrow-dark-legend,.moonrow-footer-count,.moonrow-area-tag,.moonrow-detail-sub,.moonrow-breakdown-meta small) {color:var(--kja-status-neutral-text)}
+  #admin-overview-modal .moonrow-search-input::placeholder {color:var(--kja-status-neutral-text)}
+  #admin-overview-modal :is(.moonrow-progress-card,.moonrow-kpi-action,.moonrow-filter-btn:not(.is-active),.moonrow-row-btn,.moonrow-close-btn) {
+    background:var(--kja-surface-opaque);
+    border-color:var(--kja-surface-border);
+    color:var(--kja-text-primary);
+    box-shadow:none;
+  }
+  #admin-overview-modal .moonrow-filter-btn.is-active {border-color:var(--kja-action-primary)}
+  #admin-overview-modal :is(.moonrow-chip.is-neutral,.moonrow-progress-summary-pill,.moonrow-filter-btn:not(.is-active) .moonrow-filter-count) {background:var(--kja-status-neutral-bg);color:var(--kja-status-neutral-text)}
+  #admin-overview-modal :is(.moonrow-progress-title,.moonrow-colab-name,.moonrow-detail-main,.moonrow-breakdown-name,.moonrow-breakdown-meta) {color:var(--kja-text-primary)}
+  #admin-overview-modal :is(.moonrow-table th,.moonrow-table td) {border-color:var(--kja-surface-border);box-shadow:none}
+  #admin-overview-modal .moonrow-badge.is-green {background:var(--kja-status-bg);color:var(--kja-status-text)}
+  #admin-overview-modal .moonrow-badge.is-coral {background:var(--kja-status-error-bg);color:var(--kja-status-error-text)}
+  #admin-overview-modal .moonrow-badge.is-amber {background:var(--kja-status-warning-bg);color:var(--kja-status-warning-text)}
+  #admin-overview-modal .moonrow-badge.is-slate {background:var(--kja-status-neutral-bg);color:var(--kja-status-neutral-text)}
+  #admin-overview-modal .moonrow-badge.is-blue {background:var(--kja-status-info-bg);color:var(--kja-status-info-text)}
+  #admin-overview-modal .moonrow-badge .moonrow-badge-dot {background:currentColor}
+  #admin-overview-modal .moonrow-dark-badge,
+  #admin-overview-modal .moonrow-chip.is-positive {background:var(--kja-status-bg);color:var(--kja-status-text)}
+  #admin-overview-modal .moonrow-dark-bar {background:var(--kja-surface-border)}
+  #admin-overview-modal .moonrow-avatar {background:var(--kja-person-avatar-bg);color:var(--kja-person-avatar-text);border-radius:var(--kja-person-avatar-radius);box-shadow:none}
+  #admin-overview-modal .moonrow-table tbody tr:hover {background:var(--kja-surface-hover)}
+  :is(#admin-person-modal,#aa-dialog,#view-admin-cuentas,#admin-month-modal,#admin-leave-review,#admin-overview-modal) :is(input:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=file]),select,textarea):focus-visible {
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+  #portal #ranking-help .rk-inp > span {
+    background:var(--kja-surface-opaque);
+    border-color:var(--kja-field-border);
+  }
+  #portal #ranking-help .rk-inp > span:focus-within {
+    border-color:var(--kja-focus);
+    box-shadow:var(--kja-field-focus-shadow);
+  }
+  #portal #ranking-help .rk-inp input:focus-visible {
+    outline:none!important;
+  }
+  #portal #ranking-help .rk-btn-primary {
+    background:var(--kja-action-primary);
+    color:var(--kja-on-action);
+    border-color:var(--kja-action-primary);
+  }
+  #admin-month-modal .modal-close {
+    background:var(--kja-surface-opaque);
+    color:var(--kja-status-neutral-text);
+    border:1px solid var(--kja-surface-border);
+  }
+  #admin-month-modal .holiday-agenda .empty {
+    color:var(--kja-status-neutral-text);
+    border-color:var(--kja-surface-border);
+  }
+  #admin-leave-review #admin-leave-review-days .approve {
+    background:var(--kja-status-bg);
+    color:var(--kja-status-text);
+    border-color:var(--kja-status-text);
+  }
+  #admin-leave-review #admin-leave-review-days .reject {
+    background:var(--kja-status-error-bg);
+    color:var(--kja-status-error-text);
+    border-color:var(--kja-status-error-text);
+  }
+
+  /* Un solo contorno por control de escritorio. Los botones compactos de fila
+     y los indicadores conservan su margen interior para evitar recortes. */
+  :is(#portal #view-gestion,#portal #view-admin-cuentas,#admin-person-modal,#aa-dialog,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-dialog,#admin-role-confirm-modal,#admin-month-modal,#admin-person-calendar-dialog,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,.pw-modal,#assignment-destination-picker,#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup)
+    :is(button,a,input,select,textarea,summary,[tabindex]):where(:not(.kja-area-trigger,.kja-metric)):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+  }
+  :is(#portal #view-gestion,#portal #view-admin-cuentas,#admin-person-modal,#aa-dialog,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#assignment-hours-dialog,.pw-modal)
+    :is(input,select,textarea):where(:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=file],:disabled)):focus-visible {
+    border-color:var(--kja-field-border)!important;
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+  #portal #view-gestion :is(.apl-search,.seg-search,.contracts-search-wrap,.admin-team-search-wrap,.rk-search,.fbr-search,.fbr-select):focus-within,
+  :is(#portal #view-gestion,#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-search:focus-within,
+  #portal #ranking-help .rk-inp > span:has(input:focus) {
+    border-color:var(--kja-field-border)!important;
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+  #portal #view-gestion :is(.apl-search,.seg-search,.contracts-search-wrap,.admin-team-search-wrap,.rk-search,.fbr-search,.fbr-select) :is(input,select):focus,
+  :is(#portal #view-gestion,#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-search input:focus,
+  #portal #ranking-help .rk-inp input:focus {
+    outline:none!important;
+    box-shadow:none!important;
+    border-color:transparent!important;
+  }
+  #portal #ranking-help .rk-inp button:focus-visible {
+    outline-offset:calc(-1 * var(--kja-focus-ring-width))!important;
+  }
+  :is(#portal #view-gestion,#admin-person-modal).admin-create-wizard .admin-editor-tabs button:focus-visible {outline:none!important}
+  #admin-person-modal.admin-create-wizard .admin-editor-tabs button:focus-visible .create-step-number {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus);
+    outline-offset:var(--kja-focus-ring-offset);
+  }
+  #portal #view-gestion :is(.area-picker-trigger,.rk-select-trigger,.admin-month-area-trigger,.af-trigger,.editor-date-trigger):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+
+  /* Command actions, not tabs, calendar cells, metric filters or row toggles.
+     Map the existing equivalent action classes without altering their density. */
+  :is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button,.admin-primary-action,.admin-secondary-action,.pw-button,.aa-primary,.aa-secondary,.rk-btn,.fbr-btn-primary,.fbr-btn-ghost:not([aria-label]),.seg-d-primary,.moonrow-btn-primary,.moonrow-btn-secondary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected])) {
+    --kja-action-hover-fill:var(--kja-surface-hover);
+    --kja-action-press-fill:var(--kja-action-neutral-pressed);
+    --kja-action-interaction-ink:var(--kja-text-primary);
+    --kja-action-interaction-border:var(--kja-field-border);
+  }
+  :is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button[data-kind=secondary],.kja-button[data-kind=tertiary].is-danger) {
+    --kja-action-interaction-ink:var(--kja-action-secondary);
+  }
+  :is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-role-dialog) .kja-button.is-danger {
+    --kja-action-interaction-ink:var(--kja-action-danger);
+  }
+  :is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button[data-kind=primary],.admin-primary-action:not([data-kind]),.pw-button.pw-primary,.aa-primary,.rk-btn-primary,.fbr-btn-primary,.seg-d-primary,.moonrow-btn-primary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected])) {
+    --kja-action-hover-fill:var(--kja-action-primary-hover);
+    --kja-action-press-fill:var(--kja-action-primary-pressed);
+    --kja-action-interaction-ink:var(--kja-on-action);
+    --kja-action-interaction-border:transparent;
+    background:var(--kja-action-primary)!important;color:var(--kja-on-action)!important;border-color:var(--kja-action-primary)!important;
+  }
+  :is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-role-confirm-modal,#admin-role-dialog,#aa-dialog,.pw-modal) .kja-button[data-kind=destructive] {
+    --kja-action-hover-fill:var(--kja-action-danger-hover);
+    --kja-action-press-fill:var(--kja-action-danger-pressed);
+    --kja-action-interaction-ink:var(--kja-on-action);
+    --kja-action-interaction-border:transparent;
+    background:var(--kja-action-danger)!important;color:var(--kja-on-action)!important;border-color:var(--kja-action-danger)!important;
+  }
+  @media(hover:hover){
+    :is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+      :is(.kja-button,.admin-primary-action,.admin-secondary-action,.pw-button,.aa-primary,.aa-secondary,.rk-btn,.fbr-btn-primary,.fbr-btn-ghost:not([aria-label]),.seg-d-primary,.moonrow-btn-primary,.moonrow-btn-secondary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected],[aria-disabled=true])):hover:enabled {
+      background:var(--kja-action-hover-fill)!important;color:var(--kja-action-interaction-ink)!important;border-color:var(--kja-action-interaction-border)!important;
+      --kja-action-current-fill:var(--kja-action-hover-fill);
+      --kja-action-current-ink:var(--kja-action-interaction-ink);
+      text-decoration:none!important;filter:none!important;
+    }
+  }
+  :is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button,.admin-primary-action,.admin-secondary-action,.pw-button,.aa-primary,.aa-secondary,.rk-btn,.fbr-btn-primary,.fbr-btn-ghost:not([aria-label]),.seg-d-primary,.moonrow-btn-primary,.moonrow-btn-secondary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected],[aria-disabled=true])):active:enabled {
+    background:var(--kja-action-press-fill)!important;color:var(--kja-action-interaction-ink)!important;border-color:var(--kja-action-interaction-border)!important;
+    --kja-action-current-fill:var(--kja-action-press-fill);
+    --kja-action-current-ink:var(--kja-action-interaction-ink);
+    filter:none!important;
+  }
+  :is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button,.admin-primary-action,.admin-secondary-action,.pw-button,.aa-primary,.aa-secondary,.rk-btn,.fbr-btn-primary,.fbr-btn-ghost:not([aria-label]),.seg-d-primary,.moonrow-btn-primary,.moonrow-btn-secondary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected])):is(:disabled,[aria-disabled=true]) {
+    background:var(--kja-action-disabled-bg)!important;color:var(--kja-action-disabled-text)!important;border-color:var(--kja-surface-border)!important;
+    --kja-action-current-fill:var(--kja-action-disabled-bg);
+    --kja-action-current-ink:var(--kja-action-disabled-text);
+    opacity:1!important;box-shadow:none!important;text-decoration:none!important;filter:none!important;scale:1!important;cursor:default!important;
+  }
+  #portal #admin-people-section.pw-workbench #admin-new-person {
+    background:var(--kja-action-current-fill,var(--kja-action-primary))!important;
+    color:var(--kja-action-current-ink,var(--kja-on-action))!important;
+    border-color:var(--kja-action-current-fill,var(--kja-action-primary))!important;
+    transition:background-color 150ms,color 150ms,border-color 150ms;
+  }
+  #portal #admin-people-section.pw-workbench #admin-new-person:is(:hover,:active) {transform:none;box-shadow:none!important}
+
+  /* Elevación y radios según función, nunca según el módulo. Las filas y
+     divisores conservan sus bordes; los visores laterales conservan su forma. */
+  #admin-entry-dialog,
+  #admin-evidence-modal .admin-evidence-sheet,
+  #admin-review-modal .admin-review-sheet,
+  #admin-days-off-modal .admin-days-off-sheet,
+  #admin-person-modal .admin-editor-sheet,
+  #admin-month-modal .admin-month-sheet,
+  #admin-person-calendar-dialog,
+  #admin-leave-review,
+  #admin-role-dialog .admin-role-dialog-sheet,
+  #admin-role-confirm-modal .admin-role-confirm-sheet,
+  #admin-overview-modal .moonrow-sheet,
+  #portal #ranking-detail-modal .rk-modal-sheet,
+  #assignment-hours-dialog,#seg-download-dialog,#aa-dialog,.pw-modal {
+    border-radius:var(--kja-radius-dialog)!important;box-shadow:var(--kja-surface-dialog-shadow)!important;
+  }
+  #portal #admin-list-section.apl .apl-card,
+  #portal #admin-ranking-section.rk .rk-card,
+  #portal #admin-facebook-section.fbr .fbr-card,
+  #portal #view-gestion #admin-access-section.aw-workbench :is(.admin-access-requests,.admin-access-directory,.admin-access-audit,.admin-route-card,.admin-policy-card),
+  #admin-overview-modal :is(.moonrow-kpi-card,.moonrow-dark-card,.moonrow-table-card) {
+    border-radius:var(--kja-radius-card)!important;box-shadow:var(--kja-surface-card-shadow)!important;
+  }
+  #portal #view-gestion #admin-access-section.aw-workbench :is(.admin-access-requests,.admin-access-directory,.admin-access-audit,.admin-route-card,.admin-policy-card),
+  #portal #view-gestion>#admin-access-section.aw-workbench {backdrop-filter:none!important}
+  #portal .aw-workbench :is(.aw-rule-options,.admin-office-rule) {border-radius:var(--kja-radius-compact-card)}
+  #portal #admin-month-section .admin-month-workbench-controls {
+    border-radius:var(--kja-radius-card);padding:var(--kja-space-16)!important;gap:var(--kja-space-12)!important;
+  }
+  #portal #ranking-help .rk-sim {border-radius:var(--kja-radius-card)}
+  #portal #admin-facebook-section.fbr :is(.fbr-menu,.fbr-help),#assignment-destination-picker {
+    border-radius:var(--kja-selector-menu-radius);box-shadow:var(--kja-selector-menu-shadow);
+  }
+}
+
+/* KJA-051: surface geometry, based on painted desktop consumers. Selection
+   marks and status rings remain distinct from elevation. */
+@media(min-width:901px){
+  #portal :is(#admin-seguimiento-section.seg-section,#admin-contracts-section,#admin-people-section,#admin-roles-section),
+  #portal #admin-assignments-section :is(.assignment-calendar,.assignment-day-summary,.admin-close-assignments) {border-radius:var(--kja-radius-workbench)!important}
+  #portal #admin-seguimiento-section :is(.seg-people-metrics,.seg-evidence-metrics) {border-radius:var(--kja-radius-card)!important}
+  #portal #admin-seguimiento-section :is(.seg-pilot,.seg-queues button b) {border-radius:var(--kja-radius-indicator)!important}
+  #portal #admin-seguimiento-section .seg-pill,
+  #portal #admin-overview-section .admin-count,
+  #portal #admin-list-section.apl :is(.apl-legend b,.apl-mode),
+  #portal #admin-ranking-section :is(.rk-badge,.rk-seg button em,.rk-me) {border-radius:var(--kja-radius-compact-badge)!important}
+  #portal #admin-facebook-section.fbr .fbr-sq,
+  #portal #admin-ranking-section.rk .rk-legend i {border-radius:var(--kja-radius-chart-mark)}
+  #portal #admin-roles-section :is(.admin-role-cell-team,.rh-order),
+  #portal .aw-workbench .aw-pagination button {border-radius:var(--kja-filter-segment-radius)!important}
+  #portal #admin-list-section.apl .apl-mark,
+  #portal #admin-assignments-section .type-chip .chip-avatar {border-radius:var(--kja-filter-segment-radius)!important}
+  #portal #admin-assignments-section .type-chip {border-radius:var(--kja-radius-compact-card)!important}
+  #assignment-hours-dialog .assignment-hours-presets button {border-radius:var(--kja-radius-control)!important}
+  #portal #admin-assignments-section .assignment-calendar-days button:not([aria-pressed=true]) {border-radius:var(--kja-radius-control)!important}
+  #portal #admin-assignments-section .assignment-day-summary dl>div {border-radius:var(--kja-radius-compact-card)!important}
+  #portal #admin-ranking-section.rk .rk-month-popover {border-radius:var(--kja-selector-menu-radius)!important}
+  #ranking-detail-modal .rk-m-crit {border-radius:var(--kja-radius-card)!important}
+  #portal #admin-month-section :is(.admin-month-workbench-controls,.admin-month-ledger) {border-radius:var(--kja-radius-card)!important}
+  #portal #admin-contracts-section .admin-contract-search,
+  #portal #admin-people-section .admin-primary-action {border-radius:var(--kja-radius-control)!important}
+  #portal #admin-contracts-section :is(.admin-list-kpis,.admin-team-actions),
+  #portal #admin-roles-section :is(.admin-list-kpis,.admin-role-row,.admin-roles-audit),
+  #portal #admin-people-section .admin-list-kpis,
+  #portal #admin-access-section .admin-list-kpis,
+  #portal #admin-list-section.apl :is(.apl-kpi,.apl-cards),
+  #portal #admin-seguimiento-section :is(.seg-section,.seg-person-list),
+  #portal #admin-overview-section :is(.admin-overview-today,.admin-panel,.admin-chart),
+  #portal #admin-month-section .admin-month-table,
+  #portal #admin-ranking-section :is(.rk-banner,.rk-ad-person) {
+    border-radius:var(--kja-radius-card)!important;
+  }
+  #portal #admin-overview-section .admin-panel-head {border-radius:var(--kja-radius-card) var(--kja-radius-card) 0 0}
+  #portal #admin-overview-section .admin-panel-foot {border-radius:0 0 var(--kja-radius-card) var(--kja-radius-card)}
+  #portal #admin-seguimiento-section .seg-mark {border-radius:var(--kja-radius-card)}
+  #portal #admin-list-section.apl .apl-day,
+  #portal #admin-assignments-section :is(.assignment-toggle-btn,.assignment-work-date-label,.assignment-refresh-btn),
+  #portal #admin-facebook-section.fbr :is(.fbr-btn,.fbr-stepper,.fbr-select),
+  #portal #admin-ranking-section :is(.rk-btn,.rk-search),
+  #portal #admin-month-section .admin-month-export {
+    border-radius:var(--kja-radius-control)!important;
+  }
+  #portal #admin-ranking-section :is(.rk-seg,.rk-icon-tile),
+  #portal #admin-facebook-section.fbr .fbr-tabs,
+  #portal #admin-seguimiento-section .seg-button.kja-metric {
+    border-radius:var(--kja-filter-segment-radius)!important;
+  }
+  #portal #admin-access-section .admin-access-health,
+  #portal #admin-ranking-section :is(.rk-bar,.rk-bar>i) {border-radius:var(--kja-radius-pill)}
+  #portal #admin-ranking-section .rk-month-popover {
+    border-radius:var(--kja-selector-menu-radius);box-shadow:var(--kja-selector-menu-shadow);
+  }
+  #portal #admin-contracts-section .admin-contract-row,
+  #portal #admin-list-section.apl :is(.apl-toolbar,.apl-kpis,.apl-area),
+  #portal #admin-access-section .admin-list-kpi,
+  #portal #admin-assignments-section .assignment-section-head {box-shadow:var(--kja-surface-card-shadow)!important}
+  #portal #admin-list-section.apl .apl-day.is-active,
+  #portal #admin-assignments-section :is(.assignment-toggle-btn,.assignment-work-date-label,.assignment-today-pill,.assignment-refresh-btn):not(:focus-visible,:focus-within),
+  #portal #admin-facebook-section.fbr .fbr-tabs button.active {box-shadow:none!important}
+  /* The same refresh command stays secondary in every section. Older
+     section-specific rules used both teal and terracotta filled buttons. */
+  #portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh {
+    background:var(--kja-surface-opaque)!important;color:var(--kja-action-secondary)!important;
+    border:var(--kja-action-border-width) solid var(--kja-surface-border)!important;
+    border-radius:var(--kja-action-radius)!important;min-height:var(--kja-action-min-height);
+    box-shadow:none!important;transform:none!important;filter:none!important;
+    transition:background-color 150ms,color 150ms,border-color 150ms;
+  }
+  @media(hover:hover){
+    #portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh:hover:enabled {
+      background:var(--kja-surface-hover)!important;border-color:var(--kja-field-border)!important;
+    }
+  }
+  #portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh:active:enabled {
+    background:var(--kja-action-neutral-pressed)!important;border-color:var(--kja-field-border)!important;
+  }
+  #portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;outline-offset:var(--kja-focus-ring-offset)!important;
+  }
+  #portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh:disabled {
+    background:var(--kja-action-disabled-bg)!important;color:var(--kja-action-disabled-text)!important;
+    border-color:var(--kja-surface-border)!important;opacity:1!important;
+  }
+}
+
+/* KJA-051: readable desktop captions; compact information still uses a distinct scale. */
+@media(min-width:901px){
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(.contracts-heading h2,.roles-heading h2),
+  #portal #admin-people-section.pw-workbench :is(.admin-team-heading h2,.attendance-export-head h3,.admin-areas-panel h3),
+  #portal .aw-workbench .admin-access-toolbar h2,
+  :is(.pw-empty h3,.pw-modal-head h2,.admin-role-dialog-heading h2,.admin-role-confirm-head h2),
+  #admin-days-off-modal.pw-days-off .admin-days-off-head h2 {
+    font-family:var(--kja-font-display)!important;
+  }
+  #portal :is(#admin-contracts-section,#admin-roles-section) :is(.contracts-heading .eyebrow,.roles-heading .eyebrow,.contracts-filter>span,.contract-mobile-label,.admin-role-state),
+  #portal #admin-people-section.pw-workbench :is(.admin-team-heading .eyebrow,.pw-card>header .pw-tag,.pw-card dt),
+  #portal #admin-list-section .apl-card dt,
+  #portal #admin-seguimiento-section :is(.seg-eyebrow,.seg-pilot,#seg-updated,.seg-table-labels,.seg-pill,.seg-area-card>[data-seg=area] span),
+  #portal #admin-month-section :is(.admin-month-workbench-head .admin-month-kpis small,.admin-month-person-status,.admin-month-table .day-col span),
+  #portal #admin-facebook-section.fbr .fbr-chart .fbr-xl>div,
+  #portal :is(#admin-ranking-section,#ranking-help,#ranking-detail-modal) :is(.rk-tag,.rk-badge),
+  #portal .aw-workbench :is(.admin-list-kpi small,.admin-route-card>header small,.admin-route-step small,.admin-policy-card>header small,.admin-office-selection small,.admin-office-actions>small) {
+    font-size:var(--kja-type-caption-size)!important;
+  }
+  #portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av-xs {font-size:10px}
+}
+
+/* KJA-051: effective AA failures detected in the actual desktop views. */
+@media(min-width:901px){
+  #portal #admin-contracts-section #admin-contract-count {color:var(--kja-action-primary)!important}
+  #portal #admin-list-section.apl .apl-legend b.p {background:var(--kja-status-text);color:var(--kja-on-action)}
+  #portal #admin-list-section.apl .apl-legend b.t {background:var(--kja-status-warning-text);color:var(--kja-on-action)}
+  #portal #admin-list-section.apl .apl-legend b.j {background:var(--kja-status-justified-text);color:var(--kja-on-action)}
+  #portal #admin-list-section.apl .apl-legend b.ng {
+    background:var(--kja-status-neutral-text);color:var(--kja-on-action);
+  }
+  #portal #admin-list-section.apl .apl-legend small {color:var(--kja-text-secondary)}
+  #portal.admin-wide #admin-assignments-section #assignment-create-toggle:not(:disabled,[aria-disabled=true]),
+  #portal.admin-wide #admin-assignments-section #assignment-create-toggle:not(:disabled,[aria-disabled=true])>span {
+    color:var(--kja-on-action)!important;
+  }
+  #portal #admin-ranking-section.rk .rk-kpi>b em {color:var(--kja-text-secondary)}
+  #portal #admin-roles-section .admin-role-filters button[aria-pressed=true] b {
+    background:var(--kja-filter-selected-count-bg);color:var(--kja-on-action);
+  }
+  #portal #admin-month-section .admin-month-area-row .admin-month-area-sticky>span,
+  #portal #admin-month-section .admin-month-cell.empty b {color:var(--kja-text-secondary)}
+  #portal #admin-assignments-section .assignment-calendar-days>span,
+  #portal #admin-assignments-section #admin-assignment-search::placeholder {
+    color:var(--kja-text-secondary)!important;opacity:1;
+  }
+  #portal #admin-assignments-section #admin-assignment-search:not(:disabled) {
+    border-color:var(--kja-field-border)!important;border-radius:var(--kja-radius-control)!important;
+  }
+  #portal #admin-assignments-section .assignment-search .assignment-field-icon {color:var(--kja-text-secondary)}
+  #portal #admin-assignments-section #assignment-calendar-message[data-state=error] {
+    display:flex!important;align-items:center;justify-content:center;flex-wrap:wrap;
+    gap:var(--kja-space-8);padding-block:var(--kja-space-4);color:var(--kja-text-secondary)!important;
+  }
+  #portal #admin-assignments-section #assignment-calendar-message .asg-calendar-retry {
+    white-space:nowrap;
+  }
+  #portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av {color:var(--kja-person-avatar-text);background:var(--kja-person-avatar-bg)}
+  #portal #admin-ranking-section.rk .rk-tag-medal,
+  #portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av[data-medal="1"] .rk-medal {
+    background:var(--kja-status-warning-bg);color:var(--kja-status-warning-text);
+  }
+  #portal #admin-ranking-section.rk .rk-pd-s .rk-tag-medal,
+  #portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av[data-medal="2"] .rk-medal {
+    background:var(--kja-status-neutral-bg);color:var(--kja-status-neutral-text);
+  }
+  #portal #admin-ranking-section.rk .rk-pd-b .rk-tag-medal,
+  #portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av[data-medal="3"] .rk-medal {
+    background:var(--kja-surface-hover);color:var(--kja-action-primary);
+  }
+}
+
+/* KJA-051 · revisión de Piero: estados de controles de escritorio sin superficies anidadas. */
+@media(min-width:901px){
+  #portal #view-gestion .admin-toggle input[type=checkbox] {
+    appearance:none!important;-webkit-appearance:none!important;box-sizing:border-box!important;
+    display:inline-grid!important;place-items:center;flex:0 0 18px;
+    width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;
+    max-width:18px!important;max-height:18px!important;margin:0!important;padding:0!important;
+    border:var(--kja-field-border-width) solid var(--kja-field-border)!important;border-radius:var(--kja-radius-indicator)!important;
+    background:var(--kja-surface-opaque)!important;box-shadow:none!important;cursor:pointer;
+    transition:background-color 150ms,border-color 150ms!important;
+  }
+  #portal #view-gestion .admin-toggle input[type=checkbox]:checked {
+    background:var(--kja-action-primary)!important;border-color:var(--kja-action-primary)!important;
+  }
+  #portal #view-gestion .admin-toggle input[type=checkbox]:checked::before {
+    content:"";width:5px;height:9px;border-right:2px solid var(--kja-on-action);border-bottom:2px solid var(--kja-on-action);
+    transform:translateY(-1px) rotate(45deg);
+  }
+  #portal #view-gestion .admin-toggle input[type=checkbox]:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;outline-offset:var(--kja-focus-ring-offset)!important;
+    box-shadow:none!important;
+  }
+  #portal #view-gestion .admin-toggle input[type=checkbox]:disabled {
+    background:var(--kja-action-disabled-bg)!important;border-color:var(--kja-surface-border)!important;cursor:default;
+  }
+  #portal #view-gestion .admin-toggle input[type=checkbox]:disabled:checked::before {border-color:var(--kja-action-disabled-text)}
+  @media(forced-colors:active){
+    #portal #view-gestion .admin-toggle input[type=checkbox] {appearance:auto!important;-webkit-appearance:auto!important;forced-color-adjust:auto;}
+    #portal #view-gestion .admin-toggle input[type=checkbox]::before {display:none!important}
+  }
+
+  #portal #admin-month-section .admin-month-picker {
+    background:var(--kja-surface-opaque)!important;border-radius:var(--kja-radius-control)!important;box-shadow:none!important;
+  }
+  #portal #admin-month-section .admin-month-picker input[type=month] {
+    background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+    outline:none!important;color:var(--kja-text-primary)!important;
+  }
+  #portal #admin-month-section .admin-month-picker input[type=month]::-webkit-datetime-edit,
+  #portal #admin-month-section .admin-month-picker input[type=month]::-webkit-datetime-edit-fields-wrapper {background:transparent}
+  #portal #admin-month-section .admin-month-picker input[type=month]::-webkit-calendar-picker-indicator {opacity:.78;cursor:pointer}
+  #portal #admin-month-section .admin-month-picker:has(input:focus) {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;outline-offset:var(--kja-focus-ring-offset)!important;
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+  #portal #admin-month-section .admin-month-picker button {
+    background:transparent!important;box-shadow:none!important;transform:none!important;
+  }
+  @media(hover:hover){
+    #portal #admin-month-section .admin-month-picker button:not(:disabled):hover{background:var(--kja-surface-hover)!important}
+  }
+
+  /* No animar elevación ni compositar el glass heredado sobre Nueva asignación. */
+  #portal.admin-wide #admin-assignments-section #assignment-create-toggle {
+    background:var(--kja-action-primary)!important;color:var(--kja-on-action)!important;
+    border:var(--kja-action-border-width) solid var(--kja-action-primary)!important;border-radius:var(--kja-action-radius)!important;
+    box-shadow:none!important;filter:none!important;transform:none!important;animation:none!important;
+    transition:background-color 150ms,color 150ms,border-color 150ms!important;
+  }
+  @media(hover:hover){
+    #portal.admin-wide #admin-assignments-section #assignment-create-toggle:not(:disabled,[aria-disabled=true]):hover {
+      background:var(--kja-action-primary-hover)!important;border-color:var(--kja-action-primary-hover)!important;
+    }
+  }
+  #portal.admin-wide #admin-assignments-section #assignment-create-toggle:not(:disabled,[aria-disabled=true]):active {
+    background:var(--kja-action-primary-pressed)!important;border-color:var(--kja-action-primary-pressed)!important;
+  }
+  #portal.admin-wide #admin-assignments-section #assignment-create-toggle:is(:disabled,[aria-disabled=true]) {
+    background:var(--kja-action-disabled-bg)!important;color:var(--kja-action-disabled-text)!important;border-color:var(--kja-surface-border)!important;
+  }
+}

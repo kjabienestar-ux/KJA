@@ -1,15 +1,15 @@
 /* Cierres y areas: misma paleta suave que la ventana de revision. */
 #portal #admin-close-section{
-  --close-ink:#403955;
-  --close-muted:#706981;
-  --close-line:#e0ddea;
+  --close-ink:var(--kja-text-primary, #403955);
+  --close-muted:var(--kja-text-secondary, #706981);
+  --close-line:var(--kja-divider-subtle, #e0ddea);
   background:transparent;
   border-radius:24px;
 }
 /* La superficie administrativa global declara estas propiedades !important. */
 #portal #admin-close-section .admin-close-command{
-  background:#faf9fd !important;
-  border-color:#e0ddea !important;
+  background:var(--kja-surface-opaque, #faf9fd) !important;
+  border-color:var(--kja-surface-border, #e0ddea) !important;
   border-radius:24px;
   box-shadow:none !important;
 }
@@ -18,40 +18,40 @@
   border-color:transparent !important;
 }
 #portal #admin-close-section .admin-close-heading-icon{
-  color:#655083;
-  background:#e8dff4;
+  color:var(--kja-action-primary, #655083);
+  background:var(--kja-surface-canvas, #e8dff4);
   border-radius:16px;
-  box-shadow:0 4px 10px rgba(77,56,108,.08);
+  box-shadow:var(--kja-action-shadow, 0 4px 10px rgba(77,56,108,.08));
 }
 #portal #admin-close-section .admin-close-heading-icon svg{stroke:currentColor}
 #portal #admin-close-section .admin-close-heading h2{color:var(--close-ink);font-weight:600}
 #portal #admin-close-section .admin-close-heading p,
 #portal #admin-close-section .admin-close-filters :is(label, .admin-close-filter-col)>span{color:var(--close-muted)}
 #portal #admin-close-section .admin-review-summary>span.admin-review-stat{
-  background:#fff;
-  border-color:#e9e5f0;
+  background:var(--kja-surface-opaque, #fff);
+  border-color:var(--kja-surface-border, #e9e5f0);
   border-radius:15px;
   box-shadow:none;
 }
 #portal #admin-close-section .admin-review-summary>span.admin-review-stat:hover{transform:none;box-shadow:none}
 #portal #admin-close-section .admin-review-stat b{color:var(--close-ink);font-weight:600}
 #portal #admin-close-section .admin-review-stat-label small{color:var(--close-muted)}
-#portal #admin-close-section .admin-review-stat-label i.pending{background:#c89943}
-#portal #admin-close-section .admin-review-stat-label i.approved{background:#71a78b}
-#portal #admin-close-section .admin-review-stat-label i.observed{background:#cc8292}
+#portal #admin-close-section .admin-review-stat-label i.pending{background:var(--kja-status-warning-text, #c89943)}
+#portal #admin-close-section .admin-review-stat-label i.approved{background:var(--kja-status-text, #71a78b)}
+#portal #admin-close-section .admin-review-stat-label i.observed{background:var(--kja-status-error-text, #cc8292)}
 #portal #admin-close-section .admin-close-filters :is(input,select){
   color:var(--close-ink);
-  background:#f1eff7;
+  background:var(--kja-surface-canvas, #f1eff7);
   border-color:var(--close-line);
   border-radius:12px;
-  caret-color:#766498;
+  caret-color:var(--kja-text-primary, #766498);
 }
-#portal #admin-close-section .admin-close-filters input::placeholder{color:#7a7287}
-#portal #admin-close-section .admin-close-field-wrap svg{color:#807391}
+#portal #admin-close-section .admin-close-filters input::placeholder{color:var(--kja-text-secondary, #7a7287)}
+#portal #admin-close-section .admin-close-field-wrap svg{color:var(--kja-text-secondary, #807391)}
 #portal #admin-close-section .admin-close-filters :is(input,select):focus-visible{
-  background:#fff;
-  border-color:#a79aba;
-  box-shadow:0 0 0 3px #eee8f7;
+  background:var(--kja-surface-opaque, #fff);
+  border-color:var(--kja-focus, #a79aba);
+  box-shadow:var(--kja-field-focus-shadow, 0 0 0 3px #eee8f7);
 }
 
 /* Custom Desktop Filter Triggers (Fecha & Área) */
@@ -64,7 +64,7 @@
   padding: 0 28px 0 32px;
   border: 1px solid var(--close-line);
   border-radius: 12px;
-  background: #f1eff7;
+  background: var(--kja-surface-canvas, #f1eff7);
   color: var(--close-ink);
   font: 500 12px/38px Inter, system-ui, sans-serif;
   text-align: left;
@@ -75,18 +75,18 @@
   position: relative;
 }
 #portal #admin-close-section .admin-close-trigger-btn:hover {
-  background: #eae5f4;
-  border-color: #beb4cf;
+  background: var(--kja-surface-hover, #eae5f4);
+  border-color: var(--kja-surface-border, #beb4cf);
 }
 #portal #admin-close-section .admin-close-trigger-btn:is([aria-expanded="true"], :focus-visible) {
   outline: none;
-  background: #ffffff;
-  border-color: #766498;
-  box-shadow: 0 0 0 3px #eee8f7;
+  background: var(--kja-surface-opaque, #ffffff);
+  border-color: var(--kja-focus, #766498);
+  box-shadow: var(--kja-field-focus-shadow, 0 0 0 3px #eee8f7);
 }
 #portal #admin-close-section .admin-close-field-wrap:has(.admin-close-trigger-btn[aria-expanded="true"]) .admin-chevron-icon {
   transform: rotate(180deg);
-  color: #655083;
+  color: var(--kja-action-primary, #655083);
 }
 #portal #admin-close-section .admin-close-trigger-text {
   flex: 1 1 auto;
@@ -106,11 +106,11 @@
   right: 0;
   z-index: 1200;
   width: 290px;
-  background: #ffffff;
-  border: 1px solid #e2dde9;
+  background: var(--kja-surface-opaque, #ffffff);
+  border: 1px solid var(--kja-surface-border, #e2dde9);
   border-radius: 18px;
   padding: 16px;
-  box-shadow: 0 16px 42px rgba(64, 57, 85, 0.16), 0 2px 8px rgba(64, 57, 85, 0.05);
+  box-shadow: var(--kja-selector-menu-shadow, 0 16px 42px rgba(64, 57, 85, 0.16), 0 2px 8px rgba(64, 57, 85, 0.05));
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -144,8 +144,8 @@
   height: 30px;
   border: 0;
   border-radius: 9px;
-  background: #f1eff7;
-  color: #655083;
+  background: var(--kja-surface-canvas, #f1eff7);
+  color: var(--kja-action-primary, #655083);
   font-size: 17px;
   font-weight: 700;
   display: grid;
@@ -155,8 +155,8 @@
   line-height: 1;
 }
 #portal #admin-close-section .admin-close-cal-nav:hover:not(:disabled) {
-  background: #e6ddf1;
-  color: #403955;
+  background: var(--kja-action-disabled-bg, #e6ddf1);
+  color: var(--kja-text-primary, #403955);
   transform: scale(1.06);
 }
 #portal #admin-close-section .admin-close-cal-nav:disabled {
@@ -174,7 +174,7 @@
 #portal #admin-close-section .admin-close-cal-weekdays span {
   font-size: 10.5px;
   font-weight: 700;
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 3px 0;
@@ -204,24 +204,24 @@
   padding: 0;
 }
 #portal #admin-close-section .admin-close-cal-day:hover:not(:disabled):not(.is-selected) {
-  background: #f1eff7;
-  color: #655083;
+  background: var(--kja-action-disabled-bg, #f1eff7);
+  color: var(--kja-action-primary, #655083);
   transform: translateY(-1px);
 }
 #portal #admin-close-section .admin-close-cal-day.is-today:not(.is-selected) {
-  border: 1.5px solid #655083;
-  color: #655083;
+  border: 1.5px solid var(--kja-action-primary, #655083);
+  color: var(--kja-action-primary, #655083);
   font-weight: 700;
-  background: #faf8fd;
+  background: var(--kja-surface-canvas, #faf8fd);
 }
 #portal #admin-close-section .admin-close-cal-day.is-selected {
-  background: #655083 !important;
-  color: #ffffff !important;
+  background: var(--kja-action-primary, #655083) !important;
+  color: var(--kja-on-action, #ffffff) !important;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(101, 80, 131, 0.32);
+  box-shadow: var(--kja-action-shadow, 0 4px 12px rgba(101, 80, 131, 0.32));
 }
 #portal #admin-close-section .admin-close-cal-day:disabled {
-  color: #ccc7d5;
+  color: var(--kja-action-disabled-text, #ccc7d5);
   cursor: not-allowed;
   background: transparent !important;
   transform: none !important;
@@ -233,23 +233,23 @@
   justify-content: space-between;
   gap: 8px;
   padding-top: 10px;
-  border-top: 1px solid #eeeaf5;
+  border-top: 1px solid var(--kja-divider-subtle, #eeeaf5);
 }
 #portal #admin-close-section .admin-close-cal-today {
   height: 29px;
   padding: 0 12px;
   border: 0;
   border-radius: 8px;
-  background: #f1eff7;
-  color: #655083;
+  background: var(--kja-surface-canvas, #f1eff7);
+  color: var(--kja-action-primary, #655083);
   font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 #portal #admin-close-section .admin-close-cal-today:hover {
-  background: #e6ddf1;
-  color: #403955;
+  background: var(--kja-surface-hover, #e6ddf1);
+  color: var(--kja-text-primary, #403955);
 }
 #portal #admin-close-section .admin-close-cal-close {
   height: 29px;
@@ -257,15 +257,15 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
   font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 #portal #admin-close-section .admin-close-cal-close:hover {
-  color: #403955;
-  background: #f1eff7;
+  color: var(--kja-text-primary, #403955);
+  background: var(--kja-surface-hover, #f1eff7);
 }
 
 /* Custom Area Popover */
@@ -276,11 +276,11 @@
   z-index: 1200;
   width: 250px;
   max-width: 90vw;
-  background: #ffffff;
-  border: 1px solid #e2dde9;
+  background: var(--kja-surface-opaque, #ffffff);
+  border: 1px solid var(--kja-surface-border, #e2dde9);
   border-radius: 18px;
   padding: 10px;
-  box-shadow: 0 16px 42px rgba(64, 57, 85, 0.16), 0 2px 8px rgba(64, 57, 85, 0.05);
+  box-shadow: var(--kja-selector-menu-shadow, 0 16px 42px rgba(64, 57, 85, 0.16), 0 2px 8px rgba(64, 57, 85, 0.05));
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -302,16 +302,16 @@
   left: 10px;
   width: 13px;
   height: 13px;
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
   pointer-events: none;
 }
 #portal #admin-close-section .admin-close-area-search input {
   width: 100%;
   height: 32px;
   padding: 0 10px 0 28px !important;
-  border: 1px solid #e0ddea !important;
+  border: 1px solid var(--kja-field-border, #e0ddea) !important;
   border-radius: 9px !important;
-  background: #f8f6fc !important;
+  background: var(--kja-surface-opaque, #f8f6fc) !important;
   color: var(--close-ink) !important;
   font: 500 12px/32px Inter, system-ui, sans-serif !important;
   outline: none;
@@ -319,9 +319,9 @@
   box-shadow: none !important;
 }
 #portal #admin-close-section .admin-close-area-search input:focus {
-  border-color: #655083 !important;
-  background: #ffffff !important;
-  box-shadow: 0 0 0 2px #eee8f7 !important;
+  border-color: var(--kja-field-border, #655083) !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
+  box-shadow: var(--kja-field-focus-shadow, 0 0 0 2px #eee8f7) !important;
 }
 
 #portal #admin-close-section .admin-close-area-options {
@@ -333,13 +333,13 @@
   gap: 2px;
   padding-right: 2px;
   scrollbar-width: thin;
-  scrollbar-color: #d1cbdc transparent;
+  scrollbar-color: var(--kja-surface-border, #d1cbdc) transparent;
 }
 #portal #admin-close-section .admin-close-area-options::-webkit-scrollbar {
   width: 5px;
 }
 #portal #admin-close-section .admin-close-area-options::-webkit-scrollbar-thumb {
-  background: #d1cbdc;
+  background: var(--kja-surface-border, #d1cbdc);
   border-radius: 4px;
 }
 
@@ -360,49 +360,49 @@
   box-sizing: border-box;
 }
 #portal #admin-close-section .admin-close-area-opt-btn:hover {
-  background: #f4effa;
-  color: #655083;
+  background: var(--kja-surface-hover, #f4effa);
+  color: var(--kja-action-primary, #655083);
 }
 #portal #admin-close-section .admin-close-area-opt-btn.is-selected {
-  background: #ece5f5;
-  color: #655083;
+  background: var(--kja-surface-accent-tint, #ece5f5);
+  color: var(--kja-action-primary, #655083);
   font-weight: 600;
 }
 #portal #admin-close-section .admin-close-area-opt-check {
   font-size: 13px;
-  color: #655083;
+  color: var(--kja-action-primary, #655083);
   font-weight: 700;
 }
 #portal #admin-close-section .admin-close-area-empty {
   padding: 14px 10px;
   text-align: center;
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
   font-size: 12px;
   margin: 0;
 }
-#portal #admin-close-section :is(button,a,input,select):focus-visible{outline-color:#766498 !important}
+#portal #admin-close-section :is(button,a,input,select):focus-visible{outline-color:var(--kja-focus, #766498) !important}
 #portal #admin-close-section .admin-close-area{
   border-color:var(--close-line);
   border-radius:22px;
-  background:#fff;
+  background:var(--kja-surface-opaque, #fff);
   box-shadow:none;
 }
 #portal #admin-close-section .admin-close-area>header{
-  background:#f4f1fa;
-  border-bottom-color:#e8e3f0;
+  background:var(--kja-surface-opaque, #f4f1fa);
+  border-bottom-color:var(--kja-divider-subtle, #e8e3f0);
 }
 #portal #admin-close-section .admin-close-area>header b{color:var(--close-ink);font-weight:600}
 #portal #admin-close-section .admin-close-area>header small,
 #portal #admin-close-section .admin-close-progress-pct{color:var(--close-muted)}
 #portal #admin-close-section .admin-close-area-count{
-  background:#fff;
-  border-color:#e5dfee;
+  background:var(--kja-surface-opaque, #fff);
+  border-color:var(--kja-surface-border, #e5dfee);
   border-radius:13px;
 }
 #portal #admin-close-section .admin-close-area-badge{
-  color:#746087;
-  background:#eae2f3;
-  border-color:#dbd0e9;
+  color:var(--kja-status-neutral-text, #746087);
+  background:var(--kja-status-neutral-bg, #eae2f3);
+  border-color:var(--kja-surface-border, #dbd0e9);
   border-radius:13px;
 }
 #portal #admin-close-section .admin-close-area-badge:is(.tone-salud,.tone-ingenieria){
@@ -413,20 +413,20 @@
 }
 #portal #admin-close-section .admin-close-table-head{
   color:var(--close-muted);
-  background:#faf9fd;
+  background:var(--kja-surface-opaque, #faf9fd);
   border-bottom-color:var(--close-line);
 }
-#portal #admin-close-section .admin-close-person{border-top-color:#eeebf3}
-#portal #admin-close-section .admin-close-person:hover{background:#faf9fd}
-#portal #admin-close-section .admin-close-person.is-off{background:#f8f6fb !important}
-#portal #admin-close-section .admin-close-person.is-off:hover{background:#f0edf6 !important}
-#portal #admin-close-section .admin-close-person>span:first-child b{color:#4e485e}
+#portal #admin-close-section .admin-close-person{border-top-color:var(--kja-divider-subtle, #eeebf3)}
+#portal #admin-close-section .admin-close-person:hover{background:var(--kja-surface-hover, #faf9fd)}
+#portal #admin-close-section .admin-close-person.is-off{background:var(--kja-status-neutral-bg, #f8f6fb) !important}
+#portal #admin-close-section .admin-close-person.is-off:hover{background:var(--kja-surface-hover, #f0edf6) !important}
+#portal #admin-close-section .admin-close-person>span:first-child b{color:var(--kja-text-primary, #4e485e)}
 #portal #admin-close-section .admin-close-person>span:first-child small{color:var(--close-muted)}
-#portal #admin-close-section .admin-close-avatar{color:#71627f;background:#efebf5;border-color:#e2dbea}
-#portal #admin-close-section .admin-close-mode{color:#6d657c;background:#f1eef6;border-color:#e3ddea}
-#portal #admin-close-section .admin-close-table{scrollbar-color:#c7bfd6 transparent}
-#portal #admin-close-section .admin-close-table::-webkit-scrollbar-thumb{background:#c7bfd6}
-#portal #admin-close-section ::selection{color:#403955;background:#e1d5f2}
+#portal #admin-close-section .admin-close-avatar{color:var(--kja-person-avatar-text, #71627f);background:var(--kja-person-avatar-bg, #efebf5);border-color:var(--kja-surface-border, #e2dbea)}
+#portal #admin-close-section .admin-close-mode{color:var(--kja-status-neutral-text, #6d657c);background:var(--kja-status-neutral-bg, #f1eef6);border-color:var(--kja-surface-border, #e3ddea)}
+#portal #admin-close-section .admin-close-table{scrollbar-color:var(--kja-surface-border, #c7bfd6) transparent}
+#portal #admin-close-section .admin-close-table::-webkit-scrollbar-thumb{background:var(--kja-surface-border, #c7bfd6)}
+#portal #admin-close-section ::selection{color:var(--kja-text-primary, #403955);background:var(--kja-surface-accent-tint, #e1d5f2)}
 
 /* Filas explicitas para evitar los huecos del auto-placement en movil.
    Los !important sustituyen las reglas moviles anteriores del portal. */

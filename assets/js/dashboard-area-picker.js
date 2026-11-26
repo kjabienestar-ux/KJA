@@ -56,6 +56,7 @@ function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCa
     if(focus)trigger.focus({preventScroll:true});
   }
   function open(){
+    if(select.disabled)return;
     opened=true;input.value='';popup.hidden=false;
     if(popup.showPopover)popup.showPopover();
     trigger.setAttribute('aria-expanded','true');input.setAttribute('aria-expanded','true');position();render();input.focus({preventScroll:true});
@@ -66,6 +67,8 @@ function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCa
     close(true);select.value=value;sync();select.dispatchEvent(new Event('change',{bubbles:true}));
   }
   function sync(){
+    trigger.disabled=!!select.disabled;
+    if(trigger.disabled)close();
     label.textContent=select.selectedOptions[0]?.textContent||text.label;trigger.setAttribute('aria-label',`${text.filter}: ${label.textContent}`);
     trigger.classList.toggle('has-selection',!!select.value);if(opened)render();
   }
@@ -87,8 +90,9 @@ function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCa
   window.addEventListener('resize',()=>{if(opened)position();});
   document.addEventListener('scroll',e=>{if(opened&&!popup.contains(e.target))close();},true);
   select.addEventListener('change',sync);
-  new MutationObserver(sync).observe(select,{childList:true,subtree:true,characterData:true});
+  new MutationObserver(sync).observe(select,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['disabled']});
   sync();
+  return {wrap,trigger,close,sync};
 }
 
 (()=>{
@@ -109,4 +113,28 @@ function initAreaPickerElement(select, popupId, optionsId, footerText, setSyncCa
   if(emailSelect&&emailSelect!==peopleSelect){
     initAreaPickerElement(emailSelect,'email-picker-popup','email-picker-options','Filtra el directorio por correo',null,{icon:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',label:'Todos los correos',filter:'Filtrar por correo',search:'Buscar…',searchLabel:'Buscar una opción',list:'Correo',empty:'Sin resultados.'});
   }
+})();
+
+// La versión compacta del portal conserva su selector anterior.
+(() => {
+  const select=document.getElementById('admin-list-area');
+  if(!select || !window.matchMedia)return;
+  const desktop=window.matchMedia('(min-width:901px)');
+  const legacyTrigger=document.getElementById('admin-area-trigger'),legacyMenu=document.getElementById('admin-area-menu');
+  let picker;
+  function configure(){
+    if(!desktop.matches){
+      picker?.close();if(legacyTrigger){legacyTrigger.hidden=false;legacyTrigger.removeAttribute('aria-hidden');legacyTrigger.removeAttribute('inert');}return;
+    }
+    if(!picker){
+      picker=initAreaPickerElement(select,'list-area-picker-popup','list-area-picker-options','Filtra la asistencia por equipo');
+      picker.wrap.classList.add('kja-list-area-picker');
+      select.parentElement.classList.add('kja-area-ready');
+      window.kjaListAreaPicker=picker;
+    }
+    if(legacyTrigger){legacyTrigger.hidden=true;legacyTrigger.setAttribute('aria-hidden','true');legacyTrigger.setAttribute('inert','');legacyTrigger.setAttribute('aria-expanded','false');}
+    if(legacyMenu)legacyMenu.hidden=true;
+  }
+  configure();
+  desktop.addEventListener?.('change',configure);
 })();

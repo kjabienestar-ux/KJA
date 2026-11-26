@@ -1,0 +1,25 @@
+// KJA-051: compare like-for-like render values and report the real closure gate.
+import fs from 'node:fs';
+import {designDigest} from './admin-audit-digest.mjs';
+import {checkCorrespondence} from './check-admin-correspondence.mjs';
+import {checkPaintedGeometry} from './audit-admin-painted-geometry.mjs';
+const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
+const before=read('docs/auditorias/KJA-051/baseline.json'),after=read('.tmp/kja-051/baseline.json'),consumers=read('.tmp/kja-051/css-consumers.json'),figma=read('docs/auditorias/KJA-051/figma-state.json');
+const digest=designDigest();if(after.digest!==digest||consumers.digest!==digest)throw Error('Auditorías desactualizadas; repetir audit-admin-design y audit-admin-css-consumers.');
+if(before.viewport!==after.viewport||consumers.viewport!==after.viewport)throw Error('Los anchos de las mediciones no coinciden.');
+const counts=Object.fromEntries(Object.keys(before.values).map(key=>[key,{before:before.values[key].length,after:after.values[key].length}]));
+const registry=read('docs/auditorias/KJA-051/excepciones-colores.json');
+const literalTotal=Object.values(registry).flat().reduce((n,[,v])=>n+Object.values(v).reduce((a,b)=>a+b,0),0);
+if(literalTotal!==consumers.total)throw Error('Registro y auditoría de consumidores no coinciden.');
+if((consumers.explicitOutside+consumers.managedFallbacks+(consumers.justifiedExceptions??0)+consumers.remainingForReview)!==literalTotal)throw Error('La clasificación de literales no cubre exactamente el inventario.');
+const contrast=Object.values(after.contrast??{}),sampled=contrast.flatMap(x=>x.sampled??[]),violations=contrast.reduce((n,x)=>n+x.violations.length,0),incomplete=contrast.reduce((n,x)=>n+x.incomplete.length,0);
+const contrastPass=contrast.length===11&&violations===0&&sampled.length===incomplete&&sampled.every(x=>x.status==='pass');
+const tokenFile=read('assets/admin-tokens.json'),geometry=checkPaintedGeometry(after,tokenFile.values);
+const paintedCoverage=Object.keys(after.painted??{}).length===11&&Object.values(after.painted).every(rows=>rows.length>0);
+const comparison=read('.tmp/kja-051/recognition-diff.json'),review=read('docs/auditorias/KJA-051/reconocimiento-revision.json');
+const recognition=figma.recognition?.status==='approved'&&comparison.digest===digest&&review.digest===digest&&comparison.views.length===11&&comparison.requiresReview.every(view=>review.reviewed.some(item=>item.view===view&&item.review?.length>0));
+const sourceOpen=consumers.remainingForReview!==0,figmaOpen=figma.remaining.length!==0||figma.verified.codeTokenVersion!==tokenFile.version;
+const correspondence=checkCorrespondence();
+const result={state:sourceOpen||figmaOpen||!contrastPass||!recognition||!paintedCoverage||!geometry.pass||correspondence.errors.length?'EN-CURSO':'HECHO',scope:'Escritorio administrativo local; sin merge, publicación ni despliegue',digest,viewport:after.viewport,browser:{before:before.browser,after:after.browser},counts,source:{initial:6906,literals:literalTotal,removed:6906-literalTotal,explicitOutside:consumers.explicitOutside,managedSharedFallbacks:consumers.managedFallbacks,justifiedExceptions:consumers.justifiedExceptions??0,exceptionCounts:consumers.exceptionCounts??{},remainingForReview:consumers.remainingForReview},contrast:{pass:contrastPass,violations,sampled:sampled.length},coveredScenarios:consumers.snapshots.length,correspondence,paintedGeometry:{...geometry,coverage:paintedCoverage},figmaRemaining:figma.remaining,recognition:{approval:figma.recognition??null,reviewed:recognition,alertViews:comparison.requiresReview},limitations:'Computed values include browser defaults, transparent colors and unpainted geometry. Painted values and functional exceptions are classified separately. Fixtures and local verification do not certify production.'};
+console.log(JSON.stringify(result,null,2));
+if(process.argv.includes('--check')&&result.state!=='HECHO')process.exitCode=1;

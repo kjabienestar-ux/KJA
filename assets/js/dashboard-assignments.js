@@ -22,7 +22,7 @@ function assignmentCalendarMarkup(month,days,selected,pending=false){
   for(let i=0;i<(first.getUTCDay()+6)%7;i++)html+='<span></span>';
   for(let day=1;day<=length;day++){
     const date=`${month}-${String(day).padStart(2,'0')}`,count=counts.get(date)||0;
-    html+=`<button type="button" data-assignment-date="${date}" aria-pressed="${date===selected}" ${date===isoLima()?'aria-current="date"':''} aria-label="${pending?date:date+': '+count+' asignaciones'}" class="${!pending&&count?'has-assignments':''}"><span>${day}</span>${pending?DashboardSkeleton.block('asg-loading-calendar-count'):count?`<small aria-hidden="true">${count}</small>`:''}</button>`;
+    html+=`<button type="button" data-assignment-date="${date}" aria-pressed="${date===selected}" ${date===isoLima()?'aria-current="date"':''} aria-label="${pending?date:date+': '+count+(count===1?' asignación':' asignaciones')}" class="${!pending&&count?'has-assignments':''}"><span>${day}</span>${pending?DashboardSkeleton.block('asg-loading-calendar-count'):count?`<small aria-hidden="true">${count}</small>`:''}</button>`;
   }
   return html;
 }
@@ -68,7 +68,8 @@ function loadAssignmentCalendarContext(){
     if(active)[...$('assignment-calendar-days').querySelectorAll('[data-assignment-date]')].find(button=>button.dataset.assignmentDate===active)?.focus({preventScroll:true});
   };
   if(!previous){C.data=null;C.key=key;draw(null);for(const button of $('assignment-calendar-days').querySelectorAll('button'))button.setAttribute('aria-label',button.dataset.assignmentDate);}
-  $('assignment-calendar-message').setAttribute('aria-live','off');$('assignment-calendar-message').textContent=previous?'Actualizando fechas…':'Consultando fechas…';
+  const message=$('assignment-calendar-message');
+  delete message.dataset.state;message.setAttribute('aria-live','off');message.textContent=previous?'Actualizando fechas…':'Consultando fechas…';
   let result=null;
   const promise=DashboardSkeleton.withSkeleton($('assignment-calendar-panel'),'asignaciones',async()=>{
     try{const {data,error}=await db.rpc('dash_admin_asignaciones_calendario',{p_mes:month+'-01'});if(!current())return false;if(error||!data?.ok)throw Error('lectura');result=data;return true;}catch{return false;}
@@ -78,7 +79,19 @@ function loadAssignmentCalendarContext(){
     onCleanup:()=>{
       if(!current())return;
       if(result){C.key=key;C.data=result;draw(result);$('assignment-calendar-message').textContent=result.dias?.length?'Selecciona una fecha para ver sus asignaciones.':'No hay asignaciones registradas en este mes.';}
-      else{draw(previous);if(!previous)for(const button of $('assignment-calendar-days').querySelectorAll('button'))button.setAttribute('aria-label',button.dataset.assignmentDate);$('assignment-calendar-message').textContent=previous?'No se pudo actualizar el calendario. Se conservan los datos anteriores.':'No se pudo cargar el calendario.';const retry=document.createElement('button');retry.type='button';retry.textContent='Reintentar';retry.onclick=loadAssignmentCalendarContext;$('assignment-calendar-message').append(' ',retry);}
+      else{
+        draw(previous);if(!previous)for(const button of $('assignment-calendar-days').querySelectorAll('button'))button.setAttribute('aria-label',button.dataset.assignmentDate);
+        message.dataset.state='error';message.setAttribute('aria-live','polite');message.textContent=previous?'No se pudo actualizar el calendario. Se conservan los datos anteriores.':'No se pudo cargar el calendario.';
+        const retry=document.createElement('button');retry.type='button';retry.className='kja-button asg-calendar-retry';retry.dataset.kind='primary';retry.textContent='Reintentar';
+        retry.onclick=async()=>{
+          const keepFocus=document.activeElement===retry;await loadAssignmentCalendarContext();
+          if(keepFocus&&document.activeElement===document.body){
+            const days=$('assignment-calendar-days'),next=message.querySelector('.asg-calendar-retry')||days.querySelector('button[aria-pressed=true]')||days.querySelector('button[data-assignment-date]');
+            if(next?.getClientRects().length)next.focus({preventScroll:true});
+          }
+        };
+        message.append(' ',retry);
+      }
     }
   }).finally(()=>{if(C.flight?.promise===promise)C.flight=null;});C.flight={key,promise};return promise;
 }
@@ -141,38 +154,48 @@ $('admin-close-assignment-list').addEventListener('click',event=>{
   const button=event.target.closest('[data-assignment-review]');if(button)openAdminReviewPerson(button.dataset.assignmentPerson,button,button.dataset.assignmentReview);
 });
 
+function bindAssignmentChoices(group,select,key){
+  if(!group||!select)return;
+  const buttons=Array.from(group.querySelectorAll('button'));
+  function reflectSelection(){
+    for(const button of buttons){
+      const option=Array.from(select.options).find(item=>item.value===button.dataset[key]);
+      button.disabled=!option||option.disabled;
+      button.hidden=!option||option.hidden;
+      const selected=button.dataset[key]===select.value;
+      button.classList.toggle('is-active',selected);
+      button.setAttribute('aria-checked',String(selected));
+      button.tabIndex=selected?0:-1;
+    }
+  }
+  for(const button of buttons){
+    button.addEventListener('click',()=>{
+      if(select.value===button.dataset[key])return;
+      select.value=button.dataset[key];
+      select.dispatchEvent(new Event('change',{bubbles:true}));
+    });
+  }
+  group.addEventListener('keydown',event=>{
+    const available=buttons.filter(button=>!button.disabled&&!button.hidden);
+    const index=available.indexOf(event.target);
+    if(index<0)return;
+    const last=available.length-1;
+    const next={ArrowRight:(index+1)%available.length,ArrowDown:(index+1)%available.length,
+      ArrowLeft:(index+last)%available.length,ArrowUp:(index+last)%available.length,Home:0,End:last}[event.key];
+    if(next===undefined)return;
+    event.preventDefault();
+    available[next].focus();
+    available[next].click();
+  });
+  select.addEventListener('change',reflectSelection);
+  new MutationObserver(reflectSelection).observe(select,{subtree:true,attributes:true,attributeFilter:['hidden','disabled']});
+  reflectSelection();
+}
+
 function initAssignmentChipsAndTabs(){
   if(typeof document==='undefined')return;
-  const chips=document.querySelectorAll('#assignment-type-chips .type-chip');
-  const typeSelect=$('admin-close-type');
-  if(chips.length&&typeSelect){
-    chips.forEach(chip=>{
-      chip.addEventListener('click',()=>{
-        chips.forEach(c=>c.classList.remove('is-active'));
-        chip.classList.add('is-active');
-        typeSelect.value=chip.dataset.type;
-        typeSelect.dispatchEvent(new Event('change',{bubbles:true}));
-      });
-    });
-    typeSelect.addEventListener('change',()=>{
-      chips.forEach(c=>c.classList.toggle('is-active',c.dataset.type===typeSelect.value));
-    });
-  }
-  const tabs=document.querySelectorAll('#assignment-target-kind-tabs .target-kind-tab');
-  const kindSelect=$('admin-close-target-kind');
-  if(tabs.length&&kindSelect){
-    tabs.forEach(tab=>{
-      tab.addEventListener('click',()=>{
-        tabs.forEach(t=>t.classList.remove('is-active'));
-        tab.classList.add('is-active');
-        kindSelect.value=tab.dataset.kind;
-        kindSelect.dispatchEvent(new Event('change',{bubbles:true}));
-      });
-    });
-    kindSelect.addEventListener('change',()=>{
-      tabs.forEach(t=>t.classList.toggle('is-active',t.dataset.kind===kindSelect.value));
-    });
-  }
+  bindAssignmentChoices($('assignment-type-chips'),$('admin-close-type'),'type');
+  bindAssignmentChoices($('assignment-target-kind-tabs'),$('admin-close-target-kind'),'kind');
   initAssignmentTargetPicker();
 }
 
@@ -188,12 +211,14 @@ function initAssignmentTargetPicker(){
   const trigger=document.createElement('button');
   trigger.type='button';
   trigger.className='asg-picker-trigger';
-  trigger.setAttribute('aria-haspopup','listbox');
+  trigger.setAttribute('aria-haspopup','dialog');
+  trigger.setAttribute('aria-controls','assignment-destination-picker');
   trigger.setAttribute('aria-expanded','false');
   if(select.disabled)trigger.disabled=true;
 
   const popup=document.createElement('div');
   popup.className='asg-picker-popup';
+  popup.id='assignment-destination-picker';
   popup.hidden=true;
   popup.setAttribute('role','dialog');
   popup.setAttribute('aria-label','Seleccionar destino');
@@ -203,12 +228,15 @@ function initAssignmentTargetPicker(){
   searchWrap.innerHTML='<svg class="asg-picker-search-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Buscar colaborador o área…" autocomplete="off">';
   const searchInput=searchWrap.querySelector('input');
 
+  searchInput.setAttribute('aria-label','Buscar persona o área');
   const list=document.createElement('div');
   list.className='asg-picker-options';
   list.setAttribute('role','listbox');
+  list.setAttribute('aria-label','Destinatarios');
 
   const empty=document.createElement('div');
   empty.className='asg-picker-empty';
+  empty.setAttribute('role','status');
   empty.textContent='No se encontraron coincidencias';
   empty.hidden=true;
 
@@ -216,6 +244,7 @@ function initAssignmentTargetPicker(){
   select.before(wrap);
   wrap.append(trigger,select);
   select.classList.add('asg-select-native-sr');
+  select.tabIndex=-1;
 
   let opened=false;
 
@@ -257,6 +286,7 @@ function initAssignmentTargetPicker(){
     trigger.innerHTML=`<span class="asg-trigger-main"><span class="asg-trigger-avatar ${empty?'empty':tone}">${avatarHtml}</span><span class="asg-trigger-copy"><strong class="asg-trigger-name ${empty?'empty':''}">${esc(name)}</strong>${area?`<span class="asg-trigger-sub">${esc(area)}</span>`:''}</span></span><svg class="asg-trigger-chevron" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 10 5 5 5-5"/></svg>`;
     trigger.classList.toggle('has-selection',!empty&&!!val);
     trigger.disabled=!!select.disabled;
+    trigger.setAttribute('aria-label','Destino seleccionado: '+name+(area?' · '+area:''));
   }
 
   function renderOptions(){
@@ -277,6 +307,7 @@ function initAssignmentTargetPicker(){
       btn.type='button';
       btn.className='asg-picker-opt'+(isSelected?' is-selected':'');
       btn.setAttribute('role','option');
+      btn.tabIndex=-1;
       btn.setAttribute('aria-selected',String(isSelected));
       btn.innerHTML=`<span class="asg-opt-main"><span class="asg-opt-avatar ${tone}">${inits?esc(inits):'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>'}</span><span class="asg-opt-copy"><strong class="asg-opt-name">${esc(name)}</strong>${area?`<span class="asg-opt-area">${esc(area)}</span>`:''}</span></span>${isSelected?'<svg class="asg-opt-check" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 4 4L19 6"/></svg>':''}`;
       btn.addEventListener('click',()=>{
@@ -331,6 +362,22 @@ function initAssignmentTargetPicker(){
   trigger.addEventListener('click',()=>opened?close():open());
   searchInput.addEventListener('input',renderOptions);
 
+  popup.addEventListener('keydown',event=>{
+    if(event.key==='Escape'){event.preventDefault();close(true);return}
+    if(event.key==='Tab'){close(true);return}
+    const options=Array.from(list.children);
+    if(!options.length)return;
+    if(event.target===searchInput&&event.key==='Enter'){
+      event.preventDefault();options[0].click();return;
+    }
+    if(event.key!=='ArrowDown'&&event.key!=='ArrowUp')return;
+    event.preventDefault();
+    const current=options.indexOf(event.target);
+    const next=event.key==='ArrowDown'?(current+1)%options.length:
+      (current<=0?options.length-1:current-1);
+    options[next].focus();
+  });
+
   const onPointerDown=e=>{if(opened&&!wrap.contains(e.target)&&!popup.contains(e.target))close();};
   const onScroll=e=>{if(opened&&!popup.contains(e.target))close();};
   const onResize=()=>{if(opened)position();};
@@ -347,8 +394,9 @@ function initAssignmentTargetPicker(){
   select.addEventListener('change',syncTrigger);
   new MutationObserver(()=>{
     syncTrigger();
-    if(opened)renderOptions();
-  }).observe(select,{childList:true,characterData:true});
+    if(opened&&select.disabled)close();
+    else if(opened)renderOptions();
+  }).observe(select,{childList:true,characterData:true,attributes:true,attributeFilter:['disabled']});
 
   const origFocus=select.focus.bind(select);
   select.focus=opts=>{

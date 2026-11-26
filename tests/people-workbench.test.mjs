@@ -165,3 +165,18 @@ test('creation retry after Facebook failure updates the created identity instead
   fail=false;await w.saveAdminPerson({preventDefault(){}});assert.equal(payloads[0].id,null);assert.equal(payloads[1].id,77);assert.equal(w.$('admin-create-success').hidden,false);assert.equal(w.$('admin-person-form').hidden,true);w.$('admin-create-success').querySelector('button').click();assert.equal(w.$('admin-person-modal').hidden,true);
  }finally{dom.window.close();}
 });
+test('Un directorio formado solo por bajas permite recuperar los registros en ambas vistas',()=>{
+  const {dom,w}=setup();
+  try{
+    for(const p of w.APP.adminTeam.personas)p.activo=false;
+    for(const [prefix,render] of [['admin-people',w.renderAdminPeople],['admin-contract',w.renderAdminContracts]]){
+      render();
+      const list=w.$(prefix+'-list');
+      assert.equal(list.querySelector('h3')?.textContent,'Solo hay colaboradores de baja.');
+      list.querySelector('button').click();
+      assert.equal(w.$(prefix+'-inactive').checked,true);
+      assert.equal(w.document.activeElement,w.$(prefix+'-search'));
+      assert.equal(list.querySelector('.pw-empty'),null);
+    }
+  }finally{dom.window.close();}
+});

@@ -219,7 +219,7 @@
     const kind=get('fb-report-kind').value,from=get('fb-report-from').value,to=get('fb-report-to').value,ref=get('fb-report-reference').value,days=rangeDays(from,to);
     const kinds=get('fb-report-kinds');
     if(kinds&&typeof kinds.querySelectorAll==='function')kinds.querySelectorAll('[data-kind]').forEach(button=>{
-      const on=button.dataset.kind===kind;button.classList.toggle('is-on',on);button.setAttribute('aria-checked',String(on));
+      const on=button.dataset.kind===kind;button.classList.toggle('is-on',on);button.setAttribute('aria-checked',String(on));button.tabIndex=on?0:-1;
     });
     const stepper=get('fb-report-stepper');if(stepper)stepper.dataset.kind=kind;
     let label='',hint='';
@@ -314,7 +314,7 @@
     if(!cal.start||!cal.end)return;
     get('fb-report-kind').value='custom';
     get('fb-report-from').value=cal.start;get('fb-report-to').value=cal.end;
-    closeCalendar();period();scheduleLoad();
+    closeCalendar();period();scheduleLoad();get('fb-report-pick').focus?.();
   }
 
   // ── Indicadores ───────────────────────────────────────────────────────────
@@ -535,7 +535,7 @@
       const on=personFilter===key,button=el('button',`fbr-fchip${on?' is-on':''}`);
       button.type='button';button.setAttribute('aria-pressed',String(on));
       button.append(el('span',null,label),el('em',null,base.filter(p=>matchFilter(p,key)).length));
-      button.onclick=()=>{personFilter=key;renderPersonView(cachedGroups);syncExportCopy();};
+      button.onclick=()=>{personFilter=key;renderPersonView(cachedGroups);syncExportCopy();box.querySelector('[aria-pressed="true"]')?.focus();};
       box.append(button);
     });
   }
@@ -544,7 +544,7 @@
     const what=[query?`«${get('fb-report-search').value.trim()}»`:'',personFilter!=='all'?`«${filter}»`:''].filter(Boolean).join(' + ');
     const ic=icon('search');ic.classList.add('fbr-empty-ic');
     const reset=el('button','fbr-btn fbr-btn-ghost fbr-btn-sm','Quitar filtros');reset.type='button';
-    reset.onclick=()=>{get('fb-report-search').value='';personFilter='all';renderPersonView(cachedGroups);syncExportCopy();};
+    reset.onclick=()=>{get('fb-report-search').value='';personFilter='all';renderPersonView(cachedGroups);syncExportCopy();get('fb-report-search').focus();};
     box.append(ic,el('b',null,`Nadie coincide con ${what||'los filtros'}`),el('p',null,personFilter==='full'?'Las personas encontradas tienen días sin evidencia en este período.':'Prueba con otro nombre, otra área u otro filtro.'),reset);
     container.append(box);
   }
@@ -933,10 +933,17 @@
     get('fb-report-kinds').querySelectorAll('[data-kind]').forEach(button=>button.addEventListener('click',event=>{
       event.stopPropagation();
       const kind=button.dataset.kind,select=get('fb-report-kind');
-      if(kind==='custom'){if(select.value!=='custom'){select.value='custom';syncControls();}openCalendar('range');return;}
+      if(kind==='custom'){openCalendar('range');get('fb-cal-presets').querySelector('button')?.focus();return;}
       if(select.value===kind)return;
       select.value=kind;select.onchange();
     }));
+    get('fb-report-kinds').addEventListener('keydown',event=>{
+      const buttons=[...event.currentTarget.querySelectorAll('[role="radio"]')],i=buttons.indexOf(event.target);
+      if(i<0)return;
+      const next={ArrowRight:(i+1)%buttons.length,ArrowLeft:(i+buttons.length-1)%buttons.length,Home:0,End:buttons.length-1}[event.key];
+      if(next===undefined)return;
+      event.preventDefault();buttons[next].focus();buttons[next].click();
+    });
     get('fb-cal-presets').querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();applyPreset(button.dataset.preset);}));
     document.addEventListener('click',event=>{
       if(event.target.closest?.('#admin-facebook-section .fbr-pop-wrap'))return;
@@ -946,7 +953,13 @@
       if(get('admin-facebook-section').hidden)return;
       if(event.key==='Escape'){
         const open=popovers.some(([,panel])=>!panel.hidden)||!get('fb-calendar-popover').hidden;
-        if(open){closePopovers();return;}
+        if(open){
+          const calendarOpen=!get('fb-calendar-popover').hidden;
+          const trigger=calendarOpen?get('fb-report-pick'):popovers.find(([,panel])=>!panel.hidden)?.[0];
+          closePopovers();
+          event.preventDefault();trigger?.focus();
+          return;
+        }
         if(drawer.open){event.preventDefault();closeDrawer();}
         return;
       }

@@ -6,11 +6,12 @@
   let currentFilter = 'all';
   let currentSearch = '';
   let currentArea = '';
+  let returnFocus = null;
 
   const palette = {
-    green: '#10b981',
-    coral: '#f43f5e',
-    amber: '#f59e0b',
+    green: 'var(--kja-chart-positive, #10b981)',
+    coral: 'var(--kja-chart-negative, #f43f5e)',
+    amber: 'var(--kja-chart-pending, #f59e0b)',
     blue: '#3b82f6',
     slate: '#94a3b8',
     dark: '#0f172a'
@@ -38,6 +39,7 @@
   function openOverviewModal(key) {
     const modal = getModal();
     if (!modal) return;
+    if (modal.hidden) returnFocus = document.activeElement;
     currentKey = ['general', 'asistencias', 'evidencias', 'tareas'].includes(key) ? key : 'general';
     currentFilter = 'all';
     currentSearch = '';
@@ -63,10 +65,12 @@
 
   function closeOverviewModal() {
     const modal = getModal();
-    if (!modal) return;
+    if (!modal || modal.hidden) return;
     modal.hidden = true;
     document.documentElement.classList.remove('moonrow-modal-open');
     document.body.classList.remove('moonrow-modal-open');
+    if (returnFocus?.isConnected) returnFocus.focus();
+    returnFocus = null;
   }
 
   function escapeHtml(str) {
@@ -947,7 +951,20 @@
     // Keyboard ESC
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && !modal.hidden) {
+        e.preventDefault();
         closeOverviewModal();
+      } else if (e.key === 'Tab' && !modal.hidden) {
+        const controls = [...modal.querySelectorAll('button,input,select,textarea,a[href],summary,[tabindex]')]
+          .filter(node => !node.disabled && node.tabIndex >= 0 && node.getClientRects().length);
+        if (!controls.length) return;
+        const index = controls.indexOf(document.activeElement);
+        if (e.shiftKey && index <= 0) {
+          e.preventDefault();
+          controls.at(-1).focus();
+        } else if (!e.shiftKey && (index < 0 || index === controls.length - 1)) {
+          e.preventDefault();
+          controls[0].focus();
+        }
       }
     });
 

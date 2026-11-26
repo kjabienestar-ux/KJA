@@ -1,10 +1,10 @@
 /* KJA-048 · Filas de colaboradores, solo escritorio. */
 @media(min-width:901px){
   #portal #admin-people-section.pw-workbench .pw-card-grid{display:flex;flex-direction:column;gap:0;padding:0}
-  #portal #admin-people-section.pw-workbench .pw-card{display:grid;grid-template-columns:minmax(250px,1.4fr) minmax(150px,.8fr) minmax(260px,1.4fr) 110px;align-items:center;gap:12px 20px;padding:18px 20px;border:0;border-bottom:1px solid #e6dfd8;border-radius:0;box-shadow:none}
+  #portal #admin-people-section.pw-workbench .pw-card{display:grid;grid-template-columns:minmax(250px,1.4fr) minmax(150px,.8fr) minmax(260px,1.4fr) 110px;align-items:center;gap:var(--kja-space-12) var(--kja-space-20);padding:18px var(--kja-space-20);border:0;border-bottom:1px solid var(--kja-divider-subtle);border-radius:0;box-shadow:none}
   #portal #admin-people-section.pw-workbench .pw-card:last-child{border-bottom:0}
-  #portal #admin-people-section.pw-workbench .pw-area{box-shadow:0 2px 6px #33251a08}
-  #portal #admin-people-section.pw-workbench .pw-card>header{min-height:0;align-items:center;display:grid;grid-template-columns:40px minmax(0,1fr) 36px;gap:6px 12px}
+  #portal #admin-people-section.pw-workbench .pw-area{box-shadow:var(--kja-surface-card-shadow)}
+  #portal #admin-people-section.pw-workbench .pw-card>header{min-height:0;align-items:center;display:grid;grid-template-columns:40px minmax(0,1fr) 36px;gap:6px var(--kja-space-12)}
   #portal #admin-people-section.pw-workbench .pw-card-identity{min-width:0}
   #portal #admin-people-section.pw-workbench .pw-card-identity p{white-space:normal;overflow:visible}
   #portal #admin-people-section.pw-workbench .pw-card>header .pw-tag{grid-column:2;grid-row:2;margin:0;justify-self:start}
@@ -12,14 +12,14 @@
   #portal #admin-people-section.pw-workbench .pw-card>header .avatar{grid-column:1;grid-row:1 / span 2}
   #portal #admin-people-section.pw-workbench .pw-card-identity{grid-column:2;grid-row:1}
   #portal #admin-people-section.pw-workbench .pw-card-data{background:transparent;border:0;border-radius:0;align-self:center}
-  #portal #admin-people-section.pw-workbench .pw-card-data>div{padding:0 12px}
+  #portal #admin-people-section.pw-workbench .pw-card-data>div{padding:0 var(--kja-space-12)}
   #portal #admin-people-section.pw-workbench .pw-card-data dt{font-size:10px}
   #portal #admin-people-section.pw-workbench .pw-card-data dd{font-size:12px}
-  #portal #admin-people-section.pw-workbench .pw-card>footer{grid-column:4;grid-row:1 / span 2;display:flex;flex-direction:column;align-items:flex-end;margin:0;padding:0;gap:8px}
+  #portal #admin-people-section.pw-workbench .pw-card>footer{grid-column:4;grid-row:1 / span 2;display:flex;flex-direction:column;align-items:flex-end;margin:0;padding:0;gap:var(--kja-space-8)}
   #portal #admin-people-section.pw-workbench .pw-card>footer small{max-width:100%;text-align:right}
-  #portal #admin-people-section.pw-workbench .pw-card>.pw-progress,#portal #admin-people-section.pw-workbench .pw-card>.pw-no-meta{grid-column:3;margin:0 12px!important}
-  #portal #admin-people-section .people-pending-row{display:grid;grid-template-columns:40px minmax(140px,1.4fr) repeat(3,minmax(80px,1fr));align-items:center;gap:20px;min-height:104px;padding:18px 20px;border-bottom:1px solid #e6dfd8}
-  #portal #admin-people-section .kja-sk-block{background:#e7e7e7!important;border-radius:4px;box-shadow:none!important;animation:none!important}
+  #portal #admin-people-section.pw-workbench .pw-card>.pw-progress,#portal #admin-people-section.pw-workbench .pw-card>.pw-no-meta{grid-column:3;margin:0 var(--kja-space-12)!important}
+  #portal #admin-people-section .people-pending-row{display:grid;grid-template-columns:40px minmax(140px,1.4fr) repeat(3,minmax(80px,1fr));align-items:center;gap:var(--kja-space-20);min-height:104px;padding:18px var(--kja-space-20);border-bottom:1px solid var(--kja-divider-subtle)}
+  #portal #admin-people-section .kja-sk-block{background:var(--kja-loading-neutral)!important;border-radius:4px;box-shadow:none!important;animation:none!important}
   #portal #admin-people-section .kja-sk-block::after{display:none!important}
   .people-pending-avatar{width:40px;height:40px}
   .people-pending-name{width:85%;height:16px;margin-bottom:8px}
@@ -27,7 +27,7 @@
   .people-pending-value{width:40px;height:24px;margin-top:10px}
   .people-pending-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;padding:20px}
   #admin-people-section #admin-people-list[data-kja-context-loading]{min-height:320px}
-  #portal #admin-month-section .admin-month-legend{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 16px;padding:16px;margin-block:16px}
+  #portal #admin-month-section .admin-month-legend{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--kja-space-12) var(--kja-space-16);padding:var(--kja-space-16);margin-block:var(--kja-space-16)}
 }
 @media(min-width:901px) and (max-width:1250px){
   #portal #admin-people-section.pw-workbench .pw-card{grid-template-columns:repeat(2,minmax(0,1fr))}

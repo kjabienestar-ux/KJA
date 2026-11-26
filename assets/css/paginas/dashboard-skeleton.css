@@ -1,23 +1,23 @@
 /* Skeleton reutilizable del panel: bloques, lineas, circulos, tarjetas y tablas. */
 .kja-skeleton-host{
-  --kja-sk-base:color-mix(in srgb,var(--text-muted,#68778b) 13%,var(--surface-card,#fff));
-  --kja-sk-glow:color-mix(in srgb,var(--surface-card,#fff) 72%,transparent);
-  --kja-sk-card:var(--surface-card,#fff);
-  --kja-sk-line:var(--line-soft,#e4e9f0);
+  --kja-sk-base:var(--kja-loading-neutral, color-mix(in srgb,var(--text-muted,#68778b) 13%,var(--surface-card,#fff)));
+  --kja-sk-glow:var(--kja-loading-shine, color-mix(in srgb,var(--surface-card,#fff) 72%,transparent));
+  --kja-sk-card:var(--kja-surface-opaque, var(--surface-card,#fff));
+  --kja-sk-line:var(--kja-divider-subtle, var(--line-soft,#e4e9f0));
   position:relative;isolation:isolate
 }
 .kja-skeleton-host[aria-busy="true"],.kja-skeleton-host.is-skeleton-visible{min-height:max(var(--kja-skeleton-height,0px),520px)}
 /* Criterio optativo de escritorio para las vistas ya convertidas. */
 @media(min-width:901px){
-  .kja-skeleton-host.kja-context-view{--kja-sk-base:#e7e7e7;min-height:0}
+  .kja-skeleton-host.kja-context-view{--kja-sk-base:var(--kja-loading-neutral,#e7e7e7);min-height:0}
   .kja-context-view .kja-sk-block{background:var(--kja-sk-base)!important;border-radius:4px;box-shadow:none!important}
   .kja-context-view .kja-sk-block::after{content:none;animation:none}
   .kja-context-view .kja-sk-circle{border-radius:50%}
 }
 .kja-skeleton-host.is-skeleton-visible>:not(.kja-skeleton-layer){visibility:hidden}
-.kja-skeleton-layer{position:absolute;z-index:20;inset:0 0 auto;min-height:100%;padding:0;background:var(--surface-page,#f6f8fb);opacity:1;transition:opacity 200ms ease}
+.kja-skeleton-layer{position:absolute;z-index:20;inset:0 0 auto;min-height:100%;padding:0;background:var(--kja-surface-canvas, var(--surface-page,#f6f8fb));opacity:1;transition:opacity 200ms ease}
 .kja-skeleton{display:grid;gap:18px;min-height:520px;color:transparent;pointer-events:none}
-.kja-skeleton-mirror{width:100%;min-height:520px;color:transparent!important;background:var(--surface-page,#f6f8fb)!important;pointer-events:none!important;user-select:none!important}
+.kja-skeleton-mirror{width:100%;min-height:520px;color:transparent!important;background:var(--kja-surface-canvas, var(--surface-page,#f6f8fb))!important;pointer-events:none!important;user-select:none!important}
 /* El espejo conserva la geometria real, pero no su decoracion. Asi una cabecera
    oscura, un gradiente o una imagen nunca cubren la pantalla durante la carga. */
 .kja-skeleton-mirror :is(header,section,article,aside,nav,[class*="-head"],[class*="-toolbar"],[class*="-workbench"],[class*="-panel"],[class*="-card"]){background-color:var(--kja-sk-card)!important;background-image:none!important;text-shadow:none!important;box-shadow:none!important}
@@ -38,7 +38,7 @@
 .kja-sk-lines{display:grid;align-content:center;gap:9px;min-width:0}.kja-sk-line{height:10px}.w-32{width:32%}.w-42{width:42%}.w-58{width:58%}.w-68{width:68%}.w-80{width:80%}
 .kja-sk-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
 .kja-sk-native-metric{align-content:center;min-width:0}.kja-sk-native-metric :is(small,b){display:block;width:100%}.kja-sk-native-metric .kja-sk-number{width:42%;height:28px;margin-top:8px}
-.kja-sk-card{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:14px;min-height:134px;padding:20px;border:1px solid var(--kja-sk-line);border-radius:18px;background:var(--kja-sk-card);box-shadow:0 8px 24px rgba(24,43,79,.035)}
+.kja-sk-card{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:14px;min-height:134px;padding:20px;border:1px solid var(--kja-sk-line);border-radius:18px;background:var(--kja-sk-card);box-shadow:var(--kja-surface-card-shadow, 0 8px 24px rgba(24,43,79,.035))}
 .kja-sk-metric{display:grid;grid-template-columns:1fr;align-content:center;gap:14px;min-height:104px}.kja-sk-number{width:42%;height:28px}
 .kja-sk-circle{width:46px;height:46px;flex:0 0 46px;border-radius:50%}.kja-sk-card>.kja-sk-button{grid-column:1/-1;width:100%;height:36px}
 .kja-sk-filters{display:flex;flex-wrap:wrap;gap:12px;padding:16px;border:1px solid var(--kja-sk-line);border-radius:18px;background:var(--kja-sk-card)}
@@ -73,8 +73,8 @@
 .kja-sk-access-layout{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(330px,.88fr);gap:16px}.kja-sk-route-card,.kja-sk-policy-card{display:grid;gap:15px}.kja-sk-route-card>section{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;padding:14px;border:1px solid var(--kja-sk-line);border-radius:14px}.kja-sk-route-card>section>.kja-sk-input{grid-column:1/-1;width:100%}.kja-sk-qr{width:108px;height:108px;justify-self:center;border-radius:14px}.kja-sk-policy-card>.kja-sk-filters{padding:0;border:0}.kja-sk-policy-card>.kja-sk-map{height:240px}
 .kja-content-fade{animation:kja-content-in 200ms ease both}@keyframes kja-content-in{from{opacity:.18}to{opacity:1}}
 .kja-skeleton-error-visible{min-height:max(var(--kja-skeleton-height,0px),360px)}.kja-skeleton-error-visible .kja-skeleton-layer{display:grid;place-items:center}
-.kja-skeleton-error{display:flex;align-items:flex-start;gap:16px;width:min(520px,calc(100% - 32px));padding:26px;border:1px solid color-mix(in srgb,#b42318 24%,var(--kja-sk-line));border-radius:20px;background:var(--kja-sk-card);color:var(--text-body,#34465e);box-shadow:0 16px 44px rgba(24,43,79,.1);pointer-events:auto}
-.kja-skeleton-error-icon{display:grid;place-items:center;flex:0 0 42px;height:42px;border-radius:50%;background:#fee4e2;color:#b42318;font-size:20px;font-weight:800}.kja-skeleton-error h3{margin:0 0 6px;color:var(--text-strong,#09244c);font-size:17px}.kja-skeleton-error p{margin:0 0 16px;color:var(--text-muted,#68778b);line-height:1.55}.kja-skeleton-error button{min-height:40px;padding:9px 18px;border:0;border-radius:10px;background:#004fb0;color:#fff;font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}.kja-skeleton-error button:focus-visible{outline:3px solid #8dbbff;outline-offset:3px}
+.kja-skeleton-error{display:flex;align-items:flex-start;gap:16px;width:min(520px,calc(100% - 32px));padding:26px;border:1px solid var(--kja-surface-border, color-mix(in srgb,#b42318 24%,var(--kja-sk-line)));border-radius:20px;background:var(--kja-sk-card);color:var(--kja-text-primary, var(--text-body,#34465e));box-shadow:var(--kja-surface-dialog-shadow, 0 16px 44px rgba(24,43,79,.1));pointer-events:auto}
+.kja-skeleton-error-icon{display:grid;place-items:center;flex:0 0 42px;height:42px;border-radius:50%;background:var(--kja-status-error-bg, #fee4e2);color:var(--kja-status-error-text, #b42318);font-size:20px;font-weight:800}.kja-skeleton-error h3{margin:0 0 6px;color:var(--kja-text-primary, var(--text-strong,#09244c));font-size:17px}.kja-skeleton-error p{margin:0 0 16px;color:var(--kja-text-secondary, var(--text-muted,#68778b));line-height:1.55}.kja-skeleton-error button{min-height:40px;padding:9px 18px;border:0;border-radius:10px;background:var(--kja-action-primary, #004fb0);color:var(--kja-on-action, #fff);font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}.kja-skeleton-error button:focus-visible{outline:3px solid var(--kja-focus, #8dbbff);outline-offset:3px}
 
 :is(html[data-theme="dark"],body.dark-theme,.theme-dark) .kja-skeleton-host{--kja-sk-base:#263447;--kja-sk-glow:rgba(255,255,255,.08);--kja-sk-card:#172235;--kja-sk-line:#314056}
 @media(max-width:760px){

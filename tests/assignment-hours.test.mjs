@@ -2,13 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import {JSDOM} from 'jsdom';
 const source=fs.readFileSync(new URL('../assets/js/dashboard-assignment-hours.js',import.meta.url),'utf8');
 function harness(){
-  const nodes=new Map(),writes=[];
-  const $=id=>{if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',disabled:false,hidden:false});return nodes.get(id)};
+  const {window}=new JSDOM(fs.readFileSync(new URL('../dashboard.html',import.meta.url),'utf8'));
+  const {document,MutationObserver}=window,writes=[];
+  const $=id=>document.getElementById(id);
   const state={result:{data:[{salida_gracia_min:180}],error:null},reloads:0};
   const chain={eq(key,value){writes.push([key,value]);return this},select:async()=>state.result};
-  const c={$,APP:{access:{rol:'direccion'},sessionUid:'user'},Date,
+  const c={$,document,MutationObserver,APP:{access:{rol:'direccion'},sessionUid:'user'},Date,
     loadAdminCloses:async()=>{state.reloads++},db:{from:()=>({
       select:()=>({eq:()=>({single:async()=>({data:{salida_gracia_min:120}})})}),
       update:values=>{writes.push(values);return chain}
@@ -49,6 +51,5 @@ test('non-Direction users cannot save and duplicate submissions are ignored',asy
 });
 test('preview explains midnight when the exit window reaches the next day',()=>{
   const h=harness();h.$('assignment-hours-minutes').value='420';h.c.previewAssignmentHours();
-  assert.match(h.$('assignment-hours-preview').textContent,/01:00 del día siguiente/);
-  assert.match(h.$('assignment-hours-preview').textContent,/antes de medianoche/);
+  assert.match(h.$('assignment-hours-preview').textContent,/01:00 \(\+1 día\)/);
 });

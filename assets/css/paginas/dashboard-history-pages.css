@@ -3,5 +3,5 @@
 .history-pages button:disabled{color:#657368;background:#eef2ed;cursor:default}
 .history-pages button:focus-visible{outline:2px solid #79442e;outline-offset:2px}
 #admin-review-modal .admin-review-file-picker{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}
-#admin-review-modal .admin-review-file-picker [aria-pressed="true"]{color:#fff;background:#7a4532;border-color:#7a4532}
-#admin-review-modal .admin-review-file-picker button:focus-visible{outline:2px solid #79442e;outline-offset:2px}
+#admin-review-modal .admin-review-file-picker [aria-pressed="true"]{color:var(--kja-on-action, #fff);background:var(--kja-action-primary, #7a4532);border-color:var(--kja-action-primary, #7a4532)}
+#admin-review-modal .admin-review-file-picker button:focus-visible{outline:2px solid var(--kja-focus, #79442e);outline-offset:2px}

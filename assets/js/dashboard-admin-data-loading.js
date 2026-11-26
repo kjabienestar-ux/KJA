@@ -83,6 +83,11 @@
         for(const [node,value] of disabled){node.disabled=(success&&resolvedDisabled.has(node)?resolvedDisabled.get(node):value)||(!success&&settled);if(success)disabledDefaults.delete(node);}
         for(const node of disabled.keys())delete node.dataset.adcControlPending;
         for(const [node,value] of draft){node.value=value.value;node.checked=value.checked;}
+        if(kind==='marcado'&&(draft.has($('admin-office-lat'))||draft.has($('admin-office-lon')))){
+          const point=readOfficePoint();
+          if(point)paintOfficeMapPoint(point);else clearOfficeMapPoint();
+          syncOfficeSelection();
+        }
         host.dataset.adcPending='false';
         if(success||state.cancelled)notice.textContent='';
         else if(settled&&!state.cancelled){

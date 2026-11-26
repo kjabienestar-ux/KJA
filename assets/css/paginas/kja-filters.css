@@ -1,0 +1,142 @@
+@media (min-width:901px) {
+  #portal #admin-list-section #admin-area-custom-select.kja-area-ready > #admin-area-trigger {display:none!important}
+  #portal #view-gestion :is(.apl-search,.seg-search,.contracts-search-wrap,.admin-team-search-wrap):has(input[type=search]) {
+    box-sizing:border-box;min-height:42px;border:var(--kja-field-border-width) solid var(--kja-field-border);border-radius:10px;background:var(--kja-surface-opaque);color:var(--kja-text-primary)
+  }
+  #portal #view-gestion :is(.apl-search,.seg-search,.contracts-search-wrap,.admin-team-search-wrap):has(input[type=search]):focus-within {outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:var(--kja-focus-ring-offset)}
+  /* El contenedor es el único campo visual: el input no dibuja otra superficie. */
+  #portal #view-gestion :is(.apl-search,.seg-search,.contracts-search-wrap,.admin-team-search-wrap) input[type=search] {
+    background:transparent!important;border:0!important;box-shadow:none!important;color:var(--kja-text-primary)!important;
+  }
+  #portal #view-gestion :is(.apl-search,.seg-search,.contracts-search-wrap,.admin-team-search-wrap) input[type=search]::placeholder {
+    color:var(--kja-text-secondary)!important;opacity:1;
+  }
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger {
+    box-sizing:border-box;min-height:var(--kja-selector-height);border:var(--kja-field-border-width) solid var(--kja-field-border)!important;
+    border-radius:var(--kja-selector-radius)!important;background:var(--kja-surface-opaque)!important;color:var(--kja-text-primary)!important;
+    box-shadow:none!important;transition:background-color 150ms,color 150ms,border-color 150ms;
+  }
+  :is(#portal #admin-people-section,#admin-person-modal) .area-picker-trigger {min-height:var(--kja-action-form-height)}
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger > svg {color:var(--kja-action-primary)}
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger .area-picker-chevron {color:var(--kja-status-neutral-text);transition:none}
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger[aria-expanded=true] {
+    background:var(--kja-surface-hover)!important;
+  }
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger[aria-expanded=true]:not(:focus-visible) {outline:none!important}
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger.has-selection {box-shadow:inset 0 calc(-1 * var(--kja-selector-selection-width)) var(--kja-tab-indicator-color)!important}
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;outline-offset:var(--kja-focus-ring-offset)!important;
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger.has-selection:focus-visible {
+    box-shadow:inset 0 calc(-1 * var(--kja-selector-selection-width)) var(--kja-tab-indicator-color),var(--kja-field-focus-shadow)!important;
+  }
+  @media (hover:hover) {
+    :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger:not(:disabled):hover {background:var(--kja-surface-hover)!important}
+  }
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger:not(:disabled):active {background:var(--kja-filter-pressed-bg)!important}
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger:disabled {
+    background:var(--kja-action-disabled-bg)!important;color:var(--kja-action-disabled-text)!important;border-color:var(--kja-surface-border)!important;
+    opacity:1;cursor:default;box-shadow:none!important;
+  }
+  :is(#portal #view-gestion,#admin-person-modal) .area-picker-trigger:disabled > svg {color:var(--kja-action-disabled-text)}
+}
+@media (max-width:900px) {
+  #admin-area-custom-select .kja-list-area-picker {display:none}
+}
+
+@media (min-width:901px) {
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) {
+    border-color:var(--kja-surface-border);border-radius:var(--kja-selector-menu-radius);
+    background:var(--kja-surface-opaque);color:var(--kja-text-primary);box-shadow:var(--kja-selector-menu-shadow);
+  }
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-search {
+    border-color:var(--kja-field-border);background:var(--kja-surface-opaque);color:var(--kja-text-primary);
+    transition:background-color 150ms,border-color 150ms,box-shadow 150ms;
+  }
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-option {
+    min-height:var(--kja-selector-option-height);padding:var(--kja-selector-option-padding-block) var(--kja-selector-option-padding-inline);
+    border-radius:var(--kja-selector-option-radius);color:var(--kja-text-primary);transition:background-color 120ms,color 120ms;
+  }
+  @media (hover:hover) {
+    :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-option:not([aria-selected=true]):hover {background:var(--kja-surface-hover);color:var(--kja-text-primary)}
+  }
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-option.is-focused {
+    background:var(--kja-surface-hover);outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:calc(-1 * var(--kja-focus-ring-width));
+  }
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-option[aria-selected=true] {background:var(--kja-surface-hover);color:var(--kja-action-primary)}
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-option svg {color:var(--kja-action-primary)}
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) :is(footer,.area-picker-empty) {color:var(--kja-status-neutral-text);border-color:var(--kja-surface-border)}
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) input::placeholder {color:var(--kja-status-neutral-text)}
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) input {color:var(--kja-text-primary);caret-color:var(--kja-focus)}
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) footer {background:var(--kja-surface-hover)}
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) [role=listbox] {scrollbar-color:var(--kja-surface-border) transparent;overscroll-behavior:contain}
+  :is(#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) ::selection {background:var(--kja-surface-hover);color:var(--kja-action-primary)}
+
+  /* Pestañas de línea: una selección persistente, sin confundirla con los pasos de alta ni las tarjetas de actividad. */
+  :is(#portal #admin-people-section.pw-workbench,#portal .aw-workbench,#pw-profile-dialog,#admin-person-modal.pw-legacy-editor:not(.admin-create-wizard),#admin-seguimiento-section) :is(.pw-tabs,.aw-tabs,.pw-profile-tabs,.admin-editor-tabs,.seg-tabs) {
+    border-bottom-color:var(--kja-surface-border);
+  }
+  :is(#portal #admin-people-section.pw-workbench,#portal .aw-workbench,#pw-profile-dialog,#admin-person-modal.pw-legacy-editor:not(.admin-create-wizard)) :is(.pw-tabs,.aw-tabs,.pw-profile-tabs,.admin-editor-tabs) {gap:var(--kja-tab-gap)}
+  :is(#portal #admin-people-section.pw-workbench,#portal .aw-workbench,#pw-profile-dialog,#admin-person-modal.pw-legacy-editor:not(.admin-create-wizard)) :is(.pw-tabs,.aw-tabs,.pw-profile-tabs,.admin-editor-tabs) button {min-height:var(--kja-tab-height);padding-inline:var(--kja-tab-padding-inline)}
+  :is(#portal #admin-people-section.pw-workbench,#portal .aw-workbench,#pw-profile-dialog,#admin-person-modal.pw-legacy-editor:not(.admin-create-wizard),#admin-seguimiento-section) :is(.pw-tabs,.aw-tabs,.pw-profile-tabs,.admin-editor-tabs,.seg-tabs) button {
+    border-bottom-width:var(--kja-tab-indicator-width);border-bottom-style:solid;border-bottom-color:transparent;
+    color:var(--kja-status-neutral-text);transition:color 120ms,background-color 120ms;box-shadow:none;
+  }
+  :is(#portal #admin-people-section.pw-workbench,#portal .aw-workbench,#pw-profile-dialog,#admin-person-modal.pw-legacy-editor:not(.admin-create-wizard),#admin-seguimiento-section) :is(.pw-tabs,.aw-tabs,.pw-profile-tabs,.admin-editor-tabs,.seg-tabs) button:is([aria-selected=true],[aria-pressed=true]) {
+    border-bottom-color:var(--kja-tab-indicator-color);color:var(--kja-action-primary);
+  }
+  #admin-seguimiento-section .seg-tabs button[aria-selected=true] {background:var(--kja-surface-hover)}
+  @media (hover:hover) {
+    :is(#portal #admin-people-section.pw-workbench,#portal .aw-workbench,#pw-profile-dialog,#admin-person-modal.pw-legacy-editor:not(.admin-create-wizard),#admin-seguimiento-section) :is(.pw-tabs,.aw-tabs,.pw-profile-tabs,.admin-editor-tabs,.seg-tabs) button:not(:disabled):not([aria-selected=true],[aria-pressed=true]):hover {
+      background:var(--kja-surface-hover);color:var(--kja-text-primary);filter:none;
+    }
+  }
+  :is(#portal #admin-people-section.pw-workbench,#portal .aw-workbench,#pw-profile-dialog,#admin-person-modal.pw-legacy-editor:not(.admin-create-wizard),#admin-seguimiento-section) :is(.pw-tabs,.aw-tabs,.pw-profile-tabs,.admin-editor-tabs,.seg-tabs) button:not(:disabled):not([aria-selected=true],[aria-pressed=true]):active {
+    background:var(--kja-filter-pressed-bg);color:var(--kja-text-primary);
+  }
+  :is(#portal #admin-people-section.pw-workbench,#portal .aw-workbench,#pw-profile-dialog,#admin-person-modal.pw-legacy-editor:not(.admin-create-wizard),#admin-seguimiento-section) :is(.pw-tabs,.aw-tabs,.pw-profile-tabs,.admin-editor-tabs,.seg-tabs) button:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;outline-offset:calc(-1 * var(--kja-focus-ring-width))!important;
+  }
+  :is(#portal #admin-people-section.pw-workbench,#portal .aw-workbench,#pw-profile-dialog,#admin-person-modal.pw-legacy-editor:not(.admin-create-wizard),#admin-seguimiento-section) :is(.pw-tabs,.aw-tabs,.pw-profile-tabs,.admin-editor-tabs,.seg-tabs) button:disabled:not([aria-selected=true],[aria-pressed=true]) {
+    background:var(--kja-action-disabled-bg);color:var(--kja-action-disabled-text);opacity:1;cursor:default;
+  }
+
+  /* Los filtros son selecciones persistentes, no botones de confirmación. */
+  #portal #admin-ranking-section.rk .rk-seg button {
+    height:var(--kja-filter-segment-height);padding-inline:var(--kja-filter-segment-padding-inline);
+    border-radius:var(--kja-filter-segment-radius);color:var(--kja-status-neutral-text);
+  }
+  #portal #admin-ranking-section.rk .rk-seg button em {background:var(--kja-surface-opaque);color:var(--kja-status-neutral-text)}
+  #portal #admin-ranking-section.rk .rk-seg button[aria-pressed=true] {
+    background:var(--kja-surface-opaque);color:var(--kja-action-primary);box-shadow:none;
+  }
+  #portal #admin-ranking-section.rk .rk-seg button[aria-pressed=true] em {background:var(--kja-surface-hover);color:var(--kja-action-primary)}
+  #portal #admin-facebook-section.fbr .fbr-fchip {
+    height:var(--kja-filter-pill-height);padding-inline:var(--kja-filter-pill-padding-inline);border-radius:var(--kja-filter-pill-radius);
+    background:var(--kja-surface-opaque);border-color:var(--kja-surface-border);color:var(--kja-text-primary);
+  }
+  #portal #admin-facebook-section.fbr .fbr-fchip em {background:var(--kja-status-neutral-bg);color:var(--kja-status-neutral-text)}
+  #portal #admin-facebook-section.fbr .fbr-fchip[aria-pressed=true] {background:var(--kja-action-primary);border-color:var(--kja-action-primary);color:var(--kja-on-action)}
+  #portal #admin-facebook-section.fbr .fbr-fchip[aria-pressed=true] em {background:var(--kja-filter-selected-count-bg);color:var(--kja-on-action)}
+  @media (hover:hover) {
+    #portal #admin-ranking-section.rk .rk-seg button:not(:disabled):not([aria-pressed=true]):hover,
+    #portal #admin-facebook-section.fbr .fbr-fchip:not(:disabled):not([aria-pressed=true]):hover,
+    #portal #admin-facebook-section.fbr .fbr-seg button:not(:disabled):not([aria-checked=true]):hover {
+      background:var(--kja-surface-hover);color:var(--kja-text-primary);
+    }
+  }
+  #portal #admin-ranking-section.rk .rk-seg button:not(:disabled):not([aria-pressed=true]):active,
+  #portal #admin-facebook-section.fbr .fbr-fchip:not(:disabled):not([aria-pressed=true]):active,
+  #portal #admin-facebook-section.fbr .fbr-seg button:not(:disabled):not([aria-checked=true]):active {
+    background:var(--kja-filter-pressed-bg);color:var(--kja-text-primary);
+  }
+  #portal #admin-facebook-section.fbr .fbr-fchip:not(:disabled):not([aria-pressed=true]):is(:hover,:active) {border-color:var(--kja-surface-border)}
+  #portal :is(#admin-ranking-section.rk,#admin-facebook-section.fbr) :is(.rk-seg button,.fbr-fchip,.fbr-seg button):disabled {
+    opacity:1;background:var(--kja-action-disabled-bg);color:var(--kja-action-disabled-text);cursor:default;
+    box-shadow:none;
+  }
+  #portal :is(#admin-ranking-section.rk,#admin-facebook-section.fbr) :is(.rk-seg button,.fbr-fchip):disabled em {
+    background:var(--kja-action-disabled-bg);color:var(--kja-action-disabled-text);
+  }
+}

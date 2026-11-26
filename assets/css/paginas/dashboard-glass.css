@@ -1,24 +1,24 @@
 /* Liquid Glass material, scoped to administration. No layout or data overrides. */
 #portal.admin-wide .admin-overview-charts { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:24px; }
 #portal.admin-wide .admin-chart { min-width:0;padding:22px;background:var(--glass-surface);border:1px solid var(--glass-edge);border-radius:22px;box-shadow:var(--glass-shadow); }
-#portal.admin-wide .admin-chart h3 { margin:0;font:400 23px/1.25 var(--claude-display);color:#252523; }
-#portal.admin-wide .admin-chart header p { margin:6px 0 0;font-size:12px;color:#625b54; }
+#portal.admin-wide .admin-chart h3 { margin:0;font:400 23px/1.25 var(--claude-display);color:var(--kja-text-primary, #252523); }
+#portal.admin-wide .admin-chart header p { margin:6px 0 0;font-size:12px;color:var(--kja-text-secondary, #625b54); }
 #portal.admin-wide .admin-chart-ring { width:148px;aspect-ratio:1;border-radius:50%;margin:22px auto;display:grid;place-items:center; }
-#portal.admin-wide .admin-chart-ring > span { width:116px;aspect-ratio:1;border-radius:50%;background:#faf9f5;display:flex;flex-direction:column;align-items:center;justify-content:center; }
-#portal.admin-wide .admin-chart-ring b { font-size:32px;line-height:1.2;color:#252523;font-variant-numeric:tabular-nums; }
-#portal.admin-wide .admin-chart-ring small { margin-top:4px;font-size:11px;color:#625b54; }
+#portal.admin-wide .admin-chart-ring > span { width:116px;aspect-ratio:1;border-radius:50%;background:var(--kja-surface-opaque, #faf9f5);display:flex;flex-direction:column;align-items:center;justify-content:center; }
+#portal.admin-wide .admin-chart-ring b { font-size:32px;line-height:1.2;color:var(--kja-text-primary, #252523);font-variant-numeric:tabular-nums; }
+#portal.admin-wide .admin-chart-ring small { margin-top:4px;font-size:11px;color:var(--kja-text-secondary, #625b54); }
 #portal.admin-wide .admin-chart ul { list-style:none;padding:0;margin:0;display:grid;gap:9px; }
-#portal.admin-wide .admin-chart li { display:flex;align-items:center;gap:8px;font-size:12px;color:#504a44; }
+#portal.admin-wide .admin-chart li { display:flex;align-items:center;gap:8px;font-size:12px;color:var(--kja-text-secondary, #504a44); }
 #portal.admin-wide .admin-chart li i { width:8px;height:8px;border-radius:50%;flex:none; }
-#portal.admin-wide .admin-chart li b { margin-left:auto;color:#252523;font-variant-numeric:tabular-nums; }
+#portal.admin-wide .admin-chart li b { margin-left:auto;color:var(--kja-text-primary, #252523);font-variant-numeric:tabular-nums; }
 @media(max-width:1200px) { #portal.admin-wide .admin-overview-charts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:480px) { #portal.admin-wide .admin-overview-charts { grid-template-columns:minmax(0,1fr); } }
 #portal.admin-wide {
-  --glass-surface: linear-gradient(135deg, #ffffffd9, #ffffff80 48%, #fff9f0b8);
-  --glass-edge: #ffffffd9;
-  --glass-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 #ffffff70, 0 8px 28px #5847350c;
-  --claude-line: #81736326;
-  background: radial-gradient(ellipse at 85% 12%, #e2e8f3 0, transparent 48%), radial-gradient(ellipse at 25% 65%, #f2dfcf 0, transparent 52%), #f4f1ec !important;
+  --glass-surface: var(--kja-surface-cream, linear-gradient(135deg, #ffffffd9, #ffffff80 48%, #fff9f0b8));
+  --glass-edge: var(--kja-surface-border, #ffffffd9);
+  --glass-shadow: var(--kja-surface-card-shadow, inset 0 1px 0 #fff, inset 0 -1px 0 #ffffff70, 0 8px 28px #5847350c);
+  --claude-line: var(--kja-divider-subtle, #81736326);
+  background: var(--kja-surface-canvas, radial-gradient(ellipse at 85% 12%, #e2e8f3 0, transparent 48%), radial-gradient(ellipse at 25% 65%, #f2dfcf 0, transparent 52%), var(--kja-surface-canvas, #f4f1ec)) !important;
 }
 #portal.admin-wide .workspace,
 #portal.admin-wide #view-gestion { background: transparent !important; }
@@ -45,12 +45,12 @@
 }
 #portal.admin-wide .admin-section-nav button.active,
 #portal.admin-wide .side-nav button.active {
-  color: #653c2d !important;
-  background: linear-gradient(160deg, #fffefa, #eddccc) !important;
-  box-shadow: inset 0 1px 0 #fff, 0 2px 6px #6e48371a !important;
+  color: var(--kja-action-primary, #653c2d) !important;
+  background: var(--kja-surface-accent-tint, linear-gradient(160deg, #fffefa, #eddccc)) !important;
+  box-shadow: var(--kja-action-shadow, inset 0 1px 0 #fff, 0 2px 6px #6e48371a) !important;
 }
 #portal.admin-wide .admin-section-nav :is(button,a):hover,
-#portal.admin-wide .side-nav button:hover { background: #ffffffa6 !important; }
+#portal.admin-wide .side-nav button:hover { background: var(--kja-surface-hover, #ffffffa6) !important; }
 #portal.admin-wide :is(.admin-overview-today,.admin-panel,.admin-overview-map,.admin-people-group,.admin-attendance-export,.admin-route-card,.admin-policy-card,.admin-access-requests,.admin-access-directory,.admin-access-audit,.admin-role-area,.admin-roles-audit) {
   border: 1px solid var(--glass-edge) !important;
   border-radius: 22px;
@@ -61,46 +61,46 @@
 }
 #portal.admin-wide .admin-overview-today { overflow: hidden; }
 #portal.admin-wide .admin-overview-today > header {
-  background: linear-gradient(110deg, #ffffff80, #ffffff0d) !important;
+  background: var(--kja-surface-cream, linear-gradient(110deg, #ffffff80, #ffffff0d)) !important;
 }
 #portal.admin-wide .admin-overview-today .admin-kpi {
-  background: #ffffff38 !important;
+  background: var(--kja-surface-cream, #ffffff38) !important;
 }
 #portal.admin-wide :is(.admin-panel-head,.admin-people-group > header) {
-  background: #ffffff40 !important;
+  background: var(--kja-surface-cream, #ffffff40) !important;
   border-radius: 22px 22px 0 0;
 }
 #portal.admin-wide :is(.admin-person-card,.admin-contract-row,.admin-list-kpi) {
-  background: #ffffffb3 !important;
-  border-color: #ffffffd9 !important;
-  box-shadow: inset 0 1px 0 #fff, 0 3px 12px #58473506 !important;
+  background: var(--kja-surface-cream, #ffffffb3) !important;
+  border-color: var(--kja-surface-border, #ffffffd9) !important;
+  box-shadow: var(--kja-surface-card-shadow, inset 0 1px 0 #fff, 0 3px 12px #58473506) !important;
 }
 #portal.admin-wide .admin-person-card { border-radius: 16px; }
 #portal.admin-wide .admin-status-row:hover,
 #portal.admin-wide .admin-overview-module-grid > button:hover,
-#portal.admin-wide .admin-panel-foot:hover { background: #ffffff75; }
+#portal.admin-wide .admin-panel-foot:hover { background: var(--kja-surface-hover, #ffffff75); }
 #portal.admin-wide .admin-panel-foot { border-radius: 0 0 22px 22px; }
 #portal.admin-wide #view-gestion .admin-refresh {
-  background: linear-gradient(150deg, #fff, #ffffff70) !important;
-  border-color: #fff !important;
+  background: var(--kja-surface-opaque, linear-gradient(150deg, #fff, #ffffff70)) !important;
+  border-color: var(--kja-field-border, #fff) !important;
   border-radius: 20px !important;
-  box-shadow: inset 0 1px 0 #fff, 0 3px 10px #58473512 !important;
+  box-shadow: var(--kja-action-shadow, inset 0 1px 0 #fff, 0 3px 10px #58473512) !important;
 }
 #portal.admin-wide .admin-overview-today > header > button,
 #portal.admin-wide .admin-primary-action {
   border-radius: 22px;
-  background: linear-gradient(160deg, #b66448, #94492f) !important;
-  box-shadow: inset 0 1px 0 #ffffff66, 0 4px 12px #91493024;
+  background: var(--kja-action-primary, linear-gradient(160deg, #b66448, #94492f)) !important;
+  box-shadow: var(--kja-action-shadow, inset 0 1px 0 #ffffff66, 0 4px 12px #91493024);
 }
 #portal.admin-wide #view-gestion :is(button,a,input,select,summary):focus-visible {
-  outline: 2px solid #8b472f;
+  outline: 2px solid var(--kja-focus, #8b472f);
   outline-offset: 3px;
 }
-#portal.admin-wide #view-gestion :is(button,input,select) { accent-color: #9a5036; }
-#portal.admin-wide #view-gestion ::selection { color: #40291f; background: #ebcbb4; }
-#portal.admin-wide #view-gestion { scrollbar-color: #b7aa9c transparent; }
+#portal.admin-wide #view-gestion :is(button,input,select) { accent-color: var(--kja-action-primary, #9a5036); }
+#portal.admin-wide #view-gestion ::selection { color: var(--kja-text-primary, #40291f); background: var(--kja-surface-accent-tint, #ebcbb4); }
+#portal.admin-wide #view-gestion { scrollbar-color: var(--kja-surface-border, #b7aa9c) transparent; }
 /* Dense records remain opaque enough for reliable reading. */
-#portal.admin-wide :is(.admin-summary-table,.admin-month-ledger) { background: #fdfcf9 !important; }
+#portal.admin-wide :is(.admin-summary-table,.admin-month-ledger) { background: var(--kja-surface-opaque, #fdfcf9) !important; }
 @media (max-width: 900px) {
   #portal.admin-wide > .mobile-head {
     background: transparent !important;
