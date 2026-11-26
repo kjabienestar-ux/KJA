@@ -86,13 +86,32 @@
   }
   function selected(){return current()?S.snapshot.rows.find(row=>String(row.colaborador_id)===String(S.person)):null}
   function personRecord(row){return row?.person||{id:row?.colaborador_id,nombre:row?.colaborador,area:row?.area,labora:row?.labora,cierre:row?.cierre||{}}}
-  function state(row){
-    if(!row.person)return {label:'Detalle no disponible',tone:'neutral'};
-    const p=personRecord(row),code=adminCloseResolvedState(p,adminCloseEvidenceProgress(p,personReviews(row.colaborador_id)),S.date);
-    return {label:adminCloseStateLabel(code),tone:['completa','regularizada'].includes(code)?'success':['incompleta','sin_entrada'].includes(code)?'danger':['en_curso','lista_para_salir','pendiente'].includes(code)?'warning':'neutral'};
+  // Regla única del estado de la fila; el reporte de pendientes usa la misma para cada fecha.
+  function stateFor(row,reviews,date){
+    if(!row.person)return {code:'',label:'Detalle no disponible',tone:'neutral'};
+    const p=personRecord(row),code=adminCloseResolvedState(p,adminCloseEvidenceProgress(p,reviews),date);
+    return {code,label:adminCloseStateLabel(code),tone:['completa','regularizada'].includes(code)?'success':['incompleta','sin_entrada'].includes(code)?'danger':['en_curso','lista_para_salir','pendiente'].includes(code)?'warning':'neutral'};
   }
-  function pending(row){
-    return S.snapshot.controlOk?adminControlPendingItems(row):[];
+  function state(row){return stateFor(row,personReviews(row.colaborador_id),S.date)}
+  function detailsFor(row,controlOk){
+    const count=Number(row.revision_pendiente||0),issues=row.impedimentos||[];
+    return [...(count?[count+' por revisar']:[]),...(controlOk?adminControlPendingItems(row):[]),...(Number(row.revision_observada)?[row.revision_observada+' con corrección']:[]),...(issues.length?['Impedimento informado']:[])];
+  }
+  function combineDay(date,close,control,issues,review){
+    const assignments=new Set((close?.asignaciones||[]).map(a=>String(a.id)));
+    const reviews=(review?.entregas||[]).filter(d=>(!d.fecha||d.fecha===date)&&(d.requisito!=='asignado'||assignments.has(String(d.asignacion_id))));
+    const byClose=new Map((close?.personas||[]).map(p=>[String(p.id),p]));
+    const byIssue=new Map();
+    for(const issue of issues?.impedimentos||[]){const id=String(issue.colaborador_id);if(!byIssue.has(id))byIssue.set(id,[]);byIssue.get(id).push(issue)}
+    const combined=new Map((control?.filas||[]).map(row=>{
+      const id=String(row.colaborador_id),person=byClose.get(id),cierre=person?.cierre||null;
+      return [id,{...row,person,cierre,cierre_estado:cierre?.estado||row.cierre_estado,impedimentos:byIssue.get(id)||[],impedimentos_disponibles:!!issues}];
+    }));
+    for(const [id,p] of byClose)if(!combined.has(id)){
+      const rs=reviews.filter(d=>String(d.colaborador_id)===id);
+      combined.set(id,{colaborador_id:p.id,colaborador:p.nombre,area_id:p.area_id,area:p.area,labora:p.labora,person:p,cierre:p.cierre,cierre_estado:p.cierre?.estado,entrada_at:p.cierre?.entrada_at,salida_at:p.cierre?.salida_at,revision_pendiente:rs.filter(d=>d.revision_estado==='pendiente'&&d.estado==='completo').length,revision_observada:rs.filter(d=>d.revision_estado==='observada').length,impedimentos:byIssue.get(id)||[]});
+    }
+    return {rows:[...combined.values()],reviews};
   }
   function deliveriesFor(row){
     const close=row.cierre||{},map=new Map(),reviews=personReviews(row.colaborador_id);
@@ -163,20 +182,8 @@
     }
     const datesMatch=responses.every(response=>!response?.data?.ok||!response.data.fecha||response.data.fecha===date);
     if(!datesMatch){S.loading=false;S.snapshot=null;message('La respuesta no corresponde a esta fecha. Vuelve a actualizar.','error');render();return false}
-    const assignments=new Set((close?.asignaciones||[]).map(a=>String(a.id)));
-    const reviews=(review?.entregas||[]).filter(d=>(!d.fecha||d.fecha===date)&&(d.requisito!=='asignado'||assignments.has(String(d.asignacion_id))));
-    const byClose=new Map((close?.personas||[]).map(p=>[String(p.id),p]));
-    const byIssue=new Map();
-    for(const issue of issues?.impedimentos||[]){const id=String(issue.colaborador_id);if(!byIssue.has(id))byIssue.set(id,[]);byIssue.get(id).push(issue)}
-    const combined=new Map((control?.filas||[]).map(row=>{
-      const id=String(row.colaborador_id),person=byClose.get(id),cierre=person?.cierre||null;
-      return [id,{...row,person,cierre,cierre_estado:cierre?.estado||row.cierre_estado,impedimentos:byIssue.get(id)||[],impedimentos_disponibles:!!issues}];
-    }));
-    for(const [id,p] of byClose)if(!combined.has(id)){
-      const rs=reviews.filter(d=>String(d.colaborador_id)===id);
-      combined.set(id,{colaborador_id:p.id,colaborador:p.nombre,area_id:p.area_id,area:p.area,labora:p.labora,person:p,cierre:p.cierre,cierre_estado:p.cierre?.estado,entrada_at:p.cierre?.entrada_at,salida_at:p.cierre?.salida_at,revision_pendiente:rs.filter(d=>d.revision_estado==='pendiente'&&d.estado==='completo').length,revision_observada:rs.filter(d=>d.revision_estado==='observada').length,impedimentos:byIssue.get(id)||[]});
-    }
-    S.snapshot={date,rows:[...combined.values()],exportIds:new Set((control?.filas||[]).map(r=>String(r.colaborador_id))),reviews,closeOk:!!close,controlOk:!!control,issueOk:!!issues,reviewOk:!!review,canReview:review?.puede_revisar===true,partial:dir?!(close&&control&&issues&&review):!close};
+    const {rows:dayRows,reviews}=combineDay(date,close,control,issues,review);
+    S.snapshot={date,rows:dayRows,exportIds:new Set((control?.filas||[]).map(r=>String(r.colaborador_id))),reviews,closeOk:!!close,controlOk:!!control,issueOk:!!issues,reviewOk:!!review,canReview:review?.puede_revisar===true,partial:dir?!(close&&control&&issues&&review):!close};
     S.loading=false;
     const warnings=[];
     if(!close)warnings.push('No se pudieron consultar los cierres y requisitos.');
@@ -267,9 +274,8 @@
     renderAreas();
   }
   function rowHTML(row,compact=false){
-    const id=String(row.colaborador_id),status=state(row),items=pending(row),reviews=personReviews(id);
-    const count=Number(row.revision_pendiente||0),issues=row.impedimentos||[];
-    const details=[...(count?[count+' por revisar']:[]),...items,...(Number(row.revision_observada)?[row.revision_observada+' con corrección']:[]),...(issues.length?['Impedimento informado']:[])];
+    const id=String(row.colaborador_id),status=state(row);
+    const count=Number(row.revision_pendiente||0),details=detailsFor(row,S.snapshot.controlOk);
     const canOpen=dataClosePerson(row);
     return '<article class="seg-person '+(String(S.person)===id?'is-selected':'')+'" data-person="'+esc(id)+'"><span class="seg-avatar kja-person-avatar" aria-hidden="true">'+avatarContent(row)+'</span><div class="seg-person-name"><b class="kja-person-name">'+esc(row.colaborador)+'</b><small>'+esc(row.area||'Sin área')+'</small>'+(compact?'<span class="seg-person-pending">'+(count?count+' por revisar':esc(details.join(' · ')||'Sin pendientes identificados'))+'</span>':'')+'</div><div class="seg-person-state">'+pill(status.label,status.tone)+(compact?'':'<small>'+esc(details.join(' · ')||'Sin pendientes identificados')+'</small>')+'</div>'+(!compact?'<div class="seg-times"><span><small>Entrada</small><b>'+esc(adminControlTime(row.entrada_at))+'</b></span><span><small>Salida</small><b>'+esc(adminControlTime(row.salida_at))+'</b></span></div>':'')+button('person',compact?icon('arrow'):(count?'Revisar':'Ver caso')+icon('arrow'),compact?'seg-icon':'seg-row-action','data-person="'+esc(id)+'" aria-label="Abrir caso de '+esc(row.colaborador)+'" '+(!canOpen?'disabled':''))+'</article>';
   }
@@ -425,6 +431,24 @@
     const quote=v=>'"'+String(v??'').replace(/^[=+\-@\t\r]/,"'$&").replaceAll('"','""')+'"';
     return {content:'\ufeff'+csv.map(row=>row.map(quote).join(',')).join('\r\n'),type:'text/csv;charset=utf-8',name:'control-diario-'+date+'.csv'};
   }
+  // Jornadas en rojo de una fecha (Incompleta o Sin entrada) con los mismos pendientes que muestra la lista.
+  async function pendingDay(date){
+    const owner=sessionKey();
+    if(!isDirection()||!APP.access?.acceso_panel)throw Error('Solo Dirección puede descargar los pendientes.');
+    const names=['dash_admin_cierres','dash_admin_control_diario','dash_supervision_impedimentos','dash_admin_revision_entregas'];
+    const responses=await Promise.all(names.map(name=>read(name,date,owner)));
+    if(owner!==sessionKey()||!isDirection()||!APP.access?.acceso_panel)throw Error('Cambió la sesión. Vuelve a descargar.');
+    if(responses.some(r=>r.error||!r.data?.ok||r.data.fecha&&r.data.fecha!==date))throw Error('No se pudo consultar el día '+date+'. Reintenta; no se descargó un reporte parcial.');
+    const [close,control,issues,review]=responses.map(r=>r.data);
+    if(!Array.isArray(close.personas)||!Array.isArray(control.filas)||!Array.isArray(issues.impedimentos)||!Array.isArray(review.entregas))throw Error('Los datos del día '+date+' están incompletos. No se descargó un reporte parcial.');
+    const {rows:dayRows,reviews}=combineDay(date,close,control,issues,review);
+    return dayRows.flatMap(row=>{
+      const status=stateFor(row,reviews.filter(d=>String(d.colaborador_id)===String(row.colaborador_id)),date);
+      if(status.tone!=='danger')return [];
+      const p=row.person||{};
+      return [{colaborador_id:row.colaborador_id,colaborador:row.colaborador,area_id:row.area_id,area:row.area,estado:status.label,codigo:status.code,pendientes:detailsFor(row,true),entrada_at:row.entrada_at,salida_at:row.salida_at,horario:p.hora_inicio_programada&&p.hora_salida_programada?p.hora_inicio_programada+' – '+p.hora_salida_programada:null}];
+    });
+  }
   function context(){
     const row=selected(),owner=S.owner,date=S.date;
     return {source:'seguimiento',date,person:personRecord(row),reviews:personReviews(row.colaborador_id),isCurrent:()=>owner===sessionKey(),refresh:()=>load({quiet:true,afterSave:true})};
@@ -465,7 +489,7 @@
     }
   }
   mount();
-  downloads=global.KJASeguimientoExcel?.mount(root,()=>({date:S.date,today:isoLima(),area:S.area,areaLabel:$s('area').selectedOptions[0]?.textContent||'',query:S.query,owner:sessionKey(),allowed:isDirection()&&!!APP.access?.acceso_panel,active:APP.view==='gestion'&&APP.adminSection==='seguimiento'&&!root.hidden}),read,{csv:exportDay});
+  downloads=global.KJASeguimientoExcel?.mount(root,()=>({date:S.date,today:isoLima(),area:S.area,areaLabel:$s('area').selectedOptions[0]?.textContent||'',query:S.query,owner:sessionKey(),allowed:isDirection()&&!!APP.access?.acceso_panel,active:APP.view==='gestion'&&APP.adminSection==='seguimiento'&&!root.hidden}),read,{csv:exportDay,pending:pendingDay});
   root.addEventListener('click',event=>{void handle(event).catch(()=>message('No se pudo completar la acción. Actualiza e inténtalo nuevamente.','error'))});
   $s('search').addEventListener('input',()=>{
     if((S.person||S.busy)&&!canLeave()){$s('search').value=S.query;return}

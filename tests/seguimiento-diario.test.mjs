@@ -283,3 +283,35 @@ test('shared photo loader reads authorized metadata, signs the private bucket an
   image.dispatchEvent(new h.w.Event('error'));
   assert.equal(avatar.querySelector('img'),null);assert.equal(avatar.textContent,'MD');
 });
+
+const withWorkbook=h=>{h.w.TextEncoder=TextEncoder;vm.runInContext(fs.readFileSync('assets/js/facebook-report-excel.js','utf8'),h.ctx)};
+test('Pendientes en Excel usa la regla roja de la lista: solo Sin entrada o Incompleta, con sus pendientes',async()=>{
+  const data=fixtureData();
+  const h=setup({data,rpc:async(name,args)=>{const body=structuredClone(data[name]);if(body)body.fecha=args.p_fecha;return {data:body}}});
+  withWorkbook(h);await h.load();
+  const names=[...h.root.querySelectorAll('.seg-person')].map(el=>[el.querySelector('.kja-person-name').textContent,el.querySelector('.seg-pill').className]);
+  const redNames=names.filter(([,pill])=>pill.includes('danger')).map(([n])=>n);
+  assert.deepEqual(redNames,['Carla Salas']);
+  await h.click('[data-seg="export"]');await h.click('[data-download="pending"]');
+  await h.click('[data-period="range"]');
+  const from=h.w.document.getElementById('seg-x-from'),to=h.w.document.getElementById('seg-x-to');
+  from.value='2026-10-26';to.value=date;to.dispatchEvent(new h.w.Event('change'));
+  h.calls.length=0;await h.click('#seg-x-download');await h.tick();
+  assert.deepEqual([...new Set(h.calls.map(c=>c.args.p_fecha))].sort(),['2026-10-26','2026-10-27',date]);
+  assert.equal(h.calls.filter(c=>c.name==='dash_admin_revision_entregas').length,3);
+  assert.equal(h.blobs.length,1);
+  const text=new TextDecoder().decode(new Uint8Array(await h.blobs[0].arrayBuffer()));
+  assert.ok(text.includes('Carla Salas'));for(const other of ['María Díaz','Jorge Ruiz','Gloria Pérez'])assert.ok(!text.includes(other),other);
+  assert.ok(text.includes('Entrada sin registrar · RPE'));assert.ok(text.includes('>Sin entrada</t>'));
+  assert.ok(text.includes('26/10/2026\nLU'));assert.ok(text.includes('28/10/2026\nMI'));assert.ok(text.includes('<mergeCell ref="A10:A12"/>'));
+});
+test('Pendientes en Excel no descarga un reporte parcial si falla un día',async()=>{
+  const data=fixtureData();
+  const h=setup({data,rpc:async(name,args)=>{if(name==='dash_supervision_impedimentos'&&args.p_fecha==='2026-10-27')return {error:{message:'falla'}};const body=structuredClone(data[name]);if(body)body.fecha=args.p_fecha;return {data:body}}});
+  await h.load();await h.click('[data-seg="export"]');await h.click('[data-download="pending"]');await h.click('[data-period="range"]');
+  const from=h.w.document.getElementById('seg-x-from'),to=h.w.document.getElementById('seg-x-to');
+  from.value='2026-10-26';to.value=date;to.dispatchEvent(new h.w.Event('change'));
+  await h.click('#seg-x-download');await h.tick();
+  assert.equal(h.blobs.length,0);assert.equal(h.w.document.getElementById('seg-download-dialog').dataset.stage,'error');
+  assert.match(h.w.document.getElementById('seg-download-description').textContent,/2026-10-27.*parcial/);
+});
