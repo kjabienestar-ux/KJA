@@ -6,19 +6,19 @@
 
 #portal #admin-assignments-section {
   container: assignments / inline-size;
-  --asg-teal: #0f766e;
-  --asg-teal-hover: #0d9488;
-  --asg-teal-dark: #115e59;
-  --asg-teal-bg: #f0fdfa;
-  --asg-teal-tint: #e6f7f5;
-  --asg-teal-border: #ccfbf1;
-  --asg-ink: #0f172a;
-  --asg-muted: #64748b;
-  --asg-line: #e2e8f0;
-  --asg-surface: #ffffff;
+  --asg-teal: var(--kja-action-primary, #0f766e);
+  --asg-teal-hover: var(--kja-action-primary-hover, #0d9488);
+  --asg-teal-dark: var(--kja-action-primary-pressed, #115e59);
+  --asg-teal-bg: var(--kja-surface-hover, #f0fdfa);
+  --asg-teal-tint: var(--kja-surface-accent-tint, #e6f7f5);
+  --asg-teal-border: var(--kja-surface-border, #ccfbf1);
+  --asg-ink: var(--kja-text-primary, #0f172a);
+  --asg-muted: var(--kja-text-secondary, #64748b);
+  --asg-line: var(--kja-divider-subtle, #e2e8f0);
+  --asg-surface: var(--kja-surface-opaque, #ffffff);
   --asg-rgb: 15, 118, 110;
-  --asg-teal-strong: #99f6e4;
-  --asg-shadow: 0 4px 20px -2px rgba(15, 118, 110, 0.06), 0 2px 6px -1px rgba(15, 118, 110, 0.04);
+  --asg-teal-strong: var(--kja-field-border, #99f6e4);
+  --asg-shadow: var(--kja-surface-card-shadow, 0 4px 20px -2px rgba(15, 118, 110, 0.06), 0 2px 6px -1px rgba(15, 118, 110, 0.04));
 
   color: var(--asg-ink);
   background: transparent !important;
@@ -50,7 +50,7 @@
   padding: 20px 24px;
   border: 1px solid var(--asg-teal-border) !important;
   border-radius: 22px !important;
-  background: var(--asg-hero, linear-gradient(135deg, #e6f7f5 0%, #f0fdfa 55%, #ffffff 100%)) !important;
+  background: var(--kja-surface-cream, var(--asg-hero, linear-gradient(135deg, #e6f7f5 0%, #f0fdfa 55%, #ffffff 100%))) !important;
   box-shadow: 0 4px 20px -2px rgba(var(--asg-rgb, 15, 118, 110), 0.05) !important;
 }
 
@@ -65,7 +65,7 @@
   height: 48px;
   border-radius: 16px;
   background: var(--asg-teal);
-  color: #ffffff;
+  color: var(--kja-on-action, #ffffff);
   display: grid;
   place-items: center;
   box-shadow: 0 6px 14px rgba(var(--asg-rgb, 15, 118, 110), 0.25);
@@ -109,7 +109,7 @@
 }
 
 #portal #admin-assignments-section .assignment-toggle-btn {
-  background: #ffffff !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
   color: var(--asg-teal) !important;
   border: 1.5px solid var(--asg-teal-border) !important;
   border-radius: 13px !important;
@@ -125,7 +125,7 @@
 
 #portal #admin-assignments-section .assignment-toggle-btn:hover {
   background: var(--asg-teal-bg) !important;
-  border-color: var(--asg-teal-strong, #99f6e4) !important;
+  border-color: var(--asg-teal-strong, var(--kja-field-border, #99f6e4)) !important;
   transform: translateY(-1px);
 }
 
@@ -133,7 +133,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   border: 1.5px solid var(--asg-teal-border);
   border-radius: 13px;
   padding: 4px 12px;
@@ -218,7 +218,7 @@
 
 #portal #admin-assignments-section .assignment-form-head {
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--asg-soft, #f1f5f9);
+  border-bottom: 1px solid var(--asg-soft, var(--kja-surface-hover, #f1f5f9));
   margin-bottom: 14px;
 }
 
@@ -280,14 +280,14 @@
   padding: 10px 4px;
   border: 1.5px solid var(--asg-line);
   border-radius: 14px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #portal #admin-assignments-section .type-chip:hover {
-  border-color: var(--asg-teal-strong, #99f6e4);
-  background: #fdfdfd;
+  border-color: var(--asg-teal-strong, var(--kja-field-border, #99f6e4));
+  background: var(--kja-surface-hover, #fdfdfd);
   transform: translateY(-2px);
 }
 
@@ -310,10 +310,10 @@
   transform: scale(1.08);
 }
 
-#portal #admin-assignments-section .chip-avatar.chip-ppt { background: #ffe4e6; color: #e11d48; }
-#portal #admin-assignments-section .chip-avatar.chip-gpt { background: #dcfce7; color: #16a34a; }
-#portal #admin-assignments-section .chip-avatar.chip-induccion { background: #e0f2fe; color: #0284c7; }
-#portal #admin-assignments-section .chip-avatar.chip-otro { background: #fef3c7; color: #d97706; }
+#portal #admin-assignments-section .chip-avatar.chip-ppt { background: var(--kja-status-error-bg, #ffe4e6); color: var(--kja-status-error-text, #e11d48); }
+#portal #admin-assignments-section .chip-avatar.chip-gpt { background: var(--kja-status-bg, #dcfce7); color: var(--kja-status-text, #16a34a); }
+#portal #admin-assignments-section .chip-avatar.chip-induccion { background: var(--kja-status-info-bg, #e0f2fe); color: var(--kja-status-info-text, #0284c7); }
+#portal #admin-assignments-section .chip-avatar.chip-otro { background: var(--kja-status-warning-bg, #fef3c7); color: var(--kja-status-warning-text, #d97706); }
 
 #portal #admin-assignments-section .chip-title {
   font-size: 11px;
@@ -332,7 +332,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
   padding: 4px;
-  background: var(--asg-soft, #f1f5f9);
+  background: var(--asg-soft, var(--kja-surface-hover, #f1f5f9));
   border-radius: 13px;
   margin-bottom: 14px;
 }
@@ -357,9 +357,9 @@
 }
 
 #portal #admin-assignments-section .target-kind-tab.is-active {
-  background: #ffffff;
+  background: var(--kja-surface-accent-tint, #ffffff);
   color: var(--asg-teal);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kja-action-shadow, 0 2px 6px rgba(0, 0, 0, 0.06));
   font-weight: 700;
 }
 
@@ -378,7 +378,7 @@
 #portal #admin-assignments-section .admin-close-fields label {
   display: grid;
   gap: 5px;
-  color: var(--asg-ink-soft, #475569);
+  color: var(--asg-ink-soft, var(--kja-text-primary, #475569));
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -392,7 +392,7 @@
   min-height: 40px !important;
   border: 1.5px solid var(--asg-line) !important;
   border-radius: 12px !important;
-  background: var(--asg-field, #f8fafc) !important;
+  background: var(--asg-field, var(--kja-surface-opaque, #f8fafc)) !important;
   color: var(--asg-ink) !important;
   padding: 9px 12px !important;
   font: 500 12.5px Inter, system-ui, sans-serif !important;
@@ -402,7 +402,7 @@
 
 #portal #admin-assignments-section :is(input, select, textarea):focus {
   outline: none !important;
-  background: #ffffff !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
   border-color: var(--asg-teal) !important;
   box-shadow: 0 0 0 3px rgba(var(--asg-rgb, 15, 118, 110), 0.12) !important;
 }
@@ -424,7 +424,7 @@
   left: 11px;
   width: 15px;
   height: 15px;
-  color: var(--asg-faint, #94a3b8);
+  color: var(--asg-faint, var(--kja-text-secondary, #94a3b8));
   pointer-events: none;
 }
 
@@ -470,7 +470,7 @@
   justify-content: space-between !important;
   gap: 10px !important;
   padding: 6px 12px !important;
-  background: #ffffff !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
   border: 1.5px solid var(--asg-line) !important;
   border-radius: 14px !important;
   color: var(--asg-ink) !important;
@@ -481,21 +481,21 @@
 }
 
 #portal #admin-assignments-section .asg-picker-trigger:hover:not(:disabled) {
-  border-color: var(--asg-teal-strong, #99f6e4) !important;
-  background: #fdfdfd !important;
+  border-color: var(--asg-teal-strong, var(--kja-field-border, #99f6e4)) !important;
+  background: var(--kja-action-disabled-bg, #fdfdfd) !important;
 }
 
 #portal #admin-assignments-section .asg-picker-trigger:is([aria-expanded="true"], :focus-visible) {
   outline: none !important;
   border-color: var(--asg-teal) !important;
-  background: #ffffff !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
   box-shadow: 0 0 0 3px rgba(var(--asg-rgb, 15, 118, 110), 0.12) !important;
 }
 
 #portal #admin-assignments-section .asg-picker-trigger:disabled {
   opacity: 0.55 !important;
   cursor: not-allowed !important;
-  background: var(--asg-field, #f8fafc) !important;
+  background: var(--asg-field, var(--kja-surface-opaque, #f8fafc)) !important;
 }
 
 #portal #admin-assignments-section .asg-trigger-main {
@@ -521,8 +521,8 @@
 }
 
 #portal #admin-assignments-section .asg-trigger-avatar.empty {
-  background: var(--asg-soft, #f1f5f9);
-  color: var(--asg-faint, #94a3b8);
+  background: var(--asg-soft, var(--kja-surface-hover, #f1f5f9));
+  color: var(--asg-faint, var(--kja-text-secondary, #94a3b8));
 }
 
 #portal #admin-assignments-section .asg-trigger-copy {
@@ -542,7 +542,7 @@
 }
 
 #portal #admin-assignments-section .asg-trigger-name.empty {
-  color: var(--asg-faint, #94a3b8);
+  color: var(--asg-faint, var(--kja-text-secondary, #94a3b8));
   font-weight: 500;
 }
 
@@ -557,7 +557,7 @@
 #portal #admin-assignments-section .asg-trigger-chevron {
   width: 16px;
   height: 16px;
-  color: var(--asg-faint, #94a3b8);
+  color: var(--asg-faint, var(--kja-text-secondary, #94a3b8));
   stroke: currentColor;
   fill: none;
   stroke-width: 2.2;
@@ -579,9 +579,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1.5px solid var(--asg-teal-border, #ccfbf1);
+  border: 1.5px solid var(--asg-teal-border, var(--kja-surface-border, #ccfbf1));
   border-radius: 18px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   box-shadow: 0 16px 36px -4px rgba(var(--asg-rgb, 15, 118, 110), 0.18), 0 6px 14px -2px rgba(var(--asg-rgb, 15, 118, 110), 0.08);
   animation: asgPopupIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
@@ -601,14 +601,14 @@
   align-items: center;
   gap: 9px;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--asg-soft, #f1f5f9);
-  background: var(--asg-field, #f8fafc);
+  border-bottom: 1px solid var(--asg-soft, var(--kja-surface-hover, #f1f5f9));
+  background: var(--asg-field, var(--kja-surface-opaque, #f8fafc));
 }
 
 .asg-picker-search-icon {
   width: 15px;
   height: 15px;
-  color: var(--asg-faint, #94a3b8);
+  color: var(--asg-faint, var(--kja-text-secondary, #94a3b8));
   flex-shrink: 0;
 }
 
@@ -619,13 +619,13 @@
   padding: 0 !important;
   min-height: auto !important;
   font: 500 12.5px Inter, system-ui, sans-serif !important;
-  color: var(--asg-ink, #0f172a) !important;
+  color: var(--asg-ink, var(--kja-text-primary, #0f172a)) !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
 .asg-picker-search input::placeholder {
-  color: var(--asg-faint, #94a3b8);
+  color: var(--asg-faint, var(--kja-text-secondary, #94a3b8));
 }
 
 .asg-picker-options {
@@ -636,7 +636,7 @@
   flex-direction: column;
   gap: 3px;
   scrollbar-width: thin;
-  scrollbar-color: var(--asg-line-strong, #cbd5e1) transparent;
+  scrollbar-color: var(--asg-line-strong, var(--kja-field-border, #cbd5e1)) transparent;
 }
 
 .asg-picker-opt {
@@ -656,11 +656,11 @@
 }
 
 .asg-picker-opt:hover {
-  background: var(--asg-teal-bg, #f0fdfa);
+  background: var(--asg-teal-bg, var(--kja-surface-hover, #f0fdfa));
 }
 
 .asg-picker-opt.is-selected {
-  background: var(--asg-teal-tint, #e6f7f5);
+  background: var(--asg-teal-tint, var(--kja-surface-accent-tint, #e6f7f5));
 }
 
 .asg-opt-main {
@@ -692,7 +692,7 @@
 
 .asg-opt-name {
   font: 600 12.5px/1.3 Inter, system-ui, sans-serif;
-  color: var(--asg-ink, #0f172a);
+  color: var(--asg-ink, var(--kja-text-primary, #0f172a));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -700,7 +700,7 @@
 
 .asg-opt-area {
   font-size: 10.5px;
-  color: var(--asg-muted, #64748b);
+  color: var(--asg-muted, var(--kja-text-secondary, #64748b));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -709,7 +709,7 @@
 .asg-opt-check {
   width: 16px;
   height: 16px;
-  color: var(--asg-teal, #0f766e);
+  color: var(--asg-teal, var(--kja-action-primary, #0f766e));
   flex-shrink: 0;
 }
 
@@ -717,19 +717,19 @@
   padding: 24px 14px;
   text-align: center;
   font-size: 12px;
-  color: var(--asg-muted, #64748b);
+  color: var(--asg-muted, var(--kja-text-secondary, #64748b));
 }
 
 /* Colores temáticos por área para los avatares */
 .asg-opt-avatar.tone-salud, .asg-trigger-avatar.tone-salud { background: #e6f7f5; color: #0f766e; }
-.asg-opt-avatar.tone-diseno, .asg-trigger-avatar.tone-diseno { background: #f3eff9; color: #655083; }
+.asg-opt-avatar.tone-diseno, .asg-trigger-avatar.tone-diseno { background: var(--kja-person-avatar-bg, #f3eff9); color: #655083; }
 .asg-opt-avatar.tone-marketing, .asg-trigger-avatar.tone-marketing { background: #fdf2f8; color: #be185d; }
-.asg-opt-avatar.tone-ingenieria, .asg-trigger-avatar.tone-ingenieria { background: #f0f9ff; color: #0369a1; }
-.asg-opt-avatar.tone-rrhh, .asg-trigger-avatar.tone-rrhh { background: #f5f3ff; color: #4f46e5; }
-.asg-opt-avatar.tone-reclutamiento, .asg-trigger-avatar.tone-reclutamiento { background: #fef3e9; color: #b45309; }
-.asg-opt-avatar.tone-finanzas, .asg-trigger-avatar.tone-finanzas { background: #ecfdf5; color: #059669; }
+.asg-opt-avatar.tone-ingenieria, .asg-trigger-avatar.tone-ingenieria { background: #f0f9ff; color: var(--kja-status-info-text, #0369a1); }
+.asg-opt-avatar.tone-rrhh, .asg-trigger-avatar.tone-rrhh { background: var(--kja-status-justified-bg, #f5f3ff); color: #4f46e5; }
+.asg-opt-avatar.tone-reclutamiento, .asg-trigger-avatar.tone-reclutamiento { background: #fef3e9; color: var(--kja-status-warning-text, #b45309); }
+.asg-opt-avatar.tone-finanzas, .asg-trigger-avatar.tone-finanzas { background: var(--kja-status-bg, #ecfdf5); color: var(--kja-status-text, #059669); }
 .asg-opt-avatar.tone-operaciones, .asg-trigger-avatar.tone-operaciones { background: #fef9c3; color: #a16207; }
-.asg-opt-avatar.tone-general, .asg-trigger-avatar.tone-general { background: var(--asg-soft, #f1f5f9); color: var(--asg-ink-soft, #475569); }
+.asg-opt-avatar.tone-general, .asg-trigger-avatar.tone-general { background: var(--asg-soft, var(--kja-surface-hover, #f1f5f9)); color: var(--asg-ink-soft, var(--kja-text-primary, #475569)); }
 
 /* Desplegable de coincidencias encontradas */
 #portal #admin-assignments-section .assignment-target-matches {
@@ -740,7 +740,7 @@
   border: 1.5px solid var(--asg-teal-border);
   border-radius: 12px;
   padding: 6px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   box-shadow: 0 6px 16px rgba(var(--asg-rgb, 15, 118, 110), 0.08);
 }
 
@@ -754,7 +754,7 @@
   padding: 8px 10px;
   border: 0;
   border-radius: 8px;
-  background: var(--asg-field, #f8fafc);
+  background: var(--asg-field, var(--kja-surface-opaque, #f8fafc));
   color: var(--asg-ink);
   text-align: left;
   cursor: pointer;
@@ -775,15 +775,15 @@
   margin: 8px 0;
   padding: 8px 10px;
   border-radius: 10px;
-  background: var(--asg-field, #f8fafc);
+  background: var(--asg-field, var(--kja-surface-opaque, #f8fafc));
   border-left: 3px solid var(--asg-teal);
 }
 
 #portal #admin-assignments-section #admin-assignment-date-note {
   font-size: 11px;
-  color: var(--asg-ink-soft, #475569);
-  background: var(--asg-soft, #f1f5f9);
-  border-left-color: var(--asg-muted, #64748b);
+  color: var(--asg-ink-soft, var(--kja-text-primary, #475569));
+  background: var(--asg-soft, var(--kja-surface-hover, #f1f5f9));
+  border-left-color: var(--asg-muted, var(--kja-text-secondary, #64748b));
 }
 
 /* Botón Principal Estilo "Book Appointment" (Screen 3) */
@@ -792,7 +792,7 @@
   min-height: 46px !important;
   border-radius: 16px !important;
   background: var(--asg-teal) !important;
-  color: #ffffff !important;
+  color: var(--kja-on-action, #ffffff) !important;
   font: 700 13.5px Inter, system-ui, sans-serif !important;
   border: 0 !important;
   cursor: pointer !important;
@@ -835,7 +835,7 @@
   align-items: center;
   justify-content: space-between;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--asg-soft, #f1f5f9);
+  border-bottom: 1px solid var(--asg-soft, var(--kja-surface-hover, #f1f5f9));
   margin-bottom: 12px;
 }
 
@@ -871,7 +871,7 @@
 #portal #admin-assignments-section .assignment-today-pill {
   background: var(--asg-teal-tint) !important;
   color: var(--asg-teal) !important;
-  border: 1px solid var(--asg-teal-strong, #99f6e4) !important;
+  border: 1px solid var(--asg-teal-strong, var(--kja-field-border, #99f6e4)) !important;
   border-radius: 10px !important;
   font: 700 11.5px Inter, system-ui, sans-serif !important;
   padding: 4px 12px !important;
@@ -881,7 +881,7 @@
 }
 
 #portal #admin-assignments-section .assignment-today-pill:hover {
-  background: var(--asg-teal-border, #ccfbf1) !important;
+  background: var(--asg-teal-border, var(--kja-surface-border, #ccfbf1)) !important;
 }
 
 /* Navegación del Mes */
@@ -899,7 +899,7 @@
   min-height: auto !important;
   border-radius: 10px !important;
   border: 1px solid var(--asg-line) !important;
-  background: var(--asg-field, #f8fafc) !important;
+  background: var(--asg-field, var(--kja-surface-opaque, #f8fafc)) !important;
   color: var(--asg-muted) !important;
   display: grid !important;
   place-items: center !important;
@@ -909,9 +909,9 @@
 }
 
 #portal #admin-assignments-section .assignment-month-nav button:hover {
-  background: #ffffff !important;
+  background: var(--kja-surface-hover, #ffffff) !important;
   color: var(--asg-teal) !important;
-  border-color: var(--asg-teal-strong, #99f6e4) !important;
+  border-color: var(--asg-teal-strong, var(--kja-field-border, #99f6e4)) !important;
 }
 
 #portal #admin-assignments-section .assignment-month-nav input {
@@ -945,7 +945,7 @@
   text-align: center;
   font-size: 10.5px;
   font-weight: 700;
-  color: var(--asg-faint, #94a3b8);
+  color: var(--asg-faint, var(--kja-text-secondary, #94a3b8));
   text-transform: uppercase;
   padding: 4px 0;
 }
@@ -1001,14 +1001,14 @@
 /* DÍA SELECCIONADO: CÍRCULO SÓLIDO TEAL (#0f766e) COMO EN LA PANTALLA 3 */
 #portal #admin-assignments-section .assignment-calendar-days button[aria-pressed='true'] {
   background: var(--asg-teal) !important;
-  color: #ffffff !important;
+  color: var(--kja-on-action, #ffffff) !important;
   border-color: var(--asg-teal) !important;
   border-radius: 50% !important;
   box-shadow: 0 4px 10px rgba(var(--asg-rgb, 15, 118, 110), 0.35) !important;
 }
 
 #portal #admin-assignments-section .assignment-calendar-days button[aria-pressed='true'] small {
-  background: #ffffff !important;
+  background: var(--kja-surface-accent-tint, #ffffff) !important;
 }
 
 /* Leyenda del Calendario */
@@ -1018,7 +1018,7 @@
   justify-content: center !important;
   gap: 16px !important;
   padding-top: 12px !important;
-  border-top: 1px solid var(--asg-soft, #f1f5f9) !important;
+  border-top: 1px solid var(--asg-soft, var(--kja-surface-hover, #f1f5f9)) !important;
   font-size: 11px !important;
   color: var(--asg-muted) !important;
 }
@@ -1052,8 +1052,8 @@
 }
 
 #portal #admin-assignments-section .assignment-refresh-btn {
-  background: #ffffff !important;
-  color: var(--asg-ink-soft, #475569) !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
+  color: var(--asg-ink-soft, var(--kja-text-primary, #475569)) !important;
   border: 1.5px solid var(--asg-line) !important;
   border-radius: 11px !important;
   font: 600 11.5px Inter, system-ui, sans-serif !important;
@@ -1068,7 +1068,7 @@
 #portal #admin-assignments-section .assignment-refresh-btn:hover {
   background: var(--asg-teal-bg) !important;
   color: var(--asg-teal) !important;
-  border-color: var(--asg-teal-strong, #99f6e4) !important;
+  border-color: var(--asg-teal-strong, var(--kja-field-border, #99f6e4)) !important;
 }
 
 #portal #admin-assignments-section .assignment-search {
@@ -1090,13 +1090,13 @@
   padding: 14px 16px !important;
   border: 1.5px solid var(--asg-line) !important;
   border-radius: 16px !important;
-  background: #ffffff !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
+  box-shadow: var(--kja-surface-card-shadow, 0 2px 6px rgba(0, 0, 0, 0.02)) !important;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 #portal #admin-assignments-section .admin-close-assignment-row:hover {
-  border-color: var(--asg-teal-strong, #99f6e4) !important;
+  border-color: var(--asg-teal-strong, var(--kja-field-border, #99f6e4)) !important;
   box-shadow: 0 6px 16px rgba(var(--asg-rgb, 15, 118, 110), 0.07) !important;
   transform: translateY(-1px);
 }
@@ -1123,8 +1123,8 @@
 }
 
 #portal #admin-assignments-section .admin-close-assignment-row.is-pendiente .admin-close-assignment-copy small {
-  background: #fef3c7 !important;
-  color: #b45309 !important;
+  background: var(--kja-status-warning-bg, #fef3c7) !important;
+  color: var(--kja-text-secondary, #b45309) !important;
 }
 
 #portal #admin-assignments-section .admin-close-assignment-copy b {
@@ -1145,9 +1145,9 @@
   grid-column: 2 !important;
   grid-row: 1 !important;
   align-self: start !important;
-  background: #fff1f2 !important;
-  color: #e11d48 !important;
-  border: 1px solid #fecdd3 !important;
+  background: var(--kja-status-error-bg, #fff1f2) !important;
+  color: var(--kja-action-danger, #e11d48) !important;
+  border: 1px solid var(--kja-surface-border, #fecdd3) !important;
   border-radius: 8px !important;
   font: 600 11px Inter, sans-serif !important;
   padding: 4px 10px !important;
@@ -1156,8 +1156,8 @@
 }
 
 #portal #admin-assignments-section .admin-close-assignment-row > button:hover {
-  background: #ffe4e6 !important;
-  border-color: #fda4af !important;
+  background: var(--kja-status-error-bg, #ffe4e6) !important;
+  border-color: var(--kja-action-danger, #fda4af) !important;
 }
 
 /* Indicador de Estado (Pill como en la referencia médica) */
@@ -1168,7 +1168,11 @@
   justify-content: space-between !important;
   gap: 10px !important;
   padding-top: 8px !important;
-  border-top: 1px solid var(--asg-soft, #f1f5f9) !important;
+}
+@media(max-width:900px){
+  #portal #admin-assignments-section .admin-close-assignment-progress {
+    border-top:1px solid var(--asg-soft, #f1f5f9) !important;
+  }
 }
 
 #portal #admin-assignments-section .admin-assignment-state {
@@ -1188,23 +1192,23 @@
 }
 
 #portal #admin-assignments-section .admin-assignment-state.pendiente {
-  background: #fef3c7 !important;
-  color: #b45309 !important;
+  background: var(--kja-status-warning-bg, #fef3c7) !important;
+  color: var(--kja-status-warning-text, #b45309) !important;
 }
 
 #portal #admin-assignments-section .admin-assignment-state.parcial {
-  background: #e0f2fe !important;
-  color: #0369a1 !important;
+  background: var(--kja-status-info-bg, #e0f2fe) !important;
+  color: var(--kja-status-info-text, #0369a1) !important;
 }
 
 #portal #admin-assignments-section .admin-assignment-state:is(.entregada, .aprobada) {
-  background: #dcfce7 !important;
-  color: #15803d !important;
+  background: var(--kja-status-bg, #dcfce7) !important;
+  color: var(--kja-status-text, #15803d) !important;
 }
 
 #portal #admin-assignments-section .admin-assignment-state.observada {
-  background: #ffe4e6 !important;
-  color: #be123c !important;
+  background: var(--kja-status-error-bg, #ffe4e6) !important;
+  color: var(--kja-status-error-text, #be123c) !important;
 }
 
 #portal #admin-assignments-section .admin-close-assignment-progress em {
@@ -1237,11 +1241,11 @@
 
 #portal #admin-assignments-section .assignment-evidence-link:hover {
   background: var(--asg-teal-tint) !important;
-  border-color: var(--asg-teal-strong, #99f6e4) !important;
+  border-color: var(--asg-teal-strong, var(--kja-field-border, #99f6e4)) !important;
 }
 
 #portal #admin-assignments-section .assignment-evidence-link small {
-  background: #ffffff !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
   padding: 2px 6px !important;
   border-radius: 6px !important;
   color: var(--asg-teal-dark) !important;
@@ -1251,7 +1255,7 @@
 #portal #admin-assignments-section .admin-empty {
   padding: 32px 16px !important;
   color: var(--asg-muted) !important;
-  background: var(--asg-field, #f8fafc) !important;
+  background: var(--asg-field, var(--kja-surface-opaque, #f8fafc)) !important;
   border: 1.5px dashed var(--asg-line) !important;
   border-radius: 16px !important;
   font-size: 12.5px !important;

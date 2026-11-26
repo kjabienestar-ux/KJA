@@ -18,6 +18,11 @@
         return {data:{inicio:{ok:true,perfil:{nombre:'Cuenta de ensayo',nivel:'sistemas'},colaborador:null,dia:{fecha:fixture.date}},acceso:{rol:fixture.role||'direccion',acceso_panel:true,superadmin:false}},error:null};
       }
       if(name==='dash_admin_solicitudes_agrupadas')return {data:{ok:true,solicitudes:[]},error:null};
+      if(name==='dash_admin_revisar_entrega'&&lab.reviewImage){
+        const entry=lab.data.dash_admin_revision_entregas.entregas.find(item=>item.id===args.p_entrega);
+        entry.revision_estado=args.p_estado;entry.revision_nota=args.p_nota;
+        return {data:{ok:true},error:null};
+      }
       if(Object.hasOwn(lab.data,name)){
         if(lab.mode==='hold')await new Promise(resolve=>lab.waiting.push(resolve));
         return response(name,args);
@@ -30,7 +35,7 @@
       const query={then:(ok,bad)=>Promise.resolve({data:rows,error:null}).then(ok,bad)};
       for(const method of ['select','eq','neq','in','is','not','order','gte','lte','limit','maybeSingle','single'])query[method]=()=>query;return query;
     },
-    storage:{from:()=>({createSignedUrl:async()=>({data:null,error:null}),createSignedUrls:async()=>({data:[],error:null})})},
+    storage:{from:()=>({uploadToSignedUrl:async(path)=>{lab.calls.push({name:'fixture-upload',path});return {error:null}},createSignedUrl:async()=>({data:lab.reviewImage?{signedUrl:lab.reviewImage}:null,error:null}),createSignedUrls:async(paths)=>({data:lab.reviewImage?paths.map(path=>({path,signedUrl:lab.reviewImage})):[],error:null})})},
     functions:{invoke:async()=>({data:{ok:false,motivo:'sin_permiso'},error:null})},
     channel(){const channel={on:()=>channel,subscribe:()=>channel};return channel},removeChannel:async()=>{}
   };

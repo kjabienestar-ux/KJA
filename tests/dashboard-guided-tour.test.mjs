@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 const source = fs.readFileSync(new URL('../assets/js/dashboard-guided-tour.js', import.meta.url), 'utf8');
 
-function harness({ personal = true, loading = false, mobile = false, seen = false } = {}) {
+function harness({ personal = true, loading = false, mobile = false, seen = false, pending = false } = {}) {
   const storage = new Map(seen ? [['kja.dashboard.guided-tour.v3:user-one:web', 'done']] : []);
   const timers = [], frames = [], observers = [];
   const documentListeners = new Map();
@@ -37,7 +37,7 @@ function harness({ personal = true, loading = false, mobile = false, seen = fals
   const targets = new Map([
     ['#sidebar', elements.get('sidebar')], ['.day-schedule', new Element()], ['.day-summary .progress-card', new Element()],
     ['#day-close-checklist .type-entrada', new Element()], ['#day-close-checklist .type-comparticiones', new Element()],
-    ['#day-close-checklist .type-rpe', new Element()], ['#day-close-checklist .type-salida', new Element()], ['#portal-rail', new Element()],
+    ['#day-close-checklist .type-rpe', new Element()], ['#day-close-checklist .type-salida', new Element()], ['#side-profile-link', new Element()],
     ['.mobile-quick-grid', new Element()], ['#mobile-today-summary', new Element()], ['#mobile-month-progress-slot .dashboard-month-progress', new Element()],
     ['#mobile-close-list .type-entrada', new Element()], ['#mobile-close-list .type-comparticiones', new Element()],
     ['#mobile-close-list .type-rpe', new Element()], ['#mobile-close-list .type-salida', new Element()], ['#mobile-profile-link', new Element()]
@@ -57,9 +57,14 @@ function harness({ personal = true, loading = false, mobile = false, seen = fals
     removeEventListener(name) { documentListeners.delete(name); },
     body: { append: el => { root = el; } }
   };
-  const APP = { sessionUid: 'user-one' };
+  const APP = { sessionUid: 'user-one', guidedTourPending: pending, guidedTourUserMetadata: { origen: 'dashboard', kja_dashboard_guided_tour_pending: pending } };
+  const metadataWrites = [];
+  const db = { auth: { updateUser: async ({ data }) => {
+    metadataWrites.push({ uid: APP.sessionUid, data: { ...data } });
+    return { error: null };
+  } } };
   const context = {
-    document, APP, localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) },
+    document, APP, db, localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) },
     getComputedStyle: el => ({ display: el.hidden ? 'none' : 'block', visibility: 'visible', opacity: 1, borderRadius: '12px' }),
     matchMedia: query => ({ matches: query.includes('max-width') && mobile }),
     setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout() {},
@@ -72,7 +77,7 @@ function harness({ personal = true, loading = false, mobile = false, seen = fals
   context.window = context;
   vm.runInNewContext(source, context);
   return {
-    portal, trigger, card, document, APP, storage, targets, controls, elements,
+    portal, trigger, card, document, APP, storage, targets, controls, elements, metadataWrites,
     setMobile: value => { mobile = value; },
     root: () => root,
     title: () => controls.get('#guided-tour-title')?.textContent,
@@ -93,20 +98,34 @@ function harness({ personal = true, loading = false, mobile = false, seen = fals
 }
 
 test('first visit waits for the loaded personal dashboard and starts automatically', () => {
-  const h = harness({ loading: true }); h.auto(); assert.equal(h.root(), null);
+  const h = harness({ loading: true, pending: true }); h.auto(); assert.equal(h.root(), null);
+  assert.equal(h.APP.guidedTourPending, true); assert.equal(h.metadataWrites.length, 0);
   h.card.classes.delete('daily-close-pending'); h.mutate(); h.auto();
   assert.equal(h.title(), 'Todo empieza en el sidebar'); assert.equal(h.portal.inert, true);
+  assert.equal(h.APP.guidedTourPending, false);
+  assert.equal(h.metadataWrites.length, 1);
+  assert.equal(h.metadataWrites[0].data.kja_dashboard_guided_tour_pending, false);
+  assert.equal(h.metadataWrites[0].data.origen, 'dashboard');
+  assert.ok(Number.isFinite(Date.parse(h.metadataWrites[0].data.kja_dashboard_guided_tour_started_at)));
 });
 
 test('seen and non-personal accounts do not start automatically', () => {
-  const seen = harness({ seen: true }); seen.auto(); assert.equal(seen.root(), null); assert.equal(seen.trigger.hidden, false);
-  const external = harness({ personal: false }); external.auto(); external.mutate(); assert.equal(external.root(), null); assert.equal(external.trigger.hidden, true);
+  const seen = harness({ seen: true, pending: true }); seen.auto(); assert.equal(seen.root(), null); assert.equal(seen.trigger.hidden, false);
+  const external = harness({ personal: false, pending: true }); external.auto(); external.mutate(); assert.equal(external.root(), null); assert.equal(external.trigger.hidden, true);
+  assert.equal(seen.metadataWrites.length, 0); assert.equal(external.metadataWrites.length, 0);
 });
 
-test('chapters follow sidebar, jornada, hours, closing requirements and personal space', () => {
+test('an existing account without the automatic-tour flag can replay without writing metadata', () => {
+  const h = harness(); h.auto(); assert.equal(h.root(), null);
+  assert.equal(h.storage.size, 0); assert.equal(h.trigger.hidden, false);
+  h.trigger.click(); assert.ok(h.root()); h.key('Escape');
+  assert.equal(h.metadataWrites.length, 0);
+});
+
+test('chapters follow sidebar, jornada, hours, closing requirements and profile', () => {
   const h = harness(); h.trigger.click(); const titles = [];
   while (h.root()) { titles.push(h.title()); h.click('.guided-tour-next'); }
-  assert.deepEqual(titles, ['Todo empieza en el sidebar', 'Horario, modalidad y contador', 'Tus horas del mes', '1. Marca tu entrada', '2. Comparticiones de Facebook', '3. Sube tu RPE', '4. Registra tu salida', 'Mi espacio y listo']);
+  assert.deepEqual(titles, ['Todo empieza en el sidebar', 'Horario, modalidad y contador', 'Tus horas del mes', '1. Marca tu entrada', '2. Comparticiones de Facebook', '3. Sube tu RPE', '4. Registra tu salida', 'Tu perfil y listo']);
   assert.equal(h.portal.inert, false); assert.equal(h.storage.get('kja.dashboard.guided-tour.v3:user-one:web'), 'done');
 });
 
@@ -130,9 +149,16 @@ test('a replaced checklist target remains anchored and an interrupted view is no
 
 test('first-visit preference belongs to each signed-in user and replay bypasses it', () => {
   const h = harness({ seen: true }); h.trigger.click(); h.key('Escape');
-  h.APP.sessionUid = 'user-two'; h.mutate(); h.auto();
+  assert.equal(h.metadataWrites.length, 0);
+  h.APP.sessionUid = 'user-two';
+  h.APP.guidedTourPending = true;
+  h.APP.guidedTourUserMetadata = { origen: 'dashboard', kja_dashboard_guided_tour_pending: true };
+  h.mutate(); h.auto();
   assert.equal(h.title(), 'Todo empieza en el sidebar'); h.key('Escape');
   assert.equal(h.storage.get('kja.dashboard.guided-tour.v3:user-two:web'), 'done');
+  assert.equal(h.metadataWrites.length, 1); assert.equal(h.metadataWrites[0].uid, 'user-two');
+  assert.equal(h.metadataWrites[0].data.kja_dashboard_guided_tour_pending, false);
+  h.mutate(); h.auto(); assert.equal(h.root(), null);
 });
 
 test('mobile has its own brief route and never describes desktop-only controls', () => {
@@ -153,10 +179,22 @@ test('missing mobile requirements are omitted while the remaining closure order 
   assert(titles.indexOf('2. Facebook') < titles.indexOf('4. Registra tu salida'));
 });
 
-test('finishing the web guide does not suppress the first mobile visit', () => {
-  const h = harness({ seen: true }); h.auto(); assert.equal(h.root(), null);
-  h.setMobile(true); h.mutate(); h.auto(); assert.equal(h.title(), 'Tus accesos rápidos');
-  h.key('Escape'); assert.equal(h.storage.get('kja.dashboard.guided-tour.v3:user-one:mobile'), 'done');
+test('the automatic tour is consumed account-wide but manual mobile replay is available', () => {
+  const web = harness({ pending: true }); web.auto(); assert.ok(web.root()); web.key('Escape');
+  const h = harness({ mobile: true, pending: web.metadataWrites[0].data.kja_dashboard_guided_tour_pending });
+  h.auto(); assert.equal(h.root(), null); assert.equal(h.storage.size, 0);
+  h.trigger.click(); assert.equal(h.title(), 'Tus accesos rápidos'); h.key('Escape');
+  assert.equal(h.storage.get('kja.dashboard.guided-tour.v3:user-one:mobile'), 'done');
+  assert.equal(h.metadataWrites.length, 0);
+});
+
+test('a new account can start the automatic tour on mobile first', () => {
+  const h = harness({ mobile: true, pending: true }); h.auto();
+  assert.equal(h.title(), 'Tus accesos rápidos'); assert.equal(h.APP.guidedTourPending, false);
+  assert.equal(h.metadataWrites.length, 1);
+  assert.equal(h.metadataWrites[0].data.kja_dashboard_guided_tour_pending, false);
+  assert.equal(h.storage.get('kja.dashboard.guided-tour.v3:user-one:mobile'), 'done');
+  assert.equal(h.storage.has('kja.dashboard.guided-tour.v3:user-one:web'), false);
 });
 
 test('mobile pins its guide beneath the highlighted section and restores the page position', () => {

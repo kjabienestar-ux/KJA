@@ -208,7 +208,7 @@ function syncAdminCloseTargets(){
 }
 
 function adminDrawKey(){
-  return [$('admin-close-date').value,$('admin-close-target').value,$('admin-close-draw-count').value,$('admin-close-type').value,$('admin-close-title').value.trim(),$('admin-close-instructions').value.trim()].join('|');
+  return JSON.stringify([$('admin-close-date').value,$('admin-close-target').value,$('admin-close-draw-count').value,$('admin-close-type').value,$('admin-close-title').value.trim(),$('admin-close-instructions').value.trim()]);
 }
 
 function clearAdminDrawPreview(){
@@ -218,21 +218,30 @@ function clearAdminDrawPreview(){
 
 function renderAdminDrawPreview(data){
   ADMIN_DRAW={key:adminDrawKey(),selection:data.seleccion||[]};const preview=$('admin-close-draw-preview');preview.hidden=false;
-  preview.innerHTML=`<header><span><b>Selección propuesta</b><small>Rotación equilibrada según asignaciones de los últimos 30 días.</small></span><em>${ADMIN_DRAW.selection.length} de ${data.disponibles} disponibles</em></header><div>${ADMIN_DRAW.selection.map(person=>`<span><i>${esc(initials(person.nombre))}</i><span><b>${esc(person.nombre)}</b><small>${Number(person.carga_30d)||0} asignaciones recientes</small></span></span>`).join('')}</div><p>La selección permanece igual mientras no cambies fecha, área, cantidad o tipo.</p>`;
+  const people=ADMIN_DRAW.selection.map(person=>{
+    const recent=Number(person.carga_30d)||0;
+    return `<span role="listitem"><i aria-hidden="true">${esc(initials(person.nombre))}</i><span><b>${esc(person.nombre)}</b><small>${recent} ${recent===1?'asignación reciente':'asignaciones recientes'}</small></span></span>`;
+  }).join('');
+  preview.innerHTML=`<header><span><b id="admin-draw-heading">Selección propuesta</b><small>Rotación según las asignaciones de los últimos 30 días.</small></span><em>${ADMIN_DRAW.selection.length} de ${Number(data.disponibles)} disponibles</em></header><div role="list" aria-label="Personas seleccionadas">${people}</div><p>Revisa los nombres antes de confirmar. Si editas el formulario, vuelve a previsualizar el sorteo.</p>`;
   $('admin-close-assign').textContent=`Confirmar ${ADMIN_DRAW.selection.length} ${ADMIN_DRAW.selection.length===1?'asignación':'asignaciones'}`;
+  preview.focus?.();
 }
 
 function renderAdminCloseAssignments(){
   if(globalThis.KJAAssignmentLoading?.isPending())return KJAAssignmentLoading.pending();
-  const data=APP.adminClose,query=adminCloseSearchText($('admin-assignment-search')?.value||''),rows=(data?.asignaciones||[]).filter(item=>adminCloseSearchText(`${item.titulo} ${item.destino}`).includes(query));
-  const presentations=rows.map(adminCloseAssignmentPresentation),concluded=presentations.filter(item=>['entregada','aprobada'].includes(item.state)).length;
-  $('admin-close-assignment-count').textContent=rows.length?`${rows.length} ${rows.length===1?'asignación':'asignaciones'} · ${concluded} ${concluded===1?'concluida':'concluidas'}`:'Sin asignaciones';
-  $('admin-close-assignment-list').innerHTML=rows.length?rows.map((item,index)=>{const status=adminCloseAssignmentPresentation(item);return `<div class="admin-close-assignment-row is-${esc(status.state)}">
+  const data=APP.adminClose,all=data?.asignaciones||[];
+  const query=adminCloseSearchText($('admin-assignment-search')?.value||'');
+  const rows=all.filter(item=>adminCloseSearchText(`${item.titulo} ${item.destino}`).includes(query));
+  const presentations=rows.map(adminCloseAssignmentPresentation);
+  const concluded=presentations.filter(item=>item.state==='aprobada').length;
+  const noMatches=Boolean(query&&all.length&&!rows.length);
+  $('admin-close-assignment-count').textContent=rows.length?`${rows.length} ${rows.length===1?'asignación':'asignaciones'} · ${concluded} ${concluded===1?'concluida':'concluidas'}`:noMatches?'Sin coincidencias':'Sin asignaciones';
+  $('admin-close-assignment-list').innerHTML=rows.length?rows.map((item,index)=>{const status=presentations[index];return `<div class="admin-close-assignment-row is-${esc(status.state)}">
     <span class="admin-close-assignment-copy"><small>${esc((item.tipo||'otro').toUpperCase())}</small><b title="${esc(item.titulo)}">${esc(item.titulo)}</b><em>${esc(item.destino||'Destino no disponible')}</em></span>
-    <span class="admin-close-assignment-progress"><strong class="admin-assignment-state ${esc(status.state)}"><i aria-hidden="true"></i>${esc(status.label)}</strong><em>${esc(status.copy)}</em></span>
-    ${data.puede_editar?`<button type="button" data-cancel-admin-close="${esc(item.id)}">Quitar</button>`:''}
+    <span class="admin-close-assignment-progress"><strong class="admin-assignment-state kja-status ${esc(status.state)}" data-tone="${status.tone}"><i aria-hidden="true"></i>${esc(status.label)}</strong><em>${esc(status.copy)}</em></span>
+    ${data.puede_editar?`<button type="button" data-cancel-admin-close="${esc(item.id)}" aria-label="Quitar ${esc(item.titulo)}">Quitar</button>`:''}
     <div class="assignment-deliveries">${adminAssignmentEvidence(item.id)}</div>
-  </div>`}).join(''):'<p class="admin-empty">No hay entregables asignados para esta fecha.</p>';
+  </div>`}).join(''):noMatches?'<p class="admin-empty">No hay coincidencias. Prueba con otro título o destinatario.</p>':'<p class="admin-empty">No hay entregables asignados para esta fecha.</p>';
   if(typeof renderAssignmentDaySummary==='function')renderAssignmentDaySummary();
 }
 
@@ -247,7 +256,8 @@ function adminCloseAssignmentPresentation(item){
     observada:'Debe enviar una nueva versión',
     sin_destinatarios:'No hay personas programadas'
   }[state]||'Estado por confirmar';
-  return {state,label:labels[state]||'Pendiente',copy};
+  const tones={pendiente:'warn',parcial:'info',entregada:'info',aprobada:'ok',observada:'bad',sin_destinatarios:'idle'};
+  return {state,label:labels[state]||'Por confirmar',tone:tones[state]||'idle',copy};
 }
 
 function adminCloseAreaIcon(areaName){
@@ -473,8 +483,10 @@ function closeAdminReview({restoreFocus=true}={}){
 
 async function renderAdminReviewDelivery(id,fileIndex=0){
   const delivery=adminReviewDeliveries().find(item=>String(item.id)===String(id));if(!delivery)return;
+  const sameDelivery=String(ADMIN_REVIEW.deliveryId)===String(delivery.id);
   ADMIN_REVIEW.deliveryId=delivery.id;const request=++ADMIN_REVIEW.request,scope=adminReviewScope();
   [...$('admin-review-tabs').querySelectorAll('button')].forEach(button=>{const selected=String(button.dataset.adminReviewDelivery)===String(id);button.classList.toggle('active',selected);button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1});
+  $('admin-review-panel').setAttribute('aria-labelledby', 'admin-review-tab-' + delivery.id);
   $('admin-review-evidence-title').textContent=adminReviewTitle(delivery);
   $('admin-review-evidence-meta').textContent=`${(delivery.archivos||[]).length} ${(delivery.archivos||[]).length===1?'archivo':'archivos'} · ${delivery.modalidad==='collage'?'Collage':delivery.requisito==='comparticiones'?'Capturas individuales':delivery.requisito==='salida'?'Foto de cierre':'Evidencia del día'}`;
   $('admin-review-copy').textContent=`${delivery.area} · ${adminReviewDate(delivery.fecha)} · Enviado ${adminReviewTime(delivery.completado_at)}`;
@@ -482,7 +494,7 @@ async function renderAdminReviewDelivery(id,fileIndex=0){
   $('admin-review-submitter-note').textContent=delivery.detalle||'Sin comentario adicional.';
   const origin=$('admin-review-origin');origin.hidden=!delivery.cargada_por_direccion;$('admin-review-origin-copy').textContent=delivery.cargada_por_direccion?`Cargada por ${delivery.cargada_por||'Dirección'} en nombre del colaborador${delivery.salida_reportada_at?` · hora reportada ${adminReviewTime(delivery.salida_reportada_at)}`:''}.`:'';
   const history=$('admin-review-history'),reviewNote=delivery.revision_nota?` Observación: ${delivery.revision_nota}`:'';history.hidden=delivery.revision_estado==='pendiente';history.querySelector('p').textContent=delivery.revision_estado==='observada'?delivery.revision_nota||'Se solicitó una corrección.':`Aprobada${delivery.revisor?` por ${delivery.revisor}`:''}.${reviewNote}`;
-  $('admin-review-observation').value='';
+  if(!sameDelivery){$('admin-review-observation').value='';$('admin-review-observation').removeAttribute('aria-invalid');}
   const canDecide=APP.access.rol==='direccion'&&APP.adminReview?.puede_revisar===true,reviewed=delivery.revision_estado!=='pendiente'||delivery.estado!=='completo',closed=!!delivery.jornada_cerrada;
   $('admin-review-modal').querySelector('.admin-review-decision').classList.toggle('is-readonly',!canDecide);
   $('admin-review-observation-wrap').hidden=reviewed||!canDecide;
@@ -541,10 +553,10 @@ function openAdminReviewPerson(personId,trigger=null,assignmentId=null){
   const canOpen=APP.access.rol==='direccion'||(APP.identity.isLeader&&APP.adminReview?.solo_lectura===true);if(!canOpen)return;
   const deliveries=(APP.adminReview?.entregas||[]).filter(item=>String(item.colaborador_id)===String(personId)&&(assignmentId==null||(item.requisito==='asignado'&&String(item.asignacion_id)===String(assignmentId))));if(!deliveries.length)return;
   const first=deliveries.find(item=>item.revision_estado==='pendiente'&&item.estado==='completo')||deliveries[0],person=deliveries[0];
-  ADMIN_REVIEW={personId:Number(personId),assignmentId,deliveryId:first.id,trigger:trigger||document.activeElement,busy:false,request:ADMIN_REVIEW.request+1};
+  ADMIN_REVIEW={personId:Number(personId),assignmentId,deliveryId:null,trigger:trigger||document.activeElement,busy:false,request:ADMIN_REVIEW.request+1};
   const readOnly=APP.access.rol!=='direccion';$('admin-review-access').hidden=!readOnly;
   $('admin-review-person-mark').textContent=initials(person.colaborador);$('admin-review-title').textContent=person.colaborador;$('admin-review-copy').textContent=`${person.area} · ${adminReviewDate(person.fecha)}`;
-  $('admin-review-tabs').innerHTML=deliveries.map(item=>`<button type="button" role="tab" aria-selected="false" data-admin-review-delivery="${esc(item.id)}" data-state="${esc(item.revision_estado)}"><span>${esc(adminReviewTitle(item))}</span><small>${esc(adminReviewStateLabel(item))}</small></button>`).join('');
+  $('admin-review-tabs').innerHTML=deliveries.map(item=>`<button type="button" role="tab" id="admin-review-tab-${esc(item.id)}" aria-controls="admin-review-panel" aria-selected="false" data-admin-review-delivery="${esc(item.id)}" data-state="${esc(item.revision_estado)}"><span>${esc(adminReviewTitle(item))}</span><small>${esc(adminReviewStateLabel(item))}</small></button>`).join('');
   $('admin-review-modal').hidden=false;document.body.classList.add('admin-review-open');
   renderAdminReviewDelivery(first.id);setTimeout(()=>$('admin-review-tabs').querySelector('button.active')?.focus(),0);
 }
@@ -553,7 +565,10 @@ async function submitAdminReview(state){
   if(APP.access.rol!=='direccion'||APP.adminReview?.puede_revisar!==true)return adminReviewMessage('Esta vista es solo de consulta.','is-error');
   if(ADMIN_REVIEW.busy)return;const delivery=adminReviewDeliveries().find(item=>String(item.id)===String(ADMIN_REVIEW.deliveryId));if(!delivery)return;
   const note=$('admin-review-observation').value.trim();
-  if(state==='observada'&&note.length<3)return adminReviewMessage('Explica qué debe corregir antes de enviar la observación.','is-error');
+  if(state==='observada'&&note.length<3){
+    adminReviewMessage('Explica qué debe corregir antes de enviar la observación.','is-error');
+    const field=$('admin-review-observation');field.setAttribute('aria-invalid','true');field.focus();return;
+  }
   const approve=$('admin-review-approve'),observe=$('admin-review-observe');ADMIN_REVIEW.busy=true;approve.disabled=true;observe.disabled=true;adminReviewMessage(state==='aprobada'?'Aprobando evidencia…':'Enviando solicitud de corrección…');
   const personId=ADMIN_REVIEW.personId,assignmentId=ADMIN_REVIEW.assignmentId,trigger=ADMIN_REVIEW.trigger;
   let saved=false,alreadyReviewed=false;
@@ -617,12 +632,14 @@ function renderAdminEvidenceComposer(){
   $('admin-evidence-files').multiple=!(isExit||(isFacebook&&mode==='collage'));
   $('admin-evidence-files').accept=selected?.kind==='asignado'?'image/jpeg,image/png,image/webp,.pdf,.doc,.docx,.ppt,.pptx':'image/jpeg,image/png,image/webp';
   const max=isFacebook?(mode==='collage'?1:50):isExit?1:5;
+  $('admin-evidence-picker').toggleAttribute('data-full',ADMIN_EVIDENCE.files.length>=max);
   $('admin-evidence-picker-title').textContent=ADMIN_EVIDENCE.files.length?'Añadir más imágenes':'Seleccionar imágenes';
   $('admin-evidence-picker-copy').textContent=isFacebook&&mode==='individuales'?`De ${Number(person?.cierre?.comparticiones_min||1)} a 50 capturas · se optimizan antes de subir`:max===1?'Una imagen JPG, PNG o WebP':'De 1 a 5 imágenes · se optimizan antes de subir';
   $('admin-evidence-previews').innerHTML=ADMIN_EVIDENCE.files.map((file,index)=>`<article class="admin-evidence-preview"><img src="${esc(file.url)}" alt="Vista previa ${index+1}"><button type="button" data-remove-admin-evidence="${index}" aria-label="Quitar imagen ${index+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></article>`).join('');
   const submit=$('admin-evidence-submit');submit.disabled=!selected||!ADMIN_EVIDENCE.files.length||ADMIN_EVIDENCE.busy;
   if(selected?.kind==='asignado'){
-    $('admin-evidence-picker-title').textContent=ADMIN_EVIDENCE.files.length?'Añadir archivos':'Seleccionar archivos';
+    $('admin-evidence-picker').toggleAttribute('data-full',ADMIN_EVIDENCE.files.length>=max);
+  $('admin-evidence-picker-title').textContent=ADMIN_EVIDENCE.files.length?'Añadir archivos':'Seleccionar archivos';
     $('admin-evidence-picker-copy').textContent='PDF, Word, PowerPoint o imágenes · hasta 5 archivos · documentos hasta 10 MB';
     $('admin-evidence-previews').innerHTML=ADMIN_EVIDENCE.files.map((file,index)=>`<article class="admin-evidence-preview">${dailyFilePreview(file,index)}<button type="button" data-remove-admin-evidence="${index}" aria-label="Quitar archivo ${index+1}">×</button></article>`).join('');
   }
@@ -756,12 +773,25 @@ async function submitAdminCloseAssignment(event){
       renderAdminDrawPreview(preview);return;
     }
     button.textContent='Creando asignaciones…';
+    const submittedKey=ADMIN_DRAW.key;
+    const payload={
+      p_fecha:$('admin-close-date').value,p_area:target,p_colaboradores:ADMIN_DRAW.selection.map(person=>Number(person.id)),
+      p_tipo:$('admin-close-type').value,p_titulo:title,p_instrucciones:$('admin-close-instructions').value.trim()||null
+    };
     const confirmed=await withActionLoader('Creando asignaciones',async setLabel=>{
-      const {data:result,error}=await db.rpc('dash_admin_confirmar_sorteo',{p_fecha:$('admin-close-date').value,p_area:target,p_colaboradores:ADMIN_DRAW.selection.map(person=>Number(person.id)),p_tipo:$('admin-close-type').value,p_titulo:title,p_instrucciones:$('admin-close-instructions').value.trim()||null});
+      const {data:result,error}=await db.rpc('dash_admin_confirmar_sorteo',payload);
       if(error||!result?.ok)return {result};
-      button.disabled=false;$('admin-close-title').value='';$('admin-close-instructions').value='';clearAdminDrawPreview();setLabel('Actualizando cierres');await loadAdminCloses({quiet:true,refresh:true});return {result,ok:true};
+      if(submittedKey===adminDrawKey()&&$('admin-close-target-kind').value==='sorteo'){
+        $('admin-close-title').value='';$('admin-close-instructions').value='';
+      }
+      clearAdminDrawPreview();
+      setLabel('Actualizando cierres');
+      try{await loadAdminCloses({quiet:true,refresh:true})}
+      catch{adminCloseMsg('Sorteo confirmado. Actualiza la lista para ver las asignaciones.','error')}
+      return {result,ok:true};
     }).catch(()=>({}));
-    if(!confirmed.ok){button.disabled=false;clearAdminDrawPreview();return adminCloseMsg(confirmed.result?.motivo==='ya_asignado'?'Una de las personas ya recibió esta asignación. Previsualiza nuevamente.':'No pudimos confirmar el sorteo. Revisa los datos e inténtalo nuevamente.','error')}
+    button.disabled=false;
+    if(!confirmed.ok){clearAdminDrawPreview();return adminCloseMsg(confirmed.result?.motivo==='ya_asignado'?'Una de las personas ya recibió esta asignación. Previsualiza nuevamente.':'No pudimos confirmar el sorteo. Revisa los datos e inténtalo nuevamente.','error')}
     toast(`${confirmed.result.cantidad} ${confirmed.result.cantidad===1?'persona seleccionada':'personas seleccionadas'} por rotación justa.`);return;
   }
   const button=$('admin-close-assign');button.disabled=true;button.textContent='Asignando…';adminCloseMsg('');
@@ -825,6 +855,19 @@ $('admin-close-assignment-list').onclick=event=>{const button=event.target.close
 $('admin-close-status').onclick=event=>{const recovery=event.target.closest('[data-admin-recover-exit]');if(recovery){void recoverAdminCloseExit(recovery.dataset.adminRecoverExit,recovery);return;}const review=event.target.closest('[data-admin-review-person]'),upload=event.target.closest('[data-admin-upload-person]');if(review)openAdminReviewPerson(review.dataset.adminReviewPerson,review);if(upload)openAdminMissingEvidence(upload.dataset.adminUploadPerson,upload)};
 $('admin-review-gallery').onclick=event=>{const button=event.target.closest('[data-admin-review-file]');if(button)renderAdminReviewDelivery(ADMIN_REVIEW.deliveryId,Number(button.dataset.adminReviewFile));};
 $('admin-review-tabs').onclick=event=>{const button=event.target.closest('[data-admin-review-delivery]');if(button)renderAdminReviewDelivery(button.dataset.adminReviewDelivery)};
+$('admin-review-tabs').addEventListener('keydown',event=>{
+  const tabs=[...event.currentTarget.querySelectorAll('[role=tab]')],index=tabs.indexOf(event.target);
+  if(index<0||!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;
+  event.preventDefault();
+  const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+  tabs[next].focus();tabs[next].click();
+});
+$('admin-review-observation').addEventListener('input',event=>{
+  const field=event.currentTarget;
+  if(field.hasAttribute('aria-invalid')&&field.value.trim().length>=3){
+    field.removeAttribute('aria-invalid');adminReviewMessage('');
+  }
+});
 $('admin-review-approve').onclick=()=>submitAdminReview('aprobada');
 $('admin-review-observe').onclick=()=>submitAdminReview('observada');
 document.querySelectorAll('[data-close-admin-review]').forEach(button=>button.onclick=()=>closeAdminReview());

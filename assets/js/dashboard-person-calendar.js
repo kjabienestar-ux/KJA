@@ -69,7 +69,7 @@
           '<p class="pc-attendance-totals">'+total('P')+' presentes · '+total('T')+' tardanzas · '+total('J')+' justificados</p>'+
           (unavailable?'<p class="pc-message">No hay información de Facebook para todas las fechas. No se puede confirmar su cumplimiento.</p>':'')+
           '<div class="pc-workspace"><section class="pc-month" aria-label="Calendario de '+escape(session.month)+'"><div class="pc-week" aria-hidden="true">'+['L','M','M','J','V','S','D'].map(d=>'<span>'+d+'</span>').join('')+'</div><div class="pc-grid">'+cells+'</div>'+
-          '<p class="pc-legend"><span class="pc-red">Rojo: Facebook vencido o cierre incompleto</span><span>Azul: justificado</span><span>Verde: presente o compartido</span><span>Gris: sin jornada o fuera del contrato</span></p>'+
+          '<p class="pc-legend"><span class="pc-red">Rojo: Facebook vencido o cierre incompleto</span><span class="pc-legend-justified">Azul: justificado</span>'+(host.id==='admin-person-calendar'?'<span class="pc-legend-admin-justified">Morado: justificado</span>':'')+'<span>Verde: presente o compartido</span><span>Gris: sin jornada o fuera del contrato</span></p>'+
           '<details class="pc-alerts" '+(alerts.length?'open':'')+'><summary>Fechas para revisar ('+alerts.length+')</summary>'+
           (alerts.length?alerts.map(d=>button('data-pc-day="'+escape(d.fecha)+'"', '<b>'+escape(dateLabel(d.fecha))+'</b><span>'+escape(d.view.label)+'</span>')).join(''):'<p>No hay incidencias marcadas en este mes.</p>')+'</details></section>'+
           '<section class="pc-detail" data-pc-detail aria-label="Detalle de asistencia y evidencias"><p>Selecciona una fecha para consultar sus actividades.</p></section></div>';

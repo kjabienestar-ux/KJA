@@ -14,9 +14,8 @@ function organizeContractAreas(people){
   let index=0;
   groups.forEach(group=>{
     const id='contract-area-panel-'+index++,section=document.createElement('section');section.className='contract-area-group';
-    const button=document.createElement('button');button.type='button';button.className='contract-area-toggle';button.id=id+'-trigger';button.setAttribute('aria-controls',id);
-    const label=document.createElement('span');label.textContent=group.name;const count=document.createElement('b');count.textContent=group.rows.length;count.setAttribute('aria-label',group.rows.length===1?'1 contrato':group.rows.length+' contratos');
-    button.append(label,count);button.insertAdjacentHTML('beforeend','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>');
+    section.className='kja-area-group';
+    const button=kjaAreaHeader({id,title:group.name,countLabel:group.rows.length+(group.rows.length===1?' contrato':' contratos'),expanded:CONTRACT_AREA_VIEW.opened.has(group.key)});
     const panel=document.createElement('div');panel.className='contract-area-panel contract-area-rows';panel.id=id;panel.setAttribute('role','region');panel.setAttribute('aria-labelledby',button.id);group.rows.forEach(row=>panel.append(row));
     const sync=()=>{const opened=CONTRACT_AREA_VIEW.opened.has(group.key);panel.hidden=!opened;button.setAttribute('aria-expanded',String(opened));};
     button.onclick=()=>{if(CONTRACT_AREA_VIEW.opened.has(group.key))CONTRACT_AREA_VIEW.opened.delete(group.key);else CONTRACT_AREA_VIEW.opened.add(group.key);sync();};

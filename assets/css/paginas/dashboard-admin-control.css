@@ -3,28 +3,28 @@
    ========================================================================== */
 
 #portal #admin-control-section {
-  --control-ink: #0f172a;
-  --control-body: #1e293b;
-  --control-muted: #64748b;
-  --control-subtle: #94a3b8;
-  --control-border: #e2e8f0;
-  --control-card-border: #edf2f7;
-  --control-primary: #196d61;
-  --control-primary-hover: #13554c;
+  --control-ink: var(--kja-text-primary, #0f172a);
+  --control-body: var(--kja-text-primary, #1e293b);
+  --control-muted: var(--kja-text-secondary, #64748b);
+  --control-subtle: var(--kja-text-secondary, #94a3b8);
+  --control-border: var(--kja-field-border, #e2e8f0);
+  --control-card-border: var(--kja-divider-subtle, #edf2f7);
+  --control-primary: var(--kja-action-primary, #196d61);
+  --control-primary-hover: var(--kja-action-primary-hover, #13554c);
   --control-primary-ring: rgba(25, 109, 97, .15);
 
   box-sizing: border-box;
   min-width: 0;
   padding: 28px 32px 80px;
-  background: radial-gradient(circle at 82% 0%, rgba(244, 63, 94, .05) 0%, rgba(244, 114, 182, .02) 40%, transparent 70%), #f8fafc;
+  background: var(--kja-surface-opaque, radial-gradient(circle at 82% 0%, rgba(244, 63, 94, .05) 0%, rgba(244, 114, 182, .02) 40%, transparent 70%), var(--kja-surface-opaque, #f8fafc));
   background-attachment: local;
   border-radius: 15px !important;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, .03);
+  border: 1px solid var(--kja-surface-border, #e2e8f0);
+  box-shadow: var(--kja-surface-card-shadow, 0 4px 20px rgba(15, 23, 42, .03));
   display: flex;
   flex-direction: column;
   gap: 20px;
-  color: #1e293b;
+  color: var(--kja-text-primary, #1e293b);
   font: 400 14px/1.5 'Inter', system-ui, -apple-system, sans-serif;
   scroll-behavior: auto !important;
   -webkit-overflow-scrolling: touch;
@@ -37,13 +37,13 @@
 
 #portal #admin-control-section * {
   box-sizing: border-box;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: var(--kja-surface-border, #cbd5e1) transparent;
   scrollbar-width: thin;
 }
 
 #portal #admin-control-section ::selection {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--kja-surface-accent-tint, #d1fae5);
+  color: var(--kja-text-primary, #065f46);
 }
 
 #portal #admin-control-section :is(button, input, select) {
@@ -87,13 +87,13 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: #fff0f5;
-  border: 1px solid #fecdd3;
-  color: #e11d48;
+  background: var(--kja-surface-accent-tint, #fff0f5);
+  border: 1px solid var(--kja-surface-border, #fecdd3);
+  color: var(--kja-action-primary, #e11d48);
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(225, 29, 72, .08);
+  box-shadow: var(--kja-action-shadow, 0 2px 8px rgba(225, 29, 72, .08));
 }
 
 #portal #admin-control-section .control-head-copy {
@@ -108,14 +108,14 @@
   font-size: clamp(24px, 2.2vw, 30px);
   font-weight: 700;
   letter-spacing: -.025em;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   line-height: 1.2;
 }
 
 #portal #admin-control-section .control-head-copy p,
 #portal #admin-control-section #admin-control-summary {
   margin: 4px 0 0;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   font-size: 13.5px;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
@@ -137,11 +137,11 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--kja-surface-opaque, #fff);
+  border: 1px solid var(--kja-surface-border, #e2e8f0);
   border-radius: 10px;
   padding: 3px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+  box-shadow: var(--kja-surface-card-shadow, 0 1px 2px rgba(0, 0, 0, .03));
 }
 
 #portal #admin-control-section .control-date-navigation button {
@@ -153,14 +153,14 @@
   border: 0;
   border-radius: 7px;
   background: transparent;
-  color: #475569;
+  color: var(--kja-text-secondary, #475569);
   cursor: pointer;
   transition: background-color .12s ease, color .12s ease;
 }
 
 #portal #admin-control-section .control-date-navigation button:hover:not(:disabled) {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--kja-action-disabled-bg, #f1f5f9);
+  color: var(--kja-text-primary, #0f172a);
 }
 
 #portal #admin-control-section .control-date-navigation button:disabled {
@@ -177,7 +177,7 @@
 }
 
 #portal #admin-control-section .control-date-navigation button#admin-control-today:hover {
-  background: #ecfdf5;
+  background: var(--kja-surface-hover, #ecfdf5);
 }
 
 #portal #admin-control-section .control-date-navigation input {
@@ -187,8 +187,8 @@
   padding: 0 8px;
   border: 0;
   border-radius: 7px;
-  color: #0f172a;
-  background: #f8fafc;
+  color: var(--kja-text-primary, #0f172a);
+  background: var(--kja-surface-opaque, #f8fafc);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -197,7 +197,7 @@
 
 #portal #admin-control-section .control-date-navigation input:focus {
   outline: none;
-  background: #edf2f7;
+  background: var(--kja-surface-opaque, #edf2f7);
 }
 
 #portal #admin-control-section .control-tools {
@@ -210,22 +210,22 @@
   min-height: 42px;
   padding: 9px 16px;
   border-radius: 10px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  color: #1e293b;
+  background: var(--kja-surface-opaque, #fff);
+  border: 1px solid var(--kja-surface-border, #e2e8f0);
+  color: var(--kja-text-primary, #1e293b);
   font: 600 13px/1.4 'Inter', system-ui, sans-serif;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+  box-shadow: var(--kja-action-shadow, 0 1px 2px rgba(0, 0, 0, .03));
   transition: background-color .12s ease, border-color .12s ease;
   white-space: nowrap;
 }
 
 #portal #admin-control-section #admin-control-export:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--kja-action-disabled-bg, #f8fafc);
+  border-color: var(--kja-surface-border, #cbd5e1);
 }
 
 #portal #admin-control-section #admin-control-export:disabled {
@@ -244,7 +244,7 @@
 }
 
 #portal #admin-control-section .control-stat-card {
-  background: #fff;
+  background: var(--kja-surface-opaque, #fff);
   border: 1px solid var(--control-card-border);
   border-radius: 16px;
   padding: 18px 20px;
@@ -252,7 +252,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .02);
+  box-shadow: var(--kja-surface-card-shadow, 0 1px 3px rgba(0, 0, 0, .02));
   transition: transform .14s cubic-bezier(.16, 1, .3, 1), box-shadow .14s ease, border-color .14s ease;
   will-change: transform;
   transform: translateZ(0);
@@ -262,14 +262,14 @@
 }
 
 #portal #admin-control-section .control-stat-card:hover {
-  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, .05);
+  box-shadow: var(--kja-surface-card-shadow, 0 6px 16px -2px rgba(0, 0, 0, .05));
   transform: translateY(-1px) translateZ(0);
-  border-color: #cbd5e1;
+  border-color: var(--kja-surface-border, #cbd5e1);
 }
 
 #portal #admin-control-section .control-stat-card.is-active {
   border-color: var(--control-primary);
-  box-shadow: 0 0 0 1px var(--control-primary), 0 4px 12px rgba(25, 109, 97, .08);
+  box-shadow: var(--kja-action-shadow, 0 0 0 1px var(--control-primary), 0 4px 12px rgba(25, 109, 97, .08));
 }
 
 #portal #admin-control-section .cert-stat-icon-wrap {
@@ -282,23 +282,23 @@
 }
 
 #portal #admin-control-section .cert-stat-icon-wrap.is-green {
-  background: #ecfdf5;
-  color: #10b981;
+  background: var(--kja-status-bg, #ecfdf5);
+  color: var(--kja-status-text, #10b981);
 }
 
 #portal #admin-control-section .cert-stat-icon-wrap.is-red {
-  background: #fff1f2;
-  color: #f43f5e;
+  background: var(--kja-status-error-bg, #fff1f2);
+  color: var(--kja-status-error-text, #f43f5e);
 }
 
 #portal #admin-control-section .cert-stat-icon-wrap.is-amber {
-  background: #fef3c7;
-  color: #d97706;
+  background: var(--kja-status-warning-bg, #fef3c7);
+  color: var(--kja-status-warning-text, #d97706);
 }
 
 #portal #admin-control-section .cert-stat-icon-wrap.is-teal {
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--kja-status-info-bg, #e0f2fe);
+  color: var(--kja-status-info-text, #0284c7);
 }
 
 #portal #admin-control-section .cert-stat-info {
@@ -311,13 +311,13 @@
 #portal #admin-control-section .cert-stat-label {
   font-size: 13px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
 }
 
 #portal #admin-control-section .cert-stat-value {
   font-size: 26px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   line-height: 1.15;
   margin: 3px 0 2px;
   letter-spacing: -.02em;
@@ -326,7 +326,7 @@
 
 #portal #admin-control-section .cert-stat-sub {
   font-size: 11.5px;
-  color: #94a3b8;
+  color: var(--kja-text-secondary, #94a3b8);
   font-weight: 400;
 }
 
@@ -343,11 +343,11 @@
 }
 
 #portal #admin-control-section .cert-chart-bars.is-green rect {
-  fill: #34d399;
+  fill: var(--kja-chart-positive, #34d399);
 }
 
 #portal #admin-control-section .cert-chart-bars.is-red rect {
-  fill: #fb7185;
+  fill: var(--kja-chart-negative, #fb7185);
 }
 
 #portal #admin-control-section .cert-chart-curve {
@@ -356,11 +356,11 @@
 }
 
 #portal #admin-control-section .cert-chart-curve.is-amber {
-  color: #f59e0b;
+  color: var(--kja-chart-pending, #f59e0b);
 }
 
 #portal #admin-control-section .cert-chart-curve.is-teal {
-  color: #0ea5e9;
+  color: var(--kja-status-info-text, #0ea5e9);
 }
 
 /* --------------------------------------------------------------------------
@@ -386,7 +386,7 @@
   #portal #admin-control-section .control-split-wrap.is-split,
   #portal #admin-control-section .control-split-wrap[data-split="true"] {
     grid-template-columns: 340px minmax(0, 1fr);
-    gap: 24px;
+    gap: var(--kja-space-24);
   }
 }
 
@@ -408,11 +408,11 @@
 }
 
 #portal #admin-control-section .control-area-overview {
-  background: #fff;
+  background: var(--kja-surface-opaque, #fff);
   border: 1px solid var(--control-card-border);
   border-radius: 16px;
   padding: 22px 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .02);
+  box-shadow: var(--kja-surface-card-shadow, 0 1px 3px rgba(0, 0, 0, .02));
   flex-shrink: 0;
 }
 
@@ -425,9 +425,9 @@
   display: flex;
   flex-direction: column;
   padding: 16px 14px 14px;
-  background: #fff;
+  background: var(--kja-surface-opaque, #fff);
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, .03);
+  box-shadow: var(--kja-surface-card-shadow, 0 4px 20px rgba(0, 0, 0, .03));
   border: 1px solid var(--control-card-border);
   overflow: hidden;
   will-change: transform;
@@ -475,20 +475,20 @@
   gap: 7px;
   padding: 7px 14px;
   border-radius: 9px;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  color: #334155;
+  background: var(--kja-surface-canvas, #f1f5f9);
+  border: 1px solid var(--kja-surface-border, #cbd5e1);
+  color: var(--kja-text-primary, #334155);
   font: 600 12.5px/1.3 'Inter', system-ui, sans-serif;
   cursor: pointer;
   transition: background-color .12s ease, border-color .12s ease, color .12s ease, transform .12s ease;
   width: fit-content;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+  box-shadow: var(--kja-action-shadow, 0 1px 2px rgba(0, 0, 0, .03));
 }
 
 #portal #admin-control-section .control-back-areas-btn:hover {
-  background: #e2e8f0;
-  color: #0f172a;
-  border-color: #94a3b8;
+  background: var(--kja-surface-hover, #e2e8f0);
+  color: var(--kja-text-primary, #0f172a);
+  border-color: var(--kja-surface-border, #94a3b8);
   transform: translateX(-2px);
 }
 
@@ -500,22 +500,22 @@
   gap: 8px;
   padding: 8px 12px;
   border-radius: 10px;
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  color: #334155;
+  background: var(--kja-surface-opaque, #f8fafc);
+  border: 1px solid var(--kja-surface-border, #cbd5e1);
+  color: var(--kja-text-primary, #334155);
   font: 600 12px/1.3 'Inter', system-ui, sans-serif;
   cursor: pointer;
   width: 100%;
   box-sizing: border-box;
   transform: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .02);
+  box-shadow: var(--kja-action-shadow, 0 1px 2px rgba(0, 0, 0, .02));
 }
 
 #portal #admin-control-section .control-split-wrap.is-split .control-back-areas-btn:hover,
 #portal #admin-control-section .control-split-wrap[data-split="true"] .control-back-areas-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #94a3b8;
+  background: var(--kja-surface-hover, #f1f5f9);
+  color: var(--kja-text-primary, #0f172a);
+  border-color: var(--kja-surface-border, #94a3b8);
   transform: none;
 }
 
@@ -527,7 +527,7 @@
 #portal #admin-control-section .control-area-overview h3 {
   font-size: 16.5px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   margin: 0;
   letter-spacing: -.01em;
 }
@@ -540,7 +540,7 @@
 #portal #admin-control-section .control-area-overview header p {
   margin: 3px 0 0;
   font-size: 12.5px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   font-weight: 400;
 }
 
@@ -555,7 +555,7 @@
   flex-wrap: wrap;
   gap: 14px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   align-items: center;
 }
 
@@ -574,10 +574,10 @@
   background: var(--segment);
 }
 
-#portal #admin-control-section .control-area-overview .pending { --segment: #f43f5e; }
-#portal #admin-control-section .control-area-overview .review { --segment: #f59e0b; }
-#portal #admin-control-section .control-area-overview .done { --segment: #10b981; }
-#portal #admin-control-section .control-area-overview .clear { --segment: #94a3b8; }
+#portal #admin-control-section .control-area-overview .pending { --segment: var(--kja-chart-negative, #f43f5e); }
+#portal #admin-control-section .control-area-overview .review { --segment: var(--kja-chart-pending, #f59e0b); }
+#portal #admin-control-section .control-area-overview .done { --segment: var(--kja-chart-positive, #10b981); }
+#portal #admin-control-section .control-area-overview .clear { --segment: var(--kja-status-neutral-text, #94a3b8); }
 
 /* En modo split, ocultamos la leyenda redundante, botones duplicados y pie de página para dar máximo espacio vertical */
 #portal #admin-control-section .control-split-wrap.is-split .control-area-legend,
@@ -592,9 +592,9 @@
 #portal #admin-control-section #admin-control-chart-reset {
   min-height: 32px;
   padding: 5px 12px;
-  background: #fff;
+  background: var(--kja-surface-opaque, #fff);
   color: var(--control-primary);
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--kja-surface-border, #cbd5e1);
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
@@ -603,8 +603,8 @@
 }
 
 #portal #admin-control-section #admin-control-chart-reset:hover {
-  background: #ecfdf5;
-  border-color: #10b981;
+  background: var(--kja-surface-hover, #ecfdf5);
+  border-color: var(--kja-selection-border, #10b981);
 }
 
 /* Cuadrícula Amplia SIN SCROLL en Modo Normal (4 columnas según diseño) */
@@ -648,7 +648,7 @@
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: var(--kja-surface-border, #cbd5e1) transparent;
   padding-right: 4px;
   padding-bottom: 2px;
 }
@@ -671,8 +671,8 @@
   justify-content: center;
   padding: 10px 12px;
   border-radius: 12px;
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
+  background: var(--kja-surface-opaque, #ffffff);
+  border: 1.5px solid var(--kja-surface-border, #e2e8f0);
   gap: 0;
   min-height: 56px;
   box-sizing: border-box;
@@ -685,15 +685,15 @@
 
 #portal #admin-control-section .control-split-wrap.is-split .control-area-row:hover,
 #portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-row:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--kja-surface-hover, #f8fafc);
+  border-color: var(--kja-surface-border, #cbd5e1);
   transform: translateX(2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+  box-shadow: var(--kja-surface-card-shadow, 0 2px 8px rgba(0, 0, 0, .04));
 }
 
 #portal #admin-control-section .control-split-wrap.is-split .control-area-row.is-selected,
 #portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-row.is-selected {
-  background: #ffffff;
+  background: var(--kja-surface-accent-tint, #ffffff);
   border-color: var(--area-color, #0f172a);
   box-shadow: 0 0 0 1px var(--area-color, #0f172a), 0 4px 12px rgba(0, 0, 0, .05);
 }
@@ -768,7 +768,7 @@
 #portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-name strong {
   font-size: 13px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
@@ -784,7 +784,7 @@
 #portal #admin-control-section .control-split-wrap.is-split .control-area-name small,
 #portal #admin-control-section .control-split-wrap[data-split="true"] .control-area-name small {
   font-size: 11px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   font-weight: 500;
   margin-top: 2px;
   display: block;
@@ -831,8 +831,8 @@
   flex-direction: column;
   gap: 10px;
   padding: 16px 18px 14px;
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
+  background: var(--kja-surface-opaque, #ffffff);
+  border: 1.5px solid var(--kja-surface-border, #e2e8f0);
   border-radius: 16px;
   transition: transform .16s cubic-bezier(.16, 1, .3, 1), box-shadow .16s ease, border-color .16s ease;
   min-width: 0;
@@ -844,14 +844,14 @@
 }
 
 #portal #admin-control-section .control-area-row:hover {
-  background: #ffffff;
-  border-color: #cbd5e1;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, .06);
+  background: var(--kja-surface-hover, #ffffff);
+  border-color: var(--kja-surface-border, #cbd5e1);
+  box-shadow: var(--kja-surface-card-shadow, 0 8px 24px -4px rgba(0, 0, 0, .06));
   transform: translateY(-2px) translateZ(0);
 }
 
 #portal #admin-control-section .control-area-row.is-selected {
-  background: #ffffff;
+  background: var(--kja-surface-accent-tint, #ffffff);
   border-color: var(--area-color, #0f172a);
   box-shadow: 0 0 0 1.5px var(--area-color, #0f172a), 0 6px 16px rgba(0, 0, 0, .05);
 }
@@ -970,19 +970,19 @@
   --area-color: #64748b;
 }
 #portal #admin-control-section .area-theme-general .control-area-icon {
-  background: #f8fafc;
-  border-color: #e2e8f0;
-  color: #64748b;
+  background: var(--kja-surface-opaque, #f8fafc);
+  border-color: var(--kja-surface-border, #e2e8f0);
+  color: var(--kja-text-secondary, #64748b);
 }
 
 /* Banner de área seleccionada adaptado al tema */
 #portal #admin-control-section .control-selected-area-banner {
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   border: 1px solid var(--control-card-border);
 }
 #portal #admin-control-section .control-selected-area-banner .control-selected-area-icon {
-  background: #f8fafc;
-  border-color: #e2e8f0;
+  background: var(--kja-surface-opaque, #f8fafc);
+  border-color: var(--kja-surface-border, #e2e8f0);
   color: var(--area-color, var(--control-primary));
 }
 
@@ -1015,11 +1015,11 @@
   min-height: 38px;
   max-height: 38px;
   border-radius: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--kja-surface-opaque, #f8fafc);
+  border: 1px solid var(--kja-surface-border, #e2e8f0);
   color: var(--area-color, #475569);
   flex: 0 0 38px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .02);
+  box-shadow: var(--kja-action-shadow, 0 1px 2px rgba(0, 0, 0, .02));
 }
 
 #portal #admin-control-section .control-area-icon svg {
@@ -1042,7 +1042,7 @@
   display: block;
   font-size: 13.5px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1051,7 +1051,7 @@
 
 #portal #admin-control-section .control-area-name small {
   display: block;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   font-size: 11.5px;
   font-weight: 500;
   margin-top: 2px;
@@ -1086,27 +1086,27 @@
 #portal #admin-control-section .control-area-count b {
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   line-height: 1.1;
 }
 
 #portal #admin-control-section .control-area-count small {
   font-size: 10px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   line-height: 1.1;
   white-space: nowrap;
 }
 
 #portal #admin-control-section .control-area-arrow {
-  color: #94a3b8;
+  color: var(--kja-text-secondary, #94a3b8);
   margin-left: 2px;
   flex-shrink: 0;
   transition: transform .14s ease, color .14s ease;
 }
 
 #portal #admin-control-section .control-area-row:hover .control-area-arrow {
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   transform: translateX(2px);
 }
 
@@ -1130,11 +1130,11 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 2px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+  border: 2px solid var(--kja-surface-white, #ffffff);
+  box-shadow: var(--kja-action-shadow, 0 1px 3px rgba(0, 0, 0, .08));
   overflow: hidden;
   margin-left: -6px;
-  background: #f1f5f9;
+  background: var(--kja-person-avatar-bg, #f1f5f9);
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -1162,7 +1162,7 @@
   display: none;
   font-size: 10px;
   font-weight: 700;
-  color: #475569;
+  color: var(--kja-text-secondary, #475569);
 }
 
 #portal #admin-control-section .control-avatar-more {
@@ -1171,12 +1171,12 @@
   justify-content: center;
   font-size: 11px;
   font-weight: 600;
-  color: #2563eb;
+  color: var(--kja-action-secondary, #2563eb);
   margin-left: 6px;
-  background: #eff6ff;
+  background: var(--kja-surface-accent-tint, #eff6ff);
   padding: 1px 6px;
   border-radius: 999px;
-  border: 1px solid #dbeafe;
+  border: 1px solid var(--kja-surface-border, #dbeafe);
   height: 20px;
   line-height: 1;
 }
@@ -1202,9 +1202,9 @@
   border: 1px solid transparent;
   cursor: pointer;
   transition: transform .12s ease, filter .12s ease;
-  background: #fff;
+  background: var(--kja-surface-opaque, #fff);
   white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .02);
+  box-shadow: var(--kja-surface-card-shadow, 0 1px 2px rgba(0, 0, 0, .02));
 }
 
 #portal #admin-control-section .control-area-segment:hover {
@@ -1213,7 +1213,7 @@
 }
 
 #portal #admin-control-section .control-area-segment[aria-pressed="true"] {
-  outline: 2px solid #0f172a;
+  outline: 2px solid var(--kja-selection-border, #0f172a);
   outline-offset: 1px;
 }
 
@@ -1226,27 +1226,27 @@
 }
 
 #portal #admin-control-section .control-area-segment.pending {
-  background: #fff1f2;
-  color: #e11d48;
-  border-color: #fecdd3;
+  background: var(--kja-status-error-bg, #fff1f2);
+  color: var(--kja-status-error-text, #e11d48);
+  border-color: var(--kja-surface-border, #fecdd3);
 }
 
 #portal #admin-control-section .control-area-segment.review {
-  background: #fef3c7;
-  color: #d97706;
-  border-color: #fde68a;
+  background: var(--kja-status-warning-bg, #fef3c7);
+  color: var(--kja-status-warning-text, #d97706);
+  border-color: var(--kja-status-warning-text, #fde68a);
 }
 
 #portal #admin-control-section .control-area-segment.done {
-  background: #ecfdf5;
-  color: #059669;
-  border-color: #a7f3d0;
+  background: var(--kja-status-bg, #ecfdf5);
+  color: var(--kja-status-text, #059669);
+  border-color: var(--kja-surface-border, #a7f3d0);
 }
 
 #portal #admin-control-section .control-area-segment.clear {
-  background: #f1f5f9;
-  color: #64748b;
-  border-color: #e2e8f0;
+  background: var(--kja-surface-canvas, #f1f5f9);
+  color: var(--kja-text-secondary, #64748b);
+  border-color: var(--kja-surface-border, #e2e8f0);
 }
 
 #portal #admin-control-section .control-area-footnote {
@@ -1255,7 +1255,7 @@
 
 #portal #admin-control-section .control-area-empty {
   font-size: 12.5px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   margin: 16px 0;
   text-align: center;
 }
@@ -1269,11 +1269,11 @@
   justify-content: space-between;
   gap: 16px;
   padding: 16px 20px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   border: 1px solid var(--control-border);
   border-radius: 14px;
   margin-bottom: 4px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, .03);
+  box-shadow: var(--kja-surface-card-shadow, 0 2px 8px rgba(15, 23, 42, .03));
   flex-wrap: wrap;
 }
 
@@ -1291,8 +1291,8 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
+  background: var(--kja-surface-accent-tint, #ecfdf5);
+  border: 1px solid var(--kja-surface-border, #a7f3d0);
   color: var(--control-primary);
   display: grid;
   place-items: center;
@@ -1308,14 +1308,14 @@
   margin: 0;
   font-size: 17.5px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   letter-spacing: -.01em;
 }
 
 #portal #admin-control-section .control-selected-area-info p {
   margin: 2px 0 0;
   font-size: 12.5px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
 }
 
 #portal #admin-control-section .control-selected-area-badges {
@@ -1337,21 +1337,21 @@
 }
 
 #portal #admin-control-section .control-banner-badge.is-pending {
-  background: #fff1f2;
-  color: #e11d48;
-  border: 1px solid #fecdd3;
+  background: var(--kja-status-error-bg, #fff1f2);
+  color: var(--kja-status-error-text, #e11d48);
+  border: 1px solid var(--kja-surface-border, #fecdd3);
 }
 
 #portal #admin-control-section .control-banner-badge.is-done {
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
+  background: var(--kja-status-bg, #ecfdf5);
+  color: var(--kja-status-text, #047857);
+  border: 1px solid var(--kja-surface-border, #a7f3d0);
 }
 
 #portal #admin-control-section .control-banner-badge.is-clear {
-  background: #f1f5f9;
-  color: #475569;
-  border: 1px solid #e2e8f0;
+  background: var(--kja-status-neutral-bg, #f1f5f9);
+  color: var(--kja-status-neutral-text, #475569);
+  border: 1px solid var(--kja-surface-border, #e2e8f0);
 }
 
 
@@ -1384,7 +1384,7 @@
   align-items: center;
   gap: 4px;
   padding: 4px;
-  background: #f1f5f9;
+  background: var(--kja-surface-canvas, #f1f5f9);
   border: 1px solid var(--control-border);
   border-radius: 12px;
   min-height: 0;
@@ -1397,7 +1397,7 @@
   border-radius: 8px;
   font-size: 12.5px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   background: transparent;
   border: 0;
   min-height: 34px;
@@ -1410,16 +1410,16 @@
 
 #portal.admin-wide #admin-control-section #admin-control-kpis button:hover,
 #portal #admin-control-section #admin-control-kpis button:hover {
-  color: #0f172a;
-  background: rgba(255, 255, 255, .5);
+  color: var(--kja-text-primary, #0f172a);
+  background: var(--kja-surface-hover, rgba(255, 255, 255, .5));
 }
 
 #portal.admin-wide #admin-control-section #admin-control-kpis button[aria-pressed="true"],
 #portal #admin-control-section #admin-control-kpis button[aria-pressed="true"] {
-  background: #fff;
-  color: #0f172a;
+  background: var(--kja-surface-accent-tint, #fff);
+  color: var(--kja-text-primary, #0f172a);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+  box-shadow: var(--kja-action-shadow, 0 1px 3px rgba(0, 0, 0, .08));
 }
 
 #portal.admin-wide #admin-control-section #admin-control-kpis button:after,
@@ -1436,23 +1436,23 @@
   height: 20px;
   padding: 0 6px;
   border-radius: 6px;
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--kja-surface-canvas, #e2e8f0);
+  color: var(--kja-text-secondary, #475569);
   font-size: 11px;
   font-weight: 600;
 }
 
 #portal.admin-wide #admin-control-section #admin-control-kpis button[aria-pressed="true"] span,
 #portal #admin-control-section #admin-control-kpis button[aria-pressed="true"] span {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--kja-status-bg, #ecfdf5);
+  color: var(--kja-status-text, #059669);
 }
 
 #portal #admin-control-section .control-list-meta {
   display: flex;
   align-items: center;
   gap: 16px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   font-size: 13px;
   font-weight: 500;
   padding: 0;
@@ -1470,8 +1470,8 @@
   padding: 4px 10px;
   border: 1px solid var(--control-border);
   border-radius: 8px;
-  background: #fff;
-  color: #0f172a;
+  background: var(--kja-surface-opaque, #fff);
+  color: var(--kja-text-primary, #0f172a);
   font-weight: 600;
   font-size: 12.5px;
   cursor: pointer;
@@ -1499,7 +1499,7 @@
   transform: translateY(-50%);
   width: 16px;
   height: 16px;
-  color: #94a3b8;
+  color: var(--kja-text-secondary, #94a3b8);
   pointer-events: none;
 }
 
@@ -1510,8 +1510,8 @@
   padding: 9px 14px 9px 38px;
   border: 1px solid var(--control-border);
   border-radius: 10px;
-  background: #fff;
-  color: #0f172a;
+  background: var(--kja-surface-opaque, #fff);
+  color: var(--kja-text-primary, #0f172a);
   font: 400 13.5px/1.4 'Inter', system-ui, sans-serif;
   transition: border-color .15s, box-shadow .15s;
 }
@@ -1519,7 +1519,7 @@
 #portal #admin-control-section input#admin-control-search:focus {
   outline: none;
   border-color: var(--control-primary);
-  box-shadow: 0 0 0 3px var(--control-primary-ring);
+  box-shadow: var(--kja-field-focus-shadow, 0 0 0 3px var(--control-primary-ring));
 }
 
 #portal #admin-control-section .control-select-label,
@@ -1532,34 +1532,34 @@
 #portal #admin-control-section select#admin-control-state {
   min-height: 42px;
   padding: 9px 38px 9px 14px;
-  border: 1.5px solid #cbd5e1;
+  border: 1.5px solid var(--kja-field-border, #cbd5e1);
   border-radius: 11px;
-  background-color: #ffffff;
+  background-color: var(--kja-surface-opaque, #ffffff);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px 16px;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   font: 600 13px/1.4 'Inter', system-ui, sans-serif;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .03);
+  box-shadow: var(--kja-action-shadow, 0 1px 3px rgba(0, 0, 0, .03));
   transition: border-color .12s ease, background-color .12s ease;
 }
 
 #portal #admin-control-section select#admin-control-area:hover,
 #portal #admin-control-section select#admin-control-state:hover {
-  border-color: #94a3b8;
-  background-color: #f8fafc;
+  border-color: var(--kja-field-border, #94a3b8);
+  background-color: var(--kja-surface-hover, #f8fafc);
 }
 
 #portal #admin-control-section select#admin-control-area:focus,
 #portal #admin-control-section select#admin-control-state:focus {
   outline: none;
   border-color: var(--control-primary);
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px var(--control-primary-ring), 0 2px 6px rgba(0, 0, 0, .04);
+  background-color: var(--kja-surface-opaque, #ffffff);
+  box-shadow: var(--kja-field-focus-shadow, 0 0 0 3px var(--control-primary-ring), 0 2px 6px rgba(0, 0, 0, .04));
 }
 
 #portal #admin-control-section select#admin-control-area option,
@@ -1567,45 +1567,45 @@
   padding: 10px 14px;
   font-size: 13px;
   font-weight: 500;
-  color: #0f172a;
-  background-color: #ffffff;
+  color: var(--kja-text-primary, #0f172a);
+  background-color: var(--kja-surface-opaque, #ffffff);
 }
 
 #portal #admin-control-section select#admin-control-area option:checked,
 #portal #admin-control-section select#admin-control-state option:checked {
-  background-color: #ecfdf5;
-  color: #065f46;
+  background-color: var(--kja-surface-accent-tint, #ecfdf5);
+  color: var(--kja-action-primary, #065f46);
   font-weight: 700;
 }
 
 #portal #admin-control-section #admin-control-clear {
   min-height: 42px;
   padding: 0 16px;
-  border: 1.5px solid #cbd5e1;
+  border: 1.5px solid var(--kja-surface-border, #cbd5e1);
   border-radius: 11px;
-  background: #fff;
-  color: #475569;
+  background: var(--kja-surface-opaque, #fff);
+  color: var(--kja-text-secondary, #475569);
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition: background-color .12s ease, border-color .12s ease, color .12s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .03);
+  box-shadow: var(--kja-action-shadow, 0 1px 3px rgba(0, 0, 0, .03));
 }
 
 #portal #admin-control-section #admin-control-clear:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #94a3b8;
+  background: var(--kja-surface-hover, #f1f5f9);
+  color: var(--kja-text-primary, #0f172a);
+  border-color: var(--kja-surface-border, #94a3b8);
 }
 
 #portal #admin-control-section #admin-control-message:not(:empty) {
   margin: 4px 0 12px;
   padding: 12px 16px;
-  background: #fff1f2;
-  border: 1px solid #fecdd3;
+  background: var(--kja-status-error-bg, #fff1f2);
+  border: 1px solid var(--kja-surface-border, #fecdd3);
   border-radius: 10px;
-  color: #9f1239;
+  color: var(--kja-status-error-text, #9f1239);
   font-size: 13px;
 }
 
@@ -1624,11 +1624,11 @@
 }
 
 #portal #admin-control-section .control-case {
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   border: 1px solid var(--control-border);
   border-radius: 16px;
   padding: 18px 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .02);
+  box-shadow: var(--kja-surface-card-shadow, 0 1px 3px rgba(0, 0, 0, .02));
   transition: transform .16s cubic-bezier(.16, 1, .3, 1), box-shadow .16s ease, border-color .16s ease;
   display: flex;
   flex-direction: column;
@@ -1643,8 +1643,8 @@
 
 #portal #admin-control-section .control-case:hover {
   transform: translateY(-2px) translateZ(0);
-  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, .06), 0 2px 6px -1px rgba(0, 0, 0, .03);
-  border-color: #cbd5e1;
+  box-shadow: var(--kja-surface-card-shadow, 0 8px 20px -4px rgba(0, 0, 0, .06), 0 2px 6px -1px rgba(0, 0, 0, .03));
+  border-color: var(--kja-surface-border, #cbd5e1);
 }
 
 /* Badge Superior de Situación (Pendiente, Concluida, Sin jornada) */
@@ -1671,27 +1671,27 @@
 }
 
 #portal #admin-control-section .control-case-situation-bar.pending {
-  background: #fff1f2;
-  color: #e11d48;
-  border: 1px solid #fecdd3;
+  background: var(--kja-status-error-bg, #fff1f2);
+  color: var(--kja-status-error-text, #e11d48);
+  border: 1px solid var(--kja-surface-border, #fecdd3);
 }
 
 #portal #admin-control-section .control-case-situation-bar.review {
-  background: #fffbeb;
-  color: #d97706;
-  border: 1px solid #fde68a;
+  background: var(--kja-status-warning-bg, #fffbeb);
+  color: var(--kja-status-warning-text, #d97706);
+  border: 1px solid var(--kja-status-warning-text, #fde68a);
 }
 
 #portal #admin-control-section .control-case-situation-bar.done {
-  background: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
+  background: var(--kja-status-bg, #ecfdf5);
+  color: var(--kja-status-text, #059669);
+  border: 1px solid var(--kja-surface-border, #a7f3d0);
 }
 
 #portal #admin-control-section .control-case-situation-bar.clear {
-  background: #f1f5f9;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  background: var(--kja-surface-canvas, #f1f5f9);
+  color: var(--kja-text-secondary, #64748b);
+  border: 1px solid var(--kja-surface-border, #e2e8f0);
 }
 
 #portal #admin-control-section .control-case-row {
@@ -1728,8 +1728,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--kja-person-avatar-bg, #dcfce7);
+  color: var(--kja-person-avatar-text, #15803d);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: -.01em;
@@ -1738,25 +1738,25 @@
 }
 
 #portal #admin-control-section .control-case:nth-child(3n+2) .control-avatar {
-  background: #ffedd5;
-  color: #c2410c;
+  background: var(--kja-person-avatar-bg, #ffedd5);
+  color: var(--kja-person-avatar-text, #c2410c);
 }
 
 #portal #admin-control-section .control-case:nth-child(3n) .control-avatar {
-  background: #e0f2fe;
-  color: #0369a1;
+  background: var(--kja-person-avatar-bg, #e0f2fe);
+  color: var(--kja-person-avatar-text, #0369a1);
 }
 
 #portal #admin-control-section .control-case:nth-child(4n) .control-avatar {
-  background: #f3e8ff;
-  color: #7e22ce;
+  background: var(--kja-person-avatar-bg, #f3e8ff);
+  color: var(--kja-person-avatar-text, #7e22ce);
 }
 
 #portal #admin-control-section .control-person h3 {
   margin: 0;
   font-size: 14.5px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1768,7 +1768,7 @@
 #portal #admin-control-section .control-person p {
   margin: 2px 0 0;
   font-size: 12px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1803,53 +1803,53 @@
 }
 
 #portal #admin-control-section .control-status-label.danger {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fee2e2;
+  background: var(--kja-status-error-bg, #fef2f2);
+  color: var(--kja-status-error-text, #dc2626);
+  border: 1px solid var(--kja-surface-border, #fee2e2);
 }
 
 #portal #admin-control-section .control-status-label.danger i {
-  background: #ef4444;
+  background: var(--kja-status-error-text, #ef4444);
 }
 
 #portal #admin-control-section .control-status-label.warning {
-  background: #fffbeb;
-  color: #d97706;
-  border: 1px solid #fef3c7;
+  background: var(--kja-status-warning-bg, #fffbeb);
+  color: var(--kja-status-warning-text, #d97706);
+  border: 1px solid var(--kja-surface-border, #fef3c7);
 }
 
 #portal #admin-control-section .control-status-label.warning i {
-  background: #f59e0b;
+  background: var(--kja-status-warning-text, #f59e0b);
 }
 
 #portal #admin-control-section .control-status-label.success {
-  background: #ecfdf5;
-  color: #059669;
-  border: 1px solid #d1fae5;
+  background: var(--kja-status-bg, #ecfdf5);
+  color: var(--kja-status-text, #059669);
+  border: 1px solid var(--kja-surface-border, #d1fae5);
 }
 
 #portal #admin-control-section .control-status-label.success i {
-  background: #10b981;
+  background: var(--kja-status-text, #10b981);
 }
 
 #portal #admin-control-section .control-status-label.info {
-  background: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #dbeafe;
+  background: var(--kja-status-info-bg, #eff6ff);
+  color: var(--kja-status-info-text, #2563eb);
+  border: 1px solid var(--kja-surface-border, #dbeafe);
 }
 
 #portal #admin-control-section .control-status-label.info i {
-  background: #3b82f6;
+  background: var(--kja-status-info-text, #3b82f6);
 }
 
 #portal #admin-control-section .control-status-label.neutral {
-  background: #f1f5f9;
-  color: #475569;
-  border: 1px solid #e2e8f0;
+  background: var(--kja-status-neutral-bg, #f1f5f9);
+  color: var(--kja-status-neutral-text, #475569);
+  border: 1px solid var(--kja-surface-border, #e2e8f0);
 }
 
 #portal #admin-control-section .control-status-label.neutral i {
-  background: #64748b;
+  background: var(--kja-status-neutral-text, #64748b);
 }
 
 /* Requisitos / Siguiente Paso */
@@ -1858,8 +1858,8 @@
   grid-row: 2;
   padding: 10px 12px;
   border-radius: 10px;
-  background: #f8fafc;
-  border: 1px solid #f1f5f9;
+  background: var(--kja-surface-opaque, #f8fafc);
+  border: 1px solid var(--kja-surface-border, #f1f5f9);
   min-width: 0;
 }
 
@@ -1877,7 +1877,7 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 1.4;
-  color: #1e293b;
+  color: var(--kja-text-primary, #1e293b);
   overflow-wrap: anywhere;
 }
 
@@ -1889,7 +1889,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #64748b;
+  background: var(--kja-status-neutral-text, #64748b);
 }
 
 #portal #admin-control-section .control-next-step b {
@@ -1897,14 +1897,14 @@
   font-size: 12px;
   font-weight: 600;
   line-height: 1.45;
-  color: #1e293b;
+  color: var(--kja-text-primary, #1e293b);
   overflow-wrap: anywhere;
 }
 
 #portal #admin-control-section .control-next-step p {
   margin: 3px 0 0;
   font-size: 11px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
@@ -1929,13 +1929,13 @@
 #portal #admin-control-section .control-times small {
   font-size: 11px;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--kja-text-secondary, #94a3b8);
 }
 
 #portal #admin-control-section .control-times b {
   font-size: 12.5px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
 }
 
 /* Acciones en la parte inferior */
@@ -1949,7 +1949,7 @@
   gap: 8px;
   margin-top: auto;
   padding-top: 14px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--kja-divider-subtle, #f1f5f9);
 }
 
 #portal #admin-control-section .control-detail-toggle {
@@ -1957,8 +1957,8 @@
   padding: 7px 12px;
   border-radius: 8px;
   border: 1px solid var(--control-border);
-  background: #fff;
-  color: #475569;
+  background: var(--kja-surface-opaque, #fff);
+  color: var(--kja-text-secondary, #475569);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -1967,9 +1967,9 @@
 }
 
 #portal #admin-control-section .control-detail-toggle:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background: var(--kja-surface-hover, #f8fafc);
+  border-color: var(--kja-surface-border, #cbd5e1);
+  color: var(--kja-text-primary, #0f172a);
   text-decoration: none;
 }
 
@@ -1977,9 +1977,9 @@
   min-height: 36px;
   padding: 7px 14px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background: #fff;
-  color: #0f172a;
+  border: 1px solid var(--kja-surface-border, #cbd5e1);
+  background: var(--kja-surface-opaque, #fff);
+  color: var(--kja-text-primary, #0f172a);
   font-size: 12px;
   font-weight: 600;
   display: inline-flex;
@@ -1994,8 +1994,8 @@
 #portal #admin-control-section .control-primary:hover {
   background: var(--control-primary);
   border-color: var(--control-primary);
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(25, 109, 97, .22);
+  color: var(--kja-on-action, #fff);
+  box-shadow: var(--kja-action-shadow, 0 2px 6px rgba(25, 109, 97, .22));
 }
 
 #portal #admin-control-section .control-primary svg {
@@ -2018,7 +2018,7 @@
 #portal #admin-control-section .control-detail h3 {
   font-size: 12.5px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
   margin: 0 0 8px;
 }
 
@@ -2037,10 +2037,10 @@
   gap: 8px;
   padding: 6px 8px;
   border-radius: 6px;
-  background: #f8fafc;
+  background: var(--kja-surface-opaque, #f8fafc);
   font-size: 11.5px;
   line-height: 1.4;
-  color: #334155;
+  color: var(--kja-text-primary, #334155);
 }
 
 #portal #admin-control-section .control-detail li > span:nth-child(2) {
@@ -2051,7 +2051,7 @@
 #portal #admin-control-section .control-detail li > b {
   font-size: 11px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   text-align: right;
   white-space: nowrap;
 }
@@ -2064,20 +2064,20 @@
 }
 
 #portal #admin-control-section .control-task-dot.done {
-  background: #10b981;
+  background: var(--kja-status-text, #10b981);
 }
 
 #portal #admin-control-section .control-task-dot.pending {
-  background: #f59e0b;
+  background: var(--kja-status-warning-text, #f59e0b);
 }
 
 #portal #admin-control-section .control-issue {
   margin: 6px 0;
   padding: 8px 10px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: var(--kja-status-info-bg, #eff6ff);
+  border: 1px solid var(--kja-surface-border, #bfdbfe);
   border-radius: 8px;
-  color: #1e40af;
+  color: var(--kja-status-info-text, #1e40af);
   font-size: 11.5px;
   line-height: 1.4;
 }
@@ -2086,23 +2086,23 @@
   display: block;
   font-size: 11px;
   font-weight: 700;
-  color: #1e3a8a;
+  color: var(--kja-status-info-text, #1e3a8a);
   margin-bottom: 2px;
 }
 
 #portal #admin-control-section .control-detail p {
   margin: 4px 0;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   font-size: 11.5px;
 }
 
 #portal #admin-control-section .control-detail p strong {
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
 }
 
 #portal #admin-control-section .control-detail p.control-detail-note {
   font-size: 10.5px;
-  color: #94a3b8;
+  color: var(--kja-text-secondary, #94a3b8);
   margin-top: 6px;
 }
 
@@ -2121,30 +2121,30 @@
   justify-content: center;
   text-align: center;
   padding: 48px 24px;
-  background: #fff;
-  border: 1px dashed #cbd5e1;
+  background: var(--kja-surface-opaque, #fff);
+  border: 1px dashed var(--kja-surface-border, #cbd5e1);
   border-radius: 16px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   gap: 12px;
 }
 
 #portal #admin-control-section .control-empty svg {
   width: 36px;
   height: 36px;
-  color: #94a3b8;
+  color: var(--kja-text-secondary, #94a3b8);
 }
 
 #portal #admin-control-section .control-empty h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--kja-text-primary, #0f172a);
 }
 
 #portal #admin-control-section .control-empty p {
   margin: 0;
   font-size: 13px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   max-width: 42ch;
 }
 
@@ -2152,17 +2152,17 @@
   min-height: 38px;
   padding: 7px 16px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background: #fff;
-  color: #0f172a;
+  border: 1px solid var(--kja-surface-border, #cbd5e1);
+  background: var(--kja-surface-opaque, #fff);
+  color: var(--kja-text-primary, #0f172a);
   font-weight: 600;
   cursor: pointer;
   transition: background-color .12s ease, border-color .12s ease;
 }
 
 #portal #admin-control-section .control-empty button:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
+  background: var(--kja-surface-hover, #f8fafc);
+  border-color: var(--kja-surface-border, #94a3b8);
 }
 
 /* --------------------------------------------------------------------------

@@ -80,15 +80,15 @@
 .leave-proposal-wait { grid-column:1/-1; color:#526174; line-height:1.5; }
 
 /* Una entrada por envío, revisión individual dentro del diálogo. */
-#admin-request-list .leave-request-summary { display:flex; align-items:center; justify-content:space-between; gap:18px; width:100%; padding:18px 4px; border:0; border-bottom:1px solid #dce5ee; background:transparent; color:#09244c; text-align:left; font:inherit; cursor:pointer; }
+#admin-request-list .leave-request-summary { display:flex; align-items:center; justify-content:space-between; gap:18px; width:100%; padding:18px 4px; border:0; border-bottom:1px solid var(--kja-divider-subtle, #dce5ee); background:transparent; color:var(--kja-text-primary, #09244c); text-align:left; font:inherit; cursor:pointer; }
 .leave-request-summary-main { display:grid; gap:6px; min-width:0; }
 .leave-request-summary-main b { font-size:14px; font-weight:600; }
 .leave-request-summary-main > span { font-size:12px; color:#526174; }
 .leave-request-summary-main small { font-size:11px; color:#526174; line-height:1.6; overflow-wrap:anywhere; }
 .leave-request-summary-action { display:flex; align-items:center; gap:6px; color:#075abc; font-size:12px; font-weight:600; flex-shrink:0; }
 .leave-request-summary-action svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; }
-#admin-request-list .leave-request-summary:hover { background:rgba(237,244,252,.6); }
-.leave-request-summary:focus-visible,.admin-leave-review button:focus-visible { outline:2px solid #075abc; outline-offset:3px; }
+#admin-request-list .leave-request-summary:hover { background:var(--kja-surface-hover, rgba(237,244,252,.6)); }
+.leave-request-summary:focus-visible,.admin-leave-review button:focus-visible { outline:2px solid var(--kja-focus, #075abc); outline-offset:3px; }
 /* ==========================================================================
    MODAL DE REVISIÓN DE DÍAS LIBRES (DIRECCIÓN / ADMIN)
    Diseño compacto, moderno y ejecutivo optimizado para evitar espacios vacíos
@@ -99,20 +99,20 @@
   max-height: calc(100dvh - 32px);
   margin: auto;
   padding: 16px 20px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--kja-surface-border, rgba(255, 255, 255, 0.95));
   border-radius: 20px;
-  background: #f8fafc;
-  color: #09244c;
+  background: var(--kja-surface-opaque, #f8fafc);
+  color: var(--kja-text-primary, #09244c);
   overflow-y: auto;
   overflow-x: hidden;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  box-shadow: 0 25px 60px -15px rgba(9, 36, 76, 0.3), 0 0 0 1px rgba(9, 36, 76, 0.06);
+  box-shadow: var(--kja-surface-dialog-shadow, 0 25px 60px -15px rgba(9, 36, 76, 0.3), 0 0 0 1px rgba(9, 36, 76, 0.06));
   position: relative;
   scrollbar-width: thin;
-  scrollbar-color: rgba(9, 36, 76, 0.15) transparent;
+  scrollbar-color: var(--kja-surface-border, rgba(9, 36, 76, 0.15)) transparent;
 }
 .admin-leave-review::backdrop {
-  background: rgba(9, 36, 76, 0.54);
+  background: var(--kja-surface-scrim, rgba(9, 36, 76, 0.54));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -126,10 +126,10 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid rgba(9, 36, 76, 0.1);
-  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--kja-field-border, rgba(9, 36, 76, 0.1));
+  background: var(--kja-surface-opaque, rgba(255, 255, 255, 0.92));
   backdrop-filter: blur(4px);
-  color: #475569;
+  color: var(--kja-text-secondary, #475569);
   font-size: 18px;
   line-height: 1;
   display: grid;
@@ -138,11 +138,11 @@
   transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .admin-leave-review .modal-close:hover {
-  background: #ffffff;
-  color: #09244c;
+  background: var(--kja-surface-hover, #ffffff);
+  color: var(--kja-text-primary, #09244c);
   transform: scale(1.08);
-  border-color: rgba(9, 36, 76, 0.2);
-  box-shadow: 0 4px 12px rgba(9, 36, 76, 0.12);
+  border-color: var(--kja-field-border, rgba(9, 36, 76, 0.2));
+  box-shadow: var(--kja-action-shadow, 0 4px 12px rgba(9, 36, 76, 0.12));
 }
 
 /* Banner héroe compacto con figura 3D (day-off-rest.png) */
@@ -154,9 +154,9 @@
   padding: 10px 16px;
   margin-bottom: 10px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 55%, #e6f2fd 100%);
-  border: 1px solid rgba(7, 90, 188, 0.15);
-  box-shadow: 0 4px 14px -4px rgba(7, 90, 188, 0.08);
+  background: var(--kja-surface-canvas, linear-gradient(135deg, #ffffff 0%, #f0f7ff 55%, #e6f2fd 100%));
+  border: 1px solid var(--kja-surface-border, rgba(7, 90, 188, 0.15));
+  box-shadow: var(--kja-surface-card-shadow, 0 4px 14px -4px rgba(7, 90, 188, 0.08));
   position: relative;
   overflow: hidden;
 }
@@ -193,7 +193,7 @@
 .admin-leave-hero .day-off-hero-heading {
   font-size: 16px;
   font-weight: 800;
-  color: #09244c;
+  color: var(--kja-text-primary, #09244c);
   margin: 0;
   line-height: 1.25;
 }
@@ -203,21 +203,21 @@
   gap: 5px;
   margin: 0;
   padding: 2px 8px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(9, 36, 76, 0.08);
+  background: var(--kja-surface-opaque, rgba(255, 255, 255, 0.95));
+  border: 1px solid var(--kja-surface-border, rgba(9, 36, 76, 0.08));
   border-radius: 6px;
   font-size: 12px;
-  color: #09244c;
+  color: var(--kja-text-primary, #09244c);
   width: fit-content;
 }
 .admin-leave-hero-avatar {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #e0f2fe;
+  background: var(--kja-person-avatar-bg, #e0f2fe);
   display: grid;
   place-items: center;
-  color: #0284c7;
+  color: var(--kja-person-avatar-text, #0284c7);
 }
 .admin-leave-hero-avatar svg {
   width: 11px;
@@ -229,13 +229,13 @@
 .admin-leave-hero-person b {
   font-size: 12px;
   font-weight: 700;
-  color: #09244c;
+  color: var(--kja-text-primary, #09244c);
   letter-spacing: -0.01em;
 }
 .admin-leave-hero .day-off-hero-text {
   margin: 0;
   font-size: 11.5px;
-  color: #475569;
+  color: var(--kja-text-secondary, #475569);
   font-weight: 500;
 }
 .admin-leave-hero .day-off-hero-art {
@@ -270,11 +270,11 @@
   display: none !important;
 }
 .admin-leave-note-box {
-  background: #ffffff;
-  border: 1px solid rgba(9, 36, 76, 0.08);
+  background: var(--kja-surface-opaque, #ffffff);
+  border: 1px solid var(--kja-surface-border, rgba(9, 36, 76, 0.08));
   border-radius: 12px;
   padding: 8px 12px;
-  box-shadow: 0 1px 4px rgba(9, 36, 76, 0.03);
+  box-shadow: var(--kja-surface-card-shadow, 0 1px 4px rgba(9, 36, 76, 0.03));
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -289,13 +289,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   margin-bottom: 3px;
 }
 .admin-leave-note-header svg {
   width: 13px;
   height: 13px;
-  stroke: #075abc;
+  stroke: var(--kja-action-secondary, #075abc);
   fill: none;
   stroke-width: 2;
   flex-shrink: 0;
@@ -304,7 +304,7 @@
   margin: 0;
   font-size: 12.5px;
   line-height: 1.4;
-  color: #1e293b;
+  color: var(--kja-text-primary, #1e293b);
   font-weight: 500;
   background: transparent;
   border: 0;
@@ -317,9 +317,9 @@
   gap: 10px;
   padding: 8px 12px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border: 1px solid #86efac;
-  color: #166534;
+  background: var(--kja-status-bg, linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%));
+  border: 1px solid var(--kja-status-text, #86efac);
+  color: var(--kja-status-text, #166534);
   cursor: pointer;
   transition: all .18s ease;
   text-align: left;
@@ -328,23 +328,23 @@
 }
 .admin-leave-evidence-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.12);
-  border-color: #4ade80;
+  box-shadow: var(--kja-action-shadow, 0 4px 12px rgba(22, 101, 52, 0.12));
+  border-color: var(--kja-status-text, #4ade80);
 }
 .admin-leave-evidence-btn .evidence-icon {
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   display: grid;
   place-items: center;
-  box-shadow: 0 2px 4px rgba(22, 101, 52, 0.08);
+  box-shadow: var(--kja-action-shadow, 0 2px 4px rgba(22, 101, 52, 0.08));
   flex-shrink: 0;
 }
 .admin-leave-evidence-btn .evidence-icon svg {
   width: 15px;
   height: 15px;
-  stroke: #16a34a;
+  stroke: var(--kja-status-text, #16a34a);
   fill: none;
   stroke-width: 2;
 }
@@ -358,14 +358,14 @@
 .admin-leave-evidence-btn .evidence-btn-text b {
   font-size: 12px;
   font-weight: 700;
-  color: #14532d;
+  color: var(--kja-text-primary, #14532d);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .admin-leave-evidence-btn .evidence-btn-text small {
   font-size: 10.5px;
-  color: #15803d;
+  color: var(--kja-status-text, #15803d);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -373,7 +373,7 @@
 .admin-leave-evidence-btn .chevron {
   width: 15px;
   height: 15px;
-  stroke: #16a34a;
+  stroke: var(--kja-status-text, #16a34a);
   fill: none;
   stroke-width: 2;
   transition: transform .2s ease;
@@ -388,17 +388,17 @@
   margin: 0 0 10px;
   padding: 8px 12px;
   border-radius: 10px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #065f46;
+  background: var(--kja-status-bg, #ecfdf5);
+  border: 1px solid var(--kja-surface-border, #a7f3d0);
+  color: var(--kja-status-text, #065f46);
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
 }
 #admin-leave-review-message.bad {
-  background: #fff1f2;
-  border-color: #fecdd3;
-  color: #be123c;
+  background: var(--kja-status-error-bg, #fff1f2);
+  border-color: var(--kja-surface-border, #fecdd3);
+  color: var(--kja-status-error-text, #be123c);
 }
 
 /* Lista de días solicitados: Tarjetas compactas sin espacios vacíos */
@@ -410,11 +410,11 @@
   overflow: visible;
 }
 #admin-leave-review-days .admin-request {
-  background: #ffffff;
-  border: 1px solid rgba(9, 36, 76, 0.08);
+  background: var(--kja-surface-opaque, #ffffff);
+  border: 1px solid var(--kja-surface-border, rgba(9, 36, 76, 0.08));
   border-radius: 12px;
   padding: 10px 14px;
-  box-shadow: 0 2px 6px -1px rgba(9, 36, 76, 0.04);
+  box-shadow: var(--kja-surface-card-shadow, 0 2px 6px -1px rgba(9, 36, 76, 0.04));
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -422,8 +422,8 @@
   transition: all .18s ease;
 }
 #admin-leave-review-days .admin-request:hover {
-  border-color: rgba(7, 90, 188, 0.2);
-  box-shadow: 0 4px 12px -2px rgba(9, 36, 76, 0.07);
+  border-color: var(--kja-field-border, rgba(7, 90, 188, 0.2));
+  box-shadow: var(--kja-surface-card-shadow, 0 4px 12px -2px rgba(9, 36, 76, 0.07));
 }
 #admin-leave-review-days .admin-request > span {
   grid-column: 1;
@@ -436,7 +436,7 @@
 #admin-leave-review-days .admin-request > span > b {
   font-size: 14.5px;
   font-weight: 700;
-  color: #09244c;
+  color: var(--kja-text-primary, #09244c);
   letter-spacing: -0.01em;
 }
 #admin-leave-review-days .admin-request > span > small {
@@ -445,8 +445,8 @@
   gap: 4px;
   padding: 2px 8px;
   border-radius: 9999px;
-  background: #e0f2fe;
-  color: #0369a1;
+  background: var(--kja-status-info-bg, #e0f2fe);
+  color: var(--kja-status-info-text, #0369a1);
   font-size: 10.5px;
   font-weight: 700;
   white-space: nowrap;
@@ -456,18 +456,18 @@
   grid-row: 1;
   justify-self: end;
   align-self: center;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
-  background: #f1f5f9;
+  background: var(--kja-surface-canvas, #f1f5f9);
   padding: 2px 8px;
   border-radius: 6px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--kja-surface-border, #e2e8f0);
 }
 #admin-leave-review-days .admin-request > small::before {
   content: 'Solicitado: ';
-  color: #94a3b8;
+  color: var(--kja-text-secondary, #94a3b8);
   font-weight: 400;
 }
 #admin-leave-review-days .admin-request-actions {
@@ -477,26 +477,26 @@
   align-items: center;
   gap: 8px;
   padding-top: 6px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--kja-divider-subtle, #f1f5f9);
   margin-top: 1px;
 }
 #admin-leave-review-days .admin-request-actions input {
   flex: 1 1 180px;
   min-height: 34px;
   padding: 5px 12px;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid var(--kja-field-border, #e2e8f0);
   border-radius: 8px;
-  background: #f8fafc;
-  color: #09244c;
+  background: var(--kja-surface-opaque, #f8fafc);
+  color: var(--kja-text-primary, #09244c);
   font: inherit;
   font-size: 12px;
   transition: all .18s ease;
 }
 #admin-leave-review-days .admin-request-actions input:focus {
-  background: #ffffff;
-  border-color: #075abc;
+  background: var(--kja-surface-opaque, #ffffff);
+  border-color: var(--kja-field-border, #075abc);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(7, 90, 188, 0.12);
+  box-shadow: var(--kja-field-focus-shadow, 0 0 0 3px rgba(7, 90, 188, 0.12));
 }
 #admin-leave-review-days .admin-request-actions button {
   min-height: 34px;
@@ -513,22 +513,22 @@
   white-space: nowrap;
 }
 #admin-leave-review-days .approve {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.24);
+  background: var(--kja-action-secondary, linear-gradient(135deg, #10b981 0%, #059669 100%));
+  color: var(--kja-on-action, #ffffff);
+  box-shadow: var(--kja-action-shadow, 0 2px 8px rgba(16, 185, 129, 0.24));
 }
 #admin-leave-review-days .approve:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.32);
+  box-shadow: var(--kja-action-shadow, 0 4px 12px rgba(16, 185, 129, 0.32));
 }
 #admin-leave-review-days .reject {
-  background: #fff1f2;
-  border: 1.5px solid #fecdd3;
-  color: #e11d48;
+  background: var(--kja-status-error-bg, #fff1f2);
+  border: 1.5px solid var(--kja-surface-border, #fecdd3);
+  color: var(--kja-status-error-text, #e11d48);
 }
 #admin-leave-review-days .reject:hover:not(:disabled) {
-  background: #ffe4e6;
-  border-color: #fda4af;
+  background: var(--kja-status-error-bg, #ffe4e6);
+  border-color: var(--kja-surface-border, #fda4af);
   transform: translateY(-1px);
 }
 #admin-leave-review-days button:disabled {
@@ -544,11 +544,11 @@
   grid-row: 3;
   margin: 4px 0 0;
   padding: 6px 10px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: var(--kja-status-info-bg, #eff6ff);
+  border: 1px solid var(--kja-surface-border, #bfdbfe);
   border-radius: 8px;
   font-size: 11.5px;
-  color: #1e40af;
+  color: var(--kja-status-info-text, #1e40af);
   line-height: 1.4;
 }
 #admin-leave-review-days .leave-proposal-form {
@@ -567,32 +567,32 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: #075abc;
+  color: var(--kja-action-secondary, #075abc);
   font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
   padding: 3px 9px;
-  background: #eff6ff;
-  border: 1px dashed #93c5fd;
+  background: var(--kja-status-info-bg, #eff6ff);
+  border: 1px dashed var(--kja-field-border, #93c5fd);
   border-radius: 6px;
   transition: all .15s ease;
   user-select: none;
   width: fit-content;
 }
 #admin-leave-review-days .leave-proposal-form:not([open]) summary:hover {
-  background: #dbeafe;
-  border-color: #60a5fa;
-  color: #0369a1;
+  background: var(--kja-status-info-bg, #dbeafe);
+  border-color: var(--kja-field-border, #60a5fa);
+  color: var(--kja-status-info-text, #0369a1);
 }
 #admin-leave-review-days .leave-proposal-form[open] {
   margin-top: 6px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
+  background: var(--kja-surface-opaque, #f8fafc);
+  border: 1px dashed var(--kja-surface-border, #cbd5e1);
 }
 #admin-leave-review-days .leave-proposal-form[open] summary {
-  color: #075abc;
+  color: var(--kja-action-secondary, #075abc);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -907,13 +907,13 @@
   gap: 12px;
   padding-top: 10px;
   margin-top: 8px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--kja-divider-subtle, #e2e8f0);
 }
 .admin-leave-review > footer span {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: #64748b;
+  color: var(--kja-text-secondary, #64748b);
   font-size: 11.5px;
   font-weight: 500;
 }
@@ -922,16 +922,16 @@
   padding: 5px 22px;
   border: 0;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #075abc 0%, #0284c7 100%);
-  color: #ffffff;
+  background: var(--kja-action-primary, linear-gradient(135deg, #075abc 0%, #0284c7 100%));
+  color: var(--kja-on-action, #ffffff);
   font: 700 12.5px 'Inter', sans-serif;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(7, 90, 188, 0.28);
+  box-shadow: var(--kja-action-shadow, 0 3px 10px rgba(7, 90, 188, 0.28));
   transition: all .2s ease;
 }
 .admin-leave-review > footer button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(7, 90, 188, 0.38);
+  box-shadow: var(--kja-action-shadow, 0 5px 14px rgba(7, 90, 188, 0.38));
 }
 
 @media(max-width:640px) {
@@ -1993,9 +1993,9 @@
   min-height: 44px;
   padding: 10px 22px;
   border-radius: 9999px;
-  background: #ffffff;
-  border: 1.5px solid #d5e0eb;
-  color: #475569;
+  background: var(--kja-surface-opaque, #ffffff);
+  border: 1.5px solid var(--kja-surface-border, #d5e0eb);
+  color: var(--kja-text-secondary, #475569);
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -2003,27 +2003,27 @@
   transition: all .18s ease;
 }
 .is-day-off-request .admin-secondary-action:hover {
-  background: #f1f5f9;
-  color: #09244c;
-  border-color: #cbd5e1;
+  background: var(--kja-surface-hover, #f1f5f9);
+  color: var(--kja-text-primary, #09244c);
+  border-color: var(--kja-surface-border, #cbd5e1);
 }
 .is-day-off-request .admin-primary-action {
   min-height: 44px;
   padding: 11px 28px;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #075abc 0%, #004b99 100%);
+  background: var(--kja-action-primary, linear-gradient(135deg, #075abc 0%, #004b99 100%));
   border: 0;
-  color: #ffffff;
+  color: var(--kja-on-action, #ffffff);
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(7, 90, 188, 0.35);
+  box-shadow: var(--kja-action-shadow, 0 4px 14px rgba(7, 90, 188, 0.35));
   transition: all .18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .is-day-off-request .admin-primary-action:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(7, 90, 188, 0.45);
+  box-shadow: var(--kja-action-shadow, 0 6px 20px rgba(7, 90, 188, 0.45));
 }
 .is-day-off-request .admin-primary-action:active {
   transform: translateY(0);

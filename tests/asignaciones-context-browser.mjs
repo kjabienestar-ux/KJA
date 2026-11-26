@@ -26,6 +26,23 @@ try{for(const [width,height] of [[1024,768],[1280,720],[1440,900],[1920,1080]]){
  await page.evaluate(()=>seguimientoLab.release());await page.locator('#admin-assignments-section[aria-busy="false"] .admin-close-assignment-copy b').waitFor();
  assert.equal(await page.locator('#admin-close-title').inputValue(),'Borrador conservado');assert.equal(await page.locator('#admin-assignments-section .kja-sk-block').count(),0);assert.equal(await page.locator('#admin-close-assignment-form').evaluate(form=>form.inert),false);
  await page.screenshot({path:path.join(out,`data-${width}.png`)});
+ const assignmentSearch=page.locator('#admin-assignment-search');
+ const searchStyle=await assignmentSearch.evaluate(n=>({border:getComputedStyle(n).borderColor,radius:getComputedStyle(n).borderRadius,placeholder:getComputedStyle(n,'::placeholder').color}));
+ assert.deepEqual(searchStyle,{border:'rgb(135, 121, 109)',radius:'10px',placeholder:'rgb(92, 86, 79)'});
+ await assignmentSearch.focus();
+ assert.deepEqual(await assignmentSearch.evaluate(n=>{const s=getComputedStyle(n);return {color:s.outlineColor,width:s.outlineWidth,offset:s.outlineOffset};}),{color:'rgb(82, 121, 102)',width:'2px',offset:'2px'});
+ await assignmentSearch.blur();
+ // The calendar is independently retryable, including compact desktop layouts.
+ await page.evaluate(()=>{seguimientoLab.mode='error';void loadAssignmentCalendarContext()});
+ const calendarRetry=page.locator('#assignment-calendar-message .asg-calendar-retry');await calendarRetry.waitFor({state:'visible'});
+ assert.equal(await calendarRetry.evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(147, 71, 47)');
+ assert.equal(await calendarRetry.evaluate(n=>getComputedStyle(n).color),'rgb(255, 255, 255)');
+ assert.ok(await calendarRetry.evaluate(n=>n.getBoundingClientRect().height>=38));
+ await page.screenshot({path:path.join(out,`calendar-retry-${width}.png`)});
+ await page.evaluate(()=>{seguimientoLab.mode='data'});await calendarRetry.focus();await calendarRetry.press('Enter');
+ await page.locator('#assignment-calendar-panel[aria-busy="false"]').waitFor();
+ await page.waitForFunction(()=>document.activeElement?.matches('#assignment-calendar-days button'),null,{timeout:5000});
+ assert.equal(await page.locator('#assignment-calendar-message[data-state="error"]').count(),0);
  await page.evaluate(()=>{seguimientoLab.mode='hold';void loadAdminCloses()});await page.locator('#admin-assignments-section.is-context-refreshing').waitFor();
  assert.equal(await page.locator('.admin-close-assignment-copy b').innerText(),'Informe de ensayo');assert.equal(await page.locator('#admin-close-title').inputValue(),'Borrador conservado');
  assert.equal(await page.locator('[data-cancel-admin-close]').isEnabled(),false);await page.evaluate(()=>seguimientoLab.release());await page.locator('#admin-assignments-section[aria-busy="false"]').waitFor();
@@ -37,5 +54,5 @@ try{for(const [width,height] of [[1024,768],[1280,720],[1440,900],[1920,1080]]){
  await page.evaluate(()=>{seguimientoLab.data.dash_admin_cierres.asignaciones=[];void loadAdminCloses()});await page.getByText('No hay entregables asignados para esta fecha.',{exact:true}).waitFor();
  await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{KJAAssignmentLoading.reset();seguimientoLab.mode='hold';void loadAdminCloses()});await page.locator('#admin-close-assignment-list .kja-sk-block').first().waitFor();
  assert.equal(await page.locator('#admin-close-assignment-list .kja-sk-block').first().evaluate(n=>getComputedStyle(n,'::after').animationName),'none');
- assert.deepEqual(errors,[]);results.push({width,height,loading,errors,states:['slow','independent-calendar','data','refresh','refresh-error','initial-error','retry','empty','reduced-motion'],realWrites:0});await page.close();
-}fs.writeFileSync(path.join(out,'browser-results.json'),JSON.stringify(results,null,2));console.log('Asignaciones: cuatro tamaños, nueve estados, calendario independiente, borrador conservado y cero escrituras reales.');}finally{await browser.close();}
+ assert.deepEqual(errors,[]);results.push({width,height,loading,errors,states:['slow','independent-calendar','calendar-error-retry','data','refresh','refresh-error','initial-error','retry','empty','reduced-motion'],realWrites:0});await page.close();
+}fs.writeFileSync(path.join(out,'browser-results.json'),JSON.stringify(results,null,2));console.log('Asignaciones: cuatro tamaños, diez estados, calendario independiente con reintento y foco, borrador conservado y cero escrituras reales.');}finally{await browser.close();}

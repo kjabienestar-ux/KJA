@@ -13,6 +13,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function setup(t,{role='direccion',fastTimers=true}={}){
   const dom=new JSDOM(html,{runScripts:'outside-only',url:'http://localhost/dashboard'}),w=dom.window;
   t.after(()=>w.close());w.matchMedia=()=>({matches:true});
+  w.eval(fs.readFileSync('assets/js/kja-area-group.js','utf8'));
   w.APP={sessionUid:'fixture',access:{rol:role,acceso_panel:true},adminSection:'lista',adminList:null,adminListRequest:0};
   w.$=id=>w.document.getElementById(id);w.isoLima=()=>date;
   w.esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

@@ -642,6 +642,9 @@ const adminPersonCalendarDialog=$('admin-person-calendar-dialog');
 if(adminPersonCalendarDialog){
   $('admin-person-calendar-close').onclick=()=>adminPersonCalendarDialog.close();
   adminPersonCalendarDialog.addEventListener('click',event=>{
+    // A keyboard-activated day emits click with (0,0); only a genuine click
+    // on the dialog/backdrop can close this modal.
+    if(event.target!==adminPersonCalendarDialog)return;
     const box=adminPersonCalendarDialog.getBoundingClientRect();
     if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)adminPersonCalendarDialog.close();
   });

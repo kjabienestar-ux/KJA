@@ -41,6 +41,7 @@ const server=http.createServer((req,res)=>{
  res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream'});res.end(fs.readFileSync(file));
 });
 (async()=>{
+ const {assertAdminSurface}=await import('./helpers/admin-surface-assertions.mjs');
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
  const browser=await chromium.launch({headless:true,channel:'msedge'}),results=[];
  try{
@@ -65,7 +66,16 @@ const server=http.createServer((req,res)=>{
    const suspended=page.locator('.aa-card').filter({has:page.getByRole('heading',{name:'Erika Moreno',exact:true})});await suspended.locator('summary').click();await suspended.getByRole('button',{name:'Archivar cuenta'}).click();await page.getByLabel('Escribe el correo').fill('wrong@example.test');await page.getByLabel('Motivo',{exact:true}).fill('Archivo de ensayo');await page.locator('#aa-save').click();await page.getByText('Escribe el correo de la cuenta para archivar.',{exact:true}).waitFor();
    await page.getByLabel('Escribe el correo').fill('erika@example.test');await page.locator('#aa-save').click();await suspended.getByText('Archivada',{exact:true}).waitFor();
    await suspended.getByRole('button',{name:'Restaurar como suspendida'}).click();await page.getByLabel('Motivo',{exact:true}).fill('Restauración de ensayo');await page.locator('#aa-save').click();await suspended.getByRole('button',{name:'Reactivar acceso'}).waitFor();
-   await page.getByRole('button',{name:/Activas/}).click();await page.getByRole('button',{name:'Delegar mi rol',exact:true}).click();await page.getByLabel('Nuevo superadministrador').selectOption('00000000-0000-0000-0000-000000000004');await page.getByLabel('Confirma tu contraseña actual').fill('Current private password');await page.getByLabel('Motivo',{exact:true}).fill('Relevo de ensayo');await page.screenshot({path:path.join(out,'delegacion-'+width+'.png'),fullPage:true});await page.keyboard.press('Escape');
+   await page.getByRole('button',{name:/Activas/}).click();await page.getByRole('button',{name:'Delegar mi rol',exact:true}).click();
+   await page.getByLabel('Nuevo superadministrador').selectOption('00000000-0000-0000-0000-000000000004');
+   await page.getByLabel('Confirma tu contraseña actual').fill('Current private password');
+   const note=page.getByLabel('Motivo',{exact:true});await note.fill('Relevo de ensayo');
+   await page.waitForFunction(()=>getComputedStyle(document.activeElement).outlineColor==='rgb(82, 121, 102)');
+   await page.getByLabel('Confirma tu contraseña actual').fill('');
+   await note.focus();
+   await assertAdminSurface(page.locator('#aa-dialog'));
+   if(width===1440)await page.locator('#aa-dialog').screenshot({path:path.join(out,'dialogo-cuenta-1440.png')});
+   await page.screenshot({path:path.join(out,'delegacion-'+width+'.png'),fullPage:true});await page.keyboard.press('Escape');
    await page.evaluate(()=>lab.fail=true);await page.getByRole('button',{name:'Actualizar',exact:true}).click();await page.getByText('Las cuentas no están disponibles.',{exact:false}).waitFor();assert.equal(await page.locator('.aa-card').count(),0);
    await page.evaluate(()=>{lab.fail=false;});await page.getByRole('button',{name:'Actualizar',exact:true}).click();await page.getByRole('heading',{name:'Fabrizio Ibáñez'}).waitFor();
    await page.evaluate(()=>KJAAdminAccounts.bootstrap(false));assert.equal(await page.locator('#nav-admin-cuentas').isHidden(),true);

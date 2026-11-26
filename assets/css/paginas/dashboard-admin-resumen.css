@@ -3,18 +3,18 @@
 .admin-chart-ratio,#admin-refreshed{display:none}
 .admin-overview-notice[hidden],.admin-attention-chips[hidden]{display:none !important}
 
-.admin-overview-notice{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;padding:12px 16px;border:1px solid #ead6a6;border-radius:12px;color:#7a5410;background:#fbf3df;font-size:13px;line-height:1.5}
-.admin-overview-notice[data-tone="error"]{border-color:#ecc7bc;color:#993e35;background:#f7e6e0}
+.admin-overview-notice{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;padding:12px 16px;border:1px solid var(--kja-surface-border, #ead6a6);border-radius:12px;color:var(--kja-status-warning-text, #7a5410);background:var(--kja-status-warning-bg, #fbf3df);font-size:13px;line-height:1.5}
+.admin-overview-notice[data-tone="error"]{border-color:var(--kja-surface-border, #ecc7bc);color:var(--kja-status-error-text, #993e35);background:var(--kja-status-error-bg, #f7e6e0)}
 .admin-overview-notice p{margin:0}
-.admin-overview-notice button{flex:none;padding:7px 14px;border:1px solid currentColor;border-radius:8px;color:inherit;background:#faf9f5;font:inherit;font-weight:600;cursor:pointer}
-.admin-overview-notice button:hover{background:#fff}
+.admin-overview-notice button{flex:none;padding:7px 14px;border:1px solid currentColor;border-radius:8px;color:inherit;background:var(--kja-surface-opaque, #faf9f5);font:inherit;font-weight:600;cursor:pointer}
+.admin-overview-notice button:hover{background:var(--kja-surface-hover, #fff)}
 
-.admin-attention-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0 22px 14px;border-bottom:1px solid var(--claude-line,#edf0f3)}
-.admin-attention-chips small{color:#6c6a64;font-size:11px}
+.admin-attention-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0 22px 14px;border-bottom:var(--kja-divider-subtle, 1px solid var(--claude-line,#edf0f3))}
+.admin-attention-chips small{color:var(--kja-status-neutral-text, #6c6a64);font-size:11px}
 .admin-panel-head:has(+ .admin-attention-chips:not([hidden])){border-bottom:0 !important;padding-bottom:10px !important}
 
 @media(min-width:901px){
-  #portal[data-admin-lateral="true"][data-admin-section="overview"] #admin-refreshed{display:inline;flex:none;color:#6c6a64;font-size:12px;white-space:nowrap}
+  #portal[data-admin-lateral="true"][data-admin-section="overview"] #admin-refreshed{display:inline;flex:none;color:var(--kja-text-secondary);font-size:12px;white-space:nowrap}
 
   #portal.admin-wide .admin-overview-charts{position:relative;z-index:3;gap:14px;margin-top:20px}
   #portal.admin-wide .admin-overview-charts > .admin-empty{grid-column:1/-1;padding:16px 18px;border:1px solid var(--claude-line);border-radius:14px;text-align:left}
@@ -23,14 +23,14 @@
   #portal.admin-wide .admin-chart header{grid-area:1/2;min-width:0}
   #portal.admin-wide .admin-chart h3{font-size:18px;line-height:1.2}
   #portal.admin-wide .admin-chart header p{margin-top:2px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #portal.admin-wide .admin-chart header .admin-chart-ratio{display:block;margin-top:5px;color:#3d3d3a;font-size:12px}
+  #portal.admin-wide .admin-chart header .admin-chart-ratio{display:block;margin-top:5px;color:var(--kja-text-primary);font-size:12px}
   #portal.admin-wide .admin-chart-ring{grid-area:1/1;width:52px;margin:0}
   #portal.admin-wide .admin-chart-ring > span{width:40px}
   #portal.admin-wide .admin-chart-ring b{font-size:15px}
   #portal.admin-wide .admin-chart-ring small,#portal.admin-wide .admin-chart-footer{display:none}
 
   /* El desglose aparece al pasar el cursor o con el foco; la tarjeta sigue abriendo el detalle. */
-  #portal.admin-wide .admin-chart ul{position:absolute;top:calc(100% + 6px);left:10px;right:10px;z-index:6;padding:12px 14px;border:1px solid var(--claude-line);border-radius:12px;background:#faf9f5;box-shadow:0 14px 30px -12px rgba(37,37,35,.22);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .15s ease,transform .15s ease,visibility .15s;pointer-events:none}
+  #portal.admin-wide .admin-chart ul{position:absolute;top:calc(100% + 6px);left:10px;right:10px;z-index:6;padding:12px 14px;border:1px solid var(--claude-line);border-radius:12px;background:var(--kja-surface-opaque);box-shadow:var(--kja-selector-menu-shadow);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .15s ease,transform .15s ease,visibility .15s;pointer-events:none}
   #portal.admin-wide .admin-chart:is(:hover,:focus-visible) ul{opacity:1;visibility:visible;transform:none}
 
   #portal.admin-wide .admin-overview-grid{margin-top:20px}
@@ -44,12 +44,12 @@
    pendientes comparten relleno; títulos y acciones siguen siendo los reales. */
 @media(min-width:901px){
   #portal.admin-wide #admin-overview-section.kja-context-overview{
-    --kja-sk-card:var(--surface-card,#fff);
+    --kja-sk-card:var(--surface-card,var(--kja-surface-white));
     min-height:0;
   }
   #portal.admin-wide .kja-context-overview [data-kja-context-loading]{position:relative;color:transparent!important}
   #portal.admin-wide .kja-context-overview [data-kja-context-loading]>:not(.kja-context-layer){visibility:hidden}
-  #portal.admin-wide .kja-context-overview .kja-context-layer{position:absolute;inset:0;pointer-events:none;user-select:none;color:var(--text-body,#3d3d3a)}
+  #portal.admin-wide .kja-context-overview .kja-context-layer{position:absolute;inset:0;pointer-events:none;user-select:none;color:var(--kja-text-primary)}
   #portal.admin-wide .kja-context-overview.is-context-loading :is(.admin-overview-today,.admin-panel),
   #portal.admin-wide .kja-context-overview .admin-request-panel:has([data-kja-context-loading]){background:var(--kja-sk-card)!important;box-shadow:none!important;backdrop-filter:none!important}
   #portal.admin-wide .kja-context-overview.is-context-loading :is(.admin-overview-today>header,.admin-panel-head){background:transparent!important;background-image:none!important;box-shadow:none!important}
@@ -57,7 +57,7 @@
   #portal.admin-wide .kja-context-overview #admin-overview-headline .kja-context-layer{display:flex;align-items:center}
   #portal.admin-wide .kja-context-overview #admin-overview-charts[data-kja-context-loading]{min-height:88px}
   #portal.admin-wide .kja-context-overview #admin-overview-charts>.kja-context-layer{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-  #portal.admin-wide .kja-context-overview .kja-context-layer .admin-chart{background:var(--kja-sk-card)!important;border:1px solid var(--claude-line,#e3e1dd);box-shadow:none!important;transform:none}
+  #portal.admin-wide .kja-context-overview .kja-context-layer .admin-chart{background:var(--kja-sk-card)!important;border:1px solid var(--kja-divider-subtle);box-shadow:none!important;transform:none}
   #portal.admin-wide .kja-context-overview .kja-context-layer .admin-chart header{background:transparent!important}
   #portal.admin-wide .kja-context-overview .kja-context-layer .admin-chart header>.kja-sk-line{margin-top:5px}
   #portal.admin-wide .kja-context-overview .kja-context-layer .admin-chart-ring{height:52px;aspect-ratio:1}
@@ -65,13 +65,13 @@
   #portal.admin-wide .kja-context-overview .kja-context-count{width:100%;height:100%}
   #portal.admin-wide .kja-context-overview .admin-attention-chips:has(~ [data-kja-context-loading]){display:none}
   #portal.admin-wide .kja-context-overview :is(#admin-status-list,#admin-request-list)[data-kja-context-loading]{min-height:198px;overflow:hidden}
-  #portal.admin-wide .kja-context-overview .kja-context-row{display:flex;align-items:center;gap:12px;min-height:66px;padding:14px 20px;border-bottom:1px solid var(--claude-line,#e3e1dd)}
+  #portal.admin-wide .kja-context-overview .kja-context-row{display:flex;align-items:center;gap:12px;min-height:66px;padding:14px 20px;border-bottom:1px solid var(--kja-divider-subtle)}
   #portal.admin-wide .kja-context-overview .kja-context-row:last-child{border-bottom:0}
   #portal.admin-wide .kja-context-overview .kja-context-row>.kja-sk-circle{width:34px;height:34px;flex-basis:34px}
   #portal.admin-wide .kja-context-overview .kja-context-row>.kja-sk-lines{flex:1}
   #portal.admin-wide .kja-context-overview .kja-context-tail{width:54px}
   #portal.admin-wide .kja-context-overview.is-context-refreshing .admin-overview-today>header{position:relative}
-  #portal.admin-wide .kja-context-overview.is-context-refreshing .admin-overview-today>header::after{content:'Actualizando…';position:absolute;right:24px;top:24px;color:#6c6a64;font-size:12px}
+  #portal.admin-wide .kja-context-overview.is-context-refreshing .admin-overview-today>header::after{content:'Actualizando…';position:absolute;right:24px;top:24px;color:var(--kja-text-secondary);font-size:12px}
   #portal.admin-wide .kja-context-overview .kja-context-error{margin-bottom:16px;width:100%;box-shadow:none}
   #portal.admin-wide .kja-context-overview #admin-request-refresh:disabled{cursor:wait;opacity:.65}
 }

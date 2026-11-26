@@ -162,6 +162,22 @@
   get('ranking-month-today').addEventListener('click',()=>{if(!isCurrentMonth()){get('ranking-month').value=now;withAdminSkeleton('ranking',()=>window.loadAdminRanking());}});
 
   /* ── DETALLE DE UNA PERSONA ───────────────────────────── */
+  function showRankingModal(modal){
+    const portal=get('portal');
+    if(portal&&window.innerWidth>=901&&modal.parentElement!==portal){
+      modal._rankingOrigin={parent:modal.parentElement,next:modal.nextSibling};
+      portal.append(modal);
+    }
+    modal.hidden=false;
+  }
+  function hideRankingModal(modal){
+    modal.hidden=true;
+    const origin=modal._rankingOrigin;
+    if(origin){
+      origin.parent.insertBefore(modal,origin.next?.parentNode===origin.parent?origin.next:null);
+      delete modal._rankingOrigin;
+    }
+  }
   function openRankingDetail(row){
     if(!row)return;
     const m=row.metricas||{},tone=scoreTone(row.score);
@@ -216,24 +232,35 @@
     get('ranking-detail-start').textContent=row.inicio?fmtDate(row.inicio,true):'Sin fecha registrada';
     get('ranking-detail-participation').textContent=`${Math.round(row.participation*100)} % · ${m.dias||0} de ${m.dias_mes||0} días`;
     get('ranking-detail-days').textContent=`${m.dias||0} trabajados · ${m.presentes||0} presencias`;
-    modal.hidden=false;
+    showRankingModal(modal);
     requestAnimationFrame(()=>modal.querySelector('.rk-modal-sheet').focus());
   }
   function closeRankingDetail(){
     if(get('ranking-detail-modal').hidden)return;
-    get('ranking-detail-modal').hidden=true;
+    hideRankingModal(get('ranking-detail-modal'));
     if(lastFocus?.isConnected)lastFocus.focus();
   }
 
   /* ── CÓMO SE CALCULA ──────────────────────────────────── */
-  function openHelp(){lastFocus=document.activeElement;get('ranking-form-error').textContent='';setWeightInputs(weights);get('ranking-help').hidden=false;requestAnimationFrame(()=>get('ranking-help').querySelector('.rk-drawer-panel').focus());}
-  function closeHelp(){if(get('ranking-help').hidden)return;get('ranking-help').hidden=true;if(lastFocus?.isConnected)lastFocus.focus();}
+  function openHelp(){lastFocus=document.activeElement;get('ranking-form-error').textContent='';setWeightInputs(weights);showRankingModal(get('ranking-help'));requestAnimationFrame(()=>get('ranking-help').querySelector('.rk-drawer-panel').focus());}
+  function closeHelp(){if(get('ranking-help').hidden)return;hideRankingModal(get('ranking-help'));if(lastFocus?.isConnected)lastFocus.focus();}
   get('ranking-help-open').addEventListener('click',openHelp);
   document.addEventListener('click',event=>{
     if(event.target.closest('[data-close-ranking-detail]'))closeRankingDetail();
     if(event.target.closest('[data-close-ranking-help]'))closeHelp();
   });
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeRankingDetail();closeHelp();}});
+  document.addEventListener('keydown',event=>{
+    const modal=[get('ranking-detail-modal'),get('ranking-help')].find(node=>!node.hidden);
+    if(!modal)return;
+    if(event.key==='Escape'){event.preventDefault();closeRankingDetail();closeHelp();return;}
+    if(event.key!=='Tab')return;
+    const controls=[...modal.querySelectorAll('button,input,select,textarea,a[href],summary,[tabindex]')]
+      .filter(node=>!node.disabled&&node.tabIndex>=0&&node.getClientRects().length);
+    if(!controls.length)return;
+    const first=controls[0],last=controls.at(-1),index=controls.indexOf(document.activeElement);
+    if(event.shiftKey&&index<=0){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&(index<0||index===controls.length-1)){event.preventDefault();first.focus();}
+  });
   function renderGuide(){
     const tones=['#8E4630','#A9583E','#C0704F','#C98063'];
     get('ranking-weight-bar').innerHTML=CRITERION_KEYS.map((key,i)=>`<span style="flex:${weights[key]||0} 1 0;background:${tones[i]}"${weights[key]?'':' hidden'}>${SHORT_LABELS[key]}<small>${weights[key]} pts</small></span>`).join('');
@@ -505,7 +532,12 @@
   get('admin-ranking-section').addEventListener('click',event=>{
     const target=event.target;
     const retry=target.closest('[data-rk-retry]');if(retry){withAdminSkeleton('ranking',()=>window.loadAdminRanking());return;}
-    const filter=target.closest('[data-rk-filter]');if(filter){listFilter=filter.dataset.rkFilter;page=0;renderTable();return;}
+    const filter=target.closest('[data-rk-filter]');
+    if(filter){
+      listFilter=filter.dataset.rkFilter;page=0;renderTable();
+      get('ranking-filters').querySelector('[aria-pressed="true"]')?.focus();
+      return;
+    }
     const pager=target.closest('[data-rk-page]');
     if(pager){
       page=Number(pager.dataset.rkPage);renderTable();
@@ -513,7 +545,11 @@
       if(top<0)card.scrollIntoView({block:'start',behavior:'smooth'});
       return;
     }
-    if(target.closest('[data-rk-reset]')){listFilter='all';search='';get('ranking-search').value='';page=0;renderTable();return;}
+    if(target.closest('[data-rk-reset]')){
+      listFilter='all';search='';get('ranking-search').value='';page=0;renderTable();
+      get('ranking-search').focus();
+      return;
+    }
     const areaButton=target.closest('[data-area-key]');if(areaButton){selectedArea=areaButton.dataset.areaKey;renderAreas(areaGroups(view));return;}
     const person=target.closest('[data-person]');
     if(person&&Number(person.dataset.person)>=0)openRankingDetail(view[Number(person.dataset.person)]);

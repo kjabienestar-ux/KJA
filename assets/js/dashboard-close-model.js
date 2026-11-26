@@ -46,6 +46,7 @@
 
   function evidenceSelectionPolicy({requirement,mode,count,min=5,max=50,collageAllowed=true}){
     if(count<1)return {ok:false,reason:'vacio'};
+    if(requirement==='salida')return count===1?{ok:true}:{ok:false,reason:'cantidad_salida'};
     if(requirement!=='comparticiones')return count<=5?{ok:true}:{ok:false,reason:'maximo'};
     if(mode==='collage'){
       if(!collageAllowed)return {ok:false,reason:'collage_no_permitido'};

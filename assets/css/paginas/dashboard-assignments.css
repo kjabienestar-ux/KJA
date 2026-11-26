@@ -1,38 +1,38 @@
 .admin-close-grid{grid-template-columns:minmax(300px,.85fr) minmax(0,1.4fr);align-items:start}
 .admin-close-grid>*{min-width:0}
-.assignment-target-matches{display:grid;gap:4px;max-height:180px;overflow-y:auto;border:1px solid #cbd9e7;border-radius:9px;padding:5px;background:#fff}
+.assignment-target-matches{display:grid;gap:4px;max-height:180px;overflow-y:auto;border:1px solid var(--kja-surface-border, #cbd9e7);border-radius:9px;padding:5px;background:var(--kja-surface-opaque, #fff)}
 .assignment-target-matches[hidden]{display:none}
-.assignment-target-matches button{display:grid;gap:3px;min-height:44px;padding:9px 12px;border:0;border-radius:6px;background:#f5f8fb;color:#263d58;text-align:left;cursor:pointer;white-space:normal;overflow-wrap:anywhere;font:inherit}
-.assignment-target-matches button:hover{background:#e6f0fa}
-.assignment-target-matches button:focus-visible{outline:2px solid #075abc;outline-offset:-2px}
-.assignment-target-matches small,.assignment-target-matches p{font-size:12px;color:#455970}
+.assignment-target-matches button{display:grid;gap:3px;min-height:44px;padding:9px 12px;border:0;border-radius:6px;background:var(--kja-surface-canvas, #f5f8fb);color:var(--kja-text-primary, #263d58);text-align:left;cursor:pointer;white-space:normal;overflow-wrap:anywhere;font:inherit}
+.assignment-target-matches button:hover{background:var(--kja-surface-hover, #e6f0fa)}
+.assignment-target-matches button:focus-visible{outline:2px solid var(--kja-focus, #075abc);outline-offset:-2px}
+.assignment-target-matches small,.assignment-target-matches p{font-size:12px;color:var(--kja-text-secondary, #455970)}
 .admin-close-grid .admin-close-assignment-copy b{white-space:normal;overflow:visible;overflow-wrap:anywhere;line-height:1.5}
 .admin-close-grid .admin-close-assignment-row{grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:18px 0}
 .admin-close-grid .admin-close-assignment-progress{grid-column:1;grid-row:2}
 .admin-close-grid .admin-close-assignment-row>button{grid-column:2;grid-row:1}
-.assignment-guide{font-size:12px;line-height:1.6;color:#455970;margin:12px 0}
-.assignment-calendar{margin:16px 0;padding-bottom:16px;border-bottom:1px solid #d7e1eb}
-.assignment-calendar summary{cursor:pointer;font-weight:700;color:#263d58;padding:10px 0}
-.assignment-calendar label,.assignment-search{display:grid;gap:6px;font-size:12px;font-weight:600;color:#455970;margin:12px 0}
-.assignment-calendar input,.assignment-search input{font:inherit;font-size:16px;min-height:44px;padding:9px 12px;border:1px solid #cbd9e7;border-radius:9px;background:#fff;color:#263d58;min-width:0;width:100%;box-sizing:border-box}
-.assignment-calendar p,.assignment-calendar small,.assignment-deliveries p{font-size:12px;color:#455970;line-height:1.5}
+.assignment-guide{font-size:12px;line-height:1.6;color:var(--kja-text-secondary, #455970);margin:12px 0}
+.assignment-calendar{margin:16px 0;padding-bottom:16px;border-bottom:1px solid var(--kja-divider-subtle, #d7e1eb)}
+.assignment-calendar summary{cursor:pointer;font-weight:700;color:var(--kja-text-primary, #263d58);padding:10px 0}
+.assignment-calendar label,.assignment-search{display:grid;gap:6px;font-size:12px;font-weight:600;color:var(--kja-text-secondary, #455970);margin:12px 0}
+.assignment-calendar input,.assignment-search input{font:inherit;font-size:16px;min-height:44px;padding:9px 12px;border:1px solid var(--kja-field-border, #cbd9e7);border-radius:9px;background:var(--kja-surface-opaque, #fff);color:var(--kja-text-primary, #263d58);min-width:0;width:100%;box-sizing:border-box}
+.assignment-calendar p,.assignment-calendar small,.assignment-deliveries p{font-size:12px;color:var(--kja-text-secondary, #455970);line-height:1.5}
 .assignment-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:12px 0}
-.assignment-calendar-days>span{text-align:center;font-size:12px;color:#455970}
-.assignment-calendar-days button{position:relative;min-height:44px;border:1px solid transparent;border-radius:8px;background:#f5f8fb;color:#263d58;font:600 13px Inter,sans-serif;cursor:pointer}
-.assignment-calendar-days button.has-assignments{background:#e6f4f0;color:#076553}
+.assignment-calendar-days>span{text-align:center;font-size:12px;color:var(--kja-text-secondary, #455970)}
+.assignment-calendar-days button{position:relative;min-height:44px;border:1px solid transparent;border-radius:8px;background:var(--kja-surface-canvas, #f5f8fb);color:var(--kja-text-primary, #263d58);font:600 13px Inter,sans-serif;cursor:pointer}
+.assignment-calendar-days button.has-assignments{background:var(--kja-status-bg, #e6f4f0);color:var(--kja-status-text, #076553)}
 .assignment-calendar-days button i{position:absolute;bottom:4px;left:calc(50% - 2px);width:4px;height:4px;background:currentColor;border-radius:50%}
-.assignment-calendar-days button[aria-pressed=true]{background:#174776;color:#fff}
-.assignment-calendar button:focus-visible,.assignment-search input:focus-visible,.assignment-calendar input:focus-visible{outline:3px solid #075abc;outline-offset:2px}
+.assignment-calendar-days button[aria-pressed=true]{background:var(--kja-action-primary, #174776);color:var(--kja-on-action, #fff)}
+.assignment-calendar button:focus-visible,.assignment-search input:focus-visible,.assignment-calendar input:focus-visible{outline:3px solid var(--kja-focus, #075abc);outline-offset:2px}
 .assignment-deliveries{grid-column:1/-1;display:grid;gap:8px}
-.admin-close-grid .assignment-evidence-link{background:#f0f6fc;color:#174776;border:1px solid #cbd9e7;text-align:left;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
-.admin-close-grid .assignment-evidence-link small{color:#455970;font-weight:400}
+.admin-close-grid .assignment-evidence-link{background:var(--kja-surface-canvas, #f0f6fc);color:var(--kja-action-primary, #174776);border:1px solid var(--kja-surface-border, #cbd9e7);text-align:left;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+.admin-close-grid .assignment-evidence-link small{color:var(--kja-text-secondary, #455970);font-weight:400}
 @media(max-width:1000px){.admin-close-grid{grid-template-columns:minmax(0,1fr)}}
-.assignment-section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px;color:#263d58}
+.assignment-section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px;color:var(--kja-text-primary, #263d58)}
 .assignment-section-head h2{font-size:20px;margin:0}
 .assignment-section-head label{display:flex;align-items:center;gap:10px;font-size:12px}
-.assignment-section-head input{min-height:40px;border:1px solid #cbd9e7;border-radius:8px;padding:8px;font:inherit;background:#fff;color:#263d58}
-.assignment-pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0;font-size:12px;color:#455970}
-.assignment-pagination button{min-height:40px;padding:8px 12px;border:1px solid #cbd9e7;border-radius:8px;background:#f0f6fc;color:#174776;font:600 12px Inter,sans-serif;cursor:pointer}
+.assignment-section-head input{min-height:40px;border:1px solid var(--kja-field-border, #cbd9e7);border-radius:8px;padding:8px;font:inherit;background:var(--kja-surface-opaque, #fff);color:var(--kja-text-primary, #263d58)}
+.assignment-pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0;font-size:12px;color:var(--kja-text-secondary, #455970)}
+.assignment-pagination button{min-height:40px;padding:8px 12px;border:1px solid var(--kja-field-border, #cbd9e7);border-radius:8px;background:var(--kja-surface-canvas, #f0f6fc);color:var(--kja-action-primary, #174776);font:600 12px Inter,sans-serif;cursor:pointer}
 .assignment-pagination button:disabled{opacity:.45;cursor:default}
 .admin-assignments-section .admin-close-fields{gap:8px;margin:10px 0}
 .admin-assignments-section .admin-close-assignment,.admin-assignments-section .admin-close-assignments{padding:16px}
@@ -55,17 +55,17 @@
 @media(min-width:1001px){
   #admin-assignments-section .admin-close-grid{grid-template-columns:minmax(340px,.9fr) minmax(0,1.5fr)}
   #admin-assignments-section .admin-close-fields>label:nth-child(2){grid-column:auto}
-  #admin-assignments-section .admin-close-fields{column-gap:12px;row-gap:8px}
+  #admin-assignments-section .admin-close-fields{column-gap:var(--kja-space-12);row-gap:var(--kja-space-8)}
   #admin-assignments-section .admin-close-fields input,
-  #admin-assignments-section .admin-close-fields select{min-height:38px;padding:8px 10px}
+  #admin-assignments-section .admin-close-fields select{min-height:38px;padding:var(--kja-space-8) 10px}
   #admin-assignments-section .admin-close-fields textarea{height:60px;min-height:60px}
-  #admin-assignments-section .admin-close-assignment-row{grid-template-columns:minmax(0,1fr) 135px auto;align-items:center;gap:8px 12px;padding:12px 0}
+  #admin-assignments-section .admin-close-assignment-row{grid-template-columns:minmax(0,1fr) 135px auto;align-items:center;gap:var(--kja-space-8) var(--kja-space-12);padding:var(--kja-space-12) 0}
   #admin-assignments-section .admin-close-assignment-progress{grid-column:2;grid-row:1}
   #admin-assignments-section .admin-close-assignment-row>button{grid-column:3;grid-row:1}
   #admin-assignments-section .admin-close-assignment-progress>em{display:none}
   #admin-assignments-section .assignment-deliveries:has(>.assignment-no-files:only-child){display:none}
   #admin-assignments-section .assignment-deliveries:empty{display:none}
-  #admin-assignments-section .assignment-search{margin:8px 0}
-  #admin-assignments-section .assignment-pagination{margin:8px 0}
-  #admin-assignments-section .assignment-guide{margin:8px 0;font-size:11px}
+  #admin-assignments-section .assignment-search{margin:var(--kja-space-8) 0}
+  #admin-assignments-section .assignment-pagination{margin:var(--kja-space-8) 0}
+  #admin-assignments-section .assignment-guide{margin:var(--kja-space-8) 0;font-size:11px}
 }

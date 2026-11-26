@@ -78,14 +78,16 @@ function renderPeopleWorkbench(){
   initPeopleWorkbench();
   const state=PEOPLE_WORKBENCH,all=APP.adminTeam.personas||[],active=all.filter(p=>p.activo),canEdit=!!APP.adminTeam.puede_editar;
   const counts=[['all','Directorio',all.length,`${active.length} activos · ${all.length-active.length} bajas`],['dni','Sin DNI',active.filter(p=>!p.dni).length,`de ${active.length} activos`],['pin','Sin PIN',active.filter(p=>!p.tiene_pin).length,`de ${active.length} activos`],['pending','Contrato pendiente',active.filter(p=>p.contrato_pendiente).length,`de ${active.length} activos`]];
-  $('admin-people-kpis').innerHTML=counts.map(([key,label,num,scope])=>`<button type="button" data-pw-metric="${key}" aria-pressed="${state.metric===key}"><small>${label}</small><span><b>${num}</b><small>${scope}</small></span></button>`).join('');
+  $('admin-people-kpis').innerHTML=counts.map(([key,label,num,scope])=>`<button type="button" class="kja-metric" data-pw-metric="${key}" aria-pressed="${state.metric===key}"><small class="kja-metric-label">${label}</small><span><b class="kja-metric-value">${num}</b><small>${scope}</small></span></button>`).join('');
   const visible=filteredAdminPeople('people').filter(p=>state.metric==='all'||p.activo&&(state.metric==='dni'?!p.dni:state.metric==='pin'?!p.tiene_pin:p.contrato_pendiente));
   const groups=new Map();for(const p of visible){const key=String(p.area_id);if(!groups.has(key))groups.set(key,{name:p.area||'Sin área',people:[]});groups.get(key).people.push(p);}
   $('admin-people-list').innerHTML=[...groups].map(([key,g])=>{
     const collapsed=state.collapsed.has(key),id=`pw-area-${key}`,temp=g.people.filter(p=>peopleCurrentPeriod(p)?.tipo==='temporal').length;
-    return `<section class="pw-area"><header><h3>${esc(g.name)}</h3><small>${g.people.length} ${g.people.length===1?'persona':'personas'}</small>${temp?peopleTag(`${temp} temporal${temp===1?'':'es'}`,'warn'):''}${peopleButton(collapsed?'Mostrar':'Contraer',`data-pw-collapse="${esc(key)}" aria-expanded="${!collapsed}" aria-controls="${esc(id)}"`)}</header><div id="${esc(id)}" class="pw-card-grid" ${collapsed?'hidden':''}>${g.people.map(peopleCard).join('')}</div></section>`;
-  }).join('')||'<div class="pw-empty"><h3>Sin colaboradores para estos filtros</h3><p>Prueba otro nombre o cambia el área, la institución o el indicador seleccionado.</p><button type="button" class="pw-button" data-pw-clear>Limpiar filtros</button></div>';
-  $('admin-people-list').querySelector('[data-pw-clear]')?.addEventListener('click',()=>{for(const id of ['admin-people-search','admin-people-area','admin-people-institution','admin-people-email'])$(id).value='';$('admin-people-inactive').checked=false;state.metric='all';renderAdminPeople();$('admin-people-search').focus();});
+    const header=kjaAreaHeader({id,title:g.name,countLabel:g.people.length+(g.people.length===1?' persona':' personas'),expanded:!collapsed,detail:temp?temp+(temp===1?' temporal':' temporales'):''});
+    header.dataset.pwCollapse=key;
+    return `<section class="kja-area-group"><h3 style="margin:0">${header.outerHTML}</h3><div id="${esc(id)}" class="pw-card-grid" ${collapsed?'hidden':''}>${g.people.map(peopleCard).join('')}</div></section>`;
+  }).join('');
+  if(!visible.length)renderDirectoryEmpty(false);
   $('pw-result-count').textContent=`${visible.length} resultados · Los indicadores muestran el directorio completo. ${$('admin-people-inactive').checked?'Incluye bajas.':'Solo activos.'}`;
   const filterCount=Number(!!$('admin-people-email').value)+Number($('admin-people-inactive').checked);
   document.querySelector('.pw-more-filters summary').textContent=`Más filtros${filterCount?' · '+filterCount:''}`;
@@ -380,10 +382,12 @@ function peopleEditorToProfile(){
   return openPeopleProfile(id,origin?.isConnected?origin:null,PEOPLE_EDITOR_TO_PROFILE[jump]);
 }
 // Lleva la vista a la tarjeta de la persona y la resalta un momento.
+const PEOPLE_HIGHLIGHT_TIMERS=new WeakMap();
 function peopleHighlightCard(id){
   const card=$('admin-people-list')?.querySelector(`[data-team-profile="${CSS.escape(String(id))}"]`)?.closest('.pw-card');if(!card)return;
-  card.scrollIntoView({block:'center',behavior:'smooth'});card.classList.remove('pw-card-updated');void card.offsetWidth;card.classList.add('pw-card-updated');
-  setTimeout(()=>card.classList.remove('pw-card-updated'),2600);
+  card.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  clearTimeout(PEOPLE_HIGHLIGHT_TIMERS.get(card));card.classList.add('pw-card-updated');
+  PEOPLE_HIGHLIGHT_TIMERS.set(card,setTimeout(()=>{card.classList.remove('pw-card-updated');PEOPLE_HIGHLIGHT_TIMERS.delete(card);},2600));
 }
 // Condiciones del editor existente: el principal se cambia únicamente mediante vigencias.
 function configurePeopleEditor(person){

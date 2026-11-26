@@ -1,0 +1,234 @@
+{
+  "state": "HECHO",
+  "scope": "Escritorio administrativo local; sin merge, publicación ni despliegue",
+  "digest": "2cb304742159d412dfcc3586f6eb513e825118a9ed32f488d35037f4ad26f45c",
+  "viewport": "1440x900",
+  "browser": {
+    "before": "157.0.4341.60",
+    "after": "158.0.4370.33"
+  },
+  "counts": {
+    "colors": {
+      "before": 192,
+      "after": 37
+    },
+    "radii": {
+      "before": 25,
+      "after": 20
+    },
+    "shadows": {
+      "before": 29,
+      "after": 9
+    },
+    "fonts": {
+      "before": 32,
+      "after": 33
+    },
+    "families": {
+      "before": 4,
+      "after": 3
+    },
+    "spacing": {
+      "before": 31,
+      "after": 31
+    }
+  },
+  "source": {
+    "initial": 6906,
+    "literals": 5871,
+    "removed": 1035,
+    "explicitOutside": 1269,
+    "managedSharedFallbacks": 4419,
+    "justifiedExceptions": 183,
+    "exceptionCounts": {
+      "platform-fallback": 7,
+      "ambient-shell": 11,
+      "evidence-media-matte": 10,
+      "area-identity-palette": 84,
+      "illustration-effects": 3,
+      "legacy-focus-fallback": 1,
+      "area-identity-graphics": 37,
+      "excluded-dark-theme": 4,
+      "evidence-transparency-grid": 2,
+      "evidence-image-outline": 1,
+      "external-brand": 1,
+      "ranking-medal-graphics": 22
+    },
+    "remainingForReview": 0
+  },
+  "contrast": {
+    "pass": true,
+    "violations": 0,
+    "sampled": 3
+  },
+  "coveredScenarios": 42,
+  "correspondence": {
+    "families": 39,
+    "catalogSections": 31,
+    "uniqueFigmaNodes": 68,
+    "errors": []
+  },
+  "paintedGeometry": {
+    "pass": true,
+    "unexpected": [],
+    "paintedRadii": [
+      "20px",
+      "16px",
+      "10px",
+      "9px",
+      "4px",
+      "6px",
+      "8px",
+      "12px",
+      "18px",
+      "999px",
+      "50%",
+      "2px",
+      "3px"
+    ],
+    "elevation": [
+      "card",
+      "menu"
+    ],
+    "functional": [
+      {
+        "role": "selection-indicator",
+        "property": "shadow",
+        "value": "rgb(147, 71, 47) 0px -3px 0px 0px inset",
+        "views": [
+          "colaboradores",
+          "lista",
+          "seguimiento",
+          "facebook"
+        ]
+      },
+      {
+        "role": "geometric-circle",
+        "property": "radius",
+        "value": "50%",
+        "views": [
+          "seguimiento",
+          "overview",
+          "asignaciones",
+          "roles",
+          "facebook",
+          "ranking",
+          "marcado"
+        ]
+      },
+      {
+        "role": "structural-divider",
+        "property": "shadow",
+        "value": "rgb(222, 214, 203) 0px 1px 0px 0px",
+        "views": [
+          "mes"
+        ]
+      },
+      {
+        "role": "area-marker-geometry",
+        "property": "radius",
+        "value": "2px",
+        "views": [
+          "mes"
+        ]
+      },
+      {
+        "role": "medal-illustration",
+        "property": "shadow",
+        "value": "rgba(214, 138, 6, 0.35) 0px 4px 10px 0px",
+        "views": [
+          "ranking"
+        ]
+      },
+      {
+        "role": "medal-ring",
+        "property": "shadow",
+        "value": "rgb(255, 255, 255) 0px 0px 0px 3px, rgb(128, 82, 16) 0px 0px 0px 5px",
+        "views": [
+          "ranking"
+        ]
+      },
+      {
+        "role": "selection-indicator",
+        "property": "shadow",
+        "value": "rgb(147, 71, 47) 3px 0px 0px 0px inset",
+        "views": [
+          "ranking"
+        ]
+      },
+      {
+        "role": "structural-divider",
+        "property": "shadow",
+        "value": "rgb(222, 214, 203) 0px 0px 0px 1px",
+        "views": [
+          "ranking"
+        ]
+      },
+      {
+        "role": "medal-illustration",
+        "property": "backgroundColor",
+        "value": "rgb(255, 248, 234)",
+        "views": [
+          "ranking"
+        ]
+      }
+    ],
+    "limits": "Only painted surfaces in the measured desktop scenarios; color defaults/inheritance and transparent containers are not palette entries.",
+    "coverage": true
+  },
+  "figmaRemaining": [],
+  "recognition": {
+    "approval": {
+      "status": "approved",
+      "by": "Piero",
+      "date": "2026-11-25",
+      "evidence": "reconocimiento.html",
+      "scope": "apariencia general de escritorio tras la estandarización"
+    },
+    "reviewed": true,
+    "alertViews": [
+      "lista",
+      "seguimiento",
+      "overview",
+      "asignaciones"
+    ]
+  },
+  "limitations": "Computed values include browser defaults, transparent colors and unpainted geometry. Painted values and functional exceptions are classified separately. Fixtures and local verification do not certify production.",
+  "closedLocally": "2026-11-26",
+  "base": "c802c3f0458f7887b848fbea7bf650c22dacb5a6",
+  "branch": "feat/pierokja",
+  "tokenVersion": "0.7.3",
+  "additionalVerification": {
+    "unitTestsPassed": 141,
+    "unitTestsFailed": 0,
+    "catalogAccessibilityScenarios": 15,
+    "catalogVisualTestsPassed": 18,
+    "desktopWidths": [1024, 1280, 1440, 1920],
+    "desktopRegressionSuites": [
+      "admin-control-polish-browser",
+      "admin-menu-scope-browser",
+      "admin-people-polish-browser",
+      "asignaciones-spacing-browser",
+      "admin-auxiliary-surface-browser"
+    ],
+    "allPassed": true,
+    "generalSuiteBeforePR": {
+      "baselineMaster": "e3889e6afc103d168241bd6f09be26494945ff19",
+      "baselinePassed": 302,
+      "baselineFailed": 17,
+      "candidatePassed": 320,
+      "candidateFailed": 5,
+      "newFailures": 0,
+      "remainingFailures": ["dashboard-guided-tour.test.mjs (4 preexistentes)", "videos.test.mjs (1 preexistente)"]
+    },
+    "generalSuiteAfterCorrection": {
+      "command": "npm test",
+      "passed": 327,
+      "failed": 0,
+      "focusedSuitePassed": 23,
+      "newRegressionTests": 2,
+      "remainingFailures": [],
+      "scope": "Pruebas del contrato vigente de inicio del tutorial por cuenta, perfil y navegación pública; sin cambios de ejecución ni diseño móvil."
+    }
+  }
+}

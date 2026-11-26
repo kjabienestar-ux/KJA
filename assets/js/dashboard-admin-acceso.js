@@ -157,6 +157,7 @@ function paintOfficeMapPoint(point,{focus=false}={}){
 function setOfficePoint(lat,lon,{source='map',accuracy=null,focus=false,label=''}={}){
   lat=Number(lat);lon=Number(lon);if(!validOfficePoint(lat,lon))return accessMessage('La ubicación seleccionada no contiene coordenadas válidas.',true);
   $('admin-office-lat').value=lat.toFixed(6);$('admin-office-lon').value=lon.toFixed(6);OFFICE_SELECTED_LABEL=label||'';
+  for(const input of [$('admin-office-lat'),$('admin-office-lon')])input.dispatchEvent(new Event('input',{bubbles:true}));
   paintOfficeMapPoint({lat,lon},{focus});syncOfficeSelection({source,accuracy});
 }
 async function prepareOfficeMap(){

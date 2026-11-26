@@ -5,6 +5,7 @@ const ROLE_FILTERS=[['todas','Todas'],['vacante','Sin líder'],['revisar','Por r
 const ROLE_KIND_ORDER={revisar:0,activo:1,vacante:2};
 let ROLE_FILTER='todas';
 let ROLE_DIALOG={area:null,editing:''};
+let ROLE_PICKER_SEQUENCE=0;
 
 function rolesMessage(text,bad=false){
   // El modal tapa el aviso de la sección, así que el mensaje se repite dentro del modal.
@@ -130,11 +131,11 @@ function roleSeatMarkup(area,person,{key,slot=null,title,vacantTitle,vacantLabel
   return `<div class="admin-role-seat-row ${status.kind}">
       <span class="admin-role-mark ${person?'':'is-vacant'}" aria-hidden="true">${person?esc(initials(person.nombre)):'—'}</span>
       <span class="admin-role-seat-text"><small>${title}</small><b>${person?esc(person.nombre):vacantTitle}</b><em class="${status.kind}">${esc(status.label)} · ${esc(status.detail)}</em></span>
-      <span class="admin-role-seat-actions"><button type="button" data-role-edit="${key}" aria-expanded="false" aria-controls="admin-role-editor-${key}">${person?'Cambiar':'Asignar'}</button>${person?`<button type="button" class="is-danger" ${remove}>Quitar</button>`:''}</span>
+      <span class="admin-role-seat-actions"><button type="button" class="kja-button" data-kind="secondary" data-role-edit="${key}" aria-expanded="false" aria-controls="admin-role-editor-${key}">${person?'Cambiar':'Asignar'}</button>${person?`<button type="button" class="is-danger kja-button" data-kind="tertiary" ${remove}>Quitar</button>`:''}</span>
     </div>
     <div class="admin-role-seat-editor" id="admin-role-editor-${key}" hidden>
       ${options?`<label><span>${person?`Reemplazar a ${esc(person.nombre)} por`:'Elige a la persona'}</span><select ${target}><option value="">Selecciona una persona</option>${options}</select></label>
-      <div class="admin-role-seat-editor-actions"><button type="button" data-role-edit-cancel>Cancelar</button><button type="button" class="admin-role-save" ${save}>${person?'Guardar cambio':co?'Asignar co-líder':'Asignar líder'}</button></div>`:'<p>No hay otras personas del área con su cuenta activada.</p>'}
+      <div class="admin-role-seat-editor-actions"><button type="button" class="kja-button" data-kind="secondary" data-role-edit-cancel>Cancelar</button><button type="button" class="admin-role-save kja-button" data-kind="primary" ${save}>${person?'Guardar cambio':co?'Asignar co-líder':'Asignar líder'}</button></div>`:'<p>No hay otras personas del área con su cuenta activada.</p>'}
     </div>`;
 }
 
@@ -194,8 +195,9 @@ function initRoleCustomSelect(select){
   trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
   if(select.disabled)trigger.disabled=true;
 
-  const popup=document.createElement('div');popup.className='role-picker-popup';popup.hidden=true;
+  const popup=document.createElement('div');popup.className='role-picker-popup';popup.hidden=true;popup.id=`role-picker-popup-${++ROLE_PICKER_SEQUENCE}`;
   popup.setAttribute('role','dialog');popup.setAttribute('aria-label','Seleccionar colaborador');
+  trigger.setAttribute('aria-controls',popup.id);
 
   const searchWrap=document.createElement('div');searchWrap.className='role-picker-search';
   searchWrap.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Buscar colaborador…" autocomplete="off">';
@@ -239,6 +241,7 @@ function initRoleCustomSelect(select){
       btn.setAttribute('role','option');
       const isSelected=String(o.value)===String(select.value);
       btn.setAttribute('aria-selected',String(isSelected));
+      if(matchMedia('(min-width:901px)').matches)btn.tabIndex=isSelected?0:-1;
       if(isSelected)btn.classList.add('is-selected');
       const inits=getInitials(t);
       btn.innerHTML=`<span class="role-opt-info"><span class="role-opt-avatar ${o.value?'has-val':'empty'}">${inits?esc(inits):'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}</span><span class="role-opt-name ${o.value?'':'empty'}">${esc(t)}</span></span>${isSelected?'<svg class="role-opt-check" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 4 4L19 6"/></svg>':''}`;
@@ -251,6 +254,7 @@ function initRoleCustomSelect(select){
       list.append(btn);
     });
     empty.hidden=count>0;
+    if(matchMedia('(min-width:901px)').matches&&count&&!list.querySelector('[tabindex="0"]'))list.firstElementChild.tabIndex=0;
   }
 
   function position(){
@@ -281,10 +285,33 @@ function initRoleCustomSelect(select){
     renderOptions();
     position();
     if(!searchWrap.hidden)searchInput.focus({preventScroll:true});
+    else if(matchMedia('(min-width:901px)').matches)(list.querySelector('[aria-selected=true]')||list.firstElementChild)?.focus({preventScroll:true});
   }
 
   trigger.addEventListener('click',()=>opened?close():open());
   searchInput.addEventListener('input',renderOptions);
+
+  // The desktop picker is portalled to body, so its keyboard events do not
+  // bubble through the enclosing role dialog. Restore navigation explicitly.
+  popup.addEventListener('keydown',e=>{
+    if(!matchMedia('(min-width:901px)').matches)return;
+    const options=[...list.querySelectorAll('button:not(:disabled)')],current=options.indexOf(document.activeElement);
+    const focusOption=i=>{if(!options.length)return;options.forEach((b,n)=>b.tabIndex=n===i?0:-1);options[i].focus({preventScroll:true});options[i].scrollIntoView({block:'nearest'});};
+    if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close(true);return;}
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'||(current>=0&&['Home','End'].includes(e.key))){
+      e.preventDefault();if(!options.length)return;
+      const next=e.key==='Home'?0:e.key==='End'?options.length-1:current<0?(e.key==='ArrowUp'?options.length-1:0):(current+(e.key==='ArrowUp'?-1:1)+options.length)%options.length;
+      focusOption(next);return;
+    }
+    if(e.key!=='Tab')return;
+    e.preventDefault();
+    if(!searchWrap.hidden&&document.activeElement===searchInput&&!e.shiftKey&&options.length){focusOption(Math.max(0,options.findIndex(b=>b.tabIndex===0)));return;}
+    if(!searchWrap.hidden&&current>=0&&e.shiftKey){searchInput.focus({preventScroll:true});return;}
+    close(true);
+    const dialog=wrap.closest('#admin-role-dialog');
+    const buttons=[...(dialog?.querySelectorAll('button:not(:disabled),select:not([hidden])')||[])].filter(b=>b.offsetParent!==null);
+    const i=buttons.indexOf(trigger);if(i>=0&&buttons.length)buttons[(i+(e.shiftKey?-1:1)+buttons.length)%buttons.length].focus({preventScroll:true});
+  });
 
   const onPointerDown=e=>{if(opened&&!wrap.contains(e.target)&&!popup.contains(e.target))close();};
   const onScroll=e=>{if(opened&&!popup.contains(e.target))close();};
@@ -336,6 +363,7 @@ function confirmRoleAction({tone='assign',title,copy,personLabel='Persona',perso
   $('admin-role-confirm-impact-title').textContent=impactTitle;
   $('admin-role-confirm-impact-copy').textContent=impactCopy;
   $('admin-role-confirm-submit').textContent=actionLabel;
+  $('admin-role-confirm-submit').dataset.kind=tone==='remove'?'destructive':'primary';
   modal.hidden=false;document.body.classList.add('admin-role-confirm-open');
   return new Promise(resolve=>{
     ROLE_CONFIRM={resolve,trigger:document.activeElement};
@@ -430,7 +458,7 @@ $('admin-role-confirm-submit').onclick=()=>closeRoleConfirm(true);
 $('admin-role-confirm-modal').addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeRoleConfirm(false);return}
   if(event.key!=='Tab')return;
-  const focusable=[...$('admin-role-confirm-modal').querySelectorAll('button:not(:disabled):not([hidden])')].filter(element=>element.offsetParent!==null);if(!focusable.length)return;
+  const focusable=[...$('admin-role-confirm-modal').querySelectorAll('[role="dialog"] button:not(:disabled):not([hidden])')].filter(element=>element.offsetParent!==null);if(!focusable.length)return;
   const first=focusable[0],last=focusable.at(-1);
   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}

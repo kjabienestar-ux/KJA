@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>KJA · Reconocimiento visual de escritorio</title>
+  <link rel="stylesheet" href="../../../assets/css/paginas/kja-admin-tokens.css">
+  <style>
+    body{margin:0;background:var(--kja-surface-canvas);color:var(--kja-text-primary);font:14px/1.5 var(--kja-font-ui)}
+    main{max-width:1560px;margin:auto;padding:32px}
+    h1{font:400 30px/1.2 var(--kja-font-display);margin:0 0 12px}
+    h2{font-size:18px;margin:0 0 16px}
+    p{color:var(--kja-text-secondary);max-width:92ch}
+    a{color:var(--kja-action-primary);font-weight:600}
+    a:focus-visible{outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:var(--kja-focus-ring-offset)}
+    section{background:var(--kja-surface-opaque);border:1px solid var(--kja-surface-border);border-radius:var(--kja-radius-card);padding:20px;margin-block:24px;box-shadow:var(--kja-surface-card-shadow)}
+    .pair,.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    figure{margin:0;min-width:0}figcaption{margin-bottom:8px;font-weight:600}
+    img{display:block;width:100%;height:auto;box-sizing:border-box;border:1px solid var(--kja-divider-subtle);border-radius:var(--kja-radius-control)}
+  </style>
+</head>
+<body class="kja-catalog">
+<main>
+  <h1>Reconocimiento visual · Gestión de asistencia</h1>
+  <p>Comparación de escritorio de la línea base y el portal actual, ambos con datos de ensayo. Cada imagen se abre a su tamaño original. No representa una certificación del 100 % técnico; las métricas de fuente y las excepciones se mantienen en la auditoría.</p>
+  <p><a href="catalogo.html">Catálogo de patrones y estados</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP">Biblioteca editable en Figma</a></p>
+  <div id="comparaciones"></div>
+  <section><h2>Otras vistas de escritorio actuales</h2><div id="actuales" class="grid"></div></section>
+</main>
+<script>
+const before='./',after='./reconocimiento-actual/';
+const items=[['contratos','Contratos'],['colaboradores','Colaboradores'],['lista','Pasar lista'],['seguimiento','Seguimiento diario']];
+const current=[['overview','Resumen operativo'],['asignaciones','Asignaciones'],['roles','Roles y equipos'],['mes','Mes completo'],['facebook','Reportes Facebook'],['ranking','Ranking mensual'],['marcado','Acceso y marcado']];
+const fig=(name,label,base)=>{const f=document.createElement('figure'),c=document.createElement('figcaption'),a=document.createElement('a'),i=document.createElement('img');c.textContent=label;a.href=base+name+'.png';i.src=a.href;i.alt=label+' de '+name;i.loading='lazy';a.append(i);f.append(c,a);return f};
+for(const [name,title] of items){const s=document.createElement('section'),h=document.createElement('h2'),p=document.createElement('div');h.textContent=title;p.className='pair';p.append(fig(name,'Antes · línea base',before),fig(name,'Actual · sistema de diseño',after));s.append(h,p);document.querySelector('#comparaciones').append(s)}
+for(const [name,label] of current)document.querySelector('#actuales').append(fig(name,label,after));
+</script>
+</body>
+</html>

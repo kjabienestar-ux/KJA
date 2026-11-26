@@ -1,6 +1,6 @@
 /* KJA-049: reflejo común y ausencia de avisos visuales de carga, escritorio. */
 @media(min-width:901px){
-  #portal #view-gestion .kja-skeleton-host{--kja-sk-base:#e7e7e7}
+  #portal #view-gestion .kja-skeleton-host{--kja-sk-base:var(--kja-loading-neutral)}
   #portal #view-gestion .kja-context-overview.is-context-refreshing .admin-overview-today>header::after{content:none}
   #portal #view-gestion #assignment-calendar-panel[aria-busy="true"] #assignment-calendar-message{display:none}
   #portal #view-gestion [data-asg-destinations-pending="true"] #admin-close-target-results{visibility:hidden}
@@ -17,7 +17,7 @@
   #portal.admin-wide #view-gestion .kja-sk-block::after{
     content:""!important;display:block!important;position:absolute;inset:0;
     border-radius:inherit;pointer-events:none;box-shadow:none!important;
-    background:linear-gradient(100deg,transparent 15%,rgba(255,255,255,.65) 50%,transparent 85%)!important;
+    background:linear-gradient(100deg,transparent 15%,var(--kja-loading-shine) 50%,transparent 85%)!important;
     transform:translateX(-110%);animation:kja-loading-wave 1.65s ease-in-out infinite!important;
   }
 }

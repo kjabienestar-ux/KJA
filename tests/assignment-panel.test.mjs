@@ -39,6 +39,21 @@ test('draw previews first and only creates assignments on confirmation',async()=
   await h.c.submitAdminCloseAssignment(event);assert.equal(h.calls.length,1);assert.equal(h.calls[0].name,'dash_admin_previsualizar_sorteo');
   await h.c.submitAdminCloseAssignment(event);assert.equal(h.calls[1].name,'dash_admin_confirmar_sorteo');assert.equal(h.calls[1].args.p_colaboradores[0],1);
 });
+test('a confirmed draw survives a refresh failure and preserves edits made during confirmation',async()=>{
+  const h=harness(),event={preventDefault(){}};
+  await h.c.submitAdminCloseAssignment(event);
+  let finish;
+  h.c.db.rpc=()=>new Promise(resolve=>{finish=resolve});
+  h.c.loadAdminCloses=async()=>{throw Error('offline')};
+  const pending=h.c.submitAdminCloseAssignment(event);
+  h.$('admin-close-title').value='Siguiente entrega';
+  finish({data:{ok:true,cantidad:1}});
+  await pending;
+  assert.equal(h.$('admin-close-title').value,'Siguiente entrega');
+  assert.equal(h.$('admin-close-draw-preview').hidden,true);
+  assert.equal(h.$('admin-close-assign').disabled,false);
+  assert.match(h.messages.at(-1),/Sorteo confirmado/);
+});
 test('changing date while draw is loading discards stale selection',async()=>{
   const h=harness();let finish;h.c.db.rpc=()=>new Promise(resolve=>finish=resolve);
   const pending=h.c.submitAdminCloseAssignment({preventDefault(){}});h.$('admin-close-date').value='2026-09-15';
@@ -65,6 +80,18 @@ test('calendar navigation crosses years and Today restores the working date',()=
   assert.equal(h.$('assignment-calendar-month').value,'2026-09');
 });
 
+test('daily list counts approvals, distinguishes an empty search and keeps the daily summary',()=>{
+  const h=harness();
+  vm.runInContext(admin.slice(admin.indexOf('function renderAdminCloseAssignments('),admin.indexOf('function renderAdminCloseStatus(')),h.c);
+  h.c.APP.adminClose.asignaciones=['entregada','aprobada'].map((state,i)=>({id:i+1,titulo:'Informe '+i,destino:'María',estado_asignacion:state}));
+  h.c.renderAdminCloseAssignments();
+  assert.equal(h.$('admin-close-assignment-count').textContent,'2 asignaciones · 1 concluida');
+  h.$('admin-assignment-search').value='inexistente';
+  h.c.renderAdminCloseAssignments();
+  assert.equal(h.$('admin-close-assignment-count').textContent,'Sin coincidencias');
+  assert.match(h.$('admin-close-assignment-list').innerHTML,/otro título o destinatario/);
+  assert.match(h.$('assignment-day-summary-stats').innerHTML,/Asignadas<\/dt><dd>2/);
+});
 test('daily list renders every assignment and search still filters the full list',()=>{
   const h=harness();
   h.c.APP.adminClose.asignaciones=Array.from({length:12},(_,id)=>({id,titulo:`Trabajo ${id}`,destino:`Persona ${id}`,estado_asignacion:'pendiente'}));

@@ -5,19 +5,19 @@
 
 #portal #admin-contracts-section {
   container: contracts / inline-size;
-  --contract-ink: #403955;
-  --contract-muted: #706981;
-  --contract-line: #e0ddea;
-  --contract-line-hover: #beb4cf;
-  --contract-accent: #655083;
-  --contract-accent-hover: #53406d;
-  --contract-primary-soft: #e8dff4;
-  --contract-field-bg: #f1eff7;
-  --contract-field-focus: #eee8f7;
-  --contract-surface: #faf9fd;
-  --contract-card-bg: #ffffff;
-  --contract-card-shadow: 0 4px 16px rgba(64, 57, 85, 0.04);
-  --contract-card-hover-shadow: 0 12px 28px rgba(64, 57, 85, 0.08);
+  --contract-ink: var(--kja-text-primary, #403955);
+  --contract-muted: var(--kja-text-secondary, #706981);
+  --contract-line: var(--kja-divider-subtle, #e0ddea);
+  --contract-line-hover: var(--kja-field-border, #beb4cf);
+  --contract-accent: var(--kja-action-primary, #655083);
+  --contract-accent-hover: var(--kja-action-primary-hover, #53406d);
+  --contract-primary-soft: var(--kja-surface-accent-tint, #e8dff4);
+  --contract-field-bg: var(--kja-surface-opaque, #f1eff7);
+  --contract-field-focus: var(--kja-surface-accent-tint, #eee8f7);
+  --contract-surface: var(--kja-surface-opaque, #faf9fd);
+  --contract-card-bg: var(--kja-surface-opaque, #ffffff);
+  --contract-card-shadow: var(--kja-surface-card-shadow, 0 4px 16px rgba(64, 57, 85, 0.04));
+  --contract-card-hover-shadow: var(--kja-surface-card-shadow, 0 12px 28px rgba(64, 57, 85, 0.08));
 
   color: var(--contract-ink);
   background: transparent !important;
@@ -67,7 +67,7 @@
   color: var(--contract-accent);
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 10px rgba(77, 56, 108, 0.08);
+  box-shadow: var(--kja-action-shadow, 0 4px 10px rgba(77, 56, 108, 0.08));
   flex-shrink: 0;
 }
 
@@ -117,17 +117,17 @@
   align-items: flex-start;
   padding: 10px 14px;
   min-height: 0;
-  background: #ffffff !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
   border: 1px solid var(--contract-line) !important;
   border-radius: 14px !important;
-  box-shadow: 0 2px 6px rgba(64, 57, 85, 0.03);
+  box-shadow: var(--kja-surface-card-shadow, 0 2px 6px rgba(64, 57, 85, 0.03));
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #portal #admin-contracts-section .admin-list-kpi:hover {
   transform: translateY(-2px);
   border-color: var(--contract-line-hover) !important;
-  box-shadow: 0 6px 14px rgba(64, 57, 85, 0.06);
+  box-shadow: var(--kja-surface-card-shadow, 0 6px 14px rgba(64, 57, 85, 0.06));
 }
 
 #portal #admin-contracts-section .admin-list-kpi b {
@@ -149,15 +149,15 @@
 }
 
 #portal #admin-contracts-section .admin-list-kpi:nth-child(2) b {
-  color: #9c5c00;
+  color: var(--kja-status-warning-text, #9c5c00);
 }
 
 #portal #admin-contracts-section .admin-list-kpi:nth-child(3) b {
-  color: #1e7046;
+  color: var(--kja-status-text, #1e7046);
 }
 
 #portal #admin-contracts-section .admin-list-kpi:nth-child(4) b {
-  color: #a9384c;
+  color: var(--kja-status-error-text, #a9384c);
 }
 
 /* Fila de Filtros */
@@ -202,7 +202,7 @@
   left: 12px;
   width: 15px;
   height: 15px;
-  color: #807391;
+  color: var(--kja-text-secondary, #807391);
   pointer-events: none;
 }
 
@@ -221,13 +221,13 @@
 }
 
 #portal #admin-contracts-section input#admin-contract-search:focus {
-  background: #ffffff !important;
-  border-color: #766498 !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
+  border-color: var(--kja-field-border, #766498) !important;
   box-shadow: 0 0 0 3px var(--contract-field-focus) !important;
 }
 
 #portal #admin-contracts-section input#admin-contract-search::placeholder {
-  color: #7a7287 !important;
+  color: var(--kja-text-secondary, #7a7287) !important;
 }
 
 #portal #admin-contracts-section select#admin-contract-area {
@@ -245,8 +245,8 @@
 }
 
 #portal #admin-contracts-section select#admin-contract-area:focus {
-  background: #ffffff !important;
-  border-color: #766498 !important;
+  background: var(--kja-surface-opaque, #ffffff) !important;
+  border-color: var(--kja-field-border, #766498) !important;
   box-shadow: 0 0 0 3px var(--contract-field-focus) !important;
 }
 
@@ -267,7 +267,7 @@
   border: 1px solid var(--contract-line);
   border-radius: 12px;
   background: var(--contract-field-bg);
-  color: #554d66;
+  color: var(--kja-text-primary, #554d66);
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
@@ -279,13 +279,13 @@
 }
 
 #portal #admin-contracts-section .admin-toggle:hover {
-  background: #eae5f4;
+  background: var(--kja-surface-hover, #eae5f4);
   border-color: var(--contract-line-hover);
 }
 
 #portal #admin-contracts-section .admin-toggle:has(input:checked) {
   background: var(--contract-primary-soft);
-  border-color: #beb4cf;
+  border-color: var(--kja-field-border, #beb4cf);
   color: var(--contract-accent);
   font-weight: 600;
 }
@@ -374,20 +374,20 @@
   min-height: 78px;
   margin: 0;
   border: 0;
-  border-bottom: 1px solid #eeebf3;
+  border-bottom: 1px solid var(--kja-divider-subtle, #eeebf3);
   border-radius: 0;
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
   box-shadow: none;
   transition: background 0.15s ease;
   align-items: center;
 }
 
 #portal #admin-contracts-section .admin-contract-row:nth-child(odd) {
-  background: #ffffff;
+  background: var(--kja-surface-opaque, #ffffff);
 }
 
 #portal #admin-contracts-section .admin-contract-row:hover {
-  background: #faf8fd;
+  background: var(--kja-surface-hover, #faf8fd);
 }
 
 #portal #admin-contracts-section .admin-contract-row:last-child {
@@ -396,7 +396,7 @@
 
 #portal #admin-contracts-section .admin-contract-row.inactive {
   opacity: 0.72;
-  background: #faf9fd;
+  background: var(--kja-surface-opaque, #faf9fd);
 }
 
 #portal #admin-contracts-section .admin-contract-row > * {
@@ -421,7 +421,7 @@
   color: var(--contract-accent);
   display: grid;
   place-items: center;
-  box-shadow: 0 2px 6px rgba(101, 80, 131, 0.1);
+  box-shadow: var(--kja-action-shadow, 0 2px 6px rgba(101, 80, 131, 0.1));
 }
 
 #portal #admin-contracts-section .admin-contract-person b {
@@ -476,7 +476,7 @@
   margin-top: 6px;
   height: 6px;
   border-radius: 6px;
-  background: #eae5f2;
+  background: var(--kja-surface-border, #eae5f2);
   overflow: hidden;
   display: block;
 }
@@ -485,7 +485,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--contract-accent), #9d7dbf);
+  background: var(--kja-action-primary, linear-gradient(90deg, var(--contract-accent), #9d7dbf));
   text-decoration: none;
 }
 
@@ -500,7 +500,7 @@
 #portal #admin-contracts-section .contract-nonworking-hours {
   display: block;
   margin-top: 3px;
-  color: #72529a;
+  color: var(--kja-status-justified-text, #72529a);
   font-size: 10px;
   font-weight: 700;
   line-height: 1.4;
@@ -540,31 +540,31 @@
 }
 
 #portal #admin-contracts-section .admin-contract-status > b.complete {
-  background: #e8f5ec;
-  color: #1e7046;
+  background: var(--kja-status-bg, #e8f5ec);
+  color: var(--kja-status-text, #1e7046);
 }
 
 #portal #admin-contracts-section .admin-contract-status > b.warning {
-  background: #fff0f3;
-  color: #a9384c;
+  background: var(--kja-status-error-bg, #fff0f3);
+  color: var(--kja-status-error-text, #a9384c);
 }
 
 #portal #admin-contracts-section .admin-contract-status > b.pending {
-  background: #fff3e6;
-  color: #9c5c00;
+  background: var(--kja-status-warning-bg, #fff3e6);
+  color: var(--kja-status-warning-text, #9c5c00);
 }
 
 #portal #admin-contracts-section .admin-contract-status small {
   display: block;
   margin-top: 4px;
-  color: #a9384c;
+  color: var(--kja-status-error-text, #a9384c);
   font-size: 11px;
   line-height: 1.4;
 }
 
 /* Columna Institución */
 #portal #admin-contracts-section :is(.admin-contract-inst, .admin-contract-institution) {
-  color: #554d66;
+  color: var(--kja-text-primary, #554d66);
   font-size: 11.5px;
   font-weight: 500;
   line-height: 1.4;
@@ -587,7 +587,7 @@
   border: 1px solid var(--contract-line);
   border-radius: 10px;
   background: var(--contract-field-bg);
-  color: #554d66;
+  color: var(--kja-text-primary, #554d66);
   font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
@@ -596,7 +596,7 @@
 }
 
 #portal #admin-contracts-section .admin-contract-action button:hover {
-  background: #eee8f7;
+  background: var(--kja-surface-hover, #eee8f7);
   color: var(--contract-ink);
   border-color: var(--contract-line-hover);
 }
@@ -614,7 +614,7 @@
 
 /* Enlace a versión anterior */
 #portal #admin-contracts-section .admin-legacy-link {
-  color: #8c839d;
+  color: var(--kja-text-secondary, #8c839d);
   font-size: 12px;
   font-weight: 500;
   text-decoration: none;
@@ -664,7 +664,7 @@
     margin-bottom: 12px;
     border: 1px solid var(--contract-line);
     border-radius: 18px;
-    background: #ffffff;
+    background: var(--kja-surface-opaque, #ffffff);
     box-shadow: var(--contract-card-shadow);
   }
 

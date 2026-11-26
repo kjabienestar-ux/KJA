@@ -21,7 +21,7 @@ function previewAssignmentHours(){
   const custom=ASSIGNMENT_HOURS.custom||(minutes!==null&&!ASSIGNMENT_HOURS_PRESETS.includes(minutes));
   document.querySelectorAll('[data-hours-preset]').forEach(button=>{
     const value=button.dataset.hoursPreset,on=value==='otro'?custom:!custom&&Number(value)===minutes;
-    button.setAttribute('aria-checked',String(on));button.disabled=!ready;
+    button.setAttribute('aria-checked',String(on));button.disabled=!ready;button.tabIndex=on?0:-1;
   });
   $('assignment-hours-custom').hidden=!custom;
   // Línea de tiempo con una salida de ejemplo a las 18:00 (hora de Perú).
@@ -102,6 +102,16 @@ $('assignment-hours-presets').onclick=event=>{
   if(value!=='otro')$('assignment-hours-minutes').value=value;
   previewAssignmentHours();
   if(value==='otro')$('assignment-hours-minutes').focus();
+};
+$('assignment-hours-presets').onkeydown=event=>{
+  const directions={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1};
+  if(!(event.key in directions))return;
+  const buttons=Array.from(event.currentTarget.querySelectorAll('button:enabled'));
+  const index=buttons.indexOf(event.target);
+  if(index<0)return;
+  event.preventDefault();
+  const next=buttons[(index+directions[event.key]+buttons.length)%buttons.length];
+  next.focus();next.click();
 };
 $('assignment-hours-minutes').oninput=previewAssignmentHours;
 $('assignment-hours-form').onsubmit=saveAssignmentHours;

@@ -9,6 +9,7 @@ export function adminDataFixture(){
   const [year,month]=today.split('-').map(Number),n=new Date(year,month,0).getDate();
   data.dash_admin_mes={ok:true,hoy:today,areas:team.areas,personas:team.personas.map(p=>({...p,resumen:{P:5,T:1,J:0,pendientes:0,incompletas:0},dias:Array.from({length:n},(_,i)=>({fecha:today.slice(0,8)+String(i+1).padStart(2,'0'),laborable:true,estado:i<5?'P':null,motivo:'Sin registro'}))})),feriados:[]};
   data.dash_admin_cierres_mes={ok:true,cierres:[]};
+  data.dash_admin_feriados_proximos={ok:true,hoy:today,puede_editar:true,feriados:[]};
   data.dash_admin_marcado={ok:true,resumen:{activos:5,con_pin:4,sin_pin:1,bloqueados:0,sin_dni:0},config:{activo:true,tolerancia_min:15,clave:'fixture-only'},personas:team.personas.map(p=>({...p,dni_configurado:true,tiene_pin:true,tiene_cuenta:true})),solicitudes:[],historial:[]};
   data.dash_admin_geocerca={ok:true,config:{oficina_lat:null,oficina_lon:null}};
   data.dash_reporte_facebook={desde:today.slice(0,8)+'01',hasta:today,inicio_sistema:today.slice(0,8)+'01',habilitado:true,generado_at:today+'T15:00:00Z',filas:team.personas.flatMap(p=>[0,1].map(i=>({id:p.id,nombre:p.nombre,area:p.area,fecha:today.slice(0,8)+String(i+1).padStart(2,'0'),estado:i?'sin_evidencia':'con_evidencia',revision:'aprobado',capturas:i?0:3})))};

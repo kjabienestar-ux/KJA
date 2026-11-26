@@ -1,7 +1,7 @@
 # Tareas de KJA
 
 - [KJA-050 — Cierre de fluidez y entrega](KJA-050.md).
-- [KJA-051 — Sistema de diseño, pendiente para otro chat](KJA-051.md).
+- [KJA-051 — Sistema de diseño, HECHO local (etapa E cerrada)](KJA-051.md).
 
 - [KJA-049 — Reflejo y carga sin avisos](KJA-049.md).
 

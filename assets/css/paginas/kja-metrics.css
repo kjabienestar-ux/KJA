@@ -1,0 +1,19 @@
+/* The same label/value hierarchy, including compact queues and evidence totals. */
+@media (min-width:901px) {
+  #portal #view-gestion :is(#admin-contract-kpis,#admin-people-kpis,#admin-list-kpis,#seg-summary) .kja-metric-label {
+    font:600 var(--kja-type-small-size)/1.35 var(--kja-font-ui);letter-spacing:normal;text-transform:none;color:var(--kja-text-primary);
+  }
+  #portal #view-gestion :is(#admin-contract-kpis,#admin-people-kpis,#admin-list-kpis,#seg-summary) .kja-metric-value {
+    font:650 var(--metric-size,26px)/1.05 var(--kja-font-ui);letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+  }
+  #seg-summary { --metric-size:16px; }
+  #portal #view-gestion #seg-summary .seg-queues .kja-metric-label,
+  #portal #view-gestion #seg-summary .seg-evidence-metrics .kja-metric-label {font-size:var(--kja-type-caption-size)}
+  #portal #view-gestion :is(#admin-people-kpis,#admin-list-kpis,#seg-summary) button.kja-metric[aria-pressed=true] {
+    background:var(--kja-surface-hover);box-shadow:inset 0 -3px var(--kja-action-primary);
+  }
+  #portal #view-gestion #admin-list-kpis button.kja-metric.is-on::after {content:none}
+  #portal #view-gestion :is(#admin-people-kpis,#admin-list-kpis,#seg-summary) button.kja-metric:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:-4px;
+  }
+}

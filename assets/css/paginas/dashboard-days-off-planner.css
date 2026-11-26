@@ -1,8 +1,8 @@
 /* Planificación de descansos: búsqueda, calendario y asignación en un solo espacio. */
-#admin-month-modal.leave-planner-modal .admin-month-sheet{width:min(1180px,100%);background:#fff;max-height:94dvh}
+#admin-month-modal.leave-planner-modal .admin-month-sheet{width:min(1180px,100%);background:var(--kja-surface-opaque, #fff);max-height:94dvh}
 .leave-planner-modal #admin-month-modal-eyebrow{display:none}
 .leave-planner-modal .admin-month-modal-body{padding:0;display:block}
-.leave-planner-modal .admin-editor-head{padding:24px;border-bottom:1px solid #e3e8ee}
+.leave-planner-modal .admin-editor-head{padding:24px;border-bottom:1px solid var(--kja-divider-subtle, #e3e8ee)}
 .leave-planner{display:grid;grid-template-columns:270px minmax(0,1fr);color:#15243a;background:#fff;font-family:Inter,system-ui,sans-serif}
 .leave-planner *{box-sizing:border-box}
 .leave-planner button,.leave-planner input,.leave-planner select{font:inherit;color:inherit}
@@ -55,8 +55,8 @@
 .lp-range input{margin-top:6px}
 .lp-range button{min-height:44px}
 .lp-assignment footer{margin-top:16px;line-height:1.5}
-.leave-planner .admin-primary-action{background:#09244c;color:#fff;border-color:#09244c;min-height:44px;padding:10px 18px}
-.leave-planner .admin-primary-action:hover{background:#075abc}
+.leave-planner .admin-primary-action{background:var(--kja-action-primary, #09244c);color:var(--kja-on-action, #fff);border-color:var(--kja-action-primary, #09244c);min-height:44px;padding:10px 18px}
+.leave-planner .admin-primary-action:hover{background:var(--kja-action-primary-hover, #075abc)}
 #lp-status{font-size:13px;line-height:1.6;color:#145b48;margin-top:16px;overflow-wrap:anywhere}
 #lp-status:empty{display:none}
 #lp-status.is-error{color:#a02e40}

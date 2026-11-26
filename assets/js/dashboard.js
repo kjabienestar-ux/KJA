@@ -2689,7 +2689,7 @@ function renderAdminOverviewCharts(people,marks,closePeople){
   const requirements=closes.flatMap(p=>(p.cierre?.requisitos||[]).filter(r=>r.tipo!=='salida'));
   const tasks=closes.flatMap(p=>p.cierre?.asignaciones||[]);
   const delivered=rows=>rows.filter(r=>r.completo===true).length;
-  const palette=['#187d69','#b45d3c','#c69a35','#7a8da4','#c9c6bf'];
+  const palette=['var(--kja-chart-overview-positive,#187d69)','var(--kja-chart-overview-alert,#b45d3c)','var(--kja-chart-overview-alternate,#c69a35)','var(--kja-chart-overview-other,#7a8da4)','var(--kja-chart-overview-neutral,#c9c6bf)'];
   const charts=[
     {key:'general',title:'General',note:'Jornadas · hoy',center:complete,label:'completas',parts:[['Completas',complete],['Incompletas',incomplete],['Otros estados',people.length-complete-incomplete]]},
     {key:'asistencias',title:'Asistencias',note:'Registros · hoy',center:count(p=>byMark.has(String(p.id))),label:'registrados',parts:[['Presentes',count(p=>byMark.get(String(p.id))?.estado==='P')],['Tardanzas',count(p=>byMark.get(String(p.id))?.estado==='T')],['Justificados',count(p=>byMark.get(String(p.id))?.estado==='J')],['Otros registros',count(p=>byMark.has(String(p.id))&&!['P','T','J'].includes(byMark.get(String(p.id)).estado))],['Sin registro',count(p=>!byMark.has(String(p.id)))]]},
@@ -2700,7 +2700,7 @@ function renderAdminOverviewCharts(people,marks,closePeople){
     const total=chart.parts.reduce((n,p)=>n+p[1],0);let offset=0;
     const segments=chart.parts.map(([label,value],i)=>{const start=offset;offset+=total?value/total*100:0;return `${palette[i]} ${start}% ${offset}%`}).join(',');
     const description=chart.parts.map(([label,value])=>`${label}: ${value}`).join(', ');
-    return `<article class="admin-chart" data-overview-chart="${chart.key}" role="button" tabindex="0" title="Ver detalle de ${esc(chart.title)}"><header><h3>${chart.title}</h3><p>${chart.note}</p><p class="admin-chart-ratio">${total?`${chart.center} de ${total} ${chart.label}`:'Sin datos para hoy'}</p></header><div class="admin-chart-ring" role="img" aria-label="${esc(chart.title+': '+(total?description:'Sin datos para hoy'))}" style="background:${total?`conic-gradient(${segments})`:'#e5e2dd'}"><span><b>${total?chart.center:'—'}</b><small>${total?chart.label:'Sin datos'}</small></span></div><ul>${chart.parts.map(([label,value],i)=>`<li><i style="background:${palette[i]}" aria-hidden="true"></i><span>${label}</span><b>${value}</b></li>`).join('')}</ul><div class="admin-chart-footer"><span class="admin-chart-cta">Ver detalle <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div></article>`;
+    return `<article class="admin-chart" data-overview-chart="${chart.key}" role="button" tabindex="0" title="Ver detalle de ${esc(chart.title)}"><header><h3>${chart.title}</h3><p>${chart.note}</p><p class="admin-chart-ratio">${total?`${chart.center} de ${total} ${chart.label}`:'Sin datos para hoy'}</p></header><div class="admin-chart-ring" role="img" aria-label="${esc(chart.title+': '+(total?description:'Sin datos para hoy'))}" style="background:${total?`conic-gradient(${segments})`:'var(--kja-chart-overview-empty,#e5e2dd)'}"><span><b>${total?chart.center:'—'}</b><small>${total?chart.label:'Sin datos'}</small></span></div><ul>${chart.parts.map(([label,value],i)=>`<li><i style="background:${palette[i]}" aria-hidden="true"></i><span>${label}</span><b>${value}</b></li>`).join('')}</ul><div class="admin-chart-footer"><span class="admin-chart-cta">Ver detalle <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span></div></article>`;
   }).join('');
 }
 
@@ -2999,6 +2999,7 @@ function withAdminSkeleton(section,fetchFn,options={}){
 }
 
 async function showAdminSection(section){
+  if(section!=='lista'){window.kjaListDatePicker?.close();window.kjaListAreaPicker?.close();}
   if(!APP.access.acceso_panel)return;
   if(APP.adminSection==='seguimiento'&&section!=='seguimiento'&&window.KJASeguimiento?.canLeave()===false)return;
   if(section==='marcado'&&APP.access.rol!=='direccion'){toast('Acceso y marcado está reservado a Dirección.',true);section='overview'}
@@ -3071,6 +3072,7 @@ function formatDisplayDate(iso){
 }
 
 function syncAdminDateDisplay(date){
+  window.kjaListDatePicker?.sync();
   const el=$('admin-date-display-text');
   if(el)el.textContent=formatDisplayDate(date||$('admin-list-date')?.value||isoLima());
 }
@@ -3115,6 +3117,7 @@ function navAdminCalendarMonth(delta){
 }
 
 function syncAdminAreaCustomSelect(){
+  window.kjaListAreaPicker?.sync();
   const select=$('admin-list-area'),menu=$('admin-area-menu'),label=$('admin-area-label');
   if(!select||!menu)return;
   const options=[...select.options],currentVal=select.value,currentOpt=options.find(o=>o.value===currentVal)||options[0];
@@ -3165,6 +3168,7 @@ const adminListContextKey=date=>JSON.stringify([APP.sessionUid,APP.access.rol,!!
 const readAdminAttendance=date=>Promise.all([db.rpc('dash_admin_lista',{p_fecha:date}),db.rpc('dash_admin_cierres',{p_fecha:date})]);
 
 function resetAdminAttendanceView(){
+  window.kjaListDatePicker?.close();
   globalThis.AdminDataLoading?.reset();
   globalThis.KJAAssignmentLoading?.reset();
   APP.adminListRequest++;
@@ -3188,7 +3192,7 @@ function renderAdminListPending({unavailable=false}={}){
     `<span class="apl-kpi-bar" aria-hidden="true">${unavailable?'':shape('apl-loading-meter')}</span></button>`).join('');
   $('admin-list-summary').innerHTML=`<b>${adminListDayLabel()}</b> · ${unavailable?'Sin consultar':shape('apl-loading-summary')}`;
   if(unavailable){
-    $('admin-roster').innerHTML='<div class="apl-empty" role="alert"><b>Información no disponible</b><p>No se pudo cargar la lista ni comprobar sus cierres.</p><button type="button" class="apl-reset" data-list-retry>Reintentar</button></div>';
+    $('admin-roster').innerHTML='<div class="apl-empty" role="alert"><b>Información no disponible</b><p>No se pudo cargar la lista ni comprobar sus cierres.</p><button type="button" class="apl-reset kja-button" data-kind="primary" data-list-retry>Reintentar</button></div>';
     return;
   }
   const available=window.innerHeight-$('admin-roster').getBoundingClientRect().top-54;
@@ -3205,6 +3209,8 @@ function syncAdminListReadiness(){
   const readOnly=!valid||busy||ADMIN_LIST_VIEW.stale||!APP.adminList?.puede_editar;
   $('admin-roster').querySelectorAll('.apl-mark,[data-admin-entry]').forEach(button=>button.disabled=readOnly);
   $('admin-area-trigger').disabled=!valid;
+  $('admin-list-area').disabled=!valid;
+  window.kjaListAreaPicker?.sync();
   if(!valid){$('admin-area-label').textContent=busy?'Todas las áreas':'Áreas no disponibles';}
   $('admin-entry-open').hidden=APP.access.rol!=='direccion';
   $('admin-entry-open').disabled=!valid||busy||ADMIN_LIST_VIEW.stale;
@@ -3224,8 +3230,12 @@ function renderAdminListNotice(){
   if(ADMIN_LIST_VIEW.error){
     adminListMsg(ADMIN_LIST_VIEW.error);
     if(APP.adminList){
-      const retry=document.createElement('button');retry.type='button';retry.className='apl-reset';retry.dataset.listRetry='';retry.textContent='Reintentar';
-      $('admin-list-message').append(' ',retry);
+      const retry=document.createElement('button');retry.type='button';retry.className='apl-reset kja-button';retry.dataset.kind='secondary';retry.dataset.listRetry='';retry.textContent='Reintentar';
+      const notice=$('admin-list-message');
+      const heading=document.createElement('strong');heading.textContent='No se pudo actualizar la lista';
+      const detail=document.createElement('span');detail.textContent='Se muestran los datos anteriores de esta fecha. La marcación está bloqueada hasta que se actualice la lista.';
+      const copy=document.createElement('div');copy.className='apl-stale-detail';copy.append(heading,detail);
+      notice.replaceChildren(copy,retry);
     }
   }
 }
@@ -3339,9 +3349,9 @@ function adminListCard(person,{canEdit,today,now}){
   const missing=view.incomplete?CLOSE_MODEL.incompleteReasons(rawState?{estado:rawState}:null,person.cierre):[];
   const alert=view.incomplete?`<p class="apl-alert">${missing.length?`<b>Faltó:</b> ${missing.map(esc).join(' · ')}`:'No se dispone del detalle del cierre. Consulta Cierres y entregables.'}</p>`:'';
   const note=person.nota?`<p class="apl-note">${esc(person.nota)}</p>`:'';
-  const marks=['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn apl-mark ${s.toLowerCase()}${rawState===s?' on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" title="${statusLabel(s,true)}" aria-pressed="${rawState===s}" ${canEdit?'':'disabled'}>${s}</button>`).join('');
+  const marks=['P','T','J','NG'].map(s=>`<button type="button" class="admin-state-btn apl-mark ${s.toLowerCase()}${rawState===s?' on':''}" data-admin-state="${s}" aria-label="${statusLabel(s,true)}" title="${statusLabel(s,true)}" aria-pressed="${rawState===s}" ${canEdit?'':'disabled'}><span class="apl-mark-label">${s}</span></button>`).join('');
   return `<article class="apl-card" data-admin-person="${person.id}">`+
-    `<header class="apl-card-head">${profileAvatarMarkup(person)}<b class="apl-name" title="${name}">${name}</b><span class="apl-state ${tone}"><i aria-hidden="true"></i>${esc(label)}</span>`+
+    `<header class="apl-card-head">${profileAvatarMarkup(person)}<b class="apl-name" title="${name}">${name}</b><span class="apl-state kja-status ${tone}" data-tone="${tone}"><i aria-hidden="true"></i>${esc(label)}</span>`+
       `<small class="apl-meta"><span class="apl-mode ${esc(person.modalidad||'virtual')}">${esc(mode)}</span>${esc(fmtTime(person.hora_entrada))}–${esc(fmtTime(person.hora_salida))} · ${esc(hours)}</small></header>`+
     `<dl class="apl-facts"><div><dt>Entrada</dt>${entry}</div><div><dt>Salida</dt>${exit}</div><div><dt>Evidencia</dt>${evidence}</div></dl>`+
     alert+note+
@@ -3360,8 +3370,8 @@ function renderAdminAttendance(){
   const kpis=[['all','Personas del día',people.length,'base'],['entries','Con entrada',count('entries'),'yes'],['complete','Jornadas completas',count('complete'),'yes'],['incomplete','Incompletas',count('incomplete'),'no'],['pending','Sin entrada',count('pending'),'base']];
   $('admin-list-kpis').innerHTML=kpis.map(([key,label,value,tone])=>{
     const on=(filter||'all')===key,share=key==='all'?100:people.length?Math.round(value/people.length*100):0;
-    return `<button type="button" class="apl-kpi ${key}${on?' is-on':''}" data-list-filter="${key}" aria-pressed="${on}">`+
-      `<small><i class="apl-dot ${tone}" aria-hidden="true"></i><span>${label}</span></small><b>${value}</b><em>${key==='all'?`en ${areaCount} ${areaCount===1?'área':'áreas'}`:`de ${people.length}`}</em>`+
+    return `<button type="button" class="apl-kpi kja-metric ${key}${on?' is-on':''}" data-list-filter="${key}" aria-pressed="${on}">`+
+      `<small><i class="apl-dot ${tone}" aria-hidden="true"></i><span class="kja-metric-label">${label}</span></small><b class="kja-metric-value">${value}</b><em>${key==='all'?`en ${areaCount} ${areaCount===1?'área':'áreas'}`:`de ${people.length}`}</em>`+
       `<span class="apl-kpi-bar" aria-hidden="true"><i class="${tone}" style="width:${share}%"></i></span></button>`;
   }).join('');
   const day=new Date(date+'T12:00:00').toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'}).replace(',','');
@@ -3373,20 +3383,37 @@ function renderAdminAttendance(){
   const canEdit=!!data.puede_editar&&(!adminListContextual()||(!ADMIN_LIST_VIEW.loading&&!ADMIN_LIST_VIEW.stale)),today=date===isoLima(),collapsed=APP.adminListCollapsed||(APP.adminListCollapsed=new Set());
   const now=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Lima',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
   let html='',index=0;
+  const desktop=window.matchMedia?.('(min-width:901px)').matches;
   for(const group of groups.values()){
     // El avance del encabezado es del área completa, aunque haya filtros activos.
     const members=people.filter(x=>String(x.area_id)===group.key),entries=members.filter(x=>x.estado).length,done=members.filter(ADMIN_LIST_FILTERS.complete.test).length;
     const closed=collapsed.has(group.key),id=`apl-area-${index++}`,share=members.length?Math.round(entries/members.length*100):0;
-    html+=`<section class="apl-area${closed?' is-collapsed':''}" data-area="${esc(group.key)}">`+
+    let header;
+    if(desktop){
+      const trigger=kjaAreaHeader({id,title:group.name,countLabel:members.length+(members.length===1?' persona':' personas'),expanded:!closed});
+      trigger.dataset.areaToggle=group.key;
+      trigger.lastElementChild.insertAdjacentHTML('beforebegin',
+        `<span class="apl-progress"><span class="apl-track" aria-hidden="true"><i style="width:${share}%"></i></span><b>${entries} de ${members.length}</b> con entrada</span>`+
+        `<span class="apl-done${done&&done===members.length?' is-all':''}">${done} ${done===1?'jornada completa':'jornadas completas'}</span>`);
+      header=`<header class="apl-area-head apl-shared-head">${trigger.outerHTML}</header>`;
+    }else{
+      header=
       `<header class="apl-area-head"><button type="button" class="apl-area-toggle" data-area-toggle="${esc(group.key)}" aria-expanded="${!closed}" aria-controls="${id}">${ADMIN_LIST_ICONS.chevron}<b>${esc(group.name)}</b><small>${members.length} ${members.length===1?'persona':'personas'}</small></button>`+
         `<span class="apl-progress"><span class="apl-track" aria-hidden="true"><i style="width:${share}%"></i></span><b>${entries} de ${members.length}</b> con entrada</span>`+
         `<span class="apl-done${done&&done===members.length?' is-all':''}">${done} ${done===1?'jornada completa':'jornadas completas'}</span>`+
-        `<button type="button" class="apl-collapse" data-area-toggle="${esc(group.key)}" tabindex="-1">${closed?'Mostrar':'Contraer'}</button></header>`+
+        `<button type="button" class="apl-collapse" data-area-toggle="${esc(group.key)}" tabindex="-1">${closed?'Mostrar':'Contraer'}</button></header>`;
+    }
+    html+=`<section class="apl-area${desktop?' kja-area-group':''}${closed?' is-collapsed':''}" data-area="${esc(group.key)}">`+header+
       `<div class="apl-cards" id="${id}"${closed?' hidden':''}>${group.items.map(person=>adminListCard(person,{canEdit,today,now})).join('')}</div></section>`;
   }
   if(!html){
     const active=[query&&`«${esc($('admin-list-search').value.trim())}»`,area&&`«${esc($('admin-list-area').selectedOptions?.[0]?.textContent||'')}»`,filter&&`«${ADMIN_LIST_FILTERS[filter].label}»`].filter(Boolean).join(' + ');
-    html=people.length?`<div class="apl-empty"><b>Nadie coincide con ${active||'los filtros'}</b><p>Cambia la búsqueda, el área o el indicador elegido.</p><button type="button" class="apl-reset" data-list-reset>Quitar filtros</button></div>`
+    if(desktop){
+      const title=people.length?'Sin coincidencias':'No hay colaboradores para esta fecha.';
+      const detail=people.length?`Nadie coincide con ${active||'los filtros'}.`:'Selecciona otro día en el calendario para consultar su lista.';
+      const action=people.length?'<button type="button" class="apl-reset kja-button" data-kind="secondary" data-list-reset>Quitar filtros</button>':'';
+      html=`<div class="apl-empty kja-list-empty"><div role="status"><b>${title}</b><p>${detail}</p></div>${action}</div>`;
+    }else html=people.length?`<div class="apl-empty"><b>Nadie coincide con ${active||'los filtros'}</b><p>Cambia la búsqueda, el área o el indicador elegido.</p><button type="button" class="apl-reset kja-button" data-kind="secondary" data-list-reset>Quitar filtros</button></div>`
       :'<div class="apl-empty"><b>No hay colaboradores para esta fecha.</b></div>';
   }
   $('admin-roster').innerHTML=html;
@@ -3402,8 +3429,9 @@ function toggleAdminListArea(key){
   const closed=collapsed.has(key);
   section.classList.toggle('is-collapsed',closed);
   section.querySelector('.apl-cards').hidden=closed;
-  section.querySelector('.apl-area-toggle').setAttribute('aria-expanded',String(!closed));
-  section.querySelector('.apl-collapse').textContent=closed?'Mostrar':'Contraer';
+  section.querySelector('[data-area-toggle]').setAttribute('aria-expanded',String(!closed));
+  const secondary=section.querySelector('.apl-collapse');
+  if(secondary)secondary.textContent=closed?'Mostrar':'Contraer';
 }
 
 async function openAdminStoredEvidence(path,bucket='asis-evidencias'){
@@ -3889,7 +3917,7 @@ $('admin-roster').onclick=e=>{
   if(e.target.closest('[data-list-retry]'))return loadAdminAttendance();
   const area=e.target.closest('[data-area-toggle]');
   if(area)return toggleAdminListArea(area.dataset.areaToggle);
-  if(e.target.closest('[data-list-reset]')){$('admin-list-search').value='';$('admin-list-area').value='';APP.adminListFilter='';syncAdminAreaCustomSelect();return renderAdminAttendance();}
+  if(e.target.closest('[data-list-reset]')){$('admin-list-search').value='';$('admin-list-area').value='';APP.adminListFilter='';syncAdminAreaCustomSelect();renderAdminAttendance();$('admin-list-search').focus({preventScroll:true});return;}
   const entry=e.target.closest('[data-admin-entry]');
   if(entry&&typeof openAdminEntry==='function')return openAdminEntry(entry.dataset.adminEntry);
   const evidence=e.target.closest('[data-admin-evidence]');
@@ -4643,7 +4671,7 @@ async function submitDailyEvidence(event){
   const editing=!!DAILY_EVIDENCE.editing,mode=dailyEvidenceMode(),min=Number((DAILY_EVIDENCE.correction||APP.cierre)?.comparticiones_min||1),count=(DAILY_EVIDENCE.existingFiles?.length||0)+DAILY_EVIDENCE.files.length,uploadTotal=DAILY_EVIDENCE.files.length+(DAILY_EVIDENCE.video?1:0);
   const max=DAILY_EVIDENCE.requirement==='comparticiones'?FACEBOOK_EVIDENCE_MAX:5;
   const selection=CLOSE_MODEL.evidenceSelectionPolicy({requirement:DAILY_EVIDENCE.requirement,mode,count,min,max,collageAllowed:!!(DAILY_EVIDENCE.correction||APP.cierre)?.collage_permitido});
-  if(!selection.ok){const messages={vacio:'Selecciona al menos una imagen.',minimo:`Selecciona al menos ${min} capturas para completar este requisito.`,maximo:`Puedes adjuntar como máximo ${max} imágenes.`,cantidad_collage:'Selecciona una sola imagen tipo collage.',collage_no_permitido:'La modalidad collage está deshabilitada.'};return dailyEvidenceMessage(messages[selection.reason]||'Revisa las imágenes seleccionadas.')}
+  if(!selection.ok){const messages={vacio:'Selecciona al menos una imagen.',minimo:`Selecciona al menos ${min} capturas para completar este requisito.`,maximo:`Puedes adjuntar como máximo ${max} imágenes.`,cantidad_salida:'La evidencia de salida admite una sola foto.',cantidad_collage:'Selecciona una sola imagen tipo collage.',collage_no_permitido:'La modalidad collage está deshabilitada.'};return dailyEvidenceMessage(messages[selection.reason]||'Revisa las imágenes seleccionadas.')}
 
   const button=$('daily-evidence-submit');DAILY_EVIDENCE.busy=true;button.disabled=true;button.querySelector('span').textContent='Subiendo…';dailyEvidenceMessage('');
   const paths=[];

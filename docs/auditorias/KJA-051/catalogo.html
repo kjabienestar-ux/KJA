@@ -1,0 +1,879 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>KJA · Sistema de diseño de administración</title>
+<style>/* Generated from assets/admin-tokens.json */
+#portal[data-view="gestion"], #portal[data-admin-lateral="true"], #view-gestion, #view-admin-cuentas, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog, #admin-person-modal, #aa-dialog, #admin-month-modal, #admin-person-calendar-dialog, #admin-leave-review, #admin-overview-modal, #ranking-help, #ranking-detail-modal, #assignment-hours-dialog, body:has(#portal.admin-wide) #assignment-delete-dialog, #seg-download-dialog, #assignment-destination-picker, #list-area-picker-popup, #area-picker-popup, #contract-area-picker-popup, #seg-area-popup, #institution-picker-popup, #email-picker-popup, #admin-person-profile, #pw-shift-dialog, #pw-profile-dialog, .pw-modal, .af-popup, .role-picker-popup, .kja-catalog {
+    --kja-surface-cream: rgba(255,253,249,.88);
+    --kja-surface-opaque: #fffdf9;
+    --kja-surface-white: #ffffff;
+    --kja-surface-scrim: rgba(51,43,36,.32);
+    --kja-surface-canvas: #f0ece5;
+    --kja-surface-accent-tint: #f2e2d5;
+    --kja-surface-border: #d3c9bc;
+    --kja-divider-subtle: #ded6cb;
+    --kja-surface-hover: #f6eee4;
+    --kja-text-primary: #38312b;
+    --kja-text-secondary: #5c564f;
+    --kja-font-ui: Inter, system-ui, sans-serif;
+    --kja-font-display: Fraunces, Georgia, serif;
+    --kja-type-caption-size: 11px;
+    --kja-type-small-size: 12px;
+    --kja-type-control-size: 13px;
+    --kja-type-body-size: 14px;
+    --kja-type-section-size: 16px;
+    --kja-type-display-size: 28px;
+    --kja-type-ui-line-height: 1.4;
+    --kja-focus: #527966;
+    --kja-focus-ring-width: 2px;
+    --kja-focus-ring-offset: 2px;
+    --kja-field-border-width: 1px;
+    --kja-selection-border: #527966;
+    --kja-person-avatar-radius: 12px;
+    --kja-person-name-size: 14.5px;
+    --kja-person-name-weight: 650;
+    --kja-radius-control: 10px;
+    --kja-radius-card: 16px;
+    --kja-radius-dialog: 20px;
+    --kja-radius-compact-card: 12px;
+    --kja-radius-pill: 999px;
+    --kja-radius-chart-mark: 3px;
+    --kja-radius-indicator: 4px;
+    --kja-radius-compact-badge: 6px;
+    --kja-radius-workbench: var(--kja-radius-dialog);
+    --kja-surface-card-shadow: 0 2px 4px rgba(51,37,26,.024);
+    --kja-surface-dialog-shadow: 0 20px 60px rgba(56,49,43,.18);
+    --kja-space-4: 4px;
+    --kja-space-8: 8px;
+    --kja-space-12: 12px;
+    --kja-space-16: 16px;
+    --kja-space-20: 20px;
+    --kja-space-24: 24px;
+    --kja-space-32: 32px;
+    --kja-chart-positive: #10b981;
+    --kja-chart-negative: #f43f5e;
+    --kja-chart-pending: #f59e0b;
+    --kja-chart-overview-positive: #187d69;
+    --kja-chart-overview-alert: #b45d3c;
+    --kja-chart-overview-alternate: #c69a35;
+    --kja-chart-overview-other: #7a8da4;
+    --kja-chart-overview-neutral: #c9c6bf;
+    --kja-chart-overview-empty: #e5e2dd;
+    --kja-action-primary: #93472f;
+    --kja-action-primary-hover: #854027;
+    --kja-action-primary-pressed: #783b27;
+    --kja-action-secondary: #365e4a;
+    --kja-action-danger: #973e46;
+    --kja-action-danger-hover: #82343c;
+    --kja-action-danger-pressed: #702c33;
+    --kja-action-disabled-bg: var(--kja-status-neutral-bg);
+    --kja-action-disabled-text: var(--kja-status-neutral-text);
+    --kja-action-neutral-pressed: var(--kja-status-neutral-bg);
+    --kja-action-shadow: none;
+    --kja-action-radius: var(--kja-radius-control);
+    --kja-action-border-width: 1px;
+    --kja-action-padding-inline: 14px;
+    --kja-action-padding-block: 8px;
+    --kja-action-min-height: 38px;
+    --kja-action-form-height: 44px;
+    --kja-filter-selected-count-bg: #a05d48;
+    --kja-filter-pressed-bg: #e9dfd1;
+    --kja-filter-pill-radius: var(--kja-radius-pill);
+    --kja-filter-pill-height: 32px;
+    --kja-filter-pill-padding-inline: 10px;
+    --kja-filter-segment-radius: 8px;
+    --kja-filter-segment-height: 30px;
+    --kja-filter-segment-padding-inline: 12px;
+    --kja-tab-indicator-width: 3px;
+    --kja-tab-indicator-color: var(--kja-action-primary);
+    --kja-tab-height: 44px;
+    --kja-tab-gap: 24px;
+    --kja-tab-padding-inline: 5px;
+    --kja-selector-radius: var(--kja-radius-control);
+    --kja-selector-height: 42px;
+    --kja-selector-selection-width: 2px;
+    --kja-selector-menu-radius: 18px;
+    --kja-selector-menu-shadow: 0 16px 38px rgba(96,71,48,.14);
+    --kja-selector-option-radius: 9px;
+    --kja-selector-option-height: 36px;
+    --kja-selector-option-padding-inline: 10px;
+    --kja-selector-option-padding-block: 8px;
+    --kja-on-action: #ffffff;
+    --kja-status-bg: #e8f0e8;
+    --kja-status-text: #365e4a;
+    --kja-status-info-bg: #e8f0fe;
+    --kja-status-info-text: #254d87;
+    --kja-status-error-bg: #fdebee;
+    --kja-status-error-text: #923344;
+    --kja-status-warning-bg: #fff3d4;
+    --kja-status-warning-text: #805210;
+    --kja-status-justified-bg: #f1ebfe;
+    --kja-status-justified-text: #623b84;
+    --kja-status-neutral-bg: #f1ede6;
+    --kja-status-neutral-text: #5c564f;
+    --kja-person-avatar-bg: #e9dfd1;
+    --kja-person-avatar-text: #61452f;
+    --kja-person-avatar-size: 40px;
+    --kja-loading-neutral: #e7e7e7;
+    --kja-loading-shine: rgba(255,255,255,.65);
+    --kja-field-border: #87796d;
+    --kja-field-focus-shadow: 0 0 8px 3px rgba(82,121,102,.16);
+  }
+:is(#portal #view-gestion.admin-view, .kja-catalog) .kja-area-group {
+    border:1px solid var(--kja-surface-border); border-radius:var(--kja-radius-card);
+    background:var(--kja-surface-opaque);
+  }
+:is(#portal,.kja-catalog) .kja-area-group { overflow:hidden; }
+@media (prefers-reduced-transparency:no-preference) {
+    :is(#portal #view-gestion.admin-view, .kja-catalog) .kja-area-group {background:var(--kja-surface-cream)}
+  }
+:is(#portal,.kja-catalog) .kja-area-trigger {
+    display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:12px 16px;
+    color:var(--kja-text-primary);background:transparent;border:0;text-align:left;
+    font:600 var(--kja-type-body-size)/var(--kja-type-ui-line-height) var(--kja-font-ui);cursor:pointer
+  }
+.kja-area-name{overflow-wrap:anywhere}
+.kja-area-count,.kja-area-detail{font-size:var(--kja-type-small-size);font-weight:500}
+.kja-area-trigger svg{margin-left:auto;flex:none}
+.kja-area-trigger[aria-expanded=true] svg{transform:rotate(180deg)}
+.kja-area-trigger:focus-visible{outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:-3px}
+@media(hover:hover){.kja-area-trigger:hover{background:var(--kja-surface-hover)}}
+:is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button{min-height:var(--kja-action-min-height);height:auto;box-sizing:border-box;padding:var(--kja-action-padding-block) var(--kja-action-padding-inline);border:var(--kja-action-border-width) solid var(--kja-surface-border);border-radius:var(--kja-action-radius);font:600 var(--kja-type-body-size)/var(--kja-type-ui-line-height) var(--kja-font-ui);cursor:pointer;background:var(--kja-surface-opaque);color:var(--kja-text-primary)}
+:is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button[data-kind=primary]{background:var(--kja-action-primary);color:var(--kja-on-action)}
+:is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button[data-kind=secondary]{color:var(--kja-action-secondary)}
+:is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button[data-kind=tertiary]{background:transparent;border-color:transparent}
+:is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button[data-kind=destructive]{background:var(--kja-action-danger);color:var(--kja-on-action)}
+:is(.kja-catalog, #portal #view-gestion, #admin-entry-dialog, #admin-evidence-modal, #admin-review-modal, #admin-days-off-modal, #admin-role-confirm-modal, #admin-role-dialog) .kja-button:focus-visible{outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:var(--kja-focus-ring-offset)}
+.kja-status{background:var(--kja-status-bg);color:var(--kja-status-text);border-radius:var(--kja-radius-pill);padding:3px 8px;font:500 var(--kja-type-small-size)/var(--kja-type-ui-line-height) var(--kja-font-ui)}
+:is(#portal #view-gestion #admin-list-section, .kja-catalog) .kja-status[data-tone] {
+    background: var(--badge-bg); color: var(--badge-text); padding: 3px 9px; border-radius: var(--kja-radius-pill);
+    font: 600 var(--kja-type-small-size)/var(--kja-type-ui-line-height) var(--kja-font-ui);
+  }
+.kja-status[data-tone="ok"] { --badge-bg: var(--kja-status-bg); --badge-text: var(--kja-status-text); }
+.kja-status[data-tone="info"] { --badge-bg: var(--kja-status-info-bg); --badge-text: var(--kja-status-info-text); }
+.kja-status[data-tone="ready"] { --badge-bg: var(--kja-surface-opaque); --badge-text: var(--kja-status-text); }
+.kja-status[data-tone="bad"] { --badge-bg: var(--kja-status-error-bg); --badge-text: var(--kja-status-error-text); }
+.kja-status[data-tone="warn"] { --badge-bg: var(--kja-status-warning-bg); --badge-text: var(--kja-status-warning-text); }
+.kja-status[data-tone="just"] { --badge-bg: var(--kja-status-justified-bg); --badge-text: var(--kja-status-justified-text); }
+.kja-status[data-tone="idle"] { --badge-bg: var(--kja-status-neutral-bg); --badge-text: var(--kja-status-neutral-text); }
+.kja-status[data-tone="wait"] { --badge-bg: var(--kja-surface-opaque); --badge-text: var(--kja-status-neutral-text); }
+#portal #admin-list-section.apl .apl-card-head > .avatar,
+  #portal #admin-seguimiento-section .seg-person-list .kja-person-avatar {
+    --profile-avatar-bg: var(--kja-person-avatar-bg);
+    --profile-avatar-text: var(--kja-person-avatar-text);
+    width: var(--kja-person-avatar-size);
+    height: var(--kja-person-avatar-size);
+    background: var(--kja-person-avatar-bg);
+    color: var(--kja-person-avatar-text);
+    border-radius: var(--kja-person-avatar-radius);
+    font: 700 13px/1 Inter, system-ui, sans-serif;
+  }
+#admin-entry-dialog .admin-entry-details :is(input,select,textarea) {
+    border:1px solid var(--kja-field-border); background:var(--kja-surface-opaque);
+    color:var(--kja-text-primary); caret-color:var(--kja-text-primary);
+  }
+#admin-entry-dialog .admin-entry-details :is(input,select,textarea):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset);
+    box-shadow:var(--kja-field-focus-shadow);
+  }
+#admin-entry-dialog .admin-entry-details textarea::placeholder { color:var(--kja-status-neutral-text); }
+#admin-entry-dialog .admin-entry-picker {
+    background:var(--kja-surface-opaque); border-color:var(--kja-field-border);
+  }
+#admin-entry-dialog .admin-entry-picker:hover { background:var(--kja-surface-hover); }
+#admin-entry-dialog .admin-entry-picker:focus-within { outline:none; }
+#admin-entry-dialog .admin-entry-picker:has(input:focus-visible) {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow);
+  }
+#admin-entry-dialog .admin-entry-picker[data-ready=true] { border-style:solid; }
+#admin-entry-dialog .admin-entry-empty { color:var(--kja-action-secondary); }
+#admin-entry-dialog .admin-entry-empty > span { color:var(--kja-status-neutral-text); }
+#admin-entry-dialog #admin-entry-preview { background:var(--kja-status-neutral-bg); }
+#admin-entry-dialog .admin-entry-image-action { color:var(--kja-text-primary); background:var(--kja-surface-opaque); border-color:var(--kja-field-border); }
+#admin-entry-dialog { background:var(--kja-surface-opaque); color:var(--kja-text-primary); }
+#admin-entry-dialog :is(h2,h3) { color:var(--kja-text-primary); }
+#admin-entry-dialog :is(header,footer,.admin-entry-evidence,.admin-entry-audit) { border-color:var(--kja-surface-border); }
+#admin-entry-dialog .admin-entry-evidence { background:var(--kja-surface-hover); }
+#admin-entry-dialog footer { background:var(--kja-surface-opaque); }
+#admin-entry-dialog :is(#admin-entry-copy,.admin-entry-help,small,.admin-entry-audit,.admin-entry-footer-note) { color:var(--kja-status-neutral-text); }
+#admin-entry-dialog .modal-close { background:var(--kja-status-neutral-bg); color:var(--kja-text-primary); }
+#admin-entry-dialog .modal-close:focus-visible { outline-color:var(--kja-focus); }
+#admin-entry-dialog #admin-entry-message { background:var(--kja-status-warning-bg); color:var(--kja-status-warning-text); }
+#admin-entry-dialog #admin-entry-submit:hover:enabled { background:var(--kja-action-primary); }
+#admin-entry-dialog footer .kja-button { min-height:var(--kja-action-form-height); box-shadow:none; }
+#admin-evidence-modal {
+    --upload-ink:var(--kja-text-primary); --upload-muted:var(--kja-status-neutral-text);
+    --upload-line:var(--kja-surface-border); --upload-accent:var(--kja-focus);
+  }
+#admin-evidence-modal .admin-evidence-sheet {
+    border:1px solid var(--upload-line); border-radius:var(--kja-radius-dialog); background:var(--kja-surface-opaque);
+  }
+#admin-evidence-modal :is(.admin-evidence-head,.admin-evidence-actions,.admin-evidence-compose) { background:var(--kja-surface-opaque); }
+#admin-evidence-modal .admin-evidence-requirements { background:var(--kja-surface-hover); }
+#admin-evidence-modal .admin-evidence-person-mark { color:var(--kja-person-avatar-text); background:var(--kja-person-avatar-bg); box-shadow:none; border-radius:var(--kja-person-avatar-radius); }
+#admin-evidence-modal :is(.admin-evidence-kind-icon,.admin-evidence-requirement > i,.admin-evidence-picker > span,.modal-close) { background:var(--kja-status-neutral-bg); color:var(--upload-ink); }
+#admin-evidence-modal :is(.admin-evidence-requirement,.admin-evidence-format label > span) { background:var(--kja-surface-opaque); border-radius:var(--kja-radius-control); }
+#admin-evidence-modal :is(.admin-evidence-requirement.active,.admin-evidence-format input:checked + span) { color:var(--kja-action-secondary); background:var(--kja-status-bg); border-color:var(--kja-selection-border); box-shadow:none; }
+#admin-evidence-modal .admin-evidence-requirement svg, #admin-evidence-modal .admin-evidence-requirement small { color:var(--upload-muted); }
+#admin-evidence-modal .admin-evidence-picker[data-full] { display:none; }
+#admin-evidence-modal .admin-evidence-picker { background:var(--kja-surface-opaque); border-color:var(--kja-field-border); color:var(--kja-action-secondary); border-radius:12px; }
+#admin-evidence-modal :is(.admin-evidence-picker,.admin-evidence-requirement:not(.active),.modal-close):hover { background:var(--kja-surface-hover); color:var(--upload-ink); border-color:var(--kja-field-border); }
+#admin-evidence-modal .admin-evidence-field :is(input,textarea) { background:var(--kja-surface-opaque); border-color:var(--kja-field-border); border-radius:var(--kja-radius-control); }
+#admin-evidence-modal .admin-evidence-field :is(input,textarea):focus { box-shadow:none; }
+#admin-evidence-modal :is(.admin-evidence-field input,.admin-evidence-field textarea,.admin-evidence-picker):focus-visible { box-shadow:var(--kja-field-focus-shadow); outline-offset:var(--kja-focus-ring-offset); }
+#admin-evidence-modal .admin-evidence-preview { background:var(--kja-status-neutral-bg); }
+#admin-evidence-modal .admin-evidence-preview img { object-fit:contain; }
+#admin-evidence-modal .admin-evidence-previews:has(.admin-evidence-preview:only-child) { grid-template-columns:minmax(0,220px); }
+#admin-evidence-modal .admin-evidence-preview:only-child { aspect-ratio:2/1; }
+#admin-evidence-modal .admin-evidence-preview button { background:var(--kja-surface-opaque); color:var(--kja-text-primary); border-color:var(--upload-line); }
+#admin-evidence-modal .admin-evidence-preview button:hover { color:var(--kja-action-danger); background:var(--kja-status-error-bg); }
+#admin-evidence-modal .admin-evidence-message.is-error { color:var(--kja-status-error-text); }
+#admin-evidence-modal .admin-evidence-message.is-progress { color:var(--upload-muted); }
+#admin-evidence-modal .admin-evidence-actions .kja-button { min-height:var(--kja-action-form-height); border-radius:var(--kja-action-radius); box-shadow:none; }
+#admin-evidence-modal .admin-evidence-actions .kja-button:disabled { color:var(--upload-muted); background:var(--kja-status-neutral-bg); border-color:var(--upload-line); opacity:1; }
+#admin-evidence-modal .admin-evidence-submit:hover:enabled { background:var(--kja-action-primary); }
+#admin-evidence-modal .admin-evidence-cancel:hover:enabled { background:var(--kja-surface-hover); border-color:transparent; }
+#admin-seguimiento-section .seg-decision {
+    --admin-control-focus:var(--kja-focus);
+    background:var(--kja-surface-opaque); color:var(--kja-text-primary); border-color:var(--kja-surface-border);
+  }
+#admin-seguimiento-section #seg-note {
+    color:var(--kja-text-primary); background:var(--kja-surface-opaque); border-color:var(--kja-field-border);
+  }
+#admin-seguimiento-section #seg-note:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow);
+  }
+#portal #admin-seguimiento-section .seg-decision-buttons .kja-button {
+    min-height:var(--kja-action-form-height); padding:var(--kja-space-8) 10px; font-size:12px; line-height:1.35; white-space:normal; box-shadow:none;
+  }
+#admin-days-off-modal .admin-days-off-sheet { background:var(--kja-surface-opaque); color:var(--kja-text-primary); border:1px solid var(--kja-surface-border); }
+#admin-days-off-modal .admin-days-off-head h2 { color:var(--kja-text-primary); }
+#admin-days-off-modal .admin-days-off-balance { background:var(--kja-surface-hover); }
+#admin-days-off-modal .admin-days-off-balance :is(small,strong,p) { color:var(--kja-text-primary); }
+#admin-days-off-modal .admin-days-off-fields input {
+    background:var(--kja-surface-opaque); color:var(--kja-text-primary); border-color:var(--kja-field-border);
+  }
+#admin-days-off-modal .admin-days-off-fields input:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow);
+  }
+#admin-days-off-modal #admin-days-off-form footer .kja-button { min-height:var(--kja-action-form-height); box-shadow:none; }
+#admin-days-off-modal #admin-days-off-form #admin-days-off-save { background:var(--kja-action-primary); border-color:var(--kja-action-primary); }
+#admin-review-modal {
+    --review-ink:var(--kja-text-primary); --review-muted:var(--kja-status-neutral-text);
+    --review-canvas:var(--kja-surface-hover); --review-line:var(--kja-surface-border); --review-accent:var(--kja-focus);
+  }
+#admin-review-modal .admin-review-sheet { border:1px solid var(--review-line); border-radius:var(--kja-radius-dialog); }
+#admin-review-modal :is(.admin-review-head,.admin-review-decision,.admin-review-gallery-wrap) { background:var(--kja-surface-opaque); }
+#admin-review-modal .admin-review-person-mark { background:var(--kja-person-avatar-bg); color:var(--kja-person-avatar-text); box-shadow:none; border-radius:var(--kja-person-avatar-radius); }
+#admin-review-modal .admin-review-observation textarea { background:var(--kja-surface-opaque); border-color:var(--kja-field-border); border-radius:var(--kja-radius-control); }
+#admin-review-modal .admin-review-observation textarea:focus-visible { box-shadow:var(--kja-field-focus-shadow); outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); }
+#admin-review-modal .admin-review-decision footer .kja-button { min-height:var(--kja-action-form-height); border-radius:var(--kja-action-radius); box-shadow:none; }
+#admin-review-modal .admin-review-approve:hover:enabled { background:var(--kja-action-primary); }
+#admin-review-modal .admin-review-observe:hover:enabled { background:var(--kja-surface-hover); }
+#admin-review-modal .admin-review-tabs button[aria-selected=true] { color:var(--kja-action-secondary); border-color:var(--kja-selection-border); background:var(--kja-status-bg); }
+#admin-review-modal .admin-review-gallery:is([data-single="image"],[data-single="pdf"]) {
+    min-height:0; height:min(60dvh,520px); max-height:100%; box-sizing:border-box;
+    grid-template-rows:minmax(0,1fr);
+  }
+#admin-review-modal .admin-review-gallery:is([data-single="image"],[data-single="pdf"]):has(.admin-review-file-picker) {
+    grid-template-rows:auto minmax(0,1fr);
+  }
+#admin-review-modal .admin-review-gallery:is([data-single="image"],[data-single="pdf"]) .admin-review-media {
+    min-height:0; min-width:0; box-sizing:border-box;
+  }
+#admin-review-modal .admin-review-gallery[data-single="image"] .admin-review-media img { min-height:0; }
+#admin-review-modal .admin-review-state { background:var(--kja-status-warning-bg); color:var(--kja-status-warning-text); }
+#admin-review-modal .admin-review-state[data-state=aprobada] { background:var(--kja-status-bg); color:var(--kja-status-text); }
+#admin-review-modal .admin-review-state[data-state=observada] { background:var(--kja-status-error-bg); color:var(--kja-status-error-text); }
+#portal #admin-assignments-section #admin-close-assignment-form [role=radio][aria-checked=true] {
+    background:var(--kja-surface-hover); border:1px solid var(--kja-action-primary);
+    color:var(--kja-text-primary); box-shadow:none;
+  }
+#portal #admin-assignments-section #admin-close-assignment-form [role=radio]:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset); box-shadow:none;
+  }
+#portal #admin-close-assignment-form .admin-close-fields :is(input:not([type=hidden]),textarea,.asg-picker-trigger) {
+    background-color:var(--kja-surface-opaque) !important; border-color:var(--kja-field-border) !important; color:var(--kja-text-primary);
+  }
+#portal #admin-close-assignment-form .admin-close-fields :is(input,textarea,.asg-picker-trigger):focus-visible,
+  #assignment-destination-picker input:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow) !important;
+  }
+#assignment-destination-picker [role=option]:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset); box-shadow:none!important;
+  }
+#portal #admin-close-draw-preview {
+    margin:0; padding:16px; border:1px solid var(--kja-surface-border); border-radius:var(--kja-radius-card); background:var(--kja-surface-opaque);
+  }
+#portal #admin-close-draw-preview:focus-visible { outline:var(--kja-focus-ring-width) solid var(--kja-focus); outline-offset:var(--kja-focus-ring-offset); }
+#portal #admin-close-draw-preview header { flex-wrap:wrap; align-items:center; border-color:var(--kja-surface-border); }
+#portal #admin-close-draw-preview header b { font-size:15px; color:var(--kja-text-primary); }
+#portal #admin-close-draw-preview header em { font-size:11px; background:var(--kja-status-neutral-bg); color:var(--kja-status-neutral-text); }
+#portal #admin-close-draw-preview :is(small,p) { font-size:12px; color:var(--kja-status-neutral-text); line-height:1.45; }
+#portal #admin-close-draw-preview [role=listitem] { padding:8px 0; background:transparent; }
+#portal #admin-close-draw-preview [role=listitem] i { width:36px; height:36px; flex-basis:36px; border-radius:var(--kja-person-avatar-radius); color:var(--kja-person-avatar-text); background:var(--kja-person-avatar-bg); font-size:12px; }
+#portal #admin-close-draw-preview [role=listitem] b { font-size:14px; color:var(--kja-text-primary); white-space:normal; overflow-wrap:anywhere; }
+#portal #admin-close-assignment-form:has([data-kind=sorteo][aria-checked=true]) #admin-close-assign {
+    background:var(--kja-action-primary) !important; color:var(--kja-on-action); border-radius:var(--kja-action-radius) !important; box-shadow:none !important;
+  }
+#portal #admin-assignments-section #admin-close-assignment-list .kja-status[data-tone] {
+    background:var(--badge-bg) !important; color:var(--badge-text) !important;
+    padding:3px 9px; border-radius:var(--kja-radius-pill); font:600 12px/1.4 Inter,system-ui,sans-serif;
+  }
+#portal #admin-close-assignment-list .kja-status i { background:currentColor; }
+#portal #admin-assignments-section #admin-assignment-search:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset); box-shadow:var(--kja-field-focus-shadow) !important;
+  }
+#portal #assignment-calendar-panel .assignment-calendar-days button.has-assignments {
+    background:var(--kja-surface-hover) !important; color:var(--kja-action-primary) !important;
+  }
+#portal #assignment-calendar-panel .assignment-calendar-days button[aria-pressed=true] {
+    background:var(--kja-action-primary) !important; border-color:var(--kja-action-primary) !important;
+    color:var(--kja-on-action) !important; box-shadow:none !important;
+  }
+#portal #assignment-calendar-panel .assignment-calendar-days button:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus) !important; outline-offset:var(--kja-focus-ring-offset);
+  }
+#portal #assignment-calendar-panel .legend-dot.is-selected { background:var(--kja-action-primary) !important; }
+#portal #assignment-calendar-panel .legend-dot.has-data { background:var(--kja-surface-hover); border:1px solid var(--kja-action-primary); }
+#portal #admin-assignments-section #assignment-day-summary { flex:0 0 auto; }
+#portal #admin-assignments-section #assignment-day-summary dl > div { background:var(--kja-status-neutral-bg); }
+#portal #admin-assignments-section #assignment-day-summary dl > .is-pending { background:var(--kja-status-warning-bg); }
+#portal #admin-assignments-section #assignment-day-summary .is-pending dd { color:var(--kja-status-warning-text); }
+#portal #admin-assignments-section #assignment-day-summary dl > .is-review { background:var(--kja-status-info-bg); }
+#portal #admin-assignments-section #assignment-day-summary .is-review dd { color:var(--kja-status-info-text); }
+#portal #admin-assignments-section #assignment-day-summary dl > .is-done { background:var(--kja-status-bg); }
+#portal #admin-assignments-section #assignment-day-summary .is-done dd { color:var(--kja-status-text); }
+#admin-role-dialog .admin-role-dialog-sheet,
+  #admin-role-confirm-modal .admin-role-confirm-sheet {
+    background:var(--kja-surface-opaque);color:var(--kja-text-primary);
+    border:1px solid var(--kja-surface-border);border-radius:var(--kja-radius-dialog);
+    box-shadow:var(--kja-surface-dialog-shadow);
+  }
+#admin-role-dialog .admin-role-dialog-head,
+  #admin-role-confirm-modal .admin-role-confirm-head,
+  #admin-role-confirm-modal .admin-role-confirm-actions {background:var(--kja-surface-opaque);border-color:var(--kja-surface-border)}
+#admin-role-dialog .admin-role-seat-row.vacant {background:var(--kja-surface-cream);border-color:var(--kja-surface-border)}
+#admin-role-dialog .admin-role-seat-row .kja-button,
+  #admin-role-confirm-modal .kja-button {box-shadow:none}
+#admin-role-dialog .is-danger.kja-button {color:var(--kja-action-danger)}
+#admin-role-dialog :focus-visible,
+  #admin-role-confirm-modal :focus-visible {outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:var(--kja-focus-ring-offset)}
+/* Diálogos auxiliares: geometría propia, superficie, campos y foco comunes. */
+#admin-person-modal .admin-editor-sheet,
+  #admin-month-modal .admin-month-sheet,
+  #admin-person-calendar-dialog,
+  #admin-overview-modal .moonrow-sheet,
+  #admin-leave-review,
+  #portal #ranking-help .rk-drawer-panel,
+  #portal #ranking-detail-modal .rk-modal-sheet,
+  #portal #admin-facebook-section.fbr :is(.fbr-help,.fbr-drawer) {
+    background:var(--kja-surface-opaque)!important;
+    border-color:var(--kja-surface-border)!important;
+    color:var(--kja-text-primary);
+  }
+:is(#view-admin-cuentas,#aa-dialog) {
+    --aa-ink:var(--kja-text-primary);
+    --aa-muted:var(--kja-status-neutral-text);
+    --aa-accent:var(--kja-action-primary);
+    --aa-line:var(--kja-surface-border);
+    --aa-paper:var(--kja-surface-opaque);
+  }
+#portal :is(#view-admin-cuentas,#aa-dialog) :is(button,input,select,textarea,summary):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+  }
+:is(#admin-person-modal,#aa-dialog,#view-admin-cuentas,#admin-month-modal,#admin-person-calendar-dialog,#admin-leave-review,#admin-overview-modal) :is(input:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=file]),select,textarea):not(:disabled) {
+    border-color:var(--kja-field-border)!important;
+  }
+:is(#admin-person-modal,#aa-dialog,#view-admin-cuentas,#admin-month-modal,#admin-person-calendar-dialog,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#fb-report-help,#fb-evidence-drawer) :is(button,input,select,textarea,a,summary):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+  }
+#admin-person-modal.admin-create-wizard .admin-editor-tabs button:focus-visible {
+    outline:none!important;
+  }
+#admin-overview-modal .moonrow-search-input {
+    width:210px;
+    transition:background-color .15s,border-color .15s;
+  }
+#admin-overview-modal .moonrow-search-input:focus {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset);
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+#admin-overview-modal .moonrow-btn-primary {
+    background:var(--kja-action-primary);
+    color:var(--kja-on-action);
+    border-color:var(--kja-action-primary);
+  }
+#admin-overview-modal .moonrow-btn-secondary {
+    background:var(--kja-surface-opaque);
+    color:var(--kja-text-primary);
+    border-color:var(--kja-surface-border);
+  }
+#admin-overview-modal :is(.moonrow-header,.moonrow-footer,.moonrow-kpi-card,.moonrow-table-card,.moonrow-search-input,.moonrow-area-select) {
+    background:var(--kja-surface-opaque);
+    border-color:var(--kja-surface-border);
+  }
+#admin-overview-modal :is(.moonrow-body,.moonrow-nav-tabs,.moonrow-dark-card,.moonrow-table th) {
+    background:var(--kja-status-neutral-bg);
+    color:var(--kja-text-primary);
+  }
+#admin-overview-modal .moonrow-dark-card {box-shadow:none;border:1px solid var(--kja-surface-border)}
+#admin-overview-modal .moonrow-dark-card::after {display:none}
+#admin-overview-modal :is(.moonrow-brand-icon,.moonrow-tab-btn.is-active,.moonrow-filter-btn.is-active) {
+    background:var(--kja-action-primary);
+    color:var(--kja-on-action);
+    box-shadow:none;
+  }
+#admin-overview-modal :is(.moonrow-title,.moonrow-kpi-val,.moonrow-dark-number,.moonrow-table td) {color:var(--kja-text-primary)}
+#admin-overview-modal :is(.moonrow-subtitle,.moonrow-tab-btn:not(.is-active),.moonrow-kpi-label,.moonrow-kpi-total,.moonrow-kpi-sub,.moonrow-dark-date,.moonrow-dark-label,.moonrow-dark-legend,.moonrow-footer-count,.moonrow-area-tag,.moonrow-detail-sub,.moonrow-breakdown-meta small) {color:var(--kja-status-neutral-text)}
+#admin-overview-modal .moonrow-search-input::placeholder {color:var(--kja-status-neutral-text)}
+#admin-overview-modal :is(.moonrow-progress-card,.moonrow-kpi-action,.moonrow-filter-btn:not(.is-active),.moonrow-row-btn,.moonrow-close-btn) {
+    background:var(--kja-surface-opaque);
+    border-color:var(--kja-surface-border);
+    color:var(--kja-text-primary);
+    box-shadow:none;
+  }
+#admin-overview-modal .moonrow-filter-btn.is-active {border-color:var(--kja-action-primary)}
+#admin-overview-modal :is(.moonrow-chip.is-neutral,.moonrow-progress-summary-pill,.moonrow-filter-btn:not(.is-active) .moonrow-filter-count) {background:var(--kja-status-neutral-bg);color:var(--kja-status-neutral-text)}
+#admin-overview-modal :is(.moonrow-progress-title,.moonrow-colab-name,.moonrow-detail-main,.moonrow-breakdown-name,.moonrow-breakdown-meta) {color:var(--kja-text-primary)}
+#admin-overview-modal :is(.moonrow-table th,.moonrow-table td) {border-color:var(--kja-surface-border);box-shadow:none}
+#admin-overview-modal .moonrow-badge.is-green {background:var(--kja-status-bg);color:var(--kja-status-text)}
+#admin-overview-modal .moonrow-badge.is-coral {background:var(--kja-status-error-bg);color:var(--kja-status-error-text)}
+#admin-overview-modal .moonrow-badge.is-amber {background:var(--kja-status-warning-bg);color:var(--kja-status-warning-text)}
+#admin-overview-modal .moonrow-badge.is-slate {background:var(--kja-status-neutral-bg);color:var(--kja-status-neutral-text)}
+#admin-overview-modal .moonrow-badge.is-blue {background:var(--kja-status-info-bg);color:var(--kja-status-info-text)}
+#admin-overview-modal .moonrow-badge .moonrow-badge-dot {background:currentColor}
+#admin-overview-modal .moonrow-dark-badge,
+  #admin-overview-modal .moonrow-chip.is-positive {background:var(--kja-status-bg);color:var(--kja-status-text)}
+#admin-overview-modal .moonrow-dark-bar {background:var(--kja-surface-border)}
+#admin-overview-modal .moonrow-avatar {background:var(--kja-person-avatar-bg);color:var(--kja-person-avatar-text);border-radius:var(--kja-person-avatar-radius);box-shadow:none}
+#admin-overview-modal .moonrow-table tbody tr:hover {background:var(--kja-surface-hover)}
+:is(#admin-person-modal,#aa-dialog,#view-admin-cuentas,#admin-month-modal,#admin-leave-review,#admin-overview-modal) :is(input:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=file]),select,textarea):focus-visible {
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+#portal #ranking-help .rk-inp > span {
+    background:var(--kja-surface-opaque);
+    border-color:var(--kja-field-border);
+  }
+#portal #ranking-help .rk-inp > span:focus-within {
+    border-color:var(--kja-focus);
+    box-shadow:var(--kja-field-focus-shadow);
+  }
+#portal #ranking-help .rk-inp input:focus-visible {
+    outline:none!important;
+  }
+#portal #ranking-help .rk-btn-primary {
+    background:var(--kja-action-primary);
+    color:var(--kja-on-action);
+    border-color:var(--kja-action-primary);
+  }
+#admin-month-modal .modal-close {
+    background:var(--kja-surface-opaque);
+    color:var(--kja-status-neutral-text);
+    border:1px solid var(--kja-surface-border);
+  }
+#admin-month-modal .holiday-agenda .empty {
+    color:var(--kja-status-neutral-text);
+    border-color:var(--kja-surface-border);
+  }
+#admin-leave-review #admin-leave-review-days .approve {
+    background:var(--kja-status-bg);
+    color:var(--kja-status-text);
+    border-color:var(--kja-status-text);
+  }
+#admin-leave-review #admin-leave-review-days .reject {
+    background:var(--kja-status-error-bg);
+    color:var(--kja-status-error-text);
+    border-color:var(--kja-status-error-text);
+  }
+/* Un solo contorno por control de escritorio. Los botones compactos de fila
+     y los indicadores conservan su margen interior para evitar recortes. */
+:is(#portal #view-gestion,#portal #view-admin-cuentas,#admin-person-modal,#aa-dialog,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-dialog,#admin-role-confirm-modal,#admin-month-modal,#admin-person-calendar-dialog,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,.pw-modal,#assignment-destination-picker,#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup)
+    :is(button,a,input,select,textarea,summary,[tabindex]):where(:not(.kja-area-trigger,.kja-metric)):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+  }
+:is(#portal #view-gestion,#portal #view-admin-cuentas,#admin-person-modal,#aa-dialog,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#assignment-hours-dialog,.pw-modal)
+    :is(input,select,textarea):where(:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=file],:disabled)):focus-visible {
+    border-color:var(--kja-field-border)!important;
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+#portal #view-gestion :is(.apl-search,.seg-search,.contracts-search-wrap,.admin-team-search-wrap,.rk-search,.fbr-search,.fbr-select):focus-within,
+  :is(#portal #view-gestion,#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-search:focus-within,
+  #portal #ranking-help .rk-inp > span:has(input:focus) {
+    border-color:var(--kja-field-border)!important;
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+#portal #view-gestion :is(.apl-search,.seg-search,.contracts-search-wrap,.admin-team-search-wrap,.rk-search,.fbr-search,.fbr-select) :is(input,select):focus,
+  :is(#portal #view-gestion,#list-area-picker-popup,#area-picker-popup,#contract-area-picker-popup,#seg-area-popup,#institution-picker-popup,#email-picker-popup) .area-picker-search input:focus,
+  #portal #ranking-help .rk-inp input:focus {
+    outline:none!important;
+    box-shadow:none!important;
+    border-color:transparent!important;
+  }
+#portal #ranking-help .rk-inp button:focus-visible {
+    outline-offset:calc(-1 * var(--kja-focus-ring-width))!important;
+  }
+:is(#portal #view-gestion,#admin-person-modal).admin-create-wizard .admin-editor-tabs button:focus-visible {outline:none!important}
+#admin-person-modal.admin-create-wizard .admin-editor-tabs button:focus-visible .create-step-number {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus);
+    outline-offset:var(--kja-focus-ring-offset);
+  }
+#portal #view-gestion :is(.area-picker-trigger,.rk-select-trigger,.admin-month-area-trigger,.af-trigger,.editor-date-trigger):focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;
+    outline-offset:var(--kja-focus-ring-offset)!important;
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+/* Command actions, not tabs, calendar cells, metric filters or row toggles.
+     Map the existing equivalent action classes without altering their density. */
+:is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button,.admin-primary-action,.admin-secondary-action,.pw-button,.aa-primary,.aa-secondary,.rk-btn,.fbr-btn-primary,.fbr-btn-ghost:not([aria-label]),.seg-d-primary,.moonrow-btn-primary,.moonrow-btn-secondary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected])) {
+    --kja-action-hover-fill:var(--kja-surface-hover);
+    --kja-action-press-fill:var(--kja-action-neutral-pressed);
+    --kja-action-interaction-ink:var(--kja-text-primary);
+    --kja-action-interaction-border:var(--kja-field-border);
+  }
+:is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button[data-kind=secondary],.kja-button[data-kind=tertiary].is-danger) {
+    --kja-action-interaction-ink:var(--kja-action-secondary);
+  }
+:is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-role-dialog) .kja-button.is-danger {
+    --kja-action-interaction-ink:var(--kja-action-danger);
+  }
+:is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button[data-kind=primary],.admin-primary-action:not([data-kind]),.pw-button.pw-primary,.aa-primary,.rk-btn-primary,.fbr-btn-primary,.seg-d-primary,.moonrow-btn-primary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected])) {
+    --kja-action-hover-fill:var(--kja-action-primary-hover);
+    --kja-action-press-fill:var(--kja-action-primary-pressed);
+    --kja-action-interaction-ink:var(--kja-on-action);
+    --kja-action-interaction-border:transparent;
+    background:var(--kja-action-primary)!important;color:var(--kja-on-action)!important;border-color:var(--kja-action-primary)!important;
+  }
+:is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-role-confirm-modal,#admin-role-dialog,#aa-dialog,.pw-modal) .kja-button[data-kind=destructive] {
+    --kja-action-hover-fill:var(--kja-action-danger-hover);
+    --kja-action-press-fill:var(--kja-action-danger-pressed);
+    --kja-action-interaction-ink:var(--kja-on-action);
+    --kja-action-interaction-border:transparent;
+    background:var(--kja-action-danger)!important;color:var(--kja-on-action)!important;border-color:var(--kja-action-danger)!important;
+  }
+@media(hover:hover){
+    :is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+      :is(.kja-button,.admin-primary-action,.admin-secondary-action,.pw-button,.aa-primary,.aa-secondary,.rk-btn,.fbr-btn-primary,.fbr-btn-ghost:not([aria-label]),.seg-d-primary,.moonrow-btn-primary,.moonrow-btn-secondary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected],[aria-disabled=true])):hover:enabled {
+      background:var(--kja-action-hover-fill)!important;color:var(--kja-action-interaction-ink)!important;border-color:var(--kja-action-interaction-border)!important;
+      --kja-action-current-fill:var(--kja-action-hover-fill);
+      --kja-action-current-ink:var(--kja-action-interaction-ink);
+      text-decoration:none!important;filter:none!important;
+    }
+  }
+:is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button,.admin-primary-action,.admin-secondary-action,.pw-button,.aa-primary,.aa-secondary,.rk-btn,.fbr-btn-primary,.fbr-btn-ghost:not([aria-label]),.seg-d-primary,.moonrow-btn-primary,.moonrow-btn-secondary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected],[aria-disabled=true])):active:enabled {
+    background:var(--kja-action-press-fill)!important;color:var(--kja-action-interaction-ink)!important;border-color:var(--kja-action-interaction-border)!important;
+    --kja-action-current-fill:var(--kja-action-press-fill);
+    --kja-action-current-ink:var(--kja-action-interaction-ink);
+    filter:none!important;
+  }
+:is(.kja-catalog,#portal #view-gestion,#portal #view-admin-cuentas,#admin-entry-dialog,#admin-evidence-modal,#admin-review-modal,#admin-days-off-modal,#admin-role-confirm-modal,#admin-role-dialog,#admin-person-modal,#aa-dialog,#admin-month-modal,#admin-leave-review,#admin-overview-modal,#ranking-help,#ranking-detail-modal,#assignment-hours-dialog,#seg-download-dialog,.pw-modal)
+    :is(.kja-button,.admin-primary-action,.admin-secondary-action,.pw-button,.aa-primary,.aa-secondary,.rk-btn,.fbr-btn-primary,.fbr-btn-ghost:not([aria-label]),.seg-d-primary,.moonrow-btn-primary,.moonrow-btn-secondary,.assignment-cta-btn):where(button:not([role=tab],[aria-pressed],[aria-selected])):is(:disabled,[aria-disabled=true]) {
+    background:var(--kja-action-disabled-bg)!important;color:var(--kja-action-disabled-text)!important;border-color:var(--kja-surface-border)!important;
+    --kja-action-current-fill:var(--kja-action-disabled-bg);
+    --kja-action-current-ink:var(--kja-action-disabled-text);
+    opacity:1!important;box-shadow:none!important;text-decoration:none!important;filter:none!important;scale:1!important;cursor:default!important;
+  }
+#portal #admin-people-section.pw-workbench #admin-new-person {
+    background:var(--kja-action-current-fill,var(--kja-action-primary))!important;
+    color:var(--kja-action-current-ink,var(--kja-on-action))!important;
+    border-color:var(--kja-action-current-fill,var(--kja-action-primary))!important;
+    transition:background-color 150ms,color 150ms,border-color 150ms;
+  }
+#portal #admin-people-section.pw-workbench #admin-new-person:is(:hover,:active) {transform:none;box-shadow:none!important}
+/* Elevación y radios según función, nunca según el módulo. Las filas y
+     divisores conservan sus bordes; los visores laterales conservan su forma. */
+#admin-entry-dialog,
+  #admin-evidence-modal .admin-evidence-sheet,
+  #admin-review-modal .admin-review-sheet,
+  #admin-days-off-modal .admin-days-off-sheet,
+  #admin-person-modal .admin-editor-sheet,
+  #admin-month-modal .admin-month-sheet,
+  #admin-person-calendar-dialog,
+  #admin-leave-review,
+  #admin-role-dialog .admin-role-dialog-sheet,
+  #admin-role-confirm-modal .admin-role-confirm-sheet,
+  #admin-overview-modal .moonrow-sheet,
+  #portal #ranking-detail-modal .rk-modal-sheet,
+  #assignment-hours-dialog,#seg-download-dialog,#aa-dialog,.pw-modal {
+    border-radius:var(--kja-radius-dialog)!important;box-shadow:var(--kja-surface-dialog-shadow)!important;
+  }
+#portal #admin-list-section.apl .apl-card,
+  #portal #admin-ranking-section.rk .rk-card,
+  #portal #admin-facebook-section.fbr .fbr-card,
+  #portal #view-gestion #admin-access-section.aw-workbench :is(.admin-access-requests,.admin-access-directory,.admin-access-audit,.admin-route-card,.admin-policy-card),
+  #admin-overview-modal :is(.moonrow-kpi-card,.moonrow-dark-card,.moonrow-table-card) {
+    border-radius:var(--kja-radius-card)!important;box-shadow:var(--kja-surface-card-shadow)!important;
+  }
+#portal #view-gestion #admin-access-section.aw-workbench :is(.admin-access-requests,.admin-access-directory,.admin-access-audit,.admin-route-card,.admin-policy-card),
+  #portal #view-gestion>#admin-access-section.aw-workbench {backdrop-filter:none!important}
+#portal .aw-workbench :is(.aw-rule-options,.admin-office-rule) {border-radius:var(--kja-radius-compact-card)}
+#portal #admin-month-section .admin-month-workbench-controls {
+    border-radius:var(--kja-radius-card);padding:var(--kja-space-16)!important;gap:var(--kja-space-12)!important;
+  }
+#portal #ranking-help .rk-sim {border-radius:var(--kja-radius-card)}
+#portal #admin-facebook-section.fbr :is(.fbr-menu,.fbr-help),#assignment-destination-picker {
+    border-radius:var(--kja-selector-menu-radius);box-shadow:var(--kja-selector-menu-shadow);
+  }
+/* KJA-051: surface geometry, based on painted desktop consumers. Selection
+   marks and status rings remain distinct from elevation. */
+#portal :is(#admin-seguimiento-section.seg-section,#admin-contracts-section,#admin-people-section,#admin-roles-section),
+  #portal #admin-assignments-section :is(.assignment-calendar,.assignment-day-summary,.admin-close-assignments) {border-radius:var(--kja-radius-workbench)!important}
+#portal #admin-seguimiento-section :is(.seg-people-metrics,.seg-evidence-metrics) {border-radius:var(--kja-radius-card)!important}
+#portal #admin-seguimiento-section :is(.seg-pilot,.seg-queues button b) {border-radius:var(--kja-radius-indicator)!important}
+#portal #admin-seguimiento-section .seg-pill,
+  #portal #admin-overview-section .admin-count,
+  #portal #admin-list-section.apl :is(.apl-legend b,.apl-mode),
+  #portal #admin-ranking-section :is(.rk-badge,.rk-seg button em,.rk-me) {border-radius:var(--kja-radius-compact-badge)!important}
+#portal #admin-facebook-section.fbr .fbr-sq,
+  #portal #admin-ranking-section.rk .rk-legend i {border-radius:var(--kja-radius-chart-mark)}
+#portal #admin-roles-section :is(.admin-role-cell-team,.rh-order),
+  #portal .aw-workbench .aw-pagination button {border-radius:var(--kja-filter-segment-radius)!important}
+#portal #admin-list-section.apl .apl-mark,
+  #portal #admin-assignments-section .type-chip .chip-avatar {border-radius:var(--kja-filter-segment-radius)!important}
+#portal #admin-assignments-section .type-chip {border-radius:var(--kja-radius-compact-card)!important}
+#assignment-hours-dialog .assignment-hours-presets button {border-radius:var(--kja-radius-control)!important}
+#portal #admin-assignments-section .assignment-calendar-days button:not([aria-pressed=true]) {border-radius:var(--kja-radius-control)!important}
+#portal #admin-assignments-section .assignment-day-summary dl>div {border-radius:var(--kja-radius-compact-card)!important}
+#portal #admin-ranking-section.rk .rk-month-popover {border-radius:var(--kja-selector-menu-radius)!important}
+#ranking-detail-modal .rk-m-crit {border-radius:var(--kja-radius-card)!important}
+#portal #admin-month-section :is(.admin-month-workbench-controls,.admin-month-ledger) {border-radius:var(--kja-radius-card)!important}
+#portal #admin-contracts-section .admin-contract-search,
+  #portal #admin-people-section .admin-primary-action {border-radius:var(--kja-radius-control)!important}
+#portal #admin-contracts-section :is(.admin-list-kpis,.admin-team-actions),
+  #portal #admin-roles-section :is(.admin-list-kpis,.admin-role-row,.admin-roles-audit),
+  #portal #admin-people-section .admin-list-kpis,
+  #portal #admin-access-section .admin-list-kpis,
+  #portal #admin-list-section.apl :is(.apl-kpi,.apl-cards),
+  #portal #admin-seguimiento-section :is(.seg-section,.seg-person-list),
+  #portal #admin-overview-section :is(.admin-overview-today,.admin-panel,.admin-chart),
+  #portal #admin-month-section .admin-month-table,
+  #portal #admin-ranking-section :is(.rk-banner,.rk-ad-person) {
+    border-radius:var(--kja-radius-card)!important;
+  }
+#portal #admin-overview-section .admin-panel-head {border-radius:var(--kja-radius-card) var(--kja-radius-card) 0 0}
+#portal #admin-overview-section .admin-panel-foot {border-radius:0 0 var(--kja-radius-card) var(--kja-radius-card)}
+#portal #admin-seguimiento-section .seg-mark {border-radius:var(--kja-radius-card)}
+#portal #admin-list-section.apl .apl-day,
+  #portal #admin-assignments-section :is(.assignment-toggle-btn,.assignment-work-date-label,.assignment-refresh-btn),
+  #portal #admin-facebook-section.fbr :is(.fbr-btn,.fbr-stepper,.fbr-select),
+  #portal #admin-ranking-section :is(.rk-btn,.rk-search),
+  #portal #admin-month-section .admin-month-export {
+    border-radius:var(--kja-radius-control)!important;
+  }
+#portal #admin-ranking-section :is(.rk-seg,.rk-icon-tile),
+  #portal #admin-facebook-section.fbr .fbr-tabs,
+  #portal #admin-seguimiento-section .seg-button.kja-metric {
+    border-radius:var(--kja-filter-segment-radius)!important;
+  }
+#portal #admin-access-section .admin-access-health,
+  #portal #admin-ranking-section :is(.rk-bar,.rk-bar>i) {border-radius:var(--kja-radius-pill)}
+#portal #admin-ranking-section .rk-month-popover {
+    border-radius:var(--kja-selector-menu-radius);box-shadow:var(--kja-selector-menu-shadow);
+  }
+#portal #admin-contracts-section .admin-contract-row,
+  #portal #admin-list-section.apl :is(.apl-toolbar,.apl-kpis,.apl-area),
+  #portal #admin-access-section .admin-list-kpi,
+  #portal #admin-assignments-section .assignment-section-head {box-shadow:var(--kja-surface-card-shadow)!important}
+#portal #admin-list-section.apl .apl-day.is-active,
+  #portal #admin-assignments-section :is(.assignment-toggle-btn,.assignment-work-date-label,.assignment-today-pill,.assignment-refresh-btn):not(:focus-visible,:focus-within),
+  #portal #admin-facebook-section.fbr .fbr-tabs button.active {box-shadow:none!important}
+/* The same refresh command stays secondary in every section. Older
+     section-specific rules used both teal and terracotta filled buttons. */
+#portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh {
+    background:var(--kja-surface-opaque)!important;color:var(--kja-action-secondary)!important;
+    border:var(--kja-action-border-width) solid var(--kja-surface-border)!important;
+    border-radius:var(--kja-action-radius)!important;min-height:var(--kja-action-min-height);
+    box-shadow:none!important;transform:none!important;filter:none!important;
+    transition:background-color 150ms,color 150ms,border-color 150ms;
+  }
+@media(hover:hover){
+    #portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh:hover:enabled {
+      background:var(--kja-surface-hover)!important;border-color:var(--kja-field-border)!important;
+    }
+  }
+#portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh:active:enabled {
+    background:var(--kja-action-neutral-pressed)!important;border-color:var(--kja-field-border)!important;
+  }
+#portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;outline-offset:var(--kja-focus-ring-offset)!important;
+  }
+#portal.admin-wide[data-view="gestion"][data-admin-section] #view-gestion > .admin-section-nav > #admin-refresh:disabled {
+    background:var(--kja-action-disabled-bg)!important;color:var(--kja-action-disabled-text)!important;
+    border-color:var(--kja-surface-border)!important;opacity:1!important;
+  }
+/* KJA-051: readable desktop captions; compact information still uses a distinct scale. */
+#portal :is(#admin-contracts-section,#admin-roles-section) :is(.contracts-heading h2,.roles-heading h2),
+  #portal #admin-people-section.pw-workbench :is(.admin-team-heading h2,.attendance-export-head h3,.admin-areas-panel h3),
+  #portal .aw-workbench .admin-access-toolbar h2,
+  :is(.pw-empty h3,.pw-modal-head h2,.admin-role-dialog-heading h2,.admin-role-confirm-head h2),
+  #admin-days-off-modal.pw-days-off .admin-days-off-head h2 {
+    font-family:var(--kja-font-display)!important;
+  }
+#portal :is(#admin-contracts-section,#admin-roles-section) :is(.contracts-heading .eyebrow,.roles-heading .eyebrow,.contracts-filter>span,.contract-mobile-label,.admin-role-state),
+  #portal #admin-people-section.pw-workbench :is(.admin-team-heading .eyebrow,.pw-card>header .pw-tag,.pw-card dt),
+  #portal #admin-list-section .apl-card dt,
+  #portal #admin-seguimiento-section :is(.seg-eyebrow,.seg-pilot,#seg-updated,.seg-table-labels,.seg-pill,.seg-area-card>[data-seg=area] span),
+  #portal #admin-month-section :is(.admin-month-workbench-head .admin-month-kpis small,.admin-month-person-status,.admin-month-table .day-col span),
+  #portal #admin-facebook-section.fbr .fbr-chart .fbr-xl>div,
+  #portal :is(#admin-ranking-section,#ranking-help,#ranking-detail-modal) :is(.rk-tag,.rk-badge),
+  #portal .aw-workbench :is(.admin-list-kpi small,.admin-route-card>header small,.admin-route-step small,.admin-policy-card>header small,.admin-office-selection small,.admin-office-actions>small) {
+    font-size:var(--kja-type-caption-size)!important;
+  }
+#portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av-xs {font-size:10px}
+/* KJA-051: effective AA failures detected in the actual desktop views. */
+#portal #admin-contracts-section #admin-contract-count {color:var(--kja-action-primary)!important}
+#portal #admin-list-section.apl .apl-legend b.p {background:var(--kja-status-text);color:var(--kja-on-action)}
+#portal #admin-list-section.apl .apl-legend b.t {background:var(--kja-status-warning-text);color:var(--kja-on-action)}
+#portal #admin-list-section.apl .apl-legend b.j {background:var(--kja-status-justified-text);color:var(--kja-on-action)}
+#portal #admin-list-section.apl .apl-legend b.ng {
+    background:var(--kja-status-neutral-text);color:var(--kja-on-action);
+  }
+#portal #admin-list-section.apl .apl-legend small {color:var(--kja-text-secondary)}
+#portal.admin-wide #admin-assignments-section #assignment-create-toggle:not(:disabled,[aria-disabled=true]),
+  #portal.admin-wide #admin-assignments-section #assignment-create-toggle:not(:disabled,[aria-disabled=true])>span {
+    color:var(--kja-on-action)!important;
+  }
+#portal #admin-ranking-section.rk .rk-kpi>b em {color:var(--kja-text-secondary)}
+#portal #admin-roles-section .admin-role-filters button[aria-pressed=true] b {
+    background:var(--kja-filter-selected-count-bg);color:var(--kja-on-action);
+  }
+#portal #admin-month-section .admin-month-area-row .admin-month-area-sticky>span,
+  #portal #admin-month-section .admin-month-cell.empty b {color:var(--kja-text-secondary)}
+#portal #admin-assignments-section .assignment-calendar-days>span,
+  #portal #admin-assignments-section #admin-assignment-search::placeholder {
+    color:var(--kja-text-secondary)!important;opacity:1;
+  }
+#portal #admin-assignments-section #admin-assignment-search:not(:disabled) {
+    border-color:var(--kja-field-border)!important;border-radius:var(--kja-radius-control)!important;
+  }
+#portal #admin-assignments-section .assignment-search .assignment-field-icon {color:var(--kja-text-secondary)}
+#portal #admin-assignments-section #assignment-calendar-message[data-state=error] {
+    display:flex!important;align-items:center;justify-content:center;flex-wrap:wrap;
+    gap:var(--kja-space-8);padding-block:var(--kja-space-4);color:var(--kja-text-secondary)!important;
+  }
+#portal #admin-assignments-section #assignment-calendar-message .asg-calendar-retry {
+    white-space:nowrap;
+  }
+#portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av {color:var(--kja-person-avatar-text);background:var(--kja-person-avatar-bg)}
+#portal #admin-ranking-section.rk .rk-tag-medal,
+  #portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av[data-medal="1"] .rk-medal {
+    background:var(--kja-status-warning-bg);color:var(--kja-status-warning-text);
+  }
+#portal #admin-ranking-section.rk .rk-pd-s .rk-tag-medal,
+  #portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av[data-medal="2"] .rk-medal {
+    background:var(--kja-status-neutral-bg);color:var(--kja-status-neutral-text);
+  }
+#portal #admin-ranking-section.rk .rk-pd-b .rk-tag-medal,
+  #portal :is(#admin-ranking-section,#ranking-detail-modal) .rk-av[data-medal="3"] .rk-medal {
+    background:var(--kja-surface-hover);color:var(--kja-action-primary);
+  }
+/* KJA-051 · revisión de Piero: estados de controles de escritorio sin superficies anidadas. */
+#portal #view-gestion .admin-toggle input[type=checkbox] {
+    appearance:none!important;-webkit-appearance:none!important;box-sizing:border-box!important;
+    display:inline-grid!important;place-items:center;flex:0 0 18px;
+    width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;
+    max-width:18px!important;max-height:18px!important;margin:0!important;padding:0!important;
+    border:var(--kja-field-border-width) solid var(--kja-field-border)!important;border-radius:var(--kja-radius-indicator)!important;
+    background:var(--kja-surface-opaque)!important;box-shadow:none!important;cursor:pointer;
+    transition:background-color 150ms,border-color 150ms!important;
+  }
+#portal #view-gestion .admin-toggle input[type=checkbox]:checked {
+    background:var(--kja-action-primary)!important;border-color:var(--kja-action-primary)!important;
+  }
+#portal #view-gestion .admin-toggle input[type=checkbox]:checked::before {
+    content:"";width:5px;height:9px;border-right:2px solid var(--kja-on-action);border-bottom:2px solid var(--kja-on-action);
+    transform:translateY(-1px) rotate(45deg);
+  }
+#portal #view-gestion .admin-toggle input[type=checkbox]:focus-visible {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;outline-offset:var(--kja-focus-ring-offset)!important;
+    box-shadow:none!important;
+  }
+#portal #view-gestion .admin-toggle input[type=checkbox]:disabled {
+    background:var(--kja-action-disabled-bg)!important;border-color:var(--kja-surface-border)!important;cursor:default;
+  }
+#portal #view-gestion .admin-toggle input[type=checkbox]:disabled:checked::before {border-color:var(--kja-action-disabled-text)}
+@media(forced-colors:active){
+    #portal #view-gestion .admin-toggle input[type=checkbox] {appearance:auto!important;-webkit-appearance:auto!important;forced-color-adjust:auto;}
+    #portal #view-gestion .admin-toggle input[type=checkbox]::before {display:none!important}
+  }
+#portal #admin-month-section .admin-month-picker {
+    background:var(--kja-surface-opaque)!important;border-radius:var(--kja-radius-control)!important;box-shadow:none!important;
+  }
+#portal #admin-month-section .admin-month-picker input[type=month] {
+    background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+    outline:none!important;color:var(--kja-text-primary)!important;
+  }
+#portal #admin-month-section .admin-month-picker input[type=month]::-webkit-datetime-edit,
+  #portal #admin-month-section .admin-month-picker input[type=month]::-webkit-datetime-edit-fields-wrapper {background:transparent}
+#portal #admin-month-section .admin-month-picker input[type=month]::-webkit-calendar-picker-indicator {opacity:.78;cursor:pointer}
+#portal #admin-month-section .admin-month-picker:has(input:focus) {
+    outline:var(--kja-focus-ring-width) solid var(--kja-focus)!important;outline-offset:var(--kja-focus-ring-offset)!important;
+    box-shadow:var(--kja-field-focus-shadow)!important;
+  }
+#portal #admin-month-section .admin-month-picker button {
+    background:transparent!important;box-shadow:none!important;transform:none!important;
+  }
+@media(hover:hover){
+    #portal #admin-month-section .admin-month-picker button:not(:disabled):hover{background:var(--kja-surface-hover)!important}
+  }
+/* No animar elevación ni compositar el glass heredado sobre Nueva asignación. */
+#portal.admin-wide #admin-assignments-section #assignment-create-toggle {
+    background:var(--kja-action-primary)!important;color:var(--kja-on-action)!important;
+    border:var(--kja-action-border-width) solid var(--kja-action-primary)!important;border-radius:var(--kja-action-radius)!important;
+    box-shadow:none!important;filter:none!important;transform:none!important;animation:none!important;
+    transition:background-color 150ms,color 150ms,border-color 150ms!important;
+  }
+@media(hover:hover){
+    #portal.admin-wide #admin-assignments-section #assignment-create-toggle:not(:disabled,[aria-disabled=true]):hover {
+      background:var(--kja-action-primary-hover)!important;border-color:var(--kja-action-primary-hover)!important;
+    }
+  }
+#portal.admin-wide #admin-assignments-section #assignment-create-toggle:not(:disabled,[aria-disabled=true]):active {
+    background:var(--kja-action-primary-pressed)!important;border-color:var(--kja-action-primary-pressed)!important;
+  }
+#portal.admin-wide #admin-assignments-section #assignment-create-toggle:is(:disabled,[aria-disabled=true]) {
+    background:var(--kja-action-disabled-bg)!important;color:var(--kja-action-disabled-text)!important;border-color:var(--kja-surface-border)!important;
+  }
+*{box-sizing:border-box}body{margin:0;background:#f8f5ef;color:#38312b;font:15px/1.5 Inter,system-ui,sans-serif}main{max-width:1080px;margin:auto;padding:40px clamp(16px,4vw,48px)}h1,h2,h3,p{margin:0}h1{font:600 38px/1.15 Georgia,serif}h2{font-size:20px;margin-bottom:12px}h3{font-size:15px;margin-bottom:6px}p{margin:8px 0 16px;color:#594e45}section{margin-top:32px}.comparacion,.grupos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px}figure{margin:0}img{width:100%;display:block;border-radius:8px;border:1px solid #d3c9bc}figcaption{margin-bottom:5px;font-weight:600}a{color:#79452f}article{padding:0 16px}article div{border-top:1px solid #ddd3c8;padding:8px 0}.kja-area-group{align-self:start}.views{display:flex;gap:8px;margin-bottom:16px}.views button[aria-pressed=true]{background:#93472f;color:white}button{cursor:pointer}details{margin-top:32px;border-top:1px solid #d3c9bc;padding-top:16px}summary{cursor:pointer;font-weight:600}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}nav{display:flex;flex-wrap:wrap;gap:10px 20px;margin:20px 0 28px}section[id]{scroll-margin-top:20px}#referencias-c2 table{width:100%;border-collapse:collapse;text-align:left}#referencias-c2 th,#referencias-c2 td{padding:8px 12px;border-bottom:1px solid #d3c9bc}#referencias-c2 tbody th{font-weight:500}:is(#roles-liderazgo,#acceso-reglas) figure>a:last-child{display:inline-flex;align-items:center;min-height:32px;margin-top:6px}</style>
+<body class="kja-catalog"><main><h1>Sistema de diseño de administración</h1>
+<nav aria-label="Secciones del catálogo"><a href="#registro">Registrar entrada</a><a href="#carga">Cargar evidencia</a><a href="#revision">Revisión en Seguimiento</a><a href="#cierres">Revisión en Cierres</a><a href="#areas">Grupos por área</a><a href="#estados">Estados de la lista</a><a href="#indicadores">Indicadores</a><a href="#calendarios">Calendarios</a></nav>
+<section id="registro"><h2>Registrar entrada</h2><p>Formulario de Dirección con datos de prueba y una imagen lista para registrar.</p><a href="registrar-entrada.png"><img src="registrar-entrada.png" alt="Formulario completo con la jornada, la evidencia y las acciones Cancelar y Registrar entrada"></a></section>
+<section id="carga"><h2>Cargar evidencia</h2><p>Dirección elige un requisito pendiente. Para una salida, verifica la foto y la hora visible antes de confirmar.</p><a href="cargar-evidencia.png"><img src="cargar-evidencia.png" alt="Entrega de una foto de salida con la hora y la nota de Dirección"></a></section>
+<section id="revision"><h2>Revisión de evidencia en Seguimiento</h2><p>Dirección puede aprobar la entrega o explicar qué necesita corregir el colaborador.</p><img style="max-width:308px" src="revision-evidencia.png" alt="Decisión de Dirección con el comentario, la observación y las dos acciones"></section>
+<section id="calendario-asignaciones"><h2>Calendario y resumen de Asignaciones</h2><a href="calendario-asignaciones.png"><img src="calendario-asignaciones.png" alt="Mes con días que tienen entregables, fecha seleccionada y cuatro indicadores del día"></a></section>
+<section id="asignaciones-dia"><h2>Asignaciones del día</h2><a href="asignaciones-dia.png"><img src="asignaciones-dia.png" alt="Dos asignaciones de María Díaz: una entregada pendiente de revisión y otra concluida"></a></section>
+<section id="sorteo-propuesta"><h2>Revisar el sorteo</h2><a href="sorteo-propuesta.png"><img src="sorteo-propuesta.png" alt="Selección de dos personas con sus asignaciones recientes y el botón Confirmar 2 asignaciones"></a></section>
+<section id="asignacion-destinatario"><h2>Destinatario y campos de la asignación</h2><div class="comparacion"><figure><figcaption>Buscar una persona</figcaption><img src="asignacion-busqueda.png" alt="Búsqueda de María sin tilde, con foco en la coincidencia"></figure><figure><figcaption>Preparar el entregable</figcaption><img src="asignacion-destinatario.png" alt="Persona seleccionada, título e indicaciones"></figure></div></section>
+<section id="asignacion-selectores"><h2>Nueva asignación</h2><a href="asignacion-selectores.png"><img src="asignacion-selectores.png" alt="Tipo de entregable GPT y destino Área con foco de teclado"></a></section>
+<section id="plazo-cierre"><h2>Plazo de cierre</h2><a href="plazo-cierre.png"><img src="plazo-cierre.png" alt="Margen personalizado de 90 minutos y cierre a las 19:30"></a></section>
+<section id="dias-libres"><h2>Días libres</h2><a href="dias-libres.png"><img src="dias-libres.png" alt="Descontar días con cantidad, motivo y acciones de Dirección"></a></section>
+<section id="cierres"><h2>Revisión en Cierres</h2><div class="comparacion"><figure><figcaption>Dirección</figcaption><a href="cierres-revision.png"><img src="cierres-revision.png" alt="Entrega con archivos, observación y acciones de revisión"></a></figure><figure><figcaption>Consulta privada del área</figcaption><a href="cierres-consulta.png"><img src="cierres-consulta.png" alt="Vista de lectura de la misma entrega"></a></figure></div></section><section id="areas"><h2>Grupos por área</h2><p>En Contratos, Colaboradores y Pasar lista, pulsa la cabecera de un área para ver sus filas. El nombre, la cantidad y la flecha ocupan el mismo lugar en ambas vistas.</p><div class="grupos" id="examples"></div></section>
+<section><h2>El cambio en el panel</h2><div class="views"><button class="kja-button" data-view="colaboradores">Colaboradores</button><button class="kja-button" data-view="contratos">Contratos</button><button class="kja-button" data-view="lista">Pasar lista</button><button class="kja-button" data-view="seguimiento">Seguimiento diario</button></div><div class="comparacion"><figure><figcaption>Antes</figcaption><a id="old"><img alt="Vista anterior"></a></figure><figure><figcaption>Versión actual</figcaption><a id="current"><img alt="Vista con la cabecera compartida"></a></figure></div></section>
+<section><h2>Evidencia recibida</h2><div class="comparacion"><figure><figcaption>Elegir una imagen</figcaption><img src="evidencia-vacia.png" alt="Campo vacío con formatos y límite de tamaño"></figure><figure><figcaption>Reemplazar la imagen</figcaption><img src="evidencia-adjunta.png" alt="Vista previa y acción Cambiar imagen"></figure></div></section><section><h2>Campos de la jornada</h2><p>Datos de la jornada con la fecha enfocada mediante el teclado.</p><img style="max-width:100%" src="campos-entrada.png" alt="Formulario de jornada con el campo Fecha enfocado"></section><section id="estados"><h2>Mientras se consulta la lista</h2><figure><figcaption>Primera carga de una fecha</figcaption><img style="max-width:100%" src="carga-inicial-fila.png" alt="La fila reserva espacio para los datos del día"></figure><figure><figcaption>Actualización de la misma fecha</figcaption><img style="max-width:100%" src="actualizando-fila.png" alt="La fila conserva el nombre y los datos anteriores con la marcación bloqueada"></figure></section><section><h2>Fallo al actualizar Pasar lista</h2><img style="max-width:100%" src="actualizacion-fallida.png" alt="Aviso de datos anteriores con la acción Reintentar"></section><section><h2>Resultados vacíos en Pasar lista</h2><div class="comparacion"><figure><figcaption>Búsqueda sin coincidencias</figcaption><img src="sin-coincidencias.png" alt="Quitar filtros permite volver a la lista"></figure><figure><figcaption>Fecha sin colaboradores</figcaption><img src="fecha-vacia.png" alt="Se indica consultar otro día"></figure></div></section><section><h2>Identidad del colaborador</h2><div class="comparacion"><figure><figcaption>Pasar lista</figcaption><img src="identidad-lista.png" alt="Iniciales LP junto al nombre Luis Peña"></figure><figure><figcaption>Seguimiento diario</figcaption><img src="identidad-seguimiento.png" alt="Iniciales GP junto al nombre Gloria Pérez"></figure></div></section><section><h2>Marcas de asistencia</h2><p>El visto identifica la marca elegida. En esta fila, P significa Presente.</p><a href="marcas-asistencia.png"><img style="max-width:100%" src="marcas-asistencia.png" alt="Fila de Pasar lista con Presente seleccionado"></a></section><section><h2>Estado de jornada</h2><p>La etiqueta de cada fila identifica la situación de la jornada. Los controles de asistencia se encuentran al final de la fila.</p><a href="estado-jornada.png"><img style="max-width:100%" src="estado-jornada.png" alt="Fila de Luis Peña con la jornada completa"></a></section><section><h2>Acciones en Pasar lista</h2><p>Cuando falla la primera consulta, Reintentar es la acción principal. Si hay datos visibles, actualizar ocupa un segundo plano.</p><a href="boton-reintentar.png"><img style="max-width:100%" src="boton-reintentar.png" alt="Lista sin cargar y acción principal Reintentar"></a></section><section><h2>Filtro por área en Pasar lista</h2><p>Busca un equipo y selecciónalo para consultar su asistencia. Todas las áreas recupera la lista completa para la misma fecha.</p><a href="filtro-area.png"><img width="290" src="filtro-area.png" alt="Filtro de Pasar lista abierto con un área seleccionada"></a></section><section id="indicadores"><h2>Indicadores de escritorio</h2><p>Contratos resume el equipo. En Colaboradores, Pasar lista y las bandejas de Personas de Seguimiento, la selección también filtra los resultados.</p><div class="comparacion"><figure><figcaption>Contratos</figcaption><a href="indicadores-contratos.png"><img alt="Indicadores de contratos" src="metric-contratos.png"></a></figure><figure><figcaption>Colaboradores</figcaption><a href="indicadores-colaboradores.png"><img alt="Indicadores de colaboradores" src="metric-colaboradores.png"></a></figure><figure><figcaption>Pasar lista</figcaption><a href="indicadores-lista.png"><img alt="Indicadores de lista" src="metric-lista.png"></a></figure><figure><figcaption>Seguimiento diario</figcaption><a href="indicadores-seguimiento.png"><img alt="Indicadores de seguimiento" src="metric-seguimiento.png"></a></figure></div></section><section id="calendarios"><h2>Calendarios de escritorio</h2><p>Pasar lista y Seguimiento consultan el día al seleccionarlo. En Descargas, Aplicar confirma el rango elegido.</p><div class="comparacion"><figure><figcaption>Consulta de día</figcaption><a href="calendario-compartido.png"><img style="max-width:290px" src="calendario-compartido.png" alt="Calendario de día en Pasar lista"></a></figure><figure><figcaption>Rango de descarga</figcaption><a href="05-excel-rango.png"><img src="05-excel-rango.png" alt="Calendario de Descargas con rango"></a></figure></div></section><details><summary>Variantes de botón y etiqueta de estado</summary><div class="actions" id="actions"></div><span class="kja-status">Aprobado</span></details><section><h2>Indicadores y calendarios en Figma</h2><nav aria-label="Componentes editables en Figma"><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=10-17">Indicador informativo</a> <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=10-20">Filtro normal</a> <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=10-23">Filtro seleccionado</a> <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=67-18">Indicadores compactos</a> <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=12-16">Consulta de día</a> <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=67-67">Rango de descarga</a> <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=58-65">Calendario de Asignaciones</a></nav></section><section id="vacios-directorio"><h2>Búsqueda sin coincidencias</h2><div class="comparacion"><figure><figcaption>Colaboradores</figcaption><img src="colaboradores-sin-coincidencias.png" alt="Búsqueda sin resultados en Colaboradores con la acción Quitar filtros"></figure><figure><figcaption>Contratos</figcaption><img src="contratos-sin-coincidencias.png" alt="Estado vacío de Contratos a todo el ancho de la lista"></figure></div><p>Cuando el directorio está vacío se indica que aún no hay colaboradores registrados. Si solo hay personas de baja, la acción permite consultarlas.</p></section><section id="referencias-c2"><h2>Filtros, campos y estados de escritorio</h2><table><thead><tr><th scope="col">Variante</th><th scope="col">Portal</th><th scope="col">Componente</th></tr></thead><tbody><tr><th scope="row">Buscar y seleccionar un área</th><td><a href="filtro-area.png" aria-label="Ver captura: Buscar y seleccionar un área">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=15-16" aria-label="Abrir en Figma: Buscar y seleccionar un área">Abrir en Figma</a></td></tr><tr><th scope="row">Roles · Buscar y elegir colaborador</th><td><a href="selector-roles.png" aria-label="Ver captura: Roles · Buscar y elegir colaborador">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=199-326" aria-label="Abrir en Figma: Roles · Buscar y elegir colaborador">Abrir en Figma</a></td></tr><tr><th scope="row">Área deshabilitada durante la primera carga</th><td><a href="filtro-area-deshabilitado.png" aria-label="Ver captura: Área deshabilitada durante la primera carga">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=71-49" aria-label="Abrir en Figma: Área deshabilitada durante la primera carga">Abrir en Figma</a></td></tr><tr><th scope="row">Elegir fecha</th><td><a href="calendario-compartido.png" aria-label="Ver captura: Elegir fecha">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=12-16" aria-label="Abrir en Figma: Elegir fecha">Abrir en Figma</a></td></tr><tr><th scope="row">Campo de jornada con foco</th><td><a href="campos-entrada.png" aria-label="Ver captura: Campo de jornada con foco">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=28-19" aria-label="Abrir en Figma: Campo de jornada con foco">Abrir en Figma</a></td></tr><tr><th scope="row">Evidencia por adjuntar o reemplazar</th><td><a href="evidencia-adjunta.png" aria-label="Ver captura: Evidencia por adjuntar o reemplazar">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=31-18" aria-label="Abrir en Figma: Evidencia por adjuntar o reemplazar">Abrir en Figma</a></td></tr><tr><th scope="row">Identidad del colaborador</th><td><a href="identidad-lista.png" aria-label="Ver captura: Identidad del colaborador">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=22-24" aria-label="Abrir en Figma: Identidad del colaborador">Abrir en Figma</a></td></tr><tr><th scope="row">Superficie de un grupo por área</th><td><a href="piloto-contratos.png" aria-label="Ver captura: Superficie de un grupo por área">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=5-2" aria-label="Abrir en Figma: Superficie de un grupo por área">Abrir en Figma</a></td></tr><tr><th scope="row">Primera carga</th><td><a href="carga-inicial-fila.png" aria-label="Ver captura: Primera carga">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=27-20" aria-label="Abrir en Figma: Primera carga">Abrir en Figma</a></td></tr><tr><th scope="row">Actualización con filas visibles</th><td><a href="actualizando-fila.png" aria-label="Ver captura: Actualización con filas visibles">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=27-32" aria-label="Abrir en Figma: Actualización con filas visibles">Abrir en Figma</a></td></tr><tr><th scope="row">Fecha sin colaboradores</th><td><a href="fecha-vacia.png" aria-label="Ver captura: Fecha sin colaboradores">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=24-17" aria-label="Abrir en Figma: Fecha sin colaboradores">Abrir en Figma</a></td></tr><tr><th scope="row">Búsqueda sin coincidencias y acción para quitar filtros</th><td><a href="sin-coincidencias.png" aria-label="Ver captura: Búsqueda sin coincidencias y acción para quitar filtros">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=24-20" aria-label="Abrir en Figma: Búsqueda sin coincidencias y acción para quitar filtros">Abrir en Figma</a></td></tr><tr><th scope="row">Fallo en la primera carga</th><td><a href="boton-reintentar.png" aria-label="Ver captura: Fallo en la primera carga">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=71-58" aria-label="Abrir en Figma: Fallo en la primera carga">Abrir en Figma</a></td></tr><tr><th scope="row">Fallo al actualizar con datos anteriores</th><td><a href="actualizacion-fallida.png" aria-label="Ver captura: Fallo al actualizar con datos anteriores">Ver captura</a></td><td><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=26-17" aria-label="Abrir en Figma: Fallo al actualizar con datos anteriores">Abrir en Figma</a></td></tr></tbody></table></section><section id="roles-liderazgo"><h2>Roles y liderazgo</h2><div class="comparacion"><figure><figcaption>Consultar un área</figcaption><a href="roles-area.png"><img src="roles-area.png" alt="Área de Ingeniería con un líder y dos cupos de co-liderazgo"></a><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=74-97">Ver área en Figma</a></figure><figure><figcaption>Confirmar el retiro de liderazgo</figcaption><a href="roles-confirmar.png"><img src="roles-confirmar.png" alt="Confirmación de retiro con persona, área, consecuencia y foco en Cancelar"></a><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=75-97">Ver confirmación en Figma</a></figure></div></section><section id="acceso-reglas"><h2>Acceso · Reglas activas</h2><figure><figcaption>Tolerancia, activación de PIN y ubicación pendiente de guardar</figcaption><a href="acceso-reglas.png"><img src="acceso-reglas.png" alt="Reglas de marcado con tolerancia enfocada, evidencia obligatoria y coordenadas editables cuando el mapa no está disponible"></a><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=79-97">Ver reglas de Acceso en Figma</a></figure></section><section id="facebook-filtros"><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=96-97" target="_blank" rel="noreferrer">Figma · Período y área</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=96-132" target="_blank" rel="noreferrer">Figma · Filtros por persona</a></p><h2>Filtros del reporte de Facebook</h2><figure><figcaption>Período personalizado y área seleccionada</figcaption><a href="facebook-periodo.png"><img src="facebook-periodo.png" alt="Reporte personalizado de siete días para Ingeniería"></a></figure><figure><figcaption>Búsqueda por persona sin coincidencias</figcaption><a href="facebook-personas.png"><img src="facebook-personas.png" alt="Búsqueda por nombre combinada con Con algún No y la acción Quitar filtros"></a></figure></section><section id="mes-ranking"><h2>Mes completo y Ranking</h2><figure><figcaption>Mes completo · Controles</figcaption><a href="mes-controles.png"><img style="max-width:100%;width:auto" src="mes-controles.png" alt="Mes, calendario, búsqueda enfocada, área e inclusión de bajas"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=100-190">Ver en Figma</a></figure><figure><figcaption>Mes completo · Calendario individual</figcaption><a href="calendario-individual.png"><img style="max-width:100%;width:auto" src="calendario-individual.png" alt="Días con estados de asistencia, Justificado seleccionado en morado con borde terracota y leyenda coherente"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=194-211">Ver en Figma</a></figure><figure><figcaption>Ranking · Período y área</figcaption><a href="ranking-controles.png"><img style="max-width:100%;width:auto" src="ranking-controles.png" alt="Selector del mes, filtro de área y consulta de la fórmula"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=100-220">Ver en Figma</a></figure><figure><figcaption>Ranking · Filtros sin coincidencias</figcaption><a href="ranking-filtros.png"><img style="max-width:100%;width:auto" src="ranking-filtros.png" alt="Clasificación sin coincidencias con filtro activo y acción para limpiar la búsqueda"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=100-242">Ver en Figma</a></figure></section><section id="dialogos-auxiliares"><h2>Formularios y diálogos auxiliares</h2><figure><figcaption>Alta de colaborador</figcaption><a href="alta-colaborador.png"><img style="max-width:100%;width:auto" src="alta-colaborador.png" alt="Primer paso del alta con el campo de nombre enfocado"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=106-197">Ver en Figma</a></figure><figure><figcaption>Editar identidad</figcaption><a href="editar-colaborador.png"><img style="max-width:100%;width:auto" src="editar-colaborador.png" alt="Edición con identidad laboral y acciones de guardar y cancelar"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=111-171">Ver en Figma</a></figure><figure><figcaption>Ficha del colaborador · Jornada</figcaption><a href="ficha-jornada.png"><img style="max-width:100%;width:auto" src="ficha-jornada.png" alt="Tabla semanal, pestaña activa con foco y acciones de consulta"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=203-285">Ver en Figma</a></figure><figure><figcaption>Cuentas administrativas</figcaption><a href="dialogo-cuenta.png"><img style="max-width:100%;width:auto" src="dialogo-cuenta.png" alt="Confirmación de delegación de ensayo con contraseña vacía y motivo enfocado"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=115-270">Ver en Figma</a></figure><figure><figcaption>Programar feriados</figcaption><a href="feriados.png"><img style="max-width:100%;width:auto" src="feriados.png" alt="Formulario de feriado con fecha, motivo y agenda vacía"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=106-258">Ver en Figma</a></figure><figure><figcaption>Simulación de Ranking</figcaption><a href="ranking-simulacion.png"><img style="max-width:100%;width:auto" src="ranking-simulacion.png" alt="Control de valores de criterios y suma de los pesos"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=106-279">Ver en Figma</a></figure><figure><figcaption>Desglose individual de Ranking</figcaption><a href="ranking-detalle.png"><img style="max-width:100%;width:auto" src="ranking-detalle.png" alt="Detalle completo con criterios, puntaje, evidencias y descuentos"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=111-219">Ver en Figma</a></figure><figure><figcaption>Ayuda del reporte de Facebook</figcaption><a href="facebook-ayuda.png"><img style="max-width:100%;width:auto" src="facebook-ayuda.png" alt="Explicación de los criterios de evaluación"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=106-317">Ver en Figma</a></figure><figure><figcaption>Visor de Facebook</figcaption><a href="facebook-visor.png"><img style="max-width:100%;width:auto" src="facebook-visor.png" alt="Días del período y estado de detalle no disponible"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=113-386">Ver en Figma</a></figure><figure><figcaption>Resumen de jornadas</figcaption><a href="resumen-detalle.png"><img style="max-width:100%;width:auto" src="resumen-detalle.png" alt="Cuadro general con indicadores, filtros y filas de jornadas"></a><a style="display:table;min-height:32px;padding:6px 0" href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=113-249">Ver en Figma</a></figure></section><section id="estados-acciones"><h2>Estados de botones</h2><p>Cuatro jerarquías y cinco estados. Prueba el hover y la pulsación en las variantes de arriba; Tab muestra el foco verde, sin halo. Un botón deshabilitado conserva texto legible y no cambia de estado al pasar el puntero.</p><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=128-362">Matriz editable de los veinte estados en Figma</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=3-8">Componente kja-button</a></p><p>Los filtros seleccionados, las pestañas y las celdas del calendario tienen contratos separados: no usan el estado presionado de un botón de acción para expresar selección persistente.</p></section><section id="estados-filtros"><h2>Estados de selección de filtros</h2><p>La pastilla de Facebook conserva su altura de 32 px y selección sólida terracota; el segmento de Ranking conserva sus 30 px, fondo exterior neutro y opción seleccionada opaca. El hover y la pulsación temporal de una opción no seleccionada usan superficies diferenciadas; el foco verde es independiente. El contador seleccionado de Facebook alcanza el contraste AA.</p><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=133-394">Matriz de doce estados en Figma</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=133-349">Pastillas de Facebook</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=133-367">Segmentos de Ranking</a></p></section><section id="pestanas-selectores"><h2>Pestañas y selectores comunes</h2><p>El indicador de pestaña activa es de 3 px terracota; el foco interior de teclado es verde. El selector común mide al menos 42 px, con un subrayado persistente de 2 px cuando se elige un valor. Abierto no es equivalente a enfocado: el buscador recibe el anillo exterior y la opción recorrida usa un contorno interior. El check identifica la selección real.</p><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=144-457">Matriz de estados en Figma</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=141-51">Pestaña</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=143-160">Selector</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=143-161">Opción de menú</a></p></section><section id="superficies-elevacion"><h2>Superficies, radios y elevación</h2><p>La escala distingue controles de 10 px, tarjetas compactas de 12 px, tarjetas de 16 px, menús de 18 px, diálogos de 20 px y píldoras. La elevación tiene tres niveles cálidos; las filas y separadores siguen planos. Los visores laterales mantienen su geometría funcional.</p><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=153-534">Referencia de fundamentos en Figma</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=113-249">Resumen operativo actualizado</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=79-97">Acceso actualizado</a></p></section><section id="tipografia"><h2>Tipografía de administración</h2><p>Inter para información y controles; Fraunces para títulos principales. Texto informativo de 11 px como mínimo en escritorio, 12 px para estados, 13–14 px para controles y contenido, 16 px para secciones y 28 px de referencia para títulos. Las opciones compactas y los valores numéricos conservan su jerarquía.</p><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=157-285">Escala y estilos de texto en Fundamentos</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=48-36">Plazo de cierre reconciliado</a></p></section><section id="espaciado"><h2>Espaciado y texto secundario</h2><p>Escala estructural de 4, 8, 12, 16, 20, 24 y 32 px; los controles compactos conservan su geometría propia. La información auxiliar utiliza el token text-secondary con contraste AA sobre las superficies comunes.</p><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=163-285">Escala de espaciado y texto secundario en Figma</a></p></section><section id="contraste-efectivo"><h2>Contraste de leyendas e indicadores</h2><p>Los códigos de asistencia son informativos y tienen texto blanco sobre fondos semánticos oscuros. Los empates del podio de Ranking conservan su distinción oro, plata y bronce con fondos claros y texto oscuro. Se comprueban también los contadores y textos cortos calculables.</p><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=169-250">Matriz de siete variantes reutilizables</a></p></section><section id="paleta-controles"><h2>Paleta y controles de Asignaciones</h2><p>Canvas cálido, tinte de acento y divisor decorativo. La búsqueda vacía conserva el borde de campo y placeholder legible; el calendario reutiliza el botón primario para reintentar, con devolución del foco.</p><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=180-209">Paleta y controles editables en Figma</a></p></section><section id="resumen-indicadores-circulares"><h2>Resumen operativo · Indicador circular</h2><p>General, Asistencias, Evidencias y Tareas comparten la tarjeta; la proporción se calcula a partir de los datos, el texto explica el total, y la leyenda aparece con hover o foco. Un anillo neutro representa ausencia de datos; no se interpreta como incumplimiento. La serie conserva la paleta aprobada de visualización, distinta de las etiquetas de estado.</p><figure><figcaption>Cuatro indicadores del portal aprobado (datos ficticios)</figcaption><a href="reconocimiento-actual/overview.png"><img src="reconocimiento-actual/overview.png" alt="Resumen operativo con cuatro tarjetas circulares de jornadas, registros, requisitos y tareas"></a></figure><p><a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=225-140">Componente con doce variantes</a> · <a href="https://www.figma.com/design/vCCr04oB3V2IowbO10ttAP?node-id=225-395">Cuatro instancias editables</a></p></section></main><script>function kjaAreaHeader({id, title, countLabel, expanded, detail}) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'kja-area-trigger';
+  button.id = id + '-trigger';
+  button.setAttribute('aria-controls', id);
+  button.setAttribute('aria-expanded', String(expanded));
+  for (const [part, value] of [['name', title], ['count', countLabel], ['detail', detail]]) {
+    if (!value) continue;
+    const label = document.createElement('span');
+    label.className = 'kja-area-' + part;
+    label.textContent = value;
+    button.append(label);
+  }
+  button.insertAdjacentHTML('beforeend','<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>');
+  return button;
+}
+
+for(const [key,title,names,expanded] of [['engineering','Ingeniería',['Ana Ruiz','Luis Díaz'],true],['marketing','Marketing',['María León'],false]]){const group=document.createElement('div');group.className='kja-area-group';const panel=document.createElement('article');panel.id=key;panel.hidden=!expanded;for(const name of names){const row=document.createElement('div');row.textContent=name;panel.append(row)}const header=kjaAreaHeader({id:key,title,countLabel:names.length+(names.length===1?' persona':' personas'),expanded});header.onclick=()=>{panel.hidden=!panel.hidden;header.setAttribute('aria-expanded',String(!panel.hidden))};group.append(header,panel);document.querySelector('#examples').append(group)}
+const views=[...document.querySelectorAll('[data-view]')];function show(view){for(const b of views)b.setAttribute('aria-pressed',String(b.dataset.view===view));for(const [id,prefix] of [['old',''],['current','piloto-']]){const link=document.getElementById(id);link.href=prefix+view+'.png';link.firstChild.src=link.href}}for(const b of views)b.onclick=()=>show(b.dataset.view);show('colaboradores');
+for(const [kind,label] of Object.entries({primary:'Guardar',secondary:'Actualizar',tertiary:'Cancelar',destructive:'Eliminar',disabled:'Deshabilitado'})){const b=document.createElement('button');b.className='kja-button';b.dataset.kind=kind;b.textContent=label;b.disabled=kind==='disabled';document.querySelector('#actions').append(b)}</script></html>

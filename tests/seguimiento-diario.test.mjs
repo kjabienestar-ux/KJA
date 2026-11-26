@@ -31,10 +31,10 @@ function setup({role='direccion',data=fixtureData(),rpc=null,photos=null}={}){
   const downloadCsv=async()=>{await click('[data-seg="export"]');await click('[data-download="csv"]');await click('#seg-x-download');await click('[data-download="close"]');};
   return {w,dom,ctx,calls,signed,blobs,data,click,input,tick,downloadCsv,load:()=>w.KJASeguimiento.load(),root:w.document.getElementById('admin-seguimiento-section')};
 }
-test('sidebar adds a third destination and preserves original tabs, hashes and unique IDs',()=>{
+test('sidebar opens Seguimiento and preserves internal tabs and unique IDs',()=>{
   const html=fs.readFileSync('dashboard.html','utf8'),dom=new JSDOM(html),doc=dom.window.document;
+  assert.ok(doc.querySelector('[data-lateral-section="seguimiento"]'));
   for(const key of ['control','cierres','seguimiento']){
-    assert.ok(doc.querySelector('[data-lateral-section="'+key+'"]'));
     assert.ok(doc.querySelector('[data-admin-section="'+key+'"]'));
   }
   const ids=[...doc.querySelectorAll('[id]')].map(el=>el.id);

@@ -1,21 +1,21 @@
 /* Neutro con contexto: base compartida de las nuevas conversiones de escritorio. */
 @media(min-width:901px){
-  #portal .kja-context-data{--kja-sk-base:#e7e7e7;--kja-sk-card:#faf9f5;--kja-sk-line:#e6dfd8}
+  #portal .kja-context-data{--kja-sk-base:var(--kja-loading-neutral);--kja-sk-card:var(--kja-surface-opaque);--kja-sk-line:var(--kja-divider-subtle)}
   #portal .kja-context-data [data-kja-context-loading]{position:relative;overflow:hidden;min-height:var(--adc-height,110px);color:transparent!important}
   #portal .kja-context-data [data-kja-context-loading]>:not(.kja-context-layer){visibility:hidden!important}
-  #portal .kja-context-data .kja-context-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;user-select:none;color:#595750;background:#faf9f5}
-  #portal .kja-context-data .kja-sk-block{display:block;background:#e7e7e7!important;border-radius:4px;box-shadow:none!important;animation:none!important}
+  #portal .kja-context-data .kja-context-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;user-select:none;color:var(--kja-text-primary);background:var(--kja-surface-opaque)}
+  #portal .kja-context-data .kja-sk-block{display:block;background:var(--kja-loading-neutral)!important;border-radius:4px;box-shadow:none!important;animation:none!important}
   #portal .kja-context-data .kja-sk-block::after{display:none!important}
   #portal .kja-context-data [data-adc-preparing="true"]:not([data-kja-context-loading]){visibility:hidden;min-height:var(--adc-height,110px)}
   #portal .kja-context-data :is(#admin-people-list,#admin-contract-list){--adc-height:360px}
   #portal .kja-context-data #admin-contract-count{--adc-height:10px;display:inline-block;width:70px;vertical-align:middle}
-  .adc-notice{margin:0;font-size:12px;color:#6c6a64;line-height:1.5}
+  .adc-notice{margin:0;font-size:12px;color:var(--kja-text-secondary);line-height:1.5}
   .adc-notice:empty{display:none}
   .adc-metrics{display:grid;grid-template-columns:repeat(var(--adc-columns),minmax(0,1fr));gap:16px;padding:18px;min-height:90px}
   .adc-metrics>div{display:grid;gap:12px;align-content:center;min-width:0}
-  .adc-metrics>div>span:first-child{font-size:11px;font-weight:600;color:#6c6a64}
+  .adc-metrics>div>span:first-child{font-size:11px;font-weight:600;color:var(--kja-text-secondary)}
   .adc-number{width:40px;height:24px}
-  .adc-row{display:grid;grid-template-columns:repeat(var(--adc-columns),minmax(0,1fr));gap:20px;align-items:center;min-height:108px;padding:18px 20px;border-bottom:1px solid #e6dfd8;box-sizing:border-box}
+  .adc-row{display:grid;grid-template-columns:repeat(var(--adc-columns),minmax(0,1fr));gap:20px;align-items:center;min-height:108px;padding:18px 20px;border-bottom:1px solid var(--kja-divider-subtle);box-sizing:border-box}
   .adc-row:has(.adc-avatar){grid-template-columns:40px repeat(var(--adc-columns),minmax(0,1fr))}
   .adc-avatar{width:40px;height:40px}
   .adc-title{width:85%;height:16px;margin-bottom:10px}
@@ -25,8 +25,8 @@
   .adc-compact .adc-title{height:12px;margin-bottom:6px}
   #portal .kja-context-data :is(.admin-team-toolbar,.admin-roles-toolbar){flex-shrink:0}
   #portal .kja-context-data .kja-context-error{margin-block:16px;max-width:100%;box-sizing:border-box}
-  .adc-retry{margin-left:8px;min-height:36px;padding:6px 12px;border:1px solid #d6cdc2;border-radius:10px;background:#fff;color:#94492f;font:600 12px Inter,system-ui,sans-serif;cursor:pointer}
-  .adc-retry:focus-visible{outline:2px solid #a9583e;outline-offset:3px}
+  .adc-retry{margin-left:8px;min-height:36px;padding:6px 12px;border:1px solid var(--kja-field-border);border-radius:10px;background:var(--kja-surface-opaque);color:var(--kja-action-primary);font:600 12px Inter,system-ui,sans-serif;cursor:pointer}
+  .adc-retry:focus-visible{outline:var(--kja-focus-ring-width) solid var(--kja-focus);outline-offset:var(--kja-focus-ring-offset)}
   #portal .kja-context-data :is(#admin-role-map,#admin-access-list,#admin-month-ledger){--adc-height:330px}
   #portal .kja-context-data :is(#admin-role-audit,#admin-access-audit,#admin-access-requests){--adc-height:200px}
   #portal .kja-context-data :is(#admin-role-filters,#admin-month-pagination){--adc-height:36px}
@@ -34,47 +34,47 @@
   #portal .kja-context-data #admin-access-list{--adc-height:256px}
   #portal .kja-context-data #admin-access-kpis{--adc-height:76px}
   #portal .kja-context-data #admin-access-kpis .adc-metrics{min-height:64px;padding:12px 16px;gap:12px}
-  .adc-ledger-head{display:flex;justify-content:space-between;gap:16px;padding:14px 20px;border-bottom:1px solid #e6dfd8;font-size:12px;font-weight:600}
+  .adc-ledger-head{display:flex;justify-content:space-between;gap:16px;padding:14px 20px;border-bottom:1px solid var(--kja-divider-subtle);font-size:12px;font-weight:600}
   #portal .kja-context-data #admin-month-kpis{--adc-height:64px}
   #portal .kja-context-data #admin-month-kpis .adc-metrics{min-height:60px;padding:8px 12px;gap:8px}
   #portal .kja-context-data #admin-month-kpis .adc-metrics>div{gap:6px}
   #portal.admin-wide #admin-month-section #admin-month-ledger[data-kja-context-loading],
   #portal.admin-wide #admin-month-section #admin-month-ledger[data-adc-preparing="true"]{min-height:160px!important;flex:1 1 240px;overflow:hidden!important}
   #portal :is(#admin-contracts-section,#admin-roles-section)>*{flex-shrink:0}
-  #portal :is(#admin-contracts-section,#admin-roles-section){gap:16px;padding-bottom:16px}
-  #portal #admin-contracts-section .contracts-list-caption{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px 24px}
+  #portal :is(#admin-contracts-section,#admin-roles-section){gap:var(--kja-space-16);padding-bottom:var(--kja-space-16)}
+  #portal #admin-contracts-section .contracts-list-caption{display:flex;align-items:baseline;flex-wrap:wrap;gap:var(--kja-space-8) var(--kja-space-24)}
   #portal #admin-contracts-section .contracts-list-caption :is(h3,p){margin:0}
   #portal #admin-contracts-section .admin-contract-list{min-width:0}
-  #portal #admin-contracts-section .admin-team-actions{display:flex!important;flex-wrap:wrap;gap:12px;align-items:flex-end}
+  #portal #admin-contracts-section .admin-team-actions{display:flex!important;flex-wrap:wrap;gap:var(--kja-space-12);align-items:flex-end}
   #portal #admin-contracts-section .admin-team-actions>.contracts-filter{flex:1 1 180px;min-width:0}
   #portal #admin-contracts-section .admin-team-actions>.admin-toggle{flex:0 0 auto}
   #portal #admin-roles-section .admin-role-map{min-width:0}
-  #portal #admin-month-section .admin-month-legend{margin-block:8px;gap:10px 16px;padding:12px 16px}
+  #portal #admin-month-section .admin-month-legend{margin-block:var(--kja-space-8);gap:10px var(--kja-space-16);padding:var(--kja-space-12) var(--kja-space-16)}
   #portal .kja-context-data :is(#fb-report-kpis){--adc-height:290px;display:block}
   #portal .kja-context-data :is(#fb-report-matrix,#fb-report-person-view,#fb-report-attention,#ranking-podium,#ranking-table-wrap,#ranking-area-analytics){--adc-height:300px}
   #portal .kja-context-data #ranking-criteria{--adc-height:270px}
   #portal .kja-context-data #ranking-insights{--adc-height:180px}
-  #portal .kja-context-data [data-adc-control-pending]{color:transparent!important;background:#e7e7e7!important;border-color:transparent!important;box-shadow:none!important}
+  #portal .kja-context-data [data-adc-control-pending]{color:transparent!important;background:var(--kja-loading-neutral)!important;border-color:transparent!important;box-shadow:none!important}
   #portal .kja-context-data [data-adc-control-pending]::placeholder{color:transparent!important}
   #portal .kja-context-data :is(#admin-access-kpis,#admin-roles-kpis,#admin-contract-kpis,#ranking-kpis)[data-kja-context-loading]{display:block!important}
   .adc-chart-space{padding:16px 20px}
-  .adc-chart-space h3{font-size:12px;margin:0 0 16px;color:#6c6a64}
+  .adc-chart-space h3{font-size:12px;margin:0 0 16px;color:var(--kja-text-secondary)}
   .adc-chart-plane{height:110px;width:100%}
   .adc-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;height:100%;padding:20px;box-sizing:border-box}
-  .adc-podium>div{display:grid;align-content:center;justify-items:center;gap:18px;padding:16px;border:1px solid #e6dfd8;border-radius:14px;min-width:0}
+  .adc-podium>div{display:grid;align-content:center;justify-items:center;gap:18px;padding:16px;border:1px solid var(--kja-divider-subtle);border-radius:14px;min-width:0}
   .adc-podium .kja-sk-lines{width:100%}
   #portal .kja-context-data #admin-role-map{--adc-height:190px}
   .adc-role-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-  .adc-role-cards>article{display:grid;gap:20px;padding:16px;border:1px solid #e6dfd8;border-radius:14px;background:#faf9f5;min-width:0}
+  .adc-role-cards>article{display:grid;gap:20px;padding:16px;border:1px solid var(--kja-divider-subtle);border-radius:14px;background:var(--kja-surface-opaque);min-width:0}
   .adc-role-cards>article>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
   .adc-role-cards section{display:grid;gap:10px;min-width:0}
-  .adc-role-cards section>span{font-size:10px;text-transform:uppercase;color:#6c6a64}
+  .adc-role-cards section>span{font-size:var(--kja-type-caption-size);text-transform:uppercase;color:var(--kja-text-secondary)}
   #portal :is(#admin-facebook-section,#admin-ranking-section)>.fbr-head,#portal #admin-ranking-section>.rk-head{flex-shrink:0}
   #portal #admin-facebook-section .fbr-split>*{min-width:0}
   #portal #admin-facebook-section :is(.fbr-pane,.fbr-table-wrap){min-width:0;max-width:100%}
   #portal #admin-facebook-section .fbr-table-wrap{overflow-x:auto;overscroll-behavior-x:contain}
   #portal #admin-facebook-section .fbr-sticky:not(.is-on) .fbr-sticky-bar{display:none}
-  #portal #admin-facebook-section .fbr-sticky-bar{flex-wrap:wrap;gap:8px 12px}
+  #portal #admin-facebook-section .fbr-sticky-bar{flex-wrap:wrap;gap:var(--kja-space-8) var(--kja-space-12)}
   #portal #admin-facebook-section .fbr-sticky-text{white-space:normal;min-width:0}
   #portal #admin-ranking-section :is(.rk-card,.rk-body,.rk-main){min-width:0}
   #portal #admin-ranking-section .rk-table-wrap{width:100%;max-width:100%;min-width:0;contain:inline-size layout paint;overscroll-behavior-x:contain}

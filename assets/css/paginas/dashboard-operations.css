@@ -1,50 +1,50 @@
 /* Control y reportes: superficies claras y acentos petroleros. */
 #portal.admin-wide #admin-control-section {
-  --control-primary: #075565;
-  --control-primary-hover: #043e4a;
-  --control-border: #d6e4e7;
-  --control-card-border: #dce8ea;
-  --control-card-border-hover: #c4d9dd;
-  --control-muted: #526d76;
-  --fb-canvas: #ffffff;
-  --fb-soft: #edf4f5;
-  --fb-line: #d6e4e7;
-  --fb-ink: #173d48;
-  --fb-muted: #526d76;
-  --fb-coral: #075565;
-  background: #edf4f5;
-  color: #173d48;
+  --control-primary: var(--kja-action-primary, #075565);
+  --control-primary-hover: var(--kja-action-primary-hover, #043e4a);
+  --control-border: var(--kja-field-border, #d6e4e7);
+  --control-card-border: var(--kja-divider-subtle, #dce8ea);
+  --control-card-border-hover: var(--kja-surface-border, #c4d9dd);
+  --control-muted: var(--kja-text-secondary, #526d76);
+  --fb-canvas: var(--kja-surface-opaque, #ffffff);
+  --fb-soft: var(--kja-surface-canvas, #edf4f5);
+  --fb-line: var(--kja-surface-border, #d6e4e7);
+  --fb-ink: var(--kja-text-primary, #173d48);
+  --fb-muted: var(--kja-text-secondary, #526d76);
+  --fb-coral: var(--kja-action-primary, #075565);
+  background: var(--kja-surface-opaque, #edf4f5);
+  color: var(--kja-text-primary, #173d48);
   border: 0;
   box-shadow: none;
   border-radius: 20px !important;
   padding: 24px;
 }
 #portal.admin-wide #admin-control-section :is(.control-head-icon,.control-area-icon,.control-avatar) {
-  background: #deedf0;
-  color: #075565;
-  border-color: #d6e4e7;
+  background: var(--kja-surface-canvas, #deedf0);
+  color: var(--kja-action-primary, #075565);
+  border-color: var(--kja-surface-border, #d6e4e7);
   box-shadow: none;
 }
 #portal.admin-wide #admin-control-section :is(.control-area-overview,.control-area-row,.control-case,.control-stat-card) {
-  border-color: #dce8ea;
-  background: #fff;
+  border-color: var(--kja-surface-border, #dce8ea);
+  background: var(--kja-surface-opaque, #fff);
   box-shadow: none;
 }
 #portal.admin-wide #admin-control-section .control-area-row.is-selected {
-  border-color: #075565;
-  background: #f2f8f8;
+  border-color: var(--kja-selection-border, #075565);
+  background: var(--kja-surface-accent-tint, #f2f8f8);
 }
 #portal.admin-wide #admin-control-section .control-area-watermark { display: none; }
-#portal.admin-wide #admin-control-section #admin-control-kpis { background: #e1edef; }
+#portal.admin-wide #admin-control-section #admin-control-kpis { background: var(--kja-surface-opaque, #e1edef); }
 #portal.admin-wide #admin-control-section #admin-control-kpis button[aria-pressed="true"] {
-  background: #075565;
-  color: #fff;
-  border-color: #075565;
+  background: var(--kja-action-primary, #075565);
+  color: var(--kja-on-action, #fff);
+  border-color: var(--kja-action-primary, #075565);
   box-shadow: none;
 }
 /* Controles del reporte: misma altura, indicador claro y espacio para fechas. */
 #portal.admin-wide #admin-control-section :is(button,input,select,summary):focus-visible {
-  outline: 2px solid #075565 !important;
+  outline: 2px solid var(--kja-focus, #075565) !important;
   outline-offset: 3px;
 }
 
@@ -78,7 +78,7 @@
 .admin-cal-pop-title {
   font-size: 15px;
   font-weight: 700;
-  color: #173d48;
+  color: var(--kja-text-primary, #173d48);
   letter-spacing: -0.01em;
   text-transform: capitalize;
 }
@@ -88,7 +88,7 @@
   height: 32px;
   border: 0;
   border-radius: 10px;
-  background: #f2f7f8;
+  background: var(--kja-surface-opaque, #f2f7f8);
   color: var(--control-primary);
   font-size: 18px;
   font-weight: 700;
@@ -99,7 +99,7 @@
 }
 
 .admin-cal-nav-btn:hover:not(:disabled) {
-  background: #deedf0;
+  background: var(--kja-action-disabled-bg, #deedf0);
   color: var(--control-primary-hover);
 }
 
@@ -137,7 +137,7 @@
   border: 0;
   border-radius: 10px;
   background: transparent;
-  color: #173d48;
+  color: var(--kja-text-primary, #173d48);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -149,7 +149,7 @@
 }
 
 .admin-cal-pop-day:hover:not(:disabled):not(.is-selected) {
-  background: #edf6f8;
+  background: var(--kja-action-disabled-bg, #edf6f8);
   color: var(--control-primary);
 }
 
@@ -161,13 +161,13 @@
 
 .admin-cal-pop-day.is-selected {
   background: var(--control-primary) !important;
-  color: #ffffff !important;
+  color: var(--kja-on-action, #ffffff) !important;
   font-weight: 800;
-  box-shadow: 0 4px 12px rgba(7, 85, 101, 0.3);
+  box-shadow: var(--kja-action-shadow, 0 4px 12px rgba(7, 85, 101, 0.3));
 }
 
 .admin-cal-pop-day:disabled {
-  color: #cbd5e1;
+  color: var(--kja-action-disabled-text, #cbd5e1);
   cursor: default;
 }
 
@@ -185,7 +185,7 @@
   padding: 0 12px;
   border: 0;
   border-radius: 8px;
-  background: #edf6f8;
+  background: var(--kja-surface-opaque, #edf6f8);
   color: var(--control-primary);
   font-size: 12px;
   font-weight: 600;
@@ -194,7 +194,7 @@
 }
 
 .admin-cal-foot-today:hover {
-  background: #deedf0;
+  background: var(--kja-surface-hover, #deedf0);
 }
 
 .admin-cal-foot-close {
@@ -211,7 +211,7 @@
 }
 
 .admin-cal-foot-close:hover {
-  color: #173d48;
+  color: var(--kja-text-primary, #173d48);
 }
 
 /* 2. Riel de Días Rápidos CliniQ (Day Strip) */

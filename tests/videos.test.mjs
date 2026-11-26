@@ -156,8 +156,9 @@ test('Videos sits between Cursos and Certificados on every public page', () => {
 });
 
 test('the seventh nav link does not overflow the desktop bar and carousel arrows avoid transform centering', () => {
-    assert.match(read('assets/css/shared.css'), /@media \(min-width: 969px\) and \(max-width: 1140px\) \{\s*\.nav-links-center \{\s*gap: 18px;/);
-    assert.match(read('index.html'), /@media \(min-width:969px\) and \(max-width:1140px\)\{\.nav-links-center\{gap:18px\}\}/);
+    const desktopGap = /@media\s*\(\s*min-width\s*:\s*969px\s*\)\s+and\s+\(\s*max-width\s*:\s*1140px\s*\)\s*\{\s*\.nav-links-center\s*\{\s*gap\s*:\s*18px\s*;?\s*\}\s*\}/;
+    assert.match(read('assets/css/shared.css'), desktopGap);
+    assert.match(read('index.html'), desktopGap);
     const arrow = css.match(/\.kv-nav \{[^}]*\}/)[0];
     assert.doesNotMatch(arrow, /transform/);
     assert.match(arrow, /top: 0;\s*bottom: 0;[\s\S]*margin: auto 0;/);
